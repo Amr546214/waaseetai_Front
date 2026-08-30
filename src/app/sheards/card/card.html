@@ -1,0 +1,123 @@
+<div id="services-grid" class="services-grid">
+	@if (isLoading()) {
+	<!-- Shimmer Skeleton Loading State -->
+	@for (sk of [1, 2, 3, 4]; track sk) {
+	<div class="svc-card svc-skeleton">
+		<div class="svc-thumb-skeleton shimmer"></div>
+		<div class="svc-body">
+			<div class="sk-line sk-title shimmer"></div>
+			<div class="sk-line sk-sub shimmer"></div>
+			<div class="sk-line sk-footer shimmer"></div>
+		</div>
+	</div>
+	}
+	} @else {
+	@for (model of models(); track model.id; let idx = $index) {
+	<a [routerLink]="[linkBase(), model.id]" class="svc-card dynamic-spec-card">
+
+		<!-- Card Thumbnail with Gradient -->
+		<div class="svc-thumb group relative" [style.background]="getCardGradient(idx)">
+			@if (model.gallery && model.gallery.length > 0) {
+			<img [src]="model.gallery[0]" [alt]="model.title"
+				class="absolute inset-0 w-full h-full object-cover z-0 group-hover:scale-105 transition-transform duration-500" />
+			<div class="absolute inset-0 bg-gradient-to-t from-[#070D24] via-[#070D24]/40 to-transparent z-[1]"></div>
+			} @else {
+			<div class="spec-icon-wrap relative z-[1]">
+				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+					stroke-linecap="round" stroke-linejoin="round">
+					<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+				</svg>
+			</div>
+			}
+
+			<!-- Badges -->
+			<div class="svc-badges" style="z-index: 2;">
+				<span class="svc-badge-level" [style.background]="model.levelBg || 'rgba(43,212,199,.6)'"
+					[style.color]="model.levelColor || '#2BD4C7'">
+					{{ model.level }}
+				</span>
+			</div>
+
+			<span class="svc-ai-match" style="z-index: 2;">AI Match {{ model.aiScore ?? 0 }}%</span>
+
+			<!-- Favorite Button -->
+			<button class="svc-fav" [class.is-favorite]="isFav(model.id)" type="button" aria-label="أضف للمفضلة"
+				style="z-index: 2;" (click)="toggleFavorite(model.id, $event)">
+				<svg aria-hidden="true">
+					<use href="#ws-heart"></use>
+				</svg>
+			</button>
+		</div>
+
+		<!-- Card Body -->
+		<div class="svc-body">
+			<div class="spec-cat-tag">
+				<span class="cat-pill">{{ model.category || 'قسم عام' }}</span>
+			</div>
+
+			<h3 class="svc-title">{{ model.title }}</h3>
+
+			<p class="spec-desc">
+				{{ model.description || 'خدمة احترافية معتمدة من Waseet AI ومتوافقة مع متطلبات السوق الذكي.' }}
+			</p>
+
+			<div class="svc-prov">
+				<div class="svc-av" style="background:var(--grad)">
+					@if (model.provider?.avatar) {
+					<img [src]="model.provider.avatar" [alt]="model.provider.name"
+						style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />
+					} @else {
+					<span style="font-size:10px;font-weight:700;color:#fff;">{{ model.provider?.initials || 'م'
+						}}</span>
+					}
+				</div>
+				<span class="svc-pname">{{ model.provider?.name || 'مقدم خدمة معتمد' }}</span>
+				@if (model.isVerified !== false) {
+				<span class="svc-verified">
+					<svg aria-hidden="true" style="width:10px;height:10px;vertical-align:middle">
+						<use href="#ws-check"></use>
+					</svg> موثق
+				</span>
+				}
+			</div>
+
+			<div class="svc-rating">
+				<span class="svc-stars">★★★★★</span>
+				<span class="svc-score">{{ model.rating ?? 0 }}</span>
+				<span class="svc-count">({{ model.reviewsCount ?? 0 }})</span>
+				<span class="svc-quality">معتمد AI {{ model.aiScore ?? 0 }}%</span>
+			</div>
+
+			<!-- Card Footer -->
+			<div class="svc-footer">
+				<div>
+					<div style="font-size:11px;color:var(--txt-3)">سعر الخدمة</div>
+					<div class="svc-price">{{ model.totalAmount ? (model.totalAmount + ' ريال') : 'نشط وقابل للطلب' }}
+					</div>
+				</div>
+				<button class="svc-compare-btn" [class.is-compared]="isCompared(model.id)" type="button"
+					(click)="toggleCompare(model.id, $event)">
+					<svg aria-hidden="true">
+						<use href="#ws-compare"></use>
+					</svg>
+					{{ isCompared(model.id) ? 'تمت الإضافة' : 'مقارنة' }}
+				</button>
+			</div>
+		</div>
+	</a>
+	} @empty {
+	<!-- Empty State -->
+	<div class="empty-specialties-wrap">
+		<div class="empty-icon">
+			<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.5">
+				<circle cx="12" cy="12" r="10"></circle>
+				<path d="M12 8v4M12 16h.01"></path>
+			</svg>
+		</div>
+		<h4>لا توجد خدمات متاحة حالياً في هذه الفئة</h4>
+		<p>يرجى اختيار فئة أخرى أو إعادة تعيين الفلترة لمشاهدة كافة الخدمات المنشورة.</p>
+		<button class="btn-primary-sm" (click)="resetCategory()">عرض كل الفئات</button>
+	</div>
+	}
+	}
+</div>

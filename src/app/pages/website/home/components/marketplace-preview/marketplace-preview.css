@@ -1,0 +1,39 @@
+/* ═════════════════════════════════════════════════════════════════
+   MARKETPLACE PREVIEW (خدمات وتخصصات مميزة - Dynamic DB Integration)
+   Card styles are now provided by the shared <app-card> component.
+   ═════════════════════════════════════════════════════════════════ */
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Category card active state */
+.cat-card.active-cat {
+  border-color: var(--teal) !important;
+  background: rgba(43, 212, 199, 0.1) !important;
+  box-shadow: 0 0 16px rgba(43, 212, 199, 0.25);
+  transform: translateY(-2px);
+}
+
+.featured-subtitle {
+  font-size: 13px;
+  color: var(--txt-2);
+  margin-top: 2px;
+}
+
+/* Category skeleton (not part of card component) */
+.cat-card-skeleton {
+  height: 86px;
+}
+
+.cat-ico-skeleton {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.cat-name-skeleton {
+  width: 60px;
+  height: 12px;
+  margin-top: 6px;
+}

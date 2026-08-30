@@ -1,0 +1,221 @@
+<div class="escrow-deposit-page" dir="rtl">
+    <nav class="breadcrumb">
+      <a routerLink="/client-overview">لوحة التحكم</a>
+      <span class="breadcrumb-sep">&#8250;</span>
+      <button type="button" routerLink="/client-overview/my-requests">طلباتي</button>
+      <span class="breadcrumb-sep">&#8250;</span>
+      <a (click)="goBack()" style="cursor: pointer;">توقيع العقد</a>
+      <span class="breadcrumb-sep">&#8250;</span>
+      <span>إيداع الضمان</span>
+    </nav>
+
+    <h1 style="font-size:20px;font-weight:900;color:var(--text-primary,#fff);margin-bottom:4px">إيداع ضمان المشروع وبدء التنفيذ</h1>
+    <p style="font-size:13px;color:var(--text-secondary,#6B7699);margin-bottom:14px;line-height:1.6">يتم السداد بعد قبول عرض مقدم الخدمة وتوقيع العقد. يحفظ المبلغ في حساب أمانة مؤمن، ويحرر لمقدم الخدمة فقط بعد اعتماد التسليم</p>
+    <div style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.16);border-radius:10px;margin-bottom:18px;font-size:12px;color:var(--teal-txt,#2BD4C7)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>هذه الخطوة تأتي بعد الاتفاق مع مقدم الخدمة وتوقيع العقد، وليست جزءا من إنشاء الطلب</div>
+
+    <!-- AI DISCLOSURE -->
+    <div class="ai-disclosure" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div><strong>وسيط AI، حماية مالية:</strong> بيانات البطاقة تعالجها ميسر مباشرة، ويؤكد الخادم حالة العملية ومبلغها وعملتها قبل إضافة الرصيد</div>
+    </div>
+
+    @if (isLoading()) {
+      <!-- LOADING STATE -->
+      <div id="state-loading">
+        <div class="skel" style="height:110px;border-radius:14px;margin-bottom:16px"></div>
+        <div class="skel" style="height:140px;border-radius:14px;margin-bottom:16px"></div>
+        <div class="skel" style="height:180px;border-radius:14px;margin-bottom:16px"></div>
+      </div>
+    } @else if (hasError()) {
+      <!-- ERROR STATE -->
+      <div id="state-error">
+        <div class="state-banner error">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          ERR-SK-008: فشل الاتصال بخادم الدفع ،
+          <button (click)="retryFetch()" style="color:var(--teal-txt,#2BD4C7);background:none;border:none;font-weight:700;cursor:pointer;font-family:inherit">إعادة المحاولة</button>
+        </div>
+      </div>
+    } @else {
+      <!-- DEFAULT STATE -->
+      <div id="state-default">
+
+        <!-- ORDER SUMMARY -->
+        <div class="form-card">
+          <h2 class="form-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            ملخص الطلب
+          </h2>
+          <div class="order-row">
+            <span class="order-key">عنوان الطلب</span>
+            <span class="order-val">{{ requestTitle() }}</span>
+          </div>
+          <div class="order-row">
+            <span class="order-key">التخصص</span>
+            <span class="order-val">{{ specialty() }}</span>
+          </div>
+          <div class="order-row">
+            <span class="order-key">المدة</span>
+            <span class="order-val">{{ duration() }}</span>
+          </div>
+          <div class="order-row">
+            <span class="order-key">رقم الطلب</span>
+            <span class="order-val" style="color:var(--teal-txt,#2BD4C7)">{{ requestId() }}</span>
+          </div>
+          <div class="order-row" style="border-bottom:none">
+            <span class="order-key">حالة الطلب</span>
+            <span class="order-badge" style="background:rgba(255,215,0,.10);color:#FFD700;border:1px solid rgba(255,215,0,.25)">بانتظار الإيداع</span>
+          </div>
+        </div>
+
+        <!-- AMOUNT BREAKDOWN -->
+        <div class="amount-card">
+          <div class="amount-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            تفاصيل مبلغ الضمان
+          </div>
+          <div class="amount-rows">
+            <div class="amount-row">
+              <span class="amount-row-key">قيمة المشروع</span>
+              <span class="amount-row-val">{{ formatCurrency(basePrice()) }}</span>
+            </div>
+            <div class="amount-row">
+              <span class="amount-row-key">
+                عمولة النظام (7%)
+                <span class="tooltip-ico" title="تحسب حسب مستوى مقدم الخدمة، تتراوح بين 6% و7.25%">؟</span>
+              </span>
+              <span class="amount-row-val">{{ formatCurrency(systemFee()) }}</span>
+            </div>
+            <div class="amount-row">
+              <span class="amount-row-key">
+                رسم طالب الخدمة (1%)
+                <span class="tooltip-ico" title="رسم إداري يضاف فوق قيمة المشروع">؟</span>
+              </span>
+              <span class="amount-row-val">{{ formatCurrency(clientFee()) }}</span>
+            </div>
+            <div class="amount-row">
+              <span class="amount-row-key">رسوم تحويل (5%)</span>
+              <span class="amount-row-val">{{ formatCurrency(transferFee()) }}</span>
+            </div>
+
+          </div>
+          <div class="amount-divider"></div>
+          <div class="amount-total">
+            <span class="amount-total-key">الإجمالي المستحق</span>
+            <span class="amount-total-val">{{ formatCurrency(totalAmount()) }}</span>
+          </div>
+          <div class="amount-note">يحفظ كامل المبلغ في حساب الضمان، يحرر تدريجيا حسب مراحل التسليم المعتمدة</div>
+        </div>
+
+        <!-- WALLET FUNDING -->
+        <div class="form-card">
+          <h2 class="form-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            تمويل الضمان من المحفظة
+          </h2>
+          <div class="amount-rows">
+            <div class="amount-row"><span class="amount-row-key">رصيد المحفظة المتاح</span><span class="amount-row-val">{{ formatCurrency(walletBalance()) }}</span></div>
+            <div class="amount-row"><span class="amount-row-key">المبلغ المطلوب للضمان</span><span class="amount-row-val">{{ formatCurrency(totalAmount()) }}</span></div>
+          </div>
+          @if (hasSufficientBalance()) {
+            <div class="state-banner" style="margin-top:14px;color:#2ECC8A">الرصيد كافٍ. بعد تأكيد OTP سيُخصم المبلغ ويُحجز في الضمان داخل معاملة واحدة.</div>
+          } @else {
+            <div class="state-banner error" style="margin-top:14px">الرصيد غير كافٍ. اشحن فقط المبلغ الناقص {{ formatCurrency(shortfall()) }} عبر نموذج ميسر الآمن.</div>
+          }
+          @if (formError()) { <div class="state-banner error" role="alert" style="margin-top:10px">{{ formError() }}</div> }
+        </div>
+
+        <!-- TERMS -->
+        <div class="terms-row" (click)="toggleTerms()" role="checkbox" [attr.aria-checked]="termsAccepted()" tabindex="0">
+          <div class="terms-check" [class.checked]="termsAccepted()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="terms-text">
+            أوافق على <button type="button" (click)="$event.stopPropagation()">شروط حساب الضمان</button> وأقر بأن المبلغ سيحتجز حتى اعتماد التسليم النهائي، لا يمكن الاسترداد بعد الإيداع إلا وفق سياسة النزاعات
+          </div>
+        </div>
+
+        <!-- SECURITY FOOTER -->
+        <div class="security-footer">
+          <div class="sec-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>معالجة البطاقة لدى ميسر</div>
+          <div class="sec-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>تحقق خادمي من الدفع</div>
+          <div class="sec-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>خصم ذري بلا تكرار</div>
+        </div>
+
+      </div>
+    }
+</div>
+
+<!-- STICKY BOTTOM -->
+<div class="sticky-bottom" *ngIf="!isLoading()">
+  <div class="sticky-inner">
+    <a (click)="goBack()" class="btn-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      السابق
+    </a>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="text-align:left">
+        <div style="font-size:11px;color:var(--text-secondary,#6B7699);font-weight:600">الإجمالي</div>
+        <div style="font-size:16px;font-weight:900;color:#FFD700">{{ formatCurrency(totalAmount()) }}</div>
+      </div>
+      <button class="btn-primary" [disabled]="!termsAccepted() || isSubmitting()" (click)="handlePrimaryAction()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        {{ isSubmitting() ? 'جاري المعالجة...' : (hasSufficientBalance() ? 'توقيع وحجز ' + formatCurrency(totalAmount()) : 'شحن ' + formatCurrency(shortfall()) + ' عبر ميسر') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- OTP MODAL -->
+@if (showOtpModal()) {
+  <div class="modal-overlay open" role="dialog" aria-modal="true" (click)="closeOTP()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeOTP()" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <h2 class="modal-title">تأكيد بكود OTP</h2>
+      <p class="modal-sub">تم إرسال رمز التحقق إلى بريدك الإلكتروني<br><strong style="color:var(--text-primary,#fff)" dir="ltr">{{ clientEmail() }}</strong></p>
+      <div class="otp-boxes" dir="ltr" role="group" aria-label="خانات رمز التحقق">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp0" [value]="otpValues()[0]" (input)="onOtpInput(0, $event)" (keydown)="onOtpKeydown(0, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp1" [value]="otpValues()[1]" (input)="onOtpInput(1, $event)" (keydown)="onOtpKeydown(1, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp2" [value]="otpValues()[2]" (input)="onOtpInput(2, $event)" (keydown)="onOtpKeydown(2, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp3" [value]="otpValues()[3]" (input)="onOtpInput(3, $event)" (keydown)="onOtpKeydown(3, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp4" [value]="otpValues()[4]" (input)="onOtpInput(4, $event)" (keydown)="onOtpKeydown(4, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp5" [value]="otpValues()[5]" (input)="onOtpInput(5, $event)" (keydown)="onOtpKeydown(5, $event)" (paste)="onOtpPaste($event)">
+      </div>
+      <div class="otp-timer">انتهاء الرمز خلال <span>{{ otpCountdown() }}</span> ثانية</div>
+      <button class="modal-btn" [disabled]="isSubmitting()" (click)="confirmDeposit()">{{ isSubmitting() ? 'جاري التحقق والحجز...' : 'تأكيد التوقيع والإيداع' }}</button>
+      <div class="modal-resend">لم تستلم الرمز؟ <a (click)="resetOTP()">إعادة الإرسال</a></div>
+    </div>
+  </div>
+}
+
+@if (showWalletDeposit()) {
+  <app-deposit-modal
+    [currentBalance]="walletBalance()"
+    [initialAmount]="shortfall()"
+    [lockAmount]="true"
+    (deposited)="onWalletDepositComplete()"
+    (close)="showWalletDeposit.set(false)" />
+}
+
+<!-- SUCCESS OVERLAY -->
+@if (showSuccessOverlay()) {
+  <div class="success-overlay open">
+    <div class="success-ring" style="flex-shrink:0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:24px;font-weight:900;color:var(--text-primary,#fff);animation:ws-fade .4s .2s ease both">تم إيداع الضمان بنجاح</div>
+    <div style="font-size:14px;font-weight:700;color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.22);border-radius:9px;padding:8px 18px;animation:ws-fade .4s .3s ease both">{{ formatCurrency(totalAmount()) }}، {{ requestId() }}</div>
+    <div style="font-size:13px;color:var(--text-secondary,#6B7699);line-height:1.7;max-width:380px;animation:ws-fade .4s .35s ease both;text-align:center">المبلغ محفوظ في حساب الضمان، سيعلمك مقدم الخدمة عند بدء العمل</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:ws-fade .4s .4s ease both">
+      <button type="button" class="btn-primary" (click)="goDashboard()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        متابعة المشروع
+      </button>
+      <a routerLink="/client-overview/projects/active" class="btn-secondary">المشاريع</a>
+    </div>
+  </div>
+}

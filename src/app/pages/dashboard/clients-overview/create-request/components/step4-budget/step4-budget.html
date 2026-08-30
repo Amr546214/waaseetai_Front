@@ -1,0 +1,168 @@
+<h1 class="sec-title text-2xl font-black text-[var(--txt)] mb-2">الميزانية</h1>
+		<p class="sec-sub text-[var(--txt-3)] font-medium mb-8">حدد الميزانية المتوقعة للمشروع لضمان استقطاب العروض المناسبة.</p>
+
+		<!-- AI RANGE SUGGESTION -->
+		<!-- <div class="ai-range-suggestion flex items-center gap-4 p-5 rounded-[20px] mb-8 bg-[var(--ai)]/10 border border-[var(--ai)]/20 text-[var(--ai)]" id="ai-suggestion" role="region" aria-label="اقتراح AI للميزانية">
+			<div class="ai-range-ico shrink-0"><svg viewBox="0 0 24 24" class="w-6 h-6 text-[var(--ai)]" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg></div>
+			<div class="ai-range-txt flex-1">
+				<div class="font-bold text-sm mb-1 text-white">
+					AI يقترح نطاق: <span class="ai-range-val text-[var(--ai)]">6,000 - 10,000 ر.س</span>
+					<span class="ai-range-conf text-xs bg-[var(--ai)]/20 text-[var(--ai)] px-2 py-0.5 rounded ml-2">دقة 88%</span>
+				</div>
+				<div class="text-[11.5px] text-[var(--txt-3)]">بناء على 142 طلبا مشابها في تقنية المعلومات</div>
+			</div>
+			<button type="button" class="ai-apply-btn px-4 py-2 bg-[var(--ai)]/20 text-[var(--ai)] font-bold text-xs rounded-lg hover:bg-[var(--ai)]/30 transition-colors shrink-0" (click)="parent.budgetType.set('range'); parent.budgetMin.set(6000); parent.budgetMax.set(10000)">طبق</button>
+		</div> -->
+
+		<!-- BUDGET TYPE -->
+		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
+				<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+				نوع الميزانية
+			</div>
+
+			<div class="budget-type-grid grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" role="radiogroup" aria-label="اختر نوع الميزانية">
+				<div class="budget-type-card flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.budgetType() === 'range' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" role="radio" [attr.aria-checked]="parent.budgetType() === 'range'" tabindex="0" (click)="parent.budgetType.set('range')">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5" [ngClass]="parent.budgetType() === 'range' ? 'border-[var(--teal)]' : 'border-[var(--txt-3)]'">
+						@if (parent.budgetType() === 'range') { <div class="w-2.5 h-2.5 rounded-full bg-[var(--teal)]"></div> }
+					</div>
+					<div>
+						<div class="font-bold text-[var(--txt)] mb-1">نطاق</div>
+						<div class="text-[12px] text-[var(--txt-3)] font-medium">من X إلى Y، يشجع على عروض متنوعة</div>
+					</div>
+				</div>
+				<div class="budget-type-card flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.budgetType() === 'fixed' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" role="radio" [attr.aria-checked]="parent.budgetType() === 'fixed'" tabindex="0" (click)="parent.budgetType.set('fixed')">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5" [ngClass]="parent.budgetType() === 'fixed' ? 'border-[var(--teal)]' : 'border-[var(--txt-3)]'">
+						@if (parent.budgetType() === 'fixed') { <div class="w-2.5 h-2.5 rounded-full bg-[var(--teal)]"></div> }
+					</div>
+					<div>
+						<div class="font-bold text-[var(--txt)] mb-1">ثابت</div>
+						<div class="text-[12px] text-[var(--txt-3)] font-medium">مبلغ محدد، للمشاريع ذات التكلفة المعروفة</div>
+					</div>
+				</div>
+				<div class="budget-type-card flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.budgetType() === 'hourly' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" role="radio" [attr.aria-checked]="parent.budgetType() === 'hourly'" tabindex="0" (click)="parent.budgetType.set('hourly')">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5" [ngClass]="parent.budgetType() === 'hourly' ? 'border-[var(--teal)]' : 'border-[var(--txt-3)]'">
+						@if (parent.budgetType() === 'hourly') { <div class="w-2.5 h-2.5 rounded-full bg-[var(--teal)]"></div> }
+					</div>
+					<div>
+						<div class="font-bold text-[var(--txt)] mb-1">بالساعة</div>
+						<div class="text-[12px] text-[var(--txt-3)] font-medium">معدل / ساعة، للمشاريع المفتوحة</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- RANGE INPUTS -->
+			@if (parent.budgetType() === 'range') {
+			<div id="budget-range-inputs">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+					<div>
+						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-from">من <span class="text-red-500">*</span></label>
+						<div class="relative">
+							<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-from" placeholder="5000" min="100" [(ngModel)]="parent.budgetMin">
+							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">ر.س</span>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-to">إلى <span class="text-red-500">*</span></label>
+						<div class="relative">
+							<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-to" placeholder="10000" min="100" [(ngModel)]="parent.budgetMax">
+							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">ر.س</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			}
+
+			<!-- FIXED INPUT -->
+			@if (parent.budgetType() === 'fixed') {
+			<div id="budget-fixed-input">
+				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-fixed">المبلغ الثابت <span class="text-red-500">*</span></label>
+				<div class="relative max-w-md">
+					<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-fixed" placeholder="8000" min="100" [(ngModel)]="parent.budgetFixed">
+					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">ر.س</span>
+				</div>
+			</div>
+			}
+
+			<!-- HOURLY INPUT -->
+			@if (parent.budgetType() === 'hourly') {
+			<div id="budget-hourly-input">
+				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-hourly">معدل الساعة <span class="text-red-500">*</span></label>
+				<div class="relative max-w-md">
+					<input type="number" class="w-full p-4 pl-[70px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-hourly" placeholder="150" min="50" [(ngModel)]="parent.budgetHourly">
+					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">ر.س/س</span>
+				</div>
+			</div>
+			}
+		</div>
+
+		<!-- ADDITIONAL SETTINGS -->
+		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
+				<svg class="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+				إعدادات إضافية
+			</div>
+
+			<div class="flex items-center justify-between p-4 rounded-xl border border-[var(--sec-bd)] bg-[var(--sec-bg)] mb-4 cursor-pointer hover:border-[var(--teal)] transition-colors" (click)="parent.allowNegotiation.set(!parent.allowNegotiation())">
+				<div>
+					<div class="font-bold text-[var(--txt)] mb-1">السماح بالتفاوض على السعر</div>
+					<div class="text-xs text-[var(--txt-3)]">يتيح لمقدم الخدمة اقتراح سعر مختلف ضمن حدود معقولة</div>
+				</div>
+				<div class="w-12 h-6 rounded-full relative transition-colors" [ngClass]="parent.allowNegotiation() ? 'bg-[var(--teal)]' : 'bg-[var(--txt-3)]/30'">
+					<div class="absolute top-1 w-4 h-4 rounded-full bg-white transition-all" [ngClass]="parent.allowNegotiation() ? 'right-1' : 'right-7'"></div>
+				</div>
+			</div>
+
+			<div class="flex items-center justify-between p-4 rounded-xl border border-[var(--sec-bd)] bg-[var(--sec-bg)] mb-4 cursor-pointer hover:border-[var(--teal)] transition-colors" (click)="parent.splitMilestones.set(!parent.splitMilestones())">
+				<div>
+					<div class="font-bold text-[var(--txt)] mb-1">تقسيم الدفع على مراحل</div>
+					<div class="text-xs text-[var(--txt-3)]">يحمي طرفي الصفقة، الدفع يحرر تدريجيا عند اكتمال كل مرحلة</div>
+				</div>
+				<div class="w-12 h-6 rounded-full relative transition-colors" [ngClass]="parent.splitMilestones() ? 'bg-[var(--teal)]' : 'bg-[var(--txt-3)]/30'">
+					<div class="absolute top-1 w-4 h-4 rounded-full bg-white transition-all" [ngClass]="parent.splitMilestones() ? 'right-1' : 'right-7'"></div>
+				</div>
+			</div>
+
+			<!-- MILESTONES DETAIL -->
+			@if (parent.splitMilestones()) {
+			<div class="milestones-section mt-4 p-5 rounded-xl border border-[var(--teal)]/30 bg-[var(--teal)]/5">
+				<div class="flex items-center justify-between mb-4">
+					<span class="flex items-center gap-2 font-bold text-sm text-[var(--txt)]">
+						<svg class="w-4 h-4 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+						مراحل الدفع
+					</span>
+					<span class="text-xs font-bold" [ngClass]="parent.milestoneTotalPct === 100 ? 'text-[var(--teal)]' : 'text-amber-500'">الإجمالي: {{ parent.milestoneTotalPct }}%</span>
+				</div>
+
+				<div class="flex flex-col gap-3">
+					@for (ms of parent.milestones(); track ms; let idx = $index) {
+					<div class="flex items-center gap-3">
+						<div class="w-8 h-8 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] flex items-center justify-center font-bold text-sm text-[var(--txt-3)] shrink-0">{{ idx + 1 }}</div>
+						<input type="text" class="flex-1 p-3 bg-[var(--crd-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" [(ngModel)]="ms.name" placeholder="اسم المرحلة">
+						<div class="relative w-24 shrink-0">
+							<input type="number" class="w-full p-3 pl-8 bg-[var(--crd-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm text-center" [(ngModel)]="ms.pct" min="5" max="90">
+							<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--txt-3)]">%</span>
+						</div>
+						<button type="button" class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center hover:bg-red-500/20 transition-colors shrink-0" (click)="parent.removeMilestone(idx)">
+							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+						</button>
+					</div>
+					}
+				</div>
+
+				<div class="flex items-center justify-between mt-4">
+					<button type="button" class="flex items-center gap-2 px-4 py-2 bg-[var(--teal)]/10 text-[var(--teal)] border border-[var(--teal)]/30 rounded-lg text-xs font-bold hover:bg-[var(--teal)]/20 transition-colors" (click)="parent.addMilestone()">
+						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+						إضافة مرحلة
+					</button>
+					<span class="text-[11px] text-[var(--txt-3)] font-medium">الحد الأدنى مرحلتان</span>
+				</div>
+
+				@if (parent.milestoneTotalPct !== 100) {
+				<div class="mt-3 p-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold rounded-lg">
+					مجموع النسب يجب أن يساوي 100%
+				</div>
+				}
+			</div>
+			}
+		</div>

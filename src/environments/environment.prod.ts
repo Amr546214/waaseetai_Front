@@ -1,0 +1,10 @@
+import packageInfo from '../../package.json';
+
+export const environment = {
+  appVersion: packageInfo.version || '1.0.0',
+  production: true,
+  url_api: '/api',
+  socketUrl: '/', // Relative URL so it automatically uses wss:// if hosted on https
+  google_client_id: '45082682655-hprdmb9ghriv95b0dahukgh72paah08j.apps.googleusercontent.com',
+
+};

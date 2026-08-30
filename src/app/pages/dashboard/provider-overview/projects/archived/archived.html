@@ -1,0 +1,143 @@
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-4">
+  <div>
+    <h1 class="text-[20px] font-black text-[var(--txt)] m-0 leading-tight">المشاريع المكتملة والأرشيف</h1>
+    <p class="text-[12px] text-[var(--txt-3)] mt-1">سجلّ مشاريعك المنتهية للرجوع إليها وإعادة الطلب وتنزيل الفواتير</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] px-3.5 py-2.5 min-w-[240px]">
+      <svg class="w-4 h-4 text-[var(--txt-3)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" class="bg-transparent border-none outline-none text-[var(--txt)] text-[13px] w-full placeholder:text-[var(--txt-3)]" placeholder="ابحث برقم المشروع أو العنوان" (input)="updateSearch($event)">
+    </div>
+  </div>
+</div>
+
+<div class="flex flex-col md:flex-row items-start md:items-center gap-3 p-3.5 px-4 bg-gradient-to-br from-[rgba(123,47,190,0.09)] to-[rgba(43,127,255,0.06)] backdrop-blur-[12px] border border-[rgba(123,47,190,0.22)] rounded-[14px] mb-5">
+  <div class="w-[30px] h-[30px] rounded-[8px] bg-[rgba(123,47,190,0.16)] flex items-center justify-center shrink-0 text-[#A56BE0]">
+    <svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>
+    </svg>
+  </div>
+  <div class="flex-1">
+    <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-0.5">وسيط AI، الأرشيف</div>
+    <p class="text-[13px] text-[var(--txt-2)] m-0 leading-relaxed">
+      يحلّل الذكاء مشاريعك المكتملة ويقترح عملاء سبق التعامل معهم لبناء علاقات مستمرة 
+      <span class="bg-[rgba(123,47,190,0.16)] border border-[rgba(123,47,190,0.28)] rounded inline-block px-1.5 py-0.5 text-[10px] font-bold text-[#A56BE0]">دقة 95%</span> 
+      قرار إعادة الطلب يبقى لك
+    </p>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+  <div class="bg-gradient-to-br from-[var(--sec-bg)] to-[transparent] backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[13px] p-[14px_16px]">
+    <div class="text-[24px] font-black leading-none mb-1 text-[#0FA99A]">{{ stats().done }}</div>
+    <div class="text-[11px] font-semibold text-[var(--txt-3)]">مكتملة</div>
+  </div>
+  <div class="bg-gradient-to-br from-[var(--sec-bg)] to-[transparent] backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[13px] p-[14px_16px]">
+    <div class="text-[24px] font-black leading-none mb-1 text-[#FFB400]">{{ stats().cancel }}</div>
+    <div class="text-[11px] font-semibold text-[var(--txt-3)]">ملغاة</div>
+  </div>
+  <div class="bg-gradient-to-br from-[var(--sec-bg)] to-[transparent] backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[13px] p-[14px_16px]">
+    <div class="text-[24px] font-black leading-none mb-1 text-[var(--txt-3)]">{{ stats().arch }}</div>
+    <div class="text-[11px] font-semibold text-[var(--txt-3)]">مؤرشفة</div>
+  </div>
+  <div class="bg-gradient-to-br from-[var(--sec-bg)] to-[transparent] backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[13px] p-[14px_16px]">
+    <div class="text-[24px] font-black leading-none mb-1 text-[var(--txt)]">{{ stats().total }}</div>
+    <div class="text-[11px] font-semibold text-[var(--txt-3)]">إجمالي المنتهية</div>
+  </div>
+</div>
+
+<div class="flex flex-wrap gap-2 mb-4">
+  <button type="button" class="inline-flex items-center gap-1.5 px-3.5 py-[7px] rounded-[20px] text-[12px] font-bold transition-all"
+          [class]="activeFilter() === 'all' ? 'bg-[#2BD4C7]/10 border border-[#2BD4C7]/30 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:bg-[var(--sec-bd)] hover:text-[var(--txt)]'"
+          (click)="setFilter('all')">
+    الكل
+    <span class="min-w-[18px] h-[18px] rounded-[9px] text-[10px] font-extrabold flex items-center justify-center px-1.5"
+          [class]="activeFilter() === 'all' ? 'bg-[#2BD4C7]/20' : 'bg-[var(--sec-bd)]'">{{ stats().total }}</span>
+  </button>
+  <button type="button" class="inline-flex items-center gap-1.5 px-3.5 py-[7px] rounded-[20px] text-[12px] font-bold transition-all"
+          [class]="activeFilter() === 'done' ? 'bg-[#2BD4C7]/10 border border-[#2BD4C7]/30 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:bg-[var(--sec-bd)] hover:text-[var(--txt)]'"
+          (click)="setFilter('done')">
+    مكتملة
+    <span class="min-w-[18px] h-[18px] rounded-[9px] text-[10px] font-extrabold flex items-center justify-center px-1.5"
+          [class]="activeFilter() === 'done' ? 'bg-[#2BD4C7]/20' : 'bg-[var(--sec-bd)]'">{{ stats().done }}</span>
+  </button>
+  <button type="button" class="inline-flex items-center gap-1.5 px-3.5 py-[7px] rounded-[20px] text-[12px] font-bold transition-all"
+          [class]="activeFilter() === 'cancel' ? 'bg-[#2BD4C7]/10 border border-[#2BD4C7]/30 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:bg-[var(--sec-bd)] hover:text-[var(--txt)]'"
+          (click)="setFilter('cancel')">
+    ملغاة
+    <span class="min-w-[18px] h-[18px] rounded-[9px] text-[10px] font-extrabold flex items-center justify-center px-1.5"
+          [class]="activeFilter() === 'cancel' ? 'bg-[#2BD4C7]/20' : 'bg-[var(--sec-bd)]'">{{ stats().cancel }}</span>
+  </button>
+  <button type="button" class="inline-flex items-center gap-1.5 px-3.5 py-[7px] rounded-[20px] text-[12px] font-bold transition-all"
+          [class]="activeFilter() === 'arch' ? 'bg-[#2BD4C7]/10 border border-[#2BD4C7]/30 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:bg-[var(--sec-bd)] hover:text-[var(--txt)]'"
+          (click)="setFilter('arch')">
+    مؤرشفة
+    <span class="min-w-[18px] h-[18px] rounded-[9px] text-[10px] font-extrabold flex items-center justify-center px-1.5"
+          [class]="activeFilter() === 'arch' ? 'bg-[#2BD4C7]/20' : 'bg-[var(--sec-bd)]'">{{ stats().arch }}</span>
+  </button>
+</div>
+
+<div class="flex flex-col gap-3.5">
+  @for (p of filteredProjects(); track p.id) {
+  <a [routerLink]="['../progress', p.id]" class="flex items-center gap-3 bg-gradient-to-br from-[var(--sec-bg)] to-transparent backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[15px] p-[18px_20px] transition-all hover:-translate-y-0.5 hover:border-[#2BD4C7]/30 no-underline cursor-pointer">
+    
+    <div class="w-[38px] h-[38px] rounded-[10px] bg-[#5DA0FF]/10 text-[#5DA0FF] flex items-center justify-center shrink-0">
+      @if (p.icon === 'check') {
+        <svg class="w-[17px] h-[17px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      }
+      @if (p.icon === 'doc') {
+        <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      }
+      @if (p.icon === 'market') {
+        <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h14M9 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0M17 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/></svg>
+      }
+      @if (p.icon === 'list') {
+        <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      }
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <div class="text-[14px] font-extrabold text-[var(--txt)] mb-[3px] truncate">{{ p.title }}</div>
+      <div class="flex items-center gap-[10px] flex-wrap text-[11px] text-[var(--txt-3)]">
+        <span class="italic font-mono" dir="ltr">{{ p.displayId }}</span>
+        <span class="w-[3px] h-[3px] rounded-full bg-[#4A5568] shrink-0"></span>
+        <span>{{ p.clientName }}</span>
+        <span class="w-[3px] h-[3px] rounded-full bg-[#4A5568] shrink-0"></span>
+        <span>{{ p.value }}</span>
+        <span class="w-[3px] h-[3px] rounded-full bg-[#4A5568] shrink-0"></span>
+        <span>{{ p.date }}</span>
+      </div>
+    </div>
+
+    @if (p.status === 'done') {
+      <div class="inline-flex items-center gap-1.5 px-3 py-[5px] bg-[#0FA99A]/10 border border-[#0FA99A]/20 text-[#0FA99A] rounded-full text-[11px] font-bold shrink-0 whitespace-nowrap">
+        <span class="w-[5px] h-[5px] rounded-full bg-[#0FA99A] shrink-0"></span> مكتمل
+      </div>
+    }
+    @if (p.status === 'cancel') {
+      <div class="inline-flex items-center gap-1.5 px-3 py-[5px] bg-[#FFB400]/10 border border-[#FFB400]/25 text-[#FFB400] rounded-full text-[11px] font-bold shrink-0 whitespace-nowrap">
+        <span class="w-[5px] h-[5px] rounded-full bg-[#FFB400] shrink-0"></span> ملغى
+      </div>
+    }
+    @if (p.status === 'arch') {
+      <div class="inline-flex items-center gap-1.5 px-3 py-[5px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] rounded-full text-[11px] font-bold shrink-0 whitespace-nowrap">
+        <span class="w-[5px] h-[5px] rounded-full bg-[var(--txt-3)] shrink-0"></span> مؤرشف
+      </div>
+    }
+  </a>
+  }
+
+  @if (filteredProjects().length === 0) {
+  <div class="bg-gradient-to-br from-[var(--sec-bg)] to-transparent border border-[var(--sec-bd)] rounded-[15px] p-12 text-center flex flex-col items-center justify-center">
+    <div class="w-16 h-16 rounded-[16px] bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 text-[#2BD4C7] flex items-center justify-center mb-4">
+      <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      </svg>
+    </div>
+    <h3 class="text-[15px] font-extrabold text-[var(--txt)] m-0 mb-1.5">لا مشاريع في هذه الحالة</h3>
+    <p class="text-[12.5px] text-[var(--txt-3)] m-0">غيّر التصفية، أو ابحث باسم آخر</p>
+  </div>
+  }
+</div>

@@ -1,0 +1,161 @@
+
+
+<svg style="display:none" aria-hidden="true">
+	<defs>
+		<symbol id="i-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="2" />
+			<circle cx="4" cy="6" r="1.5" />
+			<circle cx="20" cy="6" r="1.5" />
+			<circle cx="4" cy="18" r="1.5" />
+			<circle cx="20" cy="18" r="1.5" />
+			<circle cx="12" cy="3" r="1.5" />
+			<circle cx="12" cy="21" r="1.5" />
+			<path
+				d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+		</symbol>
+		<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+			stroke-linecap="round" stroke-linejoin="round">
+			<line x1="12" y1="5" x2="12" y2="19" />
+			<line x1="5" y1="12" x2="19" y2="12" />
+		</symbol>
+	</defs>
+</svg>
+
+<div class="dir-rtl text-right">
+
+	<div class="ord-head">
+		<div>
+			<div class="ord-title">طلبات الاعتماد</div>
+			<div class="ord-sub">تابع حالة نماذجك المرفوعة ونتائج الفحص والاعتماد</div>
+		</div>
+		<div class="ord-head-actions">
+			<a routerLink="/provider-overview/business-models/accreditation/new"
+				style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;color:#070D24;font-weight:800;font-size:13px;text-decoration:none">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					aria-hidden="true">
+					<use href="#i-plus"></use>
+				</svg>
+				رفع نموذج جديد
+			</a>
+		</div>
+	</div>
+
+	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+		<div class="ai-disc-ico">
+			<svg width="20" height="20" aria-hidden="true">
+				<use href="#i-ai"></use>
+			</svg>
+		</div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+			<p class="ai-disc-txt">AI يتابع عروضك ويبرز ما يحتاج متابعة أو ردًا عاجلاً <span class="ai-disc-badge">دقة
+					95%</span> القرار النهائي لك</p>
+		</div>
+	</div>
+
+	<!-- Filter Rail -->
+	<div class="filter-rail" role="search" aria-label="فلترة طلبات الاعتماد" style="margin-bottom:8px">
+		<div class="fr-period-lbl" aria-hidden="true">التخصص</div>
+		<div class="date-segs" role="group" aria-label="تصفية حسب التخصص">
+			<button class="ds active" type="button">الكل</button>
+			<button class="ds" type="button">تطوير ويب</button>
+			<button class="ds" type="button">تصميم</button>
+			<button class="ds" type="button">محتوى</button>
+		</div>
+		<div class="fr-period-lbl" aria-hidden="true" style="border-inline-start:1px solid rgba(255,255,255,.07)">ترتيب
+		</div>
+		<div class="date-segs" role="group" aria-label="ترتيب">
+			<button class="ds active" type="button">الأحدث</button>
+			<button class="ds" type="button">الأقدم</button>
+			<button class="ds" type="button">الأطول انتظاراً</button>
+		</div>
+		<div class="fr-spacer"></div>
+		<div class="fr-search">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<circle cx="11" cy="11" r="8" />
+				<line x1="21" y1="21" x2="16.65" y2="16.65" />
+			</svg>
+			<input type="search" placeholder="ابحث برقم أو تخصص..." aria-label="بحث">
+		</div>
+	</div>
+
+	<!-- تابات الحالة -->
+	<div class="ord-tabs" role="tablist" aria-label="حالة طلبات الاعتماد" style="margin-bottom:16px">
+		<button type="button" class="ord-tab active">الكل <span>{{ samples().length }}</span></button>
+		<button type="button" class="ord-tab">قيد الفحص <span>0</span></button>
+		<button type="button" class="ord-tab">مقبول <span>0</span></button>
+		<button type="button" class="ord-tab">مرفوض <span>0</span></button>
+	</div>
+
+	@if (isLoading()) {
+	<div class="state-card" style="text-align:center;padding:40px 24px">
+		<svg class="animate-spin w-8 h-8 mx-auto mb-4 text-[#2BD4C7]" xmlns="http://www.w3.org/2000/svg" fill="none"
+			viewBox="0 0 24 24">
+			<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+			<path class="opacity-75" fill="currentColor"
+				d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+			</path>
+		</svg>
+		<div style="font-size:14px;color:#6B7699">جاري تحميل طلبات الاعتماد...</div>
+	</div>
+	} @else if (samples().length === 0) {
+	<div class="state-card" style="text-align:center;padding:40px 24px">
+		<div style="font-size:16px;font-weight:800;margin-bottom:6px;color:#fff;">لا توجد نماذج اعتماد مرفوعة حتى الآن
+		</div>
+		<p style="font-size:12px;color:#6B7699;margin-bottom:20px;">قم برفع نموذج عمل فني لإخضاعه لفحص الذكاء الاصطناعي
+			GPT-4o وتأكيد جدارتك المهنية للحصول على شارة الاعتماد.</p>
+		<a routerLink="/provider-overview/business-models/accreditation/new"
+			style="display:inline-block;padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;text-decoration:none;">رفع
+			أول نموذج اعتماد 🚀</a>
+	</div>
+	} @else {
+	<div class="ord-tbl-wrap">
+		<div style="overflow-x:auto">
+			<table class="ord-tbl">
+				<thead>
+					<tr>
+						<th>النموذج</th>
+						<th>التخصص</th>
+						<th>تاريخ الرفع</th>
+						<th>الحالة</th>
+						<th>الإجراء</th>
+					</tr>
+				</thead>
+				<tbody id="ord-tbody">
+					@for (sample of samples(); track sample.id) {
+					<tr>
+						<td>
+							<span class="ord-name">{{ sample.title }}</span>
+							<span class="ord-id">#ACC-{{ sample.id.substring(0,8).toUpperCase() }}</span>
+						</td>
+						<td>{{ sample.providerSpecialty?.specialty?.nameAr || 'اعتماد فني' }}</td>
+						<td style="color:#6B7699;font-size:12px">{{ sample.createdAt | date:'d MMMM yyyy' }}</td>
+						<td>
+							@if (sample.status === 'PENDING_AI_AUDIT' || sample.status === 'MANUAL_REVIEW') {
+							<span class="opill op-active">قيد الفحص</span>
+							} @else if (sample.status === 'AI_VERIFIED') {
+							<span class="opill op-done">مقبول</span>
+							} @else if (sample.status === 'REJECTED') {
+							<span class="opill op-cancel">مرفوض</span>
+							}
+						</td>
+						<td>
+							<a [routerLink]="['/provider-overview/business-models/center/accreditation-details', sample.id]"
+								class="ord-act">تفاصيل</a>
+						</td>
+					</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="ord-pager">
+		<span id="ord-count">يظهر {{ samples().length }} من {{ samples().length }} نتيجة</span>
+		<div class="ord-pages">
+			<button type="button" class="ord-pg active">1</button>
+		</div>
+	</div>
+	}
+</div>

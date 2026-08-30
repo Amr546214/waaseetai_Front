@@ -1,0 +1,124 @@
+<div class="max-w-full mx-auto pb-[120px] px-4">
+	<!-- Breadcrumb -->
+	<nav class="flex items-center justify-center gap-2 text-xs text-[var(--txt-3)] mb-6 dir-rtl">
+		<a routerLink="/provider-overview" class="hover:text-[var(--txt-2)] transition-colors">لوحة التحكم</a>
+		<span class="text-[10px] opacity-70">‹</span>
+			<a routerLink="/provider-overview/business-models/accreditation/list"
+			class="hover:text-[var(--txt-2)] transition-colors">نماذج الاعتماد الفني</a>
+		<span class="text-[10px] opacity-70">‹</span>
+		<span class="text-[var(--txt-2)] font-semibold">
+			{{ currentStep() === 1 ? 'اختيار التخصص' : currentStep() === 2 ? 'رفع النموذج والمرفقات' : 'مراجعة الذكاء
+			الاصطناعي' }}
+		</span>
+	</nav>
+
+	<!-- Stepper -->
+	<div class="flex items-center mb-10 justify-center max-w-full mx-auto dir-rtl">
+		<!-- Step 1 -->
+		<div class="flex flex-col items-center gap-1.5 shrink-0 min-w-[100px]">
+			<div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold border-2 transition-all duration-300"
+				[class]="currentStep() === 1 ? 'border-transparent bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] shadow-[0_0_15px_rgba(43,212,199,.4)] scale-105' : currentStep() > 1 ? 'border-[#2BD4C7] bg-[rgba(43,212,199,.15)] text-[#2BD4C7]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] text-[var(--txt-3)]'">
+				<ng-container *ngIf="currentStep() > 1; else step1Num">✓</ng-container>
+				<ng-template #step1Num>1</ng-template>
+			</div>
+			<div class="text-xs text-center transition-colors font-bold"
+				[class]="currentStep() === 1 ? 'text-[#2BD4C7]' : currentStep() > 1 ? 'text-[#2BD4C7]' : 'text-[var(--txt-3)]'">
+				اختيار التخصص
+			</div>
+		</div>
+
+		<div class="flex-1 h-[2px] mx-2 transition-colors duration-300"
+			[class]="currentStep() > 1 ? 'bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF]' : 'bg-[var(--sec-bd)]'"></div>
+
+		<!-- Step 2 -->
+		<div class="flex flex-col items-center gap-1.5 shrink-0 min-w-[100px]">
+			<div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold border-2 transition-all duration-300"
+				[class]="currentStep() === 2 ? 'border-transparent bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] shadow-[0_0_15px_rgba(43,212,199,.4)] scale-105' : currentStep() > 2 ? 'border-[#2BD4C7] bg-[rgba(43,212,199,.15)] text-[#2BD4C7]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] text-[var(--txt-3)]'">
+				<ng-container *ngIf="currentStep() > 2; else step2Num">✓</ng-container>
+				<ng-template #step2Num>2</ng-template>
+			</div>
+			<div class="text-xs text-center transition-colors font-bold"
+				[class]="currentStep() === 2 ? 'text-[#2BD4C7]' : currentStep() > 2 ? 'text-[#2BD4C7]' : 'text-[var(--txt-3)]'">
+				رفع النموذج الفني
+			</div>
+		</div>
+
+		<div class="flex-1 h-[2px] mx-2 transition-colors duration-300"
+			[class]="currentStep() > 2 ? 'bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF]' : 'bg-[var(--sec-bd)]'"></div>
+
+		<!-- Step 3 -->
+		<div class="flex flex-col items-center gap-1.5 shrink-0 min-w-[100px]">
+			<div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold border-2 transition-all duration-300"
+				[class]="currentStep() === 3 ? 'border-transparent bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] shadow-[0_0_15px_rgba(43,212,199,.4)] scale-105' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] text-[var(--txt-3)]'">
+				3
+			</div>
+			<div class="text-xs text-center transition-colors font-bold"
+				[class]="currentStep() === 3 ? 'text-[#2BD4C7]' : 'text-[var(--txt-3)]'">
+				مراجعة الذكاء الاصطناعي
+			</div>
+		</div>
+	</div>
+
+	<ng-container [ngSwitch]="currentStep()">
+
+		<!-- ==================== STEP 1: SELECT SPECIALTY ==================== -->
+		<ng-container *ngSwitchCase="1">
+			<app-step1-specialty [isLoading]="isLoading()" [hasAccreditedSpecialties]="hasAccreditedSpecialties()"
+				[categories]="categories()" [selectedSpecialtyId]="selectedSpecialtyId()"
+				[selectedSubSpecialties]="selectedSubSpecialties()" [selectedSpecialtySubs]="getSelectedSpecialtySubs()"
+				(onToggleSpecialty)="toggleSpecialty($event)" (onToggleSubSpecialty)="toggleSubSpecialty($event)">
+			</app-step1-specialty>
+		</ng-container>
+
+		<!-- ==================== STEP 2: UPLOAD WORK SAMPLE & PROOFS ==================== -->
+		<ng-container *ngSwitchCase="2">
+			<app-step2-upload [title]="title()" (titleChange)="title.set($event)" [description]="description()"
+				(descriptionChange)="description.set($event)" [techInput]="techInput()"
+				(techInputChange)="techInput.set($event)" [technologiesUsed]="technologiesUsed()"
+				(onAddTechTag)="addTechTag()" (onRemoveTechTag)="removeTechTag($event)" [projectUrl]="projectUrl()"
+				(projectUrlChange)="projectUrl.set($event)" [githubUrl]="githubUrl()"
+				(githubUrlChange)="githubUrl.set($event)" [attachments]="attachments()"
+				(onFileSelected)="onFileSelected($event)" (onHandleDrop)="handleDrop($event)"
+				(onRemoveAttachment)="removeAttachment($event)">
+			</app-step2-upload>
+		</ng-container>
+
+		<!-- ==================== STEP 3: REAL-TIME OPENAI EVALUATION ==================== -->
+		<ng-container *ngSwitchCase="3">
+			<app-step3-evaluation [isAnalyzing]="isAnalyzing()" [hasError]="hasError()"
+				[evaluationResult]="evaluationResult()" (onRetry)="submitForAiEvaluation()"
+				(onViewAll)="viewAllAccreditationSamples()">
+			</app-step3-evaluation>
+		</ng-container>
+
+	</ng-container>
+</div>
+
+<!-- Sticky Bottom Action Bar (For Steps 1 & 2) -->
+<div class="sticky-bar" *ngIf="currentStep() < 3" role="navigation" aria-label="إجراءات الصفحة" dir="rtl">
+	<div class="sticky-bar-inner">
+		<!-- Previous/Cancel Button -->
+		<button type="button" *ngIf="currentStep() > 1" (click)="goPrev()" class="btn-cancel">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:16px;height:16px"><polyline points="9 18 15 12 9 6"/></svg>
+			السابق
+		</button>
+		<a *ngIf="currentStep() === 1" routerLink="/provider-overview/business-models/accreditation/list" class="btn-cancel">
+			إلغاء
+		</a>
+
+		<!-- Next Action -->
+		<div style="display:flex;align-items:center;gap:12px">
+			<span *ngIf="currentStep() === 1 && !isCurrentStepValid" style="font-size:12px;color:#6B7699">اختر تخصصاً
+				واحداً على الأقل</span>
+
+			<button type="button" class="btn-next" [disabled]="!isCurrentStepValid" (click)="goNext()">
+				<span>{{ currentStep() === 1 ? 'التالي: بيانات المرفقات الفنية' : 'إرسال للمراجعة والاعتماد بالذكاء الاصطناعي' }}</span>
+				<svg *ngIf="currentStep() === 1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+					style="width:18px;height:18px">
+					<polyline points="15 18 9 12 15 6" />
+				</svg>
+			</button>
+		</div>
+	</div>
+</div>

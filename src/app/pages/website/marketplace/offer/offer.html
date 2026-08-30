@@ -1,0 +1,572 @@
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="particles" id="particles-container" aria-hidden="true"></div>
+
+<!-- SVG SPRITE -->
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+<symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+<symbol id="ws-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></symbol>
+<symbol id="ws-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+<symbol id="ws-cat-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+<symbol id="ws-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="ws-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
+<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="ws-milestone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="22"/><line x1="2" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="22" y2="12"/></symbol>
+<symbol id="ws-negotiate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
+<symbol id="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ws-social-x" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.272 5.647 5.892-5.647zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></symbol>
+<symbol id="ws-social-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ws-social-linkedin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4"/><line x1="7" y1="10" x2="7" y2="17"/><circle cx="7" cy="6.5" r="1"/><path d="M11 17v-4c0-1.5 1-3 3-3s3 1.5 3 3v4"/><line x1="11" y1="10" x2="11" y2="17"/></symbol>
+<symbol id="ws-thumb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></symbol>
+</defs></svg>
+
+<div class="page-wrap">
+  <div class="container">
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+      <a routerLink="/">الرئيسية</a>
+      <span class="breadcrumb-sep">/</span>
+      <a routerLink="/marketplace">السوق</a>
+      <span class="breadcrumb-sep">/</span>
+      <a [routerLink]="['/marketplace', model()?.categorySlug || 'code']">{{ model()?.category || 'تصميم وإبداع' }}</a>
+      <span class="breadcrumb-sep">/</span>
+      <span style="color:var(--txt-2)">{{ model()?.title || 'جاري التحميل...' }}</span>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="svc-detail-layout">
+
+      <!-- ═══ LEFT COLUMN ═══ -->
+      <div>
+
+        <!-- SERVICE HEADER -->
+        <div class="svc-header">
+          <div class="svc-category-tag">
+            <span style="width:16px;height:16px;border-radius:3px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center"><svg style="width:9px;height:9px"><use href="#ws-cat-pen"></use></svg></span>
+            {{ model()?.category || 'تصميم وإبداع' }}
+          </div>
+          <h1 class="svc-main-title">{{ model()?.title || 'جاري التحميل...' }}</h1>
+          <div class="svc-meta-row">
+            <div class="svc-rating-big">
+              <span class="stars-big">★★★★★</span>
+              <span class="svc-score-big">{{ model()?.rating ?? 0 }}</span>
+              <span class="svc-reviews-big">({{ model()?.reviewsCount ?? 0 }} تقييم)</span>
+            </div>
+            <span class="svc-orders"><strong>+{{ model()?.viewsCount || '0' }}</strong> مشاهدة</span>
+            @if (model()?.aiScore) {
+              <span class="ai-match-big">
+                <svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg>
+                توافق AI {{ model()?.aiScore }}%
+              </span>
+            }
+            <button (click)="toggleFavorite()" [style.color]="isFavorite() ? 'var(--red)' : ''" [style.border-color]="isFavorite() ? 'rgba(255,140,105,.3)' : ''" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-3);cursor:pointer;transition:all .15s" id="fav-btn">
+              <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-heart"></use></svg>
+              حفظ
+            </button>
+            <button (click)="shareOffer()" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-3);cursor:pointer;transition:all .15s">
+              <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-share"></use></svg>
+              مشاركة
+            </button>
+          </div>
+
+          <!-- PROVIDER ROW -->
+          <!-- PROVIDER BANNER -->
+          <div style="display:flex;align-items:center;gap:0;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;margin-top:14px">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;flex:1">
+              <div [style.background]="model()?.levelBg || 'linear-gradient(135deg,#7B2FBE,#A56BE0)'" style="width:46px;height:46px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0">
+                @if (model()?.provider?.avatar) {
+                  <img [src]="model()?.provider?.avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover" />
+                } @else {
+                  {{ model()?.provider?.initials || 'مز' }}
+                }
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:800;color:#fff">{{ model()?.provider?.name || 'مزود معتمد' }}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
+                  <span [style.background]="model()?.levelBg || 'rgba(43,212,199,.15)'" [style.color]="'#fff'" [style.border]="'1px solid ' + (model()?.levelColor || 'rgba(43,212,199,.3)')" style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:800">
+                    {{ model()?.level || 'مزود معتمد' }}
+                  </span>
+                  @if (model()?.isVerified) { <span style="font-size:11px;color:#0FA99A;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#0FA99A;flex-shrink:0"></span>موثّق</span> }
+                </div>
+              </div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,.08);align-self:stretch"></div>
+            <div [style.background]="(model()?.levelColor || '#2BD4C7') + '0A'" [style.border-right]="'1px solid ' + (model()?.levelColor || '#2BD4C7') + '33'" style="display:flex;gap:24px;align-items:center;padding:14px 24px">
+              <div style="text-align:center"><div [style.color]="model()?.levelColor || '#2BD4C7'" style="font-size:18px;font-weight:900">{{ model()?.rating ?? 0 }}</div><div style="font-size:10px;color:#6B7699;margin-top:1px">التقييم</div></div>
+              <div style="text-align:center"><div [style.color]="model()?.levelColor || '#2BD4C7'" style="font-size:18px;font-weight:900">{{ model()?.salesCount ?? 0 }}</div><div style="font-size:10px;color:#6B7699;margin-top:1px">مشروع</div></div>
+              <div style="text-align:center"><div [style.color]="model()?.levelColor || '#2BD4C7'" style="font-size:18px;font-weight:900">{{ model()?.viewsCount ?? 0 }}</div><div style="font-size:10px;color:#6B7699;margin-top:1px">مشاهدة</div></div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,.08);align-self:stretch"></div>
+            <div style="padding:14px 18px;display:flex;align-items:center">
+              <a [routerLink]="'/provider-profile/' + (model()?.provider?.id || 'default')" class="prov-view-btn">عرض الملف الشخصي</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE TABS -->
+        <div class="page-tabs-bar">
+          <button class="page-tab-btn" [class.active]="activeTab() === 'overview'" (click)="setTab('overview')">نظرة عامة</button>
+          <button class="page-tab-btn" [class.active]="activeTab() === 'reviews'" (click)="setTab('reviews')">التقييمات <span class="tab-badge">{{ model()?.reviewsCount ?? 0 }}</span></button>
+          <button class="page-tab-btn" [class.active]="activeTab() === 'faq'" (click)="setTab('faq')">الأسئلة والأجوبة <span class="tab-badge">0</span></button>
+        </div>
+
+        <div class="tab-pane-container">
+          @switch (activeTab()) {
+            @case ('overview') {
+              <div class="tab-pane fade-in">
+        <!-- GALLERY -->
+        <div class="gallery-wrap" style="margin-top:20px">
+          <div class="gallery-tabs">
+            <button class="gtab active" data-tab="images">معرض أعمال المشروع</button>
+          </div>
+          <div class="gallery-main" style="position:relative;overflow:hidden;border-radius:12px;background:rgba(255,255,255,.02);min-height:300px;display:flex;align-items:center;justify-content:center">
+            @if (model()?.gallery && model()?.gallery!.length > 0) {
+              <img [src]="model()?.gallery![activeImageIndex()]" style="width:100%;height:100%;max-height:500px;object-fit:contain;display:block" />
+              <div style="position:absolute;top:12px;right:12px;padding:4px 10px;background:rgba(7,13,36,.8);border:1px solid rgba(43,212,199,.2);border-radius:8px;font-size:11px;font-weight:700;color:var(--teal);backdrop-filter:blur(5px)" dir="ltr">
+                {{ activeImageIndex() + 1 }} / {{ model()?.gallery!.length }}
+              </div>
+            } @else {
+              <div class="gallery-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--txt-3);gap:10px">
+                <svg aria-hidden="true" style="width:40px;height:40px;opacity:0.5"><use href="#ws-image"></use></svg>
+                <span style="font-size:13px">لا يوجد معرض أعمال متاح حالياً</span>
+              </div>
+            }
+          </div>
+          @if (model()?.gallery && model()?.gallery!.length > 0) {
+            <div class="gallery-thumbs" style="display:flex;gap:10px;margin-top:10px;overflow-x:auto;padding-bottom:5px">
+              @for (img of model()?.gallery; track img; let i = $index) {
+                <div class="gthumb" [class.active]="activeImageIndex() === i" (click)="setActiveImage(i)"
+                     style="width:80px;height:56px;border-radius:8px;overflow:hidden;cursor:pointer;flex-shrink:0;border:2px solid transparent;transition:all 0.2s"
+                     [style.border-color]="activeImageIndex() === i ? 'var(--teal)' : 'rgba(255,255,255,.05)'"
+                     [style.opacity]="activeImageIndex() === i ? '1' : '0.6'">
+                  <img [src]="img" style="width:100%;height:100%;object-fit:cover" />
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+
+
+        <!-- AI ANALYSIS MOVED TO SIDEBAR -->
+        <div class="ai-analysis-wrap" style="display:none">
+          <div class="ai-analysis-header">
+            <div class="ai-analysis-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
+            <div>
+              <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تحليل الذكاء الاصطناعي للخدمة</div>
+              <div style="font-size:12px;color:var(--txt-2)">تقييم موضوعي شامل — سعر، وقت، وصف، وتوافق</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-inline-start:auto;flex-shrink:0">
+              <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:3px 9px;font-size:10px;font-weight:800;color:var(--ai-txt)">AI · نشط</span>
+              <span style="font-size:22px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore ?? 0 }}%</span>
+              <span style="font-size:10px;color:var(--txt-3)">درجة التوافق</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">
+                <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.05em;margin-bottom:5px">سعر المقدم</div>
+                <div style="font-size:22px;font-weight:900;color:var(--txt);line-height:1">{{ model()?.totalAmount ?? 0 }} <span style="font-size:12px;font-weight:600;color:var(--txt-3)">ريال</span></div>
+              </div>
+              <div style="padding:12px 14px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.18);border-radius:10px">
+                <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.05em;margin-bottom:5px">النطاق العادل · AI</div>
+                <div style="font-size:16px;font-weight:900;color:var(--teal);line-height:1.2">{{ model()?.totalAmount ?? 0 }} <span style="font-size:11px;font-weight:600;color:var(--txt-3)">ريال</span></div>
+                <div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 7px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.22);border-radius:6px;font-size:9px;font-weight:800;color:var(--green)"><svg aria-hidden="true" style="width:8px;height:8px"><use href="#ws-check"></use></svg>عادل ومطابق</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">
+                <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.05em;margin-bottom:5px">مدة التسليم</div>
+                <div style="font-size:18px;font-weight:900;color:var(--txt);line-height:1">{{ model()?.totalDays ?? 0 }} <span style="font-size:12px;font-weight:600;color:var(--txt-3)">أيام</span></div>
+              </div>
+              <div style="padding:12px 14px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.18);border-radius:10px">
+                <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.05em;margin-bottom:5px">المدة المقترحة · AI</div>
+                <div style="font-size:16px;font-weight:900;color:var(--teal);line-height:1.2">{{ model()?.totalDays ?? 0 }} <span style="font-size:11px;font-weight:600;color:var(--txt-3)">أيام</span></div>
+                <div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 7px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.22);border-radius:6px;font-size:9px;font-weight:800;color:var(--green)"><svg aria-hidden="true" style="width:8px;height:8px"><use href="#ws-check"></use></svg>واقعية</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">
+                <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.05em;margin-bottom:6px">جودة الوصف</div>
+                <div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden"><div [style.width.%]="model()?.aiClarityScore ?? 0" style="height:100%;border-radius:3px;background:var(--grad)"></div></div><span style="font-size:12px;font-weight:800;color:var(--txt)">{{ model()?.aiClarityScore ?? 0 }}%</span></div>
+                <div style="font-size:10px;color:var(--txt-3);margin-top:4px">واضح ومفصّل</div>
+              </div>
+              <div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">
+                <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.05em;margin-bottom:6px">توافق المجال</div>
+                <div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden"><div [style.width.%]="model()?.aiFeasibilityScore ?? 0" style="height:100%;border-radius:3px;background:var(--grad)"></div></div><span style="font-size:12px;font-weight:800;color:var(--txt)">{{ model()?.aiFeasibilityScore ?? 0 }}%</span></div>
+                <div style="font-size:10px;color:var(--txt-3);margin-top:4px">تصميم شعار — دقيق</div>
+              </div>
+            </div>
+          </div>
+          <div class="ai-metrics">
+            <div class="ai-metric m2"><div class="ai-metric-n">{{ model()?.aiScore ?? 0 }}%</div><div class="ai-metric-l">جودة التحليل</div></div>
+            <div class="ai-metric m3"><div class="ai-metric-n">{{ model()?.rating ?? 0 }}</div><div class="ai-metric-l">تقييم الجودة</div></div>
+            <div class="ai-metric m4"><div class="ai-metric-n">{{ model()?.reviewsCount ?? 0 }}</div><div class="ai-metric-l">عدد التقييمات</div></div>
+            <div class="ai-metric m1"><div class="ai-metric-n">{{ model()?.salesCount ?? 0 }}</div><div class="ai-metric-l">مشروع مكتمل</div></div>
+          </div>
+          <div style="margin-top:10px;padding:10px 12px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.12);border-radius:8px;font-size:12px;color:var(--txt-2);line-height:1.6">
+            <strong style="color:var(--ai-txt)">توصية AI:</strong> {{ model()?.aiRecommendationReason || 'لا توجد توصية إضافية مسجلة لهذه الخدمة.' }}
+          </div>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="svc-desc-wrap">
+          <div class="section-title">
+            <span class="section-title-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);color:var(--blue-txt)"><svg><use href="#ws-file"></use></svg></span>
+            عن الخدمة
+          </div>
+          <div class="svc-desc-text" id="svc-desc-text" style="max-height:160px;overflow:hidden;transition:max-height .4s">
+            <p>{{ model()?.description || 'جاري التحميل...' }}</p>
+          </div>
+          <button class="read-more-btn" id="read-more-btn" type="button">
+            قراءة المزيد <svg aria-hidden="true"><use href="#ws-chevron"></use></svg>
+          </button>
+        </div>
+
+        <!-- DELIVERY MILESTONES -->
+        <div style="margin-bottom:28px">
+          <div class="section-title">
+            <span class="section-title-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)"><svg><use href="#ws-milestone"></use></svg></span>
+            مراحل التسليم
+            <span style="font-size:11px;font-weight:600;color:var(--txt-3);margin-inline-start:4px">{{ model()?.stages?.length || 0 }} مراحل · إجمالي {{ model()?.totalDays || 0 }} أيام</span>
+          </div>
+          <div style="position:relative;padding-right:16px">
+            <!-- vertical line -->
+            <div style="position:absolute;right:31px;top:20px;bottom:20px;width:2px;background:linear-gradient(to bottom,rgba(43,212,199,.3),rgba(43,127,255,.15))"></div>
+            <div style="display:flex;flex-direction:column;gap:0">
+
+              @for (stage of model()?.stages; track stage.id; let isLast = $last; let i = $index) {
+                <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0">
+                  <div [style.background]="isLast ? 'rgba(15,169,154,.12)' : (i === 0 ? 'rgba(43,212,199,.12)' : 'rgba(43,127,255,.12)')"
+                       [style.border]="isLast ? '2px solid rgba(15,169,154,.35)' : (i === 0 ? '2px solid rgba(43,212,199,.4)' : '2px solid rgba(43,127,255,.3)')"
+                       [style.color]="isLast ? '#0FA99A' : (i === 0 ? 'var(--teal)' : 'var(--blue-txt)')"
+                       style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:900;z-index:1">
+                    {{ stage.stepOrder || (i + 1) }}
+                  </div>
+                  <div [style.background]="isLast ? 'rgba(15,169,154,.04)' : 'rgba(255,255,255,.03)'"
+                       [style.border]="isLast ? '1px solid rgba(15,169,154,.15)' : '1px solid var(--border)'"
+                       style="flex:1;border-radius:12px;padding:14px 16px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                      <span style="font-size:13px;font-weight:800;color:var(--txt)">{{ stage.title }}</span>
+                      <span [style.color]="isLast ? '#0FA99A' : 'var(--txt-3)'"
+                            [style.background]="isLast ? 'rgba(15,169,154,.1)' : 'rgba(255,255,255,.05)'"
+                            [style.border]="isLast ? '1px solid rgba(15,169,154,.2)' : 'none'"
+                            style="font-size:11px;padding:2px 8px;border-radius:6px">
+                        {{ stage.deliveryDays }} أيام
+                      </span>
+                    </div>
+                    <p style="font-size:12px;color:var(--txt-2);margin:0;line-height:1.7">{{ stage.description }}</p>
+                  </div>
+                </div>
+              }
+
+            </div>
+          </div>
+        </div>
+
+
+        <!-- TAGS -->
+        @if (model()?.tags && model()?.tags!.length > 0) {
+        <div class="tags-wrap" style="margin-bottom:28px">
+          <div class="section-title">
+            <span class="section-title-ico" style="background:rgba(123,47,190,.1);border:1px solid rgba(123,47,190,.2);color:#A56BE0"><svg><use href="#ws-cat-pen"></use></svg></span>
+            الكلمات المفتاحية
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            @for (tag of model()?.tags; track tag) {
+              <span style="padding:6px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--txt-2)">{{ tag }}</span>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- REVIEWS -->
+        <div class="reviews-wrap">
+          <div class="section-title">
+            <span class="section-title-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);color:var(--kahr)"><svg><use href="#ws-star"></use></svg></span>
+            التقييمات
+            <span style="font-size:12px;font-weight:600;color:var(--txt-3);margin-inline-start:4px">({{ model()?.reviewsCount ?? 0 }} تقييم)</span>
+          </div>
+
+          <div class="reviews-summary">
+            <div class="rev-big-score">
+              <div class="rev-big-n">{{ model()?.rating ?? 0 }}</div>
+              <div class="rev-big-stars">★★★★★</div>
+              <div class="rev-big-cnt">{{ model()?.reviewsCount ?? 0 }} تقييم</div>
+            </div>
+            <div class="rev-bars">
+              @for (star of starIndexes().slice().reverse(); track star) {
+                <div class="rev-bar-row"><span class="rev-bar-lbl">{{ star }}</span><div class="rev-bar-track"><div class="rev-bar-fill" [style.width.%]="reviewPercent(star)"></div></div><span class="rev-bar-cnt">{{ reviewCountFor(star) }}</span></div>
+              }
+            </div>
+          </div>
+
+          @for (review of (model()?.reviews || []).slice(0, 3); track review.id) {
+          <div class="rev-card">
+            <div class="rev-header">
+              <div class="rev-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24">{{ clientInitial(review.client?.name) }}</div>
+              <div class="rev-info">
+                <div class="rev-name">{{ review.client?.name || 'عميل' }}</div>
+                <div class="rev-date">{{ review.createdAt | date:'yyyy/MM/dd' }}</div>
+              </div>
+              <div class="rev-stars">{{ '★★★★★'.slice(0, review.rating) }}</div>
+            </div>
+            <div class="rev-text">{{ review.comment || 'لم يضف العميل تعليقاً.' }}</div>
+          </div>
+          }
+
+          @if ((model()?.reviewsCount ?? 0) > 3) {
+            <button (click)="setTab('reviews')" style="width:100%;margin-top:14px;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;font-family:inherit;font-size:13px;font-weight:700;color:var(--txt-2);cursor:pointer;transition:all .15s" type="button">عرض كل التقييمات ({{ model()?.reviewsCount ?? 0 }})</button>
+          }
+        </div>
+
+
+              </div>
+            } @case ('reviews') {
+              <div class="tab-pane fade-in">
+          <!-- RATING SUMMARY -->
+          <div class="rating-summary">
+            <div class="rs-top">
+              <div class="rs-big-score">
+                <div class="rs-big-num">{{ model()?.rating ?? 0 }}</div>
+                <div class="rs-big-stars">
+                  <svg aria-hidden="true"><use href="#ws-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#ws-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#ws-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#ws-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#ws-star"></use></svg>
+                </div>
+                <div class="rs-big-cnt">من {{ model()?.reviewsCount ?? 0 }} تقييم</div>
+              </div>
+              <div class="rs-bars">
+                @for (star of starIndexes().slice().reverse(); track star) {
+                  <div class="rs-bar-row">
+                    <span class="rs-bar-lbl" [style.color]="star === 5 ? 'var(--kahr)' : ''" [style.font-weight]="star === 5 ? '800' : ''">{{ star }}</span>
+                    <div class="rs-bar-track"><div class="rs-bar-fill" [style.width.%]="reviewPercent(star)"></div></div>
+                    <span class="rs-bar-cnt">{{ reviewCountFor(star) }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="rs-metrics">
+              <div class="rs-metric">
+                <div class="rs-metric-n" style="color:var(--teal)">٪{{ positiveReviewPercent() }}</div>
+                <div class="rs-metric-l">نسبة التوصية</div>
+              </div>
+              <div class="rs-metric">
+                <div class="rs-metric-n">{{ model()?.totalDays ?? 0 }} يوم</div>
+                <div class="rs-metric-l">مدة الخدمة</div>
+              </div>
+              <div class="rs-metric">
+                <div class="rs-metric-n" style="color:var(--green)">{{ model()?.salesCount ?? 0 }}</div>
+                <div class="rs-metric-l">طلبات الخدمة</div>
+              </div>
+            </div>
+          </div>
+
+          @if ((model()?.reviewsCount ?? 0) > 0) {
+          <div class="ai-sentiment">
+            <div class="ai-s-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
+            <div class="ai-s-content">
+              <div class="ai-s-label">ملخص التقييمات</div>
+              <div class="ai-s-text">{{ positiveReviewPercent() }}٪ من التقييمات المسجلة منحت الخدمة أربع نجوم أو أكثر.</div>
+            </div>
+          </div>
+          }
+
+          <!-- FILTER BAR -->
+          <div class="filter-bar">
+            <button class="filter-chip" [class.active]="reviewFilter() === null" (click)="setReviewFilter(null)">الكل</button>
+            <button class="filter-chip" [class.active]="reviewFilter() === 5" (click)="setReviewFilter(5)">
+              <svg aria-hidden="true"><use href="#ws-star"></use></svg> 5
+            </button>
+            <button class="filter-chip" [class.active]="reviewFilter() === 4" (click)="setReviewFilter(4)">
+              <svg aria-hidden="true"><use href="#ws-star"></use></svg> 4
+            </button>
+            <span class="reviews-count"><strong>{{ filteredReviews().length }}</strong> تقييم</span>
+          </div>
+
+          <!-- REVIEW CARDS -->
+          <div id="reviews-list">
+
+            @for (review of filteredReviews(); track review.id) {
+            <div class="review-card">
+              <div class="rc-header">
+                <div class="rc-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ clientInitial(review.client?.name) }}</div>
+                <div class="rc-info">
+                  <div class="rc-name">
+                    {{ review.client?.name || 'عميل' }}
+                  </div>
+                  <div class="rc-meta">
+                    <div class="rc-stars">
+                      @for (star of starIndexes(); track star) { <svg aria-hidden="true" [style.opacity]="star <= review.rating ? 1 : .3"><use href="#ws-star"></use></svg> }
+                    </div>
+                    <span class="rc-date">{{ review.createdAt | date:'yyyy/MM/dd' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="rc-body">{{ review.comment || 'لم يضف العميل تعليقاً.' }}</div>
+            </div>
+            }
+
+          </div>
+
+              </div>
+            } @case ('faq') {
+              <div class="tab-pane fade-in faq-wrap">
+                <div class="faq-search">
+                  <input type="text" placeholder="ابحث في الأسئلة الشائعة..." />
+                </div>
+                <div class="faq-list">
+                  <div class="faq-item"><div class="faq-content-inner">لا توجد أسئلة شائعة مسجلة لهذه الخدمة بعد.</div></div>
+                </div>
+                <div class="faq-ask-action">
+                  <span>لم تجد إجابة لسؤالك؟</span>
+                  <button class="faq-ask-btn" (click)="openNegotiation()">اسأل مقدم الخدمة</button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- ═══ SIDEBAR ═══ -->
+      <div class="svc-sidebar">
+
+        <!-- AI ANALYSIS SIDEBAR CARD -->
+        <div class="sidebar-card">
+          <div class="ai-analysis-wrap" style="margin-bottom:0;border:none;border-radius:0">
+            <div class="ai-analysis-header">
+              <div class="ai-analysis-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
+              <div>
+                <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تحليل الذكاء الاصطناعي للخدمة</div>
+                <div style="font-size:11px;color:var(--txt-2)">سعر، وقت، وصف، وتوافق</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-inline-start:auto;flex-shrink:0">
+                <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">AI · نشط</span>
+                <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore ?? 0 }}%</span>
+                <span style="font-size:9px;color:var(--txt-3)">درجة التوافق</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+                <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--txt-3);margin-bottom:4px">سعر المقدم</div><div style="font-size:20px;font-weight:900;color:var(--txt);line-height:1">{{ model()?.totalAmount ?? 0 }} <span style="font-size:10px;color:var(--txt-3)">ريال</span></div></div>
+                <div style="padding:10px 12px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.18);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--ai-txt);margin-bottom:4px">النطاق العادل · AI</div><div style="font-size:14px;font-weight:900;color:var(--teal);line-height:1.2">عادل <span style="font-size:9px;color:var(--txt-3)">ومناسب للمجال</span></div><div style="display:inline-flex;align-items:center;gap:3px;margin-top:4px;padding:1px 6px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2);border-radius:5px;font-size:9px;font-weight:800;color:var(--green)"><svg style="width:7px;height:7px"><use href="#ws-check"></use></svg>عادل</div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+                <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--txt-3);margin-bottom:4px">مدة التسليم</div><div style="font-size:18px;font-weight:900;color:var(--txt);line-height:1">{{ model()?.totalDays ?? 0 }} <span style="font-size:10px;color:var(--txt-3)">أيام</span></div></div>
+                <div style="padding:10px 12px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.18);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--ai-txt);margin-bottom:4px">المسجلة</div><div style="font-size:14px;font-weight:900;color:var(--teal);line-height:1.2">{{ model()?.totalDays ?? 0 }} <span style="font-size:9px;color:var(--txt-3)">أيام</span></div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+                <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--txt-3);margin-bottom:5px">جودة الوصف</div><div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden"><div [style.width.%]="model()?.aiClarityScore ?? 0" style="height:100%;border-radius:2px;background:var(--grad)"></div></div><span style="font-size:11px;font-weight:800;color:var(--txt)">{{ model()?.aiClarityScore ?? 0 }}%</span></div></div>
+                <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--txt-3);margin-bottom:5px">توافق المجال</div><div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden"><div [style.width.%]="model()?.aiFeasibilityScore ?? 0" style="height:100%;border-radius:2px;background:var(--grad)"></div></div><span style="font-size:11px;font-weight:800;color:var(--txt)">{{ model()?.aiFeasibilityScore ?? 0 }}%</span></div></div>
+              </div>
+            </div>
+            <div class="ai-metrics">
+              <div class="ai-metric m2"><div class="ai-metric-n">{{ model()?.aiScore ?? 0 }}%</div><div class="ai-metric-l">جودة التحليل</div></div>
+              <div class="ai-metric m3"><div class="ai-metric-n">{{ model()?.rating ?? 0 }}</div><div class="ai-metric-l">تقييم الجودة</div></div>
+              <div class="ai-metric m4"><div class="ai-metric-n">{{ model()?.reviewsCount ?? 0 }}</div><div class="ai-metric-l">عدد التقييمات</div></div>
+              <div class="ai-metric m1"><div class="ai-metric-n">{{ model()?.salesCount ?? 0 }}</div><div class="ai-metric-l">مشروع مكتمل</div></div>
+            </div>
+            <div style="margin-top:10px;padding:9px 11px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.12);border-radius:8px;font-size:11px;color:var(--txt-2);line-height:1.55"><strong style="color:var(--ai-txt)">توصية AI:</strong> {{ model()?.aiRecommendationReason || 'لا توجد توصية إضافية مسجلة لهذه الخدمة.' }}</div>
+          </div>
+        </div>
+
+        <!-- ORDER CARD -->
+        <div class="sidebar-card">
+          @if (activeTab() === 'overview') {
+          <div class="order-card-body">
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
+              <span style="font-size:28px;font-weight:900;color:var(--txt)" id="sidebar-price">{{ model()?.totalAmount ?? 0 }} <span style="font-size:14px;font-weight:600;color:var(--txt-3)">ريال</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-3);margin-bottom:16px">
+              <svg style="width:13px;height:13px;color:var(--teal)"><use href="#ws-clock"></use></svg>مدة التسليم <span id="sidebar-days">{{ model()?.totalDays ?? 0 }}</span> أيام
+            </div>
+            <button class="btn-order-primary" type="button" id="sidebar-order-btn" [disabled]="isSubmitting()" (click)="requestService('order')">اطلب الآن — {{ model()?.totalAmount ?? 0 }} ريال</button>
+            <button class="btn-order-ghost" type="button" (click)="requestService('order')"><svg aria-hidden="true"><use href="#ws-msg"></use></svg>تواصل مع {{ model()?.provider?.name || 'المقدم' }}</button>
+            <button class="btn-order-ghost" type="button" (click)="openNegotiation()" style="margin-top:0"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-negotiate"></use></svg>طلب تفاوض مع المقدم</button>
+            <div class="order-guarantee"><svg aria-hidden="true"><use href="#ws-shield"></use></svg>ضمان مالي وفق سياسة الإلغاء والاسترداد</div>
+
+            <!-- NEGOTIATION MODAL -->
+            <div id="neg-modal" [style.display]="showNegotiation() ? 'flex' : 'none'" style="position:fixed;inset:0;z-index:999;background:rgba(4,8,20,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px" (click)="closeNegotiation()">
+              <div style="background:#0D1630;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:460px;padding:28px;position:relative" (click)="$event.stopPropagation()">
+                <div style="position:absolute;top:16px;left:16px;width:36px;height:36px;border-radius:10px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer" (click)="closeNegotiation()">
+                  <svg aria-hidden="true" style="width:16px;height:16px;color:#5DA0FF"><use href="#ws-msg"></use></svg>
+                </div>
+                <h2 style="font-size:20px;font-weight:800;color:#fff;margin:0 0 6px;text-align:right">طلب تفاوض مع {{ model()?.provider?.name || 'مقدم الخدمة' }}</h2>
+                <p style="font-size:13px;color:#A8B2D1;margin:0 0 20px;text-align:right">حدد ما تريد التفاوض عليه واكتب ملاحظاتك، تصل لمقدم الخدمة فإما يقبلها مباشرة أو يحولها للنقاش في الدردشة</p>
+                <div style="margin-bottom:16px">
+                  <div style="font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:8px;text-align:right">على ماذا تتفاوض</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+                    <button class="neg-tag active">السعر</button>
+                    <button class="neg-tag">المدة</button>
+                    <button class="neg-tag">الخطة</button>
+                    <button class="neg-tag">أخرى</button>
+                  </div>
+                </div>
+                <div style="margin-bottom:16px">
+                  <div style="font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:8px;text-align:right">ملاحظاتك لمقدم الخدمة</div>
+                  <textarea [value]="negotiationMessage()" (input)="updateNegotiationMessage($event)" placeholder="اكتب تفاصيل طلبك، سعراً أو مدة أو تعديلاً على الخطة أو أي استفسار" style="width:100%;min-height:100px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;color:#fff;font-family:Tajawal,sans-serif;font-size:13px;resize:vertical;outline:none;box-sizing:border-box;text-align:right" dir="rtl"></textarea>
+                </div>
+                <div style="background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.15);border-radius:12px;padding:14px 16px;margin-bottom:20px">
+                  <div style="font-size:11px;font-weight:800;color:#5DA0FF;margin-bottom:8px;display:flex;align-items:center;gap:6px;justify-content:flex-end"><svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-ai-spark"></use></svg>ماذا يحدث بعد الإرسال</div>
+                  <div style="font-size:12px;color:#A8B2D1;display:flex;flex-direction:column;gap:5px;text-align:right">
+                    <span><span style="color:#2BD4C7;font-weight:700">1</span> يصل طلبك للمقدم</span>
+                    <span><span style="color:#2BD4C7;font-weight:700">2</span> يقبل طلبك مباشرة أو يحوله للدردشة</span>
+                    <span><span style="color:#2BD4C7;font-weight:700">3</span> تقبل الحوار أو تعلقه أو ترفضه</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:10px">
+                  <button (click)="closeNegotiation()" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#A8B2D1;font-family:Tajawal,sans-serif;font-size:14px;font-weight:600;cursor:pointer">إلغاء</button>
+                  <button [disabled]="isSubmitting()" (click)="requestService('negotiation')" style="flex:2;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer">إرسال طلب التفاوض</button>
+                </div>
+              </div>
+            </div>
+          </div>
+} @else if (activeTab() === 'reviews') {
+          <div class="order-card-body">
+            <div class="order-includes">
+              @for (stage of model()?.stages || []; track stage.id) { <div class="order-inc"><span class="order-inc-ico"><svg><use href="#ws-check"></use></svg></span>{{ stage.title }}</div> }
+            </div>
+            <button class="btn-order-primary" type="button" [disabled]="isSubmitting()" (click)="requestService('order')">اطلب الآن</button>
+            <button class="btn-order-ghost" type="button" (click)="requestService('order')"><svg aria-hidden="true"><use href="#ws-file"></use></svg>تواصل مع {{ model()?.provider?.name || 'المقدم' }}</button>
+            <div class="order-guarantee"><svg aria-hidden="true"><use href="#ws-shield"></use></svg>ضمان مالي وفق سياسة الإلغاء والاسترداد</div>
+          </div>
+}
+        </div>
+        <!-- TRUST -->
+        <div class="sidebar-card">
+          <div class="trust-card">
+            <div style="font-size:11px;font-weight:800;color:var(--txt-3);letter-spacing:.06em;margin-bottom:10px">ضمانات وسيط AI</div>
+            <div class="trust-item">
+              <span class="trust-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)"><svg><use href="#ws-shield"></use></svg></span>
+              ضمان استرداد المدفوعات كاملاً
+            </div>
+            <div class="trust-item">
+              <span class="trust-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);color:var(--blue-txt)"><svg><use href="#ws-file"></use></svg></span>
+              عقد رسمي موثّق لكل مشروع
+            </div>
+            <div class="trust-item">
+              <span class="trust-ico" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2);color:var(--green)"><svg><use href="#ws-check"></use></svg></span>
+              المقدم معتمد وموثّق من وسيط
+            </div>
+            <div class="trust-item">
+              <span class="trust-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border);color:var(--ai)"><svg><use href="#ws-trust-ai"></use></svg></span>
+              مراقبة AI لجودة التسليم
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+select.field-select {
+	color-scheme: dark;
+}
+
+.field-select option,
+.field-select optgroup {
+	background: var(--navy, #0b1437) !important;
+	color: var(--txt, #ffffff) !important;
+}
+
+
+.mock-input {
+  background: var(--surface); border: 1px solid var(--border); color: var(--txt);
+  border-radius: 8px; padding: 9px 12px; font-size: 12.5px; font-family: inherit;
+}

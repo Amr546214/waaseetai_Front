@@ -1,0 +1,353 @@
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+<symbol id="i-dots" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+<symbol id="i-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="i-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+<symbol id="i-export" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></symbol>
+<symbol id="i-escrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/></symbol>
+<symbol id="i-market" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h14M9 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0M17 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/></symbol>
+</defs></svg>
+
+<main class="main" id="main">
+  <h1 class="sr-only">إدارة المستخدمين</h1>
+  <div class="main-inner">
+
+    <div class="page-hdr">
+      <div class="page-hdr-left">
+        <div class="page-ttl">المستخدمون</div>
+        <div class="page-sub">كل حسابات وسيط AI: طالبو الخدمة، مقدمو الخدمة، الوسطاء، والإداريون</div>
+      </div>
+      <button type="button" class="btn btn-ghost" (click)="exportCSV()"><svg aria-hidden="true"><use href="#i-export"></use></svg>تصدير CSV</button>
+    </div>
+
+    <div class="ai-disclosure">
+      <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+      <div class="ai-disc-body">
+        <div class="ai-disc-lbl">وسيط AI: تحليل المستخدمين</div>
+        <p class="ai-disc-txt">AI يرصد الأنشطة غير الاعتيادية ويصنّف المخاطر <span class="ai-disc-badge">دقة 95%</span> — توصية AI تحتاج مراجعة بشرية</p>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      @for (k of currentKPIs; track k.lbl) {
+        <div class="kpi-card">
+          <div class="kpi-top">
+            <div class="kpi-ic" [style.background]="k.bg" [style.color]="k.cl">
+              <svg aria-hidden="true"><use [attr.href]="'#' + k.ic"></use></svg>
+            </div>
+            <span class="kpi-lbl">{{ k.lbl }}</span>
+          </div>
+          <div class="kpi-val" [style.color]="k.cl">{{ k.val }}</div>
+          <div class="kpi-sub" [style.color]="k.subCl">{{ k.sub }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="tabs-wrap" role="tablist" aria-label="تصفية حسب نوع المستخدم">
+      <button class="tab" [class.active]="selectedAccountType() === 'all'" (click)="setTab('all')" role="tab" type="button">الكل<span class="tab-count">{{ usersStats()?.tabCounts?.['all'] || 0 }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'sk-ind'" (click)="setTab('sk-ind')" role="tab" type="button">طالب خدمة فرد<span class="tab-count">{{ usersStats()?.tabCounts?.['sk-ind'] || 0 }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'sk-co'" (click)="setTab('sk-co')" role="tab" type="button">طالب خدمة شركة<span class="tab-count">{{ usersStats()?.tabCounts?.['sk-co'] || 0 }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'pr-ind'" (click)="setTab('pr-ind')" role="tab" type="button">مقدم خدمة فرد<span class="tab-count">{{ usersStats()?.tabCounts?.['pr-ind'] || 0 }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'pr-co'" (click)="setTab('pr-co')" role="tab" type="button">مقدم خدمة شركة<span class="tab-count">{{ usersStats()?.tabCounts?.['pr-co'] || 0 }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'affiliate'" (click)="setTab('affiliate')" role="tab" type="button">وسيط تسويقي<span class="tab-count">{{ usersStats()?.tabCounts?.['affiliate'] || 0 }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'admin'" (click)="setTab('admin')" role="tab" type="button">إداري<span class="tab-count">{{ usersStats()?.tabCounts?.['admin'] || 0 }}</span></button>
+    </div>
+
+    <div class="filter-rail" id="filter-rail">
+      
+      <!-- Filter controls -->
+      <div class="fr-rail-group active" style="display:grid">
+        <div class="fr-row">
+          <div class="fr-period-lbl">الحالة</div>
+          <div class="date-segs">
+            <button class="ds" [class.active]="selectedStatus() === 'ALL'" (click)="setStatusFilter('ALL')">الكل</button>
+            <button class="ds" [class.active]="selectedStatus() === 'ACTIVE'" (click)="setStatusFilter('ACTIVE')">نشط</button>
+            <button class="ds" [class.active]="selectedStatus() === 'SUSPENDED'" (click)="setStatusFilter('SUSPENDED')">موقوف</button>
+            <button class="ds" [class.active]="selectedStatus() === 'SUSPENDED_REVIEW'" (click)="setStatusFilter('SUSPENDED_REVIEW')">معلق مراجعة</button>
+          </div>
+          <div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">القيمة المالية</div>
+          <div class="date-segs">
+            <button class="ds" [class.active]="selectedFinancialRange() === 'ALL'" (click)="setFinancialFilter('ALL')">الكل</button>
+            <button class="ds" [class.active]="selectedFinancialRange() === 'UNDER_5K'" (click)="setFinancialFilter('UNDER_5K')">&lt;5K</button>
+            <button class="ds" [class.active]="selectedFinancialRange() === '5K_TO_50K'" (click)="setFinancialFilter('5K_TO_50K')">5K–50K</button>
+            <button class="ds" [class.active]="selectedFinancialRange() === 'OVER_50K'" (click)="setFinancialFilter('OVER_50K')">&gt;50K</button>
+          </div>
+        </div>
+        <div class="fr-row">
+          <div class="fr-period-lbl">التقييم</div>
+          <div class="date-segs">
+            <button class="ds" [class.active]="selectedRating() === 'ALL'" (click)="setRatingFilter('ALL')">الكل</button>
+            <button class="ds" [class.active]="selectedRating() === '4.5_PLUS'" (click)="setRatingFilter('4.5_PLUS')">★ +4.5</button>
+            <button class="ds" [class.active]="selectedRating() === '4_PLUS'" (click)="setRatingFilter('4_PLUS')">★ +4</button>
+            <button class="ds" [class.active]="selectedRating() === 'UNDER_4'" (click)="setRatingFilter('UNDER_4')">★ أقل من 4</button>
+          </div>
+          <div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">التاريخ</div>
+          <div class="date-segs">
+            <button class="ds" [class.active]="selectedJoinedDate() === 'ALL'" (click)="setDateFilter('ALL')">الكل</button>
+            <button class="ds" [class.active]="selectedJoinedDate() === 'THIS_MONTH'" (click)="setDateFilter('THIS_MONTH')">هذا الشهر</button>
+            <button class="ds" [class.active]="selectedJoinedDate() === 'LAST_3_MONTHS'" (click)="setDateFilter('LAST_3_MONTHS')">آخر 3 أشهر</button>
+          </div>
+        </div>
+        <div class="fr-row">
+          <div class="fr-period-lbl">Risk Score (AI)</div>
+          <div class="date-segs">
+            <button class="ds" [class.active]="selectedRiskLevel() === 'ALL'" (click)="setRiskFilter('ALL')">الكل</button>
+            <button class="ds" [class.active]="selectedRiskLevel() === 'LOW'" (click)="setRiskFilter('LOW')" style="color:#0FA99A">منخفض &lt;30</button>
+            <button class="ds" [class.active]="selectedRiskLevel() === 'MEDIUM'" (click)="setRiskFilter('MEDIUM')" style="color:#FFB400">متوسط 30-70</button>
+            <button class="ds" [class.active]="selectedRiskLevel() === 'HIGH'" (click)="setRiskFilter('HIGH')" style="color:#FF8C69">مرتفع &gt;70</button>
+          </div>
+          <div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">آخر نشاط</div>
+          <div class="date-segs">
+            <button class="ds" [class.active]="selectedLastActive() === 'ALL'" (click)="setLastActiveFilter('ALL')">الكل</button>
+            <button class="ds" [class.active]="selectedLastActive() === 'TODAY'" (click)="setLastActiveFilter('TODAY')">اليوم</button>
+            <button class="ds" [class.active]="selectedLastActive() === 'THIS_WEEK'" (click)="setLastActiveFilter('THIS_WEEK')">هذا الأسبوع</button>
+            <button class="ds" [class.active]="selectedLastActive() === 'UNDER_30_DAYS'" (click)="setLastActiveFilter('UNDER_30_DAYS')">&gt;30 يوم</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- سطر البحث (ثابت مع debounce) -->
+      <div class="fr-row" style="background:rgba(255,255,255,.02)">
+        <div class="fr-search" style="flex:1;padding:10px 16px;border-inline-end:1px solid rgba(255,255,255,.07)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" [ngModel]="searchQuery()" (ngModelChange)="onSearchInput($event)" placeholder="ابحث في المستخدمين (الاسم، البريد، الهاتف)..." aria-label="بحث">
+        </div>
+        <div class="fr-end">
+          <button type="button" class="fr-export-btn" (click)="exportCSV()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>تصدير CSV
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tbl-card">
+      <div class="tbl-wrap">
+        <table class="data-tbl">
+          <thead>
+            <tr>
+              @for (col of currentCols; track col) {
+                <th>{{ col }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @if (loading()) {
+              <tr>
+                <td [attr.colspan]="currentCols.length">
+                  <div class="empty-state" style="padding: 24px;">
+                    <div class="empty-ttl">جاري تحميل البيانات من الخادم...</div>
+                  </div>
+                </td>
+              </tr>
+            } @else if (users().length === 0) {
+              <tr>
+                <td [attr.colspan]="currentCols.length">
+                  <div class="empty-state">
+                    <div class="empty-ttl">لا توجد نتائج مطابقة لشروط البحث</div>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (u of users(); track u.id) {
+                <tr>
+                  <td>
+                    <div class="u-cell">
+                      <div class="u-av" [style.background]="u.avBg">{{ u.av }}</div>
+                      <div>
+                        <a routerLink="." class="u-name">{{ u.name }}</a>
+                        <div class="u-email">{{ u.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  @if (selectedAccountType() === 'all') {
+                    <td>
+                      <span class="type-badge" [style.background]="u.typeBg" [style.color]="u.typeColor">{{ u.typeLabel }}</span>
+                    </td>
+                  }
+
+                  <td>
+                    <span class="status-dot" [ngClass]="SC[u.status] || 's-active'">{{ SL[u.status] || u.status }}</span>
+                  </td>
+                  <td style="color:#6B7699;font-size:12px">{{ u.last }}</td>
+
+                  <!-- Dynamic Data Cells -->
+                  @switch (selectedAccountType()) {
+                    @case ('sk-ind') {
+                      <td style="font-weight:700;color:#2BD4C7">{{ u.spending || '0' }} ر.س</td>
+                      <td style="font-weight:700;color:#fff">{{ u.projects }}</td>
+                      <td style="font-weight:800;color:#5DA0FF">{{ u.requests || 0 }}</td>
+                      <td style="color:#6B7699;font-size:12px">{{ u.lastReq || '-' }}</td>
+                      <td style="color:#A8B2D1;font-size:12px">—</td>
+                    }
+                    @case ('sk-co') {
+                      <td style="font-weight:700;color:#FFB400">{{ u.monthlyBudget || '0' }} ر.س</td>
+                      <td style="font-weight:700;color:#fff">{{ u.projects }}</td>
+                      <td style="color:#fff;font-weight:600">{{ u.manager || '-' }}</td>
+                      <td style="font-weight:700;color:#A8B2D1">{{ u.teamSize || '0' }} موظف</td>
+                      <td style="font-weight:700;color:#FFB400">{{ u.monthlyBudget || '0' }} ر.س</td>
+                    }
+                    @case ('pr-ind') {
+                      <td style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:800;color:#FFB400">{{ u.rating || '0' }} ★</td>
+                      <td>
+                        <span style="font-size:11px;font-weight:800;padding:2px 9px;border-radius:20px;" 
+                              [style.background]="LB[u.level || 'Bronze'] || 'rgba(255,255,255,.06)'" 
+                              [style.color]="LC[u.level || 'Bronze'] || '#fff'">
+                          {{ u.level || 'Bronze' }}
+                        </span>
+                      </td>
+                      <td style="color:#5DA0FF;font-weight:600">{{ u.specialty || '-' }}</td>
+                      <td style="font-weight:700;color:#fff">{{ u.projects }}</td>
+                      <td style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</td>
+                    }
+                    @case ('pr-co') {
+                      <td style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:800;color:#fff">{{ u.providerCount || '0' }} مقدم</td>
+                      <td style="color:#A56BE0;font-size:12px">{{ u.specialties || '-' }}</td>
+                      <td style="font-weight:800;color:#fff">{{ u.activeProjects || '0' }}</td>
+                      <td style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</td>
+                    }
+                    @case ('affiliate') {
+                      <td style="font-weight:700;color:#2BD4C7">{{ u.pendingCommission || '0' }} ر.س</td>
+                      <td style="font-weight:700;color:#5DA0FF">مستوى {{ u.affiliateLevel || 1 }}</td>
+                      <td style="font-weight:800;color:#fff">{{ u.totalReferrals || 0 }}</td>
+                      <td style="color:#A8B2D1;font-size:12px">-</td>
+                      <td style="color:#A8B2D1;font-size:12px">-</td>
+                    }
+                    @case ('admin') {
+                      <td style="color:#FFB400;font-weight:700">{{ u.role || 'مدير' }}</td>
+                      <td style="color:#6B7699;font-size:11px">كل الصفحات</td>
+                      <td style="font-weight:800;color:#fff">{{ u.tasksCount || 0 }}</td>
+                      <td style="font-weight:700;color:#0FA99A">-</td>
+                      <td style="color:#6B7699;font-size:11px">-</td>
+                    }
+                    @default {
+                      <td>
+                        @if (u.type === 'sk-ind') { <span style="font-weight:700;color:#2BD4C7">{{ u.spending || '0' }} ر.س</span> }
+                        @if (u.type === 'sk-co') { <span style="font-weight:700;color:#FFB400">{{ u.monthlyBudget || '0' }} ر.س</span> }
+                        @if (u.type === 'pr-ind' || u.type === 'pr-co') { <span style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</span> }
+                        @if (u.type === 'affiliate') { <span style="font-weight:700;color:#2BD4C7">{{ u.pendingCommission || '0' }} ر.س</span> }
+                        @if (u.type === 'admin') { <span style="color:#FFB400;font-weight:700">{{ u.role || 'مدير' }}</span> }
+                      </td>
+                      <td>
+                        @if (u.type === 'sk-ind') { <span style="color:#6B7699;font-size:11px">{{ u.requests || 0 }} طلب</span> }
+                        @if (u.type === 'sk-co') { <span style="color:#A8B2D1;font-size:11px">{{ u.teamSize || '?' }} موظف</span> }
+                        @if (u.type === 'pr-ind') { 
+                          <span style="color:#FFB400;font-weight:700">{{ u.rating || '0' }} ★</span> 
+                          <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:12px;" [style.background]="LB[u.level || 'Bronze']" [style.color]="LC[u.level || 'Bronze'] || '#fff'">{{ u.level || 'Bronze' }}</span>
+                        }
+                        @if (u.type === 'pr-co') { <span style="color:#A56BE0;font-size:11px">{{ u.providerCount || '0' }} مقدم</span> }
+                        @if (u.type === 'affiliate') { <span style="color:#5DA0FF;font-size:11px">مستوى {{ u.affiliateLevel || 1 }}</span> }
+                        @if (u.type === 'admin') { <span style="color:#6B7699;font-size:11px">{{ u.tasksCount || 0 }} مهام</span> }
+                      </td>
+                      <td style="font-weight:700;color:#fff">{{ u.projects }}</td>
+                    }
+                  }
+
+                  <td>
+                    <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;" [style.background]="RB[u.risk]" [style.color]="RC[u.risk]">{{ RL[u.risk] || u.risk }}</span>
+                  </td>
+                  
+                  <td>
+                    <div class="row-actions">
+                      <a routerLink="." class="act-btn" title="عرض الملف"><svg aria-hidden="true"><use href="#i-eye"></use></svg></a>
+                      <button type="button" class="act-btn" title="إرسال تنبيه"><svg aria-hidden="true"><use href="#i-mail"></use></svg></button>
+                      <div class="act-more">
+                        <button type="button" class="act-btn" (click)="toggleDropdown($event, u.id)"><svg aria-hidden="true"><use href="#i-dots"></use></svg></button>
+                        @if (isDropdownOpen[u.id]) {
+                          <div class="act-dropdown" (click)="$event.stopPropagation()">
+                            <a routerLink="." class="act-drop-item"><svg aria-hidden="true"><use href="#i-eye"></use></svg>عرض الملف الكامل</a>
+                            <button type="button" class="act-drop-item"><svg aria-hidden="true"><use href="#i-list"></use></svg>سجل النشاط</button>
+                            <button type="button" class="act-drop-item"><svg aria-hidden="true"><use href="#i-escrow"></use></svg>مشاريعه</button>
+                            <button type="button" class="act-drop-item"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>معاملاته المالية</button>
+                            
+                            <div class="act-drop-sep"></div>
+                            <button type="button" class="act-drop-item" (click)="toggleStatus(u)">
+                              <svg aria-hidden="true"><use href="#i-pause"></use></svg>{{ u.status === 'active' ? 'تعليق الحساب' : 'تفعيل الحساب' }}
+                            </button>
+                            <button type="button" class="act-drop-item"><svg aria-hidden="true"><use href="#i-mail"></use></svg>إنذار رسمي</button>
+                            <div class="act-drop-sep"></div>
+                            <button type="button" class="act-drop-item" style="color: #FF4C4C" (click)="openDeleteModal(u)"><svg aria-hidden="true"><use href="#i-trash"></use></svg>حذف الحساب</button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination controls -->
+      <div class="pagination">
+        <span class="pg-info" id="pg-info">
+          عرض {{ totalUsersCount() === 0 ? 0 : (currentPage() - 1) * limit() + 1 }}–{{ (currentPage() - 1) * limit() + users().length }} من {{ totalUsersCount() }}
+        </span>
+        <div class="pg-btns">
+          <button type="button" class="pg-btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
+            <svg aria-hidden="true"><use href="#i-chevron-right"></use></svg>
+          </button>
+
+          <span style="padding:0 8px;color:#A8B2D1;font-size:13px;line-height:30px">
+            صفحة {{ currentPage() }} من {{ totalPages() || 1 }}
+          </span>
+
+          <button type="button" class="pg-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)">
+            <svg aria-hidden="true"><use href="#i-chevron-left"></use></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="inner-foot">
+      <span>© 2026 وسيط AI · v2.0.0</span>
+      <div class="inner-foot-links">
+        <a routerLink=".">PDPL</a>
+        <a routerLink=".">الشروط</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+@if (isDeleteModalOpen() && userToDelete()) {
+  <div class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon">
+        <svg aria-hidden="true"><use href="#i-trash"></use></svg>
+      </div>
+      <h3 class="modal-title">تأكيد حذف الحساب نهائياً</h3>
+      <p class="modal-desc">أنت على وشك حذف هذا الحساب وكل ما يتعلق به من بيانات، طلبات، مشاريع مالية، وملفات. <strong>هذا الإجراء لا يمكن التراجع عنه.</strong></p>
+      
+      <div class="modal-user-preview">
+        <div class="u-av" [style.background]="userToDelete()!.avBg">{{ userToDelete()!.av }}</div>
+        <div>
+          <div class="u-name" style="font-size:14px">{{ userToDelete()!.name }}</div>
+          <div class="u-email" style="font-size:12px;opacity:0.7">{{ userToDelete()!.email }}</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn modal-btn-cancel" (click)="closeDeleteModal()">إلغاء</button>
+        <button type="button" class="modal-btn modal-btn-delete" (click)="confirmDelete()">نعم، احذف الحساب</button>
+      </div>
+    </div>
+  </div>
+}

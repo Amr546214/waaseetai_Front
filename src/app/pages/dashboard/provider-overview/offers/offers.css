@@ -1,0 +1,150 @@
+/* Offers Page CSS Styles - Waseet AI Theme */
+.ai-disclosure {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: linear-gradient(135deg, rgba(123, 47, 190, .09), rgba(43, 127, 255, .06));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(123, 47, 190, .22);
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.ai-disc-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(123, 47, 190, .16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #A56BE0;
+}
+
+.filter-rail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, .03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  
+  /* Firefox Scrollbar Styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* WebKit (Chrome/Safari/Edge) Scrollbar Styling */
+.filter-rail::-webkit-scrollbar {
+  height: 4px;
+}
+.filter-rail::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 14px;
+}
+.filter-rail::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+}
+.filter-rail::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.filter-label-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7699;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.filter-chip {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #A8B2D1;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+}
+
+.filter-chip.active {
+  background: rgba(43, 212, 199, .14);
+  border-color: rgba(43, 212, 199, .30);
+  color: #2BD4C7;
+  font-weight: 700;
+}
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, .2);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 10px;
+}
+
+.adm-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.tbl-row {
+  border-bottom: 1px solid rgba(255, 255, 255, .05);
+  transition: background .15s ease;
+}
+
+.tbl-row:last-child {
+  border-bottom: none;
+}
+
+.tbl-row:hover {
+  background: rgba(255, 255, 255, .03);
+}
+
+.pagination-btn {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+  color: #A8B2D1;
+  font-weight: 700;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.pagination-btn.active {
+  background: rgba(43, 212, 199, .14);
+  border-color: rgba(43, 212, 199, .30);
+  color: #2BD4C7;
+}
+
+.pagination-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+}

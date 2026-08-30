@@ -1,0 +1,152 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  position: relative;
+  direction: rtl;
+  font-family: 'Tajawal', system-ui, sans-serif;
+}
+
+/* Sidebar Overlay */
+.sb-ov {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 85;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: opacity 0.22s ease;
+}
+.sb-ov.show {
+  display: block;
+}
+
+/* Sidebar Wrapper */
+.sidebar-wrapper {
+  position: fixed;
+  top: 56px;
+  right: 0;
+  width: 260px;
+  bottom: 0;
+  z-index: 90;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+/* Override app-sidebar styles without modifying its files */
+::ng-deep .sidebar-wrapper app-sidebar aside.sidebar {
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(7, 13, 36, 0.28) !important;
+  backdrop-filter: blur(22px) !important;
+  -webkit-backdrop-filter: blur(22px) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+
+/* Hide logo bar inside sidebar since we have fixed Topbar with Logo */
+::ng-deep .sidebar-wrapper app-sidebar aside.sidebar > div:first-child {
+  display: none !important;
+}
+
+/* Main Area */
+.main {
+  position: relative;
+  z-index: 1;
+  margin-top: 56px;
+  margin-right: 260px;
+  padding: 22px 24px;
+  min-height: calc(100vh - 56px);
+  transition: margin-right 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.main-inner {
+  width: 100%;
+  flex: 1;
+}
+
+/* Footer */
+.inner-foot {
+  margin-top: 30px;
+  padding: 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #6B7699;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.inner-foot-links {
+  display: flex;
+  gap: 16px;
+}
+.inner-foot-links a, .inner-foot-links span {
+  color: #6B7699;
+  text-decoration: none;
+  transition: color 0.15s;
+  cursor: pointer;
+  font-weight: 600;
+}
+.inner-foot-links a:hover {
+  color: var(--teal-txt, #2BD4C7);
+}
+
+/* Light Theme Overrides for Layout & Sidebar */
+:host-context(body.light-theme) .sidebar-wrapper,
+:host-context(body.light) .sidebar-wrapper {
+  background: transparent;
+}
+:host-context(body.light-theme) ::ng-deep .sidebar-wrapper app-sidebar aside.sidebar,
+:host-context(body.light) ::ng-deep .sidebar-wrapper app-sidebar aside.sidebar {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-left-color: #E2E8F4 !important;
+  box-shadow: -4px 0 25px rgba(15, 23, 42, 0.05) !important;
+}
+:host-context(body.light-theme) .inner-foot,
+:host-context(body.light) .inner-foot {
+  border-top-color: #E2E8F4;
+  color: #64748B !important;
+}
+:host-context(body.light-theme) .inner-foot-links a,
+:host-context(body.light-theme) .inner-foot-links span,
+:host-context(body.light) .inner-foot-links a,
+:host-context(body.light) .inner-foot-links span {
+  color: #64748B !important;
+}
+:host-context(body.light-theme) .inner-foot-links a:hover,
+:host-context(body.light) .inner-foot-links a:hover {
+  color: #0F8A7F !important;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 767px) {
+  .sidebar-wrapper {
+    top: 0;
+    height: 100vh;
+    width: 280px;
+    transform: translateX(100%);
+  }
+  ::ng-deep .sidebar-wrapper.open app-sidebar aside.sidebar > div:first-child {
+    display: flex !important;
+  }
+  .sidebar-wrapper.open {
+    transform: translateX(0);
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.6);
+  }
+  .main {
+    margin-right: 0;
+    max-width: 100vw;
+    min-height: unset;
+    padding: 14px 16px;
+  }
+  .inner-foot {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}

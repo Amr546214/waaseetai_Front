@@ -1,0 +1,443 @@
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="particles" id="particles-container" aria-hidden="true"></div>
+
+<!-- SVG SPRITE -->
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+<symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+<symbol id="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ws-cat-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+<symbol id="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ws-provider" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></symbol>
+<symbol id="ws-trust-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+<symbol id="ws-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></symbol>
+</defs></svg>
+
+@if (!loading() && provider()) {
+<div class="page-wrap">
+  <div class="container">
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+      <a routerLink="/">الرئيسية</a>
+      <span class="breadcrumb-sep">/</span>
+      <a routerLink="/marketplace">تسوق الخدمات</a>
+      <span class="breadcrumb-sep">/</span>
+      <span style="color:var(--txt-2)">{{ provider()?.header?.fullName || 'مزود خدمة' }}</span>
+    </div>
+
+    <!-- COVER BANNER -->
+    <div class="cover-banner">
+      <div class="cover-grid"></div>
+      <div class="cover-glow-1"></div>
+      <div class="cover-glow-2"></div>
+      <div class="cover-deco-1"></div>
+      <div class="cover-deco-2"></div>
+      <div class="cover-deco-3"></div>
+      <div class="cover-deco-4"></div>
+      <div style="position:absolute;top:18px;left:24px;font-size:10px;color:rgba(255,255,255,.18);font-weight:700;letter-spacing:.1em;text-transform:uppercase">{{ provider()?.specialties?.[0]?.specialtyName || 'WASEET AI' }}</div>
+    </div>
+
+    <!-- PROFILE IDENTITY -->
+    <div class="profile-identity">
+      <div class="identity-row">
+        <div style="position:relative;flex-shrink:0">
+          @if (provider()?.header?.avatarUrl) {
+            <img [src]="provider()?.header?.avatarUrl" class="profile-av" style="object-fit: cover;" alt="avatar">
+          } @else {
+            <div class="profile-av">{{ provider()?.header?.fullName?.substring(0, 2) || 'م.خ' }}</div>
+          }
+          <div class="profile-online" title="متاحة الآن"></div>
+        </div>
+        <div class="identity-info">
+          <div class="identity-name-row">
+            <span class="identity-name">{{ provider()?.header?.fullName || 'مزود خدمة' }}</span>
+            <span class="level-badge level-خبير">
+              <svg aria-hidden="true" style="width:9px;height:9px"><use href="#ws-star"></use></svg>
+              {{ provider()?.header?.levelInfo?.levelName || 'خبير' }}
+            </span>
+            @if (provider()?.header?.isVerified) {
+              <span class="verified-badge">
+                <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-check"></use></svg>
+                موثّق
+              </span>
+            }
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#0FA99A;font-weight:700">
+              <span style="width:7px;height:7px;border-radius:50%;background:#0FA99A"></span>
+              متاحة الآن · ترد خلال 3 ساعات
+            </span>
+          </div>
+          <div class="identity-title">{{ provider()?.basicInfo?.headline || 'مزود خدمة محترف' }} — {{ provider()?.basicInfo?.yearsOfExperience || 'بدون خبرة مسجلة' }}</div>
+        </div>
+        <div class="identity-actions">
+          <button class="btn-primary-sm">اطلب خدمة</button>
+          <button class="btn-ghost-sm">
+            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-msg"></use></svg>
+            إرسال رسالة
+          </button>
+          <button class="btn-ghost-sm" id="fav-btn">
+            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-heart"></use></svg>
+          </button>
+          <button class="btn-ghost-sm">
+            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-share"></use></svg>
+          </button>
+        </div>
+      </div>
+      <!-- SKILL TAGS -->
+      <div class="skill-tags-row">
+        @for (skill of provider()?.skills; track skill) {
+          <span class="skill-tag">{{ skill }}</span>
+        }
+      </div>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar" style="background:#070D24;border-inline:1px solid var(--border)">
+      <div class="stat-cell">
+        <div class="stat-n" style="color:var(--kahr)">{{ provider()?.header?.stats?.clientRating / 20 | number:'1.1-1' }} <span style="font-size:13px">★</span></div>
+        <div class="stat-sub">رضا العملاء ({{ provider()?.header?.stats?.clientRating }}%)</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-n">{{ provider()?.header?.stats?.completedProjects || 0 }}</div>
+        <div class="stat-sub">مشروع مكتمل</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-n" style="color:var(--teal)">{{ provider()?.header?.stats?.publishedServices || 0 }}</div>
+        <div class="stat-sub">خدمات معتمدة</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-n" style="font-size:16px">{{ provider()?.header?.stats?.completedTasks || 0 }}</div>
+        <div class="stat-sub">مهام منجزة</div>
+      </div>
+      <div class="stat-cell" style="background:rgba(123,47,190,.04)">
+        <div class="stat-n" style="color:var(--ai-txt)">{{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }} <span style="font-size:11px;font-weight:600;color:var(--txt-3)">/100</span></div>
+        <div class="stat-sub" style="display:flex;align-items:center;gap:3px;justify-content:center">
+          <svg aria-hidden="true" style="width:10px;height:10px;color:var(--ai-txt)"><use href="#ws-trust-ai"></use></svg>
+          نقاط AI
+        </div>
+      </div>
+    </div>
+
+    <!-- AI METRICS BLOCK -->
+    <div class="ai-metrics-block">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">
+        <span style="width:30px;height:30px;border-radius:8px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg aria-hidden="true" style="width:14px;height:14px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
+        </span>
+        <span style="font-size:13px;font-weight:800;color:var(--ai-txt)">تحليل الذكاء الاصطناعي الشامل</span>
+        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)">AI · نشط</span>
+        <span style="font-size:11px;color:var(--txt-3)">مؤشرات الأداء الفعلية</span>
+      </div>
+      <div class="ai-metrics-inner">
+        <!-- RINGS -->
+        <div class="ai-rings-group">
+          <div class="ai-ring-item">
+            <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(123,47,190,.14)" stroke-width="5"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#A56BE0" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.executionQuality || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.executionQuality || 0"/>
+              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#A56BE0;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.executionQuality || 0 }}</text>
+            </svg>
+            <div style="font-size:10px;color:var(--txt-3)">جودة التنفيذ</div>
+          </div>
+          <div class="ai-ring-item">
+            <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(43,212,199,.14)" stroke-width="5"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#2BD4C7" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.onTimeDelivery || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.onTimeDelivery || 0"/>
+              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#2BD4C7;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.onTimeDelivery || 0 }}</text>
+            </svg>
+            <div style="font-size:10px;color:var(--txt-3)">الالتزام بالمواعيد</div>
+          </div>
+          <div class="ai-ring-item">
+            <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(43,127,255,.14)" stroke-width="5"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#5DA0FF" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.communication || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.communication || 0"/>
+              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#5DA0FF;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.communication || 0 }}</text>
+            </svg>
+            <div style="font-size:10px;color:var(--txt-3)">التواصل</div>
+          </div>
+          <div class="ai-ring-item">
+            <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(15,169,154,.14)" stroke-width="5"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#0FA99A" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.clientSatisfaction || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.clientSatisfaction || 0"/>
+              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#0FA99A;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.clientSatisfaction || 0 }}</text>
+            </svg>
+            <div style="font-size:10px;color:var(--txt-3)">رضا العملاء</div>
+          </div>
+        </div>
+
+        <!-- PERFORMANCE BARS -->
+        <div class="ai-perf-bars">
+          <div class="ai-bar-row">
+            <div class="ai-bar-label">
+              <span style="color:var(--txt-2)">معدل الإنجاز في الوقت المحدد</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.onTimeCompletionRate || 0 }}%</span>
+            </div>
+            <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.onTimeCompletionRate || 0" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
+          </div>
+          <div class="ai-bar-row">
+            <div class="ai-bar-label">
+              <span style="color:var(--txt-2)">معدل إعادة الطلب من نفس العميل</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.repeatClientRate || 0 }}%</span>
+            </div>
+            <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.repeatClientRate || 0" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
+          </div>
+          <div class="ai-bar-row">
+            <div class="ai-bar-label">
+              <span style="color:var(--txt-2)">نسبة الخدمات فوق 4.8 نجمة</span>
+              <span style="color:var(--kahr);font-weight:800">{{ provider()?.aiMetrics?.highRatingServicesRate || 0 }}%</span>
+            </div>
+            <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.highRatingServicesRate || 0" style="background:linear-gradient(90deg,#D98A0B,#FFB400)"></div></div>
+          </div>
+          <div class="ai-bar-row">
+            <div class="ai-bar-label">
+              <span style="color:var(--txt-2)">نسبة التسليم بدون نزاعات</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.conflictFreeDeliveryRate || 0 }}%</span>
+            </div>
+            <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.conflictFreeDeliveryRate || 0" style="background:linear-gradient(90deg,#0FA99A,#2BD4C7)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="profile-tabs">
+      <a class="ptab cursor-pointer" [class.active]="activeTab() === 'profile'" (click)="activeTab.set('profile')">الملف الشخصي</a>
+      <a class="ptab cursor-pointer" [class.active]="activeTab() === 'services'" (click)="activeTab.set('services')">الخدمات ({{ provider()?.header?.stats?.publishedServices || 0 }})</a>
+      <a class="ptab cursor-pointer" [class.active]="activeTab() === 'reviews'" (click)="activeTab.set('reviews')">التقييمات ({{ provider()?.header?.stats?.reviewsCount || 0 }})</a>
+      <a class="ptab cursor-pointer" [class.active]="activeTab() === 'portfolio'" (click)="activeTab.set('portfolio')">نماذج الأعمال ({{ provider()?.header?.stats?.portfolioCount || 0 }})</a>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="profile-layout">
+
+      <!-- CONTENT COLUMN -->
+      <div class="content-col">
+
+        @if (activeTab() === 'profile') {
+        <!-- ABOUT -->
+        <div class="section-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="section-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.15);color:var(--teal)">
+                <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-user"></use></svg>
+              </span>
+              نبذة مهنية
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--txt-2);line-height:1.85;margin-bottom:12px;white-space:pre-wrap">{{ provider()?.basicInfo?.bio || 'لا يوجد نبذة شخصية حتى الآن.' }}</p>
+        </div>
+
+        <!-- SKILLS -->
+        <div class="section-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="section-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.15);color:var(--blue-txt)">
+                <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-cat-pen"></use></svg>
+              </span>
+              المهارات والتخصصات
+            </div>
+          </div>
+
+          @for (specialty of provider()?.specialties; track specialty.id) {
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.07em;margin-bottom:7px">{{ specialty.specialtyName }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              @for (sub of specialty.subSpecialties; track sub) {
+                <span class="tag-blue">{{ sub }}</span>
+              }
+              @if (!specialty.subSpecialties || specialty.subSpecialties.length === 0) {
+                <span style="font-size:11px;color:var(--txt-3)">لا توجد تخصصات فرعية مضافة</span>
+              }
+            </div>
+          </div>
+          }
+
+          @if (provider()?.skills?.length) {
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.07em;margin-bottom:7px">مهارات إضافية</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              @for (skill of provider()?.skills; track skill) {
+                <span class="tag-teal">{{ skill }}</span>
+              }
+            </div>
+          </div>
+          }
+          
+          @if (!provider()?.specialties?.length && !provider()?.skills?.length) {
+            <div style="font-size:12px;color:var(--txt-3);margin-top:10px;">لم يتم إضافة أي مهارات أو تخصصات بعد.</div>
+          }
+        </div>
+        }
+
+        @if (activeTab() === 'services') {
+        <div class="section-card">
+          <div class="section-title">الخدمات المنشورة</div>
+          @if (provider()?.services?.length) {
+            <div style="display:grid;grid-template-columns:1fr;gap:15px">
+              @for (srv of provider()?.services; track srv.id) {
+                <div style="padding:15px;background:var(--bg-2);border-radius:12px;border:1px solid var(--border);display:flex;gap:15px;align-items:center;">
+                  <div style="width:80px;height:60px;border-radius:8px;background:var(--bg-3);overflow:hidden;flex-shrink:0;">
+                    @if (srv.gallery?.[0]) {
+                      <img [src]="srv.gallery[0]" style="width:100%;height:100%;object-fit:cover;" alt="service">
+                    } @else {
+                      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--txt-3)">
+                        <svg aria-hidden="true" style="width:20px;height:20px"><use href="#ws-image"></use></svg>
+                      </div>
+                    }
+                  </div>
+                  <div style="flex:1">
+                    <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:5px">{{ srv.title }}</div>
+					<div style="font-size:12px;color:var(--kahr)">تبدأ من {{ srv.totalAmount }} ريال</div>
+                  </div>
+				  <a [routerLink]="['/marketplace/offer', srv.id]" style="padding:8px 15px;background:var(--blue);color:#fff;border-radius:8px;font-size:12px;font-weight:700">عرض الخدمة</a>
+                </div>
+              }
+            </div>
+          } @else {
+            <div style="text-align:center;padding:40px 0;color:var(--txt-3);font-size:13px">لا توجد خدمات منشورة حالياً.</div>
+          }
+        </div>
+        }
+
+        @if (activeTab() === 'reviews') {
+        <div class="section-card">
+          <div class="section-title">تقييمات العملاء</div>
+          @if (provider()?.reviews?.length) {
+            <div style="display:flex;flex-direction:column;gap:15px">
+              @for (rev of provider()?.reviews; track rev.id) {
+                <div style="padding:15px;background:var(--bg-2);border-radius:12px;border:1px solid var(--border)">
+                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                    <img [src]="rev.client?.avatarUrl || 'assets/images/default-avatar.png'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" (error)="$event.target.src='assets/images/default-avatar.png'">
+                    <div>
+                      <div style="font-size:13px;font-weight:700;color:var(--txt)">{{ rev.client?.firstName }} {{ rev.client?.lastName }}</div>
+                      <div style="font-size:11px;color:var(--txt-3)">مشروع: {{ rev.project?.title || 'عام' }}</div>
+                    </div>
+                    <div style="margin-right:auto;display:flex;align-items:center;gap:4px;color:var(--kahr);font-size:12px;font-weight:800">
+                      <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-star"></use></svg>
+                      {{ rev.rating }}
+                    </div>
+                  </div>
+                  <p style="font-size:13px;color:var(--txt-2);line-height:1.6">{{ rev.comment || 'لا يوجد تعليق.' }}</p>
+                </div>
+              }
+            </div>
+          } @else {
+            <div style="text-align:center;padding:40px 0;color:var(--txt-3);font-size:13px">لم يتلقَ المزود أي تقييمات بعد.</div>
+          }
+        </div>
+        }
+
+        @if (activeTab() === 'portfolio') {
+        <div class="section-card">
+          <div class="section-title">نماذج الأعمال</div>
+          @if (provider()?.portfolioItems?.length) {
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:15px">
+              @for (item of provider()?.portfolioItems; track item.id) {
+                <div style="background:var(--bg-2);border-radius:12px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s ease">
+                  <div style="height:140px;background:var(--bg-3)">
+                    @if (item.images?.[0] || item.thumbnailUrl) {
+                      <img [src]="item.images?.[0] || item.thumbnailUrl" style="width:100%;height:100%;object-fit:cover;" alt="portfolio">
+                    } @else {
+                      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--txt-3)">
+                        <svg aria-hidden="true" style="width:30px;height:30px"><use href="#ws-image"></use></svg>
+                      </div>
+                    }
+                  </div>
+                  <div style="padding:12px">
+                    <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ item.title }}</div>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap">
+                      @for (tech of item.technologies?.slice(0,3); track tech) {
+                        <span style="font-size:9px;padding:2px 6px;background:rgba(43,212,199,.1);color:var(--teal);border-radius:4px">{{ tech }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div style="text-align:center;padding:40px 0;color:var(--txt-3);font-size:13px">لا توجد نماذج أعمال مضافة حالياً.</div>
+          }
+        </div>
+        }
+
+      </div><!-- end content col -->
+
+      <!-- SIDEBAR COLUMN -->
+      <div class="sidebar-col">
+
+
+
+        <!-- BADGES -->
+        <div class="sidebar-card">
+          <div class="sidebar-title">
+            <span style="width:28px;height:28px;border-radius:7px;background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-shield"></use></svg>
+            </span>
+            الشارات والإنجازات
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(217,138,11,.03);border:1px solid rgba(217,138,11,.1);border-radius:9px">
+              <span style="width:30px;height:30px;border-radius:7px;background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-star"></use></svg>
+              </span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">مستوى المزود</div><div style="font-size:10px;color:var(--txt-3)">{{ provider()?.header?.levelInfo?.levelName || 'مبتدئ' }}</div></div>
+            </div>
+            @if (provider()?.header?.isVerified) {
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(43,212,199,.03);border:1px solid rgba(43,212,199,.1);border-radius:9px">
+              <span style="width:30px;height:30px;border-radius:7px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--teal)"><use href="#ws-trust-doc"></use></svg>
+              </span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">هوية موثّقة</div><div style="font-size:10px;color:var(--txt-3)">هوية مدققة من وسيط AI</div></div>
+            </div>
+            }
+            @if (provider()?.specialties?.length && provider()?.specialties?.[0]?.status === 'APPROVED') {
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(123,47,190,.03);border:1px solid rgba(123,47,190,.1);border-radius:9px">
+              <span style="width:30px;height:30px;border-radius:7px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
+              </span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">ثقة AI عالية</div><div style="font-size:10px;color:var(--txt-3)">نقاط {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }}/100 من الذكاء</div></div>
+            </div>
+            }
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(15,169,154,.03);border:1px solid rgba(15,169,154,.1);border-radius:9px">
+              <span style="width:30px;height:30px;border-radius:7px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg aria-hidden="true" style="width:13px;height:13px;color:#0FA99A"><use href="#ws-check"></use></svg>
+              </span>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">{{ provider()?.header?.stats?.completedProjects || 0 }}+ مشروع</div><div style="font-size:10px;color:var(--txt-3)">عضو منذ {{ provider()?.header?.memberSince }}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MEMBER INFO -->
+        <div class="sidebar-card">
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">عضو منذ</span><span style="font-weight:700;color:var(--txt)">{{ provider()?.header?.memberSince }}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">آخر نشاط</span><span style="font-weight:700;color:#0FA99A">الآن</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">اللغات</span><span style="font-weight:700;color:var(--txt)">العربية · الإنجليزية</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--txt-3)">الموقع</span><span style="font-weight:700;color:var(--txt)">{{ provider()?.header?.location || 'غير محدد' }}</span></div>
+          </div>
+        </div>
+
+      </div><!-- end sidebar -->
+    </div><!-- end layout -->
+
+  </div>
+</div>
+} @else if (loading()) {
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;background:var(--bg)">
+  <div class="loader-spinner">
+    <svg viewBox="0 0 50 50" style="width:40px;height:40px;animation:spin 1s linear infinite">
+      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border)" stroke-width="4"></circle>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--blue)" stroke-width="4" stroke-dasharray="30 100" stroke-linecap="round"></circle>
+    </svg>
+  </div>
+  <div style="font-size:14px;font-weight:700;color:var(--txt);letter-spacing:0.5px">جاري جلب بيانات المزود...</div>
+  <div style="font-size:12px;color:var(--txt-3)">يتم الآن تحليل وتقييم مستوى الأداء باستخدام AI</div>
+</div>
+}

@@ -1,0 +1,35 @@
+<section class="mini-chat" aria-label="محادثة المشروع المباشرة">
+  <header class="mini-chat__header">
+    <span class="mini-chat__avatar">{{ partnerName.charAt(0) || 'م' }}</span>
+    <div><b>{{ partnerName }}</b><span><i></i> محادثة المشروع المباشرة</span></div>
+    <a [routerLink]="fullChatRoute" [queryParams]="conversationId ? { conversationId } : null">فتح كاملة</a>
+  </header>
+
+  <div #messagesViewport class="mini-chat__messages" aria-live="polite">
+    @if (loading() && !messages().length) { <div class="mini-chat__state">جارٍ تحميل الرسائل...</div> }
+    @for (message of messages(); track message.id) {
+      <article class="mini-chat__row" [class.is-me]="message.isMe">
+        @if (!message.isMe) { <span class="mini-chat__small-avatar">{{ message.senderInitial }}</span> }
+        <div class="mini-chat__bubble">
+          @if (!message.isMe) { <b>{{ message.senderName }}</b> }
+          @if (message.content) { <p>{{ message.content }}</p> }
+          @if (message.fileUrl) { <a [href]="message.fileUrl" target="_blank" rel="noopener noreferrer">▤ {{ message.fileName || 'فتح المرفق' }}</a> }
+          <small>{{ formatTime(message.time) }} @if(message.status === 'PENDING'){ · جارٍ الإرسال }</small>
+        </div>
+      </article>
+    } @empty {
+      @if (!loading()) { <div class="mini-chat__state"><span>◌</span><b>ابدأ المحادثة حول المشروع</b><small>الرسائل محفوظة وتصل للطرف الآخر فوراً</small></div> }
+    }
+    @if (partnerTyping()) { <div class="mini-chat__typing"><i></i><i></i><i></i><span>{{ partnerName }} يكتب الآن...</span></div> }
+  </div>
+
+  @if (error()) { <div class="mini-chat__error" role="alert">{{ error() }}</div> }
+  @if (!conversationId) { <div class="mini-chat__error">المحادثة غير متاحة لهذا المشروع حالياً</div> }
+  <footer class="mini-chat__composer">
+    <textarea [(ngModel)]="draft" (keydown)="onKeydown($event)" (input)="onInput()" [disabled]="!conversationId || !currentUserId" rows="1" maxlength="3000" aria-label="اكتب رسالة" placeholder="اكتب رسالة حول المشروع..."></textarea>
+    <button type="button" (click)="send()" [disabled]="!draft.trim() || !conversationId || sending()" aria-label="إرسال الرسالة">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+    </button>
+  </footer>
+  <div class="mini-chat__hint">Enter للإرسال · Shift + Enter لسطر جديد</div>
+</section>

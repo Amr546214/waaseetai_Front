@@ -1,0 +1,678 @@
+<!-- AI Disclosure -->
+<div
+	class="flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-[#7B2FBE]/10 to-[#2B7FFF]/5 border border-[#7B2FBE]/15 rounded-[14px] mb-4 backdrop-blur-md">
+	<div class="w-8 h-8 rounded-[9px] bg-[#7B2FBE]/20 flex items-center justify-center shrink-0 text-[#A56BE0]">
+		<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="2" />
+			<circle cx="4" cy="6" r="1.5" />
+			<circle cx="20" cy="6" r="1.5" />
+			<circle cx="4" cy="18" r="1.5" />
+			<circle cx="20" cy="18" r="1.5" />
+			<circle cx="12" cy="3" r="1.5" />
+			<circle cx="12" cy="21" r="1.5" />
+			<path
+				d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+		</svg>
+	</div>
+	<div class="flex-1">
+		<div class="text-[10px] font-black text-[#A56BE0] tracking-widest mb-0.5">وسيط AI — إفصاح الذكاء الاصطناعي</div>
+		<div class="text-[12.5px] font-medium text-[var(--txt-3)] leading-relaxed">يُحلّل الذكاء اكتمال ملفك المهني
+			ويقترح تحسينات لرفع ظهورك <span
+				class="bg-[#7B2FBE]/20 border border-[#7B2FBE]/20 rounded px-1.5 py-px text-[10px] font-black text-[#A56BE0] mx-1">دقة
+				95%</span> — الإنسان يحتفظ بالقرار النهائي</div>
+	</div>
+</div>
+
+<!-- Level Badge -->
+<div
+	class="flex items-center gap-3 p-3 bg-gradient-to-br from-[#2BD4C7]/10 to-[#2B7FFF]/5 border border-[#2BD4C7]/15 rounded-[12px] mb-3.5">
+	<div class="w-9 h-9 rounded-[10px] bg-[#2BD4C7]/15 flex items-center justify-center shrink-0">
+		<svg class="w-4 h-4 text-[#7BA7D4]" viewBox="0 0 100 100" fill="currentColor">
+			<path
+				d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+		</svg>
+	</div>
+	<div class="flex-1">
+		<div class="text-[11px] font-bold text-[var(--txt-3)] mb-0.5">مستوى المقدم</div>
+		<div class="flex items-center gap-2 flex-wrap">
+			<span
+				class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-[#3B82F6]/20 text-[#3B82F6] text-[11px] font-black">
+				<svg class="w-2.5 h-2.5" viewBox="0 0 100 100" fill="currentColor">
+					<path
+						d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+				</svg>
+				{{ profileData()?.header?.levelInfo?.levelName || 'مبتدئ' }}
+			</span>
+			<span class="text-[10px] text-[var(--txt-3)] font-semibold">{{ profileData()?.header?.levelInfo?.points || 0
+				}} نقطة · كاش باك 3%</span>
+		</div>
+	</div>
+	<button
+		class="px-3 py-1.5 bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 rounded-lg text-[#2BD4C7] text-[11px] font-bold transition-colors hover:bg-[#2BD4C7]/20 whitespace-nowrap">تفاصيل</button>
+</div>
+
+<!-- Profile Banner -->
+@if(showBanner()) {
+<div
+	class="flex items-start gap-3.5 p-4 bg-[#FFB400]/10 border border-[#FFB400]/20 rounded-[16px] mb-4 backdrop-blur-md">
+	<div class="w-10 h-10 rounded-[10px] bg-[#FFB400]/15 flex items-center justify-center shrink-0 text-[#D98A0B]">
+		<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="10" />
+			<line x1="12" y1="8" x2="12" y2="12" />
+			<line x1="12" y1="16" x2="12.01" y2="16" />
+		</svg>
+	</div>
+	<div class="flex-1">
+		<div class="text-[14px] font-black text-[#D98A0B] mb-1">ملفي المهني مكتمل {{
+			profileData()?.header?.levelInfo?.completionPercentage || 0 }}%</div>
+		<div class="text-[12.5px] font-medium text-[var(--txt-3)] leading-relaxed">{{
+			profileData()?.header?.levelInfo?.missingHint || 'أضف المزيد من المعلومات' }}</div>
+	</div>
+	<div class="flex items-center gap-2">
+		<button [routerLink]="['/provider-overview/profile/setup']"
+			class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-[#FFB400] to-[#D98A0B] text-[#070D24] rounded-[10px] text-[13px] font-black transition-transform hover:scale-[1.02] whitespace-nowrap shadow-sm">
+			<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+				stroke-linecap="round" stroke-linejoin="round">
+				<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+				<path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
+			</svg>
+			استكمل
+		</button>
+		<button (click)="closeBanner()"
+			class="w-7 h-7 rounded-lg text-[var(--txt-3)] hover:bg-[var(--sec-bg)] hover:text-[var(--txt)] flex items-center justify-center transition-colors">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+				stroke-linecap="round" stroke-linejoin="round">
+				<line x1="18" y1="6" x2="6" y2="18" />
+				<line x1="6" y1="6" x2="18" y2="18" />
+			</svg>
+		</button>
+	</div>
+</div>
+}
+
+<!-- Profile Header Card -->
+<div
+	class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[16px] p-5 lg:p-6 mb-4 shadow-sm transition-all hover:border-[var(--sec-bd-hover)]">
+	<div class="flex items-start lg:items-center justify-between gap-4 mb-6 flex-wrap lg:flex-nowrap">
+		<div class="flex items-start gap-4 w-full lg:w-auto">
+			<div *ngIf="profileData()?.header?.avatarUrl; else noAvatar"
+				class="w-20 h-20 rounded-[14px] bg-cover bg-center shrink-0 shadow-[0_0_0_3px_rgba(43,127,255,0.25)]"
+				[style.background-image]="'url(' + profileData()?.header?.avatarUrl + ')'"></div>
+			<ng-template #noAvatar>
+				<div
+					class="w-20 h-20 rounded-[14px] bg-gradient-to-br from-[#2B7FFF] to-[#2BD4C7] flex items-center justify-center text-[22px] font-black text-white shrink-0 shadow-[0_0_0_3px_rgba(43,127,255,0.25)]">
+					{{ profileData()?.header?.fullName?.charAt(0) || 'م' }}</div>
+			</ng-template>
+			<div class="flex-1 pt-1">
+				<div class="text-[21px] font-black text-[var(--txt)] mb-1">{{ profileData()?.header?.fullName || 'مزود
+					خدمة' }}</div>
+				<div class="flex items-center gap-2 mb-2.5 flex-wrap">
+					<span
+						class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#5DA0FF]/10 border border-[#5DA0FF]/25 text-[#5DA0FF] text-[11px] font-bold">مقدم
+						خدمة · فرد</span>
+					<span class="text-[12px] font-medium text-[var(--txt-3)]">عضو منذ {{
+						profileData()?.header?.memberSince || 'غير محدد' }}</span>
+				</div>
+				<div class="flex items-center gap-3.5 flex-wrap">
+					<span *ngIf="profileData()?.header?.isVerified"
+						class="inline-flex items-center gap-1.5 text-[12px] font-bold text-[#0FA99A]">
+						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+							<polyline points="20 6 9 17 4 12" />
+						</svg>موثّق
+					</span>
+					<span class="text-[12px] font-medium text-[var(--txt-3)]">{{ profileData()?.header?.location || 'غير
+						محدد' }}</span>
+				</div>
+			</div>
+		</div>
+		<button (click)="editProfile()"
+			class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-[13px] font-black shadow-sm transition-transform hover:scale-[1.02] whitespace-nowrap">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+				stroke-linecap="round" stroke-linejoin="round">
+				<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+				<path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
+			</svg>
+			تعديل الملف
+		</button>
+	</div>
+
+	<!-- Stats Grid -->
+	<div
+		class="grid grid-cols-2 lg:grid-cols-4 bg-[var(--sec-bg)]/50 border border-[var(--sec-bd)] rounded-[12px] overflow-hidden divide-x divide-x-reverse divide-[var(--sec-bd)] divide-y lg:divide-y-0">
+		<div class="p-3 text-center">
+			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{
+				profileData()?.header?.stats?.completedProjects || 0 }}</div>
+			<div class="text-[11px] font-bold text-[var(--txt-3)]">مشروع مكتمل</div>
+		</div>
+		<div class="p-3 text-center">
+			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{ profileData()?.header?.stats?.completedTasks
+				|| 0 }}</div>
+			<div class="text-[11px] font-bold text-[var(--txt-3)]">مهمة منجزة</div>
+		</div>
+		<div class="p-3 text-center">
+			<div class="text-[20px] font-black text-[#5DA0FF] mb-1">{{ profileData()?.header?.stats?.publishedServices
+				|| 0 }}</div>
+			<div class="text-[11px] font-bold text-[var(--txt-3)]">خدمة منشورة</div>
+		</div>
+		<div class="p-3 text-center">
+			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{ profileData()?.header?.stats?.clientRating ||
+				0 }}%</div>
+			<div class="text-[11px] font-bold text-[var(--txt-3)]">تقييم العملاء</div>
+		</div>
+	</div>
+</div>
+
+<!-- Tabs -->
+<div
+	class="flex gap-1 border-b border-[var(--sec-bd)] mb-5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+	@for(tab of [
+	{id:'info', label:'بيانات الشركة'},
+	{id:'skills', label:'مجالات العمل'},
+	{id:'links', label:'الروابط الرسمية'},
+	{id:'activity', label:'سجل النشاط'}
+	]; track tab.id) {
+	<button
+		class="px-4 py-3 text-[13.5px] font-bold flex items-center gap-2 whitespace-nowrap border-b-[2.5px] transition-all -mb-[1px]"
+		[class]="currentTab() === tab.id ? 'text-[#2BD4C7] border-[#2BD4C7]' : 'text-[var(--txt-3)] border-transparent hover:text-[var(--txt-2)]'"
+		(click)="setTab(tab.id)">
+		{{ tab.label }}
+	</button>
+	}
+</div>
+
+<!-- Tab Content -->
+<div class="animate-ws-fade">
+	<!-- Info Tab -->
+	@if(currentTab() === 'info') {
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+		<!-- Basic Data -->
+		<div
+			class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 shadow-sm transition-all hover:border-[var(--sec-bd-hover)]">
+			<div class="text-[13px] font-black text-[var(--txt-2)] flex items-center gap-2 mb-4">
+				<svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+					<circle cx="12" cy="7" r="4" />
+				</svg>
+				البيانات الأساسية
+			</div>
+			<div class="flex flex-col divide-y divide-[var(--sec-bd)]">
+				<div class="flex items-center justify-between py-3">
+					<span class="text-[12px] font-bold text-[var(--txt-3)]">الاسم</span>
+					<span class="text-[13px] font-black text-[var(--txt)]">{{ profileData()?.basicInfo?.fullName || '-'
+						}}</span>
+				</div>
+				<div class="flex items-center justify-between py-3">
+					<span class="text-[12px] font-bold text-[var(--txt-3)]">التخصص</span>
+					<span class="text-[13px] font-black text-[var(--txt)]">{{ profileData()?.basicInfo?.headline || '-'
+						}}</span>
+				</div>
+				<div class="flex items-center justify-between py-3">
+					<span class="text-[12px] font-bold text-[var(--txt-3)]">سنوات الخبرة</span>
+					<span class="text-[13px] font-black text-[var(--txt)]">{{
+						profileData()?.basicInfo?.yearsOfExperience || '-' }}</span>
+				</div>
+				<div class="flex items-center justify-between py-3">
+					<span class="text-[12px] font-bold text-[var(--txt-3)]">معدل الرضا</span>
+					<span class="text-[13px] font-black text-[var(--txt)]">{{ profileData()?.basicInfo?.satisfactionRate
+						|| '-' }}</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Pro Data -->
+		<div
+			class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 shadow-sm transition-all hover:border-[var(--sec-bd-hover)]">
+			<div class="text-[13px] font-black text-[var(--txt-2)] flex items-center gap-2 mb-4">
+				<svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+					<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+				</svg>
+				البيانات المهنية
+			</div>
+			<div class="flex flex-col divide-y divide-[var(--sec-bd)]">
+				<div class="flex items-center justify-between py-3">
+					<span class="text-[12px] font-bold text-[var(--txt-3)]">البريد الإلكتروني</span>
+					<span class="text-[13px] font-black text-[var(--txt)]" dir="ltr">{{ profileData()?.basicInfo?.email
+						|| '-' }}</span>
+				</div>
+				<div class="flex items-center justify-between py-3">
+					<span class="text-[12px] font-bold text-[var(--txt-3)]">رقم الجوال</span>
+					<span class="text-[13px] font-black text-[var(--txt)]" dir="ltr">{{ profileData()?.basicInfo?.phone
+						|| '-' }}</span>
+				</div>
+				<div class="flex items-center justify-between py-3 border-b-transparent">
+					<span class="text-[12px] font-bold text-[var(--txt-3)]">العنوان</span>
+					<span class="text-[13px] font-black text-[var(--txt)]">{{ profileData()?.basicInfo?.address || '-'
+						}}</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- About -->
+		<div
+			class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 shadow-sm transition-all hover:border-[var(--sec-bd-hover)] lg:col-span-2">
+			<div class="text-[13px] font-black text-[var(--txt-2)] flex items-center gap-2 mb-3">
+				<svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+					<polyline points="14 2 14 8 20 8" />
+				</svg>
+				نبذة عن الشركة
+			</div>
+			<p class="text-[14px] font-medium text-[var(--txt-3)] leading-relaxed m-0">{{ profileData()?.basicInfo?.bio
+				|| 'لا يوجد نبذة مضافة بعد.' }}</p>
+		</div>
+	</div>
+	}
+
+	<!-- Work Domains & AI Assessments Tab -->
+	@if(currentTab() === 'skills') {
+	<div class="flex flex-col gap-6">
+
+		<!-- Top Overview KPI Header -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+			<!-- KPI 1 -->
+			<div
+				class="p-4 rounded-[14px] bg-gradient-to-br from-[#2BD4C7]/10 to-[#2B7FFF]/5 border border-[#2BD4C7]/20 flex items-center gap-3.5 shadow-sm">
+				<div
+					class="w-11 h-11 rounded-[12px] bg-[#2BD4C7]/20 flex items-center justify-center shrink-0 text-[#2BD4C7]">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						stroke-linecap="round" stroke-linejoin="round">
+						<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+						<polyline points="22 4 12 14.01 9 11.01" />
+					</svg>
+				</div>
+				<div>
+					<div class="text-[11px] font-bold text-[var(--txt-3)] mb-0.5">التخصصات المعتمدة</div>
+					<div class="text-[17px] font-black text-white flex items-center gap-2">
+						{{ profileData()?.specialties?.length }} تخصص معتمد
+						<span
+							class="px-2 py-0.5 rounded-full bg-[#2BD4C7]/20 text-[#2BD4C7] text-[10px] font-extrabold border border-[#2BD4C7]/30">موثّق
+							بالذكاء</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- KPI 2 -->
+			<div
+				class="p-4 rounded-[14px] bg-gradient-to-br from-[#7B2FBE]/10 to-[#2B7FFF]/5 border border-[#7B2FBE]/20 flex items-center gap-3.5 shadow-sm">
+				<div
+					class="w-11 h-11 rounded-[12px] bg-[#7B2FBE]/20 flex items-center justify-center shrink-0 text-[#A56BE0]">
+					<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#7B2FBE" stroke-width="1.8"
+						stroke-linecap="round" stroke-linejoin="round">
+						<use href="#i-ai"></use>
+					</svg>
+				</div>
+				<div>
+					<div class="text-[11px] font-bold text-[var(--txt-3)] mb-0.5">متوسط أداء الاختبارات التقنية</div>
+					<div class="text-[17px] font-black text-white flex items-center gap-2">
+						{{ profileData()?.aiMetrics?.averageTestScore || 0 }}%
+						<span class="text-[#A56BE0] text-[12px] font-bold"
+							*ngIf="profileData()?.aiMetrics?.averageTestScore">(كفاءة خبير)</span>
+						<span class="text-[#A56BE0] text-[12px] font-bold"
+							*ngIf="!profileData()?.aiMetrics?.averageTestScore">(قيد التقييم)</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- KPI 3 -->
+			<div
+				class="p-4 rounded-[14px] bg-gradient-to-br from-[#2B7FFF]/10 to-[#5DA0FF]/5 border border-[#2B7FFF]/20 flex items-center gap-3.5 shadow-sm">
+				<div
+					class="w-11 h-11 rounded-[12px] bg-[#2B7FFF]/20 flex items-center justify-center shrink-0 text-[#5DA0FF]">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						stroke-linecap="round" stroke-linejoin="round">
+						<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+						<line x1="8" y1="21" x2="16" y2="21" />
+						<line x1="12" y1="17" x2="12" y2="21" />
+					</svg>
+				</div>
+				<div>
+					<div class="text-[11px] font-bold text-[var(--txt-3)] mb-0.5">مؤشر مطابقة الكود والمعمارية</div>
+					<div class="text-[17px] font-black text-[#5DA0FF] flex items-center gap-1.5">
+						{{ profileData()?.aiMetrics?.codeMatchingIndex || 0 }}% <span
+							class="text-white text-[11px] font-semibold">تدقيق تلقائي GPT-4o</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Specialty & Assessment Cards Loop -->
+		@for (spec of profileData()?.specialties; track spec.id) {
+		<div
+			class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[18px] p-6 shadow-sm transition-all hover:border-[var(--sec-bd-hover)] relative overflow-hidden">
+
+			<!-- Subtle Accent Background Blur -->
+			<div class="absolute -top-12 -left-12 w-48 h-48 bg-[#2BD4C7]/5 rounded-full blur-3xl pointer-events-none">
+			</div>
+
+			<!-- Specialty Header Row -->
+			<div
+				class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-5 border-b border-[var(--sec-bd)] relative z-10">
+				<div>
+					<div class="flex items-center gap-3 mb-2 flex-wrap">
+						<span
+							class="w-9 h-9 rounded-xl bg-[#2BD4C7]/15 border border-[#2BD4C7]/25 flex items-center justify-center text-[#2BD4C7] shrink-0">
+							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="16 18 22 12 16 6" />
+								<polyline points="8 6 2 12 8 18" />
+							</svg>
+						</span>
+						<h3 class="text-[18px] font-black text-white m-0">{{ spec.specialtyName }}</h3>
+						<span
+							class="px-3 py-1 rounded-full bg-[#0FA99A]/15 border border-[#0FA99A]/30 text-[#2BD4C7] text-[11px] font-extrabold flex items-center gap-1.5">
+							<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+								<polyline points="20 6 9 17 4 12" />
+							</svg>
+							تخصص معتمد ومفحوص بالذكاء الاصطناعي
+						</span>
+					</div>
+
+					<!-- Sub-specialties pills -->
+					<div class="flex items-center gap-2 flex-wrap mt-3">
+						<span class="text-[12px] font-bold text-[var(--txt-3)] ml-1">التخصصات الفرعية والتقنيات:</span>
+						@for (sub of spec.subSpecialties; track sub) {
+						<span
+							class="px-3 py-1 rounded-lg bg-[#142347] border border-[#233561] text-[#93c5fd] text-[12px] font-bold">{{
+							sub }}</span>
+						}
+					</div>
+				</div>
+
+				<!-- Score Pill -->
+				<div
+					class="flex items-center gap-3 bg-[#0a142c] border border-[#1d2d54] px-4 py-2.5 rounded-2xl shrink-0">
+					<div class="text-right">
+						<div class="text-[10px] font-bold text-[#8899b8]">نتيجة الاختبار التقني</div>
+						<div class="text-[18px] font-black text-[#2bd4c7]">{{ spec.latestScore }}%</div>
+					</div>
+					<div
+						class="w-10 h-10 rounded-full bg-gradient-to-br from-[#2bd4c7] to-[#2b7fff] flex items-center justify-center text-[#070d24] font-black text-xs shadow-[0_0_12px_rgba(43,212,199,0.4)]">
+						✓
+					</div>
+				</div>
+			</div>
+
+			<!-- AI Assessment Detailed Analytics Grid -->
+			@if (spec.assessmentDetails) {
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 relative z-10 mb-6">
+
+				<!-- Left Column: Test Overview & Metrics -->
+				<div class="p-4 rounded-xl bg-[#091124]/70 border border-[#1a2748] flex flex-col justify-between">
+					<div>
+						<div class="text-[12px] font-black text-[#2bd4c7] flex items-center gap-2 mb-3">
+							<svg class="w-4 h-4 text-[#a56be0]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2">
+								<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+							</svg>
+							بطاقة أداء الاختبار (Assessment Scorecard)
+						</div>
+
+						<div class="flex flex-col gap-2.5 text-[12px]">
+							<div class="flex justify-between py-1.5 border-b border-[#182544]">
+								<span class="text-[#7e8eb5] font-semibold">عدد الأسئلة المجابة</span>
+								<span class="text-white font-bold">{{ spec.assessmentDetails.totalQuestions }}/{{
+									spec.assessmentDetails.totalQuestions }} (مكتمل)</span>
+							</div>
+							<div class="flex justify-between py-1.5 border-b border-[#182544]">
+								<span class="text-[#7e8eb5] font-semibold">وقت الإنجاز</span>
+								<span class="text-white font-bold">{{ spec.assessmentDetails.timeTakenMinutes }} دقيقة
+									(سرعة دقيقة)</span>
+							</div>
+							<div class="flex justify-between py-1.5 border-b border-[#182544]">
+								<span class="text-[#7e8eb5] font-semibold">مستوى الشارة المعين</span>
+								<span class="text-[#2bd4c7] font-black">مستقل معتمد - Tier A</span>
+							</div>
+							<div class="flex justify-between py-1.5">
+								<span class="text-[#7e8eb5] font-semibold">حالة التدقيق التلقائي</span>
+								<span class="text-[#38bdf8] font-bold">مطابق بنسبة 100%</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Small Progress bar -->
+					<div class="mt-4 pt-3 border-t border-[#182544]">
+						<div class="flex justify-between text-[11px] font-bold mb-1">
+							<span class="text-[#8899b8]">نسبة الإتقان الكلية</span>
+							<span class="text-[#2bd4c7]">{{ spec.latestScore }}%</span>
+						</div>
+						<div class="w-full h-2 rounded-full bg-[#121f3d] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[#2bd4c7] to-[#2b7fff] rounded-full"
+								[style.width.%]="spec.latestScore"></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Center & Right Column: AI Detailed Feedback & Strengths -->
+				<div class="lg:col-span-2 p-5 rounded-xl bg-[#091124]/70 border border-[#1a2748] flex flex-col gap-4">
+
+					<!-- Feedback Summary -->
+					<div>
+						<div class="text-[12.5px] font-black text-[#a56be0] flex items-center gap-2 mb-2">
+							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z" />
+							</svg>
+							تحليل وسيط AI والتقييم الفني الشامل
+						</div>
+						<p
+							class="text-[13px] font-medium text-[#b0c0e0] leading-relaxed m-0 bg-[#0e1832] p-3 rounded-lg border border-[#1d2d54]">
+							"{{ spec.assessmentDetails.feedbackAr }}"
+						</p>
+					</div>
+
+					<!-- Strengths & Weaknesses Split -->
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+						<!-- Strengths -->
+						<div class="p-3 rounded-lg bg-[#0e1c2e] border border-[#18344e]">
+							<div class="text-[11.5px] font-extrabold text-[#2bd4c7] flex items-center gap-1.5 mb-2">
+								<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="2.5">
+									<polyline points="20 6 9 17 4 12" />
+								</svg>
+								أبرز نقاط القوة المكتشفة
+							</div>
+							<ul class="m-0 p-0 list-none flex flex-col gap-1.5">
+								@for (st of spec.assessmentDetails.strengths; track st) {
+								<li class="text-[12px] text-[#cbd5e1] font-semibold flex items-start gap-1.5">
+									<span class="text-[#2bd4c7] text-[10px] mt-0.5">•</span>
+									{{ st }}
+								</li>
+								}
+							</ul>
+						</div>
+
+						<!-- Areas of Improvement -->
+						<div class="p-3 rounded-lg bg-[#1a172c] border border-[#34244a]">
+							<div class="text-[11.5px] font-extrabold text-[#c084fc] flex items-center gap-1.5 mb-2">
+								<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="2">
+									<path
+										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+								</svg>
+								توصيات التحديث والتطوير
+							</div>
+							<ul class="m-0 p-0 list-none flex flex-col gap-1.5">
+								@for (wk of spec.assessmentDetails.weaknesses; track wk) {
+								<li class="text-[12px] text-[#cbd5e1] font-semibold flex items-start gap-1.5">
+									<span class="text-[#c084fc] text-[10px] mt-0.5">•</span>
+									{{ wk }}
+								</li>
+								}
+							</ul>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			}
+
+			<!-- AI Accredited Work Samples Sub-Section -->
+			@if (spec.samples && spec.samples.length > 0) {
+			<div class="mt-5 pt-5 border-t border-[var(--sec-bd)] relative z-10">
+				<div class="text-[13.5px] font-black text-white flex items-center gap-2 mb-4">
+					<svg class="w-4 h-4 text-[#2bd4c7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+						stroke-width="2">
+						<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+					</svg>
+					نماذج الأعمال المعتمدة ومفحوصة الأكواد (AI Accredited Code Samples)
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+					@for (sample of spec.samples; track sample.title) {
+					<div
+						class="p-4 rounded-xl bg-[#0a1329] border border-[#1b2848] flex flex-col justify-between overflow-hidden shadow-sm hover:border-[#2bd4c7]/40 transition-all">
+
+						<!-- MAIN IMAGE PREVIEW FOR EACH WORK SAMPLE -->
+						<div
+							class="relative w-full h-44 sm:h-52 rounded-lg overflow-hidden mb-4 border border-[#1e2d4a] group bg-[#070d24]">
+							<img [src]="sample.imageUrl || sample.coverImage || sample.mainImage || sample.attachments?.[0] || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80'"
+								[alt]="sample.title"
+								class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+							<div
+								class="absolute inset-0 bg-gradient-to-t from-[#0a1329] via-transparent to-transparent opacity-70">
+							</div>
+							<span
+								class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[#0a1329]/85 backdrop-blur-md text-[#2bd4c7] text-[11px] font-black border border-[#2bd4c7]/40 shadow-md flex items-center gap-1">
+								<svg class="w-3 h-3 text-[#2bd4c7]" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="3">
+									<polyline points="20 6 9 17 4 12" />
+								</svg>
+								جودة {{ sample.aiScore }}%
+							</span>
+						</div>
+
+						<div>
+							<div class="flex items-center justify-between mb-2">
+								<div class="text-[15px] font-extrabold text-white">{{ sample.title }}</div>
+							</div>
+							<p class="text-[12.5px] text-[#8899b8] leading-relaxed mb-3 m-0 line-clamp-2"
+								[title]="sample.description">{{ sample.description }}</p>
+
+							<div class="flex flex-wrap gap-1.5 mb-3.5">
+								@for (tech of sample.technologiesUsed; track tech) {
+								<span
+									class="px-2.5 py-1 rounded-md bg-[#13203f] text-[#60a5fa] text-[11px] font-bold border border-[#1e305e] lowercase">{{
+									tech }}</span>
+								}
+							</div>
+						</div>
+
+						<div
+							class="text-[11.5px] text-[#a56be0] bg-[#14122b] p-3 rounded-lg border border-[#281f4f] font-medium flex items-center gap-2.5">
+							<svg class="w-4 h-4 shrink-0 text-[#a56be0]" viewBox="0 0 24 24" fill="none"
+								stroke="currentColor" stroke-width="2">
+								<path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z" />
+							</svg>
+							<span class="leading-snug">{{ sample.aiFeedbackAr }}</span>
+						</div>
+					</div>
+					}
+				</div>
+			</div>
+			}
+
+		</div>
+		}
+
+		<!-- General Skills Pill Cloud -->
+		<div
+			class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 shadow-sm transition-all hover:border-[var(--sec-bd-hover)]">
+			<div class="text-[14px] font-black text-white flex items-center gap-2 mb-3">
+				<svg class="w-4 h-4 text-[#2bd4c7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2">
+					<polygon points="12 2 2 7 12 12 22 7 12 2" />
+					<polyline points="2 17 12 22 22 17" />
+					<polyline points="2 12 12 17 22 12" />
+				</svg>
+				إجمالي المهارات والتقنيات العامة المُسجلة
+			</div>
+			<div class="flex flex-wrap gap-2.5">
+				@for (skill of profileData()?.skills; track skill) {
+				<span
+					class="px-3.5 py-1.5 bg-[#5DA0FF]/10 border border-[#5DA0FF]/25 rounded-full text-[#5DA0FF] text-[12px] font-bold hover:bg-[#5DA0FF]/20 transition-colors cursor-default">{{
+					skill }}</span>
+				}
+				@if (!profileData()?.skills || profileData()?.skills?.length === 0) {
+				<span class="text-[13px] text-[var(--txt-3)]">لا توجد مهارات إضافية مضافة.</span>
+				}
+			</div>
+		</div>
+
+	</div>
+	}
+
+	<!-- Links Tab -->
+	@if(currentTab() === 'links') {
+	<div
+		class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 shadow-sm transition-all hover:border-[var(--sec-bd-hover)]">
+		<div class="text-[13px] font-black text-[var(--txt-2)] flex items-center gap-2 mb-4">
+			<svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+				<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+			</svg>
+			الروابط الرسمية
+		</div>
+		<div class="flex flex-col divide-y divide-[var(--sec-bd)]">
+			<div class="flex items-center justify-between py-3">
+				<span class="text-[12px] font-bold text-[var(--txt-3)]">الموقع الرسمي</span>
+				<span *ngIf="profileData()?.socialLinks?.website; else noWebsite"
+					class="text-[13px] font-black text-[#2BD4C7]" dir="ltr">{{ profileData()?.socialLinks?.website
+					}}</span>
+				<ng-template #noWebsite><span class="text-[12px] font-semibold text-[var(--txt-3)] italic">غير
+						مُضاف</span></ng-template>
+			</div>
+			<div class="flex items-center justify-between py-3">
+				<span class="text-[12px] font-bold text-[var(--txt-3)]">LinkedIn</span>
+				<span *ngIf="profileData()?.socialLinks?.linkedin; else noLinkedin"
+					class="text-[13px] font-black text-[#2BD4C7]" dir="ltr">{{ profileData()?.socialLinks?.linkedin
+					}}</span>
+				<ng-template #noLinkedin><span class="text-[12px] font-semibold text-[var(--txt-3)] italic">غير
+						مُضاف</span></ng-template>
+			</div>
+			<div class="flex items-center justify-between py-3 border-b-transparent">
+				<span class="text-[12px] font-bold text-[var(--txt-3)]">GitHub</span>
+				<span *ngIf="profileData()?.socialLinks?.github; else noGithub"
+					class="text-[13px] font-black text-[#2BD4C7]" dir="ltr">{{ profileData()?.socialLinks?.github
+					}}</span>
+				<ng-template #noGithub><span class="text-[12px] font-semibold text-[var(--txt-3)] italic">غير
+						مُضاف</span></ng-template>
+			</div>
+		</div>
+	</div>
+	}
+
+	<!-- Activity Tab -->
+	@if(currentTab() === 'activity') {
+	<div
+		class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 shadow-sm transition-all hover:border-[var(--sec-bd-hover)]">
+		<div class="text-[13px] font-black text-[var(--txt-2)] flex items-center gap-2 mb-4">
+			<svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<circle cx="12" cy="12" r="10" />
+				<polyline points="12 7 12 12 15 14" />
+			</svg>
+			سجل النشاط الأخير
+		</div>
+		<div class="flex flex-col divide-y divide-[var(--sec-bd)]">
+			<div class="flex items-center justify-between py-3.5">
+				<span class="text-[13px] font-bold text-[var(--txt)]">طلب جديد: تطوير تطبيق إدارة مشاريع</span>
+				<span class="text-[11px] font-bold text-[var(--txt-3)]">منذ يومين</span>
+			</div>
+			<div class="flex items-center justify-between py-3.5">
+				<span class="text-[13px] font-bold text-[var(--txt)]">اكتمال مشروع: تصميم هوية بصرية للشركة</span>
+				<span class="text-[11px] font-bold text-[var(--txt-3)]">الأسبوع الماضي</span>
+			</div>
+			<div class="flex items-center justify-between py-3.5 border-b-transparent">
+				<span class="text-[13px] font-bold text-[var(--txt)]">تقييم مقدّم خدمة: تطوير منصة B2B</span>
+				<span class="text-[11px] font-bold text-[var(--txt-3)]">منذ شهر</span>
+			</div>
+		</div>
+	</div>
+	}
+</div>

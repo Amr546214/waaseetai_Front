@@ -1,0 +1,1243 @@
+<div class="flex flex-col gap-6 w-full max-w-full mx-auto pb-10" dir="rtl">
+	<!-- Progress Bar -->
+	<div
+		class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm dark:shadow-none backdrop-blur-xl">
+		<div class="flex items-center justify-between mb-3">
+			<h2 class="text-sm font-bold text-slate-900 dark:text-white">اكتمال الملف الشخصي</h2>
+			<span class="text-sm font-black text-cyan-600 dark:text-cyan-400">{{ completionPercentage() }}%</span>
+		</div>
+		<div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-3">
+			<div class="h-full bg-gradient-to-l from-cyan-400 to-blue-500 rounded-full transition-all duration-500"
+				[style.width.%]="completionPercentage()"></div>
+		</div>
+		<p class="text-xs font-medium text-slate-500 dark:text-slate-400">
+			{{ getCompletionHint() }}
+		</p>
+	</div>
+
+	<!-- AI Disclosure -->
+	<div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] border border-[rgba(123,47,190,.22)] relative overflow-hidden backdrop-blur-md"
+		role="region" aria-label="إفصاح الذكاء الاصطناعي">
+		<div
+			class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.22)] text-[#A56BE0]">
+			<svg width="20" height="20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+				<circle cx="12" cy="12" r="2" />
+				<circle cx="4" cy="6" r="1.5" />
+				<circle cx="20" cy="6" r="1.5" />
+				<circle cx="4" cy="18" r="1.5" />
+				<circle cx="20" cy="18" r="1.5" />
+				<circle cx="12" cy="3" r="1.5" />
+				<circle cx="12" cy="21" r="1.5" />
+				<path
+					d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+			</svg>
+		</div>
+		<div class="flex-grow">
+			<div class="text-[#A56BE0] text-[11px] font-extrabold tracking-wider mb-1">وسيط AI، إفصاح الذكاء الاصطناعي
+			</div>
+			<div class="text-[var(--txt-3)] text-[13px] leading-relaxed flex items-center flex-wrap gap-2">
+				AI يقترح Bio ومهارات مناسبة لملفك
+				<span
+					class="bg-[rgba(123,47,190,.16)] text-[#A56BE0] text-[10px] px-2 py-0.5 rounded-md font-bold border border-[rgba(123,47,190,.28)]">دقة
+					90%</span>
+				- الإنسان يحتفظ بالقرار النهائي
+			</div>
+		</div>
+	</div>
+
+	<!-- Legend & Tabs -->
+	<div class="flex flex-col gap-4">
+		<div class="flex items-center gap-4 text-xs font-bold text-slate-500 dark:text-slate-400">
+			<span class="text-slate-900 dark:text-white">نوع التعديل:</span>
+			<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> فوري (تحفظ
+				مباشرة)</div>
+			<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> بمراجعة (تفحص
+				من AI وتعتمد بشرياً)</div>
+		</div>
+
+		<!-- Tabs -->
+		<div
+			class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide border-b border-slate-200 dark:border-slate-800">
+			<button (click)="switchTab('profile')" [class.border-cyan-500]="activeTab() === 'profile'"
+				[class.text-cyan-600]="activeTab() === 'profile'" [class.dark:text-cyan-400]="activeTab() === 'profile'"
+				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
+				الملف العام
+				<span class="w-1.5 h-1.5 rounded-full bg-cyan-400 ml-1"></span>
+			</button>
+			<button (click)="switchTab('basics')" [class.border-cyan-500]="activeTab() === 'basics'"
+				[class.text-cyan-600]="activeTab() === 'basics'" [class.dark:text-cyan-400]="activeTab() === 'basics'"
+				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
+				البيانات الاساسية
+				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
+			</button>
+			<button (click)="switchTab('identity')" [class.border-cyan-500]="activeTab() === 'identity'"
+				[class.text-cyan-600]="activeTab() === 'identity'"
+				[class.dark:text-cyan-400]="activeTab() === 'identity'"
+				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
+				بيانات الهوية
+				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
+			</button>
+			<button (click)="switchTab('contact')" [class.border-cyan-500]="activeTab() === 'contact'"
+				[class.text-cyan-600]="activeTab() === 'contact'" [class.dark:text-cyan-400]="activeTab() === 'contact'"
+				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
+				بيانات التواصل
+				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
+			</button>
+			<button (click)="switchTab('banking')" [class.border-cyan-500]="activeTab() === 'banking'"
+				[class.text-cyan-600]="activeTab() === 'banking'" [class.dark:text-cyan-400]="activeTab() === 'banking'"
+				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
+				البيانات البنكية
+				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
+			</button>
+			<button (click)="switchTab('security')" [class.border-cyan-500]="activeTab() === 'security'"
+				[class.text-cyan-600]="activeTab() === 'security'"
+				[class.dark:text-cyan-400]="activeTab() === 'security'"
+				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
+				الامان
+			</button>
+		</div>
+	</div>
+
+	<!-- Tab Content: Profile -->
+	@if (activeTab() === 'profile') {
+	<div class="flex flex-col gap-6 animation-fade-in relative">
+		<!-- Loading Overlay -->
+		<div *ngIf="isLoading()"
+			class="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-3xl">
+			<span class="loader" style="border-color: #0d9488; border-top-color: transparent;"></span>
+		</div>
+
+		<div
+			class="flex items-center gap-3 p-4 bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-100 dark:border-cyan-500/20 rounded-2xl text-cyan-900 dark:text-cyan-100 text-sm font-medium">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+				class="w-5 h-5 flex-shrink-0 text-cyan-500">
+				<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+			</svg>
+			بيانات هذا القسم تحفظ فوراً وتحدث ملفك الشخصي
+		</div>
+
+		<!-- Alerts -->
+		<div *ngIf="errorMsg()"
+			class="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 rounded-xl text-sm font-bold">
+			{{ errorMsg() }}
+		</div>
+		<div *ngIf="successMsg()"
+			class="p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 text-green-600 rounded-xl text-sm font-bold">
+			{{ successMsg() }}
+		</div>
+
+		<!-- Card: Avatar -->
+		<div
+			class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+			<div class="flex flex-col md:flex-row md:items-start gap-6">
+				<div
+					class="flex-shrink-0 w-24 h-24 rounded-full flex items-center justify-center shadow-xl shadow-cyan-500/20 overflow-hidden bg-gradient-to-tr from-cyan-400 to-blue-500 text-3xl font-black text-slate-900 relative">
+					@if (getCurrentAvatarUrl()) {
+					<img [src]="getCurrentAvatarUrl()" alt="Avatar" class="w-full h-full object-cover">
+					} @else {
+					{{ (authStore.currentUser()?.firstName?.charAt(0) || '') +
+					(authStore.currentUser()?.lastName?.charAt(0) || '') }}
+					}
+				</div>
+				<div class="flex-grow">
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الصورة الشخصية</h3>
+					<p class="text-sm text-slate-500 dark:text-slate-400 mb-4">صورة دائرية للوجه، خاصة بشكل افتراضي</p>
+
+					<div class="flex flex-wrap items-center gap-3 mb-3">
+						<input type="file" #avatarInput class="hidden" accept=".jpg,.jpeg,.png"
+							(change)="onAvatarUpload($event)">
+						<button type="button" (click)="avatarInput.click()"
+							class="px-4 py-2 bg-slate-900 dark:bg-cyan-500/10 hover:bg-slate-800 dark:hover:bg-cyan-500/20 border border-transparent dark:border-cyan-500/30 text-white dark:text-cyan-400 text-sm font-bold rounded-xl transition-colors">رفع
+							صورة جديدة</button>
+						<button type="button" (click)="removeAvatar()"
+							class="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-200 dark:hover:border-red-500/30 text-sm font-bold rounded-xl transition-colors">حذف</button>
+					</div>
+					<p class="text-xs font-medium text-slate-400">JPG او PNG، حجم اقصى 5MB</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Client Form -->
+		<form *ngIf="isClient" [formGroup]="clientForm" (ngSubmit)="saveProfile()" class="flex flex-col gap-6">
+			<!-- Company Info -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="flex flex-col gap-2">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">اسم الشركة / المؤسسة</label>
+					<input formControlName="companyName" type="text"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+						placeholder="مثال: شركة التقنية الحديثة">
+				</div>
+				<div class="flex flex-col gap-2">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">حجم الشركة</label>
+					<select formControlName="companySize"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
+						<option value="">اختر حجم الشركة</option>
+						<option value="1-10">1-10 موظفين</option>
+						<option value="11-50">11-50 موظف</option>
+						<option value="51-200">51-200 موظف</option>
+						<option value="201+">أكثر من 200</option>
+					</select>
+				</div>
+				<div class="flex flex-col gap-2">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">مجال العمل (الصناعة)</label>
+					<input formControlName="industry" type="text"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+						placeholder="مثال: تقنية المعلومات">
+				</div>
+				<div class="flex flex-col gap-2">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الموقع الإلكتروني</label>
+					<input formControlName="website" type="url" dir="ltr"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+						placeholder="https://example.com">
+				</div>
+			</div>
+
+			<!-- Bio -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">نبذة تعريفية (Bio)</h3>
+				<div class="relative mt-4">
+					<textarea formControlName="bio"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 h-32"
+						placeholder="اكتب نبذة مختصرة عن الشركة واحتياجاتها..."></textarea>
+				</div>
+			</div>
+
+			<div class="flex items-center justify-end gap-3 mt-2">
+				<button type="submit" [disabled]="isSaving()"
+					class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2">
+					حفظ التعديلات
+				</button>
+			</div>
+		</form>
+
+		<!-- Provider Form -->
+		<form *ngIf="isProvider" [formGroup]="providerForm" (ngSubmit)="saveProfile()" class="flex flex-col gap-6">
+			<!-- Basics -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="flex flex-col gap-2" *ngIf="accountType === 'PROVIDER_COMPANY'">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">اسم الشركة</label>
+					<input formControlName="companyName" type="text"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
+				</div>
+				<div class="flex flex-col gap-2">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">سعر الساعة (بالدولار)</label>
+					<input formControlName="hourlyRate" type="number" min="0" dir="ltr"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
+				</div>
+				<div class="flex flex-col gap-2">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">مستوى الخبرة</label>
+					<select formControlName="experienceLevel"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
+						<option [ngValue]="null">اختر مستوى الخبرة</option>
+						<option *ngFor="let lvl of experienceLevels" [value]="lvl">{{ lvl }}</option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Skills -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">المهارات</h3>
+				<div class="flex flex-wrap gap-2 mb-4">
+					<div *ngFor="let skill of skills()"
+						class="flex items-center gap-2 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-100 dark:border-cyan-500/20 rounded-lg text-sm font-bold text-cyan-700 dark:text-cyan-400">
+						{{ skill }}
+						<button type="button" (click)="removeSkill(skill)"
+							class="hover:text-red-500 transition-colors"><svg viewBox="0 0 24 24" fill="none"
+								stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5">
+								<line x1="18" y1="6" x2="6" y2="18" />
+								<line x1="6" y1="6" x2="18" y2="18" />
+							</svg></button>
+					</div>
+				</div>
+				<div class="flex items-center gap-3">
+					<input #skillInput (keydown.enter)="addSkill(skillInput); $event.preventDefault()" type="text"
+						class="flex-grow bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+						placeholder="اضف مهارة جديدة">
+					<button type="button" (click)="addSkill(skillInput)"
+						class="px-5 py-2.5 bg-slate-900 dark:bg-cyan-500/10 hover:bg-slate-800 text-white dark:text-cyan-400 text-sm font-bold rounded-xl border border-cyan-500/30">إضافة</button>
+				</div>
+			</div>
+
+			<!-- Bio -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">نبذة تعريفية (Bio)</h3>
+				<div class="relative mt-4">
+					<textarea formControlName="bio"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 h-32"
+						placeholder="اكتب نبذة مختصرة عن مهاراتك وخبراتك..."></textarea>
+				</div>
+			</div>
+
+			<div class="flex items-center justify-end gap-3 mt-2">
+				<button type="submit" [disabled]="isSaving()"
+					class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] transition-all flex items-center gap-2">
+					حفظ التعديلات
+				</button>
+			</div>
+		</form>
+	</div>
+	}
+
+	<!-- Tab Content: Basics -->
+	@if (activeTab() === 'basics') {
+	<div class="flex flex-col gap-6 animation-fade-in">
+		@if (getRejectionReason('BASICS_UPDATE')) {
+		<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
+			<div class="p-2 bg-red-500/20 rounded-xl text-red-500 mt-0.5">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+					<circle cx="12" cy="12" r="10" />
+					<line x1="15" y1="9" x2="9" y2="15" />
+					<line x1="9" y1="9" x2="15" y2="15" />
+				</svg>
+			</div>
+			<div>
+				<h4 class="text-red-500 font-bold mb-1">❌ تم رفض التعديل الأخير</h4>
+				<p class="text-sm text-red-400 font-medium">{{ getRejectionReason('BASICS_UPDATE') }}</p>
+			</div>
+		</div>
+		}
+		@if (isTabPending('BASICS_UPDATE')) {
+		<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-3">
+			<div class="p-2 bg-amber-500/20 rounded-xl text-amber-500 mt-0.5">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+					<circle cx="12" cy="12" r="10" />
+					<polyline points="12 6 12 12 16 14" />
+				</svg>
+			</div>
+			<div>
+				<h4 class="text-amber-500 font-bold mb-1">قيد الانتظار</h4>
+				<p class="text-sm text-amber-400 font-medium">⚠️ هذه البيانات قيد المراجعة حالياً من قبل الذكاء
+					الاصطناعي والمراجع البشري. سيتم فتح التعديل فور الانتهاء.</p>
+			</div>
+		</div>
+		}
+
+		<div
+			class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+
+			<!-- Header -->
+			<div class="flex items-start gap-4 mb-6">
+				<div
+					class="flex-shrink-0 w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+						<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+						<circle cx="12" cy="7" r="4" />
+					</svg>
+				</div>
+				<div class="flex-grow">
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">البيانات الأساسية للحساب</h3>
+					<p class="text-sm text-slate-500 dark:text-slate-400">تغيير البريد والجوال يتطلب رمز OTP على
+						القناتين</p>
+				</div>
+			</div>
+
+			<!-- Governed Bar -->
+			<div
+				class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl mb-4">
+				<div class="flex items-center gap-3">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						class="w-5 h-5 flex-shrink-0 text-amber-500">
+						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+					</svg>
+					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
+						طلباً يفحصه الذكاء ثم يعتمده مراجع بشري قبل التطبيق</span>
+				</div>
+				<button type="button" (click)="loadChangeRequests()"
+					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
+					السابقة</button>
+			</div>
+
+			<!-- Warning Bar -->
+			<div
+				class="flex items-center gap-3 p-4 bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10 rounded-2xl mb-8">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+					class="w-5 h-5 flex-shrink-0 text-amber-500">
+					<circle cx="12" cy="12" r="10" />
+					<line x1="12" y1="8" x2="12" y2="12" />
+					<line x1="12" y1="16" x2="12.01" y2="16" />
+				</svg>
+				<span class="text-sm font-medium text-amber-800 dark:text-amber-300/80">تغيير البريد الالكتروني أو
+					الجوال يتطلب تأكيد OTP على كلا القناتين</span>
+			</div>
+
+			<!-- Form Grid -->
+			<form [formGroup]="basicsForm" (ngSubmit)="saveTab('basics')">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الاسم الأول</label>
+						<input type="text" formControlName="firstName"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">اسم العائلة</label>
+						<input type="text" formControlName="lastName"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">البريد الالكتروني <span
+								class="text-cyan-500">*</span></label>
+						<input type="email" dir="ltr" formControlName="email"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال <span
+								class="text-cyan-500">*</span></label>
+						<app-phone-input formControlName="phoneNumber"></app-phone-input>
+					</div>
+				</div>
+
+				<!-- Action -->
+				<button type="submit" [disabled]="isSaving() || isTabPending('BASICS_UPDATE')"
+					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
+					طلب تعديل</button>
+			</form>
+		</div>
+
+	</div>
+	}
+
+	<!-- Tab Content: Identity -->
+	@if (activeTab() === 'identity') {
+	<div class="flex flex-col gap-6 animation-fade-in">
+		@if (getRejectionReason('IDENTITY_UPDATE')) {
+		<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
+			<div class="p-2 bg-red-500/20 rounded-xl text-red-500 mt-0.5">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+					<circle cx="12" cy="12" r="10" />
+					<line x1="15" y1="9" x2="9" y2="15" />
+					<line x1="9" y1="9" x2="15" y2="15" />
+				</svg>
+			</div>
+			<div>
+				<h4 class="text-red-500 font-bold mb-1">❌ تم رفض التعديل الأخير</h4>
+				<p class="text-sm text-red-400 font-medium">{{ getRejectionReason('IDENTITY_UPDATE') }}</p>
+			</div>
+		</div>
+		}
+		@if (isTabPending('IDENTITY_UPDATE')) {
+		<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-3">
+			<div class="p-2 bg-amber-500/20 rounded-xl text-amber-500 mt-0.5">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+					<circle cx="12" cy="12" r="10" />
+					<polyline points="12 6 12 12 16 14" />
+				</svg>
+			</div>
+			<div>
+				<h4 class="text-amber-500 font-bold mb-1">قيد الانتظار</h4>
+				<p class="text-sm text-amber-400 font-medium">⚠️ هذه البيانات قيد المراجعة حالياً من قبل الذكاء
+					الاصطناعي والمراجع البشري. سيتم فتح التعديل فور الانتهاء.</p>
+			</div>
+		</div>
+		}
+		<div
+			class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+
+			<!-- Header -->
+			<div class="flex items-start gap-4 mb-6">
+				<div
+					class="flex-shrink-0 w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+						<path d="M9 11l3 3L22 4" />
+						<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+					</svg>
+				</div>
+				<div class="flex-grow">
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">بيانات الهوية والتوثيق</h3>
+					<p class="text-sm text-slate-500 dark:text-slate-400">التحقق يرفع مستوى الثقة ويفتح الاجراءات
+						الرسمية</p>
+				</div>
+			</div>
+
+			<!-- Governed Bar -->
+			<div
+				class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl mb-8">
+				<div class="flex items-center gap-3">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						class="w-5 h-5 flex-shrink-0 text-amber-500">
+						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+					</svg>
+					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
+						طلباً يفحصه الذكاء ثم يعتمده مراجع بشري قبل التطبيق</span>
+				</div>
+				<button type="button" (click)="loadChangeRequests()"
+					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
+					السابقة</button>
+			</div>
+
+			<!-- Form Grid -->
+			<form [formGroup]="identityForm" (ngSubmit)="saveTab('identity')">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الهوية الوطنية /
+							الاقامة</label>
+						<input type="text" dir="ltr" formControlName="idNumber"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+							placeholder="1XXXXXXXXX" maxlength="10">
+						<span class="text-[10px] font-bold text-slate-400">يبدأ بـ 1 (سعودي) أو 2 (مقيم)</span>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">تاريخ
+							الانتهاء/الميلاد</label>
+						<input type="date" formControlName="idExpiryDate"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الجنسية</label>
+						<select formControlName="nationality"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
+							<option>سعودي</option>
+							<option>مقيم في السعودية</option>
+							<option>أخرى</option>
+						</select>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الدولة <span
+								class="text-cyan-500">*</span></label>
+						<select formControlName="country"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
+							<option>السعودية</option>
+							<option>الإمارات</option>
+							<option>الكويت</option>
+							<option>قطر</option>
+							<option>البحرين</option>
+							<option>عمان</option>
+							<option>مصر</option>
+							<option>الأردن</option>
+						</select>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">مدينة الإقامة</label>
+						<select formControlName="city"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
+							<option>الرياض</option>
+							<option>جدة</option>
+							<option>الدمام</option>
+							<option>مكة المكرمة</option>
+							<option>المدينة المنورة</option>
+						</select>
+					</div>
+				</div>
+
+				<!-- Nafath Button (Banner Style) -->
+				<button type="button"
+					class="w-full flex flex-col md:flex-row md:items-center justify-between gap-2 p-4 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 rounded-2xl mb-8 text-white transition-colors text-right md:text-right shadow-lg shadow-cyan-500/20">
+					<div>
+						<div class="text-sm font-bold mb-1">التحقق عبر NAFATH</div>
+						<div class="text-xs font-medium text-cyan-50">يربط الهوية بنظام أبشر ويرفع مستوى الثقة</div>
+					</div>
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						class="w-6 h-6 hidden md:block opacity-80">
+						<path d="M9 18l6-6-6-6" />
+					</svg>
+				</button>
+				<hr class="border-slate-200 dark:border-slate-700/50 mb-8">
+
+
+				<!-- Documents Header -->
+				<div class="flex items-start gap-4 mb-6">
+					<div
+						class="flex-shrink-0 w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-slate-600 dark:text-slate-400">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+							<polyline points="14 2 14 8 20 8" />
+						</svg>
+					</div>
+					<div class="flex-grow">
+						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">مستندات الهوية الرسمية</h3>
+						<p class="text-sm text-slate-500 dark:text-slate-400">رفع صور الهوية يرفع مستوى الثقة ويفتح
+							الاجراءات الرسمية</p>
+					</div>
+				</div>
+
+				<!-- Documents Grid -->
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+					<!-- Front ID -->
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الهوية الوطنية، الوجه
+							الأمامي</label>
+						<div
+							class="relative w-full h-36 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-500/50 bg-slate-50 dark:bg-slate-900/50 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 rounded-2xl flex flex-col items-center justify-center transition-all group overflow-hidden">
+							<input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+								accept=".jpg,.jpeg,.png,.pdf" (change)="onIdUpload($event, 'front')">
+
+							@if (frontIdFileName()) {
+							<div class="flex flex-col items-center gap-2">
+								<div
+									class="p-3 bg-cyan-100 dark:bg-cyan-900/30 rounded-full text-cyan-600 dark:text-cyan-400">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+										class="w-6 h-6">
+										<path d="M20 6L9 17l-5-5" />
+									</svg>
+								</div>
+								<span
+									class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[200px]"
+									dir="ltr">{{ frontIdFileName() }}</span>
+								<span class="text-[10px] text-cyan-600 dark:text-cyan-400">تم الإرفاق بنجاح</span>
+							</div>
+							} @else {
+							<div
+								class="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									class="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors">
+									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+									<polyline points="17 8 12 3 7 8" />
+									<line x1="12" y1="3" x2="12" y2="15" />
+								</svg>
+							</div>
+							<span
+								class="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">اسحب
+								وأفلت الملف هنا</span>
+							<span class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">أو انقر للتصفح من
+								جهازك</span>
+							}
+						</div>
+						<span class="text-[10px] font-bold text-slate-400">JPG أو PNG، حجم أقصى 5MB</span>
+					</div>
+
+					<!-- Back ID -->
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الهوية الوطنية، الوجه
+							الخلفي</label>
+						<div
+							class="relative w-full h-36 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-500/50 bg-slate-50 dark:bg-slate-900/50 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 rounded-2xl flex flex-col items-center justify-center transition-all group overflow-hidden">
+							<input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+								accept=".jpg,.jpeg,.png,.pdf" (change)="onIdUpload($event, 'back')">
+
+							@if (backIdFileName()) {
+							<div class="flex flex-col items-center gap-2">
+								<div
+									class="p-3 bg-cyan-100 dark:bg-cyan-900/30 rounded-full text-cyan-600 dark:text-cyan-400">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+										class="w-6 h-6">
+										<path d="M20 6L9 17l-5-5" />
+									</svg>
+								</div>
+								<span
+									class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[200px]"
+									dir="ltr">{{ backIdFileName() }}</span>
+								<span class="text-[10px] text-cyan-600 dark:text-cyan-400">تم الإرفاق بنجاح</span>
+							</div>
+							} @else {
+							<div
+								class="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									class="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors">
+									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+									<polyline points="17 8 12 3 7 8" />
+									<line x1="12" y1="3" x2="12" y2="15" />
+								</svg>
+							</div>
+							<span
+								class="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">اسحب
+								وأفلت الملف هنا</span>
+							<span class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">أو انقر للتصفح من
+								جهازك</span>
+							}
+						</div>
+						<span class="text-[10px] font-bold text-slate-400">JPG أو PNG، حجم أقصى 5MB</span>
+					</div>
+
+				</div>
+
+				<!-- Action -->
+				<button type="submit" [disabled]="isSaving() || isTabPending('IDENTITY_UPDATE')"
+					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
+					طلب تعديل</button>
+			</form>
+		</div>
+	</div>
+	}
+
+	<!-- Tab Content: Contact -->
+	@if (activeTab() === 'contact') {
+	<div class="flex flex-col gap-6 animation-fade-in">
+		@if (getRejectionReason('CONTACT_UPDATE')) {
+		<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
+			<div class="p-2 bg-red-500/20 rounded-xl text-red-500 mt-0.5">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+					<circle cx="12" cy="12" r="10" />
+					<line x1="15" y1="9" x2="9" y2="15" />
+					<line x1="9" y1="9" x2="15" y2="15" />
+				</svg>
+			</div>
+			<div>
+				<h4 class="text-red-500 font-bold mb-1">❌ تم رفض التعديل الأخير</h4>
+				<p class="text-sm text-red-400 font-medium">{{ getRejectionReason('CONTACT_UPDATE') }}</p>
+			</div>
+		</div>
+		}
+		@if (isTabPending('CONTACT_UPDATE')) {
+		<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-3">
+			<div class="p-2 bg-amber-500/20 rounded-xl text-amber-500 mt-0.5">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+					<circle cx="12" cy="12" r="10" />
+					<polyline points="12 6 12 12 16 14" />
+				</svg>
+			</div>
+			<div>
+				<h4 class="text-amber-500 font-bold mb-1">قيد الانتظار</h4>
+				<p class="text-sm text-amber-400 font-medium">⚠️ هذه البيانات قيد المراجعة حالياً من قبل الذكاء
+					الاصطناعي والمراجع البشري. سيتم فتح التعديل فور الانتهاء.</p>
+			</div>
+		</div>
+		}
+		<div
+			class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+
+			<!-- Header -->
+			<div class="flex items-start gap-4 mb-6">
+				<div
+					class="flex-shrink-0 w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+						<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+						<polyline points="22,6 12,13 2,6" />
+					</svg>
+				</div>
+				<div class="flex-grow">
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">بيانات التواصل</h3>
+					<p class="text-sm text-slate-500 dark:text-slate-400">تغيير البريد أو الجوال يتطلب تأكيد OTP</p>
+				</div>
+			</div>
+
+			<!-- Governed Bar -->
+			<div
+				class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl mb-4">
+				<div class="flex items-center gap-3">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						class="w-5 h-5 flex-shrink-0 text-amber-500">
+						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+					</svg>
+					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
+						طلباً يفحصه الذكاء ثم يعتمده مراجع بشري قبل التطبيق</span>
+				</div>
+				<button type="button" (click)="loadChangeRequests()"
+					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
+					السابقة</button>
+			</div>
+
+			<!-- Warning Bar -->
+			<div
+				class="flex items-center gap-3 p-4 bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10 rounded-2xl mb-8">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+					class="w-5 h-5 flex-shrink-0 text-amber-500">
+					<circle cx="12" cy="12" r="10" />
+					<line x1="12" y1="8" x2="12" y2="12" />
+					<line x1="12" y1="16" x2="12.01" y2="16" />
+				</svg>
+				<span class="text-sm font-medium text-amber-800 dark:text-amber-300/80">تغيير البريد الالكتروني أو
+					الجوال يتطلب تأكيد OTP على كلا القناتين</span>
+			</div>
+
+			<!-- Form Grid -->
+			<form [formGroup]="contactForm" (ngSubmit)="saveTab('contact')">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">البريد الالكتروني <span
+								class="text-cyan-500">*</span></label>
+						<input type="email" dir="ltr" formControlName="email"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال <span
+								class="text-cyan-500">*</span></label>
+						<app-phone-input formControlName="phoneNumber"></app-phone-input>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم WhatsApp
+							(اختياري)</label>
+						<app-phone-input formControlName="alternativePhone"></app-phone-input>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الدولة <span
+								class="text-cyan-500">*</span></label>
+						<select formControlName="country"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
+							<option selected>السعودية</option>
+							<option>الإمارات</option>
+							<option>الكويت</option>
+							<option>قطر</option>
+							<option>البحرين</option>
+							<option>عمان</option>
+							<option>مصر</option>
+							<option>الأردن</option>
+						</select>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">مدينة الإقامة</label>
+						<select formControlName="city"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
+							<option>الرياض</option>
+							<option>جدة</option>
+							<option>الدمام</option>
+							<option>مكة المكرمة</option>
+							<option>المدينة المنورة</option>
+						</select>
+					</div>
+				</div>
+
+				<!-- Action -->
+				<button type="submit" [disabled]="isSaving() || isTabPending('CONTACT_UPDATE')"
+					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
+					طلب تعديل</button>
+			</form>
+		</div>
+	</div>
+	}
+
+	<!-- Tab Content: Banking -->
+	@if (activeTab() === 'banking') {
+	<div class="flex flex-col gap-6 animation-fade-in">
+		@if (getRejectionReason('BANKING_UPDATE')) {
+		<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
+			<div class="p-2 bg-red-500/20 rounded-xl text-red-500 mt-0.5">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+					<circle cx="12" cy="12" r="10" />
+					<line x1="15" y1="9" x2="9" y2="15" />
+					<line x1="9" y1="9" x2="15" y2="15" />
+				</svg>
+			</div>
+			<div>
+				<h4 class="text-red-500 font-bold mb-1">❌ تم رفض التعديل الأخير</h4>
+				<p class="text-sm text-red-400 font-medium">{{ getRejectionReason('BANKING_UPDATE') }}</p>
+			</div>
+		</div>
+		}
+		@if (isTabPending('BANKING_UPDATE')) {
+		<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-3">
+			<div class="p-2 bg-amber-500/20 rounded-xl text-amber-500 mt-0.5">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+					<circle cx="12" cy="12" r="10" />
+					<polyline points="12 6 12 12 16 14" />
+				</svg>
+			</div>
+			<div>
+				<h4 class="text-amber-500 font-bold mb-1">قيد الانتظار</h4>
+				<p class="text-sm text-amber-400 font-medium">⚠️ هذه البيانات قيد المراجعة حالياً من قبل الذكاء
+					الاصطناعي والمراجع البشري. سيتم فتح التعديل فور الانتهاء.</p>
+			</div>
+		</div>
+		}
+		<div
+			class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+
+			<!-- Header -->
+			<div class="flex items-start gap-4 mb-6">
+				<div
+					class="flex-shrink-0 w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+						<rect x="2" y="5" width="20" height="14" rx="2" />
+						<line x1="2" y1="10" x2="22" y2="10" />
+					</svg>
+				</div>
+				<div class="flex-grow">
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">البيانات البنكية / المحفظة</h3>
+					<p class="text-sm text-slate-500 dark:text-slate-400">مطلوب لسحب واسترداد المبالغ، مشفر ومحمي</p>
+				</div>
+			</div>
+
+			<!-- Governed Bar -->
+			<div
+				class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl mb-8">
+				<div class="flex items-center gap-3">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						class="w-5 h-5 flex-shrink-0 text-amber-500">
+						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+					</svg>
+					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل الحساب البنكي أو المحفظة
+						ينشئ طلباً يتحقق الذكاء من تطابق الاسم مع الهوية ثم يعتمده مراجع بشري</span>
+				</div>
+				<button type="button" (click)="loadChangeRequests()"
+					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
+					السابقة</button>
+			</div>
+
+			<!-- Form Area -->
+			<form [formGroup]="bankingForm" (ngSubmit)="saveTab('banking')">
+				<div class="flex flex-col gap-6 mb-8">
+					<!-- Receiving Method -->
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">نوع طريقة الاستلام <span
+								class="text-cyan-500">*</span></label>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<label (click)="setPaymentMethod('bank')" [class.bg-cyan-50]="paymentMethod() === 'bank'"
+								[class.dark:bg-cyan-500]="paymentMethod() === 'bank'"
+								[class.bg-opacity-50]="paymentMethod() === 'bank'"
+								[class.dark:bg-opacity-10]="paymentMethod() === 'bank'"
+								[class.border-cyan-400]="paymentMethod() === 'bank'"
+								[class.dark:border-cyan-500]="paymentMethod() === 'bank'"
+								[class.bg-slate-50]="paymentMethod() === 'wallet'"
+								[class.dark:bg-slate-900]="paymentMethod() === 'wallet'"
+								[class.border-slate-200]="paymentMethod() === 'wallet'"
+								[class.dark:border-slate-700]="paymentMethod() === 'wallet'"
+								class="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-slate-300 dark:hover:border-slate-600">
+								<input type="radio" formControlName="paymentMethod" value="bank"
+									class="w-4 h-4 text-cyan-600 bg-slate-100 border-slate-300 focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-slate-800 focus:ring-2 dark:bg-slate-700 dark:border-slate-600">
+								<span [class.text-slate-900]="paymentMethod() === 'bank'"
+									[class.dark:text-white]="paymentMethod() === 'bank'"
+									[class.text-slate-500]="paymentMethod() === 'wallet'"
+									[class.dark:text-slate-400]="paymentMethod() === 'wallet'"
+									class="text-sm font-bold transition-colors">حساب بنكي</span>
+							</label>
+							<label (click)="setPaymentMethod('wallet')"
+								[class.bg-cyan-50]="paymentMethod() === 'wallet'"
+								[class.dark:bg-cyan-500]="paymentMethod() === 'wallet'"
+								[class.bg-opacity-50]="paymentMethod() === 'wallet'"
+								[class.dark:bg-opacity-10]="paymentMethod() === 'wallet'"
+								[class.border-cyan-400]="paymentMethod() === 'wallet'"
+								[class.dark:border-cyan-500]="paymentMethod() === 'wallet'"
+								[class.bg-slate-50]="paymentMethod() === 'bank'"
+								[class.dark:bg-slate-900]="paymentMethod() === 'bank'"
+								[class.border-slate-200]="paymentMethod() === 'bank'"
+								[class.dark:border-slate-700]="paymentMethod() === 'bank'"
+								class="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-slate-300 dark:hover:border-slate-600">
+								<input type="radio" formControlName="paymentMethod" value="wallet"
+									class="w-4 h-4 text-cyan-600 bg-slate-100 border-slate-300 focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-slate-800 focus:ring-2 dark:bg-slate-700 dark:border-slate-600">
+								<span [class.text-slate-900]="paymentMethod() === 'wallet'"
+									[class.dark:text-white]="paymentMethod() === 'wallet'"
+									[class.text-slate-500]="paymentMethod() === 'bank'"
+									[class.dark:text-slate-400]="paymentMethod() === 'bank'"
+									class="text-sm font-bold transition-colors">محفظة رقمية</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- Account Holder Name -->
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">
+							@if (paymentMethod() === 'bank') { اسم صاحب الحساب البنكي (كما في البنك) } @else { اسم صاحب
+							المحفظة }
+							<span class="text-cyan-500">*</span>
+						</label>
+						<input type="text" formControlName="accountHolderName"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+							[placeholder]="paymentMethod() === 'bank' ? 'الاسم الثلاثي كما في البطاقة البنكية' : 'كما هو مسجل في المحفظة'">
+					</div>
+
+					@if (paymentMethod() === 'bank') {
+					<!-- Bank Details Grid -->
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div class="flex flex-col gap-2">
+							<label class="text-sm font-bold text-slate-700 dark:text-slate-300">اسم البنك <span
+									class="text-cyan-500">*</span></label>
+							<select formControlName="bankName"
+								class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
+								<option selected disabled>اختر البنك</option>
+								<option>البنك الأهلي السعودي</option>
+								<option>مصرف الراجحي</option>
+								<option>بنك الرياض</option>
+								<option>بنك البلاد</option>
+								<option>بنك الإنماء</option>
+							</select>
+						</div>
+						<div class="flex flex-col gap-2">
+							<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم IBAN <span
+									class="text-cyan-500">*</span></label>
+							<div class="relative flex items-center">
+								<input type="text" dir="ltr" formControlName="ibanNumber"
+									class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all tracking-wider font-mono text-sm"
+									placeholder="XX XXXX XXXX XXXX XXXX XXXX" maxlength="22">
+								<span
+									class="absolute left-4 text-sm font-bold text-slate-900 dark:text-white pointer-events-none">SA</span>
+							</div>
+							<span class="text-[10px] font-bold text-slate-400">24 رقم بعد SA</span>
+						</div>
+					</div>
+					} @else {
+					<!-- Wallet Details Grid -->
+					<div class="flex flex-col gap-6">
+						<div class="flex flex-col gap-2">
+							<label class="text-sm font-bold text-slate-700 dark:text-slate-300">مزود المحفظة <span
+									class="text-cyan-500">*</span></label>
+							<select formControlName="walletProvider"
+								class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
+								<option selected disabled>اختر المزود</option>
+								<option>STC Pay</option>
+								<option>urpay</option>
+								<option>barq</option>
+								<option>Alinma Pay</option>
+								<option>محفظة أخرى</option>
+							</select>
+						</div>
+						<div class="flex flex-col gap-2">
+							<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال المرتبط
+								بالمحفظة
+								<span class="text-cyan-500">*</span></label>
+							<app-phone-input formControlName="walletPhone"></app-phone-input>
+						</div>
+						<div class="flex flex-col gap-2">
+							<label class="text-sm font-bold text-slate-700 dark:text-slate-300">معرف المحفظة أو IBAN
+								(اختياري)</label>
+							<input type="text" dir="ltr" formControlName="walletId"
+								class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+								placeholder="المعرف أو الايبان">
+						</div>
+
+						<div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-2">
+							تأكد من تطابق اسم صاحب المحفظة مع اسمك في الهوية لتفادي رفض التحويلات
+						</div>
+					</div>
+					}
+				</div>
+
+				<!-- Hint Text -->
+				<div class="text-center text-xs font-medium text-slate-500 dark:text-slate-400 mb-6">
+					هذا الحساب للسحب والاسترداد فقط. مشفر ومحمي. تغيير بيانات الاستلام يتطلب مصادقة ثنائية.
+				</div>
+
+				<!-- Action -->
+				<button type="submit" [disabled]="isSaving() || isTabPending('BANKING_UPDATE')"
+					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
+					طلب تعديل</button>
+			</form>
+		</div>
+	</div>
+	}
+
+	<!-- Tab Content: Security -->
+	@if (activeTab() === 'security') {
+	<div class="flex flex-col gap-6 animation-fade-in">
+		<div
+			class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+
+			<!-- Header -->
+			<div class="flex items-start gap-4 mb-6">
+				<div
+					class="flex-shrink-0 w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+					</svg>
+				</div>
+				<div class="flex-grow">
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الامان والمصادقة</h3>
+					<p class="text-sm text-slate-500 dark:text-slate-400">ادارة امان الحساب وجلسات الدخول النشطة</p>
+				</div>
+			</div>
+
+			<div class="flex flex-col">
+				<!-- MFA -->
+				<div class="flex items-center justify-between py-5 border-b border-slate-200 dark:border-slate-700/50">
+					<div>
+						<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">المصادقة الثنائية (MFA)</h4>
+						<p class="text-xs text-slate-500 dark:text-slate-400">مفعلة، تحمي الحساب عند تسجيل الدخول وتغيير
+							البيانات الحساسة</p>
+					</div>
+					<div
+						class="px-4 py-1.5 bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 rounded-full text-[11px] font-bold text-cyan-700 dark:text-cyan-400">
+						مفعلة
+					</div>
+				</div>
+
+				<!-- Change Password -->
+				<div class="flex flex-col py-5 border-b border-slate-200 dark:border-slate-700/50 gap-4">
+					<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+						<div>
+							<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">تغيير كلمة المرور</h4>
+							<p class="text-xs text-slate-500 dark:text-slate-400">ينصح بتغييرها كل 90 يوما</p>
+						</div>
+						<button type="button" (click)="togglePasswordChange()"
+							[class]="isChangingPassword() ? 'w-full cursor-pointer px-12 py-3 bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-bold rounded-xl transition-all' : 'w-full cursor-pointer md:w-auto px-12 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-md transition-all'">
+							{{ isChangingPassword() ? 'إغلاق' : 'تغيير كلمة المرور' }}
+						</button>
+					</div>
+
+					<!-- Expanded Form -->
+					@if (isChangingPassword()) {
+					<div
+						class="flex flex-col gap-6 mt-4 animation-fade-in bg-slate-50/50 dark:bg-slate-900/20 p-6 rounded-2xl border border-slate-200 dark:border-slate-700/50">
+
+						<!-- Current Password -->
+						<div class="flex flex-col gap-2">
+							<label class="text-sm font-bold text-slate-700 dark:text-slate-300">كلمة المرور الحالية
+								<span class="text-cyan-500">*</span></label>
+							<input type="password"
+								class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+								placeholder="ادخل كلمة المرور الحالية">
+						</div>
+
+						<!-- New Password Grid -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="flex flex-col gap-2">
+								<label class="text-sm font-bold text-slate-700 dark:text-slate-300">كلمة المرور الجديدة
+									<span class="text-cyan-500">*</span></label>
+								<input type="password"
+									class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+									placeholder="8 أحرف على الأقل">
+							</div>
+							<div class="flex flex-col gap-2">
+								<label class="text-sm font-bold text-slate-700 dark:text-slate-300">تأكيد كلمة المرور
+									الجديدة <span class="text-cyan-500">*</span></label>
+								<input type="password"
+									class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+									placeholder="أعد إدخال كلمة المرور">
+							</div>
+						</div>
+
+						<!-- Password Strength -->
+						<div class="flex flex-col gap-2 mt-2">
+							<div class="text-xs font-bold text-slate-500 dark:text-slate-400">قوة كلمة المرور</div>
+							<div class="flex gap-2 w-full h-1.5 rounded-full overflow-hidden">
+								<div class="h-full w-1/4 bg-slate-200 dark:bg-slate-700"></div>
+								<div class="h-full w-1/4 bg-slate-200 dark:bg-slate-700"></div>
+								<div class="h-full w-1/4 bg-slate-200 dark:bg-slate-700"></div>
+								<div class="h-full w-1/4 bg-slate-200 dark:bg-slate-700"></div>
+							</div>
+						</div>
+
+						<!-- Action -->
+						<button type="button"
+							class="w-full mt-2 py-4 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all">حفظ
+							كلمة المرور الجديدة</button>
+
+					</div>
+					}
+				</div>
+
+				<!-- Active Sessions -->
+				<div class="flex flex-col md:flex-row md:items-start justify-between py-5 gap-4">
+					<div>
+						<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">جلسات الدخول النشطة</h4>
+						<div class="flex flex-col gap-2 mt-3">
+							<div class="flex items-center gap-3">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									class="w-4 h-4 text-slate-400">
+									<rect x="2" y="3" width="20" height="14" rx="2" />
+									<line x1="8" y1="21" x2="16" y2="21" />
+									<line x1="12" y1="17" x2="12" y2="21" />
+								</svg>
+								<p class="text-sm font-medium text-slate-600 dark:text-slate-300">Chrome, Windows 11 -
+									الرياض</p>
+							</div>
+							<div class="flex items-center gap-3">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									class="w-4 h-4 text-slate-400">
+									<rect x="5" y="2" width="14" height="20" rx="2" />
+									<line x1="12" y1="18" x2="12.01" y2="18" />
+								</svg>
+								<p class="text-sm font-medium text-slate-600 dark:text-slate-300">Safari, iPhone 15 -
+									الرياض</p>
+							</div>
+						</div>
+					</div>
+					<div class="flex items-center gap-4 mt-2 md:mt-0">
+						<button type="button"
+							class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors">الجلسة
+							الحالية</button>
+						<button type="button"
+							class="text-xs font-bold text-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors">انهاء
+							الجلسات</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	}
+
+	<!-- Change Requests Modal -->
+	@if (showRequestsModal()) {
+	<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animation-fade-in"
+		dir="rtl">
+		<div
+			class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+
+			<!-- Modal Header -->
+			<div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+				<h3 class="text-xl font-bold text-slate-900 dark:text-white">طلبات التعديل السابقة</h3>
+				<button type="button" (click)="closeRequestsModal()"
+					class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+						<line x1="18" y1="6" x2="6" y2="18" />
+						<line x1="6" y1="6" x2="18" y2="18" />
+					</svg>
+				</button>
+			</div>
+
+			<!-- Modal Body -->
+			<div class="p-6 overflow-y-auto flex-1 custom-scrollbar flex flex-col gap-4">
+				@if (changeRequests().length === 0) {
+				<div class="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-500">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+						class="w-16 h-16 mb-4 opacity-50">
+						<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+					</svg>
+					<p class="text-sm font-bold">لا توجد طلبات تعديل سابقة</p>
+				</div>
+				} @else {
+				@for (req of changeRequests(); track req.id) {
+				<div
+					class="p-5 border border-slate-200 dark:border-slate-700/60 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 flex flex-col gap-3">
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-3">
+							<div class="p-2.5 rounded-xl flex items-center justify-center"
+								[class.bg-yellow-100]="req.status === 'PENDING'"
+								[class.text-yellow-600]="req.status === 'PENDING'"
+								[class.bg-green-100]="req.status === 'APPROVED'"
+								[class.text-green-600]="req.status === 'APPROVED'"
+								[class.bg-red-100]="req.status === 'REJECTED'"
+								[class.text-red-600]="req.status === 'REJECTED'">
+
+								@if (req.status === 'PENDING') {
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									class="w-5 h-5">
+									<circle cx="12" cy="12" r="10" />
+									<polyline points="12 6 12 12 16 14" />
+								</svg>
+								} @else if (req.status === 'APPROVED') {
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									class="w-5 h-5">
+									<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+									<polyline points="22 4 12 14.01 9 11.01" />
+								</svg>
+								} @else {
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									class="w-5 h-5">
+									<circle cx="12" cy="12" r="10" />
+									<line x1="15" y1="9" x2="9" y2="15" />
+									<line x1="9" y1="9" x2="15" y2="15" />
+								</svg>
+								}
+							</div>
+							<div class="flex flex-col">
+								<span class="text-sm font-bold text-slate-900 dark:text-white">{{
+									getTabName(req.tabName) }}</span>
+								<span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ req.createdAt |
+									date:'yyyy-MM-dd h:mm a' }}</span>
+							</div>
+						</div>
+
+						<!-- Status Badge -->
+						<div class="px-3 py-1 rounded-full text-xs font-bold"
+							[class.bg-yellow-100]="req.status === 'PENDING'"
+							[class.text-yellow-700]="req.status === 'PENDING'"
+							[class.bg-green-100]="req.status === 'APPROVED'"
+							[class.text-green-700]="req.status === 'APPROVED'"
+							[class.bg-red-100]="req.status === 'REJECTED'"
+							[class.text-red-700]="req.status === 'REJECTED'">
+							{{ req.status === 'PENDING' ? '⏳ قيد الانتظار' : req.status === 'APPROVED' ? '✅ تم الاعتماد
+							وتحديث البيانات' : '❌ مرفوض' }}
+						</div>
+					</div>
+
+					@if (req.status === 'REJECTED' && req.rejectionReason) {
+					<div
+						class="mt-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl">
+						<span class="text-xs font-bold text-red-800 dark:text-red-400">❌ تم رفض التعديل الأخير:</span>
+						<p class="text-xs font-medium text-red-700 dark:text-red-300 mt-1">{{ req.rejectionReason }}</p>
+					</div>
+					}
+				</div>
+				}
+				}
+			</div>
+
+		</div>
+	</div>
+	}
+</div>

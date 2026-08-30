@@ -1,0 +1,222 @@
+<main class="w-full min-h-screen p-6 text-slate-300 font-sans" dir="rtl">
+	<div class="max-w-full mx-auto space-y-6">
+		<!-- Header Section -->
+		<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+			<div>
+				<h1 class="text-3xl font-bold text-white mb-1">طلباتي</h1>
+				<p class="text-slate-400 text-sm">إدارة كل طلباتك ومتابعة عروضها في مكان واحد</p>
+			</div>
+
+			<div class="flex items-center gap-3">
+				<!-- Search Input -->
+				<div class="relative group">
+					<div
+						class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500 group-focus-within:text-cyan-400 transition-colors">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+							stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+							<circle cx="11" cy="11" r="8" />
+							<line x1="21" y1="21" x2="16.65" y2="16.65" />
+						</svg>
+					</div>
+					<input type="search" placeholder="ابحث برقم أو اسم أو مقدم"
+						class="w-64 bg-slate-800/50 border border-slate-700/50 text-slate-200 text-sm rounded-xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 block w-full pr-10 p-2.5 outline-none transition-all placeholder-slate-500 backdrop-blur-sm" />
+				</div>
+
+				<!-- New Request CTA -->
+				<button [routerLink]="['/client-overview/create-request']"
+					class="flex items-center gap-2 bg-gradient-to-r cursor-pointer from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-900 font-bold text-sm px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+						stroke-linejoin="round" class="w-4 h-4">
+						<line x1="12" y1="5" x2="12" y2="19" />
+						<line x1="5" y1="12" x2="19" y2="12" />
+					</svg>
+					طلب جديد
+				</button>
+			</div>
+		</div>
+
+		<!-- AI Disclosure Banner -->
+		<div
+			class="flex items-center gap-4 bg-[var(--ai)]/5 border border-[var(--ai)]/20 rounded-2xl p-4 backdrop-blur-md mb-6">
+			<div
+				class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-[10px] bg-[var(--ai)]/10 text-[var(--ai)] border border-[var(--ai)]/20">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="w-5 h-5">
+					<use href="#i-ai"></use>
+				</svg>
+			</div>
+			<div>
+				<div class="text-[var(--ai)] text-[12.5px] font-black mb-1">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+				<div class="text-[#A8B2D1] text-xs flex items-center flex-wrap gap-2">
+					AI يرتب طلباتك حسب الأولوية ويبرز ما وصلته عروض جديدة
+					<span
+						class="bg-[var(--ai)]/10 text-[var(--ai)] text-[10px] px-2 py-0.5 rounded-[6px] font-bold border border-[var(--ai)]/20">دقة 95%</span>
+					القرار النهائي لك
+				</div>
+			</div>
+		</div>
+
+		<!-- Tabs and Filters Toolbar -->
+		<div
+			class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-2 border-b border-slate-800/80 pb-4">
+			<!-- Tabs -->
+			<div class="flex items-center gap-1 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
+  @for (tab of tabs(); track tab.id) {
+  <button (click)="setFilter(tab.id)" [class]="currentFilter() === tab.id
+    ? 'bg-[#2BD4C7]/10 text-[#2BD4C7] border-b-2 border-[#2BD4C7]'
+    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border-b-2 border-transparent'"
+    class="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors rounded-t-lg whitespace-nowrap">
+    {{tab.label}}
+    <span
+      [class]="currentFilter() === tab.id ? 'bg-[#2BD4C7]/15 text-[#2BD4C7]' : 'bg-slate-800/80 text-slate-500'"
+      class="px-2 py-0.5 rounded-md text-xs font-bold transition-colors">
+						{{tab.count}}
+					</span>
+				</button>
+				}
+			</div>
+
+			<!-- Right Toolbar Actions -->
+			<div class="flex items-center gap-3">
+				<button
+					class="flex items-center gap-2 bg-slate-800/50 border border-slate-700 hover:bg-slate-700/50 text-slate-300 text-sm px-4 py-2 rounded-xl transition-colors">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						stroke-linejoin="round" class="w-4 h-4">
+						<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+					</svg>
+					فلترة
+					<span
+						class="bg-cyan-500/20 text-cyan-400 w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold">2</span>
+				</button>
+
+				<select
+					class="bg-slate-800/50 border border-slate-700 text-slate-300 text-sm rounded-xl px-4 py-2 outline-none focus:border-cyan-500/50 transition-colors appearance-none pr-8 relative bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[position:left_10px_center] bg-no-repeat cursor-pointer">
+					<option>الأحدث أولا</option>
+					<option>الأقدم أولا</option>
+					<option>الأعلى ميزانية</option>
+					<option>الأكثر عروضا</option>
+					<option>قرب التسليم</option>
+				</select>
+
+				<button
+					class="flex items-center gap-2 bg-slate-800/50 border border-slate-700 hover:bg-slate-700/50 text-slate-300 text-sm px-4 py-2 rounded-xl transition-colors">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						stroke-linejoin="round" class="w-4 h-4">
+						<line x1="8" y1="6" x2="21" y2="6" />
+						<line x1="8" y1="12" x2="21" y2="12" />
+						<line x1="8" y1="18" x2="21" y2="18" />
+						<line x1="3" y1="6" x2="3.01" y2="6" />
+						<line x1="3" y1="12" x2="3.01" y2="12" />
+						<line x1="3" y1="18" x2="3.01" y2="18" />
+					</svg>
+					عرض
+				</button>
+			</div>
+		</div>
+
+		<!-- Table Section -->
+		<div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden backdrop-blur-xl">
+			<div class="overflow-x-auto">
+				<table class="w-full text-sm text-right">
+					<thead class="text-xs text-slate-400 bg-slate-800/50 uppercase border-b border-slate-700/50">
+						<tr>
+							<th scope="col" class="px-6 py-4 font-semibold">الطلب</th>
+							<th scope="col" class="px-6 py-4 font-semibold">التخصص</th>
+							<th scope="col" class="px-6 py-4 font-semibold">الميزانية</th>
+							<th scope="col" class="px-6 py-4 font-semibold text-center">الحالة</th>
+							<th scope="col" class="px-6 py-4 font-semibold text-center">العروض</th>
+							<th scope="col" class="px-6 py-4 font-semibold text-center">الإجراء</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-700/50">
+						@for (req of paginatedRequests(); track req.id) {
+						<tr class="hover:bg-slate-800/50 transition-colors group">
+							<td class="px-6 py-4">
+								<div class="flex flex-col">
+									<span
+										class="text-white font-semibold mb-1 group-hover:text-cyan-300 transition-colors">{{req.name}}</span>
+									<span class="text-slate-500 text-xs flex items-center gap-2">{{req.displayId}} <span class="opacity-50">|</span> {{req.createdAt | date:'yyyy/MM/dd'}}</span>
+								</div>
+							</td>
+							<td class="px-6 py-4 text-slate-300">{{req.specialty}}</td>
+							<td class="px-6 py-4 text-slate-300">{{req.budget}}</td>
+							<td class="px-6 py-4 text-center">
+								<span
+									class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border"
+									[ngClass]="{
+                      'bg-emerald-500/10 text-emerald-400 border-emerald-500/20': req.status === 'active',
+                      'bg-cyan-500/10 text-cyan-400 border-cyan-500/20': req.status === 'pending',
+                      'bg-amber-500/10 text-amber-400 border-amber-500/20': req.status === 'dispute',
+                      'bg-blue-500/10 text-blue-400 border-blue-500/20': req.status === 'closed',
+                      'bg-slate-500/10 text-slate-400 border-slate-500/20': req.status === 'cancel' || req.status === 'draft'
+                    }">
+									<span class="w-1.5 h-1.5 rounded-full" [ngClass]="{
+                        'bg-emerald-400': req.status === 'active',
+                        'bg-cyan-400': req.status === 'pending',
+                        'bg-amber-400': req.status === 'dispute',
+                        'bg-blue-400': req.status === 'closed',
+                        'bg-slate-400': req.status === 'cancel' || req.status === 'draft'
+                      }"></span>
+									{{getStatusLabel(req.status)}}
+								</span>
+							</td>
+							<td class="px-6 py-4 text-center">
+								@if (req.offers) {
+								<span
+									class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-blue-500/10 text-blue-400 font-semibold text-xs border border-blue-500/20">
+									{{req.offers}}
+								</span>
+								} @else {
+								<span class="text-slate-600">-</span>
+								}
+							</td>
+							<td class="px-6 py-4 text-center">
+								<button [routerLink]="['/client-overview/my-requests', req.id]" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all" [ngClass]="{
+                      'bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20': ['active', 'pending'].includes(req.status),
+                      'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600': !['active', 'pending'].includes(req.status)
+                    }">
+									{{ req.status === 'active' || req.status === 'pending' ? 'عرض' : (req.status ===
+									'dispute' ? 'متابعة' : (req.status === 'closed' ? 'تقييم' : (req.status === 'cancel' ?
+									'التفاصيل' : 'إكمال'))) }}
+								</button>
+							</td>
+						</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Pagination -->
+		<div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+			<span class="text-slate-400 text-sm">يظهر {{ (currentPage() - 1) * itemsPerPage + 1 }}-{{ 
+				(currentPage() * itemsPerPage) > filteredRequests().length ? filteredRequests().length : (currentPage() * itemsPerPage) 
+			}} من {{ filteredRequests().length }} نتيجة</span>
+			
+			<div class="flex items-center gap-2">
+				<button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
+					class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+						<path d="M9 18l6-6-6-6" />
+					</svg>
+				</button>
+				
+				@for (page of pagesArray(); track page) {
+					<button (click)="goToPage(page)"
+						[class]="currentPage() === page 
+							? 'w-8 h-8 flex items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-sm font-semibold' 
+							: 'w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors text-sm'">
+						{{ page }}
+					</button>
+				}
+
+				<button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
+					class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+						<path d="M15 18l-6-6 6-6" />
+					</svg>
+				</button>
+			</div>
+		</div>
+
+	</div>
+</main>

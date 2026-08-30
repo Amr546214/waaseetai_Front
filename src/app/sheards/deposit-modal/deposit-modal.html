@@ -1,0 +1,159 @@
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md"
+	dir="rtl">
+
+	<!-- Modal Container -->
+	<div class="relative w-full max-w-lg sm:max-w-xl max-h-[92vh] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+		(click)="$event.stopPropagation()">
+		@if (paymentStatus() === 'success') {
+		<div class="payment-success-layer" role="status" aria-live="polite">
+			<div class="payment-success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2.8">
+					<polyline points="20 6 9 17 4 12" />
+				</svg></div>
+			<h2>تم الإيداع بنجاح</h2>
+			<p>أُضيف مبلغ <strong>{{ amount().toLocaleString('en-US') }} ر.س</strong> إلى رصيد محفظتك.</p>
+			<div class="payment-reference"><span>رقم العملية</span><b>{{ paymentReference() }}</b></div>
+			<button type="button" class="payment-done-btn" (click)="onClose()">العودة إلى المحفظة</button>
+		</div>
+		}
+
+		<!-- Header -->
+		<div class="flex items-center justify-between px-5 py-4 border-b border-slate-800/80 bg-slate-900/50 flex-shrink-0">
+			<div class="flex flex-col gap-0.5">
+				<h2 class="text-base sm:text-lg font-black text-white">إيداع رصيد في المحفظة</h2>
+				<p class="text-[11px] font-bold text-slate-400">شحن فوري لتمويل الضمان عند بدء المشاريع</p>
+			</div>
+			<button (click)="onClose()"
+				class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round">
+					<line x1="18" y1="6" x2="6" y2="18" />
+					<line x1="6" y1="6" x2="18" y2="18" />
+				</svg>
+			</button>
+		</div>
+
+		<!-- Body (Scrollable & Responsive) -->
+		<div class="px-5 py-4 overflow-y-auto custom-scrollbar flex flex-col gap-4">
+
+			<!-- AI Notice -->
+			<div class="flex items-center gap-2.5 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-cyan-300">
+				<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+					<path d="M20 6 9 17l-5-5" />
+				</svg>
+				<span class="text-[11px] font-bold leading-tight">الرصيد يُستخدم لتمويل الضمان والمشاريع، وبيانات البطاقة تعالجها بوابة ميسر مباشرة.</span>
+			</div>
+
+			<!-- Amount Input -->
+			<div class="flex flex-col gap-2">
+				<label class="text-xs font-black text-slate-300 flex items-center justify-between">
+					<span>المبلغ المراد إيداعه</span>
+					<span class="text-[10px] font-bold text-slate-500">50 - 100,000 ر.س</span>
+				</label>
+
+				<div class="relative">
+					<input type="text" [value]="amount()" (input)="onAmountInput($event)" inputmode="decimal" [disabled]="lockAmount()"
+						class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-center text-2xl font-black text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-all">
+					<span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">ر.س</span>
+				</div>
+
+				@if (!lockAmount()) {
+				<div class="grid grid-cols-4 gap-1.5 mt-1">
+					@for (val of quickAmounts; track val) {
+					<button (click)="setAmount(val)" [class.bg-cyan-500]="amount() === val"
+						[class.text-slate-950]="amount() === val" [class.border-cyan-500]="amount() === val"
+						[class.bg-slate-800/80]="amount() !== val" [class.text-slate-300]="amount() !== val"
+						class="py-1.5 px-2 rounded-lg border border-slate-700/60 text-xs font-bold transition-all hover:border-cyan-400/50">
+						{{ val }}
+					</button>
+					}
+				</div>
+				}
+			</div>
+
+			<!-- Quick Summary Row -->
+			<div class="bg-slate-950/60 rounded-xl p-3 border border-slate-800 grid grid-cols-3 gap-2 text-center">
+				<div class="flex flex-col">
+					<span class="text-[10px] font-bold text-slate-400">الرصيد الحالي</span>
+					<span class="text-xs font-extrabold text-white mt-0.5">{{ currentBalance() }} ر.س</span>
+				</div>
+				<div class="flex flex-col border-x border-slate-800">
+					<span class="text-[10px] font-bold text-slate-400">رسوم الإيداع</span>
+					<span class="text-xs font-extrabold text-emerald-400 mt-0.5">مجاناً (0%)</span>
+				</div>
+				<div class="flex flex-col">
+					<span class="text-[10px] font-bold text-slate-400">الرصيد بعد الإيداع</span>
+					<span class="text-xs font-black text-cyan-300 mt-0.5">{{ balanceAfter }} ر.س</span>
+				</div>
+			</div>
+
+			<!-- Payment Methods Tabs -->
+			<div class="flex flex-col gap-2">
+				<label class="text-xs font-black text-slate-300">طريقة الدفع</label>
+
+					<div class="grid grid-cols-1 gap-2">
+					<!-- Card Option -->
+						<div [class.border-cyan-500]="selectedMethod() === 'card'"
+						[class.bg-cyan-500/10]="selectedMethod() === 'card'"
+						class="cursor-pointer border border-slate-700/80 rounded-xl p-3 flex items-center gap-2.5 transition-all hover:border-cyan-400/50">
+						<div class="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0"
+							[class.border-cyan-400]="selectedMethod() === 'card'"
+							[class.border-slate-600]="selectedMethod() !== 'card'">
+							@if (selectedMethod() === 'card') { <div class="w-2 h-2 rounded-full bg-cyan-400"></div> }
+						</div>
+						<div class="flex flex-col">
+							<span class="text-xs font-bold text-white">بطاقة بنكية</span>
+							<span class="text-[9px] font-bold text-slate-400">مدى / فيزا / ماستركارد</span>
+						</div>
+					</div>
+					</div>
+
+				<!-- Card Section (Moyasar Web Form) -->
+				@if (selectedMethod() === 'card') {
+				<div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 mt-1 flex flex-col gap-2">
+					<div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+						<span class="text-xs font-bold text-slate-300">بوابة الدفع ميسر (Moyasar)</span>
+						<span class="text-[9px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">مدى / Visa / MasterCard</span>
+					</div>
+
+					<!-- Official Moyasar MPF Container -->
+						<div class="mysr-form my-1 min-h-[120px]" [class.moyasar-locked]="!termsAccepted()" [id]="formElementId" dir="ltr"></div>
+					</div>
+					}
+			</div>
+
+			<!-- Terms Checkbox -->
+			<div (click)="toggleTerms()" class="flex items-start gap-2.5 p-2.5 rounded-xl cursor-pointer transition-colors"
+				[class.bg-slate-950/40]="!termsAccepted()" [class.bg-cyan-500/10]="termsAccepted()">
+				<div class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors"
+					[class.border-cyan-400]="termsAccepted()" [class.bg-cyan-400]="termsAccepted()"
+					[class.border-slate-600]="!termsAccepted()">
+					@if (termsAccepted()) { <svg class="w-3 h-3 text-slate-950" viewBox="0 0 24 24" fill="none"
+						stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
+						<polyline points="20 6 9 17 4 12" />
+					</svg> }
+				</div>
+				<div class="text-[11px] font-bold text-slate-300">
+					أوافق على <span class="text-cyan-400">شروط الإيداع</span> والمبلغ مخصص للاستخدام داخل المنصة.
+				</div>
+			</div>
+
+			@if (paymentError()) {
+			<div class="payment-error" role="alert">{{ paymentError() }}</div>
+			}
+		</div>
+
+		<!-- Footer Actions -->
+		<div class="px-5 py-3.5 border-t border-slate-800/80 flex items-center justify-between gap-3 bg-slate-950/60 flex-shrink-0">
+			<div class="flex items-center gap-2 text-slate-400 text-[10px] font-bold">
+				<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+				</svg>
+				<span>دفع مشفّر 256-bit SSL</span>
+			</div>
+				<span class="text-[10px] font-bold text-emerald-400">بيانات البطاقة تعالجها ميسر مباشرة ولا تصل إلى وسيط AI</span>
+		</div>
+
+	</div>
+</div>

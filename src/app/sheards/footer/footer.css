@@ -1,0 +1,21 @@
+/* FOOTER — exact from P-AU-001.html */
+footer{background:rgba(7,13,36,.8);border-top:1px solid var(--border);padding:48px 0 28px;position:relative;z-index:2}
+.footer-inner{display:flex;flex-direction:column;gap:28px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px}
+.footer-brand p{font-size:13px;color:var(--txt-3);line-height:1.6;margin-top:10px;max-width:220px}
+.footer-social{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.footer-social a{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--txt-3);transition:all .18s}
+.footer-social a svg{width:13px;height:13px}
+.footer-social a:hover{border-color:rgba(43,212,199,.35);color:var(--teal)}
+.footer-col h4{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:12px}
+.footer-col a{display:block;font-size:13px;color:var(--txt-3);text-decoration:none;margin-bottom:7px;transition:color .15s}
+.footer-col a:hover{color:var(--teal)}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:20px;border-top:1px solid var(--border);font-size:12px;color:var(--txt-3);flex-wrap:wrap;gap:8px}
+.footer-badge{display:inline-block;font-size:10px;font-weight:700;color:var(--txt-3);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:1px 5px}
+
+@media(max-width:820px){
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .footer-grid{grid-template-columns:1fr}
+}

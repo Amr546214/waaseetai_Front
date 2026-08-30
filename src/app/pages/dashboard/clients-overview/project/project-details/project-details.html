@@ -1,0 +1,90 @@
+<section class="project-workspace" dir="rtl">
+	<h1 class="sr-only">متابعة دورة حياة المشروع</h1>
+	<a routerLink="/client-overview/projects/active" class="bk-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>العودة إلى مشاريعي</a>
+
+	<div class="ai-disclosure" role="region" aria-label="إفصاح الذكاء الاصطناعي">
+		<div class="ai-disc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M10.5 10.5 5 7M13.5 10.5 19 7M10.5 13.5 5 17M13.5 13.5 19 17"/></svg></div>
+		<div class="ai-disc-body"><div class="ai-disc-lbl">وسيط AI، متابعة دورة حياة المشروع</div><p class="ai-disc-txt">AI يتابع التزام المراحل بالمواعيد ويربط الإفراج المالي بالتسليمات وينبّهك قبل أي تأخّر <span class="ai-disc-badge">القرار النهائي لك</span></p></div>
+	</div>
+
+	@if (isLoading()) {
+		<div class="state-card" role="status" aria-label="جاري تحميل مساحة العمل"><div class="skeleton-row"></div><div class="skeleton-box"></div></div>
+	} @else if (error() && !project()) {
+		<div class="state-card error-state" role="alert"><div class="state-title">تعذر تحميل مساحة العمل</div><div class="state-code">ERR-SK-014A</div><button type="button" class="lc-btn lc-btn-pri" (click)="load()">إعادة المحاولة</button></div>
+	} @else if (project(); as data) {
+		@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
+		<div class="lc-ph">
+			<div class="lc-av-wrap"><div class="lc-av">{{ data.clientInitial }}</div><span class="verified-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 61.8 36.7h33.3L68.6 57.1l10.8 31.7L50 70.3 20.6 88.8l10.8-31.7L4.9 36.7h33.3Z"/></svg></span></div>
+			<div class="lc-ph-main"><h2>{{ data.title }}</h2><div class="lc-meta"><span class="lc-prov"><span class="pi">{{ data.clientInitial }}</span>{{ data.clientName }}</span><span class="lc-dot"></span><span>عقد رقم {{ data.contractRef }}</span><span class="lc-dot"></span><span>قيمة العقد {{ formatNumber(data.price) }} ريال</span></div></div>
+			<span class="lc-badge"><span class="lv"></span>{{ data.statusLabel }}</span>
+		</div>
+
+		<div class="lc-prog">
+			<div class="lc-ring" [style.--progress]="data.progress"><b>{{ data.progress }}<small>٪</small></b></div>
+			<div class="lc-proginfo"><div class="t">نسبة الإنجاز الكلي <span>{{ approvedCount(data) }} من {{ data.stages.length }} مراحل مكتملة</span></div><div class="lc-track"><i [style.width.%]="data.progress"></i></div><div class="lbls"><span>مدة العقد {{ data.durationDays }} يوماً</span><span>التسليم المتوقع بعد {{ data.daysLeft }} يوم</span></div></div>
+			<div class="lc-days"><b>{{ data.daysLeft }}</b><small>يوم متبقٍ</small></div>
+		</div>
+
+		<div class="lc-kpis">
+			<div class="lc-kpi"><div class="ic lc-ic-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 17 6-6 4 4 8-8"/></svg></div><div class="v">{{ data.progress }}<small>٪</small></div><div class="l">الإنجاز</div></div>
+			<div class="lc-kpi"><div class="ic lc-ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></div><div class="v">{{ data.daysLeft }}<small> يوم</small></div><div class="l">المتبقي</div></div>
+			<div class="lc-kpi"><div class="ic lc-ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></div><div class="v">{{ approvedCount(data) }}<small>/{{ data.stages.length }}</small></div><div class="l">المراحل</div></div>
+			<div class="lc-kpi"><div class="ic lc-ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="11" width="15" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><div class="v">{{ formatNumber(data.escrowHeld) }}</div><div class="l">المحتجز ريال</div></div>
+			<div class="lc-kpi"><div class="ic lc-ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 14.5h4a2 2 0 0 0 0-4h-3a2 2 0 0 1 0-4h4M12 6v2M12 16v2"/></svg></div><div class="v">{{ formatNumber(data.escrowReleased) }}</div><div class="l">المفرج ريال</div></div>
+			<div class="lc-kpi"><div class="ic lc-ic-ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div><div class="v rating">{{ deadlineRating(data) }}</div><div class="l">الالتزام بالموعد</div></div>
+		</div>
+
+		<div class="lc-tabs" role="tablist" aria-label="أقسام مساحة المشروع">
+			<button type="button" role="tab" class="lc-tab" [class.active]="activeTab()==='overview'" (click)="setTab('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>نظرة عامة</button>
+			<button type="button" role="tab" class="lc-tab" [class.active]="activeTab()==='miles'" (click)="setTab('miles')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>المراحل<span class="c">{{ data.stages.length }}</span></button>
+			<button type="button" role="tab" class="lc-tab" [class.active]="activeTab()==='msgs'" (click)="setTab('msgs')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>الرسائل<span class="c">{{ data.messages.length }}</span></button>
+			<button type="button" role="tab" class="lc-tab" [class.active]="activeTab()==='files'" (click)="setTab('files')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>الملفات<span class="c">{{ totalFiles(data) }}</span></button>
+		</div>
+
+		@if (activeTab() === 'overview') {
+			<div class="lc-cols"><div><div class="lc-colttl">المراحل والتسليمات <span class="c">{{ data.stages.length }} مراحل</span></div><div class="lc-tl">
+				@for (stage of data.stages; track stage.id) {
+					<div class="lc-tli" [class.is-done]="stage.status==='completed'" [class.is-wait]="stage.status==='submitted'||stage.status==='revision'||stage.status==='in_progress'">
+						<span class="lc-node" [class.lc-nd-done]="stage.status==='completed'" [class.lc-nd-wait]="stage.status==='submitted'||stage.status==='revision'||stage.status==='in_progress'" [class.lc-nd-todo]="stage.status==='pending'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path [attr.d]="stage.status==='completed' ? 'm5 12 4 4L19 6' : stage.status==='pending' ? 'M12 12h.01' : 'M12 7v5l3 2'"/></svg></span>
+						<div class="lc-tlcard"><div class="lc-tltop"><h4>{{ stage.title }}</h4><span class="dt">{{ statusHint(stage) }}</span>@if(stage.status==='submitted'){<span class="lc-deliv-new">جديد</span>}</div>
+							@if (latestThread(stage); as last) { <div class="lc-tlast"><span class="lc-tlast-l">آخر تسليم:</span> {{ last.note }} <span class="lc-tcount">{{ stage.roundsCount }} {{ stage.roundsCount===1?'تسليم':'تسليمات' }}</span></div>@if(last.files.length){<div class="lc-mfiles">@for(file of last.files; track file.url){<a class="lc-file" [href]="file.url" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16h16V8Z"/></svg>{{ file.name }}</a>}</div>} }
+							@else { <div class="lc-tlast lc-tlast-todo"><span class="lc-tlast-l">{{ stage.status==='in_progress'?'المرحلة قيد التنفيذ':'لم يبدأ التسليم بعد' }}</span></div> }
+							<div class="lc-tlrow"><span class="lc-esc" [class.lc-esc-free]="stage.status==='completed'" [class.lc-esc-held]="stage.status!=='completed'">{{ stage.status==='completed'?'أُفرج':'محتجز' }} {{ formatNumber(stage.amount) }} ريال</span></div>
+							@if(stage.status==='submitted'){<div class="lc-cta"><button type="button" class="lc-btn lc-btn-pri" (click)="openReview(stage,'approve')">اعتماد التسليم وإفراج الدفعة</button><button type="button" class="lc-btn lc-btn-gh" (click)="openReview(stage,'revision')">عندي ملاحظات</button></div>}
+						</div>
+					</div>
+				}
+			</div></div>
+			<div class="lc-rail">
+				<div class="lc-ai"><div class="lc-aihd"><span class="ico">AI</span><b>رؤى الذكاء</b>@if(data.aiInsights.confidence){<span class="conf">ثقة {{ data.aiInsights.confidence }}٪</span>}</div>
+					@if(data.aiInsights.bullets.length){@for(bullet of data.aiInsights.bullets; track bullet){<div class="lc-aln"><span class="d"></span><span class="tx">{{ bullet }}</span></div>}}@else{<div class="lc-aln"><span class="d"></span><span class="tx"><b>بانتظار بيانات كافية</b> ستظهر الرؤى بعد توفر نشاط وتسليمات كافية داخل المشروع</span></div>}
+					<div class="lc-aim"><div class="m"><div class="mv">{{ data.aiInsights.earlyDays || '—' }}</div><div class="ml">تبكير متوقع</div></div><div class="m"><div class="mv">{{ data.aiInsights.matchPercentage ? data.aiInsights.matchPercentage+'٪' : '—' }}</div><div class="ml">تطابق التسليم</div></div><div class="m"><div class="mv">{{ data.aiInsights.riskLevel }}</div><div class="ml">المخاطرة</div></div></div>
+				</div>
+				<div class="lc-sum"><h5>الضمان المالي</h5><div class="lc-smrow"><span>إجمالي الضمان</span><b>{{ formatNumber(data.escrowTotal) }} <small>ريال</small></b></div><div class="lc-smbar"><i class="free" [style.width.%]="data.escrowTotal ? data.escrowReleased/data.escrowTotal*100 : 0"></i><i class="held" [style.width.%]="data.escrowTotal ? data.escrowHeld/data.escrowTotal*100 : 0"></i></div><div class="lc-smlg"><span><i class="sw free-sw"></i>أُفرج {{ formatNumber(data.escrowReleased) }}</span><span><i class="sw held-sw"></i>محتجز {{ formatNumber(data.escrowHeld) }}</span></div></div>
+				<div class="lc-qa"><button type="button" class="lc-qa-chat" (click)="openConversation(data)"><span class="qi">✦</span>محادثة</button><button type="button" class="lc-qa-edit" (click)="openSupport('edit')"><span class="qi">＋</span>طلب تعديل</button><button type="button" class="lc-qa-disp" (click)="openSupport('dispute')"><span class="qi">!</span>فتح نزاع</button><button type="button" class="lc-qa-canc" (click)="openSupport('cancel')"><span class="qi">↔</span>إلغاء بالتراضي</button></div>
+			</div></div>
+		}
+
+		@if (activeTab() === 'miles') {
+			<div class="lc-panel active">@for(stage of data.stages; track stage.id){<div class="lc-mcard" [class.is-wait]="stage.status==='submitted'">
+				<div class="lc-mtop"><span class="lc-mn" [class.lc-nd-done]="stage.status==='completed'" [class.lc-nd-wait]="stage.status!=='completed'&&stage.status!=='pending'" [class.lc-nd-todo]="stage.status==='pending'">{{ stage.stageNumber }}</span><div class="lc-mtitle"><h4>المرحلة {{ stage.stageNumber }}: {{ stage.title }}</h4><div class="dt">{{ statusHint(stage) }}</div></div><span class="lc-esc" [class.lc-esc-free]="stage.status==='completed'" [class.lc-esc-held]="stage.status!=='completed'">{{ stage.status==='completed'?'أُفرج':'محتجز' }} {{ formatNumber(stage.amount) }} ريال</span></div>
+				@if(stage.threads.length){<div class="lc-thread">@for(thread of stage.threads; track thread.id){<div class="lc-rnd" [class.lc-rnd-new]="$last&&stage.status==='submitted'"><span class="lc-rnd-av">{{ thread.authorInitial }}</span><div class="lc-rnd-b"><div class="lc-rnd-h"><b>{{ thread.author }}</b><span class="lc-rnd-tag" [class.lc-tag-redo]="thread.isRedo">{{ thread.isRedo?'إعادة بعد تعديلك':thread.tag }}</span><span class="tm">{{ formatDate(thread.date) }}</span></div><div class="lc-rnd-note">{{ thread.note }}</div>@if(thread.files.length){<div class="lc-mfiles">@for(file of thread.files;track file.url){<a class="lc-file" [href]="file.url" target="_blank" rel="noopener">{{ file.name }}</a>}</div>}@if(thread.reviewNote){<div class="lc-disp-rep">ملاحظتك: {{ thread.reviewNote }}</div>}</div></div>}</div>}@else{<div class="lc-deliv lc-deliv-todo"><div class="lc-deliv-hd">لم يبدأ التسليم بعد</div><div class="lc-deliv-note">{{ stage.description }}</div></div>}
+				@if(stage.status==='submitted'){<div class="lc-mbar"><span class="lc-qual">تسليم جديد بانتظار قرارك</span><div class="lc-cta"><button class="lc-btn lc-btn-pri" (click)="openReview(stage,'approve')">اعتماد التسليم وإفراج الدفعة</button><button class="lc-btn lc-btn-gh" (click)="openReview(stage,'revision')">عندي ملاحظات</button></div></div>}
+			</div>}</div>
+		}
+
+		@if (activeTab() === 'msgs') {
+			<div class="lc-panel active"><app-project-mini-chat [conversationId]="data.conversationId" [initialMessages]="data.messages" [partnerName]="data.clientName" fullChatRoute="/client-overview/messages" /></div>
+		}
+
+		@if (activeTab() === 'files') {
+			<div class="lc-panel active">@for(group of data.files;track group.groupTitle){<div class="lc-fgrp"><div class="lc-fgrp-hd"><span class="lc-fgrp-n" [class.lc-nd-done]="group.isDone">✓</span>{{ group.groupTitle }}</div><div class="lc-filegrid">@for(file of group.files;track file.url){<a class="lc-fcard" [href]="file.url" target="_blank" rel="noopener"><span class="lc-fic">▤</span><span class="fn">{{ file.name }}</span><span class="fm">{{ file.size || 'ملف مرفق' }}</span></a>}</div></div>}@empty{<div class="state-card empty-state">لا توجد ملفات مرفوعة</div>}</div>
+		}
+	}
+
+	<div class="inner-foot"><span>© 2026 وسيط AI · v1.0.0</span><div class="inner-foot-links"><a routerLink="/privacy">PDPL</a><a routerLink="/terms">الشروط</a><span>SAMA</span></div></div>
+</section>
+
+@if(reviewStage(); as stage){<div class="lc-mov show" role="dialog" aria-modal="true" aria-label="مراجعة التسليم" (click)="closeReview()"><form class="lc-mbox" (ngSubmit)="submitReview()" (click)="$event.stopPropagation()"><div class="lc-mhd"><span class="mi">✓</span><div><h3>{{ reviewDecision()==='approve'?'اعتماد التسليم':'طلب تعديل' }}</h3><p>{{ stage.title }}</p></div><button type="button" class="lc-mclose" (click)="closeReview()">×</button></div><div class="lc-warn">الاعتماد النهائي يؤدي إلى الإفراج عن مبلغ المرحلة والانتقال للمرحلة التالية.</div><div class="lc-fld"><label>{{ reviewDecision()==='revision'?'ملاحظات التعديل (مطلوبة)':'ملاحظة اختيارية' }}</label><textarea class="lc-ta" name="reviewNote" [(ngModel)]="reviewNote" rows="4"></textarea></div><div class="lc-mact"><button type="button" class="lc-btn lc-btn-gh" (click)="closeReview()">إلغاء</button><button type="submit" class="lc-btn lc-btn-pri" [disabled]="saving()">{{ saving()?'جاري الحفظ...':'تأكيد القرار' }}</button></div></form></div>}
+
+@if(supportAction(); as action){<div class="lc-mov show" role="dialog" aria-modal="true" (click)="closeSupport()"><div class="lc-mbox" (click)="$event.stopPropagation()"><div class="lc-mhd"><span class="mi">{{ action==='dispute'?'!':action==='cancel'?'↔':'+' }}</span><div><h3>{{ action==='edit'?'طلب تعديل المشروع':action==='dispute'?'فتح نزاع على المشروع':'إلغاء المشروع بالتراضي' }}</h3><p>سيتم استكمال الطلب داخل المحادثة مع مقدم الخدمة والإدارة عند الحاجة.</p></div><button type="button" class="lc-mclose" (click)="closeSupport()">×</button></div><div class="lc-flow-note"><span class="lc-flow-s"><span>1</span>تحديد الطلب</span><b>←</b><span class="lc-flow-s"><span>2</span>النقاش والتقييم</span><b>←</b><span class="lc-flow-s"><span>3</span>اتفاق الطرفين</span></div><div class="lc-warn">يبقى الضمان المالي محفوظاً، ولا يتم أي إفراج أو استرداد قبل اكتمال الإجراء المعتمد.</div><div class="lc-fld"><label>تفاصيل الطلب</label><textarea class="lc-ta" [(ngModel)]="supportNote" placeholder="اكتب التفاصيل التي تريد مناقشتها"></textarea></div><div class="lc-mact"><button type="button" class="lc-btn lc-btn-gh" (click)="closeSupport()">تراجع</button><button type="button" class="lc-btn lc-btn-pri" (click)="continueInConversation(project())">المتابعة في المحادثة</button></div></div></div>}

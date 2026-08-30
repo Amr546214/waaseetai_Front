@@ -1,0 +1,38 @@
+<div class="notifications-settings-page" dir="rtl">
+	<h1 class="sr-only">تفضيلات الإشعارات</h1>
+	<div class="ord-head"><div><div class="ord-title">تفضيلات الإشعارات</div><div class="ord-sub">تحكّم في ما يصلك وعبر أي قناة</div></div></div>
+	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+		<div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+		<div class="ai-disc-body"><div class="ai-disc-lbl">وسيط AI، تنبيهات ذكية</div><p class="ai-disc-txt">AI يقلّل الإزعاج بتجميع الإشعارات المتشابهة وإبراز المهم فقط <span class="ai-disc-badge">دقة 95%</span> القرار النهائي لك</p></div>
+	</div>
+	<div class="pref-sec-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>إشعارات الطلبات والعروض</div>
+	<div class="pref-card">
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">عرض جديد على طلبي</div><div class="pref-sub">عند تقديم مقدّم خدمة عرضًا</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.newOffer"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">تحديث حالة الطلب</div><div class="pref-sub">تغيّر حالة أي من طلباتك</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.requestStatus"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">رسالة جديدة</div><div class="pref-sub">عند وصول رسالة من مقدّم خدمة</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.newMessage"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">تذكير بمهلة المراجعة</div><div class="pref-sub">قبل انتهاء مهلة اعتماد التسليم</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.reviewDeadline"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+	</div>
+	<div class="pref-sec-ttl"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>الإشعارات المالية</div>
+	<div class="pref-card">
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">حركات المحفظة</div><div class="pref-sub">إيداع أو سحب أو إفراج ضمان</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.walletActivity"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">كاش باك الولاء</div><div class="pref-sub">عند إضافة كاش باك جديد</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.cashback"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">تنبيهات الأمان المالي</div><div class="pref-sub">نشاط غير معتاد على المحفظة</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.financialSecurity"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+	</div>
+	<div class="pref-sec-ttl"><svg aria-hidden="true"><use href="#i-ai"></use></svg>توصيات الذكاء والتسويق</div>
+	<div class="pref-card">
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">توصيات مقدّمي الخدمة</div><div class="pref-sub">اقتراحات مطابقة لطلباتك</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.providerRecommendations"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">عروض وخصومات وسيط AI</div><div class="pref-sub">حملات وعروض ترويجية</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.promotions"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">نشرة وسيط الدورية</div><div class="pref-sub">ملخص أسبوعي لنشاطك</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.newsletter"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+	</div>
+	<div class="pref-sec-ttl"><svg aria-hidden="true"><use href="#i-bell"></use></svg>قنوات الإيصال</div>
+	<div class="pref-card">
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">الإشعارات داخل وسيط AI</div><div class="pref-sub">مركز الإشعارات</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.inApp"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">البريد الإلكتروني</div><div class="pref-sub">إلى بريدك المسجّل</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.email"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">الرسائل النصية SMS</div><div class="pref-sub">للتنبيهات العاجلة فقط</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.sms"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">إشعارات الجوال Push</div><div class="pref-sub">عبر تطبيق وسيط</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.push"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
+	</div>
+	<div class="actions-row"><button type="button" class="btn-primary" (click)="savePreferences()">حفظ التفضيلات</button></div>
+	@if (isLoading()) {<div role="region" aria-label="جاري الحفظ"><div class="state-card"><div class="skeleton-row"></div><div class="skeleton-box"></div></div></div>}
+	@if (hasError()) {<div role="alert"><div class="state-card error-state"><div class="error-title">تعذر تحميل تفضيلات الإشعارات</div><div class="error-code">ERR-SK-021</div><button type="button" class="retry-btn" (click)="retry()">اعادة المحاولة</button></div></div>}
+	@if (toastMessage()) {<div class="success-toast" role="status"><div class="success-toast-inner"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>{{ toastMessage() }}</span></div></div>}
+</div>

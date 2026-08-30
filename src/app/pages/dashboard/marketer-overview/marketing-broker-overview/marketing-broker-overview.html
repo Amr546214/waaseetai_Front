@@ -1,0 +1,103 @@
+<div class="main-inner">
+    <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+      <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+      <div class="ai-disc-body">
+        <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+        <p class="ai-disc-txt">AI يحلل أداء قنواتك ويقترح أفضل توقيت ومحتوى لزيادة الإحالات <span class="ai-disc-badge">دقة 92%</span> القرار النهائي لك</p>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
+      <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
+      <div style="flex:1;min-width:220px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="ws-level-tag" style="font-size:14px;font-weight:900;color:#9B8B7A;border-color:rgba(155,139,122,.30)">{{ summary()?.tier || 'مبتدئ' }}</span><span style="font-size:11px;color:#6B7699">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} ريال عمولات</span></div>
+        <div style="height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div [style.width]="(summary()?.progressPercentage || 0) + '%'" style="height:100%;background:linear-gradient(90deg,#9B8B7A,#CD7F32);border-radius:4px; transition: width 0.5s ease-in-out;"></div></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:7px">
+          <svg width="12" height="12" aria-hidden="true" style="color:var(--ai-txt,#A56BE0)"><use href="#i-ai"></use></svg>
+          <span style="font-size:11.5px;color:#A8B2D1">
+            @if (summary()?.successfulReferrals === 0) {
+              توصية AI: أكمل أول 3 إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
+            } @else {
+              توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div><span class="kpi-lbl">إحالات ناجحة</span></div><div class="kpi-val" style="color:#2BD4C7">{{ summary()?.successfulReferrals || 0 }}</div><div class="kpi-delta" style="color:#0FA99A">+0 هذا الأسبوع</div></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">عمولات الشهر</span></div><div class="kpi-val" style="color:#0FA99A">{{ summary()?.totalCommissions || 0 }}</div><div class="kpi-delta" style="color:#6B7699">ريال سعودي</div></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg aria-hidden="true"><use href="#i-chart"></use></svg></div><span class="kpi-lbl">معدل التحويل</span></div><div class="kpi-val" style="color:#5DA0FF">{{ summary()?.overallConversionRate || 0 }}%</div><div class="kpi-delta" style="color:#0FA99A">أعلى من المتوسط</div></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400"><svg aria-hidden="true"><use href="#i-check"></use></svg></div><span class="kpi-lbl">مستواك</span></div><div class="kpi-val" style="color:#FFB400;display:flex;align-items:center;gap:5px"><svg class="ws-star-svg" width="12" height="12" viewBox="0 0 100 100" fill="#FFB400"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg><span class="ws-level-tag" style="font-size:inherit;color:inherit;border-color:rgba(255,180,0,.30)">{{ summary()?.tier || 'مبتدئ' }}</span></div><div class="kpi-delta" style="color:#6B7699">أكمل متطلبات الترقية</div></div>
+    </div>
+
+    <div class="adm-grid2">
+      <div class="adm-card">
+        <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-link"></use></svg>أداء قنواتك</div>
+        @if (channels() && channels().length > 0) {
+          @for (channel of channels(); track $index) {
+            <div class="q-row">
+              <div class="q-ic" style="background:rgba(43,212,199,.14);color:#2BD4C7">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v7.2c0 1.96-.52 3.96-1.72 5.48-1.55 1.98-4.22 3.05-6.72 2.62-2.12-.35-4.08-1.65-5.2-3.41-1.35-2.13-1.47-4.9-.34-7.14 1.18-2.33 3.73-3.8 6.33-3.79v4.06c-1.3.06-2.61.9-3.13 2.1-.64 1.48-.12 3.39 1.19 4.28 1.48 1.01 3.65.65 4.67-.77.72-.99 1.05-2.26 1.02-3.52V0h2.85z"/></svg>
+              </div>
+              <div style="flex:1"><div class="q-name">{{ channel.channel }}</div><div class="q-meta">{{ channel.visitors }} زيارة · {{ channel.clients }} عميل</div></div>
+              <span class="q-count" style="background:rgba(15,169,154,.16);color:#0FA99A">{{ channel.conversionPercentage }}%</span>
+            </div>
+          }
+        } @else {
+          <!-- Empty State for Channels -->
+          <div class="flex flex-col items-center justify-center p-6 text-center h-[160px]">
+            <div class="w-12 h-12 rounded-full bg-[#131B36] flex items-center justify-center mb-3 text-slate-500">
+               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"></path></svg>
+            </div>
+            <p class="text-sm text-slate-300 mb-1">لا توجد قنوات تسويقية مضافة</p>
+            <p class="text-xs text-slate-500 mb-0">أضف قناة وابدأ في نشر رابط إحالتك</p>
+          </div>
+        }
+      </div>
+      <div class="adm-card">
+        <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-ai"></use></svg>رؤى وتوصيات</div>
+        @if (insights() && insights().length > 0) {
+          @for (insight of insights(); track $index) {
+            <div class="ins-row"><div class="ins-ic"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div><div class="ins-txt">{{ insight.text }}</div></div>
+          }
+        } @else {
+          <div class="flex items-center justify-center h-[160px]">
+            <p class="text-sm text-slate-500">جاري جمع البيانات لتقديم توصيات لك...</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="adm-card relative">
+      <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>آخر العمولات</div>
+      
+      @if (commissions() && commissions().length > 0) {
+        <div style="overflow-x:auto">
+          <table class="act-tbl">
+            <thead><tr><th>المصدر</th><th>النوع</th><th>الوقت</th><th>العمولة</th></tr></thead>
+            <tbody>
+              @for (log of commissions(); track log.id) {
+                <tr>
+                  <td>{{ log.source }}</td>
+                  <td>{{ log.type }}</td>
+                  <td>{{ log.time | date:'shortDate' }}</td>
+                  <td><span style="color:#0FA99A;font-weight:700">{{ log.amount }} ريال</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <!-- Dark Glassmorphic Empty State -->
+        <div class="flex flex-col items-center justify-center p-8 bg-white/[0.02] border border-white/[0.05] rounded-xl backdrop-blur-sm mx-4 mb-4 mt-2 h-[180px]">
+          <div class="w-14 h-14 rounded-2xl bg-white/[0.03] flex items-center justify-center mb-4 text-slate-600">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+          </div>
+          <p class="text-[14px] text-slate-300 font-medium mb-1">لا توجد عمولات سابقة حالياً</p>
+          <p class="text-[12px] text-slate-500">شارك روابطك لتبدأ في جمع العمولات</p>
+        </div>
+      }
+    </div>
+</div>

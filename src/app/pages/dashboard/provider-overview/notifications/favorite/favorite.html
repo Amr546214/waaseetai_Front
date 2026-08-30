@@ -1,0 +1,78 @@
+<div class="w-full relative z-10 pb-10">
+
+  <!-- Header -->
+  <div class="mb-4">
+    <h1 class="text-xl font-black text-[var(--txt)] mb-1">تفضيلات الإشعارات</h1>
+    <p class="text-xs text-[var(--txt-3)]">تحكّم في ما يصلك وعبر أي قناة</p>
+  </div>
+
+  <!-- AI Disclosure -->
+  <div class="flex items-center gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-2xl mb-6">
+    <div class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0 text-[#7B2FBE]">
+      <svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div class="flex-1">
+      <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-0.5">وسيط AI، تنبيهات ذكية</div>
+      <p class="text-[13px] text-[var(--txt-3)]">AI يقلّل الإزعاج بتجميع الإشعارات المتشابهة وإبراز المهم فقط <span class="bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.28)] rounded px-1.5 py-px text-[10px] font-bold text-[#A56BE0]">دقة 95%</span> القرار النهائي لك</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="bg-[var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)))] backdrop-blur-md border border-[var(--sec-bd)] rounded-2xl p-6 mb-5">
+    <div class="skeleton-row w-1/2 h-4 mb-3.5"></div>
+    <div class="skeleton-box h-[120px]"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="hasError()" class="text-center p-10 bg-[var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)))] border border-[rgba(43,127,255,.25)] rounded-2xl">
+    <div class="text-base font-extrabold text-[var(--txt)] mb-1.5">تعذر تحميل تفضيلات الإشعارات</div>
+    <div class="text-xs text-[var(--txt-3)] mb-3">ERR-PR-021</div>
+    <button type="button" (click)="retry()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
+  </div>
+
+  <!-- Preferences Content -->
+  <div *ngIf="!isLoading() && !hasError()">
+    
+    <ng-container *ngFor="let section of sections()">
+      <!-- Section Title -->
+      <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+        <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="section.iconSvg"></svg>
+        {{ section.title }}
+      </div>
+
+      <!-- Section Card -->
+      <div class="bg-[var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)))] backdrop-blur-md border border-[var(--sec-bd,rgba(255,255,255,.08))] rounded-2xl px-4.5 py-1.5 mb-5">
+        
+        <div *ngFor="let item of section.items; let last = last" 
+             class="flex items-center gap-3.5 py-3.5 border-[var(--sec-bd,rgba(255,255,255,.05))]"
+             [ngClass]="{'border-b': !last}">
+          <div class="flex-1">
+            <div class="text-[13.5px] font-bold text-[var(--txt)]">{{ item.title }}</div>
+            <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">{{ item.subtitle }}</div>
+          </div>
+          <label class="sw">
+            <input type="checkbox" [(ngModel)]="item.enabled">
+            <span class="sw-track"><span class="sw-thumb"></span></span>
+          </label>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- Actions -->
+    <div class="flex gap-3 flex-wrap mt-6">
+      <button type="button" (click)="savePreferences()" class="px-6 py-3 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-xl text-[#070D24] font-black text-sm hover:opacity-90 transition-opacity">
+        حفظ التفضيلات
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div *ngIf="toastMessage()" class="fixed top-[72px] left-1/2 -translate-x-1/2 z-[500] animate-[ws-fade_0.3s_ease_both]">
+    <div class="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[rgba(43,212,199,.14)] to-[rgba(43,127,255,.10)] border border-[rgba(43,212,199,.30)] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,.4)] backdrop-blur-md">
+      <svg class="w-[18px] h-[18px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span class="text-sm font-bold text-[var(--txt)]">{{ toastMessage() }}</span>
+    </div>
+  </div>
+
+</div>

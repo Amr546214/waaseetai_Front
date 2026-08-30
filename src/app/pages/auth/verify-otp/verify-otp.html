@@ -1,0 +1,50 @@
+<div class="auth-container">
+  <div class="auth-box">
+    <!-- Logo -->
+    <div class="auth-header">
+      <img src="/images/waseet-mark.png" alt="Waseet AI" class="logo">
+      <h2 class="title">تفعيل الحساب</h2>
+      <p class="subtitle">أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك الإلكتروني</p>
+    </div>
+
+    <!-- Error/Success Banners -->
+    <div *ngIf="errorMsg" class="alert alert-error">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+      {{ errorMsg }}
+    </div>
+    
+    <div *ngIf="successMsg" class="alert alert-success">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      {{ successMsg }}
+    </div>
+
+    <form (ngSubmit)="verify()">
+      <!-- OTP Input -->
+      <div class="form-group">
+        <label for="otpCode" class="form-label">رمز التحقق</label>
+        <input 
+          type="text" 
+          id="otpCode" 
+          class="form-input text-center otp-input" 
+          [formControl]="otpCtrl" 
+          maxlength="6" 
+          placeholder="000000"
+          autocomplete="one-time-code"
+          [class.input-error]="otpCtrl.invalid && (otpCtrl.dirty || otpCtrl.touched)">
+      </div>
+
+      <!-- Actions -->
+      <button type="submit" class="btn-primary w-full" [disabled]="isLoading">
+        <span *ngIf="!isLoading">تحقق من الرمز</span>
+        <span *ngIf="isLoading" class="loader"></span>
+      </button>
+
+      <div class="resend-wrapper">
+        <p class="resend-text">لم يصلك الرمز؟</p>
+        <button type="button" class="btn-resend" (click)="resendOtp()" [disabled]="countdown > 0 || isLoading">
+          إعادة إرسال <span *ngIf="countdown > 0">({{ countdown }}ث)</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

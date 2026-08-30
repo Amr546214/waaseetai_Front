@@ -1,0 +1,122 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber?: string;
+  accountType: string;
+  type: string;
+  typeLabel: string;
+  typeBg: string;
+  typeColor: string;
+  status: string;
+  statusOriginal: string;
+  last: string;
+  lastActiveAt?: string;
+  projects: number;
+  risk: string;
+  aiRiskScore: number;
+  aiSuspiciousNotes?: string;
+  av: string;
+  avBg: string;
+  spending?: string;
+  revenue?: string;
+  monthlyBudget?: string;
+  pendingCommission?: string;
+  rating?: string;
+  level?: string;
+  requests?: number;
+  lastReq?: string;
+  manager?: string;
+  teamSize?: string;
+  specialty?: string;
+  providerCount?: string;
+  specialties?: string;
+  activeProjects?: string;
+  totalReferrals?: string;
+  affiliateLevel?: string;
+  role?: string;
+  tasksCount?: string;
+  createdAt: string;
+}
+
+export interface AdminUsersStats {
+  totalUsers: { count: number; growth: string };
+  activeThisMonth: { count: number; ratio: string };
+  suspendedCount: { count: number; pendingReview: number };
+  newThisWeek: { count: number; growth: string };
+  tabCounts: Record<string, number>;
+}
+
+export interface GetAdminUsersResponse {
+  success: boolean;
+  data: AdminUser[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface AdminUsersQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  accountType?: string;
+  status?: string;
+  financialRange?: string;
+  rating?: string;
+  joinedDate?: string;
+  riskLevel?: string;
+  lastActive?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SaUsersService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.url_api}/admin/users`;
+
+  getStats(): Observable<{ success: boolean; data: AdminUsersStats }> {
+    return this.http.get<{ success: boolean; data: AdminUsersStats }>(`${this.apiUrl}/stats`);
+  }
+
+  getUsers(params: AdminUsersQueryParams): Observable<GetAdminUsersResponse> {
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+
+    return this.http.get<GetAdminUsersResponse>(`${this.apiUrl}`, { params: httpParams });
+  }
+
+  updateUserStatus(id: string, status: string): Observable<{ success: boolean; message: string; data: any }> {
+    return this.http.patch<{ success: boolean; message: string; data: any }>(`${this.apiUrl}/${id}/status`, { status });
+  }
+
+  deleteUser(id: string): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(`${this.apiUrl}/${id}`);
+  }
+
+  downloadCsv(params: AdminUsersQueryParams): void {
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+
+    const exportUrl = `${this.apiUrl}/export-csv?${httpParams.toString()}`;
+    window.open(exportUrl, '_blank');
+  }
+}

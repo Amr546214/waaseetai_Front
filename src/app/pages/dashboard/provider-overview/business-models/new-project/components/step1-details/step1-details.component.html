@@ -1,0 +1,84 @@
+<div
+	class="bg-[var(--crd-bg)] backdrop-blur-md border border-[var(--crd-bd)] rounded-[16px] p-6 mb-5 shadow-sm w-full max-w-full mx-auto">
+	<div class="text-[14px] font-extrabold text-[var(--txt)] mb-4 flex items-center justify-between">
+		<span>بيانات مشروعك المهني</span>
+		<span class="text-[11px] font-bold text-[#2BD4C7] bg-[rgba(43,212,199,0.1)] px-3 py-1 rounded-full">الخطوة
+			الأساسية</span>
+	</div>
+
+	<div class="flex flex-col gap-5">
+		<div>
+			<label class="block text-[13px] font-bold text-[var(--txt-2)] mb-2">اسم المشروع <span
+					class="text-[#FF6B6B]">*</span></label>
+			<input type="text" [value]="projectName" (input)="updateName($event)"
+				placeholder="مثال: تصميم هوية بصرية متكاملة أو تطوير تطبيق ذكاء اصطناعي"
+				class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] px-4 py-[13px] text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors placeholder:text-[var(--txt-3)]">
+		</div>
+
+		<div>
+			<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2.5">
+				<label class="text-[13px] font-bold text-[var(--txt-2)] flex items-center gap-2">
+					<span>وصف المشروع</span> <span class="text-[#FF6B6B]">*</span>
+					@if (isStreamingText) {
+					<span
+						class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[rgba(43,212,199,.15)] border border-[#2BD4C7] text-[#2BD4C7] text-[11px] font-black shadow-sm">
+						<span class="w-2 h-2 rounded-full bg-[#2BD4C7] animate-ping"></span>
+						<span>بث حي مباشر من المستشار الذكي ...</span>
+						<span class="typing-cursor"></span>
+					</span>
+					}
+				</label>
+				<div class="flex items-center gap-2 shrink-0">
+						@if (projectDesc.trim().length >= 50 || isStreamingText || isAiEnhancing) {
+					<button type="button" (click)="aiAssist('improve')"
+						[disabled]="isStreamingText || isAiEnhancing || isAiSuggesting"
+						class="flex items-center gap-1.5 px-3.5 py-1.5 bg-[rgba(123,47,190,.15)] border border-[rgba(123,47,190,.35)] rounded-xl text-[12px] font-extrabold text-[#A56BE0] hover:bg-[rgba(123,47,190,.25)] transition-all disabled:opacity-50 shadow-[0_2px_8px_rgba(123,47,190,0.2)] animate-in fade-in zoom-in-95 duration-200">
+						@if (isAiEnhancing) {
+						<span
+							class="w-3.5 h-3.5 border-2 border-[#A56BE0] border-t-transparent rounded-full animate-spin"></span>
+						<span>جارٍ البث والتحسين...</span>
+						} @else {
+						<svg width="14" height="14" aria-hidden="true">
+							<use href="#i-ai"></use>
+						</svg>
+						<span>تحسين بالذكاء الاصطناعي</span>
+						}
+					</button>
+					}
+				</div>
+			</div>
+
+			<div class="relative">
+				<textarea [value]="projectDesc" (input)="updateDesc($event)" [readonly]="isStreamingText"
+					placeholder="اشرح بدقة ماذا يتضمن المشروع، المخرجات المستهدفة، ومراحل العمل لتعزيز نسبة الفوز..."
+					rows="8" maxlength="1500"
+					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-all resize-y leading-[1.8] placeholder:text-[var(--txt-3)] custom-scrollbar"
+					[class.streaming-textarea]="isStreamingText"></textarea>
+			</div>
+			<div class="flex items-center justify-between text-[12px] mt-1.5 font-bold">
+				<span class="text-[#2BD4C7]">{{ isStreamingText ? '💡 يمكنك مشاهدة النص أثناء صياغته كلمة
+					بكلمة بواسطة الذكاء الاصطناعي...' : '✓ جاهز لكتابة أو تعديل تفاصيل العرض' }}</span>
+				<span class="text-[var(--txt-3)]">{{descCount}} / 1500</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div
+	class="w-full max-w-full mx-auto flex items-center gap-4 p-4 bg-gradient-to-br from-[rgba(123,47,190,.15)] to-[rgba(43,212,199,.08)] backdrop-blur-md border border-[rgba(123,47,190,.3)] rounded-[16px]">
+	<div
+		class="w-10 h-10 rounded-xl bg-[rgba(123,47,190,.2)] flex items-center justify-center shrink-0 border border-[rgba(123,47,190,.4)]">
+		<svg width="20" height="20" aria-hidden="true">
+			<use href="#i-ai"></use>
+		</svg>
+	</div>
+	<div class="flex-1">
+		<div class="text-[13px] font-extrabold text-[#A56BE0] tracking-wider mb-1">وسيط AI — إفصاح الذكاء
+			الاصطناعي والبث الحي</div>
+		<div class="text-[13px] text-[var(--txt-2)] leading-[1.6]">
+			الذكاء الاصطناعي في منصة وسيط يتيح لك رؤية العرض أثناء صياغته كلمة بكلمة في الوقت الحقيقي <span
+				class="inline-flex bg-[rgba(43,212,199,.18)] border border-[rgba(43,212,199,.35)] rounded px-2 py-0.5 text-[11px] font-bold text-[#2BD4C7] mx-1">بث
+				مباشر فوري</span> مع احتفاظك التام بالقرار النهائي للتعديل والنشر.
+		</div>
+	</div>
+</div>

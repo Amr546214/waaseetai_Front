@@ -1,0 +1,113 @@
+<div class="w-full max-w-full mx-auto">
+
+	<!-- INFO NOTE -->
+	<div class="info-note">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+			<circle cx="12" cy="12" r="10" />
+			<line x1="12" y1="8" x2="12" y2="12" />
+			<line x1="12" y1="16" x2="12.01" y2="16" />
+		</svg>
+		<span>اختر تخصصاً واحداً فقط. سيظهر نموذجك الخاص به في الخطوة التالية.</span>
+	</div>
+
+	<!-- Loading State -->
+	<div *ngIf="isLoadingSpecialties" class="py-16 text-center text-sm text-[var(--txt-3)] border-2 border-dashed border-[var(--sec-bd)] rounded-2xl mb-6">
+		<svg class="animate-spin w-6 h-6 mx-auto mb-3 text-[#2BD4C7]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+			<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+			<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+		</svg>
+		جاري جلب وتجهيز التخصصات والتخصصات الفرعية المعتمدة الخاصة بك...
+	</div>
+
+	<!-- Empty State if No Accredited Specialties -->
+	<div *ngIf="!isLoadingSpecialties && (!passedCategories || passedCategories.length === 0)" class="bg-[var(--crd-bg)] backdrop-blur-md border border-[var(--crd-bd)] rounded-3xl p-10 flex flex-col items-center justify-center text-center shadow-xl mb-6">
+		<div class="w-16 h-16 rounded-2xl bg-[rgba(255,107,107,.15)] border border-[rgba(255,107,107,.3)] flex items-center justify-center text-[#FF6B6B] text-3xl mb-4 shadow-lg">
+			⚠️
+		</div>
+		<h3 class="text-lg font-extrabold text-white mb-2">لا توجد تخصصات معتمدة متوفرة</h3>
+		<p class="text-xs text-slate-300 max-w-md mb-6 leading-relaxed">
+			لم تقم باجتياز التقييم التقني لأي تخصص حتى الآن. يرجى التوجه لمركز التوثيق واجتياز التقييم أولاً
+			لتتمكن من اختيار التخصص ونشر المشاريع.
+		</p>
+		<a routerLink="/provider-overview/business-models/accreditation/new" class="px-7 py-3.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-xs font-extrabold rounded-full shadow-xl hover:opacity-95 transition-all">
+			+ تقديم طلب توثيق واعتماد تخصص جديد 🚀
+		</a>
+	</div>
+
+	<!-- SECTION 1: MAIN SPECIALTY SELECTION GRID -->
+	<div *ngIf="!isLoadingSpecialties && passedCategories && passedCategories.length > 0">
+		@for (cat of passedCategories; track cat.categoryId) {
+		<div class="mb-4">
+			<!-- SPEC SECTION TITLE -->
+			<div class="spec-section-title">
+				<svg style="width:14px;height:14px;color:var(--teal-txt,#2BD4C7)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+					<polyline points="20 6 9 17 4 12" />
+				</svg>
+				{{ cat.categoryName }}
+				<span style="font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px">{{ cat.specialties.length }} تخصص</span>
+			</div>
+
+			<div class="spec-grid" role="group">
+				@for (spec of cat.specialties; track spec.id) {
+				<div class="spec-card" [class.selected]="selectedSpecialty === (spec.id || spec.specialtyId)" (click)="selectMainSpecialty(spec)">
+					<div class="spec-check" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+							<polyline points="20 6 9 17 4 12" />
+						</svg>
+					</div>
+					<div class="spec-ico" style="background:rgba(43,212,199,.12);color:var(--teal-txt,#2BD4C7)">
+						@if (isSvgIcon(spec.icon)) {
+						<div class="w-6 h-6 flex items-center justify-center text-[#2BD4C7]" [innerHTML]="getSanitizedIcon(spec.icon)"></div>
+						} @else {
+						<span>{{ spec.icon || '💻' }}</span>
+						}
+					</div>
+					<div class="spec-name">{{ spec.name }}</div>
+					<div class="approved-tag">&#10003; معتمد {{ spec.score }}%</div>
+				</div>
+				}
+			</div>
+		</div>
+		}
+	</div>
+
+	<!-- SECTION 2: SUB-SPECIALTY SELECTION -->
+	<div *ngIf="selectedMainSpecialtyObj as selectedMain">
+		<div class="spec-section-title">
+			<svg style="width:14px;height:14px;color:var(--teal-txt,#2BD4C7)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			اختر التخصص الفرعي
+			<span style="font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px">{{ selectedMain.subSpecialties?.length || 0 }} تخصصات فرعية</span>
+		</div>
+
+		<!-- Sub Specialties Chips / Cards Grid -->
+		<div *ngIf="selectedMain.subSpecialties && selectedMain.subSpecialties.length > 0" class="spec-grid">
+			@for (sub of selectedMain.subSpecialties; track sub) {
+			<div class="spec-card" [class.selected]="selectedSubSpecialty === sub" (click)="selectSubSpecialty(sub)">
+				<div class="spec-check" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<polyline points="20 6 9 17 4 12" />
+					</svg>
+				</div>
+				<div class="spec-name" style="margin: auto 0;">{{ sub }}</div>
+			</div>
+			}
+		</div>
+	</div>
+
+	<!-- AI DISCLOSURE -->
+	<div class="ai-disclosure" role="note">
+		<div class="ai-disc-ico">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+			</svg>
+		</div>
+		<div style="flex:1">
+			<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+			<div class="ai-disc-txt">AI يحلل نماذجك ويتحقق من جودتها <span class="ai-disc-badge">دقة 95%</span>،
+				الإنسان يحتفظ بالقرار النهائي</div>
+		</div>
+	</div>
+
+</div>

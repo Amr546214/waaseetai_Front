@@ -1,0 +1,100 @@
+<!-- ═══════════════════════════════
+     5. السوق — الخدمات الفعليّة المرفوعة (Dynamic from Marketplace Service)
+     ═══════════════════════════════ -->
+<section class="section-wrap" aria-label="تصفح خدمات وسيط الذكاء الاصطناعي">
+	<div class="container">
+
+		<!-- AI Smart Analysis Banner -->
+		<div class="ai-banner-inner">
+			<div class="ai-banner-ico">
+				<svg>
+					<use href="#ws-trust-ai"></use>
+				</svg>
+			</div>
+			<div class="ai-banner-body">
+				<div class="ai-banner-lbl">محرك الاعتماد الذكي Waseet AI</div>
+				<div class="ai-banner-txt">
+					تصفح النماذج والخدمات المنشورة ديناميكياً — إجمالي الخدمات النشطة:
+					<strong>+{{ totalServicesCount() }} خدمة معتمدة</strong>
+				</div>
+			</div>
+			<span class="ai-badge-sm">AI · محدّث مباشرة من سوق الخدمات</span>
+		</div>
+
+		<!-- Categories Grid Header -->
+		<div class="sec-label">تصفح حسب الفئة الرئيسية</div>
+
+		<!-- Dynamic Categories Grid (Clickable to navigate to Marketplace) -->
+		<nav class="cats-grid" aria-label="فئات الخدمات والتخصصات">
+
+			@for (cat of categories().slice(1, 9); track cat.id; let idx = $index) {
+			@if (cat.id !== 'all') {
+			<a [routerLink]="['/marketplace', cat.slug]" class="cat-card">
+				<div class="cat-ico" [style.background]="getCategoryColor(idx).bg"
+					[style.color]="getCategoryColor(idx).color">
+					<svg>
+						<use [attr.href]="getCategoryIconSymbol(cat.icon || cat.id)"></use>
+					</svg>
+				</div>
+				<div class="cat-name">{{ cat.name }}</div>
+				<div class="cat-count">+{{ cat.count || 0 }} خدمة</div>
+			</a>
+			}
+			} @empty {
+			@if (isLoading()) {
+			@for (i of [1, 2, 3, 4, 5, 6]; track i) {
+			<div class="cat-card cat-card-skeleton">
+				<div class="cat-ico-skeleton shimmer"></div>
+				<div class="cat-name-skeleton shimmer"></div>
+			</div>
+			}
+			}
+			}
+		</nav>
+
+		<!-- Featured Section Header -->
+		<div class="featured-header">
+			<div>
+				<div class="featured-title">خدمات مميزة</div>
+			</div>
+			<a routerLink="/marketplace" class="see-all">عرض كل التخصصات والخدمات ←</a>
+		</div>
+
+		<!-- Filter Rail Toolbar -->
+		<div id="cat-filter" class="filter-rail" role="toolbar" aria-label="فلترة الخدمات والتخصصات">
+			<div class="fr-lbl">
+				<svg aria-hidden="true" style="width:12px;height:12px;margin-inline-end:5px">
+					<use href="#ws-filter"></use>
+				</svg>
+				فلترة التخصصات
+			</div>
+			<div class="fr-segs">
+				<button class="fr-btn" [class.active]="selectedCatId() === 'all'" (click)="selectCategory('all')">
+					الكل
+				</button>
+				@for (cat of categories(); track cat.id) {
+				@if (cat.id !== 'all') {
+				<button class="fr-btn" [class.active]="selectedCatId() === cat.slug" (click)="selectCategory(cat.slug)">
+					{{ cat.name }}
+				</button>
+				}
+				}
+			</div>
+			<div class="fr-sort">
+				<svg aria-hidden="true">
+					<use href="#ws-filter"></use>
+				</svg>
+				<select (change)="onSortChange($event)" aria-label="ترتيب النتائج">
+					<option value="popular">الأعلى تقييماً وطلباً</option>
+					<option value="newest">الأحدث تزويداً</option>
+					<option value="name">حسب الاسم (أبجدي)</option>
+				</select>
+			</div>
+		</div>
+
+		<!-- Services / Marketplace Models Cards Grid -->
+		<app-card [models]="filteredModels()" [isLoading]="isLoading()" (categoryReset)="selectCategory('all')" />
+
+
+	</div>
+</section>

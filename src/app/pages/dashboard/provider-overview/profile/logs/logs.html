@@ -1,0 +1,53 @@
+<section class="audit-page" aria-labelledby="audit-title">
+  <div class="audit-hero">
+    <div class="hero-icon">⌁</div><div><h1 id="audit-title">سجل نشاط وأمان الحساب</h1><p>سجل موحد للتعديلات، المراجعات، عمليات الأمان والجلسات — القيم الحساسة محجوبة تلقائيًا</p></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat"><span>كل الأحداث</span><strong>{{ counts().total }}</strong></div>
+    <div class="stat pending"><span>قيد المراجعة</span><strong>{{ counts().pending }}</strong></div>
+    <div class="stat approved"><span>المعتمدة</span><strong>{{ counts().approved }}</strong></div>
+    <div class="stat rejected"><span>المرفوضة</span><strong>{{ counts().rejected }}</strong></div>
+  </div>
+
+  <div class="filters-card">
+    <div class="search-wrap"><span>⌕</span><input [(ngModel)]="search" (ngModelChange)="onSearch()" placeholder="ابحث في الأحداث..." aria-label="البحث في السجل"></div>
+    <select [(ngModel)]="category" (change)="load(1)" aria-label="نوع الحدث"><option value="">كل الأنواع</option><option value="PROFILE_COMPLETION">الملف والبيانات</option><option value="SECURITY_CHANGE">الأمان والجلسات</option><option value="ROLE_ADDITION">الأدوار والحسابات</option><option value="SYSTEM_AUDIT">النظام</option></select>
+    <select [(ngModel)]="status" (change)="load(1)" aria-label="الحالة"><option value="">كل الحالات</option><option value="IN_REVIEW">قيد المراجعة</option><option value="APPROVED">معتمد</option><option value="REJECTED">مرفوض</option><option value="COMPLETED">مكتمل</option></select>
+    <select [(ngModel)]="source" (change)="load(1)" aria-label="المصدر"><option value="">كل المصادر</option><option value="USER">المستخدم</option><option value="AI">الذكاء الاصطناعي</option><option value="ADMIN">مراجع بشري</option><option value="SYSTEM">النظام</option></select>
+    <input type="date" [(ngModel)]="from" (change)="load(1)" aria-label="من تاريخ"><input type="date" [(ngModel)]="to" (change)="load(1)" aria-label="إلى تاريخ">
+    <button type="button" class="reset-btn" (click)="resetFilters()">مسح الفلاتر</button>
+  </div>
+
+  @if(state() === 'loading'){
+    <div class="loading-list">@for(item of [1,2,3,4]; track item){<div class="skeleton"><i></i><div><b></b><span></span></div></div>}</div>
+  }@else if(state() === 'error'){
+    <div class="empty-state"><div class="empty-icon">!</div><h2>تعذر تحميل سجل الحساب</h2><p>تحقق من الاتصال ثم أعد المحاولة.</p><button (click)="load()">إعادة المحاولة</button></div>
+  }@else{
+    <div class="timeline">
+      @for(item of logs(); track item.id){
+        <article class="audit-item" [class.critical]="item.severity === 'CRITICAL'" (click)="openDetail(item)" tabindex="0" (keydown.enter)="openDetail(item)">
+          <div class="event-icon" [attr.data-source]="item.source">{{ eventIcon(item.eventType) }}</div>
+          <div class="event-body"><div class="event-top"><h2>{{ item.title }}</h2><span class="status" [attr.data-status]="item.status">{{ statusLabel(item.status) }}</span></div><p>{{ item.summary }}</p><div class="event-meta"><span>{{ categoryLabel(item.category) }}</span><span>{{ sourceLabel(item.source) }}</span>@if(item.device){<span>{{ item.device }}</span>}@if(item.ipAddress){<span dir="ltr">{{ item.ipAddress }}</span>}<time>{{ formatDate(item.occurredAt) }}</time></div></div>
+          <button type="button" class="detail-btn" aria-label="عرض التفاصيل">‹</button>
+        </article>
+      }@empty{
+        <div class="empty-state"><div class="empty-icon">⌕</div><h2>لا توجد أحداث مطابقة</h2><p>جرّب تغيير البحث أو الفلاتر المحددة.</p><button (click)="resetFilters()">عرض كل الأحداث</button></div>
+      }
+    </div>
+    @if(pagination().total > pagination().limit){<nav class="pagination" aria-label="صفحات السجل"><button (click)="previousPage()" [disabled]="pagination().page === 1">السابق</button><span>صفحة {{ pagination().page }} من {{ pagination().pages }} · {{ pagination().total }} حدث</span><button (click)="nextPage()" [disabled]="pagination().page === pagination().pages">التالي</button></nav>}
+  }
+</section>
+
+@if(detail(); as selected){
+  <div class="drawer-overlay" (click)="closeDetail()"><aside class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detail-title" (click)="$event.stopPropagation()"><div class="drawer-head"><div><small>تفاصيل الحدث</small><h2 id="detail-title">{{ selected.title }}</h2></div><button (click)="closeDetail()" aria-label="إغلاق">×</button></div>
+    @if(detailLoading()){<div class="drawer-loading">جاري تحميل التفاصيل...</div>}@else{
+      <div class="detail-summary"><span class="status" [attr.data-status]="selected.status">{{ statusLabel(selected.status) }}</span><span>{{ sourceLabel(selected.source) }}</span><time>{{ formatDate(selected.occurredAt) }}</time></div><p class="drawer-description">{{ selected.summary }}</p>
+      @if(selected.requestId){<div class="reference"><span>معرف الطلب المرتبط</span><code>{{ selected.requestId }}</code></div>}
+      @if(objectEntries(selected.before).length){<section class="change-section"><h3>قبل التغيير</h3>@for(entry of objectEntries(selected.before); track entry[0]){<div class="change-row"><span>{{ entry[0] }}</span><code>{{ displayValue(entry[1]) }}</code></div>}</section>}
+      @if(objectEntries(selected.after).length){<section class="change-section after"><h3>بعد التغيير</h3>@for(entry of objectEntries(selected.after); track entry[0]){<div class="change-row"><span>{{ entry[0] }}</span><code>{{ displayValue(entry[1]) }}</code></div>}</section>}
+      @if(objectEntries(selected.details).length){<section class="change-section"><h3>بيانات المراجعة</h3>@for(entry of objectEntries(selected.details); track entry[0]){<div class="change-row"><span>{{ entry[0] }}</span><code>{{ displayValue(entry[1]) }}</code></div>}</section>}
+      <div class="security-note">لا يعرض السجل كلمات المرور أو رموز OTP أو التوكنات، وتظهر البيانات البنكية وبيانات التواصل بصيغة محجوبة.</div>
+    }
+  </aside></div>
+}

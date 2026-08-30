@@ -1,0 +1,315 @@
+<h1 style="font-size:20px;font-weight:900;color:#fff;margin-bottom:4px">مراجعة الطلب قبل النشر</h1>
+<p style="font-size:13px;color:#6B7699;margin-bottom:22px;line-height:1.6">تحقق من جميع التفاصيل قبل نشر طلبك للمزودين</p>
+
+<!-- AI DISCLOSURE -->
+<div class="ai-disclosure" role="note">
+	<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg>
+	<div><strong>وسيط AI، الفحص النهائي:</strong> اكتملت مراجعة الطلب بدقة 96%، الإنسان يحتفظ بالقرار النهائي في النشر</div>
+</div>
+
+<!-- DEFAULT STATE -->
+<div id="state-default">
+
+	<!-- 5 SUMMARY CARDS -->
+	<div class="summary-grid">
+
+	<!-- Card 1: التخصص -->
+	<div class="summary-card">
+		<div class="sc-head">
+		<div class="sc-step">
+			<div class="sc-num">1</div>
+			<span class="sc-name">التخصص</span>
+		</div>
+		<button type="button" class="sc-edit" (click)="parent.currentStep.set(1)">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+			تعديل
+		</button>
+		</div>
+		<div class="sc-rows">
+		<div class="sc-row"><span class="sc-row-key">المجال</span><span class="sc-row-val">{{ parent.currentSpec()?.name || 'غير محدد' }}</span></div>
+		<div class="sc-row"><span class="sc-row-key">المهارات</span><span class="sc-row-val">
+			@for (sub of parent.selectedSubs(); track sub; let isLast = $last) { {{ sub }}{{ !isLast ? ', ' : '' }} }
+			@empty { لا يوجد }
+		</span></div>
+		</div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-ok"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg>محقق بالذكاء · 96%</span></div>
+		<div style="margin-top:8px;padding:9px 12px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.16);border-radius:9px;display:flex;align-items:center;gap:7px"><span style="color:var(--ai-txt,#A56BE0);display:inline-flex;width:13px;height:13px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg></span><span style="font-size:11.5px;color:var(--ai-txt,#A56BE0);line-height:1.5">تطابق <strong style="color:#fff">عال</strong> مع متطلبات الطلب، اجتاز فحص الذكاء بالكامل، لا حاجة لتعديل</span></div>
+	</div>
+
+	<!-- Card 2: التفاصيل -->
+	<div class="summary-card">
+		<div class="sc-head">
+		<div class="sc-step">
+			<div class="sc-num">2</div>
+			<span class="sc-name">التفاصيل</span>
+		</div>
+		<button type="button" class="sc-edit" (click)="parent.currentStep.set(3)">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+			تعديل
+		</button>
+		</div>
+		<div class="sc-rows">
+		<div class="sc-row"><span class="sc-row-key">العنوان</span><span class="sc-row-val" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ parent.title() || 'بدون عنوان' }}</span></div>
+		<div class="sc-row"><span class="sc-row-key">المدة</span><span class="sc-row-val">{{ parent.deliveryDays() }} يوما</span></div>
+		<div class="sc-row"><span class="sc-row-key">الأولوية</span><span class="sc-row-val">عالية</span></div>
+		</div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-partial"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg> · 89%</span></div>
+		
+		@if (!recDetailsDone()) {
+		<div class="sc-rec" id="rec-details">
+			<div class="sc-rec-head"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg>توصية الذكاء · دقة 89%</div>
+			<div class="sc-rec-txt">أضف <span class="sc-rec-val">معايير قبول واضحة للتسليم</span> لرفع وضوح الطلب وتقليل النزاعات المحتملة بنسبة 40%</div>
+			<div class="sc-rec-acts">
+				<button type="button" class="sc-rec-btn sc-rec-ok" (click)="applyRecDetails()">موافق</button>
+				<button type="button" class="sc-rec-btn sc-rec-edit" (click)="parent.currentStep.set(3)">تعديل يدوي</button>
+				<button type="button" class="sc-rec-btn sc-rec-skip" (click)="skipRecDetails()">تخطي</button>
+			</div>
+		</div>
+		} @else {
+		<div class="sc-rec done">
+			<span class="sc-rec-status">تم التفاعل مع التوصية</span>
+		</div>
+		}
+	</div>
+
+	<!-- Card 3: الميزانية -->
+	<div class="summary-card">
+		<div class="sc-head">
+		<div class="sc-step">
+			<div class="sc-num">3</div>
+			<span class="sc-name">الميزانية</span>
+		</div>
+		<button type="button" class="sc-edit" (click)="parent.currentStep.set(4)">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+			تعديل
+		</button>
+		</div>
+		<div class="sc-rows">
+		<div class="sc-row"><span class="sc-row-key">الميزانية</span><span class="sc-row-val" style="color:#FFD700;font-weight:800">
+			@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number }} - {{ parent.budgetMax() | number }} ر.س }
+			@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number }} ر.س }
+			@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number }} ر.س/س }
+		</span></div>
+		<div class="sc-row"><span class="sc-row-key">النوع</span><span class="sc-row-val">{{ parent.budgetType() === 'range' ? 'نطاق' : parent.budgetType() === 'fixed' ? 'سعر ثابت' : 'بالساعة' }}</span></div>
+		<div class="sc-row"><span class="sc-row-key">رسم الضمان (1%)</span><span class="sc-row-val">
+			@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number }} ر.س }
+			@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number }} ر.س }
+			@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number }} ر.س }
+		</span></div>
+		</div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-edit"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg>يحتاج تعديل · 88%</span></div>
+		
+		@if (!recBudgetDone()) {
+		<div class="sc-rec" id="rec-budget">
+			<div class="sc-rec-head"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg>توصية الذكاء · دقة 88%</div>
+			<div class="sc-rec-txt">السوق لمشروع مماثل بين <span class="sc-rec-val">9,500 و 11,000 ر.س</span>، الميزانية الحالية قد تقلل عدد العروض. القيمة المقترحة <span class="sc-rec-val">10,000 ر.س</span></div>
+			<div class="sc-rec-acts">
+				<button type="button" class="sc-rec-btn sc-rec-ok" (click)="applyRecBudget()">موافق وتطبيق 10,000</button>
+				<button type="button" class="sc-rec-btn sc-rec-edit" (click)="parent.currentStep.set(4)">تعديل يدوي</button>
+				<button type="button" class="sc-rec-btn sc-rec-skip" (click)="skipRecBudget()">تخطي</button>
+			</div>
+		</div>
+		} @else {
+		<div class="sc-rec done">
+			<span class="sc-rec-status">تم التفاعل مع التوصية</span>
+		</div>
+		}
+	</div>
+
+	<!-- Card 4: الملفات -->
+	<div class="summary-card">
+		<div class="sc-head">
+		<div class="sc-step">
+			<div class="sc-num">4</div>
+			<span class="sc-name">الملفات</span>
+		</div>
+		<button type="button" class="sc-edit" (click)="parent.currentStep.set(5)">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+			تعديل
+		</button>
+		</div>
+		<div class="sc-rows">
+		<div class="sc-row"><span class="sc-row-key">الملفات</span><span class="sc-row-val">{{ parent.files().length }} ملفات</span></div>
+		<div class="sc-row"><span class="sc-row-key">الفحص</span><span class="sc-row-val" style="color:#0FA99A">نظيفة</span></div>
+		</div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-ok"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg>محقق بالذكاء · 94%</span></div>
+	</div>
+
+	<!-- Card 5: الشروط، Full width -->
+	<div class="summary-card">
+		<div class="sc-head">
+		<div class="sc-step">
+			<div class="sc-num">5</div>
+			<span class="sc-name">الشروط الإضافية</span>
+		</div>
+		<button type="button" class="sc-edit" (click)="parent.currentStep.set(2)">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+			تعديل
+		</button>
+		</div>
+		<div style="display:flex;gap:24px;flex-wrap:wrap">
+		<div class="sc-rows" style="flex:1;min-width:160px">
+			<div class="sc-row"><span class="sc-row-key">اتفاقية السرية</span><span class="sc-row-val">{{ parent.ndaType() === 'standard' ? 'قياسية' : parent.ndaType() === 'custom' ? 'مخصصة' : 'بدون' }}</span></div>
+			<div class="sc-row"><span class="sc-row-key">حقوق الملكية</span><span class="sc-row-val">{{ parent.ipRights() === 'client' ? 'كاملة للطالب' : parent.ipRights() === 'shared' ? 'حقوق مشتركة' : 'يسمح بإعادة الاستخدام' }}</span></div>
+		</div>
+		<div class="sc-rows" style="flex:1;min-width:160px">
+			<div class="sc-row"><span class="sc-row-key">مستوى المزود</span><span class="sc-row-val">{{ parent.provLevel() ? 'مستوى ' + parent.provLevel() + ' فأعلى' : 'أي مستوى' }}</span></div>
+			<div class="sc-row"><span class="sc-row-key">الموقع</span><span class="sc-row-val">{{ parent.provLocation() === 'sa' ? 'السعودية' : parent.provLocation() === 'gcc' ? 'دول الخليج' : parent.provLocation() === 'any' ? 'عالمي' : 'أي موقع' }}</span></div>
+		</div>
+		</div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل، لا تعارض</div><span class="sc-ai sc-ai-ok"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg>محقق بالذكاء · 97%</span></div>
+	</div>
+
+	</div>
+
+	<!-- AI FINAL CHECK -->
+	<div class="ai-final" role="region" aria-label="الفحص النهائي للذكاء الاصطناعي">
+	<div class="ai-score-block">
+		<div class="ai-score-ring">
+		<svg viewBox="0 0 100 100">
+			<circle class="ai-score-track" cx="50" cy="50" r="40"/>
+			<circle class="ai-score-fill" cx="50" cy="50" r="40" style="stroke-dashoffset: 20;"/>
+		</svg>
+		<div class="ai-score-text">
+			<span class="ai-score-num">92</span>
+			<span class="ai-score-denom">/100</span>
+		</div>
+		</div>
+		<span class="ai-score-label">جودة الطلب</span>
+	</div>
+	<div class="ai-right">
+		<div class="ai-final-title">
+		<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg>
+		نتائج الفحص النهائي، وسيط AI
+		</div>
+		<div class="ai-metrics">
+		<div class="ai-metric">
+			<span class="ai-metric-label">وضوح الطلب</span>
+			<div class="ai-metric-bar"><div class="ai-metric-fill" style="width:95%"></div></div>
+			<span class="ai-metric-val">95%</span>
+		</div>
+		<div class="ai-metric">
+			<span class="ai-metric-label">اكتمال البيانات</span>
+			<div class="ai-metric-bar"><div class="ai-metric-fill" style="width:90%"></div></div>
+			<span class="ai-metric-val">90%</span>
+		</div>
+		<div class="ai-metric">
+			<span class="ai-metric-label">دقة الميزانية</span>
+			<div class="ai-metric-bar"><div class="ai-metric-fill" style="width:88%"></div></div>
+			<span class="ai-metric-val">88%</span>
+		</div>
+		</div>
+		<div class="forecast-badge" role="status">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+		توقع: 8-12 عرض خلال 48 ساعة
+		</div>
+		<div style="margin-top:12px;display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ai-txt,#A56BE0);background:rgba(123,47,190,.07);border:1px solid rgba(123,47,190,.18);border-radius:9px;padding:9px 13px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-dispute"></use></svg><span>توصيات الذكاء لكل بند معروضة داخل بطاقته أعلاه، اختر <strong style="color:#fff">موافق</strong> أو <strong style="color:#fff">تعديل</strong> أو <strong style="color:#fff">تخطي</strong> لكل بطاقة</span></div>
+	</div>
+	</div>
+
+	<!-- ACKNOWLEDGMENTS -->
+	<div class="ack-card" role="group" aria-labelledby="ackTitle">
+	<div class="ack-title" id="ackTitle">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+		الإقرارات والموافقات
+	</div>
+	<div class="ack-row" (click)="toggleAck('data')" role="checkbox" [attr.aria-checked]="acks.data()" tabindex="0">
+		<div class="ack-check" [class.checked]="acks.data()">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+		</div>
+		<div class="ack-text">أقر بأن جميع المعلومات المدخلة في هذا الطلب صحيحة ودقيقة، وأتحمل المسؤولية الكاملة عن صحة البيانات</div>
+	</div>
+	<div class="ack-row" (click)="toggleAck('terms')" role="checkbox" [attr.aria-checked]="acks.terms()" tabindex="0">
+		<div class="ack-check" [class.checked]="acks.terms()">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+		</div>
+		<div class="ack-text">أوافق على <button type="button" (click)="$event.stopPropagation()">شروط الاستخدام</button> ومتطلبات الطلب المعتمدة من وسيط AI</div>
+	</div>
+	<div class="ack-row" (click)="toggleAck('privacy')" role="checkbox" [attr.aria-checked]="acks.privacy()" tabindex="0">
+		<div class="ack-check" [class.checked]="acks.privacy()">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+		</div>
+		<div class="ack-text">اطلعت على <button type="button" (click)="$event.stopPropagation()">سياسة الخصوصية</button> وأوافق على معالجة بياناتي وفق نظام حماية البيانات</div>
+	</div>
+	<div class="ack-row" (click)="toggleAck('publish')" role="checkbox" [attr.aria-checked]="acks.publish()" tabindex="0">
+		<div class="ack-check" [class.checked]="acks.publish()">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+		</div>
+		<div class="ack-text">أوافق على نشر هذا الطلب للمزودين المؤهلين، وأدرك أنه بعد النشر سيتمكن مقدمو الخدمة من تقديم عروضهم</div>
+	</div>
+	</div>
+
+</div>
+
+<!-- STICKY BOTTOM -->
+<div class="sticky-bottom" style="right:0;">
+  <div class="sticky-inner max-w-6xl mx-auto px-4 lg:px-6 flex items-center justify-between gap-4 flex-row-reverse" style="margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-direction:row-reverse;">
+	<div class="flex items-center gap-4">
+		<button type="button"
+			class="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[#070d24] text-[15px] font-black cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not(:disabled):-translate-y-0.5 shadow-[0_4px_18px_rgba(43,212,199,0.35)] hover:not(:disabled):shadow-[0_6px_22px_rgba(43,212,199,0.5)]"
+			style="background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%);"
+			[disabled]="!allAcksChecked() || parent.isSubmitting()" (click)="openModal()">
+			@if (parent.isSubmitting()) {
+			<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-[#070d24]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+			جاري النشر...
+			} @else {
+			<span>نشر الطلب</span>
+			<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+				<polyline points="22 4 12 14.01 9 11.01" />
+			</svg>
+			}
+		</button>
+	</div>
+	<div>
+		<button type="button"
+			class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#111936] border border-[#1e2952] text-[#8a99c4] hover:text-white hover:bg-[#182348] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
+			(click)="parent.goBack()">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<polyline points="9 18 15 12 9 6" />
+			</svg>
+			السابق
+		</button>
+	</div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+@if (showConfirmModal()) {
+<div class="modal-overlay open" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="modal-close" (click)="closeModal()" aria-label="إغلاق">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <h2 class="modal-title">تأكيد نشر الطلب</h2>
+    <p class="modal-sub">بعد النشر، سيتمكن مقدمو الخدمة المؤهلون من رؤية طلبك وتقديم عروضهم. الطلب سيكون نشطا لمدة 30 يوما</p>
+    <div class="modal-info">
+      <div class="modal-info-row"><span class="modal-info-key">عنوان الطلب</span><span class="modal-info-val">{{ parent.title() || 'بدون عنوان' }}</span></div>
+      <div class="modal-info-row"><span class="modal-info-key">الميزانية</span><span class="modal-info-val" style="color:#FFD700">
+	  	@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number }} - {{ parent.budgetMax() | number }} ر.س }
+		@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number }} ر.س }
+		@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number }} ر.س/س }
+	  </span></div>
+      <div class="modal-info-row"><span class="modal-info-key">رسم الضمان (1%)</span><span class="modal-info-val">
+	  	@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number }} ر.س }
+		@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number }} ر.س }
+		@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number }} ر.س }
+	  </span></div>
+      <div class="modal-info-row"><span class="modal-info-key">جودة AI</span><span class="modal-info-val" style="color:#0FA99A">92/100</span></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-primary" style="width:100%;justify-content:center" (click)="confirmPublish()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        تأكيد النشر
+      </button>
+      <button class="btn-secondary" style="width:100%;justify-content:center" (click)="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- SUCCESS OVERLAY IS HANDLED BY THE PARENT COMPONENT TOAST / REDIRECT OR WE COULD ADD IT HERE -->
+<!-- Since parent.submitRequest() does its own toast and redirection, we just rely on parent's behavior to remain consistent. -->

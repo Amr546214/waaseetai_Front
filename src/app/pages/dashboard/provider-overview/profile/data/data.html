@@ -1,0 +1,554 @@
+<!-- Progress Bar -->
+<div class="prog-wrap">
+  <div class="prog-header">
+    <span class="prog-label">اكتمال الملف المهني</span>
+    <span class="prog-pct" id="prog-pct">{{ completionPercent() }}%</span>
+  </div>
+  <div class="prog-bar">
+    <div class="prog-fill" id="prog-fill" [style.width.%]="completionPercent()"></div>
+  </div>
+  <div class="prog-hint">{{ nextStepHint().message }}</div>
+</div>
+
+<!-- AI Disclosure -->
+<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+  <div class="ai-disc-ico"><svg aria-hidden="true">
+      <use href="#i-ai"></use>
+    </svg></div>
+  <div class="ai-disc-body">
+    <div class="ai-disc-lbl">وسيط AI، افصاح الذكاء الاصطناعي</div>
+    <p class="ai-disc-txt">AI يقترح وصفًا مهنيًا لملفك بناءً على تخصصاتك <span class="ai-disc-badge">دقة 91%</span> —
+      الإنسان يحتفظ بالقرار النهائي</p>
+  </div>
+</div>
+
+<!-- AI Banner -->
+<div class="tier-legend" role="note">
+  <span class="tier-legend-title">نوعا التعديل</span>
+  <div class="tier-legend-item"><span class="tlp tlp-free"><svg aria-hidden="true">
+        <use href="#ws-bolt"></use>
+      </svg>فوري</span>تحفظ مباشرة دون مراجعة</div>
+  <div class="tier-legend-item"><span class="tlp tlp-sens"><svg aria-hidden="true">
+        <use href="#ws-shield"></use>
+      </svg>بمراجعة</span>تنشئ طلبا يفحصه الذكاء ثم يعتمده مراجع بشري</div>
+</div>
+<div class="prof-tab-nav" role="tablist" aria-label="أقسام الملف المهني">
+  <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'profile'" (click)="setTab('profile')"
+    role="tab" [attr.aria-selected]="currentTab() === 'profile'">الملف المهني<span class="tab-tier tt-free"><svg
+        aria-hidden="true">
+        <use href="#ws-bolt"></use>
+      </svg>فوري</span></button>
+  <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'contact'" (click)="setTab('contact')"
+    role="tab" aria-selected="false">بيانات التواصل<span class="tab-tier tt-sens"><svg aria-hidden="true">
+        <use href="#ws-shield"></use>
+      </svg>بمراجعة</span></button>
+  <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'banking'" (click)="setTab('banking')"
+    role="tab" aria-selected="false">البيانات البنكية<span class="tab-tier tt-sens"><svg aria-hidden="true">
+        <use href="#ws-shield"></use>
+      </svg>بمراجعة</span></button>
+  <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'docs'" (click)="setTab('docs')"
+    role="tab" aria-selected="false">المستندات<span class="tab-tier tt-sens"><svg aria-hidden="true">
+        <use href="#ws-shield"></use>
+      </svg>بمراجعة</span></button>
+  <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'security'" (click)="setTab('security')"
+    role="tab" aria-selected="false">الأمان</button>
+</div>
+<div class="prof-tab-panel" [class.active]="currentTab() === 'profile'" id="prof-panel-profile" role="tabpanel"
+  [formGroup]="profileForm">
+  <div class="free-bar">
+    <div class="free-bar-ico"><svg aria-hidden="true">
+        <use href="#ws-bolt"></use>
+      </svg></div>
+    <div class="free-bar-txt">بيانات هذا القسم (الصورة والاسم والوصف والتخصصات والروابط) تحفظ فورًا دون مراجعة</div>
+  </div>
+  <div class="ai-banner">
+    <div class="ai-banner-ico"><svg aria-hidden="true">
+        <use href="#i-ai"></use>
+      </svg></div>
+    <span class="ai-banner-txt">AI لديه اقتراحات لـ Bio واهتمامات تناسب ملفك، <strong>دقة 90%</strong></span>
+    <button type="button" class="ai-banner-btn">استخدم AI</button>
+  </div>
+
+  <!-- Card 1: Avatar -->
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#ws-camera"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">صورة الملف الشخصي</div>
+        <div class="form-card-sub">PNG أو JPG، 400×400 بكسل، تظهر في ملفك العام وبجانب عروضك</div>
+      </div>
+    </div>
+    <div class="avatar-section">
+      <div class="avatar-circle" aria-label="الصورة الشخصية الحالية">@if(avatarUrl()){<img [src]="avatarUrl()"
+          alt="الصورة الشخصية">}@else{ {{ getInitials() }} }</div>
+      <div>
+        <div class="avatar-btns">
+          <input #avatarInput type="file" accept="image/png,image/jpeg" hidden
+            (change)="onAvatarSelected($event)"><button type="button" class="av-btn av-btn-primary"
+            (click)="avatarInput.click()">رفع صورة جديدة</button>
+          <button type="button" class="av-btn" (click)="removeAvatar()">حذف الصورة الحالية</button>
+        </div>
+        <div class="av-hint">JPG او PNG، حجم اقصى 5MB، يفضل 400x400 بكسل</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#i-person"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">المعلومات الأساسية</div>
+        <div class="form-card-sub">تظهر في ملفك العام للعملاء</div>
+      </div>
+    </div>
+    <div class="form-grid form-col-2">
+      <div class="inp-group"><label class="inp-label" for="pr-fname">الاسم الأول<span class="req">*</span></label><input
+          id="pr-fname" class="inp-field" formControlName="firstName"></div>
+      <div class="inp-group"><label class="inp-label" for="pr-lname">اسم العائلة<span class="req">*</span></label><input
+          id="pr-lname" class="inp-field" formControlName="lastName"></div>
+      <div class="inp-group"><label class="inp-label" for="pr-title">المسمى المهني<span
+            class="req">*</span></label><input id="pr-title" class="inp-field" formControlName="headline"
+          placeholder="مثال: مصمم جرافيك — 8 سنوات خبرة"></div>
+      <div class="inp-group"><label class="inp-label" for="pr-spec">التخصص الرئيسي<span
+            class="req">*</span></label><input id="pr-spec" class="inp-field" formControlName="specialty"
+          placeholder="مثال: تصميم الهوية البصرية"></div>
+      <div class="inp-group"><label class="inp-label" for="pr-country">الدولة<span class="req">*</span></label><input
+          id="pr-country" class="inp-field" formControlName="country"></div>
+      <div class="inp-group"><label class="inp-label" for="pr-city">المدينة<span class="req">*</span></label><input
+          id="pr-city" class="inp-field" formControlName="city"></div>
+    </div>
+  </div>
+
+  <!-- Card 2: Bio -->
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#i-person"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">الوصف المهني</div>
+        <div class="form-card-sub">عرّف العملاء بخبرتك وما تقدمه من خدمات</div>
+      </div>
+    </div>
+    <div class="inp-group">
+      <label class="inp-label" for="bio">الوصف المهني</label>
+      <textarea id="bio" class="inp-field" formControlName="bio"
+        placeholder="اكتب وصفًا موجزًا عن خبرتك وما تقدمه من خدمات..." maxlength="500" (input)="updateBioCount($event)"
+        aria-label="الوصف المهني"></textarea>
+      <div class="char-counter" id="bio-count">{{ bioCharCount() }} / 500 حرف</div>
+    </div>
+  </div>
+
+  <!-- Card 3: Skills / Interests -->
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#i-check"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">المهارات والتخصصات</div>
+        <div class="form-card-sub">تساعد العملاء ومحرك المطابقة على اكتشاف خبراتك</div>
+      </div>
+    </div>
+    <div class="skills-chips" id="skills-chips" aria-label="الاهتمامات المختارة">
+      @for(skill of skillsArray.controls; track $index){<span class="chip-added">{{ skill.value }}<button type="button"
+          class="chip-rm" (click)="removeSkill($index)">×</button></span>}
+    </div>
+    <div class="skills-add-row">
+      <input type="text" id="skill-inp" #skillInput class="skills-add-inp" placeholder="اضف اهتمام جديد"
+        (keydown.enter)="addSkill(skillInput); $event.preventDefault()" aria-label="اضف اهتمام جديد">
+      <button type="button" class="skills-add-btn" (click)="addSkill(skillInput)">اضافة</button>
+    </div>
+  </div>
+
+  <!-- Card 4: Links -->
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#ws-link"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">الروابط الشخصية</div>
+        <div class="form-card-sub">روابط اختيارية تعرض في ملفك العام</div>
+      </div>
+    </div>
+    <div class="form-grid form-col-2">
+      <div class="inp-group">
+        <label class="inp-label" for="portfolio-url">معرض الأعمال (Portfolio)</label>
+        <input type="url" id="portfolio-url" class="inp-field" formControlName="websiteUrl"
+          placeholder="https://myportfolio.com" dir="ltr">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label" for="linkedin-url">LinkedIn (اختياري)</label>
+        <input type="url" id="linkedin-url" class="inp-field" formControlName="linkedinUrl"
+          placeholder="linkedin.com/in/..." dir="ltr">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label" for="website-url">GitHub / Behance</label>
+        <input type="url" id="website-url" class="inp-field" formControlName="githubUrl"
+          placeholder="https://github.com/..." dir="ltr">
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 5: Preferences -->
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#i-settings"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">تفضيلات العرض والاشعارات</div>
+        <div class="form-card-sub">يمكن تعديلها في أي وقت</div>
+      </div>
+    </div>
+    <div class="pref-grid">
+      <div class="pref-item">
+        <div class="pref-label">لغة الواجهة</div>
+        <select class="pref-val inp-field" formControlName="uiLanguage" aria-label="لغة الواجهة">
+          <option value="ar" selected>العربية</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="pref-item">
+        <div class="pref-label">المنطقة الزمنية</div>
+        <select class="pref-val inp-field" formControlName="timezone" aria-label="المنطقة الزمنية">
+          <option value="Asia/Riyadh">توقيت الرياض (GMT+3)</option>
+          <option value="UTC">UTC</option>
+          <option value="GMT+1">GMT+1</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="pref-label" style="margin-bottom:8px">قنوات الاشعارات</div>
+      <div class="notif-checks">
+        <label class="notif-check"><input type="checkbox" formControlName="notifyEmail">البريد الالكتروني</label>
+        <label class="notif-check"><input type="checkbox" formControlName="notifySms">رسائل SMS</label>
+        <label class="notif-check"><input type="checkbox" formControlName="notifyInApp">الاشعارات داخل التطبيق</label>
+        <label class="notif-check"><input type="checkbox">Telegram</label>
+        <label class="notif-check"><input type="checkbox" formControlName="notifyWhatsapp">WhatsApp</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button type="button" class="btn-primary" (click)="saveProfile()">حفظ التعديلات</button>
+    <a routerLink="../../" class="btn-secondary">إلغاء والعودة</a>
+  </div>
+
+</div><!-- /الملف العام -->
+
+<div class="prof-tab-panel" [class.active]="currentTab() === 'docs'" id="prof-panel-docs" role="tabpanel"
+  [formGroup]="docsForm">
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#i-doc"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">المستندات الرسمية</div>
+        <div class="form-card-sub">تُفحص آليًا ثم يعتمدها مراجع بشري، بحد أقصى 10MB</div>
+      </div>
+    </div>
+    <div class="gov-bar">
+      <div class="gov-bar-ico"><svg aria-hidden="true">
+          <use href="#ws-shield"></use>
+        </svg></div>
+      <div class="gov-bar-txt">تعديل هذه البيانات الحساسة ينشئ طلبا يفحصه الذكاء ثم يعتمده مراجع بشري قبل التطبيق</div>
+      <a routerLink="../requests" class="gov-bar-link">طلباتي السابقة</a>
+    </div>
+    <div class="form-grid form-col-2">
+      <div class="inp-group">
+        <label class="inp-label" for="doc-front">الهوية الوطنية<span class="req">*</span></label>
+        <input #frontInput type="file" id="doc-front" hidden (change)="onDocSelected($event, 'idDocumentUrl')"
+          accept=".jpg,.jpeg,.png,.pdf">
+        <div class="upload-card" [class.has-file]="documentState('idDocumentUrl')"
+          (click)="!documentState('idDocumentUrl') && frontInput.click()">
+          @if(documentState('idDocumentUrl'); as file) {
+          <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl"
+              alt="معاينة الوجه الامامي">}@else{<span class="file-icon">PDF</span>}</div>
+          <div class="file-details"><strong>{{ file.name }}</strong><span>{{ file.status === 'uploading' ? 'جاري
+              التحميل...' : file.status === 'uploaded' ? 'تم الرفع بنجاح' : 'تعذر الرفع' }}</span>@if(file.status ===
+            'uploading'){<div class="upload-progress">
+              <div [style.width.%]="file.progress"></div>
+            </div><small>{{ file.progress }}%</small>}</div>
+          <div class="file-actions"><button type="button"
+              (click)="$event.stopPropagation(); previewDocument('idDocumentUrl')">معاينة</button><button type="button"
+              (click)="$event.stopPropagation(); frontInput.click()">تغيير</button><button type="button"
+              class="delete-file"
+              (click)="$event.stopPropagation(); removeDocument('idDocumentUrl', frontInput)">حذف</button></div>
+          } @else { <div class="upload-empty"><span>＋</span><strong>اختر ملفا للرفع</strong><small>JPG او PNG او PDF،
+              حجم اقصى 5MB</small></div> }
+        </div>
+      </div>
+      <div class="inp-group">
+        <label class="inp-label" for="doc-back">شهادة أو مؤهل مهني</label>
+        <input #backInput type="file" id="doc-back" hidden (change)="onDocSelected($event, 'certificatesUrl')"
+          accept=".jpg,.jpeg,.png,.pdf">
+        <div class="upload-card" [class.has-file]="documentState('certificatesUrl')"
+          (click)="!documentState('certificatesUrl') && backInput.click()">
+          @if(documentState('certificatesUrl'); as file) {
+          <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl"
+              alt="معاينة الوجه الخلفي">}@else{<span class="file-icon">PDF</span>}</div>
+          <div class="file-details"><strong>{{ file.name }}</strong><span>{{ file.status === 'uploading' ? 'جاري
+              التحميل...' : file.status === 'uploaded' ? 'تم الرفع بنجاح' : 'تعذر الرفع' }}</span>@if(file.status ===
+            'uploading'){<div class="upload-progress">
+              <div [style.width.%]="file.progress"></div>
+            </div><small>{{ file.progress }}%</small>}</div>
+          <div class="file-actions"><button type="button"
+              (click)="$event.stopPropagation(); previewDocument('certificatesUrl')">معاينة</button><button
+              type="button" (click)="$event.stopPropagation(); backInput.click()">تغيير</button><button type="button"
+              class="delete-file"
+              (click)="$event.stopPropagation(); removeDocument('certificatesUrl', backInput)">حذف</button></div>
+          } @else { <div class="upload-empty"><span>＋</span><strong>اختر ملفا للرفع</strong><small>JPG او PNG او PDF،
+              حجم اقصى 5MB</small></div> }
+        </div>
+      </div>
+      <div class="inp-group"><label class="inp-label" for="doc-cr">السجل التجاري (إن وجد)</label><input #crInput
+          type="file" id="doc-cr" hidden (change)="onDocSelected($event, 'commercialRegistration')" accept=".jpg,.jpeg,.png,.pdf">
+        <div class="upload-card" [class.has-file]="documentState('commercialRegistration')" (click)="!documentState('commercialRegistration') && crInput.click()">
+          @if(documentState('commercialRegistration'); as file){
+            <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl" alt="معاينة السجل التجاري">}@else{<span class="file-icon">PDF</span>}</div>
+            <div class="file-details"><strong>{{ file.name }}</strong><span>{{ file.status === 'uploading' ? 'جاري التحميل...' : file.status === 'uploaded' ? 'تم الرفع بنجاح' : 'تعذر الرفع' }}</span>@if(file.status === 'uploading'){<div class="upload-progress"><div [style.width.%]="file.progress"></div></div><small>{{ file.progress }}%</small>}</div>
+            <div class="file-actions"><button type="button" (click)="$event.stopPropagation(); previewDocument('commercialRegistration')">معاينة</button><button type="button" (click)="$event.stopPropagation(); crInput.click()">تغيير</button><button type="button" class="delete-file" (click)="$event.stopPropagation(); removeDocument('commercialRegistration', crInput)">حذف</button></div>
+          }@else{<div class="upload-empty"><span class="upload-symbol">⇧</span><strong>اضغط لاختيار السجل التجاري</strong><small>PDF أو JPG أو PNG — حتى 10MB</small></div>}
+        </div>
+      </div>
+      <div class="inp-group"><label class="inp-label" for="doc-vat">شهادة التسجيل الضريبي (إن وجدت)</label><input
+          #vatInput type="file" id="doc-vat" hidden (change)="onDocSelected($event, 'vatCertificateUrl')" accept=".jpg,.jpeg,.png,.pdf">
+        <div class="upload-card" [class.has-file]="documentState('vatCertificateUrl')" (click)="!documentState('vatCertificateUrl') && vatInput.click()">
+          @if(documentState('vatCertificateUrl'); as file){
+            <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl" alt="معاينة شهادة الضريبة">}@else{<span class="file-icon">PDF</span>}</div>
+            <div class="file-details"><strong>{{ file.name }}</strong><span>{{ file.status === 'uploading' ? 'جاري التحميل...' : file.status === 'uploaded' ? 'تم الرفع بنجاح' : 'تعذر الرفع' }}</span>@if(file.status === 'uploading'){<div class="upload-progress"><div [style.width.%]="file.progress"></div></div><small>{{ file.progress }}%</small>}</div>
+            <div class="file-actions"><button type="button" (click)="$event.stopPropagation(); previewDocument('vatCertificateUrl')">معاينة</button><button type="button" (click)="$event.stopPropagation(); vatInput.click()">تغيير</button><button type="button" class="delete-file" (click)="$event.stopPropagation(); removeDocument('vatCertificateUrl', vatInput)">حذف</button></div>
+          }@else{<div class="upload-empty"><span class="upload-symbol">⇧</span><strong>اضغط لاختيار شهادة الضريبة</strong><small>PDF أو JPG أو PNG — حتى 10MB</small></div>}
+        </div>
+      </div>
+    </div>
+    <div class="actions-row"><button type="button" class="btn-primary" (click)="saveDocs()">إرسال طلب تعديل</button>
+    </div>
+  </div>
+</div>
+
+<div class="prof-tab-panel" [class.active]="currentTab() === 'banking'" id="prof-panel-banking" role="tabpanel"
+  [formGroup]="bankingForm">
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#i-wallet"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">البيانات البنكية</div>
+        <div class="form-card-sub">الحساب البنكي الشخصي لاستلام مدفوعاتك</div>
+      </div>
+    </div>
+    <div class="gov-bar">
+      <div class="gov-bar-ico"><svg aria-hidden="true">
+          <use href="#ws-shield"></use>
+        </svg></div>
+      <div class="gov-bar-txt">تعديل الحساب البنكي ينشئ طلبًا يتحقق فيه النظام من صحة IBAN وتطابق الاسم ثم يعتمده مراجع
+        بشري</div><a routerLink="../requests" class="gov-bar-link">طلباتي السابقة</a>
+    </div>
+    <div class="form-grid form-col-2" id="bk-bank-fields">
+      <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="bk-holder">اسم صاحب الحساب البنكي
+          (كما في البنك)<span class="req">*</span></label><input type="text" id="bk-holder" class="inp-field"
+          formControlName="accountHolderName" placeholder="الاسم الثلاثي كما في البطاقة البنكية"></div>
+      <div class="inp-group"><label class="inp-label" for="bk-iban">رقم IBAN<span class="req">*</span></label><input
+          type="text" id="bk-iban" class="inp-field" formControlName="ibanNumber" placeholder="رمز الدولة ثم رقم IBAN"
+          maxlength="34" dir="ltr" autocomplete="off" spellcheck="false" (input)="onIbanInput($event)"
+          [attr.aria-invalid]="bankingForm.get('ibanNumber')?.invalid && bankingForm.get('ibanNumber')?.touched">@if(bankingForm.get('ibanNumber')?.invalid
+        && bankingForm.get('ibanNumber')?.touched){<span class="field-error">أدخل IBAN دوليًا صالحًا: رمز الدولة، رقما التحقق، ثم رقم الحساب</span>}@else{<span class="inp-hint">من 15 إلى 34 خانة حسب الدولة، مثل MA أو SA أو FR أو DE</span>}
+      </div>
+      <div class="inp-group"><label class="inp-label" for="bk-bank">اسم البنك<span class="req">*</span></label><select
+          id="bk-bank" class="inp-field" formControlName="bankName">
+          <option value="">اختر البنك</option>
+          <option>البنك الاهلي السعودي (SNB)</option>
+          <option>مصرف الراجحي</option>
+          <option>بنك الرياض</option>
+          <option>بنك البلاد</option>
+          <option>اخرى</option>
+        </select></div>
+    </div>
+    <div
+      style="margin-top:10px;padding:10px 14px;background:rgba(43,212,199,.04);border:1px solid rgba(43,212,199,.10);border-radius:9px;font-size:11px;color:#6B7699">
+      هذا الحساب للسحب والاسترداد فقط. مشفر ومحمي. تغيير بيانات الاستلام يتطلب مصادقة ثنائية.</div>
+    <div class="actions-row"><button type="button" class="btn-primary" (click)="saveBanking()">إرسال طلب تعديل</button>
+    </div>
+  </div>
+</div>
+
+<div class="prof-tab-panel" [class.active]="currentTab() === 'security'" id="prof-panel-security" role="tabpanel">
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#i-escrow"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">الامان والمصادقة</div>
+        <div class="form-card-sub">ادارة امان الحساب وجلسات الدخول النشطة</div>
+      </div>
+    </div>
+    <div
+      style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:12px">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff">المصادقة الثنائية (MFA)</div>
+        <div style="font-size:11px;color:#6B7699;margin-top:2px">مفعلة، تحمي الحساب عند تسجيل الدخول وتغيير البيانات
+          الحساسة</div>
+      </div><span
+        style="font-size:11px;color:#0FA99A;font-weight:700;background:rgba(15,169,154,.10);padding:4px 10px;border-radius:20px;border:1px solid rgba(15,169,154,.2)">مفعلة</span>
+    </div>
+    <div
+      style="padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff">تغيير كلمة المرور</div>
+          <div style="font-size:11px;color:#6B7699;margin-top:2px">ينصح بتغييرها كل 90 يوما</div>
+        </div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px"
+          id="pwd-toggle-btn" (click)="passwordFormVisible.set(!passwordFormVisible())">تغيير كلمة المرور</button>
+      </div>
+      <div id="pwd-form" [formGroup]="passwordForm" [style.display]="passwordFormVisible() ? 'block' : 'none'"
+        style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)">
+        <div class="form-grid form-col-2">
+          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pwd-old">كلمة المرور
+              الحالية<span class="req">*</span></label><input type="password" id="pwd-old" class="inp-field"
+              placeholder="ادخل كلمة المرور الحالية" formControlName="currentPassword" autocomplete="current-password" dir="ltr"></div>
+          <div class="inp-group"><label class="inp-label" for="pwd-new">كلمة المرور الجديدة<span
+                class="req">*</span></label><input type="password" id="pwd-new" class="inp-field"
+              placeholder="8 أحرف على الأقل" formControlName="newPassword" autocomplete="new-password" dir="ltr">
+            <div class="pwd-strength">
+              <div class="pwd-strength-bar" id="pwd-bar" [style.width.%]="passwordStrength().percent" [style.background]="passwordStrength().color"></div>
+            </div>
+            <div class="pwd-strength-lbl" id="pwd-lbl">{{ passwordStrength().label }} — استخدم 3 أنواع من الأحرف والأرقام والرموز</div>
+          </div>
+          <div class="inp-group"><label class="inp-label" for="pwd-conf">تأكيد كلمة المرور الجديدة<span
+                class="req">*</span></label><input type="password" id="pwd-conf" class="inp-field"
+              placeholder="أعد إدخال كلمة المرور" formControlName="confirmPassword" autocomplete="new-password" dir="ltr">@if(passwordForm.get('confirmPassword')?.hasError('mismatch')){<span class="field-error">كلمتا المرور غير متطابقتين</span>}</div>
+        </div>
+        <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isChangingPassword()" (click)="changePassword()">{{ isChangingPassword() ? 'جاري التغيير...' : 'حفظ كلمة المرور الجديدة' }}</button></div>
+      </div>
+    </div>
+    <div class="sessions-card">
+      <div class="sessions-header"><div><div class="sessions-title">جلسات الدخول النشطة</div><div class="sessions-subtitle">الأجهزة التي تستطيع الوصول إلى حسابك حاليًا</div></div><button type="button" class="sessions-refresh" (click)="loadActiveSessions()" [disabled]="sessionsLoading()">{{ sessionsLoading() ? 'جاري التحديث...' : 'تحديث' }}</button></div>
+      @if(sessionsLoading() && !activeSessions().length){<div class="sessions-empty">جاري تحميل الجلسات...</div>}
+      @for(session of activeSessions(); track session.id){
+        <div class="session-row" [class.current]="session.isCurrent">
+          <div class="session-icon">{{ session.device === 'هاتف' ? '▯' : session.device === 'جهاز لوحي' ? '▭' : '▰' }}</div>
+          <div class="session-info"><strong>{{ session.browser }} · {{ session.os }}</strong><span>{{ session.device }} · {{ session.ipAddress || 'IP غير متاح' }}</span><small>{{ sessionLastSeen(session.lastActiveAt) }}</small></div>
+          @if(session.isCurrent){<span class="current-session">الجلسة الحالية</span>}@else{<button type="button" class="revoke-session" [disabled]="revokingSessionId() === session.id" (click)="revokeSession(session)">{{ revokingSessionId() === session.id ? 'جاري الإنهاء...' : 'إنهاء الجلسة' }}</button>}
+        </div>
+      }@empty{ @if(!sessionsLoading()){<div class="sessions-empty">لا توجد جلسات نشطة</div>} }
+    </div>
+  </div>
+</div>
+
+<div class="prof-tab-panel" [class.active]="currentTab() === 'contact'" id="prof-panel-contact" role="tabpanel"
+  [formGroup]="contactForm">
+  <div class="form-card">
+    <div class="form-card-hdr">
+      <div class="form-card-ico"><svg aria-hidden="true">
+          <use href="#i-person"></use>
+        </svg></div>
+      <div>
+        <div class="form-card-title">بيانات التواصل</div>
+        <div class="form-card-sub">تغيير البريد او الجوال يتطلب تاكيد OTP</div>
+      </div>
+    </div>
+    <div class="gov-bar">
+      <div class="gov-bar-ico"><svg aria-hidden="true">
+          <use href="#ws-shield"></use>
+        </svg></div>
+      <div class="gov-bar-txt">تعديل هذه البيانات الحساسة ينشئ طلبا يفحصه الذكاء ثم يعتمده مراجع بشري قبل التطبيق</div>
+      <a routerLink="../requests" class="gov-bar-link">طلباتي السابقة</a>
+    </div>
+    <div
+      style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:9px;margin-bottom:16px;font-size:12px;color:var(--kahr,#D98A0B)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>تغيير البريد الالكتروني او الجوال يتطلب تاكيد OTP على كلا القناتين</div>
+    <div class="form-grid form-col-2">
+      <div class="inp-group"><label class="inp-label" for="ct-email">البريد الالكتروني<span
+            class="req">*</span></label><input type="email" id="ct-email" class="inp-field" formControlName="email"
+          dir="ltr"></div>
+      <div class="inp-group"><label class="inp-label" for="ct-phone">رقم الجوال<span class="req">*</span></label><input
+          type="tel" id="ct-phone" class="inp-field" formControlName="phoneNumber" dir="ltr"></div>
+      <div class="inp-group"><label class="inp-label" for="ct-whatsapp">رقم WhatsApp (اختياري)</label><input type="tel"
+          id="ct-whatsapp" class="inp-field" formControlName="alternativePhone" placeholder="مطابق للجوال غالبا"
+          dir="ltr"></div>
+      <div class="inp-group"><label class="inp-label">الدولة<span class="req">*</span></label><select class="inp-field">
+          <option selected>السعودية</option>
+          <option>الإمارات</option>
+          <option>الكويت</option>
+          <option>قطر</option>
+          <option>البحرين</option>
+          <option>عمان</option>
+          <option>مصر</option>
+          <option>الأردن</option>
+          <option>دولة أخرى</option>
+        </select></div>
+      <div class="inp-group"><label class="inp-label" for="ct-city">مدينة الاقامة</label><select id="ct-city"
+          class="inp-field">
+          <option>الرياض</option>
+          <option>جدة</option>
+          <option>الدمام</option>
+          <option>مكة المكرمة</option>
+          <option>المدينة المنورة</option>
+          <option>الخبر</option>
+        </select></div>
+    </div>
+    <div class="actions-row"><button type="button" class="btn-primary" (click)="saveContact()">إرسال طلب تعديل</button>
+    </div>
+  </div>
+</div>
+
+<div id="state-loading" style="display:none" role="region" aria-label="جاري الحفظ">
+  <div class="state-card">
+    <div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div>
+    <div class="skeleton-box" style="height:120px"></div>
+  </div>
+</div>
+<div id="state-error" style="display:none" role="alert">
+  <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
+    <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر حفظ التعديلات</div>
+    <div style="font-size:12px;color:#6B7699;margin-bottom:12px">ERR-SK-022</div>
+    <button type="button"
+      style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">اعادة
+      المحاولة</button>
+  </div>
+</div>
+<div id="state-success-toast" style="display:none" role="status">
+  <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
+    <div
+      style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      <span style="font-size:14px;font-weight:700;color:#fff">تم حفظ الملف الشخصي بنجاح</span>
+    </div>
+  </div>
+</div>
+
+@if(showOtpModal()){<div class="modal-ov show">
+  <div class="modal-box">
+    <div class="modal-ico">✉</div>
+    <div class="modal-title">تأكيد البريد الإلكتروني</div>
+    <p class="modal-desc">أرسلنا رمز التحقق إلى {{ otpEmailHint() }}</p><input class="inp-field" inputmode="numeric"
+      maxlength="6" [value]="otpCode()" (input)="updateOtpCode($event)" placeholder="000000">
+    <div class="modal-actions"><button class="modal-btn modal-btn-cancel"
+        (click)="closeOtpModal()">إلغاء</button><button class="modal-btn modal-btn-confirm" (click)="verifyOtp()">تأكيد
+        الرمز</button></div>
+  </div>
+</div>}
+@if(showToast()){<div id="state-success-toast" style="display:block">
+  <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500">
+    <div style="padding:12px 20px;background:#102c42;border:1px solid #2BD4C7;border-radius:12px"><span>{{ showToast()
+        }}</span></div>
+  </div>
+</div>}

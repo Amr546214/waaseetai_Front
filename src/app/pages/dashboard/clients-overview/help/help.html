@@ -1,0 +1,537 @@
+<div class="w-full relative z-10 pb-10">
+
+	<!-- Header -->
+	<div class="mb-4">
+		<h1 class="text-xl font-black text-[var(--txt)] mb-1">المساعدة والدعم</h1>
+		<p class="text-xs text-[var(--txt-3)]">اسأل المساعد الذكي أولًا، وإن لزم يتولّى فريق الدعم البشري حالتك</p>
+	</div>
+
+	<!-- AI Disclosure -->
+	<div
+		class="flex items-center gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-2xl mb-6">
+		<div
+			class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0 text-[#7B2FBE]">
+			<svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+				<circle cx="12" cy="12" r="2" />
+				<circle cx="4" cy="6" r="1.5" />
+				<circle cx="20" cy="6" r="1.5" />
+				<circle cx="4" cy="18" r="1.5" />
+				<circle cx="20" cy="18" r="1.5" />
+				<circle cx="12" cy="3" r="1.5" />
+				<circle cx="12" cy="21" r="1.5" />
+				<path
+					d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+			</svg>
+		</div>
+		<div class="flex-1">
+			<div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-0.5">وسيط AI، مركز المساعدة</div>
+			<p class="text-[13px] text-[var(--txt-3)]">يجيب الذكاء على أغلب الأسئلة فورًا ويصنّف تذاكر الدعم ويوجّهها
+				للقسم المناسب <span
+					class="bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.28)] rounded px-1.5 py-px text-[10px] font-bold text-[#A56BE0]">دقة
+					95%</span> الحالات المعقّدة يحسمها فريق الدعم البشري</p>
+		</div>
+	</div>
+
+	<section
+		class="help-hero bg-gradient-to-br from-[rgba(123,47,190,.14)] to-[rgba(43,127,255,.08)] border border-[rgba(123,47,190,.26)] rounded-2xl p-6 mb-5"
+		aria-label="المساعد الذكي">
+		<div class="flex items-center gap-3 mb-3.5">
+			<div
+				class="w-[42px] h-[42px] rounded-[11px] bg-[rgba(123,47,190,.18)] flex items-center justify-center shrink-0 text-[#A56BE0]">
+				<svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<circle cx="12" cy="12" r="2" />
+					<circle cx="4" cy="6" r="1.5" />
+					<circle cx="20" cy="6" r="1.5" />
+					<circle cx="4" cy="18" r="1.5" />
+					<circle cx="20" cy="18" r="1.5" />
+					<circle cx="12" cy="3" r="1.5" />
+					<circle cx="12" cy="21" r="1.5" />
+					<path
+						d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+				</svg>
+			</div>
+			<div>
+				<div class="help-hero-ttl text-[17px] font-black text-[#fff]">كيف يمكنني مساعدتك؟</div>
+				<div class="text-[12.5px] text-[#A56BE0] mt-0.5">اكتب سؤالك بلغتك ويجيبك المساعد الذكي في ثوانٍ</div>
+			</div>
+		</div>
+
+		<form
+			class="help-search flex items-center gap-2.5 bg-[rgba(7,13,36,.4)] border border-[rgba(123,47,190,.28)] rounded-xl py-[7px] px-2 pl-4 flex-wrap sm:flex-nowrap"
+			(ngSubmit)="askAI()">
+			<svg class="w-[18px] h-[18px] text-[#A56BE0] shrink-0 hidden sm:block" viewBox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="1.8">
+				<circle cx="12" cy="12" r="2" />
+				<circle cx="4" cy="6" r="1.5" />
+				<circle cx="20" cy="6" r="1.5" />
+				<circle cx="4" cy="18" r="1.5" />
+				<circle cx="20" cy="18" r="1.5" />
+				<circle cx="12" cy="3" r="1.5" />
+				<circle cx="12" cy="21" r="1.5" />
+				<path
+					d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+			</svg>
+			<input type="text" [(ngModel)]="searchQuery" name="search"
+				placeholder="مثال: كيف أُفرج عن مبلغ الضمان بعد التسليم؟"
+				class="flex-1 bg-transparent border-none outline-none text-[#fff] font-inherit text-[14px] placeholder:text-[#6B7699] min-w-[200px]"
+				aria-label="اكتب سؤالك">
+			<button type="submit"
+				class="px-[22px] py-[11px] bg-gradient-to-br from-[#7B2FBE] to-[#A56BE0] border-none rounded-lg text-white text-[13px] font-extrabold cursor-pointer font-inherit whitespace-nowrap transition-opacity hover:opacity-90 w-full sm:w-auto">اسأل
+				المساعد</button>
+		</form>
+
+		<div class="flex flex-wrap gap-2 mt-3">
+			<button type="button" (click)="fillQ('كيف يعمل الضمان؟')"
+				class="help-sg px-[13px] py-1.5 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.10)] rounded-full text-[12px] font-bold text-[#A8B2D1] hover:bg-[rgba(123,47,190,.12)] hover:border-[rgba(123,47,190,.26)] hover:text-[#A56BE0] transition-all">كيف
+				يعمل الضمان؟</button>
+			<button type="button" (click)="fillQ('متى تظهر تسوية رصيد الإلغاء؟')"
+				class="help-sg px-[13px] py-1.5 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.10)] rounded-full text-[12px] font-bold text-[#A8B2D1] hover:bg-[rgba(123,47,190,.12)] hover:border-[rgba(123,47,190,.26)] hover:text-[#A56BE0] transition-all">متى
+				تظهر تسوية رصيد الإلغاء؟</button>
+			<button type="button" (click)="fillQ('كيف أقارن العروض؟')"
+				class="help-sg px-[13px] py-1.5 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.10)] rounded-full text-[12px] font-bold text-[#A8B2D1] hover:bg-[rgba(123,47,190,.12)] hover:border-[rgba(123,47,190,.26)] hover:text-[#A56BE0] transition-all">كيف
+				أقارن العروض؟</button>
+			<button type="button" (click)="fillQ('ماذا أفعل عند نزاع؟')"
+				class="help-sg px-[13px] py-1.5 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.10)] rounded-full text-[12px] font-bold text-[#A8B2D1] hover:bg-[rgba(123,47,190,.12)] hover:border-[rgba(123,47,190,.26)] hover:text-[#A56BE0] transition-all">ماذا
+				أفعل عند نزاع؟</button>
+		</div>
+
+		<div *ngIf="isTyping() || aiAnswer()" class="help-answer">
+			<div class="ha-q"><span id="ha-q-text">{{ searchedQuery() }}</span></div>
+
+			<div class="ha-ai">
+				<div class="ha-orb shrink-0" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+						stroke-linejoin="round" class="w-[18px] h-[18px]">
+						<circle cx="12" cy="12" r="2" />
+						<circle cx="4" cy="6" r="1.5" />
+						<circle cx="20" cy="6" r="1.5" />
+						<circle cx="4" cy="18" r="1.5" />
+						<circle cx="20" cy="18" r="1.5" />
+						<circle cx="12" cy="3" r="1.5" />
+						<circle cx="12" cy="21" r="1.5" />
+						<path
+							d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+					</svg>
+				</div>
+				<div class="ha-body w-full">
+
+					<div *ngIf="isTyping()" class="ha-text"><span
+							class="ha-typing"><span></span><span></span><span></span></span></div>
+
+					<ng-container *ngIf="!isTyping() && aiAnswer()">
+						<div class="ha-text">
+							{{ aiAnswer().a }}
+
+							<div *ngIf="aiAnswer().links?.length" class="ha-links">
+								<a *ngFor="let link of aiAnswer().links" [routerLink]="link[1]" class="ha-link">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+										stroke-linecap="round" stroke-linejoin="round" class="w-[13px] h-[13px]">
+										<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+										<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+									</svg>
+									{{ link[0] }}
+								</a>
+							</div>
+						</div>
+
+						<div class="flex items-center justify-between flex-wrap gap-2.5 mt-3">
+							<span class="flex items-center gap-1.5 text-[10.5px] font-bold text-[#A56BE0]">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3">
+									<circle cx="12" cy="12" r="2" />
+									<circle cx="4" cy="6" r="1.5" />
+									<circle cx="20" cy="6" r="1.5" />
+									<circle cx="4" cy="18" r="1.5" />
+									<circle cx="20" cy="18" r="1.5" />
+									<circle cx="12" cy="3" r="1.5" />
+									<circle cx="12" cy="21" r="1.5" />
+									<path
+										d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+								</svg>
+								مدعوم بالذكاء · دقة 95%
+							</span>
+							<a href="#"
+								(click)="$event.preventDefault(); showToast('فتح محادثة كاملة مع المساعد الذكي')"
+								class="inline-flex items-center gap-1.5 px-[15px] py-[9px] bg-gradient-to-br from-[#7B2FBE] to-[#A56BE0] rounded-lg text-white font-extrabold text-[12.5px] no-underline whitespace-nowrap hover:opacity-90 transition-opacity">
+								تابع المحادثة مع المساعد
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									stroke-linecap="round" stroke-linejoin="round"
+									class="w-[14px] h-[14px] -scale-x-100">
+									<line x1="5" y1="12" x2="19" y2="12" />
+									<polyline points="12 5 19 12 12 19" />
+								</svg>
+							</a>
+						</div>
+					</ng-container>
+
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Topics -->
+	<div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+		<svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+			stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="10" />
+			<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+			<line x1="12" y1="17" x2="12.01" y2="17" />
+		</svg>
+		تصفّح حسب الموضوع
+	</div>
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
+
+		<a routerLink="/provider-overview/requests" class="qcat">
+			<div
+				class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 bg-[rgba(43,212,199,.10)] text-[#2BD4C7]">
+				<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<line x1="8" y1="6" x2="21" y2="6" />
+					<line x1="8" y1="12" x2="21" y2="12" />
+					<line x1="8" y1="18" x2="21" y2="18" />
+					<line x1="3" y1="6" x2="3.01" y2="6" />
+					<line x1="3" y1="12" x2="3.01" y2="12" />
+					<line x1="3" y1="18" x2="3.01" y2="18" />
+				</svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="qcat-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">الطلبات والعروض</div>
+				<div class="text-[11.5px] text-[#6B7699] leading-snug">إنشاء الطلب، استقبال العروض، اختيار المقدّم</div>
+			</div>
+			<span class="text-[#4A5568] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
+					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="5" y1="12" x2="19" y2="12" />
+					<polyline points="12 5 19 12 12 19" />
+				</svg></span>
+		</a>
+
+		<a routerLink="/provider-overview/escrow" class="qcat">
+			<div
+				class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 bg-[rgba(43,212,199,.10)] text-[#2BD4C7]">
+				<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<rect x="3" y="11" width="18" height="11" rx="2" />
+					<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+					<circle cx="12" cy="17" r="1.5" fill="currentColor" />
+				</svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="qcat-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">العقود والضمان</div>
+				<div class="text-[11.5px] text-[#6B7699] leading-snug">توقيع العقد، تمويل الضمان، الإفراج عن المبالغ
+				</div>
+			</div>
+			<span class="text-[#4A5568] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
+					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="5" y1="12" x2="19" y2="12" />
+					<polyline points="12 5 19 12 12 19" />
+				</svg></span>
+		</a>
+
+		<a routerLink="/provider-overview/finance/wallet" class="qcat">
+			<div
+				class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 bg-[rgba(43,127,255,.10)] text-[#5DA0FF]">
+				<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+					<circle cx="16" cy="14" r="1.5" fill="currentColor" />
+				</svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="qcat-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">المدفوعات والمحفظة</div>
+				<div class="text-[11.5px] text-[#6B7699] leading-snug">الإيداع، تسويات الرصيد، الكاش باك، الفواتير</div>
+			</div>
+			<span class="text-[#4A5568] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
+					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="5" y1="12" x2="19" y2="12" />
+					<polyline points="12 5 19 12 12 19" />
+				</svg></span>
+		</a>
+
+		<a routerLink="/provider-overview/disputes" class="qcat">
+			<div
+				class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 bg-[rgba(43,127,255,.10)] text-[#5DA0FF]">
+				<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<circle cx="12" cy="12" r="10" />
+					<line x1="12" y1="8" x2="12" y2="12" />
+					<line x1="12" y1="16" x2="12.01" y2="16" />
+				</svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="qcat-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">النزاعات والشكاوى</div>
+				<div class="text-[11.5px] text-[#6B7699] leading-snug">فتح نزاع، الأدلة، قرار الفريق المختص</div>
+			</div>
+			<span class="text-[#4A5568] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
+					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="5" y1="12" x2="19" y2="12" />
+					<polyline points="12 5 19 12 12 19" />
+				</svg></span>
+		</a>
+
+		<a routerLink="/provider-overview/settings/account" class="qcat">
+			<div
+				class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 bg-[rgba(43,212,199,.10)] text-[#2BD4C7]">
+				<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+				</svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="qcat-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">الحساب والأمان</div>
+				<div class="text-[11.5px] text-[#6B7699] leading-snug">التحقق بخطوتين، الأجهزة، الخصوصية والبيانات</div>
+			</div>
+			<span class="text-[#4A5568] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
+					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="5" y1="12" x2="19" y2="12" />
+					<polyline points="12 5 19 12 12 19" />
+				</svg></span>
+		</a>
+
+		<a routerLink="/provider-overview/profile/requests" class="qcat">
+			<div
+				class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 bg-[rgba(43,212,199,.10)] text-[#2BD4C7]">
+				<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+					<path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
+				</svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="qcat-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">تعديل بياناتي</div>
+				<div class="text-[11.5px] text-[#6B7699] leading-snug">المسار المحكوم لتعديل البريد والجوال والملف</div>
+			</div>
+			<span class="text-[#4A5568] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
+					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="5" y1="12" x2="19" y2="12" />
+					<polyline points="12 5 19 12 12 19" />
+				</svg></span>
+		</a>
+
+	</div>
+
+	<!-- Support Tickets -->
+	<div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+		<svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+			stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+			<polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+			<path
+				d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+		</svg>
+		تذاكر الدعم
+		<a href="#" class="mr-auto text-[12px] font-bold text-[#2BD4C7] no-underline">عرض الكل</a>
+	</div>
+	<div class="mb-5">
+
+		<a href="#" class="tk-card">
+			<div
+				class="w-[38px] h-[38px] rounded-[10px] bg-[rgba(43,127,255,.10)] flex items-center justify-center shrink-0 text-[#5DA0FF]">
+				<svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<rect x="3" y="11" width="18" height="11" rx="2" />
+					<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+					<circle cx="12" cy="17" r="1.5" fill="currentColor" />
+				</svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="tk-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">تأخر الإفراج عن مبلغ الضمان</div>
+				<div class="text-[11px] text-[#6B7699] flex gap-2 items-center flex-wrap">
+					<span class="dir-ltr italic">TK-4821</span>
+					<span class="w-[3px] h-[3px] rounded-full bg-[#4A5568]"></span>
+					<span>العقود والضمان</span>
+					<span class="w-[3px] h-[3px] rounded-full bg-[#4A5568]"></span>
+					<span>قبل ساعتين</span>
+				</div>
+			</div>
+			<span
+				class="inline-flex items-center gap-1.5 px-3 py-1 rounded-[20px] text-[11px] font-bold shrink-0 whitespace-nowrap bg-[rgba(255,180,0,.10)] text-[#D98A0B] border border-[rgba(255,180,0,.26)]">
+				<span class="w-[5px] h-[5px] rounded-full shrink-0 bg-[#FFB400]"></span>لدى فريق الدعم
+			</span>
+		</a>
+
+		<a href="#" class="tk-card">
+			<div
+				class="w-[38px] h-[38px] rounded-[10px] bg-[rgba(43,127,255,.10)] flex items-center justify-center shrink-0 text-[#5DA0FF]">
+				<svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+					<circle cx="16" cy="14" r="1.5" fill="currentColor" />
+				</svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="tk-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">توضيح مطلوب لإكمال تسوية رصيد
+				</div>
+				<div class="text-[11px] text-[#6B7699] flex gap-2 items-center flex-wrap">
+					<span class="dir-ltr italic">TK-4815</span>
+					<span class="w-[3px] h-[3px] rounded-full bg-[#4A5568]"></span>
+					<span>المدفوعات</span>
+					<span class="w-[3px] h-[3px] rounded-full bg-[#4A5568]"></span>
+					<span>أمس</span>
+				</div>
+			</div>
+			<span
+				class="inline-flex items-center gap-1.5 px-3 py-1 rounded-[20px] text-[11px] font-bold shrink-0 whitespace-nowrap bg-[rgba(255,255,255,.05)] text-[#A8B2D1] border border-[rgba(255,255,255,.12)]">
+				<span class="w-[5px] h-[5px] rounded-full shrink-0 bg-[#6B7699]"></span>بانتظار ردّك
+			</span>
+		</a>
+
+	</div>
+
+	<!-- FAQs -->
+	<div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+		<svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+			stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="10" />
+			<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+			<line x1="12" y1="17" x2="12.01" y2="17" />
+		</svg>
+		الأسئلة الشائعة
+	</div>
+	<div class="mb-5">
+
+		<div class="faq-item" [class.open]="faqState()[0]">
+			<button type="button" class="faq-q" (click)="toggleFaq(0)">
+				<span class="faq-q-txt">كيف يحمي الضمان أموالي عند طلب خدمة؟</span>
+				<svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="6 9 12 15 18 9" />
+				</svg>
+			</button>
+			<div class="faq-a">
+				<div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">يُحتجز المبلغ في حساب
+					ضمان مرخّص فور توقيع العقد، ولا يصل إلى مقدّم الخدمة إلا بعد قبولك للتسليم. إن لم يكتمل العمل تستردّ
+					مبلغك وفق شروط العقد ومراجعة الفريق المختص</div>
+			</div>
+		</div>
+
+		<div class="faq-item" [class.open]="faqState()[1]">
+			<button type="button" class="faq-q" (click)="toggleFaq(1)">
+				<span class="faq-q-txt">كيف يرتّب المساعد الذكي العروض المقدّمة لي؟</span>
+				<svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="6 9 12 15 18 9" />
+				</svg>
+			</button>
+			<div class="faq-a">
+				<div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">يرتّب الذكاء العروض
+					حسب توافقها مع طلبك والسعر وتقييم المقدّم وزمن التسليم بدقة 95%، ويبقى اختيار العرض قرارك أنت في كل
+					الأحوال</div>
+			</div>
+		</div>
+
+		<div class="faq-item" [class.open]="faqState()[2]">
+			<button type="button" class="faq-q" (click)="toggleFaq(2)">
+				<span class="faq-q-txt">متى تظهر تسوية الرصيد عند إلغاء الطلب؟</span>
+				<svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="6 9 12 15 18 9" />
+				</svg>
+			</button>
+			<div class="faq-a">
+				<div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">تظهر تسوية الرصيد في
+					محفظتك خلال مدة العقد المتّفق عليها بعد اعتماد الإلغاء، ثم يمكنك استخدام الرصيد في طلب جديد. تظهر كل
+					الحركات في سجلّ محفظتك</div>
+			</div>
+		</div>
+
+		<div class="faq-item" [class.open]="faqState()[3]">
+			<button type="button" class="faq-q" (click)="toggleFaq(3)">
+				<span class="faq-q-txt">ماذا أفعل إذا اختلفت مع مقدّم الخدمة؟</span>
+				<svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="6 9 12 15 18 9" />
+				</svg>
+			</button>
+			<div class="faq-a">
+				<div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">افتح نزاعًا من صفحة
+					النزاعات وأرفق الأدلة. يبقى المبلغ محتجزًا في الضمان حتى يصدر الفريق المختص قراره بعد مراجعة الطرفين
+					والأدلة</div>
+			</div>
+		</div>
+
+		<div class="faq-item" [class.open]="faqState()[4]">
+			<button type="button" class="faq-q" (click)="toggleFaq(4)">
+				<span class="faq-q-txt">كيف أعدّل بريدي أو رقم جوالي؟</span>
+				<svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="6 9 12 15 18 9" />
+				</svg>
+			</button>
+			<div class="faq-a">
+				<div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">البيانات الحسّاسة
+					كالبريد والجوال وكلمة المرور تُعدّل عبر مسار محكوم من صفحة طلبات تعديل الملف، ليراجعها الفريق المختص
+					قبل تطبيقها حفاظًا على أمان حسابك</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Contact Us -->
+	<div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+		<svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+			stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+			<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+		</svg>
+		تواصل معنا
+	</div>
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+
+		<a href="#" class="chan">
+			<div
+				class="w-[46px] h-[46px] rounded-[13px] flex items-center justify-center mx-auto mb-3 bg-[rgba(123,47,190,.14)] text-[#A56BE0]">
+				<svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<circle cx="12" cy="12" r="2" />
+					<circle cx="4" cy="6" r="1.5" />
+					<circle cx="20" cy="6" r="1.5" />
+					<circle cx="4" cy="18" r="1.5" />
+					<circle cx="20" cy="18" r="1.5" />
+					<circle cx="12" cy="3" r="1.5" />
+					<circle cx="12" cy="21" r="1.5" />
+					<path
+						d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+				</svg>
+			</div>
+			<div class="chan-ttl text-[14px] font-extrabold text-[#fff] mb-1">المساعد الذكي</div>
+			<div class="text-[11.5px] text-[#6B7699] leading-snug">شات فوري يجيب عن أسئلتك في ثوانٍ</div>
+			<span
+				class="inline-block mt-2.5 text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(15,169,154,.10)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]">متاح
+				الآن</span>
+		</a>
+
+		<a href="#" class="chan">
+			<div
+				class="w-[46px] h-[46px] rounded-[13px] flex items-center justify-center mx-auto mb-3 bg-[rgba(43,212,199,.12)] text-[#2BD4C7]">
+				<svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+				</svg>
+			</div>
+			<div class="chan-ttl text-[14px] font-extrabold text-[#fff] mb-1">الدعم المباشر</div>
+			<div class="text-[11.5px] text-[#6B7699] leading-snug">شات مباشر مع موظف دعم بشري</div>
+			<span
+				class="inline-block mt-2.5 text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(15,169,154,.10)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]">الرد
+				خلال دقائق</span>
+		</a>
+
+		<a href="#" class="chan">
+			<div
+				class="w-[46px] h-[46px] rounded-[13px] flex items-center justify-center mx-auto mb-3 bg-[rgba(43,127,255,.12)] text-[#5DA0FF]">
+				<svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+					<polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+					<path
+						d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+				</svg>
+			</div>
+			<div class="chan-ttl text-[14px] font-extrabold text-[#fff] mb-1">فتح تذكرة دعم</div>
+			<div class="text-[11.5px] text-[#6B7699] leading-snug">طلب متتبَّع برقم وحالة يراجعه الفريق المختص</div>
+			<span
+				class="inline-block mt-2.5 text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(15,169,154,.10)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]">الرد
+				خلال 24 ساعة</span>
+		</a>
+
+	</div>
+
+	<!-- Toast -->
+	<div *ngIf="toastMessage()"
+		class="fixed top-[72px] left-1/2 -translate-x-1/2 z-[500] animate-[ws-fade_0.3s_ease_both]">
+		<div
+			class="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[rgba(43,212,199,.14)] to-[rgba(43,127,255,.10)] border border-[rgba(43,212,199,.30)] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,.4)] backdrop-blur-md">
+			<svg class="w-[18px] h-[18px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			<span class="text-sm font-bold text-[var(--txt)]">{{ toastMessage() }}</span>
+		</div>
+	</div>
+
+</div>

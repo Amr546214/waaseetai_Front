@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en" dir="rtl">
+
+<head>
+	<meta charset="utf-8">
+	<base href="/">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>وسيط AI | للخدمات الذكية</title>
+	<link rel="icon" type="image/png" href="assets/brand/waseet-mark.png">
+	<meta name="description"
+		content="وسيط AI للخدمات المهنية الموثقة - اربط طلبات الخدمة والعقود والمدفوعات في تجربة واحدة مدعومة بذكاء اصطناعي">
+	<script src="assets/ws-light-polish.js" defer></script>
+
+	<!-- Moyasar Web Form -->
+	<link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.14.0/moyasar.css" />
+	<!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=fetch"></script> -->
+	<script src="https://cdn.moyasar.com/mpf/1.14.0/moyasar.js"></script>
+
+	<style>
+		/* Moyasar Absolute Dark Theme & White Labels */
+		.mysr-form label,
+		.mysr-form .mysr-label,
+		.mysr-form .form-group label,
+		.mysr-form .mysr-form-group label,
+		.mysr-form .control-label,
+		.mysr-form div > label,
+		.mysr-form form label {
+			color: #ffffff !important;
+			opacity: 1 !important;
+			visibility: visible !important;
+			font-weight: 800 !important;
+			font-size: 13.5px !important;
+			margin-bottom: 8px !important;
+			text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+		}
+
+		.mysr-form input,
+		.mysr-form .form-control,
+		.mysr-form input[type="text"],
+		.mysr-form input[type="tel"] {
+			background-color: #070d24 !important;
+			color: #ffffff !important;
+			border: 1px solid rgba(255, 255, 255, 0.15) !important;
+		}
+	</style>
+
+	<style>
+		/* Waseet AI Professional Loader */
+		.app-loader-container {
+			position: fixed;
+			inset: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: #070D24;
+			/* Fallback to Navy */
+			background-color: var(--pg, #070D24);
+			z-index: 999999;
+			overflow: hidden;
+			transition: background-color 0.3s ease;
+		}
+
+		/* Light theme support before Angular loads */
+		body.light-theme .app-loader-container {
+			background-color: #F6F8FC;
+		}
+
+		body.light-theme .loader-text {
+			color: #070D24;
+		}
+
+		.loader-bg-glow {
+			position: absolute;
+			width: 70vw;
+			height: 70vw;
+			max-width: 800px;
+			max-height: 800px;
+			background: radial-gradient(circle, rgba(43, 212, 199, 0.08) 0%, rgba(43, 127, 255, 0.04) 40%, transparent 70%);
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			animation: pulse-glow 4s ease-in-out infinite alternate;
+			pointer-events: none;
+		}
+
+		.loader-logo-wrapper {
+			position: relative;
+			width: 85px;
+			height: 85px;
+			margin-bottom: 35px;
+			z-index: 2;
+			animation: float-logo 3s ease-in-out infinite;
+		}
+
+		.loader-logo {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+			filter: drop-shadow(0 12px 24px rgba(43, 212, 199, 0.35));
+		}
+
+		.loader-bar-container {
+			width: 220px;
+			height: 4px;
+			background: rgba(168, 178, 209, 0.15);
+			border-radius: 8px;
+			position: relative;
+			overflow: hidden;
+			z-index: 2;
+		}
+
+		.loader-bar {
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 50%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, #2BD4C7, #2B7FFF, transparent);
+			border-radius: 8px;
+			animation: slide-bar 1.8s infinite ease-in-out;
+		}
+
+		.loader-text {
+			margin-top: 24px;
+			font-family: 'Tajawal', sans-serif;
+			font-size: 15px;
+			font-weight: 700;
+			color: #FFFFFF;
+			letter-spacing: 0.5px;
+			z-index: 2;
+			animation: fade-text 2s infinite alternate;
+		}
+
+		@keyframes pulse-glow {
+			0% {
+				transform: translate(-50%, -50%) scale(0.85);
+				opacity: 0.6;
+			}
+
+			100% {
+				transform: translate(-50%, -50%) scale(1.15);
+				opacity: 1;
+			}
+		}
+
+		@keyframes float-logo {
+			0% {
+				transform: translateY(0px);
+			}
+
+			50% {
+				transform: translateY(-12px);
+			}
+
+			100% {
+				transform: translateY(0px);
+			}
+		}
+
+		@keyframes slide-bar {
+			0% {
+				left: -100%;
+			}
+
+			100% {
+				left: 200%;
+			}
+		}
+
+		@keyframes fade-text {
+			0% {
+				opacity: 0.5;
+			}
+
+			100% {
+				opacity: 1;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<!-- Theme Init Script: Prevents FOUC (Flash of Unstyled Content) -->
+	<script>
+		(function () {
+			try {
+				var savedTheme = localStorage.getItem('waseet_theme');
+				var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+				if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
+					document.documentElement.classList.add('light-theme', 'theme-light');
+					document.body.classList.add('light-theme', 'theme-light');
+				} else {
+					document.documentElement.classList.add('dark');
+				}
+			} catch (e) { }
+		})();
+	</script>
+
+	<app-root>
+		<!-- Initial Loading Screen (Destroyed when Angular bootstraps) -->
+		<div class="app-loader-container">
+			<div class="loader-bg-glow"></div>
+
+			<div class="loader-logo-wrapper">
+				<img src="assets/brand/waseet-mark.png" alt="Waseet AI" class="loader-logo">
+			</div>
+
+			<div class="loader-bar-container">
+				<div class="loader-bar"></div>
+			</div>
+
+			<div class="loader-text">جاري تهيئة مساحة العمل...</div>
+		</div>
+	</app-root>
+</body>
+
+</html>

@@ -1,0 +1,232 @@
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+
+@Component({
+	selector: 'app-profile-setup-dashboard',
+	standalone: true,
+	imports: [CommonModule, RouterModule, ReactiveFormsModule],
+	templateUrl: './profile-setup.html'
+})
+export class ProfileSetupDashboard implements OnInit {
+	private fb = inject(FormBuilder);
+	private router = inject(Router);
+	private authStore = inject(AuthStore);
+	private profileApi = inject(ProfileApiService);
+
+	isSubmitting = signal<boolean>(false);
+	currentStep = signal<number>(1);
+	toastMsg = signal<string | null>(null);
+	isUploading = signal<{ [key: string]: boolean }>({});
+
+	steps = [
+		{ id: 1, label: 'بيانات طالب الخدمة' },
+		{ id: 2, label: 'الهوية والتوثيق' },
+		{ id: 3, label: 'البيانات البنكية أو المحفظة' },
+		{ id: 4, label: 'المستندات عند الحاجة' },
+		{ id: 5, label: 'المراجعة والإرسال' }
+	];
+
+	setupForm: FormGroup = this.fb.group({
+		details: this.fb.group({
+			idNumber: ['', [Validators.required, Validators.pattern(/^[12]\d{9}$/)]],
+			dob: ['', Validators.required],
+			country: ['السعودية', Validators.required],
+			city: ['', Validators.required],
+			occupation: ['', Validators.required],
+			address: ['', Validators.required]
+		}),
+		identity: this.fb.group({
+			frontId: [''],
+			backId: ['']
+		}),
+		bank: this.fb.group({
+			paymentType: ['bank', Validators.required], // bank or wallet
+			bankName: ['', Validators.required],
+			accountHolder: ['', Validators.required],
+			iban: ['', [Validators.required, Validators.minLength(24), Validators.maxLength(24)]]
+		}),
+		documents: this.fb.group({
+			supportingDocs: [''],
+			notes: ['']
+		}),
+		agreements: this.fb.group({
+			accurate: [false, Validators.requiredTrue],
+			terms: [false, Validators.requiredTrue],
+			privacy: [false, Validators.requiredTrue]
+		})
+	});
+
+	ngOnInit() {
+		this.loadClientProfile();
+	}
+
+	loadClientProfile() {
+		this.profileApi.getClientProfileSetup().subscribe({
+			next: (res: any) => {
+				if (res && res.data) {
+					const data = res.data;
+					
+					// Patch details
+					this.setupForm.get('details')?.patchValue({
+						idNumber: data.idNumber || '',
+						dob: data.dob ? new Date(data.dob).toISOString().split('T')[0] : '',
+						country: data.country || 'السعودية',
+						city: data.city || '',
+						occupation: data.industry || '',
+						address: data.address || ''
+					});
+
+					// Patch bank
+					this.setupForm.get('bank')?.patchValue({
+						paymentType: data.paymentType || 'bank',
+						bankName: data.bankName || '',
+						accountHolder: data.accountHolder || '',
+						iban: data.iban || ''
+					});
+
+					// Patch documents preview
+					if (data.frontIdUrl) this.setupForm.get('identity.frontId')?.setValue(data.frontIdUrl);
+					if (data.backIdUrl) this.setupForm.get('identity.backId')?.setValue(data.backIdUrl);
+					if (data.supportingDocsUrl) this.setupForm.get('documents.supportingDocs')?.setValue(data.supportingDocsUrl);
+					if (data.notes) this.setupForm.get('documents.notes')?.setValue(data.notes);
+
+					// Disable verified fields to prevent tampering
+					if (data.kycStatus === 'VERIFIED') {
+						if (data.idNumber) this.setupForm.get('details.idNumber')?.disable();
+						if (data.dob) this.setupForm.get('details.dob')?.disable();
+						if (data.iban) this.setupForm.get('bank.iban')?.disable();
+					}
+				}
+			},
+			error: (err: any) => {
+				console.error("Error loading profile setup data", err);
+			}
+		});
+	}
+
+	nextStep() {
+		if (this.currentStep() < 5) {
+			this.currentStep.update(v => v + 1);
+		}
+	}
+
+	prevStep() {
+		if (this.currentStep() > 1) {
+			this.currentStep.update(v => v - 1);
+		}
+	}
+
+	setStep(step: number) {
+		if (step >= 1 && step <= 5) {
+			this.currentStep.set(step);
+		}
+	}
+
+	triggerNafath() {
+		this.showToast('جاري الربط مع NAFATH...');
+	}
+
+	async onFileSelected(event: Event, groupName: string, controlName: string) {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		this.isUploading.update(s => ({ ...s, [controlName]: true }));
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			const base64Str = reader.result as string;
+			const group = this.setupForm.get(groupName) as FormGroup;
+			if (group) {
+				group.patchValue({ [controlName]: base64Str });
+			}
+			this.isUploading.update(s => ({ ...s, [controlName]: false }));
+		};
+		reader.onerror = () => {
+			this.isUploading.update(s => ({ ...s, [controlName]: false }));
+			this.showToast('حدث خطأ أثناء معالجة الملف');
+		};
+		reader.readAsDataURL(file);
+	}
+
+	skipSetup() {
+		this.showToast('تم التخطي — يمكنك العودة لاحقاً');
+		setTimeout(() => {
+			this.router.navigate(['/client-overview']);
+		}, 1500);
+	}
+
+	submitForm() {
+		if (this.setupForm.valid) {
+			this.isSubmitting.set(true);
+			const formVal = this.setupForm.getRawValue();
+
+			const payload: any = {
+				details: {
+					idNumber: formVal.details.idNumber,
+					dob: formVal.details.dob ? new Date(formVal.details.dob).toISOString() : null,
+					country: formVal.details.country,
+					city: formVal.details.city,
+					occupation: formVal.details.occupation,
+					address: formVal.details.address
+				},
+				identity: {
+					frontId: formVal.identity.frontId,
+					backId: formVal.identity.backId
+				},
+				bank: {
+					paymentType: formVal.bank.paymentType,
+					bankName: formVal.bank.bankName,
+					accountHolder: formVal.bank.accountHolder,
+					iban: formVal.bank.iban
+				},
+				documents: {
+					supportingDocs: formVal.documents.supportingDocs,
+					notes: formVal.documents.notes
+				},
+				agreements: {
+					accurate: formVal.agreements.accurate,
+					terms: formVal.agreements.terms,
+					privacy: formVal.agreements.privacy
+				}
+			};
+
+			console.log("Submitting Client Profile Setup", payload);
+
+			this.profileApi.saveClientProfileSetup(payload).subscribe({
+				next: (res: any) => {
+					this.isSubmitting.set(false);
+					this.showToast('تم حفظ البيانات بنجاح وإرسال المستندات للمراجعة');
+
+					setTimeout(() => {
+						this.router.navigate(['/client-overview/profile']);
+					}, 2000);
+				},
+				error: (err: any) => {
+					this.isSubmitting.set(false);
+					this.showToast('حدث خطأ أثناء حفظ البيانات، يرجى المحاولة مرة أخرى');
+				}
+			});
+		} else {
+			console.warn("Form is INVALID! Cannot submit.");
+			console.log("Details Form Valid?", this.setupForm.get('details')?.valid);
+			console.log("Identity Form Valid?", this.setupForm.get('identity')?.valid);
+			console.log("Bank Form Valid?", this.setupForm.get('bank')?.valid);
+			console.log("Agreements Form Valid?", this.setupForm.get('agreements')?.valid);
+			
+			this.setupForm.markAllAsTouched();
+			this.showToast('الرجاء التأكد من تعبئة جميع الحقول المطلوبة');
+		}
+	}
+
+	showToast(msg: string) {
+		this.toastMsg.set(msg);
+		setTimeout(() => {
+			this.toastMsg.set(null);
+		}, 3000);
+	}
+}

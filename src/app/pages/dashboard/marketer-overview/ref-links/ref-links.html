@@ -1,0 +1,95 @@
+<div class="main-inner">
+  @if (toastMessage()) {
+    <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(43,212,199,0.9);color:#fff;padding:12px 24px;border-radius:8px;font-weight:bold;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2)">
+      {{ toastMessage() }}
+    </div>
+  }
+
+    <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+      <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+      <div class="ai-disc-body">
+        <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+        <p class="ai-disc-txt">AI يحلل أداء قنواتك ويقترح أفضل توقيت ومحتوى لزيادة الإحالات <span class="ai-disc-badge">دقة 92%</span> القرار النهائي لك</p>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
+      <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
+      <div style="flex:1;min-width:220px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="ws-level-tag" style="font-size:14px;font-weight:900;color:#9B8B7A;border-color:rgba(155,139,122,.30)">{{ summary()?.tier || 'مبتدئ' }}</span><span style="font-size:11px;color:#6B7699">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} ريال عمولات</span></div>
+        <div style="height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div [style.width]="(summary()?.progressPercentage || 0) + '%'" style="height:100%;background:linear-gradient(90deg,#9B8B7A,#CD7F32);border-radius:4px;transition:width 0.5s ease-in-out;"></div></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:7px">
+          <svg width="12" height="12" aria-hidden="true" style="color:var(--ai-txt,#A56BE0)"><use href="#i-ai"></use></svg>
+          <span style="font-size:11.5px;color:#A8B2D1">
+            @if (summary()?.successfulReferrals === 0) {
+              توصية AI: أكمل أول 3 إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
+            } @else {
+              توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- إعدادات الإحالة والروابط -->
+    <h2 style="font-size:20px;font-weight:900;color:#fff;margin-bottom:4px">إعدادات الإحالة والروابط</h2>
+    <p style="font-size:13px;color:#6B7699;margin-bottom:20px">أدر روابط إحالتك وخصص الحملات لكل قناة</p>
+
+    <div class="adm-card" style="margin-bottom:16px">
+      <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-link"></use></svg>رابط الإحالة الأساسي</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;font-size:13px;color:#A8B2D1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:200px">{{ data()?.primaryLink }}</div>
+        <button type="button" (click)="copyToClipboard(data()?.primaryLink || '')" style="padding:10px 18px;background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.24);border-radius:9px;color:#2BD4C7;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">نسخ الرابط</button>
+      </div>
+    </div>
+
+    <div class="adm-card" style="margin-bottom:16px">
+      <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-link"></use></svg>روابط مخصصة لكل قناة</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        @for (link of data()?.customLinks; track link.id) {
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="width:90px;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">{{ link.channelName }}</span>
+            <div style="flex:1;padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;font-size:12px;color:#A8B2D1;min-width:160px">{{ data()?.primaryLink }}?utm_source={{ link.utmSource }}</div>
+            <button (click)="copyToClipboard(data()?.primaryLink + '?utm_source=' + link.utmSource)" style="padding:8px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.20);border-radius:8px;color:#2BD4C7;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">نسخ</button>
+          </div>
+        }
+
+        @if (showNewChannelForm()) {
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,.02);padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.05)">
+            <input type="text" [(ngModel)]="newChannelName" placeholder="اسم القناة (مثل: لينكد إن)" style="flex:1;min-width:120px;padding:9px 12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:12px;outline:none;">
+            <input type="text" [(ngModel)]="newUtmSource" placeholder="utm_source (مثل: linkedin)" style="flex:1;min-width:120px;padding:9px 12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:12px;outline:none;">
+            <button (click)="addCustomLink()" style="padding:9px 16px;background:rgba(43,127,255,.15);border:1px solid rgba(43,127,255,.3);border-radius:8px;color:#2B7FFF;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">حفظ</button>
+            <button (click)="toggleNewChannelForm()" style="padding:9px 12px;background:transparent;border:none;color:#6B7699;font-size:12px;cursor:pointer;font-family:inherit">إلغاء</button>
+          </div>
+        } @else {
+          <button (click)="toggleNewChannelForm()" style="align-self:flex-start;padding:9px 18px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.14);border-radius:9px;color:#6B7699;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">+ إضافة قناة جديدة</button>
+        }
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-settings"></use></svg>إعدادات الإحالة</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,.03);border-radius:10px">
+          <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">إشعار عند تسجيل إحالة جديدة</div><div style="font-size:11px;color:#6B7699">احصل على إشعار فوري عند انضمام أي شخص عبر رابطك</div></div>
+          <div (click)="toggleSetting('notifyOnNewReferral')"
+               [style.background]="data()?.settings?.notifyOnNewReferral ? 'linear-gradient(135deg,#2BD4C7,#2B7FFF)' : 'rgba(255,255,255,.10)'"
+               style="width:44px;height:24px;border-radius:12px;cursor:pointer;position:relative;transition:background 0.3s">
+            <div [style.right]="data()?.settings?.notifyOnNewReferral ? '2px' : '22px'"
+                 [style.background]="data()?.settings?.notifyOnNewReferral ? '#fff' : '#6B7699'"
+                 style="position:absolute;top:2px;width:20px;height:20px;border-radius:50%;transition:all 0.3s"></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,.03);border-radius:10px">
+          <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">مشاركة إحصائيات أدائي</div><div style="font-size:11px;color:#6B7699">اجعل عدد إحالاتك مرئياً في ملفك العام</div></div>
+          <div (click)="toggleSetting('sharePerformanceStats')"
+               [style.background]="data()?.settings?.sharePerformanceStats ? 'linear-gradient(135deg,#2BD4C7,#2B7FFF)' : 'rgba(255,255,255,.10)'"
+               style="width:44px;height:24px;border-radius:12px;cursor:pointer;position:relative;transition:background 0.3s">
+            <div [style.right]="data()?.settings?.sharePerformanceStats ? '2px' : '22px'"
+                 [style.background]="data()?.settings?.sharePerformanceStats ? '#fff' : '#6B7699'"
+                 style="position:absolute;top:2px;width:20px;height:20px;border-radius:50%;transition:all 0.3s"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>

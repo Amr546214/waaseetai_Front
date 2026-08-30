@@ -1,0 +1,129 @@
+<aside class="sidebar w-[17.5rem] h-full flex flex-col bg-[#070D24] border-l border-slate-800/60 select-none font-sans text-right" id="sidebar" aria-label="القائمة الجانبية للتنقل">
+	<!-- Logo & Title Area (Desktop) -->
+	<div class="h-16 flex-shrink-0 flex items-center px-5 border-b border-slate-800/60">
+		<div class="flex items-center justify-between w-full">
+			<a routerLink="/provider-overview" class="flex items-center gap-3 group transition-transform hover:scale-105" aria-label="وسيط AI">
+				<img src="/images/waseet-mark.png" alt="وسيط AI"
+					class="h-7 w-auto object-contain drop-shadow-[0_0_12px_rgba(43,212,199,0.3)]">
+				<span class="text-[11px] font-medium uppercase tracking-wider text-slate-300/80 px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08]">
+					{{ sidebarTitle() }}
+				</span>
+			</a>
+
+			<!-- Mobile close button -->
+			<button (click)="onCloseSidebar()" class="lg:hidden p-1.5 rounded-lg hover:bg-white/[0.05] text-slate-400 hover:text-slate-100 transition-colors" aria-label="إغلاق القائمة الجانبية">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	<!-- Navigation Items Container -->
+	<nav class="flex flex-col py-3 px-3 gap-1 flex-1 overflow-y-auto scrollbar-none">
+		@for (item of navItems(); track $index) {
+			<!-- Section Header -->
+			@if (item.type === 'header') {
+				<span class="block px-3 mt-4 mb-1 text-[11px] font-normal text-slate-400/60 uppercase tracking-wider first:mt-1">{{item.label}}</span>
+			}
+
+			<!-- Standard Link Item -->
+			@if (item.type === 'link') {
+				<a [routerLink]="item.disabled ? null : item.route"
+					routerLinkActive="!text-[#2BD4C7] !bg-[#2BD4C7]/10 !border-[#2BD4C7]/20 font-medium shadow-[0_4px_16px_rgba(43,212,199,0.05)] active-nav-item"
+					[routerLinkActiveOptions]="{exact: item.exact || false}"
+					[ngClass]="item.disabled ? 'opacity-40 grayscale pointer-events-none' : 'hover:text-slate-100 hover:bg-white/[0.04] cursor-pointer'"
+					class="flex items-center justify-between py-1.5 px-3 rounded-lg text-[13px] font-normal text-slate-300/70 border border-transparent transition-all duration-200 w-full text-right group"
+					(click)="item.disabled ? $event.preventDefault() : onOuterLinkClick()"
+					[attr.aria-current]="item.exact ? 'page' : null">
+					<div class="flex items-center gap-2.5 overflow-hidden">
+						<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+							class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-400 group-hover:text-slate-200 transition-colors duration-200 [a.active-nav-item_&]:!text-[#2BD4C7]">
+							<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.icon" />
+						</svg>
+						<span class="truncate">{{item.label}}</span>
+					</div>
+					@if (item.badge) {
+						<span class="ml-0 mr-auto bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-[11px] font-black px-2 py-0.5 rounded-full shadow-[0_0_12px_rgba(43,212,199,0.5)] flex items-center justify-center min-w-[20px]">{{item.badge}}</span>
+					}
+				</a>
+			}
+
+			<!-- Accordion Parent & Sub-items -->
+			@if (item.type === 'accordion') {
+				<div class="flex flex-col">
+					<button type="button" [id]="'acc-' + item.id" (click)="!item.disabled && toggleAccordion(item.id!)" [attr.aria-expanded]="isAccordionOpen(item) ? 'true' : 'false'"
+						[ngClass]="item.disabled ? 'opacity-40 grayscale pointer-events-none' : (isAccordionOpen(item) ? 'text-[#2BD4C7] bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 font-medium shadow-[0_4px_16px_rgba(43,212,199,0.05)]' : 'text-slate-300/70 border border-transparent hover:text-slate-100 hover:bg-white/[0.04] font-normal cursor-pointer')"
+						class="flex items-center justify-between py-1.5 px-3 rounded-lg text-[13px] transition-all duration-200 w-full text-right group">
+						<div class="flex items-center gap-2.5 overflow-hidden">
+							<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+								[ngClass]="isAccordionOpen(item) ? 'text-[#2BD4C7]' : 'text-slate-400 group-hover:text-slate-300'"
+								class="w-4 h-4 shrink-0 stroke-[1.5] transition-colors duration-200">
+								<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.icon" />
+							</svg>
+							<span class="truncate">{{item.label}}</span>
+						</div>
+						<!-- Chevron arrow pointing left in RTL, rotating -90deg when expanded -->
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+							[ngClass]="isAccordionOpen(item) ? '-rotate-90 text-[#2BD4C7]' : 'text-slate-400/80 group-hover:text-slate-300'"
+							class="w-3.5 h-3.5 shrink-0 stroke-[1.5] transition-transform duration-250 ease-out" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+						</svg>
+					</button>
+
+					<!-- Accordion Children (Sub-Items) -->
+					@if (isAccordionOpen(item)) {
+					<div class="flex flex-col gap-0.5 mt-1 mb-1.5 mr-4" [id]="'sub-' + item.id">
+						@for (child of item.children; track $index) {
+							@if (child.type === 'link') {
+								<a [routerLink]="child.disabled ? null : child.route"
+									routerLinkActive="!bg-[#131B36] !text-slate-100 font-medium !border-slate-700/50 shadow-sm active-sub-item"
+									(click)="child.disabled ? $event.preventDefault() : onCloseSidebar()"
+									[ngClass]="child.disabled ? 'opacity-40 grayscale pointer-events-none' : 'hover:text-slate-200 hover:bg-white/[0.04] cursor-pointer'"
+									class="flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-normal text-slate-400 border border-transparent transition-all duration-200 w-full text-right group/sub">
+									<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+										class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-500 group-hover/sub:text-slate-300 transition-colors duration-200 [a.active-sub-item_&]:!text-slate-200">
+										<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="child.icon" />
+									</svg>
+									<span class="truncate">{{child.label}}</span>
+								</a>
+							}
+							@if (child.type === 'button') {
+								<button type="button" class="flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-normal text-slate-400 border border-transparent hover:text-slate-200 hover:bg-white/[0.04] transition-all duration-200 w-full text-right cursor-pointer group/sub">
+									<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+										class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-500 group-hover/sub:text-slate-300 transition-colors duration-200">
+										<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="child.icon" />
+									</svg>
+									<span class="truncate">{{child.label}}</span>
+								</button>
+							}
+						}
+					</div>
+					}
+				</div>
+			}
+
+			<!-- Standard Buttons (Non-link actions) -->
+			@if (item.type === 'button' && !item.action) {
+				<button type="button" class="flex items-center gap-2.5 py-1.5 px-3 rounded-lg text-[13px] font-normal text-slate-300/70 border border-transparent hover:text-slate-100 hover:bg-white/[0.04] transition-all duration-200 w-full text-right cursor-pointer group">
+					<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+						class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-400 group-hover:text-slate-200 transition-colors duration-200">
+						<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.icon" />
+					</svg>
+					<span class="truncate">{{item.label}}</span>
+				</button>
+			}
+
+			<!-- Logout Button -->
+			@if (item.type === 'button' && item.action === 'logout') {
+				<a (click)="handleAction(item.action)" class="flex items-center gap-2.5 py-1.5 px-3 mt-1 rounded-lg text-[13px] font-normal text-slate-400 border border-transparent hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-all duration-200 w-full text-right cursor-pointer group" role="button" tabindex="0">
+					<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+						class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-400 group-hover:text-red-400 transition-colors duration-200">
+						<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.icon" />
+					</svg>
+					<span class="truncate">{{item.label}}</span>
+				</a>
+			}
+		}
+	</nav>
+</aside>

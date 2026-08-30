@@ -1,0 +1,323 @@
+<main class="w-full min-h-screen p-6 text-slate-800 dark:text-slate-300 font-sans transition-colors duration-300"
+	dir="rtl">
+	<div class="max-w-full mx-auto space-y-6">
+
+		<!-- Header -->
+		<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+			<div>
+				<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">طلبات تعديل المشاريع</h1>
+				<p class="text-sm text-slate-500 dark:text-slate-400">طلبات تعديل نطاق أو ميزانية أو مدة مشروع قائم،
+					تُرفع من صفحة متابعة المشروع وتمر بموافقة الطرفين وحوكمة الذكاء</p>
+			</div>
+		</div>
+
+		<!-- AI Disclosure -->
+		<div class="ai-banner">
+			<div class="ai-icon-shell">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="ai-icon w-5 h-5">
+					<use href="#i-ai"></use>
+				</svg>
+			</div>
+			<div>
+				<div class="ai-title mb-0.5">وسيط AI، حوكمة تعديل المشاريع
+				</div>
+				<div class="ai-copy flex items-center flex-wrap gap-2">
+					يفحص الذكاء أثر كل تعديل على السعر والمدة والضمان ويقترح التسوية العادلة، ثم يوافق الطرفان ويُحدَّث
+					العقد
+					<span class="ai-confidence">دقة
+						95%</span>
+					القرار النهائي لكما
+				</div>
+			</div>
+		</div>
+
+		<!-- KPIs -->
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm dark:shadow-none backdrop-blur-xl flex items-center gap-4">
+				<div
+					class="w-12 h-12 flex-shrink-0 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 flex items-center justify-center">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+						<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+					</svg>
+				</div>
+				<div>
+					<div class="text-2xl font-black text-slate-900 dark:text-white mb-0.5">1</div>
+					<div class="text-xs font-bold text-slate-500 dark:text-slate-400">بانتظار رد المقدّم</div>
+				</div>
+			</div>
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm dark:shadow-none backdrop-blur-xl flex items-center gap-4">
+				<div
+					class="w-12 h-12 flex-shrink-0 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-500 flex items-center justify-center">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+						<path
+							d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+					</svg>
+				</div>
+				<div>
+					<div class="text-2xl font-black text-slate-900 dark:text-white mb-0.5">1</div>
+					<div class="text-xs font-bold text-slate-500 dark:text-slate-400">بانتظار موافقتك</div>
+				</div>
+			</div>
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm dark:shadow-none backdrop-blur-xl flex items-center gap-4">
+				<div
+					class="w-12 h-12 flex-shrink-0 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-6 h-6">
+						<polyline points="20 6 9 17 4 12" />
+					</svg>
+				</div>
+				<div>
+					<div class="text-2xl font-black text-slate-900 dark:text-white mb-0.5">2</div>
+					<div class="text-xs font-bold text-slate-500 dark:text-slate-400">مُعتمدة</div>
+				</div>
+			</div>
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm dark:shadow-none backdrop-blur-xl flex items-center gap-4">
+				<div
+					class="ai-icon-shell !w-12 !h-12 !basis-12 rounded-xl">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="ai-icon w-6 h-6">
+						<use href="#i-ai"></use>
+					</svg>
+				</div>
+				<div>
+					<div class="text-xl font-black text-slate-900 dark:text-white mb-0.5 mt-1">جارٍ</div>
+					<div class="ai-title">تقييم الذكاء</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Filters -->
+		<div class="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800/80 pb-4">
+			<button (click)="setFilter('all')"
+				[class]="activeFilter() === 'all' ? 'bg-cyan-500 dark:bg-cyan-500/20 text-white dark:text-cyan-400 border-transparent dark:border-cyan-500/50' : 'bg-white dark:bg-slate-800/30 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-700/50'"
+				class="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors">
+				الكل
+				<span
+					[class]="activeFilter() === 'all' ? 'bg-white/20 dark:bg-cyan-500/20 text-white dark:text-cyan-300' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-500'"
+					class="px-2 py-0.5 rounded-md text-[10px]">{{getCount('all')}}</span>
+			</button>
+			<button (click)="setFilter('open')"
+				[class]="activeFilter() === 'open' ? 'bg-slate-900 dark:bg-slate-800 text-white border-transparent dark:border-slate-700' : 'bg-white dark:bg-slate-800/30 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-700/50'"
+				class="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors">
+				نشطة
+				<span
+					[class]="activeFilter() === 'open' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-500'"
+					class="px-2 py-0.5 rounded-md text-[10px]">{{getCount('open')}}</span>
+			</button>
+			<button (click)="setFilter('closed')"
+				[class]="activeFilter() === 'closed' ? 'bg-slate-900 dark:bg-slate-800 text-white border-transparent dark:border-slate-700' : 'bg-white dark:bg-slate-800/30 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-700/50'"
+				class="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors">
+				مُعتمدة
+				<span
+					[class]="activeFilter() === 'closed' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-500'"
+					class="px-2 py-0.5 rounded-md text-[10px]">{{getCount('closed')}}</span>
+			</button>
+		</div>
+
+		<!-- Title -->
+		<div class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+			سجلّ طلبات التعديل
+			<span class="text-xs font-normal text-slate-500 dark:text-slate-400">· مرتبة بآخر نشاط</span>
+		</div>
+
+		<!-- List -->
+		<div class="space-y-4">
+			@for (item of filteredAmendments(); track item.id) {
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 transition-colors shadow-sm dark:shadow-none"
+				[ngClass]="{'ring-1 ring-blue-500/20 dark:ring-blue-500/30': item.status === 'open'}">
+
+				<!-- Header -->
+				<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+					<div class="flex items-start gap-4">
+						<div class="w-12 h-12 flex-shrink-0 rounded-xl flex items-center justify-center"
+							[ngClass]="{
+								'bg-blue-50 dark:bg-blue-500/10 text-blue-500': item.icon === 'edit',
+								'bg-red-50 dark:bg-red-500/10 text-red-500': item.icon === 'hands',
+								'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600': item.icon === 'done'
+							}">
+							@if (item.icon === 'edit') {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+								<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+							</svg>
+							} @else if (item.icon === 'hands') {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+								<path
+									d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+							</svg>
+							} @else if (item.icon === 'done') {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+								class="w-5 h-5">
+								<polyline points="20 6 9 17 4 12" />
+							</svg>
+							}
+						</div>
+						<div>
+							<h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">{{item.title}}</h3>
+							<div class="text-xs text-slate-500 dark:text-slate-400">{{item.id}} · {{item.subtitle}}
+							</div>
+						</div>
+					</div>
+					@if (item.status === 'open') {
+					<span
+						class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border whitespace-nowrap self-start"
+						[ngClass]="{
+							'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-500 border-amber-200 dark:border-amber-500/20': item.waitOn === 'provider' || item.waitOn === 'client'
+						}">
+						{{ item.waitOn === 'provider' ? 'بانتظار رد المقدّم' : 'بانتظار موافقتك' }}
+					</span>
+					} @else {
+					<span
+						class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border whitespace-nowrap self-start bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20">
+						مُعتمد ومُحدَّث
+					</span>
+					}
+				</div>
+
+				<!-- Flow (Only for Open status usually, but we check if it has changes array) -->
+				@if (item.changes && item.changes.length > 0) {
+				<div class="mb-5">
+					<div class="flex items-center w-full relative">
+						<!-- Background Line -->
+						<div
+							class="absolute top-4 left-0 right-0 h-0.5 bg-slate-200 dark:bg-slate-700/50 -z-10 mx-8">
+						</div>
+						<!-- Steps -->
+						<div class="flex justify-between w-full relative z-10 text-center">
+							<!-- Step 1: Raised -->
+							<div class="flex flex-col items-center gap-2">
+								<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
+									[ngClass]="item.flowStep >= 1 ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+										class="w-4 h-4">
+										<polyline points="20 6 9 17 4 12" />
+									</svg>
+								</div>
+								<span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">رُفع
+									الطلب</span>
+							</div>
+							<!-- Step 2: AI Evaluated -->
+							<div class="flex flex-col items-center gap-2">
+								<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
+									[ngClass]="item.flowStep >= 2 ? 'ai-surface-strong' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"
+										class="w-4 h-4">
+										<use href="#i-ai"></use>
+									</svg>
+								</div>
+								<span class="text-[10px] font-bold"
+									[ngClass]="item.flowStep >= 2 ? 'ai-title' : 'text-slate-500 dark:text-slate-400'">تقييم
+									الذكاء</span>
+							</div>
+							<!-- Step 3: Provider/Client Reply -->
+							<div class="flex flex-col items-center gap-2">
+								<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
+									[ngClass]="{
+										'bg-blue-500 text-white': item.flowStep === 2,
+										'bg-emerald-500 text-white': item.flowStep > 2,
+										'bg-slate-200 dark:bg-slate-700 text-slate-400': item.flowStep < 2
+									}">
+									@if (item.waitOn === 'provider') {
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+										class="w-4 h-4">
+										<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+										<circle cx="12" cy="7" r="4" />
+									</svg>
+									} @else {
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+										class="w-4 h-4">
+										<path
+											d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+									</svg>
+									}
+								</div>
+								<span class="text-[10px] font-bold text-blue-600 dark:text-blue-400">{{
+									item.waitOn === 'provider' ? 'رد المقدّم' : 'موافقتك' }}</span>
+							</div>
+							<!-- Step 4: Updated -->
+							<div class="flex flex-col items-center gap-2">
+								<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
+									[ngClass]="item.flowStep >= 3 ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'">
+								</div>
+								<span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">تحديث
+									العقد</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Changes Grid -->
+				<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+					@for (change of item.changes; track change.label) {
+					<div
+						class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-700/50">
+						<div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">{{change.label}}</div>
+						<div class="text-sm font-bold text-slate-900 dark:text-white"
+							[ngClass]="{'text-amber-600 dark:text-amber-400': change.isUp}">{{change.value}}</div>
+					</div>
+					}
+				</div>
+				}
+
+				<!-- AI Assessment -->
+				<div class="ai-surface flex items-start gap-3 p-4 rounded-xl border mb-5">
+					<div class="mt-0.5">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="ai-icon w-4 h-4">
+							<use href="#i-ai"></use>
+						</svg>
+					</div>
+					<div class="text-xs leading-relaxed font-medium">
+						<b class="font-bold">{{ item.isAiDone ? 'النتيجة:' : 'تقييم الذكاء:' }}</b>
+						{{item.aiAssessment}}
+					</div>
+				</div>
+
+				<!-- Footer -->
+				<div
+					class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+					<div class="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+						@if (item.status === 'open') {
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+							<rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+							<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+						</svg>
+						}
+						{{item.metaText}}
+					</div>
+					<button
+						[ngClass]="item.status === 'open' ? 'bg-cyan-500 hover:bg-cyan-400 dark:bg-cyan-500/20 dark:hover:bg-cyan-500/30 text-white dark:text-cyan-400 border border-transparent dark:border-cyan-500/50' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'"
+						class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-colors">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+							<path
+								d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" />
+						</svg>
+						{{item.actionText}}
+						@if (item.unreadCount) {
+						<span
+							class="w-5 h-5 flex items-center justify-center bg-white/20 dark:bg-cyan-500/30 text-[10px] rounded-full">{{item.unreadCount}}</span>
+						}
+					</button>
+				</div>
+			</div>
+			}
+
+			@if (filteredAmendments().length === 0) {
+			<div
+				class="py-12 text-center bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-sm dark:shadow-none">
+				<div
+					class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800/80 mx-auto flex items-center justify-center mb-4 border border-slate-200 dark:border-slate-700/50 text-blue-500 dark:text-blue-400">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-8 h-8">
+						<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+					</svg>
+				</div>
+				<h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">لا يوجد طلبات تعديل</h3>
+				<p class="text-sm text-slate-500 dark:text-slate-400">عند الحاجة لتعديل نطاق مشروع قائم أو ميزانيته أو
+					مدته، ارفع طلب تعديل ويتولّاه الذكاء ثم يوافق الطرفان</p>
+			</div>
+			}
+		</div>
+
+	</div>
+</main>

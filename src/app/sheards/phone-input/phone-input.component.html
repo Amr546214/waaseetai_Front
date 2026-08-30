@@ -1,0 +1,38 @@
+<div class="phone-input-container" [class.is-disabled]="isDisabled" dir="ltr">
+
+	<!-- Country Selector Trigger Button -->
+	<div class="country-selector-btn" (click)="toggleDropdown($event)" role="button" tabindex="0">
+		<span class="flag">{{ selectedCountry?.flag }}</span>
+		<span class="dial-code">{{ selectedCountry?.dialCode }}</span>
+		<svg class="arrow-icon" [class.open]="isOpen" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+			<path d="M1 1L5 5L9 1"/>
+		</svg>
+	</div>
+
+	<!-- Phone Number Input Field -->
+	<input type="tel" class="phone-number-input" [placeholder]="dynamicPlaceholder" [value]="phoneNumber"
+		[disabled]="isDisabled" (input)="onPhoneInput($event)" (blur)="onBlur()" autocomplete="tel" inputmode="tel" dir="ltr" />
+
+	<!-- Custom High-Contrast Dark Dropdown Panel -->
+	<div class="country-dropdown-panel" *ngIf="isOpen" (click)="$event.stopPropagation()">
+		<!-- Search Header -->
+		<div class="dropdown-search-wrap">
+			<svg width="14" height="14" fill="none" stroke="#6B7699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+			<input type="text" class="dropdown-search-in" [(ngModel)]="searchTerm" placeholder="ابحث عن دولة أو رمز..." autofocus />
+		</div>
+
+		<!-- Country Options List -->
+		<div class="dropdown-list">
+			<div class="dropdown-item" *ngFor="let item of filteredCountries" [class.selected]="item.code === selectedCountry?.code" (click)="selectCountry(item, $event)">
+				<span class="flag">{{ item.flag }}</span>
+				<span class="country-name">{{ item.name }}</span>
+				<span class="dial-badge">{{ item.dialCode }}</span>
+			</div>
+
+			<div class="no-results" *ngIf="filteredCountries.length === 0">
+				لا توجد نتائج مطابقة
+			</div>
+		</div>
+	</div>
+
+</div>

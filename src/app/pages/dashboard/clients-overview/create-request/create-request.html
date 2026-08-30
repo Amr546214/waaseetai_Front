@@ -1,0 +1,217 @@
+<div class="relative z-10 pb-[100px]">
+<style>
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  .ai-tooltip-body::-webkit-scrollbar,
+  .field-textarea::-webkit-scrollbar {
+    width: 6px;
+  }
+  .ai-tooltip-body::-webkit-scrollbar-track,
+  .field-textarea::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ai-tooltip-body::-webkit-scrollbar-thumb,
+  .field-textarea::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+  }
+  .ai-tooltip-body::-webkit-scrollbar-thumb:hover,
+  .field-textarea::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+</style>
+	<h1 class="sr-only">إنشاء طلب مشروع جديد</h1>
+	<div class="max-w-6xl mx-auto w-full px-4 lg:px-6 pt-6">
+
+		<!-- BREADCRUMB (TOP RIGHT) -->
+		<div class="flex items-center justify-end mb-8">
+			<nav class="flex items-center gap-2 text-[13px] text-[#6c7cae] font-medium" aria-label="مسار التنقل">
+				<a routerLink="/client-overview" class="hover:text-white transition-colors">الرئيسية</a>
+				<span class="text-[#3b4b75]" aria-hidden="true">&#8250;</span>
+				<button type="button" class="hover:text-white transition-colors">طلباتي</button>
+				<span class="text-[#3b4b75]" aria-hidden="true">&#8250;</span>
+				<span class="text-white font-bold">طلب جديد</span>
+			</nav>
+		</div>
+
+		<!-- STEPPER CONTAINER -->
+		<div class="w-full max-w-4xl mx-auto mb-14 px-2" role="list">
+			<div class="flex items-center justify-between relative">
+				@for (step of steps; track step.num; let idx = $index; let isLast = $last) {
+				<!-- STEP ITEM -->
+				<div class="flex flex-col items-center gap-3 relative z-10 cursor-pointer group"
+					role="listitem"
+					(click)="currentStep() > step.num && currentStep.set(step.num)">
+
+					<!-- CIRCLE -->
+					<div class="w-11 h-11 rounded-full flex items-center justify-center text-[15px] font-black transition-all duration-300 shrink-0"
+						[ngClass]="{
+							'text-[#070d24] scale-110 shadow-[0_0_22px_rgba(43,212,199,0.55),0_0_12px_rgba(43,127,255,0.45)]': currentStep() === step.num,
+							'bg-[#0d1633] border-2 border-[#2bd4c7] text-[#2bd4c7]': currentStep() > step.num,
+							'bg-[#0a1228] border border-[#1b2748] text-[#5c6d98]': currentStep() < step.num
+						}"
+						[style]="currentStep() === step.num ? 'background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%); border: none;' : ''">
+						@if (currentStep() > step.num) {
+						<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+							<polyline points="20 6 9 17 4 12" />
+						</svg>
+						} @else {
+						{{ step.num }}
+						}
+					</div>
+
+					<!-- LABEL -->
+					<div class="text-[13px] transition-colors duration-200 text-center whitespace-nowrap"
+						[ngClass]="{
+							'text-white font-black text-[14px]': currentStep() === step.num,
+							'text-[#2bd4c7] font-bold': currentStep() > step.num,
+							'text-[#6c7cae] font-bold': currentStep() < step.num
+						}">
+						{{ step.label }}
+					</div>
+				</div>
+
+				<!-- CONNECTING LINE -->
+				@if (!isLast) {
+				<div class="flex-1 h-[1.5px] mx-3 transition-colors duration-300"
+					[ngClass]="currentStep() > step.num ? 'bg-[#2bd4c7]' : 'bg-[#1b2748]'"></div>
+				}
+				}
+			</div>
+		</div>
+
+		<!-- ============================== -->
+		<!-- STEP 1: التخصص -->
+		<!-- ============================== -->
+		@if (currentStep() === 1) {
+		<app-step1-specialty [parent]="this"></app-step1-specialty>
+		}
+
+		<!-- ============================== -->
+		<!-- STEP 2: الشروط الإضافية -->
+		<!-- ============================== -->
+		@if (currentStep() === 2) {
+		<app-step2-conditions [parent]="this"></app-step2-conditions>
+		}
+
+		<!-- ============================== -->
+		<!-- STEP 3: التفاصيل -->
+		<!-- ============================== -->
+		@if (currentStep() === 3) {
+		<app-step3-details [parent]="this"></app-step3-details>
+		}
+
+		<!-- ============================== -->
+		<!-- STEP 4: الميزانية -->
+		<!-- ============================== -->
+		@if (currentStep() === 4) {
+		<app-step4-budget [parent]="this"></app-step4-budget>
+		}
+
+		<!-- ============================== -->
+		<!-- STEP 5: الملفات -->
+		<!-- ============================== -->
+		@if (currentStep() === 5) {
+		<app-step5-files [parent]="this"></app-step5-files>
+		}
+
+		<!-- ============================== -->
+		<!-- STEP 6: المراجعة -->
+		<!-- ============================== -->
+		@if (currentStep() === 6) {
+		<app-step6-review [parent]="this"></app-step6-review>
+		}
+
+	</div>
+</div>
+
+<!-- STICKY BOTTOM BAR -->
+@if (currentStep() !== 6) {
+<div
+	class="sticky bottom-0 left-0 right-0 w-full py-4 px-4 lg:px-6 bg-[#070d24]/95 border-t border-[#162248] z-50 backdrop-blur-md">
+	<div class="max-w-6xl mx-auto w-full flex items-center justify-between gap-4 flex-row-reverse">
+		<!-- RIGHT SIDE: Next Button + Selected Specialty Summary -->
+		<div class="flex items-center gap-4">
+			@if (currentSpec()) {
+			<span class="text-[13px] text-[#6c7cae] font-medium hidden sm:inline-block">
+				{{ currentSpec()?.name }} <span class="opacity-40">•</span> {{ selectedSubs().size }} فرعي
+			</span>
+			}
+
+			<button type="button"
+				class="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[#070d24] text-[15px] font-black cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not(:disabled):-translate-y-0.5 shadow-[0_4px_18px_rgba(43,212,199,0.35)] hover:not(:disabled):shadow-[0_6px_22px_rgba(43,212,199,0.5)]"
+				style="background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%);"
+				[disabled]="!canProceed() || isSubmitting()" (click)="goNext()">
+				@if (isSubmitting()) {
+				<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-[#070d24]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+				جاري النشر...
+				} @else {
+				<span>{{ currentStep() === 6 ? 'نشر الطلب' : 'التالي' }}</span>
+				@if (currentStep() !== 6) {
+				<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+					<polyline points="15 18 9 12 15 6" />
+				</svg>
+				} @else {
+				<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+					<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+					<polyline points="22 4 12 14.01 9 11.01" />
+				</svg>
+				}
+				}
+			</button>
+		</div>
+
+		<!-- LEFT SIDE: Cancel / Back Button -->
+		<div>
+			@if (currentStep() === 1) {
+			<button type="button"
+				class="px-6 py-2.5 rounded-full bg-[#111936] border border-[#1e2952] text-[#8a99c4] hover:text-white hover:bg-[#182348] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
+				(click)="handleCancel()">إلغاء</button>
+			} @else {
+			<button type="button"
+				class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#111936] border border-[#1e2952] text-[#8a99c4] hover:text-white hover:bg-[#182348] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
+				(click)="goBack()">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+					<polyline points="9 18 15 12 9 6" />
+				</svg>
+				السابق
+			</button>
+			}
+		</div>
+	</div>
+</div>
+}
+
+<!-- TOAST -->
+@if (toast()) {
+<div class="fixed bottom-[110px] left-1/2 -translate-x-1/2 flex items-center gap-3 p-[16px_28px] rounded-full text-[15px] font-bold z-[400] animate-toast-in whitespace-nowrap backdrop-blur-[20px] shadow-xl border border-[var(--teal)]"
+	style="background: rgba(43,212,199,0.15); color: var(--teal);" role="status" aria-live="polite">
+	{{toast()?.msg}}
+</div>
+}
+
+<!-- SUCCESS OVERLAY -->
+@if (showSuccessOverlay()) {
+<div class="success-overlay open" role="status">
+  <div class="success-ring">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2 class="success-title">تم نشر الطلب بنجاح</h2>
+  <div class="success-id">طلب جديد</div>
+  <p class="success-sub">سيتمكن مقدمو الخدمة المؤهلون من رؤية طلبك الآن، توقع استلام 8-12 عرضا خلال 48 ساعة</p>
+  <div class="success-btns">
+    <button [routerLink]="['client-overview/my-requests']" type="button" class="btn-primary" routerLink="/client-overview">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      عرض طلباتي
+    </button>
+    <a routerLink="/client-overview" class="btn-secondary">لوحة التحكم</a>
+  </div>
+</div>
+}

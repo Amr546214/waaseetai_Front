@@ -1,0 +1,219 @@
+<svg id="ws-auth-icons" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+	<defs>
+		<symbol id="i-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="2" />
+			<circle cx="4" cy="6" r="1.5" />
+			<circle cx="20" cy="6" r="1.5" />
+			<circle cx="4" cy="18" r="1.5" />
+			<circle cx="20" cy="18" r="1.5" />
+			<circle cx="12" cy="3" r="1.5" />
+			<circle cx="12" cy="21" r="1.5" />
+			<path
+				d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+		</symbol>
+		<symbol id="ws-eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M2 12c2-5 5.5-8 10-8s8 3 10 8c-2 5-5.5 8-10 8S4 17 2 12z"></path>
+			<circle cx="12" cy="12" r="3"></circle>
+		</symbol>
+		<symbol id="ws-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path
+				d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+			</path>
+			<line x1="1" y1="1" x2="23" y2="23"></line>
+		</symbol>
+		<symbol id="ws-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+			<line x1="12" y1="9" x2="12" y2="13"></line>
+			<line x1="12" y1="17" x2="12.01" y2="17"></line>
+		</symbol>
+		<symbol id="ws-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="9"></circle>
+			<path d="M8.5 12l2.5 2.5 4.5-4.5"></path>
+		</symbol>
+	</defs>
+</svg>
+
+<section class="auth-section" aria-labelledby="auth-title">
+	<div class="auth-wrap">
+		<div class="auth-card">
+			<div class="auth-logo"><a routerLink="/"><img src="/images/waseet-mark.png" alt="وسيط AI"></a></div>
+			<h1 class="auth-h1" id="auth-title">تسجيل الدخول</h1>
+			<p class="auth-sub">سجل دخولك لحسابك في وسيط AI</p>
+			<div class="ai-auth-badge" aria-label="تامين بالذكاء الاصطناعي">
+				<svg class="ai-auth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+					aria-hidden="true">
+					<use href="#i-ai"></use>
+				</svg>
+				حماية متقدمة بالذكاء الاصطناعي
+			</div>
+
+			@if (errorMessage) {
+			<div class="auth-banner banner-error" id="banner-error" role="alert">
+				<svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
+					aria-hidden="true">
+					<use href="#ws-warn"></use>
+				</svg>
+				<span id="banner-error-txt">{{ errorMessage }}</span>
+			</div>
+			}
+
+			<div class="social-login">
+				<div class="google-btn-wrapper"
+					style="width: 100%; display: flex; justify-content: center; margin-bottom: 10px;">
+					<asl-google-signin-button type="standard" size="large" text="continue_with" [width]="380"
+						theme="outline"></asl-google-signin-button>
+				</div>
+				<!-- <button type="button" class="btn-social btn-apple" id="btn-apple" aria-label="المتابعة مع آبل">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path
+							d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+					</svg>
+					المتابعة مع آبل
+				</button> -->
+			</div>
+			<div class="social-divider"><span>أو بالبريد وكلمة المرور</span></div>
+			<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" id="login-form" novalidate>
+				<div class="field-grp">
+					<label class="field-lbl" for="identifier">البريد أو الجوال</label>
+					<input class="field-in" type="text" id="identifier" formControlName="email"
+						placeholder="example@email.com أو 05XXXXXXXX" autocomplete="username" dir="ltr"
+						style="text-align:right"
+						[class.has-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+					@if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+					<div class="field-err" id="err-identifier">
+						<svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
+							aria-hidden="true">
+							<use href="#ws-warn"></use>
+						</svg>
+						<span id="err-identifier-txt">
+							@if (loginForm.get('email')?.errors?.['required']) {
+							يرجى إدخال البريد الإلكتروني
+							} @else if (loginForm.get('email')?.errors?.['email']) {
+							يرجى إدخال بريد إلكتروني صحيح
+							}
+						</span>
+					</div>
+					}
+				</div>
+				<div class="field-grp">
+					<label class="field-lbl" for="password">كلمة المرور</label>
+					<div class="pw-wrap">
+						<input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password"
+							formControlName="password" placeholder="كلمة المرور" autocomplete="current-password"
+							[class.has-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+						<button type="button" class="pw-eye" id="pw-toggle" (click)="togglePassword()"
+							[attr.aria-label]="showPassword ? 'اخفاء كلمة المرور' : 'اظهار كلمة المرور'">
+							<svg id="pw-show" *ngIf="!showPassword"
+								style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
+								aria-hidden="true">
+								<use href="#ws-eye-on"></use>
+							</svg>
+							<svg id="pw-hide" *ngIf="showPassword"
+								style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
+								aria-hidden="true">
+								<use href="#ws-eye-off"></use>
+							</svg>
+						</button>
+					</div>
+					@if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+					<div class="field-err" id="err-password">
+						<svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
+							aria-hidden="true">
+							<use href="#ws-warn"></use>
+						</svg>
+						<span id="err-password-txt">يرجى إدخال كلمة المرور</span>
+					</div>
+					}
+				</div>
+				<div class="remember-row">
+					<label class="chk-lbl" for="remember-me">
+						<input type="checkbox" id="remember-me" formControlName="remember">
+						<span>تذكرني لمدة 30 يوم</span>
+					</label>
+				</div>
+				<button type="submit" class="btn-primary btn-auth" id="btn-login"
+					[disabled]="!loginForm.valid || isSubmitting">
+					@if (isSubmitting) {
+					<span class="spin"></span> <span id="btn-login-txt">جاري التحقق...</span>
+					} @else {
+					<span id="btn-login-txt">دخول</span>
+					}
+				</button>
+			</form>
+			<div class="auth-lnk-row"><a routerLink="/auth/forget-password" class="auth-lnk">نسيت كلمة المرور</a></div>
+			<div class="auth-switch">ليس لديك حساب؟<a routerLink="/auth/register">انشاء حساب جديد</a></div>
+			<!-- <div class="trust-row" aria-label="شهادات الامان">
+				<span class="trust-bdg">SSL</span>
+				<span class="trust-bdg">MFA</span>
+				<span class="trust-bdg">PDPL</span>
+			</div> -->
+		</div>
+	</div>
+</section>
+
+<div class="modal-ov" id="modal-otp" hidden="hidden" role="dialog" aria-modal="true" aria-labelledby="otp-title">
+	<div class="modal-box">
+		<div class="modal-ico"><svg class="modal-ai-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="1.8" aria-hidden="true">
+				<use href="#i-ai"></use>
+			</svg></div>
+		<h2 class="modal-title" id="otp-title">تحقق من هويتك</h2>
+		<p class="modal-desc">ادخل الرمز المرسل لجوالك المسجل</p>
+		<div class="otp-row" aria-label="حقول رمز التحقق">
+			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 1">
+			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 2">
+			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 3">
+			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 4">
+			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 5">
+			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 6">
+		</div>
+		<p class="otp-hint">صالح لمدة 5 دقائق</p>
+		<button type="button" class="otp-resend" id="otp-resend">اعادة ارسال الرمز</button>
+		<div class="modal-actions">
+			<button type="button" class="btn-primary" id="btn-otp-verify"
+				style="width:100%;justify-content:center">تحقق</button>
+			<button type="button" class="btn-secondary" id="btn-otp-cancel">الغاء</button>
+		</div>
+	</div>
+</div>
+
+<div class="modal-ov" id="modal-locked" hidden="hidden" role="dialog" aria-modal="true" aria-labelledby="locked-title">
+	<div class="modal-box">
+		<div class="modal-ico"><svg
+				style="width:44px;height:44px;fill:none;stroke:#FFC107;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
+				aria-hidden="true">
+				<use href="#ws-lock"></use>
+			</svg></div>
+		<h2 class="modal-title" id="locked-title">الحساب مقفل مؤقتا</h2>
+		<p class="modal-desc">تم قفل الحساب 15 دقيقة بسبب تكرار محاولات الدخول. يمكنك استرجاع كلمة المرور الآن</p>
+		<div class="modal-actions">
+			<a routerLink="/auth/forget-password" class="btn-primary"
+				style="width:100%;justify-content:center;display:flex;text-align:center">استرجاع كلمة المرور</a>
+			<button type="button" class="btn-secondary" id="btn-locked-close">حسنا</button>
+		</div>
+	</div>
+</div>
+
+<div class="modal-ov" id="modal-frozen" hidden="hidden" role="dialog" aria-modal="true" aria-labelledby="frozen-title">
+	<div class="modal-box">
+		<div class="modal-ico"><svg
+				style="width:44px;height:44px;fill:none;stroke:#2B7FFF;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
+				aria-hidden="true">
+				<use href="#ws-shield-x"></use>
+			</svg></div>
+		<h2 class="modal-title" id="frozen-title">الحساب معلق</h2>
+		<p class="modal-desc">هذا الحساب معلق حاليا. يرجى التواصل مع فريق الدعم لمعرفة التفاصيل</p>
+		<div class="modal-actions">
+			<a href="mailto:support@waseet.ai" class="btn-primary"
+				style="width:100%;justify-content:center;display:flex;text-align:center">التواصل مع الدعم</a>
+			<button type="button" class="btn-secondary" id="btn-frozen-close">اغلاق</button>
+		</div>
+	</div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap" aria-live="polite" aria-atomic="false"></div>

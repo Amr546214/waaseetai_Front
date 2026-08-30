@@ -1,0 +1,251 @@
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="particles" id="pc" aria-hidden="true"></div>
+<div class="sb-ov" id="sb-ov"></div>
+
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="i-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ws-ai-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="ws-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="ws-action-next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></symbol>
+    <symbol id="ws-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  </defs>
+</svg>
+
+<main class="main" id="main">
+  <div class="main-inner pb-[90px]">
+
+    <!-- AI DISCLOSURE -->
+    <div class="ai-disclosure" role="note" style="margin-bottom:20px">
+      <div class="ai-disc-ico">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+			<use href="#i-ai"></use></svg>
+		</div>
+      <div style="flex:1">
+        <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+        <div class="ai-disc-txt">AI يحلل عرضك ويقترح تحسينات <span class="ai-disc-badge">دقة 95%</span>، القرار النهائي لك</div>
+      </div>
+    </div>
+
+    <!-- BREADCRUMB -->
+    <nav class="flex items-center gap-1.5 text-xs text-[#6B7699] mb-[18px] flex-wrap breadcrumb" aria-label="مسار التنقل">
+      <a routerLink="/provider-overview">الرئيسية</a>
+      <span class="text-[#4A5568] text-[10px] breadcrumb-sep" aria-hidden="true">&#8249;</span>
+      <a routerLink="/provider-overview/explore-requests">استكشاف الطلبات</a>
+      <span class="text-[#4A5568] text-[10px] breadcrumb-sep" aria-hidden="true">&#8249;</span>
+      <span style="color:#A8B2D1;font-weight:600">كتابة العرض</span>
+    </nav>
+
+    <!-- STEPPER -->
+    <div class="flex items-start mb-6 overflow-x-auto pb-1 stepper" role="list" aria-label="خطوات تقديم العرض">
+      <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 1" [class.done]="activeStep() > 1" role="listitem">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">
+          @if(activeStep() > 1) { <svg style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
+          @else { 1 }
+        </div>
+        <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">كتابة العرض</div>
+      </div>
+      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] my-[15px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 1" [class.from-\[\#2BD4C7\]]="activeStep() > 1" [class.to-\[\#2B7FFF\]]="activeStep() > 1" aria-hidden="true"></div>
+
+      <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 2" [class.done]="activeStep() > 2" role="listitem">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">
+          @if(activeStep() > 2) { <svg style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
+          @else { 2 }
+        </div>
+        <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">المراحل</div>
+      </div>
+      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] my-[15px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 2" [class.from-\[\#2BD4C7\]]="activeStep() > 2" [class.to-\[\#2B7FFF\]]="activeStep() > 2" aria-hidden="true"></div>
+
+      <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 3" [class.done]="activeStep() > 3" role="listitem">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">
+          @if(activeStep() > 3) { <svg style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
+          @else { 3 }
+        </div>
+        <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">مراجعة AI</div>
+      </div>
+      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] my-[15px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 3" [class.from-\[\#2BD4C7\]]="activeStep() > 3" [class.to-\[\#2B7FFF\]]="activeStep() > 3" aria-hidden="true"></div>
+
+      <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 4" [class.done]="activeStep() > 4" role="listitem">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">4</div>
+        <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">التأكيد</div>
+      </div>
+    </div>
+
+    <!-- ملخص الطلب -->
+    <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-4 form-card" style="margin-bottom:14px;background:rgba(7,13,36,.5);border-color:rgba(255,255,255,.06)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div style="font-size:13px;font-weight:800;color:#fff">{{ projectDetails()?.title || 'جاري تحميل تفاصيل المشروع...' }}</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+          <div><div style="font-size:10px;color:#6B7699">ميزانية العميل</div><div style="font-size:13px;font-weight:800;color:var(--teal-txt,#2BD4C7)">{{ projectDetails()?.budgetMin && projectDetails()?.budgetMax ? (projectDetails()?.budgetMin | number) + '–' + (projectDetails()?.budgetMax | number) + ' ريال' : '3,000–5,000 ريال' }}</div></div>
+          <div><div style="font-size:10px;color:#6B7699">المدة</div><div style="font-size:13px;font-weight:800;color:#A8B2D1">{{ projectDetails()?.deliveryDays || 30 }} يوم</div></div>
+          <div><div style="font-size:10px;color:#6B7699">العروض</div><div style="font-size:13px;font-weight:800;color:#A8B2D1">{{ projectDetails()?.proposalsCount || 0 }}</div></div>
+          <button type="button" id="req-toggle" onclick="(function(){var b=document.getElementById('req-expand');var t=document.getElementById('req-toggle');var open=b.style.display!=='none';b.style.display=open?'none':'block';t.textContent=open?'عرض التفاصيل':'إخفاء التفاصيل'})()" style="padding:5px 12px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.25);border-radius:8px;color:#2BD4C7;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s ease">عرض التفاصيل</button>
+        </div>
+      </div>
+      <!-- التفاصيل الكاملة — تتوسع في نفس البطاقة -->
+      <div id="req-expand" style="display:none;margin-top:16px;border-top:1px solid rgba(255,255,255,.07);padding-top:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px">
+            <div style="font-size:10px;color:#6B7699;margin-bottom:4px">التخصص</div>
+            <div style="font-size:13px;font-weight:700;color:#fff">{{ projectDetails()?.specialty || 'تصميم جرافيك' }}</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px">
+            <div style="font-size:10px;color:#6B7699;margin-bottom:4px">نوع العميل</div>
+            <div style="font-size:13px;font-weight:700;color:#fff">{{ projectDetails()?.clientType || 'شركة' }}</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px">
+            <div style="font-size:10px;color:#6B7699;margin-bottom:4px">الميزانية</div>
+            <div style="font-size:13px;font-weight:700;color:var(--teal-txt,#2BD4C7)">{{ projectDetails()?.budgetMin && projectDetails()?.budgetMax ? (projectDetails()?.budgetMin | number) + '–' + (projectDetails()?.budgetMax | number) + ' ريال' : '3,000–5,000 ريال' }}</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px">
+            <div style="font-size:10px;color:#6B7699;margin-bottom:4px">مدة التنفيذ</div>
+            <div style="font-size:13px;font-weight:700;color:#fff">{{ projectDetails()?.deliveryDays || 30 }} يوم</div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#6B7699;margin-bottom:6px">وصف الطلب</div>
+          <div style="font-size:13px;color:#A8B2D1;line-height:1.8">{{ projectDetails()?.description || 'لا يوجد وصف متاح' }}</div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#6B7699;margin-bottom:6px">المتطلبات الإلزامية</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            @for (req of projectDetails()?.requirements || ['Adobe Illustrator', 'ملفات قابلة للتعديل', '3+ سنوات خبرة']; track req) {
+              <span style="padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-size:12px;color:#A8B2D1">{{ req }}</span>
+            }
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#6B7699;margin-bottom:6px">المخرجات المتوقعة</div>
+          <div style="font-size:13px;color:#A8B2D1;line-height:1.8">{{ projectDetails()?.outputs || 'شعار بصيغ متعددة + بطاقات أعمال + قرطاسية + دليل الهوية' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    @if(activeStep() === 1) {
+      <app-step1-general
+        [proposal]="proposal()"
+        (proposalChange)="proposal.set($event)"
+        [titleLength]="titleLength()"
+        [messageLength]="messageLength()"
+        [outputsLength]="outputsLength()"
+        [aiQuality]="aiQuality()"
+        [(showAiSuggest)]="showAiSuggest"
+        [isFetchingAiSuggest]="isFetchingAiSuggest()"
+        [(newReq)]="newReq"
+        [portfolioOptions]="portfolioOptions()"
+        [isLoadingPortfolio]="isLoadingPortfolio()"
+        [selectedPortfolioNames]="selectedPortfolioNames()"
+        (updateTitle)="updateTitle($event)"
+        (updateMessage)="updateMessage($event)"
+        (updateOutputs)="updateOutputs($event)"
+        (useAISuggest)="useAISuggest()"
+        (addReq)="addReq()"
+        (removeReq)="removeReq($event)"
+        (togglePortfolio)="togglePortfolio($event.id, $event.event)"
+        (clearPortfolio)="clearPortfolio()">
+      </app-step1-general>
+    }
+    <!-- STEP 2 -->
+    @if (activeStep() === 2) {
+      <app-step2-pricing
+        [proposal]="proposal()"
+        [totalBudget]="totalBudget()"
+        (updateTotalBudget)="updateTotalBudget($event)"
+        [totalDays]="totalDays()"
+        [totalPct]="totalPct()"
+        [totalAmount]="totalAmount"
+        (addMilestone)="addMilestone()"
+        (removeMilestone)="removeMilestone($event)"
+        (updateMilestone)="updateMilestone($event.id, $event.updates)">
+      </app-step2-pricing>
+    }
+    <!-- STEP 3: AI Review -->
+    @if (activeStep() === 3) {
+      <app-step3-review
+        [isScanning]="isScanning()"
+        [auditProgressMessage]="auditProgressMessage()"
+        [currentAudit]="currentAudit()"
+        [proposal]="proposal()"
+        [projectDetails]="projectDetails()"
+        [(showAiMsgPanel)]="showAiMsgPanel"
+        [(showAiPricePanel)]="showAiPricePanel"
+        [skippedMsgRec]="skippedMsgRec()"
+        [skippedPriceRec]="skippedPriceRec()"
+        [ack1]="ack1()"
+        [ack2]="ack2()"
+        [ack3]="ack3()"
+        (prevStep)="prevStep()"
+        (applyAIEdit)="applyAIEdit($event)"
+        (skipRec)="skipRec($event)"
+        (acceptAiMsg)="acceptAiMsg()"
+        (acceptAiPrice)="acceptAiPrice()"
+        (toggleAck)="toggleAck($event)">
+      </app-step3-review>
+    }
+    <!-- STEP 4: Final Confirmation -->
+    @if (activeStep() === 4) {
+      <app-step4-success
+        [currentAudit]="currentAudit()"
+        [totalAmount]="totalAmount"
+        [totalDays]="totalDays()"
+        [totalPct]="totalPct()"
+        [proposal]="proposal()"
+        [projectDetails]="projectDetails()"
+        [portfolioOptions]="portfolioOptions()">
+      </app-step4-success>
+    }
+<!-- STICKY BOTTOM -->
+<div class="fixed bottom-0 right-[220px] left-0 bg-[rgba(7,13,36,.92)] backdrop-blur-md border-t border-[rgba(255,255,255,.09)] py-[14px] px-6 z-50 flex items-center justify-between gap-3 transition-[right] duration-200 sticky-bar">
+  <div class="max-w-[720px] mx-auto w-full flex items-center justify-between gap-3 sticky-bar-inner">
+    @if(activeStep() === 1) {
+      <a routerLink="/provider-overview/explore-requests" class="inline-flex items-center gap-[7px] py-[11px] px-[22px] bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.12)] rounded-full text-[#A8B2D1] text-[14px] font-bold cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,.09)] hover:text-white btn-back">
+        <svg class="w-[14px] h-[14px] rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-arrow-l"></use></svg>
+        إلغاء
+      </a>
+    } @else {
+      <button type="button" class="inline-flex items-center gap-[7px] py-[11px] px-[22px] bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.12)] rounded-full text-[#A8B2D1] text-[14px] font-bold cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,.09)] hover:text-white btn-back" (click)="prevStep()">
+        <svg class="w-[14px] h-[14px] rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-arrow-l"></use></svg>
+        السابق
+      </button>
+    }
+
+    @if(activeStep() < 4) {
+      <button type="button" class="inline-flex items-center gap-2 py-[12px] px-[28px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-0 rounded-full text-[#070D24] text-[15px] font-extrabold cursor-pointer transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(43,127,255,.35)] disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none btn-next" [disabled]="(activeStep() === 1 && !isStep1Valid()) || (activeStep() === 2 && !isStep2Valid()) || (activeStep() === 3 && !isStep3Valid())" (click)="nextStep()">
+        التالي
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-arrow-l"></use></svg>
+      </button>
+    } @else {
+      <!-- Placeholder for step 4 submission -->
+      <button type="button" (click)="submitProposal()" [disabled]="isSubmitting()" class="inline-flex items-center gap-2 py-[12px] px-[28px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-0 rounded-full text-[#070D24] text-[15px] font-extrabold cursor-pointer transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(43,127,255,.35)] disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none btn-next">
+        {{ isSubmitting() ? 'جارٍ الإرسال...' : 'إرسال العرض' }}
+        @if(!isSubmitting()) {
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        }
+      </button>
+    }
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+@if(showSuccess()) {
+  <div class="fixed inset-0 bg-[rgba(7,13,36,.96)] z-[500] flex flex-col items-center justify-center gap-[16px] text-center p-[24px] animate-[ws-fade_.3s_ease]" role="dialog" aria-modal="true" aria-label="تم إرسال العرض">
+    <div class="w-[80px] h-[80px] rounded-full bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] flex items-center justify-center mb-[8px]">
+      <svg class="w-[36px] h-[36px] text-[#070D24]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><use href="#i-check"></use></svg>
+    </div>
+    <div class="text-[22px] font-black text-white">تم إرسال عرضك بنجاح</div>
+    <div class="text-[14px] text-[#A8B2D1] max-w-[320px] leading-[1.7]">سيصل إشعار للعميل فور الإرسال، وستتلقى ردًا خلال 48 ساعة</div>
+    <div class="flex gap-[12px] mt-[8px] flex-wrap justify-center">
+      <a routerLink="/provider-overview/explore-requests" class="inline-flex items-center gap-[7px] p-[11px_22px] bg-[rgba(255,255,255,.07)] border border-[rgba(255,255,255,.14)] rounded-full text-[#A8B2D1] text-[14px] font-bold no-underline hover:bg-[rgba(255,255,255,.11)] hover:text-white transition-all">استكشاف طلبات أخرى</a>
+      <a routerLink="/provider-overview" class="inline-flex items-center gap-[7px] p-[11px_22px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] text-[14px] font-black no-underline hover:opacity-90 transition-all">لوحة التحكم</a>
+    </div>
+  </div>
+}

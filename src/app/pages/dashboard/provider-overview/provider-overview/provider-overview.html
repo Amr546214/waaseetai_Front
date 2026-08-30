@@ -1,0 +1,530 @@
+<main class="main" id="main">
+	<svg width="0" height="0" style="display: none;" aria-hidden="true">
+		<symbol id="i-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+			stroke-linejoin="round">
+			<path
+				d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+		</symbol>
+		<symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+			<line x1="12" y1="9" x2="12" y2="13" />
+			<line x1="12" y1="17" x2="12.01" y2="17" />
+		</symbol>
+		<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+			<polyline points="22 4 12 14.01 9 11.01" />
+		</symbol>
+		<symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+			stroke-linejoin="round">
+			<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+			<polyline points="14 2 14 8 20 8" />
+			<line x1="16" y1="13" x2="8" y2="13" />
+			<line x1="16" y1="17" x2="8" y2="17" />
+			<polyline points="10 9 9 9 8 9" />
+		</symbol>
+		<symbol id="i-escrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+			<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+		</symbol>
+		<symbol id="i-brief" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+			<path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+		</symbol>
+		<symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+			<path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+			<path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+		</symbol>
+		<symbol id="i-dispute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+			<line x1="12" y1="8" x2="12" y2="12" />
+			<line x1="12" y1="16" x2="12.01" y2="16" />
+		</symbol>
+		<symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="10" />
+			<polyline points="12 6 12 12 16 14" />
+		</symbol>
+		<symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path
+				d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+		</symbol>
+	</svg>
+	<h1 class="sr-only">لوحة مقدم الخدمة الرئيسية</h1>
+
+	<!-- Skeleton Loading State -->
+	<div id="state-loading" *ngIf="isLoading()" role="region" aria-label="حالة التحميل" style="padding:24px;width:100%">
+		<div class="state-card">
+			<div class="skeleton-row" style="width:40%;height:22px;margin-bottom:16px"></div>
+			<div class="skel-grid"
+				style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px">
+				<div class="skeleton-box" style="height:100px;border-radius:14px;background:rgba(255,255,255,0.04)">
+				</div>
+				<div class="skeleton-box" style="height:100px;border-radius:14px;background:rgba(255,255,255,0.04)">
+				</div>
+				<div class="skeleton-box" style="height:100px;border-radius:14px;background:rgba(255,255,255,0.04)">
+				</div>
+			</div>
+			<div class="skeleton-row" style="width:100%;height:16px;margin-top:20px"></div>
+			<div class="skeleton-row" style="width:85%;height:16px;margin-top:12px"></div>
+			<div class="skeleton-row" style="width:65%;height:16px;margin-top:12px"></div>
+		</div>
+	</div>
+
+	<!-- Error State -->
+	<div id="state-error" *ngIf="!isLoading() && error()" role="alert" aria-label="حالة خطأ"
+		style="padding:24px;width:100%">
+		<div class="state-card"
+			style="text-align:center;padding:48px 24px;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.04)">
+			<div
+				style="width:64px;height:64px;border-radius:16px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.28);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="1.8"
+					stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<use href="#i-warn"></use>
+				</svg>
+			</div>
+			<div style="font-size:18px;font-weight:800;color:var(--txt-1,#fff);margin-bottom:6px">تعذر تحميل لوحة التحكم
+			</div>
+			<div style="font-size:13px;color:#A8B2D1;margin-bottom:20px">{{ error() }}</div>
+			<div style="display:flex;gap:10px;justify-content:center">
+				<button type="button" (click)="retryFetch()"
+					style="padding:10px 24px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(43,212,199,.2)">إعادة
+					المحاولة</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="main-inner" *ngIf="!isLoading() && !error() ? stats() : null as data">
+
+		<!-- Profile Completion Banner -->
+		<div class="profile-banner" id="profile-banner" role="note"
+			*ngIf="!data.summary.profileSetupCompleted || !data.summary.setupTestCompleted">
+			<div class="profile-banner-ico">
+				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+					stroke-linecap="round" stroke-linejoin="round">
+					<path
+						d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+					<line x1="12" y1="9" x2="12" y2="13" />
+					<line x1="12" y1="17" x2="12.01" y2="17" />
+				</svg>
+			</div>
+			<div class="profile-banner-body">
+				<div class="profile-banner-ttl">استكمل بيانات حسابك لتفعيل كافة الميزات</div>
+				<p class="profile-banner-sub">تم ملء {{ data.summary?.profileCompletionPercent || 0 }}% من بياناتك — أضف
+					صورة شخصية وبيانات التواصل لإكمال ملفك</p>
+			</div>
+			<a routerLink="/provider-overview/profile/setup" class="profile-banner-btn">استكمال البيانات</a>
+			<button type="button" class="pend-close" id="profile-close" aria-label="إغلاق">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<line x1="18" y1="6" x2="6" y2="18" />
+					<line x1="6" y1="6" x2="18" y2="18" />
+				</svg>
+			</button>
+		</div>
+
+		<!-- Greeting + status chips -->
+		<div class="dash-head">
+			<div class="dash-greet">
+				<div class="dash-hello">أهلًا، {{ data.summary?.firstName }} {{ data.summary?.lastName }}</div>
+				<div class="dash-sub" *ngIf="data.summary.hasApprovedSpecialties"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<use href="#i-ai"></use>
+					</svg>توصية AI: لديك {{ data.aiMatchingProjects?.length || 0 }} طلبات جديدة تناسب تخصصك و{{
+					data.summary?.pendingOffersCount || 0 }} تسليم بانتظار اعتماد العميل</div>
+			</div>
+			<div class="dash-chips">
+				<a routerLink="/provider-overview/profile/data" class="dash-chip chip-verify"><svg aria-hidden="true"
+						viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						stroke-linejoin="round">
+						<use href="#i-warn"></use>
+					</svg>التحقق من الهوية ناقص</a>
+				<span class="dash-chip chip-loyal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
+						stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<use href="#i-check"></use>
+					</svg>مقدم موثّق · مكافأة أداء 3%</span>
+			</div>
+		</div>
+
+		<!-- Action Center -->
+		<div class="sec-label">يحتاج تصرّفك الآن</div>
+		<div class="action-center">
+			<!-- Blue Card -->
+			<a  routerLink="/provider-overview/explore-requests" class="act-card act-blue">
+				<div class="act-ico" aria-hidden="true">
+					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+						stroke-linecap="round" stroke-linejoin="round">
+						<use [attr.href]="'#i-doc'"></use>
+					</svg>
+				</div>
+				<div class="act-body">
+					<div class="act-num">{{ data.aiMatchingProjects?.length || 0 }}</div>
+					<div class="act-lbl">طلبات جديدة تناسب تخصصك</div>
+				</div>
+				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="15 18 9 12 15 6" />
+				</svg>
+			</a>
+
+			<!-- Amber Card -->
+			<a routerLink="/provider-overview/projects/active" class="act-card act-amber">
+				<div class="act-ico" aria-hidden="true">
+					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						stroke-linecap="round" stroke-linejoin="round">
+						<use [attr.href]="'#i-check'"></use>
+					</svg>
+				</div>
+				<div class="act-body">
+					<div class="act-num">{{ data.summary?.pendingClientApprovalCount || 0 }}</div>
+					<div class="act-lbl">تسليم بانتظار اعتماد العميل</div>
+				</div>
+				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="15 18 9 12 15 6" />
+				</svg>
+			</a>
+
+			<!-- Teal Card -->
+			<a routerLink="/provider-overview/offers" class="act-card act-teal">
+				<div class="act-ico" aria-hidden="true">
+					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+						stroke-linecap="round" stroke-linejoin="round">
+						<use [attr.href]="'#i-chat'"></use>
+					</svg>
+				</div>
+				<div class="act-body">
+					<div class="act-num">{{ data.summary?.negotiationOffersCount || 0 }}</div>
+					<div class="act-lbl">عرض في مرحلة التفاوض</div>
+				</div>
+				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="15 18 9 12 15 6" />
+				</svg>
+			</a>
+		</div>
+
+		<!-- بطاقة المستوى والولاء -->
+		<div class="escrow-card" role="region" aria-label="مستوى الولاء">
+			<div class="escrow-ico" aria-hidden="true" style="background:rgba(155,139,122,.14);color:#9B8B7A">
+				<svg class="ws-star-svg" width="22" height="22" viewBox="0 0 100 100" fill="currentColor">
+					<path
+						d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+				</svg>
+			</div>
+			<div class="escrow-bal-wrap">
+				<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+					<span class="escrow-lbl">مستواك الحالي</span>
+					<span class="ws-level-tag"
+						style="color:#9B8B7A;background:rgba(155,139,122,.12);border-color:rgba(155,139,122,.22);">
+						<svg width="9" height="9" viewBox="0 0 100 100" fill="currentColor" class="ws-star-svg">
+							<path
+								d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+						</svg>{{ data.summary?.currentLevel }}</span>
+					<span class="escrow-sub" style="margin-inline-start:auto">{{ data.summary?.currentPoints || 0 }}
+						نقطة</span>
+				</div>
+				<div style="display:flex;align-items:center;gap:8px">
+					<div class="prog-bar" role="progressbar"
+						[attr.aria-valuenow]="data.summary?.profileCompletionPercent || 0" aria-valuemin="0"
+						aria-valuemax="100">
+						<div class="prog-fill" [style.width.%]="data.summary?.profileCompletionPercent || 0"></div>
+					</div>
+					<span style="font-size:10px;color:#6B7699;white-space:nowrap">199 نقطة للمستوى 3 (باحث)</span>
+				</div>
+			</div>
+			<button class="escrow-action cursor-pointer" routerLink="/provider-overview/profile/level">تفاصيل
+				المستوى</button>
+		</div>
+
+		<!-- Stats Row -->
+		<div class="stats-row" role="region" aria-label="احصائيات الحساب">
+			<div class="stat-card">
+				<div class="stat-top">
+					<span class="stat-lbl">مشاريع نشطة</span>
+					<div class="stat-ico teal" aria-hidden="true"><svg>
+							<use href="#i-brief"></use>
+						</svg></div>
+				</div>
+				<div class="stat-val">{{ data.summary?.activeProjectsCount || 0 }}</div>
+				<div class="stat-sub">+2 هذا الشهر</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-top">
+					<span class="stat-lbl">عروضي المرسلة</span>
+					<div class="stat-ico blue" aria-hidden="true"><svg>
+							<use href="#i-doc"></use>
+						</svg></div>
+				</div>
+				<div class="stat-val">{{ data.summary?.newOffersCount || 0 }}</div>
+				<div class="stat-sub">+3 منذ أمس</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-top">
+					<span class="stat-lbl">أرباح متاحة</span>
+					<div class="stat-ico amber" aria-hidden="true"><svg>
+							<use href="#i-wallet"></use>
+						</svg></div>
+				</div>
+				<div class="stat-val">{{ data.summary.availableEarnings | number }}</div>
+				<div class="stat-sub">ريال في المحفظة</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-top">
+					<span class="stat-lbl">تقييم العملاء</span>
+					<div class="stat-ico stat-ico-human" aria-hidden="true"><svg class="ws-star-svg" width="14"
+							height="14" viewBox="0 0 100 100" fill="#FFB400">
+							<path
+								d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+						</svg></div>
+				</div>
+				<div class="stat-val">{{ data.summary?.providerRating || 0 }}</div>
+				<div class="stat-sub">من 5 نجوم</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-top">
+					<span class="stat-lbl">تقييم الذكاء الاصطناعي</span>
+					<div class="stat-ico ai" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none" stroke="#7B2FBE" stroke-width="1.8" stroke-linecap="round"
+							stroke-linejoin="round">
+							<use href="#i-ai"></use>
+						</svg>
+					</div>
+				</div>
+				<div class="stat-val">{{ data.summary?.aiRating || 0 }}</div>
+				<div class="stat-sub" *ngIf="data.summary?.aiRating">دقة AI {{ (data.summary?.aiRating || 0) * 20 | number:'1.0-0' }}%</div>
+				<div class="stat-sub" *ngIf="!data.summary?.aiRating">قيد التقييم</div>
+			</div>
+		</div>
+
+		<!-- AI Disclosure Banner -->
+		<div class="ai-disclosure" role="region" aria-label="إفصاح الذكاء الاصطناعي">
+			<div class="ai-disc-ico" aria-hidden="true">
+				<svg viewBox="0 0 24 24" fill="none" stroke="#7B2FBE" stroke-width="1.8" stroke-linecap="round"
+					stroke-linejoin="round">
+					<use href="#i-ai"></use>
+				</svg>
+			</div>
+			<div class="ai-disc-body">
+				<div class="ai-disc-lbl">وسيط AI - إفصاح الذكاء الاصطناعي</div>
+				<p class="ai-disc-txt">AI يرتّب لك طلبات العملاء حسب توافقها مع تخصصك وتاريخك <span
+						class="ai-disc-badge">دقة 95%</span> - الإنسان يحتفظ بالقرار النهائي دائما</p>
+			</div>
+			<button type="button" class="ai-disc-link">منطق الترتيب</button>
+		</div>
+
+		<!-- Main Grid -->
+		<div class="main-grid">
+
+			<!-- Recent Requests -->
+			<div class="req-card">
+				<div class="card-hd">
+					<h2 class="card-ttl">آخر مشاريعي وعروضي</h2>
+					<button type="button" class="card-lnk cursor-pointer"
+						[routerLink]="['/provider-overview/explore-requests']">عرض
+						الكل</button>
+				</div>
+				<div class="req-list" role="list" style="display:flex;flex-direction:column;">
+
+					<a href="javascript:void(0)" class="req-row" role="listitem"
+						*ngFor="let p of (data.latestProjects?.length ? data.latestProjects : data.latestProposals)">
+						<div class="req-ico-wrap" [ngClass]="getStatusIconClass(p.status)" aria-hidden="true">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+								stroke-linecap="round" stroke-linejoin="round">
+								<use
+									[attr.href]="p.status === 'IN_PROGRESS' || p.status === 'ACCEPTED' || p.status === 'COMPLETED' ? '#i-check' : (p.status === 'PENDING_APPROVAL' || p.status === 'REJECTED' ? '#i-warn' : '#i-doc')">
+								</use>
+							</svg>
+						</div>
+						<div class="req-info">
+							<div class="req-name">{{ p.title || p.projectTitle || 'مشروع أو عرض خدمات' }}</div>
+							<div class="req-meta">{{ p.category || 'تطوير مشاريع' }} &middot; {{ p.createdAt |
+								date:'longDate' }}</div>
+						</div>
+						<div class="req-right">
+							<span class="req-status" [ngClass]="getStatusTextClass(p.status)">
+								{{ getStatusLabel(p.status, p.type) }}
+							</span>
+							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number }}
+								ريال</span>
+						</div>
+					</a>
+
+					<ng-container *ngIf="!(data.latestProjects?.length) && !(data.latestProposals?.length)">
+						<div
+							style="text-align:center;padding:36px 20px;border-radius:14px;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.08);margin:8px 0">
+							<div
+								style="width:52px;height:52px;border-radius:14px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7"
+									stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+									aria-hidden="true">
+									<use href="#i-doc"></use>
+								</svg>
+							</div>
+							<div style="font-size:16px;font-weight:800;color:var(--txt-1,#fff);margin-bottom:6px">لا
+								توجد مشاريع أو عروض نشطة</div>
+							<div style="font-size:13px;color:#6B7699;margin-bottom:16px">لم تبدأ بتنفيذ أي مشروع أو
+								إرسال عروض حتى الآن</div>
+							<a routerLink="/provider-overview/explore-requests"
+								style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.14));border:1px solid rgba(43,212,199,.35);border-radius:50px;color:#2BD4C7;font-weight:800;font-size:13px;text-decoration:none;transition:all .2s">
+								<!-- <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+									aria-hidden="true">
+									<use href="#i-ai"></use>
+								</svg> -->
+								استكشف طلبات السوق
+							</a>
+						</div>
+					</ng-container>
+
+				</div>
+			</div>
+
+			<!-- Right Panel -->
+			<div class="right-panel">
+
+				<!-- Quick Actions -->
+				<div class="qa-card">
+					<h2 class="qa-ttl">إجراءات سريعة</h2>
+					<div class="qa-list">
+						<a routerLink="/provider-overview/explore-requests" class="qa-btn-primary">
+							<svg aria-hidden="true">
+								<use href="#i-search"></use>
+							</svg>
+							<span>استكشاف الطلبات</span>
+						</a>
+						<a routerLink="/provider-overview/offers" class="qa-btn">
+							<svg aria-hidden="true">
+								<use href="#i-doc"></use>
+							</svg>
+							<span>عروضي المرسلة</span>
+						</a>
+						<a routerLink="/provider-overview/finance/wallet" class="qa-btn">
+							<svg aria-hidden="true">
+								<use href="#i-wallet"></use>
+							</svg>
+							<span>أرباحي ومحفظتي</span>
+						</a>
+						<a routerLink="/provider-overview/projects/active" class="qa-btn">
+							<svg aria-hidden="true">
+								<use href="#i-check"></use>
+							</svg>
+							<span>رفع تسليم مرحلة</span>
+						</a>
+					</div>
+				</div>
+
+				<!-- Escrow Balance -->
+				<div class="eb-card">
+					<div class="eb-lbl">أرباحي المتاحة</div>
+					<div class="eb-val">{{ data.summary.availableEarnings | number }} ريال</div>
+					<div class="eb-sub">قابلة للسحب الآن</div>
+				</div>
+
+				<!-- Active Contract Placeholder -->
+				<!-- <div class="ac-prog-row">
+					<span class="ac-prog-label">التقدم</span>
+					<span class="ac-prog-pct">65%</span>
+				</div> -->
+			</div>
+
+			<!-- AI Insights Removed -->
+		</div>
+
+		<!-- Recent Offers -->
+		<section *ngIf="data.summary.hasApprovedSpecialties" class="offers-section" role="region" aria-label="اخر العروض">
+			<div class="card-hd p-4 mt-4 mb-4"
+				style="background:linear-gradient(135deg,rgba(123,47,190,.08),rgba(123,47,190,.02));border:1px solid rgba(123,47,190,.25);border-radius:16px;backdrop-filter:blur(12px);">
+				<h2 class="card-ttl" style="display:flex;align-items:center;gap:8px;">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A154FF" stroke-width="2"
+						stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<use href="#i-ai"></use>
+					</svg>
+					طلبات مطابقة لتخصصاتك (AI)
+				</h2>
+				<a class="card-lnk cursor-pointer"
+					style="background:rgba(123,47,190,.12);padding:6px 14px;border-radius:20px;color:#A154FF;border:1px solid rgba(123,47,190,.3);text-decoration:none;"
+					routerLink="/provider-overview/explore-requests">تصفح الكل</a>
+			</div>
+			<div class="offers-grid">
+
+				<button type="button" class="offer-card cursor-pointer" *ngFor="let m of data.aiMatchingProjects"
+					[routerLink]="['/provider-overview/explore-requests', m.id, 'apply']"
+					style="text-align:right;width:100%;display:flex;flex-direction:column;justify-content:space-between;">
+					<div class="offer-top">
+						<div class="offer-prov">
+							<div style="position:relative;flex-shrink:0">
+								<div class="offer-av"
+									style="background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.12));color:var(--teal-txt,#2BD4C7);border:2px solid #2ECC8A">
+									ط</div>
+								<div
+									style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#2ECC8A;display:flex;align-items:center;justify-content:center;border:1.5px solid #070D24">
+									<svg class="ws-star-svg" width="7" height="7" viewBox="0 0 100 100" fill="#070D24">
+										<path
+											d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+									</svg>
+								</div>
+							</div>
+							<div>
+								<div class="offer-name" style="font-weight:700;font-size:14px;color:#fff;">{{ m.title }}
+									<span class="ws-level-tag"
+										style="font-size:9px;font-weight:800;color:#2ECC8A;background:rgba(46,204,138,.12);border:1px solid rgba(46,204,138,.25);border-radius:7px;padding:1px 6px;margin-inline-start:4px">أفضل
+										مطابقة</span>
+								</div>
+								<div class="offer-type" style="font-size:11px;color:#A8B2D1;margin-top:2px;">{{
+									m.category || m.specialty || 'خدمة تخصصية' }}</div>
+							</div>
+						</div>
+						<div class="offer-ai-match"
+							style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:12px;font-weight:800;background:rgba(123,47,190,.14);color:#A154FF;border:1px solid rgba(123,47,190,.28);white-space:nowrap;">
+							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<use href="#i-ai"></use>
+							</svg>
+							AI • {{ m.aiMatchScore }}%
+						</div>
+					</div>
+					<div *ngIf="m.matchReasons?.length" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
+						<span *ngFor="let reason of m.matchReasons"
+							style="font-size:10px;color:#2BD4C7;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);border-radius:6px;padding:2px 8px;">
+							✓ {{ reason }}
+						</span>
+					</div>
+					<div class="offer-price"
+						style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+						<span style="font-size:11px;color:#6B7699;" *ngIf="m.deliveryDays">المدة: {{ m.deliveryDays }}
+							أيام</span>
+						<div>{{ m.budget | number }} <span style="font-size:11px;">ريال</span></div>
+					</div>
+				</button>
+
+				<ng-container *ngIf="!data.aiMatchingProjects?.length">
+					<div
+						style="grid-column:1/-1;text-align:center;padding:44px 20px;border-radius:16px;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.08)">
+						<div
+							style="width:56px;height:56px;border-radius:16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+							<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A154FF"
+								stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<use href="#i-ai"></use>
+							</svg>
+						</div>
+						<div style="font-size:16px;font-weight:800;color:var(--txt-1,#fff);margin-bottom:6px">لا توجد
+							طلبات مطابقة لتخصصاتك حالياً</div>
+						<div style="font-size:13px;color:#6B7699;max-width:380px;margin:0 auto">يجري الذكاء الاصطناعي
+							مسحاً دورياً للسوق وسيرسل لك إشعاراً فور طرح مشروع يطابق مهاراتك</div>
+					</div>
+				</ng-container>
+
+			</div>
+		</section>
+
+
+	</div>
+</main>

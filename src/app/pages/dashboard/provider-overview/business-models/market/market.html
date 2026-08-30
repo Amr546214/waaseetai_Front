@@ -1,0 +1,384 @@
+<div class="mkt-container" [class.is-light-theme]="themeService.theme() === 'light'" dir="rtl">
+
+	<!-- AI Disclosure -->
+	<div class="ai-disclosure">
+		<div class="ai-disc-ico">
+			<svg width="20" height="20" aria-hidden="true">
+				<use href="#i-ai"></use>
+			</svg>
+		</div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI — إفصاح الذكاء الاصطناعي</div>
+			<div class="ai-disc-txt">
+				AI يحلل أداء خدماتك ويقترح تحسينات — الإنسان يحتفظ بالقرار النهائي
+				<span class="ai-disc-badge">دقة 95%</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Toolbar / Header -->
+	<div
+		style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+		<div style="font-size:18px;font-weight:900;color:var(--mkt-txt)">نماذجي في السوق</div>
+		<a routerLink="/provider-overview/business-models/new-project"
+			style="display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:10px;font-size:12.5px;font-weight:800;color:#070D24;text-decoration:none;box-shadow:0 4px 15px rgba(43,212,199,0.25);transition:all .2s">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<line x1="12" y1="5" x2="12" y2="19" />
+				<line x1="5" y1="12" x2="19" y2="12" />
+			</svg>
+			إنشاء خدمة
+		</a>
+	</div>
+
+	<!-- FILTER RAIL المعتمد -->
+	<div class="filter-rail" role="search" aria-label="فلترة الخدمات">
+		<div class="fr-period-lbl">التخصص</div>
+		<div class="date-segs" role="group">
+			@for (tab of filterTabs(); track tab.id) {
+			<button class="ds" [class.active]="activeCategory() === tab.id" type="button" (click)="setCategory(tab.id)">
+				{{ tab.name }}
+				<span style="font-size:10px;opacity:.75">({{ tab.count }})</span>
+			</button>
+			}
+		</div>
+
+		<div class="fr-period-lbl" style="border-inline-start:1px solid var(--mkt-border)">ترتيب</div>
+		<div class="date-segs" role="group">
+			<button class="ds" [class.active]="activeSort() === 'newest' || activeSort() === 'new'" type="button"
+				(click)="setSort('newest')">الأحدث</button>
+			<button class="ds" [class.active]="activeSort() === 'top-rated' || activeSort() === 'rating'" type="button"
+				(click)="setSort('top-rated')">الأعلى تقييماً</button>
+		</div>
+
+		<div class="fr-spacer"></div>
+
+		<div class="fr-search">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<circle cx="11" cy="11" r="8" />
+				<path d="m21 21-4.35-4.35" />
+			</svg>
+			<input type="text" [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)"
+				placeholder="ابحث في خدماتك..." aria-label="بحث" />
+		</div>
+	</div>
+
+	<!-- التبويبات تحت الفلتر -->
+	<div class="ord-tabs" role="tablist" aria-label="تبويبات الخدمات">
+		<button class="ord-tab" [class.active]="activeSubTab() === 'models'" role="tab" (click)="setSubTab('models')">
+			النماذج <span>{{ stats().totalModels }}</span>
+		</button>
+		<button class="ord-tab" [class.active]="activeSubTab() === 'requests'" role="tab"
+			(click)="setSubTab('requests')">
+			طلبات التعديل
+			<span style="background:rgba(255,180,0,.18);color:#D98A0B;border:1px solid rgba(255,180,0,.3)">{{
+				stats().pendingModifications }}</span>
+		</button>
+	</div>
+
+	<!-- Error State -->
+	@if (errorMessage()) {
+	<div
+		style="padding:18px;background:rgba(255,180,0,.05);border:1px solid rgba(255,180,0,.18);border-radius:12px;text-align:center;margin-bottom:20px">
+		<div style="font-size:12px;font-weight:700;color:#D98A0B">{{ errorMessage() }}</div>
+	</div>
+	}
+
+	<!-- Loading State -->
+	@if (isLoading()) {
+	<div style="display:flex;justify-content:center;padding:60px 20px">
+		<div
+			style="width:36px;height:36px;border:3px solid rgba(43,212,199,0.2);border-top-color:#2BD4C7;border-radius:50%;animation:spin 0.8s linear infinite">
+		</div>
+	</div>
+	}
+
+	<!-- Main Tabs Content -->
+	@if (!isLoading()) {
+	<!-- تبويب النماذج (Models Tab) -->
+	@if (activeSubTab() === 'models') {
+	@if (models().length === 0) {
+	<!-- Empty State -->
+	<div
+		style="text-align:center;padding:70px 20px;background:var(--mkt-card-bg);border:1px dashed var(--mkt-border);border-radius:16px;margin-bottom:20px">
+		<div
+			style="width:56px;height:56px;border-radius:16px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#2BD4C7">
+			<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+				<polyline points="14 2 14 8 20 8" />
+				<line x1="12" y1="18" x2="12" y2="12" />
+				<line x1="9" y1="15" x2="15" y2="15" />
+			</svg>
+		</div>
+		<div style="font-size:16px;font-weight:900;color:var(--mkt-txt);margin-bottom:6px">لا توجد خدمات منشورة في السوق
+			حالياً</div>
+		<p style="font-size:12px;color:var(--mkt-txt-muted);max-width:380px;margin:0 auto 20px">لم تقم بنشر أو اعتماد أي
+			خدمة مهنية بعد. ابدأ بإنشاء أول خدمة لك ليراها العملاء ويتعاقدون معك بسهولة.</p>
+		<a routerLink="/provider-overview/business-models/new-project"
+			style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:10px;font-size:13px;font-weight:800;color:#070D24;text-decoration:none;box-shadow:0 4px 20px rgba(43,212,199,0.3)">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<line x1="12" y1="5" x2="12" y2="19" />
+				<line x1="5" y1="12" x2="19" y2="12" />
+			</svg>
+			رفع خدمة جديدة
+		</a>
+	</div>
+	} @else {
+	<!-- Dynamic Category Groups -->
+	@for (group of groups(); track group.slug) {
+	<div class="cat-group">
+		<div class="cat-header">
+			<div class="cat-title-wrap">
+				<div class="cat-bar"></div>
+				<span class="cat-title">{{ group.title }}</span>
+				<span class="cat-count">({{ group.count }} نماذج)</span>
+			</div>
+			<div class="cat-views">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+					<circle cx="12" cy="12" r="3" />
+				</svg>
+				{{ group.views | number }} مشاهدة
+			</div>
+		</div>
+
+		<div class="mkt-grid">
+			@for (model of group.models; track model.id) {
+			<div class="mkt-card"
+					[style.opacity]="model.status === 'ARCHIVED' ? '0.5' : '1'"
+					[style.filter]="model.status === 'ARCHIVED' ? 'grayscale(0.6)' : 'none'">
+				<!-- Card Thumb -->
+				<div class="mkt-card-thumb"
+					[style.background]="model.bgGradient || 'linear-gradient(135deg, #0B1E38, #0D2441)'">
+						@if (model.status === 'ARCHIVED') {
+					<div class="hide-overlay">
+						<span class="hide-badge">مخفي عن السوق</span>
+					</div>
+					}
+
+					@if (model.coverImage) {
+					<img [src]="model.coverImage" [alt]="model.title"
+						style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:transform 0.4s ease" />
+					<div
+						style="position:absolute;inset:0;background:linear-gradient(to top, rgba(7,13,36,0.88) 0%, rgba(7,13,36,0.25) 50%, rgba(7,13,36,0.5) 100%);z-index:1">
+					</div>
+					} @else {
+					<!-- SVG Vector Fallback -->
+					<svg width="56" height="56" viewBox="0 0 60 60" fill="none">
+						<polygon points="30,6 54,18 54,42 30,54 6,42 6,18"
+							[attr.stroke]="model.iconColor || 'rgba(43,212,199,.7)'" stroke-width="1.5" fill="none" />
+						<polygon points="30,14 46,23 46,37 30,46 14,37 14,23"
+							[attr.stroke]="model.iconColor || 'rgba(43,212,199,.35)'" stroke-width="1"
+							fill="rgba(43,212,199,.06)" />
+						<circle cx="30" cy="30" r="5" [attr.stroke]="model.iconColor || '#2BD4C7'" stroke-width="1.5"
+							fill="none" />
+					</svg>
+					}
+
+					<!-- Top Right Views -->
+					<div style="position:absolute;top:12px;right:12px;z-index:2">
+						<span
+							style="display:flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(7,13,36,.65);backdrop-filter:blur(6px);border-radius:20px;font-size:10.5px;font-weight:700;color:#A8B2D1;border:1px solid rgba(255,255,255,.1)">
+							<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2">
+								<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+								<circle cx="12" cy="12" r="3" />
+							</svg>
+							{{ model.viewsCount }}
+						</span>
+					</div>
+
+					<!-- Top Left AI & Approved Badges -->
+					<div style="position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:4px;z-index:2">
+						<span
+							style="padding:2.5px 8px;background:rgba(123,47,190,.3);backdrop-filter:blur(6px);border:1px solid rgba(123,47,190,.5);border-radius:6px;font-size:10px;font-weight:800;color:#C084FC">
+							AI {{ model.aiScore }}
+						</span>
+						<span
+							style="padding:2.5px 8px;backdrop-filter:blur(6px);border-radius:6px;font-size:10px;font-weight:800"
+							[style.background]="model.status === 'PUBLISHED' ? 'rgba(15,169,154,.25)' : model.status === 'APPROVED' ? 'rgba(43,212,199,.25)' : 'rgba(255,180,0,.25)'"
+							[style.border]="model.status === 'PUBLISHED' ? '1px solid rgba(15,169,154,.45)' : model.status === 'APPROVED' ? '1px solid rgba(43,212,199,.45)' : '1px solid rgba(255,180,0,.45)'"
+							[style.color]="model.status === 'PUBLISHED' ? '#0FA99A' : model.status === 'APPROVED' ? '#2BD4C7' : '#FFB400'">
+							{{ model.status === 'PUBLISHED' ? 'منشور' : model.status === 'APPROVED' ? 'معتمد' :
+							'قيد المراجعة' }}
+						</span>
+					</div>
+				</div>
+
+				<!-- Card Body -->
+				<div class="mkt-card-body">
+					<div class="mkt-card-title">{{ model.title }}</div>
+					<div class="mkt-card-meta">{{ model.category }} · {{ model.createdAtFormatted }}</div>
+
+					<!-- Tags -->
+					<div class="mkt-card-tags">
+						@for (tag of model.tags; track tag) {
+						<span class="tag-pill">{{ tag }}</span>
+						}
+					</div>
+
+					<!-- Stats Row -->
+					<div class="mkt-card-stats">
+						<span style="font-weight:800;color:#FFB400;font-size:12px">★ {{ model.rating || '5.0' }}</span>
+						<span style="color:var(--mkt-txt-muted)">({{ model.reviewsCount || 0 }} تقييم)</span>
+						<span style="color:var(--mkt-txt-sec);font-weight:700">{{ model.offersCount || 0 }} عروض
+							مُولدة</span>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="mkt-card-actions">
+						<button (click)="onEdit(model)" class="action-btn-edit">تعديل</button>
+						<button (click)="onToggleVisibility(model)" class="action-btn-toggle"
+								[class.is-hidden]="model.status === 'ARCHIVED'">
+								{{ model.status === 'ARCHIVED' ? 'إظهار' : 'إخفاء' }}
+						</button>
+					</div>
+				</div>
+			</div>
+			}
+		</div>
+	</div>
+	}
+	}
+	}
+
+	<!-- تبويب طلبات التعديل (Requests Tab) -->
+	@if (activeSubTab() === 'requests') {
+	@if (modificationRequests().length === 0) {
+	<div
+		style="text-align:center;padding:60px 20px;background:var(--mkt-card-bg);border:1px dashed var(--mkt-border);border-radius:16px">
+		<div style="font-size:15px;font-weight:800;color:var(--mkt-txt);margin-bottom:6px">لا توجد طلبات تعديل معلقة
+		</div>
+		<p style="font-size:12px;color:var(--mkt-txt-muted)">جميع خدماتك المنشورة متوافقة بنسبة عالية ومُعتمدة في السوق
+			بدون ملاحظات من الذكاء الاصطناعي.</p>
+	</div>
+	} @else {
+	<div style="display:flex;flex-direction:column;gap:16px;margin-bottom:28px">
+		@for (req of modificationRequests(); track req.id) {
+		<div class="request-card">
+			<!-- Header -->
+			<div
+				style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:14px;flex-wrap:wrap">
+				<div style="display:flex;align-items:flex-start;gap:14px">
+					<div
+						style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:rgba(43,212,199,.1);border:2px solid rgba(43,212,199,.35);flex-shrink:0;box-shadow:0 0 12px rgba(43,212,199,.15)">
+						<span style="font-size:16px;font-weight:900;color:#2BD4C7;line-height:1">{{ req.matchRate
+							}}%</span>
+						<span
+							style="font-size:8.5px;color:var(--mkt-txt-muted);text-align:center;line-height:1.2;margin-top:2px">تطابق
+							للملف</span>
+					</div>
+					<div>
+						<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+							<span
+								style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(255,180,0,.12);border:1px solid rgba(255,180,0,.28);border-radius:20px;font-size:10.5px;font-weight:800;color:#D98A0B">
+								<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="2">
+									<polygon
+										points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+								</svg>
+								{{ req.statusLabel }}
+							</span>
+						</div>
+						<div style="font-size:15px;font-weight:900;color:var(--mkt-txt);margin-bottom:4px">{{ req.title
+							}}</div>
+						<div style="font-size:11.5px;color:var(--mkt-txt-muted)">{{ req.subtitle }}</div>
+					</div>
+				</div>
+				<div style="font-size:11.5px;color:var(--mkt-txt-muted);font-weight:600;flex-shrink:0">{{ req.date }}
+				</div>
+			</div>
+
+			<!-- AI Report Button -->
+			<button (click)="toggleReport(req.id)"
+				style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:10px;font-size:12px;font-weight:700;color:#A56BE0;cursor:pointer;font-family:inherit;margin-bottom:14px;transition:all .2s">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<polygon
+						points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+				</svg>
+				<span>تقرير الذكاء</span>
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					[style.transform]="req.isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'"
+					style="transition:transform .2s;margin-inline-start:4px">
+					<polyline points="6 9 12 15 18 9" />
+				</svg>
+			</button>
+
+			<!-- Expanded Report Area -->
+			@if (req.isExpanded) {
+			<div
+				style="background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.18);border-radius:12px;padding:16px;margin-bottom:16px;animation:ws-fade .2s ease both">
+				<div style="font-size:12px;font-weight:800;color:#A56BE0;margin-bottom:12px">تحليل الذكاء</div>
+				<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+					@for (chk of req.checks; track chk.text) {
+					<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
+						<span style="font-size:12.5px;color:var(--mkt-txt-sec);font-weight:600">{{ chk.text }}</span>
+						<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px"
+							[style.color]="chk.type === 'success' ? '#2BD4C7' : chk.type === 'warning' ? '#D98A0B' : '#EF6B6B'"
+							[style.background]="chk.type === 'success' ? 'rgba(43,212,199,0.1)' : chk.type === 'warning' ? 'rgba(255,180,0,0.1)' : 'rgba(239,107,107,0.1)'">
+							{{ chk.status }}
+						</span>
+					</div>
+					}
+				</div>
+				<div style="padding:12px 14px;border-radius:10px;font-size:12px;line-height:1.6"
+					[style.background]="req.isError ? 'rgba(239,107,107,0.08)' : 'rgba(255,180,0,0.08)'"
+					[style.border]="req.isError ? '1px solid rgba(239,107,107,0.25)' : '1px solid rgba(255,180,0,0.25)'"
+					[style.color]="'var(--mkt-txt-sec)'">
+					<span [style.color]="req.isError ? '#EF6B6B' : '#D98A0B'" style="font-weight:900">
+						{{ req.isError ? 'تنبيه الذكاء: ' : 'توصية الذكاء: ' }}
+					</span>
+					{{ req.recommendation }}
+				</div>
+			</div>
+			}
+
+			<!-- Actions Grid -->
+			<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+				<button (click)="onSkipRequest(req)" class="req-btn-skip">
+					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="12" cy="12" r="10" />
+						<polyline points="12 6 12 12 16 14" />
+					</svg>
+					<span>تخطى على مسؤوليتي</span>
+				</button>
+
+				<button (click)="onReturnEdit(req)" class="req-btn-edit">
+					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<polyline points="1 4 1 10 7 10" />
+						<path d="M3.51 15a9 9 0 1 0 .49-3.31" />
+					</svg>
+					<span>إرجاع وتعديل</span>
+				</button>
+
+				<button (click)="onApproveRequest(req)" class="req-btn-approve" [disabled]="!req.canApprove"
+					[title]="!req.canApprove ? 'يوجد ملاحظات تحتاج تعديل قبل الاعتماد' : ''">
+					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+						stroke-width="2.5">
+						<polyline points="20 6 9 17 4 12" />
+					</svg>
+					<span>اعتماد التعديل</span>
+				</button>
+			</div>
+		</div>
+		}
+	</div>
+	}
+	}
+	}
+
+	<!-- Floating Toast -->
+	@if (toastMessage()) {
+	<div class="state-success-toast">
+		<div class="toast-box">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+				style="color:var(--teal-txt)">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			<span style="font-size:13.5px;font-weight:800">{{ toastMessage() }}</span>
+		</div>
+	</div>
+	}
+
+
+
+</div>

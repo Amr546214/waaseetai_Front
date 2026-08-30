@@ -1,0 +1,13 @@
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+@keyframes ws-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float-up{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.6}100%{transform:translateY(-100px) translateX(50px);opacity:0}}
+@keyframes skel-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle at 20% 20%,rgba(43,212,199,.15) 0%,transparent 40%),radial-gradient(circle at 80% 80%,rgba(43,127,255,.15) 0%,transparent 40%),radial-gradient(circle at 50% 50%,rgba(43,212,199,.05) 0%,transparent 60%)}
+.bg-grid::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(43,212,199,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(43,212,199,.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,#000 30%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,#000 30%,transparent 70%)}
+.particles{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.particle{position:absolute;width:4px;height:4px;border-radius:50%;background:#2BD4C7;box-shadow:0 0 10px #2BD4C7;animation:float-up linear infinite}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.inner-foot{margin-top:20px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#6B7699;border-top:1px solid rgba(255,255,255,.05)}
+.inner-foot-links{display:flex;gap:12px}
+.inner-foot-links a{color:#6B7699;text-decoration:none}
+.inner-foot-links a:hover{color:var(--teal-txt,#2BD4C7)}

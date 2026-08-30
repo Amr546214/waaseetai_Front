@@ -1,0 +1,532 @@
+<div class="main-inner">
+	<div class="prog-header">
+		<span class="prog-label">اكتمال الملف التسويقي</span>
+		<span class="prog-pct">{{ profile()?.completionPercentage || 0 }}%</span>
+	</div>
+	<div class="prog-bar">
+		<div class="prog-fill" [style.width]="(profile()?.completionPercentage || 0) + '%'"></div>
+	</div>
+	<div class="prog-hint">اكمل التحقق من القنوات واضف Bio احترافي للترقية لمستوى موصل</div>
+
+	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي" style="margin-top:20px">
+		<div class="ai-disc-ico"><svg aria-hidden="true">
+				<use href="#i-ai"></use>
+			</svg></div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI، افصاح الذكاء الاصطناعي</div>
+			<p class="ai-disc-txt">AI يحلل قنواتك ويقترح استراتيجية احالة مثلى <span class="ai-disc-badge">دقة
+					92%</span> الانسان يحتفظ بالقرار النهائي</p>
+		</div>
+	</div>
+
+	<div class="tier-legend" role="note">
+		<span class="tier-legend-title">نوعا التعديل</span>
+		<div class="tier-legend-item"><span class="tlp tlp-free"><svg aria-hidden="true">
+					<use href="#i-zap"></use>
+				</svg>فوري</span>تحفظ مباشرة دون مراجعة</div>
+		<div class="tier-legend-item"><span class="tlp tlp-sens"><svg aria-hidden="true">
+					<use href="#i-shield"></use>
+				</svg>بمراجعة</span>تنشئ طلبا يفحصه الذكاء ثم يعتمده مراجع بشري</div>
+	</div>
+
+	<div class="prof-tab-nav" role="tablist" aria-label="اقسام ملف الوسيط التسويقي">
+		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'profile'"
+			(click)="setActiveTab('profile')" role="tab">الملف التسويقي<span class="tab-tier tt-free"><svg
+					aria-hidden="true">
+					<use href="#i-zap"></use>
+				</svg>فوري</span></button>
+		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'basics'"
+			(click)="setActiveTab('basics')" role="tab">البيانات الاساسية<span class="tab-tier tt-sens"><svg
+					aria-hidden="true">
+					<use href="#i-shield"></use>
+				</svg>بمراجعة</span></button>
+		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'referral'"
+			(click)="setActiveTab('referral')" role="tab">بيانات الاحالة</button>
+		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'commissions'"
+			(click)="setActiveTab('commissions')" role="tab">بيانات العمولات</button>
+		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'banking'"
+			(click)="setActiveTab('banking')" role="tab">البنكية والمستندات<span class="tab-tier tt-sens"><svg
+					aria-hidden="true">
+					<use href="#i-shield"></use>
+				</svg>بمراجعة</span></button>
+		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'security'"
+			(click)="setActiveTab('security')" role="tab">الامان والتنبيهات</button>
+	</div>
+
+	<!-- الملف التسويقي -->
+	@if (activeTab() === 'profile') {
+	<div class="prof-tab-panel active" role="tabpanel">
+		<div class="free-bar">
+			<div class="free-bar-ico"><svg aria-hidden="true">
+					<use href="#i-zap"></use>
+				</svg></div>
+			<div class="free-bar-txt">بيانات هذا القسم (الصورة والوصف والقنوات والروابط والتفضيلات) تحفظ فورا بدون
+				مراجعة</div>
+		</div>
+		<div class="ai-banner">
+			<div class="ai-banner-ico"><svg aria-hidden="true">
+					<use href="#i-ai"></use>
+				</svg></div>
+			<span class="ai-banner-txt">AI يقترح اضافة قناة LinkedIn للوصول لشريحة B2B، تزيد العمولات بمعدل 32%</span>
+			<button type="button" class="ai-banner-btn">استخدم AI</button>
+		</div>
+
+		<div class="tier-banner">
+			<div class="tier-ico"><svg class="ws-star-svg" width="22" height="22" viewBox="0 0 100 100" fill="#9B8B7A"
+					aria-hidden="true">
+					<path
+						d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+				</svg></div>
+			<div style="flex:1">
+				<div class="tier-title" style="display:flex;align-items:center;gap:6px"><svg class="ws-star-svg"
+						width="10" height="10" viewBox="0 0 100 100" fill="#9B8B7A">
+						<path
+							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+					</svg><span class="ws-level-tag"
+						style="font-size:inherit;color:inherit;border-color:rgba(185,134,11,.30)">{{ summary()?.tier ||
+						'مساعد' }}</span> &middot; <span style="font-weight:600;font-size:11px">المستوى الحالي — التالي:
+						<span class="ws-level-tag"
+							style="font-size:11px;color:var(--kahr,#D98A0B);border-color:rgba(185,134,11,.30)">موصل</span></span>
+				</div>
+				<p class="tier-txt">تقدم في التحقق من القنوات وتحقق المزيد من الاحالات للترقية لمستوى <span
+						class="ws-level-tag"
+						style="font-size:inherit;color:inherit;border-color:rgba(185,134,11,.20)">موصل</span> تلقائيا
+				</p>
+				<div class="tier-progress">
+					<div class="tier-dot active"></div>
+					<div class="tier-dot active"></div>
+					<div class="tier-dot"></div>
+					<div class="tier-dot"></div>
+					<div class="tier-dot"></div>
+				</div>
+				<div style="font-size:11px;color:#6B7699;margin-top:5px"><span class="ws-level-tag"
+						style="font-size:11px;color:#9B8B7A;border-color:rgba(155,139,122,.20)">مساعد</span> (2/5 خطوات
+					للترقية لـ <span class="ws-level-tag"
+						style="font-size:11px;color:#6B7699;border-color:rgba(185,134,11,.20)">موصل</span>)</div>
+			</div>
+		</div>
+
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-camera"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">الصورة الشخصية</div>
+					<div class="form-card-sub">ترفع للعموم، تؤثر على مصداقيتك كوسيط تسويقي</div>
+				</div>
+			</div>
+			<div class="avatar-section">
+				<div class="avatar-circle">
+					@if (profile()?.avatarUrl || profile()?.user?.avatarUrl) {
+					<img [src]="profile()?.avatarUrl || profile()?.user?.avatarUrl" alt="Avatar"
+						style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+					} @else {
+					{{ (profile()?.user?.firstName?.[0] || 'و') + (profile()?.user?.lastName?.[0] || 'س') }}
+					}
+				</div>
+				<div>
+					<div class="av-btns">
+						<input type="file" hidden #avatarInput accept="image/png, image/jpeg"
+							(change)="onAvatarChange($event)">
+						<button type="button" class="av-btn av-btn-p" (click)="avatarInput.click()">رفع صورة
+							جديدة</button>
+						<button type="button" class="av-btn" (click)="removeAvatar()">حذف الصورة</button>
+					</div>
+					<div style="font-size:11px;color:#6B7699;margin-top:4px">JPG او PNG، 400x400 بكسل، حجم اقصى 5MB
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-card" [formGroup]="marketingForm">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-person"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">الوصف التسويقي</div>
+					<div class="form-card-sub">يظهر في ملفك العام، يصف تخصصك وجمهورك</div>
+				</div>
+			</div>
+			<div class="inp-group">
+				<label class="inp-label" for="af-bio">وصف تسويقي مختصر</label>
+				<textarea id="af-bio" class="inp-field" formControlName="bio"
+					placeholder="اكتب وصفا مختصرا عن تخصصك التسويقي وجمهورك المستهدف..."></textarea>
+				<div class="char-counter" id="bio-count">{{ marketingForm.get('bio')?.value?.length || 0 }} / 500 حرف
+				</div>
+			</div>
+		</div>
+
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-link"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">قنوات التسويق الحالية</div>
+					<div class="form-card-sub">تعديل القنوات المضافة مسبقا او اضافة قنوات جديدة</div>
+				</div>
+			</div>
+			<div class="channels-list">
+				@for (channel of channels(); track channel.id) {
+				<div class="channel-row">
+					<div class="channel-status ok" title="محقق"></div>
+					<span class="channel-name">{{ channel.platform }}</span>
+					<span class="channel-handle">{{ channel.handle }}</span>
+					<button type="button" class="channel-edit">تعديل</button>
+					<button type="button" class="channel-remove" (click)="removeChannel(channel.id)">حذف</button>
+				</div>
+				}
+				@if (channels().length === 0) {
+				<div style="font-size:12px;color:#6B7699;text-align:center;padding:10px">لا توجد قنوات تسويقية مضافة
+				</div>
+				}
+			</div>
+			<div style="margin-top:14px" [formGroup]="channelForm">
+				<div style="font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:8px">اضافة قناة جديدة</div>
+				<div style="display:flex;gap:8px;flex-wrap:wrap">
+					<select formControlName="platform"
+						style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;color:#fff;font-family:'Tajawal',sans-serif;cursor:pointer"
+						aria-label="نوع القناة">
+						<option value="">اختر القناة</option>
+						<option value="LINKEDIN">LinkedIn</option>
+						<option value="YOUTUBE">YouTube</option>
+						<option value="TIKTOK">TikTok</option>
+						<option value="WHATSAPP">WhatsApp</option>
+						<option value="TWITTER">Twitter / X</option>
+						<option value="INSTAGRAM">Instagram</option>
+					</select>
+					<input type="text" formControlName="handle"
+						style="flex:1;min-width:160px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;color:#fff;font-family:'Tajawal',sans-serif"
+						placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-label="معرف القناة">
+					<button type="button" (click)="addChannel()"
+						style="padding:9px 16px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;color:var(--teal-txt,#2BD4C7);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap"
+						[disabled]="!channelForm.valid">اضافة</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-link"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">الروابط الاضافية</div>
+					<div class="form-card-sub">اختيارية، تعزز مصداقيتك</div>
+				</div>
+			</div>
+			<div class="form-grid form-col-2">
+				<div class="inp-group">
+					<label class="inp-label" for="af-website">الموقع الشخصي او المدونة</label>
+					<input type="url" id="af-website" class="inp-field" placeholder="https://myblog.com" dir="ltr">
+				</div>
+				<div class="inp-group">
+					<label class="inp-label" for="af-linkedin">LinkedIn (للتسويق B2B)</label>
+					<input type="url" id="af-linkedin" class="inp-field" placeholder="linkedin.com/in/..." dir="ltr">
+				</div>
+			</div>
+		</div>
+
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-settings"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">التفضيلات والاشعارات</div>
+				</div>
+			</div>
+			<div class="form-grid form-col-2" style="margin-bottom:14px">
+				<div class="inp-group">
+					<label class="inp-label" for="af-lang">لغة الواجهة</label>
+					<select id="af-lang" class="inp-field">
+						<option value="ar" selected>العربية</option>
+						<option value="en">English</option>
+					</select>
+				</div>
+				<div class="inp-group">
+					<label class="inp-label" for="af-tz">المنطقة الزمنية</label>
+					<select id="af-tz" class="inp-field">
+						<option selected>توقيت الرياض (GMT+3)</option>
+						<option>UTC</option>
+					</select>
+				</div>
+			</div>
+			<div>
+				<div class="inp-label" style="margin-bottom:8px">قنوات استلام الاشعارات</div>
+				<div class="notif-checks">
+					<label class="notif-check"><input type="checkbox" checked>البريد الالكتروني</label>
+					<label class="notif-check"><input type="checkbox" checked>SMS</label>
+					<label class="notif-check"><input type="checkbox" checked>داخل النظام</label>
+					<label class="notif-check"><input type="checkbox">WhatsApp</label>
+					<label class="notif-check"><input type="checkbox">Telegram</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="actions-row">
+			<button type="button" class="btn-primary" (click)="saveMarketingProfile()">حفظ الملف التسويقي</button>
+			<button type="button" class="btn-secondary">الغاء والعودة</button>
+		</div>
+	</div>
+	}
+
+	<!-- البيانات الاساسية -->
+	@if (activeTab() === 'basics') {
+	<div class="prof-tab-panel active" role="tabpanel">
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-person"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">البيانات الاساسية والهوية</div>
+					<div class="form-card-sub">تغيير البريد والجوال يتطلب OTP، الهوية مطلوبة للعمليات الرسمية</div>
+				</div>
+			</div>
+			<div class="gov-bar">
+				<div class="gov-bar-ico"><svg aria-hidden="true">
+						<use href="#i-shield"></use>
+					</svg></div>
+				<div class="gov-bar-txt">تعديل البيانات الأساسية والهوية ينشئ طلبا يفحصه الذكاء ثم يعتمده مراجع بشري قبل
+					التطبيق</div><a class="gov-bar-link">طلباتي السابقة</a>
+			</div>
+			<div class="form-grid form-col-2">
+				<div class="inp-group"><label class="inp-label" for="af-fname">الاسم الاول</label><input type="text"
+						id="af-fname" class="inp-field" [value]="profile()?.user?.firstName || ''" readonly></div>
+				<div class="inp-group"><label class="inp-label" for="af-lname">اسم العائلة</label><input type="text"
+						id="af-lname" class="inp-field" [value]="profile()?.user?.lastName || ''" readonly></div>
+				<div class="inp-group"><label class="inp-label" for="af-email">البريد الالكتروني<span
+							class="req">*</span></label><input type="email" id="af-email" class="inp-field"
+						[value]="profile()?.user?.email || ''" dir="ltr" readonly></div>
+				<div class="inp-group"><label class="inp-label" for="af-phone">رقم الجوال<span
+							class="req">*</span></label><input type="tel" id="af-phone" class="inp-field"
+						[value]="(profile()?.user?.phoneCountryCode || '') + (profile()?.user?.phoneNumber || '')"
+						dir="ltr" readonly><span class="inp-hint">يقبل ارقام دولية</span></div>
+				<div class="inp-group"><label class="inp-label" for="af-nid">رقم الهوية الوطنية</label><input
+						type="text" id="af-nid" class="inp-field" placeholder="1XXXXXXXXX" maxlength="10" dir="ltr"
+						[value]="profile()?.user?.idNumber || ''" readonly></div>
+				<div class="inp-group"><label class="inp-label" for="af-nat">الجنسية / الدولة</label><select id="af-nat"
+						class="inp-field">
+						<option>سعودي</option>
+						<option>مقيم في السعودية</option>
+						<option>خارج السعودية</option>
+					</select></div>
+			</div>
+			<div class="actions-row"><button type="button" class="btn-primary"
+					(click)="openGovernedEdit('البيانات الأساسية والهوية')">إرسال طلب تعديل</button></div>
+		</div>
+	</div>
+	}
+
+	<!-- بيانات الاحالة -->
+	@if (activeTab() === 'referral') {
+	<div class="prof-tab-panel active" role="tabpanel">
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-link"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">بيانات الاحالة وروابط الكود</div>
+					<div class="form-card-sub">كود الاحالة ورابط التتبع الخاصين بك</div>
+				</div>
+			</div>
+			<div class="form-grid form-col-2">
+				<div class="inp-group"><label class="inp-label">كود الاحالة</label>
+					<div style="display:flex;align-items:center;gap:8px"><input type="text" class="inp-field"
+							value="KHALID-MKT-2024" dir="ltr" readonly style="opacity:.7;flex:1"><button type="button"
+							class="btn-primary"
+							style="padding:10px 14px;min-width:fit-content;font-size:12px">نسخ</button></div>
+				</div>
+				<div class="inp-group"><label class="inp-label">رابط الاحالة الكامل</label>
+					<div style="display:flex;align-items:center;gap:8px"><input type="text" class="inp-field"
+							value="https://waseet.ai/ref/KHALID-MKT-2024" dir="ltr" readonly
+							style="opacity:.7;font-size:11px;flex:1"><button type="button" class="btn-primary"
+							style="padding:10px 14px;min-width:fit-content;font-size:12px">نسخ</button></div>
+				</div>
+				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="aff-desc">وصف الحملة /
+						رسالة الاحالة</label><textarea id="aff-desc" class="inp-field"
+						placeholder="رسالة تسويقية مخصصة لعرضها مع رابط الاحالة..." maxlength="300"></textarea></div>
+			</div>
+			<div class="actions-row"><button type="button" class="btn-primary">حفظ بيانات الاحالة</button></div>
+		</div>
+	</div>
+	}
+
+	<!-- بيانات العمولات -->
+	@if (activeTab() === 'commissions') {
+	<div class="prof-tab-panel active" role="tabpanel">
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-wallet"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">بيانات العمولات والاداء</div>
+					<div class="form-card-sub">سجل العمولات والاحالات الناجحة</div>
+				</div>
+			</div>
+			<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+				<div
+					style="padding:14px;background:rgba(43,212,199,.05);border:1px solid rgba(43,212,199,.12);border-radius:12px;text-align:center">
+					<div style="font-size:20px;font-weight:900;color:var(--teal-txt,#2BD4C7)">{{
+						summary()?.successfulReferrals || 0 }}</div>
+					<div style="font-size:11px;color:#6B7699;margin-top:3px">احالة ناجحة</div>
+				</div>
+				<div
+					style="padding:14px;background:rgba(43,127,255,.05);border:1px solid rgba(43,127,255,.12);border-radius:12px;text-align:center">
+					<div style="font-size:20px;font-weight:900;color:#5DA0FF">{{ summary()?.totalCommissions || 0 }}
+					</div>
+					<div style="font-size:11px;color:#6B7699;margin-top:3px">ريال عمولات</div>
+				</div>
+				<div
+					style="padding:14px;background:rgba(155,139,122,.05);border:1px solid rgba(155,139,122,.12);border-radius:12px;text-align:center">
+					<div
+						style="font-size:20px;font-weight:900;color:#CD7F32;display:flex;align-items:center;justify-content:center;gap:5px">
+						<svg class="ws-star-svg" width="14" height="14" viewBox="0 0 100 100" fill="#CD7F32">
+							<path
+								d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+						</svg>موصل</div>
+					<div style="font-size:11px;color:#6B7699;margin-top:3px">المستوى التالي</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	}
+
+	<!-- البنكية والمستندات -->
+	@if (activeTab() === 'banking') {
+	<div class="prof-tab-panel active" role="tabpanel">
+		<div class="form-card" [formGroup]="bankForm">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-wallet"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">البيانات البنكية والمستندات</div>
+					<div class="form-card-sub">IBAN مطلوب للسحب، لا يمكن سحب العمولات قبل التحقق</div>
+				</div>
+			</div>
+			<div class="gov-bar">
+				<div class="gov-bar-ico"><svg aria-hidden="true">
+						<use href="#i-shield"></use>
+					</svg></div>
+				<div class="gov-bar-txt">تعديل الحساب البنكي والمستندات ينشئ طلبا يتحقق الذكاء من تطابق الاسم مع الهوية
+					ثم يعتمده مراجع بشري</div><a class="gov-bar-link">طلباتي السابقة</a>
+			</div>
+			<div class="form-grid form-col-2">
+				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afbk-holder">اسم صاحب
+						الحساب (كما في البنك)<span class="req">*</span></label><input type="text" id="afbk-holder"
+						class="inp-field" placeholder="الاسم الثلاثي كما في البطاقة"
+						formControlName="accountHolderName"></div>
+				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afbk-iban">رقم IBAN
+						للسحب<span class="req">*</span></label>
+					<div style="display:flex;align-items:center;gap:6px"><span
+							style="padding:10px 12px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.14);border-radius:9px;font-size:13px;font-weight:700;color:var(--teal-txt,#2BD4C7);flex-shrink:0">SA</span><input
+							type="text" id="afbk-iban" class="inp-field" placeholder="XX XXXX XXXX XXXX XXXX XXXX"
+							maxlength="24" dir="ltr" formControlName="iban"></div>
+				</div>
+				<div class="inp-group"><label class="inp-label" for="afbk-bank">اسم البنك</label><select id="afbk-bank"
+						class="inp-field" formControlName="bankName">
+						<option value="">اختر البنك</option>
+						<option value="البنك الاهلي السعودي">البنك الاهلي السعودي</option>
+						<option value="مصرف الراجحي">مصرف الراجحي</option>
+						<option value="بنك الرياض">بنك الرياض</option>
+						<option value="STC Pay">STC Pay</option>
+					</select></div>
+			</div>
+			<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
+				<div style="font-size:13px;font-weight:700;color:#A8B2D1;margin-bottom:10px">المستندات والاقرارات</div>
+				<div class="form-grid form-col-2">
+					<div class="inp-group"><label class="inp-label" for="afdoc-front">هوية وطنية، وجه</label><input
+							type="file" id="afdoc-front" class="inp-field" accept=".jpg,.png"></div>
+					<div class="inp-group"><label class="inp-label" for="afdoc-back">هوية وطنية، ظهر</label><input
+							type="file" id="afdoc-back" class="inp-field" accept=".jpg,.png"></div>
+				</div>
+			</div>
+			<div class="actions-row"><button type="button" class="btn-primary"
+					(click)="openGovernedEdit('البيانات البنكية والمستندات')">إرسال طلب تعديل</button></div>
+		</div>
+	</div>
+	}
+
+	<!-- الامان والتنبيهات -->
+	@if (activeTab() === 'security') {
+	<div class="prof-tab-panel active" role="tabpanel">
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-escrow"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">الامان والتنبيهات</div>
+					<div class="form-card-sub">ادارة امان الحساب وتفضيلات الاشعارات</div>
+				</div>
+			</div>
+			<div
+				style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:10px">
+				<div>
+					<div style="font-size:13px;font-weight:700;color:#fff">المصادقة الثنائية (MFA)</div>
+					<div style="font-size:11px;color:#6B7699;margin-top:2px">تحمي حسابك عند تسجيل الدخول وتغيير IBAN
+					</div>
+				</div><span
+					style="font-size:11px;color:#0FA99A;font-weight:700;background:rgba(15,169,154,.10);padding:4px 10px;border-radius:20px;border:1px solid rgba(15,169,154,.2)">مفعلة</span>
+			</div>
+			<div
+				style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:16px">
+				<div>
+					<div style="font-size:13px;font-weight:700;color:#fff">تغيير كلمة المرور</div>
+					<div style="font-size:11px;color:#6B7699;margin-top:2px">ينصح بتغييرها كل 90 يوما</div>
+				</div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px">تغيير
+					كلمة المرور</button>
+			</div>
+			<div style="font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:10px">تفضيلات التنبيهات</div>
+			<div style="display:flex;flex-direction:column;gap:8px">
+				<label
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px;color:#A8B2D1">تنبيه
+					عند احالة جديدة ناجحة<input type="checkbox" checked
+						style="accent-color:var(--teal-txt,#2BD4C7)"></label>
+				<label
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px;color:#A8B2D1">تنبيه
+					عند وصول عمولة جديدة<input type="checkbox" checked
+						style="accent-color:var(--teal-txt,#2BD4C7)"></label>
+			</div>
+			<div class="actions-row"><button type="button" class="btn-primary">حفظ الإعدادات</button></div>
+		</div>
+	</div>
+	}
+</div>
+
+@if (isGovModalOpen()) {
+<div class="modal-ov show" role="dialog" aria-modal="true" (click)="closeGovernedEdit()">
+	<div class="modal-box" (click)="$event.stopPropagation()">
+		<div class="modal-ico"><svg aria-hidden="true">
+				<use href="#i-shield"></use>
+			</svg></div>
+		<div class="modal-title">طلب تعديل بيانات حساسة</div>
+		<p class="modal-desc">التغيير على <strong style="color:var(--kahr,#D98A0B)">{{ governedEditField() }}</strong>
+			لا يطبق فورا، ينشأ طلب تعديل محكوم يمر بالمراحل التالية قبل اعتماده</p>
+		<div class="modal-flow">
+			<div class="mf-step"><span class="mf-dot"><svg aria-hidden="true">
+						<use href="#i-ai"></use>
+					</svg></span>فحص الذكاء</div>
+			<span class="mf-line"></span>
+			<div class="mf-step"><span class="mf-dot"><svg aria-hidden="true">
+						<use href="#i-person"></use>
+					</svg></span>اعتماد بشري</div>
+			<span class="mf-line"></span>
+			<div class="mf-step"><span class="mf-dot"><svg aria-hidden="true">
+						<use href="#i-check"></use>
+					</svg></span>التطبيق</div>
+		</div>
+		<div class="modal-actions">
+			<button type="button" class="modal-btn modal-btn-cancel" (click)="closeGovernedEdit()">إلغاء</button>
+			<button type="button" class="modal-btn modal-btn-confirm" (click)="confirmGovernedEdit()">إرسال الطلب
+				للمراجعة</button>
+		</div>
+	</div>
+</div>
+}

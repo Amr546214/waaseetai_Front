@@ -1,0 +1,239 @@
+import { Component, signal, inject, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { NewProjectService } from '../../../../../core/services/new-project.service';
+import { ThemeService } from '../../../../../core/services/theme.service';
+
+export interface MarketModel {
+	id: string;
+	title: string;
+	category: string;
+	categorySlug?: string;
+	createdAtFormatted: string;
+	viewsCount: number;
+	offersCount: number;
+	rating: number;
+	reviewsCount?: number;
+	aiScore: number;
+	tags: string[];
+	bgGradient?: string;
+	iconColor?: string;
+	icon?: string;
+	coverImage?: string;
+	status: string;
+}
+
+export interface MarketGroup {
+	title: string;
+	slug: string;
+	count: number;
+	views: number;
+	models: MarketModel[];
+}
+
+export interface ModificationRequest {
+	id: string;
+	title: string;
+	subtitle: string;
+	date: string;
+	matchRate: number;
+	statusLabel: string;
+	isExpanded: boolean;
+	checks: { text: string; status: string; type: 'success' | 'warning' | 'error' }[];
+	recommendation: string;
+	isError?: boolean;
+	canApprove: boolean;
+}
+
+@Component({
+	selector: 'app-business-models-market',
+	standalone: true,
+	imports: [CommonModule, RouterLink, FormsModule],
+	templateUrl: './market.html',
+	styleUrl: './market.css'
+})
+export class Market implements OnInit, OnDestroy {
+	private newProjectService = inject(NewProjectService);
+	private router = inject(Router);
+	public themeService = inject(ThemeService);
+
+	models = signal<MarketModel[]>([]);
+	groups = signal<MarketGroup[]>([]);
+	filterTabs = signal<{ id: string; name: string; count: number }[]>([
+		{ id: 'all', name: 'الكل', count: 0 }
+	]);
+
+	stats = signal({
+		totalModels: 0,
+		pendingModifications: 0
+	});
+
+	activeCategory = signal<string>('all');
+	activeSort = signal<string>('newest');
+	activeSubTab = signal<'models' | 'requests'>('models');
+	searchQuery = signal<string>('');
+	isLoading = signal<boolean>(false);
+	errorMessage = signal<string | null>(null);
+
+	toastMessage = signal<string | null>(null);
+	private toastTimer: any = null;
+	private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+	modificationRequests = signal<ModificationRequest[]>([
+		// {
+		//   id: 'REQ-5021',
+		//   title: 'هوية بصرية متكاملة – مطعم راقي',
+		//   subtitle: 'تعديل السعر والوصف · طلب REQ-5021',
+		//   date: '30 مايو · 11:42 ص',
+		//   matchRate: 94,
+		//   statusLabel: 'قيد مراجعة الذكاء',
+		//   isExpanded: false,
+		//   checks: [
+		//     { text: '✓ توافق السعر مع تخصصك المعتمد', status: 'سليم', type: 'success' },
+		//     { text: '✓ وضوح الوصف الجديد', status: 'سليم', type: 'success' },
+		//     { text: '△ السعر أعلى من متوسط السوق بـ 8%', status: 'توصية', type: 'warning' }
+		//   ],
+		//   recommendation: 'التعديل جيد بنسبة 94% لكن السعر أعلى قليلاً من المعدل. يمكنك اعتماده أو مراجعة السعر.',
+		//   canApprove: true
+		// },
+		// {
+		//   id: 'REQ-5019',
+		//   title: 'تصميم واجهة مستخدم – تطبيق صحة',
+		//   subtitle: 'تعديل الوصف والكلمات المفتاحية · طلب REQ-5019',
+		//   date: '28 مايو · 09:15 ص',
+		//   matchRate: 87,
+		//   statusLabel: 'قيد مراجعة الذكاء',
+		//   isExpanded: false,
+		//   checks: [
+		//     { text: '✓ توافق التخصص مع ملفك المهني', status: 'سليم', type: 'success' },
+		//     { text: '△ الوصف الجديد أطول من المعتاد', status: 'توصية', type: 'warning' },
+		//     { text: '✕ كلمات مفتاحية لا تتوافق مع تخصصك المعتمد', status: 'يحتاج تعديل', type: 'error' }
+		//   ],
+		//   recommendation: 'تم رصد كلمات مفتاحية لا تتوافق مع تخصصك المعتمد. يجب تعديلها قبل الاعتماد.',
+		//   isError: true,
+		//   canApprove: false
+		// }
+	]);
+
+	ngOnInit() {
+		this.fetchMarketModels();
+	}
+
+	fetchMarketModels() {
+		this.isLoading.set(true);
+		this.errorMessage.set(null);
+		const params: any = {};
+		if (this.activeCategory() && this.activeCategory() !== 'all' && this.activeCategory() !== 'undefined') {
+			params.category = this.activeCategory();
+		}
+		if (this.activeSort() && this.activeSort() !== 'undefined') {
+			params.sort = this.activeSort();
+		}
+		if (this.searchQuery() && this.searchQuery().trim() !== '') {
+			params.search = this.searchQuery().trim();
+		}
+		params._t = Date.now(); // Cache-busting timestamp to guarantee fresh database responses
+
+		this.newProjectService.getMyMarketModels(params).subscribe({
+			next: (res: any) => {
+				this.isLoading.set(false);
+				if (res && res.success && res.data) {
+					this.models.set(res.data.models || []);
+					this.groups.set(res.data.groups || []);
+					this.modificationRequests.set(res.data.modificationRequests || []);
+					if (res.data.filterTabs) {
+						this.filterTabs.set(res.data.filterTabs);
+					}
+					if (res.data.stats) {
+						this.stats.set({
+							...res.data.stats,
+							pendingModifications: this.modificationRequests().length
+						});
+					}
+				}
+			},
+			error: (err) => {
+				this.isLoading.set(false);
+				this.errorMessage.set('ERR-PR-026-MKT-02: خطأ في استدعاء بيانات السوق');
+				console.error('Error fetching market models:', err);
+			}
+		});
+	}
+
+	setCategory(catId: string) {
+		this.activeCategory.set(catId);
+		this.fetchMarketModels();
+	}
+
+	setSort(sortId: string) {
+		this.activeSort.set(sortId);
+		this.fetchMarketModels();
+	}
+
+	setSubTab(tab: 'models' | 'requests') {
+		this.activeSubTab.set(tab);
+	}
+
+	onSearchChange(val: string) {
+		this.searchQuery.set(val);
+		if (this.searchTimer) clearTimeout(this.searchTimer);
+		this.searchTimer = setTimeout(() => this.fetchMarketModels(), 300);
+	}
+
+	onEdit(model: MarketModel) {
+		this.router.navigate(['/provider-overview/business-models/new-project'], { queryParams: { edit: model.id } });
+	}
+
+	onToggleVisibility(model: MarketModel) {
+		const isHidden = model.status === 'ARCHIVED';
+		this.newProjectService.setServiceVisibility(model.id, isHidden).subscribe({
+			next: (res) => {
+				const newStatus = res?.data?.status || (isHidden ? 'PUBLISHED' : 'ARCHIVED');
+				this.models.update(list => list.map(item => item.id === model.id ? { ...item, status: newStatus } : item));
+				this.groups.update(list => list.map(group => ({
+					...group,
+					models: group.models.map(item => item.id === model.id ? { ...item, status: newStatus } : item)
+				})));
+				this.showToast(isHidden ? 'تم إظهار الخدمة في السوق' : 'تم إخفاء الخدمة عن السوق');
+			},
+			error: (err) => {
+				console.error('Visibility update failed', err);
+				this.showToast(err?.error?.error || 'تعذر تحديث ظهور الخدمة');
+			}
+		});
+	}
+
+	toggleReport(reqId: string) {
+		this.modificationRequests.update(list =>
+			list.map(r => r.id === reqId ? { ...r, isExpanded: !r.isExpanded } : r)
+		);
+	}
+
+	onSkipRequest(req: ModificationRequest) {
+		this.showToast('لا يمكن تجاوز مراجعة نموذج غير معتمد؛ يمكنك تعديله وإعادة إرساله');
+	}
+
+	onApproveRequest(req: ModificationRequest) {
+		if (!req.canApprove) return;
+	}
+
+	onReturnEdit(req: ModificationRequest) {
+		this.router.navigate(['/provider-overview/business-models/new-project'], { queryParams: { edit: req.id } });
+	}
+
+	showToast(msg: string) {
+		this.toastMessage.set(msg);
+		if (this.toastTimer) {
+			clearTimeout(this.toastTimer);
+		}
+		this.toastTimer = setTimeout(() => {
+			this.toastMessage.set(null);
+		}, 2800);
+	}
+
+	ngOnDestroy(): void {
+		if (this.toastTimer) clearTimeout(this.toastTimer);
+		if (this.searchTimer) clearTimeout(this.searchTimer);
+	}
+}

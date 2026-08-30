@@ -1,0 +1,457 @@
+<nav class="flex items-center gap-1.5 text-[12px] text-[var(--txt-3)] mb-4 flex-wrap">
+	<a href="#" class="hover:text-[var(--txt-2)] transition-colors">لوحة التحكم</a>
+	<span class="text-[10px] text-[#4A5568]">&#8250;</span>
+	<a routerLink="../wallet" class="hover:text-[var(--txt-2)] transition-colors">محفظتي</a>
+	<span class="text-[10px] text-[#4A5568]">&#8250;</span>
+	<span class="font-bold text-[var(--txt)]">سحب الأرباح</span>
+</nav>
+
+<h1 class="text-[20px] font-black text-[var(--txt)] m-0 mb-1">سحب الأرباح</h1>
+<p class="text-[13px] text-[var(--txt-3)] mb-3.5 leading-relaxed">اسحب أرباحك المتراكمة إلى حسابك البنكي خلال 1-3 أيام
+	عمل</p>
+
+<div
+	class="flex items-center gap-2 px-3.5 py-2.5 bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 rounded-[10px] mb-4.5 text-[12px] text-[#2BD4C7]">
+	<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+		stroke-linecap="round" stroke-linejoin="round">
+		<path d="M20 6 9 17l-5-5" />
+	</svg>
+	تحويل آمن ومشفّر عبر بوابات معتمدة من SAMA
+</div>
+
+<!-- AI DISCLOSURE -->
+<div
+	class="flex items-start gap-2.5 p-3 px-4 bg-gradient-to-br from-[rgba(123,47,190,0.09)] to-[rgba(43,127,255,0.06)] backdrop-blur-[12px] border border-[rgba(123,47,190,0.22)] rounded-[12px] mb-5 text-[12px] text-[var(--txt-2)] leading-relaxed">
+	<svg class="w-4 h-4 text-[#7B2FBE] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+		stroke-width="2">
+		<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+	</svg>
+	<div><strong class="text-[#A56BE0] font-bold">وسيط AI، حماية مالية:</strong> جميع العمليات محمية بـ256-bit SSL وPCI
+		DSS Level 1، معتمد من SAMA</div>
+</div>
+
+<div class="max-w-full">
+
+	<!-- AMOUNT ENTRY -->
+	<div
+		class="bg-gradient-to-br from-[var(--sec-bg)] to-transparent backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[16px] p-[22px] mb-4">
+		<h2 class="text-[15px] font-extrabold text-[var(--txt)] mb-4 flex items-center gap-2.5">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<rect x="2" y="5" width="20" height="14" rx="2" />
+				<line x1="2" y1="10" x2="22" y2="10" />
+			</svg>
+			المبلغ المراد سحبه
+		</h2>
+		<div class="flex flex-col gap-1.5 mb-3.5 relative">
+			<label class="text-[12px] font-bold text-[var(--txt-3)] flex items-center gap-1.5" for="depAmt">المبلغ
+				(ر.س)</label>
+			<div class="relative">
+				<input id="depAmt" type="text" inputmode="numeric" [value]="amountString()"
+					(input)="setAmountStr($event)"
+					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-[11px] px-[14px] text-[22px] font-black text-center tracking-tight text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 transition-colors pl-[54px]">
+				<span
+					class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-[var(--txt-3)] pointer-events-none">ر.س</span>
+			</div>
+			<div class="text-[11px] text-[var(--txt-3)] mt-1.5">أقل مبلغ للسحب 100 ر.س، أعلى مبلغ 50,000 ر.س للعملية
+				الواحدة</div>
+		</div>
+
+		<div class="grid grid-cols-4 gap-2.5 mt-2.5">
+			<button type="button" class="py-[11px] px-1 rounded-[10px] border text-[14px] font-extrabold transition-all"
+				[class]="withdrawAmount() === 500 ? 'bg-[#2BD4C7]/10 border-[#2BD4C7]/40 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[var(--sec-bg)]/80'"
+				(click)="setAmount(500)">500</button>
+			<button type="button" class="py-[11px] px-1 rounded-[10px] border text-[14px] font-extrabold transition-all"
+				[class]="withdrawAmount() === 1000 ? 'bg-[#2BD4C7]/10 border-[#2BD4C7]/40 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[var(--sec-bg)]/80'"
+				(click)="setAmount(1000)">1,000</button>
+			<button type="button" class="py-[11px] px-1 rounded-[10px] border text-[14px] font-extrabold transition-all"
+				[class]="withdrawAmount() === 2500 ? 'bg-[#2BD4C7]/10 border-[#2BD4C7]/40 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[var(--sec-bg)]/80'"
+				(click)="setAmount(2500)">2,500</button>
+			<button type="button" class="py-[11px] px-1 rounded-[10px] border text-[14px] font-extrabold transition-all"
+				[class]="withdrawAmount() === 5000 ? 'bg-[#2BD4C7]/10 border-[#2BD4C7]/40 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[var(--sec-bg)]/80'"
+				(click)="setAmount(5000)">5,000</button>
+		</div>
+	</div>
+
+	<!-- DEPOSIT SUMMARY -->
+	<div class="bg-gradient-to-br from-[#FFD700]/5 to-[#FFB400]/5 border-2 border-[#FFD700]/20 rounded-[16px] p-5 mb-4">
+		<div class="text-[14px] font-extrabold text-[#FFD700] mb-3.5 flex items-center gap-2">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<rect x="2" y="5" width="20" height="14" rx="2" />
+				<line x1="2" y1="10" x2="22" y2="10" />
+			</svg>
+			ملخص السحب
+		</div>
+		<div class="flex flex-col gap-1.5">
+			<div class="flex justify-between items-center text-[13px] py-1">
+				<span class="text-[var(--txt-3)]">رصيد المحفظة الحالي</span>
+				<span class="font-bold text-[var(--txt)]">3,240.00 ر.س</span>
+			</div>
+			<div class="flex justify-between items-center text-[13px] py-1">
+				<span class="text-[var(--txt-3)]">مبلغ السحب</span>
+				<span class="font-bold text-[var(--txt)]">{{ withdrawAmount() | number:'1.2-2' }} ر.س</span>
+			</div>
+			<div class="flex justify-between items-center text-[13px] py-1">
+				<span class="text-[var(--txt-3)] flex items-center">
+					رسوم السحب
+					<span
+						class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[var(--sec-bg)] text-[9px] text-[var(--txt-3)] cursor-help mr-1"
+						title="سحب الأرباح مجاني، تحويل خلال 1-3 أيام">؟</span>
+				</span>
+				<span class="font-bold text-[#0FA99A]">مجانا</span>
+			</div>
+		</div>
+		<div class="h-[1px] bg-[#FFD700]/15 my-2"></div>
+		<div class="flex justify-between items-center pt-1">
+			<span class="text-[14px] font-extrabold text-[#FFD700]">الرصيد المتبقي بعد السحب</span>
+			<span class="text-[20px] font-black text-[#FFD700]">{{ (balance() - withdrawAmount()) | number:'1.2-2' }}
+				ر.س</span>
+		</div>
+		<div class="text-[11px] text-[var(--txt-3)] mt-2 leading-relaxed">يُحوّل المبلغ إلى حسابك البنكي خلال 1-3 أيام
+			عمل بعد تأكيد السحب، ويظهر في سجل المعاملات</div>
+	</div>
+
+	<!-- PAYMENT METHODS -->
+	<div
+		class="bg-gradient-to-br from-[var(--sec-bg)] to-transparent backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[16px] p-[22px] mb-4">
+		<h2 class="text-[15px] font-extrabold text-[var(--txt)] mb-4 flex items-center gap-2.5">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<rect x="2" y="5" width="20" height="14" rx="2" />
+				<line x1="2" y1="10" x2="22" y2="10" />
+			</svg>
+			طريقة الدفع
+		</h2>
+
+		<div class="flex flex-col gap-2.5">
+			<div class="text-[10px] font-extrabold text-[var(--txt-3)] tracking-widest pt-1 pb-2">متاح الآن</div>
+
+			<!-- Card Option -->
+			<div class="flex items-center gap-3.5 p-3.5 rounded-[12px] border cursor-pointer transition-all"
+				[class]="selectedMethod() === 'card' ? 'border-[#2BD4C7]/50 bg-[#2BD4C7]/10' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[#2BD4C7]/30'"
+				(click)="setMethod('card')">
+				<div class="w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+					[class]="selectedMethod() === 'card' ? 'border-[#2BD4C7]' : 'border-[var(--txt-3)]/30'">
+					@if (selectedMethod() === 'card') { <div class="w-2 h-2 rounded-full bg-[#2BD4C7]"></div> }
+				</div>
+				<div
+					class="w-[38px] h-[28px] rounded-[7px] flex items-center justify-center text-[11px] font-black shrink-0 bg-[#2B7FFF]/10 text-[#2B7FFF]">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<rect x="2" y="5" width="20" height="14" rx="2" />
+						<line x1="2" y1="10" x2="22" y2="10" />
+					</svg>
+				</div>
+				<div class="flex-1">
+					<div class="text-[14px] font-bold text-[var(--txt)]">Visa / Mastercard / مدى</div>
+					<div class="text-[11px] text-[var(--txt-3)] mt-0.5">بطاقة مصرفية محلية وعالمية</div>
+				</div>
+			</div>
+
+			<!-- Bank Option -->
+			<div class="flex items-center gap-3.5 p-3.5 rounded-[12px] border cursor-pointer transition-all"
+				[class]="selectedMethod() === 'bank' ? 'border-[#2BD4C7]/50 bg-[#2BD4C7]/10' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[#2BD4C7]/30'"
+				(click)="setMethod('bank')">
+				<div class="w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+					[class]="selectedMethod() === 'bank' ? 'border-[#2BD4C7]' : 'border-[var(--txt-3)]/30'">
+					@if (selectedMethod() === 'bank') { <div class="w-2 h-2 rounded-full bg-[#2BD4C7]"></div> }
+				</div>
+				<div
+					class="w-[38px] h-[28px] rounded-[7px] flex items-center justify-center text-[11px] font-black shrink-0 bg-[#2BD4C7]/10 text-[#2BD4C7]">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<line x1="12" y1="1" x2="12" y2="23" />
+						<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+					</svg>
+				</div>
+				<div class="flex-1">
+					<div class="text-[14px] font-bold text-[var(--txt)]">تحويل بنكي (IBAN)</div>
+					<div class="text-[11px] text-[var(--txt-3)] mt-0.5">تحويل مباشر بين البنوك، 1-3 أيام عمل</div>
+				</div>
+			</div>
+
+			<!-- Phase 2 Header -->
+			<div class="text-[10px] font-extrabold text-[var(--txt-3)] tracking-widest pt-3 pb-2 opacity-60">قريبا،
+				Phase 2</div>
+
+			<!-- STC Pay Option -->
+			<div
+				class="flex items-center gap-3.5 p-3.5 rounded-[12px] border border-[var(--sec-bd)] bg-[var(--sec-bg)] opacity-60 cursor-not-allowed">
+				<div
+					class="w-[18px] h-[18px] rounded-full border-2 border-[var(--txt-3)]/30 flex items-center justify-center shrink-0">
+				</div>
+				<div
+					class="w-[38px] h-[28px] rounded-[7px] flex items-center justify-center shrink-0 bg-[#5DA0FF]/10 text-[#5DA0FF]">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<rect x="5" y="2" width="14" height="20" rx="2" />
+						<line x1="12" y1="18" x2="12.01" y2="18" />
+					</svg>
+				</div>
+				<div class="flex-1">
+					<div class="text-[14px] font-bold text-[var(--txt)] flex items-center">
+						STC Pay
+						<span
+							class="inline-flex items-center px-2 py-0.5 rounded-[5px] bg-[#FFB400]/10 border border-[#FFB400]/20 text-[10px] font-bold text-[#FFB400] mr-2">Phase
+							2</span>
+					</div>
+					<div class="text-[11px] text-[var(--txt-3)] mt-0.5">محفظة رقمية سعودية</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- CARD FORM DETAIL -->
+		@if (selectedMethod() === 'card') {
+		<div class="mt-4 p-4 bg-[#2B7FFF]/5 border border-[#2B7FFF]/10 rounded-[12px]">
+			<div
+				class="text-[12px] text-[#2B7FFF] font-bold cursor-pointer flex items-center gap-1.5 mb-3.5 hover:underline">
+				<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<rect x="2" y="5" width="20" height="14" rx="2" />
+					<line x1="2" y1="10" x2="22" y2="10" />
+				</svg>
+				استخدام بطاقة محفوظة
+			</div>
+			<div class="flex items-center gap-2 mb-3.5">
+				<svg class="h-[22px] w-[44px] rounded opacity-100" viewBox="0 0 44 28" fill="none">
+					<rect width="44" height="28" rx="4" fill="#1A1F71" /><text x="8" y="20" font-family="Arial"
+						font-weight="900" font-size="13" fill="#FFFFFF" letter-spacing="-0.5">VISA</text>
+				</svg>
+				<svg class="h-[22px] w-[44px] rounded opacity-40 grayscale" viewBox="0 0 44 28">
+					<rect width="44" height="28" rx="4" fill="#EB001B" opacity="0.1" />
+					<circle cx="16" cy="14" r="9" fill="#EB001B" opacity="0.8" />
+					<circle cx="28" cy="14" r="9" fill="#F79E1B" opacity="0.8" />
+				</svg>
+				<svg class="h-[22px] w-[44px] rounded opacity-40 grayscale" viewBox="0 0 44 28">
+					<rect width="44" height="28" rx="4" fill="#0B7343" opacity="0.15" /><text x="8" y="20"
+						font-family="Arial" font-weight="900" font-size="11" fill="#0B7343">mada</text>
+				</svg>
+			</div>
+
+			<div class="flex flex-col gap-1.5 mb-3.5">
+				<label class="text-[12px] font-bold text-[var(--txt-3)]">رقم البطاقة</label>
+				<input type="text" inputmode="numeric" placeholder="0000  0000  0000  0000" maxlength="19"
+					autocomplete="cc-number"
+					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-2.5 px-3.5 text-[14px] font-semibold text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 tracking-widest text-left"
+					dir="ltr">
+			</div>
+
+			<div class="grid grid-cols-3 gap-3">
+				<div class="flex flex-col gap-1.5">
+					<label class="text-[12px] font-bold text-[var(--txt-3)]">تاريخ الانتهاء</label>
+					<input type="text" inputmode="numeric" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp"
+						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-2.5 px-3.5 text-[14px] font-semibold text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 tracking-widest text-center"
+						dir="ltr">
+				</div>
+				<div class="flex flex-col gap-1.5">
+					<label class="text-[12px] font-bold text-[var(--txt-3)] flex items-center justify-between">
+						CVV
+						<span
+							class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[var(--sec-bg)] text-[9px] text-[var(--txt-3)] cursor-help"
+							title="3 أرقام خلف البطاقة">؟</span>
+					</label>
+					<input type="password" inputmode="numeric" placeholder="000" maxlength="3" autocomplete="cc-csc"
+						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-2.5 px-3.5 text-[14px] font-semibold text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 tracking-widest text-center"
+						dir="ltr">
+				</div>
+				<div class="flex flex-col gap-1.5 col-span-3 sm:col-span-1">
+					<label class="text-[12px] font-bold text-[var(--txt-3)]">اسم حامل البطاقة</label>
+					<input type="text" placeholder="MOHAMMED AL-OMARI" autocomplete="cc-name"
+						style="text-transform:uppercase"
+						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-2.5 px-3.5 text-[14px] font-semibold text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 text-left"
+						dir="ltr">
+				</div>
+			</div>
+		</div>
+		}
+
+		<!-- BANK FORM DETAIL -->
+		@if (selectedMethod() === 'bank') {
+		<div class="mt-4 p-4 bg-[#2BD4C7]/5 border border-[#2BD4C7]/15 rounded-[12px]">
+			<div class="text-[13px] font-bold text-[#2BD4C7] mb-3">بيانات التحويل البنكي</div>
+			<div class="flex flex-col gap-2">
+				<div class="flex justify-between items-center text-[13px]">
+					<span class="text-[var(--txt-3)]">اسم المستفيد</span>
+					<span class="font-bold text-[var(--txt)]">وسيط AI للتقنية</span>
+				</div>
+				<div class="flex justify-between items-center text-[13px]">
+					<span class="text-[var(--txt-3)]">رقم IBAN</span>
+					<span class="font-bold text-[#2BD4C7]" dir="ltr">SA29 1000 0001 2345 6789 0123</span>
+				</div>
+				<div class="flex justify-between items-center text-[13px]">
+					<span class="text-[var(--txt-3)]">رقم المرجع</span>
+					<span class="font-bold text-[#FFD700]">WAL-2026-08471</span>
+				</div>
+			</div>
+			<div class="text-[11px] text-[var(--txt-3)] mt-2.5 leading-relaxed">أضف رقم المرجع في حقل الملاحظات عند
+				التحويل، يضاف الرصيد إلى محفظتك بعد استلام التحويل</div>
+		</div>
+		}
+	</div>
+
+	<!-- TERMS -->
+	<div class="flex items-start gap-3 p-3.5 bg-[#2B7FFF]/5 border border-[#2B7FFF]/10 rounded-[12px] cursor-pointer mb-4"
+		(click)="toggleTerms()" role="checkbox" [attr.aria-checked]="termsAccepted()">
+		<div class="w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors"
+			[class]="termsAccepted() ? 'bg-[#2B7FFF] border-[#2B7FFF]' : 'border-[var(--sec-bd)]'">
+			@if (termsAccepted()) {
+			<svg class="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			}
+		</div>
+		<div class="text-[12px] text-[var(--txt-2)] leading-relaxed">
+			أوافق على <button type="button" class="text-[#2BD4C7] hover:underline"
+				(click)="$event.stopPropagation()">شروط سحب الأرباح</button> وأقر بأن المبلغ يضاف إلى رصيد محفظتي
+			ويُستخدم لتمويل الضمان والمشاريع، ولا يمكن سحبه إلى البنك
+		</div>
+	</div>
+
+	<!-- SECURITY FOOTER -->
+	<div
+		class="flex items-center justify-center gap-4 p-3.5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[12px] flex-wrap mb-4">
+		<div class="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--txt-3)]">
+			<svg class="w-[13px] h-[13px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2">
+				<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+			</svg>
+			256-bit SSL
+		</div>
+		<div class="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--txt-3)]">
+			<svg class="w-[13px] h-[13px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			PCI DSS Level 1
+		</div>
+		<div class="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--txt-3)]">
+			<svg class="w-[13px] h-[13px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			معتمد من SAMA
+		</div>
+		<div class="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--txt-3)]">
+			<svg class="w-[13px] h-[13px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			حماية PDPL
+		</div>
+	</div>
+
+	<!-- Bottom Spacer for Sticky Footer -->
+	<div class="h-28 w-full"></div>
+</div>
+
+<!-- STICKY FOOTER -->
+<div
+	class="fixed bottom-0 right-0 md:right-[220px] left-0 px-6 py-3.5 bg-[var(--sec-bg)]/90 backdrop-blur-[20px] border-t border-[var(--sec-bd)] z-50">
+	<div class="max-w-[680px] mx-auto flex items-center justify-between gap-3">
+		<a routerLink="../wallet"
+			class="hidden sm:flex items-center gap-2 h-11 px-6 rounded-[11px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[14px] font-bold text-[var(--txt-2)] transition-colors hover:bg-[var(--sec-bd)] hover:text-[var(--txt)]">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<polyline points="9 18 15 12 9 6" />
+			</svg>
+			العودة للمحفظة
+		</a>
+
+		<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+			<div class="text-right">
+				<div class="text-[11px] font-semibold text-[var(--txt-3)]">مبلغ السحب</div>
+				<div class="text-[16px] font-black text-[#FFD700]">{{ withdrawAmount() | number:'1.2-2' }} ر.س</div>
+			</div>
+
+			<button
+				class="h-11 px-7 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-[14px] font-extrabold flex items-center gap-2 transition-all hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
+				[disabled]="!termsAccepted() || withdrawAmount() < 100 || withdrawAmount() > 50000" (click)="openOTP()">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+				</svg>
+				سحب {{ withdrawAmount() | number }} ر.س
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- OTP MODAL -->
+@if (showOTP()) {
+<div class="fixed inset-0 bg-[#070d24]/80 backdrop-blur-sm z-[400] flex items-center justify-center p-4">
+	<div
+		class="bg-[#0B122C] border border-[var(--sec-bd)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),_0_0_40px_rgba(43,212,199,0.1)] rounded-[20px] p-8 max-w-[440px] w-full text-center relative">
+		<button
+			class="absolute top-3.5 left-3.5 w-[30px] h-[30px] rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] flex items-center justify-center text-[var(--txt-3)] hover:text-[var(--txt)] transition-colors"
+			(click)="closeOTP()">
+			<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<line x1="18" y1="6" x2="6" y2="18" />
+				<line x1="6" y1="6" x2="18" y2="18" />
+			</svg>
+		</button>
+
+		<div
+			class="w-14 h-14 rounded-full bg-[#2BD4C7]/10 border-2 border-[#2BD4C7]/30 flex items-center justify-center text-[#2BD4C7] mx-auto mb-4">
+			<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<rect x="5" y="2" width="14" height="20" rx="2" />
+				<line x1="12" y1="18" x2="12.01" y2="18" />
+			</svg>
+		</div>
+
+		<h2 class="text-[18px] font-black text-[var(--txt)] mb-1.5">تأكيد بكود OTP</h2>
+		<p class="text-[13px] text-[var(--txt-3)] leading-relaxed mb-5">أرسل رمز التحقق إلى جوالك<br><strong
+				class="text-[var(--txt)]">+966 5XX XXX X891</strong></p>
+
+		<div class="flex gap-2.5 justify-center mb-4" dir="ltr">
+			<input type="text"
+				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
+			<input type="text"
+				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
+			<input type="text"
+				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
+			<input type="text"
+				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
+			<input type="text"
+				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
+			<input type="text"
+				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner"
+				(input)="confirmWithdraw()">
+		</div>
+
+		<div class="text-[12px] text-[var(--txt-3)] mb-4">انتهاء الرمز خلال <span
+				class="text-[#2BD4C7] font-bold">30</span> ثانية</div>
+
+		<button
+			class="w-full py-3 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[14px] font-extrabold text-[#070D24] mb-2.5"
+			(click)="confirmWithdraw()">تأكيد السحب</button>
+		<div class="text-[12px] text-[var(--txt-3)]">لم تستلم الرمز؟ <a
+				class="text-[#2B7FFF] font-bold cursor-pointer hover:underline">إعادة الإرسال</a></div>
+	</div>
+</div>
+}
+
+<!-- SUCCESS OVERLAY -->
+@if (showSuccess()) {
+<div class="fixed inset-0 bg-[#070d24]/95 z-[500] flex flex-col items-center justify-center p-6 text-center">
+	<div
+		class="w-[90px] h-[90px] rounded-full bg-[#2BD4C7]/10 border-4 border-[#2BD4C7]/40 flex items-center justify-center text-[#2BD4C7] mb-5">
+		<svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+			<polyline points="20 6 9 17 4 12" />
+		</svg>
+	</div>
+
+	<div class="text-[24px] font-black text-white mb-4">تم طلب سحب الأرباح بنجاح</div>
+
+	<div class="px-5 py-2.5 rounded-[9px] bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 text-[14px] font-bold text-[#2BD4C7] mb-4"
+		dir="ltr">
+		{{ withdrawAmount() | number:'1.2-2' }} SAR, WAL-2026-08471
+	</div>
+
+	<div class="text-[13px] text-[#6B7699] leading-relaxed max-w-[380px] mb-6">
+		تم ارسال طلب السحب بنجاح. سيتم تحويل المبلغ إلى حسابك البنكي خلال 1-3 أيام عمل وسيظهر في سجل المعاملات.
+	</div>
+
+	<div class="flex gap-3 flex-wrap justify-center">
+		<a routerLink="../wallet"
+			class="h-11 px-6 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] font-extrabold text-[14px] flex items-center gap-2 hover:-translate-y-px transition-all">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<rect x="2" y="5" width="20" height="14" rx="2" />
+				<line x1="2" y1="10" x2="22" y2="10" />
+			</svg>
+			العودة للمحفظة
+		</a>
+	</div>
+</div>
+}

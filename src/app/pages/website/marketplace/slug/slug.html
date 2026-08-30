@@ -1,0 +1,220 @@
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="particles" id="particles-container" aria-hidden="true"></div>
+
+<!-- SVG SPRITE -->
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol>
+<symbol id="ws-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+<symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-chevron-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+<symbol id="ws-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="8" height="18" rx="2"/><rect x="14" y="3" width="8" height="18" rx="2"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+<symbol id="ws-cat-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
+<symbol id="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ws-social-x" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.272 5.647 5.892-5.647zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></symbol>
+<symbol id="ws-social-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ws-social-linkedin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4"/><line x1="7" y1="10" x2="7" y2="17"/><circle cx="7" cy="6.5" r="1"/><path d="M11 17v-4c0-1.5 1-3 3-3s3 1.5 3 3v4"/><line x1="11" y1="10" x2="11" y2="17"/></symbol>
+</defs></svg>
+
+<div class="page-wrap slug-page-wrap">
+  <!-- HERO -->
+  <section class="cat-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a routerLink="/">الرئيسية</a>
+        <span class="breadcrumb-sep">/</span>
+        <a routerLink="/marketplace">الفئات</a>
+        <span class="breadcrumb-sep">/</span>
+        <span style="color:var(--txt-2)">{{ categoryData()?.name }}</span>
+      </div>
+
+      <div class="hero-top">
+        <div class="cat-hero-ico">
+          <svg><use [attr.href]="categoryData()?.icon || '#ws-cat-code'"></use></svg>
+        </div>
+        <div class="hero-text">
+          <h1 class="cat-hero-title">{{ categoryData()?.name || slug() }}</h1>
+          <p class="cat-hero-desc">مقدمون معتمدون متخصصون في هذا المجال — جميع المشاريع محمية بعقود رسمية وضمان مالي</p>
+          <div class="hero-chips">
+            <div class="hero-chip">
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--teal)"><svg style="width:10px;height:10px"><use href="#ws-shield"></use></svg></span>
+              ضمان مالي كامل
+            </div>
+            <div class="hero-chip">
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--blue-txt)"><svg style="width:10px;height:10px"><use href="#ws-check"></use></svg></span>
+              عقود رسمية موثّقة
+            </div>
+            <div class="hero-chip">
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--green)"><svg style="width:10px;height:10px"><use href="#ws-user"></use></svg></span>
+              {{ providersCount() }} مقدم معتمد
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="hero-stats">
+        <div class="hstat c1"><div class="hstat-n">{{ categoryData()?.count || 0 }}</div><div class="hstat-l">خدمة منشورة</div></div>
+        <div class="hstat c2"><div class="hstat-n">+{{ providersCount() }}</div><div class="hstat-l">مقدم معتمد</div></div>
+        <div class="hstat c3"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
+        <div class="hstat c4"><div class="hstat-n">+{{ totalReviews() }}</div><div class="hstat-l">مراجعة مكتملة</div></div>
+        <div class="hstat c5"><div class="hstat-n">{{ averageAiScore() }}%</div><div class="hstat-l">جودة النماذج (AI)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUBCATS STICKY -->
+  <div class="subcats-wrap">
+    <div class="container">
+      <div class="subcats-row">
+        <div class="subcats-inner" role="tablist" aria-label="تخصصات">
+        <button class="subcat-btn" [class.active]="selectedSub() === ''" (click)="selectSubCategory('')" role="tab" [attr.aria-selected]="selectedSub() === ''">
+          <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryData()?.icon || '#ws-cat-code'"></use></svg></span>
+          الكل <span class="sub-cnt">{{ categoryData()?.count || 0 }}</span>
+        </button>
+        
+        @for (sub of categoryData()?.subSpecialties; track sub.id) {
+          <button class="subcat-btn" [class.active]="selectedSub() === sub.slug" (click)="selectSubCategory(sub.slug)" role="tab" [attr.aria-selected]="selectedSub() === sub.slug">
+            <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryData()?.icon || '#ws-cat-code'"></use></svg></span>
+            {{ sub.name }} <span class="sub-cnt">{{ getSubCount(sub.slug) }}</span>
+          </button>
+        }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="container">
+    <div class="body-layout">
+
+      <!-- FILTER SIDEBAR -->
+      <aside class="filter-sidebar" aria-label="فلتر البحث">
+        <div class="filter-header">
+          <div class="filter-title">
+            <span class="filter-title-ico"><svg><use href="#ws-filter"></use></svg></span>
+            تصفية النتائج
+          </div>
+          <button class="filter-reset" type="button" (click)="resetFilters()">إعادة ضبط</button>
+        </div>
+
+        <!-- SPECIALTY -->
+        <div class="filter-section">
+          <div class="filter-lbl">التخصص</div>
+          <div class="filter-opts">
+            <label class="fopt" (click)="selectSubCategory('')">
+              <div class="fopt-box" [class.checked]="selectedSub() === ''"></div>
+              <span class="fopt-lbl">الكل</span>
+              <span class="fopt-count">{{ categoryData()?.count || 0 }}</span>
+            </label>
+            
+            @for (sub of categoryData()?.subSpecialties; track sub.id) {
+              <label class="fopt" (click)="selectSubCategory(sub.slug)">
+                <div class="fopt-box" [class.checked]="selectedSub() === sub.slug"></div>
+                <span class="fopt-lbl">{{ sub.name }}</span>
+                <span class="fopt-count">{{ getSubCount(sub.slug) }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-lbl">ميزانية الخدمة (ريال)</div>
+          <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="selectedMaxPrice() || priceLimit()" (change)="setMaxPrice($event)">
+          <div class="range-vals"><span>0</span><span>{{ (selectedMaxPrice() || priceLimit()) | number:'1.0-0' }}</span><span>{{ priceLimit() | number:'1.0-0' }}+</span></div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-lbl">مستوى المقدم</div>
+          <div class="filter-opts">
+            @for (level of levelOptions(); track level.value) {
+              <label class="fopt" (click)="toggleLevel(level.value)">
+                <span class="fopt-box" [class.checked]="selectedLevels().includes(level.value)"></span>
+                <span class="fopt-lbl">{{ level.value }}</span><span class="fopt-count">{{ level.count }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-lbl">التقييم</div>
+          <div class="filter-opts">
+            @for (rating of ratingOptions(); track rating.value) {
+              <label class="fopt" (click)="setRating(rating.value)">
+                <span class="fopt-box" [class.checked]="selectedRating() === rating.value"></span>
+                <span class="fopt-lbl">{{ rating.label }}</span><span class="fopt-count">{{ rating.count }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-lbl">مدة التسليم</div>
+          <div class="filter-opts">
+            @for (days of deliveryOptions; track days) {
+              <label class="fopt" (click)="setMaxDays(selectedMaxDays() === days ? 0 : days)">
+                <span class="fopt-box" [class.checked]="selectedMaxDays() === days"></span>
+                <span class="fopt-lbl">حتى {{ days }} أيام</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <button class="filter-apply" type="button" (click)="applyFilters()">تطبيق الفلتر</button>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main-col">
+
+        <!-- AI INSIGHT -->
+        <div class="ai-insight">
+          <div class="ai-insight-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
+          <div class="ai-insight-body">
+            <div class="ai-insight-lbl">تحليل الذكاء الاصطناعي</div>
+          <div class="ai-insight-txt">{{ aiInsightTitle() }}</div>
+          </div>
+          <span class="ai-badge">AI · نشط</span>
+        </div>
+
+        <!-- RESULTS BAR -->
+        <div class="results-bar">
+          <div class="results-count"><strong>{{ totalResults() }}</strong> خدمة في {{ categoryData()?.name }}</div>
+          <div class="sort-row">
+            <span class="sort-lbl">ترتيب:</span>
+            <select class="sort-sel" [value]="sortBy()" (change)="setSort($event)">
+              <option value="relevance">الأكثر صلة</option>
+              <option value="rating">الأعلى تقييماً</option>
+              <option value="price_asc">الأقل سعراً</option>
+              <option value="delivery">الأسرع تسليماً</option>
+              <option value="newest">الأحدث</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SERVICE CARDS -->
+        <app-card
+          [models]="filteredModels()"
+          [isLoading]="isLoading()"
+          (categoryReset)="selectSubCategory('')" />
+
+
+        <!-- PAGINATION -->
+        <nav class="pagination" aria-label="تصفح الصفحات">
+          <button class="pg-btn" aria-label="السابق" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)"><svg><use href="#ws-chevron-r"></use></svg></button>
+          @for (page of pages(); track page) {
+            <button class="pg-btn" [class.active]="currentPage() === page" [attr.aria-current]="currentPage() === page ? 'page' : null" (click)="goToPage(page)">{{ page }}</button>
+          }
+          <button class="pg-btn" aria-label="التالي" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)"><svg><use href="#ws-chevron"></use></svg></button>
+        </nav>
+
+      </main>
+    </div>
+  </div>
+</div>

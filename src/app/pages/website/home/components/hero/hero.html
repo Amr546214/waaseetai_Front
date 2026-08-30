@@ -1,0 +1,61 @@
+	<!-- ═══════════════════════════════
+     1. HERO
+     ═══════════════════════════════ -->
+	<section class="hero-brand" aria-label="مقدمة وسيط AI">
+		<div class="hero-glow" aria-hidden="true"></div>
+		<div class="container" style="position:relative">
+			<div
+				style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:999px;font-size:12px;font-weight:800;color:var(--ai-txt);margin-bottom:20px">
+				<svg aria-hidden="true" style="width:13px;height:13px;color:var(--ai)">
+					<use href="#ws-trust-ai"></use>
+				</svg>
+				الذكاء الاصطناعي يدعم كل خطوة
+			</div>
+			<h1 class="hero-h1">
+				<span class="gradient">وسيط AI</span>
+				للخدمات الذكية
+			</h1>
+			<p class="hero-desc">ربط طالبي الخدمة بمقدميها عبر عقود رقمية موثقة وضمانات مالية — كل خطواتك مراقبة ومحمية
+			</p>
+			<div class="hero-actions">
+				<a routerLink="/auth/register" class="btn-primary">ابدأ مجاناً الآن</a>
+				<a routerLink="/marketplace" class="btn-secondary">تصفح الخدمات</a>
+			</div>
+			<div class="search-wrap">
+				<div class="search-box" role="search">
+					<div class="search-icon" aria-hidden="true"><svg>
+							<use href="#ws-search"></use>
+						</svg></div>
+					<input class="search-input" type="search" id="hero-search"
+						placeholder="ابحث عن خدمة، مهارة أو مقدم..." aria-label="بحث عن خدمة">
+					<button class="search-btn" type="button" aria-label="بحث">ابحث الآن</button>
+				</div>
+				<div class="search-tags" role="list">
+					<a routerLink="/marketplace" [queryParams]="{q:'تصميم شعار'}" class="search-tag"
+						role="listitem">تصميم شعار</a>
+					<a routerLink="/marketplace" [queryParams]="{q:'موقع ووردبريس'}" class="search-tag"
+						role="listitem">موقع WordPress</a>
+					<a routerLink="/marketplace" [queryParams]="{q:'هوية بصرية'}" class="search-tag"
+						role="listitem">هوية بصرية</a>
+					<a routerLink="/marketplace" [queryParams]="{q:'تطبيق جوال'}" class="search-tag"
+						role="listitem">تطبيق جوال</a>
+					<a routerLink="/marketplace" [queryParams]="{q:'محتوى تسويقي'}" class="search-tag"
+						role="listitem">محتوى تسويقي</a>
+				</div>
+			</div>
+			<div class="hero-trust" role="list">
+				<div class="trust-item" role="listitem"><span class="trust-icon"><svg>
+							<use href="#ws-trust-free"></use>
+						</svg></span><span>بدون رسوم تسجيل</span></div>
+				<div class="trust-item" role="listitem"><span class="trust-icon"><svg>
+							<use href="#ws-trust-doc"></use>
+						</svg></span><span>عقود موثقة قانونياً</span></div>
+				<div class="trust-item" role="listitem"><span class="trust-icon"><svg>
+							<use href="#ws-trust-shield"></use>
+						</svg></span><span>مدفوعات بالضمان</span></div>
+				<div class="trust-item" role="listitem"><span class="trust-icon" style="color:var(--ai-txt)"><svg>
+							<use href="#ws-trust-ai"></use>
+						</svg></span><span>AI يقترح والإنسان يقرر</span></div>
+			</div>
+		</div>
+	</section>

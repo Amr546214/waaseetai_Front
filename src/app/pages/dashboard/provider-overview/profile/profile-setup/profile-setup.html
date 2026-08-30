@@ -1,0 +1,572 @@
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+<symbol id="i-dispute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+<symbol id="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+<symbol id="i-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+<symbol id="i-bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></symbol>
+<symbol id="i-id" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2.5"/><line x1="13" y1="10" x2="19" y2="10"/><line x1="13" y1="14" x2="17" y2="14"/></symbol>
+<symbol id="i-add-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/></symbol>
+<symbol id="i-arrow-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/></symbol>
+<symbol id="i-arrow-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+<symbol id="i-brief" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+</defs></svg>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="particles" id="particles-container" aria-hidden="true">
+  @for (p of particles; track $index) {
+    <div class="particle" [style]="p.style"></div>
+  }
+</div>
+
+<main class="main" id="main">
+  <h1 class="page-h1">مسار استكمال بيانات مقدم الخدمة فرد</h1>
+  <div class="max-w-full mx-auto">
+
+    @if (!isSubmitting()) {
+      <div class="ai-disclosure" role="region" aria-label="إفصاح الذكاء الاصطناعي">
+        <div class="ai-disc-ico" aria-hidden="true"><svg><use href="#i-ai"></use></svg></div>
+        <div class="ai-disc-body">
+          <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+          <p class="ai-disc-txt">AI يقيم مستواك المهني، يتحقق من ملكية نماذج أعمالك، ويصنفك تلقائيا <span class="ai-disc-badge">دقة 95%</span> الإنسان يحتفظ بالقرار النهائي</p>
+        </div>
+      </div>
+
+
+    }
+
+    <div class="completion-block max-w-full" [formGroup]="setupForm">
+      <div class="block-hd">
+        <span class="block-lbl">مسار استكمال بيانات الحساب</span>
+        <span class="block-prog">المرحلة {{ currentStep() }} من 7</span>
+      </div>
+
+      <div class="wr-stepper" role="tablist" aria-label="مراحل الاستكمال">
+        @for (step of steps; track step.id; let i = $index; let last = $last) {
+          <div class="wr-step" [class.active]="currentStep() === step.id" [class.done]="step.id < currentStep()" (click)="goToStep(step.id)" role="tab" [attr.aria-selected]="currentStep() === step.id" tabindex="0">
+            <div class="wr-step-num">{{ step.id }}</div>
+            <span class="wr-step-lbl">{{ step.label }}</span>
+          </div>
+          @if (!last) {
+            <div class="wr-step-line" [class.done]="step.id < currentStep()"></div>
+          }
+        }
+      </div>
+
+      <!-- STEP 1: البيانات المهنية -->
+      <div class="step-panel" [class.active]="currentStep() === 1" role="tabpanel" formGroupName="profData">
+        <div class="form-sec">
+          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-brief"></use></svg>البيانات المهنية</div>
+          <div class="f-grid">
+            <div class="f-wrap">
+              <label class="f-lbl" for="job-title">المسمى الوظيفي <span class="f-req">*</span></label>
+              <input class="f-inp" id="job-title" formControlName="jobTitle" type="text" placeholder="مثال: مطور ويب كامل المكدس" required>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl" for="exp-years">سنوات الخبرة <span class="f-req">*</span></label>
+              <select class="f-inp" id="exp-years" formControlName="expYears" required>
+                <option value="" disabled selected>اختر</option>
+                <option value="أقل من سنة">أقل من سنة</option>
+                <option value="1 الى 3 سنوات">1 الى 3 سنوات</option>
+                <option value="3 الى 5 سنوات">3 الى 5 سنوات</option>
+                <option value="5 الى 10 سنوات">5 الى 10 سنوات</option>
+                <option value="أكثر من 10 سنوات">أكثر من 10 سنوات</option>
+              </select>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">الدولة <span class="f-req">*</span></label>
+              <select class="f-inp" formControlName="country">
+                <option value="السعودية">السعودية</option>
+                <option value="الإمارات">الإمارات</option>
+                <option value="الكويت">الكويت</option>
+                <option value="قطر">قطر</option>
+                <option value="البحرين">البحرين</option>
+                <option value="عمان">عمان</option>
+                <option value="مصر">مصر</option>
+                <option value="الأردن">الأردن</option>
+                <option value="دولة أخرى">دولة أخرى</option>
+              </select>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl" for="pr-city">المدينة <span class="f-req">*</span></label>
+              <select class="f-inp" id="pr-city" formControlName="city" required>
+                <option value="" disabled selected>اختر المدينة</option>
+                <option value="الرياض">الرياض</option>
+                <option value="جدة">جدة</option>
+                <option value="مكة المكرمة">مكة المكرمة</option>
+                <option value="المدينة المنورة">المدينة المنورة</option>
+                <option value="الدمام">الدمام</option>
+                <option value="الخبر">الخبر</option>
+                <option value="تبوك">تبوك</option>
+                <option value="أبها">أبها</option>
+                <option value="مدينة أخرى">مدينة أخرى</option>
+              </select>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">اللغات</label>
+              <div class="f-chips">
+                @for (lang of availableLanguages; track lang) {
+                  <span class="f-chip" [class.selected]="selectedLanguages().includes(lang)" (click)="toggleLanguage(lang)">{{ lang }}</span>
+                }
+              </div>
+            </div>
+            <div class="f-wrap f-full">
+              <label class="f-lbl" for="bio">النبذة المهنية <span class="f-req">*</span></label>
+              <textarea class="f-inp f-ta" id="bio" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
+              <span class="f-hint">بحد أقصى 400 حرف</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <span class="step-cnt">المرحلة 1 من 7</span>
+          <button type="button" class="btn-wz-next" (click)="goToStep(2)">التالي<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+        </div>
+      </div>
+
+      <!-- STEP 2: التخصصات والمهارات -->
+      <div class="step-panel" [class.active]="currentStep() === 2" role="tabpanel" formGroupName="specialties">
+        <div class="form-sec">
+          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-brief"></use></svg>التخصص الرئيسي والتخصصات الفرعية</div>
+          <div class="f-grid">
+            <div class="f-wrap f-full">
+              <label class="f-lbl" for="main-spec">التخصص الرئيسي <span class="f-req">*</span></label>
+              <select class="f-inp" id="main-spec" formControlName="mainSpec" required>
+                <option value="" disabled selected>اختر تخصصك الرئيسي</option>
+                @for (cat of categories(); track cat.id) {
+                  <option [value]="cat.slug">{{ cat.nameAr }}</option>
+                }
+              </select>
+            </div>
+            <div class="f-wrap f-full">
+              <label class="f-lbl">التخصصات الفرعية <span class="f-req">*</span></label>
+              <div class="f-chips-wrap">
+                <p class="f-chips-hint">يمكنك اختيار تخصص واحد أو أكثر. سيطلب منك رفع نماذج أعمال لكل تخصص فرعي تختاره</p>
+                <div class="f-chips">
+                  @for (spec of subSpecialtiesList(); track spec) {
+                    <span class="f-chip" [class.selected]="selectedSpecs().includes(spec)" (click)="toggleSpec(spec)">{{ spec }}</span>
+                  }
+                </div>
+              </div>
+              <p class="f-hint" style="margin-top:8px">
+                @if (selectedSpecs().length === 0) {
+                  لم يتم اختيار أي تخصص فرعي بعد
+                } @else {
+                  تم اختيار {{ selectedSpecs().length }} تخصص فرعي: {{ selectedSpecs().join('، ') }}
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button type="button" class="btn-wz-back" (click)="goToStep(1)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
+          <span class="step-cnt">المرحلة 2 من 7</span>
+          <button type="button" class="btn-wz-next" (click)="goToStep(3)">التالي<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+        </div>
+      </div>
+
+      <!-- STEP 3: البيانات البنكية -->
+      <div class="step-panel" [class.active]="currentStep() === 3" role="tabpanel" formGroupName="bank">
+        <div class="form-sec">
+          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-bank"></use></svg>البيانات البنكية لاستلام المدفوعات</div>
+          <div class="f-grid">
+            <div class="f-wrap">
+              <label class="f-lbl" for="pr-bank">اسم البنك <span class="f-req">*</span></label>
+              <select class="f-inp" id="pr-bank" formControlName="bankName" required>
+                <option value="" disabled selected>اختر البنك</option>
+                <option value="البنك الأهلي السعودي (SNB)">البنك الأهلي السعودي (SNB)</option>
+                <option value="بنك الراجحي">بنك الراجحي</option>
+                <option value="البنك العربي الوطني (ANB)">البنك العربي الوطني (ANB)</option>
+                <option value="بنك الرياض">بنك الرياض</option>
+                <option value="البنك السعودي الفرنسي">البنك السعودي الفرنسي</option>
+                <option value="مصرف الإنماء">مصرف الإنماء</option>
+                <option value="بنك البلاد">بنك البلاد</option>
+                <option value="بنك الجزيرة">بنك الجزيرة</option>
+                <option value="بنك ساب (SABB)">بنك ساب (SABB)</option>
+              </select>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl" for="pr-acct-owner">اسم صاحب الحساب <span class="f-req">*</span></label>
+              <input class="f-inp" id="pr-acct-owner" formControlName="accountOwner" type="text" placeholder="الاسم كما في البطاقة البنكية" required>
+            </div>
+            <div class="f-wrap f-full">
+              <label class="f-lbl" for="pr-iban">رقم الآيبان (IBAN) <span class="f-req">*</span></label>
+              <input class="f-inp" id="pr-iban" formControlName="iban" type="text" placeholder="SA00 0000 0000 0000 0000 0000" maxlength="29" style="direction:ltr;text-align:left" required>
+              <span class="f-hint">24 حرفا يبدأ بـ SA</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button type="button" class="btn-wz-back" (click)="goToStep(2)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
+          <span class="step-cnt">المرحلة 3 من 7</span>
+          <button type="button" class="btn-wz-next" (click)="goToStep(4)">التالي<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+        </div>
+      </div>
+
+      <!-- STEP 4: المستندات الرسمية -->
+      <div class="step-panel" [class.active]="currentStep() === 4" role="tabpanel" formGroupName="docs">
+        <div class="form-sec">
+          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-id"></use></svg>المستندات الرسمية</div>
+          <div class="f-grid">
+            <div class="f-wrap">
+              <label class="f-lbl">صورة بطاقة الهوية، الوجه الأمامي <span class="f-req">*</span></label>
+              <label class="f-upload-area">
+                <input type="file" accept="image/*,.pdf" aria-label="رفع الوجه الأمامي للهوية" (change)="onFileSelected($event, 'frontId')">
+                <svg aria-hidden="true"><use href="#i-upload"></use></svg>
+                <span class="f-upload-ttl">{{ uploadedFrontId() ? 'تم رفع الهوية (الأمامي)' : 'رفع الوجه الأمامي' }}</span>
+                <span class="f-upload-sub">{{ uploadedFrontId() || 'PNG JPG PDF' }}</span>
+              </label>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">صورة بطاقة الهوية، الوجه الخلفي (اختياري)</label>
+              <label class="f-upload-area">
+                <input type="file" accept="image/*,.pdf" aria-label="رفع الوجه الخلفي للهوية" (change)="onFileSelected($event, 'backId')">
+                <svg aria-hidden="true"><use href="#i-upload"></use></svg>
+                <span class="f-upload-ttl">{{ setupForm.get('docs.backId')?.value ? 'تم رفع الهوية (الخلفي)' : 'رفع الوجه الخلفي' }}</span>
+                <span class="f-upload-sub">{{ setupForm.get('docs.backId')?.value || 'PNG JPG PDF' }}</span>
+              </label>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">شهادات أو تراخيص مهنية</label>
+              <label class="f-upload-area">
+                <input type="file" accept="image/*,.pdf" multiple aria-label="رفع شهادات مهنية" (change)="onFileSelected($event, 'certs')">
+                <svg aria-hidden="true"><use href="#i-upload"></use></svg>
+                <span class="f-upload-ttl">شهادات مهنية</span>
+                <span class="f-upload-sub">{{ uploadedCerts().length > 0 ? 'تم رفع ' + uploadedCerts().length + ' ملفات' : 'اختياري: PNG JPG PDF' }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="ai-verify">
+          <div class="ai-verify-ico" aria-hidden="true"><svg><use href="#i-ai"></use></svg></div>
+          <div class="ai-verify-body">
+            <strong>تحقق الهوية عبر NAFATH</strong>
+            <span>يرسل AI طلب تحقق آلي لتطبيق NAFATH على جوالك</span>
+          </div>
+          @if (!isNafathVerified()) {
+            <button type="button" class="nafath-btn" (click)="triggerNafath()" [disabled]="isNafathVerifying()">
+              {{ isNafathVerifying() ? 'جاري التحقق...' : 'تحقق عبر NAFATH' }}
+            </button>
+          } @else {
+            <div class="nafath-done" style="display: flex;" aria-live="polite"><svg aria-hidden="true"><use href="#i-check"></use></svg>تم التحقق</div>
+          }
+        </div>
+        <div class="step-nav">
+          <button type="button" class="btn-wz-back" (click)="goToStep(3)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
+          <span class="step-cnt">المرحلة 4 من 7</span>
+          <button type="button" class="btn-wz-next" (click)="goToStep(5)">التالي<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+        </div>
+      </div>
+
+      <!-- STEP 5: نماذج الأعمال -->
+      <div class="step-panel" [class.active]="currentStep() === 5" role="tabpanel">
+        <div class="step-info step-info-ai">
+          <svg aria-hidden="true"><use href="#i-ai"></use></svg>
+          <span>لكل تخصص فرعي اخترته يجب رفع <strong style="color:#fff">نموذج عرض</strong> واحد على الأقل. نماذج إثبات التنفيذ سرية ولا يراها إلا الذكاء للتحقق من ملكيتك للعمل</span>
+        </div>
+
+        <div>
+          @if (selectedSpecs().length === 0) {
+            <div class="no-spec-msg"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-warn"></use></svg>لم يتم اختيار أي تخصص فرعي. عد للمرحلة 2 واختر تخصصا على الأقل</div>
+          } @else {
+            <div class="pw-legend">
+              <div class="pw-leg-item">
+                <div class="pw-leg-ico review"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg></div>
+                <div><div class="pw-leg-ttl">نموذج العمل</div><div class="pw-leg-sub">يُعرض في السوق · ملف واحد لكل نموذج</div></div>
+              </div>
+              <div class="pw-leg-item">
+                <div class="pw-leg-ico proof"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-shield"></use></svg></div>
+                <div><div class="pw-leg-ttl">وثيقة الإثبات</div><div class="pw-leg-sub">للمراجعة من الذكاء فقط · تثبت ملكيتك للعمل</div></div>
+              </div>
+            </div>
+
+            @for (spec of selectedSpecs(); track spec; let specIdx = $index) {
+              <div class="pw-spec-card">
+                <div class="pw-spec-hd">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-brief"></use></svg>
+                  <span class="pw-spec-name">{{ spec }}</span>
+                  <span class="pw-spec-count">{{ getPortfolioCount(spec) }}</span>
+                </div>
+
+                @for (item of getPortfolioItems(spec); track $index; let itemIdx = $index) {
+                  <div class="pw-item">
+                    <div class="pw-item-cols">
+                      <div class="pw-col pw-col-review">
+                        <div class="pw-col-hd">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
+                          <span class="pw-col-ttl">نموذج العمل · للسوق العام</span>
+                        </div>
+
+                        @if (item.review) {
+                          <div class="pw-uploaded-file">
+                            <div class="pw-uploaded-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg></div>
+                            <span class="pw-uploaded-name">{{ item.review }}</span>
+                            <span class="pw-uploaded-size">MB 1.5</span>
+                          </div>
+                          <label class="pw-replace-btn" style="cursor:pointer">
+                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-upload"></use></svg>استبدال الملف
+                          </label>
+                        } @else {
+                          <label class="pw-upload-empty" style="cursor:pointer">
+                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-upload"></use></svg>
+                            <span>ارفع نموذج العمل</span>
+                          </label>
+                        }
+                      </div>
+
+                      <div class="pw-col pw-col-proof">
+                        <div class="pw-col-hd">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="1.8" aria-hidden="true"><use href="#i-shield"></use></svg>
+                          <span class="pw-col-ttl">وثائق الإثبات · للمراجعة فقط</span>
+                          <span class="pw-col-badge-req"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-warn"></use></svg>شرط</span>
+                        </div>
+                        <div class="pw-proof-list">
+                          @for (proof of item.proofs; track $index; let proofIdx = $index) {
+                            <div class="pw-proof-item">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
+                              <span class="pw-proof-name">{{ proof }}</span>
+                              <button type="button" class="pw-proof-del" (click)="removePortfolioProof(spec, itemIdx, proofIdx)" aria-label="حذف">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-close"></use></svg>
+                              </button>
+                            </div>
+                          }
+                        </div>
+                        <label class="pw-add-proof" style="cursor:pointer">
+                          <input type="file" accept="image/*,.pdf,.zip" multiple style="display:none" (change)="onPortfolioProofsChange($event, spec, itemIdx)">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة وثيقة أخرى
+                        </label>
+                      </div>
+                    </div>
+                    @if (getPortfolioItems(spec).length > 1) {
+                      <div class="pw-item-foot">
+                        <button type="button" class="pw-delete-item" (click)="removePortfolioItem(spec, itemIdx)">حذف هذا النموذج</button>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <button type="button" class="pw-add-item-btn" (click)="addPortfolioItem(spec)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة نموذج عمل جديد لـ {{ spec }}
+                </button>
+              </div>
+            }
+          }
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn-wz-back" (click)="goToStep(4)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
+          <span class="step-cnt">المرحلة 5 من 7</span>
+          <button type="button" class="btn-wz-next" (click)="goToStep(6)">التالي<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+        </div>
+      </div>
+
+      <!-- STEP 6: المراجعة والإرسال -->
+      <div class="step-panel" [class.active]="currentStep() === 6" role="tabpanel" formGroupName="agreements">
+        <div class="form-sec">
+          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-check"></use></svg>مراجعة بيانات الاستكمال</div>
+          <div class="review-sec-ttl">ملخص المراحل</div>
+          <div class="review-row"><span class="review-key">المرحلة 1</span><span class="review-val"><span class="rs-done">مكتمل</span> البيانات المهنية</span></div>
+          <div class="review-row"><span class="review-key">المرحلة 2</span><span class="review-val"><span class="rs-done">مكتمل</span> التخصصات والمهارات <span style="font-size:11px;color:#6B7699;margin-inline-start:6px">{{ selectedSpecs().length > 0 ? '(' + selectedSpecs().length + ' تخصص)' : '' }}</span></span></div>
+          <div class="review-row"><span class="review-key">المرحلة 3</span><span class="review-val"><span class="rs-done">مكتمل</span> البيانات البنكية</span></div>
+          <div class="review-row"><span class="review-key">المرحلة 4</span><span class="review-val"><span class="rs-done">مكتمل</span> المستندات الرسمية</span></div>
+          <div class="review-row"><span class="review-key">المرحلة 5</span><span class="review-val"><span class="rs-done">مكتمل</span> نماذج الأعمال</span></div>
+        </div>
+        <div class="ack-row">
+          <input type="checkbox" class="ack-chk" id="ack-final" formControlName="ackFinal" aria-required="true">
+          <label class="ack-txt" for="ack-final">أقر بصحة جميع البيانات والنماذج المرفوعة وأوافق على <a href="#" class="ack-lnk">شروط الاستخدام</a></label>
+        </div>
+        <div style="padding:14px 16px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.22);border-radius:12px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:800;color:#2BD4C7;margin-bottom:4px">الخطوة التالية: اختبار التصنيف الأولي</div>
+          <p style="font-size:12.5px;color:#A8B2D1;line-height:1.6">بعد الحفظ سيطلب منك اجتياز اختبار التصنيف. تأكد من جاهزيتك قبل المتابعة لأن الاختبار يبدأ بمجرد الضغط على "بدء الاختبار"</p>
+        </div>
+        <div class="step-nav">
+          <button type="button" class="btn-wz-back" (click)="goToStep(5)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
+          <span class="step-cnt">المرحلة 6 من 7</span>
+          <button type="button" class="btn-wz-next" (click)="saveAndGoToTest()" [disabled]="isSubmitting()">
+             {{ isSubmitting() ? 'جاري الحفظ...' : 'حفظ والانتقال للاختبار' }}
+             <svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 7: اختبار التصنيف الأولي -->
+      <div class="step-panel" [class.active]="currentStep() === 7" role="tabpanel">
+
+        @if (!isTestStarted()) {
+          <div class="test-intro">
+            <div class="test-intro-card">
+              <div class="test-intro-hd">
+                <div class="test-intro-ico" aria-hidden="true"><svg><use href="#i-ai"></use></svg></div>
+                <div>
+                  <div class="test-intro-ttl">اختبار التصنيف الأولي</div>
+                  <div class="test-intro-sub">يقيم وسيط AI مستواك الفعلي لتحديد تصنيفك المبدئي على المنصة.</div>
+                </div>
+              </div>
+
+              <div style="margin-bottom:16px">
+                <div style="font-size:12px;font-weight:700;color:#6B7699;margin-bottom:8px">تخصصاتك المختارة في الاختبار</div>
+                <div class="test-specs-list">
+                  @if (selectedSpecs().length === 0) {
+                    <span style="font-size:12px;color:#6B7699">لا تخصصات محددة</span>
+                  } @else {
+                    @for (s of selectedSpecs(); track s) {
+                      <span class="test-spec-badge">{{ s }}</span>
+                    }
+                  }
+                </div>
+              </div>
+
+              <div class="test-stats">
+                <div class="test-stat">
+                  <div class="test-stat-val">{{ selectedSpecs().length || 1 }}</div>
+                  <div class="test-stat-lbl">تخصص في الاختبار</div>
+                </div>
+                <div class="test-stat">
+                  <div class="test-stat-val">3</div>
+                  <div class="test-stat-lbl">سؤال لكل تخصص</div>
+                </div>
+                <div class="test-stat">
+                  <div class="test-stat-val">3</div>
+                  <div class="test-stat-lbl">دقيقة لكل تخصص</div>
+                </div>
+              </div>
+
+              <div class="test-rules">
+                <div class="test-rule teal">
+                  <svg aria-hidden="true"><use href="#i-clock"></use></svg>
+                  <div class="test-rule-txt">
+                    <strong>الوقت ملزم</strong>
+                    ينتهي الاختبار تلقائيا عند انتهاء الوقت. سرعة الإجابة جزء من تقييم مستواك المهني
+                  </div>
+                </div>
+                <div class="test-rule amber">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 100 100" fill="#FFB400"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+                  <div class="test-rule-txt">
+                    <strong>مستويات متدرجة</strong>
+                    الأسئلة تتدرج بثلاثة درجات من صعوبة متدرجة، لتحديد مستواك الحقيقي بدقة
+                  </div>
+                </div>
+                <div class="test-rule red">
+                  <svg aria-hidden="true"><use href="#i-warn"></use></svg>
+                  <div class="test-rule-txt">
+                    <strong>ممنوع استخدام الذكاء الاصطناعي للإجابة</strong>
+                    يكتشف وسيط AI أنماط الإجابة المعتمدة على الذكاء الاصطناعي. اكتشاف ذلك يؤثر على تصنيفك مباشرة
+                  </div>
+                </div>
+                <div class="test-rule ai">
+                  <svg aria-hidden="true"><use href="#i-ai"></use></svg>
+                  <div class="test-rule-txt">
+                    <strong>مرة واحدة عند الإنشاء، ومرة نهائية بعد 30 يوما</strong>
+                    هذا الاختبار يجرى مرة واحدة الآن، ويمكن إعادته مرة واحدة فقط بعد 30 يوما. بعدها يصبح التصنيف نهائيا ويرفع فقط عبر نماذج الأعمال
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" class="btn-start-test" (click)="startTest()">
+                <svg aria-hidden="true"><use href="#i-arrow-l"></use></svg>
+                بدء الاختبار الآن
+              </button>
+            </div>
+            <div class="step-nav" style="margin-top:16px">
+              <button type="button" class="btn-wz-back" (click)="goToStep(6)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
+              <span class="step-cnt">المرحلة 7 من 7</span>
+              <span></span>
+            </div>
+          </div>
+        } @else {
+          <div class="test-active">
+            @if (setupTestService.isGenerating()) {
+                <div class="test-generating-box" style="text-align: center; padding: 40px;">
+                   <svg aria-hidden="true" width="40" height="40" style="margin-bottom: 20px; color: var(--brand-p); animation: spin 1.5s linear infinite;"><use href="#i-ai"></use></svg>
+                   <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+                   <h3 style="font-size: 18px; margin-bottom: 10px;">{{ setupTestService.statusMsg() || 'جاري توليد الاختبار بالذكاء الاصطناعي...' }}</h3>
+                   <p style="color: #6B7699; font-size: 14px;">يرجى الانتظار ولا تغادر هذه الصفحة</p>
+                </div>
+            } @else if (setupTestService.result()) {
+                <div class="test-result-box" style="text-align: center; padding: 40px;">
+                    <h3 style="font-size: 24px; margin-bottom: 20px; color: #2BD4C7">اكتمل الاختبار</h3>
+                    <div style="font-size: 40px; font-weight: bold; margin-bottom: 20px;">{{ setupTestService.result()?.score | number:'1.0-1' }}%</div>
+                    <p style="color: #8B95B7; font-size: 16px; margin-bottom: 30px;">تم تحديد مستواك المبدئي بناءً على نتيجة الاختبار. يمكنك الآن الانتقال لاستخدام لوحة التحكم بكامل المميزات.</p>
+                    <button type="button" class="btn-submit-test" (click)="finishTestProcess()">الانتقال للوحة التحكم</button>
+                </div>
+            } @else {
+                <div class="test-timer-bar" role="timer" aria-live="polite">
+                  <span class="test-timer-label">الوقت المتبقي</span>
+                  <span class="test-timer" [class.urgent]="testTimeLeft() <= 60">{{ formattedTimeLeft() }}</span>
+                  <div class="test-prog-bar">
+                    <div class="test-prog-fill" [style.width.%]="(testTimeLeft() / testTotalTime) * 100"></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;color:#6B7699">س {{ answeredCount() }}/{{ setupTestService.totalQuestions() }}</span>
+                </div>
+
+                <div>
+                  @if (setupTestService.currentQuestion()) {
+                    <div class="test-q">
+                      <div class="test-q-meta">
+                        <span class="test-q-num">س {{ setupTestService.currentQuestion()?.index! + 1 }}</span>
+                      </div>
+                      <div class="test-q-txt">{{ setupTestService.currentQuestion()?.text }}</div>
+                      <div class="test-options">
+                        @for (opt of setupTestService.currentQuestion()?.options; track opt; let oi = $index) {
+                          <label class="test-opt" (click)="submitAnswer(oi)">
+                            <input type="radio" [name]="'q-'+setupTestService.currentQuestion()?.id" [value]="oi" (click)="$event.stopPropagation()">
+                            <span>{{ opt }}</span>
+                          </label>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                     <div style="padding: 40px; text-align: center; color: #6B7699;">جاري تحميل السؤال التالي...</div>
+                  }
+                </div>
+            }
+          </div>
+        }
+      </div>
+
+    </div><!-- /completion-block -->
+  </div>
+
+  <!-- Custom Antigravity Glass Alert Modal -->
+  @if (alertModal()) {
+    <div class="ws-modal-backdrop" (click)="onConfirmAlertModal()">
+      <div class="ws-modal-card" [class]="'type-' + alertModal()?.type" (click)="$event.stopPropagation()">
+        <div class="ws-modal-ico-wrap">
+          @if (alertModal()?.type === 'warning') {
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          } @else if (alertModal()?.type === 'error' || alertModal()?.type === 'banned') {
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          } @else {
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          }
+        </div>
+        <h3 class="ws-modal-ttl">{{ alertModal()?.title }}</h3>
+        <p class="ws-modal-msg">{{ alertModal()?.message }}</p>
+        <button type="button" class="ws-modal-btn" (click)="onConfirmAlertModal()">
+          {{ alertModal()?.confirmText || 'موافق' }}
+        </button>
+      </div>
+    </div>
+  }
+</main>

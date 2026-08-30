@@ -1,0 +1,176 @@
+<!-- PAGE HEADER -->
+		<h1 class="sec-title text-2xl font-black text-[var(--txt)] mb-2">إنشاء طلب مشروع: الشروط الإضافية</h1>
+		<p class="sec-sub text-[var(--txt-3)] font-medium mb-8">شروط ومستوى سرية المشروع، حدد اتفاقية السرية وحقوق الملكية الفكرية ومتطلبات مقدم الخدمة. هذه شروط خاصة بالمشروع وتختلف عن شروط استخدام الموقع</p>
+
+		<!-- AI DISCLOSURE -->
+		<div class="ai-disclosure flex items-center gap-4 p-5 rounded-[20px] mb-8 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-900 dark:text-indigo-100" role="note">
+<svg viewBox="0 0 24 24" fill="none" width="24px" height="24px" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+			<use href="#i-ai"></use></svg>
+			<div class="text-sm font-medium"><strong>وسيط AI</strong> يفحص الشروط المخصصة تلقائيا لاكتشاف أي تعارض مع سياسات النظام، الإنسان يحتفظ بالقرار النهائي</div>
+		</div>
+
+		<!-- STRIKE BANNER (conditional) -->
+		@if (parent.showStrikeBanner()) {
+		<div class="strike-banner flex items-center gap-2 mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-sm" id="strikeBanner">
+			<svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+			تنبيه: الضربات 1/3، تم رصد محاولة تواصل خارج النظام
+		</div>
+		}
+
+		<!-- NDA CARD -->
+		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+			<h2 class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
+				<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+				اتفاقية السرية (NDA)
+			</h2>
+			<div class="radio-group flex flex-col gap-3" role="radiogroup" aria-label="نوع اتفاقية السرية">
+				<label class="radio-opt flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.ndaType() === 'none' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" (click)="parent.setNda('none')">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5" [ngClass]="parent.ndaType() === 'none' ? 'border-[var(--teal)]' : 'border-[var(--txt-3)]'">
+						@if (parent.ndaType() === 'none') { <div class="w-2.5 h-2.5 rounded-full bg-[var(--teal)]"></div> }
+					</div>
+					<div class="radio-content">
+						<div class="radio-label font-bold text-[var(--txt)] mb-1">بدون اتفاقية سرية</div>
+						<div class="radio-sub text-[13px] text-[var(--txt-3)]">لا تتطلب هذا الطلب سرية خاصة</div>
+					</div>
+				</label>
+				<label class="radio-opt selected flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.ndaType() === 'standard' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" (click)="parent.setNda('standard')">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5" [ngClass]="parent.ndaType() === 'standard' ? 'border-[var(--teal)]' : 'border-[var(--txt-3)]'">
+						@if (parent.ndaType() === 'standard') { <div class="w-2.5 h-2.5 rounded-full bg-[var(--teal)]"></div> }
+					</div>
+					<div class="radio-content">
+						<div class="radio-label font-bold text-[var(--txt)] mb-1">اتفاقية السرية القياسية <span class="bg-[var(--teal)]/10 text-[var(--teal)] text-[10px] px-2 py-0.5 rounded ml-2">افتراضي</span></div>
+						<div class="radio-sub text-[13px] text-[var(--txt-3)]">اتفاقية موحدة معتمدة من وسيط AI، تحمي جميع المعلومات المتبادلة</div>
+					</div>
+				</label>
+				<label class="radio-opt flex items-start gap-4 p-4 rounded-xl border cursor-not-allowed transition-colors" style="opacity: 0.55" aria-disabled="true">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 border-[var(--txt-3)]"></div>
+					<div class="radio-content">
+						<div class="radio-label font-bold text-[var(--txt)] mb-1">اتفاقية سرية مخصصة <span class="bg-amber-500/10 text-amber-500 text-[10px] px-2 py-0.5 rounded ml-2">قريبا</span></div>
+						<div class="radio-sub text-[13px] text-[var(--txt-3)]">رفع ملف PDF للاتفاقية الخاصة يخضع لفحص AI، هذه الميزة قيد التطوير وستتوفر قريبا</div>
+					</div>
+				</label>
+			</div>
+		</div>
+
+		<!-- IP RIGHTS CARD -->
+		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+			<h2 class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
+				<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
+				حقوق الملكية الفكرية
+			</h2>
+			<div class="radio-group grid grid-cols-1 md:grid-cols-3 gap-4" role="radiogroup" aria-label="حقوق الملكية الفكرية">
+				<label class="radio-opt flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.ipRights() === 'client' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" (click)="parent.setIpRights('client')">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5" [ngClass]="parent.ipRights() === 'client' ? 'border-[var(--teal)]' : 'border-[var(--txt-3)]'">
+						@if (parent.ipRights() === 'client') { <div class="w-2.5 h-2.5 rounded-full bg-[var(--teal)]"></div> }
+					</div>
+					<div class="radio-content">
+						<div class="radio-label font-bold text-[var(--txt)] text-sm mb-1">كاملة لطالب الخدمة <span class="bg-[var(--teal)]/10 text-[var(--teal)] text-[10px] px-2 py-0.5 rounded ml-2">افتراضي</span></div>
+						<div class="radio-sub text-[12px] text-[var(--txt-3)]">جميع المخرجات والأعمال المنتجة ملكية حصرية لطالب الخدمة</div>
+					</div>
+				</label>
+				<label class="radio-opt ip-group flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.ipRights() === 'shared' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" (click)="parent.setIpRights('shared')">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5" [ngClass]="parent.ipRights() === 'shared' ? 'border-[var(--teal)]' : 'border-[var(--txt-3)]'">
+						@if (parent.ipRights() === 'shared') { <div class="w-2.5 h-2.5 rounded-full bg-[var(--teal)]"></div> }
+					</div>
+					<div class="radio-content">
+						<div class="radio-label font-bold text-[var(--txt)] text-sm mb-1">حقوق مشتركة</div>
+						<div class="radio-sub text-[12px] text-[var(--txt-3)]">يحتفظ مقدم الخدمة بحق استخدام العمل في محفظته الشخصية</div>
+					</div>
+				</label>
+				<label class="radio-opt ip-group flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.ipRights() === 'provider' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" (click)="parent.setIpRights('provider')">
+					<div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5" [ngClass]="parent.ipRights() === 'provider' ? 'border-[var(--teal)]' : 'border-[var(--txt-3)]'">
+						@if (parent.ipRights() === 'provider') { <div class="w-2.5 h-2.5 rounded-full bg-[var(--teal)]"></div> }
+					</div>
+					<div class="radio-content">
+						<div class="radio-label font-bold text-[var(--txt)] text-sm mb-1">يسمح بإعادة الاستخدام</div>
+						<div class="radio-sub text-[12px] text-[var(--txt-3)]">يحق لمقدم الخدمة استخدام العمل في مشاريع مشابهة</div>
+					</div>
+				</label>
+			</div>
+		</div>
+
+		<!-- PROVIDER REQUIREMENTS -->
+		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+			<h2 class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
+				<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+				متطلبات مقدم الخدمة
+			</h2>
+			<div class="field-group grid grid-cols-1 md:grid-cols-2 gap-5">
+
+				<!-- Level -->
+				<div class="field-wrap relative">
+					<label class="field-label block text-sm font-bold text-[var(--txt-2)] mb-2" for="parent.provLevel">مستوى الخبرة</label>
+					<div class="relative">
+						<select class="mock-input field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="parent.provLevel" [(ngModel)]="parent.provLevel">
+							<option value="" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">أي مستوى</option>
+							<option value="5" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">مستوى 5 فأعلى</option>
+							<option value="8" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">مستوى 8 فأعلى</option>
+							<option value="10" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">مستوى 10 فأعلى</option>
+							<option value="12" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">مستوى 12 فأعلى</option>
+						</select>
+						<svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--txt-3)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+					</div>
+				</div>
+
+				<!-- Rating -->
+				<div class="field-wrap relative">
+					<label class="field-label block text-sm font-bold text-[var(--txt-2)] mb-2" for="parent.provRating">الحد الأدنى للتقييم</label>
+					<div class="relative">
+						<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="parent.provRating" [(ngModel)]="parent.provRating">
+							<option value="" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">بدون حد أدنى</option>
+							<option value="3" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">3 نجوم فأعلى</option>
+							<option value="4" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">4 نجوم فأعلى</option>
+							<option value="4.5" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">4.5 نجوم فأعلى</option>
+						</select>
+						<svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--txt-3)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+					</div>
+				</div>
+
+				<!-- Language -->
+				<div class="field-wrap relative">
+					<label class="field-label block text-sm font-bold text-[var(--txt-2)] mb-2" for="parent.provLang">لغة التواصل</label>
+					<div class="relative">
+						<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="parent.provLang" [(ngModel)]="parent.provLang">
+							<option value="ar" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">العربية</option>
+							<option value="en" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">الإنجليزية</option>
+							<option value="both" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">كلتاهما</option>
+						</select>
+						<svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--txt-3)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+					</div>
+				</div>
+
+				<!-- Location -->
+				<div class="field-wrap relative">
+					<label class="field-label block text-sm font-bold text-[var(--txt-2)] mb-2" for="parent.provLocation">الموقع</label>
+					<div class="relative">
+						<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="parent.provLocation" [(ngModel)]="parent.provLocation">
+							<option value="" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">أي موقع</option>
+							<option value="sa" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">المملكة العربية السعودية</option>
+							<option value="gcc" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">دول الخليج</option>
+							<option value="any" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">عالمي</option>
+						</select>
+						<svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--txt-3)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- CUSTOM CONDITIONS -->
+		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+			<h2 class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between gap-3 mb-4">
+				<span class="flex items-center gap-3">
+					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+					شروط مخصصة
+				</span>
+				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
+			</h2>
+			<textarea class="cond-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[100px]" id="condText" placeholder="اكتب أي شروط إضافية تريد فرضها على مقدم الخدمة..." maxlength="2000" [(ngModel)]="parent.customConditions" aria-label="الشروط المخصصة"></textarea>
+			<div class="char-count text-xs text-right mt-2 text-[var(--txt-3)] font-medium"><span id="charCount">{{ parent.customConditions().length }}</span> / 2000</div>
+			<!-- AI Conflict Check -->
+			@if (parent.customConditions().length > 10) {
+			<div class="ai-conflict ok show flex items-center gap-2 mt-4 p-3 bg-emerald-500/10 text-emerald-500 rounded-lg text-sm font-medium" id="aiConflict" role="status">
+				<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+				<span>وسيط AI: لا تعارض مع سياسات النظام، الشروط متوافقة</span>
+			</div>
+			}
+		</div>

@@ -1,0 +1,493 @@
+<main class="w-full pb-10" dir="rtl" id="profile-main">
+	<h1 class="sr-only">الملف الشخصي</h1>
+
+	<!-- SVG Icons -->
+	<svg style="display:none" aria-hidden="true">
+		<symbol id="ic-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="2" />
+			<circle cx="4" cy="6" r="1.5" />
+			<circle cx="20" cy="6" r="1.5" />
+			<circle cx="4" cy="18" r="1.5" />
+			<circle cx="20" cy="18" r="1.5" />
+			<circle cx="12" cy="3" r="1.5" />
+			<circle cx="12" cy="21" r="1.5" />
+			<path
+				d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+		</symbol>
+		<symbol id="ic-star" viewBox="0 0 100 100" fill="currentColor">
+			<path
+				d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+		</symbol>
+		<symbol id="ic-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="7" r="4" />
+			<path d="M4 21v-1a8 8 0 0 1 16 0v1" />
+		</symbol>
+		<symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+			<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+		</symbol>
+		<symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+			<polyline points="14 2 14 8 20 8" />
+		</symbol>
+		<symbol id="ic-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+			<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+		</symbol>
+		<symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="10" />
+			<polyline points="12 6 12 12 16 14" />
+		</symbol>
+		<symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+			stroke-linecap="round" stroke-linejoin="round">
+			<polyline points="20 6 9 17 4 12" />
+		</symbol>
+		<symbol id="ic-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+			<circle cx="12" cy="10" r="3" />
+		</symbol>
+		<symbol id="ic-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="12" cy="12" r="10" />
+			<line x1="12" y1="8" x2="12" y2="12" />
+			<line x1="12" y1="16" x2="12.01" y2="16" />
+		</symbol>
+		<symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+			stroke-linecap="round" stroke-linejoin="round">
+			<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+			<path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
+		</symbol>
+		<symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+			stroke-linecap="round" stroke-linejoin="round">
+			<line x1="18" y1="6" x2="6" y2="18" />
+			<line x1="6" y1="6" x2="18" y2="18" />
+		</symbol>
+	</svg>
+
+	<!-- ─── AI Disclosure ─── -->
+	<div class="ai-disc" role="region" aria-label="إفصاح الذكاء الاصطناعي">
+		<div class="ai-disc-ico">
+			<svg width="15" height="15" aria-hidden="true">
+				<use href="#ic-ai"></use>
+			</svg>
+		</div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-label">وسيط AI — إفصاح الذكاء الاصطناعي</div>
+			<p class="ai-disc-txt">
+				يُحلّل الذكاء اكتمال ملفك ويقترح التحسينات
+				<span class="ai-disc-badge">دقة 95%</span>
+				— الإنسان يحتفظ بالقرار النهائي
+			</p>
+		</div>
+	</div>
+
+	<!-- ─── Loading Skeleton ─── -->
+	@if (isLoading()) {
+	<div role="region" aria-label="جاري التحميل">
+		<div class="profile-card" style="animation: none;">
+			<div class="skeleton-row" style="width:40%;height:22px;margin-bottom:18px"></div>
+			<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+				<div class="skeleton-box" style="height:100px"></div>
+				<div class="skeleton-box" style="height:100px"></div>
+			</div>
+			<div class="skeleton-row" style="width:100%;height:14px;margin-top:18px"></div>
+			<div class="skeleton-row" style="width:75%;height:14px;margin-top:10px"></div>
+		</div>
+	</div>
+	}
+
+	<!-- ─── Error State ─── -->
+	@if (!isLoading() && errorMsg()) {
+	<div role="alert">
+		<div class="error-card">
+			<div class="error-ico-wrap">
+				<svg width="28" height="28" aria-hidden="true" style="color:#F87171">
+					<use href="#ic-warn"></use>
+				</svg>
+			</div>
+			<div class="error-title">تعذر تحميل الملف الشخصي</div>
+			<div class="error-sub">{{ errorMsg() }}</div>
+			<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+				<button type="button" class="retry-btn" (click)="loadProfile()">إعادة المحاولة</button>
+				<a routerLink="/client-overview/help"
+					style="padding:10px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:50px;color:#A8B2D1;font-weight:700;font-size:13px;text-decoration:none">تواصل
+					مع الدعم</a>
+			</div>
+		</div>
+	</div>
+	}
+
+	<!-- ─── Main Content ─── -->
+	@if (!isLoading() && !errorMsg() && profileData()) {
+
+	<!-- Level Banner -->
+	<div class="level-banner">
+		<div class="level-ico">
+			<svg width="16" height="16" aria-hidden="true" style="color:#9B8B7A">
+				<use href="#ic-star"></use>
+			</svg>
+		</div>
+		<div class="level-details">
+			<div class="level-label">مستوى الولاء</div>
+			<div class="level-row">
+				<span class="level-tag">
+					<svg width="12" height="12" aria-hidden="true" style="color:#9B8B7A">
+						<use href="#ic-star"></use>
+					</svg>
+					{{ level }} · المستوى {{ profileData()?.currentPoints ? '2' : '1' }}
+				</span>
+				<span class="level-pts">{{ profileData()?.currentPoints || 0 }} نقطة · كاش باك 1.5%</span>
+			</div>
+		</div>
+		<button type="button" class="level-btn" routerLink="/client-overview/profile/level">تفاصيل</button>
+	</div>
+
+	<!-- Completion Banner -->
+	@if (completionPercent < 100) { <div class="completion-banner" id="completion-banner" role="note">
+		<div class="completion-ico">
+			<svg width="19" height="19" aria-hidden="true">
+				<use href="#ic-warn"></use>
+			</svg>
+		</div>
+		<div class="completion-body">
+			<div class="completion-title">ملفك الشخصي مكتمل {{ completionPercent }}%</div>
+			<div class="completion-sub">أضف رقم الجوال والموقع الشخصي لرفع نسبة الاكتمال وزيادة موثوقيتك</div>
+		</div>
+		<a routerLink="/client-overview/profile-setup" class="completion-cta">
+			<svg width="13" height="13" aria-hidden="true">
+				<use href="#ic-edit"></use>
+			</svg>
+			استكمل
+		</a>
+		<button type="button" class="completion-close" (click)="showBanner = false" aria-label="إغلاق">
+			<svg width="13" height="13" aria-hidden="true">
+				<use href="#ic-x"></use>
+			</svg>
+		</button>
+		</div>
+		}
+
+		<!-- ─── Profile Header Card ─── -->
+		<div class="profile-card">
+			<div class="profile-hdr">
+				<!-- Avatar -->
+				<div class="avatar-wrap">
+					<div class="avatar">
+						@if (getAvatar()) {
+						<img [src]="getAvatar()" alt="صورة الملف الشخصي">
+						} @else {
+						{{ getInitials() }}
+						}
+					</div>
+					<div class="avatar-level-badge">
+						<svg width="11" height="11" aria-hidden="true" style="color:#070D24">
+							<use href="#ic-star"></use>
+						</svg>
+					</div>
+				</div>
+
+				<!-- Info -->
+				<div class="profile-info">
+					<div class="profile-name">
+						{{ getFullName() }}
+						<span class="name-level-tag">
+							<svg width="9" height="9" aria-hidden="true" style="color:#9B8B7A">
+								<use href="#ic-star"></use>
+							</svg>
+							{{ level }}
+						</span>
+					</div>
+
+					<!-- Stars Rating -->
+					<div class="profile-stars">
+						<svg width="11" height="11" style="color:#9B8B7A" aria-hidden="true">
+							<use href="#ic-star"></use>
+						</svg>
+						<svg width="11" height="11" style="color:#9B8B7A" aria-hidden="true">
+							<use href="#ic-star"></use>
+						</svg>
+						<svg width="11" height="11" style="color:#9B8B7A" aria-hidden="true">
+							<use href="#ic-star"></use>
+						</svg>
+						<svg width="11" height="11" style="color:#9B8B7A" aria-hidden="true">
+							<use href="#ic-star"></use>
+						</svg>
+						<svg width="11" height="11" style="color:rgba(155,139,122,.3)" aria-hidden="true">
+							<use href="#ic-star"></use>
+						</svg>
+						<span class="rating-num">{{ rating > 0 ? rating : '4.8' }}</span>
+						<span class="rating-count">({{ profileData()?.reviewsCount || 32 }} تقييم)</span>
+					</div>
+
+					<div class="profile-badges">
+						<span class="acc-type-badge">{{ getAccountTypeLabel() }} &middot; {{ getEntityLabel() }}</span>
+						<span class="member-since">{{ getMemberSince() }}</span>
+					</div>
+
+					<div class="profile-meta">
+						<span class="meta-verified">
+							<svg width="13" height="13" aria-hidden="true">
+								<use href="#ic-check"></use>
+							</svg>
+							موثّق
+						</span>
+						@if (profileData()?.city) {
+						<span class="meta-city">
+							<svg width="12" height="12"
+								style="display:inline;vertical-align:middle;margin-inline-end:3px" aria-hidden="true">
+								<use href="#ic-pin"></use>
+							</svg>
+							{{ profileData().city }}، المملكة العربية السعودية
+						</span>
+						}
+						<span class="meta-activity">آخر نشاط: اليوم</span>
+					</div>
+				</div>
+
+				<!-- Edit Button -->
+				<a routerLink="/client-overview/profile/edit" class="edit-btn">
+					<svg width="15" height="15" aria-hidden="true">
+						<use href="#ic-edit"></use>
+					</svg>
+					تعديل الملف
+				</a>
+			</div>
+
+			<!-- Stats -->
+			<div class="stats-grid">
+				<div class="stat-cell">
+					<div class="stat-num">{{ profileData()?.totalRequests || 0 }}</div>
+					<div class="stat-lbl">طلب منشور</div>
+				</div>
+				<div class="stat-cell" style="border-inline: 1px solid rgba(255,255,255,.06)">
+					<div class="stat-num">{{ profileData()?.completedProjects || 0 }}</div>
+					<div class="stat-lbl">مشروع مكتمل</div>
+				</div>
+				<div class="stat-cell" style="border-inline-end: 1px solid rgba(255,255,255,.06)">
+					<div class="stat-num teal">{{ rating > 0 ? rating : '—' }}</div>
+					<div class="stat-lbl">تقييم متوسط</div>
+				</div>
+				<div class="stat-cell">
+					<div class="stat-num">{{ profileData()?.satisfactionRate ? (profileData().satisfactionRate + '%') :
+						'—' }}</div>
+					<div class="stat-lbl">نسبة الرضا</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- ─── Tabs ─── -->
+		<div class="prof-tabs" role="tablist" aria-label="أقسام الملف الشخصي">
+			<button type="button" class="prof-tab" [class.active]="activeTab() === 'info'" role="tab"
+				[attr.aria-selected]="activeTab() === 'info'" (click)="switchTab('info')">المعلومات الأساسية</button>
+			<button type="button" class="prof-tab" [class.active]="activeTab() === 'interests'" role="tab"
+				[attr.aria-selected]="activeTab() === 'interests'" (click)="switchTab('interests')">الاهتمامات</button>
+			<button type="button" class="prof-tab" [class.active]="activeTab() === 'links'" role="tab"
+				[attr.aria-selected]="activeTab() === 'links'" (click)="switchTab('links')">الروابط</button>
+			<button type="button" class="prof-tab" [class.active]="activeTab() === 'activity'" role="tab"
+				[attr.aria-selected]="activeTab() === 'activity'" (click)="switchTab('activity')">سجل النشاط</button>
+		</div>
+
+		<!-- ─── Tab: Info ─── -->
+		@if (activeTab() === 'info') {
+		<div class="info-grid">
+			<!-- Basic Data -->
+			<div class="info-card">
+				<div class="info-card-title">
+					<svg width="15" height="15" aria-hidden="true">
+						<use href="#ic-person"></use>
+					</svg>
+					البيانات الأساسية
+				</div>
+				<div class="info-row">
+					<span class="info-key">الاسم الكامل</span>
+					<span class="info-val">{{ getFullName() }}</span>
+				</div>
+				<div class="info-row">
+					<span class="info-key">رقم الهوية</span>
+					<span class="info-val" [class.missing]="!profileData()?.idNumber" dir="ltr">
+						{{ profileData()?.idNumber ? maskId(profileData().idNumber) : 'غير مضاف' }}
+					</span>
+				</div>
+				<div class="info-row">
+					<span class="info-key">تاريخ انتهاء الهوية</span>
+					<span class="info-val" [class.missing]="!profileData()?.idExpiryDate">
+						{{ profileData()?.idExpiryDate ? (profileData().idExpiryDate | date:'longDate':'':'ar') : 'غير
+						مضاف' }}
+					</span>
+				</div>
+				<div class="info-row">
+					<span class="info-key">المدينة</span>
+					<span class="info-val" [class.missing]="!profileData()?.city">
+						{{ profileData()?.city || 'غير مضاف' }}
+					</span>
+				</div>
+				<div class="info-row">
+					<span class="info-key">المنطقة</span>
+					<span class="info-val" [class.missing]="!profileData()?.region">
+						{{ profileData()?.region || 'غير مضاف' }}
+					</span>
+				</div>
+			</div>
+
+			<!-- Contact Data -->
+			<div class="info-card">
+				<div class="info-card-title">
+					<svg width="15" height="15" aria-hidden="true">
+						<use href="#ic-bell"></use>
+					</svg>
+					بيانات التواصل
+				</div>
+				<div class="info-row">
+					<span class="info-key">البريد الإلكتروني</span>
+					<span class="info-val" dir="ltr">{{ profileData()?.email }}</span>
+				</div>
+				<div class="info-row">
+					<span class="info-key">رقم الجوال</span>
+					@if (profileData()?.phoneNumber) {
+					<span class="info-val" dir="ltr">{{ profileData()?.phoneCountryCode || '+966' }} {{
+						profileData().phoneNumber }}</span>
+					} @else {
+					<span class="info-val missing">غير مُضاف</span>
+					}
+				</div>
+				<div class="info-row">
+					<span class="info-key">الهاتف البديل</span>
+					@if (profileData()?.alternativePhone) {
+					<span class="info-val" dir="ltr">{{ profileData().alternativePhone }}</span>
+					} @else {
+					<span class="info-val missing">غير مضاف</span>
+					}
+				</div>
+				<div class="info-row">
+					<span class="info-key">المنطقة الزمنية</span>
+					<span class="info-val">GMT+3</span>
+				</div>
+			</div>
+
+			<!-- Bio -->
+			<div class="info-card full-width">
+				<div class="info-card-title">
+					<svg width="15" height="15" aria-hidden="true">
+						<use href="#ic-doc"></use>
+					</svg>
+					نبذة تعريفية
+				</div>
+				@if (bio && bio !== 'لم يتم إضافة نبذة تعريفية بعد.') {
+				<p style="font-size:14px;color:#A8B2D1;line-height:1.75">{{ bio }}</p>
+				} @else {
+				<div style="text-align:center;padding:20px;color:#6B7699;font-size:13px">
+					<p>لم تتم إضافة نبذة تعريفية بعد</p>
+					<a routerLink="/client-overview/profile/edit"
+						style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:8px;color:#2BD4C7;font-size:12px;font-weight:700;text-decoration:none">
+						<svg width="13" height="13" aria-hidden="true">
+							<use href="#ic-edit"></use>
+						</svg>
+						أضف نبذة الآن
+					</a>
+				</div>
+				}
+			</div>
+		</div>
+		}
+
+		<!-- ─── Tab: Interests ─── -->
+		@if (activeTab() === 'interests') {
+		<div class="info-card">
+			<div class="info-card-title" style="margin-bottom:16px">المجالات والاهتمامات</div>
+			@if (skills.length > 0) {
+			<div class="skills-wrap">
+				@for (skill of skills; track skill) {
+				<span class="skill-tag">{{ skill }}</span>
+				}
+			</div>
+			} @else {
+			<div style="text-align:center;padding:24px;color:#6B7699;font-size:13px">
+				<p>لم تتم إضافة اهتمامات بعد</p>
+				<a routerLink="/client-overview/profile/edit"
+					style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 14px;background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.22);border-radius:8px;color:#5DA0FF;font-size:12px;font-weight:700;text-decoration:none">
+					<svg width="13" height="13" aria-hidden="true">
+						<use href="#ic-edit"></use>
+					</svg>
+					أضف اهتماماتك
+				</a>
+			</div>
+			}
+		</div>
+		}
+
+		<!-- ─── Tab: Links ─── -->
+		@if (activeTab() === 'links') {
+		<div class="info-card">
+			<div class="info-card-title">
+				<svg width="15" height="15" aria-hidden="true">
+					<use href="#ic-link"></use>
+				</svg>
+				الروابط الشخصية
+			</div>
+			<div class="info-row">
+				<span class="info-key">الموقع الشخصي</span>
+				@if (profileData()?.website) {
+				<a [href]="profileData().website" target="_blank" rel="noopener" class="info-val link" dir="ltr">{{
+					profileData().website }}</a>
+				} @else {
+				<span class="info-val missing">غير مُضاف</span>
+				}
+			</div>
+			<div class="info-row">
+				<span class="info-key">LinkedIn</span>
+				<span class="info-val missing">غير مُضاف</span>
+			</div>
+			<div class="info-row">
+				<span class="info-key">GitHub</span>
+				<span class="info-val missing">غير مُضاف</span>
+			</div>
+			<div style="margin-top:16px">
+				<a routerLink="/client-overview/profile/edit"
+					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;color:#2BD4C7;font-size:12px;font-weight:700;text-decoration:none">
+					<svg width="13" height="13" aria-hidden="true">
+						<use href="#ic-edit"></use>
+					</svg>
+					تعديل الروابط
+				</a>
+			</div>
+		</div>
+		}
+
+		<!-- ─── Tab: Activity ─── -->
+		@if (activeTab() === 'activity') {
+		<div class="info-card">
+			<div class="info-card-title">
+				<svg width="15" height="15" aria-hidden="true">
+					<use href="#ic-clock"></use>
+				</svg>
+				سجل النشاط الأخير
+			</div>
+			@if (profileData()?.recentActivity && profileData().recentActivity.length > 0) {
+			@for (act of profileData().recentActivity; track act.id) {
+			<div class="activity-row">
+				<span class="activity-title">{{ act.title }}</span>
+				<span class="activity-time">{{ act.timeAgo }}</span>
+			</div>
+			}
+			} @else {
+			<!-- Fallback placeholder activity -->
+			<div class="activity-row">
+				<span class="activity-title">انضمام للمنصة</span>
+				<span class="activity-time">{{ getMemberSince() }}</span>
+			</div>
+			<div style="text-align:center;padding:20px;color:#6B7699;font-size:12px;margin-top:8px">
+				لا توجد أنشطة حديثة للعرض
+			</div>
+			}
+		</div>
+		}
+
+		}
+</main>

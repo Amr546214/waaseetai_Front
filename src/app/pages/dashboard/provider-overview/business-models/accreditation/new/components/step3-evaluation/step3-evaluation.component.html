@@ -1,0 +1,167 @@
+<div class="max-w-full mx-auto text-right">
+
+	<!-- Loading Scanning State -->
+	<div *ngIf="isAnalyzing" class="py-12 md:py-24 flex justify-center w-full">
+		<style>
+			@keyframes indeterminate-rtl {
+				0% {
+					right: -30%;
+					width: 30%;
+				}
+
+				50% {
+					width: 50%;
+				}
+
+				100% {
+					right: 100%;
+					width: 30%;
+				}
+			}
+
+			.ai-progress-bar {
+				animation: indeterminate-rtl 2s ease-in-out infinite;
+			}
+		</style>
+		<div class="w-full max-w-[600px] bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] rounded-[16px] p-12 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl"
+			style="backdrop-filter: blur(16px);">
+
+			<!-- Subtle background glow -->
+			<div class="absolute inset-0 opacity-20 pointer-events-none"
+				style="background: radial-gradient(circle at center, rgba(165,107,224,0.15) 0%, transparent 60%);">
+			</div>
+
+			<!-- Star Icon -->
+			<div class="mb-5 animate-pulse">
+				<svg width="20" height="20" aria-hidden="true">
+					<use href="#i-ai"></use>
+				</svg>
+			</div>
+
+			<!-- Text -->
+			<div class="text-[#C084FC] font-bold text-[15px] mb-8 tracking-wide">
+				يقارن مع متطلبات التخصص...
+			</div>
+
+			<!-- Progress Bar -->
+			<div class="w-full h-1 bg-[rgba(255,255,255,0.05)] rounded-full overflow-hidden relative">
+				<div
+					class="absolute top-0 bottom-0 right-0 rounded-full bg-gradient-to-l from-[#A56BE0] to-[#2B7FFF] ai-progress-bar shadow-[0_0_12px_rgba(165,107,224,0.5)]">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Error State -->
+	<div *ngIf="hasError && !isAnalyzing"
+		class="p-6 bg-[rgba(255,107,107,.1)] border border-[rgba(255,107,107,.3)] rounded-2xl text-center mb-6">
+		<div class="text-red-400 font-extrabold text-sm mb-2">⚠️ حدث تنبيه أثناء التدقيق</div>
+		<div class="text-xs text-[var(--txt-2)] mb-4">{{ hasError }}</div>
+		<button type="button" (click)="submitForAiEvaluation()"
+			class="px-5 py-2.5 bg-[#2BD4C7] text-[#070D24] text-xs font-extrabold rounded-xl hover:opacity-90">
+			إعادة المحاولة 🔄
+		</button>
+	</div>
+
+	<!-- Evaluation Report -->
+	<div *ngIf="evaluationResult && !isAnalyzing" class="space-y-6">
+		<!-- Result Card -->
+		<div
+			class="bg-[var(--crd-bg)] backdrop-blur-xl border border-[var(--crd-bd)] rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+			<!-- Accent Glow Background -->
+			<div class="absolute -top-24 -right-24 w-64 h-64 rounded-full filter blur-3xl opacity-20"
+					[class]="evaluationResult.status === 'AI_VERIFIED' ? 'bg-[#2BD4C7]' : 'bg-[#FF6B6B]'">
+			</div>
+
+			<!-- Header Status -->
+			<div class="flex items-center justify-between pb-6 border-b border-[var(--sec-bd)] mb-6">
+				<div>
+					<span class="text-xs font-bold text-[var(--txt-3)] block mb-1">نتيجة التقييم الآلي
+						الفوري</span>
+					<h3 class="text-xl font-black text-[var(--txt)] flex items-center gap-2">
+							<span *ngIf="evaluationResult.status === 'AI_VERIFIED'" class="text-[#2BD4C7]">معتمد بنجاح
+						</span>
+							<span *ngIf="evaluationResult.status !== 'AI_VERIFIED'" class="text-[#FFB400]">يحتاج لتحسين
+						</span>
+					</h3>
+				</div>
+				<div class="px-4 py-1.5 rounded-full text-xs font-extrabold border"
+						[class]="evaluationResult.status === 'AI_VERIFIED' ? 'bg-[rgba(43,212,199,.15)] border-[#2BD4C7] text-[#2BD4C7]' : 'bg-[rgba(255,180,0,.15)] border-[#FFB400] text-[#FFB400]'">
+						{{ evaluationResult.aiQualityRating }}
+				</div>
+			</div>
+
+			<!-- Score Gauge & Main Metrics -->
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center mb-8">
+				<div
+					class="flex flex-col items-center justify-center p-6 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-2xl text-center">
+					<div class="text-4xl font-black text-[#2BD4C7] leading-none mb-1">
+							{{ evaluationResult.aiScore }}%
+					</div>
+					<div class="text-xs text-[var(--txt-3)] font-bold">النتيجة المعمارية الفنية</div>
+				</div>
+
+				<div class="sm:col-span-2 p-5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-2xl">
+					<div class="text-xs font-extrabold text-[#2BD4C7] mb-1.5">التقييم الشامل والتقرير الآلي
+					</div>
+					<p class="text-xs text-[var(--txt-2)] leading-relaxed">
+							{{ evaluationResult.feedbackAr }}
+					</p>
+				</div>
+			</div>
+
+			<!-- Strengths & Recommendations -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<!-- Strengths -->
+				<div class="p-5 bg-[rgba(43,212,199,.05)] border border-[rgba(43,212,199,.2)] rounded-2xl">
+					<h4 class="text-xs font-extrabold text-[#2BD4C7] mb-3 flex items-center gap-2">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4">
+							<polyline points="20 6 9 17 4 12" />
+						</svg>
+						نقاط القوة التقنية المحققة
+					</h4>
+					<ul class="space-y-2 text-xs text-[var(--txt-2)]">
+							@for (str of evaluationResult.strengths; track str) {
+						<li class="flex items-start gap-2">
+							<span class="text-[#2BD4C7] font-bold">✓</span>
+							<span>{{ str }}</span>
+						</li>
+						}
+					</ul>
+				</div>
+
+				<!-- Recommendations -->
+				<div class="p-5 bg-[rgba(43,127,255,.05)] border border-[rgba(43,127,255,.2)] rounded-2xl">
+					<h4 class="text-xs font-extrabold text-[#5DA0FF] mb-3 flex items-center gap-2">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+							<circle cx="12" cy="12" r="10" />
+							<line x1="12" y1="16" x2="12" y2="12" />
+							<line x1="12" y1="8" x2="12.01" y2="8" />
+						</svg>
+						توصيات التحسين والتطوير
+					</h4>
+					<ul class="space-y-2 text-xs text-[var(--txt-2)]">
+							@for (rec of evaluationResult.recommendations; track rec) {
+						<li class="flex items-start gap-2">
+							<span class="text-[#5DA0FF] font-bold">💡</span>
+							<span>{{ rec }}</span>
+						</li>
+						}
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<!-- Navigation Actions -->
+		<div class="flex flex-wrap items-center justify-center gap-4 pt-4 w-full">
+			<button type="button" routerLink="/provider-overview/business-models/center"
+				class="px-8 py-3.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] font-extrabold text-sm rounded-full shadow-lg hover:opacity-95 transition-all cursor-pointer">
+				عرض جميع نماذج الاعتماد الخاصة بك
+			</button>
+			<a routerLink="/provider-overview"
+				class="px-6 py-3.5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] font-bold text-sm rounded-full hover:text-[var(--txt)] transition-all">
+				العودة للوحة التحكم
+			</a>
+		</div>
+	</div>
+</div>

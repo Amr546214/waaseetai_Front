@@ -1,0 +1,144 @@
+<div class="main-inner">
+  <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+    <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+    <div class="ai-disc-body">
+      <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+      <p class="ai-disc-txt">AI يحلل أداء قنواتك ويقترح أفضل توقيت ومحتوى لزيادة الإحالات <span class="ai-disc-badge">دقة 92%</span> القرار النهائي لك</p>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
+    <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true">
+      <svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+    </div>
+    <div style="flex:1;min-width:220px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span class="ws-level-tag" style="font-size:14px;font-weight:900;color:#9B8B7A;border-color:rgba(155,139,122,.30)">{{ summary()?.tier || 'مساعد' }}</span>
+        <span style="font-size:11px;color:#6B7699">· {{ summary()?.successfulReferrals ?? 47 }} إحالة ناجحة · {{ summary()?.totalCommissions ?? 2340 }} ريال عمولات</span>
+      </div>
+      <div style="height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden">
+        <div [style.width]="(summary()?.progressPercentage ?? 60) + '%'" style="height:100%;background:linear-gradient(90deg,#9B8B7A,#CD7F32);border-radius:4px;transition:width 0.5s ease-in-out;"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:7px">
+        <svg width="12" height="12" aria-hidden="true" style="color:var(--ai-txt,#A56BE0)"><use href="#i-ai"></use></svg>
+        <span style="font-size:11.5px;color:#A8B2D1">
+          @if ((summary()?.successfulReferrals ?? 47) === 0) {
+            توصية AI: أكمل أول {{ summary()?.nextTierThreshold || 3 }} إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
+          } @else {
+            توصية AI: 3 إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
+          }
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-top">
+        <div class="kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div>
+        <span class="kpi-lbl">إجمالي الإحالات</span>
+      </div>
+      <div class="kpi-val" style="color:#2BD4C7">52</div>
+      <div class="kpi-delta" style="color:#0FA99A">+6 هذا الأسبوع</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-top">
+        <div class="kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A"><svg aria-hidden="true"><use href="#i-check"></use></svg></div>
+        <span class="kpi-lbl">أول مشروع مؤهل</span>
+      </div>
+      <div class="kpi-val" style="color:#0FA99A">47</div>
+      <div class="kpi-delta" style="color:#6B7699">عمولة مستحقة</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-top">
+        <div class="kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div>
+        <span class="kpi-lbl">بانتظار الاكتمال</span>
+      </div>
+      <div class="kpi-val" style="color:#FFB400">4</div>
+      <div class="kpi-delta" style="color:#6B7699">مسجّلة، لا عمولة بعد</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-top">
+        <div class="kpi-ic" style="background:rgba(255,140,105,.12);color:#FF8C69"><svg aria-hidden="true"><use href="#i-close"></use></svg></div>
+        <span class="kpi-lbl">ملغاة</span>
+      </div>
+      <div class="kpi-val" style="color:#FF8C69">1</div>
+      <div class="kpi-delta" style="color:#6B7699">لا تُحسب ضمن الأداء</div>
+    </div>
+  </div>
+
+  <div class="adm-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div class="adm-card-ttl" style="margin-bottom:0">
+        <svg aria-hidden="true"><use href="#i-add-user"></use></svg>قائمة الإحالات
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="filter-chip" [class.active]="filterStatus() === 'all'" (click)="setFilter('all')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">الكل</button>
+        <button class="filter-chip" [class.active]="filterStatus() === 'qualified'" (click)="setFilter('qualified')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">أول مشروع مؤهل</button>
+        <button class="filter-chip" [class.active]="filterStatus() === 'pending'" (click)="setFilter('pending')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">بانتظار الاكتمال</button>
+        <button class="filter-chip" [class.active]="filterStatus() === 'cancelled'" (click)="setFilter('cancelled')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">ملغاة</button>
+      </div>
+    </div>
+
+    <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" class="inp-field" placeholder="بحث بالاسم" style="margin-bottom:14px">
+
+    <div style="overflow-x:auto">
+      <table class="act-tbl">
+        <thead>
+          <tr>
+            <th>المُحال</th>
+            <th>نوع الخدمة</th>
+            <th>القناة</th>
+            <th>تاريخ التسجيل</th>
+            <th>الحالة</th>
+            <th>العمولة</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredReferrals(); track item.id) {
+            <tr (click)="openRefModal(item)">
+              <td>{{ item.name }}</td>
+              <td>{{ item.service }}</td>
+              <td>{{ item.channel }}</td>
+              <td>{{ item.date }}</td>
+              <td>
+                @if (item.status === 'qualified') {
+                  <span style="background:rgba(15,169,154,.12);color:#0FA99A;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">{{ item.statusLabel }}</span>
+                } @else if (item.status === 'pending') {
+                  <span style="background:rgba(255,180,0,.10);color:#FFB400;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">{{ item.statusLabel }}</span>
+                } @else {
+                  <span style="background:rgba(255,140,105,.10);color:#FF8C69;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">{{ item.statusLabel }}</span>
+                }
+              </td>
+              <td [style.color]="item.status === 'qualified' ? '#0FA99A' : '#6B7699'" [style.font-weight]="item.status !== 'cancelled' ? '700' : 'normal'">
+                {{ item.commission }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (filteredReferrals().length === 0) {
+      <p style="text-align:center;font-size:12px;color:#6B7699;padding:18px 0">لا توجد إحالات مطابقة</p>
+    }
+  </div>
+
+  @if (selectedReferral(); as ref) {
+    <div class="modal-ov show" (click)="closeRefModal()" role="dialog" aria-modal="true">
+      <div class="ref-modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-ico"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div>
+        <div class="modal-title">تفاصيل الإحالة</div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">المُحال</span><span class="ref-detail-val">{{ ref.name }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">نوع الخدمة</span><span class="ref-detail-val">{{ ref.service }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">القناة</span><span class="ref-detail-val">{{ ref.channel }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">تاريخ التسجيل</span><span class="ref-detail-val">{{ ref.date }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">الحالة</span><span class="ref-detail-val">{{ ref.statusLabel }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">العمولة</span><span class="ref-detail-val">{{ ref.commission }}</span></div>
+        <div class="modal-actions" style="margin-top:16px">
+          <button type="button" class="modal-btn modal-btn-cancel" (click)="closeRefModal()">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

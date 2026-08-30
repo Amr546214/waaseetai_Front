@@ -1,0 +1,160 @@
+@if (currentState !== 'IDLE') {
+  <div class="vc-overlay" dir="rtl">
+    
+    <!-- 1. INCOMING CALL STATE MODAL -->
+    @if (currentState === 'INCOMING') {
+      <div class="vc-incoming-card">
+        <div class="vc-pulse-rings">
+          <div class="ring r1"></div>
+          <div class="ring r2"></div>
+          <div class="ring r3"></div>
+          <div class="vc-avatar">
+            {{ videoCallService.callerInfo()?.callerName?.substring(0, 2) || 'مـ' }}
+          </div>
+        </div>
+
+        <h3 class="vc-incoming-title">مكالمة فيديو واردة</h3>
+        <p class="vc-caller-name">{{ videoCallService.callerInfo()?.callerName || 'مستخدم وسيط AI' }}</p>
+        <span class="vc-incoming-badge">📹 اجتماع مرئي عبر وسيط AI</span>
+
+        <div class="vc-incoming-actions">
+          <button type="button" class="vc-btn-accept" (click)="acceptCall()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            قبول المكالمة
+          </button>
+
+          <button type="button" class="vc-btn-decline" (click)="declineCall()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.68 13.31a16 16 0 0 0 3.41 3.41l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.33a19.42 19.42 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+            رفض
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- 2. CALLING / CONNECTED / ENDED STATE FULL SCREEN GOOGLE MEET VIEW -->
+    @if (currentState === 'CALLING' || currentState === 'CONNECTED' || currentState === 'ENDED') {
+      <div class="vc-meet-container">
+        
+        <!-- Meet Top Header -->
+        <div class="vc-meet-header">
+          <div class="vc-meet-info">
+            <span class="vc-live-dot" [class.is-calling]="currentState === 'CALLING'"></span>
+            <span class="vc-meet-title">
+              {{ currentState === 'CALLING' ? 'جارٍ الاتصال...' : currentState === 'ENDED' ? 'انتهت المكالمة' : 'اجتماع فيديو مباشر' }}
+            </span>
+            <span class="vc-meet-timer">{{ videoCallService.formattedDuration() }}</span>
+          </div>
+
+          <div class="vc-secure-badge">
+            🔒 مشفر P2P (WebRTC)
+          </div>
+        </div>
+
+        <!-- Meet Video Grid Area -->
+        <div class="vc-video-stage">
+          <!-- Remote Video Feed (Main Window) -->
+          <div class="vc-remote-wrapper">
+            <video #remoteVideo class="vc-remote-video" autoplay playsinline></video>
+            
+            <!-- Fallback overlay if remote video is inactive/connecting -->
+            @if (currentState === 'CALLING' || !videoCallService.remoteHasVideo()) {
+              <div class="vc-remote-placeholder">
+                <div class="vc-big-avatar">
+                  {{ videoCallService.callerInfo()?.callerName?.substring(0, 2) || 'مـ' }}
+                </div>
+                <p class="vc-status-txt">
+                  {{ currentState === 'CALLING' ? 'بانتظار انضمام الطرف الآخر...' : 'في انتظار تفعيل الفيديو' }}
+                </p>
+              </div>
+            }
+          </div>
+
+          <!-- Local Video Feed (PIP Draggable Window) -->
+          <div class="vc-local-wrapper" [class.is-cam-off]="videoCallService.isCameraOff()">
+            <video #localVideo class="vc-local-video" autoplay playsinline muted></video>
+            @if (videoCallService.isCameraOff()) {
+              <div class="vc-cam-off-placeholder">
+                📹 الكاميرا متوقفة
+              </div>
+            }
+            <span class="vc-pip-label">أنت</span>
+          </div>
+        </div>
+
+        <!-- Meet Bottom Toolbar -->
+        <div class="vc-meet-toolbar">
+          <!-- Toggle Microphone -->
+          <button type="button" 
+                  class="vc-tool-btn" 
+                  [class.is-active]="videoCallService.isMicMuted()"
+                  (click)="toggleMic()"
+                  [title]="videoCallService.isMicMuted() ? 'تفعيل الميكروفون' : 'كتم الميكروفون'">
+            @if (videoCallService.isMicMuted()) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+                <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path>
+                <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+              </svg>
+            }
+          </button>
+
+          <!-- Toggle Camera -->
+          <button type="button" 
+                  class="vc-tool-btn" 
+                  [class.is-active]="videoCallService.isCameraOff()"
+                  (click)="toggleCamera()"
+                  [title]="videoCallService.isCameraOff() ? 'تشغيل الكاميرا' : 'إيقاف الكاميرا'">
+            @if (videoCallService.isCameraOff()) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 7l-7 5 7 5V7z"></path>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+              </svg>
+            }
+          </button>
+
+          <!-- Toggle Screen Share -->
+          <button type="button" 
+                  class="vc-tool-btn" 
+                  [class.is-sharing]="videoCallService.isScreenSharing()"
+                  (click)="toggleScreenShare()"
+                  title="مشاركة الشاشة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </button>
+
+          <!-- End Call Button -->
+          <button type="button" class="vc-end-btn" (click)="endCall()" title="إنهاء المكالمة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.68 13.31a16 16 0 0 0 3.41 3.41l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.33a19.42 19.42 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    }
+
+  </div>
+}

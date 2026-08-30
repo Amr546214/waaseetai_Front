@@ -1,0 +1,124 @@
+<div class="max-w-full mx-auto text-right">
+	<!-- Loader -->
+	<div *ngIf="isLoading"
+		class="py-16 text-center text-[var(--txt-3)] text-sm border-2 border-dashed border-[var(--sec-bd)] rounded-2xl mb-8">
+		<svg class="animate-spin w-6 h-6 mx-auto mb-3 text-[#2BD4C7]" xmlns="http://www.w3.org/2000/svg" fill="none"
+			viewBox="0 0 24 24">
+			<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+			<path class="opacity-75" fill="currentColor"
+				d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+			</path>
+		</svg>
+		جاري تحميل التخصصات المتاحة...
+	</div>
+
+	<!-- Glassmorphic Notice if No Passed Specialties (length === 0) -->
+	<div *ngIf="!isLoading && (!hasAccreditedSpecialties || categories.length === 0)"
+		class="bg-[var(--crd-bg)] backdrop-blur-xl border border-[var(--crd-bd)] rounded-3xl p-10 flex flex-col items-center justify-center text-center shadow-2xl my-8">
+		<div
+			class="w-16 h-16 rounded-2xl bg-[rgba(255,180,0,.1)] border border-[rgba(255,180,0,.25)] flex items-center justify-center text-[#FFB400] text-3xl mb-4 shadow-lg">
+			⚠️
+		</div>
+		<h3 class="text-lg font-black text-[var(--txt)] mb-2">لا توجد تخصصات معتمدة بعد</h3>
+		<!-- <p class="text-xs text-[var(--txt-2)] max-w-md mb-6 leading-relaxed">
+			يرجى اجتياز الاختبار الفني أولاً من صفحة إدارة التخصصات.
+		</p> -->
+		<a routerLink="/provider-overview/profile/specialties"
+			class="px-7 py-3.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-xs font-extrabold rounded-full shadow-xl hover:opacity-95 transition-all">
+			الذهاب لإدارة التخصصات واجتياز الاختبار
+		</a>
+	</div>
+
+	<ng-container *ngIf="!isLoading && hasAccreditedSpecialties && categories.length > 0">
+		<!-- INFO NOTE -->
+		<div class="info-note">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<circle cx="12" cy="12" r="10" />
+				<line x1="12" y1="8" x2="12" y2="12" />
+				<line x1="12" y1="16" x2="12.01" y2="16" />
+			</svg>
+			<span>يمكنك الاختيار من <strong style="color:#fff">تخصصاتك المعتمدة فقط</strong>. التخصصات الأخرى تحتاج
+				اعتماداً منفصلاً. يمكنك اختيار أكثر من تخصص ورفع نماذج لكل منها.</span>
+		</div>
+
+		<!-- Specialties per Category -->
+		@for (cat of categories; track cat.categoryId) {
+		<!-- SPEC SECTION TITLE -->
+		<div class="spec-section-title">
+			<svg style="width:14px;height:14px;color:var(--teal-txt,#2BD4C7)" viewBox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+				aria-hidden="true">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			{{ cat.categoryName }}
+			<span
+				style="font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px">{{
+				cat.specialties.length }} تخصص</span>
+		</div>
+
+		<!-- SPECIALTY GRID -->
+		<div class="spec-grid" role="group" aria-label="اختر التخصصات لرفع نماذجها">
+			@for (spec of cat.specialties; track spec.id) {
+			<div class="spec-card" role="checkbox" [attr.aria-checked]="selectedSpecialtyId === spec.id" tabindex="0"
+				(click)="toggleSpecialty(spec.id)" (keydown.enter)="toggleSpecialty(spec.id)"
+				(keydown.space)="toggleSpecialty(spec.id)" [class.selected]="selectedSpecialtyId === spec.id">
+				<div class="spec-check" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+						stroke-linejoin="round">
+						<polyline points="20 6 9 17 4 12" />
+					</svg>
+				</div>
+				<div class="spec-ico" style="background:rgba(43,212,199,.12);color:var(--teal-txt,#2BD4C7)"
+					[innerHTML]="spec.icon"></div>
+				<div class="spec-name">{{ spec.name }}</div>
+				<div class="approved-tag">&#10003; معتمد</div>
+			</div>
+			}
+		</div>
+		}
+
+		<!-- Sub-Specialties Selection -->
+		<div *ngIf="selectedSpecialtyId !== null && selectedSpecialtySubs.length > 0"
+			class="mb-8 p-6 bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-2xl text-right">
+			<div class="text-xs font-extrabold text-[var(--txt)] mb-3 flex items-center gap-2">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+					class="w-4 h-4 text-[#2BD4C7]">
+					<polyline points="9 11 12 14 22 4" />
+					<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+				</svg>
+				حدد مجالات التركيز الدقيقة المشمولة في نموذج الاعتماد:
+			</div>
+			<div class="flex flex-wrap gap-2.5">
+				@for (sub of selectedSpecialtySubs; track sub) {
+				<button type="button" (click)="toggleSubSpecialty(sub)"
+					class="px-4 py-2 rounded-full text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer"
+					[class]="selectedSubSpecialties.includes(sub) ? 'bg-[rgba(43,212,199,.15)] border-[#2BD4C7] text-[#2BD4C7] shadow-[0_0_10px_rgba(43,212,199,.2)]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt-3)] hover:text-[var(--txt-2)]'">
+					<span class="w-3.5 h-3.5 rounded-full border flex items-center justify-center"
+						[class]="selectedSubSpecialties.includes(sub) ? 'border-[#2BD4C7] bg-[#2BD4C7] text-[#070D24]' : 'border-[var(--sec-bd)]'">
+						<svg *ngIf="selectedSubSpecialties.includes(sub)" viewBox="0 0 24 24" fill="none"
+							stroke="currentColor" stroke-width="3" class="w-2.5 h-2.5">
+							<polyline points="20 6 9 17 4 12" />
+						</svg>
+					</span>
+					{{ sub }}
+				</button>
+				}
+			</div>
+		</div>
+
+		<!-- AI DISCLOSURE -->
+		<div class="ai-disclosure" role="note">
+			<div class="ai-disc-ico">
+				<svg aria-hidden="true">
+					<use href="#i-ai"></use>
+				</svg>
+			</div>
+			<div style="flex:1">
+				<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+				<div class="ai-disc-txt">AI يحلل نماذجك ويتحقق من جودتها <span class="ai-disc-badge">دقة 95%</span>،
+					الإنسان يحتفظ بالقرار النهائي</div>
+			</div>
+		</div>
+
+	</ng-container>
+</div>

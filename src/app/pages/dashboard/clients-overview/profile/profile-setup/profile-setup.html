@@ -1,0 +1,681 @@
+<main class="w-full max-w-full mx-auto pb-10 flex flex-col gap-6" dir="rtl">
+	<!-- Page Title -->
+	<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">مسار استكمال بيانات طالب الخدمة فرد</h1>
+
+	<div class="flex flex-col gap-4">
+
+		<!-- AI Disclosure -->
+		<div
+			class="flex items-start gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] border border-[rgba(123,47,190,.22)] backdrop-blur-md">
+			<div
+				class="w-9 h-9 rounded-xl bg-[rgba(123,47,190,.16)] flex items-center justify-center text-[#A56BE0] flex-shrink-0 border border-[rgba(123,47,190,.22)]">
+				<svg width="20" height="20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="2" />
+					<circle cx="4" cy="6" r="1.5" />
+					<circle cx="20" cy="6" r="1.5" />
+					<circle cx="4" cy="18" r="1.5" />
+					<circle cx="20" cy="18" r="1.5" />
+					<circle cx="12" cy="3" r="1.5" />
+					<circle cx="12" cy="21" r="1.5" />
+					<path
+						d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+				</svg>
+			</div>
+			<div class="flex-grow">
+				<div class="text-[#A56BE0] text-[11px] font-extrabold tracking-wider mb-1">وسيط AI إفصاح الذكاء
+					الاصطناعي</div>
+				<div class="text-[var(--txt-3)] text-[13px] leading-relaxed flex items-center flex-wrap gap-2">
+					AI يرشدك خلال مراحل الاستكمال. <span
+						class="bg-[rgba(123,47,190,.16)] text-[#A56BE0] text-[10px] px-2 py-0.5 rounded border border-[rgba(123,47,190,.28)]">دقة
+						95%</span> الإنسان يحتفظ بالقرار النهائي
+				</div>
+			</div>
+		</div>
+
+		<!-- Skip Banner -->
+		<div
+			class="flex items-center justify-between p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40 backdrop-blur-md">
+			<div>
+				<div class="text-amber-700 dark:text-amber-500 font-bold text-sm mb-1">يمكن التخطي مؤقتاً</div>
+				<div class="text-amber-600 dark:text-amber-500/70 text-xs">لا يمكن السحب أو تنفيذ الإجراءات الرسمية قبل
+					إكمال هذا المسار</div>
+			</div>
+			<div class="flex items-center gap-4">
+				<button (click)="skipSetup()"
+					class="px-6 py-2 rounded-full border border-amber-200 dark:border-amber-700/50 text-amber-600 dark:text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-xs font-bold transition-colors">تخطي
+					الآن</button>
+				<div
+					class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-700/50 text-amber-600 dark:text-amber-500 flex items-center justify-center">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+						<path
+							d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+						<line x1="12" y1="9" x2="12" y2="13" />
+						<line x1="12" y1="17" x2="12.01" y2="17" />
+					</svg>
+				</div>
+			</div>
+		</div>
+
+		<!-- Main Card -->
+		<div
+			class="bg-white dark:bg-[#0F1629]/80 border border-slate-200 dark:border-slate-800/80 rounded-2xl backdrop-blur-xl mt-2 overflow-hidden shadow-sm dark:shadow-2xl">
+
+			<!-- Stepper Header -->
+			<div class="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800/80">
+				<div class="flex items-center justify-between mb-8">
+					<h2 class="text-sm font-bold text-slate-700 dark:text-slate-400">مسار استكمال بيانات الحساب</h2>
+					<span class="text-xs font-medium text-slate-500">المرحلة {{ currentStep() }} من 5</span>
+				</div>
+
+				<!-- Steps Progress -->
+				<div class="flex items-center justify-between relative px-2">
+					<div
+						class="absolute top-1/2 left-0 right-0 h-[2px] bg-slate-200 dark:bg-slate-800 -z-10 -translate-y-1/2 rounded-full">
+					</div>
+
+					@for (step of steps; track step.id) {
+					<div class="flex flex-col items-center gap-3 relative z-10" role="listitem">
+						<div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300"
+							[ngClass]="{
+                  'bg-cyan-500 text-white dark:bg-[#38BDF8] dark:text-[#0F1629] shadow-[0_0_15px_rgba(6,182,212,0.4)] dark:shadow-[0_0_15px_rgba(56,189,248,0.4)]': currentStep() === step.id,
+                  'bg-cyan-600 text-white dark:bg-[#0EA5E9] dark:text-white': currentStep() > step.id,
+                  'bg-slate-100 text-slate-400 border border-slate-200 dark:bg-[#1E293B] dark:text-slate-500 dark:border-slate-700': currentStep() < step.id
+                }">
+							@if (currentStep() > step.id) {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-5 h-5">
+								<polyline points="20 6 9 17 4 12" />
+							</svg>
+							} @else {
+							{{ step.id }}
+							}
+						</div>
+						<div class="text-[10px] font-bold text-center max-w-[80px]"
+							[ngClass]="currentStep() === step.id ? 'text-cyan-600 dark:text-[#38BDF8]' : (currentStep() > step.id ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600')">
+							{{ step.label }}
+						</div>
+					</div>
+					}
+				</div>
+			</div>
+
+			<form [formGroup]="setupForm" (ngSubmit)="submitForm()">
+				<div class="p-6 sm:p-10">
+
+					<!-- Step 1: Details -->
+					@if (currentStep() === 1) {
+					<div class="animation-fade-in" formGroupName="details">
+						<div class="flex items-center gap-3 mb-8">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
+								<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+								<circle cx="12" cy="7" r="4" />
+							</svg>
+							<h3 class="text-lg font-bold text-slate-900 dark:text-white">البيانات التفصيلية لطالب الخدمة
+							</h3>
+						</div>
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">رقم الهوية الوطنية
+									<span class="text-amber-500">*</span></label>
+								<input type="text" formControlName="idNumber" placeholder="10XXXXXXXX" maxlength="10"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
+								<span class="text-[10px] text-slate-500 mt-1">10 أرقام، هوية وطنية أو إقامة</span>
+							</div>
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">تاريخ الميلاد <span
+										class="text-amber-500">*</span></label>
+								<div class="relative">
+									<input type="date" formControlName="dob"
+										class="w-full px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all dark:[&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert">
+								</div>
+								<span class="text-[10px] text-slate-500 mt-1">يجب أن يصل العمر إلى 18 سنة</span>
+							</div>
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">الدولة <span
+										class="text-amber-500">*</span></label>
+								<select formControlName="country"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all appearance-none">
+									<option value="السعودية">السعودية</option>
+									<option value="غير ذلك">غير ذلك</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المدينة <span
+										class="text-amber-500">*</span></label>
+								<select formControlName="city"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all appearance-none">
+									<option value="">اختر المدينة</option>
+									<option value="الرياض">الرياض</option>
+									<option value="جدة">جدة</option>
+									<option value="الدمام">الدمام</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-2 md:col-span-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المهنة الحالية <span
+										class="text-amber-500">*</span></label>
+								<input type="text" formControlName="occupation" placeholder="مثال: موظف حكومي"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
+							</div>
+							<div class="flex flex-col gap-2 md:col-span-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">العنوان
+									التفصيلي</label>
+								<input type="text" formControlName="address" placeholder="الحي، الشارع، رقم المبنى"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
+							</div>
+						</div>
+					</div>
+					}
+
+					<!-- Step 2: Identity -->
+					@if (currentStep() === 2) {
+					<div class="animation-fade-in" formGroupName="identity">
+						<div class="flex items-center gap-3 mb-8">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+								<polyline points="14 2 14 8 20 8" />
+							</svg>
+							<h3 class="text-lg font-bold text-slate-900 dark:text-white">رفع وثائق الهوية</h3>
+						</div>
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">صورة بطاقة الهوية،
+									الوجه الأمامي <span class="text-amber-500">*</span></label>
+								<div
+									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-8 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
+									<input type="file" class="hidden" id="frontIdFile"
+										(change)="onFileSelected($event, 'identity', 'frontId')">
+									<label for="frontIdFile" class="cursor-pointer flex flex-col items-center">
+										@if (isUploading()['frontId']) {
+										<div class="relative flex justify-center items-center w-12 h-12 mb-4">
+											<div
+												class="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700">
+											</div>
+											<div
+												class="absolute inset-0 rounded-full border-4 border-cyan-500 dark:border-[#38BDF8] border-t-transparent animate-spin">
+											</div>
+										</div>
+										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">جاري تحويل
+											ومعالجة الملف...</div>
+										} @else if (setupForm.get('identity.frontId')?.value?.startsWith('data:image/'))
+										{
+										<div
+											class="w-16 h-16 rounded-xl overflow-hidden mb-3 border-2 border-emerald-500 shadow-md">
+											<img [src]="setupForm.get('identity.frontId')?.value"
+												class="w-full h-full object-cover">
+										</div>
+										<div
+											class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-4 h-4">
+												<polyline points="20 6 9 17 4 12" />
+											</svg>
+											تم تجهيز الملف بنجاح
+										</div>
+										} @else if
+										(setupForm.get('identity.frontId')?.value?.startsWith('data:application/pdf')) {
+										<div
+											class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 mb-3 border-2 border-red-500 shadow-md">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-6 h-6">
+												<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+												</path>
+												<polyline points="14 2 14 8 20 8"></polyline>
+												<line x1="16" y1="13" x2="8" y2="13"></line>
+												<line x1="16" y1="17" x2="8" y2="17"></line>
+												<polyline points="10 9 9 9 8 9"></polyline>
+											</svg>
+										</div>
+										<div
+											class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-4 h-4">
+												<polyline points="20 6 9 17 4 12" />
+											</svg>
+											تم تجهيز الملف بنجاح
+										</div>
+										} @else {
+										<div
+											class="px-3 py-1 bg-white dark:bg-white text-slate-900 dark:text-black text-xs font-bold rounded mb-4 shadow-sm inline-block border border-slate-200 dark:border-none">
+											Choose File</div>
+										<span class="text-xs text-slate-500 mb-4 block">No file chosen</span>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+											class="w-8 h-8 text-slate-400 dark:text-slate-500 mb-3">
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="17 8 12 3 7 8" />
+											<line x1="12" y1="3" x2="12" y2="15" />
+										</svg>
+										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">اضغط لرفع
+											الصورة</div>
+										<div class="text-[10px] text-slate-500">PNG JPG PDF بحد أقصى 5MB</div>
+										}
+									</label>
+								</div>
+							</div>
+
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">صورة بطاقة الهوية،
+									الوجه الخلفي <span class="text-amber-500">*</span></label>
+								<div
+									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-8 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
+									<input type="file" class="hidden" id="backIdFile"
+										(change)="onFileSelected($event, 'identity', 'backId')">
+									<label for="backIdFile" class="cursor-pointer flex flex-col items-center">
+										@if (isUploading()['backId']) {
+										<div class="relative flex justify-center items-center w-12 h-12 mb-4">
+											<div
+												class="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700">
+											</div>
+											<div
+												class="absolute inset-0 rounded-full border-4 border-cyan-500 dark:border-[#38BDF8] border-t-transparent animate-spin">
+											</div>
+										</div>
+										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">جاري تحويل
+											ومعالجة الملف...</div>
+										} @else if (setupForm.get('identity.backId')?.value?.startsWith('data:image/'))
+										{
+										<div
+											class="w-16 h-16 rounded-xl overflow-hidden mb-3 border-2 border-emerald-500 shadow-md">
+											<img [src]="setupForm.get('identity.backId')?.value"
+												class="w-full h-full object-cover">
+										</div>
+										<div
+											class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-4 h-4">
+												<polyline points="20 6 9 17 4 12" />
+											</svg>
+											تم تجهيز الملف بنجاح
+										</div>
+										} @else if
+										(setupForm.get('identity.backId')?.value?.startsWith('data:application/pdf')) {
+										<div
+											class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 mb-3 border-2 border-red-500 shadow-md">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-6 h-6">
+												<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+												</path>
+												<polyline points="14 2 14 8 20 8"></polyline>
+												<line x1="16" y1="13" x2="8" y2="13"></line>
+												<line x1="16" y1="17" x2="8" y2="17"></line>
+												<polyline points="10 9 9 9 8 9"></polyline>
+											</svg>
+										</div>
+										<div
+											class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-4 h-4">
+												<polyline points="20 6 9 17 4 12" />
+											</svg>
+											تم تجهيز الملف بنجاح
+										</div>
+										} @else {
+										<div
+											class="px-3 py-1 bg-white dark:bg-white text-slate-900 dark:text-black text-xs font-bold rounded mb-4 shadow-sm inline-block border border-slate-200 dark:border-none">
+											Choose File</div>
+										<span class="text-xs text-slate-500 mb-4 block">No file chosen</span>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+											class="w-8 h-8 text-slate-400 dark:text-slate-500 mb-3">
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="17 8 12 3 7 8" />
+											<line x1="12" y1="3" x2="12" y2="15" />
+										</svg>
+										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">اضغط لرفع
+											الصورة</div>
+										<div class="text-[10px] text-slate-500">PNG JPG PDF بحد أقصى 5MB</div>
+										}
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div
+							class="flex items-center justify-between p-5 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 rounded-2xl">
+							<button type="button" (click)="triggerNafath()"
+								class="px-6 py-2 bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 border border-indigo-200 dark:border-indigo-700/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-lg transition-colors">تحقق
+								عبر NAFATH</button>
+							<div class="text-left" dir="ltr">
+								<h4
+									class="text-sm font-bold text-indigo-800 dark:text-indigo-300 mb-1 flex items-center justify-end gap-2">
+									التحقق من الهوية عبر NAFATH
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+										class="w-4 h-4">
+										<circle cx="12" cy="12" r="10" />
+										<path d="M12 8v4l3 3" />
+									</svg>
+								</h4>
+								<p class="text-[10px] text-indigo-600 dark:text-indigo-400/60">رسالة تحقق تصل لتطبيق
+									NAFATH على جوالك</p>
+							</div>
+						</div>
+					</div>
+					}
+
+					<!-- Step 3: Bank -->
+					@if (currentStep() === 3) {
+					<div class="animation-fade-in" formGroupName="bank">
+						<div class="flex items-center gap-3 mb-8">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
+								<rect x="2" y="5" width="20" height="14" rx="2" />
+								<line x1="2" y1="10" x2="22" y2="10" />
+							</svg>
+							<h3 class="text-lg font-bold text-slate-900 dark:text-white">طريقة الاستلام المالي</h3>
+						</div>
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="flex flex-col gap-2 md:col-span-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">نوع طريقة الاستلام
+									<span class="text-amber-500">*</span></label>
+								<div class="flex items-center gap-4">
+									<label
+										class="flex-1 flex items-center gap-3 p-4 bg-slate-50 dark:bg-[#131C31] border border-cyan-500 dark:border-[#38BDF8] rounded-xl cursor-pointer">
+										<input type="radio" formControlName="paymentType" value="bank"
+											class="w-4 h-4 text-cyan-600 dark:text-[#38BDF8] bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
+										<span class="text-sm font-bold text-slate-900 dark:text-white">حساب بنكي</span>
+									</label>
+									<label
+										class="flex-1 flex items-center gap-3 p-4 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer">
+										<input type="radio" formControlName="paymentType" value="wallet"
+											class="w-4 h-4 text-cyan-600 dark:text-[#38BDF8] bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
+										<span class="text-sm font-bold text-slate-600 dark:text-slate-400">محفظة
+											رقمية</span>
+									</label>
+								</div>
+							</div>
+
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">اسم البنك <span
+										class="text-amber-500">*</span></label>
+								<select formControlName="bankName"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all appearance-none">
+									<option value="">اختر البنك</option>
+									<option value="snb">البنك الأهلي</option>
+									<option value="rajhi">مصرف الراجحي</option>
+								</select>
+							</div>
+
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">اسم صاحب الحساب
+									<span class="text-amber-500">*</span></label>
+								<input type="text" formControlName="accountHolder" placeholder="الاسم كما في كشف الحساب"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
+							</div>
+
+							<div class="flex flex-col gap-2 md:col-span-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">رقم الآيبان (IBAN)
+									<span class="text-amber-500">*</span></label>
+								<input type="text" formControlName="iban" placeholder="SA00 0000 0000 0000 0000 0000"
+									maxlength="24" dir="ltr"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all font-mono tracking-widest placeholder:text-slate-400 dark:placeholder:text-slate-600">
+								<span class="text-[10px] text-slate-500 mt-1">24 حرفاً يبدأ بـ SA</span>
+							</div>
+						</div>
+					</div>
+					}
+
+					<!-- Step 4: Documents -->
+					@if (currentStep() === 4) {
+					<div class="animation-fade-in" formGroupName="documents">
+						<div class="flex items-center gap-3 mb-6">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+								<polyline points="14 2 14 8 20 8" />
+								<line x1="16" y1="13" x2="8" y2="13" />
+								<line x1="16" y1="17" x2="8" y2="17" />
+								<polyline points="10 9 9 9 8 9" />
+							</svg>
+							<h3 class="text-lg font-bold text-slate-900 dark:text-white">رفع مستندات داعمة</h3>
+						</div>
+
+						<div
+							class="flex items-center gap-3 p-4 mb-8 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-amber-700 dark:text-amber-500/80 text-xs">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+								<circle cx="12" cy="12" r="10" />
+								<line x1="12" y1="8" x2="12" y2="12" />
+								<line x1="12" y1="16" x2="12.01" y2="16" />
+							</svg>
+							هذه المرحلة اختيارية في الغالب. ترفع المستندات فقط عند طلبها للتحقق أو لأغراض قانونية
+						</div>
+
+						<div class="flex flex-col gap-6">
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المستندات
+									الداعمة</label>
+								<div
+									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-8 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
+									<input type="file" class="hidden" id="supportDocFile"
+										(change)="onFileSelected($event, 'documents', 'supportingDocs')">
+									<label for="supportDocFile" class="cursor-pointer flex flex-col items-center">
+										@if (isUploading()['supportingDocs']) {
+										<div class="relative flex justify-center items-center w-12 h-12 mb-4">
+											<div
+												class="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700">
+											</div>
+											<div
+												class="absolute inset-0 rounded-full border-4 border-cyan-500 dark:border-[#38BDF8] border-t-transparent animate-spin">
+											</div>
+										</div>
+										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">جاري تحويل
+											ومعالجة الملف...</div>
+										} @else if
+										(setupForm.get('documents.supportingDocs')?.value?.startsWith('data:image/')) {
+										<div
+											class="w-16 h-16 rounded-xl overflow-hidden mb-3 border-2 border-emerald-500 shadow-md">
+											<img [src]="setupForm.get('documents.supportingDocs')?.value"
+												class="w-full h-full object-cover">
+										</div>
+										<div
+											class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-4 h-4">
+												<polyline points="20 6 9 17 4 12" />
+											</svg>
+											تم تجهيز الملف بنجاح
+										</div>
+										} @else if
+										(setupForm.get('documents.supportingDocs')?.value?.startsWith('data:application/pdf'))
+										{
+										<div
+											class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 mb-3 border-2 border-red-500 shadow-md">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-6 h-6">
+												<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+												</path>
+												<polyline points="14 2 14 8 20 8"></polyline>
+												<line x1="16" y1="13" x2="8" y2="13"></line>
+												<line x1="16" y1="17" x2="8" y2="17"></line>
+												<polyline points="10 9 9 9 8 9"></polyline>
+											</svg>
+										</div>
+										<div
+											class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+												class="w-4 h-4">
+												<polyline points="20 6 9 17 4 12" />
+											</svg>
+											تم تجهيز الملف بنجاح
+										</div>
+										} @else {
+										<div
+											class="px-3 py-1 bg-white dark:bg-white text-slate-900 dark:text-black text-xs font-bold rounded mb-4 shadow-sm inline-block border border-slate-200 dark:border-none">
+											Choose Files</div>
+										<span class="text-xs text-slate-500 mb-4 block">No file chosen</span>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+											class="w-8 h-8 text-slate-400 dark:text-slate-500 mb-3">
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="17 8 12 3 7 8" />
+											<line x1="12" y1="3" x2="12" y2="15" />
+										</svg>
+										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">اسحب الملفات
+											هنا أو اضغط للاختيار</div>
+										<div class="text-[10px] text-slate-500">شهادة بنك، ترخيص مهني، وثائق أخرى PDF
+											PNG JPG</div>
+										}
+									</label>
+								</div>
+							</div>
+
+							<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">ملاحظة حول
+									المستندات</label>
+								<textarea formControlName="notes" rows="3" placeholder="وصف مختصر للمستندات المرفقة"
+									class="px-4 py-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none"></textarea>
+							</div>
+						</div>
+					</div>
+					}
+
+					<!-- Step 5: Review -->
+					@if (currentStep() === 5) {
+					<div class="animation-fade-in" formGroupName="agreements">
+						<div class="flex items-center gap-3 mb-8">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
+								<polyline points="9 11 12 14 22 4" />
+								<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+							</svg>
+							<h3 class="text-lg font-bold text-slate-900 dark:text-white">مراجعة بيانات الاستكمال</h3>
+						</div>
+
+						<!-- Summary Box -->
+						<div class="mb-8">
+							<h4 class="text-xs font-bold text-slate-700 dark:text-slate-400 mb-4">ملخص المراحل</h4>
+							<div
+								class="bg-slate-50 dark:bg-[#131C31]/50 border border-slate-200 dark:border-slate-700/80 rounded-xl p-4 flex flex-col gap-4">
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3"><span
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span><span
+											class="text-sm text-slate-900 dark:text-white font-medium">بيانات طالب
+											الخدمة</span></div>
+									<span class="text-xs text-slate-500">المرحلة 1</span>
+								</div>
+								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3"><span
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span><span
+											class="text-sm text-slate-900 dark:text-white font-medium">الهوية
+											والتوثيق</span></div>
+									<span class="text-xs text-slate-500">المرحلة 2</span>
+								</div>
+								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3"><span
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span><span
+											class="text-sm text-slate-900 dark:text-white font-medium">البيانات البنكية
+											أو المحفظة</span></div>
+									<span class="text-xs text-slate-500">المرحلة 3</span>
+								</div>
+								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3"><span
+											class="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] rounded-full font-bold">اختياري</span><span
+											class="text-sm text-slate-900 dark:text-white font-medium">المستندات عند
+											الحاجة</span></div>
+									<span class="text-xs text-slate-500">المرحلة 4</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Agreements Box -->
+						<div>
+							<div class="flex items-center gap-2 mb-4 text-cyan-600 dark:text-[#38BDF8]">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									class="w-4 h-4">
+									<polyline points="20 6 9 17 4 12" />
+								</svg>
+								<h4 class="text-xs font-bold text-slate-900 dark:text-white">الإقرارات والموافقات</h4>
+							</div>
+							<div
+								class="bg-slate-50 dark:bg-[#131C31]/50 border border-cyan-200 dark:border-[#38BDF8]/30 rounded-xl p-4 flex flex-col gap-4">
+								<label class="flex items-center justify-between cursor-pointer group">
+									<span class="text-xs text-slate-700 dark:text-slate-300">أقر بأن جميع البيانات
+										المدخلة صحيحة ودقيقة وتخصني</span>
+									<input type="checkbox" formControlName="accurate"
+										class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-cyan-500 dark:text-[#38BDF8] focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
+								</label>
+								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
+								<label class="flex items-center justify-between cursor-pointer group">
+									<span class="text-xs text-slate-700 dark:text-slate-300">أوافق على <a href="#"
+											class="text-cyan-600 dark:text-[#38BDF8] hover:underline">شروط
+											الاستخدام</a></span>
+									<input type="checkbox" formControlName="terms"
+										class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-cyan-500 dark:text-[#38BDF8] focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
+								</label>
+								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
+								<label class="flex items-center justify-between cursor-pointer group">
+									<span class="text-xs text-slate-700 dark:text-slate-300">اطلعت على <a href="#"
+											class="text-cyan-600 dark:text-[#38BDF8] hover:underline">سياسة الخصوصية</a>
+										وأوافق على معالجة بياناتي وفق نظام حماية البيانات</span>
+									<input type="checkbox" formControlName="privacy"
+										class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-cyan-500 dark:text-[#38BDF8] focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
+								</label>
+							</div>
+						</div>
+					</div>
+					}
+
+				</div>
+
+				<!-- Footer Actions -->
+				<div
+					class="px-6 py-5 sm:px-10 bg-slate-50 dark:bg-[#0A0F1C]/80 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+
+					<button type="button" (click)="prevStep()"
+						class="flex items-center gap-2 px-6 py-2.5 rounded-full border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+						[class.invisible]="currentStep() === 1">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+							<polyline points="9 18 15 12 9 6" />
+						</svg>
+						السابق
+					</button>
+
+					@if (currentStep() < 5) { <button type="button" (click)="nextStep()"
+						class="flex items-center gap-2 px-8 py-2.5 rounded-full bg-cyan-500 dark:bg-[#38BDF8] hover:bg-cyan-600 dark:hover:bg-[#0EA5E9] text-white dark:text-[#0F1629] text-sm font-bold shadow-lg shadow-cyan-500/30 dark:shadow-[0_0_15px_rgba(56,189,248,0.3)] transition-colors">
+						التالي
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+							<polyline points="15 18 9 12 15 6" />
+						</svg>
+						</button>
+						} @else {
+						<button type="submit" [disabled]="isSubmitting()"
+							class="flex items-center gap-2 px-8 py-2.5 rounded-full bg-cyan-500 dark:bg-[#38BDF8] hover:bg-cyan-600 dark:hover:bg-[#0EA5E9] text-white dark:text-[#0F1629] text-sm font-bold shadow-lg shadow-cyan-500/30 dark:shadow-[0_0_15px_rgba(56,189,248,0.3)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+							{{ isSubmitting() ? 'جاري الإرسال...' : 'إرسال للمراجعة' }}
+							<svg *ngIf="!isSubmitting()" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2" class="w-4 h-4">
+								<polyline points="20 6 9 17 4 12" />
+							</svg>
+							<svg *ngIf="isSubmitting()" class="animate-spin h-4 w-4 text-white dark:text-[#0F1629]"
+								xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+									stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+								</path>
+							</svg>
+						</button>
+						}
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Toast Notification -->
+	@if (toastMsg()) {
+	<div class="fixed top-24 left-1/2 -translate-x-1/2 z-50 animation-fade-in">
+		<div
+			class="flex items-center gap-3 px-6 py-3 bg-slate-900 dark:bg-[#131C31] border border-cyan-500/50 dark:border-[#38BDF8]/50 rounded-full shadow-xl dark:shadow-[0_0_20px_rgba(56,189,248,0.2)]">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+				class="w-4 h-4 text-cyan-400 dark:text-[#38BDF8]">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			<span class="text-xs font-bold text-white">{{ toastMsg() }}</span>
+		</div>
+	</div>
+	}
+
+</main>

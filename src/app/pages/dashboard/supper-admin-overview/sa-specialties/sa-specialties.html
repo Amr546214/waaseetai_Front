@@ -1,0 +1,387 @@
+<div class="p-6 h-full flex flex-col font-[Tajawal] rtl" dir="rtl">
+
+	<!-- Page Header -->
+	<div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+		<div>
+			<h1 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">التخصصات المتاحة</h1>
+			<p class="text-sm text-slate-500 dark:text-slate-400 mt-1">التخصصات التي يمكن لمقدمي الخدمة التقدم لاعتمادها
+				في وسيط AI</p>
+		</div>
+		<div class="flex gap-2">
+			<button (click)="openCategoryModal()"
+				class="inline-flex items-center gap-2 cursor-pointer px-4 py-2 bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl transition-all shadow-sm">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round" stroke-linejoin="round">
+					<line x1="12" y1="5" x2="12" y2="19" />
+					<line x1="5" y1="12" x2="19" y2="12" />
+				</svg>
+				إضافة قسم
+			</button>
+			<button (click)="openModal()"
+				class="inline-flex cursor-pointer items-center gap-2 px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] hover:opacity-90 text-[#070D24] text-sm font-bold rounded-xl transition-all shadow-lg shadow-[#2B7FFF]/20">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+					stroke-linecap="round" stroke-linejoin="round">
+					<line x1="12" y1="5" x2="12" y2="19" />
+					<line x1="5" y1="12" x2="19" y2="12" />
+				</svg>
+				إضافة تخصص
+			</button>
+		</div>
+	</div>
+
+	<!-- KPIs -->
+	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+		<!-- Card 1 -->
+		<div
+			class="bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm">
+			<div class="flex items-center gap-3 mb-3">
+				<div
+					class="w-10 h-10 rounded-xl bg-[#2BD4C7]/10 text-[#2BD4C7] flex items-center justify-center shrink-0">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+						stroke-linecap="round" stroke-linejoin="round">
+						<line x1="8" y1="6" x2="21" y2="6" />
+						<line x1="8" y1="12" x2="21" y2="12" />
+						<line x1="8" y1="18" x2="21" y2="18" />
+						<line x1="3" y1="6" x2="3.01" y2="6" />
+						<line x1="3" y1="12" x2="3.01" y2="12" />
+						<line x1="3" y1="18" x2="3.01" y2="18" />
+					</svg>
+				</div>
+				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">إجمالي التخصصات</span>
+			</div>
+			<div class="text-3xl font-black text-[#2BD4C7]">{{ stats().totalSpecialties }}</div>
+			<div class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-2">في {{ stats().totalCategories }} أقسام
+			</div>
+		</div>
+
+		<!-- Card 2 -->
+		<div
+			class="bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm">
+			<div class="flex items-center gap-3 mb-3">
+				<div
+					class="w-10 h-10 rounded-xl bg-[#0FA99A]/10 text-[#0FA99A] flex items-center justify-center shrink-0">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+						stroke-linecap="round" stroke-linejoin="round">
+						<polyline points="20 6 9 17 4 12" />
+					</svg>
+				</div>
+				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">مُفعَّلة</span>
+			</div>
+			<div class="text-3xl font-black text-[#0FA99A]">{{ stats().activeSpecialtiesCount }}</div>
+			<div class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-2">{{ activeSpecsPercentage() }}% من
+				الإجمالي</div>
+		</div>
+
+		<!-- Card 3 -->
+		<div
+			class="bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm">
+			<div class="flex items-center gap-3 mb-3">
+				<div
+					class="w-10 h-10 rounded-xl bg-[#5DA0FF]/10 text-[#5DA0FF] flex items-center justify-center shrink-0">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+						stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="7" r="4" />
+						<path d="M4 21v-1a8 8 0 0 1 16 0v1" />
+					</svg>
+				</div>
+				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">معتمدون نشطون</span>
+			</div>
+			<div class="text-3xl font-black text-[#5DA0FF]">{{ stats().activeProvidersCount | number }}</div>
+			<div class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-2">مقدم خدمة</div>
+		</div>
+
+		<!-- Card 4 -->
+		<div
+			class="bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm">
+			<div class="flex items-center gap-3 mb-3">
+				<div
+					class="w-10 h-10 rounded-xl bg-[#FFB400]/10 text-[#FFB400] flex items-center justify-center shrink-0">
+					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+						stroke-linecap="round" stroke-linejoin="round">
+						<polyline points="20 6 9 17 4 12" />
+					</svg>
+				</div>
+				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">طلبات اعتماد هذا الشهر</span>
+			</div>
+			<div class="text-3xl font-black text-[#FFB400]">{{ stats().monthlyAccreditationRequests | number }}</div>
+			<div class="text-xs font-bold text-[#0FA99A] mt-2">طلبات هذا الشهر</div>
+		</div>
+	</div>
+
+	<!-- Search -->
+	<div class="mb-6 relative">
+		<svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"
+			viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+			<circle cx="11" cy="11" r="8" />
+			<path d="m21 21-4.35-4.35" />
+		</svg>
+		<input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+			placeholder="ابحث عن تخصص..."
+			class="w-full h-12 bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-xl pr-12 pl-4 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors shadow-sm">
+	</div>
+
+	<!-- Categories and Specialties -->
+	<div class="flex-1 overflow-auto pr-1 custom-scrollbar">
+		<ng-container *ngIf="filteredCategories().length > 0; else noResults">
+			<div *ngFor="let cat of filteredCategories()" class="mb-8 bg-white/40 dark:bg-[#131B36]/40 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800/40">
+				<!-- Category Header -->
+				<div class="flex items-center justify-between mb-4 flex-wrap gap-2 pb-3 border-b border-slate-200/60 dark:border-slate-800/60">
+					<div class="flex items-center gap-3">
+						<div class="text-base font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
+							<svg class="w-5 h-5 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="8" y1="6" x2="21" y2="6" />
+								<line x1="8" y1="12" x2="21" y2="12" />
+								<line x1="8" y1="18" x2="21" y2="18" />
+								<line x1="3" y1="6" x2="3.01" y2="6" />
+								<line x1="3" y1="12" x2="3.01" y2="12" />
+								<line x1="3" y1="18" x2="3.01" y2="18" />
+							</svg>
+							{{ cat.nameAr }}
+						</div>
+						<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50">
+							{{ cat.specialties.length }} تخصص
+						</span>
+						<span *ngIf="cat.isActive === false" class="text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">
+							معطَّل
+						</span>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<!-- Category Active Toggle -->
+						<button type="button" (click)="toggleCategory(cat)"
+							class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border"
+							[class.bg-emerald-500\/10]="cat.isActive !== false" [class.text-emerald-500]="cat.isActive !== false" [class.border-emerald-500\/20]="cat.isActive !== false"
+							[class.bg-slate-500\/10]="cat.isActive === false" [class.text-slate-400]="cat.isActive === false" [class.border-slate-500\/20]="cat.isActive === false"
+							[title]="cat.isActive !== false ? 'تعطيل القسم' : 'تفعيل القسم'">
+							<span class="w-2 h-2 rounded-full" [class.bg-emerald-500]="cat.isActive !== false" [class.bg-slate-400]="cat.isActive === false"></span>
+							{{ cat.isActive !== false ? 'مُفعَّل' : 'معطَّل' }}
+						</button>
+
+						<!-- Category Edit Button -->
+						<button type="button" (click)="openCategoryModal(cat)"
+							class="p-1.5 rounded-lg text-slate-500 hover:text-[#5DA0FF] hover:bg-[#5DA0FF]/10 transition-colors cursor-pointer border border-transparent hover:border-[#5DA0FF]/20"
+							title="تعديل اسم القسم">
+							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+								<path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
+							</svg>
+						</button>
+
+						<!-- Category Delete Button -->
+						<button type="button" (click)="promptDeleteCategory(cat)"
+							class="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer border border-transparent hover:border-red-500/20"
+							title="حذف القسم">
+							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="3 6 5 6 21 6" />
+								<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+							</svg>
+						</button>
+
+						<!-- Quick Add Specialty button -->
+						<button type="button" (click)="openModal(null, cat.id)"
+							class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#2BD4C7]/10 text-[#2BD4C7] hover:bg-[#2BD4C7]/20 border border-[#2BD4C7]/20 transition-colors cursor-pointer">
+							<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+							إضافة تخصص
+						</button>
+					</div>
+				</div>
+
+				<!-- Specialties Grid -->
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+					<div *ngFor="let s of cat.specialties"
+						class="bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-xl p-4 transition-all hover:border-[#2BD4C7]/40 hover:shadow-md dark:hover:shadow-[#2BD4C7]/5 relative"
+						[class.opacity-60]="!s.isActive">
+						<div class="flex items-center justify-between mb-4">
+							<span class="text-sm font-bold text-slate-800 dark:text-white truncate" [title]="s.nameAr">{{
+								s.nameAr }}</span>
+							<!-- Toggle switch -->
+							<button type="button" (click)="toggleSpec(s.id)"
+								class="relative w-10 h-6 rounded-full transition-colors shrink-0 outline-none cursor-pointer"
+								[class.bg-[#2BD4C7]]="s.isActive" [class.bg-slate-300]="!s.isActive"
+								[class.dark:bg-slate-600]="!s.isActive"
+								[title]="s.isActive ? 'تعطيل التخصص' : 'تفعيل التخصص'">
+								<span
+									class="absolute top-1 bottom-1 w-4 rounded-full bg-white transition-transform duration-200 shadow-sm"
+									[class.left-1]="!s.isActive" [class.right-1]="!s.isActive"
+									[style.transform]="s.isActive ? 'translateX(-16px)' : 'translateX(0)'"
+									[style.right]="'4px'"></span>
+							</button>
+						</div>
+
+						<div class="flex gap-4 mb-4">
+							<div class="text-xs text-slate-500 dark:text-slate-400">مقدمون: <span
+									class="font-bold text-slate-700 dark:text-slate-300">{{ s.providersCount }}</span></div>
+							<div class="text-xs text-slate-500 dark:text-slate-400">طلبات/شهر: <span
+									class="font-bold text-slate-700 dark:text-slate-300">{{ s.monthlyRequests }}</span></div>
+						</div>
+
+						<div class="flex gap-2">
+							<button type="button" (click)="openModal(s, cat.id)"
+								class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#5DA0FF]/10 text-[#5DA0FF] hover:bg-[#5DA0FF]/20 transition-colors cursor-pointer">
+								<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+									<path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
+								</svg>
+								تعديل
+							</button>
+							<button type="button" (click)="promptDeleteSpec(s)"
+								class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#FF8C69]/10 text-[#FF8C69] hover:bg-[#FF8C69]/20 transition-colors cursor-pointer">
+								<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<polyline points="3 6 5 6 21 6" />
+									<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+								</svg>
+								حذف
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</ng-container>
+		<ng-template #noResults>
+			<div class="py-16 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
+				<svg class="w-12 h-12 mb-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="1.5">
+					<circle cx="11" cy="11" r="8" />
+					<path d="m21 21-4.35-4.35" />
+				</svg>
+				<p class="text-sm font-semibold">لا توجد نتائج مطابقة لبحثك</p>
+			</div>
+		</ng-template>
+	</div>
+</div>
+
+<!-- Specialty Modal -->
+<div *ngIf="isAddModalOpen()"
+	class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+	(click)="closeModal()">
+	<div class="bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-2xl p-6 w-full max-w-md shadow-[0_20px_56px_rgba(0,0,0,0.4)]"
+		(click)="$event.stopPropagation()">
+		<h3 class="text-lg font-black text-slate-800 dark:text-white mb-5 tracking-tight">{{ editSpecId() ? 'تعديل التخصص' : 'إضافة تخصص جديد' }}</h3>
+
+		<div class="mb-4">
+			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">اسم التخصص</label>
+			<input type="text" [ngModel]="newSpecName()" (ngModelChange)="newSpecName.set($event)"
+				placeholder="مثال: تصميم موشن جرافيك"
+				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
+		</div>
+
+		<div class="mb-4">
+			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">الرابط (Slug - بالإنجليزية)</label>
+			<input type="text" [ngModel]="newSpecSlug()" (ngModelChange)="newSpecSlug.set($event)"
+				placeholder="مثال: motion-graphics"
+				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors ltr text-left font-sans">
+		</div>
+
+		<div class="mb-4">
+			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">القسم</label>
+			<select [ngModel]="newSpecCatId()" (ngModelChange)="newSpecCatId.set($event)"
+				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl cursor-pointer">
+				<option *ngFor="let cat of categories()" [value]="cat.id"
+					class="dark:bg-[#131B36] text-slate-800 dark:text-white">{{ cat.nameAr }}</option>
+			</select>
+		</div>
+
+		<div class="mb-6">
+			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">متطلبات الاعتماد (اختياري)</label>
+			<input type="text" [ngModel]="newSpecReq()" (ngModelChange)="newSpecReq.set($event)"
+				placeholder="مثال: محفظة أعمال + 3 مشاريع سابقة"
+				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
+		</div>
+
+		<div class="flex justify-end gap-3 mt-2">
+			<button type="button" (click)="closeModal()"
+				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">إلغاء</button>
+			<button type="button" (click)="addSpec()"
+				class="px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] hover:opacity-90 text-[#070D24] text-sm font-bold rounded-xl transition-all shadow-lg shadow-[#2B7FFF]/20 cursor-pointer">{{ editSpecId() ? 'حفظ التعديلات' : 'إضافة' }}</button>
+		</div>
+	</div>
+</div>
+
+<!-- Category Modal (Add / Edit) -->
+<div *ngIf="isAddCategoryModalOpen()"
+	class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+	(click)="closeCategoryModal()">
+	<div class="bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-2xl p-6 w-full max-w-sm shadow-[0_20px_56px_rgba(0,0,0,0.4)]"
+		(click)="$event.stopPropagation()">
+		<h3 class="text-lg font-black text-slate-800 dark:text-white mb-5 tracking-tight">{{ editCategoryId() ? 'تعديل اسم القسم' : 'إضافة قسم جديد' }}</h3>
+
+		<div class="mb-4">
+			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">اسم القسم</label>
+			<input type="text" [ngModel]="newCategoryName()" (ngModelChange)="newCategoryName.set($event)"
+				placeholder="مثال: الخدمات اللوجستية"
+				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
+		</div>
+
+		<div class="mb-6">
+			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">الرابط (Slug - بالإنجليزية)</label>
+			<input type="text" [ngModel]="newCategorySlug()" (ngModelChange)="newCategorySlug.set($event)"
+				placeholder="مثال: logistics-services"
+				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors ltr text-left font-sans">
+		</div>
+
+		<div class="flex justify-end gap-3 mt-2">
+			<button type="button" (click)="closeCategoryModal()"
+				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">إلغاء</button>
+			<button type="button" (click)="addCategory()"
+				class="px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] hover:opacity-90 text-[#070D24] text-sm font-bold rounded-xl transition-all shadow-lg shadow-[#2B7FFF]/20 cursor-pointer">
+				{{ editCategoryId() ? 'حفظ التعديلات' : 'إضافة القسم' }}
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- Custom Confirmation Modal -->
+<div *ngIf="isConfirmModalOpen()"
+	class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4"
+	(click)="closeConfirmModal()">
+	<div class="bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 w-full max-w-md shadow-[0_24px_64px_rgba(0,0,0,0.5)] transition-all"
+		(click)="$event.stopPropagation()">
+		<div class="flex items-center gap-4 mb-4">
+			<div class="w-12 h-12 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center shrink-0">
+				<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+					<line x1="12" y1="9" x2="12" y2="13"/>
+					<line x1="12" y1="17" x2="12.01" y2="17"/>
+				</svg>
+			</div>
+			<div>
+				<h3 class="text-lg font-black text-slate-800 dark:text-white tracking-tight">{{ confirmTitle() }}</h3>
+				<span class="inline-block mt-0.5 text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+					{{ confirmItemName() }}
+				</span>
+			</div>
+		</div>
+
+		<p class="text-sm text-slate-600 dark:text-slate-300 mb-3">{{ confirmMessage() }}</p>
+
+		<div *ngIf="confirmWarning()" class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold mb-6 flex items-start gap-2">
+			<svg class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+			<span>{{ confirmWarning() }}</span>
+		</div>
+
+		<div class="flex justify-end gap-3 mt-4">
+			<button type="button" (click)="closeConfirmModal()" [disabled]="isConfirmLoading()"
+				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">
+				إلغاء
+			</button>
+			<button type="button" (click)="executeConfirmAction()" [disabled]="isConfirmLoading()"
+				class="px-5 py-2 bg-gradient-to-r from-red-500 to-rose-600 hover:opacity-90 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-red-500/25 cursor-pointer flex items-center gap-2">
+				<svg *ngIf="isConfirmLoading()" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+				<span>{{ isConfirmLoading() ? 'جاري الحذف...' : 'تأكيد الحذف' }}</span>
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- Floating Toast Notification -->
+<div *ngIf="isToastOpen()"
+	class="fixed bottom-6 left-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl backdrop-blur-md transition-all duration-300"
+	[class.bg-emerald-950\/90]="toastType() === 'success'" [class.border-emerald-500\/30]="toastType() === 'success'" [class.text-emerald-200]="toastType() === 'success'"
+	[class.bg-rose-950\/90]="toastType() === 'error'" [class.border-rose-500\/30]="toastType() === 'error'" [class.text-rose-200]="toastType() === 'error'">
+	<svg *ngIf="toastType() === 'success'" class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+	<svg *ngIf="toastType() === 'error'" class="w-5 h-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+	<span class="text-sm font-bold">{{ toastMessage() }}</span>
+</div>

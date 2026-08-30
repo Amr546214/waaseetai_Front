@@ -1,0 +1,124 @@
+			<div class="max-w-full mx-auto text-right">
+				<div class="mb-6">
+					<h2 class="text-xl font-black text-[var(--txt)]">بيانات نموذج الاعتماد والمرفقات الفنية</h2>
+					<p class="text-xs text-[var(--txt-3)] mt-1">
+						أدخل التفاصيل المعمارية والروابط والمرفقات لإخضاع نموذج عملك لتقييم الذكاء الاصطناعي GPT-4o.
+					</p>
+				</div>
+
+				<div class="bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-2xl p-6 mb-6 space-y-5">
+					<!-- Title -->
+					<div>
+						<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">
+							عنوان نموذج العمل الفني <span class="text-[#FF6B6B]">*</span>
+						</label>
+						<input type="text" [ngModel]="title" (ngModelChange)="titleChange.emit($event)"
+							placeholder="مثال: نظام إدارة المخزون بنظام Microservices و Clean Architecture"
+							class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-3 text-sm text-[var(--txt)] placeholder-[var(--txt-3)] focus:outline-none focus:border-[#2BD4C7] transition-all dir-rtl" />
+					</div>
+
+					<!-- Technical Description -->
+					<div>
+						<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">
+							الوصف الفني والمعماري للمشروع <span class="text-[#FF6B6B]">*</span>
+						</label>
+						<textarea rows="4" [ngModel]="description" (ngModelChange)="descriptionChange.emit($event)"
+							placeholder="اشرح البنية الفنية، أنماط التصميم (Design Patterns)، خوارزميات الأمان والتحكم، وقواعد البيانات المستعملة..."
+							class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl p-4 text-sm text-[var(--txt)] placeholder-[var(--txt-3)] focus:outline-none focus:border-[#2BD4C7] transition-all dir-rtl leading-relaxed"></textarea>
+					</div>
+
+					<!-- Tech Stack Tags -->
+					<div>
+						<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">
+							التقنيات والمكتبات المستخدمة (Tech Stack) <span class="text-[#FF6B6B]">*</span>
+						</label>
+						<div class="flex items-center gap-2 mb-3">
+							<input type="text" [ngModel]="techInput" (ngModelChange)="techInputChange.emit($event)"
+								(keyup.enter)="addTechTag()" placeholder="أدخل اسم التقنية (مثال: NestJS) واضغط Enter"
+								class="flex-1 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-2.5 text-xs text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] dir-rtl" />
+							<button type="button" (click)="addTechTag()"
+								class="px-4 py-2.5 bg-[rgba(43,212,199,.15)] border border-[rgba(43,212,199,.3)] text-[#2BD4C7] text-xs font-bold rounded-xl hover:bg-[rgba(43,212,199,.25)] transition-all cursor-pointer">
+								+ إضافة
+							</button>
+						</div>
+						<div class="flex flex-wrap gap-2">
+							@for (tag of technologiesUsed; track tag) {
+							<span
+								class="inline-flex items-center gap-1.5 px-3 py-1 bg-[rgba(43,212,199,.1)] border border-[rgba(43,212,199,.25)] text-[#2BD4C7] rounded-lg text-xs font-extrabold">
+								{{ tag }}
+								<button type="button" (click)="removeTechTag(tag)"
+									class="hover:text-[#FF6B6B] text-xs font-bold cursor-pointer">×</button>
+							</span>
+							}
+						</div>
+					</div>
+
+					<!-- Links (Project & GitHub) -->
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">رابط المعاينة المباشر
+								(Project URL)</label>
+							<input type="url" [ngModel]="projectUrl" (ngModelChange)="projectUrlChange.emit($event)"
+								placeholder="https://demo.example.com"
+								class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-2.5 text-xs text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] dir-ltr text-left" />
+						</div>
+						<div>
+							<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">رابط المستودع البرمجي
+								(GitHub Repository)</label>
+							<input type="url" [ngModel]="githubUrl" (ngModelChange)="githubUrlChange.emit($event)"
+								placeholder="https://github.com/username/project"
+								class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-2.5 text-xs text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] dir-ltr text-left" />
+						</div>
+					</div>
+
+					<!-- Multi-File Attachment Uploader -->
+					<div>
+						<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">
+							المرفقات الفنية ومخططات النظام (لقطات شاشة / مخططات / ملفات PDF)
+						</label>
+						<div (dragover)="$event.preventDefault()" (drop)="handleDropEvent($event)"
+							class="border-2 border-dashed border-[rgba(43,212,199,.3)] hover:border-[#2BD4C7] rounded-xl p-6 text-center bg-[rgba(43,212,199,.02)] transition-all cursor-pointer">
+							<input type="file" multiple id="proof-upload" class="hidden"
+								(change)="handleFileSelected($event)" accept="image/*,application/pdf,.zip" />
+							<label for="proof-upload" class="cursor-pointer block">
+								<div
+									class="w-12 h-12 rounded-full bg-[rgba(43,212,199,.1)] text-[#2BD4C7] flex items-center justify-center mx-auto mb-3">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+										class="w-6 h-6">
+										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+										<polyline points="17 8 12 3 7 8" />
+										<line x1="12" y1="3" x2="12" y2="15" />
+									</svg>
+								</div>
+								<div class="text-xs font-bold text-[var(--txt)] mb-1">اسحب وأفلت الملفات هنا أو اضغط
+									للاختيار</div>
+								<div class="text-[11px] text-[var(--txt-3)]">يدعم الصور (PNG, JPG, WebP) ووثائق PDF
+									ومخططات المعمارية (حتى 15MB)</div>
+							</label>
+						</div>
+
+						<!-- Uploaded Files List -->
+						<div *ngIf="attachments.length > 0" class="mt-4 space-y-2">
+							@for (att of attachments; track att.id) {
+							<div
+								class="flex items-center justify-between p-3 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl text-xs">
+								<div class="flex items-center gap-3">
+									<div
+										class="w-8 h-8 rounded bg-[rgba(43,212,199,.1)] text-[#2BD4C7] flex items-center justify-center font-bold">
+										📄
+									</div>
+									<div>
+										<div class="font-bold text-[var(--txt)]">{{ att.name }}</div>
+										<div class="text-[10px] text-[var(--txt-3)]">{{ att.size }}</div>
+									</div>
+								</div>
+								<button type="button" (click)="removeAttachment(att.id)"
+									class="text-[#FF6B6B] font-bold hover:underline cursor-pointer">
+									حذف
+								</button>
+							</div>
+							}
+						</div>
+					</div>
+				</div>
+			</div>

@@ -1,0 +1,137 @@
+<div id="state-step4" class="animate-[ws-fade_.3s_ease_both]">
+  <!-- إفصاح AI -->
+  <div class="flex items-center gap-[12px] p-[12px_16px] bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-[13px] mb-[16px]" role="note">
+    <div class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0">
+      <svg class="w-[15px] h-[15px] text-[#A56BE0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
+    </div>
+    <div>
+      <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-[2px]">وسيط AI — إفصاح الذكاء الاصطناعي</div>
+      <div class="text-[12px] text-[#A8B2D1] leading-relaxed">
+        AI راجع عرضك وأعطاه <strong class="text-[#2BD4C7]">{{ currentAudit.finalMetrics.overallScore }}/100</strong>
+        <span class="inline-flex bg-[rgba(15,169,154,.12)] border border-[rgba(15,169,154,.25)] rounded-[4px] px-[7px] py-[1px] text-[10px] font-bold text-[#0FA99A] mx-1">{{ currentAudit.acceptanceOdds.statusText }}</span>
+        — الإنسان يحتفظ بالقرار النهائي
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. ملخص العرض -->
+  <div class="bg-gradient-to-br from-[rgba(43,212,199,.05)] to-[rgba(43,127,255,.03)] backdrop-blur-md border border-[rgba(43,212,199,.18)] rounded-2xl p-[20px] mb-[14px]">
+    <div class="text-[14px] font-black text-[#2BD4C7] mb-[14px] flex items-center gap-[8px]">
+      <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
+      ملخص العرض
+    </div>
+    
+    <div class="flex items-center justify-between py-[9px] border-b border-[rgba(255,255,255,.05)]">
+      <span class="text-[12px] text-[#6B7699]">سعرك الإجمالي</span>
+      <span class="text-[16px] font-extrabold text-[#2BD4C7]">{{ totalAmount | number }} ريال</span>
+    </div>
+    <div class="flex items-center justify-between py-[9px] border-b border-[rgba(255,255,255,.05)]">
+      <span class="text-[12px] text-[#6B7699]">مدة التنفيذ</span>
+      <span class="text-[13px] font-extrabold text-white">{{ totalDays }} يومًا</span>
+    </div>
+    <div class="flex items-center justify-between py-[9px] border-b border-[rgba(255,255,255,.05)]">
+      <span class="text-[12px] text-[#6B7699]">عدد المراحل</span>
+      <span class="text-[13px] font-extrabold text-white">{{ proposal.milestones.length }} مرحلة</span>
+    </div>
+    <div class="flex items-center justify-between py-[9px] border-b border-[rgba(255,255,255,.05)]">
+      <span class="text-[12px] text-[#6B7699]">تقييم AI للعرض</span>
+      <span class="inline-flex items-center gap-[5px] px-[10px] py-[3px] bg-[rgba(15,169,154,.10)] border border-[rgba(15,169,154,.22)] rounded-full text-[12px] font-extrabold text-[#0FA99A]">
+        <svg class="w-[11px] h-[11px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-check"></use></svg>
+        {{ currentAudit.finalMetrics.overallScore }}/100 — مرتفع
+      </span>
+    </div>
+    <div class="flex items-center justify-between pt-[9px]">
+      <span class="text-[12px] text-[#6B7699]">التنافسية</span>
+      <span class="text-[13px] font-extrabold text-[#0FA99A]">الأفضل سعرًا وملاءمة بین {{ projectDetails?.proposalsCount || 3 }} عروض</span>
+    </div>
+  </div>
+
+  <!-- 2. رسالة العرض -->
+  <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[20px] mb-[14px]">
+    <div class="text-[14px] font-black text-[#A56BE0] mb-[14px] flex items-center gap-[8px]">
+      <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
+      رسالة العرض
+    </div>
+    <div class="text-[12.5px] text-[#A8B2D1] leading-[1.85] p-[14px] bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.07)] rounded-[10px] border-r-[3px] border-r-[rgba(123,47,190,.4)]">
+      {{ proposal.message || 'لا توجد رسالة' }}
+    </div>
+    <div class="flex gap-[16px] mt-[10px] flex-wrap">
+      <span class="text-[11px] text-[#A8B2D1]">مهنية الأسلوب <strong class="text-[#0FA99A]">93%</strong></span>
+      <span class="text-[11px] text-[#A8B2D1]">توافق الملف المهني <strong class="text-[#0FA99A]">97%</strong></span>
+    </div>
+  </div>
+
+  <!-- 3. خطة المراحل -->
+  <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[20px] mb-[14px]">
+    <div class="text-[14px] font-black text-[#5DA0FF] mb-[14px] flex items-center gap-[8px]">
+      <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-list"></use></svg>
+      خطة التنفيذ والمراحل
+    </div>
+    
+    @for(m of proposal.milestones; track m.id; let i = $index) {
+      <div class="flex items-center gap-[12px] p-[11px_13px] bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.07)] rounded-[10px] mb-[8px]">
+        <div class="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center text-[11px] font-black shrink-0 bg-[rgba(43,127,255,.18)] border-[1.5px] border-[rgba(43,127,255,.35)] text-[#5DA0FF]">
+          {{ i + 1 }}
+        </div>
+        <div class="flex-1">
+          <div class="text-[13px] font-extrabold text-white">{{ m.name || 'مرحلة غير مسماة' }}</div>
+          <div class="text-[11px] text-[#6B7699] mt-[2px]">{{ m.days || 0 }} أيام</div>
+        </div>
+        <div class="text-left">
+          <div class="text-[13px] font-black text-[#2BD4C7]">{{ m.pct ? (totalAmount * m.pct / 100 | number) : 0 }} ريال</div>
+          <div class="text-[11px] text-[#6B7699] text-center">{{ m.pct || 0 }}%</div>
+        </div>
+      </div>
+    }
+
+    <!-- مجموع المراحل -->
+    <div class="flex justify-between items-center mt-[10px] p-[10px_13px] bg-[rgba(43,212,199,.05)] border border-[rgba(43,212,199,.14)] rounded-[9px]">
+      <span class="text-[12px] font-extrabold text-[#A8B2D1]">الإجمالي</span>
+      <div class="flex gap-[20px]">
+        <div class="text-center"><div class="text-[10px] text-[#6B7699]">الأيام</div><div class="text-[13px] font-black text-white">{{ totalDays }} يوم</div></div>
+        <div class="text-center"><div class="text-[10px] text-[#6B7699]">النسبة</div><div class="text-[13px] font-black text-[#2BD4C7]">{{ totalPct }}%</div></div>
+        <div class="text-center"><div class="text-[10px] text-[#6B7699]">المبلغ</div><div class="text-[13px] font-black text-[#2BD4C7]">{{ totalAmount | number }} ريال</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. نماذج الأعمال المرفقة -->
+  <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[20px] mb-[14px]">
+    <div class="text-[14px] font-black text-[#D98A0B] mb-[14px] flex items-center gap-[8px]">
+      <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
+      نماذج الأعمال المرفقة
+    </div>
+    
+    @if (proposal.portfolioIds.length > 0) {
+      @for (id of proposal.portfolioIds; track id) {
+        <div class="flex items-center gap-[10px] p-[11px_13px] bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.07)] rounded-[10px] mb-[8px] last:mb-0">
+          <div [style.background]="getPortfolioItem(id)?.gradient || 'linear-gradient(135deg,#2BD4C7,#2B7FFF)'" class="w-[34px] h-[34px] rounded-[8px] flex items-center justify-center text-[10px] font-black text-[#070D24] shrink-0">
+            {{ getPortfolioItem(id)?.badge || '✓' }}
+          </div>
+          <div>
+            <div class="text-[13px] font-bold text-white">{{ getPortfolioItem(id)?.title || 'نموذج عمل معتمد' }}</div>
+            <div class="text-[11px] text-[#6B7699]">{{ getPortfolioItem(id)?.meta || 'تم إرفاقه بنجاح ضمن العرض' }}</div>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="flex items-center gap-[10px] p-[11px_13px] bg-[rgba(255,255,255,.02)] border border-[rgba(255,255,255,.06)] rounded-[10px]">
+        <div class="text-[12px] text-[#6B7699]">لم تقم بإرفاق نموذج أعمال مع هذا العرض</div>
+      </div>
+      <div class="mt-[10px] text-[11.5px] text-[#6B7699] flex items-center gap-[6px]">
+        <svg class="w-[11px] h-[11px] text-[#D98A0B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg>
+        إرفاق نموذج مشابه يرفع احتمال قبول العرض <strong class="text-[#D98A0B]">+35%</strong>
+      </div>
+    }
+  </div>
+
+  <!-- تنبيه الإرسال النهائي -->
+  <div class="flex items-start gap-[12px] p-[14px_16px] bg-[rgba(255,180,0,.06)] border-[1.5px] border-[rgba(255,180,0,.22)] rounded-[13px] mb-[14px]">
+    <svg class="w-4 h-4 shrink-0 text-[#D98A0B] mt-[2px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-warn"></use></svg>
+    <div class="text-[12.5px] text-[#A8B2D1] leading-[1.75]">
+      <strong class="text-[#D98A0B]">بعد الإرسال لن يمكن التعديل.</strong>
+      سعرك <strong class="text-white">{{ totalAmount | number }} ريال</strong> ومدتك <strong class="text-white">{{ totalDays }} يومًا</strong> ملزمان بعد قبول العميل وتأكيد الدفع ووصول أمر بدء المرحلة أو المشروع.
+      بالضغط على إرسال العرض توافق على شروط الاستخدام وسياسة وسيط AI.
+    </div>
+  </div>
+</div>

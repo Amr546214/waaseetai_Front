@@ -1,0 +1,293 @@
+<main class="legal-main">
+  <!-- ─── Hero compact ─── -->
+  <section class="page-hero" aria-label="عنوان الصفحة">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="مسار التنقل">
+        <a routerLink="/">الرئيسية</a>
+        <span class="breadcrumb-sep" aria-hidden="true">&#8249;</span>
+        <a routerLink="/privacy">قانوني والامتثال</a>
+        <span class="breadcrumb-sep" aria-hidden="true">&#8249;</span>
+        <span aria-current="page">ملفات تعريف الارتباط</span>
+      </nav>
+      <h1 class="page-h1">سياسة ملفات تعريف الارتباط وموافقة PDPL</h1>
+      <p class="page-sub-text">ادر تفضيلاتك الخاصة بملفات تعريف الارتباط بشكل كامل وفق نظام حماية البيانات الشخصية PDPL. يمكنك تغيير اختياراتك في اي وقت</p>
+    </div>
+  </section>
+  
+  <!-- ─── Page content ─── -->
+  <section class="page-content" aria-label="محتوى سياسة ملفات تعريف الارتباط">
+    <div class="container">
+      <div class="content-max">
+  
+        <!-- Section 1: Manage preferences -->
+        <div class="content-section">
+          <div class="section-h2">تفضيلاتك الحالية</div>
+          <p class="section-sub">اختر ما تسمح به من ملفات تعريف الارتباط. تفضيلاتك تحفظ في المتصفح ويمكنك تعديلها في اي وقت</p>
+  
+          <div class="glass-panel">
+            <div class="panel-head">
+              <div class="panel-title">تفضيلات ملفات تعريف الارتباط</div>
+              <div class="panel-desc">اختر ما تسمح به. ملفات الارتباط الضرورية لا يمكن تعطيلها لان الموقع لن يعمل بدونها</div>
+            </div>
+  
+            <div class="cookie-rows" id="cookie-rows-main" role="list">
+  
+              <!-- Strictly Necessary -->
+              <div class="cookie-row required" role="listitem">
+                <div class="cookie-row-info">
+                  <div class="cookie-row-head">
+                    <span class="cookie-name">ضرورية للعمل</span>
+                    <span class="cookie-badge badge-req">اساسية دائما</span>
+                  </div>
+                  <p class="cookie-desc">تتيح التنقل في الموقع وتسجيل الدخول وحماية الجلسة من هجمات CSRF. لا يمكن تعطيلها</p>
+                  <div class="cookie-meta">
+                    <span>المدة: طوال الجلسة</span>
+                    <span>الموافقة: غير مطلوبة</span>
+                  </div>
+                </div>
+                <div class="cookie-toggle-wrap">
+                  <label class="toggle" aria-label="ملفات الارتباط الضرورية مفعلة دائما">
+                    <input type="checkbox" checked disabled aria-checked="true">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label-text">مفعلة دائما</span>
+                </div>
+              </div>
+  
+              <!-- Functional -->
+              <div class="cookie-row optional" role="listitem">
+                <div class="cookie-row-info">
+                  <div class="cookie-row-head">
+                    <span class="cookie-name">وظيفية</span>
+                    <span class="cookie-badge badge-opt">اختيارية</span>
+                  </div>
+                  <p class="cookie-desc">تتذكر لغتك وتفضيلاتك مثل الثيم الداكن او الفاتح وطريقة عرض المحتوى</p>
+                  <div class="cookie-meta">
+                    <span>المدة: سنة واحدة</span>
+                    <span>الموافقة: مطلوبة</span>
+                  </div>
+                </div>
+                <div class="cookie-toggle-wrap">
+                  <label class="toggle" aria-label="ملفات الارتباط الوظيفية">
+                    <input type="checkbox" id="toggle-functional" [checked]="functionalEnabled" (change)="toggleFunctional($event)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label-text" id="label-functional">{{ functionalEnabled ? 'مفعلة' : 'معطلة' }}</span>
+                </div>
+              </div>
+  
+              <!-- Analytics -->
+              <div class="cookie-row optional" role="listitem">
+                <div class="cookie-row-info">
+                  <div class="cookie-row-head">
+                    <span class="cookie-name">تحليلية</span>
+                    <span class="cookie-badge badge-opt">اختيارية</span>
+                  </div>
+                  <p class="cookie-desc">تساعد في فهم كيفية استخدام الموقع لتحسين التجربة. تستخدم Google Analytics بشكل مجهول الهوية</p>
+                  <div class="cookie-meta">
+                    <span>المدة: سنتان</span>
+                    <span>الموافقة: مطلوبة</span>
+                  </div>
+                </div>
+                <div class="cookie-toggle-wrap">
+                  <label class="toggle" aria-label="ملفات الارتباط التحليلية">
+                    <input type="checkbox" id="toggle-analytics" [checked]="analyticsEnabled" (change)="toggleAnalytics($event)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label-text" id="label-analytics">{{ analyticsEnabled ? 'مفعلة' : 'معطلة' }}</span>
+                </div>
+              </div>
+  
+              <!-- Marketing -->
+              <div class="cookie-row optional" role="listitem">
+                <div class="cookie-row-info">
+                  <div class="cookie-row-head">
+                    <span class="cookie-name">تسويقية</span>
+                    <span class="cookie-badge badge-opt">اختيارية</span>
+                  </div>
+                  <p class="cookie-desc">تستخدم لاعادة استهدافك باعلانات ذات صلة باهتماماتك عبر شبكات الاعلانات المعتمدة</p>
+                  <div class="cookie-meta">
+                    <span>المدة: 90 يوما</span>
+                    <span>الموافقة: مطلوبة</span>
+                  </div>
+                </div>
+                <div class="cookie-toggle-wrap">
+                  <label class="toggle" aria-label="ملفات الارتباط التسويقية">
+                    <input type="checkbox" id="toggle-marketing" [checked]="marketingEnabled" (change)="toggleMarketing($event)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label-text" id="label-marketing">{{ marketingEnabled ? 'مفعلة' : 'معطلة' }}</span>
+                </div>
+              </div>
+  
+            </div>
+  
+            <div class="panel-divider"></div>
+  
+            <div class="cookie-actions">
+              <button type="button" class="btn-primary" (click)="acceptAll()" aria-label="قبول جميع ملفات تعريف الارتباط">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>
+                قبول الكل
+              </button>
+              <button type="button" class="btn-secondary" (click)="rejectOptional()" aria-label="رفض ملفات الارتباط غير الضرورية">
+                رفض غير الضروري
+              </button>
+              <button type="button" class="btn-text-link" (click)="openModal()" aria-label="فتح نافذة التخصيص التفصيلي">
+                تخصيص التفضيلات
+              </button>
+            </div>
+          </div>
+  
+          <div class="info-note" role="note">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span>تحفظ تفضيلاتك في المتصفح الحالي. اذا استخدمت متصفحا مختلفا او حذفت بيانات المتصفح، ستطلب موافقتك مجددا. حقك في سحب الموافقة محفوظ في اي وقت وفق PDPL م.7</span>
+          </div>
+        </div>
+  
+        <!-- Section 2: PDPL rights -->
+        <div class="content-section mt-12">
+          <div class="section-h2">حقوقك وفق نظام PDPL</div>
+          <p class="section-sub">نظام حماية البيانات الشخصية السعودي يكفل لك حقوقا واضحة على بياناتك</p>
+  
+          <div class="pdpl-grid" role="list">
+  
+            <div class="pdpl-card" role="listitem">
+              <div class="pdpl-card-head">
+                <div class="pdpl-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </div>
+                <div class="pdpl-card-title">حق الموافقة الصريحة</div>
+              </div>
+              <p class="pdpl-card-desc">لا نجمع اي بيانات غير ضرورية بدون موافقتك المسبقة والواضحة. الموافقة طوعية غير مقيدة بالخدمة</p>
+              <div class="pdpl-law-ref">PDPL م.4</div>
+            </div>
+  
+            <div class="pdpl-card" role="listitem">
+              <div class="pdpl-card-head">
+                <div class="pdpl-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </div>
+                <div class="pdpl-card-title">حق الرفض</div>
+              </div>
+              <p class="pdpl-card-desc">يمكنك رفض اي نوع من ملفات الارتباط الاختيارية في اي وقت بنفس سهولة القبول</p>
+              <div class="pdpl-law-ref">PDPL م.5</div>
+            </div>
+  
+            <div class="pdpl-card" role="listitem">
+              <div class="pdpl-card-head">
+                <div class="pdpl-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </div>
+                <div class="pdpl-card-title">حق سحب الموافقة</div>
+              </div>
+              <p class="pdpl-card-desc">يمكنك تغيير تفضيلاتك وسحب موافقتك في اي وقت من هذه الصفحة او من الاعدادات</p>
+              <div class="pdpl-law-ref">PDPL م.7</div>
+            </div>
+  
+            <div class="pdpl-card" role="listitem">
+              <div class="pdpl-card-head">
+                <div class="pdpl-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+                <div class="pdpl-card-title">حق المعرفة</div>
+              </div>
+              <p class="pdpl-card-desc">تعرف بالضبط ما الذي نجمعه ولماذا ومع من نشاركه. لا بيانات خفية</p>
+              <div class="pdpl-law-ref">PDPL م.6</div>
+            </div>
+  
+          </div>
+        </div>
+  
+        <!-- Section 3: Cookie types table -->
+        <div class="content-section mt-12">
+          <div class="glass-panel">
+            <div class="panel-head">
+              <div class="panel-title">تفاصيل انواع ملفات تعريف الارتباط</div>
+              <div class="panel-desc">قائمة شاملة بكل نوع وغرضه ومدته وما اذا كانت موافقتك مطلوبة</div>
+            </div>
+            <div class="cookie-table-wrap">
+              <table class="cookie-table" role="table" aria-label="جدول انواع ملفات تعريف الارتباط">
+                <thead>
+                  <tr>
+                    <th scope="col">النوع</th>
+                    <th scope="col">الغرض</th>
+                    <th scope="col">المدة</th>
+                    <th scope="col">الموافقة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-name">ضرورية للعمل<br><span class="tag-req">اساسية</span></td>
+                    <td>الجلسة وتسجيل الدخول وحماية CSRF والامان الاساسي للموقع</td>
+                    <td>طوال الجلسة</td>
+                    <td><span class="tag-req">غير مطلوبة</span></td>
+                  </tr>
+                  <tr>
+                    <td class="td-name">وظيفية<br><span class="tag-opt">اختيارية</span></td>
+                    <td>تذكر اللغة والثيم والتفضيلات الشخصية للعرض</td>
+                    <td>سنة واحدة</td>
+                    <td><span class="tag-opt">مطلوبة</span></td>
+                  </tr>
+                  <tr>
+                    <td class="td-name">تحليلية<br><span class="tag-opt">اختيارية</span></td>
+                    <td>تحليل استخدام الموقع لتحسين التجربة عبر Google Analytics بشكل مجهول الهوية</td>
+                    <td>سنتان</td>
+                    <td><span class="tag-opt">مطلوبة</span></td>
+                  </tr>
+                  <tr>
+                    <td class="td-name">تسويقية<br><span class="tag-opt">اختيارية</span></td>
+                    <td>اعادة الاستهداف الاعلاني عبر شبكات الاعلانات المعتمدة</td>
+                    <td>90 يوما</td>
+                    <td><span class="tag-opt">مطلوبة</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+  
+            <div class="panel-divider"></div>
+  
+            <div class="info-note" role="note">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>لا نشارك بياناتك مع اي طرف ثالث الا عند الطلب القانوني من هيئات ZATCA او SAMA او SDAIA. البيانات المالية تحفظ 7 سنوات وفق نظام ZATCA</span>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Section 4: How to change -->
+        <div class="content-section mt-12 mb-12">
+          <div class="glass-panel">
+            <div class="panel-head">
+              <div class="panel-title">كيف تعدل تفضيلاتك</div>
+            </div>
+            <ol style="display:flex;flex-direction:column;gap:10px;list-style:none;counter-reset:steps" role="list">
+              <li style="display:flex;gap:12px;align-items:flex-start;counter-increment:steps">
+                <span class="step-num">1</span>
+                <span class="step-txt">استخدم الازرار اعلاه في قسم تفضيلاتك الحالية لقبول او رفض او تخصيص ملفات الارتباط</span>
+              </li>
+              <li style="display:flex;gap:12px;align-items:flex-start;counter-increment:steps">
+                <span class="step-num">2</span>
+                <span class="step-txt">يمكنك ايضا ادارة ملفات الارتباط مباشرة من اعدادات المتصفح الخاص بك في اي وقت</span>
+              </li>
+              <li style="display:flex;gap:12px;align-items:flex-start;counter-increment:steps">
+                <span class="step-num">3</span>
+                <span class="step-txt">لحذف ملفات الارتباط المحفوظة مسبقا استخدم خيار "مسح بيانات التصفح" في متصفحك</span>
+              </li>
+              <li style="display:flex;gap:12px;align-items:flex-start;counter-increment:steps">
+                <span class="step-num">4</span>
+                <span class="step-txt">اذا كان لديك اي استفسار او طلب بيانات وفق PDPL راسلنا على <a href="mailto:privacy@waseet.ai" style="color:var(--primary-teal);font-weight:600">privacy@waseet.ai</a></span>
+              </li>
+            </ol>
+  
+            <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap">
+              <a routerLink="/privacy" style="font-size:13px;color:var(--primary-teal);font-weight:600;text-decoration:underline;text-underline-offset:3px">اقرا سياسة الخصوصية</a>
+              <span style="color:var(--text-muted);font-size:13px">|</span>
+              <a routerLink="/terms" style="font-size:13px;color:var(--primary-teal);font-weight:600;text-decoration:underline;text-underline-offset:3px">شروط الاستخدام</a>
+            </div>
+          </div>
+        </div>
+  
+      </div><!-- /content-max -->
+    </div><!-- /container -->
+  </section>
+  
+</main>
