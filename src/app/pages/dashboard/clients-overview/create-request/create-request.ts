@@ -22,6 +22,8 @@ interface Specialty {
   subs?: string[];
 }
 
+interface Milestone { name: string; pct: number; }
+
 @Component({
   selector: 'app-create-request',
   standalone: true,
@@ -234,7 +236,9 @@ export class CreateRequest implements OnInit, OnDestroy {
 
           if (Array.isArray(data.suggestedSubSpecialties)) {
             const newSet = new Set(this.selectedSubs());
-            data.suggestedSubSpecialties.forEach((s: string) => newSet.add(s));
+            data.suggestedSubSpecialties.slice(0, this.MAX_SUBS).forEach((s: string) => {
+              if (newSet.size < this.MAX_SUBS) newSet.add(s);
+            });
             this.selectedSubs.set(newSet);
           }
 
@@ -411,7 +415,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   budgetHourly = signal<number | null>(0);
   allowNegotiation = signal(true);
   splitMilestones = signal(false);
-  milestones = signal<{ name: string, pct: number }[]>([
+  milestones = signal<Milestone[]>([
     // { name: 'التصميم والتخطيط', pct: 25 },
     // { name: 'التطوير الأساسي', pct: 40 },
     // { name: 'الاختبار والتسليم', pct: 35 }
@@ -439,12 +443,21 @@ export class CreateRequest implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (input.files) {
       const newFiles = Array.from(input.files);
-      this.files.update(f => [...f, ...newFiles].slice(0, 5)); // Max 5 files
+      const invalid = newFiles.find(file => file.size > 10 * 1024 * 1024);
+      if (invalid) {
+        this.showToast(`الملف "${invalid.name}" يتجاوز الحد الأقصى 10MB`, 'toast-warn');
+      }
+      const validFiles = newFiles.filter(file => file.size <= 10 * 1024 * 1024);
+      this.files.update(f => [...f, ...validFiles].slice(0, 5));
+      input.value = '';
     }
   }
 
   addSuggestedFile(name: string) {
-    this.requirements.update(r => [...r, `توفير ${name}`]);
+    const requirement = `توفير ${name}`;
+    if (!this.requirements().includes(requirement)) {
+      this.requirements.update(r => [...r, requirement]);
+    }
     this.showToast(`تمت إضافة "${name}" إلى قائمة المتطلبات الإلزامية`, 'toast-ok');
   }
 
@@ -476,6 +489,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       }
 
       if (this.splitMilestones()) {
+        if (this.milestones().length < 2) return false;
         if (this.milestoneTotalPct !== 100) return false;
         for (const m of this.milestones()) {
           if (!m.name || m.name.trim().length < 2) return false;
@@ -531,8 +545,10 @@ export class CreateRequest implements OnInit, OnDestroy {
           uploadedFileUrls = uploadRes.urls;
         }
       } catch (uploadErr) {
-        console.warn('File upload failed, proceeding without attachment URLs:', uploadErr);
-        uploadedFileUrls = this.files().map(f => f.name);
+        console.error('File upload failed:', uploadErr);
+        this.isSubmitting.set(false);
+        this.showToast('تعذر رفع الملفات. تحقق من الاتصال وحاول مرة أخرى.', 'toast-warn');
+        return;
       }
     }
 
@@ -559,7 +575,19 @@ export class CreateRequest implements OnInit, OnDestroy {
       expectedDurationDays: this.deliveryDays(),
       preferredProviderType: 'ANY',
       requiresNda: this.ndaType() === 'standard' || this.ndaType() === 'custom',
-      attachments: uploadedFileUrls
+      attachments: uploadedFileUrls,
+      outputs: this.outputs(),
+      customConditions: this.customConditions(),
+      providerPreferences: {
+        level: this.provLevel() || null,
+        minRating: this.provRating() ? Number(this.provRating()) : null,
+        language: this.provLang(),
+        location: this.provLocation() || null
+      },
+      ipRights: this.ipRights(),
+      allowNegotiation: this.allowNegotiation(),
+      splitMilestones: this.splitMilestones(),
+      milestones: this.splitMilestones() ? this.milestones() : []
     };
 
     this.projectApi.createProject(payload).subscribe({

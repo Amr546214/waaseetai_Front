@@ -213,25 +213,25 @@
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
 		الإقرارات والموافقات
 	</div>
-	<div class="ack-row" (click)="toggleAck('data')" role="checkbox" [attr.aria-checked]="acks.data()" tabindex="0">
+		<div class="ack-row" (click)="toggleAck('data')" (keydown)="toggleAckFromKeyboard($event, 'data')" role="checkbox" [attr.aria-checked]="acks.data()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.data()">
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>
 		<div class="ack-text">أقر بأن جميع المعلومات المدخلة في هذا الطلب صحيحة ودقيقة، وأتحمل المسؤولية الكاملة عن صحة البيانات</div>
 	</div>
-	<div class="ack-row" (click)="toggleAck('terms')" role="checkbox" [attr.aria-checked]="acks.terms()" tabindex="0">
+		<div class="ack-row" (click)="toggleAck('terms')" (keydown)="toggleAckFromKeyboard($event, 'terms')" role="checkbox" [attr.aria-checked]="acks.terms()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.terms()">
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>
-		<div class="ack-text">أوافق على <button type="button" (click)="$event.stopPropagation()">شروط الاستخدام</button> ومتطلبات الطلب المعتمدة من وسيط AI</div>
+		<div class="ack-text">أوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">شروط الاستخدام</a> ومتطلبات الطلب المعتمدة من وسيط AI</div>
 	</div>
-	<div class="ack-row" (click)="toggleAck('privacy')" role="checkbox" [attr.aria-checked]="acks.privacy()" tabindex="0">
+		<div class="ack-row" (click)="toggleAck('privacy')" (keydown)="toggleAckFromKeyboard($event, 'privacy')" role="checkbox" [attr.aria-checked]="acks.privacy()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.privacy()">
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>
-		<div class="ack-text">اطلعت على <button type="button" (click)="$event.stopPropagation()">سياسة الخصوصية</button> وأوافق على معالجة بياناتي وفق نظام حماية البيانات</div>
+		<div class="ack-text">اطلعت على <a routerLink="/privacy" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">سياسة الخصوصية</a> وأوافق على معالجة بياناتي وفق نظام حماية البيانات</div>
 	</div>
-	<div class="ack-row" (click)="toggleAck('publish')" role="checkbox" [attr.aria-checked]="acks.publish()" tabindex="0">
+		<div class="ack-row" (click)="toggleAck('publish')" (keydown)="toggleAckFromKeyboard($event, 'publish')" role="checkbox" [attr.aria-checked]="acks.publish()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.publish()">
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>

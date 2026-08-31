@@ -27,6 +27,18 @@ export interface ClientRequestPayload {
   preferredProviderType?: string;
   requiresNda?: boolean;
   attachments?: string[];
+  outputs?: string;
+  customConditions?: string;
+  ipRights?: string;
+  providerPreferences?: {
+    level?: string | null;
+    minRating?: number | null;
+    language?: string;
+    location?: string | null;
+  };
+  allowNegotiation?: boolean;
+  splitMilestones?: boolean;
+  milestones?: Array<{ name: string; pct: number }>;
 }
 
 export interface ClientRequestAiSuggestPayload {
