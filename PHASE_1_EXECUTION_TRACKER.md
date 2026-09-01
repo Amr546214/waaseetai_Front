@@ -250,7 +250,8 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Design Reference** | P-BF-003 |
 | **Key Elements** | Stepper (step 3), payment method radio group (Card, Wallet, STC Pay, Apple Pay), card form (number, expiry, CVV, name) with formatting, wallet balance display (mocked: 2,000 ريال), STC Pay/Apple Pay → "قريباً" toast, terms checkbox (required), "ادفع الآن" → `checkoutService.initiatePayment()` → `/checkout/confirm`, order mini-summary, security badges |
 | **Testing** | Select each payment method. Card form formatting. Terms checkbox disables pay button. Pay button calls service and navigates to confirm. STC Pay/Apple Pay show toast. |
-| **Status** | Pending |
+| **Notes** | `/checkout/payment` real UI implemented. 4 payment methods: Card (available), Wallet (available), STC Pay (disabled — "قريباً" toast), Apple Pay (disabled — "قريباً" toast). Selectable radio cards with active state. Secure payment/escrow info card with bullet points. Compact OrderSummary sidebar. "رجوع للمراجعة" links to `/checkout/review`. "ادفع الآن" disabled if no method selected or processing; calls `checkoutService.initiatePayment(method)` — creates order first if `currentOrder` is null, then navigates to `/checkout/confirm` on success, shows error on failure. Empty cart state with CTAs. Responsive layout. OTP confirmation starts in Chunk 8. |
+| **Status** | Done — `npx ng build` passed (exit 0). Design file P-BF-003.html not found in workspace, design comparison marked PARTIAL. |
 
 ### Chunk 8: OTP Confirm Page (P-BF-004)
 
@@ -333,7 +334,7 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | 4 | Routes | Done |
 | 5 | Cart page (P-BF-001) | Done |
 | 6 | Review page (P-BF-002) | Done |
-| 7 | Payment page (P-BF-003) | Pending |
+| 7 | Payment page (P-BF-003) | Done |
 | 8 | OTP confirm page (P-BF-004) | Pending |
 | 9 | Success / Failure pages (P-BF-005 + P-BF-006) | Pending |
 | 10 | Custom Request (P-BF-007) | Pending |
