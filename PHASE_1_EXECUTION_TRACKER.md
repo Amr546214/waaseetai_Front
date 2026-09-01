@@ -262,7 +262,8 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Design Reference** | P-BF-004 |
 | **Key Elements** | Stepper (step 4), order mini bar, OTP icon + title, masked phone display, 6-digit OTP inputs with auto-advance, countdown timer (2 min), resend button (disabled during countdown), "تأكيد الدفع" → `checkoutService.confirmPayment(otp)` → success/failure redirect, security badges |
 | **Testing** | OTP auto-advance between inputs. Countdown timer decrements. Resend enabled after countdown. `123456` → success page. Wrong code → failure page. |
-| **Status** | Pending |
+| **Notes** | `/checkout/confirm` real UI implemented. Stepper step 4 active. OTP instruction card shows masked phone from `checkoutService.maskedPhone()` with fallback text. 6-digit OTP inputs with auto-advance, paste support, backspace navigation, and numeric-only filtering. "تأكيد الدفع" disabled if OTP not 6 digits or processing; calls `checkoutService.confirmPayment(otp)` — success navigates to `/checkout/success`, failure shows error and stays on page. "إعادة إرسال الرمز" calls `checkoutService.resendOtp()` with 2-minute countdown timer (disabled during countdown). Security badges (دفع آمن، تشفير SSL، ضمان الاسترداد). Compact OrderSummary sidebar. "رجوع للدفع" links to `/checkout/payment`. Empty/missing order state: if no `currentOrder()` or `paymentReference()`, shows "لا توجد عملية دفع نشطة" with CTAs to `/checkout/payment` and `/cart`. Responsive layout. OTP remains mocked until backend provides `POST /api/checkout/payment/confirm` and `POST /api/checkout/payment/resend-otp`. Success/Failure pages start in Chunk 9. |
+| **Status** | Done — `npx ng build` passed (exit 0). Design file P-BF-004.html not found in workspace, design comparison marked PARTIAL. |
 
 ### Chunk 9: Success / Failure Pages (P-BF-005 + P-BF-006)
 
@@ -335,7 +336,7 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | 5 | Cart page (P-BF-001) | Done |
 | 6 | Review page (P-BF-002) | Done |
 | 7 | Payment page (P-BF-003) | Done |
-| 8 | OTP confirm page (P-BF-004) | Pending |
+| 8 | OTP confirm page (P-BF-004) | Done |
 | 9 | Success / Failure pages (P-BF-005 + P-BF-006) | Pending |
 | 10 | Custom Request (P-BF-007) | Pending |
 | 11 | Wire Marketplace entry points | Pending |
