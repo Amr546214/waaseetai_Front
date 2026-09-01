@@ -201,7 +201,8 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Stepper** | 4-step indicator: السلة → المراجعة → الدفع → التأكيد. Input: `step` number (1–4). |
 | **Order Summary** | Sidebar card: items list, subtotal, coupon discount, total, checkout button. Reads from `CartService` signals. Output: button click event. |
 | **Testing** | Stepper highlights correct step. Order summary updates when cart changes. Button label changes per page (إتمام الشراء / متابعة للدفع / ادفع الآن). |
-| **Status** | Pending |
+| **Notes** | Components placed under `checkout/components/` (not `checkout/shared/` per plan, but functionally identical). Stepper uses `@Input() step` with active/completed states, RTL layout, responsive breakpoints. Order summary injects `CartService`, reads signals for items/subtotal/discount/total/coupon, supports `compact` mode for payment page mini-summary, shows empty state when cart is empty. No backend calls. No routes added. No existing files modified. |
+| **Status** | Done — `npx ng build` passed (exit 0), no errors from new files |
 
 ### Chunk 4: Routes
 
@@ -323,9 +324,9 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | Chunk | Description | Status |
 |-------|-------------|--------|
 | 0 | Analysis | Done |
-| 1 | Models + CartService | Pending |
-| 2 | CheckoutService | Pending |
-| 3 | Shared components | Pending |
+| 1 | Models + CartService | Done |
+| 2 | CheckoutService | Done |
+| 3 | Shared components | Done |
 | 4 | Routes | Pending |
 | 5 | Cart page (P-BF-001) | Pending |
 | 6 | Review page (P-BF-002) | Pending |
