@@ -289,7 +289,8 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Key Elements** | Page hero, AI matching banner, form section 1 (title, category, type, description), form section 2 (budget chips, deadline, provider count), form section 3 (attachments, special requirements), submit button, success state with timeline |
 | **Backend** | Check if `new-project.service.ts` can be reused. May POST to `/client/requests` or new endpoint. |
 | **Testing** | Form validation. Budget chip selection. Submit creates request. Success state shows expected timeline (24–48 hours). |
-| **Status** | Pending |
+| **Notes** | `/custom-request` UI implemented: page title, AI helper banner, single-page form (title, category select loaded from `SpecialtyService.getCategories()`, description, budget, delivery days, attachments upload via `ProjectApiService.uploadAttachments()`, additional notes), static AI suggestion panel, form validation with touched-state error messages, submit button disabled when invalid or submitting. Uses **real API**: `ProjectApiService.createProject()` which POSTs to `/api/client/requests`. File uploads use `ProjectApiService.uploadAttachments()` which POSTs to `/api/client/requests/upload`. Success state shows confirmation message with 24-48h timeline and CTA to `/client-overview`. Secondary actions: back to marketplace `/marketplace`, back to cart `/cart`. No mock services created. Marketplace wiring starts in Chunk 11. |
+| **Status** | Done — `npx ng build` passed (exit 0). Design file P-BF-007.html not found in workspace, design comparison marked PARTIAL. |
 
 ### Chunk 11: Wire Marketplace Entry Points
 
@@ -339,7 +340,7 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | 7 | Payment page (P-BF-003) | Done |
 | 8 | OTP confirm page (P-BF-004) | Done |
 | 9 | Success / Failure pages (P-BF-005 + P-BF-006) | Done |
-| 10 | Custom Request (P-BF-007) | Pending |
+| 10 | Custom Request (P-BF-007) | Done |
 | 11 | Wire Marketplace entry points | Pending |
 | 12 | Full runtime testing | Pending |
 
