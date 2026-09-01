@@ -149,20 +149,17 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Tasks** | Compare design pages vs Angular routes. Identify gaps. Map design elements to Angular components. Define routes, services, models, state management. |
 | **Status** | Done |
 
-> **⚠️ Runtime Blocker — Offer Page Testing (2026-09-01)**
+> **⚠️ Runtime Blocker — Offer Page Testing (Updated 2026-09-01)**
 >
-> Marketplace runtime verification is currently blocked because the marketplace page shows no service cards.
+> **Marketplace model blocker — Partially Resolved:**
+> A published marketplace service now exists and appears in the marketplace.
+> A real model is available from `GET /api/marketplace/models`.
+> Future marketplace-to-cart wiring should use real marketplace model data, not mock service data.
 >
-> **Observed possible causes:**
-> 1. `GET /api/marketplace/models` returns success with `models: []` and `total: 0`, meaning no published marketplace models exist.
-> 2. Browser Network also showed some 403/CORS errors on `marketplace/categories`, `ai-recommendations`, and socket requests, so API access/CORS must be confirmed.
+> **Remaining blocker — Checkout backend endpoints unconfirmed:**
+> Checkout/cart/payment backend endpoints are still unconfirmed, so `CheckoutService` may remain mocked until real endpoints are confirmed.
 >
-> **Question for Mohammed Rami:**
-> - Can you provide a test provider account with a published marketplace model?
-> - Or can you seed/publish one test marketplace model in the backend?
-> - Should `localhost` / `127.0.0.1` be allowed by CORS for marketplace APIs?
->
-> **Status:** Cart / Checkout Chunk 0 remains **Done**, but Offer page runtime testing is **Blocked** until a valid model ID exists.
+> **Status:** Cart / Checkout Chunk 0 remains **Done**. Chunk 1 remains **Done**. Offer page runtime testing is unblocked for marketplace data, but checkout flow testing remains blocked pending backend endpoints.
 
 ### Chunk 1: Models + CartService
 
@@ -189,9 +186,10 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | | `resendOtp()` — mocked: no-op success |
 | | `getOrder()` — mocked: return in-memory order |
 | | `reset()` — clear checkout state |
-| **Signals** | `_currentOrder`, `_paymentMethod`, `_paymentReference` |
+| **Signals** | `_currentOrder`, `_paymentMethod`, `_paymentReference`, `_maskedPhone`, `_isProcessing`, `_error` |
 | **Testing** | Create order from cart items. Initiate payment → verify OTP sent response. Confirm with `123456` → success. Confirm with wrong code → failure. |
-| **Status** | Pending |
+| **Notes** | Marketplace service mock data is no longer needed — a real published model exists via `GET /api/marketplace/models`. CheckoutService works from real CartService items. Checkout/payment backend endpoints are still unconfirmed, so all checkout/payment methods are frontend-only mocked. |
+| **Status** | Done — `npx ng build` passed (exit 0), no errors from new file |
 
 ### Chunk 3: Shared Components
 
