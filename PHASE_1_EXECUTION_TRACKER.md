@@ -276,7 +276,8 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Success Elements** | Success icon animation, order number card, payment summary, "what next" 3-step cards, AI note banner, CTA: "اذهب لمشاريعي" → `/client-overview/projects`, "متابعة التسوق" → `/marketplace` |
 | **Failure Elements** | Failure icon, error message + code, common failure reasons list, retry → `/checkout/payment`, change payment → `/checkout/payment`, back to cart → `/cart`, support link → `/contact` |
 | **Testing** | Success: verify order number from service. Failure: verify error from service. All navigation buttons work. |
-| **Status** | Pending |
+| **Notes** | `/checkout/success` real UI implemented: animated success checkmark icon, order info card (order number, payment status paid, total amount, created date, service count), order items summary list, 4-step next steps card (تأكيد الدفع، حساب الضمان، مساحة العمل، لوحة التحكم), action buttons (لوحة التحكم → `/client-overview`, الرسائل → `/client-overview/messages`, تصفح خدمات → `/marketplace`). Fallback state when no order: "لا يوجد طلب نشط" with CTAs to `/marketplace` and `/cart`. `/checkout/failure` real UI implemented: animated failure X icon, error message from `checkoutService.error()`, order info card (if order exists: order number, total, status failed), help card with 3 info items (no deduction, retry options, contact support), action buttons (إعادة المحاولة → `/checkout/payment`, تغيير طريقة الدفع → `/checkout/payment`, العودة للسلة → `/cart`, تواصل مع الدعم → `/contact`). Both pages read mocked `CheckoutService` state until `GET /api/checkout/order/:id` is ready. No CheckoutService modifications. Custom Request starts in Chunk 10. |
+| **Status** | Done — `npx ng build` passed (exit 0). Design files P-BF-005.html and P-BF-006.html not found in workspace, design comparison marked PARTIAL. |
 
 ### Chunk 10: Custom Request Page (P-BF-007)
 
@@ -337,7 +338,7 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | 6 | Review page (P-BF-002) | Done |
 | 7 | Payment page (P-BF-003) | Done |
 | 8 | OTP confirm page (P-BF-004) | Done |
-| 9 | Success / Failure pages (P-BF-005 + P-BF-006) | Pending |
+| 9 | Success / Failure pages (P-BF-005 + P-BF-006) | Done |
 | 10 | Custom Request (P-BF-007) | Pending |
 | 11 | Wire Marketplace entry points | Pending |
 | 12 | Full runtime testing | Pending |

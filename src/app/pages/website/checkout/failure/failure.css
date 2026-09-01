@@ -4,18 +4,247 @@
 }
 
 .checkout-container {
-  max-width: var(--container);
+  max-width: 640px;
   margin: 0 auto;
 }
 
-.page-title {
-  font-size: 22px;
-  font-weight: 700;
+.failure-body {
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* === FAILURE ICON === */
+.failure-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.failure-icon-circle {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(255, 140, 105, 0.08);
+  border: 2px solid var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  animation: failurePop 0.4s ease;
+}
+
+@keyframes failurePop {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* === TITLES === */
+.failure-title {
+  font-size: 24px;
+  font-weight: 800;
   color: var(--txt);
   margin: 0 0 8px;
 }
 
-.page-placeholder {
+.failure-subtitle {
   font-size: 14px;
   color: var(--txt-2);
+  margin: 0 0 24px;
+}
+
+/* === ERROR MESSAGE CARD === */
+.error-message-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 140, 105, 0.06);
+  border: 1px solid rgba(255, 140, 105, 0.2);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--red);
+  margin-bottom: 16px;
+  text-align: start;
+}
+
+/* === ORDER INFO CARD === */
+.order-info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+  text-align: start;
+}
+
+.order-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.order-info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 13px;
+  color: var(--txt-2);
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 14px;
+  color: var(--txt);
+  font-weight: 700;
+}
+
+.status-failed {
+  color: var(--red);
+}
+
+/* === HELP CARD === */
+.help-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: start;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--txt);
+  margin: 0 0 14px;
+}
+
+.help-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.help-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.help-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 140, 105, 0.06);
+  border: 1px solid rgba(255, 140, 105, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  flex-shrink: 0;
+}
+
+.help-text {
+  font-size: 13px;
+  color: var(--txt-2);
+  line-height: 1.5;
+  padding-top: 4px;
+}
+
+/* === ACTION BUTTONS === */
+.failure-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--grad);
+  color: #070d24;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--surface);
+  color: var(--txt);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(43, 212, 199, 0.3);
+  color: var(--teal);
+}
+
+.btn-tertiary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: none;
+  color: var(--txt-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.btn-tertiary:hover {
+  border-color: rgba(43, 212, 199, 0.3);
+  color: var(--teal);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 540px) {
+  .order-info-card,
+  .help-card {
+    padding: 16px;
+  }
+
+  .failure-actions {
+    gap: 10px;
+  }
 }
