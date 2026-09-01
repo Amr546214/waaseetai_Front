@@ -226,7 +226,8 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Design Reference** | P-BF-001 |
 | **Key Elements** | Breadcrumb, stepper (step 1), AI banner, cart item cards (thumb, title, provider, package, price, remove/save), "مسح السلة" button, AI recommended section (3 cards via `marketplaceService.getAiRecommendations()`), coupon input + apply, order summary sidebar, "إتمام الشراء" → `/checkout/review`, trust badges, empty cart state |
 | **Testing** | Cart with items: verify list, totals, remove button, save for later. Empty cart: verify empty state CTA. Coupon: apply `WASEET10`, verify discount. Checkout button navigates to review. |
-| **Status** | Pending |
+| **Notes** | `/cart` real UI implemented. Reads from `CartService` signals only. Cart items show thumb, title, provider (with verified badge), package, delivery days, AI score, level, price, remove + save-for-later buttons. Coupon input with apply/remove and success/error messages. Clear cart with confirm dialog. Empty cart state with icon, message, CTA to `/marketplace`, and AI recommendations. AI recommendations fetched from real `MarketplaceService.getAiRecommendations()` API — no mock data. Trust badges (secure payment, quality guarantee, fast delivery). Order summary sidebar + checkout button (disabled when empty). Responsive layout (mobile: sidebar moves to top, grid collapses). Marketplace offer button wiring deferred to Chunk 11. |
+| **Status** | Done — `npx ng build` passed (exit 0), empty cart state verified, populated cart verified via localStorage injection |
 
 ### Chunk 6: Review Page (P-BF-002)
 
@@ -329,7 +330,7 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | 2 | CheckoutService | Done |
 | 3 | Shared components | Done |
 | 4 | Routes | Done |
-| 5 | Cart page (P-BF-001) | Pending |
+| 5 | Cart page (P-BF-001) | Done |
 | 6 | Review page (P-BF-002) | Pending |
 | 7 | Payment page (P-BF-003) | Pending |
 | 8 | OTP confirm page (P-BF-004) | Pending |
