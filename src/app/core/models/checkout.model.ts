@@ -1,0 +1,75 @@
+export interface CartProvider {
+	id: string;
+	name: string;
+	avatar?: string;
+	initials: string;
+	isVerified?: boolean;
+}
+
+export interface CartPackage {
+	id: string;
+	name: string;
+	price: number;
+	deliveryDays: number;
+	deliverables: string[];
+}
+
+export interface CartItem {
+	id: string;
+	modelId: string;
+	title: string;
+	category: string;
+	categorySlug?: string;
+	coverImage?: string;
+	totalAmount: number;
+	totalDays: number;
+	level?: string;
+	aiScore?: number;
+	provider: CartProvider;
+	packageId?: string;
+	packageName?: string;
+	addedAt: string;
+	savedForLater?: boolean;
+}
+
+export interface CouponData {
+	code: string;
+	discountType: 'percentage' | 'fixed';
+	discountValue: number;
+	discountAmount: number;
+}
+
+export type PaymentMethod = 'card' | 'wallet' | 'stc_pay' | 'apple_pay';
+
+export type OrderStatus = 'pending_payment' | 'paid' | 'failed' | 'cancelled';
+
+export interface OrderItem {
+	modelId: string;
+	title: string;
+	category: string;
+	totalAmount: number;
+	totalDays: number;
+	provider: { id: string; name: string };
+	packageName?: string;
+	deliverables: string[];
+	milestones: { label: string; sub: string }[];
+}
+
+export interface Order {
+	id: string;
+	orderNumber: string;
+	status: OrderStatus;
+	items: OrderItem[];
+	subtotal: number;
+	discount: number;
+	total: number;
+	couponCode?: string;
+	createdAt: string;
+}
+
+export interface CheckoutTotals {
+	subtotal: number;
+	discount: number;
+	total: number;
+	itemCount: number;
+}
