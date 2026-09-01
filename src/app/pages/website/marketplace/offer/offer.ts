@@ -4,6 +4,8 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { MarketplaceService, MarketplaceModel } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { CartService } from '../../../../core/services/cart.service';
+import { CartItem } from '../../../../core/models/checkout.model';
 
 @Component({
 	selector: 'app-offer',
@@ -22,11 +24,13 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	isFavorite = signal<boolean>(false);
 	isSubmitting = signal<boolean>(false);
 	showNegotiation = signal<boolean>(false);
+	alreadyInCart = signal<boolean>(false);
 	negotiationMessage = signal<string>('');
 	reviewFilter = signal<number | null>(null);
 	private routeSub!: Subscription;
 	private paramSub!: Subscription;
 	private authStore = inject(AuthStore);
+	private cartService = inject(CartService);
 
 	constructor(
 		@Inject(PLATFORM_ID) platformId: Object,
@@ -158,6 +162,44 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 			},
 			error: () => this.isSubmitting.set(false)
 		});
+	}
+
+	addToCart(): void {
+		const model = this.model();
+		if (!model || this.isSubmitting()) return;
+		if (!this.authStore.isAuthenticated()) {
+			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
+			return;
+		}
+		const cartItem = this.mapModelToCartItem(model);
+		const added = this.cartService.addToCart(cartItem);
+		if (!added) {
+			this.alreadyInCart.set(true);
+			setTimeout(() => this.alreadyInCart.set(false), 3000);
+		}
+		this.router.navigate(['/cart']);
+	}
+
+	private mapModelToCartItem(model: MarketplaceModel): Omit<CartItem, 'id' | 'addedAt'> {
+		return {
+			modelId: model.id,
+			title: model.title,
+			category: model.category,
+			categorySlug: model.categorySlug,
+			coverImage: model.coverImage,
+			totalAmount: model.totalAmount,
+			totalDays: model.totalDays,
+			level: model.level,
+			aiScore: model.aiScore,
+			provider: {
+				id: model.provider.id,
+				name: model.provider.name,
+				avatar: model.provider.avatar,
+				initials: model.provider.initials,
+				isVerified: model.isVerified,
+			},
+			savedForLater: false,
+		};
 	}
 
 	setReviewFilter(rating: number | null) { this.reviewFilter.set(rating); }

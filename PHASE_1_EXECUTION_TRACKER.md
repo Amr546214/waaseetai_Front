@@ -297,15 +297,18 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | Field | Value |
 |-------|-------|
 | **Goal** | Connect marketplace offer page to cart flow |
-| **Files to Modify** | `src/app/pages/website/marketplace/offer/offer.ts` — inject `CartService`, add `addToCart()` method, change "اطلب الآن" to add to cart + navigate to `/cart` |
-| | `src/app/pages/website/marketplace/offer/offer.html` — add "أضف للسلة" button alongside "اطلب الآن", keep "طلب تفاوض" as-is |
-| | `src/app/pages/website/marketplace/marketplace.ts` — add quick-add to cart on marketplace cards |
-| | `src/app/pages/website/marketplace/marketplace.html` — add cart icon button on cards |
-| | `src/app/pages/website/marketplace/slug/slug.ts` — add quick-add on category cards |
-| | `src/app/pages/website/marketplace/slug/slug.html` — add cart icon button on cards |
-| | Site header component — add cart icon with `cartService.itemCount()` badge, link to `/cart` |
-| **Testing** | Click "اطلب الآن" on offer page → adds to cart → navigates to `/cart`. Click "أضف للسلة" → adds to cart → toast notification. Cart badge updates in header. Quick-add on marketplace cards works. "طلب تفاوض" still works as before (unchanged). |
-| **Status** | Pending |
+| **Files Modified** | `src/app/pages/website/marketplace/offer/offer.ts` — injected `CartService`, added `mapModelToCartItem()` helper, added `addToCart()` method that maps real `MarketplaceModel` to `CartItem` and navigates to `/cart` |
+| | `src/app/pages/website/marketplace/offer/offer.html` — wired "اطلب الآن" buttons (both overview and reviews tabs) to `addToCart()`, changed "تواصل مع المقدم" buttons from `requestService('order')` to `openNegotiation()` (no longer creates a checkout order), negotiation flow unchanged (`requestService('negotiation')` still POSTs to `/api/marketplace/models/:id/request` and navigates to messages) |
+| | `src/app/sheards/navbar/navbar.ts` — injected `CartService`, added `cartService.itemCount()` to change detection effect |
+| | `src/app/sheards/navbar/navbar.html` — added cart icon with badge (`t-notif-badge`) between chat and notifications icons, links to `/cart`, shows item count when > 0 |
+| | `src/app/sheards/navbar/navbar.css` — added `.t-notif-badge` style for cart count badge |
+| **Marketplace Cards** | Marketplace cards (`marketplace.html`) are `<a>` links to offer pages — no direct "اطلب الآن" or "أضف للسلة" buttons on cards. No changes needed per instructions. |
+| **CartService** | Still uses `localStorage` for persistence. No backend cart calls added. Deduplication by `modelId` + `packageId` already handled in `CartService.addToCart()`. |
+| **Mock Data Added** | NO — real `MarketplaceModel` data from `GET /api/marketplace/models/:id` is mapped to `CartItem`. No hardcoded cart items. |
+| **Negotiation Flow** | Unchanged — `requestService('negotiation')` still POSTs to `/api/marketplace/models/:id/request` and navigates to `/client-overview/messages`. |
+| **Contact Provider** | Changed from `requestService('order')` to `openNegotiation()` — no longer creates a checkout order. Opens negotiation modal instead. |
+| **Testing** | Click "اطلب الآن" on offer page → adds real service to cart → navigates to `/cart`. Cart badge updates in header. "طلب تفاوض" still works as before (unchanged). "تواصل مع المقدم" opens negotiation modal (no order created). Duplicate prevention via CartService dedup. |
+| **Status** | Done — `npx ng build` passed (exit 0). Full runtime testing starts in Chunk 12. |
 
 ### Chunk 12: Full Runtime Testing
 

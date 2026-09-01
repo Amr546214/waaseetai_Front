@@ -49,10 +49,19 @@ export class CartService {
 		this.loadCart();
 	}
 
-	addToCart(item: Omit<CartItem, 'id' | 'addedAt'>): void {
-		const existing = this._items().find(i => i.modelId === item.modelId && i.packageId === item.packageId && !i.savedForLater);
+	addToCart(item: Omit<CartItem, 'id' | 'addedAt'>): boolean {
+		const existing = this._items().find(i =>
+			i.modelId === item.modelId &&
+			!i.savedForLater &&
+			(item.packageId
+				? i.packageId === item.packageId
+				: item.packageName
+					? i.packageName === item.packageName
+					: true
+			)
+		);
 		if (existing) {
-			return;
+			return false;
 		}
 		const newItem: CartItem = {
 			...item,
@@ -61,6 +70,7 @@ export class CartService {
 		};
 		this._items.update(items => [...items, newItem]);
 		this.persist();
+		return true;
 	}
 
 	removeFromCart(itemId: string): void {
