@@ -1,0 +1,21 @@
+.checkout-page {
+  min-height: 60vh;
+  padding: 24px 16px;
+}
+
+.checkout-container {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--txt);
+  margin: 0 0 8px;
+}
+
+.page-placeholder {
+  font-size: 14px;
+  color: var(--txt-2);
+}

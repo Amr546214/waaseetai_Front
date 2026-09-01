@@ -211,10 +211,11 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Goal** | Add 7 checkout routes to website routes array |
 | **File to Modify** | `src/app/pages/website/website.routes.ts` — insert after `marketplace/offer/:id` route (line 20), before `about` route (line 21) |
 | **Routes** | `/cart` → CartComponent, `/checkout/review` → CheckoutReviewComponent, `/checkout/payment` → CheckoutPaymentComponent, `/checkout/confirm` → CheckoutConfirmComponent, `/checkout/success` → CheckoutSuccessComponent, `/checkout/failure` → CheckoutFailureComponent, `/custom-request` → CustomRequestComponent |
-| **Guard** | All routes: `canActivate: [authGuard]` |
+| **Guard** | `/cart` public (guest cart via localStorage). All other routes: `canActivate: [authGuard]` |
 | **Load Pattern** | `loadComponent` (consistent with existing routes) |
 | **Testing** | Navigate to each route. Verify authGuard redirects unauthenticated users to `/auth/login` with `returnUrl`. Verify authenticated users can access all routes. |
-| **Status** | Pending |
+| **Notes** | 7 standalone page shells created (cart, review, payment, confirm, success, failure, custom-request). Each has minimal HTML with title + placeholder text. Cart/review/payment use `CheckoutStepper` + `OrderSummary`. Confirm uses stepper only. Success/failure/custom-request are plain shells. Routes added to `website.routes.ts` with `loadComponent` pattern. `/cart` is public, all others use `authGuard`. Full UI implementation starts in Chunk 5. |
+| **Status** | Done — `npx ng build` passed (exit 0), all routes load placeholder pages |
 
 ### Chunk 5: Cart Page (P-BF-001)
 
@@ -327,7 +328,7 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | 1 | Models + CartService | Done |
 | 2 | CheckoutService | Done |
 | 3 | Shared components | Done |
-| 4 | Routes | Pending |
+| 4 | Routes | Done |
 | 5 | Cart page (P-BF-001) | Pending |
 | 6 | Review page (P-BF-002) | Pending |
 | 7 | Payment page (P-BF-003) | Pending |
