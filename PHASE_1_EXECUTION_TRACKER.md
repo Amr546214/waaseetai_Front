@@ -238,7 +238,8 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | **Design Reference** | P-BF-002 |
 | **Key Elements** | Stepper (step 2), AI review banner (static), order items with deliverables + milestone plans, billing info card (from `AuthStore.currentUser()`), "تعديل السلة" → `/cart`, notes card, order summary sidebar, "متابعة للدفع" → `/checkout/payment` |
 | **Testing** | Verify all cart items displayed with stages. Billing info from auth store. Back to cart works. Continue to payment works. |
-| **Status** | Pending |
+| **Notes** | `/checkout/review` real UI implemented. Reads cart items from `CartService` signals only. Shows AI review banner (static text), order items with thumb, title, provider (with verified badge), package, delivery days, AI score, level, price. Billing info card reads from `AuthStore.currentUser()` — shows name, email, phone, account type with fallback "—" if missing. Terms/escrow info card with static bullet points. Order summary sidebar. "تعديل السلة" links to `/cart`. "متابعة للدفع" calls `checkoutService.createOrder()` and navigates to `/checkout/payment` on success, shows error on failure. Empty cart state with CTAs to `/marketplace` and `/cart`. Responsive layout. Payment UI starts in Chunk 7. |
+| **Status** | Done — `npx ng build` passed (exit 0). Design file P-BF-002.html not found in workspace, design comparison marked PARTIAL. |
 
 ### Chunk 7: Payment Page (P-BF-003)
 
@@ -331,7 +332,7 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | 3 | Shared components | Done |
 | 4 | Routes | Done |
 | 5 | Cart page (P-BF-001) | Done |
-| 6 | Review page (P-BF-002) | Pending |
+| 6 | Review page (P-BF-002) | Done |
 | 7 | Payment page (P-BF-003) | Pending |
 | 8 | OTP confirm page (P-BF-004) | Pending |
 | 9 | Success / Failure pages (P-BF-005 + P-BF-006) | Pending |
