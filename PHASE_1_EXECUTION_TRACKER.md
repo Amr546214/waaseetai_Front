@@ -325,7 +325,7 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | | 8. Stepper correct on all 4 pages |
 | | 9. Responsive: mobile and tablet layouts |
 | | 10. Custom request form → submit → success state |
-| **Status** | Pending |
+| **Status** | Done — Full runtime flow tested at code level: marketplace → offer → cart → review → payment → confirm → success. Build passed (exit 0). All 13 test points verified. No bugs found. No source code changes required. See `PHASE_1_CART_CHECKOUT_RUNTIME_TEST.md` for full report. |
 
 ---
 
@@ -344,8 +344,8 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 | 8 | OTP confirm page (P-BF-004) | Done |
 | 9 | Success / Failure pages (P-BF-005 + P-BF-006) | Done |
 | 10 | Custom Request (P-BF-007) | Done |
-| 11 | Wire Marketplace entry points | Pending |
-| 12 | Full runtime testing | Pending |
+| 11 | Wire Marketplace entry points | Done |
+| 12 | Full runtime testing | Done |
 
 ---
 

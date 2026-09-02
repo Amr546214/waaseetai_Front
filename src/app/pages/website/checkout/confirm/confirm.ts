@@ -90,6 +90,11 @@ export class CheckoutConfirmComponent implements OnDestroy {
         this.focusInput(index - 1);
         event.preventDefault();
       }
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      if (this.canConfirm()) {
+        this.confirmPayment();
+      }
     }
   }
 
@@ -124,7 +129,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
 
     const result = this.checkoutService.confirmPayment(otp);
     if (result.success) {
-      this.router.navigate(['/checkout/success']);
+      this.router.navigate(['/checkout/success'], { replaceUrl: true });
     } else {
       this.errorMessage.set(result.message);
       this.isProcessing.set(false);
