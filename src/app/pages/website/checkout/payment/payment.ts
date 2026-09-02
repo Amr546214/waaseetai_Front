@@ -140,13 +140,20 @@ export class CheckoutPaymentComponent implements OnInit {
   }
 
   private proceedToPaymentStep(method: PaymentMethod) {
-    const result = this.checkoutService.initiatePayment(method);
-    if (result.success) {
-      this.router.navigate(['/checkout/confirm']);
-    } else {
-      this.errorMessage.set(result.message);
-      this.isProcessing.set(false);
-    }
+    this.checkoutService.initiatePayment(method).subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.router.navigate(['/checkout/confirm']);
+        } else {
+          this.errorMessage.set(result.message);
+          this.isProcessing.set(false);
+        }
+      },
+      error: () => {
+        this.errorMessage.set('حدث خطأ، حاول مرة أخرى');
+        this.isProcessing.set(false);
+      },
+    });
   }
 
   formatPrice(value: number): string {

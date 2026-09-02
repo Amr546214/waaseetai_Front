@@ -45,8 +45,8 @@ export class CheckoutConfirmComponent implements OnDestroy {
   });
 
   displayPhone = computed(() => {
-    const phone = this.maskedPhone();
-    return phone || 'رقمك المسجل';
+    const contact = this.maskedPhone();
+    return contact || 'بريدك الإلكتروني';
   });
 
   onOtpInput(index: number, event: Event) {
@@ -127,28 +127,41 @@ export class CheckoutConfirmComponent implements OnDestroy {
     this.isProcessing.set(true);
     this.errorMessage.set(null);
 
-    const result = this.checkoutService.confirmPayment(otp);
-    if (result.success) {
-      this.router.navigate(['/checkout/success'], { replaceUrl: true });
-    } else {
-      this.errorMessage.set(result.message);
-      this.isProcessing.set(false);
-    }
+    this.checkoutService.confirmPayment(otp).subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.router.navigate(['/checkout/success'], { replaceUrl: true });
+        } else {
+          this.errorMessage.set(result.message);
+          this.isProcessing.set(false);
+        }
+      },
+      error: () => {
+        this.errorMessage.set('حدث خطأ، حاول مرة أخرى');
+        this.isProcessing.set(false);
+      },
+    });
   }
 
   resendOtp() {
     this.resendMessage.set(null);
-    const result = this.checkoutService.resendOtp();
-    if (result.success) {
-      this.resendMessage.set(result.message);
-      this.startCountdown();
-      this.otpDigits.set(['', '', '', '', '', '']);
-      this.errorMessage.set(null);
-      this.focusInput(0);
-      setTimeout(() => this.resendMessage.set(null), 3000);
-    } else {
-      this.errorMessage.set(result.message);
-    }
+    this.checkoutService.resendOtp().subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.resendMessage.set(result.message);
+          this.startCountdown();
+          this.otpDigits.set(['', '', '', '', '', '']);
+          this.errorMessage.set(null);
+          this.focusInput(0);
+          setTimeout(() => this.resendMessage.set(null), 3000);
+        } else {
+          this.errorMessage.set(result.message);
+        }
+      },
+      error: () => {
+        this.errorMessage.set('حدث خطأ، حاول مرة أخرى');
+      },
+    });
   }
 
   private startCountdown() {
