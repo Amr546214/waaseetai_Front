@@ -20,6 +20,7 @@ export interface CartItem {
 	title: string;
 	category: string;
 	categorySlug?: string;
+	specializationSlug?: string;
 	coverImage?: string;
 	totalAmount: number;
 	totalDays: number;
@@ -44,19 +45,22 @@ export type PaymentMethod = 'card' | 'wallet' | 'stc_pay' | 'apple_pay';
 export type OrderStatus = 'pending_payment' | 'paid' | 'failed' | 'cancelled';
 
 export interface OrderItem {
+	id?: string;
 	modelId: string;
 	title: string;
-	category: string;
+	category?: string;
 	totalAmount: number;
 	totalDays: number;
 	provider: { id: string; name: string };
 	packageName?: string;
-	deliverables: string[];
-	milestones: { label: string; sub: string }[];
+	aiScore?: number;
+	deliverables?: string[];
+	milestones?: { label: string; sub: string }[];
 }
 
 export interface Order {
 	id: string;
+	orderId?: string;
 	orderNumber: string;
 	status: OrderStatus;
 	items: OrderItem[];
