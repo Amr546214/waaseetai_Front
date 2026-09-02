@@ -171,13 +171,22 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
 			return;
 		}
+		this.isSubmitting.set(true);
 		const cartItem = this.mapModelToCartItem(model);
-		const added = this.cartService.addToCart(cartItem);
-		if (!added) {
-			this.alreadyInCart.set(true);
-			setTimeout(() => this.alreadyInCart.set(false), 3000);
-		}
-		this.router.navigate(['/cart']);
+		this.cartService.addToCart$(cartItem).subscribe({
+			next: (added) => {
+				this.isSubmitting.set(false);
+				if (!added) {
+					this.alreadyInCart.set(true);
+					setTimeout(() => this.alreadyInCart.set(false), 3000);
+				}
+				this.router.navigate(['/cart']);
+			},
+			error: () => {
+				this.isSubmitting.set(false);
+				this.router.navigate(['/cart']);
+			},
+		});
 	}
 
 	private mapModelToCartItem(model: MarketplaceModel): Omit<CartItem, 'id' | 'addedAt'> {
