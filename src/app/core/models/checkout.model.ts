@@ -40,7 +40,7 @@ export interface CouponData {
 	discountAmount: number;
 }
 
-export type PaymentMethod = 'card' | 'wallet' | 'stc_pay' | 'apple_pay';
+export type PaymentMethod = 'card' | 'moyasar' | 'wallet' | 'stc_pay' | 'apple_pay';
 
 export type OrderStatus = 'pending_payment' | 'paid' | 'failed' | 'cancelled';
 

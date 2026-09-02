@@ -1,10 +1,11 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CheckoutStepper } from '../components/checkout-stepper/checkout-stepper';
 import { OrderSummary } from '../components/order-summary/order-summary';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
+import { CheckoutApiService, PaymentMethodItem } from '../../../../core/services/checkout-api.service';
 import { PaymentMethod } from '../../../../core/models/checkout.model';
 
 interface PaymentMethodOption {
@@ -13,7 +14,30 @@ interface PaymentMethodOption {
   icon: string;
   available: boolean;
   badge?: string;
+  balance?: number;
 }
+
+const ICON_MAP: Record<string, string> = {
+  card: 'card',
+  moyasar: 'card',
+  wallet: 'wallet',
+  stc_pay: 'stc',
+  apple_pay: 'apple',
+};
+
+const LABEL_MAP: Record<string, string> = {
+  card: 'بطاقة بنكية',
+  moyasar: 'moyasar',
+  wallet: 'المحفظة',
+  stc_pay: 'STC Pay',
+  apple_pay: 'Apple Pay',
+};
+
+// Fallback methods used only if backend API fails
+const FALLBACK_METHODS: PaymentMethodOption[] = [
+  { id: 'card', label: 'بطاقة بنكية', icon: 'card', available: true },
+  { id: 'wallet', label: 'المحفظة', icon: 'wallet', available: true },
+];
 
 @Component({
   selector: 'app-checkout-payment',
@@ -22,11 +46,12 @@ interface PaymentMethodOption {
   templateUrl: './payment.html',
   styleUrl: './payment.css',
 })
-export class CheckoutPaymentComponent {
+export class CheckoutPaymentComponent implements OnInit {
   step = 3;
 
   private cartService = inject(CartService);
   private checkoutService = inject(CheckoutService);
+  private checkoutApi = inject(CheckoutApiService);
   private router = inject(Router);
 
   itemCount = this.cartService.itemCount;
@@ -37,40 +62,43 @@ export class CheckoutPaymentComponent {
   isProcessing = signal(false);
   errorMessage = signal<string | null>(null);
   showComingSoon = signal(false);
+  methodsLoading = signal(false);
 
-  paymentMethods: PaymentMethodOption[] = [
-    {
-      id: 'card',
-      label: 'بطاقة بنكية',
-      icon: 'card',
-      available: true,
-    },
-    {
-      id: 'wallet',
-      label: 'المحفظة',
-      icon: 'wallet',
-      available: true,
-    },
-    {
-      id: 'stc_pay',
-      label: 'STC Pay',
-      icon: 'stc',
-      available: false,
-      badge: 'قريباً',
-    },
-    {
-      id: 'apple_pay',
-      label: 'Apple Pay',
-      icon: 'apple',
-      available: false,
-      badge: 'قريباً',
-    },
-  ];
+  paymentMethods = signal<PaymentMethodOption[]>(FALLBACK_METHODS);
 
   canPay = computed(() => {
     const method = this.selectedMethod();
     return method !== null && !this.isProcessing() && this.itemCount() > 0;
   });
+
+  ngOnInit() {
+    this.loadPaymentMethods();
+  }
+
+  private loadPaymentMethods() {
+    this.methodsLoading.set(true);
+    this.checkoutApi.getPaymentMethods().subscribe({
+      next: (res: any) => {
+        const data = res?.data ?? res;
+        const methods = Array.isArray(data) ? data : [];
+        const mapped: PaymentMethodOption[] = methods.map((m: PaymentMethodItem) => ({
+          id: m.id as PaymentMethod,
+          label: m.name || LABEL_MAP[m.id] || m.id,
+          icon: ICON_MAP[m.id] || 'card',
+          available: m.available,
+          badge: m.badge,
+          balance: m.balance,
+        }));
+        this.paymentMethods.set(mapped.length > 0 ? mapped : FALLBACK_METHODS);
+        this.methodsLoading.set(false);
+      },
+      error: (err: any) => {
+        console.error('[Payment] Failed to load payment methods:', err);
+        this.paymentMethods.set(FALLBACK_METHODS);
+        this.methodsLoading.set(false);
+      },
+    });
+  }
 
   selectMethod(method: PaymentMethodOption) {
     if (!method.available) {

@@ -30,7 +30,7 @@
           <div class="payment-methods">
             <h2 class="section-title">اختر طريقة الدفع</h2>
             <div class="methods-grid">
-              @for (method of paymentMethods; track method.id) {
+              @for (method of paymentMethods(); track method.id) {
                 <button
                   type="button"
                   class="method-card"
