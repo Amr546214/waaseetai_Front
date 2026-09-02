@@ -1,7 +1,9 @@
-import { Component, inject, computed, OnInit, HostListener } from '@angular/core';
+import { Component, inject, computed, OnInit, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CheckoutService } from '../../../../core/services/checkout.service';
+import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
+import { mapOrder, BackendOrderResponse } from '../../../../core/services/checkout-mappers';
 
 @Component({
   selector: 'app-checkout-success',
@@ -12,12 +14,16 @@ import { CheckoutService } from '../../../../core/services/checkout.service';
 })
 export class CheckoutSuccessComponent implements OnInit {
   private checkoutService = inject(CheckoutService);
+  private checkoutApi = inject(CheckoutApiService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private isRedirecting = false;
 
+  isRehydrating = signal(false);
   currentOrder = this.checkoutService.currentOrder;
 
   hasOrder = computed(() => !!this.currentOrder());
+  showFallback = computed(() => !this.currentOrder() && !this.isRehydrating());
   orderNumber = computed(() => this.currentOrder()?.orderNumber || '');
   orderTotal = computed(() => this.currentOrder()?.total || 0);
   orderStatus = computed(() => this.currentOrder()?.status || '');
@@ -47,12 +53,33 @@ export class CheckoutSuccessComponent implements OnInit {
   ngOnInit(): void {
     history.replaceState({ checkoutFinal: true }, '', window.location.href);
     history.pushState({ checkoutFinal: true }, '', window.location.href);
+
+    if (!this.currentOrder()) {
+      const orderId = this.route.snapshot.queryParamMap.get('orderId');
+      if (orderId) {
+        this.isRehydrating.set(true);
+        this.checkoutApi.getOrder(orderId).subscribe({
+          next: (res: any) => {
+            const data = res?.data ?? res;
+            const order = mapOrder(data as BackendOrderResponse);
+            this.checkoutService.hydrateOrder(order);
+            this.isRehydrating.set(false);
+          },
+          error: (err: any) => {
+            console.error('[CheckoutSuccess] Failed to rehydrate order:', err);
+            this.isRehydrating.set(false);
+          },
+        });
+      }
+    }
   }
 
   @HostListener('window:popstate', ['$event'])
   onPopState(event: PopStateEvent): void {
     if (this.isRedirecting) return;
     this.isRedirecting = true;
-    this.router.navigate(['/marketplace'], { replaceUrl: true });
+    setTimeout(() => {
+      this.router.navigate(['/marketplace'], { replaceUrl: true });
+    }, 0);
   }
 }

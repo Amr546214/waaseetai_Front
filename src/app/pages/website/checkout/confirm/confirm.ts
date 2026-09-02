@@ -130,7 +130,11 @@ export class CheckoutConfirmComponent implements OnDestroy {
     this.checkoutService.confirmPayment(otp).subscribe({
       next: (result) => {
         if (result.success) {
-          this.router.navigate(['/checkout/success'], { replaceUrl: true });
+          const orderId = result.data?.orderId || this.currentOrder()?.id || '';
+          this.router.navigate(['/checkout/success'], {
+            replaceUrl: true,
+            queryParams: orderId ? { orderId } : {},
+          });
         } else {
           this.errorMessage.set(result.message);
           this.isProcessing.set(false);

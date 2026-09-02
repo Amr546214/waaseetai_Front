@@ -200,6 +200,10 @@ export class CheckoutService {
 		return this._currentOrder();
 	}
 
+	hydrateOrder(order: Order): void {
+		this._currentOrder.set(order);
+	}
+
 	reset(): void {
 		this._currentOrder.set(null);
 		this._paymentMethod.set(null);
