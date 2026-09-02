@@ -91,14 +91,27 @@ export class CheckoutPaymentComponent {
     this.errorMessage.set(null);
 
     if (!this.currentOrder()) {
-      const orderResult = this.checkoutService.createOrder();
-      if (!orderResult.success) {
-        this.errorMessage.set(orderResult.message);
-        this.isProcessing.set(false);
-        return;
-      }
+      this.checkoutService.createOrder().subscribe({
+        next: (orderResult) => {
+          if (!orderResult.success) {
+            this.errorMessage.set(orderResult.message);
+            this.isProcessing.set(false);
+            return;
+          }
+          this.proceedToPaymentStep(method);
+        },
+        error: () => {
+          this.errorMessage.set('حدث خطأ، حاول مرة أخرى');
+          this.isProcessing.set(false);
+        },
+      });
+      return;
     }
 
+    this.proceedToPaymentStep(method);
+  }
+
+  private proceedToPaymentStep(method: PaymentMethod) {
     const result = this.checkoutService.initiatePayment(method);
     if (result.success) {
       this.router.navigate(['/checkout/confirm']);

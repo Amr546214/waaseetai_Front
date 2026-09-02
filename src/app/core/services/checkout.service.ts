@@ -1,10 +1,14 @@
 // Temporary frontend-only checkout/payment mock until real checkout backend endpoints are confirmed.
 // Marketplace service data must come from real CartService items.
 import { inject, Injectable, signal } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { CartService } from './cart.service';
+import { CheckoutApiService, CheckoutOrderPayload } from './checkout-api.service';
+import { mapOrder, BackendOrderResponse } from './checkout-mappers';
 import { CartItem, Order, OrderItem, OrderStatus, PaymentMethod } from '../models/checkout.model';
 
-interface CheckoutResult {
+export interface CheckoutResult {
 	success: boolean;
 	message: string;
 	data?: any;
@@ -20,6 +24,7 @@ let orderCounter = 0;
 })
 export class CheckoutService {
 	private cartService = inject(CartService);
+	private checkoutApi = inject(CheckoutApiService);
 
 	private readonly _currentOrder = signal<Order | null>(null);
 	private readonly _paymentMethod = signal<PaymentMethod | null>(null);
@@ -35,47 +40,38 @@ export class CheckoutService {
 	readonly isProcessing = this._isProcessing.asReadonly();
 	readonly error = this._error.asReadonly();
 
-	createOrder(): CheckoutResult {
+	createOrder(): Observable<CheckoutResult> {
 		const items = this.cartService.items().filter(i => !i.savedForLater);
 		if (items.length === 0) {
 			this._error.set('السلة فارغة، لا يمكن إنشاء طلب');
-			return { success: false, message: 'السلة فارغة، لا يمكن إنشاء طلب' };
+			return of({ success: false, message: 'السلة فارغة، لا يمكن إنشاء طلب' });
 		}
 
 		this._error.set(null);
-		orderCounter++;
-		const year = new Date().getFullYear();
-		const orderNumber = `WS-${year}-${String(orderCounter).padStart(6, '0')}`;
-		const orderId = this.generateId();
+		this._isProcessing.set(true);
 
-		const orderItems: OrderItem[] = items.map((item: CartItem) => ({
-			modelId: item.modelId,
-			title: item.title,
-			category: item.category,
-			totalAmount: item.totalAmount,
-			totalDays: item.totalDays,
-			provider: { id: item.provider.id, name: item.provider.name },
-			packageName: item.packageName,
-			deliverables: [],
-			milestones: [],
-		}));
-
-		const coupon = this.cartService.coupon();
-
-		const order: Order = {
-			id: orderId,
-			orderNumber,
-			status: 'pending_payment',
-			items: orderItems,
-			subtotal: this.cartService.subtotal(),
-			discount: this.cartService.discount(),
-			total: this.cartService.total(),
-			couponCode: coupon?.code,
-			createdAt: new Date().toISOString(),
+		const payload: CheckoutOrderPayload = {
+			items: items.map(i => ({ modelId: i.modelId, packageId: i.packageId })),
+			couponCode: this.cartService.coupon()?.code ?? null,
 		};
 
-		this._currentOrder.set(order);
-		return { success: true, message: 'تم إنشاء الطلب', data: order };
+		return this.checkoutApi.createOrder(payload).pipe(
+			map((res: any) => {
+				const data = res?.data ?? res;
+				const order = mapOrder(data as BackendOrderResponse);
+				this._currentOrder.set(order);
+				this._isProcessing.set(false);
+				return { success: true, message: 'تم إنشاء الطلب', data: order } as CheckoutResult;
+			}),
+			catchError((err: any) => {
+				console.error('[CheckoutService] createOrder failed:', err);
+				this._isProcessing.set(false);
+				const errBody = err?.error;
+				const msg = errBody?.message || errBody?.error || err?.message || 'فشل إنشاء الطلب';
+				this._error.set(msg);
+				return of({ success: false, message: msg } as CheckoutResult);
+			})
+		);
 	}
 
 	initiatePayment(method: PaymentMethod): CheckoutResult {

@@ -76,12 +76,19 @@ export class CheckoutReviewComponent {
     this.isProcessing.set(true);
     this.errorMessage.set(null);
 
-    const result = this.checkoutService.createOrder();
-    if (result.success) {
-      this.router.navigate(['/checkout/payment']);
-    } else {
-      this.errorMessage.set(result.message);
-      this.isProcessing.set(false);
-    }
+    this.checkoutService.createOrder().subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.router.navigate(['/checkout/payment']);
+        } else {
+          this.errorMessage.set(result.message);
+          this.isProcessing.set(false);
+        }
+      },
+      error: () => {
+        this.errorMessage.set('حدث خطأ، حاول مرة أخرى');
+        this.isProcessing.set(false);
+      },
+    });
   }
 }
