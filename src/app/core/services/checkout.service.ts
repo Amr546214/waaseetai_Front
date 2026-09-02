@@ -196,10 +196,6 @@ export class CheckoutService {
 		);
 	}
 
-	getOrder(): Order | null {
-		return this._currentOrder();
-	}
-
 	hydrateOrder(order: Order): void {
 		this._currentOrder.set(order);
 	}

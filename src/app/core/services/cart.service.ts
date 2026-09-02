@@ -17,9 +17,9 @@ export interface CouponResult {
 	coupon?: CouponData;
 }
 
-// Guest-only fallback coupons. Used only when user is NOT authenticated.
+// Guest-only fallback coupons. Used ONLY when user is NOT authenticated.
 // Authenticated users always validate via POST /api/checkout/coupon/validate.
-const MOCK_COUPONS: Record<string, { discountType: 'percentage' | 'fixed'; discountValue: number }> = {
+const GUEST_MOCK_COUPONS: Record<string, { discountType: 'percentage' | 'fixed'; discountValue: number }> = {
 	WASEET10: { discountType: 'percentage', discountValue: 10 },
 };
 
@@ -284,8 +284,8 @@ export class CartService {
 			);
 		}
 
-		// Guest: use local mock coupons as fallback (backend requires bearerAuth).
-		const mock = MOCK_COUPONS[upper];
+		// Guest: use local fallback coupons (backend requires bearerAuth).
+		const mock = GUEST_MOCK_COUPONS[upper];
 		if (!mock) {
 			this._coupon.set(null);
 			this.persistCoupon();
