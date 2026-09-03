@@ -5,19 +5,23 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { ProjectMiniChat } from '../../../../../sheards/project-mini-chat/project-mini-chat';
+import { ClientRatingModal } from '../rating-modal/rating-modal';
+import { RatingApiService } from '../../../../../core/services/rating-api.service';
+import { RatingScore } from '../../../../../core/models/rating.model';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type SupportAction = 'edit' | 'dispute' | 'cancel' | null;
 
 @Component({
 	selector: 'app-project-details', standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat],
+	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, ClientRatingModal],
 	templateUrl: './project-details.html', styleUrl: './project-details.css',
 })
 export class ProjectDetails implements OnInit {
 	private http = inject(HttpClient);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
+	private ratingApi = inject(RatingApiService);
 	project = signal<any>(null);
 	isLoading = signal(true);
 	error = signal('');
@@ -29,6 +33,11 @@ export class ProjectDetails implements OnInit {
 	reviewNote = '';
 	supportNote = '';
 	private projectId = '';
+	showRatingModal = signal(false);
+	isSubmittingRating = signal(false);
+	ratingError = signal('');
+	ratingSuccess = signal('');
+	ratingSubmitted = signal(false);
 
 	ngOnInit() { this.route.params.subscribe(params => { this.projectId = params['id']; this.load(); }); }
 	load() {
@@ -77,4 +86,41 @@ export class ProjectDetails implements OnInit {
 	closeSupport() { this.supportAction.set(null); }
 	continueInConversation(data: any) { this.supportAction.set(null); this.openConversation(data); }
 	openConversation(data: any) { this.router.navigate(['/client-overview/messages'], { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined }); }
+
+	canRate(data: any): boolean {
+		if (this.ratingSubmitted() || this.ratingSuccess()) return false;
+		if (data?.canRate === true) return true;
+		if (data?.hasRated === true) return false;
+		const allCompleted = data?.stages?.length > 0 && data.stages.every((s: any) => s.status === 'completed');
+		return data?.status === 'COMPLETED' || (data?.progress === 100 && allCompleted);
+	}
+
+	openRatingModal() {
+		this.ratingError.set('');
+		this.showRatingModal.set(true);
+	}
+
+	closeRatingModal() {
+		if (this.isSubmittingRating()) return;
+		this.showRatingModal.set(false);
+		this.ratingError.set('');
+	}
+
+	submitRating(payload: { rating: RatingScore; comment?: string }) {
+		if (this.isSubmittingRating()) return;
+		this.isSubmittingRating.set(true);
+		this.ratingError.set('');
+		this.ratingApi.rateProvider(this.projectId, payload).subscribe({
+			next: () => {
+				this.isSubmittingRating.set(false);
+				this.showRatingModal.set(false);
+				this.ratingSubmitted.set(true);
+				this.ratingSuccess.set('تم إرسال تقييمك بنجاح');
+			},
+			error: (err: any) => {
+				this.isSubmittingRating.set(false);
+				this.ratingError.set(err?.error?.message || 'تعذر إرسال التقييم، حاول مرة أخرى');
+			},
+		});
+	}
 }
