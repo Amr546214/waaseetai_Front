@@ -1,0 +1,222 @@
+<div class="checkout-page">
+  <div class="checkout-container">
+    @if (showSuccess()) {
+      <!-- Success State -->
+      <div class="success-state">
+        <div class="success-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 12l2 2 4-4" />
+            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+          </svg>
+        </div>
+        <h2 class="success-title">تم إنشاء الطلب بنجاح</h2>
+        <p class="success-desc">تم إرسال طلبك الخاص، وسيقوم فريقنا بتحليله واقتراح أفضل مقدمي الخدمة المناسبين خلال 24-48 ساعة.</p>
+        <div class="success-actions">
+          <button class="btn-primary" (click)="goToDashboard()">الذهاب للوحة التحكم</button>
+          <a routerLink="/marketplace" class="btn-tertiary">تصفح الخدمات</a>
+        </div>
+      </div>
+    } @else {
+      <!-- Form State -->
+      <div class="form-body">
+        <h1 class="page-title">طلب خدمة مخصصة</h1>
+
+        <!-- AI Helper Banner -->
+        <div class="ai-banner">
+          <div class="ai-banner-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3c0 1.31.83 2.42 2 2.83V20l-2 2h6l-2-2V7.83c1.17-.41 2-1.52 2-2.83a3 3 0 0 0-3-3z" />
+              <path d="M5 8h3M16 8h3M5 16h3M16 16h3" />
+            </svg>
+          </div>
+          <div class="ai-banner-text">
+            <span class="ai-banner-title">وسيط AI الذكي</span>
+            <span class="ai-banner-desc">اكتب تفاصيل احتياجك وسيقوم وسيط AI بمساعدتك في الوصول لأفضل مقدم خدمة مناسب</span>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage()) {
+          <div class="error-banner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <!-- Form -->
+        <div class="form-card">
+          <!-- Title -->
+          <div class="form-group">
+            <label class="form-label">عنوان الطلب <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-input"
+              [class.error]="titleError()"
+              placeholder="مثال: تطوير متجر إلكتروني متكامل"
+              [value]="title()"
+              (input)="title.set($any($event.target).value)"
+              (blur)="markTouched('title')"
+            />
+            @if (titleError()) {
+              <span class="field-error">{{ titleError() }}</span>
+            }
+          </div>
+
+          <!-- Category -->
+          <div class="form-group">
+            <label class="form-label">التخصص <span class="required">*</span></label>
+            @if (categoriesLoading()) {
+              <div class="select-loading">جارٍ تحميل التخصصات...</div>
+            } @else {
+              <select
+                class="form-select"
+                [class.error]="categoryError()"
+                [value]="selectedCategoryId()"
+                (change)="selectedCategoryId.set($any($event.target).value)"
+                (blur)="markTouched('category')"
+              >
+                <option value="">اختر التخصص</option>
+                @for (cat of categories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            }
+            @if (categoryError()) {
+              <span class="field-error">{{ categoryError() }}</span>
+            }
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label class="form-label">وصف الخدمة المطلوبة <span class="required">*</span></label>
+            <textarea
+              class="form-textarea"
+              [class.error]="descriptionError()"
+              placeholder="اكتب وصفاً تفصيلياً لما تحتاجه..."
+              rows="5"
+              [value]="description()"
+              (input)="description.set($any($event.target).value)"
+              (blur)="markTouched('description')"
+            ></textarea>
+            @if (descriptionError()) {
+              <span class="field-error">{{ descriptionError() }}</span>
+            }
+          </div>
+
+          <!-- Budget & Delivery Days -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">الميزانية (ريال) <span class="required">*</span></label>
+              <input
+                type="number"
+                class="form-input"
+                [class.error]="budgetError()"
+                placeholder="0"
+                min="1"
+                [value]="budget()"
+                (input)="budget.set($any($event.target).valueAsNumber || null)"
+                (blur)="markTouched('budget')"
+              />
+              @if (budgetError()) {
+                <span class="field-error">{{ budgetError() }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">مدة التنفيذ المتوقعة (أيام) <span class="required">*</span></label>
+              <input
+                type="number"
+                class="form-input"
+                [class.error]="deliveryDaysError()"
+                placeholder="0"
+                min="1"
+                [value]="deliveryDays()"
+                (input)="deliveryDays.set($any($event.target).valueAsNumber || null)"
+                (blur)="markTouched('deliveryDays')"
+              />
+              @if (deliveryDaysError()) {
+                <span class="field-error">{{ deliveryDaysError() }}</span>
+              }
+            </div>
+          </div>
+
+          <!-- Attachments -->
+          <div class="form-group">
+            <label class="form-label">المرفقات (اختياري)</label>
+            <div class="upload-area">
+              <label class="upload-label">
+                <input type="file" multiple (change)="handleFiles($event)" class="upload-input" />
+                <span class="upload-text">اضغط لاختيار ملفات (حد أقصى 10MB لكل ملف، 5 ملفات)</span>
+              </label>
+            </div>
+            @if (attachments().length > 0) {
+              <div class="files-list">
+                @for (file of attachments(); track $index) {
+                  <div class="file-item">
+                    <span class="file-name">{{ file.name }}</span>
+                    <button class="file-remove" (click)="removeFile($index)" type="button">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Additional Notes -->
+          <div class="form-group">
+            <label class="form-label">ملاحظات إضافية (اختياري)</label>
+            <textarea
+              class="form-textarea"
+              placeholder="أي متطلبات أو ملاحظات خاصة..."
+              rows="3"
+              [value]="additionalNotes()"
+              (input)="additionalNotes.set($any($event.target).value)"
+            ></textarea>
+          </div>
+
+          <!-- AI Suggestion Panel (Static) -->
+          <div class="ai-suggestion-panel">
+            <div class="ai-suggestion-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.5.8a2 2 0 11-3.536 0z" />
+              </svg>
+            </div>
+            <div class="ai-suggestion-text">
+              <span class="ai-suggestion-title">تحليل ذكي</span>
+              <span class="ai-suggestion-desc">سيتم تحليل الطلب واقتراح أفضل التصنيفات والمقدمين المناسبين لمتطلباتك</span>
+            </div>
+          </div>
+
+          <!-- Submit & Secondary Actions -->
+          <div class="form-actions">
+            <button
+              class="btn-primary"
+              [disabled]="!canSubmit()"
+              (click)="submitRequest()"
+              type="button"
+            >
+              @if (isSubmitting()) {
+                <span class="spinner"></span>
+                جارٍ الإرسال...
+              } @else {
+                إنشاء الطلب
+              }
+            </button>
+            <div class="secondary-actions">
+              <a routerLink="/marketplace" class="btn-tertiary">العودة للسوق</a>
+              <a routerLink="/cart" class="btn-tertiary">العودة للسلة</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

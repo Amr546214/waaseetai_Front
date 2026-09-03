@@ -1,0 +1,233 @@
+.order-summary {
+  background: var(--crd-bg);
+  border: 1px solid var(--crd-bd);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
+}
+
+/* ── Header ── */
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.summary-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--txt);
+  margin: 0;
+}
+
+.summary-count {
+  font-size: 12px;
+  color: var(--txt-2);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* ── Items list ── */
+.summary-items {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--sec-bg);
+  border: 1px solid var(--crd-bd);
+}
+
+.item-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.item-thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--teal-txt);
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-provider {
+  font-size: 11px;
+  color: var(--txt-2);
+}
+
+.item-package {
+  font-size: 10px;
+  color: var(--teal-txt);
+  background: rgba(43, 212, 199, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.item-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Totals ── */
+.summary-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.total-label {
+  font-size: 13px;
+  color: var(--txt-2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.total-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--txt);
+}
+
+.discount-row .total-label {
+  color: var(--teal-txt);
+}
+
+.discount-value {
+  color: var(--teal-txt);
+}
+
+.coupon-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(43, 212, 199, 0.12);
+  color: var(--teal-txt);
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.total-divider {
+  height: 1px;
+  background: var(--crd-bd);
+  margin: 4px 0;
+}
+
+.total-final .total-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.final-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--teal-txt);
+}
+
+/* ── Empty state ── */
+.summary-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--txt-3);
+}
+
+.summary-empty svg {
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--txt-2);
+  margin: 0 0 4px;
+}
+
+.empty-subtext {
+  font-size: 12px;
+  color: var(--txt-3);
+  margin: 0;
+}
+
+/* ── Compact mode ── */
+.order-summary.compact {
+  padding: 14px 16px;
+}
+
+.order-summary.compact .summary-header {
+  margin-bottom: 10px;
+}
+
+.order-summary.compact .summary-title {
+  font-size: 14px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .order-summary {
+    padding: 16px;
+  }
+
+  .summary-item {
+    gap: 10px;
+  }
+
+  .item-thumb {
+    width: 38px;
+    height: 38px;
+  }
+}

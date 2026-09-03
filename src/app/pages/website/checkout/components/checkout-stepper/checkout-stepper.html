@@ -1,0 +1,26 @@
+<nav class="checkout-stepper" aria-label="خطوات الدفع">
+  <ol class="stepper-list">
+    @for (s of steps; track s.num; let i = $index) {
+      <li
+        class="step"
+        [class.active]="s.num === step"
+        [class.completed]="s.num < step"
+        [attr.aria-current]="s.num === step ? 'step' : null"
+      >
+        <span class="step-circle">
+          @if (s.num < step) {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          } @else {
+            {{ s.num }}
+          }
+        </span>
+        <span class="step-label">{{ s.label }}</span>
+        @if (i < steps.length - 1) {
+          <span class="step-connector" [class.filled]="s.num < step"></span>
+        }
+      </li>
+    }
+  </ol>
+</nav>
