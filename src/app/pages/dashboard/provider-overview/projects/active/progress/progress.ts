@@ -7,15 +7,19 @@ import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/pro
 import { ProviderRatingModal } from './provider-rating-modal/provider-rating-modal';
 import { RatingApiService } from '../../../../../../core/services/rating-api.service';
 import { RatingScore } from '../../../../../../core/models/rating.model';
+import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-modal';
+import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
+import { CreateDisputePayload } from '../../../../../../core/models/dispute.model';
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat, ProviderRatingModal], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat, ProviderRatingModal, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);
   private route = inject(ActivatedRoute);
   private ratingApi = inject(RatingApiService);
+  private disputeApi = inject(DisputeApiService);
   projectData = signal<any>(null);
   loading = signal(true); error = signal(''); saving = signal(false);
   activeTab = signal<'overview' | 'miles' | 'msgs' | 'files' | 'delivs' | 'edits'>('overview');
@@ -29,6 +33,11 @@ export class Progress implements OnInit {
   providerRatingError = signal('');
   providerRatingSuccess = signal('');
   providerRatingSubmitted = signal(false);
+  showDisputeModal = signal(false);
+  isSubmittingDispute = signal(false);
+  disputeSuccess = signal('');
+  disputeError = signal('');
+  disputeSubmitted = signal(false);
 
   ngOnInit() { this.projectId = this.route.snapshot.paramMap.get('id') || ''; this.load(); }
   load() {
@@ -74,6 +83,36 @@ export class Progress implements OnInit {
   openProviderRatingModal() {
     this.providerRatingError.set('');
     this.showProviderRatingModal.set(true);
+  }
+
+  openDisputeModal() {
+    if (this.disputeSubmitted()) return;
+    this.disputeError.set('');
+    this.showDisputeModal.set(true);
+  }
+
+  closeDisputeModal() {
+    if (this.isSubmittingDispute()) return;
+    this.showDisputeModal.set(false);
+    this.disputeError.set('');
+  }
+
+  submitDispute(payload: CreateDisputePayload) {
+    if (this.isSubmittingDispute()) return;
+    this.isSubmittingDispute.set(true);
+    this.disputeError.set('');
+    this.disputeApi.createProviderDispute(this.projectId, payload).subscribe({
+      next: () => {
+        this.isSubmittingDispute.set(false);
+        this.showDisputeModal.set(false);
+        this.disputeSubmitted.set(true);
+        this.disputeSuccess.set('تم فتح النزاع بنجاح، سيقوم فريق وسيط بمراجعة الحالة');
+      },
+      error: (err: any) => {
+        this.isSubmittingDispute.set(false);
+        this.disputeError.set(err?.error?.message || 'تعذر فتح النزاع، حاول مرة أخرى');
+      },
+    });
   }
 
   closeProviderRatingModal() {
