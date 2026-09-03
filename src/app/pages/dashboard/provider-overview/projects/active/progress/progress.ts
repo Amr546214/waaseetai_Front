@@ -4,14 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../../core/services/active.service';
 import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/project-mini-chat';
+import { ProviderRatingModal } from './provider-rating-modal/provider-rating-modal';
+import { RatingApiService } from '../../../../../../core/services/rating-api.service';
+import { RatingScore } from '../../../../../../core/models/rating.model';
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat, ProviderRatingModal], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);
   private route = inject(ActivatedRoute);
+  private ratingApi = inject(RatingApiService);
   projectData = signal<any>(null);
   loading = signal(true); error = signal(''); saving = signal(false);
   activeTab = signal<'overview' | 'miles' | 'msgs' | 'files' | 'delivs' | 'edits'>('overview');
@@ -20,6 +24,11 @@ export class Progress implements OnInit {
   deliveryStage = signal<any>(null);
   deliveryNote = ''; deliveryFiles = '';
   private projectId = '';
+  showProviderRatingModal = signal(false);
+  isSubmittingProviderRating = signal(false);
+  providerRatingError = signal('');
+  providerRatingSuccess = signal('');
+  providerRatingSubmitted = signal(false);
 
   ngOnInit() { this.projectId = this.route.snapshot.paramMap.get('id') || ''; this.load(); }
   load() {
@@ -53,4 +62,41 @@ export class Progress implements OnInit {
   visibleEdits(data: any) { const f = this.editFilter(); return f === 'all' ? data.edits : data.edits.filter((e: any) => e.status === f); }
   moneyWidth(value: number, total: number) { return total > 0 ? Math.min(100, Math.max(0, value / total * 100)) : 0; }
   stageById(data: any, stageId: string) { return data.stages?.find((stage: any) => stage.id === stageId); }
+
+  canRateClient(data: any): boolean {
+    if (this.providerRatingSubmitted() || this.providerRatingSuccess()) return false;
+    if (data?.canRate === true) return true;
+    if (data?.hasRated === true) return false;
+    const allCompleted = data?.stages?.length > 0 && data.stages.every((s: any) => s.status === 'completed');
+    return data?.status === 'COMPLETED' || (data?.progress === 100 && allCompleted);
+  }
+
+  openProviderRatingModal() {
+    this.providerRatingError.set('');
+    this.showProviderRatingModal.set(true);
+  }
+
+  closeProviderRatingModal() {
+    if (this.isSubmittingProviderRating()) return;
+    this.showProviderRatingModal.set(false);
+    this.providerRatingError.set('');
+  }
+
+  submitProviderRating(payload: { rating: RatingScore; comment?: string }) {
+    if (this.isSubmittingProviderRating()) return;
+    this.isSubmittingProviderRating.set(true);
+    this.providerRatingError.set('');
+    this.ratingApi.rateClient(this.projectId, payload).subscribe({
+      next: () => {
+        this.isSubmittingProviderRating.set(false);
+        this.showProviderRatingModal.set(false);
+        this.providerRatingSubmitted.set(true);
+        this.providerRatingSuccess.set('تم إرسال تقييمك بنجاح');
+      },
+      error: (err: any) => {
+        this.isSubmittingProviderRating.set(false);
+        this.providerRatingError.set(err?.error?.message || 'تعذر إرسال التقييم، حاول مرة أخرى');
+      },
+    });
+  }
 }

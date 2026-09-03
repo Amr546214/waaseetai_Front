@@ -486,3 +486,131 @@ Similarly for provider progress (`GET /provider/projects/:id/progress`):
 5. **Legacy `review-project` component:** Should it be removed or repurposed? → **Recommendation: Leave as-is, not routed, low priority cleanup**
 
 6. **Workspace `canRate` field:** Does the backend already return this? → **Needs testing with real API call**
+
+---
+
+## 11. Current Chunk Status (as of Sep 3, 2026)
+
+| Chunk | Description | Build | Browser Test | Status |
+|-------|-------------|-------|-------------|--------|
+| Chunk 1 | Rating Models & Service Layer | PASS | N/A (no UI) | **Done** |
+| Chunk 2 | Client Rating Modal Component | PASS | N/A (standalone component, no route) | **Done** |
+| Chunk 3 | Integrate Rating Modal into Client ProjectDetails | PASS | **BLOCKED** — `GET /client/my-requests/:id/workspace` returns 404 for all tested projects | **Implemented, test blocked** |
+| Chunk 4 | Provider Rating Modal Component | PASS | N/A (standalone component, no route) | **Done** |
+| Chunk 5 | Integrate Rating Modal into Provider Progress | PASS | **BLOCKED** — `GET /provider/projects/active` returns 429 (rate limited), no provider project data available | **Implemented, test blocked** |
+| Chunk 6 | Delivery Review Enhancement (Optional) | — | — | **Skipped** — deprioritized, focus on rating integration |
+
+### Chunk 3 Details (Client Rating Integration)
+- **Files modified:** `project-details.ts`, `project-details.html`, `project-details.css`
+- **What was done:** Imported `ClientRatingModal` and `RatingApiService`, added signals for modal state and submission, added `canRateProvider` logic, rating banner, success message, and modal component to template
+- **Build:** PASS
+- **Browser test:** BLOCKED — workspace endpoint returns 404 for all tested project IDs. Cannot verify rating banner display or rating submission.
+
+### Chunk 5 Details (Provider Rating Integration)
+- **Files modified:** `progress.ts`, `progress.html`, `progress.css`
+- **What was done:** Imported `ProviderRatingModal` and `RatingApiService`, added signals for modal state and submission, added `canRateClient` logic, rating banner, success message, and modal component to template
+- **Build:** PASS
+- **Browser test:** BLOCKED — provider active projects endpoint rate-limited (429). No provider project available to open progress page and verify rating banner or submission.
+
+---
+
+## 12. Backend/Data Blockers
+
+### Blocker 1: Client Workspace 404
+- **Endpoint:** `GET /api/client/my-requests/:id/workspace`
+- **Issue:** Returns 404 for all tested project IDs
+- **Impact:** Cannot test client rating integration (Chunk 3)
+- **Needed:** Valid project ID where workspace endpoint returns data with `status === 'COMPLETED'` and `canRate === true`
+
+### Blocker 2: Provider Active Projects 429
+- **Endpoint:** `GET /api/provider/projects/active`
+- **Issue:** Returns 429 Too Many Requests (rate limited, 15-minute cooldown)
+- **Impact:** Cannot test provider rating integration (Chunk 5)
+- **Note:** Frontend code verified clean — single API call on page load, no request loop, no auto-retry. Rate limit is from backend side.
+- **Needed:** Wait for rate limit to expire, then need valid provider project with `status === 'COMPLETED'` and `canRate === true`
+
+### Blocker 3: No Completed Project Data
+- **Issue:** Even when endpoints are accessible, no completed/canRate project data is available for either client or provider
+- **Impact:** Cannot verify rating banner display logic or rating submission flow
+- **Needed:** Backend should have at least one project with `status === 'COMPLETED'` and `canRate === true` for both client and provider sides
+
+---
+
+## 13. Manual Test Checklist (When Backend is Ready)
+
+### Client Rating (Chunk 3)
+
+**Prerequisites:**
+- Valid client account with at least one completed project
+- `GET /client/my-requests/:id/workspace` returns data with `status === 'COMPLETED'` and `canRate === true`
+
+**Steps:**
+1. Login as client
+2. Navigate to `/client-overview/projects/:id` (replace `:id` with valid project ID)
+3. Verify workspace loads successfully (stages, deliveries, tabs visible)
+4. If project is completed and `canRate === true`:
+   - Verify rating banner appears with text "قيّم تجربتك مع مقدم الخدمة"
+   - Click the banner CTA button to open rating modal
+   - Select star rating (1-5)
+   - Optionally write a comment
+   - Click submit
+   - Verify `POST /api/client/requests/:id/rate` is called with `{ rating, comment }`
+   - Verify success message appears: "تم إرسال تقييمك بنجاح"
+   - Verify banner disappears after successful submission
+5. If project is not completed or `canRate === false`:
+   - Verify rating banner does NOT appear
+6. Verify existing stage review flow still works (approve/revision)
+7. Verify existing tabs (overview, milestones, messages, files) still work
+8. Verify existing support actions (edit, dispute, cancel) still work
+
+### Provider Rating (Chunk 5)
+
+**Prerequisites:**
+- Valid provider account with at least one completed project
+- `GET /provider/projects/active` returns project list (not rate-limited)
+- `GET /provider/projects/:id/progress` returns data with `status === 'COMPLETED'` and `canRate === true`
+
+**Steps:**
+1. Login as provider
+2. Navigate to `/provider-overview/projects/active`
+3. Verify active projects list loads
+4. Click on a completed project to open progress page
+5. If project is completed and `canRate === true`:
+   - Verify rating banner appears with text "قيّم تجربتك مع العميل"
+   - Click the banner CTA button to open rating modal
+   - Select star rating (1-5)
+   - Optionally write a comment
+   - Click submit
+   - Verify `POST /api/provider/requests/:id/rate` is called with `{ rating, comment }`
+   - Verify success message appears: "تم إرسال تقييمك بنجاح"
+   - Verify banner disappears after successful submission
+6. If project is not completed or `canRate === false`:
+   - Verify rating banner does NOT appear
+7. Verify existing delivery submission flow still works
+8. Verify existing tabs (overview, milestones, messages, files, deliveries, edits) still work
+
+---
+
+## 14. Dev-Only Provider Onboarding Bypass (Temporary)
+
+**Status:** UNCOMMITTED — all changes are working-tree only, not staged or committed.
+
+**Purpose:** Allows skipping the lengthy provider onboarding/profile setup flow during local development to test provider pages.
+
+**Files involved:**
+- `src/app/core/utils/dev-bypass.util.ts` (NEW, untracked)
+- `src/app/pages/dashboard/provider-overview/profile/profile-setup/profile-setup.ts` (modified)
+- `src/app/pages/dashboard/provider-overview/profile/profile-setup/profile-setup.html` (modified)
+- `src/app/pages/dashboard/provider-overview/provider-overview/provider-overview.ts` (modified)
+- `src/app/pages/dashboard/provider-overview/provider-overview/provider-overview.html` (modified)
+- `src/app/sheards/dashboard/sidebar/sidebar.ts` (modified)
+
+**How it works:**
+- `isLocalDev` getter in `ProfileSetupDashboard` checks `!environment.production || hostname is localhost/127.0.0.1`
+- Yellow "تخطي مؤقت للتجربة" button appears on profile setup page (top + inside test generating box)
+- On click: sets `localStorage[waseet_dev_provider_onboarding_complete] = "true"`, updates `AuthStore` user locally, navigates to `/provider-overview/projects/active`
+- Sidebar reads bypass flag and skips API-based incompleteness check
+- Provider overview hides profile completion banner when bypass is active
+- Red "إلغاء التخطي التجريبي" button clears the flag and reloads
+
+**IMPORTANT:** This is DEV ONLY TEMP BYPASS — remove before production/PR merge. All code is marked with comments. Do NOT commit unless explicitly instructed.
