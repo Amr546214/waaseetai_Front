@@ -14,6 +14,7 @@
 	} @else if (project(); as data) {
 		@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
 		@if (ratingSuccess()) { <div class="rt-success-msg" role="status">{{ ratingSuccess() }}</div> }
+		@if (disputeSuccess()) { <div class="rt-success-msg" role="status">{{ disputeSuccess() }}</div> }
 		@if (canRate(data)) {
 			<div class="rt-banner">
 				<div class="rt-banner-ico">
@@ -74,7 +75,7 @@
 					<div class="lc-aim"><div class="m"><div class="mv">{{ data.aiInsights.earlyDays || '—' }}</div><div class="ml">تبكير متوقع</div></div><div class="m"><div class="mv">{{ data.aiInsights.matchPercentage ? data.aiInsights.matchPercentage+'٪' : '—' }}</div><div class="ml">تطابق التسليم</div></div><div class="m"><div class="mv">{{ data.aiInsights.riskLevel }}</div><div class="ml">المخاطرة</div></div></div>
 				</div>
 				<div class="lc-sum"><h5>الضمان المالي</h5><div class="lc-smrow"><span>إجمالي الضمان</span><b>{{ formatNumber(data.escrowTotal) }} <small>ريال</small></b></div><div class="lc-smbar"><i class="free" [style.width.%]="data.escrowTotal ? data.escrowReleased/data.escrowTotal*100 : 0"></i><i class="held" [style.width.%]="data.escrowTotal ? data.escrowHeld/data.escrowTotal*100 : 0"></i></div><div class="lc-smlg"><span><i class="sw free-sw"></i>أُفرج {{ formatNumber(data.escrowReleased) }}</span><span><i class="sw held-sw"></i>محتجز {{ formatNumber(data.escrowHeld) }}</span></div></div>
-				<div class="lc-qa"><button type="button" class="lc-qa-chat" (click)="openConversation(data)"><span class="qi">✦</span>محادثة</button><button type="button" class="lc-qa-edit" (click)="openSupport('edit')"><span class="qi">＋</span>طلب تعديل</button><button type="button" class="lc-qa-disp" (click)="openSupport('dispute')"><span class="qi">!</span>فتح نزاع</button><button type="button" class="lc-qa-canc" (click)="openSupport('cancel')"><span class="qi">↔</span>إلغاء بالتراضي</button></div>
+				<div class="lc-qa"><button type="button" class="lc-qa-chat" (click)="openConversation(data)"><span class="qi">✦</span>محادثة</button><button type="button" class="lc-qa-edit" (click)="openSupport('edit')"><span class="qi">＋</span>طلب تعديل</button><button type="button" class="lc-qa-disp" (click)="openDisputeModal()"><span class="qi">!</span>فتح نزاع</button><button type="button" class="lc-qa-canc" (click)="openSupport('cancel')"><span class="qi">↔</span>إلغاء بالتراضي</button></div>
 			</div></div>
 		}
 
@@ -108,4 +109,12 @@
 	[isSubmitting]="isSubmittingRating()"
 	(close)="closeRatingModal()"
 	(submit)="submitRating($event)"
+/>
+
+<app-dispute-modal
+	[open]="showDisputeModal()"
+	[isSubmitting]="isSubmittingDispute()"
+	actor="client"
+	(close)="closeDisputeModal()"
+	(submit)="submitDispute($event)"
 />

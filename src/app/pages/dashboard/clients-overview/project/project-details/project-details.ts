@@ -8,13 +8,16 @@ import { ProjectMiniChat } from '../../../../../sheards/project-mini-chat/projec
 import { ClientRatingModal } from '../rating-modal/rating-modal';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingScore } from '../../../../../core/models/rating.model';
+import { DisputeModal } from '../../../../../sheards/dispute-modal/dispute-modal';
+import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
+import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type SupportAction = 'edit' | 'dispute' | 'cancel' | null;
 
 @Component({
 	selector: 'app-project-details', standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, ClientRatingModal],
+	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, ClientRatingModal, DisputeModal],
 	templateUrl: './project-details.html', styleUrl: './project-details.css',
 })
 export class ProjectDetails implements OnInit {
@@ -22,6 +25,7 @@ export class ProjectDetails implements OnInit {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private ratingApi = inject(RatingApiService);
+	private disputeApi = inject(DisputeApiService);
 	project = signal<any>(null);
 	isLoading = signal(true);
 	error = signal('');
@@ -38,6 +42,11 @@ export class ProjectDetails implements OnInit {
 	ratingError = signal('');
 	ratingSuccess = signal('');
 	ratingSubmitted = signal(false);
+	showDisputeModal = signal(false);
+	isSubmittingDispute = signal(false);
+	disputeSuccess = signal('');
+	disputeError = signal('');
+	disputeSubmitted = signal(false);
 
 	ngOnInit() { this.route.params.subscribe(params => { this.projectId = params['id']; this.load(); }); }
 	load() {
@@ -83,6 +92,36 @@ export class ProjectDetails implements OnInit {
 		});
 	}
 	openSupport(action: Exclude<SupportAction, null>) { this.supportNote = ''; this.supportAction.set(action); }
+
+	openDisputeModal() {
+		if (this.disputeSubmitted()) return;
+		this.disputeError.set('');
+		this.showDisputeModal.set(true);
+	}
+
+	closeDisputeModal() {
+		if (this.isSubmittingDispute()) return;
+		this.showDisputeModal.set(false);
+		this.disputeError.set('');
+	}
+
+	submitDispute(payload: CreateDisputePayload) {
+		if (this.isSubmittingDispute()) return;
+		this.isSubmittingDispute.set(true);
+		this.disputeError.set('');
+		this.disputeApi.createClientDispute(this.projectId, payload).subscribe({
+			next: () => {
+				this.isSubmittingDispute.set(false);
+				this.showDisputeModal.set(false);
+				this.disputeSubmitted.set(true);
+				this.disputeSuccess.set('تم فتح النزاع بنجاح، سيقوم فريق وسيط بمراجعة الحالة');
+			},
+			error: (err: any) => {
+				this.isSubmittingDispute.set(false);
+				this.disputeError.set(err?.error?.message || 'تعذر فتح النزاع، حاول مرة أخرى');
+			},
+		});
+	}
 	closeSupport() { this.supportAction.set(null); }
 	continueInConversation(data: any) { this.supportAction.set(null); this.openConversation(data); }
 	openConversation(data: any) { this.router.navigate(['/client-overview/messages'], { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined }); }
