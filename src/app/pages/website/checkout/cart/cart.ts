@@ -80,15 +80,23 @@ export class CartComponent implements OnInit, OnDestroy {
     const code = this.couponInput().trim();
     if (!code) return;
     this.isApplyingCoupon.set(true);
-    const result = this.cartService.applyCoupon(code);
-    if (result.success) {
-      this.couponMessage.set({ type: 'success', text: result.message });
-      this.couponInput.set('');
-    } else {
-      this.couponMessage.set({ type: 'error', text: result.message });
-    }
-    this.isApplyingCoupon.set(false);
-    setTimeout(() => this.couponMessage.set(null), 3000);
+    this.cartService.applyCoupon(code).subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.couponMessage.set({ type: 'success', text: result.message });
+          this.couponInput.set('');
+        } else {
+          this.couponMessage.set({ type: 'error', text: result.message });
+        }
+        this.isApplyingCoupon.set(false);
+        setTimeout(() => this.couponMessage.set(null), 3000);
+      },
+      error: () => {
+        this.isApplyingCoupon.set(false);
+        this.couponMessage.set({ type: 'error', text: 'حدث خطأ، حاول مرة أخرى' });
+        setTimeout(() => this.couponMessage.set(null), 3000);
+      },
+    });
   }
 
   removeCoupon() {
