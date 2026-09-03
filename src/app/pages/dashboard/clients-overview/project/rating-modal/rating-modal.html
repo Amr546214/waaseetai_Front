@@ -1,0 +1,64 @@
+@if (open) {
+<div class="lc-mov show" role="dialog" aria-modal="true" aria-label="تقييم مقدم الخدمة" dir="rtl" (click)="closeModal()">
+	<div class="lc-mbox rt-mbox" (click)="$event.stopPropagation()">
+		<div class="lc-mhd">
+			<span class="mi rt-ico">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+				</svg>
+			</span>
+			<div>
+				<h3>قيّم مقدم الخدمة</h3>
+				<p>شارك تجربتك لمساعدة مقدمي الخدمات والعملاء الآخرين</p>
+				@if (providerName) { <span class="rt-prov-name">{{ providerName }}</span> }
+			</div>
+			<button type="button" class="lc-mclose" (click)="closeModal()" aria-label="إغلاق">×</button>
+		</div>
+
+		<div class="rt-stars-row">
+			@for (star of stars; track star) {
+				<button
+					type="button"
+					class="rt-star"
+					[class.active]="star <= (hoverRating() || selectedRating())"
+					(mouseenter)="setHover(star)"
+					(mouseleave)="clearHover()"
+					(click)="selectRating(star)"
+					[attr.aria-label]="'تقييم ' + star + ' من 5'"
+				>
+					<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+					</svg>
+				</button>
+			}
+		</div>
+
+		@if (selectedRating() > 0) {
+			<div class="rt-rating-label">{{ selectedRating() }} / 5</div>
+		}
+
+		@if (error()) {
+			<div class="rt-error" role="alert">{{ error() }}</div>
+		}
+
+		<div class="lc-fld">
+			<label>رأيك (اختياري)</label>
+			<textarea
+				class="lc-ta"
+				name="comment"
+				[(ngModel)]="comment"
+				rows="4"
+				placeholder="اكتب رأيك في جودة التنفيذ والتواصل والالتزام"
+				[disabled]="isSubmitting"
+			></textarea>
+		</div>
+
+		<div class="lc-mact">
+			<button type="button" class="lc-btn lc-btn-gh" (click)="closeModal()" [disabled]="isSubmitting">إلغاء</button>
+			<button type="button" class="lc-btn lc-btn-pri" (click)="onSubmit()" [disabled]="isSubmitting">
+				{{ isSubmitting ? 'جارٍ الإرسال...' : 'إرسال التقييم' }}
+			</button>
+		</div>
+	</div>
+</div>
+}
