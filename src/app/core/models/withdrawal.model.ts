@@ -66,6 +66,7 @@ export interface WithdrawalListData {
   page?: number;
   limit?: number;
   pages?: number;
+  totalPages?: number;
   [key: string]: unknown;
 }
 

@@ -1,13 +1,158 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="wd-page" dir="rtl">
+  <div class="wd-hdr">
+    <div>
+      <h1 class="wd-ttl">إدارة طلبات السحب</h1>
+      <p class="wd-sub">مراجعة طلبات السحب ومتابعة حالتها</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">طلبات السحب</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"طلبات السحب\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="wd-filters">
+    @for (f of filters; track f.key) {
+      <button type="button" class="wd-ftab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">{{ f.label }}</button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="wd-loading">
+      <div class="wd-spinner"></div>
+      <p>جاري تحميل طلبات السحب…</p>
+    </div>
+  } @else if (error()) {
+    <div class="wd-error">
+      <p class="wd-error-msg">{{ error() }}</p>
+      <button type="button" class="wd-btn wd-btn-pri" (click)="fetchWithdrawals()">إعادة المحاولة</button>
+    </div>
+  } @else if (withdrawals().length === 0) {
+    <div class="wd-empty">
+      <div class="wd-empty-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </div>
+      <p class="wd-empty-ttl">لا توجد طلبات سحب في هذا التصنيف</p>
+    </div>
+  } @else {
+    <div class="wd-list">
+      @for (w of withdrawals(); track w.id) {
+        <div class="wd-card">
+          <div class="wd-card-top">
+            <span class="wd-id">#{{ shortId(w.id) }}</span>
+            <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] }}</span>
+          </div>
+          <div class="wd-card-body">
+            <div class="wd-amount">{{ formatAmount(w.amount, w.currency) }}</div>
+            <div class="wd-meta">
+              <span>المستخدم: {{ userDisplay(w) }}</span>
+              <span>·</span>
+              <span>الطريقة: {{ w.method || '—' }}</span>
+              <span>·</span>
+              <span>{{ formatDate(w.createdAt) }}</span>
+            </div>
+            @if (w.bankInfo?.iban) {
+              <div class="wd-meta">
+                <span>IBAN: {{ ibanLast4(w.bankInfo?.iban) }}</span>
+                @if (w.bankInfo?.bankName) {
+                  <span>·</span>
+                  <span>{{ w.bankInfo?.bankName }}</span>
+                }
+              </div>
+            }
+          </div>
+          <button type="button" class="wd-btn wd-btn-gh" (click)="openDetail(w)">عرض التفاصيل</button>
+        </div>
+      }
+    </div>
+
+    @if (pagination(); as pg) {
+      <div class="wd-pag">
+        <span class="wd-pag-info">صفحة {{ pg.page ?? currentPage() }} من {{ pg.totalPages ?? pg.pages ?? 1 }} (إجمالي {{ pg.total ?? 0 }})</span>
+        <div class="wd-pag-btns">
+          <button type="button" class="wd-btn wd-btn-gh" [disabled]="(pg.page ?? currentPage()) <= 1" (click)="prevPage()">السابق</button>
+          <button type="button" class="wd-btn wd-btn-gh" [disabled]="(pg.page ?? currentPage()) >= (pg.totalPages ?? pg.pages ?? 1)" (click)="nextPage()">التالي</button>
+        </div>
+      </div>
+    }
+  }
+</section>
+
+@if (showDetail()) {
+  <div class="wd-mov" (click)="closeDetail()">
+    <div class="wd-mbox" (click)="$event.stopPropagation()">
+      @if (selectedWithdrawal(); as w) {
+        <div class="wd-md-hdr">
+          <div>
+            <h3>تفاصيل طلب السحب #{{ shortId(w.id) }}</h3>
+            <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] }}</span>
+          </div>
+          <button type="button" class="wd-mclose" (click)="closeDetail()">×</button>
+        </div>
+        <div class="wd-md-body">
+          <div class="wd-md-field">
+            <label>المبلغ</label>
+            <p>{{ formatAmount(w.amount, w.currency) }}</p>
+          </div>
+          <div class="wd-md-row">
+            <div class="wd-md-field">
+              <label>المستخدم</label>
+              <p>{{ userDisplay(w) }}</p>
+            </div>
+            <div class="wd-md-field">
+              <label>طريقة السحب</label>
+              <p>{{ w.method || '—' }}</p>
+            </div>
+          </div>
+          <div class="wd-md-row">
+            <div class="wd-md-field">
+              <label>تاريخ الطلب</label>
+              <p>{{ formatDate(w.createdAt) }}</p>
+            </div>
+            <div class="wd-md-field">
+              <label>تاريخ المعالجة</label>
+              <p>{{ formatDate(w.processedAt) }}</p>
+            </div>
+          </div>
+          @if (w.bankInfo) {
+            <div class="wd-md-section">
+              <label>البيانات البنكية</label>
+              <div class="wd-md-bank">
+                <div class="wd-md-row">
+                  <div class="wd-md-field">
+                    <label>اسم البنك</label>
+                    <p>{{ w.bankInfo?.bankName || '—' }}</p>
+                  </div>
+                  <div class="wd-md-field">
+                    <label>اسم صاحب الحساب</label>
+                    <p>{{ w.bankInfo?.accountHolderName || '—' }}</p>
+                  </div>
+                </div>
+                <div class="wd-md-row">
+                  <div class="wd-md-field">
+                    <label>IBAN</label>
+                    <p dir="ltr" style="text-align:right">{{ w.bankInfo?.iban || '—' }}</p>
+                  </div>
+                  <div class="wd-md-field">
+                    <label>SWIFT</label>
+                    <p>{{ w.bankInfo?.swiftCode || '—' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          @if (w.adminNote) {
+            <div class="wd-md-field">
+              <label>ملاحظات الإدارة</label>
+              <p>{{ w.adminNote }}</p>
+            </div>
+          }
+          @if (w.rejectionReason) {
+            <div class="wd-md-field">
+              <label>سبب الرفض</label>
+              <p>{{ w.rejectionReason }}</p>
+            </div>
+          }
+        </div>
+        <div class="wd-md-actions">
+          <button type="button" class="wd-btn wd-btn-gh" (click)="closeDetail()">إغلاق</button>
+        </div>
+      }
+    </div>
+  </div>
+}
