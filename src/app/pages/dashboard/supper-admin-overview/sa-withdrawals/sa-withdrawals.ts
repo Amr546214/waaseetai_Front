@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WithdrawalApiService } from '../../../../core/services/withdrawal-api.service';
-import { Withdrawal, WithdrawalPagination } from '../../../../core/models/withdrawal.model';
+import { Withdrawal, WithdrawalPagination, ApproveWithdrawalPayload, RejectWithdrawalPayload } from '../../../../core/models/withdrawal.model';
 
 type StatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
 
@@ -25,6 +25,14 @@ export class SaWithdrawals implements OnInit {
 
   selectedWithdrawal = signal<Withdrawal | null>(null);
   showDetail = signal(false);
+
+  showActionForm = signal(false);
+  actionType = signal<'approve' | 'reject' | null>(null);
+  adminNote = signal('');
+  rejectionReason = signal('');
+  submittingAction = signal(false);
+  actionError = signal('');
+  actionSuccess = signal('');
 
   readonly filters: { key: StatusFilter; label: string }[] = [
     { key: 'all', label: 'الكل' },
@@ -103,6 +111,103 @@ export class SaWithdrawals implements OnInit {
   closeDetail() {
     this.showDetail.set(false);
     this.selectedWithdrawal.set(null);
+    this.cancelActionForm();
+  }
+
+  canAct(status: string | undefined): boolean {
+    const s = status || 'PENDING';
+    return s !== 'APPROVED' && s !== 'REJECTED' && s !== 'COMPLETED';
+  }
+
+  openActionForm(action: 'approve' | 'reject') {
+    this.actionType.set(action);
+    this.adminNote.set('');
+    this.rejectionReason.set('');
+    this.actionError.set('');
+    this.actionSuccess.set('');
+    this.showActionForm.set(true);
+  }
+
+  cancelActionForm() {
+    this.showActionForm.set(false);
+    this.actionType.set(null);
+    this.adminNote.set('');
+    this.rejectionReason.set('');
+    this.actionError.set('');
+  }
+
+  submitAction() {
+    const w = this.selectedWithdrawal();
+    const action = this.actionType();
+    if (!w || !action) return;
+    if (this.submittingAction()) return;
+
+    if (action === 'reject') {
+      const reason = this.rejectionReason().trim();
+      if (!reason) {
+        this.actionError.set('يرجى كتابة سبب الرفض');
+        return;
+      }
+    }
+
+    this.actionError.set('');
+    this.submittingAction.set(true);
+
+    if (action === 'approve') {
+      const payload: ApproveWithdrawalPayload = {};
+      const note = this.adminNote().trim();
+      if (note) payload.adminNote = note;
+
+      this.withdrawalApi.approveAdminWithdrawal(w.id, payload).subscribe({
+        next: (res) => {
+          this.submittingAction.set(false);
+          if (res.success) {
+            this.actionSuccess.set('تم تحديث حالة طلب السحب بنجاح');
+            this.showActionForm.set(false);
+            this.actionType.set(null);
+            this.adminNote.set('');
+            this.rejectionReason.set('');
+            if (res.data) {
+              this.selectedWithdrawal.set(res.data);
+            }
+            this.fetchWithdrawals();
+          } else {
+            this.actionError.set(res.message || 'تعذر تحديث طلب السحب، حاول مرة أخرى');
+          }
+        },
+        error: (err) => {
+          this.submittingAction.set(false);
+          this.actionError.set(err?.error?.message || 'تعذر تحديث طلب السحب، حاول مرة أخرى');
+        },
+      });
+    } else {
+      const payload: RejectWithdrawalPayload = {
+        rejectionReason: this.rejectionReason().trim(),
+      };
+
+      this.withdrawalApi.rejectAdminWithdrawal(w.id, payload).subscribe({
+        next: (res) => {
+          this.submittingAction.set(false);
+          if (res.success) {
+            this.actionSuccess.set('تم تحديث حالة طلب السحب بنجاح');
+            this.showActionForm.set(false);
+            this.actionType.set(null);
+            this.adminNote.set('');
+            this.rejectionReason.set('');
+            if (res.data) {
+              this.selectedWithdrawal.set(res.data);
+            }
+            this.fetchWithdrawals();
+          } else {
+            this.actionError.set(res.message || 'تعذر تحديث طلب السحب، حاول مرة أخرى');
+          }
+        },
+        error: (err) => {
+          this.submittingAction.set(false);
+          this.actionError.set(err?.error?.message || 'تعذر تحديث طلب السحب، حاول مرة أخرى');
+        },
+      });
+    }
   }
 
   nextPage() {

@@ -149,9 +149,50 @@
             </div>
           }
         </div>
-        <div class="wd-md-actions">
-          <button type="button" class="wd-btn wd-btn-gh" (click)="closeDetail()">إغلاق</button>
-        </div>
+        @if (actionSuccess()) {
+          <div class="wd-md-success">
+            <p>{{ actionSuccess() }}</p>
+          </div>
+        }
+
+        @if (canAct(w.status) && !showActionForm()) {
+          <div class="wd-md-actions">
+            <button type="button" class="wd-btn wd-btn-pri" (click)="openActionForm('approve')">قبول طلب السحب</button>
+            <button type="button" class="wd-btn wd-btn-reject" (click)="openActionForm('reject')">رفض طلب السحب</button>
+            <button type="button" class="wd-btn wd-btn-gh" (click)="closeDetail()">إغلاق</button>
+          </div>
+        } @else if (showActionForm()) {
+          <div class="wd-action-form">
+            <h4 class="wd-af-ttl">{{ actionType() === 'approve' ? 'تأكيد القبول' : 'تأكيد الرفض' }}</h4>
+
+            @if (actionType() === 'approve') {
+              <div class="wd-md-field">
+                <label>ملاحظات الإدارة (اختياري)</label>
+                <textarea class="wd-af-ta" [value]="adminNote()" (input)="adminNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+              </div>
+            } @else {
+              <div class="wd-md-field">
+                <label>سبب الرفض <span class="wd-req">*</span></label>
+                <textarea class="wd-af-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض…"></textarea>
+              </div>
+            }
+
+            @if (actionError()) {
+              <p class="wd-af-err">{{ actionError() }}</p>
+            }
+
+            <div class="wd-af-actions">
+              <button type="button" class="wd-btn wd-btn-pri" [disabled]="submittingAction()" (click)="submitAction()">
+                {{ submittingAction() ? 'جارٍ الحفظ...' : 'تأكيد' }}
+              </button>
+              <button type="button" class="wd-btn wd-btn-gh" [disabled]="submittingAction()" (click)="cancelActionForm()">إلغاء</button>
+            </div>
+          </div>
+        } @else {
+          <div class="wd-md-actions">
+            <button type="button" class="wd-btn wd-btn-gh" (click)="closeDetail()">إغلاق</button>
+          </div>
+        }
       }
     </div>
   </div>
