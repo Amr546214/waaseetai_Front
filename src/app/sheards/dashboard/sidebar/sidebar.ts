@@ -51,7 +51,7 @@ export class Sidebar implements OnInit {
 			this.providerApiService.getOverviewStats().subscribe({
 				next: (res) => {
 					if (res.success && res.data?.summary) {
-						this.isProviderProfileIncomplete.set(!res.data.summary.profileSetupCompleted || !res.data.summary.setupTestCompleted);
+						this.isProviderProfileIncomplete.set(!res.data.summary.profileSetupCompleted);
 					}
 				},
 				error: (err) => console.error('Failed to load provider stats for sidebar', err)
