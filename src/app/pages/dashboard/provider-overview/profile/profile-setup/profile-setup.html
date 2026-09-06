@@ -233,8 +233,17 @@
                 <input type="file" accept="image/*,.pdf" aria-label="رفع الوجه الأمامي للهوية" (change)="onFileSelected($event, 'frontId')">
                 <svg aria-hidden="true"><use href="#i-upload"></use></svg>
                 <span class="f-upload-ttl">{{ uploadedFrontId() ? 'تم رفع الهوية (الأمامي)' : 'رفع الوجه الأمامي' }}</span>
-                <span class="f-upload-sub">{{ uploadedFrontId() || 'PNG JPG PDF' }}</span>
+                <span class="f-upload-sub">{{ uploadedFrontIdName() || 'PNG JPG PDF' }}</span>
               </label>
+              @if (getUploadState('frontId')) {
+                @if (getUploadState('frontId').status === 'uploading') {
+                  <span class="f-hint" style="color:#5DA0FF">جاري رفع الملف... {{ getUploadState('frontId').progress }}%</span>
+                } @else if (getUploadState('frontId').status === 'uploaded') {
+                  <span class="f-hint" style="color:#2BD4C7">تم رفع الملف بنجاح</span>
+                } @else if (getUploadState('frontId').status === 'error') {
+                  <span class="f-hint" style="color:#FF6B6B">تعذر رفع الملف، حاول مرة أخرى</span>
+                }
+              }
             </div>
             <div class="f-wrap">
               <label class="f-lbl">صورة بطاقة الهوية، الوجه الخلفي (اختياري)</label>
@@ -242,8 +251,17 @@
                 <input type="file" accept="image/*,.pdf" aria-label="رفع الوجه الخلفي للهوية" (change)="onFileSelected($event, 'backId')">
                 <svg aria-hidden="true"><use href="#i-upload"></use></svg>
                 <span class="f-upload-ttl">{{ setupForm.get('docs.backId')?.value ? 'تم رفع الهوية (الخلفي)' : 'رفع الوجه الخلفي' }}</span>
-                <span class="f-upload-sub">{{ setupForm.get('docs.backId')?.value || 'PNG JPG PDF' }}</span>
+                <span class="f-upload-sub">{{ uploadedBackIdName() || 'PNG JPG PDF' }}</span>
               </label>
+              @if (getUploadState('backId')) {
+                @if (getUploadState('backId').status === 'uploading') {
+                  <span class="f-hint" style="color:#5DA0FF">جاري رفع الملف... {{ getUploadState('backId').progress }}%</span>
+                } @else if (getUploadState('backId').status === 'uploaded') {
+                  <span class="f-hint" style="color:#2BD4C7">تم رفع الملف بنجاح</span>
+                } @else if (getUploadState('backId').status === 'error') {
+                  <span class="f-hint" style="color:#FF6B6B">تعذر رفع الملف، حاول مرة أخرى</span>
+                }
+              }
             </div>
             <div class="f-wrap">
               <label class="f-lbl">شهادات أو تراخيص مهنية</label>
@@ -253,6 +271,15 @@
                 <span class="f-upload-ttl">شهادات مهنية</span>
                 <span class="f-upload-sub">{{ uploadedCerts().length > 0 ? 'تم رفع ' + uploadedCerts().length + ' ملفات' : 'اختياري: PNG JPG PDF' }}</span>
               </label>
+              @if (getUploadState('certs')) {
+                @if (getUploadState('certs').status === 'uploading') {
+                  <span class="f-hint" style="color:#5DA0FF">جاري رفع الملفات...</span>
+                } @else if (getUploadState('certs').status === 'uploaded') {
+                  <span class="f-hint" style="color:#2BD4C7">تم رفع جميع الملفات بنجاح</span>
+                } @else if (getUploadState('certs').status === 'error') {
+                  <span class="f-hint" style="color:#FF6B6B">تعذر رفع بعض الملفات، حاول مرة أخرى</span>
+                }
+              }
             </div>
           </div>
         </div>
@@ -260,20 +287,16 @@
           <div class="ai-verify-ico" aria-hidden="true"><svg><use href="#i-ai"></use></svg></div>
           <div class="ai-verify-body">
             <strong>تحقق الهوية عبر NAFATH</strong>
-            <span>يرسل AI طلب تحقق آلي لتطبيق NAFATH على جوالك</span>
+            <span>التحقق عبر نفاذ غير مفعّل حاليًا، وسيتم تفعيله بعد اعتماد واجهة التحقق من الخادم</span>
           </div>
-          @if (!isNafathVerified()) {
-            <button type="button" class="nafath-btn" (click)="triggerNafath()" [disabled]="isNafathVerifying()">
-              {{ isNafathVerifying() ? 'جاري التحقق...' : 'تحقق عبر NAFATH' }}
-            </button>
-          } @else {
-            <div class="nafath-done" style="display: flex;" aria-live="polite"><svg aria-hidden="true"><use href="#i-check"></use></svg>تم التحقق</div>
-          }
+          <button type="button" class="nafath-btn" (click)="triggerNafath()" disabled>
+            غير مفعّل
+          </button>
         </div>
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(3)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 4 من 7</span>
-          <button type="button" class="btn-wz-next" (click)="goToStep(5)">التالي<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+          <button type="button" class="btn-wz-next" (click)="goToStep(5)" [disabled]="isUploading()">{{ isUploading() ? 'جاري الرفع...' : 'التالي' }}<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
         </div>
       </div>
 
@@ -319,9 +342,16 @@
                         @if (item.review) {
                           <div class="pw-uploaded-file">
                             <div class="pw-uploaded-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg></div>
-                            <span class="pw-uploaded-name">{{ item.review }}</span>
+                            <span class="pw-uploaded-name">{{ item.reviewDisplayName }}</span>
                             <span class="pw-uploaded-size">MB 1.5</span>
                           </div>
+                          @if (getUploadState('portfolio-review-' + spec + '-' + itemIdx)?.status === 'uploading') {
+                            <span class="f-hint" style="color:#5DA0FF">جاري رفع الملف... {{ getUploadState('portfolio-review-' + spec + '-' + itemIdx).progress }}%</span>
+                          } @else if (getUploadState('portfolio-review-' + spec + '-' + itemIdx)?.status === 'uploaded') {
+                            <span class="f-hint" style="color:#2BD4C7">تم رفع الملف بنجاح</span>
+                          } @else if (getUploadState('portfolio-review-' + spec + '-' + itemIdx)?.status === 'error') {
+                            <span class="f-hint" style="color:#FF6B6B">تعذر رفع الملف، حاول مرة أخرى</span>
+                          }
                           <label class="pw-replace-btn" style="cursor:pointer">
                             <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-upload"></use></svg>استبدال الملف
@@ -342,10 +372,15 @@
                           <span class="pw-col-badge-req"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-warn"></use></svg>شرط</span>
                         </div>
                         <div class="pw-proof-list">
-                          @for (proof of item.proofs; track $index; let proofIdx = $index) {
+                          @for (proof of item.proofDisplayNames; track $index; let proofIdx = $index) {
                             <div class="pw-proof-item">
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
                               <span class="pw-proof-name">{{ proof }}</span>
+                              @if (getUploadState('portfolio-proof-' + spec + '-' + itemIdx + '-' + proofIdx)?.status === 'uploading') {
+                                <span class="f-hint" style="color:#5DA0FF;font-size:11px">جاري الرفع...</span>
+                              } @else if (getUploadState('portfolio-proof-' + spec + '-' + itemIdx + '-' + proofIdx)?.status === 'error') {
+                                <span class="f-hint" style="color:#FF6B6B;font-size:11px">فشل الرفع</span>
+                              }
                               <button type="button" class="pw-proof-del" (click)="removePortfolioProof(spec, itemIdx, proofIdx)" aria-label="حذف">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-close"></use></svg>
                               </button>
@@ -377,7 +412,7 @@
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(4)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 5 من 7</span>
-          <button type="button" class="btn-wz-next" (click)="goToStep(6)">التالي<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+          <button type="button" class="btn-wz-next" (click)="goToStep(6)" [disabled]="isUploading()">{{ isUploading() ? 'جاري الرفع...' : 'التالي' }}<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
         </div>
       </div>
 
@@ -403,8 +438,8 @@
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(5)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 6 من 7</span>
-          <button type="button" class="btn-wz-next" (click)="saveAndGoToTest()" [disabled]="isSubmitting()">
-             {{ isSubmitting() ? 'جاري الحفظ...' : 'حفظ والانتقال للاختبار' }}
+          <button type="button" class="btn-wz-next" (click)="saveAndGoToTest()" [disabled]="isSubmitting() || isUploading()">
+             {{ isUploading() ? 'جاري رفع الملفات...' : (isSubmitting() ? 'جاري الحفظ...' : 'حفظ والانتقال للاختبار') }}
              <svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg>
           </button>
         </div>

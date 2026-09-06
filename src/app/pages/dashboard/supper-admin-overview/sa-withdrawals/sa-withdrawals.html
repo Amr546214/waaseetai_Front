@@ -1,13 +1,217 @@
 <div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+  <div class="flex items-center justify-between mb-5">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">طلبات السحب</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">مراجعة والموافقة على طلبات سحب الأرباح</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">طلبات السحب</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"طلبات السحب\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <span class="text-sm text-slate-400 font-medium px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60">الإجمالي: {{ total() }}</span>
   </div>
+
+  <div class="flex gap-2 flex-wrap mb-5">
+    @for (opt of statusOptions; track opt.value) {
+      <button
+        type="button"
+        class="px-4 py-1.5 rounded-lg text-sm font-semibold border transition-all cursor-pointer"
+        [class.bg-teal-500]="statusFilter() === opt.value"
+        [class.text-white]="statusFilter() === opt.value"
+        [class.border-teal-500]="statusFilter() === opt.value"
+        [class.bg-white]="statusFilter() !== opt.value"
+        [class.text-slate-600]="statusFilter() !== opt.value"
+        [class.border-slate-200]="statusFilter() !== opt.value"
+        (click)="onStatusFilterChange(opt.value)"
+      >{{ opt.label }}</button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 flex-1 flex flex-col items-center justify-center min-h-[400px]">
+      <div class="w-8 h-8 border-[3px] border-slate-200 border-t-teal-500 rounded-full animate-spin"></div>
+      <span class="mt-3 text-sm text-slate-400">جاري تحميل طلبات السحب...</span>
+    </div>
+  }
+
+  @if (error() && !loading()) {
+    <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 flex-1 flex flex-col items-center justify-center min-h-[400px]">
+      <span class="text-sm text-red-500">{{ error() }}</span>
+      <button type="button" class="mt-4 px-5 py-2 rounded-lg border border-teal-500 text-teal-500 text-sm font-semibold bg-white hover:bg-teal-500 hover:text-white transition-all cursor-pointer" (click)="loadWithdrawals()">إعادة المحاولة</button>
+    </div>
+  }
+
+  @if (!loading() && !error() && withdrawals().length === 0) {
+    <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[400px] flex-1">
+      <div class="w-16 h-16 bg-gradient-to-br from-teal-500/20 to-teal-500/5 rounded-2xl flex items-center justify-center mb-5 border border-teal-500/20">
+        <svg class="w-8 h-8 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H5a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">لا توجد طلبات سحب</h3>
+      <p class="text-sm text-slate-400 dark:text-slate-500 text-center max-w-sm leading-relaxed">لم يتم العثور على أي طلبات سحب مطابقة للمرشح الحالي.</p>
+    </div>
+  }
+
+  @if (!loading() && !error() && withdrawals().length > 0) {
+    <div class="flex flex-col gap-3 flex-1">
+      @for (w of withdrawals(); track w.id) {
+        <div class="bg-white dark:bg-[#131B36] rounded-xl border border-slate-200 dark:border-slate-800/60 p-4 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-400 font-mono">#{{ getShortId(w.id) }}</span>
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold" [class]="getStatusClass(w.status)">{{ getStatusLabel(w.status) }}</span>
+          </div>
+          <div class="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2">
+            {{ formatAmount(w.amount, w.currency) }}
+            @if (w.userName) { <span class="text-slate-400 font-normal"> — {{ w.userName }}</span> }
+          </div>
+          <div class="flex flex-wrap gap-3 mb-3">
+            @if (w.method) { <span class="text-xs text-slate-400">الطريقة: {{ w.method }}</span> }
+            @if (w.bankInfo?.bankName) { <span class="text-xs text-slate-400">البنك: {{ w.bankInfo!.bankName }}</span> }
+            <span class="text-xs text-slate-400">{{ formatDate(w.createdAt) }}</span>
+          </div>
+          <button type="button" class="px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:border-teal-400 hover:text-teal-500 transition-all cursor-pointer" (click)="viewDetail(w.id)">عرض التفاصيل</button>
+        </div>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="flex gap-1.5 justify-center mt-5">
+        <button type="button" class="min-w-[34px] h-[34px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">السابق</button>
+        @for (p of getPagesArray(); track p) {
+          <button type="button" class="min-w-[34px] h-[34px] rounded-lg border text-sm font-semibold cursor-pointer" [class.bg-teal-500]="p === currentPage()" [class.text-white]="p === currentPage()" [class.border-teal-500]="p === currentPage()" [class.bg-white]="p !== currentPage()" [class.text-slate-600]="p !== currentPage()" [class.border-slate-200]="p !== currentPage()" (click)="goToPage(p)">{{ p }}</button>
+        }
+        <button type="button" class="min-w-[34px] h-[34px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">التالي</button>
+      </div>
+    }
+  }
 </div>
+
+@if (showDetailModal()) {
+  <div class="modal-overlay" (click)="closeDetailModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>تفاصيل طلب السحب</h2>
+        <button type="button" class="modal-close" (click)="closeDetailModal()">×</button>
+      </div>
+
+      @if (detailLoading()) {
+        <div class="modal-loading">
+          <div class="spinner"></div>
+          <span>جاري التحميل...</span>
+        </div>
+      }
+
+      @if (detailError() && !detailLoading()) {
+        <div class="modal-error">
+          <span>{{ detailError() }}</span>
+        </div>
+      }
+
+      @if (selectedWithdrawal() && !detailLoading()) {
+        <div class="modal-body">
+          <div class="detail-row">
+            <span class="detail-key">المعرف</span>
+            <span class="detail-val">#{{ selectedWithdrawal()!.id }}</span>
+          </div>
+          @if (selectedWithdrawal()!.userName) {
+            <div class="detail-row">
+              <span class="detail-key">المستخدم</span>
+              <span class="detail-val">{{ selectedWithdrawal()!.userName }}</span>
+            </div>
+          }
+          @if (selectedWithdrawal()!.userEmail) {
+            <div class="detail-row">
+              <span class="detail-key">البريد</span>
+              <span class="detail-val">{{ selectedWithdrawal()!.userEmail }}</span>
+            </div>
+          }
+          <div class="detail-row">
+            <span class="detail-key">المبلغ</span>
+            <span class="detail-val">{{ formatAmount(selectedWithdrawal()!.amount, selectedWithdrawal()!.currency) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">الحالة</span>
+            <span class="detail-val">
+              <span class="card-status" [class]="getStatusClass(selectedWithdrawal()!.status)">{{ getStatusLabel(selectedWithdrawal()!.status) }}</span>
+            </span>
+          </div>
+          @if (selectedWithdrawal()!.method) {
+            <div class="detail-row">
+              <span class="detail-key">الطريقة</span>
+              <span class="detail-val">{{ selectedWithdrawal()!.method }}</span>
+            </div>
+          }
+          @if (selectedWithdrawal()!.bankInfo) {
+            <div class="detail-row">
+              <span class="detail-key">البنك</span>
+              <span class="detail-val">
+                <div>{{ selectedWithdrawal()!.bankInfo!.bankName || '—' }}</div>
+                @if (selectedWithdrawal()!.bankInfo!.accountHolderName) { <div class="text-xs text-slate-400 mt-1">{{ selectedWithdrawal()!.bankInfo!.accountHolderName }}</div> }
+                @if (selectedWithdrawal()!.bankInfo!.iban) { <div class="text-xs text-slate-400">{{ selectedWithdrawal()!.bankInfo!.iban }}</div> }
+              </span>
+            </div>
+          }
+          <div class="detail-row">
+            <span class="detail-key">تاريخ الإنشاء</span>
+            <span class="detail-val">{{ formatDate(selectedWithdrawal()!.createdAt) }}</span>
+          </div>
+          @if (selectedWithdrawal()!.processedAt) {
+            <div class="detail-row">
+              <span class="detail-key">تاريخ المعالجة</span>
+              <span class="detail-val">{{ formatDate(selectedWithdrawal()!.processedAt) }}</span>
+            </div>
+          }
+          @if (selectedWithdrawal()!.adminNote) {
+            <div class="detail-row">
+              <span class="detail-key">ملاحظات الإدارة</span>
+              <span class="detail-val">{{ selectedWithdrawal()!.adminNote }}</span>
+            </div>
+          }
+          @if (selectedWithdrawal()!.rejectionReason) {
+            <div class="detail-row">
+              <span class="detail-key">سبب الرفض</span>
+              <span class="detail-val">{{ selectedWithdrawal()!.rejectionReason }}</span>
+            </div>
+          }
+
+          @if (canAct(selectedWithdrawal()!.status)) {
+            <div class="modal-actions">
+              <button type="button" class="action-btn approve-btn" (click)="openActionModal('approve')">موافقة</button>
+              <button type="button" class="action-btn reject-btn" (click)="openActionModal('reject')">رفض</button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (showActionModal()) {
+  <div class="modal-overlay" (click)="closeActionModal()">
+    <div class="modal-box modal-box-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ actionType() === 'approve' ? 'الموافقة على طلب السحب' : 'رفض طلب السحب' }}</h2>
+        <button type="button" class="modal-close" (click)="closeActionModal()">×</button>
+      </div>
+      <div class="modal-body">
+        @if (actionType() === 'approve') {
+          <div class="form-group">
+            <label class="form-lbl">ملاحظات الإدارة (اختياري)</label>
+            <textarea class="form-input" rows="3" [value]="actionNote()" (input)="actionNote.set($any($event.target).value)" placeholder="ملاحظات..."></textarea>
+          </div>
+        } @else {
+          <div class="form-group">
+            <label class="form-lbl">سبب الرفض <span class="req">*</span></label>
+            <textarea class="form-input" rows="3" [value]="actionReason()" (input)="actionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض..."></textarea>
+          </div>
+        }
+        @if (detailError()) {
+          <div class="modal-error"><span>{{ detailError() }}</span></div>
+        }
+        <div class="modal-actions">
+          <button type="button" class="action-btn cancel-btn" (click)="closeActionModal()" [disabled]="processing()">إلغاء</button>
+          <button type="button" class="action-btn" [class.approve-btn]="actionType() === 'approve'" [class.reject-btn]="actionType() === 'reject'" (click)="confirmAction()" [disabled]="processing() || (actionType() === 'reject' && !actionReason().trim())">
+            {{ processing() ? 'جاري التنفيذ...' : (actionType() === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
