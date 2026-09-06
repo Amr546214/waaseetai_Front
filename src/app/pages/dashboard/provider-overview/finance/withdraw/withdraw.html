@@ -1,457 +1,289 @@
-<nav class="flex items-center gap-1.5 text-[12px] text-[var(--txt-3)] mb-4 flex-wrap">
-	<a href="#" class="hover:text-[var(--txt-2)] transition-colors">لوحة التحكم</a>
-	<span class="text-[10px] text-[#4A5568]">&#8250;</span>
-	<a routerLink="../wallet" class="hover:text-[var(--txt-2)] transition-colors">محفظتي</a>
-	<span class="text-[10px] text-[#4A5568]">&#8250;</span>
-	<span class="font-bold text-[var(--txt)]">سحب الأرباح</span>
-</nav>
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="wd-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></symbol>
+    <symbol id="wd-escrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/></symbol>
+    <symbol id="wd-earn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+    <symbol id="wd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="wd-bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/></symbol>
+  </defs>
+</svg>
 
-<h1 class="text-[20px] font-black text-[var(--txt)] m-0 mb-1">سحب الأرباح</h1>
-<p class="text-[13px] text-[var(--txt-3)] mb-3.5 leading-relaxed">اسحب أرباحك المتراكمة إلى حسابك البنكي خلال 1-3 أيام
-	عمل</p>
+<div class="main-inner">
+  <!-- Breadcrumb -->
+  <nav class="wd-crumb">
+    <a routerLink="/provider-overview" class="wd-crumb-link">لوحة التحكم</a>
+    <span class="wd-crumb-sep">›</span>
+    <a routerLink="/provider-overview/finance/wallet" class="wd-crumb-link">محفظتي</a>
+    <span class="wd-crumb-sep">›</span>
+    <span class="wd-crumb-cur">سحب الأرباح</span>
+  </nav>
 
-<div
-	class="flex items-center gap-2 px-3.5 py-2.5 bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 rounded-[10px] mb-4.5 text-[12px] text-[#2BD4C7]">
-	<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-		stroke-linecap="round" stroke-linejoin="round">
-		<path d="M20 6 9 17l-5-5" />
-	</svg>
-	تحويل آمن ومشفّر عبر بوابات معتمدة من SAMA
+  <!-- Header -->
+  <div class="ord-head">
+    <div>
+      <div class="ord-title">سحب الأرباح</div>
+      <div class="ord-sub">اسحب أرباحك المتراكمة إلى حسابك البنكي. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيدك حتى تعتمده الإدارة.</div>
+    </div>
+  </div>
+
+  <!-- AI Disclosure -->
+  <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+    <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#wd-check"></use></svg></div>
+    <div class="ai-disc-body">
+      <div class="ai-disc-lbl">وسيط AI، حماية مالية</div>
+      <p class="ai-disc-txt">جميع طلبات السحب تمر بمراجعة الإدارة قبل التنفيذ. تحويل بنكي خلال 1-3 أيام عمل بعد الموافقة.</p>
+    </div>
+  </div>
+
+  <!-- Wallet summary -->
+  @if (walletLoading()) {
+    <div class="state-card">
+      <div class="skeleton-row" style="width:45%;height:16px;margin-bottom:14px"></div>
+      <div class="skeleton-box" style="height:110px"></div>
+    </div>
+  }
+
+  @if (walletError() && !walletLoading()) {
+    <div class="state-card wd-err-card">
+      <div class="wd-err-ttl">تعذر تحميل بيانات المحفظة</div>
+      <div class="wd-err-sub">{{ walletError() }}</div>
+      <button type="button" class="wd-retry" (click)="loadWallet()">إعادة المحاولة</button>
+    </div>
+  }
+
+  @if (wallet() && !walletLoading()) {
+    <div class="wal-grid">
+      <div class="wal-main">
+        <div class="wal-main-lbl">الرصيد المتاح للسحب</div>
+        <div>
+          <span class="wal-main-val">{{ availableBalance() | number:'1.0-2' }}</span>
+          <span class="wal-main-cur"> {{ currency() }}</span>
+        </div>
+        <div class="wal-main-sub">الحد الأقصى المتاح للسحب في هذه العملية</div>
+      </div>
+
+      <div class="wal-side">
+        <div class="wal-side-lbl" style="color:#2BD4C7">
+          <svg aria-hidden="true"><use href="#wd-earn"></use></svg>
+          إجمالي الأرباح
+        </div>
+        <div class="wal-side-val" style="color:#2BD4C7">{{ totalEarnings() | number:'1.0-2' }}</div>
+        <div class="wal-side-sub">{{ currency() }}</div>
+      </div>
+
+      <div class="wal-side">
+        <div class="wal-side-lbl" style="color:#FFB400">
+          <svg aria-hidden="true"><use href="#wd-escrow"></use></svg>
+          محجوز بالضمان
+        </div>
+        <div class="wal-side-val" style="color:#FFB400">{{ escrowBalance() | number:'1.0-2' }}</div>
+        <div class="wal-side-sub">{{ currency() }}</div>
+      </div>
+    </div>
+  }
+
+  <!-- Submit form -->
+  <div class="sec-ttl">طلب سحب جديد</div>
+  <div class="wd-form-card">
+    <!-- Success banner -->
+    @if (submitSuccess()) {
+      <div class="wd-banner wd-banner-ok">
+        <svg class="wd-banner-ico" aria-hidden="true"><use href="#wd-check"></use></svg>
+        <div class="wd-banner-body">
+          <div class="wd-banner-ttl">تم إرسال الطلب</div>
+          <p class="wd-banner-txt">{{ submitSuccess() }}</p>
+        </div>
+        <button type="button" class="wd-banner-close" (click)="dismissSuccess()" aria-label="إغلاق">×</button>
+      </div>
+    }
+
+    <!-- Submit error banner -->
+    @if (submitError()) {
+      <div class="wd-banner wd-banner-err">
+        <div class="wd-banner-body">
+          <div class="wd-banner-ttl">تعذر إرسال الطلب</div>
+          <p class="wd-banner-txt">{{ submitError() }}</p>
+        </div>
+      </div>
+    }
+
+    <div class="wd-form-grid">
+      <!-- Amount -->
+      <div class="wd-field">
+        <label class="wd-lbl" for="wdAmt">المبلغ ({{ currency() }}) <span class="wd-req">*</span></label>
+        <div class="wd-amt-wrap">
+          <input id="wdAmt" type="text" inputmode="decimal" placeholder="0.00"
+            [value]="amount() == null ? '' : amount()"
+            (input)="setAmountStr($event)" dir="ltr"
+            class="wd-input wd-amt-input" [class.wd-input-err]="formErrors()['amount']">
+          <span class="wd-amt-cur">{{ currency() }}</span>
+        </div>
+        @if (formErrors()['amount']; as err) {
+          <div class="wd-field-err">{{ err }}</div>
+        } @else {
+          <div class="wd-field-hint">الحد الأقصى المتاح: {{ availableBalance() | number:'1.0-2' }} {{ currency() }}</div>
+        }
+        <div class="wd-quick-amts">
+          <button type="button" class="wd-quick-btn" (click)="setAmount(500)">500</button>
+          <button type="button" class="wd-quick-btn" (click)="setAmount(1000)">1,000</button>
+          <button type="button" class="wd-quick-btn" (click)="setAmount(2500)">2,500</button>
+          <button type="button" class="wd-quick-btn" (click)="setAmount(5000)">5,000</button>
+          <button type="button" class="wd-quick-btn wd-quick-max" (click)="setAmount(availableBalance())">الحد الأقصى</button>
+        </div>
+      </div>
+
+      <!-- Method (read-only display) -->
+      <div class="wd-field">
+        <label class="wd-lbl">طريقة السحب</label>
+        <div class="wd-method-pill">
+          <svg aria-hidden="true"><use href="#wd-bank"></use></svg>
+          <span>تحويل بنكي (bank_transfer)</span>
+        </div>
+        <div class="wd-field-hint">الطريقة الافتراضية المعتمدة حالياً</div>
+      </div>
+
+      <!-- Account name -->
+      <div class="wd-field">
+        <label class="wd-lbl" for="wdName">اسم صاحب الحساب <span class="wd-req">*</span></label>
+        <input id="wdName" type="text" placeholder="الاسم كما هو في الحساب البنكي"
+          [value]="accountName()" (input)="setAccountName($event)"
+          class="wd-input" [class.wd-input-err]="formErrors()['accountName']">
+        @if (formErrors()['accountName']; as err) {
+          <div class="wd-field-err">{{ err }}</div>
+        }
+      </div>
+
+      <!-- IBAN -->
+      <div class="wd-field">
+        <label class="wd-lbl" for="wdIban">رقم الآيبان (IBAN)</label>
+        <input id="wdIban" type="text" placeholder="SA00 0000 0000 0000 0000 0000" dir="ltr"
+          [value]="iban()" (input)="setIban($event)"
+          class="wd-input" [class.wd-input-err]="formErrors()['iban']">
+        @if (formErrors()['iban']; as err) {
+          <div class="wd-field-err">{{ err }}</div>
+        }
+      </div>
+
+      <!-- Account number (optional alternative) -->
+      <div class="wd-field">
+        <label class="wd-lbl" for="wdAcc">رقم الحساب (اختياري)</label>
+        <input id="wdAcc" type="text" placeholder="00000000000000" dir="ltr"
+          [value]="accountNumber()" (input)="setAccountNumber($event)"
+          class="wd-input" [class.wd-input-err]="formErrors()['accountNumber']">
+        @if (formErrors()['accountNumber']; as err) {
+          <div class="wd-field-err">{{ err }}</div>
+        } @else {
+          <div class="wd-field-hint">مطلوب رقم الآيبان أو رقم الحساب على الأقل</div>
+        }
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="wd-summary">
+      <div class="wd-sum-row">
+        <span class="wd-sum-key">الرصيد المتاح</span>
+        <span class="wd-sum-val">{{ availableBalance() | number:'1.0-2' }} {{ currency() }}</span>
+      </div>
+      <div class="wd-sum-row">
+        <span class="wd-sum-key">مبلغ السحب</span>
+        <span class="wd-sum-val">{{ (amount() || 0) | number:'1.0-2' }} {{ currency() }}</span>
+      </div>
+      <div class="wd-sum-divider"></div>
+      <div class="wd-sum-row wd-sum-row-bold">
+        <span class="wd-sum-key">الرصيد بعد الطلب</span>
+        <span class="wd-sum-val wd-sum-remain">{{ remainingBalance() | number:'1.0-2' }} {{ currency() }}</span>
+      </div>
+      <div class="wd-sum-note">ملاحظة: لا يُخصم الرصيد فوراً. يتم الخصم بعد موافقة الإدارة على الطلب.</div>
+    </div>
+
+    <div class="wd-form-actions">
+      <a routerLink="/provider-overview/finance/wallet" class="wd-btn wd-btn-sec">
+        العودة للمحفظة
+      </a>
+      <button type="button" class="wd-btn wd-btn-pri" (click)="submit()"
+        [disabled]="submitting() || walletLoading()">
+        @if (submitting()) {
+          <span class="wd-spinner"></span> جاري الإرسال...
+        } @else {
+          إرسال طلب السحب
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Withdrawal history -->
+  <div class="sec-ttl">سجل طلبات السحب</div>
+
+  @if (historyLoading()) {
+    <div class="state-card">
+      <div class="skeleton-box" style="height:80px;margin-bottom:10px"></div>
+      <div class="skeleton-box" style="height:80px;margin-bottom:10px"></div>
+      <div class="skeleton-box" style="height:80px"></div>
+    </div>
+  }
+
+  @if (historyError() && !historyLoading()) {
+    <div class="state-card wd-err-card">
+      <div class="wd-err-ttl">تعذر تحميل سجل الطلبات</div>
+      <div class="wd-err-sub">{{ historyError() }}</div>
+      <button type="button" class="wd-retry" (click)="loadHistory()">إعادة المحاولة</button>
+    </div>
+  }
+
+  @if (!historyLoading() && !historyError() && withdrawals().length === 0) {
+    <div class="state-card wd-empty">
+      <div class="wd-empty-ico"><svg aria-hidden="true"><use href="#wd-wallet"></use></svg></div>
+      <div class="wd-empty-ttl">لا توجد طلبات سحب</div>
+      <p class="wd-empty-txt">لم تقم بأي طلبات سحب حتى الآن. سيظهر سجل طلباتك هنا بعد أول عملية.</p>
+    </div>
+  }
+
+  @if (!historyLoading() && !historyError() && withdrawals().length > 0) {
+    <div class="wd-list">
+      @for (w of withdrawals(); track w.id) {
+        <div class="wd-item">
+          <div class="wd-item-head">
+            <span class="wd-item-id">#{{ getShortId(w.id) }}</span>
+            <span class="wd-st" [class]="getStatusClass(w.status)">{{ getStatusLabel(w.status) }}</span>
+          </div>
+          <div class="wd-item-amt">{{ formatAmount(w.amount, w.currency) }}</div>
+          <div class="wd-item-meta">
+            <span class="wd-meta-chip"><svg aria-hidden="true"><use href="#wd-bank"></use></svg> {{ getMethodLabel(w.method) }}</span>
+            <span class="wd-meta-chip">{{ formatDate(w.createdAt) }}</span>
+          </div>
+          <div class="wd-item-bank">
+            @if (w.accountName) {
+              <div class="wd-bank-row"><span class="wd-bank-key">اسم الحساب</span><span class="wd-bank-val">{{ w.accountName }}</span></div>
+            }
+            @if (w.iban) {
+              <div class="wd-bank-row"><span class="wd-bank-key">IBAN</span><span class="wd-bank-val" dir="ltr">{{ maskValue(w.iban) }}</span></div>
+            }
+            @if (w.accountNumber) {
+              <div class="wd-bank-row"><span class="wd-bank-key">رقم الحساب</span><span class="wd-bank-val" dir="ltr">{{ maskValue(w.accountNumber) }}</span></div>
+            }
+          </div>
+          @if (w.rejectionReason) {
+            <div class="wd-item-note wd-item-note-rej">
+              <span class="wd-note-lbl">سبب الرفض:</span> {{ w.rejectionReason }}
+            </div>
+          }
+          @if (w.adminNote) {
+            <div class="wd-item-note wd-item-note-admin">
+              <span class="wd-note-lbl">ملاحظة الإدارة:</span> {{ w.adminNote }}
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="wd-pager">
+        <button type="button" class="wd-page-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">السابق</button>
+        @for (p of getPagesArray(); track p) {
+          <button type="button" class="wd-page-btn" [class.wd-page-active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
+        }
+        <button type="button" class="wd-page-btn" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">التالي</button>
+      </div>
+    }
+  }
 </div>
-
-<!-- AI DISCLOSURE -->
-<div
-	class="flex items-start gap-2.5 p-3 px-4 bg-gradient-to-br from-[rgba(123,47,190,0.09)] to-[rgba(43,127,255,0.06)] backdrop-blur-[12px] border border-[rgba(123,47,190,0.22)] rounded-[12px] mb-5 text-[12px] text-[var(--txt-2)] leading-relaxed">
-	<svg class="w-4 h-4 text-[#7B2FBE] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-		stroke-width="2">
-		<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-	</svg>
-	<div><strong class="text-[#A56BE0] font-bold">وسيط AI، حماية مالية:</strong> جميع العمليات محمية بـ256-bit SSL وPCI
-		DSS Level 1، معتمد من SAMA</div>
-</div>
-
-<div class="max-w-full">
-
-	<!-- AMOUNT ENTRY -->
-	<div
-		class="bg-gradient-to-br from-[var(--sec-bg)] to-transparent backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[16px] p-[22px] mb-4">
-		<h2 class="text-[15px] font-extrabold text-[var(--txt)] mb-4 flex items-center gap-2.5">
-			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<rect x="2" y="5" width="20" height="14" rx="2" />
-				<line x1="2" y1="10" x2="22" y2="10" />
-			</svg>
-			المبلغ المراد سحبه
-		</h2>
-		<div class="flex flex-col gap-1.5 mb-3.5 relative">
-			<label class="text-[12px] font-bold text-[var(--txt-3)] flex items-center gap-1.5" for="depAmt">المبلغ
-				(ر.س)</label>
-			<div class="relative">
-				<input id="depAmt" type="text" inputmode="numeric" [value]="amountString()"
-					(input)="setAmountStr($event)"
-					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-[11px] px-[14px] text-[22px] font-black text-center tracking-tight text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 transition-colors pl-[54px]">
-				<span
-					class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-[var(--txt-3)] pointer-events-none">ر.س</span>
-			</div>
-			<div class="text-[11px] text-[var(--txt-3)] mt-1.5">أقل مبلغ للسحب 100 ر.س، أعلى مبلغ 50,000 ر.س للعملية
-				الواحدة</div>
-		</div>
-
-		<div class="grid grid-cols-4 gap-2.5 mt-2.5">
-			<button type="button" class="py-[11px] px-1 rounded-[10px] border text-[14px] font-extrabold transition-all"
-				[class]="withdrawAmount() === 500 ? 'bg-[#2BD4C7]/10 border-[#2BD4C7]/40 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[var(--sec-bg)]/80'"
-				(click)="setAmount(500)">500</button>
-			<button type="button" class="py-[11px] px-1 rounded-[10px] border text-[14px] font-extrabold transition-all"
-				[class]="withdrawAmount() === 1000 ? 'bg-[#2BD4C7]/10 border-[#2BD4C7]/40 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[var(--sec-bg)]/80'"
-				(click)="setAmount(1000)">1,000</button>
-			<button type="button" class="py-[11px] px-1 rounded-[10px] border text-[14px] font-extrabold transition-all"
-				[class]="withdrawAmount() === 2500 ? 'bg-[#2BD4C7]/10 border-[#2BD4C7]/40 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[var(--sec-bg)]/80'"
-				(click)="setAmount(2500)">2,500</button>
-			<button type="button" class="py-[11px] px-1 rounded-[10px] border text-[14px] font-extrabold transition-all"
-				[class]="withdrawAmount() === 5000 ? 'bg-[#2BD4C7]/10 border-[#2BD4C7]/40 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[var(--sec-bg)]/80'"
-				(click)="setAmount(5000)">5,000</button>
-		</div>
-	</div>
-
-	<!-- DEPOSIT SUMMARY -->
-	<div class="bg-gradient-to-br from-[#FFD700]/5 to-[#FFB400]/5 border-2 border-[#FFD700]/20 rounded-[16px] p-5 mb-4">
-		<div class="text-[14px] font-extrabold text-[#FFD700] mb-3.5 flex items-center gap-2">
-			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<rect x="2" y="5" width="20" height="14" rx="2" />
-				<line x1="2" y1="10" x2="22" y2="10" />
-			</svg>
-			ملخص السحب
-		</div>
-		<div class="flex flex-col gap-1.5">
-			<div class="flex justify-between items-center text-[13px] py-1">
-				<span class="text-[var(--txt-3)]">رصيد المحفظة الحالي</span>
-				<span class="font-bold text-[var(--txt)]">3,240.00 ر.س</span>
-			</div>
-			<div class="flex justify-between items-center text-[13px] py-1">
-				<span class="text-[var(--txt-3)]">مبلغ السحب</span>
-				<span class="font-bold text-[var(--txt)]">{{ withdrawAmount() | number:'1.2-2' }} ر.س</span>
-			</div>
-			<div class="flex justify-between items-center text-[13px] py-1">
-				<span class="text-[var(--txt-3)] flex items-center">
-					رسوم السحب
-					<span
-						class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[var(--sec-bg)] text-[9px] text-[var(--txt-3)] cursor-help mr-1"
-						title="سحب الأرباح مجاني، تحويل خلال 1-3 أيام">؟</span>
-				</span>
-				<span class="font-bold text-[#0FA99A]">مجانا</span>
-			</div>
-		</div>
-		<div class="h-[1px] bg-[#FFD700]/15 my-2"></div>
-		<div class="flex justify-between items-center pt-1">
-			<span class="text-[14px] font-extrabold text-[#FFD700]">الرصيد المتبقي بعد السحب</span>
-			<span class="text-[20px] font-black text-[#FFD700]">{{ (balance() - withdrawAmount()) | number:'1.2-2' }}
-				ر.س</span>
-		</div>
-		<div class="text-[11px] text-[var(--txt-3)] mt-2 leading-relaxed">يُحوّل المبلغ إلى حسابك البنكي خلال 1-3 أيام
-			عمل بعد تأكيد السحب، ويظهر في سجل المعاملات</div>
-	</div>
-
-	<!-- PAYMENT METHODS -->
-	<div
-		class="bg-gradient-to-br from-[var(--sec-bg)] to-transparent backdrop-blur-[12px] border border-[var(--sec-bd)] rounded-[16px] p-[22px] mb-4">
-		<h2 class="text-[15px] font-extrabold text-[var(--txt)] mb-4 flex items-center gap-2.5">
-			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<rect x="2" y="5" width="20" height="14" rx="2" />
-				<line x1="2" y1="10" x2="22" y2="10" />
-			</svg>
-			طريقة الدفع
-		</h2>
-
-		<div class="flex flex-col gap-2.5">
-			<div class="text-[10px] font-extrabold text-[var(--txt-3)] tracking-widest pt-1 pb-2">متاح الآن</div>
-
-			<!-- Card Option -->
-			<div class="flex items-center gap-3.5 p-3.5 rounded-[12px] border cursor-pointer transition-all"
-				[class]="selectedMethod() === 'card' ? 'border-[#2BD4C7]/50 bg-[#2BD4C7]/10' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[#2BD4C7]/30'"
-				(click)="setMethod('card')">
-				<div class="w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-					[class]="selectedMethod() === 'card' ? 'border-[#2BD4C7]' : 'border-[var(--txt-3)]/30'">
-					@if (selectedMethod() === 'card') { <div class="w-2 h-2 rounded-full bg-[#2BD4C7]"></div> }
-				</div>
-				<div
-					class="w-[38px] h-[28px] rounded-[7px] flex items-center justify-center text-[11px] font-black shrink-0 bg-[#2B7FFF]/10 text-[#2B7FFF]">
-					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<rect x="2" y="5" width="20" height="14" rx="2" />
-						<line x1="2" y1="10" x2="22" y2="10" />
-					</svg>
-				</div>
-				<div class="flex-1">
-					<div class="text-[14px] font-bold text-[var(--txt)]">Visa / Mastercard / مدى</div>
-					<div class="text-[11px] text-[var(--txt-3)] mt-0.5">بطاقة مصرفية محلية وعالمية</div>
-				</div>
-			</div>
-
-			<!-- Bank Option -->
-			<div class="flex items-center gap-3.5 p-3.5 rounded-[12px] border cursor-pointer transition-all"
-				[class]="selectedMethod() === 'bank' ? 'border-[#2BD4C7]/50 bg-[#2BD4C7]/10' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[#2BD4C7]/30'"
-				(click)="setMethod('bank')">
-				<div class="w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-					[class]="selectedMethod() === 'bank' ? 'border-[#2BD4C7]' : 'border-[var(--txt-3)]/30'">
-					@if (selectedMethod() === 'bank') { <div class="w-2 h-2 rounded-full bg-[#2BD4C7]"></div> }
-				</div>
-				<div
-					class="w-[38px] h-[28px] rounded-[7px] flex items-center justify-center text-[11px] font-black shrink-0 bg-[#2BD4C7]/10 text-[#2BD4C7]">
-					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<line x1="12" y1="1" x2="12" y2="23" />
-						<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-					</svg>
-				</div>
-				<div class="flex-1">
-					<div class="text-[14px] font-bold text-[var(--txt)]">تحويل بنكي (IBAN)</div>
-					<div class="text-[11px] text-[var(--txt-3)] mt-0.5">تحويل مباشر بين البنوك، 1-3 أيام عمل</div>
-				</div>
-			</div>
-
-			<!-- Phase 2 Header -->
-			<div class="text-[10px] font-extrabold text-[var(--txt-3)] tracking-widest pt-3 pb-2 opacity-60">قريبا،
-				Phase 2</div>
-
-			<!-- STC Pay Option -->
-			<div
-				class="flex items-center gap-3.5 p-3.5 rounded-[12px] border border-[var(--sec-bd)] bg-[var(--sec-bg)] opacity-60 cursor-not-allowed">
-				<div
-					class="w-[18px] h-[18px] rounded-full border-2 border-[var(--txt-3)]/30 flex items-center justify-center shrink-0">
-				</div>
-				<div
-					class="w-[38px] h-[28px] rounded-[7px] flex items-center justify-center shrink-0 bg-[#5DA0FF]/10 text-[#5DA0FF]">
-					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<rect x="5" y="2" width="14" height="20" rx="2" />
-						<line x1="12" y1="18" x2="12.01" y2="18" />
-					</svg>
-				</div>
-				<div class="flex-1">
-					<div class="text-[14px] font-bold text-[var(--txt)] flex items-center">
-						STC Pay
-						<span
-							class="inline-flex items-center px-2 py-0.5 rounded-[5px] bg-[#FFB400]/10 border border-[#FFB400]/20 text-[10px] font-bold text-[#FFB400] mr-2">Phase
-							2</span>
-					</div>
-					<div class="text-[11px] text-[var(--txt-3)] mt-0.5">محفظة رقمية سعودية</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- CARD FORM DETAIL -->
-		@if (selectedMethod() === 'card') {
-		<div class="mt-4 p-4 bg-[#2B7FFF]/5 border border-[#2B7FFF]/10 rounded-[12px]">
-			<div
-				class="text-[12px] text-[#2B7FFF] font-bold cursor-pointer flex items-center gap-1.5 mb-3.5 hover:underline">
-				<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<rect x="2" y="5" width="20" height="14" rx="2" />
-					<line x1="2" y1="10" x2="22" y2="10" />
-				</svg>
-				استخدام بطاقة محفوظة
-			</div>
-			<div class="flex items-center gap-2 mb-3.5">
-				<svg class="h-[22px] w-[44px] rounded opacity-100" viewBox="0 0 44 28" fill="none">
-					<rect width="44" height="28" rx="4" fill="#1A1F71" /><text x="8" y="20" font-family="Arial"
-						font-weight="900" font-size="13" fill="#FFFFFF" letter-spacing="-0.5">VISA</text>
-				</svg>
-				<svg class="h-[22px] w-[44px] rounded opacity-40 grayscale" viewBox="0 0 44 28">
-					<rect width="44" height="28" rx="4" fill="#EB001B" opacity="0.1" />
-					<circle cx="16" cy="14" r="9" fill="#EB001B" opacity="0.8" />
-					<circle cx="28" cy="14" r="9" fill="#F79E1B" opacity="0.8" />
-				</svg>
-				<svg class="h-[22px] w-[44px] rounded opacity-40 grayscale" viewBox="0 0 44 28">
-					<rect width="44" height="28" rx="4" fill="#0B7343" opacity="0.15" /><text x="8" y="20"
-						font-family="Arial" font-weight="900" font-size="11" fill="#0B7343">mada</text>
-				</svg>
-			</div>
-
-			<div class="flex flex-col gap-1.5 mb-3.5">
-				<label class="text-[12px] font-bold text-[var(--txt-3)]">رقم البطاقة</label>
-				<input type="text" inputmode="numeric" placeholder="0000  0000  0000  0000" maxlength="19"
-					autocomplete="cc-number"
-					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-2.5 px-3.5 text-[14px] font-semibold text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 tracking-widest text-left"
-					dir="ltr">
-			</div>
-
-			<div class="grid grid-cols-3 gap-3">
-				<div class="flex flex-col gap-1.5">
-					<label class="text-[12px] font-bold text-[var(--txt-3)]">تاريخ الانتهاء</label>
-					<input type="text" inputmode="numeric" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp"
-						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-2.5 px-3.5 text-[14px] font-semibold text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 tracking-widest text-center"
-						dir="ltr">
-				</div>
-				<div class="flex flex-col gap-1.5">
-					<label class="text-[12px] font-bold text-[var(--txt-3)] flex items-center justify-between">
-						CVV
-						<span
-							class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[var(--sec-bg)] text-[9px] text-[var(--txt-3)] cursor-help"
-							title="3 أرقام خلف البطاقة">؟</span>
-					</label>
-					<input type="password" inputmode="numeric" placeholder="000" maxlength="3" autocomplete="cc-csc"
-						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-2.5 px-3.5 text-[14px] font-semibold text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 tracking-widest text-center"
-						dir="ltr">
-				</div>
-				<div class="flex flex-col gap-1.5 col-span-3 sm:col-span-1">
-					<label class="text-[12px] font-bold text-[var(--txt-3)]">اسم حامل البطاقة</label>
-					<input type="text" placeholder="MOHAMMED AL-OMARI" autocomplete="cc-name"
-						style="text-transform:uppercase"
-						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] py-2.5 px-3.5 text-[14px] font-semibold text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7]/50 text-left"
-						dir="ltr">
-				</div>
-			</div>
-		</div>
-		}
-
-		<!-- BANK FORM DETAIL -->
-		@if (selectedMethod() === 'bank') {
-		<div class="mt-4 p-4 bg-[#2BD4C7]/5 border border-[#2BD4C7]/15 rounded-[12px]">
-			<div class="text-[13px] font-bold text-[#2BD4C7] mb-3">بيانات التحويل البنكي</div>
-			<div class="flex flex-col gap-2">
-				<div class="flex justify-between items-center text-[13px]">
-					<span class="text-[var(--txt-3)]">اسم المستفيد</span>
-					<span class="font-bold text-[var(--txt)]">وسيط AI للتقنية</span>
-				</div>
-				<div class="flex justify-between items-center text-[13px]">
-					<span class="text-[var(--txt-3)]">رقم IBAN</span>
-					<span class="font-bold text-[#2BD4C7]" dir="ltr">SA29 1000 0001 2345 6789 0123</span>
-				</div>
-				<div class="flex justify-between items-center text-[13px]">
-					<span class="text-[var(--txt-3)]">رقم المرجع</span>
-					<span class="font-bold text-[#FFD700]">WAL-2026-08471</span>
-				</div>
-			</div>
-			<div class="text-[11px] text-[var(--txt-3)] mt-2.5 leading-relaxed">أضف رقم المرجع في حقل الملاحظات عند
-				التحويل، يضاف الرصيد إلى محفظتك بعد استلام التحويل</div>
-		</div>
-		}
-	</div>
-
-	<!-- TERMS -->
-	<div class="flex items-start gap-3 p-3.5 bg-[#2B7FFF]/5 border border-[#2B7FFF]/10 rounded-[12px] cursor-pointer mb-4"
-		(click)="toggleTerms()" role="checkbox" [attr.aria-checked]="termsAccepted()">
-		<div class="w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors"
-			[class]="termsAccepted() ? 'bg-[#2B7FFF] border-[#2B7FFF]' : 'border-[var(--sec-bd)]'">
-			@if (termsAccepted()) {
-			<svg class="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-				<polyline points="20 6 9 17 4 12" />
-			</svg>
-			}
-		</div>
-		<div class="text-[12px] text-[var(--txt-2)] leading-relaxed">
-			أوافق على <button type="button" class="text-[#2BD4C7] hover:underline"
-				(click)="$event.stopPropagation()">شروط سحب الأرباح</button> وأقر بأن المبلغ يضاف إلى رصيد محفظتي
-			ويُستخدم لتمويل الضمان والمشاريع، ولا يمكن سحبه إلى البنك
-		</div>
-	</div>
-
-	<!-- SECURITY FOOTER -->
-	<div
-		class="flex items-center justify-center gap-4 p-3.5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[12px] flex-wrap mb-4">
-		<div class="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--txt-3)]">
-			<svg class="w-[13px] h-[13px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-				stroke-width="2">
-				<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-			</svg>
-			256-bit SSL
-		</div>
-		<div class="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--txt-3)]">
-			<svg class="w-[13px] h-[13px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-				stroke-width="2">
-				<polyline points="20 6 9 17 4 12" />
-			</svg>
-			PCI DSS Level 1
-		</div>
-		<div class="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--txt-3)]">
-			<svg class="w-[13px] h-[13px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-				stroke-width="2">
-				<polyline points="20 6 9 17 4 12" />
-			</svg>
-			معتمد من SAMA
-		</div>
-		<div class="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--txt-3)]">
-			<svg class="w-[13px] h-[13px] text-[#0FA99A]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-				stroke-width="2">
-				<polyline points="20 6 9 17 4 12" />
-			</svg>
-			حماية PDPL
-		</div>
-	</div>
-
-	<!-- Bottom Spacer for Sticky Footer -->
-	<div class="h-28 w-full"></div>
-</div>
-
-<!-- STICKY FOOTER -->
-<div
-	class="fixed bottom-0 right-0 md:right-[220px] left-0 px-6 py-3.5 bg-[var(--sec-bg)]/90 backdrop-blur-[20px] border-t border-[var(--sec-bd)] z-50">
-	<div class="max-w-[680px] mx-auto flex items-center justify-between gap-3">
-		<a routerLink="../wallet"
-			class="hidden sm:flex items-center gap-2 h-11 px-6 rounded-[11px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[14px] font-bold text-[var(--txt-2)] transition-colors hover:bg-[var(--sec-bd)] hover:text-[var(--txt)]">
-			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-				<polyline points="9 18 15 12 9 6" />
-			</svg>
-			العودة للمحفظة
-		</a>
-
-		<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-			<div class="text-right">
-				<div class="text-[11px] font-semibold text-[var(--txt-3)]">مبلغ السحب</div>
-				<div class="text-[16px] font-black text-[#FFD700]">{{ withdrawAmount() | number:'1.2-2' }} ر.س</div>
-			</div>
-
-			<button
-				class="h-11 px-7 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-[14px] font-extrabold flex items-center gap-2 transition-all hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
-				[disabled]="!termsAccepted() || withdrawAmount() < 100 || withdrawAmount() > 50000" (click)="openOTP()">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-				</svg>
-				سحب {{ withdrawAmount() | number }} ر.س
-			</button>
-		</div>
-	</div>
-</div>
-
-<!-- OTP MODAL -->
-@if (showOTP()) {
-<div class="fixed inset-0 bg-[#070d24]/80 backdrop-blur-sm z-[400] flex items-center justify-center p-4">
-	<div
-		class="bg-[#0B122C] border border-[var(--sec-bd)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),_0_0_40px_rgba(43,212,199,0.1)] rounded-[20px] p-8 max-w-[440px] w-full text-center relative">
-		<button
-			class="absolute top-3.5 left-3.5 w-[30px] h-[30px] rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] flex items-center justify-center text-[var(--txt-3)] hover:text-[var(--txt)] transition-colors"
-			(click)="closeOTP()">
-			<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<line x1="18" y1="6" x2="6" y2="18" />
-				<line x1="6" y1="6" x2="18" y2="18" />
-			</svg>
-		</button>
-
-		<div
-			class="w-14 h-14 rounded-full bg-[#2BD4C7]/10 border-2 border-[#2BD4C7]/30 flex items-center justify-center text-[#2BD4C7] mx-auto mb-4">
-			<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<rect x="5" y="2" width="14" height="20" rx="2" />
-				<line x1="12" y1="18" x2="12.01" y2="18" />
-			</svg>
-		</div>
-
-		<h2 class="text-[18px] font-black text-[var(--txt)] mb-1.5">تأكيد بكود OTP</h2>
-		<p class="text-[13px] text-[var(--txt-3)] leading-relaxed mb-5">أرسل رمز التحقق إلى جوالك<br><strong
-				class="text-[var(--txt)]">+966 5XX XXX X891</strong></p>
-
-		<div class="flex gap-2.5 justify-center mb-4" dir="ltr">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner"
-				(input)="confirmWithdraw()">
-		</div>
-
-		<div class="text-[12px] text-[var(--txt-3)] mb-4">انتهاء الرمز خلال <span
-				class="text-[#2BD4C7] font-bold">30</span> ثانية</div>
-
-		<button
-			class="w-full py-3 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[14px] font-extrabold text-[#070D24] mb-2.5"
-			(click)="confirmWithdraw()">تأكيد السحب</button>
-		<div class="text-[12px] text-[var(--txt-3)]">لم تستلم الرمز؟ <a
-				class="text-[#2B7FFF] font-bold cursor-pointer hover:underline">إعادة الإرسال</a></div>
-	</div>
-</div>
-}
-
-<!-- SUCCESS OVERLAY -->
-@if (showSuccess()) {
-<div class="fixed inset-0 bg-[#070d24]/95 z-[500] flex flex-col items-center justify-center p-6 text-center">
-	<div
-		class="w-[90px] h-[90px] rounded-full bg-[#2BD4C7]/10 border-4 border-[#2BD4C7]/40 flex items-center justify-center text-[#2BD4C7] mb-5">
-		<svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-			<polyline points="20 6 9 17 4 12" />
-		</svg>
-	</div>
-
-	<div class="text-[24px] font-black text-white mb-4">تم طلب سحب الأرباح بنجاح</div>
-
-	<div class="px-5 py-2.5 rounded-[9px] bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 text-[14px] font-bold text-[#2BD4C7] mb-4"
-		dir="ltr">
-		{{ withdrawAmount() | number:'1.2-2' }} SAR, WAL-2026-08471
-	</div>
-
-	<div class="text-[13px] text-[#6B7699] leading-relaxed max-w-[380px] mb-6">
-		تم ارسال طلب السحب بنجاح. سيتم تحويل المبلغ إلى حسابك البنكي خلال 1-3 أيام عمل وسيظهر في سجل المعاملات.
-	</div>
-
-	<div class="flex gap-3 flex-wrap justify-center">
-		<a routerLink="../wallet"
-			class="h-11 px-6 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] font-extrabold text-[14px] flex items-center gap-2 hover:-translate-y-px transition-all">
-			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-				<rect x="2" y="5" width="20" height="14" rx="2" />
-				<line x1="2" y1="10" x2="22" y2="10" />
-			</svg>
-			العودة للمحفظة
-		</a>
-	</div>
-</div>
-}

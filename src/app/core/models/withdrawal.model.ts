@@ -33,6 +33,10 @@ export interface Withdrawal {
   status?: WithdrawalStatus;
   method?: string;
   bankInfo?: WithdrawalBankInfo;
+  // Provider-side flat bank fields (returned by /api/provider/finance/withdrawals)
+  iban?: string;
+  accountName?: string;
+  accountNumber?: string;
   adminNote?: string | null;
   rejectionReason?: string | null;
   createdAt?: string;
@@ -93,6 +97,48 @@ export interface ApproveWithdrawalPayload {
 export interface RejectWithdrawalPayload {
   rejectionReason: string;
 }
+
+// ── Provider-side types ───────────────────────────────────────────────
+
+/**
+ * Payload for POST /api/provider/finance/withdrawals.
+ * `method` defaults to `bank_transfer` on the backend.
+ * Either `iban` or `accountNumber` is required.
+ */
+export interface ProviderWithdrawalPayload {
+  amount: number;
+  method?: string;
+  iban?: string;
+  accountName?: string;
+  accountNumber?: string;
+}
+
+/**
+ * Wallet summary returned by GET /api/provider/finance/wallet.
+ * Mirrors the shape already consumed by the provider Wallet page.
+ */
+export interface ProviderWalletSummary {
+  availableBalance?: number;
+  totalEarnings?: number;
+  escrowBalance?: number;
+  releasedThisMonth?: number;
+  releasedTransactionsCount?: number;
+  fundedProjectsCount?: number;
+  completedProjectsCount?: number;
+  currency?: string;
+  [key: string]: unknown;
+}
+
+export interface ProviderWalletData {
+  summary?: ProviderWalletSummary;
+  transactions?: unknown[];
+  escrows?: unknown[];
+  [key: string]: unknown;
+}
+
+export type ProviderWalletApiResponse = ApiResponse<ProviderWalletData>;
+export type ProviderWithdrawalApiResponse = ApiResponse<Withdrawal>;
+export type ProviderWithdrawalListApiResponse = ApiResponse<WithdrawalListData>;
 
 // ── API response types ────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WithdrawalApiService } from '../../../../core/services/withdrawal-api.service';
 import {
@@ -29,6 +29,7 @@ export class SaWithdrawals implements OnInit {
   readonly limit = 10;
 
   statusFilter = signal<string>('all');
+  typeFilter = signal<string>('all');
 
   readonly statusOptions: { value: string; label: string }[] = [
     { value: 'all', label: 'الكل' },
@@ -36,6 +37,13 @@ export class SaWithdrawals implements OnInit {
     { value: 'APPROVED', label: 'موافق عليها' },
     { value: 'REJECTED', label: 'مرفوضة' },
     { value: 'COMPLETED', label: 'مكتملة' },
+  ];
+
+  readonly typeOptions: { value: string; label: string }[] = [
+    { value: 'all', label: 'الكل' },
+    { value: 'provider', label: 'مقدمو خدمة' },
+    { value: 'broker', label: 'وسطاء' },
+    { value: 'suspicious', label: 'مشبوهة' },
   ];
 
   selectedWithdrawal = signal<Withdrawal | null>(null);
@@ -48,6 +56,34 @@ export class SaWithdrawals implements OnInit {
   actionNote = signal<string>('');
   actionReason = signal<string>('');
   processing = signal<boolean>(false);
+
+  // ── Computed summary (from loaded items) ────────────────────────────
+  pendingCount = computed(() => this.withdrawals().filter(w => w.status === 'PENDING').length);
+  pendingAmount = computed(() =>
+    this.withdrawals()
+      .filter(w => w.status === 'PENDING')
+      .reduce((sum, w) => sum + (w.amount ?? 0), 0)
+  );
+  approvedCount = computed(() =>
+    this.withdrawals().filter(w => w.status === 'APPROVED' || w.status === 'COMPLETED').length
+  );
+  suspiciousCount = computed(() =>
+    this.withdrawals().filter(w => Boolean((w as any).isSuspicious || (w as any).suspicious)).length
+  );
+
+  // ── Frontend-only type filter on loaded items ───────────────────────
+  filteredWithdrawals = computed(() => {
+    const tf = this.typeFilter();
+    if (tf === 'all') return this.withdrawals();
+    if (tf === 'suspicious') {
+      return this.withdrawals().filter(w => Boolean((w as any).isSuspicious || (w as any).suspicious));
+    }
+    // provider / broker — filter by userType/role field if present
+    return this.withdrawals().filter(w => {
+      const ut = String((w as any).userType || (w as any).role || '').toLowerCase();
+      return ut.includes(tf);
+    });
+  });
 
   ngOnInit() {
     this.loadWithdrawals();
@@ -104,6 +140,10 @@ export class SaWithdrawals implements OnInit {
     this.statusFilter.set(status);
     this.currentPage.set(1);
     this.loadWithdrawals();
+  }
+
+  onTypeFilterChange(type: string) {
+    this.typeFilter.set(type);
   }
 
   goToPage(page: number) {
@@ -216,29 +256,75 @@ export class SaWithdrawals implements OnInit {
     return map[status as string] || 'st-pending';
   }
 
+  getMethodLabel(method?: string): string {
+    const map: Record<string, string> = {
+      bank_transfer: 'تحويل بنكي',
+      card: 'بطاقة',
+    };
+    return map[method || ''] || method || '—';
+  }
+
   getShortId(id: string): string {
     return id?.length > 8 ? id.substring(0, 8) : id;
   }
 
+  maskIban(iban?: string): string {
+    if (!iban) return '—';
+    const v = iban.replace(/\s/g, '');
+    if (v.length <= 8) return v;
+    return v.substring(0, 4) + ' •••• ' + v.substring(v.length - 4);
+  }
+
+  getWaitDuration(createdAt?: string | null): string {
+    if (!createdAt) return '—';
+    try {
+      const created = new Date(createdAt).getTime();
+      const now = Date.now();
+      const diffMs = now - created;
+      if (diffMs < 0) return '—';
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      if (hours < 1) return 'أقل من ساعة';
+      if (hours < 24) return `${hours} ساعة`;
+      const days = Math.floor(hours / 24);
+      return `${days} يوم`;
+    } catch {
+      return '—';
+    }
+  }
+
+  getUserTypeLabel(w: Withdrawal): string {
+    const ut = String((w as any).userType || (w as any).role || '').toLowerCase();
+    if (ut.includes('broker')) return 'وسيط';
+    if (ut.includes('provider')) return 'مقدم خدمة';
+    return 'مقدم خدمة';
+  }
+
   formatAmount(amount?: number, currency?: string): string {
     if (amount == null) return '—';
-    const formatted = new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
-    return `${formatted} ${currency || 'ر.س'}`;
+    const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    const cur = currency || 'SAR';
+    return `${cur} ${formatted}`;
   }
 
   formatDate(date?: string | null): string {
     if (!date) return '—';
     try {
-      return new Date(date).toLocaleDateString('ar-SA', {
+      return new Date(date).toLocaleDateString('en-GB', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
       });
     } catch {
       return date;
     }
+  }
+
+  getAiStatus(w: Withdrawal): { label: string; class: string } {
+    const suspicious = (w as any).isSuspicious || (w as any).suspicious;
+    if (suspicious) return { label: 'مشبوه', class: 'sw-ai-flag' };
+    const verified = (w as any).aiVerified || (w as any).verified;
+    if (verified) return { label: 'موثّق', class: 'sw-ai-ok' };
+    return { label: 'مراجعة', class: 'sw-ai-review' };
   }
 
   canAct(status?: WithdrawalStatus): boolean {
