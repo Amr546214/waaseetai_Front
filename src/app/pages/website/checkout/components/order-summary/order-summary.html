@@ -1,0 +1,72 @@
+<aside class="order-summary" [class.compact]="compact">
+  @if (itemCount() > 0) {
+    <!-- Header -->
+    <div class="summary-header">
+      <h3 class="summary-title">ملخص الطلب</h3>
+      <span class="summary-count">{{ itemCount() }} {{ itemCount() === 1 ? 'خدمة' : 'خدمات' }}</span>
+    </div>
+
+    <!-- Items list (hidden in compact mode) -->
+    @if (!compact) {
+      <ul class="summary-items">
+        @for (item of items(); track item.id) {
+          @if (!item.savedForLater) {
+            <li class="summary-item">
+              <div class="item-thumb">
+                @if (item.coverImage) {
+                  <img [src]="item.coverImage" [alt]="item.title" loading="lazy" />
+                } @else {
+                  <span class="item-thumb-placeholder">{{ item.provider.initials }}</span>
+                }
+              </div>
+              <div class="item-info">
+                <span class="item-title">{{ item.title }}</span>
+                <span class="item-provider">{{ item.provider.name }}</span>
+                @if (item.packageName) {
+                  <span class="item-package">{{ item.packageName }}</span>
+                }
+              </div>
+              <span class="item-price">{{ formatPrice(item.totalAmount) }} ر.س</span>
+            </li>
+          }
+        }
+      </ul>
+    }
+
+    <!-- Totals -->
+    <div class="summary-totals">
+      <div class="total-row">
+        <span class="total-label">المجموع الفرعي</span>
+        <span class="total-value">{{ formatPrice(subtotal()) }} ر.س</span>
+      </div>
+
+      @if (coupon()) {
+        <div class="total-row discount-row">
+          <span class="total-label">
+            الخصم
+            <span class="coupon-badge">{{ coupon()!.code }}</span>
+          </span>
+          <span class="total-value discount-value">-{{ formatPrice(discount()) }} ر.س</span>
+        </div>
+      }
+
+      <div class="total-divider"></div>
+
+      <div class="total-row total-final">
+        <span class="total-label">الإجمالي</span>
+        <span class="total-value final-value">{{ formatPrice(total()) }} ر.س</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Empty state -->
+    <div class="summary-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M3 3h2l2.4 12.5a2 2 0 002 1.5h9.7a2 2 0 002-1.6L23 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="9" cy="20" r="1.5" fill="currentColor"/>
+        <circle cx="18" cy="20" r="1.5" fill="currentColor"/>
+      </svg>
+      <p class="empty-text">سلة التسوق فارغة</p>
+      <p class="empty-subtext">أضف خدمات لمتابعة الطلب</p>
+    </div>
+  }
+</aside>

@@ -1,13 +1,191 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="dp-page" dir="rtl">
+  <div class="dp-hdr">
+    <div>
+      <h1 class="dp-ttl">إدارة النزاعات</h1>
+      <p class="dp-sub">مراجعة النزاعات المفتوحة وحالاتها</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">النزاعات</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"النزاعات\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="dp-filters">
+    @for (f of filters; track f.key) {
+      <button type="button" class="dp-ftab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">{{ f.label }}</button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="dp-loading">
+      <div class="dp-spinner"></div>
+      <p>جاري تحميل النزاعات…</p>
+    </div>
+  } @else if (error()) {
+    <div class="dp-error">
+      <p class="dp-error-msg">{{ error() }}</p>
+      <button type="button" class="dp-btn dp-btn-pri" (click)="fetchDisputes()">إعادة المحاولة</button>
+    </div>
+  } @else if (disputes().length === 0) {
+    <div class="dp-empty">
+      <div class="dp-empty-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </div>
+      <p class="dp-empty-ttl">لا توجد نزاعات في هذا التصنيف</p>
+    </div>
+  } @else {
+    <div class="dp-list">
+      @for (d of disputes(); track d.id) {
+        <div class="dp-card">
+          <div class="dp-card-top">
+            <span class="dp-id">#{{ shortId(d.id) }}</span>
+            <span class="dp-badge {{ statusClasses[d.status] }}">{{ statusLabels[d.status] }}</span>
+          </div>
+          <div class="dp-card-body">
+            <p class="dp-reason">{{ d.reason }}</p>
+            <div class="dp-meta">
+              <span>طلب: {{ d.requestId ? shortId(d.requestId) : '—' }}</span>
+              <span>·</span>
+              <span>{{ formatDate(d.createdAt) }}</span>
+              <span>·</span>
+              <span>أدلة: {{ d.evidence?.length || 0 }}</span>
+            </div>
+          </div>
+          <button type="button" class="dp-btn dp-btn-gh" (click)="openDetail(d)">عرض التفاصيل</button>
+        </div>
+      }
+    </div>
+
+    @if (pagination(); as pg) {
+      <div class="dp-pag">
+        <span class="dp-pag-info">صفحة {{ pg.page }} من {{ pg.totalPages }} (إجمالي {{ pg.total }})</span>
+        <div class="dp-pag-btns">
+          <button type="button" class="dp-btn dp-btn-gh" [disabled]="pg.page <= 1" (click)="prevPage()">السابق</button>
+          <button type="button" class="dp-btn dp-btn-gh" [disabled]="pg.page >= pg.totalPages" (click)="nextPage()">التالي</button>
+        </div>
+      </div>
+    }
+  }
+</section>
+
+@if (showDetail()) {
+  <div class="dp-mov" (click)="closeDetail()">
+    <div class="dp-mbox" (click)="$event.stopPropagation()">
+      @if (detailLoading()) {
+        <div class="dp-md-loading">
+          <div class="dp-spinner"></div>
+          <p>جاري تحميل التفاصيل…</p>
+        </div>
+      } @else if (detailError()) {
+        <div class="dp-md-error">
+          <p>{{ detailError() }}</p>
+          <button type="button" class="dp-btn dp-btn-pri" (click)="closeDetail()">إغلاق</button>
+        </div>
+      } @else if (selectedDispute(); as d) {
+        <div class="dp-md-hdr">
+          <div>
+            <h3>تفاصيل النزاع #{{ shortId(d.id) }}</h3>
+            <span class="dp-badge {{ statusClasses[d.status] }}">{{ statusLabels[d.status] }}</span>
+          </div>
+          <button type="button" class="dp-mclose" (click)="closeDetail()">×</button>
+        </div>
+        <div class="dp-md-body">
+          <div class="dp-md-field">
+            <label>السبب</label>
+            <p>{{ d.reason }}</p>
+          </div>
+          <div class="dp-md-field">
+            <label>الوصف</label>
+            <p>{{ d.description }}</p>
+          </div>
+          <div class="dp-md-row">
+            <div class="dp-md-field">
+              <label>الطلب</label>
+              <p>{{ d.requestId || '—' }}</p>
+            </div>
+            <div class="dp-md-field">
+              <label>المشروع</label>
+              <p>{{ d.projectId || '—' }}</p>
+            </div>
+          </div>
+          <div class="dp-md-row">
+            <div class="dp-md-field">
+              <label>تاريخ الفتح</label>
+              <p>{{ formatDate(d.createdAt) }}</p>
+            </div>
+            <div class="dp-md-field">
+              <label>تاريخ الحل</label>
+              <p>{{ formatDate(d.resolvedAt) }}</p>
+            </div>
+          </div>
+          @if (d.resolution) {
+            <div class="dp-md-field">
+              <label>القرار</label>
+              <p>{{ d.resolution }}</p>
+            </div>
+          }
+          @if (d.resolutionNote) {
+            <div class="dp-md-field">
+              <label>ملاحظات القرار</label>
+              <p>{{ d.resolutionNote }}</p>
+            </div>
+          }
+          @if (d.evidence && d.evidence.length > 0) {
+            <div class="dp-md-field">
+              <label>الأدلة ({{ d.evidence.length }})</label>
+              <div class="dp-ev-list">
+                @for (url of d.evidence; track url) {
+                  <a class="dp-ev-link" [href]="url" target="_blank" rel="noopener">{{ url }}</a>
+                }
+              </div>
+            </div>
+          }
+          @if (resolveSuccess()) {
+            <div class="dp-md-success">
+              <p>{{ resolveSuccess() }}</p>
+            </div>
+          }
+        </div>
+
+        @if (canResolve(d.status) && !showResolveForm()) {
+          <div class="dp-md-actions">
+            <button type="button" class="dp-btn dp-btn-pri" (click)="openResolveForm('resolve')">حل النزاع</button>
+            <button type="button" class="dp-btn dp-btn-reject" (click)="openResolveForm('reject')">رفض النزاع</button>
+            <button type="button" class="dp-btn dp-btn-gh" (click)="closeDetail()">إغلاق</button>
+          </div>
+        } @else if (showResolveForm()) {
+          <div class="dp-resolve-form">
+            <h4 class="dp-rf-ttl">{{ resolveAction() === 'resolve' ? 'حل النزاع' : 'رفض النزاع' }}</h4>
+
+            <div class="dp-rf-presets">
+              @for (p of resolutionPresets; track p) {
+                <button type="button" class="dp-rf-preset" [class.active]="resolutionText() === p" (click)="selectPreset(p)">{{ p }}</button>
+              }
+            </div>
+
+            <div class="dp-md-field">
+              <label>القرار <span class="dp-req">*</span></label>
+              <input class="dp-rf-input" type="text" [value]="resolutionText()" (input)="resolutionText.set($any($event.target).value)" placeholder="اكتب القرار أو اختر من القائمة" />
+            </div>
+
+            <div class="dp-md-field">
+              <label>ملاحظات القرار (اختياري)</label>
+              <textarea class="dp-rf-ta" [value]="resolutionNote()" (input)="resolutionNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+            </div>
+
+            @if (resolveError()) {
+              <p class="dp-rf-err">{{ resolveError() }}</p>
+            }
+
+            <div class="dp-rf-actions">
+              <button type="button" class="dp-btn dp-btn-pri" [disabled]="submittingResolve()" (click)="submitResolve()">
+                {{ submittingResolve() ? 'جارٍ الحفظ...' : 'تأكيد' }}
+              </button>
+              <button type="button" class="dp-btn dp-btn-gh" [disabled]="submittingResolve()" (click)="cancelResolveForm()">إلغاء</button>
+            </div>
+          </div>
+        } @else {
+          <div class="dp-md-actions">
+            <button type="button" class="dp-btn dp-btn-gh" (click)="closeDetail()">إغلاق</button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+}

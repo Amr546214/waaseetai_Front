@@ -13,6 +13,20 @@
 		<div class="state-card error-state" role="alert"><div class="state-title">تعذر تحميل مساحة العمل</div><div class="state-code">ERR-SK-014A</div><button type="button" class="lc-btn lc-btn-pri" (click)="load()">إعادة المحاولة</button></div>
 	} @else if (project(); as data) {
 		@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
+		@if (ratingSuccess()) { <div class="rt-success-msg" role="status">{{ ratingSuccess() }}</div> }
+		@if (disputeSuccess()) { <div class="rt-success-msg" role="status">{{ disputeSuccess() }}</div> }
+		@if (canRate(data)) {
+			<div class="rt-banner">
+				<div class="rt-banner-ico">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+				</div>
+				<div class="rt-banner-body">
+					<div class="rt-banner-title">المشروع مكتمل — قيّم تجربتك</div>
+					<div class="rt-banner-text">شارك تقييمك لمقدم الخدمة بعد اكتمال التسليم</div>
+				</div>
+				<button type="button" class="lc-btn lc-btn-pri rt-banner-btn" (click)="openRatingModal()">قيّم مقدم الخدمة</button>
+			</div>
+		}
 		<div class="lc-ph">
 			<div class="lc-av-wrap"><div class="lc-av">{{ data.clientInitial }}</div><span class="verified-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 61.8 36.7h33.3L68.6 57.1l10.8 31.7L50 70.3 20.6 88.8l10.8-31.7L4.9 36.7h33.3Z"/></svg></span></div>
 			<div class="lc-ph-main"><h2>{{ data.title }}</h2><div class="lc-meta"><span class="lc-prov"><span class="pi">{{ data.clientInitial }}</span>{{ data.clientName }}</span><span class="lc-dot"></span><span>عقد رقم {{ data.contractRef }}</span><span class="lc-dot"></span><span>قيمة العقد {{ formatNumber(data.price) }} ريال</span></div></div>
@@ -61,7 +75,7 @@
 					<div class="lc-aim"><div class="m"><div class="mv">{{ data.aiInsights.earlyDays || '—' }}</div><div class="ml">تبكير متوقع</div></div><div class="m"><div class="mv">{{ data.aiInsights.matchPercentage ? data.aiInsights.matchPercentage+'٪' : '—' }}</div><div class="ml">تطابق التسليم</div></div><div class="m"><div class="mv">{{ data.aiInsights.riskLevel }}</div><div class="ml">المخاطرة</div></div></div>
 				</div>
 				<div class="lc-sum"><h5>الضمان المالي</h5><div class="lc-smrow"><span>إجمالي الضمان</span><b>{{ formatNumber(data.escrowTotal) }} <small>ريال</small></b></div><div class="lc-smbar"><i class="free" [style.width.%]="data.escrowTotal ? data.escrowReleased/data.escrowTotal*100 : 0"></i><i class="held" [style.width.%]="data.escrowTotal ? data.escrowHeld/data.escrowTotal*100 : 0"></i></div><div class="lc-smlg"><span><i class="sw free-sw"></i>أُفرج {{ formatNumber(data.escrowReleased) }}</span><span><i class="sw held-sw"></i>محتجز {{ formatNumber(data.escrowHeld) }}</span></div></div>
-				<div class="lc-qa"><button type="button" class="lc-qa-chat" (click)="openConversation(data)"><span class="qi">✦</span>محادثة</button><button type="button" class="lc-qa-edit" (click)="openSupport('edit')"><span class="qi">＋</span>طلب تعديل</button><button type="button" class="lc-qa-disp" (click)="openSupport('dispute')"><span class="qi">!</span>فتح نزاع</button><button type="button" class="lc-qa-canc" (click)="openSupport('cancel')"><span class="qi">↔</span>إلغاء بالتراضي</button></div>
+				<div class="lc-qa"><button type="button" class="lc-qa-chat" (click)="openConversation(data)"><span class="qi">✦</span>محادثة</button><button type="button" class="lc-qa-edit" (click)="openSupport('edit')"><span class="qi">＋</span>طلب تعديل</button><button type="button" class="lc-qa-disp" (click)="openDisputeModal()"><span class="qi">!</span>فتح نزاع</button><button type="button" class="lc-qa-canc" (click)="openSupport('cancel')"><span class="qi">↔</span>إلغاء بالتراضي</button></div>
 			</div></div>
 		}
 
@@ -88,3 +102,19 @@
 @if(reviewStage(); as stage){<div class="lc-mov show" role="dialog" aria-modal="true" aria-label="مراجعة التسليم" (click)="closeReview()"><form class="lc-mbox" (ngSubmit)="submitReview()" (click)="$event.stopPropagation()"><div class="lc-mhd"><span class="mi">✓</span><div><h3>{{ reviewDecision()==='approve'?'اعتماد التسليم':'طلب تعديل' }}</h3><p>{{ stage.title }}</p></div><button type="button" class="lc-mclose" (click)="closeReview()">×</button></div><div class="lc-warn">الاعتماد النهائي يؤدي إلى الإفراج عن مبلغ المرحلة والانتقال للمرحلة التالية.</div><div class="lc-fld"><label>{{ reviewDecision()==='revision'?'ملاحظات التعديل (مطلوبة)':'ملاحظة اختيارية' }}</label><textarea class="lc-ta" name="reviewNote" [(ngModel)]="reviewNote" rows="4"></textarea></div><div class="lc-mact"><button type="button" class="lc-btn lc-btn-gh" (click)="closeReview()">إلغاء</button><button type="submit" class="lc-btn lc-btn-pri" [disabled]="saving()">{{ saving()?'جاري الحفظ...':'تأكيد القرار' }}</button></div></form></div>}
 
 @if(supportAction(); as action){<div class="lc-mov show" role="dialog" aria-modal="true" (click)="closeSupport()"><div class="lc-mbox" (click)="$event.stopPropagation()"><div class="lc-mhd"><span class="mi">{{ action==='dispute'?'!':action==='cancel'?'↔':'+' }}</span><div><h3>{{ action==='edit'?'طلب تعديل المشروع':action==='dispute'?'فتح نزاع على المشروع':'إلغاء المشروع بالتراضي' }}</h3><p>سيتم استكمال الطلب داخل المحادثة مع مقدم الخدمة والإدارة عند الحاجة.</p></div><button type="button" class="lc-mclose" (click)="closeSupport()">×</button></div><div class="lc-flow-note"><span class="lc-flow-s"><span>1</span>تحديد الطلب</span><b>←</b><span class="lc-flow-s"><span>2</span>النقاش والتقييم</span><b>←</b><span class="lc-flow-s"><span>3</span>اتفاق الطرفين</span></div><div class="lc-warn">يبقى الضمان المالي محفوظاً، ولا يتم أي إفراج أو استرداد قبل اكتمال الإجراء المعتمد.</div><div class="lc-fld"><label>تفاصيل الطلب</label><textarea class="lc-ta" [(ngModel)]="supportNote" placeholder="اكتب التفاصيل التي تريد مناقشتها"></textarea></div><div class="lc-mact"><button type="button" class="lc-btn lc-btn-gh" (click)="closeSupport()">تراجع</button><button type="button" class="lc-btn lc-btn-pri" (click)="continueInConversation(project())">المتابعة في المحادثة</button></div></div></div>}
+
+<app-client-rating-modal
+	[open]="showRatingModal()"
+	[providerName]="project()?.clientName || ''"
+	[isSubmitting]="isSubmittingRating()"
+	(close)="closeRatingModal()"
+	(submit)="submitRating($event)"
+/>
+
+<app-dispute-modal
+	[open]="showDisputeModal()"
+	[isSubmitting]="isSubmittingDispute()"
+	actor="client"
+	(close)="closeDisputeModal()"
+	(submit)="submitDispute($event)"
+/>

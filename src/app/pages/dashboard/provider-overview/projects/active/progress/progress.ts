@@ -4,14 +4,22 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../../core/services/active.service';
 import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/project-mini-chat';
+import { ProviderRatingModal } from './provider-rating-modal/provider-rating-modal';
+import { RatingApiService } from '../../../../../../core/services/rating-api.service';
+import { RatingScore } from '../../../../../../core/models/rating.model';
+import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-modal';
+import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
+import { CreateDisputePayload } from '../../../../../../core/models/dispute.model';
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat, ProviderRatingModal, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);
   private route = inject(ActivatedRoute);
+  private ratingApi = inject(RatingApiService);
+  private disputeApi = inject(DisputeApiService);
   projectData = signal<any>(null);
   loading = signal(true); error = signal(''); saving = signal(false);
   activeTab = signal<'overview' | 'miles' | 'msgs' | 'files' | 'delivs' | 'edits'>('overview');
@@ -20,6 +28,16 @@ export class Progress implements OnInit {
   deliveryStage = signal<any>(null);
   deliveryNote = ''; deliveryFiles = '';
   private projectId = '';
+  showProviderRatingModal = signal(false);
+  isSubmittingProviderRating = signal(false);
+  providerRatingError = signal('');
+  providerRatingSuccess = signal('');
+  providerRatingSubmitted = signal(false);
+  showDisputeModal = signal(false);
+  isSubmittingDispute = signal(false);
+  disputeSuccess = signal('');
+  disputeError = signal('');
+  disputeSubmitted = signal(false);
 
   ngOnInit() { this.projectId = this.route.snapshot.paramMap.get('id') || ''; this.load(); }
   load() {
@@ -53,4 +71,71 @@ export class Progress implements OnInit {
   visibleEdits(data: any) { const f = this.editFilter(); return f === 'all' ? data.edits : data.edits.filter((e: any) => e.status === f); }
   moneyWidth(value: number, total: number) { return total > 0 ? Math.min(100, Math.max(0, value / total * 100)) : 0; }
   stageById(data: any, stageId: string) { return data.stages?.find((stage: any) => stage.id === stageId); }
+
+  canRateClient(data: any): boolean {
+    if (this.providerRatingSubmitted() || this.providerRatingSuccess()) return false;
+    if (data?.canRate === true) return true;
+    if (data?.hasRated === true) return false;
+    const allCompleted = data?.stages?.length > 0 && data.stages.every((s: any) => s.status === 'completed');
+    return data?.status === 'COMPLETED' || (data?.progress === 100 && allCompleted);
+  }
+
+  openProviderRatingModal() {
+    this.providerRatingError.set('');
+    this.showProviderRatingModal.set(true);
+  }
+
+  openDisputeModal() {
+    if (this.disputeSubmitted()) return;
+    this.disputeError.set('');
+    this.showDisputeModal.set(true);
+  }
+
+  closeDisputeModal() {
+    if (this.isSubmittingDispute()) return;
+    this.showDisputeModal.set(false);
+    this.disputeError.set('');
+  }
+
+  submitDispute(payload: CreateDisputePayload) {
+    if (this.isSubmittingDispute()) return;
+    this.isSubmittingDispute.set(true);
+    this.disputeError.set('');
+    this.disputeApi.createProviderDispute(this.projectId, payload).subscribe({
+      next: () => {
+        this.isSubmittingDispute.set(false);
+        this.showDisputeModal.set(false);
+        this.disputeSubmitted.set(true);
+        this.disputeSuccess.set('تم فتح النزاع بنجاح، سيقوم فريق وسيط بمراجعة الحالة');
+      },
+      error: (err: any) => {
+        this.isSubmittingDispute.set(false);
+        this.disputeError.set(err?.error?.message || 'تعذر فتح النزاع، حاول مرة أخرى');
+      },
+    });
+  }
+
+  closeProviderRatingModal() {
+    if (this.isSubmittingProviderRating()) return;
+    this.showProviderRatingModal.set(false);
+    this.providerRatingError.set('');
+  }
+
+  submitProviderRating(payload: { rating: RatingScore; comment?: string }) {
+    if (this.isSubmittingProviderRating()) return;
+    this.isSubmittingProviderRating.set(true);
+    this.providerRatingError.set('');
+    this.ratingApi.rateClient(this.projectId, payload).subscribe({
+      next: () => {
+        this.isSubmittingProviderRating.set(false);
+        this.showProviderRatingModal.set(false);
+        this.providerRatingSubmitted.set(true);
+        this.providerRatingSuccess.set('تم إرسال تقييمك بنجاح');
+      },
+      error: (err: any) => {
+        this.isSubmittingProviderRating.set(false);
+        this.providerRatingError.set(err?.error?.message || 'تعذر إرسال التقييم، حاول مرة أخرى');
+      },
+    });
+  }
 }

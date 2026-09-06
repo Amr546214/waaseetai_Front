@@ -101,7 +101,7 @@
 				<div class="field-wrap relative">
 					<label class="field-label block text-sm font-bold text-[var(--txt-2)] mb-2" for="parent.provLevel">مستوى الخبرة</label>
 					<div class="relative">
-						<select class="mock-input field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="parent.provLevel" [(ngModel)]="parent.provLevel">
+							<select class="mock-input field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="provLevel" [ngModel]="parent.provLevel()" (ngModelChange)="parent.provLevel.set($event)">
 							<option value="" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">أي مستوى</option>
 							<option value="5" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">مستوى 5 فأعلى</option>
 							<option value="8" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">مستوى 8 فأعلى</option>
@@ -116,7 +116,7 @@
 				<div class="field-wrap relative">
 					<label class="field-label block text-sm font-bold text-[var(--txt-2)] mb-2" for="parent.provRating">الحد الأدنى للتقييم</label>
 					<div class="relative">
-						<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="parent.provRating" [(ngModel)]="parent.provRating">
+							<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="provRating" [ngModel]="parent.provRating()" (ngModelChange)="parent.provRating.set($event)">
 							<option value="" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">بدون حد أدنى</option>
 							<option value="3" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">3 نجوم فأعلى</option>
 							<option value="4" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">4 نجوم فأعلى</option>
@@ -130,7 +130,7 @@
 				<div class="field-wrap relative">
 					<label class="field-label block text-sm font-bold text-[var(--txt-2)] mb-2" for="parent.provLang">لغة التواصل</label>
 					<div class="relative">
-						<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="parent.provLang" [(ngModel)]="parent.provLang">
+							<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="provLang" [ngModel]="parent.provLang()" (ngModelChange)="parent.provLang.set($event)">
 							<option value="ar" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">العربية</option>
 							<option value="en" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">الإنجليزية</option>
 							<option value="both" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">كلتاهما</option>
@@ -143,7 +143,7 @@
 				<div class="field-wrap relative">
 					<label class="field-label block text-sm font-bold text-[var(--txt-2)] mb-2" for="parent.provLocation">الموقع</label>
 					<div class="relative">
-						<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="parent.provLocation" [(ngModel)]="parent.provLocation">
+							<select class="field-select w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer" id="provLocation" [ngModel]="parent.provLocation()" (ngModelChange)="parent.provLocation.set($event)">
 							<option value="" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">أي موقع</option>
 							<option value="sa" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">المملكة العربية السعودية</option>
 							<option value="gcc" class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">دول الخليج</option>
@@ -164,7 +164,7 @@
 				</span>
 				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
 			</h2>
-			<textarea class="cond-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[100px]" id="condText" placeholder="اكتب أي شروط إضافية تريد فرضها على مقدم الخدمة..." maxlength="2000" [(ngModel)]="parent.customConditions" aria-label="الشروط المخصصة"></textarea>
+				<textarea class="cond-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[100px]" id="condText" placeholder="اكتب أي شروط إضافية تريد فرضها على مقدم الخدمة..." maxlength="2000" [ngModel]="parent.customConditions()" (ngModelChange)="parent.customConditions.set($event)" aria-label="الشروط المخصصة"></textarea>
 			<div class="char-count text-xs text-right mt-2 text-[var(--txt-3)] font-medium"><span id="charCount">{{ parent.customConditions().length }}</span> / 2000</div>
 			<!-- AI Conflict Check -->
 			@if (parent.customConditions().length > 10) {

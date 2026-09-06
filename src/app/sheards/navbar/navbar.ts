@@ -6,6 +6,7 @@ import { AuthStore } from '../../core/store/auth.store';
 import { AccountService } from '../../core/services/account.service';
 import { NotificationEngineService } from '../../core/services/notification-engine.service';
 import { ChatStateService } from '../../core/services/chat-state.service';
+import { CartService } from '../../core/services/cart.service';
 import { UserRole, AccountType } from '../../core/models/auth.model';
 
 @Component({
@@ -26,6 +27,7 @@ export class Navbar {
 	public router = inject(Router);
 	public notifEngine = inject(NotificationEngineService);
 	public chatState = inject(ChatStateService);
+	public cartService = inject(CartService);
 	private cdRef = inject(ChangeDetectorRef);
 	private el = inject(ElementRef);
 	private platformId = inject(PLATFORM_ID);
@@ -120,6 +122,7 @@ export class Navbar {
 		effect(() => {
 			this.chatState.totalUnreadCount();
 			this.notifEngine.unreadCount();
+			this.cartService.itemCount();
 			this.cdRef.markForCheck();
 		});
 	}

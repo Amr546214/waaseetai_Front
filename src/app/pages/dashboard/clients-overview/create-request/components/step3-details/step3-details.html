@@ -13,7 +13,7 @@
 					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-title">عنوان الطلب <span class="field-req text-red-500">*</span></label>
 					<span id="title-count" class="field-count text-xs text-[var(--txt-3)]">{{ parent.title().length }} / 80</span>
 				</div>
-				<input type="text" class="field-input w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)]" id="f-title" placeholder="مثال: تطوير متجر إلكتروني لبيع الملابس..." maxlength="80" [(ngModel)]="parent.title" autocomplete="off">
+					<input type="text" class="field-input w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)]" id="f-title" placeholder="مثال: تطوير متجر إلكتروني لبيع الملابس..." maxlength="80" [ngModel]="parent.title()" (ngModelChange)="parent.title.set($event)" autocomplete="off">
 				<p class="mt-2 text-xs text-[var(--txt-3)]">اكتب الخدمة والهدف بوضوح؛ العناوين العامة مثل «تجربة» أو «مشروع جديد» لن تُرسل إلى AI.</p>
 			</div>
 
@@ -35,7 +35,7 @@
 						}
 					</button>
 				</div>
-				<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[150px] mb-2 font-medium transition-colors" id="f-desc" placeholder="صف مشروعك بالتفصيل، ما تحتاجه، الجمهور المستهدف، المتطلبات التقنية، أي تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" rows="6" [(ngModel)]="parent.description"></textarea>
+					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[150px] mb-2 font-medium transition-colors" id="f-desc" placeholder="صف مشروعك بالتفصيل، ما تحتاجه، الجمهور المستهدف، المتطلبات التقنية، أي تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" rows="6" [ngModel]="parent.description()" (ngModelChange)="parent.description.set($event)"></textarea>
 				<div class="field-counter flex items-center justify-between">
 					<div class="ai-quality poor flex items-center gap-1.5 text-xs text-[var(--txt-3)] font-medium">
 						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z" /></svg>
@@ -136,7 +136,7 @@
 			</div>
 
 			<div class="req-add-row flex gap-2">
-				<input type="text" class="req-add-input flex-1 p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" id="req-input" placeholder="أضف متطلباً محدداً..." maxlength="150" [(ngModel)]="parent.newRequirement" (keyup.enter)="parent.addRequirement()">
+				<input type="text" class="req-add-input flex-1 p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" id="req-input" placeholder="أضف متطلباً محدداً..." maxlength="150" [ngModel]="parent.newRequirement()" (ngModelChange)="parent.newRequirement.set($event)" (keyup.enter)="parent.addRequirement()">
 				<button type="button" class="req-add-btn flex items-center gap-2 bg-[var(--teal)]/10 text-[var(--teal)] px-6 rounded-xl font-bold border border-[var(--teal)]/20 hover:bg-[var(--teal)]/20 transition-colors" (click)="parent.addRequirement()">
 					<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 					إضافة
@@ -156,7 +156,7 @@
 
 			<div class="field">
 				<label class="field-label sr-only" for="f-outputs">المخرجات المتوقعة</label>
-				<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[100px] mb-2" id="f-outputs" placeholder="مثال: ملفات source code كاملة، توثيق API، نسخة للإنتاج والتطوير، تدريب الفريق..." maxlength="1000" rows="4" [(ngModel)]="parent.outputs"></textarea>
+				<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[100px] mb-2" id="f-outputs" placeholder="مثال: ملفات source code كاملة، توثيق API، نسخة للإنتاج والتطوير، تدريب الفريق..." maxlength="1000" rows="4" [ngModel]="parent.outputs()" (ngModelChange)="parent.outputs.set($event)"></textarea>
 				<div class="field-counter text-xs text-right text-[var(--txt-3)]">
 					<span id="outputs-count" class="field-count">{{ parent.outputs().length }} / 1000</span>
 				</div>
@@ -175,7 +175,7 @@
 					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-deadline">أيام التسليم المقترحة <span class="field-req text-red-500">*</span></label>
 				</div>
 				<div class="relative">
-					<input type="number" class="field-input w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-deadline" placeholder="14" min="1" max="365" [(ngModel)]="parent.deliveryDays">
+					<input type="number" class="field-input w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-deadline" placeholder="14" min="1" max="365" [ngModel]="parent.deliveryDays()" (ngModelChange)="parent.deliveryDays.set($event ? +$event : null)">
 					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold text-sm">يوم</span>
 				</div>
 				<div class="mt-2 text-xs text-[var(--txt-3)] font-medium">المدة تقريبية، يمكن التفاوض مع مقدم الخدمة</div>

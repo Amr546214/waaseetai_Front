@@ -10,13 +10,15 @@
 <p class="text-[13px] text-[var(--txt-3)] mb-3.5 leading-relaxed">اسحب أرباحك المتراكمة إلى حسابك البنكي خلال 1-3 أيام
 	عمل</p>
 
+<!-- UNAVAILABLE BANNER -->
 <div
-	class="flex items-center gap-2 px-3.5 py-2.5 bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 rounded-[10px] mb-4.5 text-[12px] text-[#2BD4C7]">
-	<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-		stroke-linecap="round" stroke-linejoin="round">
-		<path d="M20 6 9 17l-5-5" />
+	class="flex items-start gap-2.5 px-4 py-3 bg-[#FFB400]/10 border border-[#FFB400]/25 rounded-[10px] mb-4 text-[12px] text-[#FFB400] leading-relaxed">
+	<svg class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+		<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+		<line x1="12" y1="9" x2="12" y2="13" />
+		<line x1="12" y1="17" x2="12.01" y2="17" />
 	</svg>
-	تحويل آمن ومشفّر عبر بوابات معتمدة من SAMA
+	<div>طلبات السحب لمقدمي الخدمات غير مفعّلة حاليًا، وسيتم تفعيلها بعد اعتماد واجهة السحب من الخادم.</div>
 </div>
 
 <!-- AI DISCLOSURE -->
@@ -84,7 +86,15 @@
 		<div class="flex flex-col gap-1.5">
 			<div class="flex justify-between items-center text-[13px] py-1">
 				<span class="text-[var(--txt-3)]">رصيد المحفظة الحالي</span>
-				<span class="font-bold text-[var(--txt)]">3,240.00 ر.س</span>
+				@if (balanceLoading()) {
+					<span class="font-bold text-[var(--txt-3)]">جارٍ التحميل…</span>
+				} @else if (balanceError()) {
+					<span class="font-bold text-[#FF8C69]">غير متاح</span>
+				} @else if (balance() !== null) {
+					<span class="font-bold text-[var(--txt)]">{{ balance()! | number:'1.2-2' }} ر.س</span>
+				} @else {
+					<span class="font-bold text-[var(--txt-3)]">—</span>
+				}
 			</div>
 			<div class="flex justify-between items-center text-[13px] py-1">
 				<span class="text-[var(--txt-3)]">مبلغ السحب</span>
@@ -103,8 +113,8 @@
 		<div class="h-[1px] bg-[#FFD700]/15 my-2"></div>
 		<div class="flex justify-between items-center pt-1">
 			<span class="text-[14px] font-extrabold text-[#FFD700]">الرصيد المتبقي بعد السحب</span>
-			<span class="text-[20px] font-black text-[#FFD700]">{{ (balance() - withdrawAmount()) | number:'1.2-2' }}
-				ر.س</span>
+			<span class="text-[20px] font-black text-[#FFD700]">{{ (balance() !== null ? balance()! - withdrawAmount() : '—') }}
+				@if (balance() !== null) { ر.س }</span>
 		</div>
 		<div class="text-[11px] text-[var(--txt-3)] mt-2 leading-relaxed">يُحوّل المبلغ إلى حسابك البنكي خلال 1-3 أيام
 			عمل بعد تأكيد السحب، ويظهر في سجل المعاملات</div>
@@ -357,25 +367,25 @@
 			</div>
 
 			<button
-				class="h-11 px-7 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-[14px] font-extrabold flex items-center gap-2 transition-all hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
-				[disabled]="!termsAccepted() || withdrawAmount() < 100 || withdrawAmount() > 50000" (click)="openOTP()">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-				</svg>
-				سحب {{ withdrawAmount() | number }} ر.س
-			</button>
+			class="h-11 px-7 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-[14px] font-extrabold flex items-center gap-2 transition-all hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
+			[disabled]="true" (click)="attemptWithdraw()">
+			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+			</svg>
+			سحب {{ withdrawAmount() | number }} ر.س
+		</button>
 		</div>
 	</div>
 </div>
 
-<!-- OTP MODAL -->
-@if (showOTP()) {
+<!-- UNAVAILABLE MESSAGE MODAL -->
+@if (showUnavailableMsg()) {
 <div class="fixed inset-0 bg-[#070d24]/80 backdrop-blur-sm z-[400] flex items-center justify-center p-4">
 	<div
-		class="bg-[#0B122C] border border-[var(--sec-bd)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),_0_0_40px_rgba(43,212,199,0.1)] rounded-[20px] p-8 max-w-[440px] w-full text-center relative">
+		class="bg-[#0B122C] border border-[var(--sec-bd)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] rounded-[20px] p-8 max-w-[440px] w-full text-center relative">
 		<button
 			class="absolute top-3.5 left-3.5 w-[30px] h-[30px] rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] flex items-center justify-center text-[var(--txt-3)] hover:text-[var(--txt)] transition-colors"
-			(click)="closeOTP()">
+			(click)="dismissUnavailableMsg()">
 			<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 				<line x1="18" y1="6" x2="6" y2="18" />
 				<line x1="6" y1="6" x2="18" y2="18" />
@@ -383,75 +393,20 @@
 		</button>
 
 		<div
-			class="w-14 h-14 rounded-full bg-[#2BD4C7]/10 border-2 border-[#2BD4C7]/30 flex items-center justify-center text-[#2BD4C7] mx-auto mb-4">
+			class="w-14 h-14 rounded-full bg-[#FFB400]/10 border-2 border-[#FFB400]/30 flex items-center justify-center text-[#FFB400] mx-auto mb-4">
 			<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<rect x="5" y="2" width="14" height="20" rx="2" />
-				<line x1="12" y1="18" x2="12.01" y2="18" />
+				<circle cx="12" cy="12" r="10" />
+				<line x1="12" y1="8" x2="12" y2="12" />
+				<line x1="12" y1="16" x2="12.01" y2="16" />
 			</svg>
 		</div>
 
-		<h2 class="text-[18px] font-black text-[var(--txt)] mb-1.5">تأكيد بكود OTP</h2>
-		<p class="text-[13px] text-[var(--txt-3)] leading-relaxed mb-5">أرسل رمز التحقق إلى جوالك<br><strong
-				class="text-[var(--txt)]">+966 5XX XXX X891</strong></p>
-
-		<div class="flex gap-2.5 justify-center mb-4" dir="ltr">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner">
-			<input type="text"
-				class="w-11 h-[52px] rounded-[10px] bg-[#131A3A] border border-[var(--sec-bd)] text-center text-[22px] font-black text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] focus:bg-[#2BD4C7]/5 transition-all shadow-inner"
-				(input)="confirmWithdraw()">
-		</div>
-
-		<div class="text-[12px] text-[var(--txt-3)] mb-4">انتهاء الرمز خلال <span
-				class="text-[#2BD4C7] font-bold">30</span> ثانية</div>
+		<h2 class="text-[18px] font-black text-[var(--txt)] mb-1.5">السحب غير متاح</h2>
+		<p class="text-[13px] text-[var(--txt-3)] leading-relaxed mb-5">لا يمكن إرسال طلب السحب حاليًا لعدم توفر واجهة السحب من الخادم.</p>
 
 		<button
-			class="w-full py-3 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[14px] font-extrabold text-[#070D24] mb-2.5"
-			(click)="confirmWithdraw()">تأكيد السحب</button>
-		<div class="text-[12px] text-[var(--txt-3)]">لم تستلم الرمز؟ <a
-				class="text-[#2B7FFF] font-bold cursor-pointer hover:underline">إعادة الإرسال</a></div>
-	</div>
-</div>
-}
-
-<!-- SUCCESS OVERLAY -->
-@if (showSuccess()) {
-<div class="fixed inset-0 bg-[#070d24]/95 z-[500] flex flex-col items-center justify-center p-6 text-center">
-	<div
-		class="w-[90px] h-[90px] rounded-full bg-[#2BD4C7]/10 border-4 border-[#2BD4C7]/40 flex items-center justify-center text-[#2BD4C7] mb-5">
-		<svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-			<polyline points="20 6 9 17 4 12" />
-		</svg>
-	</div>
-
-	<div class="text-[24px] font-black text-white mb-4">تم طلب سحب الأرباح بنجاح</div>
-
-	<div class="px-5 py-2.5 rounded-[9px] bg-[#2BD4C7]/10 border border-[#2BD4C7]/20 text-[14px] font-bold text-[#2BD4C7] mb-4"
-		dir="ltr">
-		{{ withdrawAmount() | number:'1.2-2' }} SAR, WAL-2026-08471
-	</div>
-
-	<div class="text-[13px] text-[#6B7699] leading-relaxed max-w-[380px] mb-6">
-		تم ارسال طلب السحب بنجاح. سيتم تحويل المبلغ إلى حسابك البنكي خلال 1-3 أيام عمل وسيظهر في سجل المعاملات.
-	</div>
-
-	<div class="flex gap-3 flex-wrap justify-center">
-		<a routerLink="../wallet"
-			class="h-11 px-6 rounded-[11px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] font-extrabold text-[14px] flex items-center gap-2 hover:-translate-y-px transition-all">
-			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-				<rect x="2" y="5" width="20" height="14" rx="2" />
-				<line x1="2" y1="10" x2="22" y2="10" />
-			</svg>
-			العودة للمحفظة
-		</a>
+			class="w-full py-3 rounded-[11px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[14px] font-bold text-[var(--txt-2)] hover:text-[var(--txt)] transition-colors"
+			(click)="dismissUnavailableMsg()">حسنًا</button>
 	</div>
 </div>
 }
