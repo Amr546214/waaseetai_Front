@@ -40,6 +40,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private aiSub?: Subscription;
 
   ngOnInit() {
+    this.cartService.loadCart();
     this.loadAiRecommendations();
   }
 

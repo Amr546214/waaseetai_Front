@@ -5,7 +5,7 @@ import { AuthStore } from '../store/auth.store';
 import { CheckoutApiService, CouponValidationPayload } from './checkout-api.service';
 import { CartApiService, AddCartItemPayload, UpdateCartItemPayload, CartSyncPayload } from './cart-api.service';
 import { mapCartResponse, BackendCartResponse } from './checkout-mappers';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 const STORAGE_KEY = 'waseet_cart';
@@ -131,7 +131,8 @@ export class CartService {
 			}),
 			catchError((err: any) => {
 				console.error('[CartService] addToCart$ failed:', err);
-				return of(false);
+				const message = err?.error?.message || err?.message || 'تعذر إضافة الخدمة إلى السلة';
+				return throwError(() => ({ ...err, displayMessage: message }));
 			})
 		);
 	}

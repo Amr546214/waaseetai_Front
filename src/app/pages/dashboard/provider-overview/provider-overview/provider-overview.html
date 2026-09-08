@@ -141,12 +141,12 @@
 					data.summary?.pendingOffersCount || 0 }} تسليم بانتظار اعتماد العميل</div>
 			</div>
 			<div class="dash-chips">
-				<a routerLink="/provider-overview/profile/data" class="dash-chip chip-verify"><svg aria-hidden="true"
+				<a *ngIf="!data.summary.profileSetupCompleted" routerLink="/provider-overview/profile/setup" class="dash-chip chip-verify"><svg aria-hidden="true"
 						viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 						stroke-linejoin="round">
 						<use href="#i-warn"></use>
-					</svg>التحقق من الهوية ناقص</a>
-				<span class="dash-chip chip-loyal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
+					</svg>استكمال البيانات مطلوب</a>
+				<span *ngIf="data.summary.profileSetupCompleted" class="dash-chip chip-loyal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-check"></use>
 					</svg>مقدم موثّق · مكافأة أداء 3%</span>

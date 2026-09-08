@@ -5,6 +5,10 @@ import { environment } from '../../../environments/environment';
 import {
   AdminWithdrawalsQuery,
   ApproveWithdrawalPayload,
+  ProviderWalletApiResponse,
+  ProviderWithdrawalApiResponse,
+  ProviderWithdrawalListApiResponse,
+  ProviderWithdrawalPayload,
   RejectWithdrawalPayload,
   WithdrawalApiResponse,
   WithdrawalListApiResponse,
@@ -63,10 +67,31 @@ export class WithdrawalApiService {
     );
   }
 
-  // ── Backend gaps (not in Swagger) ───────────────────────────────────
-  //
-  // No POST /api/provider/finance/withdraw — provider cannot submit withdrawal requests.
-  // No GET /api/provider/finance/withdrawals — no provider-side withdrawal history.
-  // WithdrawalResponse schema referenced but not defined in Swagger.
-  // WithdrawalListResponse schema referenced but not defined in Swagger.
+  // ── Provider ────────────────────────────────────────────────────────
+
+  /**
+   * Provider wallet summary.
+   * GET /api/provider/finance/wallet
+   */
+  getProviderWallet(): Observable<ProviderWalletApiResponse> {
+    return this.http.get<ProviderWalletApiResponse>(`${this.baseUrl}/provider/finance/wallet`);
+  }
+
+  /**
+   * Provider lists their own withdrawal requests.
+   * GET /api/provider/finance/withdrawals?page=&limit=
+   */
+  getProviderWithdrawals(page = 1, limit = 10): Observable<ProviderWithdrawalListApiResponse> {
+    const params = new HttpParams().set('page', page).set('limit', limit);
+    return this.http.get<ProviderWithdrawalListApiResponse>(`${this.baseUrl}/provider/finance/withdrawals`, { params });
+  }
+
+  /**
+   * Provider submits a new withdrawal request.
+   * POST /api/provider/finance/withdrawals
+   * Creates a PENDING withdrawal; wallet balance is NOT reduced on submit.
+   */
+  submitProviderWithdrawal(payload: ProviderWithdrawalPayload): Observable<ProviderWithdrawalApiResponse> {
+    return this.http.post<ProviderWithdrawalApiResponse>(`${this.baseUrl}/provider/finance/withdrawals`, payload);
+  }
 }

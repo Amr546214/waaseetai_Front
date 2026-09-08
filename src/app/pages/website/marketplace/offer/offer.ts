@@ -25,6 +25,7 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	isSubmitting = signal<boolean>(false);
 	showNegotiation = signal<boolean>(false);
 	alreadyInCart = signal<boolean>(false);
+	cartError = signal<string | null>(null);
 	negotiationMessage = signal<string>('');
 	reviewFilter = signal<number | null>(null);
 	private routeSub!: Subscription;
@@ -172,6 +173,7 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 			return;
 		}
 		this.isSubmitting.set(true);
+		this.cartError.set(null);
 		const cartItem = this.mapModelToCartItem(model);
 		this.cartService.addToCart$(cartItem).subscribe({
 			next: (added) => {
@@ -179,12 +181,16 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 				if (!added) {
 					this.alreadyInCart.set(true);
 					setTimeout(() => this.alreadyInCart.set(false), 3000);
+					this.router.navigate(['/cart']);
+				} else {
+					this.router.navigate(['/cart']);
 				}
-				this.router.navigate(['/cart']);
 			},
-			error: () => {
+			error: (err) => {
 				this.isSubmitting.set(false);
-				this.router.navigate(['/cart']);
+				const msg = err?.displayMessage || err?.error?.message || err?.message || 'تعذر إضافة الخدمة إلى السلة';
+				this.cartError.set(msg);
+				setTimeout(() => this.cartError.set(null), 5000);
 			},
 		});
 	}
