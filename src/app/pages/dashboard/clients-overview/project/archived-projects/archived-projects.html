@@ -1,211 +1,228 @@
-<main class="w-full min-h-screen p-6 text-slate-800 dark:text-slate-300 font-sans transition-colors duration-300"
-	dir="rtl">
-	<div class="max-w-full mx-auto space-y-6">
+<section class="archived-project-page" dir="rtl">
+	<h1 class="sr-only">المشاريع المكتملة والأرشيف</h1>
 
-		<!-- Header -->
-		<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-			<div>
-				<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">المشاريع المكتملة والأرشيف</h1>
-				<p class="text-sm text-slate-500 dark:text-slate-400">سجلّ مشاريعك المنتهية للرجوع إليها وإعادة الطلب
-					وتنزيل الفواتير</p>
-			</div>
-			<div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-				<div class="relative w-full sm:w-72">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-						class="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
-						<circle cx="11" cy="11" r="8" />
-						<line x1="21" y1="21" x2="16.65" y2="16.65" />
-					</svg>
-					<input type="text" (input)="updateSearch($event)" placeholder="ابحث برقم المشروع أو العنوان"
-						class="w-full bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl pr-11 pl-4 py-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all shadow-sm dark:shadow-none">
-				</div>
-				<a [routerLink]="['/client-overview/create-request']"
-					class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 dark:from-cyan-400 dark:to-blue-500 dark:hover:from-cyan-300 dark:hover:to-blue-400 text-white dark:text-slate-900 font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-[0_8px_20px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)]">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4">
-						<line x1="12" y1="5" x2="12" y2="19" />
-						<line x1="5" y1="12" x2="19" y2="12" />
-					</svg>
-					طلب جديد
-				</a>
-			</div>
+	<!-- Header -->
+	<div class="ord-head">
+		<div>
+			<div class="ord-title">المشاريع المكتملة والأرشيف</div>
+			<div class="ord-sub">سجلّ مشاريعك المنتهية للرجوع إليها وإعادة الطلب وتنزيل الفواتير</div>
 		</div>
+		<div class="ord-head-actions">
+			<div class="ord-search">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<circle cx="11" cy="11" r="8" />
+					<line x1="21" y1="21" x2="16.65" y2="16.65" />
+				</svg>
+				<input type="text" (input)="updateSearch($event)" placeholder="ابحث برقم المشروع أو العنوان" aria-label="بحث" />
+			</div>
+			<a [routerLink]="['/client-overview/create-request']" class="ord-new-btn">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+					<line x1="12" y1="5" x2="12" y2="19" />
+					<line x1="5" y1="12" x2="19" y2="12" />
+				</svg>
+				طلب جديد
+			</a>
+		</div>
+	</div>
 
-		<!-- AI Disclosure -->
-		<div class="ai-banner">
-			<div class="ai-icon-shell">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="ai-icon w-5 h-5">
-					<use href="#i-ai"></use>
+	<!-- AI Disclosure -->
+	<div class="ai-disclosure" role="region" aria-label="إفصاح الذكاء الاصطناعي">
+		<div class="ai-disc-ico">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<circle cx="12" cy="12" r="2" />
+				<circle cx="4" cy="6" r="1.5" />
+				<circle cx="20" cy="6" r="1.5" />
+				<circle cx="4" cy="18" r="1.5" />
+				<circle cx="20" cy="18" r="1.5" />
+				<path d="M10.5 10.5 5 7M13.5 10.5 19 7M10.5 13.5 5 17M13.5 13.5 19 17" />
+			</svg>
+		</div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI، الأرشيف</div>
+			<p class="ai-disc-txt">يحلّل الذكاء مشاريعك المنتهية ويقترح مقدّمين سبق التعامل معهم عند إعادة الطلب <span class="ai-disc-badge">دقة 95%</span> قرار إعادة الطلب يبقى لك</p>
+		</div>
+	</div>
+
+	@if (isLoading()) {
+		<!-- Skeleton Loading -->
+		<div class="pl-kpis" aria-label="جاري تحميل المؤشرات">
+			@for (item of [1, 2, 3, 4]; track item) {
+				<div class="pl-kpi pl-kpi-loading">
+					<div class="skeleton-box sk-icon"></div>
+					<div class="skeleton-row sk-value"></div>
+					<div class="skeleton-row sk-label"></div>
+				</div>
+			}
+		</div>
+		<div class="state-card" role="status" aria-label="جاري تحميل المشاريع">
+			<div class="skeleton-row sk-title"></div>
+			<div class="skeleton-box sk-card"></div>
+		</div>
+	} @else if (hasError()) {
+		<!-- Error State -->
+		<div class="state-card error-state" role="alert">
+			<div class="error-icon">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<path d="M12 3.5 21.5 20h-19z" />
+					<path d="M12 10v4.5M12 17.6v.1" />
 				</svg>
 			</div>
-			<div>
-				<div class="ai-title mb-0.5">وسيط AI، الأرشيف</div>
-				<div class="ai-copy flex items-center flex-wrap gap-2">
-					يحلّل الذكاء مشاريعك المنتهية ويقترح مقدّمين سبق التعامل معهم عند إعادة الطلب
-					<span class="ai-confidence">دقة
-						95%</span>
-					قرار إعادة الطلب يبقى لك
-				</div>
-			</div>
+			<div class="state-title">تعذر تحميل المشاريع المنتهية</div>
+			<div class="state-code">{{ errorMessage() }}</div>
+			<button type="button" class="retry-btn" (click)="retry()">إعادة المحاولة</button>
 		</div>
-
-		<!-- Stats Row -->
-		<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-			<div
-				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 text-center shadow-sm dark:shadow-none backdrop-blur-xl">
-				<div class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-1">8</div>
-				<div class="text-xs font-bold text-slate-500 dark:text-slate-400">مكتملة</div>
-			</div>
-			<div
-				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 text-center shadow-sm dark:shadow-none backdrop-blur-xl">
-				<div class="text-3xl font-black text-amber-600 dark:text-amber-500 mb-1">2</div>
-				<div class="text-xs font-bold text-slate-500 dark:text-slate-400">ملغاة</div>
-			</div>
-			<div
-				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 text-center shadow-sm dark:shadow-none backdrop-blur-xl">
-				<div class="text-3xl font-black text-slate-400 dark:text-slate-400 mb-1">3</div>
-				<div class="text-xs font-bold text-slate-500 dark:text-slate-400">مؤرشفة</div>
-			</div>
-			<div
-				class="bg-slate-900 dark:bg-slate-700/50 border border-slate-800 dark:border-slate-600/50 rounded-2xl p-5 text-center shadow-sm dark:shadow-none backdrop-blur-xl">
-				<div class="text-3xl font-black text-white mb-1">13</div>
-				<div class="text-xs font-bold text-slate-300">إجمالي المنتهية</div>
-			</div>
-		</div>
-
-		<!-- Filters -->
-		<div class="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800/80 pb-4">
-			<button (click)="setFilter('all')"
-				[class]="activeFilter() === 'all' ? 'bg-slate-900 text-white dark:bg-slate-800 border-transparent dark:border-slate-700' : 'bg-white dark:bg-slate-800/30 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-700/50'"
-				class="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors">
-				الكل
-				<span
-					[class]="activeFilter() === 'all' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-500'"
-					class="px-2 py-0.5 rounded-md text-[10px]">{{getCount('all')}}</span>
-			</button>
-			<button (click)="setFilter('done')"
-				[class]="activeFilter() === 'done' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30' : 'bg-white dark:bg-slate-800/30 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-700/50'"
-				class="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors">
-				مكتملة
-				<span
-					[class]="activeFilter() === 'done' ? 'bg-emerald-100/50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-500'"
-					class="px-2 py-0.5 rounded-md text-[10px]">{{getCount('done')}}</span>
-			</button>
-			<button (click)="setFilter('cancel')"
-				[class]="activeFilter() === 'cancel' ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-500 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800/30 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-700/50'"
-				class="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors">
-				ملغاة
-				<span
-					[class]="activeFilter() === 'cancel' ? 'bg-amber-100/50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-500' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-500'"
-					class="px-2 py-0.5 rounded-md text-[10px]">{{getCount('cancel')}}</span>
-			</button>
-			<button (click)="setFilter('arch')"
-				[class]="activeFilter() === 'arch' ? 'bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600' : 'bg-white dark:bg-slate-800/30 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-700/50'"
-				class="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors">
-				مؤرشفة
-				<span
-					[class]="activeFilter() === 'arch' ? 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-500'"
-					class="px-2 py-0.5 rounded-md text-[10px]">{{getCount('arch')}}</span>
-			</button>
-		</div>
-
-		<!-- Projects List -->
-		<div class="space-y-3">
-			@for (project of filteredProjects(); track project.id) {
-			<a [routerLink]="['/client-overview/projects', project.id]"
-				class="block bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 hover:border-cyan-500/50 hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(43,212,199,0.08)] rounded-2xl p-4 sm:p-5 transition-all group">
-				<div class="flex flex-col sm:flex-row sm:items-center gap-4">
-					<!-- Icon -->
-					<div class="w-12 h-12 flex-shrink-0 rounded-xl flex items-center justify-center transition-colors"
-						[ngClass]="{
-							'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/20': project.status === 'done',
-							'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 group-hover:bg-amber-100 dark:group-hover:bg-amber-500/20': project.status === 'cancel',
-							'bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 group-hover:bg-slate-200 dark:group-hover:bg-slate-600': project.status === 'arch'
-						}">
-						@if (project.icon === 'check') {
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-5 h-5">
-							<polyline points="20 6 9 17 4 12" />
-						</svg>
-						} @else if (project.icon === 'doc') {
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
-							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-							<polyline points="14 2 14 8 20 8" />
-							<line x1="16" y1="13" x2="8" y2="13" />
-							<line x1="16" y1="17" x2="8" y2="17" />
-							<polyline points="10 9 9 9 8 9" />
-						</svg>
-						} @else if (project.icon === 'market') {
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
-							<circle cx="9" cy="21" r="1" />
-							<circle cx="20" cy="21" r="1" />
-							<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-						</svg>
-						} @else if (project.icon === 'list') {
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
-							<line x1="8" y1="6" x2="21" y2="6" />
-							<line x1="8" y1="12" x2="21" y2="12" />
-							<line x1="8" y1="18" x2="21" y2="18" />
-							<line x1="3" y1="6" x2="3.01" y2="6" />
-							<line x1="3" y1="12" x2="3.01" y2="12" />
-							<line x1="3" y1="18" x2="3.01" y2="18" />
-						</svg>
+	} @else {
+		<!-- KPIs -->
+		<div class="pl-kpis">
+			@for (kpi of kpis(); track kpi.label) {
+				<div class="pl-kpi">
+					<div [class]="'ic pl-ic-' + kpi.color">
+						@if (kpi.icon === 'check') {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+						} @else if (kpi.icon === 'warn') {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+						} @else if (kpi.icon === 'doc') {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+						} @else {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
 						}
 					</div>
-
-					<!-- Content -->
-					<div class="flex-grow">
-						<h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">{{project.title}}</h3>
-						<div
-							class="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-							<span
-								class="text-slate-700 dark:text-slate-300 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">{{project.id}}</span>
-							<span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
-							<span>{{project.provider}}</span>
-							<span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
-							<span>{{project.amount}}</span>
-							<span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
-							<span>{{project.dateStr}}</span>
-						</div>
-					</div>
-
-					<!-- Status -->
-					<div class="flex-shrink-0 self-start sm:self-auto">
-						<span
-							class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-bold border"
-							[ngClass]="{
-								'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20': project.status === 'done',
-								'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-500 border-amber-200 dark:border-amber-500/20': project.status === 'cancel',
-								'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600': project.status === 'arch'
-							}">
-							{{ project.status === 'done' ? 'مكتمل' : project.status === 'cancel' ? 'ملغى' : 'مؤرشف' }}
-						</span>
-					</div>
+					<div class="v">{{ formatNumber(kpi.value) }}</div>
+					<div class="l">{{ kpi.label }}</div>
 				</div>
-			</a>
-			}
-
-			@if (filteredProjects().length === 0) {
-			<div
-				class="py-12 text-center bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-sm dark:shadow-none">
-				<div
-					class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800/80 mx-auto flex items-center justify-center mb-4 border border-slate-200 dark:border-slate-700/50 text-slate-400 dark:text-slate-500">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-8 h-8">
-						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-						<polyline points="14 2 14 8 20 8" />
-						<line x1="16" y1="13" x2="8" y2="13" />
-						<line x1="16" y1="17" x2="8" y2="17" />
-						<polyline points="10 9 9 9 8 9" />
-					</svg>
-				</div>
-				<h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">لا يوجد مشاريع بهذه الحالة</h3>
-				<p class="text-sm text-slate-500 dark:text-slate-400 mb-6">غيّر خيارات التصفية، أو ابدأ طلبًا جديدًا.
-				</p>
-				<a [routerLink]="['/client-overview/create-request']"
-					class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-colors">
-					طلب جديد
-				</a>
-			</div>
 			}
 		</div>
 
+		<!-- Filter Tabs -->
+		<div class="pl-tabs" role="tablist" aria-label="تصفية المشاريع">
+			@for (tab of tabs(); track tab.id) {
+				<button type="button" role="tab" class="pl-tab" [class.active]="activeFilter() === tab.id" [attr.aria-selected]="activeFilter() === tab.id" (click)="setFilter(tab.id)">
+					{{ tab.label }}
+					<span class="c">{{ tab.count }}</span>
+				</button>
+			}
+		</div>
+		@if (filteredProjects().length === 0) {
+			<!-- Empty State -->
+			<div class="state-card empty-state">
+				<div class="empty-ico">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+						<path d="M22 12h-6l-2 3h-4l-2-3H2" />
+						<path d="m5.45 5.11-3.45 6.9V18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+					</svg>
+				</div>
+				<div class="state-title">لا يوجد مشاريع بهذه الحالة</div>
+				<div class="state-copy">غيّر خيارات التصفية، أو ابدأ طلبًا جديدًا.</div>
+				<a [routerLink]="['/client-overview/create-request']" class="retry-btn">طلب جديد</a>
+			</div>
+		} @else {
+			<!-- Projects List (compact rows) -->
+			<div class="pl-list">
+				@for (project of filteredProjects(); track project.id) {
+					<a class="pl-row" [class.pl-done]="project.status === 'done'" [class.pl-cancel]="project.status === 'cancel'" [class.pl-arch]="project.status === 'arch'" [routerLink]="['/client-overview/projects', project.id]">
+						<span class="pl-ic-sq" [class.pl-icsq-done]="project.status === 'done'" [class.pl-icsq-cancel]="project.status === 'cancel'" [class.pl-icsq-arch]="project.status === 'arch'" aria-hidden="true">
+							@switch (project.icon) {
+								@case ('check') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
+								@case ('doc') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
+								@case ('list') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> }
+								@case ('cart') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg> }
+								@default { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> }
+							}
+						</span>
+
+						<div class="pl-body">
+							<div class="pl-ttl">{{ project.title }}</div>
+							<div class="pl-meta">
+								<span class="pl-code">{{ project.code }}</span>
+								<span class="pl-dot"></span>
+								<span>{{ project.providerName }}</span>
+								<span class="pl-dot"></span>
+								<span>{{ project.amount }}</span>
+								<span class="pl-dot"></span>
+								<span>{{ project.closedLabel }}</span>
+							</div>
+						</div>
+
+						<span class="pl-pill" [class.pl-p-done]="project.status === 'done'" [class.pl-p-cancel]="project.status === 'cancel'" [class.pl-p-arch]="project.status === 'arch'">
+							<span class="pl-pill-dot"></span>{{ statusLabel(project.status) }}
+						</span>
+					</a>
+				}
+			</div>
+		}
+	}
+
+	<!-- Footer -->
+	<div class="inner-foot">
+		<span>© 2026 وسيط AI · v1.0.0</span>
+		<div class="inner-foot-links">
+			<a routerLink="/privacy">PDPL</a>
+			<a routerLink="/terms">الشروط</a>
+			<span>SAMA</span>
+		</div>
 	</div>
-</main>
+</section>
+
+<!-- Rating Modal (Waseet AI design system: lc-mov / lc-mbox pattern from P-SK-014) -->
+@if (showRatingModal()) {
+	<div class="lc-mov" role="dialog" aria-modal="true" aria-label="تقييم مقدم الخدمة" (click)="closeRatingModal()">
+		<div class="lc-mbox" (click)="$event.stopPropagation()">
+			<div class="lc-mhd">
+				<span class="mi">
+					<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+					</svg>
+				</span>
+				<div>
+					<h3>تقييم مقدم الخدمة</h3>
+					<p>شاركنا تجربتك لمساعدة الذكاء في تحسين الترشيحات</p>
+				</div>
+				<button type="button" class="lc-mclose" (click)="closeRatingModal()" aria-label="إغلاق">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+						<line x1="18" y1="6" x2="6" y2="18" />
+						<line x1="6" y1="6" x2="18" y2="18" />
+					</svg>
+				</button>
+			</div>
+
+			@if (ratingTarget(); as target) {
+				<div class="rate-proj">
+					<div class="rate-proj-ttl">{{ target.title }}</div>
+					<div class="rate-proj-sub">{{ target.providerName }} · {{ target.code }}</div>
+				</div>
+			}
+
+			<div class="lc-fld">
+				<label>التقييم</label>
+				<div class="rate-stars">
+					@for (star of ratingStarArray(); track star) {
+						<button type="button" class="rate-star-btn" [class.filled]="ratingStars() >= star" (click)="setRatingStar(star)" [attr.aria-label]="star + ' من 5'">
+							<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+								<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+							</svg>
+						</button>
+					}
+				</div>
+				@if (ratingStars() > 0) {
+					<div class="rate-stars-hint">{{ ratingStars() }} من 5</div>
+				}
+			</div>
+
+			<div class="lc-fld">
+				<label>تعليق (اختياري)</label>
+				<textarea class="lc-ta" rows="3" placeholder="شاركنا تجربتك مع مقدم الخدمة..." (input)="updateRatingComment($event)"></textarea>
+			</div>
+
+			@if (ratingError()) {
+				<div class="rate-err" role="alert">{{ ratingError() }}</div>
+			}
+
+			<div class="lc-mact">
+				<button type="button" class="lc-btn lc-btn-gh" (click)="closeRatingModal()">إلغاء</button>
+				<button type="button" class="lc-btn lc-btn-pri" (click)="submitRating()" [disabled]="ratingSubmitting() || ratingStars() < 1">
+					@if (ratingSubmitting()) { جاري الإرسال... } @else { إرسال التقييم }
+				</button>
+			</div>
+		</div>
+	</div>
+}

@@ -1,13 +1,611 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<div class="sk-page">
+  <!-- Page Header -->
+  <div class="sk-head">
+    <div>
+      <h1 class="sk-title">KYC / التحقق والمراجعة</h1>
+      <p class="sk-sub">مراجعة طلبات التحقق ومقدمي الخدمة واعتماد المستندات</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">KYC / KYB</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"KYC / KYB\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    @if (successMessage()) {
+      <div class="sk-success-toast">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+        {{ successMessage() }}
+      </div>
+    }
   </div>
+
+  <!-- Tabs -->
+  <div class="sk-tabs">
+    <button type="button" class="sk-tab" [class.sk-tab-active]="activeTab() === 'clients'" (click)="switchTab('clients')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+      طلبات العملاء
+    </button>
+    <button type="button" class="sk-tab" [class.sk-tab-active]="activeTab() === 'providers'" (click)="switchTab('providers')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9" /><path d="M14 17H5" /><circle cx="17" cy="17" r="3" /><circle cx="7" cy="7" r="3" /></svg>
+      تحقق مقدمي الخدمة
+    </button>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <!-- Client Onboarding Tab -->
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'clients') {
+    <!-- Summary Cards -->
+    <div class="sk-stats">
+      <div class="sk-stat">
+        <div class="sk-stat-lbl">قيد المراجعة</div>
+        <div class="sk-stat-val sk-stat-amber">{{ onboardingPending() }}</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+      </div>
+      <div class="sk-stat">
+        <div class="sk-stat-lbl">مقبولة</div>
+        <div class="sk-stat-val sk-stat-green">{{ onboardingApproved() }}</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+      </div>
+      <div class="sk-stat">
+        <div class="sk-stat-lbl">مرفوضة</div>
+        <div class="sk-stat-val sk-stat-red">{{ onboardingRejected() }}</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+      </div>
+      <div class="sk-stat">
+        <div class="sk-stat-lbl">إجمالي العناصر</div>
+        <div class="sk-stat-val sk-stat-cyan">{{ onboardingTotal() }}</div>
+        <div class="sk-stat-sub">كل الطلبات</div>
+      </div>
+    </div>
+
+    <!-- Status Filters -->
+    <div class="sk-filters">
+      @for (opt of onboardingStatusOptions; track opt.value) {
+        <button type="button" class="sk-chip" [class.sk-chip-active]="onboardingStatusFilter() === opt.value" (click)="onOnboardingStatusChange(opt.value)">
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Loading -->
+    @if (onboardingLoading()) {
+      <div class="sk-card sk-loading">
+        <div class="sk-spinner"></div>
+        <span>جاري تحميل طلبات التحقق...</span>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (onboardingError() && !onboardingLoading()) {
+      <div class="sk-card sk-error">
+        <div class="sk-error-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+        </div>
+        <div class="sk-error-ttl">تعذر تحميل الطلبات</div>
+        <div class="sk-error-sub">{{ onboardingError() }}</div>
+        <button type="button" class="sk-retry" (click)="loadOnboarding()">إعادة المحاولة</button>
+      </div>
+    }
+
+    <!-- Empty -->
+    @if (!onboardingLoading() && !onboardingError() && onboarding().length === 0) {
+      <div class="sk-card sk-empty">
+        <div class="sk-empty-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <h3 class="sk-empty-ttl">لا توجد طلبات تحقق حالياً</h3>
+        <p class="sk-empty-txt">لم يتم العثور على طلبات مطابقة للمرشح الحالي.</p>
+      </div>
+    }
+
+    <!-- Onboarding Table -->
+    @if (!onboardingLoading() && !onboardingError() && onboarding().length > 0) {
+      <div class="sk-table-wrap">
+        <table class="sk-table">
+          <thead>
+            <tr>
+              <th>المعرف</th>
+              <th>المستخدم</th>
+              <th>نوع المستند</th>
+              <th>اسم المستند</th>
+              <th>تاريخ الطلب</th>
+              <th>مدة الانتظار</th>
+              <th>الحالة</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (o of onboarding(); track o.id) {
+              <tr>
+                <td data-label="المعرف"><span class="sk-cell-id">#{{ getShortId(o.id) }}</span></td>
+                <td data-label="المستخدم">
+                  <div class="sk-cell-user">
+                    <div class="sk-user-name">{{ o.userName || '—' }}</div>
+                    @if (o.userEmail) { <div class="sk-user-email">{{ o.userEmail }}</div> }
+                  </div>
+                </td>
+                <td data-label="نوع المستند"><span class="sk-type-pill">{{ getDocTypeLabel(o.documentType) }}</span></td>
+                <td data-label="اسم المستند"><span class="sk-cell-doc">{{ o.documentName || '—' }}</span></td>
+                <td data-label="تاريخ الطلب"><span class="sk-cell-date">{{ formatDate(o.createdAt) }}</span></td>
+                <td data-label="مدة الانتظار"><span class="sk-cell-wait" [class.sk-wait-long]="o.status === 'PENDING'">{{ getWaitDuration(o.createdAt) }}</span></td>
+                <td data-label="الحالة">
+                  <span class="sk-st" [class]="getOnboardingStatusClass(o.status)">
+                    <span class="sk-st-dot"></span>
+                    {{ getOnboardingStatusLabel(o.status) }}
+                  </span>
+                </td>
+                <td data-label="إجراء">
+                  <button type="button" class="sk-detail-btn" (click)="viewOnboardingDetail(o.id)">عرض التفاصيل</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (onboardingTotalPages() > 1) {
+        <div class="sk-pager">
+          <button type="button" class="sk-page-btn" [disabled]="onboardingPage() === 1" (click)="goToOnboardingPage(onboardingPage() - 1)">السابق</button>
+          @for (p of getPagesArray(onboardingTotalPages()); track p) {
+            <button type="button" class="sk-page-btn" [class.sk-page-active]="p === onboardingPage()" (click)="goToOnboardingPage(p)">{{ p }}</button>
+          }
+          <button type="button" class="sk-page-btn" [disabled]="onboardingPage() === onboardingTotalPages()" (click)="goToOnboardingPage(onboardingPage() + 1)">التالي</button>
+        </div>
+      }
+    }
+  }
+
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <!-- Provider KYC Tab -->
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'providers') {
+    <!-- Summary Cards -->
+    <div class="sk-stats">
+      <div class="sk-stat">
+        <div class="sk-stat-lbl">قيد المراجعة / غير موثق</div>
+        <div class="sk-stat-val sk-stat-amber">{{ providersPending() }}</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+      </div>
+      <div class="sk-stat">
+        <div class="sk-stat-lbl">موثقون</div>
+        <div class="sk-stat-val sk-stat-green">{{ providersVerified() }}</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+      </div>
+      <div class="sk-stat">
+        <div class="sk-stat-lbl">مرفوضون</div>
+        <div class="sk-stat-val sk-stat-red">{{ providersRejected() }}</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+      </div>
+      <div class="sk-stat">
+        <div class="sk-stat-lbl">إجمالي المقدمين</div>
+        <div class="sk-stat-val sk-stat-cyan">{{ providersTotal() }}</div>
+        <div class="sk-stat-sub">كل المقدمين</div>
+      </div>
+    </div>
+
+    <!-- Status Filters -->
+    <div class="sk-filters">
+      @for (opt of providerStatusOptions; track opt.value) {
+        <button type="button" class="sk-chip" [class.sk-chip-active]="providersStatusFilter() === opt.value" (click)="onProviderStatusChange(opt.value)">
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Loading -->
+    @if (providersLoading()) {
+      <div class="sk-card sk-loading">
+        <div class="sk-spinner"></div>
+        <span>جاري تحميل مقدمي الخدمة...</span>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (providersError() && !providersLoading()) {
+      <div class="sk-card sk-error">
+        <div class="sk-error-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+        </div>
+        <div class="sk-error-ttl">تعذر تحميل المقدمين</div>
+        <div class="sk-error-sub">{{ providersError() }}</div>
+        <button type="button" class="sk-retry" (click)="loadProviders()">إعادة المحاولة</button>
+      </div>
+    }
+
+    <!-- Empty -->
+    @if (!providersLoading() && !providersError() && providers().length === 0) {
+      <div class="sk-card sk-empty">
+        <div class="sk-empty-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <h3 class="sk-empty-ttl">لا توجد طلبات تحقق حالياً</h3>
+        <p class="sk-empty-txt">لم يتم العثور على مقدمي خدمة مطابقين للمرشح الحالي.</p>
+      </div>
+    }
+
+    <!-- Providers Table -->
+    @if (!providersLoading() && !providersError() && providers().length > 0) {
+      <div class="sk-table-wrap">
+        <table class="sk-table">
+          <thead>
+            <tr>
+              <th>المستخدم</th>
+              <th>النوع</th>
+              <th>حالة KYC</th>
+              <th>موثق</th>
+              <th>المستندات</th>
+              <th>البنك</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of providers(); track p.userId) {
+              <tr>
+                <td data-label="المستخدم">
+                  <div class="sk-cell-user">
+                    <div class="sk-user-name">{{ p.userName || '—' }}</div>
+                    @if (p.userEmail) { <div class="sk-user-email">{{ p.userEmail }}</div> }
+                  </div>
+                </td>
+                <td data-label="النوع"><span class="sk-type-pill">{{ p.accountType || '—' }}</span></td>
+                <td data-label="حالة KYC">
+                  <span class="sk-st" [class]="getKycStatusClass(p.kycStatus)">
+                    <span class="sk-st-dot"></span>
+                    {{ getKycStatusLabel(p.kycStatus) }}
+                  </span>
+                </td>
+                <td data-label="موثق">
+                  @if (p.isVerified) {
+                    <span class="sk-yes">نعم</span>
+                  } @else {
+                    <span class="sk-no">لا</span>
+                  }
+                </td>
+                <td data-label="المستندات">
+                  <span class="sk-cell-docs">{{ getCertCount(p.certUrls) }} مستند</span>
+                </td>
+                <td data-label="البنك">
+                  @if (p.bankName) {
+                    <div class="sk-cell-bank">
+                      <div class="sk-bank-name">{{ p.bankName }}</div>
+                      @if (p.iban) { <div class="sk-bank-iban" dir="ltr">{{ p.iban }}</div> }
+                    </div>
+                  } @else {
+                    <span class="sk-cell-doc">—</span>
+                  }
+                </td>
+                <td data-label="إجراء">
+                  <button type="button" class="sk-detail-btn" (click)="viewProviderDetail(p)">عرض التفاصيل</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (providersTotalPages() > 1) {
+        <div class="sk-pager">
+          <button type="button" class="sk-page-btn" [disabled]="providersPage() === 1" (click)="goToProviderPage(providersPage() - 1)">السابق</button>
+          @for (p of getPagesArray(providersTotalPages()); track p) {
+            <button type="button" class="sk-page-btn" [class.sk-page-active]="p === providersPage()" (click)="goToProviderPage(p)">{{ p }}</button>
+          }
+          <button type="button" class="sk-page-btn" [disabled]="providersPage() === providersTotalPages()" (click)="goToProviderPage(providersPage() + 1)">التالي</button>
+        </div>
+      }
+    }
+  }
 </div>
+
+<!-- ═════════════════════════════════════════════════════════════════ -->
+<!-- Detail Modal -->
+<!-- ═════════════════════════════════════════════════════════════════ -->
+@if (showDetailModal()) {
+  <div class="sk-modal-overlay" (click)="closeDetailModal()">
+    <div class="sk-modal-box" (click)="$event.stopPropagation()">
+      <div class="sk-modal-header">
+        <div class="sk-modal-httl">
+          <div class="sk-modal-hico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 12l2 2 4-4" /><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+            </svg>
+          </div>
+          <div>
+            <h2>تفاصيل طلب التحقق</h2>
+            <p>مراجعة البيانات قبل الموافقة</p>
+          </div>
+        </div>
+        <button type="button" class="sk-modal-close" (click)="closeDetailModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+        </button>
+      </div>
+
+      @if (detailLoading()) {
+        <div class="sk-modal-loading">
+          <div class="sk-spinner"></div>
+          <span>جاري التحميل...</span>
+        </div>
+      }
+
+      @if (detailError() && !detailLoading()) {
+        <div class="sk-modal-error">{{ detailError() }}</div>
+      }
+
+      <!-- Onboarding detail -->
+      @if (selectedOnboarding() && !detailLoading()) {
+        <div class="sk-modal-body">
+          <div class="sk-detail-grid">
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">المعرف</span>
+              <span class="sk-detail-val sk-detail-id">#{{ getShortId(selectedOnboarding()!.id) }}</span>
+            </div>
+            @if (selectedOnboarding()!.userName) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">المستخدم</span>
+                <span class="sk-detail-val">{{ selectedOnboarding()!.userName }}</span>
+              </div>
+            }
+            @if (selectedOnboarding()!.userEmail) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">البريد</span>
+                <span class="sk-detail-val">{{ selectedOnboarding()!.userEmail }}</span>
+              </div>
+            }
+            @if (selectedOnboarding()!.userPhone) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">الهاتف</span>
+                <span class="sk-detail-val" dir="ltr">{{ selectedOnboarding()!.userPhone }}</span>
+              </div>
+            }
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">نوع المستند</span>
+              <span class="sk-detail-val">{{ getDocTypeLabel(selectedOnboarding()!.documentType) }}</span>
+            </div>
+            @if (selectedOnboarding()!.documentName) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">اسم المستند</span>
+                <span class="sk-detail-val">{{ selectedOnboarding()!.documentName }}</span>
+              </div>
+            }
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">الحالة</span>
+              <span class="sk-detail-val">
+                <span class="sk-st" [class]="getOnboardingStatusClass(selectedOnboarding()!.status)">
+                  <span class="sk-st-dot"></span>
+                  {{ getOnboardingStatusLabel(selectedOnboarding()!.status) }}
+                </span>
+              </span>
+            </div>
+            @if (selectedOnboarding()!.documentUrl) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">المستند</span>
+                <span class="sk-detail-val">
+                  <a [href]="selectedOnboarding()!.documentUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض المستند ↗</a>
+                </span>
+              </div>
+            }
+            @if (selectedOnboarding()!.documentFrontUrl) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">وجه المستند</span>
+                <span class="sk-detail-val">
+                  <a [href]="selectedOnboarding()!.documentFrontUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a>
+                </span>
+              </div>
+            }
+            @if (selectedOnboarding()!.documentBackUrl) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">ظهر المستند</span>
+                <span class="sk-detail-val">
+                  <a [href]="selectedOnboarding()!.documentBackUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a>
+                </span>
+              </div>
+            }
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">تاريخ الطلب</span>
+              <span class="sk-detail-val">{{ formatDate(selectedOnboarding()!.createdAt) }}</span>
+            </div>
+            @if (selectedOnboarding()!.reviewedAt) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">تاريخ المراجعة</span>
+                <span class="sk-detail-val">{{ formatDate(selectedOnboarding()!.reviewedAt) }}</span>
+              </div>
+            }
+            @if (selectedOnboarding()!.rejectionReason) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">سبب الرفض</span>
+                <span class="sk-detail-val sk-detail-rej">{{ selectedOnboarding()!.rejectionReason }}</span>
+              </div>
+            }
+            @if (selectedOnboarding()!.adminNote) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">ملاحظات الإدارة</span>
+                <span class="sk-detail-val sk-detail-note">{{ selectedOnboarding()!.adminNote }}</span>
+              </div>
+            }
+          </div>
+
+          @if (selectedOnboarding()!.status === 'PENDING') {
+            <div class="sk-modal-actions">
+              <button type="button" class="sk-btn sk-btn-approve" (click)="openActionModal('approve')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                موافقة
+              </button>
+              <button type="button" class="sk-btn sk-btn-reject" (click)="openActionModal('reject')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                رفض
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Provider detail -->
+      @if (selectedProvider() && !detailLoading()) {
+        <div class="sk-modal-body">
+          <div class="sk-detail-grid">
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">المعرف</span>
+              <span class="sk-detail-val sk-detail-id">#{{ getShortId(selectedProvider()!.userId) }}</span>
+            </div>
+            @if (selectedProvider()!.userName) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">المستخدم</span>
+                <span class="sk-detail-val">{{ selectedProvider()!.userName }}</span>
+              </div>
+            }
+            @if (selectedProvider()!.userEmail) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">البريد</span>
+                <span class="sk-detail-val">{{ selectedProvider()!.userEmail }}</span>
+              </div>
+            }
+            @if (selectedProvider()!.accountType) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">النوع</span>
+                <span class="sk-detail-val">{{ selectedProvider()!.accountType }}</span>
+              </div>
+            }
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">حالة KYC</span>
+              <span class="sk-detail-val">
+                <span class="sk-st" [class]="getKycStatusClass(selectedProvider()!.kycStatus)">
+                  <span class="sk-st-dot"></span>
+                  {{ getKycStatusLabel(selectedProvider()!.kycStatus) }}
+                </span>
+              </span>
+            </div>
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">موثق</span>
+              <span class="sk-detail-val">{{ selectedProvider()!.isVerified ? 'نعم' : 'لا' }}</span>
+            </div>
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">إعداد الملف</span>
+              <span class="sk-detail-val">{{ selectedProvider()!.isProfileSetupComplete ? 'مكتمل' : 'غير مكتمل' }}</span>
+            </div>
+            @if (selectedProvider()!.frontIdUrl) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">وجه الهوية</span>
+                <span class="sk-detail-val"><a [href]="selectedProvider()!.frontIdUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a></span>
+              </div>
+            }
+            @if (selectedProvider()!.backIdUrl) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">ظهر الهوية</span>
+                <span class="sk-detail-val"><a [href]="selectedProvider()!.backIdUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a></span>
+              </div>
+            }
+            @if (selectedProvider()!.selfieUrl) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">صورة شخصية</span>
+                <span class="sk-detail-val"><a [href]="selectedProvider()!.selfieUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a></span>
+              </div>
+            }
+            @if (selectedProvider()!.certUrls && selectedProvider()!.certUrls!.length > 0) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">الشهادات</span>
+                <span class="sk-detail-val">
+                  <div class="sk-doc-list">
+                    @for (url of selectedProvider()!.certUrls; track $index) {
+                      <a [href]="url" target="_blank" rel="noopener" class="sk-doc-link">شهادة #{{ $index + 1 }} ↗</a>
+                    }
+                  </div>
+                </span>
+              </div>
+            }
+            @if (selectedProvider()!.supportingDocsUrl) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">مستندات داعمة</span>
+                <span class="sk-detail-val"><a [href]="selectedProvider()!.supportingDocsUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a></span>
+              </div>
+            }
+            @if (selectedProvider()!.bankName) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">البنك</span>
+                <span class="sk-detail-val">{{ selectedProvider()!.bankName }}</span>
+              </div>
+            }
+            @if (selectedProvider()!.iban) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">IBAN</span>
+                <span class="sk-detail-val" dir="ltr">{{ selectedProvider()!.iban }}</span>
+              </div>
+            }
+            @if (selectedProvider()!.accountNumber) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">رقم الحساب</span>
+                <span class="sk-detail-val" dir="ltr">{{ selectedProvider()!.accountNumber }}</span>
+              </div>
+            }
+            @if (selectedProvider()!.accountHolderName) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">اسم صاحب الحساب</span>
+                <span class="sk-detail-val">{{ selectedProvider()!.accountHolderName }}</span>
+              </div>
+            }
+            @if (selectedProvider()!.notes) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">ملاحظات</span>
+                <span class="sk-detail-val sk-detail-note">{{ selectedProvider()!.notes }}</span>
+              </div>
+            }
+            @if (selectedProvider()!.rejectionReason) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">سبب الرفض</span>
+                <span class="sk-detail-val sk-detail-rej">{{ selectedProvider()!.rejectionReason }}</span>
+              </div>
+            }
+            <div class="sk-detail-row">
+              <span class="sk-detail-key">تاريخ الإنشاء</span>
+              <span class="sk-detail-val">{{ formatDate(selectedProvider()!.createdAt) }}</span>
+            </div>
+          </div>
+
+          @if (selectedProvider()!.kycStatus === 'PENDING' || selectedProvider()!.kycStatus === 'UNVERIFIED') {
+            <div class="sk-modal-actions">
+              <button type="button" class="sk-btn sk-btn-approve" (click)="openActionModal('approve')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                موافقة وتوثيق
+              </button>
+              <button type="button" class="sk-btn sk-btn-reject" (click)="openActionModal('reject')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                رفض
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- ═════════════════════════════════════════════════════════════════ -->
+<!-- Action Modal (Approve/Reject) -->
+<!-- ═════════════════════════════════════════════════════════════════ -->
+@if (showActionModal()) {
+  <div class="sk-modal-overlay" (click)="closeActionModal()">
+    <div class="sk-modal-box sk-modal-box-sm" (click)="$event.stopPropagation()">
+      <div class="sk-modal-header">
+        <h2>{{ actionType() === 'approve' ? 'الموافقة على الطلب' : 'رفض الطلب' }}</h2>
+        <button type="button" class="sk-modal-close" (click)="closeActionModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+        </button>
+      </div>
+      <div class="sk-modal-body">
+        @if (actionType() === 'approve') {
+          <div class="sk-form-group">
+            <label class="sk-form-lbl">ملاحظات الإدارة (اختياري)</label>
+            <textarea class="sk-form-input" rows="3" [value]="actionNote()" (input)="actionNote.set($any($event.target).value)" placeholder="ملاحظات..."></textarea>
+          </div>
+        } @else {
+          <div class="sk-form-group">
+            <label class="sk-form-lbl">سبب الرفض <span class="sk-req">*</span></label>
+            <textarea class="sk-form-input" rows="3" [value]="actionReason()" (input)="actionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض..."></textarea>
+          </div>
+        }
+        @if (actionError()) {
+          <div class="sk-modal-error">{{ actionError() }}</div>
+        }
+        <div class="sk-modal-actions">
+          <button type="button" class="sk-btn sk-btn-cancel" (click)="closeActionModal()" [disabled]="processing()">إلغاء</button>
+          <button type="button" class="sk-btn" [class.sk-btn-approve]="actionType() === 'approve'" [class.sk-btn-reject]="actionType() === 'reject'" (click)="confirmAction()" [disabled]="processing() || (actionType() === 'reject' && !actionReason().trim())">
+            {{ processing() ? 'جاري التنفيذ...' : (actionType() === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

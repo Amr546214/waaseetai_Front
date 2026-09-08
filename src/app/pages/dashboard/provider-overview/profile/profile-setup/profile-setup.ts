@@ -1,9 +1,11 @@
-import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { SetupTestService } from '../../../../../core/services/setup-test.service';
 
@@ -27,6 +29,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
+	private providerProfileService = inject(ProviderProfileService);
 	private specialtyService = inject(SpecialtyService);
 	public setupTestService = inject(SetupTestService);
 
@@ -81,12 +84,19 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	selectedSpecs = signal<string[]>([]);
 
 	uploadedFrontId = signal<string>('');
+	uploadedFrontIdName = signal<string>('');
+	uploadedBackIdName = signal<string>('');
 	uploadedCerts = signal<string[]>([]);
+	uploadedCertsNames = signal<string[]>([]);
 	isNafathVerified = signal<boolean>(false);
 	isNafathVerifying = signal<boolean>(false);
 
-	// Portfolio
-	portfolioItems = signal<Record<string, { review: string; proofs: string[] }[]>>({});
+	// Upload progress states keyed by field identifier
+	uploadStates = signal<Record<string, { status: 'uploading' | 'uploaded' | 'error'; progress: number; name: string }>>({});
+	isUploading = computed(() => Object.values(this.uploadStates()).some(s => s.status === 'uploading'));
+
+	// Portfolio — review/proofs store URLs; reviewDisplayName/proofDisplayNames store original filenames for UI
+	portfolioItems = signal<Record<string, { review: string; reviewDisplayName: string; proofs: string[]; proofDisplayNames: string[] }[]>>({});
 
 	// Test
 	isTestStarted = signal<boolean>(false);
@@ -294,7 +304,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			let changed = false;
 			this.selectedSpecs().forEach(s => {
 				if (!current[s] || current[s].length === 0) {
-					current[s] = [{ review: '', proofs: [] }];
+					current[s] = [{ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] }];
 					changed = true;
 				}
 			});
@@ -325,26 +335,145 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	onFileSelected(event: any, type: string) {
 		const files = event.target.files;
-		if (files && files.length > 0) {
-			if (type === 'frontId') {
-				this.uploadedFrontId.set(files[0].name);
-				this.setupForm.get('docs.frontId')?.setValue(files[0].name);
-			} else if (type === 'backId') {
-				this.setupForm.get('docs.backId')?.setValue(files[0].name);
-			} else if (type === 'certs') {
-				const names = Array.from(files).map((f: any) => f.name);
-				this.uploadedCerts.set(names);
-				this.setupForm.get('docs.certs')?.setValue(names);
+		if (!files || files.length === 0) return;
+
+		const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+		const maxSize = 10 * 1024 * 1024;
+
+		if (type === 'frontId' || type === 'backId') {
+			const file = files[0] as File;
+			if (file.size > maxSize) {
+				this.alertModal.set({
+					type: 'warning', title: 'حجم ملف كبير', message: 'حجم المستند يجب أن لا يتجاوز 10 ميجابايت.',
+					confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+				});
+				return;
 			}
+			if (!allowedTypes.includes(file.type)) {
+				this.alertModal.set({
+					type: 'warning', title: 'نوع ملف غير مدعوم', message: 'الملفات المسموحة PDF أو JPG أو PNG فقط.',
+					confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+				});
+				return;
+			}
+			this.uploadSingleDoc(file, type);
+		} else if (type === 'certs') {
+			const validFiles: File[] = [];
+			for (const f of Array.from(files) as File[]) {
+				if (f.size > maxSize) {
+					this.alertModal.set({
+						type: 'warning', title: 'حجم ملف كبير', message: `الملف ${f.name} يتجاوز 10 ميجابايت.`,
+						confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+					});
+					return;
+				}
+				if (!allowedTypes.includes(f.type)) {
+					this.alertModal.set({
+						type: 'warning', title: 'نوع ملف غير مدعوم', message: `الملف ${f.name} ليس PDF أو JPG أو PNG.`,
+						confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+					});
+					return;
+				}
+				validFiles.push(f);
+			}
+			this.uploadCerts(validFiles);
 		}
 	}
 
+	private uploadSingleDoc(file: File, type: string) {
+		const key = type;
+		this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
+
+		if (type === 'frontId') this.uploadedFrontIdName.set(file.name);
+		if (type === 'backId') this.uploadedBackIdName.set(file.name);
+
+		this.providerProfileService.uploadDocument(file).subscribe({
+			next: (event: any) => {
+				if (event.type === HttpEventType.UploadProgress) {
+					const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
+					this.setUploadState(key, { status: 'uploading', progress, name: file.name });
+				}
+				if (event.type === HttpEventType.Response) {
+					const url = event.body?.data?.url || '';
+					const name = event.body?.data?.name || file.name;
+					this.setUploadState(key, { status: 'uploaded', progress: 100, name });
+					if (type === 'frontId') {
+						this.uploadedFrontId.set(url);
+						this.uploadedFrontIdName.set(name);
+						this.setupForm.get('docs.frontId')?.setValue(url);
+					}
+					if (type === 'backId') {
+						this.setupForm.get('docs.backId')?.setValue(url);
+						this.uploadedBackIdName.set(name);
+					}
+				}
+			},
+			error: () => {
+				this.setUploadState(key, { status: 'error', progress: 0, name: file.name });
+			}
+		});
+	}
+
+	private uploadCerts(files: File[]) {
+		const key = 'certs';
+		this.setUploadState(key, { status: 'uploading', progress: 0, name: `${files.length} ملفات` });
+
+		const urls: string[] = [];
+		const names: string[] = [];
+		let completed = 0;
+		let hasError = false;
+
+		files.forEach((file, idx) => {
+			this.setUploadState(`${key}-${idx}`, { status: 'uploading', progress: 0, name: file.name });
+
+			this.providerProfileService.uploadDocument(file).subscribe({
+				next: (event: any) => {
+					if (event.type === HttpEventType.UploadProgress) {
+						const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
+						this.setUploadState(`${key}-${idx}`, { status: 'uploading', progress, name: file.name });
+					}
+					if (event.type === HttpEventType.Response) {
+						const url = event.body?.data?.url || '';
+						const name = event.body?.data?.name || file.name;
+						urls.push(url);
+						names.push(name);
+						this.setUploadState(`${key}-${idx}`, { status: 'uploaded', progress: 100, name });
+						completed++;
+						if (completed === files.length && !hasError) {
+							this.uploadedCerts.set(urls);
+							this.uploadedCertsNames.set(names);
+							this.setupForm.get('docs.certs')?.setValue(urls);
+							this.setUploadState(key, { status: 'uploaded', progress: 100, name: `${files.length} ملفات` });
+						}
+					}
+				},
+				error: () => {
+					hasError = true;
+					this.setUploadState(`${key}-${idx}`, { status: 'error', progress: 0, name: file.name });
+					this.setUploadState(key, { status: 'error', progress: 0, name: `${files.length} ملفات` });
+				}
+			});
+		});
+	}
+
+	private setUploadState(key: string, state: { status: 'uploading' | 'uploaded' | 'error'; progress: number; name: string }) {
+		this.uploadStates.update(s => ({ ...s, [key]: state }));
+	}
+
+	getUploadState(key: string) {
+		return this.uploadStates()[key];
+	}
+
 	triggerNafath() {
-		this.isNafathVerifying.set(true);
-		setTimeout(() => {
-			this.isNafathVerifying.set(false);
-			this.isNafathVerified.set(true);
-		}, 1800);
+		// Backend gap: No confirmed NAFATH initiate/verify endpoint.
+		// Do NOT set isNafathVerified = true automatically.
+		this.alertModal.set({
+			type: 'info',
+			title: 'نفاذ غير مفعّل',
+			message: 'التحقق عبر نفاذ غير مفعّل حاليًا، وسيتم تفعيله بعد اعتماد واجهة التحقق من الخادم.',
+			confirmText: 'حسناً',
+			onConfirm: () => this.closeAlertModal()
+		});
 	}
 
 	getPortfolioCount(spec: string) {
@@ -359,7 +488,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	addPortfolioItem(spec: string) {
 		const current = { ...this.portfolioItems() };
 		if (!current[spec]) current[spec] = [];
-		current[spec].push({ review: '', proofs: [] });
+		current[spec].push({ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] });
 		this.portfolioItems.set(current);
 	}
 
@@ -367,35 +496,127 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		const current = { ...this.portfolioItems() };
 		if (current[spec]) {
 			current[spec].splice(idx, 1);
-			if (current[spec].length === 0) current[spec] = [{ review: '', proofs: [] }];
+			if (current[spec].length === 0) current[spec] = [{ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] }];
 			this.portfolioItems.set(current);
 		}
 	}
 
 	onPortfolioReviewChange(event: any, spec: string, idx: number) {
 		if (event.target.files && event.target.files[0]) {
+			const file = event.target.files[0] as File;
+			const maxSize = 10 * 1024 * 1024;
+			if (file.size > maxSize) {
+				this.alertModal.set({
+					type: 'warning', title: 'حجم ملف كبير', message: 'حجم المستند يجب أن لا يتجاوز 10 ميجابايت.',
+					confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+				});
+				return;
+			}
+			const key = `portfolio-review-${spec}-${idx}`;
+			this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
+
 			const current = { ...this.portfolioItems() };
-			current[spec][idx].review = event.target.files[0].name;
+			current[spec][idx].reviewDisplayName = file.name;
 			this.portfolioItems.set(current);
+
+			this.providerProfileService.uploadDocument(file).subscribe({
+				next: (event: any) => {
+					if (event.type === HttpEventType.UploadProgress) {
+						const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
+						this.setUploadState(key, { status: 'uploading', progress, name: file.name });
+					}
+					if (event.type === HttpEventType.Response) {
+						const url = event.body?.data?.url || '';
+						const name = event.body?.data?.name || file.name;
+						const c = { ...this.portfolioItems() };
+						c[spec][idx].review = url;
+						c[spec][idx].reviewDisplayName = name;
+						this.portfolioItems.set(c);
+						this.setUploadState(key, { status: 'uploaded', progress: 100, name });
+					}
+				},
+				error: () => {
+					this.setUploadState(key, { status: 'error', progress: 0, name: file.name });
+				}
+			});
 		}
 	}
 
 	onPortfolioProofsChange(event: any, spec: string, idx: number) {
 		if (event.target.files && event.target.files.length > 0) {
-			const current = { ...this.portfolioItems() };
-			const names = Array.from(event.target.files).map((f: any) => f.name);
-			current[spec][idx].proofs.push(...names);
+			const files = Array.from(event.target.files) as File[];
+			const maxSize = 10 * 1024 * 1024;
+
+			for (const f of files) {
+				if (f.size > maxSize) {
+					this.alertModal.set({
+						type: 'warning', title: 'حجم ملف كبير', message: `الملف ${f.name} يتجاوز 10 ميجابايت.`,
+						confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+					});
+					return;
+				}
+			}
+
+			files.forEach((file, proofIdx) => {
+				const baseProofIdx = this.portfolioItems()[spec][idx].proofs.length;
+			const key = `portfolio-proof-${spec}-${idx}-${baseProofIdx}`;
+			this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
+
+				const current = { ...this.portfolioItems() };
+				current[spec][idx].proofDisplayNames.push(file.name);
+				current[spec][idx].proofs.push(''); // placeholder until upload completes
 			this.portfolioItems.set(current);
+
+				this.providerProfileService.uploadDocument(file).subscribe({
+					next: (ev: any) => {
+						if (ev.type === HttpEventType.UploadProgress) {
+							const progress = ev.total ? Math.round((ev.loaded / ev.total) * 100) : 0;
+							this.setUploadState(key, { status: 'uploading', progress, name: file.name });
+						}
+						if (ev.type === HttpEventType.Response) {
+							const url = ev.body?.data?.url || '';
+							const name = ev.body?.data?.name || file.name;
+							const c = { ...this.portfolioItems() };
+							c[spec][idx].proofs[baseProofIdx] = url;
+							c[spec][idx].proofDisplayNames[baseProofIdx] = name;
+							this.portfolioItems.set(c);
+							this.setUploadState(key, { status: 'uploaded', progress: 100, name });
+						}
+					},
+					error: () => {
+						this.setUploadState(key, { status: 'error', progress: 0, name: file.name });
+					}
+				});
+			});
 		}
 	}
 
 	removePortfolioProof(spec: string, itemIdx: number, proofIdx: number) {
 		const current = { ...this.portfolioItems() };
 		current[spec][itemIdx].proofs.splice(proofIdx, 1);
+		current[spec][itemIdx].proofDisplayNames.splice(proofIdx, 1);
 		this.portfolioItems.set(current);
 	}
 
+	private sanitizePortfolioForPayload(items: Record<string, { review: string; reviewDisplayName: string; proofs: string[]; proofDisplayNames: string[] }[]>): Record<string, { review: string; proofs: string[] }[]> {
+		const sanitized: Record<string, { review: string; proofs: string[] }[]> = {};
+		for (const key of Object.keys(items)) {
+			sanitized[key] = items[key].map(item => ({
+				review: item.review,
+				proofs: item.proofs
+			}));
+		}
+		return sanitized;
+	}
+
 	saveAndGoToTest() {
+		if (this.isUploading()) {
+			this.alertModal.set({
+				type: 'warning', title: 'جاري رفع الملفات', message: 'يرجى انتظار اكتمال رفع جميع الملفات قبل المتابعة.',
+				confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+			});
+			return;
+		}
 		if (this.setupForm.invalid || !this.uploadedFrontId()) {
 			this.setupForm.markAllAsTouched();
 			this.alertModal.set({
@@ -425,7 +646,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				certs: this.uploadedCerts(),
 				isNafathVerified: this.isNafathVerified()
 			},
-			portfolio: this.portfolioItems(),
+			portfolio: this.sanitizePortfolioForPayload(this.portfolioItems()),
 
 			bank: {
 				bankName: this.setupForm.get('bank.bankName')?.value,
