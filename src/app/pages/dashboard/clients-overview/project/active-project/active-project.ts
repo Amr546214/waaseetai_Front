@@ -15,6 +15,7 @@ interface ProjectKPI {
 
 interface ProjectItem {
 	id: string;
+	workspaceId?: string | null;
 	title: string;
 	status: Exclude<ProjectFilter, 'all'>;
 	rawStatus?: string;
@@ -125,6 +126,7 @@ export class ActiveProject implements OnInit {
 
 		return {
 			id: String(project.id),
+			workspaceId: project.workspaceId || null,
 			title: project.title || 'مشروع بدون عنوان',
 			status,
 			rawStatus,
