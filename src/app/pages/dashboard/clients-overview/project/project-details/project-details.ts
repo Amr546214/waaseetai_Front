@@ -123,8 +123,8 @@ export class ProjectDetails implements OnInit {
 		});
 	}
 	closeSupport() { this.supportAction.set(null); }
-	continueInConversation(data: any) { this.supportAction.set(null); this.openConversation(data); }
-	openConversation(data: any) { this.router.navigate(['/client-overview/messages'], { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined }); }
+	continueInConversation(data: any) { if (!data) return; this.supportAction.set(null); this.openConversation(data); }
+	openConversation(data: any) { if (!data) return; this.router.navigate(['/client-overview/messages'], { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined }); }
 
 	canRate(data: any): boolean {
 		if (this.ratingSubmitted() || this.ratingSuccess()) return false;
