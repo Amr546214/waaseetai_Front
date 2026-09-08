@@ -1,0 +1,116 @@
+@if (open) {
+<div class="lc-mov show" role="dialog" aria-modal="true" aria-label="فتح نزاع جديد" dir="rtl" (click)="closeModal()">
+	<div class="lc-mbox dp-mbox" (click)="$event.stopPropagation()">
+		<div class="lc-mhd">
+			<span class="mi dp-ico">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+				</svg>
+			</span>
+			<div>
+				<h3>فتح نزاع جديد</h3>
+				<p>اشرح المشكلة بوضوح ليتمكن فريق وسيط من مراجعتها</p>
+			</div>
+			<button type="button" class="lc-mclose" (click)="closeModal()" aria-label="إغلاق" [disabled]="isSubmitting">×</button>
+		</div>
+
+		@if (formError()) {
+			<div class="dp-error" role="alert">{{ formError() }}</div>
+		}
+
+		<!-- سبب النزاع -->
+		<div class="lc-fld">
+			<label for="dp-reason">سبب النزاع</label>
+			<input
+				id="dp-reason"
+				type="text"
+				class="dp-input"
+				[value]="reason()"
+				(input)="onReasonInput($event)"
+				placeholder="مثال: عدم تسليم المتطلبات أو تأخير غير مبرر"
+				maxlength="120"
+				[disabled]="isSubmitting"
+			/>
+			@if (reasonError()) {
+				<div class="dp-field-error" role="alert">{{ reasonError() }}</div>
+			}
+		</div>
+
+		<!-- تفاصيل النزاع -->
+		<div class="lc-fld">
+			<label for="dp-desc">تفاصيل النزاع</label>
+			<textarea
+				id="dp-desc"
+				class="lc-ta"
+				[value]="description()"
+				(input)="onDescriptionInput($event)"
+				rows="5"
+				placeholder="اشرح ما حدث، وما المطلوب لحل المشكلة"
+				maxlength="10000"
+				[disabled]="isSubmitting"
+			></textarea>
+			@if (descriptionError()) {
+				<div class="dp-field-error" role="alert">{{ descriptionError() }}</div>
+			}
+		</div>
+
+		<!-- روابط الأدلة -->
+		<div class="lc-fld">
+			<label>روابط الأدلة <span class="dp-optional">(اختياري)</span></label>
+
+			@if (evidenceUrls().length > 0) {
+				<div class="dp-evidence-list">
+					@for (url of evidenceUrls(); track url; let i = $index) {
+						<div class="dp-evidence-item">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+								<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+								<path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+							</svg>
+							<span class="dp-evidence-url" [title]="url">{{ url }}</span>
+							<button type="button" class="dp-evidence-remove" (click)="removeEvidenceUrl(i)" [disabled]="isSubmitting" aria-label="إزالة الرابط">
+								<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+									<line x1="18" y1="6" x2="6" y2="18"/>
+									<line x1="6" y1="6" x2="18" y2="18"/>
+								</svg>
+							</button>
+						</div>
+					}
+				</div>
+			}
+
+			@if (evidenceUrls().length < 10) {
+				<div class="dp-evidence-add">
+					<input
+						type="url"
+						class="dp-input"
+						[value]="newEvidenceUrl()"
+						(input)="onNewEvidenceInput($event)"
+						placeholder="أضف رابط ملف أو صورة أو مستند"
+						[disabled]="isSubmitting"
+					/>
+					<button type="button" class="dp-add-btn" (click)="addEvidenceUrl()" [disabled]="isSubmitting">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+							<line x1="12" y1="5" x2="12" y2="19"/>
+							<line x1="5" y1="12" x2="19" y2="12"/>
+						</svg>
+						إضافة
+					</button>
+				</div>
+			}
+
+			@if (evidenceError()) {
+				<div class="dp-field-error" role="alert">{{ evidenceError() }}</div>
+			}
+
+			<div class="dp-hint">الحد الأقصى 10 روابط. أضف روابط مباشرة للملفات أو الصور أو المستندات.</div>
+		</div>
+
+		<div class="lc-mact">
+			<button type="button" class="lc-btn lc-btn-gh" (click)="closeModal()" [disabled]="isSubmitting">إلغاء</button>
+			<button type="button" class="lc-btn lc-btn-pri" (click)="onSubmit()" [disabled]="isSubmitting">
+				{{ isSubmitting ? 'جارٍ الإرسال...' : 'إرسال النزاع' }}
+			</button>
+		</div>
+	</div>
+</div>
+}

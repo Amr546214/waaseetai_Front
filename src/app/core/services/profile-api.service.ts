@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { ClientProfileInput, ProfileResponse, ProviderProfileInput } from '../models/profile.model';
 import { AuthStore } from '../store/auth.store';
 import { UserStatus } from '../models/auth.model';
+import { ClientSetupPayload, ProviderSetupPayload } from '../models/onboarding-upload.model';
 
 @Injectable({
   providedIn: 'root'
@@ -66,7 +67,7 @@ export class ProfileApiService {
   /**
    * Save client profile setup data
    */
-  public saveClientProfileSetup(payload: any): Observable<any> {
+  public saveClientProfileSetup(payload: ClientSetupPayload): Observable<any> {
     return this.http.post<any>(`${environment.url_api}/client/profile/setup`, payload);
   }
 
@@ -80,7 +81,7 @@ export class ProfileApiService {
   /**
    * Save provider profile setup data
    */
-  public saveProviderProfileSetup(payload: any): Observable<any> {
+  public saveProviderProfileSetup(payload: ProviderSetupPayload): Observable<any> {
     return this.http.post<any>(`${environment.url_api}/provider/profile/setup`, payload);
   }
 }

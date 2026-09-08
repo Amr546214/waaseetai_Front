@@ -15,7 +15,7 @@ Phase 1 covers the six P0 critical gaps identified in the gap analysis. These ar
 | # | Item | Design Pages | Status |
 |---|------|-------------|--------|
 | 1 | Cart / Checkout | P-BF-001 → P-BF-007 | Pending |
-| 2 | Client delivery review / final approval / rating | P-SK-015, P-SK-016, P-SK-017 | Pending |
+| 2 | Client delivery review / final approval / rating | P-SK-015, P-SK-016, P-SK-017 | In Progress |
 | 3 | Provider final delivery | P-PR-012, P-PR-013-تقييم | Pending |
 | 4 | Admin disputes management | P-AD-008 | Pending |
 | 5 | Admin withdrawals processing | P-AD-016 | Pending |
@@ -65,7 +65,7 @@ Phase 1 covers the six P0 critical gaps identified in the gap analysis. These ar
 | | `src/app/core/services/project-api.service.ts` — project API service |
 | | `src/app/core/services/provider-api.service.ts` — provider API (for rating submission) |
 | **Testing Requirements** | Client can view delivered work, request revisions, approve final delivery, close project, submit star rating + text review. Verify project moves from active to archived after approval. Verify rating appears on provider profile. |
-| **Status** | Pending |
+| **Status** | In Progress — Module 2 Chunks 1–2 Done, Chunk 3 Implemented + Build PASS, Browser test BLOCKED by backend/workspace data |
 
 ### 2.3 Provider Final Delivery
 
@@ -329,7 +329,57 @@ The Cart / Checkout item (§2.1) is broken into 13 chunks following `CHECKOUT_IM
 
 ---
 
-## 4. Chunk Status Summary
+## 4. Client Delivery Review / Rating — Detailed Chunk Breakdown
+
+The Client Delivery Review / Rating item (§2.2) is broken into chunks following `PHASE_1_MODULE_2_DELIVERY_REVIEW_PLAN.md`.
+
+### Module 2 Chunk 1: Rating Models + API Service
+
+| Field | Value |
+|-------|-------|
+| **Goal** | Create rating model interfaces and API service for client/provider rating |
+| **Files Created** | `src/app/core/models/rating.model.ts` — `RatingScore`, `ClientRateProviderPayload`, `ProviderRateClientPayload`, `RatingResultData`, `RatingApiResponse` types |
+| | `src/app/core/services/rating-api.service.ts` — `RatingApiService` with `rateProvider()` and `rateClient()` methods using `HttpClient` and `environment.url_api` |
+| **Endpoints** | `POST /api/client/requests/:id/rate` (client rates provider), `POST /api/provider/projects/:id/rate-client` (provider rates client) |
+| **Status** | Done — `npx ng build` passed (exit 0), no errors from new files |
+
+### Module 2 Chunk 2: Client Rating Modal UI Component
+
+| Field | Value |
+|-------|-------|
+| **Goal** | Create reusable standalone client rating modal component |
+| **Files Created** | `src/app/pages/dashboard/clients-overview/project/rating-modal/rating-modal.ts` — standalone component with `@Input() open`, `providerName`, `isSubmitting`; `@Output() close`, `submit`; internal state for rating selection, hover, comment, validation error |
+| | `src/app/pages/dashboard/clients-overview/project/rating-modal/rating-modal.html` — modal with title, subtitle, 5-star rating buttons with hover/active states, comment textarea, validation error display, cancel/submit buttons |
+| | `src/app/pages/dashboard/clients-overview/project/rating-modal/rating-modal.css` — modal styles, star rating with hover/active states, error message, responsive, RTL support |
+| **Status** | Done — `npx ng build` passed (exit 0), no errors from new files |
+
+### Module 2 Chunk 3: Integrate Client Rating Modal into ProjectDetails
+
+| Field | Value |
+|-------|-------|
+| **Goal** | Integrate `ClientRatingModal` into `ProjectDetails` component with conditional banner, API call, loading/error/success states |
+| **Files Modified** | `src/app/pages/dashboard/clients-overview/project/project-details/project-details.ts` — added imports (`ClientRatingModal`, `RatingApiService`, `RatingScore`), rating signals (`showRatingModal`, `isSubmittingRating`, `ratingError`, `ratingSuccess`, `ratingSubmitted`), `canRate()` method, `openRatingModal()`, `closeRatingModal()`, `submitRating()` methods |
+| | `src/app/pages/dashboard/clients-overview/project/project-details/project-details.html` — added rating success message, rating banner (conditional on `canRate(data)`), `<app-client-rating-modal>` component at bottom |
+| | `src/app/pages/dashboard/clients-overview/project/project-details/project-details.css` — added `.rt-banner`, `.rt-success-msg` styles with light theme + responsive |
+| **Banner Condition** | `canRate(data)`: returns false if already rated; returns true if `data.canRate === true`; returns false if `data.hasRated === true`; fallback: `data.status === 'COMPLETED'` OR (`data.progress === 100` AND all stages `status === 'completed'`) |
+| **API Call** | `RatingApiService.rateProvider(requestId, payload)` → `POST /api/client/requests/:id/rate` |
+| **Existing Flow** | Delivery approval/revision flow (`openReview`, `closeReview`, `submitReview`) unchanged. No checkout/cart files modified. No mock data added. |
+| **Build** | PASS — `npx ng build` exit 0 |
+| **Browser Test** | BLOCKED — `GET /api/client/my-requests/:id/workspace` returns 404 for all active projects. Workspace data does not exist in backend. Rating banner cannot be tested because ProjectDetails page fails to load before rating UI renders. |
+| **Block Reason** | Backend/workspace data missing. `GET /api/client/my-requests/{id}/workspace` returns 404 `{ success: false, message: "المشروع غير موجود أو لا تملك صلاحية الوصول إليه" }` for every project ID from the active projects list. Frontend passes correct requestId (UUID) consistent with all other `/client/my-requests/*` endpoints. The `load()` method in ProjectDetails is unchanged by rating integration. |
+| **Status** | Implemented + Build PASS + Browser test BLOCKED by backend/workspace data |
+
+### Module 2 Chunk Status Summary
+
+| Chunk | Description | Status |
+|-------|-------------|--------|
+| 1 | Rating models + API service | Done |
+| 2 | Client rating modal UI component | Done |
+| 3 | Integrate rating modal into ProjectDetails | Implemented + Build PASS + Browser test BLOCKED |
+
+---
+
+## 5. Chunk Status Summary
 
 | Chunk | Description | Status |
 |-------|-------------|--------|
@@ -438,3 +488,6 @@ The "تواصل مع" (Contact provider) button calling `requestService('order')
 | 2026-09-02 | Backend Integration Step 6a | Fix cart request storm | Root cause: `effect()` in `CartService` was tracking `_items` through `onLoginSync()`, causing infinite loop when sync response set items → effect re-fired → sync again → rate limited. Fix: wrapped `onLoginSync()` in `untracked()`, added `hasSyncedThisSession` guard, added `isLoadingServerCart` guard. **Build: PASS. Browser test: PASS — no request loops.** Committed and pushed. |
 | 2026-09-02 | Backend Integration Step 7 | Order rehydration on success page reload | `confirm.ts` now navigates to `/checkout/success?orderId=<id>` with `replaceUrl: true`. `success.ts` reads `orderId` query param on init; if `currentOrder()` is null and orderId exists, calls `GET /api/checkout/order/:id` via `CheckoutApiService`, maps response with `mapOrder()`, and hydrates via `CheckoutService.hydrateOrder()`. Added `isRehydrating` loading state with spinner to prevent flash of fallback. Back button uses `setTimeout(0)` + `router.navigate(['/marketplace'])` for reliable navigation. Added `hydrateOrder()` method to `CheckoutService`. **Build: PASS. Browser test: PASS — URL has orderId, refresh triggers GET, order rehydrates, back button works.** Committed and pushed. |
 | 2026-09-02 | Backend Integration Step 8 | Cleanup old mocks/dead code | Removed: `CheckoutService.getOrder()` (unused, replaced by `hydrateOrder()`). Renamed: `MOCK_COUPONS` → `GUEST_MOCK_COUPONS` with clearer comment. Verified: no `MOCK_OTP`, `MOCK_MASKED_PHONE`, `orderCounter`, or fake payment remain (already removed in Step 5). `maskedPhone` alias kept (used by `confirm.ts`). `addToCart()` sync method kept (used by `addToCart$()` for guest fallback). `generateId()` kept (used by `addToCart()`). `FALLBACK_METHODS` in `payment.ts` kept (intentional fallback if API fails). `GUEST_MOCK_COUPONS` kept (guest coupon fallback). `localStorage` confined to `CartService` only. `PaymentMethod` type supports `card | moyasar | wallet | stc_pay | apple_pay`. **Build: PASS.** |
+| 2026-09-03 | Module 2 Chunk 1 | Rating models + API service | Created `rating.model.ts` (RatingScore, payload interfaces, API response types) and `rating-api.service.ts` (rateProvider, rateClient methods). Build PASS. |
+| 2026-09-03 | Module 2 Chunk 2 | Client rating modal UI component | Created standalone `ClientRatingModal` component (rating-modal.ts/html/css) with star rating, comment, validation, Arabic RTL. Build PASS. |
+| 2026-09-03 | Module 2 Chunk 3 | Integrate rating modal into ProjectDetails | Added rating signals, `canRate()` condition, banner UI, modal wiring, `submitRating()` API call to `ProjectDetails`. Build PASS. Browser test BLOCKED: `GET /api/client/my-requests/:id/workspace` returns 404 for all active projects. Workspace data missing in backend. Rating UI cannot be tested. Not caused by rating integration — `load()` method unchanged. |

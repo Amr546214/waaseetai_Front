@@ -1,234 +1,240 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
-import {
-  Dispute,
-  DisputeStatus,
-  AdminDisputesQuery,
-  ResolveDisputePayload,
-} from '../../../../core/models/dispute.model';
+import { Dispute, DisputeStatus, DisputePagination, DisputeAction, ResolveDisputePayload } from '../../../../core/models/dispute.model';
+
+type StatusFilter = 'all' | DisputeStatus;
 
 @Component({
   selector: 'app-sa-disputes',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './sa-disputes.html',
-  styleUrls: ['./sa-disputes.css']
+  styleUrl: './sa-disputes.css',
 })
 export class SaDisputes implements OnInit {
   private disputeApi = inject(DisputeApiService);
 
   disputes = signal<Dispute[]>([]);
-  loading = signal<boolean>(false);
-  error = signal<string | null>(null);
+  loading = signal(false);
+  error = signal('');
+  activeFilter = signal<StatusFilter>('all');
+  currentPage = signal(1);
+  pageSize = signal(10);
+  pagination = signal<DisputePagination | null>(null);
 
-  currentPage = signal<number>(1);
-  totalPages = signal<number>(1);
-  total = signal<number>(0);
-  readonly limit = 10;
+  selectedDispute = signal<Dispute | null>(null);
+  detailLoading = signal(false);
+  detailError = signal('');
+  showDetail = signal(false);
 
-  statusFilter = signal<DisputeStatus | 'all'>('all');
+  showResolveForm = signal(false);
+  resolveAction = signal<DisputeAction | null>(null);
+  resolutionText = signal('');
+  resolutionNote = signal('');
+  submittingResolve = signal(false);
+  resolveError = signal('');
+  resolveSuccess = signal('');
 
-  readonly statusOptions: { value: DisputeStatus | 'all'; label: string }[] = [
-    { value: 'all', label: 'الكل' },
-    { value: 'OPEN', label: 'مفتوح' },
-    { value: 'UNDER_REVIEW', label: 'قيد المراجعة' },
-    { value: 'RESOLVED', label: 'تم الحل' },
-    { value: 'REJECTED', label: 'مرفوض' },
+  readonly resolutionPresets = [
+    'REFUND_CLIENT',
+    'RELEASE_TO_PROVIDER',
+    'PARTIAL_REFUND',
+    'MUTUAL_CLOSE',
+    'REJECTED_INSUFFICIENT_EVIDENCE',
   ];
 
-  // Detail modal
-  selectedDispute = signal<Dispute | null>(null);
-  detailLoading = signal<boolean>(false);
-  detailError = signal<string | null>(null);
-  showDetailModal = signal<boolean>(false);
+  readonly statusLabels: Record<DisputeStatus, string> = {
+    OPEN: 'مفتوح',
+    UNDER_REVIEW: 'قيد المراجعة',
+    RESOLVED: 'تم الحل',
+    REJECTED: 'مرفوض',
+  };
 
-  // Resolve/reject modal
-  showResolveModal = signal<boolean>(false);
-  resolveAction = signal<'resolve' | 'reject'>('resolve');
-  resolutionText = signal<string>('');
-  resolutionNoteText = signal<string>('');
-  resolving = signal<boolean>(false);
+  readonly statusClasses: Record<DisputeStatus, string> = {
+    OPEN: 'dp-st-open',
+    UNDER_REVIEW: 'dp-st-review',
+    RESOLVED: 'dp-st-resolved',
+    REJECTED: 'dp-st-rejected',
+  };
+
+  readonly filters: { key: StatusFilter; label: string }[] = [
+    { key: 'all', label: 'الكل' },
+    { key: 'OPEN', label: 'مفتوح' },
+    { key: 'UNDER_REVIEW', label: 'قيد المراجعة' },
+    { key: 'RESOLVED', label: 'تم الحل' },
+    { key: 'REJECTED', label: 'مرفوض' },
+  ];
 
   ngOnInit() {
-    this.loadDisputes();
+    this.fetchDisputes();
   }
 
-  loadDisputes() {
+  fetchDisputes() {
     this.loading.set(true);
-    this.error.set(null);
-
-    const query: AdminDisputesQuery = {
+    this.error.set('');
+    const filter = this.activeFilter();
+    this.disputeApi.getAdminDisputes({
+      status: filter === 'all' ? undefined : filter,
       page: this.currentPage(),
-      limit: this.limit,
-    };
-    if (this.statusFilter() !== 'all') {
-      query.status = this.statusFilter() as DisputeStatus;
-    }
-
-    this.disputeApi.getAdminDisputes(query).subscribe({
+      limit: this.pageSize(),
+    }).subscribe({
       next: (res) => {
-        this.loading.set(false);
-        if (res?.data?.items) {
-          this.disputes.set(res.data.items);
-          this.total.set(res.data.pagination?.total ?? 0);
-          this.totalPages.set(res.data.pagination?.totalPages ?? 1);
+        if (res.success && res.data) {
+          this.disputes.set(res.data.items || []);
+          this.pagination.set(res.data.pagination || null);
         } else {
           this.disputes.set([]);
-          this.total.set(0);
-          this.totalPages.set(1);
+          this.pagination.set(null);
         }
+        this.loading.set(false);
       },
       error: (err) => {
+        this.error.set(err?.error?.message || 'تعذر تحميل النزاعات');
         this.loading.set(false);
-        if (err?.status === 204) {
-          this.disputes.set([]);
-          this.total.set(0);
-          this.totalPages.set(1);
-          this.error.set(null);
-        } else {
-          this.error.set(err?.error?.message || err?.message || 'تعذر تحميل النزاعات');
-        }
       },
     });
   }
 
-  onStatusFilterChange(status: DisputeStatus | 'all') {
-    this.statusFilter.set(status);
+  setFilter(filter: StatusFilter) {
+    this.activeFilter.set(filter);
     this.currentPage.set(1);
-    this.loadDisputes();
+    this.fetchDisputes();
   }
 
-  goToPage(page: number) {
-    if (page < 1 || page > this.totalPages()) return;
-    this.currentPage.set(page);
-    this.loadDisputes();
-  }
-
-  viewDetail(id: string) {
-    this.showDetailModal.set(true);
+  openDetail(dispute: Dispute) {
+    this.showDetail.set(true);
+    this.detailError.set('');
+    this.selectedDispute.set(dispute);
     this.detailLoading.set(true);
-    this.detailError.set(null);
-    this.selectedDispute.set(null);
-
-    this.disputeApi.getAdminDispute(id).subscribe({
+    this.disputeApi.getAdminDispute(dispute.id).subscribe({
       next: (res) => {
-        this.detailLoading.set(false);
-        if (res?.data) {
+        if (res.success && res.data) {
           this.selectedDispute.set(res.data);
-        } else {
-          this.detailError.set('لم يتم العثور على النزاع');
         }
+        this.detailLoading.set(false);
       },
       error: (err) => {
+        this.detailError.set(err?.error?.message || 'تعذر تحميل تفاصيل النزاع');
         this.detailLoading.set(false);
-        this.detailError.set(err?.error?.message || err?.message || 'تعذر تحميل تفاصيل النزاع');
       },
     });
   }
 
-  closeDetailModal() {
-    this.showDetailModal.set(false);
+  closeDetail() {
+    this.showDetail.set(false);
     this.selectedDispute.set(null);
-    this.detailError.set(null);
+    this.detailError.set('');
+    this.cancelResolveForm();
   }
 
-  openResolveModal(action: 'resolve' | 'reject') {
+  openResolveForm(action: DisputeAction) {
     this.resolveAction.set(action);
     this.resolutionText.set('');
-    this.resolutionNoteText.set('');
-    this.showResolveModal.set(true);
+    this.resolutionNote.set('');
+    this.resolveError.set('');
+    this.resolveSuccess.set('');
+    this.showResolveForm.set(true);
   }
 
-  closeResolveModal() {
-    this.showResolveModal.set(false);
+  cancelResolveForm() {
+    this.showResolveForm.set(false);
+    this.resolveAction.set(null);
     this.resolutionText.set('');
-    this.resolutionNoteText.set('');
+    this.resolutionNote.set('');
+    this.resolveError.set('');
   }
 
-  confirmResolve() {
-    const dispute = this.selectedDispute();
-    if (!dispute) return;
-    if (!this.resolutionText().trim()) return;
+  selectPreset(preset: string) {
+    this.resolutionText.set(preset);
+  }
 
-    this.resolving.set(true);
+  submitResolve() {
+    const dispute = this.selectedDispute();
+    const action = this.resolveAction();
+    if (!dispute || !action) return;
+    if (this.submittingResolve()) return;
+
+    const resolution = this.resolutionText().trim();
+    if (!resolution) {
+      this.resolveError.set('يرجى كتابة قرار النزاع');
+      return;
+    }
+
+    this.resolveError.set('');
+    this.submittingResolve.set(true);
 
     const payload: ResolveDisputePayload = {
-      action: this.resolveAction(),
-      resolution: this.resolutionText().trim(),
+      action,
+      resolution,
     };
-    if (this.resolutionNoteText().trim()) {
-      payload.resolutionNote = this.resolutionNoteText().trim();
-    }
+    const note = this.resolutionNote().trim();
+    if (note) payload.resolutionNote = note;
 
     this.disputeApi.resolveAdminDispute(dispute.id, payload).subscribe({
       next: (res) => {
-        this.resolving.set(false);
-        this.showResolveModal.set(false);
-        if (res?.data) {
-          this.selectedDispute.set(res.data);
+        this.submittingResolve.set(false);
+        if (res.success) {
+          this.resolveSuccess.set('تم تحديث حالة النزاع بنجاح');
+          this.showResolveForm.set(false);
+          this.resolveAction.set(null);
+          this.resolutionText.set('');
+          this.resolutionNote.set('');
+          if (res.data) {
+            this.selectedDispute.set(res.data);
+          } else {
+            this.disputeApi.getAdminDispute(dispute.id).subscribe({
+              next: (detail) => {
+                if (detail.success && detail.data) {
+                  this.selectedDispute.set(detail.data);
+                }
+              },
+              error: () => {},
+            });
+          }
+          this.fetchDisputes();
+        } else {
+          this.resolveError.set(res.message || 'تعذر تحديث حالة النزاع، حاول مرة أخرى');
         }
-        this.loadDisputes();
       },
       error: (err) => {
-        this.resolving.set(false);
-        this.detailError.set(err?.error?.message || err?.message || 'تعذر تنفيذ الإجراء');
+        this.submittingResolve.set(false);
+        this.resolveError.set(err?.error?.message || 'تعذر تحديث حالة النزاع، حاول مرة أخرى');
       },
     });
   }
 
-  getStatusLabel(status: DisputeStatus): string {
-    const map: Record<DisputeStatus, string> = {
-      OPEN: 'مفتوح',
-      UNDER_REVIEW: 'قيد المراجعة',
-      RESOLVED: 'تم الحل',
-      REJECTED: 'مرفوض',
-    };
-    return map[status] || status;
-  }
-
-  getStatusClass(status: DisputeStatus): string {
-    const map: Record<DisputeStatus, string> = {
-      OPEN: 'st-open',
-      UNDER_REVIEW: 'st-review',
-      RESOLVED: 'st-resolved',
-      REJECTED: 'st-rejected',
-    };
-    return map[status] || 'st-open';
-  }
-
-  getShortId(id: string): string {
-    return id?.length > 8 ? id.substring(0, 8) : id;
-  }
-
-  formatDate(date?: string | null): string {
-    if (!date) return '—';
-    try {
-      return new Date(date).toLocaleDateString('ar-SA', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return date;
+  nextPage() {
+    const p = this.pagination();
+    if (p && this.currentPage() < p.totalPages) {
+      this.currentPage.update((v) => v + 1);
+      this.fetchDisputes();
     }
   }
 
-  getEvidenceCount(evidence?: string[]): number {
-    return evidence?.length ?? 0;
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.update((v) => v - 1);
+      this.fetchDisputes();
+    }
   }
 
   canResolve(status: DisputeStatus): boolean {
     return status !== 'RESOLVED' && status !== 'REJECTED';
   }
 
-  getPagesArray(): number[] {
-    const pages: number[] = [];
-    for (let i = 1; i <= this.totalPages(); i++) {
-      pages.push(i);
-    }
-    return pages;
+  shortId(id: string): string {
+    return id.length > 8 ? id.slice(0, 8) + '…' : id;
+  }
+
+  formatDate(value: string | null | undefined): string {
+    if (!value) return '—';
+    return new Intl.DateTimeFormat('ar-SA', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(value));
   }
 }

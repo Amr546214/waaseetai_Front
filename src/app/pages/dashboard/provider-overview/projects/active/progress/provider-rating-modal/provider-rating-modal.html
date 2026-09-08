@@ -1,0 +1,64 @@
+@if (open) {
+<div class="pr-mov show" role="dialog" aria-modal="true" aria-label="تقييم العميل" dir="rtl" (click)="closeModal()">
+	<div class="pr-mbox" (click)="$event.stopPropagation()">
+		<div class="pr-mhd">
+			<span class="pr-ico">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+				</svg>
+			</span>
+			<div>
+				<h3>قيّم العميل</h3>
+				<p>شارك تجربتك في التعامل مع العميل</p>
+				@if (clientName) { <span class="pr-client-name">{{ clientName }}</span> }
+			</div>
+			<button type="button" class="pr-close" (click)="closeModal()" aria-label="إغلاق">×</button>
+		</div>
+
+		<div class="pr-stars-row">
+			@for (star of stars; track star) {
+				<button
+					type="button"
+					class="pr-star"
+					[class.active]="star <= (hoverRating() || selectedRating())"
+					(mouseenter)="setHover(star)"
+					(mouseleave)="clearHover()"
+					(click)="selectRating(star)"
+					[attr.aria-label]="'تقييم ' + star + ' من 5'"
+				>
+					<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+					</svg>
+				</button>
+			}
+		</div>
+
+		@if (selectedRating() > 0) {
+			<div class="pr-rating-label">{{ selectedRating() }} / 5</div>
+		}
+
+		@if (error()) {
+			<div class="pr-error" role="alert">{{ error() }}</div>
+		}
+
+		<div class="pr-fld">
+			<label>رأيك (اختياري)</label>
+			<textarea
+				class="pr-ta"
+				name="comment"
+				[(ngModel)]="comment"
+				rows="4"
+				placeholder="اكتب رأيك في وضوح المتطلبات والتواصل وسرعة الرد"
+				[disabled]="isSubmitting"
+			></textarea>
+		</div>
+
+		<div class="pr-act">
+			<button type="button" class="pr-btn pr-btn-gh" (click)="closeModal()" [disabled]="isSubmitting">إلغاء</button>
+			<button type="button" class="pr-btn pr-btn-pri" (click)="onSubmit()" [disabled]="isSubmitting">
+				{{ isSubmitting ? 'جارٍ الإرسال...' : 'إرسال التقييم' }}
+			</button>
+		</div>
+	</div>
+</div>
+}

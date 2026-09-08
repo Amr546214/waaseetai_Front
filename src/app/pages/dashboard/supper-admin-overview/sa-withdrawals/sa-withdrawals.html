@@ -1,383 +1,199 @@
-<div class="sw-page">
-  <!-- Page Header -->
-  <div class="sw-head">
+<section class="wd-page" dir="rtl">
+  <div class="wd-hdr">
     <div>
-      <h1 class="sw-title">طلبات السحب</h1>
-      <p class="sw-sub">طلبات سحب أرباح مقدمي الخدمة والوسطاء إلى حساباتهم البنكية</p>
-    </div>
-    <span class="sw-total-chip">الإجمالي: {{ total() }}</span>
-  </div>
-
-  <!-- AI Insight Banner -->
-  <div class="sw-ai-banner">
-    <div class="sw-ai-ico">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    </div>
-    <div class="sw-ai-body">
-      <div class="sw-ai-lbl">وسيط AI، مراقبة مالية</div>
-      <p class="sw-ai-txt">الذكاء الاصطناعي يتحقق من تطابق الحساب البنكي مع بيانات مقدم الخدمة ويرصد أنماط السحب غير المعتادة قبل الموافقة. <span class="sw-ai-badge">دقة 95%</span> القرار النهائي لك.</p>
+      <h1 class="wd-ttl">إدارة طلبات السحب</h1>
+      <p class="wd-sub">مراجعة طلبات السحب ومتابعة حالتها</p>
     </div>
   </div>
 
-  <!-- Policy Warning Card -->
-  <div class="sw-policy">
-    <div class="sw-policy-ico">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-        <line x1="12" y1="9" x2="12" y2="13" />
-        <line x1="12" y1="17" x2="12.01" y2="17" />
-      </svg>
-    </div>
-    <div class="sw-policy-body">
-      <div class="sw-policy-lbl">سياسة الموافقة على السحب</div>
-      <p class="sw-policy-txt">يجب مراجعة تطابق اسم المستفيد مع اسم الحساب البنكي قبل الموافقة. لا تتم الموافقة على المبالغ التي تتجاوز الرصيد المتاح. الطلبات المشبوهة تحوّل للمراجعة اليدوية. يتم خصم الرصيد من محفظة مقدم الخدمة فقط بعد الموافقة.</p>
-    </div>
+  <div class="wd-filters">
+    @for (f of filters; track f.key) {
+      <button type="button" class="wd-ftab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">{{ f.label }}</button>
+    }
   </div>
 
-  <!-- Summary Cards -->
-  <div class="sw-stats">
-    <div class="sw-stat">
-      <div class="sw-stat-lbl">قيد الانتظار</div>
-      <div class="sw-stat-val sw-stat-amber">{{ pendingCount() }}</div>
-      <div class="sw-stat-sub">{{ pendingAmount() | number:'1.0-2' }} ر.س</div>
-    </div>
-    <div class="sw-stat">
-      <div class="sw-stat-lbl">موافق عليها / مكتملة</div>
-      <div class="sw-stat-val sw-stat-green">{{ approvedCount() }}</div>
-      <div class="sw-stat-sub">من العناصر المحمّلة</div>
-    </div>
-    <div class="sw-stat">
-      <div class="sw-stat-lbl">مشبوهة</div>
-      <div class="sw-stat-val sw-stat-red">{{ suspiciousCount() }}</div>
-      <div class="sw-stat-sub">مرصودة بالذكاء</div>
-    </div>
-    <div class="sw-stat">
-      <div class="sw-stat-lbl">إجمالي العناصر</div>
-      <div class="sw-stat-val sw-stat-cyan">{{ total() }}</div>
-      <div class="sw-stat-sub">كل الطلبات</div>
-    </div>
-  </div>
-
-  <!-- Filter Chips -->
-  <div class="sw-filters">
-    <div class="sw-filter-group">
-      <span class="sw-filter-label">الحالة:</span>
-      @for (opt of statusOptions; track opt.value) {
-        <button type="button" class="sw-chip" [class.sw-chip-active]="statusFilter() === opt.value" (click)="onStatusFilterChange(opt.value)">
-          {{ opt.label }}
-        </button>
-      }
-    </div>
-    <div class="sw-filter-group">
-      <span class="sw-filter-label">النوع:</span>
-      @for (opt of typeOptions; track opt.value) {
-        <button type="button" class="sw-chip sw-chip-type" [class.sw-chip-active]="typeFilter() === opt.value" (click)="onTypeFilterChange(opt.value)">
-          {{ opt.label }}
-        </button>
-      }
-    </div>
-  </div>
-
-  <!-- Loading State -->
   @if (loading()) {
-    <div class="sw-card sw-loading">
-      <div class="sw-spinner"></div>
-      <span>جاري تحميل طلبات السحب...</span>
+    <div class="wd-loading">
+      <div class="wd-spinner"></div>
+      <p>جاري تحميل طلبات السحب…</p>
     </div>
-  }
-
-  <!-- Error State -->
-  @if (error() && !loading()) {
-    <div class="sw-card sw-error">
-      <div class="sw-error-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
+  } @else if (error()) {
+    <div class="wd-error">
+      <p class="wd-error-msg">{{ error() }}</p>
+      <button type="button" class="wd-btn wd-btn-pri" (click)="fetchWithdrawals()">إعادة المحاولة</button>
+    </div>
+  } @else if (withdrawals().length === 0) {
+    <div class="wd-empty">
+      <div class="wd-empty-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
       </div>
-      <div class="sw-error-ttl">تعذر تحميل الطلبات</div>
-      <div class="sw-error-sub">{{ error() }}</div>
-      <button type="button" class="sw-retry" (click)="loadWithdrawals()">إعادة المحاولة</button>
+      <p class="wd-empty-ttl">لا توجد طلبات سحب في هذا التصنيف</p>
     </div>
-  }
-
-  <!-- Empty State -->
-  @if (!loading() && !error() && filteredWithdrawals().length === 0) {
-    <div class="sw-card sw-empty">
-      <div class="sw-empty-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H5a3 3 0 00-3 3v8a3 3 0 003 3z" />
-        </svg>
-      </div>
-      <h3 class="sw-empty-ttl">لا توجد طلبات سحب</h3>
-      <p class="sw-empty-txt">لم يتم العثور على طلبات مطابقة للمرشح الحالي.</p>
-    </div>
-  }
-
-  <!-- Withdrawals Table -->
-  @if (!loading() && !error() && filteredWithdrawals().length > 0) {
-    <div class="sw-table-wrap">
-      <table class="sw-table">
-        <thead>
-          <tr>
-            <th>المعرف</th>
-            <th>المستخدم</th>
-            <th>النوع</th>
-            <th>المبلغ</th>
-            <th>الحساب البنكي</th>
-            <th>تاريخ الطلب</th>
-            <th>مدة الانتظار</th>
-            <th>AI</th>
-            <th>الحالة</th>
-            <th>إجراء</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (w of filteredWithdrawals(); track w.id) {
-            <tr>
-              <td data-label="المعرف">
-                <span class="sw-cell-id">#{{ getShortId(w.id) }}</span>
-              </td>
-              <td data-label="المستخدم">
-                <div class="sw-cell-user">
-                  <div class="sw-user-name">{{ w.userName || '—' }}</div>
-                  @if (w.userEmail) {
-                    <div class="sw-user-email">{{ w.userEmail }}</div>
-                  }
-                </div>
-              </td>
-              <td data-label="النوع">
-                <span class="sw-type-pill">{{ getUserTypeLabel(w) }}</span>
-              </td>
-              <td data-label="المبلغ">
-                <div class="sw-cell-amt">{{ formatAmount(w.amount, w.currency) }}</div>
-                <div class="sw-cell-method">{{ getMethodLabel(w.method) }}</div>
-              </td>
-              <td data-label="الحساب البنكي">
-                <div class="sw-cell-bank">
-                  @if (w.accountName) {
-                    <div class="sw-bank-name">{{ w.accountName }}</div>
-                  }
-                  <div class="sw-bank-iban" dir="ltr">{{ maskIban(w.iban) }}</div>
-                </div>
-              </td>
-              <td data-label="تاريخ الطلب">
-                <span class="sw-cell-date">{{ formatDate(w.createdAt) }}</span>
-              </td>
-              <td data-label="مدة الانتظار">
-                <span class="sw-cell-wait" [class.sw-wait-long]="w.status === 'PENDING'">{{ getWaitDuration(w.createdAt) }}</span>
-              </td>
-              <td data-label="AI">
-                @let ai = getAiStatus(w);
-                <span class="sw-ai-badge" [class]="ai.class">
-                  <span class="sw-ai-dot"></span>
-                  {{ ai.label }}
-                </span>
-              </td>
-              <td data-label="الحالة">
-                <span class="sw-st" [class]="getStatusClass(w.status)">
-                  <span class="sw-st-dot"></span>
-                  {{ getStatusLabel(w.status) }}
-                </span>
-              </td>
-              <td data-label="إجراء">
-                <button type="button" class="sw-detail-btn" (click)="viewDetail(w.id)">عرض التفاصيل</button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  } @else {
+    <div class="wd-list">
+      @for (w of withdrawals(); track w.id) {
+        <div class="wd-card">
+          <div class="wd-card-top">
+            <span class="wd-id">#{{ shortId(w.id) }}</span>
+            <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] }}</span>
+          </div>
+          <div class="wd-card-body">
+            <div class="wd-amount">{{ formatAmount(w.amount, w.currency) }}</div>
+            <div class="wd-meta">
+              <span>المستخدم: {{ userDisplay(w) }}</span>
+              <span>·</span>
+              <span>الطريقة: {{ w.method || '—' }}</span>
+              <span>·</span>
+              <span>{{ formatDate(w.createdAt) }}</span>
+            </div>
+            @if (w.bankInfo?.iban) {
+              <div class="wd-meta">
+                <span>IBAN: {{ ibanLast4(w.bankInfo?.iban) }}</span>
+                @if (w.bankInfo?.bankName) {
+                  <span>·</span>
+                  <span>{{ w.bankInfo?.bankName }}</span>
+                }
+              </div>
+            }
+          </div>
+          <button type="button" class="wd-btn wd-btn-gh" (click)="openDetail(w)">عرض التفاصيل</button>
+        </div>
+      }
     </div>
 
-    <!-- Pagination -->
-    @if (totalPages() > 1) {
-      <div class="sw-pager">
-        <button type="button" class="sw-page-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">السابق</button>
-        @for (p of getPagesArray(); track p) {
-          <button type="button" class="sw-page-btn" [class.sw-page-active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
-        }
-        <button type="button" class="sw-page-btn" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">التالي</button>
+    @if (pagination(); as pg) {
+      <div class="wd-pag">
+        <span class="wd-pag-info">صفحة {{ pg.page ?? currentPage() }} من {{ pg.totalPages ?? pg.pages ?? 1 }} (إجمالي {{ pg.total ?? 0 }})</span>
+        <div class="wd-pag-btns">
+          <button type="button" class="wd-btn wd-btn-gh" [disabled]="(pg.page ?? currentPage()) <= 1" (click)="prevPage()">السابق</button>
+          <button type="button" class="wd-btn wd-btn-gh" [disabled]="(pg.page ?? currentPage()) >= (pg.totalPages ?? pg.pages ?? 1)" (click)="nextPage()">التالي</button>
+        </div>
       </div>
     }
   }
-</div>
+</section>
 
-<!-- Detail Modal -->
-@if (showDetailModal()) {
-  <div class="sw-modal-overlay" (click)="closeDetailModal()">
-    <div class="sw-modal-box" (click)="$event.stopPropagation()">
-      <div class="sw-modal-header">
-        <div class="sw-modal-httl">
-          <div class="sw-modal-hico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="5" width="20" height="14" rx="2" />
-              <line x1="2" y1="10" x2="22" y2="10" />
-            </svg>
-          </div>
+@if (showDetail()) {
+  <div class="wd-mov" (click)="closeDetail()">
+    <div class="wd-mbox" (click)="$event.stopPropagation()">
+      @if (selectedWithdrawal(); as w) {
+        <div class="wd-md-hdr">
           <div>
-            <h2>تفاصيل طلب السحب</h2>
-            <p>مراجعة بيانات الطلب قبل الموافقة</p>
+            <h3>تفاصيل طلب السحب #{{ shortId(w.id) }}</h3>
+            <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] }}</span>
           </div>
+          <button type="button" class="wd-mclose" (click)="closeDetail()">×</button>
         </div>
-        <button type="button" class="sw-modal-close" (click)="closeDetailModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-
-      @if (detailLoading()) {
-        <div class="sw-modal-loading">
-          <div class="sw-spinner"></div>
-          <span>جاري التحميل...</span>
-        </div>
-      }
-
-      @if (detailError() && !detailLoading()) {
-        <div class="sw-modal-error">{{ detailError() }}</div>
-      }
-
-      @if (selectedWithdrawal() && !detailLoading()) {
-        <div class="sw-modal-body">
-          <div class="sw-detail-grid">
-            <div class="sw-detail-row">
-              <span class="sw-detail-key">المعرف</span>
-              <span class="sw-detail-val sw-detail-id">#{{ selectedWithdrawal()!.id }}</span>
-            </div>
-            @if (selectedWithdrawal()!.userName) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">المستخدم</span>
-                <span class="sw-detail-val">{{ selectedWithdrawal()!.userName }}</span>
-              </div>
-            }
-            @if (selectedWithdrawal()!.userEmail) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">البريد</span>
-                <span class="sw-detail-val">{{ selectedWithdrawal()!.userEmail }}</span>
-              </div>
-            }
-            <div class="sw-detail-row">
-              <span class="sw-detail-key">المبلغ</span>
-              <span class="sw-detail-val sw-detail-amt">{{ formatAmount(selectedWithdrawal()!.amount, selectedWithdrawal()!.currency) }}</span>
-            </div>
-            <div class="sw-detail-row">
-              <span class="sw-detail-key">الحالة</span>
-              <span class="sw-detail-val">
-                <span class="sw-st" [class]="getStatusClass(selectedWithdrawal()!.status)">
-                  <span class="sw-st-dot"></span>
-                  {{ getStatusLabel(selectedWithdrawal()!.status) }}
-                </span>
-              </span>
-            </div>
-            <div class="sw-detail-row">
-              <span class="sw-detail-key">الطريقة</span>
-              <span class="sw-detail-val">{{ getMethodLabel(selectedWithdrawal()!.method) }}</span>
-            </div>
-            @if (selectedWithdrawal()!.accountName) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">اسم الحساب</span>
-                <span class="sw-detail-val">{{ selectedWithdrawal()!.accountName }}</span>
-              </div>
-            }
-            @if (selectedWithdrawal()!.iban) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">IBAN</span>
-                <span class="sw-detail-val" dir="ltr">{{ selectedWithdrawal()!.iban }}</span>
-              </div>
-            }
-            @if (selectedWithdrawal()!.accountNumber) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">رقم الحساب</span>
-                <span class="sw-detail-val" dir="ltr">{{ selectedWithdrawal()!.accountNumber }}</span>
-              </div>
-            }
-            @if (selectedWithdrawal()!.bankInfo?.bankName) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">البنك</span>
-                <span class="sw-detail-val">{{ selectedWithdrawal()!.bankInfo!.bankName }}</span>
-              </div>
-            }
-            <div class="sw-detail-row">
-              <span class="sw-detail-key">تاريخ الإنشاء</span>
-              <span class="sw-detail-val">{{ formatDate(selectedWithdrawal()!.createdAt) }}</span>
-            </div>
-            @if (selectedWithdrawal()!.processedAt) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">تاريخ المعالجة</span>
-                <span class="sw-detail-val">{{ formatDate(selectedWithdrawal()!.processedAt) }}</span>
-              </div>
-            }
-            @if (selectedWithdrawal()!.adminNote) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">ملاحظات الإدارة</span>
-                <span class="sw-detail-val sw-detail-note">{{ selectedWithdrawal()!.adminNote }}</span>
-              </div>
-            }
-            @if (selectedWithdrawal()!.rejectionReason) {
-              <div class="sw-detail-row">
-                <span class="sw-detail-key">سبب الرفض</span>
-                <span class="sw-detail-val sw-detail-rej">{{ selectedWithdrawal()!.rejectionReason }}</span>
-              </div>
-            }
+        <div class="wd-md-body">
+          <div class="wd-md-field">
+            <label>المبلغ</label>
+            <p>{{ formatAmount(w.amount, w.currency) }}</p>
           </div>
-
-          @if (canAct(selectedWithdrawal()!.status)) {
-            <div class="sw-modal-actions">
-              <button type="button" class="sw-btn sw-btn-approve" (click)="openActionModal('approve')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                موافقة
-              </button>
-              <button type="button" class="sw-btn sw-btn-reject" (click)="openActionModal('reject')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                رفض
-              </button>
+          <div class="wd-md-row">
+            <div class="wd-md-field">
+              <label>المستخدم</label>
+              <p>{{ userDisplay(w) }}</p>
+            </div>
+            <div class="wd-md-field">
+              <label>طريقة السحب</label>
+              <p>{{ w.method || '—' }}</p>
+            </div>
+          </div>
+          <div class="wd-md-row">
+            <div class="wd-md-field">
+              <label>تاريخ الطلب</label>
+              <p>{{ formatDate(w.createdAt) }}</p>
+            </div>
+            <div class="wd-md-field">
+              <label>تاريخ المعالجة</label>
+              <p>{{ formatDate(w.processedAt) }}</p>
+            </div>
+          </div>
+          @if (w.bankInfo) {
+            <div class="wd-md-section">
+              <label>البيانات البنكية</label>
+              <div class="wd-md-bank">
+                <div class="wd-md-row">
+                  <div class="wd-md-field">
+                    <label>اسم البنك</label>
+                    <p>{{ w.bankInfo?.bankName || '—' }}</p>
+                  </div>
+                  <div class="wd-md-field">
+                    <label>اسم صاحب الحساب</label>
+                    <p>{{ w.bankInfo?.accountHolderName || '—' }}</p>
+                  </div>
+                </div>
+                <div class="wd-md-row">
+                  <div class="wd-md-field">
+                    <label>IBAN</label>
+                    <p dir="ltr" style="text-align:right">{{ w.bankInfo?.iban || '—' }}</p>
+                  </div>
+                  <div class="wd-md-field">
+                    <label>SWIFT</label>
+                    <p>{{ w.bankInfo?.swiftCode || '—' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          @if (w.adminNote) {
+            <div class="wd-md-field">
+              <label>ملاحظات الإدارة</label>
+              <p>{{ w.adminNote }}</p>
+            </div>
+          }
+          @if (w.rejectionReason) {
+            <div class="wd-md-field">
+              <label>سبب الرفض</label>
+              <p>{{ w.rejectionReason }}</p>
             </div>
           }
         </div>
-      }
-    </div>
-  </div>
-}
+        @if (actionSuccess()) {
+          <div class="wd-md-success">
+            <p>{{ actionSuccess() }}</p>
+          </div>
+        }
 
-<!-- Action Modal (Approve/Reject) -->
-@if (showActionModal()) {
-  <div class="sw-modal-overlay" (click)="closeActionModal()">
-    <div class="sw-modal-box sw-modal-box-sm" (click)="$event.stopPropagation()">
-      <div class="sw-modal-header">
-        <h2>{{ actionType() === 'approve' ? 'الموافقة على طلب السحب' : 'رفض طلب السحب' }}</h2>
-        <button type="button" class="sw-modal-close" (click)="closeActionModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-      <div class="sw-modal-body">
-        @if (actionType() === 'approve') {
-          <div class="sw-form-group">
-            <label class="sw-form-lbl">ملاحظات الإدارة (اختياري)</label>
-            <textarea class="sw-form-input" rows="3" [value]="actionNote()" (input)="actionNote.set($any($event.target).value)" placeholder="ملاحظات..."></textarea>
+        @if (canAct(w.status) && !showActionForm()) {
+          <div class="wd-md-actions">
+            <button type="button" class="wd-btn wd-btn-pri" (click)="openActionForm('approve')">قبول طلب السحب</button>
+            <button type="button" class="wd-btn wd-btn-reject" (click)="openActionForm('reject')">رفض طلب السحب</button>
+            <button type="button" class="wd-btn wd-btn-gh" (click)="closeDetail()">إغلاق</button>
+          </div>
+        } @else if (showActionForm()) {
+          <div class="wd-action-form">
+            <h4 class="wd-af-ttl">{{ actionType() === 'approve' ? 'تأكيد القبول' : 'تأكيد الرفض' }}</h4>
+
+            @if (actionType() === 'approve') {
+              <div class="wd-md-field">
+                <label>ملاحظات الإدارة (اختياري)</label>
+                <textarea class="wd-af-ta" [value]="adminNote()" (input)="adminNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+              </div>
+            } @else {
+              <div class="wd-md-field">
+                <label>سبب الرفض <span class="wd-req">*</span></label>
+                <textarea class="wd-af-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض…"></textarea>
+              </div>
+            }
+
+            @if (actionError()) {
+              <p class="wd-af-err">{{ actionError() }}</p>
+            }
+
+            <div class="wd-af-actions">
+              <button type="button" class="wd-btn wd-btn-pri" [disabled]="submittingAction()" (click)="submitAction()">
+                {{ submittingAction() ? 'جارٍ الحفظ...' : 'تأكيد' }}
+              </button>
+              <button type="button" class="wd-btn wd-btn-gh" [disabled]="submittingAction()" (click)="cancelActionForm()">إلغاء</button>
+            </div>
           </div>
         } @else {
-          <div class="sw-form-group">
-            <label class="sw-form-lbl">سبب الرفض <span class="sw-req">*</span></label>
-            <textarea class="sw-form-input" rows="3" [value]="actionReason()" (input)="actionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض..."></textarea>
+          <div class="wd-md-actions">
+            <button type="button" class="wd-btn wd-btn-gh" (click)="closeDetail()">إغلاق</button>
           </div>
         }
-        @if (detailError()) {
-          <div class="sw-modal-error">{{ detailError() }}</div>
-        }
-        <div class="sw-modal-actions">
-          <button type="button" class="sw-btn sw-btn-cancel" (click)="closeActionModal()" [disabled]="processing()">إلغاء</button>
-          <button type="button" class="sw-btn" [class.sw-btn-approve]="actionType() === 'approve'" [class.sw-btn-reject]="actionType() === 'reject'" (click)="confirmAction()" [disabled]="processing() || (actionType() === 'reject' && !actionReason().trim())">
-            {{ processing() ? 'جاري التنفيذ...' : (actionType() === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض') }}
-          </button>
-        </div>
-      </div>
+      }
     </div>
   </div>
 }
