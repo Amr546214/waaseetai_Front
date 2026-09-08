@@ -2,14 +2,13 @@ import { Component, inject, signal, computed, OnDestroy, ViewChildren, QueryList
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CheckoutStepper } from '../components/checkout-stepper/checkout-stepper';
-import { OrderSummary } from '../components/order-summary/order-summary';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 
 @Component({
   selector: 'app-checkout-confirm',
   standalone: true,
-  imports: [CommonModule, CheckoutStepper, OrderSummary, RouterLink],
+  imports: [CommonModule, CheckoutStepper, RouterLink],
   templateUrl: './confirm.html',
   styleUrl: './confirm.css',
 })
@@ -22,12 +21,16 @@ export class CheckoutConfirmComponent implements OnDestroy {
   private checkoutService = inject(CheckoutService);
   private router = inject(Router);
 
+  items = this.cartService.items;
   itemCount = this.cartService.itemCount;
   total = this.cartService.total;
   currentOrder = this.checkoutService.currentOrder;
   maskedPhone = this.checkoutService.maskedPhone;
   paymentReference = this.checkoutService.paymentReference;
   serviceError = this.checkoutService.error;
+
+  activeItems = computed(() => this.items().filter(i => !i.savedForLater));
+  serviceNames = computed(() => this.activeItems().map(i => i.title).join(' + '));
 
   otpDigits = signal<string[]>(['', '', '', '', '', '']);
   isProcessing = signal(false);

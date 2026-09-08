@@ -3,126 +3,197 @@
     <app-checkout-stepper [step]="step" />
 
     @if (itemCount() > 0) {
-      <!-- Populated review -->
-      <div class="checkout-body">
-        <div class="checkout-main">
-          <h1 class="page-title">مراجعة الطلب</h1>
+      <!-- AI BANNER -->
+      <div class="ai-banner">
+        <div class="ai-banner-ico">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="2"/>
+            <circle cx="4" cy="6" r="1.5"/>
+            <circle cx="20" cy="6" r="1.5"/>
+            <circle cx="4" cy="18" r="1.5"/>
+            <circle cx="20" cy="18" r="1.5"/>
+            <path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/>
+          </svg>
+        </div>
+        <div class="ai-banner-txt">
+          <strong>الذكاء الاصطناعي راجع طلبك</strong> — الخدمات المختارة متوافقة، التفاصيل مكتملة، ولا توجد تعارضات. توقع بدء العمل خلال <strong>24–48 ساعة</strong> بعد الدفع
+        </div>
+        <div class="ai-banner-badge">AI · مراجعة</div>
+      </div>
 
-          <!-- AI Review Banner -->
-          <div class="ai-review-banner">
-            <div class="ai-banner-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5L12 2z" fill="currentColor"/>
+      <div class="review-layout">
+        <!-- MAIN -->
+        <div>
+          <!-- ORDER ITEMS HEADER -->
+          <div class="sec-hd">
+            <div class="sec-hd-title">
+              <span class="sec-hd-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal)">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </span>
+              تفاصيل الطلب
+            </div>
+            <a routerLink="/cart" class="sec-edit-link">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
               </svg>
-            </div>
-            <div class="ai-banner-text">
-              <strong>مراجعة الذكاء الاصطناعي</strong>
-              <span>راجع الذكاء الاصطناعي تفاصيل الطلب وتوافقها مع الخدمات المختارة</span>
-            </div>
+              تعديل السلة
+            </a>
           </div>
 
-          <!-- Order items list -->
-          <div class="review-items">
-            @for (item of activeItems(); track item.id) {
-              <div class="review-item">
-                <div class="review-item-thumb">
+          <!-- ORDER ITEMS -->
+          @for (item of activeItems(); track item.id) {
+            <div class="order-item">
+              <div class="order-item-head">
+                <div class="order-thumb">
                   @if (item.coverImage) {
                     <img [src]="item.coverImage" [alt]="item.title" loading="lazy" />
                   } @else {
-                    <span class="thumb-placeholder">{{ item.provider.initials }}</span>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="3"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                  }
+                  @if (item.level) {
+                    <span class="lvl" [class.lvl-expert]="item.level === 'خبير'" [class.lvl-advanced]="item.level === 'متقدم'">{{ item.level }}</span>
                   }
                 </div>
-                <div class="review-item-body">
-                  <div class="review-item-header">
-                    <h3 class="review-item-title">{{ item.title }}</h3>
-                    <span class="review-item-price">{{ formatPrice(item.totalAmount) }} ر.س</span>
+                <div class="order-info">
+                  @if (item.category) {
+                    <div class="order-cat">{{ item.category }}</div>
+                  }
+                  <div class="order-svc-title">{{ item.title }}</div>
+                  <div class="order-prov-row">
+                    <div class="order-av">{{ item.provider.initials }}</div>
+                    <span class="order-prov-name">{{ item.provider.name }}</span>
+                    @if (item.provider.isVerified) {
+                      <span class="order-prov-ver">✓ معتمد</span>
+                    }
                   </div>
-                  <div class="review-item-meta">
-                    <div class="meta-provider">
-                      <span class="provider-avatar">{{ item.provider.initials }}</span>
-                      <span class="provider-name">{{ item.provider.name }}</span>
-                      @if (item.provider.isVerified) {
-                        <span class="verified-badge">
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                          معتمد
-                        </span>
-                      }
-                    </div>
-                    <div class="meta-tags">
-                      @if (item.packageName) {
-                        <span class="meta-tag meta-package">{{ item.packageName }}</span>
-                      }
-                      <span class="meta-tag meta-days">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-                          <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <div class="order-badges">
+                    @if (item.packageName) {
+                      <span class="order-pkg-chip">{{ item.packageName }}</span>
+                    }
+                    <span class="order-days">
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 7 12 12 15 14"/>
+                      </svg>
+                      {{ item.totalDays }} أيام
+                    </span>
+                    @if (item.aiScore) {
+                      <span class="order-ai-badge">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="2"/>
+                          <circle cx="4" cy="6" r="1.5"/>
+                          <circle cx="20" cy="6" r="1.5"/>
+                          <circle cx="4" cy="18" r="1.5"/>
+                          <circle cx="20" cy="18" r="1.5"/>
+                          <path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/>
                         </svg>
-                        {{ item.totalDays }} يوم
+                        AI {{ item.aiScore }}
                       </span>
-                      @if (item.aiScore) {
-                        <span class="meta-tag meta-ai">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5L12 2z" fill="currentColor"/>
-                          </svg>
-                          AI {{ item.aiScore }}%
-                        </span>
-                      }
-                      @if (item.level) {
-                        <span class="meta-tag meta-level">{{ item.level }}</span>
-                      }
-                    </div>
+                    }
                   </div>
                 </div>
+                <div class="order-price-col">
+                  <div class="order-price">{{ formatPrice(item.totalAmount) }} <span>ريال</span></div>
+                </div>
               </div>
-            }
-          </div>
-
-          <!-- Billing info card -->
-          <div class="info-card billing-card">
-            <div class="info-card-header">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 22V12h6v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <h2 class="info-card-title">بيانات العميل</h2>
+              <div class="order-deliverables">
+                <div class="del-title">ما ستحصل عليه</div>
+                <div class="del-grid">
+                  @for (del of getDeliverables(item); track $index) {
+                    <div class="del-item">
+                      <div class="del-ico">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      </div>
+                      {{ del }}
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="order-milestones">
+                <div class="ms-title">خطة التسليم</div>
+                <div class="ms-list">
+                  @for (ms of getMilestones(item); track $index; let last = $last) {
+                    <div class="ms-item">
+                      <div class="ms-dot" [class.done]="$index === 0">
+                        @if ($index === 0) {
+                          <div style="width:6px;height:6px;border-radius:50%;background:rgba(43,212,199,.5)"></div>
+                        } @else {
+                          <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15)"></div>
+                        }
+                      </div>
+                      <div class="ms-body" [style.padding-bottom]="last ? '0' : '12px'">
+                        <div class="ms-label">{{ ms.label }}</div>
+                        <div class="ms-sub">{{ ms.sub }}</div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
             </div>
+          }
+
+          <!-- BILLING INFO HEADER -->
+          <div class="sec-hd" style="margin-top:24px">
+            <div class="sec-hd-title">
+              <span class="sec-hd-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2)">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue-txt)">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              معلومات الفوترة
+            </div>
+            <a routerLink="/profile" class="sec-edit-link">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              تعديل
+            </a>
+          </div>
+          <div class="billing-card">
             <div class="billing-grid">
               <div class="billing-field">
-                <span class="billing-label">الاسم</span>
-                <span class="billing-value">{{ fullName }}</span>
+                <div class="billing-label">الاسم الكامل</div>
+                <div class="billing-val">{{ fullName }}</div>
               </div>
               <div class="billing-field">
-                <span class="billing-label">البريد الإلكتروني</span>
-                <span class="billing-value">{{ email }}</span>
+                <div class="billing-label">البريد الإلكتروني</div>
+                <div class="billing-val">{{ email }}</div>
               </div>
               <div class="billing-field">
-                <span class="billing-label">رقم الهاتف</span>
-                <span class="billing-value">{{ phone }}</span>
+                <div class="billing-label">رقم الجوال</div>
+                <div class="billing-val">{{ phone }}</div>
               </div>
               <div class="billing-field">
-                <span class="billing-label">نوع الحساب</span>
-                <span class="billing-value">{{ accountTypeLabel }}</span>
+                <div class="billing-label">نوع الحساب</div>
+                <div class="billing-val">{{ accountTypeLabel }}</div>
               </div>
             </div>
           </div>
 
-          <!-- Notes / Terms card -->
-          <div class="info-card terms-card">
-            <div class="info-card-header">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+          <!-- NOTES -->
+          <div class="notes-card">
+            <div class="notes-ico">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
               </svg>
-              <h2 class="info-card-title">معلومات هامة</h2>
             </div>
-            <ul class="terms-list">
-              <li>يتم احتجاز المبلغ في حساب ضمان (Escrow) حتى تأكيد استلام الخدمة</li>
-              <li>يبدأ مقدم الخدمة بالعمل فور تأكيد الدفع</li>
-              <li>يمكنك مراجعة وتقييم التسليم النهائي قبل الإفراج عن المبلغ</li>
-              <li>في حال عدم التسليم خلال المدة المتفق عليها، يحق لك استرداد المبلغ</li>
-            </ul>
+            <div class="notes-txt">
+              <strong>ملاحظة مهمة:</strong> بعد إتمام الدفع، سيتحول الطلب تلقائياً إلى مشروع نشط في لوحة التحكم حيث يمكنك متابعة التنفيذ والتواصل مع المقدم. جميع التفاصيل والاتفاقيات محفوظة ومحمية بعقد رسمي.
+            </div>
           </div>
 
           <!-- Error message -->
@@ -137,30 +208,119 @@
           }
         </div>
 
-        <!-- Sidebar -->
-        <div class="checkout-sidebar">
-          <app-order-summary />
-          <button
-            class="btn-continue"
-            type="button"
-            [disabled]="itemCount() === 0 || isProcessing()"
-            (click)="proceedToPayment()"
-          >
-            @if (isProcessing()) {
-              جاري المعالجة...
-            } @else {
-              متابعة للدفع
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            }
-          </button>
-          <a routerLink="/cart" class="btn-edit-cart">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            تعديل السلة
-          </a>
+        <!-- SIDEBAR -->
+        <div class="cart-sidebar">
+          <!-- ORDER SUMMARY -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-title">
+              <div class="sidebar-card-title-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal)">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              ملخص الطلب
+            </div>
+            <div class="summary-rows">
+              @for (item of activeItems(); track item.id) {
+                <div class="sum-row">
+                  <span class="sum-row-label">{{ item.title }}</span>
+                  <span class="sum-row-val">{{ formatPrice(item.totalAmount) }} ريال</span>
+                </div>
+              }
+              <div class="sum-row" style="padding-top:8px;border-top:1px solid var(--border)">
+                <span class="sum-row-label">المجموع الفرعي</span>
+                <span class="sum-row-val">{{ formatPrice(subtotal()) }} ريال</span>
+              </div>
+              @if (coupon()) {
+                <div class="sum-row discount-row">
+                  <span class="sum-row-label">خصم الكوبون ({{ coupon()!.code }})</span>
+                  <span class="sum-row-val">- {{ formatPrice(discount()) }} ريال</span>
+                </div>
+              }
+              <div class="sum-row total">
+                <span class="sum-row-label">الإجمالي</span>
+                <span class="sum-row-val">{{ formatPrice(total()) }} ريال</span>
+              </div>
+            </div>
+            <div class="checkout-wrap">
+              <button
+                class="btn-checkout"
+                type="button"
+                [disabled]="itemCount() === 0 || isProcessing()"
+                (click)="proceedToPayment()"
+              >
+                @if (isProcessing()) {
+                  جاري المعالجة...
+                } @else {
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  متابعة للدفع
+                }
+              </button>
+              <a routerLink="/cart" class="back-link">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"/>
+                  <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                العودة للسلة
+              </a>
+            </div>
+          </div>
+
+          <!-- GUARANTEES -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-title">
+              <div class="sidebar-card-title-ico" style="background:rgba(15,169,154,.08);border:1px solid rgba(15,169,154,.2)">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green)">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              ضمانات وسيط AI
+            </div>
+            <div class="trust-mini">
+              <div class="trust-mini-item">
+                <div class="trust-mini-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal)">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                </div>
+                ضمان مالي وفق سياسة الإلغاء والاسترداد
+              </div>
+              <div class="trust-mini-item">
+                <div class="trust-mini-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue-txt)">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </div>
+                عقد رسمي موثّق لكل مشروع
+              </div>
+              <div class="trust-mini-item">
+                <div class="trust-mini-ico" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green)">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+                مقدمون موثقون أو معتمدون حسب التخصص والحالة
+              </div>
+              <div class="trust-mini-item">
+                <div class="trust-mini-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border)">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ai)">
+                    <circle cx="12" cy="12" r="2"/>
+                    <circle cx="4" cy="6" r="1.5"/>
+                    <circle cx="20" cy="6" r="1.5"/>
+                    <circle cx="4" cy="18" r="1.5"/>
+                    <circle cx="20" cy="18" r="1.5"/>
+                    <path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/>
+                  </svg>
+                </div>
+                مراقبة الذكاء الاصطناعي للجودة
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     } @else {

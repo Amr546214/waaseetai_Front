@@ -1,8 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CheckoutStepper } from '../components/checkout-stepper/checkout-stepper';
-import { OrderSummary } from '../components/order-summary/order-summary';
 import { CartService } from '../../../../core/services/cart.service';
 import { MarketplaceService, MarketplaceModel } from '../../../../core/services/marketplace.service';
 import { Subscription } from 'rxjs';
@@ -10,7 +8,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, CheckoutStepper, OrderSummary, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './cart.html',
   styleUrl: './cart.css',
 })

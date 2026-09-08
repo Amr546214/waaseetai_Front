@@ -1,6 +1,53 @@
 <div class="checkout-page">
   <div class="checkout-container">
-    <app-checkout-stepper [step]="step" />
+    <!-- STEPPER -->
+    <div class="stepper" role="list" aria-label="خطوات الشراء">
+      <div class="step" role="listitem">
+        <div class="step-inner">
+          <div class="step-circle active">1</div>
+          <div class="step-label active">السلة</div>
+        </div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-inner">
+          <div class="step-circle">2</div>
+          <div class="step-label">المراجعة</div>
+        </div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-inner">
+          <div class="step-circle">3</div>
+          <div class="step-label">الدفع</div>
+        </div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-inner">
+          <div class="step-circle">4</div>
+          <div class="step-label">التأكيد</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI BANNER -->
+    <div class="ai-banner">
+      <div class="ai-banner-ico">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="4" cy="6" r="1.5"/>
+          <circle cx="20" cy="6" r="1.5"/>
+          <circle cx="4" cy="18" r="1.5"/>
+          <circle cx="20" cy="18" r="1.5"/>
+          <path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/>
+        </svg>
+      </div>
+      <div class="ai-banner-txt">
+        <strong>تحليل الذكاء الاصطناعي</strong> — الخدمات المختارة متوافقة ومكملة لبعضها. توافق المجال <strong>96%</strong> · مدة التسليم المجمّعة <strong>12–14 يوماً</strong>
+      </div>
+      <div class="ai-banner-badge">AI · نشط</div>
+    </div>
 
     @if (itemCount() > 0) {
       <!-- Populated cart -->
@@ -8,11 +55,18 @@
         <div class="checkout-main">
           <!-- Header row -->
           <div class="cart-header">
-            <h1 class="page-title">السلة</h1>
-            <button class="btn-clear" type="button" (click)="clearCart()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+            <div class="cart-title">
+              <span class="cart-title-ico">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="21" r="1"/>
+                  <circle cx="20" cy="21" r="1"/>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                </svg>
+              </span>
+              سلتك
+              <span class="cart-count-badge">{{ itemCount() }}</span>
+            </div>
+            <button class="clear-btn" type="button" (click)="clearCart()">
               مسح السلة
             </button>
           </div>
@@ -21,68 +75,75 @@
           <div class="cart-items">
             @for (item of activeItems; track item.id) {
               <div class="cart-item">
-                <div class="cart-item-thumb">
+                <div class="cart-thumb">
                   @if (item.coverImage) {
                     <img [src]="item.coverImage" [alt]="item.title" loading="lazy" />
                   } @else {
-                    <span class="thumb-placeholder">{{ item.provider.initials }}</span>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="3"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                  }
+                  @if (item.level) {
+                    <span class="lvl-badge" [class.lvl-expert]="item.level === 'خبير'" [class.lvl-advanced]="item.level === 'متقدم'">{{ item.level }}</span>
                   }
                 </div>
-                <div class="cart-item-body">
-                  <div class="cart-item-info">
-                    <h3 class="cart-item-title">{{ item.title }}</h3>
-                    <div class="cart-item-meta">
-                      <div class="meta-provider">
-                        <span class="provider-avatar">{{ item.provider.initials }}</span>
-                        <span class="provider-name">{{ item.provider.name }}</span>
-                        @if (item.provider.isVerified) {
-                          <span class="verified-badge">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                              <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            معتمد
-                          </span>
-                        }
-                      </div>
-                      @if (item.packageName) {
-                        <span class="meta-package">{{ item.packageName }}</span>
-                      }
-                      <div class="meta-row">
-                        <span class="meta-days">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                          </svg>
-                          {{ item.totalDays }} يوم
-                        </span>
-                        @if (item.aiScore) {
-                          <span class="meta-ai">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                              <path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5L12 2z" fill="currentColor"/>
-                            </svg>
-                            AI {{ item.aiScore }}%
-                          </span>
-                        }
-                        @if (item.level) {
-                          <span class="meta-level">{{ item.level }}</span>
-                        }
-                      </div>
-                    </div>
+                <div class="cart-info">
+                  @if (item.category) {
+                    <div class="cart-svc-cat">{{ item.category }}</div>
+                  }
+                  <div class="cart-svc-title">{{ item.title }}</div>
+                  <div class="cart-prov-row">
+                    <div class="cart-prov-av">{{ item.provider.initials }}</div>
+                    <span class="cart-prov-name">{{ item.provider.name }}</span>
+                    @if (item.provider.isVerified) {
+                      <span class="cart-prov-ver">✓ معتمد</span>
+                    }
                   </div>
-                  <div class="cart-item-actions">
-                    <button class="btn-remove" type="button" (click)="removeItem(item.id)" aria-label="حذف">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <div class="cart-pkg-row">
+                    @if (item.packageName) {
+                      <span class="cart-pkg-chip">{{ item.packageName }}</span>
+                    }
+                    <span class="cart-days">
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 7 12 12 15 14"/>
                       </svg>
-                    </button>
-                    <button class="btn-save-later" type="button" (click)="toggleSaveForLater(item.id)">
-                      حفظ لاحقاً
-                    </button>
+                      {{ item.totalDays }} أيام
+                    </span>
+                    @if (item.aiScore) {
+                      <span class="cart-ai-badge">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="2"/>
+                          <circle cx="4" cy="6" r="1.5"/>
+                          <circle cx="20" cy="6" r="1.5"/>
+                          <circle cx="4" cy="18" r="1.5"/>
+                          <circle cx="20" cy="18" r="1.5"/>
+                          <path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/>
+                        </svg>
+                        AI {{ item.aiScore }}
+                      </span>
+                    }
                   </div>
                 </div>
-                <div class="cart-item-price">
-                  <span class="price-value">{{ formatPrice(item.totalAmount) }}</span>
-                  <span class="price-currency">ر.س</span>
+                <div class="cart-actions">
+                  <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span class="cart-price-sub">ريال</span></div>
+                  <button class="cart-save-btn" type="button" (click)="toggleSaveForLater(item.id)">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    حفظ
+                  </button>
+                  <button class="cart-remove-btn" type="button" (click)="removeItem(item.id)">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                      <path d="M10 11v6M14 11v6"/>
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                    </svg>
+                    حذف
+                  </button>
                 </div>
               </div>
             }
@@ -95,83 +156,48 @@
               <div class="cart-items">
                 @for (item of savedItems; track item.id) {
                   <div class="cart-item saved">
-                    <div class="cart-item-thumb">
+                    <div class="cart-thumb">
                       @if (item.coverImage) {
                         <img [src]="item.coverImage" [alt]="item.title" loading="lazy" />
                       } @else {
-                        <span class="thumb-placeholder">{{ item.provider.initials }}</span>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="3"/>
+                          <circle cx="8.5" cy="8.5" r="1.5"/>
+                          <polyline points="21 15 16 10 5 21"/>
+                        </svg>
                       }
                     </div>
-                    <div class="cart-item-body">
-                      <div class="cart-item-info">
-                        <h3 class="cart-item-title">{{ item.title }}</h3>
-                        <span class="provider-name">{{ item.provider.name }}</span>
-                      </div>
-                      <div class="cart-item-actions">
-                        <button class="btn-remove" type="button" (click)="removeItem(item.id)" aria-label="حذف">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                          </svg>
-                        </button>
-                        <button class="btn-save-later" type="button" (click)="toggleSaveForLater(item.id)">
-                          إعادة للسلة
-                        </button>
+                    <div class="cart-info">
+                      <div class="cart-svc-title">{{ item.title }}</div>
+                      <div class="cart-prov-row">
+                        <div class="cart-prov-av">{{ item.provider.initials }}</div>
+                        <span class="cart-prov-name">{{ item.provider.name }}</span>
                       </div>
                     </div>
-                    <div class="cart-item-price">
-                      <span class="price-value">{{ formatPrice(item.totalAmount) }}</span>
-                      <span class="price-currency">ر.س</span>
+                    <div class="cart-actions">
+                      <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span class="cart-price-sub">ريال</span></div>
+                      <button class="cart-save-btn" type="button" (click)="toggleSaveForLater(item.id)">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="9 11 12 14 22 4"/>
+                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        إعادة للسلة
+                      </button>
+                      <button class="cart-remove-btn" type="button" (click)="removeItem(item.id)">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                          <path d="M10 11v6M14 11v6"/>
+                          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                        </svg>
+                        حذف
+                      </button>
                     </div>
                   </div>
                 }
               </div>
             </div>
           }
-
-          <!-- Coupon section -->
-          <div class="coupon-section">
-            @if (coupon()) {
-              <div class="coupon-applied">
-                <div class="coupon-info">
-                  <span class="coupon-code">{{ coupon()!.code }}</span>
-                  <span class="coupon-discount">
-                    @if (coupon()!.discountType === 'percentage') {
-                      خصم {{ coupon()!.discountValue }}%
-                    } @else {
-                      خصم {{ formatPrice(coupon()!.discountValue) }} ر.س
-                    }
-                  </span>
-                </div>
-                <button class="btn-remove-coupon" type="button" (click)="removeCoupon()">
-                  إزالة
-                </button>
-              </div>
-            } @else {
-              <div class="coupon-input-row">
-                <input
-                  type="text"
-                  class="coupon-input"
-                  placeholder="أدخل كود الخصم"
-                  [value]="couponInput()"
-                  (input)="couponInput.set($any($event.target).value)"
-                  (keyup.enter)="applyCoupon()"
-                />
-                <button
-                  class="btn-apply-coupon"
-                  type="button"
-                  [disabled]="!couponInput().trim() || isApplyingCoupon()"
-                  (click)="applyCoupon()"
-                >
-                  تطبيق
-                </button>
-              </div>
-            }
-            @if (couponMessage()) {
-              <div class="coupon-message" [class.success]="couponMessage()!.type === 'success'" [class.error]="couponMessage()!.type === 'error'">
-                {{ couponMessage()!.text }}
-              </div>
-            }
-          </div>
 
           <!-- AI Recommendations -->
           <div class="ai-recommendations">
@@ -245,18 +271,117 @@
 
         <!-- Sidebar -->
         <div class="checkout-sidebar">
-          <app-order-summary />
-          <button
-            class="btn-checkout"
-            type="button"
-            [disabled]="itemCount() === 0"
-            (click)="proceedToCheckout()"
-          >
-            إتمام الشراء
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
+          <!-- ORDER SUMMARY (copied from P-BF-001.html) -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-title">
+              <div class="sidebar-card-title-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal)">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              ملخص الطلب
+            </div>
+            <div class="summary-rows">
+              @for (item of activeItems; track item.id) {
+                <div class="sum-row">
+                  <span class="sum-row-label">{{ item.title }}</span>
+                  <span class="sum-row-val">{{ formatPrice(item.totalAmount) }} ريال</span>
+                </div>
+              }
+              <div class="sum-row" style="padding-top:8px;border-top:1px solid var(--border);margin-top:2px">
+                <span class="sum-row-label">المجموع الفرعي</span>
+                <span class="sum-row-val">{{ formatPrice(subtotal()) }} ريال</span>
+              </div>
+              <div class="sum-row" style="margin-top:2px;padding:0">
+                <span class="sum-row-label" style="display:flex;align-items:center;gap:4px">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;color:var(--teal)">
+                    <line x1="19" y1="5" x2="5" y2="19"/>
+                    <circle cx="6.5" cy="6.5" r="2.5"/>
+                    <circle cx="17.5" cy="17.5" r="2.5"/>
+                  </svg>
+                  خصم الكوبون
+                </span>
+                <span class="sum-row-val" style="color:var(--teal)">
+                  @if (coupon()) {
+                    -{{ formatPrice(discount()) }} ريال
+                  } @else {
+                    —
+                  }
+                </span>
+              </div>
+              <div class="sum-row total">
+                <span class="sum-row-label">الإجمالي</span>
+                <span class="sum-row-val">{{ formatPrice(total()) }} ريال</span>
+              </div>
+            </div>
+            <div class="coupon-wrap">
+              <div class="coupon-label">كوبون الخصم</div>
+              @if (coupon()) {
+                <div class="coupon-applied">
+                  <div class="coupon-info">
+                    <span class="coupon-code">{{ coupon()!.code }}</span>
+                    <span class="coupon-discount">
+                      @if (coupon()!.discountType === 'percentage') {
+                        خصم {{ coupon()!.discountValue }}%
+                      } @else {
+                        خصم {{ formatPrice(coupon()!.discountValue) }} ر.س
+                      }
+                    </span>
+                  </div>
+                  <button class="btn-remove-coupon" type="button" (click)="removeCoupon()">
+                    إزالة
+                  </button>
+                </div>
+              } @else {
+                <div class="coupon-row">
+                  <input
+                    type="text"
+                    class="coupon-input"
+                    placeholder="أدخل كود الخصم"
+                    aria-label="كوبون الخصم"
+                    [value]="couponInput()"
+                    (input)="couponInput.set($any($event.target).value)"
+                    (keyup.enter)="applyCoupon()"
+                  />
+                  <button
+                    class="coupon-btn"
+                    type="button"
+                    [disabled]="!couponInput().trim() || isApplyingCoupon()"
+                    (click)="applyCoupon()"
+                  >
+                    تطبيق
+                  </button>
+                </div>
+              }
+              @if (couponMessage()) {
+                <div class="coupon-message" [class.success]="couponMessage()!.type === 'success'" [class.error]="couponMessage()!.type === 'error'">
+                  {{ couponMessage()!.text }}
+                </div>
+              }
+            </div>
+            <div class="checkout-wrap">
+              <button
+                class="btn-checkout"
+                type="button"
+                [disabled]="itemCount() === 0"
+                (click)="proceedToCheckout()"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                إتمام الشراء
+              </button>
+              <a routerLink="/marketplace" class="continue-link">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"/>
+                  <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                متابعة التسوق
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     } @else {

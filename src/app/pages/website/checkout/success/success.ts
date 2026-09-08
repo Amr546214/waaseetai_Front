@@ -4,6 +4,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
 import { mapOrder, BackendOrderResponse } from '../../../../core/services/checkout-mappers';
+import { AuthStore } from '../../../../core/store/auth.store';
 
 @Component({
   selector: 'app-checkout-success',
@@ -15,12 +16,14 @@ import { mapOrder, BackendOrderResponse } from '../../../../core/services/checko
 export class CheckoutSuccessComponent implements OnInit {
   private checkoutService = inject(CheckoutService);
   private checkoutApi = inject(CheckoutApiService);
+  private authStore = inject(AuthStore);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private isRedirecting = false;
 
   isRehydrating = signal(false);
   currentOrder = this.checkoutService.currentOrder;
+  user = this.authStore.currentUser;
 
   hasOrder = computed(() => !!this.currentOrder());
   showFallback = computed(() => !this.currentOrder() && !this.isRehydrating());
@@ -38,12 +41,13 @@ export class CheckoutSuccessComponent implements OnInit {
   });
   itemCount = computed(() => this.currentOrder()?.items.length || 0);
   orderItems = computed(() => this.currentOrder()?.items || []);
+  userEmail = computed(() => this.user()?.email || '');
 
+  // Design next steps (P-BF-005.html)
   nextSteps = [
-    { icon: 'check', title: 'تم تأكيد الدفع', desc: 'تم استلام الدفعة وتأكيد الطلب' },
-    { icon: 'shield', title: 'تم حفظ المبلغ في حساب الضمان', desc: 'المبلغ محفوظ بأمان حتى اكتمال الخدمة' },
-    { icon: 'chat', title: 'سيتم فتح مساحة العمل / المحادثة', desc: 'يمكنك التواصل مع مقدم الخدمة مباشرة' },
-    { icon: 'dashboard', title: 'تابع المشروع من لوحة التحكم', desc: 'تابع تقدم المشروع من صفحة مشاريعك' },
+    { num: 1, title: 'تفعيل المشروع', sub: 'تم إنشاء مشروعك تلقائياً في لوحة التحكم وبدأ العد التنازلي للتسليم' },
+    { num: 2, title: 'تواصل المقدم', sub: 'سيراسلك المقدمون خلال 24 ساعة للتفاصيل والمتطلبات عبر لوحتك' },
+    { num: 3, title: 'التسليم والتقييم', sub: 'بعد اعتماد التسليم تحرر المدفوعات للمقدم ويمكنك تقييم التجربة' },
   ];
 
   formatPrice(value: number): string {

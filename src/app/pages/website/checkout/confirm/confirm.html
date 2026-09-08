@@ -3,52 +3,55 @@
     <app-checkout-stepper [step]="step" />
 
     @if (hasActivePayment()) {
-      <div class="checkout-body">
-        <div class="checkout-main">
-          <h1 class="page-title">تأكيد الدفع</h1>
-
-          @if (errorMessage()) {
-            <div class="confirm-error">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              <span>{{ errorMessage() }}</span>
-            </div>
-          }
-
-          @if (resendMessage()) {
-            <div class="resend-success">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
-              <span>{{ resendMessage() }}</span>
-            </div>
-          }
-
-          <!-- OTP Instruction Card -->
-          <div class="otp-card">
-            <div class="otp-icon-wrapper">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 1l3 6 6 .9-4.5 4.4 1 6.1L12 16l-5.5 2.5 1-6.1L3 7.9 9 7l3-6z"/>
-              </svg>
-            </div>
-            <h2 class="otp-title">أدخل رمز التحقق</h2>
-            <p class="otp-instruction">
-              تم إرسال رمز التحقق إلى<br />
-              <span class="otp-phone">{{ displayPhone() }}</span>
-            </p>
-            @if (currentOrder()) {
-              <p class="otp-order-ref">
-                رقم الطلب: <span>{{ currentOrder()!.orderNumber }}</span>
-              </p>
-            }
+      <div class="otp-wrap">
+        <!-- ORDER MINI BAR -->
+        <div class="order-mini-bar">
+          <div class="order-mini-info">
+            طلبك جاهز للتأكيد<br />
+            <span class="order-mini-services">{{ serviceNames() }}</span>
           </div>
+          <div class="order-mini-total">
+            {{ formatPrice(total()) }}
+            <span class="order-mini-cur">ريال</span>
+          </div>
+        </div>
 
-          <!-- OTP Input -->
-          <div class="otp-inputs" (paste)="onOtpPaste($event)">
+        <!-- ERROR -->
+        @if (errorMessage()) {
+          <div class="confirm-error">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        @if (resendMessage()) {
+          <div class="resend-success">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>{{ resendMessage() }}</span>
+          </div>
+        }
+
+        <!-- OTP CARD -->
+        <div class="otp-card">
+          <div class="otp-icon-wrap">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2"/>
+              <line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+          </div>
+          <div class="otp-title">تحقق من هويتك</div>
+          <div class="otp-sub">أرسلنا رمز التحقق إلى</div>
+          <div class="otp-phone">{{ displayPhone() }}</div>
+
+          <!-- OTP INPUTS -->
+          <div class="otp-inputs" (paste)="onOtpPaste($event)" aria-label="رمز التحقق المكون من 6 أرقام">
             @for (digit of otpDigits(); track $index) {
               <input
                 #otpInput
@@ -58,6 +61,7 @@
                 maxlength="1"
                 autocomplete="one-time-code"
                 class="otp-input"
+                [class.filled]="!!digit"
                 [value]="digit"
                 (input)="onOtpInput($index, $event)"
                 (keydown)="onOtpKeydown($index, $event)"
@@ -66,86 +70,65 @@
             }
           </div>
 
-          <!-- Resend OTP -->
-          <div class="resend-section">
-            @if (countdownDisplay()) {
-              <span class="countdown-text">إعادة الإرسال خلال {{ countdownDisplay() }}</span>
-            } @else {
-              <button
-                type="button"
-                class="resend-btn"
-                (click)="resendOtp()"
-                [disabled]="isProcessing()"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="23 4 23 10 17 10"/>
-                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-                </svg>
-                إعادة إرسال الرمز
-              </button>
-            }
-          </div>
+          <!-- TIMER -->
+          @if (countdownDisplay()) {
+            <div class="otp-timer">ينتهي الرمز خلال <span>{{ countdownDisplay() }}</span></div>
+          } @else {
+            <div class="otp-timer">&nbsp;</div>
+          }
 
-          <!-- Security Badges -->
-          <div class="security-badges">
-            <div class="security-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              </svg>
-              <span>دفع آمن</span>
-            </div>
-            <div class="security-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <!-- VERIFY BUTTON -->
+          <button
+            class="btn-verify"
+            type="button"
+            (click)="confirmPayment()"
+            [disabled]="!canConfirm()"
+          >
+            @if (isProcessing()) {
+              <span class="spinner"></span>
+              جاري التحقق...
+            } @else {
+              تأكيد الدفع
+            }
+          </button>
+
+          <!-- RESEND -->
+          <button
+            class="btn-resend"
+            type="button"
+            (click)="resendOtp()"
+            [disabled]="!canResend() || isProcessing()"
+          >
+            لم تستلم الرمز؟ إعادة الإرسال
+          </button>
+
+          <!-- SECURITY ROW -->
+          <div class="security-row">
+            <div class="sec-item">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
               </svg>
-              <span>تشفير SSL</span>
+              تشفير SSL
             </div>
-            <div class="security-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 12l2 2 4-4"/>
-                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+            <div class="sec-item">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
-              <span>ضمان الاسترداد</span>
+              3D Secure
+            </div>
+            <div class="sec-item">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              محمي بالكامل
             </div>
           </div>
-
-          <!-- Actions -->
-          <div class="confirm-actions">
-            <button
-              type="button"
-              class="btn-confirm"
-              (click)="confirmPayment()"
-              [disabled]="!canConfirm()"
-            >
-              @if (isProcessing()) {
-                <span class="spinner"></span>
-                جاري التحقق...
-              } @else {
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M9 12l2 2 4-4"/>
-                  <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
-                </svg>
-                تأكيد الدفع
-              }
-            </button>
-            <a routerLink="/checkout/payment" class="btn-back-payment">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"/>
-                <polyline points="12 5 19 12 12 19"/>
-              </svg>
-              رجوع للدفع
-            </a>
-          </div>
-        </div>
-
-        <div class="checkout-sidebar">
-          <app-order-summary [compact]="true" />
         </div>
       </div>
     } @else {
       <!-- Empty / Missing Order State -->
-      <div class="checkout-body">
+      <div class="otp-wrap">
         <div class="empty-confirm">
           <div class="empty-confirm-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
