@@ -9,15 +9,23 @@ type FilterStatus = 'all' | ProjectStatus;
 
 interface ArchivedProject {
 	id: string;
+	code: string;
 	title: string;
-	provider: string;
+	providerName: string;
 	amount: string;
 	dateStr: string;
+	closedLabel: string;
 	status: ProjectStatus;
-	icon: string;
-	contractReference?: string;
+	icon: 'check' | 'doc' | 'cart' | 'list' | 'warn';
 	canRate?: boolean;
 	hasRated?: boolean;
+}
+
+interface ArchivedKpi {
+	icon: 'check' | 'warn' | 'doc' | 'list';
+	value: string | number;
+	label: string;
+	color: 'teal' | 'amber' | 'blue' | 'ai';
 }
 
 @Component({
@@ -37,6 +45,26 @@ export class ArchivedProjects implements OnInit {
 	errorMessage = signal<string | null>(null);
 
 	projects = signal<ArchivedProject[]>([]);
+
+	kpis = computed<ArchivedKpi[]>(() => {
+		const all = this.projects();
+		const done = all.filter(p => p.status === 'done').length;
+		const cancel = all.filter(p => p.status === 'cancel').length;
+		const arch = all.filter(p => p.status === 'arch').length;
+		return [
+			{ icon: 'check', value: done, label: 'مكتملة', color: 'teal' },
+			{ icon: 'warn', value: cancel, label: 'ملغاة', color: 'amber' },
+			{ icon: 'doc', value: arch, label: 'مؤرشفة', color: 'blue' },
+			{ icon: 'list', value: all.length, label: 'إجمالي المنتهية', color: 'ai' },
+		];
+	});
+
+	tabs = computed(() => [
+		{ id: 'all' as const, label: 'الكل', count: this.projects().length },
+		{ id: 'done' as const, label: 'مكتملة', count: this.projects().filter(p => p.status === 'done').length },
+		{ id: 'cancel' as const, label: 'ملغاة', count: this.projects().filter(p => p.status === 'cancel').length },
+		{ id: 'arch' as const, label: 'مؤرشفة', count: this.projects().filter(p => p.status === 'arch').length },
+	]);
 
 	showRatingModal = signal(false);
 	ratingTarget = signal<ArchivedProject | null>(null);
@@ -85,7 +113,7 @@ export class ArchivedProjects implements OnInit {
 
 		return this.projects().filter(p => {
 			const matchesFilter = filter === 'all' || p.status === filter;
-			const matchesSearch = p.id.toLowerCase().includes(query) || p.title.toLowerCase().includes(query) || p.provider.toLowerCase().includes(query);
+			const matchesSearch = p.id.toLowerCase().includes(query) || p.title.toLowerCase().includes(query) || p.providerName.toLowerCase().includes(query);
 			return matchesFilter && matchesSearch;
 		});
 	});
@@ -97,6 +125,17 @@ export class ArchivedProjects implements OnInit {
 	updateSearch(event: Event) {
 		const target = event.target as HTMLInputElement;
 		this.searchQuery.set(target.value);
+	}
+
+	statusLabel(status: ProjectStatus): string {
+		if (status === 'done') return 'مكتمل';
+		if (status === 'cancel') return 'ملغى';
+		return 'مؤرشف';
+	}
+
+	formatNumber(value: string | number): string {
+		if (typeof value === 'number') return value.toLocaleString('en-US');
+		return value;
 	}
 
 	getCount(status: FilterStatus): number {
@@ -184,34 +223,54 @@ export class ArchivedProjects implements OnInit {
 		else if (['DISPUTED', 'ARCHIVED', 'CLOSED'].includes(rawStatus)) status = 'arch';
 		else status = 'done';
 
-		const icon = status === 'done' ? 'check' : status === 'cancel' ? 'list' : 'doc';
+		const icon: ArchivedProject['icon'] =
+			status === 'done' ? 'check' :
+			status === 'cancel' ? 'list' :
+			'doc';
 
-		const amount = p.totalPrice != null
-			? `${Number(p.totalPrice).toLocaleString('ar-SA')} ريال`
-			: p.amount || '—';
+		const numericAmount = p.totalPrice != null ? Number(p.totalPrice) : Number(p.amount) || 0;
+		const amount = numericAmount > 0
+			? `${numericAmount.toLocaleString('en-US')} ريال`
+			: '—';
 
 		let dateStr = '—';
-		if (p.completedAt || p.updatedAt || p.createdAt) {
+		const rawDate = p.completedAt || p.updatedAt || p.createdAt;
+		if (rawDate) {
 			try {
-				dateStr = new Date(p.completedAt || p.updatedAt || p.createdAt).toLocaleDateString('ar-SA', {
-					year: 'numeric',
-					month: 'short',
-					day: 'numeric',
+				dateStr = new Date(rawDate).toLocaleDateString('ar-SA-u-nu-latn', {
+					year: 'numeric', month: 'short', day: 'numeric',
 				});
 			} catch {
-				dateStr = p.completedAt || p.updatedAt || '—';
+				dateStr = String(rawDate);
 			}
 		}
 
+		const closedPrefix = status === 'cancel' ? 'أُلغي' : status === 'arch' ? 'أُرشف' : 'أُغلق';
+		const closedLabel = dateStr && dateStr !== '—' ? `${closedPrefix} ${dateStr}` : closedPrefix;
+
+		// Provider name — defensive: handle string, object, or missing
+		let providerName = 'مقدم الخدمة';
+		const rawProvider = p.provider;
+		if (typeof rawProvider === 'string' && rawProvider.trim()) {
+			providerName = rawProvider.trim();
+		} else if (rawProvider && typeof rawProvider === 'object') {
+			providerName = rawProvider.name || rawProvider.fullName || rawProvider.username || providerName;
+		} else if (typeof p.providerName === 'string' && p.providerName.trim()) {
+			providerName = p.providerName.trim();
+		}
+
+		const code = p.code || p.reference || p.contractReference || `PRJ-${String(p.id)}`;
+
 		return {
 			id: String(p.id),
+			code,
 			title: p.title || 'مشروع بدون عنوان',
-			provider: p.provider?.name || p.providerName || 'مقدم الخدمة',
+			providerName,
 			amount,
 			dateStr,
+			closedLabel,
 			status,
 			icon,
-			contractReference: p.contractReference || p.contractId || undefined,
 			canRate: Boolean(p.canRate),
 			hasRated: Boolean(p.hasRated),
 		};
