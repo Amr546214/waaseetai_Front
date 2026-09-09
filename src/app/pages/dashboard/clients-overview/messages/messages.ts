@@ -582,6 +582,7 @@ export class ClientMessages implements OnInit, OnDestroy {
 
   contextClick(ctx: MessageContext | null): void {
     if (!ctx?.projectId) return;
+    console.log('context navigation', { role: 'client', projectId: ctx.projectId, context: ctx });
     this.router.navigate(['/client-overview/projects', ctx.projectId]);
   }
 

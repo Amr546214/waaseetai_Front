@@ -585,7 +585,8 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
   contextClick(ctx: MessageContext | null): void {
     if (!ctx?.projectId) return;
-    this.router.navigate(['/provider-overview/projects/active', ctx.projectId]);
+    console.log('context navigation', { role: 'provider', projectId: ctx.projectId, context: ctx });
+    this.router.navigate(['/provider-overview/projects/active/progress', ctx.projectId]);
   }
 
   isNegotiationMsg(msg: MessageItem): boolean {
