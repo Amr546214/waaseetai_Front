@@ -81,6 +81,11 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		data: { title: "Project Details" }
 	},
 	{
+		path: 'projects/:id/delivery-review/:stageId',
+		loadComponent: () => import('./project/delivery-review/delivery-review').then(m => m.DeliveryReview),
+		data: { title: "مراجعة التسليم" }
+	},
+	{
 		path: 'market',
 		component: Market,
 		data: { title: "Market" }

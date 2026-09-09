@@ -11,6 +11,7 @@ import { RatingScore } from '../../../../../core/models/rating.model';
 import { DisputeModal } from '../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
+import { MessageContext } from '../../../../../core/services/chat.service';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type SupportAction = 'edit' | 'dispute' | 'cancel' | null;
@@ -31,7 +32,8 @@ export class ProjectDetails implements OnInit {
 	error = signal('');
 	saving = signal(false);
 	activeTab = signal<WorkspaceTab>('overview');
-	reviewStage = signal<any>(null);
+	// P-SK-015 inline delivery review state (replaces old modal)
+	inlineReviewStage = signal<any>(null);
 	reviewDecision = signal<'approve' | 'revision'>('approve');
 	supportAction = signal<SupportAction>(null);
 	reviewNote = '';
@@ -155,14 +157,23 @@ export class ProjectDetails implements OnInit {
 		if (data.daysLeft <= 0 && data.progress < 100) return 'يحتاج متابعة';
 		return data.aiInsights?.healthRating || 'جيد';
 	}
-	openReview(stage: any, decision: 'approve' | 'revision') { this.error.set(''); this.reviewStage.set(stage); this.reviewDecision.set(decision); this.reviewNote = ''; }
-	closeReview() { if (!this.saving()) this.reviewStage.set(null); }
+	// P-SK-015: navigate to full delivery review page (no modal). 'approve' opens the review page; 'revision' opens conversation.
+	openReview(stage: any, decision: 'approve' | 'revision') {
+		this.error.set('');
+		if (decision === 'revision') {
+			// "عندي ملاحظات، فتح نقاش" → navigate to conversation with stage context
+			this.openConversation(this.project(), stage);
+			return;
+		}
+		// 'approve' → navigate to full P-SK-015 delivery review page
+		this.router.navigate(['/client-overview/projects', this.projectId, 'delivery-review', stage.id]);
+	}
+	closeReview() { if (!this.saving()) this.inlineReviewStage.set(null); }
 	submitReview() {
-		const stage = this.reviewStage(); if (!stage) return;
-		if (this.reviewDecision() === 'revision' && this.reviewNote.trim().length < 10) { this.error.set('اكتب ملاحظات تعديل واضحة لا تقل عن 10 أحرف'); return; }
+		const stage = this.inlineReviewStage(); if (!stage) return;
 		this.saving.set(true);
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.projectId}/stages/${stage.id}/review`, { decision: this.reviewDecision(), note: this.reviewNote.trim() }).subscribe({
-			next: () => { this.saving.set(false); this.reviewStage.set(null); this.load(); },
+			next: () => { this.saving.set(false); this.inlineReviewStage.set(null); this.load(); },
 			error: event => { this.saving.set(false); this.error.set(event.error?.message || 'تعذر حفظ قرار المراجعة'); }
 		});
 	}
@@ -199,7 +210,24 @@ export class ProjectDetails implements OnInit {
 	}
 	closeSupport() { this.supportAction.set(null); }
 	continueInConversation(data: any) { if (!data) return; this.supportAction.set(null); this.openConversation(data); }
-	openConversation(data: any) { if (!data) return; this.router.navigate(['/client-overview/messages'], { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined }); }
+	openConversation(data: any, stage?: any) {
+		if (!data) return;
+		const ctx: MessageContext | undefined = stage ? {
+			type: stage.deliveryStatus === 'SUBMITTED' ? 'DELIVERY' : 'STAGE',
+			projectId: this.projectId,
+			projectTitle: data.title || data.project || undefined,
+			stageId: stage.id || undefined,
+			stageTitle: stage.title || undefined,
+			stageNumber: stage.stageNumber || undefined,
+			amount: stage.amount || undefined
+		} : data?.conversationId ? {
+			type: 'PROJECT',
+			projectId: this.projectId,
+			projectTitle: data.title || data.project || undefined
+		} : undefined;
+		this.router.navigate(['/client-overview/messages'],
+			{ queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: ctx ? { messageContext: ctx } : undefined });
+	}
 
 	canRate(data: any): boolean {
 		if (this.ratingSubmitted() || this.ratingSuccess()) return false;

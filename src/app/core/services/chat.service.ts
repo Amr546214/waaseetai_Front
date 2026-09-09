@@ -8,6 +8,17 @@ import { ChatStateService } from './chat-state.service';
 import { NotificationSoundService } from './notification-sound.service';
 import { AuthStore } from '../store/auth.store';
 
+export interface MessageContext {
+  type: 'PROJECT' | 'STAGE' | 'DELIVERY';
+  projectId?: string;
+  projectTitle?: string;
+  stageId?: string;
+  stageTitle?: string;
+  stageNumber?: number;
+  deliveryId?: string;
+  amount?: number;
+}
+
 export interface ChatMessagePayload {
   conversationId: string;
   tempId?: string;
@@ -17,6 +28,7 @@ export interface ChatMessagePayload {
   fileName?: string;
   fileSize?: number;
   audioDuration?: number;
+  context?: MessageContext | null;
 }
 
 @Injectable({

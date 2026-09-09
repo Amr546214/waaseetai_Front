@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ChatService, ChatMessagePayload } from '../../../../core/services/chat.service';
+import { ChatService, ChatMessagePayload, MessageContext } from '../../../../core/services/chat.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
@@ -20,6 +20,7 @@ export interface MessageItem {
   fileName?: string;
   fileSize?: number;
   audioDuration?: number;
+  context?: MessageContext | null;
   time: string;
   dateGroup: string;
   isPlaying?: boolean;
@@ -64,6 +65,7 @@ export class ClientMessages implements OnInit, OnDestroy {
   showChatOnMobile = signal<boolean>(false);
   newMessageText = signal<string>('');
   toastMessage = signal<string>('');
+  messageContext = signal<MessageContext | null>(null);
 
   // Rich media UI state signals
   showEmojiPicker = signal<boolean>(false);
@@ -109,6 +111,14 @@ export class ClientMessages implements OnInit, OnDestroy {
     const authUser = this.authStore.currentUser();
     if (authUser?.id) {
       this.currentUserId = authUser.id;
+    }
+
+    // Read discussion context from router state (passed by project/stage pages)
+    const navState = (window as any).history?.state || {};
+    if (navState?.messageContext) {
+      this.messageContext.set(navState.messageContext as MessageContext);
+    } else if (navState?.context) {
+      this.messageContext.set(navState.context as MessageContext);
     }
 
     // Connect to WebSocket chat server
@@ -187,6 +197,7 @@ export class ClientMessages implements OnInit, OnDestroy {
           fileName: msg.fileName,
           fileSize: msg.fileSize,
           audioDuration: msg.audioDuration,
+          context: msg.context || null,
           time: msg.time || 'الآن',
           dateGroup: 'اليوم',
         };
@@ -200,7 +211,7 @@ export class ClientMessages implements OnInit, OnDestroy {
               if (isDup) {
                 const deduplicationList = c.messages.map((m) =>
                   m.id === incomingId || (incomingTempId && (m.tempId === incomingTempId || m.id === incomingTempId))
-                    ? { ...m, id: incomingId, status: 'SENT' as const, tempId: undefined }
+                    ? { ...m, id: incomingId, status: 'SENT' as const, tempId: undefined, context: formattedMsg.context || m.context }
                     : m
                 );
                 return { ...c, messages: deduplicationList };
@@ -273,6 +284,7 @@ export class ClientMessages implements OnInit, OnDestroy {
               fileName: m.fileName,
               fileSize: m.fileSize,
               audioDuration: m.audioDuration,
+              context: m.context || null,
               time: m.time || 'الآن',
               dateGroup: m.dateGroup || 'اليوم',
             }));
@@ -320,6 +332,7 @@ export class ClientMessages implements OnInit, OnDestroy {
       fileName: customData?.fileName,
       fileSize: customData?.fileSize,
       audioDuration: customData?.audioDuration,
+      context: this.messageContext() || null,
       time: timeString,
       dateGroup: 'اليوم',
     };
@@ -347,13 +360,15 @@ export class ClientMessages implements OnInit, OnDestroy {
       fileUrl: newMsg.fileUrl,
       fileName: newMsg.fileName,
       fileSize: newMsg.fileSize,
-      audioDuration: newMsg.audioDuration
+      audioDuration: newMsg.audioDuration,
+      context: this.messageContext() || undefined
     };
     this.chatService.sendMessage(this.currentUserId, payload);
 
     if (type === 'TEXT') {
       this.newMessageText.set('');
       this.showEmojiPicker.set(false);
+      this.messageContext.set(null);
     }
     this.scrollToBottom();
   }
@@ -545,6 +560,29 @@ export class ClientMessages implements OnInit, OnDestroy {
         container.scrollTop = container.scrollHeight;
       }
     }, 60);
+  }
+
+  clearContext(): void {
+    this.messageContext.set(null);
+  }
+
+  contextLabel(ctx: MessageContext | null): string {
+    if (!ctx) return '';
+    if (ctx.type === 'STAGE') return 'رد بخصوص مرحلة';
+    if (ctx.type === 'DELIVERY') return 'رد بخصوص تسليم';
+    return 'رد بخصوص مشروع';
+  }
+
+  contextSubtitle(ctx: MessageContext | null): string {
+    if (!ctx) return '';
+    if (ctx.type === 'PROJECT') return 'مشروع';
+    if (ctx.stageTitle) return `المرحلة: ${ctx.stageTitle}`;
+    return '';
+  }
+
+  contextClick(ctx: MessageContext | null): void {
+    if (!ctx?.projectId) return;
+    this.router.navigate(['/client-overview/projects', ctx.projectId]);
   }
 
   isNegotiationMsg(msg: MessageItem): boolean {

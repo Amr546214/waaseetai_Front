@@ -32,3 +32,19 @@
 .rt-banner{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:15px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,212,199,.05));border:1px solid rgba(255,180,0,.22);margin-bottom:14px}.rt-banner-ico{width:42px;height:42px;border-radius:12px;background:rgba(255,180,0,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0}.rt-banner-ico svg{width:22px;height:22px;color:#FFB400}.rt-banner-body{flex:1;min-width:0}.rt-banner-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:3px}.rt-banner-text{font-size:12px;color:#A8B2D1}.rt-banner-btn{flex-shrink:0}.rt-success-msg{padding:11px 15px;margin-bottom:14px;border-radius:11px;color:#2BD4C7;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.25);font-size:13px;font-weight:700;text-align:center}
 :host-context(.light-theme) .rt-banner,:host-context(.theme-light) .rt-banner{background:linear-gradient(135deg,rgba(255,180,0,.06),rgba(43,212,199,.04));border-color:rgba(255,180,0,.2)}:host-context(.light-theme) .rt-banner-title,:host-context(.theme-light) .rt-banner-title{color:#0F172A}:host-context(.light-theme) .rt-banner-text,:host-context(.theme-light) .rt-banner-text{color:#475569}:host-context(.light-theme) .rt-success-msg,:host-context(.theme-light) .rt-success-msg{color:#0FA99A;background:rgba(15,169,154,.08);border-color:rgba(15,169,154,.2)}
 @media(max-width:560px){.rt-banner{flex-direction:column;text-align:center;gap:10px}.rt-banner-btn{width:100%}}
+
+/* === P-SK-015 inline delivery review (replaces modal) === */
+.lc-inline-review{margin-top:14px;padding:16px 18px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.22);border-radius:13px;animation:ws-fade .2s ease both}
+.lc-ir-hd{display:flex;align-items:flex-start;gap:11px;margin-bottom:14px}
+.lc-ir-hd svg{width:20px;height:20px;color:#2BD4C7;flex-shrink:0;margin-top:1px}
+.lc-ir-ttl{font-size:14px;font-weight:800;color:#fff;margin-bottom:3px}
+.lc-ir-sub{font-size:11.5px;color:#A8B2D1;line-height:1.5}
+.lc-ir-err{padding:9px 12px;margin-bottom:12px;border-radius:9px;color:#FCA5A5;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);font-size:12px}
+.lc-ir-fld{margin-bottom:14px}
+.lc-ir-fld label{display:block;font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:6px}
+.lc-ir-ta{width:100%;min-height:80px;resize:vertical;background:#07102d;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;padding:10px 12px;font:12.5px/1.6 inherit;outline:none}
+.lc-ir-ta:focus{border-color:#2BD4C7}
+.lc-ir-act{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.lc-ir-act .lc-btn{flex:1;min-width:140px}
+.lc-ir-help{font-size:11px;color:#6B7699;line-height:1.6}
+@keyframes ws-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}

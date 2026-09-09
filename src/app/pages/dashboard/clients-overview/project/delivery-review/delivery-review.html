@@ -1,0 +1,99 @@
+<section class="delivery-review" dir="rtl">
+	<h1 class="sr-only">مراجعة التسليم والاعتماد</h1>
+
+	@if (isLoading()) {
+		<div class="state-card" role="status" aria-label="جاري تحميل مراجعة التسليم"><div class="skeleton-row"></div><div class="skeleton-box"></div></div>
+	} @else if (error() && !project()) {
+		<div class="state-card error-state" role="alert">
+			<div class="state-title">تعذر تحميل مراجعة التسليم</div>
+			<div class="state-code">ERR-SK-015</div>
+			<button type="button" class="dr-btn-pri" (click)="load()">إعادة المحاولة</button>
+		</div>
+	} @else if (project(); as data) {
+		@if (error() && !stage()) { <div class="inline-error" role="alert">{{ error() }}</div> }
+
+		<a class="dr-bk" (click)="backToProject()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>العودة إلى متابعة المشروع</a>
+
+		@if (stage(); as stage) {
+			<!-- HEADER CARD -->
+			<div class="dr-hd">
+				<div class="dr-hd-top">
+					<div>
+						<div class="dr-hd-ttl">تسليم المرحلة {{ stage.stageNumber }}: {{ stage.title }}</div>
+						<div class="dr-hd-id">#{{ data.contractRef }} · من {{ data.clientName }}</div>
+					</div>
+					<span class="dr-pill dr-pill-wait">بانتظار اعتمادك</span>
+				</div>
+				<div class="dr-meta">
+					<div class="dr-meta-item"><div class="dr-meta-lbl">قيمة المرحلة</div><div class="dr-meta-val">{{ formatNumber(stage.amount) }} ريال</div></div>
+					<div class="dr-meta-item"><div class="dr-meta-lbl">سُلّمت</div><div class="dr-meta-val">{{ submittedTimeAgo(stage) }}</div></div>
+					<div class="dr-meta-item"><div class="dr-meta-lbl">مهلة المراجعة</div><div class="dr-meta-val">{{ reviewDeadlineDays(stage) }}</div></div>
+					<div class="dr-meta-item"><div class="dr-meta-lbl">الملفات</div><div class="dr-meta-val">{{ stageFileCount(stage) }} ملفات</div></div>
+				</div>
+			</div>
+
+			<!-- AI BANNER -->
+			<div class="dr-ai-banner" role="region" aria-label="افصاح الذكاء الاصطناعي">
+				<div class="dr-ai-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M10.5 10.5 5 7M13.5 10.5 19 7M10.5 13.5 5 17M13.5 13.5 19 17"/></svg></div>
+				<div class="dr-ai-body">
+					<div class="dr-ai-lbl">وسيط AI، فحص جودة التسليم</div>
+					<p class="dr-ai-txt">AI تحقّق من مطابقة التسليم للمتطلبات وخلوّه من علامات مائية أو ملفات ناقصة <span class="dr-ai-badge">دقة {{ aiMatchPct(data) }}</span> القرار النهائي لك</p>
+				</div>
+			</div>
+
+			<!-- DELIVERY FILES -->
+			<div class="dr-sec-ttl">ملفات التسليم</div>
+			<div class="dr-card">
+				@if (latestThread(stage)?.files?.length) {
+					<div class="dr-files">
+						@for (file of latestThread(stage).files; track file.url) {
+							<a class="dr-file" [href]="file.url" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>{{ file.name }}</a>
+						}
+					</div>
+				} @else {
+					<div class="dr-files-empty">لا توجد ملفات مرفقة في هذا التسليم</div>
+				}
+				<div class="dr-qual-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>{{ qualityNote(stage) }}</div>
+			</div>
+
+			<!-- DECISION SECTION -->
+			<div class="dr-sec-ttl">قرارك</div>
+			<div class="dr-card">
+				@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
+				@if (approved()) {
+					<div class="dr-approved-inline">
+						<svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+						<span>تم اعتماد التسليم — تمّ فتح نافذة التأكيد.</span>
+					</div>
+				} @else {
+					<div class="dr-decision-row">
+						<button type="button" class="dr-btn-pri" (click)="approveDelivery()" [disabled]="saving()">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
+						<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>عندي ملاحظات، فتح نقاش</button>
+					</div>
+					<div class="dr-decision-help">عند الاعتماد، يُفرج المبلغ من الضمان فوراً. إذا كانت لديك ملاحظات على التسليم، افتح نقاشاً مع مقدم الخدمة لمناقشتها والاتفاق على التعديل قبل الاعتماد.</div>
+				}
+			</div>
+		}
+	}
+
+	<div class="dr-foot"><span>© 2026 وسيط AI · v1.0.0</span><div class="dr-foot-links"><a routerLink="/privacy">PDPL</a><a routerLink="/terms">الشروط</a><span>SAMA</span></div></div>
+</section>
+
+<!-- P-SK-015 SUCCESS MODAL (overlay, shown only after approve API success) -->
+@if (successData(); as sd) {
+<div class="ac-ov show" role="dialog" aria-modal="true" aria-label="تم الاعتماد">
+	<div class="ac-box">
+		<div class="ac-ring"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
+		<h3>تم اعتماد التسليم بنجاح</h3>
+		<p>أُفرِج مبلغ المرحلة من الضمان وتمّ ترحيله إلى محفظة مقدم الخدمة</p>
+		<div class="ac-amt"><span>المبلغ المُرحّل</span><b>{{ formatNumber(sd.amount) }} <small>ريال</small></b></div>
+		<div class="ac-row"><span class="ac-k">إلى</span><span class="ac-v">{{ sd.providerName }}</span></div>
+		<div class="ac-row"><span class="ac-k">المرحلة</span><span class="ac-v">{{ sd.stageTitle }}</span></div>
+		@if (sd.txnId) { <div class="ac-row"><span class="ac-k">رقم العملية</span><span class="ac-v">{{ sd.txnId }}</span></div> }
+		<div class="ac-acts">
+			<button type="button" class="ac-btn ac-btn-pri" (click)="closeSuccessModal()">العودة للمشاريع</button>
+			<button type="button" class="ac-btn ac-btn-gh" (click)="openInvoice()" [disabled]="!project()?.invoiceId">عرض الفاتورة</button>
+		</div>
+	</div>
+</div>
+}
