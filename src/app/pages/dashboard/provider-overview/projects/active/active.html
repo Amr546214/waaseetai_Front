@@ -7,7 +7,7 @@
   <symbol id="pa-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
 </defs></svg>
 
-<div class="ord-head"><div><div class="ord-title">مشاريعي النشطة</div><div class="ord-sub">نظرة عامة على كل مشاريعك الجارية وحالة كل منها</div></div></div>
+<div class="ord-head"><div><div class="ord-title">{{ isCompanyMode() ? 'مشاريع الشركة النشطة' : 'مشاريعي النشطة' }}</div><div class="ord-sub">{{ isCompanyMode() ? 'نظرة عامة على مشاريع فريقك الجارية وحالة كل منها' : 'نظرة عامة على كل مشاريعك الجارية وحالة كل منها' }}</div></div></div>
 
 <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
   <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#pa-ai"></use></svg></div>
@@ -21,14 +21,52 @@
   <div class="pl-kpi"><div class="ic pl-ic-ai"><svg><use href="#pa-ai"></use></svg></div><div class="v">{{counts().healthStatus}}</div><div class="l">الحالة العامة</div></div>
 </div>
 
-<div class="pl-tabs" role="tablist">
-  <button type="button" class="pl-tab" [class.active]="activeFilter()==='all'" (click)="setFilter('all')">الكل<span class="c">{{counts().all}}</span></button>
-  <button type="button" class="pl-tab" [class.active]="activeFilter()==='run'" (click)="setFilter('run')">قيد التنفيذ<span class="c">{{counts().run}}</span></button>
-  <button type="button" class="pl-tab" [class.active]="activeFilter()==='wait'" (click)="setFilter('wait')">بانتظار التسليم<span class="c">{{counts().wait}}</span></button>
-  <button type="button" class="pl-tab" [class.active]="activeFilter()==='late'" (click)="setFilter('late')">متأخر<span class="c" style="background:rgba(248,113,113,.14);color:#F87171">{{counts().late}}</span></button>
-</div>
+@if (isCompanyMode()) {
+  <!-- Company: Filter Rail -->
+  <div class="filter-rail" role="search">
+    <div class="fr-period-lbl">المقدِّم</div>
+    <div class="date-segs" role="group">
+      <button class="ds" [class.active]="memberFilter()==='all'" (click)="setMemberFilter('all')">الكل</button>
+      @for (m of teamMembers(); track m.name) {
+        <button class="ds" [class.active]="memberFilter()===m.name" (click)="setMemberFilter(m.name)">
+          <span style="display:inline-flex;align-items:center;gap:4px"><span class="fr-mav" [style.background]="m.color">{{m.initial}}</span>{{m.name.split(' ')[0]}}</span>
+        </button>
+      }
+    </div>
+    <div style="width:1px;background:rgba(255,255,255,.07);align-self:stretch"></div>
+    <div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">ترتيب</div>
+    <div class="date-segs" role="group">
+      <button class="ds" [class.active]="sortBy()==='attn'" (click)="setSortBy('attn')">يحتاج تدخلاً</button>
+      <button class="ds" [class.active]="sortBy()==='prog'" (click)="setSortBy('prog')">نسبة التقدم</button>
+      <button class="ds" [class.active]="sortBy()==='deadline'" (click)="setSortBy('deadline')">الأقرب انتهاءً</button>
+    </div>
+    <div class="fr-spacer"></div>
+    <div class="fr-search">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" placeholder="ابحث في المشاريع..." [value]="searchQuery()" (input)="updateSearch($event)" />
+    </div>
+  </div>
 
-<div class="sec-ttl">المشاريع <span class="cnt">· مرتبة بما يحتاج إجراءً منك</span></div>
+  <!-- Company: Status Tabs -->
+  <div class="ord-tabs" role="tablist">
+    <button type="button" class="ord-tab" [class.active]="activeFilter()==='all'" (click)="setFilter('all')">الكل <span>{{counts().all}}</span></button>
+    <button type="button" class="ord-tab" [class.active]="activeFilter()==='run'" (click)="setFilter('run')">قيد التنفيذ <span>{{counts().run}}</span></button>
+    <button type="button" class="ord-tab" [class.active]="activeFilter()==='wait'" (click)="setFilter('wait')">بانتظار رد العميل <span>{{counts().wait}}</span></button>
+    <button type="button" class="ord-tab" [class.active]="activeFilter()==='review'" (click)="setFilter('review')">بانتظار مراجعة <span>{{counts().review}}</span></button>
+    <button type="button" class="ord-tab" [class.active]="activeFilter()==='late'" (click)="setFilter('late')">متأخر <span style="background:rgba(248,113,113,.14);color:#F87171">{{counts().late}}</span></button>
+  </div>
+
+  <div class="sec-ttl">مشاريع الفريق <span class="cnt">· مرتبة بما يحتاج تدخلاً إدارياً</span></div>
+} @else {
+  <div class="pl-tabs" role="tablist">
+    <button type="button" class="pl-tab" [class.active]="activeFilter()==='all'" (click)="setFilter('all')">الكل<span class="c">{{counts().all}}</span></button>
+    <button type="button" class="pl-tab" [class.active]="activeFilter()==='run'" (click)="setFilter('run')">قيد التنفيذ<span class="c">{{counts().run}}</span></button>
+    <button type="button" class="pl-tab" [class.active]="activeFilter()==='wait'" (click)="setFilter('wait')">بانتظار التسليم<span class="c">{{counts().wait}}</span></button>
+    <button type="button" class="pl-tab" [class.active]="activeFilter()==='late'" (click)="setFilter('late')">متأخر<span class="c" style="background:rgba(248,113,113,.14);color:#F87171">{{counts().late}}</span></button>
+  </div>
+
+  <div class="sec-ttl">المشاريع <span class="cnt">· مرتبة بما يحتاج إجراءً منك</span></div>
+}
 
 @if(isLoading()){
   <div class="state-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
@@ -41,11 +79,23 @@
         <div class="pl-ring" [style.--p]="p.progress"><span>{{p.progress}}<small>٪</small></span></div>
         <div class="pl-body">
           <div class="pl-top"><div class="pl-ttl">{{p.title}}</div><span class="pl-badge" [class.pl-b-wait]="p.status==='wait'" [class.pl-b-run]="p.status==='run'" [class.pl-b-late]="p.status==='late'">{{p.statusLabel}}</span></div>
-          <div class="pl-prov"><span class="pl-av-wrap" [style.--avatar-color]="p.providerAvatarColor"><span class="pl-av">{{p.providerInitial}}</span><span class="pl-av-star"><svg viewBox="0 0 100 100"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></span></span>{{p.providerName}}<span class="pl-dot"></span>عقد {{p.contractRef || p.id}}</div>
+          @if (isCompanyMode()) {
+            <div class="pl-member">
+              <div class="pl-av" [style.background]="p.providerAvatarColor">{{p.providerInitial}}</div>
+              <span class="pl-member-name">{{p.providerName}}</span>
+              <span class="pl-member-sep"></span>
+              <span class="pl-member-spec">{{p.memberSpec || p.currentStage || 'تخصص'}}</span>
+              <span class="pl-member-sep"></span>
+              <span class="pl-co-tag">مقدِّم الشركة</span>
+            </div>
+            <div class="pl-client"><span class="pl-client-lbl">العميل:</span> {{p.clientName || 'عميل'}} · عقد {{p.contractRef || p.id}}</div>
+          } @else {
+            <div class="pl-prov"><span class="pl-av-wrap" [style.--avatar-color]="p.providerAvatarColor"><span class="pl-av">{{p.providerInitial}}</span><span class="pl-av-star"><svg viewBox="0 0 100 100"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></span></span>{{p.providerName}}<span class="pl-dot"></span>عقد {{p.contractRef || p.id}}</div>
+          }
           <div class="pl-next"><svg><use href="#pa-flag"></use></svg><b>المرحلة الحالية:</b> {{p.currentStage}}</div>
           <div class="pl-foot"><span class="pl-esc"><svg><use href="#pa-lock"></use></svg>{{p.escrowLabel}} {{p.escrowAmount}}</span><span class="pl-meta">{{p.meta}}</span></div>
         </div>
-        <div class="pl-act"><span class="pl-cta">متابعة المشروع<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg></span></div>
+        <div class="pl-act"><span class="pl-cta">{{ isCompanyMode() ? 'متابعة' : 'متابعة المشروع' }}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg></span></div>
       </a>
     }
     @empty {

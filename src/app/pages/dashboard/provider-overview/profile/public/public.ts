@@ -1,16 +1,20 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
 	selector: 'app-profile-public',
 	standalone: true,
 	imports: [CommonModule, RouterModule],
 	templateUrl: './public.html',
+	styleUrls: ['./public.css'],
 })
 export class Public implements OnInit {
 	private providerProfileService = inject(ProviderProfileService);
+	private authStore = inject(AuthStore);
 	private router = inject(Router);
 
 	currentTab = signal<string>('info');
@@ -18,6 +22,18 @@ export class Public implements OnInit {
 
 	profileData = signal<any | null>(null);
 	isLoading = signal<boolean>(true);
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
+
+	companyInitials = computed<string>(() => {
+		const user = this.authStore.currentUser();
+		if (!user) return 'خت';
+		const name = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+		return name.slice(0, 2);
+	});
 
 	ngOnInit() {
 		this.loadPublicProfile();

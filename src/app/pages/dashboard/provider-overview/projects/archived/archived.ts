@@ -1,6 +1,8 @@
 import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../core/services/active.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 interface ArchivedProject {
   id: string;
@@ -11,6 +13,10 @@ interface ArchivedProject {
   date: string;
   status: 'done' | 'cancel' | 'arch';
   icon: string;
+  providerName?: string;
+  providerInitial?: string;
+  providerAvatarColor?: string;
+  memberSpec?: string;
 }
 
 @Component({
@@ -22,12 +28,20 @@ interface ArchivedProject {
 })
 export class Archived implements OnInit {
   private activeProjectsService = inject(ActiveProjectsService);
+  private authStore = inject(AuthStore);
 
   searchQuery = signal('');
   activeFilter = signal<'all' | 'done' | 'cancel' | 'arch'>('all');
+  memberFilter = signal<string>('all');
+  periodFilter = signal<string>('all');
   isLoading = signal(true);
   hasError = signal(false);
   errorMessage = signal('');
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
 
   projects = signal<ArchivedProject[]>([]);
 
@@ -62,10 +76,12 @@ export class Archived implements OnInit {
   filteredProjects = computed(() => {
     const query = this.searchQuery().toLowerCase();
     const filter = this.activeFilter();
+    const member = this.memberFilter();
     return this.projects().filter(p => {
       const matchQuery = !query || p.title.toLowerCase().includes(query) || p.displayId.toLowerCase().includes(query);
       const matchFilter = filter === 'all' || p.status === filter;
-      return matchQuery && matchFilter;
+      const matchMember = member === 'all' || (p.providerName || '').toLowerCase().includes(member.toLowerCase());
+      return matchQuery && matchFilter && matchMember;
     });
   });
 
@@ -79,8 +95,31 @@ export class Archived implements OnInit {
     };
   });
 
+  teamMembers = computed(() => {
+    const members = new Map<string, { name: string; initial: string; color: string }>();
+    this.projects().forEach(p => {
+      const key = p.providerName || 'unknown';
+      if (!members.has(key)) {
+        members.set(key, {
+          name: p.providerName || 'مقدم خدمة',
+          initial: p.providerInitial || 'مق',
+          color: p.providerAvatarColor || '#2BD4C7'
+        });
+      }
+    });
+    return Array.from(members.values());
+  });
+
   setFilter(filter: 'all' | 'done' | 'cancel' | 'arch') {
     this.activeFilter.set(filter);
+  }
+
+  setMemberFilter(member: string) {
+    this.memberFilter.set(member);
+  }
+
+  setPeriodFilter(period: string) {
+    this.periodFilter.set(period);
   }
 
   updateSearch(event: Event) {

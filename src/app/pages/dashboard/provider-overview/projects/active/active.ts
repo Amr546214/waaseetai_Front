@@ -1,11 +1,13 @@
 import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../core/services/active.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 interface Project {
 	id: string;
 	title: string;
-	status: 'wait' | 'run' | 'late';
+	status: 'wait' | 'run' | 'late' | 'review';
 	statusLabel: string;
 	progress: number;
 	providerName: string;
@@ -20,6 +22,8 @@ interface Project {
 	approvedStagesCount?: number;
 	stagesCount?: number;
 	daysLeft?: number;
+	memberSpec?: string;
+	clientName?: string;
 }
 
 @Component({
@@ -31,7 +35,17 @@ interface Project {
 })
 export class Active implements OnInit {
 	private activeProjectsService = inject(ActiveProjectsService);
-	activeFilter = signal<'all' | 'run' | 'wait' | 'late'>('all');
+	private authStore = inject(AuthStore);
+
+	activeFilter = signal<'all' | 'run' | 'wait' | 'late' | 'review'>('all');
+	memberFilter = signal<string>('all');
+	sortBy = signal<'attn' | 'prog' | 'deadline'>('attn');
+	searchQuery = signal('');
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
 
 	projects = signal<Project[]>([]);
 	isLoading = signal(true);
@@ -61,8 +75,13 @@ export class Active implements OnInit {
 
 	filteredProjects = computed(() => {
 		const f = this.activeFilter();
-		if (f === 'all') return this.projects();
-		return this.projects().filter(p => p.status === f);
+		const m = this.memberFilter();
+		const q = this.searchQuery().toLowerCase();
+		let list = this.projects();
+		if (f !== 'all') list = list.filter(p => p.status === f);
+		if (m !== 'all') list = list.filter(p => (p.providerName || '').toLowerCase().includes(m.toLowerCase()) || (p.providerInitial || '').toLowerCase() === m.toLowerCase());
+		if (q) list = list.filter(p => (p.title || '').toLowerCase().includes(q));
+		return list;
 	});
 
 	counts = computed(() => {
@@ -77,13 +96,42 @@ export class Active implements OnInit {
 			all: projs.length,
 			run: projs.filter(p => p.status === 'run').length,
 			wait: projs.filter(p => p.status === 'wait').length,
+			review: projs.filter(p => p.status === 'review').length,
 			late: lateCount,
 			totalEscrowFormatted: totalEscrow.toLocaleString('en-US'),
 			healthStatus: lateCount > 0 ? 'تحتاج انتباه' : (projs.length > 0 ? 'ممتاز' : 'جيد')
 		};
 	});
 
-	setFilter(filter: 'all' | 'run' | 'wait' | 'late') {
+	teamMembers = computed(() => {
+		const members = new Map<string, { name: string; initial: string; color: string }>();
+		this.projects().forEach(p => {
+			const key = p.providerName || 'unknown';
+			if (!members.has(key)) {
+				members.set(key, {
+					name: p.providerName || 'مقدم خدمة',
+					initial: p.providerInitial || 'مق',
+					color: p.providerAvatarColor || '#2BD4C7'
+				});
+			}
+		});
+		return Array.from(members.values());
+	});
+
+	setFilter(filter: 'all' | 'run' | 'wait' | 'late' | 'review') {
 		this.activeFilter.set(filter);
+	}
+
+	setMemberFilter(member: string) {
+		this.memberFilter.set(member);
+	}
+
+	setSortBy(sort: 'attn' | 'prog' | 'deadline') {
+		this.sortBy.set(sort);
+	}
+
+	updateSearch(event: Event) {
+		const input = event.target as HTMLInputElement;
+		this.searchQuery.set(input.value);
 	}
 }

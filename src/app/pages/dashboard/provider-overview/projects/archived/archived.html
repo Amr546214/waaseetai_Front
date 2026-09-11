@@ -143,3 +143,149 @@
 		</div>
 	</div>
 </section>
+
+<!-- ===== Company Archived (P-CO-PR-007) ===== -->
+@if (isCompanyMode()) {
+<section class="archived-page co-archived" dir="rtl">
+	<h2 class="sr-only">المشاريع المكتملة والأرشيف — شركة</h2>
+
+	<!-- Header -->
+	<div class="pg-head">
+		<div>
+			<div class="pg-title">المشاريع المكتملة والأرشيف</div>
+			<div class="pg-sub">سجل مشاريع الفريق المنتهية — مكتملة، ملغاة، أو مؤرشفة</div>
+		</div>
+	</div>
+
+	<!-- AI Disclosure -->
+	<div class="ai-disc">
+		<div class="ai-disc-ico">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M10.5 10.5 5 7M13.5 10.5 19 7M10.5 13.5 5 17M13.5 13.5 19 17"/>
+			</svg>
+		</div>
+		<div>
+			<div class="ai-disc-lbl">وسيط AI، تحليل الأرشيف</div>
+			<p class="ai-disc-txt">AI يحلل أداء الفريق من المشاريع المكتملة ويقترح تحسينات للإسناد في المشاريع القادمة <span class="ai-badge">دقة 94%</span></p>
+		</div>
+	</div>
+
+	@if (isLoading()) {
+		<div class="state-card" role="status" aria-label="جاري تحميل المشاريع">
+			<div class="skeleton-row" style="width:40%;height:16px;margin-bottom:14px"></div>
+			<div class="skeleton-box" style="height:70px;margin-bottom:10px"></div>
+			<div class="skeleton-box" style="height:70px;margin-bottom:10px"></div>
+			<div class="skeleton-box" style="height:70px"></div>
+		</div>
+	} @else if (hasError()) {
+		<div class="state-card error-state" role="alert">
+			<div class="state-title">تعذّر تحميل الأرشيف</div>
+			<div class="state-code">{{ errorMessage() }}</div>
+			<button type="button" class="retry-btn" (click)="retry()">اعادة المحاولة</button>
+		</div>
+	} @else {
+		<!-- KPIs -->
+		<div class="kpi-row">
+			<div class="kpi-c"><div class="v" style="color:#0FA99A">{{ stats().done }}</div><div class="l">مكتملة</div></div>
+			<div class="kpi-c"><div class="v" style="color:#D98A0B">{{ stats().cancel }}</div><div class="l">ملغاة</div></div>
+			<div class="kpi-c"><div class="v" style="color:#A8B2D1">{{ stats().arch }}</div><div class="l">مؤرشفة</div></div>
+			<div class="kpi-c"><div class="v">{{ stats().total }}</div><div class="l">إجمالي الإيرادات ريال</div></div>
+			<div class="kpi-c"><div class="v" style="color:#FFB400">4.8</div><div class="l">متوسط تقييم الفريق</div></div>
+		</div>
+
+		<!-- Filter Rail -->
+		<div class="co-filter-rail">
+			<div class="co-fr-lbl">المقدِّم</div>
+			<div class="co-fr-segs">
+				<button class="co-ds" [class.active]="memberFilter()==='all'" (click)="setMemberFilter('all')">الكل</button>
+				@for (m of teamMembers(); track m.name) {
+					<button class="co-ds" [class.active]="memberFilter()===m.name" (click)="setMemberFilter(m.name)">
+						<span style="display:inline-flex;align-items:center;gap:3px"><span class="co-fr-mav" [style.background]="m.color">{{m.initial}}</span>{{m.name.split(' ')[0]}}</span>
+					</button>
+				}
+			</div>
+			<div class="co-fr-vd"></div>
+			<div class="co-fr-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">الفترة</div>
+			<div class="co-fr-segs">
+				<button class="co-ds" [class.active]="periodFilter()==='all'" (click)="setPeriodFilter('all')">الكل</button>
+				<button class="co-ds" [class.active]="periodFilter()==='month'" (click)="setPeriodFilter('month')">هذا الشهر</button>
+				<button class="co-ds" [class.active]="periodFilter()==='quarter'" (click)="setPeriodFilter('quarter')">هذا الربع</button>
+				<button class="co-ds" [class.active]="periodFilter()==='year'" (click)="setPeriodFilter('year')">هذه السنة</button>
+			</div>
+			<div class="co-fr-gap"></div>
+			<div class="co-fr-search">
+				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+				<input type="search" placeholder="ابحث في المشاريع..." [value]="searchQuery()" (input)="updateSearch($event)" />
+			</div>
+		</div>
+
+		<!-- Status Tabs -->
+		<div class="co-st-tabs">
+			<button class="co-st-tab" [class.active]="activeFilter()==='all'" (click)="setFilter('all')">الكل <span>{{ stats().total }}</span></button>
+			<button class="co-st-tab" [class.active]="activeFilter()==='done'" (click)="setFilter('done')">مكتملة <span>{{ stats().done }}</span></button>
+			<button class="co-st-tab" [class.active]="activeFilter()==='cancel'" (click)="setFilter('cancel')">ملغاة <span>{{ stats().cancel }}</span></button>
+			<button class="co-st-tab" [class.active]="activeFilter()==='arch'" (click)="setFilter('arch')">مؤرشفة <span>{{ stats().arch }}</span></button>
+		</div>
+
+		@if (filteredProjects().length === 0) {
+			<div class="state-card">
+				<div class="empty-wrap">
+					<div class="empty-ico">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+						</svg>
+					</div>
+					<div class="empty-title">لا مشاريع بهذا التصفية</div>
+					<div class="empty-copy">حاول تغيير الفلتر أو التبويب</div>
+				</div>
+			</div>
+		} @else {
+			<div class="proj-list">
+				@for (p of filteredProjects(); track p.id) {
+					<a class="proj-card" [routerLink]="['../progress', p.id]">
+						<div class="pc-ico" [class.pc-ico-ok]="p.status==='done'" [class.pc-ico-wait]="p.status==='cancel'" [class.pc-ico-closed]="p.status==='arch'" aria-hidden="true">
+							@switch (p.icon) {
+								@case ('check') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
+								@case ('doc') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
+								@case ('market') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h14M9 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0M17 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/></svg> }
+								@case ('list') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> }
+								@default { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
+							}
+						</div>
+						<div class="pc-body">
+							<div class="pc-title">{{ p.title }}</div>
+							<div class="pc-meta">
+								<span class="pc-id">{{ p.displayId }}</span>
+								<span class="pc-dot"></span>
+								<div class="pc-member">
+									<div class="pc-av" [style.background]="p.providerAvatarColor || 'linear-gradient(135deg,#2BD4C7,#2B7FFF)'">{{ p.providerInitial || 'مق' }}</div>
+									{{ p.providerName || 'مقدم خدمة' }}
+								</div>
+								<span class="pc-dot"></span>
+								<span>{{ p.clientName }}</span>
+								<span class="pc-dot"></span>
+								<span>{{ p.value }}</span>
+								<span class="pc-dot"></span>
+								<span>{{ p.date }}</span>
+							</div>
+						</div>
+						<span class="pc-status" [class.pcs-ok]="p.status==='done'" [class.pcs-wait]="p.status==='cancel'" [class.pcs-closed]="p.status==='arch'">
+							{{ statusLabel(p.status) }}
+						</span>
+					</a>
+				}
+			</div>
+		}
+	}
+
+	<!-- Footer -->
+	<div class="inner-foot">
+		<span>© 2026 وسيط AI · v1.0.0</span>
+		<div class="inner-foot-links">
+			<a routerLink="/privacy">PDPL</a>
+			<a routerLink="/terms">الشروط</a>
+			<span>SAMA</span>
+		</div>
+	</div>
+</section>
+}

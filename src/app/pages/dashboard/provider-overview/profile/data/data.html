@@ -1,3 +1,184 @@
+@if (isCompanyMode()) {
+<!-- ===== Company Edit Profile (P-CO-AC-002) ===== -->
+<div class="co-edit-page" dir="rtl">
+	<nav class="bc">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		<a routerLink="/provider-overview/profile/public">ملف الشركة</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		<span>تعديل الملف</span>
+	</nav>
+
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">تعديل ملف الشركة</div>
+			<div class="pg-sub">حدّث بيانات شركتك المهنية الظاهرة لطالبي الخدمة</div>
+		</div>
+		<a routerLink="/provider-overview/profile/public" class="btn btn-sec">
+			<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+			رجوع إلى الملف
+		</a>
+	</div>
+
+	<div class="notice">
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+		<p>تعديل <strong>الاسم التجاري</strong> و<strong>السجل التجاري</strong> و<strong>التخصصات</strong> يُنشئ طلب تعديل يُراجع من فريق وسيط AI. باقي الحقول تُحدَّث مباشرة. تابع حالة الطلب من <a routerLink="/provider-overview/profile/requests" style="color:#FFB400;text-decoration:underline">طلبات التعديل</a>.</p>
+	</div>
+
+	<form (ngSubmit)="saveProfile()" [formGroup]="profileForm">
+		<div class="grid2">
+			<div class="co-card" style="margin-bottom:0">
+				<div class="sec-hd"><div class="sec-ttl">بيانات الشركة</div><span class="pill pill-gold">يحتاج مراجعة</span></div>
+				<div class="fld">
+					<label for="f-name">الاسم التجاري</label>
+					<input type="text" id="f-name" formControlName="firstName" placeholder="الاسم التجاري">
+				</div>
+				<div class="f2">
+					<div class="fld">
+						<label for="f-cr">رقم السجل التجاري</label>
+						<input type="text" id="f-cr" formControlName="commercialRegistration" placeholder="1010XXXXXX">
+					</div>
+					<div class="fld">
+						<label for="f-un">الرقم الموحّد للمنشأة</label>
+						<input type="text" id="f-un" formControlName="nationalAddress" placeholder="7001XXXXXX">
+					</div>
+				</div>
+				<div class="f2">
+					<div class="fld">
+						<label for="f-city">المدينة</label>
+						<select id="f-city" formControlName="city">
+							<option value="">اختر المدينة</option>
+							<option value="riyadh">الرياض</option>
+							<option value="jeddah">جدة</option>
+							<option value="dammam">الدمام</option>
+							<option value="mecca">مكة المكرمة</option>
+							<option value="medina">المدينة المنورة</option>
+						</select>
+					</div>
+					<div class="fld">
+						<label for="f-size">حجم الفريق</label>
+						<select id="f-size" formControlName="teamSize">
+							<option value="1-5">1 – 5</option>
+							<option value="6-15">6 – 15</option>
+							<option value="16-50">16 – 50</option>
+							<option value="50+">أكثر من 50</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div class="co-card" style="margin-bottom:0">
+				<div class="sec-hd"><div class="sec-ttl">وصف الشركة</div></div>
+				<div class="fld">
+					<label for="f-tag">العنوان التعريفي القصير</label>
+					<input type="text" id="f-tag" formControlName="headline" placeholder="حلول برمجية وتحول رقمي للمنشآت">
+					<span class="fld-hint">يظهر تحت اسم الشركة في نتائج البحث — 80 حرفاً كحد أقصى</span>
+				</div>
+				<div class="fld">
+					<label for="f-desc">النبذة التفصيلية</label>
+					<textarea id="f-desc" formControlName="bio" placeholder="اكتب نبذة عن شركتك..."></textarea>
+					<span class="fld-hint">اكتب ما يميّز شركتك فعلياً — تجنّب العبارات العامة</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="co-card">
+			<div class="sec-hd"><div class="sec-ttl">التخصصات</div><span class="pill pill-gold">التعديل يحتاج مراجعة</span></div>
+			<div style="font-size:11.5px;color:var(--txt-2,#A8B2D1);margin-bottom:12px">التخصصات المفعّلة تحدّد الطلبات التي تظهر لشركتك في استكشاف الطلبات</div>
+			<div class="chips">
+				@for (s of companySpecialties(); track s.name) {
+					<span [class.chip-sel]="s.selected" [class.chip-off]="!s.selected" (click)="toggleSpecialty(s.name)">
+						@if (s.selected) {
+							<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+						}
+						{{ s.name }}
+					</span>
+				}
+			</div>
+		</div>
+
+		<div class="grid2">
+			<div class="co-card" style="margin-bottom:0">
+				<div class="sec-hd"><div class="sec-ttl">بيانات التواصل</div><span class="pill pill-teal">تحديث مباشر</span></div>
+				<div class="fld">
+					<label for="f-mail">البريد الرسمي</label>
+					<input type="email" id="f-mail" formControlName="email" placeholder="info@company.example">
+				</div>
+				<div class="f2">
+					<div class="fld">
+						<label for="f-tel">هاتف الشركة</label>
+						<input type="tel" id="f-tel" formControlName="phone" placeholder="011XXXXXXX">
+					</div>
+					<div class="fld">
+						<label for="f-mob">جوال مسؤول التواصل</label>
+						<input type="tel" id="f-mob" formControlName="mobile" placeholder="05XXXXXXXX">
+					</div>
+				</div>
+				<div class="fld">
+					<label for="f-web">الموقع الإلكتروني</label>
+					<input type="url" id="f-web" formControlName="website" placeholder="https://company.example">
+				</div>
+				<div class="fld" style="margin-bottom:0">
+					<label for="f-addr">العنوان الوطني</label>
+					<input type="text" id="f-addr" formControlName="address" placeholder="الرياض — حي الملقا">
+				</div>
+			</div>
+
+			<div class="co-card" style="margin-bottom:0">
+				<div class="sec-hd"><div class="sec-ttl">مستندات الشركة</div></div>
+				<div class="up-zone" (click)="coDocUpload.click()">
+					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+					<div class="up-t">اسحب المستندات هنا أو اضغط للاختيار</div>
+					<div class="up-s">PDF أو JPG أو PNG — حتى 10 ميجابايت للملف</div>
+				</div>
+				<input #coDocUpload type="file" style="display:none" multiple (change)="onDocumentSelect($event)" />
+				@for (doc of documentsList(); track doc.name) {
+					<div class="doc-row">
+						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+						<span class="doc-n">{{ doc.name }}</span>
+						<span class="doc-s">{{ doc.size || '—' }}</span>
+						<span class="pill" [class.pill-teal]="doc.status === 'verified'" [class.pill-gold]="doc.status === 'review'">{{ doc.status === 'verified' ? 'موثّق' : (doc.status === 'review' ? 'قيد التحقق' : 'مرفوع') }}</span>
+					</div>
+				}
+				@if (documentsList().length === 0) {
+					<div class="doc-row">
+						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+						<span class="doc-n">السجل التجاري.pdf</span>
+						<span class="doc-s">1.2 MB</span>
+						<span class="pill pill-teal">موثّق</span>
+					</div>
+					<div class="doc-row">
+						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+						<span class="doc-n">شهادة العنوان الوطني.pdf</span>
+						<span class="doc-s">0.6 MB</span>
+						<span class="pill pill-teal">موثّق</span>
+					</div>
+				}
+			</div>
+		</div>
+
+		<div class="save-bar">
+			<div style="font-size:12px;color:var(--txt-2,#A8B2D1)">آخر تحديث للملف: 12 يوليو 2026 · التعديلات التي تحتاج مراجعة لن تظهر للعملاء قبل الاعتماد</div>
+			<div style="display:flex;gap:8px">
+				<a routerLink="/provider-overview/profile/public" class="btn btn-sec">إلغاء</a>
+				<button type="submit" class="btn btn-pri" [disabled]="isSaving()">
+					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+					{{ isSaving() ? 'جاري الحفظ...' : 'حفظ التعديلات' }}
+				</button>
+			</div>
+		</div>
+	</form>
+
+	<footer class="inner-foot">
+		<span>© 2026 وسيط AI · مقدمي الخدمة الشركات</span>
+		<div class="inner-foot-links">
+			<a routerLink="/terms">الشروط</a>
+			<a routerLink="/privacy">الخصوصية</a>
+			<a routerLink="/provider-overview/help">المساعدة</a>
+		</div>
+	</footer>
+</div>
+} @else {
 <!-- Progress Bar -->
 <div class="prog-wrap">
   <div class="prog-header">
@@ -552,3 +733,4 @@
         }}</span></div>
   </div>
 </div>}
+}

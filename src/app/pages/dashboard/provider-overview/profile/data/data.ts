@@ -1,9 +1,11 @@
-import { Component, signal, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, signal, OnInit, inject, PLATFORM_ID, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { HttpEventType } from '@angular/common/http';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 interface DocumentUploadState {
   name: string;
@@ -57,6 +59,49 @@ export class Data implements OnInit {
   private fb = inject(FormBuilder);
   private profileService = inject(ProviderProfileService);
   private platformId = inject(PLATFORM_ID);
+  private authStore = inject(AuthStore);
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
+  // Company specialties toggle
+  companySpecialties = signal<{ name: string; selected: boolean }[]>([
+    { name: 'تطوير تطبيقات الجوال', selected: true },
+    { name: 'تطوير الويب', selected: true },
+    { name: 'أنظمة إدارة المنشآت', selected: true },
+    { name: 'تصميم واجهات وتجربة', selected: true },
+    { name: 'التحول الرقمي', selected: true },
+    { name: 'تحليل البيانات', selected: true },
+    { name: 'الذكاء الاصطناعي', selected: false },
+    { name: 'أمن المعلومات', selected: false },
+    { name: 'إنترنت الأشياء', selected: false },
+    { name: 'الحوسبة السحابية', selected: false },
+    { name: 'التسويق الرقمي', selected: false },
+    { name: 'كتابة المحتوى التقني', selected: false },
+  ]);
+
+  toggleSpecialty(name: string) {
+    this.companySpecialties.update(list =>
+      list.map(s => s.name === name ? { ...s, selected: !s.selected } : s)
+    );
+  }
+
+  // Company documents list for template
+  documentsList = signal<{ name: string; size: string; status: string }[]>([]);
+
+  onDocumentSelect(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+    const files = Array.from(input.files);
+    const newDocs = files.map(f => ({
+      name: f.name,
+      size: `${(f.size / 1024 / 1024).toFixed(1)} MB`,
+      status: 'review'
+    }));
+    this.documentsList.update(list => [...list, ...newDocs]);
+  }
 
   profileForm!: FormGroup;
   contactForm!: FormGroup;

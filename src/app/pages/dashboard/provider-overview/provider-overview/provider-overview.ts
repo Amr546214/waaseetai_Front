@@ -1,7 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProviderApiService, ProviderStatsResponse } from '../../../../core/services/provider-api.service';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-provider-overview',
@@ -12,10 +14,21 @@ import { ProviderApiService, ProviderStatsResponse } from '../../../../core/serv
 })
 export class ProviderOverview implements OnInit {
   private providerApiService = inject(ProviderApiService);
+  private authStore = inject(AuthStore);
 
   stats = signal<ProviderStatsResponse['data'] | null>(null);
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
+  companyDisplayName = computed<string>(() => {
+    const user = this.authStore.currentUser();
+    return user ? `${user.firstName} ${user.lastName}`.trim() : 'شركتك';
+  });
 
   ngOnInit(): void {
     this.loadStats();
