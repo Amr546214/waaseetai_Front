@@ -96,11 +96,11 @@
 .lc-aim .mv{font-size:15px;font-weight:900;color:#A56BE0;line-height:1}
 .lc-aim .ml{font-size:9.5px;color:var(--txt-3);font-weight:600;margin-top:4px;line-height:1.3}
 .lc-aifoot{margin-top:11px;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#A56BE0;padding-top:11px;border-top:1px solid rgba(123,47,190,.20);cursor:pointer}
-.lc-aifoot svg{width:14px;height:14px}
+.lc-aifoot svg{width:13px;height:13px}
 
 .lc-sum{background:linear-gradient(135deg,rgba(43,212,199,.07),rgba(43,127,255,.06));border:1px solid rgba(43,212,199,.18);border-radius:15px;padding:16px}
 .lc-sum h5{font-size:12px;font-weight:900;color:#2BD4C7;margin-bottom:12px;display:flex;align-items:center;gap:7px}
-.lc-sum h5 svg{width:16px;height:16px}
+.lc-sum h5 svg{width:14px;height:14px}
 .lc-smrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12.5px}
 .lc-smrow span{color:var(--txt-2);font-weight:600}
 .lc-smrow b{font-weight:900;color:var(--txt)}

@@ -18,6 +18,7 @@ interface ArchivedProject {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './archived.html',
+  styleUrls: ['./archived.css'],
 })
 export class Archived implements OnInit {
   private activeProjectsService = inject(ActiveProjectsService);
@@ -25,6 +26,8 @@ export class Archived implements OnInit {
   searchQuery = signal('');
   activeFilter = signal<'all' | 'done' | 'cancel' | 'arch'>('all');
   isLoading = signal(true);
+  hasError = signal(false);
+  errorMessage = signal('');
 
   projects = signal<ArchivedProject[]>([]);
 
@@ -34,6 +37,8 @@ export class Archived implements OnInit {
 
   fetchArchivedProjects() {
     this.isLoading.set(true);
+    this.hasError.set(false);
+    this.errorMessage.set('');
     this.activeProjectsService.getArchivedProjects().subscribe({
       next: (res) => {
         this.isLoading.set(false);
@@ -43,9 +48,15 @@ export class Archived implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
+        this.hasError.set(true);
+        this.errorMessage.set(err?.message || 'ERR-PR-025');
         console.error('Error fetching archived projects:', err);
       }
     });
+  }
+
+  retry() {
+    this.fetchArchivedProjects();
   }
 
   filteredProjects = computed(() => {
@@ -75,5 +86,11 @@ export class Archived implements OnInit {
   updateSearch(event: Event) {
     const input = event.target as HTMLInputElement;
     this.searchQuery.set(input.value);
+  }
+
+  statusLabel(status: 'done' | 'cancel' | 'arch'): string {
+    if (status === 'done') return 'مكتمل';
+    if (status === 'cancel') return 'ملغى';
+    return 'مؤرشف';
   }
 }
