@@ -2,34 +2,49 @@
 	<div class="page-hd">
 		<div class="page-ttl-wrap">
 			<div class="page-ttl">طلبات تعديل المشاريع</div>
-			<div class="page-sub">متابعة طلبات تعديل النطاق والمواعيد والمراحل</div>
+			<div class="page-sub">{{ isCompanyMode() ? 'طلبات تعديل نطاق أو ميزانية أو مدة مشروع قائم، تُرفع من صفحة متابعة المشروع وتمر بموافقة الطرفين وحوكمة الذكاء' : 'متابعة طلبات تعديل النطاق والمواعيد والمراحل' }}</div>
 		</div>
 	</div>
+
+	<!-- AI Disclosure (company mode) -->
+	@if (isCompanyMode()) {
+		<div class="ai-disc">
+			<div class="ai-disc-ico">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg>
+			</div>
+			<div class="ai-disc-body">
+				<div class="ai-disc-lbl">وسيط AI، حوكمة تعديل المشاريع</div>
+				<p class="ai-disc-txt">يفحص الذكاء أثر كل تعديل على السعر والمدة والضمان ويقترح التسوية العادلة، ثم يوافق الطرفان ويُحدَّث العقد <span class="ai-disc-badge">دقة 95%</span> القرار النهائي لكما</p>
+			</div>
+		</div>
+	}
 
 	<!-- Stats -->
 	<div class="pm-stats">
 		<div class="stat-box">
-			<div class="stat-val">{{ requests.length }}</div>
-			<div class="stat-lbl">إجمالي الطلبات</div>
+			<div class="stat-val">{{ requests().length }}</div>
+			<div class="stat-lbl">{{ isCompanyMode() ? 'إجمالي الطلبات' : 'إجمالي الطلبات' }}</div>
 		</div>
 		<div class="stat-box">
-			<div class="stat-val">{{ requests.filter(r => r.status === 'pending').length }}</div>
-			<div class="stat-lbl">قيد المراجعة</div>
+			<div class="stat-val">{{ requests().filter(r => r.status === 'pending').length }}</div>
+			<div class="stat-lbl">{{ isCompanyMode() ? 'نشطة' : 'قيد المراجعة' }}</div>
 		</div>
 		<div class="stat-box">
-			<div class="stat-val">{{ requests.filter(r => r.status === 'approved').length }}</div>
+			<div class="stat-val">{{ requests().filter(r => r.status === 'approved').length }}</div>
 			<div class="stat-lbl">معتمد</div>
 		</div>
-		<div class="stat-box">
-			<div class="stat-val">{{ requests.filter(r => r.status === 'rejected').length }}</div>
-			<div class="stat-lbl">مرفوض</div>
-		</div>
+		@if (!isCompanyMode()) {
+			<div class="stat-box">
+				<div class="stat-val">{{ requests().filter(r => r.status === 'rejected').length }}</div>
+				<div class="stat-lbl">مرفوض</div>
+			</div>
+		}
 	</div>
 
 	<!-- Filters -->
 	<div class="filter-row">
-		@for (f of filters; track f.id) {
-			<button type="button" class="filter-chip" [class.active]="activeFilter === f.id" (click)="setFilter(f.id)">
+		@for (f of activeFilters(); track f.id) {
+			<button type="button" class="filter-chip" [class.active]="activeFilter() === f.id" (click)="setFilter(f.id)">
 				{{ f.label }}
 				<span class="fc-count">{{ f.count }}</span>
 			</button>
@@ -38,7 +53,7 @@
 
 	<!-- Requests List -->
 	<div class="req-list">
-		@for (req of filteredRequests; track req.id) {
+		@for (req of filteredRequests(); track req.id) {
 			<div class="req-card">
 				<div class="req-card-hd">
 					<div class="req-id">{{ req.id }}</div>
@@ -61,6 +76,12 @@
 						{{ req.impact }}
 					</div>
 				</div>
+				@if (isCompanyMode() && req.employee) {
+					<div class="req-emp">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+						المسؤول: <strong>{{ req.employee }}</strong>
+					</div>
+				}
 				@if (req.status === 'pending' || req.status === 'review') {
 					<div class="req-actions">
 						<button type="button" class="req-btn req-btn-pri">معاينة الطلب</button>

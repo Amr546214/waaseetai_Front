@@ -1,7 +1,9 @@
-import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 interface TimelineStep { label: string; state: 'done' | 'active' | 'idle'; }
 interface ChatMessage { from: 'me' | 'ai' | 'agent' | 'sys'; name?: string; time: string; text: string; isAi?: boolean; isAgent?: boolean; }
@@ -17,6 +19,9 @@ interface ChatMessage { from: 'me' | 'ai' | 'agent' | 'sys'; name?: string; time
 export class TicketDetailComponent {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
+	private authStore = inject(AuthStore);
+
+	isCompanyMode = computed(() => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY);
 
 	ticketId = signal<string>('TK-—');
 	isLoading = signal<boolean>(true);
@@ -39,9 +44,10 @@ export class TicketDetailComponent {
 		this.hasError.set(false);
 		// Simulate loading from API — replace with real API call when backend supports tickets
 		setTimeout(() => {
+			const companyMode = this.isCompanyMode();
 			this.ticket.set({
 				id: `TK-${id}`,
-				title: 'تأخر الإفراج عن مبلغ الضمان',
+				title: companyMode ? 'تأخر الإفراج عن مبلغ الضمان لمشروع الشركة' : 'تأخر الإفراج عن مبلغ الضمان',
 				createdAt: '21 يونيو 2026',
 				status: 'human',
 				statusLabel: 'لدى فريق الدعم',
@@ -50,7 +56,9 @@ export class TicketDetailComponent {
 				priorityColor: '#D98A0B',
 				related: 'ORD-3092',
 				updatedAt: 'قبل ساعتين',
-				aiVerdict: 'صُنِّفت التذكرة تحت «العقود والضمان» بأولوية عالية لتعلّقها بمبلغ محتجز، ووُجِّهت لفريق الدعم المالي. اقتراح أولي: غالبًا التأخير بسبب عدم اكتمال «قبول التسليم» من طرفك'
+				aiVerdict: 'صُنِّفت التذكرة تحت «العقود والضمان» بأولوية عالية لتعلّقها بمبلغ محتجز، ووُجِّهت لفريق الدعم المالي. اقتراح أولي: غالبًا التأخير بسبب عدم اكتمال «قبول التسليم» من طرفك',
+				companyProject: companyMode ? 'تصميم هوية بصرية لمنتج · ORD-3092' : null,
+				companyMember: companyMode ? 'سلطان العتيبي · المبيعات' : null,
 			});
 			this.timeline.set([
 				{ label: 'مفتوحة', state: 'done' },

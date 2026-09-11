@@ -49,6 +49,16 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		component: ActiveProject,
 		data: { title: "Active Projects" }
 	},
+	{
+		path: 'projects/employee',
+		loadComponent: () => import('./project/employee-projects/employee-projects.component').then(m => m.EmployeeProjectsComponent),
+		data: { title: "مشاريع الموظفين" }
+	},
+	{
+		path: 'projects/employee/:id',
+		loadComponent: () => import('./project/employee-project-details/employee-project-details.component').then(m => m.EmployeeProjectDetailsComponent),
+		data: { title: "متابعة مشروع موظف" }
+	},
 	//   help
 	{
 		path: 'help',
