@@ -650,3 +650,20 @@
 .inner-foot-links a:hover {
   color: var(--teal-txt);
 }
+
+/* ===== Company Market Models (P-CO-MK-001) ===== */
+.co-mkt-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.co-mkt-kpi-c{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:14px 16px}
+.co-mkt-kpi-c .v{font-size:22px;font-weight:900;color:#fff;line-height:1}
+.co-mkt-kpi-c .l{font-size:12px;font-weight:700;color:var(--txt-2,#A8B2D1);margin-top:5px}
+.co-mkt-kpi-c .s{font-size:10.5px;color:var(--txt-3,#6B7699);margin-top:3px}
+
+/* Company Market: Light Mode */
+:host-context(body.light) .co-mkt-kpi-c,:host-context(body.light-theme) .co-mkt-kpi-c{background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .co-mkt-kpi-c .v,:host-context(body.light-theme) .co-mkt-kpi-c .v{color:#0F172A}
+:host-context(body.light) .co-mkt-kpi-c .l,:host-context(body.light-theme) .co-mkt-kpi-c .l{color:#64748B}
+:host-context(body.light) .co-mkt-kpi-c .s,:host-context(body.light-theme) .co-mkt-kpi-c .s{color:#94A3B8}
+
+@media(max-width:767px){
+  .co-mkt-kpi-row{grid-template-columns:repeat(2,1fr)}
+}

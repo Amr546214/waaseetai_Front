@@ -234,3 +234,35 @@
 :host-context(body.light) .status-badge,
 :host-context(.light-theme) .status-badge,
 :host-context(.theme-light) .status-badge{color:#9A6700}
+
+/* ===== Company Explore Requests (P-CO-RQ-001) ===== */
+.req-stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.rsb-cell{display:flex;align-items:center;gap:11px;padding:13px 15px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:13px}
+.rsb-cell-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rsb-cell-num{font-size:22px;font-weight:900;color:#fff;line-height:1}
+.rsb-cell-lbl{font-size:11px;color:var(--txt-2,#A8B2D1);margin-top:3px}
+.rc-mbrs{margin:10px 0;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px}
+.rc-mbrs-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rc-mbrs-lbl{font-size:11px;font-weight:700;color:var(--txt-2,#A8B2D1);white-space:nowrap}
+.rc-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.20);border-radius:20px;font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7)}
+.rc-chip.lo{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.09);color:var(--txt-2,#A8B2D1)}
+.rc-chip-av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#070D24;flex-shrink:0}
+.rc-chip-pct{font-size:10px;font-weight:800;opacity:.8}
+.rc-team-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--txt-2,#A8B2D1)}
+.rc-team-status svg{width:14px;height:14px;opacity:.6}
+.rc-manage-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:linear-gradient(135deg,rgba(43,212,199,.12),rgba(43,127,255,.08));border:1px solid rgba(43,212,199,.24);border-radius:9px;font-size:12px;font-weight:800;color:var(--teal-txt,#2BD4C7);text-decoration:none;transition:all .15s;white-space:nowrap}
+.rc-manage-btn:hover{background:linear-gradient(135deg,rgba(43,212,199,.20),rgba(43,127,255,.14))}
+.rc-manage-btn svg{width:13px;height:13px}
+
+/* Company Explore: Light Mode */
+:host-context(body.light) .rsb-cell,:host-context(body.light-theme) .rsb-cell{background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .rsb-cell-num,:host-context(body.light-theme) .rsb-cell-num{color:#0F172A}
+:host-context(body.light) .rsb-cell-lbl,:host-context(body.light-theme) .rsb-cell-lbl{color:#64748B}
+:host-context(body.light) .rc-mbrs,:host-context(body.light-theme) .rc-mbrs{background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
+:host-context(body.light) .rc-mbrs-lbl,:host-context(body.light-theme) .rc-mbrs-lbl{color:#64748B}
+:host-context(body.light) .rc-chip.lo,:host-context(body.light-theme) .rc-chip.lo{background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.08);color:#64748B}
+:host-context(body.light) .rc-team-status,:host-context(body.light-theme) .rc-team-status{color:#64748B}
+
+@media(max-width:767px){
+  .req-stats-bar{grid-template-columns:repeat(2,1fr)}
+}

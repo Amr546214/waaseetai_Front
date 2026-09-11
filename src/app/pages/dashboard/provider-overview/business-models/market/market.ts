@@ -1,9 +1,11 @@
-import { Component, signal, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, signal, inject, OnDestroy, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NewProjectService } from '../../../../../core/services/new-project.service';
 import { ThemeService } from '../../../../../core/services/theme.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 export interface MarketModel {
 	id: string;
@@ -57,6 +59,26 @@ export class Market implements OnInit, OnDestroy {
 	private newProjectService = inject(NewProjectService);
 	private router = inject(Router);
 	public themeService = inject(ThemeService);
+	private authStore = inject(AuthStore);
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
+
+	// Company team member filter
+	companyMemberFilter = signal<string>('all');
+	companyMembers = [
+		{ id: 'all', name: 'الكل' },
+		{ id: 'sara', name: 'سارة' },
+		{ id: 'fahad', name: 'فهد' },
+		{ id: 'reem', name: 'ريم' },
+		{ id: 'khaled', name: 'خالد' },
+	];
+
+	setCompanyMember(id: string) {
+		this.companyMemberFilter.set(id);
+	}
 
 	models = signal<MarketModel[]>([]);
 	groups = signal<MarketGroup[]>([]);

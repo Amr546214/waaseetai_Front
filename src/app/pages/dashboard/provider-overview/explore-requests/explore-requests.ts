@@ -1,7 +1,9 @@
-import { Component, signal, OnInit, effect, inject } from '@angular/core';
+import { Component, signal, OnInit, effect, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProviderApiService } from '../../../../core/services/provider-api.service';
 import { RouterLink } from '@angular/router';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 @Component({
 	selector: 'app-explore-requests',
@@ -11,6 +13,29 @@ import { RouterLink } from '@angular/router';
 })
 export class ExploreRequests implements OnInit {
 	private providerApi = inject(ProviderApiService);
+	private authStore = inject(AuthStore);
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
+
+	// Company team members for assignment
+	companyTeamMembers = signal([
+		{ id: 'tm1', name: 'فهد العتيبي', initials: 'فه', match: 94, specialty: 'تطوير ويب', available: true },
+		{ id: 'tm2', name: 'ريم الدوسري', initials: 'ري', match: 78, specialty: 'تصميم', available: true },
+		{ id: 'tm3', name: 'خالد الحربي', initials: 'خا', match: 72, specialty: 'تطوير ويب', available: true },
+		{ id: 'tm4', name: 'نورة القحطاني', initials: 'نو', match: 85, specialty: 'محتوى', available: false },
+	]);
+
+	// Company tabs
+	companyTabs = [
+		{ id: 'all', label: 'الكل', count: 47 },
+		{ id: 'unassigned', label: 'لم يُسند', count: 34 },
+		{ id: 'assigned', label: 'مُسند', count: 9 },
+		{ id: 'saved', label: 'محفوظة', count: 4 },
+	];
+
 	isFilterOpen = signal(false);
 
 	// AI Intelligence Modal States

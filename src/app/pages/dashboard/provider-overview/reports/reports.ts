@@ -1,5 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-reports',
@@ -8,6 +10,13 @@ import { CommonModule } from '@angular/common';
   templateUrl: './reports.html'
 })
 export class Reports {
+  private authStore = inject(AuthStore);
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
   currentTab = signal<string>('orders');
   currentPeriod = signal<string>('month');
   showDatePicker = signal<boolean>(false);

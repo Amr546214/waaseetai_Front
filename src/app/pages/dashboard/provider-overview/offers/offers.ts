@@ -1,6 +1,8 @@
 import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { OffersService } from '../../../../core/services/offers.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 export interface Offer {
 	id: string;
@@ -16,12 +18,44 @@ export interface Offer {
 
 @Component({
 	selector: 'app-offers',
+	standalone: true,
+	imports: [RouterLink],
 	templateUrl: './offers.html',
 	styleUrl: './offers.css',
 })
 export class Offers implements OnInit {
 	private offersService = inject(OffersService);
 	private router = inject(Router);
+	private authStore = inject(AuthStore);
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
+
+	// Company team members for advanced filter
+	companyTeamMembers = [
+		{ id: 'tm1', name: 'سارة', initials: 'سا', color: 'linear-gradient(135deg,#FFB400,#D98A0B)' },
+		{ id: 'tm2', name: 'فهد', initials: 'فه', color: 'linear-gradient(135deg,#2B7FFF,#1A5FCC)' },
+		{ id: 'tm3', name: 'ريم', initials: 'ري', color: 'linear-gradient(135deg,#0FA99A,#0D8A7E)' },
+		{ id: 'tm4', name: 'خالد', initials: 'خا', color: 'linear-gradient(135deg,#A56BE0,#7B2FBE)' },
+		{ id: 'tm5', name: 'ليلى', initials: 'لي', color: 'linear-gradient(135deg,#E05B6B,#C0394A)' },
+	];
+
+	// Company specialty filter
+	companySpecialtyFilter = signal<string>('all');
+	companySpecialtyOptions = [
+		{ id: 'all', label: 'الكل' },
+		{ id: 'web', label: 'ويب' },
+		{ id: 'mobile', label: 'موبايل' },
+		{ id: 'design', label: 'تصميم' },
+		{ id: 'erp', label: 'ERP' },
+	];
+
+	setCompanySpecialty(id: string) {
+		this.companySpecialtyFilter.set(id);
+		this.fetchOffers();
+	}
 
 	// Dynamic AI Assistant status banner text
 	aiBannerText = signal<string>('وسيط AI: لديك عرضان قيد التفاوض الآن! راجع ردود واستفسارات العملاء فوراً لزيادة فرص إغلاق الصفقة.');

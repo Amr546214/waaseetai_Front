@@ -2,8 +2,8 @@
 	<!-- Header -->
 	<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 flex-wrap mb-4">
 		<div>
-			<h1 class="text-xl font-black text-white">عروضي المرسلة</h1>
-			<p class="text-xs text-[#6B7699] mt-1">تابع حالة عروضك ونتائج التفاوض من مكان واحد</p>
+			<h1 class="text-xl font-black text-white">{{ isCompanyMode() ? 'عروض مقدمي الشركة' : 'عروضي المرسلة' }}</h1>
+			<p class="text-xs text-[#6B7699] mt-1">{{ isCompanyMode() ? 'تابع عروض أعضاء فريقك وحالات التفاوض من مكان واحد' : 'تابع حالة عروضك ونتائج التفاوض من مكان واحد' }}</p>
 		</div>
 	</div>
 
@@ -64,6 +64,20 @@
 			}
 		</div>
 
+		@if (isCompanyMode()) {
+		<div class="w-px h-5 bg-white/10 mx-1 shrink-0"></div>
+
+		<span class="filter-label-tag text-[#5DA0FF]">التخصص</span>
+		<div class="flex items-center gap-1.5 shrink-0 flex-nowrap">
+			@for (spec of companySpecialtyOptions; track spec.id) {
+			<button type="button" (click)="setCompanySpecialty(spec.id)" [class.active]="companySpecialtyFilter() === spec.id"
+				class="filter-chip">
+				{{ spec.label }}
+			</button>
+			}
+		</div>
+		}
+
 		<div class="flex-1 min-w-[12px]" aria-hidden="true"></div>
 
 		<div class="search-wrap min-w-[160px] max-w-[240px] shrink-0">
@@ -84,7 +98,7 @@
 		<div
 			class="hidden md:grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr] gap-4 px-5 py-3.5 border-b border-white/[0.07] text-[11px] font-bold text-[#6B7699]">
 			<div>طلب العميل</div>
-			<div>سعر عرضي</div>
+			<div>{{ isCompanyMode() ? 'أفضل سعر' : 'سعر عرضي' }}</div>
 			<div>حالة العرض</div>
 			<div>طالب الخدمة</div>
 			<div>الإجراء</div>

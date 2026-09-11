@@ -1,6 +1,8 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-disputes',
@@ -9,6 +11,13 @@ import { RouterModule } from '@angular/router';
   templateUrl: './disputes.html',
 })
 export class Disputes {
+  private authStore = inject(AuthStore);
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
   currentTab = signal<string>('all');
   showToast = signal<string>('');
 
