@@ -53,6 +53,22 @@
 			</div>
 		</div>
 
+		<!-- Auto-acceptance warning (P-SK-016 fs-warn) -->
+		@if (showAutoAcceptWarn()) {
+			<div class="fa-warn">
+				<span class="fa-warn-ic">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+				</span>
+				<div class="fa-warn-b">
+					<b>الاستلام التلقائي خلال {{ autoAcceptDaysLeft() }} أيام.</b>
+					إن لم تعتمد التسليم النهائي قبل <span class="fa-warn-d">{{ formatDate(autoAcceptDeadline()) }}</span>،
+					يتحقق الذكاء من مطابقته للعقد ويعتمده نيابةً عنك ويُفرج الدفعة، حمايةً لحقّ الطرفين من التعطيل.
+					<div class="fa-warn-bar"><i [style.width.%]="autoAcceptProgressPct()"></i></div>
+					<span class="fa-warn-t">مضى {{ autoAcceptDaysPassed() }} · يتبقّى {{ autoAcceptDaysLeft() }} أيام على الاستلام التلقائي</span>
+				</div>
+			</div>
+		}
+
 		<!-- Stages detail -->
 		<div class="fa-sec-ttl">تفصيل المراحل والتسليمات</div>
 

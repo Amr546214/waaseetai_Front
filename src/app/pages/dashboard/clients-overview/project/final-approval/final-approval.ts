@@ -150,6 +150,34 @@ export class FinalApproval implements OnInit {
 		const rounds = Number(stage?.roundsCount || 0);
 		return rounds > 1 ? rounds - 1 : 0;
 	}
+	// Auto-acceptance warning helpers (P-SK-016 fs-warn) — derived from backend fields when present
+	autoAcceptDeadline(): string {
+		const data = this.project();
+		return data?.autoAcceptDeadline || data?.finalReviewDeadline || '';
+	}
+	autoAcceptDaysLeft(): number {
+		const deadline = this.autoAcceptDeadline();
+		if (!deadline) return 0;
+		const ms = new Date(deadline).getTime() - Date.now();
+		return Math.max(0, Math.ceil(ms / 86400000));
+	}
+	autoAcceptDaysPassed(): number {
+		const total = this.autoAcceptTotalWindow();
+		if (!total) return 0;
+		return Math.max(0, total - this.autoAcceptDaysLeft());
+	}
+	autoAcceptTotalWindow(): number {
+		const data = this.project();
+		return Number(data?.autoAcceptWindowDays || 5);
+	}
+	autoAcceptProgressPct(): number {
+		const total = this.autoAcceptTotalWindow();
+		if (!total) return 0;
+		return Math.min(100, Math.round((this.autoAcceptDaysPassed() / total) * 100));
+	}
+	showAutoAcceptWarn(): boolean {
+		return Boolean(this.autoAcceptDeadline()) && this.autoAcceptDaysLeft() > 0;
+	}
 
 	// === Per-stage rating actions ===
 	// Navigate to the dedicated stage rating page (P-SK-017 stage mode).

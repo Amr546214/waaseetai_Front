@@ -101,6 +101,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	isSuggestingBio = signal<boolean>(false);
 	isSuggestingSkills = signal<boolean>(false);
 	notifChannels = signal<string[]>(['email']);
+	aiSuggestedSkills = signal<string[]>([]);
 
 	// Upload progress states keyed by field identifier
 	uploadStates = signal<Record<string, { status: 'uploading' | 'uploaded' | 'error'; progress: number; name: string }>>({});
@@ -468,12 +469,23 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.isSuggestingSkills.set(true);
 		// Simulated AI suggestion (placeholder until AI endpoint exists)
 		setTimeout(() => {
-			const base = mainSpec ? [mainSpec, 'إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق'] : ['إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق'];
+			const base = mainSpec ? [mainSpec, 'إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق', 'تحليل البيانات', 'التصميم الرقمي'] : ['إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق', 'تحليل البيانات', 'التصميم الرقمي'];
 			const current = this.skillsList();
-			const additions = base.filter(s => !current.includes(s));
-			this.skillsList.set([...current, ...additions]);
+			const suggestions = base.filter(s => !current.includes(s));
+			this.aiSuggestedSkills.set(suggestions);
 			this.isSuggestingSkills.set(false);
 		}, 1200);
+	}
+
+	addAiSkill(skill: string) {
+		if (!this.skillsList().includes(skill)) {
+			this.skillsList.update(list => [...list, skill]);
+		}
+		this.aiSuggestedSkills.update(list => list.filter(s => s !== skill));
+	}
+
+	setUiLanguage(lang: string) {
+		this.setupForm.get('uiLanguage')?.setValue(lang);
 	}
 
 	toggleNotifChannel(channel: string) {
@@ -569,6 +581,27 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	getUploadState(key: string) {
 		return this.uploadStates()[key];
+	}
+
+	removeUploadedFile(type: string) {
+		const states = { ...this.uploadStates() };
+		delete states[type];
+		this.uploadStates.set(states);
+		if (type === 'frontId') {
+			this.uploadedFrontId.set('');
+			this.uploadedFrontIdName.set('');
+			this.setupForm.get('docs.frontId')?.setValue('');
+		} else if (type === 'backId') {
+			this.uploadedBackIdName.set('');
+			this.setupForm.get('docs.backId')?.setValue('');
+		} else if (type === 'selfie') {
+			this.uploadedSelfieName.set('');
+			this.setupForm.get('docs.selfie')?.setValue('');
+		} else if (type === 'certs') {
+			this.uploadedCerts.set([]);
+			this.uploadedCertsNames.set([]);
+			this.setupForm.get('docs.certs')?.setValue([]);
+		}
 	}
 
 	triggerNafath() {

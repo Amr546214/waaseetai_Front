@@ -30,6 +30,14 @@
 <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
 <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+<symbol id="i-selfie" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M16 3l2 2-2 2"/><line x1="14" y1="5" x2="18" y2="5"/></symbol>
+<symbol id="i-iban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="i-id-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2.5"/><line x1="13" y1="10" x2="19" y2="10"/><line x1="13" y1="14" x2="17" y2="14"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol>
 </defs></svg>
 
 <div class="bg-grid" aria-hidden="true"></div>
@@ -145,84 +153,129 @@
         </div>
 
         <!-- Profile completion extras (P-AU-011) -->
-        <div class="form-sec">
-          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-user"></use></svg>الصورة الشخصية والمهارات</div>
-          <div class="f-grid">
-            <div class="f-wrap">
-              <label class="f-lbl">الصورة الشخصية (اختياري)</label>
-              <label class="f-upload-area avatar-upload">
-                <input type="file" accept="image/*" aria-label="رفع الصورة الشخصية" (change)="onAvatarSelected($event)">
-                <span class="avatar-preview" *ngIf="avatarPreview(); else avatarPlaceholder">
-                  <img [src]="avatarPreview()" alt="معاينة الصورة" />
-                </span>
-                <ng-template #avatarPlaceholder>
-                  <svg aria-hidden="true"><use href="#i-upload"></use></svg>
-                  <span class="f-upload-ttl">رفع الصورة الشخصية</span>
-                  <span class="f-upload-sub">JPG PNG</span>
-                </ng-template>
-              </label>
+        <div class="form-card">
+          <div class="card-title">
+            <div class="card-title-ico" style="background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.18);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-person"></use></svg></div>
+            الصورة الشخصية
+            <span class="card-optional">اختياري</span>
+          </div>
+          <div class="avatar-section">
+            <div class="avatar-circle" role="button" tabindex="0" aria-label="تغيير الصورة الشخصية">
+              @if (avatarPreview()) {
+                <img [src]="avatarPreview()" alt="صورتك الشخصية" style="display:block" />
+              } @else {
+                <div class="avatar-placeholder">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#i-person"></use></svg>
+                  <span>صورتك</span>
+                </div>
+              }
             </div>
-            <div class="f-wrap f-full">
-              <label class="f-lbl">المهارات والاهتمامات (اختياري)</label>
-              <div class="skills-input-row">
-                <input class="f-inp" type="text" placeholder="أضف مهارة أو اهتمام واضغط Enter" (keydown.enter)="addSkill($event)" [(ngModel)]="skillInput">
-                <button type="button" class="ai-suggest-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()">
-                  <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>
-                  اقتراح AI
-                </button>
-              </div>
-              <div class="f-chips" *ngIf="skillsList().length">
-                @for (skill of skillsList(); track skill) {
-                  <span class="f-chip selected removable">
-                    {{ skill }}
-                    <button type="button" class="chip-remove" (click)="removeSkill(skill)" aria-label="حذف">×</button>
-                  </span>
-                }
-              </div>
+            <div class="avatar-actions">
+              <button type="button" class="avatar-btn upload" aria-label="رفع صورة من الجهاز">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-upload"></use></svg>
+                رفع صورة
+                <input type="file" accept="image/*" aria-hidden="true" (change)="onAvatarSelected($event)">
+              </button>
+              <div class="avatar-privacy"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-lock"></use></svg>الصورة خاصة افتراضيا، يمكنك تغيير الإعداد لاحقا</div>
             </div>
           </div>
         </div>
 
-        <div class="form-sec">
-          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-link"></use></svg>روابط التواصل والتفضيلات</div>
-          <div class="f-grid">
-            <div class="f-wrap">
-              <label class="f-lbl">رابط Portfolio</label>
-              <input class="f-inp" type="url" formControlName="portfolioUrl" placeholder="https://..." dir="ltr" style="text-align:right">
+        <div class="form-card">
+          <div class="card-title">
+            <div class="card-title-ico" style="background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.18);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-tag"></use></svg></div>
+            المهارات والاهتمامات
+            <span class="card-optional">اختياري</span>
+          </div>
+          @if (skillsList().length) {
+            <div class="skills-chips">
+              @for (skill of skillsList(); track skill) {
+                <span class="skill-chip">
+                  {{ skill }}
+                  <button type="button" class="skill-chip-remove" (click)="removeSkill(skill)" aria-label="حذف">&times;</button>
+                </span>
+              }
             </div>
-            <div class="f-wrap">
-              <label class="f-lbl">رابط LinkedIn</label>
-              <input class="f-inp" type="url" formControlName="linkedinUrl" placeholder="https://linkedin.com/in/..." dir="ltr" style="text-align:right">
+          }
+          <div class="skills-ai">
+            <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>اقتراحات AI، اضغط لإضافة</div>
+            <div class="ai-chips" aria-label="مهارات مقترحة من AI">
+              @for (skill of aiSuggestedSkills(); track skill) {
+                <button type="button" class="ai-chip" (click)="addAiSkill(skill)"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-plus"></use></svg>{{ skill }}</button>
+              }
+              @if (isSuggestingSkills()) {
+                <span class="ai-chip" style="opacity:.6">جاري الاقتراح...</span>
+              }
             </div>
-            <div class="f-wrap">
-              <label class="f-lbl">الموقع الشخصي</label>
-              <input class="f-inp" type="url" formControlName="websiteUrl" placeholder="https://..." dir="ltr" style="text-align:right">
+          </div>
+          <div class="skills-input-row">
+            <input type="text" class="skills-input" placeholder="أضف مهارة يدويا..." maxlength="40" (keydown.enter)="addSkill($event)" [(ngModel)]="skillInput">
+            <button type="button" class="skills-add-btn" (click)="addSkill($event)">إضافة</button>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="card-title">
+            <div class="card-title-ico" style="background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.18);color:#5DA0FF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-link"></use></svg></div>
+            روابط التواصل
+            <span class="card-optional">اختياري</span>
+          </div>
+          <div class="link-input-row">
+            <div class="link-icon-wrap portfolio"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-link"></use></svg></div>
+            <input type="url" class="link-input" formControlName="portfolioUrl" placeholder="رابط Portfolio أو موقعك المهني" autocomplete="url">
+          </div>
+          <div class="link-input-row">
+            <div class="link-icon-wrap linkedin"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-link"></use></svg></div>
+            <input type="url" class="link-input" formControlName="linkedinUrl" placeholder="linkedin.com/in/username" autocomplete="url">
+          </div>
+          <div class="link-input-row" style="margin-bottom:0">
+            <div class="link-icon-wrap website"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-globe"></use></svg></div>
+            <input type="url" class="link-input" formControlName="websiteUrl" placeholder="موقعك الإلكتروني" autocomplete="url">
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="card-title">
+            <div class="card-title-ico" style="background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.18);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-settings"></use></svg></div>
+            التفضيلات
+          </div>
+          <div class="pref-section">
+            <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-globe"></use></svg>لغة الواجهة</div>
+            <div class="radio-group" role="radiogroup" aria-label="اختيار اللغة">
+              <button type="button" class="radio-btn" [class.selected]="setupForm.get('uiLanguage')?.value === 'ar'" (click)="setUiLanguage('ar')" role="radio" [attr.aria-checked]="setupForm.get('uiLanguage')?.value === 'ar'">العربية</button>
+              <button type="button" class="radio-btn" [class.selected]="setupForm.get('uiLanguage')?.value === 'en'" (click)="setUiLanguage('en')" role="radio" [attr.aria-checked]="setupForm.get('uiLanguage')?.value === 'en'">English</button>
             </div>
-            <div class="f-wrap">
-              <label class="f-lbl">لغة الواجهة المفضلة</label>
-              <select class="f-inp" formControlName="uiLanguage">
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
-              </select>
-            </div>
-            <div class="f-wrap">
-              <label class="f-lbl">المنطقة الزمنية</label>
-              <select class="f-inp" formControlName="timezone">
-                <option value="Asia/Riyadh">الرياض (GMT+3)</option>
-                <option value="Asia/Dubai">دبي (GMT+4)</option>
-                <option value="Asia/Kuwait">الكويت (GMT+3)</option>
-                <option value="Africa/Cairo">القاهرة (GMT+2)</option>
-                <option value="Asia/Amman">عمّان (GMT+3)</option>
-              </select>
-            </div>
-            <div class="f-wrap">
-              <label class="f-lbl">قنوات الإشعارات</label>
-              <div class="f-chips">
-                <span class="f-chip" [class.selected]="notifChannels().includes('email')" (click)="toggleNotifChannel('email')">البريد</span>
-                <span class="f-chip" [class.selected]="notifChannels().includes('sms')" (click)="toggleNotifChannel('sms')">الرسائل النصية</span>
-                <span class="f-chip" [class.selected]="notifChannels().includes('push')" (click)="toggleNotifChannel('push')">الإشعارات الفورية</span>
+          </div>
+          <div class="pref-section">
+            <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-bell"></use></svg>قنوات الإشعارات</div>
+            <div class="notif-grid" role="group" aria-label="قنوات الاشعارات">
+              <div class="notif-item" [class.active]="notifChannels().includes('push')" role="checkbox" [attr.aria-checked]="notifChannels().includes('push')" tabindex="0" (click)="toggleNotifChannel('push')">
+                <div class="notif-ico" style="background:rgba(43,212,199,.10);color:#2BD4C7"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-bell"></use></svg></div>
+                <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
+                <span class="notif-lbl">الإشعارات داخل التطبيق</span>
+              </div>
+              <div class="notif-item" [class.active]="notifChannels().includes('email')" role="checkbox" [attr.aria-checked]="notifChannels().includes('email')" tabindex="0" (click)="toggleNotifChannel('email')">
+                <div class="notif-ico" style="background:rgba(43,127,255,.10);color:#5DA0FF"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-mail"></use></svg></div>
+                <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
+                <span class="notif-lbl">البريد الإلكتروني</span>
+              </div>
+              <div class="notif-item" [class.active]="notifChannels().includes('sms')" role="checkbox" [attr.aria-checked]="notifChannels().includes('sms')" tabindex="0" (click)="toggleNotifChannel('sms')">
+                <div class="notif-ico" style="background:rgba(43,212,199,.07);color:#2BD4C7"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-chat"></use></svg></div>
+                <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
+                <span class="notif-lbl">رسائل SMS</span>
               </div>
             </div>
+          </div>
+          <div class="pref-section" style="margin-bottom:0">
+            <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-globe"></use></svg>المنطقة الزمنية</div>
+            <select class="tz-select" formControlName="timezone">
+              <option value="Asia/Riyadh">توقيت المملكة العربية السعودية (UTC+3)</option>
+              <option value="Asia/Dubai">توقيت الإمارات (UTC+4)</option>
+              <option value="Asia/Kuwait">توقيت الكويت (UTC+3)</option>
+              <option value="Africa/Cairo">توقيت القاهرة (UTC+2)</option>
+              <option value="Asia/Amman">توقيت عمّان (UTC+3)</option>
+              <option value="GMT">توقيت غرينتش (UTC+0)</option>
+            </select>
           </div>
         </div>
         <div class="step-nav">
@@ -310,85 +363,254 @@
         </div>
       </div>
 
-      <!-- STEP 4: المستندات الرسمية -->
+      <!-- STEP 4: المستندات الرسمية (P-AU-010) -->
       <div class="step-panel" [class.active]="currentStep() === 4" role="tabpanel" formGroupName="docs">
-        <div class="form-sec">
-          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-id"></use></svg>المستندات الرسمية</div>
-          <div class="f-grid">
-            <div class="f-wrap">
-              <label class="f-lbl">صورة بطاقة الهوية، الوجه الأمامي <span class="f-req">*</span></label>
-              <label class="f-upload-area">
-                <input type="file" accept="image/*,.pdf" aria-label="رفع الوجه الأمامي للهوية" (change)="onFileSelected($event, 'frontId')">
-                <svg aria-hidden="true"><use href="#i-upload"></use></svg>
-                <span class="f-upload-ttl">{{ uploadedFrontId() ? 'تم رفع الهوية (الأمامي)' : 'رفع الوجه الأمامي' }}</span>
-                <span class="f-upload-sub">{{ uploadedFrontIdName() || 'PNG JPG PDF' }}</span>
-              </label>
-              @if (getUploadState('frontId')) {
-                @if (getUploadState('frontId').status === 'uploading') {
-                  <span class="f-hint" style="color:#5DA0FF">جاري رفع الملف... {{ getUploadState('frontId').progress }}%</span>
-                } @else if (getUploadState('frontId').status === 'uploaded') {
-                  <span class="f-hint" style="color:#2BD4C7">تم رفع الملف بنجاح</span>
-                } @else if (getUploadState('frontId').status === 'error') {
-                  <span class="f-hint" style="color:#FF6B6B">تعذر رفع الملف، حاول مرة أخرى</span>
-                }
-              }
-            </div>
-            <div class="f-wrap">
-              <label class="f-lbl">صورة بطاقة الهوية، الوجه الخلفي <span class="f-req">*</span></label>
-              <label class="f-upload-area">
-                <input type="file" accept="image/*,.pdf" aria-label="رفع الوجه الخلفي للهوية" (change)="onFileSelected($event, 'backId')">
-                <svg aria-hidden="true"><use href="#i-upload"></use></svg>
-                <span class="f-upload-ttl">{{ setupForm.get('docs.backId')?.value ? 'تم رفع الهوية (الخلفي)' : 'رفع الوجه الخلفي' }}</span>
-                <span class="f-upload-sub">{{ uploadedBackIdName() || 'PNG JPG PDF' }}</span>
-              </label>
-              @if (getUploadState('backId')) {
-                @if (getUploadState('backId').status === 'uploading') {
-                  <span class="f-hint" style="color:#5DA0FF">جاري رفع الملف... {{ getUploadState('backId').progress }}%</span>
-                } @else if (getUploadState('backId').status === 'uploaded') {
-                  <span class="f-hint" style="color:#2BD4C7">تم رفع الملف بنجاح</span>
-                } @else if (getUploadState('backId').status === 'error') {
-                  <span class="f-hint" style="color:#FF6B6B">تعذر رفع الملف، حاول مرة أخرى</span>
-                }
-              }
-            </div>
-            <div class="f-wrap">
-              <label class="f-lbl">صورة Selfie للتحقق <span class="f-req">*</span></label>
-              <label class="f-upload-area">
-                <input type="file" accept="image/*" capture="user" aria-label="رفع صورة Selfie للتحقق" (change)="onFileSelected($event, 'selfie')">
-                <svg aria-hidden="true"><use href="#i-upload"></use></svg>
-                <span class="f-upload-ttl">{{ uploadedSelfieName() ? 'تم رفع صورة Selfie' : 'رفع صورة Selfie' }}</span>
-                <span class="f-upload-sub">{{ uploadedSelfieName() || 'JPG PNG' }}</span>
-              </label>
-              @if (getUploadState('selfie')) {
-                @if (getUploadState('selfie').status === 'uploading') {
-                  <span class="f-hint" style="color:#5DA0FF">جاري رفع الصورة... {{ getUploadState('selfie').progress }}%</span>
-                } @else if (getUploadState('selfie').status === 'uploaded') {
-                  <span class="f-hint" style="color:#2BD4C7">تم رفع الصورة بنجاح</span>
-                } @else if (getUploadState('selfie').status === 'error') {
-                  <span class="f-hint" style="color:#FF6B6B">تعذر رفع الصورة، حاول مرة أخرى</span>
-                }
-              }
-            </div>
-            <div class="f-wrap">
-              <label class="f-lbl">شهادات أو تراخيص مهنية</label>
-              <label class="f-upload-area">
-                <input type="file" accept="image/*,.pdf" multiple aria-label="رفع شهادات مهنية" (change)="onFileSelected($event, 'certs')">
-                <svg aria-hidden="true"><use href="#i-upload"></use></svg>
-                <span class="f-upload-ttl">شهادات مهنية</span>
-                <span class="f-upload-sub">{{ uploadedCerts().length > 0 ? 'تم رفع ' + uploadedCerts().length + ' ملفات' : 'اختياري: PNG JPG PDF' }}</span>
-              </label>
-              @if (getUploadState('certs')) {
-                @if (getUploadState('certs').status === 'uploading') {
-                  <span class="f-hint" style="color:#5DA0FF">جاري رفع الملفات...</span>
-                } @else if (getUploadState('certs').status === 'uploaded') {
-                  <span class="f-hint" style="color:#2BD4C7">تم رفع جميع الملفات بنجاح</span>
-                } @else if (getUploadState('certs').status === 'error') {
-                  <span class="f-hint" style="color:#FF6B6B">تعذر رفع بعض الملفات، حاول مرة أخرى</span>
-                }
-              }
-            </div>
+
+        <!-- Notice Banner -->
+        <div class="notice-banner" role="region" aria-label="تنبيه رفع المستندات">
+          <div class="notice-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-info"></use></svg></div>
+          <div>
+            <div class="notice-ttl">مستنداتك مشفرة ومحمية</div>
+            <p class="notice-txt">جميع الملفات مشفرة بمعيار AES-256، AI يتحقق منها آليا خلال 1-3 دقائق. المستندات المطلوبة حسب نوع حسابك كمقدم خدمة فرد</p>
           </div>
         </div>
+
+        <!-- AI Banner -->
+        <div class="ai-banner" role="region" aria-label="توصية الذكاء الاصطناعي">
+          <svg aria-hidden="true"><use href="#i-ai"></use></svg>
+          <p class="ai-banner-txt"><strong>AI يرشدك: </strong>ارفع صورة واضحة وغير ملتوية، جودة الصورة تؤثر مباشرة على سرعة التحقق ومستوى الثقة</p>
+          <span class="ai-pct">دقة 88%</span>
+        </div>
+
+        <!-- Card 1: هوية وطنية وجه -->
+        <div class="doc-card" [class.verified]="getUploadState('frontId')?.status === 'uploaded'">
+          <div class="doc-header">
+            <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-id-card"></use></svg></div>
+            <div class="doc-info">
+              <div class="doc-name">هوية وطنية، الوجه <span class="doc-required">إلزامي</span></div>
+              <div class="doc-desc">الوجه الأمامي للهوية الوطنية أو الإقامة، JPG/PNG/PDF حد أقصى 10MB</div>
+            </div>
+            <span class="ai-status-badge" [class.pending]="!getUploadState('frontId')" [class.scanning]="getUploadState('frontId')?.status === 'uploading'" [class.verified]="getUploadState('frontId')?.status === 'uploaded'" [class.rejected]="getUploadState('frontId')?.status === 'error'" aria-live="polite">
+              @if (!getUploadState('frontId')) {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>
+                في الانتظار
+              } @else if (getUploadState('frontId').status === 'uploading') {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-ai"></use></svg>
+                جار التحليل
+              } @else if (getUploadState('frontId').status === 'uploaded') {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"></use></svg>
+                تم الرفع
+              } @else {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-warn"></use></svg>
+                فشل
+              }
+            </span>
+          </div>
+          @if (!uploadedFrontIdName()) {
+            <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الوجه الأمامي للهوية">
+              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، وجه" (change)="onFileSelected($event, 'frontId')">
+              <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>
+              <div class="upload-ttl">اسحب الملف هنا أو اضغط للاختيار</div>
+              <div class="upload-sub">JPG, PNG, PDF &middot; حد أقصى 10MB</div>
+              <button type="button" class="upload-btn">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg>
+                اختر ملف
+              </button>
+            </div>
+          }
+          @if (getUploadState('frontId')?.status === 'uploading') {
+            <div class="upload-progress visible">
+              <div class="prog-bar"><div class="prog-fill" [style.width.%]="getUploadState('frontId').progress"></div></div>
+              <div class="prog-txt"><span>جار التحليل بواسطة AI</span><span>{{ getUploadState('frontId').progress }}%</span></div>
+            </div>
+          }
+          @if (uploadedFrontIdName()) {
+            <div class="uploaded-file visible">
+              <div class="uploaded-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-file"></use></svg></div>
+              <div style="flex:1;min-width:0">
+                <div class="uploaded-name">{{ uploadedFrontIdName() }}</div>
+                <div class="uploaded-size">{{ getUploadState('frontId')?.status === 'uploaded' ? 'تم الرفع' : '...' }}</div>
+              </div>
+              <button type="button" class="uploaded-remove" (click)="removeUploadedFile('frontId')" aria-label="حذف الملف">&#x2715;</button>
+            </div>
+          }
+          <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، لا يشارك مع أطراف خارجية</div>
+        </div>
+
+        <!-- Card 2: هوية وطنية ظهر -->
+        <div class="doc-card" [class.verified]="getUploadState('backId')?.status === 'uploaded'">
+          <div class="doc-header">
+            <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-id-card"></use></svg></div>
+            <div class="doc-info">
+              <div class="doc-name">هوية وطنية، الظهر <span class="doc-required">إلزامي</span></div>
+              <div class="doc-desc">الوجه الخلفي للهوية الوطنية أو الإقامة، JPG/PNG/PDF حد أقصى 10MB</div>
+            </div>
+            <span class="ai-status-badge" [class.pending]="!getUploadState('backId')" [class.scanning]="getUploadState('backId')?.status === 'uploading'" [class.verified]="getUploadState('backId')?.status === 'uploaded'" [class.rejected]="getUploadState('backId')?.status === 'error'" aria-live="polite">
+              @if (!getUploadState('backId')) {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>
+                في الانتظار
+              } @else if (getUploadState('backId').status === 'uploading') {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-ai"></use></svg>
+                جار التحليل
+              } @else if (getUploadState('backId').status === 'uploaded') {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"></use></svg>
+                تم الرفع
+              } @else {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-warn"></use></svg>
+                فشل
+              }
+            </span>
+          </div>
+          @if (!uploadedBackIdName()) {
+            <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الظهر">
+              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، ظهر" (change)="onFileSelected($event, 'backId')">
+              <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>
+              <div class="upload-ttl">اسحب الملف هنا أو اضغط للاختيار</div>
+              <div class="upload-sub">JPG, PNG, PDF &middot; حد أقصى 10MB</div>
+              <button type="button" class="upload-btn">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg>
+                اختر ملف
+              </button>
+            </div>
+          }
+          @if (getUploadState('backId')?.status === 'uploading') {
+            <div class="upload-progress visible">
+              <div class="prog-bar"><div class="prog-fill" [style.width.%]="getUploadState('backId').progress"></div></div>
+              <div class="prog-txt"><span>جار التحليل بواسطة AI</span><span>{{ getUploadState('backId').progress }}%</span></div>
+            </div>
+          }
+          @if (uploadedBackIdName()) {
+            <div class="uploaded-file visible">
+              <div class="uploaded-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-file"></use></svg></div>
+              <div style="flex:1;min-width:0">
+                <div class="uploaded-name">{{ uploadedBackIdName() }}</div>
+                <div class="uploaded-size">{{ getUploadState('backId')?.status === 'uploaded' ? 'تم الرفع' : '...' }}</div>
+              </div>
+              <button type="button" class="uploaded-remove" (click)="removeUploadedFile('backId')" aria-label="حذف الملف">&#x2715;</button>
+            </div>
+          }
+          <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، لا يشارك مع أطراف خارجية</div>
+        </div>
+
+        <!-- Card 3: Selfie -->
+        <div class="doc-card" [class.verified]="getUploadState('selfie')?.status === 'uploaded'">
+          <div class="doc-header">
+            <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-selfie"></use></svg></div>
+            <div class="doc-info">
+              <div class="doc-name">صورة Selfie للتحقق <span class="doc-required">إلزامي</span></div>
+              <div class="doc-desc">صورة واضحة للوجه في ضوء جيد، تستخدم للتحقق من الهوية آليا بواسطة AI</div>
+            </div>
+            <span class="ai-status-badge" [class.pending]="!getUploadState('selfie')" [class.scanning]="getUploadState('selfie')?.status === 'uploading'" [class.verified]="getUploadState('selfie')?.status === 'uploaded'" [class.rejected]="getUploadState('selfie')?.status === 'error'" aria-live="polite">
+              @if (!getUploadState('selfie')) {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>
+                في الانتظار
+              } @else if (getUploadState('selfie').status === 'uploading') {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-ai"></use></svg>
+                جار التحليل
+              } @else if (getUploadState('selfie').status === 'uploaded') {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"></use></svg>
+                تم الرفع
+              } @else {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-warn"></use></svg>
+                فشل
+              }
+            </span>
+          </div>
+          @if (!uploadedSelfieName()) {
+            <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة selfie" style="margin-bottom:0">
+              <input type="file" class="upload-file-inp" accept="image/*" capture="user" aria-label="رفع صورة selfie" (change)="onFileSelected($event, 'selfie')">
+              <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-camera"></use></svg></div>
+              <div class="upload-ttl">صورة واضحة للوجه</div>
+              <div class="upload-sub">JPG, PNG &middot; حد أقصى 5MB &middot; بدون نظارات شمسية</div>
+            </div>
+            <div class="selfie-btns">
+              <button type="button" class="selfie-btn" aria-label="التقاط صورة من الكاميرا">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-camera"></use></svg>
+                التقط صورة
+                <input type="file" accept="image/*" capture="user" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" (change)="onFileSelected($event, 'selfie')">
+              </button>
+              <button type="button" class="selfie-btn" aria-label="رفع صورة من الجهاز">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg>
+                رفع صورة
+                <input type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" (change)="onFileSelected($event, 'selfie')">
+              </button>
+            </div>
+          }
+          @if (getUploadState('selfie')?.status === 'uploading') {
+            <div class="upload-progress visible">
+              <div class="prog-bar"><div class="prog-fill" [style.width.%]="getUploadState('selfie').progress"></div></div>
+              <div class="prog-txt"><span>جار التحليل بواسطة AI</span><span>{{ getUploadState('selfie').progress }}%</span></div>
+            </div>
+          }
+          @if (uploadedSelfieName()) {
+            <div class="uploaded-file visible">
+              <div class="uploaded-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-camera"></use></svg></div>
+              <div style="flex:1;min-width:0">
+                <div class="uploaded-name">{{ uploadedSelfieName() }}</div>
+                <div class="uploaded-size">{{ getUploadState('selfie')?.status === 'uploaded' ? 'تم الرفع' : '...' }}</div>
+              </div>
+              <button type="button" class="uploaded-remove" (click)="removeUploadedFile('selfie')" aria-label="حذف الملف">&#x2715;</button>
+            </div>
+          }
+          <div class="enc-note" style="margin-top:10px"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفرة، تحذف تلقائيا بعد انتهاء التحقق وفق PDPL</div>
+        </div>
+
+        <!-- Card 4: شهادات مهنية (optional) -->
+        <div class="doc-card">
+          <div class="doc-header">
+            <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-doc"></use></svg></div>
+            <div class="doc-info">
+              <div class="doc-name">شهادات أو تراخيص مهنية <span class="doc-optional">اختياري</span></div>
+              <div class="doc-desc">شهادات أو تراخيص تثبت مؤهلاتك، JPG/PNG/PDF حد أقصى 10MB لكل ملف</div>
+            </div>
+            <span class="ai-status-badge" [class.pending]="!getUploadState('certs')" [class.verified]="getUploadState('certs')?.status === 'uploaded'" aria-live="polite">
+              @if (!getUploadState('certs')) {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>
+                اختياري
+              } @else if (getUploadState('certs').status === 'uploading') {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-ai"></use></svg>
+                جار الرفع
+              } @else if (getUploadState('certs').status === 'uploaded') {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"></use></svg>
+                تم الرفع
+              } @else {
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-warn"></use></svg>
+                فشل
+              }
+            </span>
+          </div>
+          @if (uploadedCerts().length === 0) {
+            <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر شهادات مهنية">
+              <input type="file" class="upload-file-inp" accept="image/*,.pdf" multiple aria-label="رفع شهادات مهنية" (change)="onFileSelected($event, 'certs')">
+              <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>
+              <div class="upload-ttl">اسحب الملفات هنا أو اضغط للاختيار</div>
+              <div class="upload-sub">JPG, PNG, PDF &middot; حد أقصى 10MB لكل ملف</div>
+              <button type="button" class="upload-btn">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg>
+                اختر ملفات
+              </button>
+            </div>
+          }
+          @if (getUploadState('certs')?.status === 'uploading') {
+            <div class="upload-progress visible">
+              <div class="prog-bar"><div class="prog-fill" [style.width.%]="getUploadState('certs').progress"></div></div>
+              <div class="prog-txt"><span>جار رفع الملفات</span><span>{{ getUploadState('certs').progress }}%</span></div>
+            </div>
+          }
+          @if (uploadedCerts().length > 0) {
+            <div class="uploaded-file visible">
+              <div class="uploaded-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-file"></use></svg></div>
+              <div style="flex:1;min-width:0">
+                <div class="uploaded-name">{{ uploadedCerts().length }} ملفات</div>
+                <div class="uploaded-size">شهادات مهنية</div>
+              </div>
+              <button type="button" class="uploaded-remove" (click)="removeUploadedFile('certs')" aria-label="حذف الملفات">&#x2715;</button>
+            </div>
+          }
+          <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، يبقى في ملفك المهني</div>
+        </div>
+
+        <!-- NAFATH Verification -->
         <div class="ai-verify">
           <div class="ai-verify-ico" aria-hidden="true"><svg><use href="#i-ai"></use></svg></div>
           <div class="ai-verify-body">
@@ -399,6 +621,18 @@
             غير مفعّل
           </button>
         </div>
+
+        <!-- AI Disclosure -->
+        <div class="ai-disclosure" role="region" aria-label="إفصاح الذكاء الاصطناعي">
+          <div class="ai-disc-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#7B2FBE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-ai"></use></svg>
+          </div>
+          <div class="ai-disc-body">
+            <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+            <p class="ai-disc-txt">AI يتحقق من المستندات بدقة 88% <span class="ai-disc-badge">88%</span>، الإنسان يحتفظ بالقرار النهائي لكل اعتماد</p>
+          </div>
+        </div>
+
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(3)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 4 من 7</span>
@@ -556,79 +790,68 @@
 
         @if (!isTestStarted()) {
           <div class="test-intro">
-            <div class="test-intro-card">
-              <div class="test-intro-hd">
-                <div class="test-intro-ico" aria-hidden="true"><svg><use href="#i-ai"></use></svg></div>
-                <div>
-                  <div class="test-intro-ttl">اختبار التصنيف الأولي</div>
-                  <div class="test-intro-sub">يقيم وسيط AI مستواك الفعلي لتحديد تصنيفك المبدئي على المنصة.</div>
-                </div>
-              </div>
+            <div style="margin-bottom:20px">
+              <h2 style="font-size:22px;font-weight:900;color:#fff;margin-bottom:6px">اختبار التصنيف الأولي</h2>
+              <p style="font-size:14px;color:#6B7699">حدد مستواك ليتمكن AI من مطابقتك مع الطلبات المناسبة</p>
+            </div>
 
+            @if (selectedSpecs().length > 0) {
               <div style="margin-bottom:16px">
                 <div style="font-size:12px;font-weight:700;color:#6B7699;margin-bottom:8px">تخصصاتك المختارة في الاختبار</div>
                 <div class="test-specs-list">
-                  @if (selectedSpecs().length === 0) {
-                    <span style="font-size:12px;color:#6B7699">لا تخصصات محددة</span>
-                  } @else {
-                    @for (s of selectedSpecs(); track s) {
-                      <span class="test-spec-badge">{{ s }}</span>
-                    }
+                  @for (s of selectedSpecs(); track s) {
+                    <span class="test-spec-badge">{{ s }}</span>
                   }
                 </div>
               </div>
+            }
 
-              <div class="test-stats">
-                <div class="test-stat">
-                  <div class="test-stat-val">{{ selectedSpecs().length || 1 }}</div>
-                  <div class="test-stat-lbl">تخصص في الاختبار</div>
+            <!-- Info Card -->
+            <div class="info-card">
+              <div class="info-card-title">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-clock"></use></svg>
+                معلومات الاختبار
+              </div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="info-item-ico" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-doc"></use></svg></div>
+                  <div><div class="info-item-val">{{ setupTestService.totalQuestions() || 10 }}</div><div class="info-item-lbl">سؤال</div></div>
                 </div>
-                <div class="test-stat">
-                  <div class="test-stat-val">3</div>
-                  <div class="test-stat-lbl">سؤال لكل تخصص</div>
+                <div class="info-item">
+                  <div class="info-item-ico" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-clock"></use></svg></div>
+                  <div><div class="info-item-val">{{ testTotalTime > 0 ? testTotalTime / 60 : 10 }}</div><div class="info-item-lbl">مدة الاختبار (دقيقة)</div></div>
                 </div>
-                <div class="test-stat">
-                  <div class="test-stat-val">3</div>
-                  <div class="test-stat-lbl">دقيقة لكل تخصص</div>
+                <div class="info-item">
+                  <div class="info-item-ico" style="background:rgba(123,47,190,.12);color:#A56BE0"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg></div>
+                  <div><div class="info-item-val" style="font-size:13px">ساعة</div><div class="info-item-lbl">مراجعة AI</div></div>
+                </div>
+                <div class="info-item">
+                  <div class="info-item-ico" style="background:rgba(255,180,0,.12);color:#FFB400"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg></div>
+                  <div><div class="info-item-val">30 يوم</div><div class="info-item-lbl">انتظار إعادة</div></div>
                 </div>
               </div>
-
-              <div class="test-rules">
-                <div class="test-rule teal">
-                  <svg aria-hidden="true"><use href="#i-clock"></use></svg>
-                  <div class="test-rule-txt">
-                    <strong>الوقت ملزم</strong>
-                    ينتهي الاختبار تلقائيا عند انتهاء الوقت. سرعة الإجابة جزء من تقييم مستواك المهني
-                  </div>
+              <div style="margin-bottom:14px">
+                <div style="font-size:12px;font-weight:700;color:#A56BE0;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                  <svg style="width:12px;height:12px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
+                  AI يحدد مستواك تلقائيا
                 </div>
-                <div class="test-rule amber">
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 100 100" fill="#FFB400"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-                  <div class="test-rule-txt">
-                    <strong>مستويات متدرجة</strong>
-                    الأسئلة تتدرج بثلاثة درجات من صعوبة متدرجة، لتحديد مستواك الحقيقي بدقة
-                  </div>
+                <div class="levels-row">
+                  <span class="level-pill beginner">تمهيدي</span>
+                  <span class="level-pill mid">تطبيقي</span>
+                  <span class="level-pill expert">احترافي</span>
                 </div>
-                <div class="test-rule red">
-                  <svg aria-hidden="true"><use href="#i-warn"></use></svg>
-                  <div class="test-rule-txt">
-                    <strong>ممنوع استخدام الذكاء الاصطناعي للإجابة</strong>
-                    يكتشف وسيط AI أنماط الإجابة المعتمدة على الذكاء الاصطناعي. اكتشاف ذلك يؤثر على تصنيفك مباشرة
-                  </div>
-                </div>
-                <div class="test-rule ai">
-                  <svg aria-hidden="true"><use href="#i-ai"></use></svg>
-                  <div class="test-rule-txt">
-                    <strong>مرة واحدة عند الإنشاء، ومرة نهائية بعد 30 يوما</strong>
-                    هذا الاختبار يجرى مرة واحدة الآن، ويمكن إعادته مرة واحدة فقط بعد 30 يوما. بعدها يصبح التصنيف نهائيا ويرفع فقط عبر نماذج الأعمال
-                  </div>
-                </div>
+                <div style="margin-top:8px;font-size:11.5px;color:#6B7699">بناء على إجاباتك، لا تختار درجة صعوبة الاختبار بنفسك</div>
               </div>
-
-              <button type="button" class="btn-start-test" (click)="startTest()">
-                <svg aria-hidden="true"><use href="#i-arrow-l"></use></svg>
-                بدء الاختبار الآن
+              <div style="padding:12px 14px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:10px;font-size:12.5px;color:#A8B2D1;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px">
+                <svg style="width:14px;height:14px;color:#FFB400;flex-shrink:0;margin-top:2px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg>
+                <span>أي نشاط مشبوه (تبديل التبويبات، نسخ الأسئلة) يوقف الاختبار ويمنع الإعادة لمدة 30 يوما</span>
+              </div>
+              <button type="button" class="start-btn" (click)="startTest()">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-arrow-l"></use></svg>
+                ابدأ الاختبار الآن
               </button>
             </div>
+
             <div class="step-nav" style="margin-top:16px">
               <button type="button" class="btn-wz-back" (click)="goToStep(6)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
               <span class="step-cnt">المرحلة 7 من 7</span>
@@ -645,95 +868,108 @@
                    <p style="color: #6B7699; font-size: 14px;">يرجى الانتظار ولا تغادر هذه الصفحة</p>
                 </div>
             } @else if (setupTestService.result()) {
-                <div class="test-result-box">
-                    <div class="result-score-ring" [attr.data-score]="setupTestService.result()?.score">
-                      <svg viewBox="0 0 120 120" aria-hidden="true">
-                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
-                        <circle cx="60" cy="60" r="52" fill="none" stroke="#2BD4C7" stroke-width="8"
-                          stroke-linecap="round"
-                          [style.stroke-dasharray.%]="326"
-                          [style.stroke-dashoffset.%]="326 - (326 * (setupTestService.result()?.score || 0) / 100)"
-                          transform="rotate(-90 60 60)"/>
-                      </svg>
-                      <div class="result-score-val">{{ setupTestService.result()?.score | number:'1.0-1' }}<span>%</span></div>
-                    </div>
-                    <h3 class="result-ttl">اكتمل الاختبار</h3>
-                    <div class="result-level-badge">
-                      <span class="result-level-lbl">المستوى المبدئي</span>
-                      <span class="result-level-val">{{ testLevelLabel() }}</span>
-                    </div>
-                    <div class="result-stats-grid">
-                      <div class="result-stat">
-                        <div class="result-stat-val correct">{{ setupTestService.result()?.correct || 0 }}</div>
-                        <div class="result-stat-lbl">إجابات صحيحة</div>
+                <div class="result-screen">
+                  <div class="result-card">
+                    <div class="result-score-wrap">
+                      <div class="result-score-circle" [style.--score-deg]="(setupTestService.result()?.score || 0) * 3.6 + 'deg'" aria-hidden="true">
+                        <div class="result-score-inner">
+                          <span class="result-score-num">{{ setupTestService.result()?.score | number:'1.0-1' }}%</span>
+                          <span class="result-score-lbl">النتيجة</span>
+                        </div>
                       </div>
-                      <div class="result-stat">
-                        <div class="result-stat-val wrong">{{ (setupTestService.result()?.total || 0) - (setupTestService.result()?.correct || 0) }}</div>
-                        <div class="result-stat-lbl">إجابات خاطئة</div>
+                      <div class="result-level-pill" [class.beginner]="testLevelLabel().includes('تمهيدي')" [class.mid]="testLevelLabel().includes('تطبيقي') || testLevelLabel().includes('بارع')" [class.expert]="testLevelLabel().includes('احترافي')">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        {{ testLevelLabel() }}
                       </div>
-                      <div class="result-stat">
-                        <div class="result-stat-val">{{ testTimeSpent() }}</div>
-                        <div class="result-stat-lbl">الوقت المستغرق</div>
-                      </div>
-                      <div class="result-stat">
-                        <div class="result-stat-val ai">{{ testAiConfidence() }}%</div>
-                        <div class="result-stat-lbl">ثقة AI</div>
+                      <div class="result-desc">أديت {{ setupTestService.result()?.correct || 0 }} من أصل {{ setupTestService.result()?.total || 0 }} أسئلة بشكل صحيح. AI صنفك كمقدم خدمة {{ testLevelLabel() }}، ستظهر طلبات مناسبة لمستواك في السوق فور اعتماد النتيجة</div>
+                      <div class="result-ai-conf">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>
+                        ثقة AI في التصنيف: {{ testAiConfidence() }}%
                       </div>
                     </div>
+
+                    <div class="stats-row">
+                      <div class="stat-box"><div class="stat-box-val" style="color:#2BD4C7">{{ setupTestService.result()?.correct || 0 }}</div><div class="stat-box-lbl">إجابات صحيحة</div></div>
+                      <div class="stat-box"><div class="stat-box-val" style="color:#FF8080">{{ (setupTestService.result()?.total || 0) - (setupTestService.result()?.correct || 0) }}</div><div class="stat-box-lbl">إجابات خاطئة</div></div>
+                      <div class="stat-box"><div class="stat-box-val">{{ testTimeSpent() }}</div><div class="stat-box-lbl">الوقت المستغرق</div></div>
+                    </div>
+
                     @if (testNeedsAdminReview()) {
-                      <div class="result-admin-notice">
-                        <svg width="14" height="14" aria-hidden="true"><use href="#i-warn"></use></svg>
-                        <span>سيقوم فريق الإدارة بمراجعة نتيجتك خلال 24 ساعة لتأكيد المستوى النهائي.</span>
+                      <div class="result-admin-banner">
+                        <div class="result-admin-banner-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg></div>
+                        <div>
+                          <div class="result-admin-ttl">قيد المراجعة، خلال ساعة واحدة</div>
+                          <div class="result-admin-sub">AI سيراجع نتيجتك ويعتمد التصنيف خلال ساعة واحدة. ستصلك إشعار فور الاعتماد وسيرفع Hard Lock تلقائيا للوصول الكامل للسوق</div>
+                        </div>
                       </div>
                     }
-                    <button type="button" class="btn-submit-test" (click)="finishTestProcess()">إكمال الملف الشخصي</button>
+
+                    <div class="result-actions">
+                      <button type="button" class="btn-to-profile" (click)="finishTestProcess()">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg>
+                        إكمال الملف الشخصي
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-arrow-l"></use></svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
             } @else {
-                <div class="test-timer-bar" role="timer" aria-live="polite">
-                  <span class="test-timer-label">الوقت المتبقي</span>
-                  <span class="test-timer" [class.urgent]="testTimeLeft() <= 60">{{ formattedTimeLeft() }}</span>
-                  <div class="test-prog-bar">
-                    <div class="test-prog-fill" [style.width.%]="(testTimeLeft() / testTotalTime) * 100"></div>
-                  </div>
-                  <span style="font-size:11px;font-weight:700;color:#6B7699">س {{ answeredCount() }}/{{ setupTestService.totalQuestions() }}</span>
-                </div>
-
-                <div class="test-autosave-note">
-                  <svg width="12" height="12" aria-hidden="true"><use href="#i-ai"></use></svg>
-                  <span>تقدمك محفوظ تلقائياً بواسطة وسيط AI</span>
-                </div>
-
-                <div>
-                  @if (setupTestService.currentQuestion()) {
-                    <div class="test-q">
-                      <div class="test-q-meta">
-                        <span class="test-q-num">س {{ setupTestService.currentQuestion()?.index! + 1 }}</span>
-                        @if (setupTestService.currentQuestion()?.total) {
-                          <span class="test-q-tag">من {{ setupTestService.currentQuestion()?.total }}</span>
-                        }
-                      </div>
-                      <div class="test-q-txt">{{ setupTestService.currentQuestion()?.text }}</div>
-                      <div class="test-options">
-                        @for (opt of setupTestService.currentQuestion()?.options; track opt; let oi = $index) {
-                          <label class="test-opt" (click)="submitAnswer(oi)">
-                            <input type="radio" [name]="'q-'+setupTestService.currentQuestion()?.id" [value]="oi" (click)="$event.stopPropagation()">
-                            <span>{{ opt }}</span>
-                          </label>
-                        }
-                      </div>
-                      <div class="test-q-nav">
-                        <button type="button" class="test-nav-btn prev" (click)="prevQuestion()" [disabled]="!canGoPrev()">
-                          <svg width="12" height="12" aria-hidden="true"><use href="#i-arrow-r"></use></svg> سابق
-                        </button>
-                        <button type="button" class="test-nav-btn pause" (click)="pauseTest()">
-                          <svg width="12" height="12" aria-hidden="true"><use href="#i-clock"></use></svg> إيقاف مؤقت
-                        </button>
-                      </div>
+                <!-- Test Header -->
+                <div class="test-header">
+                  <div class="test-progress-wrap">
+                    <div class="test-progress-lbl">
+                      <span>التقدم في الاختبار</span>
+                      <span>{{ answeredCount() }} / {{ setupTestService.totalQuestions() }}</span>
                     </div>
-                  } @else {
-                     <div style="padding: 40px; text-align: center; color: #6B7699;">جاري تحميل السؤال التالي...</div>
-                  }
+                    <div class="test-progress-bar"><div class="test-progress-fill" [style.width.%]="(answeredCount() / (setupTestService.totalQuestions() || 1)) * 100"></div></div>
+                  </div>
+                  <div class="timer-wrap" [class.critical]="testTimeLeft() <= 60" aria-live="polite" aria-label="الوقت المتبقي">
+                    <svg class="timer-ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-clock"></use></svg>
+                    <span class="timer-display">{{ formattedTimeLeft() }}</span>
+                  </div>
                 </div>
+
+                <!-- AI Auto-save Banner -->
+                <div class="ai-autosave" role="status">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>
+                  التقدم محفوظ تلقائيا بواسطة AI، يمكنك استكمال الاختبار لاحقا من نفس السؤال
+                </div>
+
+                <!-- Question Card -->
+                @if (setupTestService.currentQuestion()) {
+                  <div class="question-card" role="region" aria-labelledby="q-text">
+                    <div class="q-meta">
+                      <span class="q-num">السؤال {{ setupTestService.currentQuestion()?.index! + 1 }}</span>
+                      @if (setupTestService.currentQuestion()?.total) {
+                        <span class="q-tag">من {{ setupTestService.currentQuestion()?.total }}</span>
+                      }
+                    </div>
+                    <div class="q-text" id="q-text">{{ setupTestService.currentQuestion()?.text }}</div>
+                    <div class="q-options" role="radiogroup" aria-labelledby="q-text">
+                      @for (opt of setupTestService.currentQuestion()?.options; track opt; let oi = $index) {
+                        <div class="q-option" (click)="submitAnswer(oi)" role="radio" tabindex="0">
+                          <div class="q-radio" aria-hidden="true"></div>
+                          <div class="q-option-letter">{{ oi + 1 }}</div>
+                          <span class="q-option-txt">{{ opt }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Test Navigation -->
+                  <div class="test-nav">
+                    <button type="button" class="btn-prev" (click)="prevQuestion()" [disabled]="!canGoPrev()">
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-arrow-r"></use></svg>
+                      السابق
+                    </button>
+                    <button type="button" class="btn-pause" (click)="pauseTest()">
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#i-clock"></use></svg>
+                      إيقاف مؤقت
+                    </button>
+                  </div>
+                } @else {
+                   <div style="padding: 40px; text-align: center; color: #6B7699;">جاري تحميل السؤال التالي...</div>
+                }
             }
           </div>
         }
