@@ -1,68 +1,132 @@
 <div class="ss-page" dir="rtl">
-	<div class="page-hd">
-		<div class="page-ttl-wrap">
-			<div class="page-ttl">إحصائيات المبيعات</div>
-			<div class="page-sub">تحليل أداء المبيعات والإيرادات</div>
+	<!-- Breadcrumb -->
+	<nav class="bc">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+		<span style="color:#3A4465">السوق</span>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+		<span>إحصائيات المبيعات</span>
+	</nav>
+
+	<!-- Page Head -->
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">إحصائيات المبيعات</div>
+			<div class="pg-sub">أداء نماذج الشركة في سوق وسيط AI</div>
 		</div>
 	</div>
 
-	<div class="ss-stats">
-		@for (s of stats; track s.label) {
-			<div class="stat-card">
-				<div class="stat-top">
-					<div class="stat-ico" [ngClass]="s.color">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-							@if (s.icon === 'wallet') {
-								<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
-							}
-							@if (s.icon === 'calendar') {
-								<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-							}
-							@if (s.icon === 'chart') {
-								<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-							}
-							@if (s.icon === 'percent') {
-								<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>
-							}
-						</svg>
-					</div>
-				</div>
-				<div class="stat-val">{{ s.value }}<span class="stat-unit">{{ s.unit }}</span></div>
-				<div class="stat-lbl">{{ s.label }}</div>
+	<!-- KPIs -->
+	<div class="kpi-row">
+		@for (k of kpis; track k.label) {
+			<div class="kpi-c">
+				<div class="kpi-v" [style.color]="k.color">{{ k.value }}</div>
+				<div class="kpi-l">{{ k.label }}</div>
+				<div class="kpi-delta" [class.up]="k.deltaDir === 'up'" [class.down]="k.deltaDir === 'down'">{{ k.delta }}</div>
 			</div>
 		}
 	</div>
 
-	<div class="ss-grid">
-		<div class="ss-card top-models">
-			<div class="card-ttl">أفضل النماذج مبيعاً</div>
-			<div class="models-list">
-				@for (m of topModels; track m.name) {
-					<div class="model-row">
-						<div class="model-top">
-							<span class="model-name">{{ m.name }}</span>
-							<span class="model-sales">{{ m.sales.toLocaleString() }} ريال</span>
-						</div>
-						<div class="model-bar">
-							<div class="model-fill" [style.width.%]="m.percentage"></div>
-						</div>
-						<div class="model-pct">{{ m.percentage }}%</div>
+	<!-- AI Insight -->
+	<div class="ai-insight">
+		<div class="ai-insight-ico">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg>
+		</div>
+		<div class="ai-insight-body">
+			<div class="ai-insight-lbl">تحليل AI — فرصة نمو</div>
+			<p class="ai-insight-txt">نموذج <strong>هوية بصرية متكاملة</strong> يولّد 43% من الإيرادات رغم أنه يمثل 17% فقط من النماذج — يُنصح بإضافة 2-3 نماذج مشابهة في تخصص التصميم لزيادة حصة السوق. كذلك لاحظ AI ارتفاعًا في طلبات تطوير التطبيقات هذا الشهر (+62%) دون تغطية كافية.</p>
+		</div>
+	</div>
+
+	<!-- Revenue Chart + Conversion Funnel -->
+	<div class="two-col" style="margin-bottom:16px">
+		<div class="card">
+			<div class="sec-hd">
+				<div>
+					<div class="sec-title">الإيرادات الشهرية</div>
+					<div class="sec-sub">آخر 6 أشهر (بالريال)</div>
+				</div>
+			</div>
+			<div class="chart-wrap">
+				@for (bar of monthlyData; track bar.month) {
+					<div class="chart-bar-col">
+						<div class="chart-bar-val">{{ (bar.value / 1000).toFixed(1) }}k</div>
+						<div class="chart-bar" [style.height.%]="barHeight(bar.value)"></div>
+						<div class="chart-bar-lbl">{{ bar.month }}</div>
 					</div>
 				}
 			</div>
 		</div>
 
-		<div class="ss-card monthly-chart">
-			<div class="card-ttl">التوزيع الشهري للمبيعات</div>
-			<div class="chart-wrap">
-				@for (m of monthlyData; track m.month) {
-					<div class="chart-col">
-						<div class="chart-bar-wrap">
-							<div class="chart-bar" [style.height.%]="barHeight(m.value)">
-								<span class="chart-val">{{ (m.value / 1000).toFixed(0) }}k</span>
-							</div>
+		<div class="card">
+			<div class="sec-hd">
+				<div>
+					<div class="sec-title">قمع التحويل</div>
+					<div class="sec-sub">من المشاهدة حتى الإغلاق</div>
+				</div>
+			</div>
+			<div class="funnel-list">
+				@for (row of funnel; track row.label; let last = $last) {
+					<div class="funnel-row" [style.margin-bottom]="last ? '0' : '10px'">
+						<span class="funnel-lbl">{{ row.label }}</span>
+						<div class="funnel-bar-wrap">
+							<div class="funnel-fill" [style.width.%]="row.pct" [style.background]="row.color">{{ row.count.toLocaleString() }}</div>
 						</div>
-						<div class="chart-month">{{ m.month }}</div>
+						<span class="funnel-pct">{{ row.pct }}%</span>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+
+	<!-- Top Templates + Team Performance -->
+	<div class="two-col">
+		<div class="card">
+			<div class="sec-hd">
+				<div class="sec-title">أفضل النماذج مبيعًا</div>
+				<a routerLink="/provider-overview/business-models/market" class="sec-link">عرض الكل</a>
+			</div>
+			<table class="tpl-tbl">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>النموذج</th>
+						<th>صفقات</th>
+						<th>الإيرادات</th>
+					</tr>
+				</thead>
+				<tbody>
+					@for (m of topModels; track m.name; let i = $index) {
+						<tr>
+							<td><div class="tpl-rank" [class.rank-1]="i === 0">{{ i + 1 }}</div></td>
+							<td>
+								<div class="tpl-name-cell">{{ m.name }}</div>
+								<div class="tpl-member">{{ m.member }}</div>
+							</td>
+							<td class="tpl-deals">{{ m.deals }}</td>
+							<td class="tpl-revenue">{{ m.revenue.toLocaleString() }} ريال</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+		<div class="card">
+			<div class="sec-hd">
+				<div class="sec-title">أداء الفريق</div>
+			</div>
+			<div class="team-list">
+				@for (t of teamPerf; track t.name) {
+					<div class="team-row">
+						<div class="team-av" [style.background]="t.color">{{ t.initials }}</div>
+						<div class="team-info">
+							<div class="team-name">{{ t.name }}</div>
+							<div class="team-stats">{{ t.deals }} صفقة · {{ t.revenue.toLocaleString() }} ريال</div>
+						</div>
+						<div class="team-conv">
+							<div class="team-conv-val">{{ t.conversion }}%</div>
+							<div class="team-conv-lbl">تحويل</div>
+						</div>
 					</div>
 				}
 			</div>

@@ -109,3 +109,21 @@ select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image
 :host-context(body.light) .inner-foot-links a:hover,
 :host-context(.light-theme) .inner-foot-links a:hover,
 :host-context(.theme-light) .inner-foot-links a:hover{color:#0F8A7F}
+
+/* ===== Company Priority Grid (P-CO-AC-014) ===== */
+.pri-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 3px; }
+.pri { padding: 13px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .09); background: rgba(255, 255, 255, .03); cursor: pointer; transition: all .16s; }
+.pri:hover { border-color: rgba(43, 212, 199, .25); }
+.pri.sel { border-color: rgba(43, 212, 199, .5); background: rgba(43, 212, 199, .08); }
+.pri-t { font-size: 12.5px; font-weight: 800; color: #fff; }
+.pri-d { font-size: 10.5px; color: #A8B2D1; margin-top: 3px; }
+@media (max-width: 640px) { .pri-grid { grid-template-columns: 1fr; } }
+
+:host-context(body.light) .pri { border-color: #E7EAF1; background: #fff; }
+:host-context(body.light) .pri-t { color: #070D24; }
+:host-context(body.light) .pri-d { color: #6B7699; }
+:host-context(body.light) .pri.sel { border-color: rgba(43, 212, 199, .5); background: rgba(43, 212, 199, .06); }
+:host-context(body.light-theme) .pri { border-color: #E7EAF1; background: #fff; }
+:host-context(body.light-theme) .pri-t { color: #070D24; }
+:host-context(body.light-theme) .pri-d { color: #6B7699; }
+:host-context(body.light-theme) .pri.sel { border-color: rgba(43, 212, 199, .5); background: rgba(43, 212, 199, .06); }

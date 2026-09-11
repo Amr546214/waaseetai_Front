@@ -1,7 +1,9 @@
-import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
 	selector: 'app-new-ticket',
@@ -13,12 +15,21 @@ import { RouterModule, Router } from '@angular/router';
 })
 export class NewTicketComponent {
 	private router = inject(Router);
+	private authStore = inject(AuthStore);
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
 
 	category = signal<string>('');
 	priority = signal<string>('عادية');
 	subject = signal<string>('');
 	description = signal<string>('');
 	relatedOrder = signal<string>('');
+	relatedProject = signal<string>('');
+	relatedMember = signal<string>('');
+	ccEmail = signal<string>('');
 	submitting = signal<boolean>(false);
 	toast = signal<string | null>(null);
 
@@ -30,9 +41,50 @@ export class NewTicketComponent {
 		'المشاريع والتسليم',
 		'أخرى'
 	];
+
+	companyCategories = [
+		'مالية — محفظة أو سحب أو فواتير',
+		'مشاريع — مراحل أو تسليم أو أوامر تغيير',
+		'فريق — أعضاء أو أدوار أو صلاحيات',
+		'سوق — نماذج أو اعتماد أو طلبات',
+		'تقني — خطأ في اللوحة',
+		'أخرى'
+	];
+
+	companyProjects = [
+		'بدون ربط',
+		'PRJ-3091 — نظام إدارة المخزون',
+		'PRJ-3087 — الهوية البصرية',
+		'PRJ-3084 — تطبيق الحجز'
+	];
+
+	companyMembers = [
+		'بدون تحديد',
+		'فهد العتيبي',
+		'ريم الدوسري',
+		'محمد الشهري',
+		'نورة القحطاني'
+	];
+
 	priorities = ['عادية', 'عالية', 'عاجلة'];
+	companyPriorities = [
+		{ id: 'low', label: 'منخفضة', desc: 'استفسار عام لا يعطّل العمل' },
+		{ id: 'medium', label: 'متوسطة', desc: 'يؤثر على مشروع أو مبلغ محدد' },
+		{ id: 'high', label: 'عالية', desc: 'يعطّل تسليماً أو عملية مالية' },
+	];
+	selectedPriorityId = signal<string>('medium');
 
 	errors = signal<{ [k: string]: string }>({});
+
+	get activeCategories() {
+		return this.isCompanyMode() ? this.companyCategories : this.categories;
+	}
+
+	pickPriority(id: string) {
+		this.selectedPriorityId.set(id);
+		const p = this.companyPriorities.find(x => x.id === id);
+		if (p) this.priority.set(p.label);
+	}
 
 	submit() {
 		const errs: { [k: string]: string } = {};
@@ -46,11 +98,11 @@ export class NewTicketComponent {
 		if (Object.keys(errs).length > 0) return;
 
 		this.submitting.set(true);
-		// Simulate submit — replace with real API call when backend supports tickets
 		setTimeout(() => {
 			this.submitting.set(false);
 			this.showToast('تم فتح تذكرتك بنجاح');
-			setTimeout(() => this.router.navigate(['/client-overview/help']), 1200);
+			const route = this.isCompanyMode() ? '/provider-overview/help' : '/client-overview/help';
+			setTimeout(() => this.router.navigate([route]), 1200);
 		}, 800);
 	}
 

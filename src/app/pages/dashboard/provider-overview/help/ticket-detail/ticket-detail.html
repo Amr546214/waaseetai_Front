@@ -1,5 +1,5 @@
 <section class="tkd-page" dir="rtl">
-	<a routerLink="/client-overview/help" class="bk-link">
+	<a [routerLink]="isCompanyMode() ? '/provider-overview/help' : '/client-overview/help'" class="bk-link">
 		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
 		العودة لتذاكر الدعم
 	</a>
@@ -35,7 +35,7 @@
 			<div class="tkd-meta">
 				<div class="tkd-meta-item"><div class="tkd-meta-lbl">التصنيف</div><div class="tkd-meta-val">{{ ticket().category }}</div></div>
 				<div class="tkd-meta-item"><div class="tkd-meta-lbl">الأولوية</div><div class="tkd-meta-val" [style.color]="ticket().priorityColor">{{ ticket().priority }}</div></div>
-				<div class="tkd-meta-item"><div class="tkd-meta-lbl">مرتبطة بـ</div><div class="tkd-meta-val"><a routerLink="/client-overview/projects" class="link-blue">{{ ticket().related }}</a></div></div>
+				<div class="tkd-meta-item"><div class="tkd-meta-lbl">مرتبطة بـ</div><div class="tkd-meta-val"><a [routerLink]="isCompanyMode() ? '/provider-overview/projects/active' : '/client-overview/projects'" class="link-blue">{{ ticket().related }}</a></div></div>
 				<div class="tkd-meta-item"><div class="tkd-meta-lbl">آخر تحديث</div><div class="tkd-meta-val">{{ ticket().updatedAt }}</div></div>
 			</div>
 		</div>

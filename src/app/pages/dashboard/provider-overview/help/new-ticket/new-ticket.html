@@ -1,12 +1,12 @@
 <section class="nt-page" dir="rtl">
-	<a routerLink="/client-overview/help" class="bk-link">
+	<a [routerLink]="isCompanyMode() ? '/provider-overview/help' : '/client-overview/help'" class="bk-link">
 		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
 		العودة لتذاكر الدعم
 	</a>
 
 	<div class="nt-head">
-		<h1 class="nt-ttl">فتح تذكرة دعم</h1>
-		<p class="nt-sub">صف مشكلتك بدقة، المساعد الذكي يصنّف تذكرتك ويوجّهها للفريق المختص خلال دقائق</p>
+		<h1 class="nt-ttl">{{ isCompanyMode() ? 'فتح تذكرة دعم للشركة' : 'فتح تذكرة دعم' }}</h1>
+		<p class="nt-sub">{{ isCompanyMode() ? 'اشرح المشكلة بدقة وأرفق ما يوضّحها ليصلك رد أسرع' : 'صف مشكلتك بدقة، المساعد الذكي يصنّف تذكرتك ويوجّهها للفريق المختص خلال دقائق' }}</p>
 	</div>
 
 	<!-- AI Banner -->
@@ -19,17 +19,52 @@
 	<form (ngSubmit)="submit()" class="form-card" novalidate>
 		<!-- Category -->
 		<div class="fld-row">
-			<label class="inp-label" for="tk-cat">التصنيف<span class="req">*</span></label>
+			<label class="inp-label" for="tk-cat">{{ isCompanyMode() ? 'نوع الطلب' : 'التصنيف' }}<span class="req">*</span></label>
 			<select id="tk-cat" class="inp-field" [(ngModel)]="category" name="category" required>
-				<option value="" disabled selected>اختر التصنيف</option>
-				@for (c of categories; track c) {
+				<option value="" disabled selected>اختر {{ isCompanyMode() ? 'نوع الطلب' : 'التصنيف' }}</option>
+				@for (c of activeCategories; track c) {
 					<option [value]="c">{{ c }}</option>
 				}
 			</select>
 			@if (errors()['cat']) { <div class="fld-err">{{ errors()['cat'] }}</div> }
 		</div>
 
+		@if (isCompanyMode()) {
+		<!-- Company: Related Project -->
+		<div class="fld-row">
+			<label class="inp-label" for="tk-prj">المشروع المرتبط (اختياري)</label>
+			<select id="tk-prj" class="inp-field" [(ngModel)]="relatedProject" name="project">
+				@for (p of companyProjects; track p) {
+					<option [value]="p">{{ p }}</option>
+				}
+			</select>
+		</div>
+
+		<!-- Company: Related Team Member -->
+		<div class="fld-row">
+			<label class="inp-label" for="tk-mem">عضو الفريق المعني (اختياري)</label>
+			<select id="tk-mem" class="inp-field" [(ngModel)]="relatedMember" name="member">
+				@for (m of companyMembers; track m) {
+					<option [value]="m">{{ m }}</option>
+				}
+			</select>
+		</div>
+		}
+
 		<!-- Priority -->
+		@if (isCompanyMode()) {
+		<div class="fld-row">
+			<label class="inp-label">الأولوية</label>
+			<div class="pri-grid">
+				@for (p of companyPriorities; track p.id) {
+				<div class="pri" [class.sel]="selectedPriorityId() === p.id" (click)="pickPriority(p.id)">
+					<div class="pri-t">{{ p.label }}</div>
+					<div class="pri-d">{{ p.desc }}</div>
+				</div>
+				}
+			</div>
+		</div>
+		} @else {
 		<div class="fld-row">
 			<label class="inp-label" for="tk-priority">الأولوية</label>
 			<select id="tk-priority" class="inp-field" [(ngModel)]="priority" name="priority">
@@ -38,12 +73,15 @@
 				}
 			</select>
 		</div>
+		}
 
+		@if (!isCompanyMode()) {
 		<!-- Related Order -->
 		<div class="fld-row">
 			<label class="inp-label" for="tk-order">مرتبطة بطلب (اختياري)</label>
 			<input id="tk-order" type="text" class="inp-field" [(ngModel)]="relatedOrder" name="order" placeholder="ORD-XXXX" />
 		</div>
+		}
 
 		<!-- Subject -->
 		<div class="fld-row">
@@ -71,8 +109,16 @@
 			</div>
 		</div>
 
+		@if (isCompanyMode()) {
+		<!-- Company: CC Email -->
+		<div class="fld-row">
+			<label class="inp-label" for="tk-cc">إشعار نسخة إلى (اختياري)</label>
+			<input id="tk-cc" type="email" class="inp-field" [(ngModel)]="ccEmail" name="cc" placeholder="finance@gulftech.example" />
+		</div>
+		}
+
 		<div class="form-actions">
-			<button type="button" class="btn-ghost" routerLink="/client-overview/help">إلغاء</button>
+			<button type="button" class="btn-ghost" [routerLink]="isCompanyMode() ? '/provider-overview/help' : '/client-overview/help'">إلغاء</button>
 			<button type="submit" class="btn-primary" [disabled]="submitting()">
 				@if (submitting()) {
 					<span class="spinner"></span> جاري الإرسال...
