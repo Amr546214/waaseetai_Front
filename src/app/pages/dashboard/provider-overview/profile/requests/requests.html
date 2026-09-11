@@ -1,3 +1,106 @@
+@if (isCompanyMode()) {
+<!-- ===== Company Edit Requests (P-CO-AC-003) ===== -->
+<div class="co-requests-page" dir="rtl">
+	<nav class="bc">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		<a routerLink="/provider-overview/profile/public">ملف الشركة</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		<span>طلبات التعديل</span>
+	</nav>
+
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">طلبات تعديل ملف الشركة</div>
+			<div class="pg-sub">كل تعديل على البيانات الرسمية أو التخصصات يُراجع بشرياً قبل النشر</div>
+		</div>
+		<a routerLink="/provider-overview/profile/data" class="btn btn-pri">
+			<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+			تعديل جديد
+		</a>
+	</div>
+
+	<div class="kpi-row">
+		<div class="kpi-c"><div class="kpi-v" style="color:#FFB400">{{ coKpis().pending }}</div><div class="kpi-l">قيد المراجعة</div></div>
+		<div class="kpi-c"><div class="kpi-v" style="color:#2ECC8A">{{ coKpis().approved }}</div><div class="kpi-l">مكتمل</div></div>
+		<div class="kpi-c"><div class="kpi-v" style="color:#FF8C69">{{ coKpis().rejected }}</div><div class="kpi-l">مرفوض</div></div>
+		<div class="kpi-c"><div class="kpi-v" style="color:var(--teal-txt,#2BD4C7)">{{ coKpis().action }}</div><div class="kpi-l">يحتاج إجراء</div></div>
+	</div>
+
+	<div class="filter-rail" role="search">
+		<div class="fr-period-lbl">الحالة</div>
+		<div class="date-segs" role="group">
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='all'" (click)="setCoStatusFilter('all')">الكل</button>
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='pending'" (click)="setCoStatusFilter('pending')">قيد المراجعة</button>
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='approved'" (click)="setCoStatusFilter('approved')">مكتمل</button>
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='rejected'" (click)="setCoStatusFilter('rejected')">مرفوض</button>
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='action'" (click)="setCoStatusFilter('action')">يحتاج إجراء</button>
+		</div>
+		<div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">النوع</div>
+		<div class="date-segs" role="group">
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='all'" (click)="setCoTypeFilter('all')">الكل</button>
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='official'" (click)="setCoTypeFilter('official')">بيانات رسمية</button>
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='specialties'" (click)="setCoTypeFilter('specialties')">تخصصات</button>
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='documents'" (click)="setCoTypeFilter('documents')">مستندات</button>
+		</div>
+		<div class="fr-spacer"></div>
+		<div class="fr-search">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+			<input type="search" placeholder="ابحث برقم الطلب..." [value]="coSearchQuery()" (input)="updateCoSearch($event)" />
+		</div>
+	</div>
+
+	@if (isLoading()) {
+		<div class="co-card"><div class="co-skeleton" style="height:200px"></div></div>
+	} @else {
+		<div class="co-card">
+			<table class="tbl">
+				<thead><tr><th>رقم الطلب</th><th>نوع التعديل</th><th>تاريخ الطلب</th><th>الحالة</th><th>ملاحظات المراجعة</th><th></th></tr></thead>
+				<tbody>
+					@for (req of coFilteredRequests(); track req.id) {
+						<tr>
+							<td style="color:#fff;font-weight:700">{{ req.id?.substring(0, 12) || '—' }}</td>
+							<td>{{ req.fieldLabel || '—' }}</td>
+							<td style="color:var(--txt-2,#A8B2D1)">{{ req.createdAt | date:'mediumDate' }}</td>
+							<td>
+								<span class="pill"
+									[class.pill-gold]="req.status === 'PENDING_HUMAN_REVIEW' || req.status === 'IN_AI_REVIEW'"
+									[class.pill-ok]="req.status === 'APPROVED'"
+									[class.pill-teal]="req.status === 'PENDING_OTP'"
+									[style.background]="req.status === 'REJECTED' ? 'rgba(255,100,80,.08)' : null"
+									[style.color]="req.status === 'REJECTED' ? '#FF8C69' : null"
+									[style.border]="'1px solid ' + (req.status === 'REJECTED' ? 'rgba(255,100,80,.18)' : 'transparent')">
+									{{ coStatusLabel(req.status) }}
+								</span>
+							</td>
+							<td [style.color]="req.status === 'REJECTED' ? '#FF8C69' : 'var(--txt-2,#A8B2D1)'">{{ req.aiRecommendation || '—' }}</td>
+							<td>
+								@if (req.status === 'PENDING_OTP') {
+									<a routerLink="/provider-overview/profile/data" style="font-size:11.5px;font-weight:700;color:var(--teal-txt,#2BD4C7);text-decoration:none">استكمال</a>
+								} @else {
+									<a routerLink="/provider-overview/profile/public" style="font-size:11.5px;font-weight:700;color:var(--teal-txt,#2BD4C7);text-decoration:none">عرض التفاصيل</a>
+								}
+							</td>
+						</tr>
+					}
+					@if (coFilteredRequests().length === 0) {
+						<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--txt-2,#A8B2D1)">لا توجد طلبات بهذا التصفية</td></tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+
+	<footer class="inner-foot">
+		<span>© 2026 وسيط AI · مقدمي الخدمة الشركات</span>
+		<div class="inner-foot-links">
+			<a routerLink="/terms">الشروط</a>
+			<a routerLink="/privacy">الخصوصية</a>
+			<a routerLink="/provider-overview/help">المساعدة</a>
+		</div>
+	</footer>
+</div>
+} @else {
 <div class="mb-5">
   <h1 class="text-[20px] font-black text-[var(--txt)] m-0">طلبات التعديل</h1>
   <div class="text-[12px] font-semibold text-[var(--txt-3)] mt-1">سجل موحد لكل تعديلات الملف، الفورية والمحكومة بالمراجعة</div>
@@ -245,4 +348,5 @@
     <span class="text-[14px] font-bold text-white">{{ showToast() }}</span>
   </div>
 </div>
+}
 }

@@ -1,3 +1,126 @@
+@if (isCompanyMode()) {
+<!-- ===== Company Classification Level (P-CO-AC-004) ===== -->
+<div class="co-level-page" dir="rtl">
+	@if (isLoading()) {
+		<div class="co-card"><div class="co-skeleton" style="height:200px"></div></div>
+	} @else {
+		<nav class="bc">
+			<a routerLink="/provider-overview">لوحة التحكم</a>
+			<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+			<a routerLink="/provider-overview/profile/public">ملف الشركة</a>
+			<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+			<span>مستوى التصنيف</span>
+		</nav>
+
+		<div class="pg-hd">
+			<div>
+				<div class="pg-title">مستوى تصنيف الشركة</div>
+				<div class="pg-sub">مؤشرات الجودة والالتزام التي يُبنى عليها تصنيف شركتك ومميزاتها</div>
+			</div>
+			<a routerLink="/provider-overview/profile/level" class="btn btn-sec">
+				<svg aria-hidden="true" viewBox="0 0 100 100" fill="currentColor" width="14" height="14"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+				تفاصيل التصنيف الكامل
+			</a>
+		</div>
+
+		<div class="rk-hero">
+			<div class="rk-b">🥇</div>
+			<div class="rk-i">
+				<div class="rk-n">{{ levelData()?.currentLevel?.title || 'ذهبي' }}</div>
+				<div class="rk-s">شركة معتمدة بمستوى {{ levelData()?.currentLevel?.title || 'ذهبي' }} · يُجدَّد التقييم كل 3 أشهر</div>
+				<div class="rk-bar"><div class="rk-f" [style.width.%]="levelData()?.nextLevelProgress?.pointsPercent || 89"></div></div>
+				<div style="font-size:11px;color:var(--txt-2,#A8B2D1);margin-top:6px">{{ levelData()?.currentStats?.points || 2680 }} نقطة · {{ levelData()?.nextLevelProgress?.pointsGap || 320 }} نقطة للمستوى التالي</div>
+			</div>
+			<div style="display:flex;gap:8px;flex-shrink:0">
+				<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 16px">
+					<div style="font-size:20px;font-weight:900;color:#FFB400">{{ levelData()?.currentStats?.avgRating || 4.7 }}</div>
+					<div style="font-size:10px;color:var(--txt-2,#A8B2D1);margin-top:2px">التقييم</div>
+				</div>
+				<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 16px">
+					<div style="font-size:20px;font-weight:900;color:var(--teal-txt,#2BD4C7)">98%</div>
+					<div style="font-size:10px;color:var(--txt-2,#A8B2D1);margin-top:2px">الإنجاز</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="grid2">
+			<div class="co-card" style="margin-bottom:0">
+				<div class="sec-hd"><div class="sec-ttl">مؤشرات الجودة</div></div>
+				<div class="mt-row">
+					<div class="mt-b"><div class="mt-n">متوسط تقييم العملاء</div><div class="mt-bar"><div class="mt-f" [style.width.%]="94" style="background:linear-gradient(90deg,#FFB400,#D98A0B)"></div></div></div>
+					<span class="mt-v">{{ levelData()?.currentStats?.avgRating || 4.7 }} / 5</span>
+				</div>
+				<div class="mt-row">
+					<div class="mt-b"><div class="mt-n">جودة التسليم من أول مراجعة</div><div class="mt-bar"><div class="mt-f" [style.width.%]="88" style="background:linear-gradient(90deg,#2ECC8A,#0FA99A)"></div></div></div>
+					<span class="mt-v">88%</span>
+				</div>
+				<div class="mt-row">
+					<div class="mt-b"><div class="mt-n">نسبة المشاريع بلا أوامر تغيير</div><div class="mt-bar"><div class="mt-f" [style.width.%]="76" style="background:linear-gradient(90deg,#5DA0FF,#2B7FFF)"></div></div></div>
+					<span class="mt-v">76%</span>
+				</div>
+				<div class="mt-row">
+					<div class="mt-b"><div class="mt-n">اكتمال الملف المهني</div><div class="mt-bar"><div class="mt-f" [style.width.%]="92" style="background:linear-gradient(90deg,#2BD4C7,#0FA99A)"></div></div></div>
+					<span class="mt-v">92%</span>
+				</div>
+			</div>
+
+			<div class="co-card" style="margin-bottom:0">
+				<div class="sec-hd"><div class="sec-ttl">مؤشرات الالتزام</div></div>
+				<div class="mt-row">
+					<div class="mt-b"><div class="mt-n">الالتزام بمواعيد التسليم</div><div class="mt-bar"><div class="mt-f" [style.width.%]="98" style="background:linear-gradient(90deg,#2BD4C7,#0FA99A)"></div></div></div>
+					<span class="mt-v">98%</span>
+				</div>
+				<div class="mt-row">
+					<div class="mt-b"><div class="mt-n">سرعة الرد على العملاء</div><div class="mt-bar"><div class="mt-f" [style.width.%]="85" style="background:linear-gradient(90deg,#2ECC8A,#0FA99A)"></div></div></div>
+					<span class="mt-v">أقل من ساعتين</span>
+				</div>
+				<div class="mt-row">
+					<div class="mt-b"><div class="mt-n">النزاعات المُقرَّرة ضد الشركة</div><div class="mt-bar"><div class="mt-f" [style.width.%]="4" style="background:#FF8C69"></div></div></div>
+					<span class="mt-v" style="color:#FF8C69">1 خلال سنة</span>
+				</div>
+				<div class="mt-row">
+					<div class="mt-b"><div class="mt-n">التزام أعضاء الفريق بالمهام</div><div class="mt-bar"><div class="mt-f" [style.width.%]="91" style="background:linear-gradient(90deg,#5DA0FF,#2B7FFF)"></div></div></div>
+					<span class="mt-v">91%</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="co-card" style="margin-top:14px">
+			<div class="sec-hd">
+				<div class="sec-ttl">عوامل رفع المستوى</div>
+				<span class="pill pill-gold">+{{ levelData()?.nextLevelProgress?.pointsGap || 320 }} نقطة للبلاتيني</span>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:8px">
+				<div class="rf-row" style="background:rgba(165,107,224,.06);border:1px solid rgba(165,107,224,.15)">
+					<span class="rf-txt">أكمل 3 مشاريع إضافية بتقييم 4.5+</span>
+					<span class="rf-val" style="color:#A56BE0">+60 نقطة</span>
+				</div>
+				<div class="rf-row" style="background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.15)">
+					<span class="rf-txt">ارفع متوسط التقييم إلى 4.8</span>
+					<span class="rf-val" style="color:#FFB400">معامل أعلى</span>
+				</div>
+				<div class="rf-row" style="background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.15)">
+					<span class="rf-txt">أضف شهادتين معتمدتين للملف</span>
+					<span class="rf-val" style="color:var(--teal-txt,#2BD4C7)">+200 نقطة</span>
+				</div>
+				<div class="rf-row" style="background:rgba(93,160,255,.06);border:1px solid rgba(93,160,255,.15)">
+					<span class="rf-txt">أضف عضوين نشطين للفريق</span>
+					<span class="rf-val" style="color:#5DA0FF">+60 نقطة</span>
+				</div>
+			</div>
+		</div>
+	}
+
+	<footer class="inner-foot">
+		<span>© 2026 وسيط AI · مقدمي الخدمة الشركات</span>
+		<div class="inner-foot-links">
+			<a routerLink="/terms">الشروط</a>
+			<a routerLink="/privacy">الخصوصية</a>
+			<a routerLink="/provider-overview/help">المساعدة</a>
+		</div>
+	</footer>
+</div>
+} @else {
 <div *ngIf="isLoading()" class="p-8 text-center text-white">جاري تحميل مستويات التقييم...</div>
 
 <ng-container *ngIf="!isLoading() && levelData() as data">
@@ -213,3 +336,4 @@
   </div>
 </div>
 </ng-container>
+}

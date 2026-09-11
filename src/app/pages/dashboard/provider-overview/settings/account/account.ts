@@ -1,11 +1,14 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-provider-settings-account',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './account.html',
   styles: [`
     :host {
@@ -182,10 +185,154 @@ import { FormsModule } from '@angular/forms';
       border-color: #D8DFEC;
       color: #0F172A;
     }
+
+    /* ===== Company Settings (P-CO-AC-009) ===== */
+    .co-settings-page{display:block}
+    .co-settings-page .bc{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txt-2,#A8B2D1);margin-bottom:12px}
+    .co-settings-page .bc a{color:var(--txt-2,#A8B2D1);text-decoration:none;cursor:pointer}
+    .co-settings-page .bc a:hover{color:var(--teal-txt,#2BD4C7)}
+    .co-settings-page .bc svg{width:10px;height:10px;opacity:.5}
+    .co-settings-page .pg-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+    .co-settings-page .pg-title{font-size:19px;font-weight:900;color:#fff}
+    .co-settings-page .pg-sub{font-size:12px;color:var(--txt-2,#A8B2D1);margin-top:3px}
+    .co-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;margin-bottom:14px}
+    .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .sec-ttl{font-size:14px;font-weight:800;color:#fff}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .fld{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+    .fld label{font-size:11.5px;font-weight:700;color:#fff}
+    .fld input,.fld textarea,.fld select{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:9px 12px;font-family:inherit;font-size:13px;color:#fff;outline:none;direction:rtl}
+    .fld input:focus,.fld textarea:focus,.fld select:focus{border-color:rgba(43,212,199,.4)}
+    .f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+    .pill-ok{background:rgba(15,169,154,.12);color:#2ECC8A;border:1px solid rgba(15,169,154,.28)}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:9px;font-size:12.5px;font-weight:700;transition:all .15s;border:1px solid transparent;text-decoration:none;cursor:pointer;font-family:inherit}
+    .btn svg{width:14px;height:14px}
+    .btn-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
+    .btn-pri:hover{filter:brightness(1.08)}
+    .btn-sec{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:#fff}
+    .btn-sec:hover{background:rgba(43,212,199,.08);border-color:rgba(43,212,199,.25);color:var(--teal-txt,#2BD4C7)}
+    .st-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .st-row:last-child{border-bottom:none}
+    .st-b{flex:1;min-width:0}
+    .st-t{font-size:12.5px;font-weight:700;color:#fff}
+    .st-d{font-size:11px;color:var(--txt-2,#A8B2D1);margin-top:3px;line-height:1.6}
+    .sw{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);position:relative;cursor:pointer;flex-shrink:0;transition:all .18s}
+    .sw::after{content:"";position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#6B7699;transition:all .18s}
+    .sw.on{background:rgba(43,212,199,.30);border-color:rgba(43,212,199,.55)}
+    .sw.on::after{right:20px;background:#2BD4C7}
+    .ses-row{display:flex;align-items:center;gap:12px;padding:11px 13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:11px;margin-bottom:8px}
+    .ses-row:last-child{margin-bottom:0}
+    .ses-ic{width:32px;height:32px;border-radius:9px;background:rgba(93,160,255,.10);color:#5DA0FF;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .ses-ic svg{width:15px;height:15px}
+    .ses-b{flex:1;min-width:0}
+    .ses-t{font-size:12.5px;font-weight:700;color:#fff}
+    .ses-d{font-size:10.5px;color:var(--txt-2,#A8B2D1);margin-top:2px}
+    .st-end{background:none;border:1px solid rgba(255,100,80,.22);color:#FF8C69;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;flex-shrink:0}
+    .st-end:hover{background:rgba(255,100,80,.08)}
+    .save-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.03));border:1px solid rgba(43,212,199,.18);border-radius:13px;margin-top:14px}
+    .inner-foot{margin-top:18px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--txt-2,#A8B2D1);border-top:1px solid rgba(255,255,255,.05);flex-wrap:wrap;gap:8px}
+    .inner-foot-links{display:flex;gap:12px}
+    .inner-foot-links a{color:var(--txt-2,#A8B2D1);text-decoration:none;cursor:pointer}
+    .inner-foot-links a:hover{color:var(--teal-txt,#2BD4C7)}
+
+    /* Company Settings: Light Mode */
+    :host-context([data-theme='light']) .co-card,
+    :host-context(body.light) .co-card,
+    :host-context(body.light-theme) .co-card{background:#fff;border-color:#E7EAF1}
+    :host-context([data-theme='light']) .co-settings-page .pg-title,
+    :host-context(body.light) .co-settings-page .pg-title,
+    :host-context(body.light-theme) .co-settings-page .pg-title{color:#0F172A}
+    :host-context([data-theme='light']) .co-settings-page .pg-sub,
+    :host-context(body.light) .co-settings-page .pg-sub,
+    :host-context(body.light-theme) .co-settings-page .pg-sub{color:#64748B}
+    :host-context([data-theme='light']) .sec-ttl,
+    :host-context(body.light) .sec-ttl,
+    :host-context(body.light-theme) .sec-ttl{color:#0F172A}
+    :host-context([data-theme='light']) .fld label,
+    :host-context(body.light) .fld label,
+    :host-context(body.light-theme) .fld label{color:#0F172A}
+    :host-context([data-theme='light']) .fld input,:host-context([data-theme='light']) .fld select,
+    :host-context(body.light) .fld input,:host-context(body.light) .fld select,
+    :host-context(body.light-theme) .fld input,:host-context(body.light-theme) .fld select{background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.10);color:#0F172A}
+    :host-context([data-theme='light']) .st-t,
+    :host-context(body.light) .st-t,
+    :host-context(body.light-theme) .st-t{color:#0F172A}
+    :host-context([data-theme='light']) .st-d,
+    :host-context(body.light) .st-d,
+    :host-context(body.light-theme) .st-d{color:#64748B}
+    :host-context([data-theme='light']) .ses-t,
+    :host-context(body.light) .ses-t,
+    :host-context(body.light-theme) .ses-t{color:#0F172A}
+    :host-context([data-theme='light']) .ses-d,
+    :host-context(body.light) .ses-d,
+    :host-context(body.light-theme) .ses-d{color:#64748B}
+    :host-context([data-theme='light']) .ses-row,
+    :host-context(body.light) .ses-row,
+    :host-context(body.light-theme) .ses-row{background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
+    :host-context([data-theme='light']) .btn-sec,
+    :host-context(body.light) .btn-sec,
+    :host-context(body.light-theme) .btn-sec{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
+    :host-context([data-theme='light']) .inner-foot,
+    :host-context(body.light) .inner-foot,
+    :host-context(body.light-theme) .inner-foot{border-color:rgba(15,23,42,.06);color:#64748B}
+    :host-context([data-theme='light']) .inner-foot-links a,
+    :host-context(body.light) .inner-foot-links a,
+    :host-context(body.light-theme) .inner-foot-links a{color:#64748B}
+
+    @media(max-width:767px){
+      .grid2{grid-template-columns:1fr}
+      .f2{grid-template-columns:1fr}
+      .save-bar{flex-direction:column;align-items:stretch}
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Account {
+  private authStore = inject(AuthStore);
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
+  // Company settings state
+  coDarkMode = signal<boolean>(true);
+  coCollapseSidebar = signal<boolean>(false);
+  coDenseTables = signal<boolean>(false);
+  coReduceMotion = signal<boolean>(false);
+  coLanguage = signal<string>('العربية');
+  coTimezone = signal<string>('(GMT+3) الرياض');
+  coCalendar = signal<string>('ميلادي');
+  coCurrency = signal<string>('الريال السعودي (SAR)');
+  coNumberFormat = signal<string>('1234 — عربية غربية');
+  coLandingPage = signal<string>('لوحة التحكم');
+  coIdleTimeout = signal<string>('30 دقيقة');
+
+  toggleCoDarkMode() { this.coDarkMode.update(v => !v); }
+  toggleCoCollapseSidebar() { this.coCollapseSidebar.update(v => !v); }
+  toggleCoDenseTables() { this.coDenseTables.update(v => !v); }
+  toggleCoReduceMotion() { this.coReduceMotion.update(v => !v); }
+
+  coSaveSettings() {
+    this.showToast('تم حفظ إعدادات الشركة');
+  }
+
+  coResetDefaults() {
+    this.coDarkMode.set(true);
+    this.coCollapseSidebar.set(false);
+    this.coDenseTables.set(false);
+    this.coReduceMotion.set(false);
+    this.coLanguage.set('العربية');
+    this.coTimezone.set('(GMT+3) الرياض');
+    this.coCalendar.set('ميلادي');
+    this.coCurrency.set('الريال السعودي (SAR)');
+    this.coNumberFormat.set('1234 — عربية غربية');
+    this.coLandingPage.set('لوحة التحكم');
+    this.coIdleTimeout.set('30 دقيقة');
+    this.showToast('تمت استعادة الإعدادات الافتراضية');
+  }
+
   isLoading = signal<boolean>(false);
   hasError = signal<boolean>(false);
   toastMessage = signal<string | null>(null);

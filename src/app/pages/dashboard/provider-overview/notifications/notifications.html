@@ -1,3 +1,100 @@
+@if (isCompanyMode()) {
+<!-- ===== Company Notifications (P-CO-AC-006) ===== -->
+<div class="co-notif-page" dir="rtl">
+	<nav class="bc">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		<span>مركز الإشعارات</span>
+	</nav>
+
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">مركز إشعارات الشركة</div>
+			<div class="pg-sub">كل ما يخص مشاريع شركتك وماليتها وفريقها في مكان واحد</div>
+		</div>
+		<div style="display:flex;gap:8px;flex-wrap:wrap">
+			<a routerLink="/provider-overview/notifications" class="btn btn-sec">
+				<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+				تفضيلات الإشعارات
+			</a>
+			<button type="button" class="btn btn-pri" (click)="markAllRead()">
+				<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+				تعليم الكل كمقروء
+			</button>
+		</div>
+	</div>
+
+	<div class="filter-rail" role="search">
+		<div class="fr-period-lbl">النوع</div>
+		<div class="date-segs" role="group">
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='all'" (click)="setCoTypeFilter('all')">الكل</button>
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='projects'" (click)="setCoTypeFilter('projects')">مشاريع</button>
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='finance'" (click)="setCoTypeFilter('finance')">مالية</button>
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='accreditation'" (click)="setCoTypeFilter('accreditation')">اعتماد</button>
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='team'" (click)="setCoTypeFilter('team')">فريق</button>
+			<button type="button" class="ds" [class.active]="coTypeFilter()==='support'" (click)="setCoTypeFilter('support')">دعم</button>
+		</div>
+		<div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">الحالة</div>
+		<div class="date-segs" role="group">
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='all'" (click)="setCoStatusFilter('all')">الكل</button>
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='new'" (click)="setCoStatusFilter('new')">جديد</button>
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='read'" (click)="setCoStatusFilter('read')">مقروء</button>
+			<button type="button" class="ds" [class.active]="coStatusFilter()==='action'" (click)="setCoStatusFilter('action')">يحتاج إجراء</button>
+		</div>
+		<div class="fr-spacer"></div>
+		<div class="fr-search">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+			<input type="search" placeholder="ابحث في الإشعارات..." [value]="coSearchQuery()" (input)="updateCoSearch($event)" />
+		</div>
+	</div>
+
+	<div class="ord-tabs" role="tablist">
+		<button type="button" class="ord-tab" [class.active]="coTab()==='all'" (click)="setCoTab('all')">الكل <span>{{ coTabCounts().all }}</span></button>
+		<button type="button" class="ord-tab" [class.active]="coTab()==='new'" (click)="setCoTab('new')">جديد <span>{{ coTabCounts().new }}</span></button>
+		<button type="button" class="ord-tab" [class.active]="coTab()==='action'" (click)="setCoTab('action')">يحتاج إجراء <span>{{ coTabCounts().action }}</span></button>
+		<button type="button" class="ord-tab" [class.active]="coTab()==='read'" (click)="setCoTab('read')">مقروء <span>{{ coTabCounts().read }}</span></button>
+	</div>
+
+	@if (isLoading()) {
+		<div class="co-card"><div class="co-skeleton" style="height:120px"></div></div>
+	} @else if (hasError()) {
+		<div class="co-card" style="text-align:center;padding:32px">
+			<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:6px">تعذر تحميل الإشعارات</div>
+			<button class="btn btn-pri" (click)="retry()">إعادة المحاولة</button>
+		</div>
+	} @else {
+		<div class="co-card">
+			@for (nt of coFilteredNotifications(); track nt.id) {
+				<div class="nt-row" [class.unread]="nt.isUnread" (click)="onNotificationClick(nt)">
+					@if (nt.isUnread) { <div class="nt-dot"></div> }
+					<div class="nt-ic" [ngClass]="nt.iconBgClass + ' ' + nt.iconColorClass" [innerHTML]="'<svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.8\' stroke-linecap=\'round\' stroke-linejoin=\'round\'>' + nt.svgIcon + '</svg>'"></div>
+					<div class="nt-b">
+						<div class="nt-t">{{ nt.title }}</div>
+						<div class="nt-d">{{ nt.message }}</div>
+						<div class="nt-m">
+							<span class="pill pill-teal">{{ coCategoryLabel(nt.category) }}</span>
+							@if (nt.actionText) { <span style="font-size:11.5px;font-weight:700;color:var(--teal-txt,#2BD4C7)">{{ nt.actionText }}</span> }
+						</div>
+					</div>
+					<span class="nt-time">{{ nt.time }}</span>
+				</div>
+			}
+			@if (coFilteredNotifications().length === 0) {
+				<div style="text-align:center;padding:40px;color:var(--txt-2,#A8B2D1)">لا توجد إشعارات بهذا التصفية</div>
+			}
+		</div>
+	}
+
+	<footer class="inner-foot">
+		<span>© 2026 وسيط AI · مقدمي الخدمة الشركات</span>
+		<div class="inner-foot-links">
+			<a routerLink="/terms">الشروط</a>
+			<a routerLink="/privacy">الخصوصية</a>
+			<a routerLink="/provider-overview/help">المساعدة</a>
+		</div>
+	</footer>
+</div>
+} @else {
 <div class="w-full relative z-10 pb-10">
 
   <!-- Header -->
@@ -89,3 +186,4 @@
   </div>
 
 </div>
+}

@@ -2,21 +2,94 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-profile-requests',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './requests.html',
+  styleUrls: ['./requests.css'],
 })
 export class Requests implements OnInit {
   private providerProfileService = inject(ProviderProfileService);
+  private authStore = inject(AuthStore);
 
   activeFilter = signal<string>('ALL');
   requestsData = signal<any | null>(null);
   isLoading = signal<boolean>(true);
   
   showToast = signal<string>('');
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
+  // Company filter state
+  coStatusFilter = signal<string>('all');
+  coTypeFilter = signal<string>('all');
+  coSearchQuery = signal('');
+
+  coFilteredRequests = computed(() => {
+    const reqs = this.requestsData()?.requests || [];
+    const status = this.coStatusFilter();
+    const type = this.coTypeFilter();
+    const q = this.coSearchQuery().toLowerCase();
+    return reqs.filter((r: any) => {
+      const matchStatus = status === 'all' || this.mapStatusToCo(r.status) === status;
+      const matchType = type === 'all' || this.mapTypeToCo(r) === type;
+      const matchQ = !q || (r.id || '').toLowerCase().includes(q);
+      return matchStatus && matchType && matchQ;
+    });
+  });
+
+  coKpis = computed(() => {
+    const reqs = this.requestsData()?.requests || [];
+    return {
+      pending: reqs.filter((r: any) => r.status === 'PENDING_HUMAN_REVIEW' || r.status === 'IN_AI_REVIEW').length,
+      approved: reqs.filter((r: any) => r.status === 'APPROVED').length,
+      rejected: reqs.filter((r: any) => r.status === 'REJECTED').length,
+      action: reqs.filter((r: any) => r.status === 'PENDING_OTP').length,
+    };
+  });
+
+  private mapStatusToCo(status: string): string {
+    if (status === 'PENDING_HUMAN_REVIEW' || status === 'IN_AI_REVIEW') return 'pending';
+    if (status === 'APPROVED') return 'approved';
+    if (status === 'REJECTED') return 'rejected';
+    if (status === 'PENDING_OTP') return 'action';
+    return 'all';
+  }
+
+  private mapTypeToCo(req: any): string {
+    const field = (req.fieldLabel || req.field || '').toLowerCase();
+    if (field.includes('تخصص') || field.includes('specialty')) return 'specialties';
+    if (field.includes('مستند') || field.includes('document') || field.includes('شهادة')) return 'documents';
+    return 'official';
+  }
+
+  setCoStatusFilter(filter: string) {
+    this.coStatusFilter.set(filter);
+  }
+
+  setCoTypeFilter(filter: string) {
+    this.coTypeFilter.set(filter);
+  }
+
+  updateCoSearch(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.coSearchQuery.set(input.value);
+  }
+
+  coStatusLabel(status: string): string {
+    if (status === 'PENDING_OTP') return 'يحتاج إجراء';
+    if (status === 'IN_AI_REVIEW' || status === 'PENDING_HUMAN_REVIEW') return 'قيد المراجعة';
+    if (status === 'APPROVED') return 'مكتمل';
+    if (status === 'REJECTED') return 'مرفوض';
+    return 'ملغي';
+  }
 
   ngOnInit() {
     this.loadRequests();

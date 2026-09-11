@@ -1,3 +1,17 @@
+@if (isCompanyMode()) {
+<!-- ===== Company Messages (P-CO-AC-008) ===== -->
+<nav class="co-msg-bc" dir="rtl">
+	<a routerLink="/provider-overview">لوحة التحكم</a>
+	<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+	<span>الرسائل</span>
+</nav>
+<div class="co-msg-hd" dir="rtl">
+	<div>
+		<div class="co-msg-title">رسائل الشركة</div>
+		<div class="co-msg-sub">محادثات العملاء وأعضاء الفريق والدعم — كل ما يخص شركتك في مكان واحد</div>
+	</div>
+</div>
+}
 <div class="chat-shell" [class.mob-show-chat]="showChatOnMobile()" dir="rtl">
   <!-- ── قائمة المحادثات ── -->
   <div class="conv-panel">
@@ -15,8 +29,15 @@
         />
       </div>
     </div>
+    @if (isCompanyMode()) {
+      <div class="co-msg-tabs">
+        @for (t of coMsgTabs; track t.id) {
+          <button type="button" class="co-msg-tab" [class.active]="coMsgTab() === t.id" (click)="setCoMsgTab(t.id)">{{ t.label }}</button>
+        }
+      </div>
+    }
     <div class="conv-list" role="list">
-      @for (conv of filteredConversations(); track conv.id) {
+      @for (conv of isCompanyMode() ? coFilteredConversations() : filteredConversations(); track conv.id) {
         <div
           class="conv-item"
           [class.active]="activeConversation()?.id === conv.id"
@@ -338,4 +359,14 @@
       <img [src]="imgUrl" alt="معاينة الصورة المرفقة" />
     </div>
   </div>
+}
+@if (isCompanyMode()) {
+	<footer class="co-msg-foot" dir="rtl">
+		<span>© 2026 وسيط AI · مقدمي الخدمة الشركات</span>
+		<div class="co-msg-foot-links">
+			<a routerLink="/terms">الشروط</a>
+			<a routerLink="/privacy">الخصوصية</a>
+			<a routerLink="/provider-overview/help">المساعدة</a>
+		</div>
+	</footer>
 }

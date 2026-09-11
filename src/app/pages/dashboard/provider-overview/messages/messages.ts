@@ -1,10 +1,11 @@
 import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ChatService, ChatMessagePayload, MessageContext } from '../../../../core/services/chat.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
 
@@ -42,7 +43,7 @@ export interface Conversation {
 @Component({
   selector: 'app-provider-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './messages.html',
   styleUrl: './messages.css',
   encapsulation: ViewEncapsulation.None,
@@ -66,6 +67,32 @@ export class ProviderMessages implements OnInit, OnDestroy {
   newMessageText = signal<string>('');
   toastMessage = signal<string>('');
   messageContext = signal<MessageContext | null>(null);
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
+  // Company message tabs
+  coMsgTab = signal<string>('clients');
+  coMsgTabs = [
+    { id: 'clients', label: 'العملاء' },
+    { id: 'team', label: 'الفريق' },
+    { id: 'support', label: 'الدعم' },
+  ];
+
+  setCoMsgTab(tabId: string) {
+    this.coMsgTab.set(tabId);
+  }
+
+  coFilteredConversations = computed(() => {
+    const tab = this.coMsgTab();
+    const list = this.filteredConversations();
+    if (tab === 'clients') return list.filter(c => c.avatarType === 'sk' || c.avatarType === 'co');
+    if (tab === 'team') return list.filter(c => c.name.includes('الفريق') || c.name.includes('·'));
+    if (tab === 'support') return list.filter(c => c.name.includes('الدعم') || c.name.includes('TKT'));
+    return list;
+  });
 
   // Rich media UI state signals
   showEmojiPicker = signal<boolean>(false);

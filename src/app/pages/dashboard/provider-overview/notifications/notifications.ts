@@ -1,7 +1,9 @@
 import { Component, ChangeDetectionStrategy, signal, computed, OnInit, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { NotificationEngineService } from '../../../../core/services/notification-engine.service';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 export interface AppNotification {
 	id: string;
@@ -22,7 +24,7 @@ export interface AppNotification {
 @Component({
 	selector: 'app-provider-notifications',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, RouterModule],
 	templateUrl: './notifications.html',
 	styles: [`
     :host {
@@ -151,6 +153,86 @@ export interface AppNotification {
 export class Notifications implements OnInit {
 	private notificationEngine = inject(NotificationEngineService);
 	private router = inject(Router);
+	private authStore = inject(AuthStore);
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
+
+	// Company filter state
+	coTypeFilter = signal<string>('all');
+	coStatusFilter = signal<string>('all');
+	coSearchQuery = signal('');
+	coTab = signal<string>('all');
+
+	coFilteredNotifications = computed(() => {
+		let list = this.notifications();
+		const type = this.coTypeFilter();
+		const status = this.coStatusFilter();
+		const tab = this.coTab();
+		const q = this.coSearchQuery().toLowerCase();
+
+		if (type !== 'all') {
+			list = list.filter(n => this.mapCategoryToCo(n.category) === type);
+		}
+		if (status !== 'all') {
+			list = list.filter(n => this.mapStatusToCo(n) === status);
+		}
+		if (tab !== 'all') {
+			if (tab === 'new') list = list.filter(n => n.isUnread);
+			else if (tab === 'read') list = list.filter(n => !n.isUnread);
+			else if (tab === 'action') list = list.filter(n => !!n.actionText);
+		}
+		if (q) {
+			list = list.filter(n => (n.title + ' ' + n.message).toLowerCase().includes(q));
+		}
+		return list;
+	});
+
+	coTabCounts = computed(() => {
+		const list = this.notifications();
+		return {
+			all: list.length,
+			new: list.filter(n => n.isUnread).length,
+			action: list.filter(n => !!n.actionText).length,
+			read: list.filter(n => !n.isUnread).length,
+		};
+	});
+
+	private mapCategoryToCo(cat: string): string {
+		if (cat === 'projects') return 'projects';
+		if (cat === 'finance') return 'finance';
+		if (cat === 'ai') return 'accreditation';
+		if (cat === 'offers') return 'projects';
+		if (cat === 'security') return 'support';
+		return 'support';
+	}
+
+	private mapStatusToCo(n: AppNotification): string {
+		if (n.actionText) return 'action';
+		if (n.isUnread) return 'new';
+		return 'read';
+	}
+
+	setCoTypeFilter(f: string) { this.coTypeFilter.set(f); }
+	setCoStatusFilter(f: string) { this.coStatusFilter.set(f); }
+	setCoTab(t: string) { this.coTab.set(t); }
+	updateCoSearch(event: Event) {
+		const input = event.target as HTMLInputElement;
+		this.coSearchQuery.set(input.value);
+	}
+
+	coCategoryLabel(cat: string): string {
+		const labels: Record<string, string> = {
+			projects: 'مشاريع',
+			finance: 'مالية',
+			ai: 'اعتماد',
+			offers: 'مشاريع',
+			security: 'دعم',
+		};
+		return labels[cat] || 'دعم';
+	}
 
 	// State
 	activeFilter = signal<string>('all');

@@ -1,3 +1,79 @@
+@if (isCompanyMode()) {
+<!-- ===== Company Settings (P-CO-AC-009) ===== -->
+<div class="co-settings-page" dir="rtl">
+	<nav class="bc">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		<span>إعدادات الحساب</span>
+	</nav>
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">إعدادات حساب الشركة</div>
+			<div class="pg-sub">اللغة والمنطقة والأمان والجلسات وتفضيلات الواجهة</div>
+		</div>
+	</div>
+
+	<div class="grid2">
+		<div class="co-card" style="margin-bottom:0">
+			<div class="sec-hd"><div class="sec-ttl">اللغة والمنطقة</div></div>
+			<div class="fld"><label for="s-lang">لغة الواجهة</label><select id="s-lang" [ngModel]="coLanguage()" (ngModelChange)="coLanguage.set($event)"><option selected>العربية</option><option>English</option></select></div>
+			<div class="f2">
+				<div class="fld"><label for="s-tz">المنطقة الزمنية</label><select id="s-tz" [ngModel]="coTimezone()" (ngModelChange)="coTimezone.set($event)"><option selected>(GMT+3) الرياض</option><option>(GMT+4) دبي</option><option>(GMT+2) القاهرة</option></select></div>
+				<div class="fld"><label for="s-cal">التقويم</label><select id="s-cal" [ngModel]="coCalendar()" (ngModelChange)="coCalendar.set($event)"><option selected>ميلادي</option><option>هجري</option><option>هجري وميلادي</option></select></div>
+			</div>
+			<div class="f2">
+				<div class="fld"><label for="s-cur">عملة العرض</label><select id="s-cur" [ngModel]="coCurrency()" (ngModelChange)="coCurrency.set($event)"><option selected>الريال السعودي (SAR)</option></select></div>
+				<div class="fld" style="margin-bottom:0"><label for="s-num">صيغة الأرقام</label><select id="s-num" [ngModel]="coNumberFormat()" (ngModelChange)="coNumberFormat.set($event)"><option selected>1234 — عربية غربية</option><option>١٢٣٤ — عربية شرقية</option></select></div>
+			</div>
+		</div>
+		<div class="co-card" style="margin-bottom:0">
+			<div class="sec-hd"><div class="sec-ttl">الأمان</div><span class="pill pill-ok">محمي</span></div>
+			<div class="st-row"><div class="st-b"><div class="st-t">التحقق بخطوتين</div><div class="st-d">رمز يُرسل لجوال مالك الحساب عند كل دخول جديد</div></div><div class="sw on" [class.on]="twoFactorAuth()" (click)="twoFactorAuth.set(!twoFactorAuth())"></div></div>
+			<div class="st-row"><div class="st-b"><div class="st-t">تنبيه الدخول من جهاز جديد</div><div class="st-d">إشعار فوري عند تسجيل دخول من جهاز غير معروف</div></div><div class="sw on" [class.on]="newLoginAlert()" (click)="newLoginAlert.set(!newLoginAlert())"></div></div>
+			<div class="st-row"><div class="st-b"><div class="st-t">تأكيد إضافي للعمليات المالية</div><div class="st-d">طلب رمز تحقق قبل تنفيذ طلبات السحب</div></div><div class="sw on" role="switch"></div></div>
+			<div class="st-row"><div class="st-b"><div class="st-t">كلمة المرور</div><div class="st-d">آخر تغيير: 12 مايو 2026</div></div><a routerLink="/auth/rest-password" class="btn btn-sec">تغيير كلمة المرور</a></div>
+		</div>
+	</div>
+
+	<div class="grid2" style="margin-top:14px">
+		<div class="co-card" style="margin-bottom:0">
+			<div class="sec-hd"><div class="sec-ttl">الجلسات النشطة</div></div>
+			<div class="ses-row"><div class="ses-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div class="ses-b"><div class="ses-t">Chrome · Windows 11 — الرياض</div><div class="ses-d">الجلسة الحالية · نشطة الآن</div></div><span class="pill pill-ok">حالية</span></div>
+			<div class="ses-row"><div class="ses-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div class="ses-b"><div class="ses-t">Safari · iPhone — الرياض</div><div class="ses-d">آخر نشاط: منذ 4 ساعات</div></div><button type="button" class="st-end">إنهاء</button></div>
+			<div class="ses-row"><div class="ses-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div class="ses-b"><div class="ses-t">Edge · Windows 10 — جدة</div><div class="ses-d">آخر نشاط: منذ 3 أيام</div></div><button type="button" class="st-end">إنهاء</button></div>
+			<div class="fld" style="margin-top:14px;margin-bottom:0"><label for="s-idle">إنهاء الجلسة تلقائياً بعد خمول</label><select id="s-idle" [ngModel]="coIdleTimeout()" (ngModelChange)="coIdleTimeout.set($event)"><option>15 دقيقة</option><option selected>30 دقيقة</option><option>ساعة</option><option>لا تُنهِ الجلسة</option></select></div>
+		</div>
+		<div class="co-card" style="margin-bottom:0">
+			<div class="sec-hd"><div class="sec-ttl">الواجهة</div></div>
+			<div class="st-row"><div class="st-b"><div class="st-t">الوضع الداكن</div><div class="st-d">الوضع الافتراضي للوحة الشركة</div></div><div class="sw on" [class.on]="coDarkMode()" (click)="toggleCoDarkMode()"></div></div>
+			<div class="st-row"><div class="st-b"><div class="st-t">طيّ القائمة الجانبية افتراضياً</div><div class="st-d">مساحة أوسع للجداول والتقارير</div></div><div class="sw" [class.on]="coCollapseSidebar()" (click)="toggleCoCollapseSidebar()"></div></div>
+			<div class="st-row"><div class="st-b"><div class="st-t">كثافة عرض الجداول</div><div class="st-d">صفوف أضيق تعرض بيانات أكثر في الشاشة</div></div><div class="sw" [class.on]="coDenseTables()" (click)="toggleCoDenseTables()"></div></div>
+			<div class="st-row"><div class="st-b"><div class="st-t">تقليل الحركة والتأثيرات</div><div class="st-d">إيقاف الانتقالات المتحركة في الواجهة</div></div><div class="sw" [class.on]="coReduceMotion()" (click)="toggleCoReduceMotion()"></div></div>
+			<div class="fld" style="margin-top:14px;margin-bottom:0"><label for="s-land">الصفحة الافتتاحية بعد الدخول</label><select id="s-land" [ngModel]="coLandingPage()" (ngModelChange)="coLandingPage.set($event)"><option selected>لوحة التحكم</option><option>استكشاف الطلبات</option><option>المشاريع النشطة</option><option>لوحة مالية الشركة</option></select></div>
+		</div>
+	</div>
+
+	<div class="save-bar">
+		<div style="font-size:12px;color:var(--txt-2,#A8B2D1)">الإعدادات تُطبَّق على حساب الشركة الرئيسي · أعضاء الفريق لهم إعداداتهم الخاصة</div>
+		<div style="display:flex;gap:8px">
+			<button type="button" class="btn btn-sec" (click)="coResetDefaults()">استعادة الافتراضي</button>
+			<button type="button" class="btn btn-pri" (click)="coSaveSettings()">
+				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+				حفظ الإعدادات
+			</button>
+		</div>
+	</div>
+
+	<footer class="inner-foot">
+		<span>© 2026 وسيط AI · مقدمي الخدمة الشركات</span>
+		<div class="inner-foot-links">
+			<a routerLink="/terms">الشروط</a>
+			<a routerLink="/privacy">الخصوصية</a>
+			<a routerLink="/provider-overview/help">المساعدة</a>
+		</div>
+	</footer>
+</div>
+} @else {
 <div class="w-full relative z-10 pb-10">
 
   <!-- Header -->
@@ -214,3 +290,4 @@
   </div>
 
 </div>
+}
