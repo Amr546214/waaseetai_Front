@@ -1,0 +1,236 @@
+/* ============================================================
+   LIGHT MODE OVERRIDES
+   Activated by: body.light | .light-theme | .theme-light
+   Design tokens:
+     Background       #F6F8FC
+     Card background  #FFFFFF
+     Card border      #E7EAF1
+     Text primary     #070D24
+     Text secondary   #566079
+     Text muted       #6B7699
+     Teal             #0F8A7F
+     Blue             #1D6FE0
+   ============================================================ */
+
+/* ---- Page / root background ---- */
+:host-context(body.light) .w-full,
+:host-context(.light-theme) .w-full,
+:host-context(.theme-light) .w-full {
+  background: #F6F8FC;
+}
+
+/* ---- Card backgrounds (KPI cards + table container) ---- */
+:host-context(body.light) .bg-white,
+:host-context(.light-theme) .bg-white,
+:host-context(.theme-light) .bg-white {
+  background: #FFFFFF !important;
+  border-color: #E7EAF1 !important;
+}
+
+/* ---- White text -> primary text ---- */
+:host-context(body.light) .text-white,
+:host-context(.light-theme) .text-white,
+:host-context(.theme-light) .text-white {
+  color: #070D24 !important;
+}
+
+/* Tailwind dark:text-white also resolves to white in some setups */
+:host-context(body.light) .dark\:text-white,
+:host-context(.light-theme) .dark\:text-white,
+:host-context(.theme-light) .dark\:text-white {
+  color: #070D24 !important;
+}
+
+/* ---- Primary headings (slate-900) -> design primary ---- */
+:host-context(body.light) .text-slate-900,
+:host-context(.light-theme) .text-slate-900,
+:host-context(.theme-light) .text-slate-900 {
+  color: #070D24 !important;
+}
+
+/* ---- Secondary text (slate-500 / slate-700 / slate-300) ---- */
+:host-context(body.light) .text-slate-500,
+:host-context(.light-theme) .text-slate-500,
+:host-context(.theme-light) .text-slate-500 {
+  color: #56607D !important;
+}
+
+:host-context(body.light) .text-slate-700,
+:host-context(.light-theme) .text-slate-700,
+:host-context(.theme-light) .text-slate-700 {
+  color: #56607D !important;
+}
+
+:host-context(body.light) .dark\:text-slate-300,
+:host-context(.light-theme) .dark\:text-slate-300,
+:host-context(.theme-light) .dark\:text-slate-300 {
+  color: #56607D !important;
+}
+
+/* ---- Muted text (slate-400) ---- */
+:host-context(body.light) .text-slate-400,
+:host-context(.light-theme) .text-slate-400,
+:host-context(.theme-light) .text-slate-400 {
+  color: #6B7699 !important;
+}
+
+:host-context(body.light) .dark\:text-slate-400,
+:host-context(.light-theme) .dark\:text-slate-400,
+:host-context(.theme-light) .dark\:text-slate-400 {
+  color: #6B7699 !important;
+}
+
+/* ---- Muted placeholder text (#A8B2D1) -> secondary ---- */
+:host-context(body.light) .text-indigo-200\/70,
+:host-context(.light-theme) .text-indigo-200\/70,
+:host-context(.theme-light) .text-indigo-200\/70 {
+  color: #56607D !important;
+}
+
+/* ---- Borders: slate-200 / slate-800 / translucent white ---- */
+:host-context(body.light) .border-slate-200,
+:host-context(.light-theme) .border-slate-200,
+:host-context(.theme-light) .border-slate-200 {
+  border-color: #E7EAF1 !important;
+}
+
+:host-context(body.light) .dark\:border-slate-800,
+:host-context(.light-theme) .dark\:border-slate-800,
+:host-context(.theme-light) .dark\:border-slate-800 {
+  border-color: #E7EAF1 !important;
+}
+
+:host-context(body.light) .dark\:border-slate-800\/60,
+:host-context(.light-theme) .dark\:border-slate-800\/60,
+:host-context(.theme-light) .dark\:border-slate-800\/60 {
+  border-color: #E7EAF1 !important;
+}
+
+/* Translucent white borders (rgba(255,255,255,.08)) -> design border */
+:host-context(body.light) [style*="rgba(255, 255, 255,"],
+:host-context(.light-theme) [style*="rgba(255, 255, 255,"],
+:host-context(.theme-light) [style*="rgba(255, 255, 255,"] {
+  border-color: #E7EAF1 !important;
+}
+
+/* ---- Table header background ---- */
+:host-context(body.light) .bg-slate-50,
+:host-context(.light-theme) .bg-slate-50,
+:host-context(.theme-light) .bg-slate-50 {
+  background: #F3F5FA !important;
+}
+
+:host-context(body.light) .dark\:bg-slate-800\/50,
+:host-context(.light-theme) .dark\:bg-slate-800\/50,
+:host-context(.theme-light) .dark\:bg-slate-800\/50 {
+  background: #F3F5FA !important;
+}
+
+/* ---- Table row dividers ---- */
+:host-context(body.light) .divide-slate-100,
+:host-context(.light-theme) .divide-slate-100,
+:host-context(.theme-light) .divide-slate-100 {
+  border-color: #E7EAF1 !important;
+}
+
+:host-context(body.light) .dark\:divide-slate-800\/60,
+:host-context(.light-theme) .dark\:divide-slate-800\/60,
+:host-context(.theme-light) .dark\:divide-slate-800\/60 {
+  border-color: #E7EAF1 !important;
+}
+
+/* ---- Table row hover ---- */
+:host-context(body.light) .hover\:bg-slate-50:hover,
+:host-context(.light-theme) .hover\:bg-slate-50:hover,
+:host-context(.theme-light) .hover\:bg-slate-50:hover {
+  background: #F3F5FA !important;
+}
+
+:host-context(body.light) .dark\:hover\:bg-slate-800\/30:hover,
+:host-context(.light-theme) .dark\:hover\:bg-slate-800\/30:hover,
+:host-context(.theme-light) .dark\:hover\:bg-slate-800\/30:hover {
+  background: #F3F5FA !important;
+}
+
+/* ---- Tabs: active accent -> design blue ---- */
+:host-context(body.light) .text-blue-600,
+:host-context(.light-theme) .text-blue-600,
+:host-context(.theme-light) .text-blue-600 {
+  color: #1D6FE0 !important;
+}
+
+:host-context(body.light) .border-blue-600,
+:host-context(.light-theme) .border-blue-600,
+:host-context(.theme-light) .border-blue-600 {
+  border-color: #1D6FE0 !important;
+}
+
+:host-context(body.light) .bg-blue-100,
+:host-context(.light-theme) .bg-blue-100,
+:host-context(.theme-light) .bg-blue-100 {
+  background: rgba(29, 111, 224, 0.12) !important;
+}
+
+:host-context(body.light) .bg-slate-100,
+:host-context(.light-theme) .bg-slate-100,
+:host-context(.theme-light) .bg-slate-100 {
+  background: #F3F5FA !important;
+}
+
+/* ---- Status badges ---- */
+:host-context(body.light) .text-emerald-600,
+:host-context(.light-theme) .text-emerald-600,
+:host-context(.theme-light) .text-emerald-600 {
+  color: #0F8A7F !important;
+}
+
+:host-context(body.light) .bg-emerald-50,
+:host-context(.light-theme) .bg-emerald-50,
+:host-context(.theme-light) .bg-emerald-50 {
+  background: rgba(15, 138, 127, 0.10) !important;
+}
+
+/* ---- Input fields (if added later) ---- */
+:host-context(body.light) input,
+:host-context(.light-theme) input,
+:host-context(.theme-light) input {
+  background: #F3F5FA !important;
+  border-color: #D8DFEC !important;
+  color: #070D24 !important;
+}
+
+:host-context(body.light) textarea,
+:host-context(.light-theme) textarea,
+:host-context(.theme-light) textarea {
+  background: #F3F5FA !important;
+  border-color: #D8DFEC !important;
+  color: #070D24 !important;
+}
+
+:host-context(body.light) select,
+:host-context(.light-theme) select,
+:host-context(.theme-light) select {
+  background: #F3F5FA !important;
+  border-color: #D8DFEC !important;
+  color: #070D24 !important;
+}
+
+/* ---- Custom scrollbar (light) ---- */
+:host-context(body.light) .custom-scrollbar,
+:host-context(.light-theme) .custom-scrollbar,
+:host-context(.theme-light) .custom-scrollbar {
+  scrollbar-color: #D8DFEC transparent;
+}
+
+:host-context(body.light) .custom-scrollbar::-webkit-scrollbar-thumb,
+:host-context(.light-theme) .custom-scrollbar::-webkit-scrollbar-thumb,
+:host-context(.theme-light) .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #D8DFEC;
+  border-radius: 9999px;
+}
+
+:host-context(body.light) .custom-scrollbar::-webkit-scrollbar-track,
+:host-context(.light-theme) .custom-scrollbar::-webkit-scrollbar-track,
+:host-context(.theme-light) .custom-scrollbar::-webkit-scrollbar-track {
+  background: #F3F5FA;
+}

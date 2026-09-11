@@ -26,8 +26,8 @@
 				</div>
 				<div class="dr-meta">
 					<div class="dr-meta-item"><div class="dr-meta-lbl">قيمة المرحلة</div><div class="dr-meta-val">{{ formatNumber(stage.amount) }} ريال</div></div>
+					<div class="dr-meta-item"><div class="dr-meta-lbl">الموظف المسؤول</div><div class="dr-meta-val">{{ responsibleEmployee(data) }}</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">سُلّمت</div><div class="dr-meta-val">{{ submittedTimeAgo(stage) }}</div></div>
-					<div class="dr-meta-item"><div class="dr-meta-lbl">مهلة المراجعة</div><div class="dr-meta-val">{{ reviewDeadlineDays(stage) }}</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">الملفات</div><div class="dr-meta-val">{{ stageFileCount(stage) }} ملفات</div></div>
 				</div>
 			</div>
@@ -91,8 +91,9 @@
 		<div class="ac-row"><span class="ac-k">المرحلة</span><span class="ac-v">{{ sd.stageTitle }}</span></div>
 		@if (sd.txnId) { <div class="ac-row"><span class="ac-k">رقم العملية</span><span class="ac-v">{{ sd.txnId }}</span></div> }
 		<div class="ac-acts">
-			<button type="button" class="ac-btn ac-btn-pri" (click)="closeSuccessModal()">العودة للمشاريع</button>
-			<button type="button" class="ac-btn ac-btn-gh" (click)="openInvoice()" [disabled]="!project()?.invoiceId">عرض الفاتورة</button>
+			<button type="button" class="ac-btn ac-btn-pri" (click)="goToStageRating()">قيّم المرحلة</button>
+			<button type="button" class="ac-btn ac-btn-gh" (click)="closeSuccessModal()">العودة للمشاريع</button>
+			<button type="button" class="ac-btn ac-btn-gh" (click)="openInvoice()">عرض الفاتورة</button>
 		</div>
 	</div>
 </div>

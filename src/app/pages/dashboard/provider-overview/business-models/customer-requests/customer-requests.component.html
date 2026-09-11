@@ -1,0 +1,53 @@
+<div class="cr-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">طلبات العملاء على نماذجي</div>
+			<div class="page-sub">متابعة الطلبات الواردة على نماذج الخدمات المنشورة</div>
+		</div>
+	</div>
+
+	<div class="filter-row">
+		@for (f of filters; track f.id) {
+			<button type="button" class="filter-chip" [class.active]="activeFilter === f.id" (click)="setFilter(f.id)">
+				{{ f.label }}
+				<span class="fc-count">{{ f.count }}</span>
+			</button>
+		}
+	</div>
+
+	<div class="req-list">
+		@for (req of filteredRequests; track req.id) {
+			<div class="req-card">
+				<div class="req-card-hd">
+					<div class="req-id">{{ req.id }}</div>
+					<span class="req-status" [ngClass]="'st-' + req.status">{{ statusLabel(req.status) }}</span>
+				</div>
+				<div class="req-model">{{ req.model }}</div>
+				<div class="req-client">العميل: {{ req.client }}</div>
+				<div class="req-meta">
+					<div class="req-meta-item">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+						{{ req.budget.toLocaleString() }} ريال
+					</div>
+					<div class="req-meta-item">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+						{{ req.days }} يوم
+					</div>
+					<div class="req-meta-item">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+						{{ req.date }}
+					</div>
+				</div>
+				<div class="req-actions">
+					@if (req.status === 'new' || req.status === 'negotiating') {
+						<a routerLink="/provider-overview/business-models/negotiation" class="req-btn req-btn-pri">التفاوض</a>
+						<button type="button" class="req-btn req-btn-accept">قبول</button>
+						<button type="button" class="req-btn req-btn-decline">رفض</button>
+					} @else {
+						<button type="button" class="req-btn req-btn-sec">عرض التفاصيل</button>
+					}
+				</div>
+			</div>
+		}
+	</div>
+</div>

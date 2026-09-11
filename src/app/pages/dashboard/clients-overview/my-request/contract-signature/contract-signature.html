@@ -47,6 +47,12 @@
     </div>
   </div>
 
+  @if (isLoading()) {
+    <div role="region" aria-label="جاري الحفظ">
+      <div class="state-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
+    </div>
+  } @else {
+
   <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
     <div class="ai-disc-ico">
       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -109,6 +115,17 @@
       </button>
     </div>
   </div>
+
+  <div class="inner-foot">
+    <span>&#169; 2026 وسيط AI &middot; v1.0.0</span>
+    <div class="inner-foot-links">
+      <a>PDPL</a>
+      <a>الشروط</a>
+      <span>SAMA</span>
+    </div>
+  </div>
+
+  }
 
   <!-- Terms Modal -->
   @if (showTermsModal()) {

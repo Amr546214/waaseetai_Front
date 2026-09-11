@@ -1,1 +1,166 @@
 /* Moved styles to Tailwind in template */
+
+/* ===================== Light Mode Overrides ===================== */
+
+/* Card backgrounds */
+:host-context(body.light) .card,
+:host-context(.light-theme) .card,
+:host-context(.theme-light) .card {
+  background-color: #FFFFFF;
+  border: 1px solid #E7EAF1;
+}
+
+:host-context(body.light) .bg-white,
+:host-context(.light-theme) .bg-white,
+:host-context(.theme-light) .bg-white {
+  background-color: #FFFFFF;
+}
+
+/* Background */
+:host-context(body.light) .bg-\[\#070D24\],
+:host-context(.light-theme) .bg-\[\#070D24\],
+:host-context(.theme-light) .bg-\[\#070D24\] {
+  background-color: #F6F8FC;
+}
+
+/* White text → primary text */
+:host-context(body.light) .text-white,
+:host-context(.light-theme) .text-white,
+:host-context(.theme-light) .text-white {
+  color: #070D24;
+}
+
+/* Secondary text (#A8B2D1) → #56607D */
+:host-context(body.light) .text-\[\#A8B2D1\],
+:host-context(.light-theme) .text-\[\#A8B2D1\],
+:host-context(.theme-light) .text-\[\#A8B2D1\] {
+  color: #56607D;
+}
+
+/* Muted text */
+:host-context(body.light) .text-\[\#6B7699\],
+:host-context(.light-theme) .text-\[\#6B7699\],
+:host-context(.theme-light) .text-\[\#6B7699\] {
+  color: #6B7699;
+}
+
+/* Input fields */
+:host-context(body.light) input,
+:host-context(.light-theme) input,
+:host-context(.theme-light) input {
+  background-color: #F3F5FA;
+  border: 1px solid #D8DFEC;
+  color: #070D24;
+}
+
+:host-context(body.light) textarea,
+:host-context(.light-theme) textarea,
+:host-context(.theme-light) textarea {
+  background-color: #F3F5FA;
+  border: 1px solid #D8DFEC;
+  color: #070D24;
+}
+
+:host-context(body.light) select,
+:host-context(.light-theme) select,
+:host-context(.theme-light) select {
+  background-color: #F3F5FA;
+  border: 1px solid #D8DFEC;
+  color: #070D24;
+}
+
+/* Borders (rgba(255,255,255,.08)) → #E7EAF1 */
+:host-context(body.light) .border,
+:host-context(.light-theme) .border,
+:host-context(.theme-light) .border {
+  border-color: #E7EAF1;
+}
+
+:host-context(body.light) .border-white\/10,
+:host-context(.light-theme) .border-white\/10,
+:host-context(.theme-light) .border-white\/10 {
+  border-color: #E7EAF1;
+}
+
+:host-context(body.light) .border-white\/20,
+:host-context(.light-theme) .border-white\/20,
+:host-context(.theme-light) .border-white\/20 {
+  border-color: #E7EAF1;
+}
+
+/* Teal accents */
+:host-context(body.light) .text-\[\#0F8A7F\],
+:host-context(.light-theme) .text-\[\#0F8A7F\],
+:host-context(.theme-light) .text-\[\#0F8A7F\] {
+  color: #0F8A7F;
+}
+
+:host-context(body.light) .bg-\[\#0F8A7F\],
+:host-context(.light-theme) .bg-\[\#0F8A7F\],
+:host-context(.theme-light) .bg-\[\#0F8A7F\] {
+  background-color: #0F8A7F;
+}
+
+/* Blue accents */
+:host-context(body.light) .text-\[\#1D6FE0\],
+:host-context(.light-theme) .text-\[\#1D6FE0\],
+:host-context(.theme-light) .text-\[\#1D6FE0\] {
+  color: #1D6FE0;
+}
+
+:host-context(body.light) .bg-\[\#1D6FE0\],
+:host-context(.light-theme) .bg-\[\#1D6FE0\],
+:host-context(.theme-light) .bg-\[\#1D6FE0\] {
+  background-color: #1D6FE0;
+}
+
+/* Generic dark background overrides */
+:host-context(body.light) .bg-\[\#0A1124\],
+:host-context(.light-theme) .bg-\#0A1124,
+:host-context(.theme-light) .bg-\[\#0A1124\] {
+  background-color: #FFFFFF;
+}
+
+:host-context(body.light) .bg-\[\#0E1730\],
+:host-context(.light-theme) .bg-\[\#0E1730\],
+:host-context(.theme-light) .bg-\[\#0E1730\] {
+  background-color: #FFFFFF;
+}
+
+:host-context(body.light) .bg-\[\#0B1530\],
+:host-context(.light-theme) .bg-\[\#0B1530\],
+:host-context(.theme-light) .bg-\[\#0B1530\] {
+  background-color: #FFFFFF;
+}
+
+/* Secondary text color variants */
+:host-context(body.light) .text-\[\#A8B3D1\],
+:host-context(.light-theme) .text-\[\#A8B3D1\],
+:host-context(.theme-light) .text-\[\#A8B3D1\] {
+  color: #56607D;
+}
+
+:host-context(body.light) .text-\[\#9DA8C7\],
+:host-context(.light-theme) .text-\[\#9DA8C7\],
+:host-context(.theme-light) .text-\[\#9DA8C7\] {
+  color: #56607D;
+}
+
+:host-context(body.light) .text-\[\#8E9AC0\],
+:host-context(.light-theme) .text-\[\#8E9AC0\],
+:host-context(.theme-light) .text-\[\#8E9AC0\] {
+  color: #6B7699;
+}
+
+/* Placeholder text */
+:host-context(body.light) input::placeholder,
+:host-context(.light-theme) input::placeholder,
+:host-context(.theme-light) input::placeholder {
+  color: #6B7699;
+}
+
+:host-context(body.light) textarea::placeholder,
+:host-context(.light-theme) textarea::placeholder,
+:host-context(.theme-light) textarea::placeholder {
+  color: #6B7699;
+}

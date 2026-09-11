@@ -4,9 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../../core/services/active.service';
 import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/project-mini-chat';
-import { ProviderRatingModal } from './provider-rating-modal/provider-rating-modal';
-import { RatingApiService } from '../../../../../../core/services/rating-api.service';
-import { RatingScore } from '../../../../../../core/models/rating.model';
 import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../../core/models/dispute.model';
@@ -14,13 +11,12 @@ import { MessageContext } from '../../../../../../core/services/chat.service';
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat, ProviderRatingModal, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private ratingApi = inject(RatingApiService);
   private disputeApi = inject(DisputeApiService);
   projectData = signal<any>(null);
   loading = signal(true); error = signal(''); saving = signal(false);
@@ -33,9 +29,6 @@ export class Progress implements OnInit {
   deliverySelectedFiles = signal<{ name: string; size: string }[]>([]);
   deliveryFileInput = viewChild<ElementRef<HTMLInputElement>>('deliveryFileInput');
   private projectId = '';
-  showProviderRatingModal = signal(false);
-  isSubmittingProviderRating = signal(false);
-  providerRatingError = signal('');
   providerRatingSuccess = signal('');
   providerRatingSubmitted = signal(false);
   showDisputeModal = signal(false);
@@ -262,15 +255,16 @@ export class Progress implements OnInit {
 
   canRateClient(data: any): boolean {
     if (this.providerRatingSubmitted() || this.providerRatingSuccess()) return false;
+    // If backend reports the provider already rated this client, hide the CTA.
+    if (data?.providerClientRating?.hasRated === true) return false;
     if (data?.canRate === true) return true;
     if (data?.hasRated === true) return false;
     const allCompleted = data?.stages?.length > 0 && data.stages.every((s: any) => s.status === 'completed');
     return data?.status === 'COMPLETED' || (data?.progress === 100 && allCompleted);
   }
 
-  openProviderRatingModal() {
-    this.providerRatingError.set('');
-    this.showProviderRatingModal.set(true);
+  goToProviderRatingPage() {
+    this.router.navigate(['/provider-overview/projects', this.projectId, 'rating']);
   }
 
   openDisputeModal() {
@@ -304,26 +298,10 @@ export class Progress implements OnInit {
   }
 
   closeProviderRatingModal() {
-    if (this.isSubmittingProviderRating()) return;
-    this.showProviderRatingModal.set(false);
-    this.providerRatingError.set('');
+    // Kept for compatibility; modal removed — rating now uses full page.
   }
 
-  submitProviderRating(payload: { rating: RatingScore; comment?: string }) {
-    if (this.isSubmittingProviderRating()) return;
-    this.isSubmittingProviderRating.set(true);
-    this.providerRatingError.set('');
-    this.ratingApi.rateClient(this.projectId, payload).subscribe({
-      next: () => {
-        this.isSubmittingProviderRating.set(false);
-        this.showProviderRatingModal.set(false);
-        this.providerRatingSubmitted.set(true);
-        this.providerRatingSuccess.set('تم إرسال تقييمك بنجاح');
-      },
-      error: (err: any) => {
-        this.isSubmittingProviderRating.set(false);
-        this.providerRatingError.set(err?.error?.message || 'تعذر إرسال التقييم، حاول مرة أخرى');
-      },
-    });
+  submitProviderRating(_payload: { rating: any; comment?: string }) {
+    // Kept for compatibility; rating now submitted via provider rating page route.
   }
 }

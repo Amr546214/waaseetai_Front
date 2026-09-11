@@ -1,0 +1,51 @@
+<section class="err-page" dir="rtl">
+	<a routerLink="/" class="err-logo">
+		<img src="/images/waseet-mark.png" alt="وسيط AI" height="30">
+		<span>وسيط AI</span>
+	</a>
+
+	<div class="err-wrap">
+		<div class="err-card">
+			<div class="err-ico" [style.background]="config.iconBg" [style.border-color]="config.iconBd">
+				<svg *ngIf="config.icon === 'alert'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [style.color]="config.iconColor" aria-hidden="true">
+					<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+					<line x1="12" y1="9" x2="12" y2="13"/>
+					<line x1="12" y1="17" x2="12.01" y2="17"/>
+				</svg>
+				<svg *ngIf="config.icon === 'lock'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [style.color]="config.iconColor" aria-hidden="true">
+					<rect x="3" y="11" width="18" height="11" rx="2"/>
+					<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+				</svg>
+				<svg *ngIf="config.icon === 'clock'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [style.color]="config.iconColor" aria-hidden="true">
+					<circle cx="12" cy="12" r="10"/>
+					<polyline points="12 7 12 12 15 14"/>
+				</svg>
+				<svg *ngIf="config.icon === 'user'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [style.color]="config.iconColor" aria-hidden="true">
+					<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+					<circle cx="12" cy="7" r="4"/>
+				</svg>
+			</div>
+
+			<div *ngIf="config.code" class="err-code">{{ config.code }}</div>
+			<h1 class="err-title">{{ config.title }}</h1>
+			<p class="err-desc">{{ config.desc }}</p>
+
+			<div class="err-btns">
+				<button type="button" class="btn-primary" (click)="doPrimary()">{{ config.primaryBtn }}</button>
+				<a *ngIf="config.secondaryBtn" [routerLink]="config.secondaryRoute" class="btn-ghost">{{ config.secondaryBtn }}</a>
+			</div>
+
+			<div *ngIf="config.showRef" class="err-ref">
+				Error reference: SRV-{{ '-' }}
+			</div>
+
+			<div *ngIf="config.showEta" class="err-eta">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<circle cx="12" cy="12" r="10"/>
+					<polyline points="12 7 12 12 15 14"/>
+				</svg>
+				متوقع العودة: قريباً (بتوقيت الرياض)
+			</div>
+		</div>
+	</div>
+</section>

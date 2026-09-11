@@ -1,0 +1,67 @@
+:host{display:block;min-height:100vh}
+.err-page{position:relative;min-height:100vh;background:#070D24;color:#fff;font-family:'Tajawal',system-ui,sans-serif;overflow-x:hidden}
+
+.err-logo{position:absolute;top:24px;right:24px;z-index:10;display:flex;align-items:center;gap:8px;text-decoration:none}
+.err-logo img{height:30px}
+.err-logo span{font-size:16px;font-weight:900;color:#2BD4C7}
+
+.err-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 16px 40px}
+.err-card{max-width:480px;width:100%;text-align:center;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:40px 28px;backdrop-filter:blur(20px)}
+
+.err-ico{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:1px solid transparent}
+.err-ico svg{width:32px;height:32px}
+
+.err-code{font-size:clamp(72px,14vw,120px);font-weight:900;line-height:1;background:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+
+.err-title{font-size:24px;font-weight:900;color:#fff;margin:0 0 12px}
+.err-desc{font-size:14px;color:#A8B2D1;line-height:1.7;margin:0 0 24px}
+
+.err-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);color:#070D24;padding:13px 28px;border-radius:50px;font-weight:800;font-size:15px;font-family:inherit;border:none;cursor:pointer;box-shadow:0 12px 30px rgba(43,127,255,.28);transition:all .3s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(43,127,255,.40)}
+.btn-ghost{background:transparent;color:#A8B2D1;padding:13px 28px;border-radius:50px;font-weight:700;font-size:15px;font-family:inherit;border:1px solid rgba(255,255,255,.14);cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn-ghost:hover{color:#fff;border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.04)}
+
+.err-ref{margin-top:20px;padding:12px 16px;background:rgba(255,140,105,.05);border:1px solid rgba(255,140,105,.15);border-radius:10px;font-size:11px;color:#6B7699;direction:ltr;text-align:left}
+
+.err-eta{margin-top:24px;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(217,138,11,.07);border:1px solid rgba(217,138,11,.2);border-radius:10px;font-size:12px;color:#D98A0B;font-weight:700}
+.err-eta svg{width:12px;height:12px}
+
+@media(max-width:767px){
+	.err-card{padding:28px 18px}
+	.err-btns{flex-direction:column}
+	.btn-primary,.btn-ghost{width:100%}
+}
+
+/* === Light mode === */
+:host-context(body.light) .err-page,
+:host-context(.light-theme) .err-page,
+:host-context(.theme-light) .err-page{background:#F6F8FC;color:#070D24}
+
+:host-context(body.light) .err-card,
+:host-context(.light-theme) .err-card,
+:host-context(.theme-light) .err-card{background:#fff;border-color:#E7EAF1;box-shadow:0 10px 30px rgba(7,13,36,.05)}
+
+:host-context(body.light) .err-title,
+:host-context(.light-theme) .err-title,
+:host-context(.theme-light) .err-title{color:#070D24}
+
+:host-context(body.light) .err-desc,
+:host-context(.light-theme) .err-desc,
+:host-context(.theme-light) .err-desc{color:#56607D}
+
+:host-context(body.light) .btn-ghost,
+:host-context(.light-theme) .btn-ghost,
+:host-context(.theme-light) .btn-ghost{color:#56607D;border-color:#E7EAF1}
+
+:host-context(body.light) .btn-ghost:hover,
+:host-context(.light-theme) .btn-ghost:hover,
+:host-context(.theme-light) .btn-ghost:hover{color:#070D24;border-color:#C8D0DC;background:#F3F5FA}
+
+:host-context(body.light) .err-ref,
+:host-context(.light-theme) .err-ref,
+:host-context(.theme-light) .err-ref{color:#6B7699}
+
+:host-context(body.light) .err-logo span,
+:host-context(.light-theme) .err-logo span,
+:host-context(.theme-light) .err-logo span{color:#0A6F64}

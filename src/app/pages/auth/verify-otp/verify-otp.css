@@ -239,3 +239,28 @@
   :host { padding: 40px 16px 36px; }
   .auth-box { padding: 26px 18px 22px; }
 }
+
+/* === Light mode overrides (P-AU-008b/009 design LIGHT_CSS) === */
+:host-context(body.light),:host-context(.light-theme),:host-context(.theme-light){
+  --pg:#F6F8FC;--txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699;
+  --out-clr:#070D24;--out-bd:rgba(7,13,36,.14);--out-bg:#FFFFFF;--out-hov-bg:#F3F5FA;--out-hov-bd:rgba(7,13,36,.22);
+  --sec-bg:#FFFFFF;--sec-clr:#070D24;--sec-bd:rgba(7,13,36,.14);--sec-hov:#F3F5FA;
+  --tint:linear-gradient(135deg,rgba(43,212,199,.07),rgba(43,127,255,.05)),#FFFFFF;--tint-bd:rgba(43,127,255,.14);
+  --cta-shd:0 12px 30px rgba(43,127,255,.28);--cta-shd-hov:0 18px 40px rgba(43,127,255,.40);
+}
+
+:host-context(body.light) .auth-box,
+:host-context(.light-theme) .auth-box,
+:host-context(.theme-light) .auth-box{background:#fff;border:1px solid #E7EAF1;box-shadow:0 10px 30px rgba(7,13,36,.05)}
+
+:host-context(body.light) .otp-box,
+:host-context(.light-theme) .otp-box,
+:host-context(.theme-light) .otp-box{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
+
+:host-context(body.light) .otp-box:focus,
+:host-context(.light-theme) .otp-box:focus,
+:host-context(.theme-light) .otp-box:focus{border-color:#2BD4C7;background:#fff}
+
+:host-context(body.light) .resend-btn,
+:host-context(.light-theme) .resend-btn,
+:host-context(.theme-light) .resend-btn{color:#2B7FFF}

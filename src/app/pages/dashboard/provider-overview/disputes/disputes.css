@@ -1,0 +1,69 @@
+/* ============================================================
+   Light Mode Overrides — Disputes
+   Scoped to the host component via :host-context() so the light
+   palette applies regardless of which theme class is on <body>.
+   These overrides re-declare the theme CSS variables used by the
+   template (var(--txt), var(--sec-bg), ...) and patch the few
+   hardcoded dark-mode values (white text, rgba borders).
+   ============================================================ */
+
+/* ---- Theme variable re-declaration (scoped to this component) ----
+   Card backgrounds  -> #FFFFFF   (was rgba(13,27,42,.55))
+   Card borders      -> #E7EAF1   (was rgba(255,255,255,.07))
+   Text primary      -> #070D24   (was #FFFFFF)
+   Text secondary    -> #56607D   (was #A8B2D1)
+   Text muted        -> #6B7699   (unchanged)
+   Teal              -> #0F8A7F   (was #2BD4C7)
+   Blue              -> #1D6FE0   (was #2B7FFF)
+----------------------------------------------------------- */
+:host-context(body.light),
+:host-context(.light-theme),
+:host-context(.theme-light) {
+  --pg: #F6F8FC;
+  --surface: #FFFFFF;
+  --border: #E7EAF1;
+  --crd-bd: #E7EAF1;
+  --crd-bg: #FFFFFF;
+  --tint-bd: #E7EAF1;
+  --sec-bg: #FFFFFF;
+  --sec-bd: #E7EAF1;
+  --sec-bd-hover: rgba(29, 111, 224, .35);
+  --sec-bg-hover: #FAFBFF;
+  --txt: #070D24;
+  --txt-2: #56607D;
+  --txt-3: #6B7699;
+  --teal-txt: #0F8A7F;
+  --blue-txt: #1D6FE0;
+  --green: #0A6F64;
+  --ai-txt: #6B27A5;
+  --ai-border: rgba(123, 47, 190, .28);
+  --ai-nte-bd: rgba(123, 47, 190, .28);
+  --ai-nte-bg: rgba(123, 47, 190, .06);
+  --ai-nte-clr: #56607D;
+}
+
+/* ---- White text (#fff) -> #070D24 ----
+   The toast uses a hardcoded `text-white` utility that does not
+   reference var(--txt), so it must be patched explicitly.
+----------------------------------------------------------- */
+:host-context(body.light) .text-white,
+:host-context(.light-theme) .text-white,
+:host-context(.theme-light) .text-white {
+  color: #070D24;
+}
+
+/* ---- Hardcoded rgba(255,255,255,*) surfaces -> light equivalents ----
+   Any leftover dark-mode translucent white borders/backgrounds
+   that bypass the theme variables are normalised here.
+----------------------------------------------------------- */
+:host-context(body.light) [class*="border-[rgba(255,255,255,"],
+:host-context(.light-theme) [class*="border-[rgba(255,255,255,"],
+:host-context(.theme-light) [class*="border-[rgba(255,255,255,"] {
+  border-color: #E7EAF1;
+}
+
+:host-context(body.light) [class*="bg-[rgba(255,255,255,"],
+:host-context(.light-theme) [class*="bg-[rgba(255,255,255,"],
+:host-context(.theme-light) [class*="bg-[rgba(255,255,255,"] {
+  background-color: #FFFFFF;
+}

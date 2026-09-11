@@ -1,0 +1,53 @@
+<section class="help-article" dir="rtl">
+	<div class="help-layout">
+		<aside class="article-toc">
+			<div class="article-toc-sticky">
+				<div class="article-toc-ttl">المحتويات</div>
+				<nav>
+					@for (sec of document.sections; track sec.id) {
+						<button type="button" class="toc-link" [class.active]="activeSection === sec.id" (click)="scrollTo(sec.id)">
+							{{ sec.title }}
+						</button>
+					}
+				</nav>
+				<div class="article-toc-foot">
+					<a routerLink="/support/help-center" class="toc-back-link">← مركز المساعدة</a>
+				</div>
+			</div>
+		</aside>
+
+		<div class="article-content">
+			<div class="article-header">
+				<div class="article-badge">مقال مساعدة</div>
+				<h1 class="art-title">{{ document.title }}</h1>
+				<p class="art-subtitle">{{ document.subtitle }}</p>
+			</div>
+
+			<div class="article-body">
+				@for (sec of document.sections; track sec.id) {
+					<section [id]="sec.id" class="art-section">
+						<h2 class="art-h2">{{ sec.title }}</h2>
+						@for (block of sec.content; track $index) {
+							@if (typeof block === 'string') {
+								<p class="art-p">{{ block }}</p>
+							} @else {
+								<ul class="art-list">
+									@for (li of block; track $index) {
+										<li>{{ li }}</li>
+									}
+								</ul>
+							}
+						}
+					</section>
+				}
+			</div>
+
+			<div class="article-foot">
+				<a routerLink="/support/help-center" class="art-back">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
+					العودة لمركز المساعدة
+				</a>
+			</div>
+		</div>
+	</div>
+</section>

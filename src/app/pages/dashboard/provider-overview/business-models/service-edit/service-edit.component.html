@@ -1,0 +1,96 @@
+<div class="se-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">تعديل الخدمة</div>
+			<div class="page-sub">تعديل تفاصيل نموذج الخدمة والأسعار</div>
+		</div>
+		<a routerLink="/provider-overview/business-models/center" class="btn-back">رجوع للنماذج</a>
+	</div>
+
+	@if (saved) {
+		<div class="alert-success">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+			تم حفظ التعديلات بنجاح
+		</div>
+	}
+
+	<form [formGroup]="serviceForm" (ngSubmit)="onSubmit()" class="se-form" novalidate>
+		<div class="form-card">
+			<div class="form-card-title">المعلومات الأساسية</div>
+			<div class="field-grp">
+				<label class="field-lbl">اسم الخدمة <span class="req">*</span></label>
+				<input type="text" class="field-in" formControlName="name" placeholder="اسم الخدمة"
+					[class.has-error]="serviceForm.get('name')?.touched && serviceForm.get('name')?.invalid">
+				@if (serviceForm.get('name')?.touched && serviceForm.get('name')?.invalid) {
+					<div class="field-err">يرجى إدخال اسم لا يقل عن 5 أحرف</div>
+				}
+			</div>
+			<div class="field-grp">
+				<label class="field-lbl">الفئة <span class="req">*</span></label>
+				<select class="field-in" formControlName="category" [class.has-error]="serviceForm.get('category')?.touched && serviceForm.get('category')?.invalid">
+					<option value="">اختر الفئة</option>
+					<option value="mobile-design">تصميم تطبيقات</option>
+					<option value="web-design">تصميم مواقع</option>
+					<option value="content">كتابة محتوى</option>
+					<option value="consulting">استشارات</option>
+				</select>
+				@if (serviceForm.get('category')?.touched && serviceForm.get('category')?.invalid) {
+					<div class="field-err">يرجى اختيار الفئة</div>
+				}
+			</div>
+			<div class="field-grp">
+				<label class="field-lbl">وصف الخدمة <span class="req">*</span></label>
+				<textarea class="field-in field-area" formControlName="description" rows="4" placeholder="صف خدمتك بالتفصيل"
+					[class.has-error]="serviceForm.get('description')?.touched && serviceForm.get('description')?.invalid"></textarea>
+				@if (serviceForm.get('description')?.touched && serviceForm.get('description')?.invalid) {
+					<div class="field-err">يرجى إدخال وصف لا يقل عن 20 حرف</div>
+				}
+			</div>
+		</div>
+
+		<div class="form-card">
+			<div class="form-card-title">الأسعار والتسليم</div>
+			<div class="field-row">
+				<div class="field-grp">
+					<label class="field-lbl">السعر الأساسي (ريال) <span class="req">*</span></label>
+					<input type="number" class="field-in" formControlName="basePrice" min="50" placeholder="0"
+						[class.has-error]="serviceForm.get('basePrice')?.touched && serviceForm.get('basePrice')?.invalid">
+					@if (serviceForm.get('basePrice')?.touched && serviceForm.get('basePrice')?.invalid) {
+						<div class="field-err">الحد الأدنى 50 ريال</div>
+					}
+				</div>
+				<div class="field-grp">
+					<label class="field-lbl">مدة التسليم (أيام) <span class="req">*</span></label>
+					<input type="number" class="field-in" formControlName="deliveryDays" min="1" placeholder="7"
+						[class.has-error]="serviceForm.get('deliveryDays')?.touched && serviceForm.get('deliveryDays')?.invalid">
+					@if (serviceForm.get('deliveryDays')?.touched && serviceForm.get('deliveryDays')?.invalid) {
+						<div class="field-err">يرجى إدخال مدة صحيحة</div>
+					}
+				</div>
+				<div class="field-grp">
+					<label class="field-lbl">عدد المراجعات <span class="req">*</span></label>
+					<input type="number" class="field-in" formControlName="revisions" min="0" placeholder="2"
+						[class.has-error]="serviceForm.get('revisions')?.touched && serviceForm.get('revisions')?.invalid">
+					@if (serviceForm.get('revisions')?.touched && serviceForm.get('revisions')?.invalid) {
+						<div class="field-err">يرجى إدخال عدد صحيح</div>
+					}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-card">
+			<div class="form-card-title">حالة الخدمة</div>
+			<label class="chk-row">
+				<input type="checkbox" formControlName="active">
+				<span>الخدمة نشطة ومتاحة للطلب</span>
+			</label>
+		</div>
+
+		<div class="btn-group">
+			<button type="submit" class="btn-primary" [disabled]="isSubmitting || serviceForm.invalid">
+				@if (isSubmitting) { جاري الحفظ... } @else { حفظ التعديلات }
+			</button>
+			<a routerLink="/provider-overview/business-models/center" class="btn-tertiary">إلغاء</a>
+		</div>
+	</form>
+</div>

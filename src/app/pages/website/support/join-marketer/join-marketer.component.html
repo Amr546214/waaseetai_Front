@@ -1,0 +1,57 @@
+<section class="join-page" dir="rtl">
+	<div class="join-hero">
+		<div class="hero-badge">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="4" r="2.5"/><circle cx="4.5" cy="19" r="2.5"/><circle cx="19.5" cy="19" r="2.5"/><path d="M12 6.5L5.5 16.5M12 6.5L18.5 16.5M7 19h10"/></svg>
+			الوسيط التسويقي
+		</div>
+		<h1>اكسب عمولات بدون تنفيذ عمل</h1>
+		<p>أحل عملاء لمقدمي الخدمات واكسب عمولة تلقائية عند كل صفقة ناجحة</p>
+		<a routerLink="/auth/register" class="btn-primary">ابدأ مجاناً</a>
+	</div>
+
+	<div class="join-section">
+		<h2>ما الذي تحصل عليه؟</h2>
+		<div class="benefits-grid">
+			@for (b of benefits; track b.title) {
+				<div class="benefit-card">
+					<div class="benefit-ico">
+						@if (b.icon === 'link') {
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>
+						} @else if (b.icon === 'chart') {
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 3v18h18"/><polyline points="7 14 12 9 16 13 21 8"/></svg>
+						} @else if (b.icon === 'wallet') {
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="17" cy="15" r="1.5" fill="currentColor" stroke="none"/></svg>
+						} @else if (b.icon === 'levels') {
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="14" width="6" height="7" rx="1"/><rect x="10" y="9" width="6" height="12" rx="1"/><rect x="17" y="4" width="4" height="17" rx="1"/></svg>
+						}
+					</div>
+					<h3>{{ b.title }}</h3>
+					<p>{{ b.desc }}</p>
+				</div>
+			}
+		</div>
+	</div>
+
+	<div class="join-section">
+		<h2>الأسئلة الشائعة</h2>
+		<div class="faq-list">
+			@for (faq of faqs; track faq.q; let i = $index) {
+				<div class="faq-item">
+					<button type="button" class="faq-q" (click)="toggleFaq(i)" [class.open]="openFaq === i">
+						{{ faq.q }}
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+					</button>
+					<div class="faq-a" [class.expanded]="openFaq === i">
+						<p>{{ faq.a }}</p>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+
+	<div class="join-cta">
+		<h2>جاهز للبدء؟</h2>
+		<p>أنشئ حسابك مجاناً وابدأ بكسب العمولات</p>
+		<a routerLink="/auth/register" class="btn-primary">سجّل الآن</a>
+	</div>
+</section>

@@ -3,6 +3,20 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>العودة إلى العروض
   </a>
 
+  @if (isLoading()) {
+    <div role="region" aria-label="جاري الحفظ">
+      <div class="state-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
+    </div>
+  } @else if (loadError()) {
+    <div role="alert">
+      <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
+        <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر تحميل بيانات العقد</div>
+        <div style="font-size:12px;color:#6B7699;margin-bottom:12px">ERR-PR-007</div>
+        <button type="button" (click)="fetchContractDetails(offerId())" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">اعادة المحاولة</button>
+      </div>
+    </div>
+  } @else {
+
   <div class="od-hd">
     <div class="od-hd-top">
       <div>
@@ -68,6 +82,17 @@
       </button>
     </div>
   </div>
+
+  <div class="inner-foot">
+    <span>&#169; 2026 وسيط AI &middot; v1.0.0</span>
+    <div class="inner-foot-links">
+      <a>PDPL</a>
+      <a>الشروط</a>
+      <span>SAMA</span>
+    </div>
+  </div>
+
+  }
 
   <!-- Toast Notification -->
   @if (showToast()) {

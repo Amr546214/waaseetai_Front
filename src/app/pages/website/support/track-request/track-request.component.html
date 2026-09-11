@@ -1,0 +1,53 @@
+<section class="track-page" dir="rtl">
+	<div class="track-hero">
+		<div class="hero-badge">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+			تتبع طلب
+		</div>
+		<h1>تتبع طلبك</h1>
+		<p>أدخل رقم طلبك لمعرفة حالته وتفاصيله</p>
+	</div>
+
+	<div class="track-form-wrap">
+		@if (!searched) {
+			<form [formGroup]="trackForm" (ngSubmit)="onSubmit()" class="track-form" novalidate>
+				<div class="field-grp">
+					<label class="field-lbl">رقم الطلب <span class="req">*</span></label>
+					<input type="text" class="field-in" formControlName="requestId" placeholder="مثال: REQ-2026-001"
+						[class.has-error]="trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid">
+					@if (trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid) {
+						<div class="field-err">يرجى إدخال رقم طلب صحيح</div>
+					}
+				</div>
+				<button type="submit" class="btn-primary">تتبع الطلب</button>
+			</form>
+		} @else {
+			<div class="track-result">
+				<div class="result-header">
+					<h2>نتائج التتبع</h2>
+					<button type="button" class="btn-text" (click)="resetSearch()">تتبع طلب آخر</button>
+				</div>
+				<div class="result-card">
+					<div class="result-row">
+						<span class="result-lbl">رقم الطلب</span>
+						<span class="result-val">{{ requestId }}</span>
+					</div>
+					<div class="result-row">
+						<span class="result-lbl">الحالة</span>
+						<span class="result-val"><span class="status-badge">قيد المعالجة</span></span>
+					</div>
+					<div class="result-row">
+						<span class="result-lbl">تاريخ الإنشاء</span>
+						<span class="result-val">—</span>
+					</div>
+					<div class="result-row">
+						<span class="result-lbl">آخر تحديث</span>
+						<span class="result-val">—</span>
+					</div>
+				</div>
+				<p class="result-note">للاطلاع على التفاصيل الكاملة، سجل دخولك إلى حسابك</p>
+				<a routerLink="/auth/login" class="btn-primary">تسجيل الدخول</a>
+			</div>
+		}
+	</div>
+</section>

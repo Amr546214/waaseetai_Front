@@ -32,6 +32,10 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	isSubmitting = false;
 	errorMessage = '';
 
+	// Draft restoration
+	showDraftBanner = false;
+	private draftKey = 'waseet_register_draft';
+
 	countdown = 60;
 	countdownTimer: any = null;
 
@@ -127,6 +131,9 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	ngOnInit() {
+		// Check for saved draft
+		this.checkDraft();
+
 		if (this.authStore.isPendingVerification()) {
 			this.currentStep = 3;
 			this.startCountdown();
@@ -176,6 +183,43 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	ngOnDestroy() {
 		if (this.countdownTimer) clearInterval(this.countdownTimer);
+	}
+
+	private checkDraft() {
+		try {
+			const draft = localStorage.getItem(this.draftKey);
+			if (draft) {
+				const data = JSON.parse(draft);
+				if (data && (data.firstName || data.email || data.phone)) {
+					this.showDraftBanner = true;
+					this.cdr.detectChanges();
+				}
+			}
+		} catch {}
+	}
+
+	restoreDraft() {
+		try {
+			const draft = localStorage.getItem(this.draftKey);
+			if (draft) {
+				const data = JSON.parse(draft);
+				if (data.accountType) {
+					this.selectedAccountType = data.accountType;
+				}
+				if (data.basicInfo) {
+					this.basicInfoForm.patchValue(data.basicInfo);
+				}
+				this.currentStep = 2;
+			}
+		} catch {}
+		this.showDraftBanner = false;
+		this.cdr.detectChanges();
+	}
+
+	dismissDraft() {
+		this.showDraftBanner = false;
+		try { localStorage.removeItem(this.draftKey); } catch {}
+		this.cdr.detectChanges();
 	}
 
 	selectAccountType(id: string) {

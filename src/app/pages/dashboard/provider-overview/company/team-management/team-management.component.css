@@ -1,0 +1,95 @@
+:host{display:block}
+.tm-page{padding:24px;max-width:1100px;margin:0 auto}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.page-ttl{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px}
+.page-sub{font-size:13px;color:#A8B2D1}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);color:#070D24;padding:10px 18px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;border:none;cursor:pointer;transition:all .15s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(43,212,199,.3)}
+
+.tm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;text-align:center}
+.stat-val{font-size:28px;font-weight:900;line-height:1;margin-bottom:4px}
+.clr-teal{color:#2BD4C7}
+.clr-blue{color:#5DA0FF}
+.clr-amber{color:#FFB400}
+.clr-purple{color:#A56BE0}
+.stat-lbl{font-size:12.5px;color:#6B7699}
+
+.tabs-row{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.tab-btn{padding:10px 18px;background:transparent;border:none;border-bottom:2px solid transparent;font-family:inherit;font-size:13px;font-weight:700;color:#6B7699;cursor:pointer;transition:all .15s}
+.tab-btn:hover{color:#fff}
+.tab-btn.active{color:#2BD4C7;border-bottom-color:#2BD4C7}
+
+.emp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.emp-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px}
+.emp-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.emp-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+.av-active{background:linear-gradient(135deg,#2BD4C7,#5DA0FF);color:#070D24}
+.av-inactive{background:rgba(255,255,255,.08);color:#6B7699}
+.emp-info{flex:1;min-width:0}
+.emp-name{font-size:14px;font-weight:800;color:#fff;margin-bottom:2px}
+.emp-role{font-size:12px;color:#6B7699}
+.emp-status{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.st-active{background:rgba(43,212,199,.1);color:#2BD4C7;border:1px solid rgba(43,212,199,.22)}
+.st-inactive{background:rgba(255,255,255,.06);color:#6B7699;border:1px solid rgba(255,255,255,.1)}
+.emp-actions{display:flex;gap:8px}
+
+.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.role-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px}
+.role-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.role-name{font-size:15px;font-weight:800;color:#fff}
+.perms-ttl{font-size:12px;font-weight:700;color:#6B7699;margin-bottom:8px}
+.perm-item{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#A8B2D1;margin-bottom:6px}
+.perm-item svg{flex-shrink:0}
+
+.grp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.grp-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px}
+.grp-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.grp-ico{width:42px;height:42px;border-radius:11px;background:rgba(93,160,255,.12);color:#5DA0FF;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.grp-info{flex:1}
+.grp-name{font-size:15px;font-weight:800;color:#fff;margin-bottom:3px}
+.grp-desc{font-size:12px;color:#6B7699}
+.grp-bottom{display:flex;align-items:center;justify-content:space-between}
+.grp-members{font-size:12px;font-weight:700;color:#2BD4C7}
+
+.btn-action{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all .15s}
+.btn-edit{background:rgba(93,160,255,.1);border:1px solid rgba(93,160,255,.2);color:#5DA0FF}
+.btn-edit:hover{background:rgba(93,160,255,.18)}
+.btn-view{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#A8B2D1}
+.btn-view:hover{background:rgba(255,255,255,.1);color:#fff}
+
+@media(max-width:900px){
+	.tm-stats{grid-template-columns:repeat(2,1fr)}
+	.emp-grid{grid-template-columns:repeat(2,1fr)}
+	.role-grid{grid-template-columns:1fr}
+	.grp-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+	.tm-page{padding:16px}
+	.page-ttl{font-size:18px}
+	.tm-stats{grid-template-columns:1fr}
+	.emp-grid{grid-template-columns:1fr}
+	.emp-actions{flex:1}
+	.emp-actions .btn-action{flex:1;justify-content:center}
+}
+
+/* Light mode */
+:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#070D24}
+:host-context(body.light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#56607D}
+:host-context(body.light) .stat-card,:host-context(.light-theme) .stat-card,:host-context(.theme-light) .stat-card,
+:host-context(body.light) .emp-card,:host-context(.light-theme) .emp-card,:host-context(.theme-light) .emp-card,
+:host-context(body.light) .role-card,:host-context(.light-theme) .role-card,:host-context(.theme-light) .role-card,
+:host-context(body.light) .grp-card,:host-context(.light-theme) .grp-card,:host-context(.theme-light) .grp-card{background:#fff;border-color:#E7EAF1;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+:host-context(body.light) .stat-lbl,:host-context(.light-theme) .stat-lbl,:host-context(.theme-light) .stat-lbl{color:#56607D}
+:host-context(body.light) .emp-name,:host-context(.light-theme) .emp-name,:host-context(.theme-light) .emp-name,
+:host-context(body.light) .role-name,:host-context(.light-theme) .role-name,:host-context(.theme-light) .role-name,
+:host-context(body.light) .grp-name,:host-context(.light-theme) .grp-name,:host-context(.theme-light) .grp-name{color:#070D24}
+:host-context(body.light) .emp-role,:host-context(.light-theme) .emp-role,:host-context(.theme-light) .emp-role,
+:host-context(body.light) .grp-desc,:host-context(.light-theme) .grp-desc,:host-context(.theme-light) .grp-desc,
+:host-context(body.light) .perms-ttl,:host-context(.light-theme) .perms-ttl,:host-context(.theme-light) .perms-ttl,
+:host-context(body.light) .perm-item,:host-context(.light-theme) .perm-item,:host-context(.theme-light) .perm-item{color:#56607D}
+:host-context(body.light) .tabs-row,:host-context(.light-theme) .tabs-row,:host-context(.theme-light) .tabs-row{border-bottom-color:#E7EAF1}
+:host-context(body.light) .tab-btn,:host-context(.light-theme) .tab-btn,:host-context(.theme-light) .tab-btn{color:#56607D}
+:host-context(body.light) .tab-btn:hover,:host-context(.light-theme) .tab-btn:hover,:host-context(.theme-light) .tab-btn:hover{color:#070D24}
+:host-context(body.light) .btn-view,:host-context(.light-theme) .btn-view,:host-context(.theme-light) .btn-view{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
+:host-context(body.light) .btn-view:hover,:host-context(.light-theme) .btn-view:hover,:host-context(.theme-light) .btn-view:hover{color:#070D24}

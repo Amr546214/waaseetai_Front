@@ -1,0 +1,63 @@
+<div class="oi-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">الفواتير الرسمية</div>
+			<div class="page-sub">الفواتير الضريبية الرسمية للشركة</div>
+		</div>
+		<button type="button" class="btn-primary">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+			إنشاء فاتورة
+		</button>
+	</div>
+
+	<div class="oi-stats">
+		<div class="stat-box">
+			<div class="stat-val">{{ totalAmount.toLocaleString() }}</div>
+			<div class="stat-lbl">إجمالي المدفوع (ريال)</div>
+		</div>
+		<div class="stat-box">
+			<div class="stat-val">{{ pendingAmount.toLocaleString() }}</div>
+			<div class="stat-lbl">المعلق (ريال)</div>
+		</div>
+		<div class="stat-box">
+			<div class="stat-val">{{ invoices.length }}</div>
+			<div class="stat-lbl">إجمالي الفواتير</div>
+		</div>
+	</div>
+
+	<div class="filter-row">
+		@for (f of filters; track f.id) {
+			<button type="button" class="filter-chip" [class.active]="activeFilter === f.id" (click)="setFilter(f.id)">
+				{{ f.label }}
+				<span class="fc-count">{{ f.count }}</span>
+			</button>
+		}
+	</div>
+
+	<div class="inv-tbl-wrap">
+		<table class="inv-tbl">
+			<thead>
+				<tr>
+					<th>رقم الفاتورة</th>
+					<th>العميل</th>
+					<th>الرقم الضريبي</th>
+					<th>المبلغ</th>
+					<th>التاريخ</th>
+					<th>الحالة</th>
+				</tr>
+			</thead>
+			<tbody>
+				@for (inv of filteredInvoices; track inv.id) {
+					<tr>
+						<td class="inv-id">{{ inv.id }}</td>
+						<td>{{ inv.client }}</td>
+						<td class="inv-tax">{{ inv.taxNumber }}</td>
+						<td class="inv-amount">{{ inv.amount.toLocaleString() }} ريال</td>
+						<td>{{ inv.date }}</td>
+						<td><span class="inv-status" [ngClass]="'st-' + inv.status">{{ statusLabel(inv.status) }}</span></td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>

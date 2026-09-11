@@ -49,6 +49,11 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "متابعة المشروع" }
 	},
 	{
+		path: 'projects/:id/rating',
+		loadComponent: () => import('./projects/rating-page/provider-rating-page').then(m => m.ProviderRatingPage),
+		data: { title: "تقييم العميل" }
+	},
+	{
 		path: 'projects/active',
 		loadComponent: () => import('./projects/active/active').then(m => m.Active),
 		data: { title: "المشاريع النشطة" }
@@ -179,5 +184,73 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'help',
 		loadComponent: () => import('./help/help').then(m => m.Help),
 		data: { title: "مركز المساعدة" }
+	},
+	{
+		path: 'help/tickets/new',
+		loadComponent: () => import('./help/new-ticket/new-ticket').then(m => m.NewTicketComponent),
+		data: { title: "فتح تذكرة دعم" }
+	},
+	{
+		path: 'help/tickets/:id',
+		loadComponent: () => import('./help/ticket-detail/ticket-detail').then(m => m.TicketDetailComponent),
+		data: { title: "تفاصيل التذكرة" }
+	},
+	// business-models extensions
+	{
+		path: 'business-models/service-edit',
+		loadComponent: () => import('./business-models/service-edit/service-edit.component').then(m => m.ServiceEditComponent),
+		data: { title: "تعديل الخدمة" }
+	},
+	{
+		path: 'business-models/negotiation',
+		loadComponent: () => import('./business-models/negotiation/negotiation.component').then(m => m.NegotiationComponent),
+		data: { title: "تفاوض طلب خدمة" }
+	},
+	{
+		path: 'business-models/customer-requests',
+		loadComponent: () => import('./business-models/customer-requests/customer-requests.component').then(m => m.CustomerRequestsComponent),
+		data: { title: "طلبات العملاء" }
+	},
+	{
+		path: 'business-models/sales-tracking',
+		loadComponent: () => import('./business-models/sales-tracking/sales-tracking.component').then(m => m.SalesTrackingComponent),
+		data: { title: "متابعة المبيعات" }
+	},
+	// HR management
+	{
+		path: 'hr',
+		loadComponent: () => import('./hr/provider-hr.component').then(m => m.ProviderHrComponent),
+		data: { title: "إدارة الموارد البشرية" }
+	},
+	// Company screens
+	{
+		path: 'company/official-invoices',
+		loadComponent: () => import('./company/official-invoices/official-invoices.component').then(m => m.OfficialInvoicesComponent),
+		data: { title: "الفواتير الرسمية" }
+	},
+	{
+		path: 'company/incoming-requests',
+		loadComponent: () => import('./company/incoming-requests/incoming-requests.component').then(m => m.IncomingRequestsComponent),
+		data: { title: "طلبات السوق الواردة" }
+	},
+	{
+		path: 'company/sales-stats',
+		loadComponent: () => import('./company/sales-stats/sales-stats.component').then(m => m.SalesStatsComponent),
+		data: { title: "إحصائيات المبيعات" }
+	},
+	{
+		path: 'company/change-orders',
+		loadComponent: () => import('./company/change-orders/change-orders.component').then(m => m.ChangeOrdersComponent),
+		data: { title: "أوامر التغيير" }
+	},
+	{
+		path: 'company/team-management',
+		loadComponent: () => import('./company/team-management/team-management.component').then(m => m.CompanyTeamManagementComponent),
+		data: { title: "إدارة الفريق" }
+	},
+	{
+		path: 'company/roles-permissions',
+		loadComponent: () => import('./company/roles-permissions/roles-permissions.component').then(m => m.RolesPermissionsComponent),
+		data: { title: "الأدوار والصلاحيات" }
 	}
 ];

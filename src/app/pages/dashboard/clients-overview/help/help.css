@@ -1,0 +1,93 @@
+/* ===== Light Mode Overrides ===== */
+:host-context(body.light), :host-context(.light-theme), :host-context(.theme-light){
+  color:#070D24
+}
+
+/* Hero section */
+:host-context(body.light) .help-hero,
+:host-context(.light-theme) .help-hero,
+:host-context(.theme-light) .help-hero{
+  background:linear-gradient(135deg,rgba(123,47,190,.10),rgba(43,127,255,.06));
+  border-color:rgba(123,47,190,.22)
+}
+:host-context(body.light) .help-hero-ttl,
+:host-context(.light-theme) .help-hero-ttl,
+:host-context(.theme-light) .help-hero-ttl{color:#070D24}
+
+/* Search input field */
+:host-context(body.light) .help-search,
+:host-context(.light-theme) .help-search,
+:host-context(.theme-light) .help-search{background:#F3F5FA;border-color:#D8DFEC}
+:host-context(body.light) .help-search input,
+:host-context(.light-theme) .help-search input,
+:host-context(.theme-light) .help-search input{color:#070D24}
+:host-context(body.light) .help-search input::placeholder,
+:host-context(.light-theme) .help-search input::placeholder,
+:host-context(.theme-light) .help-search input::placeholder{color:#6B7699}
+
+/* Suggestion chips */
+:host-context(body.light) .help-sg,
+:host-context(.light-theme) .help-sg,
+:host-context(.theme-light) .help-sg{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
+
+/* AI answer bubble */
+:host-context(body.light) .help-answer,
+:host-context(.light-theme) .help-answer,
+:host-context(.theme-light) .help-answer{border-top-color:rgba(123,47,190,.18)}
+:host-context(body.light) .ha-text,
+:host-context(.light-theme) .ha-text,
+:host-context(.theme-light) .ha-text{
+  background:linear-gradient(135deg,rgba(123,47,190,.08),rgba(165,107,224,.04));
+  border-color:rgba(123,47,190,.22);
+  color:#070D24
+}
+:host-context(body.light) .ha-link,
+:host-context(.light-theme) .ha-link,
+:host-context(.theme-light) .ha-link{background:rgba(123,47,190,.06);border-color:#D9C7EC}
+
+/* Category cards */
+:host-context(body.light) .qcat,
+:host-context(.light-theme) .qcat,
+:host-context(.theme-light) .qcat{background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .qcat:hover,
+:host-context(.light-theme) .qcat:hover,
+:host-context(.theme-light) .qcat:hover{border-color:rgba(15,138,127,.22)}
+:host-context(body.light) .qcat-ttl,
+:host-context(.light-theme) .qcat-ttl,
+:host-context(.theme-light) .qcat-ttl{color:#070D24}
+
+/* Support ticket cards */
+:host-context(body.light) .tk-card,
+:host-context(.light-theme) .tk-card,
+:host-context(.theme-light) .tk-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .tk-card:hover,
+:host-context(.light-theme) .tk-card:hover,
+:host-context(.theme-light) .tk-card:hover{border-color:rgba(15,138,127,.18)}
+:host-context(body.light) .tk-ttl,
+:host-context(.light-theme) .tk-ttl,
+:host-context(.theme-light) .tk-ttl{color:#070D24}
+
+/* FAQ items */
+:host-context(body.light) .faq-item,
+:host-context(.light-theme) .faq-item,
+:host-context(.theme-light) .faq-item{background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .faq-q-txt,
+:host-context(.light-theme) .faq-q-txt,
+:host-context(.theme-light) .faq-q-txt{color:#070D24}
+:host-context(body.light) .faq-q-arrow,
+:host-context(.light-theme) .faq-q-arrow,
+:host-context(.theme-light) .faq-q-arrow{color:#6B7699}
+:host-context(body.light) .faq-a-inner,
+:host-context(.light-theme) .faq-a-inner,
+:host-context(.theme-light) .faq-a-inner{color:#56607D}
+
+/* Contact channels */
+:host-context(body.light) .chan,
+:host-context(.light-theme) .chan,
+:host-context(.theme-light) .chan{background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .chan:hover,
+:host-context(.light-theme) .chan:hover,
+:host-context(.theme-light) .chan:hover{border-color:rgba(15,138,127,.22)}
+:host-context(body.light) .chan-ttl,
+:host-context(.light-theme) .chan-ttl,
+:host-context(.theme-light) .chan-ttl{color:#070D24}

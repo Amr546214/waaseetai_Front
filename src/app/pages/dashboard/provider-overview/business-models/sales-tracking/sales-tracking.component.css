@@ -1,0 +1,61 @@
+:host{display:block}
+.st-page{padding:24px;max-width:1100px;margin:0 auto}
+.page-hd{margin-bottom:24px}
+.page-ttl{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px}
+.page-sub{font-size:13px;color:#A8B2D1}
+
+.st-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-box{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px}
+.stat-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ico-teal{background:rgba(43,212,199,.1);color:#2BD4C7}
+.ico-blue{background:rgba(43,127,255,.1);color:#5DA0FF}
+.ico-green{background:rgba(15,169,154,.1);color:#0FA99A}
+.ico-amber{background:rgba(217,138,11,.1);color:#D98A0B}
+.stat-val{font-size:18px;font-weight:900;color:#fff}
+.stat-lbl{font-size:12px;color:#A8B2D1}
+
+.section-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:16px}
+.section-title{font-size:15px;font-weight:900;color:#fff;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06)}
+
+.models-list{display:flex;flex-direction:column;gap:14px}
+.model-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.model-info{flex-shrink:0;min-width:200px}
+.model-name{font-size:14px;font-weight:800;color:#fff;margin-bottom:2px}
+.model-meta{font-size:12px;color:#6B7699}
+.model-bar-wrap{display:flex;align-items:center;gap:10px;flex:1;max-width:400px}
+.model-bar{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.model-fill{height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:4px;transition:width .3s}
+.model-pct{font-size:12px;font-weight:700;color:#2BD4C7;min-width:40px;text-align:left}
+
+.sales-list{display:flex;flex-direction:column;gap:0}
+.sale-row{display:grid;grid-template-columns:90px 1fr 1fr 110px 90px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
+.sale-row:last-child{border-bottom:none}
+.sale-id{font-weight:800;color:#5DA0FF;font-family:monospace;font-size:12px}
+.sale-model{font-weight:700;color:#fff}
+.sale-client{color:#A8B2D1}
+.sale-amount{font-weight:800;color:#2BD4C7}
+.sale-date{color:#6B7699;font-size:12px}
+.sale-status{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-align:center;white-space:nowrap}
+.st-completed{background:rgba(15,169,154,.1);color:#0FA99A;border:1px solid rgba(15,169,154,.22)}
+.st-pending{background:rgba(255,180,0,.1);color:#FFB400;border:1px solid rgba(255,180,0,.22)}
+.st-refunded{background:rgba(239,68,68,.1);color:#EF4444;border:1px solid rgba(239,68,68,.22)}
+
+@media(max-width:900px){.st-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.st-page{padding:16px}.page-ttl{font-size:18px}.sale-row{grid-template-columns:1fr;gap:4px;padding:10px 0}.model-row{flex-direction:column;align-items:flex-start;gap:8px}.model-info{min-width:0}}
+
+/* Light mode */
+:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#070D24}
+:host-context(body.light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#56607D}
+:host-context(body.light) .stat-box,:host-context(.light-theme) .stat-box,:host-context(.theme-light) .stat-box,
+:host-context(body.light) .section-card,:host-context(.light-theme) .section-card,:host-context(.theme-light) .section-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .stat-val,:host-context(.light-theme) .stat-val,:host-context(.theme-light) .stat-val,
+:host-context(body.light) .section-title,:host-context(.light-theme) .section-title,:host-context(.theme-light) .section-title,
+:host-context(body.light) .model-name,:host-context(.light-theme) .model-name,:host-context(.theme-light) .model-name,
+:host-context(body.light) .sale-model,:host-context(.light-theme) .sale-model,:host-context(.theme-light) .sale-model{color:#070D24}
+:host-context(body.light) .stat-lbl,:host-context(.light-theme) .stat-lbl,:host-context(.theme-light) .stat-lbl,
+:host-context(body.light) .model-meta,:host-context(.light-theme) .model-meta,:host-context(.theme-light) .model-meta,
+:host-context(body.light) .sale-client,:host-context(.light-theme) .sale-client,:host-context(.theme-light) .sale-client,
+:host-context(body.light) .sale-date,:host-context(.light-theme) .sale-date,:host-context(.theme-light) .sale-date{color:#56607D}
+:host-context(body.light) .section-title,:host-context(.light-theme) .section-title,:host-context(.theme-light) .section-title{border-color:#E7EAF1}
+:host-context(body.light) .model-bar,:host-context(.light-theme) .model-bar,:host-context(.theme-light) .model-bar{background:#F3F5FA}
+:host-context(body.light) .sale-row,:host-context(.light-theme) .sale-row,:host-context(.theme-light) .sale-row{border-color:#E7EAF1}

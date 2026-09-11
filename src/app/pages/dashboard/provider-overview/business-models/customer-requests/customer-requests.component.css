@@ -1,0 +1,54 @@
+:host{display:block}
+.cr-page{padding:24px;max-width:1100px;margin:0 auto}
+.page-hd{margin-bottom:24px}
+.page-ttl{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px}
+.page-sub{font-size:13px;color:#A8B2D1}
+
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-chip{padding:7px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;font-size:12px;font-weight:700;color:#A8B2D1;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.filter-chip:hover{background:rgba(255,255,255,.08);color:#fff}
+.filter-chip.active{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.3);color:#2BD4C7}
+.fc-count{min-width:18px;height:18px;border-radius:9px;background:rgba(255,255,255,.08);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+.filter-chip.active .fc-count{background:rgba(43,212,199,.18);color:#2BD4C7}
+
+.req-list{display:flex;flex-direction:column;gap:14px}
+.req-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:15px;padding:18px 20px;transition:border-color .15s}
+.req-card:hover{border-color:rgba(43,212,199,.18)}
+.req-card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.req-id{font-size:13px;font-weight:800;color:#5DA0FF;font-family:monospace}
+.req-status{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;white-space:nowrap}
+.st-new{background:rgba(43,212,199,.1);color:#2BD4C7;border:1px solid rgba(43,212,199,.22)}
+.st-negotiating{background:rgba(255,180,0,.1);color:#FFB400;border:1px solid rgba(255,180,0,.22)}
+.st-accepted{background:rgba(15,169,154,.1);color:#0FA99A;border:1px solid rgba(15,169,154,.22)}
+.st-declined{background:rgba(239,68,68,.1);color:#EF4444;border:1px solid rgba(239,68,68,.22)}
+.req-model{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
+.req-client{font-size:13px;color:#A8B2D1;margin-bottom:12px}
+.req-meta{display:flex;align-items:center;gap:14px;font-size:12px;color:#6B7699;flex-wrap:wrap;margin-bottom:12px}
+.req-meta-item{display:flex;align-items:center;gap:5px}
+.req-meta-item svg{color:#6B7699}
+.req-actions{display:flex;gap:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)}
+.req-btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.req-btn-pri{background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.22);color:#5DA0FF}
+.req-btn-pri:hover{background:rgba(43,127,255,.18)}
+.req-btn-accept{background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.22);color:#0FA99A}
+.req-btn-accept:hover{background:rgba(15,169,154,.18)}
+.req-btn-decline{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);color:#EF4444}
+.req-btn-decline:hover{background:rgba(239,68,68,.18)}
+.req-btn-sec{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#A8B2D1}
+.req-btn-sec:hover{background:rgba(255,255,255,.08)}
+
+@media(max-width:600px){.cr-page{padding:16px}.page-ttl{font-size:18px}.req-meta{gap:10px}.req-actions{flex-wrap:wrap}}
+
+/* Light mode */
+:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#070D24}
+:host-context(body.light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#56607D}
+:host-context(body.light) .filter-chip,:host-context(.light-theme) .filter-chip,:host-context(.theme-light) .filter-chip{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
+:host-context(body.light) .filter-chip:hover,:host-context(.light-theme) .filter-chip:hover,:host-context(.theme-light) .filter-chip:hover{color:#070D24}
+:host-context(body.light) .filter-chip.active,:host-context(.light-theme) .filter-chip.active,:host-context(.theme-light) .filter-chip.active{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.3);color:#0F8A7F}
+:host-context(body.light) .req-card,:host-context(.light-theme) .req-card,:host-context(.theme-light) .req-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .req-model,:host-context(.light-theme) .req-model,:host-context(.theme-light) .req-model{color:#070D24}
+:host-context(body.light) .req-client,:host-context(.light-theme) .req-client,:host-context(.theme-light) .req-client{color:#56607D}
+:host-context(body.light) .req-meta,:host-context(.light-theme) .req-meta,:host-context(.theme-light) .req-meta,
+:host-context(body.light) .req-meta-item svg,:host-context(.light-theme) .req-meta-item svg,:host-context(.theme-light) .req-meta-item svg{color:#56607D}
+:host-context(body.light) .req-actions,:host-context(.light-theme) .req-actions,:host-context(.theme-light) .req-actions{border-color:#E7EAF1}
+:host-context(body.light) .req-btn-sec,:host-context(.light-theme) .req-btn-sec,:host-context(.theme-light) .req-btn-sec{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}

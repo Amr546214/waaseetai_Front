@@ -1,0 +1,110 @@
+<div class="hr-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">إدارة الموارد البشرية</div>
+			<div class="page-sub">إدارة الموظفين والخدمات والأداء</div>
+		</div>
+		<button type="button" class="btn-secondary">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+			إضافة موظف
+		</button>
+	</div>
+
+	<div class="hr-stats">
+		@for (s of stats; track s.lbl) {
+			<div class="hr-stat">
+				<div class="hr-stat-val" [ngClass]="'val-' + s.color">{{ s.val }}</div>
+				<div class="hr-stat-lbl">{{ s.lbl }}</div>
+			</div>
+		}
+	</div>
+
+	<div class="hr-tabs" role="tablist">
+		@for (tab of tabs; track tab.id) {
+			<button type="button" class="hr-tab" [class.active]="activeTab === tab.id" (click)="switchTab(tab.id)" role="tab">
+				{{ tab.label }}
+			</button>
+		}
+	</div>
+
+	@if (activeTab === 'employees') {
+		<div class="emp-grid">
+			@for (emp of employees; track emp.id) {
+				<div class="emp-card">
+					<div class="emp-hd">
+						<div class="emp-av">{{ emp.avatar }}</div>
+						<div class="emp-info">
+							<div class="emp-name">{{ emp.name }}</div>
+							<div class="emp-role">{{ emp.role }}</div>
+						</div>
+						<span class="emp-status" [ngClass]="'st-' + emp.status">{{ statusLabel(emp.status) }}</span>
+					</div>
+					<div class="emp-stats">
+						<div class="emp-stat">
+							<div class="emp-stat-val">{{ emp.services }}</div>
+							<div class="emp-stat-lbl">خدمات</div>
+						</div>
+						<div class="emp-stat">
+							<div class="emp-stat-val">{{ emp.rating }}</div>
+							<div class="emp-stat-lbl">تقييم</div>
+						</div>
+					</div>
+					<div class="emp-actions">
+						<button type="button" class="emp-btn emp-btn-pri">تعديل</button>
+						<button type="button" class="emp-btn emp-btn-sec">التكليفات</button>
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	@if (activeTab === 'services') {
+		<div class="svc-list">
+			@for (svc of services; track svc.id) {
+				<div class="svc-card">
+					<div class="svc-name">{{ svc.name }}</div>
+					<div class="svc-meta">
+						<div class="svc-meta-item">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+							{{ svc.assignedTo }}
+						</div>
+						<div class="svc-meta-item">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+							{{ svc.deadline }}
+						</div>
+					</div>
+					<span class="svc-status" [ngClass]="'st-' + svc.status">{{ serviceStatusLabel(svc.status) }}</span>
+				</div>
+			}
+		</div>
+	}
+
+	@if (activeTab === 'performance') {
+		<div class="perf-list">
+			@for (p of performance; track p.name) {
+				<div class="perf-card">
+					<div class="perf-name">{{ p.name }}</div>
+					<div class="perf-grid">
+						<div class="perf-item">
+							<div class="perf-lbl">مهام مكتملة</div>
+							<div class="perf-val">{{ p.completed }}</div>
+						</div>
+						<div class="perf-item">
+							<div class="perf-lbl">التقييم</div>
+							<div class="perf-val">{{ p.rating }} / 5</div>
+						</div>
+						<div class="perf-item">
+							<div class="perf-lbl">الالتزام بالمواعيد</div>
+							<div class="perf-val">{{ p.onTime }}%</div>
+						</div>
+					</div>
+					<div class="perf-bar-wrap">
+						<div class="perf-bar">
+							<div class="perf-fill" [style.width.%]="p.onTime"></div>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+</div>

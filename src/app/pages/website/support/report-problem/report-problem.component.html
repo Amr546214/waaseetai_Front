@@ -1,0 +1,86 @@
+<section class="report-page" dir="rtl">
+	<div class="report-hero">
+		<div class="hero-badge">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+			الإبلاغ عن مشكلة
+		</div>
+		<h1>صف المشكلة وسنعالجها فوراً</h1>
+		<p>فريق الدعم يراجع البلاغات خلال 24 ساعة ويتواصل معك عبر البريد</p>
+	</div>
+
+	<div class="report-layout">
+		@if (submitted) {
+			<div class="success-card">
+				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12l2.5 2.5 4.5-4.5"/></svg>
+				<h2>تم استلام بلاغك</h2>
+				<p>سيتواصل معك فريق الدعم خلال 24 ساعة عبر بريدك الإلكتروني</p>
+				<button type="button" class="btn-secondary" (click)="resetForm()">إرسال بلاغ آخر</button>
+			</div>
+		} @else {
+			<form [formGroup]="reportForm" (ngSubmit)="onSubmit()" class="report-form" novalidate>
+				<div class="field-grp">
+					<label class="field-lbl">نوع المشكلة <span class="req">*</span></label>
+					<select class="field-in" formControlName="category" [class.has-error]="reportForm.get('category')?.touched && reportForm.get('category')?.invalid">
+						<option value="">اختر نوع المشكلة</option>
+						@for (cat of categories; track cat.id) {
+							<option [value]="cat.id">{{ cat.label }}</option>
+						}
+					</select>
+					@if (reportForm.get('category')?.touched && reportForm.get('category')?.invalid) {
+						<div class="field-err">يرجى اختيار نوع المشكلة</div>
+					}
+				</div>
+
+				<div class="field-grp">
+					<label class="field-lbl">عنوان المشكلة <span class="req">*</span></label>
+					<input type="text" class="field-in" formControlName="subject" placeholder="ملخص المشكلة"
+						[class.has-error]="reportForm.get('subject')?.touched && reportForm.get('subject')?.invalid">
+					@if (reportForm.get('subject')?.touched && reportForm.get('subject')?.invalid) {
+						<div class="field-err">يرجى إدخال عنوان لا يقل عن 5 أحرف</div>
+					}
+				</div>
+
+				<div class="field-grp">
+					<label class="field-lbl">وصف المشكلة <span class="req">*</span></label>
+					<textarea class="field-in field-area" formControlName="description" rows="5" placeholder="اشرح المشكلة بالتفصيل..."
+						[class.has-error]="reportForm.get('description')?.touched && reportForm.get('description')?.invalid"></textarea>
+					@if (reportForm.get('description')?.touched && reportForm.get('description')?.invalid) {
+						<div class="field-err">يرجى إدخال وصف لا يقل عن 20 حرف</div>
+					}
+				</div>
+
+				<div class="field-grp">
+					<label class="field-lbl">البريد الإلكتروني <span class="req">*</span></label>
+					<input type="email" class="field-in" formControlName="email" placeholder="example@email.com" dir="ltr" style="text-align:right"
+						[class.has-error]="reportForm.get('email')?.touched && reportForm.get('email')?.invalid">
+					@if (reportForm.get('email')?.touched && reportForm.get('email')?.invalid) {
+						<div class="field-err">يرجى إدخال بريد إلكتروني صحيح</div>
+					}
+				</div>
+
+				<div class="field-grp">
+					<label class="field-lbl">رقم المشروع (اختياري)</label>
+					<input type="text" class="field-in" formControlName="projectId" placeholder="رقم المشروع إن وجد">
+				</div>
+
+				<button type="submit" class="btn-primary" [disabled]="isSubmitting || reportForm.invalid">
+					@if (isSubmitting) { جاري الإرسال... } @else { إرسال البلاغ }
+				</button>
+			</form>
+		}
+
+		<aside class="report-side">
+			<div class="side-card">
+				<h3>طرق أخرى للتواصل</h3>
+				<a href="mailto:support@waseet.ai" class="side-link">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 8l10 7 10-7"/></svg>
+					البريد: support@waseet.ai
+				</a>
+				<a routerLink="/support/help-center" class="side-link">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a3.5 3.5 0 0 1 5 3c0 2-3 2-3 4"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
+					مركز المساعدة
+				</a>
+			</div>
+		</aside>
+	</div>
+</section>

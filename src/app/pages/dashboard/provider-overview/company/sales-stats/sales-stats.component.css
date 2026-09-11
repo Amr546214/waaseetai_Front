@@ -1,0 +1,61 @@
+:host{display:block}
+.ss-page{padding:24px;max-width:1100px;margin:0 auto}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.page-ttl{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px}
+.page-sub{font-size:13px;color:#A8B2D1}
+
+.ss-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px}
+.stat-top{display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px}
+.stat-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.stat-ico.teal{background:rgba(43,212,199,.12);color:#2BD4C7}
+.stat-ico.blue{background:rgba(93,160,255,.12);color:#5DA0FF}
+.stat-ico.amber{background:rgba(255,180,0,.12);color:#FFB400}
+.stat-val{font-size:24px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:4px}
+.stat-unit{font-size:12px;font-weight:600;color:#6B7699;margin-right:4px}
+.stat-lbl{font-size:12.5px;color:#6B7699}
+
+.ss-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.ss-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px}
+.card-ttl{font-size:15px;font-weight:800;color:#fff;margin-bottom:16px}
+
+.models-list{display:flex;flex-direction:column;gap:16px}
+.model-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.model-name{font-size:13px;font-weight:700;color:#fff}
+.model-sales{font-size:12px;font-weight:700;color:#2BD4C7}
+.model-bar{width:100%;height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.model-fill{height:100%;background:linear-gradient(90deg,#2BD4C7,#5DA0FF);border-radius:4px;transition:width .4s}
+.model-pct{font-size:11px;font-weight:700;color:#6B7699;margin-top:4px}
+
+.chart-wrap{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;height:200px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+.chart-bar-wrap{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.chart-bar{width:70%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#2BD4C7,#5DA0FF);display:flex;align-items:flex-start;justify-content:center;padding-top:6px;min-height:4px;transition:height .4s}
+.chart-val{font-size:9px;font-weight:800;color:#070D24}
+.chart-month{font-size:10px;color:#6B7699;margin-top:8px;white-space:nowrap}
+
+@media(max-width:900px){
+	.ss-stats{grid-template-columns:repeat(2,1fr)}
+	.ss-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+	.ss-page{padding:16px}
+	.page-ttl{font-size:18px}
+	.ss-stats{grid-template-columns:1fr}
+	.chart-wrap{gap:4px}
+	.chart-month{font-size:9px}
+}
+
+/* Light mode */
+:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#070D24}
+:host-context(body.light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#56607D}
+:host-context(body.light) .stat-card,:host-context(.light-theme) .stat-card,:host-context(.theme-light) .stat-card,
+:host-context(body.light) .ss-card,:host-context(.light-theme) .ss-card,:host-context(.theme-light) .ss-card{background:#fff;border-color:#E7EAF1;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+:host-context(body.light) .stat-val,:host-context(.light-theme) .stat-val,:host-context(.theme-light) .stat-val{color:#070D24}
+:host-context(body.light) .stat-lbl,:host-context(.light-theme) .stat-lbl,:host-context(.theme-light) .stat-lbl{color:#56607D}
+:host-context(body.light) .stat-unit,:host-context(.light-theme) .stat-unit,:host-context(.theme-light) .stat-unit{color:#56607D}
+:host-context(body.light) .card-ttl,:host-context(.light-theme) .card-ttl,:host-context(.theme-light) .card-ttl{color:#070D24}
+:host-context(body.light) .model-name,:host-context(.light-theme) .model-name,:host-context(.theme-light) .model-name{color:#070D24}
+:host-context(body.light) .model-pct,:host-context(.light-theme) .model-pct,:host-context(.theme-light) .model-pct,
+:host-context(body.light) .chart-month,:host-context(.light-theme) .chart-month,:host-context(.theme-light) .chart-month{color:#56607D}
+:host-context(body.light) .model-bar,:host-context(.light-theme) .model-bar,:host-context(.theme-light) .model-bar{background:#E7EAF1}

@@ -1,0 +1,206 @@
+<section class="fa-page" dir="rtl">
+	@if (isLoading()) {
+		<div class="fa-state" role="region" aria-label="جاري التحميل">
+			<div class="fa-skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div>
+			<div class="fa-skeleton-box" style="height:120px"></div>
+		</div>
+	} @else if (error()) {
+		<div class="fa-state fa-state-error" role="alert">
+			<div class="fa-state-ttl">تعذر تحميل صفحة الاعتماد النهائي</div>
+			<div class="fa-state-code">{{ error() }}</div>
+			<button type="button" class="fa-btn-pri" (click)="retry()">اعادة المحاولة</button>
+		</div>
+	} @else {
+		<a class="fa-bk" (click)="back()" role="button" tabindex="0">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			العودة إلى المشاريع النشطة
+		</a>
+
+		<!-- Project summary header (P-SK-016 fs-hd) -->
+		<div class="fa-hd">
+			<div class="fa-hd-top">
+				<div class="fa-hd-l">
+					<span class="fa-av">{{ clientInitial() }}</span>
+					<div>
+						<div class="fa-ttl">خلاصة المشروع: {{ projectTitle() }}</div>
+						<div class="fa-sub">
+							<span class="fa-prov">{{ providerName() }}</span>
+							<span class="fa-dot"></span>
+							<span>عقد {{ contractRef() }}</span>
+							@if (orderCode()) { <span class="fa-dot"></span><span>#{{ orderCode() }}</span> }
+						</div>
+					</div>
+				</div>
+				<span class="fa-badge">بانتظار اعتمادك النهائي</span>
+			</div>
+			<div class="fa-meta">
+				<div class="fa-mi"><div class="l">إجمالي العقد</div><div class="v">{{ formatNumber(totalAmount()) }}<small> ريال</small></div></div>
+				<div class="fa-mi"><div class="l">أُفرِج سابقًا</div><div class="v fa-v-free">{{ formatNumber(releasedAmount()) }}</div></div>
+				<div class="fa-mi"><div class="l">الدفعة الأخيرة</div><div class="v fa-v-held">{{ formatNumber(finalPayment()) }}</div></div>
+				<div class="fa-mi"><div class="l">المراحل</div><div class="v">{{ completedStagesCount() }}<small>/{{ stagesCount() }}</small></div></div>
+				<div class="fa-mi"><div class="l">جولات التعديل</div><div class="v">{{ revisionRounds() }}</div></div>
+			</div>
+		</div>
+
+		<!-- AI disclosure -->
+		<div class="fa-ai-disc" role="region" aria-label="افصاح الذكاء الاصطناعي">
+			<div class="fa-ai-disc-ico">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M10.5 10.5 5 7M13.5 10.5 19 7M10.5 13.5 5 17M13.5 13.5 19 17"/></svg>
+			</div>
+			<div class="fa-ai-disc-body">
+				<div class="fa-ai-disc-lbl">وسيط AI، خلاصة وتسليم المشروع</div>
+				<p class="fa-ai-disc-txt">AI يلخّص كل مرحلة وتسليماتها وتقييماتها، ويتحقق نيابةً عنك من اكتمال التسليم النهائي <span class="fa-ai-disc-badge">دقة 95%</span> القرار النهائي لك</p>
+			</div>
+		</div>
+
+		<!-- Stages detail -->
+		<div class="fa-sec-ttl">تفصيل المراحل والتسليمات</div>
+
+		@for (stage of project()?.stages || []; track stage.id; let i = $index) {
+			<div class="fa-ms" [class.fa-ms-final]="isFinalStage(i)">
+				<div class="fa-ms-hd">
+					<span class="fa-ms-n" [class.fa-done]="isStageCompleted(stage)" [class.fa-wait]="!isStageCompleted(stage)">
+						@if (isStageCompleted(stage)) {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+						} @else {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 22V4M4 4l8 2 8-2v14l-8 2-8-2"/></svg>
+						}
+					</span>
+					<div class="fa-ms-t">
+						<h4>المرحلة {{ stage.stageNumber || (i + 1) }}: {{ stage.title }}</h4>
+						<div class="fa-ms-d">{{ statusHint(stage) }}{{ revisionCount(stage) > 0 ? ' · تعديل ' + revisionCount(stage) : '' }}</div>
+					</div>
+					<span class="fa-ms-pay" [class.fa-pay-held]="!isStageCompleted(stage)">
+						@if (isStageCompleted(stage)) { أُفرِج {{ formatNumber(stage.amount) }} ريال }
+						@else { محتجز {{ formatNumber(stage.amount) }} ريال }
+					</span>
+				</div>
+				<div class="fa-ms-body">
+					<!-- Delivery note + file chips -->
+					<div class="fa-deliv">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>
+						@if (latestThread(stage)?.note) { {{ latestThread(stage).note }} }
+						@else { تسليم المرحلة }
+						<span class="fa-files">{{ stageFileCount(stage) }} {{ stageFileCount(stage) === 1 ? 'ملف' : 'ملفات' }}</span>
+						@if (revisionCount(stage) > 0) { <span class="fa-redo">تعديل {{ revisionCount(stage) }}</span> }
+					</div>
+
+					<!-- File chips for final stage -->
+					@if (isFinalStage(i) && stageFiles(stage).length > 0) {
+						<div class="fa-finalfiles">
+							@for (file of stageFiles(stage); track file.name || file.url) {
+								<span class="fa-file-chip">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>
+									{{ file.name || 'ملف' }}
+								</span>
+							}
+						</div>
+					}
+
+					<!-- AI quality check -->
+					<div class="fa-aicheck">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+						{{ qualityNote(stage) }}
+					</div>
+
+					<!-- Evaluations: AI + Client rating -->
+					<div class="fa-evals">
+						<div class="fa-eval fa-eval-ai">
+							<div class="fa-eval-hd">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M10.5 10.5 5 7M13.5 10.5 19 7M10.5 13.5 5 17M13.5 13.5 19 17"/></svg>
+								تقييم الذكاء
+							</div>
+							<div class="fa-eval-sc">جودة عالية · تطابق {{ aiMatchPct(stage) }}</div>
+						</div>
+						<div class="fa-eval fa-eval-you">
+							<div class="fa-eval-hd">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-6 8-6s8 2 8 6"/></svg>
+								تقييمك
+							</div>
+							@if (hasClientRating(stage)) {
+								<div class="fa-eval-sc">
+									<span class="fa-stars">
+										@for (s of starsArray(); track s) {
+											<svg [class.fa-star-on]="s <= clientRating(stage)" [class.fa-star-off]="s > clientRating(stage)" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+										}
+									</span>
+									{{ clientRating(stage) }}.0
+								</div>
+							} @else if (isStageCompleted(stage)) {
+								<button type="button" class="fa-rate-btn" (click)="openStageRating(stage)">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+									قيّم المرحلة
+								</button>
+							} @else {
+								<div class="fa-eval-sc fa-eval-pending">—</div>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+
+		<!-- Financial settlement -->
+		<div class="fa-settle">
+			<div class="fa-settle-hd">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9h4.5a2 2 0 0 1 0 4H9"/></svg>
+				الخلاصة المالية للمشروع
+			</div>
+			<div class="fa-settle-rows">
+				<div class="fa-srow"><span>إجمالي قيمة العقد</span><b>{{ formatNumber(totalAmount()) }} ريال</b></div>
+				<div class="fa-srow"><span>أُفرِج عبر المراحل السابقة</span><b class="fa-v-free">{{ formatNumber(releasedAmount()) }} ريال</b></div>
+				<div class="fa-srow"><span>الدفعة النهائية (محتجزة بالضمان)</span><b class="fa-v-held">{{ formatNumber(finalPayment()) }} ريال</b></div>
+				<div class="fa-srow fa-srow-tot"><span>يُفرَج للمقدّم عند اعتمادك</span><b>{{ formatNumber(finalPayment()) }} ريال</b></div>
+			</div>
+			<div class="fa-settle-bar">
+				@if (totalAmount() > 0) {
+					<i class="free" [style.width.%]="(releasedAmount() / totalAmount()) * 100"></i>
+					<i class="held" [style.width.%]="(finalPayment() / totalAmount()) * 100"></i>
+				}
+			</div>
+			<div class="fa-settle-lg">
+				<span><span class="sw fa-sw-free"></span>أُفرِج {{ formatNumber(releasedAmount()) }}</span>
+				<span><span class="sw fa-sw-held"></span>متبقٍ {{ formatNumber(finalPayment()) }}</span>
+			</div>
+		</div>
+
+		<!-- Final acceptance -->
+		<div class="fa-final">
+			<div class="fa-final-t">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+				الاستلام النهائي للمشروع
+			</div>
+			<p>باعتمادك النهائي: تستلم حزمة المشروع كاملةً دفعةً واحدة، يُفرَج المبلغ المتبقّي للمقدّم، تنتقل ملكية التصاميم إليك بالكامل، ويبدأ سريان ضمان 30 يومًا.</p>
+			<div class="fa-final-acts">
+				<button type="button" class="fa-btn fa-btn-pri" (click)="openConfirm()">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+					استلام واعتماد المشروع النهائي
+				</button>
+				<button type="button" class="fa-btn fa-btn-gh" (click)="openConversation()">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+					عندي ملاحظات، فتح نقاش
+				</button>
+			</div>
+		</div>
+	}
+
+	<!-- Confirmation modal (P-SK-016 fsm-modal) -->
+	@if (showConfirmModal()) {
+		<div class="fsm-ov show" role="dialog" aria-modal="true" aria-label="الاعتماد النهائي" (click)="closeConfirm()">
+			<div class="fsm-box" (click)="$event.stopPropagation()">
+				<div class="fsm-ring">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+				</div>
+				<h3>استلام واعتماد المشروع</h3>
+				<p>تستلم حزمة المشروع كاملةً، يُفرَج المبلغ المتبقّي للمقدّم، تنتقل الملكية إليك، ويبدأ سريان ضمان 30 يومًا</p>
+				<div class="fsm-amt"><span>يُفرَج للمقدّم</span><b>{{ formatNumber(finalPayment()) }} <small>ريال</small></b></div>
+				<div class="fsm-acts">
+					<button type="button" class="fsm-btn fsm-gh" (click)="closeConfirm()" [disabled]="confirming()">تراجع</button>
+					<button type="button" class="fsm-btn fsm-pri" (click)="confirmAndRate()" [disabled]="confirming()">
+						{{ confirming() ? 'جارٍ...' : 'تأكيد الاستلام والتقييم' }}
+					</button>
+				</div>
+			</div>
+		</div>
+	}
+</section>

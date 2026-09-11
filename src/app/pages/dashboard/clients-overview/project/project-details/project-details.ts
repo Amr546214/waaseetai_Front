@@ -5,28 +5,26 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { ProjectMiniChat } from '../../../../../sheards/project-mini-chat/project-mini-chat';
-import { ClientRatingModal } from '../rating-modal/rating-modal';
-import { RatingApiService } from '../../../../../core/services/rating-api.service';
-import { RatingScore } from '../../../../../core/models/rating.model';
 import { DisputeModal } from '../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
 import { MessageContext } from '../../../../../core/services/chat.service';
+import { RatingApiService } from '../../../../../core/services/rating-api.service';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type SupportAction = 'edit' | 'dispute' | 'cancel' | null;
 
 @Component({
 	selector: 'app-project-details', standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, ClientRatingModal, DisputeModal],
+	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, DisputeModal],
 	templateUrl: './project-details.html', styleUrl: './project-details.css',
 })
 export class ProjectDetails implements OnInit {
 	private http = inject(HttpClient);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
-	private ratingApi = inject(RatingApiService);
 	private disputeApi = inject(DisputeApiService);
+	private ratingApi = inject(RatingApiService);
 	project = signal<any>(null);
 	isLoading = signal(true);
 	error = signal('');
@@ -38,17 +36,18 @@ export class ProjectDetails implements OnInit {
 	supportAction = signal<SupportAction>(null);
 	reviewNote = '';
 	supportNote = '';
+	editType = 'إضافة مرحلة أو عنصر جديد';
 	private projectId = '';
-	showRatingModal = signal(false);
-	isSubmittingRating = signal(false);
-	ratingError = signal('');
-	ratingSuccess = signal('');
-	ratingSubmitted = signal(false);
 	showDisputeModal = signal(false);
 	isSubmittingDispute = signal(false);
 	disputeSuccess = signal('');
 	disputeError = signal('');
 	disputeSubmitted = signal(false);
+	// Rating status — fetched from completed-projects endpoint (server-side Review table).
+	hasRated = signal(false);
+	finalProviderRating = signal<number | null>(null);
+	finalProviderRatingComment = signal<string | null>(null);
+	finalProviderRatedAt = signal<string | null>(null);
 
 	ngOnInit() { this.route.params.subscribe(params => { this.projectId = params['id']; this.load(); }); }
 	load() {
@@ -56,7 +55,19 @@ export class ProjectDetails implements OnInit {
 		this.http.get<any>(`${environment.url_api}/client/my-requests/${this.projectId}/workspace`).subscribe({
 			next: response => {
 				if (!response?.success || !response.data) this.error.set('تعذر تحميل مساحة العمل');
-				else this.project.set(response.data);
+				else {
+					this.project.set(response.data);
+					// Fetch rating status from completed-projects endpoint (which checks Review table server-side).
+					this.ratingApi.getClientRatingStatus(this.projectId).subscribe({
+						next: status => {
+							this.hasRated.set(status.hasRated);
+							this.finalProviderRating.set(status.rating);
+							this.finalProviderRatingComment.set(status.comment);
+							this.finalProviderRatedAt.set(status.ratedAt);
+						},
+						error: () => { /* non-fatal: default to false */ },
+					});
+				}
 				this.isLoading.set(false);
 			},
 			error: event => { this.error.set(event.error?.message || 'تعذر تحميل مساحة العمل'); this.isLoading.set(false); }
@@ -107,10 +118,10 @@ export class ProjectDetails implements OnInit {
 		if (data?.aiInsights?.bullets?.length) return data.aiInsights.bullets;
 		const bullets: string[] = [];
 		const dl = data?.daysLeft || 0;
-		if (dl > 0) bullets.push(`تسليم مبكر متوقع — المرحلة الحالية ضمن الجدول الزمني بفارض ${Math.max(1, Math.round(dl / 10))} أيام`);
+		if (dl > 0) bullets.push(`<strong>تسليم مبكر متوقع</strong> — المرحلة الحالية ضمن الجدول الزمني بفارض ${Math.max(1, Math.round(dl / 10))} أيام`);
 		else bullets.push('المرحلة الحالية ضمن الجدول الزمني المتفق عليه');
-		bullets.push('جودة المرحلة الأخيرة عالية ومطابقة لمتطلبات العقد');
-		bullets.push('المخاطرة منخفضة — لا توجد مؤشرات تأخير أو انحراف');
+		bullets.push('<strong>جودة المرحلة الأخيرة عالية</strong> ومطابقة لمتطلبات العقد');
+		bullets.push('<strong>المخاطرة منخفضة</strong> — لا توجد مؤشرات تأخير أو انحراف');
 		return bullets;
 	}
 	// Quality check note for the current submitted stage
@@ -230,39 +241,31 @@ export class ProjectDetails implements OnInit {
 	}
 
 	canRate(data: any): boolean {
-		if (this.ratingSubmitted() || this.ratingSuccess()) return false;
-		if (data?.canRate === true) return true;
+		// If the completed-projects endpoint confirms a review exists, never show the CTA.
+		if (this.hasRated()) return false;
+		// Legacy fallback: some workspace payloads may include hasRated/canRate directly.
 		if (data?.hasRated === true) return false;
+		if (data?.canRate === true) return true;
 		const allCompleted = data?.stages?.length > 0 && data.stages.every((s: any) => s.status === 'completed');
 		return data?.status === 'COMPLETED' || (data?.progress === 100 && allCompleted);
 	}
 
-	openRatingModal() {
-		this.ratingError.set('');
-		this.showRatingModal.set(true);
+	// Final provider/project rating display helpers (uses real backend value, no fakes).
+	starsArray(): number[] { return [1, 2, 3, 4, 5]; }
+	finalRatingValue(): number {
+		const v = this.finalProviderRating();
+		return v != null ? Number(v) : 0;
+	}
+	finalRatingDisplay(): string {
+		const v = this.finalProviderRating();
+		if (v == null) return '';
+		// Show one decimal if non-integer, else .0
+		const n = Number(v);
+		return Number.isInteger(n) ? n.toFixed(1) : n.toFixed(1);
 	}
 
-	closeRatingModal() {
-		if (this.isSubmittingRating()) return;
-		this.showRatingModal.set(false);
-		this.ratingError.set('');
-	}
-
-	submitRating(payload: { rating: RatingScore; comment?: string }) {
-		if (this.isSubmittingRating()) return;
-		this.isSubmittingRating.set(true);
-		this.ratingError.set('');
-		this.ratingApi.rateProvider(this.projectId, payload).subscribe({
-			next: () => {
-				this.isSubmittingRating.set(false);
-				this.showRatingModal.set(false);
-				this.ratingSubmitted.set(true);
-				this.ratingSuccess.set('تم إرسال تقييمك بنجاح');
-			},
-			error: (err: any) => {
-				this.isSubmittingRating.set(false);
-				this.ratingError.set(err?.error?.message || 'تعذر إرسال التقييم، حاول مرة أخرى');
-			},
-		});
+	// P-SK-016: navigate to the final approval & closure page (design expects a full page before rating).
+	openFinalApproval() {
+		this.router.navigate(['/client-overview/projects', this.projectId, 'final-approval']);
 	}
 }

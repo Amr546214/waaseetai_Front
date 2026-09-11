@@ -1,0 +1,77 @@
+<div class="pm-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">طلبات تعديل المشاريع</div>
+			<div class="page-sub">متابعة طلبات تعديل النطاق والمواعيد والمراحل</div>
+		</div>
+	</div>
+
+	<!-- Stats -->
+	<div class="pm-stats">
+		<div class="stat-box">
+			<div class="stat-val">{{ requests.length }}</div>
+			<div class="stat-lbl">إجمالي الطلبات</div>
+		</div>
+		<div class="stat-box">
+			<div class="stat-val">{{ requests.filter(r => r.status === 'pending').length }}</div>
+			<div class="stat-lbl">قيد المراجعة</div>
+		</div>
+		<div class="stat-box">
+			<div class="stat-val">{{ requests.filter(r => r.status === 'approved').length }}</div>
+			<div class="stat-lbl">معتمد</div>
+		</div>
+		<div class="stat-box">
+			<div class="stat-val">{{ requests.filter(r => r.status === 'rejected').length }}</div>
+			<div class="stat-lbl">مرفوض</div>
+		</div>
+	</div>
+
+	<!-- Filters -->
+	<div class="filter-row">
+		@for (f of filters; track f.id) {
+			<button type="button" class="filter-chip" [class.active]="activeFilter === f.id" (click)="setFilter(f.id)">
+				{{ f.label }}
+				<span class="fc-count">{{ f.count }}</span>
+			</button>
+		}
+	</div>
+
+	<!-- Requests List -->
+	<div class="req-list">
+		@for (req of filteredRequests; track req.id) {
+			<div class="req-card">
+				<div class="req-card-hd">
+					<div class="req-id">{{ req.id }}</div>
+					<span class="req-status" [ngClass]="'st-' + req.status">{{ statusLabel(req.status) }}</span>
+				</div>
+				<div class="req-project">{{ req.project }}</div>
+				<div class="req-type">{{ req.type }}</div>
+				<div class="req-desc">{{ req.desc }}</div>
+				<div class="req-meta">
+					<div class="req-meta-item">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+						{{ req.requestedBy }}
+					</div>
+					<div class="req-meta-item">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+						{{ req.date }}
+					</div>
+					<div class="req-meta-item">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+						{{ req.impact }}
+					</div>
+				</div>
+				@if (req.status === 'pending' || req.status === 'review') {
+					<div class="req-actions">
+						<button type="button" class="req-btn req-btn-pri">معاينة الطلب</button>
+						<button type="button" class="req-btn req-btn-sec">رفض</button>
+					</div>
+				} @else {
+					<div class="req-actions">
+						<button type="button" class="req-btn req-btn-sec">عرض التفاصيل</button>
+					</div>
+				}
+			</div>
+		}
+	</div>
+</div>

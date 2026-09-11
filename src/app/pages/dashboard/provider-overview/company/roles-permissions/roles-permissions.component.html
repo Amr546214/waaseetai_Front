@@ -1,0 +1,66 @@
+<div class="rp-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">الأدوار والصلاحيات</div>
+			<div class="page-sub">إدارة أدوار الموظفين وصلاحياتهم في النظام</div>
+		</div>
+		<button type="button" class="btn-primary">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+			إضافة دور
+		</button>
+	</div>
+
+	<div class="rp-grid">
+		@for (role of roles; track role.id) {
+			<div class="role-card">
+				<div class="role-hd">
+					<div class="role-ico" [ngClass]="'clr-' + role.color">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							@if (role.icon === 'crown') {
+								<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>
+							}
+							@if (role.icon === 'briefcase') {
+								<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+							}
+							@if (role.icon === 'calculator') {
+								<rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="10"/><line x1="12" y1="10" x2="12" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/>
+							}
+							@if (role.icon === 'eye') {
+								<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+							}
+							@if (role.icon === 'user') {
+								<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+							}
+						</svg>
+					</div>
+					<div class="role-hd-info">
+						<div class="role-name">{{ role.name }}</div>
+						<div class="role-count">{{ role.employeeCount }} موظف</div>
+					</div>
+				</div>
+
+				<div class="role-perms">
+					<div class="perms-ttl">الصلاحيات</div>
+					@for (perm of role.permissions; track perm.name) {
+						<div class="perm-item">
+							@if (perm.granted) {
+								<svg class="perm-check granted" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+							}
+							@if (!perm.granted) {
+								<svg class="perm-check denied" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+							}
+							<span [class.perm-granted]="perm.granted" [class.perm-denied]="!perm.granted">{{ perm.name }}</span>
+						</div>
+					}
+				</div>
+
+				<div class="role-actions">
+					<button type="button" class="btn-action btn-edit">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+						تعديل الصلاحيات
+					</button>
+				</div>
+			</div>
+		}
+	</div>
+</div>

@@ -1,0 +1,61 @@
+<section class="legal-page" dir="rtl">
+	<div class="legal-container">
+		<!-- Sidebar TOC -->
+		<aside class="legal-toc">
+			<div class="legal-toc-sticky">
+				<div class="legal-toc-ttl">المحتويات</div>
+				<nav>
+					@for (sec of document.sections; track sec.id) {
+						<button type="button" class="toc-link" [class.active]="activeSection === sec.id" (click)="scrollTo(sec.id)">
+							{{ sec.title }}
+						</button>
+					}
+				</nav>
+				<div class="legal-toc-foot">
+					<a routerLink="/terms" class="toc-back-link">الشروط والأحكام</a>
+					<a routerLink="/privacy" class="toc-back-link">سياسة الخصوصية</a>
+				</div>
+			</div>
+		</aside>
+
+		<!-- Content -->
+		<div class="legal-content">
+			<div class="legal-header">
+				<div class="legal-badge">الملحق القانوني</div>
+				<h1 class="legal-h1">{{ document.title }}</h1>
+				<p class="legal-subtitle">{{ document.subtitle }}</p>
+				<div class="legal-meta">
+					<span>آخر تحديث: 2026</span>
+					<span class="dot">·</span>
+					<span>وسيط AI</span>
+				</div>
+			</div>
+
+			<div class="legal-body">
+				@for (sec of document.sections; track sec.id) {
+					<section [id]="sec.id" class="legal-section">
+						<h2 class="legal-h2">{{ sec.title }}</h2>
+						@for (p of sec.paragraphs; track $index) {
+							@if (typeof p === 'string') {
+								<p class="legal-p" [innerHTML]="p"></p>
+							} @else {
+								<ul class="legal-list">
+									@for (li of p; track $index) {
+										<li [innerHTML]="li"></li>
+									}
+								</ul>
+							}
+						}
+					</section>
+				}
+			</div>
+
+			<div class="legal-foot">
+				<a routerLink="/" class="legal-back">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
+					العودة للرئيسية
+				</a>
+			</div>
+		</div>
+	</div>
+</section>

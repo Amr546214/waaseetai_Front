@@ -187,7 +187,23 @@
 				<span>{{ errorMessage }}</span>
 			</div>
 
-			<!-- STEP 2: Basic Info Form -->
+			<!-- Draft Restoration Banner -->
+		<div class="draft-banner" *ngIf="showDraftBanner">
+			<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+				stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+				<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+			</svg>
+			<div class="draft-banner-body">
+				<span class="draft-banner-ttl">هل تريد استرجاع البيانات السابقة؟</span>
+				<span class="draft-banner-sub">لديك مسودة محفوظة من تسجيل سابق</span>
+			</div>
+			<div class="draft-banner-actions">
+				<button type="button" class="draft-btn-restore" (click)="restoreDraft()">نعم</button>
+				<button type="button" class="draft-btn-dismiss" (click)="dismissDraft()">تجاهل</button>
+			</div>
+		</div>
+
+		<!-- STEP 2: Basic Info Form -->
 			<form *ngIf="currentStep === 2" [formGroup]="basicInfoForm" (ngSubmit)="nextStep()">
 				<div class="form-card">
 					<div class="form-card-title">
@@ -197,16 +213,6 @@
 							<circle cx="12" cy="7" r="4" />
 						</svg>
 						<span>البيانات الشخصية</span>
-					</div>
-
-					<div style="display: flex; justify-content: center; margin-bottom: 20px;">
-						<asl-google-signin-button type="standard" size="large" text="signup_with" [width]="380" theme="outline"></asl-google-signin-button>
-					</div>
-
-					<div style="display: flex; align-items: center; text-align: center; margin: 20px 0; color: #777;">
-						<div style="flex: 1; height: 1px; background: #eee;"></div>
-						<span style="padding: 0 10px; font-size: 14px;">أو ادخل بياناتك يدوياً</span>
-						<div style="flex: 1; height: 1px; background: #eee;"></div>
 					</div>
 
 					<div class="field-2col">

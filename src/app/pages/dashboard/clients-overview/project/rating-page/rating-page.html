@@ -1,0 +1,121 @@
+<section class="rp-page" dir="rtl">
+	@if (isLoading()) {
+		<div class="rp-state" role="region" aria-label="جاري التحميل">
+			<div class="rp-skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div>
+			<div class="rp-skeleton-box" style="height:120px"></div>
+		</div>
+	} @else if (error()) {
+		<div class="rp-state rp-state-error" role="alert">
+			<div class="rp-state-ttl">تعذر تحميل صفحة التقييم</div>
+			<div class="rp-state-code">{{ error() }}</div>
+			<button type="button" class="rp-btn-pri" (click)="retry()">اعادة المحاولة</button>
+		</div>
+	} @else {
+		<a class="rp-bk" (click)="back()" role="button" tabindex="0">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			{{ backLabel() }}
+		</a>
+
+		<!-- Success header (P-SK-017 / stage rating) -->
+		<div class="rp-hd">
+			<div class="rp-hd-ico">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+			</div>
+			<div class="rp-hd-ttl">{{ headerTitle() }}</div>
+			<div class="rp-hd-sub">{{ headerSub() }}</div>
+		</div>
+
+		<!-- AI disclosure -->
+		<div class="rp-ai-disc" role="region" aria-label="افصاح الذكاء الاصطناعي">
+			<div class="rp-ai-disc-ico">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M10.5 10.5 5 7M13.5 10.5 19 7M10.5 13.5 5 17M13.5 13.5 19 17"/></svg>
+			</div>
+			<div class="rp-ai-disc-body">
+				<div class="rp-ai-disc-lbl">وسيط AI، أهمية تقييمك</div>
+				<p class="rp-ai-disc-txt">تقييمك يغذّي محرّك الترشيح ويرفع دقّة مطابقة مقدّمي الخدمة مستقبلًا <span class="rp-ai-disc-badge">دقة 95%</span> القرار النهائي لك</p>
+			</div>
+		</div>
+
+		<div class="rp-sec-ttl">{{ sectionTitle() }}</div>
+
+		<!-- Rating card -->
+		<div class="rp-card">
+			<!-- Star rating -->
+			<div class="rp-rate-row">
+				<div class="rp-rate-lbl">التقييم العام</div>
+				<div class="rp-stars" role="radiogroup" aria-label="التقييم بالنجوم">
+					@for (star of stars; track star) {
+						<button
+							type="button"
+							class="rp-star"
+							[class.on]="star <= (hoverRating() || selectedRating())"
+							(mouseenter)="setHover(star)"
+							(mouseleave)="clearHover()"
+							(click)="selectRating(star)"
+							[attr.aria-label]="'تقييم ' + star + ' من 5'"
+						>
+							<svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+						</button>
+					}
+				</div>
+				@if (selectedRating() > 0) {
+					<div class="rp-rate-num">{{ selectedRating() }} / 5</div>
+				}
+			</div>
+
+			<!-- Chips: what stood out (project/provider rating only) -->
+			@if (!isStageRating) {
+				<div class="rp-rate-row">
+					<div class="rp-rate-lbl">ما الذي تميّز؟</div>
+					<div class="rp-rate-sub">اختر ما ينطبق</div>
+					<div class="rp-chip-row">
+						@for (chip of availableChips; track chip) {
+							<button
+								type="button"
+								class="rp-rchip"
+								[class.on]="isChipOn(chip)"
+								(click)="toggleChip(chip)"
+							>{{ chip }}</button>
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Comment -->
+			<div class="rp-rate-row">
+				<div class="rp-rate-lbl">تعليقك (اختياري)</div>
+				<textarea
+					class="rp-rtxt"
+					[(ngModel)]="comment"
+					rows="4"
+					[placeholder]="isStageRating ? 'شارك ملاحظاتك حول جودة تسليم هذه المرحلة' : 'شارك تفاصيل تجربتك لتساعد طالبي الخدمة الآخرين'"
+					[disabled]="submitting()"
+				></textarea>
+			</div>
+
+			<!-- Publish checkbox (project/provider rating only) -->
+			@if (!isStageRating) {
+				<label class="rp-publish-row">
+					<input type="checkbox" [(ngModel)]="publish" />
+					<span>نشر التقييم في ملف مقدّم الخدمة العام</span>
+				</label>
+			}
+
+			@if (submitError()) {
+				<div class="rp-err" role="alert">{{ submitError() }}</div>
+			}
+
+			@if (submitSuccess()) {
+				<div class="rp-success" role="status">تم إرسال تقييمك، شكرًا لك</div>
+			}
+
+			<!-- Actions -->
+			<div class="rp-acts">
+				<button type="button" class="rp-btn-pri" (click)="submit()" [disabled]="submitting() || submitSuccess()">
+					{{ submitting() ? 'جارٍ الإرسال...' : 'إرسال التقييم' }}
+				</button>
+				<button type="button" class="rp-btn-sec" (click)="skip()" [disabled]="submitting()">تخطّي</button>
+			</div>
+		</div>
+	}
+</section>

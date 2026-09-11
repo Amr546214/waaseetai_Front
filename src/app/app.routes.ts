@@ -46,6 +46,26 @@ export const routes: Routes = [
 		children: SUPPER_ADMIN_ROUTES
 	},
 	{
+		path: 'error/500',
+		loadComponent: () => import('./pages/system-errors/error-page/error-page').then(m => m.ErrorPageComponent),
+		data: { type: '500' }
+	},
+	{
+		path: 'error/403',
+		loadComponent: () => import('./pages/system-errors/error-page/error-page').then(m => m.ErrorPageComponent),
+		data: { type: '403' }
+	},
+	{
+		path: 'error/maintenance',
+		loadComponent: () => import('./pages/system-errors/error-page/error-page').then(m => m.ErrorPageComponent),
+		data: { type: 'maintenance' }
+	},
+	{
+		path: 'error/session-expired',
+		loadComponent: () => import('./pages/system-errors/error-page/error-page').then(m => m.ErrorPageComponent),
+		data: { type: 'session-expired' }
+	},
+	{
 		path: '**',
 		loadComponent: () => import('./sheards/not-found/not-found').then(m => m.NotFoundComponent)
 	}

@@ -1,0 +1,176 @@
+<div class="tm-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">إدارة الفريق</div>
+			<div class="page-sub">إدارة الموظفين والأدوار والمجموعات والمهام</div>
+		</div>
+		<div class="page-hd-btns">
+			<button type="button" class="btn-secondary">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+				دعوة موظف
+			</button>
+		</div>
+	</div>
+
+	<!-- Stats -->
+	<div class="tm-stats">
+		@for (s of stats; track s.lbl) {
+			<div class="tm-stat">
+				<div class="tm-stat-ico" [ngClass]="'ico-' + s.color">
+					@if (s.ico === 'group') {
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+					} @else if (s.ico === 'check') {
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+					} @else if (s.ico === 'task') {
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+					}
+				</div>
+				<div class="tm-stat-val">{{ s.val }}</div>
+				<div class="tm-stat-lbl">{{ s.lbl }}</div>
+			</div>
+		}
+	</div>
+
+	<!-- Tabs -->
+	<div class="tm-tabs" role="tablist">
+		<button type="button" class="tm-tab" [class.active]="activeTab === 'employees'" (click)="switchTab('employees')" role="tab">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+			الموظفون <span class="tm-cnt">{{ employees.length }}</span>
+		</button>
+		<button type="button" class="tm-tab" [class.active]="activeTab === 'roles'" (click)="switchTab('roles')" role="tab">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+			الأدوار والصلاحيات
+		</button>
+		<button type="button" class="tm-tab" [class.active]="activeTab === 'groups'" (click)="switchTab('groups')" role="tab">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+			المجموعات <span class="tm-cnt">{{ groups.length }}</span>
+		</button>
+		<button type="button" class="tm-tab" [class.active]="activeTab === 'tasks'" (click)="switchTab('tasks')" role="tab">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+			المهام والتكليفات <span class="tm-cnt">{{ tasks.length }}</span>
+		</button>
+	</div>
+
+	<!-- Employees Tab -->
+	@if (activeTab === 'employees') {
+		<div class="emp-list">
+			@for (emp of employees; track emp.id) {
+				<div class="emp-card">
+					<div class="emp-card-hd">
+						<div class="emp-av" [ngClass]="'av-' + emp.roleColor">{{ emp.avatar }}</div>
+						<div class="emp-body">
+							<div class="emp-name">{{ emp.name }}</div>
+							<div class="emp-email">{{ emp.email }}</div>
+						</div>
+						<span class="emp-status" [class.active]="emp.status === 'active'" [class.suspended]="emp.status === 'suspended'">
+							{{ statusLabel(emp.status) }}
+						</span>
+					</div>
+					<div class="emp-meta">
+						<div class="emp-meta-item">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+							{{ emp.role }}
+						</div>
+						<div class="emp-meta-item">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+							{{ emp.tasksCount }} مهام
+						</div>
+						<div class="emp-meta-item">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+							انضم: {{ emp.joinedAt }}
+						</div>
+					</div>
+					<div class="emp-actions">
+						<button type="button" class="emp-btn emp-btn-pri">تعديل الصلاحية</button>
+						<button type="button" class="emp-btn emp-btn-sec">{{ emp.status === 'active' ? 'إيقاف' : 'تفعيل' }}</button>
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	<!-- Roles Tab -->
+	@if (activeTab === 'roles') {
+		<div class="role-grid">
+			@for (role of roles; track role.id) {
+				<div class="role-card">
+					<div class="role-card-hd">
+						<div class="role-ico" [ngClass]="'ico-' + role.color">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+						</div>
+						<div>
+							<div class="role-card-name">{{ role.name }}</div>
+							<div class="role-card-count">{{ role.count }} موظف</div>
+						</div>
+					</div>
+					<div class="role-perms">
+						@for (perm of role.permissions; track perm) {
+							<div class="role-perm">
+								<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+								{{ perm }}
+							</div>
+						}
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	<!-- Groups Tab -->
+	@if (activeTab === 'groups') {
+		<div class="grp-grid">
+			@for (grp of groups; track grp.id) {
+				<div class="grp-card">
+					<div class="grp-card-hd">
+						<div class="grp-ico">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+						</div>
+						<div>
+							<div class="grp-name">{{ grp.name }}</div>
+							<div class="grp-lead">قائد: {{ grp.lead }}</div>
+						</div>
+					</div>
+					<div class="grp-members">
+						@for (m of grp.members; track $index) {
+							<div class="grp-av">{{ m }}</div>
+						}
+						<span class="grp-member-count">{{ grp.memberCount }} أعضاء</span>
+					</div>
+					<div class="grp-footer">
+						<button type="button" class="grp-btn grp-btn-pri">إدارة</button>
+						<button type="button" class="grp-btn grp-btn-sec">عرض المهام</button>
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	<!-- Tasks Tab -->
+	@if (activeTab === 'tasks') {
+		<div class="task-list">
+			@for (task of tasks; track task.id) {
+				<div class="task-card">
+					<div class="task-card-hd">
+						<div class="task-pri" [ngClass]="'task-pri-' + task.priority"></div>
+						<div class="task-body">
+							<div class="task-title">{{ task.title }}</div>
+							<div class="task-desc">{{ task.desc }}</div>
+						</div>
+						<span class="task-tag" [ngClass]="'tag-' + task.status">{{ statusTag(task.status) }}</span>
+					</div>
+					<div class="task-meta">
+						<div class="task-meta-item">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+							{{ task.assignee }}
+						</div>
+						<div class="task-meta-item">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+							{{ task.due }}
+						</div>
+						<div class="task-meta-item">أولوية: {{ priorityLabel(task.priority) }}</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+</div>

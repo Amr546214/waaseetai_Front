@@ -1687,3 +1687,251 @@ footer {
 		transition-duration: .001ms !important
 	}
 }
+
+/* === Light mode overrides (P-AU-003 / P-AU-004 design LIGHT_CSS) === */
+:host-context(body.light) .roles-section,
+:host-context(.light-theme) .roles-section,
+:host-context(.theme-light) .roles-section{background:#F6F8FC;color:#070D24}
+
+:host-context(body.light) .roles-h1,
+:host-context(.light-theme) .roles-h1,
+:host-context(.theme-light) .roles-h1{color:#070D24}
+
+:host-context(body.light) .roles-sub,
+:host-context(.light-theme) .roles-sub,
+:host-context(.theme-light) .roles-sub{color:#56607D}
+
+:host-context(body.light) .role-card,
+:host-context(.light-theme) .role-card,
+:host-context(.theme-light) .role-card{background:#fff;border:1px solid #E7EAF1;box-shadow:0 10px 30px rgba(7,13,36,.05)}
+
+:host-context(body.light) .role-card:hover,
+:host-context(.light-theme) .role-card:hover,
+:host-context(.theme-light) .role-card:hover{border-color:rgba(43,212,199,.4);box-shadow:0 16px 40px rgba(43,127,255,.12)}
+
+:host-context(body.light) .role-card.selected,
+:host-context(.light-theme) .role-card.selected,
+:host-context(.theme-light) .role-card.selected{border-color:rgba(43,212,199,.5);box-shadow:0 16px 40px rgba(43,127,255,.12)}
+
+:host-context(body.light) .role-name,
+:host-context(.light-theme) .role-name,
+:host-context(.theme-light) .role-name{color:#070D24}
+
+:host-context(body.light) .role-desc,
+:host-context(.light-theme) .role-desc,
+:host-context(.theme-light) .role-desc{color:#56607D}
+
+:host-context(body.light) .auth-step-pill,
+:host-context(.light-theme) .auth-step-pill,
+:host-context(.theme-light) .auth-step-pill{background:#fff;border:1px solid #E7EAF1;color:#56607D}
+
+:host-context(body.light) .auth-back-link,
+:host-context(.light-theme) .auth-back-link,
+:host-context(.theme-light) .auth-back-link{color:#56607D}
+
+:host-context(body.light) .auth-back-link:hover,
+:host-context(.light-theme) .auth-back-link:hover,
+:host-context(.theme-light) .auth-back-link:hover{color:#070D24}
+
+:host-context(body.light) .main-inner,
+:host-context(.light-theme) .main-inner,
+:host-context(.theme-light) .main-inner{background:#fff;border:1px solid #E7EAF1;box-shadow:0 10px 30px rgba(7,13,36,.05)}
+
+:host-context(body.light) .step-idle .step-node,
+:host-context(.light-theme) .step-idle .step-node,
+:host-context(.theme-light) .step-idle .step-node{background:#F3F5FA;border:1px solid #E7EAF1;color:#6B7699}
+
+:host-context(body.light) .step-connector,
+:host-context(.light-theme) .step-connector,
+:host-context(.theme-light) .step-connector{background:#E7EAF1}
+
+:host-context(body.light) .step-label,
+:host-context(.light-theme) .step-label,
+:host-context(.theme-light) .step-label{color:#6B7699}
+
+:host-context(body.light) .roles-ai-badge,
+:host-context(.light-theme) .roles-ai-badge,
+:host-context(.theme-light) .roles-ai-badge{background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.18);color:#6B27A5}
+
+/* P-AU-004 form fields, cards, buttons light mode */
+:host-context(body.light) .auth-h1,
+:host-context(.light-theme) .auth-h1,
+:host-context(.theme-light) .auth-h1{color:#070D24}
+
+:host-context(body.light) .auth-sub,
+:host-context(.light-theme) .auth-sub,
+:host-context(.theme-light) .auth-sub{color:#56607D}
+
+:host-context(body.light) .form-card,
+:host-context(.light-theme) .form-card,
+:host-context(.theme-light) .form-card{background:#fff;border:1px solid #E7EAF1;box-shadow:0 10px 30px rgba(7,13,36,.05)}
+
+:host-context(body.light) .form-card-title,
+:host-context(.light-theme) .form-card-title,
+:host-context(.theme-light) .form-card-title{color:#070D24}
+
+:host-context(body.light) .field-lbl,
+:host-context(.light-theme) .field-lbl,
+:host-context(.theme-light) .field-lbl{color:#070D24}
+
+:host-context(body.light) .field-in,
+:host-context(.light-theme) .field-in,
+:host-context(.theme-light) .field-in{background:#F3F5FA;border:1px solid #D8DFEC;color:#070D24}
+
+:host-context(body.light) .field-in:focus,
+:host-context(.light-theme) .field-in:focus,
+:host-context(.theme-light) .field-in:focus{border-color:#2BD4C7;background:#fff}
+
+:host-context(body.light) .field-in.has-error,
+:host-context(.light-theme) .field-in.has-error,
+:host-context(.theme-light) .field-in.has-error{border-color:#EF4444;background:#FEF2F2}
+
+:host-context(body.light) .field-err,
+:host-context(.light-theme) .field-err,
+:host-context(.theme-light) .field-err{color:#DC2626}
+
+:host-context(body.light) .terms-card,
+:host-context(.light-theme) .terms-card,
+:host-context(.theme-light) .terms-card{background:#F6F8FC;border:1px solid #E7EAF1}
+
+:host-context(body.light) .chk-row,
+:host-context(.light-theme) .chk-row,
+:host-context(.theme-light) .chk-row{color:#070D24}
+
+:host-context(body.light) .chk-row a,
+:host-context(.light-theme) .chk-row a,
+:host-context(.theme-light) .chk-row a{color:#2B7FFF}
+
+:host-context(body.light) .btn-primary,
+:host-context(.light-theme) .btn-primary,
+:host-context(.theme-light) .btn-primary{box-shadow:0 12px 30px rgba(43,127,255,.28)}
+
+:host-context(body.light) .btn-tertiary,
+:host-context(.light-theme) .btn-tertiary,
+:host-context(.theme-light) .btn-tertiary{color:#56607D;border-color:#E7EAF1;background:transparent}
+
+:host-context(body.light) .btn-tertiary:hover,
+:host-context(.light-theme) .btn-tertiary:hover,
+:host-context(.theme-light) .btn-tertiary:hover{color:#070D24;border-color:#C8D0DC}
+
+:host-context(body.light) .banner-error,
+:host-context(.light-theme) .banner-error,
+:host-context(.theme-light) .banner-error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.24);color:#DC2626}
+
+:host-context(body.light) .role-bar,
+:host-context(.light-theme) .role-bar,
+:host-context(.theme-light) .role-bar{background:#F6F8FC;border:1px solid #E7EAF1;color:#070D24}
+
+:host-context(body.light) .role-bar-lbl,
+:host-context(.light-theme) .role-bar-lbl,
+:host-context(.theme-light) .role-bar-lbl{color:#6B7699}
+
+:host-context(body.light) .role-bar-val,
+:host-context(.light-theme) .role-bar-val,
+:host-context(.theme-light) .role-bar-val{color:#070D24}
+
+:host-context(body.light) .role-bar-chg,
+:host-context(.light-theme) .role-bar-chg,
+:host-context(.theme-light) .role-bar-chg{color:#2B7FFF}
+
+:host-context(body.light) .pw-eye,
+:host-context(.light-theme) .pw-eye,
+:host-context(.theme-light) .pw-eye{color:#6B7699}
+
+:host-context(body.light) .strength-lbl,
+:host-context(.light-theme) .strength-lbl,
+:host-context(.theme-light) .strength-lbl{color:#56607D}
+
+:host-context(body.light) .otp-in,
+:host-context(.light-theme) .otp-in,
+:host-context(.theme-light) .otp-in{background:#F3F5FA;border:1px solid #D8DFEC;color:#070D24}
+
+:host-context(body.light) .otp-in:focus,
+:host-context(.light-theme) .otp-in:focus,
+:host-context(.theme-light) .otp-in:focus{border-color:#2BD4C7;background:#fff}
+
+:host-context(body.light) .otp-hint,
+:host-context(.light-theme) .otp-hint,
+:host-context(.theme-light) .otp-hint{color:#6B7699}
+
+:host-context(body.light) .otp-resend,
+:host-context(.light-theme) .otp-resend,
+:host-context(.theme-light) .otp-resend{color:#2B7FFF}
+
+:host-context(body.light) .auth-lnk,
+:host-context(.light-theme) .auth-lnk,
+:host-context(.theme-light) .auth-lnk{color:#2B7FFF}
+
+/* === Draft Restoration Banner === */
+.draft-banner {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	background: rgba(43, 127, 255, .06);
+	border: 1px solid rgba(43, 127, 255, .22);
+	border-radius: 12px;
+	padding: 14px 16px;
+	margin-bottom: 16px;
+}
+.draft-banner svg { color: #5DA0FF; flex-shrink: 0; }
+.draft-banner-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.draft-banner-ttl { font-size: 13px; font-weight: 800; color: #fff; }
+.draft-banner-sub { font-size: 12px; color: #A8B2D1; }
+.draft-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.draft-btn-restore {
+	padding: 7px 16px;
+	background: rgba(43, 127, 255, .12);
+	border: 1px solid rgba(43, 127, 255, .3);
+	border-radius: 8px;
+	font-size: 12px;
+	font-weight: 700;
+	color: #5DA0FF;
+	cursor: pointer;
+	font-family: inherit;
+	transition: all .15s;
+}
+.draft-btn-restore:hover { background: rgba(43, 127, 255, .2); }
+.draft-btn-dismiss {
+	padding: 7px 16px;
+	background: rgba(255, 255, 255, .04);
+	border: 1px solid rgba(255, 255, 255, .1);
+	border-radius: 8px;
+	font-size: 12px;
+	font-weight: 700;
+	color: #A8B2D1;
+	cursor: pointer;
+	font-family: inherit;
+	transition: all .15s;
+}
+.draft-btn-dismiss:hover { background: rgba(255, 255, 255, .08); }
+
+/* Light mode */
+:host-context(body.light) .draft-banner,
+:host-context(.light-theme) .draft-banner,
+:host-context(.theme-light) .draft-banner {
+	background: rgba(43, 127, 255, .04);
+	border-color: rgba(43, 127, 255, .18);
+}
+:host-context(body.light) .draft-banner svg,
+:host-context(.light-theme) .draft-banner svg,
+:host-context(.theme-light) .draft-banner svg { color: #2B7FFF; }
+:host-context(body.light) .draft-banner-ttl,
+:host-context(.light-theme) .draft-banner-ttl,
+:host-context(.theme-light) .draft-banner-ttl { color: #070D24; }
+:host-context(body.light) .draft-banner-sub,
+:host-context(.light-theme) .draft-banner-sub,
+:host-context(.theme-light) .draft-banner-sub { color: #56607D; }
+:host-context(body.light) .draft-btn-restore,
+:host-context(.light-theme) .draft-btn-restore,
+:host-context(.theme-light) .draft-btn-restore {
+	background: rgba(43, 127, 255, .08);
+	border-color: rgba(43, 127, 255, .22);
+	color: #2B7FFF;
+}
+:host-context(body.light) .draft-btn-dismiss,
+:host-context(.light-theme) .draft-btn-dismiss,
+:host-context(.theme-light) .draft-btn-dismiss {
+	background: #F3F5FA;
+	border-color: #E7EAF1;
+	color: #56607D;
+}

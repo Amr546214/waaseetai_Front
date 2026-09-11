@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, OnInit, OnDestroy, effect } from '
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
@@ -20,7 +20,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })
@@ -69,6 +69,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		docs: this.fb.group({
 			frontId: [''],
 			backId: [''],
+			selfie: [''],
 			certs: [[]]
 		}),
 		agreements: this.fb.group({
@@ -86,10 +87,20 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	uploadedFrontId = signal<string>('');
 	uploadedFrontIdName = signal<string>('');
 	uploadedBackIdName = signal<string>('');
+	uploadedSelfieName = signal<string>('');
 	uploadedCerts = signal<string[]>([]);
 	uploadedCertsNames = signal<string[]>([]);
 	isNafathVerified = signal<boolean>(false);
 	isNafathVerifying = signal<boolean>(false);
+
+	// Profile completion extras (P-AU-011)
+	avatarPreview = signal<string>('');
+	avatarUrl = signal<string>('');
+	skillsList = signal<string[]>([]);
+	skillInput = '';
+	isSuggestingBio = signal<boolean>(false);
+	isSuggestingSkills = signal<boolean>(false);
+	notifChannels = signal<string[]>(['email']);
 
 	// Upload progress states keyed by field identifier
 	uploadStates = signal<Record<string, { status: 'uploading' | 'uploaded' | 'error'; progress: number; name: string }>>({});
@@ -340,7 +351,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 		const maxSize = 10 * 1024 * 1024;
 
-		if (type === 'frontId' || type === 'backId') {
+		if (type === 'frontId' || type === 'backId' || type === 'selfie') {
 			const file = files[0] as File;
 			if (file.size > maxSize) {
 				this.alertModal.set({
@@ -380,12 +391,104 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}
 	}
 
+	// === Profile completion extras (P-AU-011) ===
+	onAvatarSelected(event: any) {
+		const file = event.target.files?.[0];
+		if (!file) return;
+		if (file.size > 5 * 1024 * 1024) {
+			this.alertModal.set({
+				type: 'warning', title: 'حجم ملف كبير', message: 'حجم الصورة يجب أن لا يتجاوز 5 ميجابايت.',
+				confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+			});
+			return;
+		}
+		if (!['image/jpeg', 'image/png'].includes(file.type)) {
+			this.alertModal.set({
+				type: 'warning', title: 'نوع ملف غير مدعوم', message: 'الصور المسموحة JPG أو PNG فقط.',
+				confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+			});
+			return;
+		}
+		const reader = new FileReader();
+		reader.onload = () => this.avatarPreview.set(reader.result as string);
+		reader.readAsDataURL(file);
+
+		this.setUploadState('avatar', { status: 'uploading', progress: 0, name: file.name });
+		this.providerProfileService.uploadDocument(file).subscribe({
+			next: (event: any) => {
+				if (event.type === HttpEventType.UploadProgress) {
+					const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
+					this.setUploadState('avatar', { status: 'uploading', progress, name: file.name });
+				}
+				if (event.type === HttpEventType.Response) {
+					const url = event.body?.data?.url || '';
+					this.avatarUrl.set(url);
+					this.setUploadState('avatar', { status: 'uploaded', progress: 100, name: file.name });
+				}
+			},
+			error: () => this.setUploadState('avatar', { status: 'error', progress: 0, name: file.name })
+		});
+	}
+
+	addSkill(event: Event) {
+		event.preventDefault();
+		const v = (this.skillInput || '').trim();
+		if (!v) return;
+		if (!this.skillsList().includes(v)) {
+			this.skillsList.update(list => [...list, v]);
+		}
+		this.skillInput = '';
+	}
+
+	removeSkill(skill: string) {
+		this.skillsList.update(list => list.filter(s => s !== skill));
+	}
+
+	suggestBio() {
+		const jobTitle = this.setupForm.get('profData.jobTitle')?.value || '';
+		const expYears = this.setupForm.get('profData.expYears')?.value || '';
+		if (!jobTitle) {
+			this.alertModal.set({
+				type: 'info', title: 'بيانات ناقصة', message: 'أدخل المسمى الوظيفي وسنوات الخبرة أولاً لاقتراح نبذة مناسبة.',
+				confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
+			});
+			return;
+		}
+		this.isSuggestingBio.set(true);
+		// Simulated AI suggestion based on user input (placeholder until AI endpoint exists)
+		setTimeout(() => {
+			const suggested = `${jobTitle} بخبرة ${expYears}، متخصص في تقديم حلول احترافية وعالية الجودة. شغوف بتطوير المهارات وتقديم أفضل النتائج للعملاء.`;
+			this.setupForm.get('profData.bio')?.setValue(suggested);
+			this.isSuggestingBio.set(false);
+		}, 1200);
+	}
+
+	suggestSkills() {
+		const mainSpec = this.setupForm.get('specialties.mainSpec')?.value || '';
+		this.isSuggestingSkills.set(true);
+		// Simulated AI suggestion (placeholder until AI endpoint exists)
+		setTimeout(() => {
+			const base = mainSpec ? [mainSpec, 'إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق'] : ['إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق'];
+			const current = this.skillsList();
+			const additions = base.filter(s => !current.includes(s));
+			this.skillsList.set([...current, ...additions]);
+			this.isSuggestingSkills.set(false);
+		}, 1200);
+	}
+
+	toggleNotifChannel(channel: string) {
+		this.notifChannels.update(list =>
+			list.includes(channel) ? list.filter(c => c !== channel) : [...list, channel]
+		);
+	}
+
 	private uploadSingleDoc(file: File, type: string) {
 		const key = type;
 		this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
 
 		if (type === 'frontId') this.uploadedFrontIdName.set(file.name);
 		if (type === 'backId') this.uploadedBackIdName.set(file.name);
+		if (type === 'selfie') this.uploadedSelfieName.set(file.name);
 
 		this.providerProfileService.uploadDocument(file).subscribe({
 			next: (event: any) => {
@@ -405,6 +508,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (type === 'backId') {
 						this.setupForm.get('docs.backId')?.setValue(url);
 						this.uploadedBackIdName.set(name);
+					}
+					if (type === 'selfie') {
+						this.setupForm.get('docs.selfie')?.setValue(url);
+						this.uploadedSelfieName.set(name);
 					}
 				}
 			},
@@ -727,6 +834,59 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		const m = Math.floor(t / 60);
 		const s = t % 60;
 		return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+	}
+
+	// === P-AU-012 test enhancements ===
+	testLevelLabel() {
+		const score = this.setupTestService.result()?.score || 0;
+		if (score >= 85) return 'احترافي · المستوى 4';
+		if (score >= 70) return 'بارع · المستوى 3';
+		if (score >= 50) return 'تطبيقي · المستوى 2';
+		return 'تمهيدي · المستوى 1';
+	}
+
+	testTimeSpent() {
+		const spent = this.testTotalTime - this.testTimeLeft();
+		const m = Math.floor(spent / 60);
+		const s = spent % 60;
+		return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+	}
+
+	testAiConfidence() {
+		const score = this.setupTestService.result()?.score || 0;
+		// Higher confidence when score is far from the 50% boundary
+		const dist = Math.abs(score - 50);
+		return Math.min(95, Math.round(70 + dist * 0.5));
+	}
+
+	testNeedsAdminReview() {
+		const score = this.setupTestService.result()?.score || 0;
+		// Admin review required when score is borderline
+		return score >= 65 && score <= 80;
+	}
+
+	canGoPrev() {
+		const idx = this.setupTestService.currentQuestion()?.index ?? 0;
+		return idx > 0;
+	}
+
+	prevQuestion() {
+		if (!this.canGoPrev()) return;
+		// Optional: navigate to previous question if service supports it
+		const svc = this.setupTestService as any;
+		if (typeof svc.goToPreviousQuestion === 'function') {
+			svc.goToPreviousQuestion();
+		}
+	}
+
+	pauseTest() {
+		this.alertModal.set({
+			type: 'info',
+			title: 'إيقاف مؤقت',
+			message: 'تم إيقاف الاختبار مؤقتاً. يمكنك استئنافه في أي وقت قبل انتهاء الوقت.',
+			confirmText: 'استئناف',
+			onConfirm: () => this.closeAlertModal()
+		});
 	}
 
 	finishTestProcess() {

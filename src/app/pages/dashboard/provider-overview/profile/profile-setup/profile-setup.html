@@ -133,7 +133,95 @@
             <div class="f-wrap f-full">
               <label class="f-lbl" for="bio">النبذة المهنية <span class="f-req">*</span></label>
               <textarea class="f-inp f-ta" id="bio" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
-              <span class="f-hint">بحد أقصى 400 حرف</span>
+              <div class="bio-actions">
+                <span class="f-hint">بحد أقصى 400 حرف</span>
+                <button type="button" class="ai-suggest-btn" (click)="suggestBio()" [disabled]="isSuggestingBio()">
+                  <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>
+                  {{ isSuggestingBio() ? 'جاري الاقتراح...' : 'اقتراح AI للنبذة' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile completion extras (P-AU-011) -->
+        <div class="form-sec">
+          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-user"></use></svg>الصورة الشخصية والمهارات</div>
+          <div class="f-grid">
+            <div class="f-wrap">
+              <label class="f-lbl">الصورة الشخصية (اختياري)</label>
+              <label class="f-upload-area avatar-upload">
+                <input type="file" accept="image/*" aria-label="رفع الصورة الشخصية" (change)="onAvatarSelected($event)">
+                <span class="avatar-preview" *ngIf="avatarPreview(); else avatarPlaceholder">
+                  <img [src]="avatarPreview()" alt="معاينة الصورة" />
+                </span>
+                <ng-template #avatarPlaceholder>
+                  <svg aria-hidden="true"><use href="#i-upload"></use></svg>
+                  <span class="f-upload-ttl">رفع الصورة الشخصية</span>
+                  <span class="f-upload-sub">JPG PNG</span>
+                </ng-template>
+              </label>
+            </div>
+            <div class="f-wrap f-full">
+              <label class="f-lbl">المهارات والاهتمامات (اختياري)</label>
+              <div class="skills-input-row">
+                <input class="f-inp" type="text" placeholder="أضف مهارة أو اهتمام واضغط Enter" (keydown.enter)="addSkill($event)" [(ngModel)]="skillInput">
+                <button type="button" class="ai-suggest-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()">
+                  <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>
+                  اقتراح AI
+                </button>
+              </div>
+              <div class="f-chips" *ngIf="skillsList().length">
+                @for (skill of skillsList(); track skill) {
+                  <span class="f-chip selected removable">
+                    {{ skill }}
+                    <button type="button" class="chip-remove" (click)="removeSkill(skill)" aria-label="حذف">×</button>
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-sec">
+          <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-link"></use></svg>روابط التواصل والتفضيلات</div>
+          <div class="f-grid">
+            <div class="f-wrap">
+              <label class="f-lbl">رابط Portfolio</label>
+              <input class="f-inp" type="url" formControlName="portfolioUrl" placeholder="https://..." dir="ltr" style="text-align:right">
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">رابط LinkedIn</label>
+              <input class="f-inp" type="url" formControlName="linkedinUrl" placeholder="https://linkedin.com/in/..." dir="ltr" style="text-align:right">
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">الموقع الشخصي</label>
+              <input class="f-inp" type="url" formControlName="websiteUrl" placeholder="https://..." dir="ltr" style="text-align:right">
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">لغة الواجهة المفضلة</label>
+              <select class="f-inp" formControlName="uiLanguage">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">المنطقة الزمنية</label>
+              <select class="f-inp" formControlName="timezone">
+                <option value="Asia/Riyadh">الرياض (GMT+3)</option>
+                <option value="Asia/Dubai">دبي (GMT+4)</option>
+                <option value="Asia/Kuwait">الكويت (GMT+3)</option>
+                <option value="Africa/Cairo">القاهرة (GMT+2)</option>
+                <option value="Asia/Amman">عمّان (GMT+3)</option>
+              </select>
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">قنوات الإشعارات</label>
+              <div class="f-chips">
+                <span class="f-chip" [class.selected]="notifChannels().includes('email')" (click)="toggleNotifChannel('email')">البريد</span>
+                <span class="f-chip" [class.selected]="notifChannels().includes('sms')" (click)="toggleNotifChannel('sms')">الرسائل النصية</span>
+                <span class="f-chip" [class.selected]="notifChannels().includes('push')" (click)="toggleNotifChannel('push')">الإشعارات الفورية</span>
+              </div>
             </div>
           </div>
         </div>
@@ -246,7 +334,7 @@
               }
             </div>
             <div class="f-wrap">
-              <label class="f-lbl">صورة بطاقة الهوية، الوجه الخلفي (اختياري)</label>
+              <label class="f-lbl">صورة بطاقة الهوية، الوجه الخلفي <span class="f-req">*</span></label>
               <label class="f-upload-area">
                 <input type="file" accept="image/*,.pdf" aria-label="رفع الوجه الخلفي للهوية" (change)="onFileSelected($event, 'backId')">
                 <svg aria-hidden="true"><use href="#i-upload"></use></svg>
@@ -260,6 +348,24 @@
                   <span class="f-hint" style="color:#2BD4C7">تم رفع الملف بنجاح</span>
                 } @else if (getUploadState('backId').status === 'error') {
                   <span class="f-hint" style="color:#FF6B6B">تعذر رفع الملف، حاول مرة أخرى</span>
+                }
+              }
+            </div>
+            <div class="f-wrap">
+              <label class="f-lbl">صورة Selfie للتحقق <span class="f-req">*</span></label>
+              <label class="f-upload-area">
+                <input type="file" accept="image/*" capture="user" aria-label="رفع صورة Selfie للتحقق" (change)="onFileSelected($event, 'selfie')">
+                <svg aria-hidden="true"><use href="#i-upload"></use></svg>
+                <span class="f-upload-ttl">{{ uploadedSelfieName() ? 'تم رفع صورة Selfie' : 'رفع صورة Selfie' }}</span>
+                <span class="f-upload-sub">{{ uploadedSelfieName() || 'JPG PNG' }}</span>
+              </label>
+              @if (getUploadState('selfie')) {
+                @if (getUploadState('selfie').status === 'uploading') {
+                  <span class="f-hint" style="color:#5DA0FF">جاري رفع الصورة... {{ getUploadState('selfie').progress }}%</span>
+                } @else if (getUploadState('selfie').status === 'uploaded') {
+                  <span class="f-hint" style="color:#2BD4C7">تم رفع الصورة بنجاح</span>
+                } @else if (getUploadState('selfie').status === 'error') {
+                  <span class="f-hint" style="color:#FF6B6B">تعذر رفع الصورة، حاول مرة أخرى</span>
                 }
               }
             </div>
@@ -539,11 +645,48 @@
                    <p style="color: #6B7699; font-size: 14px;">يرجى الانتظار ولا تغادر هذه الصفحة</p>
                 </div>
             } @else if (setupTestService.result()) {
-                <div class="test-result-box" style="text-align: center; padding: 40px;">
-                    <h3 style="font-size: 24px; margin-bottom: 20px; color: #2BD4C7">اكتمل الاختبار</h3>
-                    <div style="font-size: 40px; font-weight: bold; margin-bottom: 20px;">{{ setupTestService.result()?.score | number:'1.0-1' }}%</div>
-                    <p style="color: #8B95B7; font-size: 16px; margin-bottom: 30px;">تم تحديد مستواك المبدئي بناءً على نتيجة الاختبار. يمكنك الآن الانتقال لاستخدام لوحة التحكم بكامل المميزات.</p>
-                    <button type="button" class="btn-submit-test" (click)="finishTestProcess()">الانتقال للوحة التحكم</button>
+                <div class="test-result-box">
+                    <div class="result-score-ring" [attr.data-score]="setupTestService.result()?.score">
+                      <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="#2BD4C7" stroke-width="8"
+                          stroke-linecap="round"
+                          [style.stroke-dasharray.%]="326"
+                          [style.stroke-dashoffset.%]="326 - (326 * (setupTestService.result()?.score || 0) / 100)"
+                          transform="rotate(-90 60 60)"/>
+                      </svg>
+                      <div class="result-score-val">{{ setupTestService.result()?.score | number:'1.0-1' }}<span>%</span></div>
+                    </div>
+                    <h3 class="result-ttl">اكتمل الاختبار</h3>
+                    <div class="result-level-badge">
+                      <span class="result-level-lbl">المستوى المبدئي</span>
+                      <span class="result-level-val">{{ testLevelLabel() }}</span>
+                    </div>
+                    <div class="result-stats-grid">
+                      <div class="result-stat">
+                        <div class="result-stat-val correct">{{ setupTestService.result()?.correct || 0 }}</div>
+                        <div class="result-stat-lbl">إجابات صحيحة</div>
+                      </div>
+                      <div class="result-stat">
+                        <div class="result-stat-val wrong">{{ (setupTestService.result()?.total || 0) - (setupTestService.result()?.correct || 0) }}</div>
+                        <div class="result-stat-lbl">إجابات خاطئة</div>
+                      </div>
+                      <div class="result-stat">
+                        <div class="result-stat-val">{{ testTimeSpent() }}</div>
+                        <div class="result-stat-lbl">الوقت المستغرق</div>
+                      </div>
+                      <div class="result-stat">
+                        <div class="result-stat-val ai">{{ testAiConfidence() }}%</div>
+                        <div class="result-stat-lbl">ثقة AI</div>
+                      </div>
+                    </div>
+                    @if (testNeedsAdminReview()) {
+                      <div class="result-admin-notice">
+                        <svg width="14" height="14" aria-hidden="true"><use href="#i-warn"></use></svg>
+                        <span>سيقوم فريق الإدارة بمراجعة نتيجتك خلال 24 ساعة لتأكيد المستوى النهائي.</span>
+                      </div>
+                    }
+                    <button type="button" class="btn-submit-test" (click)="finishTestProcess()">إكمال الملف الشخصي</button>
                 </div>
             } @else {
                 <div class="test-timer-bar" role="timer" aria-live="polite">
@@ -555,11 +698,19 @@
                   <span style="font-size:11px;font-weight:700;color:#6B7699">س {{ answeredCount() }}/{{ setupTestService.totalQuestions() }}</span>
                 </div>
 
+                <div class="test-autosave-note">
+                  <svg width="12" height="12" aria-hidden="true"><use href="#i-ai"></use></svg>
+                  <span>تقدمك محفوظ تلقائياً بواسطة وسيط AI</span>
+                </div>
+
                 <div>
                   @if (setupTestService.currentQuestion()) {
                     <div class="test-q">
                       <div class="test-q-meta">
                         <span class="test-q-num">س {{ setupTestService.currentQuestion()?.index! + 1 }}</span>
+                        @if (setupTestService.currentQuestion()?.total) {
+                          <span class="test-q-tag">من {{ setupTestService.currentQuestion()?.total }}</span>
+                        }
                       </div>
                       <div class="test-q-txt">{{ setupTestService.currentQuestion()?.text }}</div>
                       <div class="test-options">
@@ -569,6 +720,14 @@
                             <span>{{ opt }}</span>
                           </label>
                         }
+                      </div>
+                      <div class="test-q-nav">
+                        <button type="button" class="test-nav-btn prev" (click)="prevQuestion()" [disabled]="!canGoPrev()">
+                          <svg width="12" height="12" aria-hidden="true"><use href="#i-arrow-r"></use></svg> سابق
+                        </button>
+                        <button type="button" class="test-nav-btn pause" (click)="pauseTest()">
+                          <svg width="12" height="12" aria-hidden="true"><use href="#i-clock"></use></svg> إيقاف مؤقت
+                        </button>
                       </div>
                     </div>
                   } @else {

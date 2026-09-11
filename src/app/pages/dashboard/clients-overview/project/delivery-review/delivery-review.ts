@@ -24,7 +24,7 @@ export class DeliveryReview implements OnInit {
 	reviewNote = '';
 	approved = signal(false);
 	// P-SK-015 success modal state (real data from approve API response)
-	successData = signal<{ amount: number; providerName: string; stageTitle: string; txnId: string } | null>(null);
+	successData = signal<{ amount: number; providerName: string; stageTitle: string; txnId: string; invoiceId: string } | null>(null);
 	private projectId = '';
 	private stageId = '';
 
@@ -85,6 +85,23 @@ export class DeliveryReview implements OnInit {
 
 	stageFileCount(stage: any): number { return this.latestThread(stage)?.files?.length || 0; }
 
+	// P-SK-015 (company variant): "الموظف المسؤول" — responsible employee from client side.
+	// TODO: backend /client/my-requests/:id/workspace should expose responsibleEmployee / assignedEmployee / managerName.
+	// Currently no such field is returned; fallback to "—" until the API provides it.
+	responsibleEmployee(data: any): string {
+		const v = data?.responsibleEmployee || data?.assignedEmployee || data?.assignedManager
+			|| data?.managerName || data?.projectManager
+			|| data?.responsible?.name || data?.manager?.name
+			|| data?.owner?.name || data?.employeeName;
+		if (!v) {
+			if (typeof console !== 'undefined' && (console as any).warn) {
+				(console as any).warn('[P-SK-015] responsibleEmployee field missing in workspace data — showing "—".');
+			}
+			return '—';
+		}
+		return v;
+	}
+
 	formatNumber(value: number) { return Number(value || 0).toLocaleString('en-US'); }
 
 	approveDelivery() {
@@ -100,7 +117,9 @@ export class DeliveryReview implements OnInit {
 				const providerName = res?.data?.providerName ?? data?.clientName ?? 'مقدم الخدمة';
 				const stageTitle = res?.data?.stageTitle ?? stage.title ?? 'المرحلة الحالية';
 				const txnId = res?.data?.transactionId ?? res?.data?.txnId ?? res?.data?.reference ?? '';
-				this.successData.set({ amount: releasedAmount, providerName, stageTitle, txnId });
+				// Capture invoice id if backend returns it on approval; otherwise empty (openInvoice falls back to invoices list)
+				const invoiceId = res?.data?.invoiceId ?? res?.data?.invoice?.id ?? '';
+				this.successData.set({ amount: releasedAmount, providerName, stageTitle, txnId, invoiceId });
 			},
 			error: event => { this.saving.set(false); this.error.set(event.error?.message || 'تعذر حفظ قرار المراجعة'); }
 		});
@@ -111,12 +130,26 @@ export class DeliveryReview implements OnInit {
 		this.backToProject();
 	}
 
+	// Navigate to the per-stage rating page (P-SK-017 stage mode).
+	goToStageRating() {
+		this.successData.set(null);
+		this.router.navigate(['/client-overview/projects', this.projectId, 'stages', this.stageId, 'rating']);
+	}
+
 	openInvoice() {
-		// Use existing invoice route if available; otherwise safe no-op (button remains but does not invent an endpoint)
+		// Navigate to the invoice detail page if we have a real invoice id (from approve API or workspace data).
+		// Otherwise fall back to the invoices list filtered by the current project so the client still lands on a relevant page.
+		// TODO: backend /client/my-requests/:id/stages/:stageId/review should return invoiceId on approval so we can deep-link to the exact invoice.
+		const sd = this.successData();
 		const data = this.project();
-		if (data?.invoiceId) {
-			this.router.navigate(['/client-overview/finance/invoices', data.invoiceId]);
+		const invoiceId = sd?.invoiceId || data?.invoiceId || '';
+		if (invoiceId) {
+			this.router.navigate(['/client-overview/finance/invoices', invoiceId]);
+			return;
 		}
+		// No invoice id available — go to invoices list with project context as query params (list page can filter/highlight).
+		this.router.navigate(['/client-overview/finance/invoices'],
+			{ queryParams: { projectId: this.projectId || undefined, stageId: this.stageId || undefined } });
 	}
 
 	openConversation(data: any) {

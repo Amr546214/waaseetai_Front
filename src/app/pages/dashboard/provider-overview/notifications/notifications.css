@@ -1,0 +1,184 @@
+/* ============================================================
+   Light Mode Overrides
+   Theme selectors: body.light, .light-theme, .theme-light
+   Design tokens:
+     Background:       #F6F8FC
+     Card background:  #FFFFFF
+     Card border:      #E7EAF1
+     Text primary:     #070D24
+     Text secondary:   #56607D
+     Text muted:       #6B7699
+     Teal:             #0F8A7F
+     Blue:             #1D6FE0
+   ============================================================ */
+
+/* ---- CSS variable overrides ---- */
+:host-context(body.light),
+:host-context(.light-theme),
+:host-context(.theme-light) {
+  --txt: #070D24;
+  --txt-3: #56607D;
+  --crd-bg: #FFFFFF;
+  --sec-bd: #E7EAF1;
+  --inp-bg: #F6F8FC;
+}
+
+/* ---- Skeleton loaders ---- */
+:host-context(body.light) .skeleton-box,
+:host-context(body.light) .skeleton-row,
+:host-context(.light-theme) .skeleton-box,
+:host-context(.light-theme) .skeleton-row,
+:host-context(.theme-light) .skeleton-box,
+:host-context(.theme-light) .skeleton-row {
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  background-size: 200% 100%;
+}
+
+/* ---- Notification row ---- */
+:host-context(body.light) .nt,
+:host-context(.light-theme) .nt,
+:host-context(.theme-light) .nt {
+  background: #FFFFFF;
+  border-color: #E7EAF1;
+}
+
+:host-context(body.light) .nt:hover,
+:host-context(.light-theme) .nt:hover,
+:host-context(.theme-light) .nt:hover {
+  border-color: rgba(15, 138, 127, 0.25);
+}
+
+:host-context(body.light) .nt.unread,
+:host-context(.light-theme) .nt.unread,
+:host-context(.theme-light) .nt.unread {
+  background: #F0FBFA;
+  border-color: #A3ECE5;
+}
+
+/* ---- Notification dot ---- */
+:host-context(body.light) .nt-dot,
+:host-context(.light-theme) .nt-dot,
+:host-context(.theme-light) .nt-dot {
+  background: #0F8A7F;
+}
+
+/* ---- Filter chips ---- */
+:host-context(body.light) .filter-chip,
+:host-context(.light-theme) .filter-chip,
+:host-context(.theme-light) .filter-chip {
+  background: #F6F8FC;
+  border-color: #E7EAF1;
+  color: #56607D;
+}
+
+:host-context(body.light) .filter-chip:hover,
+:host-context(.light-theme) .filter-chip:hover,
+:host-context(.theme-light) .filter-chip:hover {
+  background: #E7EAF1;
+  color: #070D24;
+}
+
+:host-context(body.light) .filter-chip.active,
+:host-context(.light-theme) .filter-chip.active,
+:host-context(.theme-light) .filter-chip.active {
+  background: #E6FDFB;
+  border-color: #0F8A7F;
+  color: #0F8A7F;
+}
+
+/* ---- Filter chip count ---- */
+:host-context(body.light) .fc-count,
+:host-context(.light-theme) .fc-count,
+:host-context(.theme-light) .fc-count {
+  background: #E7EAF1;
+  color: #56607D;
+}
+
+:host-context(body.light) .filter-chip.active .fc-count,
+:host-context(.light-theme) .filter-chip.active .fc-count,
+:host-context(.theme-light) .filter-chip.active .fc-count {
+  background: rgba(15, 138, 127, 0.2);
+  color: inherit;
+}
+
+/* ---- Text color overrides (white -> primary) ---- */
+:host-context(body.light) .text-\[var\(--txt\)\],
+:host-context(.light-theme) .text-\[var\(--txt\)\],
+:host-context(.theme-light) .text-\[var\(--txt\)\] {
+  color: #070D24;
+}
+
+/* ---- Secondary/muted text overrides ---- */
+:host-context(body.light) .text-\[var\(--txt-3\)\],
+:host-context(.light-theme) .text-\[var\(--txt-3\)\],
+:host-context(.theme-light) .text-\[var\(--txt-3\)\] {
+  color: #56607D;
+}
+
+/* ---- Card / panel backgrounds (rgba(255,255,255,.04) gradients -> solid white) ---- */
+:host-context(body.light) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
+:host-context(.light-theme) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
+:host-context(.theme-light) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\] {
+  background: #FFFFFF;
+  border-color: #E7EAF1;
+}
+
+/* ---- Input/button backgrounds (rgba(255,255,255,.04) -> light) ---- */
+:host-context(body.light) .bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
+:host-context(.light-theme) .bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
+:host-context(.theme-light) .bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\] {
+  background: #F6F8FC;
+  border-color: #E7EAF1;
+  color: #56607D;
+}
+
+/* ---- Secondary borders (rgba(255,255,255,.08/.10) -> #E7EAF1) ---- */
+:host-context(body.light) .border-\[var\(--sec-bd\,rgba\(255\,255\,255\,\.10\)\)\],
+:host-context(.light-theme) .border-\[var\(--sec-bd\,rgba\(255\,255\,255\,\.10\)\)\],
+:host-context(.theme-light) .border-\[var\(--sec-bd\,rgba\(255\,255\,255\,\.10\)\)\] {
+  border-color: #E7EAF1;
+}
+
+:host-context(body.light) .border-\[var\(--sec-bd\)\],
+:host-context(.light-theme) .border-\[var\(--sec-bd\)\],
+:host-context(.theme-light) .border-\[var\(--sec-bd\)\] {
+  border-color: #E7EAF1;
+}
+
+/* ---- Hover backgrounds (rgba(255,255,255,.08) -> light) ---- */
+:host-context(body.light) .hover\:bg-\[rgba\(255\,255\,255\,\.08\)\]:hover,
+:host-context(.light-theme) .hover\:bg-\[rgba\(255\,255\,255\,\.08\)\]:hover,
+:host-context(.theme-light) .hover\:bg-\[rgba\(255\,255\,255\,\.08\)\]:hover {
+  background: #E7EAF1;
+}
+
+:host-context(body.light) .hover\:text-\[var\(--txt\)\]:hover,
+:host-context(.light-theme) .hover\:text-\[var\(--txt\)\]:hover,
+:host-context(.theme-light) .hover\:text-\[var\(--txt\)\]:hover {
+  color: #070D24;
+}
+
+/* ---- Action / link text (teal #2BD4C7 -> #0F8A7F) ---- */
+:host-context(body.light) .text-\[\#2BD4C7\],
+:host-context(.light-theme) .text-\[\#2BD4C7\],
+:host-context(.theme-light) .text-\[\#2BD4C7\] {
+  color: #0F8A7F;
+}
+
+/* ---- Toast panel ---- */
+:host-context(body.light) .backdrop-blur-md,
+:host-context(.light-theme) .backdrop-blur-md,
+:host-context(.theme-light) .backdrop-blur-md {
+  background: #FFFFFF;
+  border-color: #E7EAF1;
+  box-shadow: 0 8px 32px rgba(7, 13, 36, 0.08);
+}
+
+/* ---- Empty-state icon container ---- */
+:host-context(body.light) .bg-\[rgba\(43\,212\,199\,\.08\)\],
+:host-context(.light-theme) .bg-\[rgba\(43\,212\,199\,\.08\)\],
+:host-context(.theme-light) .bg-\[rgba\(43\,212\,199\,\.08\)\] {
+  background: rgba(15, 138, 127, 0.08);
+  border-color: rgba(15, 138, 127, 0.18);
+  color: #0F8A7F;
+}

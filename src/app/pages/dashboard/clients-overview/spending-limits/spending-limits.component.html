@@ -1,0 +1,79 @@
+<div class="sl-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">نظام العقوبات وحدود الإنفاق</div>
+			<div class="page-sub">إدارة حدود الإنفاق والسياسات والعقوبات</div>
+		</div>
+	</div>
+
+	<!-- Tabs -->
+	<div class="sl-tabs" role="tablist">
+		@for (tab of tabs; track tab.id) {
+			<button type="button" class="sl-tab" [class.active]="activeTab === tab.id" (click)="switchTab(tab.id)" role="tab">
+				{{ tab.label }}
+			</button>
+		}
+	</div>
+
+	<!-- Limits Tab -->
+	@if (activeTab === 'limits') {
+		<div class="limits-list">
+			@for (lim of limits; track lim.id) {
+				<div class="limit-card">
+					<div class="limit-hd">
+						<div class="limit-cat">{{ lim.category }}</div>
+						<span class="limit-period">{{ lim.period }}</span>
+					</div>
+					<div class="limit-bar-wrap">
+						<div class="limit-bar">
+							<div class="limit-fill" [style.width.%]="percentSpent(lim)"
+								[class.warn]="percentSpent(lim) >= 80"
+								[class.danger]="percentSpent(lim) >= 95"></div>
+						</div>
+						<div class="limit-meta">
+							<span class="limit-spent">{{ lim.spent.toLocaleString() }} ريال</span>
+							<span class="limit-total">من {{ lim.limit.toLocaleString() }} ريال</span>
+						</div>
+					</div>
+					<div class="limit-pct" [class.warn]="percentSpent(lim) >= 80" [class.danger]="percentSpent(lim) >= 95">
+						{{ percentSpent(lim) }}% مستهلك
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	<!-- Penalties Tab -->
+	@if (activeTab === 'penalties') {
+		<div class="pen-list">
+			@for (pen of penalties; track pen.id) {
+				<div class="pen-card">
+					<div class="pen-sev" [ngClass]="'sev-' + pen.severity">
+						{{ severityLabel(pen.severity) }}
+					</div>
+					<div class="pen-body">
+						<div class="pen-title">{{ pen.title }}</div>
+						<div class="pen-desc">{{ pen.desc }}</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	<!-- Policies Tab -->
+	@if (activeTab === 'policies') {
+		<div class="pol-list">
+			@for (pol of policies; track pol.title) {
+				<div class="pol-card">
+					<div class="pol-ico">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+					</div>
+					<div>
+						<div class="pol-title">{{ pol.title }}</div>
+						<div class="pol-desc">{{ pol.desc }}</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+</div>

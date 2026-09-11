@@ -219,3 +219,17 @@
 		grid-template-columns: 1fr 1fr;
 	}
 }
+
+.state-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px}
+.skeleton-row{border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skel-pulse 1.5s infinite}
+.skeleton-box{border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skel-pulse 1.5s infinite}
+@keyframes skel-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.inner-foot{margin-top:20px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#6B7699;border-top:1px solid rgba(255,255,255,.05)}
+.inner-foot-links{display:flex;gap:12px}
+.inner-foot-links a{color:#6B7699;text-decoration:none;cursor:pointer}
+.inner-foot-links a:hover{color:#2BD4C7}
+
+:host-context(body.light) .state-card{border-color:rgba(0,0,0,.08)}
+:host-context(body.light) .inner-foot{border-color:rgba(0,0,0,.06);color:#6B7699}
+:host-context(body.light) .inner-foot-links a{color:#6B7699}

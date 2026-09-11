@@ -1,0 +1,91 @@
+<div class="neg-page" dir="rtl">
+	<div class="page-hd">
+		<div class="page-ttl-wrap">
+			<div class="page-ttl">تفاوض طلب خدمة</div>
+			<div class="page-sub">{{ request.id }} · {{ request.title }}</div>
+		</div>
+		<a routerLink="/provider-overview/business-models/customer-requests" class="btn-back">رجوع للطلبات</a>
+	</div>
+
+	<div class="neg-layout">
+		<div class="neg-main">
+			<!-- Request Info -->
+			<div class="req-info-card">
+				<div class="req-info-hd">
+					<div class="req-info-title">{{ request.title }}</div>
+					<div class="req-info-client">العميل: {{ request.client }}</div>
+				</div>
+				<div class="req-info-grid">
+					<div class="req-info-item">
+						<div class="req-info-lbl">الميزانية الأصلية</div>
+						<div class="req-info-val">{{ request.originalBudget.toLocaleString() }} ريال</div>
+					</div>
+					<div class="req-info-item">
+						<div class="req-info-lbl">المدة الأصلية</div>
+						<div class="req-info-val">{{ request.originalDays }} يوم</div>
+					</div>
+					<div class="req-info-item highlight">
+						<div class="req-info-lbl">العرض الحالي</div>
+						<div class="req-info-val">{{ request.currentOffer.toLocaleString() }} ريال</div>
+					</div>
+					<div class="req-info-item highlight">
+						<div class="req-info-lbl">المدة الحالية</div>
+						<div class="req-info-val">{{ request.currentDays }} يوم</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Chat -->
+			<div class="chat-card">
+				<div class="chat-hd">سجل التفاوض</div>
+				<div class="chat-list">
+					@for (msg of messages; track msg.id) {
+						<div class="chat-msg" [class.from-client]="msg.from === 'client'" [class.from-provider]="msg.from === 'provider'">
+							<div class="chat-bubble">
+								<div class="chat-text">{{ msg.text }}</div>
+								<div class="chat-time">{{ msg.time }}</div>
+							</div>
+						</div>
+					}
+				</div>
+				<form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="chat-input-row">
+					<input type="text" class="chat-input" formControlName="message" placeholder="اكتب رسالة..." />
+					<button type="submit" class="chat-send" [disabled]="messageForm.invalid">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<aside class="neg-side">
+			<!-- Counter Offer -->
+			<div class="counter-card">
+				<div class="counter-title">إرسال عرض مضاد</div>
+				<form [formGroup]="counterForm" (ngSubmit)="sendCounter()" class="counter-form">
+					<div class="field-grp">
+						<label class="field-lbl">المبلغ (ريال)</label>
+						<input type="number" class="field-in" formControlName="amount" min="1000" />
+					</div>
+					<div class="field-grp">
+						<label class="field-lbl">المدة (أيام)</label>
+						<input type="number" class="field-in" formControlName="days" min="1" />
+					</div>
+					<div class="field-grp">
+						<label class="field-lbl">ملاحظات</label>
+						<textarea class="field-in field-area" formControlName="notes" rows="3" placeholder="اشرح عرضك"></textarea>
+					</div>
+					<button type="submit" class="btn-primary" [disabled]="counterForm.invalid">إرسال العرض</button>
+				</form>
+			</div>
+
+			<!-- Actions -->
+			<div class="action-card">
+				<button type="button" class="btn-accept" (click)="acceptOffer()">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+					قبول العرض الحالي
+				</button>
+				<a routerLink="/provider-overview/business-models/customer-requests" class="btn-decline">رفض الطلب</a>
+			</div>
+		</aside>
+	</div>
+</div>

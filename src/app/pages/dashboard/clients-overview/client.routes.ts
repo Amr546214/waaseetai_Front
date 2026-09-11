@@ -56,6 +56,16 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		data: { title: "Help" }
 	},
 	{
+		path: 'help/tickets/new',
+		loadComponent: () => import('./help/new-ticket/new-ticket').then(m => m.NewTicketComponent),
+		data: { title: "فتح تذكرة دعم" }
+	},
+	{
+		path: 'help/tickets/:id',
+		loadComponent: () => import('./help/ticket-detail/ticket-detail').then(m => m.TicketDetailComponent),
+		data: { title: "تفاصيل التذكرة" }
+	},
+	{
 		path: 'projects/review',
 		redirectTo: 'projects/active',
 		pathMatch: 'full'
@@ -79,6 +89,21 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		path: 'projects/:id',
 		loadComponent: () => import('./project/project-details/project-details').then(m => m.ProjectDetails),
 		data: { title: "Project Details" }
+	},
+	{
+		path: 'projects/:id/final-approval',
+		loadComponent: () => import('./project/final-approval/final-approval').then(m => m.FinalApproval),
+		data: { title: "الاعتماد النهائي وإغلاق المشروع" }
+	},
+	{
+		path: 'projects/:id/rating',
+		loadComponent: () => import('./project/rating-page/rating-page').then(m => m.RatingPage),
+		data: { title: "تقييم مقدم الخدمة" }
+	},
+	{
+		path: 'projects/:id/stages/:stageId/rating',
+		loadComponent: () => import('./project/rating-page/rating-page').then(m => m.RatingPage),
+		data: { title: "تقييم المرحلة" }
 	},
 	{
 		path: 'projects/:id/delivery-review/:stageId',
@@ -117,6 +142,27 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		data: { title: "Invoice Details" }
 	},
 
+	// team management
+	{
+		path: 'team',
+		loadComponent: () => import('./team/team-management.component').then(m => m.TeamManagementComponent),
+		data: { title: "إدارة الفريق" }
+	},
+	{
+		path: 'spending-limits',
+		loadComponent: () => import('./spending-limits/spending-limits.component').then(m => m.SpendingLimitsComponent),
+		data: { title: "نظام العقوبات وحدود الإنفاق" }
+	},
+	{
+		path: 'project-modifications',
+		loadComponent: () => import('./project-modifications/project-modifications.component').then(m => m.ProjectModificationsComponent),
+		data: { title: "طلبات تعديل المشاريع" }
+	},
+	{
+		path: 'request-approvals',
+		loadComponent: () => import('./request-approvals/request-approvals.component').then(m => m.RequestApprovalsComponent),
+		data: { title: "اعتماد الطلبات" }
+	},
 	// disputes
 	{
 		path: 'disputes',
