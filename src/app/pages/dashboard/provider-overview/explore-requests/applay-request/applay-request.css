@@ -7,3 +7,12 @@
 .ai-disc-lbl{font-size:10px;font-weight:800;color:#A56BE0;letter-spacing:.06em;margin-bottom:2px}
 .ai-disc-txt{font-size:12.5px;color:#A8B2D1}
 .ai-disc-badge{display:inline-flex;background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.28);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:#A56BE0;margin-inline-end:4px}
+
+/* ===== Company Team Assignment (P-CO-RQ-002) ===== */
+.co-assign-card:hover { border-color: rgba(43, 212, 199, .18) !important; }
+.co-assign-selected { border-color: rgba(43, 212, 199, .35) !important; background: linear-gradient(135deg, rgba(43, 212, 199, .06), rgba(255, 255, 255, .01)) !important; }
+
+:host-context(body.light) .co-assign-card { background: #fff !important; border-color: #E7EAF1 !important; }
+:host-context(body.light) .co-assign-card:hover { border-color: rgba(43, 212, 199, .25) !important; }
+:host-context(body.light-theme) .co-assign-card { background: #fff !important; border-color: #E7EAF1 !important; }
+:host-context(body.light-theme) .co-assign-card:hover { border-color: rgba(43, 212, 199, .25) !important; }

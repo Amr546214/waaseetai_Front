@@ -1,63 +1,118 @@
-<div class="oi-page" dir="rtl">
-	<div class="page-hd">
-		<div class="page-ttl-wrap">
-			<div class="page-ttl">الفواتير الرسمية</div>
-			<div class="page-sub">الفواتير الضريبية الرسمية للشركة</div>
-		</div>
-		<button type="button" class="btn-primary">
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-			إنشاء فاتورة
-		</button>
-	</div>
+<div class="co-inv-page" dir="rtl">
+	<nav class="bc">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		<span>الفواتير الرسمية</span>
+	</nav>
 
-	<div class="oi-stats">
-		<div class="stat-box">
-			<div class="stat-val">{{ totalAmount.toLocaleString() }}</div>
-			<div class="stat-lbl">إجمالي المدفوع (ريال)</div>
-		</div>
-		<div class="stat-box">
-			<div class="stat-val">{{ pendingAmount.toLocaleString() }}</div>
-			<div class="stat-lbl">المعلق (ريال)</div>
-		</div>
-		<div class="stat-box">
-			<div class="stat-val">{{ invoices.length }}</div>
-			<div class="stat-lbl">إجمالي الفواتير</div>
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">فواتير الشركة</div>
+			<div class="pg-sub">الفواتير الرسمية المعتمدة للشركة المكتملة</div>
 		</div>
 	</div>
 
-	<div class="filter-row">
+	<!-- AI Disclosure -->
+	<div class="ai-disc">
+		<div class="ai-disc-ico">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+		</div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI، التحقق من الفواتير</div>
+			<p class="ai-disc-txt">AI يتحقق من اتساق بيانات الفاتورة الرسمية ويرصد أي تفاوت في المبالغ <span class="ai-disc-badge">دقة 95%</span> القرار النهائي لك</p>
+		</div>
+	</div>
+
+	<!-- KPIs -->
+	<div class="inv-kpis">
+		<div class="inv-kpi">
+			<div class="ic inv-ic-blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+			<div class="v">{{ kpis().total }}</div>
+			<div class="l">إجمالي الفواتير</div>
+		</div>
+		<div class="inv-kpi">
+			<div class="ic inv-ic-green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></div>
+			<div class="v">{{ kpis().paid }}</div>
+			<div class="l">مدفوعة</div>
+		</div>
+		<div class="inv-kpi">
+			<div class="ic inv-ic-amber"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+			<div class="v">{{ kpis().due }}</div>
+			<div class="l">بانتظار الدفع</div>
+		</div>
+	</div>
+
+	<!-- Tabs -->
+	<div class="inv-tabs" role="tablist">
 		@for (f of filters; track f.id) {
-			<button type="button" class="filter-chip" [class.active]="activeFilter === f.id" (click)="setFilter(f.id)">
-				{{ f.label }}
-				<span class="fc-count">{{ f.count }}</span>
-			</button>
+		<button type="button" class="inv-tab" [class.active]="activeFilter() === f.id" (click)="setFilter(f.id)">{{ f.label }}<span class="c">{{ f.count }}</span></button>
 		}
 	</div>
 
-	<div class="inv-tbl-wrap">
-		<table class="inv-tbl">
-			<thead>
-				<tr>
-					<th>رقم الفاتورة</th>
-					<th>العميل</th>
-					<th>الرقم الضريبي</th>
-					<th>المبلغ</th>
-					<th>التاريخ</th>
-					<th>الحالة</th>
-				</tr>
-			</thead>
-			<tbody>
-				@for (inv of filteredInvoices; track inv.id) {
+	<!-- Section Title -->
+	<div class="sec-ttl">سجلّ الفواتير <span class="cnt">· مرتبة بالأحدث</span></div>
+
+	<!-- Table -->
+	<div class="ord-tbl-wrap">
+		<div style="overflow-x:auto">
+			<table class="tx-tbl">
+				<thead>
 					<tr>
-						<td class="inv-id">{{ inv.id }}</td>
-						<td>{{ inv.client }}</td>
-						<td class="inv-tax">{{ inv.taxNumber }}</td>
-						<td class="inv-amount">{{ inv.amount.toLocaleString() }} ريال</td>
-						<td>{{ inv.date }}</td>
-						<td><span class="inv-status" [ngClass]="'st-' + inv.status">{{ statusLabel(inv.status) }}</span></td>
+						<th>الفاتورة</th>
+						<th>العميل</th>
+						<th>التاريخ</th>
+						<th>المبلغ</th>
+						<th>الحالة</th>
+						<th></th>
 					</tr>
-				}
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					@for (inv of filteredInvoices(); track inv.id) {
+					<tr [attr.data-st]="inv.status" style="cursor:pointer">
+						<td>
+							<div style="display:flex;align-items:center;gap:11px">
+								<span class="tx-ico" [class.tx-ico-paid]="inv.status === 'paid'" [class.tx-ico-due]="inv.status === 'due'">
+									<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+								</span>
+								<div>
+									<div class="inv-num">{{ inv.id }}</div>
+									<div class="inv-proj">{{ inv.project }}</div>
+								</div>
+							</div>
+						</td>
+						<td class="inv-client">{{ inv.client }}</td>
+						<td class="inv-date">{{ inv.date }}</td>
+						<td>
+							<span class="inv-amt">{{ inv.amount.toLocaleString() }} ريال</span>
+							<div class="inv-amt-sub">مستند مالي رسمي</div>
+						</td>
+						<td>
+							<span class="tx-st" [class.tx-done]="inv.status === 'paid'" [class.tx-hold]="inv.status === 'due'">{{ statusLabel(inv.status) }}</span>
+						</td>
+						<td>
+							<button type="button" class="inv-dl" (click)="showToast('تنزيل الفاتورة PDF')">
+								<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 11l5 5 5-5M5 20h14"/></svg>
+							</button>
+						</td>
+					</tr>
+					}
+					@if (filteredInvoices().length === 0) {
+					<tr>
+						<td colspan="6">
+							<div class="state-empty">
+								<div class="state-empty-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+								<div class="state-empty-title">لا فواتير بهذا الفلتر</div>
+								<p>جرّب فلتراً آخر أو تحقق لاحقاً</p>
+							</div>
+						</td>
+					</tr>
+					}
+				</tbody>
+			</table>
+		</div>
 	</div>
 </div>
+
+@if (toastMsg()) {
+<div class="toast">{{ toastMsg() }}</div>
+}

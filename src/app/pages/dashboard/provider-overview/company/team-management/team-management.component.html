@@ -1,106 +1,123 @@
-<div class="tm-page" dir="rtl">
-	<div class="page-hd">
-		<div class="page-ttl-wrap">
-			<div class="page-ttl">إدارة الفريق</div>
-			<div class="page-sub">إدارة الموظفين والأدوار والمجموعات</div>
+<div class="co-tm-page" dir="rtl">
+	<nav class="bc">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		<span>إدارة الفريق</span>
+	</nav>
+
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">إدارة الفريق</div>
+			<div class="pg-sub">الخليج للتقنية · 10 مقدم خدمة (8 نشطون) · 3 موظفين</div>
 		</div>
-		<button type="button" class="btn-primary">
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-			إضافة موظف
+		<button type="button" class="invite-btn">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+			إضافة مقدم خدمة
 		</button>
 	</div>
 
-	<div class="tm-stats">
-		@for (s of stats; track s.label) {
-			<div class="stat-card">
-				<div class="stat-val" [ngClass]="'clr-' + s.color">{{ s.value }}</div>
-				<div class="stat-lbl">{{ s.label }}</div>
-			</div>
+	<!-- KPIs -->
+	<div class="kpi-row">
+		<div class="kpi-c"><div class="kpi-v" style="color:var(--teal-txt,#2BD4C7)">8</div><div class="kpi-l">مقدمو خدمة نشطون</div></div>
+		<div class="kpi-c"><div class="kpi-v" style="color:#A56BE0">3</div><div class="kpi-l">موظفون</div></div>
+		<div class="kpi-c"><div class="kpi-v" style="color:#FFB400">2</div><div class="kpi-l">دعوة معلقة</div></div>
+		<div class="kpi-c"><div class="kpi-v" style="color:#5DA0FF">14</div><div class="kpi-l">مشروع نشط مُسند</div></div>
+		<div class="kpi-c"><div class="kpi-v" style="color:#2ECC8A">87,400</div><div class="kpi-l">إيرادات هذا الشهر (ريال)</div></div>
+	</div>
+
+	<!-- Notice -->
+	<div class="notice">
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+		<p>مقدم الخدمة التابع لا يضيف مهارات بنفسه — الشركة فقط تسند التخصصات. مقدم الخدمة ينفذ الأعمال تحت مظلة الشركة وليس باسمه المستقل.</p>
+	</div>
+
+	<!-- Tabs -->
+	<div class="ord-tabs" role="tablist">
+		@for (tab of tabs; track tab.id) {
+		<button type="button" class="ord-tab" [class.active]="activeTab() === tab.id" (click)="setTab(tab.id)">{{ tab.label }} <span>{{ tab.count }}</span></button>
 		}
 	</div>
 
-	<div class="tabs-row">
-		@for (t of tabs; track t.id) {
-			<button type="button" class="tab-btn" [class.active]="activeTab === t.id" (click)="setTab(t.id)">
-				{{ t.label }}
-			</button>
-		}
-	</div>
-
-	@if (activeTab === 'employees') {
-		<div class="emp-grid">
-			@for (emp of employees; track emp.id) {
-				<div class="emp-card">
-					<div class="emp-top">
-						<div class="emp-avatar" [ngClass]="'av-' + emp.status">{{ emp.avatar }}</div>
-						<div class="emp-info">
-							<div class="emp-name">{{ emp.name }}</div>
-							<div class="emp-role">{{ emp.role }}</div>
-						</div>
-						<span class="emp-status" [ngClass]="'st-' + emp.status">{{ statusLabel(emp.status) }}</span>
-					</div>
-					<div class="emp-actions">
-						<button type="button" class="btn-action btn-edit" (click)="editEmployee(emp)">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-							تعديل
-						</button>
-						<button type="button" class="btn-action btn-view">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-							عرض
-						</button>
-					</div>
-				</div>
+	<!-- Filter Rail -->
+	<div class="filter-rail" role="search">
+		<div class="fr-period-lbl">التخصص</div>
+		<div class="date-segs">
+			@for (spec of specOptions; track spec.id) {
+			<button class="ds" [class.active]="specFilter() === spec.id" type="button" (click)="setSpec(spec.id)">{{ spec.label }}</button>
 			}
 		</div>
-	}
+		<div class="fr-vd"></div>
+		<div class="fr-period-lbl">التوافر</div>
+		<div class="date-segs">
+			@for (av of availOptions; track av.id) {
+			<button class="ds" [class.active]="availFilter() === av.id" type="button" (click)="setAvail(av.id)">{{ av.label }}</button>
+			}
+		</div>
+		<div class="fr-spacer"></div>
+		<div class="fr-search">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+			<input type="search" placeholder="ابحث بالاسم أو التخصص..." [value]="searchQuery()" (input)="onSearch($event)" />
+		</div>
+	</div>
 
-	@if (activeTab === 'roles') {
-		<div class="role-grid">
-			@for (role of roles; track role.id) {
-				<div class="role-card">
-					<div class="role-top">
-						<div class="role-name">{{ role.name }}</div>
-						<button type="button" class="btn-action btn-edit" (click)="editRole(role)">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-							تعديل
-						</button>
-					</div>
-					<div class="role-perms">
-						<div class="perms-ttl">الصلاحيات:</div>
-						@for (perm of role.permissions; track perm) {
-							<div class="perm-item">
-								<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-								{{ perm }}
-							</div>
+	<!-- Member Cards Grid -->
+	<div class="mem-grid">
+		@for (m of filteredMembers(); track m.id) {
+		<div class="mem-card">
+			<div class="mem-card-top">
+				<div class="mem-av" [style.background]="m.avatarBg">{{ m.initials }}</div>
+				<div style="flex:1;min-width:0">
+					<div class="mem-name">{{ m.name }}</div>
+					<div class="mem-spec">{{ m.spec }}</div>
+					<span class="mem-level" [style.color]="m.levelColor" [style.borderColor]="m.levelColor + '33'" [style.background]="m.levelColor + '12'">{{ m.level }}</span>
+				</div>
+				<div class="mem-status">
+					<span class="pill" [class.pill-warn]="m.avail === 'busy'" [class.pill-ok]="m.avail === 'free'">{{ m.availLabel }}</span>
+				</div>
+			</div>
+			@if (m.type === 'provider') {
+			<div class="mem-stats">
+				<div class="mem-stat"><div class="mem-stat-v">{{ m.projects }}</div><div class="mem-stat-l">مشروع</div></div>
+				<div class="mem-stat"><div class="mem-stat-v" style="color:#2ECC8A">{{ m.revenue.toLocaleString() }}</div><div class="mem-stat-l">ريال</div></div>
+				<div class="mem-stat"><div class="mem-stat-v" style="color:#FFB400">{{ m.activeProjects }}</div><div class="mem-stat-l">نشط</div></div>
+				<div class="mem-stat"><div class="mem-stat-v" style="color:var(--teal-txt,#2BD4C7)">{{ m.rating }}</div><div class="mem-stat-l">تقييم</div></div>
+			</div>
+			<div class="mem-share">
+				<div class="mem-share-hd"><span>حصة الإيرادات</span><span style="color:var(--teal-txt,#2BD4C7)">{{ m.revenueShare }}%</span></div>
+				<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" [style.width.%]="m.revenueShare" [style.background]="m.avatarBg"></div></div></div>
+			</div>
+			<div class="mem-tags">
+				@for (t of m.tags; track t) {
+				<span class="mem-tag">{{ t }}</span>
+				}
+			</div>
+			}
+			<div class="assign-sec">
+				<div class="assign-bar">
+					<span class="assign-bar-lbl">الأدوار</span>
+					<div class="assign-cur">
+						@for (r of m.roles; track r) {
+						<span class="achip on">{{ r }}</span>
 						}
 					</div>
 				</div>
-			}
+			</div>
+			<div class="mem-actions">
+				<button type="button" class="mem-btn mem-btn-ghost">ملف المقدم</button>
+				@if (m.type === 'provider') {
+				<button type="button" class="mem-btn mem-btn-primary">إسناد طلب</button>
+				}
+			</div>
 		</div>
-	}
-
-	@if (activeTab === 'groups') {
-		<div class="grp-grid">
-			@for (grp of groups; track grp.id) {
-				<div class="grp-card">
-					<div class="grp-top">
-						<div class="grp-ico">
-							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-						</div>
-						<div class="grp-info">
-							<div class="grp-name">{{ grp.name }}</div>
-							<div class="grp-desc">{{ grp.description }}</div>
-						</div>
-					</div>
-					<div class="grp-bottom">
-						<span class="grp-members">{{ grp.members }} أعضاء</span>
-						<button type="button" class="btn-action btn-edit" (click)="editGroup(grp)">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-							تعديل
-						</button>
-					</div>
-				</div>
-			}
+		}
+		@if (filteredMembers().length === 0) {
+		<div class="empty-state">
+			<div class="empty-icon">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+			</div>
+			<h3>لا يوجد أعضاء بهذا الفلتر</h3>
+			<p>جرّب تعديل الفلاتر أو ابحث باسم آخر</p>
 		</div>
-	}
+		}
+	</div>
 </div>

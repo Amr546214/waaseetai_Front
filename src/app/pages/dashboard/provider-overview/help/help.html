@@ -2,8 +2,8 @@
 
   <!-- Header -->
   <div class="mb-4">
-    <h1 class="text-xl font-black text-[var(--txt)] mb-1">المساعدة والدعم</h1>
-    <p class="text-xs text-[var(--txt-3)]">اسأل المساعد الذكي أولًا، وإن لزم يتولّى فريق الدعم البشري حالتك</p>
+    <h1 class="text-xl font-black text-[var(--txt)] mb-1">{{ isCompanyMode() ? 'مركز مساعدة الشركة' : 'المساعدة والدعم' }}</h1>
+    <p class="text-xs text-[var(--txt-3)]">{{ isCompanyMode() ? 'أدلة وإجابات تخص إدارة شركتك على وسيط AI' : 'اسأل المساعد الذكي أولًا، وإن لزم يتولّى فريق الدعم البشري حالتك' }}</p>
   </div>
 
   <!-- AI Disclosure -->

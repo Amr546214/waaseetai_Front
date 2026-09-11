@@ -3,6 +3,8 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 interface FinancialEvent {
   id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED';
@@ -13,6 +15,13 @@ interface FinancialEvent {
 @Component({ selector: 'app-transactions', standalone: true, imports: [CommonModule, RouterModule], templateUrl: './transactions.html' })
 export class Transactions implements OnInit {
   private http = inject(HttpClient);
+  private authStore = inject(AuthStore);
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
   currentPeriod = signal('month'); currentType = signal('all'); searchQuery = signal('');
   loading = signal(true); error = signal(''); showToast = signal(false);
   summary = signal<any>(null); transactions = signal<FinancialEvent[]>([]);

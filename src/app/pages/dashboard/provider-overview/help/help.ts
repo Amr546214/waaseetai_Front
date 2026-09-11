@@ -1,7 +1,9 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-provider-help',
@@ -70,6 +72,13 @@ import { RouterModule } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Help {
+  private authStore = inject(AuthStore);
+
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
   isLoading = signal<boolean>(false);
   hasError = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
