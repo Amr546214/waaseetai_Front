@@ -1,0 +1,62 @@
+/* ================== LIGHT THEME OVERRIDES ================== */
+/* AI Suggestion Banner — design light: rgba(123,47,190,.06), border rgba(123,47,190,.20) */
+:host-context(body.light-theme) .ai-sug-banner,
+:host-context(body.theme-light) .ai-sug-banner,
+:host-context(.light-theme) .ai-sug-banner,
+:host-context(.theme-light) .ai-sug-banner {
+  background: rgba(123, 47, 190, 0.06) !important;
+  border-color: rgba(123, 47, 190, 0.20) !important;
+  box-shadow: 0 4px 20px rgba(123, 47, 190, 0.06) !important;
+}
+/* AI banner icon */
+:host-context(body.light-theme) .ai-sug-banner > div:first-child,
+:host-context(body.theme-light) .ai-sug-banner > div:first-child,
+:host-context(.light-theme) .ai-sug-banner > div:first-child,
+:host-context(.theme-light) .ai-sug-banner > div:first-child {
+  background: rgba(123, 47, 190, 0.10) !important;
+  border-color: rgba(123, 47, 190, 0.22) !important;
+}
+/* AI banner confidence badge */
+:host-context(body.light-theme) .ai-sug-banner span[style*="rgba(123,47,190"],
+:host-context(body.theme-light) .ai-sug-banner span[style*="rgba(123,47,190"],
+:host-context(.light-theme) .ai-sug-banner span[style*="rgba(123,47,190"],
+:host-context(.theme-light) .ai-sug-banner span[style*="rgba(123,47,190"] {
+  background: rgba(123, 47, 190, 0.10) !important;
+  border-color: rgba(123, 47, 190, 0.22) !important;
+}
+/* AI banner apply button */
+:host-context(body.light-theme) .ai-sug-banner button[style*="rgba(123"],
+:host-context(body.theme-light) .ai-sug-banner button[style*="rgba(123"],
+:host-context(.light-theme) .ai-sug-banner button[style*="rgba(123"],
+:host-context(.theme-light) .ai-sug-banner button[style*="rgba(123"] {
+  background: rgba(123, 47, 190, 0.10) !important;
+  border-color: rgba(123, 47, 190, 0.22) !important;
+}
+/* AI banner close button */
+:host-context(body.light-theme) .ai-sug-banner button:last-child,
+:host-context(body.theme-light) .ai-sug-banner button:last-child,
+:host-context(.light-theme) .ai-sug-banner button:last-child,
+:host-context(.theme-light) .ai-sug-banner button:last-child {
+  color: #94A3B8 !important;
+}
+/* AI Disclosure Note — design light: lighter bg, border, text */
+:host-context(body.light-theme) .ai-disc-note,
+:host-context(body.theme-light) .ai-disc-note,
+:host-context(.light-theme) .ai-disc-note,
+:host-context(.theme-light) .ai-disc-note {
+  background: rgba(123, 47, 190, 0.05) !important;
+  border-color: rgba(123, 47, 190, 0.18) !important;
+}
+:host-context(body.light-theme) .ai-disc-note strong,
+:host-context(body.theme-light) .ai-disc-note strong,
+:host-context(.light-theme) .ai-disc-note strong,
+:host-context(.theme-light) .ai-disc-note strong {
+  color: #6B27A5 !important;
+}
+/* Specialty section title */
+:host-context(body.light-theme) .spec-section-title,
+:host-context(body.theme-light) .spec-section-title,
+:host-context(.light-theme) .spec-section-title,
+:host-context(.theme-light) .spec-section-title {
+  color: #64748B !important;
+}

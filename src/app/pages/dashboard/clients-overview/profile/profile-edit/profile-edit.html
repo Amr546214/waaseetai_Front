@@ -160,7 +160,8 @@
 
 		<!-- Client Form -->
 		<form *ngIf="isClient" [formGroup]="clientForm" (ngSubmit)="saveProfile()" class="flex flex-col gap-6">
-			<!-- Company Info -->
+			<!-- Company Info (only for COMPANY accounts) -->
+			@if (isCompanyMode()) {
 			<div
 				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl grid grid-cols-1 md:grid-cols-2 gap-6">
 				<div class="flex flex-col gap-2">
@@ -193,6 +194,7 @@
 						placeholder="https://example.com">
 				</div>
 			</div>
+			}
 
 			<!-- Bio -->
 			<div
@@ -205,10 +207,159 @@
 				</div>
 			</div>
 
+			<!-- Interests & Skills -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<div class="flex items-start gap-4 mb-4">
+					<div
+						class="flex-shrink-0 w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+							<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+							<line x1="7" y1="7" x2="7.01" y2="7" />
+						</svg>
+					</div>
+					<div class="flex-grow">
+						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الاهتمامات والمهارات</h3>
+						<p class="text-sm text-slate-500 dark:text-slate-400">أضف اهتماماتك ومهاراتك لتظهر في ملفك الشخصي</p>
+					</div>
+				</div>
+				<div class="flex flex-wrap gap-2 mb-4">
+					@for (tag of interests(); track tag) {
+					<div
+						class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-lg text-sm font-bold text-blue-700 dark:text-blue-400">
+						{{ tag }}
+						<button type="button" (click)="removeInterest(tag)" class="hover:text-red-500 transition-colors">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5">
+								<line x1="18" y1="6" x2="6" y2="18" />
+								<line x1="6" y1="6" x2="18" y2="18" />
+							</svg>
+						</button>
+					</div>
+					}
+				</div>
+				<div class="flex items-center gap-3">
+					<input #interestInput (keydown.enter)="addInterest(interestInput); $event.preventDefault()" type="text"
+						class="flex-grow bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+						placeholder="أضف اهتمام جديد">
+					<button type="button" (click)="addInterest(interestInput)"
+						class="px-5 py-2.5 bg-slate-900 dark:bg-cyan-500/10 hover:bg-slate-800 text-white dark:text-cyan-400 text-sm font-bold rounded-xl border border-cyan-500/30">إضافة</button>
+				</div>
+			</div>
+
+			<!-- Personal Links -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<div class="flex items-start gap-4 mb-4">
+					<div
+						class="flex-shrink-0 w-11 h-11 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+							<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+							<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+						</svg>
+					</div>
+					<div class="flex-grow">
+						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الروابط الشخصية</h3>
+						<p class="text-sm text-slate-500 dark:text-slate-400">أضف روابط أعمالك وحساباتك المهنية</p>
+					</div>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">موقع Portfolio (اختياري)</label>
+						<input formControlName="portfolioUrl" type="url" dir="ltr"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+							placeholder="https://mysite.com">
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">LinkedIn (اختياري)</label>
+						<input formControlName="linkedinUrl" type="text" dir="ltr"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+							placeholder="linkedin.com/in/...">
+					</div>
+				</div>
+				<div class="flex flex-col gap-2 mt-5">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الموقع الشخصي (اختياري)</label>
+					<input formControlName="personalWebsiteUrl" type="url" dir="ltr"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+						placeholder="https://mywebsite.com">
+				</div>
+			</div>
+
+			<!-- Display & Notification Preferences -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<div class="flex items-start gap-4 mb-4">
+					<div
+						class="flex-shrink-0 w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+							<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+							<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+						</svg>
+					</div>
+					<div class="flex-grow">
+						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">تفضيلات العرض والإشعارات</h3>
+						<p class="text-sm text-slate-500 dark:text-slate-400">تحكم في لغة الواجهة وقنوات التواصل معك</p>
+					</div>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">لغة الواجهة</label>
+						<select formControlName="interfaceLanguage"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
+							<option value="العربية">العربية</option>
+							<option value="English">English</option>
+						</select>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">المنطقة الزمنية</label>
+						<select formControlName="timezone"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
+							<option value="(GMT+3) توقيت الرياض">(GMT+3) توقيت الرياض</option>
+							<option value="(GMT+4) توقيت دبي">(GMT+4) توقيت دبي</option>
+							<option value="(GMT+2) توقيت القاهرة">(GMT+2) توقيت القاهرة</option>
+							<option value="(GMT+0) UTC">(GMT+0) UTC</option>
+						</select>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">قنوات الإشعارات</label>
+					<div class="flex flex-wrap gap-4 pt-1">
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifEmail()" (change)="notifEmail.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							البريد الإلكتروني
+						</label>
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifSms()" (change)="notifSms.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							رسائل SMS
+						</label>
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifInApp()" (change)="notifInApp.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							إشعارات داخل التطبيق
+						</label>
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifTelegram()" (change)="notifTelegram.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							Telegram
+						</label>
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifWhatsapp()" (change)="notifWhatsapp.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							WhatsApp
+						</label>
+					</div>
+				</div>
+			</div>
+
 			<div class="flex items-center justify-end gap-3 mt-2">
+				<button type="button" routerLink="/client-overview/profile"
+					class="px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+					إلغاء والعودة
+				</button>
 				<button type="submit" [disabled]="isSaving()"
-					class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2">
-					حفظ التعديلات
+					class="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2">
+					حفظ التحديثات
 				</button>
 			</div>
 		</form>
@@ -218,7 +369,7 @@
 			<!-- Basics -->
 			<div
 				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl grid grid-cols-1 md:grid-cols-2 gap-6">
-				<div class="flex flex-col gap-2" *ngIf="accountType === 'PROVIDER_COMPANY'">
+				<div class="flex flex-col gap-2" *ngIf="isCompanyMode()">
 					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">اسم الشركة</label>
 					<input formControlName="companyName" type="text"
 						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
@@ -274,10 +425,159 @@
 				</div>
 			</div>
 
+			<!-- Interests & Skills -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<div class="flex items-start gap-4 mb-4">
+					<div
+						class="flex-shrink-0 w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+							<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+							<line x1="7" y1="7" x2="7.01" y2="7" />
+						</svg>
+					</div>
+					<div class="flex-grow">
+						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الاهتمامات والمهارات</h3>
+						<p class="text-sm text-slate-500 dark:text-slate-400">أضف اهتماماتك لتظهر في ملفك الشخصي</p>
+					</div>
+				</div>
+				<div class="flex flex-wrap gap-2 mb-4">
+					@for (tag of interests(); track tag) {
+					<div
+						class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-lg text-sm font-bold text-blue-700 dark:text-blue-400">
+						{{ tag }}
+						<button type="button" (click)="removeInterest(tag)" class="hover:text-red-500 transition-colors">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5">
+								<line x1="18" y1="6" x2="6" y2="18" />
+								<line x1="6" y1="6" x2="18" y2="18" />
+							</svg>
+						</button>
+					</div>
+					}
+				</div>
+				<div class="flex items-center gap-3">
+					<input #interestInput (keydown.enter)="addInterest(interestInput); $event.preventDefault()" type="text"
+						class="flex-grow bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+						placeholder="أضف اهتمام جديد">
+					<button type="button" (click)="addInterest(interestInput)"
+						class="px-5 py-2.5 bg-slate-900 dark:bg-cyan-500/10 hover:bg-slate-800 text-white dark:text-cyan-400 text-sm font-bold rounded-xl border border-cyan-500/30">إضافة</button>
+				</div>
+			</div>
+
+			<!-- Personal Links -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<div class="flex items-start gap-4 mb-4">
+					<div
+						class="flex-shrink-0 w-11 h-11 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+							<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+							<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+						</svg>
+					</div>
+					<div class="flex-grow">
+						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الروابط الشخصية</h3>
+						<p class="text-sm text-slate-500 dark:text-slate-400">أضف روابط أعمالك وحساباتك المهنية</p>
+					</div>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">موقع Portfolio (اختياري)</label>
+						<input formControlName="portfolioUrl" type="url" dir="ltr"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+							placeholder="https://mysite.com">
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">LinkedIn (اختياري)</label>
+						<input formControlName="linkedinUrl" type="text" dir="ltr"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+							placeholder="linkedin.com/in/...">
+					</div>
+				</div>
+				<div class="flex flex-col gap-2 mt-5">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الموقع الشخصي (اختياري)</label>
+					<input formControlName="personalWebsiteUrl" type="url" dir="ltr"
+						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
+						placeholder="https://mywebsite.com">
+				</div>
+			</div>
+
+			<!-- Display & Notification Preferences -->
+			<div
+				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
+				<div class="flex items-start gap-4 mb-4">
+					<div
+						class="flex-shrink-0 w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+							<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+							<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+						</svg>
+					</div>
+					<div class="flex-grow">
+						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">تفضيلات العرض والإشعارات</h3>
+						<p class="text-sm text-slate-500 dark:text-slate-400">تحكم في لغة الواجهة وقنوات التواصل معك</p>
+					</div>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">لغة الواجهة</label>
+						<select formControlName="interfaceLanguage"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
+							<option value="العربية">العربية</option>
+							<option value="English">English</option>
+						</select>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">المنطقة الزمنية</label>
+						<select formControlName="timezone"
+							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50">
+							<option value="(GMT+3) توقيت الرياض">(GMT+3) توقيت الرياض</option>
+							<option value="(GMT+4) توقيت دبي">(GMT+4) توقيت دبي</option>
+							<option value="(GMT+2) توقيت القاهرة">(GMT+2) توقيت القاهرة</option>
+							<option value="(GMT+0) UTC">(GMT+0) UTC</option>
+						</select>
+					</div>
+				</div>
+				<div class="flex flex-col gap-2">
+					<label class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">قنوات الإشعارات</label>
+					<div class="flex flex-wrap gap-4 pt-1">
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifEmail()" (change)="notifEmail.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							البريد الإلكتروني
+						</label>
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifSms()" (change)="notifSms.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							رسائل SMS
+						</label>
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifInApp()" (change)="notifInApp.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							إشعارات داخل التطبيق
+						</label>
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifTelegram()" (change)="notifTelegram.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							Telegram
+						</label>
+						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+							<input type="checkbox" [checked]="notifWhatsapp()" (change)="notifWhatsapp.set($any($event.target).checked)"
+								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+							WhatsApp
+						</label>
+					</div>
+				</div>
+			</div>
+
 			<div class="flex items-center justify-end gap-3 mt-2">
+				<button type="button" routerLink="/client-overview/profile"
+					class="px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+					إلغاء والعودة
+				</button>
 				<button type="submit" [disabled]="isSaving()"
-					class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] transition-all flex items-center gap-2">
-					حفظ التعديلات
+					class="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] transition-all flex items-center gap-2">
+					حفظ التحديثات
 				</button>
 			</div>
 		</form>

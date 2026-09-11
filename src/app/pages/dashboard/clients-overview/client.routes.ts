@@ -63,7 +63,22 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'help',
 		loadComponent: () => import('./help/help').then(m => m.HelpComponent),
-		data: { title: "Help" }
+		data: { title: "مركز المساعدة" }
+	},
+	{
+		path: 'help/ai-assistant',
+		loadComponent: () => import('./help/ai-assistant/ai-assistant').then(m => m.AiAssistantComponent),
+		data: { title: "المساعد الذكي" }
+	},
+	{
+		path: 'help/live-support',
+		loadComponent: () => import('./help/live-support/live-support').then(m => m.LiveSupportComponent),
+		data: { title: "الدعم المباشر" }
+	},
+	{
+		path: 'help/tickets',
+		loadComponent: () => import('./help/tickets/tickets').then(m => m.TicketsComponent),
+		data: { title: "تذاكر الدعم" }
 	},
 	{
 		path: 'help/tickets/new',
@@ -82,8 +97,8 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	},
 	{
 		path: 'projects/amendments',
-		redirectTo: 'projects/active',
-		pathMatch: 'full'
+		loadComponent: () => import('./project-modifications/project-modifications.component').then(m => m.ProjectModificationsComponent),
+		data: { title: "طلبات تعديل المشاريع" }
 	},
 	{
 		path: 'settings/account',

@@ -1,93 +1,203 @@
 /* ===== Light Mode Overrides ===== */
-:host-context(body.light), :host-context(.light-theme), :host-context(.theme-light){
-  color:#070D24
+/* ThemeService applies: body.light-theme, body.theme-light, html.light-theme, html.theme-light */
+:host-context(body.light-theme), :host-context(body.theme-light),
+:host-context(.light-theme), :host-context(.theme-light) {
+  color: #0F172A;
 }
 
-/* Hero section */
-:host-context(body.light) .help-hero,
+/* ---- Page title & subtitle ---- */
+:host-context(body.light-theme) h1,
+:host-context(body.theme-light) h1,
+:host-context(.light-theme) h1,
+:host-context(.theme-light) h1 { color: #0F172A !important; }
+
+:host-context(body.light-theme) .mb-4 > p,
+:host-context(body.theme-light) .mb-4 > p,
+:host-context(.light-theme) .mb-4 > p,
+:host-context(.theme-light) .mb-4 > p { color: #64748B !important; }
+
+/* ---- AI Disclosure banner ---- */
+:host-context(body.light-theme) .ai-disclosure,
+:host-context(body.theme-light) .ai-disclosure,
+:host-context(.light-theme) .ai-disclosure,
+:host-context(.theme-light) .ai-disclosure {
+  background: linear-gradient(135deg, rgba(123,47,190,.08), rgba(43,127,255,.05)) !important;
+  border-color: rgba(123,47,190,.22) !important;
+}
+
+/* ---- Hero section ---- */
+:host-context(body.light-theme) .help-hero,
+:host-context(body.theme-light) .help-hero,
 :host-context(.light-theme) .help-hero,
-:host-context(.theme-light) .help-hero{
-  background:linear-gradient(135deg,rgba(123,47,190,.10),rgba(43,127,255,.06));
-  border-color:rgba(123,47,190,.22)
+:host-context(.theme-light) .help-hero {
+  background: linear-gradient(135deg, rgba(123,47,190,.10), rgba(43,127,255,.06)) !important;
+  border-color: rgba(123,47,190,.22) !important;
 }
-:host-context(body.light) .help-hero-ttl,
+:host-context(body.light-theme) .help-hero-ttl,
+:host-context(body.theme-light) .help-hero-ttl,
 :host-context(.light-theme) .help-hero-ttl,
-:host-context(.theme-light) .help-hero-ttl{color:#070D24}
+:host-context(.theme-light) .help-hero-ttl { color: #0F172A !important; }
 
-/* Search input field */
-:host-context(body.light) .help-search,
+/* ---- Search input field ---- */
+:host-context(body.light-theme) .help-search,
+:host-context(body.theme-light) .help-search,
 :host-context(.light-theme) .help-search,
-:host-context(.theme-light) .help-search{background:#F3F5FA;border-color:#D8DFEC}
-:host-context(body.light) .help-search input,
-:host-context(.light-theme) .help-search input,
-:host-context(.theme-light) .help-search input{color:#070D24}
-:host-context(body.light) .help-search input::placeholder,
-:host-context(.light-theme) .help-search input::placeholder,
-:host-context(.theme-light) .help-search input::placeholder{color:#6B7699}
-
-/* Suggestion chips */
-:host-context(body.light) .help-sg,
-:host-context(.light-theme) .help-sg,
-:host-context(.theme-light) .help-sg{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
-
-/* AI answer bubble */
-:host-context(body.light) .help-answer,
-:host-context(.light-theme) .help-answer,
-:host-context(.theme-light) .help-answer{border-top-color:rgba(123,47,190,.18)}
-:host-context(body.light) .ha-text,
-:host-context(.light-theme) .ha-text,
-:host-context(.theme-light) .ha-text{
-  background:linear-gradient(135deg,rgba(123,47,190,.08),rgba(165,107,224,.04));
-  border-color:rgba(123,47,190,.22);
-  color:#070D24
+:host-context(.theme-light) .help-search {
+  background: #fff !important;
+  border-color: #D9C7EC !important;
 }
-:host-context(body.light) .ha-link,
+:host-context(body.light-theme) .help-search input,
+:host-context(body.theme-light) .help-search input,
+:host-context(.light-theme) .help-search input,
+:host-context(.theme-light) .help-search input { color: #0F172A !important; }
+:host-context(body.light-theme) .help-search input::placeholder,
+:host-context(body.theme-light) .help-search input::placeholder,
+:host-context(.light-theme) .help-search input::placeholder,
+:host-context(.theme-light) .help-search input::placeholder { color: #94A3B8 !important; }
+
+/* ---- Suggestion chips ---- */
+:host-context(body.light-theme) .help-sg,
+:host-context(body.theme-light) .help-sg,
+:host-context(.light-theme) .help-sg,
+:host-context(.theme-light) .help-sg {
+  background: #fff !important;
+  border-color: #D8DFEC !important;
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .help-sg:hover,
+:host-context(body.theme-light) .help-sg:hover,
+:host-context(.light-theme) .help-sg:hover,
+:host-context(.theme-light) .help-sg:hover {
+  background: rgba(123,47,190,.08) !important;
+  border-color: rgba(123,47,190,.26) !important;
+  color: #6B27A5 !important;
+}
+
+/* ---- AI answer bubble ---- */
+:host-context(body.light-theme) .help-answer,
+:host-context(body.theme-light) .help-answer,
+:host-context(.light-theme) .help-answer,
+:host-context(.theme-light) .help-answer { border-top-color: rgba(123,47,190,.18) !important; }
+:host-context(body.light-theme) .ha-text,
+:host-context(body.theme-light) .ha-text,
+:host-context(.light-theme) .ha-text,
+:host-context(.theme-light) .ha-text {
+  background: linear-gradient(135deg, rgba(123,47,190,.08), rgba(165,107,224,.04)) !important;
+  border-color: rgba(123,47,190,.22) !important;
+  color: #1E293B !important;
+}
+:host-context(body.light-theme) .ha-link,
+:host-context(body.theme-light) .ha-link,
 :host-context(.light-theme) .ha-link,
-:host-context(.theme-light) .ha-link{background:rgba(123,47,190,.06);border-color:#D9C7EC}
+:host-context(.theme-light) .ha-link {
+  background: rgba(123,47,190,.06) !important;
+  border-color: #D9C7EC !important;
+  color: #6B27A5 !important;
+}
+:host-context(body.light-theme) .ha-link:hover,
+:host-context(body.theme-light) .ha-link:hover,
+:host-context(.light-theme) .ha-link:hover,
+:host-context(.theme-light) .ha-link:hover { background: rgba(123,47,190,.14) !important; }
 
-/* Category cards */
-:host-context(body.light) .qcat,
+/* ---- Category cards (qcat) ---- */
+:host-context(body.light-theme) .qcat,
+:host-context(body.theme-light) .qcat,
 :host-context(.light-theme) .qcat,
-:host-context(.theme-light) .qcat{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .qcat:hover,
+:host-context(.theme-light) .qcat {
+  background: #fff !important;
+  border-color: #E7EAF1 !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,.04) !important;
+}
+:host-context(body.light-theme) .qcat:hover,
+:host-context(body.theme-light) .qcat:hover,
 :host-context(.light-theme) .qcat:hover,
-:host-context(.theme-light) .qcat:hover{border-color:rgba(15,138,127,.22)}
-:host-context(body.light) .qcat-ttl,
+:host-context(.theme-light) .qcat:hover {
+  border-color: rgba(15,138,127,.22) !important;
+  box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
+}
+:host-context(body.light-theme) .qcat-ttl,
+:host-context(body.theme-light) .qcat-ttl,
 :host-context(.light-theme) .qcat-ttl,
-:host-context(.theme-light) .qcat-ttl{color:#070D24}
+:host-context(.theme-light) .qcat-ttl { color: #0F172A !important; }
 
-/* Support ticket cards */
-:host-context(body.light) .tk-card,
+/* ---- Support ticket cards ---- */
+:host-context(body.light-theme) .tk-card,
+:host-context(body.theme-light) .tk-card,
 :host-context(.light-theme) .tk-card,
-:host-context(.theme-light) .tk-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .tk-card:hover,
+:host-context(.theme-light) .tk-card {
+  background: #fff !important;
+  border-color: #E7EAF1 !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,.04) !important;
+}
+:host-context(body.light-theme) .tk-card:hover,
+:host-context(body.theme-light) .tk-card:hover,
 :host-context(.light-theme) .tk-card:hover,
-:host-context(.theme-light) .tk-card:hover{border-color:rgba(15,138,127,.18)}
-:host-context(body.light) .tk-ttl,
+:host-context(.theme-light) .tk-card:hover {
+  border-color: rgba(15,138,127,.18) !important;
+}
+:host-context(body.light-theme) .tk-ttl,
+:host-context(body.theme-light) .tk-ttl,
 :host-context(.light-theme) .tk-ttl,
-:host-context(.theme-light) .tk-ttl{color:#070D24}
+:host-context(.theme-light) .tk-ttl { color: #0F172A !important; }
 
-/* FAQ items */
-:host-context(body.light) .faq-item,
+/* ---- FAQ items ---- */
+:host-context(body.light-theme) .faq-item,
+:host-context(body.theme-light) .faq-item,
 :host-context(.light-theme) .faq-item,
-:host-context(.theme-light) .faq-item{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .faq-q-txt,
+:host-context(.theme-light) .faq-item {
+  background: #fff !important;
+  border-color: #E7EAF1 !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,.04) !important;
+}
+:host-context(body.light-theme) .faq-q-txt,
+:host-context(body.theme-light) .faq-q-txt,
 :host-context(.light-theme) .faq-q-txt,
-:host-context(.theme-light) .faq-q-txt{color:#070D24}
-:host-context(body.light) .faq-q-arrow,
+:host-context(.theme-light) .faq-q-txt { color: #0F172A !important; }
+:host-context(body.light-theme) .faq-q-arrow,
+:host-context(body.theme-light) .faq-q-arrow,
 :host-context(.light-theme) .faq-q-arrow,
-:host-context(.theme-light) .faq-q-arrow{color:#6B7699}
-:host-context(body.light) .faq-a-inner,
+:host-context(.theme-light) .faq-q-arrow { color: #94A3B8 !important; }
+:host-context(body.light-theme) .faq-a-inner,
+:host-context(body.theme-light) .faq-a-inner,
 :host-context(.light-theme) .faq-a-inner,
-:host-context(.theme-light) .faq-a-inner{color:#56607D}
+:host-context(.theme-light) .faq-a-inner { color: #475569 !important; }
 
-/* Contact channels */
-:host-context(body.light) .chan,
+/* ---- Contact channels ---- */
+:host-context(body.light-theme) .chan,
+:host-context(body.theme-light) .chan,
 :host-context(.light-theme) .chan,
-:host-context(.theme-light) .chan{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .chan:hover,
+:host-context(.theme-light) .chan {
+  background: #fff !important;
+  border-color: #E7EAF1 !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,.04) !important;
+}
+:host-context(body.light-theme) .chan:hover,
+:host-context(body.theme-light) .chan:hover,
 :host-context(.light-theme) .chan:hover,
-:host-context(.theme-light) .chan:hover{border-color:rgba(15,138,127,.22)}
-:host-context(body.light) .chan-ttl,
+:host-context(.theme-light) .chan:hover {
+  border-color: rgba(15,138,127,.22) !important;
+}
+:host-context(body.light-theme) .chan-ttl,
+:host-context(body.theme-light) .chan-ttl,
 :host-context(.light-theme) .chan-ttl,
-:host-context(.theme-light) .chan-ttl{color:#070D24}
+:host-context(.theme-light) .chan-ttl { color: #0F172A !important; }
+
+/* ---- Section titles (تصفح حسب الموضوع, تذاكر الدعم, الأسئلة الشائعة, تواصل معنا) ---- */
+/* These use var(--txt-2) which is #475569 in light mode - already correct via CSS vars */
+
+/* ---- "عرض الكل" link ---- */
+/* Uses var(--teal-txt) which is #0F8A7F in light mode - already correct via CSS vars */
+
+/* ---- Ticket status badges in light mode ---- */
+:host-context(body.light-theme) .tk-status-wait,
+:host-context(body.theme-light) .tk-status-wait,
+:host-context(.light-theme) .tk-status-wait,
+:host-context(.theme-light) .tk-status-wait {
+  background: #F1F5FB !important;
+  border-color: #D8DFEC !important;
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .tk-status-wait span,
+:host-context(body.theme-light) .tk-status-wait span,
+:host-context(.light-theme) .tk-status-wait span,
+:host-context(.theme-light) .tk-status-wait span { background: #94A3B8 !important; }

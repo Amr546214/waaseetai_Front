@@ -8,6 +8,7 @@ import type { CreateRequest } from '../../create-request';
 	standalone: true,
 	imports: [CommonModule, FormsModule],
 	templateUrl: './step1-specialty.html',
+	styleUrl: './step1-specialty.css',
 })
 export class Step1Specialty {
 	@Input({ required: true }) parent!: CreateRequest;

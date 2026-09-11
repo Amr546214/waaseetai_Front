@@ -86,3 +86,128 @@
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.health-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.dash-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr}.health-grid{grid-template-columns:1fr 1fr}.main{padding:14px 16px}}
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES
+   Based on design reference P-AD-001 LIGHT_CSS:
+   body bg #EEF2FA, cards white, borders #E7EAF1, text dark
+   ========================================================================== */
+:host-context(body.light-theme),
+:host-context(body.theme-light),
+:host-context(body.light),
+:host-context(.light-theme),
+:host-context(.theme-light) {
+
+  /* Page background */
+  .main { background: transparent; }
+
+  /* AI disclosure banner */
+  .ai-disclosure {
+    background: linear-gradient(135deg, rgba(123,47,190,.06), rgba(43,127,255,.04)) !important;
+    border-color: rgba(123,47,190,.22) !important;
+  }
+  .ai-disc-lbl { color: #6B27A5 !important; }
+  .ai-disc-txt { color: #475569 !important; }
+  .ai-disc-badge { background: rgba(123,47,190,.10) !important; border-color: rgba(123,47,190,.22) !important; color: #6B27A5 !important; }
+  .ai-disc-ico { background: rgba(123,47,190,.10) !important; color: #7B2FBE !important; }
+
+  /* KPI cards */
+  .kpi-card {
+    background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+  }
+  .kpi-lbl { color: #475569 !important; }
+  .kpi-unit { color: #64748B !important; }
+  .kpi-sub { color: #475569 !important; }
+
+  /* Dash cards */
+  .dash-card {
+    background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+  }
+  .dash-card-ttl { color: #0F172A !important; }
+
+  /* Queue items */
+  .q-item {
+    background: rgba(7,13,36,.03) !important;
+    border-color: #E7EAF1 !important;
+  }
+  .q-item:hover {
+    background: rgba(7,13,36,.06) !important;
+    border-color: rgba(43,212,199,.20) !important;
+  }
+  .q-name { color: #0F172A !important; }
+  .q-arr { color: #94A3B8 !important; }
+
+  /* AI insights rows */
+  .ins-row {
+    background: rgba(123,47,190,.04) !important;
+    border-color: rgba(123,47,190,.14) !important;
+  }
+  .ins-ic { background: rgba(123,47,190,.10) !important; color: #7B2FBE !important; }
+  .ins-txt { color: #475569 !important; }
+
+  /* Activity card */
+  .act-card {
+    background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+  }
+  .act-tbl thead tr th { color: #475569 !important; border-bottom-color: #E7EAF1 !important; }
+  .act-tbl tbody tr td { color: #475569 !important; border-bottom-color: #F1F5F9 !important; }
+  .act-tbl tbody tr:hover td { background: rgba(7,13,36,.02) !important; }
+
+  /* Health items */
+  .health-item {
+    background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+  }
+  .health-lbl { color: #475569 !important; }
+  .health-sub { color: #64748B !important; }
+
+  /* Alert banners */
+  .al-high { background: rgba(255,100,100,.06) !important; border-color: rgba(255,100,100,.22) !important; color: #B42318 !important; }
+  .al-high a { color: #B42318 !important; }
+  .al-high svg { color: #E02424 !important; }
+  .al-warn { background: rgba(255,180,0,.06) !important; border-color: rgba(255,180,0,.22) !important; color: #9A6700 !important; }
+  .al-warn a { color: #9A6700 !important; }
+  .al-warn svg { color: #D98A0B !important; }
+  .al-info { background: rgba(43,127,255,.06) !important; border-color: rgba(43,127,255,.18) !important; color: #1D6FE0 !important; }
+  .al-info a { color: #1D6FE0 !important; }
+  .al-info svg { color: #2B7FFF !important; }
+
+  /* Footer */
+  .inner-foot { border-top-color: #E7EAF1 !important; color: #64748B !important; }
+  .inner-foot-links a { color: #64748B !important; }
+  .inner-foot-links a:hover { color: #0F8A7F !important; }
+
+  /* Revenue chart card (inline-styled) */
+  .main-inner > div[style*="linear-gradient(135deg,rgba(255,255,255"] {
+    background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+  }
+
+  /* AI Smart Alerts card (inline-styled dark bg) */
+  .main-inner > div[style*="rgba(255,255,255,.02)"] {
+    background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+  }
+
+  /* Forecasting card */
+  .main-inner > div[style*="linear-gradient(135deg,rgba(123,47,190"] {
+    background: linear-gradient(135deg, rgba(123,47,190,.06), rgba(43,127,255,.04)) !important;
+    border-color: rgba(123,47,190,.18) !important;
+  }
+
+  /* Quick actions card */
+  .main-inner > div[style*="rgba(255,255,255,.02)"][style*="border-radius:12px"] {
+    background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+  }
+}

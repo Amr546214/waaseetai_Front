@@ -2,10 +2,8 @@
   display: block;
 }
 
-.pm-page {
+.disp-page {
   font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
-  max-width: 720px;
-  margin: 0 auto;
 }
 
 /* ==========================================================================
@@ -28,7 +26,25 @@
   font-size: 12px;
   color: #6B7699;
   margin-top: 3px;
-  line-height: 1.6;
+}
+.disp-raise-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  background: linear-gradient(135deg, rgba(43, 212, 199, 0.12), rgba(43, 127, 255, 0.08));
+  border: 1px solid rgba(43, 212, 199, 0.26);
+  border-radius: 10px;
+  color: var(--teal-txt, #2BD4C7);
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.disp-raise-btn:hover {
+  background: linear-gradient(135deg, rgba(43, 212, 199, 0.18), rgba(43, 127, 255, 0.12));
 }
 
 /* ==========================================================================
@@ -74,12 +90,10 @@
   font-size: 13px;
   color: #A8B2D1;
   margin: 0;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+  line-height: 1.6;
 }
 .ai-disc-badge {
+  display: inline-block;
   background: rgba(123, 47, 190, 0.16);
   border: 1px solid rgba(123, 47, 190, 0.28);
   border-radius: 4px;
@@ -87,10 +101,11 @@
   font-size: 10px;
   font-weight: 700;
   color: #A56BE0;
+  margin: 0 4px;
 }
 
 /* ==========================================================================
-   STATS (inv-kpis)
+   KPIs
    ========================================================================== */
 .inv-kpis {
   display: grid;
@@ -148,7 +163,7 @@
 }
 
 /* ==========================================================================
-   FILTER TABS
+   TABS
    ========================================================================== */
 .inv-tabs {
   display: flex;
@@ -191,12 +206,12 @@
   padding: 0 5px;
 }
 .inv-tab.active {
-  color: #2BD4C7;
+  color: var(--teal-txt, #2BD4C7);
   border-bottom-color: #2BD4C7;
 }
 .inv-tab.active .c {
   background: rgba(43, 212, 199, 0.16);
-  color: #2BD4C7;
+  color: var(--teal-txt, #2BD4C7);
 }
 
 /* ==========================================================================
@@ -218,7 +233,7 @@
 }
 
 /* ==========================================================================
-   AMENDMENT CARDS (dp-*)
+   DISPUTE CARDS
    ========================================================================== */
 .dp-list {
   display: flex;
@@ -288,13 +303,18 @@
   margin-top: 3px;
 }
 
-/* Status badges */
+/* Badges */
 .dp-badge {
   font-size: 10.5px;
   font-weight: 800;
   padding: 4px 11px;
   border-radius: 50px;
   white-space: nowrap;
+}
+.dp-b-admin {
+  background: rgba(255, 180, 0, 0.12);
+  color: #D98A0B;
+  border: 1px solid rgba(255, 180, 0, 0.26);
 }
 .dp-b-wait {
   background: rgba(255, 180, 0, 0.12);
@@ -307,7 +327,9 @@
   border: 1px solid rgba(15, 169, 154, 0.24);
 }
 
-/* Step flow */
+/* ==========================================================================
+   TIMELINE / FLOW
+   ========================================================================== */
 .dp-flow {
   display: flex;
   align-items: center;
@@ -360,6 +382,9 @@
   border-color: transparent;
   color: #0FA99A;
 }
+.dp-step.done:not(:last-child)::after {
+  background: rgba(15, 169, 154, 0.5);
+}
 .dp-step.active {
   color: #5DA0FF;
 }
@@ -370,47 +395,13 @@
   animation: dp-pulse 2s infinite;
 }
 @keyframes dp-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(43, 127, 255, 0.4); }
-  70% { box-shadow: 0 0 0 6px transparent; }
-  100% { box-shadow: 0 0 0 0 transparent; }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(93, 160, 255, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(93, 160, 255, 0.15); }
 }
 
-/* Change boxes */
-.dp-chg {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 13px;
-}
-.dp-chg-i {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex: 1;
-  min-width: 90px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 10px;
-  padding: 9px 11px;
-}
-.dp-chg-i .k {
-  font-size: 10px;
-  color: #6B7699;
-  font-weight: 600;
-}
-.dp-chg-i .v {
-  font-size: 12.5px;
-  font-weight: 800;
-  color: #fff;
-}
-.dp-chg-i .v.up {
-  color: #FFB400;
-}
-.dp-chg-i .v.down {
-  color: #0FA99A;
-}
-
-/* AI evaluation */
+/* ==========================================================================
+   AI DECISION STRIP
+   ========================================================================== */
 .dp-ai {
   display: flex;
   align-items: flex-start;
@@ -443,7 +434,9 @@
   color: #0FA99A;
 }
 
-/* Footer */
+/* ==========================================================================
+   FOOTER / ACTIONS
+   ========================================================================== */
 .dp-foot {
   display: flex;
   align-items: center;
@@ -459,6 +452,16 @@
   color: #6B7699;
   font-weight: 600;
 }
+.dp-meta svg {
+  width: 13px;
+  height: 13px;
+}
+.dp-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+}
 .dp-cta {
   display: inline-flex;
   align-items: center;
@@ -469,12 +472,11 @@
   background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
   padding: 9px 15px;
   border-radius: 9px;
-  text-decoration: none;
+  border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
-}
-.dp-cta:hover {
-  opacity: 0.88;
+  font-family: inherit;
+  text-decoration: none;
+  transition: all 0.15s;
 }
 .dp-cta svg {
   width: 14px;
@@ -500,9 +502,107 @@
 .dp-cta-gh .dp-unread {
   background: rgba(255, 255, 255, 0.12);
 }
+.dp-esc {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #D98A0B;
+  background: rgba(255, 180, 0, 0.10);
+  border: 1px solid rgba(255, 180, 0, 0.26);
+  padding: 9px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.dp-esc:hover {
+  background: rgba(255, 180, 0, 0.16);
+}
 
 /* ==========================================================================
-   LIGHT MODE OVERRIDES (from design P-SK-031 LIGHT_CSS)
+   EMPTY STATE
+   ========================================================================== */
+.state-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+}
+.disp-empty {
+  text-align: center;
+  padding: 44px 24px;
+}
+.disp-empty-ico {
+  width: 54px;
+  height: 54px;
+  border-radius: 15px;
+  margin: 0 auto 16px;
+  background: rgba(15, 169, 154, 0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0FA99A;
+}
+.disp-empty-ico svg {
+  width: 24px;
+  height: 24px;
+}
+.disp-empty-ttl {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.disp-empty-sub {
+  font-size: 12px;
+  color: #6B7699;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   TOAST
+   ========================================================================== */
+.disp-toast {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  animation: dp-toast-in 0.3s ease both;
+}
+@keyframes dp-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.disp-toast-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(43, 212, 199, 0.14), rgba(43, 127, 255, 0.10));
+  border: 1px solid rgba(43, 212, 199, 0.30);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+}
+.disp-toast-box svg {
+  width: 18px;
+  height: 18px;
+  color: #2BD4C7;
+  flex-shrink: 0;
+}
+.disp-toast-box span {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES (from P-SK-026 LIGHT_CSS)
    ========================================================================== */
 
 /* --- Header --- */
@@ -518,7 +618,23 @@
 :host-context(.light-theme) .ord-sub,
 :host-context(.theme-light) .ord-sub,
 :host-context(body.light) .ord-sub {
-  color: #6B7699;
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .disp-raise-btn,
+:host-context(body.theme-light) .disp-raise-btn,
+:host-context(.light-theme) .disp-raise-btn,
+:host-context(.theme-light) .disp-raise-btn,
+:host-context(body.light) .disp-raise-btn {
+  color: #0F8A7F !important;
+  background: linear-gradient(135deg, rgba(15, 138, 127, 0.10), rgba(43, 127, 255, 0.06));
+  border-color: rgba(15, 138, 127, 0.25);
+}
+:host-context(body.light-theme) .disp-raise-btn:hover,
+:host-context(body.theme-light) .disp-raise-btn:hover,
+:host-context(.light-theme) .disp-raise-btn:hover,
+:host-context(.theme-light) .disp-raise-btn:hover,
+:host-context(body.light) .disp-raise-btn:hover {
+  background: linear-gradient(135deg, rgba(15, 138, 127, 0.16), rgba(43, 127, 255, 0.10));
 }
 
 /* --- AI Disclosure --- */
@@ -527,32 +643,9 @@
 :host-context(.light-theme) .ai-disclosure,
 :host-context(.theme-light) .ai-disclosure,
 :host-context(body.light) .ai-disclosure {
-  background: linear-gradient(135deg, rgba(123, 47, 190, 0.06), rgba(43, 127, 255, 0.04));
-  border-color: rgba(123, 47, 190, 0.18);
+  background: linear-gradient(135deg, rgba(123, 47, 190, 0.05), rgba(43, 127, 255, 0.03));
+  border-color: rgba(123, 47, 190, 0.15);
   backdrop-filter: none;
-}
-:host-context(body.light-theme) .ai-disc-lbl,
-:host-context(body.theme-light) .ai-disc-lbl,
-:host-context(.light-theme) .ai-disc-lbl,
-:host-context(.theme-light) .ai-disc-lbl,
-:host-context(body.light) .ai-disc-lbl {
-  color: #6B27A5;
-}
-:host-context(body.light-theme) .ai-disc-txt,
-:host-context(body.theme-light) .ai-disc-txt,
-:host-context(.light-theme) .ai-disc-txt,
-:host-context(.theme-light) .ai-disc-txt,
-:host-context(body.light) .ai-disc-txt {
-  color: #475569 !important;
-}
-:host-context(body.light-theme) .ai-disc-badge,
-:host-context(body.theme-light) .ai-disc-badge,
-:host-context(.light-theme) .ai-disc-badge,
-:host-context(.theme-light) .ai-disc-badge,
-:host-context(body.light) .ai-disc-badge {
-  background: rgba(123, 47, 190, 0.10);
-  border-color: rgba(123, 47, 190, 0.20);
-  color: #6B27A5 !important;
 }
 :host-context(body.light-theme) .ai-disc-ico,
 :host-context(body.theme-light) .ai-disc-ico,
@@ -568,8 +661,31 @@
 :host-context(body.light) .ai-disc-ico svg {
   color: #6B27A5;
 }
+:host-context(body.light-theme) .ai-disc-lbl,
+:host-context(body.theme-light) .ai-disc-lbl,
+:host-context(.light-theme) .ai-disc-lbl,
+:host-context(.theme-light) .ai-disc-lbl,
+:host-context(body.light) .ai-disc-lbl {
+  color: #6B27A5 !important;
+}
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt,
+:host-context(body.light) .ai-disc-txt {
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .ai-disc-badge,
+:host-context(body.theme-light) .ai-disc-badge,
+:host-context(.light-theme) .ai-disc-badge,
+:host-context(.theme-light) .ai-disc-badge,
+:host-context(body.light) .ai-disc-badge {
+  color: #6B27A5 !important;
+  background: rgba(123, 47, 190, 0.10);
+  border-color: rgba(123, 47, 190, 0.20);
+}
 
-/* --- Stats --- */
+/* --- KPIs --- */
 :host-context(body.light-theme) .inv-kpi,
 :host-context(body.theme-light) .inv-kpi,
 :host-context(.light-theme) .inv-kpi,
@@ -578,6 +694,7 @@
   background: #fff !important;
   border-color: #E7EAF1 !important;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  backdrop-filter: none;
 }
 :host-context(body.light-theme) .inv-kpi .v,
 :host-context(body.theme-light) .inv-kpi .v,
@@ -591,44 +708,10 @@
 :host-context(.light-theme) .inv-kpi .l,
 :host-context(.theme-light) .inv-kpi .l,
 :host-context(body.light) .inv-kpi .l {
-  color: #5B6472;
+  color: #5B6472 !important;
 }
 
-/* --- Stats icons (light) --- */
-:host-context(body.light-theme) .inv-ic-amber,
-:host-context(body.theme-light) .inv-ic-amber,
-:host-context(.light-theme) .inv-ic-amber,
-:host-context(.theme-light) .inv-ic-amber,
-:host-context(body.light) .inv-ic-amber {
-  background: rgba(255, 180, 0, 0.10);
-  color: #D98A0B;
-}
-:host-context(body.light-theme) .inv-ic-blue,
-:host-context(body.theme-light) .inv-ic-blue,
-:host-context(.light-theme) .inv-ic-blue,
-:host-context(.theme-light) .inv-ic-blue,
-:host-context(body.light) .inv-ic-blue {
-  background: rgba(43, 127, 255, 0.10);
-  color: #1D6FE0;
-}
-:host-context(body.light-theme) .inv-ic-green,
-:host-context(body.theme-light) .inv-ic-green,
-:host-context(.light-theme) .inv-ic-green,
-:host-context(.theme-light) .inv-ic-green,
-:host-context(body.light) .inv-ic-green {
-  background: rgba(15, 169, 154, 0.10);
-  color: #0A6F64;
-}
-:host-context(body.light-theme) .inv-ic-ai,
-:host-context(body.theme-light) .inv-ic-ai,
-:host-context(.light-theme) .inv-ic-ai,
-:host-context(.theme-light) .inv-ic-ai,
-:host-context(body.light) .inv-ic-ai {
-  background: rgba(123, 47, 190, 0.10);
-  color: #6B27A5;
-}
-
-/* --- Filter tabs --- */
+/* --- Tabs --- */
 :host-context(body.light-theme) .inv-tabs,
 :host-context(body.theme-light) .inv-tabs,
 :host-context(.light-theme) .inv-tabs,
@@ -657,14 +740,14 @@
 :host-context(.theme-light) .inv-tab.active,
 :host-context(body.light) .inv-tab.active {
   color: #0F8A7F !important;
-  border-bottom-color: #0F8A7F;
+  border-bottom-color: #0F8A7F !important;
 }
 :host-context(body.light-theme) .inv-tab.active .c,
 :host-context(body.theme-light) .inv-tab.active .c,
 :host-context(.light-theme) .inv-tab.active .c,
 :host-context(.theme-light) .inv-tab.active .c,
 :host-context(body.light) .inv-tab.active .c {
-  background: rgba(43, 212, 199, 0.16) !important;
+  background: rgba(43, 212, 199, 0.15) !important;
   color: #0F8A7F !important;
 }
 
@@ -681,10 +764,10 @@
 :host-context(.light-theme) .sec-ttl .cnt,
 :host-context(.theme-light) .sec-ttl .cnt,
 :host-context(body.light) .sec-ttl .cnt {
-  color: #6B7699;
+  color: #6B7699 !important;
 }
 
-/* --- Amendment cards --- */
+/* --- Dispute cards --- */
 :host-context(body.light-theme) .dp-card,
 :host-context(body.theme-light) .dp-card,
 :host-context(.light-theme) .dp-card,
@@ -700,8 +783,8 @@
 :host-context(.light-theme) .dp-attn,
 :host-context(.theme-light) .dp-attn,
 :host-context(body.light) .dp-attn {
-  border-color: rgba(255, 180, 0, 0.30) !important;
-  box-shadow: 0 0 0 1px rgba(255, 180, 0, 0.12);
+  border-color: #FFB400 !important;
+  box-shadow: 0 0 0 1px rgba(255, 180, 0, 0.15);
 }
 :host-context(body.light-theme) .dp-ttl,
 :host-context(body.theme-light) .dp-ttl,
@@ -715,54 +798,39 @@
 :host-context(.light-theme) .dp-sub,
 :host-context(.theme-light) .dp-sub,
 :host-context(body.light) .dp-sub {
-  color: #6B7699;
+  color: #6B7699 !important;
 }
 
-/* --- Status badges (light) --- */
+/* --- Badges (light) --- */
+:host-context(body.light-theme) .dp-b-admin,
+:host-context(body.theme-light) .dp-b-admin,
+:host-context(.light-theme) .dp-b-admin,
+:host-context(.theme-light) .dp-b-admin,
+:host-context(body.light) .dp-b-admin {
+  background: rgba(160, 110, 0, 0.10) !important;
+  color: #9A6700 !important;
+  border-color: rgba(160, 110, 0, 0.30) !important;
+}
 :host-context(body.light-theme) .dp-b-wait,
 :host-context(body.theme-light) .dp-b-wait,
 :host-context(.light-theme) .dp-b-wait,
 :host-context(.theme-light) .dp-b-wait,
 :host-context(body.light) .dp-b-wait {
-  color: #9A6700;
-  border-color: rgba(255, 180, 0, 0.20);
+  background: rgba(160, 110, 0, 0.10) !important;
+  color: #9A6700 !important;
+  border-color: rgba(160, 110, 0, 0.30) !important;
 }
 :host-context(body.light-theme) .dp-b-done,
 :host-context(body.theme-light) .dp-b-done,
 :host-context(.light-theme) .dp-b-done,
 :host-context(.theme-light) .dp-b-done,
 :host-context(body.light) .dp-b-done {
-  color: #0A6F64;
-  border-color: rgba(15, 169, 154, 0.20);
+  background: rgba(15, 138, 127, 0.12) !important;
+  color: #0A6F64 !important;
+  border-color: rgba(15, 138, 127, 0.30) !important;
 }
 
-/* --- Card icons (light) --- */
-:host-context(body.light-theme) .dp-ico-disp,
-:host-context(body.theme-light) .dp-ico-disp,
-:host-context(.light-theme) .dp-ico-disp,
-:host-context(.theme-light) .dp-ico-disp,
-:host-context(body.light) .dp-ico-disp {
-  background: rgba(255, 180, 0, 0.10);
-  color: #D98A0B;
-}
-:host-context(body.light-theme) .dp-ico-canc,
-:host-context(body.theme-light) .dp-ico-canc,
-:host-context(.light-theme) .dp-ico-canc,
-:host-context(.theme-light) .dp-ico-canc,
-:host-context(body.light) .dp-ico-canc {
-  background: rgba(255, 140, 105, 0.10);
-  color: #E07050;
-}
-:host-context(body.light-theme) .dp-ico-done,
-:host-context(body.theme-light) .dp-ico-done,
-:host-context(.light-theme) .dp-ico-done,
-:host-context(.theme-light) .dp-ico-done,
-:host-context(body.light) .dp-ico-done {
-  background: rgba(15, 169, 154, 0.10);
-  color: #0A6F64;
-}
-
-/* --- Step flow (light) --- */
+/* --- Timeline (light) --- */
 :host-context(body.light-theme) .dp-flow,
 :host-context(body.theme-light) .dp-flow,
 :host-context(.light-theme) .dp-flow,
@@ -776,7 +844,7 @@
 :host-context(.light-theme) .dp-step,
 :host-context(.theme-light) .dp-step,
 :host-context(body.light) .dp-step {
-  color: #64748B;
+  color: #5B6472 !important;
 }
 :host-context(body.light-theme) .dp-step:not(:last-child)::after,
 :host-context(body.theme-light) .dp-step:not(:last-child)::after,
@@ -798,71 +866,42 @@
 :host-context(.light-theme) .dp-step.done,
 :host-context(.theme-light) .dp-step.done,
 :host-context(body.light) .dp-step.done {
-  color: #0A6F64;
+  color: #0A6F64 !important;
 }
 :host-context(body.light-theme) .dp-step.done .dp-dot,
 :host-context(body.theme-light) .dp-step.done .dp-dot,
 :host-context(.light-theme) .dp-step.done .dp-dot,
 :host-context(.theme-light) .dp-step.done .dp-dot,
 :host-context(body.light) .dp-step.done .dp-dot {
-  background: rgba(15, 169, 154, 0.12);
-  color: #0A6F64;
+  background: rgba(15, 138, 127, 0.16) !important;
+  border-color: transparent !important;
+  color: #0A6F64 !important;
+}
+:host-context(body.light-theme) .dp-step.done:not(:last-child)::after,
+:host-context(body.theme-light) .dp-step.done:not(:last-child)::after,
+:host-context(.light-theme) .dp-step.done:not(:last-child)::after,
+:host-context(.theme-light) .dp-step.done:not(:last-child)::after,
+:host-context(body.light) .dp-step.done:not(:last-child)::after {
+  background: rgba(15, 138, 127, 0.4) !important;
 }
 :host-context(body.light-theme) .dp-step.active,
 :host-context(body.theme-light) .dp-step.active,
 :host-context(.light-theme) .dp-step.active,
 :host-context(.theme-light) .dp-step.active,
 :host-context(body.light) .dp-step.active {
-  color: #1D6FE0;
+  color: #1D6FE0 !important;
 }
 :host-context(body.light-theme) .dp-step.active .dp-dot,
 :host-context(body.theme-light) .dp-step.active .dp-dot,
 :host-context(.light-theme) .dp-step.active .dp-dot,
 :host-context(.theme-light) .dp-step.active .dp-dot,
 :host-context(body.light) .dp-step.active .dp-dot {
-  background: rgba(43, 127, 255, 0.12);
-  color: #1D6FE0;
+  background: rgba(43, 127, 255, 0.15) !important;
+  border-color: transparent !important;
+  color: #1D6FE0 !important;
 }
 
-/* --- Change boxes (light) --- */
-:host-context(body.light-theme) .dp-chg-i,
-:host-context(body.theme-light) .dp-chg-i,
-:host-context(.light-theme) .dp-chg-i,
-:host-context(.theme-light) .dp-chg-i,
-:host-context(body.light) .dp-chg-i {
-  background: #F6F8FC !important;
-  border-color: #E7EAF1 !important;
-}
-:host-context(body.light-theme) .dp-chg-i .k,
-:host-context(body.theme-light) .dp-chg-i .k,
-:host-context(.light-theme) .dp-chg-i .k,
-:host-context(.theme-light) .dp-chg-i .k,
-:host-context(body.light) .dp-chg-i .k {
-  color: #64748B;
-}
-:host-context(body.light-theme) .dp-chg-i .v,
-:host-context(body.theme-light) .dp-chg-i .v,
-:host-context(.light-theme) .dp-chg-i .v,
-:host-context(.theme-light) .dp-chg-i .v,
-:host-context(body.light) .dp-chg-i .v {
-  color: #0F172A !important;
-}
-:host-context(body.light-theme) .dp-chg-i .v.up,
-:host-context(body.theme-light) .dp-chg-i .v.up,
-:host-context(.light-theme) .dp-chg-i .v.up,
-:host-context(.theme-light) .dp-chg-i .v.up,
-:host-context(body.light) .dp-chg-i .v.up {
-  color: #9A6700;
-}
-:host-context(body.light-theme) .dp-chg-i .v.down,
-:host-context(body.theme-light) .dp-chg-i .v.down,
-:host-context(.light-theme) .dp-chg-i .v.down,
-:host-context(.theme-light) .dp-chg-i .v.down,
-:host-context(body.light) .dp-chg-i .v.down {
-  color: #0A6F64;
-}
-
-/* --- AI evaluation (light) --- */
+/* --- AI decision strip (light) --- */
 :host-context(body.light-theme) .dp-ai,
 :host-context(body.theme-light) .dp-ai,
 :host-context(.light-theme) .dp-ai,
@@ -891,24 +930,24 @@
 :host-context(.light-theme) .dp-ai-done,
 :host-context(.theme-light) .dp-ai-done,
 :host-context(body.light) .dp-ai-done {
-  background: rgba(15, 169, 154, 0.05);
-  border-color: rgba(15, 169, 154, 0.15);
+  background: rgba(15, 138, 127, 0.06) !important;
+  border-color: rgba(15, 138, 127, 0.18) !important;
 }
 :host-context(body.light-theme) .dp-ai-done svg,
 :host-context(body.theme-light) .dp-ai-done svg,
 :host-context(.light-theme) .dp-ai-done svg,
 :host-context(.theme-light) .dp-ai-done svg,
 :host-context(body.light) .dp-ai-done svg {
-  color: #0A6F64;
+  color: #0A6F64 !important;
 }
 
-/* --- Footer (light) --- */
+/* --- Footer / actions (light) --- */
 :host-context(body.light-theme) .dp-meta,
 :host-context(body.theme-light) .dp-meta,
 :host-context(.light-theme) .dp-meta,
 :host-context(.theme-light) .dp-meta,
 :host-context(body.light) .dp-meta {
-  color: #64748B;
+  color: #6B7699 !important;
 }
 :host-context(body.light-theme) .dp-cta-gh,
 :host-context(body.theme-light) .dp-cta-gh,
@@ -919,10 +958,94 @@
   border-color: #D8DFEC !important;
   color: #0F172A !important;
 }
+:host-context(body.light-theme) .dp-cta-gh .dp-unread,
+:host-context(body.theme-light) .dp-cta-gh .dp-unread,
+:host-context(.light-theme) .dp-cta-gh .dp-unread,
+:host-context(.theme-light) .dp-cta-gh .dp-unread,
+:host-context(body.light) .dp-cta-gh .dp-unread {
+  background: rgba(7, 13, 36, 0.10) !important;
+}
+:host-context(body.light-theme) .dp-esc,
+:host-context(body.theme-light) .dp-esc,
+:host-context(.light-theme) .dp-esc,
+:host-context(.theme-light) .dp-esc,
+:host-context(body.light) .dp-esc {
+  color: #9A6700 !important;
+  background: rgba(160, 110, 0, 0.08) !important;
+  border-color: rgba(160, 110, 0, 0.25) !important;
+}
+:host-context(body.light-theme) .dp-esc:hover,
+:host-context(body.theme-light) .dp-esc:hover,
+:host-context(.light-theme) .dp-esc:hover,
+:host-context(.theme-light) .dp-esc:hover,
+:host-context(body.light) .dp-esc:hover {
+  background: rgba(160, 110, 0, 0.14) !important;
+}
+
+/* --- Empty state (light) --- */
+:host-context(body.light-theme) .state-card,
+:host-context(body.theme-light) .state-card,
+:host-context(.light-theme) .state-card,
+:host-context(.theme-light) .state-card,
+:host-context(body.light) .state-card {
+  background: #fff !important;
+  border-color: #D8DFEC !important;
+  backdrop-filter: none;
+}
+:host-context(body.light-theme) .disp-empty-ico,
+:host-context(body.theme-light) .disp-empty-ico,
+:host-context(.light-theme) .disp-empty-ico,
+:host-context(.theme-light) .disp-empty-ico,
+:host-context(body.light) .disp-empty-ico {
+  background: rgba(15, 138, 127, 0.10);
+  color: #0A6F64;
+}
+:host-context(body.light-theme) .disp-empty-ttl,
+:host-context(body.theme-light) .disp-empty-ttl,
+:host-context(.light-theme) .disp-empty-ttl,
+:host-context(.theme-light) .disp-empty-ttl,
+:host-context(body.light) .disp-empty-ttl {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .disp-empty-sub,
+:host-context(body.theme-light) .disp-empty-sub,
+:host-context(.light-theme) .disp-empty-sub,
+:host-context(.theme-light) .disp-empty-sub,
+:host-context(body.light) .disp-empty-sub {
+  color: #6B7699 !important;
+}
+
+/* --- Toast (light) --- */
+:host-context(body.light-theme) .disp-toast-box,
+:host-context(body.theme-light) .disp-toast-box,
+:host-context(.light-theme) .disp-toast-box,
+:host-context(.theme-light) .disp-toast-box,
+:host-context(body.light) .disp-toast-box {
+  background: linear-gradient(135deg, rgba(15, 138, 127, 0.12), rgba(43, 127, 255, 0.08));
+  border-color: rgba(15, 138, 127, 0.25);
+  box-shadow: 0 8px 32px rgba(7, 13, 36, 0.12);
+}
+:host-context(body.light-theme) .disp-toast-box svg,
+:host-context(body.theme-light) .disp-toast-box svg,
+:host-context(.light-theme) .disp-toast-box svg,
+:host-context(.theme-light) .disp-toast-box svg,
+:host-context(body.light) .disp-toast-box svg {
+  color: #0F8A7F;
+}
+:host-context(body.light-theme) .disp-toast-box span,
+:host-context(body.theme-light) .disp-toast-box span,
+:host-context(.light-theme) .disp-toast-box span,
+:host-context(.theme-light) .disp-toast-box span,
+:host-context(body.light) .disp-toast-box span {
+  color: #0F172A !important;
+}
 
 /* --- Responsive --- */
 @media (max-width: 767px) {
   .inv-kpis {
     grid-template-columns: 1fr 1fr;
+  }
+  .dp-step {
+    min-width: 100px;
   }
 }

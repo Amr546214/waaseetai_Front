@@ -27,7 +27,13 @@ a.active-nav-item .truncate {
   font-weight: 500 !important;
 }
 
-/* Ensure selected sub-items correctly color their text and icons with soft contrast */
+/* Dark-mode active sub-item: subtle dark bg, light text — NOT as dark as top-level */
+a.active-sub-item {
+  background-color: #131B36 !important;
+  color: #f8fafc !important;
+  border-color: rgba(255,255,255,.08) !important;
+  font-weight: 500 !important;
+}
 a.active-sub-item svg,
 a.active-sub-item .truncate {
   color: #f8fafc !important;
@@ -35,114 +41,283 @@ a.active-sub-item .truncate {
 }
 
 /* ==========================================================================
-   LIGHT MODE OVERRIDES (CYBER-CREATIVE LIGHT PARITY)
+   LIGHT MODE OVERRIDES (matching design P-SK-006 LIGHT_CSS)
+   Design: sidebar bg rgba(246,248,252,.94), border #E2E8F4
    ========================================================================== */
+
+/* --- Sidebar background & border (frosted light) --- */
 :host-context(body.light-theme) .sidebar,
+:host-context(body.theme-light) .sidebar,
+:host-context(.light-theme) .sidebar,
+:host-context(.theme-light) .sidebar,
 :host-context(body.light) .sidebar {
-  background: #FFFFFF !important;
+  background: rgba(246, 248, 252, 0.94) !important;
+  backdrop-filter: blur(22px) !important;
   border-left: 1px solid #E2E8F4 !important;
+  border-inline-start: 1px solid #E2E8F4 !important;
   box-shadow: -4px 0 25px rgba(15, 23, 42, 0.07) !important;
 }
 
-:host-context(body.light-theme) .sidebar span.block,
-:host-context(body.light) .sidebar span.block {
-  color: #64748B !important;
-  font-weight: 700 !important;
-}
-
-/* Normal Links and Buttons */
-:host-context(body.light-theme) .sidebar a:not(.active-nav-item):not(.active-sub-item),
-:host-context(body.light) .sidebar a:not(.active-nav-item):not(.active-sub-item),
-:host-context(body.light-theme) .sidebar button:not([aria-expanded="true"]),
-:host-context(body.light) .sidebar button:not([aria-expanded="true"]) {
-  color: #475569 !important;
-}
-
-:host-context(body.light-theme) .sidebar a:not(.active-nav-item):not(.active-sub-item) svg,
-:host-context(body.light) .sidebar a:not(.active-nav-item):not(.active-sub-item) svg,
-:host-context(body.light-theme) .sidebar button:not([aria-expanded="true"]) svg,
-:host-context(body.light) .sidebar button:not([aria-expanded="true"]) svg {
-  color: #64748B !important;
-}
-
-/* Hover States */
-:host-context(body.light-theme) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item),
-:host-context(body.light) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item),
-:host-context(body.light-theme) .sidebar button:hover:not([aria-expanded="true"]),
-:host-context(body.light) .sidebar button:hover:not([aria-expanded="true"]) {
-  background: #F1F5F9 !important;
-  color: #0F172A !important;
-}
-
-:host-context(body.light-theme) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item) svg,
-:host-context(body.light) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item) svg,
-:host-context(body.light-theme) .sidebar button:hover:not([aria-expanded="true"]) svg,
-:host-context(body.light) .sidebar button:hover:not([aria-expanded="true"]) svg {
-  color: #0F172A !important;
-}
-
-/* Active Nav Item */
-:host-context(body.light-theme) a.active-nav-item,
-:host-context(body.light) a.active-nav-item {
-  color: #0F8A7F !important;
-  background: rgba(15, 138, 127, 0.09) !important;
-  border-color: rgba(15, 138, 127, 0.22) !important;
-  box-shadow: 0 4px 14px rgba(15, 138, 127, 0.08) !important;
-}
-
-:host-context(body.light-theme) a.active-nav-item svg,
-:host-context(body.light) a.active-nav-item svg,
-:host-context(body.light-theme) a.active-nav-item .truncate,
-:host-context(body.light) a.active-nav-item .truncate {
-  color: #0F8A7F !important;
-  font-weight: 700 !important;
-}
-
-/* Expanded Accordion Parent */
-:host-context(body.light-theme) button[aria-expanded="true"],
-:host-context(body.light) button[aria-expanded="true"] {
-  color: #0F8A7F !important;
-  background: rgba(15, 138, 127, 0.09) !important;
-  border-color: rgba(15, 138, 127, 0.22) !important;
-  box-shadow: 0 4px 14px rgba(15, 138, 127, 0.08) !important;
-}
-
-:host-context(body.light-theme) button[aria-expanded="true"] svg,
-:host-context(body.light) button[aria-expanded="true"] svg {
-  color: #0F8A7F !important;
-}
-
-/* Submenu container & items */
-:host-context(body.light-theme) [id^="sub-"],
-:host-context(body.light) [id^="sub-"] {
-  border-right: 2px solid #E2E8F0 !important;
-}
-
-:host-context(body.light-theme) a.active-sub-item,
-:host-context(body.light) a.active-sub-item {
-  background: #E2E8F4 !important;
-  color: #0F172A !important;
-  border-color: #CBD5E1 !important;
-  font-weight: 700 !important;
-}
-
-:host-context(body.light-theme) a.active-sub-item svg,
-:host-context(body.light) a.active-sub-item svg,
-:host-context(body.light-theme) a.active-sub-item .truncate,
-:host-context(body.light) a.active-sub-item .truncate {
-  color: #0F172A !important;
-  font-weight: 700 !important;
-}
-
-/* Top logo area when in mobile slide-over */
+/* --- Logo/header area --- */
 :host-context(body.light-theme) .sidebar > div:first-child,
+:host-context(body.theme-light) .sidebar > div:first-child,
+:host-context(.light-theme) .sidebar > div:first-child,
+:host-context(.theme-light) .sidebar > div:first-child,
 :host-context(body.light) .sidebar > div:first-child {
   border-bottom: 1px solid #E2E8F4 !important;
 }
 :host-context(body.light-theme) .sidebar > div:first-child span,
+:host-context(body.theme-light) .sidebar > div:first-child span,
+:host-context(.light-theme) .sidebar > div:first-child span,
+:host-context(.theme-light) .sidebar > div:first-child span,
 :host-context(body.light) .sidebar > div:first-child span {
   color: #475569 !important;
   background: #F1F5F9 !important;
   border-color: #CBD5E1 !important;
 }
 
+/* --- Section headers (الرئيسية / حسابي / الدعم والمساعدة) --- */
+:host-context(body.light-theme) .sidebar .sb-sec,
+:host-context(body.theme-light) .sidebar .sb-sec,
+:host-context(.light-theme) .sidebar .sb-sec,
+:host-context(.theme-light) .sidebar .sb-sec,
+:host-context(body.light) .sidebar .sb-sec,
+:host-context(body.light-theme) .sidebar span.block,
+:host-context(body.theme-light) .sidebar span.block,
+:host-context(.light-theme) .sidebar span.block,
+:host-context(.theme-light) .sidebar span.block,
+:host-context(body.light) .sidebar span.block {
+  color: #475569 !important;
+  font-weight: 800 !important;
+}
+
+/* --- Normal link items & buttons (not active, not expanded) --- */
+:host-context(body.light-theme) .sidebar a:not(.active-nav-item):not(.active-sub-item),
+:host-context(body.theme-light) .sidebar a:not(.active-nav-item):not(.active-sub-item),
+:host-context(.light-theme) .sidebar a:not(.active-nav-item):not(.active-sub-item),
+:host-context(.theme-light) .sidebar a:not(.active-nav-item):not(.active-sub-item),
+:host-context(body.light) .sidebar a:not(.active-nav-item):not(.active-sub-item),
+:host-context(body.light-theme) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item),
+:host-context(body.theme-light) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item),
+:host-context(.light-theme) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item),
+:host-context(.theme-light) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item),
+:host-context(body.light) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item) {
+  color: #475569 !important;
+}
+
+/* --- Icons for normal items --- */
+:host-context(body.light-theme) .sidebar a:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(body.theme-light) .sidebar a:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(.light-theme) .sidebar a:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(.theme-light) .sidebar a:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(body.light) .sidebar a:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(body.light-theme) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item) svg,
+:host-context(body.theme-light) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item) svg,
+:host-context(.light-theme) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item) svg,
+:host-context(.theme-light) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item) svg,
+:host-context(body.light) .sidebar button:not([aria-expanded="true"]):not(.active-nav-item) svg {
+  color: #64748B !important;
+}
+
+/* --- Hover states --- */
+:host-context(body.light-theme) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item),
+:host-context(body.theme-light) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item),
+:host-context(.light-theme) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item),
+:host-context(.theme-light) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item),
+:host-context(body.light) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item),
+:host-context(body.light-theme) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item),
+:host-context(body.theme-light) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item),
+:host-context(.light-theme) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item),
+:host-context(.theme-light) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item),
+:host-context(body.light) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item) {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(body.theme-light) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(.light-theme) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(.theme-light) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(body.light) .sidebar a:hover:not(.active-nav-item):not(.active-sub-item) svg,
+:host-context(body.light-theme) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item) svg,
+:host-context(body.theme-light) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item) svg,
+:host-context(.light-theme) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item) svg,
+:host-context(.theme-light) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item) svg,
+:host-context(body.light) .sidebar button:hover:not([aria-expanded="true"]):not(.active-nav-item) svg {
+  color: #0F172A !important;
+}
+
+/* --- Active nav item (parent) — white bg, teal text + border --- */
+:host-context(body.light-theme) a.active-nav-item,
+:host-context(body.theme-light) a.active-nav-item,
+:host-context(.light-theme) a.active-nav-item,
+:host-context(.theme-light) a.active-nav-item,
+:host-context(body.light) a.active-nav-item {
+  color: #0F8A7F !important;
+  background: #FFFFFF !important;
+  border-color: rgba(43, 212, 199, 0.25) !important;
+  box-shadow: none !important;
+}
+
+:host-context(body.light-theme) a.active-nav-item svg,
+:host-context(body.theme-light) a.active-nav-item svg,
+:host-context(.light-theme) a.active-nav-item svg,
+:host-context(.theme-light) a.active-nav-item svg,
+:host-context(body.light) a.active-nav-item svg,
+:host-context(body.light-theme) a.active-nav-item .truncate,
+:host-context(body.theme-light) a.active-nav-item .truncate,
+:host-context(.light-theme) a.active-nav-item .truncate,
+:host-context(.theme-light) a.active-nav-item .truncate,
+:host-context(body.light) a.active-nav-item .truncate {
+  color: #0F8A7F !important;
+  font-weight: 700 !important;
+}
+
+/* --- Active badge --- */
+:host-context(body.light-theme) .sidebar .bg-gradient-to-r,
+:host-context(body.theme-light) .sidebar .bg-gradient-to-r,
+:host-context(.light-theme) .sidebar .bg-gradient-to-r,
+:host-context(.theme-light) .sidebar .bg-gradient-to-r,
+:host-context(body.light) .sidebar .bg-gradient-to-r {
+  background: rgba(43, 212, 199, 0.14) !important;
+  color: #0F8A7F !important;
+  box-shadow: none !important;
+}
+
+/* --- Expanded accordion parent (open) — white bg, teal text + border --- */
+:host-context(body.light-theme) button[aria-expanded="true"],
+:host-context(body.theme-light) button[aria-expanded="true"],
+:host-context(.light-theme) button[aria-expanded="true"],
+:host-context(.theme-light) button[aria-expanded="true"],
+:host-context(body.light) button[aria-expanded="true"] {
+  color: #0F8A7F !important;
+  background: #FFFFFF !important;
+  border-color: rgba(43, 212, 199, 0.20) !important;
+  box-shadow: none !important;
+}
+
+:host-context(body.light-theme) button[aria-expanded="true"] svg,
+:host-context(body.theme-light) button[aria-expanded="true"] svg,
+:host-context(.light-theme) button[aria-expanded="true"] svg,
+:host-context(.theme-light) button[aria-expanded="true"] svg,
+:host-context(body.light) button[aria-expanded="true"] svg {
+  color: #0F8A7F !important;
+}
+
+/* --- Chevron arrow --- */
+:host-context(body.light-theme) .sidebar button:not([aria-expanded="true"]) svg.w-3\.5,
+:host-context(body.theme-light) .sidebar button:not([aria-expanded="true"]) svg.w-3\.5,
+:host-context(.light-theme) .sidebar button:not([aria-expanded="true"]) svg.w-3\.5,
+:host-context(.theme-light) .sidebar button:not([aria-expanded="true"]) svg.w-3\.5,
+:host-context(body.light) .sidebar button:not([aria-expanded="true"]) svg.w-3\.5 {
+  color: #94A3B8 !important;
+}
+
+/* --- Submenu container border --- */
+:host-context(body.light-theme) [id^="sub-"],
+:host-context(body.theme-light) [id^="sub-"],
+:host-context(.light-theme) [id^="sub-"],
+:host-context(.theme-light) [id^="sub-"],
+:host-context(body.light) [id^="sub-"] {
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-inline-start: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- Sub-items (children) — design: #64748B color, rgba(0,0,0,.08) border --- */
+:host-context(body.light-theme) [id^="sub-"] a:not(.active-sub-item),
+:host-context(body.theme-light) [id^="sub-"] a:not(.active-sub-item),
+:host-context(.light-theme) [id^="sub-"] a:not(.active-sub-item),
+:host-context(.theme-light) [id^="sub-"] a:not(.active-sub-item),
+:host-context(body.light) [id^="sub-"] a:not(.active-sub-item),
+:host-context(body.light-theme) [id^="sub-"] button,
+:host-context(body.theme-light) [id^="sub-"] button,
+:host-context(.light-theme) [id^="sub-"] button,
+:host-context(.theme-light) [id^="sub-"] button,
+:host-context(body.light) [id^="sub-"] button {
+  color: #64748B !important;
+  border-inline-start: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:host-context(body.light-theme) [id^="sub-"] a:not(.active-sub-item) svg,
+:host-context(body.theme-light) [id^="sub-"] a:not(.active-sub-item) svg,
+:host-context(.light-theme) [id^="sub-"] a:not(.active-sub-item) svg,
+:host-context(.theme-light) [id^="sub-"] a:not(.active-sub-item) svg,
+:host-context(body.light) [id^="sub-"] a:not(.active-sub-item) svg,
+:host-context(body.light-theme) [id^="sub-"] button svg,
+:host-context(body.theme-light) [id^="sub-"] button svg,
+:host-context(.light-theme) [id^="sub-"] button svg,
+:host-context(.theme-light) [id^="sub-"] button svg,
+:host-context(body.light) [id^="sub-"] button svg {
+  color: #94A3B8 !important;
+}
+
+/* --- Sub-item hover — design: #0F172A color, rgba(0,0,0,.04) bg --- */
+:host-context(body.light-theme) [id^="sub-"] a:hover:not(.active-sub-item),
+:host-context(body.theme-light) [id^="sub-"] a:hover:not(.active-sub-item),
+:host-context(.light-theme) [id^="sub-"] a:hover:not(.active-sub-item),
+:host-context(.theme-light) [id^="sub-"] a:hover:not(.active-sub-item),
+:host-context(body.light) [id^="sub-"] a:hover:not(.active-sub-item) {
+  color: #0F172A !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+:host-context(body.light-theme) [id^="sub-"] a:hover:not(.active-sub-item) svg,
+:host-context(body.theme-light) [id^="sub-"] a:hover:not(.active-sub-item) svg,
+:host-context(.light-theme) [id^="sub-"] a:hover:not(.active-sub-item) svg,
+:host-context(.theme-light) [id^="sub-"] a:hover:not(.active-sub-item) svg,
+:host-context(body.light) [id^="sub-"] a:hover:not(.active-sub-item) svg {
+  color: #0F172A !important;
+}
+
+/* --- Active sub-item — white bg, teal text + border --- */
+:host-context(body.light-theme) a.active-sub-item,
+:host-context(body.theme-light) a.active-sub-item,
+:host-context(.light-theme) a.active-sub-item,
+:host-context(.theme-light) a.active-sub-item,
+:host-context(body.light) a.active-sub-item {
+  background: #FFFFFF !important;
+  color: #0F8A7F !important;
+  border-color: rgba(43, 212, 199, 0.25) !important;
+  font-weight: 700 !important;
+}
+
+:host-context(body.light-theme) a.active-sub-item svg,
+:host-context(body.theme-light) a.active-sub-item svg,
+:host-context(.light-theme) a.active-sub-item svg,
+:host-context(.theme-light) a.active-sub-item svg,
+:host-context(body.light) a.active-sub-item svg,
+:host-context(body.light-theme) a.active-sub-item .truncate,
+:host-context(body.theme-light) a.active-sub-item .truncate,
+:host-context(.light-theme) a.active-sub-item .truncate,
+:host-context(.theme-light) a.active-sub-item .truncate,
+:host-context(body.light) a.active-sub-item .truncate {
+  color: #0F8A7F !important;
+  font-weight: 700 !important;
+}
+
+/* --- Logout button --- */
+:host-context(body.light-theme) .sidebar a:hover.text-red-400,
+:host-context(body.theme-light) .sidebar a:hover.text-red-400,
+:host-context(.light-theme) .sidebar a:hover.text-red-400,
+:host-context(.theme-light) .sidebar a:hover.text-red-400,
+:host-context(body.light) .sidebar a:hover.text-red-400 {
+  background: rgba(255, 100, 100, 0.06) !important;
+  color: #B42318 !important;
+  border-color: rgba(255, 100, 100, 0.20) !important;
+}
+:host-context(body.light-theme) .sidebar a:hover.text-red-400 svg,
+:host-context(body.theme-light) .sidebar a:hover.text-red-400 svg,
+:host-context(.light-theme) .sidebar a:hover.text-red-400 svg,
+:host-context(.theme-light) .sidebar a:hover.text-red-400 svg,
+:host-context(body.light) .sidebar a:hover.text-red-400 svg {
+  color: #B42318 !important;
+}
+
+/* --- Mobile close button --- */
+:host-context(body.light-theme) .sidebar button.lg\:hidden,
+:host-context(body.theme-light) .sidebar button.lg\:hidden,
+:host-context(.light-theme) .sidebar button.lg\:hidden,
+:host-context(.theme-light) .sidebar button.lg\:hidden,
+:host-context(body.light) .sidebar button.lg\:hidden {
+  color: #64748B !important;
+}

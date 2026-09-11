@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 	standalone: true,
 	imports: [CommonModule, FormsModule, RouterModule],
 	templateUrl: './help.html',
+	styleUrls: ['./help.css'],
 	styles: [`
     :host { display: block; width: 100%; animation: ws-fade 0.2s ease forwards; }
     @keyframes ws-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -27,12 +28,10 @@ import { RouterModule } from '@angular/router';
 
     .ha-body { flex: 1; min-width: 0; }
     .ha-text { background: linear-gradient(135deg,rgba(123,47,190,.15),rgba(165,107,224,.05)); border: 1px solid rgba(123,47,190,.26); border-radius: 14px; border-top-right-radius: 5px; padding: 13px 16px; font-size: 14px; line-height: 1.75; color: #fff; }
-    :host-context([data-theme='light']) .ha-text { background: linear-gradient(135deg,rgba(123,47,190,.08),rgba(165,107,224,.04)); border-color: rgba(123,47,190,.22); color: #1E293B; }
 
     .ha-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
     .ha-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: rgba(123,47,190,.10); border: 1px solid rgba(123,47,190,.26); border-radius: 9px; font-size: 12px; font-weight: 700; color: var(--ai-txt,#A56BE0); text-decoration: none; transition: background .15s; }
     .ha-link:hover { background: rgba(123,47,190,.2); }
-    :host-context([data-theme='light']) .ha-link { background: rgba(123,47,190,.06); border-color: #D9C7EC; }
 
     .faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
     .faq-item.open .faq-a { max-height: 240px; }
@@ -51,21 +50,6 @@ import { RouterModule } from '@angular/router';
 
     .chan { background: linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 18px; text-align: center; text-decoration: none; display: block; transition: border-color .15s, transform .15s; }
     .chan:hover { border-color: rgba(43,212,199,.22); transform: translateY(-2px); }
-
-    /* Light Theme Support */
-    :host-context([data-theme='light']) .help-hero { background: linear-gradient(135deg,rgba(123,47,190,.10),rgba(43,127,255,.06)) !important; border-color: rgba(123,47,190,.22) !important; }
-    :host-context([data-theme='light']) .help-search { background: #fff !important; border-color: #D9C7EC !important; }
-    :host-context([data-theme='light']) .help-search input { color: #0F172A !important; }
-    :host-context([data-theme='light']) .help-sg { background: #fff !important; border-color: #D8DFEC !important; color: #475569 !important; }
-    :host-context([data-theme='light']) .qcat { background: #fff !important; border-color: #E7EAF1 !important; }
-    :host-context([data-theme='light']) .qcat-ttl { color: #0F172A !important; }
-    :host-context([data-theme='light']) .faq-item { background: #fff !important; border-color: #E7EAF1 !important; }
-    :host-context([data-theme='light']) .faq-q-txt { color: #0F172A !important; }
-    :host-context([data-theme='light']) .faq-a-inner { color: #475569 !important; }
-    :host-context([data-theme='light']) .tk-card { background: #fff !important; border-color: #E7EAF1 !important; }
-    :host-context([data-theme='light']) .tk-ttl { color: #0F172A !important; }
-    :host-context([data-theme='light']) .chan { background: #fff !important; border-color: #E7EAF1 !important; }
-    :host-context([data-theme='light']) .chan-ttl { color: #0F172A !important; }
   `],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -82,12 +66,12 @@ export class HelpComponent {
 	faqState = signal<boolean[]>([false, false, false, false, false]);
 
 	knowledgeBase = [
-		{ k: ['ضمان', 'الضمان', 'افرج', 'أفرج', 'افراج', 'إفراج'], a: 'يُحتجز مبلغ طلبك في حساب ضمان مرخّص فور توقيع العقد، ولا يصل لمقدّم الخدمة إلا بعد قبولك للتسليم. للإفراج: افتح المشروع وراجع التسليم ثم اضغط «قبول التسليم» فيُحوَّل المبلغ تلقائيًّا. إن لم يكتمل العمل تستردّ مبلغك وفق شروط العقد', links: [['العقود والضمان', '/provider-overview/escrow']] },
-		{ k: ['تسوية', 'رصيد', 'إلغاء', 'الغاء'], a: 'عند اعتماد إلغاء الطلب تظهر تسوية الرصيد في محفظتك خلال مدة العقد المتّفق عليها، ويمكنك استخدام الرصيد في طلب جديد مباشرة. كل الحركات تظهر في سجلّ محفظتك', links: [['محفظتي', '/provider-overview/finance/wallet']] },
-		{ k: ['عروض', 'العروض', 'أقارن', 'اقارن', 'مقارنة', 'اختار'], a: 'يرتّب المساعد الذكي العروض حسب توافقها مع طلبك والسعر وتقييم المقدّم وزمن التسليم بدقة 95%. تظهر نسبة التوافق بجوار كل عرض، ويبقى اختيار العرض قرارك أنت في كل الأحوال', links: [['طلباتي والعروض', '/provider-overview/requests']] },
-		{ k: ['نزاع', 'النزاع', 'خلاف', 'شكوى', 'اختلفت'], a: 'إذا اختلفت مع مقدّم الخدمة افتح نزاعًا من صفحة النزاعات وأرفق الأدلة. يبقى المبلغ محتجزًا في الضمان حتى يصدر الفريق المختص قراره بعد مراجعة الطرفين', links: [['النزاعات', '/provider-overview/disputes']] },
-		{ k: ['بريد', 'جوال', 'كلمة المرور', 'تعديل', 'أعدل', 'اعدل', 'رقم'], a: 'البيانات الحسّاسة كالبريد والجوال وكلمة المرور تُعدّل عبر مسار محكوم من صفحة طلبات تعديل الملف، ليراجعها الفريق المختص قبل تطبيقها حفاظًا على أمان حسابك', links: [['طلبات تعديل الملف', '/provider-overview/profile/requests']] },
-		{ k: ['كاش باك', 'كاشباك', 'نقاط'], a: 'يُحتسب الكاش باك كنسبة من قيمة المشاريع المكتملة ويُضاف إلى محفظتك تلقائيًّا بعد إغلاق المشروع. تفاصيل كل عملية تظهر في سجلّ معاملات محفظتك', links: [['محفظتي', '/provider-overview/finance/wallet']] }
+		{ k: ['ضمان', 'الضمان', 'افرج', 'أفرج', 'افراج', 'إفراج'], a: 'يُحتجز مبلغ طلبك في حساب ضمان مرخّص فور توقيع العقد، ولا يصل لمقدّم الخدمة إلا بعد قبولك للتسليم. للإفراج: افتح المشروع وراجع التسليم ثم اضغط «قبول التسليم» فيُحوَّل المبلغ تلقائيًّا. إن لم يكتمل العمل تستردّ مبلغك وفق شروط العقد', links: [['العقود والضمان', '/client-overview/contracts']] },
+		{ k: ['تسوية', 'رصيد', 'إلغاء', 'الغاء'], a: 'عند اعتماد إلغاء الطلب تظهر تسوية الرصيد في محفظتك خلال مدة العقد المتّفق عليها، ويمكنك استخدام الرصيد في طلب جديد مباشرة. كل الحركات تظهر في سجلّ محفظتك', links: [['محفظتي', '/client-overview/finance/wallet']] },
+		{ k: ['عروض', 'العروض', 'أقارن', 'اقارن', 'مقارنة', 'اختار'], a: 'يرتّب المساعد الذكي العروض حسب توافقها مع طلبك والسعر وتقييم المقدّم وزمن التسليم بدقة 95%. تظهر نسبة التوافق بجوار كل عرض، ويبقى اختيار العرض قرارك أنت في كل الأحوال', links: [['طلباتي والعروض', '/client-overview/requests']] },
+		{ k: ['نزاع', 'النزاع', 'خلاف', 'شكوى', 'اختلفت'], a: 'إذا اختلفت مع مقدّم الخدمة افتح نزاعًا من صفحة النزاعات وأرفق الأدلة. يبقى المبلغ محتجزًا في الضمان حتى يصدر الفريق المختص قراره بعد مراجعة الطرفين', links: [['النزاعات', '/client-overview/disputes']] },
+		{ k: ['بريد', 'جوال', 'كلمة المرور', 'تعديل', 'أعدل', 'اعدل', 'رقم'], a: 'البيانات الحسّاسة كالبريد والجوال وكلمة المرور تُعدّل عبر مسار محكوم من صفحة طلبات تعديل الملف، ليراجعها الفريق المختص قبل تطبيقها حفاظًا على أمان حسابك', links: [['طلبات تعديل الملف', '/client-overview/profile/requests']] },
+		{ k: ['كاش باك', 'كاشباك', 'نقاط'], a: 'يُحتسب الكاش باك كنسبة من قيمة المشاريع المكتملة ويُضاف إلى محفظتك تلقائيًّا بعد إغلاق المشروع. تفاصيل كل عملية تظهر في سجلّ معاملات محفظتك', links: [['محفظتي', '/client-overview/finance/wallet']] }
 	];
 
 	askAI() {

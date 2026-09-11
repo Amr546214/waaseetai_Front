@@ -8,7 +8,7 @@
 
 		<!-- AI BANNER -->
 		@if (parent.showAIBanner()) {
-		<div class="flex items-center gap-4 p-5 rounded-[20px] mb-8 animate-ws-fade relative overflow-hidden"
+		<div class="ai-sug-banner flex items-center gap-4 p-5 rounded-[20px] mb-8 animate-ws-fade relative overflow-hidden"
 			style="background: rgba(123, 47, 190, 0.12); border: 1px solid rgba(123, 47, 190, 0.25); box-shadow: 0 4px 20px rgba(123,47,190,0.12);"
 			role="region">
 			<div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
@@ -17,20 +17,20 @@
 			<use href="#i-ai"></use></svg>
 			</div>
 			<div class="flex-1">
-				<div class="text-[15px] font-extrabold text-white mb-1 flex items-center gap-2">
+				<div class="text-[15px] font-extrabold text-[var(--txt)] mb-1 flex items-center gap-2">
 					وسيط AI <span class="text-xs opacity-60">•</span> اقتراح لك
 					<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
-						style="color: #a56be0; background: rgba(123,47,190,0.2); border: 1px solid rgba(123,47,190,0.3);">دقة 96%</span>
+						style="color: var(--ai-txt); background: rgba(123,47,190,0.2); border: 1px solid rgba(123,47,190,0.3);">دقة 96%</span>
 				</div>
-				<div class="text-[14px] text-[#a0a9d0]">بناء على طلباتك السابقة: هل تحتاج خدمات تصميم ويب أو تطبيقات مجدداً؟</div>
+				<div class="text-[14px] text-[var(--txt-2)]">بناء على طلباتك السابقة: هل تحتاج خدمات تصميم ويب أو تطبيقات مجدداً؟</div>
 			</div>
 			<div class="flex items-center gap-3 shrink-0">
 				<button type="button"
 					class="px-6 py-2.5 rounded-full text-[14px] font-bold transition-all whitespace-nowrap shadow-sm hover:opacity-90 cursor-pointer"
-					style="background: rgba(123, 47, 190, 0.25); border: 1px solid rgba(123, 47, 190, 0.4); color: #d6bbfb;"
+					style="background: rgba(123, 47, 190, 0.25); border: 1px solid rgba(123, 47, 190, 0.4); color: var(--ai-txt);"
 					(click)="parent.applyAISuggestion()">طبق الاقتراح</button>
 				<button type="button"
-					class="w-8 h-8 rounded-lg text-[#8892aa] flex items-center justify-center hover:text-white transition-colors cursor-pointer"
+					class="w-8 h-8 rounded-lg text-[var(--txt-3)] flex items-center justify-center hover:text-[var(--txt)] transition-colors cursor-pointer"
 					(click)="parent.showAIBanner.set(false)">
 					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 						<line x1="18" y1="6" x2="6" y2="18" />
@@ -125,9 +125,9 @@
 		</div>
 
 		<!-- AI RECOMMENDATION NOTE -->
-		<div class="flex items-center gap-3 p-4 rounded-[20px] mb-8 bg-[#101438]/90 border border-[#23205c] text-xs text-[#a0a9d0] shadow-md">
+		<div class="ai-disc-note flex items-center gap-3 p-4 rounded-[20px] mb-8 bg-[var(--crd-bg)] border border-[var(--crd-bd)] text-xs text-[var(--txt-2)] shadow-md">
 			<svg viewBox="0 0 24 24" fill="none" width="24px" height="24px" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 			<use href="#i-ai"></use></svg>
-			<div><strong class="text-white">وسيط AI إشعار الذكاء الاصطناعي:</strong> يقترح التخصصات بناء على خياراتك... اضغط التالي لمتابعة تفاصيل الطلب.</div>
+			<div><strong class="text-[var(--txt)]">وسيط AI إشعار الذكاء الاصطناعي:</strong> يقترح التخصصات بناء على خياراتك... اضغط التالي لمتابعة تفاصيل الطلب.</div>
 		</div>
 		}

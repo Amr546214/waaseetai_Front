@@ -1,12 +1,12 @@
-<div *ngIf="isLoading()" class="p-8 text-center text-white">جاري تحميل مستويات التقييم...</div>
+<div *ngIf="isLoading()" class="p-8 text-center text-[var(--txt)]">جاري تحميل مستويات التقييم...</div>
 
 <ng-container *ngIf="!isLoading() && levelData() as data">
 	<div class="mb-4">
 		<div class="flex items-start justify-between gap-3 flex-wrap mb-4">
 			<div>
 				<h1 class="text-[20px] font-black text-[var(--txt)] m-0">مستوى التصنيف</h1>
-				<div class="text-[12px] text-[var(--txt-3)] mt-1">15 مستوى · من زائر إلى مؤسسي · عمولة منصة تنافسية تصل
-					إلى 10%</div>
+				<div class="text-[12px] text-[var(--txt-3)] mt-1">15 مستوى · من زائر إلى مؤسسي · كاش باك يصل
+					إلى 5%</div>
 			</div>
 		</div>
 	</div>
@@ -15,7 +15,7 @@
 	<div
 		class="flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] border border-[rgba(123,47,190,.22)] rounded-2xl mb-5 backdrop-blur-md">
 		<div
-			class="w-9 h-9 rounded-xl bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.22)] flex items-center justify-center shrink-0 text-[#A56BE0]">
+			class="w-9 h-9 rounded-xl bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.22)] flex items-center justify-center shrink-0 text-[var(--ai-txt)]">
 			<svg width="20" height="20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 				stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 				<circle cx="12" cy="12" r="2" />
@@ -30,18 +30,18 @@
 			</svg>
 		</div>
 		<div class="flex-1">
-			<div class="text-[10px] font-black text-[#A56BE0] tracking-widest mb-0.5">وسيط AI — تحليل مستوى التصنيف
+			<div class="text-[10px] font-black text-[var(--ai-txt)] tracking-widest mb-0.5">وسيط AI — تحليل مستوى التصنيف
 			</div>
-			<div class="text-[12.5px] font-medium text-[var(--txt-3)] leading-relaxed">AI يحسب نقاطك ويرصد أداءك ويقترح
+			<div class="text-[12.5px] font-medium text-[var(--txt-2)] leading-relaxed">AI يحسب نقاطك ويرصد أداءك ويقترح
 				أسرع مسار لخفض عمولة المنصة وتحسين ظهور نماذجك <span
-					class="bg-[#7B2FBE]/20 border border-[#7B2FBE]/20 rounded px-1.5 py-px text-[10px] font-black text-[#A56BE0] mx-1">دقة
+					class="bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.28)] rounded px-1.5 py-px text-[10px] font-black text-[var(--ai-txt)] mx-1">دقة
 					95%</span> القرار النهائي لك</div>
 		</div>
 	</div>
 
 	<!-- Current Level Card -->
 	<div
-		class="relative overflow-hidden bg-gradient-to-br from-[#2BD4C7]/10 to-[#2B7FFF]/10 border border-[#2BD4C7]/18 rounded-[18px] p-6 mb-4">
+		class="relative overflow-hidden bg-gradient-to-br from-[#2BD4C7]/12 to-[#2B7FFF]/9 border border-[#2BD4C7]/28 rounded-[18px] p-6 mb-4">
 		<div
 			class="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-[radial-gradient(circle,rgba(43,212,199,0.10),transparent_70%)] pointer-events-none">
 		</div>
@@ -52,7 +52,7 @@
 		<div class="relative flex items-center gap-6 flex-wrap">
 			<!-- Badge -->
 			<div
-				class="w-[88px] h-[88px] rounded-full bg-gradient-to-br from-[#7BA7D4]/25 to-[#7BA7D4]/10 flex flex-col items-center justify-center shrink-0 shadow-[0_0_32px_rgba(123,167,212,0.35),0_0_0_4px_rgba(123,167,212,0.15)] border-2 border-[#7BA7D4]">
+				class="w-[88px] h-[88px] rounded-full bg-gradient-to-br from-[#7BA7D4]/25 to-[#7BA7D4]/12 flex flex-col items-center justify-center shrink-0 shadow-[0_0_32px_rgba(123,167,212,0.35),0_0_0_4px_rgba(123,167,212,0.15)] border-2 border-[#7BA7D4]">
 				<svg class="inline-block" width="28" height="28" viewBox="0 0 100 100" fill="#7BA7D4"
 					aria-hidden="true">
 					<path
@@ -63,11 +63,11 @@
 
 			<!-- Info -->
 			<div class="flex-1 min-w-[160px]">
-				<div class="text-[11px] font-bold text-[#2BD4C7] tracking-widest mb-1 uppercase">مستواك الحالي</div>
-				<div class="text-[32px] font-black text-white leading-none mb-1.5">{{ data.currentLevel.title }}</div>
+				<div class="text-[11px] font-bold text-[var(--teal-txt)] tracking-widest mb-1 uppercase">مستواك الحالي</div>
+				<div class="text-[32px] font-black text-[var(--txt)] leading-none mb-1.5">{{ data.currentLevel.title }}</div>
 				<div class="flex items-center gap-2 flex-wrap">
 					<span
-						class="text-[11px] bg-[#2BD4C7]/15 border border-[#2BD4C7]/30 text-[#2BD4C7] rounded-full px-2.5 py-0.5 font-bold">عمولة
+						class="text-[11px] bg-[#2BD4C7]/15 border border-[#2BD4C7]/30 text-[var(--teal-txt)] rounded-full px-2.5 py-0.5 font-bold">عمولة
 						منصة {{ data.currentStats.commissionRate }}%</span>
 					<span class="text-[11px] text-[var(--txt-3)]">{{ data.currentLevel.index }} من 15 مستوى</span>
 				</div>
@@ -76,24 +76,24 @@
 			<!-- Stats Grid -->
 			<div class="grid grid-cols-2 gap-3 shrink-0">
 				<div
-					class="text-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-3">
-					<div class="text-[22px] font-black text-[#2BD4C7] leading-none">{{ data.currentStats.points }}</div>
+					class="text-center bg-[var(--crd-bg)] border border-[var(--sec-bd)] rounded-[12px] p-3">
+					<div class="text-[22px] font-black text-[var(--teal-txt)] leading-none">{{ data.currentStats.points }}</div>
 					<div class="text-[10px] text-[var(--txt-3)] font-bold mt-1">نقطة حالية</div>
 				</div>
 				<div
-					class="text-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-3">
-					<div class="text-[22px] font-black text-white leading-none">{{ data.currentStats.completedProjects
+					class="text-center bg-[var(--crd-bg)] border border-[var(--sec-bd)] rounded-[12px] p-3">
+					<div class="text-[22px] font-black text-[var(--txt)] leading-none">{{ data.currentStats.completedProjects
 						}}</div>
 					<div class="text-[10px] text-[var(--txt-3)] font-bold mt-1">مشروع مكتمل</div>
 				</div>
 				<div
-					class="text-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-3">
+					class="text-center bg-[var(--crd-bg)] border border-[var(--sec-bd)] rounded-[12px] p-3">
 					<div class="text-[22px] font-black text-[#FFB400] leading-none">{{ data.currentStats.avgRating |
 						number:'1.1-1' }}</div>
 					<div class="text-[10px] text-[var(--txt-3)] font-bold mt-1">متوسط التقييم</div>
 				</div>
 				<div
-					class="text-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-3">
+					class="text-center bg-[var(--crd-bg)] border border-[var(--sec-bd)] rounded-[12px] p-3">
 					<div class="text-[22px] font-black text-[#0FA99A] leading-none">{{ data.currentStats.commissionRate
 						}}%</div>
 					<div class="text-[10px] text-[var(--txt-3)] font-bold mt-1">عمولة فعلية</div>
@@ -105,16 +105,16 @@
 	<!-- Progress to Next Level -->
 	<div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[16px] p-5 mb-5 backdrop-blur-md">
 		<div class="flex items-center justify-between flex-wrap gap-2 mb-4">
-			<div class="text-[14px] font-black text-white flex items-center gap-2">
+			<div class="text-[14px] font-black text-[var(--txt)] flex items-center gap-2">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<polyline points="13 17 18 12 13 7" />
 					<polyline points="6 17 11 12 6 7" />
 				</svg>
-				التقدم نحو المستوى {{ data.currentLevel.index + 1 }} — <span class="text-[#2BD4C7]">{{
+				التقدم نحو المستوى {{ data.currentLevel.index + 1 }} — <span class="text-[var(--teal-txt)]">{{
 					data.nextLevelProgress.title }}</span>
 			</div>
 			<span
-				class="text-[11px] text-[var(--txt-3)] font-bold bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] px-3 py-1 rounded-full">عمولة:
+				class="text-[11px] text-[var(--txt-3)] font-bold bg-[var(--sec-bg)] border border-[var(--sec-bd)] px-3 py-1 rounded-full">عمولة:
 				{{ data.currentStats.commissionRate }}% → {{ data.nextLevelProgress.nextCommission }}%</span>
 		</div>
 
@@ -126,11 +126,11 @@
 						<div class="w-1.5 h-1.5 rounded-full bg-[#2BD4C7]"></div>
 						<span class="text-[12px] font-bold text-[var(--txt-2)]">النقاط</span>
 					</div>
-					<div class="text-[12px] font-bold"><span class="text-[#2BD4C7]">{{ data.currentStats.points
+					<div class="text-[12px] font-bold"><span class="text-[var(--teal-txt)]">{{ data.currentStats.points
 							}}</span><span class="text-[var(--txt-3)]"> نقطة · ينقصك </span><span
 							class="text-[#FFB400] font-black">{{ data.nextLevelProgress.pointsGap }} نقطة</span></div>
 				</div>
-				<div class="h-2 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+				<div class="h-2 bg-[var(--sec-bd)] rounded-full overflow-hidden">
 					<div [style.width.%]="data.nextLevelProgress.pointsPercent"
 						class="h-full bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF] rounded-full shadow-[0_0_8px_rgba(43,212,199,0.35)]">
 					</div>
@@ -148,7 +148,7 @@
 							ينقصك </span><span class="text-[#FFB400] font-black">{{ data.nextLevelProgress.projectsGap
 							}} مشاريع</span></div>
 				</div>
-				<div class="h-2 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+				<div class="h-2 bg-[var(--sec-bd)] rounded-full overflow-hidden">
 					<div [style.width.%]="data.nextLevelProgress.projectsPercent"
 						class="h-full bg-gradient-to-r from-[#5DA0FF] to-[#2BD4C7] rounded-full"></div>
 				</div>
@@ -164,7 +164,7 @@
 							number:'1.1-1' }}</span><span class="text-[var(--txt-3)]"> نجمة · ينقصك </span><span
 							class="text-[#0FA99A] font-black">{{ data.nextLevelProgress.ratingGap }} نجمة</span></div>
 				</div>
-				<div class="h-2 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+				<div class="h-2 bg-[var(--sec-bd)] rounded-full overflow-hidden">
 					<div [style.width.%]="data.nextLevelProgress.ratingPercent"
 						class="h-full bg-gradient-to-r from-[#FFB400] to-[#0FA99A] rounded-full"></div>
 				</div>
@@ -172,8 +172,8 @@
 		</div>
 
 		<!-- AI Advice -->
-		<div class="mt-4 p-3 bg-[#7B2FBE]/10 border border-[#7B2FBE]/20 rounded-[10px] flex items-start gap-2.5">
-			<svg class="w-3.5 h-3.5 text-[#A56BE0] shrink-0 mt-[1px]" viewBox="0 0 24 24" fill="none"
+		<div class="mt-4 p-3 bg-[rgba(123,47,190,.07)] border border-[rgba(123,47,190,.18)] rounded-[10px] flex items-start gap-2.5">
+			<svg class="w-3.5 h-3.5 text-[var(--ai-txt)] shrink-0 mt-[1px]" viewBox="0 0 24 24" fill="none"
 				stroke="currentColor" stroke-width="2">
 				<circle cx="12" cy="12" r="2" />
 				<circle cx="4" cy="6" r="1.5" />
@@ -191,7 +191,7 @@
 
 	<!-- 15 Levels Map -->
 	<div class="flex items-center gap-2 text-[13px] font-black text-[var(--txt-2)] mb-3">
-		<svg class="w-4 h-4 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+		<svg class="w-4 h-4 text-[var(--teal-txt)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
 			stroke-linecap="round" stroke-linejoin="round">
 			<line x1="8" y1="6" x2="21" y2="6" />
 			<line x1="8" y1="12" x2="21" y2="12" />
@@ -224,7 +224,11 @@
 						▲ أنت هنا</div>
 
 					<div
-						[class]="level.isCurrent ? 'relative w-[72px] h-[72px] mb-2' : 'w-14 h-14 rounded-full bg-[#9B8B7A]/15 border-2 border-[#9B8B7A] flex items-center justify-center mb-2'">
+						[class]="level.isCurrent ? 'relative w-[72px] h-[72px] mb-2' : 'w-14 h-14 rounded-full flex items-center justify-center mb-2'"
+						[style.background]="!level.isCurrent ? (level.color || '#9B8B7A') + '24' : null"
+						[style.borderColor]="!level.isCurrent ? (level.color || '#9B8B7A') : null"
+						[class.border-2]="!level.isCurrent"
+						[class.border-dashed]="!level.isCurrent && level.state === 'next'">
 
 						<!-- Current Level Special Border -->
 						<ng-container *ngIf="level.isCurrent">
@@ -251,7 +255,7 @@
 
 						<!-- Normal Outline -->
 						<ng-container *ngIf="!level.isCurrent">
-							<svg class="w-7 h-7" viewBox="0 0 100 100" fill="currentColor">
+							<svg class="w-7 h-7" viewBox="0 0 100 100" [attr.fill]="level.color || 'currentColor'">
 								<path
 									d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 							</svg>
@@ -259,12 +263,13 @@
 
 					</div>
 					<div class="text-[11px] font-black text-center"
-						[ngClass]="level.isCurrent ? 'text-white text-[12px]' : 'text-[var(--txt-2)]'">{{ level.title }}
+						[ngClass]="level.isCurrent ? 'text-[var(--txt)] text-[12px]' : 'text-[var(--txt-2)]'"
+						[style.color]="!level.isCurrent && level.state !== 'upcoming' ? (level.color || null) : null">{{ level.title }}
 					</div>
 					<div class="text-[9px] mt-0.5"
-						[ngClass]="level.isCurrent ? 'text-[#2BD4C7] font-bold' : 'text-[var(--txt-3)]'">{{
+						[ngClass]="level.isCurrent ? 'text-[var(--teal-txt)] font-bold' : 'text-[var(--txt-3)]'">{{
 						level.reqPoints }} نقطة</div>
-					<div class="text-[9px]" [ngClass]="level.isCurrent ? 'text-[#2BD4C7]' : 'text-[var(--txt-3)]'">{{
+					<div class="text-[9px]" [ngClass]="level.isCurrent ? 'text-[var(--teal-txt)]' : 'text-[var(--txt-3)]'">{{
 						level.reqProjects }} مشروع</div>
 				</div>
 			</ng-container>
@@ -277,7 +282,7 @@
 		<!-- Points Gain -->
 		<div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden backdrop-blur-md">
 			<div
-				class="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex items-center gap-2 text-[13px] font-black text-[#0FA99A]">
+				class="px-4 py-3 border-b border-[var(--sec-bd)] flex items-center gap-2 text-[13px] font-black text-[#0FA99A]">
 				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 					<polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
 					<polyline points="17 6 23 6 23 12" />
@@ -286,7 +291,7 @@
 			</div>
 			<div class="flex flex-col">
 				<div *ngFor="let rule of data.pointRules.gainRules"
-					class="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(255,255,255,0.04)]">
+					class="flex items-center justify-between px-4 py-2.5 border-b border-[var(--sec-bd)]">
 					<span class="text-[12px] text-[var(--txt-2)]">{{ rule.label }}</span>
 					<span class="text-[12px] font-black text-[#0FA99A]">{{ rule.points }}</span>
 				</div>
@@ -296,7 +301,7 @@
 		<!-- Points Loss -->
 		<div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden backdrop-blur-md">
 			<div
-				class="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex items-center gap-2 text-[13px] font-black text-[#FF8C69]">
+				class="px-4 py-3 border-b border-[var(--sec-bd)] flex items-center gap-2 text-[13px] font-black text-[#FF8C69]">
 				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 					<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
 					<polyline points="17 18 23 18 23 12" />
@@ -305,7 +310,7 @@
 			</div>
 			<div class="flex flex-col">
 				<div *ngFor="let rule of data.pointRules.lossRules"
-					class="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(255,255,255,0.04)]">
+					class="flex items-center justify-between px-4 py-2.5 border-b border-[var(--sec-bd)]">
 					<div class="text-[12px] text-[var(--txt-2)]">{{ rule.label }}</div>
 					<span class="text-[12px] font-black text-[#FF8C69]">{{ rule.points }}</span>
 				</div>
@@ -313,15 +318,15 @@
 
 			<!-- Current Level Benefits -->
 			<div
-				class="px-4 py-3 border-t border-[rgba(255,255,255,0.07)] border-b border-[rgba(255,255,255,0.07)] text-[12px] font-black text-[#2BD4C7]">
+				class="px-4 py-3 border-t border-[var(--sec-bd)] border-b border-[var(--sec-bd)] text-[12px] font-black text-[var(--teal-txt)]">
 				مزايا مستوى {{ data.currentLevel.title }} — مقدم خدمة</div>
 			<div class="px-4 py-2.5 flex flex-col gap-2">
 				<div class="flex items-center gap-2 text-[12px] text-[var(--txt-2)]">
-					<div class="w-1 h-1 rounded-full bg-[#2BD4C7] shrink-0"></div>عمولة منصة {{
+					<div class="w-1 h-1 rounded-full bg-[var(--teal-txt)] shrink-0"></div>عمولة منصة {{
 					data.currentStats.commissionRate }}% الأساسية
 				</div>
 				<div class="flex items-center gap-2 text-[12px] text-[var(--txt-2)]">
-					<div class="w-1 h-1 rounded-full bg-[#2BD4C7] shrink-0"></div>أولوية ظهور نماذجك في نتائج البحث
+					<div class="w-1 h-1 rounded-full bg-[var(--teal-txt)] shrink-0"></div>أولوية ظهور نماذجك في نتائج البحث
 				</div>
 			</div>
 		</div>

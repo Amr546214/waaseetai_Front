@@ -259,3 +259,122 @@
 	transition: background-color 5000s ease-in-out 0s;
 	-webkit-text-fill-color: var(--txt) !important;
 }
+
+// ─────────────────────────────────────────────────────────────────
+// LIGHT MODE OVERRIDES
+// ThemeService applies: body.light-theme, body.theme-light
+// ─────────────────────────────────────────────────────────────────
+body.light-theme,
+body.theme-light {
+
+	.phone-input-container {
+		background: #F8FAFC;
+		border-color: #CBD5E1;
+
+		&:focus-within {
+			border-color: rgba(43, 212, 199, .5);
+			box-shadow: 0 0 0 3px rgba(43, 212, 199, .1);
+		}
+
+		&.is-disabled {
+			background: #F1F5F9;
+			opacity: 1;
+		}
+	}
+
+	.country-selector-btn {
+		border-right-color: #E2E8F0;
+
+		&:hover {
+			background: rgba(15, 23, 42, .04);
+		}
+
+		.dial-code {
+			color: #0F172A;
+		}
+
+		.arrow-icon {
+			color: #94A3B8;
+		}
+	}
+
+	.phone-number-input {
+		color: #0F172A;
+
+		&::placeholder {
+			color: #94A3B8;
+		}
+
+		&:disabled {
+			color: #94A3B8;
+			background: #F1F5F9;
+		}
+
+		&:-webkit-autofill,
+		&:-webkit-autofill:hover,
+		&:-webkit-autofill:focus,
+		&:-webkit-autofill:active {
+			-webkit-text-fill-color: #0F172A !important;
+			caret-color: #0F172A;
+		}
+	}
+
+	// Light dropdown panel
+	.country-dropdown-panel {
+		background-color: #FFFFFF !important;
+		background: #FFFFFF !important;
+		border: 1px solid #E2E8F4;
+		box-shadow: 0 20px 60px rgba(15, 23, 42, 0.16), 0 0 25px rgba(43, 212, 199, 0.08);
+	}
+
+	.dropdown-search-wrap {
+		background: #F8FAFC;
+		border-bottom: 1px solid #E2E8F4;
+
+		.dropdown-search-in {
+			color: #0F172A;
+
+			&::placeholder {
+				color: #94A3B8;
+			}
+		}
+	}
+
+	.dropdown-list {
+		scrollbar-color: rgba(43, 212, 199, 0.4) transparent;
+	}
+
+	.dropdown-item {
+		background-color: #FFFFFF;
+		border-bottom: 1px solid #F1F5F9;
+
+		&:hover {
+			background-color: rgba(43, 212, 199, 0.08);
+
+			.country-name {
+				color: #0F8A7F;
+			}
+		}
+
+		&.selected {
+			background-color: rgba(43, 212, 199, 0.12);
+
+			.country-name {
+				color: #0F8A7F;
+			}
+		}
+
+		.country-name {
+			color: #334155;
+		}
+
+		.dial-badge {
+			color: #0F8A7F;
+			background: rgba(43, 212, 199, 0.10);
+		}
+	}
+
+	.no-results {
+		color: #94A3B8;
+	}
+}

@@ -1,360 +1,290 @@
-<main class="w-full min-h-screen p-4 md:p-6 text-slate-800 dark:text-slate-300 font-sans" dir="rtl">
-	<div class="max-w-full mx-auto space-y-6">
+<div class="rep-page" dir="rtl">
 
-		<!-- Header -->
-		<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-			<div>
-				<h1 class="text-3xl font-black text-slate-900 dark:text-white mb-1">تقاريري</h1>
-				<p class="text-sm font-bold text-slate-500 dark:text-slate-400">ملخص شامل لكل نشاطك · مدعوم بالذكاء الاصطناعي</p>
-			</div>
-			<div class="flex items-center gap-2">
-				<button (click)="exportRpt('pdf')" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold transition-colors shadow-sm">
-					<svg class="w-4 h-4 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-					PDF
-				</button>
-				<button (click)="exportRpt('csv')" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm font-bold transition-colors shadow-sm">
-					<svg class="w-4 h-4 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-					CSV
-				</button>
-			</div>
+	<!-- Header -->
+	<div class="ord-head">
+		<div>
+			<div class="ord-title">تقاريري</div>
+			<div class="ord-sub">ملخص شامل لكل نشاطك · مدعوم بالذكاء الاصطناعي</div>
 		</div>
-
-		<!-- AI Disclosure Box -->
-		<div class="ai-banner">
-			<div class="ai-icon-shell">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="ai-icon w-5 h-5">
-					<use href="#i-ai"></use>
-				</svg>
-			</div>
-			<div>
-				<div class="ai-title mb-0.5">وسيط AI — تحليل البيانات</div>
-				<p class="ai-copy flex items-center flex-wrap gap-2">
-					AI يرصد اتجاهات إنفاقك وجودة مقدميك ويقترح تحسينات
-					<span class="ai-confidence">دقة 95%</span>
-					— الإنسان يحتفظ بالقرار النهائي
-				</p>
-			</div>
-		</div>
-
-		<!-- KPI Row -->
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-			<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm">
-				<div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">إجمالي الطلبات</div>
-				<div class="text-3xl font-black text-slate-900 dark:text-white mb-2">12</div>
-				<div class="flex items-center justify-between">
-					<span class="text-xs font-black text-emerald-600 dark:text-emerald-400">▲ 3 هذا الشهر</span>
-					<div class="flex items-end gap-1 h-8 opacity-70">
-						<div class="w-1.5 bg-emerald-500 rounded-t-sm h-[40%]"></div><div class="w-1.5 bg-emerald-500 rounded-t-sm h-[55%]"></div><div class="w-1.5 bg-emerald-500 rounded-t-sm h-[45%]"></div><div class="w-1.5 bg-emerald-500 rounded-t-sm h-[65%]"></div><div class="w-1.5 bg-emerald-500 rounded-t-sm h-[80%]"></div><div class="w-1.5 bg-emerald-500 rounded-t-sm h-[100%]"></div>
-					</div>
-				</div>
-			</div>
-
-			<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm">
-				<div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">مشاريع مكتملة</div>
-				<div class="text-3xl font-black text-slate-900 dark:text-white mb-2">8</div>
-				<div class="flex items-center justify-between">
-					<span class="text-xs font-black text-emerald-600 dark:text-emerald-400">▲ 2 هذا الشهر</span>
-					<div class="flex items-end gap-1 h-8 opacity-70">
-						<div class="w-1.5 bg-blue-500 rounded-t-sm h-[30%]"></div><div class="w-1.5 bg-blue-500 rounded-t-sm h-[50%]"></div><div class="w-1.5 bg-blue-500 rounded-t-sm h-[60%]"></div><div class="w-1.5 bg-blue-500 rounded-t-sm h-[70%]"></div><div class="w-1.5 bg-blue-500 rounded-t-sm h-[85%]"></div><div class="w-1.5 bg-blue-500 rounded-t-sm h-[100%]"></div>
-					</div>
-				</div>
-			</div>
-
-			<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm">
-				<div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">إجمالي الإنفاق</div>
-				<div class="text-3xl font-black text-cyan-600 dark:text-cyan-400 mb-2">47.2K</div>
-				<div class="flex items-center justify-between">
-					<span class="text-xs font-bold text-slate-500 dark:text-slate-400">ريال سعودي</span>
-					<div class="flex items-end gap-1 h-8 opacity-70">
-						<div class="w-1.5 bg-cyan-500 rounded-t-sm h-[35%]"></div><div class="w-1.5 bg-cyan-500 rounded-t-sm h-[60%]"></div><div class="w-1.5 bg-cyan-500 rounded-t-sm h-[55%]"></div><div class="w-1.5 bg-cyan-500 rounded-t-sm h-[78%]"></div><div class="w-1.5 bg-cyan-500 rounded-t-sm h-[90%]"></div><div class="w-1.5 bg-cyan-500 rounded-t-sm h-[100%]"></div>
-					</div>
-				</div>
-			</div>
-
-			<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm">
-				<div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">متوسط التقييم</div>
-				<div class="flex items-baseline gap-2 mb-1">
-					<span class="text-3xl font-black text-amber-500 dark:text-amber-400">4.8</span>
-					<div class="flex items-center gap-0.5 text-amber-500 dark:text-amber-400">
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-						<svg class="w-3.5 h-3.5 opacity-30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-					</div>
-				</div>
-				<div class="flex items-center justify-between">
-					<span class="text-xs font-black text-emerald-600 dark:text-emerald-400">▲ 0.3 عن السابق</span>
-					<div class="flex items-end gap-1 h-6 opacity-70">
-						<div class="w-1 bg-amber-500 rounded-t-sm h-[72%]"></div><div class="w-1 bg-amber-500 rounded-t-sm h-[76%]"></div><div class="w-1 bg-amber-500 rounded-t-sm h-[80%]"></div><div class="w-1 bg-amber-500 rounded-t-sm h-[88%]"></div><div class="w-1 bg-amber-500 rounded-t-sm h-[92%]"></div><div class="w-1 bg-amber-500 rounded-t-sm h-[96%]"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- AI Insight Banner -->
-		<div class="ai-banner">
-			<div class="ai-icon-shell">
-				<svg class="ai-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
-			</div>
-			<div>
-				<div class="ai-title mb-0.5">توصية الذكاء</div>
-				<p class="ai-copy">
-					معدل قبول طلباتك ارتفع 9% هذا الشهر. الخدمات ذات الميزانية 100–500k تحقق أعلى جودة. يُنصح بتحديد متطلبات المشروع بدقة أعلى لصالح قبول أسرع.
-				</p>
-			</div>
-		</div>
-
-		<!-- Global Filter Rail -->
-		<div class="flex flex-col lg:flex-row lg:items-center gap-4 bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-3 shadow-sm">
-			<div class="flex items-center gap-3 overflow-x-auto scrollbar-hide shrink-0 pb-2 lg:pb-0">
-				<span class="text-xs font-black text-slate-500 dark:text-slate-400 mr-2 shrink-0">الفترة</span>
-				<div class="flex items-center bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-					<button (click)="setDate('month')" [ngClass]="dateFilter() === 'month' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap">هذا الشهر</button>
-					<button (click)="setDate('3m')" [ngClass]="dateFilter() === '3m' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap">3 أشهر</button>
-					<button (click)="setDate('6m')" [ngClass]="dateFilter() === '6m' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap">6 أشهر</button>
-					<button (click)="setDate('year')" [ngClass]="dateFilter() === 'year' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap">هذا العام</button>
-					<button (click)="openDatePicker()" [ngClass]="dateFilter() === 'custom' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5">
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-						مخصص
-					</button>
-				</div>
-			</div>
-
-			<div class="flex-1 min-w-0">
-				<div class="relative group">
-					<div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 group-focus-within:text-cyan-500 transition-colors">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-					</div>
-					<input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" placeholder="ابحث في التقارير..."
-						class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 text-sm rounded-xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 block pr-10 p-2 outline-none transition-all placeholder-slate-400" />
-				</div>
-			</div>
-
-			<div class="flex items-center gap-3 shrink-0">
-				@if (activeFiltersCount() > 0) {
-				<div class="flex items-center gap-2 bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 px-3 py-2 rounded-xl text-xs font-bold border border-cyan-200 dark:border-cyan-500/20">
-					<span>{{ activeFiltersCount() }} فلاتر نشطة</span>
-					<button (click)="resetAllFilters()" class="text-cyan-600 dark:text-cyan-300 hover:text-cyan-800 dark:hover:text-cyan-200 pr-2 border-r border-cyan-200 dark:border-cyan-500/30">مسح الكل &times;</button>
-				</div>
-				}
-			</div>
-		</div>
-
-		<!-- Tabs Row -->
-		<div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700/50 overflow-x-auto scrollbar-hide">
-			<button (click)="switchTab('orders')" [class.client-tab-active]="activeTab() === 'orders'" class="client-tab px-4 py-3 flex items-center gap-2 text-sm font-bold border-b-2 transition-colors whitespace-nowrap">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-				الطلبات
-				<span [class.client-tab-count-active]="activeTab() === 'orders'" class="client-tab-count px-2 py-0.5 rounded-md text-[10px]">12</span>
+		<div class="ord-head-actions">
+			<button type="button" class="tb-btn" (click)="exportRpt('pdf')">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+				PDF
 			</button>
-			<button (click)="switchTab('projects')" [class.client-tab-active]="activeTab() === 'projects'" class="client-tab px-4 py-3 flex items-center gap-2 text-sm font-bold border-b-2 transition-colors whitespace-nowrap">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-				المشاريع
-				<span [class.client-tab-count-active]="activeTab() === 'projects'" class="client-tab-count px-2 py-0.5 rounded-md text-[10px]">8</span>
-			</button>
-			<button (click)="switchTab('finance')" [class.client-tab-active]="activeTab() === 'finance'" class="client-tab px-4 py-3 flex items-center gap-2 text-sm font-bold border-b-2 transition-colors whitespace-nowrap">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-				المالية
-				<span [class.client-tab-count-active]="activeTab() === 'finance'" class="client-tab-count px-2 py-0.5 rounded-md text-[10px]">24</span>
-			</button>
-			<button (click)="switchTab('disputes')" [class.client-tab-active]="activeTab() === 'disputes'" class="client-tab px-4 py-3 flex items-center gap-2 text-sm font-bold border-b-2 transition-colors whitespace-nowrap">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-				النزاعات
-				<span [class.client-tab-count-active]="activeTab() === 'disputes'" class="client-tab-count px-2 py-0.5 rounded-md text-[10px]">2</span>
+			<button type="button" class="tb-btn" (click)="exportRpt('csv')">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+				CSV
 			</button>
 		</div>
-
-		<!-- TAB CONTENT: الطلبات -->
-		@if (activeTab() === 'orders') {
-		<div class="flex flex-col gap-6 animate-in fade-in duration-300">
-			<!-- Orders Sub-filters -->
-			<div class="flex items-center gap-4 py-2">
-				<span class="text-xs font-black text-slate-500 dark:text-slate-400 shrink-0">الحالة</span>
-				<div class="flex flex-wrap items-center gap-2">
-					<button (click)="ordersStatusFilter.set('all')" [class]="ordersStatusFilter() === 'all' ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border-cyan-300 dark:border-cyan-500/30' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'" class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors flex items-center gap-1.5">
-						الكل <span class="bg-white/50 dark:bg-black/20 px-1.5 rounded text-[10px]">12</span>
-					</button>
-					<button (click)="ordersStatusFilter.set('active')" [class]="ordersStatusFilter() === 'active' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/30' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'" class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors flex items-center gap-1.5">
-						نشط <span class="bg-white/50 dark:bg-black/20 px-1.5 rounded text-[10px]">5</span>
-					</button>
-					<button (click)="ordersStatusFilter.set('done')" [class]="ordersStatusFilter() === 'done' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-300 dark:border-blue-500/30' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'" class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors flex items-center gap-1.5">
-						مكتمل <span class="bg-white/50 dark:bg-black/20 px-1.5 rounded text-[10px]">8</span>
-					</button>
-				</div>
-			</div>
-
-			<!-- Orders Grid Stats -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm">
-					<div class="flex items-center gap-2 text-sm font-black text-slate-900 dark:text-white mb-4">
-						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-						توزيع حالات الطلبات
-					</div>
-					<div class="flex flex-col gap-3">
-						<div class="flex items-center gap-3">
-							<span class="w-16 px-2 py-1 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-md text-center border border-emerald-200 dark:border-emerald-500/20">منشور</span>
-							<div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-								<div class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 w-[42%]"></div>
-							</div>
-							<span class="w-6 text-xs font-black text-slate-600 dark:text-slate-300 text-left">5</span>
-						</div>
-						<div class="flex items-center gap-3">
-							<span class="w-16 px-2 py-1 bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-md text-center border border-blue-200 dark:border-blue-500/20">مكتمل</span>
-							<div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-								<div class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-[67%]"></div>
-							</div>
-							<span class="w-6 text-xs font-black text-slate-600 dark:text-slate-300 text-left">8</span>
-						</div>
-						<div class="flex items-center gap-3">
-							<span class="w-16 px-2 py-1 bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-bold rounded-md text-center border border-amber-200 dark:border-amber-500/20">بانتظار</span>
-							<div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-								<div class="h-full bg-gradient-to-r from-amber-500 to-amber-400 w-[25%]"></div>
-							</div>
-							<span class="w-6 text-xs font-black text-slate-600 dark:text-slate-300 text-left">3</span>
-						</div>
-					</div>
-				</div>
-				<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm">
-					<div class="flex items-center gap-2 text-sm font-black text-slate-900 dark:text-white mb-4">
-						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-						معدل القبول بالتخصص
-					</div>
-					<div class="flex flex-col gap-3">
-						<div class="flex items-center gap-3">
-							<span class="w-20 text-xs font-bold text-slate-500 dark:text-slate-400">تطوير تقني</span>
-							<div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-								<div class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 w-[85%]"></div>
-							</div>
-							<span class="w-10 text-xs font-black text-cyan-600 dark:text-cyan-400 text-left">85%</span>
-						</div>
-						<div class="flex items-center gap-3">
-							<span class="w-20 text-xs font-bold text-slate-500 dark:text-slate-400">تصميم</span>
-							<div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-								<div class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 w-[72%]"></div>
-							</div>
-							<span class="w-10 text-xs font-black text-cyan-600 dark:text-cyan-400 text-left">72%</span>
-						</div>
-						<div class="flex items-center gap-3">
-							<span class="w-20 text-xs font-bold text-slate-500 dark:text-slate-400">تسويق</span>
-							<div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-								<div class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 w-[60%]"></div>
-							</div>
-							<span class="w-10 text-xs font-black text-cyan-600 dark:text-cyan-400 text-left">60%</span>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Orders Table -->
-			<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl overflow-hidden shadow-sm">
-				<div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700/50 flex items-center gap-2 text-sm font-black text-slate-900 dark:text-white">
-					<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-					تفاصيل الطلبات
-				</div>
-				<div class="overflow-x-auto">
-					<table class="w-full text-sm text-right text-slate-700 dark:text-slate-300">
-						<thead class="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/50">
-							<tr>
-								<th class="px-5 py-3 font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">الطلب</th>
-								<th class="px-5 py-3 font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">التخصص</th>
-								<th class="px-5 py-3 font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">الميزانية</th>
-								<th class="px-5 py-3 font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">العروض</th>
-								<th class="px-5 py-3 font-bold">الحالة</th>
-								<th class="px-5 py-3 font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">التاريخ</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-slate-200 dark:divide-slate-700/50">
-							<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-								<td class="px-5 py-3">
-									<div class="font-black text-slate-900 dark:text-white">تطوير تطبيق iOS</div>
-									<div class="text-xs text-slate-500 dark:text-slate-400">#ORD-2026-0612</div>
-								</td>
-								<td class="px-5 py-3">تطوير تقني</td>
-								<td class="px-5 py-3 font-black">15,000 ﷼</td>
-								<td class="px-5 py-3 font-black text-cyan-600 dark:text-cyan-400">7</td>
-								<td class="px-5 py-3"><span class="px-2 py-1 rounded-md text-[11px] font-bold bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">نشط</span></td>
-								<td class="px-5 py-3">اليوم</td>
-							</tr>
-							<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-								<td class="px-5 py-3">
-									<div class="font-black text-slate-900 dark:text-white">تصميم هوية بصرية</div>
-									<div class="text-xs text-slate-500 dark:text-slate-400">#ORD-2026-0608</div>
-								</td>
-								<td class="px-5 py-3">تصميم</td>
-								<td class="px-5 py-3 font-black">8,000 ﷼</td>
-								<td class="px-5 py-3 font-black text-cyan-600 dark:text-cyan-400">12</td>
-								<td class="px-5 py-3"><span class="px-2 py-1 rounded-md text-[11px] font-bold bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">مكتمل</span></td>
-								<td class="px-5 py-3">أمس</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-		}
-
-		<!-- TAB CONTENT: المشاريع -->
-		@if (activeTab() === 'projects') {
-		<div class="flex flex-col gap-6 animate-in fade-in duration-300">
-			<!-- Projects Grid Stats -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm">
-					<div class="flex items-center gap-2 text-sm font-black text-slate-900 dark:text-white mb-4">
-						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-						أداء المشاريع
-					</div>
-					<div class="flex flex-col gap-3">
-						<div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700/50">
-							<span class="text-sm font-bold text-slate-500 dark:text-slate-400">مشاريع نشطة</span>
-							<span class="text-xl font-black text-slate-900 dark:text-white">3</span>
-						</div>
-						<div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700/50">
-							<span class="text-sm font-bold text-slate-500 dark:text-slate-400">مكتملة بدون تأخير</span>
-							<span class="text-xl font-black text-emerald-600 dark:text-emerald-400">7 / 8</span>
-						</div>
-						<div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700/50">
-							<span class="text-sm font-bold text-slate-500 dark:text-slate-400">متوسط مدة التنفيذ</span>
-							<span class="text-xl font-black text-slate-900 dark:text-white">18 يوم</span>
-						</div>
-						<div class="flex justify-between items-center">
-							<span class="text-sm font-bold text-slate-500 dark:text-slate-400">متوسط التقييم</span>
-							<span class="text-xl font-black text-cyan-600 dark:text-cyan-400 flex items-center gap-1">4.8 <svg class="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- Projects Table -->
-			<div class="bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl overflow-hidden shadow-sm">
-				<div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700/50 flex items-center gap-2 text-sm font-black text-slate-900 dark:text-white">
-					<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-					سجل المشاريع
-				</div>
-				<div class="p-8 text-center text-slate-500 dark:text-slate-400 text-sm font-bold">
-					البيانات جاهزة للعرض
-				</div>
-			</div>
-		</div>
-		}
-
-		<!-- Date Picker Modal -->
-		@if(showDatePicker()) {
-			<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
-				<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95">
-					<div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-						<span class="font-black text-slate-900 dark:text-white">تاريخ التقرير المخصص</span>
-						<button (click)="closeDatePicker()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
-							<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-						</button>
-					</div>
-					<div class="p-6 text-center text-slate-500 dark:text-slate-400">
-						<p class="text-sm font-bold">واجهة التقويم هنا</p>
-						<button (click)="dpApply()" class="mt-6 px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white font-black rounded-xl transition-colors">تطبيق</button>
-					</div>
-				</div>
-			</div>
-		}
-
 	</div>
-</main>
+
+	<!-- AI Disclosure -->
+	<div class="ai-disclosure" role="region" aria-label="إفصاح الذكاء الاصطناعي">
+		<div class="ai-disc-ico">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /><circle cx="12" cy="3" r="1.5" /><circle cx="12" cy="21" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" />
+			</svg>
+		</div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI — تحليل البيانات</div>
+			<p class="ai-disc-txt">AI يرصد اتجاهات إنفاقك وجودة مقدميك ويقترح تحسينات <span class="ai-disc-badge">دقة 95%</span> — الإنسان يحتفظ بالقرار النهائي</p>
+		</div>
+	</div>
+
+	<!-- KPI Row -->
+	<div class="kpi-row">
+		<div class="state-card kpi-card">
+			<div class="kpi-lbl">إجمالي الطلبات</div>
+			<div class="kpi-val">12</div>
+			<div class="kpi-foot">
+				<span class="kpi-trend">▲ 3 هذا الشهر</span>
+				<div class="spark"><div class="spb" style="height:40%"></div><div class="spb" style="height:55%"></div><div class="spb" style="height:45%"></div><div class="spb" style="height:65%"></div><div class="spb" style="height:80%"></div><div class="spb" style="height:100%"></div></div>
+			</div>
+		</div>
+		<div class="state-card kpi-card">
+			<div class="kpi-lbl">مشاريع مكتملة</div>
+			<div class="kpi-val">8</div>
+			<div class="kpi-foot">
+				<span class="kpi-trend">▲ 2 هذا الشهر</span>
+				<div class="spark"><div class="spb" style="height:30%"></div><div class="spb" style="height:50%"></div><div class="spb" style="height:60%"></div><div class="spb" style="height:70%"></div><div class="spb" style="height:85%"></div><div class="spb" style="height:100%"></div></div>
+			</div>
+		</div>
+		<div class="state-card kpi-card">
+			<div class="kpi-lbl">إجمالي الإنفاق</div>
+			<div class="kpi-val kpi-val-teal">47.2K</div>
+			<div class="kpi-foot">
+				<span class="kpi-unit">ريال سعودي</span>
+				<div class="spark"><div class="spb" style="height:35%"></div><div class="spb" style="height:60%"></div><div class="spb" style="height:55%"></div><div class="spb" style="height:78%"></div><div class="spb" style="height:90%"></div><div class="spb" style="height:100%"></div></div>
+			</div>
+		</div>
+		<div class="state-card kpi-card">
+			<div class="kpi-lbl">متوسط التقييم</div>
+			<div class="kpi-val kpi-val-teal">4.8</div>
+			<div class="kpi-stars">
+				<svg width="13" height="13" viewBox="0 0 100 100" fill="#2BD4C7"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+				<svg width="13" height="13" viewBox="0 0 100 100" fill="#2BD4C7"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+				<svg width="13" height="13" viewBox="0 0 100 100" fill="#2BD4C7"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+				<svg width="13" height="13" viewBox="0 0 100 100" fill="#2BD4C7"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+				<svg width="13" height="13" viewBox="0 0 100 100" fill="rgba(43,212,199,.3)"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+			</div>
+			<div class="kpi-foot">
+				<span class="kpi-trend">▲ 0.3 عن السابق</span>
+				<div class="spark"><div class="spb" style="height:72%"></div><div class="spb" style="height:76%"></div><div class="spb" style="height:80%"></div><div class="spb" style="height:88%"></div><div class="spb" style="height:92%"></div><div class="spb" style="height:96%"></div></div>
+			</div>
+		</div>
+	</div>
+
+	<!-- AI Insight -->
+	<div class="state-card ai-insight">
+		<div class="ai-insight-ico">
+			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg>
+		</div>
+		<div class="ai-insight-body">
+			<div class="ai-insight-lbl">توصية الذكاء</div>
+			<div class="ai-insight-txt">معدل قبول طلباتك ارتفع 9% هذا الشهر. الخدمات ذات الميزانية 100–500k تحقق أعلى جودة. يُنصح بتحديد متطلبات المشروع بدقة أعلى لصالح قبول أسرع.</div>
+		</div>
+	</div>
+
+	<!-- Global Filter Rail -->
+	<div class="filter-rail" role="search" aria-label="فلترة التقارير">
+		<div class="fr-period-lbl">الفترة</div>
+		<div class="date-segs" role="group" aria-label="الفترة الزمنية">
+			<button class="ds" [class.active]="dateFilter() === 'month'" type="button" (click)="setDate('month')">هذا الشهر</button>
+			<button class="ds" [class.active]="dateFilter() === '3m'" type="button" (click)="setDate('3m')">3 أشهر</button>
+			<button class="ds" [class.active]="dateFilter() === '6m'" type="button" (click)="setDate('6m')">6 أشهر</button>
+			<button class="ds" [class.active]="dateFilter() === 'year'" type="button" (click)="setDate('year')">هذا العام</button>
+			<button class="ds" [class.active]="dateFilter() === 'custom'" type="button" (click)="openDatePicker()">
+				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+				مخصص
+			</button>
+		</div>
+		<div class="fr-spacer"></div>
+		<div class="fr-search">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+			<input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" placeholder="ابحث في التقارير..." aria-label="بحث" />
+		</div>
+		<div class="fr-end">
+			@if (activeFiltersCount() > 0) {
+				<div class="fr-active show">
+					<span>{{ activeFiltersCount() }} فلاتر نشطة</span>
+					<button type="button" class="fr-clear" (click)="resetAllFilters()">مسح الكل ×</button>
+				</div>
+			}
+			<button type="button" class="fr-export-btn" (click)="exportRpt('pdf')">
+				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+				تصدير
+			</button>
+		</div>
+	</div>
+
+	<!-- Tabs -->
+	<div class="rep-tabs" role="tablist" aria-label="أقسام التقارير">
+		<button type="button" class="rep-tab" [class.active]="activeTab() === 'orders'" (click)="switchTab('orders')">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+			الطلبات <span class="tc">12</span>
+		</button>
+		<button type="button" class="rep-tab" [class.active]="activeTab() === 'projects'" (click)="switchTab('projects')">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+			المشاريع <span class="tc">8</span>
+		</button>
+		<button type="button" class="rep-tab" [class.active]="activeTab() === 'finance'" (click)="switchTab('finance')">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+			المالية <span class="tc">24</span>
+		</button>
+		<button type="button" class="rep-tab" [class.active]="activeTab() === 'disputes'" (click)="switchTab('disputes')">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+			النزاعات <span class="tc">2</span>
+		</button>
+	</div>
+
+	<!-- TAB: الطلبات -->
+	@if (activeTab() === 'orders') {
+		<div class="tab-frows">
+			<div class="tab-frow">
+				<div class="tf-lc">الحالة</div>
+				<div class="tf-pg">
+					<button class="f-pill" [class.on]="ordersStatusFilter() === 'all'" type="button" (click)="ordersStatusFilter.set('all')">الكل <span class="fp-n">12</span></button>
+					<button class="f-pill" [class.on]="ordersStatusFilter() === 'active'" type="button" (click)="ordersStatusFilter.set('active')">نشط <span class="fp-n">5</span></button>
+					<button class="f-pill" [class.on]="ordersStatusFilter() === 'done'" type="button" (click)="ordersStatusFilter.set('done')">مكتمل <span class="fp-n">8</span></button>
+					<button class="f-pill pw" [class.on]="ordersStatusFilter() === 'pending'" type="button" (click)="ordersStatusFilter.set('pending')">بانتظار عرض <span class="fp-n">3</span></button>
+					<button class="f-pill prd" [class.on]="ordersStatusFilter() === 'cancelled'" type="button" (click)="ordersStatusFilter.set('cancelled')">ملغي <span class="fp-n">2</span></button>
+					<span class="tf-push"></span>
+					<span class="results-badge">يُعرض 12 من 12</span>
+					<button type="button" class="sort-btn">
+						<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M11 5H21M7 12H21M3 19H21"/></svg>
+						الأحدث
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Chart Cards -->
+		<div class="chart-grid">
+			<div class="state-card chart-card">
+				<div class="chart-ttl">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+					توزيع حالات الطلبات
+				</div>
+				<div class="bar-list">
+					<div class="bar-row"><span class="opill op-active bar-pill">منشور</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:linear-gradient(90deg,#0FA99A,#2BD4C7)"></div></div><span class="bar-num">5</span></div>
+					<div class="bar-row"><span class="opill op-done bar-pill">مكتمل</span><div class="bar-track"><div class="bar-fill" style="width:67%;background:linear-gradient(90deg,#5DA0FF,#2BD4C7)"></div></div><span class="bar-num">8</span></div>
+					<div class="bar-row"><span class="opill op-hold bar-pill">بانتظار</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:linear-gradient(90deg,#FFB400,#D98A0B)"></div></div><span class="bar-num">3</span></div>
+					<div class="bar-row"><span class="opill op-cancel bar-pill">ملغي</span><div class="bar-track"><div class="bar-fill" style="width:17%;background:rgba(255,140,105,.5)"></div></div><span class="bar-num">2</span></div>
+				</div>
+			</div>
+			<div class="state-card chart-card">
+				<div class="chart-ttl">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+					معدل القبول بالتخصص
+				</div>
+				<div class="bar-list">
+					<div class="bar-row"><span class="bar-label">تطوير تقني</span><div class="bar-track"><div class="bar-fill" style="width:85%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div><span class="bar-pct">85%</span></div>
+					<div class="bar-row"><span class="bar-label">تصميم</span><div class="bar-track"><div class="bar-fill" style="width:72%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div><span class="bar-pct">72%</span></div>
+					<div class="bar-row"><span class="bar-label">تسويق</span><div class="bar-track"><div class="bar-fill" style="width:60%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div><span class="bar-pct">60%</span></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Details Table -->
+		<div class="state-card tbl-card">
+			<div class="tbl-head">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+				تفاصيل الطلبات
+			</div>
+			<div class="tbl-wrap">
+				<table class="rep-tbl">
+					<thead><tr>
+						<th>الطلب</th><th>التخصص</th><th>الميزانية</th><th>العروض</th><th>الحالة</th><th>التاريخ</th>
+					</tr></thead>
+					<tbody>
+						<tr><td><div class="td-main">تطوير تطبيق iOS</div><div class="td-sub">#ORD-2026-0612</div></td><td>تطوير تقني</td><td class="td-bold">15,000 ﷼</td><td class="td-offers">7</td><td><span class="opill op-active">نشط</span></td><td>اليوم</td></tr>
+						<tr><td><div class="td-main">تصميم هوية بصرية</div><div class="td-sub">#ORD-2026-0608</div></td><td>تصميم</td><td class="td-bold">8,000 ﷼</td><td class="td-offers">12</td><td><span class="opill op-done">مكتمل</span></td><td>أمس</td></tr>
+						<tr><td><div class="td-main">حملة تسويق رقمي</div><div class="td-sub">#ORD-2026-0602</div></td><td>تسويق</td><td class="td-bold">12,000 ﷼</td><td class="td-offers">5</td><td><span class="opill op-hold">بانتظار</span></td><td>منذ 10 أيام</td></tr>
+						<tr><td><div class="td-main">تطوير موقع تجاري</div><div class="td-sub">#ORD-2026-0525</div></td><td>تطوير تقني</td><td class="td-bold">22,000 ﷼</td><td class="td-offers">9</td><td><span class="opill op-done">مكتمل</span></td><td>شهر</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="tbl-foot">
+				<span>يُعرض 4 من 12</span>
+				<div class="pg-btns">
+					<button class="pg-btn on" type="button">1</button>
+					<button class="pg-btn" type="button">2</button>
+					<button class="pg-btn" type="button">3</button>
+				</div>
+			</div>
+		</div>
+	}
+
+	<!-- TAB: المشاريع -->
+	@if (activeTab() === 'projects') {
+		<div class="tab-frows">
+			<div class="tab-frow">
+				<div class="tf-lc">الحالة</div>
+				<div class="tf-pg">
+					<button class="f-pill on" type="button">الكل <span class="fp-n">8</span></button>
+					<button class="f-pill" type="button">نشط <span class="fp-n">3</span></button>
+					<button class="f-pill" type="button">مكتمل <span class="fp-n">5</span></button>
+					<span class="tf-grp-sep"></span>
+					<span class="tf-sub-lbl">التقييم</span>
+					<button class="f-pill on" type="button">الكل</button>
+					<button class="f-pill" type="button">5 ★</button>
+					<button class="f-pill" type="button">4★ فأعلى</button>
+					<span class="tf-push"></span>
+					<span class="results-badge">يُعرض 8 من 8</span>
+					<button type="button" class="sort-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M11 5H21M7 12H21M3 19H21"/></svg>الأحدث</button>
+				</div>
+			</div>
+			<div class="tab-frow">
+				<div class="tf-lc">المدة</div>
+				<div class="tf-pg">
+					<button class="f-pill on" type="button">الكل</button>
+					<button class="f-pill" type="button">أقل من أسبوع</button>
+					<button class="f-pill" type="button">أسبوع–شهر</button>
+					<button class="f-pill" type="button">أكثر من شهر</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="chart-grid">
+			<div class="state-card chart-card">
+				<div class="chart-ttl">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+					أداء المشاريع
+				</div>
+				<div class="kv-list">
+					<div class="kv-row"><span class="kv-lbl">مشاريع نشطة</span><span class="kv-val">3</span></div>
+					<div class="kv-row"><span class="kv-lbl">مكتملة بدون تأخير</span><span class="kv-val kv-val-green">7 / 8</span></div>
+					<div class="kv-row"><span class="kv-lbl">متوسط مدة التنفيذ</span><span class="kv-val">18 يوم</span></div>
+					<div class="kv-row"><span class="kv-lbl">متوسط التقييم</span><span class="kv-val kv-val-teal">4.8 <svg width="16" height="16" viewBox="0 0 100 100" fill="#FFB400" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></span></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="state-card tbl-card">
+			<div class="tbl-head">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+				سجل المشاريع
+			</div>
+			<div class="tbl-empty">البيانات جاهزة للعرض</div>
+		</div>
+	}
+
+	<!-- Date Picker Modal -->
+	@if(showDatePicker()) {
+		<div class="dp-overlay" (click)="closeDatePicker()">
+			<div class="dp-box" (click)="$event.stopPropagation()">
+				<div class="dp-head">
+					<span>تاريخ التقرير المخصص</span>
+					<button (click)="closeDatePicker()" class="dp-close">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+					</button>
+				</div>
+				<div class="dp-body">
+					<p>واجهة التقويم هنا</p>
+					<button (click)="dpApply()" class="dp-apply">تطبيق</button>
+				</div>
+			</div>
+		</div>
+	}
+
+</div>

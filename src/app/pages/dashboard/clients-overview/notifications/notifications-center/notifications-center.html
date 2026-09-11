@@ -11,7 +11,7 @@
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         تعليم الكل كمقروء
       </button>
-      <button type="button" class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--inp-bg,rgba(255,255,255,.04))] border border-[var(--sec-bd,rgba(255,255,255,.10))] rounded-xl text-[var(--txt-3)] text-xs font-bold hover:bg-[rgba(255,255,255,.08)] hover:text-[var(--txt)] transition-all">
+      <button type="button" (click)="goToSettings()" class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--inp-bg,rgba(255,255,255,.04))] border border-[var(--sec-bd,rgba(255,255,255,.10))] rounded-xl text-[var(--txt-3)] text-xs font-bold hover:bg-[rgba(255,255,255,.08)] hover:text-[var(--txt)] transition-all">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -23,12 +23,12 @@
 
   <!-- AI Disclosure -->
   <div class="flex items-center gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-2xl mb-4">
-    <div class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0 text-[#7B2FBE]">
+    <div class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0 text-[var(--ai-txt,#7B2FBE)]">
       <svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
     </div>
     <div class="flex-1">
-      <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-0.5">وسيط AI، ترتيب ذكي</div>
-      <p class="text-[13px] text-[var(--txt-3)]">AI يرتّب إشعاراتك حسب الأهمية ويبرز ما يحتاج إجراءً عاجلًا <span class="bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.28)] rounded px-1.5 py-px text-[10px] font-bold text-[#A56BE0]">دقة 95%</span> القرار النهائي لك</p>
+      <div class="text-[10px] font-extrabold text-[var(--ai-txt,#A56BE0)] tracking-wider mb-0.5">وسيط AI، ترتيب ذكي</div>
+      <p class="text-[13px] text-[var(--txt-2,#A8B2D1)]">AI يرتّب إشعاراتك حسب الأهمية ويبرز ما يحتاج إجراءً عاجلًا <span class="bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.28)] rounded px-1.5 py-px text-[10px] font-bold text-[var(--ai-txt,#A56BE0)]">دقة 95%</span> القرار النهائي لك</p>
     </div>
   </div>
 
@@ -54,8 +54,8 @@
 
   <!-- List -->
   <div *ngIf="!isLoading() && !hasError()">
-    <ng-container *ngFor="let group of groupedNotifications()">
-      <div class="text-[11px] font-extrabold text-[var(--txt-3)] tracking-wide my-4">{{ group.date }}</div>
+    <ng-container *ngFor="let group of groupedNotifications(); let first = first">
+      <div class="text-[11px] font-extrabold text-[var(--txt-3)] tracking-[0.04em] mt-[18px] mb-[10px]" [class.mt-0]="first">{{ group.date }}</div>
       
       <div *ngFor="let nt of group.items" class="nt" [class.unread]="nt.isUnread" (click)="onNotificationClick(nt)">
         <div class="nt-ico" [ngClass]="nt.iconBgClass + ' ' + nt.iconColorClass" [innerHTML]="'<svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.8\' stroke-linecap=\'round\' stroke-linejoin=\'round\'>' + nt.svgIcon + '</svg>'"></div>
@@ -66,13 +66,13 @@
             <span class="text-[11px] text-[var(--txt-3)] mr-auto whitespace-nowrap">{{ nt.time }}</span>
           </div>
           <div class="text-[12.5px] text-[var(--txt-3)] leading-relaxed">{{ nt.message }}</div>
-          <span *ngIf="nt.actionText" class="text-[11px] font-bold text-[#2BD4C7] mt-1.5 inline-block">{{ nt.actionText }}</span>
+          <span *ngIf="nt.actionText" class="text-[11px] font-bold text-[var(--teal-txt,#2BD4C7)] mt-1.5 inline-block">{{ nt.actionText }}</span>
         </div>
       </div>
     </ng-container>
 
     <div *ngIf="groupedNotifications().length === 0" class="text-center p-12">
-      <div class="w-16 h-16 rounded-2xl bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.18)] flex items-center justify-center mx-auto mb-4 text-[#2BD4C7]">
+      <div class="w-16 h-16 rounded-2xl bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.18)] flex items-center justify-center mx-auto mb-4 text-[var(--teal-txt,#2BD4C7)]">
         <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       </div>
       <div class="text-sm font-bold text-[var(--txt)]">لا توجد إشعارات</div>
@@ -83,7 +83,7 @@
   <!-- Toast -->
   <div *ngIf="toastMessage()" class="fixed top-[72px] left-1/2 -translate-x-1/2 z-[500] animate-[ws-fade_0.3s_ease_both]">
     <div class="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[rgba(43,212,199,.14)] to-[rgba(43,127,255,.10)] border border-[rgba(43,212,199,.30)] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,.4)] backdrop-blur-md">
-      <svg class="w-[18px] h-[18px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg class="w-[18px] h-[18px] text-[var(--teal-txt,#2BD4C7)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       <span class="text-sm font-bold text-[var(--txt)]">{{ toastMessage() }}</span>
     </div>
   </div>

@@ -138,3 +138,87 @@ body.light {
   --ai-txt: #6B27A5;
 }
 
+/* ================== LIGHT THEME OVERRIDES ================== */
+/* Stepper circles — only inactive circles; active keeps gradient, done keeps teal */
+:host-context(body.light-theme) .step-item:not(.active):not(.done) .step-circle,
+:host-context(body.theme-light) .step-item:not(.active):not(.done) .step-circle,
+:host-context(.light-theme) .step-item:not(.active):not(.done) .step-circle,
+:host-context(.theme-light) .step-item:not(.active):not(.done) .step-circle {
+  background: #F0F4FA !important;
+  border-color: #CBD5E1 !important;
+  color: #475569 !important;
+}
+/* Done circles — light teal tint */
+:host-context(body.light-theme) .step-item.done:not(.active) .step-circle,
+:host-context(body.theme-light) .step-item.done:not(.active) .step-circle,
+:host-context(.light-theme) .step-item.done:not(.active) .step-circle,
+:host-context(.theme-light) .step-item.done:not(.active) .step-circle {
+  background: rgba(43, 212, 199, 0.14) !important;
+  border-color: rgba(43, 212, 199, 0.35) !important;
+  color: #0F8A7F !important;
+}
+:host-context(body.light-theme) .step-label,
+:host-context(body.theme-light) .step-label,
+:host-context(.light-theme) .step-label,
+:host-context(.theme-light) .step-label {
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .step-item.active .step-label,
+:host-context(body.theme-light) .step-item.active .step-label,
+:host-context(.light-theme) .step-item.active .step-label,
+:host-context(.theme-light) .step-item.active .step-label {
+  color: #1E293B !important;
+}
+:host-context(body.light-theme) .step-item.done:not(.active) .step-label,
+:host-context(body.theme-light) .step-item.done:not(.active) .step-label,
+:host-context(.light-theme) .step-item.done:not(.active) .step-label,
+:host-context(.theme-light) .step-item.done:not(.active) .step-label {
+  color: #0F8A7F !important;
+}
+/* Step lines — only not-done lines; done lines keep teal */
+:host-context(body.light-theme) .step-line:not(.done),
+:host-context(body.theme-light) .step-line:not(.done),
+:host-context(.light-theme) .step-line:not(.done),
+:host-context(.theme-light) .step-line:not(.done) {
+  background: #E2E8F4 !important;
+}
+/* Sticky bar — design light: rgba(246,248,252,.95), border #E2E8F4 */
+:host-context(body.light-theme) .sticky-bar,
+:host-context(body.theme-light) .sticky-bar,
+:host-context(.light-theme) .sticky-bar,
+:host-context(.theme-light) .sticky-bar {
+  background: rgba(246, 248, 252, 0.95) !important;
+  border-top-color: #E2E8F4 !important;
+}
+:host-context(body.light-theme) .selection-status,
+:host-context(body.theme-light) .selection-status,
+:host-context(.light-theme) .selection-status,
+:host-context(.theme-light) .selection-status {
+  color: #475569 !important;
+}
+/* Breadcrumb */
+:host-context(body.light-theme) .breadcrumb a,
+:host-context(body.theme-light) .breadcrumb a,
+:host-context(.light-theme) .breadcrumb a,
+:host-context(.theme-light) .breadcrumb a {
+  color: #64748B !important;
+}
+:host-context(body.light-theme) .breadcrumb a:hover,
+:host-context(body.theme-light) .breadcrumb a:hover,
+:host-context(.light-theme) .breadcrumb a:hover,
+:host-context(.theme-light) .breadcrumb a:hover {
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .breadcrumb-current,
+:host-context(body.theme-light) .breadcrumb-current,
+:host-context(.light-theme) .breadcrumb-current,
+:host-context(.theme-light) .breadcrumb-current {
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .breadcrumb-sep,
+:host-context(body.theme-light) .breadcrumb-sep,
+:host-context(.light-theme) .breadcrumb-sep,
+:host-context(.theme-light) .breadcrumb-sep {
+  color: #94A3B8 !important;
+}
+

@@ -27,27 +27,37 @@
 .t-ham svg{width:17px;height:17px}
 
 .udrop-dash-toggle{width:100%;justify-content:flex-start;position:relative}
-.udrop-sub-arrow{width:11px;height:11px;margin-inline-start:auto;color:#6B7699;transition:transform .18s;flex-shrink:0}
-.udrop-dash-toggle[aria-expanded="true"] .udrop-sub-arrow{transform:rotate(-90deg)}
-.udrop-dash-sub{padding:3px 0 3px 0}
-.udrop-dash-item{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 10px;margin-inline-start:10px;border-radius:9px;font-size:12px;font-weight:600;color:#A8B2D1;text-decoration:none;transition:background .15s,color .15s;border-inline-start:1px solid rgba(255,255,255,.08)}
-.udrop-dash-item:hover{background:rgba(255,255,255,.06);color:#fff;border-color:rgba(43,212,199,.25)}
+.udrop-sub-arrow{width:14px;height:14px;margin-inline-start:auto;color:#6B7699;transition:transform .18s;flex-shrink:0}
+.udrop-sub-arrow.rotated{transform:rotate(-90deg)}
+.udrop-dash-sub{padding:4px 0 2px;margin-top:4px}
+.udrop-dash-item{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 10px;margin-inline-start:10px;border-radius:9px;font-size:12px;font-weight:600;color:#A8B2D1;text-decoration:none;transition:background .15s,color .15s;border-inline-start:1px solid rgba(255,255,255,.08);background:transparent;border-top:0;border-right:0;border-bottom:0;cursor:pointer;font-family:inherit;text-align:right;direction:rtl;width:calc(100% - 10px)}
+.udrop-dash-item:hover{background:rgba(255,255,255,.06);color:#fff;border-inline-start-color:rgba(43,212,199,.25)}
+.udrop-dash-item.active{background:rgba(43,212,199,.07)}
+.udrop-av-sm{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#070D24;flex-shrink:0}
+.udrop-dash-info{flex:1;text-align:right;min-width:0}
+.udrop-dash-name{font-size:12px;font-weight:700;color:#fff}
+.udrop-dash-status{font-size:10px;color:#2BD4C7;font-weight:600;margin-top:1px}
+.udrop-dash-status.muted{color:#6B7699}
+
+/* Account Header Card */
+.udrop-account-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:9px 10px;border-radius:10px;background:linear-gradient(135deg,rgba(43,212,199,.08),rgba(43,127,255,.05));border:1px solid rgba(43,212,199,.18);cursor:pointer;transition:background .15s,border-color .15s;text-align:right;direction:rtl;font-family:inherit}
+.udrop-account-toggle:hover{background:linear-gradient(135deg,rgba(43,212,199,.12),rgba(43,127,255,.08));border-color:rgba(43,212,199,.28)}
+.udrop-acc-row{display:flex;align-items:center;gap:9px}
+.udrop-av-wrap{position:relative;flex-shrink:0}
+.udrop-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#070D24}
+.udrop-av-dot{position:absolute;bottom:-1px;left:-1px;width:9px;height:9px;border-radius:50%;background:#2BD4C7;border:2px solid #0B1437}
+.udrop-acc-info{flex:1;text-align:right;min-width:0}
+.udrop-acc-lbl{font-size:10px;font-weight:700;color:#6B7699;letter-spacing:.04em;margin-bottom:1px}
+.udrop-acc-name{font-size:13px;font-weight:800;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.udrop-acc-role{font-size:10px;font-weight:700;color:#2BD4C7;margin-top:2px}
 
 /* ── User Dropdown ── */
 .t-user-wrap{position:relative;flex-shrink:0}
 .user-dropdown{position:absolute;top:calc(100% + 8px);left:0;min-width:230px;background:rgba(7,13,36,.72);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:6px;box-shadow:0 20px 56px rgba(0,0,0,.6);z-index:300;animation:ws-fade .15s ease both}
 .udrop-section-lbl{font-size:10px;font-weight:800;color:#6B7699;letter-spacing:.07em;padding:6px 10px 4px}
-.udrop-account{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border-radius:9px;background:transparent;border:none;cursor:pointer;transition:background .15s;text-align:right;direction:rtl}
-.udrop-account:hover{background:rgba(255,255,255,.06)}
-.udrop-account.active{background:rgba(43,212,199,.07)}
-.udrop-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
-.udrop-acc-info{flex:1;text-align:right}
-.udrop-acc-name{font-size:13px;font-weight:700;color:#fff}
-.udrop-acc-role{font-size:11px;color:#6B7699}
-.udrop-check{width:14px;height:14px;color:var(--teal-txt,#2BD4C7);flex-shrink:0}
-.udrop-add-account{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border-radius:9px;background:transparent;border:1px dashed rgba(255,255,255,.12);cursor:pointer;transition:all .15s;font-size:13px;font-weight:600;color:#6B7699;font-family:inherit;direction:rtl;margin-top:4px}
-.udrop-add-account:hover{border-color:rgba(43,212,199,.3);color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.04)}
-.udrop-add-account svg{width:15px;height:15px;flex-shrink:0}
+.udrop-add-account{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border-radius:9px;background:transparent;border:1px dashed rgba(255,255,255,.12);cursor:pointer;transition:all .15s;font-size:12px;font-weight:600;color:#6B7699;font-family:inherit;direction:rtl;text-decoration:none;text-align:right;margin-top:4px}
+.udrop-add-account:hover{border-color:rgba(43,212,199,.3);color:#2BD4C7;background:rgba(43,212,199,.04)}
+.udrop-add-account svg{width:14px;height:14px;flex-shrink:0}
 .udrop-sep{height:1px;background:rgba(255,255,255,.07);margin:5px 0}
 .udrop-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;font-size:13px;font-weight:600;color:#A8B2D1;text-decoration:none;transition:background .15s,color .15s;direction:rtl;cursor:pointer;border:none;background:transparent;width:100%;font-family:inherit;text-align:right}
 .udrop-item:hover{background:rgba(255,255,255,.06);color:#fff}
@@ -136,6 +146,78 @@
 :host-context(body.light-theme) .udrop-sep,
 :host-context(body.light) .udrop-sep {
   background: #E2E8F4 !important;
+}
+
+/* Light Mode - Account Header Card */
+:host-context(body.light-theme) .udrop-account-toggle,
+:host-context(body.light) .udrop-account-toggle {
+  background: linear-gradient(135deg, rgba(43,212,199,.10), rgba(43,127,255,.06)) !important;
+  border-color: rgba(43,212,199,.22) !important;
+}
+:host-context(body.light-theme) .udrop-account-toggle:hover,
+:host-context(body.light) .udrop-account-toggle:hover {
+  background: linear-gradient(135deg, rgba(43,212,199,.14), rgba(43,127,255,.09)) !important;
+  border-color: rgba(43,212,199,.32) !important;
+}
+:host-context(body.light-theme) .udrop-acc-lbl,
+:host-context(body.light) .udrop-acc-lbl {
+  color: #64748B !important;
+}
+:host-context(body.light-theme) .udrop-acc-name,
+:host-context(body.light) .udrop-acc-name {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .udrop-acc-role,
+:host-context(body.light) .udrop-acc-role {
+  color: #0A6F64 !important;
+}
+:host-context(body.light-theme) .udrop-av-dot,
+:host-context(body.light) .udrop-av-dot {
+  border-color: #fff !important;
+}
+:host-context(body.light-theme) .udrop-sub-arrow,
+:host-context(body.light) .udrop-sub-arrow {
+  color: #94A3B8 !important;
+}
+
+/* Light Mode - Role Switcher Sub-menu */
+:host-context(body.light-theme) .udrop-dash-item,
+:host-context(body.light) .udrop-dash-item {
+  color: #475569 !important;
+  border-inline-start-color: #E2E8F4 !important;
+}
+:host-context(body.light-theme) .udrop-dash-item:hover,
+:host-context(body.light) .udrop-dash-item:hover {
+  background: #F1F5F9 !important;
+  color: #0F172A !important;
+  border-inline-start-color: rgba(43,212,199,.30) !important;
+}
+:host-context(body.light-theme) .udrop-dash-item.active,
+:host-context(body.light) .udrop-dash-item.active {
+  background: rgba(43,212,199,.08) !important;
+}
+:host-context(body.light-theme) .udrop-dash-name,
+:host-context(body.light) .udrop-dash-name {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .udrop-dash-status,
+:host-context(body.light) .udrop-dash-status {
+  color: #0A6F64 !important;
+}
+:host-context(body.light-theme) .udrop-dash-status.muted,
+:host-context(body.light) .udrop-dash-status.muted {
+  color: #94A3B8 !important;
+}
+:host-context(body.light-theme) .udrop-add-account,
+:host-context(body.light) .udrop-add-account {
+  border-color: rgba(15,23,42,.18) !important;
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .udrop-add-account:hover,
+:host-context(body.light) .udrop-add-account:hover {
+  border-color: rgba(43,212,199,.3) !important;
+  color: #0A6F64 !important;
+  background: rgba(43,212,199,.06) !important;
 }
 
 @media(max-width:767px){

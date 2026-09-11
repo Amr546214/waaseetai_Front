@@ -1,15 +1,217 @@
-select.field-select {
-	color-scheme: dark;
+/* ================== BASE STYLES (matching design) ================== */
+.form-card {
+  background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.08);
 }
 
+/* Radio option base */
+.radio-opt {
+  border-color: rgba(255,255,255,.10);
+  background: rgba(255,255,255,.02);
+  transition: all .2s;
+}
+.radio-opt:hover {
+  border-color: rgba(43,212,199,.25);
+  background: rgba(43,212,199,.03);
+}
+.radio-opt.radio-selected {
+  border-color: rgba(43,212,199,.45);
+  background: rgba(43,212,199,.06);
+}
+
+/* AI disclosure */
+.ai-disclosure {
+  background: linear-gradient(135deg, rgba(123,47,190,.09), rgba(43,127,255,.06));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(123,47,190,.22);
+}
+.ai-disclosure svg { color: #7B2FBE; }
+
+/* Strike banner */
+.strike-banner {
+  background: rgba(255,180,0,.07);
+  border: 1px solid rgba(255,180,0,.22);
+  color: var(--kahr, #D98A0B);
+}
+
+/* AI conflict OK */
+.ai-conflict.ok {
+  background: rgba(15,169,154,.08);
+  border: 1px solid rgba(15,169,154,.25);
+  color: #0FA99A;
+}
+
+/* Badges */
+.badge-default {
+  background: rgba(43,212,199,.12);
+  color: var(--teal-txt, #2BD4C7);
+  border: 1px solid rgba(43,212,199,.25);
+}
+.badge-warn {
+  background: rgba(255,180,0,.10);
+  color: var(--kahr, #D98A0B);
+  border: 1px solid rgba(255,180,0,.22);
+}
+
+/* Select options - dark mode */
+select.field-select {
+  color-scheme: dark;
+}
 .field-select option,
 .field-select optgroup {
-	background: var(--navy, #0b1437) !important;
-	color: var(--txt, #ffffff) !important;
+  background: var(--navy, #0b1437) !important;
+  color: var(--txt, #ffffff) !important;
 }
 
-
-.mock-input {
-  background: var(--surface); border: 1px solid var(--border); color: var(--txt);
-  border-radius: 8px; padding: 9px 12px; font-size: 12.5px; font-family: inherit;
+/* ================== LIGHT THEME OVERRIDES ================== */
+/* Form cards */
+:host-context(body.light-theme) .form-card,
+:host-context(body.theme-light) .form-card,
+:host-context(.light-theme) .form-card,
+:host-context(.theme-light) .form-card {
+  background: #fff !important;
+  border-color: #E2E8F4 !important;
+  backdrop-filter: none !important;
+}
+/* Radio options */
+:host-context(body.light-theme) .radio-opt,
+:host-context(body.theme-light) .radio-opt,
+:host-context(.light-theme) .radio-opt,
+:host-context(.theme-light) .radio-opt {
+  background: #F8FAFC !important;
+  border-color: #E2E8F4 !important;
+}
+:host-context(body.light-theme) .radio-opt:hover,
+:host-context(body.theme-light) .radio-opt:hover,
+:host-context(.light-theme) .radio-opt:hover,
+:host-context(.theme-light) .radio-opt:hover {
+  border-color: rgba(43,212,199,.35) !important;
+}
+:host-context(body.light-theme) .radio-opt.radio-selected,
+:host-context(body.theme-light) .radio-opt.radio-selected,
+:host-context(.light-theme) .radio-opt.radio-selected,
+:host-context(.theme-light) .radio-opt.radio-selected {
+  background: rgba(43,212,199,.06) !important;
+  border-color: rgba(43,212,199,.40) !important;
+}
+/* Radio dot */
+:host-context(body.light-theme) .radio-dot,
+:host-context(body.theme-light) .radio-dot,
+:host-context(.light-theme) .radio-dot,
+:host-context(.theme-light) .radio-dot {
+  border-color: #D8DFEC !important;
+}
+/* AI disclosure */
+:host-context(body.light-theme) .ai-disclosure,
+:host-context(body.theme-light) .ai-disclosure,
+:host-context(.light-theme) .ai-disclosure,
+:host-context(.theme-light) .ai-disclosure {
+  background: linear-gradient(135deg, rgba(123,47,190,.06), rgba(43,127,255,.04)) !important;
+  border-color: rgba(123,47,190,.18) !important;
+}
+:host-context(body.light-theme) .ai-disclosure strong,
+:host-context(body.theme-light) .ai-disclosure strong,
+:host-context(.light-theme) .ai-disclosure strong,
+:host-context(.theme-light) .ai-disclosure strong {
+  color: #6B27A5 !important;
+}
+:host-context(body.light-theme) .ai-disclosure div,
+:host-context(body.theme-light) .ai-disclosure div,
+:host-context(.light-theme) .ai-disclosure div,
+:host-context(.theme-light) .ai-disclosure div {
+  color: #475569 !important;
+}
+/* Strike banner */
+:host-context(body.light-theme) .strike-banner,
+:host-context(body.theme-light) .strike-banner,
+:host-context(.light-theme) .strike-banner,
+:host-context(.theme-light) .strike-banner {
+  background: rgba(255,180,0,.07) !important;
+  border-color: rgba(255,180,0,.22) !important;
+  color: #9A6700 !important;
+}
+/* Field labels */
+:host-context(body.light-theme) .field-label,
+:host-context(body.theme-light) .field-label,
+:host-context(.light-theme) .field-label,
+:host-context(.theme-light) .field-label {
+  color: #475569 !important;
+}
+/* Selects and inputs */
+:host-context(body.light-theme) .field-select,
+:host-context(body.theme-light) .field-select,
+:host-context(.light-theme) .field-select,
+:host-context(.theme-light) .field-select,
+:host-context(body.light-theme) .cond-textarea,
+:host-context(body.theme-light) .cond-textarea,
+:host-context(.light-theme) .cond-textarea,
+:host-context(.theme-light) .cond-textarea {
+  background: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+/* Select options in light mode */
+:host-context(body.light-theme) .field-select,
+:host-context(body.theme-light) .field-select,
+:host-context(.light-theme) .field-select,
+:host-context(.theme-light) .field-select {
+  color-scheme: light;
+}
+:host-context(body.light-theme) .field-select option,
+:host-context(body.theme-light) .field-select option,
+:host-context(.light-theme) .field-select option,
+:host-context(.theme-light) .field-select option,
+:host-context(body.light-theme) .field-select optgroup,
+:host-context(body.theme-light) .field-select optgroup,
+:host-context(.light-theme) .field-select optgroup,
+:host-context(.theme-light) .field-select optgroup {
+  background: #fff !important;
+  color: #0F172A !important;
+}
+/* AI conflict */
+:host-context(body.light-theme) .ai-conflict.ok,
+:host-context(body.theme-light) .ai-conflict.ok,
+:host-context(.light-theme) .ai-conflict.ok,
+:host-context(.theme-light) .ai-conflict.ok {
+  background: rgba(15,169,154,.08) !important;
+  border-color: rgba(15,169,154,.25) !important;
+  color: #0A6F64 !important;
+}
+:host-context(body.light-theme) .ai-conflict span,
+:host-context(body.theme-light) .ai-conflict span,
+:host-context(.light-theme) .ai-conflict span,
+:host-context(.theme-light) .ai-conflict span {
+  color: #0A6F64 !important;
+}
+/* Char count */
+:host-context(body.light-theme) .char-count,
+:host-context(body.theme-light) .char-count,
+:host-context(.light-theme) .char-count,
+:host-context(.theme-light) .char-count {
+  color: #475569 !important;
+}
+/* Badges in light */
+:host-context(body.light-theme) .badge-default,
+:host-context(body.theme-light) .badge-default,
+:host-context(.light-theme) .badge-default,
+:host-context(.theme-light) .badge-default {
+  background: rgba(43,212,199,.12) !important;
+  color: #0F8A7F !important;
+  border-color: rgba(43,212,199,.25) !important;
+}
+:host-context(body.light-theme) .badge-warn,
+:host-context(body.theme-light) .badge-warn,
+:host-context(.light-theme) .badge-warn,
+:host-context(.theme-light) .badge-warn {
+  background: rgba(255,180,0,.10) !important;
+  color: #9A6700 !important;
+  border-color: rgba(255,180,0,.22) !important;
+}
+/* Section title */
+:host-context(body.light-theme) .sec-title,
+:host-context(body.theme-light) .sec-title,
+:host-context(.light-theme) .sec-title,
+:host-context(.theme-light) .sec-title {
+  color: #0F172A !important;
 }

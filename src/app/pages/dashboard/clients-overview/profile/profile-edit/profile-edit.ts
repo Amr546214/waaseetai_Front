@@ -1,17 +1,19 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-input.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ExperienceLevel } from '../../../../../core/models/profile.model';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security';
 
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, PhoneInputComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent],
 	templateUrl: './profile-edit.html',
 })
 export class ProfileEdit {
@@ -25,6 +27,14 @@ export class ProfileEdit {
 
 	completionPercentage = signal<number>(0);
 	skills = signal<string[]>([]);
+	interests = signal<string[]>([]);
+
+	// Notification channel toggles
+	notifEmail = signal(true);
+	notifSms = signal(false);
+	notifInApp = signal(true);
+	notifTelegram = signal(false);
+	notifWhatsapp = signal(false);
 
 	getCompletionHint(): string {
 		const p = this.completionPercentage();
@@ -68,6 +78,12 @@ export class ProfileEdit {
 	isClient = false;
 	isProvider = false;
 	accountType = '';
+
+	// Reactive company-mode flag — true only for COMPANY account types (CLIENT_COMPANY / PROVIDER_COMPANY)
+	isCompanyMode = computed(() => {
+		const type = this.authStore.currentUser()?.accountType;
+		return type === AccountType.CLIENT_COMPANY || type === AccountType.PROVIDER_COMPANY;
+	});
 
 	experienceLevels = Object.values(ExperienceLevel);
 
@@ -137,7 +153,12 @@ export class ProfileEdit {
 			companySize: [''],
 			industry: [''],
 			website: ['', [Validators.pattern('https?://.+')]],
-			bio: ['', [Validators.maxLength(1000)]]
+			bio: ['', [Validators.maxLength(1000)]],
+			portfolioUrl: ['', [Validators.pattern('https?://.+')]],
+			linkedinUrl: [''],
+			personalWebsiteUrl: ['', [Validators.pattern('https?://.+')]],
+			interfaceLanguage: ['العربية'],
+			timezone: ['(GMT+3) توقيت الرياض']
 		});
 
 		this.providerForm = this.fb.group({
@@ -149,6 +170,11 @@ export class ProfileEdit {
 			bio: ['', [Validators.maxLength(1000)]],
 			hourlyRate: [null, [Validators.min(0)]],
 			experienceLevel: [null],
+			portfolioUrl: ['', [Validators.pattern('https?://.+')]],
+			linkedinUrl: [''],
+			personalWebsiteUrl: ['', [Validators.pattern('https?://.+')]],
+			interfaceLanguage: ['العربية'],
+			timezone: ['(GMT+3) توقيت الرياض']
 			// skills and portfolioLinks handled separately or explicitly mapped
 		});
 
@@ -214,9 +240,13 @@ export class ProfileEdit {
 
 					if (this.isClient) {
 						this.clientForm.patchValue(profile);
+						const pAny = profile as any;
+						if (pAny.interests) this.interests.set(pAny.interests);
 					} else {
 						this.providerForm.patchValue(profile);
 						if (profile.skills) this.skills.set(profile.skills);
+						const pAny = profile as any;
+						if (pAny.interests) this.interests.set(pAny.interests);
 					}
 
 					this.basicsForm.patchValue(profile);
@@ -324,6 +354,18 @@ export class ProfileEdit {
 		}
 	}
 
+	removeInterest(tag: string) {
+		this.interests.update(s => s.filter(x => x !== tag));
+	}
+
+	addInterest(input: HTMLInputElement) {
+		const val = input.value.trim();
+		if (val && !this.interests().includes(val)) {
+			this.interests.update(s => [...s, val]);
+			input.value = '';
+		}
+	}
+
 	saveProfile() {
 		this.errorMsg.set('');
 		this.successMsg.set('');
@@ -334,13 +376,13 @@ export class ProfileEdit {
 				this.errorMsg.set('يرجى التأكد من صحة البيانات المدخلة (مثال: رابط الموقع يجب أن يبدأ بـ http)');
 				return;
 			}
-			payload = this.clientForm.value;
+			payload = { ...this.clientForm.value, interests: this.interests() };
 		} else {
 			if (this.providerForm.invalid) {
 				this.errorMsg.set('يرجى التأكد من صحة البيانات المدخلة');
 				return;
 			}
-			payload = { ...this.providerForm.value, skills: this.skills() };
+			payload = { ...this.providerForm.value, skills: this.skills(), interests: this.interests() };
 			// Ensure numeric rate
 			if (payload.hourlyRate) payload.hourlyRate = Number(payload.hourlyRate);
 		}

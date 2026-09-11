@@ -21,6 +21,7 @@ export class Profile implements OnInit {
 	isLoading = signal<boolean>(true);
 	errorMsg = signal<string | null>(null);
 	showBanner = true;
+	avatarError = signal<boolean>(false);
 
 	// The full merged profile data from the backend
 	profileData = signal<any>(null);
@@ -32,6 +33,7 @@ export class Profile implements OnInit {
 	loadProfile() {
 		this.isLoading.set(true);
 		this.errorMsg.set(null);
+		this.avatarError.set(false);
 
 		this.profileApi.getMyProfile().subscribe({
 			next: (res) => {
@@ -78,6 +80,7 @@ export class Profile implements OnInit {
 	}
 
 	getAvatar(): string | null {
+		if (this.avatarError()) return null;
 		return this.profileData()?.avatarUrl || this.authStore.currentUser()?.avatarUrl || null;
 	}
 

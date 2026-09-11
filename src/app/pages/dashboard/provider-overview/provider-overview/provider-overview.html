@@ -214,7 +214,7 @@
 
 		<!-- بطاقة المستوى والولاء -->
 		<div class="escrow-card" role="region" aria-label="مستوى الولاء">
-			<div class="escrow-ico" aria-hidden="true" style="background:rgba(155,139,122,.14);color:#9B8B7A">
+			<div class="escrow-ico" aria-hidden="true" style="background:rgba(155,139,122,.14);border:1px solid rgba(155,139,122,.28);color:#9B8B7A">
 				<svg class="ws-star-svg" width="22" height="22" viewBox="0 0 100 100" fill="currentColor">
 					<path
 						d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
@@ -238,7 +238,7 @@
 						aria-valuemax="100">
 						<div class="prog-fill" [style.width.%]="data.summary?.profileCompletionPercent || 0"></div>
 					</div>
-					<span style="font-size:10px;color:#6B7699;white-space:nowrap">199 نقطة للمستوى 3 (باحث)</span>
+					<span class="lvl-prog-hint" style="font-size:10px;color:#6B7699;white-space:nowrap">199 نقطة للمستوى 3 (باحث)</span>
 				</div>
 			</div>
 			<button class="escrow-action cursor-pointer" routerLink="/provider-overview/profile/level">تفاصيل

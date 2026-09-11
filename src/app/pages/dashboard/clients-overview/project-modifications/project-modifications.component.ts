@@ -4,11 +4,42 @@ import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 
-interface ModificationRequest {
-	id: string; project: string; type: string; desc: string;
-	status: 'pending' | 'approved' | 'rejected' | 'review';
-	requestedBy: string; date: string; impact: string;
-	employee?: string;
+interface AmendmentStep {
+	label: string;
+	state: 'done' | 'active' | 'pending';
+	icon?: string;
+}
+
+interface AmendmentChange {
+	scope: string;
+	budget: string;
+	budgetClass?: string;
+	duration: string;
+	durationClass?: string;
+}
+
+interface Amendment {
+	id: string;
+	title: string;
+	subtitle: string;
+	status: 'wait-provider' | 'wait-you' | 'approved';
+	statusLabel: string;
+	iconType: 'disp' | 'canc' | 'done';
+	steps?: AmendmentStep[];
+	changes?: AmendmentChange;
+	aiText: string;
+	aiDone?: boolean;
+	aiIcon?: string;
+	meta: string;
+	ctaLabel: string;
+	ctaVariant: 'primary' | 'ghost';
+	unread?: number;
+}
+
+interface FilterTab {
+	id: string;
+	label: string;
+	count: number;
 }
 
 @Component({
@@ -16,7 +47,7 @@ interface ModificationRequest {
 	standalone: true,
 	imports: [CommonModule, RouterModule],
 	templateUrl: './project-modifications.component.html',
-	styleUrls: ['./project-modifications.component.css']
+	styleUrl: './project-modifications.component.css'
 })
 export class ProjectModificationsComponent {
 	private authStore = inject(AuthStore);
@@ -24,51 +55,99 @@ export class ProjectModificationsComponent {
 
 	activeFilter = signal<string>('all');
 
-	filters = [
-		{ id: 'all', label: 'الكل', count: 8 },
-		{ id: 'pending', label: 'قيد المراجعة', count: 3 },
-		{ id: 'approved', label: 'معتمد', count: 4 },
-		{ id: 'rejected', label: 'مرفوض', count: 1 }
+	amendments: Amendment[] = [
+		{
+			id: 'CR-2026-021',
+			title: 'إضافة مرحلة: صفحة هبوط للحملة',
+			subtitle: 'CR-2026-021 · تصميم هوية بصرية · مع نورة التصميم',
+			status: 'wait-provider',
+			statusLabel: 'بانتظار رد المقدّم',
+			iconType: 'disp',
+			steps: [
+				{ label: 'رُفع الطلب', state: 'done', icon: 'check' },
+				{ label: 'تقييم الذكاء', state: 'done', icon: 'ai' },
+				{ label: 'رد المقدّم', state: 'active', icon: 'person' },
+				{ label: 'تحديث العقد', state: 'pending' }
+			],
+			changes: { scope: '+ مرحلة جديدة', budget: '+1,500 ريال', budgetClass: 'up', duration: '+5 أيام', durationClass: 'up' },
+			aiText: 'الإضافة معقولة وسعرها ضمن سوق التصميم، يُقترح إيداع 1,500 ريال إضافية بالضمان عند موافقة المقدّم وتمديد التسليم 5 أيام',
+			meta: 'سيُضاف للضمان عند الاعتماد',
+			ctaLabel: 'متابعة النقاش',
+			ctaVariant: 'primary',
+			unread: 2
+		},
+		{
+			id: 'CR-2026-018',
+			title: 'تعديل من المقدّم: تمديد المدة',
+			subtitle: 'CR-2026-018 · تطوير متجر · من تقنية الرواد',
+			status: 'wait-you',
+			statusLabel: 'بانتظار موافقتك',
+			iconType: 'canc',
+			steps: [
+				{ label: 'رفعه المقدّم', state: 'done', icon: 'check' },
+				{ label: 'تقييم الذكاء', state: 'done', icon: 'ai' },
+				{ label: 'موافقتك', state: 'active', icon: 'person' },
+				{ label: 'تحديث العقد', state: 'pending' }
+			],
+			changes: { scope: 'بلا تغيير', budget: 'بلا تغيير', duration: '+7 أيام', durationClass: 'up' },
+			aiText: 'طلب التمديد مبرَّر بسبب توسيع نطاق ربط بوابات الدفع، ولا أثر على الميزانية. يُقترح القبول مع تثبيت موعد نهائي جديد',
+			meta: 'لا أثر مالي · تمديد المدة فقط',
+			ctaLabel: 'متابعة النقاش',
+			ctaVariant: 'primary',
+			unread: 1
+		},
+		{
+			id: 'CR-2026-012',
+			title: 'رفع الميزانية: عناصر إضافية',
+			subtitle: 'CR-2026-012 · كتابة محتوى متجر · مع رشا الكاتبة',
+			status: 'approved',
+			statusLabel: 'مُعتمد ومُحدَّث',
+			iconType: 'done',
+			aiText: 'وافق الطرفان على إضافة 5 صفحات منتجات مقابل 600 ريال و3 أيام، وحُدِّث العقد وأُودع الفرق بالضمان',
+			aiDone: true,
+			aiIcon: 'check',
+			meta: 'اعتُمد 14 مايو · +600 ريال للضمان',
+			ctaLabel: 'عرض النقاش',
+			ctaVariant: 'ghost'
+		},
+		{
+			id: 'CR-2026-005',
+			title: 'تقليص النطاق: حذف مرحلة',
+			subtitle: 'CR-2026-005 · استشارة تسويقية · مع مكتب أفق',
+			status: 'approved',
+			statusLabel: 'مُعتمد ومُحدَّث',
+			iconType: 'done',
+			aiText: 'اتُّفق على حذف مرحلة التقارير الشهرية وردّ 800 ريال إليك من الضمان، وحُدِّث العقد',
+			aiDone: true,
+			aiIcon: 'check',
+			meta: 'اعتُمد 2 مايو · رُدّ 800 ريال',
+			ctaLabel: 'عرض النقاش',
+			ctaVariant: 'ghost'
+		}
 	];
 
-	companyFilters = [
+	tabs: FilterTab[] = [
 		{ id: 'all', label: 'الكل', count: 4 },
-		{ id: 'pending', label: 'نشطة', count: 2 },
-		{ id: 'approved', label: 'مُعتمدة', count: 2 }
+		{ id: 'open', label: 'نشطة', count: 2 },
+		{ id: 'closed', label: 'مُعتمدة', count: 2 }
 	];
 
-	individualRequests: ModificationRequest[] = [
-		{ id: 'MOD-2026-018', project: 'تطوير تطبيق الجوال', type: 'إضافة مرحلة', desc: 'إضافة مرحلة اختبار أداء إضافية قبل الإطلاق', status: 'pending', requestedBy: 'سارة القحطاني', date: '2026-09-10', impact: 'زيادة المدة 5 أيام' },
-		{ id: 'MOD-2026-017', project: 'تصميم هوية بصرية', type: 'تعديل نطاق', desc: 'إضافة 3 تصاميم إضافية للسوشيال ميديا', status: 'approved', requestedBy: 'أحمد العتيبي', date: '2026-09-08', impact: 'زيادة التكلفة 2,500 ريال' },
-		{ id: 'MOD-2026-016', project: 'تطوير موقع إلكتروني', type: 'تغيير موعد', desc: 'تأجيل موعد التسليم النهائي 7 أيام', status: 'pending', requestedBy: 'نورة الحربي', date: '2026-09-07', impact: 'تمديد المدة' },
-		{ id: 'MOD-2026-015', project: 'كتابة محتوى تسويقي', type: 'إضافة مرحلة', desc: 'إضافة مرحلة مراجعة لغوية إضافية', status: 'approved', requestedBy: 'سارة القحطاني', date: '2026-09-05', impact: 'زيادة المدة يومين' },
-		{ id: 'MOD-2026-014', project: 'تصميم واجهة مستخدم', type: 'تعديل نطاق', desc: 'تعديل ألوان الواجهة الرئيسية', status: 'rejected', requestedBy: 'محمد الزهراني', date: '2026-09-03', impact: 'بدون تغيير' },
-		{ id: 'MOD-2026-013', project: 'تطوير تطبيق الجوال', type: 'تغيير موعد', desc: 'تقديم موعد المرحلة الأولى', status: 'approved', requestedBy: 'أحمد العتيبي', date: '2026-09-01', impact: 'تقديم 3 أيام' },
-		{ id: 'MOD-2026-012', project: 'استشارة تقنية', type: 'إضافة مرحلة', desc: 'إضافة جلسة استشارية متخصصة', status: 'review', requestedBy: 'فاطمة الغامدي', date: '2026-08-28', impact: 'زيادة التكلفة 800 ريال' },
-		{ id: 'MOD-2026-011', project: 'تصميم هوية بصرية', type: 'تعديل نطاق', desc: 'إضافة دليل الهوية البصرية', status: 'approved', requestedBy: 'سارة القحطاني', date: '2026-08-25', impact: 'زيادة التكلفة 1,200 ريال' }
+	stats = [
+		{ icon: 'edit', iconClass: 'inv-ic-amber', value: '1', label: 'بانتظار رد المقدّم' },
+		{ icon: 'person', iconClass: 'inv-ic-blue', value: '1', label: 'بانتظار موافقتك' },
+		{ icon: 'check', iconClass: 'inv-ic-green', value: '2', label: 'مُعتمدة' },
+		{ icon: 'ai', iconClass: 'inv-ic-ai', value: 'جارٍ', label: 'تقييم الذكاء' }
 	];
 
-	companyRequests: ModificationRequest[] = [
-		{ id: 'CR-2026-021', project: 'تصميم هوية بصرية', type: 'إضافة مرحلة', desc: 'إضافة مرحلة: صفحة هبوط للحملة', status: 'pending', requestedBy: 'نورة التصميم', date: '2026-09-10', impact: '+1,500 ريال · +5 أيام', employee: 'نورة القحطاني · التسويق' },
-		{ id: 'CR-2026-020', project: 'تطوير متجر إلكتروني', type: 'تعديل نطاق', desc: 'تعديل نطاق: حذف لوحة التقارير المخصصة', status: 'pending', requestedBy: 'تقنية الرواد', date: '2026-09-08', impact: '-2,000 ريال', employee: 'خالد المطيري · تقنية المعلومات' },
-		{ id: 'CR-2026-019', project: 'حملة تسويق رقمي', type: 'تغيير موعد', desc: 'تمديد موعد التسليم 3 أيام', status: 'approved', requestedBy: 'ريم الإبداعية', date: '2026-09-05', impact: '+3 أيام', employee: 'نورة القحطاني · التسويق' },
-		{ id: 'CR-2026-018', project: 'تصميم هوية بصرية', type: 'تعديل نطاق', desc: 'إضافة دليل الهوية الكامل', status: 'approved', requestedBy: 'أستوديو نون', date: '2026-09-01', impact: '+1,200 ريال', employee: 'سلطان العتيبي · المبيعات' },
-	];
-
-	requests = computed<ModificationRequest[]>(() => this.isCompanyMode() ? this.companyRequests : this.individualRequests);
-	activeFilters = computed(() => this.isCompanyMode() ? this.companyFilters : this.filters);
-
-	filteredRequests = computed<ModificationRequest[]>(() => {
+	filteredAmendments = computed<Amendment[]>(() => {
 		const filter = this.activeFilter();
-		if (filter === 'all') return this.requests();
-		return this.requests().filter(r => r.status === filter);
+		if (filter === 'all') return this.amendments;
+		if (filter === 'open') return this.amendments.filter(a => a.status !== 'approved');
+		if (filter === 'closed') return this.amendments.filter(a => a.status === 'approved');
+		return this.amendments;
 	});
 
 	setFilter(filter: string) {
 		this.activeFilter.set(filter);
-	}
-
-	statusLabel(s: string): string {
-		return s === 'pending' ? 'قيد المراجعة' : s === 'approved' ? 'معتمد' : s === 'rejected' ? 'مرفوض' : 'مراجعة فنية';
 	}
 }

@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './disputes.html',
+  styleUrl: './disputes.css'
 })
 export class Disputes {
   currentTab = signal<string>('all');

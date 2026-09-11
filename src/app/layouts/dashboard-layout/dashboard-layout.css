@@ -96,29 +96,48 @@
 
 /* Light Theme Overrides for Layout & Sidebar */
 :host-context(body.light-theme) .sidebar-wrapper,
+:host-context(body.theme-light) .sidebar-wrapper,
+:host-context(.light-theme) .sidebar-wrapper,
+:host-context(.theme-light) .sidebar-wrapper,
 :host-context(body.light) .sidebar-wrapper {
   background: transparent;
 }
 :host-context(body.light-theme) ::ng-deep .sidebar-wrapper app-sidebar aside.sidebar,
+:host-context(body.theme-light) ::ng-deep .sidebar-wrapper app-sidebar aside.sidebar,
+:host-context(.light-theme) ::ng-deep .sidebar-wrapper app-sidebar aside.sidebar,
+:host-context(.theme-light) ::ng-deep .sidebar-wrapper app-sidebar aside.sidebar,
 :host-context(body.light) ::ng-deep .sidebar-wrapper app-sidebar aside.sidebar {
-  background: rgba(255, 255, 255, 0.88) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
+  background: rgba(246, 248, 252, 0.94) !important;
+  backdrop-filter: blur(22px) !important;
+  -webkit-backdrop-filter: blur(22px) !important;
   border-left-color: #E2E8F4 !important;
+  border-inline-start-color: #E2E8F4 !important;
   box-shadow: -4px 0 25px rgba(15, 23, 42, 0.05) !important;
 }
 :host-context(body.light-theme) .inner-foot,
+:host-context(body.theme-light) .inner-foot,
+:host-context(.light-theme) .inner-foot,
+:host-context(.theme-light) .inner-foot,
 :host-context(body.light) .inner-foot {
   border-top-color: #E2E8F4;
   color: #64748B !important;
 }
 :host-context(body.light-theme) .inner-foot-links a,
 :host-context(body.light-theme) .inner-foot-links span,
+:host-context(body.theme-light) .inner-foot-links a,
+:host-context(body.theme-light) .inner-foot-links span,
+:host-context(.light-theme) .inner-foot-links a,
+:host-context(.light-theme) .inner-foot-links span,
+:host-context(.theme-light) .inner-foot-links a,
+:host-context(.theme-light) .inner-foot-links span,
 :host-context(body.light) .inner-foot-links a,
 :host-context(body.light) .inner-foot-links span {
   color: #64748B !important;
 }
 :host-context(body.light-theme) .inner-foot-links a:hover,
+:host-context(body.theme-light) .inner-foot-links a:hover,
+:host-context(.light-theme) .inner-foot-links a:hover,
+:host-context(.theme-light) .inner-foot-links a:hover,
 :host-context(body.light) .inner-foot-links a:hover {
   color: #0F8A7F !important;
 }

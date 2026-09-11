@@ -25,13 +25,13 @@
 .pend-close svg{width:13px;height:13px}
 
 /* ── Escrow Status ── */
-.escrow-card{display:flex;align-items:center;gap:14px;padding:16px 20px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.06));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(43,212,199,.15);border-radius:16px;margin-bottom:16px;flex-wrap:wrap}
-.escrow-ico{width:42px;height:42px;border-radius:12px;background:rgba(43,212,199,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--teal-txt,#2BD4C7)}
-.escrow-ico svg{width:20px;height:20px}
+.escrow-card{display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(135deg,rgba(43,212,199,.07),rgba(43,127,255,.05));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(43,212,199,.18);border-radius:14px;margin-bottom:18px;flex-wrap:wrap}
+.escrow-ico{width:44px;height:44px;border-radius:12px;background:rgba(43,212,199,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--teal-txt,#2BD4C7)}
+.escrow-ico svg{width:22px;height:22px}
 .escrow-bal-wrap{flex:1;min-width:140px}
-.escrow-lbl{font-size:11px;color:#6B7699;margin-bottom:2px}
+.escrow-lbl{font-size:12px;font-weight:700;color:#6B7699;margin-bottom:0}
 .escrow-val{font-size:22px;font-weight:900;color:var(--teal-txt,#2BD4C7);line-height:1.1}
-.escrow-sub{font-size:11px;color:#6B7699;margin-top:2px}
+.escrow-sub{font-size:11px;color:#A8B2D1;margin-top:0}
 .escrow-contract{flex:2;min-width:200px;padding:12px 14px;background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border-radius:11px;border:1px solid rgba(255,255,255,.06)}
 .escrow-contract-lbl{font-size:11px;color:#6B7699;margin-bottom:3px}
 .escrow-contract-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
@@ -39,7 +39,7 @@
 .prog-bar{width:100%;height:6px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:4px;transition:width .4s}
 .prog-pct{font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7);margin-top:5px}
-.escrow-action{padding:9px 15px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.24);border-radius:10px;color:var(--teal-txt,#2BD4C7);font-weight:700;font-size:12.5px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:all .15s;display:inline-block}
+.escrow-action{padding:7px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;color:var(--teal-txt,#2BD4C7);font-weight:700;font-size:11px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:all .15s;display:inline-block}
 .escrow-action:hover{background:rgba(43,212,199,.18)}
 
 /* ── Dashboard head + Action Center ── */
@@ -50,7 +50,7 @@
 .dash-chips{display:flex;gap:9px;flex-wrap:wrap}
 .dash-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:50px;font-size:12px;font-weight:800;text-decoration:none;border:1px solid}
 .dash-chip svg{width:13px;height:13px}
-.ws-level-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;border:1px solid}
+.ws-level-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:800;border:1px solid}
 .ws-rating-stars svg,.offer-av~div svg[viewBox="0 0 100 100"]{display:inline-block;vertical-align:middle;flex-shrink:0}
 .chip-verify{background:rgba(255,180,0,.10);border-color:rgba(255,180,0,.28);color:var(--kahr,#D98A0B)}
 .chip-verify:hover{background:rgba(255,180,0,.18)}
@@ -533,6 +533,75 @@
 :host-context(body.light) .ac-prog-bar ,
 :host-context(.theme-light) .ac-prog-bar {
   background: #E2E8F4 !important;
+}
+
+/* ===== LIGHT MODE VARIABLES — exact from P-PR-001 LIGHT_CSS ===== */
+/* body{--drop-name:#0F172A} body{--rec-sub:#5B6472} body{--ai-txt:#6B27A5} body{--teal-txt:#0F8A7F} */
+:host-context(body.light-theme),
+:host-context(body.theme-light),
+:host-context(.light-theme),
+:host-context(.theme-light){
+  --drop-name:#0F172A;
+  --rec-sub:#5B6472;
+  --ai-txt:#6B27A5;
+  --teal-txt:#0F8A7F;
+}
+
+/* Level card — escrow-action light override (exact from P-PR-001 LIGHT_CSS) */
+/* .escrow-card{background:rgba(43,212,199,.06);border-color:rgba(43,212,199,.22)} */
+/* .escrow-lbl,.escrow-sub{color:#56607D} */
+:host-context(body.light-theme) .escrow-card,
+:host-context(body.theme-light) .escrow-card,
+:host-context(.light-theme) .escrow-card,
+:host-context(.theme-light) .escrow-card{
+  background:rgba(43,212,199,.06) !important;
+  border:1px solid rgba(43,212,199,.22) !important;
+  box-shadow:none !important;
+}
+:host-context(body.light-theme) .escrow-lbl,
+:host-context(body.theme-light) .escrow-lbl,
+:host-context(.light-theme) .escrow-lbl,
+:host-context(.theme-light) .escrow-lbl,
+:host-context(body.light-theme) .escrow-sub,
+:host-context(body.theme-light) .escrow-sub,
+:host-context(.light-theme) .escrow-sub,
+:host-context(.theme-light) .escrow-sub{
+  color:#56607D !important;
+}
+:host-context(body.light-theme) .lvl-prog-hint,
+:host-context(body.theme-light) .lvl-prog-hint,
+:host-context(.light-theme) .lvl-prog-hint,
+:host-context(.theme-light) .lvl-prog-hint{
+  color:#56607D !important;
+}
+:host-context(body.light-theme) .escrow-action,
+:host-context(body.theme-light) .escrow-action,
+:host-context(.light-theme) .escrow-action,
+:host-context(.theme-light) .escrow-action{
+  background:rgba(43,212,199,.08) !important;
+  border-color:rgba(43,212,199,.22) !important;
+  color:#0F8A7F !important;
+}
+:host-context(body.light-theme) .escrow-action:hover,
+:host-context(body.theme-light) .escrow-action:hover,
+:host-context(.light-theme) .escrow-action:hover,
+:host-context(.theme-light) .escrow-action:hover{
+  background:rgba(43,212,199,.14) !important;
+}
+/* Level badge — keep brown/gold color visible in light mode */
+:host-context(body.light-theme) .ws-level-tag,
+:host-context(body.theme-light) .ws-level-tag,
+:host-context(.light-theme) .ws-level-tag,
+:host-context(.theme-light) .ws-level-tag{
+  color:#9B8B7A !important;
+  background:rgba(155,139,122,.12) !important;
+  border-color:rgba(155,139,122,.22) !important;
+}
+:host-context(body.light-theme) .ws-level-tag svg,
+:host-context(body.theme-light) .ws-level-tag svg,
+:host-context(.light-theme) .ws-level-tag svg,
+:host-context(.theme-light) .ws-level-tag svg{
+  fill:#9B8B7A !important;
 }
 
 

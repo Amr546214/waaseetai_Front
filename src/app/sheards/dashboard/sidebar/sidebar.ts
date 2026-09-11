@@ -637,14 +637,10 @@ export class Sidebar implements OnInit {
 				] as NavItem[]
 			},
 			{
-				type: 'accordion',
-				id: 'notif',
+				type: 'link',
 				label: 'الإشعارات',
-				icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
-				children: [
-					{ type: 'link', label: 'مركز الإشعارات', route: '/client-overview/notifications', icon: 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0' },
-					{ type: 'link', label: 'تفضيلات الإشعارات', route: '/client-overview/notifications/settings', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z' }
-				]
+				route: '/client-overview/notifications',
+				icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
 			},
 			{
 				type: 'accordion',
@@ -657,10 +653,16 @@ export class Sidebar implements OnInit {
 			},
 			{ type: 'header', label: 'الدعم والمساعدة' },
 			{
-				type: 'link',
-				label: 'مركز المساعدة',
-				route: '/client-overview/help',
-				icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+				type: 'accordion',
+				id: 'help',
+				label: 'المساعدة والدعم',
+				icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+				children: [
+					{ type: 'link', label: 'مركز المساعدة', route: '/client-overview/help', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+					{ type: 'link', label: 'المساعد الذكي', route: '/client-overview/help/ai-assistant', icon: 'M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5' },
+					{ type: 'link', label: 'الدعم المباشر', route: '/client-overview/help/live-support', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' },
+					{ type: 'link', label: 'تذاكر الدعم', route: '/client-overview/help/tickets', icon: 'M22 12 16 12 14 15 10 15 8 12 2 12' }
+				]
 			},
 			{
 				type: 'button',

@@ -33,6 +33,8 @@ export interface GamificationLevelResponse {
 		reqRating: number;
 		commission: number;
 		isCurrent: boolean;
+		color?: string;
+		state?: 'completed' | 'current' | 'next' | 'upcoming';
 	}>;
 	pointRules: {
 		gainRules: Array<{ label: string; points: string }>;

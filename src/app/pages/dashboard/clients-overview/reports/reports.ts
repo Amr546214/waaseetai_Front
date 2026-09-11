@@ -8,6 +8,7 @@ import { ThemeService } from '../../../../core/services/theme.service';
 	standalone: true,
 	imports: [CommonModule, RouterModule],
 	templateUrl: './reports.html',
+	styleUrl: './reports.css'
 })
 export class Reports {
 	public themeService = inject(ThemeService);

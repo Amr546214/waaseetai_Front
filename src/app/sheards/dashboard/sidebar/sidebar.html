@@ -24,7 +24,7 @@
 		@for (item of navItems(); track $index) {
 			<!-- Section Header -->
 			@if (item.type === 'header') {
-				<span class="block px-3 mt-4 mb-1 text-[11px] font-normal text-slate-400/60 uppercase tracking-wider first:mt-1">{{item.label}}</span>
+				<span class="block px-3 mt-4 mb-1 text-[11px] font-normal text-slate-400/60 uppercase tracking-wider first:mt-1 sb-sec">{{item.label}}</span>
 			}
 
 			<!-- Standard Link Item -->
@@ -77,12 +77,12 @@
 						@for (child of item.children; track $index) {
 							@if (child.type === 'link') {
 								<a [routerLink]="child.disabled ? null : child.route"
-									routerLinkActive="!bg-[#131B36] !text-slate-100 font-medium !border-slate-700/50 shadow-sm active-sub-item"
+									routerLinkActive="active-sub-item"
 									(click)="child.disabled ? $event.preventDefault() : onCloseSidebar()"
 									[ngClass]="child.disabled ? 'opacity-40 grayscale pointer-events-none' : 'hover:text-slate-200 hover:bg-white/[0.04] cursor-pointer'"
 									class="flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-normal text-slate-400 border border-transparent transition-all duration-200 w-full text-right group/sub">
 									<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
-										class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-500 group-hover/sub:text-slate-300 transition-colors duration-200 [a.active-sub-item_&]:!text-slate-200">
+										class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-500 group-hover/sub:text-slate-300 transition-colors duration-200">
 										<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="child.icon" />
 									</svg>
 									<span class="truncate">{{child.label}}</span>

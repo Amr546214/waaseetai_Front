@@ -181,7 +181,7 @@
 				<div class="avatar-wrap">
 					<div class="avatar">
 						@if (getAvatar()) {
-						<img [src]="getAvatar()" alt="صورة الملف الشخصي">
+						<img [src]="getAvatar()" alt="" (error)="avatarError.set(true)">
 						} @else {
 						{{ getInitials() }}
 						}
@@ -411,7 +411,7 @@
 			<div style="text-align:center;padding:24px;color:#6B7699;font-size:13px">
 				<p>لم تتم إضافة اهتمامات بعد</p>
 				<a routerLink="/client-overview/profile/edit"
-					style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 14px;background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.22);border-radius:8px;color:#5DA0FF;font-size:12px;font-weight:700;text-decoration:none">
+					style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 14px;background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.22);border-radius:8px;color:#0F172A;font-size:12px;font-weight:700;text-decoration:none">
 					<svg width="13" height="13" aria-hidden="true">
 						<use href="#ic-edit"></use>
 					</svg>

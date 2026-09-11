@@ -1,98 +1,159 @@
 <div class="pm-page" dir="rtl">
-	<div class="page-hd">
-		<div class="page-ttl-wrap">
-			<div class="page-ttl">طلبات تعديل المشاريع</div>
-			<div class="page-sub">{{ isCompanyMode() ? 'طلبات تعديل نطاق أو ميزانية أو مدة مشروع قائم، تُرفع من صفحة متابعة المشروع وتمر بموافقة الطرفين وحوكمة الذكاء' : 'متابعة طلبات تعديل النطاق والمواعيد والمراحل' }}</div>
+
+	<!-- Header -->
+	<div class="ord-head">
+		<div>
+			<div class="ord-title">طلبات تعديل المشاريع</div>
+			<div class="ord-sub">طلبات تعديل نطاق أو ميزانية أو مدة مشروع قائم، تُرفع من صفحة متابعة المشروع وتمر بموافقة الطرفين وحوكمة الذكاء</div>
 		</div>
 	</div>
 
-	<!-- AI Disclosure (company mode) -->
-	@if (isCompanyMode()) {
-		<div class="ai-disc">
-			<div class="ai-disc-ico">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg>
-			</div>
-			<div class="ai-disc-body">
-				<div class="ai-disc-lbl">وسيط AI، حوكمة تعديل المشاريع</div>
-				<p class="ai-disc-txt">يفحص الذكاء أثر كل تعديل على السعر والمدة والضمان ويقترح التسوية العادلة، ثم يوافق الطرفان ويُحدَّث العقد <span class="ai-disc-badge">دقة 95%</span> القرار النهائي لكما</p>
-			</div>
+	<!-- AI Disclosure -->
+	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+		<div class="ai-disc-ico">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<circle cx="12" cy="12" r="2" />
+				<circle cx="4" cy="6" r="1.5" />
+				<circle cx="20" cy="6" r="1.5" />
+				<circle cx="4" cy="18" r="1.5" />
+				<circle cx="20" cy="18" r="1.5" />
+				<circle cx="12" cy="3" r="1.5" />
+				<circle cx="12" cy="21" r="1.5" />
+				<path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+			</svg>
 		</div>
-	}
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI، حوكمة تعديل المشاريع</div>
+			<p class="ai-disc-txt">يفحص الذكاء أثر كل تعديل على السعر والمدة والضمان ويقترح التسوية العادلة، ثم يوافق الطرفان ويُحدَّث العقد <span class="ai-disc-badge">دقة 95%</span> القرار النهائي لكما</p>
+		</div>
+	</div>
 
 	<!-- Stats -->
-	<div class="pm-stats">
-		<div class="stat-box">
-			<div class="stat-val">{{ requests().length }}</div>
-			<div class="stat-lbl">{{ isCompanyMode() ? 'إجمالي الطلبات' : 'إجمالي الطلبات' }}</div>
-		</div>
-		<div class="stat-box">
-			<div class="stat-val">{{ requests().filter(r => r.status === 'pending').length }}</div>
-			<div class="stat-lbl">{{ isCompanyMode() ? 'نشطة' : 'قيد المراجعة' }}</div>
-		</div>
-		<div class="stat-box">
-			<div class="stat-val">{{ requests().filter(r => r.status === 'approved').length }}</div>
-			<div class="stat-lbl">معتمد</div>
-		</div>
-		@if (!isCompanyMode()) {
-			<div class="stat-box">
-				<div class="stat-val">{{ requests().filter(r => r.status === 'rejected').length }}</div>
-				<div class="stat-lbl">مرفوض</div>
+	<div class="inv-kpis">
+		@for (stat of stats; track stat.label) {
+			<div class="inv-kpi">
+				<div class="ic {{ stat.iconClass }}">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+						@if (stat.icon === 'edit') {
+							<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+							<path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
+						} @else if (stat.icon === 'person') {
+							<circle cx="12" cy="7" r="4" />
+							<path d="M4 21v-1a8 8 0 0 1 16 0v1" />
+						} @else if (stat.icon === 'check') {
+							<polyline points="20 6 9 17 4 12" />
+						} @else if (stat.icon === 'ai') {
+							<circle cx="12" cy="12" r="2" />
+							<circle cx="4" cy="6" r="1.5" />
+							<circle cx="20" cy="6" r="1.5" />
+							<circle cx="4" cy="18" r="1.5" />
+							<circle cx="20" cy="18" r="1.5" />
+							<path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" />
+						}
+					</svg>
+				</div>
+				<div class="v">{{ stat.value }}</div>
+				<div class="l">{{ stat.label }}</div>
 			</div>
 		}
 	</div>
 
-	<!-- Filters -->
-	<div class="filter-row">
-		@for (f of activeFilters(); track f.id) {
-			<button type="button" class="filter-chip" [class.active]="activeFilter() === f.id" (click)="setFilter(f.id)">
-				{{ f.label }}
-				<span class="fc-count">{{ f.count }}</span>
+	<!-- Filter Tabs -->
+	<div class="inv-tabs" role="tablist">
+		@for (tab of tabs; track tab.id) {
+			<button type="button" class="inv-tab" [class.active]="activeFilter() === tab.id" (click)="setFilter(tab.id)">
+				{{ tab.label }}
+				<span class="c">{{ tab.count }}</span>
 			</button>
 		}
 	</div>
 
-	<!-- Requests List -->
-	<div class="req-list">
-		@for (req of filteredRequests(); track req.id) {
-			<div class="req-card">
-				<div class="req-card-hd">
-					<div class="req-id">{{ req.id }}</div>
-					<span class="req-status" [ngClass]="'st-' + req.status">{{ statusLabel(req.status) }}</span>
+	<!-- Section Title -->
+	<div class="sec-ttl">سجلّ طلبات التعديل <span class="cnt">· مرتبة بآخر نشاط</span></div>
+
+	<!-- Amendment Cards -->
+	<div class="dp-list">
+		@for (am of filteredAmendments(); track am.id) {
+			<div class="dp-card" [class.dp-attn]="am.status !== 'approved'">
+				<div class="dp-top">
+					<div class="dp-id">
+						<span class="dp-ico dp-ico-{{ am.iconType }}">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+								@if (am.iconType === 'done') {
+									<polyline points="20 6 9 17 4 12" />
+								} @else {
+									<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+									<path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
+								}
+							</svg>
+						</span>
+						<div>
+							<div class="dp-ttl">{{ am.title }}</div>
+							<div class="dp-sub">{{ am.subtitle }}</div>
+						</div>
+					</div>
+					<span class="dp-badge" [ngClass]="{
+						'dp-b-wait': am.status === 'wait-provider' || am.status === 'wait-you',
+						'dp-b-done': am.status === 'approved'
+					}">{{ am.statusLabel }}</span>
 				</div>
-				<div class="req-project">{{ req.project }}</div>
-				<div class="req-type">{{ req.type }}</div>
-				<div class="req-desc">{{ req.desc }}</div>
-				<div class="req-meta">
-					<div class="req-meta-item">
-						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-						{{ req.requestedBy }}
-					</div>
-					<div class="req-meta-item">
-						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-						{{ req.date }}
-					</div>
-					<div class="req-meta-item">
-						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-						{{ req.impact }}
-					</div>
-				</div>
-				@if (isCompanyMode() && req.employee) {
-					<div class="req-emp">
-						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-						المسؤول: <strong>{{ req.employee }}</strong>
+
+				@if (am.steps) {
+					<div class="dp-flow">
+						@for (step of am.steps; track step.label) {
+							<div class="dp-step" [class.done]="step.state === 'done'" [class.active]="step.state === 'active'">
+								<span class="dp-dot">
+									@if (step.icon === 'check') {
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+									} @else if (step.icon === 'ai') {
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg>
+									} @else if (step.icon === 'person') {
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4" /><path d="M4 21v-1a8 8 0 0 1 16 0v1" /></svg>
+									}
+								</span>
+								{{ step.label }}
+							</div>
+						}
 					</div>
 				}
-				@if (req.status === 'pending' || req.status === 'review') {
-					<div class="req-actions">
-						<button type="button" class="req-btn req-btn-pri">معاينة الطلب</button>
-						<button type="button" class="req-btn req-btn-sec">رفض</button>
-					</div>
-				} @else {
-					<div class="req-actions">
-						<button type="button" class="req-btn req-btn-sec">عرض التفاصيل</button>
+
+				@if (am.changes) {
+					<div class="dp-chg">
+						<span class="dp-chg-i"><span class="k">النطاق</span><span class="v">{{ am.changes.scope }}</span></span>
+						<span class="dp-chg-i"><span class="k">الميزانية</span><span class="v" [class.up]="am.changes.budgetClass === 'up'" [class.down]="am.changes.budgetClass === 'down'">{{ am.changes.budget }}</span></span>
+						<span class="dp-chg-i"><span class="k">المدة</span><span class="v" [class.up]="am.changes.durationClass === 'up'" [class.down]="am.changes.durationClass === 'down'">{{ am.changes.duration }}</span></span>
 					</div>
 				}
+
+				<div class="dp-ai" [class.dp-ai-done]="am.aiDone">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+						@if (am.aiIcon === 'check') {
+							<polyline points="20 6 9 17 4 12" />
+						} @else {
+							<circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" />
+						}
+					</svg>
+					@if (am.aiDone) {
+						<b>النتيجة:</b> {{ am.aiText }}
+					} @else {
+						<b>تقييم الذكاء:</b> {{ am.aiText }}
+					}
+				</div>
+
+				<div class="dp-foot">
+					<span class="dp-meta">{{ am.meta }}</span>
+					<a href="javascript:void(0)" class="dp-cta" [class.dp-cta-gh]="am.ctaVariant === 'ghost'">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+						</svg>
+						{{ am.ctaLabel }}
+						@if (am.unread) {
+							<span class="dp-unread">{{ am.unread }}</span>
+						}
+					</a>
+				</div>
 			</div>
 		}
 	</div>
+
 </div>

@@ -32,12 +32,12 @@
 
 		<!-- BREADCRUMB (TOP RIGHT) -->
 		<div class="flex items-center justify-end mb-8">
-			<nav class="flex items-center gap-2 text-[13px] text-[#6c7cae] font-medium" aria-label="مسار التنقل">
-				<a routerLink="/client-overview" class="hover:text-white transition-colors">الرئيسية</a>
-				<span class="text-[#3b4b75]" aria-hidden="true">&#8250;</span>
-				<a routerLink="/client-overview/my-requests" class="hover:text-white transition-colors">طلباتي</a>
-				<span class="text-[#3b4b75]" aria-hidden="true">&#8250;</span>
-				<span class="text-white font-bold">طلب جديد</span>
+			<nav class="breadcrumb flex items-center gap-2 text-[13px] text-[var(--txt-3)] font-medium" aria-label="مسار التنقل">
+				<a routerLink="/client-overview" class="hover:text-[var(--txt)] transition-colors">الرئيسية</a>
+				<span class="breadcrumb-sep text-[var(--txt-3)]" aria-hidden="true">&#8250;</span>
+				<a routerLink="/client-overview/my-requests" class="hover:text-[var(--txt)] transition-colors">طلباتي</a>
+				<span class="breadcrumb-sep text-[var(--txt-3)]" aria-hidden="true">&#8250;</span>
+				<span class="breadcrumb-current text-[var(--txt)] font-bold">طلب جديد</span>
 			</nav>
 		</div>
 
@@ -46,16 +46,18 @@
 			<div class="flex items-center justify-between relative">
 				@for (step of steps; track step.num; let idx = $index; let isLast = $last) {
 				<!-- STEP ITEM -->
-				<div class="flex flex-col items-center gap-3 relative z-10 cursor-pointer group"
+				<div class="step-item flex flex-col items-center gap-3 relative z-10 cursor-pointer group"
 					role="listitem"
+					[class.active]="currentStep() === step.num"
+					[class.done]="currentStep() > step.num"
 					(click)="currentStep() > step.num && currentStep.set(step.num)">
 
 					<!-- CIRCLE -->
-					<div class="w-11 h-11 rounded-full flex items-center justify-center text-[15px] font-black transition-all duration-300 shrink-0"
+					<div class="step-circle w-11 h-11 rounded-full flex items-center justify-center text-[15px] font-black transition-all duration-300 shrink-0"
 						[ngClass]="{
 							'text-[#070d24] scale-110 shadow-[0_0_22px_rgba(43,212,199,0.55),0_0_12px_rgba(43,127,255,0.45)]': currentStep() === step.num,
-							'bg-[#0d1633] border-2 border-[#2bd4c7] text-[#2bd4c7]': currentStep() > step.num,
-							'bg-[#0a1228] border border-[#1b2748] text-[#5c6d98]': currentStep() < step.num
+							'bg-[var(--sec-bg)] border-2 border-[var(--teal)] text-[var(--teal-txt)]': currentStep() > step.num,
+							'bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-3)]': currentStep() < step.num
 						}"
 						[style]="currentStep() === step.num ? 'background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%); border: none;' : ''">
 						@if (currentStep() > step.num) {
@@ -68,11 +70,11 @@
 					</div>
 
 					<!-- LABEL -->
-					<div class="text-[13px] transition-colors duration-200 text-center whitespace-nowrap"
+					<div class="step-label text-[13px] transition-colors duration-200 text-center whitespace-nowrap"
 						[ngClass]="{
-							'text-white font-black text-[14px]': currentStep() === step.num,
-							'text-[#2bd4c7] font-bold': currentStep() > step.num,
-							'text-[#6c7cae] font-bold': currentStep() < step.num
+							'text-[var(--txt)] font-black text-[14px]': currentStep() === step.num,
+							'text-[var(--teal-txt)] font-bold': currentStep() > step.num,
+							'text-[var(--txt-3)] font-bold': currentStep() < step.num
 						}">
 						{{ step.label }}
 					</div>
@@ -80,8 +82,9 @@
 
 				<!-- CONNECTING LINE -->
 				@if (!isLast) {
-				<div class="flex-1 h-[1.5px] mx-3 transition-colors duration-300"
-					[ngClass]="currentStep() > step.num ? 'bg-[#2bd4c7]' : 'bg-[#1b2748]'"></div>
+				<div class="step-line flex-1 h-[1.5px] mx-3 transition-colors duration-300"
+					[class.done]="currentStep() > step.num"
+					[ngClass]="currentStep() > step.num ? 'bg-[var(--teal)]' : 'bg-[var(--sec-bd)]'"></div>
 				}
 				}
 			</div>
@@ -135,12 +138,12 @@
 <!-- STICKY BOTTOM BAR -->
 @if (currentStep() !== 6) {
 <div
-	class="sticky bottom-0 left-0 right-0 w-full py-4 px-4 lg:px-6 bg-[#070d24]/95 border-t border-[#162248] z-50 backdrop-blur-md">
+	class="sticky-bar sticky bottom-0 left-0 right-0 w-full py-4 px-4 lg:px-6 bg-[var(--pg)]/95 border-t border-[var(--sec-bd)] z-50 backdrop-blur-md">
 	<div class="max-w-6xl mx-auto w-full flex items-center justify-between gap-4 flex-row-reverse">
 		<!-- RIGHT SIDE: Next Button + Selected Specialty Summary -->
 		<div class="flex items-center gap-4">
 			@if (currentSpec()) {
-			<span class="text-[13px] text-[#6c7cae] font-medium hidden sm:inline-block">
+			<span class="selection-status text-[13px] text-[var(--txt-3)] font-medium hidden sm:inline-block">
 				{{ currentSpec()?.name }} <span class="opacity-40">•</span> {{ selectedSubs().size }} فرعي
 			</span>
 			}
@@ -172,11 +175,11 @@
 		<div>
 			@if (currentStep() === 1) {
 			<button type="button"
-				class="px-6 py-2.5 rounded-full bg-[#111936] border border-[#1e2952] text-[#8a99c4] hover:text-white hover:bg-[#182348] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
+				class="px-6 py-2.5 rounded-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)] hover:bg-[var(--sec-bg-hover)] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
 				(click)="handleCancel()">إلغاء</button>
 			} @else {
 			<button type="button"
-				class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#111936] border border-[#1e2952] text-[#8a99c4] hover:text-white hover:bg-[#182348] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
+				class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)] hover:bg-[var(--sec-bg-hover)] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
 				(click)="goBack()">
 				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 					<polyline points="9 18 15 12 9 6" />
