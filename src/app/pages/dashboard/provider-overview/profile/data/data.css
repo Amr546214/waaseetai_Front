@@ -213,23 +213,23 @@ select option{background:#0B1437;color:#fff}select optgroup{background:#0B1437;c
 .inner-foot-links a:hover{color:var(--teal-txt,#2BD4C7)}
 
 /* Company Edit: Light Mode */
-:host-context(body.light) .co-card,:host-context(body.light-theme) .co-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .pg-title,:host-context(body.light-theme) .pg-title{color:#0F172A}
-:host-context(body.light) .pg-sub,:host-context(body.light-theme) .pg-sub{color:#64748B}
-:host-context(body.light) .sec-ttl,:host-context(body.light-theme) .sec-ttl{color:#0F172A}
-:host-context(body.light) .fld label,:host-context(body.light-theme) .fld label{color:#0F172A}
+:host-context(body.light) .co-card, :host-context(body.light-theme) .co-card, :host-context(.theme-light) .co-card {background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .pg-title, :host-context(body.light-theme) .pg-title, :host-context(.theme-light) .pg-title {color:#0F172A}
+:host-context(body.light) .pg-sub, :host-context(body.light-theme) .pg-sub, :host-context(.theme-light) .pg-sub {color:#64748B}
+:host-context(body.light) .sec-ttl, :host-context(body.light-theme) .sec-ttl, :host-context(.theme-light) .sec-ttl {color:#0F172A}
+:host-context(body.light) .fld label, :host-context(body.light-theme) .fld label, :host-context(.theme-light) .fld label {color:#0F172A}
 :host-context(body.light) .fld input,:host-context(body.light) .fld textarea,:host-context(body.light) .fld select,:host-context(body.light-theme) .fld input,:host-context(body.light-theme) .fld textarea,:host-context(body.light-theme) .fld select{background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.10);color:#0F172A}
-:host-context(body.light) .fld-hint,:host-context(body.light-theme) .fld-hint{color:#64748B}
-:host-context(body.light) .up-t,:host-context(body.light-theme) .up-t{color:#0F172A}
-:host-context(body.light) .up-s,:host-context(body.light-theme) .up-s{color:#64748B}
-:host-context(body.light) .doc-n,:host-context(body.light-theme) .doc-n{color:#0F172A}
-:host-context(body.light) .doc-s,:host-context(body.light-theme) .doc-s{color:#64748B}
-:host-context(body.light) .doc-row,:host-context(body.light-theme) .doc-row{background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
-:host-context(body.light) .btn-sec,:host-context(body.light-theme) .btn-sec{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
-:host-context(body.light) .notice,:host-context(body.light-theme) .notice{background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.14)}
-:host-context(body.light) .chip-off,:host-context(body.light-theme) .chip-off{background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.08);color:#64748B}
-:host-context(body.light) .inner-foot,:host-context(body.light-theme) .inner-foot{border-color:rgba(15,23,42,.06);color:#64748B}
-:host-context(body.light) .inner-foot-links a,:host-context(body.light-theme) .inner-foot-links a{color:#64748B}
+:host-context(body.light) .fld-hint, :host-context(body.light-theme) .fld-hint, :host-context(.theme-light) .fld-hint {color:#64748B}
+:host-context(body.light) .up-t, :host-context(body.light-theme) .up-t, :host-context(.theme-light) .up-t {color:#0F172A}
+:host-context(body.light) .up-s, :host-context(body.light-theme) .up-s, :host-context(.theme-light) .up-s {color:#64748B}
+:host-context(body.light) .doc-n, :host-context(body.light-theme) .doc-n, :host-context(.theme-light) .doc-n {color:#0F172A}
+:host-context(body.light) .doc-s, :host-context(body.light-theme) .doc-s, :host-context(.theme-light) .doc-s {color:#64748B}
+:host-context(body.light) .doc-row, :host-context(body.light-theme) .doc-row, :host-context(.theme-light) .doc-row {background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
+:host-context(body.light) .btn-sec, :host-context(body.light-theme) .btn-sec, :host-context(.theme-light) .btn-sec {background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
+:host-context(body.light) .notice, :host-context(body.light-theme) .notice, :host-context(.theme-light) .notice {background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.14)}
+:host-context(body.light) .chip-off, :host-context(body.light-theme) .chip-off, :host-context(.theme-light) .chip-off {background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.08);color:#64748B}
+:host-context(body.light) .inner-foot, :host-context(body.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot {border-color:rgba(15,23,42,.06);color:#64748B}
+:host-context(body.light) .inner-foot-links a, :host-context(body.light-theme) .inner-foot-links a, :host-context(.theme-light) .inner-foot-links a {color:#64748B}
 
 @media(max-width:767px){
   .grid2{grid-template-columns:1fr}

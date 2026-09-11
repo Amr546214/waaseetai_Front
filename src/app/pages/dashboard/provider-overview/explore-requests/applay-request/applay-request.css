@@ -12,7 +12,11 @@
 .co-assign-card:hover { border-color: rgba(43, 212, 199, .18) !important; }
 .co-assign-selected { border-color: rgba(43, 212, 199, .35) !important; background: linear-gradient(135deg, rgba(43, 212, 199, .06), rgba(255, 255, 255, .01)) !important; }
 
-:host-context(body.light) .co-assign-card { background: #fff !important; border-color: #E7EAF1 !important; }
-:host-context(body.light) .co-assign-card:hover { border-color: rgba(43, 212, 199, .25) !important; }
+:host-context(body.light) .co-assign-card,
+:host-context(body.light-theme) .co-assign-card,
+:host-context(.theme-light) .co-assign-card{ background: #fff !important; border-color: #E7EAF1 !important; }
+:host-context(body.light) .co-assign-card:hover,
+:host-context(body.light-theme) .co-assign-card:hover,
+:host-context(.theme-light) .co-assign-card:hover{ border-color: rgba(43, 212, 199, .25) !important; }
 :host-context(body.light-theme) .co-assign-card { background: #fff !important; border-color: #E7EAF1 !important; }
 :host-context(body.light-theme) .co-assign-card:hover { border-color: rgba(43, 212, 199, .25) !important; }

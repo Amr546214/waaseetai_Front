@@ -121,9 +121,9 @@ select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image
 
 :host-context(body.light) .pri { border-color: #E7EAF1; background: #fff; }
 :host-context(body.light) .pri-t { color: #070D24; }
-:host-context(body.light) .pri-d { color: #6B7699; }
+:host-context(body.light) .pri-d { color: #56607D; }
 :host-context(body.light) .pri.sel { border-color: rgba(43, 212, 199, .5); background: rgba(43, 212, 199, .06); }
 :host-context(body.light-theme) .pri { border-color: #E7EAF1; background: #fff; }
 :host-context(body.light-theme) .pri-t { color: #070D24; }
-:host-context(body.light-theme) .pri-d { color: #6B7699; }
+:host-context(body.light-theme) .pri-d { color: #56607D; }
 :host-context(body.light-theme) .pri.sel { border-color: rgba(43, 212, 199, .5); background: rgba(43, 212, 199, .06); }

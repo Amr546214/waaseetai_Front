@@ -63,11 +63,19 @@
   cursor: not-allowed;
   transform: none;
 }
-:host-context(body.light) .sticky-bar {
+:host-context(body.light) .sticky-bar,
+:host-context(body.light-theme) .sticky-bar,
+:host-context(.theme-light) .sticky-bar,
+:host-context(body.light-theme) .sticky-bar,
+:host-context(.theme-light) .sticky-bar {
   background: rgba(240, 244, 250, 0.95);
   border-top-color: rgba(7, 13, 36, 0.10);
 }
-:host-context(body.light) .btn-cancel {
+:host-context(body.light) .btn-cancel,
+:host-context(body.light-theme) .btn-cancel,
+:host-context(.theme-light) .btn-cancel,
+:host-context(body.light-theme) .btn-cancel,
+:host-context(.theme-light) .btn-cancel {
   background: #fff;
   border-color: #D8DFEC;
   color: #475569;

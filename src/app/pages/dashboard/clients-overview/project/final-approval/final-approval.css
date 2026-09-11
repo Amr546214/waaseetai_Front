@@ -173,8 +173,8 @@
 :host-context(.light-theme) .fa-badge,:host-context(.theme-light) .fa-badge{background:rgba(255,180,0,.08);color:#9A6700;border-color:rgba(255,180,0,.2)}
 :host-context(.light-theme) .fa-mi,:host-context(.theme-light) .fa-mi{background:#F5F7FC;border-color:#E7EAF1}
 :host-context(.light-theme) .fa-mi .v,:host-context(.theme-light) .fa-mi .v{color:#0F172A}
-:host-context(.light-theme) .fa-mi .l,:host-context(.theme-light) .fa-mi .l{color:#6B7699}
-:host-context(.light-theme) .fa-mi .v small,:host-context(.theme-light) .fa-mi .v small{color:#6B7699}
+:host-context(.light-theme) .fa-mi .l,:host-context(.theme-light) .fa-mi .l{color:#56607D}
+:host-context(.light-theme) .fa-mi .v small,:host-context(.theme-light) .fa-mi .v small{color:#56607D}
 :host-context(.light-theme) .fa-v-free,:host-context(.theme-light) .fa-v-free{color:#0A6F64}
 :host-context(.light-theme) .fa-v-held,:host-context(.theme-light) .fa-v-held{color:#9A6700}
 :host-context(.light-theme) .fa-ai-disc,:host-context(.theme-light) .fa-ai-disc{background:linear-gradient(135deg,rgba(123,47,190,.05),rgba(43,127,255,.03));border-color:rgba(123,47,190,.14)}
@@ -193,12 +193,12 @@
 :host-context(.light-theme) .fa-ms,:host-context(.theme-light) .fa-ms{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
 :host-context(.light-theme) .fa-ms-final,:host-context(.theme-light) .fa-ms-final{border-color:rgba(255,180,0,.2);box-shadow:0 0 0 1px rgba(255,180,0,.08)}
 :host-context(.light-theme) .fa-ms-t h4,:host-context(.theme-light) .fa-ms-t h4{color:#0F172A}
-:host-context(.light-theme) .fa-ms-d,:host-context(.theme-light) .fa-ms-d{color:#6B7699}
+:host-context(.light-theme) .fa-ms-d,:host-context(.theme-light) .fa-ms-d{color:#56607D}
 :host-context(.light-theme) .fa-ms-pay,:host-context(.theme-light) .fa-ms-pay{background:rgba(15,169,154,.08);border-color:rgba(15,169,154,.2);color:#0A6F64}
 :host-context(.light-theme) .fa-pay-held,:host-context(.theme-light) .fa-pay-held{background:rgba(255,180,0,.08);border-color:rgba(255,180,0,.2);color:#9A6700}
 :host-context(.light-theme) .fa-deliv,:host-context(.theme-light) .fa-deliv{color:#475569}
 :host-context(.light-theme) .fa-deliv svg,:host-context(.theme-light) .fa-deliv svg{color:#94A3B8}
-:host-context(.light-theme) .fa-files,:host-context(.theme-light) .fa-files{background:#EEF2FA;border-color:#D8DFEC;color:#6B7699}
+:host-context(.light-theme) .fa-files,:host-context(.theme-light) .fa-files{background:#EEF2FA;border-color:#D8DFEC;color:#56607D}
 :host-context(.light-theme) .fa-aicheck,:host-context(.theme-light) .fa-aicheck{background:rgba(15,169,154,.05);border-color:rgba(15,169,154,.16);color:#0A6F64}
 :host-context(.light-theme) .fa-redo,:host-context(.theme-light) .fa-redo{background:rgba(15,169,154,.06);border-color:rgba(15,169,154,.18);color:#0A6F64}
 :host-context(.light-theme) .fa-finalfiles .fa-file-chip,:host-context(.theme-light) .fa-finalfiles .fa-file-chip{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
@@ -224,7 +224,7 @@
 :host-context(.light-theme) .fa-srow-tot,:host-context(.theme-light) .fa-srow-tot{border-top-color:rgba(15,169,154,.2)}
 :host-context(.light-theme) .fa-srow-tot b,:host-context(.theme-light) .fa-srow-tot b{color:#0A6F64}
 :host-context(.light-theme) .fa-settle-bar,:host-context(.theme-light) .fa-settle-bar{background:#E7EAF1}
-:host-context(.light-theme) .fa-settle-lg,:host-context(.theme-light) .fa-settle-lg{color:#6B7699}
+:host-context(.light-theme) .fa-settle-lg,:host-context(.theme-light) .fa-settle-lg{color:#56607D}
 :host-context(.light-theme) .fa-final,:host-context(.theme-light) .fa-final{background:linear-gradient(135deg,rgba(15,169,154,.06),rgba(43,127,255,.05));border-color:rgba(15,169,154,.16)}
 :host-context(.light-theme) .fa-final-t,:host-context(.theme-light) .fa-final-t{color:#0F172A}
 :host-context(.light-theme) .fa-final-t svg,:host-context(.theme-light) .fa-final-t svg{color:#0A6F64}
@@ -236,13 +236,13 @@
 :host-context(.light-theme) .fsm-box h3,:host-context(.theme-light) .fsm-box h3{color:#0F172A}
 :host-context(.light-theme) .fsm-box p,:host-context(.theme-light) .fsm-box p{color:#475569}
 :host-context(.light-theme) .fsm-amt,:host-context(.theme-light) .fsm-amt{background:rgba(15,169,154,.05);border-color:rgba(15,169,154,.16)}
-:host-context(.light-theme) .fsm-amt span,:host-context(.theme-light) .fsm-amt span{color:#6B7699}
+:host-context(.light-theme) .fsm-amt span,:host-context(.theme-light) .fsm-amt span{color:#56607D}
 :host-context(.light-theme) .fsm-amt b,:host-context(.theme-light) .fsm-amt b{color:#0A6F64}
-:host-context(.light-theme) .fsm-amt b small,:host-context(.theme-light) .fsm-amt b small{color:#6B7699}
+:host-context(.light-theme) .fsm-amt b small,:host-context(.theme-light) .fsm-amt b small{color:#56607D}
 :host-context(.light-theme) .fsm-gh,:host-context(.theme-light) .fsm-gh{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
 :host-context(.light-theme) .fa-state,:host-context(.theme-light) .fa-state{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
 :host-context(.light-theme) .fa-state-ttl,:host-context(.theme-light) .fa-state-ttl{color:#0F172A}
-:host-context(.light-theme) .fa-state-code,:host-context(.theme-light) .fa-state-code{color:#6B7699}
+:host-context(.light-theme) .fa-state-code,:host-context(.theme-light) .fa-state-code{color:#56607D}
 
 @media(max-width:767px){
 	.fa-meta{grid-template-columns:repeat(2,1fr)}

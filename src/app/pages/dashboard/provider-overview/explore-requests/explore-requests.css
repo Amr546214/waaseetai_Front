@@ -221,7 +221,7 @@
 
 :host-context(body.light) .rc-ai-row-lbl,
 :host-context(.light-theme) .rc-ai-row-lbl,
-:host-context(.theme-light) .rc-ai-row-lbl{color:#6B7699}
+:host-context(.theme-light) .rc-ai-row-lbl{color:#56607D}
 
 :host-context(body.light) .rc-ai-tip,
 :host-context(.light-theme) .rc-ai-tip,

@@ -19,7 +19,11 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
-:host-context(body.light) .info-note {
+:host-context(body.light) .info-note,
+:host-context(body.light-theme) .info-note,
+:host-context(.theme-light) .info-note,
+:host-context(body.light-theme) .info-note,
+:host-context(.theme-light) .info-note {
   background: rgba(43, 127, 255, 0.04);
   border-color: rgba(43, 127, 255, 0.12);
   color: #475569;
@@ -35,7 +39,11 @@
   align-items: center;
   gap: 8px;
 }
-:host-context(body.light) .spec-section-title {
+:host-context(body.light) .spec-section-title,
+:host-context(body.light-theme) .spec-section-title,
+:host-context(.theme-light) .spec-section-title,
+:host-context(body.light-theme) .spec-section-title,
+:host-context(.theme-light) .spec-section-title {
   color: #475569;
 }
 
@@ -189,18 +197,34 @@
 }
 
 /* LIGHT MODE OVERRIDES */
-:host-context(body.light) .spec-card {
+:host-context(body.light) .spec-card,
+:host-context(body.light-theme) .spec-card,
+:host-context(.theme-light) .spec-card,
+:host-context(body.light-theme) .spec-card,
+:host-context(.theme-light) .spec-card {
   background: rgba(255, 255, 255, 0.85);
   border-color: #E7EAF1;
 }
-:host-context(body.light) .spec-name {
+:host-context(body.light) .spec-name,
+:host-context(body.light-theme) .spec-name,
+:host-context(.theme-light) .spec-name,
+:host-context(body.light-theme) .spec-name,
+:host-context(.theme-light) .spec-name {
   color: #070D24;
 }
-:host-context(body.light) .ai-disclosure {
+:host-context(body.light) .ai-disclosure,
+:host-context(body.light-theme) .ai-disclosure,
+:host-context(.theme-light) .ai-disclosure,
+:host-context(body.light-theme) .ai-disclosure,
+:host-context(.theme-light) .ai-disclosure {
   background: linear-gradient(135deg, rgba(123, 47, 190, 0.04), rgba(43, 127, 255, 0.03));
   border-color: rgba(123, 47, 190, 0.12);
 }
-:host-context(body.light) .ai-disc-txt {
+:host-context(body.light) .ai-disc-txt,
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt,
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt {
   color: #475569;
 }
 

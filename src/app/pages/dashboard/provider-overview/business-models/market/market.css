@@ -659,10 +659,10 @@
 .co-mkt-kpi-c .s{font-size:10.5px;color:var(--txt-3,#6B7699);margin-top:3px}
 
 /* Company Market: Light Mode */
-:host-context(body.light) .co-mkt-kpi-c,:host-context(body.light-theme) .co-mkt-kpi-c{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .co-mkt-kpi-c .v,:host-context(body.light-theme) .co-mkt-kpi-c .v{color:#0F172A}
-:host-context(body.light) .co-mkt-kpi-c .l,:host-context(body.light-theme) .co-mkt-kpi-c .l{color:#64748B}
-:host-context(body.light) .co-mkt-kpi-c .s,:host-context(body.light-theme) .co-mkt-kpi-c .s{color:#94A3B8}
+:host-context(body.light) .co-mkt-kpi-c, :host-context(body.light-theme) .co-mkt-kpi-c, :host-context(.theme-light) .co-mkt-kpi-c {background:#fff;border-color:#E7EAF1}
+:host-context(body.light) .co-mkt-kpi-c .v, :host-context(body.light-theme) .co-mkt-kpi-c .v, :host-context(.theme-light) .co-mkt-kpi-c .v {color:#0F172A}
+:host-context(body.light) .co-mkt-kpi-c .l, :host-context(body.light-theme) .co-mkt-kpi-c .l, :host-context(.theme-light) .co-mkt-kpi-c .l {color:#64748B}
+:host-context(body.light) .co-mkt-kpi-c .s, :host-context(body.light-theme) .co-mkt-kpi-c .s, :host-context(.theme-light) .co-mkt-kpi-c .s {color:#94A3B8}
 
 @media(max-width:767px){
   .co-mkt-kpi-row{grid-template-columns:repeat(2,1fr)}

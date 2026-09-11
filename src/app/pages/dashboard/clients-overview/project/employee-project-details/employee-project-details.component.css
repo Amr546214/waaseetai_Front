@@ -152,52 +152,184 @@
 .lc-empty-ttl{font-size:15px;font-weight:800;color:#fff;margin-bottom:6px}
 .lc-empty-sub{font-size:12px;color:#6B7699;margin-bottom:14px}
 
-/* Light Mode */
-:host-context(body.light) .lc-ph{background:#fff;border-color:#D8DFEC}
-:host-context(body.light) .lc-ph-main h2{color:#0F172A}
-:host-context(body.light) .lc-meta{color:#475569}
-:host-context(body.light) .lc-dot{background:#CBD5E1}
-:host-context(body.light) .lc-emp{background:rgba(93,160,255,.03);border-color:rgba(93,160,255,.1)}
-:host-context(body.light) .lc-emp-lbl{color:#475569}
-:host-context(body.light) .lc-emp-name{color:#1A5FCC}
-:host-context(body.light) .lc-prog{background:#fff;border-color:#D8DFEC}
-:host-context(body.light) .lc-ring::before{background:#fff}
-:host-context(body.light) .lc-ring b{color:#0F172A}
-:host-context(body.light) .lc-proginfo .t{color:#0F172A}
-:host-context(body.light) .lc-proginfo .t span{color:#475569}
-:host-context(body.light) .lc-track{background:#E2E8F0}
-:host-context(body.light) .lc-proginfo .lbls{color:#475569}
-:host-context(body.light) .lc-days b{color:#0F172A}
-:host-context(body.light) .lc-days small{color:#475569}
-:host-context(body.light) .lc-kpi{background:#fff;border-color:#D8DFEC}
-:host-context(body.light) .lc-kpi .v{color:#0F172A}
-:host-context(body.light) .lc-kpi .l{color:#475569}
-:host-context(body.light) .lc-tabs{border-bottom-color:#D8DFEC}
-:host-context(body.light) .lc-tab{color:#475569}
-:host-context(body.light) .lc-tab .c{background:rgba(0,0,0,.05);color:#475569}
-:host-context(body.light) .lc-colttl{color:#0F172A}
-:host-context(body.light) .lc-colttl .c{background:rgba(0,0,0,.05);color:#475569}
-:host-context(body.light) .lc-tlcard{background:#fff;border-color:#D8DFEC}
-:host-context(body.light) .lc-tli.is-wait .lc-tlcard{background:rgba(255,180,0,.03);border-color:rgba(255,180,0,.2)}
-:host-context(body.light) .lc-tltop h4{color:#0F172A}
-:host-context(body.light) .lc-tltop .dt{color:#475569}
-:host-context(body.light) .lc-tlast{color:#475569}
-:host-context(body.light) .lc-tlast-l{color:#64748B}
-:host-context(body.light) .lc-tlast-todo{color:#94A3B8}
-:host-context(body.light) .lc-file{background:rgba(0,0,0,.03);border-color:#D8DFEC;color:#475569}
-:host-context(body.light) .lc-nd-todo{background:#F1F5F9;border-color:#D8DFEC;color:#94A3B8}
-:host-context(body.light) .lc-tli::before{background:#E2E8F0}
-:host-context(body.light) .lc-tli.is-done::before{background:rgba(43,212,199,.3)}
-:host-context(body.light) .lc-tli.is-wait::before{background:rgba(255,180,0,.3)}
-:host-context(body.light) .lc-ai{background:linear-gradient(135deg,rgba(165,107,224,.04),rgba(43,212,199,.02));border-color:rgba(165,107,224,.15)}
-:host-context(body.light) .lc-aihd b{color:#0F172A}
-:host-context(body.light) .lc-aln .tx{color:#475569}
-:host-context(body.light) .lc-aln .tx b{color:#0F172A}
-:host-context(body.light) .lc-aim{border-top-color:#D8DFEC}
-:host-context(body.light) .lc-empty-ttl{color:#0F172A}
-:host-context(body.light) .lc-empty-sub{color:#475569}
-:host-context(body.light) .lc-empty-ico{background:rgba(0,0,0,.03)}
-:host-context(body.light) .lc-empty-ico svg{color:#94A3B8}
-:host-context(body.light) .ai-disc{background:linear-gradient(135deg,rgba(43,212,199,.04),rgba(43,127,255,.02));border-color:rgba(43,212,199,.15)}
-:host-context(body.light) .ai-disc-txt{color:#475569}
-:host-context(body.light) .bk-link{color:#475569}
+/* Light Mode — colors from design P-SK-014-مساحة-العمل-موظفين-شركة.html LIGHT_CSS */
+:host-context(body.light) .lc-ph,
+:host-context(.light-theme) .lc-ph,
+:host-context(.theme-light) .lc-ph{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(body.light) .lc-ph-main h2,
+:host-context(.light-theme) .lc-ph-main h2,
+:host-context(.theme-light) .lc-ph-main h2{color:#0F172A}
+:host-context(body.light) .lc-meta,
+:host-context(.light-theme) .lc-meta,
+:host-context(.theme-light) .lc-meta{color:#475569}
+:host-context(body.light) .lc-dot,
+:host-context(.light-theme) .lc-dot,
+:host-context(.theme-light) .lc-dot{background:#C2C9D6}
+:host-context(body.light) .lc-badge,
+:host-context(.light-theme) .lc-badge,
+:host-context(.theme-light) .lc-badge{color:#0F8A7F;background:rgba(43,212,199,.08);border-color:rgba(43,212,199,.18)}
+:host-context(body.light) .lc-emp,
+:host-context(.light-theme) .lc-emp,
+:host-context(.theme-light) .lc-emp{background:rgba(43,127,255,.04);border-color:#D6E2F7}
+:host-context(body.light) .lc-emp-lbl,
+:host-context(.light-theme) .lc-emp-lbl,
+:host-context(.theme-light) .lc-emp-lbl{color:#5B6472}
+:host-context(body.light) .lc-emp-name,
+:host-context(.light-theme) .lc-emp-name,
+:host-context(.theme-light) .lc-emp-name{color:#1D6FE0}
+:host-context(body.light) .lc-prog,
+:host-context(.light-theme) .lc-prog,
+:host-context(.theme-light) .lc-prog{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(body.light) .lc-ring::before,
+:host-context(.light-theme) .lc-ring::before,
+:host-context(.theme-light) .lc-ring::before{background:#fff}
+:host-context(body.light) .lc-ring b,
+:host-context(.light-theme) .lc-ring b,
+:host-context(.theme-light) .lc-ring b{color:#0F172A}
+:host-context(body.light) .lc-proginfo .t,
+:host-context(.light-theme) .lc-proginfo .t,
+:host-context(.theme-light) .lc-proginfo .t{color:#0F172A}
+:host-context(body.light) .lc-proginfo .t span,
+:host-context(.light-theme) .lc-proginfo .t span,
+:host-context(.theme-light) .lc-proginfo .t span{color:#475569}
+:host-context(body.light) .lc-track,
+:host-context(.light-theme) .lc-track,
+:host-context(.theme-light) .lc-track{background:rgba(7,13,36,.08)}
+:host-context(body.light) .lc-proginfo .lbls,
+:host-context(.light-theme) .lc-proginfo .lbls,
+:host-context(.theme-light) .lc-proginfo .lbls{color:#5B6472}
+:host-context(body.light) .lc-days b,
+:host-context(.light-theme) .lc-days b,
+:host-context(.theme-light) .lc-days b{color:#0F172A}
+:host-context(body.light) .lc-days small,
+:host-context(.light-theme) .lc-days small,
+:host-context(.theme-light) .lc-days small{color:#5B6472}
+:host-context(body.light) .lc-kpi,
+:host-context(.light-theme) .lc-kpi,
+:host-context(.theme-light) .lc-kpi{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(body.light) .lc-kpi .v,
+:host-context(.light-theme) .lc-kpi .v,
+:host-context(.theme-light) .lc-kpi .v{color:#0F172A}
+:host-context(body.light) .lc-kpi .l,
+:host-context(.light-theme) .lc-kpi .l,
+:host-context(.theme-light) .lc-kpi .l{color:#5B6472}
+:host-context(body.light) .lc-tabs,
+:host-context(.light-theme) .lc-tabs,
+:host-context(.theme-light) .lc-tabs{border-bottom-color:#E2E8F4}
+:host-context(body.light) .lc-tab,
+:host-context(.light-theme) .lc-tab,
+:host-context(.theme-light) .lc-tab{color:#5B6472}
+:host-context(body.light) .lc-tab.active,
+:host-context(.light-theme) .lc-tab.active,
+:host-context(.theme-light) .lc-tab.active{color:#0F8A7F;border-bottom-color:#0F8A7F}
+:host-context(body.light) .lc-tab .c,
+:host-context(.light-theme) .lc-tab .c,
+:host-context(.theme-light) .lc-tab .c{background:#EEF2FA;color:#5B6472;border-color:#D8DFEC}
+:host-context(body.light) .lc-colttl,
+:host-context(.light-theme) .lc-colttl,
+:host-context(.theme-light) .lc-colttl{color:#0F172A}
+:host-context(body.light) .lc-colttl .c,
+:host-context(.light-theme) .lc-colttl .c,
+:host-context(.theme-light) .lc-colttl .c{background:#EEF2FA;color:#5B6472;border-color:#D8DFEC}
+:host-context(body.light) .lc-tlcard,
+:host-context(.light-theme) .lc-tlcard,
+:host-context(.theme-light) .lc-tlcard{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(body.light) .lc-tli.is-wait .lc-tlcard,
+:host-context(.light-theme) .lc-tli.is-wait .lc-tlcard,
+:host-context(.theme-light) .lc-tli.is-wait .lc-tlcard{border-color:#FFB400}
+:host-context(body.light) .lc-tltop h4,
+:host-context(.light-theme) .lc-tltop h4,
+:host-context(.theme-light) .lc-tltop h4{color:#0F172A}
+:host-context(body.light) .lc-tltop .dt,
+:host-context(.light-theme) .lc-tltop .dt,
+:host-context(.theme-light) .lc-tltop .dt{color:#5B6472}
+:host-context(body.light) .lc-tlast,
+:host-context(.light-theme) .lc-tlast,
+:host-context(.theme-light) .lc-tlast{color:#475569}
+:host-context(body.light) .lc-tlast-l,
+:host-context(.light-theme) .lc-tlast-l,
+:host-context(.theme-light) .lc-tlast-l{color:#0F172A}
+:host-context(body.light) .lc-tlast-todo,
+:host-context(.light-theme) .lc-tlast-todo,
+:host-context(.theme-light) .lc-tlast-todo{color:#94A3B8}
+:host-context(body.light) .lc-file,
+:host-context(.light-theme) .lc-file,
+:host-context(.theme-light) .lc-file{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
+:host-context(body.light) .lc-nd-todo,
+:host-context(.light-theme) .lc-nd-todo,
+:host-context(.theme-light) .lc-nd-todo{background:#EEF2FA;color:#5B6472;border-color:#D8DFEC}
+:host-context(body.light) .lc-node,
+:host-context(.light-theme) .lc-node,
+:host-context(.theme-light) .lc-node{border-color:#fff}
+:host-context(body.light) .lc-tli::before,
+:host-context(.light-theme) .lc-tli::before,
+:host-context(.theme-light) .lc-tli::before{background:#E2E8F4}
+:host-context(body.light) .lc-tli.is-done::before,
+:host-context(.light-theme) .lc-tli.is-done::before,
+:host-context(.theme-light) .lc-tli.is-done::before{background:rgba(43,212,199,.3)}
+:host-context(body.light) .lc-tli.is-wait::before,
+:host-context(.light-theme) .lc-tli.is-wait::before,
+:host-context(.theme-light) .lc-tli.is-wait::before{background:rgba(255,180,0,.3)}
+:host-context(body.light) .lc-esc-free,
+:host-context(.light-theme) .lc-esc-free,
+:host-context(.theme-light) .lc-esc-free{color:#0A6F64}
+:host-context(body.light) .lc-esc-held,
+:host-context(.light-theme) .lc-esc-held,
+:host-context(.theme-light) .lc-esc-held{color:#1D6FE0}
+:host-context(body.light) .lc-qual,
+:host-context(.light-theme) .lc-qual,
+:host-context(.theme-light) .lc-qual{color:#6B27A5}
+:host-context(body.light) .lc-btn-gh,
+:host-context(.light-theme) .lc-btn-gh,
+:host-context(.theme-light) .lc-btn-gh{background:#EEF2FA;border-color:#D8DFEC;color:#0F172A}
+:host-context(body.light) .lc-ai,
+:host-context(.light-theme) .lc-ai,
+:host-context(.theme-light) .lc-ai{background:linear-gradient(135deg,rgba(165,107,224,.04),rgba(43,212,199,.02));border-color:rgba(165,107,224,.15)}
+:host-context(body.light) .lc-aihd b,
+:host-context(.light-theme) .lc-aihd b,
+:host-context(.theme-light) .lc-aihd b{color:#0F172A}
+:host-context(body.light) .lc-aihd .conf,
+:host-context(.light-theme) .lc-aihd .conf,
+:host-context(.theme-light) .lc-aihd .conf{color:#6B27A5}
+:host-context(body.light) .lc-aln .tx,
+:host-context(.light-theme) .lc-aln .tx,
+:host-context(.theme-light) .lc-aln .tx{color:#475569}
+:host-context(body.light) .lc-aln .tx b,
+:host-context(.light-theme) .lc-aln .tx b,
+:host-context(.theme-light) .lc-aln .tx b{color:#0F172A}
+:host-context(body.light) .lc-aim,
+:host-context(.light-theme) .lc-aim,
+:host-context(.theme-light) .lc-aim{border-top-color:#E2E8F4}
+:host-context(body.light) .lc-aim .mv,
+:host-context(.light-theme) .lc-aim .mv,
+:host-context(.theme-light) .lc-aim .mv{color:#6B27A5}
+:host-context(body.light) .lc-aim .ml,
+:host-context(.light-theme) .lc-aim .ml,
+:host-context(.theme-light) .lc-aim .ml{color:#5B6472}
+:host-context(body.light) .lc-empty-ttl,
+:host-context(.light-theme) .lc-empty-ttl,
+:host-context(.theme-light) .lc-empty-ttl{color:#0F172A}
+:host-context(body.light) .lc-empty-sub,
+:host-context(.light-theme) .lc-empty-sub,
+:host-context(.theme-light) .lc-empty-sub{color:#5B6472}
+:host-context(body.light) .lc-empty-ico,
+:host-context(.light-theme) .lc-empty-ico,
+:host-context(.theme-light) .lc-empty-ico{background:rgba(7,13,36,.04)}
+:host-context(body.light) .lc-empty-ico svg,
+:host-context(.light-theme) .lc-empty-ico svg,
+:host-context(.theme-light) .lc-empty-ico svg{color:#94A3B8}
+:host-context(body.light) .ai-disc,
+:host-context(.light-theme) .ai-disc,
+:host-context(.theme-light) .ai-disc{background:linear-gradient(135deg,rgba(43,212,199,.04),rgba(43,127,255,.02));border-color:rgba(43,212,199,.15)}
+:host-context(body.light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt{color:#475569}
+:host-context(body.light) .ai-disc-badge,
+:host-context(.light-theme) .ai-disc-badge,
+:host-context(.theme-light) .ai-disc-badge{color:#6B27A5}
+:host-context(body.light) .bk-link,
+:host-context(.light-theme) .bk-link,
+:host-context(.theme-light) .bk-link{color:#56607D}
+:host-context(body.light) .bk-link:hover,
+:host-context(.light-theme) .bk-link:hover,
+:host-context(.theme-light) .bk-link:hover{color:#0F8A7F}

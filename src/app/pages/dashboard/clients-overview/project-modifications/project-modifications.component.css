@@ -77,8 +77,22 @@
 .req-emp strong{color:#5DA0FF;font-weight:800}
 .req-emp svg{color:#5DA0FF;flex-shrink:0}
 
-/* Light mode */
-:host-context(body.light) .ai-disc{background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.03));border-color:rgba(43,212,199,.15)}
-:host-context(body.light) .ai-disc-txt{color:#475569}
-:host-context(body.light) .req-emp{background:rgba(93,160,255,.04);border-color:rgba(93,160,255,.1)}
-:host-context(body.light) .req-emp strong{color:#1A5FCC}
+/* Light mode — AI disclosure + employee info (company mode) */
+:host-context(body.light) .ai-disc,
+:host-context(.light-theme) .ai-disc,
+:host-context(.theme-light) .ai-disc{background:linear-gradient(135deg,rgba(43,212,199,.04),rgba(43,127,255,.02));border-color:rgba(43,212,199,.15)}
+:host-context(body.light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt{color:#475569}
+:host-context(body.light) .ai-disc-badge,
+:host-context(.light-theme) .ai-disc-badge,
+:host-context(.theme-light) .ai-disc-badge{color:#6B27A5}
+:host-context(body.light) .req-emp,
+:host-context(.light-theme) .req-emp,
+:host-context(.theme-light) .req-emp{background:rgba(43,127,255,.04);border-color:#D6E2F7}
+:host-context(body.light) .req-emp strong,
+:host-context(.light-theme) .req-emp strong,
+:host-context(.theme-light) .req-emp strong{color:#1D6FE0}
+:host-context(body.light) .req-emp svg,
+:host-context(.light-theme) .req-emp svg,
+:host-context(.theme-light) .req-emp svg{color:#1D6FE0}

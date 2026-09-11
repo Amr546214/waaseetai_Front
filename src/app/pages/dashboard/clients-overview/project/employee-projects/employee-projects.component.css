@@ -91,33 +91,112 @@
 .empty-ttl{font-size:15px;font-weight:800;color:#fff;margin-bottom:6px}
 .empty-sub{font-size:12px;color:#6B7699}
 
-/* Light Mode */
-:host-context(body.light) .pg-title{color:#0F172A}
-:host-context(body.light) .pg-sub{color:#475569}
-:host-context(body.light) .bc a{color:#475569}
-:host-context(body.light) .bc{color:#64748B}
-:host-context(body.light) .bc svg{color:#94A3B8}
-:host-context(body.light) .kpi-c{background:rgba(255,255,255,.7);border-color:#D8DFEC}
-:host-context(body.light) .kpi-ic{background:rgba(0,0,0,.03)}
-:host-context(body.light) .kpi-v{color:#0F172A}
-:host-context(body.light) .kpi-l{color:#475569}
-:host-context(body.light) .pl-tab{background:#fff;border-color:#D8DFEC;color:#475569}
-:host-context(body.light) .pl-tab .c{background:rgba(0,0,0,.05);color:#475569}
-:host-context(body.light) .pl-card{background:#fff;border-color:#D8DFEC}
-:host-context(body.light) .pl-card:hover{border-color:rgba(43,212,199,.3);box-shadow:0 2px 8px rgba(0,0,0,.04)}
-:host-context(body.light) .pl-card.pl-attn{background:rgba(255,180,0,.03);border-color:rgba(255,180,0,.2)}
-:host-context(body.light) .pl-ring::before{background:#fff}
-:host-context(body.light) .pl-ring span{color:#0F172A}
-:host-context(body.light) .pl-ttl{color:#0F172A}
-:host-context(body.light) .pl-prov{color:#475569}
-:host-context(body.light) .pl-dot{background:#CBD5E1}
-:host-context(body.light) .pl-emp{color:#475569}
-:host-context(body.light) .pl-next{color:#475569}
-:host-context(body.light) .pl-next b{color:#0F172A}
-:host-context(body.light) .pl-meta{color:#475569}
-:host-context(body.light) .sec-ttl{color:#0F172A}
-:host-context(body.light) .sec-ttl .cnt{color:#475569}
-:host-context(body.light) .ai-disc{background:linear-gradient(135deg,rgba(43,212,199,.04),rgba(43,127,255,.02));border-color:rgba(43,212,199,.15)}
-:host-context(body.light) .ai-disc-txt{color:#475569}
-:host-context(body.light) .empty-ttl{color:#0F172A}
-:host-context(body.light) .empty-sub{color:#475569}
+/* Light Mode — colors from design P-SK-014-موظفين-شركة.html LIGHT_CSS */
+:host-context(body.light) .pg-title,
+:host-context(.light-theme) .pg-title,
+:host-context(.theme-light) .pg-title{color:#0F172A}
+:host-context(body.light) .pg-sub,
+:host-context(.light-theme) .pg-sub,
+:host-context(.theme-light) .pg-sub{color:#5B6472}
+:host-context(body.light) .bc a,
+:host-context(.light-theme) .bc a,
+:host-context(.theme-light) .bc a{color:#56607D}
+:host-context(body.light) .bc,
+:host-context(.light-theme) .bc,
+:host-context(.theme-light) .bc{color:#64748B}
+:host-context(body.light) .bc svg,
+:host-context(.light-theme) .bc svg,
+:host-context(.theme-light) .bc svg{color:#94A3B8}
+:host-context(body.light) .kpi-c,
+:host-context(.light-theme) .kpi-c,
+:host-context(.theme-light) .kpi-c{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(body.light) .kpi-ic,
+:host-context(.light-theme) .kpi-ic,
+:host-context(.theme-light) .kpi-ic{background:rgba(7,13,36,.04)}
+:host-context(body.light) .kpi-v,
+:host-context(.light-theme) .kpi-v,
+:host-context(.theme-light) .kpi-v{color:#0F172A}
+:host-context(body.light) .kpi-l,
+:host-context(.light-theme) .kpi-l,
+:host-context(.theme-light) .kpi-l{color:#5B6472}
+:host-context(body.light) .pl-tab,
+:host-context(.light-theme) .pl-tab,
+:host-context(.theme-light) .pl-tab{background:#fff;border-color:#E7EAF1;color:#5B6472}
+:host-context(body.light) .pl-tab .c,
+:host-context(.light-theme) .pl-tab .c,
+:host-context(.theme-light) .pl-tab .c{background:#EEF2FA;color:#5B6472;border-color:#D8DFEC}
+:host-context(body.light) .pl-card,
+:host-context(.light-theme) .pl-card,
+:host-context(.theme-light) .pl-card{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(body.light) .pl-card:hover,
+:host-context(.light-theme) .pl-card:hover,
+:host-context(.theme-light) .pl-card:hover{border-color:rgba(43,212,199,.28);box-shadow:0 2px 12px rgba(15,23,42,.08)}
+:host-context(body.light) .pl-card.pl-attn,
+:host-context(.light-theme) .pl-card.pl-attn,
+:host-context(.theme-light) .pl-card.pl-attn{border-color:#FFB400}
+:host-context(body.light) .pl-ring::before,
+:host-context(.light-theme) .pl-ring::before,
+:host-context(.theme-light) .pl-ring::before{background:#fff}
+:host-context(body.light) .pl-ring span,
+:host-context(.light-theme) .pl-ring span,
+:host-context(.theme-light) .pl-ring span{color:#0F172A}
+:host-context(body.light) .pl-ttl,
+:host-context(.light-theme) .pl-ttl,
+:host-context(.theme-light) .pl-ttl{color:#0F172A}
+:host-context(body.light) .pl-prov,
+:host-context(.light-theme) .pl-prov,
+:host-context(.theme-light) .pl-prov{color:#475569}
+:host-context(body.light) .pl-dot,
+:host-context(.light-theme) .pl-dot,
+:host-context(.theme-light) .pl-dot{background:#C2C9D6}
+:host-context(body.light) .pl-emp,
+:host-context(.light-theme) .pl-emp,
+:host-context(.theme-light) .pl-emp{color:#475569}
+:host-context(body.light) .pl-emp b,
+:host-context(.light-theme) .pl-emp b,
+:host-context(.theme-light) .pl-emp b{color:#1D6FE0}
+:host-context(body.light) .pl-next,
+:host-context(.light-theme) .pl-next,
+:host-context(.theme-light) .pl-next{color:#475569}
+:host-context(body.light) .pl-next b,
+:host-context(.light-theme) .pl-next b,
+:host-context(.theme-light) .pl-next b{color:#0F172A}
+:host-context(body.light) .pl-meta,
+:host-context(.light-theme) .pl-meta,
+:host-context(.theme-light) .pl-meta{color:#5B6472}
+:host-context(body.light) .pl-esc,
+:host-context(.light-theme) .pl-esc,
+:host-context(.theme-light) .pl-esc{color:#1D6FE0}
+:host-context(body.light) .pl-cta,
+:host-context(.light-theme) .pl-cta,
+:host-context(.theme-light) .pl-cta{color:#0F8A7F}
+:host-context(body.light) .pl-act,
+:host-context(.light-theme) .pl-act,
+:host-context(.theme-light) .pl-act{border-inline-start-color:#E7EAF1}
+:host-context(body.light) .sec-ttl,
+:host-context(.light-theme) .sec-ttl,
+:host-context(.theme-light) .sec-ttl{color:#0F172A}
+:host-context(body.light) .sec-ttl .cnt,
+:host-context(.light-theme) .sec-ttl .cnt,
+:host-context(.theme-light) .sec-ttl .cnt{color:#5B6472}
+:host-context(body.light) .ai-disc,
+:host-context(.light-theme) .ai-disc,
+:host-context(.theme-light) .ai-disc{background:linear-gradient(135deg,rgba(43,212,199,.04),rgba(43,127,255,.02));border-color:rgba(43,212,199,.15)}
+:host-context(body.light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt{color:#475569}
+:host-context(body.light) .ai-disc-badge,
+:host-context(.light-theme) .ai-disc-badge,
+:host-context(.theme-light) .ai-disc-badge{color:#6B27A5}
+:host-context(body.light) .empty-ttl,
+:host-context(.light-theme) .empty-ttl,
+:host-context(.theme-light) .empty-ttl{color:#0F172A}
+:host-context(body.light) .empty-sub,
+:host-context(.light-theme) .empty-sub,
+:host-context(.theme-light) .empty-sub{color:#5B6472}
+:host-context(body.light) .empty-ico,
+:host-context(.light-theme) .empty-ico,
+:host-context(.theme-light) .empty-ico{background:rgba(7,13,36,.04)}
+:host-context(body.light) .empty-ico svg,
+:host-context(.light-theme) .empty-ico svg,
+:host-context(.theme-light) .empty-ico svg{color:#94A3B8}
