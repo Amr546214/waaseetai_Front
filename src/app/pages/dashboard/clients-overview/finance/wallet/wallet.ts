@@ -2,9 +2,10 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DepositModal } from '../../../../../sheards/deposit-modal/deposit-modal';
 import { ClientFinanceService, ClientWalletData } from '../../../../../core/services/client-finance.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 export interface DisplayTransaction {
+  id: string;
   title: string;
   description: string;
   date: string;
@@ -18,7 +19,7 @@ export interface DisplayTransaction {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [CommonModule, DepositModal],
+  imports: [CommonModule, RouterLink, DepositModal],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css',
 })
@@ -114,6 +115,7 @@ export class Wallet implements OnInit {
         const sign = direction === 'in' ? '+' : '-';
 
         return {
+          id: tx.id,
           title: tx.description || (isDeposit ? 'إيداع رصيد بالمحفظة' : 'معاملة مالية'),
           description: tx.referenceId ? `رقم العملية ${tx.referenceId}` : (tx.paymentMethod || 'محفظة وسيط AI'),
           date: formattedDate,

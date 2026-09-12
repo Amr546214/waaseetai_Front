@@ -66,8 +66,8 @@
         <table class="tx-tbl">
           <thead><tr><th>المعاملة</th><th>التاريخ</th><th>المبلغ</th><th>الحالة</th></tr></thead>
           <tbody>
-            @for (transaction of transactions(); track transaction.date + transaction.title + transaction.description) {
-              <tr>
+            @for (transaction of transactions(); track transaction.id) {
+              <tr [routerLink]="['/client-overview/finance/transactions', transaction.id]">
                 <td>
                   <div class="transaction-cell">
                     <span class="tx-ico" [class.tx-in]="transaction.direction === 'in'" [class.tx-out]="transaction.direction === 'out'">

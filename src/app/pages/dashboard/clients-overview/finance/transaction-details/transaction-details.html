@@ -1,0 +1,89 @@
+<section class="txn-page" dir="rtl">
+  <h1 class="sr-only">تفاصيل المعاملة المالية</h1>
+
+  <button type="button" class="txn-back" (click)="goBack()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
+    العودة إلى المحفظة
+  </button>
+
+  @if (loading()) {
+    <div class="state-card">
+      <div class="skeleton-row"></div>
+      <div class="skeleton-box"></div>
+    </div>
+  } @else if (error()) {
+    <div class="state-card error-card" role="alert">
+      <div class="error-title">{{ error() }}</div>
+      <button type="button" class="retry-btn" (click)="goBack()">العودة إلى المحفظة</button>
+    </div>
+  } @else if (transaction(); as tx) {
+    <div class="txn-hero">
+      <div class="txn-hero-ico" [class.ico-out]="direction() === 'out'" [class.ico-in]="direction() === 'in'">
+        @if (isEscrow()) {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+        } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" /><circle cx="16" cy="14" r="1.5" fill="currentColor" /></svg>
+        }
+      </div>
+      <div class="txn-hero-title">{{ title() }}</div>
+      <div class="txn-hero-amount" [class.amt-out]="direction() === 'out'" [class.amt-in]="direction() === 'in'">
+        {{ direction() === 'out' ? '-' : '+' }}{{ tx.amount | number }} ريال
+      </div>
+      <span class="txn-pill" [class.st-hold]="isHeld()" [class.st-done]="isDone()" [class.st-pending]="!isHeld() && !isDone()">
+        {{ statusLabel() }}
+      </span>
+    </div>
+
+    <div class="ai-disclosure" role="region" aria-label="إفصاح الذكاء الاصطناعي">
+      <div class="ai-disc-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
+      </div>
+      <div class="ai-disc-body">
+        <div class="ai-disc-lbl">وسيط AI، تحقق من المعاملة</div>
+        <p class="ai-disc-txt">AI تحقّق من سلامة المعاملة ومطابقتها لعقد المشروع <span class="ai-disc-badge">دقة 95%</span> القرار النهائي لك</p>
+      </div>
+    </div>
+
+    <div class="sec-ttl">بيانات المعاملة</div>
+    <div class="txn-data-card">
+      <div class="txn-row">
+        <span class="txn-row-lbl">رقم المعاملة</span>
+        <span class="txn-row-val" dir="ltr">{{ tx.referenceId || tx.id }}</span>
+      </div>
+      <div class="txn-row">
+        <span class="txn-row-lbl">النوع</span>
+        <span class="txn-row-val">{{ typeLabel() }}</span>
+      </div>
+      <div class="txn-row">
+        <span class="txn-row-lbl">المبلغ</span>
+        <span class="txn-row-val" [class.amt-out]="direction() === 'out'" [class.amt-in]="direction() === 'in'">{{ tx.amount | number }} ريال</span>
+      </div>
+      <div class="txn-row">
+        <span class="txn-row-lbl">التاريخ والوقت</span>
+        <span class="txn-row-val">{{ formatDateTime(tx.createdAt) }}</span>
+      </div>
+      <div class="txn-row txn-row-last">
+        <span class="txn-row-lbl">طريقة الدفع</span>
+        <span class="txn-row-val">{{ tx.paymentMethod || 'محفظة وسيط AI' }}</span>
+      </div>
+
+      @if (isEscrow()) {
+        <div class="txn-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+          يُفرَج المبلغ تلقائيًا عند اعتمادك للتسليم النهائي
+        </div>
+      }
+
+      <div class="txn-actions">
+        <button type="button" class="txn-btn txn-btn-ghost" disabled title="قريبًا">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 11l5 5 5-5M5 20h14" /></svg>
+          تحميل الإيصال
+        </button>
+        <a routerLink="/client-overview/messages" class="txn-btn txn-btn-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+          استفسار عن المعاملة
+        </a>
+      </div>
+    </div>
+  }
+</section>

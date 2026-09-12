@@ -157,6 +157,11 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		data: { title: "Transactions" }
 	},
 	{
+		path: 'finance/transactions/:id',
+		loadComponent: () => import('./finance/transaction-details/transaction-details').then(m => m.TransactionDetails),
+		data: { title: "تفاصيل المعاملة" }
+	},
+	{
 		path: 'finance/invoices',
 		component: Invoices,
 		data: { title: "Invoices" }
