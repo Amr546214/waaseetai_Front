@@ -21,10 +21,10 @@
 	</div>
 
 	<div class="kpi-row">
-		<div class="kpi-c"><div class="kpi-v" style="color:#FFB400">{{ coKpis().pending }}</div><div class="kpi-l">قيد المراجعة</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#2ECC8A">{{ coKpis().approved }}</div><div class="kpi-l">مكتمل</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#FF8C69">{{ coKpis().rejected }}</div><div class="kpi-l">مرفوض</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:var(--teal-txt,#2BD4C7)">{{ coKpis().action }}</div><div class="kpi-l">يحتاج إجراء</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-amber">{{ coKpis().pending }}</div><div class="kpi-l">قيد المراجعة</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-green-br">{{ coKpis().approved }}</div><div class="kpi-l">مكتمل</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-coral">{{ coKpis().rejected }}</div><div class="kpi-l">مرفوض</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-teal">{{ coKpis().action }}</div><div class="kpi-l">يحتاج إجراء</div></div>
 	</div>
 
 	<div class="filter-rail" role="search">
@@ -59,9 +59,9 @@
 				<tbody>
 					@for (req of coFilteredRequests(); track req.id) {
 						<tr>
-							<td style="color:#fff;font-weight:700">{{ req.id?.substring(0, 12) || '—' }}</td>
+							<td style="font-weight:700" class="txt-white">{{ req.id?.substring(0, 12) || '—' }}</td>
 							<td>{{ req.fieldLabel || '—' }}</td>
-							<td style="color:var(--txt-2,#A8B2D1)">{{ req.createdAt | date:'mediumDate' }}</td>
+							<td class="txt-slate">{{ req.createdAt | date:'mediumDate' }}</td>
 							<td>
 								<span class="pill"
 									[class.pill-gold]="req.status === 'PENDING_HUMAN_REVIEW' || req.status === 'IN_AI_REVIEW'"
@@ -76,15 +76,15 @@
 							<td [style.color]="req.status === 'REJECTED' ? '#FF8C69' : 'var(--txt-2,#A8B2D1)'">{{ req.aiRecommendation || '—' }}</td>
 							<td>
 								@if (req.status === 'PENDING_OTP') {
-									<a routerLink="/provider-overview/profile/data" style="font-size:11.5px;font-weight:700;color:var(--teal-txt,#2BD4C7);text-decoration:none">استكمال</a>
+									<a routerLink="/provider-overview/profile/data" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">استكمال</a>
 								} @else {
-									<a routerLink="/provider-overview/profile/public" style="font-size:11.5px;font-weight:700;color:var(--teal-txt,#2BD4C7);text-decoration:none">عرض التفاصيل</a>
+									<a routerLink="/provider-overview/profile/public" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">عرض التفاصيل</a>
 								}
 							</td>
 						</tr>
 					}
 					@if (coFilteredRequests().length === 0) {
-						<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--txt-2,#A8B2D1)">لا توجد طلبات بهذا التصفية</td></tr>
+						<tr><td colspan="6" style="text-align:center;padding:32px" class="txt-slate">لا توجد طلبات بهذا التصفية</td></tr>
 					}
 				</tbody>
 			</table>

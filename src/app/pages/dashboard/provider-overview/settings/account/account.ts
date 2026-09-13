@@ -29,8 +29,14 @@ import { AccountType } from '../../../../../core/models/auth.model';
       background-size: 200% 100%;
       animation: skel-pulse 1.5s infinite;
     }
-    :host-context([data-theme='light']) .skeleton-box,
-    :host-context([data-theme='light']) .skeleton-row {
+    :host-context(body.light-theme) .skeleton-box,
+    :host-context(body.theme-light) .skeleton-box,
+    :host-context(.light-theme) .skeleton-box,
+    :host-context(.theme-light) .skeleton-box,
+    :host-context(body.light-theme) .skeleton-row,
+    :host-context(body.theme-light) .skeleton-row,
+    :host-context(.light-theme) .skeleton-row,
+    :host-context(.theme-light) .skeleton-row {
       background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
       background-size: 200% 100%;
     }
@@ -57,7 +63,10 @@ import { AccountType } from '../../../../../core/models/auth.model';
       border-radius: 20px;
       transition: background .2s;
     }
-    :host-context([data-theme='light']) .sw-track {
+    :host-context(body.light-theme) .sw-track,
+    :host-context(body.theme-light) .sw-track,
+    :host-context(.light-theme) .sw-track,
+    :host-context(.theme-light) .sw-track {
       background: #CBD5E1;
     }
     .sw-thumb {
@@ -90,15 +99,24 @@ import { AccountType } from '../../../../../core/models/auth.model';
       cursor: pointer;
       min-width: 140px;
     }
-    :host-context([data-theme='light']) .set-sel {
+    :host-context(body.light-theme) .set-sel,
+    :host-context(body.theme-light) .set-sel,
+    :host-context(.light-theme) .set-sel,
+    :host-context(.theme-light) .set-sel {
       background: #F6F8FC;
       border-color: #C9D0E3;
       color: #0F172A;
     }
-    :host-context([data-theme='light']) .set-sel-lbl {
+    :host-context(body.light-theme) .set-sel-lbl,
+    :host-context(body.theme-light) .set-sel-lbl,
+    :host-context(.light-theme) .set-sel-lbl,
+    :host-context(.theme-light) .set-sel-lbl {
       color: #0F172A;
     }
-    :host-context([data-theme='light']) .set-edit {
+    :host-context(body.light-theme) .set-edit,
+    :host-context(body.theme-light) .set-edit,
+    :host-context(.light-theme) .set-edit,
+    :host-context(.theme-light) .set-edit {
       background: rgba(43,127,255,.08);
       border-color: #C9D6F0;
     }
@@ -141,11 +159,17 @@ import { AccountType } from '../../../../../core/models/auth.model';
     .danger-btn:hover {
       background: rgba(255,140,105,.2);
     }
-    :host-context([data-theme='light']) .danger-card {
+    :host-context(body.light-theme) .danger-card,
+    :host-context(body.theme-light) .danger-card,
+    :host-context(.light-theme) .danger-card,
+    :host-context(.theme-light) .danger-card {
       background: rgba(255,140,105,.06);
       border-color: rgba(255,140,105,.3);
     }
-    :host-context([data-theme='light']) .danger-card p {
+    :host-context(body.light-theme) .danger-card p,
+    :host-context(body.theme-light) .danger-card p,
+    :host-context(.light-theme) .danger-card p,
+    :host-context(.theme-light) .danger-card p {
       color: #5B6472;
     }
 
@@ -164,23 +188,41 @@ import { AccountType } from '../../../../../core/models/auth.model';
       border: 1px solid rgba(255,255,255,.12);
       color: #fff;
     }
-    :host-context([data-theme='light']) .del-box {
+    :host-context(body.light-theme) .del-box,
+    :host-context(body.theme-light) .del-box,
+    :host-context(.light-theme) .del-box,
+    :host-context(.theme-light) .del-box {
       background: #fff;
       border-color: #E7EAF1;
     }
-    :host-context([data-theme='light']) .del-box h3 {
+    :host-context(body.light-theme) .del-box h3,
+    :host-context(body.theme-light) .del-box h3,
+    :host-context(.light-theme) .del-box h3,
+    :host-context(.theme-light) .del-box h3 {
       color: #0F172A;
     }
-    :host-context([data-theme='light']) .del-box > p,
-    :host-context([data-theme='light']) .del-fld label {
+    :host-context(body.light-theme) .del-box > p,
+    :host-context(body.theme-light) .del-box > p,
+    :host-context(.light-theme) .del-box > p,
+    :host-context(.theme-light) .del-box > p,
+    :host-context(body.light-theme) .del-fld label,
+    :host-context(body.theme-light) .del-fld label,
+    :host-context(.light-theme) .del-fld label,
+    :host-context(.theme-light) .del-fld label {
       color: #475569;
     }
-    :host-context([data-theme='light']) .del-fld input {
+    :host-context(body.light-theme) .del-fld input,
+    :host-context(body.theme-light) .del-fld input,
+    :host-context(.light-theme) .del-fld input,
+    :host-context(.theme-light) .del-fld input {
       background: #f5f7fc;
       border-color: #C9D0E3;
       color: #0F172A;
     }
-    :host-context([data-theme='light']) .del-cancel {
+    :host-context(body.light-theme) .del-cancel,
+    :host-context(body.theme-light) .del-cancel,
+    :host-context(.light-theme) .del-cancel,
+    :host-context(.theme-light) .del-cancel {
       background: #EEF2FA;
       border-color: #D8DFEC;
       color: #0F172A;
@@ -237,48 +279,62 @@ import { AccountType } from '../../../../../core/models/auth.model';
     .inner-foot-links a:hover{color:var(--teal-txt,#2BD4C7)}
 
     /* Company Settings: Light Mode */
-    :host-context([data-theme='light']) .co-card,
-    :host-context(body.light) .co-card,
-    :host-context(body.light-theme) .co-card{background:#fff;border-color:#E7EAF1}
-    :host-context([data-theme='light']) .co-settings-page .pg-title,
-    :host-context(body.light) .co-settings-page .pg-title,
-    :host-context(body.light-theme) .co-settings-page .pg-title{color:#0F172A}
-    :host-context([data-theme='light']) .co-settings-page .pg-sub,
-    :host-context(body.light) .co-settings-page .pg-sub,
-    :host-context(body.light-theme) .co-settings-page .pg-sub{color:#64748B}
-    :host-context([data-theme='light']) .sec-ttl,
-    :host-context(body.light) .sec-ttl,
-    :host-context(body.light-theme) .sec-ttl{color:#0F172A}
-    :host-context([data-theme='light']) .fld label,
-    :host-context(body.light) .fld label,
-    :host-context(body.light-theme) .fld label{color:#0F172A}
-    :host-context([data-theme='light']) .fld input,:host-context([data-theme='light']) .fld select,
-    :host-context(body.light) .fld input,:host-context(body.light) .fld select,
-    :host-context(body.light-theme) .fld input,:host-context(body.light-theme) .fld select{background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.10);color:#0F172A}
-    :host-context([data-theme='light']) .st-t,
-    :host-context(body.light) .st-t,
-    :host-context(body.light-theme) .st-t{color:#0F172A}
-    :host-context([data-theme='light']) .st-d,
-    :host-context(body.light) .st-d,
-    :host-context(body.light-theme) .st-d{color:#64748B}
-    :host-context([data-theme='light']) .ses-t,
-    :host-context(body.light) .ses-t,
-    :host-context(body.light-theme) .ses-t{color:#0F172A}
-    :host-context([data-theme='light']) .ses-d,
-    :host-context(body.light) .ses-d,
-    :host-context(body.light-theme) .ses-d{color:#64748B}
-    :host-context([data-theme='light']) .ses-row,
-    :host-context(body.light) .ses-row,
-    :host-context(body.light-theme) .ses-row{background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
-    :host-context([data-theme='light']) .btn-sec,
-    :host-context(body.light) .btn-sec,
-    :host-context(body.light-theme) .btn-sec{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
-    :host-context([data-theme='light']) .inner-foot,
-    :host-context(body.light) .inner-foot,
-    :host-context(body.light-theme) .inner-foot{border-color:rgba(15,23,42,.06);color:#64748B}
-    :host-context([data-theme='light']) .inner-foot-links a,
-    :host-context(body.light) .inner-foot-links a,
-    :host-context(body.light-theme) .inner-foot-links a{color:#64748B}
+    :host-context(body.light-theme) .co-card,
+    :host-context(body.theme-light) .co-card,
+    :host-context(.light-theme) .co-card,
+    :host-context(.theme-light) .co-card{background:#fff;border-color:#E7EAF1}
+    :host-context(body.light-theme) .co-settings-page .pg-title,
+    :host-context(body.theme-light) .co-settings-page .pg-title,
+    :host-context(.light-theme) .co-settings-page .pg-title,
+    :host-context(.theme-light) .co-settings-page .pg-title{color:#0F172A}
+    :host-context(body.light-theme) .co-settings-page .pg-sub,
+    :host-context(body.theme-light) .co-settings-page .pg-sub,
+    :host-context(.light-theme) .co-settings-page .pg-sub,
+    :host-context(.theme-light) .co-settings-page .pg-sub{color:#64748B}
+    :host-context(body.light-theme) .sec-ttl,
+    :host-context(body.theme-light) .sec-ttl,
+    :host-context(.light-theme) .sec-ttl,
+    :host-context(.theme-light) .sec-ttl{color:#0F172A}
+    :host-context(body.light-theme) .fld label,
+    :host-context(body.theme-light) .fld label,
+    :host-context(.light-theme) .fld label,
+    :host-context(.theme-light) .fld label{color:#0F172A}
+    :host-context(body.light-theme) .fld input,:host-context(body.light-theme) .fld select,
+    :host-context(body.theme-light) .fld input,:host-context(body.theme-light) .fld select,
+    :host-context(.light-theme) .fld input,:host-context(.light-theme) .fld select,
+    :host-context(.theme-light) .fld input,:host-context(.theme-light) .fld select{background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.10);color:#0F172A}
+    :host-context(body.light-theme) .st-t,
+    :host-context(body.theme-light) .st-t,
+    :host-context(.light-theme) .st-t,
+    :host-context(.theme-light) .st-t{color:#0F172A}
+    :host-context(body.light-theme) .st-d,
+    :host-context(body.theme-light) .st-d,
+    :host-context(.light-theme) .st-d,
+    :host-context(.theme-light) .st-d{color:#64748B}
+    :host-context(body.light-theme) .ses-t,
+    :host-context(body.theme-light) .ses-t,
+    :host-context(.light-theme) .ses-t,
+    :host-context(.theme-light) .ses-t{color:#0F172A}
+    :host-context(body.light-theme) .ses-d,
+    :host-context(body.theme-light) .ses-d,
+    :host-context(.light-theme) .ses-d,
+    :host-context(.theme-light) .ses-d{color:#64748B}
+    :host-context(body.light-theme) .ses-row,
+    :host-context(body.theme-light) .ses-row,
+    :host-context(.light-theme) .ses-row,
+    :host-context(.theme-light) .ses-row{background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
+    :host-context(body.light-theme) .btn-sec,
+    :host-context(body.theme-light) .btn-sec,
+    :host-context(.light-theme) .btn-sec,
+    :host-context(.theme-light) .btn-sec{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
+    :host-context(body.light-theme) .inner-foot,
+    :host-context(body.theme-light) .inner-foot,
+    :host-context(.light-theme) .inner-foot,
+    :host-context(.theme-light) .inner-foot{border-color:rgba(15,23,42,.06);color:#64748B}
+    :host-context(body.light-theme) .inner-foot-links a,
+    :host-context(body.theme-light) .inner-foot-links a,
+    :host-context(.light-theme) .inner-foot-links a,
+    :host-context(.theme-light) .inner-foot-links a{color:#64748B}
 
     @media(max-width:767px){
       .grid2{grid-template-columns:1fr}

@@ -84,12 +84,12 @@
 					<use href="#i-warn"></use>
 				</svg>
 			</div>
-			<div style="font-size:18px;font-weight:800;color:var(--txt-1,#fff);margin-bottom:6px">تعذر تحميل لوحة التحكم
+			<div style="font-size:18px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحة التحكم
 			</div>
-			<div style="font-size:13px;color:#A8B2D1;margin-bottom:20px">{{ error() }}</div>
+			<div style="font-size:13px;margin-bottom:20px" class="txt-slate">{{ error() }}</div>
 			<div style="display:flex;gap:10px;justify-content:center">
 				<button type="button" (click)="retryFetch()"
-					style="padding:10px 24px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(43,212,199,.2)">إعادة
+					style="padding:10px 24px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(43,212,199,.2)" class="txt-navy">إعادة
 					المحاولة</button>
 			</div>
 		</div>
@@ -208,7 +208,7 @@
 
 		<!-- بطاقة المستوى والولاء -->
 		<div class="escrow-card" role="region" aria-label="مستوى الولاء">
-			<div class="escrow-ico" aria-hidden="true" style="background:rgba(155,139,122,.14);border:1px solid rgba(155,139,122,.28);color:#9B8B7A">
+			<div class="escrow-ico badge-kahr" aria-hidden="true">
 				<svg class="ws-star-svg" width="22" height="22" viewBox="0 0 100 100" fill="currentColor">
 					<path
 						d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
@@ -217,8 +217,8 @@
 			<div class="escrow-bal-wrap">
 				<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
 					<span class="escrow-lbl">مستواك الحالي</span>
-					<span class="ws-level-tag"
-						style="color:#9B8B7A;background:rgba(155,139,122,.12);border-color:rgba(155,139,122,.22);">
+					<span class="ws-level-tag ic-kahr"
+						style="border-">
 						<svg width="9" height="9" viewBox="0 0 100 100" fill="currentColor" class="ws-star-svg">
 							<path
 								d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
@@ -232,7 +232,7 @@
 						aria-valuemax="100">
 						<div class="prog-fill" [style.width.%]="data.summary?.profileCompletionPercent || 0"></div>
 					</div>
-					<span class="lvl-prog-hint" style="font-size:10px;color:#6B7699;white-space:nowrap">199 نقطة للمستوى 3 (باحث)</span>
+					<span class="lvl-prog-hint txt-muted" style="font-size:10px;white-space:nowrap">199 نقطة للمستوى 3 (باحث)</span>
 				</div>
 			</div>
 			<button class="escrow-action cursor-pointer" routerLink="/provider-overview/profile/level">تفاصيل
@@ -363,12 +363,12 @@
 									<use href="#i-doc"></use>
 								</svg>
 							</div>
-							<div style="font-size:16px;font-weight:800;color:var(--txt-1,#fff);margin-bottom:6px">لا
+							<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا
 								توجد مشاريع أو عروض نشطة</div>
-							<div style="font-size:13px;color:#6B7699;margin-bottom:16px">لم تبدأ بتنفيذ أي مشروع أو
+							<div style="font-size:13px;margin-bottom:16px" class="txt-muted">لم تبدأ بتنفيذ أي مشروع أو
 								إرسال عروض حتى الآن</div>
 							<a routerLink="/provider-overview/explore-requests"
-								style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.14));border:1px solid rgba(43,212,199,.35);border-radius:50px;color:#2BD4C7;font-weight:800;font-size:13px;text-decoration:none;transition:all .2s">
+								style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.14));border:1px solid rgba(43,212,199,.35);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none;transition:all .2s" class="txt-teal">
 								<!-- <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 									stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
 									aria-hidden="true">
@@ -444,8 +444,8 @@
 					</svg>
 					طلبات مطابقة لتخصصاتك (AI)
 				</h2>
-				<a class="card-lnk cursor-pointer"
-					style="background:rgba(123,47,190,.12);padding:6px 14px;border-radius:20px;color:#A154FF;border:1px solid rgba(123,47,190,.3);text-decoration:none;"
+				<a class="card-lnk cursor-pointer txt-violet"
+					style="background:rgba(123,47,190,.12);padding:6px 14px;border-radius:20px;border:1px solid rgba(123,47,190,.3);text-decoration:none"
 					routerLink="/provider-overview/explore-requests">تصفح الكل</a>
 			</div>
 			<div class="offers-grid">
@@ -456,8 +456,8 @@
 					<div class="offer-top">
 						<div class="offer-prov">
 							<div style="position:relative;flex-shrink:0">
-								<div class="offer-av"
-									style="background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.12));color:var(--teal-txt,#2BD4C7);border:2px solid #2ECC8A">
+								<div class="offer-av txt-teal"
+									style="background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.12));border:2px solid #2ECC8A">
 									ط</div>
 								<div
 									style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#2ECC8A;display:flex;align-items:center;justify-content:center;border:1.5px solid #070D24">
@@ -468,17 +468,17 @@
 								</div>
 							</div>
 							<div>
-								<div class="offer-name" style="font-weight:700;font-size:14px;color:#fff;">{{ m.title }}
-									<span class="ws-level-tag"
-										style="font-size:9px;font-weight:800;color:#2ECC8A;background:rgba(46,204,138,.12);border:1px solid rgba(46,204,138,.25);border-radius:7px;padding:1px 6px;margin-inline-start:4px">أفضل
+								<div class="offer-name txt-white" style="font-weight:700;font-size:14px">{{ m.title }}
+									<span class="ws-level-tag txt-green-br"
+										style="font-size:9px;font-weight:800;background:rgba(46,204,138,.12);border:1px solid rgba(46,204,138,.25);border-radius:7px;padding:1px 6px;margin-inline-start:4px">أفضل
 										مطابقة</span>
 								</div>
-								<div class="offer-type" style="font-size:11px;color:#A8B2D1;margin-top:2px;">{{
+								<div class="offer-type txt-slate" style="font-size:11px;margin-top:2px">{{
 									m.category || m.specialty || 'خدمة تخصصية' }}</div>
 							</div>
 						</div>
-						<div class="offer-ai-match"
-							style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:12px;font-weight:800;background:rgba(123,47,190,.14);color:#A154FF;border:1px solid rgba(123,47,190,.28);white-space:nowrap;">
+						<div class="offer-ai-match txt-violet"
+							style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:12px;font-weight:800;background:rgba(123,47,190,.14);border:1px solid rgba(123,47,190,.28);white-space:nowrap">
 							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 								stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 								<use href="#i-ai"></use>
@@ -488,13 +488,13 @@
 					</div>
 					<div *ngIf="m.matchReasons?.length" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
 						<span *ngFor="let reason of m.matchReasons"
-							style="font-size:10px;color:#2BD4C7;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);border-radius:6px;padding:2px 8px;">
+							style="font-size:10px;padding:2px 8px" class="badge-teal">
 							✓ {{ reason }}
 						</span>
 					</div>
 					<div class="offer-price"
 						style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
-						<span style="font-size:11px;color:#6B7699;" *ngIf="m.deliveryDays">المدة: {{ m.deliveryDays }}
+						<span style="font-size:11px" *ngIf="m.deliveryDays" class="txt-muted">المدة: {{ m.deliveryDays }}
 							أيام</span>
 						<div>{{ m.budget | number }} <span style="font-size:11px;">ريال</span></div>
 					</div>
@@ -510,9 +510,9 @@
 								<use href="#i-ai"></use>
 							</svg>
 						</div>
-						<div style="font-size:16px;font-weight:800;color:var(--txt-1,#fff);margin-bottom:6px">لا توجد
+						<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد
 							طلبات مطابقة لتخصصاتك حالياً</div>
-						<div style="font-size:13px;color:#6B7699;max-width:380px;margin:0 auto">يجري الذكاء الاصطناعي
+						<div style="font-size:13px;max-width:380px;margin:0 auto" class="txt-muted">يجري الذكاء الاصطناعي
 							مسحاً دورياً للسوق وسيرسل لك إشعاراً فور طرح مشروع يطابق مهاراتك</div>
 					</div>
 				</ng-container>
@@ -554,7 +554,7 @@
 		<!-- Greeting -->
 		<div class="dash-head">
 			<div class="dash-greet">
-				<div class="dash-hello">{{ companyDisplayName() }} <span style="font-size:14px;font-weight:700;color:#6B7699;margin-inline-start:6px">مالك الشركة</span></div>
+				<div class="dash-hello">{{ companyDisplayName() }} <span style="font-size:14px;font-weight:700;margin-inline-start:6px" class="txt-muted">مالك الشركة</span></div>
 				<div class="dash-sub" *ngIf="data.summary.hasApprovedSpecialties">
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-ai"></use>
@@ -775,9 +775,9 @@
 									<use href="#i-brief"></use>
 								</svg>
 							</div>
-							<div style="font-size:16px;font-weight:800;color:var(--txt-1,#fff);margin-bottom:6px">لا يوجد نشاط بعد</div>
-							<div style="font-size:13px;color:#6B7699;margin-bottom:16px">أضف مقدمي الخدمات لشركتك وابدأ إدارة المشاريع</div>
-							<a routerLink="/provider-overview/company/team-management" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;color:#070D24;font-weight:800;font-size:13px;text-decoration:none">
+							<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا يوجد نشاط بعد</div>
+							<div style="font-size:13px;margin-bottom:16px" class="txt-muted">أضف مقدمي الخدمات لشركتك وابدأ إدارة المشاريع</div>
+							<a routerLink="/provider-overview/company/team-management" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none" class="txt-navy">
 								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 									<circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/>
 								</svg>
@@ -879,7 +879,7 @@
 				</div>
 				<ng-container *ngIf="!(data.latestProjects?.length)">
 					<div class="af-row">
-						<div class="af-av" style="background:rgba(43,212,199,.14);color:#2BD4C7">لا</div>
+						<div class="af-av ic-teal">لا</div>
 						<div class="af-body">لا يوجد نشاط بعد — أضف مقدمي الخدمات لشركتك وابدأ إدارة المشاريع</div>
 						<span class="af-time">—</span>
 					</div>

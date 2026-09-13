@@ -26,7 +26,7 @@
 
 .spec-card {
   background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
-  border: 1px solid rgba(255,255,255,.07);
+  border: 2px solid rgba(255,255,255,.08);
   border-radius: 16px;
   padding: 18px 14px;
   cursor: pointer;
@@ -43,7 +43,7 @@
   background: linear-gradient(135deg, rgba(43,212,199,.04), rgba(43,127,255,.02));
 }
 .spec-card.selected {
-  border-color: rgba(43,212,199,.45);
+  border-color: rgba(43,212,199,.55);
   background: rgba(43,212,199,.07);
 }
 .spec-card.selected::after {
@@ -127,6 +127,13 @@
   border-color: rgba(43,212,199,.35);
   color: #2BD4C7;
 }
+.step-item.active .step-label {
+  color: #fff;
+  font-weight: 800;
+}
+.step-item.done .step-label {
+  color: #2BD4C7;
+}
 .step-line {
   flex: 1;
   height: 2px;
@@ -172,3 +179,7 @@
 :host-context(body.theme-light) .step-circle,
 :host-context(.light-theme) .step-circle,
 :host-context(.theme-light) .step-circle { background: #F0F4FA; border-color: #CBD5E1; color: #475569; }
+:host-context(body.light-theme) .step-item.active .step-label,
+:host-context(body.theme-light) .step-item.active .step-label,
+:host-context(.light-theme) .step-item.active .step-label,
+:host-context(.theme-light) .step-item.active .step-label { color: #1E293B; }

@@ -28,7 +28,7 @@
 
 	<div class="notice">
 		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-		<p>تعديل <strong>الاسم التجاري</strong> و<strong>السجل التجاري</strong> و<strong>التخصصات</strong> يُنشئ طلب تعديل يُراجع من فريق وسيط AI. باقي الحقول تُحدَّث مباشرة. تابع حالة الطلب من <a routerLink="/provider-overview/profile/requests" style="color:#FFB400;text-decoration:underline">طلبات التعديل</a>.</p>
+		<p>تعديل <strong>الاسم التجاري</strong> و<strong>السجل التجاري</strong> و<strong>التخصصات</strong> يُنشئ طلب تعديل يُراجع من فريق وسيط AI. باقي الحقول تُحدَّث مباشرة. تابع حالة الطلب من <a routerLink="/provider-overview/profile/requests" style="text-decoration:underline" class="txt-amber">طلبات التعديل</a>.</p>
 	</div>
 
 	<form (ngSubmit)="saveProfile()" [formGroup]="profileForm">
@@ -90,7 +90,7 @@
 
 		<div class="co-card">
 			<div class="sec-hd"><div class="sec-ttl">التخصصات</div><span class="pill pill-gold">التعديل يحتاج مراجعة</span></div>
-			<div style="font-size:11.5px;color:var(--txt-2,#A8B2D1);margin-bottom:12px">التخصصات المفعّلة تحدّد الطلبات التي تظهر لشركتك في استكشاف الطلبات</div>
+			<div style="font-size:11.5px;margin-bottom:12px" class="txt-slate">التخصصات المفعّلة تحدّد الطلبات التي تظهر لشركتك في استكشاف الطلبات</div>
 			<div class="chips">
 				@for (s of companySpecialties(); track s.name) {
 					<span [class.chip-sel]="s.selected" [class.chip-off]="!s.selected" (click)="toggleSpecialty(s.name)">
@@ -164,7 +164,7 @@
 		</div>
 
 		<div class="save-bar">
-			<div style="font-size:12px;color:var(--txt-2,#A8B2D1)">آخر تحديث للملف: 12 يوليو 2026 · التعديلات التي تحتاج مراجعة لن تظهر للعملاء قبل الاعتماد</div>
+			<div style="font-size:12px" class="txt-slate">آخر تحديث للملف: 12 يوليو 2026 · التعديلات التي تحتاج مراجعة لن تظهر للعملاء قبل الاعتماد</div>
 			<div style="display:flex;gap:8px">
 				<a routerLink="/provider-overview/profile/public" class="btn btn-sec">إلغاء</a>
 				<button type="submit" class="btn btn-pri" [disabled]="isSaving()">
@@ -561,7 +561,7 @@
         </select></div>
     </div>
     <div
-      style="margin-top:10px;padding:10px 14px;background:rgba(43,212,199,.04);border:1px solid rgba(43,212,199,.10);border-radius:9px;font-size:11px;color:#6B7699">
+      style="margin-top:10px;padding:10px 14px;background:rgba(43,212,199,.04);border:1px solid rgba(43,212,199,.10);border-radius:9px;font-size:11px" class="txt-muted">
       هذا الحساب للسحب والاسترداد فقط. مشفر ومحمي. تغيير بيانات الاستلام يتطلب مصادقة ثنائية.</div>
     <div class="actions-row"><button type="button" class="btn-primary" (click)="saveBanking()">إرسال طلب تعديل</button>
     </div>
@@ -582,18 +582,18 @@
     <div
       style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:12px">
       <div>
-        <div style="font-size:13px;font-weight:700;color:#fff">المصادقة الثنائية (MFA)</div>
-        <div style="font-size:11px;color:#6B7699;margin-top:2px">مفعلة، تحمي الحساب عند تسجيل الدخول وتغيير البيانات
+        <div style="font-size:13px;font-weight:700" class="txt-white">المصادقة الثنائية (MFA)</div>
+        <div style="font-size:11px;margin-top:2px" class="txt-muted">مفعلة، تحمي الحساب عند تسجيل الدخول وتغيير البيانات
           الحساسة</div>
       </div><span
-        style="font-size:11px;color:#0FA99A;font-weight:700;background:rgba(15,169,154,.10);padding:4px 10px;border-radius:20px;border:1px solid rgba(15,169,154,.2)">مفعلة</span>
+        style="font-size:11px;font-weight:700;padding:4px 10px" class="badge-green">مفعلة</span>
     </div>
     <div
       style="padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
         <div>
-          <div style="font-size:13px;font-weight:700;color:#fff">تغيير كلمة المرور</div>
-          <div style="font-size:11px;color:#6B7699;margin-top:2px">ينصح بتغييرها كل 90 يوما</div>
+          <div style="font-size:13px;font-weight:700" class="txt-white">تغيير كلمة المرور</div>
+          <div style="font-size:11px;margin-top:2px" class="txt-muted">ينصح بتغييرها كل 90 يوما</div>
         </div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px"
           id="pwd-toggle-btn" (click)="passwordFormVisible.set(!passwordFormVisible())">تغيير كلمة المرور</button>
       </div>
@@ -652,7 +652,7 @@
       <a routerLink="../requests" class="gov-bar-link">طلباتي السابقة</a>
     </div>
     <div
-      style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:9px;margin-bottom:16px;font-size:12px;color:var(--kahr,#D98A0B)">
+      style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:9px;margin-bottom:16px;font-size:12px" class="txt-kahr">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
@@ -703,9 +703,9 @@
 <div id="state-error" style="display:none" role="alert">
   <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
     <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر حفظ التعديلات</div>
-    <div style="font-size:12px;color:#6B7699;margin-bottom:12px">ERR-SK-022</div>
+    <div style="font-size:12px;margin-bottom:12px" class="txt-muted">ERR-SK-022</div>
     <button type="button"
-      style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">اعادة
+      style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">اعادة
       المحاولة</button>
   </div>
 </div>
@@ -717,7 +717,7 @@
         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="20 6 9 17 4 12" />
       </svg>
-      <span style="font-size:14px;font-weight:700;color:#fff">تم حفظ الملف الشخصي بنجاح</span>
+      <span style="font-size:14px;font-weight:700" class="txt-white">تم حفظ الملف الشخصي بنجاح</span>
     </div>
   </div>
 </div>

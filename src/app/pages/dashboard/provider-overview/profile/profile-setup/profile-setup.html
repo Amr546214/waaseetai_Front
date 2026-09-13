@@ -169,7 +169,7 @@
         <!-- Profile completion extras (P-AU-011) -->
         <div class="form-card">
           <div class="card-title">
-            <div class="card-title-ico" style="background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.18);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-person"></use></svg></div>
+            <div class="card-title-ico badge-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-person"></use></svg></div>
             الصورة الشخصية
             <span class="card-optional">اختياري</span>
           </div>
@@ -197,7 +197,7 @@
 
         <div class="form-card">
           <div class="card-title">
-            <div class="card-title-ico" style="background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.18);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-tag"></use></svg></div>
+            <div class="card-title-ico badge-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-tag"></use></svg></div>
             المهارات والاهتمامات
             <span class="card-optional">اختياري</span>
           </div>
@@ -230,7 +230,7 @@
 
         <div class="form-card">
           <div class="card-title">
-            <div class="card-title-ico" style="background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.18);color:#5DA0FF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-link"></use></svg></div>
+            <div class="card-title-ico badge-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-link"></use></svg></div>
             روابط التواصل
             <span class="card-optional">اختياري</span>
           </div>
@@ -250,7 +250,7 @@
 
         <div class="form-card">
           <div class="card-title">
-            <div class="card-title-ico" style="background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.18);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-settings"></use></svg></div>
+            <div class="card-title-ico badge-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-settings"></use></svg></div>
             التفضيلات
           </div>
           <div class="pref-section">
@@ -264,17 +264,17 @@
             <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-bell"></use></svg>قنوات الإشعارات</div>
             <div class="notif-grid" role="group" aria-label="قنوات الاشعارات">
               <div class="notif-item" [class.active]="notifChannels().includes('push')" role="checkbox" [attr.aria-checked]="notifChannels().includes('push')" tabindex="0" (click)="toggleNotifChannel('push')">
-                <div class="notif-ico" style="background:rgba(43,212,199,.10);color:#2BD4C7"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-bell"></use></svg></div>
+                <div class="notif-ico ic-teal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-bell"></use></svg></div>
                 <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
                 <span class="notif-lbl">الإشعارات داخل التطبيق</span>
               </div>
               <div class="notif-item" [class.active]="notifChannels().includes('email')" role="checkbox" [attr.aria-checked]="notifChannels().includes('email')" tabindex="0" (click)="toggleNotifChannel('email')">
-                <div class="notif-ico" style="background:rgba(43,127,255,.10);color:#5DA0FF"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-mail"></use></svg></div>
+                <div class="notif-ico ic-blue"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-mail"></use></svg></div>
                 <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
                 <span class="notif-lbl">البريد الإلكتروني</span>
               </div>
               <div class="notif-item" [class.active]="notifChannels().includes('sms')" role="checkbox" [attr.aria-checked]="notifChannels().includes('sms')" tabindex="0" (click)="toggleNotifChannel('sms')">
-                <div class="notif-ico" style="background:rgba(43,212,199,.07);color:#2BD4C7"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-chat"></use></svg></div>
+                <div class="notif-ico ic-teal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-chat"></use></svg></div>
                 <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
                 <span class="notif-lbl">رسائل SMS</span>
               </div>
@@ -658,7 +658,7 @@
       <div class="step-panel" [class.active]="currentStep() === 5" role="tabpanel">
         <div class="step-info step-info-ai">
           <svg aria-hidden="true"><use href="#i-ai"></use></svg>
-          <span>لكل تخصص فرعي اخترته يجب رفع <strong style="color:#fff">نموذج عرض</strong> واحد على الأقل. نماذج إثبات التنفيذ سرية ولا يراها إلا الذكاء للتحقق من ملكيتك للعمل</span>
+          <span>لكل تخصص فرعي اخترته يجب رفع <strong class="txt-white">نموذج عرض</strong> واحد على الأقل. نماذج إثبات التنفيذ سرية ولا يراها إلا الذكاء للتحقق من ملكيتك للعمل</span>
         </div>
 
         <div>
@@ -700,11 +700,11 @@
                             <span class="pw-uploaded-size">MB 1.5</span>
                           </div>
                           @if (getUploadState('portfolio-review-' + spec + '-' + itemIdx)?.status === 'uploading') {
-                            <span class="f-hint" style="color:#5DA0FF">جاري رفع الملف... {{ getUploadState('portfolio-review-' + spec + '-' + itemIdx).progress }}%</span>
+                            <span class="f-hint txt-blue">جاري رفع الملف... {{ getUploadState('portfolio-review-' + spec + '-' + itemIdx).progress }}%</span>
                           } @else if (getUploadState('portfolio-review-' + spec + '-' + itemIdx)?.status === 'uploaded') {
-                            <span class="f-hint" style="color:#2BD4C7">تم رفع الملف بنجاح</span>
+                            <span class="f-hint txt-teal">تم رفع الملف بنجاح</span>
                           } @else if (getUploadState('portfolio-review-' + spec + '-' + itemIdx)?.status === 'error') {
-                            <span class="f-hint" style="color:#FF6B6B">تعذر رفع الملف، حاول مرة أخرى</span>
+                            <span class="f-hint txt-red">تعذر رفع الملف، حاول مرة أخرى</span>
                           }
                           <label class="pw-replace-btn" style="cursor:pointer">
                             <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
@@ -731,9 +731,9 @@
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
                               <span class="pw-proof-name">{{ proof }}</span>
                               @if (getUploadState('portfolio-proof-' + spec + '-' + itemIdx + '-' + proofIdx)?.status === 'uploading') {
-                                <span class="f-hint" style="color:#5DA0FF;font-size:11px">جاري الرفع...</span>
+                                <span class="f-hint txt-blue" style="font-size:11px">جاري الرفع...</span>
                               } @else if (getUploadState('portfolio-proof-' + spec + '-' + itemIdx + '-' + proofIdx)?.status === 'error') {
-                                <span class="f-hint" style="color:#FF6B6B;font-size:11px">فشل الرفع</span>
+                                <span class="f-hint txt-red" style="font-size:11px">فشل الرفع</span>
                               }
                               <button type="button" class="pw-proof-del" (click)="removePortfolioProof(spec, itemIdx, proofIdx)" aria-label="حذف">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-close"></use></svg>
@@ -776,7 +776,7 @@
           <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-check"></use></svg>مراجعة بيانات الاستكمال</div>
           <div class="review-sec-ttl">ملخص المراحل</div>
           <div class="review-row"><span class="review-key">المرحلة 1</span><span class="review-val"><span class="rs-done">مكتمل</span> البيانات المهنية</span></div>
-          <div class="review-row"><span class="review-key">المرحلة 2</span><span class="review-val"><span class="rs-done">مكتمل</span> التخصصات والمهارات <span style="font-size:11px;color:#6B7699;margin-inline-start:6px">{{ selectedSpecs().length > 0 ? '(' + selectedSpecs().length + ' تخصص)' : '' }}</span></span></div>
+          <div class="review-row"><span class="review-key">المرحلة 2</span><span class="review-val"><span class="rs-done">مكتمل</span> التخصصات والمهارات <span style="font-size:11px;margin-inline-start:6px" class="txt-muted">{{ selectedSpecs().length > 0 ? '(' + selectedSpecs().length + ' تخصص)' : '' }}</span></span></div>
           <div class="review-row"><span class="review-key">المرحلة 3</span><span class="review-val"><span class="rs-done">مكتمل</span> البيانات البنكية</span></div>
           <div class="review-row"><span class="review-key">المرحلة 4</span><span class="review-val"><span class="rs-done">مكتمل</span> المستندات الرسمية</span></div>
           <div class="review-row"><span class="review-key">المرحلة 5</span><span class="review-val"><span class="rs-done">مكتمل</span> نماذج الأعمال</span></div>
@@ -786,8 +786,8 @@
           <label class="ack-txt" for="ack-final">أقر بصحة جميع البيانات والنماذج المرفوعة وأوافق على <a href="#" class="ack-lnk">شروط الاستخدام</a></label>
         </div>
         <div style="padding:14px 16px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.22);border-radius:12px;margin-bottom:16px">
-          <div style="font-size:13px;font-weight:800;color:#2BD4C7;margin-bottom:4px">الخطوة التالية: اختبار التصنيف الأولي</div>
-          <p style="font-size:12.5px;color:#A8B2D1;line-height:1.6">بعد الحفظ سيطلب منك اجتياز اختبار التصنيف. تأكد من جاهزيتك قبل المتابعة لأن الاختبار يبدأ بمجرد الضغط على "بدء الاختبار"</p>
+          <div style="font-size:13px;font-weight:800;margin-bottom:4px" class="txt-teal">الخطوة التالية: اختبار التصنيف الأولي</div>
+          <p style="font-size:12.5px;line-height:1.6" class="txt-slate">بعد الحفظ سيطلب منك اجتياز اختبار التصنيف. تأكد من جاهزيتك قبل المتابعة لأن الاختبار يبدأ بمجرد الضغط على "بدء الاختبار"</p>
         </div>
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(5)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
@@ -805,13 +805,13 @@
         @if (!isTestStarted()) {
           <div class="test-intro">
             <div style="margin-bottom:20px">
-              <h2 style="font-size:22px;font-weight:900;color:#fff;margin-bottom:6px">اختبار التصنيف الأولي</h2>
-              <p style="font-size:14px;color:#6B7699">حدد مستواك ليتمكن AI من مطابقتك مع الطلبات المناسبة</p>
+              <h2 style="font-size:22px;font-weight:900;margin-bottom:6px" class="txt-white">اختبار التصنيف الأولي</h2>
+              <p style="font-size:14px" class="txt-muted">حدد مستواك ليتمكن AI من مطابقتك مع الطلبات المناسبة</p>
             </div>
 
             @if (selectedSpecs().length > 0) {
               <div style="margin-bottom:16px">
-                <div style="font-size:12px;font-weight:700;color:#6B7699;margin-bottom:8px">تخصصاتك المختارة في الاختبار</div>
+                <div style="font-size:12px;font-weight:700;margin-bottom:8px" class="txt-muted">تخصصاتك المختارة في الاختبار</div>
                 <div class="test-specs-list">
                   @for (s of selectedSpecs(); track s) {
                     <span class="test-spec-badge">{{ s }}</span>
@@ -828,24 +828,24 @@
               </div>
               <div class="info-grid">
                 <div class="info-item">
-                  <div class="info-item-ico" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-doc"></use></svg></div>
+                  <div class="info-item-ico ic-teal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-doc"></use></svg></div>
                   <div><div class="info-item-val">{{ setupTestService.totalQuestions() || 10 }}</div><div class="info-item-lbl">سؤال</div></div>
                 </div>
                 <div class="info-item">
-                  <div class="info-item-ico" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-clock"></use></svg></div>
+                  <div class="info-item-ico ic-blue"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-clock"></use></svg></div>
                   <div><div class="info-item-val">{{ testTotalTime > 0 ? testTotalTime / 60 : 10 }}</div><div class="info-item-lbl">مدة الاختبار (دقيقة)</div></div>
                 </div>
                 <div class="info-item">
-                  <div class="info-item-ico" style="background:rgba(123,47,190,.12);color:#A56BE0"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg></div>
+                  <div class="info-item-ico ic-purple"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg></div>
                   <div><div class="info-item-val" style="font-size:13px">ساعة</div><div class="info-item-lbl">مراجعة AI</div></div>
                 </div>
                 <div class="info-item">
-                  <div class="info-item-ico" style="background:rgba(255,180,0,.12);color:#FFB400"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg></div>
+                  <div class="info-item-ico ic-amber"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg></div>
                   <div><div class="info-item-val">30 يوم</div><div class="info-item-lbl">انتظار إعادة</div></div>
                 </div>
               </div>
               <div style="margin-bottom:14px">
-                <div style="font-size:12px;font-weight:700;color:#A56BE0;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                <div style="font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px" class="txt-purple">
                   <svg style="width:12px;height:12px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
                   AI يحدد مستواك تلقائيا
                 </div>
@@ -854,10 +854,10 @@
                   <span class="level-pill mid">تطبيقي</span>
                   <span class="level-pill expert">احترافي</span>
                 </div>
-                <div style="margin-top:8px;font-size:11.5px;color:#6B7699">بناء على إجاباتك، لا تختار درجة صعوبة الاختبار بنفسك</div>
+                <div style="margin-top:8px;font-size:11.5px" class="txt-muted">بناء على إجاباتك، لا تختار درجة صعوبة الاختبار بنفسك</div>
               </div>
-              <div style="padding:12px 14px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:10px;font-size:12.5px;color:#A8B2D1;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px">
-                <svg style="width:14px;height:14px;color:#FFB400;flex-shrink:0;margin-top:2px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg>
+              <div style="padding:12px 14px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:10px;font-size:12.5px;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px" class="txt-slate">
+                <svg style="width:14px;height:14px;flex-shrink:0;margin-top:2px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="txt-amber"><use href="#i-warn"></use></svg>
                 <span>أي نشاط مشبوه (تبديل التبويبات، نسخ الأسئلة) يوقف الاختبار ويمنع الإعادة لمدة 30 يوما</span>
               </div>
               <button type="button" class="start-btn" (click)="startTest()">
@@ -876,10 +876,10 @@
           <div class="test-active">
             @if (setupTestService.isGenerating()) {
                 <div class="test-generating-box" style="text-align: center; padding: 40px;">
-                   <svg aria-hidden="true" width="40" height="40" style="margin-bottom: 20px; color: var(--brand-p); animation: spin 1.5s linear infinite;"><use href="#i-ai"></use></svg>
+                   <svg aria-hidden="true" width="40" height="40" style="margin-bottom: 20px;  animation: spin 1.5s linear infinite" class="txt-purple"><use href="#i-ai"></use></svg>
                    <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
                    <h3 style="font-size: 18px; margin-bottom: 10px;">{{ setupTestService.statusMsg() || 'جاري توليد الاختبار بالذكاء الاصطناعي...' }}</h3>
-                   <p style="color: #6B7699; font-size: 14px;">يرجى الانتظار ولا تغادر هذه الصفحة</p>
+                   <p style="font-size: 14px" class="txt-muted">يرجى الانتظار ولا تغادر هذه الصفحة</p>
                 </div>
             } @else if (setupTestService.result()) {
                 <div class="result-screen">
@@ -903,8 +903,8 @@
                     </div>
 
                     <div class="stats-row">
-                      <div class="stat-box"><div class="stat-box-val" style="color:#2BD4C7">{{ setupTestService.result()?.correct || 0 }}</div><div class="stat-box-lbl">إجابات صحيحة</div></div>
-                      <div class="stat-box"><div class="stat-box-val" style="color:#FF8080">{{ (setupTestService.result()?.total || 0) - (setupTestService.result()?.correct || 0) }}</div><div class="stat-box-lbl">إجابات خاطئة</div></div>
+                      <div class="stat-box"><div class="stat-box-val txt-teal">{{ setupTestService.result()?.correct || 0 }}</div><div class="stat-box-lbl">إجابات صحيحة</div></div>
+                      <div class="stat-box"><div class="stat-box-val txt-coral">{{ (setupTestService.result()?.total || 0) - (setupTestService.result()?.correct || 0) }}</div><div class="stat-box-lbl">إجابات خاطئة</div></div>
                       <div class="stat-box"><div class="stat-box-val">{{ testTimeSpent() }}</div><div class="stat-box-lbl">الوقت المستغرق</div></div>
                     </div>
 
@@ -982,7 +982,7 @@
                     </button>
                   </div>
                 } @else {
-                   <div style="padding: 40px; text-align: center; color: #6B7699;">جاري تحميل السؤال التالي...</div>
+                   <div style="padding: 40px; text-align: center" class="txt-muted">جاري تحميل السؤال التالي...</div>
                 }
             }
           </div>

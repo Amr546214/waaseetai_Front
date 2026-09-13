@@ -60,8 +60,10 @@
 :host-context(body.light-theme) .inner-foot, :host-context(body.theme-light) .inner-foot, :host-context(.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot {border-color:rgba(15,23,42,.06);color:#64748B}
 :host-context(body.light-theme) .inner-foot-links a, :host-context(body.theme-light) .inner-foot-links a, :host-context(.light-theme) .inner-foot-links a, :host-context(.theme-light) .inner-foot-links a {color:#64748B}
 
-@media(max-width:767px){
+@media(max-width:900px){
   .kpi-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:767px){
   .filter-rail{flex-direction:column;align-items:stretch}
   .fr-search{max-width:none;border-inline-start:none;border-top:1px solid rgba(255,255,255,.07)}
 }

@@ -29,16 +29,16 @@
 				<div class="rk-n">{{ levelData()?.currentLevel?.title || 'ذهبي' }}</div>
 				<div class="rk-s">شركة معتمدة بمستوى {{ levelData()?.currentLevel?.title || 'ذهبي' }} · يُجدَّد التقييم كل 3 أشهر</div>
 				<div class="rk-bar"><div class="rk-f" [style.width.%]="levelData()?.nextLevelProgress?.pointsPercent || 89"></div></div>
-				<div style="font-size:11px;color:var(--txt-2,#A8B2D1);margin-top:6px">{{ levelData()?.currentStats?.points || 2680 }} نقطة · {{ levelData()?.nextLevelProgress?.pointsGap || 320 }} نقطة للمستوى التالي</div>
+				<div style="font-size:11px;margin-top:6px" class="txt-slate">{{ levelData()?.currentStats?.points || 2680 }} نقطة · {{ levelData()?.nextLevelProgress?.pointsGap || 320 }} نقطة للمستوى التالي</div>
 			</div>
 			<div style="display:flex;gap:8px;flex-shrink:0">
 				<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 16px">
-					<div style="font-size:20px;font-weight:900;color:#FFB400">{{ levelData()?.currentStats?.avgRating || 4.7 }}</div>
-					<div style="font-size:10px;color:var(--txt-2,#A8B2D1);margin-top:2px">التقييم</div>
+					<div style="font-size:20px;font-weight:900" class="txt-amber">{{ levelData()?.currentStats?.avgRating || 4.7 }}</div>
+					<div style="font-size:10px;margin-top:2px" class="txt-slate">التقييم</div>
 				</div>
 				<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 16px">
-					<div style="font-size:20px;font-weight:900;color:var(--teal-txt,#2BD4C7)">98%</div>
-					<div style="font-size:10px;color:var(--txt-2,#A8B2D1);margin-top:2px">الإنجاز</div>
+					<div style="font-size:20px;font-weight:900" class="txt-teal">98%</div>
+					<div style="font-size:10px;margin-top:2px" class="txt-slate">الإنجاز</div>
 				</div>
 			</div>
 		</div>
@@ -76,7 +76,7 @@
 				</div>
 				<div class="mt-row">
 					<div class="mt-b"><div class="mt-n">النزاعات المُقرَّرة ضد الشركة</div><div class="mt-bar"><div class="mt-f" [style.width.%]="4" style="background:#FF8C69"></div></div></div>
-					<span class="mt-v" style="color:#FF8C69">1 خلال سنة</span>
+					<span class="mt-v txt-coral">1 خلال سنة</span>
 				</div>
 				<div class="mt-row">
 					<div class="mt-b"><div class="mt-n">التزام أعضاء الفريق بالمهام</div><div class="mt-bar"><div class="mt-f" [style.width.%]="91" style="background:linear-gradient(90deg,#5DA0FF,#2B7FFF)"></div></div></div>
@@ -93,19 +93,19 @@
 			<div style="display:flex;flex-direction:column;gap:8px">
 				<div class="rf-row" style="background:rgba(165,107,224,.06);border:1px solid rgba(165,107,224,.15)">
 					<span class="rf-txt">أكمل 3 مشاريع إضافية بتقييم 4.5+</span>
-					<span class="rf-val" style="color:#A56BE0">+60 نقطة</span>
+					<span class="rf-val txt-purple">+60 نقطة</span>
 				</div>
 				<div class="rf-row" style="background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.15)">
 					<span class="rf-txt">ارفع متوسط التقييم إلى 4.8</span>
-					<span class="rf-val" style="color:#FFB400">معامل أعلى</span>
+					<span class="rf-val txt-amber">معامل أعلى</span>
 				</div>
 				<div class="rf-row" style="background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.15)">
 					<span class="rf-txt">أضف شهادتين معتمدتين للملف</span>
-					<span class="rf-val" style="color:var(--teal-txt,#2BD4C7)">+200 نقطة</span>
+					<span class="rf-val txt-teal">+200 نقطة</span>
 				</div>
 				<div class="rf-row" style="background:rgba(93,160,255,.06);border:1px solid rgba(93,160,255,.15)">
 					<span class="rf-txt">أضف عضوين نشطين للفريق</span>
-					<span class="rf-val" style="color:#5DA0FF">+60 نقطة</span>
+					<span class="rf-val txt-blue">+60 نقطة</span>
 				</div>
 			</div>
 		</div>

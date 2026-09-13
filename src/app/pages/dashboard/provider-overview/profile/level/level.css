@@ -57,7 +57,9 @@
 :host-context(body.light-theme) .rk-bar, :host-context(body.theme-light) .rk-bar, :host-context(.light-theme) .rk-bar, :host-context(.theme-light) .rk-bar {background:#E2E8F4}
 :host-context(body.light-theme) .mt-bar, :host-context(body.theme-light) .mt-bar, :host-context(.light-theme) .mt-bar, :host-context(.theme-light) .mt-bar {background:#E2E8F4}
 
-@media(max-width:767px){
+@media(max-width:900px){
   .grid2{grid-template-columns:1fr}
+}
+@media(max-width:767px){
   .rk-hero{flex-direction:column;text-align:center}
 }

@@ -50,8 +50,8 @@
 				</div>
 				<div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
 					<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 18px">
-						<div style="font-size:20px;font-weight:900;color:#FFB400">{{ profileData()?.stats?.rating || 4.7 }}</div>
-						<div style="font-size:10px;color:var(--txt-2,#A8B2D1);margin-top:2px">متوسط التقييم</div>
+						<div style="font-size:20px;font-weight:900" class="txt-amber">{{ profileData()?.stats?.rating || 4.7 }}</div>
+						<div style="font-size:10px;margin-top:2px" class="txt-slate">متوسط التقييم</div>
 					</div>
 				</div>
 			</div>
@@ -59,10 +59,10 @@
 
 		<!-- KPIs -->
 		<div class="kpi-row">
-			<div class="kpi-c"><div class="kpi-v" style="color:var(--teal-txt,#2BD4C7)">{{ profileData()?.stats?.completedProjects || 47 }}</div><div class="kpi-l">مشروع مكتمل</div></div>
-			<div class="kpi-c"><div class="kpi-v" style="color:#2ECC8A">{{ profileData()?.stats?.completionRate || 98 }}%</div><div class="kpi-l">نسبة الإنجاز</div></div>
-			<div class="kpi-c"><div class="kpi-v" style="color:#5DA0FF">{{ profileData()?.stats?.approvedSpecialties || 6 }}</div><div class="kpi-l">تخصص معتمد</div></div>
-			<div class="kpi-c"><div class="kpi-v" style="color:var(--ai-txt,#A56BE0)">{{ profileData()?.stats?.approvedModels || 12 }}</div><div class="kpi-l">نموذج معتمد</div></div>
+			<div class="kpi-c"><div class="kpi-v txt-teal">{{ profileData()?.stats?.completedProjects || 47 }}</div><div class="kpi-l">مشروع مكتمل</div></div>
+			<div class="kpi-c"><div class="kpi-v txt-green-br">{{ profileData()?.stats?.completionRate || 98 }}%</div><div class="kpi-l">نسبة الإنجاز</div></div>
+			<div class="kpi-c"><div class="kpi-v txt-blue">{{ profileData()?.stats?.approvedSpecialties || 6 }}</div><div class="kpi-l">تخصص معتمد</div></div>
+			<div class="kpi-c"><div class="kpi-v txt-purple">{{ profileData()?.stats?.approvedModels || 12 }}</div><div class="kpi-l">نموذج معتمد</div></div>
 		</div>
 
 		<!-- Grid: Basic Data + Specialties/Team -->
@@ -104,7 +104,7 @@
 				<div class="co-card" style="margin-bottom:0">
 					<div class="sec-hd">
 						<div class="sec-ttl">أعضاء الفريق</div>
-						<a routerLink="/provider-overview/company/team-management" style="font-size:11.5px;font-weight:700;color:var(--teal-txt,#2BD4C7);text-decoration:none">إدارة الفريق</a>
+						<a routerLink="/provider-overview/company/team-management" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">إدارة الفريق</a>
 					</div>
 					@for (m of (profileData()?.team || []); track m.id || m.name) {
 						<div class="mem-row">
@@ -133,23 +133,23 @@
 		<div class="co-card">
 			<div class="sec-hd">
 				<div class="sec-ttl">النماذج والأعمال المعتمدة</div>
-				<a routerLink="/provider-overview/business-models/market" style="font-size:11.5px;font-weight:700;color:var(--teal-txt,#2BD4C7);text-decoration:none">كل نماذج الشركة</a>
+				<a routerLink="/provider-overview/business-models/market" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">كل نماذج الشركة</a>
 			</div>
 			<table class="tbl">
 				<thead><tr><th>النموذج</th><th>التخصص</th><th>حالة الاعتماد</th><th>مرات الشراء</th></tr></thead>
 				<tbody>
 					@for (m of (profileData()?.models || []); track m.id || m.title) {
 						<tr>
-							<td style="color:#fff;font-weight:700">{{ m.title || '—' }}</td>
+							<td style="font-weight:700" class="txt-white">{{ m.title || '—' }}</td>
 							<td>{{ m.specialty || '—' }}</td>
 							<td><span class="pill" [class.pill-ok]="m.status==='approved'" [class.pill-gold]="m.status==='review'">{{ m.status === 'approved' ? 'معتمد' : (m.status === 'review' ? 'قيد المراجعة' : m.status || 'معتمد') }}</span></td>
 							<td>{{ m.purchases || '—' }}</td>
 						</tr>
 					}
 					@if (!(profileData()?.models?.length)) {
-						<tr><td style="color:#fff;font-weight:700">نظام إدارة المخزون السحابي</td><td>أنظمة إدارة المنشآت</td><td><span class="pill pill-ok">معتمد</span></td><td>14</td></tr>
-						<tr><td style="color:#fff;font-weight:700">تطبيق حجز مواعيد للعيادات</td><td>تطوير تطبيقات الجوال</td><td><span class="pill pill-ok">معتمد</span></td><td>9</td></tr>
-						<tr><td style="color:#fff;font-weight:700">منصة تجارة إلكترونية متعددة البائعين</td><td>تطوير الويب</td><td><span class="pill pill-ok">معتمد</span></td><td>6</td></tr>
+						<tr><td style="font-weight:700" class="txt-white">نظام إدارة المخزون السحابي</td><td>أنظمة إدارة المنشآت</td><td><span class="pill pill-ok">معتمد</span></td><td>14</td></tr>
+						<tr><td style="font-weight:700" class="txt-white">تطبيق حجز مواعيد للعيادات</td><td>تطوير تطبيقات الجوال</td><td><span class="pill pill-ok">معتمد</span></td><td>9</td></tr>
+						<tr><td style="font-weight:700" class="txt-white">منصة تجارة إلكترونية متعددة البائعين</td><td>تطوير الويب</td><td><span class="pill pill-ok">معتمد</span></td><td>6</td></tr>
 					}
 				</tbody>
 			</table>

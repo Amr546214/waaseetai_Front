@@ -88,8 +88,10 @@
 :host-context(body.light-theme) .dl-row, :host-context(body.theme-light) .dl-row, :host-context(.light-theme) .dl-row, :host-context(.theme-light) .dl-row {border-color:rgba(15,23,42,.06)}
 :host-context(body.light-theme) .mem-row, :host-context(body.theme-light) .mem-row, :host-context(.light-theme) .mem-row, :host-context(.theme-light) .mem-row {border-color:rgba(15,23,42,.06)}
 
-@media(max-width:767px){
+@media(max-width:900px){
   .grid2{grid-template-columns:1fr}
   .kpi-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:767px){
   .co-hero{flex-direction:column}
 }
