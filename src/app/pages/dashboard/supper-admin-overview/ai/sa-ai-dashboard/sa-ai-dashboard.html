@@ -1,13 +1,61 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+<section class="sad-page" dir="rtl">
+  <div class="sad-hdr">
+    <div>
+      <h1 class="sad-ttl">AI Insights Dashboard</h1>
+      <p class="sad-sub">لوحة مراقبة محركات الذكاء الاصطناعي — الأداء والدقة والاستخدام لكل نموذج</p>
+    </div>
+    <div class="sad-actions">
+      <button type="button" class="sad-btn sad-btn-gh">تصدير تقرير</button>
+      <button type="button" class="sad-btn sad-btn-pri" [disabled]="retraining()" (click)="retrain()">
+        {{ retraining() ? 'جارٍ إعادة التدريب...' : 'إعادة تدريب' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="sad-disc">
+    <div class="sad-disc-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/>
+        <path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>
       </svg>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">AI Dashboard</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"AI Dashboard\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div>
+      <div class="sad-disc-lbl">Self-meta AI</div>
+      <p class="sad-disc-txt">وسيط AI يراقب أداء نماذجه الخاصة ويضبط المعاملات تلقائياً للحفاظ على أعلى دقة ممكنة <span class="sad-disc-bdg">كل النماذج سليمة</span></p>
+    </div>
   </div>
-</div>
+
+  <div class="sad-kpis">
+    @for (k of kpis; track k.label) {
+      <div class="sad-kpi">
+        <span class="sad-kpi-lbl">{{ k.label }}</span>
+        <div class="sad-kpi-val" [style.color]="k.color">{{ k.value }}</div>
+        <div class="sad-kpi-unit">{{ k.unit }}</div>
+        <div class="sad-kpi-sub" [style.color]="k.subColor">{{ k.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="sad-grid">
+    @for (m of models; track m.name) {
+      <div class="sad-card" [style.border-color]="m.color + '33'">
+        <div class="sad-card-head">
+          <span class="sad-card-name" [style.color]="m.color">{{ m.name }}</span>
+          <span class="sad-card-status">نشط</span>
+        </div>
+        <div class="sad-card-body">
+          <div class="sad-metric"><span class="sad-metric-lbl">الدقة</span><span class="sad-metric-val" style="color:#0FA99A">{{ m.accuracy }}%</span></div>
+          <div class="sad-bar"><div class="sad-fill" [style.width.%]="m.accuracy" [style.background]="gradientFor(m.color)"></div></div>
+          <div class="sad-metric"><span class="sad-metric-lbl">طلبات اليوم</span><span class="sad-metric-val">{{ m.requestsToday }}</span></div>
+          <div class="sad-metric"><span class="sad-metric-lbl">متوسط زمن الاستجابة</span><span class="sad-metric-val" [style.color]="m.latencyGood ? '#0FA99A' : '#6B7699'">{{ m.avgLatency }}</span></div>
+          <div class="sad-metric"><span class="sad-metric-lbl">آخر تدريب</span><span class="sad-metric-val" style="color:#6B7699">{{ m.lastTrained }}</span></div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="sad-foot">
+    <span>© 2026 وسيط AI · AI Insights Dashboard</span>
+    <span>12 نموذج نشط | متوسط الدقة: 94.2%</span>
+  </div>
+</section>
