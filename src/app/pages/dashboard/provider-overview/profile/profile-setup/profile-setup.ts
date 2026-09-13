@@ -55,7 +55,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			country: ['السعودية', Validators.required],
 			city: ['', Validators.required],
 			languages: [[]],
-			bio: ['', Validators.required]
+			bio: ['', Validators.required],
+			portfolioUrl: [''],
+			linkedinUrl: [''],
+			websiteUrl: [''],
+			timezone: ['Asia/Riyadh']
 		}),
 		specialties: this.fb.group({
 			mainSpec: ['', Validators.required],
@@ -74,7 +78,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}),
 		agreements: this.fb.group({
 			ackFinal: [false, Validators.requiredTrue]
-		})
+		}),
+		uiLanguage: ['ar']
 	});
 
 	availableLanguages = ['العربية', 'الإنجليزية', 'الفرنسية', 'الأردية', 'الهندية'];
@@ -486,6 +491,22 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	setUiLanguage(lang: string) {
 		this.setupForm.get('uiLanguage')?.setValue(lang);
+	}
+
+	// Profile completion percentage (P-AU-011 progress ring)
+	profileCompletionPct(): number {
+		let p = 20;
+		if (this.avatarPreview()) p += 30;
+		const bio = (this.setupForm.get('profData.bio')?.value || '').trim();
+		if (bio.length > 20) p += 20;
+		if (this.skillsList().length >= 3) p += 15;
+		const links = this.setupForm.get('profData.portfolioUrl')?.value || this.setupForm.get('profData.linkedinUrl')?.value;
+		if (links) p += 15;
+		return Math.min(100, p);
+	}
+
+	profileCompletionDeg(): number {
+		return Math.round(this.profileCompletionPct() * 3.6);
 	}
 
 	toggleNotifChannel(channel: string) {

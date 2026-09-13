@@ -142,7 +142,10 @@ button.sb-item,button.sb-sub-item,button.udrop-item,button.t-notif,button.t-logo
 .sens-tag{background:rgba(255,180,0,.12) !important;color:var(--kahr,#D98A0B) !important;border-color:rgba(255,180,0,.26) !important}
 .tt-sens{background:rgba(255,180,0,.14) !important;color:var(--kahr,#D98A0B) !important;border-color:rgba(255,180,0,.28) !important}
 .tlp-sens{background:rgba(255,180,0,.14) !important;color:var(--kahr,#D98A0B) !important;border-color:rgba(255,180,0,.28) !important}
-body.light .tier-sens .tier-title,body.light .sens-tag,body.light .tt-sens,body.light .tlp-sens,body.light .tier-sens .tier-tag,body.light .tier-sens .tier-ico{color:#8A5A00 !important;border-color:rgba(255,180,0,.4) !important}
+:host-context(body.light-theme) .tier-sens .tier-title,:host-context(body.light-theme) .sens-tag,:host-context(body.light-theme) .tt-sens,:host-context(body.light-theme) .tlp-sens,:host-context(body.light-theme) .tier-sens .tier-tag,:host-context(body.light-theme) .tier-sens .tier-ico,
+:host-context(body.theme-light) .tier-sens .tier-title,:host-context(body.theme-light) .sens-tag,:host-context(body.theme-light) .tt-sens,:host-context(body.theme-light) .tlp-sens,:host-context(body.theme-light) .tier-sens .tier-tag,:host-context(body.theme-light) .tier-sens .tier-ico,
+:host-context(.light-theme) .tier-sens .tier-title,:host-context(.light-theme) .sens-tag,:host-context(.light-theme) .tt-sens,:host-context(.light-theme) .tlp-sens,:host-context(.light-theme) .tier-sens .tier-tag,:host-context(.light-theme) .tier-sens .tier-ico,
+:host-context(.theme-light) .tier-sens .tier-title,:host-context(.theme-light) .sens-tag,:host-context(.theme-light) .tt-sens,:host-context(.theme-light) .tlp-sens,:host-context(.theme-light) .tier-sens .tier-tag,:host-context(.theme-light) .tier-sens .tier-ico{color:#8A5A00 !important;border-color:rgba(255,180,0,.4) !important}
 
 select option{background:#0B1437;color:#fff}select optgroup{background:#0B1437;color:#A8B2D1;font-weight:800}
 
@@ -212,24 +215,273 @@ select option{background:#0B1437;color:#fff}select optgroup{background:#0B1437;c
 .inner-foot-links a{color:var(--txt-2,#A8B2D1);text-decoration:none;cursor:pointer}
 .inner-foot-links a:hover{color:var(--teal-txt,#2BD4C7)}
 
+/* ===== Individual profile-edit form: Light Mode ===== */
+:host-context(body.light-theme) .form-card,
+:host-context(body.theme-light) .form-card,
+:host-context(.light-theme) .form-card,
+:host-context(.theme-light) .form-card,
+:host-context(body.light-theme) .tier-card,
+:host-context(body.theme-light) .tier-card,
+:host-context(.light-theme) .tier-card,
+:host-context(.theme-light) .tier-card,
+:host-context(body.light-theme) .state-card,
+:host-context(body.theme-light) .state-card,
+:host-context(.light-theme) .state-card,
+:host-context(.theme-light) .state-card{background:#fff;border-color:#E2E8F4}
+
+:host-context(body.light-theme) .form-card-title,
+:host-context(body.theme-light) .form-card-title,
+:host-context(.light-theme) .form-card-title,
+:host-context(.theme-light) .form-card-title,
+:host-context(body.light-theme) .tier-legend-title,
+:host-context(body.theme-light) .tier-legend-title,
+:host-context(.light-theme) .tier-legend-title,
+:host-context(.theme-light) .tier-legend-title,
+:host-context(body.light-theme) .modal-title,
+:host-context(body.theme-light) .modal-title,
+:host-context(.light-theme) .modal-title,
+:host-context(.theme-light) .modal-title{color:#0F172A}
+
+:host-context(body.light-theme) .form-card-sub,
+:host-context(body.theme-light) .form-card-sub,
+:host-context(.light-theme) .form-card-sub,
+:host-context(.theme-light) .form-card-sub,
+:host-context(body.light-theme) .inp-label,
+:host-context(body.theme-light) .inp-label,
+:host-context(.light-theme) .inp-label,
+:host-context(.theme-light) .inp-label,
+:host-context(body.light-theme) .prog-label,
+:host-context(body.theme-light) .prog-label,
+:host-context(.light-theme) .prog-label,
+:host-context(.theme-light) .prog-label,
+:host-context(body.light-theme) .free-bar-txt,
+:host-context(body.theme-light) .free-bar-txt,
+:host-context(.light-theme) .free-bar-txt,
+:host-context(.theme-light) .free-bar-txt,
+:host-context(body.light-theme) .inp-hint,
+:host-context(body.theme-light) .inp-hint,
+:host-context(.light-theme) .inp-hint,
+:host-context(.theme-light) .inp-hint,
+:host-context(body.light-theme) .char-counter,
+:host-context(body.theme-light) .char-counter,
+:host-context(.light-theme) .char-counter,
+:host-context(.theme-light) .char-counter,
+:host-context(body.light-theme) .skills-add-btn,
+:host-context(body.theme-light) .skills-add-btn,
+:host-context(.light-theme) .skills-add-btn,
+:host-context(.theme-light) .skills-add-btn,
+:host-context(body.light-theme) .pref-label,
+:host-context(body.theme-light) .pref-label,
+:host-context(.light-theme) .pref-label,
+:host-context(.theme-light) .pref-label,
+:host-context(body.light-theme) .notif-check,
+:host-context(body.theme-light) .notif-check,
+:host-context(.light-theme) .notif-check,
+:host-context(.theme-light) .notif-check,
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt,
+:host-context(body.light-theme) .tier-legend-item,
+:host-context(body.theme-light) .tier-legend-item,
+:host-context(.light-theme) .tier-legend-item,
+:host-context(.theme-light) .tier-legend-item,
+:host-context(body.light-theme) .btn-secondary,
+:host-context(body.theme-light) .btn-secondary,
+:host-context(.light-theme) .btn-secondary,
+:host-context(.theme-light) .btn-secondary,
+:host-context(body.light-theme) .modal-desc,
+:host-context(body.theme-light) .modal-desc,
+:host-context(.light-theme) .modal-desc,
+:host-context(.theme-light) .modal-desc,
+:host-context(body.light-theme) .modal-btn-cancel,
+:host-context(body.theme-light) .modal-btn-cancel,
+:host-context(.light-theme) .modal-btn-cancel,
+:host-context(.theme-light) .modal-btn-cancel{color:#475569}
+
+:host-context(body.light-theme) .prog-hint,
+:host-context(body.theme-light) .prog-hint,
+:host-context(.light-theme) .prog-hint,
+:host-context(.theme-light) .prog-hint,
+:host-context(body.light-theme) .av-hint,
+:host-context(body.theme-light) .av-hint,
+:host-context(.light-theme) .av-hint,
+:host-context(.theme-light) .av-hint,
+:host-context(body.light-theme) .gov-bar-txt,
+:host-context(body.theme-light) .gov-bar-txt,
+:host-context(.light-theme) .gov-bar-txt,
+:host-context(.theme-light) .gov-bar-txt,
+:host-context(body.light-theme) .gov-note,
+:host-context(body.theme-light) .gov-note,
+:host-context(.light-theme) .gov-note,
+:host-context(.theme-light) .gov-note{color:#5B6472}
+
+:host-context(body.light-theme) .inp-field,
+:host-context(body.theme-light) .inp-field,
+:host-context(.light-theme) .inp-field,
+:host-context(.theme-light) .inp-field,
+:host-context(body.light-theme) textarea.inp-field,
+:host-context(body.theme-light) textarea.inp-field,
+:host-context(.light-theme) textarea.inp-field,
+:host-context(.theme-light) textarea.inp-field,
+:host-context(body.light-theme) .pref-val,
+:host-context(body.theme-light) .pref-val,
+:host-context(.light-theme) .pref-val,
+:host-context(.theme-light) .pref-val,
+:host-context(body.light-theme) .modal-box input,
+:host-context(body.theme-light) .modal-box input,
+:host-context(.light-theme) .modal-box input,
+:host-context(.theme-light) .modal-box input,
+:host-context(body.light-theme) .modal-box textarea,
+:host-context(body.theme-light) .modal-box textarea,
+:host-context(.light-theme) .modal-box textarea,
+:host-context(.theme-light) .modal-box textarea{background:#F8FAFC;border-color:#CBD5E1;color:#0F172A}
+
+:host-context(body.light-theme) .skills-add-inp,
+:host-context(body.theme-light) .skills-add-inp,
+:host-context(.light-theme) .skills-add-inp,
+:host-context(.theme-light) .skills-add-inp{background:#f5f7fc;border-color:#C9D0E3;color:#0F172A}
+
+:host-context(body.light-theme) .av-btn,
+:host-context(body.theme-light) .av-btn,
+:host-context(.light-theme) .av-btn,
+:host-context(.theme-light) .av-btn{background:#f4f6fb;border-color:#D5DCEA;color:#475569}
+
+:host-context(body.light-theme) .av-btn:hover,
+:host-context(body.theme-light) .av-btn:hover,
+:host-context(.light-theme) .av-btn:hover,
+:host-context(.theme-light) .av-btn:hover{background:#e9edf5;border-color:#C9D0E3;color:#0F172A}
+
+:host-context(body.light-theme) .av-btn-primary,
+:host-context(body.theme-light) .av-btn-primary,
+:host-context(.light-theme) .av-btn-primary,
+:host-context(.theme-light) .av-btn-primary{background:rgba(43,212,199,.18);border-color:rgba(43,212,199,.45);color:#0A6F64}
+
+:host-context(body.light-theme) .av-btn-primary:hover,
+:host-context(body.theme-light) .av-btn-primary:hover,
+:host-context(.light-theme) .av-btn-primary:hover,
+:host-context(.theme-light) .av-btn-primary:hover{background:rgba(43,212,199,.30);border-color:rgba(43,212,199,.55);color:#0A6F64}
+
+:host-context(body.light-theme) .chip-rm,
+:host-context(body.theme-light) .chip-rm,
+:host-context(.light-theme) .chip-rm,
+:host-context(.theme-light) .chip-rm{color:rgba(15,23,42,.5)}
+
+:host-context(body.light-theme) .chip-rm:hover,
+:host-context(body.theme-light) .chip-rm:hover,
+:host-context(.light-theme) .chip-rm:hover,
+:host-context(.theme-light) .chip-rm:hover{color:#B42318}
+
+:host-context(body.light-theme) .chip-added,
+:host-context(body.theme-light) .chip-added,
+:host-context(.light-theme) .chip-added,
+:host-context(.theme-light) .chip-added{color:#1D6FE0}
+
+:host-context(body.light-theme) .tt-free,
+:host-context(body.theme-light) .tt-free,
+:host-context(.light-theme) .tt-free,
+:host-context(.theme-light) .tt-free,
+:host-context(body.light-theme) .tlp-free,
+:host-context(body.theme-light) .tlp-free,
+:host-context(.light-theme) .tlp-free,
+:host-context(.theme-light) .tlp-free{color:#0A6F64;background:rgba(15,169,154,.18);border-color:rgba(15,169,154,.35)}
+
+:host-context(body.light-theme) .btn-secondary,
+:host-context(body.theme-light) .btn-secondary,
+:host-context(.light-theme) .btn-secondary,
+:host-context(.theme-light) .btn-secondary{border-color:#CBD5E1}
+
+:host-context(body.light-theme) .btn-secondary:hover,
+:host-context(body.theme-light) .btn-secondary:hover,
+:host-context(.light-theme) .btn-secondary:hover,
+:host-context(.theme-light) .btn-secondary:hover{background:#e9edf5;color:#0F172A}
+
+:host-context(body.light-theme) .prof-tab-btn:hover:not(.active),
+:host-context(body.theme-light) .prof-tab-btn:hover:not(.active),
+:host-context(.light-theme) .prof-tab-btn:hover:not(.active),
+:host-context(.theme-light) .prof-tab-btn:hover:not(.active){color:#0F172A}
+
+:host-context(body.light-theme) .prof-tab-nav,
+:host-context(body.theme-light) .prof-tab-nav,
+:host-context(.light-theme) .prof-tab-nav,
+:host-context(.theme-light) .prof-tab-nav,
+:host-context(body.light-theme) .tier-legend,
+:host-context(body.theme-light) .tier-legend,
+:host-context(.light-theme) .tier-legend,
+:host-context(.theme-light) .tier-legend,
+:host-context(body.light-theme) .skills-chips,
+:host-context(body.theme-light) .skills-chips,
+:host-context(.light-theme) .skills-chips,
+:host-context(.theme-light) .skills-chips{border-color:#D8DFEC}
+
+:host-context(body.light-theme) .modal-box,
+:host-context(body.theme-light) .modal-box,
+:host-context(.light-theme) .modal-box,
+:host-context(.theme-light) .modal-box{background:#fff;border-color:#E2E8F4;box-shadow:0 28px 80px rgba(15,23,42,.22)}
+
+:host-context(body.light-theme) .modal-btn-cancel,
+:host-context(body.theme-light) .modal-btn-cancel,
+:host-context(.light-theme) .modal-btn-cancel,
+:host-context(.theme-light) .modal-btn-cancel{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.14)}
+
+:host-context(body.light-theme) .modal-btn-cancel:hover,
+:host-context(body.theme-light) .modal-btn-cancel:hover,
+:host-context(.light-theme) .modal-btn-cancel:hover,
+:host-context(.theme-light) .modal-btn-cancel:hover{background:#eef1f7;color:#0F172A}
+
+:host-context(body.light-theme) .pwd-strength,
+:host-context(body.theme-light) .pwd-strength,
+:host-context(.light-theme) .pwd-strength,
+:host-context(.theme-light) .pwd-strength{background:#E2E8F4}
+
+:host-context(body.light-theme) .ai-disclosure,
+:host-context(body.theme-light) .ai-disclosure,
+:host-context(.light-theme) .ai-disclosure,
+:host-context(.theme-light) .ai-disclosure{background:linear-gradient(135deg,rgba(123,47,190,.07),rgba(43,127,255,.04));border-color:rgba(123,47,190,.18)}
+
+:host-context(body.light-theme) .prof-tab-panel [style*="color:#fff"],
+:host-context(body.theme-light) .prof-tab-panel [style*="color:#fff"],
+:host-context(.light-theme) .prof-tab-panel [style*="color:#fff"],
+:host-context(.theme-light) .prof-tab-panel [style*="color:#fff"]{color:#0F172A !important}
+
+:host-context(body.light-theme) .prof-tab-panel [style*="color:#A8B2D1"],
+:host-context(body.theme-light) .prof-tab-panel [style*="color:#A8B2D1"],
+:host-context(.light-theme) .prof-tab-panel [style*="color:#A8B2D1"],
+:host-context(.theme-light) .prof-tab-panel [style*="color:#A8B2D1"]{color:#475569 !important}
+
+:host-context(body.light-theme) .prof-tab-panel [style*="color:#6B7699"],
+:host-context(body.theme-light) .prof-tab-panel [style*="color:#6B7699"],
+:host-context(.light-theme) .prof-tab-panel [style*="color:#6B7699"],
+:host-context(.theme-light) .prof-tab-panel [style*="color:#6B7699"]{color:#5B6472 !important}
+
+:host-context(body.light-theme) .prof-tab-panel [style*="color:#0FA99A"],
+:host-context(body.theme-light) .prof-tab-panel [style*="color:#0FA99A"],
+:host-context(.light-theme) .prof-tab-panel [style*="color:#0FA99A"],
+:host-context(.theme-light) .prof-tab-panel [style*="color:#0FA99A"]{color:#0F8A7F !important}
+
+:host-context(body.light-theme) .prof-tab-panel [style*="color:#FF8C69"],
+:host-context(body.theme-light) .prof-tab-panel [style*="color:#FF8C69"],
+:host-context(.light-theme) .prof-tab-panel [style*="color:#FF8C69"],
+:host-context(.theme-light) .prof-tab-panel [style*="color:#FF8C69"]{color:#C2410C !important}
+
 /* Company Edit: Light Mode */
-:host-context(body.light) .co-card, :host-context(body.light-theme) .co-card, :host-context(.theme-light) .co-card {background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .pg-title, :host-context(body.light-theme) .pg-title, :host-context(.theme-light) .pg-title {color:#0F172A}
-:host-context(body.light) .pg-sub, :host-context(body.light-theme) .pg-sub, :host-context(.theme-light) .pg-sub {color:#64748B}
-:host-context(body.light) .sec-ttl, :host-context(body.light-theme) .sec-ttl, :host-context(.theme-light) .sec-ttl {color:#0F172A}
-:host-context(body.light) .fld label, :host-context(body.light-theme) .fld label, :host-context(.theme-light) .fld label {color:#0F172A}
-:host-context(body.light) .fld input,:host-context(body.light) .fld textarea,:host-context(body.light) .fld select,:host-context(body.light-theme) .fld input,:host-context(body.light-theme) .fld textarea,:host-context(body.light-theme) .fld select{background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.10);color:#0F172A}
-:host-context(body.light) .fld-hint, :host-context(body.light-theme) .fld-hint, :host-context(.theme-light) .fld-hint {color:#64748B}
-:host-context(body.light) .up-t, :host-context(body.light-theme) .up-t, :host-context(.theme-light) .up-t {color:#0F172A}
-:host-context(body.light) .up-s, :host-context(body.light-theme) .up-s, :host-context(.theme-light) .up-s {color:#64748B}
-:host-context(body.light) .doc-n, :host-context(body.light-theme) .doc-n, :host-context(.theme-light) .doc-n {color:#0F172A}
-:host-context(body.light) .doc-s, :host-context(body.light-theme) .doc-s, :host-context(.theme-light) .doc-s {color:#64748B}
-:host-context(body.light) .doc-row, :host-context(body.light-theme) .doc-row, :host-context(.theme-light) .doc-row {background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
-:host-context(body.light) .btn-sec, :host-context(body.light-theme) .btn-sec, :host-context(.theme-light) .btn-sec {background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
-:host-context(body.light) .notice, :host-context(body.light-theme) .notice, :host-context(.theme-light) .notice {background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.14)}
-:host-context(body.light) .chip-off, :host-context(body.light-theme) .chip-off, :host-context(.theme-light) .chip-off {background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.08);color:#64748B}
-:host-context(body.light) .inner-foot, :host-context(body.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot {border-color:rgba(15,23,42,.06);color:#64748B}
-:host-context(body.light) .inner-foot-links a, :host-context(body.light-theme) .inner-foot-links a, :host-context(.theme-light) .inner-foot-links a {color:#64748B}
+:host-context(body.light-theme) .co-card, :host-context(body.theme-light) .co-card, :host-context(.light-theme) .co-card, :host-context(.theme-light) .co-card {background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .pg-title, :host-context(body.theme-light) .pg-title, :host-context(.light-theme) .pg-title, :host-context(.theme-light) .pg-title {color:#0F172A}
+:host-context(body.light-theme) .pg-sub, :host-context(body.theme-light) .pg-sub, :host-context(.light-theme) .pg-sub, :host-context(.theme-light) .pg-sub {color:#64748B}
+:host-context(body.light-theme) .sec-ttl, :host-context(body.theme-light) .sec-ttl, :host-context(.light-theme) .sec-ttl, :host-context(.theme-light) .sec-ttl {color:#0F172A}
+:host-context(body.light-theme) .fld label, :host-context(body.theme-light) .fld label, :host-context(.light-theme) .fld label, :host-context(.theme-light) .fld label {color:#0F172A}
+:host-context(body.light-theme) .fld input,:host-context(body.light-theme) .fld textarea,:host-context(body.light-theme) .fld select,:host-context(body.theme-light) .fld input,:host-context(body.theme-light) .fld textarea,:host-context(body.theme-light) .fld select,:host-context(.light-theme) .fld input,:host-context(.light-theme) .fld textarea,:host-context(.light-theme) .fld select,:host-context(.theme-light) .fld input,:host-context(.theme-light) .fld textarea,:host-context(.theme-light) .fld select{background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.10);color:#0F172A}
+:host-context(body.light-theme) .fld-hint, :host-context(body.theme-light) .fld-hint, :host-context(.light-theme) .fld-hint, :host-context(.theme-light) .fld-hint {color:#64748B}
+:host-context(body.light-theme) .up-t, :host-context(body.theme-light) .up-t, :host-context(.light-theme) .up-t, :host-context(.theme-light) .up-t {color:#0F172A}
+:host-context(body.light-theme) .up-s, :host-context(body.theme-light) .up-s, :host-context(.light-theme) .up-s, :host-context(.theme-light) .up-s {color:#64748B}
+:host-context(body.light-theme) .doc-n, :host-context(body.theme-light) .doc-n, :host-context(.light-theme) .doc-n, :host-context(.theme-light) .doc-n {color:#0F172A}
+:host-context(body.light-theme) .doc-s, :host-context(body.theme-light) .doc-s, :host-context(.light-theme) .doc-s, :host-context(.theme-light) .doc-s {color:#64748B}
+:host-context(body.light-theme) .doc-row, :host-context(body.theme-light) .doc-row, :host-context(.light-theme) .doc-row, :host-context(.theme-light) .doc-row {background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
+:host-context(body.light-theme) .btn-sec, :host-context(body.theme-light) .btn-sec, :host-context(.light-theme) .btn-sec, :host-context(.theme-light) .btn-sec {background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
+:host-context(body.light-theme) .notice, :host-context(body.theme-light) .notice, :host-context(.light-theme) .notice, :host-context(.theme-light) .notice {background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.14)}
+:host-context(body.light-theme) .chip-off, :host-context(body.theme-light) .chip-off, :host-context(.light-theme) .chip-off, :host-context(.theme-light) .chip-off {background:rgba(15,23,42,.03);border-color:rgba(15,23,42,.08);color:#64748B}
+:host-context(body.light-theme) .inner-foot, :host-context(body.theme-light) .inner-foot, :host-context(.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot {border-color:rgba(15,23,42,.06);color:#64748B}
+:host-context(body.light-theme) .inner-foot-links a, :host-context(body.theme-light) .inner-foot-links a, :host-context(.light-theme) .inner-foot-links a, :host-context(.theme-light) .inner-foot-links a {color:#64748B}
 
 @media(max-width:767px){
   .grid2{grid-template-columns:1fr}

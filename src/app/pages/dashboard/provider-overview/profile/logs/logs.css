@@ -1,2 +1,144 @@
 :host{display:block;direction:rtl;color:var(--txt,#fff)}*{box-sizing:border-box}.audit-page{min-height:100vh;padding-bottom:36px}.audit-hero{display:flex;align-items:center;gap:14px;padding:18px 20px;margin-bottom:16px;border:1px solid rgba(43,212,199,.16);border-radius:16px;background:linear-gradient(135deg,rgba(43,212,199,.07),rgba(43,127,255,.055),rgba(123,47,190,.05))}.hero-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:#2BD4C7;font-size:24px;background:rgba(43,212,199,.11);border:1px solid rgba(43,212,199,.2)}.audit-hero h1{font-size:19px;margin:0 0 4px;font-weight:900}.audit-hero p{font-size:12px;color:var(--txt-3,#6B7699);margin:0}.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.stat{padding:14px 16px;border:1px solid var(--sec-bd,rgba(255,255,255,.08));border-radius:13px;background:var(--crd-bg,rgba(255,255,255,.03));display:flex;align-items:center;justify-content:space-between}.stat span{font-size:11px;color:var(--txt-3,#6B7699)}.stat strong{font-size:20px}.stat.pending strong{color:#D98A0B}.stat.approved strong{color:#2BD4C7}.stat.rejected strong{color:#FF8C69}.filters-card{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(125px,1fr)) repeat(2,minmax(120px,1fr)) auto;gap:8px;padding:12px;border:1px solid var(--sec-bd,rgba(255,255,255,.08));border-radius:14px;background:var(--crd-bg,rgba(255,255,255,.025));margin-bottom:18px}.filters-card input,.filters-card select{min-width:0;height:39px;border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:0 10px;background:rgba(255,255,255,.04);color:var(--txt,#fff);font:inherit;font-size:11px}.filters-card option{background:#0b1437}.search-wrap{position:relative}.search-wrap span{position:absolute;right:11px;top:8px;color:#6B7699;font-size:18px}.search-wrap input{width:100%;padding-right:34px}.reset-btn{border:1px solid rgba(255,140,105,.18);background:rgba(255,140,105,.06);color:#FF8C69;border-radius:9px;padding:0 12px;font:inherit;font-size:11px;font-weight:700}.timeline{position:relative;display:flex;flex-direction:column;gap:10px}.timeline:before{content:"";position:absolute;right:22px;top:28px;bottom:28px;width:1px;background:linear-gradient(#2BD4C7,rgba(43,127,255,.3),transparent)}.audit-item{position:relative;display:flex;align-items:center;gap:13px;padding:14px 15px;border:1px solid var(--sec-bd,rgba(255,255,255,.08));border-radius:14px;background:var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.012)));cursor:pointer;transition:.18s}.audit-item:hover,.audit-item:focus{outline:none;transform:translateY(-1px);border-color:rgba(43,212,199,.3);box-shadow:0 10px 30px rgba(0,0,0,.12)}.audit-item.critical{border-color:rgba(255,140,105,.18)}.event-icon{position:relative;z-index:1;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;font-size:18px;color:#2BD4C7;background:#10283e;border:1px solid rgba(43,212,199,.2)}.event-icon[data-source=AI]{color:#A56BE0;background:rgba(123,47,190,.13);border-color:rgba(123,47,190,.24)}.event-icon[data-source=ADMIN]{color:#D98A0B;background:rgba(255,180,0,.1);border-color:rgba(255,180,0,.2)}.event-body{flex:1;min-width:0}.event-top{display:flex;align-items:center;gap:9px;margin-bottom:4px}.event-top h2{font-size:13px;font-weight:800;margin:0}.event-body p{font-size:11.5px;color:var(--txt-2,#A8B2D1);margin:0 0 7px;line-height:1.5}.status{display:inline-flex;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;color:#A8B2D1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}.status[data-status=IN_REVIEW]{color:#D98A0B;background:rgba(255,180,0,.09);border-color:rgba(255,180,0,.2)}.status[data-status=APPROVED],.status[data-status=COMPLETED]{color:#0FA99A;background:rgba(15,169,154,.09);border-color:rgba(15,169,154,.2)}.status[data-status=REJECTED]{color:#FF8C69;background:rgba(255,140,105,.08);border-color:rgba(255,140,105,.2)}.event-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.event-meta span,.event-meta time{font-size:9.5px;color:#6B7699;padding-inline-end:7px;border-inline-end:1px solid rgba(255,255,255,.08)}.detail-btn{border:0;background:transparent;color:#6B7699;font-size:24px}.pagination{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px}.pagination span{font-size:11px;color:#6B7699}.pagination button,.empty-state button{padding:8px 14px;border-radius:8px;border:1px solid rgba(43,212,199,.2);background:rgba(43,212,199,.08);color:#2BD4C7;font:inherit;font-size:11px;font-weight:700}.pagination button:disabled{opacity:.35}.empty-state{text-align:center;padding:52px 20px;border:1px dashed rgba(255,255,255,.1);border-radius:15px}.empty-icon{width:50px;height:50px;margin:0 auto 12px;border-radius:14px;display:grid;place-items:center;background:rgba(43,127,255,.08);color:#5DA0FF;font-size:22px}.empty-state h2{font-size:14px;margin:0 0 5px}.empty-state p{font-size:11px;color:#6B7699;margin:0 0 14px}.loading-list{display:flex;flex-direction:column;gap:10px}.skeleton{height:82px;border-radius:14px;padding:15px;display:flex;gap:12px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06)}.skeleton i,.skeleton b,.skeleton span{display:block;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.09),rgba(255,255,255,.04));background-size:200%;animation:pulse 1.4s infinite}.skeleton i{width:42px;height:42px}.skeleton div{flex:1}.skeleton b{width:30%;height:12px;margin-bottom:10px}.skeleton span{width:60%;height:9px}@keyframes pulse{to{background-position:-200%}}.drawer-overlay{position:fixed;inset:0;z-index:1000;background:rgba(2,6,20,.7);backdrop-filter:blur(4px)}.detail-drawer{position:absolute;top:0;bottom:0;left:0;width:min(520px,94vw);overflow:auto;padding:22px;background:#0b1437;border-right:1px solid rgba(43,212,199,.18);box-shadow:20px 0 60px rgba(0,0,0,.4);animation:slide .2s ease}@keyframes slide{from{transform:translateX(-100%)}}.drawer-head{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,.08)}.drawer-head small{color:#2BD4C7;font-size:10px}.drawer-head h2{font-size:17px;margin:4px 0 0}.drawer-head button{width:32px;height:32px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#A8B2D1;font-size:20px}.detail-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px}.detail-summary>span:not(.status),.detail-summary time{font-size:10px;color:#6B7699}.drawer-description{font-size:12px;color:#A8B2D1;line-height:1.65}.reference,.security-note{padding:11px 12px;border-radius:10px;background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.13);font-size:10px;color:#A8B2D1}.reference{display:flex;flex-direction:column;gap:5px}.reference code{direction:ltr;text-align:left;color:#5DA0FF}.change-section{margin-top:16px}.change-section h3{font-size:11px;color:#D98A0B;margin:0 0 7px}.change-section.after h3{color:#2BD4C7}.change-row{display:grid;grid-template-columns:130px 1fr;gap:10px;padding:9px;border-bottom:1px solid rgba(255,255,255,.06)}.change-row span{font-size:10px;color:#6B7699}.change-row code{white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;font-size:10.5px;color:#A8B2D1;direction:ltr;text-align:left}.security-note{margin-top:20px;color:#9bb3c9;background:rgba(43,212,199,.04);border-color:rgba(43,212,199,.12)}.drawer-loading{text-align:center;color:#6B7699;padding:50px}.audit-page button{cursor:pointer}
 @media(max-width:1100px){.filters-card{grid-template-columns:repeat(3,1fr)}.search-wrap{grid-column:span 2}.stats-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.audit-hero{align-items:flex-start}.stats-grid{grid-template-columns:1fr 1fr}.filters-card{grid-template-columns:1fr 1fr}.search-wrap{grid-column:1/-1}.audit-item{align-items:flex-start}.detail-btn{display:none}.event-top{align-items:flex-start;flex-direction:column}.event-meta span:nth-of-type(n+3){display:none}.change-row{grid-template-columns:1fr}.detail-drawer{width:100%}}
+
+/* ===== Light Mode =====
+   Note: most surfaces/text here already use the global CSS custom
+   properties (--txt, --txt-2, --txt-3, --sec-bd, --crd-bg) which are
+   redefined for light theme in src/styles.css, so they adapt automatically.
+   The overrides below only cover values that are hardcoded (not var()-based)
+   and would otherwise stay dark-mode-only, including a real bug where the
+   detail drawer keeps a hardcoded dark navy background while its text
+   switches to dark (var-based) colors, making it unreadable in light mode. */
+:host-context(body.light-theme) .filters-card input,
+:host-context(body.theme-light) .filters-card input,
+:host-context(.light-theme) .filters-card input,
+:host-context(.theme-light) .filters-card input,
+:host-context(body.light-theme) .filters-card select,
+:host-context(body.theme-light) .filters-card select,
+:host-context(.light-theme) .filters-card select,
+:host-context(.theme-light) .filters-card select{background:#fff;border-color:#D8DFEC}
+
+:host-context(body.light-theme) .filters-card option,
+:host-context(body.theme-light) .filters-card option,
+:host-context(.light-theme) .filters-card option,
+:host-context(.theme-light) .filters-card option{background:#fff;color:#0F172A}
+
+:host-context(body.light-theme) .search-wrap span,
+:host-context(body.theme-light) .search-wrap span,
+:host-context(.light-theme) .search-wrap span,
+:host-context(.theme-light) .search-wrap span,
+:host-context(body.light-theme) .detail-btn,
+:host-context(body.theme-light) .detail-btn,
+:host-context(.light-theme) .detail-btn,
+:host-context(.theme-light) .detail-btn,
+:host-context(body.light-theme) .pagination span,
+:host-context(body.theme-light) .pagination span,
+:host-context(.light-theme) .pagination span,
+:host-context(.theme-light) .pagination span,
+:host-context(body.light-theme) .empty-state p,
+:host-context(body.theme-light) .empty-state p,
+:host-context(.light-theme) .empty-state p,
+:host-context(.theme-light) .empty-state p,
+:host-context(body.light-theme) .event-meta span,
+:host-context(body.theme-light) .event-meta span,
+:host-context(.light-theme) .event-meta span,
+:host-context(.theme-light) .event-meta span,
+:host-context(body.light-theme) .event-meta time,
+:host-context(body.theme-light) .event-meta time,
+:host-context(.light-theme) .event-meta time,
+:host-context(.theme-light) .event-meta time,
+:host-context(body.light-theme) .change-row span,
+:host-context(body.theme-light) .change-row span,
+:host-context(.light-theme) .change-row span,
+:host-context(.theme-light) .change-row span,
+:host-context(body.light-theme) .detail-summary>span:not(.status),
+:host-context(body.theme-light) .detail-summary>span:not(.status),
+:host-context(.light-theme) .detail-summary>span:not(.status),
+:host-context(.theme-light) .detail-summary>span:not(.status),
+:host-context(body.light-theme) .detail-summary time,
+:host-context(body.theme-light) .detail-summary time,
+:host-context(.light-theme) .detail-summary time,
+:host-context(.theme-light) .detail-summary time,
+:host-context(body.light-theme) .drawer-loading,
+:host-context(body.theme-light) .drawer-loading,
+:host-context(.light-theme) .drawer-loading,
+:host-context(.theme-light) .drawer-loading{color:#64748B}
+
+:host-context(body.light-theme) .status,
+:host-context(body.theme-light) .status,
+:host-context(.light-theme) .status,
+:host-context(.theme-light) .status{background:#F1F5F9;border-color:#E2E8F0;color:#475569}
+
+:host-context(body.light-theme) .empty-state,
+:host-context(body.theme-light) .empty-state,
+:host-context(.light-theme) .empty-state,
+:host-context(.theme-light) .empty-state{border-color:#D8DFEC}
+
+:host-context(body.light-theme) .skeleton,
+:host-context(body.theme-light) .skeleton,
+:host-context(.light-theme) .skeleton,
+:host-context(.theme-light) .skeleton{background:#fff;border-color:#E2E8F4}
+
+:host-context(body.light-theme) .skeleton i,
+:host-context(body.theme-light) .skeleton i,
+:host-context(.light-theme) .skeleton i,
+:host-context(.theme-light) .skeleton i,
+:host-context(body.light-theme) .skeleton b,
+:host-context(body.theme-light) .skeleton b,
+:host-context(.light-theme) .skeleton b,
+:host-context(.theme-light) .skeleton b,
+:host-context(body.light-theme) .skeleton span,
+:host-context(body.theme-light) .skeleton span,
+:host-context(.light-theme) .skeleton span,
+:host-context(.theme-light) .skeleton span{background:linear-gradient(90deg,rgba(15,23,42,.06),rgba(15,23,42,.12),rgba(15,23,42,.06))}
+
+:host-context(body.light-theme) .event-icon,
+:host-context(body.theme-light) .event-icon,
+:host-context(.light-theme) .event-icon,
+:host-context(.theme-light) .event-icon{background:rgba(43,212,199,.11)}
+
+/* Detail drawer: hardcoded dark navy background never adapted, leaving
+   its var()-based (theme-aware) text unreadable in light mode. */
+:host-context(body.light-theme) .detail-drawer,
+:host-context(body.theme-light) .detail-drawer,
+:host-context(.light-theme) .detail-drawer,
+:host-context(.theme-light) .detail-drawer{background:#fff;border-right-color:#E7EAF1;box-shadow:20px 0 60px rgba(15,23,42,.12)}
+
+:host-context(body.light-theme) .drawer-head,
+:host-context(body.theme-light) .drawer-head,
+:host-context(.light-theme) .drawer-head,
+:host-context(.theme-light) .drawer-head{border-bottom-color:#E7EAF1}
+
+:host-context(body.light-theme) .drawer-head button,
+:host-context(body.theme-light) .drawer-head button,
+:host-context(.light-theme) .drawer-head button,
+:host-context(.theme-light) .drawer-head button{background:#F1F5F9;border-color:#D8DFEC;color:#475569}
+
+:host-context(body.light-theme) .drawer-description,
+:host-context(body.theme-light) .drawer-description,
+:host-context(.light-theme) .drawer-description,
+:host-context(.theme-light) .drawer-description,
+:host-context(body.light-theme) .change-row code,
+:host-context(body.theme-light) .change-row code,
+:host-context(.light-theme) .change-row code,
+:host-context(.theme-light) .change-row code{color:#475569}
+
+:host-context(body.light-theme) .change-row,
+:host-context(body.theme-light) .change-row,
+:host-context(.light-theme) .change-row,
+:host-context(.theme-light) .change-row{border-bottom-color:#F1F5F9}
+
+:host-context(body.light-theme) .reference,
+:host-context(body.theme-light) .reference,
+:host-context(.light-theme) .reference,
+:host-context(.theme-light) .reference{background:#F1F5FB;border-color:#D6E2F7;color:#475569}
+
+:host-context(body.light-theme) .reference code,
+:host-context(body.theme-light) .reference code,
+:host-context(.light-theme) .reference code,
+:host-context(.theme-light) .reference code{color:#1D6FE0}
+
+:host-context(body.light-theme) .security-note,
+:host-context(body.theme-light) .security-note,
+:host-context(.light-theme) .security-note,
+:host-context(.theme-light) .security-note{color:#475569;background:rgba(15,138,127,.06);border-color:rgba(15,138,127,.18)}

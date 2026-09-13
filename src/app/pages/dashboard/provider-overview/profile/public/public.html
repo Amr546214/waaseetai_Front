@@ -14,7 +14,7 @@
 		</div>
 		<div style="display:flex;gap:8px;flex-wrap:wrap">
 			<a routerLink="/provider-overview/profile/data" class="btn btn-pri">
-				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
 				تعديل الملف
 			</a>
 			<a routerLink="/provider-overview/profile/requests" class="btn btn-sec">
@@ -362,8 +362,8 @@
 			<div class="text-[13px] font-black text-[var(--txt-2)] flex items-center gap-2 mb-4">
 				<svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
 					<circle cx="12" cy="7" r="4" />
+					<path d="M4 21v-1a8 8 0 0 1 16 0v1" />
 				</svg>
 				البيانات الأساسية
 			</div>
@@ -495,9 +495,8 @@
 					class="w-11 h-11 rounded-[12px] bg-[#2B7FFF]/20 flex items-center justify-center shrink-0 text-[#5DA0FF]">
 					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 						stroke-linecap="round" stroke-linejoin="round">
-						<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-						<line x1="8" y1="21" x2="16" y2="21" />
-						<line x1="12" y1="17" x2="12" y2="21" />
+						<polyline points="16 18 22 12 16 6" />
+						<polyline points="8 6 2 12 8 18" />
 					</svg>
 				</div>
 				<div>
@@ -577,7 +576,9 @@
 						<div class="text-[12px] font-black text-[#2bd4c7] flex items-center gap-2 mb-3">
 							<svg class="w-4 h-4 text-[#a56be0]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 								stroke-width="2">
-								<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+								<line x1="18" y1="20" x2="18" y2="10" />
+								<line x1="12" y1="20" x2="12" y2="4" />
+								<line x1="6" y1="20" x2="6" y2="14" />
 							</svg>
 							بطاقة أداء الاختبار (Assessment Scorecard)
 						</div>
@@ -660,8 +661,9 @@
 							<div class="text-[11.5px] font-extrabold text-[#c084fc] flex items-center gap-1.5 mb-2">
 								<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 									stroke-width="2">
-									<path
-										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+									<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+									<line x1="12" y1="9" x2="12" y2="13" />
+									<line x1="12" y1="17" x2="12.01" y2="17" />
 								</svg>
 								توصيات التحديث والتطوير
 							</div>

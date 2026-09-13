@@ -42,20 +42,20 @@
 @keyframes skl{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 /* Light Mode */
-:host-context(body.light) .co-card, :host-context(body.light-theme) .co-card, :host-context(.theme-light) .co-card {background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .pg-title, :host-context(body.light-theme) .pg-title, :host-context(.theme-light) .pg-title {color:#0F172A}
-:host-context(body.light) .pg-sub, :host-context(body.light-theme) .pg-sub, :host-context(.theme-light) .pg-sub {color:#64748B}
-:host-context(body.light) .sec-ttl, :host-context(body.light-theme) .sec-ttl, :host-context(.theme-light) .sec-ttl {color:#0F172A}
-:host-context(body.light) .rk-s, :host-context(body.light-theme) .rk-s, :host-context(.theme-light) .rk-s {color:#64748B}
-:host-context(body.light) .mt-n, :host-context(body.light-theme) .mt-n, :host-context(.theme-light) .mt-n {color:#0F172A}
-:host-context(body.light) .mt-v, :host-context(body.light-theme) .mt-v, :host-context(.theme-light) .mt-v {color:#0F172A}
-:host-context(body.light) .mt-row, :host-context(body.light-theme) .mt-row, :host-context(.theme-light) .mt-row {background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
-:host-context(body.light) .rf-txt, :host-context(body.light-theme) .rf-txt, :host-context(.theme-light) .rf-txt {color:#0F172A}
-:host-context(body.light) .btn-sec, :host-context(body.light-theme) .btn-sec, :host-context(.theme-light) .btn-sec {background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
-:host-context(body.light) .inner-foot, :host-context(body.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot {border-color:rgba(15,23,42,.06);color:#64748B}
-:host-context(body.light) .inner-foot-links a, :host-context(body.light-theme) .inner-foot-links a, :host-context(.theme-light) .inner-foot-links a {color:#64748B}
-:host-context(body.light) .rk-bar, :host-context(body.light-theme) .rk-bar, :host-context(.theme-light) .rk-bar {background:#E2E8F4}
-:host-context(body.light) .mt-bar, :host-context(body.light-theme) .mt-bar, :host-context(.theme-light) .mt-bar {background:#E2E8F4}
+:host-context(body.light-theme) .co-card, :host-context(body.theme-light) .co-card, :host-context(.light-theme) .co-card, :host-context(.theme-light) .co-card {background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .pg-title, :host-context(body.theme-light) .pg-title, :host-context(.light-theme) .pg-title, :host-context(.theme-light) .pg-title {color:#0F172A}
+:host-context(body.light-theme) .pg-sub, :host-context(body.theme-light) .pg-sub, :host-context(.light-theme) .pg-sub, :host-context(.theme-light) .pg-sub {color:#64748B}
+:host-context(body.light-theme) .sec-ttl, :host-context(body.theme-light) .sec-ttl, :host-context(.light-theme) .sec-ttl, :host-context(.theme-light) .sec-ttl {color:#0F172A}
+:host-context(body.light-theme) .rk-s, :host-context(body.theme-light) .rk-s, :host-context(.light-theme) .rk-s, :host-context(.theme-light) .rk-s {color:#64748B}
+:host-context(body.light-theme) .mt-n, :host-context(body.theme-light) .mt-n, :host-context(.light-theme) .mt-n, :host-context(.theme-light) .mt-n {color:#0F172A}
+:host-context(body.light-theme) .mt-v, :host-context(body.theme-light) .mt-v, :host-context(.light-theme) .mt-v, :host-context(.theme-light) .mt-v {color:#0F172A}
+:host-context(body.light-theme) .mt-row, :host-context(body.theme-light) .mt-row, :host-context(.light-theme) .mt-row, :host-context(.theme-light) .mt-row {background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
+:host-context(body.light-theme) .rf-txt, :host-context(body.theme-light) .rf-txt, :host-context(.light-theme) .rf-txt, :host-context(.theme-light) .rf-txt {color:#0F172A}
+:host-context(body.light-theme) .btn-sec, :host-context(body.theme-light) .btn-sec, :host-context(.light-theme) .btn-sec, :host-context(.theme-light) .btn-sec {background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
+:host-context(body.light-theme) .inner-foot, :host-context(body.theme-light) .inner-foot, :host-context(.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot {border-color:rgba(15,23,42,.06);color:#64748B}
+:host-context(body.light-theme) .inner-foot-links a, :host-context(body.theme-light) .inner-foot-links a, :host-context(.light-theme) .inner-foot-links a, :host-context(.theme-light) .inner-foot-links a {color:#64748B}
+:host-context(body.light-theme) .rk-bar, :host-context(body.theme-light) .rk-bar, :host-context(.light-theme) .rk-bar, :host-context(.theme-light) .rk-bar {background:#E2E8F4}
+:host-context(body.light-theme) .mt-bar, :host-context(body.theme-light) .mt-bar, :host-context(.light-theme) .mt-bar, :host-context(.theme-light) .mt-bar {background:#E2E8F4}
 
 @media(max-width:767px){
   .grid2{grid-template-columns:1fr}

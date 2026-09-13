@@ -146,3 +146,29 @@
   padding: 24px;
   margin-bottom: 16px;
 }
+
+/* Light Mode */
+:host-context(body.light-theme) .spec-card,
+:host-context(body.theme-light) .spec-card,
+:host-context(.light-theme) .spec-card,
+:host-context(.theme-light) .spec-card { background: #fff; border-color: #E2E8F4; }
+:host-context(body.light-theme) .spec-card:hover,
+:host-context(body.theme-light) .spec-card:hover,
+:host-context(.light-theme) .spec-card:hover,
+:host-context(.theme-light) .spec-card:hover { border-color: rgba(43,212,199,.35); }
+:host-context(body.light-theme) .spec-card.selected,
+:host-context(body.theme-light) .spec-card.selected,
+:host-context(.light-theme) .spec-card.selected,
+:host-context(.theme-light) .spec-card.selected { background: rgba(43,212,199,.06); border-color: rgba(43,212,199,.45); }
+:host-context(body.light-theme) .sub-chip,
+:host-context(body.theme-light) .sub-chip,
+:host-context(.light-theme) .sub-chip,
+:host-context(.theme-light) .sub-chip { background: #F8FAFC; border-color: #E2E8F4; color: #475569; }
+:host-context(body.light-theme) .sub-chip.selected,
+:host-context(body.theme-light) .sub-chip.selected,
+:host-context(.light-theme) .sub-chip.selected,
+:host-context(.theme-light) .sub-chip.selected { background: rgba(43,212,199,.08); border-color: rgba(43,212,199,.35); color: #0F8A7F; }
+:host-context(body.light-theme) .step-circle,
+:host-context(body.theme-light) .step-circle,
+:host-context(.light-theme) .step-circle,
+:host-context(.theme-light) .step-circle { background: #F0F4FA; border-color: #CBD5E1; color: #475569; }
