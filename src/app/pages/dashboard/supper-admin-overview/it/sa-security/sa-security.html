@@ -66,9 +66,9 @@
               <td><span class="it-bdg" [style.background]="severityStyle(e.severity).bg" [style.color]="severityStyle(e.severity).color">{{ severityLabel(e.severity) }}</span></td>
               <td>
                 @if (e.allowed) {
-                  <span class="itsec-status" style="color:#0FA99A">✓ مسموح</span>
+                  <span class="itsec-status txt-green">✓ مسموح</span>
                 } @else {
-                  <span class="itsec-status" style="color:#FF8C69">✗ محجوب</span>
+                  <span class="itsec-status txt-coral">✗ محجوب</span>
                 }
               </td>
             </tr>

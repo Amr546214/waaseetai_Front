@@ -51,43 +51,153 @@
 /* ==========================================================================
    LIGHT MODE OVERRIDES — based on design reference P-IT-006 light polish
    ========================================================================== */
-:host-context(body.light-theme),
-:host-context(body.theme-light),
-:host-context(.light-theme),
-:host-context(.theme-light) {
+:host-context(body.light-theme) .it-ttl,
+:host-context(body.theme-light) .it-ttl,
+:host-context(.light-theme) .it-ttl,
+:host-context(.theme-light) .it-ttl {
+  color: #0F172A !important;
+}
 
-  .it-ttl { color: #0F172A !important; }
-  .it-sub { color: #64748B !important; }
+:host-context(body.light-theme) .it-sub,
+:host-context(body.theme-light) .it-sub,
+:host-context(.light-theme) .it-sub,
+:host-context(.theme-light) .it-sub {
+  color: #64748B !important;
+}
 
-  .it-btn-ghost { background: rgba(7,13,36,.05) !important; border-color: rgba(7,13,36,.12) !important; color: #475569 !important; }
-  .it-btn-ghost:hover { background: rgba(7,13,36,.10) !important; color: #1E293B !important; }
+:host-context(body.light-theme) .it-btn-ghost,
+:host-context(body.theme-light) .it-btn-ghost,
+:host-context(.light-theme) .it-btn-ghost,
+:host-context(.theme-light) .it-btn-ghost {
+  background: rgba(7,13,36,.05) !important; border-color: rgba(7,13,36,.12) !important; color: #475569 !important;
+}
 
-  .it-ai { background: linear-gradient(135deg, rgba(123,47,190,.05), rgba(43,127,255,.03)) !important; border-color: rgba(123,47,190,.18) !important; }
-  .it-ai-lbl { color: #6B27A5 !important; }
-  .it-ai-txt { color: #475569 !important; }
-  .it-ai-badge { color: #6B27A5 !important; }
+:host-context(body.light-theme) .it-btn-ghost:hover,
+:host-context(body.theme-light) .it-btn-ghost:hover,
+:host-context(.light-theme) .it-btn-ghost:hover,
+:host-context(.theme-light) .it-btn-ghost:hover {
+  background: rgba(7,13,36,.10) !important; color: #1E293B !important;
+}
 
-  .it-kpi-card {
-    background: #fff !important;
+:host-context(body.light-theme) .it-ai,
+:host-context(body.theme-light) .it-ai,
+:host-context(.light-theme) .it-ai,
+:host-context(.theme-light) .it-ai {
+  background: linear-gradient(135deg, rgba(123,47,190,.05), rgba(43,127,255,.03)) !important; border-color: rgba(123,47,190,.18) !important;
+}
+
+:host-context(body.light-theme) .it-ai-lbl,
+:host-context(body.theme-light) .it-ai-lbl,
+:host-context(.light-theme) .it-ai-lbl,
+:host-context(.theme-light) .it-ai-lbl {
+  color: #6B27A5 !important;
+}
+
+:host-context(body.light-theme) .it-ai-txt,
+:host-context(body.theme-light) .it-ai-txt,
+:host-context(.light-theme) .it-ai-txt,
+:host-context(.theme-light) .it-ai-txt {
+  color: #475569 !important;
+}
+
+:host-context(body.light-theme) .it-ai-badge,
+:host-context(body.theme-light) .it-ai-badge,
+:host-context(.light-theme) .it-ai-badge,
+:host-context(.theme-light) .it-ai-badge {
+  color: #6B27A5 !important;
+}
+
+:host-context(body.light-theme) .it-kpi-card,
+:host-context(body.theme-light) .it-kpi-card,
+:host-context(.light-theme) .it-kpi-card,
+:host-context(.theme-light) .it-kpi-card {
+  background: #fff !important;
     border-color: #E7EAF1 !important;
     box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
-  }
-  .it-kpi-lbl { color: #64748B !important; }
-  .it-kpi-unit { color: #64748B !important; }
+}
 
-  .it-tbl-card {
-    background: #fff !important;
+:host-context(body.light-theme) .it-kpi-lbl,
+:host-context(body.theme-light) .it-kpi-lbl,
+:host-context(.light-theme) .it-kpi-lbl,
+:host-context(.theme-light) .it-kpi-lbl {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .it-kpi-unit,
+:host-context(body.theme-light) .it-kpi-unit,
+:host-context(.light-theme) .it-kpi-unit,
+:host-context(.theme-light) .it-kpi-unit {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .it-tbl-card,
+:host-context(body.theme-light) .it-tbl-card,
+:host-context(.light-theme) .it-tbl-card,
+:host-context(.theme-light) .it-tbl-card {
+  background: #fff !important;
     border-color: #E7EAF1 !important;
     box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
-  }
-  .it-tbl-hdr { border-bottom-color: #E7EAF1 !important; }
-  .it-tbl-ttl { color: #0F172A !important; }
-  .it-tbl-meta { color: #64748B !important; }
-  .it-tbl thead th { color: #64748B !important; background: rgba(7,13,36,.03) !important; border-bottom-color: #E7EAF1 !important; }
-  .it-tbl tbody td { color: #475569 !important; border-bottom-color: #E7EAF1 !important; }
-  .it-tbl tbody tr:hover td { background: rgba(7,13,36,.03) !important; }
-  .it-tbl-strong { color: #0F172A !important; }
-  .itdb-muted { color: #64748B !important; }
+}
 
-  .it-foot { border-top-color: #E7EAF1 !important; color: #64748B !important; }
+:host-context(body.light-theme) .it-tbl-hdr,
+:host-context(body.theme-light) .it-tbl-hdr,
+:host-context(.light-theme) .it-tbl-hdr,
+:host-context(.theme-light) .it-tbl-hdr {
+  border-bottom-color: #E7EAF1 !important;
+}
+
+:host-context(body.light-theme) .it-tbl-ttl,
+:host-context(body.theme-light) .it-tbl-ttl,
+:host-context(.light-theme) .it-tbl-ttl,
+:host-context(.theme-light) .it-tbl-ttl {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .it-tbl-meta,
+:host-context(body.theme-light) .it-tbl-meta,
+:host-context(.light-theme) .it-tbl-meta,
+:host-context(.theme-light) .it-tbl-meta {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .it-tbl thead th,
+:host-context(body.theme-light) .it-tbl thead th,
+:host-context(.light-theme) .it-tbl thead th,
+:host-context(.theme-light) .it-tbl thead th {
+  color: #64748B !important; background: rgba(7,13,36,.03) !important; border-bottom-color: #E7EAF1 !important;
+}
+
+:host-context(body.light-theme) .it-tbl tbody td,
+:host-context(body.theme-light) .it-tbl tbody td,
+:host-context(.light-theme) .it-tbl tbody td,
+:host-context(.theme-light) .it-tbl tbody td {
+  color: #475569 !important; border-bottom-color: #E7EAF1 !important;
+}
+
+:host-context(body.light-theme) .it-tbl tbody tr:hover td,
+:host-context(body.theme-light) .it-tbl tbody tr:hover td,
+:host-context(.light-theme) .it-tbl tbody tr:hover td,
+:host-context(.theme-light) .it-tbl tbody tr:hover td {
+  background: rgba(7,13,36,.03) !important;
+}
+
+:host-context(body.light-theme) .it-tbl-strong,
+:host-context(body.theme-light) .it-tbl-strong,
+:host-context(.light-theme) .it-tbl-strong,
+:host-context(.theme-light) .it-tbl-strong {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .itdb-muted,
+:host-context(body.theme-light) .itdb-muted,
+:host-context(.light-theme) .itdb-muted,
+:host-context(.theme-light) .itdb-muted {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .it-foot,
+:host-context(body.theme-light) .it-foot,
+:host-context(.light-theme) .it-foot,
+:host-context(.theme-light) .it-foot {
+  border-top-color: #E7EAF1 !important; color: #64748B !important;
 }

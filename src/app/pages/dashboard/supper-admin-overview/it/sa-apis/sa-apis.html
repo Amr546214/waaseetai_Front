@@ -82,9 +82,9 @@
               <tr>
                 <td><span class="it-method" [style.background]="methodStyle(e.method).bg" [style.color]="methodStyle(e.method).color">{{ e.method }}</span></td>
                 <td class="it-tbl-strong" style="font-family:monospace;font-size:12px">{{ e.path }}</td>
-                <td style="font-weight:700;color:#2BD4C7">{{ e.usage | number }}</td>
+                <td style="font-weight:700" class="txt-teal">{{ e.usage | number }}</td>
                 <td [style.color]="e.status === 'healthy' ? '#0FA99A' : '#FFB400'">{{ e.avgLatency }}ms</td>
-                <td style="color:#6B7699">{{ e.p99Latency }}ms</td>
+                <td class="txt-muted">{{ e.p99Latency }}ms</td>
                 <td [style.color]="e.status === 'healthy' ? '#0FA99A' : '#FFB400'">{{ e.errorRate.toFixed(2) }}%</td>
                 <td><span class="it-bdg" [style.background]="statusStyle(e.status).bg" [style.color]="statusStyle(e.status).color">{{ statusLabel(e.status) }}</span></td>
               </tr>
