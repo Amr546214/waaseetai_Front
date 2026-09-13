@@ -2,7 +2,7 @@
 /* ThemeService applies: body.light-theme, body.theme-light, html.light-theme, html.theme-light */
 :host-context(body.light-theme), :host-context(body.theme-light),
 :host-context(.light-theme), :host-context(.theme-light) {
-  color: #0F172A;
+  color: #1E293B;
 }
 
 /* ---- Page title & subtitle ---- */
@@ -77,7 +77,7 @@
 :host-context(body.light-theme) .help-answer,
 :host-context(body.theme-light) .help-answer,
 :host-context(.light-theme) .help-answer,
-:host-context(.theme-light) .help-answer { border-top-color: rgba(123,47,190,.18) !important; }
+:host-context(.theme-light) .help-answer { border-top-color: rgba(123,47,190,.2) !important; }
 :host-context(body.light-theme) .ha-text,
 :host-context(body.theme-light) .ha-text,
 :host-context(.light-theme) .ha-text,

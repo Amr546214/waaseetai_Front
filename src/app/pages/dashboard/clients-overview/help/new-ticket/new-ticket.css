@@ -66,25 +66,25 @@ select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image
 /* === Light mode === */
 :host-context(body.light) .nt-ttl,
 :host-context(.light-theme) .nt-ttl,
-:host-context(.theme-light) .nt-ttl{color:#070D24}
+:host-context(.theme-light) .nt-ttl{color:#0F172A}
 :host-context(body.light) .nt-sub,
 :host-context(.light-theme) .nt-sub,
-:host-context(.theme-light) .nt-sub{color:#56607D}
+:host-context(.theme-light) .nt-sub{color:#475569}
 :host-context(body.light) .bk-link,
 :host-context(.light-theme) .bk-link,
 :host-context(.theme-light) .bk-link{color:#56607D}
 :host-context(body.light) .bk-link:hover,
 :host-context(.light-theme) .bk-link:hover,
-:host-context(.theme-light) .bk-link:hover{color:#0F8A7F}
+:host-context(.theme-light) .bk-link:hover{color:#0A6F64}
 :host-context(body.light) .form-card,
 :host-context(.light-theme) .form-card,
-:host-context(.theme-light) .form-card{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(.theme-light) .form-card{background:#fff;border-color:#E2E8F4;box-shadow:0 2px 10px rgba(15,23,42,.05)}
 :host-context(body.light) .inp-label,
 :host-context(.light-theme) .inp-label,
-:host-context(.theme-light) .inp-label{color:#070D24}
+:host-context(.theme-light) .inp-label{color:#475569}
 :host-context(body.light) .inp-field,
 :host-context(.light-theme) .inp-field,
-:host-context(.theme-light) .inp-field{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
+:host-context(.theme-light) .inp-field{background:#F8FAFC;border-color:#CBD5E1;color:#0F172A}
 :host-context(body.light) .inp-field:focus,
 :host-context(.light-theme) .inp-field:focus,
 :host-context(.theme-light) .inp-field:focus{border-color:#2BD4C7}
@@ -96,10 +96,13 @@ select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image
 :host-context(.theme-light) .upload-area{background:#F3F5FA;border-color:#D8DFEC}
 :host-context(body.light) .upload-ttl,
 :host-context(.light-theme) .upload-ttl,
-:host-context(.theme-light) .upload-ttl{color:#56607D}
+:host-context(.theme-light) .upload-ttl{color:#475569}
+:host-context(body.light) .fld-hint,
+:host-context(.light-theme) .fld-hint,
+:host-context(.theme-light) .fld-hint{color:#94A3B8}
 :host-context(body.light) .btn-ghost,
 :host-context(.light-theme) .btn-ghost,
-:host-context(.theme-light) .btn-ghost{color:#56607D;border-color:#E7EAF1}
+:host-context(.theme-light) .btn-ghost{color:#475569;border-color:#E2E8F4}
 :host-context(body.light) .btn-ghost:hover,
 :host-context(.light-theme) .btn-ghost:hover,
 :host-context(.theme-light) .btn-ghost:hover{color:#070D24;background:#F3F5FA}
