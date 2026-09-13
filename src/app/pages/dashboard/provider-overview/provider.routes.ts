@@ -44,6 +44,11 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "توقيع العقد" }
 	},
 	{
+		path: 'offers/:id/negotiate',
+		loadComponent: () => import('./offers/negotiate/negotiate').then(m => m.OfferNegotiate),
+		data: { title: "التفاوض على العرض" }
+	},
+	{
 		path: 'projects/progress/:id',
 		loadComponent: () => import('./projects/active/progress/progress').then(m => m.Progress),
 		data: { title: "متابعة المشروع" }
@@ -69,6 +74,11 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "متابعة المشروع" }
 	},
 	{
+		path: 'projects/active/delivery-review/:id',
+		loadComponent: () => import('./projects/active/delivery-review/delivery-review').then(m => m.DeliveryReview),
+		data: { title: "مراجعة التسليم والإغلاق" }
+	},
+	{
 		path: 'projects/phases',
 		redirectTo: 'projects/active',
 		pathMatch: 'full'
@@ -89,6 +99,11 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "سجل المعاملات" }
 	},
 	{
+		path: 'finance/invoices',
+		loadComponent: () => import('./finance/invoices/invoices').then(m => m.InvoicesComponent),
+		data: { title: "فواتير مشاريعي" }
+	},
+	{
 		path: 'business-models/center',
 		loadComponent: () => import('./business-models/center/center').then(m => m.Center),
 		data: { title: "مركز النماذج والخدمات" }
@@ -102,6 +117,11 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'business-models/market',
 		loadComponent: () => import('./business-models/market/market').then(m => m.Market),
 		data: { title: "نماذجي في السوق" }
+	},
+	{
+		path: 'business-models/market/:id',
+		loadComponent: () => import('./business-models/market/model-details/model-details').then(m => m.ModelDetails),
+		data: { title: "تفاصيل النموذج" }
 	},
 	{
 		path: 'business-models/accreditation/new',
@@ -123,6 +143,11 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'disputes',
 		loadComponent: () => import('./disputes/disputes').then(m => m.Disputes),
 		data: { title: "النزاعات" }
+	},
+	{
+		path: 'disputes/:id',
+		loadComponent: () => import('./disputes/dispute-details/dispute-details').then(m => m.DisputeDetails),
+		data: { title: "تفاصيل النزاع" }
 	},
 	{
 		path: 'profile/public',
@@ -184,6 +209,16 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'help',
 		loadComponent: () => import('./help/help').then(m => m.Help),
 		data: { title: "مركز المساعدة" }
+	},
+	{
+		path: 'help/live-support',
+		loadComponent: () => import('./help/live-support/live-support').then(m => m.LiveSupportComponent),
+		data: { title: "الدعم المباشر" }
+	},
+	{
+		path: 'help/tickets',
+		loadComponent: () => import('./help/tickets/tickets').then(m => m.TicketsComponent),
+		data: { title: "تذاكر الدعم" }
 	},
 	{
 		path: 'help/tickets/new',
@@ -252,5 +287,15 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'company/roles-permissions',
 		loadComponent: () => import('./company/roles-permissions/roles-permissions.component').then(m => m.RolesPermissionsComponent),
 		data: { title: "الأدوار والصلاحيات" }
+	},
+	{
+		path: 'company/models',
+		loadComponent: () => import('./company/company-models/company-models').then(m => m.CompanyModels),
+		data: { title: "نماذج الشركة" }
+	},
+	{
+		path: 'company/team-deliveries',
+		loadComponent: () => import('./company/team-deliveries/team-deliveries').then(m => m.TeamDeliveries),
+		data: { title: "سجل تسليمات الفريق" }
 	}
 ];

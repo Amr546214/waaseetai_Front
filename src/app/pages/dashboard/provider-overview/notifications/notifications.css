@@ -13,19 +13,22 @@
    ============================================================ */
 
 /* ---- CSS variable overrides ---- */
-:host-context(body.light),
+:host-context(body.light-theme),
+:host-context(body.theme-light),
 :host-context(.light-theme),
 :host-context(.theme-light) {
-  --txt: #070D24;
-  --txt-3: #56607D;
+  --txt: #0F172A;
+  --txt-3: #475569;
   --crd-bg: #FFFFFF;
   --sec-bd: #E7EAF1;
   --inp-bg: #F6F8FC;
 }
 
 /* ---- Skeleton loaders ---- */
-:host-context(body.light) .skeleton-box,
-:host-context(body.light) .skeleton-row,
+:host-context(body.light-theme) .skeleton-box,
+:host-context(body.theme-light) .skeleton-box,
+:host-context(body.light-theme) .skeleton-row,
+:host-context(body.theme-light) .skeleton-row,
 :host-context(.light-theme) .skeleton-box,
 :host-context(.light-theme) .skeleton-row,
 :host-context(.theme-light) .skeleton-box,
@@ -35,20 +38,23 @@
 }
 
 /* ---- Notification row ---- */
-:host-context(body.light) .nt,
+:host-context(body.light-theme) .nt,
+:host-context(body.theme-light) .nt,
 :host-context(.light-theme) .nt,
 :host-context(.theme-light) .nt {
   background: #FFFFFF;
-  border-color: #E7EAF1;
+  border-color: #D8DFEC;
 }
 
-:host-context(body.light) .nt:hover,
+:host-context(body.light-theme) .nt:hover,
+:host-context(body.theme-light) .nt:hover,
 :host-context(.light-theme) .nt:hover,
 :host-context(.theme-light) .nt:hover {
   border-color: rgba(15, 138, 127, 0.25);
 }
 
-:host-context(body.light) .nt.unread,
+:host-context(body.light-theme) .nt.unread,
+:host-context(body.theme-light) .nt.unread,
 :host-context(.light-theme) .nt.unread,
 :host-context(.theme-light) .nt.unread {
   background: #F0FBFA;
@@ -56,14 +62,16 @@
 }
 
 /* ---- Notification dot ---- */
-:host-context(body.light) .nt-dot,
+:host-context(body.light-theme) .nt-dot,
+:host-context(body.theme-light) .nt-dot,
 :host-context(.light-theme) .nt-dot,
 :host-context(.theme-light) .nt-dot {
   background: #0F8A7F;
 }
 
 /* ---- Filter chips ---- */
-:host-context(body.light) .filter-chip,
+:host-context(body.light-theme) .filter-chip,
+:host-context(body.theme-light) .filter-chip,
 :host-context(.light-theme) .filter-chip,
 :host-context(.theme-light) .filter-chip {
   background: #F6F8FC;
@@ -71,14 +79,16 @@
   color: #56607D;
 }
 
-:host-context(body.light) .filter-chip:hover,
+:host-context(body.light-theme) .filter-chip:hover,
+:host-context(body.theme-light) .filter-chip:hover,
 :host-context(.light-theme) .filter-chip:hover,
 :host-context(.theme-light) .filter-chip:hover {
   background: #E7EAF1;
   color: #070D24;
 }
 
-:host-context(body.light) .filter-chip.active,
+:host-context(body.light-theme) .filter-chip.active,
+:host-context(body.theme-light) .filter-chip.active,
 :host-context(.light-theme) .filter-chip.active,
 :host-context(.theme-light) .filter-chip.active {
   background: #E6FDFB;
@@ -87,14 +97,16 @@
 }
 
 /* ---- Filter chip count ---- */
-:host-context(body.light) .fc-count,
+:host-context(body.light-theme) .fc-count,
+:host-context(body.theme-light) .fc-count,
 :host-context(.light-theme) .fc-count,
 :host-context(.theme-light) .fc-count {
   background: #E7EAF1;
   color: #56607D;
 }
 
-:host-context(body.light) .filter-chip.active .fc-count,
+:host-context(body.light-theme) .filter-chip.active .fc-count,
+:host-context(body.theme-light) .filter-chip.active .fc-count,
 :host-context(.light-theme) .filter-chip.active .fc-count,
 :host-context(.theme-light) .filter-chip.active .fc-count {
   background: rgba(15, 138, 127, 0.2);
@@ -102,21 +114,24 @@
 }
 
 /* ---- Text color overrides (white -> primary) ---- */
-:host-context(body.light) .text-\[var\(--txt\)\],
+:host-context(body.light-theme) .text-\[var\(--txt\)\],
+:host-context(body.theme-light) .text-\[var\(--txt\)\],
 :host-context(.light-theme) .text-\[var\(--txt\)\],
 :host-context(.theme-light) .text-\[var\(--txt\)\] {
-  color: #070D24;
+  color: #0F172A;
 }
 
 /* ---- Secondary/muted text overrides ---- */
-:host-context(body.light) .text-\[var\(--txt-3\)\],
+:host-context(body.light-theme) .text-\[var\(--txt-3\)\],
+:host-context(body.theme-light) .text-\[var\(--txt-3\)\],
 :host-context(.light-theme) .text-\[var\(--txt-3\)\],
 :host-context(.theme-light) .text-\[var\(--txt-3\)\] {
-  color: #56607D;
+  color: #475569;
 }
 
 /* ---- Card / panel backgrounds (rgba(255,255,255,.04) gradients -> solid white) ---- */
-:host-context(body.light) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
+:host-context(body.light-theme) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
+:host-context(body.theme-light) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
 :host-context(.light-theme) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
 :host-context(.theme-light) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\] {
   background: #FFFFFF;
@@ -124,49 +139,56 @@
 }
 
 /* ---- Input/button backgrounds (rgba(255,255,255,.04) -> light) ---- */
-:host-context(body.light) .bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
+:host-context(body.light-theme) .bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
+:host-context(body.theme-light) .bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
 :host-context(.light-theme) .bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
 :host-context(.theme-light) .bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\] {
   background: #F6F8FC;
-  border-color: #E7EAF1;
-  color: #56607D;
+  border-color: #D8DFEC;
+  color: #475569;
 }
 
 /* ---- Secondary borders (rgba(255,255,255,.08/.10) -> #E7EAF1) ---- */
-:host-context(body.light) .border-\[var\(--sec-bd\,rgba\(255\,255\,255\,\.10\)\)\],
+:host-context(body.light-theme) .border-\[var\(--sec-bd\,rgba\(255\,255\,255\,\.10\)\)\],
+:host-context(body.theme-light) .border-\[var\(--sec-bd\,rgba\(255\,255\,255\,\.10\)\)\],
 :host-context(.light-theme) .border-\[var\(--sec-bd\,rgba\(255\,255\,255\,\.10\)\)\],
 :host-context(.theme-light) .border-\[var\(--sec-bd\,rgba\(255\,255\,255\,\.10\)\)\] {
   border-color: #E7EAF1;
 }
 
-:host-context(body.light) .border-\[var\(--sec-bd\)\],
+:host-context(body.light-theme) .border-\[var\(--sec-bd\)\],
+:host-context(body.theme-light) .border-\[var\(--sec-bd\)\],
 :host-context(.light-theme) .border-\[var\(--sec-bd\)\],
 :host-context(.theme-light) .border-\[var\(--sec-bd\)\] {
   border-color: #E7EAF1;
 }
 
 /* ---- Hover backgrounds (rgba(255,255,255,.08) -> light) ---- */
-:host-context(body.light) .hover\:bg-\[rgba\(255\,255\,255\,\.08\)\]:hover,
+:host-context(body.light-theme) .hover\:bg-\[rgba\(255\,255\,255\,\.08\)\]:hover,
+:host-context(body.theme-light) .hover\:bg-\[rgba\(255\,255\,255\,\.08\)\]:hover,
 :host-context(.light-theme) .hover\:bg-\[rgba\(255\,255\,255\,\.08\)\]:hover,
 :host-context(.theme-light) .hover\:bg-\[rgba\(255\,255\,255\,\.08\)\]:hover {
   background: #E7EAF1;
 }
 
-:host-context(body.light) .hover\:text-\[var\(--txt\)\]:hover,
+:host-context(body.light-theme) .hover\:text-\[var\(--txt\)\]:hover,
+:host-context(body.theme-light) .hover\:text-\[var\(--txt\)\]:hover,
 :host-context(.light-theme) .hover\:text-\[var\(--txt\)\]:hover,
 :host-context(.theme-light) .hover\:text-\[var\(--txt\)\]:hover {
-  color: #070D24;
+  color: #0F172A;
 }
 
-/* ---- Action / link text (teal #2BD4C7 -> #0F8A7F) ---- */
-:host-context(body.light) .text-\[\#2BD4C7\],
+/* ---- Action / link text (teal #2BD4C7 -> #0A6F64) ---- */
+:host-context(body.light-theme) .text-\[\#2BD4C7\],
+:host-context(body.theme-light) .text-\[\#2BD4C7\],
 :host-context(.light-theme) .text-\[\#2BD4C7\],
 :host-context(.theme-light) .text-\[\#2BD4C7\] {
-  color: #0F8A7F;
+  color: #0A6F64;
 }
 
 /* ---- Toast panel ---- */
-:host-context(body.light) .backdrop-blur-md,
+:host-context(body.light-theme) .backdrop-blur-md,
+:host-context(body.theme-light) .backdrop-blur-md,
 :host-context(.light-theme) .backdrop-blur-md,
 :host-context(.theme-light) .backdrop-blur-md {
   background: #FFFFFF;
@@ -175,7 +197,8 @@
 }
 
 /* ---- Empty-state icon container ---- */
-:host-context(body.light) .bg-\[rgba\(43\,212\,199\,\.08\)\],
+:host-context(body.light-theme) .bg-\[rgba\(43\,212\,199\,\.08\)\],
+:host-context(body.theme-light) .bg-\[rgba\(43\,212\,199\,\.08\)\],
 :host-context(.light-theme) .bg-\[rgba\(43\,212\,199\,\.08\)\],
 :host-context(.theme-light) .bg-\[rgba\(43\,212\,199\,\.08\)\] {
   background: rgba(15, 138, 127, 0.08);
@@ -237,22 +260,22 @@
 @keyframes skl{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 /* Company Notifications: Light Mode */
-:host-context(body.light) .co-card,:host-context(body.light-theme) .co-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .pg-title,:host-context(body.light-theme) .pg-title{color:#0F172A}
-:host-context(body.light) .pg-sub,:host-context(body.light-theme) .pg-sub{color:#64748B}
-:host-context(body.light) .filter-rail,:host-context(body.light-theme) .filter-rail{background:rgba(246,248,252,.96);border-color:rgba(43,212,199,.18)}
-:host-context(body.light) .fr-period-lbl,:host-context(body.light-theme) .fr-period-lbl{background:rgba(43,127,255,.06);border-color:rgba(43,127,255,.12);color:#2B7FFF}
-:host-context(body.light) .ds,:host-context(body.light-theme) .ds{color:#56607D}
-:host-context(body.light) .fr-search input,:host-context(body.light-theme) .fr-search input{color:#0F172A}
-:host-context(body.light) .ord-tab,:host-context(body.light-theme) .ord-tab{color:#56607D}
-:host-context(body.light) .ord-tab.active,:host-context(body.light-theme) .ord-tab.active{color:#007A72;border-bottom-color:#007A72}
-:host-context(body.light) .nt-t,:host-context(body.light-theme) .nt-t{color:#0F172A}
-:host-context(body.light) .nt-d,:host-context(body.light-theme) .nt-d{color:#64748B}
-:host-context(body.light) .nt-row,:host-context(body.light-theme) .nt-row{background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
-:host-context(body.light) .nt-row.unread,:host-context(body.light-theme) .nt-row.unread{background:rgba(43,212,199,.04);border-color:rgba(43,212,199,.14)}
-:host-context(body.light) .btn-sec,:host-context(body.light-theme) .btn-sec{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
-:host-context(body.light) .inner-foot,:host-context(body.light-theme) .inner-foot{border-color:rgba(15,23,42,.06);color:#64748B}
-:host-context(body.light) .inner-foot-links a,:host-context(body.light-theme) .inner-foot-links a{color:#64748B}
+:host-context(body.light-theme) .co-card,:host-context(body.theme-light) .co-card,:host-context(.light-theme) .co-card,:host-context(.theme-light) .co-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .pg-title,:host-context(body.theme-light) .pg-title,:host-context(.light-theme) .pg-title,:host-context(.theme-light) .pg-title{color:#0F172A}
+:host-context(body.light-theme) .pg-sub,:host-context(body.theme-light) .pg-sub,:host-context(.light-theme) .pg-sub,:host-context(.theme-light) .pg-sub{color:#64748B}
+:host-context(body.light-theme) .filter-rail,:host-context(body.theme-light) .filter-rail,:host-context(.light-theme) .filter-rail,:host-context(.theme-light) .filter-rail{background:rgba(246,248,252,.96);border-color:rgba(43,212,199,.18)}
+:host-context(body.light-theme) .fr-period-lbl,:host-context(body.theme-light) .fr-period-lbl,:host-context(.light-theme) .fr-period-lbl,:host-context(.theme-light) .fr-period-lbl{background:rgba(43,127,255,.06);border-color:rgba(43,127,255,.12);color:#2B7FFF}
+:host-context(body.light-theme) .ds,:host-context(body.theme-light) .ds,:host-context(.light-theme) .ds,:host-context(.theme-light) .ds{color:#56607D}
+:host-context(body.light-theme) .fr-search input,:host-context(body.theme-light) .fr-search input,:host-context(.light-theme) .fr-search input,:host-context(.theme-light) .fr-search input{color:#0F172A}
+:host-context(body.light-theme) .ord-tab,:host-context(body.theme-light) .ord-tab,:host-context(.light-theme) .ord-tab,:host-context(.theme-light) .ord-tab{color:#56607D}
+:host-context(body.light-theme) .ord-tab.active,:host-context(body.theme-light) .ord-tab.active,:host-context(.light-theme) .ord-tab.active,:host-context(.theme-light) .ord-tab.active{color:#007A72;border-bottom-color:#007A72}
+:host-context(body.light-theme) .nt-t,:host-context(body.theme-light) .nt-t,:host-context(.light-theme) .nt-t,:host-context(.theme-light) .nt-t{color:#0F172A}
+:host-context(body.light-theme) .nt-d,:host-context(body.theme-light) .nt-d,:host-context(.light-theme) .nt-d,:host-context(.theme-light) .nt-d{color:#64748B}
+:host-context(body.light-theme) .nt-row,:host-context(body.theme-light) .nt-row,:host-context(.light-theme) .nt-row,:host-context(.theme-light) .nt-row{background:rgba(15,23,42,.02);border-color:rgba(15,23,42,.06)}
+:host-context(body.light-theme) .nt-row.unread,:host-context(body.theme-light) .nt-row.unread,:host-context(.light-theme) .nt-row.unread,:host-context(.theme-light) .nt-row.unread{background:rgba(43,212,199,.04);border-color:rgba(43,212,199,.14)}
+:host-context(body.light-theme) .btn-sec,:host-context(body.theme-light) .btn-sec,:host-context(.light-theme) .btn-sec,:host-context(.theme-light) .btn-sec{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.10);color:#0F172A}
+:host-context(body.light-theme) .inner-foot,:host-context(body.theme-light) .inner-foot,:host-context(.light-theme) .inner-foot,:host-context(.theme-light) .inner-foot{border-color:rgba(15,23,42,.06);color:#64748B}
+:host-context(body.light-theme) .inner-foot-links a,:host-context(body.theme-light) .inner-foot-links a,:host-context(.light-theme) .inner-foot-links a,:host-context(.theme-light) .inner-foot-links a{color:#64748B}
 
 @media(max-width:767px){
   .filter-rail{flex-direction:column;align-items:stretch}
