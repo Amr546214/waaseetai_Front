@@ -183,10 +183,12 @@
 .state-title { font-size: 15px; font-weight: 800; color: var(--txt, #fff); margin-bottom: 6px; }
 .state-code, .state-copy { font-size: 12px; color: var(--txt-3, #6B7699); }
 .state-code { margin-bottom: 12px; }
-.error-icon, .empty-ico { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+.error-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+.empty-ico { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
 .error-icon { color: var(--blue-txt, #5DA0FF); background: rgba(43,127,255,.10); border: 1px solid rgba(43,127,255,.20); }
 .empty-ico { color: var(--teal, #2BD4C7); background: rgba(43,212,199,.08); border: 1px solid rgba(43,212,199,.18); }
-.error-icon svg, .empty-ico svg { width: 24px; height: 24px; }
+.error-icon svg { width: 24px; height: 24px; }
+.empty-ico svg { width: 28px; height: 28px; }
 .retry-btn { padding: 10px 20px; background: var(--grad, linear-gradient(135deg, #2BD4C7, #2B7FFF)); border: none; border-radius: 50px; color: #070D24; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
 
 /* Skeleton */
