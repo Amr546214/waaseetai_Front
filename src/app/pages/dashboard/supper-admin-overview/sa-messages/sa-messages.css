@@ -84,35 +84,191 @@
 /* ==========================================================================
    LIGHT MODE OVERRIDES
    ========================================================================== */
-:host-context(body.light-theme),
-:host-context(body.theme-light),
-:host-context(.light-theme),
-:host-context(.theme-light) {
-  .ms-ai-bc { background: linear-gradient(135deg, rgba(123,47,190,.07), rgba(43,127,255,.04)) !important; border-color: rgba(123,47,190,.18) !important; }
-  .ms-ai-bc-txt { color: #475569 !important; }
-  .ms-ai-bc-txt strong { color: #6B27A5 !important; }
-  .ms-conv-panel { background: rgba(246,248,252,.96) !important; border-color: #E2E8F0 !important; }
-  .ms-conv-hdr { border-bottom-color: #E2E8F0 !important; }
-  .ms-conv-title { color: #0F172A; }
-  .ms-conv-search { background: #fff !important; border-color: #D8DFEC !important; }
-  .ms-conv-search svg { color: #64748B; }
-  .ms-conv-search input { color: #0F172A; }
-  .ms-conv-item { border-bottom-color: #F1F5F9 !important; }
-  .ms-conv-item:hover { background: rgba(43,212,199,.07) !important; }
-  .ms-conv-item.active { background: linear-gradient(135deg, rgba(43,212,199,.12), rgba(43,127,255,.07)) !important; }
-  .ms-c-name { color: #0F172A; }
-  .ms-c-role { color: #0F8A7F; }
-  .ms-c-last { color: #475569; }
-  .ms-c-last.bold { color: #0F172A; }
-  .ms-c-time { color: #94A3B8; }
-  .ms-msg-panel { background: #F8FAFC; }
-  .ms-msg-hdr { background: rgba(246,248,252,.95) !important; border-bottom-color: #E2E8F0 !important; }
-  .ms-mh-name { color: #0F172A; }
-  .ms-msgs { background: #F1F5F9; }
-  .ms-bbl.other { background: #fff !important; border-color: #E2E8F0 !important; color: #1E293B !important; }
-  .ms-bbl.mine { background: linear-gradient(135deg, rgba(43,212,199,.15), rgba(43,127,255,.12)) !important; color: #0F172A !important; }
-  .ms-btime { color: #94A3B8; }
-  .ms-input-wrap { background: rgba(246,248,252,.96) !important; border-top-color: #E2E8F0 !important; }
-  .ms-irow { background: #fff !important; border-color: #D8DFEC !important; }
-  .ms-itxt { color: #0F172A; }
+:host-context(body.light-theme) .ms-ai-bc,
+:host-context(body.theme-light) .ms-ai-bc,
+:host-context(.light-theme) .ms-ai-bc,
+:host-context(.theme-light) .ms-ai-bc {
+  background: linear-gradient(135deg, rgba(123,47,190,.07), rgba(43,127,255,.04)) !important; border-color: rgba(123,47,190,.18) !important;
+}
+
+:host-context(body.light-theme) .ms-ai-bc-txt,
+:host-context(body.theme-light) .ms-ai-bc-txt,
+:host-context(.light-theme) .ms-ai-bc-txt,
+:host-context(.theme-light) .ms-ai-bc-txt {
+  color: #475569 !important;
+}
+
+:host-context(body.light-theme) .ms-ai-bc-txt strong,
+:host-context(body.theme-light) .ms-ai-bc-txt strong,
+:host-context(.light-theme) .ms-ai-bc-txt strong,
+:host-context(.theme-light) .ms-ai-bc-txt strong {
+  color: #6B27A5 !important;
+}
+
+:host-context(body.light-theme) .ms-conv-panel,
+:host-context(body.theme-light) .ms-conv-panel,
+:host-context(.light-theme) .ms-conv-panel,
+:host-context(.theme-light) .ms-conv-panel {
+  background: rgba(246,248,252,.96) !important; border-color: #E2E8F0 !important;
+}
+
+:host-context(body.light-theme) .ms-conv-hdr,
+:host-context(body.theme-light) .ms-conv-hdr,
+:host-context(.light-theme) .ms-conv-hdr,
+:host-context(.theme-light) .ms-conv-hdr {
+  border-bottom-color: #E2E8F0 !important;
+}
+
+:host-context(body.light-theme) .ms-conv-title,
+:host-context(body.theme-light) .ms-conv-title,
+:host-context(.light-theme) .ms-conv-title,
+:host-context(.theme-light) .ms-conv-title {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .ms-conv-search,
+:host-context(body.theme-light) .ms-conv-search,
+:host-context(.light-theme) .ms-conv-search,
+:host-context(.theme-light) .ms-conv-search {
+  background: #fff !important; border-color: #D8DFEC !important;
+}
+
+:host-context(body.light-theme) .ms-conv-search svg,
+:host-context(body.theme-light) .ms-conv-search svg,
+:host-context(.light-theme) .ms-conv-search svg,
+:host-context(.theme-light) .ms-conv-search svg {
+  color: #64748B;
+}
+
+:host-context(body.light-theme) .ms-conv-search input,
+:host-context(body.theme-light) .ms-conv-search input,
+:host-context(.light-theme) .ms-conv-search input,
+:host-context(.theme-light) .ms-conv-search input {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .ms-conv-item,
+:host-context(body.theme-light) .ms-conv-item,
+:host-context(.light-theme) .ms-conv-item,
+:host-context(.theme-light) .ms-conv-item {
+  border-bottom-color: #F1F5F9 !important;
+}
+
+:host-context(body.light-theme) .ms-conv-item:hover,
+:host-context(body.theme-light) .ms-conv-item:hover,
+:host-context(.light-theme) .ms-conv-item:hover,
+:host-context(.theme-light) .ms-conv-item:hover {
+  background: rgba(43,212,199,.07) !important;
+}
+
+:host-context(body.light-theme) .ms-conv-item.active,
+:host-context(body.theme-light) .ms-conv-item.active,
+:host-context(.light-theme) .ms-conv-item.active,
+:host-context(.theme-light) .ms-conv-item.active {
+  background: linear-gradient(135deg, rgba(43,212,199,.12), rgba(43,127,255,.07)) !important;
+}
+
+:host-context(body.light-theme) .ms-c-name,
+:host-context(body.theme-light) .ms-c-name,
+:host-context(.light-theme) .ms-c-name,
+:host-context(.theme-light) .ms-c-name {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .ms-c-role,
+:host-context(body.theme-light) .ms-c-role,
+:host-context(.light-theme) .ms-c-role,
+:host-context(.theme-light) .ms-c-role {
+  color: #0F8A7F;
+}
+
+:host-context(body.light-theme) .ms-c-last,
+:host-context(body.theme-light) .ms-c-last,
+:host-context(.light-theme) .ms-c-last,
+:host-context(.theme-light) .ms-c-last {
+  color: #475569;
+}
+
+:host-context(body.light-theme) .ms-c-last.bold,
+:host-context(body.theme-light) .ms-c-last.bold,
+:host-context(.light-theme) .ms-c-last.bold,
+:host-context(.theme-light) .ms-c-last.bold {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .ms-c-time,
+:host-context(body.theme-light) .ms-c-time,
+:host-context(.light-theme) .ms-c-time,
+:host-context(.theme-light) .ms-c-time {
+  color: #94A3B8;
+}
+
+:host-context(body.light-theme) .ms-msg-panel,
+:host-context(body.theme-light) .ms-msg-panel,
+:host-context(.light-theme) .ms-msg-panel,
+:host-context(.theme-light) .ms-msg-panel {
+  background: #F8FAFC;
+}
+
+:host-context(body.light-theme) .ms-msg-hdr,
+:host-context(body.theme-light) .ms-msg-hdr,
+:host-context(.light-theme) .ms-msg-hdr,
+:host-context(.theme-light) .ms-msg-hdr {
+  background: rgba(246,248,252,.95) !important; border-bottom-color: #E2E8F0 !important;
+}
+
+:host-context(body.light-theme) .ms-mh-name,
+:host-context(body.theme-light) .ms-mh-name,
+:host-context(.light-theme) .ms-mh-name,
+:host-context(.theme-light) .ms-mh-name {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .ms-msgs,
+:host-context(body.theme-light) .ms-msgs,
+:host-context(.light-theme) .ms-msgs,
+:host-context(.theme-light) .ms-msgs {
+  background: #F1F5F9;
+}
+
+:host-context(body.light-theme) .ms-bbl.other,
+:host-context(body.theme-light) .ms-bbl.other,
+:host-context(.light-theme) .ms-bbl.other,
+:host-context(.theme-light) .ms-bbl.other {
+  background: #fff !important; border-color: #E2E8F0 !important; color: #1E293B !important;
+}
+
+:host-context(body.light-theme) .ms-bbl.mine,
+:host-context(body.theme-light) .ms-bbl.mine,
+:host-context(.light-theme) .ms-bbl.mine,
+:host-context(.theme-light) .ms-bbl.mine {
+  background: linear-gradient(135deg, rgba(43,212,199,.15), rgba(43,127,255,.12)) !important; color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .ms-btime,
+:host-context(body.theme-light) .ms-btime,
+:host-context(.light-theme) .ms-btime,
+:host-context(.theme-light) .ms-btime {
+  color: #94A3B8;
+}
+
+:host-context(body.light-theme) .ms-input-wrap,
+:host-context(body.theme-light) .ms-input-wrap,
+:host-context(.light-theme) .ms-input-wrap,
+:host-context(.theme-light) .ms-input-wrap {
+  background: rgba(246,248,252,.96) !important; border-top-color: #E2E8F0 !important;
+}
+
+:host-context(body.light-theme) .ms-irow,
+:host-context(body.theme-light) .ms-irow,
+:host-context(.light-theme) .ms-irow,
+:host-context(.theme-light) .ms-irow {
+  background: #fff !important; border-color: #D8DFEC !important;
+}
+
+:host-context(body.light-theme) .ms-itxt,
+:host-context(body.theme-light) .ms-itxt,
+:host-context(.light-theme) .ms-itxt,
+:host-context(.theme-light) .ms-itxt {
+  color: #0F172A;
 }

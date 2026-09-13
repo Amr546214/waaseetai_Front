@@ -46,15 +46,15 @@
         <div class="svc-price" [style.color]="s.color">{{ s.price }} <span class="svc-period">{{ s.period }}</span></div>
         <div class="svc-stats">
           <div class="svc-stat">
-            <div class="svc-stat-val" style="color:#0FA99A">{{ s.subscribers | number }}</div>
+            <div class="svc-stat-val txt-green">{{ s.subscribers | number }}</div>
             <div class="svc-stat-lbl">مشترك</div>
           </div>
           <div class="svc-stat">
-            <div class="svc-stat-val" style="color:#FFB400">{{ s.ctr }}%</div>
+            <div class="svc-stat-val txt-amber">{{ s.ctr }}%</div>
             <div class="svc-stat-lbl">CTR</div>
           </div>
           <div class="svc-stat">
-            <div class="svc-stat-val" style="color:#5DA0FF">{{ s.roi }}x</div>
+            <div class="svc-stat-val txt-blue">{{ s.roi }}x</div>
             <div class="svc-stat-lbl">ROI</div>
           </div>
         </div>

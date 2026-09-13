@@ -82,7 +82,7 @@
         <input type="range" min="5" max="200" [ngModel]="bidCost()" (ngModelChange)="bidCost.set($event)" class="sim-range sim-range--teal" />
         <div class="sim-scale">
           <span>5 ر.س</span>
-          <span class="sim-scale-val" style="color:#2BD4C7">{{ bidCost() }} ر.س</span>
+          <span class="sim-scale-val txt-teal">{{ bidCost() }} ر.س</span>
           <span>200 ر.س</span>
         </div>
       </div>
@@ -91,7 +91,7 @@
         <input type="range" min="1" max="30" [ngModel]="bidDays()" (ngModelChange)="bidDays.set($event)" class="sim-range sim-range--purple" />
         <div class="sim-scale">
           <span>1 يوم</span>
-          <span class="sim-scale-val" style="color:#A56BE0">{{ bidDays() }} أيام</span>
+          <span class="sim-scale-val txt-purple">{{ bidDays() }} أيام</span>
           <span>30 يوم</span>
         </div>
       </div>
@@ -102,15 +102,15 @@
         <div class="sim-res-lbl">التكلفة الكلية</div>
       </div>
       <div class="sim-res sim-res--teal">
-        <div class="sim-res-val" style="color:#2BD4C7">{{ simResults().impressions | number }}</div>
+        <div class="sim-res-val txt-teal">{{ simResults().impressions | number }}</div>
         <div class="sim-res-lbl">انطباعات</div>
       </div>
       <div class="sim-res sim-res--amber">
-        <div class="sim-res-val" style="color:#FFB400">{{ simResults().clicks | number }}</div>
+        <div class="sim-res-val txt-amber">{{ simResults().clicks | number }}</div>
         <div class="sim-res-lbl">نقرات</div>
       </div>
       <div class="sim-res sim-res--green">
-        <div class="sim-res-val" style="color:#0FA99A">{{ simResults().leads | number }}</div>
+        <div class="sim-res-val txt-green">{{ simResults().leads | number }}</div>
         <div class="sim-res-lbl">عملاء</div>
       </div>
     </div>

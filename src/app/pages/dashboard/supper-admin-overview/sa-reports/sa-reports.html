@@ -17,10 +17,10 @@
   </div>
 
   <div class="rp-kpis">
-    <div class="rp-kpi"><div class="rp-kpi-num" style="color:#FF8C69">{{ countFor('new') }}</div><div class="rp-kpi-lbl">بلاغات جديدة</div></div>
-    <div class="rp-kpi"><div class="rp-kpi-num" style="color:#FFB400">{{ countFor('investigating') }}</div><div class="rp-kpi-lbl">قيد التحقيق</div></div>
-    <div class="rp-kpi"><div class="rp-kpi-num" style="color:#0FA99A">{{ kpiResolvedThisMonth }}</div><div class="rp-kpi-lbl">محسومة هذا الشهر</div></div>
-    <div class="rp-kpi"><div class="rp-kpi-num" style="color:#A56BE0">{{ kpiAiDetected }}</div><div class="rp-kpi-lbl">كُشف بـ AI تلقائياً</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-num txt-coral">{{ countFor('new') }}</div><div class="rp-kpi-lbl">بلاغات جديدة</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-num txt-amber">{{ countFor('investigating') }}</div><div class="rp-kpi-lbl">قيد التحقيق</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-num txt-green">{{ kpiResolvedThisMonth }}</div><div class="rp-kpi-lbl">محسومة هذا الشهر</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-num txt-purple">{{ kpiAiDetected }}</div><div class="rp-kpi-lbl">كُشف بـ AI تلقائياً</div></div>
   </div>
 
   <div class="rp-filters">
@@ -126,9 +126,9 @@
 
       <div class="rp-md-stats">
         <div class="rp-md-stat"><div class="rp-md-stat-lbl">تاريخ البلاغ</div><div class="rp-md-stat-val">{{ r.date }}</div></div>
-        <div class="rp-md-stat"><div class="rp-md-stat-lbl">نوع المخالفة</div><div class="rp-md-stat-val" style="color:#FF8C69">{{ r.typeLabel }}</div></div>
-        <div class="rp-md-stat"><div class="rp-md-stat-lbl">المبلغ المتنازع عليه</div><div class="rp-md-stat-val" style="color:#FFB400">{{ r.disputedAmount }}</div></div>
-        <div class="rp-md-stat"><div class="rp-md-stat-lbl">بلاغات سابقة</div><div class="rp-md-stat-val" style="color:#FF6B6B">{{ r.priorReports }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">نوع المخالفة</div><div class="rp-md-stat-val txt-coral">{{ r.typeLabel }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">المبلغ المتنازع عليه</div><div class="rp-md-stat-val txt-amber">{{ r.disputedAmount }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">بلاغات سابقة</div><div class="rp-md-stat-val txt-red">{{ r.priorReports }}</div></div>
       </div>
 
       <div class="rp-md-body">

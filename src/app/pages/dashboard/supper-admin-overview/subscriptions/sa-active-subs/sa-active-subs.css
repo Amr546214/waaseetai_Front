@@ -8,7 +8,7 @@
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 34px; border-radius: 9px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .15s; border: 1px solid transparent; white-space: nowrap; }
 .btn-ghost { background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .10); color: #A8B2D1; }
 .btn-ghost:hover { background: rgba(255, 255, 255, .10); color: #fff; }
-.btn-primary { background: linear-gradient(135deg, #2BD4C7, #2B7FFF); color: #070D24; }
+.btn-primary { background: linear-gradient(135deg, #2BD4C7, #2B7FFF); color: #fff; }
 
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
 .kpi-card { background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)); border: 1px solid rgba(255, 255, 255, .08); border-radius: 14px; padding: 16px 18px; }
@@ -167,6 +167,12 @@
 :host-context(.light-theme) .tbl-ttl,
 :host-context(.theme-light) .tbl-ttl {
   color: #1E293B !important;
+}
+:host-context(body.light-theme) .tbl-count,
+:host-context(body.theme-light) .tbl-count,
+:host-context(.light-theme) .tbl-count,
+:host-context(.theme-light) .tbl-count {
+  color: #64748B !important;
 }
 :host-context(body.light-theme) .data-tbl thead th,
 :host-context(body.theme-light) .data-tbl thead th,
