@@ -534,553 +534,553 @@
 /* ================== LIGHT THEME OVERRIDES ================== */
 /* All 4 selector variants: body.light-theme, body.theme-light, .light-theme, .theme-light */
 /* Chat shell — main container */
-.light-theme .chat-shell, :host-context(.light-theme) .chat-shell,
-.theme-light .chat-shell, :host-context(.theme-light) .chat-shell,
-body.light-theme .chat-shell, :host-context(body.light-theme) .chat-shell,
-body.theme-light .chat-shell, :host-context(body.theme-light) .chat-shell {
+.light-theme .chat-shell, .light-theme .chat-shell,
+.theme-light .chat-shell, .theme-light .chat-shell,
+body.light-theme .chat-shell, body.light-theme .chat-shell,
+body.theme-light .chat-shell, body.theme-light .chat-shell {
   color: #1E293B !important;
   background: #FFFFFF !important;
   border-color: #E2E8F0 !important;
   box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
 }
 /* Conversation panel */
-.light-theme .conv-panel, :host-context(.light-theme) .conv-panel,
-.theme-light .conv-panel, :host-context(.theme-light) .conv-panel,
-body.light-theme .conv-panel, :host-context(body.light-theme) .conv-panel,
-body.theme-light .conv-panel, :host-context(body.theme-light) .conv-panel {
+.light-theme .conv-panel, .light-theme .conv-panel,
+.theme-light .conv-panel, .theme-light .conv-panel,
+body.light-theme .conv-panel, body.light-theme .conv-panel,
+body.theme-light .conv-panel, body.theme-light .conv-panel {
   background: rgba(246, 248, 252, 0.96) !important;
   border-color: #E2E8F0 !important;
 }
-.light-theme .conv-panel-hdr, :host-context(.light-theme) .conv-panel-hdr,
-.theme-light .conv-panel-hdr, :host-context(.theme-light) .conv-panel-hdr,
-body.light-theme .conv-panel-hdr, :host-context(body.light-theme) .conv-panel-hdr,
-body.theme-light .conv-panel-hdr, :host-context(body.theme-light) .conv-panel-hdr {
+.light-theme .conv-panel-hdr, .light-theme .conv-panel-hdr,
+.theme-light .conv-panel-hdr, .theme-light .conv-panel-hdr,
+body.light-theme .conv-panel-hdr, body.light-theme .conv-panel-hdr,
+body.theme-light .conv-panel-hdr, body.theme-light .conv-panel-hdr {
   border-color: #E2E8F0 !important;
 }
-.light-theme .conv-panel-title, :host-context(.light-theme) .conv-panel-title,
-.theme-light .conv-panel-title, :host-context(.theme-light) .conv-panel-title,
-body.light-theme .conv-panel-title, :host-context(body.light-theme) .conv-panel-title,
-body.theme-light .conv-panel-title, :host-context(body.theme-light) .conv-panel-title {
+.light-theme .conv-panel-title, .light-theme .conv-panel-title,
+.theme-light .conv-panel-title, .theme-light .conv-panel-title,
+body.light-theme .conv-panel-title, body.light-theme .conv-panel-title,
+body.theme-light .conv-panel-title, body.theme-light .conv-panel-title {
   color: #0F172A !important;
 }
 /* Search */
-.light-theme .conv-search, :host-context(.light-theme) .conv-search,
-.theme-light .conv-search, :host-context(.theme-light) .conv-search,
-body.light-theme .conv-search, :host-context(body.light-theme) .conv-search,
-body.theme-light .conv-search, :host-context(body.theme-light) .conv-search {
+.light-theme .conv-search, .light-theme .conv-search,
+.theme-light .conv-search, .theme-light .conv-search,
+body.light-theme .conv-search, body.light-theme .conv-search,
+body.theme-light .conv-search, body.theme-light .conv-search {
   background: #FFFFFF !important;
   border-color: #D8DFEC !important;
   color: #64748B !important;
 }
-.light-theme .conv-search svg, :host-context(.light-theme) .conv-search svg,
-.theme-light .conv-search svg, :host-context(.theme-light) .conv-search svg,
-body.light-theme .conv-search svg, :host-context(body.light-theme) .conv-search svg,
-body.theme-light .conv-search svg, :host-context(body.theme-light) .conv-search svg {
+.light-theme .conv-search svg, .light-theme .conv-search svg,
+.theme-light .conv-search svg, .theme-light .conv-search svg,
+body.light-theme .conv-search svg, body.light-theme .conv-search svg,
+body.theme-light .conv-search svg, body.theme-light .conv-search svg {
   color: #94A3B8 !important;
 }
-.light-theme .conv-search-inp, :host-context(.light-theme) .conv-search-inp,
-.theme-light .conv-search-inp, :host-context(.theme-light) .conv-search-inp,
-body.light-theme .conv-search-inp, :host-context(body.light-theme) .conv-search-inp,
-body.theme-light .conv-search-inp, :host-context(body.theme-light) .conv-search-inp {
+.light-theme .conv-search-inp, .light-theme .conv-search-inp,
+.theme-light .conv-search-inp, .theme-light .conv-search-inp,
+body.light-theme .conv-search-inp, body.light-theme .conv-search-inp,
+body.theme-light .conv-search-inp, body.theme-light .conv-search-inp {
   color: #0F172A !important;
 }
-.light-theme .conv-search-inp::placeholder, :host-context(.light-theme) .conv-search-inp::placeholder,
-.theme-light .conv-search-inp::placeholder, :host-context(.theme-light) .conv-search-inp::placeholder,
-body.light-theme .conv-search-inp::placeholder, :host-context(body.light-theme) .conv-search-inp::placeholder,
-body.theme-light .conv-search-inp::placeholder, :host-context(body.theme-light) .conv-search-inp::placeholder {
+.light-theme .conv-search-inp::placeholder, .light-theme .conv-search-inp::placeholder,
+.theme-light .conv-search-inp::placeholder, .theme-light .conv-search-inp::placeholder,
+body.light-theme .conv-search-inp::placeholder, body.light-theme .conv-search-inp::placeholder,
+body.theme-light .conv-search-inp::placeholder, body.theme-light .conv-search-inp::placeholder {
   color: #94A3B8 !important;
 }
 /* Conv items */
-.light-theme .conv-item, :host-context(.light-theme) .conv-item,
-.theme-light .conv-item, :host-context(.theme-light) .conv-item,
-body.light-theme .conv-item, :host-context(body.light-theme) .conv-item,
-body.theme-light .conv-item, :host-context(body.theme-light) .conv-item {
+.light-theme .conv-item, .light-theme .conv-item,
+.theme-light .conv-item, .theme-light .conv-item,
+body.light-theme .conv-item, body.light-theme .conv-item,
+body.theme-light .conv-item, body.theme-light .conv-item {
   border-color: #F1F5F9 !important;
 }
-.light-theme .conv-item:hover, :host-context(.light-theme) .conv-item:hover,
-.theme-light .conv-item:hover, :host-context(.theme-light) .conv-item:hover,
-body.light-theme .conv-item:hover, :host-context(body.light-theme) .conv-item:hover,
-body.theme-light .conv-item:hover, :host-context(body.theme-light) .conv-item:hover {
+.light-theme .conv-item:hover, .light-theme .conv-item:hover,
+.theme-light .conv-item:hover, .theme-light .conv-item:hover,
+body.light-theme .conv-item:hover, body.light-theme .conv-item:hover,
+body.theme-light .conv-item:hover, body.theme-light .conv-item:hover {
   background: rgba(43, 212, 199, 0.07) !important;
 }
-.light-theme .conv-item.active, :host-context(.light-theme) .conv-item.active,
-.theme-light .conv-item.active, :host-context(.theme-light) .conv-item.active,
-body.light-theme .conv-item.active, :host-context(body.light-theme) .conv-item.active,
-body.theme-light .conv-item.active, :host-context(body.theme-light) .conv-item.active {
+.light-theme .conv-item.active, .light-theme .conv-item.active,
+.theme-light .conv-item.active, .theme-light .conv-item.active,
+body.light-theme .conv-item.active, body.light-theme .conv-item.active,
+body.theme-light .conv-item.active, body.theme-light .conv-item.active {
   background: linear-gradient(135deg, rgba(43, 212, 199, 0.12), rgba(43, 127, 255, 0.07)) !important;
 }
-.light-theme .c-name, :host-context(.light-theme) .c-name,
-.theme-light .c-name, :host-context(.theme-light) .c-name,
-body.light-theme .c-name, :host-context(body.light-theme) .c-name,
-body.theme-light .c-name, :host-context(body.theme-light) .c-name {
+.light-theme .c-name, .light-theme .c-name,
+.theme-light .c-name, .theme-light .c-name,
+body.light-theme .c-name, body.light-theme .c-name,
+body.theme-light .c-name, body.theme-light .c-name {
   color: #0F172A !important;
 }
-.light-theme .c-proj, :host-context(.light-theme) .c-proj,
-.theme-light .c-proj, :host-context(.theme-light) .c-proj,
-body.light-theme .c-proj, :host-context(body.light-theme) .c-proj,
-body.theme-light .c-proj, :host-context(body.theme-light) .c-proj {
+.light-theme .c-proj, .light-theme .c-proj,
+.theme-light .c-proj, .theme-light .c-proj,
+body.light-theme .c-proj, body.light-theme .c-proj,
+body.theme-light .c-proj, body.theme-light .c-proj {
   color: #0F8A7F !important;
 }
-.light-theme .c-last, :host-context(.light-theme) .c-last,
-.theme-light .c-last, :host-context(.theme-light) .c-last,
-body.light-theme .c-last, :host-context(body.light-theme) .c-last,
-body.theme-light .c-last, :host-context(body.theme-light) .c-last {
+.light-theme .c-last, .light-theme .c-last,
+.theme-light .c-last, .theme-light .c-last,
+body.light-theme .c-last, body.light-theme .c-last,
+body.theme-light .c-last, body.theme-light .c-last {
   color: #475569 !important;
 }
-.light-theme .c-last.bold, :host-context(.light-theme) .c-last.bold,
-.theme-light .c-last.bold, :host-context(.theme-light) .c-last.bold,
-body.light-theme .c-last.bold, :host-context(body.light-theme) .c-last.bold,
-body.theme-light .c-last.bold, :host-context(body.theme-light) .c-last.bold {
+.light-theme .c-last.bold, .light-theme .c-last.bold,
+.theme-light .c-last.bold, .theme-light .c-last.bold,
+body.light-theme .c-last.bold, body.light-theme .c-last.bold,
+body.theme-light .c-last.bold, body.theme-light .c-last.bold {
   color: #0F172A !important;
 }
-.light-theme .c-time, :host-context(.light-theme) .c-time,
-.theme-light .c-time, :host-context(.theme-light) .c-time,
-body.light-theme .c-time, :host-context(body.light-theme) .c-time,
-body.theme-light .c-time, :host-context(body.theme-light) .c-time {
+.light-theme .c-time, .light-theme .c-time,
+.theme-light .c-time, .theme-light .c-time,
+body.light-theme .c-time, body.light-theme .c-time,
+body.theme-light .c-time, body.theme-light .c-time {
   color: #94A3B8 !important;
 }
-.light-theme .empty-list-state, :host-context(.light-theme) .empty-list-state,
-.theme-light .empty-list-state, :host-context(.theme-light) .empty-list-state,
-body.light-theme .empty-list-state, :host-context(body.light-theme) .empty-list-state,
-body.theme-light .empty-list-state, :host-context(body.theme-light) .empty-list-state {
+.light-theme .empty-list-state, .light-theme .empty-list-state,
+.theme-light .empty-list-state, .theme-light .empty-list-state,
+body.light-theme .empty-list-state, body.light-theme .empty-list-state,
+body.theme-light .empty-list-state, body.theme-light .empty-list-state {
   color: #64748B !important;
 }
 /* Message panel */
-.light-theme .msg-panel, :host-context(.light-theme) .msg-panel,
-.theme-light .msg-panel, :host-context(.theme-light) .msg-panel,
-body.light-theme .msg-panel, :host-context(body.light-theme) .msg-panel,
-body.theme-light .msg-panel, :host-context(body.theme-light) .msg-panel {
+.light-theme .msg-panel, .light-theme .msg-panel,
+.theme-light .msg-panel, .theme-light .msg-panel,
+body.light-theme .msg-panel, body.light-theme .msg-panel,
+body.theme-light .msg-panel, body.theme-light .msg-panel {
   background: #F8FAFC !important;
 }
 /* AI banner */
-.light-theme .ai-bc, :host-context(.light-theme) .ai-bc,
-.theme-light .ai-bc, :host-context(.theme-light) .ai-bc,
-body.light-theme .ai-bc, :host-context(body.light-theme) .ai-bc,
-body.theme-light .ai-bc, :host-context(body.theme-light) .ai-bc {
+.light-theme .ai-bc, .light-theme .ai-bc,
+.theme-light .ai-bc, .theme-light .ai-bc,
+body.light-theme .ai-bc, body.light-theme .ai-bc,
+body.theme-light .ai-bc, body.theme-light .ai-bc {
   background: linear-gradient(135deg, rgba(123, 47, 190, 0.07), rgba(43, 127, 255, 0.04)) !important;
   border-color: rgba(123, 47, 190, 0.18) !important;
 }
-.light-theme .ai-bc-ico, :host-context(.light-theme) .ai-bc-ico,
-.theme-light .ai-bc-ico, :host-context(.theme-light) .ai-bc-ico,
-body.light-theme .ai-bc-ico, :host-context(body.light-theme) .ai-bc-ico,
-body.theme-light .ai-bc-ico, :host-context(body.theme-light) .ai-bc-ico {
+.light-theme .ai-bc-ico, .light-theme .ai-bc-ico,
+.theme-light .ai-bc-ico, .theme-light .ai-bc-ico,
+body.light-theme .ai-bc-ico, body.light-theme .ai-bc-ico,
+body.theme-light .ai-bc-ico, body.theme-light .ai-bc-ico {
   background: rgba(107, 39, 165, 0.12) !important;
   color: #6B27A5 !important;
 }
-.light-theme .ai-bc-txt, :host-context(.light-theme) .ai-bc-txt,
-.theme-light .ai-bc-txt, :host-context(.theme-light) .ai-bc-txt,
-body.light-theme .ai-bc-txt, :host-context(body.light-theme) .ai-bc-txt,
-body.theme-light .ai-bc-txt, :host-context(body.theme-light) .ai-bc-txt {
+.light-theme .ai-bc-txt, .light-theme .ai-bc-txt,
+.theme-light .ai-bc-txt, .theme-light .ai-bc-txt,
+body.light-theme .ai-bc-txt, body.light-theme .ai-bc-txt,
+body.theme-light .ai-bc-txt, body.theme-light .ai-bc-txt {
   color: #475569 !important;
 }
-.light-theme .ai-bc-txt strong, :host-context(.light-theme) .ai-bc-txt strong,
-.theme-light .ai-bc-txt strong, :host-context(.theme-light) .ai-bc-txt strong,
-body.light-theme .ai-bc-txt strong, :host-context(body.light-theme) .ai-bc-txt strong,
-body.theme-light .ai-bc-txt strong, :host-context(body.theme-light) .ai-bc-txt strong {
+.light-theme .ai-bc-txt strong, .light-theme .ai-bc-txt strong,
+.theme-light .ai-bc-txt strong, .theme-light .ai-bc-txt strong,
+body.light-theme .ai-bc-txt strong, body.light-theme .ai-bc-txt strong,
+body.theme-light .ai-bc-txt strong, body.theme-light .ai-bc-txt strong {
   color: #6B27A5 !important;
 }
-.light-theme .ai-pct-b, :host-context(.light-theme) .ai-pct-b,
-.theme-light .ai-pct-b, :host-context(.theme-light) .ai-pct-b,
-body.light-theme .ai-pct-b, :host-context(body.light-theme) .ai-pct-b,
-body.theme-light .ai-pct-b, :host-context(body.theme-light) .ai-pct-b {
+.light-theme .ai-pct-b, .light-theme .ai-pct-b,
+.theme-light .ai-pct-b, .theme-light .ai-pct-b,
+body.light-theme .ai-pct-b, body.light-theme .ai-pct-b,
+body.theme-light .ai-pct-b, body.theme-light .ai-pct-b {
   color: #6B27A5 !important;
   background: rgba(107, 39, 165, 0.12) !important;
   border-color: rgba(107, 39, 165, 0.25) !important;
 }
 /* Message header */
-.light-theme .msg-hdr, :host-context(.light-theme) .msg-hdr,
-.theme-light .msg-hdr, :host-context(.theme-light) .msg-hdr,
-body.light-theme .msg-hdr, :host-context(body.light-theme) .msg-hdr,
-body.theme-light .msg-hdr, :host-context(body.theme-light) .msg-hdr {
+.light-theme .msg-hdr, .light-theme .msg-hdr,
+.theme-light .msg-hdr, .theme-light .msg-hdr,
+body.light-theme .msg-hdr, body.light-theme .msg-hdr,
+body.theme-light .msg-hdr, body.theme-light .msg-hdr {
   background: rgba(246, 248, 252, 0.95) !important;
   border-color: #E2E8F0 !important;
 }
-.light-theme .mh-name, :host-context(.light-theme) .mh-name,
-.theme-light .mh-name, :host-context(.theme-light) .mh-name,
-body.light-theme .mh-name, :host-context(body.light-theme) .mh-name,
-body.theme-light .mh-name, :host-context(body.theme-light) .mh-name {
+.light-theme .mh-name, .light-theme .mh-name,
+.theme-light .mh-name, .theme-light .mh-name,
+body.light-theme .mh-name, body.light-theme .mh-name,
+body.theme-light .mh-name, body.theme-light .mh-name {
   color: #0F172A !important;
 }
-.light-theme .mh-proj, :host-context(.light-theme) .mh-proj,
-.theme-light .mh-proj, :host-context(.theme-light) .mh-proj,
-body.light-theme .mh-proj, :host-context(body.light-theme) .mh-proj,
-body.theme-light .mh-proj, :host-context(body.theme-light) .mh-proj {
+.light-theme .mh-proj, .light-theme .mh-proj,
+.theme-light .mh-proj, .theme-light .mh-proj,
+body.light-theme .mh-proj, body.light-theme .mh-proj,
+body.theme-light .mh-proj, body.theme-light .mh-proj {
   color: #0F8A7F !important;
 }
-.light-theme .mh-stat, :host-context(.light-theme) .mh-stat,
-.theme-light .mh-stat, :host-context(.theme-light) .mh-stat,
-body.light-theme .mh-stat, :host-context(body.light-theme) .mh-stat,
-body.theme-light .mh-stat, :host-context(body.theme-light) .mh-stat {
+.light-theme .mh-stat, .light-theme .mh-stat,
+.theme-light .mh-stat, .theme-light .mh-stat,
+body.light-theme .mh-stat, body.light-theme .mh-stat,
+body.theme-light .mh-stat, body.theme-light .mh-stat {
   color: #64748B !important;
 }
-.light-theme .mob-back-btn, :host-context(.light-theme) .mob-back-btn,
-.theme-light .mob-back-btn, :host-context(.theme-light) .mob-back-btn,
-body.light-theme .mob-back-btn, :host-context(body.light-theme) .mob-back-btn,
-body.theme-light .mob-back-btn, :host-context(body.theme-light) .mob-back-btn {
+.light-theme .mob-back-btn, .light-theme .mob-back-btn,
+.theme-light .mob-back-btn, .theme-light .mob-back-btn,
+body.light-theme .mob-back-btn, body.light-theme .mob-back-btn,
+body.theme-light .mob-back-btn, body.theme-light .mob-back-btn {
   background: #F1F5F9 !important;
   color: #475569 !important;
 }
-.light-theme .mob-back-btn:hover, :host-context(.light-theme) .mob-back-btn:hover,
-.theme-light .mob-back-btn:hover, :host-context(.theme-light) .mob-back-btn:hover,
-body.light-theme .mob-back-btn:hover, :host-context(body.light-theme) .mob-back-btn:hover,
-body.theme-light .mob-back-btn:hover, :host-context(body.theme-light) .mob-back-btn:hover {
+.light-theme .mob-back-btn:hover, .light-theme .mob-back-btn:hover,
+.theme-light .mob-back-btn:hover, .theme-light .mob-back-btn:hover,
+body.light-theme .mob-back-btn:hover, body.light-theme .mob-back-btn:hover,
+body.theme-light .mob-back-btn:hover, body.theme-light .mob-back-btn:hover {
   background: #E2E8F0 !important;
   color: #0F172A !important;
 }
 /* Messages area */
-.light-theme .msgs, :host-context(.light-theme) .msgs,
-.theme-light .msgs, :host-context(.theme-light) .msgs,
-body.light-theme .msgs, :host-context(body.light-theme) .msgs,
-body.theme-light .msgs, :host-context(body.theme-light) .msgs {
+.light-theme .msgs, .light-theme .msgs,
+.theme-light .msgs, .theme-light .msgs,
+body.light-theme .msgs, body.light-theme .msgs,
+body.theme-light .msgs, body.theme-light .msgs {
   background: #F1F5F9 !important;
 }
-.light-theme .msg-date-d, :host-context(.light-theme) .msg-date-d,
-.theme-light .msg-date-d, :host-context(.theme-light) .msg-date-d,
-body.light-theme .msg-date-d, :host-context(body.light-theme) .msg-date-d,
-body.theme-light .msg-date-d, :host-context(body.theme-light) .msg-date-d {
+.light-theme .msg-date-d, .light-theme .msg-date-d,
+.theme-light .msg-date-d, .theme-light .msg-date-d,
+body.light-theme .msg-date-d, body.light-theme .msg-date-d,
+body.theme-light .msg-date-d, body.theme-light .msg-date-d {
   color: #94A3B8 !important;
 }
-.light-theme .msg-date-d::before, :host-context(.light-theme) .msg-date-d::before,
-.theme-light .msg-date-d::before, :host-context(.theme-light) .msg-date-d::before,
-body.light-theme .msg-date-d::before, :host-context(body.light-theme) .msg-date-d::before,
-body.theme-light .msg-date-d::before, :host-context(body.theme-light) .msg-date-d::before {
+.light-theme .msg-date-d::before, .light-theme .msg-date-d::before,
+.theme-light .msg-date-d::before, .theme-light .msg-date-d::before,
+body.light-theme .msg-date-d::before, body.light-theme .msg-date-d::before,
+body.theme-light .msg-date-d::before, body.theme-light .msg-date-d::before {
   background: #CBD5E1 !important;
 }
-.light-theme .msg-date-d span, :host-context(.light-theme) .msg-date-d span,
-.theme-light .msg-date-d span, :host-context(.theme-light) .msg-date-d span,
-body.light-theme .msg-date-d span, :host-context(body.light-theme) .msg-date-d span,
-body.theme-light .msg-date-d span, :host-context(body.theme-light) .msg-date-d span {
+.light-theme .msg-date-d span, .light-theme .msg-date-d span,
+.theme-light .msg-date-d span, .theme-light .msg-date-d span,
+body.light-theme .msg-date-d span, body.light-theme .msg-date-d span,
+body.theme-light .msg-date-d span, body.theme-light .msg-date-d span {
   background: #F1F5F9 !important;
   color: #94A3B8 !important;
 }
 /* Bubbles */
-.light-theme .bbl.other, :host-context(.light-theme) .bbl.other,
-.theme-light .bbl.other, :host-context(.theme-light) .bbl.other,
-body.light-theme .bbl.other, :host-context(body.light-theme) .bbl.other,
-body.theme-light .bbl.other, :host-context(body.theme-light) .bbl.other {
+.light-theme .bbl.other, .light-theme .bbl.other,
+.theme-light .bbl.other, .theme-light .bbl.other,
+body.light-theme .bbl.other, body.light-theme .bbl.other,
+body.theme-light .bbl.other, body.theme-light .bbl.other {
   background: #FFFFFF !important;
   border-color: #E2E8F0 !important;
   color: #1E293B !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
 }
-.light-theme .bbl.mine, :host-context(.light-theme) .bbl.mine,
-.theme-light .bbl.mine, :host-context(.theme-light) .bbl.mine,
-body.light-theme .bbl.mine, :host-context(body.light-theme) .bbl.mine,
-body.theme-light .bbl.mine, :host-context(body.theme-light) .bbl.mine {
+.light-theme .bbl.mine, .light-theme .bbl.mine,
+.theme-light .bbl.mine, .theme-light .bbl.mine,
+body.light-theme .bbl.mine, body.light-theme .bbl.mine,
+body.theme-light .bbl.mine, body.theme-light .bbl.mine {
   background: linear-gradient(135deg, rgba(43, 212, 199, 0.15), rgba(43, 127, 255, 0.12)) !important;
   color: #0F172A !important;
 }
-.light-theme .btime, :host-context(.light-theme) .btime,
-.theme-light .btime, :host-context(.theme-light) .btime,
-body.light-theme .btime, :host-context(body.light-theme) .btime,
-body.theme-light .btime, :host-context(body.theme-light) .btime {
+.light-theme .btime, .light-theme .btime,
+.theme-light .btime, .theme-light .btime,
+body.light-theme .btime, body.light-theme .btime,
+body.theme-light .btime, body.theme-light .btime {
   color: #94A3B8 !important;
 }
 /* Input area */
-.light-theme .input-wrap, :host-context(.light-theme) .input-wrap,
-.theme-light .input-wrap, :host-context(.theme-light) .input-wrap,
-body.light-theme .input-wrap, :host-context(body.light-theme) .input-wrap,
-body.theme-light .input-wrap, :host-context(body.theme-light) .input-wrap {
+.light-theme .input-wrap, .light-theme .input-wrap,
+.theme-light .input-wrap, .theme-light .input-wrap,
+body.light-theme .input-wrap, body.light-theme .input-wrap,
+body.theme-light .input-wrap, body.theme-light .input-wrap {
   background: rgba(246, 248, 252, 0.96) !important;
   border-color: #E2E8F0 !important;
 }
-.light-theme .irow, :host-context(.light-theme) .irow,
-.theme-light .irow, :host-context(.theme-light) .irow,
-body.light-theme .irow, :host-context(body.light-theme) .irow,
-body.theme-light .irow, :host-context(body.theme-light) .irow {
+.light-theme .irow, .light-theme .irow,
+.theme-light .irow, .theme-light .irow,
+body.light-theme .irow, body.light-theme .irow,
+body.theme-light .irow, body.theme-light .irow {
   background: #FFFFFF !important;
   border-color: #D8DFEC !important;
 }
-.light-theme .irow:focus-within, :host-context(.light-theme) .irow:focus-within,
-.theme-light .irow:focus-within, :host-context(.theme-light) .irow:focus-within,
-body.light-theme .irow:focus-within, :host-context(body.light-theme) .irow:focus-within,
-body.theme-light .irow:focus-within, :host-context(body.theme-light) .irow:focus-within {
+.light-theme .irow:focus-within, .light-theme .irow:focus-within,
+.theme-light .irow:focus-within, .theme-light .irow:focus-within,
+body.light-theme .irow:focus-within, body.light-theme .irow:focus-within,
+body.theme-light .irow:focus-within, body.theme-light .irow:focus-within {
   border-color: rgba(15, 138, 127, 0.4) !important;
 }
-.light-theme .itxt, :host-context(.light-theme) .itxt,
-.theme-light .itxt, :host-context(.theme-light) .itxt,
-body.light-theme .itxt, :host-context(body.light-theme) .itxt,
-body.theme-light .itxt, :host-context(body.theme-light) .itxt {
+.light-theme .itxt, .light-theme .itxt,
+.theme-light .itxt, .theme-light .itxt,
+body.light-theme .itxt, body.light-theme .itxt,
+body.theme-light .itxt, body.theme-light .itxt {
   color: #0F172A !important;
 }
-.light-theme .itxt::placeholder, :host-context(.light-theme) .itxt::placeholder,
-.theme-light .itxt::placeholder, :host-context(.theme-light) .itxt::placeholder,
-body.light-theme .itxt::placeholder, :host-context(body.light-theme) .itxt::placeholder,
-body.theme-light .itxt::placeholder, :host-context(body.theme-light) .itxt::placeholder {
+.light-theme .itxt::placeholder, .light-theme .itxt::placeholder,
+.theme-light .itxt::placeholder, .theme-light .itxt::placeholder,
+body.light-theme .itxt::placeholder, body.light-theme .itxt::placeholder,
+body.theme-light .itxt::placeholder, body.theme-light .itxt::placeholder {
   color: #94A3B8 !important;
 }
-.light-theme .tbtn, :host-context(.light-theme) .tbtn,
-.theme-light .tbtn, :host-context(.theme-light) .tbtn,
-body.light-theme .tbtn, :host-context(body.light-theme) .tbtn,
-body.theme-light .tbtn, :host-context(body.theme-light) .tbtn {
+.light-theme .tbtn, .light-theme .tbtn,
+.theme-light .tbtn, .theme-light .tbtn,
+body.light-theme .tbtn, body.light-theme .tbtn,
+body.theme-light .tbtn, body.theme-light .tbtn {
   background: #F1F5F9 !important;
   border-color: #D8DFEC !important;
   color: #475569 !important;
 }
-.light-theme .tbtn:hover, :host-context(.light-theme) .tbtn:hover,
-.theme-light .tbtn:hover, :host-context(.theme-light) .tbtn:hover,
-body.light-theme .tbtn:hover, :host-context(body.light-theme) .tbtn:hover,
-body.theme-light .tbtn:hover, :host-context(body.theme-light) .tbtn:hover {
+.light-theme .tbtn:hover, .light-theme .tbtn:hover,
+.theme-light .tbtn:hover, .theme-light .tbtn:hover,
+body.light-theme .tbtn:hover, body.light-theme .tbtn:hover,
+body.theme-light .tbtn:hover, body.theme-light .tbtn:hover {
   background: rgba(43, 212, 199, 0.1) !important;
   border-color: rgba(43, 212, 199, 0.3) !important;
   color: #0F8A7F !important;
 }
-.light-theme .meet-btn, :host-context(.light-theme) .meet-btn,
-.theme-light .meet-btn, :host-context(.theme-light) .meet-btn,
-body.light-theme .meet-btn, :host-context(body.light-theme) .meet-btn,
-body.theme-light .meet-btn, :host-context(body.theme-light) .meet-btn {
+.light-theme .meet-btn, .light-theme .meet-btn,
+.theme-light .meet-btn, .theme-light .meet-btn,
+body.light-theme .meet-btn, body.light-theme .meet-btn,
+body.theme-light .meet-btn, body.theme-light .meet-btn {
   background: rgba(43, 127, 255, 0.08) !important;
   border-color: rgba(43, 127, 255, 0.2) !important;
   color: #1D6FE0 !important;
 }
-.light-theme .meet-btn:hover, :host-context(.light-theme) .meet-btn:hover,
-.theme-light .meet-btn:hover, :host-context(.theme-light) .meet-btn:hover,
-body.light-theme .meet-btn:hover, :host-context(body.light-theme) .meet-btn:hover,
-body.theme-light .meet-btn:hover, :host-context(body.theme-light) .meet-btn:hover {
+.light-theme .meet-btn:hover, .light-theme .meet-btn:hover,
+.theme-light .meet-btn:hover, .theme-light .meet-btn:hover,
+body.light-theme .meet-btn:hover, body.light-theme .meet-btn:hover,
+body.theme-light .meet-btn:hover, body.theme-light .meet-btn:hover {
   background: rgba(43, 127, 255, 0.15) !important;
   color: #1D6FE0 !important;
 }
 /* Toast */
-.light-theme .toast-inner, :host-context(.light-theme) .toast-inner,
-.theme-light .toast-inner, :host-context(.theme-light) .toast-inner,
-body.light-theme .toast-inner, :host-context(body.light-theme) .toast-inner,
-body.theme-light .toast-inner, :host-context(body.theme-light) .toast-inner {
+.light-theme .toast-inner, .light-theme .toast-inner,
+.theme-light .toast-inner, .theme-light .toast-inner,
+body.light-theme .toast-inner, body.light-theme .toast-inner,
+body.theme-light .toast-inner, body.theme-light .toast-inner {
   background: #FFFFFF !important;
   border-color: #0F8A7F !important;
   color: #0F172A !important;
   box-shadow: 0 8px 30px rgba(15, 23, 42, 0.15) !important;
 }
 /* Audio messages */
-.light-theme .audio-duration-txt, :host-context(.light-theme) .audio-duration-txt,
-.theme-light .audio-duration-txt, :host-context(.theme-light) .audio-duration-txt,
-body.light-theme .audio-duration-txt, :host-context(body.light-theme) .audio-duration-txt,
-body.theme-light .audio-duration-txt, :host-context(body.theme-light) .audio-duration-txt {
+.light-theme .audio-duration-txt, .light-theme .audio-duration-txt,
+.theme-light .audio-duration-txt, .theme-light .audio-duration-txt,
+body.light-theme .audio-duration-txt, body.light-theme .audio-duration-txt,
+body.theme-light .audio-duration-txt, body.theme-light .audio-duration-txt {
   color: #64748B !important;
 }
-.light-theme .other .wave-bar, :host-context(.light-theme) .other .wave-bar,
-.theme-light .other .wave-bar, :host-context(.theme-light) .other .wave-bar,
-body.light-theme .other .wave-bar, :host-context(body.light-theme) .other .wave-bar,
-body.theme-light .other .wave-bar, :host-context(body.theme-light) .other .wave-bar {
+.light-theme .other .wave-bar, .light-theme .other .wave-bar,
+.theme-light .other .wave-bar, .theme-light .other .wave-bar,
+body.light-theme .other .wave-bar, body.light-theme .other .wave-bar,
+body.theme-light .other .wave-bar, body.theme-light .other .wave-bar {
   background: rgba(15, 138, 127, 0.4) !important;
 }
 /* File messages */
-.light-theme .file-ico, :host-context(.light-theme) .file-ico,
-.theme-light .file-ico, :host-context(.theme-light) .file-ico,
-body.light-theme .file-ico, :host-context(body.light-theme) .file-ico,
-body.theme-light .file-ico, :host-context(body.theme-light) .file-ico {
+.light-theme .file-ico, .light-theme .file-ico,
+.theme-light .file-ico, .theme-light .file-ico,
+body.light-theme .file-ico, body.light-theme .file-ico,
+body.theme-light .file-ico, body.theme-light .file-ico {
   background: rgba(29, 78, 216, 0.1) !important;
   border-color: rgba(29, 78, 216, 0.2) !important;
   color: #1D4ED8 !important;
 }
-.light-theme .file-size-txt, :host-context(.light-theme) .file-size-txt,
-.theme-light .file-size-txt, :host-context(.theme-light) .file-size-txt,
-body.light-theme .file-size-txt, :host-context(body.light-theme) .file-size-txt,
-body.theme-light .file-size-txt, :host-context(body.theme-light) .file-size-txt {
+.light-theme .file-size-txt, .light-theme .file-size-txt,
+.theme-light .file-size-txt, .theme-light .file-size-txt,
+body.light-theme .file-size-txt, body.light-theme .file-size-txt,
+body.theme-light .file-size-txt, body.theme-light .file-size-txt {
   color: #64748B !important;
 }
-.light-theme .file-dl-btn, :host-context(.light-theme) .file-dl-btn,
-.theme-light .file-dl-btn, :host-context(.theme-light) .file-dl-btn,
-body.light-theme .file-dl-btn, :host-context(body.light-theme) .file-dl-btn,
-body.theme-light .file-dl-btn, :host-context(body.theme-light) .file-dl-btn {
+.light-theme .file-dl-btn, .light-theme .file-dl-btn,
+.theme-light .file-dl-btn, .theme-light .file-dl-btn,
+body.light-theme .file-dl-btn, body.light-theme .file-dl-btn,
+body.theme-light .file-dl-btn, body.theme-light .file-dl-btn {
   background: rgba(15, 23, 42, 0.06) !important;
 }
-.light-theme .file-dl-btn:hover, :host-context(.light-theme) .file-dl-btn:hover,
-.theme-light .file-dl-btn:hover, :host-context(.theme-light) .file-dl-btn:hover,
-body.light-theme .file-dl-btn:hover, :host-context(body.light-theme) .file-dl-btn:hover,
-body.theme-light .file-dl-btn:hover, :host-context(body.theme-light) .file-dl-btn:hover {
+.light-theme .file-dl-btn:hover, .light-theme .file-dl-btn:hover,
+.theme-light .file-dl-btn:hover, .theme-light .file-dl-btn:hover,
+body.light-theme .file-dl-btn:hover, body.light-theme .file-dl-btn:hover,
+body.theme-light .file-dl-btn:hover, body.theme-light .file-dl-btn:hover {
   background: #0F8A7F !important;
   color: #fff !important;
 }
 /* Image messages */
-.light-theme .image-msg-thumb, :host-context(.light-theme) .image-msg-thumb,
-.theme-light .image-msg-thumb, :host-context(.theme-light) .image-msg-thumb,
-body.light-theme .image-msg-thumb, :host-context(body.light-theme) .image-msg-thumb,
-body.theme-light .image-msg-thumb, :host-context(body.theme-light) .image-msg-thumb {
+.light-theme .image-msg-thumb, .light-theme .image-msg-thumb,
+.theme-light .image-msg-thumb, .theme-light .image-msg-thumb,
+body.light-theme .image-msg-thumb, body.light-theme .image-msg-thumb,
+body.theme-light .image-msg-thumb, body.theme-light .image-msg-thumb {
   border-color: #E2E8F0 !important;
 }
 /* Emoji picker */
-.light-theme .emoji-picker-popover, :host-context(.light-theme) .emoji-picker-popover,
-.theme-light .emoji-picker-popover, :host-context(.theme-light) .emoji-picker-popover,
-body.light-theme .emoji-picker-popover, :host-context(body.light-theme) .emoji-picker-popover,
-body.theme-light .emoji-picker-popover, :host-context(body.theme-light) .emoji-picker-popover {
+.light-theme .emoji-picker-popover, .light-theme .emoji-picker-popover,
+.theme-light .emoji-picker-popover, .theme-light .emoji-picker-popover,
+body.light-theme .emoji-picker-popover, body.light-theme .emoji-picker-popover,
+body.theme-light .emoji-picker-popover, body.theme-light .emoji-picker-popover {
   background: rgba(255, 255, 255, 0.98) !important;
   border-color: rgba(15, 138, 127, 0.3) !important;
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15) !important;
 }
-.light-theme .emoji-btn:hover, :host-context(.light-theme) .emoji-btn:hover,
-.theme-light .emoji-btn:hover, :host-context(.theme-light) .emoji-btn:hover,
-body.light-theme .emoji-btn:hover, :host-context(body.light-theme) .emoji-btn:hover,
-body.theme-light .emoji-btn:hover, :host-context(body.theme-light) .emoji-btn:hover {
+.light-theme .emoji-btn:hover, .light-theme .emoji-btn:hover,
+.theme-light .emoji-btn:hover, .theme-light .emoji-btn:hover,
+body.light-theme .emoji-btn:hover, body.light-theme .emoji-btn:hover,
+body.theme-light .emoji-btn:hover, body.theme-light .emoji-btn:hover {
   background: rgba(15, 23, 42, 0.06) !important;
 }
 /* Recording toolbar */
-.light-theme .rec-toolbar, :host-context(.light-theme) .rec-toolbar,
-.theme-light .rec-toolbar, :host-context(.theme-light) .rec-toolbar,
-body.light-theme .rec-toolbar, :host-context(body.light-theme) .rec-toolbar,
-body.theme-light .rec-toolbar, :host-context(body.theme-light) .rec-toolbar {
+.light-theme .rec-toolbar, .light-theme .rec-toolbar,
+.theme-light .rec-toolbar, .theme-light .rec-toolbar,
+body.light-theme .rec-toolbar, body.light-theme .rec-toolbar,
+body.theme-light .rec-toolbar, body.theme-light .rec-toolbar {
   background: rgba(239, 68, 68, 0.08) !important;
   border-color: rgba(239, 68, 68, 0.25) !important;
 }
-.light-theme .rec-cancel-btn, :host-context(.light-theme) .rec-cancel-btn,
-.theme-light .rec-cancel-btn, :host-context(.theme-light) .rec-cancel-btn,
-body.light-theme .rec-cancel-btn, :host-context(body.light-theme) .rec-cancel-btn,
-body.theme-light .rec-cancel-btn, :host-context(body.theme-light) .rec-cancel-btn {
+.light-theme .rec-cancel-btn, .light-theme .rec-cancel-btn,
+.theme-light .rec-cancel-btn, .theme-light .rec-cancel-btn,
+body.light-theme .rec-cancel-btn, body.light-theme .rec-cancel-btn,
+body.theme-light .rec-cancel-btn, body.theme-light .rec-cancel-btn {
   background: rgba(15, 23, 42, 0.06) !important;
   color: #475569 !important;
 }
 /* Typing indicator */
-.light-theme .typing-bar, :host-context(.light-theme) .typing-bar,
-.theme-light .typing-bar, :host-context(.theme-light) .typing-bar,
-body.light-theme .typing-bar, :host-context(body.light-theme) .typing-bar,
-body.theme-light .typing-bar, :host-context(body.theme-light) .typing-bar {
+.light-theme .typing-bar, .light-theme .typing-bar,
+.theme-light .typing-bar, .theme-light .typing-bar,
+body.light-theme .typing-bar, body.light-theme .typing-bar,
+body.theme-light .typing-bar, body.theme-light .typing-bar {
   color: #0F8A7F !important;
 }
 /* Negotiation card */
-.light-theme .neg-card-box, :host-context(.light-theme) .neg-card-box,
-.theme-light .neg-card-box, :host-context(.theme-light) .neg-card-box,
-body.light-theme .neg-card-box, :host-context(body.light-theme) .neg-card-box,
-body.theme-light .neg-card-box, :host-context(body.theme-light) .neg-card-box {
+.light-theme .neg-card-box, .light-theme .neg-card-box,
+.theme-light .neg-card-box, .theme-light .neg-card-box,
+body.light-theme .neg-card-box, body.light-theme .neg-card-box,
+body.theme-light .neg-card-box, body.theme-light .neg-card-box {
   background: #FFFFFF !important;
   border-color: rgba(29, 78, 216, 0.2) !important;
   color: #1E293B !important;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08) !important;
 }
-.light-theme .neg-card-hdr, :host-context(.light-theme) .neg-card-hdr,
-.theme-light .neg-card-hdr, :host-context(.theme-light) .neg-card-hdr,
-body.light-theme .neg-card-hdr, :host-context(body.light-theme) .neg-card-hdr,
-body.theme-light .neg-card-hdr, :host-context(body.theme-light) .neg-card-hdr {
+.light-theme .neg-card-hdr, .light-theme .neg-card-hdr,
+.theme-light .neg-card-hdr, .theme-light .neg-card-hdr,
+body.light-theme .neg-card-hdr, body.light-theme .neg-card-hdr,
+body.theme-light .neg-card-hdr, body.theme-light .neg-card-hdr {
   border-color: #E2E8F0 !important;
 }
-.light-theme .neg-card-title, :host-context(.light-theme) .neg-card-title,
-.theme-light .neg-card-title, :host-context(.theme-light) .neg-card-title,
-body.light-theme .neg-card-title, :host-context(body.light-theme) .neg-card-title,
-body.theme-light .neg-card-title, :host-context(body.theme-light) .neg-card-title {
+.light-theme .neg-card-title, .light-theme .neg-card-title,
+.theme-light .neg-card-title, .theme-light .neg-card-title,
+body.light-theme .neg-card-title, body.light-theme .neg-card-title,
+body.theme-light .neg-card-title, body.theme-light .neg-card-title {
   color: #0F172A !important;
 }
-.light-theme .neg-card-lbl, :host-context(.light-theme) .neg-card-lbl,
-.theme-light .neg-card-lbl, :host-context(.theme-light) .neg-card-lbl,
-body.light-theme .neg-card-lbl, :host-context(body.light-theme) .neg-card-lbl,
-body.theme-light .neg-card-lbl, :host-context(body.theme-light) .neg-card-lbl {
+.light-theme .neg-card-lbl, .light-theme .neg-card-lbl,
+.theme-light .neg-card-lbl, .theme-light .neg-card-lbl,
+body.light-theme .neg-card-lbl, body.light-theme .neg-card-lbl,
+body.theme-light .neg-card-lbl, body.theme-light .neg-card-lbl {
   color: #64748B !important;
 }
-.light-theme .neg-card-val, :host-context(.light-theme) .neg-card-val,
-.theme-light .neg-card-val, :host-context(.theme-light) .neg-card-val,
-body.light-theme .neg-card-val, :host-context(body.light-theme) .neg-card-val,
-body.theme-light .neg-card-val, :host-context(body.theme-light) .neg-card-val {
+.light-theme .neg-card-val, .light-theme .neg-card-val,
+.theme-light .neg-card-val, .theme-light .neg-card-val,
+body.light-theme .neg-card-val, body.light-theme .neg-card-val,
+body.theme-light .neg-card-val, body.theme-light .neg-card-val {
   color: #1E293B !important;
 }
-.light-theme .neg-card-val.highlight, :host-context(.light-theme) .neg-card-val.highlight,
-.theme-light .neg-card-val.highlight, :host-context(.theme-light) .neg-card-val.highlight,
-body.light-theme .neg-card-val.highlight, :host-context(body.light-theme) .neg-card-val.highlight,
-body.theme-light .neg-card-val.highlight, :host-context(body.theme-light) .neg-card-val.highlight {
+.light-theme .neg-card-val.highlight, .light-theme .neg-card-val.highlight,
+.theme-light .neg-card-val.highlight, .theme-light .neg-card-val.highlight,
+body.light-theme .neg-card-val.highlight, body.light-theme .neg-card-val.highlight,
+body.theme-light .neg-card-val.highlight, body.theme-light .neg-card-val.highlight {
   color: #1D4ED8 !important;
 }
-.light-theme .neg-card-notes, :host-context(.light-theme) .neg-card-notes,
-.theme-light .neg-card-notes, :host-context(.theme-light) .neg-card-notes,
-body.light-theme .neg-card-notes, :host-context(body.light-theme) .neg-card-notes,
-body.theme-light .neg-card-notes, :host-context(body.theme-light) .neg-card-notes {
+.light-theme .neg-card-notes, .light-theme .neg-card-notes,
+.theme-light .neg-card-notes, .theme-light .neg-card-notes,
+body.light-theme .neg-card-notes, body.light-theme .neg-card-notes,
+body.theme-light .neg-card-notes, body.theme-light .neg-card-notes {
   background: #F8FAFC !important;
   color: #475569 !important;
 }
-.light-theme .neg-card-actions, :host-context(.light-theme) .neg-card-actions,
-.theme-light .neg-card-actions, :host-context(.theme-light) .neg-card-actions,
-body.light-theme .neg-card-actions, :host-context(body.light-theme) .neg-card-actions,
-body.theme-light .neg-card-actions, :host-context(body.theme-light) .neg-card-actions {
+.light-theme .neg-card-actions, .light-theme .neg-card-actions,
+.theme-light .neg-card-actions, .theme-light .neg-card-actions,
+body.light-theme .neg-card-actions, body.light-theme .neg-card-actions,
+body.theme-light .neg-card-actions, body.theme-light .neg-card-actions {
   border-color: #E2E8F0 !important;
 }
-.light-theme .neg-card-decided.accepted, :host-context(.light-theme) .neg-card-decided.accepted,
-.theme-light .neg-card-decided.accepted, :host-context(.theme-light) .neg-card-decided.accepted,
-body.light-theme .neg-card-decided.accepted, :host-context(body.light-theme) .neg-card-decided.accepted,
-body.theme-light .neg-card-decided.accepted, :host-context(body.theme-light) .neg-card-decided.accepted {
+.light-theme .neg-card-decided.accepted, .light-theme .neg-card-decided.accepted,
+.theme-light .neg-card-decided.accepted, .theme-light .neg-card-decided.accepted,
+body.light-theme .neg-card-decided.accepted, body.light-theme .neg-card-decided.accepted,
+body.theme-light .neg-card-decided.accepted, body.theme-light .neg-card-decided.accepted {
   background: rgba(34, 197, 94, 0.1) !important;
   color: #059669 !important;
   border-color: rgba(34, 197, 94, 0.25) !important;
 }
-.light-theme .neg-card-decided.rejected, :host-context(.light-theme) .neg-card-decided.rejected,
-.theme-light .neg-card-decided.rejected, :host-context(.theme-light) .neg-card-decided.rejected,
-body.light-theme .neg-card-decided.rejected, :host-context(body.light-theme) .neg-card-decided.rejected,
-body.theme-light .neg-card-decided.rejected, :host-context(body.theme-light) .neg-card-decided.rejected {
+.light-theme .neg-card-decided.rejected, .light-theme .neg-card-decided.rejected,
+.theme-light .neg-card-decided.rejected, .theme-light .neg-card-decided.rejected,
+body.light-theme .neg-card-decided.rejected, body.light-theme .neg-card-decided.rejected,
+body.theme-light .neg-card-decided.rejected, body.theme-light .neg-card-decided.rejected {
   background: rgba(239, 68, 68, 0.1) !important;
   color: #DC2626 !important;
   border-color: rgba(239, 68, 68, 0.25) !important;
 }
 /* Composer context card */
-.light-theme .composer-ctx-card, :host-context(.light-theme) .composer-ctx-card,
-.theme-light .composer-ctx-card, :host-context(.theme-light) .composer-ctx-card,
-body.light-theme .composer-ctx-card, :host-context(body.light-theme) .composer-ctx-card,
-body.theme-light .composer-ctx-card, :host-context(body.theme-light) .composer-ctx-card {
+.light-theme .composer-ctx-card, .light-theme .composer-ctx-card,
+.theme-light .composer-ctx-card, .theme-light .composer-ctx-card,
+body.light-theme .composer-ctx-card, body.light-theme .composer-ctx-card,
+body.theme-light .composer-ctx-card, body.theme-light .composer-ctx-card {
   background: #F8FAFC !important;
   border-color: rgba(15, 138, 127, 0.25) !important;
   border-right-color: #0F8A7F !important;
 }
-.light-theme .composer-ctx-card .ctx-icon, :host-context(.light-theme) .composer-ctx-card .ctx-icon,
-.theme-light .composer-ctx-card .ctx-icon, :host-context(.theme-light) .composer-ctx-card .ctx-icon,
-body.light-theme .composer-ctx-card .ctx-icon, :host-context(body.light-theme) .composer-ctx-card .ctx-icon,
-body.theme-light .composer-ctx-card .ctx-icon, :host-context(body.theme-light) .composer-ctx-card .ctx-icon {
+.light-theme .composer-ctx-card .ctx-icon, .light-theme .composer-ctx-card .ctx-icon,
+.theme-light .composer-ctx-card .ctx-icon, .theme-light .composer-ctx-card .ctx-icon,
+body.light-theme .composer-ctx-card .ctx-icon, body.light-theme .composer-ctx-card .ctx-icon,
+body.theme-light .composer-ctx-card .ctx-icon, body.theme-light .composer-ctx-card .ctx-icon {
   background: rgba(15, 138, 127, 0.1) !important;
   color: #0F8A7F !important;
 }
-.light-theme .composer-ctx-card .ctx-label, :host-context(.light-theme) .composer-ctx-card .ctx-label,
-.theme-light .composer-ctx-card .ctx-label, :host-context(.theme-light) .composer-ctx-card .ctx-label,
-body.light-theme .composer-ctx-card .ctx-label, :host-context(body.light-theme) .composer-ctx-card .ctx-label,
-body.theme-light .composer-ctx-card .ctx-label, :host-context(body.theme-light) .composer-ctx-card .ctx-label {
+.light-theme .composer-ctx-card .ctx-label, .light-theme .composer-ctx-card .ctx-label,
+.theme-light .composer-ctx-card .ctx-label, .theme-light .composer-ctx-card .ctx-label,
+body.light-theme .composer-ctx-card .ctx-label, body.light-theme .composer-ctx-card .ctx-label,
+body.theme-light .composer-ctx-card .ctx-label, body.theme-light .composer-ctx-card .ctx-label {
   color: #0F8A7F !important;
 }
-.light-theme .composer-ctx-card .ctx-title, :host-context(.light-theme) .composer-ctx-card .ctx-title,
-.theme-light .composer-ctx-card .ctx-title, :host-context(.theme-light) .composer-ctx-card .ctx-title,
-body.light-theme .composer-ctx-card .ctx-title, :host-context(body.light-theme) .composer-ctx-card .ctx-title,
-body.theme-light .composer-ctx-card .ctx-title, :host-context(body.theme-light) .composer-ctx-card .ctx-title {
+.light-theme .composer-ctx-card .ctx-title, .light-theme .composer-ctx-card .ctx-title,
+.theme-light .composer-ctx-card .ctx-title, .theme-light .composer-ctx-card .ctx-title,
+body.light-theme .composer-ctx-card .ctx-title, body.light-theme .composer-ctx-card .ctx-title,
+body.theme-light .composer-ctx-card .ctx-title, body.theme-light .composer-ctx-card .ctx-title {
   color: #0F172A !important;
 }
-.light-theme .composer-ctx-card .ctx-sub, :host-context(.light-theme) .composer-ctx-card .ctx-sub,
-.theme-light .composer-ctx-card .ctx-sub, :host-context(.theme-light) .composer-ctx-card .ctx-sub,
-body.light-theme .composer-ctx-card .ctx-sub, :host-context(body.light-theme) .composer-ctx-card .ctx-sub,
-body.theme-light .composer-ctx-card .ctx-sub, :host-context(body.theme-light) .composer-ctx-card .ctx-sub {
+.light-theme .composer-ctx-card .ctx-sub, .light-theme .composer-ctx-card .ctx-sub,
+.theme-light .composer-ctx-card .ctx-sub, .theme-light .composer-ctx-card .ctx-sub,
+body.light-theme .composer-ctx-card .ctx-sub, body.light-theme .composer-ctx-card .ctx-sub,
+body.theme-light .composer-ctx-card .ctx-sub, body.theme-light .composer-ctx-card .ctx-sub {
   color: #64748B !important;
 }
-.light-theme .composer-ctx-card .ctx-close, :host-context(.light-theme) .composer-ctx-card .ctx-close,
-.theme-light .composer-ctx-card .ctx-close, :host-context(.theme-light) .composer-ctx-card .ctx-close,
-body.light-theme .composer-ctx-card .ctx-close, :host-context(body.light-theme) .composer-ctx-card .ctx-close,
-body.theme-light .composer-ctx-card .ctx-close, :host-context(body.theme-light) .composer-ctx-card .ctx-close {
+.light-theme .composer-ctx-card .ctx-close, .light-theme .composer-ctx-card .ctx-close,
+.theme-light .composer-ctx-card .ctx-close, .theme-light .composer-ctx-card .ctx-close,
+body.light-theme .composer-ctx-card .ctx-close, body.light-theme .composer-ctx-card .ctx-close,
+body.theme-light .composer-ctx-card .ctx-close, body.theme-light .composer-ctx-card .ctx-close {
   background: rgba(15, 23, 42, 0.06) !important;
   color: #64748B !important;
 }
 /* Message context preview */
-.light-theme .msg-ctx-preview, :host-context(.light-theme) .msg-ctx-preview,
-.theme-light .msg-ctx-preview, :host-context(.theme-light) .msg-ctx-preview,
-body.light-theme .msg-ctx-preview, :host-context(body.light-theme) .msg-ctx-preview,
-body.theme-light .msg-ctx-preview, :host-context(body.theme-light) .msg-ctx-preview {
+.light-theme .msg-ctx-preview, .light-theme .msg-ctx-preview,
+.theme-light .msg-ctx-preview, .theme-light .msg-ctx-preview,
+body.light-theme .msg-ctx-preview, body.light-theme .msg-ctx-preview,
+body.theme-light .msg-ctx-preview, body.theme-light .msg-ctx-preview {
   background: rgba(15, 23, 42, 0.04) !important;
 }
-.light-theme .msg-ctx-preview:hover, :host-context(.light-theme) .msg-ctx-preview:hover,
-.theme-light .msg-ctx-preview:hover, :host-context(.theme-light) .msg-ctx-preview:hover,
-body.light-theme .msg-ctx-preview:hover, :host-context(body.light-theme) .msg-ctx-preview:hover,
-body.theme-light .msg-ctx-preview:hover, :host-context(body.theme-light) .msg-ctx-preview:hover {
+.light-theme .msg-ctx-preview:hover, .light-theme .msg-ctx-preview:hover,
+.theme-light .msg-ctx-preview:hover, .theme-light .msg-ctx-preview:hover,
+body.light-theme .msg-ctx-preview:hover, body.light-theme .msg-ctx-preview:hover,
+body.theme-light .msg-ctx-preview:hover, body.theme-light .msg-ctx-preview:hover {
   background: rgba(15, 23, 42, 0.07) !important;
 }
-.light-theme .msg-ctx-preview .msg-ctx-label, :host-context(.light-theme) .msg-ctx-preview .msg-ctx-label,
-.theme-light .msg-ctx-preview .msg-ctx-label, :host-context(.theme-light) .msg-ctx-preview .msg-ctx-label,
-body.light-theme .msg-ctx-preview .msg-ctx-label, :host-context(body.light-theme) .msg-ctx-preview .msg-ctx-label,
-body.theme-light .msg-ctx-preview .msg-ctx-label, :host-context(body.theme-light) .msg-ctx-preview .msg-ctx-label {
+.light-theme .msg-ctx-preview .msg-ctx-label, .light-theme .msg-ctx-preview .msg-ctx-label,
+.theme-light .msg-ctx-preview .msg-ctx-label, .theme-light .msg-ctx-preview .msg-ctx-label,
+body.light-theme .msg-ctx-preview .msg-ctx-label, body.light-theme .msg-ctx-preview .msg-ctx-label,
+body.theme-light .msg-ctx-preview .msg-ctx-label, body.theme-light .msg-ctx-preview .msg-ctx-label {
   color: #0F8A7F !important;
 }
-.light-theme .msg-ctx-preview .msg-ctx-title, :host-context(.light-theme) .msg-ctx-preview .msg-ctx-title,
-.theme-light .msg-ctx-preview .msg-ctx-title, :host-context(.theme-light) .msg-ctx-preview .msg-ctx-title,
-body.light-theme .msg-ctx-preview .msg-ctx-title, :host-context(body.light-theme) .msg-ctx-preview .msg-ctx-title,
-body.theme-light .msg-ctx-preview .msg-ctx-title, :host-context(body.theme-light) .msg-ctx-preview .msg-ctx-title {
+.light-theme .msg-ctx-preview .msg-ctx-title, .light-theme .msg-ctx-preview .msg-ctx-title,
+.theme-light .msg-ctx-preview .msg-ctx-title, .theme-light .msg-ctx-preview .msg-ctx-title,
+body.light-theme .msg-ctx-preview .msg-ctx-title, body.light-theme .msg-ctx-preview .msg-ctx-title,
+body.theme-light .msg-ctx-preview .msg-ctx-title, body.theme-light .msg-ctx-preview .msg-ctx-title {
   color: #1E293B !important;
 }
-.light-theme .msg-ctx-preview .msg-ctx-sub, :host-context(.light-theme) .msg-ctx-preview .msg-ctx-sub,
-.theme-light .msg-ctx-preview .msg-ctx-sub, :host-context(.theme-light) .msg-ctx-preview .msg-ctx-sub,
-body.light-theme .msg-ctx-preview .msg-ctx-sub, :host-context(body.light-theme) .msg-ctx-preview .msg-ctx-sub,
-body.theme-light .msg-ctx-preview .msg-ctx-sub, :host-context(body.theme-light) .msg-ctx-preview .msg-ctx-sub {
+.light-theme .msg-ctx-preview .msg-ctx-sub, .light-theme .msg-ctx-preview .msg-ctx-sub,
+.theme-light .msg-ctx-preview .msg-ctx-sub, .theme-light .msg-ctx-preview .msg-ctx-sub,
+body.light-theme .msg-ctx-preview .msg-ctx-sub, body.light-theme .msg-ctx-preview .msg-ctx-sub,
+body.theme-light .msg-ctx-preview .msg-ctx-sub, body.theme-light .msg-ctx-preview .msg-ctx-sub {
   color: #64748B !important;
 }
 /* Image modal */
-.light-theme .image-modal-overlay, :host-context(.light-theme) .image-modal-overlay,
-.theme-light .image-modal-overlay, :host-context(.theme-light) .image-modal-overlay,
-body.light-theme .image-modal-overlay, :host-context(body.light-theme) .image-modal-overlay,
-body.theme-light .image-modal-overlay, :host-context(body.theme-light) .image-modal-overlay {
+.light-theme .image-modal-overlay, .light-theme .image-modal-overlay,
+.theme-light .image-modal-overlay, .theme-light .image-modal-overlay,
+body.light-theme .image-modal-overlay, body.light-theme .image-modal-overlay,
+body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
   background: rgba(15, 23, 42, 0.85) !important;
 }
 

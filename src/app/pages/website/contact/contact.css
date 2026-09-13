@@ -298,41 +298,41 @@
 }
 
 /* ── LIGHT THEME ── */
-:host-context(body.light-theme) .form-card,
-:host-context(body.theme-light) .form-card,
-:host-context(.light-theme) .form-card,
-:host-context(.theme-light) .form-card {
+body.light-theme .form-card,
+body.theme-light .form-card,
+.light-theme .form-card,
+.theme-light .form-card {
   background: #FFFFFF;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
 }
 
-:host-context(body.light-theme) .form-input,
-:host-context(body.theme-light) .form-input,
-:host-context(.light-theme) .form-input,
-:host-context(.theme-light) .form-input,
-:host-context(body.light-theme) .form-select,
-:host-context(body.theme-light) .form-select,
-:host-context(.light-theme) .form-select,
-:host-context(.theme-light) .form-select,
-:host-context(body.light-theme) .form-textarea,
-:host-context(body.theme-light) .form-textarea,
-:host-context(.light-theme) .form-textarea,
-:host-context(.theme-light) .form-textarea {
+body.light-theme .form-input,
+body.theme-light .form-input,
+.light-theme .form-input,
+.theme-light .form-input,
+body.light-theme .form-select,
+body.theme-light .form-select,
+.light-theme .form-select,
+.theme-light .form-select,
+body.light-theme .form-textarea,
+body.theme-light .form-textarea,
+.light-theme .form-textarea,
+.theme-light .form-textarea {
   background: #FFFFFF;
   border-color: #D8DFEC;
 }
 
-:host-context(body.light-theme) .info-card,
-:host-context(body.theme-light) .info-card,
-:host-context(.light-theme) .info-card,
-:host-context(.theme-light) .info-card {
+body.light-theme .info-card,
+body.theme-light .info-card,
+.light-theme .info-card,
+.theme-light .info-card {
   background: #FFFFFF;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
 }
 
-:host-context(body.light-theme) .social-btn,
-:host-context(body.theme-light) .social-btn,
-:host-context(.light-theme) .social-btn,
-:host-context(.theme-light) .social-btn {
+body.light-theme .social-btn,
+body.theme-light .social-btn,
+.light-theme .social-btn,
+.theme-light .social-btn {
   background: #EEF2FA;
 }

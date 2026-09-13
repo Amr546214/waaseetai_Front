@@ -130,115 +130,115 @@
 }
 
 /* LIGHT THEME OVERRIDES */
-:host-context(body.light-theme) .req-details-page,
-:host-context(body.theme-light) .req-details-page,
-:host-context(.light-theme) .req-details-page,
-:host-context(.theme-light) .req-details-page {
+body.light-theme .req-details-page,
+body.theme-light .req-details-page,
+.light-theme .req-details-page,
+.theme-light .req-details-page {
 	color:#1E293B;
 	--teal-txt:#0F8A7F;
 	--ai-txt:#6B27A5;
 	--kahr:#9A6700;
 }
-:host-context(body.light-theme) .od-hd, :host-context(body.theme-light) .od-hd, :host-context(.light-theme) .od-hd, :host-context(.theme-light) .od-hd,
-:host-context(body.light-theme) .od-card, :host-context(body.theme-light) .od-card, :host-context(.light-theme) .od-card, :host-context(.theme-light) .od-card,
-:host-context(body.light-theme) .v1, :host-context(body.theme-light) .v1, :host-context(.light-theme) .v1, :host-context(.theme-light) .v1,
-:host-context(body.light-theme) .v1-main, :host-context(body.theme-light) .v1-main, :host-context(.light-theme) .v1-main, :host-context(.theme-light) .v1-main,
-:host-context(body.light-theme) .req-box, :host-context(body.theme-light) .req-box, :host-context(.light-theme) .req-box, :host-context(.theme-light) .req-box {
+body.light-theme .od-hd, body.theme-light .od-hd, .light-theme .od-hd, .theme-light .od-hd,
+body.light-theme .od-card, body.theme-light .od-card, .light-theme .od-card, .theme-light .od-card,
+body.light-theme .v1, body.theme-light .v1, .light-theme .v1, .theme-light .v1,
+body.light-theme .v1-main, body.theme-light .v1-main, .light-theme .v1-main, .theme-light .v1-main,
+body.light-theme .req-box, body.theme-light .req-box, .light-theme .req-box, .theme-light .req-box {
 	background:#fff;
 	border-color:#E2E8F4;
 }
-:host-context(body.light-theme) .v1.best, :host-context(body.theme-light) .v1.best, :host-context(.light-theme) .v1.best, :host-context(.theme-light) .v1.best {
+body.light-theme .v1.best, body.theme-light .v1.best, .light-theme .v1.best, .theme-light .v1.best {
 	border-color:rgba(123,47,190,.3);
 	box-shadow:0 0 0 1px rgba(123,47,190,.15);
 }
-:host-context(body.light-theme) .od-hd-ttl, :host-context(body.theme-light) .od-hd-ttl, :host-context(.light-theme) .od-hd-ttl, :host-context(.theme-light) .od-hd-ttl,
-:host-context(body.light-theme) .od-meta-val, :host-context(body.theme-light) .od-meta-val, :host-context(.light-theme) .od-meta-val, :host-context(.theme-light) .od-meta-val,
-:host-context(body.light-theme) .sec-ttl, :host-context(body.theme-light) .sec-ttl, :host-context(.light-theme) .sec-ttl, :host-context(.theme-light) .sec-ttl,
-:host-context(body.light-theme) .v1-nm, :host-context(body.theme-light) .v1-nm, :host-context(.light-theme) .v1-nm, :host-context(.theme-light) .v1-nm,
-:host-context(body.light-theme) .cmp2-v, :host-context(body.theme-light) .cmp2-v, :host-context(.light-theme) .cmp2-v, :host-context(.theme-light) .cmp2-v,
-:host-context(body.light-theme) .req-ttl, :host-context(body.theme-light) .req-ttl, :host-context(.light-theme) .req-ttl, :host-context(.theme-light) .req-ttl,
-:host-context(body.light-theme) .modal-t, :host-context(body.theme-light) .modal-t, :host-context(.light-theme) .modal-t, :host-context(.theme-light) .modal-t,
-:host-context(body.light-theme) .v1-desc strong, :host-context(body.theme-light) .v1-desc strong, :host-context(.light-theme) .v1-desc strong, :host-context(.theme-light) .v1-desc strong,
-:host-context(body.light-theme) .v1-plan strong, :host-context(body.theme-light) .v1-plan strong, :host-context(.light-theme) .v1-plan strong, :host-context(.theme-light) .v1-plan strong {
+body.light-theme .od-hd-ttl, body.theme-light .od-hd-ttl, .light-theme .od-hd-ttl, .theme-light .od-hd-ttl,
+body.light-theme .od-meta-val, body.theme-light .od-meta-val, .light-theme .od-meta-val, .theme-light .od-meta-val,
+body.light-theme .sec-ttl, body.theme-light .sec-ttl, .light-theme .sec-ttl, .theme-light .sec-ttl,
+body.light-theme .v1-nm, body.theme-light .v1-nm, .light-theme .v1-nm, .theme-light .v1-nm,
+body.light-theme .cmp2-v, body.theme-light .cmp2-v, .light-theme .cmp2-v, .theme-light .cmp2-v,
+body.light-theme .req-ttl, body.theme-light .req-ttl, .light-theme .req-ttl, .theme-light .req-ttl,
+body.light-theme .modal-t, body.theme-light .modal-t, .light-theme .modal-t, .theme-light .modal-t,
+body.light-theme .v1-desc strong, body.theme-light .v1-desc strong, .light-theme .v1-desc strong, .theme-light .v1-desc strong,
+body.light-theme .v1-plan strong, body.theme-light .v1-plan strong, .light-theme .v1-plan strong, .theme-light .v1-plan strong {
 	color:#0F172A !important;
 }
-:host-context(body.light-theme) .req-desc, :host-context(body.theme-light) .req-desc, :host-context(.light-theme) .req-desc, :host-context(.theme-light) .req-desc,
-:host-context(body.light-theme) .v1-desc, :host-context(body.theme-light) .v1-desc, :host-context(.light-theme) .v1-desc, :host-context(.theme-light) .v1-desc,
-:host-context(body.light-theme) .v1-plan, :host-context(body.theme-light) .v1-plan, :host-context(.light-theme) .v1-plan, :host-context(.theme-light) .v1-plan,
-:host-context(body.light-theme) .v1-meta, :host-context(body.theme-light) .v1-meta, :host-context(.light-theme) .v1-meta, :host-context(.theme-light) .v1-meta,
-:host-context(body.light-theme) .modal-d, :host-context(body.theme-light) .modal-d, :host-context(.light-theme) .modal-d, :host-context(.theme-light) .modal-d,
-:host-context(body.light-theme) .ai-disc-txt, :host-context(body.theme-light) .ai-disc-txt, :host-context(.light-theme) .ai-disc-txt, :host-context(.theme-light) .ai-disc-txt,
-:host-context(body.light-theme) .cmp2-hd, :host-context(body.theme-light) .cmp2-hd, :host-context(.light-theme) .cmp2-hd, :host-context(.theme-light) .cmp2-hd {
+body.light-theme .req-desc, body.theme-light .req-desc, .light-theme .req-desc, .theme-light .req-desc,
+body.light-theme .v1-desc, body.theme-light .v1-desc, .light-theme .v1-desc, .theme-light .v1-desc,
+body.light-theme .v1-plan, body.theme-light .v1-plan, .light-theme .v1-plan, .theme-light .v1-plan,
+body.light-theme .v1-meta, body.theme-light .v1-meta, .light-theme .v1-meta, .theme-light .v1-meta,
+body.light-theme .modal-d, body.theme-light .modal-d, .light-theme .modal-d, .theme-light .modal-d,
+body.light-theme .ai-disc-txt, body.theme-light .ai-disc-txt, .light-theme .ai-disc-txt, .theme-light .ai-disc-txt,
+body.light-theme .cmp2-hd, body.theme-light .cmp2-hd, .light-theme .cmp2-hd, .theme-light .cmp2-hd {
 	color:#475569 !important;
 }
-:host-context(body.light-theme) .cmp2-k, :host-context(body.theme-light) .cmp2-k, :host-context(.light-theme) .cmp2-k, :host-context(.theme-light) .cmp2-k,
-:host-context(body.light-theme) .od-meta-lbl, :host-context(body.theme-light) .od-meta-lbl, :host-context(.light-theme) .od-meta-lbl, :host-context(.theme-light) .od-meta-lbl,
-:host-context(body.light-theme) .sec-ttl .cnt, :host-context(body.theme-light) .sec-ttl .cnt, :host-context(.light-theme) .sec-ttl .cnt, :host-context(.theme-light) .sec-ttl .cnt {
+body.light-theme .cmp2-k, body.theme-light .cmp2-k, .light-theme .cmp2-k, .theme-light .cmp2-k,
+body.light-theme .od-meta-lbl, body.theme-light .od-meta-lbl, .light-theme .od-meta-lbl, .theme-light .od-meta-lbl,
+body.light-theme .sec-ttl .cnt, body.theme-light .sec-ttl .cnt, .light-theme .sec-ttl .cnt, .theme-light .sec-ttl .cnt {
 	color:#64748B !important;
 }
-:host-context(body.light-theme) .neg-lbl, :host-context(body.theme-light) .neg-lbl, :host-context(.light-theme) .neg-lbl, :host-context(.theme-light) .neg-lbl {
+body.light-theme .neg-lbl, body.theme-light .neg-lbl, .light-theme .neg-lbl, .theme-light .neg-lbl {
 	color:#475569 !important;
 }
-:host-context(body.light-theme) .req-tag, :host-context(body.theme-light) .req-tag, :host-context(.light-theme) .req-tag, :host-context(.theme-light) .req-tag {
+body.light-theme .req-tag, body.theme-light .req-tag, .light-theme .req-tag, .theme-light .req-tag {
 	color:#1D6FE0 !important;
 }
-:host-context(body.light-theme) .cmp2-col, :host-context(body.theme-light) .cmp2-col, :host-context(.light-theme) .cmp2-col, :host-context(.theme-light) .cmp2-col,
-:host-context(body.light-theme) .od-meta-item, :host-context(body.theme-light) .od-meta-item, :host-context(.light-theme) .od-meta-item, :host-context(.theme-light) .od-meta-item {
+body.light-theme .cmp2-col, body.theme-light .cmp2-col, .light-theme .cmp2-col, .theme-light .cmp2-col,
+body.light-theme .od-meta-item, body.theme-light .od-meta-item, .light-theme .od-meta-item, .theme-light .od-meta-item {
 	background:#F1F5FB;
 	border-color:#E2E8F4;
 }
-:host-context(body.light-theme) .cmp2-col.ai, :host-context(body.theme-light) .cmp2-col.ai, :host-context(.light-theme) .cmp2-col.ai, :host-context(.theme-light) .cmp2-col.ai {
+body.light-theme .cmp2-col.ai, body.theme-light .cmp2-col.ai, .light-theme .cmp2-col.ai, .theme-light .cmp2-col.ai {
 	background:linear-gradient(160deg,rgba(123,47,190,.12),rgba(43,127,255,.05)) !important;
 	border-color:rgba(123,47,190,.24) !important;
 }
-:host-context(body.light-theme) .v1-ai, :host-context(body.theme-light) .v1-ai, :host-context(.light-theme) .v1-ai, :host-context(.theme-light) .v1-ai {
+body.light-theme .v1-ai, body.theme-light .v1-ai, .light-theme .v1-ai, .theme-light .v1-ai {
 	background:#fff;
 	border-color:#E2E8F4;
 }
-:host-context(body.light-theme) .v1-file, :host-context(body.theme-light) .v1-file, :host-context(.light-theme) .v1-file, :host-context(.theme-light) .v1-file {
+body.light-theme .v1-file, body.theme-light .v1-file, .light-theme .v1-file, .theme-light .v1-file {
 	background:#F1F5FB;
 	border-color:#D8DFEC;
 	color:#475569;
 }
-:host-context(body.light-theme) .v1-file:hover, :host-context(body.theme-light) .v1-file:hover, :host-context(.light-theme) .v1-file:hover, :host-context(.theme-light) .v1-file:hover {
+body.light-theme .v1-file:hover, body.theme-light .v1-file:hover, .light-theme .v1-file:hover, .theme-light .v1-file:hover {
 	background:#E2E8F4;
 	color:#0F172A;
 }
 
-:host-context(body.light-theme) .v1-verdict, :host-context(body.theme-light) .v1-verdict, :host-context(.light-theme) .v1-verdict, :host-context(.theme-light) .v1-verdict,
-:host-context(body.light-theme) .cmp2-note, :host-context(body.theme-light) .cmp2-note, :host-context(.light-theme) .cmp2-note, :host-context(.theme-light) .cmp2-note {
+body.light-theme .v1-verdict, body.theme-light .v1-verdict, .light-theme .v1-verdict, .theme-light .v1-verdict,
+body.light-theme .cmp2-note, body.theme-light .cmp2-note, .light-theme .cmp2-note, .theme-light .cmp2-note {
 	color:#0A6F64 !important;
 }
-:host-context(body.light-theme) .v1-verdict.warn, :host-context(body.theme-light) .v1-verdict.warn, :host-context(.light-theme) .v1-verdict.warn, :host-context(.theme-light) .v1-verdict.warn,
-:host-context(body.light-theme) .cmp2-note.warn, :host-context(body.theme-light) .cmp2-note.warn, :host-context(.light-theme) .cmp2-note.warn, :host-context(.theme-light) .cmp2-note.warn {
+body.light-theme .v1-verdict.warn, body.theme-light .v1-verdict.warn, .light-theme .v1-verdict.warn, .theme-light .v1-verdict.warn,
+body.light-theme .cmp2-note.warn, body.theme-light .cmp2-note.warn, .light-theme .cmp2-note.warn, .theme-light .cmp2-note.warn {
 	color:#9A6700 !important;
 }
-:host-context(body.light-theme) .modal-box, :host-context(body.theme-light) .modal-box, :host-context(.light-theme) .modal-box, :host-context(.theme-light) .modal-box {
+body.light-theme .modal-box, body.theme-light .modal-box, .light-theme .modal-box, .theme-light .modal-box {
 	background:#fff;
 	border-color:#E2E8F4;
 	box-shadow:0 28px 80px rgba(15,23,42,.22);
 }
-:host-context(body.light-theme) .neg-inp, :host-context(body.theme-light) .neg-inp, :host-context(.light-theme) .neg-inp, :host-context(.theme-light) .neg-inp,
-:host-context(body.light-theme) .neg-chip, :host-context(body.theme-light) .neg-chip, :host-context(.light-theme) .neg-chip, :host-context(.theme-light) .neg-chip {
+body.light-theme .neg-inp, body.theme-light .neg-inp, .light-theme .neg-inp, .theme-light .neg-inp,
+body.light-theme .neg-chip, body.theme-light .neg-chip, .light-theme .neg-chip, .theme-light .neg-chip {
 	background:#F8FAFC;
 	border-color:#CBD5E1;
 	color:#0F172A;
 }
-:host-context(body.light-theme) .modal-bt-cancel, :host-context(body.theme-light) .modal-bt-cancel, :host-context(.light-theme) .modal-bt-cancel, :host-context(.theme-light) .modal-bt-cancel {
+body.light-theme .modal-bt-cancel, body.theme-light .modal-bt-cancel, .light-theme .modal-bt-cancel, .theme-light .modal-bt-cancel {
 	background:rgba(15,23,42,.04);
 	border-color:rgba(15,23,42,.14);
 	color:#475569;
 }
-:host-context(body.light-theme) .cmp-bar, :host-context(body.theme-light) .cmp-bar, :host-context(.light-theme) .cmp-bar, :host-context(.theme-light) .cmp-bar {
+body.light-theme .cmp-bar, body.theme-light .cmp-bar, .light-theme .cmp-bar, .theme-light .cmp-bar {
 	background:rgba(255,255,255,.96);
 	border-top:1px solid rgba(123,47,190,.22);
 }
-:host-context(body.light-theme) .v1-meta [style*="color:#FFD700"], :host-context(body.theme-light) .v1-meta [style*="color:#FFD700"], :host-context(.light-theme) .v1-meta [style*="color:#FFD700"], :host-context(.theme-light) .v1-meta [style*="color:#FFD700"] {
+body.light-theme .v1-meta [style*="color:#FFD700"], body.theme-light .v1-meta [style*="color:#FFD700"], .light-theme .v1-meta [style*="color:#FFD700"], .theme-light .v1-meta [style*="color:#FFD700"] {
 	color:#9A6700 !important;
 }
-:host-context(body.light-theme) button.neg-chip.on, :host-context(body.theme-light) button.neg-chip.on, :host-context(.light-theme) button.neg-chip.on, :host-context(.theme-light) button.neg-chip.on {
+body.light-theme button.neg-chip.on, body.theme-light button.neg-chip.on, .light-theme button.neg-chip.on, .theme-light button.neg-chip.on {
 	color:#1D6FE0 !important;
 }
-:host-context(body.light-theme) span.opill.op-active, :host-context(body.theme-light) span.opill.op-active, :host-context(.light-theme) span.opill.op-active, :host-context(.theme-light) span.opill.op-active {
+body.light-theme span.opill.op-active, body.theme-light span.opill.op-active, .light-theme span.opill.op-active, .theme-light span.opill.op-active {
 	color:#0A6F64 !important;
 }

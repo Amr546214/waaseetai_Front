@@ -95,205 +95,205 @@
 }
 
 /* LIGHT THEME OVERRIDES */
-:host-context(body.light-theme) .about-hero,
-:host-context(body.theme-light) .about-hero,
-:host-context(.light-theme) .about-hero,
-:host-context(.theme-light) .about-hero,
-:host-context(body.light-theme) .stats-bar,
-:host-context(body.theme-light) .stats-bar,
-:host-context(.light-theme) .stats-bar,
-:host-context(.theme-light) .stats-bar,
-:host-context(body.light-theme) .stat-item,
-:host-context(body.theme-light) .stat-item,
-:host-context(.light-theme) .stat-item,
-:host-context(.theme-light) .stat-item,
-:host-context(body.light-theme) .section-divider,
-:host-context(body.theme-light) .section-divider,
-:host-context(.light-theme) .section-divider,
-:host-context(.theme-light) .section-divider {
+body.light-theme .about-hero,
+body.theme-light .about-hero,
+.light-theme .about-hero,
+.theme-light .about-hero,
+body.light-theme .stats-bar,
+body.theme-light .stats-bar,
+.light-theme .stats-bar,
+.theme-light .stats-bar,
+body.light-theme .stat-item,
+body.theme-light .stat-item,
+.light-theme .stat-item,
+.theme-light .stat-item,
+body.light-theme .section-divider,
+body.theme-light .section-divider,
+.light-theme .section-divider,
+.theme-light .section-divider {
   border-color: rgba(0, 0, 0, 0.08);
 }
 
-:host-context(body.light-theme) .about-hero h1,
-:host-context(body.theme-light) .about-hero h1,
-:host-context(.light-theme) .about-hero h1,
-:host-context(.theme-light) .about-hero h1,
-:host-context(body.light-theme) .stat-num,
-:host-context(body.theme-light) .stat-num,
-:host-context(.light-theme) .stat-num,
-:host-context(.theme-light) .stat-num,
-:host-context(body.light-theme) .section-title,
-:host-context(body.theme-light) .section-title,
-:host-context(.light-theme) .section-title,
-:host-context(.theme-light) .section-title,
-:host-context(body.light-theme) .value-title,
-:host-context(body.theme-light) .value-title,
-:host-context(.light-theme) .value-title,
-:host-context(.theme-light) .value-title,
-:host-context(body.light-theme) .ai-feat-title,
-:host-context(body.theme-light) .ai-feat-title,
-:host-context(.light-theme) .ai-feat-title,
-:host-context(.theme-light) .ai-feat-title,
-:host-context(body.light-theme) .team-name,
-:host-context(body.theme-light) .team-name,
-:host-context(.light-theme) .team-name,
-:host-context(.theme-light) .team-name,
-:host-context(body.light-theme) .cta-section h2,
-:host-context(body.theme-light) .cta-section h2,
-:host-context(.light-theme) .cta-section h2,
-:host-context(.theme-light) .cta-section h2,
-:host-context(body.light-theme) .mission-point-title,
-:host-context(body.theme-light) .mission-point-title,
-:host-context(.light-theme) .mission-point-title,
-:host-context(.theme-light) .mission-point-title {
+body.light-theme .about-hero h1,
+body.theme-light .about-hero h1,
+.light-theme .about-hero h1,
+.theme-light .about-hero h1,
+body.light-theme .stat-num,
+body.theme-light .stat-num,
+.light-theme .stat-num,
+.theme-light .stat-num,
+body.light-theme .section-title,
+body.theme-light .section-title,
+.light-theme .section-title,
+.theme-light .section-title,
+body.light-theme .value-title,
+body.theme-light .value-title,
+.light-theme .value-title,
+.theme-light .value-title,
+body.light-theme .ai-feat-title,
+body.theme-light .ai-feat-title,
+.light-theme .ai-feat-title,
+.theme-light .ai-feat-title,
+body.light-theme .team-name,
+body.theme-light .team-name,
+.light-theme .team-name,
+.theme-light .team-name,
+body.light-theme .cta-section h2,
+body.theme-light .cta-section h2,
+.light-theme .cta-section h2,
+.theme-light .cta-section h2,
+body.light-theme .mission-point-title,
+body.theme-light .mission-point-title,
+.light-theme .mission-point-title,
+.theme-light .mission-point-title {
   color: #0F172A !important;
 }
 
-:host-context(body.light-theme) .about-hero p,
-:host-context(body.theme-light) .about-hero p,
-:host-context(.light-theme) .about-hero p,
-:host-context(.theme-light) .about-hero p,
-:host-context(body.light-theme) .stat-label,
-:host-context(body.theme-light) .stat-label,
-:host-context(.light-theme) .stat-label,
-:host-context(.theme-light) .stat-label,
-:host-context(body.light-theme) .section-sub,
-:host-context(body.theme-light) .section-sub,
-:host-context(.light-theme) .section-sub,
-:host-context(.theme-light) .section-sub,
-:host-context(body.light-theme) .value-sub,
-:host-context(body.theme-light) .value-sub,
-:host-context(.light-theme) .value-sub,
-:host-context(.theme-light) .value-sub,
-:host-context(body.light-theme) .ai-feat-sub,
-:host-context(body.theme-light) .ai-feat-sub,
-:host-context(.light-theme) .ai-feat-sub,
-:host-context(.theme-light) .ai-feat-sub,
-:host-context(body.light-theme) .team-sub,
-:host-context(body.theme-light) .team-sub,
-:host-context(.light-theme) .team-sub,
-:host-context(.theme-light) .team-sub,
-:host-context(body.light-theme) .cta-section p,
-:host-context(body.theme-light) .cta-section p,
-:host-context(.light-theme) .cta-section p,
-:host-context(.theme-light) .cta-section p,
-:host-context(body.light-theme) .mission-point-sub,
-:host-context(body.theme-light) .mission-point-sub,
-:host-context(.light-theme) .mission-point-sub,
-:host-context(.theme-light) .mission-point-sub,
-:host-context(body.light-theme) .ai-metric-label,
-:host-context(body.theme-light) .ai-metric-label,
-:host-context(.light-theme) .ai-metric-label,
-:host-context(.theme-light) .ai-metric-label {
+body.light-theme .about-hero p,
+body.theme-light .about-hero p,
+.light-theme .about-hero p,
+.theme-light .about-hero p,
+body.light-theme .stat-label,
+body.theme-light .stat-label,
+.light-theme .stat-label,
+.theme-light .stat-label,
+body.light-theme .section-sub,
+body.theme-light .section-sub,
+.light-theme .section-sub,
+.theme-light .section-sub,
+body.light-theme .value-sub,
+body.theme-light .value-sub,
+.light-theme .value-sub,
+.theme-light .value-sub,
+body.light-theme .ai-feat-sub,
+body.theme-light .ai-feat-sub,
+.light-theme .ai-feat-sub,
+.theme-light .ai-feat-sub,
+body.light-theme .team-sub,
+body.theme-light .team-sub,
+.light-theme .team-sub,
+.theme-light .team-sub,
+body.light-theme .cta-section p,
+body.theme-light .cta-section p,
+.light-theme .cta-section p,
+.theme-light .cta-section p,
+body.light-theme .mission-point-sub,
+body.theme-light .mission-point-sub,
+.light-theme .mission-point-sub,
+.theme-light .mission-point-sub,
+body.light-theme .ai-metric-label,
+body.theme-light .ai-metric-label,
+.light-theme .ai-metric-label,
+.theme-light .ai-metric-label {
   color: #475569 !important;
 }
 
-:host-context(body.light-theme) .stats-bar,
-:host-context(body.theme-light) .stats-bar,
-:host-context(.light-theme) .stats-bar,
-:host-context(.theme-light) .stats-bar {
+body.light-theme .stats-bar,
+body.theme-light .stats-bar,
+.light-theme .stats-bar,
+.theme-light .stats-bar {
   background: #F8FAFC;
 }
 
-:host-context(body.light-theme) .mission-visual,
-:host-context(body.theme-light) .mission-visual,
-:host-context(.light-theme) .mission-visual,
-:host-context(.theme-light) .mission-visual {
+body.light-theme .mission-visual,
+body.theme-light .mission-visual,
+.light-theme .mission-visual,
+.theme-light .mission-visual {
   background: #F8FAFC;
   border-color: #E2E8F0;
 }
 
-:host-context(body.light-theme) .value-card,
-:host-context(body.theme-light) .value-card,
-:host-context(.light-theme) .value-card,
-:host-context(.theme-light) .value-card,
-:host-context(body.light-theme) .team-card,
-:host-context(body.theme-light) .team-card,
-:host-context(.light-theme) .team-card,
-:host-context(.theme-light) .team-card {
+body.light-theme .value-card,
+body.theme-light .value-card,
+.light-theme .value-card,
+.theme-light .value-card,
+body.light-theme .team-card,
+body.theme-light .team-card,
+.light-theme .team-card,
+.theme-light .team-card {
   background: #ffffff;
   border-color: #E2E8F0;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
 }
 
-:host-context(body.light-theme) .value-card:hover,
-:host-context(body.theme-light) .value-card:hover,
-:host-context(.light-theme) .value-card:hover,
-:host-context(.theme-light) .value-card:hover,
-:host-context(body.light-theme) .team-card:hover,
-:host-context(body.theme-light) .team-card:hover,
-:host-context(.light-theme) .team-card:hover,
-:host-context(.theme-light) .team-card:hover {
+body.light-theme .value-card:hover,
+body.theme-light .value-card:hover,
+.light-theme .value-card:hover,
+.theme-light .value-card:hover,
+body.light-theme .team-card:hover,
+body.theme-light .team-card:hover,
+.light-theme .team-card:hover,
+.theme-light .team-card:hover {
   background: #F8FAFC;
   border-color: rgba(43, 212, 199, 0.3);
   box-shadow: 0 8px 24px rgba(43, 212, 199, 0.08);
 }
 
-:host-context(body.light-theme) .ai-section,
-:host-context(body.theme-light) .ai-section,
-:host-context(.light-theme) .ai-section,
-:host-context(.theme-light) .ai-section {
+body.light-theme .ai-section,
+body.theme-light .ai-section,
+.light-theme .ai-section,
+.theme-light .ai-section {
   background: linear-gradient(135deg, rgba(123, 47, 190, 0.04), rgba(43, 127, 255, 0.03));
   border-color: rgba(123, 47, 190, 0.15);
 }
 
-:host-context(body.light-theme) .ai-visual,
-:host-context(body.theme-light) .ai-visual,
-:host-context(.light-theme) .ai-visual,
-:host-context(.theme-light) .ai-visual {
+body.light-theme .ai-visual,
+body.theme-light .ai-visual,
+.light-theme .ai-visual,
+.theme-light .ai-visual {
   background: #ffffff;
   border-color: #E2E8F0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 
-:host-context(body.light-theme) .ai-metric,
-:host-context(body.theme-light) .ai-metric,
-:host-context(.light-theme) .ai-metric,
-:host-context(.theme-light) .ai-metric {
+body.light-theme .ai-metric,
+body.theme-light .ai-metric,
+.light-theme .ai-metric,
+.theme-light .ai-metric {
   background: #F8FAFC;
   border-color: #E2E8F0;
 }
 
-:host-context(body.light-theme) .team-social,
-:host-context(body.theme-light) .team-social,
-:host-context(.light-theme) .team-social,
-:host-context(.theme-light) .team-social {
+body.light-theme .team-social,
+body.theme-light .team-social,
+.light-theme .team-social,
+.theme-light .team-social {
   background: #F8FAFC;
   border-color: #E2E8F0;
   color: #475569;
 }
 
-:host-context(body.light-theme) .team-social:hover,
-:host-context(body.theme-light) .team-social:hover,
-:host-context(.light-theme) .team-social:hover,
-:host-context(.theme-light) .team-social:hover {
+body.light-theme .team-social:hover,
+body.theme-light .team-social:hover,
+.light-theme .team-social:hover,
+.theme-light .team-social:hover {
   background: #ffffff;
   border-color: rgba(43, 212, 199, 0.4);
   color: var(--teal);
 }
 
-:host-context(body.light-theme) .cta-section,
-:host-context(body.theme-light) .cta-section,
-:host-context(.light-theme) .cta-section,
-:host-context(.theme-light) .cta-section {
+body.light-theme .cta-section,
+body.theme-light .cta-section,
+.light-theme .cta-section,
+.theme-light .cta-section {
   background: linear-gradient(135deg, rgba(43, 212, 199, 0.05), rgba(43, 127, 255, 0.03));
   border-color: rgba(43, 212, 199, 0.2);
 }
 
-:host-context(body.light-theme) .btn-ghost-lg,
-:host-context(body.theme-light) .btn-ghost-lg,
-:host-context(.light-theme) .btn-ghost-lg,
-:host-context(.theme-light) .btn-ghost-lg {
+body.light-theme .btn-ghost-lg,
+body.theme-light .btn-ghost-lg,
+.light-theme .btn-ghost-lg,
+.theme-light .btn-ghost-lg {
   background: #ffffff;
   border-color: #CBD5E1;
   color: #334155;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
-:host-context(body.light-theme) .btn-ghost-lg:hover,
-:host-context(body.theme-light) .btn-ghost-lg:hover,
-:host-context(.light-theme) .btn-ghost-lg:hover,
-:host-context(.theme-light) .btn-ghost-lg:hover {
+body.light-theme .btn-ghost-lg:hover,
+body.theme-light .btn-ghost-lg:hover,
+.light-theme .btn-ghost-lg:hover,
+.theme-light .btn-ghost-lg:hover {
   border-color: var(--teal);
   color: var(--teal);
   background: #F8FAFC;
