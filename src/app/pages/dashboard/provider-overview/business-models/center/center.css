@@ -61,3 +61,18 @@
 .ord-pages{display:flex;gap:5px}
 .ord-pg{min-width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);color:#A8B2D1;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center}
 .ord-pg.active{background:rgba(43,212,199,.14);border-color:rgba(43,212,199,.3);color:var(--teal-txt,#2BD4C7)}
+
+:host-context(body.light-theme) .ord-title,
+:host-context(body.theme-light) .ord-title,
+:host-context(.light-theme) .ord-title,
+:host-context(.theme-light) .ord-title{color:#0F172A}
+
+:host-context(body.light-theme) .ord-pg,
+:host-context(body.theme-light) .ord-pg,
+:host-context(.light-theme) .ord-pg,
+:host-context(.theme-light) .ord-pg{border-color:#D8DFEC;color:#475569}
+
+:host-context(body.light-theme) .main-inner [style*="color:#fff"],
+:host-context(body.theme-light) .main-inner [style*="color:#fff"],
+:host-context(.light-theme) .main-inner [style*="color:#fff"],
+:host-context(.theme-light) .main-inner [style*="color:#fff"]{color:#0F172A}

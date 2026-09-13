@@ -1,0 +1,201 @@
+<div class="mdl-container" [class.is-light-theme]="themeService.theme() === 'light'" dir="rtl">
+
+	<!-- Breadcrumb -->
+	<nav class="mdl-breadcrumb">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<span class="sep">&#8249;</span>
+		<a routerLink="/provider-overview/business-models/market">{{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجي في السوق' }}</a>
+		<span class="sep">&#8249;</span>
+		<span class="cur">{{ model()?.title || 'تفاصيل النموذج' }}</span>
+	</nav>
+
+	<!-- Loading State -->
+	@if (isLoading()) {
+	<div class="mdl-loading">
+		<div class="spinner"></div>
+	</div>
+	}
+
+	<!-- Error State -->
+	@if (!isLoading() && errorMessage()) {
+	<div class="mdl-error">
+		<div class="mdl-error-title">تعذر تحميل تفاصيل النموذج</div>
+		<div class="mdl-error-code">{{ errorMessage() }}</div>
+		<a routerLink="/provider-overview/business-models/market" class="mdl-btn-secondary">العودة للنماذج</a>
+	</div>
+	}
+
+	<!-- Content -->
+	@if (!isLoading() && !errorMessage() && model(); as m) {
+
+	<!-- رأس النموذج -->
+	<div class="mdl-hero">
+		<!-- معاينة -->
+		<div class="mdl-preview" [style.background]="m.bgGradient || 'linear-gradient(135deg, rgba(43,212,199,.12), rgba(43,127,255,.10))'">
+			@if (m.coverImage) {
+			<img [src]="m.coverImage" [alt]="m.title" class="mdl-preview-img" />
+			} @else {
+			<svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="rgba(43,212,199,.35)" stroke-width="0.8" aria-hidden="true">
+				<rect x="3" y="3" width="18" height="18" rx="2" />
+				<path d="M3 9h18M9 21V9" />
+			</svg>
+			}
+			<div class="mdl-preview-badges">
+				<span class="badge badge-approved">{{ m.status === 'ARCHIVED' ? 'مخفي عن السوق' : 'معتمد' }}</span>
+				<span class="badge badge-ai">AI {{ m.aiScore }}/100</span>
+			</div>
+			<div class="mdl-preview-views">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+					<circle cx="12" cy="12" r="3" />
+				</svg>
+				{{ m.viewsCount | number }} مشاهدة
+			</div>
+		</div>
+
+		<!-- بيانات جانبية -->
+		<div class="mdl-side">
+			<div class="mdl-side-card">
+				<div class="mdl-title">{{ m.title }}</div>
+				<div class="mdl-sub">{{ m.category }} &middot; {{ m.createdAtFormatted }}</div>
+				<div class="mdl-tags">
+					@for (tag of m.tags; track tag) {
+					<span class="mdl-tag">{{ tag }}</span>
+					}
+				</div>
+				<div class="mdl-rating-row">
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="#FFB400" stroke="none" aria-hidden="true">
+						<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+					</svg>
+					<span class="mdl-rating-val">{{ m.rating }}</span>
+					<span class="mdl-rating-count">({{ m.reviewsCount || 0 }} تقييم)</span>
+					<span class="mdl-offers-note">{{ m.offersCount }} عروض مُولَّدة</span>
+				</div>
+				<div class="mdl-actions">
+					<a routerLink="/provider-overview/business-models/new-project" class="mdl-btn-secondary">رفع نموذج مشابه</a>
+					<button type="button" class="mdl-btn-primary">مشاركة النموذج</button>
+				</div>
+			</div>
+
+			<!-- إحصائيات -->
+			<div class="mdl-stats-grid">
+				<div class="mdl-stat-box">
+					<div class="mdl-stat-val">{{ m.viewsCount }}</div>
+					<div class="mdl-stat-lbl">مشاهدة</div>
+				</div>
+				<div class="mdl-stat-box">
+					<div class="mdl-stat-val">{{ m.offersCount }}</div>
+					<div class="mdl-stat-lbl">عروض مُولَّدة</div>
+				</div>
+				<div class="mdl-stat-box">
+					<div class="mdl-stat-val">{{ m.reviewsCount || 0 }}</div>
+					<div class="mdl-stat-lbl">تقييمات</div>
+				</div>
+				<div class="mdl-stat-box">
+					<div class="mdl-stat-val mdl-stat-val-teal">{{ m.aiScore }}</div>
+					<div class="mdl-stat-lbl">تقييم AI</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- تقرير الذكاء الاصطناعي -->
+	<div class="mdl-ai-report">
+		<div class="mdl-ai-hd">
+			<div class="mdl-ai-ico">
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A56BE0" stroke-width="1.8" aria-hidden="true">
+					<circle cx="12" cy="12" r="10" />
+					<path d="M12 8v4l3 3" />
+				</svg>
+			</div>
+			<div>
+				<div class="mdl-ai-title">تقرير وسيط AI — تحليل النموذج</div>
+				<div class="mdl-ai-sub">صدر يوم الاعتماد &middot; {{ m.createdAtFormatted }}</div>
+			</div>
+			<div class="mdl-ai-score">
+				<div class="mdl-ai-score-val">{{ m.aiScore }}</div>
+				<div class="mdl-ai-score-lbl">من 100</div>
+			</div>
+		</div>
+
+		<div class="mdl-ai-metrics">
+			@for (metric of aiMetrics(); track metric.label) {
+			<div class="mdl-ai-metric">
+				<div class="mdl-ai-metric-row">
+					<span class="mdl-ai-metric-lbl">{{ metric.label }}</span>
+					<span class="mdl-ai-metric-val">{{ metric.value }}%</span>
+				</div>
+				<div class="mdl-ai-metric-bar">
+					<div class="mdl-ai-metric-fill" [style.width.%]="metric.value"></div>
+				</div>
+			</div>
+			}
+		</div>
+
+		<div class="mdl-ai-notes">
+			<div class="mdl-ai-notes-lbl">ملاحظات وسيط AI</div>
+			<ul class="mdl-ai-notes-list">
+				<li>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+					جودة التنفيذ مطابقة لمعايير الاعتماد بناءً على تقييم الذكاء الاصطناعي ({{ m.aiScore }}/100)
+				</li>
+				<li>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+					توافق جيد مع طلبات تخصص «{{ m.category }}» في السوق
+				</li>
+				@if (m.aiScore < 90) {
+				<li>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB400" stroke-width="2.5" aria-hidden="true">
+						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+						<line x1="12" y1="9" x2="12" y2="13" />
+						<line x1="12" y1="17" x2="12.01" y2="17" />
+					</svg>
+					يُنصح بإضافة تفاصيل إضافية أو أمثلة لرفع نسبة تطابق السوق
+				</li>
+				}
+			</ul>
+		</div>
+	</div>
+
+	<!-- تقييمات العملاء -->
+	<div class="mdl-reviews">
+		<div class="mdl-reviews-hd">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="#FFB400" stroke="none" aria-hidden="true">
+				<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+			</svg>
+			تقييمات العملاء
+			<span class="mdl-reviews-count">({{ m.reviewsCount || 0 }} تقييم)</span>
+		</div>
+
+		@if (reviews().length > 0) {
+		<div class="mdl-reviews-list">
+			@for (review of reviews(); track review.name + review.comment) {
+			<div class="mdl-review-card">
+				<div class="mdl-review-top">
+					<div class="mdl-review-av" [style.background]="review.gradient">{{ review.initials }}</div>
+					<div>
+						<div class="mdl-review-name">{{ review.name }}</div>
+						<div class="mdl-review-meta">{{ review.roleLabel }} &middot; {{ review.dateLabel }}</div>
+					</div>
+					<div class="mdl-review-stars">
+						@for (filled of [1,2,3,4,5]; track $index) {
+						<svg width="12" height="12" viewBox="0 0 24 24" [attr.fill]="$index < review.rating ? '#FFB400' : 'none'" [attr.stroke]="$index < review.rating ? 'none' : '#FFB400'" stroke-width="2" aria-hidden="true">
+							<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+						</svg>
+						}
+					</div>
+				</div>
+				<div class="mdl-review-text">{{ review.comment }}</div>
+			</div>
+			}
+		</div>
+		} @else {
+		<div class="mdl-reviews-empty">لا توجد تقييمات على هذا النموذج بعد</div>
+		}
+	</div>
+
+	<div class="mdl-inner-foot">
+		<span>&#169; 2026 وسيط AI &middot; v1.0.0</span>
+	</div>
+	}
+</div>

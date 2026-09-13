@@ -40,15 +40,61 @@
 @media(max-width:600px){.cr-page{padding:16px}.page-ttl{font-size:18px}.req-meta{gap:10px}.req-actions{flex-wrap:wrap}}
 
 /* Light mode */
-:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#070D24}
-:host-context(body.light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#56607D}
-:host-context(body.light) .filter-chip,:host-context(.light-theme) .filter-chip,:host-context(.theme-light) .filter-chip{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
-:host-context(body.light) .filter-chip:hover,:host-context(.light-theme) .filter-chip:hover,:host-context(.theme-light) .filter-chip:hover{color:#070D24}
-:host-context(body.light) .filter-chip.active,:host-context(.light-theme) .filter-chip.active,:host-context(.theme-light) .filter-chip.active{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.3);color:#0F8A7F}
-:host-context(body.light) .req-card,:host-context(.light-theme) .req-card,:host-context(.theme-light) .req-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .req-model,:host-context(.light-theme) .req-model,:host-context(.theme-light) .req-model{color:#070D24}
-:host-context(body.light) .req-client,:host-context(.light-theme) .req-client,:host-context(.theme-light) .req-client{color:#56607D}
-:host-context(body.light) .req-meta,:host-context(.light-theme) .req-meta,:host-context(.theme-light) .req-meta,
-:host-context(body.light) .req-meta-item svg,:host-context(.light-theme) .req-meta-item svg,:host-context(.theme-light) .req-meta-item svg{color:#56607D}
-:host-context(body.light) .req-actions,:host-context(.light-theme) .req-actions,:host-context(.theme-light) .req-actions{border-color:#E7EAF1}
-:host-context(body.light) .req-btn-sec,:host-context(.light-theme) .req-btn-sec,:host-context(.theme-light) .req-btn-sec{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
+:host-context(body.light-theme) .page-ttl,
+:host-context(body.theme-light) .page-ttl,
+:host-context(.light-theme) .page-ttl,
+:host-context(.theme-light) .page-ttl{color:#070D24}
+
+:host-context(body.light-theme) .page-sub,
+:host-context(body.theme-light) .page-sub,
+:host-context(.light-theme) .page-sub,
+:host-context(.theme-light) .page-sub{color:#56607D}
+
+:host-context(body.light-theme) .filter-chip,
+:host-context(body.theme-light) .filter-chip,
+:host-context(.light-theme) .filter-chip,
+:host-context(.theme-light) .filter-chip{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
+
+:host-context(body.light-theme) .filter-chip:hover,
+:host-context(body.theme-light) .filter-chip:hover,
+:host-context(.light-theme) .filter-chip:hover,
+:host-context(.theme-light) .filter-chip:hover{color:#070D24}
+
+:host-context(body.light-theme) .filter-chip.active,
+:host-context(body.theme-light) .filter-chip.active,
+:host-context(.light-theme) .filter-chip.active,
+:host-context(.theme-light) .filter-chip.active{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.3);color:#0F8A7F}
+
+:host-context(body.light-theme) .req-card,
+:host-context(body.theme-light) .req-card,
+:host-context(.light-theme) .req-card,
+:host-context(.theme-light) .req-card{background:#fff;border-color:#E7EAF1}
+
+:host-context(body.light-theme) .req-model,
+:host-context(body.theme-light) .req-model,
+:host-context(.light-theme) .req-model,
+:host-context(.theme-light) .req-model{color:#070D24}
+
+:host-context(body.light-theme) .req-client,
+:host-context(body.theme-light) .req-client,
+:host-context(.light-theme) .req-client,
+:host-context(.theme-light) .req-client{color:#56607D}
+
+:host-context(body.light-theme) .req-meta,
+:host-context(body.theme-light) .req-meta,
+:host-context(.light-theme) .req-meta,
+:host-context(.theme-light) .req-meta,
+:host-context(body.light-theme) .req-meta-item svg,
+:host-context(body.theme-light) .req-meta-item svg,
+:host-context(.light-theme) .req-meta-item svg,
+:host-context(.theme-light) .req-meta-item svg{color:#56607D}
+
+:host-context(body.light-theme) .req-actions,
+:host-context(body.theme-light) .req-actions,
+:host-context(.light-theme) .req-actions,
+:host-context(.theme-light) .req-actions{border-color:#E7EAF1}
+
+:host-context(body.light-theme) .req-btn-sec,
+:host-context(body.theme-light) .req-btn-sec,
+:host-context(.light-theme) .req-btn-sec,
+:host-context(.theme-light) .req-btn-sec{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}

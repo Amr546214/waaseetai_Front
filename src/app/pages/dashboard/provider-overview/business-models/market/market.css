@@ -651,6 +651,10 @@
   color: var(--teal-txt);
 }
 
+.is-light-theme .inner-foot {
+  border-top-color: #E2E8F4;
+}
+
 /* ===== Company Market Models (P-CO-MK-001) ===== */
 .co-mkt-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
 .co-mkt-kpi-c{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:14px 16px}

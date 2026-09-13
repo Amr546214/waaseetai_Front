@@ -27,3 +27,14 @@
     border-color: rgba(43,212,199,0.3) !important;
     transform: translateY(-2px);
 }
+
+/* Light theme overrides */
+:host-context(body.light-theme) .ord-title,
+:host-context(body.theme-light) .ord-title,
+:host-context(.light-theme) .ord-title,
+:host-context(.theme-light) .ord-title{color:#0F172A}
+
+:host-context(body.light-theme) .main-inner [style*="color:#fff"],
+:host-context(body.theme-light) .main-inner [style*="color:#fff"],
+:host-context(.light-theme) .main-inner [style*="color:#fff"],
+:host-context(.theme-light) .main-inner [style*="color:#fff"]{color:#0F172A}

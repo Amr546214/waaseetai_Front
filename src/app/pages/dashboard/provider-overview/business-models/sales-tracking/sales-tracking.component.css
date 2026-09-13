@@ -44,18 +44,18 @@
 @media(max-width:700px){.st-page{padding:16px}.page-ttl{font-size:18px}.sale-row{grid-template-columns:1fr;gap:4px;padding:10px 0}.model-row{flex-direction:column;align-items:flex-start;gap:8px}.model-info{min-width:0}}
 
 /* Light mode */
-:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#070D24}
-:host-context(body.light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#56607D}
-:host-context(body.light) .stat-box,:host-context(.light-theme) .stat-box,:host-context(.theme-light) .stat-box,
-:host-context(body.light) .section-card,:host-context(.light-theme) .section-card,:host-context(.theme-light) .section-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .stat-val,:host-context(.light-theme) .stat-val,:host-context(.theme-light) .stat-val,
-:host-context(body.light) .section-title,:host-context(.light-theme) .section-title,:host-context(.theme-light) .section-title,
-:host-context(body.light) .model-name,:host-context(.light-theme) .model-name,:host-context(.theme-light) .model-name,
-:host-context(body.light) .sale-model,:host-context(.light-theme) .sale-model,:host-context(.theme-light) .sale-model{color:#070D24}
-:host-context(body.light) .stat-lbl,:host-context(.light-theme) .stat-lbl,:host-context(.theme-light) .stat-lbl,
-:host-context(body.light) .model-meta,:host-context(.light-theme) .model-meta,:host-context(.theme-light) .model-meta,
-:host-context(body.light) .sale-client,:host-context(.light-theme) .sale-client,:host-context(.theme-light) .sale-client,
-:host-context(body.light) .sale-date,:host-context(.light-theme) .sale-date,:host-context(.theme-light) .sale-date{color:#56607D}
-:host-context(body.light) .section-title,:host-context(.light-theme) .section-title,:host-context(.theme-light) .section-title{border-color:#E7EAF1}
-:host-context(body.light) .model-bar,:host-context(.light-theme) .model-bar,:host-context(.theme-light) .model-bar{background:#F3F5FA}
-:host-context(body.light) .sale-row,:host-context(.light-theme) .sale-row,:host-context(.theme-light) .sale-row{border-color:#E7EAF1}
+:host-context(body.light-theme) .page-ttl,:host-context(body.theme-light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#070D24}
+:host-context(body.light-theme) .page-sub,:host-context(body.theme-light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#56607D}
+:host-context(body.light-theme) .stat-box,:host-context(body.theme-light) .stat-box,:host-context(.light-theme) .stat-box,:host-context(.theme-light) .stat-box,
+:host-context(body.light-theme) .section-card,:host-context(body.theme-light) .section-card,:host-context(.light-theme) .section-card,:host-context(.theme-light) .section-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .stat-val,:host-context(body.theme-light) .stat-val,:host-context(.light-theme) .stat-val,:host-context(.theme-light) .stat-val,
+:host-context(body.light-theme) .section-title,:host-context(body.theme-light) .section-title,:host-context(.light-theme) .section-title,:host-context(.theme-light) .section-title,
+:host-context(body.light-theme) .model-name,:host-context(body.theme-light) .model-name,:host-context(.light-theme) .model-name,:host-context(.theme-light) .model-name,
+:host-context(body.light-theme) .sale-model,:host-context(body.theme-light) .sale-model,:host-context(.light-theme) .sale-model,:host-context(.theme-light) .sale-model{color:#070D24}
+:host-context(body.light-theme) .stat-lbl,:host-context(body.theme-light) .stat-lbl,:host-context(.light-theme) .stat-lbl,:host-context(.theme-light) .stat-lbl,
+:host-context(body.light-theme) .model-meta,:host-context(body.theme-light) .model-meta,:host-context(.light-theme) .model-meta,:host-context(.theme-light) .model-meta,
+:host-context(body.light-theme) .sale-client,:host-context(body.theme-light) .sale-client,:host-context(.light-theme) .sale-client,:host-context(.theme-light) .sale-client,
+:host-context(body.light-theme) .sale-date,:host-context(body.theme-light) .sale-date,:host-context(.light-theme) .sale-date,:host-context(.theme-light) .sale-date{color:#56607D}
+:host-context(body.light-theme) .section-title,:host-context(body.theme-light) .section-title,:host-context(.light-theme) .section-title,:host-context(.theme-light) .section-title{border-color:#E7EAF1}
+:host-context(body.light-theme) .model-bar,:host-context(body.theme-light) .model-bar,:host-context(.light-theme) .model-bar,:host-context(.theme-light) .model-bar{background:#F3F5FA}
+:host-context(body.light-theme) .sale-row,:host-context(body.theme-light) .sale-row,:host-context(.light-theme) .sale-row,:host-context(.theme-light) .sale-row{border-color:#E7EAF1}

@@ -28,3 +28,19 @@
 .ai-disc-txt{font-size:12.5px;color:#A8B2D1}
 .ai-disc-badge{display:inline-flex;background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.28);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:var(--ai-txt,#A56BE0);margin-inline-start:4px}
 @media(max-width:768px){.spec-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* Light theme overrides */
+:host-context(body.light-theme) .spec-card,
+:host-context(body.theme-light) .spec-card,
+:host-context(.light-theme) .spec-card,
+:host-context(.theme-light) .spec-card{background:rgba(255,255,255,.85);border-color:#E7EAF1}
+
+:host-context(body.light-theme) .spec-name,
+:host-context(body.theme-light) .spec-name,
+:host-context(.light-theme) .spec-name,
+:host-context(.theme-light) .spec-name{color:#070D24}
+
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt{color:#475569}

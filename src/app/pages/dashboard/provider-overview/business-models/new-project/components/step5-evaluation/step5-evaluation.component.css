@@ -471,3 +471,116 @@
     color: var(--ai-txt, #A56BE0);
     margin-inline-end: 4px;
 }
+
+/* LIGHT MODE */
+:host-context(body.light-theme) .form-card,
+:host-context(body.theme-light) .form-card,
+:host-context(.light-theme) .form-card,
+:host-context(.theme-light) .form-card {
+    background: #FFFFFF;
+    border-color: #E2E8F4;
+}
+
+:host-context(body.light-theme) .card-title,
+:host-context(body.theme-light) .card-title,
+:host-context(.light-theme) .card-title,
+:host-context(.theme-light) .card-title,
+:host-context(body.light-theme) .check-label,
+:host-context(body.theme-light) .check-label,
+:host-context(.light-theme) .check-label,
+:host-context(.theme-light) .check-label,
+:host-context(body.light-theme) .score-num,
+:host-context(body.theme-light) .score-num,
+:host-context(.light-theme) .score-num,
+:host-context(.theme-light) .score-num,
+:host-context(body.light-theme) .cmp-cell.highlight,
+:host-context(body.theme-light) .cmp-cell.highlight,
+:host-context(.light-theme) .cmp-cell.highlight,
+:host-context(.theme-light) .cmp-cell.highlight {
+    color: #0F172A;
+}
+
+:host-context(body.light-theme) .check-sub,
+:host-context(body.theme-light) .check-sub,
+:host-context(.light-theme) .check-sub,
+:host-context(.theme-light) .check-sub,
+:host-context(body.light-theme) .cmp-cell,
+:host-context(body.theme-light) .cmp-cell,
+:host-context(.light-theme) .cmp-cell,
+:host-context(.theme-light) .cmp-cell,
+:host-context(body.light-theme) .metric-label,
+:host-context(body.theme-light) .metric-label,
+:host-context(.light-theme) .metric-label,
+:host-context(.theme-light) .metric-label,
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt {
+    color: #475569;
+}
+
+:host-context(body.light-theme) .cmp-head-cell,
+:host-context(body.theme-light) .cmp-head-cell,
+:host-context(.light-theme) .cmp-head-cell,
+:host-context(.theme-light) .cmp-head-cell,
+:host-context(body.light-theme) .cmp-row-label,
+:host-context(body.theme-light) .cmp-row-label,
+:host-context(.light-theme) .cmp-row-label,
+:host-context(.theme-light) .cmp-row-label,
+:host-context(body.light-theme) .score-denom,
+:host-context(body.theme-light) .score-denom,
+:host-context(.light-theme) .score-denom,
+:host-context(.theme-light) .score-denom {
+    color: #64748B;
+}
+
+:host-context(body.light-theme) .check-ok svg,
+:host-context(body.theme-light) .check-ok svg,
+:host-context(.light-theme) .check-ok svg,
+:host-context(.theme-light) .check-ok svg,
+:host-context(body.light-theme) .score-ok,
+:host-context(body.theme-light) .score-ok,
+:host-context(.light-theme) .score-ok,
+:host-context(.theme-light) .score-ok,
+:host-context(body.light-theme) .cmp-cell.ok,
+:host-context(body.theme-light) .cmp-cell.ok,
+:host-context(.light-theme) .cmp-cell.ok,
+:host-context(.theme-light) .cmp-cell.ok {
+    color: #0A6F64;
+}
+
+:host-context(body.light-theme) .check-err svg,
+:host-context(body.theme-light) .check-err svg,
+:host-context(.light-theme) .check-err svg,
+:host-context(.theme-light) .check-err svg,
+:host-context(body.light-theme) .score-err,
+:host-context(body.theme-light) .score-err,
+:host-context(.light-theme) .score-err,
+:host-context(.theme-light) .score-err,
+:host-context(body.light-theme) .cmp-cell.err,
+:host-context(body.theme-light) .cmp-cell.err,
+:host-context(.light-theme) .cmp-cell.err,
+:host-context(.theme-light) .cmp-cell.err {
+    color: #B42318;
+}
+
+:host-context(body.light-theme) .cmp-table,
+:host-context(body.theme-light) .cmp-table,
+:host-context(.light-theme) .cmp-table,
+:host-context(.theme-light) .cmp-table {
+    border-color: #E2E8F4;
+}
+
+:host-context(body.light-theme) .score-track,
+:host-context(body.theme-light) .score-track,
+:host-context(.light-theme) .score-track,
+:host-context(.theme-light) .score-track {
+    stroke: rgba(7, 13, 36, .10);
+}
+
+:host-context(body.light-theme) .metric-bar-wrap,
+:host-context(body.theme-light) .metric-bar-wrap,
+:host-context(.light-theme) .metric-bar-wrap,
+:host-context(.theme-light) .metric-bar-wrap {
+    background: rgba(7, 13, 36, .10);
+}
