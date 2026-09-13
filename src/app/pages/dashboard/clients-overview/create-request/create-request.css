@@ -161,19 +161,19 @@ body.light {
 :host-context(body.theme-light) .step-label,
 :host-context(.light-theme) .step-label,
 :host-context(.theme-light) .step-label {
-  color: #475569 !important;
+  color: #0F172A !important;
 }
 :host-context(body.light-theme) .step-item.active .step-label,
 :host-context(body.theme-light) .step-item.active .step-label,
 :host-context(.light-theme) .step-item.active .step-label,
 :host-context(.theme-light) .step-item.active .step-label {
-  color: #1E293B !important;
+  color: #0F172A !important;
 }
 :host-context(body.light-theme) .step-item.done:not(.active) .step-label,
 :host-context(body.theme-light) .step-item.done:not(.active) .step-label,
 :host-context(.light-theme) .step-item.done:not(.active) .step-label,
 :host-context(.theme-light) .step-item.done:not(.active) .step-label {
-  color: #0F8A7F !important;
+  color: #0F172A !important;
 }
 /* Step lines — only not-done lines; done lines keep teal */
 :host-context(body.light-theme) .step-line:not(.done),
@@ -220,5 +220,139 @@ body.light {
 :host-context(.light-theme) .breadcrumb-sep,
 :host-context(.theme-light) .breadcrumb-sep {
   color: #94A3B8 !important;
+}
+
+/* ============ STEP 6 REVIEW (rendered globally via ViewEncapsulation.None) ============ */
+:host-context(body.light-theme) .summary-card,
+:host-context(body.theme-light) .summary-card,
+:host-context(.light-theme) .summary-card,
+:host-context(.theme-light) .summary-card {
+  background: #fff !important;
+  border-color: #E2E8F4 !important;
+  backdrop-filter: none !important;
+}
+:host-context(body.light-theme) .sc-name,
+:host-context(body.theme-light) .sc-name,
+:host-context(.light-theme) .sc-name,
+:host-context(.theme-light) .sc-name {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .sc-row-key,
+:host-context(body.theme-light) .sc-row-key,
+:host-context(.light-theme) .sc-row-key,
+:host-context(.theme-light) .sc-row-key {
+  color: #64748B !important;
+}
+:host-context(body.light-theme) .sc-row-val,
+:host-context(body.theme-light) .sc-row-val,
+:host-context(.light-theme) .sc-row-val,
+:host-context(.theme-light) .sc-row-val {
+  color: #0A6F64 !important;
+}
+:host-context(body.light-theme) .sc-num,
+:host-context(body.theme-light) .sc-num,
+:host-context(.light-theme) .sc-num,
+:host-context(.theme-light) .sc-num {
+  background: rgba(43,212,199,.12) !important;
+  color: #0F8A7F !important;
+}
+:host-context(body.light-theme) .summary-card [style*="color:#fff"],
+:host-context(body.theme-light) .summary-card [style*="color:#fff"],
+:host-context(.light-theme) .summary-card [style*="color:#fff"],
+:host-context(.theme-light) .summary-card [style*="color:#fff"] {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .sc-rec-val,
+:host-context(body.theme-light) .sc-rec-val,
+:host-context(.light-theme) .sc-rec-val,
+:host-context(.theme-light) .sc-rec-val {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .sc-rec-txt,
+:host-context(body.theme-light) .sc-rec-txt,
+:host-context(.light-theme) .sc-rec-txt,
+:host-context(.theme-light) .sc-rec-txt {
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .sc-ok,
+:host-context(body.theme-light) .sc-ok,
+:host-context(.light-theme) .sc-ok,
+:host-context(.theme-light) .sc-ok {
+  color: #0A6F64 !important;
+}
+:host-context(body.light-theme) .sc-ai.sc-ai-edit,
+:host-context(body.theme-light) .sc-ai.sc-ai-edit,
+:host-context(.light-theme) .sc-ai.sc-ai-edit,
+:host-context(.theme-light) .sc-ai.sc-ai-edit {
+  color: #9A6700 !important;
+}
+:host-context(body.light-theme) .sc-rec-edit,
+:host-context(body.theme-light) .sc-rec-edit,
+:host-context(.light-theme) .sc-rec-edit,
+:host-context(.theme-light) .sc-rec-edit {
+  border-color: #D8DFEC !important;
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .sc-rec-skip,
+:host-context(body.theme-light) .sc-rec-skip,
+:host-context(.light-theme) .sc-rec-skip,
+:host-context(.theme-light) .sc-rec-skip {
+  border-color: #D8DFEC !important;
+}
+:host-context(body.light-theme) .ai-final,
+:host-context(body.theme-light) .ai-final,
+:host-context(.light-theme) .ai-final,
+:host-context(.theme-light) .ai-final {
+  background: linear-gradient(135deg, rgba(123,47,190,.05), rgba(43,127,255,.04)) !important;
+  border-color: rgba(123,47,190,.18) !important;
+}
+:host-context(body.light-theme) .ai-final-title,
+:host-context(body.theme-light) .ai-final-title,
+:host-context(.light-theme) .ai-final-title,
+:host-context(.theme-light) .ai-final-title {
+  color: #6B27A5 !important;
+}
+:host-context(body.light-theme) .ai-metric-label,
+:host-context(body.theme-light) .ai-metric-label,
+:host-context(.light-theme) .ai-metric-label,
+:host-context(.theme-light) .ai-metric-label {
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .ai-score-num,
+:host-context(body.theme-light) .ai-score-num,
+:host-context(.light-theme) .ai-score-num,
+:host-context(.theme-light) .ai-score-num {
+  color: #9A6700 !important;
+}
+:host-context(body.light-theme) .forecast-badge,
+:host-context(body.theme-light) .forecast-badge,
+:host-context(.light-theme) .forecast-badge,
+:host-context(.theme-light) .forecast-badge {
+  color: #9A6700 !important;
+}
+:host-context(body.light-theme) .ai-right [style*="color:#fff"],
+:host-context(body.theme-light) .ai-right [style*="color:#fff"],
+:host-context(.light-theme) .ai-right [style*="color:#fff"],
+:host-context(.theme-light) .ai-right [style*="color:#fff"] {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .ack-card,
+:host-context(body.theme-light) .ack-card,
+:host-context(.light-theme) .ack-card,
+:host-context(.theme-light) .ack-card {
+  background: #F8FAFC !important;
+  border-color: rgba(43,127,255,.18) !important;
+}
+:host-context(body.light-theme) .ack-title,
+:host-context(body.theme-light) .ack-title,
+:host-context(.light-theme) .ack-title,
+:host-context(.theme-light) .ack-title {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .ack-text,
+:host-context(body.theme-light) .ack-text,
+:host-context(.light-theme) .ack-text,
+:host-context(.theme-light) .ack-text {
+  color: #475569 !important;
 }
 

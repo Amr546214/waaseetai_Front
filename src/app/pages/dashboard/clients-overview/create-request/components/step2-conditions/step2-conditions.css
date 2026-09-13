@@ -108,7 +108,7 @@ select.field-select {
 :host-context(.light-theme) .ai-disclosure,
 :host-context(.theme-light) .ai-disclosure {
   background: linear-gradient(135deg, rgba(123,47,190,.06), rgba(43,127,255,.04)) !important;
-  border-color: rgba(123,47,190,.18) !important;
+  border-color: rgba(123,47,190,.22) !important;
 }
 :host-context(body.light-theme) .ai-disclosure strong,
 :host-context(body.theme-light) .ai-disclosure strong,

@@ -4,7 +4,7 @@
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between gap-3 mb-2">
 				<span class="flex items-center gap-3">
-					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
 					الملفات الداعمة للطلب
 				</span>
 				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
@@ -15,7 +15,7 @@
 			<div class="drop-zone relative bg-[var(--sec-bg)] border-2 border-dashed border-[var(--sec-bd)] hover:border-[var(--teal)] rounded-[20px] p-10 text-center transition-colors cursor-pointer mb-6 group">
 				<input type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.zip" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" (change)="parent.handleFiles($event)">
 				<div class="w-14 h-14 rounded-full bg-[var(--crd-bg)] border border-[var(--crd-bd)] flex items-center justify-center mx-auto mb-4 text-[var(--txt-3)] group-hover:text-[var(--teal)] transition-colors">
-					<svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+					<svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
 				</div>
 				<div class="text-base font-bold text-[var(--txt)] mb-1">اسحب ملفاتك هنا أو انقر للاختيار</div>
 				<div class="text-xs text-[var(--txt-3)] font-medium mb-4">حجم أقصى 10MB لكل ملف · يتم فحص كل ملف بواسطة AI</div>
