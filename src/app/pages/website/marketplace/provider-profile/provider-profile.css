@@ -96,3 +96,156 @@
   transform-origin: center;
   transition: all 0.2s ease-in-out;
 }
+
+/* LIGHT THEME OVERRIDES */
+:host-context(body.light-theme) .particle,
+:host-context(body.theme-light) .particle,
+:host-context(.light-theme) .particle,
+:host-context(.theme-light) .particle {
+  background: #0F8A7F;
+  box-shadow: 0 0 6px rgba(15,138,127,.25);
+  opacity: .12;
+}
+
+:host-context(body.light-theme) .cover-banner,
+:host-context(body.theme-light) .cover-banner,
+:host-context(.light-theme) .cover-banner,
+:host-context(.theme-light) .cover-banner {
+  background: linear-gradient(135deg,#C8D5E8,#D8E3F0,#E2EBF5);
+}
+
+:host-context(body.light-theme) .cover-grid,
+:host-context(body.theme-light) .cover-grid,
+:host-context(.light-theme) .cover-grid,
+:host-context(.theme-light) .cover-grid {
+  opacity: .3;
+}
+
+:host-context(body.light-theme) .cover-glow-1,
+:host-context(body.theme-light) .cover-glow-1,
+:host-context(.light-theme) .cover-glow-1,
+:host-context(.theme-light) .cover-glow-1,
+:host-context(body.light-theme) .cover-glow-2,
+:host-context(body.theme-light) .cover-glow-2,
+:host-context(.light-theme) .cover-glow-2,
+:host-context(.theme-light) .cover-glow-2 {
+  opacity: .2;
+}
+
+:host-context(body.light-theme) .profile-identity,
+:host-context(body.theme-light) .profile-identity,
+:host-context(.light-theme) .profile-identity,
+:host-context(.theme-light) .profile-identity {
+  background: #F8FAFC;
+  border-inline-color: #D8DFEC;
+}
+
+:host-context(body.light-theme) .profile-av,
+:host-context(body.theme-light) .profile-av,
+:host-context(.light-theme) .profile-av,
+:host-context(.theme-light) .profile-av,
+:host-context(body.light-theme) .profile-online,
+:host-context(body.theme-light) .profile-online,
+:host-context(.light-theme) .profile-online,
+:host-context(.theme-light) .profile-online {
+  border-color: #F8FAFC;
+}
+
+:host-context(body.light-theme) .level-مبتدئ,
+:host-context(body.theme-light) .level-مبتدئ,
+:host-context(.light-theme) .level-مبتدئ,
+:host-context(.theme-light) .level-مبتدئ {
+  background: rgba(100,116,139,.12);
+  border-color: rgba(100,116,139,.25);
+  color: #64748B;
+}
+
+:host-context(body.light-theme) .level-متوسط,
+:host-context(body.theme-light) .level-متوسط,
+:host-context(.light-theme) .level-متوسط,
+:host-context(.theme-light) .level-متوسط,
+:host-context(body.light-theme) .verified-badge,
+:host-context(body.theme-light) .verified-badge,
+:host-context(.light-theme) .verified-badge,
+:host-context(.theme-light) .verified-badge,
+:host-context(body.light-theme) .tag-teal,
+:host-context(body.theme-light) .tag-teal,
+:host-context(.light-theme) .tag-teal,
+:host-context(.theme-light) .tag-teal {
+  background: rgba(15,138,127,.1);
+  border-color: rgba(15,138,127,.25);
+}
+
+:host-context(body.light-theme) .level-متوسط,
+:host-context(body.theme-light) .level-متوسط,
+:host-context(.light-theme) .level-متوسط,
+:host-context(.theme-light) .level-متوسط {
+  color: #0F8A7F;
+}
+
+:host-context(body.light-theme) .level-متقدم,
+:host-context(body.theme-light) .level-متقدم,
+:host-context(.light-theme) .level-متقدم,
+:host-context(.theme-light) .level-متقدم {
+  color: #1D6FE0;
+}
+
+:host-context(body.light-theme) .level-خبير,
+:host-context(body.theme-light) .level-خبير,
+:host-context(.light-theme) .level-خبير,
+:host-context(.theme-light) .level-خبير {
+  color: #9A6700;
+}
+
+:host-context(body.light-theme) .btn-ghost-sm:hover,
+:host-context(body.theme-light) .btn-ghost-sm:hover,
+:host-context(.light-theme) .btn-ghost-sm:hover,
+:host-context(.theme-light) .btn-ghost-sm:hover {
+  border-color: rgba(15,138,127,.4);
+}
+
+:host-context(body.light-theme) .stats-bar,
+:host-context(body.theme-light) .stats-bar,
+:host-context(.light-theme) .stats-bar,
+:host-context(.theme-light) .stats-bar {
+  background: #FFFFFF;
+  border-color: #D8DFEC;
+}
+
+:host-context(body.light-theme) .stat-cell,
+:host-context(body.theme-light) .stat-cell,
+:host-context(.light-theme) .stat-cell,
+:host-context(.theme-light) .stat-cell {
+  border-color: #D8DFEC;
+}
+
+:host-context(body.light-theme) .ai-metrics-block,
+:host-context(body.theme-light) .ai-metrics-block,
+:host-context(.light-theme) .ai-metrics-block,
+:host-context(.theme-light) .ai-metrics-block {
+  background: rgba(123,47,190,.03);
+  border-bottom-color: rgba(123,47,190,.12);
+}
+
+:host-context(body.light-theme) .ai-bar-track,
+:host-context(body.theme-light) .ai-bar-track,
+:host-context(.light-theme) .ai-bar-track,
+:host-context(.theme-light) .ai-bar-track {
+  background: rgba(7,13,36,.08);
+}
+
+:host-context(body.light-theme) .profile-tabs,
+:host-context(body.theme-light) .profile-tabs,
+:host-context(.light-theme) .profile-tabs,
+:host-context(.theme-light) .profile-tabs {
+  background: rgba(7,13,36,.03);
+  border-bottom-color: #D8DFEC;
+}
+
+:host-context(body.light-theme) .ptab.active,
+:host-context(body.theme-light) .ptab.active,
+:host-context(.light-theme) .ptab.active,
+:host-context(.theme-light) .ptab.active {
+  background: rgba(15,138,127,.09);
+  border-color: rgba(15,138,127,.18);
+}

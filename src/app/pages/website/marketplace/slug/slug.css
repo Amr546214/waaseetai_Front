@@ -120,3 +120,157 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 @media(max-width:900px){.body-layout{grid-template-columns:1fr}.filter-sidebar{position:static;display:none}.hero-stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:820px){.svc-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.svc-grid{grid-template-columns:1fr}.hero-stats{grid-template-columns:repeat(2,1fr)}}
+
+/* LIGHT THEME OVERRIDES */
+:host-context(body.light-theme) .particle,
+:host-context(body.theme-light) .particle,
+:host-context(.light-theme) .particle,
+:host-context(.theme-light) .particle {
+  background: #0F8A7F;
+  box-shadow: 0 0 6px rgba(15,138,127,.25);
+  opacity: .12;
+}
+
+:host-context(body.light-theme) .cat-hero,
+:host-context(body.theme-light) .cat-hero,
+:host-context(.light-theme) .cat-hero,
+:host-context(.theme-light) .cat-hero {
+  background: linear-gradient(180deg,rgba(238,242,250,0) 0%,rgba(238,242,250,1) 100%);
+}
+
+:host-context(body.light-theme) .cat-hero-ico,
+:host-context(body.theme-light) .cat-hero-ico,
+:host-context(.light-theme) .cat-hero-ico,
+:host-context(.theme-light) .cat-hero-ico,
+:host-context(body.light-theme) .filter-title-ico,
+:host-context(body.theme-light) .filter-title-ico,
+:host-context(.light-theme) .filter-title-ico,
+:host-context(.theme-light) .filter-title-ico {
+  background: rgba(15,138,127,.1);
+  border-color: rgba(15,138,127,.2);
+}
+
+:host-context(body.light-theme) .hero-chip,
+:host-context(body.theme-light) .hero-chip,
+:host-context(.light-theme) .hero-chip,
+:host-context(.theme-light) .hero-chip,
+:host-context(body.light-theme) .scroll-btn,
+:host-context(body.theme-light) .scroll-btn,
+:host-context(.light-theme) .scroll-btn,
+:host-context(.theme-light) .scroll-btn {
+  background: rgba(7,13,36,.04);
+}
+
+:host-context(body.light-theme) .scroll-btn:hover,
+:host-context(body.theme-light) .scroll-btn:hover,
+:host-context(.light-theme) .scroll-btn:hover,
+:host-context(.theme-light) .scroll-btn:hover,
+:host-context(body.light-theme) .pg-btn:hover,
+:host-context(body.theme-light) .pg-btn:hover,
+:host-context(.light-theme) .pg-btn:hover,
+:host-context(.theme-light) .pg-btn:hover {
+  border-color: rgba(15,138,127,.4);
+}
+
+:host-context(body.light-theme) .subcats-wrap,
+:host-context(body.theme-light) .subcats-wrap,
+:host-context(.light-theme) .subcats-wrap,
+:host-context(.theme-light) .subcats-wrap {
+  background: rgba(246,248,252,.97);
+  border-bottom-color: #D8DFEC;
+}
+
+:host-context(body.light-theme) .subcat-btn,
+:host-context(body.theme-light) .subcat-btn,
+:host-context(.light-theme) .subcat-btn,
+:host-context(.theme-light) .subcat-btn {
+  background: rgba(7,13,36,.04);
+  border-color: #D8DFEC;
+  color: #475569;
+}
+
+:host-context(body.light-theme) .subcat-btn:hover,
+:host-context(body.theme-light) .subcat-btn:hover,
+:host-context(.light-theme) .subcat-btn:hover,
+:host-context(.theme-light) .subcat-btn:hover {
+  background: #FFFFFF;
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .subcat-btn.active,
+:host-context(body.theme-light) .subcat-btn.active,
+:host-context(.light-theme) .subcat-btn.active,
+:host-context(.theme-light) .subcat-btn.active {
+  background: #FFFFFF;
+  border-color: rgba(15,138,127,.4);
+  color: #0F8A7F;
+}
+
+:host-context(body.light-theme) .subcat-btn .sub-cnt,
+:host-context(body.theme-light) .subcat-btn .sub-cnt,
+:host-context(.light-theme) .subcat-btn .sub-cnt,
+:host-context(.theme-light) .subcat-btn .sub-cnt {
+  background: rgba(7,13,36,.07);
+  color: #64748B;
+}
+
+:host-context(body.light-theme) .subcat-btn.active .sub-cnt,
+:host-context(body.theme-light) .subcat-btn.active .sub-cnt,
+:host-context(.light-theme) .subcat-btn.active .sub-cnt,
+:host-context(.theme-light) .subcat-btn.active .sub-cnt {
+  background: rgba(15,138,127,.12);
+  color: #0F8A7F;
+}
+
+:host-context(body.light-theme) .fopt-box,
+:host-context(body.theme-light) .fopt-box,
+:host-context(.light-theme) .fopt-box,
+:host-context(.theme-light) .fopt-box {
+  border-color: #CBD5E1;
+  background: #FFFFFF;
+}
+
+:host-context(body.light-theme) .fopt-box.checked::after,
+:host-context(body.theme-light) .fopt-box.checked::after,
+:host-context(.light-theme) .fopt-box.checked::after,
+:host-context(.theme-light) .fopt-box.checked::after {
+  border-left-color: #fff;
+  border-bottom-color: #fff;
+}
+
+:host-context(body.light-theme) .range-inp,
+:host-context(body.theme-light) .range-inp,
+:host-context(.light-theme) .range-inp,
+:host-context(.theme-light) .range-inp {
+  background: linear-gradient(to left,var(--teal) 70%,rgba(7,13,36,.1) 70%);
+}
+
+:host-context(body.light-theme) .range-inp::-webkit-slider-thumb,
+:host-context(body.theme-light) .range-inp::-webkit-slider-thumb,
+:host-context(.light-theme) .range-inp::-webkit-slider-thumb,
+:host-context(.theme-light) .range-inp::-webkit-slider-thumb {
+  border-color: #FFFFFF;
+}
+
+:host-context(body.light-theme) .ai-insight,
+:host-context(body.theme-light) .ai-insight,
+:host-context(.light-theme) .ai-insight,
+:host-context(.theme-light) .ai-insight {
+  background: linear-gradient(135deg,rgba(123,47,190,.05),rgba(43,127,255,.03));
+}
+
+:host-context(body.light-theme) .sort-sel,
+:host-context(body.theme-light) .sort-sel,
+:host-context(.light-theme) .sort-sel,
+:host-context(.theme-light) .sort-sel {
+  background: #FFFFFF;
+  border-color: #D8DFEC;
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .pg-btn,
+:host-context(body.theme-light) .pg-btn,
+:host-context(.light-theme) .pg-btn,
+:host-context(.theme-light) .pg-btn {
+  background: #FFFFFF;
+}

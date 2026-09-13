@@ -1,0 +1,167 @@
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="particles" id="particles-container" aria-hidden="true"></div>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="ws-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+<symbol id="ws-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+<symbol id="ws-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+</defs></svg>
+
+<div class="page-wrap">
+  <div class="container">
+    <nav class="breadcrumb">
+      <a routerLink="/">الرئيسية</a>
+      <span class="breadcrumb-sep">/</span>
+      <a routerLink="/marketplace">السوق</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>مقارنة الخدمات</span>
+    </nav>
+
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <div>
+          <h1 class="page-hero-title">مقارنة الخدمات</h1>
+          <p class="page-hero-sub">قارن بين الخدمات المختارة واختر الأنسب لاحتياجك — الذكاء الاصطناعي يحلل ويوصي</p>
+        </div>
+        <button class="add-more-btn" (click)="goToMarketplaceToAdd()">
+          <svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-plus"></use></svg>
+          إضافة خدمة للمقارنة
+        </button>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div style="text-align:center;padding:60px 0;color:var(--txt-3);font-size:13px">جاري تحميل بيانات المقارنة...</div>
+    } @else if (!models().length) {
+      <div class="empty-compare">
+        <div class="empty-compare-ico"><svg aria-hidden="true" style="width:28px;height:28px"><use href="#ws-compare"></use></svg></div>
+        <div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:6px">لا توجد خدمات للمقارنة بعد</div>
+        <p style="font-size:13px;color:var(--txt-3);margin-bottom:16px">تصفح السوق واختر خدمتين أو ثلاثة لمقارنتها جنباً إلى جنب</p>
+        <a routerLink="/marketplace" class="empty-cta">تصفح الخدمات</a>
+      </div>
+    } @else {
+
+      <!-- AI BANNER -->
+      @if (winnerId(); as wid) {
+        <div class="ai-banner">
+          <div class="ai-banner-ico"><svg aria-hidden="true" style="width:16px;height:16px"><use href="#ws-trust-ai"></use></svg></div>
+          <div class="ai-banner-content">
+            <div class="ai-banner-label">تحليل الذكاء الاصطناعي</div>
+            <div class="ai-banner-text">
+              @for (m of models(); track m.id) {
+                @if (m.id === wid) {
+                  بناءً على معايير الجودة، <strong>{{ m.provider.name }}</strong> هي الأعلى توافقاً — نقاط AI {{ m.aiScore }} وسعر يبدأ من {{ m.totalAmount }} ريال
+                }
+              }
+            </div>
+          </div>
+          <div class="ai-banner-badge">AI · تحليل</div>
+        </div>
+      }
+
+      <!-- CARDS -->
+      <div class="compare-grid">
+        @for (m of models(); track m.id) {
+          <div class="pcard" [class.winner]="m.id === winnerId()">
+            @if (m.id === winnerId()) {
+              <div class="pcard-winner-strip">الأعلى توافقاً بتحليل الذكاء</div>
+            }
+            <div class="pcard-thumb">
+              @if (m.coverImage) {
+                <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover">
+              } @else {
+                <svg class="placeholder" aria-hidden="true" style="width:40px;height:40px"><use href="#ws-image"></use></svg>
+              }
+              @if (m.level) {
+                <span class="pcard-lvl">{{ m.level }}</span>
+              }
+              <button class="pcard-remove" (click)="removeModel(m.id)" aria-label="إزالة من المقارنة">
+                <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-close"></use></svg>
+              </button>
+            </div>
+            <div class="pcard-body">
+              <div class="pcard-ai" [class.gold]="m.id === winnerId()">
+                <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-trust-ai"></use></svg>
+                AI {{ m.aiScore }}
+              </div>
+              <div class="pcard-title">{{ m.title }}</div>
+              <div class="pcard-prov">
+                <div class="pcard-av">{{ m.provider.initials }}</div>
+                <div class="pcard-prov-info">
+                  <div class="name">{{ m.provider.name }}</div>
+                  @if (m.isVerified) {
+                    <div class="verified"><svg aria-hidden="true" style="width:9px;height:9px"><use href="#ws-check"></use></svg> معتمد</div>
+                  }
+                </div>
+              </div>
+              <div class="pcard-rating">
+                <span class="score">{{ m.rating }}</span>
+                <span>({{ m.reviewsCount || 0 }} تقييم)</span>
+                @if (m.salesCount) {
+                  <span style="color:var(--txt-3);margin-inline-start:auto">{{ m.salesCount }} مبيعة</span>
+                }
+              </div>
+              <div class="pcard-price-row">
+                <div class="pcard-price-label">يبدأ من</div>
+                <span class="pcard-price-val" [class.gold-txt]="m.id === winnerId()">{{ m.totalAmount }}</span><span class="pcard-price-cur">ريال</span>
+                <div class="pcard-days"><svg aria-hidden="true" style="width:11px;height:11px"><use href="#ws-clock"></use></svg> {{ m.totalDays }} يوم</div>
+              </div>
+              <a [routerLink]="['/marketplace/offer', m.id]" class="pcard-btn" [class.primary]="m.id === winnerId()" [class.ghost]="m.id !== winnerId()">
+                {{ m.id === winnerId() ? 'اطلب الآن' : 'عرض الخدمة' }}
+              </a>
+            </div>
+          </div>
+        }
+        @for (slot of emptySlotsArray(); track $index) {
+          <div class="pcard-empty" (click)="goToMarketplaceToAdd()">
+            <div class="pcard-empty-ico"><svg aria-hidden="true" style="width:20px;height:20px"><use href="#ws-plus"></use></svg></div>
+            <p>أضف خدمة أخرى<br>للمقارنة</p>
+          </div>
+        }
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="summary-bar">
+        <div class="summary-bar-title">
+          <div class="summary-bar-title-ico"><svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-compare"></use></svg></div>
+          ملخص المقارنة
+        </div>
+        <div class="summary-grid">
+          @if (topRatedModel(); as t) {
+            <div class="summary-item">
+              <div class="summary-item-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2)"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-star"></use></svg></div>
+              <div><div class="summary-item-label">أعلى تقييم</div><div class="summary-item-val">{{ t.rating }} ★ — {{ t.provider.name }}</div></div>
+            </div>
+          }
+          @if (fastestModel(); as f) {
+            <div class="summary-item">
+              <div class="summary-item-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--teal)"><use href="#ws-clock"></use></svg></div>
+              <div><div class="summary-item-label">أسرع تسليم</div><div class="summary-item-val">{{ f.totalDays }} يوم — {{ f.provider.name }}</div></div>
+            </div>
+          }
+          @if (cheapestModel(); as c) {
+            <div class="summary-item">
+              <div class="summary-item-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--blue-txt)"><use href="#ws-file"></use></svg></div>
+              <div><div class="summary-item-label">أفضل سعر</div><div class="summary-item-val">{{ c.totalAmount }} ريال — {{ c.provider.name }}</div></div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- TRUST -->
+      <div class="trust-section">
+        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="width:11px;height:11px;color:var(--teal)"><use href="#ws-shield"></use></svg></div> ضمان استرداد المدفوعات</div>
+        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="width:11px;height:11px;color:var(--blue-txt)"><use href="#ws-file"></use></svg></div> عقد موثّق لكل مشروع</div>
+        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="width:11px;height:11px;color:var(--green)"><use href="#ws-check"></use></svg></div> مقدمون معتمدون من وسيط</div>
+        <div class="trust-item"><div class="trust-ico-sm" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="width:11px;height:11px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg></div> مراقبة AI لجودة التسليم</div>
+      </div>
+    }
+  </div>
+</div>
