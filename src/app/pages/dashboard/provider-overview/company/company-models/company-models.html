@@ -1,0 +1,110 @@
+<div class="cml-page" [class.is-light-theme]="themeService.theme() === 'light'" dir="rtl">
+
+	<!-- Breadcrumb -->
+	<nav class="cml-bc">
+		<a routerLink="/provider-overview">لوحة التحكم</a>
+		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+		<span>نماذج الشركة</span>
+	</nav>
+
+	<!-- Page head -->
+	<div class="cml-hd">
+		<div>
+			<div class="cml-title">نماذج الشركة</div>
+			<div class="cml-sub">خدمات شركتك المعروضة في سوق وسيط AI</div>
+		</div>
+		<a routerLink="/provider-overview/business-models/new-project" class="cml-add-btn">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+			إنشاء خدمة
+		</a>
+	</div>
+
+	<!-- KPIs -->
+	<div class="cml-kpi-row">
+		<div class="cml-kpi-c"><div class="v">{{ stats().totalModels }}</div><div class="l">نماذج الشركة</div></div>
+		<div class="cml-kpi-c"><div class="v">{{ stats().viewsThisMonth | number }}</div><div class="l">مشاهدة هذا الشهر</div></div>
+		<div class="cml-kpi-c"><div class="v">{{ stats().avgAiScore }}<span class="unit">/100</span></div><div class="l">متوسط تقييم AI</div></div>
+		<div class="cml-kpi-c"><div class="v">{{ stats().offersGenerated }}</div><div class="l">عروض مولَّدة</div><div class="s">{{ stats().offersAccepted }} قُبلت</div></div>
+	</div>
+
+	<!-- Filter rail -->
+	<div class="cml-filter-rail" role="search" aria-label="فلترة نماذج الشركة">
+		<div class="cml-fr-lbl">التخصص</div>
+		<div class="cml-fr-segs" role="group">
+			@for (tab of filterTabs(); track tab.id) {
+			<button class="cml-ds" [class.active]="activeCategory() === tab.id" type="button" (click)="setCategory(tab.id)">
+				{{ tab.name }} <span class="cml-ds-count">({{ tab.count }})</span>
+			</button>
+			}
+		</div>
+		<div class="cml-fr-lbl cml-fr-lbl-mid">ترتيب</div>
+		<div class="cml-fr-segs" role="group">
+			<button class="cml-ds" [class.active]="activeSort() === 'views'" type="button" (click)="setSort('views')">الأكثر مشاهدة</button>
+			<button class="cml-ds" [class.active]="activeSort() === 'top-rated'" type="button" (click)="setSort('top-rated')">أعلى تقييم AI</button>
+			<button class="cml-ds" [class.active]="activeSort() === 'newest'" type="button" (click)="setSort('newest')">الأحدث</button>
+		</div>
+		<div class="cml-fr-spacer"></div>
+		<div class="cml-fr-search">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+			<input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="ابحث في نماذج الشركة..." aria-label="بحث" />
+		</div>
+	</div>
+
+	<!-- Loading -->
+	@if (isLoading()) {
+	<div class="cml-loading"><div class="cml-spinner"></div></div>
+	}
+
+	<!-- Error -->
+	@if (!isLoading() && errorMessage()) {
+	<div class="cml-error">
+		<div class="cml-error-title">{{ errorMessage() }}</div>
+		<button type="button" class="cml-retry-btn" (click)="load()">إعادة المحاولة</button>
+	</div>
+	}
+
+	<!-- Grid -->
+	@if (!isLoading() && !errorMessage()) {
+	@if (filteredModels().length === 0) {
+	<div class="cml-empty">
+		<div class="cml-empty-title">لا توجد نماذج مطابقة</div>
+		<p class="cml-empty-txt">جرّب تعديل الفلاتر أو مصطلح البحث</p>
+	</div>
+	} @else {
+	<div class="cml-grid">
+		@for (m of filteredModels(); track m.id) {
+		<a [routerLink]="['/provider-overview/business-models/market', m.id]" class="cml-card">
+			<div class="cml-card-thumb" [style.background]="m.bgGradient || 'linear-gradient(135deg, rgba(43,212,199,.12), rgba(43,127,255,.08))'">
+				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" [attr.stroke]="m.iconColor || 'rgba(43,212,199,.5)'" stroke-width="1.2" aria-hidden="true">
+					<rect x="3" y="3" width="18" height="18" rx="2" />
+					<path d="M3 9h18M9 21V9" />
+				</svg>
+				<span class="cml-card-status" [class.hidden-status]="m.status === 'ARCHIVED'">{{ m.status === 'ARCHIVED' ? 'غير معروض' : '● في السوق' }}</span>
+				<span class="cml-card-score">{{ m.aiScore }}</span>
+			</div>
+			<div class="cml-card-body">
+				<div class="cml-card-name">{{ m.title }}</div>
+				<div class="cml-card-spec">{{ m.category }}</div>
+				<div class="cml-checks">
+					@for (chk of aiChecks(m); track chk.text) {
+					<div class="cml-chk" [class.chk-warn]="!chk.ok">
+						@if (chk.ok) {
+						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+						} @else {
+						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /></svg>
+						}
+						{{ chk.text }}
+					</div>
+					}
+				</div>
+				<div class="cml-card-foot">
+					<span class="cml-card-link">تفاصيل &rsaquo;</span>
+					<span class="cml-card-meta">&#9733;{{ m.rating || '—' }} &middot; {{ m.viewsCount | number }} مشاهدة</span>
+				</div>
+			</div>
+		</a>
+		}
+	</div>
+	}
+	}
+</div>

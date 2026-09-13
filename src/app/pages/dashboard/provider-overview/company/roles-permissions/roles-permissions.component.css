@@ -94,25 +94,25 @@
 .tog input:disabled ~ .tog-knob { opacity: .5; }
 
 /* ===== Light Mode ===== */
-:host-context(body.light) .pg-title, :host-context(body.light-theme) .pg-title, :host-context(.theme-light) .pg-title { color: #0F172A; }
-:host-context(body.light) .pg-sub, :host-context(body.light-theme) .pg-sub, :host-context(.theme-light) .pg-sub { color: #64748B; }
-:host-context(body.light) .kpi-c, :host-context(body.light-theme) .kpi-c, :host-context(.theme-light) .kpi-c { background: #fff; border-color: #E7EAF1; }
-:host-context(body.light) .kpi-l, :host-context(body.light-theme) .kpi-l, :host-context(.theme-light) .kpi-l { color: #64748B; }
-:host-context(body.light) .rp-tab, :host-context(body.light-theme) .rp-tab, :host-context(.theme-light) .rp-tab { color: #56607D; }
-:host-context(body.light) .rp-tab.active, :host-context(body.light-theme) .rp-tab.active, :host-context(.theme-light) .rp-tab.active { color: #007A72; border-bottom-color: #007A72; }
-:host-context(body.light) .notice, :host-context(body.light-theme) .notice, :host-context(.theme-light) .notice { background: rgba(255, 180, 0, .04); border-color: rgba(255, 180, 0, .12); }
-:host-context(body.light) .notice p, :host-context(body.light-theme) .notice p, :host-context(.theme-light) .notice p { color: #64748B; }
-:host-context(body.light) .role-card, :host-context(body.light-theme) .role-card, :host-context(.theme-light) .role-card { background: #fff; border-color: #E7EAF1; }
-:host-context(body.light) .role-name, :host-context(body.light-theme) .role-name, :host-context(.theme-light) .role-name { color: #0F172A; }
-:host-context(body.light) .role-desc, :host-context(body.light-theme) .role-desc, :host-context(.theme-light) .role-desc { color: #64748B; }
-:host-context(body.light) .role-users span, :host-context(body.light-theme) .role-users span, :host-context(.theme-light) .role-users span { color: #0F172A; }
-:host-context(body.light) .perm-panel, :host-context(body.light-theme) .perm-panel, :host-context(.theme-light) .perm-panel { background: #fff; border-color: #E7EAF1; }
-:host-context(body.light) .perm-role-name, :host-context(body.light-theme) .perm-role-name, :host-context(.theme-light) .perm-role-name { color: #0F172A; }
-:host-context(body.light) .perm-role-desc, :host-context(body.light-theme) .perm-role-desc, :host-context(.theme-light) .perm-role-desc { color: #64748B; }
-:host-context(body.light) .perm-cat-lbl, :host-context(body.light-theme) .perm-cat-lbl, :host-context(.theme-light) .perm-cat-lbl { color: #0F172A; }
-:host-context(body.light) .perm-item-lbl, :host-context(body.light-theme) .perm-item-lbl, :host-context(.theme-light) .perm-item-lbl { color: #64748B; }
-:host-context(body.light) .perm-readonly-title, :host-context(body.light-theme) .perm-readonly-title, :host-context(.theme-light) .perm-readonly-title { color: #0F172A; }
-:host-context(body.light) .role-list-hd > div:first-child, :host-context(body.light-theme) .role-list-hd > div:first-child, :host-context(.theme-light) .role-list-hd > div:first-child { color: #0F172A; }
+:host-context(body.light-theme) .pg-title, :host-context(body.theme-light) .pg-title, :host-context(.light-theme) .pg-title, :host-context(.theme-light) .pg-title { color: #0F172A; }
+:host-context(body.light-theme) .pg-sub, :host-context(body.theme-light) .pg-sub, :host-context(.light-theme) .pg-sub, :host-context(.theme-light) .pg-sub { color: #64748B; }
+:host-context(body.light-theme) .kpi-c, :host-context(body.theme-light) .kpi-c, :host-context(.light-theme) .kpi-c, :host-context(.theme-light) .kpi-c { background: #fff; border-color: #E7EAF1; }
+:host-context(body.light-theme) .kpi-l, :host-context(body.theme-light) .kpi-l, :host-context(.light-theme) .kpi-l, :host-context(.theme-light) .kpi-l { color: #64748B; }
+:host-context(body.light-theme) .rp-tab, :host-context(body.theme-light) .rp-tab, :host-context(.light-theme) .rp-tab, :host-context(.theme-light) .rp-tab { color: #56607D; }
+:host-context(body.light-theme) .rp-tab.active, :host-context(body.theme-light) .rp-tab.active, :host-context(.light-theme) .rp-tab.active, :host-context(.theme-light) .rp-tab.active { color: #007A72; border-bottom-color: #007A72; }
+:host-context(body.light-theme) .notice, :host-context(body.theme-light) .notice, :host-context(.light-theme) .notice, :host-context(.theme-light) .notice { background: rgba(255, 180, 0, .04); border-color: rgba(255, 180, 0, .12); }
+:host-context(body.light-theme) .notice p, :host-context(body.theme-light) .notice p, :host-context(.light-theme) .notice p, :host-context(.theme-light) .notice p { color: #64748B; }
+:host-context(body.light-theme) .role-card, :host-context(body.theme-light) .role-card, :host-context(.light-theme) .role-card, :host-context(.theme-light) .role-card { background: #fff; border-color: #E7EAF1; }
+:host-context(body.light-theme) .role-name, :host-context(body.theme-light) .role-name, :host-context(.light-theme) .role-name, :host-context(.theme-light) .role-name { color: #0F172A; }
+:host-context(body.light-theme) .role-desc, :host-context(body.theme-light) .role-desc, :host-context(.light-theme) .role-desc, :host-context(.theme-light) .role-desc { color: #64748B; }
+:host-context(body.light-theme) .role-users span, :host-context(body.theme-light) .role-users span, :host-context(.light-theme) .role-users span, :host-context(.theme-light) .role-users span { color: #0F172A; }
+:host-context(body.light-theme) .perm-panel, :host-context(body.theme-light) .perm-panel, :host-context(.light-theme) .perm-panel, :host-context(.theme-light) .perm-panel { background: #fff; border-color: #E7EAF1; }
+:host-context(body.light-theme) .perm-role-name, :host-context(body.theme-light) .perm-role-name, :host-context(.light-theme) .perm-role-name, :host-context(.theme-light) .perm-role-name { color: #0F172A; }
+:host-context(body.light-theme) .perm-role-desc, :host-context(body.theme-light) .perm-role-desc, :host-context(.light-theme) .perm-role-desc, :host-context(.theme-light) .perm-role-desc { color: #64748B; }
+:host-context(body.light-theme) .perm-cat-lbl, :host-context(body.theme-light) .perm-cat-lbl, :host-context(.light-theme) .perm-cat-lbl, :host-context(.theme-light) .perm-cat-lbl { color: #0F172A; }
+:host-context(body.light-theme) .perm-item-lbl, :host-context(body.theme-light) .perm-item-lbl, :host-context(.light-theme) .perm-item-lbl, :host-context(.theme-light) .perm-item-lbl { color: #64748B; }
+:host-context(body.light-theme) .perm-readonly-title, :host-context(body.theme-light) .perm-readonly-title, :host-context(.light-theme) .perm-readonly-title, :host-context(.theme-light) .perm-readonly-title { color: #0F172A; }
+:host-context(body.light-theme) .role-list-hd > div:first-child, :host-context(body.theme-light) .role-list-hd > div:first-child, :host-context(.light-theme) .role-list-hd > div:first-child, :host-context(.theme-light) .role-list-hd > div:first-child { color: #0F172A; }
 
 /* Responsive */
 @media (max-width: 900px) {
