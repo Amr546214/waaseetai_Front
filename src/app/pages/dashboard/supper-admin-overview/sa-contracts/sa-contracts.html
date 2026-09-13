@@ -17,10 +17,10 @@
   </div>
 
   <div class="ct-kpi-grid">
-    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود نشطة</span><div class="ct-kpi-val" style="color:#5DA0FF">{{ stats().active }}</div></div>
-    <div class="ct-kpi"><span class="ct-kpi-lbl">محتجز في الضمان</span><div class="ct-kpi-val" style="color:#0FA99A">{{ stats().escrowTotal | number }}<span class="ct-kpi-unit">ر.س</span></div></div>
-    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود متنازع عليها</span><div class="ct-kpi-val" style="color:#FF8C69">{{ stats().disputes }}</div></div>
-    <div class="ct-kpi"><span class="ct-kpi-lbl">مكتملة</span><div class="ct-kpi-val" style="color:#2BD4C7">{{ stats().completed }}</div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود نشطة</span><div class="ct-kpi-val txt-blue">{{ stats().active }}</div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">محتجز في الضمان</span><div class="ct-kpi-val txt-green">{{ stats().escrowTotal | number }}<span class="ct-kpi-unit">ر.س</span></div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود متنازع عليها</span><div class="ct-kpi-val txt-coral">{{ stats().disputes }}</div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">مكتملة</span><div class="ct-kpi-val txt-teal">{{ stats().completed }}</div></div>
   </div>
 
   <div class="ct-tabs">
@@ -103,8 +103,8 @@
 
         <div class="ct-section-ttl">بيانات الضمان</div>
         <div class="ct-escrow-block">
-          <div class="ct-escrow-row"><span>المبلغ المودَع</span><strong style="color:#0FA99A">{{ d.value }}</strong></div>
-          <div class="ct-escrow-row"><span>رسوم وسيط AI ({{ d.feePct }}%)</span><strong style="color:#2BD4C7">{{ feeAmount(d) | number }} ر.س</strong></div>
+          <div class="ct-escrow-row"><span>المبلغ المودَع</span><strong class="txt-green">{{ d.value }}</strong></div>
+          <div class="ct-escrow-row"><span>رسوم وسيط AI ({{ d.feePct }}%)</span><strong class="txt-teal">{{ feeAmount(d) | number }} ر.س</strong></div>
           <div class="ct-escrow-row"><span>صافي المقدم عند الإفراج</span><strong>{{ netAmount(d) | number }} ر.س</strong></div>
         </div>
 

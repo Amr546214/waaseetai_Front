@@ -17,10 +17,10 @@
   </div>
 
   <div class="pj-kpi-grid">
-    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع جارية</span><div class="pj-kpi-val" style="color:#5DA0FF">{{ stats().active }}</div></div>
-    <div class="pj-kpi"><span class="pj-kpi-lbl">مكتملة</span><div class="pj-kpi-val" style="color:#0FA99A">{{ stats().completed }}</div></div>
-    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع متأخرة</span><div class="pj-kpi-val" style="color:#FF8C69">{{ stats().late }}</div></div>
-    <div class="pj-kpi"><span class="pj-kpi-lbl">قيمة مشاريع جارية</span><div class="pj-kpi-val" style="color:#2BD4C7">{{ stats().activeValue | number }}<span class="pj-kpi-unit">ر.س</span></div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع جارية</span><div class="pj-kpi-val txt-blue">{{ stats().active }}</div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">مكتملة</span><div class="pj-kpi-val txt-green">{{ stats().completed }}</div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع متأخرة</span><div class="pj-kpi-val txt-coral">{{ stats().late }}</div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">قيمة مشاريع جارية</span><div class="pj-kpi-val txt-teal">{{ stats().activeValue | number }}<span class="pj-kpi-unit">ر.س</span></div></div>
   </div>
 
   <div class="pj-tabs">
@@ -111,8 +111,8 @@
         <div class="pj-section-ttl">الضمان المالي (Escrow)</div>
         <div class="pj-escrow-row">
           <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ d.escrowTotal | number }} ر.س</strong></div>
-          <div class="pj-escrow-item"><span>محرَّر حتى الآن</span><strong style="color:#0FA99A">{{ d.escrowReleased | number }} ر.س</strong></div>
-          <div class="pj-escrow-item"><span>محتجز حالياً</span><strong style="color:#FFB400">{{ (d.escrowTotal - d.escrowReleased) | number }} ر.س</strong></div>
+          <div class="pj-escrow-item"><span>محرَّر حتى الآن</span><strong class="txt-green">{{ d.escrowReleased | number }} ر.س</strong></div>
+          <div class="pj-escrow-item"><span>محتجز حالياً</span><strong class="txt-amber">{{ (d.escrowTotal - d.escrowReleased) | number }} ر.س</strong></div>
         </div>
 
         <div class="pj-ai-note">

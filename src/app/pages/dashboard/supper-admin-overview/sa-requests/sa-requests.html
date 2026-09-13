@@ -19,19 +19,19 @@
   <div class="rq-kpi-grid">
     <div class="rq-kpi">
       <span class="rq-kpi-lbl">إجمالي الطلبات</span>
-      <div class="rq-kpi-val" style="color:#2BD4C7">{{ stats().total }}</div>
+      <div class="rq-kpi-val txt-teal">{{ stats().total }}</div>
     </div>
     <div class="rq-kpi">
       <span class="rq-kpi-lbl">مفتوحة تنتظر عروض</span>
-      <div class="rq-kpi-val" style="color:#5DA0FF">{{ stats().open }}</div>
+      <div class="rq-kpi-val txt-blue">{{ stats().open }}</div>
     </div>
     <div class="rq-kpi">
       <span class="rq-kpi-lbl">مكتملة</span>
-      <div class="rq-kpi-val" style="color:#0FA99A">{{ stats().completed }}</div>
+      <div class="rq-kpi-val txt-green">{{ stats().completed }}</div>
     </div>
     <div class="rq-kpi">
       <span class="rq-kpi-lbl">بحاجة مراجعة</span>
-      <div class="rq-kpi-val" style="color:#FF8C69">{{ stats().needsReview }}</div>
+      <div class="rq-kpi-val txt-coral">{{ stats().needsReview }}</div>
     </div>
   </div>
 
@@ -108,10 +108,10 @@
         </div>
 
         <div class="rq-md-meta-row">
-          <div class="rq-md-meta"><span>الميزانية</span><strong style="color:#2BD4C7">{{ d.budget }}</strong></div>
+          <div class="rq-md-meta"><span>الميزانية</span><strong class="txt-teal">{{ d.budget }}</strong></div>
           <div class="rq-md-meta"><span>العروض</span><strong>{{ d.offers }} عروض</strong></div>
           <div class="rq-md-meta"><span>المدة المطلوبة</span><strong>{{ d.durationRange }}</strong></div>
-          @if (d.linkedContract) { <div class="rq-md-meta"><span>العقد</span><strong style="color:#0FA99A">{{ d.linkedContract }}</strong></div> }
+          @if (d.linkedContract) { <div class="rq-md-meta"><span>العقد</span><strong class="txt-green">{{ d.linkedContract }}</strong></div> }
         </div>
 
         <div class="rq-section-ttl">مسار الطلب</div>
