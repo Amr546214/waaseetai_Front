@@ -239,7 +239,7 @@ button{font-family:inherit}
 :host-context(.light-theme) .tx-tbl th,
 :host-context(.theme-light) .tx-tbl th,
 :host-context(body.light) .tx-tbl th {
-  color: #56607D !important;
+  color: #6B7699 !important;
   border-bottom-color: #D8DFEC !important;
 }
 :host-context(body.light-theme) .tx-tbl td,

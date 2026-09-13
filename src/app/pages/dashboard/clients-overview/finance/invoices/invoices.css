@@ -12,13 +12,6 @@
      Blue             #1D6FE0
    ============================================================ */
 
-/* ---- Page / root background ---- */
-:host-context(body.light) .w-full,
-:host-context(.light-theme) .w-full,
-:host-context(.theme-light) .w-full {
-  background: #F6F8FC;
-}
-
 /* ---- Card backgrounds (KPI cards + table container) ---- */
 :host-context(body.light) .bg-white,
 :host-context(.light-theme) .bg-white,
@@ -31,21 +24,21 @@
 :host-context(body.light) .text-white,
 :host-context(.light-theme) .text-white,
 :host-context(.theme-light) .text-white {
-  color: #070D24 !important;
+  color: #0F172A !important;
 }
 
 /* Tailwind dark:text-white also resolves to white in some setups */
 :host-context(body.light) .dark\:text-white,
 :host-context(.light-theme) .dark\:text-white,
 :host-context(.theme-light) .dark\:text-white {
-  color: #070D24 !important;
+  color: #0F172A !important;
 }
 
 /* ---- Primary headings (slate-900) -> design primary ---- */
 :host-context(body.light) .text-slate-900,
 :host-context(.light-theme) .text-slate-900,
 :host-context(.theme-light) .text-slate-900 {
-  color: #070D24 !important;
+  color: #0F172A !important;
 }
 
 /* ---- Secondary text (slate-500 / slate-700 / slate-300) ---- */
@@ -84,7 +77,7 @@
 :host-context(body.light) .text-indigo-200\/70,
 :host-context(.light-theme) .text-indigo-200\/70,
 :host-context(.theme-light) .text-indigo-200\/70 {
-  color: #56607D !important;
+  color: #475569 !important;
 }
 
 /* ---- Borders: slate-200 / slate-800 / translucent white ---- */
