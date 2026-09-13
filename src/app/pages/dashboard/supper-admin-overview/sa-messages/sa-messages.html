@@ -1,13 +1,78 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="ms-page" dir="rtl">
+  <div class="ms-ai-bc">
+    <div class="ms-ai-bc-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></svg>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الرسائل</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الرسائل\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="ms-ai-bc-txt"><strong>وسيط AI</strong> مطّلع على جميع المحادثات لضمان جودة الخدمة وحماية الطرفين — التفاوض مسموح ومشجَّع</div>
+    <span class="ms-ai-pct">دقة الرصد 97%</span>
   </div>
-</div>
+
+  <div class="ms-shell">
+    <div class="ms-conv-panel">
+      <div class="ms-conv-hdr">
+        <div class="ms-conv-title">المحادثات</div>
+        <div class="ms-conv-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" placeholder="ابحث في المحادثات" [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
+        </div>
+      </div>
+      <div class="ms-conv-list">
+        @for (c of filteredConversations(); track c.id) {
+          <div class="ms-conv-item" [class.active]="c.id === selectedId()" [class.unread]="c.unread > 0" (click)="openConversation(c.id)">
+            <div class="ms-c-av" [class]="'type-' + c.type">{{ c.avatar }}</div>
+            <div class="ms-conv-meta">
+              <div class="ms-c-name">{{ c.name }}</div>
+              <div class="ms-c-role">{{ c.role }}</div>
+              <div class="ms-c-last" [class.bold]="c.unread > 0">{{ c.lastMessage }}</div>
+            </div>
+            <div class="ms-conv-side">
+              <span class="ms-c-time">{{ c.time }}</span>
+              @if (c.unread > 0) { <span class="ms-c-badge">{{ c.unread }}</span> }
+            </div>
+          </div>
+        }
+        @if (filteredConversations().length === 0) {
+          <div class="ms-conv-empty">لا توجد محادثات مطابقة</div>
+        }
+      </div>
+    </div>
+
+    <div class="ms-msg-panel">
+      @if (selected(); as conv) {
+        <div class="ms-msg-hdr">
+          <div class="ms-mh-av" [class]="'type-' + conv.type">{{ conv.avatar }}</div>
+          <div>
+            <div class="ms-mh-name">{{ conv.name }}</div>
+            <div class="ms-mh-role">{{ conv.role }}</div>
+          </div>
+          @if (conv.online) {
+            <div class="ms-mh-stat"><span class="ms-odot"></span>متصل الآن</div>
+          }
+        </div>
+
+        <div class="ms-msgs">
+          @for (m of conv.messages; track $index) {
+            <div class="ms-row" [class.mine]="m.from === 'me'">
+              <div class="ms-mav" [class]="m.from === 'me' ? 'me' : 'other'">{{ m.from === 'me' ? 'أن' : conv.avatar }}</div>
+              <div class="ms-mcontent">
+                <div class="ms-bbl" [class]="m.from === 'me' ? 'mine' : 'other'">{{ m.text }}</div>
+                <div class="ms-btime">{{ m.time }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="ms-input-wrap">
+          <div class="ms-irow">
+            <textarea class="ms-itxt" rows="1" placeholder="اكتب رسالتك..." [value]="draft()" (input)="onDraftChange($any($event.target).value)" (keydown.enter)="$event.preventDefault(); sendMessage()"></textarea>
+            <button type="button" class="ms-sbtn" (click)="sendMessage()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="ms-empty-state">اختر محادثة لعرضها</div>
+      }
+    </div>
+  </div>
+</section>

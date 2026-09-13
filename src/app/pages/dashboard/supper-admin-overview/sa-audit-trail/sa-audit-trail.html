@@ -1,13 +1,109 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="at-page" dir="rtl">
+  <h1 class="sr-only">Audit Trail</h1>
+  <svg style="display:none" aria-hidden="true"><defs>
+    <symbol id="at-i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+    <symbol id="at-i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="at-i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="at-i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+  </defs></svg>
+
+  <div class="at-hdr">
+    <div class="at-hdr-text">
+      <div class="at-ttl">Audit Trail</div>
+      <div class="at-sub">سجل شامل لكل عمليات وإجراءات الإدارة في وسيط AI</div>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">Audit Trail</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"Audit Trail\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <button type="button" class="at-btn at-btn-gh" (click)="exportCsv()"><svg><use href="#at-i-download"></use></svg>تصدير CSV</button>
   </div>
-</div>
+
+  <div class="at-kpi-row">
+    <div class="at-kpi"><div class="at-kpi-v" style="color:#2BD4C7">8,241</div><div class="at-kpi-l">عمليات هذا الشهر</div></div>
+    <div class="at-kpi"><div class="at-kpi-v" style="color:#5DA0FF">18</div><div class="at-kpi-l">موظف نشط</div></div>
+    <div class="at-kpi"><div class="at-kpi-v" style="color:#FFB400">3</div><div class="at-kpi-l">عمليات مشبوهة</div></div>
+    <div class="at-kpi"><div class="at-kpi-v" style="color:#0FA99A">99.8%</div><div class="at-kpi-l">سلامة البيانات</div></div>
+  </div>
+
+  <div class="at-crosslink">
+    <svg class="at-crosslink-ico"><use href="#at-i-warn"></use></svg>
+    <span class="at-crosslink-text">الأنشطة المشبوهة المرصودة هنا تُحال تلقائياً لـ Risk Center</span>
+    <a routerLink="../risk-center" class="at-crosslink-btn">Risk Center ←</a>
+  </div>
+
+  <div class="at-anomaly">
+    <svg class="at-anomaly-ico"><use href="#at-i-warn"></use></svg>
+    <div class="at-anomaly-text">AI اكتشف 3 عمليات غير اعتيادية — تعديل إعدادات الرسوم الحكومية المستقبلية خارج أوقات الدوام من IP غير معروف</div>
+    <button type="button" class="at-anomaly-btn">مراجعة</button>
+  </div>
+
+  <div class="at-filters">
+    <div class="at-filter-group">
+      <div class="at-filter-lbl">نوع العملية</div>
+      <select [value]="typeFilter()" (change)="typeFilter.set($any($event.target).value)">
+        @for (t of actionTypes; track t) { <option [value]="t">{{ t }}</option> }
+      </select>
+    </div>
+    <div class="at-filter-group">
+      <div class="at-filter-lbl">الموظف</div>
+      <select [value]="employeeFilter()" (change)="employeeFilter.set($any($event.target).value)">
+        @for (e of employees; track e) { <option [value]="e">{{ e }}</option> }
+      </select>
+    </div>
+    <div class="at-filter-group">
+      <div class="at-filter-lbl">من تاريخ</div>
+      <input type="date" [value]="fromDate()" (input)="fromDate.set($any($event.target).value)" />
+    </div>
+    <div class="at-filter-group">
+      <div class="at-filter-lbl">إلى تاريخ</div>
+      <input type="date" [value]="toDate()" (input)="toDate.set($any($event.target).value)" />
+    </div>
+    <div class="at-filter-group">
+      <div class="at-filter-lbl">بحث</div>
+      <div class="at-search-wrap">
+        <input type="text" placeholder="ابحث في السجل..." [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" />
+        <svg class="at-search-ico"><use href="#at-i-search"></use></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="at-log-card">
+    <div class="at-log-hdr">
+      <div class="at-log-ttl"><svg><use href="#at-i-list"></use></svg>سجل العمليات</div>
+      <div class="at-log-count">يعرض {{ filteredEvents().length }} من {{ events().length }} عملية</div>
+    </div>
+
+    <div class="at-log">
+      @for (e of filteredEvents(); track e.action + e.time; let last = $last) {
+        <div class="at-item">
+          <div class="at-item-left">
+            <div class="at-item-icon" [style.background]="e.bg" [style.color]="e.color">
+              @if (e.suspicious) {
+                <svg><use href="#at-i-warn"></use></svg>
+              } @else {
+                <svg><use href="#at-i-list"></use></svg>
+              }
+            </div>
+            @if (!last) { <div class="at-item-line"></div> }
+          </div>
+          <div class="at-item-body">
+            <div class="at-item-top">
+              <span class="at-tag" [style.background]="e.bg" [style.color]="e.color">{{ e.type }}</span>
+              <span class="at-actor">
+                <span class="at-actor-av" [style.background]="e.actorColor">{{ e.actor.charAt(0) }}</span>
+                <span class="at-actor-name">{{ e.actor }}</span>
+              </span>
+            </div>
+            <div class="at-action">{{ e.action }}</div>
+            <div class="at-detail">{{ e.detail }}</div>
+            <div class="at-time">{{ e.time }}</div>
+          </div>
+        </div>
+      } @empty {
+        <div class="at-empty">لا توجد نتائج مطابقة</div>
+      }
+    </div>
+  </div>
+
+  <div class="at-foot">
+    <span>Audit Trail — محمي ومشفر — لا يمكن حذفه</span>
+    <a routerLink="../super-admins" class="at-foot-link">Super Admin ←</a>
+  </div>
+</section>

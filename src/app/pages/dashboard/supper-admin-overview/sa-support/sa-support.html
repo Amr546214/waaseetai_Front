@@ -1,13 +1,129 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="sup-page" dir="rtl">
+  <div class="sup-hdr">
+    <div>
+      <h1 class="sup-ttl">تذاكر الدعم</h1>
+      <p class="sup-sub">طلبات المساعدة والمشاكل المرفوعة من مستخدمي وسيط AI</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الدعم الفني</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الدعم الفني\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="sup-ai-disc">
+    <div class="sup-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div class="sup-ai-body">
+      <div class="sup-ai-lbl">وسيط AI: دعم ذكي</div>
+      <p class="sup-ai-txt">الذكاء الاصطناعي يصنّف التذاكر ويقترح الإجابات ويحدد الأولوية <span class="sup-ai-badge">دقة 95%</span></p>
+    </div>
+  </div>
+
+  <div class="sup-kpis">
+    <div class="sup-kpi"><div class="sup-kpi-num" style="color:#5DA0FF">{{ countFor('open') }}</div><div class="sup-kpi-lbl">مفتوحة الآن</div></div>
+    <div class="sup-kpi"><div class="sup-kpi-num" style="color:#FFB400">1.8</div><div class="sup-kpi-lbl">متوسط وقت الرد (ساعة)</div></div>
+    <div class="sup-kpi"><div class="sup-kpi-num" style="color:#0FA99A">87</div><div class="sup-kpi-lbl">محلولة هذا الأسبوع</div></div>
+    <div class="sup-kpi"><div class="sup-kpi-num" style="color:#A56BE0">63%</div><div class="sup-kpi-lbl">حُلّت بـ AI تلقائياً</div></div>
+  </div>
+
+  <div class="sup-filters">
+    <div class="sup-tabs">
+      @for (f of filters; track f.key) {
+        <button type="button" class="sup-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
+          {{ f.label }}<span class="sup-tab-count">{{ countFor(f.key) }}</span>
+        </button>
+      }
+    </div>
+    <div class="sup-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" placeholder="ابحث بالرقم أو اسم المستخدم..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
+    </div>
+  </div>
+
+  <div class="sup-layout">
+    <div class="sup-tlist">
+      @if (filteredTickets().length === 0) {
+        <div class="sup-empty">لا توجد تذاكر مطابقة</div>
+      } @else {
+        @for (t of filteredTickets(); track t.id) {
+          <div class="sup-tcard" [class.active]="t.id === activeTicketId()" (click)="openTicket(t)">
+            <div class="sup-tc-hdr">
+              <div>
+                <div class="sup-tc-id">{{ t.id }}</div>
+                <div class="sup-tc-subject">{{ t.subject }}</div>
+              </div>
+              <span class="sup-tc-time">{{ t.time }}</span>
+            </div>
+            <div class="sup-tc-meta">
+              <span class="sup-bdg" [class]="'sup-st-' + t.status">
+                @switch (t.status) {
+                  @case ('open') { مفتوح }
+                  @case ('pending') { بانتظار رد }
+                  @case ('escalated') { مصعَّد }
+                  @case ('resolved') { محلول }
+                }
+              </span>
+              <span class="sup-bdg sup-bdg-cat">{{ t.category }}</span>
+              @if (t.priority === 'high') {
+                <span class="sup-bdg sup-bdg-high">عالية</span>
+              }
+            </div>
+            <div class="sup-tc-user">
+              <div class="sup-tc-av" [style.background]="t.userBg">{{ t.userAv }}</div>
+              <span>{{ t.user }} · {{ t.userType }}</span>
+            </div>
+            <div class="sup-tc-preview">{{ t.messages[t.messages.length - 1].text }}</div>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="sup-chat">
+      @if (activeTicket(); as t) {
+        <div class="sup-chat-hdr">
+          <div class="sup-chat-hdr-ttl">{{ t.subject }}</div>
+          <div class="sup-chat-hdr-sub">{{ t.id }} · {{ t.user }} · {{ t.category }}</div>
+        </div>
+        <div class="sup-chat-msgs">
+          @for (m of t.messages; track $index) {
+            <div class="sup-msg" [class.from-admin]="m.from === 'admin'">
+              <div class="sup-msg-bubble">{{ m.text }}</div>
+              <div class="sup-msg-time">{{ m.time }}</div>
+            </div>
+          }
+        </div>
+        @if (t.status !== 'resolved') {
+          <div class="sup-chat-actions">
+            <button type="button" class="sup-ca-btn sup-ca-close" (click)="closeTicket()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              إغلاق التذكرة
+            </button>
+            @if (t.status !== 'escalated') {
+              <button type="button" class="sup-ca-btn sup-ca-escalate" (click)="escalateTicket()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                تصعيد
+              </button>
+            }
+          </div>
+          <div class="sup-chat-input-area">
+            <textarea class="sup-chat-input" rows="1" placeholder="اكتب ردك هنا..." [value]="draftReply()" (input)="draftReply.set($any($event.target).value)"></textarea>
+            <button type="button" class="sup-chat-send" (click)="sendReply()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        } @else {
+          <div class="sup-chat-resolved-note">تم حل هذه التذكرة</div>
+        }
+      } @else {
+        <div class="sup-chat-empty">
+          <div class="sup-chat-empty-ttl">اختر تذكرة للرد</div>
+          <div class="sup-chat-empty-sub">اضغط على أي تذكرة من القائمة</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (toast()) {
+    <div class="sup-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>{{ toast() }}</span>
+    </div>
+  }
+</section>

@@ -1,13 +1,86 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="rc-page" dir="rtl">
+  <h1 class="sr-only">Risk Center</h1>
+  <svg style="display:none" aria-hidden="true"><defs>
+    <symbol id="rc-i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="rc-i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="rc-i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+    <symbol id="rc-i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+  </defs></svg>
+
+  <div class="rc-hdr">
+    <div class="rc-hdr-text">
+      <div class="rc-ttl">Risk Center</div>
+      <div class="rc-sub">مركز مراقبة المخاطر والاحتيال في الوقت الفعلي</div>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">Risk Center</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"Risk Center\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <button type="button" class="rc-btn rc-btn-danger"><svg><use href="#rc-i-warn"></use></svg>IP Blacklist</button>
+    <button type="button" class="rc-btn rc-btn-gh"><svg><use href="#rc-i-shield"></use></svg>إعدادات الكشف</button>
   </div>
-</div>
+
+  <div class="rc-crosslink">
+    <svg class="rc-crosslink-ico"><use href="#rc-i-shield"></use></svg>
+    <span class="rc-crosslink-text">كل إجراءات Risk Center تُسجَّل تلقائياً في Audit Trail</span>
+    <a routerLink="../audit-trail" class="rc-crosslink-btn">Audit Trail ←</a>
+  </div>
+
+  <div class="rc-alert">
+    <div class="rc-alert-dot"></div>
+    <div class="rc-alert-text">تنبيه مباشر: شبكة حسابات مشبوهة اكتُشفت الآن — 3 حسابات على نفس الجهاز (Device ID: 9A2F)</div>
+    <button type="button" class="rc-btn rc-btn-danger rc-btn-sm"><svg><use href="#rc-i-eye"></use></svg>مراجعة</button>
+  </div>
+
+  <div class="rc-kpi-row">
+    <div class="rc-kpi"><div class="rc-kpi-v" style="color:#FF6B6B">47</div><div class="rc-kpi-l">حساب عالي المخاطر</div></div>
+    <div class="rc-kpi"><div class="rc-kpi-v" style="color:#FFB400">184</div><div class="rc-kpi-l">حساب متوسط المخاطر</div></div>
+    <div class="rc-kpi"><div class="rc-kpi-v" style="color:#FF8C69">8</div><div class="rc-kpi-l">أنماط احتيال مكتشفة</div></div>
+    <div class="rc-kpi"><div class="rc-kpi-v" style="color:#A56BE0">24</div><div class="rc-kpi-l">IP في القائمة السوداء</div></div>
+  </div>
+
+  <div class="rc-grid">
+    <div class="rc-card">
+      <div class="rc-card-ttl"><svg><use href="#rc-i-warn"></use></svg>حسابات عالية المخاطر</div>
+      @for (a of riskAccounts(); track a.name) {
+        <div class="rc-risk-item" [class.risk-high]="a.level === 'high'" [class.risk-med]="a.level === 'med'" [class.risk-low]="a.level === 'low'">
+          <div class="rc-risk-score" [style.color]="a.scoreColor">{{ a.score }}</div>
+          <div class="rc-risk-body">
+            <div class="rc-risk-name">{{ a.name }}</div>
+            <div class="rc-risk-meta">{{ a.meta }}</div>
+            <div class="rc-risk-reasons">
+              @for (r of a.reasons; track r.label) {
+                <span class="rc-rr" [style.background]="r.bg" [style.color]="r.color">{{ r.label }}</span>
+              }
+            </div>
+          </div>
+          <button type="button" class="rc-btn rc-btn-gh rc-btn-sm"><svg><use href="#rc-i-eye"></use></svg></button>
+        </div>
+      }
+    </div>
+
+    <div class="rc-card">
+      <div class="rc-card-ttl"><svg><use href="#rc-i-link"></use></svg>أنماط الاحتيال المكتشفة</div>
+      @for (p of fraudPatterns; track p.title) {
+        <div class="rc-pattern-item">
+          <div class="rc-pattern-ico" [style.background]="p.bg"><svg [style.color]="p.color"><use href="#rc-i-link"></use></svg></div>
+          <div class="rc-pattern-body">
+            <div class="rc-pattern-ttl" [style.color]="p.color">{{ p.title }}</div>
+            <div class="rc-pattern-desc">{{ p.desc }}</div>
+          </div>
+          <span class="rc-pattern-tag" [style.background]="p.bg" [style.color]="p.color">{{ p.tag }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="rc-card rc-ip-card">
+    <div class="rc-card-ttl"><svg><use href="#rc-i-shield"></use></svg>قائمة IP المحجوبة</div>
+    <div class="rc-ip-add">
+      <input type="text" class="rc-ip-input" placeholder="أضف IP للحجب..." [value]="newIp()" (input)="newIp.set($any($event.target).value)" (keydown.enter)="addBlockedIp()" />
+      <button type="button" class="rc-btn rc-btn-danger" (click)="addBlockedIp()">حجب</button>
+    </div>
+    <div class="rc-ip-list">
+      @for (ip of blockedIps(); track ip) {
+        <span class="rc-ip-chip">{{ ip }} <button type="button" (click)="removeBlockedIp(ip)">×</button></span>
+      }
+      <span class="rc-ip-more">+ {{ extraBlockedCount }} عنوان آخر</span>
+    </div>
+  </div>
+</section>

@@ -1,13 +1,152 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="tk-page" dir="rtl">
+  <h1 class="sr-only">المهام</h1>
+  <svg style="display:none" aria-hidden="true"><defs>
+    <symbol id="tk-i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="tk-i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="tk-i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+    <symbol id="tk-i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol>
+  </defs></svg>
+
+  <div class="tk-hdr">
+    <div>
+      <h2 class="tk-ttl">المهام والتكليفات</h2>
+      <p class="tk-sub">جميع مهام فريق الإدارة ومتابعتها</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">المهام</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"المهام\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="tk-hdr-actions">
+      <button type="button" class="tk-btn tk-btn-gh"><svg><use href="#tk-i-chart"></use></svg>تقرير الأداء</button>
+      <button type="button" class="tk-btn tk-btn-pri"><svg><use href="#tk-i-plus"></use></svg>مهمة جديدة</button>
+    </div>
   </div>
-</div>
+
+  <div class="tk-kpi-row">
+    <div class="tk-kpi"><div class="tk-kpi-lbl">مهام مفتوحة</div><div class="tk-kpi-val" style="color:#2BD4C7">23</div><div class="tk-kpi-sub">6 جارية</div></div>
+    <div class="tk-kpi"><div class="tk-kpi-lbl">متأخرة</div><div class="tk-kpi-val" style="color:#FF8C69">5</div><div class="tk-kpi-sub">تحتاج متابعة عاجلة</div></div>
+    <div class="tk-kpi"><div class="tk-kpi-lbl">مكتملة (الشهر)</div><div class="tk-kpi-val" style="color:#0FA99A">142</div><div class="tk-kpi-sub">94% في الوقت</div></div>
+    <div class="tk-kpi"><div class="tk-kpi-lbl">متوسط وقت الإنجاز</div><div class="tk-kpi-val" style="color:#FFB400">2.4h</div><div class="tk-kpi-sub">SLA: 4h</div></div>
+  </div>
+
+  <div class="tk-tabs" role="tablist">
+    @for (t of tabs; track t.key) {
+      <button type="button" class="tk-tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
+    }
+  </div>
+
+  <div class="tk-filters">
+    <div class="tk-search">
+      <svg><use href="#tk-i-search"></use></svg>
+      <input type="search" placeholder="ابحث في المهام..." [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" />
+    </div>
+    <select class="tk-sel" [value]="employeeFilter()" (change)="employeeFilter.set($any($event.target).value)">
+      <option value="all">كل الموظفين</option>
+      @for (e of employees(); track e) { <option [value]="e">{{ e }}</option> }
+    </select>
+    <select class="tk-sel" [value]="typeFilter()" (change)="typeFilter.set($any($event.target).value)">
+      <option value="all">كل الأنواع</option>
+      @for (ty of types(); track ty) { <option [value]="ty">{{ ty }}</option> }
+    </select>
+  </div>
+
+  <div class="tk-card">
+    <div class="tk-card-hdr">
+      <span class="tk-card-ttl">{{ tabLabel() }}</span>
+      <span class="tk-card-count">{{ filteredTasks().length }} مهام</span>
+    </div>
+    <div class="tk-tbl-wrap">
+      <table class="tk-tbl">
+        <thead>
+          <tr><th>#</th><th>المهمة</th><th>النوع</th><th>المُكلَّف</th><th>الأولوية</th><th>الموعد</th><th>الحالة</th><th>إجراء</th></tr>
+        </thead>
+        <tbody>
+          @for (t of filteredTasks(); track t.id) {
+            <tr>
+              <td class="tk-mono">{{ t.id }}</td>
+              <td class="tk-strong">{{ t.title }}</td>
+              <td><span class="tk-bdg" style="background:rgba(255,255,255,.06);color:#6B7699">{{ t.type }}</span></td>
+              <td class="tk-assignee">{{ t.assignee }}</td>
+              <td><span class="tk-bdg" [style.background]="t.priorityBg" [style.color]="t.priorityColor">{{ t.priority }}</span></td>
+              <td [style.color]="t.dueColor">{{ t.due }}</td>
+              <td><span class="tk-bdg" [style.background]="t.statusBg" [style.color]="t.statusColor">{{ t.statusLabel }}</span></td>
+              <td><button type="button" class="tk-detail-btn" (click)="openDetail(t)">تفاصيل</button></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" class="tk-empty">لا توجد مهام مطابقة</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tk-strip">
+    @for (col of kanbanGroups(); track col.key) {
+      <div class="tk-strip-cell" [style.background]="col.bg" [style.borderColor]="col.border">
+        <div class="tk-strip-val" [style.color]="col.color">{{ col.items.length }}</div>
+        <div class="tk-strip-lbl">{{ col.label }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="tk-workload">
+    <div class="tk-sec-ttl">توازن العبء على الفريق</div>
+    <div class="tk-wl-list">
+      @for (w of workload; track w.name) {
+        <div class="tk-wl-row">
+          <span class="tk-wl-name">{{ w.name }}</span>
+          <div class="tk-wl-bar"><div class="tk-wl-fill" [style.width.%]="w.pct" [style.background]="w.color"></div></div>
+          <span class="tk-wl-count" [style.color]="w.color">{{ w.count }} مهام</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="tk-kanban">
+    <div class="tk-sec-ttl">Kanban Board</div>
+    <div class="tk-kanban-grid">
+      @for (col of kanbanGroups(); track col.key) {
+        <div class="tk-kanban-col" [style.background]="col.bg" [style.borderColor]="col.border">
+          <div class="tk-kanban-col-ttl" [style.color]="col.color">{{ col.label }} ({{ col.items.length }})</div>
+          <div class="tk-kanban-items">
+            @for (item of col.items; track item.id) {
+              <div class="tk-kanban-item" (click)="openDetail(item)">
+                {{ item.title }}
+                <div class="tk-kanban-item-meta">{{ item.assignee }} · {{ item.due }}</div>
+              </div>
+            } @empty {
+              <div class="tk-kanban-empty">لا توجد مهام</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="tk-foot">© 2026 وسيط AI · v2.0.0</div>
+</section>
+
+@if (showDetail()) {
+  <div class="tk-mov" (click)="closeDetail()">
+    <div class="tk-mbox" (click)="$event.stopPropagation()">
+      @if (selectedTask(); as t) {
+        <div class="tk-mhdr">
+          <div>
+            <h3>{{ t.title }}</h3>
+            <span class="tk-mono">{{ t.id }}</span>
+          </div>
+          <button type="button" class="tk-mclose" (click)="closeDetail()">×</button>
+        </div>
+        <div class="tk-mbody">
+          <div class="tk-mfield"><label>النوع</label><p>{{ t.type }}</p></div>
+          <div class="tk-mfield"><label>المُكلَّف</label><p>{{ t.assignee }}</p></div>
+          <div class="tk-mrow">
+            <div class="tk-mfield"><label>الأولوية</label><p><span class="tk-bdg" [style.background]="t.priorityBg" [style.color]="t.priorityColor">{{ t.priority }}</span></p></div>
+            <div class="tk-mfield"><label>الحالة</label><p><span class="tk-bdg" [style.background]="t.statusBg" [style.color]="t.statusColor">{{ t.statusLabel }}</span></p></div>
+          </div>
+          <div class="tk-mfield"><label>الموعد</label><p [style.color]="t.dueColor">{{ t.due }}</p></div>
+        </div>
+        <div class="tk-mactions">
+          <button type="button" class="tk-btn tk-btn-pri"><svg><use href="#tk-i-check"></use></svg>وضع كمكتملة</button>
+          <button type="button" class="tk-btn tk-btn-gh" (click)="closeDetail()">إغلاق</button>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,13 +1,197 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="ss-page" dir="rtl">
+  <h1 class="sr-only">إعدادات النظام</h1>
+  <svg style="display:none" aria-hidden="true"><defs>
+    <symbol id="ss-i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+  </defs></svg>
+
+  <div class="ss-hdr">
+    <div>
+      <h2 class="ss-ttl">إدارة النظام</h2>
+      <p class="ss-sub">إعدادات وسيط AI العامة والتقنية والأمنية</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">إعدادات النظام</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"إعدادات النظام\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="ss-layout">
+    <div class="ss-nav">
+      @for (s of sections; track s.key) {
+        <button type="button" class="ss-nav-item" [class.active]="activeSection() === s.key" (click)="setSection(s.key)">{{ s.label }}</button>
+      }
+    </div>
+
+    <div class="ss-content">
+
+      @if (activeSection() === 'general') {
+        <div class="ss-card">
+          <div class="ss-card-ttl">الإعدادات العامة</div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">اسم النظام</div><div class="ss-row-desc">يظهر في المراسلات الرسمية والفواتير</div></div>
+            <input type="text" class="ss-input" [value]="systemName()" (input)="systemName.set($any($event.target).value)" />
+          </div>
+          @for (t of generalToggles(); track t.key) {
+            <div class="ss-row">
+              <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
+              <button type="button" class="ss-sw" [class.on]="t.on" (click)="toggle(generalToggles, t.key)"></button>
+            </div>
+          }
+        </div>
+        <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ التغييرات</button></div>
+      }
+
+      @if (activeSection() === 'ai') {
+        <div class="ss-card">
+          <div class="ss-card-ttl">إعدادات الذكاء الاصطناعي</div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">{{ aiToggles()[0].label }}</div><div class="ss-row-desc">{{ aiToggles()[0].desc }}</div></div>
+            <button type="button" class="ss-sw" [class.on]="aiToggles()[0].on" (click)="toggle(aiToggles, aiToggles()[0].key)"></button>
+          </div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">عتبة الثقة للقرارات التلقائية</div><div class="ss-row-desc">نسبة الثقة المطلوبة لتنفيذ إجراء تلقائي</div></div>
+            <div class="ss-input-inline"><input type="number" class="ss-input ss-input-sm" [value]="aiConfidence()" (input)="aiConfidence.set(+$any($event.target).value)" min="50" max="99" /><span class="ss-unit">%</span></div>
+          </div>
+          @for (t of aiToggles(); track t.key) {
+            @if (t.key !== 'aiEngine') {
+              <div class="ss-row">
+                <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
+                <button type="button" class="ss-sw" [class.on]="t.on" (click)="toggle(aiToggles, t.key)"></button>
+              </div>
+            }
+          }
+        </div>
+        <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ</button></div>
+      }
+
+      @if (activeSection() === 'notifications') {
+        <div class="ss-card">
+          <div class="ss-card-ttl">إعدادات الإشعارات</div>
+          @for (t of notificationToggles(); track t.key) {
+            <div class="ss-row">
+              <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
+              <button type="button" class="ss-sw" [class.on]="t.on" (click)="toggle(notificationToggles, t.key)"></button>
+            </div>
+          }
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">بريد الإشعارات الإدارية</div><div class="ss-row-desc">عنوان يستقبل تنبيهات الإدارة</div></div>
+            <input type="email" class="ss-input" style="direction:ltr" [value]="adminEmail()" (input)="adminEmail.set($any($event.target).value)" />
+          </div>
+        </div>
+        <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ</button></div>
+      }
+
+      @if (activeSection() === 'security') {
+        <div class="ss-card">
+          <div class="ss-card-ttl">الأمان والمصادقة</div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">{{ securityToggles()[0].label }}</div><div class="ss-row-desc">{{ securityToggles()[0].desc }}</div></div>
+            <button type="button" class="ss-sw" [class.on]="securityToggles()[0].on" (click)="toggle(securityToggles, securityToggles()[0].key)"></button>
+          </div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">مدة جلسة الدخول</div><div class="ss-row-desc">انتهاء الجلسة تلقائياً بعد عدم النشاط</div></div>
+            <select class="ss-input" [value]="sessionDuration()" (change)="sessionDuration.set($any($event.target).value)">
+              <option value="8">8 ساعات</option>
+              <option value="24">24 ساعة</option>
+              <option value="48">48 ساعة</option>
+            </select>
+          </div>
+          @for (t of securityToggles(); track t.key) {
+            @if (t.key !== '2fa') {
+              <div class="ss-row">
+                <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
+                <button type="button" class="ss-sw" [class.on]="t.on" (click)="toggle(securityToggles, t.key)"></button>
+              </div>
+            }
+          }
+        </div>
+        <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ</button></div>
+      }
+
+      @if (activeSection() === 'finance') {
+        <div class="ss-card">
+          <div class="ss-card-ttl">الإعدادات المالية</div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">العملة الافتراضية</div><div class="ss-row-desc">عملة المعاملات على وسيط AI</div></div>
+            <select class="ss-input" [value]="currency()" (change)="currency.set($any($event.target).value)">
+              <option value="SAR">ريال سعودي (SAR)</option>
+              <option value="USD">دولار أمريكي (USD)</option>
+            </select>
+          </div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">بوابة الدفع</div><div class="ss-row-desc">البوابة النشطة لمعالجة المدفوعات</div></div>
+            <select class="ss-input" [value]="paymentGateway()" (change)="paymentGateway.set($any($event.target).value)">
+              <option value="Moyasar">Moyasar</option>
+              <option value="HyperPay">HyperPay</option>
+              <option value="Tamara">Tamara</option>
+            </select>
+          </div>
+          @for (t of financeToggles(); track t.key) {
+            <div class="ss-row">
+              <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
+              <button type="button" class="ss-sw" [class.on]="t.on" (click)="toggle(financeToggles, t.key)"></button>
+            </div>
+          }
+        </div>
+        <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ</button></div>
+      }
+
+      @if (activeSection() === 'localization') {
+        <div class="ss-card">
+          <div class="ss-card-ttl">الإعدادات الإقليمية</div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">المنطقة الزمنية</div><div class="ss-row-desc">المنطقة الزمنية الافتراضية للنظام</div></div>
+            <select class="ss-input" [value]="timezone()" (change)="timezone.set($any($event.target).value)">
+              <option>Asia/Riyadh (GMT+3)</option>
+              <option>UTC</option>
+            </select>
+          </div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">تنسيق التاريخ</div><div class="ss-row-desc">طريقة عرض التواريخ في النظام</div></div>
+            <select class="ss-input" [value]="dateFormat()" (change)="dateFormat.set($any($event.target).value)">
+              <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+              <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+            </select>
+          </div>
+          <div class="ss-row">
+            <div class="ss-row-left"><div class="ss-row-lbl">نظام التقويم</div><div class="ss-row-desc">التقويم الافتراضي المستخدم</div></div>
+            <select class="ss-input" [value]="calendarSystem()" (change)="calendarSystem.set($any($event.target).value)">
+              <option value="ميلادي">ميلادي</option>
+              <option value="هجري">هجري</option>
+            </select>
+          </div>
+        </div>
+        <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ</button></div>
+      }
+
+      @if (activeSection() === 'health') {
+        <div class="ss-card">
+          <div class="ss-card-ttl">صحة النظام</div>
+          @for (h of healthRows; track h.name) {
+            <div class="ss-health-row">
+              <div class="ss-health-dot" [style.background]="h.color"></div>
+              <span class="ss-health-name">{{ h.name }}</span>
+              <span class="ss-health-val" [style.color]="h.color">{{ h.value }}</span>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <div class="ss-changelog">
+    <div class="ss-changelog-ttl">سجل تغييرات الإعدادات (Change Log)</div>
+    <div class="ss-changelog-list">
+      @for (c of changeLog; track c.time + c.message) {
+        <div class="ss-changelog-row" [class.warn]="c.warn">
+          <span class="ss-cl-time">{{ c.time }}</span>
+          <span class="ss-cl-msg">{{ c.message }}</span>
+          <span class="ss-cl-ip" [class.warn]="c.warn">{{ c.ip }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="ss-foot">© 2026 وسيط AI · v2.0.0</div>
+</section>
+
+@if (savedToast()) {
+  <div class="ss-toast">تم حفظ الإعدادات</div>
+}

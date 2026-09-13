@@ -1,0 +1,268 @@
+.tk-page{padding:22px 24px;min-height:calc(100vh - 56px);direction:rtl}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.tk-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.tk-ttl{font-size:20px;font-weight:900;color:#fff;margin:0 0 3px}
+.tk-sub{font-size:12px;color:#6B7699;margin:0}
+.tk-hdr-actions{display:flex;gap:8px}
+
+.tk-btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:34px;border-radius:9px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;border:1px solid transparent;white-space:nowrap}
+.tk-btn svg{width:13px;height:13px;flex-shrink:0}
+.tk-btn-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
+.tk-btn-pri:hover{opacity:.88}
+.tk-btn-gh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:#A8B2D1}
+.tk-btn-gh:hover{background:rgba(255,255,255,.10);color:#fff}
+
+.tk-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.tk-kpi{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 16px}
+.tk-kpi-lbl{font-size:11px;color:#6B7699;margin-bottom:6px;font-weight:600}
+.tk-kpi-val{font-size:24px;font-weight:900;line-height:1}
+.tk-kpi-sub{font-size:11px;color:#6B7699;margin-top:4px}
+
+.tk-tabs{display:flex;gap:2px;margin-bottom:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:4px;overflow-x:auto}
+.tk-tabs::-webkit-scrollbar{height:0}
+.tk-tab{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;color:#6B7699;cursor:pointer;transition:all .15s;white-space:nowrap;border:1px solid transparent;background:transparent;font-family:inherit}
+.tk-tab:hover{color:#A8B2D1;background:rgba(255,255,255,.04)}
+.tk-tab.active{background:rgba(43,212,199,.10);color:#2BD4C7;border-color:rgba(43,212,199,.18)}
+
+.tk-filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.tk-search{position:relative;flex:1;min-width:180px}
+.tk-search svg{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#6B7699;pointer-events:none}
+.tk-search input{width:100%;height:34px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:0 32px 0 12px;font-size:12.5px;color:#fff;font-family:inherit;outline:none;direction:rtl}
+.tk-search input::placeholder{color:#4A5568}
+.tk-sel{height:34px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:0 10px;font-size:12.5px;color:#A8B2D1;font-family:inherit;outline:none;cursor:pointer}
+.tk-sel option{background:#0B1437}
+
+.tk-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:0;overflow:hidden;margin-bottom:14px}
+.tk-card-hdr{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+.tk-card-ttl{font-size:14px;font-weight:800;color:#fff}
+.tk-card-count{font-size:11px;color:#6B7699}
+.tk-tbl-wrap{overflow-x:auto}
+.tk-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tk-tbl thead tr{border-bottom:1px solid rgba(255,255,255,.07)}
+.tk-tbl thead th{font-size:10px;font-weight:800;color:#6B7699;letter-spacing:.05em;padding:9px 12px;text-align:right;white-space:nowrap;background:rgba(255,255,255,.02)}
+.tk-tbl tbody tr{border-bottom:1px solid rgba(255,255,255,.04)}
+.tk-tbl tbody tr:last-child{border-bottom:0}
+.tk-tbl tbody tr:hover{background:rgba(255,255,255,.03)}
+.tk-tbl tbody td{padding:9px 12px;vertical-align:middle;color:#A8B2D1}
+.tk-mono{font-size:11px;color:#6B7699;font-family:monospace}
+.tk-strong{font-weight:700;color:#fff}
+.tk-assignee{color:#2BD4C7;font-size:12px}
+.tk-empty{text-align:center;padding:24px;color:#6B7699}
+.tk-bdg{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.tk-detail-btn{padding:3px 10px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);font-size:11px;font-weight:700;color:#A8B2D1;cursor:pointer;font-family:inherit}
+.tk-detail-btn:hover{background:rgba(255,255,255,.10);color:#fff}
+
+.tk-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.tk-strip-cell{padding:12px;border:1px solid;border-radius:10px;text-align:center}
+.tk-strip-val{font-size:20px;font-weight:900;margin-bottom:2px}
+.tk-strip-lbl{font-size:10px;color:#6B7699;font-weight:700}
+
+.tk-sec-ttl{font-size:13px;font-weight:800;color:#fff;margin-bottom:10px}
+.tk-workload{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-bottom:14px}
+.tk-wl-list{display:flex;flex-direction:column;gap:7px}
+.tk-wl-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.tk-wl-name{min-width:100px;color:#A8B2D1}
+.tk-wl-bar{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.tk-wl-fill{height:100%;border-radius:3px}
+.tk-wl-count{font-weight:700}
+
+.tk-kanban{margin-bottom:14px}
+.tk-kanban-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tk-kanban-col{border:1px solid;border-radius:10px;padding:12px}
+.tk-kanban-col-ttl{font-size:11px;font-weight:800;margin-bottom:8px}
+.tk-kanban-items{display:flex;flex-direction:column;gap:6px}
+.tk-kanban-item{padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;font-size:11px;color:#A8B2D1;cursor:pointer}
+.tk-kanban-item:hover{background:rgba(255,255,255,.06)}
+.tk-kanban-item-meta{font-size:9px;color:#6B7699;margin-top:2px}
+.tk-kanban-empty{font-size:11px;color:#6B7699;text-align:center;padding:8px 0}
+
+.tk-foot{margin-top:20px;padding:10px 0;font-size:10px;color:#6B7699;border-top:1px solid rgba(255,255,255,.05)}
+
+.tk-mov{position:fixed;inset:0;background:rgba(7,13,36,.7);backdrop-filter:blur(6px);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px}
+.tk-mbox{background:rgba(11,20,55,.97);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:22px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.tk-mhdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.tk-mhdr h3{font-size:16px;color:#fff;margin:0 0 6px}
+.tk-mclose{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#A8B2D1;font-size:20px;cursor:pointer;flex-shrink:0}
+.tk-mclose:hover{background:rgba(255,255,255,.1);color:#fff}
+.tk-mbody{display:flex;flex-direction:column;gap:14px}
+.tk-mfield{display:flex;flex-direction:column;gap:4px}
+.tk-mfield label{font-size:11px;font-weight:700;color:#6B7699}
+.tk-mfield p{font-size:13px;color:#A8B2D1;margin:0;line-height:1.6}
+.tk-mrow{display:flex;gap:14px}
+.tk-mrow .tk-mfield{flex:1}
+.tk-mactions{display:flex;justify-content:flex-end;margin-top:18px;gap:8px;flex-wrap:wrap}
+
+@media(max-width:1100px){.tk-kpi-row{grid-template-columns:repeat(2,1fr)}.tk-strip{grid-template-columns:repeat(2,1fr)}.tk-kanban-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.tk-page{padding:14px 16px}.tk-mrow{flex-direction:column}}
+
+/* Light theme overrides */
+:host-context(body.light-theme) .tk-ttl,
+:host-context(body.theme-light) .tk-ttl,
+:host-context(.light-theme) .tk-ttl,
+:host-context(.theme-light) .tk-ttl,
+:host-context(body.light-theme) .tk-card-ttl,
+:host-context(body.theme-light) .tk-card-ttl,
+:host-context(.light-theme) .tk-card-ttl,
+:host-context(.theme-light) .tk-card-ttl,
+:host-context(body.light-theme) .tk-strong,
+:host-context(body.theme-light) .tk-strong,
+:host-context(.light-theme) .tk-strong,
+:host-context(.theme-light) .tk-strong,
+:host-context(body.light-theme) .tk-sec-ttl,
+:host-context(body.theme-light) .tk-sec-ttl,
+:host-context(.light-theme) .tk-sec-ttl,
+:host-context(.theme-light) .tk-sec-ttl,
+:host-context(body.light-theme) .tk-mhdr h3,
+:host-context(body.theme-light) .tk-mhdr h3,
+:host-context(.light-theme) .tk-mhdr h3,
+:host-context(.theme-light) .tk-mhdr h3{color:#1E293B}
+
+:host-context(body.light-theme) .tk-sub,
+:host-context(body.theme-light) .tk-sub,
+:host-context(.light-theme) .tk-sub,
+:host-context(.theme-light) .tk-sub,
+:host-context(body.light-theme) .tk-kpi-lbl,
+:host-context(body.theme-light) .tk-kpi-lbl,
+:host-context(.light-theme) .tk-kpi-lbl,
+:host-context(.theme-light) .tk-kpi-lbl,
+:host-context(body.light-theme) .tk-kpi-sub,
+:host-context(body.theme-light) .tk-kpi-sub,
+:host-context(.light-theme) .tk-kpi-sub,
+:host-context(.theme-light) .tk-kpi-sub,
+:host-context(body.light-theme) .tk-card-count,
+:host-context(body.theme-light) .tk-card-count,
+:host-context(.light-theme) .tk-card-count,
+:host-context(.theme-light) .tk-card-count,
+:host-context(body.light-theme) .tk-tbl thead th,
+:host-context(body.theme-light) .tk-tbl thead th,
+:host-context(.light-theme) .tk-tbl thead th,
+:host-context(.theme-light) .tk-tbl thead th,
+:host-context(body.light-theme) .tk-mono,
+:host-context(body.theme-light) .tk-mono,
+:host-context(.light-theme) .tk-mono,
+:host-context(.theme-light) .tk-mono,
+:host-context(body.light-theme) .tk-empty,
+:host-context(body.theme-light) .tk-empty,
+:host-context(.light-theme) .tk-empty,
+:host-context(.theme-light) .tk-empty,
+:host-context(body.light-theme) .tk-strip-lbl,
+:host-context(body.theme-light) .tk-strip-lbl,
+:host-context(.light-theme) .tk-strip-lbl,
+:host-context(.theme-light) .tk-strip-lbl,
+:host-context(body.light-theme) .tk-kanban-item-meta,
+:host-context(body.theme-light) .tk-kanban-item-meta,
+:host-context(.light-theme) .tk-kanban-item-meta,
+:host-context(.theme-light) .tk-kanban-item-meta,
+:host-context(body.light-theme) .tk-kanban-empty,
+:host-context(body.theme-light) .tk-kanban-empty,
+:host-context(.light-theme) .tk-kanban-empty,
+:host-context(.theme-light) .tk-kanban-empty,
+:host-context(body.light-theme) .tk-mfield label,
+:host-context(body.theme-light) .tk-mfield label,
+:host-context(.light-theme) .tk-mfield label,
+:host-context(.theme-light) .tk-mfield label,
+:host-context(body.light-theme) .tk-foot,
+:host-context(body.theme-light) .tk-foot,
+:host-context(.light-theme) .tk-foot,
+:host-context(.theme-light) .tk-foot{color:#64748B}
+
+:host-context(body.light-theme) .tk-foot,
+:host-context(body.theme-light) .tk-foot,
+:host-context(.light-theme) .tk-foot,
+:host-context(.theme-light) .tk-foot{border-top-color:#E7EAF1}
+
+:host-context(body.light-theme) .tk-kpi,
+:host-context(body.theme-light) .tk-kpi,
+:host-context(.light-theme) .tk-kpi,
+:host-context(.theme-light) .tk-kpi,
+:host-context(body.light-theme) .tk-card,
+:host-context(body.theme-light) .tk-card,
+:host-context(.light-theme) .tk-card,
+:host-context(.theme-light) .tk-card,
+:host-context(body.light-theme) .tk-workload,
+:host-context(body.theme-light) .tk-workload,
+:host-context(.light-theme) .tk-workload,
+:host-context(.theme-light) .tk-workload{background:#fff;border-color:#E7EAF1}
+
+:host-context(body.light-theme) .tk-tabs,
+:host-context(body.theme-light) .tk-tabs,
+:host-context(.light-theme) .tk-tabs,
+:host-context(.theme-light) .tk-tabs{background:rgba(7,13,36,.03);border-color:#E7EAF1}
+
+:host-context(body.light-theme) .tk-search input,
+:host-context(body.theme-light) .tk-search input,
+:host-context(.light-theme) .tk-search input,
+:host-context(.theme-light) .tk-search input,
+:host-context(body.light-theme) .tk-sel,
+:host-context(body.theme-light) .tk-sel,
+:host-context(.light-theme) .tk-sel,
+:host-context(.theme-light) .tk-sel{background:#fff;border-color:#CBD5E1;color:#1E293B}
+
+:host-context(body.light-theme) .tk-sel option,
+:host-context(body.theme-light) .tk-sel option,
+:host-context(.light-theme) .tk-sel option,
+:host-context(.theme-light) .tk-sel option{background:#fff;color:#1E293B}
+
+:host-context(body.light-theme) .tk-tbl tbody td,
+:host-context(body.theme-light) .tk-tbl tbody td,
+:host-context(.light-theme) .tk-tbl tbody td,
+:host-context(.theme-light) .tk-tbl tbody td,
+:host-context(body.light-theme) .tk-wl-name,
+:host-context(body.theme-light) .tk-wl-name,
+:host-context(.light-theme) .tk-wl-name,
+:host-context(.theme-light) .tk-wl-name,
+:host-context(body.light-theme) .tk-mfield p,
+:host-context(body.theme-light) .tk-mfield p,
+:host-context(.light-theme) .tk-mfield p,
+:host-context(.theme-light) .tk-mfield p{color:#475569}
+
+:host-context(body.light-theme) .tk-tbl thead th,
+:host-context(body.theme-light) .tk-tbl thead th,
+:host-context(.light-theme) .tk-tbl thead th,
+:host-context(.theme-light) .tk-tbl thead th{background:rgba(7,13,36,.02)}
+
+:host-context(body.light-theme) .tk-tbl tbody tr:hover,
+:host-context(body.theme-light) .tk-tbl tbody tr:hover,
+:host-context(.light-theme) .tk-tbl tbody tr:hover,
+:host-context(.theme-light) .tk-tbl tbody tr:hover,
+:host-context(body.light-theme) .tk-kanban-item:hover,
+:host-context(body.theme-light) .tk-kanban-item:hover,
+:host-context(.light-theme) .tk-kanban-item:hover,
+:host-context(.theme-light) .tk-kanban-item:hover{background:rgba(7,13,36,.04)}
+
+:host-context(body.light-theme) .tk-mbox,
+:host-context(body.theme-light) .tk-mbox,
+:host-context(.light-theme) .tk-mbox,
+:host-context(.theme-light) .tk-mbox{background:#fff;border-color:#E7EAF1}
+
+:host-context(body.light-theme) .tk-btn-gh,
+:host-context(body.theme-light) .tk-btn-gh,
+:host-context(.light-theme) .tk-btn-gh,
+:host-context(.theme-light) .tk-btn-gh,
+:host-context(body.light-theme) .tk-detail-btn,
+:host-context(body.theme-light) .tk-detail-btn,
+:host-context(.light-theme) .tk-detail-btn,
+:host-context(.theme-light) .tk-detail-btn,
+:host-context(body.light-theme) .tk-mclose,
+:host-context(body.theme-light) .tk-mclose,
+:host-context(.light-theme) .tk-mclose,
+:host-context(.theme-light) .tk-mclose{background:rgba(7,13,36,.05);border-color:rgba(7,13,36,.12);color:#475569}
+
+:host-context(body.light-theme) .tk-btn-gh:hover,
+:host-context(body.theme-light) .tk-btn-gh:hover,
+:host-context(.light-theme) .tk-btn-gh:hover,
+:host-context(.theme-light) .tk-btn-gh:hover,
+:host-context(body.light-theme) .tk-detail-btn:hover,
+:host-context(body.theme-light) .tk-detail-btn:hover,
+:host-context(.light-theme) .tk-detail-btn:hover,
+:host-context(.theme-light) .tk-detail-btn:hover,
+:host-context(body.light-theme) .tk-mclose:hover,
+:host-context(body.theme-light) .tk-mclose:hover,
+:host-context(.light-theme) .tk-mclose:hover,
+:host-context(.theme-light) .tk-mclose:hover{background:rgba(7,13,36,.10);color:#1E293B}
+
+:host-context(body.light-theme) .tk-kanban-item,
+:host-context(body.theme-light) .tk-kanban-item,
+:host-context(.light-theme) .tk-kanban-item,
+:host-context(.theme-light) .tk-kanban-item{background:rgba(7,13,36,.02);border-color:#E7EAF1;color:#475569}

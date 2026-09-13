@@ -82,3 +82,109 @@
 .wd-af-actions{display:flex;gap:8px;margin-top:12px}
 
 @media(max-width:768px){.wd-list{grid-template-columns:1fr}.wd-md-row{flex-direction:column}.wd-page{padding:14px 16px}}
+
+/* Light theme overrides */
+:host-context(body.light-theme) .wd-ttl,
+:host-context(body.theme-light) .wd-ttl,
+:host-context(.light-theme) .wd-ttl,
+:host-context(.theme-light) .wd-ttl,
+:host-context(body.light-theme) .wd-af-ttl,
+:host-context(body.theme-light) .wd-af-ttl,
+:host-context(.light-theme) .wd-af-ttl,
+:host-context(.theme-light) .wd-af-ttl,
+:host-context(body.light-theme) .wd-md-hdr h3,
+:host-context(body.theme-light) .wd-md-hdr h3,
+:host-context(.light-theme) .wd-md-hdr h3,
+:host-context(.theme-light) .wd-md-hdr h3,
+:host-context(body.light-theme) .wd-amount,
+:host-context(body.theme-light) .wd-amount,
+:host-context(.light-theme) .wd-amount,
+:host-context(.theme-light) .wd-amount{color:#0F172A}
+
+:host-context(body.light-theme) .wd-sub,
+:host-context(body.theme-light) .wd-sub,
+:host-context(.light-theme) .wd-sub,
+:host-context(.theme-light) .wd-sub,
+:host-context(body.light-theme) .wd-id,
+:host-context(body.theme-light) .wd-id,
+:host-context(.light-theme) .wd-id,
+:host-context(.theme-light) .wd-id,
+:host-context(body.light-theme) .wd-meta,
+:host-context(body.theme-light) .wd-meta,
+:host-context(.light-theme) .wd-meta,
+:host-context(.theme-light) .wd-meta,
+:host-context(body.light-theme) .wd-pag-info,
+:host-context(body.theme-light) .wd-pag-info,
+:host-context(.light-theme) .wd-pag-info,
+:host-context(.theme-light) .wd-pag-info,
+:host-context(body.light-theme) .wd-loading p,
+:host-context(body.theme-light) .wd-loading p,
+:host-context(.light-theme) .wd-loading p,
+:host-context(.theme-light) .wd-loading p,
+:host-context(body.light-theme) .wd-md-field label,
+:host-context(body.theme-light) .wd-md-field label,
+:host-context(.light-theme) .wd-md-field label,
+:host-context(.theme-light) .wd-md-field label{color:#64748B}
+
+:host-context(body.light-theme) .wd-md-field p,
+:host-context(body.theme-light) .wd-md-field p,
+:host-context(.light-theme) .wd-md-field p,
+:host-context(.theme-light) .wd-md-field p,
+:host-context(body.light-theme) .wd-empty-ttl,
+:host-context(body.theme-light) .wd-empty-ttl,
+:host-context(.light-theme) .wd-empty-ttl,
+:host-context(.theme-light) .wd-empty-ttl{color:#334155}
+
+:host-context(body.light-theme) .wd-card,
+:host-context(body.theme-light) .wd-card,
+:host-context(.light-theme) .wd-card,
+:host-context(.theme-light) .wd-card,
+:host-context(body.light-theme) .wd-mbox,
+:host-context(body.theme-light) .wd-mbox,
+:host-context(.light-theme) .wd-mbox,
+:host-context(.theme-light) .wd-mbox{background:#fff;border-color:#E7EAF1}
+
+:host-context(body.light-theme) .wd-filters,
+:host-context(body.theme-light) .wd-filters,
+:host-context(.light-theme) .wd-filters,
+:host-context(.theme-light) .wd-filters{background:rgba(7,13,36,.03);border-color:#E7EAF1}
+
+:host-context(body.light-theme) .wd-ftab,
+:host-context(body.theme-light) .wd-ftab,
+:host-context(.light-theme) .wd-ftab,
+:host-context(.theme-light) .wd-ftab{color:#475569}
+:host-context(body.light-theme) .wd-ftab.active,
+:host-context(body.theme-light) .wd-ftab.active,
+:host-context(.light-theme) .wd-ftab.active,
+:host-context(.theme-light) .wd-ftab.active{color:#007A72}
+
+:host-context(body.light-theme) .wd-btn-gh,
+:host-context(body.theme-light) .wd-btn-gh,
+:host-context(.light-theme) .wd-btn-gh,
+:host-context(.theme-light) .wd-btn-gh,
+:host-context(body.light-theme) .wd-mclose,
+:host-context(body.theme-light) .wd-mclose,
+:host-context(.light-theme) .wd-mclose,
+:host-context(.theme-light) .wd-mclose{background:rgba(7,13,36,.05);border-color:rgba(7,13,36,.12);color:#1E293B}
+:host-context(body.light-theme) .wd-btn-gh:hover:not(:disabled),
+:host-context(body.theme-light) .wd-btn-gh:hover:not(:disabled),
+:host-context(.light-theme) .wd-btn-gh:hover:not(:disabled),
+:host-context(.theme-light) .wd-btn-gh:hover:not(:disabled),
+:host-context(body.light-theme) .wd-mclose:hover,
+:host-context(body.theme-light) .wd-mclose:hover,
+:host-context(.light-theme) .wd-mclose:hover,
+:host-context(.theme-light) .wd-mclose:hover{background:rgba(7,13,36,.10)}
+
+:host-context(body.light-theme) .wd-md-bank,
+:host-context(body.theme-light) .wd-md-bank,
+:host-context(.light-theme) .wd-md-bank,
+:host-context(.theme-light) .wd-md-bank,
+:host-context(body.light-theme) .wd-action-form,
+:host-context(body.theme-light) .wd-action-form,
+:host-context(.light-theme) .wd-action-form,
+:host-context(.theme-light) .wd-action-form{background:#F8FAFC;border-color:#E2E8F0}
+
+:host-context(body.light-theme) .wd-af-ta,
+:host-context(body.theme-light) .wd-af-ta,
+:host-context(.light-theme) .wd-af-ta,
+:host-context(.theme-light) .wd-af-ta{background:#fff;border-color:#CBD5E1;color:#1E293B}
