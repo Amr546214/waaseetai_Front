@@ -1,13 +1,124 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="bo-page" dir="rtl">
+  <div class="page-hdr">
+    <div>
+      <h1 class="page-ttl">تعزيز الظهور (Boost)</h1>
+      <p class="page-sub">إدارة حملات تعزيز ظهور مقدمي الخدمات في نتائج البحث والقوائم</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">Boost الظهور</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"Boost الظهور\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="hdr-actions">
+      <button type="button" class="btn btn-ghost">تصدير</button>
+      <button type="button" class="btn btn-primary">إضافة Boost</button>
+    </div>
   </div>
-</div>
+
+  <div class="ai-disc">
+    <div class="ai-disc-ico">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /></svg>
+    </div>
+    <div>
+      <div class="ai-disc-lbl">AI Bid</div>
+      <p class="ai-disc-txt">AI يحدد التسعير الأمثل لكل Boost بناءً على المنافسة والطلب في كل تخصص
+        <span class="ai-disc-bdg">ROI متوسط 4.2x</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    @for (k of kpis; track k.label) {
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-ic" [style.background]="k.color + '1f'" [style.color]="k.color">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+          </div>
+          <span class="kpi-lbl">{{ k.label }}</span>
+        </div>
+        <div class="kpi-val" [style.color]="k.color">{{ k.value }}</div>
+        <div class="kpi-unit">{{ k.unit }}</div>
+        <div class="kpi-sub" [style.color]="k.subColor">{{ k.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="tabs-wrap">
+    @for (t of tabs; track t.key) {
+      <button type="button" class="tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
+    }
+  </div>
+
+  <div class="tbl-card">
+    <div class="tbl-hdr">
+      <span class="tbl-ttl">حملات Boost النشطة</span>
+      <span class="tbl-count">{{ filteredCampaigns().length }} حملة</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="data-tbl">
+        <thead>
+          <tr><th>المقدم</th><th>التخصص</th><th>التكلفة اليومية</th><th>الانطباعات</th><th>النقرات</th><th>CTR</th><th>تاريخ الانتهاء</th><th>الحالة</th></tr>
+        </thead>
+        <tbody>
+          @for (c of filteredCampaigns(); track c.provider + c.endDate) {
+            <tr>
+              <td class="cell-strong">{{ c.provider }}</td>
+              <td class="cell-muted-lg">{{ c.specialty }}</td>
+              <td class="cell-cost">{{ c.dailyCost }} ر.س/يوم</td>
+              <td class="cell-num">{{ c.impressions | number }}</td>
+              <td class="cell-num" [style.color]="c.ctr >= 8 ? '#0FA99A' : '#FFB400'">{{ c.clicks | number }}</td>
+              <td class="cell-num" [style.color]="c.ctr >= 8 ? '#0FA99A' : '#FFB400'">{{ c.ctr }}%</td>
+              <td class="cell-muted">{{ c.endDate }}</td>
+              <td><span class="bdg" [style.background]="statusColors[c.status] + '1a'" [style.color]="statusColors[c.status]">{{ statusLabels[c.status] }}</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" class="empty-cell">لا توجد حملات في هذا التصنيف</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sim-card">
+    <div class="sim-ttl">Bid Simulator — محاكاة السعر مقابل الظهور</div>
+    <div class="sim-grid">
+      <div class="sim-field">
+        <label class="sim-lbl">التكلفة اليومية (ر.س)</label>
+        <input type="range" min="5" max="200" [ngModel]="bidCost()" (ngModelChange)="bidCost.set($event)" class="sim-range sim-range--teal" />
+        <div class="sim-scale">
+          <span>5 ر.س</span>
+          <span class="sim-scale-val" style="color:#2BD4C7">{{ bidCost() }} ر.س</span>
+          <span>200 ر.س</span>
+        </div>
+      </div>
+      <div class="sim-field">
+        <label class="sim-lbl">مدة الحملة (يوم)</label>
+        <input type="range" min="1" max="30" [ngModel]="bidDays()" (ngModelChange)="bidDays.set($event)" class="sim-range sim-range--purple" />
+        <div class="sim-scale">
+          <span>1 يوم</span>
+          <span class="sim-scale-val" style="color:#A56BE0">{{ bidDays() }} أيام</span>
+          <span>30 يوم</span>
+        </div>
+      </div>
+    </div>
+    <div class="sim-results">
+      <div class="sim-res sim-res--neutral">
+        <div class="sim-res-val">{{ simResults().total }} ر.س</div>
+        <div class="sim-res-lbl">التكلفة الكلية</div>
+      </div>
+      <div class="sim-res sim-res--teal">
+        <div class="sim-res-val" style="color:#2BD4C7">{{ simResults().impressions | number }}</div>
+        <div class="sim-res-lbl">انطباعات</div>
+      </div>
+      <div class="sim-res sim-res--amber">
+        <div class="sim-res-val" style="color:#FFB400">{{ simResults().clicks | number }}</div>
+        <div class="sim-res-lbl">نقرات</div>
+      </div>
+      <div class="sim-res sim-res--green">
+        <div class="sim-res-val" style="color:#0FA99A">{{ simResults().leads | number }}</div>
+        <div class="sim-res-lbl">عملاء</div>
+      </div>
+    </div>
+    <div class="sim-insight">{{ simResults().insight }}</div>
+  </div>
+
+  <div class="inner-foot">
+    <span>© 2026 وسيط AI · تعزيز الظهور</span>
+    <span>CTR متوسط: 8.4% | ROI: 4.2x</span>
+  </div>
+</section>

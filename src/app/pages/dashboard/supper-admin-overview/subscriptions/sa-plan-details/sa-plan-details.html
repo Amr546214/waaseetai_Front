@@ -1,13 +1,116 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="pd-page" dir="rtl">
+  <div class="page-hdr">
+    <div>
+      <div class="breadcrumb">
+        <a [routerLink]="['../plans']" class="crumb-link">باقات الاشتراك</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="crumb-sep"><polyline points="15 18 9 12 15 6" /></svg>
+        <span class="crumb-current">باقة {{ planName() }}</span>
+      </div>
+      <h1 class="page-ttl">باقة {{ planName() }} | تفاصيل وتعديل</h1>
+      <p class="page-sub">الباقة الأشهر في وسيط AI — 1,842 مشترك</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">تفاصيل الباقة</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"تفاصيل الباقة\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="hdr-actions">
+      <button type="button" class="btn btn-danger">إيقاف الباقة</button>
+      <button type="button" class="btn btn-primary" (click)="save()">حفظ التغييرات</button>
+    </div>
   </div>
-</div>
+
+  @if (saved()) {
+    <div class="save-toast">تم حفظ التغييرات بنجاح</div>
+  }
+
+  <div class="detail-grid">
+    <div class="col-main">
+      <div class="detail-card">
+        <div class="detail-card-ttl">
+          <span>بيانات الباقة</span>
+          <span class="status-active">⬤ نشطة</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">اسم الباقة</label>
+            <input class="form-input" type="text" [ngModel]="planName()" (ngModelChange)="planName.set($event)" />
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">النوع</label>
+            <select class="form-input" [ngModel]="planType()" (ngModelChange)="planType.set($event)">
+              @for (t of typeOptions; track t.value) {
+                <option [value]="t.value">{{ t.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">السعر الشهري</label>
+            <input class="form-input" type="text" [ngModel]="monthlyPrice()" (ngModelChange)="monthlyPrice.set($event)" />
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">السعر السنوي</label>
+            <input class="form-input" type="text" [ngModel]="annualPrice()" (ngModelChange)="annualPrice.set($event)" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">الفوترة المستقبلية</label>
+            <input class="form-input form-input--readonly" type="text" value="تجهيز مستقبلي غير مفعّل في V1" readonly />
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">السعر الإجمالي</label>
+            <input class="form-input form-input--price" type="text" [value]="monthlyPrice() + ' ر.س/شهر'" readonly />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">وصف الباقة</label>
+          <textarea class="form-textarea" [ngModel]="description()" (ngModelChange)="description.set($event)"></textarea>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-card-ttl"><span>مزايا الباقة</span></div>
+        <div class="feat-list">
+          @for (f of features(); track f.name; let i = $index) {
+            <div class="feat-item">
+              <span class="feat-name">{{ f.name }}</span>
+              <div class="feat-toggle">
+                <span [class.feat-on-lbl]="f.enabled" [class.feat-off-lbl]="!f.enabled">{{ f.enabled ? 'مفعّل' : 'معطّل' }}</span>
+                <button type="button" class="toggle-btn" [class.toggle-on]="f.enabled" [class.toggle-off]="!f.enabled" (click)="toggleFeature(i)"></button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-side">
+      <div class="detail-card">
+        <div class="detail-card-ttl"><span>إحصاءات الباقة</span></div>
+        @for (row of planStats; track row.label) {
+          <div class="stat-row">
+            <span class="stat-lbl">{{ row.label }}</span>
+            <span class="stat-val" [style.color]="row.color || null">{{ row.value }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-card-ttl"><span>خيارات متقدمة</span></div>
+        @for (row of advancedStats; track row.label) {
+          <div class="stat-row">
+            <span class="stat-lbl">{{ row.label }}</span>
+            <span class="stat-val" [style.color]="row.color || null">{{ row.value }}</span>
+          </div>
+        }
+        <div class="side-actions">
+          <button type="button" class="btn btn-ghost btn-block">نسخ الباقة</button>
+          <button type="button" class="btn btn-ghost btn-block btn-danger-outline">إيقاف الباقة مؤقتاً</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="inner-foot">
+    <span>© 2026 وسيط AI · تفاصيل الباقة</span>
+    <span>آخر تعديل: 1 يناير 2026</span>
+  </div>
+</section>

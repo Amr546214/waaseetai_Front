@@ -1,13 +1,77 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="iv-page" dir="rtl">
+  <div class="page-hdr">
+    <div>
+      <h1 class="page-ttl">فواتير الاشتراك</h1>
+      <p class="page-sub">فواتير الاشتراكات الدورية — تجهيز مستقبلي غير مفعّل في V1</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">فواتير الاشتراك</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"فواتير الاشتراك\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="hdr-actions">
+      <button type="button" class="btn btn-ghost">تصدير</button>
+      <button type="button" class="btn btn-primary">إنشاء فاتورة</button>
+    </div>
   </div>
-</div>
+
+  <div class="ai-disc">
+    <div class="ai-disc-ico">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /></svg>
+    </div>
+    <div>
+      <div class="ai-disc-lbl">AI فواتير رسمية</div>
+      <p class="ai-disc-txt">فواتير الاشتراك تُولَّد كفواتير رسمية داخلية، وتجهيز الفوترة المستقبلية غير مفعّل في V1</p>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    @for (k of kpis; track k.label) {
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-ic" [style.background]="k.color + '1f'" [style.color]="k.color">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+          </div>
+          <span class="kpi-lbl">{{ k.label }}</span>
+        </div>
+        <div class="kpi-val" [style.color]="k.color">{{ k.value }}</div>
+        <div class="kpi-unit">{{ k.unit }}</div>
+        <div class="kpi-sub" [style.color]="k.subColor">{{ k.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="tabs-wrap">
+    @for (t of tabs; track t.key) {
+      <button type="button" class="tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
+    }
+  </div>
+
+  <div class="tbl-card">
+    <div class="tbl-hdr">
+      <span class="tbl-ttl">فواتير الاشتراك</span>
+      <span class="tbl-count">{{ filteredInvoices().length }} فاتورة</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="data-tbl">
+        <thead>
+          <tr><th>رقم الفاتورة</th><th>المشترك</th><th>الباقة</th><th>المبلغ</th><th>تاريخ الإصدار</th><th>الحالة</th></tr>
+        </thead>
+        <tbody>
+          @for (inv of filteredInvoices(); track inv.id) {
+            <tr>
+              <td class="cell-id">{{ inv.id }}</td>
+              <td class="cell-strong">{{ inv.subscriber }}</td>
+              <td><span class="bdg" [style.background]="inv.planColor + '1a'" [style.color]="inv.planColor">{{ inv.plan }}</span></td>
+              <td class="cell-amount" [style.color]="inv.amountColor">{{ inv.amount }}</td>
+              <td class="cell-muted">{{ inv.issueDate }}</td>
+              <td><span class="status-txt" [style.color]="statusColors[inv.status]">{{ statusLabels[inv.status] }}</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="empty-cell">لا توجد فواتير في هذا التصنيف</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="inner-foot">
+    <span>© 2026 وسيط AI · فواتير الاشتراك</span>
+    <span>تجهيز مستقبلي غير مفعّل في V1</span>
+  </div>
+</section>
