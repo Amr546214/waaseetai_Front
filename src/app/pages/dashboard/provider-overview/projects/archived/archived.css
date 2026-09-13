@@ -93,44 +93,44 @@
 }
 
 /* === Light Mode === */
-:host-context(.light-theme) .ord-title, :host-context(.theme-light) .ord-title { color: #0F172A; }
-:host-context(.light-theme) .ord-sub, :host-context(.theme-light) .ord-sub { color: #64748B; }
-:host-context(.light-theme) .ord-search, :host-context(.theme-light) .ord-search { background: #fff; border-color: #D8DFEC; }
-:host-context(.light-theme) .ord-search svg, :host-context(.theme-light) .ord-search svg { color: #94A3B8; }
-:host-context(.light-theme) .ord-search input, :host-context(.theme-light) .ord-search input { color: #0F172A; }
-:host-context(.light-theme) .ord-search input::placeholder, :host-context(.theme-light) .ord-search input::placeholder { color: #94A3B8; }
-:host-context(.light-theme) .ai-disclosure, :host-context(.theme-light) .ai-disclosure { background: linear-gradient(135deg, rgba(123,47,190,.05), rgba(43,127,255,.03)); border-color: rgba(123,47,190,.14); }
-:host-context(.light-theme) .ai-disc-lbl, :host-context(.theme-light) .ai-disc-lbl { color: #6B27A5; }
-:host-context(.light-theme) .ai-disc-txt, :host-context(.theme-light) .ai-disc-txt { color: #475569; }
-:host-context(.light-theme) .ai-disc-badge, :host-context(.theme-light) .ai-disc-badge { background: rgba(123,47,190,.08); border-color: rgba(123,47,190,.18); color: #6B27A5; }
-:host-context(.light-theme) .ai-disc-ico, :host-context(.theme-light) .ai-disc-ico { background: rgba(123,47,190,.1); color: #6B27A5; }
-:host-context(.light-theme) .stat-box, :host-context(.theme-light) .stat-box { background: #fff; border-color: #E7EAF1; }
-:host-context(.light-theme) .stat-lbl, :host-context(.theme-light) .stat-lbl { color: #64748B; }
-:host-context(.light-theme) .filter-chip, :host-context(.theme-light) .filter-chip { background: #fff; border-color: #D8DFEC; color: #475569; }
-:host-context(.light-theme) .filter-chip:hover, :host-context(.theme-light) .filter-chip:hover { background: #F1F5F9; color: #0F172A; }
-:host-context(.light-theme) .filter-chip.active, :host-context(.theme-light) .filter-chip.active { background: rgba(43,212,199,.10); border-color: rgba(43,212,199,.3); color: #007A72; }
-:host-context(.light-theme) .filter-chip.active .fc-count, :host-context(.theme-light) .filter-chip.active .fc-count { background: rgba(43,212,199,.20); color: #007A72; }
-:host-context(.light-theme) .tk-card, :host-context(.theme-light) .tk-card { background: #fff; border-color: #E7EAF1; }
-:host-context(.light-theme) .tk-card:hover, :host-context(.theme-light) .tk-card:hover { border-color: rgba(43,212,199,.3); }
-:host-context(.light-theme) .tk-ttl, :host-context(.theme-light) .tk-ttl { color: #0F172A; }
-:host-context(.light-theme) .tk-meta, :host-context(.theme-light) .tk-meta { color: #64748B; }
-:host-context(.light-theme) .tk-meta .dot, :host-context(.theme-light) .tk-meta .dot { background: #94A3B8; }
-:host-context(.light-theme) .tk-ico, :host-context(.theme-light) .tk-ico { background: rgba(43,127,255,.08); }
-:host-context(.light-theme) .tk-ico.ico-done, :host-context(.theme-light) .tk-ico.ico-done { background: rgba(15,169,154,.08); }
-:host-context(.light-theme) .tk-ico.ico-cancel, :host-context(.theme-light) .tk-ico.ico-cancel { background: rgba(255,180,0,.08); }
-:host-context(.light-theme) .tk-ico.ico-arch, :host-context(.theme-light) .tk-ico.ico-arch { background: rgba(100,116,139,.08); }
-:host-context(.light-theme) .tks-closed, :host-context(.theme-light) .tks-closed { color: #475569; border-color: #D8DFEC; background: rgba(15,23,42,.04); }
-:host-context(.light-theme) .tks-closed::before, :host-context(.theme-light) .tks-closed::before { background: #64748B; }
-:host-context(.light-theme) .tks-ok, :host-context(.theme-light) .tks-ok { color: #0A6F64; border-color: rgba(15,169,154,.2); background: rgba(15,169,154,.08); }
-:host-context(.light-theme) .tks-wait, :host-context(.theme-light) .tks-wait { color: #9A6700; border-color: rgba(255,180,0,.2); background: rgba(255,180,0,.08); }
-:host-context(.light-theme) .state-card, :host-context(.theme-light) .state-card { background: #fff; border-color: #E7EAF1; }
-:host-context(.light-theme) .state-title, :host-context(.theme-light) .state-title { color: #0F172A; }
-:host-context(.light-theme) .state-code, :host-context(.theme-light) .state-code { color: #64748B; }
-:host-context(.light-theme) .empty-title, :host-context(.theme-light) .empty-title { color: #0F172A; }
-:host-context(.light-theme) .empty-copy, :host-context(.theme-light) .empty-copy { color: #64748B; }
-:host-context(.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot { border-color: rgba(15,23,42,.06); color: #64748B; }
-:host-context(.light-theme) .inner-foot-links a, :host-context(.theme-light) .inner-foot-links a { color: #64748B; }
-:host-context(.light-theme) .inner-foot-links a:hover, :host-context(.theme-light) .inner-foot-links a:hover { color: #007A72; }
+:host-context(body.light-theme) .ord-title, :host-context(body.theme-light) .ord-title, :host-context(.light-theme) .ord-title, :host-context(.theme-light) .ord-title { color: #0F172A; }
+:host-context(body.light-theme) .ord-sub, :host-context(body.theme-light) .ord-sub, :host-context(.light-theme) .ord-sub, :host-context(.theme-light) .ord-sub { color: #64748B; }
+:host-context(body.light-theme) .ord-search, :host-context(body.theme-light) .ord-search, :host-context(.light-theme) .ord-search, :host-context(.theme-light) .ord-search { background: #fff; border-color: #D8DFEC; }
+:host-context(body.light-theme) .ord-search svg, :host-context(body.theme-light) .ord-search svg, :host-context(.light-theme) .ord-search svg, :host-context(.theme-light) .ord-search svg { color: #94A3B8; }
+:host-context(body.light-theme) .ord-search input, :host-context(body.theme-light) .ord-search input, :host-context(.light-theme) .ord-search input, :host-context(.theme-light) .ord-search input { color: #0F172A; }
+:host-context(body.light-theme) .ord-search input::placeholder, :host-context(body.theme-light) .ord-search input::placeholder, :host-context(.light-theme) .ord-search input::placeholder, :host-context(.theme-light) .ord-search input::placeholder { color: #94A3B8; }
+:host-context(body.light-theme) .ai-disclosure, :host-context(body.theme-light) .ai-disclosure, :host-context(.light-theme) .ai-disclosure, :host-context(.theme-light) .ai-disclosure { background: linear-gradient(135deg, rgba(123,47,190,.05), rgba(43,127,255,.03)); border-color: rgba(123,47,190,.14); }
+:host-context(body.light-theme) .ai-disc-lbl, :host-context(body.theme-light) .ai-disc-lbl, :host-context(.light-theme) .ai-disc-lbl, :host-context(.theme-light) .ai-disc-lbl { color: #6B27A5; }
+:host-context(body.light-theme) .ai-disc-txt, :host-context(body.theme-light) .ai-disc-txt, :host-context(.light-theme) .ai-disc-txt, :host-context(.theme-light) .ai-disc-txt { color: #475569; }
+:host-context(body.light-theme) .ai-disc-badge, :host-context(body.theme-light) .ai-disc-badge, :host-context(.light-theme) .ai-disc-badge, :host-context(.theme-light) .ai-disc-badge { background: rgba(123,47,190,.08); border-color: rgba(123,47,190,.18); color: #6B27A5; }
+:host-context(body.light-theme) .ai-disc-ico, :host-context(body.theme-light) .ai-disc-ico, :host-context(.light-theme) .ai-disc-ico, :host-context(.theme-light) .ai-disc-ico { background: rgba(123,47,190,.1); color: #6B27A5; }
+:host-context(body.light-theme) .stat-box, :host-context(body.theme-light) .stat-box, :host-context(.light-theme) .stat-box, :host-context(.theme-light) .stat-box { background: #fff; border-color: #E7EAF1; }
+:host-context(body.light-theme) .stat-lbl, :host-context(body.theme-light) .stat-lbl, :host-context(.light-theme) .stat-lbl, :host-context(.theme-light) .stat-lbl { color: #64748B; }
+:host-context(body.light-theme) .filter-chip, :host-context(body.theme-light) .filter-chip, :host-context(.light-theme) .filter-chip, :host-context(.theme-light) .filter-chip { background: #fff; border-color: #D8DFEC; color: #475569; }
+:host-context(body.light-theme) .filter-chip:hover, :host-context(body.theme-light) .filter-chip:hover, :host-context(.light-theme) .filter-chip:hover, :host-context(.theme-light) .filter-chip:hover { background: #F1F5F9; color: #0F172A; }
+:host-context(body.light-theme) .filter-chip.active, :host-context(body.theme-light) .filter-chip.active, :host-context(.light-theme) .filter-chip.active, :host-context(.theme-light) .filter-chip.active { background: rgba(43,212,199,.10); border-color: rgba(43,212,199,.3); color: #007A72; }
+:host-context(body.light-theme) .filter-chip.active .fc-count, :host-context(body.theme-light) .filter-chip.active .fc-count, :host-context(.light-theme) .filter-chip.active .fc-count, :host-context(.theme-light) .filter-chip.active .fc-count { background: rgba(43,212,199,.20); color: #007A72; }
+:host-context(body.light-theme) .tk-card, :host-context(body.theme-light) .tk-card, :host-context(.light-theme) .tk-card, :host-context(.theme-light) .tk-card { background: #fff; border-color: #E7EAF1; }
+:host-context(body.light-theme) .tk-card:hover, :host-context(body.theme-light) .tk-card:hover, :host-context(.light-theme) .tk-card:hover, :host-context(.theme-light) .tk-card:hover { border-color: rgba(43,212,199,.3); }
+:host-context(body.light-theme) .tk-ttl, :host-context(body.theme-light) .tk-ttl, :host-context(.light-theme) .tk-ttl, :host-context(.theme-light) .tk-ttl { color: #0F172A; }
+:host-context(body.light-theme) .tk-meta, :host-context(body.theme-light) .tk-meta, :host-context(.light-theme) .tk-meta, :host-context(.theme-light) .tk-meta { color: #64748B; }
+:host-context(body.light-theme) .tk-meta .dot, :host-context(body.theme-light) .tk-meta .dot, :host-context(.light-theme) .tk-meta .dot, :host-context(.theme-light) .tk-meta .dot { background: #94A3B8; }
+:host-context(body.light-theme) .tk-ico, :host-context(body.theme-light) .tk-ico, :host-context(.light-theme) .tk-ico, :host-context(.theme-light) .tk-ico { background: rgba(43,127,255,.08); }
+:host-context(body.light-theme) .tk-ico.ico-done, :host-context(body.theme-light) .tk-ico.ico-done, :host-context(.light-theme) .tk-ico.ico-done, :host-context(.theme-light) .tk-ico.ico-done { background: rgba(15,169,154,.08); }
+:host-context(body.light-theme) .tk-ico.ico-cancel, :host-context(body.theme-light) .tk-ico.ico-cancel, :host-context(.light-theme) .tk-ico.ico-cancel, :host-context(.theme-light) .tk-ico.ico-cancel { background: rgba(255,180,0,.08); }
+:host-context(body.light-theme) .tk-ico.ico-arch, :host-context(body.theme-light) .tk-ico.ico-arch, :host-context(.light-theme) .tk-ico.ico-arch, :host-context(.theme-light) .tk-ico.ico-arch { background: rgba(100,116,139,.08); }
+:host-context(body.light-theme) .tks-closed, :host-context(body.theme-light) .tks-closed, :host-context(.light-theme) .tks-closed, :host-context(.theme-light) .tks-closed { color: #475569; border-color: #D8DFEC; background: rgba(15,23,42,.04); }
+:host-context(body.light-theme) .tks-closed::before, :host-context(body.theme-light) .tks-closed::before, :host-context(.light-theme) .tks-closed::before, :host-context(.theme-light) .tks-closed::before { background: #64748B; }
+:host-context(body.light-theme) .tks-ok, :host-context(body.theme-light) .tks-ok, :host-context(.light-theme) .tks-ok, :host-context(.theme-light) .tks-ok { color: #0A6F64; border-color: rgba(15,169,154,.2); background: rgba(15,169,154,.08); }
+:host-context(body.light-theme) .tks-wait, :host-context(body.theme-light) .tks-wait, :host-context(.light-theme) .tks-wait, :host-context(.theme-light) .tks-wait { color: #9A6700; border-color: rgba(255,180,0,.2); background: rgba(255,180,0,.08); }
+:host-context(body.light-theme) .state-card, :host-context(body.theme-light) .state-card, :host-context(.light-theme) .state-card, :host-context(.theme-light) .state-card { background: #fff; border-color: #E7EAF1; }
+:host-context(body.light-theme) .state-title, :host-context(body.theme-light) .state-title, :host-context(.light-theme) .state-title, :host-context(.theme-light) .state-title { color: #0F172A; }
+:host-context(body.light-theme) .state-code, :host-context(body.theme-light) .state-code, :host-context(.light-theme) .state-code, :host-context(.theme-light) .state-code { color: #64748B; }
+:host-context(body.light-theme) .empty-title, :host-context(body.theme-light) .empty-title, :host-context(.light-theme) .empty-title, :host-context(.theme-light) .empty-title { color: #0F172A; }
+:host-context(body.light-theme) .empty-copy, :host-context(body.theme-light) .empty-copy, :host-context(.light-theme) .empty-copy, :host-context(.theme-light) .empty-copy { color: #64748B; }
+:host-context(body.light-theme) .inner-foot, :host-context(body.theme-light) .inner-foot, :host-context(.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot { border-color: rgba(15,23,42,.06); color: #64748B; }
+:host-context(body.light-theme) .inner-foot-links a, :host-context(body.theme-light) .inner-foot-links a, :host-context(.light-theme) .inner-foot-links a, :host-context(.theme-light) .inner-foot-links a { color: #64748B; }
+:host-context(body.light-theme) .inner-foot-links a:hover, :host-context(body.theme-light) .inner-foot-links a:hover, :host-context(.light-theme) .inner-foot-links a:hover, :host-context(.theme-light) .inner-foot-links a:hover { color: #007A72; }
 
 /* ===== Company Archived (P-CO-PR-007) ===== */
 .co-archived .pg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
@@ -195,25 +195,25 @@
 .pcs-closed::before{background:#6B7699}
 
 /* Company Archived: Light Mode */
-:host-context(.light-theme) .co-archived .pg-title,:host-context(.theme-light) .co-archived .pg-title{color:#0F172A}
-:host-context(.light-theme) .co-archived .pg-sub,:host-context(.theme-light) .co-archived .pg-sub{color:#64748B}
-:host-context(.light-theme) .co-archived .ai-disc,:host-context(.theme-light) .co-archived .ai-disc{background:linear-gradient(135deg,rgba(123,47,190,.05),rgba(43,127,255,.03));border-color:rgba(123,47,190,.14)}
-:host-context(.light-theme) .co-archived .ai-disc-lbl,:host-context(.theme-light) .co-archived .ai-disc-lbl{color:#6B27A5}
-:host-context(.light-theme) .co-archived .ai-disc-txt,:host-context(.theme-light) .co-archived .ai-disc-txt{color:#475569}
-:host-context(.light-theme) .co-archived .kpi-c,:host-context(.theme-light) .co-archived .kpi-c{background:#fff;border-color:#E7EAF1}
-:host-context(.light-theme) .co-archived .kpi-c .l,:host-context(.theme-light) .co-archived .kpi-c .l{color:#64748B}
-:host-context(.light-theme) .co-filter-rail,:host-context(.theme-light) .co-filter-rail{background:rgba(246,248,252,.96);border-color:rgba(43,212,199,.18)}
-:host-context(.light-theme) .co-fr-lbl,:host-context(.theme-light) .co-fr-lbl{background:rgba(43,127,255,.06);border-color:rgba(43,127,255,.12);color:#2B7FFF}
-:host-context(.light-theme) .co-ds,:host-context(.theme-light) .co-ds{color:#56607D}
-:host-context(.light-theme) .co-fr-search input,:host-context(.theme-light) .co-fr-search input{color:#0F172A}
-:host-context(.light-theme) .co-st-tab,:host-context(.theme-light) .co-st-tab{color:#56607D}
-:host-context(.light-theme) .co-st-tab.active,:host-context(.theme-light) .co-st-tab.active{color:#007A72;border-bottom-color:#007A72}
-:host-context(.light-theme) .proj-card,:host-context(.theme-light) .proj-card{background:#fff;border-color:#E7EAF1}
-:host-context(.light-theme) .pc-title,:host-context(.theme-light) .pc-title{color:#0F172A}
-:host-context(.light-theme) .pc-meta,:host-context(.theme-light) .pc-meta{color:#64748B}
-:host-context(.light-theme) .pcs-closed,:host-context(.theme-light) .pcs-closed{color:#475569;border-color:#D8DFEC;background:rgba(15,23,42,.04)}
-:host-context(.light-theme) .pcs-ok,:host-context(.theme-light) .pcs-ok{color:#0A6F64;border-color:rgba(15,169,154,.2);background:rgba(15,169,154,.08)}
-:host-context(.light-theme) .pcs-wait,:host-context(.theme-light) .pcs-wait{color:#9A6700;border-color:rgba(255,180,0,.2);background:rgba(255,180,0,.08)}
+:host-context(body.light-theme) .co-archived .pg-title, :host-context(body.theme-light) .co-archived .pg-title, :host-context(.light-theme) .co-archived .pg-title, :host-context(.theme-light) .co-archived .pg-title {color:#0F172A}
+:host-context(body.light-theme) .co-archived .pg-sub, :host-context(body.theme-light) .co-archived .pg-sub, :host-context(.light-theme) .co-archived .pg-sub, :host-context(.theme-light) .co-archived .pg-sub {color:#64748B}
+:host-context(body.light-theme) .co-archived .ai-disc, :host-context(body.theme-light) .co-archived .ai-disc, :host-context(.light-theme) .co-archived .ai-disc, :host-context(.theme-light) .co-archived .ai-disc {background:linear-gradient(135deg,rgba(123,47,190,.05),rgba(43,127,255,.03));border-color:rgba(123,47,190,.14)}
+:host-context(body.light-theme) .co-archived .ai-disc-lbl, :host-context(body.theme-light) .co-archived .ai-disc-lbl, :host-context(.light-theme) .co-archived .ai-disc-lbl, :host-context(.theme-light) .co-archived .ai-disc-lbl {color:#6B27A5}
+:host-context(body.light-theme) .co-archived .ai-disc-txt, :host-context(body.theme-light) .co-archived .ai-disc-txt, :host-context(.light-theme) .co-archived .ai-disc-txt, :host-context(.theme-light) .co-archived .ai-disc-txt {color:#475569}
+:host-context(body.light-theme) .co-archived .kpi-c, :host-context(body.theme-light) .co-archived .kpi-c, :host-context(.light-theme) .co-archived .kpi-c, :host-context(.theme-light) .co-archived .kpi-c {background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .co-archived .kpi-c .l, :host-context(body.theme-light) .co-archived .kpi-c .l, :host-context(.light-theme) .co-archived .kpi-c .l, :host-context(.theme-light) .co-archived .kpi-c .l {color:#64748B}
+:host-context(body.light-theme) .co-filter-rail, :host-context(body.theme-light) .co-filter-rail, :host-context(.light-theme) .co-filter-rail, :host-context(.theme-light) .co-filter-rail {background:rgba(246,248,252,.96);border-color:rgba(43,212,199,.18)}
+:host-context(body.light-theme) .co-fr-lbl, :host-context(body.theme-light) .co-fr-lbl, :host-context(.light-theme) .co-fr-lbl, :host-context(.theme-light) .co-fr-lbl {background:rgba(43,127,255,.06);border-color:rgba(43,127,255,.12);color:#2B7FFF}
+:host-context(body.light-theme) .co-ds, :host-context(body.theme-light) .co-ds, :host-context(.light-theme) .co-ds, :host-context(.theme-light) .co-ds {color:#56607D}
+:host-context(body.light-theme) .co-fr-search input, :host-context(body.theme-light) .co-fr-search input, :host-context(.light-theme) .co-fr-search input, :host-context(.theme-light) .co-fr-search input {color:#0F172A}
+:host-context(body.light-theme) .co-st-tab, :host-context(body.theme-light) .co-st-tab, :host-context(.light-theme) .co-st-tab, :host-context(.theme-light) .co-st-tab {color:#56607D}
+:host-context(body.light-theme) .co-st-tab.active, :host-context(body.theme-light) .co-st-tab.active, :host-context(.light-theme) .co-st-tab.active, :host-context(.theme-light) .co-st-tab.active {color:#007A72;border-bottom-color:#007A72}
+:host-context(body.light-theme) .proj-card, :host-context(body.theme-light) .proj-card, :host-context(.light-theme) .proj-card, :host-context(.theme-light) .proj-card {background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .pc-title, :host-context(body.theme-light) .pc-title, :host-context(.light-theme) .pc-title, :host-context(.theme-light) .pc-title {color:#0F172A}
+:host-context(body.light-theme) .pc-meta, :host-context(body.theme-light) .pc-meta, :host-context(.light-theme) .pc-meta, :host-context(.theme-light) .pc-meta {color:#64748B}
+:host-context(body.light-theme) .pcs-closed, :host-context(body.theme-light) .pcs-closed, :host-context(.light-theme) .pcs-closed, :host-context(.theme-light) .pcs-closed {color:#475569;border-color:#D8DFEC;background:rgba(15,23,42,.04)}
+:host-context(body.light-theme) .pcs-ok, :host-context(body.theme-light) .pcs-ok, :host-context(.light-theme) .pcs-ok, :host-context(.theme-light) .pcs-ok {color:#0A6F64;border-color:rgba(15,169,154,.2);background:rgba(15,169,154,.08)}
+:host-context(body.light-theme) .pcs-wait, :host-context(body.theme-light) .pcs-wait, :host-context(.light-theme) .pcs-wait, :host-context(.theme-light) .pcs-wait {color:#9A6700;border-color:rgba(255,180,0,.2);background:rgba(255,180,0,.08)}
 
 @media(max-width:767px){
   .co-archived .kpi-row{grid-template-columns:repeat(2,1fr)}

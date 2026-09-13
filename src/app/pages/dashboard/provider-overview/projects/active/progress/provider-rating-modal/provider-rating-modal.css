@@ -25,13 +25,13 @@
 .pr-btn:disabled{opacity:.55;cursor:not-allowed}
 .pr-btn-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;flex:1}
 .pr-btn-gh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#fff;flex:1}
-:host-context(.light-theme) .pr-mbox,:host-context(.theme-light) .pr-mbox{background:#fff;border-color:#E7EAF1;box-shadow:0 25px 80px rgba(15,23,42,.15)}
-:host-context(.light-theme) .pr-mhd h3,:host-context(.theme-light) .pr-mhd h3{color:#0F172A}
-:host-context(.light-theme) .pr-mhd p,:host-context(.theme-light) .pr-mhd p{color:#475569}
-:host-context(.light-theme) .pr-fld label,:host-context(.theme-light) .pr-fld label{color:#475569}
-:host-context(.light-theme) .pr-ta,:host-context(.theme-light) .pr-ta{background:#F8FAFC;border-color:#E7EAF1;color:#0F172A}
-:host-context(.light-theme) .pr-close,:host-context(.theme-light) .pr-close{background:#F1F5F9;border-color:#E7EAF1;color:#64748B}
-:host-context(.light-theme) .pr-star svg,:host-context(.theme-light) .pr-star svg{color:rgba(15,23,42,.14)}
-:host-context(.light-theme) .pr-star.active svg,:host-context(.theme-light) .pr-star.active svg{color:#F59E0B}
-:host-context(.light-theme) .pr-btn-gh,:host-context(.theme-light) .pr-btn-gh{background:#F1F5F9;border-color:#E7EAF1;color:#0F172A}
+:host-context(body.light-theme) .pr-mbox,:host-context(body.theme-light) .pr-mbox,:host-context(.light-theme) .pr-mbox,:host-context(.theme-light) .pr-mbox{background:#fff;border-color:#E7EAF1;box-shadow:0 25px 80px rgba(15,23,42,.15)}
+:host-context(body.light-theme) .pr-mhd h3,:host-context(body.theme-light) .pr-mhd h3,:host-context(.light-theme) .pr-mhd h3,:host-context(.theme-light) .pr-mhd h3{color:#0F172A}
+:host-context(body.light-theme) .pr-mhd p,:host-context(body.theme-light) .pr-mhd p,:host-context(.light-theme) .pr-mhd p,:host-context(.theme-light) .pr-mhd p{color:#475569}
+:host-context(body.light-theme) .pr-fld label,:host-context(body.theme-light) .pr-fld label,:host-context(.light-theme) .pr-fld label,:host-context(.theme-light) .pr-fld label{color:#475569}
+:host-context(body.light-theme) .pr-ta,:host-context(body.theme-light) .pr-ta,:host-context(.light-theme) .pr-ta,:host-context(.theme-light) .pr-ta{background:#F8FAFC;border-color:#E7EAF1;color:#0F172A}
+:host-context(body.light-theme) .pr-close,:host-context(body.theme-light) .pr-close,:host-context(.light-theme) .pr-close,:host-context(.theme-light) .pr-close{background:#F1F5F9;border-color:#E7EAF1;color:#64748B}
+:host-context(body.light-theme) .pr-star svg,:host-context(body.theme-light) .pr-star svg,:host-context(.light-theme) .pr-star svg,:host-context(.theme-light) .pr-star svg{color:rgba(15,23,42,.14)}
+:host-context(body.light-theme) .pr-star.active svg,:host-context(body.theme-light) .pr-star.active svg,:host-context(.light-theme) .pr-star.active svg,:host-context(.theme-light) .pr-star.active svg{color:#F59E0B}
+:host-context(body.light-theme) .pr-btn-gh,:host-context(body.theme-light) .pr-btn-gh,:host-context(.light-theme) .pr-btn-gh,:host-context(.theme-light) .pr-btn-gh{background:#F1F5F9;border-color:#E7EAF1;color:#0F172A}
 @media(max-width:480px){.pr-star svg{width:28px;height:28px}.pr-mbox{padding:18px 16px}.pr-act{flex-direction:column}}
