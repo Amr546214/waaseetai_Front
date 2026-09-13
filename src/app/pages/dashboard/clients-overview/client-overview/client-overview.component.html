@@ -166,13 +166,13 @@
 					<use href="#i-dispute"></use>
 				</svg>
 			</div>
-			<div style="font-size:18px;font-weight:800;color:var(--txt);margin-bottom:6px">تعذر تحميل لوحتك</div>
-			<div style="font-size:12px;color:var(--txt-3);margin-bottom:4px">{{ dashboardStore.error() }}</div>
-			<div style="font-size:13px;color:var(--txt-2);margin-bottom:20px">حدث خطأ في الخادم. يرجى المحاولة مجدداً
+			<div style="font-size:18px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحتك</div>
+			<div style="font-size:12px;margin-bottom:4px" class="txt-muted">{{ dashboardStore.error() }}</div>
+			<div style="font-size:13px;margin-bottom:20px" class="txt-slate">حدث خطأ في الخادم. يرجى المحاولة مجدداً
 			</div>
 			<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
 				<button type="button" (click)="dashboardStore.fetchDashboardStats()"
-					style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">إعادة
+					style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">إعادة
 					المحاولة</button>
 			</div>
 		</div>
@@ -300,16 +300,16 @@
 		</div>
 		<div style="flex:1;min-width:0">
 			<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-				<span style="font-size:12px;font-weight:700;color:var(--txt-3)">مستواك الحالي</span>
+				<span style="font-size:12px;font-weight:700" class="txt-muted">مستواك الحالي</span>
 				<span
-					style="font-size:11px;font-weight:800;color:#0F172A;background:rgba(155,139,122,.12);border:1px solid rgba(155,139,122,.22);border-radius:20px;padding:2px 10px;display:inline-flex;align-items:center;gap:4px"
-					class="ws-level-tag"><svg width="9" height="9" viewBox="0 0 100 100" fill="#9B8B7A"
+					style="font-size:11px;font-weight:800;background:rgba(155,139,122,.12);border:1px solid rgba(155,139,122,.22);border-radius:20px;padding:2px 10px;display:inline-flex;align-items:center;gap:4px"
+					class="ws-level-tag txt-navy"><svg width="9" height="9" viewBox="0 0 100 100" fill="#9B8B7A"
 						class="ws-star-svg">
 						<path
 							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 					</svg>{{ dashboardStore.dashboardData()!.summary.currentLevel || 'مستكشف &middot; المستوى 2'
 					}}</span>
-				<span style="font-size:11px;color:var(--txt-3);margin-inline-start:auto">{{
+				<span style="font-size:11px;margin-inline-start:auto" class="txt-muted">{{
 					dashboardStore.dashboardData()!.summary.currentPoints || 302 }} نقطة</span>
 			</div>
 			<div style="display:flex;align-items:center;gap:8px">
@@ -320,12 +320,12 @@
 					<div [style.width.%]="(dashboardStore.dashboardData()!.summary.currentPoints / (dashboardStore.dashboardData()!.summary.currentPoints + dashboardStore.dashboardData()!.summary.pointsToNextLevel)) * 100"
 						style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div>
 				</div>
-				<span style="font-size:10px;color:var(--txt-3);white-space:nowrap">{{
+				<span style="font-size:10px;white-space:nowrap" class="txt-muted">{{
 					dashboardStore.dashboardData()!.summary.pointsToNextLevel }} نقطة للمستوى التالي</span>
 			</div>
 		</div>
 		<button type="button" routerLink="/client-overview/profile/level"
-			style="flex-shrink:0;padding:7px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7);cursor:pointer;font-family:inherit;white-space:nowrap">تفاصيل
+			style="flex-shrink:0;padding:7px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" class="txt-teal">تفاصيل
 			المستوى</button>
 	</div>
 
@@ -422,12 +422,12 @@
 							<use href="#i-list"></use>
 						</svg>
 					</div>
-					<div style="font-size:16px;font-weight:800;color:var(--drop-name,#fff);margin-bottom:6px">لا طلبات
+					<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا طلبات
 						نشطة حالياً</div>
-					<div style="font-size:13px;color:#6B7699;margin-bottom:16px">انشئ طلبك الأول وابدأ في إيجاد مقدم
+					<div style="font-size:13px;margin-bottom:16px" class="txt-muted">انشئ طلبك الأول وابدأ في إيجاد مقدم
 						الخدمة المناسب لمشروعك</div>
 					<a routerLink="/client-overview/create-request"
-						style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;color:#070D24;font-weight:800;font-size:13px;text-decoration:none;transition:all .2s">
+						style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none;transition:all .2s" class="txt-navy">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 							stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 							<use href="#i-plus"></use>
@@ -562,9 +562,9 @@
 						<use href="#i-doc"></use>
 					</svg>
 				</div>
-				<div style="font-size:16px;font-weight:800;color:var(--drop-name,#fff);margin-bottom:6px">لا توجد عروض
+				<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد عروض
 					جديدة حالياً</div>
-				<div style="font-size:13px;color:#6B7699;max-width:380px;margin:0 auto">سيصلك إشعار فور تقديم أحد مقدمي
+				<div style="font-size:13px;max-width:380px;margin:0 auto" class="txt-muted">سيصلك إشعار فور تقديم أحد مقدمي
 					الخدمات عرضاً على طلباتك المفتوحة</div>
 			</div>
 			}
@@ -618,7 +618,7 @@
 									<path
 										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 								</svg>
-								<span style="font-size:10px;color:#A8B2D1;margin-inline-start:3px">4.8</span>
+								<span style="font-size:10px;margin-inline-start:3px" class="txt-slate">4.8</span>
 							</div>
 							<div class="offer-type">{{ offer.projectTitle || 'مقدم خدمة استشارة' }}</div>
 						</div>

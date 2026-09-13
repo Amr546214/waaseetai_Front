@@ -26,8 +26,14 @@ import { FormsModule } from '@angular/forms';
       background-size: 200% 100%;
       animation: skel-pulse 1.5s infinite;
     }
-    :host-context([data-theme='light']) .skeleton-box,
-    :host-context([data-theme='light']) .skeleton-row {
+    :host-context(body.light-theme) .skeleton-box,
+    :host-context(body.theme-light) .skeleton-box,
+    :host-context(.light-theme) .skeleton-box,
+    :host-context(.theme-light) .skeleton-box,
+    :host-context(body.light-theme) .skeleton-row,
+    :host-context(body.theme-light) .skeleton-row,
+    :host-context(.light-theme) .skeleton-row,
+    :host-context(.theme-light) .skeleton-row {
       background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
       background-size: 200% 100%;
     }
@@ -54,7 +60,10 @@ import { FormsModule } from '@angular/forms';
       border-radius: 20px;
       transition: background .2s;
     }
-    :host-context([data-theme='light']) .sw-track {
+    :host-context(body.light-theme) .sw-track,
+    :host-context(body.theme-light) .sw-track,
+    :host-context(.light-theme) .sw-track,
+    :host-context(.theme-light) .sw-track {
       background: #CBD5E1;
     }
     .sw-thumb {
@@ -87,15 +96,24 @@ import { FormsModule } from '@angular/forms';
       cursor: pointer;
       min-width: 140px;
     }
-    :host-context([data-theme='light']) .set-sel {
+    :host-context(body.light-theme) .set-sel,
+    :host-context(body.theme-light) .set-sel,
+    :host-context(.light-theme) .set-sel,
+    :host-context(.theme-light) .set-sel {
       background: #F6F8FC;
       border-color: #C9D0E3;
       color: #0F172A;
     }
-    :host-context([data-theme='light']) .set-sel-lbl {
+    :host-context(body.light-theme) .set-sel-lbl,
+    :host-context(body.theme-light) .set-sel-lbl,
+    :host-context(.light-theme) .set-sel-lbl,
+    :host-context(.theme-light) .set-sel-lbl {
       color: #0F172A;
     }
-    :host-context([data-theme='light']) .set-edit {
+    :host-context(body.light-theme) .set-edit,
+    :host-context(body.theme-light) .set-edit,
+    :host-context(.light-theme) .set-edit,
+    :host-context(.theme-light) .set-edit {
       background: rgba(43,127,255,.08);
       border-color: #C9D6F0;
     }
@@ -138,11 +156,17 @@ import { FormsModule } from '@angular/forms';
     .danger-btn:hover {
       background: rgba(255,140,105,.2);
     }
-    :host-context([data-theme='light']) .danger-card {
+    :host-context(body.light-theme) .danger-card,
+    :host-context(body.theme-light) .danger-card,
+    :host-context(.light-theme) .danger-card,
+    :host-context(.theme-light) .danger-card {
       background: rgba(255,140,105,.06);
       border-color: rgba(255,140,105,.3);
     }
-    :host-context([data-theme='light']) .danger-card p {
+    :host-context(body.light-theme) .danger-card p,
+    :host-context(body.theme-light) .danger-card p,
+    :host-context(.light-theme) .danger-card p,
+    :host-context(.theme-light) .danger-card p {
       color: #5B6472;
     }
 
@@ -161,23 +185,41 @@ import { FormsModule } from '@angular/forms';
       border: 1px solid rgba(255,255,255,.12);
       color: #fff;
     }
-    :host-context([data-theme='light']) .del-box {
+    :host-context(body.light-theme) .del-box,
+    :host-context(body.theme-light) .del-box,
+    :host-context(.light-theme) .del-box,
+    :host-context(.theme-light) .del-box {
       background: #fff;
       border-color: #E7EAF1;
     }
-    :host-context([data-theme='light']) .del-box h3 {
+    :host-context(body.light-theme) .del-box h3,
+    :host-context(body.theme-light) .del-box h3,
+    :host-context(.light-theme) .del-box h3,
+    :host-context(.theme-light) .del-box h3 {
       color: #0F172A;
     }
-    :host-context([data-theme='light']) .del-box > p,
-    :host-context([data-theme='light']) .del-fld label {
+    :host-context(body.light-theme) .del-box > p,
+    :host-context(body.theme-light) .del-box > p,
+    :host-context(.light-theme) .del-box > p,
+    :host-context(.theme-light) .del-box > p,
+    :host-context(body.light-theme) .del-fld label,
+    :host-context(body.theme-light) .del-fld label,
+    :host-context(.light-theme) .del-fld label,
+    :host-context(.theme-light) .del-fld label {
       color: #475569;
     }
-    :host-context([data-theme='light']) .del-fld input {
+    :host-context(body.light-theme) .del-fld input,
+    :host-context(body.theme-light) .del-fld input,
+    :host-context(.light-theme) .del-fld input,
+    :host-context(.theme-light) .del-fld input {
       background: #f5f7fc;
       border-color: #C9D0E3;
       color: #0F172A;
     }
-    :host-context([data-theme='light']) .del-cancel {
+    :host-context(body.light-theme) .del-cancel,
+    :host-context(body.theme-light) .del-cancel,
+    :host-context(.light-theme) .del-cancel,
+    :host-context(.theme-light) .del-cancel {
       background: #EEF2FA;
       border-color: #D8DFEC;
       color: #0F172A;
