@@ -52,48 +52,67 @@
 }
 
 /* === Light mode === */
-:host-context(body.light) .toc-link,
+:host-context(body.light-theme) .toc-link,
+:host-context(body.theme-light) .toc-link,
 :host-context(.light-theme) .toc-link,
 :host-context(.theme-light) .toc-link{color:#56607D}
-:host-context(body.light) .toc-link:hover,
+:host-context(body.light-theme) .toc-link:hover,
+:host-context(body.theme-light) .toc-link:hover,
 :host-context(.light-theme) .toc-link:hover,
 :host-context(.theme-light) .toc-link:hover{background:rgba(43,212,199,.06);color:#070D24}
-:host-context(body.light) .toc-link.active,
+:host-context(body.light-theme) .toc-link.active,
+:host-context(body.theme-light) .toc-link.active,
 :host-context(.light-theme) .toc-link.active,
 :host-context(.theme-light) .toc-link.active{color:#0F8A7F}
-:host-context(body.light) .legal-toc-foot,
+:host-context(body.light-theme) .legal-toc-foot,
+:host-context(body.theme-light) .legal-toc-foot,
 :host-context(.light-theme) .legal-toc-foot,
 :host-context(.theme-light) .legal-toc-foot{border-color:#E7EAF1}
-:host-context(body.light) .toc-back-link,
+:host-context(body.light-theme) .toc-back-link,
+:host-context(body.theme-light) .toc-back-link,
 :host-context(.light-theme) .toc-back-link,
 :host-context(.theme-light) .toc-back-link{color:#6B7699}
-:host-context(body.light) .toc-back-link:hover,
+:host-context(body.light-theme) .toc-back-link:hover,
+:host-context(body.theme-light) .toc-back-link:hover,
 :host-context(.light-theme) .toc-back-link:hover,
 :host-context(.theme-light) .toc-back-link:hover{color:#0F8A7F}
-:host-context(body.light) .legal-header,
+:host-context(body.light-theme) .legal-header,
+:host-context(body.theme-light) .legal-header,
 :host-context(.light-theme) .legal-header,
 :host-context(.theme-light) .legal-header{border-color:#E7EAF1}
-:host-context(body.light) .legal-h1,
+:host-context(body.light-theme) .legal-h1,
+:host-context(body.theme-light) .legal-h1,
 :host-context(.light-theme) .legal-h1,
 :host-context(.theme-light) .legal-h1{color:#070D24}
-:host-context(body.light) .legal-subtitle,
+:host-context(body.light-theme) .legal-subtitle,
+:host-context(body.theme-light) .legal-subtitle,
 :host-context(.light-theme) .legal-subtitle,
 :host-context(.theme-light) .legal-subtitle{color:#56607D}
-:host-context(body.light) .legal-h2,
+:host-context(body.light-theme) .legal-h2,
+:host-context(body.theme-light) .legal-h2,
 :host-context(.light-theme) .legal-h2,
 :host-context(.theme-light) .legal-h2{color:#070D24;border-color:#E7EAF1}
-:host-context(body.light) .legal-p,
+:host-context(body.light-theme) .legal-p,
+:host-context(body.theme-light) .legal-p,
 :host-context(.light-theme) .legal-p,
 :host-context(.theme-light) .legal-p,
-:host-context(body.light) .legal-list li,
+:host-context(body.light-theme) .legal-list li,
+:host-context(body.theme-light) .legal-list li,
 :host-context(.light-theme) .legal-list li,
 :host-context(.theme-light) .legal-list li{color:#56607D}
-:host-context(body.light) .legal-foot,
+:host-context(body.light-theme) .legal-foot,
+:host-context(body.theme-light) .legal-foot,
 :host-context(.light-theme) .legal-foot,
 :host-context(.theme-light) .legal-foot{border-color:#E7EAF1}
-:host-context(body.light) .legal-back,
+:host-context(body.light-theme) .legal-back,
+:host-context(body.theme-light) .legal-back,
 :host-context(.light-theme) .legal-back,
 :host-context(.theme-light) .legal-back{color:#56607D}
-:host-context(body.light) .legal-back:hover,
+:host-context(body.light-theme) .legal-back:hover,
+:host-context(body.theme-light) .legal-back:hover,
 :host-context(.light-theme) .legal-back:hover,
 :host-context(.theme-light) .legal-back:hover{color:#0F8A7F}
+:host-context(body.light-theme) .legal-badge,
+:host-context(body.theme-light) .legal-badge,
+:host-context(.light-theme) .legal-badge,
+:host-context(.theme-light) .legal-badge{background:rgba(123,47,190,.06);border-color:rgba(123,47,190,.18);color:#6B27A5}

@@ -1,0 +1,49 @@
+<section class="policy-hub" dir="rtl">
+	<div class="policy-hero">
+		<div class="policy-container">
+			<div class="policy-badge">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+				وثائق قانونية
+			</div>
+			<h1 class="policy-h1">مركز السياسات</h1>
+			<p class="policy-sub">جميع وثائق وسيط AI القانونية والتشغيلية في مكان واحد</p>
+		</div>
+	</div>
+
+	<div class="policy-container">
+		@for (group of groups; track group.label) {
+			<div class="policy-sec-label">{{ group.label }}</div>
+			<div class="policy-grid">
+				@for (item of group.items; track item.route) {
+					<a [routerLink]="item.route" class="policy-card">
+						<div class="policy-card-ico" [class]="'ico-' + item.icon">
+							@switch (item.icon) {
+								@case ('shield') {
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+								}
+								@case ('ai') {
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9"/></svg>
+								}
+								@default {
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+								}
+							}
+						</div>
+						<div class="policy-card-body">
+							<h3>{{ item.title }}</h3>
+							<p>{{ item.desc }}</p>
+							<div class="policy-card-arr">اقرأ الوثيقة ←</div>
+						</div>
+					</a>
+				}
+			</div>
+		}
+	</div>
+
+	<div class="policy-back-wrap">
+		<a routerLink="/" class="policy-back">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
+			العودة للرئيسية
+		</a>
+	</div>
+</section>

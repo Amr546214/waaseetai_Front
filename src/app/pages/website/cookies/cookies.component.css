@@ -7,7 +7,10 @@
   color: var(--text-color, #e2e8f0);
 }
 
-:host-context(.light-theme) {
+:host-context(body.light-theme),
+:host-context(body.theme-light),
+:host-context(.light-theme),
+:host-context(.theme-light) {
   --bg-color: #f8fafc;
   --text-color: #334155;
   --card-bg: #ffffff;
