@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
+import { ProviderDepositModal } from './deposit-modal/deposit-modal';
 
 export interface WalletTransaction {
   id: string;
@@ -37,7 +38,7 @@ export interface WalletData {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, ProviderDepositModal],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css'
 })
@@ -46,6 +47,29 @@ export class Wallet implements OnInit {
   data = signal<WalletData | null>(null);
   loading = signal(true);
   error = signal('');
+
+  // Gap 3: deposit is UI-only — there is no provider deposit/top-up
+  // endpoint in provider-api.service.ts (unlike withdraw, which is wired
+  // to a real backend). The modal never issues an HTTP call; it only
+  // emits the chosen amount so we can acknowledge it with a toast.
+  showDepositModal = signal(false);
+  depositToast = signal('');
+  private depositToastTimer: ReturnType<typeof setTimeout> | null = null;
+
+  openDepositModal() {
+    this.showDepositModal.set(true);
+  }
+
+  closeDepositModal() {
+    this.showDepositModal.set(false);
+  }
+
+  onDepositConfirmed(event: { amount: number; method: 'card' | 'bank' }) {
+    this.showDepositModal.set(false);
+    this.depositToast.set(`تم تسجيل طلب إيداع ${event.amount.toLocaleString('ar-SA')} ريال — سيُفعَّل الدفع الإلكتروني قريباً`);
+    if (this.depositToastTimer) clearTimeout(this.depositToastTimer);
+    this.depositToastTimer = setTimeout(() => this.depositToast.set(''), 4000);
+  }
 
   availableRatio = computed(() => {
     const d = this.data();

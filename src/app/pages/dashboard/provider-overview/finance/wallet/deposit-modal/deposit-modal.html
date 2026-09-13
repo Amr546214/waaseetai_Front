@@ -1,0 +1,71 @@
+<div class="dpm-overlay" role="dialog" aria-modal="true" aria-label="إيداع رصيد" (click)="onClose()">
+	<div class="dpm-box" dir="rtl" (click)="$event.stopPropagation()">
+
+		<div class="dpm-hd">
+			<span class="dpm-hd-ico">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<rect x="2" y="5" width="20" height="14" rx="2" />
+					<line x1="2" y1="10" x2="22" y2="10" />
+				</svg>
+			</span>
+			<div>
+				<h3>إيداع رصيد</h3>
+				<p>أضف رصيداً إلى محفظتك في وسيط AI</p>
+			</div>
+			<button type="button" class="dpm-close" (click)="onClose()" aria-label="إغلاق">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+			</button>
+		</div>
+
+		<div class="dpm-note">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+			معاينة تصميم — الدفع الإلكتروني للإيداع سيُفعَّل قريباً، لن يتم خصم أي مبلغ فعلياً.
+		</div>
+
+		<!-- AMOUNT -->
+		<div class="dpm-field">
+			<label class="dpm-label" for="dpmAmt">المبلغ (ر.س)</label>
+			<div class="dpm-amt-wrap">
+				<input id="dpmAmt" class="dpm-amt-input" type="text" inputmode="numeric" [value]="amount() | number" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالريال" />
+				<span class="dpm-amt-cur">ر.س</span>
+			</div>
+			<div class="dpm-hint">أقل مبلغ للإيداع 50 ر.س، أعلى مبلغ 100,000 ر.س للعملية الواحدة</div>
+		</div>
+
+		<div class="dpm-chips">
+			@for (chip of quickAmounts; track chip) {
+			<button type="button" class="dpm-chip" [class.on]="amount() === chip" (click)="setAmount(chip)">{{ chip | number }}</button>
+			}
+		</div>
+
+		<!-- METHOD -->
+		<div class="dpm-field">
+			<label class="dpm-label">طريقة الدفع</label>
+			<div class="dpm-methods">
+				<button type="button" class="dpm-method" [class.on]="selectedMethod() === 'card'" (click)="selectMethod('card')">
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
+					بطاقة ائتمان / مدى
+				</button>
+				<button type="button" class="dpm-method" [class.on]="selectedMethod() === 'bank'" (click)="selectMethod('bank')">
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+					تحويل بنكي
+				</button>
+			</div>
+		</div>
+
+		<!-- SUMMARY -->
+		<div class="dpm-summary">
+			<div class="dpm-summary-row"><span>رصيد المحفظة الحالي</span><span>{{ currentBalance | number:'1.0-2' }} ر.س</span></div>
+			<div class="dpm-summary-row"><span>مبلغ الإيداع</span><span>{{ amount() | number:'1.0-2' }} ر.س</span></div>
+			<div class="dpm-summary-row"><span>رسوم المعالجة</span><span class="free">مجاناً</span></div>
+			<div class="dpm-summary-divider"></div>
+			<div class="dpm-summary-total"><span>الرصيد المتوقع بعد الإيداع</span><span>{{ balanceAfter() | number:'1.0-2' }} ر.س</span></div>
+		</div>
+
+		<div class="dpm-actions">
+			<button type="button" class="dpm-btn dpm-btn-gh" (click)="onClose()">إلغاء</button>
+			<button type="button" class="dpm-btn dpm-btn-pri" [disabled]="!canSubmit()" (click)="onConfirm()">تأكيد الإيداع</button>
+		</div>
+
+	</div>
+</div>

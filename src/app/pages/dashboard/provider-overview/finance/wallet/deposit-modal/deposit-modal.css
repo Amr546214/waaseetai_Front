@@ -1,0 +1,133 @@
+.dpm-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(7, 13, 36, .7);
+	backdrop-filter: blur(6px);
+	z-index: 400;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.dpm-box {
+	background: rgba(11, 20, 55, .97);
+	border: 1px solid rgba(255, 255, 255, .12);
+	border-radius: 18px;
+	padding: 22px;
+	width: 100%;
+	max-width: 440px;
+	font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+	color: #fff;
+	max-height: calc(100vh - 40px);
+	overflow-y: auto;
+}
+
+.dpm-hd { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 12px; }
+.dpm-hd-ico { width: 32px; height: 32px; border-radius: 8px; background: rgba(43, 212, 199, .12); color: #2BD4C7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dpm-hd h3 { font-size: 14px; font-weight: 900; color: #fff; margin: 0; }
+.dpm-hd p { font-size: 11.5px; color: #A8B2D1; margin: 2px 0 0; }
+.dpm-close { margin-inline-start: auto; width: 26px; height: 26px; border-radius: 6px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08); color: #A8B2D1; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+.dpm-close:hover { color: #fff; background: rgba(255, 255, 255, .1); }
+
+.dpm-note { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: rgba(43, 127, 255, .07); border: 1px solid rgba(43, 127, 255, .18); border-radius: 9px; font-size: 11px; color: #5DA0FF; margin-bottom: 16px; line-height: 1.5; }
+.dpm-note svg { flex-shrink: 0; }
+
+.dpm-field { margin-bottom: 12px; }
+.dpm-label { display: block; font-size: 12px; font-weight: 700; color: #A8B2D1; margin-bottom: 6px; }
+.dpm-amt-wrap { position: relative; }
+.dpm-amt-input { width: 100%; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); border-radius: 10px; padding: 10px 54px 10px 14px; font-size: 20px; font-weight: 900; text-align: center; color: #fff; font-family: inherit; }
+.dpm-amt-input:focus { outline: none; border-color: rgba(43, 212, 199, .4); }
+.dpm-amt-cur { position: absolute; inset-inline-end: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 700; color: #6B7699; }
+.dpm-hint { font-size: 10.5px; color: #6B7699; margin-top: 6px; }
+
+.dpm-chips { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.dpm-chip { flex: 1; min-width: 70px; padding: 8px; border-radius: 8px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); color: #A8B2D1; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+.dpm-chip:hover { background: rgba(255, 255, 255, .08); }
+.dpm-chip.on { background: rgba(43, 212, 199, .14); border-color: rgba(43, 212, 199, .35); color: #2BD4C7; }
+
+.dpm-methods { display: flex; gap: 8px; flex-wrap: wrap; }
+.dpm-method { flex: 1; min-width: 140px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px; border-radius: 9px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); color: #A8B2D1; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+.dpm-method:hover { background: rgba(255, 255, 255, .08); }
+.dpm-method.on { background: rgba(43, 212, 199, .1); border-color: rgba(43, 212, 199, .3); color: #2BD4C7; }
+
+.dpm-summary { background: rgba(255, 255, 255, .03); border: 1px solid rgba(255, 255, 255, .08); border-radius: 12px; padding: 14px; margin: 14px 0; }
+.dpm-summary-row { display: flex; justify-content: space-between; font-size: 12px; color: #A8B2D1; padding: 4px 0; }
+.dpm-summary-row .free { color: #0FA99A; font-weight: 700; }
+.dpm-summary-divider { height: 1px; background: rgba(255, 255, 255, .08); margin: 8px 0; }
+.dpm-summary-total { display: flex; justify-content: space-between; font-size: 13px; font-weight: 900; color: #2BD4C7; }
+
+.dpm-actions { display: flex; gap: 9px; }
+.dpm-btn { flex: 1; padding: 11px; border-radius: 9px; font-size: 12.5px; font-weight: 800; font-family: inherit; cursor: pointer; border: 1px solid; }
+.dpm-btn-gh { background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .12); color: #A8B2D1; }
+.dpm-btn-gh:hover { background: rgba(255, 255, 255, .09); color: #fff; }
+.dpm-btn-pri { background: linear-gradient(135deg, #2BD4C7, #2B7FFF); border-color: transparent; color: #070D24; }
+.dpm-btn-pri:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Light mode overrides — theme.service.ts toggles body.light-theme /
+   body.theme-light (mirrored onto <html>), so all four selectors below
+   are covered for robustness. The modal is a fixed overlay so light-mode
+   overrides target elements directly rather than a container class. */
+:host-context(body.light-theme) .dpm-box,
+:host-context(body.theme-light) .dpm-box,
+:host-context(.light-theme) .dpm-box,
+:host-context(.theme-light) .dpm-box {
+	background: #FFFFFF;
+	border-color: #E7EAF1;
+	color: #070D24;
+}
+
+:host-context(body.light-theme) .dpm-hd h3,
+:host-context(body.theme-light) .dpm-hd h3,
+:host-context(.light-theme) .dpm-hd h3,
+:host-context(.theme-light) .dpm-hd h3 {
+	color: #0F172A;
+}
+
+:host-context(body.light-theme) .dpm-hd p,
+:host-context(body.theme-light) .dpm-hd p,
+:host-context(.light-theme) .dpm-hd p,
+:host-context(.theme-light) .dpm-hd p,
+:host-context(body.light-theme) .dpm-label,
+:host-context(body.theme-light) .dpm-label,
+:host-context(.light-theme) .dpm-label,
+:host-context(.theme-light) .dpm-label,
+:host-context(body.light-theme) .dpm-summary-row,
+:host-context(body.theme-light) .dpm-summary-row,
+:host-context(.light-theme) .dpm-summary-row,
+:host-context(.theme-light) .dpm-summary-row,
+:host-context(body.light-theme) .dpm-close,
+:host-context(body.theme-light) .dpm-close,
+:host-context(.light-theme) .dpm-close,
+:host-context(.theme-light) .dpm-close {
+	color: #475569;
+}
+
+:host-context(body.light-theme) .dpm-amt-input,
+:host-context(body.theme-light) .dpm-amt-input,
+:host-context(.light-theme) .dpm-amt-input,
+:host-context(.theme-light) .dpm-amt-input,
+:host-context(body.light-theme) .dpm-chip,
+:host-context(body.theme-light) .dpm-chip,
+:host-context(.light-theme) .dpm-chip,
+:host-context(.theme-light) .dpm-chip,
+:host-context(body.light-theme) .dpm-method,
+:host-context(body.theme-light) .dpm-method,
+:host-context(.light-theme) .dpm-method,
+:host-context(.theme-light) .dpm-method,
+:host-context(body.light-theme) .dpm-btn-gh,
+:host-context(body.theme-light) .dpm-btn-gh,
+:host-context(.light-theme) .dpm-btn-gh,
+:host-context(.theme-light) .dpm-btn-gh {
+	background: #F6F8FC;
+	border-color: #D8DFEC;
+	color: #0F172A;
+}
+
+:host-context(body.light-theme) .dpm-summary,
+:host-context(body.theme-light) .dpm-summary,
+:host-context(.light-theme) .dpm-summary,
+:host-context(.theme-light) .dpm-summary {
+	background: #F6F8FC;
+	border-color: #E2E8F4;
+}

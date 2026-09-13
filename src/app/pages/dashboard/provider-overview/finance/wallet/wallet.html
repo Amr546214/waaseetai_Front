@@ -69,6 +69,13 @@
             </svg>
             سحب الأرباح
           </a>
+          <button type="button" class="wal-btn wal-btn-sec" (click)="openDepositModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+            إيداع رصيد
+          </button>
         </div>
       </div>
 
@@ -197,6 +204,23 @@
             }
           </tbody>
         </table>
+      </div>
+    </div>
+
+    @if (showDepositModal()) {
+      <app-provider-deposit-modal
+        [currentBalance]="wallet.summary.availableBalance"
+        (close)="closeDepositModal()"
+        (confirmed)="onDepositConfirmed($event)">
+      </app-provider-deposit-modal>
+    }
+  }
+
+  @if (depositToast()) {
+    <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-size:13px;font-weight:700;color:#fff">{{ depositToast() }}</span>
       </div>
     </div>
   }
