@@ -913,7 +913,7 @@
 :host-context(body.light) .tb-btn {
   background: #fff;
   border-color: #D8DFEC;
-  color: #344570;
+  color: #475569;
 }
 :host-context(body.light-theme) .tb-btn:hover,
 :host-context(body.theme-light) .tb-btn:hover,
@@ -1401,7 +1401,7 @@
 :host-context(.theme-light) .tbl-head,
 :host-context(body.light) .tbl-head {
   color: #0F172A !important;
-  border-bottom-color: #E7EAF1 !important;
+  border-bottom-color: #E0E8F5 !important;
 }
 :host-context(body.light-theme) .rep-tbl th,
 :host-context(body.theme-light) .rep-tbl th,

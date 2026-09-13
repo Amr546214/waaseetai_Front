@@ -52,17 +52,17 @@
 @media(max-width:600px){.ra-page{padding:16px}.page-ttl{font-size:18px}.apr-meta{gap:10px}.apr-actions{flex-wrap:wrap}}
 
 /* Light mode */
-:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#070D24}
+:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#0F172A}
 :host-context(body.light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#56607D}
 :host-context(body.light) .stat-box,:host-context(.light-theme) .stat-box,:host-context(.theme-light) .stat-box{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .stat-val,:host-context(.light-theme) .stat-val,:host-context(.theme-light) .stat-val{color:#070D24}
-:host-context(body.light) .stat-lbl,:host-context(.light-theme) .stat-lbl,:host-context(.theme-light) .stat-lbl{color:#56607D}
-:host-context(body.light) .filter-chip,:host-context(.light-theme) .filter-chip,:host-context(.theme-light) .filter-chip{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
+:host-context(body.light) .stat-val,:host-context(.light-theme) .stat-val,:host-context(.theme-light) .stat-val{color:#0F172A}
+:host-context(body.light) .stat-lbl,:host-context(.light-theme) .stat-lbl,:host-context(.theme-light) .stat-lbl{color:#64748B}
+:host-context(body.light) .filter-chip,:host-context(.light-theme) .filter-chip,:host-context(.theme-light) .filter-chip{background:#fff;border-color:#D8DFEC;color:#475569}
 :host-context(body.light) .filter-chip:hover,:host-context(.light-theme) .filter-chip:hover,:host-context(.theme-light) .filter-chip:hover{color:#070D24}
-:host-context(body.light) .filter-chip.active,:host-context(.light-theme) .filter-chip.active,:host-context(.theme-light) .filter-chip.active{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.3);color:#0F8A7F}
+:host-context(body.light) .filter-chip.active,:host-context(.light-theme) .filter-chip.active,:host-context(.theme-light) .filter-chip.active{background:rgba(43,212,199,.10);border-color:rgba(43,212,199,.3);color:#007A72}
 :host-context(body.light) .apr-card,:host-context(.light-theme) .apr-card,:host-context(.theme-light) .apr-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .apr-title,:host-context(.light-theme) .apr-title,:host-context(.theme-light) .apr-title{color:#070D24}
+:host-context(body.light) .apr-title,:host-context(.light-theme) .apr-title,:host-context(.theme-light) .apr-title{color:#0F172A}
 :host-context(body.light) .apr-meta,:host-context(.light-theme) .apr-meta,:host-context(.theme-light) .apr-meta,
 :host-context(body.light) .apr-meta-item svg,:host-context(.light-theme) .apr-meta-item svg,:host-context(.theme-light) .apr-meta-item svg{color:#56607D}
 :host-context(body.light) .apr-actions,:host-context(.light-theme) .apr-actions,:host-context(.theme-light) .apr-actions{border-color:#E7EAF1}
-:host-context(body.light) .apr-btn-sec,:host-context(.light-theme) .apr-btn-sec,:host-context(.theme-light) .apr-btn-sec{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
+:host-context(body.light) .apr-btn-sec,:host-context(.light-theme) .apr-btn-sec,:host-context(.theme-light) .apr-btn-sec{background:#F1F5FB;border-color:#E2E8F4;color:#475569}

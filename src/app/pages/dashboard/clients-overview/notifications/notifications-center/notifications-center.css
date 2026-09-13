@@ -3,7 +3,8 @@
    ============================================================ */
 
 /* --- CSS variable redefinitions (theme tokens) --- */
-:host-context(body.light),
+:host-context(body.light-theme),
+:host-context(body.theme-light),
 :host-context(.light-theme),
 :host-context(.theme-light) {
   --txt: #0F172A;
@@ -15,35 +16,56 @@
 }
 
 /* --- Page background --- */
-:host-context(body.light) .w-full,
+:host-context(body.light-theme) .w-full,
+:host-context(body.theme-light) .w-full,
 :host-context(.light-theme) .w-full,
 :host-context(.theme-light) .w-full {
   background: #EEF2FA;
 }
 
 /* --- Header title text --- */
-:host-context(body.light) h1,
+:host-context(body.light-theme) h1,
+:host-context(body.theme-light) h1,
 :host-context(.light-theme) h1,
 :host-context(.theme-light) h1 {
-  color: #070D24 !important;
+  color: #0F172A !important;
+}
+
+/* --- Subtitle text (ord-sub equivalent: unread count / empty state sub) --- */
+:host-context(body.light-theme) .text-xs.text-\[var\(--txt-3\)\].mt-1,
+:host-context(body.theme-light) .text-xs.text-\[var\(--txt-3\)\].mt-1,
+:host-context(.light-theme) .text-xs.text-\[var\(--txt-3\)\].mt-1,
+:host-context(.theme-light) .text-xs.text-\[var\(--txt-3\)\].mt-1 {
+  color: #6B7699 !important;
+}
+
+/* --- Notification message body text (nt-txt equivalent) --- */
+:host-context(body.light-theme) .text-\[12\.5px\].text-\[var\(--txt-3\)\].leading-relaxed,
+:host-context(body.theme-light) .text-\[12\.5px\].text-\[var\(--txt-3\)\].leading-relaxed,
+:host-context(.light-theme) .text-\[12\.5px\].text-\[var\(--txt-3\)\].leading-relaxed,
+:host-context(.theme-light) .text-\[12\.5px\].text-\[var\(--txt-3\)\].leading-relaxed {
+  color: #475569 !important;
 }
 
 /* --- Secondary / muted text (var(--txt-3)) --- */
-:host-context(body.light) .text-\[var\(--txt-3\)\],
+:host-context(body.light-theme) .text-\[var\(--txt-3\)\],
+:host-context(body.theme-light) .text-\[var\(--txt-3\)\],
 :host-context(.light-theme) .text-\[var\(--txt-3\)\],
 :host-context(.theme-light) .text-\[var\(--txt-3\)\] {
   color: #56607D !important;
 }
 
 /* --- Primary text (var(--txt)) --- */
-:host-context(body.light) .text-\[var\(--txt\)\],
+:host-context(body.light-theme) .text-\[var\(--txt\)\],
+:host-context(body.theme-light) .text-\[var\(--txt\)\],
 :host-context(.light-theme) .text-\[var\(--txt\)\],
 :host-context(.theme-light) .text-\[var\(--txt\)\] {
   color: #070D24 !important;
 }
 
 /* --- Header action buttons (mark all read / preferences) --- */
-:host-context(body.light) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
+:host-context(body.light-theme) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
+:host-context(body.theme-light) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
 :host-context(.light-theme) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\],
 :host-context(.theme-light) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\] {
   background-color: #F3F5FA !important;
@@ -51,7 +73,8 @@
   color: #56607D !important;
 }
 
-:host-context(body.light) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\]:hover,
+:host-context(body.light-theme) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\]:hover,
+:host-context(body.theme-light) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\]:hover,
 :host-context(.light-theme) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\]:hover,
 :host-context(.theme-light) button.bg-\[var\(--inp-bg\,rgba\(255\,255\,255\,\.04\)\)\]:hover {
   background-color: #E7EAF1 !important;
@@ -59,7 +82,8 @@
 }
 
 /* --- AI disclosure card --- */
-:host-context(body.light) .bg-gradient-to-br.from-\[rgba\(123\,47\,190\,\.09\)\],
+:host-context(body.light-theme) .bg-gradient-to-br.from-\[rgba\(123\,47\,190\,\.09\)\],
+:host-context(body.theme-light) .bg-gradient-to-br.from-\[rgba\(123\,47\,190\,\.09\)\],
 :host-context(.light-theme) .bg-gradient-to-br.from-\[rgba\(123\,47\,190\,\.09\)\],
 :host-context(.theme-light) .bg-gradient-to-br.from-\[rgba\(123\,47\,190\,\.09\)\] {
   background: linear-gradient(135deg, rgba(123,47,190,.06), rgba(43,127,255,.04)) !important;
@@ -67,37 +91,42 @@
 }
 
 /* --- Filter chips --- */
-:host-context(body.light) .filter-chip,
+:host-context(body.light-theme) .filter-chip,
+:host-context(body.theme-light) .filter-chip,
 :host-context(.light-theme) .filter-chip,
 :host-context(.theme-light) .filter-chip {
-  background: #F3F5FA;
+  background: #fff;
   border: 1px solid #D8DFEC;
   color: #475569;
 }
 
-:host-context(body.light) .filter-chip:hover,
+:host-context(body.light-theme) .filter-chip:hover,
+:host-context(body.theme-light) .filter-chip:hover,
 :host-context(.light-theme) .filter-chip:hover,
 :host-context(.theme-light) .filter-chip:hover {
   background: #E7EAF1;
   color: #0F172A;
 }
 
-:host-context(body.light) .filter-chip.active,
+:host-context(body.light-theme) .filter-chip.active,
+:host-context(body.theme-light) .filter-chip.active,
 :host-context(.light-theme) .filter-chip.active,
 :host-context(.theme-light) .filter-chip.active {
-  background: rgba(43,212,199,0.15);
-  border-color: rgba(43,212,199,0.40);
-  color: #0F172A;
+  background: rgba(43,212,199,0.10);
+  border-color: rgba(43,212,199,0.3);
+  color: #007A72;
 }
 
-:host-context(body.light) .filter-chip.active .fc-count,
+:host-context(body.light-theme) .filter-chip.active .fc-count,
+:host-context(body.theme-light) .filter-chip.active .fc-count,
 :host-context(.light-theme) .filter-chip.active .fc-count,
 :host-context(.theme-light) .filter-chip.active .fc-count {
   background: rgba(43,212,199,0.25);
   color: #0F172A;
 }
 
-:host-context(body.light) .filter-chip .fc-count,
+:host-context(body.light-theme) .filter-chip .fc-count,
+:host-context(body.theme-light) .filter-chip .fc-count,
 :host-context(.light-theme) .filter-chip .fc-count,
 :host-context(.theme-light) .filter-chip .fc-count {
   background: #E7EAF1;
@@ -105,7 +134,8 @@
 }
 
 /* --- Loading state card --- */
-:host-context(body.light) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
+:host-context(body.light-theme) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
+:host-context(body.theme-light) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
 :host-context(.light-theme) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\],
 :host-context(.theme-light) .bg-\[var\(--crd-bg\,linear-gradient\(135deg\,rgba\(255\,255\,255\,\.04\)\,rgba\(255\,255\,255\,\.01\)\)\)\] {
   background: #FFFFFF !important;
@@ -113,35 +143,40 @@
 }
 
 /* --- Skeleton loaders --- */
-:host-context(body.light) .skeleton-row,
+:host-context(body.light-theme) .skeleton-row,
+:host-context(body.theme-light) .skeleton-row,
 :host-context(.light-theme) .skeleton-row,
 :host-context(.theme-light) .skeleton-row {
   background: #E7EAF1;
 }
 
-:host-context(body.light) .skeleton-box,
+:host-context(body.light-theme) .skeleton-box,
+:host-context(body.theme-light) .skeleton-box,
 :host-context(.light-theme) .skeleton-box,
 :host-context(.theme-light) .skeleton-box {
   background: #E7EAF1;
 }
 
 /* --- Error state card --- */
-:host-context(body.light) .text-center.p-10,
+:host-context(body.light-theme) .text-center.p-10,
+:host-context(body.theme-light) .text-center.p-10,
 :host-context(.light-theme) .text-center.p-10,
 :host-context(.theme-light) .text-center.p-10 {
   background: #FFFFFF !important;
-  border-color: #1D6FE0 !important;
+  border-color: #D8DFEC !important;
 }
 
 /* --- Notification item card (.nt) --- */
-:host-context(body.light) .nt,
+:host-context(body.light-theme) .nt,
+:host-context(body.theme-light) .nt,
 :host-context(.light-theme) .nt,
 :host-context(.theme-light) .nt {
   background: #FFFFFF;
   border: 1px solid #D8DFEC;
 }
 
-:host-context(body.light) .nt:hover,
+:host-context(body.light-theme) .nt:hover,
+:host-context(body.theme-light) .nt:hover,
 :host-context(.light-theme) .nt:hover,
 :host-context(.theme-light) .nt:hover {
   background: #F6F8FC;
@@ -149,21 +184,24 @@
 }
 
 /* --- Unread notification indicator --- */
-:host-context(body.light) .nt.unread,
+:host-context(body.light-theme) .nt.unread,
+:host-context(body.theme-light) .nt.unread,
 :host-context(.light-theme) .nt.unread,
 :host-context(.theme-light) .nt.unread {
   background: #F0FBFA;
   border-color: #A3ECE5;
 }
 
-:host-context(body.light) .nt-dot,
+:host-context(body.light-theme) .nt-dot,
+:host-context(body.theme-light) .nt-dot,
 :host-context(.light-theme) .nt-dot,
 :host-context(.theme-light) .nt-dot {
   background: #0F8A7F;
 }
 
 /* --- Notification icon container --- */
-:host-context(body.light) .nt-ico,
+:host-context(body.light-theme) .nt-ico,
+:host-context(body.theme-light) .nt-ico,
 :host-context(.light-theme) .nt-ico,
 :host-context(.theme-light) .nt-ico {
   background: #F3F5FA;
@@ -171,21 +209,24 @@
 }
 
 /* --- Date group separator text --- */
-:host-context(body.light) .text-\[11px\].font-extrabold.text-\[var\(--txt-3\)\],
+:host-context(body.light-theme) .text-\[11px\].font-extrabold.text-\[var\(--txt-3\)\],
+:host-context(body.theme-light) .text-\[11px\].font-extrabold.text-\[var\(--txt-3\)\],
 :host-context(.light-theme) .text-\[11px\].font-extrabold.text-\[var\(--txt-3\)\],
 :host-context(.theme-light) .text-\[11px\].font-extrabold.text-\[var\(--txt-3\)\] {
   color: #6B7699 !important;
 }
 
 /* --- Action text links (teal) --- */
-:host-context(body.light) .text-\[\#2BD4C7\],
+:host-context(body.light-theme) .text-\[\#2BD4C7\],
+:host-context(body.theme-light) .text-\[\#2BD4C7\],
 :host-context(.light-theme) .text-\[\#2BD4C7\],
 :host-context(.theme-light) .text-\[\#2BD4C7\] {
   color: #0A6F64 !important;
 }
 
 /* --- Empty state icon container --- */
-:host-context(body.light) .w-16.h-16.rounded-2xl,
+:host-context(body.light-theme) .w-16.h-16.rounded-2xl,
+:host-context(body.theme-light) .w-16.h-16.rounded-2xl,
 :host-context(.light-theme) .w-16.h-16.rounded-2xl,
 :host-context(.theme-light) .w-16.h-16.rounded-2xl {
   background: rgba(15, 138, 127, 0.08) !important;
@@ -194,14 +235,16 @@
 }
 
 /* --- Empty state icon svg --- */
-:host-context(body.light) .w-16.h-16.rounded-2xl svg,
+:host-context(body.light-theme) .w-16.h-16.rounded-2xl svg,
+:host-context(body.theme-light) .w-16.h-16.rounded-2xl svg,
 :host-context(.light-theme) .w-16.h-16.rounded-2xl svg,
 :host-context(.theme-light) .w-16.h-16.rounded-2xl svg {
   color: #0A6F64 !important;
 }
 
 /* --- Toast container --- */
-:host-context(body.light) .fixed.top-\[72px\] > div,
+:host-context(body.light-theme) .fixed.top-\[72px\] > div,
+:host-context(body.theme-light) .fixed.top-\[72px\] > div,
 :host-context(.light-theme) .fixed.top-\[72px\] > div,
 :host-context(.theme-light) .fixed.top-\[72px\] > div {
   background: #FFFFFF !important;
@@ -209,37 +252,43 @@
   box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12) !important;
 }
 
-:host-context(body.light) .fixed.top-\[72px\] .text-\[\#2BD4C7\],
+:host-context(body.light-theme) .fixed.top-\[72px\] .text-\[\#2BD4C7\],
+:host-context(body.theme-light) .fixed.top-\[72px\] .text-\[\#2BD4C7\],
 :host-context(.light-theme) .fixed.top-\[72px\] .text-\[\#2BD4C7\],
 :host-context(.theme-light) .fixed.top-\[72px\] .text-\[\#2BD4C7\] {
   color: #0A6F64 !important;
 }
 
 /* --- Generic white-text fallback (#fff / #ffffff) --- */
-:host-context(body.light) [class*="text-[#fff]"],
+:host-context(body.light-theme) [class*="text-[#fff]"],
+:host-context(body.theme-light) [class*="text-[#fff]"],
 :host-context(.light-theme) [class*="text-[#fff]"],
 :host-context(.theme-light) [class*="text-[#fff]"],
-:host-context(body.light) [class*="text-[#ffffff]"],
+:host-context(body.light-theme) [class*="text-[#ffffff]"],
+:host-context(body.theme-light) [class*="text-[#ffffff]"],
 :host-context(.light-theme) [class*="text-[#ffffff]"],
 :host-context(.theme-light) [class*="text-[#ffffff]"] {
   color: #0F172A !important;
 }
 
 /* --- Generic rgba(255,255,255,.08) border fallback --- */
-:host-context(body.light) [class*="border-[rgba(255,255,255,.08)]"],
+:host-context(body.light-theme) [class*="border-[rgba(255,255,255,.08)]"],
+:host-context(body.theme-light) [class*="border-[rgba(255,255,255,.08)]"],
 :host-context(.light-theme) [class*="border-[rgba(255,255,255,.08)]"],
 :host-context(.theme-light) [class*="border-[rgba(255,255,255,.08)]"] {
   border-color: #D8DFEC !important;
 }
 
-:host-context(body.light) [class*="border-[rgba(255,255,255,.10)]"],
+:host-context(body.light-theme) [class*="border-[rgba(255,255,255,.10)]"],
+:host-context(body.theme-light) [class*="border-[rgba(255,255,255,.10)]"],
 :host-context(.light-theme) [class*="border-[rgba(255,255,255,.10)]"],
 :host-context(.theme-light) [class*="border-[rgba(255,255,255,.10)]"] {
   border-color: #D8DFEC !important;
 }
 
 /* --- Generic secondary text #A8B2D1 fallback --- */
-:host-context(body.light) [class*="text-[#A8B2D1]"],
+:host-context(body.light-theme) [class*="text-[#A8B2D1]"],
+:host-context(body.theme-light) [class*="text-[#A8B2D1]"],
 :host-context(.light-theme) [class*="text-[#A8B2D1]"],
 :host-context(.theme-light) [class*="text-[#A8B2D1]"] {
   color: #475569 !important;

@@ -601,7 +601,7 @@
 :host-context(.theme-light) .inv-ic-amber,
 :host-context(body.light) .inv-ic-amber {
   background: rgba(255, 180, 0, 0.10);
-  color: #D98A0B;
+  color: #9A6700;
 }
 :host-context(body.light-theme) .inv-ic-blue,
 :host-context(body.theme-light) .inv-ic-blue,
@@ -700,7 +700,7 @@
 :host-context(.light-theme) .dp-attn,
 :host-context(.theme-light) .dp-attn,
 :host-context(body.light) .dp-attn {
-  border-color: rgba(255, 180, 0, 0.30) !important;
+  border-color: #FFB400 !important;
   box-shadow: 0 0 0 1px rgba(255, 180, 0, 0.12);
 }
 :host-context(body.light-theme) .dp-ttl,
@@ -743,7 +743,7 @@
 :host-context(.theme-light) .dp-ico-disp,
 :host-context(body.light) .dp-ico-disp {
   background: rgba(255, 180, 0, 0.10);
-  color: #D98A0B;
+  color: #9A6700;
 }
 :host-context(body.light-theme) .dp-ico-canc,
 :host-context(body.theme-light) .dp-ico-canc,

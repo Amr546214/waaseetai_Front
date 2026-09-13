@@ -364,7 +364,15 @@
 :host-context(.light) .offer-type,
 :host-context(.light) .offer-meta { color:#56607D; }
 :host-context(.light-theme) .offer-price span,
-:host-context(.light) .offer-price span { color:#9AA3B5; }
+:host-context(.light) .offer-price span { color:#475569; }
+:host-context(.light-theme) .offer-av,
+:host-context(.light) .offer-av { color:#1D6FE0 !important; }
+:host-context(.light-theme) .eb-val,
+:host-context(.light) .eb-val { background:none; -webkit-text-fill-color:#0A6F64; color:#0A6F64; }
+:host-context(.light-theme) .s-offers,
+:host-context(.light) .s-offers { color:#1D6FE0; }
+:host-context(.light-theme) .s-done,
+:host-context(.light) .s-done { color:#0A6F64; }
 :host-context(.light-theme) .offer-ai-match,
 :host-context(.light) .offer-ai-match { background:rgba(123,47,190,.10); border-color:rgba(123,47,190,.2); color:#6B2FAA; }
 

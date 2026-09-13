@@ -740,14 +740,14 @@
 :host-context(.theme-light) .inv-tab.active,
 :host-context(body.light) .inv-tab.active {
   color: #0F8A7F !important;
-  border-bottom-color: #0F8A7F !important;
+  border-bottom-color: #2BD4C7 !important;
 }
 :host-context(body.light-theme) .inv-tab.active .c,
 :host-context(body.theme-light) .inv-tab.active .c,
 :host-context(.light-theme) .inv-tab.active .c,
 :host-context(.theme-light) .inv-tab.active .c,
 :host-context(body.light) .inv-tab.active .c {
-  background: rgba(43, 212, 199, 0.15) !important;
+  background: rgba(43, 212, 199, 0.16) !important;
   color: #0F8A7F !important;
 }
 
@@ -908,8 +908,8 @@
 :host-context(.theme-light) .dp-ai,
 :host-context(body.light) .dp-ai {
   color: #475569 !important;
-  background: linear-gradient(135deg, rgba(123, 47, 190, 0.05), rgba(43, 127, 255, 0.03));
-  border-color: rgba(123, 47, 190, 0.15);
+  background: linear-gradient(135deg, rgba(123, 47, 190, 0.09), rgba(43, 127, 255, 0.05));
+  border-color: rgba(123, 47, 190, 0.20);
 }
 :host-context(body.light-theme) .dp-ai b,
 :host-context(body.theme-light) .dp-ai b,
