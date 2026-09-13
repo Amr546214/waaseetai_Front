@@ -58,7 +58,7 @@
 .v1-best-tag svg{width:11px;height:11px}
 .v1-top{display:flex;align-items:center;gap:12px;margin-bottom:13px}
 .v1-av-wrap{position:relative;flex-shrink:0}
-.v1-av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.14));display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--teal-txt,#2BD4C7);font-size:15px}
+.v1-av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.14));display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--teal-txt,#2BD4C7);font-size:15px;flex-shrink:0}
 .v1-lv{position:absolute;bottom:-3px;inset-inline-end:-3px;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;border:2px solid #070D24;color:#070D24;z-index:1;line-height:1}
 .v1-nm{font-size:15px;font-weight:900;color:#fff}
 .v1-meta{font-size:11.5px;color:#6B7699;margin-top:2px}

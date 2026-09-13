@@ -9,9 +9,9 @@
       <span>إيداع الضمان</span>
     </nav>
 
-    <h1 style="font-size:20px;font-weight:900;color:var(--text-primary,#fff);margin-bottom:4px">إيداع ضمان المشروع وبدء التنفيذ</h1>
-    <p style="font-size:13px;color:var(--text-secondary,#6B7699);margin-bottom:14px;line-height:1.6">يتم السداد بعد قبول عرض مقدم الخدمة وتوقيع العقد. يحفظ المبلغ في حساب أمانة مؤمن، ويحرر لمقدم الخدمة فقط بعد اعتماد التسليم</p>
-    <div style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.16);border-radius:10px;margin-bottom:18px;font-size:12px;color:var(--teal-txt,#2BD4C7)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>هذه الخطوة تأتي بعد الاتفاق مع مقدم الخدمة وتوقيع العقد، وليست جزءا من إنشاء الطلب</div>
+    <h1 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">إيداع ضمان المشروع وبدء التنفيذ</h1>
+    <p style="font-size:13px;margin-bottom:14px;line-height:1.6" class="txt-muted">يتم السداد بعد قبول عرض مقدم الخدمة وتوقيع العقد. يحفظ المبلغ في حساب أمانة مؤمن، ويحرر لمقدم الخدمة فقط بعد اعتماد التسليم</p>
+    <div style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.16);border-radius:10px;margin-bottom:18px;font-size:12px" class="txt-teal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>هذه الخطوة تأتي بعد الاتفاق مع مقدم الخدمة وتوقيع العقد، وليست جزءا من إنشاء الطلب</div>
 
     <!-- AI DISCLOSURE -->
     <div class="ai-disclosure" role="note">
@@ -32,7 +32,7 @@
         <div class="state-banner error">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           ERR-SK-008: فشل الاتصال بخادم الدفع ،
-          <button (click)="retryFetch()" style="color:var(--teal-txt,#2BD4C7);background:none;border:none;font-weight:700;cursor:pointer;font-family:inherit">إعادة المحاولة</button>
+          <button (click)="retryFetch()" style="background:none;border:none;font-weight:700;cursor:pointer;font-family:inherit" class="txt-teal">إعادة المحاولة</button>
         </div>
       </div>
     } @else {
@@ -59,11 +59,11 @@
           </div>
           <div class="order-row">
             <span class="order-key">رقم الطلب</span>
-            <span class="order-val" style="color:var(--teal-txt,#2BD4C7)">{{ requestId() }}</span>
+            <span class="order-val txt-teal">{{ requestId() }}</span>
           </div>
           <div class="order-row" style="border-bottom:none">
             <span class="order-key">حالة الطلب</span>
-            <span class="order-badge" style="background:rgba(255,215,0,.10);color:#FFD700;border:1px solid rgba(255,215,0,.25)">بانتظار الإيداع</span>
+            <span class="order-badge txt-amber" style="background:rgba(255,215,0,.10);border:1px solid rgba(255,215,0,.25)">بانتظار الإيداع</span>
           </div>
         </div>
 
@@ -117,7 +117,7 @@
             <div class="amount-row"><span class="amount-row-key">المبلغ المطلوب للضمان</span><span class="amount-row-val">{{ formatCurrency(totalAmount()) }}</span></div>
           </div>
           @if (hasSufficientBalance()) {
-            <div class="state-banner" style="margin-top:14px;color:#2ECC8A">الرصيد كافٍ. بعد تأكيد OTP سيُخصم المبلغ ويُحجز في الضمان داخل معاملة واحدة.</div>
+            <div class="state-banner txt-green-br" style="margin-top:14px">الرصيد كافٍ. بعد تأكيد OTP سيُخصم المبلغ ويُحجز في الضمان داخل معاملة واحدة.</div>
           } @else {
             <div class="state-banner error" style="margin-top:14px">الرصيد غير كافٍ. اشحن فقط المبلغ الناقص {{ formatCurrency(shortfall()) }} عبر نموذج ميسر الآمن.</div>
           }
@@ -154,8 +154,8 @@
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       <div style="text-align:left">
-        <div style="font-size:11px;color:var(--text-secondary,#6B7699);font-weight:600">الإجمالي</div>
-        <div style="font-size:16px;font-weight:900;color:#FFD700">{{ formatCurrency(totalAmount()) }}</div>
+        <div style="font-size:11px;font-weight:600" class="txt-muted">الإجمالي</div>
+        <div style="font-size:16px;font-weight:900" class="txt-amber">{{ formatCurrency(totalAmount()) }}</div>
       </div>
       <button class="btn-primary" [disabled]="!termsAccepted() || isSubmitting()" (click)="handlePrimaryAction()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -176,7 +176,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       </div>
       <h2 class="modal-title">تأكيد بكود OTP</h2>
-      <p class="modal-sub">تم إرسال رمز التحقق إلى بريدك الإلكتروني<br><strong style="color:var(--text-primary,#fff)" dir="ltr">{{ clientEmail() }}</strong></p>
+      <p class="modal-sub">تم إرسال رمز التحقق إلى بريدك الإلكتروني<br><strong dir="ltr" class="txt-white">{{ clientEmail() }}</strong></p>
       <div class="otp-boxes" dir="ltr" role="group" aria-label="خانات رمز التحقق">
         <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp0" [value]="otpValues()[0]" (input)="onOtpInput(0, $event)" (keydown)="onOtpKeydown(0, $event)" (paste)="onOtpPaste($event)">
         <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp1" [value]="otpValues()[1]" (input)="onOtpInput(1, $event)" (keydown)="onOtpKeydown(1, $event)" (paste)="onOtpPaste($event)">
@@ -207,9 +207,9 @@
     <div class="success-ring" style="flex-shrink:0">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
-    <div style="font-size:24px;font-weight:900;color:var(--text-primary,#fff);animation:ws-fade .4s .2s ease both">تم إيداع الضمان بنجاح</div>
-    <div style="font-size:14px;font-weight:700;color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.22);border-radius:9px;padding:8px 18px;animation:ws-fade .4s .3s ease both">{{ formatCurrency(totalAmount()) }}، {{ requestId() }}</div>
-    <div style="font-size:13px;color:var(--text-secondary,#6B7699);line-height:1.7;max-width:380px;animation:ws-fade .4s .35s ease both;text-align:center">المبلغ محفوظ في حساب الضمان، سيعلمك مقدم الخدمة عند بدء العمل</div>
+    <div style="font-size:24px;font-weight:900;animation:ws-fade .4s .2s ease both" class="txt-white">تم إيداع الضمان بنجاح</div>
+    <div style="font-size:14px;font-weight:700;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.22);border-radius:9px;padding:8px 18px;animation:ws-fade .4s .3s ease both" class="txt-teal">{{ formatCurrency(totalAmount()) }}، {{ requestId() }}</div>
+    <div style="font-size:13px;line-height:1.7;max-width:380px;animation:ws-fade .4s .35s ease both;text-align:center" class="txt-muted">المبلغ محفوظ في حساب الضمان، سيعلمك مقدم الخدمة عند بدء العمل</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:ws-fade .4s .4s ease both">
       <button type="button" class="btn-primary" (click)="goDashboard()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>

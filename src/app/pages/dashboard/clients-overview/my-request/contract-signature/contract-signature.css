@@ -150,6 +150,9 @@
 	font-weight: 800;
 	color: var(--text-primary, #fff);
 	margin: 6px 0 12px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .od-card {

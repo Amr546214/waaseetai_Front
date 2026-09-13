@@ -97,10 +97,10 @@ select {
 .ack-check svg{width:11px;height:11px;color:#fff;display:none}
 .ack-check.checked svg{display:block}
 .ack-text{font-size:13px;color:#A8B2D1;line-height:1.65;cursor:pointer}
-.ack-text button{color: #2BD4C7; font-weight: 700; cursor: pointer; text-decoration: underline;}
+.ack-text a{color: #A8B2D1; text-decoration: none; cursor: pointer;}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;animation:ws-fade .2s ease;backdrop-filter: blur(5px);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;animation:ws-fade .2s ease;}
 .modal-overlay.open{display:flex}
 .modal{background:#0B1437;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:32px;max-width:520px;width:calc(100% - 32px);animation:pop-in .25s ease both;position:relative}
 .modal-icon{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.15),rgba(43,127,255,.15));border:2px solid rgba(43,212,199,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:var(--teal-txt,#2BD4C7)}
@@ -116,8 +116,22 @@ select {
 .modal-close:hover{color:#fff;background:rgba(255,255,255,.12)}
 .modal-close svg{width:14px;height:14px}
 
+/* STEP 6 STICKY BOTTOM BAR (own footer, shell .sticky-bar is hidden on this step) */
+.sticky-bottom{
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 14px 24px;
+  background: rgba(7,13,36,.88);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,.07);
+  z-index: 50;
+}
+
 /* SUCCESS OVERLAY */
-.success-overlay{position:fixed;inset:0;background:rgba(7,13,36,.96);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:24px;backdrop-filter: blur(10px);}
+.success-overlay{position:fixed;inset:0;background:rgba(7,13,36,.96);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:24px;}
 .success-overlay.open{display:flex;animation:ws-fade .3s ease}
 .success-ring{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.15),rgba(43,127,255,.15));border:3px solid rgba(43,212,199,.5);display:flex;align-items:center;justify-content:center;animation:pop-in .4s .1s ease both;color:var(--teal-txt,#2BD4C7);flex-shrink:0}
 .success-ring svg{width:40px;height:40px}
@@ -186,7 +200,11 @@ body.light {
 :host-context(body.light-theme) .sticky-bar,
 :host-context(body.theme-light) .sticky-bar,
 :host-context(.light-theme) .sticky-bar,
-:host-context(.theme-light) .sticky-bar {
+:host-context(.theme-light) .sticky-bar,
+:host-context(body.light-theme) .sticky-bottom,
+:host-context(body.theme-light) .sticky-bottom,
+:host-context(.light-theme) .sticky-bottom,
+:host-context(.theme-light) .sticky-bottom {
   background: rgba(246, 248, 252, 0.95) !important;
   border-top-color: #E2E8F4 !important;
 }
@@ -353,6 +371,12 @@ body.light {
 :host-context(body.theme-light) .ack-text,
 :host-context(.light-theme) .ack-text,
 :host-context(.theme-light) .ack-text {
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .ack-text a,
+:host-context(body.theme-light) .ack-text a,
+:host-context(.light-theme) .ack-text a,
+:host-context(.theme-light) .ack-text a {
   color: #475569 !important;
 }
 

@@ -193,8 +193,8 @@
 
 <!-- TOAST -->
 @if (toast()) {
-<div class="fixed bottom-[110px] left-1/2 -translate-x-1/2 flex items-center gap-3 p-[16px_28px] rounded-full text-[15px] font-bold z-[400] animate-toast-in whitespace-nowrap backdrop-blur-[20px] shadow-xl border border-[var(--teal)]"
-	style="background: rgba(43,212,199,0.15); color: var(--teal);" role="status" aria-live="polite">
+<div class="fixed bottom-[110px] left-1/2 -translate-x-1/2 flex items-center gap-3 p-[16px_28px] rounded-full text-[15px] font-bold z-[400] animate-toast-in whitespace-nowrap backdrop-blur-[20px] shadow-xl border border-[var(--teal)] txt-teal"
+	style="background: rgba(43,212,199,0.15)" role="status" aria-live="polite">
 	{{toast()?.msg}}
 </div>
 }
