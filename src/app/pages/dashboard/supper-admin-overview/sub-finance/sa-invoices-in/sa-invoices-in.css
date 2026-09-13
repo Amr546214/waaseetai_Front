@@ -8,7 +8,7 @@
 .fii-btn svg{width:13px;height:13px}
 .fii-btn-ghost{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:#A8B2D1}
 .fii-btn-ghost:hover{background:rgba(255,255,255,.10);color:#fff}
-.fii-btn-primary{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
+.fii-btn-primary{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#fff}
 
 .fii-toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(15,169,154,.95);color:#fff;padding:10px 20px;border-radius:10px;font-size:12.5px;font-weight:700;z-index:500;box-shadow:0 10px 30px rgba(0,0,0,.3)}
 
@@ -53,7 +53,7 @@
 .fii-data-tbl tbody tr:hover{background:rgba(255,255,255,.03)}
 .fii-mono{font-family:monospace;font-size:11px;color:#6B7699}
 .fii-supplier{color:#fff}
-.fii-amount{font-weight:800;color:#fff}
+.fii-amount{font-weight:800}
 .fii-date{color:#6B7699;font-size:11px}
 .fii-empty{text-align:center;color:#6B7699;padding:24px;font-size:12.5px}
 
@@ -66,7 +66,7 @@
 .fii-link:hover{text-decoration:underline}
 .fii-link-danger{color:#FF8C69}
 
-.fii-foot{margin-top:14px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#6B7699;border-top:1px solid rgba(255,255,255,.05)}
+.fii-foot{margin-top:20px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#6B7699;border-top:1px solid rgba(255,255,255,.05)}
 
 @media(max-width:1100px){.fii-kpi-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.fii-page{padding:14px 16px}}
@@ -77,7 +77,10 @@
 :host-context(body.light-theme) .fii-ttl,
 :host-context(body.theme-light) .fii-ttl,
 :host-context(.light-theme) .fii-ttl,
-:host-context(.theme-light) .fii-ttl,
+:host-context(.theme-light) .fii-ttl {
+  color:#0F172A!important
+}
+
 :host-context(body.light-theme) .fii-kpi-val,
 :host-context(body.theme-light) .fii-kpi-val,
 :host-context(.light-theme) .fii-kpi-val,
@@ -89,24 +92,14 @@
 :host-context(body.light-theme) .fii-supplier,
 :host-context(body.theme-light) .fii-supplier,
 :host-context(.light-theme) .fii-supplier,
-:host-context(.theme-light) .fii-supplier,
-:host-context(body.light-theme) .fii-amount,
-:host-context(body.theme-light) .fii-amount,
-:host-context(.light-theme) .fii-amount,
-:host-context(.theme-light) .fii-amount,
-:host-context(body.light-theme) .fii-search input,
-:host-context(body.theme-light) .fii-search input,
-:host-context(.light-theme) .fii-search input,
-:host-context(.theme-light) .fii-search input{color:#0F172A}
+:host-context(.theme-light) .fii-supplier {
+  color:#1E293B!important
+}
 
 :host-context(body.light-theme) .fii-sub,
 :host-context(body.theme-light) .fii-sub,
 :host-context(.light-theme) .fii-sub,
 :host-context(.theme-light) .fii-sub,
-:host-context(body.light-theme) .fii-btn-ghost,
-:host-context(body.theme-light) .fii-btn-ghost,
-:host-context(.light-theme) .fii-btn-ghost,
-:host-context(.theme-light) .fii-btn-ghost,
 :host-context(body.light-theme) .fii-ai-txt,
 :host-context(body.theme-light) .fii-ai-txt,
 :host-context(.light-theme) .fii-ai-txt,
@@ -122,89 +115,126 @@
 :host-context(body.light-theme) .fii-tbl-count,
 :host-context(body.theme-light) .fii-tbl-count,
 :host-context(.light-theme) .fii-tbl-count,
-:host-context(.theme-light) .fii-tbl-count,
-:host-context(body.light-theme) .fii-data-tbl thead th,
-:host-context(body.theme-light) .fii-data-tbl thead th,
-:host-context(.light-theme) .fii-data-tbl thead th,
-:host-context(.theme-light) .fii-data-tbl thead th{color:#475569}
+:host-context(.theme-light) .fii-tbl-count {
+  color:#475569!important
+}
 
 :host-context(body.light-theme) .fii-btn-ghost,
 :host-context(body.theme-light) .fii-btn-ghost,
 :host-context(.light-theme) .fii-btn-ghost,
-:host-context(.theme-light) .fii-btn-ghost{background:rgba(7,13,36,.04);border-color:#E7EAF1}
+:host-context(.theme-light) .fii-btn-ghost {
+  background:rgba(7,13,36,.05)!important;border-color:rgba(7,13,36,.12)!important;color:#475569!important
+}
+
 :host-context(body.light-theme) .fii-btn-ghost:hover,
 :host-context(body.theme-light) .fii-btn-ghost:hover,
 :host-context(.light-theme) .fii-btn-ghost:hover,
-:host-context(.theme-light) .fii-btn-ghost:hover{background:rgba(7,13,36,.08);color:#0F172A}
+:host-context(.theme-light) .fii-btn-ghost:hover {
+  background:rgba(7,13,36,.10)!important;color:#1E293B!important
+}
 
 :host-context(body.light-theme) .fii-ai-disc,
 :host-context(body.theme-light) .fii-ai-disc,
 :host-context(.light-theme) .fii-ai-disc,
-:host-context(.theme-light) .fii-ai-disc{background:linear-gradient(135deg,rgba(123,47,190,.06),rgba(43,127,255,.04));border-color:rgba(123,47,190,.22)}
+:host-context(.theme-light) .fii-ai-disc {
+  background:linear-gradient(135deg,rgba(123,47,190,.05),rgba(43,127,255,.03))!important;border-color:rgba(123,47,190,.18)!important
+}
+
 :host-context(body.light-theme) .fii-ai-lbl,
 :host-context(body.theme-light) .fii-ai-lbl,
 :host-context(.light-theme) .fii-ai-lbl,
-:host-context(.theme-light) .fii-ai-lbl,
+:host-context(.theme-light) .fii-ai-lbl {
+  color:#6B27A5!important
+}
+
 :host-context(body.light-theme) .fii-ai-bdg,
 :host-context(body.theme-light) .fii-ai-bdg,
 :host-context(.light-theme) .fii-ai-bdg,
-:host-context(.theme-light) .fii-ai-bdg{color:#6B27A5}
-:host-context(body.light-theme) .fii-ai-bdg,
-:host-context(body.theme-light) .fii-ai-bdg,
-:host-context(.light-theme) .fii-ai-bdg,
-:host-context(.theme-light) .fii-ai-bdg{background:rgba(123,47,190,.10);border-color:rgba(123,47,190,.22)}
+:host-context(.theme-light) .fii-ai-bdg {
+  background:rgba(123,47,190,.10)!important;border-color:rgba(123,47,190,.22)!important;color:#6B27A5!important
+}
+
 :host-context(body.light-theme) .fii-ai-ico,
 :host-context(body.theme-light) .fii-ai-ico,
 :host-context(.light-theme) .fii-ai-ico,
-:host-context(.theme-light) .fii-ai-ico{background:rgba(123,47,190,.10);color:#7B2FBE}
+:host-context(.theme-light) .fii-ai-ico {
+  background:rgba(123,47,190,.10)!important;color:#7B2FBE!important
+}
 
 :host-context(body.light-theme) .fii-kpi-card,
-:host-context(body.theme-light) .fii-kpi-card,
-:host-context(.light-theme) .fii-kpi-card,
-:host-context(.theme-light) .fii-kpi-card,
 :host-context(body.light-theme) .fii-tbl-card,
+:host-context(body.theme-light) .fii-kpi-card,
 :host-context(body.theme-light) .fii-tbl-card,
+:host-context(.light-theme) .fii-kpi-card,
 :host-context(.light-theme) .fii-tbl-card,
-:host-context(.theme-light) .fii-tbl-card{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.07),0 1px 3px rgba(15,23,42,.05)}
+:host-context(.theme-light) .fii-kpi-card,
+:host-context(.theme-light) .fii-tbl-card {
+  background:#fff!important;border-color:#E7EAF1!important;box-shadow:0 2px 10px rgba(15,23,42,.07),0 1px 3px rgba(15,23,42,.05)!important
+}
 
 :host-context(body.light-theme) .fii-tabs,
 :host-context(body.theme-light) .fii-tabs,
 :host-context(.light-theme) .fii-tabs,
-:host-context(.theme-light) .fii-tabs{background:rgba(7,13,36,.03);border-color:#E7EAF1}
+:host-context(.theme-light) .fii-tabs {
+  background:rgba(7,13,36,.03)!important;border-color:#E7EAF1!important
+}
+
 :host-context(body.light-theme) .fii-tab,
 :host-context(body.theme-light) .fii-tab,
 :host-context(.light-theme) .fii-tab,
-:host-context(.theme-light) .fii-tab{color:#64748B}
+:host-context(.theme-light) .fii-tab {
+  color:#475569!important;border-color:rgba(7,13,36,.10)!important
+}
+
 :host-context(body.light-theme) .fii-tab:hover,
 :host-context(body.theme-light) .fii-tab:hover,
 :host-context(.light-theme) .fii-tab:hover,
-:host-context(.theme-light) .fii-tab:hover{color:#0F172A}
+:host-context(.theme-light) .fii-tab:hover {
+  color:#0F172A!important
+}
+
 :host-context(body.light-theme) .fii-tab.active,
 :host-context(body.theme-light) .fii-tab.active,
 :host-context(.light-theme) .fii-tab.active,
-:host-context(.theme-light) .fii-tab.active{background:rgba(43,212,199,.12);color:#0F8A7F;border-color:rgba(43,212,199,.28)}
+:host-context(.theme-light) .fii-tab.active {
+  background:rgba(43,212,199,.10)!important;color:#007A72!important;border-color:rgba(43,212,199,.18)!important
+}
 
 :host-context(body.light-theme) .fii-search input,
 :host-context(body.theme-light) .fii-search input,
 :host-context(.light-theme) .fii-search input,
-:host-context(.theme-light) .fii-search input{background:#fff;border-color:#E7EAF1}
+:host-context(.theme-light) .fii-search input {
+  background:#fff!important;border-color:#CBD5E1!important;color:#1E293B!important
+}
+
 :host-context(body.light-theme) .fii-search input::placeholder,
 :host-context(body.theme-light) .fii-search input::placeholder,
 :host-context(.light-theme) .fii-search input::placeholder,
-:host-context(.theme-light) .fii-search input::placeholder{color:#94A3B8}
+:host-context(.theme-light) .fii-search input::placeholder {
+  color:#94A3B8!important
+}
 
 :host-context(body.light-theme) .fii-data-tbl thead th,
 :host-context(body.theme-light) .fii-data-tbl thead th,
 :host-context(.light-theme) .fii-data-tbl thead th,
-:host-context(.theme-light) .fii-data-tbl thead th{border-bottom-color:#E7EAF1;background:rgba(7,13,36,.02)}
+:host-context(.theme-light) .fii-data-tbl thead th {
+  color:#64748B!important;border-bottom-color:#E7EAF1!important;background:rgba(7,13,36,.03)!important
+}
+
 :host-context(body.light-theme) .fii-data-tbl tbody td,
 :host-context(body.theme-light) .fii-data-tbl tbody td,
 :host-context(.light-theme) .fii-data-tbl tbody td,
-:host-context(.theme-light) .fii-data-tbl tbody td{color:#334155;border-bottom-color:#F1F5F9}
+:host-context(.theme-light) .fii-data-tbl tbody td {
+  color:#475569!important;border-bottom-color:#E7EAF1!important
+}
+
 :host-context(body.light-theme) .fii-data-tbl tbody tr:hover,
 :host-context(body.theme-light) .fii-data-tbl tbody tr:hover,
 :host-context(.light-theme) .fii-data-tbl tbody tr:hover,
-:host-context(.theme-light) .fii-data-tbl tbody tr:hover{background:rgba(7,13,36,.02)}
+:host-context(.theme-light) .fii-data-tbl tbody tr:hover {
+  background:rgba(7,13,36,.03)!important
+}
+
 :host-context(body.light-theme) .fii-mono,
 :host-context(body.theme-light) .fii-mono,
 :host-context(.light-theme) .fii-mono,
@@ -216,9 +246,13 @@
 :host-context(body.light-theme) .fii-empty,
 :host-context(body.theme-light) .fii-empty,
 :host-context(.light-theme) .fii-empty,
-:host-context(.theme-light) .fii-empty{color:#64748B}
+:host-context(.theme-light) .fii-empty {
+  color:#64748B!important
+}
 
 :host-context(body.light-theme) .fii-foot,
 :host-context(body.theme-light) .fii-foot,
 :host-context(.light-theme) .fii-foot,
-:host-context(.theme-light) .fii-foot{border-top-color:#E7EAF1;color:#64748B}
+:host-context(.theme-light) .fii-foot {
+  border-top-color:#E7EAF1!important;color:#64748B!important
+}

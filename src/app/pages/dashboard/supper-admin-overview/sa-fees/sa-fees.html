@@ -12,23 +12,23 @@
 
   <div class="fe-kpi-grid">
     <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg></div><span class="fe-kpi-lbl">مشتركون نشطون</span></div>
-      <div class="fe-kpi-val" style="color:#2BD4C7">{{ totalSubscribers().toLocaleString() }}</div>
+      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg></div><span class="fe-kpi-lbl">مشتركون نشطون</span></div>
+      <div class="fe-kpi-val txt-teal">{{ totalSubscribers().toLocaleString() }}</div>
       <div class="fe-kpi-sub up">+124 هذا الشهر</div>
     </div>
     <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">إيرادات الاشتراكات</span></div>
-      <div class="fe-kpi-val" style="color:#5DA0FF">248k</div>
+      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">إيرادات الاشتراكات</span></div>
+      <div class="fe-kpi-val txt-blue">248k</div>
       <div class="fe-kpi-sub">ريال سعودي / شهر</div>
     </div>
     <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">أكثر باقة مشتركة</span></div>
-      <div class="fe-kpi-val" style="color:#FFB400">{{ topPackage()?.name }}</div>
+      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">أكثر باقة مشتركة</span></div>
+      <div class="fe-kpi-val txt-amber">{{ topPackage()?.name }}</div>
       <div class="fe-kpi-sub">{{ topPackage()?.subscribers?.toLocaleString() }} مشترك</div>
     </div>
     <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">رسوم إتمام الصفقات</span></div>
-      <div class="fe-kpi-val" style="color:#0FA99A">10%</div>
+      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">رسوم إتمام الصفقات</span></div>
+      <div class="fe-kpi-val txt-green">10%</div>
       <div class="fe-kpi-sub">على كل معاملة</div>
     </div>
   </div>
@@ -83,11 +83,11 @@
           }
         </div>
         <div class="fe-pkg-actions">
-          <button type="button" class="fe-pa-btn" (click)="showToast('فتح نموذج تعديل باقة ' + p.name)">
+          <button type="button" class="fe-pa-btn fe-pa-edit" (click)="showToast('فتح نموذج تعديل باقة ' + p.name)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
             تعديل
           </button>
-          <button type="button" class="fe-pa-btn" (click)="togglePackage(p)">{{ p.active ? 'تعطيل' : 'تفعيل' }}</button>
+          <button type="button" class="fe-pa-btn fe-pa-toggle" (click)="togglePackage(p)">{{ p.active ? 'تعطيل' : 'تفعيل' }}</button>
         </div>
       </div>
     }
