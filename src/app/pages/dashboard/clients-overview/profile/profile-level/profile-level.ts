@@ -35,12 +35,18 @@ import { filter, take, switchMap } from 'rxjs/operators';
 }
 
 /* Base Light Mode override - typical for Waseet AI without using direct Tailwind dark: classes */
-:host-context([data-theme='light']) .active-tab {
+:host-context(body.light-theme) .active-tab,
+:host-context(body.theme-light) .active-tab,
+:host-context(.light-theme) .active-tab,
+:host-context(.theme-light) .active-tab {
   color: #0F8A7F !important;
   border-bottom-color: #0F8A7F !important;
 }
 
-:host-context([data-theme='light']) .req-card:hover {
+:host-context(body.light-theme) .req-card:hover,
+:host-context(body.theme-light) .req-card:hover,
+:host-context(.light-theme) .req-card:hover,
+:host-context(.theme-light) .req-card:hover {
   border-color: rgba(43, 212, 199, 0.4) !important;
 }
 	`]

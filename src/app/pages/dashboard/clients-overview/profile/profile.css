@@ -120,8 +120,8 @@
   background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,.08);
-  border-radius: 20px;
-  padding: 22px;
+  border-radius: 16px;
+  padding: 24px;
   margin-bottom: 16px;
 }
 .profile-hdr {
@@ -304,10 +304,11 @@
   border-bottom: 1px solid rgba(255,255,255,.08);
   margin-bottom: 20px;
   overflow-x: auto;
+  scrollbar-width: none;
 }
 .prof-tabs::-webkit-scrollbar { display: none; }
 .prof-tab {
-  padding: 10px 16px;
+  padding: 10px 15px;
   background: transparent;
   border: 0;
   border-bottom: 2px solid transparent;
@@ -333,7 +334,7 @@
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 16px;
-  padding: 18px;
+  padding: 24px;
 }
 .info-card.full-width { grid-column: 1 / -1; }
 .info-card-title {
@@ -404,7 +405,7 @@
 /* ─── Error state ─── */
 .error-card {
   background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
-  border: 1px solid rgba(239,68,68,.30);
+  border: 1px solid rgba(43,127,255,.25);
   border-radius: 16px;
   padding: 48px 24px;
   text-align: center;
@@ -413,8 +414,8 @@
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: rgba(239,68,68,.12);
-  border: 1px solid rgba(239,68,68,.28);
+  background: rgba(43,127,255,.08);
+  border: 1px solid rgba(43,127,255,.22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -423,7 +424,7 @@
 .error-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 6px; }
 .error-sub { font-size: 13px; color: #A8B2D1; margin-bottom: 20px; }
 .retry-btn {
-  padding: 10px 24px;
+  padding: 10px 20px;
   background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
   border: none;
   border-radius: 50px;
@@ -892,7 +893,7 @@
 :host-context(body.light-theme) .error-card,
 :host-context(body.theme-light) .error-card {
   background: #fff;
-  border: 1px solid rgba(239,68,68,.30);
+  border: 1px solid #E7EAF1;
   backdrop-filter: none;
 }
 :host-context(body.light) .error-ico-wrap,
@@ -900,8 +901,8 @@
 :host-context(.theme-light) .error-ico-wrap,
 :host-context(body.light-theme) .error-ico-wrap,
 :host-context(body.theme-light) .error-ico-wrap {
-  background: rgba(239,68,68,.12);
-  border: 1px solid rgba(239,68,68,.28);
+  background: rgba(43,127,255,.08);
+  border: 1px solid rgba(43,127,255,.22);
 }
 :host-context(body.light) .error-title,
 :host-context(.light-theme) .error-title,

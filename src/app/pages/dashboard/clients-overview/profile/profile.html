@@ -108,7 +108,7 @@
 	<div role="alert">
 		<div class="error-card">
 			<div class="error-ico-wrap">
-				<svg width="28" height="28" aria-hidden="true" style="color:#F87171">
+				<svg width="28" height="28" aria-hidden="true" class="txt-red">
 					<use href="#ic-warn"></use>
 				</svg>
 			</div>
@@ -117,7 +117,7 @@
 			<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
 				<button type="button" class="retry-btn" (click)="loadProfile()">إعادة المحاولة</button>
 				<a routerLink="/client-overview/help"
-					style="padding:10px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:50px;color:#A8B2D1;font-weight:700;font-size:13px;text-decoration:none">تواصل
+					style="padding:10px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:50px;font-weight:700;font-size:13px;text-decoration:none" class="txt-slate">تواصل
 					مع الدعم</a>
 			</div>
 		</div>
@@ -130,7 +130,7 @@
 	<!-- Level Banner -->
 	<div class="level-banner">
 		<div class="level-ico">
-			<svg width="16" height="16" aria-hidden="true" style="color:#9B8B7A">
+			<svg width="16" height="16" aria-hidden="true" class="txt-kahr">
 				<use href="#ic-star"></use>
 			</svg>
 		</div>
@@ -138,7 +138,7 @@
 			<div class="level-label">مستوى الولاء</div>
 			<div class="level-row">
 				<span class="level-tag">
-					<svg width="12" height="12" aria-hidden="true" style="color:#9B8B7A">
+					<svg width="12" height="12" aria-hidden="true" class="txt-kahr">
 						<use href="#ic-star"></use>
 					</svg>
 					{{ level }} · المستوى {{ profileData()?.currentPoints ? '2' : '1' }}
@@ -187,7 +187,7 @@
 						}
 					</div>
 					<div class="avatar-level-badge">
-						<svg width="11" height="11" aria-hidden="true" style="color:#070D24">
+						<svg width="11" height="11" aria-hidden="true" class="txt-navy">
 							<use href="#ic-star"></use>
 						</svg>
 					</div>
@@ -198,7 +198,7 @@
 					<div class="profile-name">
 						{{ getFullName() }}
 						<span class="name-level-tag">
-							<svg width="9" height="9" aria-hidden="true" style="color:#9B8B7A">
+							<svg width="9" height="9" aria-hidden="true" class="txt-kahr">
 								<use href="#ic-star"></use>
 							</svg>
 							{{ level }}
@@ -207,16 +207,16 @@
 
 					<!-- Stars Rating -->
 					<div class="profile-stars">
-						<svg width="11" height="11" style="color:#9B8B7A" aria-hidden="true">
+						<svg width="11" height="11" aria-hidden="true" class="txt-kahr">
 							<use href="#ic-star"></use>
 						</svg>
-						<svg width="11" height="11" style="color:#9B8B7A" aria-hidden="true">
+						<svg width="11" height="11" aria-hidden="true" class="txt-kahr">
 							<use href="#ic-star"></use>
 						</svg>
-						<svg width="11" height="11" style="color:#9B8B7A" aria-hidden="true">
+						<svg width="11" height="11" aria-hidden="true" class="txt-kahr">
 							<use href="#ic-star"></use>
 						</svg>
-						<svg width="11" height="11" style="color:#9B8B7A" aria-hidden="true">
+						<svg width="11" height="11" aria-hidden="true" class="txt-kahr">
 							<use href="#ic-star"></use>
 						</svg>
 						<svg width="11" height="11" style="color:rgba(155,139,122,.3)" aria-hidden="true">
@@ -380,12 +380,12 @@
 					نبذة تعريفية
 				</div>
 				@if (bio && bio !== 'لم يتم إضافة نبذة تعريفية بعد.') {
-				<p style="font-size:14px;color:#A8B2D1;line-height:1.75">{{ bio }}</p>
+				<p style="font-size:14px;line-height:1.75" class="txt-slate">{{ bio }}</p>
 				} @else {
-				<div style="text-align:center;padding:20px;color:#6B7699;font-size:13px">
+				<div style="text-align:center;padding:20px;font-size:13px" class="txt-muted">
 					<p>لم تتم إضافة نبذة تعريفية بعد</p>
 					<a routerLink="/client-overview/profile/edit"
-						style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:8px;color:#2BD4C7;font-size:12px;font-weight:700;text-decoration:none">
+						style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none" class="txt-teal">
 						<svg width="13" height="13" aria-hidden="true">
 							<use href="#ic-edit"></use>
 						</svg>
@@ -408,10 +408,10 @@
 				}
 			</div>
 			} @else {
-			<div style="text-align:center;padding:24px;color:#6B7699;font-size:13px">
+			<div style="text-align:center;padding:24px;font-size:13px" class="txt-muted">
 				<p>لم تتم إضافة اهتمامات بعد</p>
 				<a routerLink="/client-overview/profile/edit"
-					style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 14px;background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.22);border-radius:8px;color:#0F172A;font-size:12px;font-weight:700;text-decoration:none">
+					style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 14px;background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.22);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none" class="txt-navy">
 					<svg width="13" height="13" aria-hidden="true">
 						<use href="#ic-edit"></use>
 					</svg>
@@ -450,7 +450,7 @@
 			</div>
 			<div style="margin-top:16px">
 				<a routerLink="/client-overview/profile/edit"
-					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;color:#2BD4C7;font-size:12px;font-weight:700;text-decoration:none">
+					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:12px;font-weight:700;text-decoration:none" class="txt-teal">
 					<svg width="13" height="13" aria-hidden="true">
 						<use href="#ic-edit"></use>
 					</svg>
@@ -482,7 +482,7 @@
 				<span class="activity-title">انضمام للمنصة</span>
 				<span class="activity-time">{{ getMemberSince() }}</span>
 			</div>
-			<div style="text-align:center;padding:20px;color:#6B7699;font-size:12px;margin-top:8px">
+			<div style="text-align:center;padding:20px;font-size:12px;margin-top:8px" class="txt-muted">
 				لا توجد أنشطة حديثة للعرض
 			</div>
 			}

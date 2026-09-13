@@ -106,11 +106,17 @@ const TYPE_COLORS: Record<string, string> = {
       background: linear-gradient(135deg, rgba(43, 212, 199, 0.07), rgba(43, 127, 255, 0.04));
       transform: translateY(-2px);
     }
-    :host-context([data-theme='light']) .role-card {
+    :host-context(body.light-theme) .role-card,
+    :host-context(body.theme-light) .role-card,
+    :host-context(.light-theme) .role-card,
+    :host-context(.theme-light) .role-card {
       background: #fff;
       border-color: #E7EAF1;
     }
-    :host-context([data-theme='light']) .role-card:not(.role-disabled):hover {
+    :host-context(body.light-theme) .role-card:not(.role-disabled):hover,
+    :host-context(body.theme-light) .role-card:not(.role-disabled):hover,
+    :host-context(.light-theme) .role-card:not(.role-disabled):hover,
+    :host-context(.theme-light) .role-card:not(.role-disabled):hover {
       background: #f0fbfa;
       border-color: rgba(43, 212, 199, 0.5);
     }
@@ -133,7 +139,10 @@ const TYPE_COLORS: Record<string, string> = {
       color: #070D24;
       border-color: transparent;
     }
-    :host-context([data-theme='light']) .role-cta {
+    :host-context(body.light-theme) .role-cta,
+    :host-context(body.theme-light) .role-cta,
+    :host-context(.light-theme) .role-cta,
+    :host-context(.theme-light) .role-cta {
       background: #f1f5f9;
       border-color: #E7EAF1;
       color: #0F172A;
@@ -146,7 +155,10 @@ const TYPE_COLORS: Record<string, string> = {
       padding: 22px;
       margin-bottom: 14px;
     }
-    :host-context([data-theme='light']) .form-card {
+    :host-context(body.light-theme) .form-card,
+    :host-context(body.theme-light) .form-card,
+    :host-context(.light-theme) .form-card,
+    :host-context(.theme-light) .form-card {
       background: #fff;
       border-color: #E7EAF1;
     }
@@ -165,7 +177,10 @@ const TYPE_COLORS: Record<string, string> = {
       outline: none;
       border-color: rgba(43,212,199,.40);
     }
-    :host-context([data-theme='light']) .inp-field {
+    :host-context(body.light-theme) .inp-field,
+    :host-context(body.theme-light) .inp-field,
+    :host-context(.light-theme) .inp-field,
+    :host-context(.theme-light) .inp-field {
       background: #f8fafc;
       border-color: #D8DFEC;
       color: #0F172A;

@@ -37,10 +37,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 8px 13px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 10px;
+  border-radius: 9px;
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
@@ -88,7 +88,7 @@
 .ai-disc-lbl {
   font-size: 10px;
   font-weight: 800;
-  color: #A56BE0;
+  color: var(--ai-txt, #A56BE0);
   letter-spacing: 0.06em;
   margin-bottom: 2px;
 }
@@ -108,7 +108,7 @@
   padding: 1px 7px;
   font-size: 10px;
   font-weight: 700;
-  color: #A56BE0;
+  color: var(--ai-txt, #A56BE0);
 }
 
 /* ==========================================================================
@@ -119,6 +119,8 @@
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
 }
 
 /* ==========================================================================
@@ -534,6 +536,18 @@
   justify-content: center;
   padding: 0 4px;
 }
+.f-pill.pw { color: #B07820; }
+.f-pill.pw.on {
+  background: linear-gradient(135deg, rgba(255, 180, 0, 0.36), rgba(200, 120, 0, 0.26));
+  border-color: rgba(255, 180, 0, 0.66);
+  color: #fff;
+}
+.f-pill.prd { color: #C06040; }
+.f-pill.prd.on {
+  background: linear-gradient(135deg, rgba(255, 120, 80, 0.3), rgba(200, 60, 30, 0.2));
+  border-color: rgba(255, 120, 80, 0.6);
+  color: #fff;
+}
 
 /* Results badge + sort */
 .results-badge {
@@ -670,7 +684,7 @@
 }
 .op-hold {
   background: rgba(255, 180, 0, 0.10);
-  color: #D98A0B;
+  color: var(--kahr, #D98A0B);
   border: 1px solid rgba(255, 180, 0, 0.24);
 }
 .op-hold::before {
@@ -734,7 +748,7 @@
   background: rgba(255, 255, 255, 0.02);
 }
 .td-main {
-  color: #fff;
+  color: #fff !important;
   font-weight: 700;
 }
 .td-sub {
@@ -1289,6 +1303,33 @@
 :host-context(body.light) .f-pill.on .fp-n {
   background: rgba(15, 138, 127, 0.2) !important;
   color: #0F7268 !important;
+}
+:host-context(body.light-theme) .f-pill.prd,
+:host-context(body.theme-light) .f-pill.prd,
+:host-context(.light-theme) .f-pill.prd,
+:host-context(.theme-light) .f-pill.prd,
+:host-context(body.light) .f-pill.prd {
+  color: #B03520 !important;
+}
+:host-context(body.light-theme) .f-pill.prd.on,
+:host-context(body.theme-light) .f-pill.prd.on,
+:host-context(.light-theme) .f-pill.prd.on,
+:host-context(.theme-light) .f-pill.prd.on,
+:host-context(body.light) .f-pill.prd.on {
+  background: linear-gradient(135deg, rgba(180, 50, 30, 0.16), rgba(160, 30, 10, 0.1)) !important;
+  border-color: rgba(180, 50, 30, 0.5) !important;
+  color: #8C2010 !important;
+  text-shadow: none !important;
+}
+:host-context(body.light-theme) .f-pill.pw.on,
+:host-context(body.theme-light) .f-pill.pw.on,
+:host-context(.light-theme) .f-pill.pw.on,
+:host-context(.theme-light) .f-pill.pw.on,
+:host-context(body.light) .f-pill.pw.on {
+  background: linear-gradient(135deg, rgba(140, 100, 0, 0.16), rgba(100, 70, 0, 0.1)) !important;
+  border-color: rgba(140, 100, 0, 0.5) !important;
+  color: #6A4A00 !important;
+  text-shadow: none !important;
 }
 
 /* --- Results badge + sort --- */
