@@ -32,15 +32,20 @@ export class ThemeService {
 		this.theme.set(newTheme);
 		if (isPlatformBrowser(this.platformId)) {
 			localStorage.setItem(this.THEME_KEY, newTheme);
+			const html = document.documentElement;
+			const body = document.body;
 			if (newTheme === 'dark') {
-				document.body.classList.remove('light-theme');
-				document.body.classList.remove('theme-light');
-				document.documentElement.classList.remove('light-theme', 'theme-light');
-				document.documentElement.classList.add('dark');
+				body.classList.remove('light-theme', 'theme-light');
+				html.classList.remove('light-theme', 'theme-light');
+				html.classList.add('dark');
+				html.setAttribute('data-theme', 'dark');
+				html.style.background = '#070D24';
 			} else {
-				document.body.classList.add('light-theme', 'theme-light');
-				document.documentElement.classList.add('light-theme', 'theme-light');
-				document.documentElement.classList.remove('dark');
+				body.classList.add('light-theme', 'theme-light');
+				html.classList.add('light-theme', 'theme-light');
+				html.classList.remove('dark');
+				html.setAttribute('data-theme', 'light');
+				html.style.background = '#EEF2FA';
 			}
 		}
 	}

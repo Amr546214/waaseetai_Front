@@ -76,8 +76,8 @@
   --drop-name:#0F172A;
   --rec-sub:#5B6472;
 }
-/* Also set variables for body-level theme classes */
-body.light-theme,body.theme-light{
+/* Also set variables for body-level and html-level theme classes */
+html.light-theme,html.theme-light,body.light-theme,body.theme-light{
   --pg:#EEF2FA;
   --txt:#0F172A;
   --txt-2:#475569;
@@ -90,6 +90,36 @@ body.light-theme,body.theme-light{
 }
 
 body{margin:0;font-family:'Tajawal',system-ui,sans-serif;background:var(--pg);color:var(--txt)}
+
+/* ============================================================
+   Shared utility classes referenced from Tailwind-only templates
+   (components with no dedicated component stylesheet, e.g. profile
+   editing/setup screens). Kept global so they work without adding
+   a styleUrl to those components.
+   ============================================================ */
+@keyframes ws-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.animation-fade-in{animation:ws-fade .2s ease both}
+.animate-ws-fade{animation:ws-fade .2s ease both}
+
+.loader{
+  display:inline-block;
+  width:40px;
+  height:40px;
+  border:4px solid rgba(255,255,255,.15);
+  border-top-color:#2BD4C7;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.scrollbar-hide{scrollbar-width:none;-ms-overflow-style:none}
+.scrollbar-hide::-webkit-scrollbar{display:none}
+
+.custom-scrollbar::-webkit-scrollbar{width:6px}
+.custom-scrollbar::-webkit-scrollbar-track{background:transparent}
+.custom-scrollbar::-webkit-scrollbar-thumb{background-color:rgba(255,255,255,.14);border-radius:9999px}
+.theme-light .custom-scrollbar::-webkit-scrollbar-thumb,
+.light-theme .custom-scrollbar::-webkit-scrollbar-thumb{background-color:rgb(203 213 225)}
 
 /* Native dropdown menus in client profile pages */
 :where(app-profile-setup-dashboard, app-profile-edit, app-add-account) select {
@@ -626,4 +656,534 @@ div.mysr-form button:active {
 	margin-top: 8px !important;
 	font-size: 11px !important;
 }
+
+/* =============================================================
+   ADMIN DASHBOARD — SHARED LIGHT MODE OVERRIDES
+   Source of truth: design-reference/.../05-لوحة-الادارة/P-AD-*.html LIGHT_CSS blocks
+   These class names are shared across all super-admin pages.
+   ============================================================= */
+html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-theme, .theme-light {
+  /* KPI + dashboard + activity cards */
+  .kpi-card, .dash-card, .act-card, .health-item, .form-card,
+  .od-card, .tier-card, .spec-card, .otp-card, .tbl-card, .panel-hdr {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+  }
+
+  /* Queue rows / list items */
+  .q-item {
+    background: rgba(7, 13, 36, .03) !important;
+    border-color: #E7EAF1 !important;
+  }
+  .q-name, .q-count, .health-name, .health-val, .stat-val, .stat-num,
+  .kpi-num, .kpi-val, .kpi-v, .tbl-strong, .tbl-ttl, .sec-ttl,
+  .form-card-title, .tier-legend-title, .tier-title, .otp-card-title, .sec-title {
+    color: #0F172A !important;
+  }
+
+  /* Sub-labels, hints, muted text */
+  .kpi-lbl, .kpi-sub, .kpi-l, .kpi-change, .kpi-unit,
+  .health-lbl, .health-sub, .stat-lbl, .stat-sub, .stat-l,
+  .q-arr, .tab-count, .tbl-hint, .tbl-meta, .tbl-note, .tbl-count,
+  .sec-sub, .sec-hdr, .pg-info,
+  .inp-label, .prog-label, .free-bar-txt, .av-btn, .f-lbl, .inp-hint,
+  .tier-desc, .char-counter, .skills-add-btn,
+  .udrop-section-lbl, .udrop-acc-role, .sb-sec {
+    color: #475569 !important;
+  }
+
+  /* Activity table */
+  .act-tbl thead tr th { color: #475569 !important; }
+  .act-tbl tbody tr td { color: #475569 !important; }
+  .act-tbl tbody tr { border-bottom-color: #E7EAF1 !important; }
+
+  /* Generic tables inside admin cards */
+  .tbl-hdr { color: #475569 !important; border-bottom-color: #E7EAF1 !important; }
+  .q-tbl thead th { color: #475569 !important; }
+  .q-tbl tbody td { color: #475569 !important; }
+  .q-tbl tr { border-bottom-color: #E7EAF1 !important; }
+
+  /* Inner footer separator */
+  .inner-foot { border-top-color: #E7EAF1 !important; }
+
+  /* Form fields inside admin cards */
+  .inp-field, textarea.inp-field, .f-inp, .skills-add-inp, .pref-val {
+    background: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+  }
+  .inp-field::placeholder, textarea.inp-field::placeholder, .f-inp::placeholder {
+    color: #94A3B8 !important;
+  }
+  .inp-field:focus, textarea.inp-field:focus, .f-inp:focus {
+    border-color: rgba(43, 212, 199, .45) !important;
+    box-shadow: 0 0 0 3px rgba(43, 212, 199, .10) !important;
+  }
+
+  /* Skill chips / avatar buttons */
+  .av-btn { background: #F1F5FB !important; border-color: #E2E8F4 !important; }
+  .chip-rm { color: #94A3B8 !important; }
+  .skill-chip { background: #F1F5FB !important; color: #0F172A !important; }
+
+  /* Pagination buttons */
+  .pg-btn {
+    background: #FFFFFF !important;
+    border-color: #D8DFEC !important;
+    color: #475569 !important;
+  }
+  .pg-btn:hover:not([disabled]) {
+    background: #F3F5FA !important;
+    border-color: rgba(43, 212, 199, .30) !important;
+    color: #0F172A !important;
+  }
+  .pg-btn.active, .pg-btn[aria-current="page"] {
+    background: rgba(43, 212, 199, .10) !important;
+    border-color: rgba(43, 212, 199, .30) !important;
+    color: #007A72 !important;
+  }
+
+  /* Action buttons on tables */
+  .act-btn, .act-view, .act-more, .tb-btn {
+    background: #F3F5FA !important;
+    border-color: #D8DFEC !important;
+    color: #475569 !important;
+  }
+  .act-btn:hover, .act-view:hover, .act-more:hover, .tb-btn:hover {
+    background: #E7EAF1 !important;
+    color: #0F172A !important;
+  }
+  .act-accept {
+    background: rgba(15, 179, 163, .10) !important;
+    border-color: rgba(15, 179, 163, .28) !important;
+    color: #0FA99A !important;
+  }
+  .act-reject {
+    background: rgba(239, 68, 68, .08) !important;
+    border-color: rgba(239, 68, 68, .24) !important;
+    color: #B42318 !important;
+  }
+
+  /* Activity dropdown menu */
+  .act-dropdown, .act-drop {
+    background: #FFFFFF !important;
+    border-color: #E2E8F4 !important;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, .12) !important;
+  }
+  .act-dropdown a, .act-drop a { color: #475569 !important; }
+  .act-dropdown a:hover, .act-drop a:hover {
+    background: rgba(15, 23, 42, .05) !important;
+    color: #0F172A !important;
+  }
+
+  /* Filter chips / tabs */
+  .filt-chip, .fl-chip, .tab-btn {
+    background: #FFFFFF !important;
+    border-color: #D8DFEC !important;
+    color: #475569 !important;
+  }
+  .filt-chip:hover, .fl-chip:hover, .tab-btn:hover {
+    background: #F3F5FA !important;
+    border-color: rgba(43, 212, 199, .30) !important;
+    color: #0F172A !important;
+  }
+  .filt-chip.active, .fl-chip.active, .tab-btn.active,
+  .filt-chip[aria-pressed="true"], .tab-btn[aria-selected="true"] {
+    background: rgba(43, 212, 199, .12) !important;
+    border-color: rgba(43, 212, 199, .35) !important;
+    color: #007A72 !important;
+  }
+
+  /* Stat color variants — keep colored but darker for readability */
+  .stat-cyan  { color: #0F8A7F !important; }
+  .stat-green { color: #0A6F64 !important; }
+  .stat-amber { color: #9A6700 !important; }
+  .stat-red   { color: #B42318 !important; }
+
+  /* -----------------------------------------------------------
+     EXTENDED ADMIN CLASSES (covers all 51 admin design pages)
+     ----------------------------------------------------------- */
+
+  /* Topbar text + badges */
+  .t-page { color: #56607D !important; }
+  .t-uname { color: #070D24 !important; }
+  .t-ai-badge {
+    background: rgba(123, 47, 190, .08) !important;
+    color: #6B27A5 !important;
+  }
+  .t-notif, .t-user, .t-user-wrap, .t-ham, .t-toggle {
+    color: #475569 !important;
+  }
+  .t-notif-dot { border-color: #FFFFFF !important; }
+
+  /* Sidebar sub items + badges */
+  .sb-badge {
+    background: rgba(43, 212, 199, .14) !important;
+    color: #007A72 !important;
+  }
+  .sb-sub, .sb-sub-item, .sb-sub-btn {
+    color: #56607D !important;
+  }
+  .sb-parent-arrow { color: #94A3B8 !important; }
+  .sb-logout { color: #B42318 !important; }
+
+  /* AI banners / insights / disclosure */
+  .ai-disclosure, .ai-insight, .ai-insight-item, .ai-bc {
+    background: linear-gradient(135deg, rgba(123, 47, 190, .06), rgba(43, 127, 255, .04)) !important;
+    border-color: rgba(123, 47, 190, .18) !important;
+  }
+  .ai-insight-title, .ai-bc-txt, .ai-disc-lbl {
+    color: #6B27A5 !important;
+  }
+  .ai-disc-body, .ai-disc-txt { color: #475569 !important; }
+  .ai-disc-badge {
+    background: rgba(123, 47, 190, .12) !important;
+    color: #6B27A5 !important;
+  }
+  .ai-disc-ico, .ai-bc-ico, .ai-ic { color: #7B2FBE !important; }
+  .ai-good  { color: #0FA99A !important; }
+  .ai-danger { color: #B42318 !important; }
+
+  /* Request cards */
+  .req-card, .rc-body, .tc-preview, .prof-hdr, .party-card {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+  }
+  .req-hdr, .rc-hdr, .tc-hdr, .prof-top {
+    border-bottom-color: #E7EAF1 !important;
+  }
+  .req-foot { border-top-color: #E7EAF1 !important; }
+  .req-id, .rc-id, .tc-id, .proj-id { color: #64748B !important; }
+  .req-lbl, .req-meta, .req-field-name, .rc-party, .rc-ttl,
+  .tc-ttl, .tc-user, .tc-meta, .prof-email, .party-role, .proj-meta {
+    color: #475569 !important;
+  }
+  .rc-btn, .req-btn, .req-btn-ghost {
+    background: #F3F5FA !important;
+    border-color: #D8DFEC !important;
+    color: #475569 !important;
+  }
+  .rc-btn:hover, .req-btn:hover, .req-btn-ghost:hover {
+    background: #E7EAF1 !important;
+    color: #0F172A !important;
+  }
+  .req-btn-primary {
+    background: linear-gradient(135deg, #2BD4C7, #2B7FFF) !important;
+    color: #070D24 !important;
+    border-color: transparent !important;
+  }
+  .req-btn-warn, .rc-btn-warn {
+    background: rgba(217, 138, 11, .10) !important;
+    border-color: rgba(217, 138, 11, .28) !important;
+    color: #9A6700 !important;
+  }
+  .rc-btn-dismiss {
+    background: #F3F5FA !important;
+    border-color: #D8DFEC !important;
+    color: #64748B !important;
+  }
+
+  /* Profile / party / member cards */
+  .prof-name, .party-name, .mc-name, .c-name, .conv-panel-title { color: #0F172A !important; }
+  .prof-badges .badge, .rc-badges .badge { border-color: #D8DFEC !important; }
+  .mc-role, .mc-stat-lbl, .c-time, .c-last { color: #64748B !important; }
+  .mc-stat-val, .c-badge { color: #0F172A !important; }
+  .prof-av, .party-av, .mc-av, .c-av, .tc-av, .rc-av,
+  .trail-av, .oc-av, .msg-av {
+    border-color: #E7EAF1 !important;
+  }
+
+  /* Tier / package / plan cards */
+  .tier-card, .pkg, .oc-head, .sc-top {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+  }
+  .tier-hdr, .pkg-top { border-bottom-color: #E7EAF1 !important; }
+  .tier-name, .pkg-name, .pkg-price, .sc-name, .oc-name { color: #0F172A !important; }
+  .tier-desc, .pkg-desc, .pkg-period, .pkg-subscribers,
+  .sc-stat, .oc-price, .oc-dur, .oc-stat, .oc-sv, .oc-sl {
+    color: #475569 !important;
+  }
+  .tier-count { color: #007A72 !important; }
+  .tier-tag, .tier-sens {
+    background: #F1F5FB !important;
+    border-color: #E2E8F4 !important;
+    color: #475569 !important;
+  }
+  .tier-edit-btn, .sc-btn, .sc-btn-edit {
+    background: #F3F5FA !important;
+    border-color: #D8DFEC !important;
+    color: #475569 !important;
+  }
+  .sc-btn-del, .tier-free {
+    background: rgba(239, 68, 68, .08) !important;
+    border-color: rgba(239, 68, 68, .24) !important;
+    color: #B42318 !important;
+  }
+
+  /* Audit trail / timeline */
+  .trail-item, .tl-step, .neg-item, .adm-item, .ms-step, .risk-item {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+  }
+  .trail-actor, .tl-name, .neg-title, .adm-ttl, .ms-name, .risk-name { color: #0F172A !important; }
+  .trail-action, .trail-time, .trail-meta,
+  .tl-sub, .tl-ttl, .neg-note, .neg-time, .adm-by, .adm-time,
+  .ms-dates, .risk-meta, .risk-reasons {
+    color: #475569 !important;
+  }
+  .trail-line, .tl-line { background: #E7EAF1 !important; }
+  .trail-dot, .tl-dot, .neg-dot { border-color: #FFFFFF !important; }
+  .risk-high { color: #B42318 !important; }
+  .risk-med  { color: #9A6700 !important; }
+
+  /* Chat / messages / conversations */
+  .chat-panel, .chat-shell, .chat-main, .chat-wrap,
+  .conv-panel, .conv-side, .msg-panel {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+  }
+  .chat-hdr, .conv-panel-hdr, .msg-hdr {
+    border-bottom-color: #E7EAF1 !important;
+    background: #FFFFFF !important;
+  }
+  .chat-hdr-ttl, .msg-sender { color: #0F172A !important; }
+  .chat-hdr-sub, .chat-time, .chat-sender, .msg-time, .msg-date-d,
+  .conv-meta, .conv-search {
+    color: #64748B !important;
+  }
+  .chat-input, .chat-input-area {
+    background: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+  }
+  .chat-input::placeholder, .chat-input-area::placeholder { color: #94A3B8 !important; }
+  .chat-msg, .msg-bubble {
+    background: #F3F5FA !important;
+    color: #0F172A !important;
+    border-color: #E7EAF1 !important;
+  }
+  .conv-item {
+    background: transparent !important;
+    border-color: #E7EAF1 !important;
+  }
+  .conv-item:hover { background: rgba(15, 23, 42, .04) !important; }
+  .conv-item.active, .conv-item[aria-selected="true"] {
+    background: rgba(43, 212, 199, .08) !important;
+    border-color: rgba(43, 212, 199, .25) !important;
+  }
+  .chat-send {
+    background: linear-gradient(135deg, #2BD4C7, #2B7FFF) !important;
+    color: #070D24 !important;
+  }
+
+  /* Page headers */
+  .page-title, .page-ttl { color: #070D24 !important; }
+  .page-sub, .page-hdr-left > * { color: #64748B !important; }
+
+  /* KPI mini variants */
+  .kpi-mini {
+    background: rgba(7, 13, 36, .03) !important;
+    border-color: #E7EAF1 !important;
+  }
+  .kpi-mini-lbl { color: #475569 !important; }
+  .kpi-mini-val, .kpi-c { color: #0F172A !important; }
+
+  /* Distribution bars / progress */
+  .dist-bar-wrap, .escrow-bar-wrap, .bar-wrap {
+    background: rgba(7, 13, 36, .06) !important;
+  }
+  .dist-fill, .escrow-block, .bar-fill, .bar-mini-fill {
+    /* keep source colors */
+  }
+  .dist-lbl, .escrow-legend, .bar-lbl, .bar-label, .bar-val,
+  .dist-count, .escrow-row {
+    color: #475569 !important;
+  }
+  .dist-item, .escrow-block, .bar-col { border-color: #E7EAF1 !important; }
+
+  /* Provider / project rows */
+  .prov-card, .prov-row, .proj-header {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+  }
+  .prov-name, .proj-title { color: #0F172A !important; }
+  .prov-meta, .prov-rank, .proj-tags { color: #64748B !important; }
+
+  /* Filter rail (fr-*) */
+  .fr-btn, .fr-export-btn, .fr-sel {
+    background: #FFFFFF !important;
+    border-color: #D8DFEC !important;
+    color: #475569 !important;
+  }
+  .fr-btn:hover, .fr-export-btn:hover, .fr-sel:hover {
+    background: #F3F5FA !important;
+    color: #0F172A !important;
+  }
+  .fr-lbl, .fr-period-lbl, .fr-search { color: #475569 !important; }
+
+  /* Modals */
+  .modal, .modal-bg {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, .15) !important;
+  }
+  .modal-overlay { background: rgba(15, 23, 42, .55) !important; }
+  .modal-ttl { color: #070D24 !important; }
+  .modal-lbl { color: #475569 !important; }
+  .modal-inp, .modal-sel {
+    background: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+  }
+  .modal-foot { border-top-color: #E7EAF1 !important; }
+
+  /* Diff view */
+  .diff-box {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+  }
+  .diff-old {
+    background: rgba(239, 68, 68, .06) !important;
+    color: #B42318 !important;
+  }
+  .diff-new {
+    background: rgba(15, 179, 163, .06) !important;
+    color: #0A6F64 !important;
+  }
+  .diff-lbl, .diff-arrow { color: #64748B !important; }
+
+  /* Search / segment inputs (s-*) */
+  .s-inp, .s-inp-sm {
+    background: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+  }
+  .s-inp::placeholder, .s-inp-sm::placeholder { color: #94A3B8 !important; }
+  .s-active { color: #0FA99A !important; }
+  .s-online { color: #0FA99A !important; }
+  .s-offline { color: #B42318 !important; }
+  .s-nav-item, .s-nav-ttl { color: #475569 !important; }
+
+  /* Generic btn variants seen across pages */
+  .btn-full, .btn-primary { color: #070D24 !important; }
+  .btn-ghost {
+    background: transparent !important;
+    border-color: #D8DFEC !important;
+    color: #475569 !important;
+  }
+  .btn-ghost:hover { background: #F3F5FA !important; color: #0F172A !important; }
+  .btn-danger, .btn-del, .btn-reject, .btn-susp {
+    background: rgba(239, 68, 68, .08) !important;
+    border-color: rgba(239, 68, 68, .28) !important;
+    color: #B42318 !important;
+  }
+  .btn-approve, .btn-accept, .btn-green {
+    background: rgba(15, 179, 163, .10) !important;
+    border-color: rgba(15, 179, 163, .28) !important;
+    color: #0A6F64 !important;
+  }
+  .btn-notify, .btn-perm, .btn-request, .btn-more {
+    background: #F3F5FA !important;
+    border-color: #D8DFEC !important;
+    color: #475569 !important;
+  }
+
+  /* Communication / health miscellaneous */
+  .com-card {
+    background: #FFFFFF !important;
+    border-color: #E7EAF1 !important;
+  }
+}
+
+/* ============================================================
+   UTILITY TEXT COLOR CLASSES — replace inline color styles
+   Dark mode = original vibrant colors
+   Light mode = darker, readable equivalents
+   ============================================================ */
+
+/* --- Text colors (dark mode defaults) --- */
+.txt-teal   { color: #2BD4C7; }
+.txt-green  { color: #0FA99A; }
+.txt-amber  { color: #FFB400; }
+.txt-amber-dk { color: #D98A0B; }
+.txt-coral  { color: #FF8C69; }
+.txt-blue   { color: #5DA0FF; }
+.txt-purple { color: #A56BE0; }
+.txt-navy   { color: #070D24; }
+.txt-white  { color: #fff; }
+.txt-muted  { color: #6B7699; }
+.txt-slate  { color: #A8B2D1; }
+.txt-kahr   { color: #9B8B7A; }
+.txt-green-br { color: #2ECC8A; }
+.txt-red    { color: #FF6B6B; }
+.txt-fuchsia{ color: #C084FC; }
+.txt-lilac  { color: #D4A6FF; }
+.txt-violet { color: #A154FF; }
+.txt-ai     { color: #7B2FBE; }
+
+/* --- Icon container classes (bg + color combo) --- */
+.ic-teal    { background: rgba(43,212,199,.14);  color: #2BD4C7; }
+.ic-green   { background: rgba(15,169,154,.12);  color: #0FA99A; }
+.ic-amber   { background: rgba(255,180,0,.12);   color: #FFB400; }
+.ic-coral   { background: rgba(255,140,105,.12); color: #FF8C69; }
+.ic-blue    { background: rgba(43,127,255,.12);  color: #5DA0FF; }
+.ic-blue-lt { background: rgba(93,160,255,.12);  color: #5DA0FF; }
+.ic-purple  { background: rgba(123,47,190,.14);  color: #A56BE0; }
+.ic-kahr    { background: rgba(155,139,122,.14); color: #9B8B7A; }
+.ic-red     { background: rgba(255,107,107,.12); color: #FF6B6B; }
+
+/* --- Badge classes (bg + border + color) --- */
+.badge-teal   { background: rgba(43,212,199,.12);  border: 1px solid rgba(43,212,199,.28);  color: #2BD4C7; }
+.badge-green  { background: rgba(15,169,154,.12);  border: 1px solid rgba(15,169,154,.28);  color: #0FA99A; }
+.badge-amber  { background: rgba(255,180,0,.12);   border: 1px solid rgba(255,180,0,.28);   color: #D98A0B; }
+.badge-coral  { background: rgba(255,140,105,.12); border: 1px solid rgba(255,140,105,.28); color: #FF8C69; }
+.badge-blue   { background: rgba(43,127,255,.12);  border: 1px solid rgba(43,127,255,.28);  color: #5DA0FF; }
+.badge-purple { background: rgba(123,47,190,.12);  border: 1px solid rgba(123,47,190,.28);  color: #A56BE0; }
+.badge-red    { background: rgba(255,107,107,.12); border: 1px solid rgba(255,107,107,.28); color: #FF6B6B; }
+.badge-kahr   { background: rgba(217,138,11,.08);  border: 1px solid rgba(217,138,11,.18);  color: #9B8B7A; }
+
+/* --- Light mode overrides for utility text colors --- */
+html.light-theme, html.theme-light, body.light-theme, body.theme-light,
+.light-theme, .theme-light {
+  .txt-teal   { color: #0F8A7F; }
+  .txt-green  { color: #0A6F64; }
+  .txt-amber  { color: #9A6700; }
+  .txt-amber-dk { color: #9A6700; }
+  .txt-coral  { color: #B42318; }
+  .txt-blue   { color: #1D6FE0; }
+  .txt-purple { color: #6B27A5; }
+  .txt-navy   { color: #070D24; }
+  .txt-white  { color: #070D24; }
+  .txt-muted  { color: #64748B; }
+  .txt-slate  { color: #475569; }
+  .txt-kahr   { color: #9A6700; }
+  .txt-green-br { color: #0A6F64; }
+  .txt-red    { color: #B42318; }
+  .txt-fuchsia{ color: #7B2FBE; }
+  .txt-lilac  { color: #7B2FBE; }
+  .txt-violet { color: #6B27A5; }
+  .txt-ai     { color: #7B2FBE; }
+
+  /* Icon containers — darker text in light mode */
+  .ic-teal    { background: rgba(43,212,199,.10);  color: #0F8A7F; }
+  .ic-green   { background: rgba(15,169,154,.10);  color: #0A6F64; }
+  .ic-amber   { background: rgba(255,180,0,.10);   color: #9A6700; }
+  .ic-coral   { background: rgba(255,140,105,.10); color: #B42318; }
+  .ic-blue    { background: rgba(43,127,255,.10);  color: #1D6FE0; }
+  .ic-blue-lt { background: rgba(93,160,255,.10);  color: #1D6FE0; }
+  .ic-purple  { background: rgba(123,47,190,.10);  color: #6B27A5; }
+  .ic-kahr    { background: rgba(155,139,122,.10); color: #9A6700; }
+  .ic-red     { background: rgba(255,107,107,.10); color: #B42318; }
+
+  /* Badges — darker text in light mode */
+  .badge-teal   { background: rgba(43,212,199,.08);  border-color: rgba(43,212,199,.30);  color: #0F8A7F; }
+  .badge-green  { background: rgba(15,169,154,.08);  border-color: rgba(15,169,154,.30);  color: #0A6F64; }
+  .badge-amber  { background: rgba(255,180,0,.08);   border-color: rgba(255,180,0,.30);   color: #9A6700; }
+  .badge-coral  { background: rgba(255,140,105,.08); border-color: rgba(255,140,105,.30); color: #B42318; }
+  .badge-blue   { background: rgba(43,127,255,.08);  border-color: rgba(43,127,255,.30);  color: #1D6FE0; }
+  .badge-purple { background: rgba(123,47,190,.08);  border-color: rgba(123,47,190,.30);  color: #6B27A5; }
+  .badge-red    { background: rgba(255,107,107,.08); border-color: rgba(255,107,107,.30); color: #B42318; }
+  .badge-kahr   { background: rgba(217,138,11,.08);  border-color: rgba(217,138,11,.30);  color: #9A6700; }
+}
+
 

@@ -33,8 +33,11 @@
 
   function isLight(){
     try { if(localStorage.getItem('ws-theme')==='light') return true; } catch(e){}
+    try { if(localStorage.getItem('waseet_theme')==='light') return true; } catch(e){}
     if(document.getElementById('ws-light')) return true;
     if(document.body && document.body.classList.contains('light')) return true;
+    if(document.body && (document.body.classList.contains('light-theme') || document.body.classList.contains('theme-light'))) return true;
+    if(document.documentElement && (document.documentElement.classList.contains('light-theme') || document.documentElement.classList.contains('theme-light'))) return true;
     var pr=document.getElementById('page-root');
     if(pr && pr.style && pr.style.getPropertyValue('--pg')) return true;
     return false;
@@ -382,9 +385,11 @@
     var CL_CSS='body{background:#EEF2FA}.topbar{background:rgba(246,248,252,.96)!important;border-bottom-color:rgba(43,127,255,.14)!important}.t-page,.t-uname{color:#070D24!important}.sidebar{background:rgba(246,248,252,.94)!important;border-color:rgba(7,13,36,.10)!important}.sb-item{color:#56607D!important}.sb-item.active{background:rgba(43,212,199,.10)!important;color:#007A72!important}.state-card{background:#fff!important;border-color:#E7EAF1!important}.inner-foot{border-top-color:#E7EAF1!important}';
     /* Light mode select fix */
     CL_CSS+='select{background-color:rgba(7,13,36,.06)!important;border-color:rgba(7,13,36,.20)!important;color:#0F172A!important}select option{background-color:#F6F8FC;color:#0F172A}';
-    function _applyClLight(){var t=null;try{t=localStorage.getItem('ws-theme');}catch(x){}var s=document.getElementById('ws-cl');if(t==='light'){if(!s){s=document.createElement('style');s.id='ws-cl';document.head.appendChild(s);}s.textContent=CL_CSS;}else{if(s)s.remove();}}
+    function _applyClLight(){var t=null;try{t=localStorage.getItem('ws-theme')||localStorage.getItem('waseet_theme');}catch(x){}var isL=t==='light'||(document.body&&(document.body.classList.contains('light-theme')||document.body.classList.contains('theme-light')))||(document.documentElement&&(document.documentElement.classList.contains('light-theme')||document.documentElement.classList.contains('theme-light')));var s=document.getElementById('ws-cl');if(isL){if(!s){s=document.createElement('style');s.id='ws-cl';document.head.appendChild(s);}s.textContent=CL_CSS;}else{if(s)s.remove();}}
     _applyClLight();
     document.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('#btn-light,#btn-dark,#btnLight,#btnDark,.seg,[data-theme]');if(el)setTimeout(_applyClLight,120);},true);
+    /* Also re-check _applyClLight when body/html class changes (Angular ThemeService) */
+    if('MutationObserver' in window){ try{ var clMo=new MutationObserver(function(){_applyClLight();}); clMo.observe(document.documentElement,{attributes:true,attributeFilter:['class']}); clMo.observe(document.body,{attributes:true,attributeFilter:['class']}); }catch(e){} }
     setupToggle();
     fixChatLink();
     setupSidebarSKCO();

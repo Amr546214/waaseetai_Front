@@ -3,6 +3,35 @@
 
 <head>
 	<meta charset="utf-8">
+	<!-- THEME INIT: MUST be the first script — runs before any CSS/paint to prevent FOUC.
+	     Mirrors the design-reference approach (localStorage 'waseet_theme'). -->
+	<script>
+		(function () {
+			try {
+				var t = localStorage.getItem('waseet_theme');
+				if (!t) {
+					t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+				}
+				var h = document.documentElement;
+				if (t === 'light') {
+					h.classList.add('light-theme', 'theme-light');
+					h.style.background = '#EEF2FA';
+					h.setAttribute('data-theme', 'light');
+				} else {
+					h.classList.add('dark');
+					h.style.background = '#070D24';
+					h.setAttribute('data-theme', 'dark');
+				}
+			} catch (e) { document.documentElement.style.background = '#070D24'; }
+		})();
+	</script>
+	<style>
+		/* Base html/body colors — set here so the first paint uses the correct theme
+		   even before the app stylesheet loads (prevents SSR dark → client light flash). */
+		html { background: #070D24; }
+		html.light-theme, html.theme-light { background: #EEF2FA; }
+		body { margin: 0; background: inherit; }
+	</style>
 	<base href="/">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>وسيط AI | للخدمات الذكية</title>
@@ -181,17 +210,14 @@
 </head>
 
 <body>
-	<!-- Theme Init Script: Prevents FOUC (Flash of Unstyled Content) -->
+	<!-- Body theme sync: mirror the html theme class onto body for legacy selectors
+	     (main theme init already ran at top of <head>). -->
 	<script>
 		(function () {
 			try {
-				var savedTheme = localStorage.getItem('waseet_theme');
-				var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-				if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
-					document.documentElement.classList.add('light-theme', 'theme-light');
+				var h = document.documentElement;
+				if (h.classList.contains('light-theme') || h.classList.contains('theme-light')) {
 					document.body.classList.add('light-theme', 'theme-light');
-				} else {
-					document.documentElement.classList.add('dark');
 				}
 			} catch (e) { }
 		})();
