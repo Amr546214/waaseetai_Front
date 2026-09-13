@@ -25,7 +25,7 @@
 .faq-sec-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ico-teal{background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:#2BD4C7}
 .ico-amber{background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);color:#D98A0B}
-.ico-purple{background:rgba(123,47,190,.08);border:1px solid rgba(123,47,190,.2);color:#A56BE0}
+.ico-purple{background:rgba(123,47,190,.1);border:1px solid rgba(123,47,190,.22);color:#A56BE0}
 .ico-blue{background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);color:#5DA0FF}
 .faq-sec-h{font-size:18px;font-weight:900;color:#fff;margin:0}
 

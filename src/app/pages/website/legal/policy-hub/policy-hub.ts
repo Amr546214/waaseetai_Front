@@ -34,6 +34,7 @@ export class PolicyHub {
 		{
 			label: 'العقود والخدمات',
 			items: [
+				{ title: 'الدفع والضمان والإلغاء والنزاعات', desc: 'الضمان المالي، رسوم الدفع، الإلغاء والاسترداد، النزاعات، السحب', route: '/legal/payment-escrow-disputes', icon: 'shield' },
 				{ title: 'المستخدمون والخدمات والعقود', desc: 'متى ينشأ العقد، بدء العمل، التسليم والتعديلات، تغيير النطاق', route: '/legal/users-services-contracts', icon: 'file' },
 				{ title: 'اتفاقية مقدم الخدمة', desc: 'الشروط والالتزامات والحقوق الخاصة بمقدمي الخدمات', route: '/legal/provider-agreement', icon: 'file' }
 			]

@@ -12,6 +12,10 @@ export const WEBSITE_ROUTES: Routes = [
 		loadComponent: () => import('./marketplace/marketplace').then(m => m.Marketplace)
 	},
 	{
+		path: 'marketplace/categories',
+		loadComponent: () => import('./marketplace/category-guide/category-guide').then(m => m.CategoryGuide)
+	},
+	{
 		path: 'marketplace/:slug',
 		loadComponent: () => import('./marketplace/slug/slug').then(m => m.Slug)
 	},
@@ -162,6 +166,11 @@ export const WEBSITE_ROUTES: Routes = [
 		path: 'legal/provider-agreement',
 		loadComponent: () => import('./legal/legal-page.component').then(m => m.LegalPageComponent),
 		data: { doc: 'lg-002' }
+	},
+	{
+		path: 'legal/payment-escrow-disputes',
+		loadComponent: () => import('./legal/legal-page.component').then(m => m.LegalPageComponent),
+		data: { doc: 'lg-010' }
 	},
 	{
 		path: 'legal/users-services-contracts',
