@@ -1,12 +1,12 @@
 .sme-page{padding:22px 24px;min-height:calc(100vh - 56px);direction:rtl}
-.sme-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sme-hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
 .sme-ttl{font-size:20px;font-weight:900;color:#fff;margin:0 0 3px}
 .sme-sub{font-size:12px;color:#6B7699;margin:0;max-width:560px}
 .sme-actions{display:flex;gap:8px}
 
-.sme-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:800;padding:0 16px;height:34px;border-radius:9px;border:1px solid transparent;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
-.sme-btn-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
-.sme-btn-gh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#fff}
+.sme-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:0 14px;height:34px;border-radius:9px;border:1px solid transparent;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sme-btn-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#fff}
+.sme-btn-gh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:#A8B2D1}
 .sme-btn-gh:hover{background:rgba(255,255,255,.1)}
 
 .sme-disc{display:flex;align-items:center;gap:12px;padding:13px 16px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border:1px solid rgba(123,47,190,.22);border-radius:14px;margin-bottom:18px}
@@ -14,7 +14,7 @@
 .sme-disc-ico svg{width:15px;height:15px}
 .sme-disc-lbl{font-size:10px;font-weight:800;color:#A56BE0;letter-spacing:.06em;margin-bottom:2px}
 .sme-disc-txt{font-size:13px;color:#A8B2D1;margin:0}
-.sme-disc-bdg{background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.28);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:#A56BE0;margin-inline-start:6px}
+.sme-disc-bdg{background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.28);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:#A56BE0}
 
 .sme-layout{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:14px}
 .sme-factor-card,.sme-sample-card,.sme-tbl-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px}
@@ -33,7 +33,7 @@
 .sme-score-lbl{font-size:12px;color:#6B7699}
 .sme-detail{font-size:12px;color:#A8B2D1;margin-top:8px;line-height:1.6}
 .sme-detail strong{color:#fff}
-.sme-meta{font-size:12px;color:#6B7699;margin-top:8px;line-height:1.8}
+.sme-meta{font-size:12px;color:#6B7699;margin-top:8px}
 
 .sme-tbl-card{overflow:hidden;margin-bottom:14px}
 .sme-tbl-hdr{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
@@ -237,19 +237,14 @@
 :host-context(body.light-theme) [style*="color:#fff"],
 :host-context(body.theme-light) [style*="color:#fff"],
 :host-context(.light-theme) [style*="color:#fff"],
-:host-context(.theme-light) [style*="color:#fff"]{color:#1E293B}
-
-:host-context(body.light-theme) [style*="color:#A8B2D1"],
-:host-context(body.theme-light) [style*="color:#A8B2D1"],
-:host-context(.light-theme) [style*="color:#A8B2D1"],
-:host-context(.theme-light) [style*="color:#A8B2D1"]{color:#475569}
+:host-context(.theme-light) [style*="color:#fff"]{color:#1E293B!important}
 
 :host-context(body.light-theme) [style*="color:#6B7699"],
 :host-context(body.theme-light) [style*="color:#6B7699"],
 :host-context(.light-theme) [style*="color:#6B7699"],
-:host-context(.theme-light) [style*="color:#6B7699"]{color:#64748B}
+:host-context(.theme-light) [style*="color:#6B7699"]{color:#64748B!important}
 
 :host-context(body.light-theme) [style*="color:#A56BE0"],
 :host-context(body.theme-light) [style*="color:#A56BE0"],
 :host-context(.light-theme) [style*="color:#A56BE0"],
-:host-context(.theme-light) [style*="color:#A56BE0"]{color:#6B27A5}
+:host-context(.theme-light) [style*="color:#A56BE0"]{color:#6B27A5!important}

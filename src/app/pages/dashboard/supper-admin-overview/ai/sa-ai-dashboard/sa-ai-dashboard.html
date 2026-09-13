@@ -44,11 +44,11 @@
           <span class="sad-card-status">نشط</span>
         </div>
         <div class="sad-card-body">
-          <div class="sad-metric"><span class="sad-metric-lbl">الدقة</span><span class="sad-metric-val" style="color:#0FA99A">{{ m.accuracy }}%</span></div>
+          <div class="sad-metric"><span class="sad-metric-lbl">الدقة</span><span class="sad-metric-val txt-green">{{ m.accuracy }}%</span></div>
           <div class="sad-bar"><div class="sad-fill" [style.width.%]="m.accuracy" [style.background]="gradientFor(m.color)"></div></div>
           <div class="sad-metric"><span class="sad-metric-lbl">طلبات اليوم</span><span class="sad-metric-val">{{ m.requestsToday }}</span></div>
           <div class="sad-metric"><span class="sad-metric-lbl">متوسط زمن الاستجابة</span><span class="sad-metric-val" [style.color]="m.latencyGood ? '#0FA99A' : '#6B7699'">{{ m.avgLatency }}</span></div>
-          <div class="sad-metric"><span class="sad-metric-lbl">آخر تدريب</span><span class="sad-metric-val" style="color:#6B7699">{{ m.lastTrained }}</span></div>
+          <div class="sad-metric"><span class="sad-metric-lbl">آخر تدريب</span><span class="sad-metric-val txt-muted">{{ m.lastTrained }}</span></div>
         </div>
       </div>
     }
