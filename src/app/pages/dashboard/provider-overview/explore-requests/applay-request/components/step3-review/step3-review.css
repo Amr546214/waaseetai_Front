@@ -94,3 +94,85 @@
 .ai-disc-lbl{font-size:10px;font-weight:800;color:var(--ai-txt,#A56BE0);letter-spacing:.06em;margin-bottom:2px}
 .ai-disc-txt{font-size:12px;color:#A8B2D1;line-height:1.6}
 .ai-disc-badge{display:inline-flex;background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.28);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:var(--ai-txt,#A56BE0);margin-inline-end:4px}
+
+/* ===== Light Mode ===== */
+:host-context(body.light) .form-card,
+:host-context(body.light-theme) .form-card,
+:host-context(.light-theme) .form-card,
+:host-context(.theme-light) .form-card{background:#fff;border-color:#E7EAF1}
+
+:host-context(body.light) .card-title,
+:host-context(body.light-theme) .card-title,
+:host-context(.light-theme) .card-title,
+:host-context(.theme-light) .card-title{color:#0F172A}
+
+:host-context(body.light) .check-label,
+:host-context(body.light-theme) .check-label,
+:host-context(.light-theme) .check-label,
+:host-context(.theme-light) .check-label{color:#0F172A}
+
+:host-context(body.light) .check-sub,
+:host-context(body.light-theme) .check-sub,
+:host-context(.light-theme) .check-sub,
+:host-context(.theme-light) .check-sub{color:#475569}
+
+:host-context(body.light) .check-ok svg,
+:host-context(body.light-theme) .check-ok svg,
+:host-context(.light-theme) .check-ok svg,
+:host-context(.theme-light) .check-ok svg,
+:host-context(body.light) .score-ok,
+:host-context(body.light-theme) .score-ok,
+:host-context(.light-theme) .score-ok,
+:host-context(.theme-light) .score-ok,
+:host-context(body.light) .cmp-cell.ok,
+:host-context(body.light-theme) .cmp-cell.ok,
+:host-context(.light-theme) .cmp-cell.ok,
+:host-context(.theme-light) .cmp-cell.ok{color:#0A6F64}
+
+:host-context(body.light) .check-err svg,
+:host-context(body.light-theme) .check-err svg,
+:host-context(.light-theme) .check-err svg,
+:host-context(.theme-light) .check-err svg,
+:host-context(body.light) .score-err,
+:host-context(body.light-theme) .score-err,
+:host-context(.light-theme) .score-err,
+:host-context(.theme-light) .score-err,
+:host-context(body.light) .cmp-cell.err,
+:host-context(body.light-theme) .cmp-cell.err,
+:host-context(.light-theme) .cmp-cell.err,
+:host-context(.theme-light) .cmp-cell.err{color:#B42318}
+
+:host-context(body.light) .cmp-cell,
+:host-context(body.light-theme) .cmp-cell,
+:host-context(.light-theme) .cmp-cell,
+:host-context(.theme-light) .cmp-cell{color:#475569}
+
+:host-context(body.light) .cmp-cell.highlight,
+:host-context(body.light-theme) .cmp-cell.highlight,
+:host-context(.light-theme) .cmp-cell.highlight,
+:host-context(.theme-light) .cmp-cell.highlight{color:#0F172A}
+
+:host-context(body.light) .score-num,
+:host-context(body.light-theme) .score-num,
+:host-context(.light-theme) .score-num,
+:host-context(.theme-light) .score-num{color:#0F172A}
+
+:host-context(body.light) .metric-label,
+:host-context(body.light-theme) .metric-label,
+:host-context(.light-theme) .metric-label,
+:host-context(.theme-light) .metric-label{color:#475569}
+
+:host-context(body.light) .ack-title,
+:host-context(body.light-theme) .ack-title,
+:host-context(.light-theme) .ack-title,
+:host-context(.theme-light) .ack-title{color:#0F172A}
+
+:host-context(body.light) .ack-text,
+:host-context(body.light-theme) .ack-text,
+:host-context(.light-theme) .ack-text,
+:host-context(.theme-light) .ack-text{color:#475569}
+
+:host-context(body.light) .ai-disc-txt,
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt{color:#475569}

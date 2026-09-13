@@ -10,8 +10,8 @@
 /* ---- Theme variable re-declaration (scoped to this component) ----
    Card backgrounds  -> #FFFFFF   (was rgba(13,27,42,.55))
    Card borders      -> #E7EAF1   (was rgba(255,255,255,.07))
-   Text primary      -> #070D24   (was #FFFFFF)
-   Text secondary    -> #56607D   (was #A8B2D1)
+   Text primary      -> #0F172A   (was #FFFFFF)
+   Text secondary    -> #475569   (was #A8B2D1)
    Text muted        -> #6B7699   (unchanged)
    Teal              -> #0F8A7F   (was #2BD4C7)
    Blue              -> #1D6FE0   (was #2B7FFF)
@@ -29,8 +29,8 @@
   --sec-bd: #E7EAF1;
   --sec-bd-hover: rgba(29, 111, 224, .35);
   --sec-bg-hover: #FAFBFF;
-  --txt: #070D24;
-  --txt-2: #56607D;
+  --txt: #0F172A;
+  --txt-2: #475569;
   --txt-3: #6B7699;
   --teal-txt: #0F8A7F;
   --blue-txt: #1D6FE0;

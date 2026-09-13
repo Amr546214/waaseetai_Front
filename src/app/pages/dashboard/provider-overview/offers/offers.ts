@@ -212,7 +212,7 @@ export class Offers implements OnInit {
 		} else if (status === 'accepted') {
 			this.router.navigate(['/provider-overview/projects/active']);
 		} else if (status === 'nego' || status === 'under_negotiation') {
-			this.router.navigate(['/provider-overview/messages']);
+			this.router.navigate(['/provider-overview/offers', offer.id, 'negotiate']);
 		} else {
 			// Handle other actions like opening details or negotiation
 			console.log('Action clicked for offer:', offer);

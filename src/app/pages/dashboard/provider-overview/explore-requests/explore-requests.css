@@ -161,15 +161,15 @@
 /* === Light mode overrides === */
 :host-context(body.light) .filter-rail,
 :host-context(.light-theme) .filter-rail,
-:host-context(.theme-light) .filter-rail{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(.theme-light) .filter-rail{background:rgba(246,248,252,.94);border-color:rgba(43,127,255,.25);box-shadow:0 2px 10px rgba(15,23,42,.05)}
 
 :host-context(body.light) .fr-period-lbl,
 :host-context(.light-theme) .fr-period-lbl,
-:host-context(.theme-light) .fr-period-lbl{background:rgba(43,127,255,.06);border-color:rgba(43,127,255,.14);color:#1D6FE0}
+:host-context(.theme-light) .fr-period-lbl{background:rgba(43,127,255,.08);border-color:rgba(43,127,255,.14);color:#1D6FE0}
 
 :host-context(body.light) .ds,
 :host-context(.light-theme) .ds,
-:host-context(.theme-light) .ds{color:#56607D}
+:host-context(.theme-light) .ds{color:#475569}
 
 :host-context(body.light) .ds:hover,
 :host-context(.light-theme) .ds:hover,
@@ -229,7 +229,39 @@
 
 :host-context(body.light) .rc-title,
 :host-context(.light-theme) .rc-title,
-:host-context(.theme-light) .rc-title{color:#070D24}
+:host-context(.theme-light) .rc-title{color:#0F172A}
+
+:host-context(body.light) .rc-desc,
+:host-context(.light-theme) .rc-desc,
+:host-context(.theme-light) .rc-desc{color:#475569}
+
+:host-context(body.light) .rc-meta-item,
+:host-context(.light-theme) .rc-meta-item,
+:host-context(.theme-light) .rc-meta-item{color:#475569}
+
+:host-context(body.light) .rc-meta-item strong,
+:host-context(.light-theme) .rc-meta-item strong,
+:host-context(.theme-light) .rc-meta-item strong{color:#1E293B}
+
+:host-context(body.light) .ord-title,
+:host-context(.light-theme) .ord-title,
+:host-context(.theme-light) .ord-title{color:#0F172A}
+
+:host-context(body.light) .ord-sub,
+:host-context(.light-theme) .ord-sub,
+:host-context(.theme-light) .ord-sub{color:#475569}
+
+:host-context(body.light) .ord-search,
+:host-context(.light-theme) .ord-search,
+:host-context(.theme-light) .ord-search{background:#fff;border-color:#CBD5E1;color:#0F172A}
+
+:host-context(body.light) .ord-search input,
+:host-context(.light-theme) .ord-search input,
+:host-context(.theme-light) .ord-search input{color:#0F172A}
+
+:host-context(body.light) .ord-tab,
+:host-context(.light-theme) .ord-tab,
+:host-context(.theme-light) .ord-tab{color:#475569}
 
 :host-context(body.light) .status-badge,
 :host-context(.light-theme) .status-badge,

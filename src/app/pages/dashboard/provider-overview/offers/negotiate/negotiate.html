@@ -1,0 +1,193 @@
+<div class="nego-page" dir="rtl">
+
+	<a [routerLink]="['/provider-overview/offers']" class="bk-link">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
+		العودة إلى عروضي
+	</a>
+
+	@if (loading()) {
+	<div class="state-card">
+		<div class="skeleton-row" style="width:40%;height:18px;margin-bottom:14px"></div>
+		<div class="skeleton-box" style="height:140px"></div>
+	</div>
+	} @else if (error()) {
+	<div class="state-card error-card">
+		<div class="error-title">{{ error() }}</div>
+		<button type="button" class="retry-btn" (click)="loadOffer(offerId())">إعادة المحاولة</button>
+	</div>
+	} @else {
+
+	<!-- Header -->
+	<div class="nego-hd">
+		<div class="nego-hd-top">
+			<div>
+				<h1 class="nego-ttl">مساحة التفاوض: {{ offer().title }}</h1>
+				<div class="nego-sub">
+					<span>{{ offer().ref }}</span>
+					<span class="nego-dot"></span>
+					<span>{{ offer().clientName }}</span>
+					<span class="nego-dot"></span>
+					<span>{{ offer().clientType === 'company' ? 'عميل شركة' : 'عميل فرد' }}</span>
+				</div>
+			</div>
+			<span class="nego-badge">قيد التفاوض</span>
+		</div>
+
+		<!-- Timeline -->
+		<div class="nego-timeline">
+			@for (step of timelineSteps(); track $index) {
+			<div class="tl-step" [class.tl-done]="step.done" [class.tl-active]="step.active">
+				<span class="tl-node">{{ step.done ? '✓' : ($index + 1) }}</span>
+				<span class="tl-lbl">{{ step.label }}</span>
+			</div>
+			@if (!$last) {<span class="tl-line" [class.tl-line-done]="step.done"></span>}
+			}
+		</div>
+	</div>
+
+	<!-- AI Disclosure -->
+	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+		<div class="ai-disc-ico">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /><circle cx="12" cy="3" r="1.5" /><circle cx="12" cy="21" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" /></svg>
+		</div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI، تحليل التفاوض</div>
+			<p class="ai-disc-txt">
+				الفارق الحالي {{ priceDiff() | number }} ريال — نقطة تسوية مقترحة عند
+				<b>{{ suggestedSettlement() | number }} ريال</b>
+				<span class="ai-disc-badge">القرار النهائي لك</span>
+			</p>
+		</div>
+	</div>
+
+	<!-- Current terms comparison -->
+	<div class="sec-ttl">مقارنة الشروط الحالية</div>
+	<div class="nego-compare">
+		<div class="cmp-col cmp-client">
+			<div class="cmp-lbl">آخر عرض من طالب الخدمة</div>
+			<div class="cmp-val">{{ (latestClientRound()?.price || 0) | number }} <small>ريال</small></div>
+		</div>
+		<div class="cmp-arrow">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+		</div>
+		<div class="cmp-col cmp-provider">
+			<div class="cmp-lbl">آخر عرض منك</div>
+			<div class="cmp-val">{{ (latestProviderRound()?.price || 0) | number }} <small>ريال</small></div>
+		</div>
+	</div>
+
+	<!-- Negotiation history -->
+	<div class="sec-ttl">سجل التفاوض <span class="cnt">{{ rounds().length }} جولات</span></div>
+	<div class="nego-thread">
+		@for (round of sortedRounds(); track round.id) {
+		<div class="nego-round" [class.round-client]="round.actor === 'client'" [class.round-provider]="round.actor === 'provider'">
+			<div class="round-hd">
+				<span class="round-av" [class.av-client]="round.actor === 'client'">{{ round.actor === 'client' ? 'ع' : 'أ' }}</span>
+				<div class="round-who">
+					<b>{{ round.actorLabel }}</b>
+					<span class="round-tag">جولة {{ round.roundNumber }}</span>
+					@if (round.isUrgent) {<span class="round-urgent">⚡ عاجل</span>}
+				</div>
+				<span class="round-time">{{ round.timestamp | date:'MMM d, HH:mm' }}</span>
+			</div>
+			<div class="round-price">{{ round.price | number }} ريال @if (round.duration) {<span class="round-dur"> · {{ round.duration }}</span>}</div>
+			@if (round.message) {<div class="round-msg">{{ round.message }}</div>}
+			@if (round.aiNote) {
+			<div class="round-ai">
+				<div class="round-ai-lbl">تحليل AI @if (round.aiConfidence) {<span class="round-ai-conf">{{ round.aiConfidence }}%</span>}</div>
+				<div class="round-ai-txt">{{ round.aiNote }}</div>
+			</div>
+			}
+		</div>
+		}
+	</div>
+
+	<!-- Counter-offer composer -->
+	<div class="sec-ttl">تقديم عرض مضاد</div>
+	<div class="nego-card">
+		<div class="composer-grid">
+			<div class="inp-group">
+				<label class="inp-label">السعر المقترح (ريال)<span class="req">*</span></label>
+				<input type="number" class="inp-field" min="0" [value]="counterPrice()" (input)="setCounterPrice($any($event.target).value)" placeholder="مثال: 14800">
+			</div>
+			<div class="inp-group">
+				<label class="inp-label">مدة التنفيذ (اختياري)</label>
+				<input type="text" class="inp-field" [ngModel]="counterDuration()" (ngModelChange)="counterDuration.set($event)" placeholder="مثال: 25 يوم">
+			</div>
+		</div>
+		<div class="inp-group">
+			<label class="inp-label">رسالتك لطالب الخدمة<span class="req">*</span></label>
+			<textarea class="inp-field" rows="3" [ngModel]="counterMessage()" (ngModelChange)="counterMessage.set($event)" placeholder="اشرح سبب عرضك المضاد باختصار..."></textarea>
+		</div>
+		@if (formError()) {<div class="form-error">{{ formError() }}</div>}
+		<div class="composer-actions">
+			<button type="button" class="btn-pri" [disabled]="submitting()" (click)="submitCounterOffer()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+				{{ submitting() ? 'جارٍ الإرسال...' : 'إرسال العرض المضاد' }}
+			</button>
+			<button type="button" class="btn-gh" (click)="openConversation()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+				مراسلة طالب الخدمة
+			</button>
+		</div>
+	</div>
+
+	<!-- Accept / Reject decision -->
+	<div class="sec-ttl">قرارك</div>
+	<div class="nego-card">
+		<div class="decision-row">
+			<button type="button" class="btn-accept" (click)="openAcceptConfirm()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+				قبول آخر عرض والانتقال للتوقيع
+			</button>
+			<button type="button" class="btn-reject" (click)="openRejectConfirm()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+				إنهاء التفاوض
+			</button>
+		</div>
+		<div class="decision-note">عند القبول ستنتقل مباشرة لشاشة توقيع العقد بالسعر المتفق عليه. إنهاء التفاوض يعيدك إلى قائمة عروضك دون إلزام أي طرف.</div>
+	</div>
+
+	@if (actionSuccess()) {
+	<div class="toast">
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+		{{ actionSuccess() }}
+	</div>
+	}
+
+	<!-- Accept confirm modal -->
+	@if (showAcceptConfirm()) {
+	<div class="modal-ov" (click)="closeAcceptConfirm()">
+		<div class="modal-box" (click)="$event.stopPropagation()">
+			<div class="modal-ring modal-ring-ok">
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+			</div>
+			<h3>تأكيد قبول العرض</h3>
+			<p>سيُعتمد السعر {{ (latestClientRound()?.price || 0) | number }} ريال وتنتقل إلى توقيع العقد.</p>
+			<div class="modal-acts">
+				<button type="button" class="btn-gh" (click)="closeAcceptConfirm()">تراجع</button>
+				<button type="button" class="btn-pri" (click)="confirmAccept()">تأكيد ومتابعة</button>
+			</div>
+		</div>
+	</div>
+	}
+
+	<!-- Reject confirm modal -->
+	@if (showRejectConfirm()) {
+	<div class="modal-ov" (click)="closeRejectConfirm()">
+		<div class="modal-box" (click)="$event.stopPropagation()">
+			<div class="modal-ring modal-ring-warn">
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+			</div>
+			<h3>إنهاء التفاوض؟</h3>
+			<p>لن يُطبَّق أي اتفاق وسيُغلق هذا العرض. لا يمكن التراجع عن هذا الإجراء.</p>
+			<div class="modal-acts">
+				<button type="button" class="btn-gh" (click)="closeRejectConfirm()">تراجع</button>
+				<button type="button" class="btn-reject-confirm" (click)="confirmReject()">تأكيد الإنهاء</button>
+			</div>
+		</div>
+	</div>
+	}
+
+	}
+</div>

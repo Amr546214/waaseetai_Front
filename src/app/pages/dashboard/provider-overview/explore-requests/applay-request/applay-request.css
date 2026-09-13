@@ -8,6 +8,20 @@
 .ai-disc-txt{font-size:12.5px;color:#A8B2D1}
 .ai-disc-badge{display:inline-flex;background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.28);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:#A56BE0;margin-inline-end:4px}
 
+/* Light mode — AI disclosure banner (matches app-wide .ai-disc-* convention) */
+:host-context(body.light) .ai-disc-txt,
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt{ color: #475569; }
+:host-context(body.light) .ai-disc-lbl,
+:host-context(body.light-theme) .ai-disc-lbl,
+:host-context(.light-theme) .ai-disc-lbl,
+:host-context(.theme-light) .ai-disc-lbl{ color: #6B27A5; }
+:host-context(body.light) .ai-disc-badge,
+:host-context(body.light-theme) .ai-disc-badge,
+:host-context(.light-theme) .ai-disc-badge,
+:host-context(.theme-light) .ai-disc-badge{ color: #6B27A5; }
+
 /* ===== Company Team Assignment (P-CO-RQ-002) ===== */
 .co-assign-card:hover { border-color: rgba(43, 212, 199, .18) !important; }
 .co-assign-selected { border-color: rgba(43, 212, 199, .35) !important; background: linear-gradient(135deg, rgba(43, 212, 199, .06), rgba(255, 255, 255, .01)) !important; }
