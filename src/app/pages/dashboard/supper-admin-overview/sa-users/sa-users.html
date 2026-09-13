@@ -107,9 +107,9 @@
           <div class="fr-period-lbl">Risk Score (AI)</div>
           <div class="date-segs">
             <button class="ds" [class.active]="selectedRiskLevel() === 'ALL'" (click)="setRiskFilter('ALL')">الكل</button>
-            <button class="ds" [class.active]="selectedRiskLevel() === 'LOW'" (click)="setRiskFilter('LOW')" style="color:#0FA99A">منخفض &lt;30</button>
-            <button class="ds" [class.active]="selectedRiskLevel() === 'MEDIUM'" (click)="setRiskFilter('MEDIUM')" style="color:#FFB400">متوسط 30-70</button>
-            <button class="ds" [class.active]="selectedRiskLevel() === 'HIGH'" (click)="setRiskFilter('HIGH')" style="color:#FF8C69">مرتفع &gt;70</button>
+            <button class="ds txt-green" [class.active]="selectedRiskLevel() === 'LOW'" (click)="setRiskFilter('LOW')">منخفض &lt;30</button>
+            <button class="ds txt-amber" [class.active]="selectedRiskLevel() === 'MEDIUM'" (click)="setRiskFilter('MEDIUM')">متوسط 30-70</button>
+            <button class="ds txt-coral" [class.active]="selectedRiskLevel() === 'HIGH'" (click)="setRiskFilter('HIGH')">مرتفع &gt;70</button>
           </div>
           <div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">آخر نشاط</div>
           <div class="date-segs">
@@ -184,27 +184,27 @@
                   <td>
                     <span class="status-dot" [ngClass]="SC[u.status] || 's-active'">{{ SL[u.status] || u.status }}</span>
                   </td>
-                  <td style="color:#6B7699;font-size:12px">{{ u.last }}</td>
+                  <td style="font-size:12px" class="txt-muted">{{ u.last }}</td>
 
                   <!-- Dynamic Data Cells -->
                   @switch (selectedAccountType()) {
                     @case ('sk-ind') {
-                      <td style="font-weight:700;color:#2BD4C7">{{ u.spending || '0' }} ر.س</td>
-                      <td style="font-weight:700;color:#fff">{{ u.projects }}</td>
-                      <td style="font-weight:800;color:#5DA0FF">{{ u.requests || 0 }}</td>
-                      <td style="color:#6B7699;font-size:12px">{{ u.lastReq || '-' }}</td>
-                      <td style="color:#A8B2D1;font-size:12px">—</td>
+                      <td style="font-weight:700" class="txt-teal">{{ u.spending || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-white">{{ u.projects }}</td>
+                      <td style="font-weight:800" class="txt-blue">{{ u.requests || 0 }}</td>
+                      <td style="font-size:12px" class="txt-muted">{{ u.lastReq || '-' }}</td>
+                      <td style="font-size:12px" class="txt-slate">—</td>
                     }
                     @case ('sk-co') {
-                      <td style="font-weight:700;color:#FFB400">{{ u.monthlyBudget || '0' }} ر.س</td>
-                      <td style="font-weight:700;color:#fff">{{ u.projects }}</td>
-                      <td style="color:#fff;font-weight:600">{{ u.manager || '-' }}</td>
-                      <td style="font-weight:700;color:#A8B2D1">{{ u.teamSize || '0' }} موظف</td>
-                      <td style="font-weight:700;color:#FFB400">{{ u.monthlyBudget || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-white">{{ u.projects }}</td>
+                      <td style="font-weight:600" class="txt-white">{{ u.manager || '-' }}</td>
+                      <td style="font-weight:700" class="txt-slate">{{ u.teamSize || '0' }} موظف</td>
+                      <td style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} ر.س</td>
                     }
                     @case ('pr-ind') {
-                      <td style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</td>
-                      <td style="font-weight:800;color:#FFB400">{{ u.rating || '0' }} ★</td>
+                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:800" class="txt-amber">{{ u.rating || '0' }} ★</td>
                       <td>
                         <span style="font-size:11px;font-weight:800;padding:2px 9px;border-radius:20px;" 
                               [style.background]="LB[u.level || 'Bronze'] || 'rgba(255,255,255,.06)'" 
@@ -212,51 +212,51 @@
                           {{ u.level || 'Bronze' }}
                         </span>
                       </td>
-                      <td style="color:#5DA0FF;font-weight:600">{{ u.specialty || '-' }}</td>
-                      <td style="font-weight:700;color:#fff">{{ u.projects }}</td>
-                      <td style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:600" class="txt-blue">{{ u.specialty || '-' }}</td>
+                      <td style="font-weight:700" class="txt-white">{{ u.projects }}</td>
+                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</td>
                     }
                     @case ('pr-co') {
-                      <td style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</td>
-                      <td style="font-weight:800;color:#fff">{{ u.providerCount || '0' }} مقدم</td>
-                      <td style="color:#A56BE0;font-size:12px">{{ u.specialties || '-' }}</td>
-                      <td style="font-weight:800;color:#fff">{{ u.activeProjects || '0' }}</td>
-                      <td style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:800" class="txt-white">{{ u.providerCount || '0' }} مقدم</td>
+                      <td style="font-size:12px" class="txt-purple">{{ u.specialties || '-' }}</td>
+                      <td style="font-weight:800" class="txt-white">{{ u.activeProjects || '0' }}</td>
+                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</td>
                     }
                     @case ('affiliate') {
-                      <td style="font-weight:700;color:#2BD4C7">{{ u.pendingCommission || '0' }} ر.س</td>
-                      <td style="font-weight:700;color:#5DA0FF">مستوى {{ u.affiliateLevel || 1 }}</td>
-                      <td style="font-weight:800;color:#fff">{{ u.totalReferrals || 0 }}</td>
-                      <td style="color:#A8B2D1;font-size:12px">-</td>
-                      <td style="color:#A8B2D1;font-size:12px">-</td>
+                      <td style="font-weight:700" class="txt-teal">{{ u.pendingCommission || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-blue">مستوى {{ u.affiliateLevel || 1 }}</td>
+                      <td style="font-weight:800" class="txt-white">{{ u.totalReferrals || 0 }}</td>
+                      <td style="font-size:12px" class="txt-slate">-</td>
+                      <td style="font-size:12px" class="txt-slate">-</td>
                     }
                     @case ('admin') {
-                      <td style="color:#FFB400;font-weight:700">{{ u.role || 'مدير' }}</td>
-                      <td style="color:#6B7699;font-size:11px">كل الصفحات</td>
-                      <td style="font-weight:800;color:#fff">{{ u.tasksCount || 0 }}</td>
-                      <td style="font-weight:700;color:#0FA99A">-</td>
-                      <td style="color:#6B7699;font-size:11px">-</td>
+                      <td style="font-weight:700" class="txt-amber">{{ u.role || 'مدير' }}</td>
+                      <td style="font-size:11px" class="txt-muted">كل الصفحات</td>
+                      <td style="font-weight:800" class="txt-white">{{ u.tasksCount || 0 }}</td>
+                      <td style="font-weight:700" class="txt-green">-</td>
+                      <td style="font-size:11px" class="txt-muted">-</td>
                     }
                     @default {
                       <td>
-                        @if (u.type === 'sk-ind') { <span style="font-weight:700;color:#2BD4C7">{{ u.spending || '0' }} ر.س</span> }
-                        @if (u.type === 'sk-co') { <span style="font-weight:700;color:#FFB400">{{ u.monthlyBudget || '0' }} ر.س</span> }
-                        @if (u.type === 'pr-ind' || u.type === 'pr-co') { <span style="font-weight:700;color:#0FA99A">{{ u.revenue || '0' }} ر.س</span> }
-                        @if (u.type === 'affiliate') { <span style="font-weight:700;color:#2BD4C7">{{ u.pendingCommission || '0' }} ر.س</span> }
-                        @if (u.type === 'admin') { <span style="color:#FFB400;font-weight:700">{{ u.role || 'مدير' }}</span> }
+                        @if (u.type === 'sk-ind') { <span style="font-weight:700" class="txt-teal">{{ u.spending || '0' }} ر.س</span> }
+                        @if (u.type === 'sk-co') { <span style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} ر.س</span> }
+                        @if (u.type === 'pr-ind' || u.type === 'pr-co') { <span style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</span> }
+                        @if (u.type === 'affiliate') { <span style="font-weight:700" class="txt-teal">{{ u.pendingCommission || '0' }} ر.س</span> }
+                        @if (u.type === 'admin') { <span style="font-weight:700" class="txt-amber">{{ u.role || 'مدير' }}</span> }
                       </td>
                       <td>
-                        @if (u.type === 'sk-ind') { <span style="color:#6B7699;font-size:11px">{{ u.requests || 0 }} طلب</span> }
-                        @if (u.type === 'sk-co') { <span style="color:#A8B2D1;font-size:11px">{{ u.teamSize || '?' }} موظف</span> }
+                        @if (u.type === 'sk-ind') { <span style="font-size:11px" class="txt-muted">{{ u.requests || 0 }} طلب</span> }
+                        @if (u.type === 'sk-co') { <span style="font-size:11px" class="txt-slate">{{ u.teamSize || '?' }} موظف</span> }
                         @if (u.type === 'pr-ind') { 
-                          <span style="color:#FFB400;font-weight:700">{{ u.rating || '0' }} ★</span> 
+                          <span style="font-weight:700" class="txt-amber">{{ u.rating || '0' }} ★</span> 
                           <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:12px;" [style.background]="LB[u.level || 'Bronze']" [style.color]="LC[u.level || 'Bronze'] || '#fff'">{{ u.level || 'Bronze' }}</span>
                         }
-                        @if (u.type === 'pr-co') { <span style="color:#A56BE0;font-size:11px">{{ u.providerCount || '0' }} مقدم</span> }
-                        @if (u.type === 'affiliate') { <span style="color:#5DA0FF;font-size:11px">مستوى {{ u.affiliateLevel || 1 }}</span> }
-                        @if (u.type === 'admin') { <span style="color:#6B7699;font-size:11px">{{ u.tasksCount || 0 }} مهام</span> }
+                        @if (u.type === 'pr-co') { <span style="font-size:11px" class="txt-purple">{{ u.providerCount || '0' }} مقدم</span> }
+                        @if (u.type === 'affiliate') { <span style="font-size:11px" class="txt-blue">مستوى {{ u.affiliateLevel || 1 }}</span> }
+                        @if (u.type === 'admin') { <span style="font-size:11px" class="txt-muted">{{ u.tasksCount || 0 }} مهام</span> }
                       </td>
-                      <td style="font-weight:700;color:#fff">{{ u.projects }}</td>
+                      <td style="font-weight:700" class="txt-white">{{ u.projects }}</td>
                     }
                   }
 
@@ -283,7 +283,7 @@
                             </button>
                             <button type="button" class="act-drop-item"><svg aria-hidden="true"><use href="#i-mail"></use></svg>إنذار رسمي</button>
                             <div class="act-drop-sep"></div>
-                            <button type="button" class="act-drop-item" style="color: #FF4C4C" (click)="openDeleteModal(u)"><svg aria-hidden="true"><use href="#i-trash"></use></svg>حذف الحساب</button>
+                            <button type="button" class="act-drop-item txt-red" (click)="openDeleteModal(u)"><svg aria-hidden="true"><use href="#i-trash"></use></svg>حذف الحساب</button>
                           </div>
                         }
                       </div>
@@ -306,7 +306,7 @@
             <svg aria-hidden="true"><use href="#i-chevron-right"></use></svg>
           </button>
 
-          <span style="padding:0 8px;color:#A8B2D1;font-size:13px;line-height:30px">
+          <span style="padding:0 8px;font-size:13px;line-height:30px" class="txt-slate">
             صفحة {{ currentPage() }} من {{ totalPages() || 1 }}
           </span>
 

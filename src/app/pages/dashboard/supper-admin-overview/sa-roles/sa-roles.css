@@ -23,8 +23,8 @@
 :host-context(.theme-light) .rl-btn-ghost { background: rgba(7,13,36,.05); border-color: rgba(7,13,36,.12); color: #475569; }
 
 /* Role cards */
-.rl-roles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 18px; }
-.rl-role-card { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid; border-radius: 14px; padding: 16px 18px; }
+.rl-roles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.rl-role-card { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid; border-radius: 13px; padding: 14px 16px; }
 
 :host-context(body.light-theme) .rl-role-card,
 :host-context(body.theme-light) .rl-role-card,
@@ -40,14 +40,14 @@
 :host-context(.light-theme) .rl-role-name,
 :host-context(.theme-light) .rl-role-name { color: #1E293B; }
 
-.rl-role-edit { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 8px; font-size: 11px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #A8B2D1; cursor: pointer; font-family: inherit; }
+.rl-role-edit { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; font-size: 11px; font-weight: 700; border-radius: 9px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #A8B2D1; cursor: pointer; font-family: inherit; }
 .rl-role-edit svg { width: 10px; height: 10px; }
 .rl-role-edit:hover { background: rgba(255,255,255,.1); color: #fff; }
 
 :host-context(body.light-theme) .rl-role-edit,
 :host-context(body.theme-light) .rl-role-edit,
 :host-context(.light-theme) .rl-role-edit,
-:host-context(.theme-light) .rl-role-edit { background: #F1F5F9; border-color: #E2E8F0; color: #475569; }
+:host-context(.theme-light) .rl-role-edit { background: rgba(7,13,36,.05); border-color: rgba(7,13,36,.12); color: #475569; }
 
 .rl-role-desc { font-size: 12px; color: #6B7699; margin-bottom: 8px; line-height: 1.5; }
 .rl-role-meta { display: flex; gap: 10px; }
@@ -55,7 +55,7 @@
 .rl-role-meta span:last-child { font-size: 11px; color: #6B7699; }
 
 /* Matrix */
-.rl-matrix-card { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
+.rl-matrix-card { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
 
 :host-context(body.light-theme) .rl-matrix-card,
 :host-context(body.theme-light) .rl-matrix-card,
@@ -71,14 +71,14 @@
 :host-context(.theme-light) .rl-matrix-hdr { color: #1E293B; border-bottom-color: #E2E8F0; }
 
 .rl-table-wrap { overflow-x: auto; }
-.rl-table { width: 100%; border-collapse: collapse; min-width: 640px; }
-.rl-table th { font-size: 11px; font-weight: 800; padding: 10px 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,.07); white-space: nowrap; }
+.rl-table { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 12px; }
+.rl-table th { font-size: 10px; font-weight: 800; color: #6B7699; letter-spacing: .05em; padding: 9px 12px; text-align: center; background: rgba(255,255,255,.02); border-bottom: 1px solid rgba(255,255,255,.07); white-space: nowrap; }
 .rl-th-perm { text-align: right !important; color: #6B7699; }
-.rl-table td { padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,.04); }
+.rl-table td { padding: 9px 12px; text-align: center; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,.04); }
 .rl-td-perm { text-align: right; font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; }
 .rl-td-check svg { width: 14px; height: 14px; }
 .rl-check-yes { color: #0FA99A; }
-.rl-check-no { color: rgba(255,255,255,.15); }
+.rl-check-no { color: rgba(255,255,255,.12); }
 
 :host-context(body.light-theme) .rl-table th,
 :host-context(body.theme-light) .rl-table th,
@@ -128,7 +128,7 @@
 :host-context(body.light-theme) .rl-modal,
 :host-context(body.theme-light) .rl-modal,
 :host-context(.light-theme) .rl-modal,
-:host-context(.theme-light) .rl-modal { background: #fff; border-color: #E2E8F0; }
+:host-context(.theme-light) .rl-modal { background: #fff; border-color: #E7EAF1; }
 
 .rl-modal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .rl-modal-hdr h3 { font-size: 14px; color: #fff; margin: 0; }

@@ -17,10 +17,10 @@
   </div>
 
   <div class="tm-kpi-row">
-    <div class="tm-kpi"><div class="tm-kpi-lbl">إجمالي الفريق</div><div class="tm-kpi-val" style="color:#2BD4C7">{{ totalCount() }}</div><div class="tm-kpi-sub">{{ onlineCount() }} نشط · {{ pendingCount() }} دعوة معلقة</div></div>
-    <div class="tm-kpi"><div class="tm-kpi-lbl">نشطون الآن</div><div class="tm-kpi-val" style="color:#0FA99A">{{ onlineCount() }}</div><div class="tm-kpi-sub">من {{ totalCount() }} عضو</div></div>
-    <div class="tm-kpi"><div class="tm-kpi-lbl">مهام مفتوحة</div><div class="tm-kpi-val" style="color:#FFB400">{{ openTasksCount() }}</div><div class="tm-kpi-sub">عبر الفريق بالكامل</div></div>
-    <div class="tm-kpi"><div class="tm-kpi-lbl">متوسط الأداء</div><div class="tm-kpi-val" style="color:#A56BE0">{{ avgScore() }}%</div><div class="tm-kpi-sub">هذا الشهر</div></div>
+    <div class="tm-kpi"><div class="tm-kpi-lbl">إجمالي الفريق</div><div class="tm-kpi-val txt-teal">{{ totalCount() }}</div><div class="tm-kpi-sub">{{ onlineCount() }} نشط · {{ pendingCount() }} دعوة معلقة</div></div>
+    <div class="tm-kpi"><div class="tm-kpi-lbl">نشطون الآن</div><div class="tm-kpi-val txt-green">{{ onlineCount() }}</div><div class="tm-kpi-sub">من {{ totalCount() }} عضو</div></div>
+    <div class="tm-kpi"><div class="tm-kpi-lbl">مهام مفتوحة</div><div class="tm-kpi-val txt-amber">{{ openTasksCount() }}</div><div class="tm-kpi-sub">عبر الفريق بالكامل</div></div>
+    <div class="tm-kpi"><div class="tm-kpi-lbl">متوسط الأداء</div><div class="tm-kpi-val txt-purple">{{ avgScore() }}%</div><div class="tm-kpi-sub">هذا الشهر</div></div>
   </div>
 
   <div class="tm-tabs">
@@ -51,10 +51,10 @@
   </div>
 
   <div class="tm-workload">
-    <div class="tm-wl-box"><div class="tm-wl-val" style="color:#FF8C69">{{ heavyLoad() }}</div><div class="tm-wl-lbl">ثقيل العبء (&gt;8 مهام)</div></div>
-    <div class="tm-wl-box"><div class="tm-wl-val" style="color:#FFB400">{{ mediumLoad() }}</div><div class="tm-wl-lbl">متوسط العبء (4-7)</div></div>
-    <div class="tm-wl-box"><div class="tm-wl-val" style="color:#0FA99A">{{ lightLoad() }}</div><div class="tm-wl-lbl">خفيف العبء (&lt;4)</div></div>
-    <div class="tm-wl-box"><div class="tm-wl-val" style="color:#6B7699">{{ avgTasksPerMember() }}</div><div class="tm-wl-lbl">متوسط مهام/موظف</div></div>
+    <div class="tm-wl-box"><div class="tm-wl-val txt-coral">{{ heavyLoad() }}</div><div class="tm-wl-lbl">ثقيل العبء (&gt;8 مهام)</div></div>
+    <div class="tm-wl-box"><div class="tm-wl-val txt-amber">{{ mediumLoad() }}</div><div class="tm-wl-lbl">متوسط العبء (4-7)</div></div>
+    <div class="tm-wl-box"><div class="tm-wl-val txt-green">{{ lightLoad() }}</div><div class="tm-wl-lbl">خفيف العبء (&lt;4)</div></div>
+    <div class="tm-wl-box"><div class="tm-wl-val txt-muted">{{ avgTasksPerMember() }}</div><div class="tm-wl-lbl">متوسط مهام/موظف</div></div>
   </div>
 
   <div class="tm-grid">
@@ -80,8 +80,8 @@
           </div>
           <div class="tm-dept">{{ m.dept }}</div>
           <div class="tm-stats">
-            <div class="tm-stat"><div class="tm-stat-val" style="color:#2BD4C7">{{ m.tasksOpen }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
-            <div class="tm-stat"><div class="tm-stat-val" style="color:#0FA99A">{{ m.solved }}</div><div class="tm-stat-lbl">مُحلَّلة</div></div>
+            <div class="tm-stat"><div class="tm-stat-val txt-teal">{{ m.tasksOpen }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
+            <div class="tm-stat"><div class="tm-stat-val txt-green">{{ m.solved }}</div><div class="tm-stat-lbl">مُحلَّلة</div></div>
             <div class="tm-stat"><div class="tm-stat-val" [style.color]="scoreColor(m.score)">{{ m.score }}%</div><div class="tm-stat-lbl">أداء</div></div>
           </div>
         </button>
@@ -113,8 +113,8 @@
           <div class="tm-detail-row"><span>تاريخ الانضمام</span><span>{{ m.joined }}</span></div>
           <div class="tm-detail-row"><span>الحالة</span><span [style.color]="m.online ? '#0FA99A' : '#6B7699'">{{ m.online ? 'نشط الآن' : 'غير متاح' }}</span></div>
           <div class="tm-modal-stats">
-            <div class="tm-stat"><div class="tm-stat-val" style="color:#2BD4C7">{{ m.tasksOpen }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
-            <div class="tm-stat"><div class="tm-stat-val" style="color:#0FA99A">{{ m.solved }}</div><div class="tm-stat-lbl">مُحلَّلة</div></div>
+            <div class="tm-stat"><div class="tm-stat-val txt-teal">{{ m.tasksOpen }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
+            <div class="tm-stat"><div class="tm-stat-val txt-green">{{ m.solved }}</div><div class="tm-stat-lbl">مُحلَّلة</div></div>
             <div class="tm-stat"><div class="tm-stat-val" [style.color]="scoreColor(m.score)">{{ m.score }}%</div><div class="tm-stat-lbl">أداء</div></div>
           </div>
         </div>
