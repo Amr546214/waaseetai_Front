@@ -14,10 +14,10 @@
 
 	<!-- KPIs -->
 	<div class="kpi-row">
-		<div class="kpi-c"><div class="kpi-v" style="color:var(--teal-txt,#2BD4C7)">2</div><div class="kpi-l">أدوار مقدمي الخدمات</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#A56BE0">4</div><div class="kpi-l">أدوار الموظفين</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#2ECC8A">11</div><div class="kpi-l">إجمالي أعضاء الفريق</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#FFB400">اليوم</div><div class="kpi-l">آخر تعديل</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-teal">2</div><div class="kpi-l">أدوار مقدمي الخدمات</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-purple">4</div><div class="kpi-l">أدوار الموظفين</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-green-br">11</div><div class="kpi-l">إجمالي أعضاء الفريق</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-amber">اليوم</div><div class="kpi-l">آخر تعديل</div></div>
 	</div>
 
 	<!-- Tabs -->
@@ -60,7 +60,7 @@
 						</div>
 						}
 						@if (role.isProtected) {
-						<span style="font-size:10.5px;color:var(--txt-2,#A8B2D1)">للقراءة فقط</span>
+						<span style="font-size:10.5px" class="txt-slate">للقراءة فقط</span>
 						}
 					</div>
 				</div>
@@ -93,9 +93,9 @@
 
 			@if (role.isProtected) {
 			<div class="perm-readonly">
-				<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal-txt,#2BD4C7);margin-bottom:10px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+				<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:10px" class="txt-teal"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
 				<div class="perm-readonly-title">دور محمي من النظام</div>
-				<p class="perm-readonly-text">صلاحيات <strong style="color:var(--teal-txt,#2BD4C7)">{{ role.name }}</strong> ثابتة — ينفذ المشاريع المُسندة ويرفع التسليمات ويتواصل داخل مساحة العمل فقط.</p>
+				<p class="perm-readonly-text">صلاحيات <strong class="txt-teal">{{ role.name }}</strong> ثابتة — ينفذ المشاريع المُسندة ويرفع التسليمات ويتواصل داخل مساحة العمل فقط.</p>
 			</div>
 			} @else {
 			<div class="perm-cats">

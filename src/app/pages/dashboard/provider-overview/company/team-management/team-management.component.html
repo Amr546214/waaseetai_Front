@@ -18,11 +18,11 @@
 
 	<!-- KPIs -->
 	<div class="kpi-row">
-		<div class="kpi-c"><div class="kpi-v" style="color:var(--teal-txt,#2BD4C7)">8</div><div class="kpi-l">مقدمو خدمة نشطون</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#A56BE0">3</div><div class="kpi-l">موظفون</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#FFB400">2</div><div class="kpi-l">دعوة معلقة</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#5DA0FF">14</div><div class="kpi-l">مشروع نشط مُسند</div></div>
-		<div class="kpi-c"><div class="kpi-v" style="color:#2ECC8A">87,400</div><div class="kpi-l">إيرادات هذا الشهر (ريال)</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-teal">8</div><div class="kpi-l">مقدمو خدمة نشطون</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-purple">3</div><div class="kpi-l">موظفون</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-amber">2</div><div class="kpi-l">دعوة معلقة</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-blue">14</div><div class="kpi-l">مشروع نشط مُسند</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-green-br">87,400</div><div class="kpi-l">إيرادات هذا الشهر (ريال)</div></div>
 	</div>
 
 	<!-- Notice -->
@@ -78,12 +78,12 @@
 			@if (m.type === 'provider') {
 			<div class="mem-stats">
 				<div class="mem-stat"><div class="mem-stat-v">{{ m.projects }}</div><div class="mem-stat-l">مشروع</div></div>
-				<div class="mem-stat"><div class="mem-stat-v" style="color:#2ECC8A">{{ m.revenue.toLocaleString() }}</div><div class="mem-stat-l">ريال</div></div>
-				<div class="mem-stat"><div class="mem-stat-v" style="color:#FFB400">{{ m.activeProjects }}</div><div class="mem-stat-l">نشط</div></div>
-				<div class="mem-stat"><div class="mem-stat-v" style="color:var(--teal-txt,#2BD4C7)">{{ m.rating }}</div><div class="mem-stat-l">تقييم</div></div>
+				<div class="mem-stat"><div class="mem-stat-v txt-green-br">{{ m.revenue.toLocaleString() }}</div><div class="mem-stat-l">ريال</div></div>
+				<div class="mem-stat"><div class="mem-stat-v txt-amber">{{ m.activeProjects }}</div><div class="mem-stat-l">نشط</div></div>
+				<div class="mem-stat"><div class="mem-stat-v txt-teal">{{ m.rating }}</div><div class="mem-stat-l">تقييم</div></div>
 			</div>
 			<div class="mem-share">
-				<div class="mem-share-hd"><span>حصة الإيرادات</span><span style="color:var(--teal-txt,#2BD4C7)">{{ m.revenueShare }}%</span></div>
+				<div class="mem-share-hd"><span>حصة الإيرادات</span><span class="txt-teal">{{ m.revenueShare }}%</span></div>
 				<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" [style.width.%]="m.revenueShare" [style.background]="m.avatarBg"></div></div></div>
 			</div>
 			<div class="mem-tags">
