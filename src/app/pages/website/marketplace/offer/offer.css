@@ -323,12 +323,12 @@ footer{background:rgba(7,13,36,.85);border-top:1px solid var(--border);padding:4
   display: flex;
   gap: 0;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   margin-top: 20px;
 }
 
 .page-tab-btn {
-  padding: 11px 20px;
+  padding: 12px 20px;
   font-size: 13px;
   font-weight: 700;
   color: var(--txt-3);
@@ -342,20 +342,17 @@ footer{background:rgba(7,13,36,.85);border-top:1px solid var(--border);padding:4
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.3s ease;
+  transition: all 0.15s;
 }
 
 .page-tab-btn:hover {
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--txt-1);
+  color: var(--txt);
 }
 
 .page-tab-btn.active {
   color: var(--teal);
   border-bottom-color: var(--teal);
   font-weight: 800;
-  background: linear-gradient(to top, rgba(43,212,199,0.08) 0%, transparent 100%);
-  text-shadow: 0 0 8px rgba(43,212,199,0.3);
 }
 
 .tab-badge {
@@ -409,7 +406,7 @@ footer{background:rgba(7,13,36,.85);border-top:1px solid var(--border);padding:4
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
-  color: var(--txt-1);
+  color: var(--txt);
   font-size: 13px;
   outline: none;
   transition: border-color 0.2s, background 0.2s;
@@ -461,7 +458,7 @@ footer{background:rgba(7,13,36,.85);border-top:1px solid var(--border);padding:4
   padding: 16px 20px;
   background: transparent;
   border: none;
-  color: var(--txt-1);
+  color: var(--txt);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -829,21 +826,6 @@ footer{background:rgba(7,13,36,.85);border-top:1px solid var(--border);padding:4
 :host-context(.theme-light) footer {
   background: rgba(246,248,252,.97);
   border-top-color: #D8DFEC;
-}
-
-:host-context(body.light-theme) .page-tab-btn:hover,
-:host-context(body.theme-light) .page-tab-btn:hover,
-:host-context(.light-theme) .page-tab-btn:hover,
-:host-context(.theme-light) .page-tab-btn:hover {
-  background: rgba(7,13,36,.03);
-}
-
-:host-context(body.light-theme) .page-tab-btn.active,
-:host-context(body.theme-light) .page-tab-btn.active,
-:host-context(.light-theme) .page-tab-btn.active,
-:host-context(.theme-light) .page-tab-btn.active {
-  background: linear-gradient(to top, rgba(15,138,127,.08) 0%, transparent 100%);
-  text-shadow: 0 0 8px rgba(15,138,127,.25);
 }
 
 :host-context(body.light-theme) .tab-badge,

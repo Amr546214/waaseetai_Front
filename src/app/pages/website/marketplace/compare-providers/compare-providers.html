@@ -38,12 +38,12 @@
     </div>
 
     @if (loading()) {
-      <div style="text-align:center;padding:60px 0;color:var(--txt-3);font-size:13px">جاري تحميل بيانات المقارنة...</div>
+      <div style="text-align:center;padding:60px 0;font-size:13px" class="txt-muted">جاري تحميل بيانات المقارنة...</div>
     } @else if (!providers().length) {
       <div class="empty-compare">
         <div class="empty-compare-ico"><svg aria-hidden="true" style="width:28px;height:28px"><use href="#ws-compare"></use></svg></div>
-        <div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:6px">لا يوجد مقدمو خدمة للمقارنة بعد</div>
-        <p style="font-size:13px;color:var(--txt-3);margin-bottom:16px">تصفح السوق واختر مقدمَي خدمة أو ثلاثة لمقارنتهم جنباً إلى جنب</p>
+        <div style="font-size:15px;font-weight:800;margin-bottom:6px" class="txt-white">لا يوجد مقدمو خدمة للمقارنة بعد</div>
+        <p style="font-size:13px;margin-bottom:16px" class="txt-muted">تصفح السوق واختر مقدمَي خدمة أو ثلاثة لمقارنتهم جنباً إلى جنب</p>
         <a routerLink="/marketplace" class="empty-cta">تصفح مقدمي الخدمة</a>
       </div>
     } @else {
@@ -130,19 +130,19 @@
         <div class="summary-grid">
           @if (topRated(); as t) {
             <div class="summary-item">
-              <div class="summary-item-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2)"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-star"></use></svg></div>
+              <div class="summary-item-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2)"><svg aria-hidden="true" style="width:13px;height:13px" class="txt-kahr"><use href="#ws-star"></use></svg></div>
               <div><div class="summary-item-label">أعلى تقييم</div><div class="summary-item-val">{{ t.rating }} ★ — {{ t.fullName }}</div></div>
             </div>
           }
           @if (mostExperienced(); as e) {
             <div class="summary-item">
-              <div class="summary-item-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--blue-txt)"><use href="#ws-provider"></use></svg></div>
+              <div class="summary-item-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="width:13px;height:13px" class="txt-blue"><use href="#ws-provider"></use></svg></div>
               <div><div class="summary-item-label">أكثر خبرة</div><div class="summary-item-val">{{ e.completedProjects }} مشروع — {{ e.fullName }}</div></div>
             </div>
           }
           @if (cheapest(); as c) {
             <div class="summary-item">
-              <div class="summary-item-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--teal)"><use href="#ws-file"></use></svg></div>
+              <div class="summary-item-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="width:13px;height:13px" class="txt-teal"><use href="#ws-file"></use></svg></div>
               <div><div class="summary-item-label">أفضل سعر</div><div class="summary-item-val">{{ c.hourlyRate }} ر.س/ساعة — {{ c.fullName }}</div></div>
             </div>
           }
@@ -150,10 +150,10 @@
       </div>
 
       <div class="trust-section">
-        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="width:11px;height:11px;color:var(--teal)"><use href="#ws-shield"></use></svg></div> ضمان استرداد المدفوعات</div>
-        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="width:11px;height:11px;color:var(--blue-txt)"><use href="#ws-file"></use></svg></div> عقد موثّق لكل مشروع</div>
-        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="width:11px;height:11px;color:var(--green)"><use href="#ws-check"></use></svg></div> مقدمون معتمدون من وسيط</div>
-        <div class="trust-item"><div class="trust-ico-sm" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="width:11px;height:11px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg></div> مراقبة AI لجودة التسليم</div>
+        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="width:11px;height:11px" class="txt-teal"><use href="#ws-shield"></use></svg></div> ضمان استرداد المدفوعات</div>
+        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="width:11px;height:11px" class="txt-blue"><use href="#ws-file"></use></svg></div> عقد موثّق لكل مشروع</div>
+        <div class="trust-item"><div class="trust-ico-sm" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="width:11px;height:11px" class="txt-green"><use href="#ws-check"></use></svg></div> مقدمون معتمدون من وسيط</div>
+        <div class="trust-item"><div class="trust-ico-sm" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="width:11px;height:11px" class="txt-purple"><use href="#ws-trust-ai"></use></svg></div> مراقبة AI لجودة التسليم</div>
       </div>
     }
   </div>
