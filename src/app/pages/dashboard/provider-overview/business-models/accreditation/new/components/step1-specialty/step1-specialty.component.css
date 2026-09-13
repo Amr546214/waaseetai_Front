@@ -19,10 +19,9 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
-:host-context(body.light) .info-note,
 :host-context(body.light-theme) .info-note,
-:host-context(.theme-light) .info-note,
-:host-context(body.light-theme) .info-note,
+:host-context(body.theme-light) .info-note,
+:host-context(.light-theme) .info-note,
 :host-context(.theme-light) .info-note {
   background: rgba(43, 127, 255, 0.04);
   border-color: rgba(43, 127, 255, 0.12);
@@ -39,10 +38,9 @@
   align-items: center;
   gap: 8px;
 }
-:host-context(body.light) .spec-section-title,
 :host-context(body.light-theme) .spec-section-title,
-:host-context(.theme-light) .spec-section-title,
-:host-context(body.light-theme) .spec-section-title,
+:host-context(body.theme-light) .spec-section-title,
+:host-context(.light-theme) .spec-section-title,
 :host-context(.theme-light) .spec-section-title {
   color: #475569;
 }
@@ -70,7 +68,7 @@
   -webkit-user-select: none;
   user-select: none;
 }
-.spec-card:hover:not(.locked) {
+.spec-card:hover {
   border-color: rgba(43, 212, 199, 0.30);
   background: linear-gradient(135deg, rgba(43, 212, 199, 0.05), rgba(43, 127, 255, 0.02));
 }
@@ -78,18 +76,13 @@
   border-color: rgba(43, 212, 199, 0.55);
   background: rgba(43, 212, 199, 0.08);
 }
-.spec-card.locked {
-  opacity: 0.35;
-  cursor: not-allowed;
-  pointer-events: none;
-}
 .spec-check {
   display: none;
   position: absolute;
-  top: 9px;
-  left: 9px;
-  width: 20px;
-  height: 20px;
+  top: 10px;
+  left: 10px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
   align-items: center;
@@ -102,18 +95,6 @@
 }
 .spec-card.selected .spec-check {
   display: flex;
-}
-.spec-locked-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  font-size: 9px;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 4px;
-  padding: 2px 6px;
-  color: #6B7699;
 }
 .spec-ico {
   width: 48px;
@@ -197,33 +178,29 @@
 }
 
 /* LIGHT MODE OVERRIDES */
-:host-context(body.light) .spec-card,
 :host-context(body.light-theme) .spec-card,
-:host-context(.theme-light) .spec-card,
-:host-context(body.light-theme) .spec-card,
+:host-context(body.theme-light) .spec-card,
+:host-context(.light-theme) .spec-card,
 :host-context(.theme-light) .spec-card {
   background: rgba(255, 255, 255, 0.85);
   border-color: #E7EAF1;
 }
-:host-context(body.light) .spec-name,
 :host-context(body.light-theme) .spec-name,
-:host-context(.theme-light) .spec-name,
-:host-context(body.light-theme) .spec-name,
+:host-context(body.theme-light) .spec-name,
+:host-context(.light-theme) .spec-name,
 :host-context(.theme-light) .spec-name {
   color: #070D24;
 }
-:host-context(body.light) .ai-disclosure,
 :host-context(body.light-theme) .ai-disclosure,
-:host-context(.theme-light) .ai-disclosure,
-:host-context(body.light-theme) .ai-disclosure,
+:host-context(body.theme-light) .ai-disclosure,
+:host-context(.light-theme) .ai-disclosure,
 :host-context(.theme-light) .ai-disclosure {
   background: linear-gradient(135deg, rgba(123, 47, 190, 0.04), rgba(43, 127, 255, 0.03));
   border-color: rgba(123, 47, 190, 0.12);
 }
-:host-context(body.light) .ai-disc-txt,
 :host-context(body.light-theme) .ai-disc-txt,
-:host-context(.theme-light) .ai-disc-txt,
-:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
 :host-context(.theme-light) .ai-disc-txt {
   color: #475569;
 }

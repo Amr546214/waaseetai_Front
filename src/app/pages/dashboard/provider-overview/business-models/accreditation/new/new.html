@@ -108,7 +108,7 @@
 
 		<!-- Next Action -->
 		<div style="display:flex;align-items:center;gap:12px">
-			<span *ngIf="currentStep() === 1 && !isCurrentStepValid" style="font-size:12px;color:#6B7699">اختر تخصصاً
+			<span *ngIf="currentStep() === 1 && !isCurrentStepValid" style="font-size:12px" class="txt-muted">اختر تخصصاً
 				واحداً على الأقل</span>
 
 			<button type="button" class="btn-next" [disabled]="!isCurrentStepValid" (click)="goNext()">

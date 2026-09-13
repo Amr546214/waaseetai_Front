@@ -16,7 +16,7 @@
 .field-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .field-row .field-grp{margin-bottom:0}
 .field-lbl{font-size:13px;font-weight:700;color:#A8B2D1}
-.req{color:#EF4444}
+.req{color:#2BD4C7}
 .field-in{width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-family:inherit;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box}
 .field-in:focus{border-color:rgba(43,212,199,.35);box-shadow:0 0 0 3px rgba(43,212,199,.08)}
 .field-in::placeholder{color:#6B7699}
@@ -48,3 +48,4 @@ select.field-in{cursor:pointer;appearance:none;background-image:url("data:image/
 :host-context(body.light-theme) .field-lbl,:host-context(body.theme-light) .field-lbl,:host-context(.light-theme) .field-lbl,:host-context(.theme-light) .field-lbl{color:#070D24}
 :host-context(body.light-theme) .chk-row,:host-context(body.theme-light) .chk-row,:host-context(.light-theme) .chk-row,:host-context(.theme-light) .chk-row{color:#56607D}
 :host-context(body.light-theme) .btn-tertiary,:host-context(body.theme-light) .btn-tertiary,:host-context(.light-theme) .btn-tertiary,:host-context(.theme-light) .btn-tertiary{background:#F3F5FA;border-color:#E7EAF1;color:#56607D}
+:host-context(body.light-theme) .req,:host-context(body.theme-light) .req,:host-context(.light-theme) .req,:host-context(.theme-light) .req{color:#0F8A7F}

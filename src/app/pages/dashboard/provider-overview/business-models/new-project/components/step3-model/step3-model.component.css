@@ -15,14 +15,6 @@
 .fr-search input{background:none;border:none;outline:none;font-family:inherit;font-size:12.5px;color:#fff;width:100%;direction:rtl}
 .fr-search input::placeholder{color:#4A5568}
 
-.stat-card {
-    transition: transform 0.2s;
-}
-.stat-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255,255,255,0.15) !important;
-}
-
 .model-card:hover {
     border-color: rgba(43,212,199,0.3) !important;
     transform: translateY(-2px);

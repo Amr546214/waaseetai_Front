@@ -37,7 +37,7 @@
 				<line x1="12" y1="8" x2="12" y2="12" />
 				<line x1="12" y1="16" x2="12.01" y2="16" />
 			</svg>
-			<span>يمكنك الاختيار من <strong style="color:#fff">تخصصاتك المعتمدة فقط</strong>. التخصصات الأخرى تحتاج
+			<span>يمكنك الاختيار من <strong class="txt-white">تخصصاتك المعتمدة فقط</strong>. التخصصات الأخرى تحتاج
 				اعتماداً منفصلاً. يمكنك اختيار أكثر من تخصص ورفع نماذج لكل منها.</span>
 		</div>
 
@@ -45,14 +45,14 @@
 		@for (cat of categories; track cat.categoryId) {
 		<!-- SPEC SECTION TITLE -->
 		<div class="spec-section-title">
-			<svg style="width:14px;height:14px;color:var(--teal-txt,#2BD4C7)" viewBox="0 0 24 24" fill="none"
+			<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none"
 				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-				aria-hidden="true">
+				aria-hidden="true" class="txt-teal">
 				<polyline points="20 6 9 17 4 12" />
 			</svg>
 			{{ cat.categoryName }}
 			<span
-				style="font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px">{{
+				style="font-size:11px;font-weight:700;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px" class="txt-teal">{{
 				cat.specialties.length }} تخصص</span>
 		</div>
 
@@ -68,7 +68,7 @@
 						<polyline points="20 6 9 17 4 12" />
 					</svg>
 				</div>
-				<div class="spec-ico" style="background:rgba(43,212,199,.12);color:var(--teal-txt,#2BD4C7)"
+				<div class="spec-ico ic-teal"
 					[innerHTML]="spec.icon"></div>
 				<div class="spec-name">{{ spec.name }}</div>
 				<div class="approved-tag">&#10003; معتمد</div>

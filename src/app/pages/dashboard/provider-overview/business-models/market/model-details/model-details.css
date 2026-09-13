@@ -33,7 +33,7 @@
 .mdl-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mdl-txt-muted); margin-bottom: 18px; flex-wrap: wrap; }
 .mdl-breadcrumb a { color: var(--mdl-txt-muted); text-decoration: none; }
 .mdl-breadcrumb a:hover { color: var(--teal-txt); }
-.mdl-breadcrumb .sep { font-size: 10px; color: rgba(255, 255, 255, 0.25); }
+.mdl-breadcrumb .sep { font-size: 10px; color: #4A5568; }
 .mdl-breadcrumb .cur { color: var(--mdl-txt-sec); font-weight: 600; }
 
 .mdl-loading { display: flex; justify-content: center; padding: 80px 20px; }
@@ -57,7 +57,7 @@
 .badge { padding: 4px 10px; border-radius: 7px; font-size: 11px; font-weight: 800; }
 .badge-approved { background: rgba(43, 212, 199, .15); border: 1px solid rgba(43, 212, 199, .35); color: var(--teal-txt); }
 .badge-ai { background: rgba(123, 47, 190, .15); border: 1px solid rgba(123, 47, 190, .3); color: var(--ai-txt); }
-.mdl-preview-views { position: absolute; bottom: 14px; left: 14px; font-size: 11px; color: var(--mdl-txt-muted); display: flex; align-items: center; gap: 5px; z-index: 2; background: rgba(7,13,36,.35); padding: 3px 8px; border-radius: 20px; }
+.mdl-preview-views { position: absolute; bottom: 14px; left: 14px; font-size: 11px; color: var(--mdl-txt-muted); display: flex; gap: 5px; z-index: 2; }
 
 .mdl-side { display: flex; flex-direction: column; gap: 12px; }
 .mdl-side-card { background: var(--mdl-card-bg); backdrop-filter: blur(12px); border: 1px solid var(--mdl-border); border-radius: 14px; padding: 18px; }
@@ -107,6 +107,7 @@
 .mdl-review-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--mdl-border); border-radius: 12px; padding: 14px; }
 .mdl-review-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .mdl-review-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; color: #070D24; flex-shrink: 0; }
+.mdl-review-av[style*="A56BE0"] { color: #fff; }
 .mdl-review-name { font-size: 13px; font-weight: 700; color: var(--mdl-txt); }
 .mdl-review-meta { font-size: 10px; color: var(--mdl-txt-muted); }
 .mdl-review-stars { margin-inline-start: auto; display: flex; gap: 2px; }
@@ -120,3 +121,9 @@
 :host-context(body.theme-light) .mdl-inner-foot,
 :host-context(.light-theme) .mdl-inner-foot,
 :host-context(.theme-light) .mdl-inner-foot { border-top-color: #D8DFEC; }
+
+.is-light-theme .mdl-breadcrumb .sep,
+:host-context(body.light-theme) .mdl-breadcrumb .sep,
+:host-context(body.theme-light) .mdl-breadcrumb .sep,
+:host-context(.light-theme) .mdl-breadcrumb .sep,
+:host-context(.theme-light) .mdl-breadcrumb .sep { color: #94A3B8; }

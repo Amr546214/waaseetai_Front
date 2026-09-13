@@ -59,3 +59,5 @@
 :host-context(body.light-theme) .section-title,:host-context(body.theme-light) .section-title,:host-context(.light-theme) .section-title,:host-context(.theme-light) .section-title{border-color:#E7EAF1}
 :host-context(body.light-theme) .model-bar,:host-context(body.theme-light) .model-bar,:host-context(.light-theme) .model-bar,:host-context(.theme-light) .model-bar{background:#F3F5FA}
 :host-context(body.light-theme) .sale-row,:host-context(body.theme-light) .sale-row,:host-context(.light-theme) .sale-row,:host-context(.theme-light) .sale-row{border-color:#E7EAF1}
+:host-context(body.light-theme) .sale-amount,:host-context(body.theme-light) .sale-amount,:host-context(.light-theme) .sale-amount,:host-context(.theme-light) .sale-amount,
+:host-context(body.light-theme) .model-pct,:host-context(body.theme-light) .model-pct,:host-context(.light-theme) .model-pct,:host-context(.theme-light) .model-pct{color:#0F8A7F}

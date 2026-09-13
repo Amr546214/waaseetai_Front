@@ -324,16 +324,6 @@
 		background: #0FA99A
 	}
 
-	.op-draft {
-		background: rgba(255, 255, 255, .05);
-		color: #A8B2D1;
-		border: 1px solid rgba(255, 255, 255, .12)
-	}
-
-	.op-draft::before {
-		background: #6B7699
-	}
-
 	.op-done {
 		background: rgba(43, 127, 255, .10);
 		color: #5DA0FF;
@@ -469,14 +459,6 @@
 	:host-context(.light-theme) .ord-name,
 	:host-context(.theme-light) .ord-name {
 		color: #0F172A
-	}
-
-	:host-context(body.light-theme) .op-draft,
-	:host-context(body.theme-light) .op-draft,
-	:host-context(.light-theme) .op-draft,
-	:host-context(.theme-light) .op-draft {
-		border-color: #D8DFEC;
-		color: #475569
 	}
 
 	:host-context(body.light-theme) .op-done,

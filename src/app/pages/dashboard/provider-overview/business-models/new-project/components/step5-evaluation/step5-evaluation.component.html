@@ -21,11 +21,11 @@
 	<div id="state-scanning" style="display:block">
 		<div class="scan-wrap" style="margin-bottom:14px">
 			<div class="scan-line"></div>
-			<svg width="20" height="20" aria-hidden="true">
+			<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ai-txt,#A56BE0)" stroke-width="1.8" aria-hidden="true" style="animation:pulse-ring 1.5s ease infinite">
 				<use href="#i-ai"></use>
 			</svg>
 			<div class="scan-txt">AI يراجع تفاصيل المشروع...</div>
-			<div style="font-size:11px;color:#6B7699;margin-top:4px">مقارنة وصف المشروع ومراحله بمعطيات السوق</div>
+			<div style="font-size:11px;margin-top:4px" class="txt-muted">مقارنة وصف المشروع ومراحله بمعطيات السوق</div>
 		</div>
 	</div>
 	}
@@ -36,7 +36,7 @@
 
 		<!-- Card 1: Checks (Strengths & Risks) -->
 		<div class="form-card">
-			<div class="card-title" style="color:var(--ai-txt,#A56BE0)">
+			<div class="card-title txt-purple">
 				<svg width="20" height="20" aria-hidden="true">
 					<use href="#i-ai"></use>
 				</svg>
@@ -45,9 +45,9 @@
 
 			<!-- Executive Summary as quote -->
 			<div
-				style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;margin-bottom:14px;font-size:12.5px;color:#A8B2D1;line-height:1.75;border-inline-start:3px solid rgba(123,47,190,.4)">
+				style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;margin-bottom:14px;font-size:12.5px;line-height:1.75;border-inline-start:3px solid rgba(123,47,190,.4)" class="txt-slate">
 				<span
-					style="font-size:10px;font-weight:800;color:var(--ai-txt,#A56BE0);display:block;margin-bottom:5px">رأي
+					style="font-size:10px;font-weight:800;display:block;margin-bottom:5px" class="txt-purple">رأي
 					المستشار</span>
 				{{ eval.executiveSummary }}
 			</div>
@@ -87,8 +87,8 @@
 
 			@if (eval.recommendedImprovements && eval.recommendedImprovements.length > 0) {
 			<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-				<button type="button" class="group"
-					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;color:var(--ai-txt,#A56BE0);transition:all .15s">
+				<button type="button" class="group txt-purple"
+					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;transition:all .15s">
 					<svg width="14" height="14" aria-hidden="true">
 						<use href="#i-ai"></use>
 					</svg>
@@ -99,7 +99,7 @@
 			<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);padding-top:14px">
 				@for (imp of eval.recommendedImprovements; track imp) {
 				<div
-					style="font-size:12.5px;color:#A8B2D1;line-height:1.85;padding:10px 14px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.18);border-radius:10px;margin-bottom:8px">
+					style="font-size:12.5px;line-height:1.85;padding:10px 14px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.18);border-radius:10px;margin-bottom:8px" class="txt-slate">
 					{{ imp }}
 				</div>
 				}
@@ -110,7 +110,7 @@
 
 		<!-- Card 2: Price and Milestones -->
 		<div class="form-card">
-			<div class="card-title" style="color:var(--teal-txt,#2BD4C7)">
+			<div class="card-title txt-teal">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 					<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
 					<path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z" />
@@ -136,7 +136,7 @@
 					</div>
 					<div>
 						<div class="cmp-row-label">النطاق العادل</div>
-						<div class="cmp-cell" style="color:var(--ai-txt,#A56BE0); text-align: right">{{
+						<div class="cmp-cell txt-purple" style="text-align: right">{{
 							eval.suggestedPricingStrategy.recommendedRange }}</div>
 					</div>
 				</div>
@@ -148,7 +148,7 @@
 					</div>
 					<div>
 						<div class="cmp-row-label">الموصى به</div>
-						<div class="cmp-cell" style="color:var(--ai-txt,#A56BE0); text-align: right">{{
+						<div class="cmp-cell txt-purple" style="text-align: right">{{
 							eval.suggestedMilestones.length }} مراحل</div>
 					</div>
 				</div>
@@ -157,19 +157,19 @@
 					<svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" aria-hidden="true">
 						<polyline points="20 6 9 17 4 12" />
 					</svg>
-					<span style="font-size:12.5px;color:#A8B2D1">{{ eval.suggestedPricingStrategy.reasoning }}</span>
+					<span style="font-size:12.5px" class="txt-slate">{{ eval.suggestedPricingStrategy.reasoning }}</span>
 				</div>
 			</div>
 
 			<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
 				<button type="button" (click)="onApplySuggestedPricing.emit()"
-					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;color:var(--ai-txt,#A56BE0);cursor:pointer;transition:all .15s">
+					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" class="txt-purple">
 					<svg width="10" height="10" aria-hidden="true">
 						<use href="#i-ai"></use>
 					</svg>تطبيق التسعير
 				</button>
 				<button type="button" (click)="onApplySuggestedMilestones.emit()"
-					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;color:var(--ai-txt,#A56BE0);cursor:pointer;transition:all .15s">
+					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" class="txt-purple">
 					<svg width="10" height="10" aria-hidden="true">
 						<use href="#i-ai"></use>
 					</svg>تطبيق المراحل
@@ -179,7 +179,7 @@
 			<!-- AI panel للمراحل -->
 			<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);padding-top:14px">
 				<div
-					style="font-size:11px;font-weight:800;color:var(--ai-txt,#A56BE0);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+					style="font-size:11px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px" class="txt-purple">
 					<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
 						aria-hidden="true">
 						<path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z" />
@@ -190,8 +190,8 @@
 					@for (sm of eval.suggestedMilestones; track $index) {
 					<div
 						style="padding:10px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.20);border-radius:10px;display:flex;align-items:center;justify-content:space-between">
-						<div style="font-size:12.5px;font-weight:700;color:#fff">{{ sm.title }}</div>
-						<div style="font-size:12px;color:var(--teal-txt,#2BD4C7);font-weight:800">{{ sm.estimatedDays }}
+						<div style="font-size:12.5px;font-weight:700" class="txt-white">{{ sm.title }}</div>
+						<div style="font-size:12px;font-weight:800" class="txt-teal">{{ sm.estimatedDays }}
 							أيام ({{ sm.percentage }}%)</div>
 					</div>
 					}
@@ -203,7 +203,7 @@
 		<!-- Card 3: Final Results -->
 		<div class="form-card"
 			style="background:linear-gradient(135deg,rgba(123,47,190,.08),rgba(43,127,255,.05));border-color:rgba(123,47,190,.22)">
-			<div class="card-title" style="color:var(--ai-txt,#A56BE0)">
+			<div class="card-title txt-purple">
 				<svg width="20" height="20" aria-hidden="true">
 					<use href="#i-ai"></use>
 				</svg>
@@ -240,7 +240,7 @@
 							<div class="metric-bar" [style.width.%]="eval.clarityScore"
 								style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div>
 						</div>
-						<span class="metric-val" style="color:var(--teal-txt,#2BD4C7)">{{ eval.clarityScore }}%</span>
+						<span class="metric-val txt-teal">{{ eval.clarityScore }}%</span>
 					</div>
 					<div class="metric-row">
 						<span class="metric-label">جدوى المدد والتنفيذ</span>
@@ -248,7 +248,7 @@
 							<div class="metric-bar" [style.width.%]="eval.feasibilityScore"
 								style="background:linear-gradient(90deg,#7B2FBE,#2B7FFF)"></div>
 						</div>
-						<span class="metric-val" style="color:var(--teal-txt,#2BD4C7)">{{ eval.feasibilityScore
+						<span class="metric-val txt-teal">{{ eval.feasibilityScore
 							}}%</span>
 					</div>
 				</div>
@@ -271,7 +271,7 @@
 						توافق العرض مع السوق: {{ eval.marketFitRating === 'High' ? 'مرتفع جداً (High)' :
 						eval.marketFitRating === 'Medium' ? 'متوسط (Medium)' : 'منخفض (Low)' }}
 					</div>
-					<div style="font-size:12.5px;color:#A8B2D1;line-height:1.7">
+					<div style="font-size:12.5px;line-height:1.7" class="txt-slate">
 						هذا النموذج {{ eval.marketFitRating === 'High' ? 'يجذب شريحة واسعة من طالبي الخدمات ويمتاز بفرص
 						فوز مرتفعة عند طرحه.' : 'يحتاج لبعض التحسينات ليكون أكثر جاذبية للعملاء.' }}
 					</div>

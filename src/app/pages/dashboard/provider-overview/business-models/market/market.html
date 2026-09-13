@@ -19,9 +19,9 @@
 	<!-- Toolbar / Header -->
 	<div
 		style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-		<div style="font-size:18px;font-weight:900;color:var(--mkt-txt)">{{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجي في السوق' }}</div>
+		<div style="font-size:18px;font-weight:900" class="txt-white">{{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجي في السوق' }}</div>
 		<a routerLink="/provider-overview/business-models/new-project"
-			style="display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:10px;font-size:12.5px;font-weight:800;color:#070D24;text-decoration:none;box-shadow:0 4px 15px rgba(43,212,199,0.25);transition:all .2s">
+			style="display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:10px;font-size:12.5px;font-weight:800;text-decoration:none;box-shadow:0 4px 15px rgba(43,212,199,0.25);transition:all .2s" class="txt-navy">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 				<line x1="12" y1="5" x2="12" y2="19" />
 				<line x1="5" y1="12" x2="19" y2="12" />
@@ -35,7 +35,7 @@
 	<div class="co-mkt-kpi-row">
 		<div class="co-mkt-kpi-c"><div class="v">12</div><div class="l">نماذج الشركة</div><div class="s">في 4 تخصصات</div></div>
 		<div class="co-mkt-kpi-c"><div class="v">2,841</div><div class="l">مشاهدة هذا الشهر</div><div class="s">↑ 22% عن الشهر الماضي</div></div>
-		<div class="co-mkt-kpi-c"><div class="v">94<span style="font-size:12px;color:var(--txt-2,#A8B2D1)">/100</span></div><div class="l">متوسط تقييم AI</div><div class="s">جودة عالية</div></div>
+		<div class="co-mkt-kpi-c"><div class="v">94<span style="font-size:12px" class="txt-slate">/100</span></div><div class="l">متوسط تقييم AI</div><div class="s">جودة عالية</div></div>
 		<div class="co-mkt-kpi-c"><div class="v">58</div><div class="l">عروض مولَّدة من النماذج</div><div class="s">21 قُبلت · 36٪ تحويل</div></div>
 	</div>
 	}
@@ -89,7 +89,7 @@
 		<button class="ord-tab" [class.active]="activeSubTab() === 'requests'" role="tab"
 			(click)="setSubTab('requests')">
 			طلبات التعديل
-			<span style="background:rgba(255,180,0,.18);color:#D98A0B;border:1px solid rgba(255,180,0,.3)">{{
+			<span class="badge-amber">{{
 				stats().pendingModifications }}</span>
 		</button>
 	</div>
@@ -98,7 +98,7 @@
 	@if (errorMessage()) {
 	<div
 		style="padding:18px;background:rgba(255,180,0,.05);border:1px solid rgba(255,180,0,.18);border-radius:12px;text-align:center;margin-bottom:20px">
-		<div style="font-size:12px;font-weight:700;color:#D98A0B">{{ errorMessage() }}</div>
+		<div style="font-size:12px;font-weight:700" class="txt-amber-dk">{{ errorMessage() }}</div>
 	</div>
 	}
 
@@ -106,7 +106,7 @@
 	@if (isLoading()) {
 	<div style="display:flex;justify-content:center;padding:60px 20px">
 		<div
-			style="width:36px;height:36px;border:3px solid rgba(43,212,199,0.2);border-top-color:#2BD4C7;border-radius:50%;animation:spin 0.8s linear infinite">
+			style="width:36px;height:36px;border:3px solid rgba(43,212,199,0.2);border-top-border-radius:50%;animation:spin 0.8s linear infinite" class="txt-teal">
 		</div>
 	</div>
 	}
@@ -120,7 +120,7 @@
 	<div
 		style="text-align:center;padding:70px 20px;background:var(--mkt-card-bg);border:1px dashed var(--mkt-border);border-radius:16px;margin-bottom:20px">
 		<div
-			style="width:56px;height:56px;border-radius:16px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#2BD4C7">
+			style="width:56px;height:56px;border-radius:16px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 16px" class="txt-teal">
 			<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
 				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 				<polyline points="14 2 14 8 20 8" />
@@ -128,12 +128,12 @@
 				<line x1="9" y1="15" x2="15" y2="15" />
 			</svg>
 		</div>
-		<div style="font-size:16px;font-weight:900;color:var(--mkt-txt);margin-bottom:6px">لا توجد خدمات منشورة في السوق
+		<div style="font-size:16px;font-weight:900;margin-bottom:6px" class="txt-white">لا توجد خدمات منشورة في السوق
 			حالياً</div>
-		<p style="font-size:12px;color:var(--mkt-txt-muted);max-width:380px;margin:0 auto 20px">لم تقم بنشر أو اعتماد أي
+		<p style="font-size:12px;max-width:380px;margin:0 auto 20px" class="txt-muted">لم تقم بنشر أو اعتماد أي
 			خدمة مهنية بعد. ابدأ بإنشاء أول خدمة لك ليراها العملاء ويتعاقدون معك بسهولة.</p>
 		<a routerLink="/provider-overview/business-models/new-project"
-			style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:10px;font-size:13px;font-weight:800;color:#070D24;text-decoration:none;box-shadow:0 4px 20px rgba(43,212,199,0.3)">
+			style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:10px;font-size:13px;font-weight:800;text-decoration:none;box-shadow:0 4px 20px rgba(43,212,199,0.3)" class="txt-navy">
 			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 				<line x1="12" y1="5" x2="12" y2="19" />
 				<line x1="5" y1="12" x2="19" y2="12" />
@@ -196,7 +196,7 @@
 					<!-- Top Right Views -->
 					<div style="position:absolute;top:12px;right:12px;z-index:2">
 						<span
-							style="display:flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(7,13,36,.65);backdrop-filter:blur(6px);border-radius:20px;font-size:10.5px;font-weight:700;color:#A8B2D1;border:1px solid rgba(255,255,255,.1)">
+							style="display:flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(7,13,36,.65);backdrop-filter:blur(6px);border-radius:20px;font-size:10.5px;font-weight:700;border:1px solid rgba(255,255,255,.1)" class="txt-slate">
 							<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 								stroke-width="2">
 								<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -209,7 +209,7 @@
 					<!-- Top Left AI & Approved Badges -->
 					<div style="position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:4px;z-index:2">
 						<span
-							style="padding:2.5px 8px;background:rgba(123,47,190,.3);backdrop-filter:blur(6px);border:1px solid rgba(123,47,190,.5);border-radius:6px;font-size:10px;font-weight:800;color:#C084FC">
+							style="padding:2.5px 8px;background:rgba(123,47,190,.3);backdrop-filter:blur(6px);border:1px solid rgba(123,47,190,.5);border-radius:6px;font-size:10px;font-weight:800" class="txt-fuchsia">
 							AI {{ model.aiScore }}
 						</span>
 						<span
@@ -237,9 +237,9 @@
 
 					<!-- Stats Row -->
 					<div class="mkt-card-stats">
-						<span style="font-weight:800;color:#FFB400;font-size:12px">★ {{ model.rating || '5.0' }}</span>
-						<span style="color:var(--mkt-txt-muted)">({{ model.reviewsCount || 0 }} تقييم)</span>
-						<span style="color:var(--mkt-txt-sec);font-weight:700">{{ model.offersCount || 0 }} عروض
+						<span style="font-weight:800;font-size:12px" class="txt-amber">★ {{ model.rating || '5.0' }}</span>
+						<span class="txt-muted">({{ model.reviewsCount || 0 }} تقييم)</span>
+						<span style="font-weight:700" class="txt-slate">{{ model.offersCount || 0 }} عروض
 							مُولدة</span>
 					</div>
 
@@ -265,9 +265,9 @@
 	@if (modificationRequests().length === 0) {
 	<div
 		style="text-align:center;padding:60px 20px;background:var(--mkt-card-bg);border:1px dashed var(--mkt-border);border-radius:16px">
-		<div style="font-size:15px;font-weight:800;color:var(--mkt-txt);margin-bottom:6px">لا توجد طلبات تعديل معلقة
+		<div style="font-size:15px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد طلبات تعديل معلقة
 		</div>
-		<p style="font-size:12px;color:var(--mkt-txt-muted)">جميع خدماتك المنشورة متوافقة بنسبة عالية ومُعتمدة في السوق
+		<p style="font-size:12px" class="txt-muted">جميع خدماتك المنشورة متوافقة بنسبة عالية ومُعتمدة في السوق
 			بدون ملاحظات من الذكاء الاصطناعي.</p>
 	</div>
 	} @else {
@@ -280,16 +280,16 @@
 				<div style="display:flex;align-items:flex-start;gap:14px">
 					<div
 						style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:rgba(43,212,199,.1);border:2px solid rgba(43,212,199,.35);flex-shrink:0;box-shadow:0 0 12px rgba(43,212,199,.15)">
-						<span style="font-size:16px;font-weight:900;color:#2BD4C7;line-height:1">{{ req.matchRate
+						<span style="font-size:16px;font-weight:900;line-height:1" class="txt-teal">{{ req.matchRate
 							}}%</span>
 						<span
-							style="font-size:8.5px;color:var(--mkt-txt-muted);text-align:center;line-height:1.2;margin-top:2px">تطابق
+							style="font-size:8.5px;text-align:center;line-height:1.2;margin-top:2px" class="txt-muted">تطابق
 							للملف</span>
 					</div>
 					<div>
 						<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
 							<span
-								style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(255,180,0,.12);border:1px solid rgba(255,180,0,.28);border-radius:20px;font-size:10.5px;font-weight:800;color:#D98A0B">
+								style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(255,180,0,.12);border:1px solid rgba(255,180,0,.28);border-radius:20px;font-size:10.5px;font-weight:800" class="txt-amber-dk">
 								<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 									stroke-width="2">
 									<polygon
@@ -298,18 +298,18 @@
 								{{ req.statusLabel }}
 							</span>
 						</div>
-						<div style="font-size:15px;font-weight:900;color:var(--mkt-txt);margin-bottom:4px">{{ req.title
+						<div style="font-size:15px;font-weight:900;margin-bottom:4px" class="txt-white">{{ req.title
 							}}</div>
-						<div style="font-size:11.5px;color:var(--mkt-txt-muted)">{{ req.subtitle }}</div>
+						<div style="font-size:11.5px" class="txt-muted">{{ req.subtitle }}</div>
 					</div>
 				</div>
-				<div style="font-size:11.5px;color:var(--mkt-txt-muted);font-weight:600;flex-shrink:0">{{ req.date }}
+				<div style="font-size:11.5px;font-weight:600;flex-shrink:0" class="txt-muted">{{ req.date }}
 				</div>
 			</div>
 
 			<!-- AI Report Button -->
 			<button (click)="toggleReport(req.id)"
-				style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:10px;font-size:12px;font-weight:700;color:#A56BE0;cursor:pointer;font-family:inherit;margin-bottom:14px;transition:all .2s">
+				style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;transition:all .2s" class="txt-purple">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<polygon
 						points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -326,11 +326,11 @@
 			@if (req.isExpanded) {
 			<div
 				style="background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.18);border-radius:12px;padding:16px;margin-bottom:16px;animation:ws-fade .2s ease both">
-				<div style="font-size:12px;font-weight:800;color:#A56BE0;margin-bottom:12px">تحليل الذكاء</div>
+				<div style="font-size:12px;font-weight:800;margin-bottom:12px" class="txt-purple">تحليل الذكاء</div>
 				<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
 					@for (chk of req.checks; track chk.text) {
 					<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
-						<span style="font-size:12.5px;color:var(--mkt-txt-sec);font-weight:600">{{ chk.text }}</span>
+						<span style="font-size:12.5px;font-weight:600" class="txt-slate">{{ chk.text }}</span>
 						<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px"
 							[style.color]="chk.type === 'success' ? '#2BD4C7' : chk.type === 'warning' ? '#D98A0B' : '#EF6B6B'"
 							[style.background]="chk.type === 'success' ? 'rgba(43,212,199,0.1)' : chk.type === 'warning' ? 'rgba(255,180,0,0.1)' : 'rgba(239,107,107,0.1)'">
@@ -390,7 +390,7 @@
 	<div class="state-success-toast">
 		<div class="toast-box">
 			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-				style="color:var(--teal-txt)">
+				 class="txt-teal">
 				<polyline points="20 6 9 17 4 12" />
 			</svg>
 			<span style="font-size:13.5px;font-weight:800">{{ toastMessage() }}</span>

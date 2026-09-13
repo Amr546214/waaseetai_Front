@@ -167,3 +167,8 @@
 :host-context(body.theme-light) .field-lbl,
 :host-context(.light-theme) .field-lbl,
 :host-context(.theme-light) .field-lbl{color:#070D24}
+
+:host-context(body.light-theme) .req-info-item.highlight .req-info-val,
+:host-context(body.theme-light) .req-info-item.highlight .req-info-val,
+:host-context(.light-theme) .req-info-item.highlight .req-info-val,
+:host-context(.theme-light) .req-info-item.highlight .req-info-val{color:#0F8A7F}

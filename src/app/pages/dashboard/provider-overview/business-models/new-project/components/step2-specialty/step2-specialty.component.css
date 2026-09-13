@@ -6,15 +6,13 @@
 .spec-section-title{font-size:13px;font-weight:700;color:#6B7699;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 
 /* SPEC GRID */
-.spec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
-.spec-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:2px solid rgba(255,255,255,.08);border-radius:16px;padding:18px 14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;text-align:center;-webkit-user-select:none;user-select:none}
-.spec-card:hover:not(.locked){border-color:rgba(43,212,199,.30);background:linear-gradient(135deg,rgba(43,212,199,.05),rgba(43,127,255,.02))}
-.spec-card.selected{border-color:rgba(43,212,199,.55);background:rgba(43,212,199,.08)}
-.spec-card.locked{opacity:.35;cursor:not-allowed;pointer-events:none}
+.spec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.spec-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:2px solid rgba(255,255,255,.08);border-radius:16px;padding:18px 14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;text-align:center;-webkit-user-select:none;user-select:none}
+.spec-card:hover{border-color:rgba(43,212,199,.25);background:linear-gradient(135deg,rgba(43,212,199,.04),rgba(43,127,255,.02))}
+.spec-card.selected{border-color:rgba(43,212,199,.55);background:rgba(43,212,199,.07)}
 .spec-check{display:none;position:absolute;top:9px;right:9px;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);align-items:center;justify-content:center}
 .spec-check svg{width:11px;height:11px;color:#070D24}
 .spec-card.selected .spec-check{display:flex}
-.spec-locked-badge{position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:4px;padding:2px 6px;color:#6B7699}
 .spec-ico{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto}
 .spec-ico svg{width:24px;height:24px}
 .spec-name{font-size:13px;font-weight:700;color:#fff;line-height:1.3}

@@ -51,18 +51,6 @@
   100% { transform: translateY(-100px) translateX(50px); opacity: 0; }
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 /* AI Disclosure Box */
 .ai-disclosure {
   display: flex;
@@ -344,7 +332,7 @@
 .mkt-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .mkt-card {
@@ -352,7 +340,7 @@
   border: 1px solid var(--mkt-border);
   border-radius: 16px;
   overflow: hidden;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.18s;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
@@ -360,12 +348,12 @@
 
 .mkt-card:hover {
   border-color: var(--mkt-card-hover-border);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(43, 212, 199, 0.12);
 }
 
 .mkt-card-thumb {
-  height: 140px;
+  height: 130px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -381,11 +369,11 @@
 }
 
 .mkt-card-title {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 900;
   color: var(--mkt-txt);
-  margin-bottom: 4px;
-  line-height: 1.4;
+  margin-bottom: 3px;
+  line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -393,22 +381,22 @@
 }
 
 .mkt-card-meta {
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--mkt-txt-muted);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .mkt-card-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .tag-pill {
-  padding: 2px 9px;
+  padding: 2px 8px;
   border-radius: 20px;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
   background: rgba(43, 212, 199, 0.08);
   border: 1px solid rgba(43, 212, 199, 0.16);
@@ -421,14 +409,14 @@
   justify-content: space-between;
   margin-top: auto;
   padding-top: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 11px;
 }
 
 .mkt-card-actions {
   display: flex;
-  gap: 8px;
+  gap: 5px;
 }
 
 .action-btn-edit {
@@ -436,20 +424,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  border-radius: 10px;
-  font-size: 11.5px;
+  padding: 7px;
+  border-radius: 8px;
+  font-size: 11px;
   font-weight: 700;
-  background: linear-gradient(135deg, rgba(43, 127, 255, 0.14), rgba(123, 47, 190, 0.1));
-  border: 1px solid rgba(43, 127, 255, 0.28);
-  color: #5DA0FF;
+  background: linear-gradient(135deg, rgba(43, 127, 255, 0.12), rgba(123, 47, 190, 0.08));
+  border: 1px solid rgba(43, 127, 255, 0.25);
+  color: #7AB3FF;
   text-decoration: none;
   transition: all 0.15s;
 }
 
 .action-btn-edit:hover {
   background: linear-gradient(135deg, rgba(43, 127, 255, 0.25), rgba(123, 47, 190, 0.2));
-  border-color: #5DA0FF;
+  border-color: #7AB3FF;
   color: #fff;
 }
 
@@ -458,13 +446,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  border-radius: 10px;
-  font-size: 11.5px;
+  padding: 7px;
+  border-radius: 8px;
+  font-size: 11px;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--mkt-txt-sec);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--mkt-txt-muted);
   cursor: pointer;
   font-family: inherit;
   transition: all 0.15s;
@@ -515,18 +503,17 @@
   background: var(--mkt-card-bg);
   border: 1px solid var(--mkt-border);
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
+  padding: 18px 20px;
   transition: all 0.2s;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .req-btn-skip {
-  padding: 11px;
+  padding: 10px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--mkt-txt-muted);
   cursor: pointer;
@@ -534,7 +521,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   transition: all 0.15s;
 }
 
@@ -544,11 +531,11 @@
 }
 
 .req-btn-edit {
-  padding: 11px;
-  background: rgba(43, 127, 255, 0.1);
-  border: 1px solid rgba(43, 127, 255, 0.25);
+  padding: 10px;
+  background: rgba(43, 127, 255, 0.08);
+  border: 1px solid rgba(43, 127, 255, 0.22);
   border-radius: 10px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #5DA0FF;
   cursor: pointer;
@@ -556,7 +543,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   transition: all 0.15s;
 }
 
@@ -567,11 +554,11 @@
 }
 
 .req-btn-approve {
-  padding: 11px;
-  background: linear-gradient(135deg, rgba(43, 212, 199, 0.2), rgba(43, 127, 255, 0.18));
-  border: 1px solid rgba(43, 212, 199, 0.45);
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(43, 212, 199, 0.18), rgba(43, 127, 255, 0.14));
+  border: 1px solid rgba(43, 212, 199, 0.4);
   border-radius: 10px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--teal-txt);
   cursor: pointer;
@@ -579,7 +566,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   transition: all 0.15s;
 }
 
@@ -622,37 +609,6 @@
 .is-light-theme .toast-box {
   background: linear-gradient(135deg, #0f8a7f, #2B7FFF);
   color: #fff;
-}
-
-/* Footer */
-.inner-foot {
-  margin-top: 36px;
-  padding: 14px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--mkt-txt-muted);
-  border-top: 1px solid var(--mkt-border);
-}
-
-.inner-foot-links {
-  display: flex;
-  gap: 16px;
-}
-
-.inner-foot-links a {
-  color: var(--mkt-txt-muted);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-
-.inner-foot-links a:hover {
-  color: var(--teal-txt);
-}
-
-.is-light-theme .inner-foot {
-  border-top-color: #E2E8F4;
 }
 
 /* ===== Company Market Models (P-CO-MK-001) ===== */

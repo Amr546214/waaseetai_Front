@@ -4,12 +4,12 @@
 <div class="dir-rtl text-right relative">
   <div class="main-inner">
     <!-- breadcrumb -->
-    <nav style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6B7699;margin-bottom:18px">
-      <a routerLink="/provider-overview" style="color:#6B7699;text-decoration:none">لوحة التحكم</a>
-      <span style="color:#4A5568;font-size:10px">&#8249;</span>
-      <a routerLink="/provider-overview/business-models/center" style="color:#6B7699;text-decoration:none">مركز النماذج</a>
-      <span style="color:#4A5568;font-size:10px">&#8249;</span>
-      <span style="color:#A8B2D1;font-weight:600">{{ sampleDetails()?.title || 'جاري التحميل...' }}</span>
+    <nav style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:18px" class="txt-muted">
+      <a routerLink="/provider-overview" style="text-decoration:none" class="txt-muted">لوحة التحكم</a>
+      <span style="font-size:10px" class="txt-muted">&#8249;</span>
+      <a routerLink="/provider-overview/business-models/center" style="text-decoration:none" class="txt-muted">مركز النماذج</a>
+      <span style="font-size:10px" class="txt-muted">&#8249;</span>
+      <span style="font-weight:600" class="txt-slate">{{ sampleDetails()?.title || 'جاري التحميل...' }}</span>
     </nav>
 
     <!-- رأس النموذج -->
@@ -23,11 +23,11 @@
         <svg *ngIf="!getPreviewImage()" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="rgba(43,212,199,.35)" stroke-width="0.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(43,212,199,.08),transparent 60%)"></div>
         <div style="position:absolute;top:14px;right:14px;display:flex;gap:6px">
-          <span *ngIf="sampleDetails()?.status === 'AI_VERIFIED'" style="padding:4px 10px;background:rgba(43,212,199,.15);border:1px solid rgba(43,212,199,.35);border-radius:7px;font-size:11px;font-weight:800;color:var(--teal-txt,#2BD4C7)">معتمد</span>
-          <span *ngIf="sampleDetails()?.status !== 'AI_VERIFIED'" style="padding:4px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;font-weight:800;color:#6B7699">قيد المراجعة</span>
-          <span style="padding:4px 10px;background:rgba(123,47,190,.15);border:1px solid rgba(123,47,190,.3);border-radius:7px;font-size:11px;font-weight:800;color:#A56BE0">AI {{ sampleDetails()?.aiScore || 'N/A' }}/100</span>
+          <span *ngIf="sampleDetails()?.status === 'AI_VERIFIED'" style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-teal">معتمد</span>
+          <span *ngIf="sampleDetails()?.status !== 'AI_VERIFIED'" style="padding:4px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;font-weight:800" class="txt-muted">قيد المراجعة</span>
+          <span style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-purple">AI {{ sampleDetails()?.aiScore || 'N/A' }}/100</span>
         </div>
-        <div style="position:absolute;bottom:14px;left:14px;font-size:11px;color:#6B7699;display:flex;align-items:center;gap:5px">
+        <div style="position:absolute;bottom:14px;left:14px;font-size:11px;display:flex;align-items:center;gap:5px" class="txt-muted">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           {{ sampleDetails()?.viewsCount || 0 }} مشاهدة
         </div>
@@ -36,16 +36,16 @@
       <!-- بيانات جانبية -->
       <div style="display:flex;flex-direction:column;gap:12px">
         <div style="background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:18px">
-          <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:4px">{{ sampleDetails()?.title }}</div>
-          <div style="font-size:12px;color:#6B7699;margin-bottom:12px">{{ sampleDetails()?.providerSpecialty?.specialty?.nameAr || 'اعتماد فني' }} &middot; رفع {{ sampleDetails()?.createdAt | date:'yyyy/MM/dd' }}</div>
+          <div style="font-size:17px;font-weight:900;margin-bottom:4px" class="txt-white">{{ sampleDetails()?.title }}</div>
+          <div style="font-size:12px;margin-bottom:12px" class="txt-muted">{{ sampleDetails()?.providerSpecialty?.specialty?.nameAr || 'اعتماد فني' }} &middot; رفع {{ sampleDetails()?.createdAt | date:'yyyy/MM/dd' }}</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-            <span *ngIf="sampleDetails()?.providerSpecialty?.specialty?.category?.nameAr" style="padding:3px 9px;background:rgba(255,255,255,.07);border-radius:6px;font-size:11px;color:#A8B2D1">{{ sampleDetails()?.providerSpecialty?.specialty?.category?.nameAr }}</span>
+            <span *ngIf="sampleDetails()?.providerSpecialty?.specialty?.category?.nameAr" style="padding:3px 9px;background:rgba(255,255,255,.07);border-radius:6px;font-size:11px" class="txt-slate">{{ sampleDetails()?.providerSpecialty?.specialty?.category?.nameAr }}</span>
             @for(tech of sampleDetails()?.technologiesUsed; track $index) {
-              <span style="padding:3px 9px;background:rgba(255,255,255,.07);border-radius:6px;font-size:11px;color:#A8B2D1">{{ tech }}</span>
+              <span style="padding:3px 9px;background:rgba(255,255,255,.07);border-radius:6px;font-size:11px" class="txt-slate">{{ tech }}</span>
             }
           </div>
 
-          <div *ngIf="sampleDetails()?.description" style="font-size:12px;color:#A8B2D1;line-height:1.7;margin-bottom:16px">
+          <div *ngIf="sampleDetails()?.description" style="font-size:12px;line-height:1.7;margin-bottom:16px" class="txt-slate">
             <div [style.display]="isDescExpanded() ? 'block' : '-webkit-box'" 
                  [style.-webkit-line-clamp]="isDescExpanded() ? 'none' : '2'" 
                  [style.-webkit-box-orient]="'vertical'" 
@@ -60,33 +60,33 @@
 
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="#FFB400" stroke="none" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <span style="font-size:14px;font-weight:800;color:#fff">{{ sampleDetails()?.rating || '0.0' }}</span>
-            <span style="font-size:12px;color:#6B7699">({{ sampleDetails()?.reviewsCount || 0 }} تقييم)</span>
-            <span style="margin-inline-start:auto;font-size:11px;color:#6B7699">{{ sampleDetails()?.offersGenerated || 0 }} عروض مُولَّدة</span>
+            <span style="font-size:14px;font-weight:800" class="txt-white">{{ sampleDetails()?.rating || '0.0' }}</span>
+            <span style="font-size:12px" class="txt-muted">({{ sampleDetails()?.reviewsCount || 0 }} تقييم)</span>
+            <span style="margin-inline-start:auto;font-size:11px" class="txt-muted">{{ sampleDetails()?.offersGenerated || 0 }} عروض مُولَّدة</span>
           </div>
           <div style="display:flex;gap:8px">
-            <a routerLink="/provider-overview/business-models/accreditation/new" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;font-size:12px;font-weight:700;color:#A8B2D1;text-decoration:none">رفع نموذج مشابه</a>
-            <button type="button" (click)="shareSample()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:linear-gradient(135deg,rgba(43,212,199,.15),rgba(43,127,255,.12));border:1px solid rgba(43,212,199,.25);border-radius:10px;font-size:12px;font-weight:700;color:var(--teal-txt,#2BD4C7);cursor:pointer;font-family:inherit">مشاركة النموذج</button>
+            <a routerLink="/provider-overview/business-models/accreditation/new" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;font-size:12px;font-weight:700;text-decoration:none" class="txt-slate">رفع نموذج مشابه</a>
+            <button type="button" (click)="shareSample()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:linear-gradient(135deg,rgba(43,212,199,.15),rgba(43,127,255,.12));border:1px solid rgba(43,212,199,.25);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" class="txt-teal">مشاركة النموذج</button>
           </div>
         </div>
 
         <!-- إحصائيات -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;text-align:center">
-            <div style="font-size:20px;font-weight:900;color:#fff">{{ sampleDetails()?.viewsCount || 0 }}</div>
-            <div style="font-size:10px;color:#6B7699;margin-top:2px">مشاهدة</div>
+            <div style="font-size:20px;font-weight:900" class="txt-white">{{ sampleDetails()?.viewsCount || 0 }}</div>
+            <div style="font-size:10px;margin-top:2px" class="txt-muted">مشاهدة</div>
           </div>
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;text-align:center">
-            <div style="font-size:20px;font-weight:900;color:#fff">{{ sampleDetails()?.offersGenerated || 0 }}</div>
-            <div style="font-size:10px;color:#6B7699;margin-top:2px">عروض مُولَّدة</div>
+            <div style="font-size:20px;font-weight:900" class="txt-white">{{ sampleDetails()?.offersGenerated || 0 }}</div>
+            <div style="font-size:10px;margin-top:2px" class="txt-muted">عروض مُولَّدة</div>
           </div>
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;text-align:center">
-            <div style="font-size:20px;font-weight:900;color:#fff">{{ sampleDetails()?.offersAccepted || 0 }}</div>
-            <div style="font-size:10px;color:#6B7699;margin-top:2px">عروض قُبلت</div>
+            <div style="font-size:20px;font-weight:900" class="txt-white">{{ sampleDetails()?.offersAccepted || 0 }}</div>
+            <div style="font-size:10px;margin-top:2px" class="txt-muted">عروض قُبلت</div>
           </div>
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;text-align:center">
-            <div style="font-size:20px;font-weight:900;color:var(--teal-txt,#2BD4C7)">{{ sampleDetails()?.aiScore || '-' }}</div>
-            <div style="font-size:10px;color:#6B7699;margin-top:2px">تقييم AI</div>
+            <div style="font-size:20px;font-weight:900" class="txt-teal">{{ sampleDetails()?.aiScore || '-' }}</div>
+            <div style="font-size:10px;margin-top:2px" class="txt-muted">تقييم AI</div>
           </div>
         </div>
       </div>
@@ -99,12 +99,12 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A56BE0" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
         </div>
         <div>
-          <div style="font-size:14px;font-weight:800;color:#fff">تقرير وسيط AI — تحليل النموذج</div>
-          <div style="font-size:11px;color:#A56BE0">الفحص &middot; {{ (sampleDetails()?.aiAuditedAt || sampleDetails()?.createdAt) | date:'yyyy/MM/dd' }}</div>
+          <div style="font-size:14px;font-weight:800" class="txt-white">تقرير وسيط AI — تحليل النموذج</div>
+          <div style="font-size:11px" class="txt-purple">الفحص &middot; {{ (sampleDetails()?.aiAuditedAt || sampleDetails()?.createdAt) | date:'yyyy/MM/dd' }}</div>
         </div>
         <div style="margin-inline-start:auto;text-align:center">
-          <div style="font-size:28px;font-weight:900;color:#A56BE0">{{ sampleDetails()?.aiScore || '-' }}</div>
-          <div style="font-size:10px;color:#6B7699">من 100</div>
+          <div style="font-size:28px;font-weight:900" class="txt-purple">{{ sampleDetails()?.aiScore || '-' }}</div>
+          <div style="font-size:10px" class="txt-muted">من 100</div>
         </div>
       </div>
 
@@ -112,43 +112,43 @@
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
         <div>
           <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px;color:#A8B2D1">جودة التنفيذ</span>
-            <span style="font-size:11px;font-weight:800;color:#fff">{{ sampleDetails()?.aiScore || 0 }}%</span>
+            <span style="font-size:11px" class="txt-slate">جودة التنفيذ</span>
+            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
           </div>
           <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
         </div>
         <div>
           <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px;color:#A8B2D1">أصالة العمل</span>
-            <span style="font-size:11px;font-weight:800;color:#fff">{{ sampleDetails()?.aiScore || 0 }}%</span>
+            <span style="font-size:11px" class="txt-slate">أصالة العمل</span>
+            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
           </div>
           <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
         </div>
         <div>
           <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px;color:#A8B2D1">توافق مع السوق</span>
-            <span style="font-size:11px;font-weight:800;color:#fff">{{ sampleDetails()?.aiScore || 0 }}%</span>
+            <span style="font-size:11px" class="txt-slate">توافق مع السوق</span>
+            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
           </div>
           <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
         </div>
         <div>
           <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px;color:#A8B2D1">دقة التفاصيل</span>
-            <span style="font-size:11px;font-weight:800;color:#fff">{{ sampleDetails()?.aiScore || 0 }}%</span>
+            <span style="font-size:11px" class="txt-slate">دقة التفاصيل</span>
+            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
           </div>
           <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
         </div>
         <div>
           <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px;color:#A8B2D1">ملاءمة التخصص</span>
-            <span style="font-size:11px;font-weight:800;color:#fff">{{ sampleDetails()?.aiScore || 0 }}%</span>
+            <span style="font-size:11px" class="txt-slate">ملاءمة التخصص</span>
+            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
           </div>
           <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
         </div>
         <div>
           <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px;color:#A8B2D1">إثبات الملكية</span>
-            <span style="font-size:11px;font-weight:800;color:#fff">{{ sampleDetails()?.aiScore || 0 }}%</span>
+            <span style="font-size:11px" class="txt-slate">إثبات الملكية</span>
+            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
           </div>
           <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
         </div>
@@ -156,22 +156,22 @@
 
       <!-- ملاحظات AI -->
       <div style="background:rgba(123,47,190,.08);border:1px solid rgba(123,47,190,.18);border-radius:10px;padding:14px">
-        <div style="font-size:11px;font-weight:800;color:#A56BE0;margin-bottom:8px">ملاحظات وسيط AI</div>
+        <div style="font-size:11px;font-weight:800;margin-bottom:8px" class="txt-purple">ملاحظات وسيط AI</div>
 
-        <div *ngIf="sampleDetails()?.aiFeedbackAr" style="font-size:12px;color:#A8B2D1;line-height:1.6;margin-bottom:12px">
+        <div *ngIf="sampleDetails()?.aiFeedbackAr" style="font-size:12px;line-height:1.6;margin-bottom:12px" class="txt-slate">
           {{ sampleDetails()?.aiFeedbackAr }}
         </div>
 
         <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
           @for(strength of sampleDetails()?.aiStrengths; track $index) {
-          <li style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#A8B2D1">
+          <li style="display:flex;align-items:flex-start;gap:7px;font-size:12px" class="txt-slate">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" style="flex-shrink:0;margin-top:1px" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
             {{ strength }}
           </li>
           }
 
           @for(rec of sampleDetails()?.aiRecommendations; track $index) {
-          <li style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#A8B2D1">
+          <li style="display:flex;align-items:flex-start;gap:7px;font-size:12px" class="txt-slate">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB400" stroke-width="2.5" style="flex-shrink:0;margin-top:1px" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             {{ rec }}
           </li>

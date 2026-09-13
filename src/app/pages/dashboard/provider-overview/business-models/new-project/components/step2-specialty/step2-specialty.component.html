@@ -40,11 +40,11 @@
 		<div class="mb-4">
 			<!-- SPEC SECTION TITLE -->
 			<div class="spec-section-title">
-				<svg style="width:14px;height:14px;color:var(--teal-txt,#2BD4C7)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
 					<polyline points="20 6 9 17 4 12" />
 				</svg>
 				{{ cat.categoryName }}
-				<span style="font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px">{{ cat.specialties.length }} تخصص</span>
+				<span style="font-size:11px;font-weight:700;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px" class="txt-teal">{{ cat.specialties.length }} تخصص</span>
 			</div>
 
 			<div class="spec-grid" role="group">
@@ -55,7 +55,7 @@
 							<polyline points="20 6 9 17 4 12" />
 						</svg>
 					</div>
-					<div class="spec-ico" style="background:rgba(43,212,199,.12);color:var(--teal-txt,#2BD4C7)">
+					<div class="spec-ico ic-teal">
 						@if (isSvgIcon(spec.icon)) {
 						<div class="w-6 h-6 flex items-center justify-center text-[#2BD4C7]" [innerHTML]="getSanitizedIcon(spec.icon)"></div>
 						} @else {
@@ -74,11 +74,11 @@
 	<!-- SECTION 2: SUB-SPECIALTY SELECTION -->
 	<div *ngIf="selectedMainSpecialtyObj as selectedMain">
 		<div class="spec-section-title">
-			<svg style="width:14px;height:14px;color:var(--teal-txt,#2BD4C7)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+			<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
 				<polyline points="20 6 9 17 4 12" />
 			</svg>
 			اختر التخصص الفرعي
-			<span style="font-size:11px;font-weight:700;color:var(--teal-txt,#2BD4C7);background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px">{{ selectedMain.subSpecialties?.length || 0 }} تخصصات فرعية</span>
+			<span style="font-size:11px;font-weight:700;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px" class="txt-teal">{{ selectedMain.subSpecialties?.length || 0 }} تخصصات فرعية</span>
 		</div>
 
 		<!-- Sub Specialties Chips / Cards Grid -->
