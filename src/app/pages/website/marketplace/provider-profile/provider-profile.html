@@ -30,7 +30,7 @@
       <span class="breadcrumb-sep">/</span>
       <a routerLink="/marketplace">تسوق الخدمات</a>
       <span class="breadcrumb-sep">/</span>
-      <span style="color:var(--txt-2)">{{ provider()?.header?.fullName || 'مزود خدمة' }}</span>
+      <span class="txt-slate">{{ provider()?.header?.fullName || 'مزود خدمة' }}</span>
     </div>
 
     <!-- COVER BANNER -->
@@ -69,7 +69,7 @@
                 موثّق
               </span>
             }
-            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#0FA99A;font-weight:700">
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700" class="txt-green">
               <span style="width:7px;height:7px;border-radius:50%;background:#0FA99A"></span>
               متاحة الآن · ترد خلال 3 ساعات
             </span>
@@ -101,7 +101,7 @@
     <!-- STATS BAR -->
     <div class="stats-bar" style="background:#070D24;border-inline:1px solid var(--border)">
       <div class="stat-cell">
-        <div class="stat-n" style="color:var(--kahr)">{{ provider()?.header?.stats?.clientRating / 20 | number:'1.1-1' }} <span style="font-size:13px">★</span></div>
+        <div class="stat-n txt-kahr">{{ provider()?.header?.stats?.clientRating / 20 | number:'1.1-1' }} <span style="font-size:13px">★</span></div>
         <div class="stat-sub">رضا العملاء ({{ provider()?.header?.stats?.clientRating }}%)</div>
       </div>
       <div class="stat-cell">
@@ -109,7 +109,7 @@
         <div class="stat-sub">مشروع مكتمل</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n" style="color:var(--teal)">{{ provider()?.header?.stats?.publishedServices || 0 }}</div>
+        <div class="stat-n txt-teal">{{ provider()?.header?.stats?.publishedServices || 0 }}</div>
         <div class="stat-sub">خدمات معتمدة</div>
       </div>
       <div class="stat-cell">
@@ -117,9 +117,9 @@
         <div class="stat-sub">مهام منجزة</div>
       </div>
       <div class="stat-cell" style="background:rgba(123,47,190,.04)">
-        <div class="stat-n" style="color:var(--ai-txt)">{{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }} <span style="font-size:11px;font-weight:600;color:var(--txt-3)">/100</span></div>
+        <div class="stat-n txt-purple">{{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }} <span style="font-size:11px;font-weight:600" class="txt-muted">/100</span></div>
         <div class="stat-sub" style="display:flex;align-items:center;gap:3px;justify-content:center">
-          <svg aria-hidden="true" style="width:10px;height:10px;color:var(--ai-txt)"><use href="#ws-trust-ai"></use></svg>
+          <svg aria-hidden="true" style="width:10px;height:10px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
           نقاط AI
         </div>
       </div>
@@ -129,11 +129,11 @@
     <div class="ai-metrics-block">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">
         <span style="width:30px;height:30px;border-radius:8px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg aria-hidden="true" style="width:14px;height:14px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
+          <svg aria-hidden="true" style="width:14px;height:14px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
         </span>
-        <span style="font-size:13px;font-weight:800;color:var(--ai-txt)">تحليل الذكاء الاصطناعي الشامل</span>
-        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)">AI · نشط</span>
-        <span style="font-size:11px;color:var(--txt-3)">مؤشرات الأداء الفعلية</span>
+        <span style="font-size:13px;font-weight:800" class="txt-purple">تحليل الذكاء الاصطناعي الشامل</span>
+        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800" class="txt-purple">AI · نشط</span>
+        <span style="font-size:11px" class="txt-muted">مؤشرات الأداء الفعلية</span>
       </div>
       <div class="ai-metrics-inner">
         <!-- RINGS -->
@@ -144,7 +144,7 @@
               <circle cx="36" cy="36" r="28" fill="none" stroke="#A56BE0" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.executionQuality || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.executionQuality || 0"/>
               <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#A56BE0;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.executionQuality || 0 }}</text>
             </svg>
-            <div style="font-size:10px;color:var(--txt-3)">جودة التنفيذ</div>
+            <div style="font-size:10px" class="txt-muted">جودة التنفيذ</div>
           </div>
           <div class="ai-ring-item">
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
@@ -152,7 +152,7 @@
               <circle cx="36" cy="36" r="28" fill="none" stroke="#2BD4C7" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.onTimeDelivery || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.onTimeDelivery || 0"/>
               <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#2BD4C7;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.onTimeDelivery || 0 }}</text>
             </svg>
-            <div style="font-size:10px;color:var(--txt-3)">الالتزام بالمواعيد</div>
+            <div style="font-size:10px" class="txt-muted">الالتزام بالمواعيد</div>
           </div>
           <div class="ai-ring-item">
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
@@ -160,7 +160,7 @@
               <circle cx="36" cy="36" r="28" fill="none" stroke="#5DA0FF" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.communication || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.communication || 0"/>
               <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#5DA0FF;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.communication || 0 }}</text>
             </svg>
-            <div style="font-size:10px;color:var(--txt-3)">التواصل</div>
+            <div style="font-size:10px" class="txt-muted">التواصل</div>
           </div>
           <div class="ai-ring-item">
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
@@ -168,7 +168,7 @@
               <circle cx="36" cy="36" r="28" fill="none" stroke="#0FA99A" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.clientSatisfaction || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.clientSatisfaction || 0"/>
               <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#0FA99A;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.clientSatisfaction || 0 }}</text>
             </svg>
-            <div style="font-size:10px;color:var(--txt-3)">رضا العملاء</div>
+            <div style="font-size:10px" class="txt-muted">رضا العملاء</div>
           </div>
         </div>
 
@@ -176,29 +176,29 @@
         <div class="ai-perf-bars">
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span style="color:var(--txt-2)">معدل الإنجاز في الوقت المحدد</span>
-              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.onTimeCompletionRate || 0 }}%</span>
+              <span class="txt-slate">معدل الإنجاز في الوقت المحدد</span>
+              <span style="font-weight:800" class="txt-teal">{{ provider()?.aiMetrics?.onTimeCompletionRate || 0 }}%</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.onTimeCompletionRate || 0" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span style="color:var(--txt-2)">معدل إعادة الطلب من نفس العميل</span>
-              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.repeatClientRate || 0 }}%</span>
+              <span class="txt-slate">معدل إعادة الطلب من نفس العميل</span>
+              <span style="font-weight:800" class="txt-teal">{{ provider()?.aiMetrics?.repeatClientRate || 0 }}%</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.repeatClientRate || 0" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span style="color:var(--txt-2)">نسبة الخدمات فوق 4.8 نجمة</span>
-              <span style="color:var(--kahr);font-weight:800">{{ provider()?.aiMetrics?.highRatingServicesRate || 0 }}%</span>
+              <span class="txt-slate">نسبة الخدمات فوق 4.8 نجمة</span>
+              <span style="font-weight:800" class="txt-kahr">{{ provider()?.aiMetrics?.highRatingServicesRate || 0 }}%</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.highRatingServicesRate || 0" style="background:linear-gradient(90deg,#D98A0B,#FFB400)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span style="color:var(--txt-2)">نسبة التسليم بدون نزاعات</span>
-              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.conflictFreeDeliveryRate || 0 }}%</span>
+              <span class="txt-slate">نسبة التسليم بدون نزاعات</span>
+              <span style="font-weight:800" class="txt-teal">{{ provider()?.aiMetrics?.conflictFreeDeliveryRate || 0 }}%</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.conflictFreeDeliveryRate || 0" style="background:linear-gradient(90deg,#0FA99A,#2BD4C7)"></div></div>
           </div>
@@ -225,20 +225,20 @@
         <div class="section-card">
           <div class="section-title">
             <div class="section-title-left">
-              <span class="section-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.15);color:var(--teal)">
+              <span class="section-ico txt-teal" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.15)">
                 <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-user"></use></svg>
               </span>
               نبذة مهنية
             </div>
           </div>
-          <p style="font-size:13px;color:var(--txt-2);line-height:1.85;margin-bottom:12px;white-space:pre-wrap">{{ provider()?.basicInfo?.bio || 'لا يوجد نبذة شخصية حتى الآن.' }}</p>
+          <p style="font-size:13px;line-height:1.85;margin-bottom:12px;white-space:pre-wrap" class="txt-slate">{{ provider()?.basicInfo?.bio || 'لا يوجد نبذة شخصية حتى الآن.' }}</p>
         </div>
 
         <!-- SKILLS -->
         <div class="section-card">
           <div class="section-title">
             <div class="section-title-left">
-              <span class="section-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.15);color:var(--blue-txt)">
+              <span class="section-ico txt-blue" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.15)">
                 <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-cat-pen"></use></svg>
               </span>
               المهارات والتخصصات
@@ -247,13 +247,13 @@
 
           @for (specialty of provider()?.specialties; track specialty.id) {
           <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.07em;margin-bottom:7px">{{ specialty.specialtyName }}</div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.07em;margin-bottom:7px" class="txt-muted">{{ specialty.specialtyName }}</div>
             <div style="display:flex;flex-wrap:wrap;gap:6px">
               @for (sub of specialty.subSpecialties; track sub) {
                 <span class="tag-blue">{{ sub }}</span>
               }
               @if (!specialty.subSpecialties || specialty.subSpecialties.length === 0) {
-                <span style="font-size:11px;color:var(--txt-3)">لا توجد تخصصات فرعية مضافة</span>
+                <span style="font-size:11px" class="txt-muted">لا توجد تخصصات فرعية مضافة</span>
               }
             </div>
           </div>
@@ -261,7 +261,7 @@
 
           @if (provider()?.skills?.length) {
           <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.07em;margin-bottom:7px">مهارات إضافية</div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.07em;margin-bottom:7px" class="txt-muted">مهارات إضافية</div>
             <div style="display:flex;flex-wrap:wrap;gap:6px">
               @for (skill of provider()?.skills; track skill) {
                 <span class="tag-teal">{{ skill }}</span>
@@ -271,7 +271,7 @@
           }
           
           @if (!provider()?.specialties?.length && !provider()?.skills?.length) {
-            <div style="font-size:12px;color:var(--txt-3);margin-top:10px;">لم يتم إضافة أي مهارات أو تخصصات بعد.</div>
+            <div style="font-size:12px;margin-top:10px" class="txt-muted">لم يتم إضافة أي مهارات أو تخصصات بعد.</div>
           }
         </div>
         }
@@ -282,26 +282,26 @@
           @if (provider()?.services?.length) {
             <div style="display:grid;grid-template-columns:1fr;gap:15px">
               @for (srv of provider()?.services; track srv.id) {
-                <div style="padding:15px;background:var(--bg-2);border-radius:12px;border:1px solid var(--border);display:flex;gap:15px;align-items:center;">
-                  <div style="width:80px;height:60px;border-radius:8px;background:var(--bg-3);overflow:hidden;flex-shrink:0;">
+                <div style="padding:15px;background:var(--surface);border-radius:12px;border:1px solid var(--border);display:flex;gap:15px;align-items:center;">
+                  <div style="width:80px;height:60px;border-radius:8px;background:linear-gradient(135deg,#0A1020,#12183C);overflow:hidden;flex-shrink:0;">
                     @if (srv.gallery?.[0]) {
                       <img [src]="srv.gallery[0]" style="width:100%;height:100%;object-fit:cover;" alt="service">
                     } @else {
-                      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--txt-3)">
+                      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center" class="txt-muted">
                         <svg aria-hidden="true" style="width:20px;height:20px"><use href="#ws-image"></use></svg>
                       </div>
                     }
                   </div>
                   <div style="flex:1">
-                    <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:5px">{{ srv.title }}</div>
-					<div style="font-size:12px;color:var(--kahr)">تبدأ من {{ srv.totalAmount }} ريال</div>
+                    <div style="font-size:14px;font-weight:700;margin-bottom:5px" class="txt-white">{{ srv.title }}</div>
+					<div style="font-size:12px" class="txt-kahr">تبدأ من {{ srv.totalAmount }} ريال</div>
                   </div>
-				  <a [routerLink]="['/marketplace/offer', srv.id]" style="padding:8px 15px;background:var(--blue);color:#fff;border-radius:8px;font-size:12px;font-weight:700">عرض الخدمة</a>
+				  <a [routerLink]="['/marketplace/offer', srv.id]" style="padding:8px 15px;background:var(--blue);border-radius:8px;font-size:12px;font-weight:700" class="txt-white">عرض الخدمة</a>
                 </div>
               }
             </div>
           } @else {
-            <div style="text-align:center;padding:40px 0;color:var(--txt-3);font-size:13px">لا توجد خدمات منشورة حالياً.</div>
+            <div style="text-align:center;padding:40px 0;font-size:13px" class="txt-muted">لا توجد خدمات منشورة حالياً.</div>
           }
         </div>
         }
@@ -312,24 +312,24 @@
           @if (provider()?.reviews?.length) {
             <div style="display:flex;flex-direction:column;gap:15px">
               @for (rev of provider()?.reviews; track rev.id) {
-                <div style="padding:15px;background:var(--bg-2);border-radius:12px;border:1px solid var(--border)">
+                <div style="padding:15px;background:var(--surface);border-radius:12px;border:1px solid var(--border)">
                   <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
                     <img [src]="rev.client?.avatarUrl || 'assets/images/default-avatar.png'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" (error)="$event.target.src='assets/images/default-avatar.png'">
                     <div>
-                      <div style="font-size:13px;font-weight:700;color:var(--txt)">{{ rev.client?.firstName }} {{ rev.client?.lastName }}</div>
-                      <div style="font-size:11px;color:var(--txt-3)">مشروع: {{ rev.project?.title || 'عام' }}</div>
+                      <div style="font-size:13px;font-weight:700" class="txt-white">{{ rev.client?.firstName }} {{ rev.client?.lastName }}</div>
+                      <div style="font-size:11px" class="txt-muted">مشروع: {{ rev.project?.title || 'عام' }}</div>
                     </div>
-                    <div style="margin-right:auto;display:flex;align-items:center;gap:4px;color:var(--kahr);font-size:12px;font-weight:800">
+                    <div style="margin-right:auto;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:800" class="txt-kahr">
                       <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-star"></use></svg>
                       {{ rev.rating }}
                     </div>
                   </div>
-                  <p style="font-size:13px;color:var(--txt-2);line-height:1.6">{{ rev.comment || 'لا يوجد تعليق.' }}</p>
+                  <p style="font-size:13px;line-height:1.6" class="txt-slate">{{ rev.comment || 'لا يوجد تعليق.' }}</p>
                 </div>
               }
             </div>
           } @else {
-            <div style="text-align:center;padding:40px 0;color:var(--txt-3);font-size:13px">لم يتلقَ المزود أي تقييمات بعد.</div>
+            <div style="text-align:center;padding:40px 0;font-size:13px" class="txt-muted">لم يتلقَ المزود أي تقييمات بعد.</div>
           }
         </div>
         }
@@ -340,21 +340,21 @@
           @if (provider()?.portfolioItems?.length) {
             <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:15px">
               @for (item of provider()?.portfolioItems; track item.id) {
-                <div style="background:var(--bg-2);border-radius:12px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s ease">
-                  <div style="height:140px;background:var(--bg-3)">
+                <div style="background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s ease">
+                  <div style="height:140px;background:linear-gradient(135deg,#0A1020,#12183C)">
                     @if (item.images?.[0] || item.thumbnailUrl) {
                       <img [src]="item.images?.[0] || item.thumbnailUrl" style="width:100%;height:100%;object-fit:cover;" alt="portfolio">
                     } @else {
-                      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--txt-3)">
+                      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center" class="txt-muted">
                         <svg aria-hidden="true" style="width:30px;height:30px"><use href="#ws-image"></use></svg>
                       </div>
                     }
                   </div>
                   <div style="padding:12px">
-                    <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ item.title }}</div>
+                    <div style="font-size:13px;font-weight:700;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="txt-white">{{ item.title }}</div>
                     <div style="display:flex;gap:5px;flex-wrap:wrap">
                       @for (tech of item.technologies?.slice(0,3); track tech) {
-                        <span style="font-size:9px;padding:2px 6px;background:rgba(43,212,199,.1);color:var(--teal);border-radius:4px">{{ tech }}</span>
+                        <span style="font-size:9px;padding:2px 6px;background:rgba(43,212,199,.1);border-radius:4px" class="txt-teal">{{ tech }}</span>
                       }
                     </div>
                   </div>
@@ -362,7 +362,7 @@
               }
             </div>
           } @else {
-            <div style="text-align:center;padding:40px 0;color:var(--txt-3);font-size:13px">لا توجد نماذج أعمال مضافة حالياً.</div>
+            <div style="text-align:center;padding:40px 0;font-size:13px" class="txt-muted">لا توجد نماذج أعمال مضافة حالياً.</div>
           }
         </div>
         }
@@ -378,38 +378,38 @@
         <div class="sidebar-card">
           <div class="sidebar-title">
             <span style="width:28px;height:28px;border-radius:7px;background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-shield"></use></svg>
+              <svg aria-hidden="true" style="width:13px;height:13px" class="txt-kahr"><use href="#ws-shield"></use></svg>
             </span>
             الشارات والإنجازات
           </div>
           <div style="display:flex;flex-direction:column;gap:9px">
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(217,138,11,.03);border:1px solid rgba(217,138,11,.1);border-radius:9px">
               <span style="width:30px;height:30px;border-radius:7px;background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-star"></use></svg>
+                <svg aria-hidden="true" style="width:13px;height:13px" class="txt-kahr"><use href="#ws-star"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">مستوى المزود</div><div style="font-size:10px;color:var(--txt-3)">{{ provider()?.header?.levelInfo?.levelName || 'مبتدئ' }}</div></div>
+              <div><div style="font-size:12px;font-weight:800" class="txt-white">مستوى المزود</div><div style="font-size:10px" class="txt-muted">{{ provider()?.header?.levelInfo?.levelName || 'مبتدئ' }}</div></div>
             </div>
             @if (provider()?.header?.isVerified) {
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(43,212,199,.03);border:1px solid rgba(43,212,199,.1);border-radius:9px">
               <span style="width:30px;height:30px;border-radius:7px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--teal)"><use href="#ws-trust-doc"></use></svg>
+                <svg aria-hidden="true" style="width:13px;height:13px" class="txt-teal"><use href="#ws-trust-doc"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">هوية موثّقة</div><div style="font-size:10px;color:var(--txt-3)">هوية مدققة من وسيط AI</div></div>
+              <div><div style="font-size:12px;font-weight:800" class="txt-white">هوية موثّقة</div><div style="font-size:10px" class="txt-muted">هوية مدققة من وسيط AI</div></div>
             </div>
             }
             @if (provider()?.specialties?.length && provider()?.specialties?.[0]?.status === 'APPROVED') {
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(123,47,190,.03);border:1px solid rgba(123,47,190,.1);border-radius:9px">
               <span style="width:30px;height:30px;border-radius:7px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
+                <svg aria-hidden="true" style="width:13px;height:13px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">ثقة AI عالية</div><div style="font-size:10px;color:var(--txt-3)">نقاط {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }}/100 من الذكاء</div></div>
+              <div><div style="font-size:12px;font-weight:800" class="txt-white">ثقة AI عالية</div><div style="font-size:10px" class="txt-muted">نقاط {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }}/100 من الذكاء</div></div>
             </div>
             }
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(15,169,154,.03);border:1px solid rgba(15,169,154,.1);border-radius:9px">
               <span style="width:30px;height:30px;border-radius:7px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg aria-hidden="true" style="width:13px;height:13px;color:#0FA99A"><use href="#ws-check"></use></svg>
+                <svg aria-hidden="true" style="width:13px;height:13px" class="txt-green"><use href="#ws-check"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">{{ provider()?.header?.stats?.completedProjects || 0 }}+ مشروع</div><div style="font-size:10px;color:var(--txt-3)">عضو منذ {{ provider()?.header?.memberSince }}</div></div>
+              <div><div style="font-size:12px;font-weight:800" class="txt-white">{{ provider()?.header?.stats?.completedProjects || 0 }}+ مشروع</div><div style="font-size:10px" class="txt-muted">عضو منذ {{ provider()?.header?.memberSince }}</div></div>
             </div>
           </div>
         </div>
@@ -417,10 +417,10 @@
         <!-- MEMBER INFO -->
         <div class="sidebar-card">
           <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">عضو منذ</span><span style="font-weight:700;color:var(--txt)">{{ provider()?.header?.memberSince }}</span></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">آخر نشاط</span><span style="font-weight:700;color:#0FA99A">الآن</span></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">اللغات</span><span style="font-weight:700;color:var(--txt)">العربية · الإنجليزية</span></div>
-            <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--txt-3)">الموقع</span><span style="font-weight:700;color:var(--txt)">{{ provider()?.header?.location || 'غير محدد' }}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span class="txt-muted">عضو منذ</span><span style="font-weight:700" class="txt-white">{{ provider()?.header?.memberSince }}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span class="txt-muted">آخر نشاط</span><span style="font-weight:700" class="txt-green">الآن</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span class="txt-muted">اللغات</span><span style="font-weight:700" class="txt-white">العربية · الإنجليزية</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span class="txt-muted">الموقع</span><span style="font-weight:700" class="txt-white">{{ provider()?.header?.location || 'غير محدد' }}</span></div>
           </div>
         </div>
 
@@ -430,14 +430,14 @@
   </div>
 </div>
 } @else if (loading()) {
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;background:var(--bg)">
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px">
   <div class="loader-spinner">
     <svg viewBox="0 0 50 50" style="width:40px;height:40px;animation:spin 1s linear infinite">
       <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border)" stroke-width="4"></circle>
       <circle cx="25" cy="25" r="20" fill="none" stroke="var(--blue)" stroke-width="4" stroke-dasharray="30 100" stroke-linecap="round"></circle>
     </svg>
   </div>
-  <div style="font-size:14px;font-weight:700;color:var(--txt);letter-spacing:0.5px">جاري جلب بيانات المزود...</div>
-  <div style="font-size:12px;color:var(--txt-3)">يتم الآن تحليل وتقييم مستوى الأداء باستخدام AI</div>
+  <div style="font-size:14px;font-weight:700;letter-spacing:0.5px" class="txt-white">جاري جلب بيانات المزود...</div>
+  <div style="font-size:12px" class="txt-muted">يتم الآن تحليل وتقييم مستوى الأداء باستخدام AI</div>
 </div>
 }

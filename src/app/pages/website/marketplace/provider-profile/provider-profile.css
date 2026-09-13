@@ -3,6 +3,14 @@
 
 @keyframes float-up{0%{transform:translateY(100vh);opacity:0}10%{opacity:.5}90%{opacity:.5}100%{transform:translateY(-120px);opacity:0}}
 
+.page-wrap{position:relative;z-index:2;padding-top:64px}
+
+/* BREADCRUMB */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-3);padding:16px 0 0;flex-wrap:wrap}
+.breadcrumb a{color:var(--txt-3);text-decoration:none;transition:color .15s}
+.breadcrumb a:hover{color:var(--teal)}
+.breadcrumb-sep{opacity:.4}
+
 /* COVER BANNER */
 .cover-banner{position:relative;height:220px;background:linear-gradient(135deg,#080F22 0%,#0C1A36 40%,#070D24 100%);overflow:hidden;margin-top:16px;border-radius:16px 16px 0 0}
 .cover-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(43,127,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(43,127,255,.05) 1px,transparent 1px);background-size:48px 48px}
