@@ -1,13 +1,185 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="cat-page" dir="rtl">
+  <div class="cat-hdr">
+    <div>
+      <h1 class="cat-ttl">التصنيفات والمستويات</h1>
+      <p class="cat-sub">نظام تصنيف مقدمي الخدمة بناءً على الأداء والتقييمات والمشاريع المكتملة</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">التصنيفات</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"التصنيفات\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="cat-ai-disc">
+    <div class="cat-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div class="cat-ai-body">
+      <div class="cat-ai-lbl">وسيط AI: محرك التصنيف التلقائي</div>
+      <p class="cat-ai-txt">الذكاء الاصطناعي يراقب أداء المقدمين ويطبّق الترقية والتخفيض تلقائياً كل شهر <span class="cat-ai-badge">دقة 95%</span></p>
+    </div>
+  </div>
+
+  <div class="cat-kpis">
+    <div class="cat-kpi"><div class="cat-kpi-num" style="color:#2BD4C7">{{ totalProviders() | number }}</div><div class="cat-kpi-lbl">إجمالي مقدمي الخدمة</div></div>
+    <div class="cat-kpi"><div class="cat-kpi-num" style="color:#94B8CC">{{ tiers()[3].count }}</div><div class="cat-kpi-lbl">Platinum</div></div>
+    <div class="cat-kpi"><div class="cat-kpi-num" style="color:#D98A0B">{{ tiers()[2].count }}</div><div class="cat-kpi-lbl">Gold</div></div>
+    <div class="cat-kpi"><div class="cat-kpi-num" style="color:#A56BE0">34</div><div class="cat-kpi-lbl">ترقيات AI هذا الشهر</div></div>
+  </div>
+
+  <div class="cat-tiers-grid">
+    @for (t of tiers(); track t.name) {
+      <div class="cat-tier-card" [style.border-color]="t.name === 'Gold' || t.name === 'Platinum' ? t.color + '40' : null">
+        <div class="cat-tier-hdr" [style.background]="'linear-gradient(135deg,' + t.color + '22,' + t.color + '08)'">
+          <div class="cat-tier-name" [style.color]="t.color">{{ t.name }}</div>
+          <div class="cat-tier-stars" [style.color]="t.color">
+            @for (filled of starsArray(t.stars); track $index) {
+              @if (filled) {
+                <svg width="14" height="14" viewBox="0 0 24 24"><polygon [attr.fill]="t.color" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              } @else {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="t.color" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              }
+            }
+          </div>
+          <div class="cat-tier-count">{{ t.count | number }} مقدم ({{ t.percent }}%)</div>
+        </div>
+        <div class="cat-tier-body">
+          <div class="cat-req-row"><div class="cat-req-lbl">الحد الأدنى للتقييم</div><div class="cat-req-val">{{ t.minRating }}</div></div>
+          <div class="cat-req-row"><div class="cat-req-lbl">مشاريع مكتملة</div><div class="cat-req-val">{{ t.minProjects }}</div></div>
+          <div class="cat-req-row"><div class="cat-req-lbl">المميزات</div><div class="cat-req-val cat-req-features">{{ t.features }}</div></div>
+        </div>
+        <button type="button" class="cat-tier-edit-btn" (click)="editTier(t)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+          تعديل الشروط
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="cat-dist-grid">
+    <div class="cat-card">
+      <div class="cat-card-ttl">توزيع مقدمي الخدمة</div>
+      @for (t of tiers(); track t.name) {
+        <div class="cat-dist-item">
+          <span class="cat-dist-lbl" [style.color]="t.color">{{ t.name }}</span>
+          <div class="cat-dist-bar-wrap"><div class="cat-dist-fill" [style.width.%]="t.percent" [style.background]="t.color"></div></div>
+          <span class="cat-dist-count">{{ t.count | number }}</span>
+        </div>
+      }
+    </div>
+    <div class="cat-card">
+      <div class="cat-card-ttl">حركات AI هذا الشهر</div>
+      @for (m of aiUpgradesThisMonth(); track m.label) {
+        <div class="cat-upd-item" [class.down]="m.down">
+          <div class="cat-upd-lbl">
+            @if (m.down) {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            } @else {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            }
+            <span>{{ m.label }}</span>
+          </div>
+          <span class="cat-upd-count" [style.color]="m.color">{{ m.count }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-card-ttl-row">
+      <span class="cat-card-ttl">أبرز مقدمي Platinum</span>
+      <div class="cat-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" placeholder="ابحث باسم المقدم..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
+      </div>
+    </div>
+    <div class="cat-tbl-wrap">
+      <table class="cat-tbl">
+        <thead>
+          <tr>
+            <th>المقدم</th>
+            <th>التخصص</th>
+            <th>التقييم</th>
+            <th>مشاريع</th>
+            <th>المستوى</th>
+            <th>إيرادات الشهر</th>
+            <th>منذ</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of filteredProviders(); track p.name) {
+            <tr>
+              <td>
+                <div class="cat-u-cell">
+                  <div class="cat-av" [style.background]="p.avatarBg">{{ p.avatar }}</div>
+                  <span class="cat-u-name">{{ p.name }}</span>
+                </div>
+              </td>
+              <td><span class="cat-bdg cat-bdg-blue">{{ p.specialty }}</span></td>
+              <td class="cat-rating">★ {{ p.rating }}</td>
+              <td class="cat-center">{{ p.projects }}</td>
+              <td><span class="cat-bdg" [style.background]="tierColors[p.tier] + '20'" [style.color]="tierColors[p.tier]">{{ p.tier }}</span></td>
+              <td class="cat-revenue">{{ p.revenue }}</td>
+              <td class="cat-date">{{ p.since }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="cat-sim-card">
+    <div class="cat-sim-ttl">Threshold Simulator — محاكاة تغيير الشروط</div>
+    <div class="cat-sim-row">
+      <div class="cat-sim-field">
+        <div class="cat-sim-lbl">عدد المشاريع المطلوبة للترقية لـ Gold</div>
+        <input type="range" min="5" max="30" [value]="goldProjectThreshold()" (input)="goldProjectThreshold.set(+$any($event.target).value)" />
+        <div class="cat-sim-range-lbls"><span>5</span><span>{{ goldProjectThreshold() }}</span><span>30</span></div>
+      </div>
+      <div class="cat-sim-field">
+        <div class="cat-sim-lbl">متوسط تقييم مطلوب</div>
+        <input type="range" min="3.0" max="5.0" step="0.1" [value]="goldRatingThreshold()" (input)="goldRatingThreshold.set(+$any($event.target).value)" />
+        <div class="cat-sim-range-lbls"><span>3.0</span><span>{{ goldRatingThreshold() }}</span><span>5.0</span></div>
+      </div>
+    </div>
+    <div class="cat-sim-result">
+      بالشروط الحالية: <strong>{{ eligibleForGold() }}</strong> مقدم مؤهل للـ Gold من أصل 824
+    </div>
+  </div>
+
+  @if (toast()) {
+    <div class="cat-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>{{ toast() }}</span>
+    </div>
+  }
+</section>
+
+@if (editingTier(); as tierName) {
+  <div class="cat-mov" (click)="closeTierEdit()">
+    <div class="cat-mbox" (click)="$event.stopPropagation()">
+      <div class="cat-md-hdr">
+        <h3>تعديل شروط مستوى {{ tierName }}</h3>
+        <button type="button" class="cat-mclose" (click)="closeTierEdit()">×</button>
+      </div>
+      @for (t of tiers(); track t.name) {
+        @if (t.name === tierName) {
+          <div class="cat-md-body">
+            <div class="cat-md-field">
+              <label>الحد الأدنى للتقييم</label>
+              <input type="text" [value]="editMinRating()" (input)="editMinRating.set($any($event.target).value)" />
+            </div>
+            <div class="cat-md-field">
+              <label>مشاريع مكتملة</label>
+              <input type="text" [value]="editMinProjects()" (input)="editMinProjects.set($any($event.target).value)" />
+            </div>
+            <div class="cat-md-field">
+              <label>المميزات</label>
+              <textarea rows="3" [value]="editFeatures()" (input)="editFeatures.set($any($event.target).value)"></textarea>
+            </div>
+          </div>
+          <div class="cat-md-actions">
+            <button type="button" class="cat-btn cat-btn-primary" (click)="saveTierEdit(t)">حفظ التعديلات</button>
+            <button type="button" class="cat-btn cat-btn-ghost" (click)="closeTierEdit()">إلغاء</button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+}

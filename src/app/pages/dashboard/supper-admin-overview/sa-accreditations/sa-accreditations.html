@@ -1,13 +1,181 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="acc-page" dir="rtl">
+  <div class="acc-hdr">
+    <div>
+      <h1 class="acc-ttl">الاعتمادات المعلقة</h1>
+      <p class="acc-sub">حسابات جديدة تنتظر مراجعتك وقرار الاعتماد</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الاعتمادات</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الاعتمادات\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="acc-ai-disc">
+    <div class="acc-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div>
+      <div class="acc-ai-lbl">وسيط AI — تحليل طلبات الاعتماد</div>
+      <p class="acc-ai-txt">AI يحلّل المستندات ويكشف الهويات المكررة ويصنّف مخاطر كل طلب <span class="acc-ai-badge">دقة 95%</span> — توصية AI تحتاج مراجعة بشرية</p>
+    </div>
+  </div>
+
+  <div class="acc-kpi-grid">
+    <div class="acc-kpi">
+      <div class="acc-kpi-top"><span class="acc-kpi-lbl">معلقة الآن</span></div>
+      <div class="acc-kpi-val" style="color:#FFB400">{{ stats().pending }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-top"><span class="acc-kpi-lbl">مقبول هذا الشهر</span></div>
+      <div class="acc-kpi-val" style="color:#0FA99A">{{ stats().acceptedMonth }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-top"><span class="acc-kpi-lbl">مرفوض هذا الشهر</span></div>
+      <div class="acc-kpi-val" style="color:#FF8C69">{{ stats().rejectedMonth }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-top"><span class="acc-kpi-lbl">متوسط وقت الاعتماد</span></div>
+      <div class="acc-kpi-val" style="color:#5DA0FF">{{ stats().avgHours }}<span class="acc-kpi-unit">ساعة</span></div>
+    </div>
+  </div>
+
+  <div class="acc-tabs">
+    @for (f of filters; track f.key) {
+      <button type="button" class="acc-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
+        {{ f.label }}<span class="acc-tab-count">{{ counts()[f.key] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="acc-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" placeholder="ابحث بالاسم أو البريد..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
+  </div>
+
+  @if (filtered().length === 0) {
+    <div class="acc-empty">
+      <p>لا توجد طلبات معلقة في هذا التصنيف</p>
+    </div>
+  } @else {
+    <div class="acc-tbl-card">
+      <div class="acc-tbl-wrap">
+        <table class="acc-tbl">
+          <thead>
+            <tr>
+              <th>المتقدم</th>
+              <th>النوع</th>
+              <th>تاريخ الطلب</th>
+              <th>المدة</th>
+              <th>المستندات</th>
+              <th>AI توصية</th>
+              <th>إجراء سريع</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of filtered(); track r.id) {
+              <tr (click)="openDetail(r)">
+                <td>
+                  <div class="acc-u-cell">
+                    <div class="acc-u-av" [style.background]="r.avatarBg">{{ r.avatar }}</div>
+                    <div>
+                      <div class="acc-u-name">{{ r.name }}</div>
+                      <div class="acc-u-email">{{ r.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="acc-type-badge">{{ typeLabels[r.type] }}</span></td>
+                <td class="acc-muted">{{ r.date }}</td>
+                <td [class.acc-warn-text]="r.waitHours > 24">{{ r.wait }}</td>
+                <td>
+                  @if (r.docsOk) {
+                    <span class="acc-docs-ok">✓ {{ r.docs }} مستندات</span>
+                  } @else {
+                    <span class="acc-docs-bad">⚠ {{ r.docs }} — ناقص</span>
+                  }
+                </td>
+                <td><span class="acc-ai-pill" [ngClass]="aiClasses[r.ai]">{{ aiLabels[r.ai] }}</span></td>
+                <td>
+                  <div class="acc-row-actions" (click)="$event.stopPropagation()">
+                    <button type="button" class="acc-act acc-act-accept" (click)="quickAccept(r, $event)">قبول</button>
+                    <button type="button" class="acc-act acc-act-reject" (click)="quickReject(r, $event)">رفض</button>
+                    <button type="button" class="acc-act acc-act-view" (click)="openDetail(r)">مراجعة</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</section>
+
+@if (showDetail()) {
+  <div class="acc-mov" (click)="closeDetail()">
+    <div class="acc-mbox" (click)="$event.stopPropagation()">
+      @if (selected(); as d) {
+        <div class="acc-md-hdr">
+          <div>
+            <h3>مراجعة حساب — {{ d.name }}</h3>
+            <span class="acc-type-badge">{{ typeLabels[d.type] }}</span>
+          </div>
+          <button type="button" class="acc-mclose" (click)="closeDetail()">×</button>
+        </div>
+
+        <div class="acc-score-row">
+          <div class="acc-score-ring">
+            <div class="acc-score-num">{{ d.aiScore }}</div>
+          </div>
+          <div class="acc-score-bars">
+            <div class="acc-score-bar">
+              <div class="acc-score-bar-lbl"><span>اكتمال البيانات</span><span>{{ d.dataCompleteness }}%</span></div>
+              <div class="acc-score-track"><div class="acc-score-fill" [style.width.%]="d.dataCompleteness" style="background:#0FA99A"></div></div>
+            </div>
+            <div class="acc-score-bar">
+              <div class="acc-score-bar-lbl"><span>جودة المستندات</span><span>{{ d.docQuality }}%</span></div>
+              <div class="acc-score-track"><div class="acc-score-fill" [style.width.%]="d.docQuality" style="background:#FFB400"></div></div>
+            </div>
+            <div class="acc-score-bar">
+              <div class="acc-score-bar-lbl"><span>مخاطر الاحتيال</span><span>{{ d.fraudRisk }}%</span></div>
+              <div class="acc-score-track"><div class="acc-score-fill" [style.width.%]="d.fraudRisk" style="background:#FF8C69"></div></div>
+            </div>
+            <div class="acc-score-bar">
+              <div class="acc-score-bar-lbl"><span>تطابق الهوية</span><span>{{ d.identityMatch }}%</span></div>
+              <div class="acc-score-track"><div class="acc-score-fill" [style.width.%]="d.identityMatch" style="background:#0FA99A"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="acc-ai-note">{{ d.aiNote }}</div>
+
+        <div class="acc-md-field-row">
+          <div class="acc-md-field"><label>التخصص</label><p>{{ d.specialty }}</p></div>
+          <div class="acc-md-field"><label>المدينة</label><p>{{ d.city }}</p></div>
+          <div class="acc-md-field"><label>الجنسية</label><p>{{ d.nationality }}</p></div>
+        </div>
+
+        <div class="acc-checklist-ttl">قائمة التحقق الإلزامية</div>
+        <div class="acc-checklist">
+          @for (c of checklist(); track c.label; let i = $index) {
+            <div class="acc-check-item" [class]="'st-' + c.state" (click)="toggleCheck(i)">
+              <div class="acc-check-box">
+                @if (c.state === 'done') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                }
+              </div>
+              <div>
+                <div class="acc-check-lbl">{{ c.label }}</div>
+                <div class="acc-check-sub">{{ c.sub }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (actionMessage()) {
+          <div class="acc-action-msg">{{ actionMessage() }}</div>
+        }
+
+        <div class="acc-md-actions">
+          <button type="button" class="acc-btn acc-btn-accept" (click)="decide('accept')">قبول الحساب</button>
+          <button type="button" class="acc-btn acc-btn-docs" (click)="decide('docs')">طلب مستندات إضافية</button>
+          <button type="button" class="acc-btn acc-btn-reject" (click)="decide('reject')">رفض مع إبلاغ المستخدم</button>
+        </div>
+      }
+    </div>
+  </div>
+}
