@@ -165,16 +165,16 @@
 /* === Light Mode === */
 :host-context(.light-theme) .fa-bk,:host-context(.theme-light) .fa-bk{color:#5B6472}
 :host-context(.light-theme) .fa-bk:hover,:host-context(.theme-light) .fa-bk:hover{color:#0A6F64}
-:host-context(.light-theme) .fa-hd,:host-context(.theme-light) .fa-hd{background:linear-gradient(135deg,rgba(15,169,154,.05),rgba(43,127,255,.04));border-color:rgba(15,169,154,.14);box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(.light-theme) .fa-hd,:host-context(.theme-light) .fa-hd{background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.05));border-color:#BFE6DF;box-shadow:0 2px 10px rgba(15,23,42,.05)}
 :host-context(.light-theme) .fa-ttl,:host-context(.theme-light) .fa-ttl{color:#0F172A}
 :host-context(.light-theme) .fa-sub,:host-context(.theme-light) .fa-sub{color:#475569}
 :host-context(.light-theme) .fa-prov,:host-context(.theme-light) .fa-prov{color:#0F172A}
 :host-context(.light-theme) .fa-dot,:host-context(.theme-light) .fa-dot{background:#94A3B8}
 :host-context(.light-theme) .fa-badge,:host-context(.theme-light) .fa-badge{background:rgba(255,180,0,.08);color:#9A6700;border-color:rgba(255,180,0,.2)}
-:host-context(.light-theme) .fa-mi,:host-context(.theme-light) .fa-mi{background:#F5F7FC;border-color:#E7EAF1}
+:host-context(.light-theme) .fa-mi,:host-context(.theme-light) .fa-mi{background:#fff;border-color:#E7EAF1}
 :host-context(.light-theme) .fa-mi .v,:host-context(.theme-light) .fa-mi .v{color:#0F172A}
-:host-context(.light-theme) .fa-mi .l,:host-context(.theme-light) .fa-mi .l{color:#56607D}
-:host-context(.light-theme) .fa-mi .v small,:host-context(.theme-light) .fa-mi .v small{color:#56607D}
+:host-context(.light-theme) .fa-mi .l,:host-context(.theme-light) .fa-mi .l{color:#5B6472}
+:host-context(.light-theme) .fa-mi .v small,:host-context(.theme-light) .fa-mi .v small{color:#5B6472}
 :host-context(.light-theme) .fa-v-free,:host-context(.theme-light) .fa-v-free{color:#0A6F64}
 :host-context(.light-theme) .fa-v-held,:host-context(.theme-light) .fa-v-held{color:#9A6700}
 :host-context(.light-theme) .fa-ai-disc,:host-context(.theme-light) .fa-ai-disc{background:linear-gradient(135deg,rgba(123,47,190,.05),rgba(43,127,255,.03));border-color:rgba(123,47,190,.14)}
@@ -182,29 +182,29 @@
 :host-context(.light-theme) .fa-ai-disc-txt,:host-context(.theme-light) .fa-ai-disc-txt{color:#475569}
 :host-context(.light-theme) .fa-ai-disc-badge,:host-context(.theme-light) .fa-ai-disc-badge{background:rgba(123,47,190,.08);border-color:rgba(123,47,190,.18);color:#6B27A5}
 :host-context(.light-theme) .fa-ai-disc-ico,:host-context(.theme-light) .fa-ai-disc-ico{background:rgba(123,47,190,.1);color:#6B27A5}
-:host-context(.light-theme) .fa-warn,:host-context(.theme-light) .fa-warn{background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.18)}
+:host-context(.light-theme) .fa-warn,:host-context(.theme-light) .fa-warn{background:rgba(255,180,0,.07);border-color:#F0D08A}
 :host-context(.light-theme) .fa-warn-ic,:host-context(.theme-light) .fa-warn-ic{background:rgba(255,180,0,.08);color:#9A6700}
 :host-context(.light-theme) .fa-warn-b,:host-context(.theme-light) .fa-warn-b{color:#475569}
 :host-context(.light-theme) .fa-warn-b b,:host-context(.theme-light) .fa-warn-b b{color:#0F172A}
 :host-context(.light-theme) .fa-warn-d,:host-context(.theme-light) .fa-warn-d{color:#9A6700}
-:host-context(.light-theme) .fa-warn-bar,:host-context(.theme-light) .fa-warn-bar{background:rgba(7,13,36,.08)}
-:host-context(.light-theme) .fa-warn-t,:host-context(.theme-light) .fa-warn-t{color:#64748B}
+:host-context(.light-theme) .fa-warn-bar,:host-context(.theme-light) .fa-warn-bar{background:#E7EAF1}
+:host-context(.light-theme) .fa-warn-t,:host-context(.theme-light) .fa-warn-t{color:#5B6472}
 :host-context(.light-theme) .fa-sec-ttl,:host-context(.theme-light) .fa-sec-ttl{color:#0F172A}
 :host-context(.light-theme) .fa-ms,:host-context(.theme-light) .fa-ms{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
-:host-context(.light-theme) .fa-ms-final,:host-context(.theme-light) .fa-ms-final{border-color:rgba(255,180,0,.2);box-shadow:0 0 0 1px rgba(255,180,0,.08)}
+:host-context(.light-theme) .fa-ms-final,:host-context(.theme-light) .fa-ms-final{border-color:#FFB400;box-shadow:0 0 0 1px rgba(255,180,0,.08)}
 :host-context(.light-theme) .fa-ms-t h4,:host-context(.theme-light) .fa-ms-t h4{color:#0F172A}
 :host-context(.light-theme) .fa-ms-d,:host-context(.theme-light) .fa-ms-d{color:#56607D}
 :host-context(.light-theme) .fa-ms-pay,:host-context(.theme-light) .fa-ms-pay{background:rgba(15,169,154,.08);border-color:rgba(15,169,154,.2);color:#0A6F64}
 :host-context(.light-theme) .fa-pay-held,:host-context(.theme-light) .fa-pay-held{background:rgba(255,180,0,.08);border-color:rgba(255,180,0,.2);color:#9A6700}
 :host-context(.light-theme) .fa-deliv,:host-context(.theme-light) .fa-deliv{color:#475569}
 :host-context(.light-theme) .fa-deliv svg,:host-context(.theme-light) .fa-deliv svg{color:#94A3B8}
-:host-context(.light-theme) .fa-files,:host-context(.theme-light) .fa-files{background:#EEF2FA;border-color:#D8DFEC;color:#56607D}
+:host-context(.light-theme) .fa-files,:host-context(.theme-light) .fa-files{background:#EEF2FA;border-color:#D8DFEC;color:#5B6472}
 :host-context(.light-theme) .fa-aicheck,:host-context(.theme-light) .fa-aicheck{background:rgba(15,169,154,.05);border-color:rgba(15,169,154,.16);color:#0A6F64}
 :host-context(.light-theme) .fa-redo,:host-context(.theme-light) .fa-redo{background:rgba(15,169,154,.06);border-color:rgba(15,169,154,.18);color:#0A6F64}
 :host-context(.light-theme) .fa-finalfiles .fa-file-chip,:host-context(.theme-light) .fa-finalfiles .fa-file-chip{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
 :host-context(.light-theme) .fa-finalfiles .fa-file-chip svg,:host-context(.theme-light) .fa-finalfiles .fa-file-chip svg{color:#94A3B8}
-:host-context(.light-theme) .fa-eval-ai,:host-context(.theme-light) .fa-eval-ai{background:rgba(123,47,190,.04);border-color:rgba(123,47,190,.12)}
-:host-context(.light-theme) .fa-eval-you,:host-context(.theme-light) .fa-eval-you{background:rgba(43,127,255,.04);border-color:rgba(43,127,255,.12)}
+:host-context(.light-theme) .fa-eval-ai,:host-context(.theme-light) .fa-eval-ai{background:rgba(123,47,190,.07);border-color:#E2D4F0}
+:host-context(.light-theme) .fa-eval-you,:host-context(.theme-light) .fa-eval-you{background:rgba(43,127,255,.06);border-color:#D6E2F7}
 :host-context(.light-theme) .fa-eval-hd,:host-context(.theme-light) .fa-eval-hd{color:#475569}
 :host-context(.light-theme) .fa-eval-ai .fa-eval-hd,:host-context(.theme-light) .fa-eval-ai .fa-eval-hd{color:#6B27A5}
 :host-context(.light-theme) .fa-eval-ai .fa-eval-hd svg,:host-context(.theme-light) .fa-eval-ai .fa-eval-hd svg{color:#6B27A5}
@@ -216,22 +216,23 @@
 :host-context(.light-theme) .fa-star-on,:host-context(.theme-light) .fa-star-on{color:#0A6F64}
 :host-context(.light-theme) .fa-rate-btn,:host-context(.theme-light) .fa-rate-btn{background:rgba(15,169,154,.06);border-color:rgba(15,169,154,.18);color:#0A6F64}
 :host-context(.light-theme) .fa-rate-btn:hover,:host-context(.theme-light) .fa-rate-btn:hover{background:rgba(15,169,154,.12)}
-:host-context(.light-theme) .fa-settle,:host-context(.theme-light) .fa-settle{background:linear-gradient(135deg,rgba(15,169,154,.05),rgba(43,127,255,.04));border-color:rgba(15,169,154,.14)}
+:host-context(.light-theme) .fa-settle,:host-context(.theme-light) .fa-settle{background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.05));border-color:#BFE6DF}
 :host-context(.light-theme) .fa-settle-hd,:host-context(.theme-light) .fa-settle-hd{color:#0A6F64}
 :host-context(.light-theme) .fa-srow,:host-context(.theme-light) .fa-srow{border-top-color:#E7EAF1}
 :host-context(.light-theme) .fa-srow span,:host-context(.theme-light) .fa-srow span{color:#475569}
 :host-context(.light-theme) .fa-srow b,:host-context(.theme-light) .fa-srow b{color:#0F172A}
 :host-context(.light-theme) .fa-srow-tot,:host-context(.theme-light) .fa-srow-tot{border-top-color:rgba(15,169,154,.2)}
+:host-context(.light-theme) .fa-srow-tot span,:host-context(.theme-light) .fa-srow-tot span{color:#0F172A}
 :host-context(.light-theme) .fa-srow-tot b,:host-context(.theme-light) .fa-srow-tot b{color:#0A6F64}
 :host-context(.light-theme) .fa-settle-bar,:host-context(.theme-light) .fa-settle-bar{background:#E7EAF1}
 :host-context(.light-theme) .fa-settle-lg,:host-context(.theme-light) .fa-settle-lg{color:#56607D}
-:host-context(.light-theme) .fa-final,:host-context(.theme-light) .fa-final{background:linear-gradient(135deg,rgba(15,169,154,.06),rgba(43,127,255,.05));border-color:rgba(15,169,154,.16)}
+:host-context(.light-theme) .fa-final,:host-context(.theme-light) .fa-final{background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.05));border-color:#BFE6DF}
 :host-context(.light-theme) .fa-final-t,:host-context(.theme-light) .fa-final-t{color:#0F172A}
 :host-context(.light-theme) .fa-final-t svg,:host-context(.theme-light) .fa-final-t svg{color:#0A6F64}
 :host-context(.light-theme) .fa-final p,:host-context(.theme-light) .fa-final p{color:#475569}
-:host-context(.light-theme) .fa-btn-gh,:host-context(.theme-light) .fa-btn-gh{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
+:host-context(.light-theme) .fa-btn-gh,:host-context(.theme-light) .fa-btn-gh{background:#EEF2FA;border-color:#D8DFEC;color:#0F172A}
 :host-context(.light-theme) .fa-btn-gh:hover:not(:disabled),:host-context(.theme-light) .fa-btn-gh:hover:not(:disabled){background:#E2E8F4;color:#0F172A}
-:host-context(.light-theme) .fsm-box,:host-context(.theme-light) .fsm-box{background:#fff;border-color:rgba(15,169,154,.2);box-shadow:0 25px 80px rgba(15,23,42,.15)}
+:host-context(.light-theme) .fsm-box,:host-context(.theme-light) .fsm-box{background:#fff;border-color:#BFE6DF;box-shadow:0 25px 80px rgba(15,23,42,.15)}
 :host-context(.light-theme) .fsm-ring,:host-context(.theme-light) .fsm-ring{background:rgba(15,169,154,.08);border-color:rgba(15,169,154,.25);color:#0A6F64}
 :host-context(.light-theme) .fsm-box h3,:host-context(.theme-light) .fsm-box h3{color:#0F172A}
 :host-context(.light-theme) .fsm-box p,:host-context(.theme-light) .fsm-box p{color:#475569}
@@ -239,7 +240,7 @@
 :host-context(.light-theme) .fsm-amt span,:host-context(.theme-light) .fsm-amt span{color:#56607D}
 :host-context(.light-theme) .fsm-amt b,:host-context(.theme-light) .fsm-amt b{color:#0A6F64}
 :host-context(.light-theme) .fsm-amt b small,:host-context(.theme-light) .fsm-amt b small{color:#56607D}
-:host-context(.light-theme) .fsm-gh,:host-context(.theme-light) .fsm-gh{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
+:host-context(.light-theme) .fsm-gh,:host-context(.theme-light) .fsm-gh{background:#EEF2FA;border-color:#D8DFEC;color:#0F172A}
 :host-context(.light-theme) .fa-state,:host-context(.theme-light) .fa-state{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
 :host-context(.light-theme) .fa-state-ttl,:host-context(.theme-light) .fa-state-ttl{color:#0F172A}
 :host-context(.light-theme) .fa-state-code,:host-context(.theme-light) .fa-state-code{color:#56607D}

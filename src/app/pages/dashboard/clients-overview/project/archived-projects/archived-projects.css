@@ -252,43 +252,44 @@
 .lc-btn-gh:hover { background: rgba(255,255,255,.09); }
 
 /* === Light Theme Overrides === */
-:host-context(.light-theme) .ord-title, :host-context(.theme-light) .ord-title,
-:host-context(.light-theme) .pl-kpi .v, :host-context(.theme-light) .pl-kpi .v,
-:host-context(.light-theme) .pl-ttl, :host-context(.theme-light) .pl-ttl,
-:host-context(.light-theme) .sec-ttl, :host-context(.theme-light) .sec-ttl,
-:host-context(.light-theme) .state-title, :host-context(.theme-light) .state-title,
-:host-context(.light-theme) .lc-mhd h3, :host-context(.theme-light) .lc-mhd h3,
-:host-context(.light-theme) .rate-proj-ttl, :host-context(.theme-light) .rate-proj-ttl { color: #0F172A; }
+:host-context(body.light-theme) .ord-title, :host-context(body.theme-light) .ord-title, :host-context(.light-theme) .ord-title, :host-context(.theme-light) .ord-title,
+:host-context(body.light-theme) .pl-kpi .v, :host-context(body.theme-light) .pl-kpi .v, :host-context(.light-theme) .pl-kpi .v, :host-context(.theme-light) .pl-kpi .v,
+:host-context(body.light-theme) .pl-ttl, :host-context(body.theme-light) .pl-ttl, :host-context(.light-theme) .pl-ttl, :host-context(.theme-light) .pl-ttl,
+:host-context(body.light-theme) .sec-ttl, :host-context(body.theme-light) .sec-ttl, :host-context(.light-theme) .sec-ttl, :host-context(.theme-light) .sec-ttl,
+:host-context(body.light-theme) .state-title, :host-context(body.theme-light) .state-title, :host-context(.light-theme) .state-title, :host-context(.theme-light) .state-title,
+:host-context(body.light-theme) .lc-mhd h3, :host-context(body.theme-light) .lc-mhd h3, :host-context(.light-theme) .lc-mhd h3, :host-context(.theme-light) .lc-mhd h3,
+:host-context(body.light-theme) .rate-proj-ttl, :host-context(body.theme-light) .rate-proj-ttl, :host-context(.light-theme) .rate-proj-ttl, :host-context(.theme-light) .rate-proj-ttl { color: #0F172A; }
 
-:host-context(.light-theme) .pl-kpi, :host-context(.theme-light) .pl-kpi,
-:host-context(.light-theme) .pl-row, :host-context(.theme-light) .pl-row,
-:host-context(.light-theme) .state-card, :host-context(.theme-light) .state-card { background: #fff; border-color: #E7EAF1; box-shadow: 0 2px 10px rgba(15,23,42,.05); }
-:host-context(.light-theme) .pl-done, :host-context(.theme-light) .pl-done { border-color: rgba(15,138,127,.18); }
-:host-context(.light-theme) .pl-cancel, :host-context(.theme-light) .pl-cancel { border-color: rgba(154,103,0,.18); }
-:host-context(.light-theme) .pl-arch, :host-context(.theme-light) .pl-arch { border-color: #E7EAF1; }
+:host-context(body.light-theme) .pl-kpi, :host-context(body.theme-light) .pl-kpi, :host-context(.light-theme) .pl-kpi, :host-context(.theme-light) .pl-kpi,
+:host-context(body.light-theme) .pl-row, :host-context(body.theme-light) .pl-row, :host-context(.light-theme) .pl-row, :host-context(.theme-light) .pl-row { background: #fff; border-color: #E7EAF1; box-shadow: 0 2px 10px rgba(15,23,42,.05); }
+:host-context(body.light-theme) .state-card, :host-context(body.theme-light) .state-card, :host-context(.light-theme) .state-card, :host-context(.theme-light) .state-card { border-color: #D8DFEC; }
+:host-context(body.light-theme) .pl-done, :host-context(body.theme-light) .pl-done, :host-context(.light-theme) .pl-done, :host-context(.theme-light) .pl-done { border-color: rgba(15,138,127,.18); }
+:host-context(body.light-theme) .pl-cancel, :host-context(body.theme-light) .pl-cancel, :host-context(.light-theme) .pl-cancel, :host-context(.theme-light) .pl-cancel { border-color: rgba(154,103,0,.18); }
+:host-context(body.light-theme) .pl-arch, :host-context(body.theme-light) .pl-arch, :host-context(.light-theme) .pl-arch, :host-context(.theme-light) .pl-arch { border-color: #E7EAF1; }
 
-:host-context(.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot { border-color: #E2E8F4; }
-:host-context(.light-theme) .pl-tab, :host-context(.theme-light) .pl-tab { color: #5B6472; border-color: #E2E8F4; background: #fff; }
-:host-context(.light-theme) .pl-tab:hover, :host-context(.theme-light) .pl-tab:hover { color: #1E293B; border-color: #CBD5E1; }
-:host-context(.light-theme) .pl-tab.active, :host-context(.theme-light) .pl-tab.active { color: #0F8A7F; border-color: #0F8A7F; background: rgba(15,138,127,.06); box-shadow: 0 0 0 1px rgba(15,138,127,.18), 0 4px 14px rgba(15,138,127,.10); }
-:host-context(.light-theme) .pl-tab .c, :host-context(.theme-light) .pl-tab .c { background: #EEF2FA; color: #5B6472; }
-:host-context(.light-theme) .pl-tab.active .c, :host-context(.theme-light) .pl-tab.active .c { background: #0F8A7F; color: #fff; }
+:host-context(body.light-theme) .inner-foot, :host-context(body.theme-light) .inner-foot, :host-context(.light-theme) .inner-foot, :host-context(.theme-light) .inner-foot { border-color: #D8DFEC; }
+:host-context(body.light-theme) .pl-tab, :host-context(body.theme-light) .pl-tab, :host-context(.light-theme) .pl-tab, :host-context(.theme-light) .pl-tab { color: #5B6472; border-color: #E2E8F4; background: #fff; }
+:host-context(body.light-theme) .pl-tab:hover, :host-context(body.theme-light) .pl-tab:hover, :host-context(.light-theme) .pl-tab:hover, :host-context(.theme-light) .pl-tab:hover { color: #1E293B; border-color: #CBD5E1; }
+:host-context(body.light-theme) .pl-tab.active, :host-context(body.theme-light) .pl-tab.active, :host-context(.light-theme) .pl-tab.active, :host-context(.theme-light) .pl-tab.active { color: #0F8A7F; border-color: #0F8A7F; background: rgba(15,138,127,.06); box-shadow: 0 0 0 1px rgba(15,138,127,.18), 0 4px 14px rgba(15,138,127,.10); }
+:host-context(body.light-theme) .pl-tab .c, :host-context(body.theme-light) .pl-tab .c, :host-context(.light-theme) .pl-tab .c, :host-context(.theme-light) .pl-tab .c { background: #EEF2FA; color: #5B6472; }
+:host-context(body.light-theme) .pl-tab.active .c, :host-context(body.theme-light) .pl-tab.active .c, :host-context(.light-theme) .pl-tab.active .c, :host-context(.theme-light) .pl-tab.active .c { background: #0F8A7F; color: #fff; }
 
-:host-context(.light-theme) .pl-meta, :host-context(.theme-light) .pl-meta,
-:host-context(.light-theme) .ai-disc-txt, :host-context(.theme-light) .ai-disc-txt { color: #475569; }
-:host-context(.light-theme) .pl-code, :host-context(.theme-light) .pl-code { color: #1E293B; }
-:host-context(.light-theme) .pl-ic-sq, :host-context(.theme-light) .pl-ic-sq { background: #F6F8FC; border-color: #E7EAF1; color: #5B6472; }
-:host-context(.light-theme) .pl-row:hover .pl-ic-sq, :host-context(.theme-light) .pl-row:hover .pl-ic-sq { background: rgba(15,138,127,.08); border-color: rgba(15,138,127,.24); color: #0F8A7F; }
-:host-context(.light-theme) .pl-icsq-done, :host-context(.theme-light) .pl-icsq-done { color: #0F8A7F; }
-:host-context(.light-theme) .pl-icsq-cancel, :host-context(.theme-light) .pl-icsq-cancel { color: #9A6700; }
+:host-context(body.light-theme) .pl-meta, :host-context(body.theme-light) .pl-meta, :host-context(.light-theme) .pl-meta, :host-context(.theme-light) .pl-meta { color: #5B6472; }
+:host-context(body.light-theme) .ai-disc-txt, :host-context(body.theme-light) .ai-disc-txt, :host-context(.light-theme) .ai-disc-txt, :host-context(.theme-light) .ai-disc-txt { color: #475569; }
+:host-context(body.light-theme) .pl-code, :host-context(body.theme-light) .pl-code, :host-context(.light-theme) .pl-code, :host-context(.theme-light) .pl-code { color: #1E293B; }
+:host-context(body.light-theme) .pl-ic-sq, :host-context(body.theme-light) .pl-ic-sq, :host-context(.light-theme) .pl-ic-sq, :host-context(.theme-light) .pl-ic-sq { background: #F6F8FC; border-color: #E7EAF1; color: #5B6472; }
+:host-context(body.light-theme) .pl-row:hover .pl-ic-sq, :host-context(body.theme-light) .pl-row:hover .pl-ic-sq, :host-context(.light-theme) .pl-row:hover .pl-ic-sq, :host-context(.theme-light) .pl-row:hover .pl-ic-sq { background: rgba(15,138,127,.08); border-color: rgba(15,138,127,.24); color: #0F8A7F; }
+:host-context(body.light-theme) .pl-icsq-done, :host-context(body.theme-light) .pl-icsq-done, :host-context(.light-theme) .pl-icsq-done, :host-context(.theme-light) .pl-icsq-done { color: #0F8A7F; }
+:host-context(body.light-theme) .pl-icsq-cancel, :host-context(body.theme-light) .pl-icsq-cancel, :host-context(.light-theme) .pl-icsq-cancel, :host-context(.theme-light) .pl-icsq-cancel { color: #9A6700; }
 
-:host-context(.light-theme) .ord-search input, :host-context(.theme-light) .ord-search input { background: #fff; border-color: #CBD5E1; color: #1E293B; }
-:host-context(.light-theme) .lc-mbox, :host-context(.theme-light) .lc-mbox { background: rgba(255,255,255,.97); border-color: #CBD5E1; }
-:host-context(.light-theme) .lc-mhd p, :host-context(.theme-light) .lc-mhd p,
-:host-context(.light-theme) .lc-fld label, :host-context(.theme-light) .lc-fld label,
-:host-context(.light-theme) .rate-proj-sub, :host-context(.theme-light) .rate-proj-sub { color: #475569; }
-:host-context(.light-theme) .lc-ta, :host-context(.theme-light) .lc-ta { background: #fff; border-color: #CBD5E1; color: #1E293B; }
-:host-context(.light-theme) .rate-proj, :host-context(.theme-light) .rate-proj { background: #F6F8FC; border-color: #E7EAF1; }
+:host-context(body.light-theme) .ord-search, :host-context(body.theme-light) .ord-search, :host-context(.light-theme) .ord-search, :host-context(.theme-light) .ord-search { background: #fff; border-color: #D8DFEC; }
+:host-context(body.light-theme) .ord-search input, :host-context(body.theme-light) .ord-search input, :host-context(.light-theme) .ord-search input, :host-context(.theme-light) .ord-search input { color: #0F172A; }
+:host-context(body.light-theme) .lc-mbox, :host-context(body.theme-light) .lc-mbox, :host-context(.light-theme) .lc-mbox, :host-context(.theme-light) .lc-mbox { background: rgba(255,255,255,.97); border-color: #CBD5E1; }
+:host-context(body.light-theme) .lc-mhd p, :host-context(body.theme-light) .lc-mhd p, :host-context(.light-theme) .lc-mhd p, :host-context(.theme-light) .lc-mhd p,
+:host-context(body.light-theme) .lc-fld label, :host-context(body.theme-light) .lc-fld label, :host-context(.light-theme) .lc-fld label, :host-context(.theme-light) .lc-fld label,
+:host-context(body.light-theme) .rate-proj-sub, :host-context(body.theme-light) .rate-proj-sub, :host-context(.light-theme) .rate-proj-sub, :host-context(.theme-light) .rate-proj-sub { color: #475569; }
+:host-context(body.light-theme) .lc-ta, :host-context(body.theme-light) .lc-ta, :host-context(.light-theme) .lc-ta, :host-context(.theme-light) .lc-ta { background: #fff; border-color: #CBD5E1; color: #1E293B; }
+:host-context(body.light-theme) .rate-proj, :host-context(body.theme-light) .rate-proj, :host-context(.light-theme) .rate-proj, :host-context(.theme-light) .rate-proj { background: #F6F8FC; border-color: #E7EAF1; }
 
 /* === Responsive === */
 @media (max-width: 760px) {
