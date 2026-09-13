@@ -1,13 +1,140 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="fd-page" dir="rtl">
+  <div class="fd-hdr">
+    <div>
+      <h1 class="fd-ttl">لوحة المالية الإدارية</h1>
+      <p class="fd-sub">نظرة شاملة على الوضع المالي لوسيط AI — الإيرادات والمصروفات والأرباح — تجهيز مستقبلي غير مفعّل في V1</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">لوحة المالية الإدارية</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"لوحة المالية الإدارية\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="fd-actions">
+      <button type="button" class="fd-btn fd-btn-ghost" (click)="exportPdf()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        تصدير PDF
+      </button>
+      <button type="button" class="fd-btn fd-btn-primary" (click)="generateMonthlyReport()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        تقرير شهري
+      </button>
+    </div>
   </div>
-</div>
+
+  @if (toast()) {
+    <div class="fd-toast">{{ toast() }}</div>
+  }
+
+  <div class="fd-notice">
+    <strong>★ قاعدة العتبة المالية:</strong> أي قرار مالي يبلغ <strong>10,000 ر.س أو أكثر</strong>، أو يُصنّف عالي المخاطر، يحتاج مراجعة بشرية عليا أو لجنة مختصة قبل التنفيذ. لا ينفّذ AI تلقائياً قرارات مالية كبيرة بدون مراجعة بشرية.
+  </div>
+
+  <div class="fd-ai-disc">
+    <div class="fd-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></svg>
+    </div>
+    <div>
+      <div class="fd-ai-lbl">وسيط AI: تحليل مالي</div>
+      <p class="fd-ai-txt">AI يرصد الإيرادات ويكتشف الشذوذ المالي ويتوقع التدفقات النقدية للأشهر القادمة <span class="fd-ai-bdg">دقة 94%</span></p>
+    </div>
+  </div>
+
+  <div class="fd-kpi-grid">
+    <div class="fd-kpi-card">
+      <div class="fd-kpi-top">
+        <div class="fd-kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+        </div>
+        <span class="fd-kpi-lbl">إجمالي الإيرادات السنوية</span>
+      </div>
+      <div class="fd-kpi-val" style="color:#2BD4C7">14.8M</div>
+      <div class="fd-kpi-unit">ريال سعودي</div>
+      <div class="fd-kpi-sub" style="color:#0FA99A">+22% عن العام الماضي</div>
+    </div>
+    <div class="fd-kpi-card">
+      <div class="fd-kpi-top">
+        <div class="fd-kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+        </div>
+        <span class="fd-kpi-lbl">صافي الربح</span>
+      </div>
+      <div class="fd-kpi-val" style="color:#0FA99A">9.2M</div>
+      <div class="fd-kpi-unit">ريال سعودي</div>
+      <div class="fd-kpi-sub" style="color:#6B7699">هامش 62%</div>
+    </div>
+    <div class="fd-kpi-card">
+      <div class="fd-kpi-top">
+        <div class="fd-kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <span class="fd-kpi-lbl">الفواتير المعلقة</span>
+      </div>
+      <div class="fd-kpi-val" style="color:#FFB400">47</div>
+      <div class="fd-kpi-unit">فاتورة</div>
+      <div class="fd-kpi-sub" style="color:#D98A0B">بقيمة 284,000 ر.س</div>
+    </div>
+    <div class="fd-kpi-card">
+      <div class="fd-kpi-top">
+        <div class="fd-kpi-ic" style="background:rgba(93,160,255,.12);color:#5DA0FF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span class="fd-kpi-lbl">جاهزية الفوترة المستقبلية</span>
+      </div>
+      <div class="fd-kpi-val" style="color:#5DA0FF">99.2%</div>
+      <div class="fd-kpi-unit">معدل الإرسال</div>
+      <div class="fd-kpi-sub" style="color:#0FA99A">3 فواتير معلقة</div>
+    </div>
+  </div>
+
+  <div class="fd-card">
+    <div class="fd-card-ttl">
+      <span>الإيرادات الشهرية — 2026</span>
+      <span class="fd-card-hint">الأشهر الأخيرة</span>
+    </div>
+    <div class="fd-chart-bars">
+      @for (b of barHeights(); track b.label) {
+        <div class="fd-bar-wrap">
+          <div class="fd-bar-val">{{ b.valueLabel }}</div>
+          <div class="fd-bar" [style.height.%]="b.heightPct"></div>
+          <div class="fd-bar-lbl">{{ b.label }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="fd-sum-grid">
+    @for (s of breakdown; track s.name) {
+      <div class="fd-sum-card">
+        <div class="fd-sum-name">{{ s.name }}</div>
+        <div class="fd-sum-val">{{ s.amount }}</div>
+        <div class="fd-sum-bar"><div class="fd-sum-fill" [style.width.%]="s.percent" [style.background]="s.color"></div></div>
+      </div>
+    }
+  </div>
+
+  <div class="fd-tbl-card">
+    <div class="fd-tbl-hdr">
+      <span class="fd-tbl-ttl">آخر الحركات المالية</span>
+      <a routerLink="../invoices-out" class="fd-btn fd-btn-ghost fd-btn-sm">عرض الكل</a>
+    </div>
+    <div class="fd-tbl-wrap">
+      <table class="fd-data-tbl">
+        <thead><tr><th>النوع</th><th>المبلغ</th><th>الطرف</th><th>التاريخ</th><th>الحالة</th></tr></thead>
+        <tbody>
+          @for (t of transactions; track t.party + t.date) {
+            <tr>
+              <td><span class="fd-bdg" [ngClass]="t.typeClass">{{ t.type }}</span></td>
+              <td [style.color]="t.positive ? '#0FA99A' : '#FF8C69'" style="font-weight:800">{{ t.amount }}</td>
+              <td>{{ t.party }}</td>
+              <td>{{ t.date }}</td>
+              <td>
+                @if (t.status === 'sent') {
+                  <span class="fd-status fd-status-ok">✓ مُرسَلة</span>
+                } @else {
+                  <span class="fd-status fd-status-pending">⏳ معلقة</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="fd-foot"><span>© 2026 وسيط AI · نظام المالية الإدارية v1.0</span><span>آخر تحديث: منذ 5 دقائق</span></div>
+</section>
