@@ -127,12 +127,12 @@ interface Ticket {
 
 		.tk-card { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 13px; padding: 15px 18px; margin-bottom: 10px; transition: border-color .15s; cursor: pointer; text-decoration: none; }
 		.tk-card:hover { border-color: rgba(43,212,199,.18); }
-		:host-context([data-theme='light']) .tk-card,
-		:host-context(body.light) .tk-card,
+		:host-context(body.light-theme) .tk-card,
+		:host-context(body.theme-light) .tk-card,
 		:host-context(.light-theme) .tk-card,
 		:host-context(.theme-light) .tk-card { background: #fff; border-color: #E7EAF1; }
-		:host-context([data-theme='light']) .tk-card:hover,
-		:host-context(body.light) .tk-card:hover,
+		:host-context(body.light-theme) .tk-card:hover,
+		:host-context(body.theme-light) .tk-card:hover,
 		:host-context(.light-theme) .tk-card:hover,
 		:host-context(.theme-light) .tk-card:hover { border-color: rgba(43,212,199,.30); }
 
@@ -162,24 +162,24 @@ interface Ticket {
 		.tks-closed { background: rgba(255,255,255,.04); color: var(--txt-3,#6B7699); border: 1px solid rgba(255,255,255,.10); }
 		.tks-closed::before { background: var(--txt-3,#6B7699); }
 
-		:host-context([data-theme='light']) .filter-chip,
-		:host-context(body.light) .filter-chip,
+		:host-context(body.light-theme) .filter-chip,
+		:host-context(body.theme-light) .filter-chip,
 		:host-context(.light-theme) .filter-chip,
 		:host-context(.theme-light) .filter-chip { background: #F3F5FA; border-color: #D8DFEC; color: #475569; }
-		:host-context([data-theme='light']) .filter-chip:hover,
-		:host-context(body.light) .filter-chip:hover,
+		:host-context(body.light-theme) .filter-chip:hover,
+		:host-context(body.theme-light) .filter-chip:hover,
 		:host-context(.light-theme) .filter-chip:hover,
 		:host-context(.theme-light) .filter-chip:hover { background: #E6FDFB; border-color: #A3ECE5; color: #0A6F64; }
-		:host-context([data-theme='light']) .filter-chip.active,
-		:host-context(body.light) .filter-chip.active,
+		:host-context(body.light-theme) .filter-chip.active,
+		:host-context(body.theme-light) .filter-chip.active,
 		:host-context(.light-theme) .filter-chip.active,
 		:host-context(.theme-light) .filter-chip.active { background: rgba(43,212,199,.15); border-color: rgba(43,212,199,.40); color: #0F172A; }
-		:host-context([data-theme='light']) .fc-count,
-		:host-context(body.light) .fc-count,
+		:host-context(body.light-theme) .fc-count,
+		:host-context(body.theme-light) .fc-count,
 		:host-context(.light-theme) .fc-count,
 		:host-context(.theme-light) .fc-count { background: #E7EAF1; color: #64748B; }
-		:host-context([data-theme='light']) .filter-chip.active .fc-count,
-		:host-context(body.light) .filter-chip.active .fc-count,
+		:host-context(body.light-theme) .filter-chip.active .fc-count,
+		:host-context(body.theme-light) .filter-chip.active .fc-count,
 		:host-context(.light-theme) .filter-chip.active .fc-count,
 		:host-context(.theme-light) .filter-chip.active .fc-count { background: rgba(43,212,199,.25); color: #0F172A; }
 	`],

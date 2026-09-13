@@ -11,7 +11,7 @@
 .nt-ttl{font-size:22px;font-weight:900;color:#fff;margin:0 0 6px}
 .nt-sub{font-size:13px;color:#A8B2D1;line-height:1.6;margin:0}
 
-.ai-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(123,47,190,.10),rgba(43,127,255,.06));border:1px solid rgba(123,47,190,.22);border-radius:14px;padding:14px 16px}
+.ai-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));backdrop-filter:blur(12px);border:1px solid rgba(123,47,190,.22);border-radius:14px;padding:13px 16px}
 .ai-banner svg{width:22px;height:22px;color:#A56BE0;flex-shrink:0}
 .ai-banner-txt{flex:1;font-size:13px;color:#A8B2D1;line-height:1.6;margin:0}
 .ai-banner-txt strong{color:#A56BE0}
@@ -20,24 +20,24 @@
 .form-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;gap:16px}
 
 .fld-row{display:flex;flex-direction:column;gap:6px}
-.inp-label{font-size:12px;font-weight:800;color:#fff}
-.req{color:#FF8C69;margin-inline-start:2px}
-.inp-field{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;font-family:inherit;font-size:13px;color:#fff;outline:none;transition:border-color .15s}
-.inp-field:focus{border-color:rgba(43,212,199,.3)}
+.inp-label{font-size:12px;font-weight:700;color:#A8B2D1}
+.req{color:var(--teal-txt,#2BD4C7);margin-inline-start:3px}
+.inp-field{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;font-family:inherit;font-size:14px;color:#fff;outline:none;transition:border-color .15s}
+.inp-field:focus{border-color:rgba(43,212,199,.40)}
 .inp-field::placeholder{color:#4A5568}
 textarea.inp-field{resize:vertical;min-height:100px}
 select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7699' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 14px center;padding-left:36px}
 
-.fld-hint{font-size:11px;color:#6B7699}
+.fld-hint{font-size:11px;color:#6B7699;text-align:left;margin-top:3px}
 .fld-err{font-size:11px;color:#FF8C69;font-weight:700}
 
-.upload-area{border:2px dashed rgba(255,255,255,.14);border-radius:12px;padding:24px 18px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:rgba(255,255,255,.02)}
+.upload-area{border:1.5px dashed rgba(255,255,255,.16);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:rgba(255,255,255,.03)}
 .upload-area:hover{border-color:rgba(43,212,199,.4);background:rgba(43,212,199,.04)}
 .upload-inp{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .upload-ico{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
-.upload-ico svg{width:20px;height:20px;color:#A8B2D1}
+.upload-ico svg{width:20px;height:20px;color:var(--teal-txt,#2BD4C7)}
 .upload-ttl{font-size:13px;font-weight:700;color:#A8B2D1;margin-bottom:4px}
-.upload-sub{font-size:11px;color:#6B7699}
+.upload-sub{font-size:11px;font-weight:500;color:#6B7699}
 
 .form-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:8px}
 .btn-ghost{padding:12px 24px;background:transparent;border:1px solid rgba(255,255,255,.14);border-radius:50px;font-family:inherit;font-size:14px;font-weight:700;color:#A8B2D1;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
@@ -64,56 +64,73 @@ select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image
 }
 
 /* === Light mode === */
-:host-context(body.light) .nt-ttl,
+:host-context(body.light-theme) .nt-ttl,
+:host-context(body.theme-light) .nt-ttl,
 :host-context(.light-theme) .nt-ttl,
 :host-context(.theme-light) .nt-ttl{color:#0F172A}
-:host-context(body.light) .nt-sub,
+:host-context(body.light-theme) .nt-sub,
+:host-context(body.theme-light) .nt-sub,
 :host-context(.light-theme) .nt-sub,
 :host-context(.theme-light) .nt-sub{color:#475569}
-:host-context(body.light) .bk-link,
+:host-context(body.light-theme) .bk-link,
+:host-context(body.theme-light) .bk-link,
 :host-context(.light-theme) .bk-link,
 :host-context(.theme-light) .bk-link{color:#56607D}
-:host-context(body.light) .bk-link:hover,
+:host-context(body.light-theme) .bk-link:hover,
+:host-context(body.theme-light) .bk-link:hover,
 :host-context(.light-theme) .bk-link:hover,
 :host-context(.theme-light) .bk-link:hover{color:#0A6F64}
-:host-context(body.light) .form-card,
+:host-context(body.light-theme) .form-card,
+:host-context(body.theme-light) .form-card,
 :host-context(.light-theme) .form-card,
 :host-context(.theme-light) .form-card{background:#fff;border-color:#E2E8F4;box-shadow:0 2px 10px rgba(15,23,42,.05)}
-:host-context(body.light) .inp-label,
+:host-context(body.light-theme) .inp-label,
+:host-context(body.theme-light) .inp-label,
 :host-context(.light-theme) .inp-label,
 :host-context(.theme-light) .inp-label{color:#475569}
-:host-context(body.light) .inp-field,
+:host-context(body.light-theme) .inp-field,
+:host-context(body.theme-light) .inp-field,
 :host-context(.light-theme) .inp-field,
 :host-context(.theme-light) .inp-field{background:#F8FAFC;border-color:#CBD5E1;color:#0F172A}
-:host-context(body.light) .inp-field:focus,
+:host-context(body.light-theme) .inp-field:focus,
+:host-context(body.theme-light) .inp-field:focus,
 :host-context(.light-theme) .inp-field:focus,
 :host-context(.theme-light) .inp-field:focus{border-color:#2BD4C7}
-:host-context(body.light) .inp-field::placeholder,
+:host-context(body.light-theme) .inp-field::placeholder,
+:host-context(body.theme-light) .inp-field::placeholder,
 :host-context(.light-theme) .inp-field::placeholder,
 :host-context(.theme-light) .inp-field::placeholder{color:#9CA3AF}
-:host-context(body.light) .upload-area,
+:host-context(body.light-theme) .upload-area,
+:host-context(body.theme-light) .upload-area,
 :host-context(.light-theme) .upload-area,
 :host-context(.theme-light) .upload-area{background:#F3F5FA;border-color:#D8DFEC}
-:host-context(body.light) .upload-ttl,
+:host-context(body.light-theme) .upload-ttl,
+:host-context(body.theme-light) .upload-ttl,
 :host-context(.light-theme) .upload-ttl,
 :host-context(.theme-light) .upload-ttl{color:#475569}
-:host-context(body.light) .fld-hint,
+:host-context(body.light-theme) .fld-hint,
+:host-context(body.theme-light) .fld-hint,
 :host-context(.light-theme) .fld-hint,
 :host-context(.theme-light) .fld-hint{color:#94A3B8}
-:host-context(body.light) .btn-ghost,
+:host-context(body.light-theme) .btn-ghost,
+:host-context(body.theme-light) .btn-ghost,
 :host-context(.light-theme) .btn-ghost,
 :host-context(.theme-light) .btn-ghost{color:#475569;border-color:#E2E8F4}
-:host-context(body.light) .btn-ghost:hover,
+:host-context(body.light-theme) .btn-ghost:hover,
+:host-context(body.theme-light) .btn-ghost:hover,
 :host-context(.light-theme) .btn-ghost:hover,
 :host-context(.theme-light) .btn-ghost:hover{color:#070D24;background:#F3F5FA}
-:host-context(body.light) .inner-foot,
+:host-context(body.light-theme) .inner-foot,
+:host-context(body.theme-light) .inner-foot,
 :host-context(.light-theme) .inner-foot,
 :host-context(.theme-light) .inner-foot{border-color:#E7EAF1}
-:host-context(body.light) .inner-foot-links a:hover,
+:host-context(body.light-theme) .inner-foot-links a:hover,
+:host-context(body.theme-light) .inner-foot-links a:hover,
 :host-context(.light-theme) .inner-foot-links a:hover,
 :host-context(.theme-light) .inner-foot-links a:hover{color:#0F8A7F}
 
-.inp-hint{font-size:11px;color:#6B7699;margin-top:4px}
-:host-context(body.light) .inp-hint,
+.inp-hint{font-size:11px;color:#6B7699;margin-top:3px}
+:host-context(body.light-theme) .inp-hint,
+:host-context(body.theme-light) .inp-hint,
 :host-context(.light-theme) .inp-hint,
 :host-context(.theme-light) .inp-hint{color:#475569}
