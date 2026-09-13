@@ -1,0 +1,162 @@
+.scp-page{padding:22px 24px;min-height:calc(100vh - 56px);direction:rtl}
+.scp-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.scp-hdr > div:first-child{flex:1}
+.scp-ttl{font-size:20px;font-weight:900;color:#fff;margin:0}
+.scp-sub{font-size:12px;color:#6B7699;margin-top:2px}
+
+.scp-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:700;padding:0 16px;height:36px;border-radius:9px;border:1px solid transparent;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+.scp-btn-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#fff;font-weight:800}
+.scp-btn-gh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#A8B2D1}
+.scp-btn-gh:hover{background:rgba(255,255,255,.1);color:#fff}
+.scp-btn-xs{height:28px;padding:0 8px;font-size:11px}
+
+.scp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.scp-kpi{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px;text-align:center}
+.scp-kpi-v{font-size:20px;font-weight:900;margin-bottom:2px}
+.scp-kpi-l{font-size:10px;color:#6B7699;font-weight:700}
+
+.scp-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.scp-card:last-child{margin-bottom:0}
+.scp-card-ttl{font-size:14px;font-weight:800;color:#fff;margin-bottom:14px}
+.scp-card-ttl-sm{font-size:13px;font-weight:800;color:#fff;margin-bottom:10px}
+
+.scp-chart{display:flex;align-items:flex-end;gap:6px;height:70px}
+.scp-bar-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:100%;justify-content:flex-end}
+.scp-bar-val{font-size:9px;color:#6B7699}
+.scp-bar{width:100%;border-radius:3px 3px 0 0;background:rgba(43,212,199,.35)}
+.scp-bar-day{font-size:9px;color:#6B7699}
+
+.scp-layout{display:grid;grid-template-columns:1fr 300px;gap:16px}
+
+.scp-coupon{padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.scp-coupon:last-child{margin-bottom:0}
+.scp-coupon.expired{opacity:.6}
+.scp-code{font-family:monospace;font-size:16px;font-weight:900;padding:6px 12px;background:rgba(43,212,199,.08);border:1px dashed rgba(43,212,199,.3);border-radius:7px;color:#2BD4C7;min-width:120px;text-align:center}
+.scp-code.expired{color:#6B7699;border-color:rgba(107,118,153,.3)}
+.scp-coupon-body{flex:1;min-width:160px}
+.scp-coupon-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.scp-coupon-meta{font-size:11px;color:#6B7699}
+.scp-discount{text-align:left}
+.scp-discount-val{font-size:14px;font-weight:800}
+.scp-discount-unit{font-size:10px;color:#6B7699}
+.scp-coupon-actions{display:flex;flex-direction:column;gap:4px}
+
+.scp-field-lbl{font-size:11px;font-weight:800;color:#6B7699;margin-bottom:4px}
+.scp-input{width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;color:#fff;font-family:inherit;font-size:12px;margin-bottom:10px}
+.scp-input option{background:#0B1437}
+.scp-uppercase{text-transform:uppercase}
+.scp-created-msg{font-size:12px;color:#0FA99A;font-weight:700;margin:8px 0 0;text-align:center}
+
+.scp-stat-list{display:flex;flex-direction:column;gap:6px;font-size:12px}
+.scp-stat-row{display:flex;justify-content:space-between;color:#A8B2D1}
+
+@media(max-width:1000px){.scp-layout{grid-template-columns:1fr}}
+@media(max-width:767px){.scp-page{padding:14px 16px}.scp-kpis{grid-template-columns:1fr 1fr}}
+
+/* ============================================================
+   Light Mode Overrides
+   Theme selectors: body.light-theme, body.theme-light, .light-theme, .theme-light
+   ============================================================ */
+:host-context(body.light-theme) .scp-ttl,
+:host-context(body.theme-light) .scp-ttl,
+:host-context(.light-theme) .scp-ttl,
+:host-context(.theme-light) .scp-ttl,
+:host-context(body.light-theme) .scp-card-ttl,
+:host-context(body.theme-light) .scp-card-ttl,
+:host-context(.light-theme) .scp-card-ttl,
+:host-context(.theme-light) .scp-card-ttl,
+:host-context(body.light-theme) .scp-card-ttl-sm,
+:host-context(body.theme-light) .scp-card-ttl-sm,
+:host-context(.light-theme) .scp-card-ttl-sm,
+:host-context(.theme-light) .scp-card-ttl-sm,
+:host-context(body.light-theme) .scp-coupon-name,
+:host-context(body.theme-light) .scp-coupon-name,
+:host-context(.light-theme) .scp-coupon-name,
+:host-context(.theme-light) .scp-coupon-name{color:#1E293B}
+
+:host-context(body.light-theme) .scp-sub,
+:host-context(body.theme-light) .scp-sub,
+:host-context(.light-theme) .scp-sub,
+:host-context(.theme-light) .scp-sub,
+:host-context(body.light-theme) .scp-kpi-l,
+:host-context(body.theme-light) .scp-kpi-l,
+:host-context(.light-theme) .scp-kpi-l,
+:host-context(.theme-light) .scp-kpi-l,
+:host-context(body.light-theme) .scp-bar-val,
+:host-context(body.theme-light) .scp-bar-val,
+:host-context(.light-theme) .scp-bar-val,
+:host-context(.theme-light) .scp-bar-val,
+:host-context(body.light-theme) .scp-bar-day,
+:host-context(body.theme-light) .scp-bar-day,
+:host-context(.light-theme) .scp-bar-day,
+:host-context(.theme-light) .scp-bar-day,
+:host-context(body.light-theme) .scp-coupon-meta,
+:host-context(body.theme-light) .scp-coupon-meta,
+:host-context(.light-theme) .scp-coupon-meta,
+:host-context(.theme-light) .scp-coupon-meta,
+:host-context(body.light-theme) .scp-discount-unit,
+:host-context(body.theme-light) .scp-discount-unit,
+:host-context(.light-theme) .scp-discount-unit,
+:host-context(.theme-light) .scp-discount-unit,
+:host-context(body.light-theme) .scp-field-lbl,
+:host-context(body.theme-light) .scp-field-lbl,
+:host-context(.light-theme) .scp-field-lbl,
+:host-context(.theme-light) .scp-field-lbl,
+:host-context(body.light-theme) .scp-code.expired,
+:host-context(body.theme-light) .scp-code.expired,
+:host-context(.light-theme) .scp-code.expired,
+:host-context(.theme-light) .scp-code.expired{color:#64748B}
+
+:host-context(body.light-theme) .scp-stat-row,
+:host-context(body.theme-light) .scp-stat-row,
+:host-context(.light-theme) .scp-stat-row,
+:host-context(.theme-light) .scp-stat-row{color:#475569}
+
+:host-context(body.light-theme) .scp-stat-row [style*="color:#fff"],
+:host-context(body.theme-light) .scp-stat-row [style*="color:#fff"],
+:host-context(.light-theme) .scp-stat-row [style*="color:#fff"],
+:host-context(.theme-light) .scp-stat-row [style*="color:#fff"]{color:#1E293B}
+
+:host-context(body.light-theme) .scp-code,
+:host-context(body.theme-light) .scp-code,
+:host-context(.light-theme) .scp-code,
+:host-context(.theme-light) .scp-code{color:#007A72}
+
+:host-context(body.light-theme) .scp-card,
+:host-context(body.theme-light) .scp-card,
+:host-context(.light-theme) .scp-card,
+:host-context(.theme-light) .scp-card{background:#fff;border-color:#E7EAF1}
+
+:host-context(body.light-theme) .scp-kpi,
+:host-context(body.theme-light) .scp-kpi,
+:host-context(.light-theme) .scp-kpi,
+:host-context(.theme-light) .scp-kpi,
+:host-context(body.light-theme) .scp-coupon,
+:host-context(body.theme-light) .scp-coupon,
+:host-context(.light-theme) .scp-coupon,
+:host-context(.theme-light) .scp-coupon{background:rgba(7,13,36,.03);border-color:#E7EAF1}
+
+:host-context(body.light-theme) .scp-btn-gh,
+:host-context(body.theme-light) .scp-btn-gh,
+:host-context(.light-theme) .scp-btn-gh,
+:host-context(.theme-light) .scp-btn-gh{background:rgba(7,13,36,.05);border-color:rgba(7,13,36,.12);color:#475569}
+
+:host-context(body.light-theme) .scp-btn-gh:hover,
+:host-context(body.theme-light) .scp-btn-gh:hover,
+:host-context(.light-theme) .scp-btn-gh:hover,
+:host-context(.theme-light) .scp-btn-gh:hover{background:rgba(7,13,36,.10);color:#1E293B}
+
+:host-context(body.light-theme) .scp-input,
+:host-context(body.theme-light) .scp-input,
+:host-context(.light-theme) .scp-input,
+:host-context(.theme-light) .scp-input{background:#fff;border-color:#CBD5E1;color:#1E293B}
+
+:host-context(body.light-theme) [style*="color:#A8B2D1"],
+:host-context(body.theme-light) [style*="color:#A8B2D1"],
+:host-context(.light-theme) [style*="color:#A8B2D1"],
+:host-context(.theme-light) [style*="color:#A8B2D1"]{color:#475569}
+
+:host-context(body.light-theme) [style*="color:#6B7699"],
+:host-context(body.theme-light) [style*="color:#6B7699"],
+:host-context(.light-theme) [style*="color:#6B7699"],
+:host-context(.theme-light) [style*="color:#6B7699"]{color:#64748B}

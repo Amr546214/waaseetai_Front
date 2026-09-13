@@ -1,13 +1,85 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="scp-page" dir="rtl">
+  <div class="scp-hdr">
+    <div>
+      <h1 class="scp-ttl">الكوبونات والعروض الترويجية</h1>
+      <p class="scp-sub">إنشاء وإدارة كوبونات الخصم والحملات التسويقية</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الكوبونات</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الكوبونات\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <button type="button" class="scp-btn scp-btn-pri">+ كوبون جديد</button>
   </div>
-</div>
+
+  <div class="scp-kpis">
+    @for (k of kpis; track k.label) {
+      <div class="scp-kpi"><div class="scp-kpi-v" [style.color]="k.color">{{ k.value }}</div><div class="scp-kpi-l">{{ k.label }}</div></div>
+    }
+  </div>
+
+  <div class="scp-card">
+    <div class="scp-card-ttl-sm">استخدام الكوبونات — آخر 7 أيام</div>
+    <div class="scp-chart">
+      @for (u of usage; track u.day) {
+        <div class="scp-bar-col">
+          <div class="scp-bar-val">{{ u.value }}</div>
+          <div class="scp-bar" [style.height.%]="(u.value / maxUsage) * 100"></div>
+          <div class="scp-bar-day">{{ u.day }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="scp-layout">
+    <div class="scp-card">
+      <div class="scp-card-ttl">الكوبونات النشطة</div>
+      @for (c of coupons(); track c.code) {
+        <div class="scp-coupon" [class.expired]="c.expired">
+          <div class="scp-code" [class.expired]="c.expired">{{ c.code }}</div>
+          <div class="scp-coupon-body"><div class="scp-coupon-name">{{ c.name }}</div><div class="scp-coupon-meta">{{ c.meta }}</div></div>
+          <div class="scp-discount">
+            <div class="scp-discount-val" [style.color]="c.discountColor">{{ c.discountLabel }}</div>
+            @if (c.discountUnit) { <div class="scp-discount-unit">{{ c.discountUnit }}</div> }
+          </div>
+          <div class="scp-coupon-actions">
+            @if (!c.expired) {
+              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs">تعديل</button>
+              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" style="color:#FF8C69" (click)="toggleCoupon(c)">{{ c.active ? 'إيقاف' : 'تفعيل' }}</button>
+            } @else {
+              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs">نسخ</button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div>
+      <div class="scp-card">
+        <div class="scp-card-ttl">إنشاء كوبون</div>
+        <div class="scp-field-lbl">رمز الكوبون</div>
+        <input type="text" class="scp-input scp-uppercase" placeholder="MYCODE2025" [ngModel]="newCode()" (ngModelChange)="newCode.set($event)">
+        <div class="scp-field-lbl">نوع الخصم</div>
+        <select class="scp-input" [ngModel]="discountType()" (ngModelChange)="discountType.set($event)">
+          @for (t of discountTypes; track t) { <option [value]="t">{{ t }}</option> }
+        </select>
+        <div class="scp-field-lbl">قيمة الخصم</div>
+        <input type="number" class="scp-input" placeholder="20" [ngModel]="discountValue()" (ngModelChange)="discountValue.set($event)">
+        <div class="scp-field-lbl">الجمهور المستهدف</div>
+        <select class="scp-input" [ngModel]="audience()" (ngModelChange)="audience.set($event)">
+          @for (a of audiences; track a) { <option [value]="a">{{ a }}</option> }
+        </select>
+        <div class="scp-field-lbl">تاريخ الانتهاء</div>
+        <input type="date" class="scp-input" [ngModel]="expiryDate()" (ngModelChange)="expiryDate.set($event)">
+        <div class="scp-field-lbl">الحد الأقصى للاستخدام</div>
+        <input type="number" class="scp-input" placeholder="500" [ngModel]="maxUsageCount()" (ngModelChange)="maxUsageCount.set($event)">
+        <button type="button" class="scp-btn scp-btn-pri" style="width:100%;margin-top:4px" (click)="createCoupon()">إنشاء الكوبون</button>
+        @if (createdMsg()) { <p class="scp-created-msg">{{ createdMsg() }}</p> }
+      </div>
+      <div class="scp-card">
+        <div class="scp-card-ttl-sm">إحصاءات الكوبونات</div>
+        <div class="scp-stat-list">
+          <div class="scp-stat-row"><span>إجمالي الاستخدام هذا الشهر</span><span style="color:#2BD4C7;font-weight:800">326 مرة</span></div>
+          <div class="scp-stat-row"><span>قيمة الخصومات الممنوحة</span><span style="color:#FF8C69;font-weight:800">12,840 ر.س</span></div>
+          <div class="scp-stat-row"><span>أكثر كوبون استخداماً</span><span style="color:#fff;font-weight:800">WASEET20</span></div>
+          <div class="scp-stat-row"><span>معدل التحويل بعد الكوبون</span><span style="color:#0FA99A;font-weight:800">68%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,13 +1,68 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="sap-page" dir="rtl">
+  <div class="sap-hdr">
+    <div>
+      <h1 class="sap-ttl">Provider Intelligence</h1>
+      <p class="sap-sub">تحليلات مقدمي الخدمة — الأعلى أداءً، الأقل، الفرص</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">تقارير المقدمين</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"تقارير المقدمين\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <select class="sap-select" [ngModel]="period()" (ngModelChange)="period.set($event)">
+      @for (p of periods; track p) { <option [value]="p">{{ p }}</option> }
+    </select>
+    <button type="button" class="sap-btn sap-btn-gh">تصدير Excel</button>
   </div>
-</div>
+
+  <div class="sap-kpis">
+    @for (k of kpis; track k.label) {
+      <div class="sap-kpi"><div class="sap-kpi-v" [style.color]="k.color">{{ k.value }}</div><div class="sap-kpi-l">{{ k.label }}</div></div>
+    }
+  </div>
+
+  <div class="sap-two-col">
+    <div class="sap-card">
+      <div class="sap-card-ttl sap-gold">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        أعلى مقدمين إيراداً
+      </div>
+      @for (e of topEarners; track e.name) {
+        <div class="sap-prov">
+          <div class="sap-prov-rank" [style.color]="e.rankColor">{{ e.rank }}</div>
+          <div class="sap-prov-av" [style.background]="e.avatarGradient">{{ e.initial }}</div>
+          <div class="sap-prov-body">
+            <div class="sap-prov-name">{{ e.name }}</div>
+            <div class="sap-prov-meta">{{ e.meta }}</div>
+            <div class="sap-bar-mini"><div class="sap-bar-mini-fill" [style.width.%]="e.barPct"></div></div>
+          </div>
+          <div class="sap-prov-revenue" [style.color]="e.revenueColor">{{ e.revenue }}</div>
+        </div>
+      }
+    </div>
+
+    <div>
+      <div class="sap-card">
+        <div class="sap-card-ttl">مقدمون في خطر التراجع</div>
+        @for (r of atRisk; track r.name) {
+          <div class="sap-risk" [style.background]="r.bg" [style.border-color]="r.border">
+            <div class="sap-risk-name" [style.color]="r.color">{{ r.name }}</div>
+            <div class="sap-risk-meta">{{ r.meta }}</div>
+          </div>
+        }
+      </div>
+      <div class="sap-card">
+        <div class="sap-card-ttl">مرشحون للترقية</div>
+        @for (u of upgradeCandidates; track u.name) {
+          <div class="sap-upgrade">
+            <div class="sap-upgrade-name">{{ u.name }}</div>
+            <div class="sap-upgrade-meta">{{ u.meta }}</div>
+          </div>
+        }
+      </div>
+      <div class="sap-card">
+        <div class="sap-card-ttl">فجوات التخصص (Gap)</div>
+        <div class="sap-gap-list">
+          @for (g of gaps; track g.name) {
+            <div class="sap-gap-row"><span class="sap-gap-name">{{ g.name }}</span><span class="sap-gap-status" [style.color]="g.color">{{ g.status }}</span></div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

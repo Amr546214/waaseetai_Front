@@ -1,13 +1,109 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+<section class="sq-page" dir="rtl">
+  <h1 class="sq-ttl">لوحة جودة الخدمة</h1>
+  <p class="sq-sub">مؤشرات رضا المستخدمين وجودة وسيط AI</p>
+
+  <div class="sq-card">
+    <div class="sq-chart-hdr">
+      <div class="sq-chart-ttl">اتجاه الجودة — 6 أشهر</div>
+      <div class="sq-legend">
+        <div class="sq-legend-item"><span class="sq-legend-swatch" style="background:#2BD4C7"></span>رضا الطلاب</div>
+        <div class="sq-legend-item"><span class="sq-legend-swatch" style="background:#A56BE0"></span>رضا المقدمين</div>
+        <div class="sq-legend-item"><span class="sq-legend-swatch sq-legend-dashed"></span>NPS</div>
+      </div>
+    </div>
+    <div class="sq-chart-wrap">
+      <svg viewBox="0 0 600 100" preserveAspectRatio="none">
+        <line x1="0" y1="25" x2="600" y2="25" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        <line x1="0" y1="50" x2="600" y2="50" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        <line x1="0" y1="75" x2="600" y2="75" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        <polyline points="0,45 120,40 240,35 360,30 480,28 600,22" fill="none" stroke="#2BD4C7" stroke-width="2" stroke-linejoin="round"/>
+        <polyline points="0,55 120,52 240,48 360,44 480,42 600,38" fill="none" stroke="#A56BE0" stroke-width="2" stroke-linejoin="round"/>
+        <polyline points="0,70 120,65 240,58 360,52 480,48 600,40" fill="none" stroke="#FFB400" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="0" y="98" font-size="9" fill="#6B7699">أغسطس</text>
+        <text x="100" y="98" font-size="9" fill="#6B7699">سبتمبر</text>
+        <text x="210" y="98" font-size="9" fill="#6B7699">أكتوبر</text>
+        <text x="320" y="98" font-size="9" fill="#6B7699">نوفمبر</text>
+        <text x="430" y="98" font-size="9" fill="#6B7699">ديسمبر</text>
+        <text x="540" y="98" font-size="9" fill="#2BD4C7" font-weight="700">يناير</text>
       </svg>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">جودة الخدمة</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"جودة الخدمة\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="sq-kpis">
+    @for (k of kpis; track k.label) {
+      <div class="sq-kpi"><div class="sq-kpi-v" [style.color]="k.color">{{ k.value }}</div><div class="sq-kpi-l">{{ k.label }}</div></div>
+    }
+  </div>
+
+  <div class="sq-two-col">
+    <div class="sq-card">
+      <div class="sq-card-ttl">مؤشرات الجودة التفصيلية</div>
+      @for (s of scoreItems; track s.label) {
+        <div class="sq-score-item">
+          <span class="sq-score-lbl">{{ s.label }}</span>
+          <div class="sq-score-bar"><div class="sq-score-fill" [style.width.%]="s.value" [style.background]="s.color"></div></div>
+          <span class="sq-score-val" [style.color]="s.color">{{ s.display }}</span>
+        </div>
+      }
+    </div>
+    <div>
+      <div class="sq-card">
+        <div class="sq-card-ttl">أحدث تقييمات المستخدمين</div>
+        <div class="sq-review-list">
+          @for (r of reviews; track r.pair) {
+            <div class="sq-review" [class]="'sq-review-' + r.tone">
+              <div class="sq-review-head" [style.color]="r.tone==='good' ? '#0FA99A' : (r.tone==='ok' ? '#2BD4C7' : '#FF8C69')">{{ r.stars }} — {{ r.pair }}</div>
+              <div class="sq-review-text">{{ r.text }}</div>
+              <div class="sq-review-time">{{ r.time }}</div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="sq-card">
+        <div class="sq-card-ttl">تنبيهات الجودة</div>
+        @for (a of alerts; track a.text) {
+          <div class="sq-alert" [style.background]="a.color + '0D'" [style.border-color]="a.color + '24'" [style.color]="a.color">{{ a.text }}</div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="sq-two-col sq-two-col-mt">
+    <div class="sq-card">
+      <div class="sq-card-ttl" style="color:#FF8C69">أسوأ مقدمين — يحتاجون إجراء</div>
+      @for (p of worstProviders; track p.name) {
+        <div class="sq-prov" [class]="'sq-prov-' + p.tone">
+          <div class="sq-prov-av" [style.background]="p.avatarGradient">{{ p.initial }}</div>
+          <div class="sq-prov-body"><div class="sq-prov-name">{{ p.name }}</div><div class="sq-prov-meta">{{ p.meta }}</div></div>
+          <span class="sq-prov-action" [class]="'sq-prov-action-' + p.tone">مراجعة</span>
+        </div>
+      }
+    </div>
+    <div class="sq-card">
+      <div class="sq-card-ttl" style="color:#A56BE0">مراجعات مُختلَف عليها</div>
+      <div class="sq-contested-list">
+        @for (c of contestedReviews(); track c.pair) {
+          <div class="sq-contested">
+            <div class="sq-contested-head"><span style="color:#FF8C69;font-weight:700">{{ c.stars }}</span><span style="color:#6B7699">{{ c.pair }}</span></div>
+            <div class="sq-contested-text">{{ c.text }}</div>
+            <div class="sq-contested-actions">
+              <button type="button" class="sq-cbtn sq-cbtn-keep" (click)="handleReview('keep', c)">إبقاء</button>
+              <button type="button" class="sq-cbtn sq-cbtn-remove" (click)="handleReview('remove', c)">حذف</button>
+            </div>
+          </div>
+        }
+        @if (contestedReviews().length === 0) {
+          <p style="font-size:12px;color:#6B7699">لا توجد مراجعات معلّقة حالياً</p>
+        }
+      </div>
+      <div class="sq-sentiment">
+        <div class="sq-sentiment-ttl">Sentiment Analysis (AI)</div>
+        <div class="sq-sentiment-row">
+          @for (s of sentiment; track s.label) {
+            <div class="sq-sentiment-item" [style.background]="s.bg"><div class="sq-sentiment-val" [style.color]="s.color">{{ s.value }}</div><div class="sq-sentiment-lbl">{{ s.label }}</div></div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
