@@ -168,8 +168,8 @@
 					aria-hidden="true"></div>
 			</div>
 			<div class="slide-content">
-				<div class="slide-tag"
-					style="background:rgba(43,127,255,.15);border:1px solid rgba(43,127,255,.3);color:#5DA0FF">
+				<div class="slide-tag badge-blue"
+					>
 					<svg aria-hidden="true" style="width:11px;height:11px">
 						<use href="#ws-cat-design"></use>
 					</svg>
@@ -198,8 +198,8 @@
 					aria-hidden="true"></div>
 			</div>
 			<div class="slide-content">
-				<div class="slide-tag"
-					style="background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.3);color:var(--teal)">
+				<div class="slide-tag txt-teal"
+					style="background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.3)">
 					<svg aria-hidden="true" style="width:11px;height:11px">
 						<use href="#ws-cat-code"></use>
 					</svg>
@@ -231,8 +231,8 @@
 					aria-hidden="true"></div>
 			</div>
 			<div class="slide-content">
-				<div class="slide-tag"
-					style="background:rgba(123,47,190,.15);border:1px solid rgba(123,47,190,.3);color:#D4A6FF">
+				<div class="slide-tag txt-lilac"
+					style="background:rgba(123,47,190,.15);border:1px solid rgba(123,47,190,.3)">
 					<svg aria-hidden="true" style="width:11px;height:11px">
 						<use href="#ws-trust-ai"></use>
 					</svg>
@@ -274,8 +274,8 @@
 		<div class="quick-cats-inner" role="list">
 			@for (cat of categories().slice(0, 10); track cat.id) {
 			<a [routerLink]="['/marketplace', cat.slug]" class="qcat cursor-pointer" role="listitem">
-				<div class="qcat-ico"
-					style="background:rgba(43,127,255,.08);border-color:rgba(43,127,255,.15);color:#5DA0FF"><svg>
+				<div class="qcat-ico ic-blue"
+					style="border-"><svg>
 						<use [attr.href]="cat.icon || '#ws-tag'"></use>
 					</svg></div>
 				<div class="qcat-name">{{ cat.name }}</div>
@@ -368,8 +368,8 @@
 		<div class="mkt-section">
 			<div class="sec-hdr">
 				<h2 class="sec-title">
-					<span class="sec-title-ico"
-						style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)"><svg
+					<span class="sec-title-ico txt-teal"
+						style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg
 							aria-hidden="true">
 							<use href="#ws-menu"></use>
 						</svg></span>
@@ -384,8 +384,8 @@
 						@for (sub of (cat.subSpecialties || []).slice(0, 4); track sub.id) {
 						<a (click)="$event.stopPropagation(); selectCategory(cat.slug, sub.slug || sub.name || sub.id)"
 							class="cat-block-item cursor-pointer">
-							<div class="cat-block-ico"
-								style="background:rgba(43,127,255,.1);border-color:rgba(43,127,255,.2);color:#5DA0FF">
+							<div class="cat-block-ico ic-blue"
+								style="border-">
 								<svg>
 									<use [attr.href]="cat.icon || '#ws-cat-design'"></use>
 								</svg>
@@ -408,15 +408,15 @@
 		<div class="mkt-section">
 			<div class="sec-hdr">
 				<h2 class="sec-title">
-					<span class="sec-title-ico"
-						style="background:var(--ai-bg);border:1px solid var(--ai-border);color:var(--ai)"><svg
+					<span class="sec-title-ico txt-purple"
+						style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg
 							aria-hidden="true">
 							<use href="#ws-trust-ai"></use>
 						</svg></span>
 					اختيارات الذكاء الاصطناعي لك
 				</h2>
 				<span
-					style="font-size:11px;color:var(--ai);font-weight:700;padding:3px 8px;border-radius:4px;background:var(--ai-bg);border:1px solid var(--ai-border)">توافق
+					style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;background:var(--ai-bg);border:1px solid var(--ai-border)" class="txt-purple">توافق
 					{{ aiMatchAverage() }}%</span>
 			</div>
 			<div class="svcs-scroll">
@@ -430,8 +430,8 @@
 							<circle cx="30" cy="30" r="8" fill="rgba(123,47,190,.3)" stroke="#D4A6FF"
 								stroke-width="1" />
 						</svg>
-						<span class="svc-lvl"
-							style="color:#C084FC;background:rgba(123,47,190,.2);border-color:rgba(123,47,190,.5)">مستوى
+						<span class="svc-lvl txt-fuchsia"
+							style="background:rgba(123,47,190,.2);border-">مستوى
 							احترافي</span>
 						<span class="svc-ai-tag"><svg aria-hidden="true"
 								style="width:9px;height:9px;vertical-align:middle;margin-left:2px">
@@ -469,8 +469,8 @@
 		<div class="mkt-section">
 			<div class="sec-hdr">
 				<h2 class="sec-title">
-					<span class="sec-title-ico"
-						style="background:rgba(217,138,11,.15);border:1px solid rgba(217,138,11,.3);color:var(--kahr)"><svg
+					<span class="sec-title-ico badge-kahr"
+						><svg
 							aria-hidden="true">
 							<use href="#ws-star"></use>
 						</svg></span>
@@ -491,8 +491,8 @@
 								stroke-width="1.5" />
 							<circle cx="30" cy="36" r="4" fill="var(--teal)" />
 						</svg>
-						<span class="svc-lvl"
-							style="color:var(--kahr);background:rgba(217,138,11,.15);border-color:rgba(217,138,11,.3)">موثوق
+						<span class="svc-lvl ic-kahr"
+							style="border-">موثوق
 							100%</span>
 						<button class="svc-fav" type="button" aria-label="أضف للمفضلة"><svg aria-hidden="true">
 								<use href="#ws-heart"></use>
@@ -526,8 +526,8 @@
 		<div class="mkt-section">
 			<div class="sec-hdr">
 				<h2 class="sec-title">
-					<span class="sec-title-ico"
-						style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);color:#5DA0FF"><svg
+					<span class="sec-title-ico badge-blue"
+						><svg
 							aria-hidden="true">
 							<use href="#ws-shield"></use>
 						</svg></span>
@@ -582,9 +582,9 @@
 		<!-- CUSTOM REQUEST -->
 		<div class="custom-cta">
 			<div>
-				<div style="font-size:18px;font-weight:900;color:var(--txt);margin-bottom:6px">ما وجدت الخدمة المناسبة؟
+				<div style="font-size:18px;font-weight:900;margin-bottom:6px" class="txt-white">ما وجدت الخدمة المناسبة؟
 				</div>
-				<div style="font-size:14px;color:var(--txt-2)">أنشئ طلباً وسيجلب لك الذكاء الاصطناعي أفضل العروض من
+				<div style="font-size:14px" class="txt-slate">أنشئ طلباً وسيجلب لك الذكاء الاصطناعي أفضل العروض من
 					المهنيين المعتمدين</div>
 			</div>
 			<a routerLink="/client-overview/create-request" class="btn-primary">أنشئ طلباً مخصصاً</a>

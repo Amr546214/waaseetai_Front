@@ -7,8 +7,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 
 /* NAV - skipped */
 
-.page-wrap{position:relative;z-index:2;padding-top:70px;}
-.slug-page-wrap{padding-top:70px;} /* Adding consistent space at the top */
+.page-wrap{position:relative;z-index:2;padding-top:64px;}
+.slug-page-wrap{padding-top:64px;} /* Adding consistent space at the top */
 
 /* HERO */
 .cat-hero{position:relative;overflow:hidden;padding:36px 0 0;background:linear-gradient(180deg,rgba(7,13,36,0) 0%,rgba(7,13,36,1) 100%)}

@@ -32,7 +32,7 @@
         <span class="breadcrumb-sep">/</span>
         <a routerLink="/marketplace">الفئات</a>
         <span class="breadcrumb-sep">/</span>
-        <span style="color:var(--txt-2)">{{ categoryData()?.name }}</span>
+        <span class="txt-slate">{{ categoryData()?.name }}</span>
       </div>
 
       <div class="hero-top">
@@ -44,15 +44,15 @@
           <p class="cat-hero-desc">مقدمون معتمدون متخصصون في هذا المجال — جميع المشاريع محمية بعقود رسمية وضمان مالي</p>
           <div class="hero-chips">
             <div class="hero-chip">
-              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--teal)"><svg style="width:10px;height:10px"><use href="#ws-shield"></use></svg></span>
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:inline-flex;align-items:center;justify-content:center" class="txt-teal"><svg style="width:10px;height:10px"><use href="#ws-shield"></use></svg></span>
               ضمان مالي كامل
             </div>
             <div class="hero-chip">
-              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--blue-txt)"><svg style="width:10px;height:10px"><use href="#ws-check"></use></svg></span>
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:inline-flex;align-items:center;justify-content:center" class="txt-blue"><svg style="width:10px;height:10px"><use href="#ws-check"></use></svg></span>
               عقود رسمية موثّقة
             </div>
             <div class="hero-chip">
-              <span style="width:18px;height:18px;border-radius:4px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--green)"><svg style="width:10px;height:10px"><use href="#ws-user"></use></svg></span>
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2);display:inline-flex;align-items:center;justify-content:center" class="txt-green"><svg style="width:10px;height:10px"><use href="#ws-user"></use></svg></span>
               {{ providersCount() }} مقدم معتمد
             </div>
           </div>
@@ -76,13 +76,13 @@
       <div class="subcats-row">
         <div class="subcats-inner" role="tablist" aria-label="تخصصات">
         <button class="subcat-btn" [class.active]="selectedSub() === ''" (click)="selectSubCategory('')" role="tab" [attr.aria-selected]="selectedSub() === ''">
-          <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryData()?.icon || '#ws-cat-code'"></use></svg></span>
+          <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" class="txt-teal"><svg style="width:10px;height:10px"><use [attr.href]="categoryData()?.icon || '#ws-cat-code'"></use></svg></span>
           الكل <span class="sub-cnt">{{ categoryData()?.count || 0 }}</span>
         </button>
         
         @for (sub of categoryData()?.subSpecialties; track sub.id) {
           <button class="subcat-btn" [class.active]="selectedSub() === sub.slug" (click)="selectSubCategory(sub.slug)" role="tab" [attr.aria-selected]="selectedSub() === sub.slug">
-            <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryData()?.icon || '#ws-cat-code'"></use></svg></span>
+            <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" class="txt-teal"><svg style="width:10px;height:10px"><use [attr.href]="categoryData()?.icon || '#ws-cat-code'"></use></svg></span>
             {{ sub.name }} <span class="sub-cnt">{{ getSubCount(sub.slug) }}</span>
           </button>
         }

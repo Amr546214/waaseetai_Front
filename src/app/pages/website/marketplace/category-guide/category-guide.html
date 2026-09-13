@@ -1,0 +1,230 @@
+<div class="category-guide-page">
+	<!-- SVG SPRITE -->
+	<svg class="sprite-defs" style="display:none" aria-hidden="true">
+		<defs>
+			<symbol id="ws-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<circle cx="12" cy="12" r="9" />
+				<line x1="9" y1="15" x2="15" y2="9" />
+				<circle cx="9.5" cy="9.5" r="1.5" fill="currentColor" stroke="none" />
+				<circle cx="14.5" cy="14.5" r="1.5" fill="currentColor" stroke="none" />
+			</symbol>
+			<symbol id="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol>
+			<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+			<symbol id="ws-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+			<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+			<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+			<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+			<symbol id="ws-ai-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 9 9H2l6 5-2 8 6-4 6 4-2-8 6-5h-7z"/></symbol>
+			<symbol id="ws-cat-design" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="3.5"/><path d="M1 18a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v2H1v-2z"/><path d="M13 18c0-2.8 2.2-5 5-5s5 2.2 5 5v2H13v-2z"/></symbol>
+			<symbol id="ws-cat-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
+			<symbol id="ws-cat-writing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+			<symbol id="ws-cat-marketing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+			<symbol id="ws-cat-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></symbol>
+			<symbol id="ws-cat-translate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></symbol>
+			<symbol id="ws-cat-consult" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+			<symbol id="ws-cat-data" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+			<symbol id="ws-cat-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+			<symbol id="ws-cat-audio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></symbol>
+			<symbol id="ws-cat-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+			<symbol id="ws-cat-legal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 4 9 9 10 5-1 9-5 9-10V7z"/></symbol>
+			<symbol id="ws-cat-training" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></symbol>
+			<symbol id="ws-cat-admin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+			<symbol id="ws-cat-business" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+		</defs>
+	</svg>
+
+	<!-- HERO -->
+	<section class="cg-hero">
+		<div class="container">
+			<div class="breadcrumb">
+				<a routerLink="/">الرئيسية</a>
+				<span class="breadcrumb-sep">/</span>
+				<a routerLink="/marketplace">السوق</a>
+				<span class="breadcrumb-sep">/</span>
+				<span class="txt-slate">دليل الفئات</span>
+			</div>
+			<div class="cg-hero-inner">
+				<div>
+					<h1 class="cg-hero-title">دليل <span>الفئات</span> الكامل</h1>
+					<p class="cg-hero-sub">تصفح جميع تخصصات الخدمات المهنية — من التصميم والبرمجة إلى الاستشارات والبيانات، كل فئة فيها آلاف المقدمين المعتمدين</p>
+					<div class="cg-search-box">
+						<button type="button" class="cg-search-btn" (click)="triggerSearch()">بحث</button>
+						<input class="cg-search-input" type="search" placeholder="ابحث عن فئة أو تخصص..." aria-label="بحث في الفئات"
+							[value]="searchQuery()" (input)="onSearchInput($event)" (keyup.enter)="triggerSearch()">
+						<div class="cg-search-ico"><svg><use href="#ws-search"></use></svg></div>
+					</div>
+				</div>
+				<div class="cg-hero-stats" aria-label="إحصائيات السوق">
+					<div class="cg-hstat c1"><div class="cg-hstat-n">+{{ totalSubSpecialties() }}</div><div class="cg-hstat-l">تخصصاً فرعياً</div></div>
+					<div class="cg-hstat c2"><div class="cg-hstat-n">{{ totalMainCategories() }}</div><div class="cg-hstat-l">فئات رئيسية</div></div>
+					<div class="cg-hstat c3"><div class="cg-hstat-n">+{{ formatCompact(totalPublishedServices()) }}</div><div class="cg-hstat-l">خدمة منشورة</div></div>
+					<div class="cg-hstat c4"><div class="cg-hstat-n">+{{ formatCompact(verifiedProvidersFallback) }}</div><div class="cg-hstat-l">مقدم معتمد</div></div>
+				</div>
+			</div>
+
+			<!-- CATEGORIES QUICK NAV -->
+			@if (categories().length > 0) {
+			<div class="cg-trending-strip">
+				<div class="cg-trending-inner">
+					<div class="cg-trending-lbl">الفئات</div>
+					<div class="cg-trend-sep"></div>
+					@for (cat of categories(); track cat.id; let i = $index) {
+					<button type="button" (click)="scrollToCategory(cat.slug)" class="cg-trend-pill" [class.hot]="cat.slug === topCategorySlug()">
+						<span class="cg-trend-ico" [style.background]="categoryPalette(i).bg" [style.color]="categoryPalette(i).color">
+							<svg><use [attr.href]="categoryIcon(cat.icon)"></use></svg>
+						</span>
+						{{ cat.name }}
+					</button>
+					}
+				</div>
+			</div>
+			}
+		</div>
+	</section>
+
+	<!-- BODY -->
+	<div class="container">
+		<div class="cg-body-layout">
+
+			<!-- SIDEBAR -->
+			@if (categories().length > 0) {
+			<aside class="cg-side-nav" aria-label="تصفح الفئات">
+				<div class="cg-side-nav-title">الفئات الرئيسية</div>
+				<nav class="cg-side-nav-list">
+					@for (cat of categories(); track cat.id; let i = $index) {
+					<button type="button" (click)="scrollToCategory(cat.slug)" class="cg-side-nav-item" [class.active]="activeCatSlug() === cat.slug">
+						<span class="cg-side-ico" [style.background]="categoryPalette(i).bg" [style.border]="'1px solid ' + categoryPalette(i).border" [style.color]="categoryPalette(i).color">
+							<svg><use [attr.href]="categoryIcon(cat.icon)"></use></svg>
+						</span>
+						{{ cat.name }}
+						<span class="cg-side-count">{{ cat.count | number }}+</span>
+					</button>
+					}
+				</nav>
+			</aside>
+			}
+
+			<!-- MAIN CONTENT -->
+			<main>
+				<!-- AI BANNER -->
+				<div class="cg-ai-banner">
+					<div class="cg-ai-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
+					<div class="cg-ai-body">
+						<div class="cg-ai-lbl">توصيات الذكاء الاصطناعي</div>
+						<div class="cg-ai-txt-s">
+							@if (aiTopPicks().length > 0) {
+								الأعلى طلباً الآن:
+								@for (pick of aiTopPicks(); track pick.id; let last = $last) {
+									<strong>{{ pick.title }}</strong>{{ last ? '' : ' و ' }}
+								}
+							} @else {
+								{{ aiBannerInsight() }}
+							}
+						</div>
+					</div>
+					<span class="cg-ai-badge">AI · نشط</span>
+				</div>
+
+				@if (isLoading()) {
+				<div class="cg-loading">جارِ تحميل الفئات...</div>
+				} @else if (categories().length === 0) {
+				<div class="cg-empty">لا توجد فئات متاحة حالياً.</div>
+				} @else {
+				<div class="cg-cats-grid">
+
+					@for (cat of primaryCategories(); track cat.id; let i = $index) {
+					<article class="cg-cat-card" [id]="'cat-' + cat.slug">
+						<div class="cg-cat-card-head">
+							<div class="cg-cat-ico-wrap" [style.background]="categoryPalette(i).bg" [style.border]="'1px solid ' + categoryPalette(i).border" [style.color]="categoryPalette(i).color">
+								<svg><use [attr.href]="categoryIcon(cat.icon)"></use></svg>
+							</div>
+							<div class="cg-cat-head-info">
+								<div class="cg-cat-name">{{ cat.name }}</div>
+								<div class="cg-cat-meta">
+									<span class="cg-cat-cnt">+{{ cat.count | number }} خدمة</span>
+									@if (cat.subSpecialties?.length) {
+									<span>·</span>
+									<span>{{ cat.subSpecialties.length }} تخصص فرعي</span>
+									}
+									@if (cat.slug === topCategorySlug()) {
+									<span class="cg-cat-ai-tag">الأعلى طلباً</span>
+									}
+								</div>
+							</div>
+							<div class="cg-cat-head-action">
+								<a [routerLink]="['/marketplace', cat.slug]" class="cg-cat-all-btn">تصفح الكل <svg><use href="#ws-chevron"></use></svg></a>
+							</div>
+						</div>
+
+						@if (cat.subSpecialties?.length) {
+						<div class="cg-cat-body">
+							<div class="cg-subs-grid">
+								@for (sub of cat.subSpecialties; track sub.id) {
+								<a [routerLink]="['/marketplace', cat.slug]" [queryParams]="{ sub: sub.slug }" class="cg-sub-item" [class.trending]="sub.id === topSubId(cat)">
+									<span class="cg-sub-name">{{ sub.name }}</span>
+									<div class="cg-sub-foot">
+										<span class="cg-sub-cnt">+{{ sub.count | number }} خدمة</span>
+										@if (sub.id === topSubId(cat)) {
+										<span class="cg-sub-hot">الأكثر طلباً</span>
+										}
+									</div>
+								</a>
+								}
+							</div>
+						</div>
+						}
+
+						<div class="cg-cat-card-foot">
+							<div class="cg-cat-foot-stat">
+								<span class="cg-foot-ico badge-kahr"><svg><use href="#ws-star"></use></svg></span>
+								<span>متوسط التقييم <strong>{{ cardRatingFallback }}</strong></span>
+							</div>
+							<div class="cg-cat-foot-sep"></div>
+							<div class="cg-cat-foot-stat">
+								<span class="cg-foot-ico txt-teal" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg><use href="#ws-clock"></use></svg></span>
+								<span>متوسط التسليم <strong>{{ cardDeliveryFallback }}</strong></span>
+							</div>
+							<div class="cg-cat-foot-sep"></div>
+							<div class="cg-cat-foot-stat">
+								<span class="cg-foot-ico txt-blue" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg><use href="#ws-shield"></use></svg></span>
+								<span><strong>{{ cardSatisfactionFallback }}%</strong> معدل الرضا</span>
+							</div>
+						</div>
+					</article>
+					}
+
+					<!-- MORE CATEGORIES — COMPACT -->
+					@if (moreCategories().length > 0) {
+					<div class="cg-more-cats" aria-label="فئات إضافية">
+						@for (cat of moreCategories(); track cat.id; let i = $index) {
+						<a [routerLink]="['/marketplace', cat.slug]" [id]="'cat-' + cat.slug" class="cg-mini-cat">
+							<span class="cg-mini-ico" [style.background]="categoryPalette(i).bg" [style.border]="'1px solid ' + categoryPalette(i).border" [style.color]="categoryPalette(i).color">
+								<svg><use [attr.href]="categoryIcon(cat.icon)"></use></svg>
+							</span>
+							<div class="cg-mini-info">
+								<div class="cg-mini-name">{{ cat.name }}</div>
+								<div class="cg-mini-cnt">+{{ cat.count | number }} خدمة</div>
+							</div>
+						</a>
+						}
+					</div>
+					}
+
+					<!-- CTA -->
+					<div class="cg-req-cta">
+						<div>
+							<h3>ما وجدت الفئة المناسبة؟</h3>
+							<p>أنشئ طلباً مخصصاً وسيجلب لك الذكاء الاصطناعي أفضل العروض من المهنيين المعتمدين في وسيط AI</p>
+						</div>
+						<div class="cg-req-btns">
+							<a routerLink="/custom-request" class="cg-btn-primary">أنشئ طلباً مخصصاً</a>
+							<a routerLink="/marketplace" class="cg-btn-ghost">تصفح السوق</a>
+						</div>
+					</div>
+
+				</div>
+				}
+			</main>
+		</div>
+	</div>
+</div>

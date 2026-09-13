@@ -67,10 +67,10 @@
     }
 
     @if (loading()) {
-      <div style="text-align:center;padding:60px 0;color:var(--txt-3);font-size:13px">جاري تحميل الخدمات...</div>
+      <div style="text-align:center;padding:60px 0;font-size:13px" class="txt-muted">جاري تحميل الخدمات...</div>
     } @else if (!filteredModels().length) {
       <div class="empty-state">
-        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">لا توجد خدمات ضمن هذا التصنيف حالياً</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px" class="txt-white">لا توجد خدمات ضمن هذا التصنيف حالياً</div>
         <a routerLink="/marketplace" class="empty-cta">تصفح كل الخدمات</a>
       </div>
     } @else {
@@ -105,10 +105,10 @@
                 </div>
               </div>
               <div class="svc-rating">
-                <svg aria-hidden="true" style="width:11px;height:11px;color:var(--kahr)"><use href="#ws-star"></use></svg>
+                <svg aria-hidden="true" style="width:11px;height:11px" class="txt-kahr"><use href="#ws-star"></use></svg>
                 <span class="score">{{ m.rating }}</span>
                 <span>({{ m.reviewsCount || 0 }})</span>
-                @if (m.salesCount) { <span style="margin-inline-start:auto;color:var(--txt-3)">{{ m.salesCount }} مبيعة</span> }
+                @if (m.salesCount) { <span style="margin-inline-start:auto" class="txt-muted">{{ m.salesCount }} مبيعة</span> }
               </div>
               <div class="svc-footer">
                 <div>

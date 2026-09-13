@@ -48,7 +48,7 @@
       </div>
 
       @if (loading()) {
-        <div style="text-align:center;padding:60px 0;color:var(--txt-3);font-size:13px">جاري تحميل المفضلة...</div>
+        <div style="text-align:center;padding:60px 0;font-size:13px" class="txt-muted">جاري تحميل المفضلة...</div>
       } @else if (!favorites().length) {
         <div class="empty-state">
           <div class="empty-ico"><svg aria-hidden="true" style="width:34px;height:34px"><use href="#ws-heart"></use></svg></div>
@@ -61,15 +61,15 @@
         <!-- STATS ROW -->
         <div class="stats-row">
           <div class="stat-card">
-            <div class="stat-ico" style="background:rgba(255,140,105,.1);border:1px solid rgba(255,140,105,.2);color:var(--red)"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-heart"></use></svg></div>
-            <div><div class="stat-val" style="color:var(--red)">{{ favorites().length }}</div><div class="stat-lbl">خدمة محفوظة</div></div>
+            <div class="stat-ico txt-coral" style="background:rgba(255,140,105,.1);border:1px solid rgba(255,140,105,.2)"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-heart"></use></svg></div>
+            <div><div class="stat-val txt-coral">{{ favorites().length }}</div><div class="stat-lbl">خدمة محفوظة</div></div>
           </div>
           <div class="stat-card">
-            <div class="stat-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-compare"></use></svg></div>
+            <div class="stat-ico txt-teal" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-compare"></use></svg></div>
             <div><div class="stat-val">{{ categories().length }}</div><div class="stat-lbl">تصنيفات</div></div>
           </div>
           <div class="stat-card">
-            <div class="stat-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);color:var(--kahr)"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-star"></use></svg></div>
+            <div class="stat-ico badge-kahr"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-star"></use></svg></div>
             <div><div class="stat-val">{{ averageRating() }}</div><div class="stat-lbl">متوسط تقييم المفضلة</div></div>
           </div>
         </div>
@@ -120,7 +120,7 @@
                   <div><div class="svc-pname">{{ m.provider.name }}</div>@if (m.isVerified) { <div class="svc-verified">✓ معتمد</div> }</div>
                 </div>
                 <div class="svc-rating">
-                  <svg aria-hidden="true" style="width:11px;height:11px;color:var(--kahr)"><use href="#ws-star"></use></svg>
+                  <svg aria-hidden="true" style="width:11px;height:11px" class="txt-kahr"><use href="#ws-star"></use></svg>
                   <span class="score">{{ m.rating }}</span>
                   <span>({{ m.reviewsCount || 0 }})</span>
                 </div>
