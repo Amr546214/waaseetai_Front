@@ -1,13 +1,107 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="rl-page" dir="rtl">
+  <div class="rl-hdr">
+    <div>
+      <h1 class="rl-ttl">الصلاحيات والأدوار</h1>
+      <p class="rl-sub">تعريف أدوار فريق الإدارة وصلاحيات كل دور</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الصلاحيات والأدوار</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الصلاحيات والأدوار\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <button type="button" class="rl-btn rl-btn-primary" (click)="addRole()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      إضافة دور
+    </button>
   </div>
-</div>
+
+  <div class="rl-roles-grid">
+    @for (r of roles(); track r.name) {
+      <div class="rl-role-card" [style.border-color]="r.color + '38'">
+        <div class="rl-role-top">
+          <div class="rl-role-dot" [style.background]="r.color"></div>
+          <span class="rl-role-name">{{ r.name }}</span>
+          <button type="button" class="rl-role-edit" (click)="openEdit(r)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+            تعديل
+          </button>
+        </div>
+        <div class="rl-role-desc">{{ r.desc }}</div>
+        <div class="rl-role-meta">
+          <span [style.color]="r.color">{{ r.perms }} صلاحية</span>
+          <span>{{ r.members }} أعضاء</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="rl-matrix-card">
+    <div class="rl-matrix-hdr">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      مصفوفة الصلاحيات
+    </div>
+    <div class="rl-table-wrap">
+      <table class="rl-table">
+        <thead>
+          <tr>
+            <th class="rl-th-perm">الصلاحية</th>
+            @for (r of roles(); track r.name) {
+              <th [style.color]="r.color">{{ r.name }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (perm of permissionLabels; track perm; let pi = $index) {
+            <tr>
+              <td class="rl-td-perm">{{ perm }}</td>
+              @for (val of matrix[pi]; track $index) {
+                <td class="rl-td-check">
+                  @if (val) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-no"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rl-audit-card">
+    <div class="rl-audit-ttl">سجل تغييرات الصلاحيات (Permission Audit Trail)</div>
+    <div class="rl-audit-list">
+      @for (a of auditTrail; track a.text) {
+        <div class="rl-audit-row" [class]="'rl-audit-' + a.kind">
+          <span class="rl-audit-time">{{ a.time }}</span>
+          <span class="rl-audit-text" [innerHTML]="a.text"></span>
+          <span class="rl-audit-kind">{{ auditKindLabels[a.kind] }}</span>
+        </div>
+      }
+    </div>
+    <a class="rl-audit-more" (click)="showToast('فتح السجل الكامل')">السجل الكامل في Audit Trail ←</a>
+  </div>
+
+  <div class="rl-foot">© 2026 وسيط AI · v2.0.0</div>
+</section>
+
+@if (editingRole(); as role) {
+  <div class="rl-overlay" (click)="closeEdit()">
+    <div class="rl-modal" (click)="$event.stopPropagation()">
+      <div class="rl-modal-hdr">
+        <h3>تعديل دور: {{ role.name }}</h3>
+        <button type="button" class="rl-modal-close" (click)="closeEdit()">×</button>
+      </div>
+      <div class="rl-modal-body">
+        <label class="rl-field-lbl">الوصف</label>
+        <textarea class="rl-textarea" [value]="role.desc" readonly></textarea>
+        <div class="rl-modal-note">تعديل مصفوفة الصلاحيات لهذا الدور متاح من جدول المصفوفة أعلاه.</div>
+      </div>
+      <div class="rl-modal-actions">
+        <button type="button" class="rl-btn rl-btn-primary" (click)="showToast('تم حفظ التعديلات على دور ' + role.name); closeEdit()">حفظ</button>
+        <button type="button" class="rl-btn rl-btn-ghost" (click)="closeEdit()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (toast()) {
+  <div class="rl-toast">{{ toast() }}</div>
+}

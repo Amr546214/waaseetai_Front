@@ -1,13 +1,142 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="tp-page" dir="rtl">
+  <h1 class="sr-only">أداء الفريق</h1>
+  <svg style="display:none" aria-hidden="true"><defs>
+    <symbol id="tp-i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+    <symbol id="tp-i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+  </defs></svg>
+
+  <div class="tp-hdr">
+    <div>
+      <h2 class="tp-ttl">أداء الفريق</h2>
+      <p class="tp-sub">تقارير أداء موظفي الإدارة — سبتمبر 2026</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">أداء الفريق</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"أداء الفريق\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="tp-hdr-actions">
+      <div class="tp-period">
+        <button type="button" class="tp-pt" [class.active]="period() === 'month'" (click)="setPeriod('month')">شهر</button>
+        <button type="button" class="tp-pt" [class.active]="period() === 'quarter'" (click)="setPeriod('quarter')">ربع</button>
+        <button type="button" class="tp-pt" [class.active]="period() === 'year'" (click)="setPeriod('year')">سنة</button>
+      </div>
+      <button type="button" class="tp-btn tp-btn-gh"><svg><use href="#tp-i-list"></use></svg>تصدير PDF</button>
+    </div>
   </div>
-</div>
+
+  <div class="tp-kpi-row">
+    <div class="tp-kpi"><div class="tp-kpi-lbl">متوسط أداء الفريق</div><div class="tp-kpi-val" style="color:#2BD4C7">90%</div><div class="tp-kpi-sub">+3% عن الشهر الماضي</div></div>
+    <div class="tp-kpi"><div class="tp-kpi-lbl">الالتزام بـ SLA</div><div class="tp-kpi-val" style="color:#0FA99A">95%</div><div class="tp-kpi-sub">هدف: 90% ✓</div></div>
+    <div class="tp-kpi"><div class="tp-kpi-lbl">رضا المستخدمين</div><div class="tp-kpi-val" style="color:#FFB400">4.6 ★</div><div class="tp-kpi-sub">من 3,840 تقييم</div></div>
+    <div class="tp-kpi"><div class="tp-kpi-lbl">مهام منجزة</div><div class="tp-kpi-val" style="color:#A56BE0">552</div><div class="tp-kpi-sub">الفريق كاملاً</div></div>
+  </div>
+
+  <div class="tp-card">
+    <div class="tp-card-ttl-row">
+      <div class="tp-card-ttl"><svg><use href="#tp-i-chart"></use></svg>اتجاه الأداء العام</div>
+      <div class="tp-legend">
+        <span class="tp-legend-item"><span class="tp-legend-dot" style="background:#2BD4C7"></span>2026</span>
+        <span class="tp-legend-item"><span class="tp-legend-dot" style="background:rgba(255,255,255,.15)"></span>2025</span>
+      </div>
+    </div>
+    <div class="tp-chart">
+      @for (b of chartBars(); track b.label) {
+        <div class="tp-bar-wrap">
+          <div class="tp-bar-val">{{ b.current }}%</div>
+          <div class="tp-bar-pair">
+            <div class="tp-bar tp-bar-prev" [style.height.%]="b.previousPct"></div>
+            <div class="tp-bar tp-bar-cur" [style.height.%]="b.currentPct"></div>
+          </div>
+          <div class="tp-bar-lbl">{{ b.label }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="tp-card tp-card-flush">
+    <div class="tp-tbl-hdr">
+      <div class="tp-card-ttl"><svg><use href="#tp-i-chart"></use></svg>أداء الأعضاء — سبتمبر 2026</div>
+    </div>
+    <div class="tp-tbl-wrap">
+      <table class="tp-tbl">
+        <thead>
+          <tr><th>الموظف</th><th>الدور</th><th>مهام منجزة</th><th>الالتزام بـ SLA</th><th>تقييم المستخدمين</th><th>الدرجة الكلية</th><th>الملف</th></tr>
+        </thead>
+        <tbody>
+          @for (m of members(); track m.name) {
+            <tr>
+              <td>
+                <div class="tp-member">
+                  <div class="tp-avatar" [style.background]="'linear-gradient(135deg,' + m.avatarColor + ',rgba(7,13,36,.8))'">{{ m.name.charAt(0) }}</div>
+                  <span class="tp-member-name">{{ m.name }}</span>
+                </div>
+              </td>
+              <td class="tp-role">{{ m.role }}</td>
+              <td class="tp-tasks">{{ m.tasks }}</td>
+              <td>
+                <div class="tp-sla">
+                  <div class="tp-sla-bar"><div class="tp-sla-fill" [style.width.%]="m.sla"></div></div>
+                  <span class="tp-sla-val">{{ m.sla }}%</span>
+                </div>
+              </td>
+              <td class="tp-rating">★ {{ m.rating }}</td>
+              <td><span class="tp-score" [style.color]="scoreColor(m.score)">{{ m.score }}%</span></td>
+              <td><button type="button" class="tp-view-btn" (click)="openDetail(m)">عرض</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tp-benchmark">
+    <div class="tp-sec-ttl">مقارنة الأداء بالمعيار (Benchmark)</div>
+    <div class="tp-tbl-wrap">
+      <table class="tp-bm-tbl">
+        <thead>
+          <tr><th>المؤشر</th><th>الفريق</th><th>المعيار</th><th>الحالة</th></tr>
+        </thead>
+        <tbody>
+          @for (b of benchmarks; track b.metric) {
+            <tr>
+              <td class="tp-bm-metric">{{ b.metric }}</td>
+              <td class="tp-bm-team" [style.color]="b.teamColor">{{ b.team }}</td>
+              <td class="tp-bm-target">{{ b.target }}</td>
+              <td class="tp-bm-status" [style.color]="b.statusColor">{{ b.status }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tp-foot">© 2026 وسيط AI · v2.0.0</div>
+</section>
+
+@if (showDetail()) {
+  <div class="tp-mov" (click)="closeDetail()">
+    <div class="tp-mbox" (click)="$event.stopPropagation()">
+      @if (selectedMember(); as m) {
+        <div class="tp-mhdr">
+          <div class="tp-member">
+            <div class="tp-avatar tp-avatar-lg" [style.background]="'linear-gradient(135deg,' + m.avatarColor + ',rgba(7,13,36,.8))'">{{ m.name.charAt(0) }}</div>
+            <div>
+              <h3>{{ m.name }}</h3>
+              <span class="tp-role">{{ m.role }}</span>
+            </div>
+          </div>
+          <button type="button" class="tp-mclose" (click)="closeDetail()">×</button>
+        </div>
+        <div class="tp-mbody">
+          <div class="tp-mrow">
+            <div class="tp-mfield"><label>مهام منجزة</label><p>{{ m.tasks }}</p></div>
+            <div class="tp-mfield"><label>الالتزام بـ SLA</label><p>{{ m.sla }}%</p></div>
+          </div>
+          <div class="tp-mrow">
+            <div class="tp-mfield"><label>تقييم المستخدمين</label><p>★ {{ m.rating }}</p></div>
+            <div class="tp-mfield"><label>الدرجة الكلية</label><p [style.color]="scoreColor(m.score)" style="font-weight:900">{{ m.score }}%</p></div>
+          </div>
+        </div>
+        <div class="tp-mactions">
+          <button type="button" class="tp-btn tp-btn-gh" (click)="closeDetail()">إغلاق</button>
+        </div>
+      }
+    </div>
+  </div>
+}
