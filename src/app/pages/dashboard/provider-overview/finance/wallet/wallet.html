@@ -37,8 +37,8 @@
     <div id="state-error" role="alert">
       <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
         <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر تحميل المحفظة</div>
-        <div style="font-size:12px;color:#6B7699;margin-bottom:12px">ERR-PR-014</div>
-        <button type="button" (click)="load()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">اعادة المحاولة</button>
+        <div style="font-size:12px;margin-bottom:12px" class="txt-muted">ERR-PR-014</div>
+        <button type="button" (click)="load()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">اعادة المحاولة</button>
       </div>
     </div>
   }
@@ -81,11 +81,11 @@
 
       <!-- Side Card 1: Escrow Held -->
       <div class="wal-side">
-        <div class="wal-side-lbl" style="color:#FFB400">
+        <div class="wal-side-lbl txt-amber">
           <svg aria-hidden="true"><use href="#i-escrow"></use></svg>
           محجوز بالضمان
         </div>
-        <div class="wal-side-val" style="color:#FFB400">
+        <div class="wal-side-val txt-amber">
           {{ wallet.summary.escrowBalance | number:'1.0-2' }}
         </div>
         <div class="wal-side-sub">
@@ -95,11 +95,11 @@
 
       <!-- Side Card 2: Performance Rewards -->
       <div class="wal-side">
-        <div class="wal-side-lbl" style="color:#2BD4C7">
+        <div class="wal-side-lbl txt-teal">
           <svg aria-hidden="true"><use href="#i-check"></use></svg>
           مكافآت الأداء
         </div>
-        <div class="wal-side-val" style="color:#2BD4C7">
+        <div class="wal-side-val txt-teal">
           {{ ((wallet.summary.availableBalance * 0.03) | number:'1.0-0') || '186' }}
         </div>
         <div class="wal-side-sub">عميل موثّق · 3%</div>
@@ -113,8 +113,8 @@
         @for(escrow of wallet.escrows; track escrow.id){
           <a [routerLink]="['/provider-overview/projects/active/progress', escrow.projectId]" class="wal-side" style="display:block;text-decoration:none;transition:border-color .15s">
             <div class="flex justify-between items-center gap-3">
-              <b style="font-size:13px;color:#fff;font-weight:700">{{ escrow.projectTitle }}</b>
-              <span style="font-size:13px;font-weight:800;color:#FFB400">{{ escrow.held | number }} ريال محتجز</span>
+              <b style="font-size:13px;font-weight:700" class="txt-white">{{ escrow.projectTitle }}</b>
+              <span style="font-size:13px;font-weight:800" class="txt-amber">{{ escrow.held | number }} ريال محتجز</span>
             </div>
             <div style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:10px">
               <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)" [style.width.%]="escrow.total ? (escrow.released / escrow.total * 100) : 0"></div>
@@ -150,8 +150,8 @@
                       <svg aria-hidden="true"><use [attr.href]="tx.type === 'credit' ? '#i-wallet' : '#i-escrow'"></use></svg>
                     </span>
                     <div>
-                      <div style="font-weight:700;color:#fff;font-size:13px">{{ tx.title }}</div>
-                      <div style="font-size:11px;color:#6B7699">{{ tx.projectTitle || tx.description }}</div>
+                      <div style="font-weight:700;font-size:13px" class="txt-white">{{ tx.title }}</div>
+                      <div style="font-size:11px" class="txt-muted">{{ tx.projectTitle || tx.description }}</div>
                     </div>
                   </div>
                 </td>
@@ -171,7 +171,7 @@
             @empty {
               <tr>
                 <td>
-                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-out" style="background:rgba(255,140,105,.12)"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></span><div><div style="font-weight:700;color:#fff;font-size:13px">إيداع بالضمان</div><div style="font-size:11px;color:#6B7699">مشروع تصميم هوية</div></div></div>
+                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-out" style="background:rgba(255,140,105,.12)"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إيداع بالضمان</div><div style="font-size:11px" class="txt-muted">مشروع تصميم هوية</div></div></div>
                 </td>
                 <td>2026-05-01</td>
                 <td><span class="tx-amt-out">1,500- ريال</span></td>
@@ -179,7 +179,7 @@
               </tr>
               <tr>
                 <td>
-                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-in" style="background:rgba(15,169,154,.12)"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span><div><div style="font-weight:700;color:#fff;font-size:13px">كاش باك</div><div style="font-size:11px;color:#6B7699">عميل موثّق 3%</div></div></div>
+                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-in" style="background:rgba(15,169,154,.12)"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">كاش باك</div><div style="font-size:11px" class="txt-muted">عميل موثّق 3%</div></div></div>
                 </td>
                 <td>2026-04-28</td>
                 <td><span class="tx-amt-in">45+ ريال</span></td>
@@ -187,7 +187,7 @@
               </tr>
               <tr>
                 <td>
-                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-out" style="background:rgba(255,140,105,.12)"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></span><div><div style="font-weight:700;color:#fff;font-size:13px">إفراج دفعة</div><div style="font-size:11px;color:#6B7699">المرحلة 1 للمشروع</div></div></div>
+                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-out" style="background:rgba(255,140,105,.12)"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إفراج دفعة</div><div style="font-size:11px" class="txt-muted">المرحلة 1 للمشروع</div></div></div>
                 </td>
                 <td>2026-04-20</td>
                 <td><span class="tx-amt-out">1,500- ريال</span></td>
@@ -195,7 +195,7 @@
               </tr>
               <tr>
                 <td>
-                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-in" style="background:rgba(15,169,154,.12)"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span><div><div style="font-weight:700;color:#fff;font-size:13px">إيداع بنكي</div><div style="font-size:11px;color:#6B7699">تعبئة رصيد</div></div></div>
+                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-in" style="background:rgba(15,169,154,.12)"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إيداع بنكي</div><div style="font-size:11px" class="txt-muted">تعبئة رصيد</div></div></div>
                 </td>
                 <td>2026-04-15</td>
                 <td><span class="tx-amt-in">5,000+ ريال</span></td>
@@ -220,7 +220,7 @@
     <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500">
       <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        <span style="font-size:13px;font-weight:700;color:#fff">{{ depositToast() }}</span>
+        <span style="font-size:13px;font-weight:700" class="txt-white">{{ depositToast() }}</span>
       </div>
     </div>
   }

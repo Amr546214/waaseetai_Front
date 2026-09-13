@@ -64,20 +64,20 @@
       </div>
 
       <div class="wal-side">
-        <div class="wal-side-lbl" style="color:#2BD4C7">
+        <div class="wal-side-lbl txt-teal">
           <svg aria-hidden="true"><use href="#wd-earn"></use></svg>
           إجمالي الأرباح
         </div>
-        <div class="wal-side-val" style="color:#2BD4C7">{{ totalEarnings() | number:'1.0-2' }}</div>
+        <div class="wal-side-val txt-teal">{{ totalEarnings() | number:'1.0-2' }}</div>
         <div class="wal-side-sub">{{ currency() }}</div>
       </div>
 
       <div class="wal-side">
-        <div class="wal-side-lbl" style="color:#FFB400">
+        <div class="wal-side-lbl txt-amber">
           <svg aria-hidden="true"><use href="#wd-escrow"></use></svg>
           محجوز بالضمان
         </div>
-        <div class="wal-side-val" style="color:#FFB400">{{ escrowBalance() | number:'1.0-2' }}</div>
+        <div class="wal-side-val txt-amber">{{ escrowBalance() | number:'1.0-2' }}</div>
         <div class="wal-side-sub">{{ currency() }}</div>
       </div>
     </div>

@@ -17,15 +17,15 @@ button{font-family:inherit}
 .tk-btn-sec svg{width:14px;height:14px}
 
 .tk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-.stat-box{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:14px 16px;text-align:center}
+.stat-box{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:14px 16px}
 .stat-num{font-size:24px;font-weight:900;line-height:1;margin-bottom:5px}
 .stat-lbl{font-size:11px;color:#6B7699;font-weight:600}
 
 .tk-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
 .filter-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:20px;font-size:12px;font-weight:700;color:#A8B2D1;cursor:pointer;font-family:inherit;transition:all .15s}
-.filter-chip:hover{background:rgba(43,212,199,.08);border-color:rgba(43,212,199,.22);color:#2BD4C7}
-.filter-chip.active{background:rgba(43,212,199,.14);border-color:rgba(43,212,199,.30);color:#2BD4C7}
-.fc-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:rgba(255,255,255,.08);border-radius:10px;font-size:10px;font-weight:800}
+.filter-chip:hover{background:rgba(255,255,255,.08);color:#fff}
+.filter-chip.active{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.30);color:#2BD4C7}
+.fc-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:rgba(255,255,255,.08);border-radius:9px;font-size:10px;font-weight:800}
 .filter-chip.active .fc-count{background:rgba(43,212,199,.20);color:#2BD4C7}
 
 .tk-card{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:15px 18px;margin-bottom:10px;transition:border-color .15s;cursor:pointer;text-decoration:none}
@@ -46,8 +46,8 @@ button{font-family:inherit}
 .tk-status .dot{display:none}
 .tks-review{background:rgba(255,180,0,.10);color:#D98A0B;border:1px solid rgba(255,180,0,.26)}
 .tks-review::before{background:#FFB400}
-.tks-wait{background:rgba(255,255,255,.05);color:#A8B2D1;border:1px solid rgba(255,255,255,.12)}
-.tks-wait::before{background:#6B7699}
+.tks-wait{background:rgba(255,180,0,.10);color:#D98A0B;border:1px solid rgba(255,180,0,.26)}
+.tks-wait::before{background:#FFB400}
 .tks-ai{background:rgba(123,47,190,.12);color:#A56BE0;border:1px solid rgba(123,47,190,.26)}
 .tks-ai::before{background:#A56BE0}
 .tks-open{background:rgba(43,127,255,.10);color:#5DA0FF;border:1px solid rgba(43,127,255,.26)}
@@ -57,9 +57,9 @@ button{font-family:inherit}
 .tks-closed{background:rgba(255,255,255,.04);color:#6B7699;border:1px solid rgba(255,255,255,.10)}
 .tks-closed::before{background:#6B7699}
 
-.tk-empty{text-align:center;padding:40px 24px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px}
-.tk-empty-ttl{font-size:16px;font-weight:800;color:#fff;margin-bottom:6px}
-.tk-empty-sub{font-size:12px;color:#6B7699}
+.tk-empty{text-align:center;padding:48px 24px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px}
+.tk-empty-ttl{font-size:15px;font-weight:800;color:#fff;margin-bottom:6px}
+.tk-empty-sub{font-size:12.5px;color:#6B7699}
 
 @media(max-width:900px){.tk-stats{grid-template-columns:1fr 1fr}}
 
@@ -130,11 +130,6 @@ button{font-family:inherit}
 :host-context(body.theme-light) .tks-closed,
 :host-context(.light-theme) .tks-closed,
 :host-context(.theme-light) .tks-closed { background:rgba(15,23,42,.04) !important;color:#475569 !important;border-color:#D8DFEC !important }
-
-:host-context(body.light-theme) .tks-wait,
-:host-context(body.theme-light) .tks-wait,
-:host-context(.light-theme) .tks-wait,
-:host-context(.theme-light) .tks-wait { background:rgba(15,23,42,.04) !important;color:#475569 !important;border-color:#D8DFEC !important }
 
 :host-context(body.light-theme) .tk-empty,
 :host-context(body.theme-light) .tk-empty,

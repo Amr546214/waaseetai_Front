@@ -113,6 +113,13 @@
   color: #A56BE0;
 }
 
+:host-context(body.light-theme) .ai-disc-badge,
+:host-context(body.theme-light) .ai-disc-badge,
+:host-context(.light-theme) .ai-disc-badge,
+:host-context(.theme-light) .ai-disc-badge {
+  color: #6B27A5 !important;
+}
+
 .wal-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
