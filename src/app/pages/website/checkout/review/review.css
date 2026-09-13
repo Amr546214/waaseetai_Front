@@ -136,3 +136,93 @@
 /* === RESPONSIVE (copied from P-BF-002.html) === */
 @media(max-width:900px){.review-layout{grid-template-columns:1fr}.cart-sidebar{position:static}.del-grid{grid-template-columns:1fr}.billing-grid{grid-template-columns:1fr}}
 @media(max-width:540px){.order-item-head{flex-wrap:wrap}.order-price-col{width:100%;flex-direction:row;align-items:baseline;gap:4px}}
+
+/* === LIGHT THEME OVERRIDES === */
+:host-context(body.light-theme) .order-item,
+:host-context(body.theme-light) .order-item,
+:host-context(.light-theme) .order-item,
+:host-context(.theme-light) .order-item,
+:host-context(body.light-theme) .billing-card,
+:host-context(body.theme-light) .billing-card,
+:host-context(.light-theme) .billing-card,
+:host-context(.theme-light) .billing-card,
+:host-context(body.light-theme) .sidebar-card,
+:host-context(body.theme-light) .sidebar-card,
+:host-context(.light-theme) .sidebar-card,
+:host-context(.theme-light) .sidebar-card {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  box-shadow: 0 1px 6px rgba(15,23,42,.07);
+}
+
+:host-context(body.light-theme) .order-deliverables,
+:host-context(body.theme-light) .order-deliverables,
+:host-context(.light-theme) .order-deliverables,
+:host-context(.theme-light) .order-deliverables {
+  background: #F8FAFC;
+}
+
+:host-context(body.light-theme) .order-thumb,
+:host-context(body.theme-light) .order-thumb,
+:host-context(.light-theme) .order-thumb,
+:host-context(.theme-light) .order-thumb {
+  background: linear-gradient(135deg,#E2E8F0,#EEF2FA);
+}
+
+:host-context(body.light-theme) .order-thumb svg,
+:host-context(body.theme-light) .order-thumb svg,
+:host-context(.light-theme) .order-thumb svg,
+:host-context(.theme-light) .order-thumb svg {
+  opacity: .25;
+  color: #94A3B8;
+}
+
+:host-context(body.light-theme) .order-pkg-chip,
+:host-context(body.theme-light) .order-pkg-chip,
+:host-context(.light-theme) .order-pkg-chip,
+:host-context(.theme-light) .order-pkg-chip {
+  background: rgba(7,13,36,.05);
+  border-color: #D8DFEC;
+}
+
+:host-context(body.light-theme) .ms-item:not(:last-child)::before,
+:host-context(body.theme-light) .ms-item:not(:last-child)::before,
+:host-context(.light-theme) .ms-item:not(:last-child)::before,
+:host-context(.theme-light) .ms-item:not(:last-child)::before {
+  background: #D8DFEC;
+}
+
+:host-context(body.light-theme) .ms-dot,
+:host-context(body.theme-light) .ms-dot,
+:host-context(.light-theme) .ms-dot,
+:host-context(.theme-light) .ms-dot {
+  background: #F0F4FA;
+  border-color: #CBD5E1;
+}
+
+:host-context(body.light-theme) .notes-ico svg,
+:host-context(body.theme-light) .notes-ico svg,
+:host-context(.light-theme) .notes-ico svg,
+:host-context(.theme-light) .notes-ico svg {
+  color: #9A6700;
+}
+
+:host-context(body.light-theme) .ai-banner,
+:host-context(body.theme-light) .ai-banner,
+:host-context(.light-theme) .ai-banner,
+:host-context(.theme-light) .ai-banner {
+  background: linear-gradient(135deg,rgba(107,39,165,.06),rgba(43,127,255,.04));
+  border-color: rgba(107,39,165,.2);
+}
+
+:host-context(body.light-theme) .ai-banner-ico,
+:host-context(body.theme-light) .ai-banner-ico,
+:host-context(.light-theme) .ai-banner-ico,
+:host-context(.theme-light) .ai-banner-ico,
+:host-context(body.light-theme) .ai-banner-badge,
+:host-context(body.theme-light) .ai-banner-badge,
+:host-context(.light-theme) .ai-banner-badge,
+:host-context(.theme-light) .ai-banner-badge {
+  background: rgba(107,39,165,.08);
+  border-color: rgba(107,39,165,.2);
+}

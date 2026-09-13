@@ -75,3 +75,28 @@
   .otp-input{width:42px;height:50px;font-size:20px}
   .otp-inputs{gap:8px}
 }
+
+/* === LIGHT THEME OVERRIDES === */
+:host-context(body.light-theme) .order-mini-bar,
+:host-context(body.theme-light) .order-mini-bar,
+:host-context(.light-theme) .order-mini-bar,
+:host-context(.theme-light) .order-mini-bar {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+}
+
+:host-context(body.light-theme) .otp-card,
+:host-context(body.theme-light) .otp-card,
+:host-context(.light-theme) .otp-card,
+:host-context(.theme-light) .otp-card {
+  background: #FFFFFF;
+  box-shadow: 0 1px 6px rgba(15,23,42,.07);
+}
+
+:host-context(body.light-theme) .otp-input,
+:host-context(body.theme-light) .otp-input,
+:host-context(.light-theme) .otp-input,
+:host-context(.theme-light) .otp-input {
+  background: #F8FAFC;
+  border-color: #D8DFEC;
+}

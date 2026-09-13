@@ -133,3 +133,64 @@
 /* === RESPONSIVE (copied from P-BF-003.html) === */
 @media(max-width:900px){.pay-layout{grid-template-columns:1fr}.cart-sidebar{position:static}.form-row{grid-template-columns:1fr}}
 @media(max-width:540px){.pay-method-header{flex-wrap:wrap}.card-logos{width:100%;justify-content:flex-start;margin-inline-start:0}}
+
+/* === LIGHT THEME OVERRIDES === */
+:host-context(body.light-theme) .pay-method,
+:host-context(body.theme-light) .pay-method,
+:host-context(.light-theme) .pay-method,
+:host-context(.theme-light) .pay-method,
+:host-context(body.light-theme) .sidebar-card,
+:host-context(body.theme-light) .sidebar-card,
+:host-context(.light-theme) .sidebar-card,
+:host-context(.theme-light) .sidebar-card {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  box-shadow: 0 1px 6px rgba(15,23,42,.07);
+}
+
+:host-context(body.light-theme) .pay-method-ico,
+:host-context(body.theme-light) .pay-method-ico,
+:host-context(.light-theme) .pay-method-ico,
+:host-context(.theme-light) .pay-method-ico {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+}
+
+:host-context(body.light-theme) .form-input,
+:host-context(body.theme-light) .form-input,
+:host-context(.light-theme) .form-input,
+:host-context(.theme-light) .form-input {
+  background: #FFFFFF;
+  border-color: #D8DFEC;
+}
+
+:host-context(body.light-theme) .card-logo,
+:host-context(body.theme-light) .card-logo,
+:host-context(.light-theme) .card-logo,
+:host-context(.theme-light) .card-logo {
+  background: rgba(7,13,36,.05);
+  border-color: #D8DFEC;
+}
+
+:host-context(body.light-theme) .terms-block,
+:host-context(body.theme-light) .terms-block,
+:host-context(.light-theme) .terms-block,
+:host-context(.theme-light) .terms-block {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+}
+
+:host-context(body.light-theme) .order-mini-thumb,
+:host-context(body.theme-light) .order-mini-thumb,
+:host-context(.light-theme) .order-mini-thumb,
+:host-context(.theme-light) .order-mini-thumb {
+  background: linear-gradient(135deg,#E2E8F0,#EEF2FA);
+}
+
+:host-context(body.light-theme) .order-mini-thumb svg,
+:host-context(body.theme-light) .order-mini-thumb svg,
+:host-context(.light-theme) .order-mini-thumb svg,
+:host-context(.theme-light) .order-mini-thumb svg {
+  opacity: .25;
+  color: #94A3B8;
+}
