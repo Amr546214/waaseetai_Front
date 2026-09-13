@@ -36,17 +36,31 @@
 @media(max-width:600px){.benefits-grid{grid-template-columns:1fr}.join-hero h1{font-size:24px}.join-section h2{font-size:18px}}
 
 /* Light mode */
-:host-context(body.light) .join-hero h1,:host-context(.light-theme) .join-hero h1,:host-context(.theme-light) .join-hero h1{color:#070D24}
-:host-context(body.light) .join-hero p,:host-context(.light-theme) .join-hero p,:host-context(.theme-light) .join-hero p{color:#56607D}
-:host-context(body.light) .join-section h2,:host-context(.light-theme) .join-section h2,:host-context(.theme-light) .join-section h2{color:#070D24}
-:host-context(body.light) .benefit-card,:host-context(.light-theme) .benefit-card,:host-context(.theme-light) .benefit-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .benefit-card h3,:host-context(.light-theme) .benefit-card h3,:host-context(.theme-light) .benefit-card h3{color:#070D24}
-:host-context(body.light) .benefit-card p,:host-context(.light-theme) .benefit-card p,:host-context(.theme-light) .benefit-card p{color:#56607D}
-:host-context(body.light) .faq-item,:host-context(.light-theme) .faq-item,:host-context(.theme-light) .faq-item{border-color:#E7EAF1;background:#fff}
-:host-context(body.light) .faq-q,:host-context(.light-theme) .faq-q,:host-context(.theme-light) .faq-q{color:#070D24}
-:host-context(body.light) .faq-q:hover,:host-context(.light-theme) .faq-q:hover,:host-context(.theme-light) .faq-q:hover{color:#1D6FE0}
-:host-context(body.light) .faq-q svg,:host-context(.light-theme) .faq-q svg,:host-context(.theme-light) .faq-q svg{color:#6B7699}
-:host-context(body.light) .faq-a p,:host-context(.light-theme) .faq-a p,:host-context(.theme-light) .faq-a p{color:#56607D}
-:host-context(body.light) .join-cta,:host-context(.light-theme) .join-cta,:host-context(.theme-light) .join-cta{background:linear-gradient(135deg,rgba(43,127,255,.04),rgba(43,212,199,.03));border-color:rgba(43,127,255,.15)}
-:host-context(body.light) .join-cta h2,:host-context(.light-theme) .join-cta h2,:host-context(.theme-light) .join-cta h2{color:#070D24}
-:host-context(body.light) .join-cta p,:host-context(.light-theme) .join-cta p,:host-context(.theme-light) .join-cta p{color:#56607D}
+:host-context(body.light-theme) .join-hero h1,
+:host-context(body.theme-light) .join-hero h1,:host-context(.light-theme) .join-hero h1,:host-context(.theme-light) .join-hero h1{color:#070D24}
+:host-context(body.light-theme) .join-hero p,
+:host-context(body.theme-light) .join-hero p,:host-context(.light-theme) .join-hero p,:host-context(.theme-light) .join-hero p{color:#56607D}
+:host-context(body.light-theme) .join-section h2,
+:host-context(body.theme-light) .join-section h2,:host-context(.light-theme) .join-section h2,:host-context(.theme-light) .join-section h2{color:#070D24}
+:host-context(body.light-theme) .benefit-card,
+:host-context(body.theme-light) .benefit-card,:host-context(.light-theme) .benefit-card,:host-context(.theme-light) .benefit-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .benefit-card h3,
+:host-context(body.theme-light) .benefit-card h3,:host-context(.light-theme) .benefit-card h3,:host-context(.theme-light) .benefit-card h3{color:#070D24}
+:host-context(body.light-theme) .benefit-card p,
+:host-context(body.theme-light) .benefit-card p,:host-context(.light-theme) .benefit-card p,:host-context(.theme-light) .benefit-card p{color:#56607D}
+:host-context(body.light-theme) .faq-item,
+:host-context(body.theme-light) .faq-item,:host-context(.light-theme) .faq-item,:host-context(.theme-light) .faq-item{border-color:#E7EAF1;background:#fff}
+:host-context(body.light-theme) .faq-q,
+:host-context(body.theme-light) .faq-q,:host-context(.light-theme) .faq-q,:host-context(.theme-light) .faq-q{color:#070D24}
+:host-context(body.light-theme) .faq-q:hover,
+:host-context(body.theme-light) .faq-q:hover,:host-context(.light-theme) .faq-q:hover,:host-context(.theme-light) .faq-q:hover{color:#1D6FE0}
+:host-context(body.light-theme) .faq-q svg,
+:host-context(body.theme-light) .faq-q svg,:host-context(.light-theme) .faq-q svg,:host-context(.theme-light) .faq-q svg{color:#6B7699}
+:host-context(body.light-theme) .faq-a p,
+:host-context(body.theme-light) .faq-a p,:host-context(.light-theme) .faq-a p,:host-context(.theme-light) .faq-a p{color:#56607D}
+:host-context(body.light-theme) .join-cta,
+:host-context(body.theme-light) .join-cta,:host-context(.light-theme) .join-cta,:host-context(.theme-light) .join-cta{background:linear-gradient(135deg,rgba(43,127,255,.04),rgba(43,212,199,.03));border-color:rgba(43,127,255,.15)}
+:host-context(body.light-theme) .join-cta h2,
+:host-context(body.theme-light) .join-cta h2,:host-context(.light-theme) .join-cta h2,:host-context(.theme-light) .join-cta h2{color:#070D24}
+:host-context(body.light-theme) .join-cta p,
+:host-context(body.theme-light) .join-cta p,:host-context(.light-theme) .join-cta p,:host-context(.theme-light) .join-cta p{color:#56607D}

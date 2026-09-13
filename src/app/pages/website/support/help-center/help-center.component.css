@@ -59,54 +59,71 @@
 }
 
 /* === Light mode === */
-:host-context(body.light) .help-h1,
+:host-context(body.light-theme) .help-h1,
+:host-context(body.theme-light) .help-h1,
 :host-context(.light-theme) .help-h1,
 :host-context(.theme-light) .help-h1{color:#070D24}
-:host-context(body.light) .help-sub,
+:host-context(body.light-theme) .help-sub,
+:host-context(body.theme-light) .help-sub,
 :host-context(.light-theme) .help-sub,
 :host-context(.theme-light) .help-sub{color:#56607D}
-:host-context(body.light) .toc-link,
+:host-context(body.light-theme) .toc-link,
+:host-context(body.theme-light) .toc-link,
 :host-context(.light-theme) .toc-link,
 :host-context(.theme-light) .toc-link{color:#56607D}
-:host-context(body.light) .toc-link:hover,
+:host-context(body.light-theme) .toc-link:hover,
+:host-context(body.theme-light) .toc-link:hover,
 :host-context(.light-theme) .toc-link:hover,
 :host-context(.theme-light) .toc-link:hover{color:#070D24}
-:host-context(body.light) .toc-link.active,
+:host-context(body.light-theme) .toc-link.active,
+:host-context(body.theme-light) .toc-link.active,
 :host-context(.light-theme) .toc-link.active,
 :host-context(.theme-light) .toc-link.active{color:#0F8A7F}
-:host-context(body.light) .faq-toc-foot,
+:host-context(body.light-theme) .faq-toc-foot,
+:host-context(body.theme-light) .faq-toc-foot,
 :host-context(.light-theme) .faq-toc-foot,
 :host-context(.theme-light) .faq-toc-foot{border-color:#E7EAF1}
-:host-context(body.light) .toc-back-link,
+:host-context(body.light-theme) .toc-back-link,
+:host-context(body.theme-light) .toc-back-link,
 :host-context(.light-theme) .toc-back-link,
 :host-context(.theme-light) .toc-back-link{color:#6B7699}
-:host-context(body.light) .toc-back-link:hover,
+:host-context(body.light-theme) .toc-back-link:hover,
+:host-context(body.theme-light) .toc-back-link:hover,
 :host-context(.light-theme) .toc-back-link:hover,
 :host-context(.theme-light) .toc-back-link:hover{color:#0F8A7F}
-:host-context(body.light) .faq-sec-h,
+:host-context(body.light-theme) .faq-sec-h,
+:host-context(body.theme-light) .faq-sec-h,
 :host-context(.light-theme) .faq-sec-h,
 :host-context(.theme-light) .faq-sec-h{color:#070D24}
-:host-context(body.light) .faq-item,
+:host-context(body.light-theme) .faq-item,
+:host-context(body.theme-light) .faq-item,
 :host-context(.light-theme) .faq-item,
 :host-context(.theme-light) .faq-item{border-color:#E7EAF1;background:#fff}
-:host-context(body.light) .faq-item:hover,
+:host-context(body.light-theme) .faq-item:hover,
+:host-context(body.theme-light) .faq-item:hover,
 :host-context(.light-theme) .faq-item:hover,
 :host-context(.theme-light) .faq-item:hover{border-color:rgba(43,212,199,.25)}
-:host-context(body.light) .faq-q,
+:host-context(body.light-theme) .faq-q,
+:host-context(body.theme-light) .faq-q,
 :host-context(.light-theme) .faq-q,
 :host-context(.theme-light) .faq-q{color:#070D24}
-:host-context(body.light) .faq-q:hover,
+:host-context(body.light-theme) .faq-q:hover,
+:host-context(body.theme-light) .faq-q:hover,
 :host-context(.light-theme) .faq-q:hover,
 :host-context(.theme-light) .faq-q:hover{color:#0F8A7F}
-:host-context(body.light) .faq-q svg,
+:host-context(body.light-theme) .faq-q svg,
+:host-context(body.theme-light) .faq-q svg,
 :host-context(.light-theme) .faq-q svg,
 :host-context(.theme-light) .faq-q svg{color:#6B7699}
-:host-context(body.light) .faq-a p,
+:host-context(body.light-theme) .faq-a p,
+:host-context(body.theme-light) .faq-a p,
 :host-context(.light-theme) .faq-a p,
 :host-context(.theme-light) .faq-a p{color:#56607D}
-:host-context(body.light) .help-foot,
+:host-context(body.light-theme) .help-foot,
+:host-context(body.theme-light) .help-foot,
 :host-context(.light-theme) .help-foot,
 :host-context(.theme-light) .help-foot{border-color:#E7EAF1}
-:host-context(body.light) .help-cta,
+:host-context(body.light-theme) .help-cta,
+:host-context(body.theme-light) .help-cta,
 :host-context(.light-theme) .help-cta,
 :host-context(.theme-light) .help-cta{color:#0F8A7F}

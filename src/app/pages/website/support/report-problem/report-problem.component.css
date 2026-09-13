@@ -41,18 +41,33 @@ select.field-in{cursor:pointer;appearance:none;background-image:url("data:image/
 @media(max-width:600px){.report-hero h1{font-size:22px}.field-in{font-size:13px}}
 
 /* Light mode */
-:host-context(body.light) .report-hero h1,:host-context(.light-theme) .report-hero h1,:host-context(.theme-light) .report-hero h1{color:#070D24}
-:host-context(body.light) .report-hero p,:host-context(.light-theme) .report-hero p,:host-context(.theme-light) .report-hero p{color:#56607D}
-:host-context(body.light) .field-in,:host-context(.light-theme) .field-in,:host-context(.theme-light) .field-in{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
-:host-context(body.light) .field-in:focus,:host-context(.light-theme) .field-in:focus,:host-context(.theme-light) .field-in:focus{border-color:#2BD4C7;background:#fff}
-:host-context(body.light) .field-in::placeholder,:host-context(.light-theme) .field-in::placeholder,:host-context(.theme-light) .field-in::placeholder{color:#6B7699}
-:host-context(body.light) .field-lbl,:host-context(.light-theme) .field-lbl,:host-context(.theme-light) .field-lbl{color:#070D24}
-:host-context(body.light) .side-card,:host-context(.light-theme) .side-card,:host-context(.theme-light) .side-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .side-card h3,:host-context(.light-theme) .side-card h3,:host-context(.theme-light) .side-card h3{color:#070D24}
-:host-context(body.light) .side-link,:host-context(.light-theme) .side-link,:host-context(.theme-light) .side-link{color:#56607D}
-:host-context(body.light) .side-link:hover,:host-context(.light-theme) .side-link:hover,:host-context(.theme-light) .side-link:hover{color:#0F8A7F}
-:host-context(body.light) .side-link svg,:host-context(.light-theme) .side-link svg,:host-context(.theme-light) .side-link svg{color:#6B7699}
-:host-context(body.light) .success-card,:host-context(.light-theme) .success-card,:host-context(.theme-light) .success-card{background:rgba(43,212,199,.04);border-color:rgba(43,212,199,.2)}
-:host-context(body.light) .success-card h2,:host-context(.light-theme) .success-card h2,:host-context(.theme-light) .success-card h2{color:#070D24}
-:host-context(body.light) .success-card p,:host-context(.light-theme) .success-card p,:host-context(.theme-light) .success-card p{color:#56607D}
-:host-context(body.light) .btn-secondary,:host-context(.light-theme) .btn-secondary,:host-context(.theme-light) .btn-secondary{background:#fff;color:#070D24;border-color:#E7EAF1}
+:host-context(body.light-theme) .report-hero h1,
+:host-context(body.theme-light) .report-hero h1,:host-context(.light-theme) .report-hero h1,:host-context(.theme-light) .report-hero h1{color:#070D24}
+:host-context(body.light-theme) .report-hero p,
+:host-context(body.theme-light) .report-hero p,:host-context(.light-theme) .report-hero p,:host-context(.theme-light) .report-hero p{color:#56607D}
+:host-context(body.light-theme) .field-in,
+:host-context(body.theme-light) .field-in,:host-context(.light-theme) .field-in,:host-context(.theme-light) .field-in{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
+:host-context(body.light-theme) .field-in:focus,
+:host-context(body.theme-light) .field-in:focus,:host-context(.light-theme) .field-in:focus,:host-context(.theme-light) .field-in:focus{border-color:#2BD4C7;background:#fff}
+:host-context(body.light-theme) .field-in::placeholder,
+:host-context(body.theme-light) .field-in::placeholder,:host-context(.light-theme) .field-in::placeholder,:host-context(.theme-light) .field-in::placeholder{color:#6B7699}
+:host-context(body.light-theme) .field-lbl,
+:host-context(body.theme-light) .field-lbl,:host-context(.light-theme) .field-lbl,:host-context(.theme-light) .field-lbl{color:#070D24}
+:host-context(body.light-theme) .side-card,
+:host-context(body.theme-light) .side-card,:host-context(.light-theme) .side-card,:host-context(.theme-light) .side-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .side-card h3,
+:host-context(body.theme-light) .side-card h3,:host-context(.light-theme) .side-card h3,:host-context(.theme-light) .side-card h3{color:#070D24}
+:host-context(body.light-theme) .side-link,
+:host-context(body.theme-light) .side-link,:host-context(.light-theme) .side-link,:host-context(.theme-light) .side-link{color:#56607D}
+:host-context(body.light-theme) .side-link:hover,
+:host-context(body.theme-light) .side-link:hover,:host-context(.light-theme) .side-link:hover,:host-context(.theme-light) .side-link:hover{color:#0F8A7F}
+:host-context(body.light-theme) .side-link svg,
+:host-context(body.theme-light) .side-link svg,:host-context(.light-theme) .side-link svg,:host-context(.theme-light) .side-link svg{color:#6B7699}
+:host-context(body.light-theme) .success-card,
+:host-context(body.theme-light) .success-card,:host-context(.light-theme) .success-card,:host-context(.theme-light) .success-card{background:rgba(43,212,199,.04);border-color:rgba(43,212,199,.2)}
+:host-context(body.light-theme) .success-card h2,
+:host-context(body.theme-light) .success-card h2,:host-context(.light-theme) .success-card h2,:host-context(.theme-light) .success-card h2{color:#070D24}
+:host-context(body.light-theme) .success-card p,
+:host-context(body.theme-light) .success-card p,:host-context(.light-theme) .success-card p,:host-context(.theme-light) .success-card p{color:#56607D}
+:host-context(body.light-theme) .btn-secondary,
+:host-context(body.theme-light) .btn-secondary,:host-context(.light-theme) .btn-secondary,:host-context(.theme-light) .btn-secondary{background:#fff;color:#070D24;border-color:#E7EAF1}

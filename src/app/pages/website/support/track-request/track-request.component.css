@@ -37,15 +37,29 @@
 @media(max-width:600px){.track-hero h1{font-size:22px}.field-in{font-size:14px}}
 
 /* Light mode */
-:host-context(body.light) .track-hero h1,:host-context(.light-theme) .track-hero h1,:host-context(.theme-light) .track-hero h1{color:#070D24}
-:host-context(body.light) .track-hero p,:host-context(.light-theme) .track-hero p,:host-context(.theme-light) .track-hero p{color:#56607D}
-:host-context(body.light) .field-in,:host-context(.light-theme) .field-in,:host-context(.theme-light) .field-in{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
-:host-context(body.light) .field-in:focus,:host-context(.light-theme) .field-in:focus,:host-context(.theme-light) .field-in:focus{border-color:#2BD4C7;background:#fff}
-:host-context(body.light) .field-in::placeholder,:host-context(.light-theme) .field-in::placeholder,:host-context(.theme-light) .field-in::placeholder{color:#6B7699}
-:host-context(body.light) .field-lbl,:host-context(.light-theme) .field-lbl,:host-context(.theme-light) .field-lbl{color:#070D24}
-:host-context(body.light) .result-header h2,:host-context(.light-theme) .result-header h2,:host-context(.theme-light) .result-header h2{color:#070D24}
-:host-context(body.light) .result-card,:host-context(.light-theme) .result-card,:host-context(.theme-light) .result-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .result-row,:host-context(.light-theme) .result-row,:host-context(.theme-light) .result-row{border-color:#E7EAF1}
-:host-context(body.light) .result-lbl,:host-context(.light-theme) .result-lbl,:host-context(.theme-light) .result-lbl{color:#56607D}
-:host-context(body.light) .result-val,:host-context(.light-theme) .result-val,:host-context(.theme-light) .result-val{color:#070D24}
-:host-context(body.light) .result-note,:host-context(.light-theme) .result-note,:host-context(.theme-light) .result-note{color:#6B7699}
+:host-context(body.light-theme) .track-hero h1,
+:host-context(body.theme-light) .track-hero h1,:host-context(.light-theme) .track-hero h1,:host-context(.theme-light) .track-hero h1{color:#070D24}
+:host-context(body.light-theme) .track-hero p,
+:host-context(body.theme-light) .track-hero p,:host-context(.light-theme) .track-hero p,:host-context(.theme-light) .track-hero p{color:#56607D}
+:host-context(body.light-theme) .field-in,
+:host-context(body.theme-light) .field-in,:host-context(.light-theme) .field-in,:host-context(.theme-light) .field-in{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
+:host-context(body.light-theme) .field-in:focus,
+:host-context(body.theme-light) .field-in:focus,:host-context(.light-theme) .field-in:focus,:host-context(.theme-light) .field-in:focus{border-color:#2BD4C7;background:#fff}
+:host-context(body.light-theme) .field-in::placeholder,
+:host-context(body.theme-light) .field-in::placeholder,:host-context(.light-theme) .field-in::placeholder,:host-context(.theme-light) .field-in::placeholder{color:#6B7699}
+:host-context(body.light-theme) .field-lbl,
+:host-context(body.theme-light) .field-lbl,:host-context(.light-theme) .field-lbl,:host-context(.theme-light) .field-lbl{color:#070D24}
+:host-context(body.light-theme) .result-header h2,
+:host-context(body.theme-light) .result-header h2,:host-context(.light-theme) .result-header h2,:host-context(.theme-light) .result-header h2{color:#070D24}
+:host-context(body.light-theme) .result-card,
+:host-context(body.theme-light) .result-card,:host-context(.light-theme) .result-card,:host-context(.theme-light) .result-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .result-row,
+:host-context(body.theme-light) .result-row,:host-context(.light-theme) .result-row,:host-context(.theme-light) .result-row{border-color:#E7EAF1}
+:host-context(body.light-theme) .result-lbl,
+:host-context(body.theme-light) .result-lbl,:host-context(.light-theme) .result-lbl,:host-context(.theme-light) .result-lbl{color:#56607D}
+:host-context(body.light-theme) .result-val,
+:host-context(body.theme-light) .result-val,:host-context(.light-theme) .result-val,:host-context(.theme-light) .result-val{color:#070D24}
+:host-context(body.light-theme) .result-note,
+:host-context(body.theme-light) .result-note,:host-context(.light-theme) .result-note,:host-context(.theme-light) .result-note{color:#6B7699}
+:host-context(body.light-theme) .btn-text,
+:host-context(body.theme-light) .btn-text,:host-context(.light-theme) .btn-text,:host-context(.theme-light) .btn-text{color:#0F8A7F}

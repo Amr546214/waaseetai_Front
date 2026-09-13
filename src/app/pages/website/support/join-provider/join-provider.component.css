@@ -31,15 +31,27 @@
 @media(max-width:600px){.steps-grid,.benefits-grid{grid-template-columns:1fr}.join-hero h1{font-size:24px}.join-section h2{font-size:18px}}
 
 /* Light mode */
-:host-context(body.light) .join-hero h1,:host-context(.light-theme) .join-hero h1,:host-context(.theme-light) .join-hero h1{color:#070D24}
-:host-context(body.light) .join-hero p,:host-context(.light-theme) .join-hero p,:host-context(.theme-light) .join-hero p{color:#56607D}
-:host-context(body.light) .join-section h2,:host-context(.light-theme) .join-section h2,:host-context(.theme-light) .join-section h2{color:#070D24}
-:host-context(body.light) .step-card,:host-context(.light-theme) .step-card,:host-context(.theme-light) .step-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .step-card h3,:host-context(.light-theme) .step-card h3,:host-context(.theme-light) .step-card h3{color:#070D24}
-:host-context(body.light) .step-card p,:host-context(.light-theme) .step-card p,:host-context(.theme-light) .step-card p{color:#56607D}
-:host-context(body.light) .benefit-card,:host-context(.light-theme) .benefit-card,:host-context(.theme-light) .benefit-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .benefit-card h3,:host-context(.light-theme) .benefit-card h3,:host-context(.theme-light) .benefit-card h3{color:#070D24}
-:host-context(body.light) .benefit-card p,:host-context(.light-theme) .benefit-card p,:host-context(.theme-light) .benefit-card p{color:#56607D}
-:host-context(body.light) .join-cta,:host-context(.light-theme) .join-cta,:host-context(.theme-light) .join-cta{background:linear-gradient(135deg,rgba(43,212,199,.04),rgba(43,127,255,.03));border-color:rgba(43,212,199,.15)}
-:host-context(body.light) .join-cta h2,:host-context(.light-theme) .join-cta h2,:host-context(.theme-light) .join-cta h2{color:#070D24}
-:host-context(body.light) .join-cta p,:host-context(.light-theme) .join-cta p,:host-context(.theme-light) .join-cta p{color:#56607D}
+:host-context(body.light-theme) .join-hero h1,
+:host-context(body.theme-light) .join-hero h1,:host-context(.light-theme) .join-hero h1,:host-context(.theme-light) .join-hero h1{color:#070D24}
+:host-context(body.light-theme) .join-hero p,
+:host-context(body.theme-light) .join-hero p,:host-context(.light-theme) .join-hero p,:host-context(.theme-light) .join-hero p{color:#56607D}
+:host-context(body.light-theme) .join-section h2,
+:host-context(body.theme-light) .join-section h2,:host-context(.light-theme) .join-section h2,:host-context(.theme-light) .join-section h2{color:#070D24}
+:host-context(body.light-theme) .step-card,
+:host-context(body.theme-light) .step-card,:host-context(.light-theme) .step-card,:host-context(.theme-light) .step-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .step-card h3,
+:host-context(body.theme-light) .step-card h3,:host-context(.light-theme) .step-card h3,:host-context(.theme-light) .step-card h3{color:#070D24}
+:host-context(body.light-theme) .step-card p,
+:host-context(body.theme-light) .step-card p,:host-context(.light-theme) .step-card p,:host-context(.theme-light) .step-card p{color:#56607D}
+:host-context(body.light-theme) .benefit-card,
+:host-context(body.theme-light) .benefit-card,:host-context(.light-theme) .benefit-card,:host-context(.theme-light) .benefit-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .benefit-card h3,
+:host-context(body.theme-light) .benefit-card h3,:host-context(.light-theme) .benefit-card h3,:host-context(.theme-light) .benefit-card h3{color:#070D24}
+:host-context(body.light-theme) .benefit-card p,
+:host-context(body.theme-light) .benefit-card p,:host-context(.light-theme) .benefit-card p,:host-context(.theme-light) .benefit-card p{color:#56607D}
+:host-context(body.light-theme) .join-cta,
+:host-context(body.theme-light) .join-cta,:host-context(.light-theme) .join-cta,:host-context(.theme-light) .join-cta{background:linear-gradient(135deg,rgba(43,212,199,.04),rgba(43,127,255,.03));border-color:rgba(43,212,199,.15)}
+:host-context(body.light-theme) .join-cta h2,
+:host-context(body.theme-light) .join-cta h2,:host-context(.light-theme) .join-cta h2,:host-context(.theme-light) .join-cta h2{color:#070D24}
+:host-context(body.light-theme) .join-cta p,
+:host-context(body.theme-light) .join-cta p,:host-context(.light-theme) .join-cta p,:host-context(.theme-light) .join-cta p{color:#56607D}

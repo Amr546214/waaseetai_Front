@@ -45,18 +45,33 @@
 }
 
 /* Light mode */
-:host-context(body.light) .art-title,:host-context(.light-theme) .art-title,:host-context(.theme-light) .art-title{color:#070D24}
-:host-context(body.light) .art-subtitle,:host-context(.light-theme) .art-subtitle,:host-context(.theme-light) .art-subtitle{color:#56607D}
-:host-context(body.light) .art-h2,:host-context(.light-theme) .art-h2,:host-context(.theme-light) .art-h2{color:#070D24;border-color:#E7EAF1}
-:host-context(body.light) .art-p,:host-context(.light-theme) .art-p,:host-context(.theme-light) .art-p,
-:host-context(body.light) .art-list li,:host-context(.light-theme) .art-list li,:host-context(.theme-light) .art-list li{color:#56607D}
-:host-context(body.light) .article-header,:host-context(.light-theme) .article-header,:host-context(.theme-light) .article-header{border-color:#E7EAF1}
-:host-context(body.light) .article-foot,:host-context(.light-theme) .article-foot,:host-context(.theme-light) .article-foot{border-color:#E7EAF1}
-:host-context(body.light) .art-back,:host-context(.light-theme) .art-back,:host-context(.theme-light) .art-back{color:#56607D}
-:host-context(body.light) .art-back:hover,:host-context(.light-theme) .art-back:hover,:host-context(.theme-light) .art-back:hover{color:#0F8A7F}
-:host-context(body.light) .toc-link,:host-context(.light-theme) .toc-link,:host-context(.theme-light) .toc-link{color:#56607D}
-:host-context(body.light) .toc-link:hover,:host-context(.light-theme) .toc-link:hover,:host-context(.theme-light) .toc-link:hover{color:#070D24}
-:host-context(body.light) .toc-link.active,:host-context(.light-theme) .toc-link.active,:host-context(.theme-light) .toc-link.active{color:#0F8A7F}
-:host-context(body.light) .article-toc-foot,:host-context(.light-theme) .article-toc-foot,:host-context(.theme-light) .article-toc-foot{border-color:#E7EAF1}
-:host-context(body.light) .toc-back-link,:host-context(.light-theme) .toc-back-link,:host-context(.theme-light) .toc-back-link{color:#6B7699}
-:host-context(body.light) .toc-back-link:hover,:host-context(.light-theme) .toc-back-link:hover,:host-context(.theme-light) .toc-back-link:hover{color:#0F8A7F}
+:host-context(body.light-theme) .art-title,
+:host-context(body.theme-light) .art-title,:host-context(.light-theme) .art-title,:host-context(.theme-light) .art-title{color:#070D24}
+:host-context(body.light-theme) .art-subtitle,
+:host-context(body.theme-light) .art-subtitle,:host-context(.light-theme) .art-subtitle,:host-context(.theme-light) .art-subtitle{color:#56607D}
+:host-context(body.light-theme) .art-h2,
+:host-context(body.theme-light) .art-h2,:host-context(.light-theme) .art-h2,:host-context(.theme-light) .art-h2{color:#070D24;border-color:#E7EAF1}
+:host-context(body.light-theme) .art-p,
+:host-context(body.theme-light) .art-p,:host-context(.light-theme) .art-p,:host-context(.theme-light) .art-p,
+:host-context(body.light-theme) .art-list li,
+:host-context(body.theme-light) .art-list li,:host-context(.light-theme) .art-list li,:host-context(.theme-light) .art-list li{color:#56607D}
+:host-context(body.light-theme) .article-header,
+:host-context(body.theme-light) .article-header,:host-context(.light-theme) .article-header,:host-context(.theme-light) .article-header{border-color:#E7EAF1}
+:host-context(body.light-theme) .article-foot,
+:host-context(body.theme-light) .article-foot,:host-context(.light-theme) .article-foot,:host-context(.theme-light) .article-foot{border-color:#E7EAF1}
+:host-context(body.light-theme) .art-back,
+:host-context(body.theme-light) .art-back,:host-context(.light-theme) .art-back,:host-context(.theme-light) .art-back{color:#56607D}
+:host-context(body.light-theme) .art-back:hover,
+:host-context(body.theme-light) .art-back:hover,:host-context(.light-theme) .art-back:hover,:host-context(.theme-light) .art-back:hover{color:#0F8A7F}
+:host-context(body.light-theme) .toc-link,
+:host-context(body.theme-light) .toc-link,:host-context(.light-theme) .toc-link,:host-context(.theme-light) .toc-link{color:#56607D}
+:host-context(body.light-theme) .toc-link:hover,
+:host-context(body.theme-light) .toc-link:hover,:host-context(.light-theme) .toc-link:hover,:host-context(.theme-light) .toc-link:hover{color:#070D24}
+:host-context(body.light-theme) .toc-link.active,
+:host-context(body.theme-light) .toc-link.active,:host-context(.light-theme) .toc-link.active,:host-context(.theme-light) .toc-link.active{color:#0F8A7F}
+:host-context(body.light-theme) .article-toc-foot,
+:host-context(body.theme-light) .article-toc-foot,:host-context(.light-theme) .article-toc-foot,:host-context(.theme-light) .article-toc-foot{border-color:#E7EAF1}
+:host-context(body.light-theme) .toc-back-link,
+:host-context(body.theme-light) .toc-back-link,:host-context(.light-theme) .toc-back-link,:host-context(.theme-light) .toc-back-link{color:#6B7699}
+:host-context(body.light-theme) .toc-back-link:hover,
+:host-context(body.theme-light) .toc-back-link:hover,:host-context(.light-theme) .toc-back-link:hover,:host-context(.theme-light) .toc-back-link:hover{color:#0F8A7F}
