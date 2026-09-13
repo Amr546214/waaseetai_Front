@@ -31,7 +31,7 @@
 .types-section { padding: 48px 0; }
 .types-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
 .type-card { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid var(--border); border-radius: 18px; padding: 24px; transition: transform .2s, box-shadow .2s; }
-.type-card:hover { transform: translateY(-3px); }
+.type-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,.3); }
 .type-ico { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
 .type-ico svg { width: 20px; height: 20px; }
 .ico-teal { background: rgba(43,212,199,.08); border: 1px solid rgba(43,212,199,.18); color: var(--teal); }
@@ -49,8 +49,10 @@
 .payment-section { padding: 0 0 40px; }
 .payment-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
 .payment-card { background: var(--card-bg-flat); border: 1px solid var(--border); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
-.payment-ico { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.payment-ico { width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; }
 .payment-ico svg { width: 22px; height: 22px; }
+.payment-ico.ico-teal { background: rgba(43,212,199,.06); border-color: rgba(43,212,199,.15); }
+.payment-ico.ico-blue { background: rgba(43,127,255,.06); border-color: rgba(43,127,255,.15); }
 .payment-name { font-size: 13px; font-weight: 800; color: var(--txt); }
 .payment-desc { font-size: 11px; color: var(--txt-3); }
 

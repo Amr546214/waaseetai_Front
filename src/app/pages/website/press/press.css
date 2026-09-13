@@ -43,7 +43,7 @@
 
 /* FEATURED NEWS */
 .news-featured { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 16px; }
-.news-thumb { height: 170px; background: linear-gradient(135deg, rgba(43,127,255,.12), rgba(43,212,199,.06)); display: flex; align-items: center; justify-content: center; position: relative; }
+.news-thumb { height: 180px; background: linear-gradient(135deg, rgba(43,127,255,.12), rgba(43,212,199,.06)); display: flex; align-items: center; justify-content: center; position: relative; }
 .news-thumb-ico { width: 40px; height: 40px; color: var(--teal); opacity: .4; }
 .news-cat { position: absolute; top: 12px; right: 12px; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; }
 .cat-teal { background: rgba(43,212,199,.12); border: 1px solid rgba(43,212,199,.25); color: var(--teal); }
