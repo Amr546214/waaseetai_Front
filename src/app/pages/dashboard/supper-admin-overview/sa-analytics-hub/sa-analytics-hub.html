@@ -1,0 +1,314 @@
+<ng-template #icon let-name="name">
+  <svg width="100%" height="100%" viewBox="0 0 24 24">
+    @switch (name) {
+      @case ('wallet') { <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/> }
+      @case ('person') { <circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/> }
+      @case ('escrow') { <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/> }
+      @case ('star') { <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/> }
+      @case ('warn') { <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/> }
+      @case ('check') { <polyline points="20 6 9 17 4 12"/> }
+      @case ('clock') { <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/> }
+      @case ('chart') { <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/> }
+      @case ('market') { <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h14M9 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0M17 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/> }
+    }
+  </svg>
+</ng-template>
+
+<section class="ah-page" dir="rtl">
+  <div class="ah-hdr">
+    <div>
+      <h1 class="ah-ttl">التقارير والتحليلات</h1>
+      <p class="ah-sub">BI Dashboard · لوحة تحليلات شاملة عبر كل نطاقات المنصة</p>
+    </div>
+    <div class="ah-hdr-actions">
+      <button type="button" class="ah-btn ah-btn-ghost" (click)="saveReport()">حفظ التقرير</button>
+      <button type="button" class="ah-btn ah-btn-ghost" (click)="exportReport('PDF')">PDF</button>
+      <button type="button" class="ah-btn ah-btn-primary" (click)="exportReport('Excel')">Excel</button>
+    </div>
+  </div>
+
+  <div class="ah-controls">
+    <div class="ah-period-btns">
+      @for (p of periods; track p.key) {
+        <button type="button" class="ah-period-btn" [class.active]="activePeriod() === p.key" (click)="setPeriod(p.key)">{{ p.label }}</button>
+      }
+    </div>
+    <label class="ah-compare">
+      <input type="checkbox" [checked]="compareEnabled()" (change)="toggleCompare()">
+      مقارنة بالفترة السابقة
+    </label>
+    <div class="ah-updated">آخر تحديث: قبل 15 دقيقة</div>
+  </div>
+
+  <div class="ah-tabs">
+    @for (s of sections; track s.key) {
+      <button type="button" class="ah-tab" [class.active]="activeSection() === s.key" (click)="setSection(s.key)">{{ s.label }}</button>
+    }
+  </div>
+
+  <div class="ah-kpi-row">
+    @for (k of kpiFor(activeSection()); track k.lbl) {
+      <div class="ah-kpi">
+        <div class="ah-kpi-ic" [style.background]="k.bg" [style.color]="k.color">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{name: k.icon}"></ng-container>
+          </svg>
+        </div>
+        <div class="ah-kpi-val">{{ k.val }}</div>
+        <div class="ah-kpi-lbl">{{ k.lbl }}</div>
+        <div class="ah-kpi-sub">{{ k.sub }}</div>
+      </div>
+    }
+  </div>
+
+  @if (activeSection() === 'overview') {
+    <div class="ah-alerts">
+      <div class="ah-alerts-ttl">تنبيهات AI الذكية</div>
+      @for (a of alerts; track a.text) {
+        <div class="ah-alert" [class]="'ah-alert-' + a.level">
+          <span class="ah-alert-text">{{ a.text }}</span>
+          <span class="ah-alert-note">— {{ a.note }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="ah-row-2">
+      <div class="ah-card">
+        <div class="ah-card-head">
+          <div class="ah-card-ttl">الإيرادات الشهرية (12 شهر)</div>
+          <div class="ah-legend">
+            <span style="color:#2BD4C7"><i style="background:#2BD4C7"></i>هذا العام</span>
+            <span style="color:#6B7699"><i style="background:rgba(43,212,199,.3)"></i>العام الماضي</span>
+          </div>
+        </div>
+        <div class="ah-bars">
+          @for (m of revenueMonths; track m.m) {
+            <div class="ah-bar-wrap">
+              <div class="ah-bar-pair">
+                <div class="ah-bar ah-bar-prev" [style.height.%]="(m.prev / maxRevenueMonth()) * 100"></div>
+                <div class="ah-bar ah-bar-cur" [style.height.%]="(m.v / maxRevenueMonth()) * 100"></div>
+              </div>
+              <div class="ah-bar-lbl">{{ m.m.substring(0, 3) }}</div>
+            </div>
+          }
+        </div>
+        <div class="ah-mini-stats">
+          <div class="ah-mini"><div class="ah-mini-val" style="color:#2BD4C7">16.2M</div><div class="ah-mini-lbl">إجمالي (حتى الآن)</div></div>
+          <div class="ah-mini"><div class="ah-mini-val">1.35M</div><div class="ah-mini-lbl">متوسط شهري</div></div>
+          <div class="ah-mini"><div class="ah-mini-val" style="color:#0FA99A">+22%</div><div class="ah-mini-lbl">نمو YoY</div></div>
+        </div>
+      </div>
+
+      <div class="ah-card">
+        <div class="ah-card-ttl">معدل التحويل (Conversion Funnel)</div>
+        @for (f of conversionFunnel; track f.label) {
+          <div class="ah-funnel-step">
+            <span class="ah-funnel-lbl">{{ f.label }}</span>
+            <div class="ah-funnel-track"><div class="ah-funnel-fill" [style.width.%]="f.pct"></div></div>
+            <span class="ah-funnel-val">{{ f.value }}</span>
+          </div>
+        }
+        <div class="ah-funnel-note">معدل التحويل الإجمالي: <strong>22.1%</strong> (طلب → مشروع مكتمل)</div>
+      </div>
+    </div>
+
+    <div class="ah-row-2">
+      <div class="ah-card">
+        <div class="ah-card-ttl">أعلى التخصصات إيراداً</div>
+        <div class="ah-table-wrap">
+          <table class="ah-table">
+            <thead><tr><th>التخصص</th><th>إيرادات</th><th>مشاريع</th><th>نمو</th></tr></thead>
+            <tbody>
+              @for (s of topSpecialties; track s.name) {
+                <tr>
+                  <td>{{ s.name }}</td>
+                  <td class="strong">{{ s.revenue }}</td>
+                  <td>{{ s.projects }}</td>
+                  <td [class.up]="s.up" [class.down]="!s.up">{{ s.growth }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ah-card">
+        <div class="ah-card-ttl">التوزيع الجغرافي (المملكة)</div>
+        <div class="ah-geo-list">
+          @for (g of geoDistribution; track g.city) {
+            <div class="ah-geo-row">
+              <span class="ah-geo-city">{{ g.city }}</span>
+              <div class="ah-geo-track"><div class="ah-geo-fill" [style.width.%]="g.pct" [style.background]="g.color"></div></div>
+              <span class="ah-geo-pct" [style.color]="g.color">{{ g.pct }}%</span>
+            </div>
+          }
+        </div>
+        <div class="ah-opportunity">
+          <div class="ah-opportunity-lbl">مناطق ذات طلب عالٍ وعرض منخفض (فرص):</div>
+          <div class="ah-opportunity-chips">
+            @for (c of opportunityCities; track c) {
+              <span>{{ c }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (activeSection() === 'users') {
+    <div class="ah-row-2">
+      <div class="ah-card">
+        <div class="ah-card-ttl">توزيع المستخدمين حسب النوع</div>
+        <div class="ah-usertype-list">
+          @for (u of userTypes; track u.label) {
+            <div class="ah-usertype-row" [style.background]="u.color + '0D'" [style.border-color]="u.color + '20'">
+              <div class="ah-usertype-badge" [style.background]="u.color + '20'" [style.color]="u.color">{{ u.count }}</div>
+              <div class="ah-usertype-body">
+                <div class="ah-usertype-name">{{ u.label }}</div>
+                <div class="ah-usertype-meta">{{ u.pct }}% من الإجمالي · {{ u.growth }} نمو</div>
+              </div>
+              <div class="ah-usertype-new">{{ u.newCount }} جديد</div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="ah-card">
+        <div class="ah-card-ttl">نمو المستخدمين (12 شهر)</div>
+        <div class="ah-bars ah-bars-single">
+          @for (u of userGrowth; track u.m) {
+            <div class="ah-bar-wrap">
+              <div class="ah-bar-pair">
+                <div class="ah-bar ah-bar-cur" [style.height.%]="(u.v / maxUserGrowth()) * 100"></div>
+              </div>
+              <div class="ah-bar-lbl">{{ u.m.substring(0, 3) }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (activeSection() === 'projects') {
+    <div class="ah-card">
+      <div class="ah-card-ttl">معدلات الإكمال والنزاعات حسب التخصص</div>
+      <div class="ah-table-wrap">
+        <table class="ah-table">
+          <thead><tr><th>التخصص</th><th>معدل الإكمال</th><th>نزاعات مفتوحة</th></tr></thead>
+          <tbody>
+            @for (s of specialtyCompletion; track s.name) {
+              <tr>
+                <td>{{ s.name }}</td>
+                <td>
+                  <div class="ah-inline-track"><div class="ah-inline-fill" [style.width.%]="s.completion"></div></div>
+                  <span class="ah-inline-val">{{ s.completion }}%</span>
+                </td>
+                <td [class.down]="s.disputes > 8">{{ s.disputes }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (activeSection() === 'finance') {
+    <div class="ah-card">
+      <div class="ah-card-ttl">مقارنة الأداء المالي (6 أشهر)</div>
+      <div class="ah-table-wrap">
+        <table class="ah-table">
+          <thead>
+            <tr>
+              <th>المؤشر</th>
+              @for (m of financeMonthLabels; track m) { <th>{{ m }}</th> }
+              <th>التغيير</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of financeComparison; track row.metric) {
+              <tr>
+                <td>{{ row.metric }}</td>
+                @for (v of row.values; track $index) { <td>{{ v }}</td> }
+                <td class="up">{{ row.change }} ↑</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (activeSection() === 'specialties') {
+    <div class="ah-card">
+      <div class="ah-card-ttl">تحليل الطلب مقابل العرض (Gap Analysis)</div>
+      @for (g of specialtyGaps; track g.name) {
+        <div class="ah-gap-row">
+          <span class="ah-gap-name">{{ g.name }}</span>
+          <div class="ah-gap-bars">
+            <div class="ah-gap-track"><div class="ah-gap-fill ah-gap-demand" [style.width.%]="g.demand"></div></div>
+            <div class="ah-gap-track"><div class="ah-gap-fill ah-gap-supply" [style.width.%]="g.supply"></div></div>
+          </div>
+          <span class="ah-gap-vals">{{ g.demand }}% / {{ g.supply }}%</span>
+        </div>
+      }
+      <div class="ah-gap-legend">
+        <span><i class="ah-gap-demand"></i>الطلب</span>
+        <span><i class="ah-gap-supply"></i>العرض</span>
+      </div>
+    </div>
+  }
+
+  @if (activeSection() === 'affiliates') {
+    <div class="ah-card">
+      <div class="ah-card-ttl">أفضل 10 وسطاء — يناير 2025</div>
+      <div class="ah-table-wrap">
+        <table class="ah-table">
+          <thead><tr><th>#</th><th>الوسيط</th><th>الإحالات</th><th>العمولة (ر.س)</th><th>التحويل</th></tr></thead>
+          <tbody>
+            @for (a of topAffiliates; track a.name) {
+              <tr>
+                <td class="strong">{{ a.rank }}</td>
+                <td>{{ a.name }}</td>
+                <td>{{ a.referrals }}</td>
+                <td class="strong green">{{ a.commission }}</td>
+                <td>{{ a.conversion }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (activeSection() === 'performance') {
+    <div class="ah-row-2">
+      <div class="ah-card">
+        <div class="ah-card-ttl">مؤشرات جودة الخدمة</div>
+        <div class="ah-quality-grid">
+          @for (q of qualityMetrics; track q.label) {
+            <div class="ah-quality-item">
+              <div class="ah-quality-val" [style.color]="q.color">{{ q.value }}</div>
+              <div class="ah-quality-lbl">{{ q.label }}</div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="ah-card">
+        <div class="ah-card-ttl">تقارير محفوظة</div>
+        <div class="ah-saved-list">
+          @for (r of savedReports; track r.name) {
+            <div class="ah-saved-row">
+              <div>
+                <div class="ah-saved-name">{{ r.name }}</div>
+                <div class="ah-saved-meta">{{ r.schedule }} · آخر تشغيل: {{ r.lastRun }}</div>
+              </div>
+              <button type="button" class="ah-btn ah-btn-ghost ah-btn-sm" (click)="exportReport('PDF')">تشغيل</button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="ah-foot">
+    <span>© 2026 وسيط AI · التقارير والتحليلات</span>
+  </div>
+</section>

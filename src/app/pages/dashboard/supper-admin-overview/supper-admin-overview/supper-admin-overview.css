@@ -94,7 +94,6 @@
    ========================================================================== */
 :host-context(body.light-theme),
 :host-context(body.theme-light),
-:host-context(body.light),
 :host-context(.light-theme),
 :host-context(.theme-light) {
 
@@ -103,13 +102,10 @@
 
   /* AI disclosure banner */
   .ai-disclosure {
-    background: linear-gradient(135deg, rgba(123,47,190,.06), rgba(43,127,255,.04)) !important;
-    border-color: rgba(123,47,190,.22) !important;
+    background: linear-gradient(135deg, rgba(123,47,190,.05), rgba(43,127,255,.03)) !important;
+    border-color: rgba(123,47,190,.18) !important;
   }
-  .ai-disc-lbl { color: #6B27A5 !important; }
   .ai-disc-txt { color: #475569 !important; }
-  .ai-disc-badge { background: rgba(123,47,190,.10) !important; border-color: rgba(123,47,190,.22) !important; color: #6B27A5 !important; }
-  .ai-disc-ico { background: rgba(123,47,190,.10) !important; color: #7B2FBE !important; }
 
   /* KPI cards */
   .kpi-card {
@@ -117,9 +113,9 @@
     border-color: #E7EAF1 !important;
     box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
   }
-  .kpi-lbl { color: #475569 !important; }
+  .kpi-lbl { color: #64748B !important; }
   .kpi-unit { color: #64748B !important; }
-  .kpi-sub { color: #475569 !important; }
+  .kpi-sub { color: #64748B !important; }
 
   /* Dash cards */
   .dash-card {
@@ -127,7 +123,7 @@
     border-color: #E7EAF1 !important;
     box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
   }
-  .dash-card-ttl { color: #0F172A !important; }
+  .dash-card-ttl { color: #1E293B !important; }
 
   /* Queue items */
   .q-item {
@@ -146,8 +142,6 @@
     background: rgba(123,47,190,.04) !important;
     border-color: rgba(123,47,190,.14) !important;
   }
-  .ins-ic { background: rgba(123,47,190,.10) !important; color: #7B2FBE !important; }
-  .ins-txt { color: #475569 !important; }
 
   /* Activity card */
   .act-card {
@@ -155,9 +149,9 @@
     border-color: #E7EAF1 !important;
     box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
   }
-  .act-tbl thead tr th { color: #475569 !important; border-bottom-color: #E7EAF1 !important; }
-  .act-tbl tbody tr td { color: #475569 !important; border-bottom-color: #F1F5F9 !important; }
-  .act-tbl tbody tr:hover td { background: rgba(7,13,36,.02) !important; }
+  .act-tbl thead tr th { color: #475569 !important; background: rgba(7,13,36,.03) !important; border-bottom-color: #E7EAF1 !important; }
+  .act-tbl tbody tr td { color: #475569 !important; border-bottom-color: #E7EAF1 !important; }
+  .act-tbl tbody tr:hover td { background: rgba(7,13,36,.03) !important; }
 
   /* Health items */
   .health-item {
@@ -182,7 +176,7 @@
   /* Footer */
   .inner-foot { border-top-color: #E7EAF1 !important; color: #64748B !important; }
   .inner-foot-links a { color: #64748B !important; }
-  .inner-foot-links a:hover { color: #0F8A7F !important; }
+  .inner-foot-links a:hover { color: #007A72 !important; }
 
   /* Revenue chart card (inline-styled) */
   .main-inner > div[style*="linear-gradient(135deg,rgba(255,255,255"] {

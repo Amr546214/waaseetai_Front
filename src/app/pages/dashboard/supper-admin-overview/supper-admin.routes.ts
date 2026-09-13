@@ -78,6 +78,11 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         data: { title: 'البلاغات' }
     },
     {
+        path: 'analytics-hub',
+        loadComponent: () => import('./sa-analytics-hub/sa-analytics-hub').then(m => m.SaAnalyticsHub),
+        data: { title: 'مركز التقارير الشامل' }
+    },
+    {
         path: 'support',
         loadComponent: () => import('./sa-support/sa-support').then(m => m.SaSupport),
         data: { title: 'الدعم الفني' }

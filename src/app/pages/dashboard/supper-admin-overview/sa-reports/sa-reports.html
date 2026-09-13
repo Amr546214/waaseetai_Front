@@ -1,13 +1,183 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="rp-page" dir="rtl">
+  <div class="rp-hdr">
+    <div>
+      <h1 class="rp-ttl">البلاغات</h1>
+      <p class="rp-sub">بلاغات المستخدمين ضد الحسابات والمحتوى والسلوك المخالف</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">البلاغات</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"البلاغات\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="rp-ai-disc">
+    <div class="rp-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div class="rp-ai-body">
+      <div class="rp-ai-lbl">وسيط AI: كشف الاحتيال</div>
+      <p class="rp-ai-txt">الذكاء الاصطناعي يصنّف البلاغات ويكشف أنماط الاحتيال المتكررة ويقترح الإجراء <span class="rp-ai-badge">دقة 95%</span></p>
+    </div>
+  </div>
+
+  <div class="rp-kpis">
+    <div class="rp-kpi"><div class="rp-kpi-num" style="color:#FF8C69">{{ countFor('new') }}</div><div class="rp-kpi-lbl">بلاغات جديدة</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-num" style="color:#FFB400">{{ countFor('investigating') }}</div><div class="rp-kpi-lbl">قيد التحقيق</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-num" style="color:#0FA99A">{{ kpiResolvedThisMonth }}</div><div class="rp-kpi-lbl">محسومة هذا الشهر</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-num" style="color:#A56BE0">{{ kpiAiDetected }}</div><div class="rp-kpi-lbl">كُشف بـ AI تلقائياً</div></div>
+  </div>
+
+  <div class="rp-filters">
+    <div class="rp-tabs">
+      @for (t of tabs; track t.key) {
+        <button type="button" class="rp-tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">
+          {{ t.label }}<span class="rp-tab-count">{{ countFor(t.key) }}</span>
+        </button>
+      }
+    </div>
+    <div class="rp-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" placeholder="ابحث باسم المُبلَّغ عنه أو رقم البلاغ..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
+    </div>
+  </div>
+
+  @if (filteredReports().length === 0) {
+    <div class="rp-empty">
+      <div class="rp-empty-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      </div>
+      <div class="rp-empty-ttl">لا توجد بلاغات مطابقة</div>
+    </div>
+  } @else {
+    <div class="rp-list">
+      @for (r of filteredReports(); track r.id) {
+        <div class="rp-card" [class]="'rp-priority-' + r.priority" (click)="openDetail(r)">
+          <div class="rp-card-hdr">
+            <div>
+              <div class="rp-card-id">{{ r.id }} · {{ r.date }}</div>
+              <div class="rp-card-desc">{{ r.desc }}</div>
+              <div class="rp-badges">
+                <span class="rp-bdg" [style.background]="typeColors[r.type] + '1A'" [style.color]="typeColors[r.type]">{{ r.typeLabel }}</span>
+                <span class="rp-bdg" [class]="'rp-st-' + r.status">
+                  @switch (r.status) {
+                    @case ('new') { جديد }
+                    @case ('investigating') { قيد التحقيق }
+                    @case ('dismissed') { رُفض }
+                    @case ('actioned') { اتُّخذ إجراء }
+                  }
+                </span>
+                <span class="rp-bdg-ai">AI: {{ r.aiSuggestion }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="rp-card-body">
+            <div class="rp-party">
+              <div class="rp-av" [style.background]="r.reporterBg">{{ r.reporterAv }}</div>
+              <div><div class="rp-party-lbl">المُبلِّغ</div><span class="rp-party-name">{{ r.reporter }}</span></div>
+            </div>
+            <div class="rp-party">
+              <div class="rp-av" [style.background]="r.reportedBg">{{ r.reportedAv }}</div>
+              <div><div class="rp-party-lbl rp-reported-lbl">المُبلَّغ عنه</div><span class="rp-party-name">{{ r.reported }}</span></div>
+            </div>
+          </div>
+          <div class="rp-card-actions" (click)="$event.stopPropagation()">
+            @if (r.priority === 'high' && (r.status === 'new' || r.status === 'investigating')) {
+              <button type="button" class="rp-btn rp-btn-warn" (click)="suspendImmediately(r)">تعليق فوري</button>
+            }
+            @if (r.status === 'new' || r.status === 'investigating') {
+              <button type="button" class="rp-btn rp-btn-warn" (click)="issueWarning(r)">تحذير رسمي</button>
+              <button type="button" class="rp-btn rp-btn-ghost" (click)="openDetail(r)">مراجعة الحساب</button>
+              <button type="button" class="rp-btn rp-btn-dismiss" (click)="dismiss(r)">رفض البلاغ</button>
+            } @else {
+              <button type="button" class="rp-btn rp-btn-ghost" (click)="openDetail(r)">عرض التفاصيل</button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (toast()) {
+    <div class="rp-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>{{ toast() }}</span>
+    </div>
+  }
+</section>
+
+@if (showDetail() && selected(); as r) {
+  <div class="rp-mov" (click)="closeDetail()">
+    <div class="rp-mbox" (click)="$event.stopPropagation()">
+      <div class="rp-md-hdr">
+        <div>
+          <div class="rp-md-id">{{ r.id }} · {{ r.typeLabel }}</div>
+          <h3>{{ r.desc }}</h3>
+          <div class="rp-md-badges">
+            <span class="rp-bdg rp-sev">{{ r.severity }}</span>
+            <span class="rp-bdg" [class]="'rp-st-' + r.status">
+              @switch (r.status) {
+                @case ('new') { جديد }
+                @case ('investigating') { قيد التحقيق }
+                @case ('dismissed') { رُفض }
+                @case ('actioned') { اتُّخذ إجراء }
+              }
+            </span>
+            <span class="rp-bdg rp-ai-risk">AI Risk: {{ r.aiRiskScore }}/100</span>
+          </div>
+        </div>
+        <button type="button" class="rp-mclose" (click)="closeDetail()">×</button>
+      </div>
+
+      <div class="rp-md-stats">
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">تاريخ البلاغ</div><div class="rp-md-stat-val">{{ r.date }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">نوع المخالفة</div><div class="rp-md-stat-val" style="color:#FF8C69">{{ r.typeLabel }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">المبلغ المتنازع عليه</div><div class="rp-md-stat-val" style="color:#FFB400">{{ r.disputedAmount }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">بلاغات سابقة</div><div class="rp-md-stat-val" style="color:#FF6B6B">{{ r.priorReports }}</div></div>
+      </div>
+
+      <div class="rp-md-body">
+        <div class="rp-md-field">
+          <label>أطراف البلاغ</label>
+          <div class="rp-parties-grid">
+            <div class="rp-party-box reporter">
+              <div class="rp-party-box-lbl">المُبلِّغ</div>
+              <div class="rp-party-box-row">
+                <div class="rp-av" [style.background]="r.reporterBg">{{ r.reporterAv }}</div>
+                <span class="rp-party-box-name">{{ r.reporter }}</span>
+              </div>
+            </div>
+            <div class="rp-party-box reported">
+              <div class="rp-party-box-lbl">المُبلَّغ عنه</div>
+              <div class="rp-party-box-row">
+                <div class="rp-av" [style.background]="r.reportedBg">{{ r.reportedAv }}</div>
+                <span class="rp-party-box-name">{{ r.reported }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rp-md-field">
+          <label>الأدلة المرفوعة ({{ r.evidence.length }})</label>
+          <div class="rp-ev-list">
+            @for (ev of r.evidence; track ev.label) {
+              <div class="rp-ev-item">
+                <div class="rp-ev-hdr"><span class="rp-ev-name">📄 {{ ev.label }}</span><span class="rp-ev-meta">{{ ev.meta }}</span></div>
+                <p class="rp-ev-note">{{ ev.note }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="rp-md-actions">
+        @if (r.status === 'new' || r.status === 'investigating') {
+          @if (r.priority === 'high') {
+            <button type="button" class="rp-btn rp-btn-warn" (click)="suspendImmediately(r)">تعليق فوري</button>
+          }
+          <button type="button" class="rp-btn rp-btn-warn" (click)="issueWarning(r)">تحذير رسمي</button>
+          @if (r.status === 'new') {
+            <button type="button" class="rp-btn rp-btn-ghost" (click)="markInvestigating(r)">نقل للتحقيق</button>
+          }
+          <button type="button" class="rp-btn rp-btn-dismiss" (click)="dismiss(r)">رفض البلاغ</button>
+        }
+        <button type="button" class="rp-btn rp-btn-ghost" (click)="closeDetail()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+}
