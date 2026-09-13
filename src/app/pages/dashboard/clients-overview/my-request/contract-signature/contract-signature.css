@@ -230,6 +230,47 @@
 .inner-foot-links a{color:#6B7699;text-decoration:none;cursor:pointer}
 .inner-foot-links a:hover{color:#2BD4C7}
 
-:host-context(body.light) .state-card{border-color:rgba(0,0,0,.08)}
-:host-context(body.light) .inner-foot{border-color:rgba(0,0,0,.06);color:#6B7699}
-:host-context(body.light) .inner-foot-links a{color:#6B7699}
+:host-context(body.light-theme) .state-card,
+:host-context(body.theme-light) .state-card,
+:host-context(.light-theme) .state-card,
+:host-context(.theme-light) .state-card{border-color:#D8DFEC}
+:host-context(body.light-theme) .inner-foot,
+:host-context(body.theme-light) .inner-foot,
+:host-context(.light-theme) .inner-foot,
+:host-context(.theme-light) .inner-foot{border-color:#D8DFEC;color:#6B7699}
+:host-context(body.light-theme) .inner-foot-links a,
+:host-context(body.theme-light) .inner-foot-links a,
+:host-context(.light-theme) .inner-foot-links a,
+:host-context(.theme-light) .inner-foot-links a{color:#6B7699}
+:host-context(body.light-theme) .inner-foot-links a:hover,
+:host-context(body.theme-light) .inner-foot-links a:hover,
+:host-context(.light-theme) .inner-foot-links a:hover,
+:host-context(.theme-light) .inner-foot-links a:hover{color:#0F8A7F}
+:host-context(body.light-theme) .od-hd,
+:host-context(body.theme-light) .od-hd,
+:host-context(.light-theme) .od-hd,
+:host-context(.theme-light) .od-hd{background:#fff;border-color:#E2E8F4}
+:host-context(body.light-theme) .od-card,
+:host-context(body.theme-light) .od-card,
+:host-context(.light-theme) .od-card,
+:host-context(.theme-light) .od-card{background:#fff;border-color:#E2E8F4}
+:host-context(body.light-theme) .od-hd-ttl,
+:host-context(body.theme-light) .od-hd-ttl,
+:host-context(.light-theme) .od-hd-ttl,
+:host-context(.theme-light) .od-hd-ttl{color:#0F172A}
+:host-context(body.light-theme) .od-meta-val,
+:host-context(body.theme-light) .od-meta-val,
+:host-context(.light-theme) .od-meta-val,
+:host-context(.theme-light) .od-meta-val{color:#0F172A}
+:host-context(body.light-theme) .sec-ttl,
+:host-context(body.theme-light) .sec-ttl,
+:host-context(.light-theme) .sec-ttl,
+:host-context(.theme-light) .sec-ttl{color:#0F172A}
+:host-context(body.light-theme) .od-meta-item,
+:host-context(body.theme-light) .od-meta-item,
+:host-context(.light-theme) .od-meta-item,
+:host-context(.theme-light) .od-meta-item{background:#F1F5FB;border-color:#E2E8F4}
+:host-context(body.light-theme) .od-meta-lbl,
+:host-context(body.theme-light) .od-meta-lbl,
+:host-context(.light-theme) .od-meta-lbl,
+:host-context(.theme-light) .od-meta-lbl{color:#64748B}

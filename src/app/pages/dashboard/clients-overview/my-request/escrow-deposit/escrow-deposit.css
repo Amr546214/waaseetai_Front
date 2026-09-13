@@ -143,3 +143,13 @@
 @media(max-width: 768px) {
   .field-row { grid-template-columns: 1fr 1fr; }
 }
+
+/* === Light mode === */
+:host-context(body.light-theme) .form-card,
+:host-context(body.theme-light) .form-card,
+:host-context(.light-theme) .form-card,
+:host-context(.theme-light) .form-card{background:#fff;border-color:#E2E8F4}
+:host-context(body.light-theme) .form-card-title,
+:host-context(body.theme-light) .form-card-title,
+:host-context(.light-theme) .form-card-title,
+:host-context(.theme-light) .form-card-title{color:#0F172A}
