@@ -1,13 +1,92 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="fgf-page" dir="rtl">
+  <div class="fgf-hdr">
+    <div>
+      <h1 class="fgf-ttl">الرسوم الحكومية</h1>
+      <p class="fgf-sub">إدارة إقرارات الرسوم الحكومية — تجهيز فوترة مستقبلية غير مفعّلة في V1 — وإقرارات الالتزامات الحكومية المستقبلية</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الرسوم الحكومية</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الرسوم الحكومية\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="fgf-actions">
+      <button type="button" class="fgf-btn fgf-btn-ghost" (click)="exportDeclaration()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        تصدير الإقرار
+      </button>
+      <button type="button" class="fgf-btn fgf-btn-primary" (click)="prepareFutureBilling()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        تجهيز الفوترة المستقبلية
+      </button>
+    </div>
   </div>
-</div>
+
+  @if (toast()) {
+    <div class="fgf-toast">{{ toast() }}</div>
+  }
+
+  <div class="fgf-ai-disc">
+    <div class="fgf-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
+    </div>
+    <div>
+      <div class="fgf-ai-lbl">AI Compliance</div>
+      <p class="fgf-ai-txt">AI يتابع جاهزية الالتزامات الحكومية المستقبلية وجاهزية الفوترة المستقبلية <span class="fgf-ai-bdg">غير مفعّل في V1</span></p>
+    </div>
+  </div>
+
+  <div class="fgf-kpi-grid">
+    <div class="fgf-kpi-card">
+      <div class="fgf-kpi-top"><div class="fgf-kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="fgf-kpi-lbl">إجمالي الالتزامات المقدَّرة</span></div>
+      <div class="fgf-kpi-val" style="color:#2BD4C7">1.24M</div>
+      <div class="fgf-kpi-unit">ريال — هذه السنة</div>
+      <div class="fgf-kpi-sub" style="color:#6B7699">غير مفعّل في V1</div>
+    </div>
+    <div class="fgf-kpi-card">
+      <div class="fgf-kpi-top"><div class="fgf-kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="fgf-kpi-lbl">المسدَّد فعلياً</span></div>
+      <div class="fgf-kpi-val" style="color:#0FA99A">1.18M</div>
+      <div class="fgf-kpi-unit">ريال</div>
+      <div class="fgf-kpi-sub" style="color:#6B7699">غير مفعّل في V1</div>
+    </div>
+    <div class="fgf-kpi-card">
+      <div class="fgf-kpi-top"><div class="fgf-kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="fgf-kpi-lbl">مستحقة الدفع</span></div>
+      <div class="fgf-kpi-val" style="color:#FFB400">64k</div>
+      <div class="fgf-kpi-unit">ريال</div>
+      <div class="fgf-kpi-sub" style="color:#D98A0B">موعد الاستحقاق: 31 يوليو</div>
+    </div>
+    <div class="fgf-kpi-card">
+      <div class="fgf-kpi-top"><div class="fgf-kpi-ic" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="fgf-kpi-lbl">معدل الامتثال</span></div>
+      <div class="fgf-kpi-val" style="color:#5DA0FF">100%</div>
+      <div class="fgf-kpi-unit">من الإقرارات</div>
+      <div class="fgf-kpi-sub" style="color:#0FA99A">لا مخالفات</div>
+    </div>
+  </div>
+
+  <div class="fgf-info-grid">
+    <div class="fgf-info-card">
+      <div class="fgf-info-ttl" style="color:#2BD4C7">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        جاهزية الرسوم الحكومية المستقبلية — غير مفعّلة في V1
+      </div>
+      @for (r of readinessRows; track r.label) {
+        <div class="fgf-info-row">
+          <span class="fgf-info-lbl">{{ r.label }}</span>
+          <span class="fgf-info-val" [style.color]="r.color" [style.font-size.px]="r.label.includes('إجمالي الالتزامات') ? 16 : null">{{ r.value }}</span>
+        </div>
+      }
+    </div>
+    <div class="fgf-info-card">
+      <div class="fgf-info-ttl" style="color:#FFB400">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        التزامات الشركة الحكومية المستقبلية — السنة المالية 2025
+      </div>
+      @for (r of obligationRows; track r.label) {
+        <div class="fgf-info-row">
+          <span class="fgf-info-lbl">{{ r.label }}</span>
+          @if (r.isLink) {
+            <a href="javascript:void(0)" class="fgf-info-link" (click)="exportDeclaration()">{{ r.value }}</a>
+          } @else {
+            <span class="fgf-info-val" [style.color]="r.color">{{ r.value }}</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="fgf-foot"><span>© 2026 وسيط AI · نظام الرسوم الحكومية</span><span>تكامل مستقبلي غير مفعّل في V1</span></div>
+</section>

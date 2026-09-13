@@ -1,13 +1,84 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="fcb-page" dir="rtl">
+  <div class="fcb-hdr">
+    <div>
+      <h1 class="fcb-ttl">إدارة الكاش باك</h1>
+      <p class="fcb-sub">توزيع الكاش باك على المستخدمين حسب النشاط — AI يحسب النسب تلقائياً</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الكاش باك</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الكاش باك\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="fcb-actions">
+      <button type="button" class="fcb-btn fcb-btn-ghost" (click)="exportList()">تصدير</button>
+      <button type="button" class="fcb-btn fcb-btn-primary" (click)="distributeBatch()">توزيع دفعة</button>
+    </div>
   </div>
-</div>
+
+  @if (toast()) {
+    <div class="fcb-toast">{{ toast() }}</div>
+  }
+
+  <div class="fcb-ai-disc">
+    <div class="fcb-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
+    </div>
+    <div>
+      <div class="fcb-ai-lbl">AI Distribution</div>
+      <p class="fcb-ai-txt">AI يحسب توزيع الكاش باك بشكل عادل حسب حجم المعاملات ومستوى الولاء <span class="fcb-ai-bdg">توزيع تلقائي</span></p>
+    </div>
+  </div>
+
+  <div class="fcb-kpi-grid">
+    <div class="fcb-kpi-card">
+      <div class="fcb-kpi-top"><div class="fcb-kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fcb-kpi-lbl">إجمالي الكاش باك</span></div>
+      <div class="fcb-kpi-val" style="color:#2BD4C7">487k</div>
+      <div class="fcb-kpi-unit">ريال — هذا الشهر</div>
+      <div class="fcb-kpi-sub" style="color:#0FA99A">+12% عن الشهر الماضي</div>
+    </div>
+    <div class="fcb-kpi-card">
+      <div class="fcb-kpi-top"><div class="fcb-kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fcb-kpi-lbl">موزَّع</span></div>
+      <div class="fcb-kpi-val" style="color:#0FA99A">412k</div>
+      <div class="fcb-kpi-unit">ريال</div>
+      <div class="fcb-kpi-sub" style="color:#6B7699">84.6% من الإجمالي</div>
+    </div>
+    <div class="fcb-kpi-card">
+      <div class="fcb-kpi-top"><div class="fcb-kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fcb-kpi-lbl">معلق التوزيع</span></div>
+      <div class="fcb-kpi-val" style="color:#FFB400">75k</div>
+      <div class="fcb-kpi-unit">ريال</div>
+      <div class="fcb-kpi-sub" style="color:#D98A0B">جاهز للتوزيع</div>
+    </div>
+    <div class="fcb-kpi-card">
+      <div class="fcb-kpi-top"><div class="fcb-kpi-ic" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fcb-kpi-lbl">متوسط كاش باك</span></div>
+      <div class="fcb-kpi-val" style="color:#5DA0FF">84</div>
+      <div class="fcb-kpi-unit">ريال/مستخدم</div>
+      <div class="fcb-kpi-sub" style="color:#6B7699">5,796 مستخدم مؤهل</div>
+    </div>
+  </div>
+
+  <div class="fcb-tabs">
+    @for (t of tabs; track t.key) {
+      <button type="button" class="fcb-tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
+    }
+  </div>
+
+  <div class="fcb-tbl-card">
+    <div class="fcb-tbl-hdr"><span class="fcb-tbl-ttl">توزيعات الكاش باك الأخيرة</span><span class="fcb-tbl-hint">{{ filteredEntries().length }} من {{ entries.length }} إدخال</span></div>
+    <div class="fcb-tbl-wrap">
+      <table class="fcb-data-tbl">
+        <thead><tr><th>المستخدم</th><th>نوع الحساب</th><th>المبلغ</th><th>السبب</th><th>التاريخ</th><th>الحالة</th></tr></thead>
+        <tbody>
+          @for (e of filteredEntries(); track e.user + e.date) {
+            <tr>
+              <td class="fcb-user">{{ e.user }}</td>
+              <td><span class="fcb-bdg" [ngClass]="accountTypeClasses[e.accountType]">{{ accountTypeLabels[e.accountType] }}</span></td>
+              <td [class.fcb-amount-ok]="e.status === 'distributed'" [class.fcb-amount-pending]="e.status === 'pending'">{{ formatAmount(e.amount) }}</td>
+              <td class="fcb-reason">{{ e.reason }}</td>
+              <td class="fcb-date">{{ e.date }}</td>
+              <td><span class="fcb-bdg" [class.tag-green]="e.status === 'distributed'" [class.tag-amber]="e.status === 'pending'">{{ e.status === 'distributed' ? 'موزَّع' : 'معلق' }}</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="fcb-empty">لا توجد إدخالات مطابقة</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="fcb-foot"><span>© 2026 وسيط AI · الكاش باك</span><span>دورة توزيع: أسبوعية</span></div>
+</section>

@@ -1,13 +1,106 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="fii-page" dir="rtl">
+  <div class="fii-hdr">
+    <div>
+      <h1 class="fii-ttl">الفواتير الواردة</h1>
+      <p class="fii-sub">فواتير المورّدين والخدمات الواردة لوسيط AI — OCR تلقائي للاستخراج</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الفواتير الواردة</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الفواتير الواردة\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="fii-actions">
+      <button type="button" class="fii-btn fii-btn-ghost" (click)="exportList()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        تصدير
+      </button>
+      <button type="button" class="fii-btn fii-btn-primary" (click)="uploadInvoice()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        رفع فاتورة
+      </button>
+    </div>
   </div>
-</div>
+
+  @if (toast()) {
+    <div class="fii-toast">{{ toast() }}</div>
+  }
+
+  <div class="fii-ai-disc">
+    <div class="fii-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
+    </div>
+    <div>
+      <div class="fii-ai-lbl">AI OCR</div>
+      <p class="fii-ai-txt">AI يستخرج بيانات الفواتير الواردة تلقائياً ويتحقق من صحة الأرقام الضريبية <span class="fii-ai-bdg">دقة 97%</span></p>
+    </div>
+  </div>
+
+  <div class="fii-kpi-grid">
+    <div class="fii-kpi-card">
+      <div class="fii-kpi-top"><div class="fii-kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="fii-kpi-lbl">إجمالي الفواتير</span></div>
+      <div class="fii-kpi-val" style="color:#2BD4C7">{{ kpis.total }}</div>
+      <div class="fii-kpi-unit">فاتورة واردة</div>
+      <div class="fii-kpi-sub" style="color:#6B7699">هذا الشهر</div>
+    </div>
+    <div class="fii-kpi-card">
+      <div class="fii-kpi-top"><div class="fii-kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="fii-kpi-lbl">مدفوعة</span></div>
+      <div class="fii-kpi-val" style="color:#0FA99A">278</div>
+      <div class="fii-kpi-unit">فاتورة</div>
+      <div class="fii-kpi-sub" style="color:#0FA99A">89% معدل الدفع</div>
+    </div>
+    <div class="fii-kpi-card">
+      <div class="fii-kpi-top"><div class="fii-kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="fii-kpi-lbl">معلقة</span></div>
+      <div class="fii-kpi-val" style="color:#FFB400">28</div>
+      <div class="fii-kpi-unit">فاتورة</div>
+      <div class="fii-kpi-sub" style="color:#D98A0B">بقيمة 142k ر.س</div>
+    </div>
+    <div class="fii-kpi-card">
+      <div class="fii-kpi-top"><div class="fii-kpi-ic" style="background:rgba(255,140,105,.12);color:#FF8C69"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="fii-kpi-lbl">متأخرة</span></div>
+      <div class="fii-kpi-val" style="color:#FF8C69">6</div>
+      <div class="fii-kpi-unit">فاتورة</div>
+      <div class="fii-kpi-sub" style="color:#FF8C69">تجاوزت الموعد</div>
+    </div>
+  </div>
+
+  <div class="fii-tabs">
+    @for (t of tabs; track t.key) {
+      <button type="button" class="fii-tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
+    }
+  </div>
+
+  <div class="fii-filter-row">
+    <div class="fii-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" placeholder="ابحث بالمورد أو رقم الفاتورة..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+    </div>
+  </div>
+
+  <div class="fii-tbl-card">
+    <div class="fii-tbl-hdr"><span class="fii-tbl-ttl">قائمة الفواتير الواردة</span><span class="fii-tbl-count">{{ filteredInvoices().length }} من {{ invoices.length }} فاتورة</span></div>
+    <div class="fii-tbl-wrap">
+      <table class="fii-data-tbl">
+        <thead><tr><th>رقم الفاتورة</th><th>المورد</th><th>الخدمة</th><th>المبلغ</th><th>تاريخ الاستحقاق</th><th>الحالة</th><th></th></tr></thead>
+        <tbody>
+          @for (inv of filteredInvoices(); track inv.id) {
+            <tr>
+              <td class="fii-mono">{{ inv.id }}</td>
+              <td class="fii-supplier">{{ inv.supplier }}</td>
+              <td>{{ inv.service }}</td>
+              <td class="fii-amount">{{ formatAmount(inv.amount) }}</td>
+              <td class="fii-date">{{ inv.dueDate }}</td>
+              <td><span class="fii-bdg" [ngClass]="'st-' + inv.status">{{ statusLabels[inv.status] }}</span></td>
+              <td>
+                @if (inv.status === 'overdue') {
+                  <a href="javascript:void(0)" class="fii-link fii-link-danger" (click)="payInvoice(inv)">دفع الآن</a>
+                } @else if (inv.status === 'pending') {
+                  <a href="javascript:void(0)" class="fii-link" (click)="payInvoice(inv)">دفع</a>
+                } @else {
+                  <a href="javascript:void(0)" class="fii-link">عرض</a>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="fii-empty">لا توجد فواتير مطابقة</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="fii-foot"><span>© 2026 وسيط AI · الفواتير الواردة</span><span>آخر تحديث: منذ 10 دقائق</span></div>
+</section>

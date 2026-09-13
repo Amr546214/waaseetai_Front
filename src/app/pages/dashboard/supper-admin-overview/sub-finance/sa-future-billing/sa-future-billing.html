@@ -1,13 +1,107 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="ffb-page" dir="rtl">
+  <div class="ffb-hdr">
+    <div>
+      <h1 class="ffb-ttl">الفوترة المستقبلية</h1>
+      <p class="ffb-sub">الفواتير الإلكترونية — تجهيز مستقبلي غير مفعّل في V1 — تكامل B2B و B2C</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الفوترة المستقبلية</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الفوترة المستقبلية\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="ffb-actions">
+      <button type="button" class="ffb-btn ffb-btn-ghost" (click)="connectionStatus()">حالة الاتصال</button>
+      <button type="button" class="ffb-btn ffb-btn-primary" (click)="syncNow()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        مزامنة الآن
+      </button>
+    </div>
   </div>
-</div>
+
+  @if (toast()) {
+    <div class="ffb-toast">{{ toast() }}</div>
+  }
+
+  <div class="ffb-ai-disc">
+    <div class="ffb-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
+    </div>
+    <div>
+      <div class="ffb-ai-lbl">تجهيز فوترة مستقبلية</div>
+      <p class="ffb-ai-txt">تجهيز فوترة مستقبلية غير مفعّل في V1، ولا يوجد إرسال أو اعتماد فعّال حالياً <span class="ffb-ai-bdg">غير مفعّل في V1</span></p>
+    </div>
+  </div>
+
+  <div class="ffb-kpi-grid">
+    <div class="ffb-kpi-card">
+      <div class="ffb-kpi-top"><div class="ffb-kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="ffb-kpi-lbl">إجمالي الفواتير الإلكترونية</span></div>
+      <div class="ffb-kpi-val" style="color:#2BD4C7">8,247</div>
+      <div class="ffb-kpi-unit">فاتورة هذا الشهر</div>
+      <div class="ffb-kpi-sub" style="color:#6B7699">تجهيز مستقبلي</div>
+    </div>
+    <div class="ffb-kpi-card">
+      <div class="ffb-kpi-top"><div class="ffb-kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ffb-kpi-lbl">فواتير رسمية داخلية</span></div>
+      <div class="ffb-kpi-val" style="color:#0FA99A">8,198</div>
+      <div class="ffb-kpi-unit">فاتورة</div>
+      <div class="ffb-kpi-sub" style="color:#6B7699">تجهيز مستقبلي</div>
+    </div>
+    <div class="ffb-kpi-card">
+      <div class="ffb-kpi-top"><div class="ffb-kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span class="ffb-kpi-lbl">في انتظار التأكيد</span></div>
+      <div class="ffb-kpi-val" style="color:#FFB400">46</div>
+      <div class="ffb-kpi-unit">فاتورة</div>
+      <div class="ffb-kpi-sub" style="color:#D98A0B">تحتاج متابعة</div>
+    </div>
+    <div class="ffb-kpi-card">
+      <div class="ffb-kpi-top"><div class="ffb-kpi-ic" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="ffb-kpi-lbl">QR Code Coverage</span></div>
+      <div class="ffb-kpi-val" style="color:#5DA0FF">100%</div>
+      <div class="ffb-kpi-unit">من الفواتير</div>
+      <div class="ffb-kpi-sub" style="color:#0FA99A">B2C + B2B</div>
+    </div>
+  </div>
+
+  <div class="ffb-status-grid">
+    @for (s of statusCards; track s.title) {
+      <div class="ffb-status-card">
+        <div class="ffb-status-ico" [style.background]="s.color + '20'" [style.color]="s.color">
+          @if (s.icon === 'check') {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          }
+        </div>
+        <div class="ffb-status-title" [style.color]="s.color">{{ s.title }}</div>
+        <div class="ffb-status-val" [style.color]="s.valueColor">{{ s.value }}</div>
+        <div class="ffb-status-desc">{{ s.desc }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="ffb-tbl-card">
+    <div class="ffb-tbl-hdr"><span class="ffb-tbl-ttl">آخر الفواتير الإلكترونية</span><span class="ffb-tbl-hint">تحديث تلقائي</span></div>
+    <div class="ffb-tbl-wrap">
+      <table class="ffb-data-tbl">
+        <thead><tr><th>رقم UUID</th><th>النوع</th><th>الطرف</th><th>الرقم الضريبي</th><th>المبلغ الإجمالي</th><th>QR</th><th>الحالة</th></tr></thead>
+        <tbody>
+          @for (inv of invoices; track inv.uuid) {
+            <tr>
+              <td class="ffb-mono">{{ inv.uuid }}</td>
+              <td><span class="ffb-bdg" [class.tag-teal]="inv.kind === 'B2B'" [class.tag-blue]="inv.kind === 'B2C'">{{ inv.kind }}</span></td>
+              <td class="ffb-party">{{ inv.party }}</td>
+              <td class="ffb-tax">{{ inv.taxNumber }}</td>
+              <td class="ffb-amount">{{ inv.amount }}</td>
+              <td>
+                @if (inv.hasQr) {
+                  <span class="ffb-qr-ok">✓ QR</span>
+                }
+              </td>
+              <td>
+                @if (inv.status === 'issued') {
+                  <span class="ffb-status-ok">فاتورة رسمية داخلية</span>
+                } @else {
+                  <span class="ffb-status-pending">قيد التجهيز</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ffb-foot"><span>© 2026 وسيط AI · الفواتير الرسمية</span><span>تجهيز مستقبلي غير مفعّل في V1</span></div>
+</section>
