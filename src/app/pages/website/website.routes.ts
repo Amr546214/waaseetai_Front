@@ -62,6 +62,38 @@ export const WEBSITE_ROUTES: Routes = [
 		loadComponent: () => import('./blog/blog').then(m => m.Blog)
 	},
 	{
+		path: 'blog/:slug',
+		loadComponent: () => import('./blog/article/article').then(m => m.BlogArticle)
+	},
+	{
+		path: 'how-it-works',
+		loadComponent: () => import('./how-it-works/how-it-works').then(m => m.HowItWorks)
+	},
+	{
+		path: 'how-it-works/client',
+		loadComponent: () => import('./how-it-works/client/client').then(m => m.HowItWorksClient)
+	},
+	{
+		path: 'how-it-works/provider',
+		loadComponent: () => import('./how-it-works/provider/provider').then(m => m.HowItWorksProvider)
+	},
+	{
+		path: 'how-it-works/marketer',
+		loadComponent: () => import('./how-it-works/marketer/marketer').then(m => m.HowItWorksMarketer)
+	},
+	{
+		path: 'pricing',
+		loadComponent: () => import('./pricing/pricing').then(m => m.Pricing)
+	},
+	{
+		path: 'partners',
+		loadComponent: () => import('./partners/partners').then(m => m.Partners)
+	},
+	{
+		path: 'press',
+		loadComponent: () => import('./press/press').then(m => m.Press)
+	},
+	{
 		path: 'contact',
 		loadComponent: () => import('./contact/contact').then(m => m.Contact)
 	},
@@ -70,12 +102,66 @@ export const WEBSITE_ROUTES: Routes = [
 		loadComponent: () => import('./marketplace/provider-profile/provider-profile').then(m => m.ProviderProfileComponent)
 	},
 	{
+		path: 'marketer-profile/:id',
+		loadComponent: () => import('./marketplace/marketer-profile/marketer-profile').then(m => m.MarketerProfileComponent)
+	},
+	{
+		path: 'client-profile/:id',
+		loadComponent: () => import('./marketplace/client-profile/client-profile').then(m => m.ClientProfileComponent)
+	},
+	{
+		path: 'compare-services',
+		loadComponent: () => import('./marketplace/compare-services/compare-services').then(m => m.CompareServicesComponent)
+	},
+	{
+		path: 'compare-providers',
+		loadComponent: () => import('./marketplace/compare-providers/compare-providers').then(m => m.CompareProvidersComponent)
+	},
+	{
+		path: 'top-rated',
+		loadComponent: () => import('./marketplace/curated/curated').then(m => m.CuratedComponent),
+		data: { mode: 'top-rated' }
+	},
+	{
+		path: 'most-ordered',
+		loadComponent: () => import('./marketplace/curated/curated').then(m => m.CuratedComponent),
+		data: { mode: 'most-ordered' }
+	},
+	{
+		path: 'featured',
+		loadComponent: () => import('./marketplace/curated/curated').then(m => m.CuratedComponent),
+		data: { mode: 'featured' }
+	},
+	{
+		path: 'exclusive',
+		loadComponent: () => import('./marketplace/curated/curated').then(m => m.CuratedComponent),
+		data: { mode: 'exclusive' }
+	},
+	{
+		path: 'newest',
+		loadComponent: () => import('./marketplace/curated/curated').then(m => m.CuratedComponent),
+		data: { mode: 'newest' }
+	},
+	{
+		path: 'favorites',
+		loadComponent: () => import('./marketplace/favorites/favorites').then(m => m.FavoritesComponent)
+	},
+	{
 		path: 'privacy',
 		loadComponent: () => import('./privacy/privacy.component').then(m => m.PrivacyComponent)
 	},
 	{
 		path: 'terms',
 		loadComponent: () => import('./terms/terms.component').then(m => m.TermsComponent)
+	},
+	{
+		path: 'legal',
+		loadComponent: () => import('./legal/policy-hub/policy-hub').then(m => m.PolicyHub)
+	},
+	{
+		path: 'legal/provider-agreement',
+		loadComponent: () => import('./legal/legal-page.component').then(m => m.LegalPageComponent),
+		data: { doc: 'lg-002' }
 	},
 	{
 		path: 'legal/users-services-contracts',

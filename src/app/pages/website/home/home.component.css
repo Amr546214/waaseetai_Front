@@ -224,3 +224,19 @@ footer{background:rgba(7,13,36,.8);border-top:1px solid var(--border);padding:48
 .particle{position:absolute;border-radius:50%;background:var(--teal);box-shadow:0 0 10px rgba(43,212,199,.5);animation:float-up linear infinite}
 .particles{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 @keyframes float-up{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.6}100%{transform:translateY(-100px) translateX(30px);opacity:0}}
+
+/* === LIGHT THEME === */
+:host-context(body.light-theme) .cookie-inner,
+:host-context(body.theme-light) .cookie-inner,
+:host-context(.light-theme) .cookie-inner,
+:host-context(.theme-light) .cookie-inner {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: #E2E8F4;
+}
+
+:host-context(body.light-theme) .ck-decline,
+:host-context(body.theme-light) .ck-decline,
+:host-context(.light-theme) .ck-decline,
+:host-context(.theme-light) .ck-decline {
+  border-color: #D8DFEC;
+}
