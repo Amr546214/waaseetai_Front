@@ -59,7 +59,7 @@
 		<div class="co-card"><div class="co-skeleton" style="height:120px"></div></div>
 	} @else if (hasError()) {
 		<div class="co-card" style="text-align:center;padding:32px">
-			<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:6px">تعذر تحميل الإشعارات</div>
+			<div style="font-size:14px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل الإشعارات</div>
 			<button class="btn btn-pri" (click)="retry()">إعادة المحاولة</button>
 		</div>
 	} @else {
@@ -73,14 +73,14 @@
 						<div class="nt-d">{{ nt.message }}</div>
 						<div class="nt-m">
 							<span class="pill pill-teal">{{ coCategoryLabel(nt.category) }}</span>
-							@if (nt.actionText) { <span style="font-size:11.5px;font-weight:700;color:var(--teal-txt,#2BD4C7)">{{ nt.actionText }}</span> }
+							@if (nt.actionText) { <span style="font-size:11.5px;font-weight:700" class="txt-teal">{{ nt.actionText }}</span> }
 						</div>
 					</div>
 					<span class="nt-time">{{ nt.time }}</span>
 				</div>
 			}
 			@if (coFilteredNotifications().length === 0) {
-				<div style="text-align:center;padding:40px;color:var(--txt-2,#A8B2D1)">لا توجد إشعارات بهذا التصفية</div>
+				<div style="text-align:center;padding:40px" class="txt-slate">لا توجد إشعارات بهذا التصفية</div>
 			}
 		</div>
 	}

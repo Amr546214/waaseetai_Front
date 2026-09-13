@@ -39,8 +39,14 @@ export interface PreferenceSection {
       background-size: 200% 100%;
       animation: skel-pulse 1.5s infinite;
     }
-    :host-context([data-theme='light']) .skeleton-box,
-    :host-context([data-theme='light']) .skeleton-row {
+    :host-context(body.light-theme) .skeleton-box,
+    :host-context(body.theme-light) .skeleton-box,
+    :host-context(.light-theme) .skeleton-box,
+    :host-context(.theme-light) .skeleton-box,
+    :host-context(body.light-theme) .skeleton-row,
+    :host-context(body.theme-light) .skeleton-row,
+    :host-context(.light-theme) .skeleton-row,
+    :host-context(.theme-light) .skeleton-row {
       background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
       background-size: 200% 100%;
     }
@@ -67,7 +73,10 @@ export interface PreferenceSection {
       border-radius: 20px;
       transition: background .2s;
     }
-    :host-context([data-theme='light']) .sw-track {
+    :host-context(body.light-theme) .sw-track,
+    :host-context(body.theme-light) .sw-track,
+    :host-context(.light-theme) .sw-track,
+    :host-context(.theme-light) .sw-track {
       background: #CBD5E1;
     }
     .sw-thumb {
