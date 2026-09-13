@@ -16,17 +16,13 @@
   background-color: rgba(51, 65, 85, 0.5); /* slate-700/50 */
 }
 
-.confirm-payment-btn {
-  color: #070D24 !important;
-}
-
 .payment-error {
-  padding: 10px 13px;
-  border: 1px solid rgba(239, 68, 68, .28);
-  border-radius: 10px;
-  background: rgba(239, 68, 68, .08);
-  color: #fb7185;
-  font-size: 12px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 100, 100, .22);
+  border-radius: 12px;
+  background: rgba(255, 100, 100, .07);
+  color: #FF8080;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -38,7 +34,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: 24px;
   text-align: center;
   background: rgba(7, 13, 36, .97);
   backdrop-filter: blur(18px);
@@ -46,24 +42,24 @@
 }
 
 .payment-success-icon {
-  width: 76px;
-  height: 76px;
+  width: 90px;
+  height: 90px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: #070D24;
-  background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
-  box-shadow: 0 0 35px rgba(43, 212, 199, .28);
-  margin-bottom: 20px;
+  color: #2BD4C7;
+  background: rgba(43, 212, 199, .10);
+  border: 3px solid rgba(43, 212, 199, .45);
+  margin-bottom: 18px;
 }
 
-.payment-success-icon svg { width: 36px; height: 36px; }
-.payment-success-layer h2 { color: #fff; font-size: 23px; font-weight: 900; margin: 0 0 8px; }
-.payment-success-layer p { color: #A8B2D1; font-size: 14px; margin: 0 0 20px; }
+.payment-success-icon svg { width: 40px; height: 40px; }
+.payment-success-layer h2 { color: #fff; font-size: 24px; font-weight: 900; margin: 0 0 8px; }
+.payment-success-layer p { color: #6B7699; font-size: 13px; line-height: 1.7; max-width: 380px; margin: 0 0 20px; }
 .payment-success-layer strong { color: #2BD4C7; }
 .payment-reference { min-width: 260px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 15px; border: 1px solid rgba(255,255,255,.1); border-radius: 11px; background: rgba(255,255,255,.04); color: #A8B2D1; font-size: 12px; margin-bottom: 22px; }
 .payment-reference b { color: #fff; direction: ltr; font-family: monospace; }
-.payment-done-btn { padding: 12px 24px; border: 0; border-radius: 11px; background: linear-gradient(135deg,#2BD4C7,#2B7FFF); color: #070D24; font-size: 13px; font-weight: 900; cursor: pointer; }
+.payment-done-btn { padding: 13px 24px; border: 0; border-radius: 10px; background: linear-gradient(135deg,#2BD4C7,#2B7FFF); color: #070D24; font-size: 14px; font-weight: 900; cursor: pointer; }
 
 @keyframes payment-success-in {
   from { opacity: 0; transform: scale(.985); }
@@ -269,4 +265,112 @@
   text-align: center !important;
   margin-top: 8px !important;
   font-size: 11px !important;
+}
+
+/* =========================================================
+   LIGHT MODE OVERRIDES (matches P-SK-018 dep-box LIGHT_CSS)
+   ========================================================= */
+:host-context(body.light-theme) .bg-slate-900,
+:host-context(body.theme-light) .bg-slate-900,
+:host-context(.light-theme) .bg-slate-900,
+:host-context(.theme-light) .bg-slate-900,
+:host-context(body.light-theme) .bg-slate-900\/50,
+:host-context(body.theme-light) .bg-slate-900\/50,
+:host-context(.light-theme) .bg-slate-900\/50,
+:host-context(.theme-light) .bg-slate-900\/50 {
+  background: #fff !important;
+}
+:host-context(body.light-theme) .border-slate-800,
+:host-context(body.theme-light) .border-slate-800,
+:host-context(.light-theme) .border-slate-800,
+:host-context(.theme-light) .border-slate-800,
+:host-context(body.light-theme) .border-slate-800\/80,
+:host-context(body.theme-light) .border-slate-800\/80,
+:host-context(.light-theme) .border-slate-800\/80,
+:host-context(.theme-light) .border-slate-800\/80 {
+  border-color: #E7EAF1 !important;
+}
+:host-context(body.light-theme) .text-white,
+:host-context(body.theme-light) .text-white,
+:host-context(.light-theme) .text-white,
+:host-context(.theme-light) .text-white {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .text-slate-300,
+:host-context(body.theme-light) .text-slate-300,
+:host-context(.light-theme) .text-slate-300,
+:host-context(.theme-light) .text-slate-300,
+:host-context(body.light-theme) .text-slate-400,
+:host-context(body.theme-light) .text-slate-400,
+:host-context(.light-theme) .text-slate-400,
+:host-context(.theme-light) .text-slate-400 {
+  color: #475569 !important;
+}
+:host-context(body.light-theme) .text-slate-500,
+:host-context(body.theme-light) .text-slate-500,
+:host-context(.light-theme) .text-slate-500,
+:host-context(.theme-light) .text-slate-500 {
+  color: #6B7699 !important;
+}
+:host-context(body.light-theme) .bg-slate-800,
+:host-context(body.theme-light) .bg-slate-800,
+:host-context(.light-theme) .bg-slate-800,
+:host-context(.theme-light) .bg-slate-800,
+:host-context(body.light-theme) .bg-slate-800\/80,
+:host-context(body.theme-light) .bg-slate-800\/80,
+:host-context(.light-theme) .bg-slate-800\/80,
+:host-context(.theme-light) .bg-slate-800\/80,
+:host-context(body.light-theme) .bg-slate-950,
+:host-context(body.theme-light) .bg-slate-950,
+:host-context(.light-theme) .bg-slate-950,
+:host-context(.theme-light) .bg-slate-950,
+:host-context(body.light-theme) .bg-slate-950\/80,
+:host-context(body.theme-light) .bg-slate-950\/80,
+:host-context(.light-theme) .bg-slate-950\/80,
+:host-context(.theme-light) .bg-slate-950\/80,
+:host-context(body.light-theme) .bg-slate-950\/60,
+:host-context(body.theme-light) .bg-slate-950\/60,
+:host-context(.light-theme) .bg-slate-950\/60,
+:host-context(.theme-light) .bg-slate-950\/60,
+:host-context(body.light-theme) .bg-slate-950\/40,
+:host-context(body.theme-light) .bg-slate-950\/40,
+:host-context(.light-theme) .bg-slate-950\/40,
+:host-context(.theme-light) .bg-slate-950\/40 {
+  background: #F6F8FC !important;
+}
+:host-context(body.light-theme) .border-slate-700,
+:host-context(body.theme-light) .border-slate-700,
+:host-context(.light-theme) .border-slate-700,
+:host-context(.theme-light) .border-slate-700,
+:host-context(body.light-theme) .border-slate-700\/80,
+:host-context(body.theme-light) .border-slate-700\/80,
+:host-context(.light-theme) .border-slate-700\/80,
+:host-context(.theme-light) .border-slate-700\/80,
+:host-context(body.light-theme) .border-slate-700\/60,
+:host-context(body.theme-light) .border-slate-700\/60,
+:host-context(.light-theme) .border-slate-700\/60,
+:host-context(.theme-light) .border-slate-700\/60,
+:host-context(body.light-theme) .border-slate-600,
+:host-context(body.theme-light) .border-slate-600,
+:host-context(.light-theme) .border-slate-600,
+:host-context(.theme-light) .border-slate-600 {
+  border-color: #D8DFEC !important;
+}
+:host-context(body.light-theme) .hover\:bg-slate-700:hover,
+:host-context(body.theme-light) .hover\:bg-slate-700:hover,
+:host-context(.light-theme) .hover\:bg-slate-700:hover,
+:host-context(.theme-light) .hover\:bg-slate-700:hover {
+  background: #E7EAF1 !important;
+}
+:host-context(body.light-theme) .hover\:text-white:hover,
+:host-context(body.theme-light) .hover\:text-white:hover,
+:host-context(.light-theme) .hover\:text-white:hover,
+:host-context(.theme-light) .hover\:text-white:hover {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .payment-error,
+:host-context(body.theme-light) .payment-error,
+:host-context(.light-theme) .payment-error,
+:host-context(.theme-light) .payment-error {
+  color: #B42318 !important;
 }

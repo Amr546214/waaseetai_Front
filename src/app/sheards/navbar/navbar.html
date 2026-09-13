@@ -33,7 +33,7 @@
 		<a routerLink="/" class="logo-wrap" (click)="closeMobileMenu()">
 			<img src="/images/waseet-mark.png" alt="وسيط AI" height="34"
 				style="height:34px;width:auto;object-fit:contain">
-			<span style="font-size:18px;font-weight:900;color:var(--teal)">وسيط AI</span>
+			<span style="font-size:18px;font-weight:900" class="txt-teal">وسيط AI</span>
 		</a>
 
 		<!-- Desktop Nav Links — centered via flex:1 -->
@@ -149,9 +149,9 @@
 						aria-label="حساب المستخدم">
 						<div class="t-av" aria-hidden="true">{{ userInitials() }}</div>
 						<span class="t-uname">{{ userFullName() }}</span>
-						<svg style="width:12px;height:12px;color:#6B7699;margin-inline-start:2px" aria-hidden="true"
+						<svg style="width:12px;height:12px;margin-inline-start:2px" aria-hidden="true"
 							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-							stroke-linecap="round" stroke-linejoin="round">
+							stroke-linecap="round" stroke-linejoin="round" class="txt-muted">
 							<polyline points="6 9 12 15 18 9" />
 						</svg>
 					</div>
@@ -369,15 +369,15 @@
 		<div class="drawer-sep"></div>
 		<ng-container *ngIf="!authStore.isAuthenticated()">
 			<a routerLink="/auth/login" class="drawer-link" (click)="closeMobileMenu()">دخول</a>
-			<a routerLink="/auth/register" class="drawer-link" (click)="closeMobileMenu()"
-				style="background:rgba(43,212,199,.08);color:var(--teal)">تسجيل حساب</a>
+			<a routerLink="/auth/register" class="drawer-link ic-teal" (click)="closeMobileMenu()"
+				>تسجيل حساب</a>
 		</ng-container>
 		<ng-container *ngIf="authStore.isAuthenticated()">
 			<a [routerLink]="dashboardLink" class="drawer-link" (click)="closeMobileMenu()">لوحة التحكم</a>
 			<a [routerLink]="profileLink" class="drawer-link" (click)="closeMobileMenu()">إعدادات الحساب</a>
 			<div class="drawer-sep"></div>
-			<button class="drawer-link"
-				style="color:var(--red);width:100%;text-align:right;border:none;background:none;font-family:inherit;cursor:pointer"
+			<button class="drawer-link txt-coral"
+				style="width:100%;text-align:right;border:none;background:none;font-family:inherit;cursor:pointer"
 				(click)="logout()">تسجيل الخروج</button>
 		</ng-container>
 	</div>
