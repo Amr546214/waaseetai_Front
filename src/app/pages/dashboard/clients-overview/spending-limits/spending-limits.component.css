@@ -1,8 +1,8 @@
 :host{display:block}
 .sl-page{padding:24px;max-width:1100px;margin:0 auto}
-.page-hd{margin-bottom:24px}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 .page-ttl{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px}
-.page-sub{font-size:13px;color:#A8B2D1}
+.page-sub{font-size:13px;color:#6B7699}
 
 .sl-tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08);overflow-x:auto}
 .sl-tab{background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;color:#A8B2D1;padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
@@ -49,21 +49,21 @@
 @media(max-width:600px){.sl-page{padding:16px}.page-ttl{font-size:18px}}
 
 /* Light mode */
-:host-context(body.light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#0F172A}
-:host-context(body.light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#5B6472}
-:host-context(body.light) .sl-tabs,:host-context(.light-theme) .sl-tabs,:host-context(.theme-light) .sl-tabs{border-color:#E2E8F4}
-:host-context(body.light) .sl-tab,:host-context(.light-theme) .sl-tab,:host-context(.theme-light) .sl-tab{color:#5B6472}
-:host-context(body.light) .sl-tab:hover,:host-context(.light-theme) .sl-tab:hover,:host-context(.theme-light) .sl-tab:hover{color:#070D24}
-:host-context(body.light) .sl-tab.active,:host-context(.light-theme) .sl-tab.active,:host-context(.theme-light) .sl-tab.active{color:#0F8A7F}
-:host-context(body.light) .limit-card,:host-context(.light-theme) .limit-card,:host-context(.theme-light) .limit-card,
-:host-context(body.light) .pen-card,:host-context(.light-theme) .pen-card,:host-context(.theme-light) .pen-card,
-:host-context(body.light) .pol-card,:host-context(.light-theme) .pol-card,:host-context(.theme-light) .pol-card{background:#fff;border-color:#E7EAF1}
-:host-context(body.light) .limit-cat,:host-context(.light-theme) .limit-cat,:host-context(.theme-light) .limit-cat,
-:host-context(body.light) .limit-spent,:host-context(.light-theme) .limit-spent,:host-context(.theme-light) .limit-spent,
-:host-context(body.light) .pen-title,:host-context(.light-theme) .pen-title,:host-context(.theme-light) .pen-title,
-:host-context(body.light) .pol-title,:host-context(.light-theme) .pol-title,:host-context(.theme-light) .pol-title{color:#0F172A}
-:host-context(body.light) .limit-total,:host-context(.light-theme) .limit-total,:host-context(.theme-light) .limit-total,
-:host-context(body.light) .pen-desc,:host-context(.light-theme) .pen-desc,:host-context(.theme-light) .pen-desc,
-:host-context(body.light) .pol-desc,:host-context(.light-theme) .pol-desc,:host-context(.theme-light) .pol-desc{color:#5B6472}
-:host-context(body.light) .limit-bar,:host-context(.light-theme) .limit-bar,:host-context(.theme-light) .limit-bar{background:rgba(0,0,0,.08)}
-:host-context(body.light) .limit-pct,:host-context(.light-theme) .limit-pct,:host-context(.theme-light) .limit-pct{color:#0F8A7F}
+:host-context(body.light-theme) .page-ttl,:host-context(body.theme-light) .page-ttl,:host-context(.light-theme) .page-ttl,:host-context(.theme-light) .page-ttl{color:#0F172A}
+:host-context(body.light-theme) .page-sub,:host-context(body.theme-light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub{color:#5B6472}
+:host-context(body.light-theme) .sl-tabs,:host-context(body.theme-light) .sl-tabs,:host-context(.light-theme) .sl-tabs,:host-context(.theme-light) .sl-tabs{border-color:#E2E8F4}
+:host-context(body.light-theme) .sl-tab,:host-context(body.theme-light) .sl-tab,:host-context(.light-theme) .sl-tab,:host-context(.theme-light) .sl-tab{color:#5B6472}
+:host-context(body.light-theme) .sl-tab:hover,:host-context(body.theme-light) .sl-tab:hover,:host-context(.light-theme) .sl-tab:hover,:host-context(.theme-light) .sl-tab:hover{color:#070D24}
+:host-context(body.light-theme) .sl-tab.active,:host-context(body.theme-light) .sl-tab.active,:host-context(.light-theme) .sl-tab.active,:host-context(.theme-light) .sl-tab.active{color:#0F8A7F}
+:host-context(body.light-theme) .limit-card,:host-context(body.theme-light) .limit-card,:host-context(.light-theme) .limit-card,:host-context(.theme-light) .limit-card,
+:host-context(body.light-theme) .pen-card,:host-context(body.theme-light) .pen-card,:host-context(.light-theme) .pen-card,:host-context(.theme-light) .pen-card,
+:host-context(body.light-theme) .pol-card,:host-context(body.theme-light) .pol-card,:host-context(.light-theme) .pol-card,:host-context(.theme-light) .pol-card{background:#fff;border-color:#E7EAF1}
+:host-context(body.light-theme) .limit-cat,:host-context(body.theme-light) .limit-cat,:host-context(.light-theme) .limit-cat,:host-context(.theme-light) .limit-cat,
+:host-context(body.light-theme) .limit-spent,:host-context(body.theme-light) .limit-spent,:host-context(.light-theme) .limit-spent,:host-context(.theme-light) .limit-spent,
+:host-context(body.light-theme) .pen-title,:host-context(body.theme-light) .pen-title,:host-context(.light-theme) .pen-title,:host-context(.theme-light) .pen-title,
+:host-context(body.light-theme) .pol-title,:host-context(body.theme-light) .pol-title,:host-context(.light-theme) .pol-title,:host-context(.theme-light) .pol-title{color:#0F172A}
+:host-context(body.light-theme) .limit-total,:host-context(body.theme-light) .limit-total,:host-context(.light-theme) .limit-total,:host-context(.theme-light) .limit-total,
+:host-context(body.light-theme) .pen-desc,:host-context(body.theme-light) .pen-desc,:host-context(.light-theme) .pen-desc,:host-context(.theme-light) .pen-desc,
+:host-context(body.light-theme) .pol-desc,:host-context(body.theme-light) .pol-desc,:host-context(.light-theme) .pol-desc,:host-context(.theme-light) .pol-desc{color:#5B6472}
+:host-context(body.light-theme) .limit-bar,:host-context(body.theme-light) .limit-bar,:host-context(.light-theme) .limit-bar,:host-context(.theme-light) .limit-bar{background:rgba(0,0,0,.08)}
+:host-context(body.light-theme) .limit-pct,:host-context(body.theme-light) .limit-pct,:host-context(.light-theme) .limit-pct,:host-context(.theme-light) .limit-pct{color:#0F8A7F}

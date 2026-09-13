@@ -1,65 +1,81 @@
 /* === Light mode overrides (P-SK-019 invoice details) === */
-:host-context(body.light),:host-context(.light-theme),:host-context(.theme-light){
+:host-context(body.light-theme),
+:host-context(body.theme-light),:host-context(.light-theme),:host-context(.theme-light){
 	--txt:#070D24; --txt-2:#56607D; --txt-3:#6B7699;
 	--crd-bg:#FFFFFF; --crd-bd:#E7EAF1;
 	--sec-bg:#FFFFFF; --sec-bd:#E7EAF1;
 	--teal-txt:#0F8A7F; --blue-txt:#1D6FE0;
 }
 
-:host-context(body.light) .bg-white,
+:host-context(body.light-theme) .bg-white,
+:host-context(body.theme-light) .bg-white,
 :host-context(.light-theme) .bg-white,
 :host-context(.theme-light) .bg-white{background:#fff !important}
 
-:host-context(body.light) .dark\:bg-slate-900,
+:host-context(body.light-theme) .dark\:bg-slate-900,
+:host-context(body.theme-light) .dark\:bg-slate-900,
 :host-context(.light-theme) .dark\:bg-slate-900,
 :host-context(.theme-light) .dark\:bg-slate-900{background:#fff !important}
 
-:host-context(body.light) .dark\:text-white,
+:host-context(body.light-theme) .dark\:text-white,
+:host-context(body.theme-light) .dark\:text-white,
 :host-context(.light-theme) .dark\:text-white,
 :host-context(.theme-light) .dark\:text-white{color:#070D24 !important}
 
-:host-context(body.light) .text-slate-900,
+:host-context(body.light-theme) .text-slate-900,
+:host-context(body.theme-light) .text-slate-900,
 :host-context(.light-theme) .text-slate-900,
 :host-context(.theme-light) .text-slate-900{color:#070D24 !important}
 
-:host-context(body.light) .text-slate-700,
+:host-context(body.light-theme) .text-slate-700,
+:host-context(body.theme-light) .text-slate-700,
 :host-context(.light-theme) .text-slate-700,
 :host-context(.theme-light) .text-slate-700{color:#56607D !important}
 
-:host-context(body.light) .text-slate-500,
+:host-context(body.light-theme) .text-slate-500,
+:host-context(body.theme-light) .text-slate-500,
 :host-context(.light-theme) .text-slate-500,
 :host-context(.theme-light) .text-slate-500{color:#6B7699 !important}
 
-:host-context(body.light) .dark\:text-slate-300,
+:host-context(body.light-theme) .dark\:text-slate-300,
+:host-context(body.theme-light) .dark\:text-slate-300,
 :host-context(.light-theme) .dark\:text-slate-300,
 :host-context(.theme-light) .dark\:text-slate-300{color:#56607D !important}
 
-:host-context(body.light) .dark\:text-slate-400,
+:host-context(body.light-theme) .dark\:text-slate-400,
+:host-context(body.theme-light) .dark\:text-slate-400,
 :host-context(.light-theme) .dark\:text-slate-400,
 :host-context(.theme-light) .dark\:text-slate-400{color:#6B7699 !important}
 
-:host-context(body.light) .border-slate-200,
+:host-context(body.light-theme) .border-slate-200,
+:host-context(body.theme-light) .border-slate-200,
 :host-context(.light-theme) .border-slate-200,
 :host-context(.theme-light) .border-slate-200{border-color:#E7EAF1 !important}
 
-:host-context(body.light) .dark\:border-slate-800,
+:host-context(body.light-theme) .dark\:border-slate-800,
+:host-context(body.theme-light) .dark\:border-slate-800,
 :host-context(.light-theme) .dark\:border-slate-800,
 :host-context(.theme-light) .dark\:border-slate-800{border-color:#E7EAF1 !important}
 
-:host-context(body.light) .dark\:border-slate-700,
+:host-context(body.light-theme) .dark\:border-slate-700,
+:host-context(body.theme-light) .dark\:border-slate-700,
 :host-context(.light-theme) .dark\:border-slate-700,
 :host-context(.theme-light) .dark\:border-slate-700{border-color:#E7EAF1 !important}
 
-:host-context(body.light) input,
+:host-context(body.light-theme) input,
+:host-context(body.theme-light) input,
 :host-context(.light-theme) input,
 :host-context(.theme-light) input,
-:host-context(body.light) textarea,
+:host-context(body.light-theme) textarea,
+:host-context(body.theme-light) textarea,
 :host-context(.light-theme) textarea,
 :host-context(.theme-light) textarea,
-:host-context(body.light) select,
+:host-context(body.light-theme) select,
+:host-context(body.theme-light) select,
 :host-context(.light-theme) select,
 :host-context(.theme-light) select{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
 
-:host-context(body.light) input:focus,
+:host-context(body.light-theme) input:focus,
+:host-context(body.theme-light) input:focus,
 :host-context(.light-theme) input:focus,
 :host-context(.theme-light) input:focus{border-color:#1D6FE0}

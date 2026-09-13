@@ -1,4 +1,16 @@
 /* ============================================================
+   KPI ICON COLOR CORRECTIONS (match P-SK-025 .inv-ic-* exactly)
+   Tailwind's default blue/emerald/amber-500 hues differ from the
+   design's bespoke palette, so they are corrected here.
+   ============================================================ */
+:host-context(.dark) .dark\:bg-blue-500\/10 { background: rgba(43, 127, 255, .14) !important; }
+.text-blue-500 { color: #5DA0FF !important; }
+:host-context(.dark) .dark\:bg-emerald-500\/10 { background: rgba(15, 169, 154, .14) !important; }
+.text-emerald-500 { color: #2BD4C7 !important; }
+:host-context(.dark) .dark\:bg-amber-500\/10 { background: rgba(255, 180, 0, .14) !important; }
+.text-amber-500 { color: #FFB400 !important; }
+
+/* ============================================================
    LIGHT MODE OVERRIDES
    Activated by: body.light | .light-theme | .theme-light
    Design tokens:

@@ -1,89 +1,118 @@
 /* ===== Light Mode Overrides ===== */
-:host-context(body.light), :host-context(.light-theme), :host-context(.theme-light){
+:host-context(body.light-theme),
+:host-context(body.theme-light), :host-context(.light-theme), :host-context(.theme-light){
   color:#070D24;
   background:#F6F8FC
 }
-:host-context(body.light) .ord-title,
+:host-context(body.light-theme) .ord-title,
+:host-context(body.theme-light) .ord-title,
 :host-context(.light-theme) .ord-title,
 :host-context(.theme-light) .ord-title{color:#0F172A}
-:host-context(body.light) .ord-sub,
+:host-context(body.light-theme) .ord-sub,
+:host-context(body.theme-light) .ord-sub,
 :host-context(.light-theme) .ord-sub,
 :host-context(.theme-light) .ord-sub{color:#475569}
-:host-context(body.light) .sec-ttl,
+:host-context(body.light-theme) .sec-ttl,
+:host-context(body.theme-light) .sec-ttl,
 :host-context(.light-theme) .sec-ttl,
 :host-context(.theme-light) .sec-ttl{color:#0F172A}
-:host-context(body.light) .tx-title,
+:host-context(body.light-theme) .tx-title,
+:host-context(body.theme-light) .tx-title,
 :host-context(.light-theme) .tx-title,
 :host-context(.theme-light) .tx-title{color:#0F172A}
-:host-context(body.light) .tx-description,
+:host-context(body.light-theme) .tx-description,
+:host-context(body.theme-light) .tx-description,
 :host-context(.light-theme) .tx-description,
 :host-context(.theme-light) .tx-description{color:#6B7699}
-:host-context(body.light) .state-card,
+:host-context(body.light-theme) .state-card,
+:host-context(body.theme-light) .state-card,
 :host-context(.light-theme) .state-card,
 :host-context(.theme-light) .state-card{background:#FFFFFF;border-color:#D8DFEC}
-:host-context(body.light) .ord-tbl-wrap,
+:host-context(body.light-theme) .ord-tbl-wrap,
+:host-context(body.theme-light) .ord-tbl-wrap,
 :host-context(.light-theme) .ord-tbl-wrap,
 :host-context(.theme-light) .ord-tbl-wrap{background:#FFFFFF;border-color:#D8DFEC}
-:host-context(body.light) .tx-tbl th,
+:host-context(body.light-theme) .tx-tbl th,
+:host-context(body.theme-light) .tx-tbl th,
 :host-context(.light-theme) .tx-tbl th,
 :host-context(.theme-light) .tx-tbl th{color:#6B7699;border-bottom-color:#D8DFEC}
-:host-context(body.light) .tx-tbl td,
+:host-context(body.light-theme) .tx-tbl td,
+:host-context(body.theme-light) .tx-tbl td,
 :host-context(.light-theme) .tx-tbl td,
 :host-context(.theme-light) .tx-tbl td{color:#475569;border-bottom-color:#D8DFEC}
-:host-context(body.light) .tx-tbl tbody tr:hover,
+:host-context(body.light-theme) .tx-tbl tbody tr:hover,
+:host-context(body.theme-light) .tx-tbl tbody tr:hover,
 :host-context(.light-theme) .tx-tbl tbody tr:hover,
 :host-context(.theme-light) .tx-tbl tbody tr:hover{background:rgba(43,212,199,.04)}
-:host-context(body.light) .wal-side,
+:host-context(body.light-theme) .wal-side,
+:host-context(body.theme-light) .wal-side,
 :host-context(.light-theme) .wal-side,
 :host-context(.theme-light) .wal-side{background:#FFFFFF;border-color:#D8DFEC}
-:host-context(body.light) .wal-side-sub,
+:host-context(body.light-theme) .wal-side-sub,
+:host-context(body.theme-light) .wal-side-sub,
 :host-context(.light-theme) .wal-side-sub,
 :host-context(.theme-light) .wal-side-sub{color:#6B7699}
-:host-context(body.light) .wal-main,
+:host-context(body.light-theme) .wal-main,
+:host-context(body.theme-light) .wal-main,
 :host-context(.light-theme) .wal-main,
 :host-context(.theme-light) .wal-main{background:linear-gradient(135deg,rgba(43,212,199,.08),rgba(43,127,255,.05));border-color:rgba(43,212,199,.25)}
-:host-context(body.light) .wal-main-lbl,
+:host-context(body.light-theme) .wal-main-lbl,
+:host-context(body.theme-light) .wal-main-lbl,
 :host-context(.light-theme) .wal-main-lbl,
 :host-context(.theme-light) .wal-main-lbl{color:#0A6F64}
-:host-context(body.light) .wal-main-val,
+:host-context(body.light-theme) .wal-main-val,
+:host-context(body.theme-light) .wal-main-val,
 :host-context(.light-theme) .wal-main-val,
 :host-context(.theme-light) .wal-main-val{color:#0F172A}
-:host-context(body.light) .wal-main-cur,
+:host-context(body.light-theme) .wal-main-cur,
+:host-context(body.theme-light) .wal-main-cur,
 :host-context(.light-theme) .wal-main-cur,
 :host-context(.theme-light) .wal-main-cur{color:#475569}
-:host-context(body.light) input,
+:host-context(body.light-theme) input,
+:host-context(body.theme-light) input,
 :host-context(.light-theme) input,
 :host-context(.theme-light) input{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
-:host-context(body.light) textarea,
+:host-context(body.light-theme) textarea,
+:host-context(body.theme-light) textarea,
 :host-context(.light-theme) textarea,
 :host-context(.theme-light) textarea{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
-:host-context(body.light) select,
+:host-context(body.light-theme) select,
+:host-context(body.theme-light) select,
 :host-context(.light-theme) select,
 :host-context(.theme-light) select{background:#F3F5FA;border-color:#D8DFEC;color:#070D24}
-:host-context(body.light) input::placeholder,
+:host-context(body.light-theme) input::placeholder,
+:host-context(body.theme-light) input::placeholder,
 :host-context(.light-theme) input::placeholder,
 :host-context(.theme-light) input::placeholder{color:#6B7699}
-:host-context(body.light) input:focus,
+:host-context(body.light-theme) input:focus,
+:host-context(body.theme-light) input:focus,
 :host-context(.light-theme) input:focus,
 :host-context(.theme-light) input:focus{border-color:#1D6FE0}
-:host-context(body.light) .inner-foot,
+:host-context(body.light-theme) .inner-foot,
+:host-context(body.theme-light) .inner-foot,
 :host-context(.light-theme) .inner-foot,
 :host-context(.theme-light) .inner-foot{color:#6B7699;border-top-color:#D8DFEC}
-:host-context(body.light) .inner-foot-links a,
+:host-context(body.light-theme) .inner-foot-links a,
+:host-context(body.theme-light) .inner-foot-links a,
 :host-context(.light-theme) .inner-foot-links a,
 :host-context(.theme-light) .inner-foot-links a{color:#6B7699}
-:host-context(body.light) .inner-foot-links a:hover,
+:host-context(body.light-theme) .inner-foot-links a:hover,
+:host-context(body.theme-light) .inner-foot-links a:hover,
 :host-context(.light-theme) .inner-foot-links a:hover,
 :host-context(.theme-light) .inner-foot-links a:hover{color:#0A6F64}
-:host-context(body.light) .skeleton-row,
+:host-context(body.light-theme) .skeleton-row,
+:host-context(body.theme-light) .skeleton-row,
 :host-context(.light-theme) .skeleton-row,
 :host-context(.theme-light) .skeleton-row{background:linear-gradient(90deg,rgba(0,0,0,.05) 25%,rgba(0,0,0,.10) 50%,rgba(0,0,0,.05) 75%);background-size:200% 100%}
-:host-context(body.light) .skeleton-box,
+:host-context(body.light-theme) .skeleton-box,
+:host-context(body.theme-light) .skeleton-box,
 :host-context(.light-theme) .skeleton-box,
 :host-context(.theme-light) .skeleton-box{background:linear-gradient(90deg,rgba(0,0,0,.05) 25%,rgba(0,0,0,.10) 50%,rgba(0,0,0,.05) 75%);background-size:200% 100%}
-:host-context(body.light) .error-card,
+:host-context(body.light-theme) .error-card,
+:host-context(body.theme-light) .error-card,
 :host-context(.light-theme) .error-card,
 :host-context(.theme-light) .error-card{border-color:rgba(29,111,224,.25)}
-:host-context(body.light) .error-code,
+:host-context(body.light-theme) .error-code,
+:host-context(body.theme-light) .error-code,
 :host-context(.light-theme) .error-code,
 :host-context(.theme-light) .error-code{color:#6B7699}

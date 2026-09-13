@@ -9,12 +9,12 @@ button{font-family:inherit}
 .txn-back:hover{color:#2BD4C7}
 .txn-back svg{width:14px;height:14px}
 
-.txn-hero{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.txn-hero{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:15px;padding:20px;margin-bottom:16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
 .txn-hero-ico{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
 .txn-hero-ico svg{width:26px;height:26px}
 .txn-hero-ico.ico-out{background:rgba(255,180,0,.14);color:#FFB400}
 .txn-hero-ico.ico-in{background:rgba(15,169,154,.14);color:#0FA99A}
-.txn-hero-title{font-size:15px;font-weight:800;color:#fff}
+.txn-hero-title{font-size:18px;font-weight:900;color:#fff}
 .txn-hero-amount{font-size:26px;font-weight:900}
 .txn-hero-amount.amt-out{color:#FF8C69}
 .txn-hero-amount.amt-in{color:#0FA99A}
@@ -33,7 +33,7 @@ button{font-family:inherit}
 
 .sec-ttl{font-size:15px;font-weight:800;color:#fff;margin:6px 0 12px}
 
-.txn-data-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:6px 20px}
+.txn-data-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px}
 .txn-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .txn-row-last{border-bottom:none}
 .txn-row-lbl{font-size:12px;color:#6B7699}
@@ -41,10 +41,10 @@ button{font-family:inherit}
 .txn-row-val.amt-out{color:#FF8C69}
 .txn-row-val.amt-in{color:#0FA99A}
 
-.txn-hint{display:flex;align-items:center;gap:8px;margin:16px 0;padding:11px 13px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.16);border-radius:9px;font-size:12px;color:#2BD4C7}
+.txn-hint{display:flex;align-items:center;gap:8px;margin-top:14px;padding:11px 13px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.16);border-radius:9px;font-size:12px;color:#2BD4C7}
 .txn-hint svg{flex-shrink:0}
 
-.txn-actions{display:flex;gap:10px;flex-wrap:wrap;padding:16px 0 18px}
+.txn-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-bottom:18px}
 .txn-btn{display:inline-flex;align-items:center;gap:7px;padding:11px 18px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:all .15s;border:1px solid}
 .txn-btn-ghost{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#5C6680;cursor:not-allowed;opacity:.7}
 .txn-btn-link{background:rgba(43,127,255,.10);border-color:rgba(43,127,255,.24);color:#5DA0FF}
@@ -54,7 +54,7 @@ button{font-family:inherit}
 .skeleton-row{width:50%;height:16px;margin-bottom:14px;border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skel-pulse 1.5s infinite}
 .skeleton-box{height:120px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skel-pulse 1.5s infinite}
 .error-card{text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)}
-.error-title{font-size:16px;font-weight:800;margin-bottom:12px;color:#fff}
+.error-title{font-size:16px;font-weight:800;margin-bottom:6px;color:#fff}
 .retry-btn{padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer}
 
 @media(max-width:560px){.txn-actions{flex-direction:column}.txn-btn{width:100%;justify-content:center}}
