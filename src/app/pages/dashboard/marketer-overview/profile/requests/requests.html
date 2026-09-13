@@ -29,10 +29,10 @@
 
   <!-- إحصاء -->
   <div class="stat-row">
-    <div class="stat-box"><div class="stat-num" style="color:var(--ai-txt,#A56BE0)">{{ summary()?.pendingAiCount || 0 }}</div><div class="stat-lbl">قيد مراجعة الذكاء</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:var(--kahr,#D98A0B)">{{ summary()?.pendingHumanCount || 0 }}</div><div class="stat-lbl">بانتظار اعتماد بشري</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:var(--teal-txt,#2BD4C7)">{{ summary()?.approvedCount || 0 }}</div><div class="stat-lbl">معتمد</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:#FF8C69">{{ summary()?.rejectedCount || 0 }}</div><div class="stat-lbl">مرفوض</div></div>
+    <div class="stat-box"><div class="stat-num txt-purple">{{ summary()?.pendingAiCount || 0 }}</div><div class="stat-lbl">قيد مراجعة الذكاء</div></div>
+    <div class="stat-box"><div class="stat-num txt-kahr">{{ summary()?.pendingHumanCount || 0 }}</div><div class="stat-lbl">بانتظار اعتماد بشري</div></div>
+    <div class="stat-box"><div class="stat-num txt-teal">{{ summary()?.approvedCount || 0 }}</div><div class="stat-lbl">معتمد</div></div>
+    <div class="stat-box"><div class="stat-num txt-coral">{{ summary()?.rejectedCount || 0 }}</div><div class="stat-lbl">مرفوض</div></div>
   </div>
 
   <!-- فلاتر -->
@@ -75,7 +75,7 @@
           } @else if (req.status === ChangeRequestStatus.REJECTED) {
             <span class="req-status st-rej">مرفوض</span>
           } @else if (req.status === ChangeRequestStatus.WITHDRAWN) {
-            <span class="req-status" style="background:rgba(255,255,255,.05);color:#A8B2D1;border:1px solid rgba(255,255,255,.1)">مسحوب</span>
+            <span class="req-status txt-slate" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">مسحوب</span>
           }
         </div>
 
@@ -100,9 +100,9 @@
           </div>
         } @else if (req.status === ChangeRequestStatus.REJECTED) {
           <div class="ai-verdict" style="background:rgba(255,140,105,.06);border-color:rgba(255,140,105,.18)">
-            <div class="ai-verdict-ico" style="background:rgba(255,140,105,.16);color:#FF8C69"><svg aria-hidden="true"><use href="#i-x"></use></svg></div>
+            <div class="ai-verdict-ico ic-coral"><svg aria-hidden="true"><use href="#i-x"></use></svg></div>
             <div class="ai-verdict-body">
-              <div class="ai-verdict-lbl" style="color:#FF8C69">مرفوض <span class="ai-verdict-score" style="color:#FF8C69;background:rgba(255,140,105,.14);border-color:rgba(255,140,105,.26)">تعارض</span></div>
+              <div class="ai-verdict-lbl txt-coral">مرفوض <span class="ai-verdict-score ic-coral" style="border-">تعارض</span></div>
               <p class="ai-verdict-txt">{{ req.rejectionReason || 'يوجد تعارض في البيانات المدخلة' }}</p>
             </div>
           </div>
@@ -147,8 +147,8 @@
     @if (filteredRequests.length === 0) {
       <div class="empty-wrap">
         <div class="empty-ico"><svg aria-hidden="true"><use href="#i-inbox"></use></svg></div>
-        <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">لا توجد طلبات في هذا التصنيف</div>
-        <div style="font-size:12px;color:#6B7699;max-width:360px;margin:0 auto">تظهر هنا طلبات تعديل البيانات الحساسة فور إنشائها من صفحة الملف الشخصي</div>
+        <div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد طلبات في هذا التصنيف</div>
+        <div style="font-size:12px;max-width:360px;margin:0 auto" class="txt-muted">تظهر هنا طلبات تعديل البيانات الحساسة فور إنشائها من صفحة الملف الشخصي</div>
       </div>
     }
   </div>

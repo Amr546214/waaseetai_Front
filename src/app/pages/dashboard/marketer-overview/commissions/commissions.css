@@ -21,7 +21,7 @@
 
 .filter-chip { padding: 7px 14px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .10); border-radius: 20px; font-size: 12px; font-weight: 700; color: #A8B2D1; cursor: pointer; font-family: inherit; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
 .filter-chip:hover { background: rgba(255, 255, 255, .08); color: #fff; }
-.filter-chip.active { background: rgba(43, 212, 199, .12); border-color: rgba(43, 212, 199, .30); color: #2BD4C7; }
+.filter-chip.active { background: rgba(43, 212, 199, .14); border-color: rgba(43, 212, 199, .30); color: #2BD4C7; }
 
 .act-tbl { width: 100%; border-collapse: collapse; }
 .act-tbl th { font-size: 11px; color: #6B7699; text-align: right; padding: 8px 10px; font-weight: 700; border-bottom: 1px solid rgba(255, 255, 255, .07); }
@@ -33,3 +33,77 @@
 @media(max-width:900px){
   .kpi-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ============================================================
+   Light Mode Overrides
+   ============================================================ */
+
+:host-context(body.light-theme) .ai-disclosure,
+:host-context(body.theme-light) .ai-disclosure,
+:host-context(.light-theme) .ai-disclosure,
+:host-context(.theme-light) .ai-disclosure { background: linear-gradient(135deg, rgba(123, 47, 190, .07), rgba(43, 127, 255, .04)); border-color: rgba(123, 47, 190, .18); }
+
+:host-context(body.light-theme) .ai-disc-ico,
+:host-context(body.theme-light) .ai-disc-ico,
+:host-context(.light-theme) .ai-disc-ico,
+:host-context(.theme-light) .ai-disc-ico { background: rgba(123, 47, 190, .12); color: #6B27A5; }
+
+:host-context(body.light-theme) .ai-disc-lbl,
+:host-context(body.theme-light) .ai-disc-lbl,
+:host-context(.light-theme) .ai-disc-lbl,
+:host-context(.theme-light) .ai-disc-lbl { color: #6B27A5; }
+
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt { color: #475569; }
+
+:host-context(body.light-theme) .ai-disc-badge,
+:host-context(body.theme-light) .ai-disc-badge,
+:host-context(.light-theme) .ai-disc-badge,
+:host-context(.theme-light) .ai-disc-badge { background: rgba(123, 47, 190, .08); border-color: rgba(123, 47, 190, .18); color: #6B27A5; }
+
+:host-context(body.light-theme) .kpi-card,
+:host-context(body.theme-light) .kpi-card,
+:host-context(.light-theme) .kpi-card,
+:host-context(.theme-light) .kpi-card { background: #fff; border-color: #E7EAF1; }
+
+:host-context(body.light-theme) .kpi-lbl,
+:host-context(body.theme-light) .kpi-lbl,
+:host-context(.light-theme) .kpi-lbl,
+:host-context(.theme-light) .kpi-lbl { color: #64748B; }
+
+:host-context(body.light-theme) .adm-card,
+:host-context(body.theme-light) .adm-card,
+:host-context(.light-theme) .adm-card,
+:host-context(.theme-light) .adm-card { background: #FFFFFF; border-color: #D8DFEC; }
+
+:host-context(body.light-theme) .adm-card-ttl,
+:host-context(body.theme-light) .adm-card-ttl,
+:host-context(.light-theme) .adm-card-ttl,
+:host-context(.theme-light) .adm-card-ttl { color: #0F172A; }
+
+:host-context(body.light-theme) .filter-chip,
+:host-context(body.theme-light) .filter-chip,
+:host-context(.light-theme) .filter-chip,
+:host-context(.theme-light) .filter-chip { background: #F6F8FC; border-color: #E7EAF1; color: #475569; }
+
+:host-context(body.light-theme) .filter-chip:hover,
+:host-context(body.theme-light) .filter-chip:hover,
+:host-context(.light-theme) .filter-chip:hover,
+:host-context(.theme-light) .filter-chip:hover { background: rgba(43, 212, 199, .08); color: #0F172A; }
+
+:host-context(body.light-theme) .filter-chip.active,
+:host-context(body.theme-light) .filter-chip.active,
+:host-context(.light-theme) .filter-chip.active,
+:host-context(.theme-light) .filter-chip.active { background: rgba(15, 138, 127, .12); border-color: rgba(15, 138, 127, .35); color: #0A6F64; }
+
+:host-context(body.light-theme) .act-tbl th,
+:host-context(body.theme-light) .act-tbl th,
+:host-context(.light-theme) .act-tbl th,
+:host-context(.theme-light) .act-tbl th { color: #475569; border-bottom-color: #E7EAF1; }
+
+:host-context(body.light-theme) .act-tbl td,
+:host-context(body.theme-light) .act-tbl td,
+:host-context(.light-theme) .act-tbl td,
+:host-context(.theme-light) .act-tbl td { color: #1E293B; border-bottom-color: #F1F5F9; }

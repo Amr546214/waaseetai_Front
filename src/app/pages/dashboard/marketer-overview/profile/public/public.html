@@ -10,45 +10,45 @@
   <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
     <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
     <div style="flex:1;min-width:220px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="ws-level-tag" style="font-size:14px;font-weight:900;color:#9B8B7A;border-color:rgba(155,139,122,.30)">{{ summary()?.tier || 'مساعد' }}</span><span style="font-size:11px;color:#6B7699">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} ريال عمولات</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="ws-level-tag txt-kahr" style="font-size:14px;font-weight:900;border-">{{ summary()?.tier || 'مساعد' }}</span><span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} ريال عمولات</span></div>
       <div style="height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div [style.width]="(summary()?.progressPercentage || 0) + '%'" style="height:100%;background:linear-gradient(90deg,#9B8B7A,#CD7F32);border-radius:4px;transition:width .4s"></div></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-top:7px"><svg width="12" height="12" aria-hidden="true" style="color:var(--ai-txt,#A56BE0)"><use href="#i-ai"></use></svg><span style="font-size:11.5px;color:#A8B2D1">توصية AI: {{ summary()?.nextTierThreshold || 0 - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)</span></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:7px"><svg width="12" height="12" aria-hidden="true" class="txt-purple"><use href="#i-ai"></use></svg><span style="font-size:11.5px" class="txt-slate">توصية AI: {{ summary()?.nextTierThreshold || 0 - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag txt-kahr" style="border-">موصل</strong> (عمولة أعلى بـ 5%)</span></div>
     </div>
   </div>
 
   <!-- الملف العام -->
   <div style="display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start">
     <div class="state-card" style="text-align:center;padding:24px">
-      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#070D24;margin:0 auto 14px;border:2px solid rgba(43,212,199,.25);overflow:hidden">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;margin:0 auto 14px;border:2px solid rgba(43,212,199,.25);overflow:hidden" class="txt-navy">
         @if (profile()?.avatarUrl || profile()?.user?.avatarUrl) {
           <img [src]="profile()?.avatarUrl || profile()?.user?.avatarUrl" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
         } @else {
           {{ (profile()?.user?.firstName?.[0] || 'و') + (profile()?.user?.lastName?.[0] || 'س') }}
         }
       </div>
-      <div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:4px">{{ profile()?.user?.firstName }} {{ profile()?.user?.lastName }}</div>
+      <div style="font-size:18px;font-weight:900;margin-bottom:4px" class="txt-white">{{ profile()?.user?.firstName }} {{ profile()?.user?.lastName }}</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px">
-        <span class="ws-level-tag" style="color:#9B8B7A;border-color:rgba(155,139,122,.30);font-size:12px">{{ summary()?.tier || 'مساعد' }}</span>
+        <span class="ws-level-tag txt-kahr" style="border-font-size:12px">{{ summary()?.tier || 'مساعد' }}</span>
         <svg class="ws-star-svg" width="14" height="14" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
       </div>
-      <div style="font-size:12px;color:#6B7699;margin-bottom:16px">وسيط تسويقي · منذ 2024</div>
+      <div style="font-size:12px;margin-bottom:16px" class="txt-muted">وسيط تسويقي · منذ 2024</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900;color:#2BD4C7">{{ summary()?.successfulReferrals || 0 }}</div><div style="font-size:10px;color:#6B7699">إحالة</div></div>
-        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900;color:#0FA99A">1.8%</div><div style="font-size:10px;color:#6B7699">تحويل</div></div>
-        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900;color:#FFB400">4.8</div><div style="font-size:10px;color:#6B7699">تقييم</div></div>
+        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-teal">{{ summary()?.successfulReferrals || 0 }}</div><div style="font-size:10px" class="txt-muted">إحالة</div></div>
+        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-green">1.8%</div><div style="font-size:10px" class="txt-muted">تحويل</div></div>
+        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-amber">4.8</div><div style="font-size:10px" class="txt-muted">تقييم</div></div>
       </div>
-      <a routerLink="/dashboard/marketer-overview/profile/data" style="display:block;margin-top:16px;padding:9px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;color:#2BD4C7;font-size:12px;font-weight:700;text-decoration:none;text-align:center">تعديل الملف</a>
+      <a routerLink="/dashboard/marketer-overview/profile/data" style="display:block;margin-top:16px;padding:9px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;text-align:center" class="txt-teal">تعديل الملف</a>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="state-card">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-          <div style="width:32px;height:32px;border-radius:8px;background:rgba(123,47,190,.14);display:flex;align-items:center;justify-content:center;color:#A56BE0"><svg width="15" height="15" aria-hidden="true"><use href="#i-ai"></use></svg></div>
-          <div style="font-size:13px;font-weight:800;color:#fff">درجة الثقة AI</div>
-          <div style="margin-inline-start:auto;font-size:20px;font-weight:900;color:#A56BE0">{{ profile()?.completionPercentage || 0 }}/100</div>
+          <div style="width:32px;height:32px;border-radius:8px;background:rgba(123,47,190,.14);display:flex;align-items:center;justify-content:center" class="txt-purple"><svg width="15" height="15" aria-hidden="true"><use href="#i-ai"></use></svg></div>
+          <div style="font-size:13px;font-weight:800" class="txt-white">درجة الثقة AI</div>
+          <div style="margin-inline-start:auto;font-size:20px;font-weight:900" class="txt-purple">{{ profile()?.completionPercentage || 0 }}/100</div>
         </div>
         <div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:8px"><div [style.width]="(profile()?.completionPercentage || 0) + '%'" style="height:100%;background:linear-gradient(90deg,#7B2FBE,#A56BE0);border-radius:4px;transition:width .4s"></div></div>
-        <div style="font-size:12px;color:#A8B2D1">الملف مكتمل {{ profile()?.completionPercentage || 0 }}% · معدل تحويل أعلى من المتوسط · لا بلاغات</div>
+        <div style="font-size:12px" class="txt-slate">الملف مكتمل {{ profile()?.completionPercentage || 0 }}% · معدل تحويل أعلى من المتوسط · لا بلاغات</div>
       </div>
 
       <div class="state-card">
@@ -56,20 +56,20 @@
         <div style="display:flex;flex-direction:column;gap:8px">
           @for (channel of channels(); track channel.id) {
             <div style="display:flex;align-items:center;gap:8px">
-              <span style="width:70px;font-size:12px;color:#A8B2D1">{{ channel.platform }}</span>
-              <span style="font-size:12px;color:#2BD4C7" dir="ltr">{{ channel.handle }}</span>
-              <span style="margin-inline-start:auto;font-size:11px;color:#0FA99A">موثّق</span>
+              <span style="width:70px;font-size:12px" class="txt-slate">{{ channel.platform }}</span>
+              <span style="font-size:12px" dir="ltr" class="txt-teal">{{ channel.handle }}</span>
+              <span style="margin-inline-start:auto;font-size:11px" class="txt-green">موثّق</span>
             </div>
           }
           @if (channels().length === 0) {
-            <div style="font-size:12px;color:#6B7699;padding:10px">لا توجد قنوات تسويقية مضافة</div>
+            <div style="font-size:12px;padding:10px" class="txt-muted">لا توجد قنوات تسويقية مضافة</div>
           }
         </div>
       </div>
 
       <div class="state-card">
         <div class="adm-card-ttl" style="margin-bottom:10px"><svg aria-hidden="true"><use href="#i-person"></use></svg>الوصف التسويقي</div>
-        <p style="font-size:13px;color:#A8B2D1;line-height:1.6">
+        <p style="font-size:13px;line-height:1.6" class="txt-slate">
           {{ profile()?.bio || 'لا يوجد وصف تسويقي.' }}
         </p>
       </div>

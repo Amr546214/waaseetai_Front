@@ -13,19 +13,19 @@
     </div>
     <div style="flex:1;min-width:220px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <span class="ws-level-tag" style="font-size:14px;font-weight:900;color:#9B8B7A;border-color:rgba(155,139,122,.30)">{{ summary()?.tier || 'مساعد' }}</span>
-        <span style="font-size:11px;color:#6B7699">· {{ summary()?.successfulReferrals ?? 47 }} إحالة ناجحة · {{ summary()?.totalCommissions ?? 2340 }} ريال عمولات</span>
+        <span class="ws-level-tag txt-kahr" style="font-size:14px;font-weight:900;border-">{{ summary()?.tier || 'مساعد' }}</span>
+        <span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals ?? 47 }} إحالة ناجحة · {{ summary()?.totalCommissions ?? 2340 }} ريال عمولات</span>
       </div>
       <div style="height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden">
         <div [style.width]="(summary()?.progressPercentage ?? 60) + '%'" style="height:100%;background:linear-gradient(90deg,#9B8B7A,#CD7F32);border-radius:4px;transition:width 0.5s ease-in-out;"></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:7px">
-        <svg width="12" height="12" aria-hidden="true" style="color:var(--ai-txt,#A56BE0)"><use href="#i-ai"></use></svg>
-        <span style="font-size:11.5px;color:#A8B2D1">
+        <svg width="12" height="12" aria-hidden="true" class="txt-purple"><use href="#i-ai"></use></svg>
+        <span style="font-size:11.5px" class="txt-slate">
           @if ((summary()?.successfulReferrals ?? 47) === 0) {
             توصية AI: أكمل أول {{ summary()?.nextTierThreshold || 3 }} إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
           } @else {
-            توصية AI: 3 إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
+            توصية AI: 3 إحالات إضافية ترقّيك إلى <strong class="ws-level-tag txt-kahr" style="border-">موصل</strong> (عمولة أعلى بـ 5%)
           }
         </span>
       </div>
@@ -35,35 +35,35 @@
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-top">
-        <div class="kpi-ic" style="background:rgba(43,212,199,.12);color:#2BD4C7"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div>
+        <div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div>
         <span class="kpi-lbl">إجمالي الإحالات</span>
       </div>
-      <div class="kpi-val" style="color:#2BD4C7">52</div>
-      <div class="kpi-delta" style="color:#0FA99A">+6 هذا الأسبوع</div>
+      <div class="kpi-val txt-teal">52</div>
+      <div class="kpi-delta txt-green">+6 هذا الأسبوع</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-top">
-        <div class="kpi-ic" style="background:rgba(15,169,154,.12);color:#0FA99A"><svg aria-hidden="true"><use href="#i-check"></use></svg></div>
+        <div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-check"></use></svg></div>
         <span class="kpi-lbl">أول مشروع مؤهل</span>
       </div>
-      <div class="kpi-val" style="color:#0FA99A">47</div>
-      <div class="kpi-delta" style="color:#6B7699">عمولة مستحقة</div>
+      <div class="kpi-val txt-green">47</div>
+      <div class="kpi-delta txt-muted">عمولة مستحقة</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-top">
-        <div class="kpi-ic" style="background:rgba(255,180,0,.12);color:#FFB400"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div>
+        <div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div>
         <span class="kpi-lbl">بانتظار الاكتمال</span>
       </div>
-      <div class="kpi-val" style="color:#FFB400">4</div>
-      <div class="kpi-delta" style="color:#6B7699">مسجّلة، لا عمولة بعد</div>
+      <div class="kpi-val txt-amber">4</div>
+      <div class="kpi-delta txt-muted">مسجّلة، لا عمولة بعد</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-top">
-        <div class="kpi-ic" style="background:rgba(255,140,105,.12);color:#FF8C69"><svg aria-hidden="true"><use href="#i-close"></use></svg></div>
+        <div class="kpi-ic ic-coral"><svg aria-hidden="true"><use href="#i-close"></use></svg></div>
         <span class="kpi-lbl">ملغاة</span>
       </div>
-      <div class="kpi-val" style="color:#FF8C69">1</div>
-      <div class="kpi-delta" style="color:#6B7699">لا تُحسب ضمن الأداء</div>
+      <div class="kpi-val txt-coral">1</div>
+      <div class="kpi-delta txt-muted">لا تُحسب ضمن الأداء</div>
     </div>
   </div>
 
@@ -103,11 +103,11 @@
               <td>{{ item.date }}</td>
               <td>
                 @if (item.status === 'qualified') {
-                  <span style="background:rgba(15,169,154,.12);color:#0FA99A;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">{{ item.statusLabel }}</span>
+                  <span style="background:rgba(15,169,154,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-green">{{ item.statusLabel }}</span>
                 } @else if (item.status === 'pending') {
-                  <span style="background:rgba(255,180,0,.10);color:#FFB400;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">{{ item.statusLabel }}</span>
+                  <span style="background:rgba(255,180,0,.10);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-amber">{{ item.statusLabel }}</span>
                 } @else {
-                  <span style="background:rgba(255,140,105,.10);color:#FF8C69;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">{{ item.statusLabel }}</span>
+                  <span style="background:rgba(255,140,105,.10);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-coral">{{ item.statusLabel }}</span>
                 }
               </td>
               <td [style.color]="item.status === 'qualified' ? '#0FA99A' : '#6B7699'" [style.font-weight]="item.status !== 'cancelled' ? '700' : 'normal'">
@@ -120,7 +120,7 @@
     </div>
 
     @if (filteredReferrals().length === 0) {
-      <p style="text-align:center;font-size:12px;color:#6B7699;padding:18px 0">لا توجد إحالات مطابقة</p>
+      <p style="text-align:center;font-size:12px;padding:18px 0" class="txt-muted">لا توجد إحالات مطابقة</p>
     }
   </div>
 

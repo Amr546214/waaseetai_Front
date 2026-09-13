@@ -104,3 +104,155 @@
   .req-foot { flex-direction: column; align-items: stretch; }
   .req-actions { justify-content: flex-end; }
 }
+
+/* ===== Light Mode ===== */
+:host-context(body.light-theme) .stat-box,
+:host-context(body.theme-light) .stat-box,
+:host-context(.light-theme) .stat-box,
+:host-context(.theme-light) .stat-box,
+:host-context(body.light-theme) .req-card,
+:host-context(body.theme-light) .req-card,
+:host-context(.light-theme) .req-card,
+:host-context(.theme-light) .req-card { background: #fff; border-color: #E2E8F4; }
+
+:host-context(body.light-theme) .req-field-name,
+:host-context(body.theme-light) .req-field-name,
+:host-context(.light-theme) .req-field-name,
+:host-context(.theme-light) .req-field-name,
+:host-context(body.light-theme) .diff-val,
+:host-context(body.theme-light) .diff-val,
+:host-context(.light-theme) .diff-val,
+:host-context(.theme-light) .diff-val,
+:host-context(body.light-theme) .section-title,
+:host-context(body.theme-light) .section-title,
+:host-context(.light-theme) .section-title,
+:host-context(.theme-light) .section-title { color: #0F172A; }
+
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt,
+:host-context(body.light-theme) .tier-desc,
+:host-context(body.theme-light) .tier-desc,
+:host-context(.light-theme) .tier-desc,
+:host-context(.theme-light) .tier-desc,
+:host-context(body.light-theme) .ai-verdict-txt,
+:host-context(body.theme-light) .ai-verdict-txt,
+:host-context(.light-theme) .ai-verdict-txt,
+:host-context(.theme-light) .ai-verdict-txt,
+:host-context(body.light-theme) .tl-step.done,
+:host-context(body.theme-light) .tl-step.done,
+:host-context(.light-theme) .tl-step.done,
+:host-context(.theme-light) .tl-step.done,
+:host-context(body.light-theme) .req-btn-ghost,
+:host-context(body.theme-light) .req-btn-ghost,
+:host-context(.light-theme) .req-btn-ghost,
+:host-context(.theme-light) .req-btn-ghost,
+:host-context(body.light-theme) .filter-chip,
+:host-context(body.theme-light) .filter-chip,
+:host-context(.light-theme) .filter-chip,
+:host-context(.theme-light) .filter-chip { color: #475569; }
+
+:host-context(body.light-theme) .stat-lbl,
+:host-context(body.theme-light) .stat-lbl,
+:host-context(.light-theme) .stat-lbl,
+:host-context(.theme-light) .stat-lbl,
+:host-context(body.light-theme) .req-meta,
+:host-context(body.theme-light) .req-meta,
+:host-context(.light-theme) .req-meta,
+:host-context(.theme-light) .req-meta,
+:host-context(body.light-theme) .diff-lbl,
+:host-context(body.theme-light) .diff-lbl,
+:host-context(.light-theme) .diff-lbl,
+:host-context(.theme-light) .diff-lbl,
+:host-context(body.light-theme) .diff-old .diff-val,
+:host-context(body.theme-light) .diff-old .diff-val,
+:host-context(.light-theme) .diff-old .diff-val,
+:host-context(.theme-light) .diff-old .diff-val,
+:host-context(body.light-theme) .req-timeline .tl-step,
+:host-context(body.theme-light) .req-timeline .tl-step,
+:host-context(.light-theme) .req-timeline .tl-step,
+:host-context(.theme-light) .req-timeline .tl-step,
+:host-context(body.light-theme) .section-title .st-count,
+:host-context(body.theme-light) .section-title .st-count,
+:host-context(.light-theme) .section-title .st-count,
+:host-context(.theme-light) .section-title .st-count { color: #5B6472; }
+
+:host-context(body.light-theme) .filter-chip:hover,
+:host-context(body.theme-light) .filter-chip:hover,
+:host-context(.light-theme) .filter-chip:hover,
+:host-context(.theme-light) .filter-chip:hover,
+:host-context(body.light-theme) .req-btn-ghost:hover,
+:host-context(body.theme-light) .req-btn-ghost:hover,
+:host-context(.light-theme) .req-btn-ghost:hover,
+:host-context(.theme-light) .req-btn-ghost:hover { background: #e9edf5; color: #0F172A; }
+
+:host-context(body.light-theme) .filter-chip,
+:host-context(body.theme-light) .filter-chip,
+:host-context(.light-theme) .filter-chip,
+:host-context(.theme-light) .filter-chip,
+:host-context(body.light-theme) .req-btn-ghost,
+:host-context(body.theme-light) .req-btn-ghost,
+:host-context(.light-theme) .req-btn-ghost,
+:host-context(.theme-light) .req-btn-ghost { background: #f4f6fb; border-color: #D5DCEA; }
+
+:host-context(body.light-theme) .filter-chip .fc-count,
+:host-context(body.theme-light) .filter-chip .fc-count,
+:host-context(.light-theme) .filter-chip .fc-count,
+:host-context(.theme-light) .filter-chip .fc-count,
+:host-context(body.light-theme) .tl-line,
+:host-context(body.theme-light) .tl-line,
+:host-context(.light-theme) .tl-line,
+:host-context(.theme-light) .tl-line { background: #E2E8F4; }
+
+:host-context(body.light-theme) .diff-cell,
+:host-context(body.theme-light) .diff-cell,
+:host-context(.light-theme) .diff-cell,
+:host-context(.theme-light) .diff-cell { background: rgba(15, 23, 42, .02); border-color: rgba(15, 23, 42, .08); }
+
+:host-context(body.light-theme) .tl-dot,
+:host-context(body.theme-light) .tl-dot,
+:host-context(.light-theme) .tl-dot,
+:host-context(.theme-light) .tl-dot { border-color: #CBD5E1; }
+
+:host-context(body.light-theme) .st-ok,
+:host-context(body.theme-light) .st-ok,
+:host-context(.light-theme) .st-ok,
+:host-context(.theme-light) .st-ok,
+:host-context(body.light-theme) .tl-step.done .tl-dot,
+:host-context(body.theme-light) .tl-step.done .tl-dot,
+:host-context(.light-theme) .tl-step.done .tl-dot,
+:host-context(.theme-light) .tl-step.done .tl-dot { color: #0A6F64; }
+
+:host-context(body.light-theme) .st-rej,
+:host-context(body.theme-light) .st-rej,
+:host-context(.light-theme) .st-rej,
+:host-context(.theme-light) .st-rej,
+:host-context(body.light-theme) .req-btn-warn,
+:host-context(body.theme-light) .req-btn-warn,
+:host-context(.light-theme) .req-btn-warn,
+:host-context(.theme-light) .req-btn-warn,
+:host-context(body.light-theme) .tl-step.rej,
+:host-context(body.theme-light) .tl-step.rej,
+:host-context(.light-theme) .tl-step.rej,
+:host-context(.theme-light) .tl-step.rej,
+:host-context(body.light-theme) .tl-step.rej .tl-dot,
+:host-context(body.theme-light) .tl-step.rej .tl-dot,
+:host-context(.light-theme) .tl-step.rej .tl-dot,
+:host-context(.theme-light) .tl-step.rej .tl-dot { color: #B42318; }
+
+/* Inline `style` colors baked into the template markup */
+:host-context(body.light-theme) .empty-wrap [style*="color:#fff"],
+:host-context(body.theme-light) .empty-wrap [style*="color:#fff"],
+:host-context(.light-theme) .empty-wrap [style*="color:#fff"],
+:host-context(.theme-light) .empty-wrap [style*="color:#fff"] { color: #0F172A !important; }
+
+:host-context(body.light-theme) .empty-wrap [style*="color:#6B7699"],
+:host-context(body.theme-light) .empty-wrap [style*="color:#6B7699"],
+:host-context(.light-theme) .empty-wrap [style*="color:#6B7699"],
+:host-context(.theme-light) .empty-wrap [style*="color:#6B7699"] { color: #5B6472 !important; }
+
+:host-context(body.light-theme) [style*="color:#A8B2D1"],
+:host-context(body.theme-light) [style*="color:#A8B2D1"],
+:host-context(.light-theme) [style*="color:#A8B2D1"],
+:host-context(.theme-light) [style*="color:#A8B2D1"] { color: #475569 !important; }

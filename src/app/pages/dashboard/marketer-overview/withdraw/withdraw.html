@@ -11,15 +11,15 @@
   <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
     <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
     <div style="flex:1;min-width:220px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="ws-level-tag" style="font-size:14px;font-weight:900;color:#9B8B7A;border-color:rgba(155,139,122,.30)">{{ summary()?.tier || 'مبتدئ' }}</span><span style="font-size:11px;color:#6B7699">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} ريال عمولات</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="ws-level-tag txt-kahr" style="font-size:14px;font-weight:900;border-">{{ summary()?.tier || 'مبتدئ' }}</span><span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} ريال عمولات</span></div>
       <div style="height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div [style.width]="(summary()?.progressPercentage || 0) + '%'" style="height:100%;background:linear-gradient(90deg,#9B8B7A,#CD7F32);border-radius:4px; transition: width 0.5s ease-in-out;"></div></div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:7px">
-        <svg width="12" height="12" aria-hidden="true" style="color:var(--ai-txt,#A56BE0)"><use href="#i-ai"></use></svg>
-        <span style="font-size:11.5px;color:#A8B2D1">
+        <svg width="12" height="12" aria-hidden="true" class="txt-purple"><use href="#i-ai"></use></svg>
+        <span style="font-size:11.5px" class="txt-slate">
           @if (summary()?.successfulReferrals === 0) {
             توصية AI: أكمل أول {{ summary()?.nextTierThreshold || 3 }} إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
           } @else {
-            توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
+            توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag txt-kahr" style="border-">موصل</strong> (عمولة أعلى بـ 5%)
           }
         </span>
       </div>
@@ -29,19 +29,19 @@
   <!-- رصيد قابل للسحب -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px" class="resp-grid-3">
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
-      <div style="font-size:12px;color:#6B7699;margin-bottom:6px">الرصيد القابل للسحب</div>
-      <div style="font-size:28px;font-weight:900;color:#2BD4C7">{{ summary()?.totalCommissions || 0 }}</div>
-      <div style="font-size:11px;color:#6B7699">ريال سعودي</div>
+      <div style="font-size:12px;margin-bottom:6px" class="txt-muted">الرصيد القابل للسحب</div>
+      <div style="font-size:28px;font-weight:900" class="txt-teal">{{ summary()?.totalCommissions || 0 }}</div>
+      <div style="font-size:11px" class="txt-muted">ريال سعودي</div>
     </div>
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
-      <div style="font-size:12px;color:#6B7699;margin-bottom:6px">محجوز</div>
-      <div style="font-size:28px;font-weight:900;color:#FFB400">0</div>
-      <div style="font-size:11px;color:#6B7699">بانتظار إتمام مشاريع</div>
+      <div style="font-size:12px;margin-bottom:6px" class="txt-muted">محجوز</div>
+      <div style="font-size:28px;font-weight:900" class="txt-amber">0</div>
+      <div style="font-size:11px" class="txt-muted">بانتظار إتمام مشاريع</div>
     </div>
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
-      <div style="font-size:12px;color:#6B7699;margin-bottom:6px">إجمالي السحوبات</div>
-      <div style="font-size:28px;font-weight:900;color:#0FA99A">0</div>
-      <div style="font-size:11px;color:#6B7699">ريال سعودي</div>
+      <div style="font-size:12px;margin-bottom:6px" class="txt-muted">إجمالي السحوبات</div>
+      <div style="font-size:28px;font-weight:900" class="txt-green">0</div>
+      <div style="font-size:11px" class="txt-muted">ريال سعودي</div>
     </div>
   </div>
 
@@ -50,22 +50,22 @@
     <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-escrow"></use></svg>طلب سحب عمولات</div>
     <div style="max-width:520px">
       <div style="margin-bottom:14px">
-        <label style="font-size:12px;font-weight:700;color:#A8B2D1;display:block;margin-bottom:6px">المبلغ (ريال)</label>
-        <input type="number" placeholder="أدخل المبلغ" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:14px;font-family:inherit;outline:none" [value]="summary()?.totalCommissions || 0">
-        <div style="font-size:11px;color:#6B7699;margin-top:5px">الحد الأدنى: 300 ريال · الحد الأقصى: {{ summary()?.totalCommissions || 0 }} ريال</div>
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">المبلغ (ريال)</label>
+        <input type="number" placeholder="أدخل المبلغ" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-family:inherit;outline:none" [value]="summary()?.totalCommissions || 0" class="txt-white">
+        <div style="font-size:11px;margin-top:5px" class="txt-muted">الحد الأدنى: 300 ريال · الحد الأقصى: {{ summary()?.totalCommissions || 0 }} ريال</div>
       </div>
       <div style="margin-bottom:14px">
-        <label style="font-size:12px;font-weight:700;color:#A8B2D1;display:block;margin-bottom:6px">الحساب البنكي</label>
-        <select style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:14px;font-family:inherit;outline:none">
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">الحساب البنكي</label>
+        <select style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-family:inherit;outline:none" class="txt-white">
           <option>بنك الراجحي — SA12 3456 7890 1234</option>
           <option>بنك الأهلي — SA98 7654 3210 9876</option>
         </select>
       </div>
       <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(123,47,190,.07);border:1px solid rgba(123,47,190,.18);border-radius:10px;margin-bottom:16px">
-        <svg width="14" height="14" style="color:#A56BE0;flex-shrink:0" aria-hidden="true"><use href="#i-ai"></use></svg>
-        <span style="font-size:12px;color:#A8B2D1">تُصرف طلبات السحب يوم الأربعاء · يصل التحويل غالباً خلال 1-3 أيام عمل بعد الصرف · يُعلَّق السحب عند وجود نزاع نشط أو شبهة احتيال أو مراجعة امتثال</span>
+        <svg width="14" height="14" style="flex-shrink:0" aria-hidden="true" class="txt-purple"><use href="#i-ai"></use></svg>
+        <span style="font-size:12px" class="txt-slate">تُصرف طلبات السحب يوم الأربعاء · يصل التحويل غالباً خلال 1-3 أيام عمل بعد الصرف · يُعلَّق السحب عند وجود نزاع نشط أو شبهة احتيال أو مراجعة امتثال</span>
       </div>
-      <button type="button" class="btn-primary-gradient" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;color:#070D24;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition: opacity 0.2s ease-in-out;">تأكيد طلب السحب</button>
+      <button type="button" class="btn-primary-gradient txt-navy" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition: opacity 0.2s ease-in-out">تأكيد طلب السحب</button>
     </div>
   </div>
 
@@ -80,13 +80,13 @@
             @for (log of withdrawals(); track log.id) {
               <tr>
                 <td>{{ log.time | date:'yyyy-MM-dd' }}</td>
-                <td style="color:#0FA99A;font-weight:700">{{ log.amount }} ريال</td>
+                <td style="font-weight:700" class="txt-green">{{ log.amount }} ريال</td>
                 <td>{{ log.account }}</td>
                 <td>
                   @if (log.status === 'COMPLETED') {
-                    <span style="background:rgba(15,169,154,.12);color:#0FA99A;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">مكتمل</span>
+                    <span style="background:rgba(15,169,154,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-green">مكتمل</span>
                   } @else {
-                    <span style="background:rgba(93,160,255,.12);color:#5DA0FF;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">قيد المعالجة</span>
+                    <span style="background:rgba(93,160,255,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-blue">قيد المعالجة</span>
                   }
                 </td>
               </tr>

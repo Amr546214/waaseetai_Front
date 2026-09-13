@@ -45,3 +45,105 @@
   .kpi-grid { grid-template-columns: 1fr 1fr; }
   .adm-grid2 { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES
+   Based on design reference P-AF-001 LIGHT_CSS + established app convention
+   (cards white, borders #E7EAF1, secondary text darkened for contrast)
+   ========================================================================== */
+:host-context(body.light-theme) .ai-disclosure,
+:host-context(body.theme-light) .ai-disclosure,
+:host-context(.light-theme) .ai-disclosure,
+:host-context(.theme-light) .ai-disclosure {
+  background: linear-gradient(135deg, rgba(123,47,190,.05), rgba(43,127,255,.03)) !important;
+    border-color: rgba(123,47,190,.18) !important;
+}
+
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt {
+  color: #475569 !important;
+}
+
+:host-context(body.light-theme) .kpi-card,
+:host-context(body.theme-light) .kpi-card,
+:host-context(.light-theme) .kpi-card,
+:host-context(.theme-light) .kpi-card {
+  background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+}
+
+:host-context(body.light-theme) .kpi-lbl,
+:host-context(body.theme-light) .kpi-lbl,
+:host-context(.light-theme) .kpi-lbl,
+:host-context(.theme-light) .kpi-lbl {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .adm-card,
+:host-context(body.theme-light) .adm-card,
+:host-context(.light-theme) .adm-card,
+:host-context(.theme-light) .adm-card {
+  background: #fff !important;
+    border-color: #E7EAF1 !important;
+    box-shadow: 0 2px 10px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05) !important;
+}
+
+:host-context(body.light-theme) .adm-card-ttl,
+:host-context(body.theme-light) .adm-card-ttl,
+:host-context(.light-theme) .adm-card-ttl,
+:host-context(.theme-light) .adm-card-ttl {
+  color: #1E293B !important;
+}
+
+:host-context(body.light-theme) .q-row,
+:host-context(body.theme-light) .q-row,
+:host-context(.light-theme) .q-row,
+:host-context(.theme-light) .q-row {
+  border-bottom-color: rgba(7,13,36,.07) !important;
+}
+
+:host-context(body.light-theme) .q-name,
+:host-context(body.theme-light) .q-name,
+:host-context(.light-theme) .q-name,
+:host-context(.theme-light) .q-name {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .q-meta,
+:host-context(body.theme-light) .q-meta,
+:host-context(.light-theme) .q-meta,
+:host-context(.theme-light) .q-meta {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .ins-row,
+:host-context(body.theme-light) .ins-row,
+:host-context(.light-theme) .ins-row,
+:host-context(.theme-light) .ins-row {
+  background: rgba(123,47,190,.04) !important;
+    border-color: rgba(123,47,190,.14) !important;
+}
+
+:host-context(body.light-theme) .ins-txt,
+:host-context(body.theme-light) .ins-txt,
+:host-context(.light-theme) .ins-txt,
+:host-context(.theme-light) .ins-txt {
+  color: #475569 !important;
+}
+
+:host-context(body.light-theme) .act-tbl th,
+:host-context(body.theme-light) .act-tbl th,
+:host-context(.light-theme) .act-tbl th,
+:host-context(.theme-light) .act-tbl th {
+  color: #475569 !important; border-bottom-color: #E7EAF1 !important;
+}
+
+:host-context(body.light-theme) .act-tbl td,
+:host-context(body.theme-light) .act-tbl td,
+:host-context(.light-theme) .act-tbl td,
+:host-context(.theme-light) .act-tbl td {
+  color: #475569 !important; border-bottom-color: #F1F5F9 !important;
+}

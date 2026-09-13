@@ -15,3 +15,62 @@
 @media(max-width:767px) {
   .main-inner > div:nth-child(3) { grid-template-columns:1fr !important; }
 }
+
+/* ===== Light Mode ===== */
+:host-context(body.light-theme) .state-card,
+:host-context(body.theme-light) .state-card,
+:host-context(.light-theme) .state-card,
+:host-context(.theme-light) .state-card { background: #fff; border-color: #E2E8F4; }
+
+:host-context(body.light-theme) .adm-card-ttl,
+:host-context(body.theme-light) .adm-card-ttl,
+:host-context(.light-theme) .adm-card-ttl,
+:host-context(.theme-light) .adm-card-ttl { color: #0F172A; }
+
+:host-context(body.light-theme) .ai-disc-txt,
+:host-context(body.theme-light) .ai-disc-txt,
+:host-context(.light-theme) .ai-disc-txt,
+:host-context(.theme-light) .ai-disc-txt { color: #475569; }
+
+/* Most of this page's visual detail is inline `style` attributes on the
+   design's own markup (out of scope to convert to classes here); patch the
+   literal colors so they stay legible on the light background. */
+:host-context(body.light-theme) .main-inner [style*="color:#fff"],
+:host-context(body.theme-light) .main-inner [style*="color:#fff"],
+:host-context(.light-theme) .main-inner [style*="color:#fff"],
+:host-context(.theme-light) .main-inner [style*="color:#fff"] { color: #0F172A !important; }
+
+:host-context(body.light-theme) .main-inner [style*="color:#A8B2D1"],
+:host-context(body.theme-light) .main-inner [style*="color:#A8B2D1"],
+:host-context(.light-theme) .main-inner [style*="color:#A8B2D1"],
+:host-context(.theme-light) .main-inner [style*="color:#A8B2D1"] { color: #475569 !important; }
+
+:host-context(body.light-theme) .main-inner [style*="color:#6B7699"],
+:host-context(body.theme-light) .main-inner [style*="color:#6B7699"],
+:host-context(.light-theme) .main-inner [style*="color:#6B7699"],
+:host-context(.theme-light) .main-inner [style*="color:#6B7699"] { color: #5B6472 !important; }
+
+:host-context(body.light-theme) .main-inner [style*="color:#2BD4C7"],
+:host-context(body.theme-light) .main-inner [style*="color:#2BD4C7"],
+:host-context(.light-theme) .main-inner [style*="color:#2BD4C7"],
+:host-context(.theme-light) .main-inner [style*="color:#2BD4C7"] { color: #0F8A7F !important; }
+
+:host-context(body.light-theme) .main-inner [style*="color:#0FA99A"],
+:host-context(body.theme-light) .main-inner [style*="color:#0FA99A"],
+:host-context(.light-theme) .main-inner [style*="color:#0FA99A"],
+:host-context(.theme-light) .main-inner [style*="color:#0FA99A"] { color: #0A6F64 !important; }
+
+:host-context(body.light-theme) .main-inner [style*="color:#FFB400"],
+:host-context(body.theme-light) .main-inner [style*="color:#FFB400"],
+:host-context(.light-theme) .main-inner [style*="color:#FFB400"],
+:host-context(.theme-light) .main-inner [style*="color:#FFB400"] { color: #9A6700 !important; }
+
+:host-context(body.light-theme) .main-inner [style*="color:#A56BE0"],
+:host-context(body.theme-light) .main-inner [style*="color:#A56BE0"],
+:host-context(.light-theme) .main-inner [style*="color:#A56BE0"],
+:host-context(.theme-light) .main-inner [style*="color:#A56BE0"] { color: #6B27A5 !important; }
+
+:host-context(body.light-theme) .main-inner [style*="background:rgba(255,255,255,.08)"],
+:host-context(body.theme-light) .main-inner [style*="background:rgba(255,255,255,.08)"],
+:host-context(.light-theme) .main-inner [style*="background:rgba(255,255,255,.08)"],
+:host-context(.theme-light) .main-inner [style*="background:rgba(255,255,255,.08)"] { background: #E2E8F4 !important; }
