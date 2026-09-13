@@ -1,13 +1,58 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="it-page" dir="rtl">
+  <h1 class="sr-only">إدارة Monitoring</h1>
+
+  <div class="it-hdr">
+    <div>
+      <h2 class="it-ttl">إدارة Monitoring</h2>
+      <p class="it-sub">مراقبة الموارد في الوقت الفعلي — CPU · Memory · Disk · Network + تنبيهات تنبؤية</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">Monitoring</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"Monitoring\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="it-actions">
+      <button type="button" class="it-btn it-btn-ghost">قواعد التنبيه</button>
+      <button type="button" class="it-btn it-btn-primary">تصدير التقرير</button>
+    </div>
   </div>
-</div>
+
+  <div class="it-ai">
+    <div class="it-ai-ico">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
+    </div>
+    <div class="it-ai-body">
+      <div class="it-ai-lbl">AI Predictive</div>
+      <p class="it-ai-txt">AI يتنبأ بالإجهاد المحتمل على الموارد قبل وقوعه بساعات — تنبيه مبكر 94% <span class="it-ai-badge">كل الأنظمة طبيعية</span></p>
+    </div>
+  </div>
+
+  <div class="itmon-grid">
+    @for (g of gauges; track g.label) {
+      <div class="itmon-card">
+        <div class="itmon-ttl">{{ g.icon }} {{ g.label }}</div>
+        <div class="itmon-val" [style.color]="g.color">{{ g.displayValue }}<span class="itmon-unit">{{ g.unit }}</span></div>
+        <div class="itmon-bar"><div class="itmon-fill" [style.width.%]="g.value" [style.background]="g.color"></div></div>
+        <div class="itmon-sub">{{ g.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="it-tbl-card itmon-alerts-card">
+    <div class="it-tbl-hdr">
+      <span class="it-tbl-ttl">قواعد التنبيه</span>
+    </div>
+    <div class="itmon-alert-list">
+      @for (a of alertRules; track a.rule) {
+        <div class="itmon-alert-item" [style.background]="a.level === 'normal' ? 'rgba(15,169,154,.04)' : 'rgba(255,180,0,.04)'" [style.borderColor]="a.level === 'normal' ? 'rgba(15,169,154,.15)' : 'rgba(255,180,0,.15)'">
+          <div class="itmon-alert-dot" [style.background]="levelColor(a.level)" [style.boxShadow]="'0 0 6px ' + levelColor(a.level)"></div>
+          <div class="itmon-alert-body">
+            <div class="itmon-alert-rule">{{ a.rule }}</div>
+            <div class="itmon-alert-cond">{{ a.cond }}</div>
+          </div>
+          <span class="itmon-alert-status" [style.background]="a.level === 'normal' ? 'rgba(15,169,154,.1)' : 'rgba(255,180,0,.1)'" [style.color]="levelColor(a.level)">{{ a.status }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="it-foot">
+    <span>© 2026 وسيط AI · Monitoring</span>
+    <span>تحديث تلقائي كل 30 ثانية</span>
+  </div>
+</section>

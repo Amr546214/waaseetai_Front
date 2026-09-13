@@ -1,13 +1,102 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="it-page" dir="rtl">
+  <h1 class="sr-only">إدارة APIs</h1>
+
+  <div class="it-hdr">
+    <div>
+      <h2 class="it-ttl">إدارة APIs + التكاملات</h2>
+      <p class="it-sub">مراقبة نقاط API + التكاملات الخارجية + كشف الشذوذ</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">إدارة APIs</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"إدارة APIs\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="it-actions">
+      <button type="button" class="it-btn it-btn-ghost">توثيق API</button>
+      <button type="button" class="it-btn it-btn-primary">+ API جديد</button>
+    </div>
   </div>
-</div>
+
+  <div class="it-ai">
+    <div class="it-ai-ico">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
+    </div>
+    <div class="it-ai-body">
+      <div class="it-ai-lbl">AI Anomaly</div>
+      <p class="it-ai-txt">AI يراقب حركة API ويكشف الأنماط الشاذة واحتمالات الهجوم في الوقت الفعلي <span class="it-ai-badge">لا شذوذ حالياً</span></p>
+    </div>
+  </div>
+
+  <div class="it-kpi-grid">
+    @for (k of kpis; track k.label) {
+      <div class="it-kpi-card">
+        <div class="it-kpi-top">
+          <div class="it-kpi-ic" [style.background]="k.bg" [style.color]="k.color">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <span class="it-kpi-lbl">{{ k.label }}</span>
+        </div>
+        <div class="it-kpi-val" [style.color]="k.color">{{ k.value }}</div>
+        <div class="it-kpi-unit">{{ k.unit }}</div>
+        <div class="it-kpi-sub" [style.color]="k.color">{{ k.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="it-tabs">
+    @for (t of tabs; track t.key) {
+      <button type="button" class="it-tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
+    }
+  </div>
+
+  @if (activeTab() === 'integrations') {
+    <div class="it-tbl-card">
+      <div class="it-tbl-hdr">
+        <span class="it-tbl-ttl">التكاملات الخارجية</span>
+        <span class="it-tbl-meta">{{ integrations.length }} تكامل</span>
+      </div>
+      <div class="it-tbl-wrap">
+        <table class="it-tbl">
+          <thead><tr><th>التكامل</th><th>المزود</th><th>آخر مزامنة</th><th>الحالة</th></tr></thead>
+          <tbody>
+            @for (i of integrations; track i.name) {
+              <tr>
+                <td class="it-tbl-strong">{{ i.name }}</td>
+                <td>{{ i.provider }}</td>
+                <td style="font-size:11px">{{ i.lastSync }}</td>
+                <td>
+                  <span class="it-bdg" [style.background]="integrationStyle(i.status).bg" [style.color]="integrationStyle(i.status).color">{{ integrationStyle(i.status).label }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <div class="it-tbl-card">
+      <div class="it-tbl-hdr">
+        <span class="it-tbl-ttl">API Endpoints — الأكثر نشاطاً</span>
+        <span class="it-tbl-meta">247 نقطة</span>
+      </div>
+      <div class="it-tbl-wrap">
+        <table class="it-tbl">
+          <thead><tr><th>Method</th><th>Endpoint</th><th>الاستخدام/دقيقة</th><th>متوسط Latency</th><th>P99 Latency</th><th>Error Rate</th><th>الحالة</th></tr></thead>
+          <tbody>
+            @for (e of filteredEndpoints(); track e.path) {
+              <tr>
+                <td><span class="it-method" [style.background]="methodStyle(e.method).bg" [style.color]="methodStyle(e.method).color">{{ e.method }}</span></td>
+                <td class="it-tbl-strong" style="font-family:monospace;font-size:12px">{{ e.path }}</td>
+                <td style="font-weight:700;color:#2BD4C7">{{ e.usage | number }}</td>
+                <td [style.color]="e.status === 'healthy' ? '#0FA99A' : '#FFB400'">{{ e.avgLatency }}ms</td>
+                <td style="color:#6B7699">{{ e.p99Latency }}ms</td>
+                <td [style.color]="e.status === 'healthy' ? '#0FA99A' : '#FFB400'">{{ e.errorRate.toFixed(2) }}%</td>
+                <td><span class="it-bdg" [style.background]="statusStyle(e.status).bg" [style.color]="statusStyle(e.status).color">{{ statusLabel(e.status) }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <div class="it-foot">
+    <span>© 2026 وسيط AI · إدارة APIs</span>
+    <span>تحديث كل 30 ثانية</span>
+  </div>
+</section>

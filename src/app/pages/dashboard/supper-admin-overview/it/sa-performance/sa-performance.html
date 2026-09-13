@@ -1,13 +1,92 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="it-page" dir="rtl">
+  <h1 class="sr-only">إدارة Performance</h1>
+
+  <div class="it-hdr">
+    <div>
+      <h2 class="it-ttl">إدارة Performance</h2>
+      <p class="it-sub">مراقبة أداء التطبيق والخوادم في الوقت الفعلي — AI يكتشف الاختناقات قبل أن تؤثر على المستخدمين</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">إدارة Performance</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"إدارة Performance\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="it-actions">
+      <button type="button" class="it-btn it-btn-ghost">تقرير الأداء</button>
+      <button type="button" class="it-btn it-btn-primary">تحليل AI</button>
+    </div>
   </div>
-</div>
+
+  <div class="it-ai">
+    <div class="it-ai-ico">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
+    </div>
+    <div class="it-ai-body">
+      <div class="it-ai-lbl">AI Bottleneck</div>
+      <p class="it-ai-txt">AI يتتبع مقاييس الأداء باستمرار ويكتشف الاختناقات مبكراً قبل وصولها للمستخدمين <span class="it-ai-badge">اكتشف 2 اختناق هذا الأسبوع</span></p>
+    </div>
+  </div>
+
+  <div class="it-kpi-grid">
+    @for (k of kpis; track k.label) {
+      <div class="it-kpi-card">
+        <div class="it-kpi-top">
+          <div class="it-kpi-ic" [style.background]="k.bg" [style.color]="k.color">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <span class="it-kpi-lbl">{{ k.label }}</span>
+        </div>
+        <div class="it-kpi-val" [style.color]="k.color">{{ k.value }}</div>
+        <div class="it-kpi-unit">{{ k.unit }}</div>
+        <div class="it-kpi-sub" [style.color]="k.color">{{ k.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="itperf-wrap">
+    <div class="itperf-card">
+      <div class="itperf-ttl">استخدام الموارد</div>
+      @for (r of resourceUsage; track r.label) {
+        <div class="itperf-row">
+          <span class="itperf-row-lbl">{{ r.label }}</span>
+          <div class="itperf-bar"><div class="itperf-fill" [style.width.%]="r.value" [style.background]="r.color"></div></div>
+          <span class="itperf-val" [style.color]="r.color">{{ r.displayValue }}</span>
+        </div>
+      }
+    </div>
+    <div class="itperf-card">
+      <div class="itperf-ttl">توزيع Response Time</div>
+      @for (r of responseDistribution; track r.label) {
+        <div class="itperf-row">
+          <span class="itperf-row-lbl">{{ r.label }}</span>
+          <div class="itperf-bar"><div class="itperf-fill" [style.width.%]="r.value" [style.background]="r.color"></div></div>
+          <span class="itperf-val" [style.color]="r.color">{{ r.displayValue }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="it-tbl-card">
+    <div class="it-tbl-hdr">
+      <span class="it-tbl-ttl">أداء الخدمات — آخر 24 ساعة</span>
+      <span class="it-tbl-meta">تحديث كل دقيقة</span>
+    </div>
+    <div class="it-tbl-wrap">
+      <table class="it-tbl">
+        <thead><tr><th>الخدمة</th><th>P50</th><th>P95</th><th>Error Rate</th><th>Throughput/min</th><th>الحالة</th></tr></thead>
+        <tbody>
+          @for (s of services; track s.name) {
+            <tr>
+              <td class="it-tbl-strong">{{ s.name }}</td>
+              <td [style.color]="s.p50Color">{{ s.p50 }}</td>
+              <td [style.color]="s.p95Color">{{ s.p95 }}</td>
+              <td [style.color]="s.errorColor">{{ s.errorRate }}</td>
+              <td>{{ s.throughput }}</td>
+              <td><span class="it-bdg" [style.background]="statusInfo(s.status).bg" [style.color]="statusInfo(s.status).color">{{ statusInfo(s.status).label }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="it-foot">
+    <span>© 2026 وسيط AI · إدارة Performance</span>
+    <span>P95: 142ms | CPU: 67% | Errors: 0.02% | Throughput: 3,240 req/min</span>
+  </div>
+</section>

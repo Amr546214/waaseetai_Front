@@ -1,13 +1,82 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="it-page" dir="rtl">
+  <h1 class="sr-only">CDN + الأصول</h1>
+
+  <div class="it-hdr">
+    <div>
+      <h2 class="it-ttl">إدارة CDN + الأصول</h2>
+      <p class="it-sub">إدارة شبكة توصيل المحتوى وتحسين أصول وسيط AI — AI يحسن Cache وإعدادات التوزيع الجغرافي</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">CDN + الأصول</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"CDN + الأصول\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="it-actions">
+      <button type="button" class="it-btn it-btn-ghost">مسح Cache</button>
+      <button type="button" class="it-btn it-btn-primary">نشر CDN</button>
+    </div>
   </div>
-</div>
+
+  <div class="it-ai">
+    <div class="it-ai-ico">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
+    </div>
+    <div class="it-ai-body">
+      <div class="it-ai-lbl">AI Cache</div>
+      <p class="it-ai-txt">AI يحلل أنماط الاستخدام الجغرافي ويضبط سياسات Cache تلقائياً لتقليل الـ Latency <span class="it-ai-badge">Cache Hit Rate: 94.8%</span></p>
+    </div>
+  </div>
+
+  <div class="it-kpi-grid">
+    @for (k of kpis; track k.label) {
+      <div class="it-kpi-card">
+        <div class="it-kpi-top">
+          <div class="it-kpi-ic" [style.background]="k.bg" [style.color]="k.color">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <span class="it-kpi-lbl">{{ k.label }}</span>
+        </div>
+        <div class="it-kpi-val" [style.color]="k.color">{{ k.value }}</div>
+        <div class="it-kpi-unit">{{ k.unit }}</div>
+        <div class="it-kpi-sub" [style.color]="k.color">{{ k.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="itcdn-map-card">
+    <div class="itcdn-map-ttl">نقاط التواجد الجغرافية — أداء كل منطقة</div>
+    <div class="itcdn-pop-grid">
+      @for (p of pops; track p.name) {
+        <div class="itcdn-pop-item">
+          <div class="itcdn-pop-name">{{ p.name }} {{ p.flag }}</div>
+          <div class="itcdn-pop-lat" [style.color]="p.latencyColor">{{ p.latency }}</div>
+          <div class="itcdn-pop-hit">Cache: {{ p.cacheHit }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="it-tbl-card">
+    <div class="it-tbl-hdr">
+      <span class="it-tbl-ttl">أداء CDN حسب نوع الأصل</span>
+      <span class="it-tbl-meta">آخر 24 ساعة</span>
+    </div>
+    <div class="it-tbl-wrap">
+      <table class="it-tbl">
+        <thead><tr><th>نوع الأصل</th><th>Cache Hit</th><th>الحجم المنقول</th><th>متوسط Latency</th><th>عدد الطلبات</th><th>الحالة</th></tr></thead>
+        <tbody>
+          @for (a of assets; track a.type) {
+            <tr>
+              <td class="it-tbl-strong">{{ a.type }}</td>
+              <td [style.color]="a.cacheHitColor">{{ a.cacheHit }}</td>
+              <td>{{ a.transferred }}</td>
+              <td [style.color]="a.latencyColor">{{ a.latency }}</td>
+              <td class="itcdn-req">{{ a.requests }}</td>
+              <td><span class="it-bdg" [style.background]="statusInfo(a.status).bg" [style.color]="statusInfo(a.status).color">{{ statusInfo(a.status).label }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="it-foot">
+    <span>© 2026 وسيط AI · إدارة CDN + الأصول</span>
+    <span>Cache Hit: 94.8% | Avg Latency: 18ms | Transfer: 48.2 TB/يوم | 12 PoP</span>
+  </div>
+</section>
