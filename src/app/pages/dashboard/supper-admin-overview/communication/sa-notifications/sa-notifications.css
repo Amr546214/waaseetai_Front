@@ -1,7 +1,7 @@
 .san-page{padding:22px 24px;min-height:calc(100vh - 56px);direction:rtl}
 .san-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
-.san-ttl{font-size:20px;font-weight:900;color:#fff;margin:0 0 3px}
-.san-sub{font-size:12px;color:#6B7699;margin:0}
+.san-ttl{font-size:22px;font-weight:900;color:#fff;margin:0}
+.san-sub{font-size:12px;color:#6B7699;margin-top:2px}
 .san-actions{display:flex;gap:8px;flex-wrap:wrap}
 
 .san-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:700;padding:0 16px;height:36px;border-radius:9px;border:1px solid transparent;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -16,6 +16,7 @@
 .san-stat-l{font-size:10px;color:#6B7699;font-weight:700}
 
 .san-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.san-card:last-child{margin-bottom:0}
 .san-card-hdr{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .san-card-ttl{font-size:14px;font-weight:800;color:#fff;margin-bottom:14px}
 .san-card-hdr .san-card-ttl{margin-bottom:0}
@@ -150,7 +151,7 @@
 :host-context(body.light-theme) .san-stat,
 :host-context(body.theme-light) .san-stat,
 :host-context(.light-theme) .san-stat,
-:host-context(.theme-light) .san-stat{background:rgba(7,13,36,.03);border-color:#E7EAF1}
+:host-context(.theme-light) .san-stat{background:#F8FAFC;border-color:#E7EAF1}
 
 :host-context(body.light-theme) .san-ch-btn,
 :host-context(body.theme-light) .san-ch-btn,

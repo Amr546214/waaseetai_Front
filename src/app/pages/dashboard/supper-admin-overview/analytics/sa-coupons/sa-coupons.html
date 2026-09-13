@@ -40,7 +40,7 @@
           <div class="scp-coupon-actions">
             @if (!c.expired) {
               <button type="button" class="scp-btn scp-btn-gh scp-btn-xs">تعديل</button>
-              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" style="color:#FF8C69" (click)="toggleCoupon(c)">{{ c.active ? 'إيقاف' : 'تفعيل' }}</button>
+              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs txt-coral" (click)="toggleCoupon(c)">{{ c.active ? 'إيقاف' : 'تفعيل' }}</button>
             } @else {
               <button type="button" class="scp-btn scp-btn-gh scp-btn-xs">نسخ</button>
             }
@@ -74,10 +74,10 @@
       <div class="scp-card">
         <div class="scp-card-ttl-sm">إحصاءات الكوبونات</div>
         <div class="scp-stat-list">
-          <div class="scp-stat-row"><span>إجمالي الاستخدام هذا الشهر</span><span style="color:#2BD4C7;font-weight:800">326 مرة</span></div>
-          <div class="scp-stat-row"><span>قيمة الخصومات الممنوحة</span><span style="color:#FF8C69;font-weight:800">12,840 ر.س</span></div>
-          <div class="scp-stat-row"><span>أكثر كوبون استخداماً</span><span style="color:#fff;font-weight:800">WASEET20</span></div>
-          <div class="scp-stat-row"><span>معدل التحويل بعد الكوبون</span><span style="color:#0FA99A;font-weight:800">68%</span></div>
+          <div class="scp-stat-row"><span>إجمالي الاستخدام هذا الشهر</span><span style="font-weight:800" class="txt-teal">326 مرة</span></div>
+          <div class="scp-stat-row"><span>قيمة الخصومات الممنوحة</span><span style="font-weight:800" class="txt-coral">12,840 ر.س</span></div>
+          <div class="scp-stat-row"><span>أكثر كوبون استخداماً</span><span style="font-weight:800" class="txt-white">WASEET20</span></div>
+          <div class="scp-stat-row"><span>معدل التحويل بعد الكوبون</span><span style="font-weight:800" class="txt-green">68%</span></div>
         </div>
       </div>
     </div>

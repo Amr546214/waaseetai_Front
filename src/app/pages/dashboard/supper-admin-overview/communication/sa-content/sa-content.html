@@ -39,9 +39,9 @@
         <button type="button" class="sco-btn sco-btn-gh">حفظ مسودة</button>
         <div class="sco-editor-note">
           @if (savedMsg()) {
-            <span style="color:#0FA99A;font-weight:700">{{ savedMsg() }}</span>
+            <span style="font-weight:700" class="txt-green">{{ savedMsg() }}</span>
           } @else if (dirty()) {
-            <span style="color:#FFB400">● تغييرات غير محفوظة</span>
+            <span class="txt-amber">● تغييرات غير محفوظة</span>
           } @else {
             <span>التعديلات تُنشر فوراً للمستخدمين</span>
           }

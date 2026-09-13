@@ -1,10 +1,10 @@
 .scp-page{padding:22px 24px;min-height:calc(100vh - 56px);direction:rtl}
 .scp-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .scp-hdr > div:first-child{flex:1}
-.scp-ttl{font-size:20px;font-weight:900;color:#fff;margin:0}
+.scp-ttl{font-size:22px;font-weight:900;color:#fff;margin:0}
 .scp-sub{font-size:12px;color:#6B7699;margin-top:2px}
 
-.scp-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:700;padding:0 16px;height:36px;border-radius:9px;border:1px solid transparent;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+.scp-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;padding:0 14px;height:36px;border-radius:9px;border:1px solid transparent;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
 .scp-btn-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#fff;font-weight:800}
 .scp-btn-gh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#A8B2D1}
 .scp-btn-gh:hover{background:rgba(255,255,255,.1);color:#fff}
@@ -29,7 +29,6 @@
 .scp-layout{display:grid;grid-template-columns:1fr 300px;gap:16px}
 
 .scp-coupon{padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.scp-coupon:last-child{margin-bottom:0}
 .scp-coupon.expired{opacity:.6}
 .scp-code{font-family:monospace;font-size:16px;font-weight:900;padding:6px 12px;background:rgba(43,212,199,.08);border:1px dashed rgba(43,212,199,.3);border-radius:7px;color:#2BD4C7;min-width:120px;text-align:center}
 .scp-code.expired{color:#6B7699;border-color:rgba(107,118,153,.3)}
@@ -39,7 +38,7 @@
 .scp-discount{text-align:left}
 .scp-discount-val{font-size:14px;font-weight:800}
 .scp-discount-unit{font-size:10px;color:#6B7699}
-.scp-coupon-actions{display:flex;flex-direction:column;gap:4px}
+.scp-coupon-actions{display:flex;flex-direction:column;gap:4px;margin-right:8px}
 
 .scp-field-lbl{font-size:11px;font-weight:800;color:#6B7699;margin-bottom:4px}
 .scp-input{width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;color:#fff;font-family:inherit;font-size:12px;margin-bottom:10px}
@@ -51,7 +50,7 @@
 .scp-stat-row{display:flex;justify-content:space-between;color:#A8B2D1}
 
 @media(max-width:1000px){.scp-layout{grid-template-columns:1fr}}
-@media(max-width:767px){.scp-page{padding:14px 16px}.scp-kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.scp-page{padding:14px 16px}.scp-kpis{grid-template-columns:1fr 1fr}}
 
 /* ============================================================
    Light Mode Overrides
@@ -130,11 +129,12 @@
 :host-context(body.light-theme) .scp-kpi,
 :host-context(body.theme-light) .scp-kpi,
 :host-context(.light-theme) .scp-kpi,
-:host-context(.theme-light) .scp-kpi,
+:host-context(.theme-light) .scp-kpi{background:#f8fafc}
+
 :host-context(body.light-theme) .scp-coupon,
 :host-context(body.theme-light) .scp-coupon,
 :host-context(.light-theme) .scp-coupon,
-:host-context(.theme-light) .scp-coupon{background:rgba(7,13,36,.03);border-color:#E7EAF1}
+:host-context(.theme-light) .scp-coupon{background:#f8fafc;border-color:#E7EAF1}
 
 :host-context(body.light-theme) .scp-btn-gh,
 :host-context(body.theme-light) .scp-btn-gh,
@@ -151,12 +151,3 @@
 :host-context(.light-theme) .scp-input,
 :host-context(.theme-light) .scp-input{background:#fff;border-color:#CBD5E1;color:#1E293B}
 
-:host-context(body.light-theme) [style*="color:#A8B2D1"],
-:host-context(body.theme-light) [style*="color:#A8B2D1"],
-:host-context(.light-theme) [style*="color:#A8B2D1"],
-:host-context(.theme-light) [style*="color:#A8B2D1"]{color:#475569}
-
-:host-context(body.light-theme) [style*="color:#6B7699"],
-:host-context(body.theme-light) [style*="color:#6B7699"],
-:host-context(.light-theme) [style*="color:#6B7699"],
-:host-context(.theme-light) [style*="color:#6B7699"]{color:#64748B}
