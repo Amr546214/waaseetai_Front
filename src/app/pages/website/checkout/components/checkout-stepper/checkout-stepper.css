@@ -22,14 +22,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 900;
   flex-shrink: 0;
-  background: var(--crd-bg);
-  border: 2px solid var(--crd-bd);
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid var(--border);
   color: var(--txt-3);
   transition: all 0.25s ease;
 }
@@ -37,20 +37,19 @@
 .step.active .step-circle {
   background: var(--grad);
   border-color: transparent;
-  color: #fff;
-  box-shadow: 0 0 12px rgba(43, 212, 199, 0.35);
+  color: #070d24;
 }
 
 .step.completed .step-circle {
-  background: var(--teal);
-  border-color: transparent;
-  color: #fff;
+  background: rgba(43, 212, 199, 0.15);
+  border-color: rgba(43, 212, 199, 0.4);
+  color: var(--teal);
 }
 
 .step-label {
   margin-inline-start: 10px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--txt-3);
   white-space: nowrap;
   transition: color 0.25s ease;
@@ -58,23 +57,23 @@
 
 .step.active .step-label {
   color: var(--txt);
+  font-weight: 800;
 }
 
 .step.completed .step-label {
-  color: var(--txt-2);
+  color: var(--teal);
 }
 
 .step-connector {
   flex: 1;
   height: 2px;
-  margin: 0 12px;
-  background: var(--crd-bd);
-  border-radius: 2px;
+  margin: 0 4px;
+  background: var(--border);
   transition: background 0.25s ease;
 }
 
 .step-connector.filled {
-  background: var(--teal);
+  background: rgba(43, 212, 199, 0.4);
 }
 
 /* ── Responsive ── */
@@ -114,4 +113,13 @@
   .step-connector {
     display: none;
   }
+}
+
+/* === LIGHT THEME OVERRIDES === */
+:host-context(body.light-theme) .step-circle,
+:host-context(body.theme-light) .step-circle,
+:host-context(.light-theme) .step-circle,
+:host-context(.theme-light) .step-circle {
+  background: #f0f4fa;
+  border-color: #cbd5e1;
 }

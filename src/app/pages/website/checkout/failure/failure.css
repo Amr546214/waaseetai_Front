@@ -4,7 +4,7 @@
 }
 
 .checkout-container {
-  max-width: 640px;
+  max-width: 520px;
   margin: 0 auto;
 }
 
@@ -46,15 +46,16 @@
 
 /* === TITLES === */
 .failure-title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--txt);
   margin: 0 0 8px;
 }
 
 .failure-subtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--txt-2);
+  line-height: 1.7;
   margin: 0 0 24px;
 }
 

@@ -83,7 +83,7 @@
 /* === NOTES (copied from P-BF-002.html) === */
 .notes-card{background:rgba(217,138,11,.04);border:1px solid rgba(217,138,11,.15);border-radius:14px;padding:14px 16px;margin-bottom:20px;display:flex;gap:10px}
 .notes-ico{width:30px;height:30px;border-radius:8px;background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.notes-ico svg{width:13px;height:13px;color:#d98a0b}
+.notes-ico svg{width:13px;height:13px;color:var(--kahr)}
 .notes-txt{font-size:12px;color:var(--txt-2);line-height:1.7}
 .notes-txt strong{color:var(--txt);font-weight:800}
 
