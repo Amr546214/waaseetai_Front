@@ -1,1 +1,173 @@
-<p>blog works!</p>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="bl-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="bl-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+<symbol id="bl-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="bl-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="bl-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+<symbol id="bl-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="bl-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+</defs></svg>
+
+<div class="page-wrap blog-page">
+  <nav class="breadcrumb" aria-label="مسار التنقل">
+    <a routerLink="/">الرئيسية</a>
+    <svg class="breadcrumb-sep" aria-hidden="true"><use href="#bl-chevron"></use></svg>
+    <span>المدونة</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="blog-hero">
+    <div class="blog-hero-inner">
+      <div>
+        <div class="blog-hero-label"><svg aria-hidden="true"><use href="#bl-file"></use></svg> مدونة وسيط AI</div>
+        <h1 class="blog-hero-title">أفكار ونصائح<br>لكل أطراف السوق</h1>
+        <p class="blog-hero-sub">مقالات متخصصة لمقدمي الخدمات والطالبين والوسطاء — نشارك ما يساعدك تنمو وتنجح في سوق الخدمات المهنية الرقمي</p>
+        <div class="hero-facts">
+          <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-file"></use></svg> {{ posts.length }} مقالة</div>
+          <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-clock"></use></svg> نشرة أسبوعية</div>
+          <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-star"></use></svg> محتوى موثوق من الفريق</div>
+        </div>
+      </div>
+      <div class="search-card">
+        <div class="search-card-title">ابحث في المدونة</div>
+        <div class="search-wrap">
+          <input class="search-input" type="search" placeholder="AI Trust Score، التسعير، التسليم..." [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)">
+          <div class="search-ico"><svg aria-hidden="true"><use href="#bl-search"></use></svg></div>
+        </div>
+        <div class="quick-tags-lbl">بحث سريع</div>
+        <div class="quick-tags">
+          @for (tag of ['AI Trust Score', 'التسعير', 'التسليم', 'نصائح', 'حساب الضمان']; track tag) {
+            <span class="qtag" (click)="setQuickTag(tag)" tabindex="0" role="button" (keydown.enter)="setQuickTag(tag)">{{ tag }}</span>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORY STRIP -->
+  <div class="cat-strip" role="tablist" aria-label="تصفية المقالات">
+    <button class="cat-btn" [class.active]="activeCategory() === 'الكل'" type="button" role="tab" [attr.aria-selected]="activeCategory() === 'الكل'" (click)="setCategory('الكل')">
+      <svg aria-hidden="true"><use href="#bl-file"></use></svg> الكل <span class="cat-count">{{ posts.length }}</span>
+    </button>
+    @for (cat of categories(); track cat.name) {
+      <button class="cat-btn" [class.active]="activeCategory() === cat.name" type="button" role="tab" [attr.aria-selected]="activeCategory() === cat.name" (click)="setCategory(cat.name)">
+        {{ cat.name }} <span class="cat-count">{{ cat.count }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- MAIN + SIDEBAR -->
+  <div class="blog-main">
+    <div>
+      <!-- FEATURED -->
+      @if (featuredPost(); as fp) {
+        <a [routerLink]="['/blog', fp.slug]" class="hero-post">
+          <div class="hero-post-thumb">
+            <div class="hero-post-thumb-ico"><svg aria-hidden="true"><use href="#bl-trust-ai"></use></svg></div>
+            <div class="hero-post-badges">
+              @if (fp.featured) { <span class="badge badge-feat">مقال مميز</span> }
+              <span class="badge badge-ai" [class]="categoryColorClass(fp.categoryColor)">{{ fp.category }}</span>
+            </div>
+            <div class="hero-post-time"><svg aria-hidden="true"><use href="#bl-clock"></use></svg> {{ fp.readTime }} قراءة</div>
+          </div>
+          <div class="hero-post-body">
+            <div class="hero-post-cat">{{ fp.category }}</div>
+            <h2 class="hero-post-title">{{ fp.title }}</h2>
+            <p class="hero-post-excerpt">{{ fp.excerpt }}</p>
+            <div class="hero-post-meta">
+              <div class="author-row">
+                <div class="author-av">{{ fp.authorInitial }}</div>
+                <div>
+                  <div class="author-name">{{ fp.authorName }}</div>
+                  <div class="author-date">{{ fp.date }}</div>
+                </div>
+              </div>
+              <span class="read-more">اقرأ المقال <svg aria-hidden="true" style="transform:rotate(180deg)"><use href="#bl-chevron"></use></svg></span>
+            </div>
+          </div>
+        </a>
+      }
+
+      <!-- POSTS LIST -->
+      @if (filteredPosts().length) {
+        <div class="posts-list">
+          @for (p of filteredPosts(); track p.slug) {
+            <a [routerLink]="['/blog', p.slug]" class="post-row">
+              <div class="post-row-thumb"><svg aria-hidden="true"><use href="#bl-trust-ai"></use></svg></div>
+              <div class="post-row-body">
+                <div class="post-row-cat" [class]="categoryColorClass(p.categoryColor)">{{ p.category }}</div>
+                <div class="post-row-title">{{ p.title }}</div>
+                <div class="post-row-meta">
+                  <div class="post-row-av">{{ p.authorInitial }}</div>
+                  {{ p.authorName }} ·
+                  <svg aria-hidden="true"><use href="#bl-clock"></use></svg>
+                  {{ p.readTime }} · {{ p.date }}
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">لا توجد مقالات مطابقة لبحثك</div>
+      }
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="blog-side">
+      <div class="ai-side">
+        <div class="ai-side-hd">
+          <div class="ai-side-ico"><svg aria-hidden="true"><use href="#bl-trust-ai"></use></svg></div>
+          <div class="ai-side-label">رؤى الذكاء الاصطناعي</div>
+        </div>
+        <div class="ai-side-txt">المقالات الأكثر قيمة لمقدمي الخدمات هذا الأسبوع تتمحور حول <strong>AI Trust Score</strong> و<strong>استراتيجيات التسعير</strong></div>
+        <div class="ai-side-stat">
+          <div class="ai-stat"><div class="ai-stat-val">٪94</div><div class="ai-stat-lbl">رضا القراء</div></div>
+          <div class="ai-stat"><div class="ai-stat-val">{{ posts.length }}+</div><div class="ai-stat-lbl">مقالة</div></div>
+          <div class="ai-stat"><div class="ai-stat-val">1200+</div><div class="ai-stat-lbl">مشترك</div></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-hd">
+          <div class="side-hd-ico ico-kahr"><svg aria-hidden="true"><use href="#bl-star"></use></svg></div>
+          <div class="side-hd-title">الأكثر قراءة</div>
+        </div>
+        @for (p of topPosts(); track p.slug; let i = $index) {
+          <a [routerLink]="['/blog', p.slug]" class="top-item">
+            <div class="top-num">{{ (i + 1).toString().padStart(2, '0') }}</div>
+            <div class="top-info">
+              <div class="top-cat" [class]="categoryColorClass(p.categoryColor)">{{ p.category }}</div>
+              <div class="top-title">{{ p.title }}</div>
+              <div class="top-read">{{ p.readTime }} قراءة</div>
+            </div>
+          </a>
+        }
+      </div>
+
+      <div class="side-card">
+        <div class="side-hd">
+          <div class="side-hd-ico ico-blue"><svg aria-hidden="true"><use href="#bl-file"></use></svg></div>
+          <div class="side-hd-title">النشرة الأسبوعية</div>
+        </div>
+        <div class="nl-desc">مقال مفيد كل أسبوع مباشرة إلى بريدك — لا إزعاج، إلغاء الاشتراك بضغطة</div>
+        <input type="email" class="nl-input" placeholder="بريدك الإلكتروني">
+        <button type="button" class="nl-btn" disabled title="قريبًا">اشترك مجاناً</button>
+        <div class="nl-note">1,200+ مشترك · أسبوعي فقط</div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-hd">
+          <div class="side-hd-ico ico-teal"><svg aria-hidden="true"><use href="#bl-tag"></use></svg></div>
+          <div class="side-hd-title">الموضوعات</div>
+        </div>
+        <div class="tags-cloud">
+          @for (tag of allTags(); track tag) {
+            <span class="t" (click)="setQuickTag(tag)" tabindex="0" role="button" (keydown.enter)="setQuickTag(tag)">{{ tag }}</span>
+          }
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>

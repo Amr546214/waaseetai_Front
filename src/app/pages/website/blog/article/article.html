@@ -1,0 +1,171 @@
+<div class="bg-grid" aria-hidden="true"></div>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="bart-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="bart-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="bart-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+<symbol id="bart-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+</defs></svg>
+
+<div class="page-wrap blog-article-page">
+  @if (post(); as p) {
+    <main class="container">
+      <nav class="breadcrumb" aria-label="مسار التنقل">
+        <a routerLink="/">الرئيسية</a>
+        <svg class="breadcrumb-sep" aria-hidden="true"><use href="#bart-chevron"></use></svg>
+        <a routerLink="/blog">المدونة</a>
+        <svg class="breadcrumb-sep" aria-hidden="true"><use href="#bart-chevron"></use></svg>
+        <span>{{ p.category }}</span>
+      </nav>
+
+      <!-- ARTICLE HERO -->
+      <header class="article-hero">
+        <div class="article-cats">
+          <span class="article-cat" [class]="categoryColorClass(p.categoryColor)">{{ p.category }}</span>
+          @if (p.featured) {
+            <span class="article-cat cat-featured">مقال مميز</span>
+          }
+        </div>
+        <h1 class="article-title">{{ p.title }}</h1>
+        <p class="article-excerpt">{{ p.excerpt }}</p>
+        <div class="article-meta">
+          <div class="author-block">
+            <div class="author-av">{{ p.authorInitial }}</div>
+            <div>
+              <div class="author-name">{{ p.authorName }}</div>
+              <div class="author-role">{{ p.authorRole }}</div>
+            </div>
+          </div>
+          <div class="meta-sep"></div>
+          <div class="meta-item"><svg aria-hidden="true"><use href="#bart-clock"></use></svg> {{ p.readTime }} قراءة</div>
+          <div class="meta-item">{{ p.date }}</div>
+        </div>
+      </header>
+
+      <!-- COVER -->
+      <div class="article-cover">
+        <div class="cover-inner">
+          <div class="cover-ico"><svg aria-hidden="true"><use href="#bart-trust-ai"></use></svg></div>
+          <div class="cover-lbl">{{ p.category }}</div>
+        </div>
+      </div>
+
+      <div class="article-layout">
+        <!-- CONTENT -->
+        <article>
+          <div class="article-body">
+            @for (section of p.content; track $index) {
+              <div [id]="'s' + $index">
+                @if (section.heading) {
+                  <h2>{{ section.heading }}</h2>
+                }
+                @if (section.paragraphs) {
+                  @for (para of section.paragraphs; track para) {
+                    <p>{{ para }}</p>
+                  }
+                }
+                @if (section.list) {
+                  <ul>
+                    @for (item of section.list; track item) {
+                      <li>{{ item }}</li>
+                    }
+                  </ul>
+                }
+                @if (section.orderedList) {
+                  <ol>
+                    @for (item of section.orderedList; track item) {
+                      <li>{{ item }}</li>
+                    }
+                  </ol>
+                }
+                @if (section.quote) {
+                  <blockquote>{{ section.quote }}</blockquote>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- ARTICLE END -->
+          <div class="article-end">
+            <div class="tags-label">الموضوعات</div>
+            <div class="article-tags">
+              @for (tag of p.tags; track tag) {
+                <span class="art-tag">{{ tag }}</span>
+              }
+            </div>
+
+            <div class="author-card">
+              <div class="author-card-av">{{ p.authorInitial }}</div>
+              <div>
+                <div class="author-card-name">{{ p.authorName }}</div>
+                <div class="author-card-role">{{ p.authorRole }}</div>
+                <div class="author-card-bio">تكتب بانتظام في مدونة وسيط AI عن سوق الخدمات المهنية وتقنيات الذكاء الاصطناعي.</div>
+              </div>
+            </div>
+
+            @if (related().length) {
+              <div class="related-label">مقالات ذات صلة</div>
+              <div class="related-grid">
+                @for (r of related(); track r.slug) {
+                  <a [routerLink]="['/blog', r.slug]" class="related-card">
+                    <div class="related-thumb"><svg aria-hidden="true"><use href="#bart-trust-ai"></use></svg></div>
+                    <div class="related-body">
+                      <div class="related-cat" [class]="categoryColorClass(r.categoryColor)">{{ r.category }}</div>
+                      <div class="related-title">{{ r.title }}</div>
+                      <div class="related-read"><svg aria-hidden="true"><use href="#bart-clock"></use></svg> {{ r.readTime }}</div>
+                    </div>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        </article>
+
+        <!-- SIDEBAR -->
+        <aside class="article-side">
+          @if (tocItems().length) {
+            <div class="toc-card">
+              <div class="toc-title">محتوى المقال</div>
+              <div class="toc-list">
+                @for (item of tocItems(); track item.id; let i = $index) {
+                  <div class="toc-item" (click)="scrollToSection(item.id)" tabindex="0" role="button" (keydown.enter)="scrollToSection(item.id)">
+                    <span class="toc-item-num">{{ (i + 1).toString().padStart(2, '0') }}</span> {{ item.title }}
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="cta-card">
+            <div class="cta-card-ico"><svg aria-hidden="true"><use href="#bart-trust-ai"></use></svg></div>
+            <div class="cta-card-title">جاهز تعرض خدماتك؟</div>
+            <div class="cta-card-sub">سجّل كمقدم خدمة وابدأ ببناء AI Trust Score الخاص بك مجاناً</div>
+            <a routerLink="/auth/register" class="cta-card-btn">سجّل مجاناً الآن</a>
+          </div>
+
+          <div class="side-card">
+            <div class="side-hd">
+              <div class="side-hd-ico"><svg aria-hidden="true"><use href="#bart-star"></use></svg></div>
+              <div class="side-hd-title">الأكثر قراءة</div>
+            </div>
+            <div class="side-links">
+              @for (r of related(); track r.slug) {
+                <a [routerLink]="['/blog', r.slug]" class="side-link">{{ r.title }}</a>
+              }
+              <a routerLink="/blog" class="side-link">تصفح كل المقالات</a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  } @else {
+    <main class="container not-found">
+      <h1>المقال غير موجود</h1>
+      <p>لم نتمكن من العثور على هذا المقال — ربما تم نقله أو حذفه.</p>
+      <a routerLink="/blog" class="back-link">
+        <svg aria-hidden="true" style="width:12px;height:12px;transform:rotate(180deg)"><use href="#bart-chevron"></use></svg>
+        العودة للمدونة
+      </a>
+    </main>
+  }
+</div>
