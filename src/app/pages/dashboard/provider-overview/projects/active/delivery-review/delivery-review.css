@@ -36,7 +36,7 @@ button{font-family:inherit}
 
 /* Member tag (company view) */
 .from-member{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.16);border-radius:10px;margin-bottom:16px}
-.from-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2B7FFF,#1A5FCC);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0}
+.from-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2B7FFF,#1A5FCC);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#070D24;flex-shrink:0}
 .from-body{flex:1;min-width:0}
 .from-name{font-size:13px;font-weight:700;color:#fff}
 .from-spec{font-size:11px;color:#6B7699}
@@ -64,13 +64,13 @@ button{font-family:inherit}
 .dr-note b{color:#D98A0B}
 
 /* Decision card (company view) */
-.decision-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;margin-bottom:16px}
+.decision-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;margin-bottom:16px}
 .status-info{display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.16);border-radius:10px;margin-bottom:14px;font-size:12.5px;color:#A8B2D1}
 .status-info svg{color:#5DA0FF;flex-shrink:0}
 .btn-follow{width:100%;padding:13px;background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.26);border-radius:10px;color:#5DA0FF;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
 .btn-follow:hover{background:rgba(43,127,255,.16)}
 .btn-follow svg{width:16px;height:16px}
-.btn-return{width:100%;padding:12px;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.24);border-radius:10px;color:#D98A0B;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-return{width:100%;padding:13px;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.24);border-radius:10px;color:#D98A0B;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
 .btn-return:hover{background:rgba(255,180,0,.14)}
 .btn-return svg{width:15px;height:15px}
 .decision-note{margin-top:12px;font-size:11px;color:#6B7699;line-height:1.65}

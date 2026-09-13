@@ -40,7 +40,7 @@
       <span class="text-[#4A5568] text-[10px] breadcrumb-sep" aria-hidden="true">&#8249;</span>
       <a routerLink="/provider-overview/explore-requests">استكشاف الطلبات</a>
       <span class="text-[#4A5568] text-[10px] breadcrumb-sep" aria-hidden="true">&#8249;</span>
-      <span style="color:#A8B2D1;font-weight:600">كتابة العرض</span>
+      <span style="font-weight:600" class="txt-slate">كتابة العرض</span>
     </nav>
 
     <!-- STEPPER -->
@@ -52,7 +52,7 @@
         </div>
         <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">كتابة العرض</div>
       </div>
-      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] my-[15px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 1" [class.from-\[\#2BD4C7\]]="activeStep() > 1" [class.to-\[\#2B7FFF\]]="activeStep() > 1" aria-hidden="true"></div>
+      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] mt-[15px] mb-[22px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 1" [class.from-\[\#2BD4C7\]]="activeStep() > 1" [class.to-\[\#2B7FFF\]]="activeStep() > 1" aria-hidden="true"></div>
 
       <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 2" [class.done]="activeStep() > 2" role="listitem">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">
@@ -61,7 +61,7 @@
         </div>
         <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">المراحل</div>
       </div>
-      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] my-[15px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 2" [class.from-\[\#2BD4C7\]]="activeStep() > 2" [class.to-\[\#2B7FFF\]]="activeStep() > 2" aria-hidden="true"></div>
+      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] mt-[15px] mb-[22px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 2" [class.from-\[\#2BD4C7\]]="activeStep() > 2" [class.to-\[\#2B7FFF\]]="activeStep() > 2" aria-hidden="true"></div>
 
       <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 3" [class.done]="activeStep() > 3" role="listitem">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">
@@ -70,7 +70,7 @@
         </div>
         <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">مراجعة AI</div>
       </div>
-      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] my-[15px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 3" [class.from-\[\#2BD4C7\]]="activeStep() > 3" [class.to-\[\#2B7FFF\]]="activeStep() > 3" aria-hidden="true"></div>
+      <div class="flex-1 h-[2px] bg-[rgba(255,255,255,.08)] mt-[15px] mb-[22px] min-w-[16px] step-line" [class.bg-gradient-to-r]="activeStep() > 3" [class.from-\[\#2BD4C7\]]="activeStep() > 3" [class.to-\[\#2B7FFF\]]="activeStep() > 3" aria-hidden="true"></div>
 
       <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 4" [class.done]="activeStep() > 4" role="listitem">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">4</div>
@@ -81,49 +81,49 @@
     <!-- ملخص الطلب -->
     <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-4 form-card" style="margin-bottom:14px;background:rgba(7,13,36,.5);border-color:rgba(255,255,255,.06)">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <div style="font-size:13px;font-weight:800;color:#fff">{{ projectDetails()?.title || 'جاري تحميل تفاصيل المشروع...' }}</div>
+        <div style="font-size:13px;font-weight:800" class="txt-white">{{ projectDetails()?.title || 'جاري تحميل تفاصيل المشروع...' }}</div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
-          <div><div style="font-size:10px;color:#6B7699">ميزانية العميل</div><div style="font-size:13px;font-weight:800;color:var(--teal-txt,#2BD4C7)">{{ projectDetails()?.budgetMin && projectDetails()?.budgetMax ? (projectDetails()?.budgetMin | number) + '–' + (projectDetails()?.budgetMax | number) + ' ريال' : '3,000–5,000 ريال' }}</div></div>
-          <div><div style="font-size:10px;color:#6B7699">المدة</div><div style="font-size:13px;font-weight:800;color:#A8B2D1">{{ projectDetails()?.deliveryDays || 30 }} يوم</div></div>
-          <div><div style="font-size:10px;color:#6B7699">العروض</div><div style="font-size:13px;font-weight:800;color:#A8B2D1">{{ projectDetails()?.proposalsCount || 0 }}</div></div>
-          <button type="button" id="req-toggle" onclick="(function(){var b=document.getElementById('req-expand');var t=document.getElementById('req-toggle');var open=b.style.display!=='none';b.style.display=open?'none':'block';t.textContent=open?'عرض التفاصيل':'إخفاء التفاصيل'})()" style="padding:5px 12px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.25);border-radius:8px;color:#2BD4C7;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s ease">عرض التفاصيل</button>
+          <div><div style="font-size:10px" class="txt-muted">ميزانية العميل</div><div style="font-size:13px;font-weight:800" class="txt-teal">{{ projectDetails()?.budgetMin && projectDetails()?.budgetMax ? (projectDetails()?.budgetMin | number) + '–' + (projectDetails()?.budgetMax | number) + ' ريال' : '3,000–5,000 ريال' }}</div></div>
+          <div><div style="font-size:10px" class="txt-muted">المدة</div><div style="font-size:13px;font-weight:800" class="txt-slate">{{ projectDetails()?.deliveryDays || 30 }} يوم</div></div>
+          <div><div style="font-size:10px" class="txt-muted">العروض</div><div style="font-size:13px;font-weight:800" class="txt-slate">{{ projectDetails()?.proposalsCount || 0 }}</div></div>
+          <button type="button" id="req-toggle" onclick="(function(){var b=document.getElementById('req-expand');var t=document.getElementById('req-toggle');var open=b.style.display!=='none';b.style.display=open?'none':'block';t.textContent=open?'عرض التفاصيل':'إخفاء التفاصيل'})()" style="padding:5px 12px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.25);border-radius:8px;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s ease" class="txt-teal">عرض التفاصيل</button>
         </div>
       </div>
       <!-- التفاصيل الكاملة — تتوسع في نفس البطاقة -->
       <div id="req-expand" style="display:none;margin-top:16px;border-top:1px solid rgba(255,255,255,.07);padding-top:16px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px">
-            <div style="font-size:10px;color:#6B7699;margin-bottom:4px">التخصص</div>
-            <div style="font-size:13px;font-weight:700;color:#fff">{{ projectDetails()?.specialty || 'تصميم جرافيك' }}</div>
+            <div style="font-size:10px;margin-bottom:4px" class="txt-muted">التخصص</div>
+            <div style="font-size:13px;font-weight:700" class="txt-white">{{ projectDetails()?.specialty || 'تصميم جرافيك' }}</div>
           </div>
           <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px">
-            <div style="font-size:10px;color:#6B7699;margin-bottom:4px">نوع العميل</div>
-            <div style="font-size:13px;font-weight:700;color:#fff">{{ projectDetails()?.clientType || 'شركة' }}</div>
+            <div style="font-size:10px;margin-bottom:4px" class="txt-muted">نوع العميل</div>
+            <div style="font-size:13px;font-weight:700" class="txt-white">{{ projectDetails()?.clientType || 'شركة' }}</div>
           </div>
           <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px">
-            <div style="font-size:10px;color:#6B7699;margin-bottom:4px">الميزانية</div>
-            <div style="font-size:13px;font-weight:700;color:var(--teal-txt,#2BD4C7)">{{ projectDetails()?.budgetMin && projectDetails()?.budgetMax ? (projectDetails()?.budgetMin | number) + '–' + (projectDetails()?.budgetMax | number) + ' ريال' : '3,000–5,000 ريال' }}</div>
+            <div style="font-size:10px;margin-bottom:4px" class="txt-muted">الميزانية</div>
+            <div style="font-size:13px;font-weight:700" class="txt-teal">{{ projectDetails()?.budgetMin && projectDetails()?.budgetMax ? (projectDetails()?.budgetMin | number) + '–' + (projectDetails()?.budgetMax | number) + ' ريال' : '3,000–5,000 ريال' }}</div>
           </div>
           <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px">
-            <div style="font-size:10px;color:#6B7699;margin-bottom:4px">مدة التنفيذ</div>
-            <div style="font-size:13px;font-weight:700;color:#fff">{{ projectDetails()?.deliveryDays || 30 }} يوم</div>
+            <div style="font-size:10px;margin-bottom:4px" class="txt-muted">مدة التنفيذ</div>
+            <div style="font-size:13px;font-weight:700" class="txt-white">{{ projectDetails()?.deliveryDays || 30 }} يوم</div>
           </div>
         </div>
         <div style="margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:#6B7699;margin-bottom:6px">وصف الطلب</div>
-          <div style="font-size:13px;color:#A8B2D1;line-height:1.8">{{ projectDetails()?.description || 'لا يوجد وصف متاح' }}</div>
+          <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">وصف الطلب</div>
+          <div style="font-size:13px;line-height:1.8" class="txt-slate">{{ projectDetails()?.description || 'لا يوجد وصف متاح' }}</div>
         </div>
         <div style="margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:#6B7699;margin-bottom:6px">المتطلبات الإلزامية</div>
+          <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">المتطلبات الإلزامية</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             @for (req of projectDetails()?.requirements || ['Adobe Illustrator', 'ملفات قابلة للتعديل', '3+ سنوات خبرة']; track req) {
-              <span style="padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-size:12px;color:#A8B2D1">{{ req }}</span>
+              <span style="padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-size:12px" class="txt-slate">{{ req }}</span>
             }
           </div>
         </div>
         <div>
-          <div style="font-size:11px;font-weight:700;color:#6B7699;margin-bottom:6px">المخرجات المتوقعة</div>
-          <div style="font-size:13px;color:#A8B2D1;line-height:1.8">{{ projectDetails()?.outputs || 'شعار بصيغ متعددة + بطاقات أعمال + قرطاسية + دليل الهوية' }}</div>
+          <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">المخرجات المتوقعة</div>
+          <div style="font-size:13px;line-height:1.8" class="txt-slate">{{ projectDetails()?.outputs || 'شعار بصيغ متعددة + بطاقات أعمال + قرطاسية + دليل الهوية' }}</div>
         </div>
       </div>
     </div>
@@ -134,16 +134,16 @@
         <!-- Company Team Assignment Section -->
         <div class="co-assign-sec" style="margin-bottom:18px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:14px;font-weight:800;color:#fff">إسناد الطلب لعضو الفريق</div>
-            <span style="font-size:11px;color:#6B7699">اختر المقدم المناسب لتنفيذ هذا الطلب</span>
+            <div style="font-size:14px;font-weight:800" class="txt-white">إسناد الطلب لعضو الفريق</div>
+            <span style="font-size:11px" class="txt-muted">اختر المقدم المناسب لتنفيذ هذا الطلب</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
             @for (m of companyTeamMembers; track m.id) {
               <div class="co-assign-card" [class.co-assign-selected]="assignedMemberId() === m.id" (click)="assignToMember(m.id)" style="display:flex;align-items:center;gap:10px;padding:12px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:12px;cursor:pointer;transition:all .15s">
-                <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#070D24;flex-shrink:0" [style.background]="m.color">{{ m.initials }}</div>
+                <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0" [style.background]="m.color" class="txt-navy">{{ m.initials }}</div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:800;color:#fff">{{ m.name }}</div>
-                  <div style="font-size:10.5px;color:#6B7699;margin-top:2px">مقدم خدمة تابع</div>
+                  <div style="font-size:13px;font-weight:800" class="txt-white">{{ m.name }}</div>
+                  <div style="font-size:10.5px;margin-top:2px" class="txt-muted">مقدم خدمة تابع</div>
                 </div>
                 @if(assignedMemberId() === m.id) {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
@@ -226,7 +226,7 @@
       </app-step4-success>
     }
 <!-- STICKY BOTTOM -->
-<div class="fixed bottom-0 right-[220px] left-0 bg-[rgba(7,13,36,.92)] backdrop-blur-md border-t border-[rgba(255,255,255,.09)] py-[14px] px-6 z-50 flex items-center justify-between gap-3 transition-[right] duration-200 sticky-bar">
+<div class="fixed bottom-0 right-[220px] left-0 bg-[rgba(7,13,36,.92)] backdrop-blur-[16px] border-t border-[rgba(255,255,255,.09)] py-[14px] px-6 z-50 flex items-center justify-between gap-3 transition-[right] duration-200 sticky-bar">
   <div class="max-w-[720px] mx-auto w-full flex items-center justify-between gap-3 sticky-bar-inner">
     @if(activeStep() === 1) {
       <a routerLink="/provider-overview/explore-requests" class="inline-flex items-center gap-[7px] py-[11px] px-[22px] bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.12)] rounded-full text-[#A8B2D1] text-[14px] font-bold cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,.09)] hover:text-white btn-back">
@@ -241,13 +241,13 @@
     }
 
     @if(activeStep() < 4) {
-      <button type="button" class="inline-flex items-center gap-2 py-[12px] px-[28px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-0 rounded-full text-[#070D24] text-[15px] font-extrabold cursor-pointer transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(43,127,255,.35)] disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none btn-next" [disabled]="(activeStep() === 1 && !isStep1Valid()) || (activeStep() === 2 && !isStep2Valid()) || (activeStep() === 3 && !isStep3Valid())" (click)="nextStep()">
+      <button type="button" class="inline-flex items-center gap-2 py-[12px] px-[28px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-0 rounded-full text-[#070D24] text-[15px] font-extrabold cursor-pointer transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(43,127,255,.35)] disabled:opacity-[.38] disabled:cursor-not-allowed disabled:transform-none btn-next" [disabled]="(activeStep() === 1 && !isStep1Valid()) || (activeStep() === 2 && !isStep2Valid()) || (activeStep() === 3 && !isStep3Valid())" (click)="nextStep()">
         التالي
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-arrow-l"></use></svg>
       </button>
     } @else {
       <!-- Placeholder for step 4 submission -->
-      <button type="button" (click)="submitProposal()" [disabled]="isSubmitting()" class="inline-flex items-center gap-2 py-[12px] px-[28px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-0 rounded-full text-[#070D24] text-[15px] font-extrabold cursor-pointer transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(43,127,255,.35)] disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none btn-next">
+      <button type="button" (click)="submitProposal()" [disabled]="isSubmitting()" class="inline-flex items-center gap-2 py-[12px] px-[28px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-0 rounded-full text-[#070D24] text-[15px] font-extrabold cursor-pointer transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(43,127,255,.35)] disabled:opacity-[.38] disabled:cursor-not-allowed disabled:transform-none btn-next">
         {{ isSubmitting() ? 'جارٍ الإرسال...' : 'إرسال العرض' }}
         @if(!isSubmitting()) {
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">

@@ -16,7 +16,8 @@
    Teal              -> #0F8A7F   (was #2BD4C7)
    Blue              -> #1D6FE0   (was #2B7FFF)
 ----------------------------------------------------------- */
-:host-context(body.light),
+:host-context(body.light-theme),
+:host-context(body.theme-light),
 :host-context(.light-theme),
 :host-context(.theme-light) {
   --pg: #F6F8FC;
@@ -46,24 +47,9 @@
    The toast uses a hardcoded `text-white` utility that does not
    reference var(--txt), so it must be patched explicitly.
 ----------------------------------------------------------- */
-:host-context(body.light) .text-white,
+:host-context(body.light-theme) .text-white,
+:host-context(body.theme-light) .text-white,
 :host-context(.light-theme) .text-white,
 :host-context(.theme-light) .text-white {
   color: #070D24;
-}
-
-/* ---- Hardcoded rgba(255,255,255,*) surfaces -> light equivalents ----
-   Any leftover dark-mode translucent white borders/backgrounds
-   that bypass the theme variables are normalised here.
------------------------------------------------------------ */
-:host-context(body.light) [class*="border-[rgba(255,255,255,"],
-:host-context(.light-theme) [class*="border-[rgba(255,255,255,"],
-:host-context(.theme-light) [class*="border-[rgba(255,255,255,"] {
-  border-color: #E7EAF1;
-}
-
-:host-context(body.light) [class*="bg-[rgba(255,255,255,"],
-:host-context(.light-theme) [class*="bg-[rgba(255,255,255,"],
-:host-context(.theme-light) [class*="bg-[rgba(255,255,255,"] {
-  background-color: #FFFFFF;
 }

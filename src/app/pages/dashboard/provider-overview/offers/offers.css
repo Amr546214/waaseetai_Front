@@ -8,19 +8,19 @@
   backdrop-filter: blur(12px);
   border: 1px solid rgba(123, 47, 190, .22);
   border-radius: 14px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .ai-disc-ico {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   background: rgba(123, 47, 190, .16);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #A56BE0;
+  color: #7B2FBE;
 }
 
 .filter-rail {
@@ -106,7 +106,7 @@
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .tbl-row {
@@ -123,9 +123,9 @@
 }
 
 .pagination-btn {
-  min-width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, .04);
   border: 1px solid rgba(255, 255, 255, .08);
   color: #A8B2D1;

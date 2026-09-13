@@ -17,17 +17,17 @@
   <!-- FIELD 1: عنوان الطلب -->
   <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-4 form-card">
     <div class="text-[15px] font-extrabold text-white mb-[18px] flex items-center gap-[10px] form-card-title">
-      <svg class="w-4 h-4 shrink-0" style="color:var(--teal-txt,#2BD4C7)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
+      <svg class="w-4 h-4 shrink-0 txt-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
       كتابة رسالة عرضك
     </div>
 
     <div class="mb-[18px] last:mb-0 field">
       <div class="flex items-center justify-between gap-2 mb-[7px] field-header">
-        <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-title">عنوان عرضك <span class="text-red-500 text-[14px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
+        <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-title">عنوان عرضك <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
         <span id="title-count" class="text-[11px] text-[#6B7699] field-count">{{ titleLength }} / 80</span>
       </div>
       <input type="text" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] field-input"
-        [class.!border-[#FF8080]]="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
+        [class.!border-[rgba(255,80,80,.45)]]="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
         id="f-title" placeholder="مثال: خبرة 5 سنوات في تصميم الهوية مع تسليم في أقل من الوقت المحدد..." maxlength="80" minlength="3" autocomplete="off"
         [ngModel]="proposal.title" (ngModelChange)="updateTitle.emit($event)" name="title" #titleModel="ngModel" required>
 
@@ -40,14 +40,14 @@
 
     <div class="mb-[18px] last:mb-0 field">
       <div class="flex items-center  justify-between gap-2 mb-[7px] field-header">
-        <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-desc">رسالة عرضك <span class="text-red-500 text-[14px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
-        <button type="button" [disabled]="isFetchingAiSuggest" class="inline-flex items-center justify-center gap-1.5 py-[7px] px-[12px] whitespace-nowrap bg-[rgba(123,47,190,.10)] border border-[rgba(123,47,190,.22)] rounded-lg text-xs font-bold text-[#A56BE0] cursor-pointer transition-all duration-150 hover:bg-[rgba(123,47,190,.18)] ai-suggest-btn disabled:opacity-50 disabled:cursor-not-allowed" (click)="useAISuggest.emit()">
+        <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-desc">رسالة عرضك <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
+        <button type="button" [disabled]="isFetchingAiSuggest" class="inline-flex items-center justify-center gap-[5px] py-[5px] px-[11px] whitespace-nowrap bg-[rgba(123,47,190,.10)] border border-[rgba(123,47,190,.22)] rounded-lg text-xs font-bold text-[#A56BE0] cursor-pointer transition-all duration-150 hover:bg-[rgba(123,47,190,.18)] ai-suggest-btn disabled:opacity-50 disabled:cursor-not-allowed" (click)="useAISuggest.emit()">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg>
           <span>{{ isFetchingAiSuggest ? 'جاري الصياغة...' : 'اقتراح AI' }}</span>
         </button>
       </div>
       <textarea class="w-full py-[12px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 resize-y leading-relaxed min-h-[120px] focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] field-textarea"
-        [class.!border-[#FF8080]]="messageModel.invalid && (messageModel.dirty || messageModel.touched)"
+        [class.!border-[rgba(255,80,80,.45)]]="messageModel.invalid && (messageModel.dirty || messageModel.touched)"
         id="f-desc" placeholder="صف خبرتك في هذا المجال، لماذا أنت الأنسب، أسلوب عملك، وأي معلومات تريد طالب الخدمة معرفتها... تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" minlength="30" rows="6"
         [ngModel]="proposal.message" (ngModelChange)="updateMessage.emit($event)" name="message" #messageModel="ngModel" required></textarea>
 
@@ -60,9 +60,9 @@
 
       <!-- AI TOOLTIP -->
       @if(showAiSuggest) {
-        <div class="bg-gradient-to-br from-[rgba(7,13,36,.95)] to-[rgba(11,20,55,.95)] backdrop-blur-xl border border-[rgba(43,127,255,.22)] rounded-[14px] p-4 mt-[10px] animate-[ws-fade_.2s_ease] ai-tooltip" role="region" aria-label="اقتراح AI للوصف">
+        <div class="bg-gradient-to-br from-[rgba(7,13,36,.95)] to-[rgba(11,20,55,.95)] backdrop-blur-[20px] border border-[rgba(43,127,255,.22)] rounded-[14px] p-4 mt-[10px] animate-[ws-fade_.2s_ease] ai-tooltip" role="region" aria-label="اقتراح AI للوصف">
           <div class="text-[11px] font-extrabold text-[#A56BE0] mb-2 flex items-center gap-1.5 ai-tooltip-ttl">
-	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+	<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 			<use href="#i-ai"></use></svg>
 			            صياغة AI المقترحة
           </div>
@@ -88,12 +88,12 @@
   <!-- FIELD 3: متطلبات إلزامية -->
   <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-4 form-card">
     <div class="text-[15px] font-extrabold text-white mb-[18px] flex items-center gap-[10px] form-card-title">
-      <svg class="w-4 h-4 shrink-0" style="color:var(--teal-txt,#2BD4C7)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-check"></use></svg>
+      <svg class="w-4 h-4 shrink-0 txt-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-check"></use></svg>
       مزاياك ونقاط قوتك
-      <span style="font-size:11px;font-weight:600;color:#6B7699;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px">اختياري</span>
+      <span style="font-size:11px;font-weight:600;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px" class="txt-muted">اختياري</span>
     </div>
 
-    <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.14);border-radius:10px;margin-bottom:14px;font-size:12.5px;color:var(--ai-txt,#A56BE0)">
+    <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.14);border-radius:10px;margin-bottom:14px;font-size:12.5px" class="txt-purple">
       <svg style="width:13px;height:13px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
       AI يقترح متطلبات بناء على تخصصك، يمكنك إضافتها أو تعديلها
     </div>
@@ -122,9 +122,9 @@
   <!-- FIELD 4: المخرجات -->
   <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-4 form-card">
     <div class="text-[15px] font-extrabold text-white mb-[18px] flex items-center gap-[10px] form-card-title">
-      <svg class="w-4 h-4 shrink-0" style="color:#5DA0FF" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
+      <svg class="w-4 h-4 shrink-0 txt-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
       ما ستسلمه من مخرجات
-      <span style="font-size:11px;font-weight:600;color:#6B7699;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px">اختياري</span>
+      <span style="font-size:11px;font-weight:600;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px" class="txt-muted">اختياري</span>
     </div>
 
     <div class="mb-[18px] last:mb-0 field">
@@ -140,26 +140,26 @@
   <!-- FIELD 5: نموذج من أعمالك -->
   <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-4 form-card">
     <div class="text-[15px] font-extrabold text-white mb-[18px] flex items-center gap-[10px] form-card-title">
-      <svg class="w-4 h-4 shrink-0" style="color:#FFB400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
+      <svg class="w-4 h-4 shrink-0 txt-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
       نموذج من أعمالك المشابهة
-      <span style="font-size:11px;font-weight:600;color:#6B7699;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px">مُوصى به</span>
+      <span style="font-size:11px;font-weight:600;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px" class="txt-muted">مُوصى به</span>
     </div>
 
-    <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.14);border-radius:10px;margin-bottom:16px;font-size:12.5px;color:var(--ai-txt,#A56BE0)">
+    <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.14);border-radius:10px;margin-bottom:16px;font-size:12.5px" class="txt-purple">
       <svg style="width:13px;height:13px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
       إضافة نموذج مشابه يرفع احتمال قبول عرضك بنسبة 35%
     </div>
 
     <div style="margin-bottom:14px">
-      <div style="font-size:11px;font-weight:800;color:#6B7699;margin-bottom:10px">اختر من نماذج الاعتماد الخاصة بك</div>
+      <div style="font-size:11px;font-weight:800;margin-bottom:10px" class="txt-muted">اختر من نماذج الاعتماد الخاصة بك</div>
 
       @if (isLoadingPortfolio) {
-        <div style="padding:18px;text-align:center;color:#6B7699;font-size:12px">جاري تحميل نماذج الاعتماد من ملفك المهني...</div>
+        <div style="padding:18px;text-align:center;font-size:12px" class="txt-muted">جاري تحميل نماذج الاعتماد من ملفك المهني...</div>
       } @else if (portfolioOptions.length === 0) {
         <div style="padding:16px;background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.10);border-radius:12px;text-align:center">
-          <div style="font-size:13px;font-weight:700;color:#A8B2D1;margin-bottom:4px">لا توجد نماذج أعمال معتمدة في حسابك حتى الآن</div>
-          <div style="font-size:11.5px;color:#6B7699;margin-bottom:12px">قم بإضافة نماذج أعمالك وتوثيقها بالذكاء الاصطناعي في قسم الاعتمادات لتعزيز قوة عرضك</div>
-          <a routerLink="/provider-overview/business-models/accreditation/new" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.25);border-radius:8px;font-size:12px;font-weight:700;color:#2BD4C7;text-decoration:none">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px" class="txt-slate">لا توجد نماذج أعمال معتمدة في حسابك حتى الآن</div>
+          <div style="font-size:11.5px;margin-bottom:12px" class="txt-muted">قم بإضافة نماذج أعمالك وتوثيقها بالذكاء الاصطناعي في قسم الاعتمادات لتعزيز قوة عرضك</div>
+          <a routerLink="/provider-overview/business-models/accreditation/new" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.25);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none" class="txt-teal">
             + إضافة نموذج جديد للاعتماد
           </a>
         </div>
@@ -170,14 +170,14 @@
               style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;cursor:pointer;transition:all .15s"
               [style.borderColor]="proposal.portfolioIds.includes(opt.id) ? 'rgba(255,180,0,.40)' : 'rgba(255,255,255,.08)'"
               [style.background]="proposal.portfolioIds.includes(opt.id) ? 'rgba(255,180,0,.06)' : 'rgba(255,255,255,.03)'">
-              <input type="checkbox" name="portfolio-pick" [value]="opt.id" [checked]="proposal.portfolioIds.includes(opt.id)" (change)="onTogglePortfolio(opt.id, $event)" style="accent-color:#FFB400;width:16px;height:16px;flex-shrink:0">
-              <div [style.background]="opt.gradient" style="width:44px;height:44px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#070D24" aria-hidden="true">{{ opt.badge }}</div>
+              <input type="checkbox" name="portfolio-pick" [value]="opt.id" [checked]="proposal.portfolioIds.includes(opt.id)" (change)="onTogglePortfolio(opt.id, $event)" style="accent-width:16px;height:16px;flex-shrink:0" class="txt-amber">
+              <div [style.background]="opt.gradient" style="width:44px;height:44px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800" aria-hidden="true" class="txt-navy">{{ opt.badge }}</div>
               <div style="flex:1;min-width:0">
-                <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">{{ opt.title }}</div>
-                <div style="font-size:11px;color:#6B7699">{{ opt.meta }}</div>
+                <div style="font-size:13px;font-weight:700;margin-bottom:2px" class="txt-white">{{ opt.title }}</div>
+                <div style="font-size:11px" class="txt-muted">{{ opt.meta }}</div>
               </div>
               @if(opt.isBestMatch) {
-                <span style="font-size:10px;padding:3px 8px;background:rgba(15,169,154,.12);border:1px solid rgba(15,169,154,.25);border-radius:5px;color:#0FA99A;flex-shrink:0">الأقرب للطلب</span>
+                <span style="font-size:10px;padding:3px 8px;flex-shrink:0" class="badge-green">الأقرب للطلب</span>
               }
             </label>
           }
@@ -187,14 +187,14 @@
 
     @if(proposal.portfolioIds.length > 0) {
       <div style="padding:12px 14px;background:rgba(255,180,0,.07);border:1px solid rgba(255,180,0,.22);border-radius:10px;margin-bottom:10px">
-        <div style="font-size:10px;font-weight:800;color:var(--kahr,#D98A0B);margin-bottom:4px">النموذج المرفق مع عرضك</div>
-        <div style="font-size:13px;font-weight:700;color:#fff">{{ selectedPortfolioNames }}</div>
+        <div style="font-size:10px;font-weight:800;margin-bottom:4px" class="txt-kahr">النموذج المرفق مع عرضك</div>
+        <div style="font-size:13px;font-weight:700" class="txt-white">{{ selectedPortfolioNames }}</div>
       </div>
     }
 
     <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;border:1px dashed rgba(255,255,255,.12);cursor:pointer;transition:all .15s" (click)="clearPortfolio.emit()">
-      <svg style="width:13px;height:13px;color:#6B7699" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      <span style="font-size:12px;color:#6B7699">لا أريد إرفاق نموذج حاليًا</span>
+      <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="txt-muted"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span style="font-size:12px" class="txt-muted">لا أريد إرفاق نموذج حاليًا</span>
     </div>
   </div>
 </div>

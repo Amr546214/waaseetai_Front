@@ -35,9 +35,9 @@
   <!-- Total Proposal Budget & Execution Time Summary Controls -->
   <div class="bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.08)] rounded-xl p-4 mb-5 flex items-center justify-between gap-4 flex-wrap">
     <div class="flex-1 min-w-[200px]">
-      <label class="text-[12px] font-bold text-[#A8B2D1] block mb-1.5" for="f-total-price">سعر عرضك الإجمالي (ريال) <span class="text-[#FF8080] text-[14px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
+      <label class="text-[12px] font-bold text-[#A8B2D1] block mb-1.5" for="f-total-price">سعر عرضك الإجمالي (ريال) <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
       <input type="number" id="f-total-price" class="w-full py-[9px] px-[12px] bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.12)] rounded-[8px] text-white font-extrabold text-sm outline-none focus:border-[rgba(43,212,199,.5)] transition-colors" 
-        [class.!border-[#FF8080]]="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)"
+        [class.!border-[rgba(255,80,80,.45)]]="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)"
         [ngModel]="totalBudget" (ngModelChange)="updateTotalBudget.emit($event)" placeholder="أدخل إجمالي قيمة العرض" min="1" name="totalBudget" #totalBudgetModel="ngModel" required>
       <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)">
         <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-warn"></use></svg>
@@ -69,7 +69,7 @@
         
         <div class="flex items-center gap-[10px] mb-[14px]">
           @if(i === 0) {
-            <div class="w-[28px] h-[28px] rounded-lg bg-[rgba(43,127,255,.18)] border-[1.5px] border-[rgba(43,127,255,.35)] flex items-center justify-center text-[12px] font-black text-[#5DA0FF] shrink-0">{{ i + 1 }}</div>
+            <div class="w-[28px] h-[28px] rounded-lg bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] flex items-center justify-center text-[12px] font-black text-[#070D24] shrink-0">{{ i + 1 }}</div>
             <div class="text-[13px] font-extrabold text-white">المرحلة {{ i + 1 }}</div>
             <div class="ms-auto text-[10px] text-[#6B7699] bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.15)] rounded-md px-2 py-0.5">إلزامية</div>
           } @else {
@@ -82,10 +82,10 @@
         <div class="grid grid-cols-2 gap-[10px] mb-[10px]">
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1]">
-              <span>اسم المرحلة <span class="text-[#FF8080] text-[14px] font-extrabold ms-1" title="إلزامي">*</span></span>
+              <span>اسم المرحلة <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
             </label>
             <input type="text" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699]" 
-              [class.!border-[#FF8080]]="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched)"
+              [class.!border-[rgba(255,80,80,.45)]]="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched)"
               placeholder="مثال: إعداد خطة العمل..." [ngModel]="m.name" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {name: $event}})" name="mName_{{i}}" #mNameModel="ngModel" required minlength="2">
             <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched)">
               <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg>
@@ -95,11 +95,11 @@
           </div>
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1]">
-              <span>أيام التسليم <span class="text-[#FF8080] text-[14px] font-extrabold ms-1" title="إلزامي">*</span></span>
+              <span>أيام التسليم <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
             </label>
             <div class="relative">
               <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699]" 
-                [class.!border-[#FF8080]]="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched)"
+                [class.!border-[rgba(255,80,80,.45)]]="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched)"
                 min="1" placeholder="مثال: 5" [ngModel]="m.days" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {days: $event}})" name="mDays_{{i}}" #mDaysModel="ngModel" required>
               <span class="absolute left-[12px] top-1/2 -translate-y-1/2 text-[11px] text-[#6B7699]">يوم</span>
             </div>
@@ -119,11 +119,11 @@
           </div>
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1]">
-              <span>نسبة % <span class="text-[#FF8080] text-[14px] font-extrabold ms-1" title="إلزامي">*</span></span>
+              <span>نسبة % <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
             </label>
             <div class="relative">
               <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699]" 
-                [class.!border-[#FF8080]]="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched)"
+                [class.!border-[rgba(255,80,80,.45)]]="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched)"
                 min="1" max="100" placeholder="مثال: 40" [ngModel]="m.pct" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {pct: $event}})" name="mPct_{{i}}" #mPctModel="ngModel" required>
               <span class="absolute left-[12px] top-1/2 -translate-y-1/2 text-[11px] text-[#6B7699]">%</span>
             </div>
@@ -136,7 +136,7 @@
           </div>
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#6B7699]">المبلغ عند التسليم</label>
-            <div class="h-[46px] flex items-center text-[14px] font-black text-[#2BD4C7] px-3 bg-[rgba(43,212,199,.07)] border border-[rgba(43,212,199,.18)] rounded-[10px]">
+            <div class="h-[38px] flex items-center text-[14px] font-black text-[#2BD4C7] px-3 bg-[rgba(43,212,199,.07)] border border-[rgba(43,212,199,.18)] rounded-[10px]">
               {{ getAmount(m.pct) | number }} ر
             </div>
           </div>

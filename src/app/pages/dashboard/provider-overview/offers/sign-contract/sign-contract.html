@@ -11,8 +11,8 @@
     <div role="alert">
       <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
         <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر تحميل بيانات العقد</div>
-        <div style="font-size:12px;color:#6B7699;margin-bottom:12px">ERR-PR-007</div>
-        <button type="button" (click)="fetchContractDetails(offerId())" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">اعادة المحاولة</button>
+        <div style="font-size:12px;margin-bottom:12px" class="txt-muted">ERR-PR-007</div>
+        <button type="button" (click)="fetchContractDetails(offerId())" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">اعادة المحاولة</button>
       </div>
     </div>
   } @else {
@@ -42,42 +42,42 @@
   </div>
 
   <div class="sec-ttl">بنود العقد</div>
-  <div style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.18);border-radius:10px;margin-bottom:12px;font-size:12px;color:var(--ai-txt,#A56BE0)">
+  <div style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.18);border-radius:10px;margin-bottom:12px;font-size:12px" class="txt-purple">
     <svg width="15" height="15" aria-hidden="true"><use href="#i-ai"></use></svg>
     هذه البنود نتجت عن اتفاقك مع مقدم الخدمة في العروض والمحادثات. عند الموافقة توقع ثم تنتقل لإيداع الضمان. لتعديل أي بند أرسل طلب تعديل لمقدم الخدمة
   </div>
   
   <div class="od-card">
     <p class="od-desc">
-      <strong style="color:#fff">1. نطاق العمل:</strong> تصميم هوية بصرية متكاملة (شعار + ألوان + خطوط + 3 تطبيقات).<br>
-      <strong style="color:#fff">2. المراحل والسداد:</strong> يحجز المبلغ كاملا في الضمان، ويفرج عنه على 3 مراحل بعد اعتماد كل تسليم.<br>
-      <strong style="color:#fff">3. التعديلات:</strong> تعديلات حسب الباقة والعقد وضمن النطاق المتفق عليه.<br>
-      <strong style="color:#fff">4. الضمان:</strong> 30 يوما بعد التسليم النهائي لإصلاح أي عيوب.<br>
-      <strong style="color:#fff">5. الملكية الفكرية:</strong> تنتقل ملكية التصاميم للطالب بعد السداد الكامل.<br>
-      <strong style="color:#fff">6. فض النزاع:</strong> عبر طبقة الذكاء أولا ثم الدعم البشري وفق سياسة الموقع.
+      <strong class="txt-white">1. نطاق العمل:</strong> تصميم هوية بصرية متكاملة (شعار + ألوان + خطوط + 3 تطبيقات).<br>
+      <strong class="txt-white">2. المراحل والسداد:</strong> يحجز المبلغ كاملا في الضمان، ويفرج عنه على 3 مراحل بعد اعتماد كل تسليم.<br>
+      <strong class="txt-white">3. التعديلات:</strong> تعديلات حسب الباقة والعقد وضمن النطاق المتفق عليه.<br>
+      <strong class="txt-white">4. الضمان:</strong> 30 يوما بعد التسليم النهائي لإصلاح أي عيوب.<br>
+      <strong class="txt-white">5. الملكية الفكرية:</strong> تنتقل ملكية التصاميم للطالب بعد السداد الكامل.<br>
+      <strong class="txt-white">6. فض النزاع:</strong> عبر طبقة الذكاء أولا ثم الدعم البشري وفق سياسة الموقع.
     </p>
   </div>
 
   <div class="od-card" style="background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.06));border-color:rgba(43,212,199,.18)">
     <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:34px;height:34px;border-radius:9px;background:rgba(43,212,199,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--teal-txt,#2BD4C7)">
+      <div style="width:34px;height:34px;border-radius:9px;background:rgba(43,212,199,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" class="txt-teal">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-escrow"></use></svg>
       </div>
       <div>
-        <div style="font-size:13px;font-weight:800;color:var(--teal-txt,#2BD4C7)">حماية الضمان (Escrow)</div>
-        <div style="font-size:12px;color:#A8B2D1;margin-top:2px">يحجز مبلغ {{ price() }} في حساب الضمان، ولا يفرج عنه إلا بعد اعتمادك للتسليم</div>
+        <div style="font-size:13px;font-weight:800" class="txt-teal">حماية الضمان (Escrow)</div>
+        <div style="font-size:12px;margin-top:2px" class="txt-slate">يحجز مبلغ {{ price() }} في حساب الضمان، ولا يفرج عنه إلا بعد اعتمادك للتسليم</div>
       </div>
     </div>
   </div>
 
   <div class="od-card">
     <label style="display:flex;align-items:flex-start;gap:11px;cursor:pointer;margin-bottom:16px">
-      <input type="checkbox" [(ngModel)]="isAgreed" id="ack-ctr" style="width:20px;height:20px;accent-color:var(--teal-txt,#2BD4C7);flex-shrink:0;margin-top:1px">
-      <span style="font-size:13px;color:#A8B2D1;line-height:1.6">أقر بأنني قرأت بنود العقد وأوافق عليها، وأفوض حجز المبلغ في الضمان وفق <a href="javascript:void(0)" style="color:var(--teal-txt,#2BD4C7)">شروط الاستخدام</a></span>
+      <input type="checkbox" [(ngModel)]="isAgreed" id="ack-ctr" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
+      <span style="font-size:13px;line-height:1.6" class="txt-slate">أقر بأنني قرأت بنود العقد وأوافق عليها، وأفوض حجز المبلغ في الضمان وفق <a href="javascript:void(0)" class="txt-teal">شروط الاستخدام</a></span>
     </label>
     <div class="actions-row" style="display:flex;gap:12px;flex-wrap:wrap">
-      <button type="button" (click)="signContract()" class="btn-primary" style="flex:1;min-width:180px;padding:13px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;color:#070D24;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center">التوقيع ثم السداد</button>
-      <button type="button" (click)="openTermsModal()" class="btn-secondary" style="padding:13px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#A8B2D1;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px">
+      <button type="button" (click)="signContract()" class="btn-primary txt-navy" style="flex:1;min-width:180px;padding:13px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center">التوقيع ثم السداد</button>
+      <button type="button" (click)="openTermsModal()" class="btn-secondary txt-slate" style="padding:13px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-chat"></use></svg>تعديل البنود عبر المحادثة
       </button>
     </div>
@@ -99,7 +99,7 @@
     <div id="state-success-toast" role="status" style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
       <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        <span style="font-size:14px;font-weight:700;color:#fff">{{ toastMessage() }}</span>
+        <span style="font-size:14px;font-weight:700" class="txt-white">{{ toastMessage() }}</span>
       </div>
     </div>
   }
@@ -110,24 +110,24 @@
       <div class="modal-content" style="width:100%;max-width:520px;background:rgba(11,20,55,.97);border:1px solid rgba(43,127,255,.26);border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.6);display:flex;flex-direction:column;max-height:88vh;overflow:hidden">
         <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:11px">
           <div style="position:relative;flex-shrink:0">
-            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.16),rgba(43,127,255,.12));border:2.5px solid #2ECC8A;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#2ECC8A">نو</div>
-            <div style="position:absolute;bottom:-2px;right:-2px;width:15px;height:15px;border-radius:50%;background:#2ECC8A;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;border:2px solid rgba(11,20,55,.97);color:#070D24">9</div>
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.16),rgba(43,127,255,.12));border:2.5px solid #2ECC8A;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900" class="txt-green-br">نو</div>
+            <div style="position:absolute;bottom:-2px;right:-2px;width:15px;height:15px;border-radius:50%;background:#2ECC8A;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;border:2px solid rgba(11,20,55,.97)" class="txt-navy">9</div>
           </div>
           <div style="flex:1">
-            <div id="terms-t" style="font-size:15px;font-weight:900;color:#fff">تفاوض بنود العقد مع {{ providerName() }}</div>
-            <div style="font-size:11px;color:#6B7699">الذكاء يراقب المحادثة ويستخلص البنود المتفق عليها</div>
+            <div id="terms-t" style="font-size:15px;font-weight:900" class="txt-white">تفاوض بنود العقد مع {{ providerName() }}</div>
+            <div style="font-size:11px" class="txt-muted">الذكاء يراقب المحادثة ويستخلص البنود المتفق عليها</div>
           </div>
-          <button type="button" (click)="closeTermsModal()" style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#A8B2D1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px">×</button>
+          <button type="button" (click)="closeTermsModal()" style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px" class="txt-slate">×</button>
         </div>
         
         <div id="terms-chat" style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px;min-height:240px">
-          <div style="align-self:flex-start;max-width:80%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px 12px 12px 3px;padding:9px 13px;font-size:13px;color:#A8B2D1;line-height:1.6">أهلا، أي بند ترغب بتعديله قبل التوقيع؟<div style="font-size:10px;color:#6B7699;margin-top:3px">{{ providerName() }}</div></div>
+          <div style="align-self:flex-start;max-width:80%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px 12px 12px 3px;padding:9px 13px;font-size:13px;line-height:1.6" class="txt-slate">أهلا، أي بند ترغب بتعديله قبل التوقيع؟<div style="font-size:10px;margin-top:3px" class="txt-muted">{{ providerName() }}</div></div>
           
           @for (msg of chatMessages(); track $index) {
             <div [style]="msg.isMe ? 'align-self:flex-end;max-width:80%;background:linear-gradient(135deg,rgba(43,212,199,.16),rgba(43,127,255,.12));border:1px solid rgba(43,212,199,.24);border-radius:12px 12px 3px 12px;padding:9px 13px;font-size:13px;color:#fff;line-height:1.6' : 'align-self:flex-start;max-width:80%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px 12px 12px 3px;padding:9px 13px;font-size:13px;color:#A8B2D1;line-height:1.6'">
               {{ msg.text }}
               @if (!msg.isMe) {
-                <div style="font-size:10px;color:#6B7699;margin-top:3px">{{ providerName() }}</div>
+                <div style="font-size:10px;margin-top:3px" class="txt-muted">{{ providerName() }}</div>
               }
             </div>
           }
@@ -135,20 +135,20 @@
 
         @if (showAiExtract()) {
           <div style="margin:0 20px 12px;padding:12px 14px;background:linear-gradient(135deg,rgba(123,47,190,.10),rgba(43,127,255,.06));border:1px solid rgba(123,47,190,.22);border-radius:12px">
-            <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;color:var(--ai-txt,#A56BE0);margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;margin-bottom:8px" class="txt-purple">
               <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>استخلص الذكاء البند المتفق عليه
             </div>
-            <div style="font-size:12.5px;color:#fff;line-height:1.6;margin-bottom:10px" [innerHTML]="aiExtractText()"></div>
+            <div style="font-size:12.5px;line-height:1.6;margin-bottom:10px" [innerHTML]="aiExtractText()" class="txt-white"></div>
             <div style="display:flex;gap:8px">
-              <button type="button" (click)="approveTerm()" style="flex:1;padding:9px;border-radius:8px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;color:#070D24;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">موافق، سجله بالعقد</button>
-              <button type="button" (click)="showAiExtract.set(false)" style="padding:9px 14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#A8B2D1;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">مواصلة النقاش</button>
+              <button type="button" (click)="approveTerm()" style="flex:1;padding:9px;border-radius:8px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit" class="txt-navy">موافق، سجله بالعقد</button>
+              <button type="button" (click)="showAiExtract.set(false)" style="padding:9px 14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" class="txt-slate">مواصلة النقاش</button>
             </div>
           </div>
         }
 
         <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:9px">
-          <input type="text" [(ngModel)]="termInput" placeholder="اكتب اقتراحك للبند" style="flex:1;padding:11px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-family:inherit;font-size:14px;outline:none" (keydown.enter)="sendTermMsg()">
-          <button type="button" (click)="sendTermMsg()" style="padding:0 18px;border-radius:10px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;color:#070D24;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">إرسال</button>
+          <input type="text" [(ngModel)]="termInput" placeholder="اكتب اقتراحك للبند" style="flex:1;padding:11px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;font-family:inherit;font-size:14px;outline:none" (keydown.enter)="sendTermMsg()" class="txt-white">
+          <button type="button" (click)="sendTermMsg()" style="padding:0 18px;border-radius:10px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit" class="txt-navy">إرسال</button>
         </div>
       </div>
     </div>
