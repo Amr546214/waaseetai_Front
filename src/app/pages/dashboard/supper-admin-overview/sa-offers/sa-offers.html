@@ -1,13 +1,130 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="of-page" dir="rtl">
+  <div class="of-hdr">
+    <div>
+      <h1 class="of-ttl">العروض</h1>
+      <p class="of-sub">كل عروض مقدمي الخدمة على طلبات وسيط AI</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">العروض</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"العروض\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="of-ai-disc">
+    <div class="of-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div>
+      <div class="of-ai-lbl">وسيط AI — تحليل العروض</div>
+      <p class="of-ai-txt">AI يكتشف العروض المكررة والأسعار الشاذة والمحتوى المخالف <span class="of-ai-badge">دقة 95%</span></p>
+    </div>
+  </div>
+
+  <div class="of-kpi-grid">
+    <div class="of-kpi"><span class="of-kpi-lbl">إجمالي العروض</span><div class="of-kpi-val" style="color:#2BD4C7">{{ stats().total }}</div></div>
+    <div class="of-kpi"><span class="of-kpi-lbl">عروض مقبولة</span><div class="of-kpi-val" style="color:#0FA99A">{{ stats().accepted }}</div></div>
+    <div class="of-kpi"><span class="of-kpi-lbl">متوسط تقييم العروض</span><div class="of-kpi-val" style="color:#FFB400">{{ stats().avgRating }}</div></div>
+    <div class="of-kpi"><span class="of-kpi-lbl">عروض مشبوهة</span><div class="of-kpi-val" style="color:#FF8C69">{{ stats().flagged }}</div></div>
+  </div>
+
+  <div class="of-tabs">
+    @for (f of filters; track f.key) {
+      <button type="button" class="of-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
+        {{ f.label }}<span class="of-tab-count">{{ counts()[f.key] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="of-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" placeholder="ابحث باسم المقدم أو عنوان الطلب..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
+  </div>
+
+  @if (filtered().length === 0) {
+    <div class="of-empty"><p>لا توجد عروض مطابقة</p></div>
+  } @else {
+    <div class="of-tbl-card">
+      <div class="of-tbl-wrap">
+        <table class="of-tbl">
+          <thead>
+            <tr>
+              <th>#</th><th>مقدم الخدمة</th><th>على طلب</th><th>السعر</th><th>مقارنة السوق</th><th>التقييم</th><th>الحالة</th><th>AI</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (o of filtered(); track o.id) {
+              <tr (click)="openDetail(o)">
+                <td class="of-muted">{{ o.id }}</td>
+                <td>
+                  <div class="of-u-cell">
+                    <div class="of-u-av" [style.background]="o.pBg">{{ o.pAv }}</div>
+                    <span class="of-u-name">{{ o.provider }}</span>
+                  </div>
+                </td>
+                <td class="of-req-title">{{ o.request }}</td>
+                <td class="of-price">{{ o.price }}</td>
+                <td><span class="of-intel" [ngClass]="priceIntel(o).cls">{{ priceIntel(o).label }}</span></td>
+                <td class="of-stars">★ {{ o.rating.toFixed(1) }}</td>
+                <td><span class="of-status" [ngClass]="statusClasses[o.status]">{{ statusLabels[o.status] }}</span></td>
+                <td>
+                  @if (o.aiClean) { <span class="of-ai-clean">✓ نظيف</span> } @else { <span class="of-ai-flag">⚠ مشبوه</span> }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</section>
+
+@if (showDetail()) {
+  <div class="of-mov" (click)="closeDetail()">
+    <div class="of-mbox" (click)="$event.stopPropagation()">
+      @if (selected(); as d) {
+        <div class="of-md-hdr">
+          <div>
+            <div class="of-md-id">{{ d.id }} · {{ statusLabels[d.status] }}</div>
+            <h3>{{ d.request }}</h3>
+          </div>
+          <button type="button" class="of-mclose" (click)="closeDetail()">×</button>
+        </div>
+
+        <div class="of-price-row">
+          <div class="of-price-box"><div class="of-price-big">{{ d.price }}</div></div>
+          <div class="of-price-box"><div class="of-price-big">{{ d.days }}</div></div>
+          <div class="of-tags">
+            <span class="of-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
+            <span class="of-spec">{{ d.spec }}</span>
+          </div>
+        </div>
+
+        <div class="of-section-ttl">سجل التفاوض</div>
+        <p class="of-neg-note">{{ d.negotiationNote }}</p>
+
+        <div class="of-section-ttl">موثوقية مقدم الخدمة</div>
+        <div class="of-reliab-row">
+          <div class="of-reliab-score">
+            <div class="of-reliab-num">{{ d.reliability }}</div>
+            <div class="of-reliab-lbl">Reliability</div>
+          </div>
+          <div class="of-reliab-stats">
+            <div><span>معدل الإتمام</span><strong>{{ d.completionRate }}</strong></div>
+            <div><span>معدل النزاعات</span><strong>{{ d.disputesRate }}</strong></div>
+            <div><span>المستوى</span><strong>{{ d.level }}</strong></div>
+          </div>
+        </div>
+
+        <div class="of-md-meta-row">
+          <div class="of-md-meta"><span>مقارنة السوق</span><strong [ngClass]="priceIntel(d).cls">{{ priceIntel(d).label }}</strong></div>
+          <div class="of-md-meta"><span>تاريخ العرض</span><strong>{{ d.date }}</strong></div>
+        </div>
+
+        @if (actionMessage()) {
+          <div class="of-action-msg">{{ actionMessage() }}</div>
+        }
+
+        <div class="of-md-actions">
+          <button type="button" class="of-btn of-btn-ghost" (click)="notifyProvider()">إشعار المقدم</button>
+          <button type="button" class="of-btn of-btn-warn" (click)="suspendOffer()">تعليق العرض</button>
+        </div>
+      }
+    </div>
+  </div>
+}

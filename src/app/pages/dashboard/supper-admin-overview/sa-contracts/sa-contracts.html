@@ -1,13 +1,140 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="ct-page" dir="rtl">
+  <div class="ct-hdr">
+    <div>
+      <h1 class="ct-ttl">العقود</h1>
+      <p class="ct-sub">كل عقود وسيط AI بين طالبي ومقدمي الخدمة، مع الضمان المرتبط</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">العقود</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"العقود\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="ct-ai-disc">
+    <div class="ct-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div>
+      <div class="ct-ai-lbl">وسيط AI — مراقبة العقود</div>
+      <p class="ct-ai-txt">AI يرصد البنود غير المعتادة ويكشف التحايل على الضمان <span class="ct-ai-badge">دقة 95%</span></p>
+    </div>
+  </div>
+
+  <div class="ct-kpi-grid">
+    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود نشطة</span><div class="ct-kpi-val" style="color:#5DA0FF">{{ stats().active }}</div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">محتجز في الضمان</span><div class="ct-kpi-val" style="color:#0FA99A">{{ stats().escrowTotal | number }}<span class="ct-kpi-unit">ر.س</span></div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود متنازع عليها</span><div class="ct-kpi-val" style="color:#FF8C69">{{ stats().disputes }}</div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">مكتملة</span><div class="ct-kpi-val" style="color:#2BD4C7">{{ stats().completed }}</div></div>
+  </div>
+
+  <div class="ct-tabs">
+    @for (f of filters; track f.key) {
+      <button type="button" class="ct-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
+        {{ f.label }}<span class="ct-tab-count">{{ counts()[f.key] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="ct-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" placeholder="ابحث برقم العقد أو اسم أحد الطرفين..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
+  </div>
+
+  @if (filtered().length === 0) {
+    <div class="ct-empty"><p>لا توجد عقود مطابقة</p></div>
+  } @else {
+    <div class="ct-tbl-card">
+      <div class="ct-tbl-wrap">
+        <table class="ct-tbl">
+          <thead>
+            <tr>
+              <th>#</th><th>طالب الخدمة</th><th>مقدم الخدمة</th><th>الوصف</th><th>قيمة العقد</th><th>الضمان</th><th>الموعد النهائي</th><th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of filtered(); track c.id) {
+              <tr (click)="openDetail(c)">
+                <td class="ct-muted">{{ c.id }}</td>
+                <td><div class="ct-u-cell"><div class="ct-u-av" [style.background]="c.cBg">{{ c.cAv }}</div><span>{{ c.client }}</span></div></td>
+                <td><div class="ct-u-cell"><div class="ct-u-av" [style.background]="c.pBg">{{ c.pAv }}</div><span>{{ c.provider }}</span></div></td>
+                <td class="ct-desc-cell">{{ c.desc }}</td>
+                <td class="ct-value">{{ c.value }}</td>
+                <td><span class="ct-escrow" [ngClass]="escrowClasses[c.escrow]">{{ c.escrow }}</span></td>
+                <td [class.ct-late-text]="c.status === 'dispute'">{{ c.deadline }}</td>
+                <td><span class="ct-status" [ngClass]="statusClasses[c.status]">{{ statusLabels[c.status] }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</section>
+
+@if (showDetail()) {
+  <div class="ct-mov" (click)="closeDetail()">
+    <div class="ct-mbox" (click)="$event.stopPropagation()">
+      @if (selected(); as d) {
+        <div class="ct-md-hdr">
+          <div>
+            <div class="ct-md-id">{{ d.id }}</div>
+            <h3>{{ d.desc }}</h3>
+            <div class="ct-md-tags">
+              <span class="ct-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
+              <span class="ct-escrow" [ngClass]="escrowClasses[d.escrow]">{{ d.escrow }}</span>
+            </div>
+          </div>
+          <div class="ct-md-value">
+            <span>قيمة العقد</span>
+            <strong>{{ d.value }}</strong>
+          </div>
+          <button type="button" class="ct-mclose" (click)="closeDetail()">×</button>
+        </div>
+
+        <div class="ct-parties-row">
+          <div class="ct-party">
+            <div class="ct-u-av" [style.background]="d.cBg">{{ d.cAv }}</div>
+            <div><span>الطرف الأول (طالب)</span><strong>{{ d.client }}</strong></div>
+          </div>
+          <div class="ct-party">
+            <div class="ct-u-av" [style.background]="d.pBg">{{ d.pAv }}</div>
+            <div><span>الطرف الثاني (مقدم)</span><strong>{{ d.provider }}</strong></div>
+          </div>
+        </div>
+
+        <div class="ct-section-ttl">نطاق العمل</div>
+        <p class="ct-scope">{{ d.scope }}</p>
+
+        <div class="ct-section-ttl">بيانات الضمان</div>
+        <div class="ct-escrow-block">
+          <div class="ct-escrow-row"><span>المبلغ المودَع</span><strong style="color:#0FA99A">{{ d.value }}</strong></div>
+          <div class="ct-escrow-row"><span>رسوم وسيط AI ({{ d.feePct }}%)</span><strong style="color:#2BD4C7">{{ feeAmount(d) | number }} ر.س</strong></div>
+          <div class="ct-escrow-row"><span>صافي المقدم عند الإفراج</span><strong>{{ netAmount(d) | number }} ر.س</strong></div>
+        </div>
+
+        @if (d.status !== 'completed' && d.status !== 'cancelled') {
+          <div class="ct-escrow-actions">
+            <button type="button" class="ct-btn ct-btn-release" (click)="releaseEscrow()">إفراج يدوي عن الضمان</button>
+            <button type="button" class="ct-btn ct-btn-refund" (click)="refundClient()">إعادة المبلغ للطالب</button>
+          </div>
+        }
+
+        <div class="ct-section-ttl">سجل العقد</div>
+        <div class="ct-log">
+          @for (l of d.log; track l.text) {
+            <div class="ct-log-item">
+              <div class="ct-log-dot" [style.background]="l.color"></div>
+              <div><div class="ct-log-text">{{ l.text }}</div><div class="ct-log-time">{{ l.time }}</div></div>
+            </div>
+          }
+        </div>
+
+        @if (actionMessage()) {
+          <div class="ct-action-msg">{{ actionMessage() }}</div>
+        }
+
+        <div class="ct-md-actions">
+          @if (d.status !== 'dispute' && d.status !== 'completed' && d.status !== 'cancelled') {
+            <button type="button" class="ct-btn ct-btn-warn" (click)="openDispute()">فتح نزاع يدوياً</button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -93,3 +93,46 @@
 .dp-rf-actions{display:flex;gap:8px;margin-top:12px}
 
 @media(max-width:768px){.dp-list{grid-template-columns:1fr}.dp-md-row{flex-direction:column}.dp-page{padding:14px 16px}}
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES — based on design reference P-AD-008 / shared admin light polish
+   ========================================================================== */
+:host-context(body.light-theme),
+:host-context(body.theme-light),
+:host-context(.light-theme),
+:host-context(.theme-light) {
+  .dp-ttl { color: #1E293B; }
+  .dp-sub { color: #64748B; }
+
+  .dp-filters { background: rgba(7,13,36,.03); border-color: #E7EAF1; }
+  .dp-ftab { color: #475569; border-color: rgba(7,13,36,.10); }
+  .dp-ftab:hover { color: #1E293B; background: rgba(7,13,36,.05); }
+  .dp-ftab.active { background: rgba(43,212,199,.10); color: #007A72; border-color: rgba(43,212,199,.18); }
+
+  .dp-loading p, .dp-md-loading p, .dp-pag-info { color: #64748B; }
+  .dp-empty-ttl { color: #64748B; }
+
+  .dp-card { background: #fff; border-color: #E7EAF1; }
+  .dp-id { color: #64748B; }
+  .dp-reason { color: #1E293B; }
+  .dp-meta { color: #64748B; }
+
+  .dp-btn-gh { background: rgba(7,13,36,.05); border-color: rgba(7,13,36,.12); color: #475569; }
+  .dp-btn-gh:hover:not(:disabled) { background: rgba(7,13,36,.10); color: #1E293B; }
+
+  .dp-mbox { background: #fff; border-color: #E7EAF1; }
+  .dp-md-hdr h3 { color: #1E293B; }
+  .dp-mclose { background: #F1F5F9; border-color: #E2E8F0; color: #475569; }
+  .dp-mclose:hover { background: #E2E8F0; color: #1E293B; }
+
+  .dp-md-field label { color: #64748B; }
+  .dp-md-field p { color: #475569; }
+  .dp-ev-link { color: #007A72; }
+
+  .dp-resolve-form { background: #F8FAFC; border-color: #E7EAF1; }
+  .dp-rf-ttl { color: #1E293B; }
+  .dp-rf-preset { color: #64748B; background: #F1F5F9; border-color: #E2E8F0; }
+  .dp-rf-preset:hover { color: #1E293B; background: #E2E8F0; }
+  .dp-rf-preset.active { background: rgba(43,212,199,.10); border-color: rgba(43,212,199,.18); color: #007A72; }
+  .dp-rf-input, .dp-rf-ta { background: #fff; border-color: #CBD5E1; color: #1E293B; }
+}

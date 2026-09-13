@@ -1,13 +1,134 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="pj-page" dir="rtl">
+  <div class="pj-hdr">
+    <div>
+      <h1 class="pj-ttl">المشاريع</h1>
+      <p class="pj-sub">كل المشاريع الجارية والمكتملة في وسيط AI (عقد + ضمان + تسليم)</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">المشاريع</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"المشاريع\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="pj-ai-disc">
+    <div class="pj-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div>
+      <div class="pj-ai-lbl">وسيط AI — مراقبة المشاريع</div>
+      <p class="pj-ai-txt">AI يرصد التأخير ومخاطر النزاع ويتوقع المشاريع ذات الخطر <span class="pj-ai-badge">دقة 95%</span></p>
+    </div>
+  </div>
+
+  <div class="pj-kpi-grid">
+    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع جارية</span><div class="pj-kpi-val" style="color:#5DA0FF">{{ stats().active }}</div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">مكتملة</span><div class="pj-kpi-val" style="color:#0FA99A">{{ stats().completed }}</div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع متأخرة</span><div class="pj-kpi-val" style="color:#FF8C69">{{ stats().late }}</div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">قيمة مشاريع جارية</span><div class="pj-kpi-val" style="color:#2BD4C7">{{ stats().activeValue | number }}<span class="pj-kpi-unit">ر.س</span></div></div>
+  </div>
+
+  <div class="pj-tabs">
+    @for (f of filters; track f.key) {
+      <button type="button" class="pj-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
+        {{ f.label }}<span class="pj-tab-count">{{ counts()[f.key] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="pj-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" placeholder="ابحث بعنوان المشروع أو اسم الطرفين..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
+  </div>
+
+  @if (filtered().length === 0) {
+    <div class="pj-empty"><p>لا توجد مشاريع مطابقة</p></div>
+  } @else {
+    <div class="pj-tbl-card">
+      <div class="pj-tbl-wrap">
+        <table class="pj-tbl">
+          <thead>
+            <tr>
+              <th>#</th><th>المشروع</th><th>الطالب</th><th>المقدم</th><th>قيمة العقد</th><th>التقدم</th><th>الموعد</th><th>الحالة</th><th>خطر AI</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of filtered(); track p.id) {
+              <tr (click)="openDetail(p)">
+                <td class="pj-muted">{{ p.id }}</td>
+                <td class="pj-title">{{ p.title }}</td>
+                <td><div class="pj-u-cell"><div class="pj-u-av" [style.background]="p.cBg">{{ p.cAv }}</div><span>{{ p.client }}</span></div></td>
+                <td><div class="pj-u-cell"><div class="pj-u-av" [style.background]="p.pBg">{{ p.pAv }}</div><span>{{ p.provider }}</span></div></td>
+                <td class="pj-value">{{ p.value }}</td>
+                <td>
+                  <div class="pj-prog-cell">
+                    <div class="pj-prog-track"><div class="pj-prog-fill" [style.width.%]="p.progress"></div></div>
+                    <span>{{ p.progress }}%</span>
+                  </div>
+                </td>
+                <td [class.pj-late-text]="p.status === 'late'">{{ p.deadline }}</td>
+                <td><span class="pj-status" [ngClass]="statusClasses[p.status]">{{ statusLabels[p.status] }}</span></td>
+                <td><span class="pj-risk" [ngClass]="riskClasses[p.risk]">{{ riskLabels[p.risk] }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</section>
+
+@if (showDetail()) {
+  <div class="pj-mov" (click)="closeDetail()">
+    <div class="pj-mbox" (click)="$event.stopPropagation()">
+      @if (selected(); as d) {
+        <div class="pj-md-hdr">
+          <div>
+            <div class="pj-md-id">{{ d.id }}</div>
+            <h3>{{ d.title }}</h3>
+            <div class="pj-md-tags">
+              <span class="pj-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
+              <span class="pj-risk" [ngClass]="riskClasses[d.risk]">خطر: {{ riskLabels[d.risk] }}</span>
+            </div>
+          </div>
+          <button type="button" class="pj-mclose" (click)="closeDetail()">×</button>
+        </div>
+
+        <div class="pj-section-ttl">تقدم المشروع العام</div>
+        <div class="pj-overall-prog">
+          <div class="pj-prog-track big"><div class="pj-prog-fill" [style.width.%]="d.progress"></div></div>
+          <span class="pj-overall-pct">{{ d.progress }}%</span>
+        </div>
+
+        <div class="pj-section-ttl">المراحل والمعالم</div>
+        <div class="pj-milestones">
+          @for (m of d.milestones; track m.name) {
+            <div class="pj-ms-item" [class]="'ms-' + m.state">
+              <div class="pj-ms-dot"></div>
+              <div class="pj-ms-body">
+                <div class="pj-ms-name">{{ m.name }}</div>
+                <div class="pj-ms-track"><div class="pj-ms-fill" [style.width.%]="m.progress"></div></div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="pj-section-ttl">الضمان المالي (Escrow)</div>
+        <div class="pj-escrow-row">
+          <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ d.escrowTotal | number }} ر.س</strong></div>
+          <div class="pj-escrow-item"><span>محرَّر حتى الآن</span><strong style="color:#0FA99A">{{ d.escrowReleased | number }} ر.س</strong></div>
+          <div class="pj-escrow-item"><span>محتجز حالياً</span><strong style="color:#FFB400">{{ (d.escrowTotal - d.escrowReleased) | number }} ر.س</strong></div>
+        </div>
+
+        <div class="pj-ai-note">
+          <strong>تحليل AI:</strong> {{ d.aiNote }}
+        </div>
+
+        @if (actionMessage()) {
+          <div class="pj-action-msg">{{ actionMessage() }}</div>
+        }
+
+        <div class="pj-md-actions">
+          <button type="button" class="pj-btn pj-btn-ghost" (click)="messageParties()">مراسلة الطرفين</button>
+          <button type="button" class="pj-btn pj-btn-warn" (click)="extendDeadline()">تمديد المهلة</button>
+          <button type="button" class="pj-btn pj-btn-danger" (click)="escalate()">تصعيد لنزاع</button>
+        </div>
+      }
+    </div>
+  </div>
+}

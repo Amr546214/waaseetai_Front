@@ -1,13 +1,148 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="rq-page" dir="rtl">
+  <div class="rq-hdr">
+    <div>
+      <h1 class="rq-ttl">الطلبات</h1>
+      <p class="rq-sub">كل طلبات الخدمة في وسيط AI من جميع طالبي الخدمة</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الطلبات</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الطلبات\" في التحديثات القادمة للوحة الإدارة.
-    </p>
   </div>
-</div>
+
+  <div class="rq-ai-disc">
+    <div class="rq-ai-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    </div>
+    <div>
+      <div class="rq-ai-lbl">وسيط AI — تحليل الطلبات</div>
+      <p class="rq-ai-txt">AI يكتشف الطلبات المكررة والمحتوى المخالف ويصنّف الأولوية <span class="rq-ai-badge">دقة 95%</span></p>
+    </div>
+  </div>
+
+  <div class="rq-kpi-grid">
+    <div class="rq-kpi">
+      <span class="rq-kpi-lbl">إجمالي الطلبات</span>
+      <div class="rq-kpi-val" style="color:#2BD4C7">{{ stats().total }}</div>
+    </div>
+    <div class="rq-kpi">
+      <span class="rq-kpi-lbl">مفتوحة تنتظر عروض</span>
+      <div class="rq-kpi-val" style="color:#5DA0FF">{{ stats().open }}</div>
+    </div>
+    <div class="rq-kpi">
+      <span class="rq-kpi-lbl">مكتملة</span>
+      <div class="rq-kpi-val" style="color:#0FA99A">{{ stats().completed }}</div>
+    </div>
+    <div class="rq-kpi">
+      <span class="rq-kpi-lbl">بحاجة مراجعة</span>
+      <div class="rq-kpi-val" style="color:#FF8C69">{{ stats().needsReview }}</div>
+    </div>
+  </div>
+
+  <div class="rq-tabs">
+    @for (f of filters; track f.key) {
+      <button type="button" class="rq-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
+        {{ f.label }}<span class="rq-tab-count">{{ counts()[f.key] }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="rq-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" placeholder="ابحث بعنوان الطلب أو اسم صاحبه..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
+  </div>
+
+  @if (filtered().length === 0) {
+    <div class="rq-empty"><p>لا توجد طلبات مطابقة</p></div>
+  } @else {
+    <div class="rq-tbl-card">
+      <div class="rq-tbl-wrap">
+        <table class="rq-tbl">
+          <thead>
+            <tr>
+              <th>#</th><th>عنوان الطلب</th><th>الطالب</th><th>التخصص</th><th>الميزانية</th><th>العروض</th><th>الحالة</th><th>AI</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of filtered(); track r.id) {
+              <tr (click)="openDetail(r)">
+                <td class="rq-muted">{{ r.id }}</td>
+                <td><span class="rq-title-lnk">{{ r.title }}</span></td>
+                <td>
+                  <div class="rq-u-cell">
+                    <div class="rq-u-av" [style.background]="r.clientBg">{{ r.clientAv }}</div>
+                    <span>{{ r.client }}</span>
+                  </div>
+                </td>
+                <td><span class="rq-spec">{{ r.spec }}</span></td>
+                <td class="rq-budget">{{ r.budget }}</td>
+                <td class="rq-offers-count">{{ r.offers }}</td>
+                <td><span class="rq-status" [ngClass]="statusClasses[r.status]">{{ statusLabels[r.status] }}</span></td>
+                <td>
+                  @if (r.aiClean) {
+                    <span class="rq-ai-clean">✓ نظيف</span>
+                  } @else {
+                    <span class="rq-ai-flag">⚠ مُبلَّغ</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</section>
+
+@if (showDetail()) {
+  <div class="rq-mov" (click)="closeDetail()">
+    <div class="rq-mbox" (click)="$event.stopPropagation()">
+      @if (selected(); as d) {
+        <div class="rq-md-hdr">
+          <div>
+            <div class="rq-md-id">{{ d.id }}</div>
+            <h3>{{ d.title }}</h3>
+            <div class="rq-md-tags">
+              <span class="rq-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
+              <span class="rq-spec">{{ d.spec }}</span>
+              @if (d.aiClean) { <span class="rq-ai-clean">✓ AI: نظيف</span> }
+            </div>
+          </div>
+          <button type="button" class="rq-mclose" (click)="closeDetail()">×</button>
+        </div>
+
+        <div class="rq-md-meta-row">
+          <div class="rq-md-meta"><span>الميزانية</span><strong style="color:#2BD4C7">{{ d.budget }}</strong></div>
+          <div class="rq-md-meta"><span>العروض</span><strong>{{ d.offers }} عروض</strong></div>
+          <div class="rq-md-meta"><span>المدة المطلوبة</span><strong>{{ d.durationRange }}</strong></div>
+          @if (d.linkedContract) { <div class="rq-md-meta"><span>العقد</span><strong style="color:#0FA99A">{{ d.linkedContract }}</strong></div> }
+        </div>
+
+        <div class="rq-section-ttl">مسار الطلب</div>
+        <div class="rq-timeline">
+          @for (step of timeline(d); track step.label) {
+            <div class="rq-tl-step" [class.done]="step.done">
+              <div class="rq-tl-dot">@if (step.done) { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> }</div>
+              <div>
+                <div class="rq-tl-name">{{ step.label }}</div>
+                <div class="rq-tl-note">{{ step.note }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="rq-section-ttl">وصف الطلب والمتطلبات</div>
+        <p class="rq-desc">{{ d.description }}</p>
+        <ul class="rq-req-list">
+          @for (req of d.requirements; track req) { <li>{{ req }}</li> }
+        </ul>
+
+        @if (actionMessage()) {
+          <div class="rq-action-msg">{{ actionMessage() }}</div>
+        }
+
+        <div class="rq-md-actions">
+          <button type="button" class="rq-btn rq-btn-ghost" (click)="notifyOwner()">إشعار صاحب الطلب</button>
+          <button type="button" class="rq-btn rq-btn-warn" (click)="suspend()">تعليق الطلب مؤقتاً</button>
+          <button type="button" class="rq-btn rq-btn-danger" (click)="cancelRequest()">إلغاء الطلب</button>
+        </div>
+      }
+    </div>
+  </div>
+}
