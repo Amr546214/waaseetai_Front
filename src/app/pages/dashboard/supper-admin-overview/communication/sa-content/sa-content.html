@@ -1,13 +1,52 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="sco-page" dir="rtl">
+  <div class="sco-hdr">
+    <div>
+      <h1 class="sco-ttl">إدارة المحتوى (CMS)</h1>
+      <p class="sco-sub">تعديل محتوى الصفحات الثابتة + الشروط + FAQs</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">إدارة المحتوى</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"إدارة المحتوى\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <button type="button" class="sco-btn sco-btn-pri">صفحة جديدة</button>
   </div>
-</div>
+
+  <div class="sco-layout">
+    <div class="sco-card sco-pages-card">
+      <div class="sco-card-ttl">الصفحات</div>
+      <div class="sco-pages-list">
+        @for (p of pages; track p.key) {
+          <button type="button" class="sco-page-btn" [class.active]="selectedKey() === p.key" (click)="selectPage(p.key)">{{ p.title }}</button>
+        }
+      </div>
+    </div>
+
+    <div class="sco-card sco-editor-card">
+      <div class="sco-editor-hdr">
+        <div class="sco-editor-ttl">{{ selectedPage().title }}</div>
+        <div class="sco-lang-toggle"><span>AR</span><span class="sco-lang-sep">·</span><span>EN</span></div>
+        <div class="sco-editor-date">آخر تعديل: {{ selectedPage().lastEdited }}</div>
+      </div>
+      <div class="sco-editor-box">
+        <div class="sco-toolbar">
+          <button type="button" class="sco-tb-btn active" style="font-weight:800">B</button>
+          <button type="button" class="sco-tb-btn" style="font-style:italic">I</button>
+          <button type="button" class="sco-tb-btn">H2</button>
+          <button type="button" class="sco-tb-btn">— قائمة</button>
+          <button type="button" class="sco-tb-btn">رابط</button>
+        </div>
+        <textarea class="sco-textarea" [ngModel]="draftContent()" (ngModelChange)="onContentChange($event)"></textarea>
+      </div>
+      <div class="sco-editor-actions">
+        <button type="button" class="sco-btn sco-btn-pri" (click)="saveAndPublish()">حفظ ونشر</button>
+        <button type="button" class="sco-btn sco-btn-gh">معاينة</button>
+        <button type="button" class="sco-btn sco-btn-gh">حفظ مسودة</button>
+        <div class="sco-editor-note">
+          @if (savedMsg()) {
+            <span style="color:#0FA99A;font-weight:700">{{ savedMsg() }}</span>
+          } @else if (dirty()) {
+            <span style="color:#FFB400">● تغييرات غير محفوظة</span>
+          } @else {
+            <span>التعديلات تُنشر فوراً للمستخدمين</span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

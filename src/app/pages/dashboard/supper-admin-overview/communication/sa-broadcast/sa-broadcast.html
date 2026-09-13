@@ -1,13 +1,93 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="sbr-page" dir="rtl">
+  <div class="sbr-hdr">
+    <div>
+      <h1 class="sbr-ttl">Broadcast — رسائل جماعية</h1>
+      <p class="sbr-sub">إرسال رسائل مستهدفة لشرائح المستخدمين</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">Broadcast</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"Broadcast\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="sbr-actions">
+      <button type="button" class="sbr-btn sbr-btn-pri" (click)="sendNow()">إرسال الآن</button>
+      <button type="button" class="sbr-btn sbr-btn-teal" (click)="scheduleIt()">جدولة</button>
+    </div>
   </div>
-</div>
+
+  @if (sendResult()) {
+    <div class="sbr-toast">{{ sendResult() }}</div>
+  }
+
+  <div class="sbr-layout">
+    <div class="sbr-card">
+      <div class="sbr-card-ttl">إنشاء رسالة جماعية</div>
+
+      <div class="sbr-field">
+        <div class="sbr-field-lbl">الجمهور المستهدف</div>
+        <select class="sbr-input" [ngModel]="audience()" (ngModelChange)="audience.set($event)">
+          @for (a of audiences; track a) { <option [value]="a">{{ a }}</option> }
+        </select>
+      </div>
+
+      <div class="sbr-field">
+        <div class="sbr-field-lbl">قنوات الإرسال</div>
+        <div class="sbr-checks">
+          <label class="sbr-check"><input type="checkbox" [checked]="channels().email" (change)="toggleChannel('email')">Email</label>
+          <label class="sbr-check"><input type="checkbox" [checked]="channels().sms" (change)="toggleChannel('sms')">SMS</label>
+          <label class="sbr-check"><input type="checkbox" [checked]="channels().push" (change)="toggleChannel('push')">Push</label>
+          <label class="sbr-check"><input type="checkbox" [checked]="channels().inApp" (change)="toggleChannel('inApp')">داخل التطبيق</label>
+        </div>
+      </div>
+
+      <div class="sbr-field">
+        <div class="sbr-field-lbl">العنوان / الموضوع</div>
+        <input type="text" class="sbr-input" [ngModel]="subject()" (ngModelChange)="subject.set($event)" placeholder="عنوان واضح ومختصر...">
+      </div>
+
+      <div class="sbr-field">
+        <div class="sbr-field-lbl">نص الرسالة</div>
+        <textarea class="sbr-textarea" [ngModel]="message()" (ngModelChange)="message.set($event)" placeholder="يمكنك استخدام [الاسم] لتشخيص الرسالة..."></textarea>
+      </div>
+
+      <div class="sbr-field">
+        <div class="sbr-field-lbl">رابط الإجراء (اختياري)</div>
+        <input type="text" class="sbr-input" [ngModel]="actionLink()" (ngModelChange)="actionLink.set($event)" placeholder="https://...">
+      </div>
+
+      <div class="sbr-field">
+        <div class="sbr-field-lbl">جدولة الإرسال</div>
+        <div class="sbr-schedule-row">
+          <input type="datetime-local" class="sbr-input" style="flex:1">
+          <button type="button" class="sbr-btn sbr-btn-gh">إرسال فوري</button>
+        </div>
+      </div>
+
+      <div class="sbr-estimate">📊 المتوقع: إرسال لـ 12,480 مستخدم · Email: 11,200 · Push: 9,840 · تكلفة SMS: 248 ر.س</div>
+
+      <div class="sbr-form-actions">
+        <button type="button" class="sbr-btn sbr-btn-pri" style="flex:1" (click)="sendNow()">إرسال للجميع</button>
+        <button type="button" class="sbr-btn sbr-btn-gh">معاينة</button>
+        <button type="button" class="sbr-btn sbr-btn-gh">حفظ مسودة</button>
+      </div>
+    </div>
+
+    <div class="sbr-side">
+      <div class="sbr-card">
+        <div class="sbr-card-ttl">حملات سابقة</div>
+        @for (c of campaigns; track c.name) {
+          <div class="sbr-history">
+            <div class="sbr-history-body">
+              <div class="sbr-history-name">{{ c.name }}</div>
+              <div class="sbr-history-meta" [style.color]="c.status === 'مجدولة' ? '#FFB400' : '#6B7699'">{{ c.meta }}</div>
+            </div>
+            <span class="sbr-status-bdg" [style.background]="c.statusColor + '1A'" [style.color]="c.statusColor">{{ c.status }}</span>
+          </div>
+        }
+      </div>
+      <div class="sbr-card">
+        <div class="sbr-card-ttl sbr-card-ttl-sm">إحصاءات هذا الشهر</div>
+        <div class="sbr-stat-grid">
+          @for (s of monthStats; track s.label) {
+            <div class="sbr-stat"><div class="sbr-stat-v" [style.color]="s.color">{{ s.value }}</div><div class="sbr-stat-l">{{ s.label }}</div></div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

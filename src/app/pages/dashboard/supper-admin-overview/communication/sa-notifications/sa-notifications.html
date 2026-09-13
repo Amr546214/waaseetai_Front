@@ -1,13 +1,111 @@
-<div class="p-6 h-full flex flex-col">
-  <div class="bg-white dark:bg-[#131B36] rounded-2xl shadow-[0_8px_32px_rgba(7,13,36,0.04)] border border-slate-200 dark:border-slate-800/60 p-12 flex flex-col items-center justify-center min-h-[500px] flex-1">
-    <div class="w-20 h-20 bg-gradient-to-br from-[#2BD4C7]/20 to-[#2BD4C7]/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-[#2BD4C7]/20">
-      <svg class="w-10 h-10 text-[#2BD4C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
+<section class="san-page" dir="rtl">
+  <div class="san-hdr">
+    <div>
+      <h1 class="san-ttl">إدارة الإشعارات</h1>
+      <p class="san-sub">قوالب الإشعارات النظامية + إرسال جماعي + سجل الإرسال</p>
     </div>
-    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">الإشعارات</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm leading-relaxed">
-      هذه الصفحة قيد التطوير حالياً. سيتم توفير محتوى ولوحات تحكم خاصة بـ \"الإشعارات\" في التحديثات القادمة للوحة الإدارة.
-    </p>
+    <div class="san-actions">
+      <button type="button" class="san-btn san-btn-pri" (click)="openSendModal()">إرسال إشعار جماعي</button>
+      <button type="button" class="san-btn san-btn-gh">قالب جديد</button>
+    </div>
   </div>
-</div>
+
+  <div class="san-stats">
+    @for (s of stats; track s.label) {
+      <div class="san-stat"><div class="san-stat-v" [style.color]="s.color">{{ s.value }}</div><div class="san-stat-l">{{ s.label }}</div></div>
+    }
+  </div>
+
+  <div class="san-card">
+    <div class="san-card-hdr">
+      <div class="san-card-ttl">قوالب الإشعارات النشطة</div>
+      <div class="san-legend">
+        <span class="san-legend-item" style="background:rgba(43,212,199,.10);color:#2BD4C7">Email</span>
+        <span class="san-legend-item" style="background:rgba(43,127,255,.10);color:#5DA0FF">SMS</span>
+        <span class="san-legend-item" style="background:rgba(123,47,190,.10);color:#A56BE0">Push</span>
+      </div>
+    </div>
+
+    @for (t of templates; track t.name) {
+      <div class="san-tpl">
+        <div class="san-tpl-head">
+          <div class="san-tpl-ico" [style.background]="t.iconColor + '1F'" [style.color]="t.iconColor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="san-tpl-name">{{ t.name }}</div>
+          <div class="san-tpl-toggles">
+            <button type="button" class="san-ch-btn" [class.on]="t.channels.email" (click)="toggleChannel(t, 'email')">Email</button>
+            <button type="button" class="san-ch-btn" [class.on]="t.channels.sms" (click)="toggleChannel(t, 'sms')">SMS</button>
+            <button type="button" class="san-ch-btn" [class.on]="t.channels.push" (click)="toggleChannel(t, 'push')">Push</button>
+          </div>
+          <button type="button" class="san-btn san-btn-gh san-btn-sm">تعديل</button>
+        </div>
+        <div class="san-tpl-preview">{{ t.preview }}</div>
+        <div class="san-tpl-meta">{{ t.meta }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="san-card">
+    <div class="san-card-ttl">سجل الإرسال الأخير</div>
+    <div class="san-tbl-wrap">
+      <table class="san-tbl">
+        <thead><tr><th>القالب</th><th>المستلمون</th><th>معدل الفتح</th><th>التاريخ</th></tr></thead>
+        <tbody>
+          @for (h of history; track h.template) {
+            <tr>
+              <td class="san-td-strong">{{ h.template }}</td>
+              <td>{{ h.recipients }}</td>
+              <td class="san-td-strong" [style.color]="h.openRateColor">{{ h.openRate }}</td>
+              <td class="san-td-muted">{{ h.date }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+@if (showSendModal()) {
+  <div class="san-modal-ov" (click)="closeSendModal()">
+    <div class="san-modal" (click)="$event.stopPropagation()">
+      <div class="san-modal-ttl">إرسال إشعار جماعي</div>
+
+      <div class="san-field">
+        <div class="san-field-lbl">الجمهور المستهدف</div>
+        <select class="san-input">
+          <option>كل المستخدمين (12,480)</option>
+          <option>طالبو الخدمة فقط (6,070)</option>
+          <option>مقدمو الخدمة فقط (6,010)</option>
+          <option>المشتركون في الباقة المتقدمة</option>
+          <option>المستخدمون غير النشطين (30 يوم)</option>
+        </select>
+      </div>
+
+      <div class="san-field">
+        <div class="san-field-lbl">قنوات الإرسال</div>
+        <div class="san-checks">
+          <label class="san-check"><input type="checkbox" checked>Email</label>
+          <label class="san-check"><input type="checkbox">SMS</label>
+          <label class="san-check"><input type="checkbox" checked>Push</label>
+        </div>
+      </div>
+
+      <div class="san-field">
+        <div class="san-field-lbl">عنوان الإشعار</div>
+        <input type="text" class="san-input" placeholder="عنوان مختصر...">
+      </div>
+
+      <div class="san-field">
+        <div class="san-field-lbl">نص الرسالة</div>
+        <textarea class="san-textarea" placeholder="أدخل نص الإشعار... يمكنك استخدام [الاسم] للإشارة لاسم المستخدم"></textarea>
+      </div>
+
+      <div class="san-modal-actions">
+        <button type="button" class="san-btn san-btn-pri" style="flex:1" (click)="closeSendModal()">إرسال الآن</button>
+        <button type="button" class="san-btn san-btn-gh" style="flex:1" (click)="closeSendModal()">جدولة الإرسال</button>
+        <button type="button" class="san-btn san-btn-gh" (click)="closeSendModal()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+}
