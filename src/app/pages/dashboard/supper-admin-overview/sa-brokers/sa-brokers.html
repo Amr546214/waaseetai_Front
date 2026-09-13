@@ -17,10 +17,10 @@
   </div>
 
   <div class="bk-kpis">
-    <div class="bk-kpi"><div class="bk-kpi-num" style="color:#0FA99A">{{ countFor('active') }}</div><div class="bk-kpi-lbl">وسطاء نشطون</div></div>
-    <div class="bk-kpi"><div class="bk-kpi-num" style="color:#2BD4C7">8,420</div><div class="bk-kpi-lbl">إجمالي الإحالات</div></div>
-    <div class="bk-kpi"><div class="bk-kpi-num" style="color:#FFB400">84,200</div><div class="bk-kpi-lbl">عمولات مستحقة (ر.س)</div></div>
-    <div class="bk-kpi"><div class="bk-kpi-num" style="color:#FF8C69">{{ countFor('flagged') }}</div><div class="bk-kpi-lbl">AI كشف مشبوه</div></div>
+    <div class="bk-kpi"><div class="bk-kpi-num txt-green">{{ countFor('active') }}</div><div class="bk-kpi-lbl">وسطاء نشطون</div></div>
+    <div class="bk-kpi"><div class="bk-kpi-num txt-teal">8,420</div><div class="bk-kpi-lbl">إجمالي الإحالات</div></div>
+    <div class="bk-kpi"><div class="bk-kpi-num txt-amber">84,200</div><div class="bk-kpi-lbl">عمولات مستحقة (ر.س)</div></div>
+    <div class="bk-kpi"><div class="bk-kpi-num txt-coral">{{ countFor('flagged') }}</div><div class="bk-kpi-lbl">AI كشف مشبوه</div></div>
   </div>
 
   <div class="bk-comm-title">هيكل العمولات (15 مستوى)</div>
@@ -140,10 +140,10 @@
       </div>
 
       <div class="bk-md-kpis">
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي الإحالات</div><div class="bk-md-kpi-val" style="color:#2BD4C7">{{ b.referrals }}</div><div class="bk-md-kpi-sub">{{ b.converted }} محوّلة</div></div>
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">نسبة التحويل</div><div class="bk-md-kpi-val" style="color:#0FA99A">{{ b.conversionRate }}%</div></div>
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي العمولات</div><div class="bk-md-kpi-val" style="color:#FFB400">{{ b.totalCommission }}</div></div>
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">مستوى الشبكة</div><div class="bk-md-kpi-val" style="color:#A56BE0">M{{ b.netLevel }}</div></div>
+        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي الإحالات</div><div class="bk-md-kpi-val txt-teal">{{ b.referrals }}</div><div class="bk-md-kpi-sub">{{ b.converted }} محوّلة</div></div>
+        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">نسبة التحويل</div><div class="bk-md-kpi-val txt-green">{{ b.conversionRate }}%</div></div>
+        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي العمولات</div><div class="bk-md-kpi-val txt-amber">{{ b.totalCommission }}</div></div>
+        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">مستوى الشبكة</div><div class="bk-md-kpi-val txt-purple">M{{ b.netLevel }}</div></div>
       </div>
 
       <div class="bk-md-body">

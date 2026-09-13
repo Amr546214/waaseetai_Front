@@ -29,6 +29,11 @@
 :host-context(.light-theme) .bm-ai-txt,
 :host-context(.theme-light) .bm-ai-txt { color: #475569; }
 
+:host-context(body.light-theme) .bm-ai-lbl,
+:host-context(body.theme-light) .bm-ai-lbl,
+:host-context(.light-theme) .bm-ai-lbl,
+:host-context(.theme-light) .bm-ai-lbl { color: #6B27A5; }
+
 :host-context(body.light-theme) .bm-ai-disc,
 :host-context(body.theme-light) .bm-ai-disc,
 :host-context(.light-theme) .bm-ai-disc,
@@ -91,6 +96,11 @@
 .bm-empty-ico svg { width: 28px; height: 28px; }
 .bm-empty-ttl { font-size: 14px; font-weight: 800; color: #A8B2D1; }
 
+:host-context(body.light-theme) .bm-empty-ttl,
+:host-context(body.theme-light) .bm-empty-ttl,
+:host-context(.light-theme) .bm-empty-ttl,
+:host-context(.theme-light) .bm-empty-ttl { color: #0F172A; }
+
 .bm-tbl-wrap { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; overflow-x: auto; }
 .bm-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .bm-tbl thead tr { border-bottom: 1px solid rgba(255,255,255,.07); }
@@ -122,7 +132,7 @@
 :host-context(body.light-theme) .bm-tbl tbody td,
 :host-context(body.theme-light) .bm-tbl tbody td,
 :host-context(.light-theme) .bm-tbl tbody td,
-:host-context(.theme-light) .bm-tbl tbody td { color: #334155; }
+:host-context(.theme-light) .bm-tbl tbody td { color: #475569; }
 :host-context(body.light-theme) .bm-name,
 :host-context(body.theme-light) .bm-name,
 :host-context(.light-theme) .bm-name,
@@ -208,11 +218,25 @@
 :host-context(.light-theme) .bm-ai-panel,
 :host-context(.theme-light) .bm-ai-panel { background: #fff; border-color: #E7EAF1; }
 
+:host-context(body.light-theme) .bm-ai-panel-hdr,
+:host-context(body.theme-light) .bm-ai-panel-hdr,
+:host-context(.light-theme) .bm-ai-panel-hdr,
+:host-context(.theme-light) .bm-ai-panel-hdr { color: #6B27A5; }
+:host-context(body.light-theme) .bm-ai-note,
+:host-context(body.theme-light) .bm-ai-note,
+:host-context(.light-theme) .bm-ai-note,
+:host-context(.theme-light) .bm-ai-note { color: #6B27A5; }
+
 .bm-md-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .bm-md-hdr h3 { font-size: 15px; color: #fff; margin: 0 0 6px; line-height: 1.4; }
 .bm-md-sub { font-size: 12px; color: #6B7699; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .bm-mclose { width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #A8B2D1; font-size: 20px; cursor: pointer; flex-shrink: 0; }
 .bm-mclose:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+:host-context(body.light-theme) .bm-mclose,
+:host-context(body.theme-light) .bm-mclose,
+:host-context(.light-theme) .bm-mclose,
+:host-context(.theme-light) .bm-mclose { background: #F1F5F9; border-color: #E2E8F0; color: #475569; }
 
 :host-context(body.light-theme) .bm-md-hdr h3,
 :host-context(body.theme-light) .bm-md-hdr h3,

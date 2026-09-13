@@ -17,10 +17,10 @@
   </div>
 
   <div class="bm-kpis">
-    <div class="bm-kpi"><div class="bm-kpi-num" style="color:#FFB400">{{ countFor('pending') }}</div><div class="bm-kpi-lbl">بانتظار الاعتماد</div></div>
-    <div class="bm-kpi"><div class="bm-kpi-num" style="color:#0FA99A">{{ countFor('approved') }}</div><div class="bm-kpi-lbl">معتمدة ومنشورة</div></div>
-    <div class="bm-kpi"><div class="bm-kpi-num" style="color:#FF8C69">{{ countFor('rejected') }}</div><div class="bm-kpi-lbl">مرفوضة</div></div>
-    <div class="bm-kpi"><div class="bm-kpi-num" style="color:#A56BE0">{{ avgAiScore() }}</div><div class="bm-kpi-lbl">متوسط AI Quality Score</div></div>
+    <div class="bm-kpi"><div class="bm-kpi-num txt-amber">{{ countFor('pending') }}</div><div class="bm-kpi-lbl">بانتظار الاعتماد</div></div>
+    <div class="bm-kpi"><div class="bm-kpi-num txt-green">{{ countFor('approved') }}</div><div class="bm-kpi-lbl">معتمدة ومنشورة</div></div>
+    <div class="bm-kpi"><div class="bm-kpi-num txt-coral">{{ countFor('rejected') }}</div><div class="bm-kpi-lbl">مرفوضة</div></div>
+    <div class="bm-kpi"><div class="bm-kpi-num txt-purple">{{ avgAiScore() }}</div><div class="bm-kpi-lbl">متوسط AI Quality Score</div></div>
   </div>
 
   <div class="bm-filters">
@@ -68,7 +68,7 @@
         </thead>
         <tbody>
           @for (m of filteredModels(); track m.id) {
-            <tr class="bm-row" (click)="openDetail(m)">
+            <tr (click)="openDetail(m)">
               <td class="bm-name">{{ m.name }}</td>
               <td>
                 <div class="bm-u-cell">

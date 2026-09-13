@@ -21,10 +21,10 @@
   </div>
 
   <div class="sac-kpis">
-    <div class="sac-kpi"><div class="sac-kpi-num" style="color:#FFB400">{{ countFor('pending') }}</div><div class="sac-kpi-lbl">بانتظار المراجعة</div></div>
-    <div class="sac-kpi"><div class="sac-kpi-num" style="color:#0FA99A">{{ countFor('approved') }}</div><div class="sac-kpi-lbl">مقبول</div></div>
-    <div class="sac-kpi"><div class="sac-kpi-num" style="color:#FF8C69">{{ countFor('rejected') }}</div><div class="sac-kpi-lbl">مرفوض</div></div>
-    <div class="sac-kpi"><div class="sac-kpi-num" style="color:#5DA0FF">3.4</div><div class="sac-kpi-lbl">متوسط وقت المراجعة (ساعة)</div></div>
+    <div class="sac-kpi"><div class="sac-kpi-num txt-amber">{{ countFor('pending') }}</div><div class="sac-kpi-lbl">بانتظار المراجعة</div></div>
+    <div class="sac-kpi"><div class="sac-kpi-num txt-green">{{ countFor('approved') }}</div><div class="sac-kpi-lbl">مقبول</div></div>
+    <div class="sac-kpi"><div class="sac-kpi-num txt-coral">{{ countFor('rejected') }}</div><div class="sac-kpi-lbl">مرفوض</div></div>
+    <div class="sac-kpi"><div class="sac-kpi-num txt-blue">3.4</div><div class="sac-kpi-lbl">متوسط وقت المراجعة (ساعة)</div></div>
   </div>
 
   <div class="sac-filters">
@@ -66,7 +66,7 @@
         </thead>
         <tbody>
           @for (r of filteredRequests(); track r.id) {
-            <tr (click)="openDetail(r)" class="sac-row">
+            <tr (click)="openDetail(r)">
               <td>
                 <div class="sac-u-cell">
                   <div class="sac-av" [style.background]="r.avatarBg">{{ r.avatar }}</div>

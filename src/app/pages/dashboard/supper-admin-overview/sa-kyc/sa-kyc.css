@@ -399,7 +399,7 @@
 :host-context(body.light-theme) .sk-table th,
 :host-context(body.theme-light) .sk-table th,
 :host-context(.light-theme) .sk-table th,
-:host-context(.theme-light) .sk-table th { border-bottom-color: #E7EAF1 !important; }
+:host-context(.theme-light) .sk-table th { color: #475569 !important; border-bottom-color: #E7EAF1 !important; }
 
 .sk-table td {
   font-size: 12.5px;
@@ -930,6 +930,62 @@
 
 .sk-form-input:focus { outline: none; border-color: rgba(43, 212, 199, .4); }
 .sk-form-input::placeholder { color: #6B7699; }
+
+:host-context(body.light-theme) .sk-loading,
+:host-context(body.theme-light) .sk-loading,
+:host-context(.light-theme) .sk-loading,
+:host-context(.theme-light) .sk-loading,
+:host-context(body.light-theme) .sk-modal-loading,
+:host-context(body.theme-light) .sk-modal-loading,
+:host-context(.light-theme) .sk-modal-loading,
+:host-context(.theme-light) .sk-modal-loading,
+:host-context(body.light-theme) .sk-error-sub,
+:host-context(body.theme-light) .sk-error-sub,
+:host-context(.light-theme) .sk-error-sub,
+:host-context(.theme-light) .sk-error-sub,
+:host-context(body.light-theme) .sk-empty-txt,
+:host-context(body.theme-light) .sk-empty-txt,
+:host-context(.light-theme) .sk-empty-txt,
+:host-context(.theme-light) .sk-empty-txt,
+:host-context(body.light-theme) .sk-cell-id,
+:host-context(body.theme-light) .sk-cell-id,
+:host-context(.light-theme) .sk-cell-id,
+:host-context(.theme-light) .sk-cell-id,
+:host-context(body.light-theme) .sk-user-email,
+:host-context(body.theme-light) .sk-user-email,
+:host-context(.light-theme) .sk-user-email,
+:host-context(.theme-light) .sk-user-email,
+:host-context(body.light-theme) .sk-cell-docs,
+:host-context(body.theme-light) .sk-cell-docs,
+:host-context(.light-theme) .sk-cell-docs,
+:host-context(.theme-light) .sk-cell-docs,
+:host-context(body.light-theme) .sk-bank-iban,
+:host-context(body.theme-light) .sk-bank-iban,
+:host-context(.light-theme) .sk-bank-iban,
+:host-context(.theme-light) .sk-bank-iban,
+:host-context(body.light-theme) .sk-cell-date,
+:host-context(body.theme-light) .sk-cell-date,
+:host-context(.light-theme) .sk-cell-date,
+:host-context(.theme-light) .sk-cell-date,
+:host-context(body.light-theme) .sk-cell-wait,
+:host-context(body.theme-light) .sk-cell-wait,
+:host-context(.light-theme) .sk-cell-wait,
+:host-context(.theme-light) .sk-cell-wait,
+:host-context(body.light-theme) .sk-no,
+:host-context(body.theme-light) .sk-no,
+:host-context(.light-theme) .sk-no,
+:host-context(.theme-light) .sk-no {
+  color: #475569 !important;
+}
+
+:host-context(body.light-theme) .sk-modal-close,
+:host-context(body.theme-light) .sk-modal-close,
+:host-context(.light-theme) .sk-modal-close,
+:host-context(.theme-light) .sk-modal-close {
+  background: #F1F5F9 !important;
+  border-color: #E7EAF1 !important;
+  color: #475569 !important;
+}
 
 /* ── Responsive ─────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
