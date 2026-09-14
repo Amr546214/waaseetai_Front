@@ -3,11 +3,12 @@ import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { Navbar } from '../../sheards/navbar/navbar';
 import { Footer } from '../../sheards/footer/footer';
+import { PageLoader } from '../../sheards/page-loader/page-loader';
 
 @Component({
   selector: 'app-website-layout',
   standalone: true,
-  imports: [RouterOutlet, Navbar, Footer],
+  imports: [RouterOutlet, Navbar, Footer, PageLoader],
   templateUrl: './website-layout.component.html'
 })
 export class WebsiteLayoutComponent implements AfterViewInit {

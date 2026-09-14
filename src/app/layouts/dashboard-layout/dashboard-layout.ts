@@ -10,11 +10,12 @@ import { ChatStateService } from '../../core/services/chat-state.service';
 import { NotificationSoundService } from '../../core/services/notification-sound.service';
 
 import { VideoCallModalComponent } from '../../sheards/dashboard/video-call-modal/video-call-modal';
+import { PageLoader } from '../../sheards/page-loader/page-loader';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavDashboard, Sidebar, VideoCallModalComponent],
+  imports: [CommonModule, RouterModule, NavDashboard, Sidebar, VideoCallModalComponent, PageLoader],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css'
 })

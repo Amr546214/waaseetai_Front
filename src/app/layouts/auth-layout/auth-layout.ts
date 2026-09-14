@@ -3,12 +3,13 @@ import { AfterViewInit, Component, Inject, PLATFORM_ID } from "@angular/core";
 import { RouterLink, RouterOutlet } from "@angular/router";
 import { Navbar } from "../../sheards/navbar/navbar";
 import { Footer } from "../../sheards/footer/footer";
+import { PageLoader } from "../../sheards/page-loader/page-loader";
 
 @Component({
 	selector: 'app-auth-layout',
 	templateUrl: './auth-layout.html',
 	standalone: true,
-	imports: [RouterOutlet, Navbar, Footer],
+	imports: [RouterOutlet, Navbar, Footer, PageLoader],
 
 })
 export class AuthLayoutComponent implements AfterViewInit {
