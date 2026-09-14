@@ -32,13 +32,23 @@
           </div>
           <h1 class="hero-title">
             {{ config().titlePrefix }}
-            <span class="highlight" [style.background]="config().highlightGradient" style="-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">{{ config().titleHighlight }}</span>
+            <span class="highlight" [style.background-image]="config().highlightGradient" style="-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">{{ config().titleHighlight }}</span>
             @if (config().titleSuffix) { <br>{{ config().titleSuffix }} }
           </h1>
           <p class="hero-sub">{{ config().subtitle }}</p>
           <div class="hero-stats">
-            <div class="hstat"><div class="hstat-n">{{ filteredModels().length }}</div><div class="hstat-l">{{ config().statLabel }}</div></div>
-            <div class="hstat"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
+            <div class="hstat"><div class="hstat-n gold">{{ averageRating() }}</div><div class="hstat-l">متوسط تقييم القائمة</div></div>
+            <div class="hstat"><div class="hstat-n">{{ totalReviews() }}+</div><div class="hstat-l">تقييم موثّق</div></div>
+            <div class="hstat"><div class="hstat-n">{{ satisfactionRate() }}٪</div><div class="hstat-l">نسبة رضا العملاء</div></div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-ring"></div>
+          <div class="hero-ring-pulse"></div>
+          <div class="hero-ring-pulse hero-ring-pulse2"></div>
+          <div class="hero-center">
+            <div class="hero-crown-ico" [style.color]="config().badgeColorVar"><svg aria-hidden="true"><use [attr.href]="'#' + config().badgeIcon"></use></svg></div>
+            <div class="hero-center-label" [style.color]="config().badgeColorVar">{{ config().statLabel }}</div>
           </div>
         </div>
       </div>
@@ -56,13 +66,69 @@
       <div class="ai-banner-badge">AI · تحليل</div>
     </div>
 
+    @if (!loading() && podiumSlots().length) {
+      <!-- PODIUM -->
+      <div class="podium-section">
+        <div class="section-head">
+          <div class="section-title">
+            <div class="stitle-ico"><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
+            المراكز الثلاثة الأولى
+          </div>
+        </div>
+        <div class="podium-wrap">
+          @for (slot of podiumSlots(); track slot.model.id) {
+            <a [routerLink]="['/marketplace/offer', slot.model.id]" class="pc" [class]="'r' + slot.rank">
+              <div class="pc-strip">
+                <div class="pc-strip-ico"><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
+                {{ rankStripLabel(slot.rank) }}
+              </div>
+              <div class="pc-thumb">
+                <div class="pc-glow"></div>
+                @if (slot.model.coverImage) {
+                  <img [src]="slot.model.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+                } @else {
+                  <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
+                }
+                @if (slot.model.level) {
+                  <div class="pc-lvl" [style.background]="slot.model.levelBg || 'rgba(123,47,190,.85)'" [style.color]="slot.model.levelColor || '#E0C6FF'">{{ slot.model.level }}</div>
+                }
+              </div>
+              <div class="pc-body">
+                <div class="pc-ai" [class.gold]="slot.rank===1"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ slot.model.aiScore }}</div>
+                <div class="pc-title">{{ slot.model.title }}</div>
+                <div class="pc-prov">
+                  <div class="pc-av">{{ slot.model.provider.initials }}</div>
+                  <div>
+                    <div class="pc-pname">{{ slot.model.provider.name }}</div>
+                    @if (slot.model.isVerified) { <div class="pc-verified"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div> }
+                  </div>
+                </div>
+                <div class="pc-score">
+                  <div class="pc-stars"><svg aria-hidden="true"><use href="#ws-star"></use></svg><svg aria-hidden="true"><use href="#ws-star"></use></svg><svg aria-hidden="true"><use href="#ws-star"></use></svg><svg aria-hidden="true"><use href="#ws-star"></use></svg><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
+                  <span class="pc-score-val">{{ slot.model.rating }}</span>
+                  <span class="pc-score-cnt">({{ slot.model.reviewsCount || 0 }} تقييم)</span>
+                </div>
+                <div class="pc-price">
+                  <span class="pc-price-val">{{ slot.model.totalAmount }}</span><span class="pc-price-lbl">ريال</span>
+                  <div class="pc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ slot.model.totalDays }} يوم</div>
+                  <span class="pc-btn">عرض الخدمة</span>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    }
+
     <!-- FILTER -->
     @if (categories().length > 1) {
-      <div class="filter-rail">
-        <button class="filter-pill" [class.active]="categoryFilter()==='all'" (click)="setCategoryFilter('all')">الكل</button>
-        @for (cat of categories(); track cat) {
-          <button class="filter-pill" [class.active]="categoryFilter()===cat" (click)="setCategoryFilter(cat)">{{ cat }}</button>
-        }
+      <div class="sticky-sort">
+        <div class="filter-rail">
+          <button class="filter-pill" [class.active]="categoryFilter()==='all'" (click)="setCategoryFilter('all')">الكل</button>
+          @for (cat of categories(); track cat) {
+            <button class="filter-pill" [class.active]="categoryFilter()===cat" (click)="setCategoryFilter(cat)">{{ cat }}</button>
+          }
+        </div>
       </div>
     }
 
@@ -73,19 +139,16 @@
         <div style="font-size:14px;font-weight:700;margin-bottom:6px" class="txt-white">لا توجد خدمات ضمن هذا التصنيف حالياً</div>
         <a routerLink="/marketplace" class="empty-cta">تصفح كل الخدمات</a>
       </div>
-    } @else {
+    } @else if (restModels().length) {
       <div class="results-meta"><strong>{{ filteredModels().length }}</strong> خدمة ضمن القائمة</div>
       <div class="services-grid">
-        @for (m of filteredModels(); track m.id; let i = $index) {
+        @for (m of restModels(); track m.id) {
           <a [routerLink]="['/marketplace/offer', m.id]" class="svc-card">
             <div class="svc-thumb">
               @if (m.coverImage) {
                 <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover">
               } @else {
                 <svg class="ph" aria-hidden="true" style="width:32px;height:32px"><use href="#ws-image"></use></svg>
-              }
-              @if (i < 3) {
-                <span class="rank-badge" [class]="rankBadgeClass(i)">#{{ i + 1 }}</span>
               }
               @if (m.level) {
                 <span class="svc-lvl">{{ m.level }}</span>

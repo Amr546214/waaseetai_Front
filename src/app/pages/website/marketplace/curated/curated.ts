@@ -124,6 +124,41 @@ export class CuratedComponent implements OnInit {
 		return (list.reduce((sum, m) => sum + (m.rating || 0), 0) / list.length).toFixed(1);
 	});
 
+	totalReviews = computed(() => {
+		return this.filteredModels().reduce((sum, m) => sum + (m.reviewsCount || 0), 0);
+	});
+
+	// Share of listed services rated 4.5+ — used as a real proxy for "customer satisfaction",
+	// since the API doesn't expose a dedicated satisfaction metric.
+	satisfactionRate = computed(() => {
+		const list = this.filteredModels();
+		if (!list.length) return 0;
+		const satisfied = list.filter(m => (m.rating || 0) >= 4.5).length;
+		return Math.round((satisfied / list.length) * 100);
+	});
+
+	// Top-3 podium (rank 2, rank 1, rank 3 visual order, matching the design's center-focus layout).
+	podiumSlots = computed(() => {
+		const top3 = this.filteredModels().slice(0, 3);
+		if (top3.length < 3) return [];
+		return [
+			{ model: top3[1], rank: 2 },
+			{ model: top3[0], rank: 1 },
+			{ model: top3[2], rank: 3 }
+		];
+	});
+
+	restModels = computed(() => {
+		const list = this.filteredModels();
+		return this.podiumSlots().length ? list.slice(3) : list;
+	});
+
+	rankStripLabel(rank: number): string {
+		if (rank === 1) return `المرتبة الأولى — ${this.config().statLabel}`;
+		if (rank === 2) return 'المرتبة الثانية';
+		return 'المرتبة الثالثة';
+	}
+
 	ngOnInit(): void {
 		this.route.data.subscribe(data => {
 			const mode = (data['mode'] as CuratedMode) || 'top-rated';
@@ -155,13 +190,6 @@ export class CuratedComponent implements OnInit {
 
 	setCategoryFilter(cat: string) {
 		this.categoryFilter.set(cat);
-	}
-
-	rankBadgeClass(index: number): string {
-		if (index === 0) return 'rank-gold';
-		if (index === 1) return 'rank-silver';
-		if (index === 2) return 'rank-bronze';
-		return '';
 	}
 
 	private initParticles() {
