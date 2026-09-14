@@ -1,7 +1,6 @@
 .blog-page {
   position: relative;
   z-index: 2;
-  padding-top: 24px;
 
   --card-bg-flat: rgba(255,255,255,.02);
   --line-soft: rgba(255,255,255,.05);
@@ -38,7 +37,7 @@
 .qtag:hover { border-color: rgba(43,212,199,.3); color: var(--teal); }
 
 /* CATEGORY STRIP */
-.cat-strip { display: flex; gap: 8px; padding: 16px 0; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+.cat-strip { display: flex; gap: 8px; padding: 16px 0; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); }
 .cat-strip::-webkit-scrollbar { display: none; }
 .cat-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.02); font-size: 12px; font-weight: 700; color: var(--txt-3); cursor: pointer; white-space: nowrap; transition: all .18s; font-family: inherit; flex-shrink: 0; }
 .cat-btn:hover { border-color: rgba(43,212,199,.3); color: var(--teal); background: rgba(43,212,199,.04); }
@@ -47,7 +46,7 @@
 .cat-count { font-size: 10px; padding: 1px 6px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--txt-3); }
 
 /* MAIN LAYOUT */
-.blog-main { display: grid; grid-template-columns: 1fr 300px; gap: 28px; padding-bottom: 64px; align-items: start; }
+.blog-main { display: grid; grid-template-columns: 1fr 300px; gap: 28px; padding: 28px 0 64px; align-items: start; }
 
 /* FEATURED HERO CARD */
 .hero-post { display: block; background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; margin-bottom: 20px; text-decoration: none; }

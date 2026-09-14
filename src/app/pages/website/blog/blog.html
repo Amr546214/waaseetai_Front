@@ -11,55 +11,58 @@
 </defs></svg>
 
 <div class="page-wrap blog-page">
-  <nav class="breadcrumb" aria-label="مسار التنقل">
-    <a routerLink="/">الرئيسية</a>
-    <svg class="breadcrumb-sep" aria-hidden="true"><use href="#bl-chevron"></use></svg>
-    <span>المدونة</span>
-  </nav>
-
   <!-- HERO -->
   <section class="blog-hero">
-    <div class="blog-hero-inner">
-      <div>
-        <div class="blog-hero-label"><svg aria-hidden="true"><use href="#bl-file"></use></svg> مدونة وسيط AI</div>
-        <h1 class="blog-hero-title">أفكار ونصائح<br>لكل أطراف السوق</h1>
-        <p class="blog-hero-sub">مقالات متخصصة لمقدمي الخدمات والطالبين والوسطاء — نشارك ما يساعدك تنمو وتنجح في سوق الخدمات المهنية الرقمي</p>
-        <div class="hero-facts">
-          <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-file"></use></svg> {{ posts.length }} مقالة</div>
-          <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-clock"></use></svg> نشرة أسبوعية</div>
-          <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-star"></use></svg> محتوى موثوق من الفريق</div>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="مسار التنقل">
+        <a routerLink="/">الرئيسية</a>
+        <svg class="breadcrumb-sep" aria-hidden="true"><use href="#bl-chevron"></use></svg>
+        <span>المدونة</span>
+      </nav>
+      <div class="blog-hero-inner">
+        <div>
+          <div class="blog-hero-label"><svg aria-hidden="true"><use href="#bl-file"></use></svg> مدونة وسيط AI</div>
+          <h1 class="blog-hero-title">أفكار ونصائح<br>لكل أطراف السوق</h1>
+          <p class="blog-hero-sub">مقالات متخصصة لمقدمي الخدمات والطالبين والوسطاء — نشارك ما يساعدك تنمو وتنجح في سوق الخدمات المهنية الرقمي</p>
+          <div class="hero-facts">
+            <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-file"></use></svg> {{ posts.length }} مقالة</div>
+            <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-clock"></use></svg> نشرة أسبوعية</div>
+            <div class="hero-fact"><svg aria-hidden="true"><use href="#bl-star"></use></svg> محتوى موثوق من الفريق</div>
+          </div>
         </div>
-      </div>
-      <div class="search-card">
-        <div class="search-card-title">ابحث في المدونة</div>
-        <div class="search-wrap">
-          <input class="search-input" type="search" placeholder="AI Trust Score، التسعير، التسليم..." [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)">
-          <div class="search-ico"><svg aria-hidden="true"><use href="#bl-search"></use></svg></div>
-        </div>
-        <div class="quick-tags-lbl">بحث سريع</div>
-        <div class="quick-tags">
-          @for (tag of ['AI Trust Score', 'التسعير', 'التسليم', 'نصائح', 'حساب الضمان']; track tag) {
-            <span class="qtag" (click)="setQuickTag(tag)" tabindex="0" role="button" (keydown.enter)="setQuickTag(tag)">{{ tag }}</span>
-          }
+        <div class="search-card">
+          <div class="search-card-title">ابحث في المدونة</div>
+          <div class="search-wrap">
+            <input class="search-input" type="search" placeholder="AI Trust Score، التسعير، التسليم..." [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)">
+            <div class="search-ico"><svg aria-hidden="true"><use href="#bl-search"></use></svg></div>
+          </div>
+          <div class="quick-tags-lbl">بحث سريع</div>
+          <div class="quick-tags">
+            @for (tag of ['AI Trust Score', 'التسعير', 'التسليم', 'نصائح', 'حساب الضمان']; track tag) {
+              <span class="qtag" (click)="setQuickTag(tag)" tabindex="0" role="button" (keydown.enter)="setQuickTag(tag)">{{ tag }}</span>
+            }
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- CATEGORY STRIP -->
-  <div class="cat-strip" role="tablist" aria-label="تصفية المقالات">
-    <button class="cat-btn" [class.active]="activeCategory() === 'الكل'" type="button" role="tab" [attr.aria-selected]="activeCategory() === 'الكل'" (click)="setCategory('الكل')">
-      <svg aria-hidden="true"><use href="#bl-file"></use></svg> الكل <span class="cat-count">{{ posts.length }}</span>
-    </button>
-    @for (cat of categories(); track cat.name) {
-      <button class="cat-btn" [class.active]="activeCategory() === cat.name" type="button" role="tab" [attr.aria-selected]="activeCategory() === cat.name" (click)="setCategory(cat.name)">
-        {{ cat.name }} <span class="cat-count">{{ cat.count }}</span>
+  <div class="container">
+    <div class="cat-strip" role="tablist" aria-label="تصفية المقالات">
+      <button class="cat-btn" [class.active]="activeCategory() === 'الكل'" type="button" role="tab" [attr.aria-selected]="activeCategory() === 'الكل'" (click)="setCategory('الكل')">
+        <svg aria-hidden="true"><use href="#bl-file"></use></svg> الكل <span class="cat-count">{{ posts.length }}</span>
       </button>
-    }
+      @for (cat of categories(); track cat.name) {
+        <button class="cat-btn" [class.active]="activeCategory() === cat.name" type="button" role="tab" [attr.aria-selected]="activeCategory() === cat.name" (click)="setCategory(cat.name)">
+          {{ cat.name }} <span class="cat-count">{{ cat.count }}</span>
+        </button>
+      }
+    </div>
   </div>
 
   <!-- MAIN + SIDEBAR -->
-  <div class="blog-main">
+  <div class="container blog-main">
     <div>
       <!-- FEATURED -->
       @if (featuredPost(); as fp) {
