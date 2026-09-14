@@ -35,7 +35,7 @@
 			<div class="tkd-meta">
 				<div class="tkd-meta-item"><div class="tkd-meta-lbl">التصنيف</div><div class="tkd-meta-val">{{ ticket().category }}</div></div>
 				<div class="tkd-meta-item"><div class="tkd-meta-lbl">الأولوية</div><div class="tkd-meta-val" [style.color]="ticket().priorityColor">{{ ticket().priority }}</div></div>
-				<div class="tkd-meta-item"><div class="tkd-meta-lbl">مرتبطة بـ</div><div class="tkd-meta-val"><a routerLink="/client-overview/projects" class="link-blue">{{ ticket().related }}</a></div></div>
+				<div class="tkd-meta-item"><div class="tkd-meta-lbl">مرتبطة بـ</div><div class="tkd-meta-val"><a routerLink="/client-overview/projects/active" class="link-blue">{{ ticket().related }}</a></div></div>
 				@if (isCompanyMode() && ticket().companyProject) {
 					<div class="tkd-meta-item"><div class="tkd-meta-lbl">المشروع</div><div class="tkd-meta-val">{{ ticket().companyProject }}</div></div>
 				}

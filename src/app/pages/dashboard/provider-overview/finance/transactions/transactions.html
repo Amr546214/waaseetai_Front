@@ -1,5 +1,5 @@
 <main dir="rtl">
-  <a routerLink="../wallet" class="mb-4 inline-flex text-[13px] font-bold text-[var(--txt-3)] hover:text-[#2BD4C7]">← المحفظة</a>
+  <a routerLink="/provider-overview/finance/wallet" class="mb-4 inline-flex text-[13px] font-bold text-[var(--txt-3)] hover:text-[#2BD4C7]">← المحفظة</a>
   <header class="mb-5 flex flex-wrap items-center justify-between gap-4"><div><h1 class="m-0 text-[20px] font-black text-[var(--txt)]">{{ isCompanyMode() ? 'سجل معاملات الشركة' : 'سجل المعاملات' }}</h1><p class="mt-1 text-[12px] text-[var(--txt-3)]">{{ isCompanyMode() ? 'جميع المعاملات المالية للشركة · مرتبة من الأحدث' : 'سجل التمويل والإفراجات الحقيقي المرتبط بمشاريعك' }}</p></div><div class="flex gap-2"><button (click)="load()" [disabled]="loading()" class="rounded-lg border border-[var(--sec-bd)] px-3 py-2 text-xs">تحديث</button><button (click)="exportCSV()" [disabled]="!filteredTransactions().length" class="rounded-lg border border-[#2BD4C7]/30 bg-[#2BD4C7]/10 px-3 py-2 text-xs font-bold text-[#2BD4C7]">تصدير CSV</button></div></header>
   @if(error()){<div class="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">{{error()}}</div>}
   @if(loading()){<div class="py-20 text-center text-[#2BD4C7]">جاري تحميل المعاملات...</div>}
