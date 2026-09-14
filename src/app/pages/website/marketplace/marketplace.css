@@ -9,11 +9,11 @@
 .search-ico svg{width:15px;height:15px}
 .search-field input{flex:1;background:none;border:none;outline:none;font-family:inherit;font-size:14px;color:var(--txt);padding:11px 0}
 .search-field input::placeholder{color:var(--txt-3)}
-.search-field button{padding:0 18px;height:calc(100% - 8px);margin:4px;background:var(--grad);font-family:inherit;font-size:13px;font-weight:800;color:#070D24;border:none;cursor:pointer;white-space:nowrap;border-radius:8px}
+.search-field button{padding:4px 14px;height:calc(100% - 8px);margin:10px;background:var(--grad);font-family:inherit;font-size:13px;font-weight:800;color:#ffffff;border:none;cursor:pointer;white-space:nowrap;border-radius:8px}
 
 /* CATS NAV (مثل Noon) */
-.cats-nav{position:sticky;top:109px;z-index:89;background:rgba(7,13,36,.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
-.cats-nav-inner{display:flex;gap:0;scrollbar-width:none;padding:0 12px;justify-content:flex-start;flex-wrap:wrap}
+.cats-nav{position:sticky;top:123px;z-index:89;background:rgba(7,13,36,.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.cats-nav-inner{display:flex;gap:0;scrollbar-width:none;padding:0 12px;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto}
 .cats-nav-inner::-webkit-scrollbar{display:none}
 .cats-nav-item{display:flex;align-items:center;gap:6px;padding:10px 11px;font-size:12.5px;font-weight:700;color:var(--txt-2);white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-decoration:none;flex-shrink:0}
 .cat-has-drop{position:relative}

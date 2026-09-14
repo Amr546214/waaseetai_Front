@@ -31,6 +31,27 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 		'ws-cat-sound', 'ws-cat-legal', 'ws-cat-training', 'ws-cat-admin', 'ws-cat-business'
 	]);
 
+	// The API sends generic Lucide/Feather-style icon names (e.g. "palette", "code",
+	// "trending-up") rather than our ws-cat-* symbol ids. Map the common ones we've
+	// actually seen from the backend to the matching local symbol.
+	private readonly iconNameMap: Record<string, string> = {
+		palette: 'ws-cat-design', brush: 'ws-cat-design', 'pen-tool': 'ws-cat-design',
+		code: 'ws-cat-code', 'code-2': 'ws-cat-code', terminal: 'ws-cat-code',
+		feather: 'ws-cat-writing', edit: 'ws-cat-writing', 'file-text': 'ws-cat-writing', 'edit-3': 'ws-cat-writing',
+		'trending-up': 'ws-cat-marketing', megaphone: 'ws-cat-marketing', target: 'ws-cat-marketing',
+		video: 'ws-cat-video', film: 'ws-cat-video', clapperboard: 'ws-cat-video',
+		languages: 'ws-cat-translate', globe: 'ws-cat-translate', 'book-open': 'ws-cat-translate',
+		'message-circle': 'ws-cat-consult', 'message-square': 'ws-cat-consult', users: 'ws-cat-consult',
+		'bar-chart': 'ws-cat-data', 'bar-chart-2': 'ws-cat-data', database: 'ws-cat-data', 'pie-chart': 'ws-cat-data',
+		camera: 'ws-cat-photo', image: 'ws-cat-photo',
+		music: 'ws-cat-audio', headphones: 'ws-cat-audio',
+		mic: 'ws-cat-sound', radio: 'ws-cat-sound',
+		scale: 'ws-cat-legal', gavel: 'ws-cat-legal', shield: 'ws-cat-legal',
+		'graduation-cap': 'ws-cat-training', book: 'ws-cat-training',
+		briefcase: 'ws-cat-admin', settings: 'ws-cat-admin',
+		building: 'ws-cat-business', 'building-2': 'ws-cat-business'
+	};
+
 	// Cycling color palette used for category icon chips (design assigns a distinct hue
 	// per category — with a dynamic category list we cycle through the same palette
 	// the rest of the app already uses, e.g. marketplace-preview.ts getCategoryColor()).
@@ -135,12 +156,15 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 		});
 	}
 
-	// Maps a category's icon href (e.g. "#ws-cat-code" or "ws-cat-code") to one of the
-	// symbols defined in this component's own sprite, falling back to the generic tag icon.
+	// Maps a category's icon href (e.g. "#ws-cat-code", "ws-cat-code", or a bare
+	// Lucide-style name like "code" as the API actually sends) to one of the symbols
+	// defined in this component's own sprite, falling back to the generic tag icon.
 	categoryIcon(icon?: string): string {
 		if (!icon) return '#ws-tag';
 		const id = icon.startsWith('#') ? icon.slice(1) : icon;
-		return this.knownIconIds.has(id) ? `#${id}` : '#ws-tag';
+		if (this.knownIconIds.has(id)) return `#${id}`;
+		const mapped = this.iconNameMap[id];
+		return mapped ? `#${mapped}` : '#ws-tag';
 	}
 
 	categoryPalette(index: number): CategoryPalette {
