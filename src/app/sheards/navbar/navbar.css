@@ -1,6 +1,8 @@
 /* === NAVBAR — exact copy from P-AU-001.html static source === */
 .nav-inner{display:flex;align-items:center;gap:18px;height:64px}
-.logo-wrap{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.logo-wrap{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0;white-space:nowrap}
+.logo-wrap img{flex-shrink:0}
+.logo-wrap span{white-space:nowrap}
 .nav-links{display:flex;gap:4px;flex:1;margin-inline-start:8px}
 .nav-link{padding:6px 12px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--txt-2);transition:background .15s,color .15s;text-decoration:none;cursor:pointer;border:none;background:none;font-family:inherit}
 .nav-link:hover{background:rgba(255,255,255,.06);color:var(--txt)}
@@ -27,7 +29,7 @@
 .drawer-sep{height:1px;background:var(--border);margin:6px 0}
 
 /* Profile & Dashboard Header Controls */
-.t-ai-badge{display:flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(123,47,190,.10);border:1px solid rgba(123,47,190,.20);border-radius:20px;font-size:11px;font-weight:700;color:#7B2FBE;flex-shrink:0}
+.t-ai-badge{display:flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(123,47,190,.10);border:1px solid rgba(123,47,190,.20);border-radius:20px;font-size:11px;font-weight:700;color:var(--ai);flex-shrink:0}
 .t-ai-badge svg{width:13px;height:13px}
 .t-toggle{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:50px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);flex-shrink:0}
 .t-toggle .seg{min-width:42px;height:24px;padding:0 9px;border-radius:999px;font-size:11px;font-weight:800;font-family:inherit;color:#6B7699;background:transparent;border:0;opacity:.72;transition:all .2s;cursor:pointer}
