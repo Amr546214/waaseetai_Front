@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginInput, RegisterInput, VerifyOtpInput } from '../models/auth.model';
+import { AuthResponse, LoginInput, RegisterInput, VerifyOtpInput, ForgotPasswordInput, VerifyResetCodeInput, ResetPasswordInput, GenericMessageResponse } from '../models/auth.model';
 import { AuthStore } from '../store/auth.store';
 import { ApiResponse } from '../models/api.model';
 
@@ -48,6 +48,27 @@ export class AuthApiService {
 	 */
 	public resendOtp(userId: string): Observable<AuthResponse> {
 		return this.http.post<AuthResponse>(`${this.baseUrl}/resend-otp`, { userId });
+	}
+
+	/**
+	 * Request a password-reset code by email
+	 */
+	public forgotPassword(payload: ForgotPasswordInput): Observable<GenericMessageResponse> {
+		return this.http.post<GenericMessageResponse>(`${this.baseUrl}/forgot-password`, payload);
+	}
+
+	/**
+	 * Verify a password-reset code (without consuming it)
+	 */
+	public verifyResetCode(payload: VerifyResetCodeInput): Observable<GenericMessageResponse> {
+		return this.http.post<GenericMessageResponse>(`${this.baseUrl}/verify-reset-code`, payload);
+	}
+
+	/**
+	 * Reset the password using a verified code
+	 */
+	public resetPassword(payload: ResetPasswordInput): Observable<GenericMessageResponse> {
+		return this.http.post<GenericMessageResponse>(`${this.baseUrl}/reset-password`, payload);
 	}
 
 	/**

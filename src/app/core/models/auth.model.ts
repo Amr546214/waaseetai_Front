@@ -80,3 +80,23 @@ export interface LoginInput {
 	email: string;
 	password?: string;
 }
+
+export interface ForgotPasswordInput {
+	email: string;
+}
+
+export interface VerifyResetCodeInput {
+	email: string;
+	code: string;
+}
+
+export interface ResetPasswordInput {
+	email: string;
+	code: string;
+	newPassword: string;
+}
+
+export interface GenericMessageResponse {
+	success: boolean;
+	message: string;
+}

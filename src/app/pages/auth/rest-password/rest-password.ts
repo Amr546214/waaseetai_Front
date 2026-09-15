@@ -1,8 +1,9 @@
-import { Component, OnDestroy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectorRef, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
+import { AuthApiService } from '../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-rest-password',
@@ -13,9 +14,13 @@ import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.co
   encapsulation: ViewEncapsulation.None,
 })
 export class RestPassword implements OnDestroy {
+  private authApi = inject(AuthApiService);
+
   currentStep = 1;
+  // Phone-based recovery is disabled for now: SMS delivery isn't implemented on the backend.
   channel: 'email' | 'phone' = 'email';
-  
+  phoneChannelEnabled = false;
+
   recoveryForm: FormGroup;
   verificationForm: FormGroup;
   passwordForm: FormGroup;
@@ -29,6 +34,10 @@ export class RestPassword implements OnDestroy {
 
   bannerError = '';
   bannerLock = false;
+  isLoading = false;
+
+  /** Email the reset code was requested for; carried across steps to the verify/reset calls. */
+  private verifiedEmail = '';
 
   constructor(private fb: FormBuilder, private location: Location, private cdr: ChangeDetectorRef) {
     this.recoveryForm = this.fb.group({
@@ -61,6 +70,7 @@ export class RestPassword implements OnDestroy {
   }
 
   setChannel(ch: 'email' | 'phone') {
+    if (ch === 'phone' && !this.phoneChannelEnabled) return;
     this.channel = ch;
     this.bannerError = '';
     this.cdr.detectChanges();
@@ -72,16 +82,32 @@ export class RestPassword implements OnDestroy {
       this.cdr.detectChanges();
       return;
     }
-    if (this.channel === 'phone' && (!this.recoveryForm.value.phone || this.recoveryForm.get('phone')?.invalid)) {
-      this.bannerError = 'ادخل رقم جوال سعودي صحيح';
+    if (this.channel === 'phone') {
+      // Phone recovery isn't wired to a backend yet; the option is hidden, this is a guard.
+      this.bannerError = 'استرجاع كلمة المرور عبر الجوال غير متاح حاليا';
       this.cdr.detectChanges();
       return;
     }
-    
+
+    const email = this.recoveryForm.value.email;
     this.bannerError = '';
+    this.isLoading = true;
     this.cdr.detectChanges();
-    this.currentStep = 2;
-    this.startTimer();
+
+    this.authApi.forgotPassword({ email }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.verifiedEmail = email;
+        this.currentStep = 2;
+        this.startTimer();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.bannerError = err.error?.message || 'حدث خطأ أثناء إرسال رمز التحقق، حاول مرة أخرى';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   get maskedValue() {
@@ -140,15 +166,56 @@ export class RestPassword implements OnDestroy {
   }
 
   resendOtp() {
-    this.verificationForm.reset();
-    this.startTimer();
+    if (!this.verifiedEmail || this.isLoading) return;
+
+    this.showOtpError = false;
+    this.bannerError = '';
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    this.authApi.forgotPassword({ email: this.verifiedEmail }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.verificationForm.reset();
+        this.startTimer();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.bannerError = err.error?.message || 'حدث خطأ أثناء إعادة إرسال الرمز، حاول مرة أخرى';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   verifyOtp() {
-    if (this.verificationForm.valid) {
-      this.currentStep = 3;
-      this.clearTimer();
-    }
+    if (!this.verificationForm.valid || this.isLoading) return;
+
+    const code = this.getOtpCode();
+    this.showOtpError = false;
+    this.bannerError = '';
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    this.authApi.verifyResetCode({ email: this.verifiedEmail, code }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.currentStep = 3;
+        this.clearTimer();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.showOtpError = true;
+        this.bannerError = err.error?.message || 'رمز التحقق غير صحيح أو منتهي الصلاحية';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private getOtpCode(): string {
+    const v = this.verificationForm.value;
+    return `${v.code1}${v.code2}${v.code3}${v.code4}${v.code5}${v.code6}`;
   }
 
   backToStep(step: number) {
@@ -186,11 +253,29 @@ export class RestPassword implements OnDestroy {
   }
 
   savePassword() {
-    if (this.passwordForm.valid) {
-      this.currentStep = 4;
-    } else if (this.passwordForm.hasError('mismatch')) {
+    if (this.passwordForm.hasError('mismatch')) {
       this.bannerError = 'كلمة المرور غير متطابقة';
       this.cdr.detectChanges();
+      return;
     }
+    if (!this.passwordForm.valid || this.isLoading) return;
+
+    const newPassword = this.passwordForm.value.newPassword;
+    this.bannerError = '';
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    this.authApi.resetPassword({ email: this.verifiedEmail, code: this.getOtpCode(), newPassword }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.currentStep = 4;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.bannerError = err.error?.message || 'حدث خطأ أثناء تغيير كلمة المرور، حاول مرة أخرى';
+        this.cdr.detectChanges();
+      }
+    });
   }
 }
