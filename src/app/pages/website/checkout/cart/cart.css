@@ -45,7 +45,7 @@
 
 /* === AI BANNER (copied from P-BF-001.html) === */
 .ai-banner{display:flex;align-items:center;gap:12px;padding:12px 14px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border:1px solid var(--ai-border);border-radius:13px;margin-bottom:16px}
-.ai-banner-ico{width:32px;height:32px;border-radius:8px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-banner-ico{width:32px;height:32px;border-radius:8px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ai)}
 .ai-banner-ico svg{width:14px;height:14px;color:var(--ai)}
 .ai-banner-txt{flex:1;font-size:12px;color:var(--txt-2);line-height:1.5}
 .ai-banner-txt strong{color:var(--ai-txt)}
