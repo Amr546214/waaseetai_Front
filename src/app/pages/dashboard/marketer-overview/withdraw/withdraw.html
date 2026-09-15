@@ -19,7 +19,7 @@
           @if (summary()?.successfulReferrals === 0) {
             توصية AI: أكمل أول {{ summary()?.nextTierThreshold || 3 }} إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
           } @else {
-            توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag txt-kahr" style="border-">موصل</strong> (عمولة أعلى بـ 5%)
+            توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
           }
         </span>
       </div>
@@ -65,7 +65,7 @@
         <svg width="14" height="14" style="flex-shrink:0" aria-hidden="true" class="txt-purple"><use href="#i-ai"></use></svg>
         <span style="font-size:12px" class="txt-slate">تُصرف طلبات السحب يوم الأربعاء · يصل التحويل غالباً خلال 1-3 أيام عمل بعد الصرف · يُعلَّق السحب عند وجود نزاع نشط أو شبهة احتيال أو مراجعة امتثال</span>
       </div>
-      <button type="button" class="btn-primary-gradient txt-navy" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition: opacity 0.2s ease-in-out">تأكيد طلب السحب</button>
+      <button type="button" class="btn-primary-gradient txt-navy" disabled title="سحب عمولات الوسيط التسويقي قيد التفعيل قريباً" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:not-allowed;font-family:inherit;opacity:.5;transition: opacity 0.2s ease-in-out">تأكيد طلب السحب</button>
     </div>
   </div>
 

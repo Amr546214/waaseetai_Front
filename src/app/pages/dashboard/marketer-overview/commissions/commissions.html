@@ -18,7 +18,7 @@
           @if (summary()?.successfulReferrals === 0) {
             توصية AI: أكمل أول {{ summary()?.nextTierThreshold || 3 }} إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
           } @else {
-            توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag txt-kahr" style="border-">موصل</strong> (عمولة أعلى بـ 5%)
+            توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
           }
         </span>
       </div>
