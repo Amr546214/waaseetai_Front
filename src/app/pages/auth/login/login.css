@@ -84,12 +84,6 @@
   --ftr-leg-hov: #2BD4C7;
 }
 
-#page-root[style*="--pg"] div.trust-row { border-color: #D8DFEC !important; }
-#page-root[style*="--pg"] span.trust-bdg { border-color: #D8DFEC !important; }
-#page-root[style*="--pg"] #otp-resend { color: #0A6F64 !important; }
-#page-root[style*="--pg"] a.auth-lnk { color: #0A6F64 !important; }
-#page-root[style*="--pg"] .auth-switch a { color: #0A6F64 !important; }
-#page-root:not([style*="--pg"]) div.ai-auth-badge { color: #A56BE0 !important; }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 img { max-width: 100%; height: auto; display: block; }
@@ -98,26 +92,26 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 a { text-decoration: none; }
 
 .auth-section {
-  min-height: calc(100vh - 120px);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 16px 60px;
+  padding: 100px 16px 60px;
   position: relative;
   z-index: 2;
 }
 
 .auth-wrap {
   width: 100%;
-  max-width: 520px;
+  max-width: 460px;
 }
 
 .auth-card {
   background: var(--crd-bg);
   border: 1px solid var(--crd-bd);
   border-radius: var(--radius-lg);
-  padding: 44px 40px 36px;
+  padding: 36px 32px 28px;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 24px 60px rgba(0, 0, 0, .2);
@@ -126,49 +120,49 @@ a { text-decoration: none; }
 .auth-logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .auth-logo img {
-  height: 44px;
+  height: 36px;
 }
 
 .auth-h1 {
-  font-size: clamp(26px, 4vw, 32px);
+  font-size: clamp(22px, 4vw, 28px);
   font-weight: 900;
   color: var(--txt);
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   line-height: 1.25;
 }
 
 .auth-sub {
-  font-size: 15px;
+  font-size: 13px;
   color: var(--txt-2);
   text-align: center;
-  margin-bottom: 26px;
+  margin-bottom: 22px;
   line-height: 1.7;
 }
 
 .ai-auth-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 18px;
-  background: rgba(123, 47, 190, .10);
-  border: 1px solid rgba(123, 47, 190, .30);
+  gap: 7px;
+  padding: 7px 14px;
+  background: rgba(123, 47, 190, .07);
+  border: 1px solid rgba(123, 47, 190, .22);
   border-radius: 50px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  color: #8B2FD0;
-  margin-bottom: 24px;
+  color: #A56BE0;
+  margin-bottom: 18px;
   width: fit-content;
   margin-inline: auto;
 }
 
 .ai-auth-icon {
-  width: 18px;
-  height: 18px;
+  width: 13px;
+  height: 13px;
   color: #A56BE0;
   flex-shrink: 0;
 }
@@ -191,9 +185,9 @@ a { text-decoration: none; }
 }
 
 .banner-error {
-  background: rgba(239, 68, 68, 0.10);
-  border: 1px solid rgba(239, 68, 68, 0.28);
-  color: #EF4444;
+  background: rgba(43, 127, 255, .09);
+  border: 1px solid rgba(43, 127, 255, .22);
+  color: var(--blue);
 }
 
 .banner-success {
@@ -209,26 +203,26 @@ a { text-decoration: none; }
 }
 
 .field-grp {
-  margin-bottom: 18px;
+  margin-bottom: 15px;
 }
 
 .field-lbl {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--txt-2);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .field-in {
   width: 100%;
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: var(--out-bg);
   border: 1px solid var(--out-bd);
   border-radius: var(--radius-sm);
   color: var(--txt);
   font-family: inherit;
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
   transition: border-color .2s, box-shadow .2s;
   box-sizing: border-box;
@@ -244,8 +238,7 @@ a { text-decoration: none; }
 }
 
 .field-in.has-error {
-  border-color: rgba(239, 68, 68, 0.7);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+  border-color: rgba(43, 127, 255, .45);
 }
 
 .field-in:-webkit-autofill,
@@ -261,7 +254,7 @@ a { text-decoration: none; }
 }
 
 .pw-wrap .field-in {
-  padding-inline-start: 46px;
+  padding-inline-start: 42px;
 }
 
 .pw-eye {
@@ -286,26 +279,25 @@ a { text-decoration: none; }
 
 .field-err {
   font-size: 12px;
-  color: #EF4444;
+  color: var(--blue);
   margin-top: 5px;
   display: flex;
   align-items: center;
   gap: 5px;
-  font-weight: 600;
 }
 
 .remember-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 22px;
+  gap: 8px;
+  margin-bottom: 18px;
 }
 
 .chk-lbl {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
+  gap: 8px;
+  font-size: 13px;
   color: var(--txt-2);
   cursor: pointer;
   line-height: 1.4;
@@ -379,9 +371,9 @@ a { text-decoration: none; }
 .btn-auth {
   width: 100%;
   justify-content: center;
-  font-size: 16px;
-  padding: 16px 24px;
-  margin-bottom: 16px;
+  font-size: 15px;
+  padding: 13px 20px;
+  margin-bottom: 14px;
 }
 
 .spin {
@@ -403,11 +395,11 @@ a { text-decoration: none; }
 
 .auth-lnk-row {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .auth-lnk {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--teal);
   font-weight: 600;
   transition: opacity .2s;
@@ -419,9 +411,9 @@ a { text-decoration: none; }
 
 .auth-switch {
   text-align: center;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--txt-2);
-  margin-bottom: 22px;
+  margin-bottom: 18px;
   line-height: 1.7;
 }
 
@@ -433,39 +425,39 @@ a { text-decoration: none; }
 
 .trust-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
-  padding-top: 20px;
+  padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, .06);
 }
 
 .trust-bdg {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--txt-3);
   border: 1px solid rgba(255, 255, 255, .10);
-  border-radius: 5px;
-  padding: 5px 11px;
+  border-radius: 4px;
+  padding: 3px 8px;
 }
 
-/* Social Login */
+/* Social Login — exact copy from P-AU-002.html design source */
 .social-login {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 22px;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
 .btn-social {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 15px 20px;
-  border-radius: 14px;
-  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -485,11 +477,29 @@ a { text-decoration: none; }
   flex-shrink: 0;
 }
 
+.btn-social:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.social-note {
+  margin: -12px 0 14px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(43, 212, 199, .08);
+  border: 1px solid rgba(43, 212, 199, .22);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--teal);
+  text-align: center;
+}
+
 .social-divider {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 22px;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .social-divider::before, .social-divider::after {
@@ -500,32 +510,19 @@ a { text-decoration: none; }
 }
 
 .social-divider span {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--txt-3);
   font-weight: 600;
   white-space: nowrap;
 }
 
 /* Google Sign-In Button - overlay technique:
-   The custom button provides the visual, the invisible asl-google-signin-button
-   sits on top to capture the click and trigger the OAuth flow. */
+   The visible .btn-social button provides the visual, the invisible
+   asl-google-signin-button sits on top to capture the click and trigger OAuth.
+   Colors come from .btn-social (theme vars) so both social buttons stay identical. */
 .google-btn-wrapper {
   position: relative;
-  margin-bottom: 12px;
   width: 100%;
-}
-
-.btn-google-custom {
-  background: #FFFFFF;
-  border: 1.5px solid #D8DFEC;
-  color: #070D24;
-  width: 100%;
-}
-
-.btn-google-custom:hover {
-  background: #F3F5FA;
-  border-color: var(--teal);
-  transform: translateY(-1px);
 }
 
 /* The actual Google button is invisible and positioned on top to capture clicks */
@@ -543,17 +540,6 @@ a { text-decoration: none; }
 .google-btn-wrapper asl-google-signin-button > div[role="button"] {
   width: 100% !important;
   height: 100% !important;
-}
-
-/* Apple button - white background, dark text */
-.btn-apple {
-  background: #FFFFFF !important;
-  border-color: #D8DFEC !important;
-  color: #070D24 !important;
-}
-.btn-apple:hover {
-  background: #F3F5FA !important;
-  border-color: var(--teal) !important;
 }
 
 /* Modals & Overlay */
@@ -627,12 +613,12 @@ a { text-decoration: none; }
    the login page adapts correctly in light mode.
    ========================================================================== */
 body.light-theme, body.theme-light, .light-theme, .theme-light {
-  --out-bg: #F3F5FA;
-  --out-bd: #D8DFEC;
-  --out-hov-bg: #E7EAF1;
-  --out-hov-bd: #C9D0E3;
-  --sec-hov: #E7EAF1;
-  --drw-bg: rgba(246, 248, 252, .97);
+  --out-bg: #FFFFFF;
+  --out-bd: rgba(7, 13, 36, .14);
+  --out-hov-bg: #F3F5FA;
+  --out-hov-bd: rgba(7, 13, 36, .22);
+  --sec-hov: #F3F5FA;
+  --drw-bg: rgba(255, 255, 255, .98);
   --drw-bd: #E7EAF1;
   --hdr-bg: rgba(246, 248, 252, .94);
   --hdr-bd: rgba(43, 127, 255, .14);
@@ -659,99 +645,43 @@ body.light-theme, body.theme-light, .light-theme, .theme-light {
   --ftr-soc-clr: #64748B;
   --ftr-soc-hov-bd: rgba(43, 212, 199, .36);
   --ftr-soc-hov-clr: #0F8A7F;
-  --ck-txt: #475569;
-  --ck-dec-clr: #64748B;
-  --ck-dec-bd: #D8DFEC;
-  --tint: linear-gradient(135deg, rgba(43, 212, 199, .06), rgba(43, 127, 255, .06));
-  --tint-bd: rgba(43, 212, 199, .15);
-  --crd-shd: 0 2px 10px rgba(15, 23, 42, .07), 0 1px 3px rgba(15, 23, 42, .05);
-  --cta-shd: 0 8px 24px rgba(43, 212, 199, .25);
-  --cta-shd-hov: 0 12px 32px rgba(43, 212, 199, .35);
+  --ck-txt: #56607D;
+  --ck-dec-clr: #56607D;
+  --ck-dec-bd: rgba(7, 13, 36, .14);
+  --tint: linear-gradient(135deg, rgba(43, 212, 199, .07), rgba(43, 127, 255, .05)), #FFFFFF;
+  --tint-bd: rgba(43, 127, 255, .14);
+  --crd-shd: 0 10px 30px rgba(7, 13, 36, .05);
+  --crd-bg: #FFFFFF;
+  --crd-bd: #E7EAF1;
+  --cta-shd: 0 12px 30px rgba(43, 127, 255, .28);
+  --cta-shd-hov: 0 18px 40px rgba(43, 127, 255, .40);
   --nav-cta-shd: 0 4px 16px rgba(43, 212, 199, .20);
   --nav-cta-hov: 0 8px 24px rgba(43, 212, 199, .30);
-}
-
-body.light-theme .auth-card,
-body.theme-light .auth-card,
-.light-theme .auth-card,
-.theme-light .auth-card {
-  background: #fff !important;
-  border-color: #E7EAF1 !important;
-  box-shadow: 0 8px 40px rgba(15, 23, 42, .08) !important;
 }
 
 body.light-theme .ai-auth-icon,
 body.theme-light .ai-auth-icon,
 .light-theme .ai-auth-icon,
 .theme-light .ai-auth-icon {
-  color: #7B2FBE !important;
+  color:var(--ai) !important;
 }
 
-body.light-theme .btn-social,
-body.theme-light .btn-social,
-.light-theme .btn-social,
-.theme-light .btn-social {
-  background: #F3F5FA !important;
-  border-color: #D8DFEC !important;
-  color: #0F172A !important;
-}
-
-body.light-theme .btn-social:hover,
-body.theme-light .btn-social:hover,
-.light-theme .btn-social:hover,
-.theme-light .btn-social:hover {
-  background: #F3F5FA !important;
-  border-color: rgba(43, 212, 199, .30) !important;
-}
-
-body.light-theme .btn-apple,
-body.theme-light .btn-apple,
-.light-theme .btn-apple,
-.theme-light .btn-apple {
-  background: #FFFFFF !important;
-  border-color: #D8DFEC !important;
-  color: #070D24 !important;
-}
-
-body.light-theme .btn-google-custom,
-body.theme-light .btn-google-custom,
-.light-theme .btn-google-custom,
-.theme-light .btn-google-custom {
-  background: #FFFFFF !important;
-  border-color: #D8DFEC !important;
-  color: #070D24 !important;
-}
-
-body.light-theme .btn-google-custom:hover,
-body.theme-light .btn-google-custom:hover,
-.light-theme .btn-google-custom:hover,
-.theme-light .btn-google-custom:hover {
-  background: #F3F5FA !important;
-  border-color: rgba(43, 212, 199, .30) !important;
-}
-
-body.light-theme .btn-apple:hover,
-body.theme-light .btn-apple:hover,
-.light-theme .btn-apple:hover,
-.theme-light .btn-apple:hover {
-  background: #F3F5FA !important;
-  border-color: rgba(43, 212, 199, .30) !important;
-}
+/* Social buttons take their light-mode colors from --crd-bg / --crd-bd / --txt,
+   exactly like the design source — no per-button overrides, so Google and Apple
+   stay visually identical in both themes. */
 
 body.light-theme .ai-auth-badge,
 body.theme-light .ai-auth-badge,
 .light-theme .ai-auth-badge,
 .theme-light .ai-auth-badge {
-  background: rgba(123, 47, 190, .06) !important;
-  border-color: rgba(123, 47, 190, .22) !important;
-  color: #6B27A5 !important;
+  color: #7B2FBE !important;
 }
 
 body.light-theme .trust-row,
 body.theme-light .trust-row,
 .light-theme .trust-row,
 .theme-light .trust-row {
-  border-top-color: #E7EAF1 !important;
+  border-top-color: #D8DFEC !important;
 }
 
 body.light-theme .trust-bdg,
@@ -759,7 +689,6 @@ body.theme-light .trust-bdg,
 .light-theme .trust-bdg,
 .theme-light .trust-bdg {
   border-color: #D8DFEC !important;
-  color: #64748B !important;
 }
 
 body.light-theme .social-divider::before,
@@ -775,14 +704,14 @@ body.light-theme .auth-lnk,
 body.theme-light .auth-lnk,
 .light-theme .auth-lnk,
 .theme-light .auth-lnk {
-  color: #0F8A7F !important;
+  color: #0A6F64 !important;
 }
 
 body.light-theme .auth-switch a,
 body.theme-light .auth-switch a,
 .light-theme .auth-switch a,
 .theme-light .auth-switch a {
-  color: #0F8A7F !important;
+  color: #0A6F64 !important;
 }
 
 body.light-theme .modal-box,

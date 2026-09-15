@@ -8,6 +8,7 @@ import { PageLoader } from "../../sheards/page-loader/page-loader";
 @Component({
 	selector: 'app-auth-layout',
 	templateUrl: './auth-layout.html',
+	styleUrl: './auth-layout.css',
 	standalone: true,
 	imports: [RouterOutlet, Navbar, Footer, PageLoader],
 

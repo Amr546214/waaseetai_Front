@@ -1,0 +1,48 @@
+/* Auth background — exact copy of .bg-grid / .bg-grid::before from the design
+   source (P-AU-002.html / P-AU-004.html).
+
+   The global .bg-grid in styles.css merges the glow gradients and the grid lines
+   into one element and masks them together, which flattens the glows toward the
+   edges. The design keeps them separate: the radial glows are unmasked, and only
+   the 60px grid lines carry the elliptical mask. */
+
+.bg-grid-auth {
+	background-image:
+		radial-gradient(circle at 20% 20%, var(--bggrid-1) 0%, transparent 40%),
+		radial-gradient(circle at 80% 80%, var(--bggrid-2) 0%, transparent 40%),
+		radial-gradient(circle at 50% 50%, var(--bggrid-3) 0%, transparent 60%);
+	background-size: auto;
+	-webkit-mask-image: none;
+	mask-image: none;
+}
+
+.bg-grid-auth::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(var(--grid-ln) 1px, transparent 1px),
+		linear-gradient(90deg, var(--grid-ln) 1px, transparent 1px);
+	background-size: 60px 60px;
+	-webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 70%);
+	mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 70%);
+}
+
+/* Design :root values (dark) */
+:host {
+	--bggrid-1: rgba(43, 212, 199, .15);
+	--bggrid-2: rgba(43, 127, 255, .15);
+	--bggrid-3: rgba(43, 212, 199, .05);
+	--grid-ln: rgba(43, 212, 199, .04);
+}
+
+/* Design LIGHT map values */
+:host-context(body.light-theme),
+:host-context(body.theme-light),
+:host-context(.light-theme),
+:host-context(.theme-light) {
+	--bggrid-1: rgba(43, 212, 199, .10);
+	--bggrid-2: rgba(43, 127, 255, .10);
+	--bggrid-3: rgba(43, 127, 255, .04);
+	--grid-ln: rgba(43, 127, 255, .05);
+}

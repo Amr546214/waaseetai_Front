@@ -28,7 +28,7 @@ export class RestPassword implements OnDestroy {
   showNewPassword = false;
   showConfirmPassword = false;
 
-  otpSeconds = 300;
+  otpSeconds = 90;
   otpTimerInterval: any;
   showOtpError = false;
 
@@ -144,12 +144,13 @@ export class RestPassword implements OnDestroy {
 
   startTimer() {
     this.clearTimer();
-    this.otpSeconds = 300;
+    this.otpSeconds = 90;
     this.otpTimerInterval = setInterval(() => {
       this.otpSeconds--;
       if (this.otpSeconds <= 0) {
         this.clearTimer();
       }
+      this.cdr.detectChanges();
     }, 1000);
   }
 

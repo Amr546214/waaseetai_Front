@@ -20,6 +20,7 @@ export class Login {
   showPassword = false;
 
   errorMessage = '';
+  appleNotice = '';
   isSubmitting = false;
 
   constructor(
@@ -72,6 +73,13 @@ export class Login {
 
   togglePassword() {
     this.showPassword = !this.showPassword;
+  }
+
+  appleSignIn() {
+    // Apple Sign-In is not wired to a backend endpoint yet — tell the user
+    // instead of failing silently.
+    this.appleNotice = 'تسجيل الدخول عبر آبل سيكون متاحاً قريباً، يمكنك المتابعة بجوجل أو بالبريد';
+    this.cdr.markForCheck();
   }
 
   onSubmit() {

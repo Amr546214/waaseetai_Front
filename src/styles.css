@@ -4,7 +4,7 @@
   font-family: 'Tajawal';
   src: url('/assets/fonts/DINNextLTArabic-Regular-3.ttf') format('truetype');
   font-style: normal;
-  font-weight: 300 700;
+  font-weight: 300 600;
   font-display: swap;
 }
 
@@ -12,7 +12,7 @@
   font-family: 'Tajawal';
   src: url('/assets/fonts/DIN Next LT Arabic Bold.ttf') format('truetype');
   font-style: normal;
-  font-weight: 800 900;
+  font-weight: 700 900;
   font-display: swap;
 }
 @import "../public/assets/ws-site.css";
@@ -1065,7 +1065,7 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
   .s-nav-item, .s-nav-ttl { color: #475569 !important; }
 
   /* Generic btn variants seen across pages */
-  .btn-full, .btn-primary { color: #070D24 !important; }
+  .btn-full { color: #070D24 !important; }
   .btn-ghost {
     background: transparent !important;
     border-color: #D8DFEC !important;
