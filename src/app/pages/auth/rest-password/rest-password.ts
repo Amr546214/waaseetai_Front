@@ -73,26 +73,26 @@ export class RestPassword implements OnDestroy {
     if (ch === 'phone' && !this.phoneChannelEnabled) return;
     this.channel = ch;
     this.bannerError = '';
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   sendOtp() {
     if (this.channel === 'email' && (!this.recoveryForm.value.email || this.recoveryForm.get('email')?.invalid)) {
       this.bannerError = 'ادخل بريدا إلكترونيا صحيحا';
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
       return;
     }
     if (this.channel === 'phone') {
       // Phone recovery isn't wired to a backend yet; the option is hidden, this is a guard.
       this.bannerError = 'استرجاع كلمة المرور عبر الجوال غير متاح حاليا';
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
       return;
     }
 
     const email = this.recoveryForm.value.email;
     this.bannerError = '';
     this.isLoading = true;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     this.authApi.forgotPassword({ email }).subscribe({
       next: () => {
@@ -100,12 +100,12 @@ export class RestPassword implements OnDestroy {
         this.verifiedEmail = email;
         this.currentStep = 2;
         this.startTimer();
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.bannerError = err.error?.message || 'حدث خطأ أثناء إرسال رمز التحقق، حاول مرة أخرى';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -123,23 +123,91 @@ export class RestPassword implements OnDestroy {
     }
   }
 
-  autoFocusNext(event: any, nextElementId?: string, prevElementId?: string) {
-    const input = event.target;
-    const value = input.value;
-    const key = event.key;
+  // OTP boxes mirror the checkout confirm page: digits only, Arabic/Persian digits
+  // normalized to English, full-code paste from any box, Enter submits.
+  readonly otpIndexes = [0, 1, 2, 3, 4, 5];
 
-    if (key === 'Backspace') {
-      if (!value && prevElementId) {
-        const prevEl = document.getElementById(prevElementId);
-        if (prevEl) prevEl.focus();
-      }
+  otpDigit(index: number): string {
+    return this.verificationForm.get(`code${index + 1}`)?.value ?? '';
+  }
+
+  onOtpInput(index: number, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const raw = this.normalizeDigits(input.value);
+
+    if (raw.length > 1) {
+      this.fillOtpFrom(raw);
       return;
     }
 
-    if (value && nextElementId) {
-      const nextEl = document.getElementById(nextElementId);
-      if (nextEl) nextEl.focus();
+    this.verificationForm.get(`code${index + 1}`)?.setValue(raw);
+    input.value = raw;
+    this.clearOtpError();
+
+    if (raw && index < 5) {
+      this.focusOtpInput(index + 1);
     }
+    this.cdr.markForCheck();
+  }
+
+  onOtpKeydown(index: number, event: KeyboardEvent) {
+    if (event.key === 'Backspace') {
+      event.preventDefault();
+      if (this.otpDigit(index)) {
+        this.verificationForm.get(`code${index + 1}`)?.setValue('');
+      } else if (index > 0) {
+        this.verificationForm.get(`code${index}`)?.setValue('');
+        this.focusOtpInput(index - 1);
+      }
+      this.cdr.markForCheck();
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      this.verifyOtp();
+    }
+  }
+
+  onOtpPaste(event: ClipboardEvent) {
+    event.preventDefault();
+    const pasted = this.normalizeDigits(event.clipboardData?.getData('text') || '');
+    if (pasted) {
+      this.fillOtpFrom(pasted);
+    }
+  }
+
+  private fillOtpFrom(value: string) {
+    const digits = value.slice(0, 6).split('');
+    this.otpIndexes.forEach(i => this.verificationForm.get(`code${i + 1}`)?.setValue(digits[i] ?? ''));
+    this.clearOtpError();
+    this.cdr.markForCheck();
+    this.focusOtpInput(Math.min(digits.length, 6) - 1);
+  }
+
+  private focusOtpInput(index: number) {
+    const el = document.getElementById(`otp-${index}`) as HTMLInputElement | null;
+    el?.focus();
+    el?.select();
+  }
+
+  private clearOtpError() {
+    this.showOtpError = false;
+    this.bannerError = '';
+  }
+
+  /** Converts Arabic/Persian digits to English and strips everything that isn't 0-9. */
+  private normalizeDigits(value: string): string {
+    const arabic = '٠١٢٣٤٥٦٧٨٩';
+    const persian = '۰۱۲۳۴۵۶۷۸۹';
+    return value
+      .split('')
+      .map(char => {
+        const arabicIndex = arabic.indexOf(char);
+        if (arabicIndex !== -1) return String(arabicIndex);
+        const persianIndex = persian.indexOf(char);
+        if (persianIndex !== -1) return String(persianIndex);
+        return char;
+      })
+      .join('')
+      .replace(/[^0-9]/g, '');
   }
 
   startTimer() {
@@ -150,7 +218,7 @@ export class RestPassword implements OnDestroy {
       if (this.otpSeconds <= 0) {
         this.clearTimer();
       }
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, 1000);
   }
 
@@ -172,19 +240,19 @@ export class RestPassword implements OnDestroy {
     this.showOtpError = false;
     this.bannerError = '';
     this.isLoading = true;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     this.authApi.forgotPassword({ email: this.verifiedEmail }).subscribe({
       next: () => {
         this.isLoading = false;
         this.verificationForm.reset();
         this.startTimer();
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.bannerError = err.error?.message || 'حدث خطأ أثناء إعادة إرسال الرمز، حاول مرة أخرى';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -196,20 +264,20 @@ export class RestPassword implements OnDestroy {
     this.showOtpError = false;
     this.bannerError = '';
     this.isLoading = true;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     this.authApi.verifyResetCode({ email: this.verifiedEmail, code }).subscribe({
       next: () => {
         this.isLoading = false;
         this.currentStep = 3;
         this.clearTimer();
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.showOtpError = true;
         this.bannerError = err.error?.message || 'رمز التحقق غير صحيح أو منتهي الصلاحية';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -256,7 +324,7 @@ export class RestPassword implements OnDestroy {
   savePassword() {
     if (this.passwordForm.hasError('mismatch')) {
       this.bannerError = 'كلمة المرور غير متطابقة';
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
       return;
     }
     if (!this.passwordForm.valid || this.isLoading) return;
@@ -264,18 +332,18 @@ export class RestPassword implements OnDestroy {
     const newPassword = this.passwordForm.value.newPassword;
     this.bannerError = '';
     this.isLoading = true;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     this.authApi.resetPassword({ email: this.verifiedEmail, code: this.getOtpCode(), newPassword }).subscribe({
       next: () => {
         this.isLoading = false;
         this.currentStep = 4;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.bannerError = err.error?.message || 'حدث خطأ أثناء تغيير كلمة المرور، حاول مرة أخرى';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
