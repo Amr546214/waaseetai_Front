@@ -68,7 +68,7 @@
 					<use href="#i-ai"></use>
 				</svg></div>
 			<span class="ai-banner-txt">AI يقترح اضافة قناة LinkedIn للوصول لشريحة B2B، تزيد العمولات بمعدل 32%</span>
-			<button type="button" class="ai-banner-btn">استخدم AI</button>
+			<button type="button" class="ai-banner-btn" (click)="useAiChannelSuggestion()">استخدم AI</button>
 		</div>
 
 		<div class="tier-banner">
@@ -174,7 +174,7 @@
 					<div class="channel-status ok" title="محقق"></div>
 					<span class="channel-name">{{ channel.platform }}</span>
 					<span class="channel-handle">{{ channel.handle }}</span>
-					<button type="button" class="channel-edit">تعديل</button>
+					<button type="button" class="channel-edit" disabled title="قريباً">تعديل</button>
 					<button type="button" class="channel-remove" (click)="removeChannel(channel.id)">حذف</button>
 				</div>
 				}
@@ -268,7 +268,7 @@
 
 		<div class="actions-row">
 			<button type="button" class="btn-primary" (click)="saveMarketingProfile()">حفظ الملف التسويقي</button>
-			<button type="button" class="btn-secondary">الغاء والعودة</button>
+			<button type="button" class="btn-secondary" (click)="cancelAndReturn()">الغاء والعودة</button>
 		</div>
 	</div>
 	}
@@ -291,7 +291,7 @@
 						<use href="#i-shield"></use>
 					</svg></div>
 				<div class="gov-bar-txt">تعديل البيانات الأساسية والهوية ينشئ طلبا يفحصه الذكاء ثم يعتمده مراجع بشري قبل
-					التطبيق</div><a class="gov-bar-link">طلباتي السابقة</a>
+					التطبيق</div><a class="gov-bar-link" routerLink="/marketer-overview/profile/requests">طلباتي السابقة</a>
 			</div>
 			<div class="form-grid form-col-2">
 				<div class="inp-group"><label class="inp-label" for="af-fname">الاسم الاول</label><input type="text"
@@ -337,21 +337,21 @@
 			<div class="form-grid form-col-2">
 				<div class="inp-group"><label class="inp-label">كود الاحالة</label>
 					<div style="display:flex;align-items:center;gap:8px"><input type="text" class="inp-field"
-							value="KHALID-MKT-2024" dir="ltr" readonly style="opacity:.7;flex:1"><button type="button"
-							class="btn-primary"
-							style="padding:10px 14px;min-width:fit-content;font-size:12px">نسخ</button></div>
+							[value]="profile()?.referralSlug || ''" dir="ltr" readonly style="opacity:.7;flex:1"><button type="button"
+							class="btn-primary" (click)="copyToClipboard(profile()?.referralSlug || '', 'code')"
+							style="padding:10px 14px;min-width:fit-content;font-size:12px">{{ copiedField() === 'code' ? 'تم النسخ' : 'نسخ' }}</button></div>
 				</div>
 				<div class="inp-group"><label class="inp-label">رابط الاحالة الكامل</label>
 					<div style="display:flex;align-items:center;gap:8px"><input type="text" class="inp-field"
-							value="https://waseet.ai/ref/KHALID-MKT-2024" dir="ltr" readonly
-							style="opacity:.7;font-size:11px;flex:1"><button type="button" class="btn-primary"
-							style="padding:10px 14px;min-width:fit-content;font-size:12px">نسخ</button></div>
+							[value]="referralLink()" dir="ltr" readonly
+							style="opacity:.7;font-size:11px;flex:1"><button type="button" class="btn-primary" (click)="copyToClipboard(referralLink(), 'link')"
+							style="padding:10px 14px;min-width:fit-content;font-size:12px">{{ copiedField() === 'link' ? 'تم النسخ' : 'نسخ' }}</button></div>
 				</div>
 				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="aff-desc">وصف الحملة /
 						رسالة الاحالة</label><textarea id="aff-desc" class="inp-field"
 						placeholder="رسالة تسويقية مخصصة لعرضها مع رابط الاحالة..." maxlength="300"></textarea></div>
 			</div>
-			<div class="actions-row"><button type="button" class="btn-primary">حفظ بيانات الاحالة</button></div>
+			<div class="actions-row"><button type="button" class="btn-primary" disabled title="قريباً">حفظ بيانات الاحالة</button></div>
 		</div>
 	</div>
 	}
@@ -415,7 +415,7 @@
 						<use href="#i-shield"></use>
 					</svg></div>
 				<div class="gov-bar-txt">تعديل الحساب البنكي والمستندات ينشئ طلبا يتحقق الذكاء من تطابق الاسم مع الهوية
-					ثم يعتمده مراجع بشري</div><a class="gov-bar-link">طلباتي السابقة</a>
+					ثم يعتمده مراجع بشري</div><a class="gov-bar-link" routerLink="/marketer-overview/profile/requests">طلباتي السابقة</a>
 			</div>
 			<div class="form-grid form-col-2">
 				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afbk-holder">اسم صاحب
@@ -480,7 +480,7 @@
 				<div>
 					<div style="font-size:13px;font-weight:700" class="txt-white">تغيير كلمة المرور</div>
 					<div style="font-size:11px;margin-top:2px" class="txt-muted">ينصح بتغييرها كل 90 يوما</div>
-				</div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px">تغيير
+				</div><button type="button" class="btn-primary" disabled title="قريباً" style="min-width:fit-content;padding:9px 16px;opacity:.5;cursor:not-allowed">تغيير
 					كلمة المرور</button>
 			</div>
 			<div style="font-size:12px;font-weight:700;margin-bottom:10px" class="txt-slate">تفضيلات التنبيهات</div>
@@ -488,13 +488,13 @@
 				<label
 					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
 					عند احالة جديدة ناجحة<input type="checkbox" checked
-						style="accent-" class="txt-teal"></label>
+						style="accent-color:#2BD4C7" class="txt-teal"></label>
 				<label
 					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
 					عند وصول عمولة جديدة<input type="checkbox" checked
-						style="accent-" class="txt-teal"></label>
+						style="accent-color:#2BD4C7" class="txt-teal"></label>
 			</div>
-			<div class="actions-row"><button type="button" class="btn-primary">حفظ الإعدادات</button></div>
+			<div class="actions-row"><button type="button" class="btn-primary" disabled title="قريباً">حفظ الإعدادات</button></div>
 		</div>
 	</div>
 	}

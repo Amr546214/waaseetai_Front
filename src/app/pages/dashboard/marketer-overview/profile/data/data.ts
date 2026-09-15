@@ -1,18 +1,21 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MarketerOverviewService, MarketerSummary } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule],
+	imports: [CommonModule, ReactiveFormsModule, RouterLink],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })
 export class Data implements OnInit {
 	private fb = inject(FormBuilder);
+	private router = inject(Router);
 	private overviewService = inject(MarketerOverviewService);
 	private profileService = inject(MarketerProfileService);
 
@@ -23,6 +26,12 @@ export class Data implements OnInit {
 	activeTab = signal<string>('profile');
 	isGovModalOpen = signal<boolean>(false);
 	governedEditField = signal<string>('');
+	copiedField = signal<string>('');
+
+	referralLink = computed(() => {
+		const slug = this.profile()?.referralSlug;
+		return slug ? `${environment.url_api.replace(/\/api\/?$/, '')}/ref/${slug}` : '';
+	});
 
 	marketingForm!: FormGroup;
 	bankForm!: FormGroup;
@@ -153,5 +162,23 @@ export class Data implements OnInit {
 				this.loadProfile();
 			}
 		});
+	}
+
+	useAiChannelSuggestion() {
+		this.setActiveTab('profile');
+		this.channelForm.patchValue({ platform: 'LINKEDIN' });
+	}
+
+	copyToClipboard(text: string, field: string) {
+		if (!text) return;
+		navigator.clipboard.writeText(text).then(() => {
+			this.copiedField.set(field);
+			setTimeout(() => this.copiedField.set(''), 2000);
+		});
+	}
+
+	cancelAndReturn() {
+		this.loadProfile();
+		this.router.navigate(['/marketer-overview']);
 	}
 }
