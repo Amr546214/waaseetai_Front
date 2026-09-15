@@ -80,6 +80,7 @@ export class HelpCenterComponent implements OnInit {
 	}
 
 	toggleSection(idx: number) {
-		this.openSection = this.openSection === idx ? -1 : idx;
+		this.openSection = idx;
+		document.getElementById(this.sections[idx].id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}
 }
