@@ -80,7 +80,7 @@
 .ai-disc-ico svg {
   width: 15px;
   height: 15px;
-  color: #7B2FBE;
+  color:var(--ai);
 }
 .ai-disc-body {
   flex: 1;
@@ -209,7 +209,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #7B2FBE;
+  color:var(--ai);
 }
 .ai-insight-body {
   flex: 1;

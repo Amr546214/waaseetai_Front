@@ -236,7 +236,7 @@
 .ai-pct-b {
   font-size: 10px;
   font-weight: 800;
-  color: #7B2FBE;
+  color:var(--ai);
   background: rgba(123, 47, 190, 0.14);
   padding: 2px 8px;
   border-radius: 20px;

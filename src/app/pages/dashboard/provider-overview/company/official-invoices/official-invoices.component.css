@@ -15,7 +15,7 @@
 
 /* AI Disclosure */
 .ai-disc { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: linear-gradient(135deg, rgba(123, 47, 190, .09), rgba(43, 127, 255, .06)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(123, 47, 190, .22); border-radius: 12px; margin-bottom: 16px; }
-.ai-disc-ico { width: 30px; height: 30px; border-radius: 8px; background: rgba(123, 47, 190, .16); display: flex; align-items: center; justify-content: center; color: #7B2FBE; flex-shrink: 0; }
+.ai-disc-ico { width: 30px; height: 30px; border-radius: 8px; background: rgba(123, 47, 190, .16); display: flex; align-items: center; justify-content: center; color:var(--ai); flex-shrink: 0; }
 .ai-disc-body { flex: 1; }
 .ai-disc-lbl { font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #A56BE0; margin-bottom: 2px; }
 .ai-disc-txt { font-size: 13px; color: var(--txt-2, #A8B2D1); margin: 0; }

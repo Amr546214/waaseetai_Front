@@ -8,10 +8,10 @@
 
 /* ── AI Insight Banner ── */
 .ai-banner{display:flex;align-items:center;gap:12px;padding:13px 16px;background:rgba(123,47,190,.10);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(123,47,190,.22);border-radius:14px;margin-bottom:16px;animation:ws-fade .3s ease both}
-.ai-banner svg{width:17px;height:17px;flex-shrink:0;color:#7B2FBE}
+.ai-banner svg{width:17px;height:17px;flex-shrink:0;color:var(--ai)}
 .ai-banner-txt{flex:1;font-size:13px;color:#A8B2D1}
 .ai-banner-txt strong{color:#fff}
-.ai-pct{font-size:11px;font-weight:700;color:#7B2FBE;background:rgba(123,47,190,.14);padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.ai-pct{font-size:11px;font-weight:700;color:var(--ai);background:rgba(123,47,190,.14);padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 
 /* ── Profile Completion Banner ── */
 .profile-banner{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:rgba(255,176,32,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1.5px solid rgba(255,180,0,.30);border-radius:16px;margin-bottom:16px}
@@ -161,9 +161,9 @@
 /* AI Insights Card */
 .ai-ins-card{background:linear-gradient(135deg,rgba(123,47,190,.08),rgba(123,47,190,.04));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(123,47,190,.22);border-radius:16px;padding:16px}
 .ai-ins-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.ai-ins-hd svg{width:15px;height:15px;color:#7B2FBE}
+.ai-ins-hd svg{width:15px;height:15px;color:var(--ai)}
 .ai-ins-hd-ttl{font-size:13px;font-weight:800;color:#fff}
-.ai-ins-hd-pct{font-size:10px;font-weight:700;color:#7B2FBE;background:rgba(123,47,190,.14);padding:2px 7px;border-radius:20px}
+.ai-ins-hd-pct{font-size:10px;font-weight:700;color:var(--ai);background:rgba(123,47,190,.14);padding:2px 7px;border-radius:20px}
 .ai-ins-txt{font-size:12.5px;color:#A8B2D1;line-height:1.6}
 
 /* ── AI Disclosure ── */

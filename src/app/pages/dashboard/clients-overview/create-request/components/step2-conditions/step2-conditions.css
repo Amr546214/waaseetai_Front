@@ -26,7 +26,7 @@
   backdrop-filter: blur(12px);
   border: 1px solid rgba(123,47,190,.22);
 }
-.ai-disclosure svg { color: #7B2FBE; }
+.ai-disclosure svg { color:var(--ai); }
 
 /* Strike banner */
 .strike-banner {

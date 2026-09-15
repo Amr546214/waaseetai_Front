@@ -5,7 +5,7 @@
 .ms-ai-bc-ico svg{width:14px;height:14px}
 .ms-ai-bc-txt{flex:1;font-size:12px;color:#A8B2D1;line-height:1.5}
 .ms-ai-bc-txt strong{color:#A56BE0}
-.ms-ai-pct{font-size:10px;font-weight:800;color:#7B2FBE;background:rgba(123,47,190,.14);padding:2px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.ms-ai-pct{font-size:10px;font-weight:800;color:var(--ai);background:rgba(123,47,190,.14);padding:2px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 
 .ms-shell{flex:1;display:flex;overflow:hidden;min-height:0}
 
