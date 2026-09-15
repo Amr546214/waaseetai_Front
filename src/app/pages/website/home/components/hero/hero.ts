@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-hero',
@@ -8,5 +8,10 @@ import { RouterLink } from '@angular/router';
   styleUrl: './hero.css',
 })
 export class Hero {
+  constructor(private router: Router) {}
 
+  search(value: string): void {
+    const q = value.trim();
+    this.router.navigate(['/marketplace'], q ? { queryParams: { q } } : undefined);
+  }
 }

@@ -1,7 +1,7 @@
 .hero-brand{padding:76px 0 52px;text-align:center;position:relative;overflow:hidden}
 .hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-56%);width:min(680px,90vw);height:min(520px,65vh);background:radial-gradient(ellipse at center,rgba(43,212,199,.11) 0%,rgba(43,127,255,.07) 36%,transparent 66%);pointer-events:none}
 .hero-h1{font-size:clamp(38px,5.5vw,64px);font-weight:900;line-height:1.15;margin-bottom:18px;letter-spacing:-1px;text-wrap:balance;color:var(--txt);position:relative}
-.hero-h1 .gradient{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:block}
+.hero-h1 .gradient{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:block;line-height:1.35;padding-bottom:4px}
 .hero-desc{font-size:clamp(15px,1.6vw,18px);color:var(--txt-2);max-width:580px;margin:0 auto 32px;line-height:1.7;text-wrap:balance;position:relative}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:36px;position:relative}
 .btn-secondary{background:rgba(255,255,255,.06);color:var(--txt);padding:14px 26px;border-radius:999px;font-weight:700;font-size:16px;font-family:inherit;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.14);cursor:pointer;transition:all .25s;text-decoration:none}
@@ -31,6 +31,13 @@
 @media(max-width:480px){.hero-trust{grid-template-columns:1fr}}
 
 /* LIGHT THEME */
+:host-context(body.light-theme) .btn-primary,
+:host-context(body.theme-light) .btn-primary,
+:host-context(.light-theme) .btn-primary,
+:host-context(.theme-light) .btn-primary {
+  color: #FFFFFF !important;
+}
+
 :host-context(body.light-theme) .btn-secondary,
 :host-context(body.theme-light) .btn-secondary,
 :host-context(.light-theme) .btn-secondary,

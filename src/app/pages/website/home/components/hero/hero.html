@@ -26,9 +26,10 @@
 					<div class="search-icon" aria-hidden="true"><svg>
 							<use href="#ws-search"></use>
 						</svg></div>
-					<input class="search-input" type="search" id="hero-search"
-						placeholder="ابحث عن خدمة، مهارة أو مقدم..." aria-label="بحث عن خدمة">
-					<button class="search-btn" type="button" aria-label="بحث">ابحث الآن</button>
+					<input class="search-input" type="search" id="hero-search" #heroSearch
+						placeholder="ابحث عن خدمة، مهارة أو مقدم..." aria-label="بحث عن خدمة"
+						(keyup.enter)="search(heroSearch.value)">
+					<button class="search-btn" type="button" aria-label="بحث" (click)="search(heroSearch.value)">ابحث الآن</button>
 				</div>
 				<div class="search-tags" role="list">
 					<a routerLink="/marketplace" [queryParams]="{q:'تصميم شعار'}" class="search-tag"
