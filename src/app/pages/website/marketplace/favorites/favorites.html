@@ -107,7 +107,7 @@
                 } @else {
                   <svg class="ph" aria-hidden="true" style="width:32px;height:32px"><use href="#ws-image"></use></svg>
                 }
-                @if (m.level) { <span class="svc-lvl">{{ m.level }}</span> }
+                @if (m.level) { <span class="svc-lvl" [style.background]="m.levelBg || 'rgba(123,47,190,.85)'" [style.color]="m.levelColor || '#E0C6FF'">{{ m.level }}</span> }
                 <button class="svc-remove" (click)="removeFavorite(m.id)" [disabled]="removingIds().has(m.id)" aria-label="إزالة من المفضلة">
                   <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-close"></use></svg>
                 </button>

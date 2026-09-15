@@ -80,7 +80,7 @@
                 <svg class="placeholder" aria-hidden="true" style="width:40px;height:40px"><use href="#ws-image"></use></svg>
               }
               @if (m.level) {
-                <span class="pcard-lvl">{{ m.level }}</span>
+                <span class="pcard-lvl" [style.background]="m.levelBg || 'rgba(123,47,190,.85)'" [style.color]="m.levelColor || '#E0C6FF'">{{ m.level }}</span>
               }
               <button class="pcard-remove" (click)="removeModel(m.id)" aria-label="إزالة من المقارنة">
                 <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-close"></use></svg>

@@ -151,7 +151,7 @@
                 <svg class="ph" aria-hidden="true" style="width:32px;height:32px"><use href="#ws-image"></use></svg>
               }
               @if (m.level) {
-                <span class="svc-lvl">{{ m.level }}</span>
+                <span class="svc-lvl" [style.background]="m.levelBg || 'rgba(123,47,190,.85)'" [style.color]="m.levelColor || '#E0C6FF'">{{ m.level }}</span>
               }
               @if (m.discountPercentage) {
                 <span class="discount-tag">خصم {{ m.discountPercentage }}%</span>
