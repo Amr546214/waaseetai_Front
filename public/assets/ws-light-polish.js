@@ -264,7 +264,7 @@
       var rc=el.getBoundingClientRect();
       // --- text ---
       var txt=directText(el);
-      if(txt && /[\p{L}\p{N}]/u.test(txt) && !/sr-only|visually-hidden|screen-reader/i.test(cls) && rc.width>=4 && rc.height>=4 && !(el.closest&&el.closest('.t-toggle'))){
+      if(txt && /[\p{L}\p{N}]/u.test(txt) && !/sr-only|visually-hidden|screen-reader/i.test(cls) && rc.width>=4 && rc.height>=4 && !(el.closest&&(el.closest('.t-toggle')||el.closest('.btn-primary')||el.closest('.search-btn')||el.closest('.svc-lvl,.pc-lvl,.pcard-lvl,.cg-lvl,.prov-level,.ws-level-tag,.name-level-tag,.result-level-pill,.avatar-level-badge,.mem-level,.bk-comm-level,[class*="lvl-badge" i],[class*="level-badge" i],[class*="level-tag" i],[class*="level-pill" i]')))){
         var clipped=(cs.webkitTextFillColor && /rgba\(0, 0, 0, 0\)|transparent/.test(cs.webkitTextFillColor)) || cs.webkitBackgroundClip==='text' || cs.backgroundClip==='text';
         if(!clipped){
           var fg=pc(cs.color);
