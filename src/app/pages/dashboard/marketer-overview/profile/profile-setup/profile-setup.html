@@ -1,1 +1,160 @@
-<p>profile-setup works!</p>
+<div class="main-inner">
+
+  <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+    <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+    <div class="ai-disc-body">
+      <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+      <p class="ai-disc-txt">استكمال بياناتك يرفع من ظهورك في السوق ويسرّع اعتماد طلبات السحب <span class="ai-disc-badge">دقة 92%</span> القرار النهائي لك</p>
+    </div>
+  </div>
+
+  <h2 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">استكمال بياناتك</h2>
+  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — يمكنك التخطي والعودة لاحقاً من صفحة ملفي التسويقي</p>
+
+  @if (isLoading()) {
+    <div class="adm-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
+  } @else {
+
+    <!-- Step Bar -->
+    <div class="wz-bar" role="list" aria-label="خطوات الاستكمال">
+      @for (step of steps; track step.id; let i = $index) {
+        <div class="wz-step" [class.active]="currentStep() === step.id" [class.done]="currentStep() > step.id" (click)="setStep(step.id)" role="listitem">
+          <div class="wz-step-node">
+            @if (currentStep() > step.id) {
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            } @else {
+              <span>{{ step.id }}</span>
+            }
+          </div>
+          <div class="wz-step-lbl">{{ step.label }}</div>
+        </div>
+        @if (i < steps.length - 1) { <div class="wz-connector" [class.done]="currentStep() > step.id"></div> }
+      }
+    </div>
+
+    <!-- Step 1: بياناتك الأساسية -->
+    @if (currentStep() === 1) {
+      <div class="form-card">
+        <div class="form-card-hdr">
+          <div class="form-card-ico"><svg aria-hidden="true"><use href="#i-person"></use></svg></div>
+          <div><div class="form-card-title">بياناتك الأساسية</div><div class="form-card-sub">هذه بياناتك المسجّلة من التسجيل</div></div>
+        </div>
+        <div class="form-grid form-col2">
+          <div class="inp-group"><label class="inp-label">الاسم</label><input type="text" class="inp-field" readonly [value]="(profile()?.user?.firstName || '') + ' ' + (profile()?.user?.lastName || '')"></div>
+          <div class="inp-group"><label class="inp-label">البريد الإلكتروني</label><input type="email" class="inp-field" readonly dir="ltr" [value]="profile()?.user?.email || ''"></div>
+          <div class="inp-group"><label class="inp-label">رقم الجوال</label><input type="tel" class="inp-field" readonly dir="ltr" [value]="(profile()?.user?.phoneCountryCode || '') + (profile()?.user?.phoneNumber || '')"></div>
+          <div class="inp-group"><label class="inp-label">رابط الإحالة</label><input type="text" class="inp-field" readonly dir="ltr" [value]="profile()?.referralSlug || ''"></div>
+        </div>
+        <div class="inp-hint" style="margin-top:8px">لتعديل بياناتك الأساسية لاحقاً استخدم صفحة "طلبات تعديل الملف"</div>
+      </div>
+      <div class="actions-row"><button type="button" class="btn-primary" (click)="nextStep()">التالي</button></div>
+    }
+
+    <!-- Step 2: الملف التسويقي -->
+    @if (currentStep() === 2) {
+      <div class="form-card" [formGroup]="marketingForm">
+        <div class="form-card-hdr">
+          <div class="form-card-ico"><svg aria-hidden="true"><use href="#i-doc"></use></svg></div>
+          <div><div class="form-card-title">الوصف التسويقي</div><div class="form-card-sub">يظهر في ملفك العام، يصف تخصصك وجمهورك</div></div>
+        </div>
+        <div class="inp-group">
+          <label class="inp-label" for="ps-bio">وصف تسويقي مختصر</label>
+          <textarea id="ps-bio" class="inp-field" formControlName="bio" rows="3" placeholder="اكتب وصفاً مختصراً عن تخصصك التسويقي وجمهورك المستهدف..."></textarea>
+          <div class="char-counter">{{ marketingForm.get('bio')?.value?.length || 0 }} / 500 حرف</div>
+        </div>
+      </div>
+      <div class="actions-row">
+        <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="saveBio()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
+        <button type="button" class="btn-secondary" (click)="nextStep()">تخطي</button>
+      </div>
+    }
+
+    <!-- Step 3: قناة تسويق -->
+    @if (currentStep() === 3) {
+      <div class="form-card">
+        <div class="form-card-hdr">
+          <div class="form-card-ico" style="background:rgba(43,127,255,.10);color:#5DA0FF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+          <div><div class="form-card-title">أضف قناة تسويق واحدة على الأقل</div><div class="form-card-sub">تزيد ثقة العملاء بملفك العام</div></div>
+        </div>
+        @if (hasChannel()) {
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+            @for (ch of profile()?.marketingChannels; track ch.id) {
+              <div class="channel-row"><span class="channel-name">{{ ch.platform }}</span><span class="channel-handle">{{ ch.handle }}</span></div>
+            }
+          </div>
+        }
+        <div [formGroup]="channelForm" style="display:flex;gap:8px;flex-wrap:wrap">
+          <select formControlName="platform" class="inp-field" style="max-width:200px" aria-label="نوع القناة">
+            <option value="">اختر القناة</option>
+            <option value="LINKEDIN">LinkedIn</option>
+            <option value="YOUTUBE">YouTube</option>
+            <option value="TIKTOK">TikTok</option>
+            <option value="WHATSAPP">WhatsApp</option>
+            <option value="TWITTER">Twitter / X</option>
+            <option value="INSTAGRAM">Instagram</option>
+          </select>
+          <input type="text" formControlName="handle" class="inp-field" style="flex:1;min-width:160px" placeholder="ادخل معرف القناة او رابطها" dir="ltr">
+        </div>
+      </div>
+      <div class="actions-row">
+        <button type="button" class="btn-primary" [disabled]="isSubmitting() || channelForm.invalid" (click)="addChannel()">{{ isSubmitting() ? 'جارٍ الإضافة...' : 'إضافة ومتابعة' }}</button>
+        <button type="button" class="btn-secondary" (click)="skipChannel()">تخطي</button>
+      </div>
+    }
+
+    <!-- Step 4: الحساب البنكي -->
+    @if (currentStep() === 4) {
+      <div class="form-card" [formGroup]="bankForm">
+        <div class="form-card-hdr">
+          <div class="form-card-ico" style="background:rgba(15,169,154,.10);color:#0FA99A"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div>
+          <div><div class="form-card-title">الحساب البنكي</div><div class="form-card-sub">مطلوب لاستلام عمولاتك عند السحب</div></div>
+        </div>
+        <div class="form-grid form-col2">
+          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">اسم صاحب الحساب<span class="req">*</span></label><input type="text" class="inp-field" formControlName="accountHolderName" placeholder="الاسم الثلاثي كما في البطاقة"></div>
+          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">رقم IBAN<span class="req">*</span></label><input type="text" class="inp-field" formControlName="iban" placeholder="SAxx xxxx xxxx xxxx xxxx xxxx" dir="ltr"></div>
+          <div class="inp-group"><label class="inp-label">اسم البنك</label>
+            <select class="inp-field" formControlName="bankName">
+              <option value="">اختر البنك</option>
+              <option value="البنك الاهلي السعودي">البنك الاهلي السعودي</option>
+              <option value="مصرف الراجحي">مصرف الراجحي</option>
+              <option value="بنك الرياض">بنك الرياض</option>
+              <option value="STC Pay">STC Pay</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="actions-row">
+        <button type="button" class="btn-primary" [disabled]="isSubmitting() || bankForm.invalid" (click)="saveBankInfo()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
+        <button type="button" class="btn-secondary" (click)="nextStep()">تخطي</button>
+      </div>
+    }
+
+    <!-- Step 5: المراجعة والإنهاء -->
+    @if (currentStep() === 5) {
+      <div class="form-card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.07)">
+          <div style="width:44px;height:44px;border-radius:12px;background:rgba(43,212,199,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#2BD4C7"><svg width="20" height="20" aria-hidden="true"><use href="#i-check"></use></svg></div>
+          <div>
+            <div style="font-size:16px;font-weight:900" class="txt-white">ملخص استكمال الملف</div>
+            <div style="font-size:12px" class="txt-muted">نسبة اكتمال الملف: {{ completionPercentage() }}%</div>
+          </div>
+        </div>
+        <div class="review-row"><span class="txt-muted">الوصف التسويقي</span><span class="txt-white">{{ profile()?.bio ? 'مكتمل' : 'لم يُضف' }}</span></div>
+        <div class="review-row"><span class="txt-muted">قنوات التسويق</span><span class="txt-white">{{ hasChannel() ? 'تمت إضافة قناة' : 'لم تُضف بعد' }}</span></div>
+        <div class="review-row"><span class="txt-muted">الحساب البنكي</span><span class="txt-white">{{ hasBank() ? 'مكتمل' : 'لم يُضف' }}</span></div>
+      </div>
+      <div class="actions-row"><button type="button" class="btn-primary" (click)="finish()">إنهاء</button></div>
+    }
+
+  }
+
+  @if (toastMsg()) {
+    <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-size:14px;font-weight:700" class="txt-white">{{ toastMsg() }}</span>
+      </div>
+    </div>
+  }
+
+</div>
