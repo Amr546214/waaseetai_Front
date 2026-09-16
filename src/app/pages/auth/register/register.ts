@@ -37,7 +37,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	showDraftBanner = false;
 	private draftKey = 'waseet_register_draft';
 
-	countdown = 60;
+	countdown = 90;
 	countdownTimer: any = null;
 
 	// Maps frontend ID to backend AccountType Enum
@@ -135,10 +135,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		// Check for saved draft
 		this.checkDraft();
 
-		if (this.authStore.isPendingVerification()) {
-			this.currentStep = 3;
-			this.startCountdown();
-		}
+		// Note: pendingUserId (set after a successful registration submit, or by
+		// an unverified login) is intentionally NOT used here to auto-jump to
+		// step 3. It can survive for days (cookie) or indefinitely (localStorage)
+		// after someone abandons an OTP mid-flow, which would otherwise force
+		// every later visit to /auth/register straight into OTP entry instead of
+		// showing the account-type picker — even when the user's intent is to
+		// start a brand new registration. The happy-path jump to step 3 within
+		// the same session is handled directly by submitRegistration() instead.
 
 		this.socialAuthService.authState.subscribe((user) => {
 			if (user && user.idToken && this.currentStep === 2) {
@@ -148,12 +152,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				}
 				this.isSubmitting = true;
 				this.errorMessage = '';
-				this.cdr.detectChanges();
+				this.cdr.markForCheck();
 
 				this.authApi.googleAuth(user.idToken, this.accountTypeMap[this.selectedAccountType]).subscribe({
 					next: (res) => {
 						this.isSubmitting = false;
-						this.cdr.detectChanges();
+						this.cdr.markForCheck();
 						const authedUser = res.data?.user || this.authStore.currentUser();
 						
 						if (authedUser) {
@@ -171,7 +175,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 					error: (err) => {
 						this.isSubmitting = false;
 						this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء التسجيل بجوجل';
-						this.cdr.detectChanges();
+						this.cdr.markForCheck();
 					}
 				});
 			}
@@ -179,7 +183,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	ngAfterViewInit() {
-		this.cdr.detectChanges();
+		this.cdr.markForCheck();
 	}
 
 	ngOnDestroy() {
@@ -193,7 +197,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				const data = JSON.parse(draft);
 				if (data && (data.firstName || data.email || data.phone)) {
 					this.showDraftBanner = true;
-					this.cdr.detectChanges();
+					this.cdr.markForCheck();
 				}
 			}
 		} catch {}
@@ -214,13 +218,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			}
 		} catch {}
 		this.showDraftBanner = false;
-		this.cdr.detectChanges();
+		this.cdr.markForCheck();
 	}
 
 	dismissDraft() {
 		this.showDraftBanner = false;
 		try { localStorage.removeItem(this.draftKey); } catch {}
-		this.cdr.detectChanges();
+		this.cdr.markForCheck();
 	}
 
 	selectAccountType(id: string) {
@@ -275,12 +279,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				this.isSubmitting = false;
 				this.currentStep = 3; // Move to OTP
 				this.startCountdown();
-				this.cdr.detectChanges();
+				this.cdr.markForCheck();
 			},
 			error: (err) => {
 				this.isSubmitting = false;
 				this.errorMessage = err.error?.message || err.message || 'حدث خطأ في التسجيل';
-				this.cdr.detectChanges();
+				this.cdr.markForCheck();
 			}
 		});
 	}
@@ -295,7 +299,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		// Apple Sign-In is not wired to a backend endpoint yet — tell the user
 		// instead of failing silently.
 		this.appleNotice = 'التسجيل عبر آبل سيكون متاحاً قريباً، يمكنك المتابعة بجوجل أو بالبريد';
-		this.cdr.detectChanges();
+		this.cdr.markForCheck();
 	}
 
 	togglePassword() {
@@ -311,11 +315,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			const pendingUserId = this.authStore.pendingUserId();
 			if (!pendingUserId) {
 				this.errorMessage = 'فقدت جلسة التفعيل. يرجى التسجيل مرة أخرى.';
+				this.cdr.markForCheck();
 				return;
 			}
 
 			this.isSubmitting = true;
 			this.errorMessage = '';
+			this.cdr.markForCheck();
 
 			const val = this.verificationForm.value;
 			const code = `${val.code1}${val.code2}${val.code3}${val.code4}${val.code5}${val.code6}`;
@@ -323,37 +329,117 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			this.authApi.verifyOtp({ userId: pendingUserId, code }).subscribe({
 				next: () => {
 					this.isSubmitting = false;
-					this.cdr.detectChanges();
+					this.cdr.markForCheck();
 					this.router.navigate(['/client-overview']);
 				},
 				error: (err) => {
 					this.isSubmitting = false;
 					this.errorMessage = err.error?.message || err.message || 'رمز التحقق غير صحيح';
-					this.cdr.detectChanges();
+					this.cdr.markForCheck();
 				}
 			});
 		}
 	}
 
-	autoFocusNext(event: any, nextElementId: string) {
-		if (event.target.value.length === 1 && nextElementId) {
-			const nextElement = document.getElementById(nextElementId);
-			if (nextElement) {
-				nextElement.focus();
+	// OTP boxes behave like the reset-password and checkout confirm pages:
+	// digits only, Arabic/Persian digits normalized to English, full-code paste
+	// from any box, Backspace walks back, Enter submits.
+	readonly otpIndexes = [0, 1, 2, 3, 4, 5];
+
+	otpDigit(index: number): string {
+		return this.verificationForm.get(`code${index + 1}`)?.value ?? '';
+	}
+
+	onOtpInput(index: number, event: Event) {
+		const input = event.target as HTMLInputElement;
+		const raw = this.normalizeDigits(input.value);
+
+		if (raw.length > 1) {
+			this.fillOtpFrom(raw);
+			return;
+		}
+
+		this.verificationForm.get(`code${index + 1}`)?.setValue(raw);
+		input.value = raw;
+		this.errorMessage = '';
+
+		if (raw && index < 5) {
+			this.focusOtpInput(index + 1);
+		}
+		this.cdr.markForCheck();
+	}
+
+	onOtpKeydown(index: number, event: KeyboardEvent) {
+		if (event.key === 'Backspace') {
+			event.preventDefault();
+			if (this.otpDigit(index)) {
+				this.verificationForm.get(`code${index + 1}`)?.setValue('');
+			} else if (index > 0) {
+				this.verificationForm.get(`code${index}`)?.setValue('');
+				this.focusOtpInput(index - 1);
 			}
+			this.cdr.markForCheck();
+		} else if (event.key === 'Enter') {
+			event.preventDefault();
+			this.onVerificationSubmit();
 		}
 	}
 
+	onOtpPaste(event: ClipboardEvent) {
+		event.preventDefault();
+		const pasted = this.normalizeDigits(event.clipboardData?.getData('text') || '');
+		if (pasted) {
+			this.fillOtpFrom(pasted);
+		}
+	}
+
+	private fillOtpFrom(value: string) {
+		const digits = value.slice(0, 6).split('');
+		this.otpIndexes.forEach(i => this.verificationForm.get(`code${i + 1}`)?.setValue(digits[i] ?? ''));
+		this.errorMessage = '';
+		this.cdr.markForCheck();
+		this.focusOtpInput(Math.min(digits.length, 6) - 1);
+	}
+
+	private focusOtpInput(index: number) {
+		const el = document.getElementById(`otp-${index}`) as HTMLInputElement | null;
+		el?.focus();
+		el?.select();
+	}
+
+	/** Converts Arabic/Persian digits to English and strips everything that isn't 0-9. */
+	private normalizeDigits(value: string): string {
+		const arabic = '٠١٢٣٤٥٦٧٨٩';
+		const persian = '۰۱۲۳۴۵۶۷۸۹';
+		return value
+			.split('')
+			.map(char => {
+				const arabicIndex = arabic.indexOf(char);
+				if (arabicIndex !== -1) return String(arabicIndex);
+				const persianIndex = persian.indexOf(char);
+				if (persianIndex !== -1) return String(persianIndex);
+				return char;
+			})
+			.join('')
+			.replace(/[^0-9]/g, '');
+	}
+
+	get formattedCountdown() {
+		const m = Math.floor(this.countdown / 60);
+		const s = this.countdown % 60;
+		return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+	}
+
 	startCountdown() {
-		this.countdown = 60;
+		this.countdown = 90;
 		if (this.countdownTimer) clearInterval(this.countdownTimer);
 		this.countdownTimer = setInterval(() => {
 			if (this.countdown > 0) {
 				this.countdown--;
-				this.cdr.detectChanges();
 			} else {
 				clearInterval(this.countdownTimer);
 			}
+			this.cdr.markForCheck();
 		}, 1000);
 	}
 
@@ -370,12 +456,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			next: () => {
 				this.isSubmitting = false;
 				this.startCountdown();
-				this.cdr.detectChanges();
+				this.cdr.markForCheck();
 			},
 			error: (err) => {
 				this.isSubmitting = false;
 				this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء الإرسال';
-				this.cdr.detectChanges();
+				this.cdr.markForCheck();
 			}
 		});
 	}

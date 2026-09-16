@@ -44,9 +44,6 @@
 	<div class="roles-inner">
 		<!-- STEP 1: Account Type Selection Grid View -->
 		<div *ngIf="currentStep === 1" style="text-align: center;">
-			<div class="auth-flow-head" style="justify-content: flex-end; margin-bottom: 16px;">
-				<span class="auth-step-pill">الخطوة 1 من 3</span>
-			</div>
 
 			<!-- AI Suggestion Badge -->
 			<div class="roles-ai-badge">
@@ -106,8 +103,7 @@
 
 		<!-- STEPS 2 & 3: Standard Auth Form View -->
 		<div class="main-inner" *ngIf="currentStep > 1">
-			<!-- Top Bar Header: Back link & Step Pill (Aligned to 580px main-inner container) -->
-			<!-- Top Bar Header: Back link & Step Pill (Aligned to 560px main-inner container) -->
+			<!-- Top Bar Header: Back button -->
 			<div class="auth-flow-head">
 				<button type="button" class="auth-back-link" (click)="prevStep()">
 					<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -116,17 +112,15 @@
 					</svg>
 					<span>رجوع</span>
 				</button>
-
-				<span class="auth-step-pill">الخطوة {{ currentStep }} من 3</span>
 			</div>
 
 			<!-- Step Title & Logo Header -->
 			<div class="auth-head">
 				<div class="auth-logo"><img src="/images/waseet-mark.png" alt="وسيط AI"></div>
 				<h1 class="auth-h1" *ngIf="currentStep === 2">البيانات الأساسية</h1>
-				<h1 class="auth-h1" *ngIf="currentStep === 3">التحقق من رقم الجوال</h1>
+				<h1 class="auth-h1" *ngIf="currentStep === 3">التحقق من البريد الإلكتروني</h1>
 				<p class="auth-sub" *ngIf="currentStep === 2">الخطوة 2 من 3 في رحلة التسجيل في وسيط AI</p>
-				<p class="auth-sub" *ngIf="currentStep === 3">أدخل رمز التحقق المرسل إلى هاتفك المحمول</p>
+				<p class="auth-sub" *ngIf="currentStep === 3">أدخل رمز التحقق المرسل إلى بريدك الإلكتروني</p>
 			</div>
 
 			<!-- Role Selector Bar (for Step 2 & 3) -->
@@ -382,25 +376,19 @@
 			<!-- STEP 3: OTP Verification -->
 			<form *ngIf="currentStep === 3" [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
 				<div class="form-card" style="text-align: center;">
-					<p class="auth-sub" style="margin-bottom: 20px;">تم إرسال رمز التفعيل المكون من 6 أرقام إلى هاتفك
-						المحمول</p>
+					<p class="auth-sub" style="margin-bottom: 20px;">تم إرسال رمز التفعيل المكون من 6 أرقام إلى بريدك
+						الإلكتروني</p>
 
-					<div class="otp-row">
-						<input type="text" maxlength="1" class="otp-in" formControlName="code1" id="c1"
-							(input)="autoFocusNext($event, 'c2')">
-						<input type="text" maxlength="1" class="otp-in" formControlName="code2" id="c2"
-							(input)="autoFocusNext($event, 'c3')">
-						<input type="text" maxlength="1" class="otp-in" formControlName="code3" id="c3"
-							(input)="autoFocusNext($event, 'c4')">
-						<input type="text" maxlength="1" class="otp-in" formControlName="code4" id="c4"
-							(input)="autoFocusNext($event, 'c5')">
-						<input type="text" maxlength="1" class="otp-in" formControlName="code5" id="c5"
-							(input)="autoFocusNext($event, 'c6')">
-						<input type="text" maxlength="1" class="otp-in" formControlName="code6" id="c6"
-							(input)="autoFocusNext($event, '')">
+					<div class="otp-row" role="group" aria-label="خانات رمز التحقق" dir="ltr" (paste)="onOtpPaste($event)">
+						@for (i of otpIndexes; track i) {
+						<input class="otp-in" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*"
+							maxlength="1" autocomplete="one-time-code" [id]="'otp-' + i"
+							[attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)"
+							(keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
+						}
 					</div>
 
-					<p class="otp-hint" *ngIf="countdown > 0">إعادة إرسال الرمز بعد {{ countdown }} ثانية</p>
+					<p class="otp-hint" *ngIf="countdown > 0">إعادة إرسال الرمز بعد <span dir="ltr">{{ formattedCountdown }}</span></p>
 					<button type="button" class="otp-resend" *ngIf="countdown === 0" (click)="resendOtp()"
 						[disabled]="isSubmitting">إعادة إرسال الرمز الآن</button>
 

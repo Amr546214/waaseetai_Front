@@ -576,18 +576,40 @@ header.scrolled {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	font-size: 14px;
-	font-weight: 600;
+	margin-top: 12px;
+	margin-inline-start: 12px;
+	padding: 8px 18px;
+	border-radius: 50px;
+	border: 1px solid var(--sec-bd);
+	background: var(--sec-bg);
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 700;
 	color: var(--txt-2);
-	transition: color .2s;
+	line-height: 1;
 	text-decoration: none;
 	cursor: pointer;
-	background: none;
-	border: none;
+	transition: all .2s;
+}
+
+/* Keep the chevron and the Arabic label on the same optical centre line:
+   the inline SVG sat on the text baseline and the inherited 1.7 line-height
+   pushed the label below it. */
+.auth-back-link svg {
+	display: block;
+	flex-shrink: 0;
+}
+
+.auth-back-link span {
+	display: block;
+	line-height: 1;
 }
 
 .auth-back-link:hover {
 	color: var(--txt);
+	border-color: var(--teal);
+	background: var(--sec-hov);
+	transform: translateY(-1px);
 }
 
 .auth-step-pill {
@@ -683,27 +705,26 @@ header.scrolled {
 
 .step-row {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	width: 100%;
+	padding-inline: 8px;
 }
 
+/* All three steps get the same fixed slot so none sits on the card edge;
+   only the connectors stretch to fill the space between them. */
 .step-item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	position: relative;
-	flex: 1;
-}
-
-.step-item:last-child {
-	flex: none;
+	flex: 0 0 96px;
 }
 
 .step-connector {
 	flex: 1;
 	height: 2px;
 	background: rgba(255, 255, 255, .10);
-	margin-top: 15px;
+	margin: 14px -24px 0;
 	transition: background .3s;
 }
 
@@ -1828,12 +1849,12 @@ body.theme-light .auth-step-pill,
 body.light-theme .auth-back-link,
 body.theme-light .auth-back-link,
 .light-theme .auth-back-link,
-.theme-light .auth-back-link{color:#56607D}
+.theme-light .auth-back-link{color:#56607D;background:#fff;border-color:#D8DFEC}
 
 body.light-theme .auth-back-link:hover,
 body.theme-light .auth-back-link:hover,
 .light-theme .auth-back-link:hover,
-.theme-light .auth-back-link:hover{color:#070D24}
+.theme-light .auth-back-link:hover{color:#070D24;background:#F3F5FA;border-color:#2BD4C7}
 
 body.light-theme .main-inner,
 body.theme-light .main-inner,
