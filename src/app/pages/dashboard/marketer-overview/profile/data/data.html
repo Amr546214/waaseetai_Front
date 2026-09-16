@@ -86,7 +86,7 @@
 						style="font-size:inherit;color:inherit;border-color:rgba(185,134,11,.30)">{{ summary()?.tier ||
 						'مساعد' }}</span> &middot; <span style="font-weight:600;font-size:11px">المستوى الحالي — التالي:
 						<span class="ws-level-tag txt-kahr"
-							style="font-size:11px;border-">موصل</span></span>
+							style="font-size:11px;color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</span></span>
 				</div>
 				<p class="tier-txt">تقدم في التحقق من القنوات وتحقق المزيد من الاحالات للترقية لمستوى <span
 						class="ws-level-tag"
@@ -100,9 +100,9 @@
 					<div class="tier-dot"></div>
 				</div>
 				<div style="font-size:11px;margin-top:5px" class="txt-muted"><span class="ws-level-tag txt-kahr"
-						style="font-size:11px;border-">مساعد</span> (2/5 خطوات
+						style="font-size:11px;color:#9B8B7A;border-color:rgba(155,139,122,.30)">مساعد</span> (2/5 خطوات
 					للترقية لـ <span class="ws-level-tag txt-muted"
-						style="font-size:11px;border-">موصل</span>)</div>
+						style="font-size:11px;color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</span>)</div>
 			</div>
 		</div>
 
@@ -315,8 +315,7 @@
 						<option>خارج السعودية</option>
 					</select></div>
 			</div>
-			<div class="actions-row"><button type="button" class="btn-primary"
-					(click)="openGovernedEdit('البيانات الأساسية والهوية')">إرسال طلب تعديل</button></div>
+			<div class="actions-row"><button type="button" class="btn-primary" disabled title="قريباً">إرسال طلب تعديل</button></div>
 		</div>
 	</div>
 	}
