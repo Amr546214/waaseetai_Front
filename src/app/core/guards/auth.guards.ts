@@ -68,14 +68,14 @@ export const guestGuard: CanActivateFn = (route, state) => {
         return router.createUrlTree(['/client-overview']);
       }
 
-      if (authStore.isPendingVerification()) {
-        // They started registration but didn't verify OTP, guide them to verification
-        if (state.url.includes('/auth/register')) {
-          return true;
-        }
-        return router.createUrlTree(['/auth/register']);
-      }
-
+      // Pending OTP verification only auto-resumes the OTP step when the user
+      // is already on /auth/register (see Register.ngOnInit). It must never
+      // redirect visits to /auth/login or /auth/forget-password here: the
+      // pendingUserId marker survives (7-day cookie, and indefinitely in
+      // localStorage) even after someone abandons a signup mid-OTP, which
+      // would otherwise permanently trap them out of the login page on that
+      // browser — including when they're trying to log into an unrelated,
+      // already-verified account.
       return true;
     })
   );
