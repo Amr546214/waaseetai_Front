@@ -4,8 +4,8 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { AuthStore } from '../../../core/store/auth.store';
-import { AccountType } from '../../../core/models/auth.model';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
+import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 
 @Component({
   selector: 'app-login',
@@ -49,17 +49,7 @@ export class Login {
             this.cdr.markForCheck();
             const authedUser = res.data?.user || this.authStore.currentUser();
             
-            if (authedUser) {
-              if (authedUser.accountType === AccountType.CLIENT_INDIVIDUAL || authedUser.accountType === AccountType.CLIENT_COMPANY) {
-                this.router.navigate(['/client-overview']);
-              } else if (authedUser.accountType === AccountType.PROVIDER_INDIVIDUAL || authedUser.accountType === AccountType.PROVIDER_COMPANY || authedUser.accountType === AccountType.MARKETING_BROKER) {
-                this.router.navigate(['/provider-overview']);
-              } else {
-                this.router.navigate(['/client-overview']);
-              }
-            } else {
-              this.router.navigate(['/client-overview']);
-            }
+            this.router.navigate([getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole)]);
           },
           error: (err) => {
             this.isSubmitting = false;
@@ -100,17 +90,7 @@ export class Login {
           if (res.data?.verified) {
             const user = res.data.user || this.authStore.currentUser();
             
-            if (user) {
-              if (user.accountType === AccountType.CLIENT_INDIVIDUAL || user.accountType === AccountType.CLIENT_COMPANY) {
-                this.router.navigate(['/client-overview']);
-              } else if (user.accountType === AccountType.PROVIDER_INDIVIDUAL || user.accountType === AccountType.PROVIDER_COMPANY || user.accountType === AccountType.MARKETING_BROKER) {
-                this.router.navigate(['/provider-overview']);
-              } else {
-                this.router.navigate(['/client-overview']);
-              }
-            } else {
-              this.router.navigate(['/client-overview']);
-            }
+            this.router.navigate([getDefaultDashboard(user?.accountType, user?.activeRole)]);
           } else {
             this.router.navigate(['/auth/register']);
           }

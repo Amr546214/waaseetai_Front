@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { AuthStore } from '../../../core/store/auth.store';
 import { AccountType } from '../../../core/models/auth.model';
+import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 
@@ -159,18 +160,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 						this.isSubmitting = false;
 						this.cdr.markForCheck();
 						const authedUser = res.data?.user || this.authStore.currentUser();
-						
-						if (authedUser) {
-							if (authedUser.accountType === AccountType.CLIENT_INDIVIDUAL || authedUser.accountType === AccountType.CLIENT_COMPANY) {
-								this.router.navigate(['/client-overview']);
-							} else if (authedUser.accountType === AccountType.PROVIDER_INDIVIDUAL || authedUser.accountType === AccountType.PROVIDER_COMPANY || authedUser.accountType === AccountType.MARKETING_BROKER) {
-								this.router.navigate(['/provider-overview']);
-							} else {
-								this.router.navigate(['/client-overview']);
-							}
-						} else {
-							this.router.navigate(['/client-overview']);
-						}
+						this.router.navigate([getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole)]);
 					},
 					error: (err) => {
 						this.isSubmitting = false;
@@ -327,10 +317,11 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			const code = `${val.code1}${val.code2}${val.code3}${val.code4}${val.code5}${val.code6}`;
 
 			this.authApi.verifyOtp({ userId: pendingUserId, code }).subscribe({
-				next: () => {
+				next: (res) => {
 					this.isSubmitting = false;
 					this.cdr.markForCheck();
-					this.router.navigate(['/client-overview']);
+					const authedUser = res.data?.user || this.authStore.currentUser();
+					this.router.navigate([getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole)]);
 				},
 				error: (err) => {
 					this.isSubmitting = false;

@@ -108,8 +108,11 @@ export const verificationGuard: CanActivateFn = () => {
 
 /**
  * Helper to determine the default dashboard based on the user's active role or account type.
+ * Exported so login/register (and anywhere else that redirects post-auth) can
+ * reuse this single source of truth instead of duplicating their own
+ * accountType-only chains.
  */
-const getDefaultDashboard = (accountType?: AccountType, activeRole?: UserRole): string => {
+export const getDefaultDashboard = (accountType?: AccountType, activeRole?: UserRole): string => {
   if (activeRole === UserRole.SUPER_ADMIN) return '/supper-admin-overview';
   if (activeRole === UserRole.PROVIDER) return '/provider-overview';
   if (activeRole === UserRole.AFFILIATE) return '/marketer-overview';
