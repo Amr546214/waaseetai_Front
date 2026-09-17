@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { MarketplaceModel, MarketplaceService } from '../../../core/services/marketplace.service';
@@ -125,11 +125,23 @@ export class Marketplace implements OnInit, OnDestroy {
 
 	categories = signal<any[]>([]);
 
+	@ViewChild('catsNavInner') catsNavInnerRef?: ElementRef<HTMLDivElement>;
+	canScrollCatsRight = signal(false);
+	canScrollCatsLeft = signal(false);
+	private readonly catsScrollStep = 220;
+
+	hoveredCategory = signal<any | null>(null);
+	dropdownPos = signal<{ top: number; right: number }>({ top: 0, right: 0 });
+	private closeDropdownTimer: ReturnType<typeof setTimeout> | null = null;
+
 	constructor() {}
 
 	ngOnInit() {
 		if (isPlatformBrowser(this.platformId)) {
 			this.startAuto();
+			if (typeof window !== 'undefined') {
+				window.addEventListener('resize', this.checkCatsScrollState);
+			}
 		}
 
 		this.subscriptions.add(combineLatest([this.route.paramMap, this.route.queryParams]).subscribe(([pathParams, params]) => {
@@ -160,6 +172,55 @@ export class Marketplace implements OnInit, OnDestroy {
 		this.modelsRequest?.unsubscribe();
 		this.aiRequest?.unsubscribe();
 		if (this.searchTimer) clearTimeout(this.searchTimer);
+		if (typeof window !== 'undefined') {
+			window.removeEventListener('resize', this.checkCatsScrollState);
+		}
+		if (this.closeDropdownTimer) clearTimeout(this.closeDropdownTimer);
+	}
+
+	onCatEnter(cat: any, ev: MouseEvent) {
+		if (!cat.subSpecialties || cat.subSpecialties.length === 0) {
+			this.hoveredCategory.set(null);
+			return;
+		}
+		if (this.closeDropdownTimer) {
+			clearTimeout(this.closeDropdownTimer);
+			this.closeDropdownTimer = null;
+		}
+		const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
+		this.dropdownPos.set({ top: rect.bottom + 1, right: window.innerWidth - rect.right });
+		this.hoveredCategory.set(cat);
+	}
+
+	onDropdownEnter() {
+		if (this.closeDropdownTimer) {
+			clearTimeout(this.closeDropdownTimer);
+			this.closeDropdownTimer = null;
+		}
+	}
+
+	onCatLeave() {
+		if (this.closeDropdownTimer) clearTimeout(this.closeDropdownTimer);
+		this.closeDropdownTimer = setTimeout(() => this.hoveredCategory.set(null), 150);
+	}
+
+	checkCatsScrollState = () => {
+		const el = this.catsNavInnerRef?.nativeElement;
+		if (!el) return;
+		const maxScroll = el.scrollWidth - el.clientWidth;
+		const scrolled = Math.abs(el.scrollLeft);
+		this.canScrollCatsRight.set(scrolled > 2);
+		this.canScrollCatsLeft.set(maxScroll - scrolled > 2);
+	};
+
+	scrollCatsRight() {
+		this.catsNavInnerRef?.nativeElement.scrollBy({ left: this.catsScrollStep, behavior: 'smooth' });
+		setTimeout(this.checkCatsScrollState, 300);
+	}
+
+	scrollCatsLeft() {
+		this.catsNavInnerRef?.nativeElement.scrollBy({ left: -this.catsScrollStep, behavior: 'smooth' });
+		setTimeout(this.checkCatsScrollState, 300);
 	}
 
 	loadCategories() {
@@ -171,6 +232,7 @@ export class Marketplace implements OnInit, OnDestroy {
 				if (res?.data?.totalModelsCount) {
 					this.totalModelsCount.set(res.data.totalModelsCount);
 				}
+				setTimeout(this.checkCatsScrollState, 0);
 			},
 			error: (err) => console.error('Failed to load dynamic categories:', err)
 		});
@@ -220,8 +282,31 @@ export class Marketplace implements OnInit, OnDestroy {
 		});
 	}
 
+	resultsSectionTitle = computed(() => {
+		const catSlug = this.selectedCategory();
+		if (!catSlug || catSlug === 'all') return 'الأبرز في السوق';
+		const cat = this.categories().find((c: any) => c.slug === catSlug);
+		if (!cat) return 'الأبرز في السوق';
+		const subSlug = this.selectedSub();
+		if (subSlug) {
+			const sub = (cat.subSpecialties || []).find((s: any) => (s.slug || s.name || s.id) === subSlug);
+			if (sub) return `نتائج: ${sub.name}`;
+		}
+		return `نتائج: ${cat.name}`;
+	});
+
 	selectCategory(cat: string, sub: string = '') {
-		this.router.navigate(['/marketplace'], { queryParams: { cat: cat === 'all' ? null : cat, sub: sub || null, q: this.searchQuery() || null } });
+		this.router.navigate(['/marketplace'], { queryParams: { cat: cat === 'all' ? null : cat, sub: sub || null, q: this.searchQuery() || null } })
+			.then(() => {
+				if (isPlatformBrowser(this.platformId)) {
+					// Router's scrollPositionRestoration jumps back to the top on every
+					// navigation, including this query-param-only one; scroll to the
+					// (now-filtered) results afterwards so the click visibly does something.
+					setTimeout(() => {
+						document.getElementById('marketplace-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+					}, 60);
+				}
+			});
 	}
 
 	onSearchInput(event: Event) {

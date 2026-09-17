@@ -137,13 +137,28 @@
 
 	<!-- CATS NAV (مثل Noon) -->
 	<nav class="cats-nav" aria-label="فئات الخدمات">
-		<div class="cats-nav-inner">
+		<button type="button" class="cats-nav-arrow cats-nav-arrow-r" aria-label="عرض الفئات السابقة"
+			[disabled]="!canScrollCatsRight()" [class.disabled]="!canScrollCatsRight()" (click)="scrollCatsRight()">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+				stroke-linejoin="round">
+				<polyline points="9 6 15 12 9 18"></polyline>
+			</svg>
+		</button>
+		<button type="button" class="cats-nav-arrow cats-nav-arrow-l" aria-label="عرض المزيد من الفئات"
+			[disabled]="!canScrollCatsLeft()" [class.disabled]="!canScrollCatsLeft()" (click)="scrollCatsLeft()">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+				stroke-linejoin="round">
+				<polyline points="15 6 9 12 15 18"></polyline>
+			</svg>
+		</button>
+		<div class="cats-nav-inner" #catsNavInner (scroll)="checkCatsScrollState()">
 			<a routerLink="/marketplace/categories" class="cats-nav-item cursor-pointer"
 				style="color:var(--teal);border-left:1px solid var(--border);margin-left:4px;padding-left:14px;padding-right:16px">كل
 				الفئات @if (categories().length > 0) {+{{ categories().length }}}</a>
 			@for (cat of categories(); track cat.id) {
-			<div class="cat-has-drop">
-				<a [routerLink]="['/marketplace', cat.slug]" class="cats-nav-item cursor-pointer">
+			<div class="cat-has-drop" (mouseenter)="onCatEnter(cat, $event)" (mouseleave)="onCatLeave()">
+				<a [routerLink]="['/marketplace', cat.slug]" class="cats-nav-item cursor-pointer"
+					[class.drop-open]="hoveredCategory()?.id === cat.id">
 					<svg aria-hidden="true">
 						<use [attr.href]="categoryIcon(cat.icon)"></use>
 					</svg>
@@ -155,19 +170,21 @@
 					</svg>
 					}
 				</a>
-				@if (cat.subSpecialties && cat.subSpecialties.length > 0) {
-				<div class="cat-drop">
-					@for (sub of cat.subSpecialties; track sub.id || sub.name) {
-					<a [routerLink]="['/marketplace', cat.slug]" [queryParams]="{ sub: sub.slug }" class="cat-drop-item cursor-pointer">
-						{{ sub.name }}
-					</a>
-					}
-				</div>
-				}
 			</div>
 			}
 		</div>
 	</nav>
+
+	@if (hoveredCategory(); as hcat) {
+	<div class="cat-drop" [style.top.px]="dropdownPos().top" [style.right.px]="dropdownPos().right"
+		(mouseenter)="onDropdownEnter()" (mouseleave)="onCatLeave()">
+		@for (sub of hcat.subSpecialties; track sub.id || sub.name) {
+		<a [routerLink]="['/marketplace', hcat.slug]" [queryParams]="{ sub: sub.slug }" class="cat-drop-item cursor-pointer">
+			{{ sub.name }}
+		</a>
+		}
+	</div>
+	}
 
 	<!-- HERO SLIDER -->
 	<div class="hero-slider" role="region" aria-label="عروض مميزة" aria-live="polite">
@@ -553,7 +570,7 @@
 		</div>
 
 		<!-- ALL SERVICES -->
-		<div class="mkt-section">
+		<div class="mkt-section" id="marketplace-results">
 			<div class="sec-hdr">
 				<h2 class="sec-title">
 					<span class="sec-title-ico badge-blue"
@@ -561,7 +578,7 @@
 							aria-hidden="true">
 							<use href="#ws-shield"></use>
 						</svg></span>
-					الأبرز في السوق
+					{{ resultsSectionTitle() }}
 				</h2>
 				<a routerLink="/marketplace" class="see-all">عرض الكل <svg aria-hidden="true">
 						<use href="#ws-chevron-l"></use>
