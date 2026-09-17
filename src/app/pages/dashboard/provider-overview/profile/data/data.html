@@ -733,10 +733,7 @@
         الرمز</button></div>
   </div>
 </div>}
-@if(showToast()){<div id="state-success-toast" style="display:block">
-  <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500">
-    <div style="padding:12px 20px;background:#102c42;border:1px solid #2BD4C7;border-radius:12px"><span>{{ showToast()
-        }}</span></div>
-  </div>
+@if(showToast()){<div class="ws-toast-wrap" role="status">
+  <div class="ws-toast">{{ showToast() }}</div>
 </div>}
 }
