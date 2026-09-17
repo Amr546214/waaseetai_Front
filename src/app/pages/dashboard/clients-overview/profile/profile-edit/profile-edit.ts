@@ -15,6 +15,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 	standalone: true,
 	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent],
 	templateUrl: './profile-edit.html',
+	styleUrl: './profile-edit.css',
 })
 export class ProfileEdit {
 	authStore = inject(AuthStore);

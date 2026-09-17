@@ -1,0 +1,44 @@
+/* Avatar upload/remove buttons — replaces Tailwind dark: variant classes that
+   left "رفع صورة جديدة" rendering with no visible contrast against its own
+   background in light mode. Matches the proven .av-btn pattern used on the
+   marketer/provider profile pages. */
+.av-btn {
+	padding: 8px 16px;
+	background: rgba(255, 255, 255, .05);
+	border: 1px solid rgba(255, 255, 255, .10);
+	border-radius: 10px;
+	font-size: 13px;
+	font-weight: 700;
+	color: #A8B2D1;
+	cursor: pointer;
+	font-family: inherit;
+	transition: all .15s;
+}
+.av-btn:hover { background: rgba(255, 255, 255, .09); color: #fff; }
+
+.av-btn-p {
+	background: rgba(43, 212, 199, .09);
+	border-color: rgba(43, 212, 199, .22);
+	color: var(--teal-txt, #2BD4C7);
+}
+.av-btn-p:hover { background: rgba(43, 212, 199, .16); }
+
+:host-context(body.light-theme) .av-btn,
+:host-context(body.theme-light) .av-btn,
+:host-context(.light-theme) .av-btn,
+:host-context(.theme-light) .av-btn { background: #f4f6fb; border-color: #D5DCEA; color: #475569; }
+
+:host-context(body.light-theme) .av-btn:hover,
+:host-context(body.theme-light) .av-btn:hover,
+:host-context(.light-theme) .av-btn:hover,
+:host-context(.theme-light) .av-btn:hover { background: #e9edf5; border-color: #C9D0E3; color: #0F172A; }
+
+:host-context(body.light-theme) .av-btn-p,
+:host-context(body.theme-light) .av-btn-p,
+:host-context(.light-theme) .av-btn-p,
+:host-context(.theme-light) .av-btn-p { background: rgba(43, 212, 199, .18); border-color: rgba(43, 212, 199, .45); color: #0A6F64; }
+
+:host-context(body.light-theme) .av-btn-p:hover,
+:host-context(body.theme-light) .av-btn-p:hover,
+:host-context(.light-theme) .av-btn-p:hover,
+:host-context(.theme-light) .av-btn-p:hover { background: rgba(43, 212, 199, .30); border-color: rgba(43, 212, 199, .55); color: #0A6F64; }
