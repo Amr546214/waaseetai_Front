@@ -32,7 +32,7 @@
 :root{
   --pg:#070D24;
   --surface:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
-  --border:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);
   --crd-bd:rgba(255,255,255,.08);
   --crd-bg:rgba(255,255,255,.03);
   --tint-bd:rgba(255,255,255,.08);
@@ -66,7 +66,7 @@
   --sec-bd-hover:rgba(43,127,255,.35);
   --sec-bg-hover:#FAFBFF;
   --card-shadow:0 2px 10px rgba(15,23,42,.07),0 1px 3px rgba(15,23,42,.05);
-  --txt:#0F172A; --txt-2:#475569; --txt-3:#64748B;
+  --txt:#0F172A; --txt-2:#475569; --txt-3:#5B6472;
   --teal-txt:#0F8A7F; --blue-txt:#1D6FE0; --green:#0A6F64; --kahr:#9A6700; --red:#B42318;
   --ai-txt:#6B27A5; --ai-border:rgba(123,47,190,.28);
   --ai-nte-bd:rgba(123,47,190,.28);
@@ -81,7 +81,7 @@ html.light-theme,html.theme-light,body.light-theme,body.theme-light{
   --pg:#EEF2FA;
   --txt:#0F172A;
   --txt-2:#475569;
-  --txt-3:#64748B;
+  --txt-3:#5B6472;
   --drop-name:#0F172A;
   --rec-sub:#5B6472;
   --ai-txt:#6B27A5;
@@ -852,7 +852,7 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
     border-bottom-color: #E7EAF1 !important;
   }
   .req-foot { border-top-color: #E7EAF1 !important; }
-  .req-id, .rc-id, .tc-id, .proj-id { color: #64748B !important; }
+  .req-id, .rc-id, .tc-id, .proj-id { color: #5B6472 !important; }
   .req-lbl, .req-meta, .req-field-name, .rc-party, .rc-ttl,
   .tc-ttl, .tc-user, .tc-meta, .prof-email, .party-role, .proj-meta {
     color: #475569 !important;
@@ -879,13 +879,13 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
   .rc-btn-dismiss {
     background: #F3F5FA !important;
     border-color: #D8DFEC !important;
-    color: #64748B !important;
+    color: #5B6472 !important;
   }
 
   /* Profile / party / member cards */
   .prof-name, .party-name, .mc-name, .c-name, .conv-panel-title { color: #0F172A !important; }
   .prof-badges .badge, .rc-badges .badge { border-color: #D8DFEC !important; }
-  .mc-role, .mc-stat-lbl, .c-time, .c-last { color: #64748B !important; }
+  .mc-role, .mc-stat-lbl, .c-time, .c-last { color: #5B6472 !important; }
   .mc-stat-val, .c-badge { color: #0F172A !important; }
   .prof-av, .party-av, .mc-av, .c-av, .tc-av, .rc-av,
   .trail-av, .oc-av, .msg-av {
@@ -949,7 +949,7 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
   .chat-hdr-ttl, .msg-sender { color: #0F172A !important; }
   .chat-hdr-sub, .chat-time, .chat-sender, .msg-time, .msg-date-d,
   .conv-meta, .conv-search {
-    color: #64748B !important;
+    color: #5B6472 !important;
   }
   .chat-input, .chat-input-area {
     background: #F8FAFC !important;
@@ -978,7 +978,7 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
 
   /* Page headers */
   .page-title, .page-ttl { color: #070D24 !important; }
-  .page-sub, .page-hdr-left > * { color: #64748B !important; }
+  .page-sub, .page-hdr-left > * { color: #5B6472 !important; }
 
   /* KPI mini variants */
   .kpi-mini {
@@ -1007,7 +1007,7 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
     border-color: #E7EAF1 !important;
   }
   .prov-name, .proj-title { color: #0F172A !important; }
-  .prov-meta, .prov-rank, .proj-tags { color: #64748B !important; }
+  .prov-meta, .prov-rank, .proj-tags { color: #5B6472 !important; }
 
   /* Filter rail (fr-*) */
   .fr-btn, .fr-export-btn, .fr-sel {
@@ -1050,7 +1050,7 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
     background: rgba(15, 179, 163, .06) !important;
     color: #0A6F64 !important;
   }
-  .diff-lbl, .diff-arrow { color: #64748B !important; }
+  .diff-lbl, .diff-arrow { color: #5B6472 !important; }
 
   /* Search / segment inputs (s-*) */
   .s-inp, .s-inp-sm {
@@ -1154,7 +1154,7 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light,
   .txt-purple { color: #6B27A5; }
   .txt-navy   { color: #070D24; }
   .txt-white  { color: #070D24; }
-  .txt-muted  { color: #64748B; }
+  .txt-muted  { color: #5B6472; }
   .txt-slate  { color: #475569; }
   .txt-kahr   { color: #9A6700; }
   .txt-green-br { color: #0A6F64; }

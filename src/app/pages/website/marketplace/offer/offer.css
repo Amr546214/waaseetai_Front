@@ -507,9 +507,9 @@ footer{background:rgba(7,13,36,.85);border-top:1px solid var(--border);padding:4
 
 .faq-ask-btn {
   padding: 8px 16px;
-  background: var(--kahr);
-  color: white;
-  border: none;
+  background: rgba(217,138,11,.12);
+  color: var(--kahr);
+  border: 1px solid rgba(217,138,11,.3);
   border-radius: 8px;
   font-size: 12px;
   font-weight: 700;
@@ -518,7 +518,7 @@ footer{background:rgba(7,13,36,.85);border-top:1px solid var(--border);padding:4
 }
 
 .faq-ask-btn:hover {
-  background: var(--kahr-hover);
+  background: rgba(217,138,11,.2);
 }
 
 /* LIGHT THEME OVERRIDES */
