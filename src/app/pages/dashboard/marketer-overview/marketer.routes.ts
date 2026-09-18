@@ -1,10 +1,9 @@
 import { Routes } from '@angular/router';
-import { MarketingBrokerOverview } from './marketing-broker-overview/marketing-broker-overview';
 
 export const MARKETER_ROUTES: Routes = [
 	{
 		path: '',
-		component: MarketingBrokerOverview,
+		loadComponent: () => import('./marketing-broker-overview/marketing-broker-overview').then(m => m.MarketingBrokerOverview),
 		data: { title: "لوحة التحكم" }
 	},
 	{

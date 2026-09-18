@@ -1,11 +1,10 @@
 import { Routes } from "@angular/router";
-import { ProviderOverview } from "./provider-overview/provider-overview";
 import { quizLockGuard } from "../../../core/guards/quiz-lock.guard";
 
 export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: '',
-		component: ProviderOverview,
+		loadComponent: () => import('./provider-overview/provider-overview').then(m => m.ProviderOverview),
 		data: { title: "لوحة التحكم" }
 	},
 	{

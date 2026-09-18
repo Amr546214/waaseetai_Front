@@ -1,31 +1,19 @@
 import { Routes } from "@angular/router";
-import { ClientOverviewComponent } from "./client-overview/client-overview.component";
-import { CreateRequest } from "./create-request/create-request";
-import { MyRequest } from "./my-request/my-request";
-import { ActiveProject } from "./project/active-project/active-project";
-import { Market } from "./market/market";
-import { Wallet } from "./finance/wallet/wallet";
-import { Transactions } from "./finance/transactions/transactions";
-import { NotificationsCenter } from "./notifications/notifications-center/notifications-center";
-import { NotificationsSettings } from "./notifications/notifications-settings/notifications-settings";
-import { ClientMessages } from "./messages/messages";
-import { Profile } from "./profile/profile";
-import { Invoices } from "./finance/invoices/invoices";
 
 export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{
 		path: '',
-		component: ClientOverviewComponent,
+		loadComponent: () => import('./client-overview/client-overview.component').then(m => m.ClientOverviewComponent),
 		data: { title: "Client Dashboard" }
 	},
 	{
 		path: 'create-request',
-		component: CreateRequest,
+		loadComponent: () => import('./create-request/create-request').then(m => m.CreateRequest),
 		data: { title: "Create New Request" }
 	},
 	{
 		path: 'my-requests',
-		component: MyRequest,
+		loadComponent: () => import('./my-request/my-request').then(m => m.MyRequest),
 		data: { title: "My Requests" }
 	},
 	{
@@ -46,7 +34,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	// projects
 	{
 		path: 'projects/active',
-		component: ActiveProject,
+		loadComponent: () => import('./project/active-project/active-project').then(m => m.ActiveProject),
 		data: { title: "Active Projects" }
 	},
 	{
@@ -137,7 +125,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	},
 	{
 		path: 'market',
-		component: Market,
+		loadComponent: () => import('./market/market').then(m => m.Market),
 		data: { title: "Market" }
 	},
 	{
@@ -148,12 +136,12 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	// finance
 	{
 		path: 'finance/wallet',
-		component: Wallet,
+		loadComponent: () => import('./finance/wallet/wallet').then(m => m.Wallet),
 		data: { title: "Wallet" }
 	},
 	{
 		path: 'finance/transactions',
-		component: Transactions,
+		loadComponent: () => import('./finance/transactions/transactions').then(m => m.Transactions),
 		data: { title: "Transactions" }
 	},
 	{
@@ -163,7 +151,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	},
 	{
 		path: 'finance/invoices',
-		component: Invoices,
+		loadComponent: () => import('./finance/invoices/invoices').then(m => m.Invoices),
 		data: { title: "Invoices" }
 	},
 	{
@@ -203,7 +191,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	// profile
 	{
 		path: 'profile',
-		component: Profile,
+		loadComponent: () => import('./profile/profile').then(m => m.Profile),
 		data: { title: "Profile" }
 	},
 	{
@@ -239,18 +227,18 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	// notifications
 	{
 		path: 'notifications',
-		component: NotificationsCenter,
+		loadComponent: () => import('./notifications/notifications-center/notifications-center').then(m => m.NotificationsCenter),
 		data: { title: "Notifications Center" }
 	},
 	{
 		path: 'notifications/settings',
-		component: NotificationsSettings,
+		loadComponent: () => import('./notifications/notifications-settings/notifications-settings').then(m => m.NotificationsSettings),
 		data: { title: "Notifications Settings" }
 	},
 	// messages
 	{
 		path: 'messages',
-		component: ClientMessages,
+		loadComponent: () => import('./messages/messages').then(m => m.ClientMessages),
 		data: { title: "Messages" }
 	},
 	{

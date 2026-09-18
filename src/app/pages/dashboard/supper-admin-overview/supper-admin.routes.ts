@@ -1,10 +1,9 @@
 import { Routes } from '@angular/router';
-import { SupperAdminOverview } from './supper-admin-overview/supper-admin-overview';
 
 export const SUPPER_ADMIN_ROUTES: Routes = [
     {
         path: '',
-        component: SupperAdminOverview,
+        loadComponent: () => import('./supper-admin-overview/supper-admin-overview').then(m => m.SupperAdminOverview),
         data: { title: 'لوحة التحكم' }
     },
     {
