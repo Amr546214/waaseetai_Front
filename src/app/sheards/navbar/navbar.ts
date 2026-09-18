@@ -8,6 +8,7 @@ import { NotificationEngineService } from '../../core/services/notification-engi
 import { ChatStateService } from '../../core/services/chat-state.service';
 import { CartService } from '../../core/services/cart.service';
 import { UserRole, AccountType } from '../../core/models/auth.model';
+import { getDefaultDashboard } from '../../core/guards/auth.guards';
 
 @Component({
 	selector: 'app-navbar',
@@ -50,6 +51,11 @@ export class Navbar {
 	userInitials = computed(() => {
 		const user = this.currentUser();
 		return user ? user.firstName.substring(0, 2) : 'مح';
+	});
+
+	messagesLink = computed(() => {
+		const user = this.currentUser();
+		return `${getDefaultDashboard(user?.accountType, user?.activeRole)}/messages`;
 	});
 
 	userRoles = computed<UserRole[]>(() => {

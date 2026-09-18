@@ -109,8 +109,7 @@
 				</div>
 
 				<!-- 3. Chat / Messages -->
-				<a target="_blank" rel="noopener noreferrer"
-					[routerLink]="currentUser()?.accountType?.includes('PROVIDER') ? '/provider-overview/messages' : '/client-overview/messages'"
+				<a [routerLink]="messagesLink()"
 					class="t-notif" aria-label="المحادثات">
 					<svg aria-hidden="true">
 						<use href="#i-chat"></use>
