@@ -54,7 +54,16 @@
 
   <div class="mr-section-title">طلبات التعديل <span class="mr-count">{{ filteredRequests().length }} طلبات</span></div>
 
-  @if (filteredRequests().length === 0) {
+  @if (isLoading()) {
+    <div class="mr-empty">
+      <div class="mr-empty-ttl">جارٍ تحميل الطلبات...</div>
+    </div>
+  } @else if (hasError()) {
+    <div class="mr-empty">
+      <div class="mr-empty-ttl">تعذر تحميل طلبات التعديل</div>
+      <button type="button" class="mr-btn mr-btn-ghost" (click)="loadRequests()">إعادة المحاولة</button>
+    </div>
+  } @else if (filteredRequests().length === 0) {
     <div class="mr-empty">
       <div class="mr-empty-ico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
@@ -77,7 +86,7 @@
                   </span>
                   <span class="mr-dot"></span>
                 }
-                <span>طلب {{ r.id }}</span>
+                <span>طلب {{ r.requestNumber }}</span>
                 <span class="mr-dot"></span>
                 <span>{{ r.timeAgo }}</span>
               </div>
@@ -129,12 +138,12 @@
             </div>
             <div class="mr-actions">
               @if (r.status === 'ai' || r.status === 'human') {
-                <button type="button" class="mr-btn mr-btn-primary" (click)="approve(r)">اعتماد</button>
-                <button type="button" class="mr-btn mr-btn-warn" (click)="reject(r)">رفض</button>
+                <button type="button" class="mr-btn mr-btn-primary" [disabled]="processingId() === r.id" (click)="approve(r)">{{ processingId() === r.id ? 'جارٍ الاعتماد...' : 'اعتماد' }}</button>
+                <button type="button" class="mr-btn mr-btn-warn" [disabled]="processingId() === r.id" (click)="reject(r)">رفض</button>
               } @else if (r.status === 'rejected') {
                 <button type="button" class="mr-btn mr-btn-primary" (click)="showToast('فتح طلب تعديل جديد مصحح')">طلب مصحح</button>
               } @else {
-                <button type="button" class="mr-btn mr-btn-ghost" (click)="showToast('عرض تفاصيل الطلب ' + r.id)">التفاصيل</button>
+                <button type="button" class="mr-btn mr-btn-ghost" (click)="showToast('عرض تفاصيل الطلب ' + r.requestNumber)">التفاصيل</button>
               }
             </div>
           </div>

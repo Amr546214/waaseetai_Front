@@ -1,5 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs';
+import { SaModificationRequestsService, AffiliateChangeRequest } from './sa-modification-requests.service';
 
 type ReqStatus = 'ai' | 'human' | 'ok' | 'rejected';
 type FilterKey = 'all' | ReqStatus;
@@ -11,6 +13,7 @@ interface TimelineStep {
 
 interface ModificationRequest {
   id: string;
+  requestNumber: string;
   field: string;
   requesterName: string;
   requesterType: string;
@@ -33,9 +36,14 @@ interface ModificationRequest {
   templateUrl: './sa-modification-requests.html',
   styleUrl: './sa-modification-requests.css',
 })
-export class SaModificationRequests {
+export class SaModificationRequests implements OnInit {
+  private service = inject(SaModificationRequestsService);
+
   activeFilter = signal<FilterKey>('all');
   toast = signal('');
+  isLoading = signal(false);
+  hasError = signal(false);
+  processingId = signal<string | null>(null);
 
   readonly filters: { key: FilterKey; label: string }[] = [
     { key: 'all', label: 'الكل' },
@@ -45,104 +53,36 @@ export class SaModificationRequests {
     { key: 'rejected', label: 'مرفوض' },
   ];
 
-  requests = signal<ModificationRequest[]>([
-    {
-      id: 'REQ-4821',
-      field: 'رقم الحساب البنكي IBAN',
-      requesterName: 'محمد العمري',
-      requesterType: 'طالب خدمة فرد',
-      sensitive: true,
-      status: 'ai',
-      oldValue: 'SA03 8000 0000 6080 1016 7519',
-      newValue: 'SA44 2000 0001 2345 6789 1234',
-      timeAgo: 'قبل 8 دقائق',
-      verdictLabel: 'فحص الذكاء جار',
-      verdictText: 'يتحقق الذكاء من تطابق اسم صاحب الحساب الجديد مع الهوية ومن سلامة صيغة IBAN قبل رفعه للمراجع البشري',
-      verdictScore: 'دقة 95%',
-      timeline: [
-        { label: 'مراجعة الذكاء', state: 'active' },
-        { label: 'اعتماد بشري', state: 'pending' },
-        { label: 'تطبيق', state: 'pending' },
-      ],
-    },
-    {
-      id: 'REQ-4815',
-      field: 'رقم الهوية الوطنية',
-      requesterName: 'سارة القحطاني',
-      requesterType: 'مقدم خدمة فرد',
-      sensitive: true,
-      status: 'human',
-      oldValue: '1098••••76',
-      newValue: '1102••••43',
-      timeAgo: 'قبل ساعتين',
-      verdictLabel: 'توصية الذكاء، تمرير للمراجعة',
-      verdictText: 'تحقق الذكاء من تطابق الرقم مع وثيقة الهوية المرفقة عبر نفاذ ولم يرصد تعارضاً، يحتاج اعتماد مراجع بشري',
-      verdictScore: 'ثقة 96%',
-      timeline: [
-        { label: 'مراجعة الذكاء', state: 'done' },
-        { label: 'اعتماد بشري', state: 'active' },
-        { label: 'تطبيق', state: 'pending' },
-      ],
-    },
-    {
-      id: 'REQ-4790',
-      field: 'رقم الجوال',
-      requesterName: 'شركة الخليج',
-      requesterType: 'طالب خدمة شركة',
-      sensitive: true,
-      status: 'ok',
-      oldValue: '0551234567',
-      newValue: '0509876543',
-      timeAgo: 'أمس 14:20',
-      verdictLabel: 'اعتمده المراجع نورة الحربي',
-      verdictText: 'تم تأكيد الجوال الجديد برمز OTP والتحقق من خلوه من بلاغات سابقة، طُبق التغيير بنجاح',
-      verdictScore: 'ثقة 98%',
-      reviewer: 'نورة الحربي',
-      timeline: [
-        { label: 'مراجعة الذكاء', state: 'done' },
-        { label: 'اعتماد بشري', state: 'done' },
-        { label: 'تطبيق', state: 'done' },
-      ],
-    },
-    {
-      id: 'REQ-4763',
-      field: 'البريد الإلكتروني',
-      requesterName: 'خالد المطيري',
-      requesterType: 'وسيط تسويقي',
-      sensitive: true,
-      status: 'ok',
-      oldValue: 'mohammed.old@email.com',
-      newValue: 'm.alamri@email.com',
-      timeAgo: 'قبل 3 أيام',
-      verdictLabel: 'اعتمده المراجع خالد الزهراني',
-      verdictText: 'جرى تأكيد ملكية البريد الجديد عبر رابط تفعيل، ولم يرصد الذكاء أي نشاط مشبوه',
-      verdictScore: 'ثقة 97%',
-      reviewer: 'خالد الزهراني',
-      timeline: [
-        { label: 'مراجعة الذكاء', state: 'done' },
-        { label: 'اعتماد بشري', state: 'done' },
-        { label: 'تطبيق', state: 'done' },
-      ],
-    },
-    {
-      id: 'REQ-4702',
-      field: 'اسم صاحب الحساب البنكي',
-      requesterName: 'شركة التقنية المتقدمة',
-      requesterType: 'مقدم خدمة شركة',
-      sensitive: true,
-      status: 'rejected',
-      oldValue: 'محمد سالم العمري',
-      newValue: 'أحمد سالم العمري',
-      timeAgo: 'قبل 5 أيام',
-      verdictLabel: 'رفضه المراجع بناء على تنبيه الذكاء',
-      verdictText: 'اسم صاحب الحساب الجديد لا يطابق اسم الهوية الموثقة، يلزم أن يكون الحساب البنكي باسم صاحب الحساب نفسه',
-      verdictScore: 'تعارض',
-      timeline: [
-        { label: 'مراجعة الذكاء', state: 'done' },
-        { label: 'رفض الاعتماد', state: 'rejected' },
-      ],
-    },
-  ]);
+  // Only AffiliateProfile's ProfileChangeRequest is wired here — this page
+  // never reads/writes ProviderProfile's separate ProfileModificationRequest
+  // model, which has its own, already-working admin review flow under
+  // provider-profile routes.
+  requests = signal<ModificationRequest[]>([]);
+
+  ngOnInit() {
+    this.loadRequests();
+  }
+
+  loadRequests() {
+    this.isLoading.set(true);
+    this.hasError.set(false);
+    this.service.list().pipe(
+      finalize(() => this.isLoading.set(false))
+    ).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.requests.set(
+            res.data
+              .filter(r => r.status !== 'WITHDRAWN')
+              .map(r => this.mapRequest(r))
+          );
+        } else {
+          this.hasError.set(true);
+        }
+      },
+      error: () => this.hasError.set(true)
+    });
+  }
 
   filteredRequests = computed(() => {
     const f = this.activeFilter();
@@ -170,49 +110,97 @@ export class SaModificationRequests {
   }
 
   approve(req: ModificationRequest) {
-    this.requests.update((list) =>
-      list.map((r) =>
-        r.id === req.id
-          ? {
-              ...r,
-              status: 'ok',
-              verdictLabel: 'اعتمده المراجع مدير النظام',
-              verdictText: 'تم اعتماد التعديل يدوياً وتطبيقه على بيانات الحساب',
-              reviewer: 'مدير النظام',
-              timeline: [
-                { label: 'مراجعة الذكاء', state: 'done' },
-                { label: 'اعتماد بشري', state: 'done' },
-                { label: 'تطبيق', state: 'done' },
-              ],
-            }
-          : r
-      )
-    );
-    this.showToast(`تم اعتماد الطلب ${req.id} وتطبيق التعديل`);
+    if (this.processingId()) return;
+
+    this.processingId.set(req.id);
+    this.service.approve(req.id).pipe(
+      finalize(() => this.processingId.set(null))
+    ).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(`تم اعتماد الطلب ${req.requestNumber} وتطبيق التعديل`);
+          this.loadRequests();
+        } else {
+          this.showToast(res.message || 'تعذر اعتماد الطلب');
+        }
+      },
+      error: (err) => this.showToast(err?.error?.message || 'تعذر اعتماد الطلب، حاول مرة أخرى')
+    });
   }
 
   reject(req: ModificationRequest) {
-    this.requests.update((list) =>
-      list.map((r) =>
-        r.id === req.id
-          ? {
-              ...r,
-              status: 'rejected',
-              verdictLabel: 'رفضه مدير النظام',
-              verdictText: 'تم رفض طلب التعديل، تبقى البيانات الحالية دون تغيير',
-              timeline: [
-                { label: 'مراجعة الذكاء', state: 'done' },
-                { label: 'رفض الاعتماد', state: 'rejected' },
-              ],
-            }
-          : r
-      )
-    );
-    this.showToast(`تم رفض الطلب ${req.id}`);
+    if (this.processingId()) return;
+
+    const reason = window.prompt('سبب رفض الطلب:');
+    if (!reason || !reason.trim()) return;
+
+    this.processingId.set(req.id);
+    this.service.reject(req.id, reason.trim()).pipe(
+      finalize(() => this.processingId.set(null))
+    ).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(`تم رفض الطلب ${req.requestNumber}`);
+          this.loadRequests();
+        } else {
+          this.showToast(res.message || 'تعذر رفض الطلب');
+        }
+      },
+      error: (err) => this.showToast(err?.error?.message || 'تعذر رفض الطلب، حاول مرة أخرى')
+    });
   }
 
   showToast(msg: string) {
     this.toast.set(msg);
     setTimeout(() => this.toast.set(''), 3000);
+  }
+
+  private mapStatus(status: AffiliateChangeRequest['status']): ReqStatus {
+    switch (status) {
+      case 'PENDING_AI_REVIEW': return 'ai';
+      case 'PENDING_HUMAN_APPROVAL': return 'human';
+      case 'APPROVED_AND_APPLIED': return 'ok';
+      default: return 'rejected';
+    }
+  }
+
+  private buildTimeline(status: ReqStatus): TimelineStep[] {
+    if (status === 'rejected') {
+      return [
+        { label: 'مراجعة الذكاء', state: 'done' },
+        { label: 'رفض الاعتماد', state: 'rejected' },
+      ];
+    }
+    return [
+      { label: 'مراجعة الذكاء', state: status === 'ai' ? 'active' : 'done' },
+      { label: 'اعتماد بشري', state: status === 'ok' ? 'done' : (status === 'human' ? 'active' : 'pending') },
+      { label: 'تطبيق', state: status === 'ok' ? 'done' : 'pending' },
+    ];
+  }
+
+  private mapRequest(r: AffiliateChangeRequest): ModificationRequest {
+    const status = this.mapStatus(r.status);
+    const requesterName = `${r.affiliateProfile?.user?.firstName || ''} ${r.affiliateProfile?.user?.lastName || ''}`.trim() || 'وسيط تسويقي';
+
+    return {
+      id: r.id,
+      requestNumber: r.requestNumber,
+      field: r.fieldLabel,
+      requesterName,
+      requesterType: 'وسيط تسويقي',
+      sensitive: true,
+      status,
+      oldValue: r.currentValue || 'لا يوجد',
+      newValue: r.requestedValue,
+      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
+      verdictLabel: status === 'ai' ? 'فحص الذكاء جار'
+        : status === 'human' ? 'توصية الذكاء، تمرير للمراجعة'
+        : status === 'ok' ? 'اعتمده المراجع'
+        : 'مرفوض',
+      verdictText: r.rejectionReason || r.aiRecommendation || 'يتحقق الذكاء من البيانات...',
+      verdictScore: r.aiConfidenceScore ? `دقة ${r.aiConfidenceScore}%` : (status === 'rejected' ? 'تعارض' : 'دقة 95%'),
+      reviewer: r.reviewedBy || undefined,
+      timeline: this.buildTimeline(status),
+    };
   }
 }

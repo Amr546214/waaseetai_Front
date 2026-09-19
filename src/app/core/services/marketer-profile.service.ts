@@ -22,7 +22,20 @@ export interface ProfileChangeRequest {
 	aiRecommendation?: string;
 	aiConfidenceScore?: number;
 	rejectionReason?: string;
+	reviewedBy?: string;
+	appliedAt?: string;
 	createdAt: string;
+	updatedAt?: string;
+}
+
+// EMAIL is deliberately excluded — governed email changes are disabled for
+// now (see the backend's profile-requests.dto.ts for the full reasoning:
+// no email-ownership verification exists, and Google OAuth's existing-user
+// lookup matches by email, so this could lock out a Google-authenticated
+// affiliate with no password set).
+export interface CreateIdentityRequestPayload {
+	nationalId?: string;
+	phoneNumber?: string;
 }
 
 export interface ProfileRequestsSummary {
@@ -108,6 +121,10 @@ export class MarketerProfileService {
 
 	getRequests(): Observable<ApiResponse<ProfileRequestsSummary>> {
 		return this.http.get<ApiResponse<ProfileRequestsSummary>>(`${this.apiUrl}/requests`);
+	}
+
+	createIdentityRequest(data: CreateIdentityRequestPayload): Observable<ApiResponse<ProfileChangeRequest[]>> {
+		return this.http.post<ApiResponse<ProfileChangeRequest[]>>(`${this.apiUrl}/requests`, data);
 	}
 
 	withdrawRequest(requestId: string): Observable<ApiResponse<any>> {
