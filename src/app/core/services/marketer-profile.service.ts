@@ -34,6 +34,8 @@ export interface ProfileChangeRequest {
 // lookup matches by email, so this could lock out a Google-authenticated
 // affiliate with no password set).
 export interface CreateIdentityRequestPayload {
+	firstName?: string;
+	lastName?: string;
 	nationalId?: string;
 	phoneNumber?: string;
 }

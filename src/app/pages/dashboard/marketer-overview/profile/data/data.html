@@ -295,9 +295,9 @@
 			</div>
 			<div class="form-grid form-col-2">
 				<div class="inp-group"><label class="inp-label" for="af-fname">الاسم الاول</label><input type="text"
-						id="af-fname" class="inp-field" [value]="profile()?.user?.firstName || ''" readonly></div>
+						id="af-fname" class="inp-field" formControlName="firstName"></div>
 				<div class="inp-group"><label class="inp-label" for="af-lname">اسم العائلة</label><input type="text"
-						id="af-lname" class="inp-field" [value]="profile()?.user?.lastName || ''" readonly></div>
+						id="af-lname" class="inp-field" formControlName="lastName"></div>
 				<div class="inp-group"><label class="inp-label" for="af-email">البريد الالكتروني<span
 							class="req">*</span></label><input type="email" id="af-email" class="inp-field"
 						[value]="profile()?.user?.email || ''" dir="ltr" readonly></div>

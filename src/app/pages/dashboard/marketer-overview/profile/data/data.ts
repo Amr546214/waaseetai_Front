@@ -69,6 +69,8 @@ export class Data implements OnInit {
 		// The email input on this tab stays read-only, bound directly to
 		// profile()?.user?.email, never to this form.
 		this.basicsForm = this.fb.group({
+			firstName: [''],
+			lastName: [''],
 			nationalId: [''],
 			phoneNumber: ['']
 		});
@@ -106,6 +108,8 @@ export class Data implements OnInit {
 				});
 
 				this.basicsForm.patchValue({
+					firstName: res.data.user?.firstName || '',
+					lastName: res.data.user?.lastName || '',
 					nationalId: res.data.user?.idNumber || '',
 					phoneNumber: res.data.user?.phoneNumber || ''
 				});
@@ -157,11 +161,13 @@ export class Data implements OnInit {
 		if (this.submittingBasics() || this.basicsForm.invalid) return;
 
 		const value = this.basicsForm.value;
-		const payload: { nationalId?: string; phoneNumber?: string } = {};
+		const payload: { firstName?: string; lastName?: string; nationalId?: string; phoneNumber?: string } = {};
+		if (value.firstName) payload.firstName = value.firstName;
+		if (value.lastName) payload.lastName = value.lastName;
 		if (value.nationalId) payload.nationalId = value.nationalId;
 		if (value.phoneNumber) payload.phoneNumber = value.phoneNumber;
 
-		if (!payload.nationalId && !payload.phoneNumber) {
+		if (!payload.firstName && !payload.lastName && !payload.nationalId && !payload.phoneNumber) {
 			this.showToast('يرجى إدخال قيمة جديدة لحقل واحد على الأقل', 'error');
 			return;
 		}
