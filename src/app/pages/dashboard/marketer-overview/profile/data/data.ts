@@ -37,6 +37,8 @@ export class Data implements OnInit {
 	addingChannel = signal<boolean>(false);
 	removingChannelId = signal<string | null>(null);
 	submittingBasics = signal<boolean>(false);
+	loadingProfile = signal<boolean>(false);
+	profileLoadError = signal<boolean>(false);
 
 	referralLink = computed(() => {
 		const slug = this.profile()?.referralSlug;
@@ -80,9 +82,17 @@ export class Data implements OnInit {
 			handle: ['', Validators.required]
 		});
 
-		this.overviewService.getSummary().subscribe(res => {
-			if (res.success) {
-				this.summary.set(res.data);
+		this.overviewService.getSummary().subscribe({
+			next: (res) => {
+				if (res.success) {
+					this.summary.set(res.data);
+				}
+			},
+			// Non-critical for this page (only feeds the tier/summary banner) —
+			// fails quietly with a toast rather than blocking the page, unlike
+			// loadProfile() below which gates the whole basics-tab form.
+			error: () => {
+				this.showToast('تعذر تحميل بيانات ملخص الأداء', 'error');
 			}
 		});
 
@@ -90,29 +100,54 @@ export class Data implements OnInit {
 	}
 
 	loadProfile() {
-		this.profileService.getProfile().subscribe(res => {
-			if (res.success && res.data) {
-				this.profile.set(res.data);
-				this.channels.set(res.data.marketingChannels || []);
+		if (this.loadingProfile()) return;
 
-				this.marketingForm.patchValue({
-					avatarUrl: res.data.avatarUrl || '',
-					bio: res.data.bio || ''
-				});
+		this.loadingProfile.set(true);
+		this.profileService.getProfile().pipe(
+			finalize(() => this.loadingProfile.set(false))
+		).subscribe({
+			next: (res) => {
+				if (res.success && res.data) {
+					this.profileLoadError.set(false);
+					this.profile.set(res.data);
+					this.channels.set(res.data.marketingChannels || []);
 
-				this.bankForm.patchValue({
-					accountHolderName: res.data.accountHolderName || '',
-					iban: res.data.iban || '',
-					bankName: res.data.bankName || '',
-					swiftCode: res.data.swiftCode || ''
-				});
+					this.marketingForm.patchValue({
+						avatarUrl: res.data.avatarUrl || '',
+						bio: res.data.bio || ''
+					});
 
-				this.basicsForm.patchValue({
-					firstName: res.data.user?.firstName || '',
-					lastName: res.data.user?.lastName || '',
-					nationalId: res.data.user?.idNumber || '',
-					phoneNumber: res.data.user?.phoneNumber || ''
-				});
+					this.bankForm.patchValue({
+						accountHolderName: res.data.accountHolderName || '',
+						iban: res.data.iban || '',
+						bankName: res.data.bankName || '',
+						swiftCode: res.data.swiftCode || ''
+					});
+
+					this.basicsForm.patchValue({
+						firstName: res.data.user?.firstName || '',
+						lastName: res.data.user?.lastName || '',
+						nationalId: res.data.user?.idNumber || '',
+						phoneNumber: res.data.user?.phoneNumber || ''
+					});
+				} else {
+					// A well-formed but unsuccessful response (res.success===false) —
+					// never overwrite already-loaded profile/form data with this;
+					// only surface the load-error state if nothing real is loaded yet.
+					this.profileLoadError.set(!this.profile());
+					this.showToast(res.message || 'تعذر تحميل بيانات الملف الشخصي', 'error');
+				}
+			},
+			// This is the fix for the real incident: GET /marketer/profile
+			// returning a non-2xx (e.g. 429 from the rate limiter) used to be
+			// silently swallowed here — profile/basicsForm never populated, so
+			// the page rendered as if the account had no name/email/phone/
+			// completion at all, even though the real data was untouched in the
+			// database. Never clear/blank already-loaded data on a failure;
+			// only show the explicit error state when no profile has loaded yet.
+			error: (err) => {
+				this.profileLoadError.set(!this.profile());
+				this.showToast(err?.error?.message || 'تعذر تحميل بيانات الملف الشخصي، يرجى المحاولة مرة أخرى', 'error');
 			}
 		});
 	}

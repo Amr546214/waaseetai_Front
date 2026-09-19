@@ -1,3 +1,12 @@
+@if (profileLoadError() && !profile()) {
+<div class="main-inner">
+	<div style="text-align:center;padding:80px 20px">
+		<div style="font-size:16px;font-weight:800;margin-bottom:10px" class="txt-white">تعذر تحميل بيانات الملف الشخصي</div>
+		<div style="font-size:13px;margin-bottom:20px" class="txt-muted">حدث خطأ أثناء تحميل ملفك التسويقي، يرجى المحاولة مرة أخرى</div>
+		<button type="button" class="btn-primary" [disabled]="loadingProfile()" (click)="loadProfile()">{{ loadingProfile() ? 'جارٍ إعادة المحاولة...' : 'إعادة المحاولة' }}</button>
+	</div>
+</div>
+} @else {
 <div class="main-inner">
 	<div class="prog-header">
 		<span class="prog-label">اكتمال الملف التسويقي</span>
@@ -498,6 +507,7 @@
 	</div>
 	}
 </div>
+}
 
 @if (isGovModalOpen()) {
 <div class="modal-ov show" role="dialog" aria-modal="true" (click)="closeGovernedEdit()">
