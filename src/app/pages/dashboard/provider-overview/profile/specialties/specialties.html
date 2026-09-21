@@ -1117,7 +1117,7 @@
 						currentQuestion()?.text }}</h3>
 
 					<div class="flex flex-col gap-3.5">
-						<label *ngFor="let option of getNormalizedOptions(currentQuestion())"
+						<label *ngFor="let option of getNormalizedOptions(currentQuestion()); trackBy: trackByOptionId"
 							class="flex items-center gap-4 p-4.5 bg-[rgba(255,255,255,.02)] border-2 border-[rgba(255,255,255,.07)] hover:border-[rgba(43,212,199,.3)] rounded-2xl cursor-pointer transition-all hover:bg-[rgba(43,212,199,.03)] group/option shadow-md"
 							[class.!border-[#2BD4C7]]="getSelectedOptionForCurrent() === option.id"
 							[class.!bg-[rgba(43,212,199,.1)]]="getSelectedOptionForCurrent() === option.id">

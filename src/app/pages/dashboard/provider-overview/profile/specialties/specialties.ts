@@ -885,6 +885,10 @@ export class Specialties implements OnInit, OnDestroy {
 		this.submitQuizAnswers(true);
 	}
 
+	trackByOptionId(_index: number, option: { id: string; text: string }): string {
+		return option.id;
+	}
+
 	getNormalizedOptions(q: any): { id: string; text: string }[] {
 		if (!q || !q.options || !Array.isArray(q.options)) return [];
 		return q.options.map((opt: any, idx: number) => {
