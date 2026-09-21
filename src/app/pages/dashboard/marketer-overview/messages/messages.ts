@@ -308,12 +308,19 @@ export class MarketerMessages implements OnInit, OnDestroy {
     const timeString = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
+    // Same initials computation used for the conversation partner's name —
+    // was previously a hardcoded placeholder unrelated to the actual
+    // logged-in user.
+    const myUser = this.authStore.currentUser();
+    const myName = myUser ? `${myUser.firstName || ''} ${myUser.lastName || ''}`.trim() : '';
+    const myInitials = myName ? myName.split(' ').map((n: string) => n[0]).join('').slice(0, 2) : 'مـ';
+
     const newMsg: MessageItem = {
       id: tempId,
       tempId: tempId,
       status: 'PENDING',
       sender: 'me',
-      senderInitials: 'مـ',
+      senderInitials: myInitials,
       type: type,
       text: customData?.text || text || (type === 'IMAGE' ? 'مرفق صورة' : type === 'AUDIO' ? 'رسالة صوتية' : type === 'FILE' ? `📁 ${customData?.fileName}` : ''),
       fileUrl: customData?.fileUrl,
@@ -397,12 +404,36 @@ export class MarketerMessages implements OnInit, OnDestroy {
   async stopVoiceRecord(): Promise<void> {
     const res = await this.chatService.stopAudioRecording();
     if (res) {
-      this.sendMessage('AUDIO', {
-        fileUrl: res.blobUrl || res.base64,
-        audioDuration: res.duration || 1,
-        text: '🎤 رسالة صوتية'
+      // res.blobUrl is a local object URL (URL.createObjectURL) — it only
+      // resolves inside this sender's own browser session, so persisting it
+      // as the message fileUrl leaves every other participant with a bubble
+      // that renders but has no playable audio. Upload the recording (same
+      // uploadAttachment() call already used for image/file attachments) to
+      // get a URL anyone can load, falling back to the self-contained
+      // base64 data URI — never the blob URL — if the upload fails.
+      this.chatService.uploadAttachment({
+        fileData: res.base64,
+        fileName: `voice-message-${Date.now()}.webm`,
+        fileType: 'AUDIO',
+        audioDuration: res.duration || 1
+      }).subscribe({
+        next: (uploadRes) => {
+          this.sendMessage('AUDIO', {
+            fileUrl: uploadRes?.data?.fileUrl || res.base64,
+            audioDuration: res.duration || 1,
+            text: '🎤 رسالة صوتية'
+          });
+          this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
+        },
+        error: () => {
+          this.sendMessage('AUDIO', {
+            fileUrl: res.base64,
+            audioDuration: res.duration || 1,
+            text: '🎤 رسالة صوتية'
+          });
+          this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
+        }
       });
-      this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
     }
   }
 

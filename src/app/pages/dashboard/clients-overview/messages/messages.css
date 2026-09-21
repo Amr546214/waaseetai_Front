@@ -296,6 +296,7 @@
 .msgs {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 14px 18px;
   display: flex;
   flex-direction: column;
@@ -333,6 +334,15 @@
   gap: 8px;
   align-items: flex-end;
   max-width: 75%;
+  box-sizing: border-box;
+}
+/* .msgs is a column flex container, so without an explicit align-self a row
+   defaults to align-items:stretch and is forced to the full max-width
+   regardless of its actual content — .mine already opted out of this;
+   .other (received messages) never did, which is the other half of why
+   these rows could end up wider than their content needs. */
+.mrow.other {
+  align-self: flex-start;
 }
 .mrow.mine {
   align-self: flex-end;
@@ -360,7 +370,7 @@
   color: #070D24;
 }
 
-.mcontent { display: flex; flex-direction: column; gap: 2px; }
+.mcontent { display: flex; flex-direction: column; gap: 2px; max-width: 100%; min-width: 0; }
 
 .bbl {
   padding: 9px 13px;
@@ -368,6 +378,8 @@
   font-size: 13px;
   line-height: 1.6;
   word-break: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .bbl.other {
   background: rgba(255, 255, 255, 0.07);
@@ -1088,9 +1100,17 @@ body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
 .audio-msg-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 4px 6px;
-  min-width: 220px;
+  /* Fixed width, not min/max-based on the bubble's percentage-based
+     ancestors — a voice note should always render at one compact,
+     WhatsApp-style size regardless of screen width. max-width:100% is the
+     escape hatch for the rare case where the chat column itself is
+     narrower than this (small phones), so it shrinks instead of
+     overflowing and forcing horizontal scroll. */
+  width: 220px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .audio-play-btn {
   width: 36px;
@@ -1109,10 +1129,12 @@ body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
 .audio-waveform {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   height: 28px;
   flex: 1;
+  min-width: 0;
   padding: 0 4px;
+  overflow: hidden;
 }
 .wave-bar {
   width: 3px;
