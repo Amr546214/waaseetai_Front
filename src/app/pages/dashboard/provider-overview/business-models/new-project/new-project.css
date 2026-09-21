@@ -1,3 +1,14 @@
+.np-sticky-bar {
+  background: rgba(7, 13, 36, .95);
+}
+
+:host-context(body.light-theme) .np-sticky-bar,
+:host-context(body.theme-light) .np-sticky-bar,
+:host-context(.light-theme) .np-sticky-bar,
+:host-context(.theme-light) .np-sticky-bar {
+  background: rgba(246, 248, 252, .96);
+}
+
 .toast-box {
   position: fixed;
   top: 28px;

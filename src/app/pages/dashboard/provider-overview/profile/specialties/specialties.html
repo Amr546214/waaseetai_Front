@@ -235,7 +235,7 @@
 
 		<div class="flex flex-col gap-6">
 			<div *ngFor="let sub of activeSubSpecialties(); let subIndex = index"
-				class="state-card !p-0 border-[rgba(255,255,255,.09)] bg-[rgba(13,20,44,0.65)] backdrop-blur-md rounded-2xl overflow-hidden shadow-xl transition-all">
+				class="state-card !p-0 backdrop-blur-md rounded-2xl overflow-hidden shadow-xl transition-all">
 
 				<div
 					class="p-4.5 border-b border-[rgba(255,255,255,.07)] bg-[rgba(255,255,255,.02)] flex items-center justify-between px-5 py-4">
@@ -250,7 +250,7 @@
 							</svg>
 						</div>
 						<div>
-							<h3 class="text-base font-black text-white tracking-tight leading-none">{{ sub }}</h3>
+							<h3 class="text-base font-black sample-card-text tracking-tight leading-none">{{ sub }}</h3>
 							<p class="text-xs font-semibold text-[var(--txt-3)] mt-1.5"
 								[ngClass]="{'text-[#2BD4C7]': getSamplesForSub(sub).length > 0}">{{
 								getSampleCountText(sub) }}</p>
@@ -271,25 +271,25 @@
 					<div *ngIf="getSamplesForSub(sub).length > 0" class="flex flex-col gap-4 mb-5">
 
 						<div *ngFor="let sample of getSamplesForSub(sub); let sampleIndex = index"
-							class="bg-[rgba(7,13,36,.65)] border border-[rgba(255,255,255,.08)] hover:border-[rgba(43,212,199,.3)] rounded-2xl overflow-hidden transition-all shadow-lg group/sample">
+							class="sample-card border hover:border-[rgba(43,212,199,.3)] rounded-2xl overflow-hidden transition-all shadow-lg group/sample">
 
 							<div class="p-4.5 border-b border-[rgba(255,255,255,.08)] bg-gradient-to-l from-[rgba(43,212,199,.035)] to-[rgba(123,47,190,.035)]">
 								<div class="flex items-center justify-between gap-3 mb-4">
 									<div>
-										<div class="text-sm font-black text-white">بيانات نموذج العمل</div>
+										<div class="text-sm font-black sample-card-text">بيانات نموذج العمل</div>
 										<div class="text-[11px] text-[var(--txt-3)] mt-1">كلما كانت المعلومات دقيقة، كان تحليل الذكاء الاصطناعي أفضل</div>
 									</div>
 									<span class="px-2.5 py-1 rounded-full bg-[rgba(165,107,224,.12)] border border-[rgba(165,107,224,.28)] text-[10px] font-black text-[#A56BE0]">معلومات مطلوبة</span>
 								</div>
 								<div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
 									<label class="flex flex-col gap-1.5">
-										<span class="text-[11px] font-black text-[#DDE4FF]">عنوان المشروع</span>
+										<span class="text-[11px] font-black sample-card-label">عنوان المشروع</span>
 										<input type="text" [(ngModel)]="sample.title" maxlength="150"
 											placeholder="مثال: تصميم هوية بصرية لشركة تقنية"
 											class="sample-meta-input" />
 									</label>
 									<label class="flex flex-col gap-1.5">
-										<span class="text-[11px] font-black text-[#DDE4FF]">التقنيات والأدوات</span>
+										<span class="text-[11px] font-black sample-card-label">التقنيات والأدوات</span>
 										<input type="text" [value]="sample.technologiesInput"
 											(input)="updateTechnologies(sample.id, $any($event.target).value)"
 											placeholder="After Effects، Illustrator، Figma"
@@ -298,7 +298,7 @@
 									</label>
 									<label class="md:col-span-2 flex flex-col gap-1.5">
 										<div class="flex items-center justify-between">
-											<span class="text-[11px] font-black text-[#DDE4FF]">وصف العمل ودورك فيه</span>
+											<span class="text-[11px] font-black sample-card-label">وصف العمل ودورك فيه</span>
 											<span class="text-[10px] font-mono" [class.text-[#2BD4C7]]="(sample.description?.length || 0) >= 20" [class.text-[#FFB400]]="(sample.description?.length || 0) < 20">{{ sample.description?.length || 0 }}/20 على الأقل</span>
 										</div>
 										<textarea [(ngModel)]="sample.description" rows="3" maxlength="1200"
@@ -349,7 +349,7 @@
 												<span class="text-[10px] font-bold text-[var(--txt-3)]">{{ sample.publicFileType || 'ملف مرفق' }}</span>
 											</div>
 											<div class="flex items-center gap-2.5 px-3.5 py-2.5 border-t border-[rgba(255,255,255,.08)]">
-												<span class="text-xs font-bold text-white flex-1 truncate">{{ sample.publicFileName }}</span>
+												<span class="text-xs font-bold sample-card-text flex-1 truncate">{{ sample.publicFileName }}</span>
 												<span class="text-[10px] font-black text-[#2BD4C7]">✓ جاهز</span>
 												<button type="button" (click)="removePublicFile(sample.id)" aria-label="حذف الملف"
 													class="w-7 h-7 rounded-lg text-[#FF6B6B] hover:bg-red-500/15 flex items-center justify-center transition-colors">&times;</button>

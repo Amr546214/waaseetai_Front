@@ -24,6 +24,10 @@
 .sample-meta-input:hover { border-color: rgba(43,212,199,.25); }
 .sample-meta-input:focus { border-color: rgba(43,212,199,.65); background: rgba(9,17,43,.9); box-shadow: 0 0 0 3px rgba(43,212,199,.08), 0 8px 24px rgba(0,0,0,.16); }
 
+.sample-card { background: rgba(7,13,36,.65); border-color: rgba(255,255,255,.08); }
+.sample-card-text { color: #fff; }
+.sample-card-label { color: #DDE4FF; }
+
 .spec-card {
   background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
   border: 2px solid rgba(255,255,255,.08);
@@ -183,3 +187,36 @@
 :host-context(body.theme-light) .step-item.active .step-label,
 :host-context(.light-theme) .step-item.active .step-label,
 :host-context(.theme-light) .step-item.active .step-label { color: #1E293B; }
+
+:host-context(body.light-theme) .state-card,
+:host-context(body.theme-light) .state-card,
+:host-context(.light-theme) .state-card,
+:host-context(.theme-light) .state-card { background: #fff; border-color: #E2E8F4; }
+
+:host-context(body.light-theme) .sample-card,
+:host-context(body.theme-light) .sample-card,
+:host-context(.light-theme) .sample-card,
+:host-context(.theme-light) .sample-card { background: #F8FAFC; border-color: #E2E8F4; }
+
+:host-context(body.light-theme) .sample-card-text,
+:host-context(body.theme-light) .sample-card-text,
+:host-context(.light-theme) .sample-card-text,
+:host-context(.theme-light) .sample-card-text { color: #0F172A; }
+
+:host-context(body.light-theme) .sample-card-label,
+:host-context(body.theme-light) .sample-card-label,
+:host-context(.light-theme) .sample-card-label,
+:host-context(.theme-light) .sample-card-label { color: #334155; }
+
+:host-context(body.light-theme) .sample-meta-input,
+:host-context(body.theme-light) .sample-meta-input,
+:host-context(.light-theme) .sample-meta-input,
+:host-context(.theme-light) .sample-meta-input { background: #fff; border-color: #CBD5E1; color: #0F172A; }
+:host-context(body.light-theme) .sample-meta-input::placeholder,
+:host-context(body.theme-light) .sample-meta-input::placeholder,
+:host-context(.light-theme) .sample-meta-input::placeholder,
+:host-context(.theme-light) .sample-meta-input::placeholder { color: #94A3B8; }
+:host-context(body.light-theme) .sample-meta-input:focus,
+:host-context(body.theme-light) .sample-meta-input:focus,
+:host-context(.light-theme) .sample-meta-input:focus,
+:host-context(.theme-light) .sample-meta-input:focus { background: #fff; border-color: rgba(15,138,127,.5); box-shadow: 0 0 0 3px rgba(15,138,127,.1); }
