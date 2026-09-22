@@ -1,7 +1,7 @@
 :host{display:block;animation:ws-fade .2s ease forwards}
 @keyframes ws-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.emp-page{padding:8px 0 32px;max-width:960px;margin:0 auto}
+.emp-page{padding:8px 0 32px}
 
 /* Breadcrumb */
 .bc{display:flex;align-items:center;gap:6px;font-size:12px;color:#6B7699;margin-bottom:18px}

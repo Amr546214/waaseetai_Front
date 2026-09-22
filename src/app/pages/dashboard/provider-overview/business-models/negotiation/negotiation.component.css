@@ -1,5 +1,5 @@
 :host{display:block}
-.neg-page{padding:24px;max-width:1200px;margin:0 auto}
+.neg-page{padding:24px}
 .page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
 .page-ttl{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px}
 .page-sub{font-size:13px;color:#A8B2D1}

@@ -1,7 +1,7 @@
 :host{display:block;animation:ws-fade .2s ease forwards}
 @keyframes ws-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.lc-page{padding:8px 0 32px;max-width:1100px;margin:0 auto}
+.lc-page{padding:8px 0 32px}
 
 /* Back Link */
 .bk-link{display:inline-flex;align-items:center;gap:8px;color:#A8B2D1;font-size:13px;font-weight:700;text-decoration:none;transition:color .15s;width:fit-content;margin-bottom:16px}
