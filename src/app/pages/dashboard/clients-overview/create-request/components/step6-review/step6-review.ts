@@ -63,9 +63,8 @@ export class Step6Review {
 		this.recBudgetDone.set(true);
 	}
 
-	// Modal and Overlay state
+	// Modal state
 	showConfirmModal = signal(false);
-	showSuccessOverlay = signal(false);
 
 	openModal() {
 		if (this.allAcksChecked()) {

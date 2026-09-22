@@ -429,8 +429,27 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.milestones.update(m => m.filter((_, i) => i !== index));
   }
 
+  // Milestone fields are edited via [ngModel]+(ngModelChange) rather than
+  // [(ngModel)] directly on the array-item objects: mutating ms.name/ms.pct
+  // in place would never call milestones.set()/.update(), so the
+  // `milestones` signal would never mark itself dirty and the `canProceed`
+  // computed (which gates the Next button) would stay stale at whatever it
+  // was right after the milestone was added — leaving Next permanently
+  // disabled even once every field is filled in correctly.
+  updateMilestoneName(index: number, name: string) {
+    this.milestones.update(m => m.map((ms, i) => i === index ? { ...ms, name } : ms));
+  }
+
+  updateMilestonePct(index: number, pct: number | null) {
+    this.milestones.update(m => m.map((ms, i) => i === index ? { ...ms, pct: pct ?? 0 } : ms));
+  }
+
   get milestoneTotalPct() {
     return this.milestones().reduce((sum, m) => sum + (m.pct || 0), 0);
+  }
+
+  get milestoneNameError(): boolean {
+    return this.milestones().some(m => !m.name || m.name.trim().length < 2);
   }
 
   // ==============================
@@ -593,10 +612,9 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.projectApi.createProject(payload).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
+        // Stay on the success overlay until the user explicitly picks
+        // "عرض طلباتي" or "لوحة التحكم" — no automatic navigation.
         this.showSuccessOverlay.set(true);
-        setTimeout(() => {
-          this.router.navigate(['/client-overview']);
-        }, 3000);
       },
       error: (err) => {
         this.isSubmitting.set(false);
