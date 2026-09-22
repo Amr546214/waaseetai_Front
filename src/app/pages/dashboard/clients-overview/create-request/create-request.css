@@ -140,6 +140,13 @@ html.light select {
 .success-sub{font-size:14px;color:#6B7699;line-height:1.7;max-width:420px;animation:ws-fade .4s .35s ease both}
 .success-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:ws-fade .4s .4s ease both}
 
+/* .btn-secondary — used by the success overlay ("لوحة التحكم") and the
+   publish-confirm modal ("تعديل"). .btn-primary is defined globally in
+   styles.css, but .btn-secondary was never defined for this wizard at all,
+   so it rendered unstyled/inconsistent. */
+.btn-secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#A8B2D1;border-radius:999px;font-weight:800;padding:14px 28px;cursor:pointer;font-family:inherit;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:all .15s}
+.btn-secondary:hover{background:rgba(255,255,255,.09);color:#fff}
+
 /* GLOBALS FOR LIGHT MODE OVERRIDES - handled by existing logic, just adding basics */
 :root {
   --kahr: #D98A0B;
@@ -378,5 +385,59 @@ body.theme-light .ack-text a,
 .light-theme .ack-text a,
 .theme-light .ack-text a {
   color: #475569 !important;
+}
+body.light-theme .ack-check,
+body.theme-light .ack-check,
+.light-theme .ack-check,
+.theme-light .ack-check {
+  border-color: #CBD5E1 !important;
+}
+body.light-theme .step6-back-btn,
+body.theme-light .step6-back-btn,
+.light-theme .step6-back-btn,
+.theme-light .step6-back-btn {
+  background: #fff !important;
+  border-color: #D8DFEC !important;
+  color: #475569 !important;
+}
+body.light-theme .step6-back-btn:hover,
+body.theme-light .step6-back-btn:hover,
+.light-theme .step6-back-btn:hover,
+.theme-light .step6-back-btn:hover {
+  background: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+body.light-theme .btn-secondary,
+body.theme-light .btn-secondary,
+.light-theme .btn-secondary,
+.theme-light .btn-secondary {
+  background: #fff !important;
+  border-color: #D8DFEC !important;
+  color: #475569 !important;
+}
+body.light-theme .btn-secondary:hover,
+body.theme-light .btn-secondary:hover,
+.light-theme .btn-secondary:hover,
+.theme-light .btn-secondary:hover {
+  background: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+body.light-theme .success-overlay,
+body.theme-light .success-overlay,
+.light-theme .success-overlay,
+.theme-light .success-overlay {
+  background: rgba(246, 248, 252, .98) !important;
+}
+body.light-theme .success-title,
+body.theme-light .success-title,
+.light-theme .success-title,
+.theme-light .success-title {
+  color: #0F172A !important;
+}
+body.light-theme .success-sub,
+body.theme-light .success-sub,
+.light-theme .success-sub,
+.theme-light .success-sub {
+  color: #64748B !important;
 }
 

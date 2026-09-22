@@ -60,12 +60,12 @@
 						</div>
 
 						@if (parent.isAiStreaming()) {
-							<div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--ai)]/20 border border-[var(--ai)]/40 text-[#D8B4FE] text-xs font-extrabold shadow-[0_0_12px_rgba(168,85,247,0.3)] animate-pulse w-fit">
+							<div class="ai-tooltip-badge inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--ai)]/20 border border-[var(--ai)]/40 text-[#D8B4FE] text-xs font-extrabold shadow-[0_0_12px_rgba(168,85,247,0.3)] animate-pulse w-fit">
 								<span class="w-2 h-2 rounded-full bg-[#D8B4FE]"></span>
 								{{ parent.aiPhase() === 'validating' ? 'جاري تحليل العنوان ومطابقته مع التخصصات...' : 'تم التحقق · جاري صياغة الوصف بواسطة الذكاء الاصطناعي...' }}
 							</div>
 						} @else {
-							<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold w-fit">
+							<div class="ai-tooltip-done-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold w-fit">
 								<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
 								اكتمل البث · جاهز للاستخدام
 							</div>
@@ -77,15 +77,15 @@
 						@if (parent.aiStreamText()) {
 							{{ parent.aiStreamText() }}@if (parent.isAiStreaming()) {<span class="inline-block w-2 h-4 bg-[#D8B4FE] animate-pulse ml-1 align-middle"></span>}
 						} @else {
-							<div class="flex items-center justify-center gap-3 py-8 text-slate-400 italic">
+							<div class="ai-tooltip-loading flex items-center justify-center gap-3 py-8 text-slate-400 italic">
 								<svg class="w-5 h-5 animate-spin text-[var(--ai)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
 								<span>{{ parent.aiPhase() === 'validating' ? 'يفحص AI وضوح العنوان وتوافقه مع التخصص الرئيسي والفرعي...' : 'جاري صياغة هيكل المتطلبات الفنية والمواصفات...' }}</span>
 							</div>
 						}
 					</div>
 
-					<div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-4">
-						<div class="text-xs text-slate-400 font-bold flex items-center gap-2">
+					<div class="ai-tooltip-footer flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-4">
+						<div class="ai-tooltip-caption text-xs text-slate-400 font-bold flex items-center gap-2">
 							<span>🎯 متوافق مع متطلبات السوق وعقود العمل الحر الإقليمية</span>
 						</div>
 						<div class="ai-tooltip-actions flex items-center gap-3 w-full sm:w-auto justify-end">
