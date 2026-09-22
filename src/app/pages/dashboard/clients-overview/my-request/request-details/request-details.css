@@ -67,6 +67,9 @@
 .v1-desc{font-size:12.5px;color:#A8B2D1;line-height:1.7;margin-bottom:11px}
 .v1-desc strong,.v1-plan strong{color:#fff;font-weight:800}
 .v1-plan{font-size:12.5px;color:#A8B2D1;line-height:1.7;margin-bottom:11px}
+.mstone-card{background:rgba(22,32,56,.4);border:1px solid rgba(48,64,94,.6);padding:12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.mstone-meta{display:flex;align-items:center;gap:16px;background:rgba(10,15,30,.4);padding:8px 14px;border-radius:8px;border:1px solid rgba(48,64,94,.4)}
+.mstone-divider{width:1px;height:28px;background:rgba(48,64,94,.6)}
 .v1-files{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
 .v1-file{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:11px;color:#A8B2D1;text-decoration:none}
 .v1-file svg{width:13px;height:13px;color:#6B7699}
@@ -224,6 +227,17 @@ body.light-theme .cmp2-col.ai, body.theme-light .cmp2-col.ai, .light-theme .cmp2
 body.light-theme .v1-ai, body.theme-light .v1-ai, .light-theme .v1-ai, .theme-light .v1-ai {
 	background:#fff;
 	border-color:#E2E8F4;
+}
+body.light-theme .mstone-card, body.theme-light .mstone-card, .light-theme .mstone-card, .theme-light .mstone-card {
+	background:#F8FAFC;
+	border-color:#E2E8F4;
+}
+body.light-theme .mstone-meta, body.theme-light .mstone-meta, .light-theme .mstone-meta, .theme-light .mstone-meta {
+	background:#F1F5FB;
+	border-color:#E2E8F4;
+}
+body.light-theme .mstone-divider, body.theme-light .mstone-divider, .light-theme .mstone-divider, .theme-light .mstone-divider {
+	background:#D8DFEC;
 }
 body.light-theme .v1-file, body.theme-light .v1-file, .light-theme .v1-file, .theme-light .v1-file {
 	background:#F1F5FB;

@@ -265,8 +265,7 @@
 					@if (offer.milestones && offer.milestones.length > 0) {
 					<div style="display: flex; flex-direction: column; gap: 10px;">
 						@for (milestone of offer.milestones; track milestone.id || milestone.stepOrder) {
-						<div
-							style="background: rgba(22, 32, 56, 0.4); border: 1px solid rgba(48, 64, 94, 0.6); padding: 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+						<div class="mstone-card">
 							<div style="display: flex; align-items: flex-start; gap: 12px; flex: 1; min-width: 200px;">
 								<div
 									style="width: 28px; height: 28px; border-radius: 8px; background: rgba(43, 212, 199, 0.1);  display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; border: 1px solid rgba(43, 212, 199, 0.25); margin-top: 2px" class="txt-teal">
@@ -282,14 +281,13 @@
 								</div>
 							</div>
 
-							<div
-								style="display: flex; align-items: center; gap: 16px; background: rgba(10, 15, 30, 0.4); padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(48, 64, 94, 0.4);">
+							<div class="mstone-meta">
 								<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
 									<span style="font-size: 10px;  font-weight: 600" class="txt-slate">المدة</span>
 									<span style="font-size: 12px; font-weight: 700" class="txt-slate">{{
 										milestone.durationText || milestone.days + ' يوماً' }}</span>
 								</div>
-								<div style="width: 1px; height: 28px; background: rgba(48, 64, 94, 0.6);"></div>
+								<div class="mstone-divider"></div>
 								<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
 									<span style="font-size: 10px;  font-weight: 600" class="txt-slate">القيمة <span
 											style="font-size: 9px; margin-inline-start: 2px" class="txt-muted">({{
