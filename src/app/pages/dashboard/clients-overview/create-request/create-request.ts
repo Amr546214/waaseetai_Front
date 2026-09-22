@@ -1,5 +1,5 @@
-import { Component, computed, signal, OnDestroy, OnInit, inject, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, effect, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
@@ -24,6 +24,58 @@ interface Specialty {
 
 interface Milestone { name: string; pct: number; }
 
+// Versioned sessionStorage draft shape. Bump DRAFT_VERSION (and the key
+// suffix) if this shape ever changes incompatibly — loadDraft() rejects any
+// stored value whose version doesn't match, rather than guessing at
+// migrating an old shape.
+const DRAFT_STORAGE_KEY = 'waseetai:create-request:draft:v1';
+const DRAFT_VERSION = 1;
+
+interface CreateRequestDraftV1 {
+  version: 1;
+  currentStep: number;
+  step1: {
+    selectedSpec: string | null;
+    selectedSubs: string[];
+    otherText: string;
+  };
+  step2: {
+    ndaType: string;
+    ipRights: string;
+    provLevel: string;
+    provRating: string;
+    provLang: string;
+    provLocation: string;
+    customConditions: string;
+  };
+  step3: {
+    title: string;
+    description: string;
+    requirements: string[];
+    outputs: string;
+    deliveryDays: number | null;
+  };
+  step4: {
+    budgetType: string;
+    budgetMin: number | null;
+    budgetMax: number | null;
+    budgetFixed: number | null;
+    budgetHourly: number | null;
+    allowNegotiation: boolean;
+    splitMilestones: boolean;
+    milestones: Milestone[];
+  };
+  // Step 5 (files) is intentionally NOT persisted: browser File objects
+  // cannot be serialized/restored from sessionStorage, and there is no
+  // "already uploaded" intermediate state in the current architecture —
+  // uploadAttachments() only runs at final submit. Pretending a file is
+  // still attached after a refresh would be actively misleading, so Step 5
+  // always restores empty and the user re-selects files if needed.
+  // Step 6 has no draft fields of its own beyond what Steps 1–4 already
+  // provide; its own local acknowledgement checkboxes are intentionally
+  // reset on refresh rather than silently restored.
+}
+
 @Component({
   selector: 'app-create-request',
   standalone: true,
@@ -35,11 +87,19 @@ interface Milestone { name: string; pct: number; }
 export class CreateRequest implements OnInit, OnDestroy {
   private socket?: Socket;
   private specialtyService = inject(SpecialtyService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
   constructor(
     private router: Router,
     private projectApi: ProjectApiService
-  ) { }
+  ) {
+    // Centralized autosave: reads every persisted field on each run, so any
+    // signal write across Steps 1–4 (including in-place-safe milestone
+    // updates) schedules exactly one coalesced save via Angular's effect
+    // scheduling — no need to scatter sessionStorage calls per field/step.
+    effect(() => this.saveDraft());
+  }
 
   // Multi-step State
   currentStep = signal(1);
@@ -79,7 +139,147 @@ export class CreateRequest implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.restoreDraft();
     this.loadSpecialtiesFromDatabase();
+  }
+
+  // ==============================
+  // Draft persistence (sessionStorage) — survives refresh/reload within the
+  // same tab, cleared on successful publish or explicit cancel. See
+  // CreateRequestDraftV1 above for exactly what is (and deliberately isn't)
+  // persisted.
+  // ==============================
+
+  private buildDraftSnapshot(): CreateRequestDraftV1 {
+    return {
+      version: DRAFT_VERSION,
+      currentStep: this.currentStep(),
+      step1: {
+        selectedSpec: this.selectedSpec(),
+        selectedSubs: Array.from(this.selectedSubs()),
+        otherText: this.otherText()
+      },
+      step2: {
+        ndaType: this.ndaType(),
+        ipRights: this.ipRights(),
+        provLevel: this.provLevel(),
+        provRating: this.provRating(),
+        provLang: this.provLang(),
+        provLocation: this.provLocation(),
+        customConditions: this.customConditions()
+      },
+      step3: {
+        title: this.title(),
+        description: this.description(),
+        requirements: this.requirements(),
+        outputs: this.outputs(),
+        deliveryDays: this.deliveryDays()
+      },
+      step4: {
+        budgetType: this.budgetType(),
+        budgetMin: this.budgetMin(),
+        budgetMax: this.budgetMax(),
+        budgetFixed: this.budgetFixed(),
+        budgetHourly: this.budgetHourly(),
+        allowNegotiation: this.allowNegotiation(),
+        splitMilestones: this.splitMilestones(),
+        milestones: this.milestones()
+      }
+    };
+  }
+
+  private saveDraft(): void {
+    if (!this.isBrowser) return;
+    const snapshot = this.buildDraftSnapshot();
+    try {
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(snapshot));
+    } catch {
+      // Quota exceeded / private-browsing storage denial — draft persistence
+      // is a convenience, never allowed to break the wizard itself.
+    }
+  }
+
+  private clearDraft(): void {
+    if (!this.isBrowser) return;
+    try {
+      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // Ignore — nothing to clean up if storage isn't accessible.
+    }
+  }
+
+  private restoreDraft(): void {
+    if (!this.isBrowser) return;
+    let raw: string | null = null;
+    try {
+      raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+    } catch {
+      return;
+    }
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!this.isValidDraft(parsed)) {
+        this.clearDraft();
+        return;
+      }
+      this.applyDraft(parsed);
+    } catch {
+      // Malformed JSON — never let a corrupt draft crash the page.
+      this.clearDraft();
+    }
+  }
+
+  private isValidDraft(value: any): value is CreateRequestDraftV1 {
+    if (!value || typeof value !== 'object') return false;
+    if (value.version !== DRAFT_VERSION) return false;
+    if (typeof value.currentStep !== 'number' || value.currentStep < 1 || value.currentStep > 6) return false;
+    if (!value.step1 || typeof value.step1 !== 'object') return false;
+    if (!value.step2 || typeof value.step2 !== 'object') return false;
+    if (!value.step3 || typeof value.step3 !== 'object') return false;
+    if (!value.step4 || typeof value.step4 !== 'object') return false;
+    if (!Array.isArray(value.step4.milestones)) return false;
+    return true;
+  }
+
+  private applyDraft(draft: CreateRequestDraftV1): void {
+    this.currentStep.set(draft.currentStep);
+
+    this.selectedSpec.set(draft.step1.selectedSpec ?? null);
+    this.selectedSubs.set(new Set(Array.isArray(draft.step1.selectedSubs) ? draft.step1.selectedSubs : []));
+    this.otherText.set(draft.step1.otherText ?? '');
+
+    this.ndaType.set(draft.step2.ndaType ?? 'standard');
+    this.ipRights.set(draft.step2.ipRights ?? 'client');
+    this.provLevel.set(draft.step2.provLevel ?? '');
+    this.provRating.set(draft.step2.provRating ?? '4');
+    this.provLang.set(draft.step2.provLang ?? 'ar');
+    this.provLocation.set(draft.step2.provLocation ?? 'sa');
+    this.customConditions.set(draft.step2.customConditions ?? '');
+
+    this.title.set(draft.step3.title ?? '');
+    this.description.set(draft.step3.description ?? '');
+    this.requirements.set(Array.isArray(draft.step3.requirements) ? draft.step3.requirements : []);
+    this.outputs.set(draft.step3.outputs ?? '');
+    this.deliveryDays.set(typeof draft.step3.deliveryDays === 'number' ? draft.step3.deliveryDays : null);
+
+    const asNumberOrNull = (v: unknown): number | null => typeof v === 'number' ? v : null;
+    this.budgetType.set(draft.step4.budgetType ?? 'range');
+    this.budgetMin.set(asNumberOrNull(draft.step4.budgetMin));
+    this.budgetMax.set(asNumberOrNull(draft.step4.budgetMax));
+    this.budgetFixed.set(asNumberOrNull(draft.step4.budgetFixed));
+    this.budgetHourly.set(asNumberOrNull(draft.step4.budgetHourly));
+    this.allowNegotiation.set(draft.step4.allowNegotiation !== false);
+    this.splitMilestones.set(draft.step4.splitMilestones === true);
+    this.milestones.set(
+      draft.step4.milestones
+        .filter((m: any) => m && typeof m === 'object')
+        .map((m: any) => ({ name: typeof m.name === 'string' ? m.name : '', pct: typeof m.pct === 'number' ? m.pct : 0 }))
+    );
+    // canProceed() is a computed() reading these same signals, so it
+    // automatically reflects the restored values on next read — no
+    // separate "recompute validation" step is needed.
   }
 
   private loadSpecialtiesFromDatabase(): void {
@@ -543,6 +743,7 @@ export class CreateRequest implements OnInit, OnDestroy {
 
   handleCancel() {
     if (confirm('هل تريد إلغاء إنشاء الطلب؟ سيتم فقدان ما أدخلته.')) {
+      this.clearDraft();
       this.router.navigate(['/client-overview']);
     }
   }
@@ -612,6 +813,9 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.projectApi.createProject(payload).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
+        // Only clear the draft once the backend has actually confirmed the
+        // request was published — never on error, never before this point.
+        this.clearDraft();
         // Stay on the success overlay until the user explicitly picks
         // "عرض طلباتي" or "لوحة التحكم" — no automatic navigation.
         this.showSuccessOverlay.set(true);

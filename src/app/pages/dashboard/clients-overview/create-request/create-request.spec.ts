@@ -15,6 +15,10 @@ describe('CreateRequest', () => {
   let navigateByUrlSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
+    // Isolate every test from any draft a previous test (or a previous run)
+    // may have left behind — restoration must not leak across tests.
+    sessionStorage.clear();
+
     postSpy = vi.fn(() => of({ success: true, data: { id: 'new-request-id' } }));
 
     await TestBed.configureTestingModule({
@@ -42,6 +46,10 @@ describe('CreateRequest', () => {
     component.budgetType.set('range');
     component.budgetMin.set(5000);
     component.budgetMax.set(15000);
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
   });
 
   it('should create', () => {
@@ -227,6 +235,230 @@ describe('CreateRequest', () => {
       expect(navigateByUrlSpy).toHaveBeenCalledTimes(1);
       const target = navigateByUrlSpy.mock.calls[0][0];
       expect(target.toString()).toBe('/client-overview');
+    });
+  });
+
+  describe('Draft persistence (sessionStorage)', () => {
+    const DRAFT_KEY = 'waseetai:create-request:draft:v1';
+
+    function readDraft(): any {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }
+
+    // Re-mounts a fresh CreateRequest instance against whatever is currently
+    // in sessionStorage — the closest simulation of "the user hit refresh"
+    // available without an actual full-page reload. Destroying the old
+    // fixture first matters: a real refresh tears down the old page
+    // entirely, and without this the still-alive original component's own
+    // autosave effect can fire later and clobber whatever the test just put
+    // in sessionStorage for the new instance to read.
+    async function remount(): Promise<CreateRequest> {
+      fixture.destroy();
+      const freshFixture = TestBed.createComponent(CreateRequest);
+      await freshFixture.whenStable();
+      return freshFixture.componentInstance;
+    }
+
+    it('a fresh wizard with no stored draft starts at Step 1', async () => {
+      sessionStorage.clear();
+      const restored = await remount();
+      expect(restored.currentStep()).toBe(1);
+    });
+
+    it('moving through the wizard persists currentStep', async () => {
+      component.currentStep.set(2);
+      await fixture.whenStable();
+
+      expect(readDraft()?.currentStep).toBe(2);
+    });
+
+    it('Step 1 data survives a simulated refresh (component recreation)', async () => {
+      component.selectedSpec.set('tech');
+      component.selectedSubs.set(new Set(['ui-ux', 'frontend']));
+      component.otherText.set('نص إضافي');
+      await fixture.whenStable();
+
+      const restored = await remount();
+
+      expect(restored.selectedSpec()).toBe('tech');
+      expect(Array.from(restored.selectedSubs()).sort()).toEqual(['frontend', 'ui-ux']);
+      expect(restored.otherText()).toBe('نص إضافي');
+    });
+
+    it('Step 3 title/description/requirements survive restoration', async () => {
+      component.title.set('تطوير متجر إلكتروني متكامل');
+      component.description.set('وصف تفصيلي كافٍ لمتطلبات المشروع المطلوب تنفيذه.');
+      component.requirements.set(['متطلب أول', 'متطلب ثاني']);
+      component.outputs.set('مخرجات متوقعة');
+      component.deliveryDays.set(21);
+      await fixture.whenStable();
+
+      const restored = await remount();
+
+      expect(restored.title()).toBe('تطوير متجر إلكتروني متكامل');
+      expect(restored.description()).toBe('وصف تفصيلي كافٍ لمتطلبات المشروع المطلوب تنفيذه.');
+      expect(restored.requirements()).toEqual(['متطلب أول', 'متطلب ثاني']);
+      expect(restored.outputs()).toBe('مخرجات متوقعة');
+      expect(restored.deliveryDays()).toBe(21);
+    });
+
+    it('Step 4 budget values survive restoration', async () => {
+      component.budgetType.set('fixed');
+      component.budgetFixed.set(8000);
+      component.allowNegotiation.set(false);
+      await fixture.whenStable();
+
+      const restored = await remount();
+
+      expect(restored.budgetType()).toBe('fixed');
+      expect(restored.budgetFixed()).toBe(8000);
+      expect(restored.allowNegotiation()).toBe(false);
+    });
+
+    it('splitMilestones survives restoration', async () => {
+      component.splitMilestones.set(true);
+      await fixture.whenStable();
+
+      const restored = await remount();
+
+      expect(restored.splitMilestones()).toBe(true);
+    });
+
+    it('milestone names and percentages survive restoration, and a valid 25/50/25 restore still allows proceeding', async () => {
+      component.splitMilestones.set(true);
+      component.addMilestone();
+      component.addMilestone();
+      component.addMilestone();
+      component.updateMilestoneName(0, 'تحليل المتطلبات وتصميم النظام');
+      component.updateMilestonePct(0, 25);
+      component.updateMilestoneName(1, 'تطوير المنصة والخصائص الأساسية');
+      component.updateMilestonePct(1, 50);
+      component.updateMilestoneName(2, 'الاختبار والتسليم النهائي');
+      component.updateMilestonePct(2, 25);
+      await fixture.whenStable();
+
+      const restored = await remount();
+
+      expect(restored.milestones()).toEqual([
+        { name: 'تحليل المتطلبات وتصميم النظام', pct: 25 },
+        { name: 'تطوير المنصة والخصائص الأساسية', pct: 50 },
+        { name: 'الاختبار والتسليم النهائي', pct: 25 }
+      ]);
+      expect(restored.milestoneTotalPct).toBe(100);
+      // canProceed() is a computed() over the now-restored signals — it must
+      // reflect them correctly without any separate "recompute" step.
+      restored.currentStep.set(4);
+      expect(restored.canProceed()).toBe(true);
+    });
+
+    it('corrupt sessionStorage JSON does not crash and starts fresh', async () => {
+      sessionStorage.setItem(DRAFT_KEY, '{not valid json!!');
+
+      const restored = await remount();
+
+      expect(restored.currentStep()).toBe(1);
+      expect(restored.title()).toBe('');
+      // The corrupt entry must be replaced, not left behind — the fresh
+      // instance's own autosave immediately writes a valid, empty draft.
+      expect(readDraft()?.version).toBe(1);
+      expect(readDraft()?.currentStep).toBe(1);
+    });
+
+    it('an unknown/incompatible draft version is safely ignored and cleared', async () => {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 999, currentStep: 4, title: 'x' }));
+
+      const restored = await remount();
+
+      expect(restored.currentStep()).toBe(1);
+      // The stale v999 payload must not survive — it's overwritten by the
+      // fresh instance's own valid v1 autosave, not left in its old shape.
+      expect(readDraft()?.version).toBe(1);
+      expect(readDraft()?.currentStep).toBe(1);
+    });
+
+    it('non-numeric budget fields in stored JSON are restored as null, never leaked through as strings', async () => {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
+        version: 1,
+        currentStep: 4,
+        step1: { selectedSpec: null, selectedSubs: [], otherText: '' },
+        step2: { ndaType: 'standard', ipRights: 'client', provLevel: '', provRating: '4', provLang: 'ar', provLocation: 'sa', customConditions: '' },
+        step3: { title: '', description: '', requirements: [], outputs: '', deliveryDays: 14 },
+        step4: {
+          budgetType: 'range',
+          budgetMin: '5000', budgetMax: '15000', budgetFixed: 'x', budgetHourly: {},
+          allowNegotiation: true, splitMilestones: false, milestones: []
+        }
+      }));
+
+      const restored = await remount();
+
+      expect(restored.budgetMin()).toBeNull();
+      expect(restored.budgetMax()).toBeNull();
+      expect(restored.budgetFixed()).toBeNull();
+      expect(restored.budgetHourly()).toBeNull();
+      expect(typeof restored.budgetMin()).not.toBe('string');
+    });
+
+    it('a failed publish keeps the draft', async () => {
+      postSpy.mockReturnValueOnce(throwError(() => ({ error: { message: 'فشل النشر' } })));
+      component.title.set('عنوان يجب أن يبقى بعد الفشل');
+      await fixture.whenStable();
+
+      await component.submitRequest();
+
+      expect(readDraft()).not.toBeNull();
+      expect(readDraft().step3.title).toBe('عنوان يجب أن يبقى بعد الفشل');
+    });
+
+    it('a successful publish clears the draft', async () => {
+      await fixture.whenStable();
+      expect(readDraft()).not.toBeNull(); // populated by the outer beforeEach's state changes
+
+      await component.submitRequest();
+
+      expect(sessionStorage.getItem(DRAFT_KEY)).toBeNull();
+    });
+
+    it('explicit confirmed Cancel clears the draft', () => {
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+      component.handleCancel();
+
+      expect(sessionStorage.getItem(DRAFT_KEY)).toBeNull();
+    });
+
+    it('dismissed Cancel keeps the draft', async () => {
+      await fixture.whenStable();
+      expect(readDraft()).not.toBeNull();
+      vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+      component.handleCancel();
+
+      expect(readDraft()).not.toBeNull();
+    });
+
+    it('a new Create Request after a successful publish starts fresh (Step 1, no leftover draft)', async () => {
+      await component.submitRequest(); // clears the draft on success
+
+      const restored = await remount();
+
+      expect(restored.currentStep()).toBe(1);
+      expect(restored.budgetMin()).toBe(0);
+      // No leftover data from the published request — the fresh instance's
+      // own autosave reflects only its own (default) state.
+      expect(readDraft()?.currentStep).toBe(1);
+      expect(readDraft()?.step3.title).toBe('');
+    });
+
+    it('File objects are never serialized into sessionStorage', async () => {
+      const fakeFile = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+      component.files.set([fakeFile]);
+      await fixture.whenStable();
+
+      const stored = sessionStorage.getItem(DRAFT_KEY)!;
+      expect(stored).not.toContain('test.pdf');
+      expect(readDraft().step5).toBeUndefined();
     });
   });
 });
