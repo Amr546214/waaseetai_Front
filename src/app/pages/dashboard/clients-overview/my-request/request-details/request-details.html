@@ -71,8 +71,8 @@
 		</div>
 		<div class="ai-disc-body">
 			<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-			<p class="ai-disc-txt">AI رتب العروض حسب تطابقها مع طلبك (الخبرة، السعر، التقييم، الخطة المقترحة) <span
-					class="ai-disc-badge">دقة 95%</span> القرار النهائي لك</p>
+			<p class="ai-disc-txt">AI رتب العروض حسب تطابقها مع طلبك (الخبرة، السعر، التقييم، الخطة المقترحة) القرار
+				النهائي لك</p>
 		</div>
 	</div>
 
@@ -97,9 +97,11 @@
 		</div>
 	</div>
 
+	@if (!showComparisonView()) {
 	<!-- Section Title & Compare Toggle -->
 	<div class="sec-ttl">
 		العروض المقدمة للمشروع <span class="cnt">· {{ offers().length }} عروض، مرتبة بتطابق الذكاء</span>
+		@if (offers().length >= 2) {
 		<button type="button" (click)="toggleCompare()"
 			style="margin-inline-start:auto;font-size:12px;font-weight:700;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.20);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px"
 			[style.background]="isCompareMode() ? 'rgba(43,212,199,.15)' : ''"
@@ -112,6 +114,7 @@
 			</svg>
 			{{ isCompareMode() ? 'إلغاء المقارنة' : 'مقارنة العروض' }}
 		</button>
+		}
 	</div>
 
 	<!-- Offers AI Disclosure -->
@@ -132,8 +135,8 @@
 		</div>
 		<div class="ai-disc-body">
 			<div class="ai-disc-lbl">وسيط AI، تحليل العروض</div>
-			<p class="ai-disc-txt">كل عرض يقارن تفاصيل المقدم بتحليل الذكاء للسعر والمدة العادلين مقارنة بالسوق <span
-					class="ai-disc-badge">دقة 95%</span> القرار النهائي لك</p>
+			<p class="ai-disc-txt">كل عرض يقارن تفاصيل المقدم بتحليل الذكاء للسعر والمدة العادلين مقارنة بالسوق القرار
+				النهائي لك</p>
 		</div>
 	</div>
 
@@ -232,7 +235,7 @@
 									<path
 										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 								</svg>
-								{{ offer.rating }}
+								{{ offer.rating !== null ? offer.rating : 'غير متاح' }}
 							</span>
 							@if (!offer.isBestMatch) {
 							· ضمان 14 يوما
@@ -252,7 +255,7 @@
 							<path
 								d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
 						</svg>
-						{{ offer.isBestMatch ? 'الأنسب لمشروعك' : 'تطابق ' + offer.matchScore + '%' }}
+						{{ offer.isBestMatch ? 'الأنسب لمشروعك' : (offer.matchScore !== null ? 'تطابق ' + offer.matchScore + '%' : 'تطابق غير متاح') }}
 					</span>
 				</div>
 				<div class="v1-desc"><strong>وصف العرض: </strong>{{ offer.description }}</div>
@@ -380,24 +383,24 @@
 								<circle cx="12" cy="21" r="1.5" />
 								<path
 									d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
-							</svg>تحليل AI · {{ offer.matchScore }}%
+							</svg>تحليل AI · {{ offer.matchScore !== null ? offer.matchScore + '%' : 'غير متاح' }}
 						</div>
 						<div class="cmp2-row">
 							<div class="cmp2-k">السعر العادل</div>
-							<div class="cmp2-v">{{ offer.aiAnalysis.fairPrice }}</div>
+							<div class="cmp2-v">{{ offer.aiAnalysis.fairPrice || 'غير متاح' }}</div>
 							<div class="cmp2-note" [class.warn]="offer.aiAnalysis.priceNoteType === 'warn'">{{
-								offer.aiAnalysis.priceNote }}</div>
+								offer.aiAnalysis.priceNote || 'غير متاح' }}</div>
 						</div>
 						<div class="cmp2-row">
 							<div class="cmp2-k">المدة العادلة</div>
-							<div class="cmp2-v">{{ offer.aiAnalysis.fairDuration }}</div>
+							<div class="cmp2-v">{{ offer.aiAnalysis.fairDuration || 'غير متاح' }}</div>
 							<div class="cmp2-note" [class.warn]="offer.aiAnalysis.durationNoteType === 'warn'">{{
-								offer.aiAnalysis.durationNote }}</div>
+								offer.aiAnalysis.durationNote || 'غير متاح' }}</div>
 						</div>
 					</div>
 				</div>
 				<div class="v1-verdict" [class.warn]="offer.aiAnalysis.verdictType === 'warn'">
-					{{ offer.aiAnalysis.verdict }}
+					{{ offer.aiAnalysis.verdict || 'غير متاح' }}
 				</div>
 			</div>
 		</div>
@@ -412,6 +415,137 @@
 			(click)="confirmCompare()">موافق، قارن العروض</button>
 		<button type="button" class="cmp-bar-cancel" (click)="cancelCompare()">إلغاء</button>
 	</div>
+	}
+
+	<!-- Comparison Page -->
+	@if (showComparisonView()) {
+	<div class="cmp-page">
+		<button type="button" class="cmp-page-back" (click)="closeComparisonView()">
+			<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+				stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<polyline points="9 18 15 12 9 6" />
+			</svg>العودة إلى العروض
+		</button>
+
+		<div class="cmp-page-hd">
+			<h2 class="cmp-page-ttl">مقارنة العروض</h2>
+			<button type="button" class="cmp-page-edit" (click)="closeComparisonView()">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+					stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+				</svg>تغيير العروض للمقارنة
+			</button>
+		</div>
+		<p class="cmp-page-sub">على طلب: {{ request().title }} · {{ comparisonOffers().length }} عروض مختارة:
+			{{ comparisonNamesText() }}</p>
+
+		<div class="ai-disclosure" role="region" aria-label="إفصاح الذكاء الاصطناعي، مقارنة العروض">
+			<div class="ai-disc-ico">
+				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+					stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="2" />
+					<circle cx="4" cy="6" r="1.5" />
+					<circle cx="20" cy="6" r="1.5" />
+					<circle cx="4" cy="18" r="1.5" />
+					<circle cx="20" cy="18" r="1.5" />
+					<circle cx="12" cy="3" r="1.5" />
+					<circle cx="12" cy="21" r="1.5" />
+					<path
+						d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+				</svg>
+			</div>
+			<div class="ai-disc-body">
+				<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
+				<p class="ai-disc-txt">AI يحلل العروض المختارة ويرشح الأنسب توازنا بين السعر والخبرة والسرعة القرار
+					النهائي لك</p>
+			</div>
+		</div>
+
+		<div class="cmp-page-heads" [style.grid-template-columns]="'190px repeat(' + comparisonOffers().length + ', 1fr)'">
+			<div></div>
+			@for (offer of comparisonOffers(); track offer.id) {
+			<div class="cmp-head-col">
+				<div class="cmp-head-av" [style.color]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor"
+					[style.border]="'2.5px solid ' + (offer.isBestMatch ? '#2ECC8A' : offer.levelColor)">
+					{{ offer.providerInitials }}
+				</div>
+				<div class="cmp-head-nm">{{ offer.providerName }}</div>
+				<span class="ws-level-tag" style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:800"
+					[style.background]="(offer.isBestMatch ? 'rgba(46,204,138,.15)' : offer.levelColor + '26')"
+					[style.color]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor"
+					[style.borderColor]="offer.isBestMatch ? 'rgba(46,204,138,.30)' : offer.levelColor + '66'">
+					<svg class="ws-star-svg" width="8" height="8" viewBox="0 0 100 100"
+						[attr.fill]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor">
+						<path
+							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
+					</svg>
+					{{ offer.providerLevel }}
+				</span>
+				@if (offer.isBestMatch) {
+				<span class="cmp-head-ai-badge">ترشيح الذكاء</span>
+				}
+			</div>
+			}
+		</div>
+
+		<div class="cmp-page-table" [style.grid-template-columns]="'190px repeat(' + comparisonOffers().length + ', 1fr)'">
+			<div class="cmp-row">
+				<div class="cmp-row-lbl">تطابق الذكاء</div>
+				@for (offer of comparisonOffers(); track offer.id) {
+				<div class="cmp-row-cell">{{ offer.matchScore !== null ? offer.matchScore + '%' : 'غير متاح' }}</div>
+				}
+			</div>
+			<div class="cmp-row">
+				<div class="cmp-row-lbl">السعر</div>
+				@for (offer of comparisonOffers(); track offer.id) {
+				<div class="cmp-row-cell" [class.good]="offer.aiAnalysis.priceNoteType === 'fair'">{{ offer.price ||
+					'غير متاح' }}</div>
+				}
+			</div>
+			<div class="cmp-row">
+				<div class="cmp-row-lbl">مدة التنفيذ</div>
+				@for (offer of comparisonOffers(); track offer.id) {
+				<div class="cmp-row-cell" [class.good]="offer.aiAnalysis.durationNoteType === 'fair'">{{ offer.duration
+					|| 'غير متاح' }}</div>
+				}
+			</div>
+			<div class="cmp-row">
+				<div class="cmp-row-lbl">التقييم</div>
+				@for (offer of comparisonOffers(); track offer.id) {
+				<div class="cmp-row-cell" [style.color]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor">
+					{{ offer.rating !== null ? offer.rating + ' ★' : 'غير متاح' }}</div>
+				}
+			</div>
+			<div class="cmp-row">
+				<div class="cmp-row-lbl">المشاريع المنجزة</div>
+				@for (offer of comparisonOffers(); track offer.id) {
+				<div class="cmp-row-cell">{{ offer.projectsCount }}</div>
+				}
+			</div>
+			<div class="cmp-row">
+				<div class="cmp-row-lbl">مدة الضمان</div>
+				@for (offer of comparisonOffers(); track offer.id) {
+				<div class="cmp-row-cell">غير متاح</div>
+				}
+			</div>
+			<div class="cmp-row">
+				<div class="cmp-row-lbl">عدد التعديلات</div>
+				@for (offer of comparisonOffers(); track offer.id) {
+				<div class="cmp-row-cell">غير متاح</div>
+				}
+			</div>
+			<div class="cmp-row cmp-row-pick">
+				<div class="cmp-row-lbl"></div>
+				@for (offer of comparisonOffers(); track offer.id) {
+				<div class="cmp-row-cell">
+					<button type="button" class="cmp-pick-btn" [class.best]="offer.isBestMatch"
+						(click)="acceptOffer(offer)">اختيار</button>
+				</div>
+				}
+			</div>
+		</div>
+	</div>
+	}
 
 	<!-- Negotiation Modal -->
 	@if (showNegModal()) {

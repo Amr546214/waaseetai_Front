@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -18,8 +18,10 @@ interface Offer {
 	levelColor: string;
 	specialty: string;
 	projectsCount: number;
-	rating: number;
-	matchScore: number;
+	// null = genuinely not provided by the backend — never a fabricated
+	// default. Templates must show "غير متاح" rather than a fake value.
+	rating: number | null;
+	matchScore: number | null;
 	price: string;
 	duration: string;
 	description: string;
@@ -37,14 +39,17 @@ interface Offer {
 		amount?: number;
 		amountFormatted?: string;
 	}[];
+	// Every field here is only ever populated from a genuine backend AI
+	// value — null (never a hardcoded phrase like "مطابق لتقديرات السوق")
+	// when the backend didn't return one. Templates show "غير متاح".
 	aiAnalysis: {
-		fairPrice: string;
-		priceNote: string;
+		fairPrice: string | null;
+		priceNote: string | null;
 		priceNoteType: 'fair' | 'warn';
-		fairDuration: string;
-		durationNote: string;
+		fairDuration: string | null;
+		durationNote: string | null;
 		durationNoteType: 'fair' | 'warn';
-		verdict: string;
+		verdict: string | null;
 		verdictType: 'fair' | 'warn';
 	};
 }
@@ -85,6 +90,15 @@ export class RequestDetails implements OnInit {
 	// Compare mode state
 	isCompareMode = signal<boolean>(false);
 	selectedForCompare = signal<string[]>([]);
+	// The actual comparison output (Compare Offers' final destination).
+	// Reuses the same offers already loaded for this request — no second
+	// proposal data source and no extra API call.
+	showComparisonView = signal<boolean>(false);
+	comparisonOffers = computed<Offer[]>(() => {
+		const selectedNames = this.selectedForCompare();
+		return this.offers().filter(o => selectedNames.includes(o.providerName));
+	});
+	comparisonNamesText = computed<string>(() => this.comparisonOffers().map(o => o.providerName).join('، '));
 
 	// Toast state
 	showToastSignal = signal<boolean>(false);
@@ -175,8 +189,11 @@ export class RequestDetails implements OnInit {
 								levelColor: prop.provider?.badge === 'خبير' ? '#2ECC8A' : '#0EA5E9',
 								specialty: prop.provider?.category || prop.provider?.specialty || 'خدمات',
 								projectsCount: prop.provider?.completedProjects ?? 0,
-								rating: prop.provider?.rating ?? 5.0,
-								matchScore: prop.aiMatchPercent || prop.aiMatchScore || 85,
+								// Never a fabricated default (e.g. a fake 5.0 or 85%) — null
+								// when the backend genuinely has no value, so the template can
+								// show "غير متاح" instead of a confident-looking fake figure.
+								rating: prop.provider?.rating ?? null,
+								matchScore: prop.aiMatchPercent ?? prop.aiMatchScore ?? null,
 								isBestMatch: isBest,
 								price: prop.totalPrice ? `${prop.totalPrice} ريال` : (prop.bidAmount ? `${prop.bidAmount} ريال` : ''),
 								duration: prop.deliveryDays ? `${prop.deliveryDays} أيام` : (prop.durationText || ''),
@@ -185,22 +202,27 @@ export class RequestDetails implements OnInit {
 								files: prop.attachments || [],
 								milestones: prop.milestones || [],
 								aiAnalysis: prop.aiFeedback ? {
-									fairPrice: prop.aiFeedback.fairPrice || prop.aiPriceTag || '',
-									priceNote: prop.aiFeedback.priceNote || prop.aiPriceTag || '',
+									fairPrice: prop.aiFeedback.fairPrice || prop.aiPriceTag || null,
+									priceNote: prop.aiFeedback.priceNote || prop.aiPriceTag || null,
 									priceNoteType: (prop.aiFeedback.priceNoteType || prop.aiPriceTag || '').includes('أعلى') ? 'warn' : 'fair',
-									fairDuration: prop.aiFeedback.fairDuration || '',
-									durationNote: prop.aiFeedback.durationNote || '',
+									fairDuration: prop.aiFeedback.fairDuration || null,
+									durationNote: prop.aiFeedback.durationNote || null,
 									durationNoteType: prop.aiFeedback.durationNoteType || 'fair',
-									verdict: prop.aiFeedback.verdict || prop.aiQualityTag || '',
+									verdict: prop.aiFeedback.verdict || prop.aiQualityTag || null,
 									verdictType: prop.aiFeedback.verdictType || (prop.aiQualityTag ? 'fair' : 'warn')
 								} : {
-									fairPrice: prop.aiFairPriceRange || '',
-									priceNote: prop.aiPriceMatchStatus || prop.aiPriceTag || 'مطابق لتقديرات السوق',
+									// No hardcoded "مطابق لتقديرات السوق" / "مناسب لحجم العمل" /
+									// "العرض متوافق مع متطلبات المشروع" fallbacks — those asserted
+									// a specific AI verdict that was never actually computed.
+									// Only genuine backend fields are used; anything missing is
+									// null and rendered as "غير متاح".
+									fairPrice: prop.aiFairPriceRange || null,
+									priceNote: prop.aiPriceMatchStatus || prop.aiPriceTag || null,
 									priceNoteType: (prop.aiPriceMatchStatus || prop.aiPriceTag || '').includes('أعلى') ? 'warn' : 'fair',
-									fairDuration: '',
-									durationNote: 'مناسب لحجم العمل',
+									fairDuration: null,
+									durationNote: null,
 									durationNoteType: 'fair',
-									verdict: prop.aiBadge || prop.aiQualityTag || 'العرض متوافق مع متطلبات المشروع',
+									verdict: prop.aiBadge || prop.aiQualityTag || null,
 									verdictType: prop.aiBadge || prop.aiQualityTag ? 'fair' : 'warn'
 								}
 							};
@@ -256,8 +278,11 @@ export class RequestDetails implements OnInit {
 
 	confirmCompare() {
 		if (this.selectedForCompare().length < 2) return;
-		this.showToast(`جاري مقارنة العروض المختارة (${this.selectedForCompare().length})`);
-		// Keep comparison mode or route as needed
+		this.showComparisonView.set(true);
+	}
+
+	closeComparisonView() {
+		this.showComparisonView.set(false);
 	}
 
 	cancelCompare() {

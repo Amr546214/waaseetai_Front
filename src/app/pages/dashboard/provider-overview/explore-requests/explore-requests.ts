@@ -201,11 +201,14 @@ export class ExploreRequests implements OnInit {
 						{ id: 'saved', label: 'محفوظة', count: data.counts.saved }
 					];
 
+					// "كل التخصصات" always shows every OPEN request — browsing is never
+					// gated by specialty verification status. The provider's own
+					// specialties (any status) only appear as optional narrowing chips.
 					if (data.providerSpecialties && data.providerSpecialties.length > 0) {
 						const specs = data.providerSpecialties.map((s: string) => ({ id: s, label: s }));
-						this.specialties = [{ id: 'all', label: 'تخصصاتي المعتمدة' }, ...specs];
+						this.specialties = [{ id: 'all', label: 'كل التخصصات' }, ...specs];
 					} else {
-						this.specialties = [{ id: 'all', label: 'لا توجد تخصصات معتمدة' }];
+						this.specialties = [{ id: 'all', label: 'كل التخصصات' }];
 					}
 				}
 			},
