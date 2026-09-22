@@ -1,4 +1,22 @@
 
+.sticky-bar { background: rgba(7,13,36,.92); border-top: 1px solid rgba(255,255,255,.09); }
+.btn-back { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); color: #A8B2D1; }
+.btn-back:hover { background: rgba(255,255,255,.09); color: #fff; }
+
+:host-context(body.light-theme) .sticky-bar,
+:host-context(body.theme-light) .sticky-bar,
+:host-context(.light-theme) .sticky-bar,
+:host-context(.theme-light) .sticky-bar { background: #F6F8FC; border-top-color: #E7EAF1; }
+
+:host-context(body.light-theme) .btn-back,
+:host-context(body.theme-light) .btn-back,
+:host-context(.light-theme) .btn-back,
+:host-context(.theme-light) .btn-back { background: #fff; border: 1px solid #CBD5E1; color: #475569; box-shadow: 0 1px 3px rgba(15,23,42,.08); }
+:host-context(body.light-theme) .btn-back:hover,
+:host-context(body.theme-light) .btn-back:hover,
+:host-context(.light-theme) .btn-back:hover,
+:host-context(.theme-light) .btn-back:hover { background: #F1F5F9; color: #0F172A; }
+
 .main{position:relative;z-index:1;min-height:calc(100vh - 56px);transition:margin-right .2s}
 .main-inner{max-width:100%;margin:0 auto}
 .breadcrumb a{transition:color .15s}
@@ -36,3 +54,28 @@
 :host-context(body.theme-light) .co-assign-card:hover,
 :host-context(.light-theme) .co-assign-card:hover,
 :host-context(.theme-light) .co-assign-card:hover{ border-color: rgba(43, 212, 199, .25) !important; }
+
+/* ===== Success overlay (full-screen takeover on submit) ===== */
+:host-context(body.light-theme) .success-overlay,
+:host-context(body.theme-light) .success-overlay,
+:host-context(.light-theme) .success-overlay,
+:host-context(.theme-light) .success-overlay{ background: rgba(246,248,252,.98) !important; }
+
+:host-context(body.light-theme) .success-title,
+:host-context(body.theme-light) .success-title,
+:host-context(.light-theme) .success-title,
+:host-context(.theme-light) .success-title{ color: #0F172A !important; }
+
+:host-context(body.light-theme) .success-sub,
+:host-context(body.theme-light) .success-sub,
+:host-context(.light-theme) .success-sub,
+:host-context(.theme-light) .success-sub{ color: #475569 !important; }
+
+:host-context(body.light-theme) .success-btn-sec,
+:host-context(body.theme-light) .success-btn-sec,
+:host-context(.light-theme) .success-btn-sec,
+:host-context(.theme-light) .success-btn-sec{ background: #fff !important; border-color: #CBD5E1 !important; color: #475569 !important; }
+:host-context(body.light-theme) .success-btn-sec:hover,
+:host-context(body.theme-light) .success-btn-sec:hover,
+:host-context(.light-theme) .success-btn-sec:hover,
+:host-context(.theme-light) .success-btn-sec:hover{ background: #F1F5F9 !important; color: #0F172A !important; }

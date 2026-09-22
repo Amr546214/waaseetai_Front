@@ -23,7 +23,7 @@
   <!-- Header -->
   <div class="flex items-center gap-[10px] mb-[12px] flex-wrap">
     <div>
-      <div class="text-[14px] font-black text-white">مراحل تنفيذ عرضك</div>
+      <div class="text-[14px] font-black text-white pricing-title">مراحل تنفيذ عرضك</div>
       <div class="text-[11px] text-[#6B7699] mt-[2px]">حد أدنى مرحلة واحدة · مجموع النسب = 100%</div>
     </div>
     <button type="button" (click)="addMilestone.emit()" class="ms-auto inline-flex items-center gap-[6px] px-4 py-2 bg-[rgba(43,212,199,.10)] border border-[rgba(43,212,199,.25)] rounded-[9px] text-[#2BD4C7] text-[12px] font-extrabold cursor-pointer transition-all duration-150 hover:bg-[rgba(43,212,199,.15)]">
@@ -33,10 +33,10 @@
   </div>
 
   <!-- Total Proposal Budget & Execution Time Summary Controls -->
-  <div class="bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.08)] rounded-xl p-4 mb-5 flex items-center justify-between gap-4 flex-wrap">
+  <div class="bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.08)] rounded-xl p-4 mb-5 flex items-center justify-between gap-4 flex-wrap pricing-card">
     <div class="flex-1 min-w-[200px]">
       <label class="text-[12px] font-bold text-[#A8B2D1] block mb-1.5" for="f-total-price">سعر عرضك الإجمالي (ريال) <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
-      <input type="number" id="f-total-price" class="w-full py-[9px] px-[12px] bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.12)] rounded-[8px] text-white font-extrabold text-sm outline-none focus:border-[rgba(43,212,199,.5)] transition-colors" 
+      <input type="number" id="f-total-price" class="w-full py-[9px] px-[12px] bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.12)] rounded-[8px] text-white font-extrabold text-sm outline-none focus:border-[rgba(43,212,199,.5)] transition-colors pricing-input"
         [class.!border-[rgba(255,80,80,.45)]]="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)"
         [ngModel]="totalBudget" (ngModelChange)="updateTotalBudget.emit($event)" placeholder="أدخل إجمالي قيمة العرض" min="1" name="totalBudget" #totalBudgetModel="ngModel" required>
       <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)">
@@ -65,26 +65,26 @@
   <!-- Milestones Container -->
   <div id="milestones-wrap">
     @for(m of proposal.milestones; track m.id; let i = $index) {
-      <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-[12px]">
+      <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-[12px] pricing-card">
         
         <div class="flex items-center gap-[10px] mb-[14px]">
           @if(i === 0) {
             <div class="w-[28px] h-[28px] rounded-lg bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] flex items-center justify-center text-[12px] font-black text-[#070D24] shrink-0">{{ i + 1 }}</div>
-            <div class="text-[13px] font-extrabold text-white">المرحلة {{ i + 1 }}</div>
+            <div class="text-[13px] font-extrabold text-white pricing-title">المرحلة {{ i + 1 }}</div>
             <div class="ms-auto text-[10px] text-[#6B7699] bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.15)] rounded-md px-2 py-0.5">إلزامية</div>
           } @else {
             <div class="w-[28px] h-[28px] rounded-lg bg-[rgba(43,127,255,.18)] border-[1.5px] border-[rgba(43,127,255,.35)] flex items-center justify-center text-[12px] font-black text-[#5DA0FF] shrink-0">{{ i + 1 }}</div>
-            <div class="text-[13px] font-extrabold text-white">المرحلة {{ i + 1 }}</div>
+            <div class="text-[13px] font-extrabold text-white pricing-title">المرحلة {{ i + 1 }}</div>
             <button type="button" (click)="removeMilestone.emit(m.id)" class="ms-auto bg-[rgba(255,80,80,.08)] border border-[rgba(255,80,80,.18)] rounded-md cursor-pointer text-[#FF8080] px-[10px] py-[3px] text-[11px] transition-all hover:bg-[rgba(255,80,80,.15)]">حذف</button>
           }
         </div>
 
         <div class="grid grid-cols-2 gap-[10px] mb-[10px]">
           <div class="mb-0">
-            <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1]">
+            <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1] pricing-label">
               <span>اسم المرحلة <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
             </label>
-            <input type="text" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699]" 
+            <input type="text" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
               [class.!border-[rgba(255,80,80,.45)]]="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched)"
               placeholder="مثال: إعداد خطة العمل..." [ngModel]="m.name" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {name: $event}})" name="mName_{{i}}" #mNameModel="ngModel" required minlength="2">
             <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched)">
@@ -94,11 +94,11 @@
             </div>
           </div>
           <div class="mb-0">
-            <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1]">
+            <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1] pricing-label">
               <span>أيام التسليم <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
             </label>
             <div class="relative">
-              <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699]" 
+              <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
                 [class.!border-[rgba(255,80,80,.45)]]="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched)"
                 min="1" placeholder="مثال: 5" [ngModel]="m.days" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {days: $event}})" name="mDays_{{i}}" #mDaysModel="ngModel" required>
               <span class="absolute left-[12px] top-1/2 -translate-y-1/2 text-[11px] text-[#6B7699]">يوم</span>
@@ -113,16 +113,16 @@
 
         <div class="grid grid-cols-[1fr_100px_130px] gap-[10px] items-end">
           <div class="mb-0">
-            <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1]">وصف المرحلة</label>
-            <input type="text" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699]" 
+            <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1] pricing-label">وصف المرحلة</label>
+            <input type="text" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
               placeholder="محتويات هذه المرحلة..." [ngModel]="m.desc" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {desc: $event}})">
           </div>
           <div class="mb-0">
-            <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1]">
+            <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1] pricing-label">
               <span>نسبة % <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
             </label>
             <div class="relative">
-              <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699]" 
+              <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
                 [class.!border-[rgba(255,80,80,.45)]]="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched)"
                 min="1" max="100" placeholder="مثال: 40" [ngModel]="m.pct" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {pct: $event}})" name="mPct_{{i}}" #mPctModel="ngModel" required>
               <span class="absolute left-[12px] top-1/2 -translate-y-1/2 text-[11px] text-[#6B7699]">%</span>
@@ -146,9 +146,9 @@
   </div>
 
   <!-- Summary -->
-  <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-[14px]">
+  <div class="bg-gradient-to-br from-[rgba(255,255,255,.04)] to-[rgba(255,255,255,.01)] backdrop-blur-md border border-[rgba(255,255,255,.08)] rounded-2xl p-[22px] mb-[14px] pricing-card">
     <div class="flex items-center justify-between mb-[10px]">
-      <div class="text-[13px] font-extrabold text-white">توزيع الدفعات</div>
+      <div class="text-[13px] font-extrabold text-white pricing-title">توزيع الدفعات</div>
       <div class="flex items-center gap-[10px]">
         <div class="text-[11px] text-[#6B7699]">مجموع النسب</div>
         <div class="text-[20px] font-black transition-colors" [class.text-[#2BD4C7]]="totalPct === 100" [class.text-[#FF8C69]]="totalPct !== 100">
@@ -179,7 +179,7 @@
 
     <!-- Table -->
     <div class="mt-[16px] border-t border-[rgba(255,255,255,.07)] pt-[14px]">
-      <div class="text-[12px] font-extrabold text-[#A8B2D1] mb-[10px]">تفاصيل المراحل</div>
+      <div class="text-[12px] font-extrabold text-[#A8B2D1] mb-[10px] pricing-label">تفاصيل المراحل</div>
       <div class="border border-[rgba(255,255,255,.08)] rounded-[10px] overflow-hidden">
         <div class="grid grid-cols-[2fr_80px_70px_110px] p-[8px_18px] border-b border-[rgba(255,255,255,.07)]">
           <div class="text-[10px] font-extrabold text-[#6B7699]">المرحلة</div>
@@ -191,14 +191,14 @@
         @for(m of proposal.milestones; track m.id; let i = $index; let last = $last) {
           <div class="grid grid-cols-[2fr_80px_70px_110px] items-center p-[11px_18px]" [class.border-b]="!last" [class.border-[rgba(255,255,255,.05)]]="!last">
             <div>
-              <div class="text-[12.5px] font-bold text-white">{{ i + 1 }}. {{ m.name || ('مرحلة ' + (i + 1)) }}</div>
+              <div class="text-[12.5px] font-bold text-white pricing-title">{{ i + 1 }}. {{ m.name || ('مرحلة ' + (i + 1)) }}</div>
               @if(m.desc) {
                 <div class="text-[11px] text-[#6B7699] mt-[2px] truncate max-w-[200px]">{{ m.desc }}</div>
               }
             </div>
-            <div class="text-center text-[12px] text-[#A8B2D1]">{{ m.days ? m.days + ' يوم' : '—' }}</div>
+            <div class="text-center text-[12px] text-[#A8B2D1] pricing-label">{{ m.days ? m.days + ' يوم' : '—' }}</div>
             <div class="text-center text-[13px] font-extrabold text-[#2BD4C7]">{{ m.pct ? m.pct + '%' : '—' }}</div>
-            <div class="text-center text-[13px] font-extrabold text-[#A8B2D1]">{{ getAmount(m.pct) ? (getAmount(m.pct) | number) + ' ر' : '—' }}</div>
+            <div class="text-center text-[13px] font-extrabold text-[#A8B2D1] pricing-label">{{ getAmount(m.pct) ? (getAmount(m.pct) | number) + ' ر' : '—' }}</div>
           </div>
         }
         
@@ -207,8 +207,8 @@
         }
         
         <div class="grid grid-cols-[2fr_80px_70px_110px] items-center p-[11px_18px] border-t border-[rgba(255,255,255,.10)] bg-[rgba(43,212,199,.04)]">
-          <div class="text-[12px] font-extrabold text-[#A8B2D1]">المجموع</div>
-          <div class="text-center text-[13px] font-black text-white">{{ totalDays > 0 ? totalDays + ' يوم' : '—' }}</div>
+          <div class="text-[12px] font-extrabold text-[#A8B2D1] pricing-label">المجموع</div>
+          <div class="text-center text-[13px] font-black text-white pricing-title">{{ totalDays > 0 ? totalDays + ' يوم' : '—' }}</div>
           <div class="text-center text-[13px] font-black" [class.text-[#2BD4C7]]="totalPct === 100" [class.text-[#FF8C69]]="totalPct !== 100">{{ totalPct }}%</div>
           <div class="text-center text-[13px] font-black text-[#2BD4C7]">{{ totalAmount > 0 ? (totalAmount | number) + ' ر' : '—' }}</div>
         </div>

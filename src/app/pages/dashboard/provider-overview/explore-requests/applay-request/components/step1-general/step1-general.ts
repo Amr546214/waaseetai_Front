@@ -8,7 +8,8 @@ import { RouterLink } from '@angular/router';
   selector: 'app-step1-general',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './step1-general.html'
+  templateUrl: './step1-general.html',
+  styleUrls: ['./step1-general.css']
 })
 export class Step1General {
   @Input() proposal!: any;

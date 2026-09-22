@@ -1,0 +1,58 @@
+/* Light mode — form field text/labels are hardcoded dark-mode-only by default (Tailwind inline classes) */
+:host-context(body.light-theme) .field-label,
+:host-context(body.theme-light) .field-label,
+:host-context(.light-theme) .field-label,
+:host-context(.theme-light) .field-label,
+:host-context(body.light-theme) .req-text,
+:host-context(body.theme-light) .req-text,
+:host-context(.light-theme) .req-text,
+:host-context(.theme-light) .req-text { color: #475569; }
+
+:host-context(body.light-theme) .field-count,
+:host-context(body.theme-light) .field-count,
+:host-context(.light-theme) .field-count,
+:host-context(.theme-light) .field-count { color: #64748B; }
+
+:host-context(body.light-theme) .field-input,
+:host-context(body.theme-light) .field-input,
+:host-context(.light-theme) .field-input,
+:host-context(.theme-light) .field-input,
+:host-context(body.light-theme) .field-textarea,
+:host-context(body.theme-light) .field-textarea,
+:host-context(.light-theme) .field-textarea,
+:host-context(.theme-light) .field-textarea,
+:host-context(body.light-theme) .req-add-input,
+:host-context(body.theme-light) .req-add-input,
+:host-context(.light-theme) .req-add-input,
+:host-context(.theme-light) .req-add-input { background: #fff; border-color: #CBD5E1; color: #0F172A; }
+
+:host-context(body.light-theme) .field-input::placeholder,
+:host-context(body.theme-light) .field-input::placeholder,
+:host-context(.light-theme) .field-input::placeholder,
+:host-context(.theme-light) .field-input::placeholder,
+:host-context(body.light-theme) .field-textarea::placeholder,
+:host-context(body.theme-light) .field-textarea::placeholder,
+:host-context(.light-theme) .field-textarea::placeholder,
+:host-context(.theme-light) .field-textarea::placeholder,
+:host-context(body.light-theme) .req-add-input::placeholder,
+:host-context(body.theme-light) .req-add-input::placeholder,
+:host-context(.light-theme) .req-add-input::placeholder,
+:host-context(.theme-light) .req-add-input::placeholder { color: #94A3B8; }
+
+:host-context(body.light-theme) .field-input:focus,
+:host-context(body.theme-light) .field-input:focus,
+:host-context(.light-theme) .field-input:focus,
+:host-context(.theme-light) .field-input:focus,
+:host-context(body.light-theme) .field-textarea:focus,
+:host-context(body.theme-light) .field-textarea:focus,
+:host-context(.light-theme) .field-textarea:focus,
+:host-context(.theme-light) .field-textarea:focus,
+:host-context(body.light-theme) .req-add-input:focus,
+:host-context(body.theme-light) .req-add-input:focus,
+:host-context(.light-theme) .req-add-input:focus,
+:host-context(.theme-light) .req-add-input:focus { border-color: rgba(43,212,199,.55); }
+
+:host-context(body.light-theme) .req-item,
+:host-context(body.theme-light) .req-item,
+:host-context(.light-theme) .req-item,
+:host-context(.theme-light) .req-item { background: #F8FAFC; border-color: #E2E8F4; }

@@ -226,15 +226,15 @@
       </app-step4-success>
     }
 <!-- STICKY BOTTOM -->
-<div class="fixed bottom-0 right-[220px] left-0 bg-[rgba(7,13,36,.92)] backdrop-blur-[16px] border-t border-[rgba(255,255,255,.09)] py-[14px] px-6 z-50 flex items-center justify-between gap-3 transition-[right] duration-200 sticky-bar">
-  <div class="max-w-[720px] mx-auto w-full flex items-center justify-between gap-3 sticky-bar-inner">
+<div class="fixed bottom-0 right-[220px] left-0 backdrop-blur-[16px] py-[14px] ps-6 pe-8 z-50 flex items-center justify-between gap-3 transition-[right] duration-200 sticky-bar">
+  <div class="w-full flex items-center justify-between gap-3 sticky-bar-inner">
     @if(activeStep() === 1) {
-      <a routerLink="/provider-overview/explore-requests" class="inline-flex items-center gap-[7px] py-[11px] px-[22px] bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.12)] rounded-full text-[#A8B2D1] text-[14px] font-bold cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,.09)] hover:text-white btn-back">
+      <a routerLink="/provider-overview/explore-requests" class="inline-flex items-center gap-[7px] py-[11px] px-[22px] rounded-full text-[14px] font-bold cursor-pointer transition-all duration-150 btn-back">
         <svg class="w-[14px] h-[14px] rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-arrow-l"></use></svg>
         إلغاء
       </a>
     } @else {
-      <button type="button" class="inline-flex items-center gap-[7px] py-[11px] px-[22px] bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.12)] rounded-full text-[#A8B2D1] text-[14px] font-bold cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,.09)] hover:text-white btn-back" (click)="prevStep()">
+      <button type="button" class="inline-flex items-center gap-[7px] py-[11px] px-[22px] rounded-full text-[14px] font-bold cursor-pointer transition-all duration-150 btn-back" (click)="prevStep()">
         <svg class="w-[14px] h-[14px] rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-arrow-l"></use></svg>
         السابق
       </button>
@@ -262,14 +262,14 @@
 
 <!-- SUCCESS OVERLAY -->
 @if(showSuccess()) {
-  <div class="fixed inset-0 bg-[rgba(7,13,36,.96)] z-[500] flex flex-col items-center justify-center gap-[16px] text-center p-[24px] animate-[ws-fade_.3s_ease]" role="dialog" aria-modal="true" aria-label="تم إرسال العرض">
+  <div class="fixed inset-0 bg-[rgba(7,13,36,.96)] z-[500] flex flex-col items-center justify-center gap-[16px] text-center p-[24px] animate-[ws-fade_.3s_ease] success-overlay" role="dialog" aria-modal="true" aria-label="تم إرسال العرض">
     <div class="w-[80px] h-[80px] rounded-full bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] flex items-center justify-center mb-[8px]">
       <svg class="w-[36px] h-[36px] text-[#070D24]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><use href="#i-check"></use></svg>
     </div>
-    <div class="text-[22px] font-black text-white">تم إرسال عرضك بنجاح</div>
-    <div class="text-[14px] text-[#A8B2D1] max-w-[320px] leading-[1.7]">سيصل إشعار للعميل فور الإرسال، وستتلقى ردًا خلال 48 ساعة</div>
+    <div class="text-[22px] font-black text-white success-title">تم إرسال عرضك بنجاح</div>
+    <div class="text-[14px] text-[#A8B2D1] max-w-[320px] leading-[1.7] success-sub">سيصل إشعار للعميل فور الإرسال، وستتلقى ردًا خلال 48 ساعة</div>
     <div class="flex gap-[12px] mt-[8px] flex-wrap justify-center">
-      <a routerLink="/provider-overview/explore-requests" class="inline-flex items-center gap-[7px] p-[11px_22px] bg-[rgba(255,255,255,.07)] border border-[rgba(255,255,255,.14)] rounded-full text-[#A8B2D1] text-[14px] font-bold no-underline hover:bg-[rgba(255,255,255,.11)] hover:text-white transition-all">استكشاف طلبات أخرى</a>
+      <a routerLink="/provider-overview/explore-requests" class="inline-flex items-center gap-[7px] p-[11px_22px] bg-[rgba(255,255,255,.07)] border border-[rgba(255,255,255,.14)] rounded-full text-[#A8B2D1] text-[14px] font-bold no-underline hover:bg-[rgba(255,255,255,.11)] hover:text-white transition-all success-btn-sec">استكشاف طلبات أخرى</a>
       <a routerLink="/provider-overview" class="inline-flex items-center gap-[7px] p-[11px_22px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] text-[14px] font-black no-underline hover:opacity-90 transition-all">لوحة التحكم</a>
     </div>
   </div>

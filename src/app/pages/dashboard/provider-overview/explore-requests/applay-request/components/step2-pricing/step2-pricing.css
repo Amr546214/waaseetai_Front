@@ -1,0 +1,30 @@
+/* Light mode — pricing step cards/labels/inputs are hardcoded dark-mode-only by default (Tailwind inline classes) */
+:host-context(body.light-theme) .pricing-card,
+:host-context(body.theme-light) .pricing-card,
+:host-context(.light-theme) .pricing-card,
+:host-context(.theme-light) .pricing-card { background: #fff; border-color: #E7EAF1; }
+
+:host-context(body.light-theme) .pricing-title,
+:host-context(body.theme-light) .pricing-title,
+:host-context(.light-theme) .pricing-title,
+:host-context(.theme-light) .pricing-title { color: #0F172A; }
+
+:host-context(body.light-theme) .pricing-label,
+:host-context(body.theme-light) .pricing-label,
+:host-context(.light-theme) .pricing-label,
+:host-context(.theme-light) .pricing-label { color: #475569; }
+
+:host-context(body.light-theme) .pricing-input,
+:host-context(body.theme-light) .pricing-input,
+:host-context(.light-theme) .pricing-input,
+:host-context(.theme-light) .pricing-input { background: #fff; border-color: #CBD5E1; color: #0F172A; }
+
+:host-context(body.light-theme) .pricing-input::placeholder,
+:host-context(body.theme-light) .pricing-input::placeholder,
+:host-context(.light-theme) .pricing-input::placeholder,
+:host-context(.theme-light) .pricing-input::placeholder { color: #94A3B8; }
+
+:host-context(body.light-theme) .pricing-input:focus,
+:host-context(body.theme-light) .pricing-input:focus,
+:host-context(.light-theme) .pricing-input:focus,
+:host-context(.theme-light) .pricing-input:focus { border-color: rgba(43,212,199,.55); }

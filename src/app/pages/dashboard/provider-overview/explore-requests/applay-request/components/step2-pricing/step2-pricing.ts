@@ -7,7 +7,8 @@ import { Milestone } from '../../applay-request';
   selector: 'app-step2-pricing',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './step2-pricing.html'
+  templateUrl: './step2-pricing.html',
+  styleUrl: './step2-pricing.css'
 })
 export class Step2Pricing {
   @Input() proposal!: any;
