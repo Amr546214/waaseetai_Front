@@ -1,0 +1,77 @@
+:host{display:block;width:100%}
+.review-list-page{width:100%;padding-bottom:10px;color:#A8B2D1}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.ord-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.ord-title{font-size:20px;font-weight:900;color:#fff}
+.ord-sub{font-size:12px;color:#6B7699;margin-top:3px}
+
+.sec-ttl{font-size:13px;font-weight:800;color:#fff;margin:4px 0 12px}
+.sec-ttl .cnt{font-size:11px;color:#6B7699;font-weight:600}
+
+/* LIST + CARD */
+.rv-list{display:flex;flex-direction:column;gap:14px}
+.rv-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:15px;padding:18px 20px;transition:border-color .18s}
+.rv-card:hover{border-color:rgba(43,212,199,.28)}
+.rv-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.rv-ttl{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
+.rv-sub{font-size:12px;color:#6B7699}
+.rv-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;background:rgba(255,180,0,.10);color:#FFB400;border:1px solid rgba(255,180,0,.24);flex-shrink:0}
+.rv-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:#FFB400}
+.rv-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.rv-meta-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 13px}
+.rv-meta-lbl{font-size:10px;color:#6B7699;font-weight:700;margin-bottom:4px}
+.rv-meta-val{font-size:14px;font-weight:800;color:#fff}
+.rv-cta{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:9px;color:#070D24;font-size:13px;font-weight:800;text-decoration:none}
+.rv-cta svg{width:14px;height:14px}
+.rv-cta:hover{opacity:.9}
+
+/* STATE CARDS (shared shape with active-project) */
+.state-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px}
+.error-state{text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)}
+.empty-state{text-align:center;padding:44px 24px}
+.state-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:6px}
+.error-state .state-title{font-size:16px}
+.state-code,.state-copy{font-size:12px;color:#6B7699}
+.state-code{margin-bottom:12px}
+.error-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:#5DA0FF;background:rgba(43,127,255,.10);border:1px solid rgba(43,127,255,.20)}
+.error-icon svg{width:24px;height:24px}
+.empty-ico{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#2BD4C7;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)}
+.empty-ico svg{width:28px;height:28px}
+.retry-btn{padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
+.skeleton-box,.skeleton-row{background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skel-pulse 1.5s infinite}
+.skeleton-box{border-radius:12px}
+.skeleton-row{border-radius:6px}
+.sk-title{width:50%;height:16px;margin-bottom:14px}
+.sk-card{height:90px;margin-bottom:12px}
+@keyframes skel-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.inner-foot{margin-top:20px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#6B7699;border-top:1px solid rgba(255,255,255,.05)}
+.inner-foot-links{display:flex;gap:12px}
+.inner-foot-links a{color:#6B7699;text-decoration:none}
+.inner-foot-links a:hover{color:#2BD4C7}
+
+@media(max-width:767px){.rv-meta{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.rv-meta{grid-template-columns:1fr}.rv-card{padding:14px}}
+@media(prefers-reduced-motion:reduce){.rv-card,.skeleton-box,.skeleton-row{transition:none;animation:none}}
+
+/* === Light theme === */
+:host-context(.light-theme) .ord-title,:host-context(.theme-light) .ord-title,
+:host-context(.light-theme) .rv-ttl,:host-context(.theme-light) .rv-ttl,
+:host-context(.light-theme) .rv-meta-val,:host-context(.theme-light) .rv-meta-val,
+:host-context(.light-theme) .sec-ttl,:host-context(.theme-light) .sec-ttl,
+:host-context(.light-theme) .state-title,:host-context(.theme-light) .state-title{color:#0F172A}
+:host-context(.light-theme) .ord-sub,:host-context(.theme-light) .ord-sub,
+:host-context(.light-theme) .rv-sub,:host-context(.theme-light) .rv-sub,
+:host-context(.light-theme) .rv-meta-lbl,:host-context(.theme-light) .rv-meta-lbl,
+:host-context(.light-theme) .state-code,:host-context(.theme-light) .state-code,
+:host-context(.light-theme) .state-copy,:host-context(.theme-light) .state-copy{color:#5B6472}
+:host-context(.light-theme) .rv-card,:host-context(.theme-light) .rv-card,
+:host-context(.light-theme) .state-card,:host-context(.theme-light) .state-card{background:#fff;border-color:#D8DFEC;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+:host-context(.light-theme) .rv-meta-item,:host-context(.theme-light) .rv-meta-item{background:#F6F8FC;border-color:#D8DFEC}
+:host-context(.light-theme) .rv-badge,:host-context(.theme-light) .rv-badge{background:rgba(255,180,0,.08);color:#9A6700;border-color:rgba(255,180,0,.2)}
+:host-context(.light-theme) .inner-foot,:host-context(.theme-light) .inner-foot{border-color:#D8DFEC}
+:host-context(.light-theme) .inner-foot-links a,:host-context(.theme-light) .inner-foot-links a{color:#64748B}
+:host-context(.light-theme) .inner-foot-links a:hover,:host-context(.theme-light) .inner-foot-links a:hover{color:#0A6F64}
+:host-context(.light-theme) .skeleton-box,:host-context(.theme-light) .skeleton-box,
+:host-context(.light-theme) .skeleton-row,:host-context(.theme-light) .skeleton-row{background:linear-gradient(90deg,#EEF2FA,#D8DFEC,#EEF2FA);background-size:200% 100%}

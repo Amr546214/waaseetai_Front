@@ -22,8 +22,8 @@ export class DeliveryReview implements OnInit {
 	error = signal('');
 	saving = signal(false);
 	reviewNote = '';
-	approved = signal(false);
-	// P-SK-015 success modal state (real data from approve API response)
+	// P-SK-015 success modal state (real data known before approval; the review
+	// endpoint itself doesn't echo them back — see approveDelivery() below)
 	successData = signal<{ amount: number; providerName: string; stageTitle: string; txnId: string; invoiceId: string } | null>(null);
 	private projectId = '';
 	private stageId = '';
@@ -52,74 +52,91 @@ export class DeliveryReview implements OnInit {
 
 	latestThread(stage: any) { return stage?.threads?.[stage.threads.length - 1] || null; }
 
-	aiMatchPct(data: any): string {
-		const v = data?.aiInsights?.matchPercentage;
-		if (v) return v + '٪';
-		const p = data?.progress || 0;
-		const base = 88 + Math.round(p / 100 * 8);
-		return base + '٪';
-	}
+	// There is no AI quality-review backend for stage deliveries (confirmed: no such
+	// field/column/service exists anywhere in the backend). Showing a fabricated
+	// percentage or a "passed" message here would misrepresent an automated check
+	// that never ran, so this section always renders an honest "unavailable" state.
+	// If a real AI review pipeline is added later, wire it here instead of faking it.
+	readonly aiReviewAvailable = false;
 
-	qualityNote(stage: any): string {
-		if (stage?.aiQualityNote) return stage.aiQualityNote;
-		return 'اجتاز فحص الذكاء: الملفات كاملة، بدقّة عالية، وبدون علامات مائية';
-	}
-
-	reviewDeadlineDays(stage: any): string {
-		if (stage?.reviewDeadlineDays) return stage.reviewDeadlineDays + ' أيام';
-		return '6 أيام';
-	}
+	// No backend field exists for a review deadline (StageDelivery/ProjectStage have
+	// no such column). Do not invent a day count — show "غير محدد" until a real
+	// business rule/field is defined.
+	reviewDeadlineText(): string { return 'غير محدد'; }
 
 	submittedTimeAgo(stage: any): string {
-		if (stage?.submittedTimeAgo) return stage.submittedTimeAgo;
 		const last = this.latestThread(stage);
 		if (last?.date) {
 			const diff = Date.now() - new Date(last.date).getTime();
 			const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 			if (days <= 0) return 'اليوم';
 			if (days === 1) return 'قبل يوم';
+			if (days === 2) return 'قبل يومين';
 			return `قبل ${days} أيام`;
 		}
-		return 'قبل يوم';
+		return 'غير محدد';
 	}
 
 	stageFileCount(stage: any): number { return this.latestThread(stage)?.files?.length || 0; }
 
-	// P-SK-015 (company variant): "الموظف المسؤول" — responsible employee from client side.
-	// TODO: backend /client/my-requests/:id/workspace should expose responsibleEmployee / assignedEmployee / managerName.
-	// Currently no such field is returned; fallback to "—" until the API provides it.
-	responsibleEmployee(data: any): string {
-		const v = data?.responsibleEmployee || data?.assignedEmployee || data?.assignedManager
-			|| data?.managerName || data?.projectManager
-			|| data?.responsible?.name || data?.manager?.name
-			|| data?.owner?.name || data?.employeeName;
-		if (!v) {
-			if (typeof console !== 'undefined' && (console as any).warn) {
-				(console as any).warn('[P-SK-015] responsibleEmployee field missing in workspace data — showing "—".');
-			}
-			return '—';
-		}
-		return v;
+	formatFileSize(bytes?: number): string {
+		if (!bytes || bytes <= 0) return '';
+		if (bytes < 1024) return `${bytes} B`;
+		if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 	}
 
 	formatNumber(value: number) { return Number(value || 0).toLocaleString('en-US'); }
 
+	// The delivery is only awaiting THIS client's decision while the stage is
+	// still SUBMITTED (stageLabels maps ProjectStageStatus.SUBMITTED -> 'submitted'
+	// on the backend). Deriving this from the real, reloaded stage status — rather
+	// than a local "just approved" flag — keeps a direct/refreshed URL honest about
+	// whether approving is actually still possible.
+	canDecide(stage: any): boolean { return stage?.status === 'submitted'; }
+
+	statusBadgeText(stage: any): string {
+		switch (stage?.status) {
+			case 'submitted': return 'بانتظار اعتمادك';
+			case 'completed': return 'تم اعتماد هذا التسليم';
+			case 'revision': return 'بانتظار تسليم جديد من مقدم الخدمة';
+			case 'in_progress': return 'قيد التنفيذ';
+			default: return 'لا يوجد تسليم بانتظار المراجعة';
+		}
+	}
+
+	statusBadgeClass(stage: any): string {
+		switch (stage?.status) {
+			case 'submitted': return 'dr-pill-wait';
+			case 'completed': return 'dr-pill-done';
+			case 'revision': return 'dr-pill-revision';
+			default: return 'dr-pill-neutral';
+		}
+	}
+
 	approveDelivery() {
-		const stage = this.stage(); if (!stage) return;
+		const stage = this.stage();
+		if (!stage || this.saving()) return;
 		this.saving.set(true); this.error.set('');
+		// Capture real, already-known values now — the workspace is reloaded right
+		// after a successful approval and this stage's status/threads will change.
+		// The backend's review endpoint only ever returns { decision, stageId,
+		// pointsAwarded } (see reviewDelivery() in project-progress.service.ts), so
+		// there is no releasedAmount/providerName/transactionId to read from the
+		// response — using the already-loaded real workspace data instead of
+		// fabricating those fields.
+		const data = this.project();
+		const amount = stage.amount ?? 0;
+		const providerName = data?.clientName || 'مقدم الخدمة';
+		const stageTitle = stage.title || '';
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.projectId}/stages/${stage.id}/review`, { decision: 'approve', note: this.reviewNote.trim() }).subscribe({
-			next: (res) => {
+			next: () => {
 				this.saving.set(false);
-				this.approved.set(true);
-				// Build success modal data from real API response + current workspace data
-				const data = this.project();
-				const releasedAmount = res?.data?.releasedAmount ?? res?.data?.amount ?? stage.amount ?? 0;
-				const providerName = res?.data?.providerName ?? data?.clientName ?? 'مقدم الخدمة';
-				const stageTitle = res?.data?.stageTitle ?? stage.title ?? 'المرحلة الحالية';
-				const txnId = res?.data?.transactionId ?? res?.data?.txnId ?? res?.data?.reference ?? '';
-				// Capture invoice id if backend returns it on approval; otherwise empty (openInvoice falls back to invoices list)
-				const invoiceId = res?.data?.invoiceId ?? res?.data?.invoice?.id ?? '';
-				this.successData.set({ amount: releasedAmount, providerName, stageTitle, txnId, invoiceId });
+				this.successData.set({ amount, providerName, stageTitle, txnId: '', invoiceId: '' });
+				// Refresh the real stage/project state in the background so the page
+				// behind the success modal (and after refresh) reflects the true,
+				// now-approved status rather than stale pre-approval data.
+				this.load();
 			},
 			error: event => { this.saving.set(false); this.error.set(event.error?.message || 'تعذر حفظ قرار المراجعة'); }
 		});

@@ -16,6 +16,12 @@
 .dr-pill::before{content:'';width:5px;height:5px;border-radius:50%}
 .dr-pill-wait{background:rgba(255,180,0,.10);color:#FFB400;border:1px solid rgba(255,180,0,.24)}
 .dr-pill-wait::before{background:#FFB400}
+.dr-pill-done{background:rgba(15,169,154,.10);color:#0FA99A;border:1px solid rgba(15,169,154,.24)}
+.dr-pill-done::before{background:#0FA99A}
+.dr-pill-revision{background:rgba(43,127,255,.10);color:#5DA0FF;border:1px solid rgba(43,127,255,.24)}
+.dr-pill-revision::before{background:#5DA0FF}
+.dr-pill-neutral{background:rgba(255,255,255,.06);color:#A8B2D1;border:1px solid rgba(255,255,255,.12)}
+.dr-pill-neutral::before{background:#A8B2D1}
 .dr-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .dr-meta-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:11px 13px}
 .dr-meta-lbl{font-size:10px;color:#6B7699;font-weight:700;margin-bottom:4px}
@@ -28,7 +34,6 @@
 .dr-ai-body{flex:1}
 .dr-ai-lbl{font-size:10px;font-weight:800;color:#A56BE0;letter-spacing:.06em;margin-bottom:2px}
 .dr-ai-txt{font-size:13px;color:#A8B2D1;margin:0}
-.dr-ai-badge{background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.28);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:#A56BE0}
 
 /* SECTION TITLE */
 .dr-sec-ttl{font-size:15px;font-weight:800;color:#fff;margin:6px 0 12px;display:flex;align-items:center;gap:8px}
@@ -41,9 +46,8 @@
 .dr-file{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:11px;color:#A8B2D1;text-decoration:none}
 .dr-file svg{width:13px;height:13px;color:#6B7699}
 .dr-file:hover{border-color:rgba(43,212,199,.3);color:#fff}
+.dr-file-size{color:#6B7699;font-size:10px}
 .dr-files-empty{font-size:12px;color:#6B7699;padding:8px 0}
-.dr-qual-note{margin-top:14px;padding:11px 13px;background:rgba(15,169,154,.06);border:1px solid rgba(15,169,154,.16);border-radius:9px;font-size:12px;color:#0FA99A;display:flex;align-items:center;gap:8px}
-.dr-qual-note svg{width:14px;height:14px;flex-shrink:0}
 
 /* DECISION */
 .dr-decision-row{display:flex;gap:12px;flex-wrap:wrap}
@@ -121,16 +125,17 @@
 :host-context(.light-theme) .dr-ai-ico svg,:host-context(.theme-light) .dr-ai-ico svg{color:#6B27A5}
 :host-context(.light-theme) .dr-ai-lbl,:host-context(.theme-light) .dr-ai-lbl{color:#6B27A5}
 :host-context(.light-theme) .dr-ai-txt,:host-context(.theme-light) .dr-ai-txt{color:#475569}
-:host-context(.light-theme) .dr-ai-badge,:host-context(.theme-light) .dr-ai-badge{color:#6B27A5;background:rgba(123,47,190,.06);border-color:rgba(123,47,190,.14)}
 /* Status pill */
 :host-context(.light-theme) .dr-pill-wait,:host-context(.theme-light) .dr-pill-wait{background:rgba(255,180,0,.08);color:#9A6700;border-color:rgba(255,180,0,.2)}
+:host-context(.light-theme) .dr-pill-done,:host-context(.theme-light) .dr-pill-done{background:rgba(15,169,154,.08);color:#0A6F64;border-color:rgba(15,169,154,.2)}
+:host-context(.light-theme) .dr-pill-revision,:host-context(.theme-light) .dr-pill-revision{background:rgba(43,127,255,.08);color:#1D5FCC;border-color:rgba(43,127,255,.2)}
+:host-context(.light-theme) .dr-pill-neutral,:host-context(.theme-light) .dr-pill-neutral{background:#EEF2FA;color:#475569;border-color:#D8DFEC}
 /* Files */
 :host-context(.light-theme) .dr-file,:host-context(.theme-light) .dr-file{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
 :host-context(.light-theme) .dr-file svg,:host-context(.theme-light) .dr-file svg{color:#5B6472}
 :host-context(.light-theme) .dr-file:hover,:host-context(.theme-light) .dr-file:hover{border-color:rgba(15,169,154,.3);color:#0F172A}
+:host-context(.light-theme) .dr-file-size,:host-context(.theme-light) .dr-file-size{color:#5B6472}
 :host-context(.light-theme) .dr-files-empty,:host-context(.theme-light) .dr-files-empty{color:#5B6472}
-/* Quality note */
-:host-context(.light-theme) .dr-qual-note,:host-context(.theme-light) .dr-qual-note{background:rgba(15,169,154,.05);border-color:rgba(15,169,154,.16);color:#0A6F64}
 /* Buttons */
 :host-context(.light-theme) .dr-btn-secondary,:host-context(.theme-light) .dr-btn-secondary{background:rgba(255,180,0,.06);border-color:rgba(255,180,0,.2);color:#9A6700}
 :host-context(.light-theme) .dr-btn-secondary:hover,:host-context(.theme-light) .dr-btn-secondary:hover{background:rgba(255,180,0,.12);color:#0F172A}

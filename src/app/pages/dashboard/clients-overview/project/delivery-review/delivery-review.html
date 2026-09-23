@@ -22,22 +22,22 @@
 						<div class="dr-hd-ttl">تسليم المرحلة {{ stage.stageNumber }}: {{ stage.title }}</div>
 						<div class="dr-hd-id">#{{ data.contractRef }} · من {{ data.clientName }}</div>
 					</div>
-					<span class="dr-pill dr-pill-wait">بانتظار اعتمادك</span>
+					<span class="dr-pill" [class]="statusBadgeClass(stage)">{{ statusBadgeText(stage) }}</span>
 				</div>
 				<div class="dr-meta">
 					<div class="dr-meta-item"><div class="dr-meta-lbl">قيمة المرحلة</div><div class="dr-meta-val">{{ formatNumber(stage.amount) }} ريال</div></div>
-					<div class="dr-meta-item"><div class="dr-meta-lbl">الموظف المسؤول</div><div class="dr-meta-val">{{ responsibleEmployee(data) }}</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">سُلّمت</div><div class="dr-meta-val">{{ submittedTimeAgo(stage) }}</div></div>
+					<div class="dr-meta-item"><div class="dr-meta-lbl">مهلة المراجعة</div><div class="dr-meta-val">{{ reviewDeadlineText() }}</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">الملفات</div><div class="dr-meta-val">{{ stageFileCount(stage) }} ملفات</div></div>
 				</div>
 			</div>
 
-			<!-- AI BANNER -->
+			<!-- AI BANNER (honest: no AI quality-review backend exists for deliveries yet) -->
 			<div class="dr-ai-banner" role="region" aria-label="افصاح الذكاء الاصطناعي">
 				<div class="dr-ai-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg></div>
 				<div class="dr-ai-body">
 					<div class="dr-ai-lbl">وسيط AI، فحص جودة التسليم</div>
-					<p class="dr-ai-txt">AI تحقّق من مطابقة التسليم للمتطلبات وخلوّه من علامات مائية أو ملفات ناقصة <span class="dr-ai-badge">دقة {{ aiMatchPct(data) }}</span> القرار النهائي لك</p>
+					<p class="dr-ai-txt">فحص جودة التسليم بالذكاء الاصطناعي غير متاح حالياً. راجع الملفات المرفقة بنفسك قبل اتخاذ قرارك.</p>
 				</div>
 			</div>
 
@@ -47,30 +47,31 @@
 				@if (latestThread(stage)?.files?.length) {
 					<div class="dr-files">
 						@for (file of latestThread(stage).files; track file.url) {
-							<a class="dr-file" [href]="file.url" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>{{ file.name }}</a>
+							<a class="dr-file" [href]="file.url" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg><span>{{ file.name }}</span>@if (file.size) {<span class="dr-file-size">{{ formatFileSize(file.size) }}</span>}</a>
 						}
 					</div>
 				} @else {
-					<div class="dr-files-empty">لا توجد ملفات مرفقة في هذا التسليم</div>
+					<div class="dr-files-empty">لا توجد ملفات مرفقة</div>
 				}
-				<div class="dr-qual-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>{{ qualityNote(stage) }}</div>
 			</div>
 
 			<!-- DECISION SECTION -->
 			<div class="dr-sec-ttl">قرارك</div>
 			<div class="dr-card">
 				@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
-				@if (approved()) {
+				<div class="dr-decision-row">
+					@if (canDecide(stage)) {
+						<button type="button" class="dr-btn-pri" (click)="approveDelivery()" [disabled]="saving()">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
+					}
+					<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>عندي ملاحظات، فتح نقاش</button>
+				</div>
+				@if (canDecide(stage)) {
+					<div class="dr-decision-help">عند الاعتماد، يُفرج المبلغ من الضمان فوراً. إذا كانت لديك ملاحظات على التسليم، افتح نقاشاً مع مقدم الخدمة لمناقشتها والاتفاق على التعديل قبل الاعتماد.</div>
+				} @else {
 					<div class="dr-approved-inline">
 						<svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-						<span>تم اعتماد التسليم — تمّ فتح نافذة التأكيد.</span>
+						<span>{{ statusBadgeText(stage) }}</span>
 					</div>
-				} @else {
-					<div class="dr-decision-row">
-						<button type="button" class="dr-btn-pri" (click)="approveDelivery()" [disabled]="saving()">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
-						<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>عندي ملاحظات، فتح نقاش</button>
-					</div>
-					<div class="dr-decision-help">عند الاعتماد، يُفرج المبلغ من الضمان فوراً. إذا كانت لديك ملاحظات على التسليم، افتح نقاشاً مع مقدم الخدمة لمناقشتها والاتفاق على التعديل قبل الاعتماد.</div>
 				}
 			</div>
 		}

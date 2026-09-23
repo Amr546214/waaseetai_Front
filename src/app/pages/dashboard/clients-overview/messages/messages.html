@@ -314,6 +314,16 @@
           </div>
         }
       </div>
+    } @else if (conversationNotFound()) {
+      <div class="msg-empty-state" role="alert">
+        <div class="state-title">تعذر العثور على هذه المحادثة</div>
+        <div class="state-copy">المحادثة المطلوبة غير متاحة أو لا تخصّ حسابك. يمكنك اختيار محادثة أخرى من القائمة.</div>
+      </div>
+    } @else {
+      <div class="msg-empty-state">
+        <div class="state-title">لا توجد محادثات بعد</div>
+        <div class="state-copy">عندما تبدأ محادثة مع مقدم خدمة، ستظهر هنا.</div>
+      </div>
     }
   </div>
 </div>

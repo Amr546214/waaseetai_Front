@@ -1,0 +1,51 @@
+<section class="review-list-page" dir="rtl">
+	<h1 class="sr-only">مراجعة التسليم</h1>
+	<div class="ord-head"><div><div class="ord-title">مراجعة التسليم</div><div class="ord-sub">التسليمات التي قدّمها مقدمو الخدمة وتنتظر اعتمادك</div></div></div>
+
+	@if (isLoading()) {
+		<div class="state-card" role="status" aria-label="جاري تحميل التسليمات بانتظار المراجعة">
+			<div class="skeleton-row sk-title"></div>
+			<div class="skeleton-box sk-card"></div>
+			<div class="skeleton-box sk-card"></div>
+		</div>
+	} @else if (hasError()) {
+		<div class="state-card error-state" role="alert">
+			<div class="error-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z"/><path d="M12 10v4.5M12 17.6v.1"/></svg></div>
+			<div class="state-title">تعذر تحميل التسليمات بانتظار المراجعة</div>
+			<div class="state-code">ERR-SK-REVIEW-LIST</div>
+			<button type="button" class="retry-btn" (click)="fetchPendingDeliveries()">إعادة المحاولة</button>
+		</div>
+	} @else if (items().length === 0) {
+		<div class="state-card empty-state">
+			<div class="empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+			<div class="state-title">لا توجد تسليمات بانتظار المراجعة حالياً</div>
+			<div class="state-copy">عندما يقوم مقدم الخدمة بتسليم مرحلة من مشروعك، ستظهر هنا لمراجعتها واعتمادها.</div>
+		</div>
+	} @else {
+		<div class="sec-ttl">التسليمات بانتظار المراجعة <span class="cnt">· {{ items().length }}</span></div>
+		<div class="rv-list">
+			@for (item of items(); track item.stageId) {
+				<div class="rv-card">
+					<div class="rv-top">
+						<div>
+							<div class="rv-ttl">{{ item.projectTitle }}</div>
+							<div class="rv-sub">تسليم المرحلة {{ item.stageNumber }}: {{ item.stageTitle }} · {{ item.contractRef }} · من {{ item.providerName }}</div>
+						</div>
+						<span class="rv-badge">بانتظار اعتمادك</span>
+					</div>
+					<div class="rv-meta">
+						<div class="rv-meta-item"><div class="rv-meta-lbl">قيمة المرحلة</div><div class="rv-meta-val">{{ formatNumber(item.amount) }} ريال</div></div>
+						<div class="rv-meta-item"><div class="rv-meta-lbl">سُلّمت</div><div class="rv-meta-val">{{ submittedTimeAgo(item) }}</div></div>
+						<div class="rv-meta-item"><div class="rv-meta-lbl">الملفات</div><div class="rv-meta-val">{{ item.filesCount }} ملفات</div></div>
+					</div>
+					<a class="rv-cta" [routerLink]="['/client-overview/projects', item.projectId, 'delivery-review', item.stageId]">
+						مراجعة التسليم
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+					</a>
+				</div>
+			}
+		</div>
+	}
+
+	<div class="inner-foot"><span>© 2026 وسيط AI · v1.0.0</span><div class="inner-foot-links"><a routerLink="/privacy">PDPL</a><a routerLink="/terms">الشروط</a><span>SAMA</span></div></div>
+</section>

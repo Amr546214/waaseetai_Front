@@ -80,8 +80,8 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	},
 	{
 		path: 'projects/review',
-		redirectTo: 'projects/active',
-		pathMatch: 'full'
+		loadComponent: () => import('./project/review-list/review-list').then(m => m.ReviewList),
+		data: { title: "مراجعة التسليم" }
 	},
 	{
 		path: 'projects/amendments',

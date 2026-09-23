@@ -62,6 +62,13 @@ export class ClientMessages implements OnInit, OnDestroy {
 
   searchQuery = signal<string>('');
   activeConvId = signal<string>('');
+  // Set only when the caller asked for a SPECIFIC conversation (via ?conversationId=,
+  // e.g. from delivery-review's "Open Discussion" action). Used to distinguish "no
+  // preference stated" (safe to default to the first conversation) from "a specific
+  // conversation was requested but isn't in the list" (must never silently substitute
+  // an unrelated one — see activeConversation() and conversationNotFound below).
+  requestedConversationId = signal<string | null>(null);
+  conversationNotFound = signal<boolean>(false);
   showChatOnMobile = signal<boolean>(false);
   newMessageText = signal<string>('');
   toastMessage = signal<string>('');
@@ -101,10 +108,8 @@ export class ClientMessages implements OnInit, OnDestroy {
 
   activeConversation = computed(() => {
     const activeId = this.activeConvId();
-    return (
-      this.conversations().find((c) => c.id === activeId) ||
-      (this.conversations().length > 0 ? this.conversations()[0] : null)
-    );
+    if (!activeId) return null;
+    return this.conversations().find((c) => c.id === activeId) || null;
   });
 
   ngOnInit(): void {
@@ -121,6 +126,12 @@ export class ClientMessages implements OnInit, OnDestroy {
       this.messageContext.set(navState.context as MessageContext);
     }
 
+    // Capture the conversation the caller explicitly asked for (e.g. delivery-review's
+    // "Open Discussion" action) before the conversation list has even loaded, so the
+    // initial resolveActiveConversation() call below can tell "no preference stated"
+    // apart from "a specific conversation was requested".
+    this.requestedConversationId.set(this.route.snapshot.queryParams['conversationId'] || null);
+
     // Connect to WebSocket chat server
     this.chatService.connect(this.currentUserId);
 
@@ -133,7 +144,7 @@ export class ClientMessages implements OnInit, OnDestroy {
               const partner = c.participants?.find((p: any) => p.userId !== this.currentUserId)?.user || {};
               const partnerName = partner.fullName || partner.name || c.name || 'مستخدم وسيط';
               const initials = partnerName ? partnerName.split(' ').map((n: string) => n[0]).join('').slice(0, 2) : 'ط';
-              
+
               return {
                 id: c.id,
                 name: partnerName,
@@ -149,12 +160,7 @@ export class ClientMessages implements OnInit, OnDestroy {
             });
 
             this.conversations.set(mappedConversations);
-            if (mappedConversations.length > 0) {
-              const activeParam = this.route.snapshot.queryParams['conversationId'];
-              const target = mappedConversations.find((c) => c.id === activeParam) ? activeParam : mappedConversations[0].id;
-              this.activeConvId.set(target);
-              this.selectConversation(target);
-            }
+            this.resolveActiveConversation(mappedConversations, this.requestedConversationId());
           }
         },
         error: (err) => {
@@ -163,16 +169,16 @@ export class ClientMessages implements OnInit, OnDestroy {
       })
     );
 
-    // Subscribe to Query Params for seamless negotiation redirection
+    // React to a conversationId query-param arriving/changing after the initial load
+    // (e.g. the user is already on /messages and clicks another "Open Discussion" link).
+    // The very first emission here mirrors the snapshot read above, so it's a no-op.
     this.sub.add(
       this.route.queryParams.subscribe((params) => {
-        if (params['conversationId']) {
-          const cid = params['conversationId'];
-          this.activeConvId.set(cid);
-          const existing = this.conversations().find((c) => c.id === cid);
-          if (existing) {
-            this.selectConversation(cid);
-          }
+        const cid = params['conversationId'] || null;
+        if (cid === this.requestedConversationId()) return;
+        this.requestedConversationId.set(cid);
+        if (cid) {
+          this.resolveActiveConversation(this.conversations(), cid);
         }
       })
     );
@@ -248,6 +254,33 @@ export class ClientMessages implements OnInit, OnDestroy {
     if (this.audioPlayer) {
       this.audioPlayer.pause();
     }
+  }
+
+  // Decides which conversation (if any) becomes active, given the freshly loaded
+  // list and an optional specifically-requested id. Never falls back to an
+  // unrelated conversation when a specific one was requested but isn't in this
+  // user's list — that would land the client in someone else's chat.
+  private resolveActiveConversation(list: Conversation[], requestedId: string | null): void {
+    if (list.length === 0) {
+      this.activeConvId.set('');
+      this.conversationNotFound.set(false);
+      return;
+    }
+    if (requestedId) {
+      const found = list.find((c) => c.id === requestedId);
+      if (found) {
+        this.conversationNotFound.set(false);
+        this.activeConvId.set(found.id);
+        this.selectConversation(found.id);
+      } else {
+        this.conversationNotFound.set(true);
+        this.activeConvId.set('');
+      }
+      return;
+    }
+    this.conversationNotFound.set(false);
+    this.activeConvId.set(list[0].id);
+    this.selectConversation(list[0].id);
   }
 
   selectConversation(id: string): void {
