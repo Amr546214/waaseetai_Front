@@ -4,6 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { from, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
+const fakeSocket = { on: vi.fn(), off: vi.fn(), once: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
+const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
+vi.mock('socket.io-client', () => ({ io: (...args: any[]) => ioSpy(...args) }));
+
 import { CreateRequest } from './create-request';
 
 describe('CreateRequest', () => {
@@ -54,6 +58,50 @@ describe('CreateRequest', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('Real-time AI description socket (F2 JWT auth follow-up)', () => {
+    // This test environment has no global `localStorage` (unlike a real
+    // browser), so the component's own token lookup is exercised against a
+    // stubbed one rather than skipping the assertion.
+    let store: Record<string, string>;
+
+    beforeEach(() => {
+      ioSpy.mockClear();
+      store = {};
+      vi.stubGlobal('localStorage', {
+        getItem: (key: string) => store[key] ?? null,
+        setItem: (key: string, value: string) => { store[key] = value; },
+        clear: () => { store = {}; }
+      });
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('sends the stored JWT via auth.token on the ai:generate_description socket connection', () => {
+      (localStorage as any).setItem('waseet_token', 'test-jwt-abc');
+      component.title.set('تطوير متجر إلكتروني لبيع الملابس');
+
+      component.triggerAiDescription();
+
+      expect(ioSpy).toHaveBeenCalledTimes(1);
+      const [, options] = ioSpy.mock.calls[0];
+      expect(options.auth).toEqual({ token: 'test-jwt-abc' });
+      expect(options.withCredentials).toBe(true);
+    });
+
+    it('never puts the token in the socket URL/query string', () => {
+      (localStorage as any).setItem('waseet_token', 'test-jwt-abc');
+      component.title.set('تطوير متجر إلكتروني لبيع الملابس');
+
+      component.triggerAiDescription();
+
+      const [url, options] = ioSpy.mock.calls[0];
+      expect(String(url)).not.toContain('test-jwt-abc');
+      expect(JSON.stringify(options.query ?? {})).not.toContain('test-jwt-abc');
+    });
   });
 
   describe('Step 4 milestone reactivity (canProceed)', () => {

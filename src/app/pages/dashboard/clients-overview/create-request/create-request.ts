@@ -526,7 +526,14 @@ export class CreateRequest implements OnInit, OnDestroy {
     }
 
     if (!this.socket) {
-      this.socket = io(environment.socketUrl, { withCredentials: true });
+      let token: string | null = null;
+      if (typeof window !== 'undefined') {
+        token = localStorage.getItem('waseet_token') || localStorage.getItem('access_token') || localStorage.getItem('token');
+        if (!token && typeof document !== 'undefined') {
+          token = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || null;
+        }
+      }
+      this.socket = io(environment.socketUrl, { withCredentials: true, auth: { token } });
     }
 
     const currentDesc = this.description().trim();
