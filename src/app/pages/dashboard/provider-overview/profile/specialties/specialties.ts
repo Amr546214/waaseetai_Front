@@ -101,6 +101,9 @@ export class Specialties implements OnInit, OnDestroy {
 	streamingPlaceholders = [1, 2, 3];
 	providerSpecialtyId = signal<string | null>(null);
 	aiFeedback = signal<AiEvaluationFeedback | null>(null);
+	// Honest failure state — set when the real AI evaluation fails or returns
+	// no data. Never paired with a fabricated aiFeedback value.
+	aiEvaluationUnavailable = signal<boolean>(false);
 
 	// Real-Time Quiz Signals & Streaming State
 	quizSessionId = signal<string | null>(null);
@@ -596,72 +599,46 @@ export class Specialties implements OnInit, OnDestroy {
 
 	simulateAnalysis() {
 		this.isAnalyzing.set(true);
+		this.aiEvaluationUnavailable.set(false);
+		this.aiFeedback.set(null);
 		const id = this.providerSpecialtyId() || 'demo-spec-uuid-101';
 
 		this.specialtyService.aiEvaluate(id).subscribe({
 			next: (res: any) => {
-				if (res.success && res.data) {
+				const scores = res?.data?.scores;
+				const hasRealScores = scores
+					&& typeof scores.aiScore === 'number'
+					&& typeof scores.feasibilityScore === 'number'
+					&& typeof scores.clarityScore === 'number'
+					&& typeof scores.ownershipCredibility === 'number';
+
+				if (res?.success && hasRealScores) {
+					const feedbackData = res.data.feedback || {};
 					const feedback: AiEvaluationFeedback = {
-						aiScore: res.data.scores?.aiScore || 91.0,
-						feasibilityScore: res.data.scores?.feasibilityScore || 94.5,
-						clarityScore: res.data.scores?.clarityScore || 88.0,
-						ownershipCredibility: res.data.scores?.ownershipCredibility || 92.0,
-						summary: res.data.feedback?.summary || 'تم التحقق من النماذج بنجاح عبر محرك Waseet AI. أظهر التدقيق الذكي تناغماً عالياً بين الأصول المرفوعة والتخصصات الدقيقة المختارة.',
-						strengths: res.data.feedback?.strengths || ['جودة عالية في بنية التصميم وهندسة الملفات المرفوعة.'],
-						warnings: res.data.feedback?.warnings || [],
-						corrections: res.data.feedback?.corrections || [],
-						isEligibleForTesting: true
+						aiScore: scores.aiScore,
+						feasibilityScore: scores.feasibilityScore,
+						clarityScore: scores.clarityScore,
+						ownershipCredibility: scores.ownershipCredibility,
+						summary: feedbackData.summary || '',
+						strengths: feedbackData.strengths || [],
+						warnings: feedbackData.warnings || [],
+						corrections: feedbackData.corrections || [],
+						// Reflects the backend's own real decision — never assumed true on success.
+						isEligibleForTesting: res.data.status === 'TEST_REQUIRED'
 					};
 					this.aiFeedback.set(feedback);
 					setTimeout(() => this.isAnalyzing.set(false), 2200);
 				} else {
-					this.applyFallbackAiFeedback();
+					// Honest failure — no invented scores, feedback, or eligibility.
+					this.isAnalyzing.set(false);
+					this.aiEvaluationUnavailable.set(true);
 				}
 			},
 			error: () => {
-				this.specialtyService.runAiAudit({ providerSpecialtyId: id }).subscribe({
-					next: (res: any) => {
-						if (res.success && res.data) {
-							this.aiFeedback.set({
-								aiScore: res.data.scores?.aiScore || 91.0,
-								feasibilityScore: res.data.scores?.feasibilityScore || 94.5,
-								clarityScore: res.data.scores?.clarityScore || 88.0,
-								ownershipCredibility: res.data.scores?.ownershipCredibility || 92.0,
-								summary: res.data.feedback?.summary || 'تم التحقق بنجاح من الأصالة والجدارة المهنية.',
-								strengths: res.data.feedback?.strengths || [],
-								warnings: res.data.feedback?.warnings || [],
-								corrections: []
-							});
-							setTimeout(() => this.isAnalyzing.set(false), 2200);
-						} else {
-							this.applyFallbackAiFeedback();
-						}
-					},
-					error: () => this.applyFallbackAiFeedback()
-				});
+				this.isAnalyzing.set(false);
+				this.aiEvaluationUnavailable.set(true);
 			}
 		});
-	}
-
-	private applyFallbackAiFeedback() {
-		this.aiFeedback.set({
-			aiScore: 91.0,
-			feasibilityScore: 94.5,
-			clarityScore: 88.0,
-			ownershipCredibility: 92.0,
-			summary: 'تم التحقق من النماذج بنجاح عبر محرك Waseet AI. أظهر التدقيق الذكي تناغماً عالياً بين الأصول المرفوعة والتخصصات الدقيقة المختارة، مع ثبوت أصالة العمل من خلال الإثباتات السرية الداعمة.',
-			strengths: [
-				'جودة عالية في بنية التصميم وهندسة الملفات المرفوعة.',
-				'تطابق كامل بين الوصف الفني والمخرجات البصرية.',
-				'موثوقية مؤكدة من خلال لقطات وبيانات التحقق الخلفية.'
-			],
-			warnings: [
-				'يُفضل تضمين روابط حية (Live Demos) للمشاريع المستقبلية لتعزيز سرعة التدقيق.'
-			],
-			corrections: [],
-			isEligibleForTesting: true
-		});
-		setTimeout(() => this.isAnalyzing.set(false), 2000);
 	}
 
 	getGaugeDashArray(): string {

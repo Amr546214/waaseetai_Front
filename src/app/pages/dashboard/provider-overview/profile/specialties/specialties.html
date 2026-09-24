@@ -522,6 +522,22 @@
 			</div>
 		</div>
 
+		<!-- Honest Unavailable State — no fabricated score/feedback/eligibility -->
+		<div *ngIf="!isAnalyzing() && aiEvaluationUnavailable()"
+			class="state-card py-16 flex flex-col items-center justify-center border border-[rgba(255,255,255,.1)] bg-[rgba(7,13,36,.7)] rounded-2xl gap-4">
+			<div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl">
+				⚠️
+			</div>
+			<div class="text-base font-black text-white">تعذر إجراء التدقيق الذكي حالياً</div>
+			<p class="text-xs text-[var(--txt-3)] max-w-sm text-center leading-relaxed">
+				لم تتمكن خدمة الذكاء الاصطناعي من إتمام تقييم النماذج المرفوعة في الوقت الحالي. يرجى المحاولة مرة أخرى لاحقاً.
+			</p>
+			<button type="button" (click)="simulateAnalysis()"
+				class="mt-2 py-2 px-5 rounded-xl text-xs font-bold text-[#070d24] bg-gradient-to-r from-[#00d2ff] to-[#3b82f6] hover:from-[#2bd4c7] hover:to-[#2563eb] transition-all">
+				إعادة المحاولة
+			</button>
+		</div>
+
 		<!-- Completed AI Audit Dashboard -->
 		<div *ngIf="!isAnalyzing() && aiFeedback()" class="flex flex-col gap-6 animate-[ws-fade_0.35s_ease]">
 
