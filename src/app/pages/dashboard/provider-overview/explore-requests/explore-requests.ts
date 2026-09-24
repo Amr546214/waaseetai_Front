@@ -43,6 +43,9 @@ export class ExploreRequests implements OnInit {
 	aiLoading = signal(false);
 	selectedProject = signal<any>(null);
 	aiAnalysisData = signal<any>(null);
+	// Honest failure state — set when the real AI analysis endpoint fails or
+	// returns no data. Never paired with a fabricated aiAnalysisData value.
+	aiUnavailable = signal(false);
 
 	// Filter States
 	activeSpecialty = signal('all');
@@ -290,6 +293,7 @@ export class ExploreRequests implements OnInit {
 		this.isAiModalOpen.set(true);
 		this.aiLoading.set(true);
 		this.aiAnalysisData.set(null);
+		this.aiUnavailable.set(false);
 
 		this.providerApi.analyzeProjectWithAi(req.id).subscribe({
 			next: (res) => {
@@ -297,32 +301,16 @@ export class ExploreRequests implements OnInit {
 				if (res && res.success && res.data) {
 					this.aiAnalysisData.set(res.data);
 				} else {
-					this.setFallbackAiAnalysis(req);
+					// Honest failure — no invented match score, strategy, or
+					// pricing. The real AI service was unavailable; say so.
+					this.aiUnavailable.set(true);
 				}
 			},
 			error: (err) => {
-				console.warn('AI analysis API unreachable, using intelligent simulation fallback', err);
+				console.warn('AI analysis unavailable', err);
 				this.aiLoading.set(false);
-				this.setFallbackAiAnalysis(req);
+				this.aiUnavailable.set(true);
 			}
-		});
-	}
-
-	private setFallbackAiAnalysis(req: any) {
-		this.aiAnalysisData.set({
-			matchPercent: req.aiScore || 88,
-			matchSummary: `يتطابق ملفك المهني ومستوى مهاراتك مع متطلبات مشروع "${req.title}"؛ حيث يعكس سجل أعمالك وتقييماتك القدرة التامة على تقديم المخرجات باحترافية عالية.`,
-			winningStrategy: [
-				`ابدأ عرضك الفني بإبراز الفهم الدقيق لتحديات ومتطلبات "${req.specialty}" وكيفية التميز فيها بدون عبارات عامة ومحفوظة.`,
-				`ركز في عرضك على تقديم وعد بجدول زمني دقيق ومتابعة دورية مجانية لطمأنة العميل حول التزامك.`,
-				`اقترح تقسيم الدفعات والعمل على مرحلتين (Milestones) لتعزيز الاطمئنان والاستفادة القصوى من نظام الضمان الذكي للمنصة.`
-			],
-			suggestedBidPrice: req.aiPriceRange || req.clientBudget || '3,500 ريال',
-			priceRationale: `هذا التسعير مدروس بدقة ليعكس التوازن التنافسي المثالي في سوق الخدمات الراهن ومستوى الجودة المطلوب للتسليم في غضون ${req.clientDuration || 'المدة المحددة'}.`,
-			clientInsights: req.clientType === 'شركة' 
-				? `العميل عبارة عن "حساب شركة/مؤسسة"، وهذا النوع يفضل الالتزام التام بالمعايير الفنية والجودة الموثوقة على الخصم السعرية.` 
-				: `العميل "حساب فردي"، يركز غالباً على الاستجابة السريعة، وتقدير التفاصيل الدقيقة، وتحديد أوقات تسليم واضحة ومحددة.`,
-			riskAssessment: `تصنيف المخاطر: منخفض (Low Risk). متطلبات العمل والجدول الزمني متناسقان ويدعمان إنجازاً سلساً ومستقراً.`
 		});
 	}
 
@@ -330,5 +318,6 @@ export class ExploreRequests implements OnInit {
 		this.isAiModalOpen.set(false);
 		this.selectedProject.set(null);
 		this.aiAnalysisData.set(null);
+		this.aiUnavailable.set(false);
 	}
 }
