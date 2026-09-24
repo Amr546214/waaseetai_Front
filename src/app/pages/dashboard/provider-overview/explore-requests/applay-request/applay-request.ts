@@ -547,6 +547,15 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			if (data.status === 'COMPLETED') {
 				this.isScanning.set(false);
 			}
+			// Honest failure — the backend never sends a fabricated ai_audit_result
+			// in this case; show the existing empty/unavailable state immediately
+			// instead of waiting out the 4.5s safety timeout below.
+			if (data.status === 'FAILED') {
+				this.isScanning.set(false);
+				if (!this.auditResult()) {
+					this.auditResult.set(this.getUnavailableAudit());
+				}
+			}
 		});
 
 		this.socket.once('ai_audit_result', (result: AiAuditResult) => {
