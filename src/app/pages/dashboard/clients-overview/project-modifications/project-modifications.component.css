@@ -499,6 +499,154 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* Rejected/cancelled status badge (no real amendment ever had this state in
+   the old mock data, which only modeled pending/approved) */
+.dp-b-rejected {
+  background: rgba(255, 140, 105, 0.12);
+  color: #FF8C69;
+  border: 1px solid rgba(255, 140, 105, 0.26);
+}
+
+/* Amendment description (real, optional text supplied when the request was created) */
+.dp-desc {
+  font-size: 12.5px;
+  color: #A8B2D1;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+/* Client approve/reject actions (provider-raised, still-pending amendments only) */
+.dp-decision {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.dp-appr-btn {
+  flex: 1;
+  padding: 9px 15px;
+  border: none;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #070D24;
+  background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
+  cursor: pointer;
+  font-family: inherit;
+}
+.dp-appr-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dp-rej-btn {
+  padding: 9px 15px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #FF8C69;
+  background: rgba(255, 140, 105, 0.10);
+  border: 1px solid rgba(255, 140, 105, 0.24);
+  cursor: pointer;
+  font-family: inherit;
+}
+.dp-rej-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dp-resp-err {
+  font-size: 11.5px;
+  color: #FCA5A5;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 8px;
+  padding: 8px 11px;
+  margin-bottom: 12px;
+}
+.dp-conv-err {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: #FCA5A5;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 8px;
+  padding: 8px 11px;
+}
+
+/* Loading / error / empty states (same shape used across the client dashboard) */
+.state-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.error-state, .empty-state {
+  text-align: center;
+  padding: 40px 24px;
+}
+.state-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.state-copy {
+  font-size: 12px;
+  color: #6B7699;
+}
+.empty-ico {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #2BD4C7;
+  background: rgba(43, 212, 199, 0.08);
+  border: 1px solid rgba(43, 212, 199, 0.18);
+}
+.empty-ico svg {
+  width: 28px;
+  height: 28px;
+}
+.retry-btn {
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
+  border: none;
+  border-radius: 50px;
+  color: #070D24;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.skeleton-box, .skeleton-row {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.10) 50%, rgba(255, 255, 255, 0.05) 75%);
+  background-size: 200% 100%;
+  animation: pm-skel-pulse 1.5s infinite;
+}
+.skeleton-box {
+  border-radius: 12px;
+}
+.skeleton-row {
+  border-radius: 6px;
+}
+.sk-title {
+  width: 50%;
+  height: 16px;
+  margin-bottom: 14px;
+}
+.sk-card {
+  height: 90px;
+  margin-bottom: 12px;
+}
+@keyframes pm-skel-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* ==========================================================================
    LIGHT MODE OVERRIDES (from design P-SK-031 LIGHT_CSS)
    ========================================================================== */
@@ -916,6 +1064,90 @@
   background: #EEF2FA !important;
   border-color: #D8DFEC !important;
   color: #0F172A !important;
+}
+
+/* --- Rejected/cancelled badge (light) --- */
+:host-context(body.light-theme) .dp-b-rejected,
+:host-context(body.theme-light) .dp-b-rejected,
+:host-context(.light-theme) .dp-b-rejected,
+:host-context(.theme-light) .dp-b-rejected,
+:host-context(body.light) .dp-b-rejected {
+  color: #C25B43;
+  border-color: rgba(255, 140, 105, 0.2);
+}
+
+/* --- Description text (light) --- */
+:host-context(body.light-theme) .dp-desc,
+:host-context(body.theme-light) .dp-desc,
+:host-context(.light-theme) .dp-desc,
+:host-context(.theme-light) .dp-desc,
+:host-context(body.light) .dp-desc {
+  color: #475569;
+}
+
+/* --- Reject button (light) --- */
+:host-context(body.light-theme) .dp-rej-btn,
+:host-context(body.theme-light) .dp-rej-btn,
+:host-context(.light-theme) .dp-rej-btn,
+:host-context(.theme-light) .dp-rej-btn,
+:host-context(body.light) .dp-rej-btn {
+  color: #C25B43;
+  background: rgba(255, 140, 105, 0.06);
+  border-color: rgba(255, 140, 105, 0.2);
+}
+
+/* --- Error banners (light) --- */
+:host-context(body.light-theme) .dp-resp-err,
+:host-context(body.theme-light) .dp-resp-err,
+:host-context(.light-theme) .dp-resp-err,
+:host-context(.theme-light) .dp-resp-err,
+:host-context(body.light) .dp-resp-err,
+:host-context(body.light-theme) .dp-conv-err,
+:host-context(body.theme-light) .dp-conv-err,
+:host-context(.light-theme) .dp-conv-err,
+:host-context(.theme-light) .dp-conv-err,
+:host-context(body.light) .dp-conv-err {
+  color: #C25B43;
+  background: rgba(255, 140, 105, 0.05);
+  border-color: rgba(255, 140, 105, 0.18);
+}
+
+/* --- Loading / error / empty states (light) --- */
+:host-context(body.light-theme) .state-card,
+:host-context(body.theme-light) .state-card,
+:host-context(.light-theme) .state-card,
+:host-context(.theme-light) .state-card,
+:host-context(body.light) .state-card {
+  background: #fff !important;
+  border-color: #D8DFEC !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+:host-context(body.light-theme) .state-title,
+:host-context(body.theme-light) .state-title,
+:host-context(.light-theme) .state-title,
+:host-context(.theme-light) .state-title,
+:host-context(body.light) .state-title {
+  color: #0F172A !important;
+}
+:host-context(body.light-theme) .state-copy,
+:host-context(body.theme-light) .state-copy,
+:host-context(.light-theme) .state-copy,
+:host-context(.theme-light) .state-copy,
+:host-context(body.light) .state-copy {
+  color: #64748B !important;
+}
+:host-context(body.light-theme) .skeleton-box,
+:host-context(body.theme-light) .skeleton-box,
+:host-context(.light-theme) .skeleton-box,
+:host-context(.theme-light) .skeleton-box,
+:host-context(body.light) .skeleton-box,
+:host-context(body.light-theme) .skeleton-row,
+:host-context(body.theme-light) .skeleton-row,
+:host-context(.light-theme) .skeleton-row,
+:host-context(.theme-light) .skeleton-row,
+:host-context(body.light) .skeleton-row {
+  background: linear-gradient(90deg, #EEF2FA, #D8DFEC, #EEF2FA);
+  background-size: 200% 100%;
 }
 
 /* --- Responsive --- */
