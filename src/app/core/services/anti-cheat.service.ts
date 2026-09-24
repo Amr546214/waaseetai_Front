@@ -58,7 +58,7 @@ export class AntiCheatService implements OnDestroy {
   public warningTriggered$ = new Subject<AntiCheatWarningPayload>();
   public lockdownTriggered$ = new Subject<AntiCheatLockdownPayload>();
   public questionStreamed$ = new Subject<StreamedQuestionPayload>();
-  public assessmentReady$ = new Subject<{ attemptId: string; totalQuestions: number; timeLimitMinutes: number }>();
+  public assessmentReady$ = new Subject<{ attemptId: string; totalQuestions: number; timeLimitMinutes: number; generationSource?: 'GEMINI' | 'STATIC_FALLBACK' }>();
   public evaluationComplete$ = new Subject<any>();
 
   // Bound event listener references for clean removal
@@ -150,9 +150,25 @@ export class AntiCheatService implements OnDestroy {
   private initSocket(): void {
     if (!this.isBrowser || this.socket?.connected) return;
 
+    // The backend's main socket namespace only recognizes a JWT passed via
+    // the handshake `auth.token` (or an Authorization header) — it never
+    // reads cookies. Without this, `socket.userId` never gets set
+    // server-side and every assessment event (start_assessment,
+    // submit_answer/submit_assessment) would be rejected as unauthenticated
+    // for every real user. Same token-lookup pattern already used by
+    // new-project.service.ts / setup-test.service.ts.
+    let token: string | null = null;
+    if (typeof window !== 'undefined') {
+      token = localStorage.getItem('waseet_token') || localStorage.getItem('access_token') || localStorage.getItem('token');
+      if (!token && typeof document !== 'undefined') {
+        token = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || null;
+      }
+    }
+
     this.socket = io(environment.socketUrl, {
       withCredentials: true,
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      auth: { token }
     });
 
     this.socket.on('connect', () => {

@@ -110,6 +110,11 @@ export class Specialties implements OnInit, OnDestroy {
 	quizQuestions = signal<QuizQuestion[]>([]);
 	isStreamingQuestions = signal<boolean>(false);
 	streamProgressCount = signal<number>(0);
+	// True only when neither the real-time socket nor the REST fallback
+	// produced questions in time and the local static question bank is
+	// being shown instead — the UI must never present this as live AI
+	// generation.
+	usingStaticFallbackQuestions = signal<boolean>(false);
 
 	currentQuestionIdx = signal<number>(0);
 	userAnswers = signal<Record<string, string>>({});
@@ -193,6 +198,11 @@ export class Specialties implements OnInit, OnDestroy {
 		this.antiCheatService.assessmentReady$.subscribe((ready) => {
 			if (ready && ready.attemptId) {
 				this.quizSessionId.set(ready.attemptId);
+			}
+			// The backend honestly reports when it had to use its own static
+			// bank (Gemini unavailable) — reflect that here too.
+			if (ready && ready.generationSource) {
+				this.usingStaticFallbackQuestions.set(ready.generationSource === 'STATIC_FALLBACK');
 			}
 			this.isStreamingQuestions.set(false);
 		});
@@ -708,6 +718,7 @@ export class Specialties implements OnInit, OnDestroy {
 		this.isLockedOut.set(false);
 		this.quizQuestions.set([]);
 		this.isStreamingQuestions.set(true);
+		this.usingStaticFallbackQuestions.set(false);
 		this.streamProgressCount.set(0);
 		this.currentQuestionIdx.set(0);
 		this.userAnswers.set({});
@@ -741,6 +752,9 @@ export class Specialties implements OnInit, OnDestroy {
 								text: q.textAr || q.text || '',
 								options: q.options || []
 							}));
+							// The backend honestly reports when it had to use its own
+							// static bank (Gemini unavailable) — reflect that here too.
+							this.usingStaticFallbackQuestions.set(res.data.generationSource === 'STATIC_FALLBACK');
 							this.setupQuizSession(attemptId, questions, 900, false);
 						} else {
 							this.applyFallback20Questions();
@@ -1081,6 +1095,7 @@ export class Specialties implements OnInit, OnDestroy {
 		}
 
 		const sessionId = `sess-${Date.now()}`;
+		this.usingStaticFallbackQuestions.set(true);
 		// Initialize session immediately in streaming mode
 		this.setupQuizSession(sessionId, [], 900, true);
 
@@ -1107,39 +1122,23 @@ export class Specialties implements OnInit, OnDestroy {
 		}, 60);
 	}
 
+	// Honest failure — this used to fabricate a guaranteed-passing 80% score
+	// (and even marked answers as "correct" purely by question index,
+	// ignoring what the user actually selected) whenever both the socket and
+	// REST submission paths failed. No real grading ever happened in that
+	// case, so it must never report a pass, a score, or a badge. Reuses the
+	// existing "did not pass" UI branch — no new UI was introduced.
 	private applyFallbackResults() {
-		const allQ = this.quizQuestions();
-		let correctCount = 0;
-		const detailed: DetailedResultItem[] = allQ.map((q, idx) => {
-			const uIndex = this.userAnswers()[q.id] || 'b';
-			const correctChoice = 'b';
-			const isCor = uIndex === correctChoice;
-			if (isCor || idx < 4) correctCount++;
-
-			return {
-				questionId: String(q.id),
-				text: q.text,
-				subSpecialtyTag: q.subSpecialtyTag,
-				options: q.options,
-				selectedIndex: uIndex,
-				correctOptionIndex: correctChoice,
-				isCorrect: isCor,
-				explanation: 'الالتزام بأحدث معايير الأمان والهندسة النظيفة (Best Practices) يضمن خلو التطبيق من الثغرات وقابليته للتوسع المستدام.'
-			};
-		});
-
-		const total = allQ.length || 5;
-		const percentage = 80.0;
+		const total = this.quizQuestions().length || 20;
 
 		this.quizResult.set({
-			passed: true,
-			scorePercentage: percentage,
-			correctAnswers: Math.round((percentage / 100) * total),
+			passed: false,
+			scorePercentage: 0,
+			correctAnswers: 0,
 			totalQuestions: total,
-			status: 'APPROVED',
-			badgeGrantedAt: new Date().toISOString(),
-			detailedResults: detailed,
-			message: '✓ مبروك! لقد اجتزت التقييم الفوري بنجاح وتم اعتماد تخصصك بشارة التميز الرسمية!'
+			status: 'SUBMISSION_FAILED',
+			detailedResults: [],
+			message: 'تعذر تسليم واحتساب نتيجة التقييم حالياً بسبب انقطاع الاتصال بالخادم. لم يتم احتساب أي درجة أو اعتماد تخصصك؛ يرجى إعادة المحاولة.'
 		});
 	}
 

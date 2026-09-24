@@ -1066,7 +1066,9 @@
 					</div>
 					<div>
 						<div class="text-sm font-black text-white flex items-center gap-2">
-							<span class="tracking-wide">⚡ بث أسئلة الذكاء الاصطناعي عبر الـ WebSocket المباشر...</span>
+							<span class="tracking-wide">{{ usingStaticFallbackQuestions()
+								? '⚡ عرض نموذج تقييم قياسي بديل (تعذر الاتصال بمحرك الذكاء الاصطناعي)...'
+								: '⚡ بث أسئلة الذكاء الاصطناعي عبر الـ WebSocket المباشر...' }}</span>
 							<span
 								class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#2BD4C7] text-[#070D24] font-black shadow-sm">{{
 								streamProgressCount() }} / 20</span>
