@@ -334,7 +334,7 @@
 					<use href="#ws-trust-ai"></use>
 				</svg></div>
 			<div class="ai-txt">{{ aiBannerInsight() }}</div>
-			<span class="ai-bdg">AI · نشط</span>
+			<span class="ai-bdg">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'ذكي · نشط' }}</span>
 		</div>
 
 		<!-- FLASH DEALS -->
@@ -479,7 +479,7 @@
 							[style.background]="model.levelBg || 'rgba(123,47,190,.2)'"
 							[style.borderColor]="model.levelColor || 'rgba(123,47,190,.5)'">{{ model.level || 'خبير'
 							}}</span>
-						<span class="svc-ai-tag">AI {{ model.aiMatchPercentage ?? model.aiScore }}%</span>
+						<span class="svc-ai-tag">{{ aiGenerationSource() === 'GEMINI' ? 'AI' : 'تطابق' }} {{ model.aiMatchPercentage ?? model.aiScore }}%</span>
 						<button class="svc-fav" type="button" aria-label="أضف للمفضلة"><svg aria-hidden="true">
 								<use href="#ws-heart"></use>
 							</svg></button>

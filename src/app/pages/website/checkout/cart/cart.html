@@ -44,9 +44,9 @@
         </svg>
       </div>
       <div class="ai-banner-txt">
-        <strong>تحليل الذكاء الاصطناعي</strong> — الخدمات المختارة متوافقة ومكملة لبعضها. توافق المجال <strong>96%</strong> · مدة التسليم المجمّعة <strong>12–14 يوماً</strong>
+        راجع تفاصيل كل خدمة والمدة المتوقعة قبل إتمام الطلب — يمكنك التواصل مع مقدم الخدمة لأي استفسار قبل الدفع.
       </div>
-      <div class="ai-banner-badge">AI · نشط</div>
+      <div class="ai-banner-badge">نصيحة</div>
     </div>
 
     @if (itemCount() > 0) {
@@ -227,7 +227,7 @@
                         <span class="rec-thumb-placeholder">{{ rec.provider.initials }}</span>
                       }
                       @if (rec.aiMatchPercentage) {
-                        <span class="rec-ai-badge">AI {{ rec.aiMatchPercentage }}%</span>
+                        <span class="rec-ai-badge">{{ aiGenerationSource() === 'GEMINI' ? 'AI' : 'تطابق' }} {{ rec.aiMatchPercentage }}%</span>
                       }
                     </div>
                     <div class="rec-card-body">

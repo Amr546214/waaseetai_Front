@@ -131,7 +131,7 @@
 				<div class="dash-sub" *ngIf="data.summary.hasApprovedSpecialties"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-ai"></use>
-					</svg>توصية AI: لديك {{ data.aiMatchingProjects?.length || 0 }} طلبات جديدة تناسب تخصصك و{{
+					</svg>{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'توصية AI' : 'توصية ذكية' }}: لديك {{ data.aiMatchingProjects?.length || 0 }} طلبات جديدة تناسب تخصصك و{{
 					data.summary?.pendingOffersCount || 0 }} تسليم بانتظار اعتماد العميل</div>
 			</div>
 			<div class="dash-chips">
@@ -307,9 +307,9 @@
 				</svg>
 			</div>
 			<div class="ai-disc-body">
-				<div class="ai-disc-lbl">وسيط AI - إفصاح الذكاء الاصطناعي</div>
-				<p class="ai-disc-txt">AI يرتّب لك طلبات العملاء حسب توافقها مع تخصصك وتاريخك <span
-						class="ai-disc-badge">دقة 95%</span> - الإنسان يحتفظ بالقرار النهائي دائما</p>
+				<div class="ai-disc-lbl">وسيط AI - نظام الترتيب الذكي</div>
+				<p class="ai-disc-txt">{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'AI' : 'نظام وسيط الذكي' }} يرتّب لك طلبات العملاء حسب توافقها مع تخصصك وتاريخك <span
+						class="ai-disc-badge">مطابقة تخصص</span> - الإنسان يحتفظ بالقرار النهائي دائما</p>
 			</div>
 			<button type="button" class="ai-disc-link">منطق الترتيب</button>
 		</div>
@@ -482,7 +482,7 @@
 								stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 								<use href="#i-ai"></use>
 							</svg>
-							AI • {{ m.aiMatchScore }}%
+							{{ m.generationSource === 'GEMINI' ? 'AI' : 'تطابق' }} • {{ m.aiMatchScore }}%
 						</div>
 					</div>
 					<div *ngIf="m.matchReasons?.length" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
@@ -558,7 +558,7 @@
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-ai"></use>
 					</svg>
-					توصية AI: {{ data.summary?.pendingClientApprovalCount || 0 }} تسليمات بانتظار مراجعتك ومقدم خدمات نسبة إتمامه 34% فقط
+					{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'توصية AI' : 'توصية ذكية' }}: {{ data.summary?.pendingClientApprovalCount || 0 }} تسليمات بانتظار مراجعتك
 				</div>
 			</div>
 			<div class="dash-chips">
@@ -710,7 +710,7 @@
 						</svg>
 					</div>
 				</div>
-				<div class="stat-val">{{ data.summary?.aiRating ? (data.summary.aiRating * 20) : 96 }}%</div>
+				<div class="stat-val">{{ data.summary?.aiRating ? (data.summary.aiRating * 20) + '%' : 'قيد التقييم' }}</div>
 				<div class="stat-sub">توصيات الإسناد</div>
 			</div>
 		</div>
@@ -732,8 +732,8 @@
 				</svg>
 			</div>
 			<div class="ai-disc-body">
-				<div class="ai-disc-lbl">وسيط AI - إفصاح الذكاء الاصطناعي</div>
-				<p class="ai-disc-txt">AI يرتّب إسناد الطلبات لمقدمي الخدمات حسب تخصصاتهم وأدائهم التاريخي <span class="ai-disc-badge">دقة {{ data.summary?.aiRating ? (data.summary.aiRating * 20) : 96 }}%</span> — الإسناد النهائي قرار مالك الشركة دائماً</p>
+				<div class="ai-disc-lbl">وسيط AI - نظام الإسناد الذكي</div>
+				<p class="ai-disc-txt">نظام وسيط الذكي يرتّب إسناد الطلبات لمقدمي الخدمات حسب تخصصاتهم وأدائهم التاريخي <span class="ai-disc-badge">{{ data.summary?.aiRating ? ('دقة ' + (data.summary.aiRating * 20) + '%') : 'قيد التقييم' }}</span> — الإسناد النهائي قرار مالك الشركة دائماً</p>
 			</div>
 			<a routerLink="/provider-overview/reports" class="ai-disc-link">تقارير الأداء</a>
 		</div>
@@ -849,9 +849,9 @@
 					<div class="ai-ins-hd">
 						<svg aria-hidden="true"><use href="#i-ai"></use></svg>
 						<span class="ai-ins-hd-ttl">AI Insights</span>
-						<span class="ai-ins-hd-pct">{{ data.summary?.aiRating ? (data.summary.aiRating * 20) : 96 }}%</span>
+						<span class="ai-ins-hd-pct">{{ data.summary?.aiRating ? (data.summary.aiRating * 20) + '%' : 'قيد التقييم' }}</span>
 					</div>
-					<p class="ai-ins-txt">نواف الحربي نسبة إتمام مشاريعه 34% فقط هذا الشهر. يُنصح بمراجعة صلاحياته أو إسناد طلباته الجديدة لفهد العتيبي بتطابق 94%</p>
+					<p class="ai-ins-txt">تحليل أداء الفريق قيد الإعداد — ستظهر هنا توصيات فعلية بمجرد توفر بيانات كافية عن أداء أعضاء فريقك.</p>
 				</div>
 
 			</div>

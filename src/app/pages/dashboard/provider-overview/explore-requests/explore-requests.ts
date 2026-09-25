@@ -191,7 +191,11 @@ export class ExploreRequests implements OnInit {
 						aiPriceEval: p.aiPriceEval || 'عادل ومطابق لمتطلبات السوق',
 						aiDurationRange: p.aiSuggestedDuration,
 						aiDurationEval: p.aiDurationEval || 'واقعية ومناسبة',
-						aiNote: p.aiNote || (p.aiMatchScore > 90 ? 'الذكاء يوضح هذا الطلب كأفضل توافق مع تخصصك وأسلوبك' : (p.aiMatchScore > 80 ? 'منافسة منخفضة - فرصة جيدة للفوز بالعرض' : 'السعر أقل من التقدير - يمكنك طلب تفاوض للخدمة')),
+						// The backend always sets aiNote (see explore-requests.service.ts),
+						// so this is a defensive fallback only — kept honest (no "AI
+						// determined this" claim) since this list's ranking is a
+						// deterministic keyword/heuristic engine, not Gemini/OpenAI.
+						aiNote: p.aiNote || (p.aiMatchScore > 90 ? 'نظام المطابقة يوضح هذا الطلب كأفضل توافق مع تخصصك وأسلوبك' : (p.aiMatchScore > 80 ? 'منافسة منخفضة - فرصة جيدة للفوز بالعرض' : 'السعر أقل من التقدير - يمكنك طلب تفاوض للخدمة')),
 						isSaved: p.isSaved,
 						isApplied: p.hasApplied
 					}));

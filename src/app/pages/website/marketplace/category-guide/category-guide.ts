@@ -81,6 +81,9 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 	activeCatSlug = signal<string>('');
 	aiTopPicks = signal<{ id: string; title: string }[]>([]);
 	aiBannerInsight = signal<string>('توصيات الذكاء الاصطناعي تُحدَّث باستمرار بناءً على نشاط الطلبات على المنصة — تصفح الفئات الأكثر طلباً أدناه');
+	// Reflects the backend's honest generationSource — never assume GEMINI
+	// before a response actually confirms it (see F6 security follow-up).
+	aiGenerationSource = signal<'GEMINI' | 'DETERMINISTIC' | null>(null);
 
 	private totalModelsCountRaw = signal<number>(0);
 	private scrollHandler = () => this.updateActiveCategory();
@@ -148,11 +151,15 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 			next: (res) => {
 				const recs = res?.data?.recommendations || res?.recommendations || [];
 				this.aiTopPicks.set(recs.map((r: any) => ({ id: r.id, title: r.title })));
+				this.aiGenerationSource.set(res?.data?.generationSource === 'GEMINI' ? 'GEMINI' : 'DETERMINISTIC');
 				if (res?.data?.matchSummary) {
 					this.aiBannerInsight.set(res.data.matchSummary);
 				}
 			},
-			error: (err) => console.error('Failed to load AI insight:', err)
+			error: (err) => {
+				console.error('Failed to load AI insight:', err);
+				this.aiGenerationSource.set(null);
+			}
 		});
 	}
 

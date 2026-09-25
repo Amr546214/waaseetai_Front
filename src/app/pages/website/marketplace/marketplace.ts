@@ -94,7 +94,10 @@ export class Marketplace implements OnInit, OnDestroy {
 
 	allModels = signal<MarketplaceModel[]>([]);
 	aiRecommendedModels = signal<MarketplaceModel[]>([]);
-	aiBannerInsight = signal<string>('اختيارات الذكاء الاصطناعي لك: تحليل النماذج المنشورة بنسبة توافق تصل إلى 97%');
+	aiBannerInsight = signal<string>('جاري تحليل النماذج المنشورة لعرض أفضل التوصيات لك...');
+	// Reflects the backend's honest generationSource — never assume GEMINI
+	// before a response actually confirms it (see F6 security follow-up).
+	aiGenerationSource = signal<'GEMINI' | 'DETERMINISTIC' | null>(null);
 	totalModelsCount = signal<number>(0);
 
 	featuredModels = computed(() => {
@@ -274,11 +277,16 @@ export class Marketplace implements OnInit, OnDestroy {
 			next: (res) => {
 				const recs = res?.data?.recommendations || res?.recommendations || [];
 				this.aiRecommendedModels.set(recs);
+				this.aiGenerationSource.set(res?.data?.generationSource === 'GEMINI' ? 'GEMINI' : 'DETERMINISTIC');
 				if (res?.data?.matchSummary) {
 					this.aiBannerInsight.set(res.data.matchSummary);
 				}
 			},
-			error: (err) => console.error('Failed to load AI recommendations:', err)
+			error: (err) => {
+				console.error('Failed to load AI recommendations:', err);
+				this.aiGenerationSource.set(null);
+				this.aiBannerInsight.set('تعذر تحميل التوصيات الذكية حالياً.');
+			}
 		});
 	}
 

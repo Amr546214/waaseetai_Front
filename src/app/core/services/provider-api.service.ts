@@ -71,6 +71,7 @@ export interface ProviderStatsResponse {
 			deliveryDays?: number;
 			clientName?: string;
 			createdAt?: string | Date;
+			generationSource?: 'GEMINI' | 'DETERMINISTIC';
 		}>;
 	};
 }

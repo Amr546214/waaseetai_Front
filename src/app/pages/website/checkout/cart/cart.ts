@@ -34,6 +34,9 @@ export class CartComponent implements OnInit, OnDestroy {
   aiRecommendations = signal<MarketplaceModel[]>([]);
   aiLoading = signal(false);
   aiError = signal(false);
+  // Reflects the backend's honest generationSource — never assume GEMINI
+  // before a response actually confirms it (see F6 security follow-up).
+  aiGenerationSource = signal<'GEMINI' | 'DETERMINISTIC' | null>(null);
 
   private aiSub?: Subscription;
 
@@ -116,10 +119,12 @@ export class CartComponent implements OnInit, OnDestroy {
       next: (res) => {
         const recs = res?.data?.recommendations || res?.recommendations || [];
         this.aiRecommendations.set(recs);
+        this.aiGenerationSource.set(res?.data?.generationSource === 'GEMINI' ? 'GEMINI' : 'DETERMINISTIC');
         this.aiLoading.set(false);
       },
       error: () => {
         this.aiError.set(true);
+        this.aiGenerationSource.set(null);
         this.aiLoading.set(false);
       },
     });
