@@ -77,10 +77,6 @@ export class DeliveryReview implements OnInit {
 
 	deliveryFiles = computed<any[]>(() => this.latestDelivery()?.files || []);
 
-	stageAiMatchPct(stage: any): string {
-		const v = stage?.aiMatchPct || stage?.aiScore;
-		return v ? `${v}٪` : '94٪';
-	}
 
 	ngOnInit(): void {
 		const id = this.route.snapshot.paramMap.get('id') || '';

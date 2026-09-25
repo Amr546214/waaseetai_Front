@@ -369,18 +369,6 @@
 			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.humanRating | number:'1.1-1' }}</div>
 			<div class="stat-sub">من 5 نجوم</div>
 		</div>
-		<div class="stat-card">
-			<div class="stat-top">
-				<span class="stat-lbl">تقييم الذكاء الاصطناعي</span>
-				<div class="stat-ico ai" aria-hidden="true"><svg class="ws-star-svg" width="14" height="14"
-						viewBox="0 0 100 100" fill="#A56BE0">
-						<path
-							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-					</svg></div>
-			</div>
-			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.aiRating | number:'1.1-1' }}</div>
-			<div class="stat-sub">دقة AI متوقعة</div>
-		</div>
 	</div>
 
 	<!-- AI Disclosure Banner -->
@@ -390,11 +378,9 @@
 				<use href="#i-ai"></use>
 			</svg></div>
 		<div class="ai-disc-body">
-			<div class="ai-disc-lbl">وسيط AI - إفصاح الذكاء الاصطناعي</div>
-			<p class="ai-disc-txt">AI يرتب لك العروض بناء على 12 مشروع مشابه <span class="ai-disc-badge">دقة 95%</span>
-				- الإنسان يحتفظ بالقرار النهائي دائما</p>
+			<div class="ai-disc-lbl">وسيط، ترتيب العروض</div>
+			<p class="ai-disc-txt">تُرتَّب العروض تلقائياً بناءً على مشاريع مشابهة، والقرار النهائي دائماً لك</p>
 		</div>
-		<button type="button" class="ai-disc-link">منطق الترتيب</button>
 	</div>
 
 	<!-- Main Grid -->

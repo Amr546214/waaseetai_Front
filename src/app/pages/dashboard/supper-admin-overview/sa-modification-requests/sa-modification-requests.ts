@@ -198,7 +198,7 @@ export class SaModificationRequests implements OnInit {
         : status === 'ok' ? 'اعتمده المراجع'
         : 'مرفوض',
       verdictText: r.rejectionReason || r.aiRecommendation || 'يتحقق الذكاء من البيانات...',
-      verdictScore: r.aiConfidenceScore ? `دقة ${r.aiConfidenceScore}%` : (status === 'rejected' ? 'تعارض' : 'دقة 95%'),
+      verdictScore: r.aiConfidenceScore ? `دقة ${r.aiConfidenceScore}%` : (status === 'rejected' ? 'تعارض' : 'غير متاح'),
       reviewer: r.reviewedBy || undefined,
       timeline: this.buildTimeline(status),
     };

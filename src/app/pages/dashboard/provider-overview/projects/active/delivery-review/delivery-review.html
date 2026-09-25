@@ -62,8 +62,8 @@
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /><circle cx="12" cy="3" r="1.5" /><circle cx="12" cy="21" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" /></svg>
 		</div>
 		<div class="ai-disc-body">
-			<div class="ai-disc-lbl">وسيط AI، فحص جودة التسليم</div>
-			<p class="ai-disc-txt">AI تحقّق من مطابقة التسليم للعقد وخلوّه من ملفات ناقصة — تطابق {{ stageAiMatchPct(finalStage()) }} مع بنود العقد <span class="ai-disc-badge">القرار للعميل</span></p>
+			<div class="ai-disc-lbl">وسيط، مراجعة جودة التسليم</div>
+			<p class="ai-disc-txt">راجع مطابقة التسليم لبنود العقد واكتمال الملفات قبل الإرسال — القرار النهائي للعميل</p>
 		</div>
 	</div>
 
@@ -107,8 +107,8 @@
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /><circle cx="12" cy="3" r="1.5" /><circle cx="12" cy="21" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" /></svg>
 		</div>
 		<div class="ai-disc-body">
-			<div class="ai-disc-lbl">وسيط AI، خلاصة وتسليم المشروع</div>
-			<p class="ai-disc-txt">AI يتحقق نيابةً عنك من اكتمال التسليم النهائي ومطابقته لبنود العقد <span class="ai-disc-badge">دقة {{ stageAiMatchPct(finalStage()) }}</span></p>
+			<div class="ai-disc-lbl">وسيط، خلاصة وتسليم المشروع</div>
+			<p class="ai-disc-txt">راجع اكتمال التسليم النهائي ومطابقته لبنود العقد قبل الاعتماد</p>
 		</div>
 	</div>
 
@@ -140,10 +140,6 @@
 					} @empty {
 					<div class="dr-empty-txt">لم تُرفع ملفات لهذه المرحلة بعد</div>
 					}
-				</div>
-				<div class="dr-aicheck">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
-					تطابق {{ stageAiMatchPct(stage) }} مع بنود العقد لهذه المرحلة
 				</div>
 			</div>
 			}

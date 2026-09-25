@@ -44,8 +44,8 @@ interface Ticket {
 				</svg>
 			</div>
 			<div class="flex-1">
-				<div class="text-[10px] font-extrabold text-[var(--ai-txt,#A56BE0)] tracking-wider mb-0.5">وسيط AI، فرز التذاكر</div>
-				<p class="text-[13px] text-[var(--txt-2,#A8B2D1)]">يصنّف الذكاء كل تذكرة حسب موضوعها ويوجّهها للقسم المختص ويقترح حلولًا فورية <span class="bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.28)] rounded px-1.5 py-px text-[10px] font-bold text-[var(--ai-txt,#A56BE0)]">دقة 95%</span> القرار في الحالات الحسّاسة لفريق الدعم البشري</p>
+				<div class="text-[10px] font-extrabold text-[var(--ai-txt,#A56BE0)] tracking-wider mb-0.5">وسيط، تذاكر الدعم</div>
+				<p class="text-[13px] text-[var(--txt-2,#A8B2D1)]">تُصنَّف كل تذكرة حسب القسم الذي تختاره، ويتولى فريق الدعم البشري الحالات الحسّاسة</p>
 			</div>
 		</div>
 

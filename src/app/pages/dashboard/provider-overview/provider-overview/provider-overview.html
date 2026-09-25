@@ -293,8 +293,7 @@
 					</div>
 				</div>
 				<div class="stat-val">{{ data.summary?.aiRating || 0 }}</div>
-				<div class="stat-sub" *ngIf="data.summary?.aiRating">دقة AI {{ (data.summary?.aiRating || 0) * 20 | number:'1.0-0' }}%</div>
-				<div class="stat-sub" *ngIf="!data.summary?.aiRating">قيد التقييم</div>
+				<div class="stat-sub">قيد التقييم</div>
 			</div>
 		</div>
 
@@ -311,7 +310,6 @@
 				<p class="ai-disc-txt">{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'AI' : 'نظام وسيط الذكي' }} يرتّب لك طلبات العملاء حسب توافقها مع تخصصك وتاريخك <span
 						class="ai-disc-badge">مطابقة تخصص</span> - الإنسان يحتفظ بالقرار النهائي دائما</p>
 			</div>
-			<button type="button" class="ai-disc-link">منطق الترتيب</button>
 		</div>
 
 		<!-- Main Grid -->
@@ -732,8 +730,8 @@
 				</svg>
 			</div>
 			<div class="ai-disc-body">
-				<div class="ai-disc-lbl">وسيط AI - نظام الإسناد الذكي</div>
-				<p class="ai-disc-txt">نظام وسيط الذكي يرتّب إسناد الطلبات لمقدمي الخدمات حسب تخصصاتهم وأدائهم التاريخي <span class="ai-disc-badge">{{ data.summary?.aiRating ? ('دقة ' + (data.summary.aiRating * 20) + '%') : 'قيد التقييم' }}</span> — الإسناد النهائي قرار مالك الشركة دائماً</p>
+				<div class="ai-disc-lbl">وسيط، نظام الإسناد</div>
+				<p class="ai-disc-txt">يُرتَّب إسناد الطلبات لمقدمي الخدمات تلقائياً حسب تخصصاتهم وأدائهم التاريخي — والإسناد النهائي قرار مالك الشركة دائماً</p>
 			</div>
 			<a routerLink="/provider-overview/reports" class="ai-disc-link">تقارير الأداء</a>
 		</div>

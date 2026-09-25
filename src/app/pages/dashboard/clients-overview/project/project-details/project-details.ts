@@ -81,48 +81,31 @@ export class ProjectDetails implements OnInit {
 	currentReviewStage(data: any): any {
 		return data.stages.find((s: any) => s.status === 'submitted') || null;
 	}
-	// AI match percentage fallback (derive from progress or use provided field)
+	// Honest AI-insights display — the backend already signals "not computed
+	// yet" (confidence:0/matchPercentage:null/bullets:[]/riskLevel:'غير محسوبة')
+	// as an explicit honest state; these helpers must display that signal
+	// as-is, never substitute a fabricated positive-looking value for it
+	// (previously computed a fake 88-96% match, a fake 95% confidence, a
+	// fake early-days estimate, a fake risk level, and 3 fabricated positive
+	// bullets from raw daysLeft/progress whenever the real signal was absent).
 	aiMatchPct(data: any): string {
 		const v = data?.aiInsights?.matchPercentage;
-		if (v) return v + '٪';
-		// Safe fallback derived from progress
-		const p = data?.progress || 0;
-		const base = 88 + Math.round(p / 100 * 8); // 88-96 range
-		return base + '٪';
+		return v ? v + '٪' : 'غير متاح';
 	}
-	// AI confidence fallback
 	aiConfidence(data: any): string {
 		const v = data?.aiInsights?.confidence;
-		if (v) return v + '٪';
-		return '95٪';
+		return v ? v + '٪' : 'غير متاح';
 	}
-	// AI early days fallback
 	aiEarlyDays(data: any): string {
 		const v = data?.aiInsights?.earlyDays;
-		if (v) return v;
-		const dl = data?.daysLeft || 0;
-		if (dl > 0) return String(Math.max(1, Math.round(dl / 10)));
-		return '0';
+		return v ? String(v) : '—';
 	}
-	// AI risk level fallback
 	aiRiskLevel(data: any): string {
-		const v = data?.aiInsights?.riskLevel;
-		if (v) return v;
-		const dl = data?.daysLeft || 0;
-		if (dl > 7) return 'منخفضة';
-		if (dl > 0) return 'متوسطة';
-		return 'مرتفعة';
+		return data?.aiInsights?.riskLevel || 'غير محسوبة';
 	}
-	// AI insights bullets fallback (populated, not "waiting for data")
 	aiBullets(data: any): string[] {
 		if (data?.aiInsights?.bullets?.length) return data.aiInsights.bullets;
-		const bullets: string[] = [];
-		const dl = data?.daysLeft || 0;
-		if (dl > 0) bullets.push(`<strong>تسليم مبكر متوقع</strong> — المرحلة الحالية ضمن الجدول الزمني بفارض ${Math.max(1, Math.round(dl / 10))} أيام`);
-		else bullets.push('المرحلة الحالية ضمن الجدول الزمني المتفق عليه');
-		bullets.push('<strong>جودة المرحلة الأخيرة عالية</strong> ومطابقة لمتطلبات العقد');
-		bullets.push('<strong>المخاطرة منخفضة</strong> — لا توجد مؤشرات تأخير أو انحراف');
-		return bullets;
+		return ['لا تتوفر تحليلات كافية بعد — ستظهر هنا بمجرد توفر بيانات كافية عن سير المشروع'];
 	}
 	// Quality check note for the current submitted stage
 	qualityNote(stage: any): string {
