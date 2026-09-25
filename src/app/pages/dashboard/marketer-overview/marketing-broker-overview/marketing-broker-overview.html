@@ -1,9 +1,9 @@
 <div class="main-inner">
-    <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+    <div class="ai-disclosure" role="region" aria-label="افصاح عن التوصيات">
       <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
       <div class="ai-disc-body">
-        <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-        <p class="ai-disc-txt">AI يحلل أداء قنواتك ويقترح أفضل توقيت ومحتوى لزيادة الإحالات <span class="ai-disc-badge">دقة 92%</span> القرار النهائي لك</p>
+        <div class="ai-disc-lbl">وسيط AI، توصيات آلية</div>
+        <p class="ai-disc-txt">نحلّل أداء قنواتك ونعرض توصيات آلية مبنية على بيانات إحالاتك الفعلية لمساعدتك على زيادة الإحالات، والقرار النهائي لك</p>
       </div>
     </div>
 
@@ -16,9 +16,9 @@
           <svg width="12" height="12" aria-hidden="true" class="txt-purple"><use href="#i-ai"></use></svg>
           <span style="font-size:11.5px" class="txt-slate">
             @if (summary()?.successfulReferrals === 0) {
-              توصية AI: أكمل أول 3 إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
+              توصية: أكمل أول 3 إحالات للترقي إلى المستوى التالي وحصد عمولات أعلى
             } @else {
-              توصية AI: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
+              توصية: {{ (summary()?.nextTierThreshold || 10) - (summary()?.successfulReferrals || 0) }} إحالات إضافية ترقّيك إلى <strong class="ws-level-tag" style="color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</strong> (عمولة أعلى بـ 5%)
             }
           </span>
         </div>

@@ -65,11 +65,8 @@
 					[class.disabled]="t.disabled" (click)="selectAccountType(t.id)">
 
 					<div class="role-card-body" [class.is-blurred]="t.disabled">
-						<div class="ai-suggest" *ngIf="t.aiSuggest" aria-label="مقترح بالذكاء الاصطناعي">
-							<svg class="register-ai-icon register-ai-icon-small" viewBox="0 0 24 24" fill="none"
-								stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-								<use href="#i-ai"></use>
-							</svg> AI يقترح
+						<div class="ai-suggest" *ngIf="t.aiSuggest" aria-label="الأكثر اختيارًا">
+							الأكثر اختيارًا
 						</div>
 
 						<div class="role-icon" aria-hidden="true">

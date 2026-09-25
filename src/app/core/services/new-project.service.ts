@@ -9,15 +9,6 @@ export interface ProviderPreData {
 	portfolioItems: any[];
 }
 
-export interface AiAuditResult {
-	score: number;
-	feedback: any[];
-	marketComparison: {
-		priceRange: { min: number; max: number };
-		daysRange: { min: number; max: number };
-	};
-}
-
 export interface AiReviewEvaluation {
 	clarityScore: number;
 	feasibilityScore: number;
@@ -105,10 +96,6 @@ export class NewProjectService {
 		return this.http.get<ProviderPreData>(`${this.API_URL}/pre-data`);
 	}
 
-	auditWithAI(data: any): Observable<AiAuditResult> {
-		return this.http.post<AiAuditResult>(`${this.API_URL}/ai-audit`, data);
-	}
-
 	publishService(data: any): Observable<any> {
 		return this.http.post<any>(this.API_URL, data);
 	}
@@ -125,21 +112,8 @@ export class NewProjectService {
 		return this.http.patch<any>(`${this.API_URL}/${id}/visibility`, { visible });
 	}
 
-	getCenterData(params?: any): Observable<any> {
-		return this.http.get<any>(`${this.API_URL}/center`, { params });
-	}
-
 	getMyMarketModels(params?: any): Observable<any> {
 		return this.http.get<any>(`${environment.url_api}/business-models/my-market-models`, { params });
-	}
-
-	// HTTP fallback AI Review Methods
-	enhanceDescription(title: string, description: string): Observable<{ success: boolean; data: { text: string } }> {
-		return this.http.post<any>(`${this.AI_REVIEW_URL}/enhance-description`, { title, description });
-	}
-
-	suggestText(title: string): Observable<{ success: boolean; data: { text: string } }> {
-		return this.http.post<any>(`${this.AI_REVIEW_URL}/suggest-text`, { title });
 	}
 
 	suggestMilestones(title: string, description?: string, totalAmount?: number): Observable<{ success: boolean; data: { milestones: any[] } }> {

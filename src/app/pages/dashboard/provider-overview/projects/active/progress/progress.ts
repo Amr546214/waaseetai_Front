@@ -37,12 +37,15 @@ export class Progress implements OnInit {
   disputeError = signal('');
   disputeSubmitted = signal(false);
   // P-PR-013 multi-step state (display-only; submit still calls same API)
-  deliveryStep = signal(1); // 1=details, 2=ai-check (analyzing+result), 3=confirm, 4=success
+  deliveryStep = signal(1); // 1=details, 2=review (preparing+result), 3=confirm, 4=success
   deliverySuccess = false;
-  // AI check sub-state within step 2: 'idle' | 'analyzing' | 'complete'
+  // Step 2 is an honest self-review reminder, NOT an AI analysis — there is
+  // no AI quality-review backend for stage deliveries (same finding as the
+  // client-side delivery-review.ts). The brief "preparing" animation is just
+  // a loading transition, never a fabricated AI score/verdict.
+  // sub-state: 'idle' | 'analyzing' | 'complete'
   aiCheckState = signal<'idle' | 'analyzing' | 'complete'>('idle');
   aiProgress = signal(0);
-  aiResultPct = signal(94);
   private aiTimer: any = null;
 
   ngOnInit() { this.projectId = this.route.snapshot.paramMap.get('id') || ''; this.load(); }
@@ -100,11 +103,11 @@ export class Progress implements OnInit {
   }
   goToDeliveryStep(step: number) { this.deliveryStep.set(step); }
   startAiCheck() {
-    // Visual-only AI check simulation (no API call). Shows analyzing → result.
+    // Honest self-review reminder step — no AI call, no fabricated score.
+    // The brief progress animation is a loading transition only.
     this.deliveryStep.set(2);
     this.aiCheckState.set('analyzing');
     this.aiProgress.set(0);
-    // Animate progress 0→100 over ~2s, then mark complete
     if (this.aiTimer) clearInterval(this.aiTimer);
     let pct = 0;
     this.aiTimer = setInterval(() => {
@@ -119,18 +122,21 @@ export class Progress implements OnInit {
     this.aiProgress.set(0);
     this.deliveryStep.set(1);
   }
+  // Honest self-review reminders — never claimed to be AI-verified. There is
+  // no AI quality-review backend for stage deliveries (confirmed: no such
+  // field/service exists anywhere in the backend).
   aiResultChecks(): { title: string; note: string; status: 'ok' | 'warn' }[] {
     return [
-      { title: 'توافق مع متطلبات المرحلة', note: 'التسليم يغطي العناصر المطلوبة في العقد', status: 'ok' },
-      { title: 'عولجت طلبات التعديل', note: 'تمت معالجة ملاحظات الجولات السابقة', status: 'ok' },
-      { title: 'الملفات مكتملة وقابلة للاستخدام', note: 'الملفات المرفقة بالصيغ المطلوبة وبدقة عالية', status: 'ok' },
+      { title: 'توافق مع متطلبات المرحلة', note: 'تأكد أن التسليم يغطي العناصر المطلوبة في العقد', status: 'ok' },
+      { title: 'طلبات التعديل', note: 'تأكد من معالجة ملاحظات الجولات السابقة', status: 'ok' },
+      { title: 'اكتمال الملفات', note: 'راجع أن الملفات المرفقة بالصيغ المطلوبة وجاهزة للاستخدام', status: 'ok' },
     ];
   }
   aiWarnNote(): string {
     return 'لم تُرفق أمثلة على تطبيق الهوية رقمياً (موقع / تطبيق) — غير ملزمة لكن مُستحسنة';
   }
   goToConfirmFromAi() {
-    // Move from AI result (step 2 complete) to confirm step (step 3)
+    // Move from the self-review reminder (step 2) to confirm step (step 3)
     this.deliveryStep.set(3);
   }
   backToDetailsFromAi() {
@@ -199,11 +205,13 @@ export class Progress implements OnInit {
     const d = this.latestDelivery(stage);
     return d?.files?.length || 0;
   }
-  // AI match percentage for the stage (real if available, fallback 94)
+  // AI match percentage for the stage — real value only; the backend
+  // honestly signals "not computed" via a falsy value, so this must never
+  // substitute a fabricated percentage for that.
   stageAiMatchPct(stage: any): string {
     const v = stage?.aiMatchPct || stage?.aiScore;
     if (v) return v + '٪';
-    return '94٪';
+    return 'غير متاح';
   }
   // Submitted date/time (real from latest thread)
   deliverySubmittedAt(stage: any): string {
@@ -217,27 +225,24 @@ export class Progress implements OnInit {
   // Escrow amount formatted "2,500 ريال"
   escrowAmountLabel(stage: any): string { return stage?.amount ? (stage.amount | 0).toLocaleString('en-US') + ' ريال' : '—'; }
 
-  // === P-PR-010 AI insights display fallbacks (display-only, no API changes) ===
+  // === P-PR-010 AI insights (real backend field only) ===
+  // The backend (project-progress.service.ts) already returns an HONEST
+  // aiInsights object — confidence:0, matchPercentage:null, bullets:[],
+  // riskLevel:'غير محسوبة' ("not computed"), healthRating:'بانتظار بيانات
+  // كافية' ("awaiting sufficient data") — as an explicit "not computed yet"
+  // signal. These helpers must display that honest signal as-is, never
+  // substitute a fabricated positive-looking value for it.
   aiConfidence(data: any): string {
     const v = data?.aiInsights?.confidence;
-    if (v) return v + '٪';
-    return '95٪';
+    return v ? v + '٪' : 'غير متاح';
   }
   aiBullets(data: any): { title: string; text: string }[] {
     if (data?.aiInsights?.bullets?.length) return data.aiInsights.bullets;
-    // Populated fallback for fresh project
-    return [
-      { title: 'المشروع ضمن الجدول الزمني', text: '— لا توجد مؤشرات تأخير حالياً' },
-      { title: 'جاهز لاستقبال التسليمات', text: '— ارفع تسليم المرحلة الأولى لبدء المتابعة' },
-      { title: 'المخاطرة منخفضة', text: '— الضمان المالي محفوظ والشروط واضحة' },
-    ];
+    return [{ title: 'لا تتوفر تحليلات كافية بعد', text: '— ستظهر هنا بمجرد توفر بيانات كافية عن سير المشروع' }];
   }
   aiEarlyDays(data: any): string {
     const v = data?.aiInsights?.earlyDays;
-    if (v) return String(v);
-    const dl = data?.daysLeft || 0;
-    if (dl > 0) return String(Math.max(1, Math.round(dl / 10)));
-    return '0';
+    return v ? String(v) : '—';
   }
   aiMatchPct(data: any): string {
     const v = data?.aiInsights?.matchPercentage;
@@ -245,12 +250,7 @@ export class Progress implements OnInit {
     return '—';
   }
   aiRiskLevel(data: any): string {
-    const v = data?.aiInsights?.riskLevel;
-    if (v) return v;
-    const dl = data?.daysLeft || 0;
-    if (dl > 7) return 'منخفضة';
-    if (dl > 0) return 'متوسطة';
-    return 'منخفضة';
+    return data?.aiInsights?.riskLevel || 'غير محسوبة';
   }
 
   canRateClient(data: any): boolean {

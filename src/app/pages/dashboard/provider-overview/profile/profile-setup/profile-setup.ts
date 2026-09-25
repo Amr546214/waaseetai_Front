@@ -461,7 +461,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			return;
 		}
 		this.isSuggestingBio.set(true);
-		// Simulated AI suggestion based on user input (placeholder until AI endpoint exists)
+		// Deterministic starter template built from the entered job title/years —
+		// not an AI call (no backend endpoint exists for this). Presented to the
+		// user as an editable template/starting point, never as AI-generated.
 		setTimeout(() => {
 			const suggested = `${jobTitle} بخبرة ${expYears}، متخصص في تقديم حلول احترافية وعالية الجودة. شغوف بتطوير المهارات وتقديم أفضل النتائج للعملاء.`;
 			this.setupForm.get('profData.bio')?.setValue(suggested);
@@ -472,7 +474,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	suggestSkills() {
 		const mainSpec = this.setupForm.get('specialties.mainSpec')?.value || '';
 		this.isSuggestingSkills.set(true);
-		// Simulated AI suggestion (placeholder until AI endpoint exists)
+		// Deterministic fixed skill list (not an AI call — no backend endpoint
+		// exists for this). Presented to the user as generic suggestions, never
+		// as AI-generated/personalized.
 		setTimeout(() => {
 			const base = mainSpec ? [mainSpec, 'إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق', 'تحليل البيانات', 'التصميم الرقمي'] : ['إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق', 'تحليل البيانات', 'التصميم الرقمي'];
 			const current = this.skillsList();

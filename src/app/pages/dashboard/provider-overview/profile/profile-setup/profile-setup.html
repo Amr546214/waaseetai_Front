@@ -56,7 +56,7 @@
         <div class="ai-disc-ico" aria-hidden="true"><svg><use href="#i-ai"></use></svg></div>
         <div class="ai-disc-body">
           <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-          <p class="ai-disc-txt">AI يقيم مستواك المهني، يتحقق من ملكية نماذج أعمالك، ويصنفك تلقائيا <span class="ai-disc-badge">دقة 95%</span> الإنسان يحتفظ بالقرار النهائي</p>
+          <p class="ai-disc-txt">AI يقيم مستواك المهني، يتحقق من ملكية نماذج أعمالك، ويصنفك تلقائيا <span class="ai-disc-badge">تقييم آلي</span> الإنسان يحتفظ بالقرار النهائي</p>
         </div>
       </div>
 
@@ -159,7 +159,7 @@
                 <span class="f-hint">بحد أقصى 400 حرف</span>
                 <button type="button" class="ai-suggest-btn" (click)="suggestBio()" [disabled]="isSuggestingBio()">
                   <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>
-                  {{ isSuggestingBio() ? 'جاري الاقتراح...' : 'اقتراح AI للنبذة' }}
+                  {{ isSuggestingBio() ? 'جاري التحضير...' : 'اقتراح نموذج نبذة' }}
                 </button>
               </div>
             </div>
@@ -212,8 +212,8 @@
             </div>
           }
           <div class="skills-ai">
-            <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>اقتراحات AI، اضغط لإضافة</div>
-            <div class="ai-chips" aria-label="مهارات مقترحة من AI">
+            <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>مهارات مقترحة، اضغط لإضافة</div>
+            <div class="ai-chips" aria-label="مهارات مقترحة">
               @for (skill of aiSuggestedSkills(); track skill) {
                 <button type="button" class="ai-chip" (click)="addAiSkill(skill)"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-plus"></use></svg>{{ skill }}</button>
               }
@@ -393,7 +393,7 @@
         <div class="ai-banner" role="region" aria-label="توصية الذكاء الاصطناعي">
           <svg aria-hidden="true"><use href="#i-ai"></use></svg>
           <p class="ai-banner-txt"><strong>AI يرشدك: </strong>ارفع صورة واضحة وغير ملتوية، جودة الصورة تؤثر مباشرة على سرعة التحقق ومستوى الثقة</p>
-          <span class="ai-pct">دقة 88%</span>
+          <span class="ai-pct">تحقق آلي</span>
         </div>
 
         <!-- Card 1: هوية وطنية وجه -->
@@ -643,7 +643,7 @@
           </div>
           <div class="ai-disc-body">
             <div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-            <p class="ai-disc-txt">AI يتحقق من المستندات بدقة 88% <span class="ai-disc-badge">88%</span>، الإنسان يحتفظ بالقرار النهائي لكل اعتماد</p>
+            <p class="ai-disc-txt">AI يتحقق من المستندات آلياً <span class="ai-disc-badge">تحقق آلي</span>، الإنسان يحتفظ بالقرار النهائي لكل اعتماد</p>
           </div>
         </div>
 

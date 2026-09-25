@@ -82,7 +82,7 @@
       <div class="up-step-line" [class.done]="deliveryStep()>1"></div>
       <div class="up-step-item" role="listitem">
         <div class="up-step-dot" [class.active]="deliveryStep()===2" [class.done]="deliveryStep()>2">{{deliveryStep()>2?'✓':'2'}}</div>
-        <span class="up-step-lbl" [class.active]="deliveryStep()===2" [class.done]="deliveryStep()>2">فحص الذكاء</span>
+        <span class="up-step-lbl" [class.active]="deliveryStep()===2" [class.done]="deliveryStep()>2">مراجعة التسليم</span>
       </div>
       <div class="up-step-line" [class.done]="deliveryStep()>2"></div>
       <div class="up-step-item" role="listitem">
@@ -96,7 +96,7 @@
       <div class="up-main-col">
 
         @if(deliveryStep()===1){
-        <div class="up-ai-note-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg><span>وسيط AI سيحلل تسليمك ويقارنه مع متطلبات العقد والمرحلة قبل إرساله للعميل — السياق الكامل ظاهر في اللوحة على اليسار</span></div>
+        <div class="up-ai-note-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg><span>راجع تسليمك مقابل متطلبات العقد والمرحلة قبل إرساله للعميل — السياق الكامل ظاهر في اللوحة على اليسار</span></div>
 
         <!-- المرحلة -->
         <div class="up-card">
@@ -151,11 +151,11 @@
           </div>
         </div>
 
-        <!-- سيتحقق الذكاء -->
+        <!-- قائمة المراجعة الذاتية قبل الإرسال -->
         <div class="up-card up-card-ai">
           <div class="up-card-hdr">
             <div class="up-card-ico ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg></div>
-            <div><div class="up-card-title ai">سيتحقق الذكاء من:</div><div class="up-card-sub">التحليل يستغرق 10–30 ثانية</div></div>
+            <div><div class="up-card-title ai">راجع ما يلي قبل الإرسال:</div><div class="up-card-sub">التحضير يستغرق 10–30 ثانية</div></div>
           </div>
           <div class="up-ai-checks">
             <div class="up-ai-check-row"><span class="up-chk-pending">○</span><span>توافق التسليم مع متطلبات المرحلة في العقد</span></div>
@@ -167,7 +167,7 @@
 
         <div class="up-submit-row">
           <button type="button" class="up-btn-sec" (click)="closeDelivery()">إلغاء</button>
-          <button type="button" class="up-btn-pri" (click)="startAiCheck()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>رفع وتحليل بالذكاء</button>
+          <button type="button" class="up-btn-pri" (click)="startAiCheck()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>رفع ومراجعة التسليم</button>
         </div>
         }
 
@@ -176,9 +176,8 @@
           <!-- RESULT STATE -->
           <div class="up-card up-ai-result-card">
             <div class="up-result-hd">
-              <div class="up-result-badge pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>تسليم مطابق للعقد</div>
-              <div class="up-result-score">{{aiResultPct()}}<small>٪</small></div>
-              <div class="up-result-lbl">نسبة التطابق مع متطلبات المرحلة</div>
+              <div class="up-result-badge pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>جاهز للمراجعة</div>
+              <div class="up-result-lbl">راجع القائمة التالية قبل الإرسال — لا يوجد تحقق آلي بالذكاء الاصطناعي لهذه الخطوة حالياً</div>
             </div>
             <div class="up-result-checks">
               @for(c of aiResultChecks(); track c.title){
@@ -215,17 +214,17 @@
               <div class="up-scan-ring"></div>
               <div class="up-scan-ring2"></div>
             </div>
-            <div class="up-scan-title">وسيط AI يحلل تسليمك</div>
-            <div class="up-scan-sub">يقارن مع متطلبات المرحلة وطلبات التعديل السابقة</div>
+            <div class="up-scan-title">جارٍ تحضير التسليم للمراجعة</div>
+            <div class="up-scan-sub">راجع متطلبات المرحلة وطلبات التعديل السابقة قبل الإرسال</div>
             <div class="up-scan-progress">
-              <div class="up-scan-prog-lbl"><span>جارٍ التحليل…</span><span>{{aiProgress()}}%</span></div>
+              <div class="up-scan-prog-lbl"><span>جارٍ التحضير…</span><span>{{aiProgress()}}%</span></div>
               <div class="up-scan-prog-bar"><div class="up-scan-prog-fill" [style.width.%]="aiProgress()"></div></div>
             </div>
             <div class="up-scan-steps">
               <div class="up-scan-step running"><svg class="up-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>قراءة الملفات المرفوعة</div>
-              <div class="up-scan-step" [class.running]="aiProgress()>=40"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>مقارنة مع متطلبات المرحلة في العقد</div>
-              <div class="up-scan-step" [class.running]="aiProgress()>=70"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>مراجعة طلبات التعديل السابقة</div>
-              <div class="up-scan-step" [class.running]="aiProgress()>=90"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>تقييم الجودة والاكتمال</div>
+              <div class="up-scan-step" [class.running]="aiProgress()>=40"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>تجهيز مقارنة متطلبات المرحلة في العقد</div>
+              <div class="up-scan-step" [class.running]="aiProgress()>=70"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>تجهيز طلبات التعديل السابقة</div>
+              <div class="up-scan-step" [class.running]="aiProgress()>=90"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>تجهيز قائمة المراجعة النهائية</div>
             </div>
           </div>
           }
@@ -306,7 +305,7 @@
                 }
               </div>
               }
-              <div class="up-ai-tip"><div class="up-ai-tip-lbl">تلميح الذكاء</div>ارفع تسليماً كاملاً يعالج متطلبات المرحلة بوضوح لتجاوز فحص الذكاء بنسبة تطابق عالية</div>
+              <div class="up-ai-tip"><div class="up-ai-tip-lbl">تلميح</div>ارفع تسليماً كاملاً يعالج متطلبات المرحلة بوضوح لضمان مراجعة سريعة وسلسة من العميل</div>
             </div>
             }
           </div>

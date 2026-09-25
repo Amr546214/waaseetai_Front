@@ -27,10 +27,6 @@ export class SpecialtyService {
 		return this.http.post(`${this.apiUrl}/specialties/provider/specialties/step2-upload`, payload);
 	}
 
-	runAiAudit(payload: { providerSpecialtyId: string }): Observable<any> {
-		return this.http.post(`${this.apiUrl}/specialties/provider/specialties/step3-audit`, payload);
-	}
-
 	// Autonomous AI Verification Engine Endpoints
 	submitProof(formData: FormData): Observable<any> {
 		return this.http.post(`${this.apiUrl}/provider/specialties/submit-proof`, formData, {
