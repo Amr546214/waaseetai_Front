@@ -289,13 +289,21 @@
           </svg>
         </div>
         <div class="flex-1">
-          <div class="text-[10px] font-black tracking-widest mb-0.5"
-               [class]="req.status === 'REJECTED' ? 'text-[#FF8C69]' : 'text-[#A56BE0]'">
-            {{ req.aiAuditStatus === 'PASSED' ? 'توصية الذكاء: تمرير للاعتماد التلقائي' : 'توصية الذكاء: تمرير للمراجعة' }}
-            <span class="px-1.5 py-px rounded border text-[9px]"
-                  [class]="req.status === 'REJECTED' ? 'bg-[#FF8C69]/15 border-[#FF8C69]/30' : 'bg-[#7B2FBE]/15 border-[#7B2FBE]/30'">ثقة {{ req.aiConfidence | number:'1.0-0' }}%</span>
-          </div>
-          <div class="text-[12px] text-[var(--txt-3)] leading-relaxed">{{ req.aiRecommendation || 'تحقق الذكاء من تطابق المعلومات.' }}</div>
+          @if (req.aiConfidence != null) {
+            <div class="text-[10px] font-black tracking-widest mb-0.5"
+                 [class]="req.status === 'REJECTED' ? 'text-[#FF8C69]' : 'text-[#A56BE0]'">
+              {{ req.aiAuditStatus === 'PASSED' ? 'توصية الذكاء: تمرير للاعتماد التلقائي' : 'توصية الذكاء: تمرير للمراجعة' }}
+              <span class="px-1.5 py-px rounded border text-[9px]"
+                    [class]="req.status === 'REJECTED' ? 'bg-[#FF8C69]/15 border-[#FF8C69]/30' : 'bg-[#7B2FBE]/15 border-[#7B2FBE]/30'">ثقة {{ req.aiConfidence | number:'1.0-0' }}%</span>
+            </div>
+            <div class="text-[12px] text-[var(--txt-3)] leading-relaxed">{{ req.aiRecommendation || 'تحقق الذكاء من تطابق المعلومات.' }}</div>
+          } @else {
+            <div class="text-[10px] font-black tracking-widest mb-0.5"
+                 [class]="req.status === 'REJECTED' ? 'text-[#FF8C69]' : 'text-[#A56BE0]'">
+              بانتظار المراجعة اليدوية
+            </div>
+            <div class="text-[12px] text-[var(--txt-3)] leading-relaxed">{{ req.aiRecommendation || 'سيقوم فريقنا بمراجعة هذا الطلب والتحقق منه يدويًا قبل تطبيقه.' }}</div>
+          }
         </div>
       </div>
 
