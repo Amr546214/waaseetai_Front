@@ -4,10 +4,8 @@
 <!-- SVG SPRITE -->
 <svg style="display:none" aria-hidden="true"><defs>
 <symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
 <symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
 <symbol id="ws-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></symbol>
-<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
 <symbol id="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
 <symbol id="ws-broker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
 <symbol id="ws-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
@@ -20,7 +18,29 @@
 <symbol id="ws-social-snapchat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9v1c0 .5-.5 1.5-2 2 1 .3 1.3 1 1.3 1s-1.3.5-1.3 1.5c1.5 0 2.5.5 3 1C7 17 9 19 12 19s5-2 6-3.5c.5-.5 1.5-1 3-1 0-1-1.3-1.5-1.3-1.5s.3-.7 1.3-1c-1.5-.5-2-1.5-2-2V9c0-4-3-7-7-7z"/></symbol>
 </defs></svg>
 
-@if (!loading() && profile(); as p) {
+@if (loading()) {
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px">
+  <div class="loader-spinner">
+    <svg viewBox="0 0 50 50" style="width:40px;height:40px;animation:spin 1s linear infinite">
+      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border)" stroke-width="4"></circle>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--teal)" stroke-width="4" stroke-dasharray="30 100" stroke-linecap="round"></circle>
+    </svg>
+  </div>
+  <div style="font-size:14px;font-weight:700" class="txt-white">جاري تحميل ملف الوسيط التسويقي...</div>
+</div>
+} @else if (notFound()) {
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">
+  <div class="text-lg font-black txt-white">لم يتم العثور على هذا الملف الشخصي</div>
+  <p class="txt-muted" style="font-size:13px;max-width:360px">الرابط غير صحيح أو أن هذا الوسيط التسويقي غير متاح حالياً.</p>
+  <a routerLink="/marketplace" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-extrabold text-[13px] no-underline" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">تصفح السوق</a>
+</div>
+} @else if (error()) {
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">
+  <div class="text-lg font-black txt-white">تعذر تحميل الملف الشخصي</div>
+  <p class="txt-muted" style="font-size:13px;max-width:360px">{{ error() }}</p>
+  <button type="button" (click)="retry()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-extrabold text-[13px]" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">إعادة المحاولة</button>
+</div>
+} @else if (profile(); as p) {
 <div class="page-wrap">
   <div class="container">
 
@@ -30,7 +50,7 @@
       <span class="breadcrumb-sep">/</span>
       <a routerLink="/marketplace">تسوق الخدمات</a>
       <span class="breadcrumb-sep">/</span>
-      <span class="txt-slate">{{ p.name }}</span>
+      <span class="txt-slate">{{ displayName(p) }}</span>
     </div>
 
     <!-- COVER -->
@@ -38,7 +58,7 @@
       <div class="cover-grid"></div>
       <div class="cover-glow-1"></div>
       <div class="cover-glow-2"></div>
-      <div style="position:absolute;top:18px;left:24px;font-size:10px;color:rgba(255,255,255,.18);font-weight:700;letter-spacing:.1em">MARKETING BROKER · CONTENT CREATOR</div>
+      <div style="position:absolute;top:18px;left:24px;font-size:10px;color:rgba(255,255,255,.18);font-weight:700;letter-spacing:.1em">MARKETING BROKER</div>
       <div class="broker-pill">
         <span class="broker-dot"></span>
         <span style="font-size:10px;font-weight:800" class="txt-teal">وسيط تسويقي</span>
@@ -49,28 +69,26 @@
     <div class="profile-identity">
       <div class="identity-row">
         <div style="position:relative;flex-shrink:0">
-          <div class="profile-av">{{ p.initials }}</div>
-          <div class="profile-online"></div>
+          @if (p.avatarUrl) {
+            <img [src]="p.avatarUrl" alt="" class="profile-av" style="object-fit:cover" />
+          } @else {
+            <div class="profile-av">{{ initials(p) }}</div>
+          }
         </div>
         <div class="identity-info">
           <div class="identity-name-row">
-            <span class="identity-name">{{ p.name }}</span>
+            <span class="identity-name">{{ displayName(p) }}</span>
             <span class="broker-badge">
               <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-broker"></use></svg>
-              وسيط تسويقي معتمد
+              وسيط تسويقي
             </span>
-            @if (p.isVerified) {
+            @if (p.identityVerified) {
               <span class="verified-badge">
                 <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-check"></use></svg>
-                موثّق
+                هوية موثّقة
               </span>
             }
-            <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700" class="txt-green">
-              <span style="width:7px;height:7px;border-radius:50%;background:#0FA99A"></span>
-              {{ p.respondsWithin }}
-            </span>
           </div>
-          <div class="identity-title">{{ p.headline }}</div>
         </div>
         <div class="identity-actions">
           <button class="btn-primary-sm" (click)="requestMarketing()">طلب تسويق</button>
@@ -84,72 +102,6 @@
           <button class="btn-ghost-sm">
             <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-share"></use></svg>
           </button>
-        </div>
-      </div>
-      <div class="niche-tags-row">
-        @for (niche of p.niches; track niche) {
-          <span class="niche-tag">{{ niche }}</span>
-        }
-      </div>
-    </div>
-
-    <!-- STATS BAR -->
-    <div class="stats-bar">
-      <div class="stat-cell">
-        <div class="stat-n txt-teal">{{ p.stats.totalFollowers }}</div>
-        <div class="stat-sub">إجمالي المتابعين</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-n txt-teal">{{ p.stats.engagementRate }}</div>
-        <div class="stat-sub">معدل التفاعل</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-n">{{ p.stats.monthlyReach }}</div>
-        <div class="stat-sub">وصول شهري</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-n">{{ p.stats.campaigns }}</div>
-        <div class="stat-sub">حملة ناجحة</div>
-      </div>
-      <div class="stat-cell" style="background:rgba(123,47,190,.04)">
-        <div class="stat-n txt-purple">{{ p.stats.aiScore }} <span style="font-size:11px;font-weight:600" class="txt-muted">/100</span></div>
-        <div class="stat-sub" style="display:flex;align-items:center;gap:3px;justify-content:center">
-          <svg aria-hidden="true" style="width:10px;height:10px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
-          نقاط AI
-        </div>
-      </div>
-    </div>
-
-    <!-- AI METRICS -->
-    <div class="ai-metrics-block">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap">
-        <span class="ai-metrics-ico">
-          <svg aria-hidden="true" style="width:14px;height:14px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
-        </span>
-        <span style="font-size:13px;font-weight:800" class="txt-purple">تحليل AI للأداء التسويقي</span>
-        <span class="ai-active-badge">AI · نشط</span>
-        <span style="font-size:11px" class="txt-muted">أعلى من 93% من الوسطاء في نفس التخصص</span>
-      </div>
-      <div class="ai-metrics-inner">
-        <div class="ai-rings-group">
-          @for (ring of p.aiRings; track ring.label) {
-            <div class="ai-ring-item">
-              <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
-                <circle cx="36" cy="36" r="28" fill="none" [attr.stroke]="ring.color" stroke-opacity="0.14" stroke-width="5"/>
-                <circle cx="36" cy="36" r="28" fill="none" [attr.stroke]="ring.color" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="ringOffset(ring.value)"/>
-                <text x="36" y="43" text-anchor="middle" [attr.fill]="ring.color" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;font-family:Tajawal,sans-serif">{{ ring.value }}</text>
-              </svg>
-              <div style="font-size:10px" class="txt-muted">{{ ring.label }}</div>
-            </div>
-          }
-        </div>
-        <div class="ai-perf-bars">
-          @for (bar of p.aiBars; track bar.label) {
-            <div class="ai-bar-row">
-              <div class="ai-bar-label"><span class="txt-slate">{{ bar.label }}</span><span style="font-weight:800" class="txt-teal">{{ bar.valueLabel }}</span></div>
-              <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="bar.value" [style.background]="bar.color"></div></div>
-            </div>
-          }
         </div>
       </div>
     </div>
@@ -170,49 +122,41 @@
           <div class="section-card">
             <div class="section-title">
               <span class="section-ico"><svg aria-hidden="true" style="width:13px;height:13px" class="txt-teal"><use href="#ws-broker"></use></svg></span>
-              عن {{ p.name.split(' ')[0] }}
+              عن {{ displayName(p) }}
             </div>
-            @for (paragraph of p.bio; track paragraph) {
-              <p style="font-size:13.5px;line-height:1.85;margin-bottom:14px" class="txt-slate">{{ paragraph }}</p>
+            @if (p.bio) {
+              <p style="font-size:13.5px;line-height:1.85;margin-bottom:14px" class="txt-slate">{{ p.bio }}</p>
+            } @else {
+              <p style="font-size:13px" class="txt-muted">لم يضف هذا الوسيط نبذة تعريفية بعد.</p>
             }
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <span class="trust-chip"><svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-check"></use></svg> انتقائي في قبول الحملات</span>
-              <span class="trust-chip"><svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-check"></use></svg> لا إعلانات مضللة</span>
-              <span class="trust-chip"><svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-chart"></use></svg> تقرير أداء بعد كل حملة</span>
-            </div>
           </div>
 
           <!-- CHANNELS PREVIEW -->
           <div class="section-card">
             <div class="section-title">
               <span class="section-ico"><svg aria-hidden="true" style="width:13px;height:13px" class="txt-teal"><use href="#ws-users"></use></svg></span>
-              أبرز القنوات
-              <a class="section-link" (click)="setTab('channels')">عرض الكل ({{ p.channels.length }})</a>
+              القنوات
+              @if (p.channels.length) {
+                <a class="section-link" (click)="setTab('channels')">عرض الكل ({{ p.channels.length }})</a>
+              }
             </div>
-            @for (ch of p.channels.slice(0, 3); track ch.id) {
+            @if (!p.channels.length) {
+              <p style="font-size:13px" class="txt-muted">لا توجد قنوات مسجلة حالياً.</p>
+            }
+            @for (ch of p.channels.slice(0, 3); track ch.handle) {
               <div class="channel-mini">
-                <div class="channel-icon" [style.background]="ch.iconBg">
-                  <svg aria-hidden="true" style="width:18px;height:18px"><use [attr.href]="'#' + ch.icon"></use></svg>
+                <div class="channel-icon" style="background:rgba(43,127,255,.12)">
+                  <svg aria-hidden="true" style="width:18px;height:18px"><use [attr.href]="'#' + channelIcon(ch.platform)"></use></svg>
                 </div>
                 <div style="flex:1">
                   <div style="font-size:12px;font-weight:800" class="txt-white">{{ ch.handle }}</div>
-                  <div style="font-size:11px;margin-top:2px" class="txt-muted">{{ ch.description }}</div>
+                  <div style="font-size:11px;margin-top:2px" class="txt-muted">{{ ch.platform }}</div>
                 </div>
-                <div style="text-align:left">
-                  <div style="font-size:14px;font-weight:900" class="txt-white">{{ ch.followersLabel }}</div>
-                  <div style="font-size:10px" class="txt-muted">{{ ch.followersUnit }}</div>
-                </div>
-                <div class="mini-sep"></div>
-                <div style="text-align:left">
-                  <div style="font-size:13px;font-weight:800" class="txt-teal">{{ ch.engagementRate }}%</div>
-                  <div style="font-size:10px" class="txt-muted">تفاعل</div>
-                </div>
+                @if (ch.url) {
+                  <a [href]="ch.url" target="_blank" rel="noopener" style="font-size:11px" class="txt-teal">زيارة</a>
+                }
               </div>
             }
-            <a class="view-all-channels" (click)="setTab('channels')">
-              عرض جميع القنوات ({{ p.channels.length }})
-              <svg aria-hidden="true" style="width:11px;height:11px;vertical-align:middle;transform:rotate(180deg)"><use href="#ws-chevron"></use></svg>
-            </a>
           </div>
 
           <!-- HOW TO WORK -->
@@ -224,29 +168,22 @@
             <div class="step-row">
               <div class="step-num">1</div>
               <div>
-                <div style="font-size:12px;font-weight:800;margin-bottom:3px" class="txt-white">راسل {{ p.name.split(' ')[0] }}</div>
+                <div style="font-size:12px;font-weight:800;margin-bottom:3px" class="txt-white">راسل {{ displayName(p) }}</div>
                 <div style="font-size:12px;line-height:1.7" class="txt-muted">راسله مباشرة وسلّمه تفاصيل خدمتك والجمهور المستهدف</div>
               </div>
             </div>
             <div class="step-row">
               <div class="step-num">2</div>
               <div>
-                <div style="font-size:12px;font-weight:800;margin-bottom:3px" class="txt-white">تقييم التوافق</div>
-                <div style="font-size:12px;line-height:1.7" class="txt-muted">يطّلع على خدمتك ليتأكد أنها تناسب جمهوره — قد يستغرق 24 ساعة</div>
-              </div>
-            </div>
-            <div class="step-row">
-              <div class="step-num">3</div>
-              <div>
                 <div style="font-size:12px;font-weight:800;margin-bottom:3px" class="txt-white">الاتفاق على التعاون</div>
                 <div style="font-size:12px;line-height:1.7" class="txt-muted">يحدد أسلوب التعاون والتوقيت — كل شيء موثّق في وسيط</div>
               </div>
             </div>
             <div class="step-row" style="margin-bottom:0">
-              <div class="step-num">4</div>
+              <div class="step-num">3</div>
               <div>
                 <div style="font-size:12px;font-weight:800;margin-bottom:3px" class="txt-white">متابعة النتائج</div>
-                <div style="font-size:12px;line-height:1.7" class="txt-muted">يروّج لخدمتك ويشاركك الأرقام بعد النشر — وصول، تفاعل، طلبات ناتجة</div>
+                <div style="font-size:12px;line-height:1.7" class="txt-muted">يروّج لخدمتك عبر قنواته المسجلة</div>
               </div>
             </div>
           </div>
@@ -255,119 +192,71 @@
         <!-- SIDEBAR -->
         <div>
           <div class="sidebar-card" style="background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border-color:rgba(43,212,199,.2)">
-            <div style="font-size:15px;font-weight:900;margin-bottom:6px" class="txt-white">تواصل مع {{ p.name.split(' ')[0] }}</div>
-            <div style="font-size:12px;margin-bottom:16px;line-height:1.7" class="txt-muted">يروّج للخدمات المهنية بأسلوبه الخاص عبر قنواته — راسله مباشرة لمناقشة التعاون</div>
-            <div class="online-strip">
-              <div style="width:8px;height:8px;border-radius:50%;background:#0FA99A;flex-shrink:0"></div>
-              <div style="font-size:12px" class="txt-slate">{{ p.respondsWithin }}</div>
-            </div>
+            <div style="font-size:15px;font-weight:900;margin-bottom:6px" class="txt-white">تواصل مع {{ displayName(p) }}</div>
+            <div style="font-size:12px;margin-bottom:16px;line-height:1.7" class="txt-muted">راسله مباشرة لمناقشة التعاون</div>
             <button class="btn-primary-sm" style="width:100%;margin-bottom:8px;padding:12px" (click)="requestMarketing()">طلب تسويق</button>
             <button class="btn-ghost-sm" style="width:100%;justify-content:center;padding:10px" (click)="requestMarketing()">
               <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-msg"></use></svg>
               استفسار أو رسالة
             </button>
           </div>
-
-          <div class="sidebar-card">
-            <div style="display:flex;align-items:center;gap:7px;margin-bottom:14px">
-              <span class="ai-metrics-ico" style="width:26px;height:26px">
-                <svg aria-hidden="true" style="width:12px;height:12px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
-              </span>
-              <span style="font-size:11px;font-weight:800" class="txt-purple">تحليل الجمهور — AI</span>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              @for (country of p.audience.countries; track country.label) {
-                <div>
-                  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-                    <span class="txt-slate">{{ country.label }}</span>
-                    <span [style.color]="country.pct >= 15 ? 'var(--teal)' : 'var(--txt-3)'" style="font-weight:700">{{ country.pct }}%</span>
-                  </div>
-                  <div class="audience-track"><div class="audience-fill" [style.width.%]="country.pct" [style.background]="country.color"></div></div>
-                </div>
-              }
-              <div class="audience-meta-row">
-                <div>
-                  <div style="font-size:10px" class="txt-muted">الفئة العمرية</div>
-                  <div style="font-size:12px;font-weight:800" class="txt-white">{{ p.audience.ageRange }}</div>
-                </div>
-                <div>
-                  <div style="font-size:10px" class="txt-muted">الجنس</div>
-                  <div style="font-size:12px;font-weight:800" class="txt-white">{{ p.audience.gender }}</div>
-                </div>
-                <div>
-                  <div style="font-size:10px" class="txt-muted">الاهتمامات</div>
-                  <div style="font-size:12px;font-weight:800" class="txt-white">{{ p.audience.interests }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       }
 
       @if (activeTab() === 'channels') {
-      <!-- FILTER -->
-      <div class="filter-chips">
-        <button class="fchip" [class.active]="channelStatusFilter()==='all'" (click)="setChannelFilter('all')">الكل ({{ p.channels.length }})</button>
-        <button class="fchip" [class.active]="channelStatusFilter()==='available'" (click)="setChannelFilter('available')">متاح ({{ channelCountByStatus('available') }})</button>
-        <button class="fchip" [class.active]="channelStatusFilter()==='completed'" (click)="setChannelFilter('completed')">مكتمل ({{ channelCountByStatus('completed') }})</button>
-        <button class="fchip" [class.active]="channelStatusFilter()==='seasonal'" (click)="setChannelFilter('seasonal')">موسمي ({{ channelCountByStatus('seasonal') }})</button>
-      </div>
-
       <div class="channels-grid">
-        @for (ch of filteredChannels(); track ch.id) {
+        @for (ch of p.channels; track ch.handle) {
           <div class="ch-card">
             <div class="ch-header">
-              <div class="channel-icon" style="width:44px;height:44px;border-radius:11px" [style.background]="ch.iconBg">
-                <svg aria-hidden="true" style="width:22px;height:22px"><use [attr.href]="'#' + ch.icon"></use></svg>
+              <div class="channel-icon" style="width:44px;height:44px;border-radius:11px;background:rgba(43,127,255,.12)">
+                <svg aria-hidden="true" style="width:22px;height:22px"><use [attr.href]="'#' + channelIcon(ch.platform)"></use></svg>
               </div>
               <div style="flex:1">
                 <div style="font-size:14px;font-weight:900" class="txt-white">{{ ch.handle }}</div>
-                <div style="font-size:11px" class="txt-muted">{{ ch.platform }} · {{ ch.description }}</div>
+                <div style="font-size:11px" class="txt-muted">{{ ch.platform }}</div>
               </div>
-              <span class="status-pill" [class.status-completed]="ch.status !== 'available'">{{ ch.status === 'available' ? 'متاح' : (ch.status === 'completed' ? 'مكتمل' : 'موسمي') }}</span>
-            </div>
-            <div class="ch-stats">
-              <div class="ch-stat">
-                <div style="font-size:16px;font-weight:900" class="txt-white">{{ ch.followersLabel }}</div>
-                <div style="font-size:9px" class="txt-muted">{{ ch.followersUnit }}</div>
-              </div>
-              <div class="ch-stat">
-                <div style="font-size:16px;font-weight:900" class="txt-teal">{{ ch.engagementRate }}%</div>
-                <div style="font-size:9px" class="txt-muted">تفاعل</div>
-              </div>
-              <div class="ch-stat">
-                <div style="font-size:16px;font-weight:900" class="txt-white">{{ ch.reachLabel }}</div>
-                <div style="font-size:9px" class="txt-muted">وصول/شهر</div>
-              </div>
-            </div>
-            <div class="ch-niches">
-              @for (niche of ch.niches; track niche) {
-                <span class="ch-niche">{{ niche }}</span>
+              @if (ch.url) {
+                <a [href]="ch.url" target="_blank" rel="noopener" class="section-link">زيارة</a>
               }
-            </div>
-            <div class="ch-footer">
-              <div class="ai-badge"><svg aria-hidden="true" style="width:9px;height:9px"><use href="#ws-trust-ai"></use></svg> AI {{ ch.aiScore }} · متابعون حقيقيون</div>
             </div>
           </div>
         }
-        @if (!filteredChannels().length) {
-          <div style="grid-column:1/-1;text-align:center;padding:40px 0;font-size:13px" class="txt-muted">لا توجد قنوات ضمن هذا التصنيف.</div>
+        @if (!p.channels.length) {
+          <div style="grid-column:1/-1;text-align:center;padding:40px 0;font-size:13px" class="txt-muted">لا توجد قنوات مسجلة حالياً.</div>
+        }
+      </div>
+
+      <!-- REAL CHANNEL PERFORMANCE (only if the marketer opted in) -->
+      <div class="section-card" style="margin-top:16px">
+        <div class="section-title">
+          <span class="section-ico"><svg aria-hidden="true" style="width:13px;height:13px" class="txt-teal"><use href="#ws-chart"></use></svg></span>
+          أداء القنوات
+        </div>
+        @if (p.channelMetrics === null) {
+          <p style="font-size:13px" class="txt-muted">لم يشارك هذا الوسيط إحصائيات الأداء علنياً.</p>
+        } @else if (!p.channelMetrics.length) {
+          <p style="font-size:13px" class="txt-muted">لا توجد بيانات أداء متاحة بعد.</p>
+        } @else {
+          <div style="display:flex;flex-direction:column;gap:10px">
+            @for (m of p.channelMetrics; track m.channel) {
+              <div class="channel-mini">
+                <div style="flex:1">
+                  <div style="font-size:12px;font-weight:800" class="txt-white">{{ m.channel }}</div>
+                  <div style="font-size:11px;margin-top:2px" class="txt-muted">{{ m.visitors }} زائر · {{ m.clients }} عميل</div>
+                </div>
+                <div style="text-align:left">
+                  <div style="font-size:13px;font-weight:800" class="txt-teal">{{ m.conversionPercentage }}%</div>
+                  <div style="font-size:10px" class="txt-muted">تحويل</div>
+                </div>
+              </div>
+            }
+          </div>
         }
       </div>
       }
 
     </div>
   </div>
-</div>
-} @else if (loading()) {
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px">
-  <div class="loader-spinner">
-    <svg viewBox="0 0 50 50" style="width:40px;height:40px;animation:spin 1s linear infinite">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border)" stroke-width="4"></circle>
-      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--teal)" stroke-width="4" stroke-dasharray="30 100" stroke-linecap="round"></circle>
-    </svg>
-  </div>
-  <div style="font-size:14px;font-weight:700" class="txt-white">جاري تحميل ملف الوسيط التسويقي...</div>
 </div>
 }

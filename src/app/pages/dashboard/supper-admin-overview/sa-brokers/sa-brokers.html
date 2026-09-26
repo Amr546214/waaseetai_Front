@@ -2,53 +2,42 @@
   <div class="bk-hdr">
     <div>
       <h1 class="bk-ttl">الوسطاء التسويقيون</h1>
-      <p class="bk-sub">إدارة برنامج الإحالة متعدد المستويات (15 مستوى) وعمولات الوسطاء</p>
-    </div>
-  </div>
-
-  <div class="bk-ai-disc">
-    <div class="bk-ai-ico">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
-    </div>
-    <div class="bk-ai-body">
-      <div class="bk-ai-lbl">وسيط: برنامج الإحالة</div>
-      <p class="bk-ai-txt">تُعرض بيانات الإحالات والعمولات لمراجعتها يدوياً</p>
+      <p class="bk-sub">بيانات الإحالات والعمولات الحقيقية لكل وسيط تسويقي</p>
     </div>
   </div>
 
   <div class="bk-kpis">
-    <div class="bk-kpi"><div class="bk-kpi-num txt-green">{{ countFor('active') }}</div><div class="bk-kpi-lbl">وسطاء نشطون</div></div>
-    <div class="bk-kpi"><div class="bk-kpi-num txt-teal">8,420</div><div class="bk-kpi-lbl">إجمالي الإحالات</div></div>
-    <div class="bk-kpi"><div class="bk-kpi-num txt-amber">84,200</div><div class="bk-kpi-lbl">عمولات مستحقة (ر.س)</div></div>
-    <div class="bk-kpi"><div class="bk-kpi-num txt-coral">{{ countFor('flagged') }}</div><div class="bk-kpi-lbl">AI كشف مشبوه</div></div>
-  </div>
-
-  <div class="bk-comm-title">هيكل العمولات (15 مستوى)</div>
-  <div class="bk-comm-grid">
-    @for (c of commissionLevels; track c.level) {
-      <div class="bk-comm-card">
-        <div class="bk-comm-level">{{ c.level }}</div>
-        <div class="bk-comm-pct" [style.color]="c.color">{{ c.pct }}</div>
-        <div class="bk-comm-req">{{ c.desc }}</div>
-      </div>
-    }
+    <div class="bk-kpi"><div class="bk-kpi-num txt-teal">{{ countsLoading() ? '—' : statusCounts()['all'] }}</div><div class="bk-kpi-lbl">إجمالي الوسطاء</div></div>
+    <div class="bk-kpi"><div class="bk-kpi-num txt-green">{{ countsLoading() ? '—' : statusCounts()['ACTIVE'] }}</div><div class="bk-kpi-lbl">وسطاء نشطون</div></div>
+    <div class="bk-kpi"><div class="bk-kpi-num txt-amber">{{ countsLoading() ? '—' : statusCounts()['PENDING_VERIFICATION'] }}</div><div class="bk-kpi-lbl">قيد التحقق</div></div>
+    <div class="bk-kpi"><div class="bk-kpi-num txt-coral">{{ countsLoading() ? '—' : statusCounts()['SUSPENDED'] }}</div><div class="bk-kpi-lbl">موقوف</div></div>
   </div>
 
   <div class="bk-filters">
     <div class="bk-tabs">
       @for (f of filters; track f.key) {
         <button type="button" class="bk-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
-          {{ f.label }}<span class="bk-tab-count">{{ countFor(f.key) }}</span>
+          {{ f.label }}<span class="bk-tab-count">{{ statusCounts()[f.key] }}</span>
         </button>
       }
     </div>
     <div class="bk-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" placeholder="ابحث باسم الوسيط أو رابط الإحالة..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
+      <input type="search" placeholder="ابحث بالاسم أو البريد الإلكتروني..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
     </div>
   </div>
 
-  @if (filteredBrokers().length === 0) {
+  @if (loading()) {
+    <div class="bk-loading">
+      <div class="bk-spinner"></div>
+      <p>جاري تحميل قائمة الوسطاء...</p>
+    </div>
+  } @else if (error()) {
+    <div class="bk-error">
+      <p class="bk-error-msg">{{ error() }}</p>
+      <button type="button" class="bk-btn bk-btn-ghost" (click)="fetchBrokers()">إعادة المحاولة</button>
+    </div>
+  } @else if (brokers().length === 0) {
     <div class="bk-empty">
       <div class="bk-empty-ico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
@@ -62,43 +51,34 @@
           <tr>
             <th>الوسيط</th>
             <th>رابط الإحالة</th>
-            <th>المستوى</th>
             <th>إحالات</th>
             <th>محوّلون</th>
-            <th>عمولة مستحقة</th>
-            <th>AI</th>
+            <th>نسبة التحويل</th>
+            <th>عمولة معتمدة</th>
+            <th>القنوات</th>
             <th>الحالة</th>
             <th>إجراءات</th>
           </tr>
         </thead>
         <tbody>
-          @for (b of filteredBrokers(); track b.id) {
+          @for (b of brokers(); track b.id) {
             <tr class="bk-row" (click)="openDetail(b)">
               <td>
                 <div class="bk-u-cell">
-                  <div class="bk-av" [style.background]="b.avatarBg">{{ b.avatar }}</div>
-                  <span class="bk-u-name">{{ b.name }}</span>
+                  <div class="bk-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ initial(b.name) }}</div>
+                  <div>
+                    <div class="bk-u-name">{{ b.name || '—' }}</div>
+                    <div style="font-size:11px" class="txt-muted">{{ b.email }}</div>
+                  </div>
                 </div>
               </td>
-              <td class="bk-link" dir="ltr">{{ b.link }}</td>
-              <td class="bk-center"><span class="bk-bdg bk-bdg-blue">M{{ b.netLevel }}</span></td>
-              <td class="bk-center bk-bold">{{ b.referrals }}</td>
-              <td class="bk-center bk-converted">{{ b.converted }}</td>
-              <td class="bk-pending">{{ b.pending }}</td>
-              <td>
-                @if (b.aiFlag === 'clean') {
-                  <span class="bk-ai-clean">✓ طبيعي</span>
-                } @else {
-                  <span class="bk-ai-flag">⚠ مشبوه</span>
-                }
-              </td>
-              <td><span class="bk-status" [class]="'bk-st-' + b.status">
-                @switch (b.status) {
-                  @case ('active') { نشط }
-                  @case ('suspended') { موقوف }
-                  @case ('flagged') { مشبوه }
-                }
-              </span></td>
+              <td class="bk-link" dir="ltr">{{ b.referralSlug || '—' }}</td>
+              <td class="bk-center bk-bold">{{ b.totalReferrals }}</td>
+              <td class="bk-center bk-converted">{{ b.convertedReferrals }}</td>
+              <td class="bk-center">{{ b.conversionRate }}%</td>
+              <td class="bk-pending">{{ b.paidCommission | number:'1.0-0' }} ر.س</td>
+              <td class="bk-center">{{ b.channelCount }}</td>
+              <td><span class="bk-status" [ngClass]="statusClasses[b.status]">{{ statusLabels[b.status] }}</span></td>
               <td (click)="$event.stopPropagation()">
                 <div class="bk-row-actions">
                   <button type="button" class="bk-act bk-act-view" (click)="openDetail(b)">ملف</button>
@@ -109,13 +89,16 @@
         </tbody>
       </table>
     </div>
-  }
 
-  @if (toast()) {
-    <div class="bk-toast">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      <span>{{ toast() }}</span>
-    </div>
+    @if (pagination(); as pg) {
+      <div class="bk-pag">
+        <span class="bk-pag-info">صفحة {{ pg.page }} من {{ pg.totalPages }} (إجمالي {{ pg.total }})</span>
+        <div class="bk-pag-btns">
+          <button type="button" class="bk-btn bk-btn-ghost" [disabled]="pg.page <= 1" (click)="prevPage()">السابق</button>
+          <button type="button" class="bk-btn bk-btn-ghost" [disabled]="pg.page >= pg.totalPages" (click)="nextPage()">التالي</button>
+        </div>
+      </div>
+    }
   }
 </section>
 
@@ -124,83 +107,97 @@
     <div class="bk-mbox" (click)="$event.stopPropagation()">
       <div class="bk-md-hdr">
         <div class="bk-md-head-info">
-          <div class="bk-md-av" [style.background]="b.avatarBg">{{ b.avatar }}</div>
+          <div class="bk-md-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ initial(b.name) }}</div>
           <div>
-            <h3>{{ b.name }} <span class="bk-status" [class]="'bk-st-' + b.status">
-              @switch (b.status) {
-                @case ('active') { نشط }
-                @case ('suspended') { موقوف }
-                @case ('flagged') { مشبوه }
-              }
-            </span></h3>
-            <div class="bk-md-sub">{{ b.email }} · منذ {{ b.since }}</div>
+            <h3>{{ b.name || '—' }} <span class="bk-status" [ngClass]="statusClasses[b.status]">{{ statusLabels[b.status] }}</span></h3>
+            <div class="bk-md-sub">{{ b.email }} · منذ {{ formatDate(b.joinedAt) }}</div>
           </div>
         </div>
         <button type="button" class="bk-mclose" (click)="closeDetail()">×</button>
       </div>
 
-      <div class="bk-md-kpis">
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي الإحالات</div><div class="bk-md-kpi-val txt-teal">{{ b.referrals }}</div><div class="bk-md-kpi-sub">{{ b.converted }} محوّلة</div></div>
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">نسبة التحويل</div><div class="bk-md-kpi-val txt-green">{{ b.conversionRate }}%</div></div>
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي العمولات</div><div class="bk-md-kpi-val txt-amber">{{ b.totalCommission }}</div></div>
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">مستوى الشبكة</div><div class="bk-md-kpi-val txt-purple">M{{ b.netLevel }}</div></div>
-      </div>
+      @if (detailLoading()) {
+        <div class="bk-loading"><div class="bk-spinner"></div><p>جاري تحميل التفاصيل...</p></div>
+      } @else if (detailError()) {
+        <p class="bk-error-msg">{{ detailError() }}</p>
+      } @else {
+        <div class="bk-md-kpis">
+          <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي الإحالات</div><div class="bk-md-kpi-val txt-teal">{{ b.totalReferrals }}</div><div class="bk-md-kpi-sub">{{ b.convertedReferrals }} محوّلة</div></div>
+          <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">نسبة التحويل</div><div class="bk-md-kpi-val txt-green">{{ b.conversionRate }}%</div></div>
+          <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">عمولة معتمدة</div><div class="bk-md-kpi-val txt-amber">{{ b.paidCommission | number:'1.0-0' }} ر.س</div></div>
+          <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">عمولة معلقة</div><div class="bk-md-kpi-val txt-purple">{{ b.pendingCommission | number:'1.0-0' }} ر.س</div></div>
+        </div>
 
-      <div class="bk-md-body">
-        <div class="bk-ai-panel">
-          <div class="bk-ai-panel-hdr">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
-            وسيط AI: تحليل الأداء
-          </div>
-          @for (note of b.aiNotes; track note) {
-            <p class="bk-ai-note" [class.warn]="b.aiFlag === 'flagged'">{{ note }}</p>
+        <div class="bk-md-body">
+          @if (b.channels?.length) {
+            <div class="bk-md-field">
+              <label>القنوات المسجلة</label>
+              <div class="bk-mini-tbl-wrap">
+                <table class="bk-mini-tbl">
+                  <thead><tr><th>المنصة</th><th>المعرّف</th><th>الرابط</th></tr></thead>
+                  <tbody>
+                    @for (ch of b.channels; track ch.handle) {
+                      <tr><td>{{ ch.platform }}</td><td dir="ltr">{{ ch.handle }}</td><td dir="ltr">{{ ch.url || '—' }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          @if (b.channelMetrics?.length) {
+            <div class="bk-md-field">
+              <label>أداء القنوات</label>
+              <div class="bk-mini-tbl-wrap">
+                <table class="bk-mini-tbl">
+                  <thead><tr><th>القناة</th><th>زوار</th><th>عملاء</th><th>نسبة التحويل</th></tr></thead>
+                  <tbody>
+                    @for (m of b.channelMetrics; track m.channel) {
+                      <tr><td>{{ m.channel }}</td><td>{{ m.visitors }}</td><td class="bk-converted">{{ m.clients }}</td><td>{{ m.conversionPercentage }}%</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          @if (b.customLinks?.length) {
+            <div class="bk-md-field">
+              <label>روابط الحملات المخصصة</label>
+              <div class="bk-mini-tbl-wrap">
+                <table class="bk-mini-tbl">
+                  <thead><tr><th>القناة</th><th>UTM Source</th><th>الرابط المخصص</th></tr></thead>
+                  <tbody>
+                    @for (l of b.customLinks; track l.utmSource) {
+                      <tr><td>{{ l.channelName }}</td><td dir="ltr">{{ l.utmSource }}</td><td dir="ltr">{{ l.customSlug || '—' }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          @if (b.recentCommissions?.length) {
+            <div class="bk-md-field">
+              <label>آخر العمولات</label>
+              <div class="bk-mini-tbl-wrap">
+                <table class="bk-mini-tbl">
+                  <thead><tr><th>المستخدم المُحال</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                  <tbody>
+                    @for (c of b.recentCommissions; track c.createdAt) {
+                      <tr><td>{{ c.referredUserName || '—' }}</td><td>{{ c.type }}</td><td class="bk-converted">{{ c.amount }} {{ c.currency }}</td><td>{{ c.status }}</td><td class="bk-date">{{ formatDate(c.createdAt) }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          } @else {
+            <p class="txt-muted" style="font-size:13px">لا توجد عمولات مسجلة بعد.</p>
           }
         </div>
-
-        <div class="bk-md-field">
-          <label>روابط الإحالة النشطة</label>
-          <div class="bk-mini-tbl-wrap">
-            <table class="bk-mini-tbl">
-              <thead><tr><th>الرابط</th><th>إحالات</th><th>محوّلة</th><th>الأرباح</th></tr></thead>
-              <tbody>
-                @for (l of b.referralLinks; track l.link) {
-                  <tr><td dir="ltr">{{ l.link }}</td><td>{{ l.referrals }}</td><td class="bk-converted">{{ l.converted }}</td><td class="bk-pending">{{ l.earned }}</td></tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="bk-md-field">
-          <label>آخر العمولات</label>
-          <div class="bk-mini-tbl-wrap">
-            <table class="bk-mini-tbl">
-              <thead><tr><th>المستخدم المُحال</th><th>الإجراء</th><th>العمولة</th><th>المستوى</th><th>التاريخ</th></tr></thead>
-              <tbody>
-                @for (c of b.recentCommissions; track c.referredUser) {
-                  <tr><td>{{ c.referredUser }}</td><td>{{ c.action }}</td><td class="bk-converted">{{ c.amount }}</td><td>{{ c.level }}</td><td class="bk-date">{{ c.date }}</td></tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="bk-md-field">
-          <label>الرصيد المستحق</label>
-          <div class="bk-balance-box">
-            <div class="bk-balance-val">{{ b.pendingBalance }}</div>
-            <button type="button" class="bk-btn bk-btn-approve" (click)="sendForWithdrawal(b)">إرسال للسحب يدوياً</button>
-          </div>
-        </div>
-      </div>
+      }
 
       <div class="bk-md-actions">
-        @if (b.aiFlag === 'flagged') {
-          <button type="button" class="bk-btn bk-btn-reject" (click)="freezeCommissions(b)">تجميد العمولات</button>
-        }
-        @if (b.status === 'active') {
-          <button type="button" class="bk-btn bk-btn-warn" (click)="suspendBroker(b)">تعليق الحساب</button>
-        }
         <button type="button" class="bk-btn bk-btn-ghost" (click)="closeDetail()">إغلاق</button>
       </div>
     </div>
