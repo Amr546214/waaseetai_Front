@@ -63,7 +63,7 @@ export class SpecialtyService {
 		return this.http.post(`${this.apiUrl}/specialties/provider/specialties/step4-submit`, payload);
 	}
 
-	// Enterprise OpenAI Assessment Engine Endpoints
+	// Enterprise Gemini Assessment Engine Endpoints
 	generateAiAssessment(providerSpecialtyId: string): Observable<any> {
 		return this.http.post(`${this.apiUrl}/assessments/generate`, { providerSpecialtyId });
 	}

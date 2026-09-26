@@ -946,7 +946,7 @@ export class Specialties implements OnInit, OnDestroy {
 
 		const confirmSubmit = await this.confirmModal.confirm({
 			title: '📋 تسليم التقييم الفوري للتدقيق',
-			message: 'هل أنت متأكد من تسليم إجابات التقييم وإغلاق الجلسة للتحليل الذكي عبر OpenAI واعتماد شارة التميز؟',
+			message: 'هل أنت متأكد من تسليم إجابات التقييم وإغلاق الجلسة للتحليل الذكي واعتماد شارة التميز؟',
 			type: 'info',
 			confirmText: 'نعم، تسليم واعتماد النتيجة',
 			cancelText: 'مراجعة الإجابات'

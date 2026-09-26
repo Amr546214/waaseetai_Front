@@ -20,7 +20,7 @@
     <div class="rp-kpi"><div class="rp-kpi-num txt-coral">{{ countFor('new') }}</div><div class="rp-kpi-lbl">بلاغات جديدة</div></div>
     <div class="rp-kpi"><div class="rp-kpi-num txt-amber">{{ countFor('investigating') }}</div><div class="rp-kpi-lbl">قيد التحقيق</div></div>
     <div class="rp-kpi"><div class="rp-kpi-num txt-green">{{ kpiResolvedThisMonth }}</div><div class="rp-kpi-lbl">محسومة هذا الشهر</div></div>
-    <div class="rp-kpi"><div class="rp-kpi-num txt-purple">{{ kpiAiDetected }}</div><div class="rp-kpi-lbl">كُشف بـ AI تلقائياً</div></div>
+    <div class="rp-kpi"><div class="rp-kpi-num txt-purple">{{ kpiAiDetected }}</div><div class="rp-kpi-lbl">بلاغات عالية الخطورة</div></div>
   </div>
 
   <div class="rp-filters">
@@ -62,7 +62,7 @@
                     @case ('actioned') { اتُّخذ إجراء }
                   }
                 </span>
-                <span class="rp-bdg-ai">AI: {{ r.aiSuggestion }}</span>
+                <span class="rp-bdg-ai">الإجراء المقترح: {{ r.aiSuggestion }}</span>
               </div>
             </div>
           </div>
@@ -118,7 +118,7 @@
                 @case ('actioned') { اتُّخذ إجراء }
               }
             </span>
-            <span class="rp-bdg rp-ai-risk">AI Risk: {{ r.aiRiskScore }}/100</span>
+            <span class="rp-bdg rp-ai-risk">درجة الخطورة: {{ r.aiRiskScore }}/100</span>
           </div>
         </div>
         <button type="button" class="rp-mclose" (click)="closeDetail()">×</button>
