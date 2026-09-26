@@ -4,41 +4,32 @@
   <div class="it-hdr">
     <div>
       <h2 class="it-ttl">الأمان + Audit Logs</h2>
-      <p class="it-sub">سجل الأحداث الأمنية والتدقيق — AI يكشف التهديدات تلقائياً</p>
-    </div>
-    <div class="it-actions">
-      <button type="button" class="it-btn it-btn-ghost">تصدير السجل</button>
-      <button type="button" class="it-btn it-btn-primary">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        إعدادات الأمان
-      </button>
-    </div>
-  </div>
-
-  <div class="it-ai">
-    <div class="it-ai-ico">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
-    </div>
-    <div class="it-ai-body">
-      <div class="it-ai-lbl">AI Threat</div>
-      <p class="it-ai-txt">AI يحلل أنماط الدخول والسلوك المشبوه ويحجب التهديدات تلقائياً قبل وقوعها <span class="it-ai-badge">لا تهديدات نشطة</span></p>
+      <p class="it-sub">سجل الأحداث الأمنية الحقيقي على المنصة — تسجيل دخول، تغيير كلمة مرور، طلبات تعديل حساسة، وغيرها</p>
     </div>
   </div>
 
   <div class="it-kpi-grid">
-    @for (k of kpis; track k.label) {
-      <div class="it-kpi-card">
-        <div class="it-kpi-top">
-          <div class="it-kpi-ic" [style.background]="k.bg" [style.color]="k.color">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <span class="it-kpi-lbl">{{ k.label }}</span>
-        </div>
-        <div class="it-kpi-val" [style.color]="k.color">{{ k.value }}</div>
-        <div class="it-kpi-unit">{{ k.unit }}</div>
-        <div class="it-kpi-sub" [style.color]="k.color">{{ k.sub }}</div>
+    <div class="it-kpi-card">
+      <div class="it-kpi-top">
+        <span class="it-kpi-lbl">أحداث اليوم</span>
       </div>
-    }
+      <div class="it-kpi-val">{{ kpis().totalEventsToday }}</div>
+      <div class="it-kpi-unit">سجل</div>
+    </div>
+    <div class="it-kpi-card">
+      <div class="it-kpi-top">
+        <span class="it-kpi-lbl">أحداث تحذيرية/خطيرة اليوم</span>
+      </div>
+      <div class="it-kpi-val" style="color:#FF8C69">{{ kpis().criticalOrWarningToday }}</div>
+      <div class="it-kpi-unit">حدث</div>
+    </div>
+    <div class="it-kpi-card">
+      <div class="it-kpi-top">
+        <span class="it-kpi-lbl">محاولات دخول مرفوضة اليوم</span>
+      </div>
+      <div class="it-kpi-val" style="color:#FFB400">{{ kpis().failedLoginAttemptsToday }}</div>
+      <div class="it-kpi-unit">محاولة</div>
+    </div>
   </div>
 
   <div class="it-tabs">
@@ -50,28 +41,33 @@
   <div class="it-tbl-card">
     <div class="it-tbl-hdr">
       <span class="it-tbl-ttl">سجل الأحداث الأمنية</span>
-      <span class="it-tbl-meta">24,812 حدث اليوم</span>
     </div>
     <div class="it-tbl-wrap">
       <table class="it-tbl">
         <thead><tr><th>الوقت</th><th>نوع الحدث</th><th>IP المصدر</th><th>المستخدم</th><th>الإجراء</th><th>الخطورة</th><th>الحالة</th></tr></thead>
         <tbody>
-          @for (e of filteredEvents(); track e.time + e.type) {
-            <tr>
-              <td class="itsec-mono">{{ e.time }}</td>
-              <td class="it-tbl-strong">{{ e.type }}</td>
-              <td class="itsec-mono" [class.itsec-danger]="!e.allowed">{{ e.ip }}</td>
-              <td>{{ e.user }}</td>
-              <td class="itsec-action">{{ e.action }}</td>
-              <td><span class="it-bdg" [style.background]="severityStyle(e.severity).bg" [style.color]="severityStyle(e.severity).color">{{ severityLabel(e.severity) }}</span></td>
-              <td>
-                @if (e.allowed) {
-                  <span class="itsec-status txt-green">✓ مسموح</span>
-                } @else {
-                  <span class="itsec-status txt-coral">✗ محجوب</span>
-                }
-              </td>
-            </tr>
+          @if (isLoading()) {
+            <tr><td colspan="7" class="itsec-empty">جاري تحميل سجل الأحداث...</td></tr>
+          } @else {
+            @for (e of filteredEvents(); track e.id) {
+              <tr>
+                <td class="itsec-mono">{{ e.occurredAt | date:'short' }}</td>
+                <td class="it-tbl-strong">{{ e.title }}</td>
+                <td class="itsec-mono" [class.itsec-danger]="isRejected(e.status)">{{ e.ipAddress || '—' }}</td>
+                <td>{{ e.actorLabel || '—' }}</td>
+                <td class="itsec-action">{{ e.summary || e.eventType }}</td>
+                <td><span class="it-bdg" [style.background]="severityStyle(e.severity).bg" [style.color]="severityStyle(e.severity).color">{{ severityLabel(e.severity) }}</span></td>
+                <td>
+                  @if (isRejected(e.status)) {
+                    <span class="itsec-status txt-coral">✗ {{ statusLabel(e.status) }}</span>
+                  } @else {
+                    <span class="itsec-status txt-green">✓ {{ statusLabel(e.status) }}</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="7" class="itsec-empty">لا توجد أحداث في هذه الفئة</td></tr>
+            }
           }
         </tbody>
       </table>
@@ -80,6 +76,5 @@
 
   <div class="it-foot">
     <span>© 2026 وسيط AI · الأمان + Audit Logs</span>
-    <span>سجلات محفوظة 90 يوم | آخر تحديث: الآن</span>
   </div>
 </section>

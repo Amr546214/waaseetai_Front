@@ -2,8 +2,8 @@
 
 	<div class="tds-hd">
 		<div>
-			<div class="tds-title">سجل تسليمات الفريق</div>
-			<div class="tds-sub">جميع التسليمات التي رفعها أعضاء الشركة — مراقبة وتتبع فقط</div>
+			<div class="tds-title">سجل التسليمات</div>
+			<div class="tds-sub">جميع تسليمات مراحل مشاريعك — مراقبة وتتبع فقط</div>
 		</div>
 	</div>
 
@@ -21,24 +21,11 @@
 			<div class="ic ic-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg></div>
 			<div class="v">{{ kpis().approved }}</div><div class="l">تسليم مكتمل ومُفرَج</div>
 		</div>
-		<div class="tds-kpi-c">
-			<div class="ic ic-blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg></div>
-			<div class="v">{{ kpis().avgAiMatch }}٪</div><div class="l">متوسط تطابق AI</div>
-		</div>
 	</div>
 
 	<!-- Filter rail -->
 	<div class="tds-filter-rail">
-		<div class="tds-fr-lbl">المقدِّم</div>
-		<div class="tds-fr-segs">
-			<button class="tds-ds" [class.active]="activeMember() === 'all'" (click)="setMember('all')">الكل</button>
-			@for (mem of members; track mem.id) {
-			<button class="tds-ds" [class.active]="activeMember() === mem.id" (click)="setMember(mem.id)">
-				<span class="tds-mem-dot" [style.background]="mem.gradient">{{ mem.initials }}</span>{{ mem.name }}
-			</button>
-			}
-		</div>
-		<div class="tds-fr-lbl tds-fr-lbl-mid">الفترة</div>
+		<div class="tds-fr-lbl">الفترة</div>
 		<div class="tds-fr-segs">
 			<button class="tds-ds" [class.active]="activePeriod() === 'all'" (click)="setPeriod('all')">الكل</button>
 			<button class="tds-ds" [class.active]="activePeriod() === 'week'" (click)="setPeriod('week')">هذا الأسبوع</button>
@@ -54,29 +41,21 @@
 	<!-- Status tabs -->
 	<div class="tds-status-tabs">
 		<button class="tds-st-tab" [class.active]="activeStatus() === 'all'" (click)="setStatus('all')">الكل <span>{{ deliveries().length }}</span></button>
-		<button class="tds-st-tab" [class.active]="activeStatus() === 'pending'" (click)="setStatus('pending')">بانتظار رد العميل <span>{{ kpis().pending }}</span></button>
-		<button class="tds-st-tab" [class.active]="activeStatus() === 'approved'" (click)="setStatus('approved')">مكتمل ومُفرَج <span>{{ kpis().approved }}</span></button>
-		<button class="tds-st-tab" [class.active]="activeStatus() === 'notes'" (click)="setStatus('notes')">فيه ملاحظات <span>{{ deliveries().length - kpis().pending - kpis().approved }}</span></button>
+		<button class="tds-st-tab" [class.active]="activeStatus() === 'SUBMITTED'" (click)="setStatus('SUBMITTED')">بانتظار رد العميل <span>{{ kpis().pending }}</span></button>
+		<button class="tds-st-tab" [class.active]="activeStatus() === 'APPROVED'" (click)="setStatus('APPROVED')">مكتمل ومُفرَج <span>{{ kpis().approved }}</span></button>
+		<button class="tds-st-tab" [class.active]="activeStatus() === 'REVISION_REQUESTED'" (click)="setStatus('REVISION_REQUESTED')">فيه ملاحظات <span>{{ deliveries().length - kpis().pending - kpis().approved }}</span></button>
 	</div>
 
 	<!-- Detail panel -->
 	@if (selectedDelivery(); as d) {
 	<div class="tds-detail-panel">
 		<div class="tds-dp-top">
-			<div class="tds-dp-mem">
-				<div class="tds-mem-av" [style.background]="d.memberGradient">{{ d.memberInitials }}</div>
-				<div>
-					<div class="tds-dp-name">{{ d.memberName }}</div>
-					<div class="tds-dp-spec">{{ d.memberSpec }}</div>
-				</div>
-				<span class="tds-dp-co-tag">مقدِّم الشركة</span>
+			<div class="tds-dp-head">
+				<div class="tds-dp-phase">{{ d.phaseLabel }}</div>
+				<div class="tds-dp-title">{{ d.projectTitle }}</div>
+				<div class="tds-dp-meta"><span>عقد {{ d.contractRef }}</span><span>&middot;</span><span>{{ d.submittedAt | date:'mediumDate' }}</span><span>&middot;</span><span>{{ d.amountLabel }}</span></div>
 			</div>
 			<button type="button" class="tds-dp-close" (click)="closeDetail()">إغلاق &#10005;</button>
-		</div>
-		<div class="tds-dp-head">
-			<div class="tds-dp-phase">{{ d.phaseLabel }}</div>
-			<div class="tds-dp-title">{{ d.title }}</div>
-			<div class="tds-dp-meta"><span>عقد {{ d.contractRef }}</span><span>&middot;</span><span>{{ d.dateLabel }}</span><span>&middot;</span><span>{{ d.amountLabel }}</span></div>
 		</div>
 		<div class="tds-dp-files">
 			@for (f of d.files; track f) {
@@ -86,13 +65,8 @@
 			</span>
 			}
 		</div>
-		<div class="tds-dp-ai">
-			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg>
-			AI: {{ d.aiNote }}
-		</div>
-		<div class="tds-dp-note">«{{ d.deliveryNote }}»</div>
+		<div class="tds-dp-note">«{{ d.note }}»</div>
 		<div class="tds-dp-actions">
-			<button type="button" class="tds-act-btn tds-act-teal" (click)="sendDirection()">توجيه لعضو الفريق</button>
 			<button type="button" class="tds-act-btn tds-act-ghost" (click)="messageClient()">مراسلة العميل</button>
 		</div>
 	</div>
@@ -104,47 +78,34 @@
 			<table class="tds-tbl">
 				<thead>
 					<tr>
-						<th>المقدِّم</th>
 						<th>التسليم</th>
 						<th>حالة التسليم</th>
-						<th>تطابق AI</th>
 						<th>التاريخ</th>
 						<th>إجراء</th>
 					</tr>
 				</thead>
 				<tbody>
+					@if (isLoading()) {
+					<tr><td colspan="4" class="tds-empty-cell">جاري تحميل التسليمات...</td></tr>
+					} @else {
 					@for (d of filteredDeliveries(); track d.id) {
 					<tr>
 						<td>
-							<div class="tds-m-cell">
-								<div class="tds-mem-av tds-m-av" [style.background]="d.memberGradient">{{ d.memberInitials }}</div>
-								<div>
-									<div class="tds-m-name">{{ d.memberName }}</div>
-									<div class="tds-m-spec">{{ d.memberSpec }}</div>
-								</div>
-							</div>
-						</td>
-						<td>
-							<div class="tds-dv-title">{{ d.title }}</div>
+							<div class="tds-dv-title">{{ d.projectTitle }}</div>
 							<div class="tds-dv-phase">{{ d.phaseLabel }}</div>
 						</td>
 						<td><span class="tds-pill" [ngClass]="'tds-pill-' + d.status">{{ d.statusLabel }}</span></td>
+						<td class="tds-date-cell">{{ d.submittedAt | date:'mediumDate' }}</td>
 						<td>
-							<span class="tds-ai-match">
-								<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg>
-								{{ d.aiMatchPct }}٪
-							</span>
-						</td>
-						<td class="tds-date-cell">{{ d.dateLabel }}</td>
-						<td>
-							<button type="button" class="tds-act-btn" [class.tds-act-teal]="d.status === 'pending'" [class.tds-act-amber]="d.status === 'notes'" [class.tds-act-ghost]="d.status === 'approved'" (click)="openDetail(d)">
-								{{ d.status === 'notes' ? 'مراجعة' : 'عرض' }}
+							<button type="button" class="tds-act-btn" [class.tds-act-teal]="d.status === 'SUBMITTED'" [class.tds-act-amber]="d.status === 'REVISION_REQUESTED'" [class.tds-act-ghost]="d.status === 'APPROVED'" (click)="openDetail(d)">
+								{{ d.status === 'REVISION_REQUESTED' ? 'مراجعة' : 'عرض' }}
 							</button>
 						</td>
 					</tr>
 					}
 					@empty {
-					<tr><td colspan="6" class="tds-empty-cell">لا توجد تسليمات مطابقة للفلاتر الحالية</td></tr>
+					<tr><td colspan="4" class="tds-empty-cell">لا توجد تسليمات مطابقة للفلاتر الحالية</td></tr>
+					}
 					}
 				</tbody>
 			</table>

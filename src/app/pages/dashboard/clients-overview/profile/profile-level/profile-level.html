@@ -1,6 +1,14 @@
 <div *ngIf="isLoading()" class="p-8 text-center text-[var(--txt)]">جاري تحميل مستويات التقييم...</div>
 
-<ng-container *ngIf="!isLoading() && levelData() as data">
+<!-- Batch 7: honest "not available" state — never fabricated progression
+     data after an API failure. Client-account progression has no real
+     backend ledger yet (see profile-level.ts). -->
+<div *ngIf="!isLoading() && loadError() && !levelData()" class="p-8 text-center">
+	<div class="text-[15px] font-black text-[var(--txt)] mb-1.5">نظام التصنيف غير متاح لحسابات العملاء حالياً</div>
+	<div class="text-[12.5px] text-[var(--txt-3)]">نعمل على إضافة نظام تصنيف ونقاط مخصص لحسابات العملاء — سيظهر هنا فور توفره.</div>
+</div>
+
+<ng-container *ngIf="!isLoading() && !loadError() && levelData() as data">
 	<div class="mb-4">
 		<div class="flex items-start justify-between gap-3 flex-wrap mb-4">
 			<div>

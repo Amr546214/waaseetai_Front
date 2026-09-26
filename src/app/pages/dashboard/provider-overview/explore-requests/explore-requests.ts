@@ -1,9 +1,7 @@
-import { Component, signal, OnInit, effect, inject, computed } from '@angular/core';
+import { Component, signal, OnInit, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProviderApiService } from '../../../../core/services/provider-api.service';
 import { RouterLink } from '@angular/router';
-import { AuthStore } from '../../../../core/store/auth.store';
-import { AccountType } from '../../../../core/models/auth.model';
 
 @Component({
 	selector: 'app-explore-requests',
@@ -13,29 +11,23 @@ import { AccountType } from '../../../../core/models/auth.model';
 })
 export class ExploreRequests implements OnInit {
 	private providerApi = inject(ProviderApiService);
-	private authStore = inject(AuthStore);
 
-	isCompanyMode = computed<boolean>(() => {
-		const user = this.authStore.currentUser();
-		return user?.accountType === AccountType.PROVIDER_COMPANY;
-	});
-
-	// Company team members for assignment
-	companyTeamMembers = signal([
-		{ id: 'tm1', name: 'فهد العتيبي', initials: 'فه', match: 94, specialty: 'تطوير ويب', available: true },
-		{ id: 'tm2', name: 'ريم الدوسري', initials: 'ري', match: 78, specialty: 'تصميم', available: true },
-		{ id: 'tm3', name: 'خالد الحربي', initials: 'خا', match: 72, specialty: 'تطوير ويب', available: true },
-		{ id: 'tm4', name: 'نورة القحطاني', initials: 'نو', match: 85, specialty: 'محتوى', available: false },
-	]);
-
-	// Company tabs
-	companyTabs = [
-		{ id: 'all', label: 'الكل', count: 47 },
-		{ id: 'unassigned', label: 'لم يُسند', count: 34 },
-		{ id: 'assigned', label: 'مُسند', count: 9 },
-		{ id: 'saved', label: 'محفوظة', count: 4 },
-	];
-
+	// Batch 7: PROVIDER_COMPANY accounts previously saw a fictional
+	// "company mode" — a fabricated team-member roster with hardcoded AI
+	// match percentages (companyTeamMembers), fabricated tab counts
+	// (companyTabs: 47/34/9/4, unrelated to the real backend counts used
+	// by `tabs` below), a static "47 طلب متاح / 91% متوسط تطابق الفريق"
+	// stats bar hardcoded directly in the template, and an "إدارة الإسناد"
+	// (manage assignment) button that just routed to the same apply page
+	// as everyone else. None of it was backed by real data: there is no
+	// team-member/company-employee model anywhere in the Prisma schema —
+	// a provider account (individual or company) is a single user, so
+	// per-employee assignment is not a thing the current backend can
+	// represent. Building that for real would require a schema change
+	// (a genuine future feature, not something to fake in the meantime),
+	// so company accounts now see the exact same real, fully-connected
+	// explore-requests experience as individual providers instead of a
+	// fictional one.
 	isFilterOpen = signal(false);
 
 	// AI Intelligence Modal States

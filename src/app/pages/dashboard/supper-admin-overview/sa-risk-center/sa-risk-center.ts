@@ -1,26 +1,23 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AdminSecurityApiService, FlaggedAccountItem } from '../../../../core/services/admin-security-api.service';
 
-type RiskLevel = 'high' | 'med' | 'low';
-
-interface RiskAccount {
-  score: number;
-  scoreColor: string;
-  name: string;
-  meta: string;
-  reasons: { label: string; color: string; bg: string }[];
-  level: RiskLevel;
-}
-
-interface FraudPattern {
-  title: string;
-  desc: string;
-  color: string;
-  bg: string;
-  tag: string;
-}
-
+// Implementation Batch 7 — this page used to render entirely fictional
+// data: hardcoded riskAccounts with invented per-account "risk scores"
+// (89/76/62) and fabricated fraud accusations attributed to real-sounding
+// names, a hardcoded "أنماط الاحتيال المكتشفة" (fraud patterns) list, a
+// fake live "3 حسابات على نفس الجهاز" alert, and a client-side-only
+// "blocked IPs" list that never persisted anywhere. None of it was backed
+// by any real model — there is no fraud-detection engine, no per-user risk
+// score (User.aiRiskScore exists in the schema but is never computed
+// anywhere — see admin-users.service.ts), and no IP-blocking mechanism
+// anywhere in the backend. Building real fraud detection or IP blocking is
+// a new capability, not something to fake here (and this platform does not
+// build autonomous AI fraud/security decision systems in any case — every
+// suspension here was a human admin's own decision). This page now shows
+// only what is real: accounts a human admin has actually suspended, and
+// their real open-dispute counts.
 @Component({
   selector: 'app-sa-risk-center',
   standalone: true,
@@ -28,63 +25,35 @@ interface FraudPattern {
   templateUrl: './sa-risk-center.html',
   styleUrl: './sa-risk-center.css',
 })
-export class SaRiskCenter {
-  readonly riskAccounts = signal<RiskAccount[]>([
-    {
-      score: 89,
-      scoreColor: '#FF6B6B',
-      name: 'عبدالرحمن الدوسري',
-      meta: 'مقدم فرد · 3 بلاغات · موقوف',
-      reasons: [
-        { label: 'احتيال مالي', color: '#FF6B6B', bg: 'rgba(255,107,107,.12)' },
-        { label: 'VPN مشبوه', color: '#FF6B6B', bg: 'rgba(255,107,107,.12)' },
-        { label: 'حسابات مكررة', color: '#FF6B6B', bg: 'rgba(255,107,107,.12)' },
-      ],
-      level: 'high',
-    },
-    {
-      score: 76,
-      scoreColor: '#FF8C69',
-      name: 'تركي الرشيدي',
-      meta: 'وسيط · 0 إحالات ناجحة · موقوف',
-      reasons: [
-        { label: 'غسيل أموال محتمل', color: '#FF8C69', bg: 'rgba(255,140,105,.12)' },
-        { label: 'حساب بنكي مشبوه', color: '#FF8C69', bg: 'rgba(255,140,105,.12)' },
-      ],
-      level: 'high',
-    },
-    {
-      score: 62,
-      scoreColor: '#FFB400',
-      name: 'ريم الحربي',
-      meta: 'مقدمة فرد · 2 بلاغات · نشطة',
-      reasons: [
-        { label: 'تأخر متكرر', color: '#FFB400', bg: 'rgba(255,180,0,.12)' },
-        { label: 'تقييمات متضاربة', color: '#FFB400', bg: 'rgba(255,180,0,.12)' },
-      ],
-      level: 'med',
-    },
-  ]);
+export class SaRiskCenter implements OnInit {
+  private api = inject(AdminSecurityApiService);
 
-  readonly fraudPatterns: FraudPattern[] = [
-    { title: 'شبكة حسابات متعددة', desc: '3 حسابات على نفس الجهاز — نمط احتيال ثقة 87%', color: '#FF6B6B', bg: 'rgba(255,107,107,.12)', tag: 'خطر' },
-    { title: 'تسعير شاذ', desc: '8 عروض أقل من متوسط السوق بـ 60%+ — مؤشر إغراء ثم تهرب', color: '#FFB400', bg: 'rgba(255,180,0,.12)', tag: 'متوسط' },
-    { title: 'طلبات سحب متكررة', desc: '4 طلبات سحب خلال 72 ساعة بمبالغ أقل من الحد — تجنب الرقابة', color: '#A56BE0', bg: 'rgba(123,47,190,.12)', tag: 'مراجعة' },
-    { title: 'تسجيل دخول من دول متعددة', desc: 'نفس الحساب من 3 دول في 24 ساعة — VPN محتمل', color: '#FF8C69', bg: 'rgba(255,140,105,.12)', tag: 'تحقيق' },
-  ];
+  readonly isLoading = signal<boolean>(true);
+  readonly flaggedAccounts = signal<FlaggedAccountItem[]>([]);
 
-  readonly blockedIps = signal<string[]>(['185.220.101.42', '103.41.204.58', '194.165.16.29']);
-  readonly newIp = signal('');
-  readonly extraBlockedCount = 21;
+  readonly kpis = computed(() => {
+    const list = this.flaggedAccounts();
+    return {
+      suspendedCount: list.length,
+      withOpenDisputes: list.filter((a) => a.openDisputesAgainst > 0).length,
+    };
+  });
 
-  addBlockedIp() {
-    const value = this.newIp().trim();
-    if (!value) return;
-    this.blockedIps.update((ips) => [...ips, value]);
-    this.newIp.set('');
+  ngOnInit(): void {
+    this.api.getFlaggedAccounts().subscribe({
+      next: (res) => {
+        if (res.success && Array.isArray(res.data)) {
+          this.flaggedAccounts.set(res.data);
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      },
+    });
   }
 
-  removeBlockedIp(ip: string) {
-    this.blockedIps.update((ips) => ips.filter((x) => x !== ip));
+  statusLabel(status: string): string {
+    return status === 'SUSPENDED_REVIEW' ? 'موقوف قيد المراجعة' : 'موقوف';
   }
 }

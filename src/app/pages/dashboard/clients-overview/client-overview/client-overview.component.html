@@ -510,17 +510,25 @@
 			</div>
 			}
 
-			<!-- AI Insights Mini -->
+			<!-- AI Insights Mini — Batch 7: real deterministic aggregate of this
+			     client's own proposals' AI price-fairness tags (see
+			     dashboard.service.ts::getClientStats). Previously a fully
+			     hardcoded static "96%" card with zero backend behind it. -->
 			<div class="ai-ins-card">
 				<div class="ai-ins-hd">
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<use href="#i-ai"></use>
 					</svg>
 					<span class="ai-ins-hd-ttl">AI Insights</span>
-					<span class="ai-ins-hd-pct">96%</span>
+					@if (dashboardStore.dashboardData()?.priceFairnessInsight; as insight) {
+						<span class="ai-ins-hd-pct">{{ insight.fairPricePercentage }}%</span>
+					}
 				</div>
-				<p class="ai-ins-txt">الأسعار المقدمة في العروض الحالية متوافقة تماماً مع متوسط أسعار السوق للمشاريع
-					المشابهة.</p>
+				@if (dashboardStore.dashboardData()?.priceFairnessInsight; as insight) {
+					<p class="ai-ins-txt">{{ insight.summaryText }} ({{ insight.evaluatedOffersCount }} عرض مُقيَّم).</p>
+				} @else {
+					<p class="ai-ins-txt">لا تتوفر تحليلات كافية بعد — ستظهر هنا بمجرد تقييم الذكاء الاصطناعي لأول عرض تستلمه.</p>
+				}
 			</div>
 
 		</div>

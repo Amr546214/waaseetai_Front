@@ -28,8 +28,8 @@
 
 	<div class="ord-head">
 		<div>
-			<div class="ord-title">{{ isCompanyMode() ? 'استكشاف الطلبات' : 'استكشاف طلبات العملاء' }}</div>
-			<div class="ord-sub">{{ isCompanyMode() ? '47 طلب متاح — اضغط على الطلب أو «إدارة الإسناد» لتعيين أعضاء فريقك' : 'تصفح طلبات العملاء وقدّم عرضك على ما يناسب تخصصك' }}</div>
+			<div class="ord-title">استكشاف طلبات العملاء</div>
+			<div class="ord-sub">تصفح طلبات العملاء وقدّم عرضك على ما يناسب تخصصك</div>
 		</div>
 		<div class="ord-head-actions">
 			<div class="ord-search">
@@ -43,28 +43,6 @@
 			</div>
 		</div>
 	</div>
-
-	@if (isCompanyMode()) {
-	<!-- Company Stats Bar -->
-	<div class="req-stats-bar" role="region" aria-label="ملخص الطلبات">
-		<div class="rsb-cell">
-			<div class="rsb-cell-ico" style="background:rgba(43,212,199,.10)"><svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
-			<div><div class="rsb-cell-num">47</div><div class="rsb-cell-lbl">طلب متاح</div></div>
-		</div>
-		<div class="rsb-cell">
-			<div class="rsb-cell-ico" style="background:rgba(255,180,0,.10)"><svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-amber"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
-			<div><div class="rsb-cell-num txt-amber-dk">34</div><div class="rsb-cell-lbl">لم يُسند بعد</div></div>
-		</div>
-		<div class="rsb-cell">
-			<div class="rsb-cell-ico" style="background:rgba(43,127,255,.10)"><svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-blue"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-			<div><div class="rsb-cell-num txt-blue">7</div><div class="rsb-cell-lbl">أعضاء متاحون</div></div>
-		</div>
-		<div class="rsb-cell">
-			<div class="rsb-cell-ico" style="background:rgba(123,47,190,.10)"><svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-purple"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg></div>
-			<div><div class="rsb-cell-num txt-purple">91%</div><div class="rsb-cell-lbl">متوسط تطابق الفريق</div></div>
-		</div>
-	</div>
-	}
 
 	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
 		<div class="ai-disc-ico">
@@ -83,8 +61,8 @@
 		</div>
 		<div class="ai-disc-body">
 			<div class="ai-disc-lbl">وسيط AI - نظام الترتيب الذكي</div>
-			<p class="ai-disc-txt">{{ isCompanyMode() ? 'نظام وسيط الذكي يرتّب الطلبات ويقترح المقدم الأنسب من فريق شركتك لكل طلب' : 'نظام وسيط الذكي يرتّب لك الطلبات حسب توافقها مع تخصصك ويبرز أكثرها ملاءمةً' }} <span
-					class="ai-disc-badge">مطابقة تخصص</span> {{ isCompanyMode() ? '— الإسناد النهائي قرارك دائماً' : '- الإنسان يحتفظ بالقرار النهائي' }}</p>
+			<p class="ai-disc-txt">نظام وسيط الذكي يرتّب لك الطلبات حسب توافقها مع تخصصك ويبرز أكثرها ملاءمةً <span
+					class="ai-disc-badge">مطابقة تخصص</span> - الإنسان يحتفظ بالقرار النهائي</p>
 		</div>
 	</div>
 
@@ -132,7 +110,7 @@
 
 	<!-- التابات -->
 	<div class="ord-tabs" role="tablist" aria-label="تصفية الطلبات">
-		@for (tab of isCompanyMode() ? companyTabs : tabs; track tab.id) {
+		@for (tab of tabs; track tab.id) {
 		<button type="button" class="ord-tab" [class.active]="activeTab() === tab.id" (click)="setTab(tab.id)">
 			{{ tab.label }} <span>{{ tab.count }}</span>
 		</button>
@@ -186,18 +164,6 @@
 					<div class="rc-id">{{ req.ref }}</div>
 				</div>
 				<div class="rc-desc">{{ req.desc }}</div>
-			@if (isCompanyMode()) {
-				<div class="rc-mbrs">
-					<div class="rc-mbrs-group">
-						<span class="rc-mbrs-lbl">مرشحو AI:</span>
-						@for (tm of companyTeamMembers().slice(0, 3); track tm.id) {
-							<div class="rc-chip" [class.lo]="tm.match < 90">
-								<div class="rc-chip-av" [style.background]="tm.match >= 90 ? 'linear-gradient(135deg,#2BD4C7,#2B7FFF)' : 'linear-gradient(135deg,#5DA0FF,#2B7FFF)'">{{ tm.initials }}</div>{{ tm.name }}<span class="rc-chip-pct">{{ tm.match }}%</span>
-							</div>
-						}
-					</div>
-				</div>
-			}
 				<div class="rc-meta">
 					<div class="rc-meta-item">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -228,14 +194,7 @@
 					<div class="rc-date-type"><span class="rc-date">نُشر منذ {{ req.timeAgo }}</span><span
 							class="rc-client-type">{{ req.clientType }}</span></div>
 					<div class="rc-btns">
-						@if (isCompanyMode()) {
-							<div class="rc-team-status">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>لا أحد من الفريق بعد
-							</div>
-							<a [routerLink]="['/provider-overview/explore-requests', req.id, 'apply']" class="rc-manage-btn">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/></svg>إدارة الإسناد
-							</a>
-						} @else if (req.isApplied) {
+						@if (req.isApplied) {
 						<div class="rc-applied-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"
 								stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
 								aria-hidden="true">
