@@ -37,11 +37,11 @@ export class Disputes {
       activeBorder: true,
       timeline: [
         { label: 'رُفع الطلب', done: true, icon: 'check' },
-        { label: 'قرار الذكاء الأول', done: true, icon: 'ai' },
+        { label: 'المراجعة الأولية', done: true, icon: 'review' },
         { label: 'مراجعة الإدارة', active: true, icon: 'shield' },
         { label: 'الإقفال' }
       ],
-      aiText: ' التسليم يطابق 78٪ من نطاق العقد، يُقترح إعادة تنفيذ العنصرين الناقصين خلال 3 أيام دون تسوية مالية، أو تسوية 20٪ من الضمان. بانتظار اعتماد الإدارة',
+      aiText: ' العنصران الناقصان (الأيقونات ودليل الاستخدام) لم يُسلَّما بعد. بانتظار مراجعة الإدارة وتحديد القرار النهائي',
       aiDone: false,
       amount: '2,500',
       showEscalate: true,
@@ -62,11 +62,11 @@ export class Disputes {
       activeBorder: true,
       timeline: [
         { label: 'رُفع الطلب', done: true, icon: 'check' },
-        { label: 'تسوية مقترحة من الذكاء', active: true, icon: 'ai' },
+        { label: 'تسوية مقترحة', active: true, icon: 'review' },
         { label: 'اعتماد الإدارة', icon: 'shield' },
         { label: 'الإقفال' }
       ],
-      aiText: ' إنهاء العقد بالتراضي مع احتساب 40٪ للعمل المنجَز (760 ريال) للمقدّم وردّ الباقي إليك. بانتظار موافقتكما في النقاش',
+      aiText: ' تسوية مقترحة: احتساب 40٪ للعمل المنجَز (760 ريال) للمقدّم وردّ الباقي إليك. بانتظار موافقتكما في النقاش',
       aiDone: false,
       amount: '1,900',
       showEscalate: false,
@@ -86,7 +86,7 @@ export class Disputes {
       badgeClass: 'bg-[#0FA99A]/15 text-[#0FA99A] border-[#0FA99A]/30',
       activeBorder: false,
       timeline: [],
-      aiText: ' اتفق الطرفان على تمديد 5 أيام دون غرامة، واعتمدت الإدارة قرار الذكاء وأُغلق النزاع',
+      aiText: ' اتفق الطرفان على تمديد 5 أيام دون غرامة، واعتمدت الإدارة القرار وأُغلق النزاع',
       aiDone: true,
       amount: '',
       showEscalate: false,

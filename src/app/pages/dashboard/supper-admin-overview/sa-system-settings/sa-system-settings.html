@@ -37,29 +37,6 @@
         <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ التغييرات</button></div>
       }
 
-      @if (activeSection() === 'ai') {
-        <div class="ss-card">
-          <div class="ss-card-ttl">إعدادات الذكاء الاصطناعي</div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">{{ aiToggles()[0].label }}</div><div class="ss-row-desc">{{ aiToggles()[0].desc }}</div></div>
-            <button type="button" class="ss-sw" [class.on]="aiToggles()[0].on" (click)="toggle(aiToggles, aiToggles()[0].key)"></button>
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">عتبة الثقة للقرارات التلقائية</div><div class="ss-row-desc">نسبة الثقة المطلوبة لتنفيذ إجراء تلقائي</div></div>
-            <div class="ss-input-inline"><input type="number" class="ss-input ss-input-sm" [value]="aiConfidence()" (input)="aiConfidence.set(+$any($event.target).value)" min="50" max="99" /><span class="ss-unit">%</span></div>
-          </div>
-          @for (t of aiToggles(); track t.key) {
-            @if (t.key !== 'aiEngine') {
-              <div class="ss-row">
-                <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
-                <button type="button" class="ss-sw" [class.on]="t.on" (click)="toggle(aiToggles, t.key)"></button>
-              </div>
-            }
-          }
-        </div>
-        <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ</button></div>
-      }
-
       @if (activeSection() === 'notifications') {
         <div class="ss-card">
           <div class="ss-card-ttl">إعدادات الإشعارات</div>

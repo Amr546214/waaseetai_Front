@@ -165,7 +165,6 @@ export class Sidebar implements OnInit {
 			bell: 'M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0',
 			send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
 			globe: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z',
-			ai: 'M12 12m-2 0a2 2 0 104 0 2 2 0 10-4 0M12 10V5M12 19v-5M10 12H5M19 12h-5M4 6m-1.5 0a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M20 6m-1.5 0a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M4 18m-1.5 0a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M20 18m-1.5 0a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
 			logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9'
 		};
 
@@ -287,15 +286,6 @@ export class Sidebar implements OnInit {
 					{ type: 'link', label: 'CDN + الأصول', route: '/supper-admin-overview/it/cdn', icon: icons.globe }
 				]
 			},
-			{
-				type: 'accordion', id: 'sa-ai', label: 'محركات AI', icon: icons.ai,
-				children: [
-					{ type: 'link', label: 'AI Dashboard', route: '/supper-admin-overview/ai/dashboard', icon: icons.ai },
-					{ type: 'link', label: 'Match Engine', route: '/supper-admin-overview/ai/match-engine', icon: icons.ai },
-					{ type: 'link', label: 'التوصيات + Audit', route: '/supper-admin-overview/ai/audit', icon: icons.ai }
-				]
-			},
-
 			{ type: 'header', label: 'الأدوات الإدارية' },
 			{ type: 'link', label: 'Audit Trail', route: '/supper-admin-overview/audit-trail', icon: icons.shield },
 			{

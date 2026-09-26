@@ -277,26 +277,6 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         ]
     },
     {
-        path: 'ai',
-        children: [
-    {
-        path: 'dashboard',
-        loadComponent: () => import('./ai/sa-ai-dashboard/sa-ai-dashboard').then(m => m.SaAiDashboard),
-        data: { title: 'AI Dashboard' }
-    },
-    {
-        path: 'match-engine',
-        loadComponent: () => import('./ai/sa-match-engine/sa-match-engine').then(m => m.SaMatchEngine),
-        data: { title: 'Match Engine' }
-    },
-    {
-        path: 'audit',
-        loadComponent: () => import('./ai/sa-ai-audit/sa-ai-audit').then(m => m.SaAiAudit),
-        data: { title: 'التوصيات + Audit' }
-    },
-        ]
-    },
-    {
         path: 'audit-trail',
         loadComponent: () => import('./sa-audit-trail/sa-audit-trail').then(m => m.SaAuditTrail),
         data: { title: 'Audit Trail' }

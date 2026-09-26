@@ -54,51 +54,14 @@
 		<div class="dd-main">
 
 			@if (d.detail; as detail) {
-			<!-- AI ANALYSIS -->
+			@if (detail.recommendation) {
+			<!-- PROPOSED RESOLUTION (administrative, not AI-generated) -->
 			<div class="dd-ai-sec">
-				<div class="dd-ai-hd">
-					<div class="dd-ai-ico">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-							<circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" />
-							<path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" />
-						</svg>
-					</div>
-					<div>
-						<div class="dd-ai-title">تحليل وسيط AI — تقييم النزاع</div>
-						<div class="dd-ai-sub">بناءً على سجل الحساب والعقد والتواصل</div>
-					</div>
-					<span class="dd-ai-conf">دقة {{ detail.confidencePct }}٪</span>
-				</div>
-
-				<div class="dd-verdict">
-					<div class="dd-verdict-side dd-verdict-pro">
-						<div class="dd-verdict-lbl dd-verdict-lbl-pro">{{ detail.verdictFor.label }}</div>
-						@for (item of detail.verdictFor.items; track item) {
-						<div class="dd-verdict-item dd-verdict-item-pro">{{ item }}</div>
-						}
-					</div>
-					@if (detail.verdictAgainst.items.length > 0) {
-					<div class="dd-verdict-side dd-verdict-con">
-						<div class="dd-verdict-lbl dd-verdict-lbl-con">{{ detail.verdictAgainst.label }}</div>
-						@for (item of detail.verdictAgainst.items; track item) {
-						<div class="dd-verdict-item dd-verdict-item-con">{{ item }}</div>
-						}
-					</div>
-					}
-				</div>
-
-				@for (meter of detail.meters; track meter.label) {
-				<div class="dd-meter-row">
-					<div class="dd-meter-lbl">{{ meter.label }}</div>
-					<div class="dd-meter-bar"><div class="dd-meter-fill" [class.dd-meter-fill-purple]="meter.variant === 'purple'" [style.width.%]="meter.pct"></div></div>
-					<div class="dd-meter-pct" [class.dd-meter-pct-purple]="meter.variant === 'purple'">{{ meter.suffixLabel || (meter.pct + '٪') }}</div>
-				</div>
-				}
-
 				<div class="dd-recommendation">
-					<strong>التوصية:</strong> {{ detail.recommendation }}
+					<strong>مقترح الإدارة:</strong> {{ detail.recommendation }}
 				</div>
 			</div>
+			}
 
 			<!-- TIMELINE -->
 			<div class="dd-sec">
@@ -111,9 +74,6 @@
 					<div class="dd-tl-item">
 						<div class="dd-tl-dot" [ngClass]="'dd-tl-dot-' + h.iconType">
 							@switch (h.iconType) {
-							@case ('ai') {
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg>
-							}
 							@case ('doc') {
 							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 							}
@@ -148,18 +108,14 @@
 				@if (detail.evidence.length > 0) {
 				@for (ev of detail.evidence; track ev.name) {
 				<div class="dd-ev-item">
-					<div class="dd-ev-ico" [class.dd-ev-ico-ai]="ev.iconType === 'ai'">
-						@if (ev.iconType === 'ai') {
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg>
-						} @else {
+					<div class="dd-ev-ico">
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
-						}
 					</div>
 					<div class="dd-ev-body">
 						<div class="dd-ev-name">{{ ev.name }}</div>
 						<div class="dd-ev-meta">{{ ev.meta }}</div>
 					</div>
-					<span class="dd-ev-src" [ngClass]="'dd-ev-src-' + ev.source">{{ ev.source === 'ai' ? 'AI' : (ev.source === 'company' ? 'أنت' : 'العميل') }}</span>
+					<span class="dd-ev-src" [ngClass]="'dd-ev-src-' + ev.source">{{ ev.source === 'company' ? 'أنت' : 'العميل' }}</span>
 				</div>
 				}
 				} @else {

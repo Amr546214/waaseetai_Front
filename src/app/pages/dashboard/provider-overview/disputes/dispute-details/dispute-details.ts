@@ -39,7 +39,6 @@ export class DisputeDetails implements OnInit {
 
 	historyIconPath(type: string): string {
 		switch (type) {
-			case 'ai': return 'ai';
 			case 'doc': return 'doc';
 			case 'chat': return 'chat';
 			case 'pending': return 'pending';

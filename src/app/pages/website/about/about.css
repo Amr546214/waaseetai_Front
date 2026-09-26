@@ -51,7 +51,7 @@
   /* AI SECTION */
   .ai-section{background:linear-gradient(135deg,rgba(123,47,190,.07),rgba(43,127,255,.04));border:1px solid var(--ai-border);border-radius:20px;padding:48px;margin:0 0 64px;position:relative;overflow:hidden}
   .ai-section::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 50%,rgba(123,47,190,.12),transparent 60%);pointer-events:none}
-  .ai-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;position:relative}
+  .ai-layout{display:grid;grid-template-columns:1fr;gap:48px;align-items:center;position:relative}
   .ai-features{display:flex;flex-direction:column;gap:14px;margin-top:24px}
   .ai-feat{display:flex;align-items:flex-start;gap:10px}
   .ai-feat-ico{width:28px;height:28px;border-radius:7px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0}

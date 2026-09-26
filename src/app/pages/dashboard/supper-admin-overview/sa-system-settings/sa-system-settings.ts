@@ -1,7 +1,7 @@
 import { Component, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-type SettingsSection = 'general' | 'ai' | 'notifications' | 'security' | 'finance' | 'localization' | 'health';
+type SettingsSection = 'general' | 'notifications' | 'security' | 'finance' | 'localization' | 'health';
 
 interface ToggleRow {
   key: string;
@@ -33,7 +33,6 @@ interface ChangeLogRow {
 export class SaSystemSettings {
   readonly sections: { key: SettingsSection; label: string }[] = [
     { key: 'general', label: 'عام' },
-    { key: 'ai', label: 'الذكاء الاصطناعي' },
     { key: 'notifications', label: 'الإشعارات' },
     { key: 'security', label: 'الأمان' },
     { key: 'finance', label: 'المالية' },
@@ -47,15 +46,7 @@ export class SaSystemSettings {
   readonly generalToggles = signal<ToggleRow[]>([
     { key: 'maintenance', label: 'وضع الصيانة', desc: 'يوقف الوصول لجميع المستخدمين مؤقتاً', on: false },
     { key: 'registration', label: 'تسجيل حسابات جديدة', desc: 'السماح بإنشاء حسابات جديدة', on: true },
-    { key: 'liveSupport', label: 'الدعم الفوري', desc: 'تفعيل المساعد AI للدعم الفوري', on: true },
-  ]);
-
-  readonly aiConfidence = signal(90);
-  readonly aiToggles = signal<ToggleRow[]>([
-    { key: 'aiEngine', label: 'تفعيل محرك AI', desc: 'التصنيف والمطابقة والتوصيات التلقائية', on: true },
-    { key: 'aiDispute', label: 'AI تحكيم النزاعات', desc: 'السماح لـ AI باقتراح قرارات النزاعات', on: true },
-    { key: 'aiFraud', label: 'AI كشف الاحتيال', desc: 'رصد الأنماط المشبوهة تلقائياً', on: true },
-    { key: 'aiDisclosure', label: 'الإفصاح عن AI', desc: 'إظهار بنر AI Disclosure في كل صفحة', on: true },
+    { key: 'liveSupport', label: 'الدعم الفوري', desc: 'تفعيل مساعد الأسئلة الشائعة للدعم الفوري', on: true },
   ]);
 
   readonly adminEmail = signal('admin@waseet.ai');
@@ -88,7 +79,6 @@ export class SaSystemSettings {
     { name: 'قاعدة البيانات', value: 'نشطة', color: '#0FA99A' },
     { name: 'بوابة الدفع (Moyasar)', value: 'متصلة', color: '#0FA99A' },
     { name: 'بوابة الفوترة (تجهيز مستقبلي)', value: 'غير مفعّلة في V1', color: '#6B7699' },
-    { name: 'محرك AI', value: 'نشط · 95% دقة', color: '#0FA99A' },
     { name: 'CDN وتسليم الملفات', value: 'نشط', color: '#0FA99A' },
     { name: 'خدمة البريد الإلكتروني', value: 'نشطة', color: '#0FA99A' },
     { name: 'النسخ الاحتياطي', value: 'آخر نسخة: اليوم 3:00 ص', color: '#0FA99A' },
@@ -96,7 +86,6 @@ export class SaSystemSettings {
 
   readonly changeLog: ChangeLogRow[] = [
     { time: 'منذ 2h', message: 'مدير النظام غيّر نسبة الرسوم من 10% ← 10% (لا تغيير)', ip: 'IP: 197.32.14.88' },
-    { time: 'منذ 6h', message: 'فهد العتيبي غيّر عتبة الثقة AI من 85% ← 90%', ip: 'IP: 185.220.101.42 ⚠', warn: true },
     { time: 'أمس', message: 'مدير النظام أضاف قالب إشعار جديد (قبول الحساب)', ip: 'IP: 197.32.14.88' },
     { time: '3 أيام', message: 'مدير النظام غيّر مدة الجلسة من 8 ← 24 ساعة', ip: 'IP: 197.32.14.88' },
   ];
