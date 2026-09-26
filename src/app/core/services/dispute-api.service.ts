@@ -6,6 +6,7 @@ import {
   AdminDisputesQuery,
   CreateDisputeApiResponse,
   CreateDisputePayload,
+  DisputeAiSummaryApiResponse,
   DisputeApiResponse,
   DisputeListApiResponse,
   ResolveDisputeApiResponse,
@@ -102,6 +103,18 @@ export class DisputeApiService {
     return this.http.post<ResolveDisputeApiResponse>(
       `${this.baseUrl}/admin/disputes/${id}/resolve`,
       payload,
+    );
+  }
+
+  /**
+   * Advisory-only Gemini summary for the human admin reviewer. Read-only —
+   * never resolves/rejects the dispute, never touches status or money.
+   * POST /api/admin/disputes/:id/ai-summary
+   */
+  getDisputeAiSummary(id: string): Observable<DisputeAiSummaryApiResponse> {
+    return this.http.post<DisputeAiSummaryApiResponse>(
+      `${this.baseUrl}/admin/disputes/${id}/ai-summary`,
+      {},
     );
   }
 

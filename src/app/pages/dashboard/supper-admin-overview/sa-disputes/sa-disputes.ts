@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
-import { Dispute, DisputeStatus, DisputePagination, DisputeAction, ResolveDisputePayload } from '../../../../core/models/dispute.model';
+import { Dispute, DisputeStatus, DisputePagination, DisputeAction, ResolveDisputePayload, DisputeAiSummary } from '../../../../core/models/dispute.model';
 
 type StatusFilter = 'all' | DisputeStatus;
 
@@ -35,6 +35,12 @@ export class SaDisputes implements OnInit {
   submittingResolve = signal(false);
   resolveError = signal('');
   resolveSuccess = signal('');
+
+  // Advisory-only AI summary — entirely separate from the manual
+  // resolve/reject state above. Never pre-fills resolutionText/resolutionNote.
+  aiSummary = signal<DisputeAiSummary | null>(null);
+  aiSummaryLoading = signal(false);
+  aiSummaryError = signal('');
 
   readonly resolutionPresets = [
     'REFUND_CLIENT',
@@ -107,6 +113,8 @@ export class SaDisputes implements OnInit {
     this.detailError.set('');
     this.selectedDispute.set(dispute);
     this.detailLoading.set(true);
+    this.aiSummary.set(null);
+    this.aiSummaryError.set('');
     this.disputeApi.getAdminDispute(dispute.id).subscribe({
       next: (res) => {
         if (res.success && res.data) {
@@ -125,7 +133,32 @@ export class SaDisputes implements OnInit {
     this.showDetail.set(false);
     this.selectedDispute.set(null);
     this.detailError.set('');
+    this.aiSummary.set(null);
+    this.aiSummaryError.set('');
     this.cancelResolveForm();
+  }
+
+  // Advisory-only — purely additive read. Never touches resolutionText/
+  // resolutionNote/resolveAction, and never calls resolveAdminDispute.
+  requestAiSummary() {
+    const dispute = this.selectedDispute();
+    if (!dispute || this.aiSummaryLoading()) return;
+    this.aiSummaryError.set('');
+    this.aiSummaryLoading.set(true);
+    this.disputeApi.getDisputeAiSummary(dispute.id).subscribe({
+      next: (res) => {
+        this.aiSummaryLoading.set(false);
+        if (res.success && res.data) {
+          this.aiSummary.set(res.data);
+        } else {
+          this.aiSummaryError.set(res.message || 'تعذر إنشاء ملخص الذكاء الاصطناعي لهذا النزاع حالياً');
+        }
+      },
+      error: (err) => {
+        this.aiSummaryLoading.set(false);
+        this.aiSummaryError.set(err?.error?.message || 'تعذر إنشاء ملخص الذكاء الاصطناعي لهذا النزاع حالياً');
+      },
+    });
   }
 
   openResolveForm(action: DisputeAction) {

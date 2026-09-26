@@ -52,3 +52,16 @@ export type DisputeApiResponse = ApiResponse<Dispute>;
 export type DisputeListApiResponse = ApiResponse<DisputeListData>;
 export type CreateDisputeApiResponse = ApiResponse<{ id: string }>;
 export type ResolveDisputeApiResponse = ApiResponse<Dispute>;
+
+// Advisory-only AI summary (Implementation Batch 2, Part B). Never a
+// verdict/fault/money field — the human admin resolve/reject flow above is
+// completely separate and is never pre-filled from this.
+export interface DisputeAiSummary {
+  caseSummary: string;
+  timelineSummary: string;
+  evidenceSummary: string[];
+  evidenceGaps: string[];
+  suggestedQuestions: string[];
+}
+
+export type DisputeAiSummaryApiResponse = ApiResponse<DisputeAiSummary>;
