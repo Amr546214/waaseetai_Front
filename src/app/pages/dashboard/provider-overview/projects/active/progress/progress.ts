@@ -225,32 +225,62 @@ export class Progress implements OnInit {
   // Escrow amount formatted "2,500 ريال"
   escrowAmountLabel(stage: any): string { return stage?.amount ? (stage.amount | 0).toLocaleString('en-US') + ' ريال' : '—'; }
 
-  // === P-PR-010 AI insights (real backend field only) ===
-  // The backend (project-progress.service.ts) already returns an HONEST
-  // aiInsights object — confidence:0, matchPercentage:null, bullets:[],
-  // riskLevel:'غير محسوبة' ("not computed"), healthRating:'بانتظار بيانات
-  // كافية' ("awaiting sufficient data") — as an explicit "not computed yet"
-  // signal. These helpers must display that honest signal as-is, never
-  // substitute a fabricated positive-looking value for it.
+  // === Batch 8 — real, on-demand Gemini project health analysis ===
+  // Replaces the previously-permanent aiInsights placeholder. Not fetched
+  // automatically on page load (mirrors the delivery-ai-review pattern
+  // elsewhere in this codebase) — the user explicitly requests it via
+  // analyzeProjectHealth(), and these helpers prefer that real result over
+  // the honest static placeholder still returned inline on data.aiInsights.
+  // On failure, healthAnalysisError is set and the placeholder is NOT
+  // silently re-shown as if it were a real result — the template shows an
+  // explicit "تعذر التحليل" state instead.
+  healthAnalysis = signal<any>(null);
+  healthAnalysisLoading = signal(false);
+  healthAnalysisError = signal(false);
+
+  analyzeProjectHealth(): void {
+    if (!this.projectId || this.healthAnalysisLoading()) return;
+    this.healthAnalysisLoading.set(true);
+    this.healthAnalysisError.set(false);
+    this.service.getProjectHealthAnalysis(this.projectId).subscribe({
+      next: (res: any) => {
+        this.healthAnalysisLoading.set(false);
+        if (res?.success && res.data) {
+          this.healthAnalysis.set(res.data);
+        } else {
+          this.healthAnalysisError.set(true);
+        }
+      },
+      error: () => {
+        this.healthAnalysisLoading.set(false);
+        this.healthAnalysisError.set(true);
+      }
+    });
+  }
+
+  private currentAiInsights(data: any): any {
+    return this.healthAnalysis() || data?.aiInsights;
+  }
   aiConfidence(data: any): string {
-    const v = data?.aiInsights?.confidence;
+    const v = this.currentAiInsights(data)?.confidence;
     return v ? v + '٪' : 'غير متاح';
   }
-  aiBullets(data: any): { title: string; text: string }[] {
-    if (data?.aiInsights?.bullets?.length) return data.aiInsights.bullets;
-    return [{ title: 'لا تتوفر تحليلات كافية بعد', text: '— ستظهر هنا بمجرد توفر بيانات كافية عن سير المشروع' }];
+  aiBullets(data: any): string[] {
+    const bullets = this.currentAiInsights(data)?.bullets;
+    if (bullets?.length) return bullets;
+    return ['لا تتوفر تحليلات كافية بعد — ستظهر هنا بمجرد توفر بيانات كافية عن سير المشروع'];
   }
   aiEarlyDays(data: any): string {
-    const v = data?.aiInsights?.earlyDays;
+    const v = this.currentAiInsights(data)?.earlyDays;
     return v ? String(v) : '—';
   }
   aiMatchPct(data: any): string {
-    const v = data?.aiInsights?.matchPercentage;
+    const v = this.currentAiInsights(data)?.matchPercentage;
     if (v) return v + '٪';
     return '—';
   }
   aiRiskLevel(data: any): string {
-    return data?.aiInsights?.riskLevel || 'غير محسوبة';
+    return this.currentAiInsights(data)?.riskLevel || 'غير محسوبة';
   }
 
   canRateClient(data: any): boolean {

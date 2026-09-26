@@ -120,17 +120,11 @@ export class ProviderApiService {
 		return this.getProviderStatistics();
 	}
 
-	getTopAiMatchingProjects(): Observable<any> {
-		if (!this.hasToken()) {
-			return of({ success: false, data: [] });
-		}
-		return this.http.get<any>(`${this.apiUrl}/ai-matching-projects`).pipe(
-			catchError((error) => {
-				console.error('Error fetching top AI matching projects:', error);
-				return of({ success: false, data: [] });
-			})
-		);
-	}
+	// Batch 8: getTopAiMatchingProjects() (GET /provider/ai-matching-projects)
+	// was removed here — confirmed zero real callers anywhere in the app, and
+	// confirmed to duplicate the exact same matching data already fetched via
+	// getProviderStatistics()/getOverviewStats() above
+	// (data.aiMatchingProjects, GET /provider/statistics).
 
 	getExploreRequests(params?: Record<string, any>): Observable<any> {
 		if (!this.hasToken()) {
@@ -164,6 +158,21 @@ export class ProviderApiService {
 			catchError((error) => {
 				console.error('Error analyzing project with AI:', error);
 				return of({ success: false });
+			})
+		);
+	}
+
+	// Batch 7: real replacement for team-deliveries.ts's previously
+	// hardcoded "company deliveries" list — real StageDelivery rows, no
+	// fabricated AI match score, no team-member attribution.
+	getCompanyDeliveries(): Observable<any> {
+		if (!this.hasToken()) {
+			return of({ success: false, data: [] });
+		}
+		return this.http.get<any>(`${this.apiUrl}/company/deliveries`).pipe(
+			catchError((error) => {
+				console.error('Error fetching company deliveries:', error);
+				return of({ success: false, data: [] });
 			})
 		);
 	}

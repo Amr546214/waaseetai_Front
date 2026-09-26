@@ -24,4 +24,12 @@ export class ActiveProjectsService {
 	submitDelivery(projectId: string, stageId: string, payload: { note: string; files: string[] }): Observable<any> {
 		return this.http.post<any>(`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/deliveries`, payload);
 	}
+
+	// Batch 8 — advisory-only Gemini project health analysis. On-demand only
+	// (not called automatically on page load); real result replaces the
+	// honest aiInsights placeholder in the UI, real failure shows an honest
+	// unavailable state — see progress.ts::analyzeProjectHealth().
+	getProjectHealthAnalysis(projectId: string): Observable<any> {
+		return this.http.post<any>(`${environment.url_api}/provider/projects/${projectId}/health`, {});
+	}
 }

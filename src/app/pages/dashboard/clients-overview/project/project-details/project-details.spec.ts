@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
+import { vi } from 'vitest';
 
 import { ProjectDetails } from './project-details';
 
@@ -77,5 +78,87 @@ describe('ProjectDetails', () => {
   it('aiBullets: passes through real backend bullets when present', () => {
     const real = ['ملاحظة حقيقية'];
     expect(component.aiBullets({ aiInsights: { bullets: real } })).toEqual(real);
+  });
+
+  // Batch 5: qualityNote previously fell back to a fixed "اجتاز فحص الذكاء"
+  // (passed AI check) sentence — there is no aiQualityNote/automated
+  // pass-fail field anywhere in the backend, so this claimed an inspection
+  // that never happened.
+  it('qualityNote: shows an honest "no automated note yet" fallback, never the fake "passed AI check" claim', () => {
+    const note = component.qualityNote({});
+    expect(note).not.toContain('اجتاز فحص الذكاء');
+    expect(note).not.toMatch(/\d+\s*[%٪]/);
+  });
+
+  it('qualityNote: passes through a real backend note when present', () => {
+    expect(component.qualityNote({ aiQualityNote: 'ملاحظة حقيقية من الخادم' })).toBe('ملاحظة حقيقية من الخادم');
+  });
+});
+
+// Implementation Batch 8 — advisory-only Gemini project health analysis,
+// on-demand via analyzeProjectHealth(). Mirrors the equivalent tests added
+// to the sibling provider-overview progress.spec.ts.
+describe('ProjectDetails — Batch 8 on-demand project health analysis', () => {
+  let component: ProjectDetails;
+  let fixture: ComponentFixture<ProjectDetails>;
+
+  async function setup(postImpl: () => any) {
+    await TestBed.configureTestingModule({
+      imports: [ProjectDetails],
+      providers: [
+        provideRouter([]),
+        { provide: HttpClient, useValue: { get: () => of({ success: true, data: { title: 'مشروع', stages: [], files: [], messages: [] } }), post: vi.fn(postImpl) } },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
+      ]
+    }).compileComponents();
+    fixture = TestBed.createComponent(ProjectDetails);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
+
+  it('loading: sets healthAnalysisLoading while the request is in flight', async () => {
+    const subject = new Subject<any>();
+    await setup(() => subject.asObservable());
+    component.analyzeProjectHealth();
+    expect(component.healthAnalysisLoading()).toBe(true);
+    subject.next({ success: true, data: { confidence: 60, riskLevel: 'منخفضة', riskLevelKey: 'LOW', healthRating: 'جيدة', bullets: ['ملاحظة حقيقية'], earlyDays: 1, matchPercentage: null } });
+    subject.complete();
+    expect(component.healthAnalysisLoading()).toBe(false);
+  });
+
+  it('success: renders the real fetched health analysis, replacing the static placeholder, with no fabricated fallback', async () => {
+    const realResult = { confidence: 91, riskLevel: 'منخفضة', riskLevelKey: 'LOW', healthRating: 'المشروع يسير جيداً', bullets: ['التزام كامل بالجدول الزمني.'], earlyDays: 3, matchPercentage: null };
+    await setup(() => of({ success: true, data: realResult }));
+    component.analyzeProjectHealth();
+    expect(component.healthAnalysisError()).toBe(false);
+    expect(component.healthAnalysis()).toEqual(realResult);
+    expect(component.aiConfidence({})).toBe('91٪');
+    expect(component.aiRiskLevel({})).toBe('منخفضة');
+    expect(component.aiBullets({})).toEqual(['التزام كامل بالجدول الزمني.']);
+  });
+
+  it('error/unavailable: a failed request sets healthAnalysisError and never fabricates a positive-looking result', async () => {
+    await setup(() => throwError(() => ({ status: 502 })));
+    component.analyzeProjectHealth();
+    expect(component.healthAnalysisLoading()).toBe(false);
+    expect(component.healthAnalysisError()).toBe(true);
+    expect(component.healthAnalysis()).toBeNull();
+    expect(component.aiConfidence({ aiInsights: { confidence: 0 } })).toBe('غير متاح');
+  });
+
+  it('the rendered template never uses contractual-decision wording for the AI analysis section', async () => {
+    const realResult = { confidence: 91, riskLevel: 'منخفضة', riskLevelKey: 'LOW', healthRating: 'المشروع يسير جيداً', bullets: ['ملاحظة حقيقية'], earlyDays: 3, matchPercentage: null };
+    await setup(() => of({ success: true, data: realResult }));
+    component.analyzeProjectHealth();
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent || '';
+    expect(text).toContain('تحليل استشاري بمساعدة الذكاء الاصطناعي');
+    expect(text).not.toMatch(/قرار نهائي بالإفراج|قرار ملزم|حكم نهائي/);
+  });
+
+  it('the existing project page still loads and renders without the health-analysis feature interfering', async () => {
+    await setup(() => of({ success: true, data: {} }));
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
   });
 });

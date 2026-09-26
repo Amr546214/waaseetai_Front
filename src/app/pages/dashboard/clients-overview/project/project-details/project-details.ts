@@ -81,36 +81,70 @@ export class ProjectDetails implements OnInit {
 	currentReviewStage(data: any): any {
 		return data.stages.find((s: any) => s.status === 'submitted') || null;
 	}
-	// Honest AI-insights display — the backend already signals "not computed
-	// yet" (confidence:0/matchPercentage:null/bullets:[]/riskLevel:'غير محسوبة')
-	// as an explicit honest state; these helpers must display that signal
-	// as-is, never substitute a fabricated positive-looking value for it
-	// (previously computed a fake 88-96% match, a fake 95% confidence, a
-	// fake early-days estimate, a fake risk level, and 3 fabricated positive
-	// bullets from raw daysLeft/progress whenever the real signal was absent).
+	// === Batch 8 — real, on-demand Gemini project health analysis ===
+	// Replaces the previously-permanent aiInsights placeholder. Not fetched
+	// automatically on page load — the user explicitly requests it via
+	// analyzeProjectHealth(), and these helpers prefer that real result over
+	// the honest static placeholder still returned inline on project().
+	// aiInsights. On failure, healthAnalysisError is set and the placeholder
+	// is NOT silently re-shown as if it were a real result.
+	healthAnalysis = signal<any>(null);
+	healthAnalysisLoading = signal(false);
+	healthAnalysisError = signal(false);
+
+	analyzeProjectHealth(): void {
+		if (!this.projectId || this.healthAnalysisLoading()) return;
+		this.healthAnalysisLoading.set(true);
+		this.healthAnalysisError.set(false);
+		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.projectId}/health`, {}).subscribe({
+			next: (res) => {
+				this.healthAnalysisLoading.set(false);
+				if (res?.success && res.data) {
+					this.healthAnalysis.set(res.data);
+				} else {
+					this.healthAnalysisError.set(true);
+				}
+			},
+			error: () => {
+				this.healthAnalysisLoading.set(false);
+				this.healthAnalysisError.set(true);
+			}
+		});
+	}
+
+	private currentAiInsights(data: any): any {
+		return this.healthAnalysis() || data?.aiInsights;
+	}
 	aiMatchPct(data: any): string {
-		const v = data?.aiInsights?.matchPercentage;
+		const v = this.currentAiInsights(data)?.matchPercentage;
 		return v ? v + '٪' : 'غير متاح';
 	}
 	aiConfidence(data: any): string {
-		const v = data?.aiInsights?.confidence;
+		const v = this.currentAiInsights(data)?.confidence;
 		return v ? v + '٪' : 'غير متاح';
 	}
 	aiEarlyDays(data: any): string {
-		const v = data?.aiInsights?.earlyDays;
+		const v = this.currentAiInsights(data)?.earlyDays;
 		return v ? String(v) : '—';
 	}
 	aiRiskLevel(data: any): string {
-		return data?.aiInsights?.riskLevel || 'غير محسوبة';
+		return this.currentAiInsights(data)?.riskLevel || 'غير محسوبة';
 	}
 	aiBullets(data: any): string[] {
-		if (data?.aiInsights?.bullets?.length) return data.aiInsights.bullets;
+		const bullets = this.currentAiInsights(data)?.bullets;
+		if (bullets?.length) return bullets;
 		return ['لا تتوفر تحليلات كافية بعد — ستظهر هنا بمجرد توفر بيانات كافية عن سير المشروع'];
 	}
-	// Quality check note for the current submitted stage
+	// Quality check note for the current submitted stage. There is no
+	// aiQualityNote (or any automated pass/fail check) field anywhere in the
+	// backend, so a fixed "passed AI check" sentence here would claim an
+	// inspection that never happened (same class of bug already fixed for
+	// aiMatchPct/aiConfidence/aiEarlyDays/aiRiskLevel/aiBullets above). Honest
+	// fallback only — a real, on-demand advisory review is available from the
+	// "مراجعة التسليم بالذكاء الاصطناعي" action on the delivery review page.
 	qualityNote(stage: any): string {
 		if (stage?.aiQualityNote) return stage.aiQualityNote;
-		return 'اجتاز فحص الذكاء: الملفات كاملة، بدقّة عالية، وبدون علامات مائية';
+		return 'لا توجد ملاحظة جودة آلية لهذا التسليم بعد';
 	}
 	// Delivery files count for a stage
 	stageFileCount(stage: any): number {
@@ -149,7 +183,7 @@ export class ProjectDetails implements OnInit {
 	}
 	deadlineRating(data: any) {
 		if (data.daysLeft <= 0 && data.progress < 100) return 'يحتاج متابعة';
-		return data.aiInsights?.healthRating || 'جيد';
+		return this.currentAiInsights(data)?.healthRating || 'جيد';
 	}
 	// P-SK-015: navigate to full delivery review page (no modal). 'approve' opens the review page; 'revision' opens conversation.
 	openReview(stage: any, decision: 'approve' | 'revision') {
