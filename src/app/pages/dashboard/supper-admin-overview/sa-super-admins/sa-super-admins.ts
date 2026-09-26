@@ -60,7 +60,7 @@ export class SaSuperAdmins {
   readonly contentToggles = signal<SpaToggle[]>([
     { key: 'reviewProjects', label: 'مراجعة المشاريع قبل النشر', desc: 'يراجعها مشرف قبل الظهور', on: false },
     { key: 'reviewProfiles', label: 'مراجعة الملفات الشخصية', desc: 'اعتماد مقدمي الخدمة يدوياً', on: true },
-    { key: 'wordFilter', label: 'فلتر الكلمات المسيئة', desc: 'AI يفلتر الرسائل والمحتوى', on: true },
+    { key: 'wordFilter', label: 'فلتر الكلمات المسيئة', desc: 'فلترة تلقائية للكلمات المحظورة في الرسائل والمحتوى', on: true },
   ]);
 
   readonly dealFee = signal(10);
@@ -74,7 +74,7 @@ export class SaSuperAdmins {
   readonly securityMinPassword = signal(8);
   readonly securityToggles = signal<SpaToggle[]>([
     { key: '2fa', label: 'مصادقة ثنائية (2FA) إلزامية للإدارة', desc: 'Super Admin & Admins', on: true },
-    { key: 'anomalyLock', label: 'قفل الحساب تلقائياً عند الشذوذ', desc: 'AI يرصد تسجيل الدخول المشبوه', on: true },
+    { key: 'anomalyLock', label: 'قفل الحساب تلقائياً عند تكرار المحاولات الفاشلة', desc: 'وفق قواعد أمنية ثابتة', on: true },
   ]);
 
   readonly notifChannels = signal<SpaToggle[]>([
@@ -91,9 +91,11 @@ export class SaSuperAdmins {
   readonly aiToggles = signal<SpaToggle[]>([
     { key: 'match', label: 'AI Match Engine', desc: 'مطابقة المشاريع بمقدمي الخدمة', on: true },
     { key: 'recommend', label: 'AI Recommendations', desc: 'توصيات مخصصة لكل مستخدم', on: true },
-    { key: 'fraud', label: 'AI Fraud Detection', desc: 'كشف النشاطات المشبوهة', on: true },
-    { key: 'dispute', label: 'AI Dispute Resolution', desc: 'مساعدة في حل النزاعات', on: true },
-    { key: 'moderation', label: 'AI Content Moderation', desc: 'فلترة المحتوى المسيء', on: true },
+    // Batch 6: "AI Fraud Detection" and "AI Content Moderation" toggles were
+    // removed entirely — no real capability of any kind (AI or
+    // deterministic) exists behind either one, so a reworded label would
+    // still misrepresent a nonexistent feature as controllable here.
+    { key: 'dispute', label: 'ملخص النزاعات بالذكاء الاصطناعي', desc: 'تلخيص استشاري للنزاع يعرض على المراجع البشري؛ لا يصدر قراراً', on: true },
   ]);
   readonly aiMatchThreshold = signal(70);
 
@@ -109,7 +111,7 @@ export class SaSuperAdmins {
     { n: 4811, action: 'تسجيل دخول', detail: 'دخول ناجح من الرياض', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'اليوم 2:40 م', sev: 'info' },
     { n: 4810, action: 'تعليق حساب', detail: 'حساب U-1024 معلّق', by: 'هيثم القرني', role: 'مشرف نزاعات', ip: '10.0.0.42', date: 'اليوم 1:15 م', sev: 'med' },
     { n: 4809, action: 'حذف تعليق', detail: 'حذف تعليق محتوى مسيء', by: 'هيثم القرني', role: 'مشرف نزاعات', ip: '10.0.0.42', date: 'اليوم 12:02 م', sev: 'med' },
-    { n: 4808, action: 'تغيير إعداد', detail: 'تفعيل AI Fraud Detection', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'أمس 11:44 م', sev: 'high' },
+    { n: 4808, action: 'تغيير إعداد', detail: 'تفعيل فلتر الكلمات المسيئة', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'أمس 11:44 م', sev: 'high' },
     { n: 4807, action: 'تغيير صلاحية', detail: 'منح صلاحية مشرف لنوف السهلي', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'أمس 10:00 م', sev: 'high' },
     { n: 4805, action: 'تسجيل دخول فاشل', detail: '5 محاولات فاشلة — حساب مؤقت', by: 'غير معروف', role: '—', ip: '41.22.x.x', date: 'أمس 2:11 ص', sev: 'danger' },
   ];

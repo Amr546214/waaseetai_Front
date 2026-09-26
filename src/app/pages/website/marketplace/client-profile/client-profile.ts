@@ -2,111 +2,20 @@ import { Component, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { ClientPublicProfileService } from '../../../../core/services/client-public-profile.service';
+import { ClientPublicProfile } from '../../../../core/models/client-public-profile.model';
 
-export interface ClientProjectHistoryItem {
-	id: string;
-	title: string;
-	icon: string;
-	iconColor: string;
-	status: 'done' | 'active';
-	providerName: string;
-	date: string;
-	price: string;
-}
-
-export interface ClientReviewGiven {
-	id: string;
-	providerName: string;
-	initial: string;
-	avatarColor: string;
-	rating: number;
-	project: string;
-	date: string;
-	comment: string;
-}
-
-export interface ClientPublicProfile {
-	id: string;
-	name: string;
-	initial: string;
-	isVerified: boolean;
-	trustLabel: string;
-	location: string;
-	memberSince: string;
-	interests: string[];
-	stats: {
-		completedProjects: number;
-		avgRating: number;
-		commitmentRate: number;
-		avgResponseTime: string;
-		activeRequests: number;
-	};
-	aiTrust: {
-		overall: number;
-		payment: number;
-		commitment: number;
-		bars: { label: string; value: number; valueLabel: string }[];
-	};
-	about: string;
-	history: ClientProjectHistoryItem[];
-	reviewsGiven: ClientReviewGiven[];
-	accountType: string;
-	language: string;
-	lastActive: string;
-	budgetRange: string;
-	avgSpend: string;
-	preferredCategories: { label: string; color: string }[];
-	aiRecommendation: string;
-}
-
-function buildMockClientProfile(id: string): ClientPublicProfile {
-	return {
-		id,
-		name: 'محمد الغامدي',
-		initial: 'م',
-		isVerified: true,
-		trustLabel: 'عميل موثوق',
-		location: 'جدة، المملكة العربية السعودية',
-		memberSince: '2023',
-		interests: ['التصميم الجرافيكي', 'التسويق الرقمي', 'تطوير المواقع', 'المحتوى'],
-		stats: { completedProjects: 18, avgRating: 4.8, commitmentRate: 92, avgResponseTime: '48 س', activeRequests: 3 },
-		aiTrust: {
-			overall: 94,
-			payment: 97,
-			commitment: 89,
-			bars: [
-				{ label: 'تاريخ الدفع', value: 97, valueLabel: 'ممتاز' },
-				{ label: 'وضوح متطلباته', value: 82, valueLabel: 'جيد' },
-				{ label: 'سرعة الاستجابة', value: 76, valueLabel: 'جيد' },
-				{ label: 'مستوى التعاون', value: 91, valueLabel: 'مرتفع' }
-			]
-		},
-		about: 'يستعين بمقدمي خدمات في مجالات التصميم والتسويق الرقمي والبرمجة وتطوير المحتوى. سجله يُظهر التزاماً بالمدفوعات في الوقت المحدد وتعاوناً إيجابياً مع المقدمين. يوضح متطلباته مسبقاً ويستجيب للتواصل بانتظام.',
-		history: [
-			{ id: 'p1', title: 'تصميم هوية بصرية لتطبيق توصيل', icon: 'ws-tag', iconColor: 'var(--teal)', status: 'done', providerName: 'سارة الحربي', date: 'مارس 2024', price: '1,800 ريال' },
-			{ id: 'p2', title: 'إدارة حملة سوشيال ميديا — 3 أشهر', icon: 'ws-tag', iconColor: '#0FA99A', status: 'done', providerName: 'أحمد العتيبي', date: 'يناير 2024', price: '4,500 ريال' },
-			{ id: 'p3', title: 'تطوير موقع إلكتروني للشركة', icon: 'ws-briefcase', iconColor: '#5DA0FF', status: 'active', providerName: 'فيصل السلمي', date: 'يونيو 2024', price: '8,200 ريال' },
-			{ id: 'p4', title: 'كتابة محتوى تسويقي — 20 مقال', icon: 'ws-tag', iconColor: 'var(--teal)', status: 'done', providerName: 'نور الزهراني', date: 'نوفمبر 2023', price: '2,200 ريال' }
-		],
-		reviewsGiven: [
-			{ id: 'r1', providerName: 'سارة الحربي', initial: 'س', avatarColor: 'var(--grad)', rating: 5, project: 'تصميم هوية بصرية', date: 'مارس 2024', comment: 'متميزة جداً، فهمت المتطلبات من أول وهلة وسلّمت العمل قبل الموعد. سأتعامل معها مجدداً بلا تردد.' },
-			{ id: 'r2', providerName: 'أحمد العتيبي', initial: 'أ', avatarColor: 'linear-gradient(135deg,#0FA99A,#2BD4C7)', rating: 4.5, project: 'إدارة حملة سوشيال', date: 'يناير 2024', comment: 'محترف وملتزم، نتائج الحملة كانت أفضل من التوقعات. التقارير منظمة وواضحة.' },
-			{ id: 'r3', providerName: 'نور الزهراني', initial: 'ن', avatarColor: 'linear-gradient(135deg,#2BD4C7,#0FA99A)', rating: 5, project: 'كتابة محتوى', date: 'نوفمبر 2023', comment: 'كاتبة رائعة، أسلوبها سلس ومقنع. التزمت بالمواعيد وقبلت الملاحظات باحترافية عالية.' }
-		],
-		accountType: 'فرد',
-		language: 'العربية، الإنجليزية',
-		lastActive: 'اليوم',
-		budgetRange: '500 — 10,000',
-		avgSpend: '3,200 ريال',
-		preferredCategories: [
-			{ label: 'التصميم', color: 'var(--teal)' },
-			{ label: 'التسويق', color: '#5DA0FF' },
-			{ label: 'المحتوى', color: '#0FA99A' },
-			{ label: 'البرمجة', color: '#5DA0FF' }
-		],
-		aiRecommendation: 'عميل موثوق بمعدل دفع 97% — يُنصح بقبول عروضه. متطلباته واضحة ويتعاون بشكل إيجابي مع المقدمين.'
-	};
-}
+// Implementation Batch 6. Every field below is real (backed by
+// GET /api/client/profile/public/:id) — the previous hardcoded mock
+// (name, location, interests, budgetRange/avgSpend, preferredCategories,
+// project history with prices, reviews the client supposedly wrote, and
+// the entire fabricated "aiTrust" block — overall/payment/commitment
+// 94/97/89 plus a hardcoded "97% payment rate, trusted client"
+// recommendation string) has been removed entirely rather than kept as a
+// fallback, since none of it has a real backend source. There is no
+// Gemini call in this feature at all — every stat is a deterministic
+// count/average, and an honest facts-only profile is preferable to a
+// fabricated score.
 
 @Component({
 	selector: 'app-client-profile',
@@ -120,37 +29,78 @@ export class ClientProfileComponent implements OnInit {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
+	private clientPublicProfile = inject(ClientPublicProfileService);
 
 	profile = signal<ClientPublicProfile | null>(null);
 	loading = signal<boolean>(true);
+	notFound = signal<boolean>(false);
+	error = signal<string>('');
 
 	ngOnInit(): void {
 		this.route.paramMap.subscribe(params => {
-			const id = params.get('id') || 'unknown';
-			this.loading.set(true);
-			// Clients/requesters are not publicly listed by the backend today, so this page is
-			// built with representative mock data matching the design until such an endpoint exists.
-			setTimeout(() => {
-				this.profile.set(buildMockClientProfile(id));
+			const id = params.get('id');
+			if (!id) {
+				this.notFound.set(true);
 				this.loading.set(false);
-				if (isPlatformBrowser(this.platformId)) {
-					setTimeout(() => this.initParticles(), 0);
-				}
-			}, 150);
+				return;
+			}
+			this.fetchProfile(id);
 		});
 	}
 
-	sendMessage() {
-		if (!this.authStore.isAuthenticated()) {
-			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
-			return;
-		}
-		this.router.navigate(['/provider-overview/messages']);
+	private fetchProfile(id: string) {
+		this.loading.set(true);
+		this.notFound.set(false);
+		this.error.set('');
+		this.profile.set(null);
+
+		this.clientPublicProfile.getPublicProfile(id).subscribe({
+			next: (res) => {
+				this.loading.set(false);
+				if (res.success && res.data) {
+					this.profile.set(res.data);
+					if (isPlatformBrowser(this.platformId)) {
+						setTimeout(() => this.initParticles(), 0);
+					}
+				} else {
+					this.notFound.set(true);
+				}
+			},
+			error: (err) => {
+				this.loading.set(false);
+				if (err?.status === 404) {
+					this.notFound.set(true);
+				} else {
+					this.error.set(err?.error?.message || 'تعذر تحميل الملف الشخصي، حاول مرة أخرى');
+				}
+			},
+		});
 	}
 
-	ringDashOffset(value: number, radius: number): number {
-		const circumference = 2 * Math.PI * radius;
-		return circumference - (circumference * value) / 100;
+	retry() {
+		const id = this.route.snapshot.paramMap.get('id');
+		if (id) this.fetchProfile(id);
+	}
+
+	displayName(p: ClientPublicProfile): string {
+		return p.name?.trim() || 'عميل وسيط';
+	}
+
+	initials(p: ClientPublicProfile): string {
+		const name = p.name?.trim();
+		return name ? name.charAt(0) : 'ع';
+	}
+
+	location(p: ClientPublicProfile): string {
+		return [p.city, p.country].filter(Boolean).join('، ') || '';
+	}
+
+	memberSinceYear(p: ClientPublicProfile): string {
+		try { return new Date(p.memberSince).getFullYear().toString(); } catch { return ''; }
+	}
+
+	reviewDate(iso: string): string {
+		try { return new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(new Date(iso)); } catch { return ''; }
 	}
 
 	starArray(rating: number): ('full' | 'half' | 'empty')[] {
@@ -161,6 +111,14 @@ export class ClientProfileComponent implements OnInit {
 			else result.push('empty');
 		}
 		return result;
+	}
+
+	sendMessage() {
+		if (!this.authStore.isAuthenticated()) {
+			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
+			return;
+		}
+		this.router.navigate(['/provider-overview/messages']);
 	}
 
 	private initParticles() {

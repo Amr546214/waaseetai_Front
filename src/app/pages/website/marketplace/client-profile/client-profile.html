@@ -1,20 +1,36 @@
-<div class="bg-grid" aria-hidden="true"></div>
 <div class="particles" id="particles-container" aria-hidden="true"></div>
 
 <!-- SVG SPRITE -->
 <svg style="display:none" aria-hidden="true"><defs>
 <symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
 <symbol id="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
-<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
-<symbol id="ws-client" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
-<symbol id="ws-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></symbol>
-<symbol id="ws-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
-<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
-<symbol id="ws-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><circle cx="17" cy="15" r="1.5" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="ws-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
 </defs></svg>
 
-@if (!loading() && profile(); as p) {
+@if (loading()) {
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px">
+  <div class="loader-spinner">
+    <svg viewBox="0 0 50 50" style="width:40px;height:40px;animation:spin 1s linear infinite">
+      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border)" stroke-width="4"></circle>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--teal)" stroke-width="4" stroke-dasharray="30 100" stroke-linecap="round"></circle>
+    </svg>
+  </div>
+  <div style="font-size:14px;font-weight:700" class="txt-white">جاري تحميل الملف الشخصي...</div>
+</div>
+} @else if (notFound()) {
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">
+  <div class="text-lg font-black txt-white">لم يتم العثور على هذا الملف الشخصي</div>
+  <p class="txt-muted" style="font-size:13px;max-width:360px">الرابط غير صحيح أو أن هذا الحساب غير متاح كملف عميل عام حالياً.</p>
+  <a routerLink="/marketplace" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-extrabold text-[13px] no-underline" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">تصفح السوق</a>
+</div>
+} @else if (error()) {
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">
+  <div class="text-lg font-black txt-white">تعذر تحميل الملف الشخصي</div>
+  <p class="txt-muted" style="font-size:13px;max-width:360px">{{ error() }}</p>
+  <button type="button" (click)="retry()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-extrabold text-[13px]" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">إعادة المحاولة</button>
+</div>
+} @else if (profile(); as p) {
 <div class="page-wrap">
   <div class="container">
 
@@ -24,7 +40,7 @@
       <span class="breadcrumb-sep">/</span>
       <a routerLink="/marketplace">تسوق الخدمات</a>
       <span class="breadcrumb-sep">/</span>
-      <span class="txt-slate">{{ p.name }}</span>
+      <span class="txt-slate">{{ displayName(p) }}</span>
     </div>
 
     <!-- COVER -->
@@ -32,198 +48,109 @@
       <div class="cover-grid"></div>
       <div class="cover-glow"></div>
       <div class="cover-glow2"></div>
-      <span class="client-type-pill">
-        <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-client"></use></svg>
-        طالب خدمة — {{ p.accountType }}
-      </span>
+      <div class="client-type-pill" data-testid="client-type-pill">
+        <span style="font-size:10px;font-weight:800">عميل وسيط</span>
+      </div>
     </div>
 
     <!-- IDENTITY -->
     <div class="profile-identity">
       <div class="identity-row">
         <div style="position:relative;flex-shrink:0">
-          <div class="profile-av">{{ p.initial }}</div>
-          <div class="profile-online"></div>
+          @if (p.avatarUrl) {
+            <img [src]="p.avatarUrl" alt="" class="profile-av" style="object-fit:cover" />
+          } @else {
+            <div class="profile-av">{{ initials(p) }}</div>
+          }
         </div>
         <div class="identity-info">
           <div class="identity-name-row">
-            <span class="identity-name">{{ p.name }}</span>
+            <span class="identity-name">{{ displayName(p) }}</span>
             @if (p.isVerified) {
-              <span class="verified-badge">
+              <span class="verified-badge" data-testid="verified-badge">
                 <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-check"></use></svg>
-                موثّق
+                هوية موثّقة عبر نفاذ
               </span>
             }
-            <span class="trust-pill">{{ p.trustLabel }}</span>
           </div>
-          <div class="identity-title">{{ p.location }} · عضو منذ {{ p.memberSince }}</div>
-          <div class="interest-tags-row">
-            @for (interest of p.interests; track interest) {
-              <span class="interest-tag">{{ interest }}</span>
-            }
-          </div>
+          @if (location(p)) {
+            <div class="identity-title">{{ location(p) }}</div>
+          }
         </div>
         <div class="identity-actions">
           <button class="btn-ghost-sm" (click)="sendMessage()">
-            <svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-msg"></use></svg>
+            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-msg"></use></svg>
             إرسال رسالة
           </button>
         </div>
       </div>
     </div>
 
-    <!-- STATS BAR -->
-    <div class="stats-bar">
+    <!-- REAL STATS (deterministic — no AI/trust score of any kind) -->
+    <div class="stats-bar" data-testid="stats-bar">
       <div class="stat-cell">
-        <div class="stat-n txt-teal">{{ p.stats.completedProjects }}</div>
-        <div class="stat-sub">مشروع مكتمل</div>
+        <div class="stat-n">{{ p.stats.completedProjects }}</div>
+        <div class="stat-sub">مشاريع مكتملة</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n">{{ p.stats.avgRating }}</div>
-        <div class="stat-sub" style="display:flex;align-items:center;gap:3px;justify-content:center">
-          <svg aria-hidden="true" style="width:10px;height:10px" class="txt-kahr"><use href="#ws-star"></use></svg>
-          متوسط التقييم
-        </div>
+        <div class="stat-n">{{ p.stats.activeProjects }}</div>
+        <div class="stat-sub">مشاريع نشطة</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n txt-blue">{{ p.stats.commitmentRate }}%</div>
-        <div class="stat-sub">معدل الالتزام</div>
+        <div class="stat-n">{{ p.stats.totalContracts }}</div>
+        <div class="stat-sub">عقود إجمالية</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n">{{ p.stats.avgResponseTime }}</div>
-        <div class="stat-sub">متوسط الرد</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-n txt-green">{{ p.stats.activeRequests }}</div>
-        <div class="stat-sub">طلبات نشطة</div>
+        @if (p.stats.providerRatingAverage !== null) {
+          <div class="stat-n">{{ p.stats.providerRatingAverage }}</div>
+          <div class="stat-sub">تقييم مقدمي الخدمة ({{ p.stats.providerReviewsCount }})</div>
+        } @else {
+          <div class="stat-n">—</div>
+          <div class="stat-sub">لا يوجد تقييم بعد</div>
+        }
       </div>
     </div>
 
-    <!-- AI TRUST METRICS -->
-    <div class="ai-metrics-block">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-        <div class="ai-metrics-ico">
-          <svg aria-hidden="true" style="width:14px;height:14px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
-        </div>
-        <span style="font-size:11px;font-weight:800;letter-spacing:.06em" class="txt-purple">تحليل الذكاء الاصطناعي — موثوقية العميل</span>
-        <span class="ai-active-badge">AI · نشط</span>
-      </div>
-      <div class="ai-metrics-inner">
-        <div class="ai-rings-group">
-          <div class="ai-ring-item">
-            <svg width="60" height="60" viewBox="0 0 60 60" style="transform:rotate(-90deg)" aria-hidden="true">
-              <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(43,212,199,.1)" stroke-width="5"/>
-              <circle cx="30" cy="30" r="24" fill="none" stroke="#2BD4C7" stroke-width="5" stroke-linecap="round" [attr.stroke-dasharray]="2*3.14159*24" [style.stroke-dashoffset]="ringDashOffset(p.aiTrust.overall, 24)"/>
-              <text x="30" y="35" text-anchor="middle" style="transform:rotate(90deg);transform-origin:30px 30px;font-size:12px;font-weight:900;fill:#2BD4C7;font-family:Tajawal,sans-serif">{{ p.aiTrust.overall }}</text>
-            </svg>
-            <span style="font-size:10px" class="txt-muted">الثقة الكلية</span>
-          </div>
-          <div class="ai-ring-item">
-            <svg width="50" height="50" viewBox="0 0 50 50" style="transform:rotate(-90deg)" aria-hidden="true">
-              <circle cx="25" cy="25" r="19" fill="none" stroke="rgba(43,127,255,.1)" stroke-width="4"/>
-              <circle cx="25" cy="25" r="19" fill="none" stroke="#5DA0FF" stroke-width="4" stroke-linecap="round" [attr.stroke-dasharray]="2*3.14159*19" [style.stroke-dashoffset]="ringDashOffset(p.aiTrust.payment, 19)"/>
-              <text x="25" y="30" text-anchor="middle" style="transform:rotate(90deg);transform-origin:25px 25px;font-size:11px;font-weight:900;fill:#5DA0FF;font-family:Tajawal,sans-serif">{{ p.aiTrust.payment }}</text>
-            </svg>
-            <span style="font-size:10px" class="txt-muted">الدفع</span>
-          </div>
-          <div class="ai-ring-item">
-            <svg width="50" height="50" viewBox="0 0 50 50" style="transform:rotate(-90deg)" aria-hidden="true">
-              <circle cx="25" cy="25" r="19" fill="none" stroke="rgba(15,169,154,.1)" stroke-width="4"/>
-              <circle cx="25" cy="25" r="19" fill="none" stroke="#0FA99A" stroke-width="4" stroke-linecap="round" [attr.stroke-dasharray]="2*3.14159*19" [style.stroke-dashoffset]="ringDashOffset(p.aiTrust.commitment, 19)"/>
-              <text x="25" y="30" text-anchor="middle" style="transform:rotate(90deg);transform-origin:25px 25px;font-size:11px;font-weight:900;fill:#0FA99A;font-family:Tajawal,sans-serif">{{ p.aiTrust.commitment }}</text>
-            </svg>
-            <span style="font-size:10px" class="txt-muted">الالتزام</span>
-          </div>
-        </div>
-        <div class="ai-perf-bars">
-          @for (bar of p.aiTrust.bars; track bar.label) {
-            <div class="ai-bar-row">
-              <div class="ai-bar-label"><span class="txt-slate">{{ bar.label }}</span><span style="font-weight:800" class="txt-purple">{{ bar.valueLabel }}</span></div>
-              <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="bar.value" style="background:linear-gradient(90deg,#7B2FBE,#A56BE0)"></div></div>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- MAIN LAYOUT -->
+    <!-- CONTENT -->
     <div class="profile-layout">
       <div class="content-col">
-
         <!-- ABOUT -->
         <div class="section-card">
           <div class="section-title">
-            <div class="section-title-left">
-              <div class="section-ico txt-teal" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)">
-                <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-client"></use></svg>
-              </div>
-              عن هذا العميل
-            </div>
+            <span class="section-title-left">عن {{ displayName(p) }}</span>
           </div>
-          <p style="font-size:13.5px;line-height:1.9" class="txt-slate">{{ p.about }}</p>
-        </div>
-
-        <!-- PROJECT HISTORY -->
-        <div class="section-card">
-          <div class="section-title">
-            <div class="section-title-left">
-              <div class="section-ico txt-blue" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18)">
-                <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-briefcase"></use></svg>
-              </div>
-              سجل المشاريع
-            </div>
-            <span style="font-size:11px" class="txt-muted">{{ p.history.length }} مشروع</span>
-          </div>
-          @for (item of p.history; track item.id) {
-            <div class="proj-card">
-              <div class="proj-card-icon" [style.color]="item.iconColor">
-                <svg aria-hidden="true" style="width:18px;height:18px"><use [attr.href]="'#' + item.icon"></use></svg>
-              </div>
-              <div class="proj-card-info">
-                <div class="proj-card-title">{{ item.title }}</div>
-                <div class="proj-card-meta">
-                  <span class="proj-status" [class.proj-active]="item.status === 'active'">{{ item.status === 'done' ? 'مكتمل' : 'نشط' }}</span>
-                  <span>{{ item.providerName }}</span>
-                  <span>·</span>
-                  <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-clock"></use></svg>
-                  <span>{{ item.date }}</span>
-                </div>
-              </div>
-              <div class="proj-card-price">{{ item.price }}</div>
-            </div>
+          @if (p.bio) {
+            <p style="font-size:13.5px;line-height:1.85" class="txt-slate">{{ p.bio }}</p>
+          } @else {
+            <p style="font-size:13px" class="txt-muted">لم يضف هذا العميل نبذة تعريفية بعد.</p>
           }
         </div>
 
-        <!-- REVIEWS GIVEN -->
+        <!-- REVIEWS FROM PROVIDERS (real Review rows, reviewerRole = PROVIDER) -->
         <div class="section-card">
           <div class="section-title">
-            <div class="section-title-left">
-              <div class="section-ico badge-kahr">
-                <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-star"></use></svg>
-              </div>
-              تقييمات أعطاها لمقدمين
-            </div>
+            <span class="section-title-left">آراء مقدمي الخدمة</span>
           </div>
-          @for (rev of p.reviewsGiven; track rev.id) {
-            <div class="rev-given">
+          @if (!p.reviewsFromProviders.length) {
+            <p style="font-size:13px" class="txt-muted">لا توجد تقييمات من مقدمي خدمة بعد.</p>
+          }
+          @for (r of p.reviewsFromProviders; track r.createdAt + (r.providerName || '')) {
+            <div class="rev-given" data-testid="provider-review">
               <div class="rev-given-hd">
-                <div class="rev-given-av" [style.background]="rev.avatarColor">{{ rev.initial }}</div>
+                <div class="rev-given-av">{{ (r.providerName || 'م').charAt(0) }}</div>
                 <div style="flex:1">
-                  <div style="font-size:13px;font-weight:700" class="txt-white">{{ rev.providerName }}</div>
-                  <div style="display:flex;align-items:center;gap:4px;font-size:11px" class="txt-muted">
-                    <span style="display:inline-flex;gap:1px" class="txt-kahr">
-                      @for (star of starArray(rev.rating); track $index) {
-                        <svg aria-hidden="true" style="width:10px;height:10px" [style.opacity]="star === 'empty' ? 0.3 : 1"><use href="#ws-star"></use></svg>
-                      }
-                    </span>
-                    <span>{{ rev.rating }}</span>
-                    <span>·</span>
-                    <span>{{ rev.project }}</span>
-                  </div>
+                  <div style="font-size:12.5px;font-weight:800" class="txt-white">{{ r.providerName || 'مقدم خدمة' }}</div>
+                  <div style="font-size:11px" class="txt-muted">{{ reviewDate(r.createdAt) }}</div>
                 </div>
-                <span style="font-size:11px" class="txt-muted">{{ rev.date }}</span>
+                <div style="display:flex;gap:1px">
+                  @for (star of starArray(r.rating); track $index) {
+                    <svg aria-hidden="true" style="width:12px;height:12px" [style.opacity]="star === 'empty' ? 0.25 : 1"><use href="#ws-star"></use></svg>
+                  }
+                </div>
               </div>
-              <p class="rev-given-txt">{{ rev.comment }}</p>
+              @if (r.comment) {
+                <p class="rev-given-txt">{{ r.comment }}</p>
+              }
             </div>
           }
         </div>
@@ -231,72 +158,29 @@
 
       <!-- SIDEBAR -->
       <div class="sidebar-col">
-
         <div class="sidebar-card">
-          <div class="sidebar-title">
-            <div class="sidebar-ico txt-teal" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)">
-              <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-client"></use></svg>
+          <div class="sidebar-title">معلومات</div>
+          <div class="info-row">
+            <span class="info-label">عضو منذ</span>
+            <span class="info-val">{{ memberSinceYear(p) }}</span>
+          </div>
+          @if (location(p)) {
+            <div class="info-row">
+              <span class="info-label">الموقع</span>
+              <span class="info-val">{{ location(p) }}</span>
             </div>
-            معلومات العميل
-          </div>
-          <div class="info-row"><span class="info-label">نوع الحساب</span><span class="info-val">{{ p.accountType }}</span></div>
-          <div class="info-row"><span class="info-label">الموقع</span><span class="info-val">{{ p.location }}</span></div>
-          <div class="info-row"><span class="info-label">اللغة</span><span class="info-val">{{ p.language }}</span></div>
-          <div class="info-row"><span class="info-label">عضو منذ</span><span class="info-val">{{ p.memberSince }}</span></div>
-          <div class="info-row"><span class="info-label">آخر نشاط</span><span class="info-val txt-green">{{ p.lastActive }}</span></div>
+          }
         </div>
-
-        <div class="sidebar-card">
-          <div class="sidebar-title">
-            <div class="sidebar-ico txt-blue" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18)">
-              <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-wallet"></use></svg>
-            </div>
-            نطاق الميزانية
-          </div>
-          <div style="text-align:center;padding:8px 0">
-            <div style="font-size:22px;font-weight:900;margin-bottom:4px" class="txt-white">{{ p.budgetRange }}</div>
-            <div style="font-size:11px;margin-bottom:12px" class="txt-muted">ريال لكل مشروع</div>
-            <div class="avg-spend-box">متوسط إنفاق فعلي: <strong class="txt-blue">{{ p.avgSpend }}</strong></div>
-          </div>
+        <div class="sidebar-card" style="background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border-color:rgba(43,212,199,.2)">
+          <div style="font-size:15px;font-weight:900;margin-bottom:6px" class="txt-white">تواصل مع {{ displayName(p) }}</div>
+          <div style="font-size:12px;margin-bottom:16px;line-height:1.7" class="txt-muted">راسله مباشرة بخصوص خدمة تناسب مشروعه</div>
+          <button class="btn-ghost-sm" style="width:100%;justify-content:center;padding:10px" (click)="sendMessage()">
+            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-msg"></use></svg>
+            إرسال رسالة
+          </button>
         </div>
-
-        <div class="sidebar-card">
-          <div class="sidebar-title">
-            <div class="sidebar-ico badge-green">
-              <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-tag"></use></svg>
-            </div>
-            التخصصات المفضلة
-          </div>
-          <div style="display:flex;gap:5px;flex-wrap:wrap">
-            @for (cat of p.preferredCategories; track cat.label) {
-              <span class="pref-cat" [style.color]="cat.color">{{ cat.label }}</span>
-            }
-          </div>
-        </div>
-
-        <div class="ai-recommend-box">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <div class="sidebar-ico badge-purple">
-              <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-trust-ai"></use></svg>
-            </div>
-            <span style="font-size:11px;font-weight:800" class="txt-purple">توصية الذكاء</span>
-          </div>
-          <p style="font-size:12px;line-height:1.7" class="txt-slate">{{ p.aiRecommendation }}</p>
-        </div>
-
       </div>
     </div>
-
   </div>
-</div>
-} @else if (loading()) {
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px">
-  <div class="loader-spinner">
-    <svg viewBox="0 0 50 50" style="width:40px;height:40px;animation:spin 1s linear infinite">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border)" stroke-width="4"></circle>
-      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--blue)" stroke-width="4" stroke-dasharray="30 100" stroke-linecap="round"></circle>
-    </svg>
-  </div>
-  <div style="font-size:14px;font-weight:700" class="txt-white">جاري تحميل ملف العميل...</div>
 </div>
 }

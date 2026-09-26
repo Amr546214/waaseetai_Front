@@ -173,15 +173,15 @@
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="display:grid;grid-template-columns:1fr;gap:8px">
+              <!-- Batch 6: the "fair range/عادل" AI verdict was removed — no
+                   real price-fairness computation exists anywhere in the
+                   backend (ServiceCatalog has no such field), so this
+                   previously just echoed the same totalAmount back under a
+                   fabricated "fair" label. -->
               <div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">
                 <div style="font-size:10px;font-weight:800;letter-spacing:.05em;margin-bottom:5px" class="txt-muted">سعر المقدم</div>
                 <div style="font-size:22px;font-weight:900;line-height:1" class="txt-white">{{ model()?.totalAmount ?? 0 }} <span style="font-size:12px;font-weight:600" class="txt-muted">ريال</span></div>
-              </div>
-              <div style="padding:12px 14px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.18);border-radius:10px">
-                <div style="font-size:10px;font-weight:800;letter-spacing:.05em;margin-bottom:5px" class="txt-purple">النطاق العادل · AI</div>
-                <div style="font-size:16px;font-weight:900;line-height:1.2" class="txt-teal">{{ model()?.totalAmount ?? 0 }} <span style="font-size:11px;font-weight:600" class="txt-muted">ريال</span></div>
-                <div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 7px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.22);border-radius:6px;font-size:9px;font-weight:800" class="txt-green"><svg aria-hidden="true" style="width:8px;height:8px"><use href="#ws-check"></use></svg>عادل ومطابق</div>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -459,9 +459,12 @@
               </div>
             </div>
             <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+              <!-- Batch 6: the "fair range/عادل" AI verdict was removed — no
+                   real price-fairness computation exists anywhere in the
+                   backend (ServiceCatalog has no such field); it previously
+                   showed a hardcoded "fair" label regardless of price. -->
+              <div style="display:grid;grid-template-columns:1fr;gap:7px">
                 <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;margin-bottom:4px" class="txt-muted">سعر المقدم</div><div style="font-size:20px;font-weight:900;line-height:1" class="txt-white">{{ model()?.totalAmount ?? 0 }} <span style="font-size:10px" class="txt-muted">ريال</span></div></div>
-                <div style="padding:10px 12px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.18);border-radius:10px"><div style="font-size:9px;font-weight:800;margin-bottom:4px" class="txt-purple">النطاق العادل · AI</div><div style="font-size:14px;font-weight:900;line-height:1.2" class="txt-teal">عادل <span style="font-size:9px" class="txt-muted">ومناسب للمجال</span></div><div style="display:inline-flex;align-items:center;gap:3px;margin-top:4px;padding:1px 6px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2);border-radius:5px;font-size:9px;font-weight:800" class="txt-green"><svg style="width:7px;height:7px"><use href="#ws-check"></use></svg>عادل</div></div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
                 <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;margin-bottom:4px" class="txt-muted">مدة التسليم</div><div style="font-size:18px;font-weight:900;line-height:1" class="txt-white">{{ model()?.totalDays ?? 0 }} <span style="font-size:10px" class="txt-muted">أيام</span></div></div>
@@ -574,7 +577,7 @@
             </div>
             <div class="trust-item">
               <span class="trust-ico txt-purple" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg><use href="#ws-trust-ai"></use></svg></span>
-              مراقبة AI لجودة التسليم
+              تقييم AI لجودة المقدمين
             </div>
           </div>
         </div>
