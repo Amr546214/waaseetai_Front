@@ -2223,3 +2223,8 @@ button.btn-outline-sm {
 :host-context(body.theme-light) .test-progress-lbl,
 :host-context(.light-theme) .test-progress-lbl,
 :host-context(.theme-light) .test-progress-lbl{color:#475569}
+
+/* AI results remain a preview until explicitly applied. */
+.suggestion-preview { margin-top: 12px; padding: 14px; border: 1px solid var(--ai); border-radius: 12px; }
+.suggestion-preview p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
+.suggestion-preview .f-hint { display: block; margin-top: 8px; }

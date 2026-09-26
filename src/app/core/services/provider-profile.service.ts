@@ -3,6 +3,13 @@ import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export interface ProfileSuggestionInput {
+  jobTitle?: string;
+  mainSpecialty?: string;
+  experienceRange?: string;
+  existingSkills?: string[];
+}
+
 export interface ProviderProfile {
   id: string;
   userId: string;
@@ -50,6 +57,14 @@ export interface ProviderProfile {
 export class ProviderProfileService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.url_api}/provider/profile`;
+
+  suggestBio(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedBio: string } }> {
+    return this.http.post<{ success: boolean; data: { suggestedBio: string } }>(`${this.apiUrl}/suggest-bio`, input);
+  }
+
+  suggestSkills(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedSkills: string[] } }> {
+    return this.http.post<{ success: boolean; data: { suggestedSkills: string[] } }>(`${this.apiUrl}/suggest-skills`, input);
+  }
 
   getProfile(): Observable<ProviderProfile> {
     return this.http.get<ProviderProfile>(`${this.apiUrl}/me`);

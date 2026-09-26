@@ -109,6 +109,8 @@ export interface NafathVerifyResponse {
 
 /** Provider onboarding setup payload (typed version of what profile-setup.ts sends). */
 export interface ProviderSetupPayload {
+  /** Existing taxonomy names explicitly accepted in the setup form. */
+  skills?: string[];
   details?: {
     occupation?: string;
     country?: string;

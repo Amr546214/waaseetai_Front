@@ -1,4 +1,6 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
@@ -26,6 +28,7 @@ export interface SetupAlertModal {
 })
 export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private fb = inject(FormBuilder);
+	private destroyRef = inject(DestroyRef);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
@@ -55,7 +58,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			country: ['السعودية', Validators.required],
 			city: ['', Validators.required],
 			languages: [[]],
-			bio: ['', Validators.required],
+			bio: ['', [Validators.required, Validators.maxLength(500)]],
 			portfolioUrl: [''],
 			linkedinUrl: [''],
 			websiteUrl: [''],
@@ -107,6 +110,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	isSuggestingSkills = signal<boolean>(false);
 	notifChannels = signal<string[]>(['email']);
 	aiSuggestedSkills = signal<string[]>([]);
+	suggestedBio = signal<string | null>(null);
+	bioSuggestionError = signal('');
+	skillsSuggestionError = signal('');
+	skillsSuggestionReady = signal(false);
 
 	// Upload progress states keyed by field identifier
 	uploadStates = signal<Record<string, { status: 'uploading' | 'uploaded' | 'error'; progress: number; name: string }>>({});
@@ -212,6 +219,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			next: (res: any) => {
 				if (res && res.data) {
 					const d = res.data;
+					this.skillsList.set((d.skills || []).map((s: { name: string }) => s.name));
 					this.setupForm.patchValue({
 						profData: {
 							jobTitle: d.industry || '',
@@ -440,7 +448,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		event.preventDefault();
 		const v = (this.skillInput || '').trim();
 		if (!v) return;
-		if (!this.skillsList().includes(v)) {
+		if (v.length <= 40 && this.skillsList().length < 30 && !this.skillsList().some(s => s.trim().toLowerCase() === v.toLowerCase())) {
 			this.skillsList.update(list => [...list, v]);
 		}
 		this.skillInput = '';
@@ -450,44 +458,72 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.skillsList.update(list => list.filter(s => s !== skill));
 	}
 
-	suggestBio() {
-		const jobTitle = this.setupForm.get('profData.jobTitle')?.value || '';
-		const expYears = this.setupForm.get('profData.expYears')?.value || '';
-		if (!jobTitle) {
-			this.alertModal.set({
-				type: 'info', title: 'بيانات ناقصة', message: 'أدخل المسمى الوظيفي وسنوات الخبرة أولاً لاقتراح نبذة مناسبة.',
-				confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-			});
-			return;
-		}
-		this.isSuggestingBio.set(true);
-		// Deterministic starter template built from the entered job title/years —
-		// not an AI call (no backend endpoint exists for this). Presented to the
-		// user as an editable template/starting point, never as AI-generated.
-		setTimeout(() => {
-			const suggested = `${jobTitle} بخبرة ${expYears}، متخصص في تقديم حلول احترافية وعالية الجودة. شغوف بتطوير المهارات وتقديم أفضل النتائج للعملاء.`;
-			this.setupForm.get('profData.bio')?.setValue(suggested);
-			this.isSuggestingBio.set(false);
-		}, 1200);
+	private suggestionInput() {
+		return {
+			jobTitle: this.setupForm.get('profData.jobTitle')?.value || undefined,
+			mainSpecialty: this.setupForm.get('specialties.mainSpec')?.value || undefined,
+			experienceRange: this.setupForm.get('profData.expYears')?.value || undefined,
+			existingSkills: this.skillsList()
+		};
 	}
 
+	suggestBio() {
+		if (this.isSuggestingBio()) return;
+		this.isSuggestingBio.set(true);
+		this.suggestedBio.set(null);
+		this.bioSuggestionError.set('');
+		this.providerProfileService.suggestBio(this.suggestionInput()).pipe(
+			takeUntilDestroyed(this.destroyRef), finalize(() => this.isSuggestingBio.set(false))
+		).subscribe({
+			next: res => {
+				if (res.success && res.data?.suggestedBio) this.suggestedBio.set(res.data.suggestedBio);
+				else this.bioSuggestionError.set('تعذر إنشاء اقتراح بالذكاء الاصطناعي');
+			},
+			error: () => this.bioSuggestionError.set('تعذر إنشاء اقتراح بالذكاء الاصطناعي. يمكنك المحاولة مجدداً أو كتابة النبذة يدوياً.')
+		});
+	}
+
+	applyBioSuggestion() {
+		if (!this.suggestedBio()) return;
+		const control = this.setupForm.get('profData.bio');
+		control?.setValue(this.suggestedBio());
+		control?.markAsDirty();
+		this.dismissBioSuggestion();
+	}
+
+	dismissBioSuggestion() { this.suggestedBio.set(null); }
+
 	suggestSkills() {
-		const mainSpec = this.setupForm.get('specialties.mainSpec')?.value || '';
+		if (this.isSuggestingSkills()) return;
 		this.isSuggestingSkills.set(true);
-		// Deterministic fixed skill list (not an AI call — no backend endpoint
-		// exists for this). Presented to the user as generic suggestions, never
-		// as AI-generated/personalized.
-		setTimeout(() => {
-			const base = mainSpec ? [mainSpec, 'إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق', 'تحليل البيانات', 'التصميم الرقمي'] : ['إدارة المشاريع', 'التواصل الفعّال', 'حل المشكلات', 'العمل ضمن فريق', 'تحليل البيانات', 'التصميم الرقمي'];
-			const current = this.skillsList();
-			const suggestions = base.filter(s => !current.includes(s));
-			this.aiSuggestedSkills.set(suggestions);
-			this.isSuggestingSkills.set(false);
-		}, 1200);
+		this.aiSuggestedSkills.set([]);
+		this.skillsSuggestionError.set('');
+		this.skillsSuggestionReady.set(false);
+		this.providerProfileService.suggestSkills(this.suggestionInput()).pipe(
+			takeUntilDestroyed(this.destroyRef), finalize(() => this.isSuggestingSkills.set(false))
+		).subscribe({
+			next: res => {
+				if (!res.success || !Array.isArray(res.data?.suggestedSkills)) {
+					this.skillsSuggestionError.set('تعذر إنشاء اقتراح بالذكاء الاصطناعي');
+					return;
+				}
+				const existing = new Set(this.skillsList().map(s => s.trim().normalize('NFKC').toLowerCase()));
+				this.aiSuggestedSkills.set(res.data.suggestedSkills.filter(s => {
+					const key = s.trim().normalize('NFKC').toLowerCase();
+					if (!key || existing.has(key)) return false;
+					existing.add(key);
+					return true;
+				}));
+				this.skillsSuggestionReady.set(true);
+			},
+			error: () => this.skillsSuggestionError.set('تعذر إنشاء اقتراح بالذكاء الاصطناعي. يرجى المحاولة مجدداً.')
+		});
 	}
 
 	addAiSkill(skill: string) {
-		if (!this.skillsList().includes(skill)) {
+		if (!this.aiSuggestedSkills().includes(skill) || this.skillsList().length >= 30) return;
+		const key = skill.trim().normalize('NFKC').toLowerCase();
+		if (!this.skillsList().some(s => s.trim().normalize('NFKC').toLowerCase() === key)) {
 			this.skillsList.update(list => [...list, skill]);
 		}
 		this.aiSuggestedSkills.update(list => list.filter(s => s !== skill));
@@ -793,6 +829,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 		this.isSubmitting.set(true);
 		const payload = {
+			skills: this.skillsList(),
 			details: {
 				occupation: this.setupForm.get('profData.jobTitle')?.value,
 				country: this.setupForm.get('profData.country')?.value,
@@ -835,9 +872,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				}
 				this.goToStep(7);
 			},
-			error: () => {
+			error: (error) => {
 				this.isSubmitting.set(false);
-				this.goToStep(7); // Proceed anyway for UI flow
+				this.alertModal.set({ type: 'error', title: 'تعذر الحفظ', message: error.error?.message || 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });
 			}
 		});
 	}

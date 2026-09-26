@@ -154,14 +154,26 @@
             </div>
             <div class="f-wrap f-full">
               <label class="f-lbl" for="bio">النبذة المهنية <span class="f-req">*</span></label>
-              <textarea class="f-inp f-ta" id="bio" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
+              <textarea class="f-inp f-ta" id="bio" maxlength="500" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
               <div class="bio-actions">
-                <span class="f-hint">بحد أقصى 400 حرف</span>
+                <span class="f-hint">بحد أقصى 500 حرف</span>
                 <button type="button" class="ai-suggest-btn" (click)="suggestBio()" [disabled]="isSuggestingBio()">
                   <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>
-                  {{ isSuggestingBio() ? 'جاري التحضير...' : 'اقتراح نموذج نبذة' }}
+                  {{ isSuggestingBio() ? 'جاري إنشاء الاقتراح...' : 'اقتراح بالذكاء الاصطناعي' }}
                 </button>
               </div>
+              @if (bioSuggestionError()) {
+                <p role="alert" class="f-hint">{{ bioSuggestionError() }}</p>
+              }
+              @if (suggestedBio(); as bioPreview) {
+                <div class="suggestion-preview" aria-live="polite" data-testid="bio-preview">
+                  <strong>نبذة مقترحة بالذكاء الاصطناعي — راجعها قبل الاستخدام</strong>
+                  <p>{{ bioPreview }}</p>
+                  <button type="button" class="ai-suggest-btn" (click)="applyBioSuggestion()">استخدام الاقتراح</button>
+                  <button type="button" class="ai-suggest-btn" (click)="dismissBioSuggestion()">تجاهل</button>
+                  <span class="f-hint">يُحفظ التغيير عند إرسال النموذج فقط.</span>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -212,8 +224,13 @@
             </div>
           }
           <div class="skills-ai">
-            <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>مهارات مقترحة، اضغط لإضافة</div>
-            <div class="ai-chips" aria-label="مهارات مقترحة">
+            <button type="button" class="ai-suggest-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills">
+              {{ isSuggestingSkills() ? 'جاري إنشاء الاقتراح...' : 'اقتراح مهارات بالذكاء الاصطناعي' }}
+            </button>
+            @if (skillsSuggestionError()) { <p role="alert" class="f-hint">{{ skillsSuggestionError() }}</p> }
+            @if (skillsSuggestionReady() && !aiSuggestedSkills().length) { <p class="f-hint" role="status">لا توجد اقتراحات مهارات جديدة حالياً.</p> }
+            <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>اقتراحات بالذكاء الاصطناعي، اختر المهارات التي تتقنها</div>
+            <div class="ai-chips" aria-label="مهارات مقترحة بالذكاء الاصطناعي" aria-live="polite">
               @for (skill of aiSuggestedSkills(); track skill) {
                 <button type="button" class="ai-chip" (click)="addAiSkill(skill)"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-plus"></use></svg>{{ skill }}</button>
               }
@@ -223,7 +240,7 @@
             </div>
           </div>
           <div class="skills-input-row">
-            <input type="text" class="skills-input" placeholder="أضف مهارة يدويا..." maxlength="40" (keydown.enter)="addSkill($event)" [(ngModel)]="skillInput">
+            <input type="text" class="skills-input" placeholder="أدخل اسم مهارة موجودة في الدليل..." maxlength="40" (keydown.enter)="addSkill($event)" [(ngModel)]="skillInput" [ngModelOptions]="{standalone: true}">
             <button type="button" class="skills-add-btn" (click)="addSkill($event)">إضافة</button>
           </div>
         </div>
