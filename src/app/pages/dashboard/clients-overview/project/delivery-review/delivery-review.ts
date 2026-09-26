@@ -52,12 +52,42 @@ export class DeliveryReview implements OnInit {
 
 	latestThread(stage: any) { return stage?.threads?.[stage.threads.length - 1] || null; }
 
-	// There is no AI quality-review backend for stage deliveries (confirmed: no such
-	// field/column/service exists anywhere in the backend). Showing a fabricated
-	// percentage or a "passed" message here would misrepresent an automated check
-	// that never ran, so this section always renders an honest "unavailable" state.
-	// If a real AI review pipeline is added later, wire it here instead of faking it.
-	readonly aiReviewAvailable = false;
+	// Batch 5 — real, on-demand, advisory-only Gemini review of this delivery
+	// (POST .../stages/:stageId/ai-review). It never approves/rejects the
+	// delivery and never affects escrow — approveDelivery() below remains the
+	// only action that does that. Idle until the client explicitly asks for it.
+	aiReviewState = signal<'idle' | 'loading' | 'result' | 'error'>('idle');
+	aiReview = signal<{
+		summary: string;
+		alignedPoints: string[];
+		potentialGaps: string[];
+		questionsForReviewer: string[];
+		reviewedInputs: { deliveryText: boolean; stageRequirements: boolean; attachmentContent: boolean };
+	} | null>(null);
+	aiReviewError = signal('');
+
+	requestAiReview() {
+		const stage = this.stage();
+		if (!stage || this.aiReviewState() === 'loading') return;
+		this.aiReviewState.set('loading');
+		this.aiReviewError.set('');
+		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.projectId}/stages/${stage.id}/ai-review`, {}).subscribe({
+			next: response => {
+				if (response?.success && response.data) {
+					this.aiReview.set(response.data);
+					this.aiReviewState.set('result');
+				} else {
+					this.aiReviewError.set('تعذر إنشاء المراجعة الاستشارية بالذكاء الاصطناعي حالياً.');
+					this.aiReviewState.set('error');
+				}
+			},
+			error: event => {
+				this.aiReview.set(null);
+				this.aiReviewError.set(event.error?.message || 'تعذر إنشاء المراجعة الاستشارية بالذكاء الاصطناعي حالياً.');
+				this.aiReviewState.set('error');
+			}
+		});
+	}
 
 	// No backend field exists for a review deadline (StageDelivery/ProjectStage have
 	// no such column). Do not invent a day count — show "غير محدد" until a real

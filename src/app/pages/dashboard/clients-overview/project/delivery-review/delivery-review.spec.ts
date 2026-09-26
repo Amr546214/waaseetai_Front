@@ -116,21 +116,98 @@ describe('DeliveryReview', () => {
     expect(fixture.nativeElement.querySelector('.dr-file')).toBeNull();
   });
 
-  it('shows an honest "AI review unavailable" state instead of any AI data', async () => {
-    await setup(() => of(makeWorkspace()));
-    expect(fixture.nativeElement.textContent).toContain('غير متاح حالياً');
-  });
+  describe('AI advisory review (Batch 5, real & on-demand)', () => {
+    const validReview = {
+      summary: 'التسليم يغطي الهوية البصرية المطلوبة بشكل عام.',
+      alignedPoints: ['الشعار النهائي مذكور صراحة في نص التسليم.'],
+      potentialGaps: ['لم يُذكر دليل الاستخدام (brand guideline) صراحة.'],
+      questionsForReviewer: ['هل تم تسليم كل الصيغ المطلوبة للشعار؟'],
+      reviewedInputs: { deliveryText: true, stageRequirements: true, attachmentContent: false }
+    };
 
-  it('never renders a fabricated AI match/confidence percentage', async () => {
-    await setup(() => of(makeWorkspace()));
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).not.toContain('دقة');
-    expect(text).not.toMatch(/\d+\s*[%٪]/);
-  });
+    it('idle state shows the real advisory disclaimer and a request button, no fabricated data', async () => {
+      await setup(() => of(makeWorkspace()));
+      const text = fixture.nativeElement.textContent as string;
+      expect(text).not.toMatch(/\d+\s*[%٪]/);
+      expect(text).not.toContain('اجتاز فحص الذكاء');
+      expect(fixture.nativeElement.querySelector('[data-testid="request-ai-review"]')).toBeTruthy();
+      expect(postSpy).not.toHaveBeenCalled();
+    });
 
-  it('never renders the fake "passed AI check" compliance sentence', async () => {
-    await setup(() => of(makeWorkspace()));
-    expect(fixture.nativeElement.textContent).not.toContain('اجتاز فحص الذكاء');
+    it('requesting a review calls the real ai-review endpoint with the real delivery id and shows a loading state', async () => {
+      const subject = new Subject<any>();
+      await setup(() => of(makeWorkspace()), () => subject.asObservable());
+      const btn: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="request-ai-review"]');
+      btn.click();
+      fixture.detectChanges();
+      expect(component.aiReviewState()).toBe('loading');
+      expect(fixture.nativeElement.textContent).toContain('جارٍ إنشاء المراجعة الاستشارية');
+      expect(postSpy.mock.calls.at(-1)?.[0]).toContain('/client/my-requests/proj-1/stages/stage-1/ai-review');
+      subject.next({ success: true, data: validReview });
+      subject.complete();
+    });
+
+    it('a second click while loading does not fire a duplicate request', async () => {
+      const subject = new Subject<any>();
+      await setup(() => of(makeWorkspace()), () => subject.asObservable());
+      const btn: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="request-ai-review"]');
+      btn.click();
+      fixture.detectChanges();
+      component.requestAiReview();
+      expect(postSpy).toHaveBeenCalledTimes(1);
+      subject.next({ success: true, data: validReview });
+      subject.complete();
+    });
+
+    it('renders the real summary, aligned points, gaps, questions and reviewed-input disclosure on success', async () => {
+      await setup(() => of(makeWorkspace()), () => of({ success: true, data: validReview }));
+      fixture.nativeElement.querySelector('[data-testid="request-ai-review"]').click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(text).toContain(validReview.summary);
+      expect(text).toContain(validReview.alignedPoints[0]);
+      expect(text).toContain(validReview.potentialGaps[0]);
+      expect(text).toContain(validReview.questionsForReviewer[0]);
+      expect(text).toContain('هذه مراجعة استشارية، والقرار النهائي للمستخدم');
+      expect(text).not.toMatch(/\d+\s*[%٪]/);
+      expect(text).not.toContain('اجتاز فحص الذكاء');
+    });
+
+    it('honestly discloses which inputs were actually reviewed, including attachmentContent staying false', async () => {
+      await setup(() => of(makeWorkspace()), () => of({ success: true, data: validReview }));
+      fixture.nativeElement.querySelector('[data-testid="request-ai-review"]').click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const inputsText = fixture.nativeElement.querySelector('.dr-ai-inputs').textContent as string;
+      expect(inputsText).toContain('نص التسليم');
+      expect(inputsText).toContain('متطلبات المرحلة');
+      expect(inputsText).toContain('محتوى المرفقات');
+    });
+
+    it('a Gemini/backend failure shows an honest error, never a fabricated review result', async () => {
+      await setup(() => of(makeWorkspace()), () => throwError(() => ({ error: { message: 'تعذر إنشاء المراجعة الاستشارية بالذكاء الاصطناعي حالياً.' } })));
+      fixture.nativeElement.querySelector('[data-testid="request-ai-review"]').click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.aiReview()).toBeNull();
+      expect(component.aiReviewState()).toBe('error');
+      expect(fixture.nativeElement.textContent).toContain('تعذر إنشاء المراجعة الاستشارية بالذكاء الاصطناعي حالياً.');
+      expect(fixture.nativeElement.querySelector('[data-testid="request-ai-review"]')).toBeTruthy();
+    });
+
+    it('the AI review never touches the manual accept/reject controls or the review endpoint', async () => {
+      await setup(() => of(makeWorkspace()), () => of({ success: true, data: validReview }));
+      fixture.nativeElement.querySelector('[data-testid="request-ai-review"]').click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      // approveDelivery remains a fully separate action the AI review never calls or disables.
+      const approveBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.dr-btn-pri');
+      expect(approveBtn.disabled).toBe(false);
+      expect(postSpy.mock.calls.some(call => String(call[0]).endsWith('/review'))).toBe(false);
+      expect(component.reviewNote).toBe('');
+    });
   });
 
   it('renders "غير محدد" for the review deadline since no backend field exists', async () => {

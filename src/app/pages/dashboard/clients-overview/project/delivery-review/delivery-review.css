@@ -27,13 +27,21 @@
 .dr-meta-lbl{font-size:10px;color:#6B7699;font-weight:700;margin-bottom:4px}
 .dr-meta-val{font-size:14px;font-weight:800;color:#fff}
 
-/* AI BANNER */
-.dr-ai-banner{display:flex;align-items:center;gap:12px;padding:13px 16px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));backdrop-filter:blur(12px);border:1px solid rgba(123,47,190,.22);border-radius:14px;margin-bottom:18px}
+/* AI ADVISORY REVIEW */
+.dr-ai-banner{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));backdrop-filter:blur(12px);border:1px solid rgba(123,47,190,.22);border-radius:14px;margin-bottom:18px}
 .dr-ai-ico{width:30px;height:30px;border-radius:8px;background:rgba(123,47,190,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .dr-ai-ico svg{width:15px;height:15px;color:var(--ai)}
-.dr-ai-body{flex:1}
+.dr-ai-body{flex:1;min-width:0}
 .dr-ai-lbl{font-size:10px;font-weight:800;color:#A56BE0;letter-spacing:.06em;margin-bottom:2px}
-.dr-ai-txt{font-size:13px;color:#A8B2D1;margin:0}
+.dr-ai-txt{font-size:13px;color:#A8B2D1;margin:0 0 10px}
+.dr-ai-btn{padding:8px 16px;background:rgba(123,47,190,.14);border:1px solid rgba(123,47,190,.32);border-radius:10px;color:#C79EF0;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.dr-ai-btn:hover{background:rgba(123,47,190,.22)}
+.dr-ai-group{margin-bottom:10px}
+.dr-ai-group-ttl{font-size:11px;font-weight:800;color:#fff;margin-bottom:4px}
+.dr-ai-group ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:3px}
+.dr-ai-group li{font-size:12.5px;color:#A8B2D1}
+.dr-ai-inputs{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#8792AD;margin:8px 0}
+.dr-ai-disclaimer{font-size:11px;color:#8792AD;font-style:italic;margin:0 0 10px}
 
 /* SECTION TITLE */
 .dr-sec-ttl{font-size:15px;font-weight:800;color:#fff;margin:6px 0 12px;display:flex;align-items:center;gap:8px}
@@ -125,6 +133,12 @@
 :host-context(.light-theme) .dr-ai-ico svg,:host-context(.theme-light) .dr-ai-ico svg{color:#6B27A5}
 :host-context(.light-theme) .dr-ai-lbl,:host-context(.theme-light) .dr-ai-lbl{color:#6B27A5}
 :host-context(.light-theme) .dr-ai-txt,:host-context(.theme-light) .dr-ai-txt{color:#475569}
+:host-context(.light-theme) .dr-ai-group-ttl,:host-context(.theme-light) .dr-ai-group-ttl{color:#1E293B}
+:host-context(.light-theme) .dr-ai-group li,:host-context(.theme-light) .dr-ai-group li{color:#475569}
+:host-context(.light-theme) .dr-ai-inputs,:host-context(.theme-light) .dr-ai-inputs{color:#64748B}
+:host-context(.light-theme) .dr-ai-disclaimer,:host-context(.theme-light) .dr-ai-disclaimer{color:#64748B}
+:host-context(.light-theme) .dr-ai-btn,:host-context(.theme-light) .dr-ai-btn{background:rgba(123,47,190,.08);border-color:rgba(123,47,190,.2);color:#6B27A5}
+:host-context(.light-theme) .dr-ai-btn:hover,:host-context(.theme-light) .dr-ai-btn:hover{background:rgba(123,47,190,.14)}
 /* Status pill */
 :host-context(.light-theme) .dr-pill-wait,:host-context(.theme-light) .dr-pill-wait{background:rgba(255,180,0,.08);color:#9A6700;border-color:rgba(255,180,0,.2)}
 :host-context(.light-theme) .dr-pill-done,:host-context(.theme-light) .dr-pill-done{background:rgba(15,169,154,.08);color:#0A6F64;border-color:rgba(15,169,154,.2)}

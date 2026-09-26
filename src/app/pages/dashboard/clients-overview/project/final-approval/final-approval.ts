@@ -113,14 +113,21 @@ export class FinalApproval implements OnInit {
 	}
 	stageFileCount(stage: any): number { return this.latestThread(stage)?.files?.length || 0; }
 	stageFiles(stage: any): any[] { return this.latestThread(stage)?.files || []; }
+	// Honest fallback only — there is no real backend match-percentage source
+	// for this page, so a fixed "95٪" here would fabricate a computed value
+	// (same class of bug already fixed for the sibling project-details.ts).
 	aiMatchPct(stage: any): string {
 		const v = stage?.aiInsights?.matchPercentage || stage?.aiMatchPct;
-		if (v) return v + '٪';
-		return '95٪';
+		return v ? v + '٪' : 'غير متاح';
 	}
+	// There is no aiQualityNote (or any automated pass/fail check) field
+	// anywhere in the backend, so a fixed "passed AI check" sentence here
+	// would claim an inspection that never happened. A real, on-demand
+	// advisory review is available from the "مراجعة التسليم بالذكاء
+	// الاصطناعي" action on the delivery review page.
 	qualityNote(stage: any): string {
 		if (stage?.aiQualityNote) return stage.aiQualityNote;
-		return 'اجتاز فحص الذكاء: الملفات كاملة، بدقّة عالية، وبدون علامات مائية';
+		return 'لا توجد ملاحظة جودة آلية لهذا التسليم بعد';
 	}
 	statusHint(stage: any) {
 		if (stage.status === 'completed' || stage.status === 'APPROVED') return `اعتُمدت${stage.completedDate ? ` · ${this.formatDate(stage.completedDate)}` : ''}`;
