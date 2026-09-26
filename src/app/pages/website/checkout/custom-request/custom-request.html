@@ -21,21 +21,17 @@
       <div class="form-body">
         <h1 class="page-title">طلب خدمة مخصصة</h1>
 
-        <!-- AI Helper Banner -->
+        <!-- Custom Request Helper Banner -->
         <div class="ai-banner">
           <div class="ai-banner-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="4" cy="6" r="1.5" />
-              <circle cx="20" cy="6" r="1.5" />
-              <circle cx="4" cy="18" r="1.5" />
-              <circle cx="20" cy="18" r="1.5" />
-              <path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" />
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
             </svg>
           </div>
           <div class="ai-banner-text">
-            <span class="ai-banner-title">وسيط AI الذكي</span>
-            <span class="ai-banner-desc">اكتب تفاصيل احتياجك وسيقوم وسيط AI بمساعدتك في الوصول لأفضل مقدم خدمة مناسب</span>
+            <span class="ai-banner-title">طلب خدمة مخصصة</span>
+            <span class="ai-banner-desc">اكتب تفاصيل احتياجك بدقة ليتمكن فريقنا من اقتراح أفضل مقدمي الخدمة المناسبين لك</span>
           </div>
         </div>
 
@@ -184,19 +180,6 @@
               [value]="additionalNotes()"
               (input)="additionalNotes.set($any($event.target).value)"
             ></textarea>
-          </div>
-
-          <!-- AI Suggestion Panel (Static) -->
-          <div class="ai-suggestion-panel">
-            <div class="ai-suggestion-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.5.8a2 2 0 11-3.536 0z" />
-              </svg>
-            </div>
-            <div class="ai-suggestion-text">
-              <span class="ai-suggestion-title">تحليل ذكي</span>
-              <span class="ai-suggestion-desc">سيتم تحليل الطلب واقتراح أفضل التصنيفات والمقدمين المناسبين لمتطلباتك</span>
-            </div>
           </div>
 
           <!-- Submit & Secondary Actions -->

@@ -83,7 +83,9 @@
             <div class="step-node">
               <div class="step-ring">
                 <div class="step-num">{{ i + 1 }}</div>
+                @if (step.aiTag) {
                 <div class="step-ai-dot"><svg aria-hidden="true"><use href="#hiw-trust-ai"></use></svg>{{ step.aiTag }}</div>
+                }
               </div>
               <div class="step-title">{{ step.title }}</div>
               <div class="step-sub">{{ step.sub }}</div>

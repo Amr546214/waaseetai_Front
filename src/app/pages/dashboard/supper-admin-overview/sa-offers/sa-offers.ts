@@ -83,7 +83,7 @@ export class SaOffers {
       request: 'استشارة قانونية', spec: 'استشارات', price: '150 ر.س', priceValue: 150, marketAvg: 900,
       days: '1 يوم', rating: 2.1, date: '2026-09-06', status: 'flagged', aiClean: false,
       reliability: 22, disputesRate: '18%', completionRate: '40%', level: 'جديد',
-      negotiationNote: 'رصد AI سعراً شاذاً أقل من السوق بنسبة كبيرة — احتمال حساب وهمي.',
+      negotiationNote: 'السعر أقل من متوسط السوق بنسبة كبيرة — العرض موقوف للمراجعة اليدوية.',
     },
     {
       id: 'OF-4805', provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',

@@ -262,7 +262,7 @@ export class New implements OnInit, OnDestroy {
 	}
 
 	/**
-	 * Submits Accreditation Work Sample to backend & runs OpenAI GPT-4o Evaluation
+	 * Submits Accreditation Work Sample to backend & runs Gemini Evaluation
 	 */
 	submitForAiEvaluation() {
 		if (!this.isValidStep2) return;

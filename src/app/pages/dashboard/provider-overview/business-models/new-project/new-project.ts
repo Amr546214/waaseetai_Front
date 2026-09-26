@@ -86,7 +86,7 @@ export class NewProject implements OnInit, OnDestroy {
 	descCount = computed(() => this.projectDesc().length);
 	isValidStep1 = computed(() => this.projectName().trim().length > 0 && this.projectDesc().trim().length > 0);
 
-	// OpenAI Streaming & Loading States for Step 1
+	// Gemini Streaming & Loading States for Step 1
 	isAiEnhancing = signal<boolean>(false);
 	isAiSuggesting = signal<boolean>(false);
 	isStreamingText = signal<boolean>(false);
@@ -369,7 +369,7 @@ export class NewProject implements OnInit, OnDestroy {
 			// {
 			// 	id: 'acc_1',
 			// 	title: 'نموذج نظام لوحة تحكم سحابية وبث مباشر (NestJS & Angular)',
-			// 	description: 'نموذج اعتماد فني تم فحصه واجتيازه بواسطة GPT-4o بنسبة جدارة عالية 96%',
+			// 	description: 'نموذج اعتماد فني تم فحصه واجتيازه بواسطة الذكاء الاصطناعي بنسبة جدارة عالية 96%',
 			// 	specialtyName: 'تطوير المنصات والأنظمة السحابية',
 			// 	technologies: ['Angular 17', 'NestJS', 'PostgreSQL', 'WebSockets'],
 			// 	status: 'AI_VERIFIED',
@@ -586,7 +586,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 	goNext() {
 		if (this.isCurrentStepValid && this.currentStep() < this.totalSteps) {
-			// Upon navigating to Step 5, trigger complete OpenAI analysis
+			// Upon navigating to Step 5, trigger complete Gemini analysis
 			if (this.currentStep() === 4) {
 				this.triggerAiReviewAnalysis();
 			}

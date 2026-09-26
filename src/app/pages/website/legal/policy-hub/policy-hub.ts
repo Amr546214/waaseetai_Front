@@ -48,7 +48,7 @@ export class PolicyHub {
 		{
 			label: 'الاعتماد والذكاء الاصطناعي',
 			items: [
-				{ title: 'الاعتماد والتحقق وحوكمة AI', desc: 'KYC/KYB، اعتماد التخصصات، دور AI، الاعتراض على قرار AI', route: '/legal/accreditation-ai-governance', icon: 'ai' }
+				{ title: 'الاعتماد والتحقق وحوكمة AI', desc: 'KYC/KYB، اعتماد التخصصات، دور AI، كسر تقييم AI', route: '/legal/accreditation-ai-governance', icon: 'ai' }
 			]
 		},
 		{

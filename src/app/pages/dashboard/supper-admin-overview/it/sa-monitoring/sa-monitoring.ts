@@ -36,7 +36,7 @@ export class SaMonitoring {
   readonly alertRules: AlertRule[] = [
     { rule: 'CPU > 80%', cond: 'إذا تجاوز CPU 80% لأكثر من 5 دقائق → إشعار فوري', status: 'طبيعي', level: 'normal' },
     { rule: 'Memory > 85%', cond: 'إذا تجاوز الذاكرة 85% → تنبيه تلقائي', status: 'طبيعي', level: 'normal' },
-    { rule: 'Disk > 80%', cond: 'الديسك الحالي 67% — AI يتوقع وصوله 80% خلال 18 يوم', status: 'تحذير AI', level: 'warning' },
+    { rule: 'Disk > 80%', cond: 'الديسك الحالي 67% — بمعدل النمو الحالي يُتوقع الوصول إلى 80% خلال 18 يوم', status: 'تحذير', level: 'warning' },
     { rule: 'Error Rate > 1%', cond: 'إذا تجاوز معدل الأخطاء 1% → إغلاق تلقائي + إشعار', status: 'طبيعي (0.02%)', level: 'normal' },
   ];
 

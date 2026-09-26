@@ -31,6 +31,48 @@
 
 .acc-empty{padding:48px 24px;text-align:center;color:#6B7699;font-size:13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px}
 
+.acc-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 24px}
+.acc-spinner{width:32px;height:32px;border:3px solid rgba(43,212,199,.15);border-top-color:#2BD4C7;border-radius:50%;animation:acc-spin .7s linear infinite}
+@keyframes acc-spin{to{transform:rotate(360deg)}}
+.acc-loading p{font-size:13px;color:#6B7699}
+
+.acc-error{display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px 24px;text-align:center}
+.acc-error-msg{font-size:14px;color:#FF8C69;font-weight:700;margin:0}
+
+.acc-md-loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 24px}
+.acc-md-loading p{font-size:13px;color:#6B7699}
+.acc-md-error{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 24px;text-align:center}
+.acc-md-error p{font-size:14px;color:#FF8C69;font-weight:700;margin:0}
+
+.acc-pag{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px;flex-wrap:wrap}
+.acc-pag-info{font-size:12px;color:#6B7699}
+.acc-pag-btns{display:flex;gap:6px}
+.acc-btn-ghost{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#fff}
+.acc-btn-ghost:hover:not(:disabled){background:rgba(255,255,255,.1)}
+.acc-btn:disabled{opacity:.45;cursor:not-allowed}
+
+.acc-list{margin:0;padding-inline-start:18px;font-size:12.5px;color:#A8B2D1;line-height:1.7}
+.acc-chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.acc-chip{font-size:11px;font-weight:700;color:#A8B2D1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:3px 10px}
+.acc-lnk{font-size:12px;color:#2BD4C7;text-decoration:none;word-break:break-all;direction:ltr;display:block;text-align:right}
+.acc-lnk:hover{text-decoration:underline}
+.acc-ev-list{display:flex;flex-direction:column;gap:6px}
+.acc-ev-link{font-size:12px;color:#2BD4C7;text-decoration:none;word-break:break-all;direction:ltr;text-align:right}
+.acc-ev-link:hover{text-decoration:underline}
+
+.acc-resolve-form{margin-top:18px;padding:16px;background:rgba(7,13,36,.4);border:1px solid rgba(255,255,255,.1);border-radius:12px}
+.acc-rf-ttl{font-size:14px;font-weight:800;color:#fff;margin:0 0 12px}
+.acc-rf-ta{width:100%;min-height:80px;resize:vertical;background:#07102d;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;padding:10px 12px;font:12.5px/1.6 inherit;outline:none}
+.acc-rf-ta:focus{border-color:#2BD4C7}
+.acc-req{color:#FF8C69}
+.acc-rf-err{font-size:12px;color:#FF8C69;font-weight:700;margin:8px 0 0}
+.acc-rf-actions{display:flex;gap:8px;margin-top:12px}
+
+.acc-st-pending{background:rgba(43,127,255,.12);color:#5DA0FF}
+.acc-st-manual{background:rgba(255,180,0,.12);color:#D98A0B}
+.acc-st-verified{background:rgba(15,169,154,.12);color:#0FA99A}
+.acc-st-rejected{background:rgba(255,140,105,.12);color:#FF8C69}
+
 .acc-tbl-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden}
 .acc-tbl-wrap{overflow-x:auto}
 .acc-tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -49,20 +91,13 @@
 .acc-tbl tbody td.acc-warn-text{color:#FFB400;font-weight:700}
 
 .acc-type-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(43,127,255,.10);color:#5DA0FF;white-space:nowrap}
-.acc-docs-ok{color:#0FA99A;font-size:12px;font-weight:700}
-.acc-docs-bad{color:#FF8C69;font-size:12px;font-weight:700}
 
 .acc-ai-pill{display:inline-flex;align-items:center;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap}
-.acc-ai-good{background:rgba(15,169,154,.12);color:#0FA99A}
-.acc-ai-warn{background:rgba(255,180,0,.12);color:#D98A0B}
-.acc-ai-bad{background:rgba(255,140,105,.12);color:#FF8C69}
 
 .acc-row-actions{display:flex;gap:4px;flex-wrap:nowrap}
 .acc-act{padding:6px 11px;border-radius:7px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;border:1px solid transparent;white-space:nowrap;transition:all .15s}
 .acc-act-accept{background:rgba(15,169,154,.12);border-color:rgba(15,169,154,.28);color:#0FA99A}
 .acc-act-accept:hover{background:rgba(15,169,154,.22)}
-.acc-act-reject{background:rgba(255,140,105,.10);border-color:rgba(255,140,105,.22);color:#FF8C69}
-.acc-act-reject:hover{background:rgba(255,140,105,.18)}
 .acc-act-view{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:#A8B2D1}
 .acc-act-view:hover{background:rgba(255,255,255,.10);color:#fff}
 
@@ -89,27 +124,11 @@
 .acc-md-field label{font-size:10px;font-weight:700;color:#6B7699;display:block;margin-bottom:2px}
 .acc-md-field p{font-size:12.5px;color:#fff;margin:0;font-weight:600}
 
-.acc-checklist-ttl{font-size:12.5px;font-weight:800;color:#fff;margin-bottom:8px}
-.acc-checklist{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.acc-check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;transition:background .15s;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07)}
-.acc-check-item:hover{background:rgba(255,255,255,.04)}
-.acc-check-item.st-done{background:rgba(15,169,154,.05);border-color:rgba(15,169,154,.18)}
-.acc-check-item.st-warn{background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.16)}
-.acc-check-box{width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.acc-check-box svg{width:11px;height:11px;color:#fff}
-.acc-check-item.st-done .acc-check-box{background:#0FA99A;border-color:#0FA99A}
-.acc-check-item.st-warn .acc-check-box{border-color:rgba(255,180,0,.3);background:rgba(255,180,0,.15)}
-.acc-check-lbl{font-size:12.5px;font-weight:700;color:#fff}
-.acc-check-item.st-pending .acc-check-lbl{color:#6B7699}
-.acc-check-sub{font-size:11px;color:#6B7699;margin-top:2px}
-
 .acc-action-msg{padding:10px 14px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.25);border-radius:10px;margin-bottom:12px;font-size:12.5px;color:#0FA99A;font-weight:700}
 
 .acc-md-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .acc-btn{padding:9px 16px;border-radius:9px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid transparent;transition:all .15s;white-space:nowrap}
 .acc-btn-accept{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
-.acc-btn-docs{background:rgba(255,180,0,.10);border-color:rgba(255,180,0,.22);color:#D98A0B}
-.acc-btn-docs:hover{background:rgba(255,180,0,.18)}
 .acc-btn-reject{background:rgba(255,140,105,.10);border-color:rgba(255,140,105,.22);color:#FF8C69}
 .acc-btn-reject:hover{background:rgba(255,140,105,.18)}
 
@@ -322,30 +341,70 @@
   color: #0F172A !important;
 }
 
-:host-context(body.light-theme) .acc-checklist-ttl,
-:host-context(body.theme-light) .acc-checklist-ttl,
-:host-context(.light-theme) .acc-checklist-ttl,
-:host-context(.theme-light) .acc-checklist-ttl {
-  color: #0F172A;
+:host-context(body.light-theme) .acc-list,
+:host-context(body.theme-light) .acc-list,
+:host-context(.light-theme) .acc-list,
+:host-context(.theme-light) .acc-list {
+  color: #475569;
 }
 
-:host-context(body.light-theme) .acc-check-item,
-:host-context(body.theme-light) .acc-check-item,
-:host-context(.light-theme) .acc-check-item,
-:host-context(.theme-light) .acc-check-item {
+:host-context(body.light-theme) .acc-chip,
+:host-context(body.theme-light) .acc-chip,
+:host-context(.light-theme) .acc-chip,
+:host-context(.theme-light) .acc-chip {
+  background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #475569;
+}
+
+:host-context(body.light-theme) .acc-lnk,
+:host-context(body.light-theme) .acc-ev-link,
+:host-context(body.theme-light) .acc-lnk,
+:host-context(body.theme-light) .acc-ev-link,
+:host-context(.light-theme) .acc-lnk,
+:host-context(.light-theme) .acc-ev-link,
+:host-context(.theme-light) .acc-lnk,
+:host-context(.theme-light) .acc-ev-link {
+  color: #007A72;
+}
+
+:host-context(body.light-theme) .acc-resolve-form,
+:host-context(body.theme-light) .acc-resolve-form,
+:host-context(.light-theme) .acc-resolve-form,
+:host-context(.theme-light) .acc-resolve-form {
   background: #F8FAFC !important; border-color: #E7EAF1 !important;
 }
 
-:host-context(body.light-theme) .acc-check-item.st-done,
-:host-context(body.theme-light) .acc-check-item.st-done,
-:host-context(.light-theme) .acc-check-item.st-done,
-:host-context(.theme-light) .acc-check-item.st-done {
-  background: rgba(15,169,154,.03) !important;
+:host-context(body.light-theme) .acc-rf-ttl,
+:host-context(body.theme-light) .acc-rf-ttl,
+:host-context(.light-theme) .acc-rf-ttl,
+:host-context(.theme-light) .acc-rf-ttl {
+  color: #1E293B;
 }
 
-:host-context(body.light-theme) .acc-check-lbl,
-:host-context(body.theme-light) .acc-check-lbl,
-:host-context(.light-theme) .acc-check-lbl,
-:host-context(.theme-light) .acc-check-lbl {
-  color: #0F172A !important;
+:host-context(body.light-theme) .acc-rf-ta,
+:host-context(body.theme-light) .acc-rf-ta,
+:host-context(.light-theme) .acc-rf-ta,
+:host-context(.theme-light) .acc-rf-ta {
+  background: #fff; border-color: #CBD5E1; color: #1E293B;
+}
+
+:host-context(body.light-theme) .acc-btn-ghost,
+:host-context(body.theme-light) .acc-btn-ghost,
+:host-context(.light-theme) .acc-btn-ghost,
+:host-context(.theme-light) .acc-btn-ghost {
+  background: rgba(7,13,36,.05); border-color: rgba(7,13,36,.12); color: #475569;
+}
+
+:host-context(body.light-theme) .acc-loading p,
+:host-context(body.light-theme) .acc-md-loading p,
+:host-context(body.light-theme) .acc-pag-info,
+:host-context(body.theme-light) .acc-loading p,
+:host-context(body.theme-light) .acc-md-loading p,
+:host-context(body.theme-light) .acc-pag-info,
+:host-context(.light-theme) .acc-loading p,
+:host-context(.light-theme) .acc-md-loading p,
+:host-context(.light-theme) .acc-pag-info,
+:host-context(.theme-light) .acc-loading p,
+:host-context(.theme-light) .acc-md-loading p,
+:host-context(.theme-light) .acc-pag-info {
+  color: #64748B;
 }
