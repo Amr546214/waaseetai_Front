@@ -849,36 +849,6 @@ export class Specialties implements OnInit, OnDestroy {
 		this.initiateDynamicQuiz();
 	}
 
-	private fallbackToLegacyQuizInit(specId: string) {
-		this.specialtyService.initQuiz(specId).subscribe({
-			next: (res: any) => {
-				if (res.success && res.data) {
-					const isStreaming = res.data.isStreaming || (res.data.questions?.length === 0);
-					this.setupQuizSession(res.data.sessionId, res.data.questions || [], res.data.remainingSeconds || 900, isStreaming);
-					this.currentStep.set(4);
-				} else if (res.isLockedOut) {
-					this.isLockedOut.set(true);
-					this.lockoutMessage.set(res.message || 'تم حظر الاختبار لمدة 24 ساعة وفق شروط مكافحة الغش.');
-					this.currentStep.set(4);
-				} else {
-					this.applyFallback20Questions();
-					this.currentStep.set(4);
-				}
-			},
-			error: (err: any) => {
-				if (err.status === 403 && err.error?.isLockedOut) {
-					this.isLockedOut.set(true);
-					this.lockoutMessage.set(err.error.message || 'تم حظر الاختبار لمدة 24 ساعة.');
-					this.currentStep.set(4);
-				} else {
-					console.warn('[Quiz Init API fallback applied]:', err);
-					this.applyFallback20Questions();
-					this.currentStep.set(4);
-				}
-			}
-		});
-	}
-
 	private setupQuizSession(sessionId: string, questions: QuizQuestion[], remainingSec: number, isStreaming = false) {
 		this.quizSessionId.set(sessionId);
 		this.currentQuestionIdx.set(0);

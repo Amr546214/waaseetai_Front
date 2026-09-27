@@ -43,24 +43,8 @@ export class SpecialtyService {
 		return this.http.get(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/status`);
 	}
 
-	initQuiz(providerSpecialtyId: string): Observable<any> {
-		return this.http.post(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/quiz/init`, {});
-	}
-
 	submitQuizAnswers(providerSpecialtyId: string, payload: { sessionId: string; answers: any[]; isTimeout?: boolean }): Observable<any> {
 		return this.http.post(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/quiz/submit`, payload);
-	}
-
-	getQuizStatus(providerSpecialtyId: string): Observable<any> {
-		return this.http.get(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/quiz/status`);
-	}
-
-	getTest(specialtyId: string): Observable<any> {
-		return this.http.get(`${this.apiUrl}/specialties/provider/specialties/step4-test/${specialtyId}`);
-	}
-
-	submitTest(payload: { providerSpecialtyId: string; testId: string; answers: any[] }): Observable<any> {
-		return this.http.post(`${this.apiUrl}/specialties/provider/specialties/step4-submit`, payload);
 	}
 
 	// Enterprise Gemini Assessment Engine Endpoints

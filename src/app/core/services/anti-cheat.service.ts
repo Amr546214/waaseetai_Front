@@ -298,15 +298,6 @@ export class AntiCheatService implements OnDestroy {
   }
 
   /**
-   * Request manual stream trigger via Socket
-   */
-  public requestQuestionStream(sessionId: string): void {
-    if (this.socket?.connected) {
-      this.socket.emit('quiz:request_stream', { sessionId });
-    }
-  }
-
-  /**
    * Transmits anti-cheat infraction to the server and triggers client alert
    */
   public reportViolation(violationType: string): void {
