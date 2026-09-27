@@ -821,6 +821,26 @@
 			</div>
 		</div>
 
+		<!-- 1.5. ASSESSMENT GENERATION/PROCESSING ERROR STATE (Batch 3D-2) -->
+		<div *ngIf="quizGenerationError() && !isSubmittingQuiz() && !quizResult() && !isLockedOut() && !antiCheatService.isInvalidated()"
+			class="state-card py-16 px-6 text-center bg-gradient-to-b from-[rgba(255,107,107,0.08)] to-[rgba(13,20,44,0.85)] border border-[rgba(255,107,107,0.3)] rounded-3xl shadow-2xl animate-[ws-fade_0.4s_ease]">
+			<div
+				class="w-20 h-20 rounded-3xl bg-[rgba(255,107,107,0.12)] border border-[rgba(255,107,107,0.25)] flex items-center justify-center mx-auto mb-6">
+				<svg class="w-10 h-10 text-[#FF6B6B]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					stroke-width="2.5">
+					<circle cx="12" cy="12" r="10" />
+					<line x1="12" y1="8" x2="12" y2="12" />
+					<line x1="12" y1="16" x2="12.01" y2="16" />
+				</svg>
+			</div>
+			<h3 class="text-xl font-black text-white tracking-tight mb-3">تعذر إكمال التقييم الفني</h3>
+			<p class="text-sm text-[#FFB4B4] max-w-xl mx-auto leading-relaxed mb-6">{{ quizGenerationError() }}</p>
+			<button type="button" (click)="retryQuizGeneration()"
+				class="inline-flex items-center gap-2.5 px-6 py-3 bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.35)] rounded-full text-xs font-bold text-[#2BD4C7] hover:bg-[rgba(43,212,199,.2)] transition-colors">
+				إعادة المحاولة
+			</button>
+		</div>
+
 		<!-- 2. SUBMISSION IN PROGRESS SPINNER -->
 		<div *ngIf="isSubmittingQuiz()"
 			class="state-card py-20 text-center bg-[rgba(13,20,44,0.7)] border border-[rgba(43,212,199,0.3)] rounded-3xl shadow-2xl animate-[ws-fade_0.3s_ease]">
@@ -993,7 +1013,7 @@
 		</div>
 
 		<!-- 4. ACTIVE LIVE QUIZ ARENA -->
-		<div *ngIf="isQuizActive() && !isSubmittingQuiz() && !isLockedOut() && !antiCheatService.isInvalidated()"
+		<div *ngIf="isQuizActive() && !isSubmittingQuiz() && !isLockedOut() && !antiCheatService.isInvalidated() && !quizGenerationError()"
 			class="flex flex-col gap-6 animate-[ws-fade_0.25s_ease]">
 
 			<!-- REAL-TIME ANTI-CHEAT ALERT OVERLAY -->

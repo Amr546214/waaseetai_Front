@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, O
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpEventType } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
@@ -141,10 +142,46 @@ export class Specialties implements OnInit, OnDestroy {
 	lockoutMessage = signal<string>('');
 	lockoutRemainingSec = signal<number>(0);
 
+	// Batch 3D-2: an honest, user-facing failure state for real backend
+	// assessment_error events (auth/rate-limit/ownership/generation/submission
+	// exceptions on the primary socket flow) — distinct from the anti-cheat
+	// lockout above. Never paired with a fabricated quiz question/result.
+	quizGenerationError = signal<string | null>(null);
+
 	private timerInterval: any = null;
 	private fallbackStreamInterval: any = null;
 	isSubmittingSamples = signal(false);
 	uploadProgress = signal(0);
+
+	// Batch 3D-3 — submission transport consolidation. Socket is primary
+	// (evidence: the existing "Submit via WebSocket" / "Fallback REST
+	// Endpoint" comments, the evaluationComplete$/assessmentError$
+	// architecture already built entirely around the socket, and symmetry
+	// with the generation flow's own socket-primary/REST-fallback pattern).
+	// REST fires only as a bounded fallback on a genuine transport failure,
+	// never in parallel by default.
+	//
+	// Bound derivation: handleSubmission's one variable-latency step is the
+	// Gemini feedback call, whose ceiling is DEFAULT_TIMEOUT_MS = 20_000 in
+	// the backend's gemini.client.ts. 25s gives that call its full real
+	// budget plus a safety margin for scoring/DB/network overhead, so the
+	// fallback does not fire while a legitimate submission is still
+	// in-flight.
+	private static readonly SUBMISSION_FALLBACK_TIMEOUT_MS = 25_000;
+	// ALREADY_FINALIZED / NOT_FOUND / AUTH_REQUIRED / INVALID_REQUEST /
+	// RATE_LIMITED are terminal business outcomes (assessment.gateway.ts,
+	// Batch 3D-3) — never worth a second submission attempt. Only the
+	// generic SUBMISSION_FAILED code represents a genuine processing/
+	// transport failure worth retrying via REST.
+	private static readonly RETRYABLE_SUBMISSION_ERROR_CODES = new Set(['SUBMISSION_FAILED']);
+
+	// Per-attempt idempotency guard (Step 4): once set, no later event for
+	// this attemptId may change quizResult/quizGenerationError again.
+	private submissionSettledForAttempt: string | null = null;
+	private submissionFallbackTimer: any = null;
+	private submissionEvaluationSub: Subscription | null = null;
+	private submissionErrorSub: Subscription | null = null;
+	private submissionDisconnectSub: Subscription | null = null;
 
 	specialties = signal<Specialty[]>([]);
 	subData: Record<string, string[]> = {
@@ -207,23 +244,46 @@ export class Specialties implements OnInit, OnDestroy {
 			this.isStreamingQuestions.set(false);
 		});
 
-		this.antiCheatService.evaluationComplete$.subscribe((res) => {
-			this.isSubmittingQuiz.set(false);
-			const totalQ = this.quizQuestions().length || 20;
-			const scoreVal = res.score !== undefined ? res.score : (res.scorePercentage || 80);
-			this.quizResult.set({
-				passed: Boolean(res.isPassed),
-				scorePercentage: scoreVal,
-				correctAnswers: Math.round((scoreVal / 100) * totalQ),
-				totalQuestions: totalQ,
-				status: res.status || (res.isPassed ? 'APPROVED' : 'FAILED'),
-				badgeGrantedAt: res.completedAt || new Date().toISOString(),
-				feedbackAr: res.feedbackAr,
-				strengths: res.strengths || [],
-				weaknesses: res.weaknesses || [],
-				detailedResults: [],
-				message: res.message
-			});
+		// Batch 3D-2: surface real assessment_error events honestly instead of
+		// silently dropping them. Never fabricates a quiz result and never
+		// auto-invokes the legacy quiz fallback — it only stops the
+		// loading/streaming UI and shows the sanitized backend message.
+		//
+		// Batch 3D-3: assessment_error is now also emitted during submission
+		// (handleSubmission), which is handled by the scoped watcher armed in
+		// armSubmissionWatchers() instead — this generation-only handler must
+		// stay silent while a submission is in flight AND after one has
+		// settled for the current attempt (a late/duplicate submission-phase
+		// event must never be reinterpreted as a generation failure), or it
+		// would corrupt state even if the template happens to hide it behind
+		// quizResult(). submissionSettledForAttempt is cleared whenever a new
+		// quiz attempt begins (initiateDynamicQuiz), so this only suppresses
+		// stale events for an attempt that has already concluded.
+		this.antiCheatService.assessmentError$.subscribe((err) => {
+			if (this.isSubmittingQuiz() || this.submissionSettledForAttempt) return;
+			this.isStreamingQuestions.set(false);
+			this.quizGenerationError.set(err?.message || 'حدث خطأ أثناء معالجة التقييم الفني.');
+		});
+	}
+
+	// Batch 3D-3: shared success-application logic for the socket
+	// (evaluation_complete) result shape — the sole authoritative place that
+	// sets quizResult from a socket-delivered outcome.
+	private applyEvaluationResult(res: any) {
+		const totalQ = this.quizQuestions().length || 20;
+		const scoreVal = res.score !== undefined ? res.score : (res.scorePercentage || 80);
+		this.quizResult.set({
+			passed: Boolean(res.isPassed),
+			scorePercentage: scoreVal,
+			correctAnswers: Math.round((scoreVal / 100) * totalQ),
+			totalQuestions: totalQ,
+			status: res.status || (res.isPassed ? 'APPROVED' : 'FAILED'),
+			badgeGrantedAt: res.completedAt || new Date().toISOString(),
+			feedbackAr: res.feedbackAr,
+			strengths: res.strengths || [],
+			weaknesses: res.weaknesses || [],
+			detailedResults: [],
+			message: res.message
 		});
 	}
 
@@ -714,7 +774,12 @@ export class Specialties implements OnInit, OnDestroy {
 	private initiateDynamicQuiz() {
 		const specId = this.providerSpecialtyId() || 'demo-spec-uuid-101';
 		this.isQuizActive.set(true);
+		this.quizGenerationError.set(null);
 		this.quizResult.set(null);
+		// A new attempt begins — any settlement guard from a previous
+		// submission no longer applies (Batch 3D-3).
+		this.submissionSettledForAttempt = null;
+		this.clearSubmissionWatchers();
 		this.isLockedOut.set(false);
 		this.quizQuestions.set([]);
 		this.isStreamingQuestions.set(true);
@@ -760,12 +825,28 @@ export class Specialties implements OnInit, OnDestroy {
 							this.applyFallback20Questions();
 						}
 					},
-					error: () => this.applyFallback20Questions()
+					error: (err: any) => {
+						// Batch 3D-2: the backend now reports GENERATION_IN_PROGRESS when
+						// the socket stream is still genuinely generating this specialty's
+						// questions (concurrency-claim in progress). That is not a real
+						// failure — showing the unrelated local static fallback here would
+						// be misleading since the real, already-in-flight questions will
+						// still arrive via the socket stream shortly. Only a genuine error
+						// falls back to the static question bank.
+						if (err?.error?.code === 'GENERATION_IN_PROGRESS') return;
+						this.applyFallback20Questions();
+					}
 				});
 			}
 		}, 3500);
 
 		this.currentStep.set(4);
+	}
+
+	// Batch 3D-2: lets the user retry after an honest assessment_error state
+	// without re-running the full step 1-3 declaration flow.
+	retryQuizGeneration() {
+		this.initiateDynamicQuiz();
 	}
 
 	private fallbackToLegacyQuizInit(specId: string) {
@@ -957,24 +1038,134 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	private submitQuizAnswers(isTimeout: boolean) {
+		// Step 5 — double-click / repeated-invocation guard. isSubmittingQuiz
+		// is set synchronously below before any async gap, so a rapid repeat
+		// call (or a second entry via the timeout path) is rejected here.
+		if (this.isSubmittingQuiz()) return;
+
 		const specId = this.providerSpecialtyId() || 'demo-spec-uuid-101';
 		const attemptId = this.quizSessionId() || 'demo-session-2026';
 
 		this.stopTimer();
 		this.stopFallbackStream();
-		this.antiCheatService.stopMonitoring();
+
+		const submittedAnswersMap = this.userAnswers();
+		this.submissionSettledForAttempt = null;
 		this.isQuizActive.set(false);
 		this.isSubmittingQuiz.set(true);
 
-		const submittedAnswersMap = this.userAnswers();
+		// Batch 3D-4 — watchers must be armed BEFORE the emit, so no response
+		// (or disconnect) can ever arrive unobserved. Critically, this batch
+		// also stops calling stopMonitoring() here: the socket must stay
+		// alive for the whole primary submission lifecycle. Teardown is
+		// deferred to finishSubmission(), invoked only once a terminal
+		// outcome is reached — see armSubmissionWatchers/runRestFallbackSubmission.
+		this.armSubmissionWatchers(specId, attemptId, submittedAnswersMap, isTimeout);
 
-		// Submit via WebSocket (/assessments)
-		this.antiCheatService.submitAssessmentAnswers(attemptId, submittedAnswersMap);
+		const emitted = this.antiCheatService.submitAssessmentAnswers(attemptId, submittedAnswersMap);
 
-		// Fallback REST Endpoint (/api/assessments/:attemptId/submit)
+		if (!emitted) {
+			// Synchronous transport-unavailable: the just-armed watchers can
+			// never receive anything for this attempt — tear them down and go
+			// straight to the fallback.
+			this.clearSubmissionWatchers();
+			this.runRestFallbackSubmission(specId, attemptId, submittedAnswersMap, isTimeout);
+		}
+	}
+
+	// Batch 3D-3 — watches the primary (socket) transport for exactly one of:
+	// a matching success, a classified error, a mid-flight disconnect, or a
+	// bounded timeout — then tears itself down so nothing can react twice.
+	//
+	// Batch 3D-4: success and terminal-error branches now settle via
+	// finishSubmission() (clear watchers, THEN stopMonitoring/disconnect) —
+	// the disconnect that produces can never reach submissionDisconnectSub
+	// because it has already been unsubscribed by the time it fires. The
+	// retryable branches (error/disconnect/timeout) only clear watchers and
+	// hand off to the REST fallback; the socket itself is left connected but
+	// unwatched — final cleanup happens once the fallback itself settles.
+	private armSubmissionWatchers(specId: string, attemptId: string, submittedAnswersMap: Record<string, string>, isTimeout: boolean) {
+		this.clearSubmissionWatchers();
+
+		this.submissionEvaluationSub = this.antiCheatService.evaluationComplete$.subscribe((res: any) => {
+			if (res?.attemptId && res.attemptId !== attemptId) return;
+			if (this.submissionSettledForAttempt === attemptId) return; // duplicate success event (the backend can emit this twice to the same socket via its direct + room broadcast)
+			this.submissionSettledForAttempt = attemptId;
+			this.isSubmittingQuiz.set(false);
+			this.applyEvaluationResult(res);
+			this.finishSubmission();
+		});
+
+		this.submissionErrorSub = this.antiCheatService.assessmentError$.subscribe((err: any) => {
+			if (this.submissionSettledForAttempt === attemptId) return; // never overwrite a confirmed success
+			if (err?.code && Specialties.RETRYABLE_SUBMISSION_ERROR_CODES.has(err.code)) {
+				this.clearSubmissionWatchers();
+				this.runRestFallbackSubmission(specId, attemptId, submittedAnswersMap, isTimeout);
+			} else {
+				// Terminal business outcome (already finalized by a previous
+				// successful submission, not found, auth/rate-limit, etc.) —
+				// never worth a second submission attempt.
+				this.submissionSettledForAttempt = attemptId;
+				this.isSubmittingQuiz.set(false);
+				this.quizGenerationError.set(err?.message || 'حدث خطأ أثناء معالجة التقييم الفني.');
+				this.finishSubmission();
+			}
+		});
+
+		this.submissionDisconnectSub = this.antiCheatService.socketDisconnected$.subscribe(() => {
+			if (this.submissionSettledForAttempt === attemptId) return;
+			this.clearSubmissionWatchers();
+			this.runRestFallbackSubmission(specId, attemptId, submittedAnswersMap, isTimeout);
+		});
+
+		this.submissionFallbackTimer = setTimeout(() => {
+			if (this.submissionSettledForAttempt === attemptId) return;
+			this.clearSubmissionWatchers();
+			this.runRestFallbackSubmission(specId, attemptId, submittedAnswersMap, isTimeout);
+		}, Specialties.SUBMISSION_FALLBACK_TIMEOUT_MS);
+	}
+
+	private clearSubmissionWatchers() {
+		this.submissionEvaluationSub?.unsubscribe();
+		this.submissionEvaluationSub = null;
+		this.submissionErrorSub?.unsubscribe();
+		this.submissionErrorSub = null;
+		this.submissionDisconnectSub?.unsubscribe();
+		this.submissionDisconnectSub = null;
+		if (this.submissionFallbackTimer) {
+			clearTimeout(this.submissionFallbackTimer);
+			this.submissionFallbackTimer = null;
+		}
+	}
+
+	// Batch 3D-4 — the single place that tears down the socket after a
+	// submission has reached a terminal outcome. Watchers (including
+	// submissionDisconnectSub) are unsubscribed FIRST, synchronously, before
+	// stopMonitoring() ever calls socket.disconnect() — so the resulting
+	// 'disconnect' event has no live subscriber left to reach, regardless of
+	// whether socket.io-client dispatches it synchronously or on a later
+	// tick. This ordering guarantee (not a flag) is what prevents an
+	// intentional post-settlement disconnect from ever being misread as a
+	// new transport failure.
+	private finishSubmission() {
+		this.clearSubmissionWatchers();
+		this.antiCheatService.stopMonitoring();
+	}
+
+	// Fallback: REST (/api/assessments/:attemptId/submit) — invoked only on a
+	// genuine primary-transport failure, never in parallel with the socket.
+	// Batch 3D-4: every leaf outcome now settles + calls finishSubmission(),
+	// so the socket (left connected but unwatched since the primary was
+	// abandoned) is always eventually cleaned up, and stopMonitoring()'s
+	// disconnect can never race a REST completion that is still pending.
+	private runRestFallbackSubmission(specId: string, attemptId: string, submittedAnswersMap: Record<string, string>, isTimeout: boolean) {
+		if (this.submissionSettledForAttempt === attemptId) return;
+
 		this.specialtyService.submitAiAssessment(attemptId, submittedAnswersMap).subscribe({
 			next: (res: any) => {
+				if (this.submissionSettledForAttempt === attemptId) return;
 				this.isSubmittingQuiz.set(false);
+				this.submissionSettledForAttempt = attemptId;
 				if (res.success && res.data) {
 					const d = res.data;
 					const totalQ = this.quizQuestions().length || 5;
@@ -995,8 +1186,10 @@ export class Specialties implements OnInit, OnDestroy {
 				} else {
 					this.applyFallbackResults();
 				}
+				this.finishSubmission();
 			},
 			error: (err: any) => {
+				if (this.submissionSettledForAttempt === attemptId) return;
 				console.warn('[AiAssessment submit failed, trying legacy submitQuizAnswers]:', err);
 				const answerArray = Object.keys(submittedAnswersMap).map(qId => ({
 					questionId: qId,
@@ -1009,7 +1202,9 @@ export class Specialties implements OnInit, OnDestroy {
 					isTimeout
 				}).subscribe({
 					next: (res: any) => {
+						if (this.submissionSettledForAttempt === attemptId) return;
 						this.isSubmittingQuiz.set(false);
+						this.submissionSettledForAttempt = attemptId;
 						if (res.success && res.data) {
 							this.quizResult.set({
 								passed: res.data.passed,
@@ -1025,10 +1220,14 @@ export class Specialties implements OnInit, OnDestroy {
 						} else {
 							this.applyFallbackResults();
 						}
+						this.finishSubmission();
 					},
 					error: () => {
+						if (this.submissionSettledForAttempt === attemptId) return;
 						this.isSubmittingQuiz.set(false);
+						this.submissionSettledForAttempt = attemptId;
 						this.applyFallbackResults();
+						this.finishSubmission();
 					}
 				});
 			}
@@ -1145,6 +1344,7 @@ export class Specialties implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.stopTimer();
 		this.stopFallbackStream();
+		this.clearSubmissionWatchers();
 		this.antiCheatService.stopMonitoring();
 	}
 }

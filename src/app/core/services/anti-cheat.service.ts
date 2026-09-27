@@ -60,6 +60,19 @@ export class AntiCheatService implements OnDestroy {
   public questionStreamed$ = new Subject<StreamedQuestionPayload>();
   public assessmentReady$ = new Subject<{ attemptId: string; totalQuestions: number; timeLimitMinutes: number; generationSource?: 'GEMINI' | 'STATIC_FALLBACK' }>();
   public evaluationComplete$ = new Subject<any>();
+  // Batch 3D-2: real backend failures for the primary assessment socket flow
+  // (auth/rate-limit/ownership/generation/submission exceptions) — previously
+  // emitted by the backend but never listened for anywhere on the frontend.
+  // Batch 3D-3: submission-phase emissions now also carry a structured `code`
+  // (assessment.gateway.ts's handleSubmission) so callers can distinguish a
+  // genuine retryable transport failure from a terminal business outcome
+  // without parsing the Arabic message. Generation-phase emissions
+  // (start_assessment) have no `code` — untouched, out of this batch's scope.
+  public assessmentError$ = new Subject<{ message: string; code?: string }>();
+  // Batch 3D-3: a real socket.io 'disconnect' occurring mid-flight — lets a
+  // pending submission detect a genuine transport failure immediately instead
+  // of waiting for a bounded timeout.
+  public socketDisconnected$ = new Subject<void>();
 
   // Bound event listener references for clean removal
   private boundVisibilityChange: any;
@@ -209,6 +222,26 @@ export class AntiCheatService implements OnDestroy {
       this.evaluationComplete$.next(payload);
     });
 
+    // Batch 3D-2: registered exactly once per socket instance, alongside the
+    // other assessment events above — `initSocket()` itself is guarded
+    // against re-entry (`if (!this.isBrowser || this.socket?.connected) return;`),
+    // and `stopMonitoring()` disconnects and nulls out `this.socket`, which
+    // tears down this listener along with all the others. No separate
+    // unsubscribe bookkeeping is needed beyond that existing pattern.
+    this.socket.on('assessment_error', (payload: any) => {
+      const message = typeof payload?.message === 'string' && payload.message.trim().length > 0
+        ? payload.message
+        : 'حدث خطأ أثناء معالجة التقييم الفني.';
+      const code = typeof payload?.code === 'string' ? payload.code : undefined;
+      this.assessmentError$.next({ message, code });
+    });
+
+    // Batch 3D-3: a real transport failure signal a pending submission can
+    // react to immediately instead of waiting for the bounded fallback timer.
+    this.socket.on('disconnect', () => {
+      this.socketDisconnected$.next();
+    });
+
     this.socket.on('quiz:anti_cheat_warning', (payload: AntiCheatWarningPayload) => {
       this.violationCount.set(payload.violationCount);
       this.latestWarning.set(payload.message);
@@ -250,10 +283,18 @@ export class AntiCheatService implements OnDestroy {
     }
   }
 
-  public submitAssessmentAnswers(attemptId: string, answers: Record<string, string>): void {
+  // Batch 3D-3: returns whether the socket actually emitted, so the caller
+  // (specialties.ts's submission coordinator) can detect synchronously that
+  // the primary transport was never viable (e.g. socket disconnected) instead
+  // of silently no-op'ing and waiting forever for a response that will never
+  // arrive — this was the exact bug that made socket submission dead in
+  // practice (see the Batch 3D-3 report for the call-order root cause).
+  public submitAssessmentAnswers(attemptId: string, answers: Record<string, string>): boolean {
     if (this.socket?.connected) {
       this.socket.emit('submit_answer', { attemptId, answers });
+      return true;
     }
+    return false;
   }
 
   /**
