@@ -201,4 +201,20 @@ describe('SaAccreditations', () => {
     expect(postSpy).not.toHaveBeenCalled();
     expect(component.actionError()).toContain('سبب الرفض');
   });
+
+  // Phase 3 fix: F15 authority boundary — AI_VERIFIED on the sample now only
+  // means "AI recommends approval, pending final confirmation". Eligibility
+  // must be derived from the REAL linked ProviderSpecialty approval state,
+  // never from the sample's own AI_VERIFIED label.
+  it('canApprove: an AI_VERIFIED sample whose linked specialty is not yet approved can still be approved', async () => {
+    await setup(() => of(makeListResponse()));
+    const sample = makeSample({ status: 'AI_VERIFIED', providerSpecialty: { id: 'ps-1', status: 'TEST_REQUIRED', isPassed: false } });
+    expect(component.canApprove(sample)).toBe(true);
+  });
+
+  it('canApprove: a sample whose linked specialty is already APPROVED cannot be approved again, even if the sample itself is not labeled AI_VERIFIED', async () => {
+    await setup(() => of(makeListResponse()));
+    const sample = makeSample({ status: 'MANUAL_REVIEW', providerSpecialty: { id: 'ps-1', status: 'APPROVED', isPassed: true } });
+    expect(component.canApprove(sample)).toBe(false);
+  });
 });

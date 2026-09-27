@@ -2,8 +2,10 @@ import { Injectable, signal } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 
+// Onboarding calibration test — no code path gates anything on a pass/fail
+// outcome, so the contract never claims a `passed` verdict that doesn't
+// exist. See setup-test.gateway.ts for the backend side of this fix.
 export interface SetupTestResult {
-  passed: boolean;
   score: number;
   message: string;
   total: number;

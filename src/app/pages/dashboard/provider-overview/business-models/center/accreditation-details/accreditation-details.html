@@ -23,7 +23,7 @@
         <svg *ngIf="!getPreviewImage()" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="rgba(43,212,199,.35)" stroke-width="0.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(43,212,199,.08),transparent 60%)"></div>
         <div style="position:absolute;top:14px;right:14px;display:flex;gap:6px">
-          <span *ngIf="sampleDetails()?.status === 'AI_VERIFIED'" style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-teal">معتمد</span>
+          <span *ngIf="sampleDetails()?.status === 'AI_VERIFIED'" style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-teal">بانتظار الاعتماد النهائي</span>
           <span *ngIf="sampleDetails()?.status !== 'AI_VERIFIED'" style="padding:4px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;font-weight:800" class="txt-muted">قيد المراجعة</span>
           <span style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-purple">AI {{ sampleDetails()?.aiScore || 'N/A' }}/100</span>
         </div>

@@ -202,8 +202,12 @@ export class SaAccreditations implements OnInit {
     this.cancelRejectForm();
   }
 
-  canApprove(status: AccreditationStatus): boolean {
-    return status !== 'AI_VERIFIED';
+  // AI_VERIFIED on the sample itself now only ever means "AI recommends
+  // approval, pending final confirmation" — the real "already granted"
+  // condition is whether the linked ProviderSpecialty has actually been
+  // approved (by a prior explicit admin action), not the sample's own label.
+  canApprove(sample: AccreditationSample): boolean {
+    return sample.providerSpecialty?.status !== 'APPROVED';
   }
 
   canReject(status: AccreditationStatus): boolean {

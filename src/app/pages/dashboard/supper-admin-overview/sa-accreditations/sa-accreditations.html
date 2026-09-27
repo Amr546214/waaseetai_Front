@@ -96,7 +96,7 @@
                 <td class="acc-muted">{{ s.aiScore != null ? (s.aiScore + '%') : 'غير متاح' }}</td>
                 <td>
                   <div class="acc-row-actions" (click)="$event.stopPropagation()">
-                    @if (canApprove(s.status)) {
+                    @if (canApprove(s)) {
                       <button type="button" class="acc-act acc-act-accept" (click)="openDetail(s)">مراجعة</button>
                     } @else {
                       <button type="button" class="acc-act acc-act-view" (click)="openDetail(s)">عرض</button>
@@ -228,7 +228,7 @@
 
         @if (!showRejectForm()) {
           <div class="acc-md-actions">
-            @if (canApprove(d.status)) {
+            @if (canApprove(d)) {
               <button type="button" class="acc-btn acc-btn-accept" [disabled]="submittingAction()" (click)="submitApprove()">
                 {{ submittingAction() ? 'جارٍ الاعتماد...' : 'اعتماد النموذج' }}
               </button>
