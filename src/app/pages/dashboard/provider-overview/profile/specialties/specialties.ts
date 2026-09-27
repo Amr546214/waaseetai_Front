@@ -130,7 +130,6 @@ export class Specialties implements OnInit, OnDestroy {
 		totalQuestions: number;
 		status: string;
 		badgeGrantedAt?: string;
-		lockoutUntil?: string;
 		feedbackAr?: string;
 		strengths?: string[];
 		weaknesses?: string[];
@@ -910,7 +909,7 @@ export class Specialties implements OnInit, OnDestroy {
 			'warning'
 		);
 
-		this.submitQuizAnswers(true);
+		this.submitQuizAnswers();
 	}
 
 	trackByOptionId(_index: number, option: { id: string; text: string }): string {
@@ -990,16 +989,15 @@ export class Specialties implements OnInit, OnDestroy {
 		});
 		if (!confirmSubmit) return;
 
-		this.submitQuizAnswers(false);
+		this.submitQuizAnswers();
 	}
 
-	private submitQuizAnswers(isTimeout: boolean) {
+	private submitQuizAnswers() {
 		// Step 5 — double-click / repeated-invocation guard. isSubmittingQuiz
 		// is set synchronously below before any async gap, so a rapid repeat
 		// call (or a second entry via the timeout path) is rejected here.
 		if (this.isSubmittingQuiz()) return;
 
-		const specId = this.providerSpecialtyId() || 'demo-spec-uuid-101';
 		const attemptId = this.quizSessionId() || 'demo-session-2026';
 
 		this.stopTimer();
@@ -1016,7 +1014,7 @@ export class Specialties implements OnInit, OnDestroy {
 		// alive for the whole primary submission lifecycle. Teardown is
 		// deferred to finishSubmission(), invoked only once a terminal
 		// outcome is reached — see armSubmissionWatchers/runRestFallbackSubmission.
-		this.armSubmissionWatchers(specId, attemptId, submittedAnswersMap, isTimeout);
+		this.armSubmissionWatchers(attemptId, submittedAnswersMap);
 
 		const emitted = this.antiCheatService.submitAssessmentAnswers(attemptId, submittedAnswersMap);
 
@@ -1025,7 +1023,7 @@ export class Specialties implements OnInit, OnDestroy {
 			// never receive anything for this attempt — tear them down and go
 			// straight to the fallback.
 			this.clearSubmissionWatchers();
-			this.runRestFallbackSubmission(specId, attemptId, submittedAnswersMap, isTimeout);
+			this.runRestFallbackSubmission(attemptId, submittedAnswersMap);
 		}
 	}
 
@@ -1040,7 +1038,7 @@ export class Specialties implements OnInit, OnDestroy {
 	// retryable branches (error/disconnect/timeout) only clear watchers and
 	// hand off to the REST fallback; the socket itself is left connected but
 	// unwatched — final cleanup happens once the fallback itself settles.
-	private armSubmissionWatchers(specId: string, attemptId: string, submittedAnswersMap: Record<string, string>, isTimeout: boolean) {
+	private armSubmissionWatchers(attemptId: string, submittedAnswersMap: Record<string, string>) {
 		this.clearSubmissionWatchers();
 
 		this.submissionEvaluationSub = this.antiCheatService.evaluationComplete$.subscribe((res: any) => {
@@ -1056,7 +1054,7 @@ export class Specialties implements OnInit, OnDestroy {
 			if (this.submissionSettledForAttempt === attemptId) return; // never overwrite a confirmed success
 			if (err?.code && Specialties.RETRYABLE_SUBMISSION_ERROR_CODES.has(err.code)) {
 				this.clearSubmissionWatchers();
-				this.runRestFallbackSubmission(specId, attemptId, submittedAnswersMap, isTimeout);
+				this.runRestFallbackSubmission(attemptId, submittedAnswersMap);
 			} else {
 				// Terminal business outcome (already finalized by a previous
 				// successful submission, not found, auth/rate-limit, etc.) —
@@ -1071,13 +1069,13 @@ export class Specialties implements OnInit, OnDestroy {
 		this.submissionDisconnectSub = this.antiCheatService.socketDisconnected$.subscribe(() => {
 			if (this.submissionSettledForAttempt === attemptId) return;
 			this.clearSubmissionWatchers();
-			this.runRestFallbackSubmission(specId, attemptId, submittedAnswersMap, isTimeout);
+			this.runRestFallbackSubmission(attemptId, submittedAnswersMap);
 		});
 
 		this.submissionFallbackTimer = setTimeout(() => {
 			if (this.submissionSettledForAttempt === attemptId) return;
 			this.clearSubmissionWatchers();
-			this.runRestFallbackSubmission(specId, attemptId, submittedAnswersMap, isTimeout);
+			this.runRestFallbackSubmission(attemptId, submittedAnswersMap);
 		}, Specialties.SUBMISSION_FALLBACK_TIMEOUT_MS);
 	}
 
@@ -1114,7 +1112,7 @@ export class Specialties implements OnInit, OnDestroy {
 	// so the socket (left connected but unwatched since the primary was
 	// abandoned) is always eventually cleaned up, and stopMonitoring()'s
 	// disconnect can never race a REST completion that is still pending.
-	private runRestFallbackSubmission(specId: string, attemptId: string, submittedAnswersMap: Record<string, string>, isTimeout: boolean) {
+	private runRestFallbackSubmission(attemptId: string, submittedAnswersMap: Record<string, string>) {
 		if (this.submissionSettledForAttempt === attemptId) return;
 
 		this.specialtyService.submitAiAssessment(attemptId, submittedAnswersMap).subscribe({
@@ -1144,48 +1142,17 @@ export class Specialties implements OnInit, OnDestroy {
 				}
 				this.finishSubmission();
 			},
-			error: (err: any) => {
+			// Batch 4D: a canonical REST fallback failure is now a terminal
+			// outcome. It no longer retries against the legacy
+			// SpecialtyTestSession quiz/submit endpoint — that endpoint
+			// requires a SpecialtyTestSession.id, which an AssessmentAttempt.id
+			// can never match, so that retry was always guaranteed to fail.
+			error: () => {
 				if (this.submissionSettledForAttempt === attemptId) return;
-				console.warn('[AiAssessment submit failed, trying legacy submitQuizAnswers]:', err);
-				const answerArray = Object.keys(submittedAnswersMap).map(qId => ({
-					questionId: qId,
-					selectedIndex: Number(submittedAnswersMap[qId]) || 0
-				}));
-
-				this.specialtyService.submitQuizAnswers(specId, {
-					sessionId: attemptId,
-					answers: answerArray,
-					isTimeout
-				}).subscribe({
-					next: (res: any) => {
-						if (this.submissionSettledForAttempt === attemptId) return;
-						this.isSubmittingQuiz.set(false);
-						this.submissionSettledForAttempt = attemptId;
-						if (res.success && res.data) {
-							this.quizResult.set({
-								passed: res.data.passed,
-								scorePercentage: res.data.scorePercentage || res.data.score || 85.0,
-								correctAnswers: res.data.correctAnswers || Math.round(((res.data.scorePercentage || 85) / 100) * 20) || 17,
-								totalQuestions: res.data.totalQuestions || 20,
-								status: res.data.status || (res.data.passed ? 'APPROVED' : 'LOCKED_OUT'),
-								badgeGrantedAt: res.data.badgeGrantedAt || new Date().toISOString(),
-								lockoutUntil: res.data.lockoutUntil,
-								detailedResults: res.data.detailedResults || [],
-								message: res.message
-							});
-						} else {
-							this.applyFallbackResults();
-						}
-						this.finishSubmission();
-					},
-					error: () => {
-						if (this.submissionSettledForAttempt === attemptId) return;
-						this.isSubmittingQuiz.set(false);
-						this.submissionSettledForAttempt = attemptId;
-						this.applyFallbackResults();
-						this.finishSubmission();
-					}
-				});
+				this.isSubmittingQuiz.set(false);
+				this.submissionSettledForAttempt = attemptId;
+				this.quizGenerationError.set('تعذر إرسال إجاباتك للتقييم. الرجاء المحاولة مرة أخرى.');
+				this.finishSubmission();
 			}
 		});
 	}

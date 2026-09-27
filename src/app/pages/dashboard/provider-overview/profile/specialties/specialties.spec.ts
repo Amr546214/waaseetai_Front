@@ -379,14 +379,12 @@ describe('Specialties — submission transport consolidation (Batch 3D-3 + 3D-4 
 		expect(component.isSubmittingQuiz()).toBe(false);
 	});
 
-	it('no legacy quiz/submit fallback is introduced by the retryable path itself — only the pre-existing REST endpoint is called', () => {
+	it('the retryable path only calls the canonical REST endpoint — the legacy quiz/submit endpoint no longer exists as a fallback', () => {
 		submitViaSocket();
 		antiCheatService.assessmentError$.next({ message: 'فشل', code: 'SUBMISSION_FAILED' });
 
-		// Only the modern REST submit endpoint was hit; the dead legacy
-		// quiz/submit path is reached only from ITS OWN pre-existing error
-		// branch (unchanged, out of scope for this batch), never introduced
-		// as a new direct consequence of the transport consolidation itself.
+		// Batch 4D: the legacy SpecialtyTestSession quiz/submit fallback was
+		// removed entirely — a canonical REST failure is now terminal.
 		expect(postSpy).toHaveBeenCalledTimes(1);
 		expect(postSpy.mock.calls[0][0]).toContain('/assessments/attempt-1/submit');
 		expect(postSpy.mock.calls[0][0]).not.toContain('/quiz/submit');
@@ -404,18 +402,19 @@ describe('Specialties — submission transport consolidation (Batch 3D-3 + 3D-4 
 		expect(postSpy).toHaveBeenCalledTimes(1); // still exactly one — the disconnect above did not add another
 	});
 
-	// Batch 3D-4, requirement 12 — when both the REST submit and the legacy
-	// quiz/submit fallback fail, the honest failure state is applied exactly
-	// once with no recursive retry loop.
-	it('REST fallback failure (including the legacy inner fallback) settles once with no recursive retry', () => {
+	// Batch 3D-4, requirement 12 (updated Batch 4D) — when the canonical REST
+	// submit itself fails, the honest failure state is applied exactly once
+	// with no retry against the removed legacy quiz/submit endpoint.
+	it('a canonical REST fallback failure settles once, honestly, with no legacy retry', () => {
 		postSpy.mockImplementation(() => throwError(() => ({ error: { message: 'down' } })));
 
 		submitViaSocket();
 		antiCheatService.assessmentError$.next({ message: 'فشل', code: 'SUBMISSION_FAILED' });
 
-		// The primary REST submit call, plus exactly one legacy inner attempt.
-		expect(postSpy).toHaveBeenCalledTimes(2);
+		// Only the primary REST submit call — no legacy inner attempt exists anymore.
+		expect(postSpy).toHaveBeenCalledTimes(1);
 		expect(component.isSubmittingQuiz()).toBe(false);
+		expect(component.quizGenerationError()).toBeTruthy();
 		expect(fakeSocket.disconnect).toHaveBeenCalledTimes(1);
 
 		// A further stray disconnect must not restart anything.

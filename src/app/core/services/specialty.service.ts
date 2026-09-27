@@ -43,10 +43,6 @@ export class SpecialtyService {
 		return this.http.get(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/status`);
 	}
 
-	submitQuizAnswers(providerSpecialtyId: string, payload: { sessionId: string; answers: any[]; isTimeout?: boolean }): Observable<any> {
-		return this.http.post(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/quiz/submit`, payload);
-	}
-
 	// Enterprise Gemini Assessment Engine Endpoints
 	generateAiAssessment(providerSpecialtyId: string): Observable<any> {
 		return this.http.post(`${this.apiUrl}/assessments/generate`, { providerSpecialtyId });
