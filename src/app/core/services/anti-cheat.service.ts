@@ -96,10 +96,6 @@ export class AntiCheatService implements OnDestroy {
       auth: { token }
     });
 
-    this.socket.on('quiz:stream_question', (payload: StreamedQuestionPayload) => {
-      this.questionStreamed$.next(payload);
-    });
-
     this.socket.on('question_streamed', (payload: any) => {
       const formatted: StreamedQuestionPayload = {
         sessionId: payload.attemptId,
