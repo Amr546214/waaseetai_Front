@@ -1,31 +1,18 @@
 import { Component, ChangeDetectionStrategy, signal, computed, OnInit, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { NotificationEngineService } from '../../../../core/services/notification-engine.service';
+import { NotificationEngineService, AppNotification } from '../../../../core/services/notification-engine.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 
-export interface AppNotification {
-	id: string;
-	category: 'offers' | 'projects' | 'finance' | 'ai' | 'security';
-	title: string;
-	time: string;
-	message: string;
-	isUnread: boolean;
-	actionText?: string;
-	actionUrl?: string;
-	dateCategory: 'اليوم' | 'أمس' | 'أقدم';
-	// Styling hints
-	iconColorClass: string;
-	iconBgClass: string;
-	svgIcon: string;
-}
+export type { AppNotification };
 
 @Component({
 	selector: 'app-provider-notifications',
 	standalone: true,
 	imports: [CommonModule, RouterModule],
 	templateUrl: './notifications.html',
+	styleUrl: './notifications.css',
 	styles: [`
     :host {
       display: block;
@@ -258,7 +245,8 @@ export class Notifications implements OnInit {
 			if (newNotif && newNotif.id) {
 				const existing = this.notifications().find(n => n.id === newNotif.id);
 				if (!existing) {
-					this.notifications.update(list => [newNotif as AppNotification, ...list]);
+					const mapped = this.notificationEngine.mapToAppNotification(newNotif);
+					this.notifications.update(list => [mapped, ...list]);
 				}
 			}
 		});
@@ -293,7 +281,7 @@ export class Notifications implements OnInit {
 			next: (res: any) => {
 				this.isLoading.set(false);
 				if (res && res.success && Array.isArray(res.data)) {
-					this.notifications.set(res.data);
+					this.notifications.set(res.data.map((raw: any) => this.notificationEngine.mapToAppNotification(raw)));
 					this.notificationEngine.unreadCount.set(this.unreadCount());
 				}
 			},
@@ -371,7 +359,11 @@ export class Notifications implements OnInit {
 			});
 		}
 		if (nt.actionUrl) {
-			this.router.navigate([nt.actionUrl]);
+			// actionUrl is a complete URL string (it may include a query string,
+			// e.g. a chat notification's ?conversationId=...) — navigateByUrl
+			// parses it correctly, unlike navigate([...]) which treats a single
+			// array element as a literal path segment and would mangle the "?".
+			this.router.navigateByUrl(nt.actionUrl);
 		}
 	}
 

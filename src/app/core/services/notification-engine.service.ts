@@ -22,6 +22,37 @@ export interface NotificationEvent {
 	svgIcon?: string;
 }
 
+// Batch (notifications bugfix): the shape a raw backend/socket notification
+// payload is normalized into before being shown in any notification list.
+// Every field here is always populated with a sensible value — never
+// `undefined` — so no view ever needs to guard against a missing field.
+export interface AppNotification {
+	id: string;
+	category: 'offers' | 'projects' | 'finance' | 'ai' | 'security';
+	type?: string;
+	title: string;
+	time: string;
+	message: string;
+	isUnread: boolean;
+	actionText?: string;
+	// Already resolved to a real, navigable in-app route (or omitted when no
+	// safe destination exists) — see resolveNotificationTarget(). Never the
+	// raw, unvalidated backend actionUrl.
+	actionUrl?: string;
+	dateCategory: 'اليوم' | 'أمس' | 'أقدم';
+	metadata?: Record<string, unknown> | null;
+	// Styling hints
+	iconColorClass: string;
+	iconBgClass: string;
+	svgIcon: string;
+}
+
+interface IconStyle {
+	bg: string;
+	color: string;
+	svg: string;
+}
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -29,6 +60,67 @@ export class NotificationEngineService {
 	private http = inject(HttpClient);
 	private soundService = inject(NotificationSoundService);
 	private socket: Socket | null = null;
+
+	// Backend enum (NotificationCategory: ALL/OFFERS/PROJECTS/FINANCIAL/AI) ->
+	// the frontend's own category union. ALL/unrecognized falls back to the
+	// generic "security" bucket already used elsewhere as the catch-all.
+	private static readonly CATEGORY_MAP: Record<string, AppNotification['category']> = {
+		OFFERS: 'offers',
+		PROJECTS: 'projects',
+		FINANCIAL: 'finance',
+		AI: 'ai',
+	};
+
+	// Icons reused verbatim from the existing dashboard sidebar icon set
+	// (sheards/dashboard/sidebar/sidebar.ts) and this page's own AI banner —
+	// no new icon dependency introduced.
+	private static readonly ICON_MESSAGE: IconStyle = {
+		bg: 'bg-[rgba(43,212,199,.12)]', color: 'text-[#2BD4C7]',
+		svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'
+	};
+	private static readonly ICON_PROJECT: IconStyle = {
+		bg: 'bg-[rgba(43,127,255,.12)]', color: 'text-[#2B7FFF]',
+		svg: '<path d="M3 11h18v11H3zM7 11V7a5 5 0 0 1 10 0v4"/>'
+	};
+	private static readonly ICON_OFFER: IconStyle = {
+		bg: 'bg-[rgba(43,127,255,.12)]', color: 'text-[#2B7FFF]',
+		svg: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/>'
+	};
+	private static readonly ICON_FINANCE: IconStyle = {
+		bg: 'bg-[rgba(255,180,0,.12)]', color: 'text-[#FFB400]',
+		svg: '<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM16 14a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>'
+	};
+	private static readonly ICON_AI: IconStyle = {
+		bg: 'bg-[rgba(123,47,190,.16)]', color: 'text-[#7B2FBE]',
+		svg: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>'
+	};
+	private static readonly ICON_GENERAL: IconStyle = {
+		bg: 'bg-[rgba(160,178,209,.12)]', color: 'text-[var(--txt-3)]',
+		svg: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>'
+	};
+
+	// type is the primary icon signal (e.g. a CHAT notification should always
+	// look like a message regardless of its category); category is only a
+	// fallback for types this map doesn't know about.
+	private static readonly ICON_BY_TYPE: Record<string, IconStyle> = {
+		CHAT: NotificationEngineService.ICON_MESSAGE,
+		PROJECT_MATCH: NotificationEngineService.ICON_PROJECT,
+		STAGE_REVIEW: NotificationEngineService.ICON_PROJECT,
+		STAGE_DELIVERY: NotificationEngineService.ICON_PROJECT,
+		PROJECT_COMPLETION_REWARD: NotificationEngineService.ICON_PROJECT,
+		OFFER_ACCEPTED: NotificationEngineService.ICON_OFFER,
+		NEW_PROPOSAL: NotificationEngineService.ICON_OFFER,
+		MODEL_APPROVED: NotificationEngineService.ICON_AI,
+		FINANCIAL: NotificationEngineService.ICON_FINANCE,
+	};
+
+	private static readonly ICON_BY_CATEGORY: Record<AppNotification['category'], IconStyle> = {
+		offers: NotificationEngineService.ICON_OFFER,
+		projects: NotificationEngineService.ICON_PROJECT,
+		finance: NotificationEngineService.ICON_FINANCE,
+		ai: NotificationEngineService.ICON_AI,
+		security: NotificationEngineService.ICON_GENERAL,
+	};
 
 	unreadCount = signal<number>(0);
 	latestNotification = signal<NotificationEvent | null>(null);
@@ -143,5 +235,92 @@ export class NotificationEngineService {
 			this.socket.disconnect();
 			this.socket = null;
 		}
+	}
+
+	/**
+	 * Normalizes a raw backend/socket notification payload into a fully
+	 * populated AppNotification — never leaving a field undefined. This is
+	 * the single place that understands the raw notification contract, so
+	 * every list (real-time or fetched) renders consistently.
+	 */
+	mapToAppNotification(raw: any): AppNotification {
+		const createdAt = raw?.createdAt ? new Date(raw.createdAt) : new Date();
+		const category = NotificationEngineService.CATEGORY_MAP[String(raw?.category ?? '').toUpperCase()] ?? 'security';
+		const iconStyle = NotificationEngineService.ICON_BY_TYPE[raw?.type as string]
+			?? NotificationEngineService.ICON_BY_CATEGORY[category]
+			?? NotificationEngineService.ICON_GENERAL;
+
+		return {
+			id: raw?.id ?? '',
+			category,
+			type: raw?.type ?? undefined,
+			title: raw?.title ?? '',
+			message: raw?.message ?? '',
+			isUnread: raw?.isUnread !== undefined ? Boolean(raw.isUnread) : !raw?.isRead,
+			actionText: raw?.actionText ?? undefined,
+			actionUrl: this.resolveNotificationTarget(raw) ?? undefined,
+			time: this.formatRelativeTime(createdAt),
+			dateCategory: this.resolveDateCategory(createdAt),
+			metadata: raw?.metadata ?? null,
+			iconColorClass: iconStyle.color,
+			iconBgClass: iconStyle.bg,
+			svgIcon: iconStyle.svg,
+		};
+	}
+
+	/**
+	 * Resolves a notification to a real, existing Angular route — or null
+	 * when no valid destination exists. Never fabricates a route: known
+	 * types are only followed when their required metadata is present, and
+	 * an unrecognized type falls back to the raw actionUrl only when it
+	 * points somewhere inside this app's own dashboard sections (guards
+	 * against known-bad values such as a "/dashboard/..." prefix, which
+	 * never exists in this app's router).
+	 */
+	resolveNotificationTarget(nt: { type?: string; actionUrl?: string | null; metadata?: any }): string | null {
+		const metadata = nt?.metadata || {};
+
+		switch (nt?.type) {
+			case 'CHAT':
+				return metadata.conversationId
+					? `/provider-overview/messages?conversationId=${metadata.conversationId}`
+					: null;
+			case 'PROJECT_MATCH':
+				return metadata.clientRequestId
+					? `/provider-overview/explore-requests/${metadata.clientRequestId}/apply`
+					: null;
+			case 'OFFER_ACCEPTED':
+				return metadata.offerId
+					? `/provider-overview/offers/${metadata.offerId}/sign-contract`
+					: null;
+			case 'STAGE_REVIEW':
+			case 'PROJECT_COMPLETION_REWARD':
+				return metadata.projectId
+					? `/provider-overview/projects/active/progress/${metadata.projectId}`
+					: null;
+			default:
+				return nt?.actionUrl && nt.actionUrl.startsWith('/provider-overview/')
+					? nt.actionUrl
+					: null;
+		}
+	}
+
+	private formatRelativeTime(date: Date): string {
+		const diffMs = Date.now() - date.getTime();
+		const diffMin = Math.floor(diffMs / 60000);
+		if (diffMin < 1) return 'الآن';
+		if (diffMin < 60) return `منذ ${diffMin} د`;
+		const diffHr = Math.floor(diffMin / 60);
+		if (diffHr < 24) return `منذ ${diffHr} س`;
+		return date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+	}
+
+	private resolveDateCategory(date: Date): 'اليوم' | 'أمس' | 'أقدم' {
+		const now = new Date();
+		const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
+		if (date >= startOfToday) return 'اليوم';
+		if (date >= startOfYesterday) return 'أمس';
+		return 'أقدم';
 	}
 }

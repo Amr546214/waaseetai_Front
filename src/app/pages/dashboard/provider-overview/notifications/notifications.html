@@ -73,7 +73,7 @@
 						<div class="nt-d">{{ nt.message }}</div>
 						<div class="nt-m">
 							<span class="pill pill-teal">{{ coCategoryLabel(nt.category) }}</span>
-							@if (nt.actionText) { <span style="font-size:11.5px;font-weight:700" class="txt-teal">{{ nt.actionText }}</span> }
+							@if (nt.actionText && nt.actionUrl) { <span style="font-size:11.5px;font-weight:700" class="txt-teal">{{ nt.actionText }}</span> }
 						</div>
 					</div>
 					<span class="nt-time">{{ nt.time }}</span>
@@ -163,7 +163,7 @@
             <span class="text-[11px] text-[var(--txt-3)] mr-auto whitespace-nowrap">{{ nt.time }}</span>
           </div>
           <div class="text-[12.5px] text-[var(--txt-3)] leading-relaxed">{{ nt.message }}</div>
-          <span *ngIf="nt.actionText" class="text-[11px] font-bold text-[#2BD4C7] mt-1.5 inline-block">{{ nt.actionText }}</span>
+          <span *ngIf="nt.actionText && nt.actionUrl" class="text-[11px] font-bold text-[#2BD4C7] mt-1.5 inline-block">{{ nt.actionText }}</span>
         </div>
       </div>
     </ng-container>
