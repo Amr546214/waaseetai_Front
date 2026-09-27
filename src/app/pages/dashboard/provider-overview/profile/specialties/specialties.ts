@@ -138,10 +138,6 @@ export class Specialties implements OnInit, OnDestroy {
 		message?: string;
 	} | null>(null);
 
-	isLockedOut = signal<boolean>(false);
-	lockoutMessage = signal<string>('');
-	lockoutRemainingSec = signal<number>(0);
-
 	// Batch 3D-2: an honest, user-facing failure state for real backend
 	// assessment_error events (auth/rate-limit/ownership/generation/submission
 	// exceptions on the primary socket flow) — distinct from the anti-cheat
@@ -204,14 +200,6 @@ export class Specialties implements OnInit, OnDestroy {
 				}
 			},
 			error: (err: any) => console.error('[Specialties Init Error]:', err)
-		});
-
-		// Listen to reactive anti-cheat lockdown events
-		this.antiCheatService.lockdownTriggered$.subscribe((lockdown) => {
-			this.isQuizActive.set(false);
-			this.isLockedOut.set(true);
-			this.lockoutMessage.set(lockdown.message || 'تم إغلاق الاختبار وحظر الدخول لمدة 24 ساعة بسبب انتهاكات شروط المراقبة.');
-			this.stopTimer();
 		});
 
 		// Listen to live WebSocket question streaming ("one by one like typing")
@@ -450,8 +438,8 @@ export class Specialties implements OnInit, OnDestroy {
 	async prevStep() {
 		if (this.currentStep() === 4 && this.antiCheatService.isMonitoring()) {
 			const confirmLeave = await this.confirmModal.confirm({
-				title: '⚠️ التنبيه الأمني لمكافحة الغش',
-				message: 'مغادرة شاشة الاختبار الآن قد تؤدي لتسجيل مخالفة أمنية أو إبطال محاولتك وتطبيق حظر الإعادة لمدة 24 ساعة.\n\nهل أنت متأكد من العودة؟',
+				title: '⚠️ مغادرة الاختبار الجاري',
+				message: 'مغادرة شاشة الاختبار الآن ستؤدي لفقدان تقدمك في هذه المحاولة.\n\nهل أنت متأكد من العودة؟',
 				type: 'danger',
 				confirmText: 'نعم، مغادرة الاختبار',
 				cancelText: 'البقاء ومتابعة الاختبار'
@@ -780,7 +768,6 @@ export class Specialties implements OnInit, OnDestroy {
 		// submission no longer applies (Batch 3D-3).
 		this.submissionSettledForAttempt = null;
 		this.clearSubmissionWatchers();
-		this.isLockedOut.set(false);
 		this.quizQuestions.set([]);
 		this.isStreamingQuestions.set(true);
 		this.usingStaticFallbackQuestions.set(false);
@@ -866,9 +853,8 @@ export class Specialties implements OnInit, OnDestroy {
 			this.streamProgressCount.set(questions.length);
 		}
 
-		// Activate secure browser anti-cheat surveillance & trigger real-time question stream if needed
-		const specId = this.providerSpecialtyId() || 'demo-spec-uuid-101';
-		this.antiCheatService.startMonitoring(sessionId, specId, isStreaming);
+		// Establish the assessment socket transport for this attempt
+		this.antiCheatService.startMonitoring();
 
 		if (questions.length > 0) {
 			this.startTimerOnceQuestionsAreVisible();

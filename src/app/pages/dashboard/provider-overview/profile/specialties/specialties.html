@@ -790,39 +790,12 @@
 	</ng-container>
 
 	<!-- ========================================================= -->
-	<!-- STEP 4: CYBER-CREATIVE QUIZ & ANTI-CHEAT DASHBOARD -->
+	<!-- STEP 4: ASSESSMENT DASHBOARD -->
 	<!-- ========================================================= -->
 	<ng-container *ngIf="currentStep() === 4">
 
-		<!-- 1. LOCKOUT OR INVALIDATION OVERLAY STATE -->
-		<div *ngIf="isLockedOut() || antiCheatService.isInvalidated()"
-			class="state-card py-16 px-6 text-center bg-gradient-to-b from-[rgba(255,107,107,0.1)] to-[rgba(13,20,44,0.85)] border border-[rgba(255,107,107,0.4)] rounded-3xl shadow-2xl animate-[ws-fade_0.4s_ease]">
-			<div
-				class="w-20 h-20 rounded-3xl bg-[rgba(255,107,107,0.15)] border border-[rgba(255,107,107,0.3)] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-500/20 animate-pulse">
-				<svg class="w-10 h-10 text-[#FF6B6B]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-					stroke-width="2.5">
-					<rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-					<path d="M7 11V7a5 5 0 0 1 10 0v4" />
-				</svg>
-			</div>
-			<h3 class="text-2xl font-black text-white tracking-tight mb-3">🚨 تم إيقاف وقفل الوصول للاختبار (حظر مؤقت لـ
-				24 ساعة)</h3>
-			<p class="text-sm text-[#FFB400] font-bold max-w-xl mx-auto leading-relaxed mb-6">{{ lockoutMessage() ||
-				antiCheatService.lockoutMessage() || 'تم حظر التخصص مؤقتاً بسبب استنفاذ محاولات النجاح أو انتهاك معايير
-				مراقبة المتصفح ومكافحة التلاعب.' }}</p>
-
-			<div
-				class="inline-flex items-center gap-2.5 px-6 py-3 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.12)] rounded-full text-xs font-bold text-white shadow-inner">
-				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<circle cx="12" cy="12" r="10" />
-					<polyline points="12 6 12 12 16 14" />
-				</svg>
-				إعادة فتح المحاولة متاحة تلقائياً بعد انقضاء المهلة المقررة (24 ساعة)
-			</div>
-		</div>
-
 		<!-- 1.5. ASSESSMENT GENERATION/PROCESSING ERROR STATE (Batch 3D-2) -->
-		<div *ngIf="quizGenerationError() && !isSubmittingQuiz() && !quizResult() && !isLockedOut() && !antiCheatService.isInvalidated()"
+		<div *ngIf="quizGenerationError() && !isSubmittingQuiz() && !quizResult()"
 			class="state-card py-16 px-6 text-center bg-gradient-to-b from-[rgba(255,107,107,0.08)] to-[rgba(13,20,44,0.85)] border border-[rgba(255,107,107,0.3)] rounded-3xl shadow-2xl animate-[ws-fade_0.4s_ease]">
 			<div
 				class="w-20 h-20 rounded-3xl bg-[rgba(255,107,107,0.12)] border border-[rgba(255,107,107,0.25)] flex items-center justify-center mx-auto mb-6">
@@ -851,7 +824,7 @@
 		</div>
 
 		<!-- 3. COMPLETED CELEBRATORY / REVIEW SCREEN -->
-		<div *ngIf="!isSubmittingQuiz() && quizResult() && !isLockedOut() && !antiCheatService.isInvalidated()"
+		<div *ngIf="!isSubmittingQuiz() && quizResult()"
 			class="flex flex-col gap-6 animate-[ws-fade_0.4s_ease]">
 
 			<div class="p-8 rounded-3xl bg-gradient-to-br from-[rgba(43,212,199,.15)] to-[rgba(43,127,255,.1)] border border-[rgba(43,212,199,.35)] text-center relative overflow-hidden shadow-2xl backdrop-blur-md"
@@ -883,8 +856,8 @@
 
 				<div class="text-sm font-semibold text-[var(--txt-3)] max-w-lg mx-auto mb-6">
 					{{ quizResult()?.passed ? 'تم ربط شارة الجدارة المهنية بملفك الشخصي بنجاح، وستظهر الآن في نتائج
-					البحث وعند تقديم العروض للعملاء.' : 'بناءً على بروتوكول منصة وسيط AI لمكافحة التلاعب، تم قفل إعادة
-					الاختبار لهذا التخصص لمدة 24 ساعة.' }}
+					البحث وعند تقديم العروض للعملاء.' : 'لم تحقق النسبة المطلوبة هذه المرة. يمكنك مراجعة إجاباتك أدناه
+					والمحاولة مرة أخرى.' }}
 				</div>
 
 				<!-- Score Breakdown Cards -->
@@ -1013,26 +986,8 @@
 		</div>
 
 		<!-- 4. ACTIVE LIVE QUIZ ARENA -->
-		<div *ngIf="isQuizActive() && !isSubmittingQuiz() && !isLockedOut() && !antiCheatService.isInvalidated() && !quizGenerationError()"
+		<div *ngIf="isQuizActive() && !isSubmittingQuiz() && !quizGenerationError()"
 			class="flex flex-col gap-6 animate-[ws-fade_0.25s_ease]">
-
-			<!-- REAL-TIME ANTI-CHEAT ALERT OVERLAY -->
-			<div *ngIf="antiCheatService.latestWarning()"
-				class="p-4 bg-gradient-to-r from-[rgba(255,180,0,.15)] to-[rgba(255,107,107,.15)] border-2 border-[#FFB400] rounded-2xl text-white font-bold flex items-center justify-between shadow-xl animate-bounce">
-				<div class="flex items-center gap-3">
-					<svg class="w-6 h-6 text-[#FFB400] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-						stroke-width="2.5">
-						<path
-							d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-						<line x1="12" y1="9" x2="12" y2="13" />
-						<line x1="12" y1="17" x2="12.01" y2="17" />
-					</svg>
-					<span class="text-sm text-[#FFEBA8]">{{ antiCheatService.latestWarning() }}</span>
-				</div>
-				<div class="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-black">
-					المخالفات: {{ antiCheatService.violationCount() }} / 3
-				</div>
-			</div>
 
 			<!-- QUIZ HEADER WITH TIMER & SUB-SPECIALTY INFO -->
 			<div
@@ -1051,9 +1006,6 @@
 							filteredSpecialties()[0]?.name || 'التخصص المهني' }}</h3>
 						<div class="flex items-center gap-2 mt-2">
 							<span class="text-xs text-[var(--txt-3)] font-semibold">20 سؤال فني · اجتاز بأكثر من 25%</span>
-							<span
-								class="text-[10px] bg-[rgba(43,212,199,.15)] text-[#2BD4C7] font-extrabold px-2 py-0.5 rounded-full">🛡️
-								مراقبة ضد التلاعب</span>
 						</div>
 					</div>
 				</div>

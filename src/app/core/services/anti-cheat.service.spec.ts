@@ -86,7 +86,7 @@ describe('AntiCheatService — assessment_error (Batch 3D-2)', () => {
 	});
 
 	it('tears down the listener (via socket disconnect) when monitoring stops', () => {
-		service.startMonitoring('session-1', 'spec-1');
+		service.startMonitoring();
 		expect(fakeSocket.on.mock.calls.some((c) => c[0] === 'assessment_error')).toBe(true);
 
 		service.stopMonitoring();

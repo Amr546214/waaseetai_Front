@@ -5,8 +5,7 @@ import { AntiCheatService } from '../services/anti-cheat.service';
 import { ConfirmModalService } from '../services/confirm-modal.service';
 
 /**
- * Router guard preventing unconfirmed page navigation or tab exits during active test execution.
- * Enforces anti-cheat compliance using a theme-aware custom confirmation dialog.
+ * Router guard preventing unconfirmed page navigation or tab exits during an active test attempt.
  */
 export const quizLockGuard: CanDeactivateFn<any> = async (component, currentRoute, currentState, nextState) => {
   const antiCheatService = inject(AntiCheatService);
@@ -17,28 +16,23 @@ export const quizLockGuard: CanDeactivateFn<any> = async (component, currentRout
     return true;
   }
 
-  // If the secure monitoring environment is not active or test is finished/invalidated, allow navigation
-  if (!antiCheatService.isMonitoring() || antiCheatService.isInvalidated()) {
+  // If no attempt is currently active, allow navigation
+  if (!antiCheatService.isMonitoring()) {
     return true;
   }
 
-  // Intercept navigation attempt during active examination via custom Cyber-Creative modal
   const userConfirm = await confirmModalService.confirm({
-    title: '⚠️ تنبيه أمني حازم من نظام وسيط AI',
-    message: 'أنت على وشك مغادرة بيئة الاختبار الفوري المؤمنة أثناء سير الاختبار!\n\nمغادرتك الآن ستعد مخالفة جسيمة لشروط مكافحة الغش، وستؤدي لإلغاء النتيجة وتطبيق حظر الإعادة لمدة 24 ساعة.\n\nهل أنت متأكد تماماً من رغبتك في المغادرة والإلغاء؟',
+    title: '⚠️ مغادرة الاختبار الجاري',
+    message: 'أنت على وشك مغادرة شاشة الاختبار أثناء سير المحاولة!\n\nمغادرتك الآن ستؤدي إلى فقدان تقدمك في هذه المحاولة.\n\nهل أنت متأكد من رغبتك في المغادرة؟',
     type: 'danger',
-    confirmText: 'نعم، مغادرة وإلغاء الاختبار',
+    confirmText: 'نعم، مغادرة الاختبار',
     cancelText: 'البقاء ومتابعة الاختبار'
   });
 
   if (userConfirm) {
-    // Report explicit abort violation to backend before allowing exit
-    antiCheatService.reportViolation('NAVIGATION_ABORT');
     antiCheatService.stopMonitoring();
     return true;
-  } else {
-    // User aborted exit; record focus recovery and block route transition
-    antiCheatService.latestWarning.set('🛡️ تم البقاء في الاختبار. الرجاء الالتزام بشروط بيئة الفحص حتى الإتمام.');
-    return false;
   }
+
+  return false;
 };
