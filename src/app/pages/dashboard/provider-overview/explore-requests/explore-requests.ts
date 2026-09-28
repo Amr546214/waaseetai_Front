@@ -71,10 +71,10 @@ export class ExploreRequests implements OnInit {
 			id: 'budget',
 			title: 'الميزانية',
 			options: [
-				{ id: 'b1', label: 'أقل من 2,000 ريال', checked: true },
-				{ id: 'b2', label: '2,000 - 5,000 ريال', checked: true },
-				{ id: 'b3', label: '5,000 - 15,000 ريال', checked: false },
-				{ id: 'b4', label: 'أكثر من 15,000 ريال', checked: false }
+				{ id: 'b1', label: 'أقل من 2,000 $', checked: true },
+				{ id: 'b2', label: '2,000 - 5,000 $', checked: true },
+				{ id: 'b3', label: '5,000 - 15,000 $', checked: false },
+				{ id: 'b4', label: 'أكثر من 15,000 $', checked: false }
 			]
 		},
 		{
@@ -173,7 +173,7 @@ export class ExploreRequests implements OnInit {
 						ref: `#ORD-${p.id.substring(0, 8).toUpperCase()}`,
 						desc: p.description,
 						specialty: p.category,
-						clientBudget: p.budgetMin && p.budgetMax ? `${p.budgetMin} - ${p.budgetMax} ريال` : (p.budgetMin ? `${p.budgetMin} ريال` : 'غير محدد'),
+						clientBudget: p.budgetMin && p.budgetMax ? `${p.budgetMin} - ${p.budgetMax} $` : (p.budgetMin ? `${p.budgetMin} $` : 'غير محدد'),
 						clientDuration: `${p.durationDays} يوم`,
 						offersCount: p.proposalsCount,
 						timeAgo: p.createdAtFormatted,

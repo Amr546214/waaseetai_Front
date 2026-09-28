@@ -113,13 +113,18 @@ export class Wallet implements OnInit {
         });
 
         const sign = direction === 'in' ? '+' : '-';
+        // Use each transaction's own recorded currency — never assume SAR.
+        // Historical Moyasar deposits are genuinely SAR; PayPal deposits are
+        // genuinely USD; showing the wrong label on either would misstate
+        // real transaction history.
+        const currencyLabel = tx.currency === 'USD' ? '$' : (tx.currency === 'SAR' ? 'ريال' : tx.currency);
 
         return {
           id: tx.id,
           title: tx.description || (isDeposit ? 'إيداع رصيد بالمحفظة' : 'معاملة مالية'),
           description: tx.referenceId ? `رقم العملية ${tx.referenceId}` : (tx.paymentMethod || 'محفظة وسيط AI'),
           date: formattedDate,
-          amount: `${sign}${tx.amount.toLocaleString('en-US')} ريال`,
+          amount: `${sign}${tx.amount.toLocaleString('en-US')} ${currencyLabel}`,
           direction,
           status: statusText,
           statusType,

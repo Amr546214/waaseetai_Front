@@ -66,7 +66,7 @@ export class Wallet implements OnInit {
 
   onDepositConfirmed(event: { amount: number; method: 'card' | 'bank' }) {
     this.showDepositModal.set(false);
-    this.depositToast.set(`تم تسجيل طلب إيداع ${event.amount.toLocaleString('ar-SA')} ريال — سيُفعَّل الدفع الإلكتروني قريباً`);
+    this.depositToast.set(`تم تسجيل طلب إيداع ${event.amount.toLocaleString('en-US')} $ — سيُفعَّل الدفع الإلكتروني قريباً`);
     if (this.depositToastTimer) clearTimeout(this.depositToastTimer);
     this.depositToastTimer = setTimeout(() => this.depositToast.set(''), 4000);
   }

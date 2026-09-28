@@ -588,7 +588,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			profileAudit: [{ title: 'تعذر إكمال فحص AI', subtitle: 'لم يتم إنشاء تقييم بديل أو درجات وهمية. يمكنك إعادة المحاولة.', status: 'WARNING', badge: 'غير متاح' }],
 			triPartyComparison: {
 				client: { budget: 'غير متاح', duration: 'غير متاح', milestones: 'غير متاح' },
-				provider: { budget: `${this.totalAmount} ريال`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
+				provider: { budget: `${this.totalAmount} $`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
 				aiRecommendation: { budget: 'لم يُحلل', duration: 'لم يُحلل', milestones: 'لم يُحلل' }
 			},
 			triPartyNote: 'خدمة التحليل غير متاحة حالياً؛ لم تُولد المنصة أي استنتاج بديل.',

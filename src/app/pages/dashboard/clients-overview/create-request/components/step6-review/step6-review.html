@@ -86,15 +86,15 @@
 		</div>
 		<div class="sc-rows">
 		<div class="sc-row"><span class="sc-row-key">الميزانية</span><span class="sc-row-val txt-amber" style="font-weight:800">
-			@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number }} - {{ parent.budgetMax() | number }} ر.س }
-			@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number }} ر.س }
-			@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number }} ر.س/س }
+			@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number }} - {{ parent.budgetMax() | number }} $ }
+			@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number }} $ }
+			@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number }} $/س }
 		</span></div>
 		<div class="sc-row"><span class="sc-row-key">النوع</span><span class="sc-row-val">{{ parent.budgetType() === 'range' ? 'نطاق' : parent.budgetType() === 'fixed' ? 'سعر ثابت' : 'بالساعة' }}</span></div>
 		<div class="sc-row"><span class="sc-row-key">رسم الضمان (1%)</span><span class="sc-row-val">
-			@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number }} ر.س }
-			@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number }} ر.س }
-			@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number }} ر.س }
+			@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number }} $ }
+			@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number }} $ }
+			@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number }} $ }
 		</span></div>
 		</div>
 		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-edit"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>يحتاج تعديل · 88%</span></div>
@@ -102,7 +102,7 @@
 		@if (!recBudgetDone()) {
 		<div class="sc-rec" id="rec-budget">
 			<div class="sc-rec-head"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>توصية</div>
-			<div class="sc-rec-txt">السوق لمشروع مماثل بين <span class="sc-rec-val">9,500 و 11,000 ر.س</span>، الميزانية الحالية قد تقلل عدد العروض. القيمة المقترحة <span class="sc-rec-val">10,000 ر.س</span></div>
+			<div class="sc-rec-txt">السوق لمشروع مماثل بين <span class="sc-rec-val">9,500 و 11,000 $</span>، الميزانية الحالية قد تقلل عدد العروض. القيمة المقترحة <span class="sc-rec-val">10,000 $</span></div>
 			<div class="sc-rec-acts">
 				<button type="button" class="sc-rec-btn sc-rec-ok" (click)="applyRecBudget()">موافق وتطبيق 10,000</button>
 				<button type="button" class="sc-rec-btn sc-rec-edit" (click)="parent.currentStep.set(4)">تعديل يدوي</button>
@@ -278,14 +278,14 @@
     <div class="modal-info">
       <div class="modal-info-row"><span class="modal-info-key">عنوان الطلب</span><span class="modal-info-val">{{ parent.title() || 'بدون عنوان' }}</span></div>
       <div class="modal-info-row"><span class="modal-info-key">الميزانية</span><span class="modal-info-val txt-amber">
-	  	@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number }} - {{ parent.budgetMax() | number }} ر.س }
-		@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number }} ر.س }
-		@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number }} ر.س/س }
+	  	@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number }} - {{ parent.budgetMax() | number }} $ }
+		@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number }} $ }
+		@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number }} $/س }
 	  </span></div>
       <div class="modal-info-row"><span class="modal-info-key">رسم الضمان (1%)</span><span class="modal-info-val">
-	  	@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number }} ر.س }
-		@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number }} ر.س }
-		@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number }} ر.س }
+	  	@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number }} $ }
+		@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number }} $ }
+		@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number }} $ }
 	  </span></div>
       <div class="modal-info-row"><span class="modal-info-key">جودة AI</span><span class="modal-info-val txt-green">92/100</span></div>
     </div>

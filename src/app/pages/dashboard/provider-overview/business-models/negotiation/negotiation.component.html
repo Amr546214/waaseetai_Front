@@ -18,7 +18,7 @@
 				<div class="req-info-grid">
 					<div class="req-info-item">
 						<div class="req-info-lbl">الميزانية الأصلية</div>
-						<div class="req-info-val">{{ request.originalBudget.toLocaleString() }} ريال</div>
+						<div class="req-info-val">{{ request.originalBudget.toLocaleString() }} $</div>
 					</div>
 					<div class="req-info-item">
 						<div class="req-info-lbl">المدة الأصلية</div>
@@ -26,7 +26,7 @@
 					</div>
 					<div class="req-info-item highlight">
 						<div class="req-info-lbl">العرض الحالي</div>
-						<div class="req-info-val">{{ request.currentOffer.toLocaleString() }} ريال</div>
+						<div class="req-info-val">{{ request.currentOffer.toLocaleString() }} $</div>
 					</div>
 					<div class="req-info-item highlight">
 						<div class="req-info-lbl">المدة الحالية</div>
@@ -63,7 +63,7 @@
 				<div class="counter-title">إرسال عرض مضاد</div>
 				<form [formGroup]="counterForm" (ngSubmit)="sendCounter()" class="counter-form">
 					<div class="field-grp">
-						<label class="field-lbl">المبلغ (ريال)</label>
+						<label class="field-lbl">المبلغ ($)</label>
 						<input type="number" class="field-in" formControlName="amount" min="1000" />
 					</div>
 					<div class="field-grp">

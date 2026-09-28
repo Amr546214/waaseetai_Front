@@ -30,7 +30,7 @@ export class ContractSignature implements OnInit {
 	requestTitle = signal<string>('جارٍ التحميل...');
 	providerName = signal<string>('مقدم الخدمة');
 	providerInitials = signal<string>('مـ');
-	price = signal<string>('0 ريال');
+	price = signal<string>('0 $');
 	duration = signal<string>('0 يوما');
 	plan = signal<string>('');
 	description = signal<string>('');
@@ -84,7 +84,7 @@ export class ContractSignature implements OnInit {
 						this.providerName.set(name);
 						const initials = name.split(' ').map((n: string) => n[0] || '').join('').substring(0, 2);
 						this.providerInitials.set(initials || 'مـ');
-						this.price.set(targetOffer.totalPrice ? `${targetOffer.totalPrice} ريال` : (targetOffer.bidAmount ? `${targetOffer.bidAmount} ريال` : 'غير محدد'));
+						this.price.set(targetOffer.totalPrice ? `${targetOffer.totalPrice} $` : (targetOffer.bidAmount ? `${targetOffer.bidAmount} $` : 'غير محدد'));
 						this.duration.set(targetOffer.deliveryDays ? `${targetOffer.deliveryDays} أيام` : (targetOffer.durationText || 'غير محدد'));
 						this.plan.set(targetOffer.outputs || targetOffer.workPlan || '');
 						this.description.set(targetOffer.message || targetOffer.description || '');
@@ -165,7 +165,7 @@ export class ContractSignature implements OnInit {
 				const balance = Number(response.data?.summary?.availableBalance || 0);
 				const shortfall = Math.max(0, Math.round((this.requiredAmount() - balance) * 100) / 100);
 				if (shortfall > 0) {
-					this.showToast(`رصيد المحفظة غير كافٍ. يلزم شحن ${shortfall.toLocaleString('en-US')} ريال عبر ميسر.`);
+					this.showToast(`رصيد المحفظة غير كافٍ. يلزم شحن ${shortfall.toLocaleString('en-US')} $.`);
 				}
 				this.router.navigate(['/client-overview/my-requests', this.requestId(), 'deposit'], {
 					queryParams: { offerId: this.offerId() }

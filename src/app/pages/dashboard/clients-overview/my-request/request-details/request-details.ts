@@ -128,9 +128,9 @@ export class RequestDetails implements OnInit {
 					let formattedBudget = '';
 					if (data.budget) {
 						if (data.budget.type === 'RANGE' && data.budget.min && data.budget.max) {
-							formattedBudget = `${data.budget.min.toLocaleString()} - ${data.budget.max.toLocaleString()} ريال`;
+							formattedBudget = `${data.budget.min.toLocaleString()} - ${data.budget.max.toLocaleString()} $`;
 						} else if (data.budget.type === 'FIXED' && data.budget.min) {
-							formattedBudget = `${data.budget.min.toLocaleString()} ريال`;
+							formattedBudget = `${data.budget.min.toLocaleString()} $`;
 						} else {
 							formattedBudget = 'غير محدد';
 						}
@@ -195,7 +195,7 @@ export class RequestDetails implements OnInit {
 								rating: prop.provider?.rating ?? null,
 								matchScore: prop.aiMatchPercent ?? prop.aiMatchScore ?? null,
 								isBestMatch: isBest,
-								price: prop.totalPrice ? `${prop.totalPrice} ريال` : (prop.bidAmount ? `${prop.bidAmount} ريال` : ''),
+								price: prop.totalPrice ? `${prop.totalPrice} $` : (prop.bidAmount ? `${prop.bidAmount} $` : ''),
 								duration: prop.deliveryDays ? `${prop.deliveryDays} أيام` : (prop.durationText || ''),
 								description: prop.coverLetter || prop.message || prop.description || '',
 								plan: prop.outputs || prop.workPlan || '',
@@ -306,7 +306,7 @@ export class RequestDetails implements OnInit {
 	openNegotiation(offer: Offer) {
 		this.selectedOffer.set(offer);
 		this.negProvider.set(offer.providerName);
-		this.negPrice.set((offer.price || '').replace(' ريال', '').trim());
+		this.negPrice.set((offer.price || '').replace(' $', '').trim());
 		this.negType.set('price');
 		this.negMessage.set('');
 		this.showNegModal.set(true);
@@ -342,13 +342,13 @@ export class RequestDetails implements OnInit {
 
 		const providerId = offer.providerId || offer.provider?.id || offer.id;
 		const negCategory = this.negType() === 'price' ? 'السعر' : (this.negType() === 'dur' ? 'المدة' : (this.negType() === 'plan' ? 'الخطة' : 'تفاوض عام'));
-		const priceText = this.negPrice() ? `${this.negPrice()} ريال` : offer.price;
+		const priceText = this.negPrice() ? `${this.negPrice()} $` : offer.price;
 
 		const negPayload = {
 			isNegotiation: true,
 			negType: this.negType(),
 			negTypeName: negCategory,
-			price: this.negPrice() || offer.price?.replace(' ريال', '').trim() || '',
+			price: this.negPrice() || offer.price?.replace(' $', '').trim() || '',
 			notes: this.negMessage() || '',
 			status: 'PENDING'
 		};

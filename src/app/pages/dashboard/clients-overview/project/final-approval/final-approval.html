@@ -34,7 +34,7 @@
 				<span class="fa-badge">بانتظار اعتمادك النهائي</span>
 			</div>
 			<div class="fa-meta">
-				<div class="fa-mi"><div class="l">إجمالي العقد</div><div class="v">{{ formatNumber(totalAmount()) }}<small> ريال</small></div></div>
+				<div class="fa-mi"><div class="l">إجمالي العقد</div><div class="v">{{ formatNumber(totalAmount()) }}<small> $</small></div></div>
 				<div class="fa-mi"><div class="l">أُفرِج سابقًا</div><div class="v fa-v-free">{{ formatNumber(releasedAmount()) }}</div></div>
 				<div class="fa-mi"><div class="l">الدفعة الأخيرة</div><div class="v fa-v-held">{{ formatNumber(finalPayment()) }}</div></div>
 				<div class="fa-mi"><div class="l">المراحل</div><div class="v">{{ completedStagesCount() }}<small>/{{ stagesCount() }}</small></div></div>
@@ -87,8 +87,8 @@
 						<div class="fa-ms-d">{{ statusHint(stage) }}{{ revisionCount(stage) > 0 ? ' · تعديل ' + revisionCount(stage) : '' }}</div>
 					</div>
 					<span class="fa-ms-pay" [class.fa-pay-held]="!isStageCompleted(stage)">
-						@if (isStageCompleted(stage)) { أُفرِج {{ formatNumber(stage.amount) }} ريال }
-						@else { محتجز {{ formatNumber(stage.amount) }} ريال }
+						@if (isStageCompleted(stage)) { أُفرِج {{ formatNumber(stage.amount) }} $ }
+						@else { محتجز {{ formatNumber(stage.amount) }} $ }
 					</span>
 				</div>
 				<div class="fa-ms-body">
@@ -163,10 +163,10 @@
 				الخلاصة المالية للمشروع
 			</div>
 			<div class="fa-settle-rows">
-				<div class="fa-srow"><span>إجمالي قيمة العقد</span><b>{{ formatNumber(totalAmount()) }} ريال</b></div>
-				<div class="fa-srow"><span>أُفرِج عبر المراحل السابقة</span><b class="fa-v-free">{{ formatNumber(releasedAmount()) }} ريال</b></div>
-				<div class="fa-srow"><span>الدفعة النهائية (محتجزة بالضمان)</span><b class="fa-v-held">{{ formatNumber(finalPayment()) }} ريال</b></div>
-				<div class="fa-srow fa-srow-tot"><span>يُفرَج للمقدّم عند اعتمادك</span><b>{{ formatNumber(finalPayment()) }} ريال</b></div>
+				<div class="fa-srow"><span>إجمالي قيمة العقد</span><b>{{ formatNumber(totalAmount()) }} $</b></div>
+				<div class="fa-srow"><span>أُفرِج عبر المراحل السابقة</span><b class="fa-v-free">{{ formatNumber(releasedAmount()) }} $</b></div>
+				<div class="fa-srow"><span>الدفعة النهائية (محتجزة بالضمان)</span><b class="fa-v-held">{{ formatNumber(finalPayment()) }} $</b></div>
+				<div class="fa-srow fa-srow-tot"><span>يُفرَج للمقدّم عند اعتمادك</span><b>{{ formatNumber(finalPayment()) }} $</b></div>
 			</div>
 			<div class="fa-settle-bar">
 				@if (totalAmount() > 0) {
@@ -209,7 +209,7 @@
 				</div>
 				<h3>استلام واعتماد المشروع</h3>
 				<p>تستلم حزمة المشروع كاملةً، يُفرَج المبلغ المتبقّي للمقدّم، تنتقل الملكية إليك، ويبدأ سريان ضمان 30 يومًا</p>
-				<div class="fsm-amt"><span>يُفرَج للمقدّم</span><b>{{ formatNumber(finalPayment()) }} <small>ريال</small></b></div>
+				<div class="fsm-amt"><span>يُفرَج للمقدّم</span><b>{{ formatNumber(finalPayment()) }} <small>$</small></b></div>
 				<div class="fsm-acts">
 					<button type="button" class="fsm-btn fsm-gh" (click)="closeConfirm()" [disabled]="confirming()">تراجع</button>
 					<button type="button" class="fsm-btn fsm-pri" (click)="confirmAndRate()" [disabled]="confirming()">

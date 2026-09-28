@@ -245,6 +245,16 @@
   transform: none !important;
 }
 
+/* PayPal's rendered buttons are opaque (iframe-based) and not reliably
+   targetable by inner selector, so the whole container is dimmed/disabled
+   instead — createOrder() also rejects if terms aren't accepted, so this is
+   a visual reinforcement, not the only guard. */
+.pp-form.moyasar-locked {
+  opacity: 0.48;
+  pointer-events: none;
+  filter: grayscale(0.35);
+}
+
 /* Footer / Powered By Text & Notice */
 ::ng-deep .mysr-form .text-muted,
 ::ng-deep .mysr-form .mysr-footer {

@@ -12,7 +12,7 @@
 					<polyline points="20 6 9 17 4 12" />
 				</svg></div>
 			<h2>تم الإيداع بنجاح</h2>
-			<p>أُضيف مبلغ <strong>{{ amount().toLocaleString('en-US') }} ر.س</strong> إلى رصيد محفظتك.</p>
+			<p>أُضيف مبلغ <strong>{{ amount().toLocaleString('en-US') }} {{ selectedMethod() === 'paypal' ? '$' : 'ر.س' }}</strong> إلى رصيد محفظتك.</p>
 			<div class="payment-reference"><span>رقم العملية</span><b>{{ paymentReference() }}</b></div>
 			<button type="button" class="payment-done-btn" (click)="onClose()">العودة إلى المحفظة</button>
 		</div>
@@ -49,13 +49,13 @@
 			<div class="flex flex-col gap-2">
 				<label class="text-xs font-black text-slate-300 flex items-center justify-between">
 					<span>المبلغ المراد إيداعه</span>
-					<span class="text-[10px] font-bold text-slate-500">50 - 100,000 ر.س</span>
+					<span class="text-[10px] font-bold text-slate-500">50 - 100,000 {{ selectedMethod() === 'paypal' ? '$' : 'ر.س' }}</span>
 				</label>
 
 				<div class="relative">
 					<input type="text" [value]="amount()" (input)="onAmountInput($event)" inputmode="decimal" [disabled]="lockAmount()"
 						class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-center text-2xl font-black text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-all">
-					<span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">ر.س</span>
+					<span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">{{ selectedMethod() === 'paypal' ? '$' : 'ر.س' }}</span>
 				</div>
 
 				@if (!lockAmount()) {
@@ -73,6 +73,10 @@
 			</div>
 
 			<!-- Quick Summary Row -->
+			<!-- Same defensive condition as the card section below: the SAR
+			     labels here are only correct for the disabled Moyasar path, so
+			     gate on moyasarEnabled too rather than on selectedMethod alone. -->
+			@if (moyasarEnabled && selectedMethod() === 'card') {
 			<div class="bg-slate-950/60 rounded-xl p-3 border border-slate-800 grid grid-cols-3 gap-2 text-center">
 				<div class="flex flex-col">
 					<span class="text-[10px] font-bold text-slate-400">الرصيد الحالي</span>
@@ -87,14 +91,31 @@
 					<span class="text-xs font-black text-cyan-300 mt-0.5">{{ balanceAfter }} ر.س</span>
 				</div>
 			</div>
+			} @else {
+			<!-- PayPal deposits are USD; the wallet balance's currency is not
+			     tracked separately from the existing (SAR-assumed) balance, so
+			     no predicted "balance after" total is computed or shown here —
+			     it would silently add a USD amount to that balance. The actual
+			     wallet balance is reloaded from the backend after a confirmed
+			     deposit (see wallet.ts's onDepositComplete -> loadWalletData()). -->
+			<div class="bg-slate-950/60 rounded-xl p-3 border border-slate-800 flex items-center gap-2.5">
+				<svg class="w-4 h-4 flex-shrink-0 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+					<circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+				</svg>
+				<span class="text-[10px] font-bold text-slate-400">الإيداع عبر PayPal بالدولار الأمريكي USD. سيتم تحديث رصيد محفظتك من الخادم بعد تأكيد الدفع.</span>
+			</div>
+			}
 
 			<!-- Payment Methods Tabs -->
 			<div class="flex flex-col gap-2">
 				<label class="text-xs font-black text-slate-300">طريقة الدفع</label>
 
 					<div class="grid grid-cols-1 gap-2">
-					<!-- Card Option -->
-						<div [class.border-cyan-500]="selectedMethod() === 'card'"
+					<!-- Card Option — temporarily hidden (Moyasar is SAR-only; wallet
+					     is now USD-canonical). Markup kept intact behind
+					     moyasarEnabled for a quick re-enable later. -->
+					@if (moyasarEnabled) {
+						<div (click)="selectMethod('card')" [class.border-cyan-500]="selectedMethod() === 'card'"
 						[class.bg-cyan-500/10]="selectedMethod() === 'card'"
 						class="cursor-pointer border border-slate-700/80 rounded-xl p-3 flex items-center gap-2.5 transition-all hover:border-cyan-400/50">
 						<div class="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0"
@@ -107,10 +128,26 @@
 							<span class="text-[9px] font-bold text-slate-400">مدى / فيزا / ماستركارد</span>
 						</div>
 					</div>
+					}
+
+					<!-- PayPal Option -->
+					<div (click)="selectMethod('paypal')" [class.border-cyan-500]="selectedMethod() === 'paypal'"
+						[class.bg-cyan-500/10]="selectedMethod() === 'paypal'"
+						class="cursor-pointer border border-slate-700/80 rounded-xl p-3 flex items-center gap-2.5 transition-all hover:border-cyan-400/50">
+						<div class="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0"
+							[class.border-cyan-400]="selectedMethod() === 'paypal'"
+							[class.border-slate-600]="selectedMethod() !== 'paypal'">
+							@if (selectedMethod() === 'paypal') { <div class="w-2 h-2 rounded-full bg-cyan-400"></div> }
+						</div>
+						<div class="flex flex-col">
+							<span class="text-xs font-bold text-white">PayPal (Sandbox)</span>
+							<span class="text-[9px] font-bold text-slate-400">الدفع بالدولار الأمريكي USD</span>
+						</div>
+					</div>
 					</div>
 
-				<!-- Card Section (Moyasar Web Form) -->
-				@if (selectedMethod() === 'card') {
+				<!-- Card Section (Moyasar Web Form) — see moyasarEnabled above -->
+				@if (moyasarEnabled && selectedMethod() === 'card') {
 				<div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 mt-1 flex flex-col gap-2">
 					<div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
 						<span class="text-xs font-bold text-slate-300">بوابة الدفع ميسر (Moyasar)</span>
@@ -121,6 +158,23 @@
 						<div class="mysr-form my-1 min-h-[120px]" [class.moyasar-locked]="!termsAccepted()" [id]="formElementId" dir="ltr"></div>
 					</div>
 					}
+
+				<!-- PayPal Section (PayPal JS SDK v6 Buttons) -->
+				@if (selectedMethod() === 'paypal') {
+				<div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 mt-1 flex flex-col gap-2">
+					<div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+						<span class="text-xs font-bold text-slate-300">بوابة الدفع PayPal (Sandbox)</span>
+						<span class="text-[9px] font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">بيئة اختبار Sandbox</span>
+					</div>
+
+					@if (!termsAccepted()) {
+					<div class="text-[10px] font-bold text-slate-500 text-center py-1">وافق على شروط الإيداع أولاً لتفعيل زر PayPal</div>
+					}
+					<!-- PayPal Buttons render here (always mounted, like the Moyasar
+					     form; termsAccepted() is enforced inside createOrder()) -->
+					<div class="pp-form my-1 min-h-[120px]" [class.moyasar-locked]="!termsAccepted()" [id]="paypalElementId" dir="ltr"></div>
+				</div>
+				}
 			</div>
 
 			<!-- Terms Checkbox -->

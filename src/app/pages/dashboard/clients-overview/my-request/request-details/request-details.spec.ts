@@ -19,7 +19,7 @@ function makeOffer(overrides: Partial<any> = {}): any {
 		projectsCount: 4,
 		rating: null,
 		matchScore: null,
-		price: '1,000 ريال',
+		price: '1,000 $',
 		duration: '5 أيام',
 		description: 'وصف العرض',
 		plan: 'خطة العمل',

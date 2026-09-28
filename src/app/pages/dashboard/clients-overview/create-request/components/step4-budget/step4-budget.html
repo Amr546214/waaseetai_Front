@@ -6,7 +6,7 @@
 			<div class="ai-range-ico shrink-0"><svg viewBox="0 0 24 24" class="w-6 h-6 text-[var(--ai)]" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg></div>
 			<div class="ai-range-txt flex-1">
 				<div class="font-bold text-sm mb-1 text-white">
-					نطاق مقترح: <span class="ai-range-val text-[var(--ai)]">6,000 - 10,000 ر.س</span>
+					نطاق مقترح: <span class="ai-range-val text-[var(--ai)]">6,000 - 10,000 $</span>
 				</div>
 				<div class="text-[11.5px] text-[var(--txt-3)]">بناء على 142 طلبا مشابها في تقنية المعلومات</div>
 			</div>
@@ -58,14 +58,14 @@
 						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-from">من <span class="text-red-500">*</span></label>
 						<div class="relative">
 						<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-from" placeholder="5000" min="100" [ngModel]="parent.budgetMin()" (ngModelChange)="parent.budgetMin.set($event ? +$event : null)">
-							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">ر.س</span>
+							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
 						</div>
 					</div>
 					<div>
 						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-to">إلى <span class="text-red-500">*</span></label>
 						<div class="relative">
 						<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-to" placeholder="10000" min="100" [ngModel]="parent.budgetMax()" (ngModelChange)="parent.budgetMax.set($event ? +$event : null)">
-							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">ر.س</span>
+							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
 						</div>
 					</div>
 				</div>
@@ -78,7 +78,7 @@
 				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-fixed">المبلغ الثابت <span class="text-red-500">*</span></label>
 				<div class="relative max-w-md">
 					<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-fixed" placeholder="8000" min="100" [ngModel]="parent.budgetFixed()" (ngModelChange)="parent.budgetFixed.set($event ? +$event : null)">
-					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">ر.س</span>
+					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
 				</div>
 			</div>
 			}
@@ -89,7 +89,7 @@
 				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-hourly">معدل الساعة <span class="text-red-500">*</span></label>
 				<div class="relative max-w-md">
 					<input type="number" class="w-full p-4 pl-[70px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-hourly" placeholder="150" min="50" [ngModel]="parent.budgetHourly()" (ngModelChange)="parent.budgetHourly.set($event ? +$event : null)">
-					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">ر.س/س</span>
+					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$/س</span>
 				</div>
 			</div>
 			}

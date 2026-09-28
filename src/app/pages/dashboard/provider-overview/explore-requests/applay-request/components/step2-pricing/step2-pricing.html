@@ -35,7 +35,7 @@
   <!-- Total Proposal Budget & Execution Time Summary Controls -->
   <div class="bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.08)] rounded-xl p-4 mb-5 flex items-center justify-between gap-4 flex-wrap pricing-card">
     <div class="flex-1 min-w-[200px]">
-      <label class="text-[12px] font-bold text-[#A8B2D1] block mb-1.5" for="f-total-price">سعر عرضك الإجمالي (ريال) <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
+      <label class="text-[12px] font-bold text-[#A8B2D1] block mb-1.5" for="f-total-price">سعر عرضك الإجمالي ($) <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
       <input type="number" id="f-total-price" class="w-full py-[9px] px-[12px] bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.12)] rounded-[8px] text-white font-extrabold text-sm outline-none focus:border-[rgba(43,212,199,.5)] transition-colors pricing-input"
         [class.!border-[rgba(255,80,80,.45)]]="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)"
         [ngModel]="totalBudget" (ngModelChange)="updateTotalBudget.emit($event)" placeholder="أدخل إجمالي قيمة العرض" min="1" name="totalBudget" #totalBudgetModel="ngModel" required>

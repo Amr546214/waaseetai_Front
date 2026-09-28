@@ -24,13 +24,13 @@
 		<div>
 			<h3 class="text-[16px] font-extrabold text-[var(--txt)] mb-1">الميزانية الإجمالية التقديرية
 				للمشروع</h3>
-			<p class="text-[13px] text-[var(--txt-3)]">حدد القيمة الإجمالية بالريال السعودي وسيتم حساب
+			<p class="text-[13px] text-[var(--txt-3)]">حدد القيمة الإجمالية بالدولار الأمريكي وسيتم حساب
 				توزيعات المراحل تلقائياً.</p>
 		</div>
 		<div class="flex items-center gap-3 shrink-0">
 			<input type="number" [value]="totalAmount" (input)="updateTotalAmount($event)"
 				class="w-[180px] text-center bg-[var(--sec-bg)] border-2 border-[#2BD4C7] rounded-xl px-4 py-2.5 text-[22px] font-black text-[#2BD4C7] outline-none shadow-[0_0_15px_rgba(43,212,199,.2)]">
-			<span class="text-[16px] font-extrabold text-[var(--txt)]">ر.س</span>
+			<span class="text-[16px] font-extrabold text-[var(--txt)]">$</span>
 		</div>
 	</div>
 
@@ -118,7 +118,7 @@
 						للمرحلة</label>
 					<div
 						class="w-full bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.35)] rounded-xl px-3 py-2.5 text-[14px] text-[#2BD4C7] font-black text-center shadow-inner">
-						{{ getAmountForStage(stage.percentage) | number:'1.0-0' }} ر.س
+						{{ getAmountForStage(stage.percentage) | number:'1.0-0' }} $
 					</div>
 				</div>
 			</div>
@@ -162,7 +162,7 @@
 				<div class="text-[12px] font-bold text-[var(--txt)]">{{stage.days || 0}} يوم</div>
 				<div class="text-[13px] text-[#2BD4C7] font-black">{{stage.percentage || 0}}%</div>
 				<div class="text-[13px] text-[#2BD4C7] font-black">{{ getAmountForStage(stage.percentage) |
-					number:'1.0-0' }} ر.س</div>
+					number:'1.0-0' }} $</div>
 			</div>
 			}
 		</div>
@@ -173,7 +173,7 @@
 			<div class="text-[14px] text-[var(--txt)]">{{totalDays}} يوم</div>
 			<div class="text-[14px]" [class]="totalPercentage === 100 ? 'text-[#2BD4C7]' : 'text-[#FF8C69]'">
 				{{totalPercentage}}%</div>
-			<div class="text-[15px] text-[#2BD4C7]">{{totalAmount | number:'1.0-0'}} ر.س</div>
+			<div class="text-[15px] text-[#2BD4C7]">{{totalAmount | number:'1.0-0'}} $</div>
 		</div>
 	</div>
 </div>

@@ -166,7 +166,7 @@ export class ActiveProject implements OnInit {
 		const late = projects.filter(project => project.status === 'late').length;
 		return [
 			{ icon: 'list', value: projects.length, label: 'مشاريع نشطة', color: 'teal' },
-			{ icon: 'lock', value: held, label: 'محتجز بالضمان ريال', color: 'blue' },
+			{ icon: 'lock', value: held, label: 'محتجز بالضمان $', color: 'blue' },
 			{ icon: 'clock', value: waiting, label: 'بانتظار مراجعتك', color: 'amber' },
 			{ icon: 'ai', value: late ? `${late} متأخر` : 'جيد', label: 'الحالة العامة', color: 'ai' },
 		];
@@ -175,7 +175,7 @@ export class ActiveProject implements OnInit {
 	private emptyKpis(): ProjectKPI[] {
 		return [
 			{ icon: 'list', value: 0, label: 'مشاريع نشطة', color: 'teal' },
-			{ icon: 'lock', value: 0, label: 'محتجز بالضمان ريال', color: 'blue' },
+			{ icon: 'lock', value: 0, label: 'محتجز بالضمان $', color: 'blue' },
 			{ icon: 'clock', value: 0, label: 'بانتظار مراجعتك', color: 'amber' },
 			{ icon: 'ai', value: '—', label: 'الحالة العامة', color: 'ai' },
 		];

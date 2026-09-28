@@ -25,7 +25,7 @@
 					<span class="dr-pill" [class]="statusBadgeClass(stage)">{{ statusBadgeText(stage) }}</span>
 				</div>
 				<div class="dr-meta">
-					<div class="dr-meta-item"><div class="dr-meta-lbl">قيمة المرحلة</div><div class="dr-meta-val">{{ formatNumber(stage.amount) }} ريال</div></div>
+					<div class="dr-meta-item"><div class="dr-meta-lbl">قيمة المرحلة</div><div class="dr-meta-val">{{ formatNumber(stage.amount) }} $</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">سُلّمت</div><div class="dr-meta-val">{{ submittedTimeAgo(stage) }}</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">مهلة المراجعة</div><div class="dr-meta-val">{{ reviewDeadlineText() }}</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">الملفات</div><div class="dr-meta-val">{{ stageFileCount(stage) }} ملفات</div></div>
@@ -130,7 +130,7 @@
 		<div class="ac-ring"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
 		<h3>تم اعتماد التسليم بنجاح</h3>
 		<p>أُفرِج مبلغ المرحلة من الضمان وتمّ ترحيله إلى محفظة مقدم الخدمة</p>
-		<div class="ac-amt"><span>المبلغ المُرحّل</span><b>{{ formatNumber(sd.amount) }} <small>ريال</small></b></div>
+		<div class="ac-amt"><span>المبلغ المُرحّل</span><b>{{ formatNumber(sd.amount) }} <small>$</small></b></div>
 		<div class="ac-row"><span class="ac-k">إلى</span><span class="ac-v">{{ sd.providerName }}</span></div>
 		<div class="ac-row"><span class="ac-k">المرحلة</span><span class="ac-v">{{ sd.stageTitle }}</span></div>
 		@if (sd.txnId) { <div class="ac-row"><span class="ac-k">رقم العملية</span><span class="ac-v">{{ sd.txnId }}</span></div> }

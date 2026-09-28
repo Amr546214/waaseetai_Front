@@ -194,7 +194,7 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 
 	// Format helpers
 	formatCurrency(val: number): string {
-		return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ر.س';
+		return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
 	}
 
 	handlePrimaryAction() {

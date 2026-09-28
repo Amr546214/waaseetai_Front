@@ -674,7 +674,7 @@ export class NewProject implements OnInit, OnDestroy {
 		const ev = this.aiEvaluation();
 		if (!ev || !ev.suggestedPricingStrategy?.recommendedRange) return;
 
-		// Try parsing numerical average out of string like "4000 - 5000 ريال"
+		// Try parsing numerical average out of string like "4000 - 5000 $"
 		const matches = ev.suggestedPricingStrategy.recommendedRange.match(/\d+[,\d]*/g);
 		if (matches && matches.length >= 1) {
 			const nums = matches.map(m => parseInt(m.replace(/,/g, ''), 10)).filter(n => !isNaN(n));

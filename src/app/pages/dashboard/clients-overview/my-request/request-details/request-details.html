@@ -293,7 +293,7 @@
 											style="font-size: 9px; margin-inline-start: 2px" class="txt-muted">({{
 											milestone.percentage }}%)</span></span>
 									<span style="font-size: 12px; font-weight: 800" dir="ltr" class="txt-blue">{{
-										milestone.amountFormatted || milestone.amount + ' ريال' }}</span>
+										milestone.amountFormatted || milestone.amount + ' $' }}</span>
 								</div>
 							</div>
 						</div>
@@ -570,7 +570,7 @@
 			</div>
 			@if(negType() === 'price') {
 			<div id="neg-f-price" class="neg-f"><label class="neg-lbl" for="neg-price">السعر المقترح
-					(ريال)</label><input class="neg-inp" id="neg-price" type="text" inputmode="numeric"
+					($)</label><input class="neg-inp" id="neg-price" type="text" inputmode="numeric"
 					placeholder="مثال 4,000" [value]="negPrice()" (input)="onNegPriceInput($event)"></div>
 			}
 			@if(negType() === 'dur') {

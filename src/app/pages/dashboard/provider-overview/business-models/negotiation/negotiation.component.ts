@@ -29,8 +29,8 @@ export class NegotiationComponent {
 	};
 
 	messages: NegotiationMessage[] = [
-		{ id: '1', from: 'client', text: 'مرحباً، أنا مهتم بتطوير تطبيق تجارة إلكترونية. الميزانية المتاحة 45,000 ريال والمدة 30 يوم.', time: '2026-09-10 14:30' },
-		{ id: '2', from: 'provider', text: 'أهلاً بك. يمكنني تنفيذ المشروع بميزانية 42,000 ريال ومدة 28 يوم مع 3 مراجعات.', time: '2026-09-10 15:00' },
+		{ id: '1', from: 'client', text: 'مرحباً، أنا مهتم بتطوير تطبيق تجارة إلكترونية. الميزانية المتاحة 45,000 $ والمدة 30 يوم.', time: '2026-09-10 14:30' },
+		{ id: '2', from: 'provider', text: 'أهلاً بك. يمكنني تنفيذ المشروع بميزانية 42,000 $ ومدة 28 يوم مع 3 مراجعات.', time: '2026-09-10 15:00' },
 		{ id: '3', from: 'client', text: 'ممتاز. هل يشمل ذلك تصميم الواجهة وتطوير الـ API؟', time: '2026-09-10 15:15' },
 		{ id: '4', from: 'provider', text: 'نعم، يشمل تصميم الواجهة وتطوير الـ API وربط بوابة الدفع. لا يشمل استضافة الخادم.', time: '2026-09-10 15:30' }
 	];
@@ -53,7 +53,7 @@ export class NegotiationComponent {
 			this.messages.push({
 				id: Date.now().toString(),
 				from: 'provider',
-				text: `عرض محدث: ${this.counterForm.value.amount.toLocaleString()} ريال خلال ${this.counterForm.value.days} يوم. ${this.counterForm.value.notes}`,
+				text: `عرض محدث: ${this.counterForm.value.amount.toLocaleString()} $ خلال ${this.counterForm.value.days} يوم. ${this.counterForm.value.notes}`,
 				time: new Date().toLocaleString('ar-SA')
 			});
 			this.counterForm.reset({ amount: this.request.currentOffer, days: this.request.currentDays, notes: '' });

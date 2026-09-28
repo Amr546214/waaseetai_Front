@@ -59,7 +59,7 @@
         <div class="wal-main-lbl">الرصيد المتاح</div>
         <div>
           <span class="wal-main-val">{{ wallet.summary.availableBalance | number:'1.0-2' }}</span>
-          <span class="wal-main-cur"> ريال</span>
+          <span class="wal-main-cur"> $</span>
         </div>
         <div class="wal-main-act">
           <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-pri">
@@ -114,14 +114,14 @@
           <a [routerLink]="['/provider-overview/projects/active/progress', escrow.projectId]" class="wal-side" style="display:block;text-decoration:none;transition:border-color .15s">
             <div class="flex justify-between items-center gap-3">
               <b style="font-size:13px;font-weight:700" class="txt-white">{{ escrow.projectTitle }}</b>
-              <span style="font-size:13px;font-weight:800" class="txt-amber">{{ escrow.held | number }} ريال محتجز</span>
+              <span style="font-size:13px;font-weight:800" class="txt-amber">{{ escrow.held | number }} $ محتجز</span>
             </div>
             <div style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:10px">
               <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)" [style.width.%]="escrow.total ? (escrow.released / escrow.total * 100) : 0"></div>
             </div>
             <div class="flex justify-between items-center text-[10px] text-[#6B7699] mt-2">
-              <span>مفرج {{ escrow.released | number }} ريال</span>
-              <span>الإجمالي {{ escrow.total | number }} ريال</span>
+              <span>مفرج {{ escrow.released | number }} $</span>
+              <span>الإجمالي {{ escrow.total | number }} $</span>
             </div>
           </a>
         }
@@ -158,7 +158,7 @@
                 <td>{{ tx.createdAt | date:'yyyy-MM-dd' }}</td>
                 <td>
                   <span [ngClass]="tx.type === 'credit' ? 'tx-amt-in' : 'tx-amt-out'">
-                    {{ tx.type === 'credit' ? '+' : '-' }} {{ tx.amount | number:'1.0-2' }} ريال
+                    {{ tx.type === 'credit' ? '+' : '-' }} {{ tx.amount | number:'1.0-2' }} $
                   </span>
                 </td>
                 <td>
@@ -174,7 +174,7 @@
                   <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-out" style="background:rgba(255,140,105,.12)"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إيداع بالضمان</div><div style="font-size:11px" class="txt-muted">مشروع تصميم هوية</div></div></div>
                 </td>
                 <td>2026-05-01</td>
-                <td><span class="tx-amt-out">1,500- ريال</span></td>
+                <td><span class="tx-amt-out">1,500- $</span></td>
                 <td><span class="tx-st tx-hold">محجوز</span></td>
               </tr>
               <tr>
@@ -182,7 +182,7 @@
                   <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-in" style="background:rgba(15,169,154,.12)"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">كاش باك</div><div style="font-size:11px" class="txt-muted">عميل موثّق 3%</div></div></div>
                 </td>
                 <td>2026-04-28</td>
-                <td><span class="tx-amt-in">45+ ريال</span></td>
+                <td><span class="tx-amt-in">45+ $</span></td>
                 <td><span class="tx-st tx-done">مكتمل</span></td>
               </tr>
               <tr>
@@ -190,7 +190,7 @@
                   <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-out" style="background:rgba(255,140,105,.12)"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إفراج دفعة</div><div style="font-size:11px" class="txt-muted">المرحلة 1 للمشروع</div></div></div>
                 </td>
                 <td>2026-04-20</td>
-                <td><span class="tx-amt-out">1,500- ريال</span></td>
+                <td><span class="tx-amt-out">1,500- $</span></td>
                 <td><span class="tx-st tx-done">مكتمل</span></td>
               </tr>
               <tr>
@@ -198,7 +198,7 @@
                   <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-in" style="background:rgba(15,169,154,.12)"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إيداع بنكي</div><div style="font-size:11px" class="txt-muted">تعبئة رصيد</div></div></div>
                 </td>
                 <td>2026-04-15</td>
-                <td><span class="tx-amt-in">5,000+ ريال</span></td>
+                <td><span class="tx-amt-in">5,000+ $</span></td>
                 <td><span class="tx-st tx-done">مكتمل</span></td>
               </tr>
             }
