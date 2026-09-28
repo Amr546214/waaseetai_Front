@@ -1,57 +1,121 @@
-<section class="join-page" dir="rtl">
-	<div class="join-hero">
-		<div class="hero-badge">
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-			الوسيط التسويقي
-		</div>
-		<h1>اكسب عمولات بدون تنفيذ عمل</h1>
-		<p>أحل عملاء لمقدمي الخدمات واكسب عمولة تلقائية عند كل صفقة ناجحة</p>
-		<a routerLink="/auth/register" class="btn-primary">ابدأ مجاناً</a>
-	</div>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-broker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></symbol>
+<symbol id="ws-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+<symbol id="ws-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+<symbol id="ws-social-x" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></symbol>
+<symbol id="ws-social-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ws-social-linkedin" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></symbol>
+<symbol id="ws-social-whatsapp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
+<symbol id="ws-social-youtube" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></symbol>
+<symbol id="ws-social-tiktok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></symbol>
+<symbol id="ws-social-snapchat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9v1c0 1-1 2-2 2.5.5.3 1 .5 1.5.5-.5 1-1.5 2-2.5 2 1 .5 3 1 5 1 .5.5.5 1.5 2 2h3c1.5-.5 1.5-1.5 2-2 2 0 4-.5 5-1-1 0-2-1-2.5-2 .5 0 1-.2 1.5-.5C17 11 16 10 16 9V9c0-4-3-7-4-7z"/></symbol>
+<symbol id="ws-social-telegram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+</defs></svg>
 
-	<div class="join-section">
-		<h2>ما الذي تحصل عليه؟</h2>
-		<div class="benefits-grid">
-			@for (b of benefits; track b.title) {
-				<div class="benefit-card">
-					<div class="benefit-ico">
-						@if (b.icon === 'link') {
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-						} @else if (b.icon === 'chart') {
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 3v18h18"/><polyline points="7 14 12 9 16 13 21 8"/></svg>
-						} @else if (b.icon === 'wallet') {
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><circle cx="17" cy="15" r="1.5" fill="currentColor" stroke="none"/></svg>
-						} @else if (b.icon === 'levels') {
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="14" width="6" height="7" rx="1"/><rect x="10" y="9" width="6" height="12" rx="1"/><rect x="17" y="4" width="4" height="17" rx="1"/></svg>
-						}
-					</div>
-					<h3>{{ b.title }}</h3>
-					<p>{{ b.desc }}</p>
-				</div>
-			}
-		</div>
-	</div>
+<div class="container">
+  <div class="join-hero">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.25);border-radius:999px;font-size:10px;font-weight:800;color:var(--kahr);letter-spacing:.06em;margin-bottom:14px">
+      <span style="width:28px;height:28px;border-radius:8px;background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);display:inline-flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-broker"></use></svg></span>
+      الوسيط التسويقي
+    </div>
+    <h1>اكسب عمولات بدون تنفيذ عمل</h1>
+    <p>روّج للخدمات عبر قنواتك واكسب عمولة على كل عملية بيع ناجحة — لا تحتاج خبرة في تقديم الخدمات</p>
+  </div>
 
-	<div class="join-section">
-		<h2>الأسئلة الشائعة</h2>
-		<div class="faq-list">
-			@for (faq of faqs; track faq.q; let i = $index) {
-				<div class="faq-item">
-					<button type="button" class="faq-q" (click)="toggleFaq(i)" [class.open]="openFaq === i">
-						{{ faq.q }}
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-					</button>
-					<div class="faq-a" [class.expanded]="openFaq === i">
-						<p>{{ faq.a }}</p>
-					</div>
-				</div>
-			}
-		</div>
-	</div>
+  <!-- COMMISSION BANNER -->
+  <div class="comm-banner">
+    <div>
+      <div style="font-size:11px;font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:4px">عمولتك</div>
+      <div class="comm-big">3–18٪</div>
+      <div style="font-size:11px;color:var(--txt-3);margin-top:4px">من قيمة كل بيع</div>
+    </div>
+    <div style="flex:1">
+      <div class="comm-desc"><strong>لا سقف للأرباح</strong> — كلما ارتفع مستواك ارتفعت نسبتك. الوسطاء في المستوى الأعلى يكسبون حتى 18٪ من كل صفقة. ليس لديك قيود على الفئات أو عدد الخدمات التي تروّج لها.</div>
+    </div>
+    <div style="background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:12px;padding:16px;text-align:center;min-width:130px">
+      <div style="font-size:11px;color:var(--txt-3);margin-bottom:2px">مثال</div>
+      <div style="font-size:18px;font-weight:900;color:var(--teal)">+500 ر</div>
+      <div style="font-size:10px;color:var(--txt-3)">عمولة 10٪ على خدمة 5000 ر</div>
+    </div>
+  </div>
 
-	<div class="join-cta">
-		<h2>جاهز للبدء؟</h2>
-		<p>أنشئ حسابك مجاناً وابدأ بكسب العمولات</p>
-		<a routerLink="/auth/register" class="btn-primary">سجّل الآن</a>
-	</div>
-</section>
+  <!-- HOW IT WORKS -->
+  <div style="margin:36px 0">
+    <div style="font-size:16px;font-weight:900;color:var(--txt);margin-bottom:16px">كيف تعمل؟</div>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num-bg">01</div>
+        <div class="how-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-broker"></use></svg></div>
+        <div class="how-title">سجّل وابنِ ملفك</div>
+        <div class="how-desc">أنشئ حسابك كوسيط واربط قنوات تواصلك لتُولَّد روابط التتبع</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num-bg">02</div>
+        <div class="how-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-link"></use></svg></div>
+        <div class="how-title">شارك روابطك</div>
+        <div class="how-desc">لكل خدمة رابط تتبع خاص بك — شاركه في أي قناة</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num-bg">03</div>
+        <div class="how-ico" style="background:rgba(15,169,154,.08);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="color:var(--green)"><use href="#ws-dollar"></use></svg></div>
+        <div class="how-title">اجمع عمولتك</div>
+        <div class="how-desc">تُحسَب عمولتك تلقائياً بعد كل بيع ناجح وتُضاف لمحفظتك</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNELS -->
+  <div class="channels-section">
+    <div class="channels-hd">القنوات المدعومة للتسويق</div>
+    <div class="channels-grid">
+      <div class="ch-pill"><svg aria-hidden="true" style="color:var(--txt-3)"><use href="#ws-social-whatsapp"></use></svg> واتساب</div>
+      <div class="ch-pill"><svg aria-hidden="true" style="color:var(--txt-3)"><use href="#ws-social-instagram"></use></svg> إنستغرام</div>
+      <div class="ch-pill"><svg aria-hidden="true" style="color:var(--txt-3)"><use href="#ws-social-tiktok"></use></svg> تيك توك</div>
+      <div class="ch-pill"><svg aria-hidden="true" style="color:var(--txt-3)"><use href="#ws-social-youtube"></use></svg> يوتيوب</div>
+      <div class="ch-pill"><svg aria-hidden="true" style="color:var(--txt-3)"><use href="#ws-social-telegram"></use></svg> تيليغرام</div>
+      <div class="ch-pill"><svg aria-hidden="true" style="color:var(--txt-3)"><use href="#ws-social-snapchat"></use></svg> سناب شات</div>
+      <div class="ch-pill"><svg aria-hidden="true" style="color:var(--txt-3)"><use href="#ws-social-x"></use></svg> تويتر</div>
+      <div class="ch-pill"><svg aria-hidden="true" style="color:var(--txt-3)"><use href="#ws-social-linkedin"></use></svg> لينكدإن</div>
+    </div>
+  </div>
+
+  <!-- TIERS -->
+  <div style="font-size:16px;font-weight:900;color:var(--txt);margin-bottom:16px;text-align:center">مستويات الوسيط</div>
+  <div class="tiers-grid">
+    @for (t of tiers; track t.name) {
+      <div class="tier-card" [class.featured]="t.featured">
+        @if (t.featured) { <div class="tier-badge">أعلى عمولة</div> }
+        <div class="tier-name">{{ t.name }}</div>
+        <div class="tier-comm" [style.color]="t.featured ? 'var(--teal)' : null">{{ t.comm }}</div>
+        <div class="tier-req">{{ t.req }}</div>
+        <ul class="tier-perks">
+          @for (perk of t.perks; track perk) {
+            <li><svg aria-hidden="true"><use href="#ws-check"></use></svg> {{ perk }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+
+  <!-- FAQ -->
+  <div style="font-size:16px;font-weight:900;color:var(--txt);margin:36px 0 14px;text-align:center">أسئلة شائعة</div>
+  <div class="faq-list">
+    @for (f of faqs; track f.q; let i = $index) {
+      <div class="faq-item" [class.open]="isOpen(i)">
+        <div class="faq-q" role="button" tabindex="0" [attr.aria-expanded]="isOpen(i)" (click)="toggleFaq(i)" (keydown.enter)="toggleFaq(i)">{{ f.q }} <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></div>
+        <div class="faq-a">{{ f.a }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="join-cta">
+    <h2>ابدأ وكسب عمولتك اليوم</h2>
+    <p>تسجيل مجاني — لا تحتاج خبرة تقنية ولا رأس مال</p>
+    <div class="cta-btns">
+      <a routerLink="/auth/register" class="btn-primary">تسجيل كوسيط — مجاناً</a>
+      <a routerLink="/support/help-center" class="btn-ghost">اعرف أكثر</a>
+    </div>
+  </div>
+</div>

@@ -1,53 +1,146 @@
-<section class="join-page" dir="rtl">
-	<div class="join-hero">
-		<div class="hero-badge">
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg>
-			مقدم الخدمة
-		</div>
-		<h1>حوّل مهارتك إلى دخل ثابت</h1>
-		<p>انضم لمقدمي الخدمات في وسيط AI واعمل بعقود موثقة بضمان مالي</p>
-		<a routerLink="/auth/register" class="btn-primary">ابدأ مجاناً</a>
-	</div>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-provider" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></symbol>
+<symbol id="ws-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+</defs></svg>
 
-	<div class="join-section">
-		<h2>كيف تبدأ؟</h2>
-		<div class="steps-grid">
-			@for (step of steps; track step.num) {
-				<div class="step-card">
-					<div class="step-num">{{ step.num }}</div>
-					<h3>{{ step.title }}</h3>
-					<p>{{ step.desc }}</p>
-				</div>
-			}
-		</div>
-	</div>
+<div class="container">
+  <!-- HERO -->
+  <div class="join-hero">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.25);border-radius:999px;font-size:10px;font-weight:800;color:var(--blue-txt);letter-spacing:.06em;margin-bottom:14px">
+      <span style="width:28px;height:28px;border-radius:8px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:inline-flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--blue-txt)"><use href="#ws-provider"></use></svg></span>
+      مقدم الخدمة
+    </div>
+    <h1>حوّل مهارتك إلى دخل ثابت</h1>
+    <p>انضم لآلاف المحترفين الذين يقدمون خدماتهم عبر وسيط AI — ذكاء اصطناعي يسوّق لك، وحساب ضمان يحمي أرباحك</p>
+    <div class="hero-badges">
+      <div class="h-badge" style="background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.2);color:var(--teal)">
+        <svg aria-hidden="true" style="width:11px;height:11px"><use href="#ws-check"></use></svg> تسجيل مجاني
+      </div>
+      <div class="h-badge" style="background:rgba(43,127,255,.07);border:1px solid rgba(43,127,255,.2);color:var(--blue-txt)">
+        <svg aria-hidden="true" style="width:11px;height:11px"><use href="#ws-shield"></use></svg> أرباح مضمونة
+      </div>
+      <div class="h-badge" style="background:rgba(123,47,190,.07);border:1px solid rgba(123,47,190,.22);color:var(--ai-txt)">
+        <svg aria-hidden="true" style="width:11px;height:11px"><use href="#ws-star"></use></svg> AI يُسوّق لك
+      </div>
+    </div>
+  </div>
 
-	<div class="join-section">
-		<h2>ما الذي تحصل عليه؟</h2>
-		<div class="benefits-grid">
-			@for (b of benefits; track b.title) {
-				<div class="benefit-card">
-					<div class="benefit-ico">
-						@if (b.icon === 'shield') {
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-						} @else if (b.icon === 'ai') {
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg>
-						} @else if (b.icon === 'wallet') {
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><circle cx="17" cy="15" r="1.5" fill="currentColor" stroke="none"/></svg>
-						} @else if (b.icon === 'star') {
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-						}
-					</div>
-					<h3>{{ b.title }}</h3>
-					<p>{{ b.desc }}</p>
-				</div>
-			}
-		</div>
-	</div>
+  <!-- STATS -->
+  <!-- design: "+12K مقدم خدمة نشط" و"94٪ نسبة رضا العملاء" أرقام تجميعية لا مصدر بيانات حقيقي لها في الباك إند — استُبعدتا، وأُبقي فقط على حقيقتين مضمونتين وفق سياسة المنصة (0 رسوم، إيداع خلال 24 ساعة) -->
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num">24h</div><div class="stat-lbl">إيداع الأرباح</div></div>
+    <div class="stat-box"><div class="stat-num">0 ر</div><div class="stat-lbl">رسوم تسجيل</div></div>
+  </div>
 
-	<div class="join-cta">
-		<h2>جاهز للبدء؟</h2>
-		<p>أنشئ حسابك مجاناً وابدأ رحلتك مع وسيط AI</p>
-		<a routerLink="/auth/register" class="btn-primary">سجّل الآن</a>
-	</div>
-</section>
+  <!-- STEPS -->
+  <div class="steps-section">
+    <div class="sec-hd">
+      <h2>كيف تبدأ؟</h2>
+      <p>أربع خطوات فقط من التسجيل حتى أول طلب</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-icon-wrap" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-provider"></use></svg></div>
+        <div class="step-n">الخطوة 01</div>
+        <div class="step-title">أنشئ حسابك</div>
+        <div class="step-desc">سجّل كمقدم خدمة وأكمل بيانات ملفك المهني</div>
+      </div>
+      <div class="step-card">
+        <div class="step-icon-wrap" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-file"></use></svg></div>
+        <div class="step-n">الخطوة 02</div>
+        <div class="step-title">أنشئ خدمتك</div>
+        <div class="step-desc">حدد الباقات والأسعار ومدة التسليم من لوحتك</div>
+      </div>
+      <div class="step-card">
+        <div class="step-icon-wrap" style="background:rgba(123,47,190,.08);border:1px solid rgba(123,47,190,.2)"><svg aria-hidden="true" style="color:var(--ai-txt)"><use href="#ws-star"></use></svg></div>
+        <div class="step-n">الخطوة 03</div>
+        <div class="step-title">AI يُسوّق لك</div>
+        <div class="step-desc">الذكاء الاصطناعي يرفع ترتيبك ويوصي بخدمتك للعملاء</div>
+      </div>
+      <div class="step-card">
+        <div class="step-icon-wrap" style="background:rgba(15,169,154,.08);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="color:var(--green)"><use href="#ws-dollar"></use></svg></div>
+        <div class="step-n">الخطوة 04</div>
+        <div class="step-title">استلم أرباحك</div>
+        <div class="step-desc">تُودَع أرباحك تلقائياً بعد اعتماد التسليم خلال 24 ساعة</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERKS -->
+  <div class="sec-hd">
+    <h2>ما الذي تحصل عليه؟</h2>
+    <p>مزايا حصرية لمقدمي الخدمة في وسيط</p>
+  </div>
+  <div class="perks-grid">
+    <div class="perk-card">
+      <div class="perk-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-shield"></use></svg></div>
+      <div class="perk-title">حساب ضمان آمن</div>
+      <div class="perk-desc">أرباحك محجوزة في حساب وسيط قبل بدء العمل — لن تعمل بدون ضمان</div>
+    </div>
+    <div class="perk-card">
+      <div class="perk-ico" style="background:rgba(123,47,190,.08);border:1px solid rgba(123,47,190,.2)"><svg aria-hidden="true" style="color:var(--ai-txt)"><use href="#ws-star"></use></svg></div>
+      <!-- design: "تحليل AI لأدائك — تقرير أسبوعي…" has no backend (no weekly AI report); the app's accurate AI benefit is shown instead -->
+      <div class="perk-title">ذكاء اصطناعي</div>
+      <div class="perk-desc">مساعد AI يساعدك في التسعير والتسليم</div>
+    </div>
+    <div class="perk-card">
+      <div class="perk-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-clock"></use></svg></div>
+      <div class="perk-title">إيداع سريع</div>
+      <div class="perk-desc">أرباحك تُودَع خلال 24 ساعة من اعتماد التسليم — بدون تأخير</div>
+    </div>
+    <div class="perk-card">
+      <div class="perk-ico" style="background:rgba(15,169,154,.08);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="color:var(--green)"><use href="#ws-dollar"></use></svg></div>
+      <div class="perk-title">سعرك أنت تحدده</div>
+      <div class="perk-desc">ضع أسعارك بحرية مع خيارات باقات متعددة — أساسية ومتقدمة وبريميوم</div>
+    </div>
+    <div class="perk-card">
+      <div class="perk-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-check"></use></svg></div>
+      <div class="perk-title">شارة الاعتماد</div>
+      <div class="perk-desc">أكمل التحقق واكسب شارة مقدم معتمد — تزيد ثقة العملاء بك</div>
+    </div>
+    <div class="perk-card">
+      <div class="perk-ico" style="background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.18)"><svg aria-hidden="true" style="color:var(--kahr)"><use href="#ws-star"></use></svg></div>
+      <div class="perk-title">نظام المستويات</div>
+      <div class="perk-desc">ارتقِ من ناشئ إلى خبير وتمتع بمزايا حصرية وأولوية في الظهور</div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="sec-hd" style="margin-top:48px">
+    <h2>أسئلة شائعة</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item" [class.open]="isOpen(0)">
+      <div class="faq-q" role="button" tabindex="0" [attr.aria-expanded]="isOpen(0)" (click)="toggleFaq(0)" (keydown.enter)="toggleFaq(0)">هل التسجيل كمقدم خدمة مجاني؟ <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></div>
+      <div class="faq-a">نعم — التسجيل والملف الشخصي مجاني تماماً. وسيط يأخذ عمولة صغيرة فقط عند إتمام عملية بيع ناجحة.</div>
+    </div>
+    <div class="faq-item" [class.open]="isOpen(1)">
+      <div class="faq-q" role="button" tabindex="0" [attr.aria-expanded]="isOpen(1)" (click)="toggleFaq(1)" (keydown.enter)="toggleFaq(1)">كم من الوقت يستغرق اعتماد خدمتي؟ <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></div>
+      <div class="faq-a">يراجع فريقنا الخدمات الجديدة خلال 24-48 ساعة. للتسريع: أكمل ملفك وأضف نماذج أعمال واضحة.</div>
+    </div>
+    <div class="faq-item" [class.open]="isOpen(2)">
+      <div class="faq-q" role="button" tabindex="0" [attr.aria-expanded]="isOpen(2)" (click)="toggleFaq(2)" (keydown.enter)="toggleFaq(2)">ما الفرق بين مقدم الخدمة والوسيط التسويقي؟ <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></div>
+      <div class="faq-a">مقدم الخدمة ينفذ الأعمال مباشرة. الوسيط التسويقي يروّج للخدمات ويكسب عمولة على كل بيع يحققه — دون تنفيذ العمل. يمكنك أن تكون الاثنين.</div>
+    </div>
+    <div class="faq-item" [class.open]="isOpen(3)">
+      <div class="faq-q" role="button" tabindex="0" [attr.aria-expanded]="isOpen(3)" (click)="toggleFaq(3)" (keydown.enter)="toggleFaq(3)">هل يمكنني تقديم خدمات في أكثر من فئة؟ <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></div>
+      <div class="faq-a">نعم — يمكنك إنشاء خدمات في فئات مختلفة ما دام لديك الخبرة والقدرة على التسليم بجودة عالية.</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="join-cta">
+    <h2>جاهز تبدأ؟</h2>
+    <p>سجّل مجاناً وانشر خدمتك الأولى خلال دقائق</p>
+    <div class="cta-btns">
+      <a routerLink="/auth/register" class="btn-primary">تسجيل مجاني — ابدأ الآن</a>
+      <a routerLink="/support/help-center" class="btn-ghost">مركز المساعدة</a>
+    </div>
+  </div>
+</div>

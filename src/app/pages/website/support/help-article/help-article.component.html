@@ -1,53 +1,95 @@
-<section class="help-article" dir="rtl">
-	<div class="help-layout">
-		<aside class="article-toc">
-			<div class="article-toc-sticky">
-				<div class="article-toc-ttl">المحتويات</div>
-				<nav>
-					@for (sec of document.sections; track sec.id) {
-						<button type="button" class="toc-link" [class.active]="activeSection === sec.id" (click)="scrollTo(sec.id)">
-							{{ sec.title }}
-						</button>
-					}
-				</nav>
-				<div class="article-toc-foot">
-					<a routerLink="/support/help-center" class="toc-back-link">← مركز المساعدة</a>
-				</div>
-			</div>
-		</aside>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9"/></symbol>
+<symbol id="ws-broker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="19" y1="11" x2="23" y2="11"/></symbol>
+<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+</defs></svg>
 
-		<div class="article-content">
-			<div class="article-header">
-				<div class="article-badge">مقال مساعدة</div>
-				<h1 class="art-title">{{ document.title }}</h1>
-				<p class="art-subtitle">{{ document.subtitle }}</p>
-			</div>
+<div class="progress-bar" aria-hidden="true"><div class="progress-fill" [style.width.%]="progress"></div></div>
 
-			<div class="article-body">
-				@for (sec of document.sections; track sec.id) {
-					<section [id]="sec.id" class="art-section">
-						<h2 class="art-h2">{{ sec.title }}</h2>
-						@for (block of sec.content; track $index) {
-							@if (typeof block === 'string') {
-								<p class="art-p">{{ block }}</p>
-							} @else {
-								<ul class="art-list">
-									@for (li of block; track $index) {
-										<li>{{ li }}</li>
-									}
-								</ul>
-							}
-						}
-					</section>
-				}
-			</div>
+<div class="container">
+  <nav class="breadcrumb" aria-label="مسار التنقل">
+    <a routerLink="/">الرئيسية</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <a routerLink="/support/help-center">مركز المساعدة</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <a routerLink="/support/help-center">{{ document.category }}</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <span>{{ document.crumb }}</span>
+  </nav>
 
-			<div class="article-foot">
-				<a routerLink="/support/help-center" class="art-back">
-					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
-					العودة لمركز المساعدة
-				</a>
-			</div>
-		</div>
-	</div>
-</section>
+  <div class="help-layout">
+    <!-- ARTICLE -->
+    <article id="art-body">
+      <header class="article-header">
+        <div class="art-badge"><svg aria-hidden="true"><use [attr.href]="'#ws-' + document.icon"></use></svg> {{ document.category }}</div>
+        <h1 class="art-title">{{ document.title }}</h1>
+        <div class="art-meta">
+          <div class="art-meta-item"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ readingTime }}</div>
+        </div>
+      </header>
+
+      <div class="art-body">
+        @for (sec of document.sections; track sec.id) {
+          <h2 [id]="sec.id">{{ sec.title }}</h2>
+          @for (block of sec.content; track $index) {
+            @if (isList(block)) {
+              <ul>
+                @for (li of block; track $index) {
+                  <li>{{ li }}</li>
+                }
+              </ul>
+            } @else {
+              <p>{{ block }}</p>
+            }
+          }
+        }
+      </div>
+
+      <!-- FEEDBACK -->
+      <div class="feedback-bar">
+        <div class="feedback-label">هل أفادك هذا المقال؟</div>
+        <div class="feedback-btns">
+          <button class="fb-btn" type="button" (click)="helpful = true" [style.color]="helpful ? 'var(--teal)' : null" [style.border-color]="helpful ? 'rgba(43,212,199,.3)' : null">{{ helpful ? 'شكراً!' : 'نعم، مفيد' }}</button>
+          <button class="fb-btn" type="button" routerLink="/contact">لا، أحتاج مساعدة</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside class="help-side">
+      <!-- TOC -->
+      <div class="side-card">
+        <div class="side-hd"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-file"></use></svg> في هذا المقال</div>
+        <div class="side-links">
+          @for (sec of document.sections; track sec.id) {
+            <a href="javascript:void(0)" (click)="$event.preventDefault(); scrollTo(sec.id)" class="side-link" [class.active]="activeSection === sec.id">{{ sec.title }} <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></a>
+          }
+        </div>
+      </div>
+
+      <!-- RELATED -->
+      <div class="side-card">
+        <div class="side-hd"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-file"></use></svg> مقالات ذات صلة</div>
+        <div class="related-list">
+          @for (rel of related; track rel.route) {
+            <a [routerLink]="rel.route" class="related-item">
+              <div class="related-dot" [style.background]="rel.dot"></div>
+              <div class="related-title">{{ rel.title }}</div>
+            </a>
+          }
+        </div>
+      </div>
+
+      <!-- HELP CTA -->
+      <div style="background:rgba(43,212,199,.05);border:1px solid rgba(43,212,199,.18);border-radius:14px;padding:16px;text-align:center">
+        <div style="font-size:13px;font-weight:900;color:var(--txt);margin-bottom:6px">لم تجد إجابتك؟</div>
+        <div style="font-size:11px;color:var(--txt-3);margin-bottom:12px;line-height:1.5">فريقنا يرد خلال ساعات العمل</div>
+        <a routerLink="/contact" style="display:block;padding:9px;border-radius:999px;background:var(--grad);font-size:12px;font-weight:900;color:#070D24;text-decoration:none">راسلنا الآن</a>
+      </div>
+    </aside>
+  </div>
+</div>

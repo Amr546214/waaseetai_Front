@@ -1,20 +1,34 @@
-import { Component, Input, HostListener, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Input, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 
+type ArticleKey = 'escrow' | 'disputes' | 'ai' | 'commissions';
 interface ArticleSection { id: string; title: string; content: (string | string[])[]; }
-interface ArticleDoc { title: string; subtitle: string; sections: ArticleSection[]; }
+interface ArticleDoc {
+	title: string;
+	/** Badge + breadcrumb category (design P-SP-002 shows "الدفع والمدفوعات" for the escrow article). */
+	category: string;
+	/** Last breadcrumb segment. */
+	crumb: string;
+	icon: 'shield' | 'alert' | 'trust-ai' | 'broker';
+	sections: ArticleSection[];
+}
+interface RelatedLink { title: string; route: string; dot: string; }
 
 @Component({
 	selector: 'app-help-article',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [RouterModule],
 	templateUrl: './help-article.component.html',
 	styleUrls: ['./help-article.component.css']
 })
-export class HelpArticleComponent {
-	@Input() article!: 'escrow' | 'disputes' | 'ai' | 'commissions';
+export class HelpArticleComponent implements OnInit {
+	@Input() article!: ArticleKey;
 	activeSection = 's1';
+	/** Reading-progress width in %, like the design's progress bar. */
+	progress = 0;
+	/** Design: "نعم، مفيد" turns into "شكراً!" once clicked. */
+	helpful = false;
 
 	constructor(@Inject(PLATFORM_ID) private platformId: Object, private route: ActivatedRoute) {}
 
@@ -35,18 +49,48 @@ export class HelpArticleComponent {
 		}
 	}
 
+	/** Reading time computed from the article's own text (≈200 words/minute). */
+	get readingTime(): string {
+		const text = this.document.sections.map(s => s.title + ' ' + s.content.flat().join(' ')).join(' ');
+		const mins = Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 200));
+		if (mins === 1) return 'دقيقة قراءة';
+		if (mins === 2) return 'دقيقتان قراءة';
+		return mins + ' دقائق قراءة';
+	}
+
+	/** The other help articles (real routes) + guest request tracking, as in the design's related list. */
+	get related(): RelatedLink[] {
+		const all: { key: ArticleKey; link: RelatedLink }[] = [
+			{ key: 'escrow', link: { title: ESCROW_ARTICLE.title, route: '/support/help-article/escrow', dot: 'var(--teal)' } },
+			{ key: 'disputes', link: { title: DISPUTES_ARTICLE.title, route: '/support/help-article/disputes', dot: 'var(--kahr)' } },
+			{ key: 'ai', link: { title: AI_ARTICLE.title, route: '/support/help-article/ai', dot: 'var(--blue-txt)' } },
+			{ key: 'commissions', link: { title: COMMISSIONS_ARTICLE.title, route: '/support/help-article/commissions', dot: 'var(--blue-txt)' } }
+		];
+		const current = this.article || 'escrow';
+		return [
+			...all.filter(a => a.key !== current).map(a => a.link),
+			{ title: 'تتبع طلب بدون تسجيل', route: '/support/track-request', dot: 'var(--teal)' }
+		];
+	}
+
+	isList(block: string | string[]): block is string[] {
+		return Array.isArray(block);
+	}
+
 	@HostListener('window:scroll')
 	onScroll() {
 		if (isPlatformBrowser(this.platformId)) {
+			const body = document.getElementById('art-body');
+			if (body) {
+				const pct = Math.min(100, (-body.getBoundingClientRect().top / body.offsetHeight) * 100);
+				this.progress = Math.max(0, pct);
+			}
 			const scrollPosition = window.scrollY + 150;
 			for (const sec of this.document.sections) {
 				const el = document.getElementById(sec.id);
 				if (el) {
-					const top = el.offsetTop;
-					const height = el.offsetHeight;
-					if (scrollPosition >= top && scrollPosition < top + height) {
-						this.activeSection = sec.id;
-					}
+					const top = el.getBoundingClientRect().top + window.scrollY;
+					if (scrollPosition >= top) this.activeSection = sec.id;
 				}
 			}
 		}
@@ -56,7 +100,7 @@ export class HelpArticleComponent {
 		if (isPlatformBrowser(this.platformId)) {
 			const element = document.getElementById(sectionId);
 			if (element) {
-				const y = element.getBoundingClientRect().top + window.scrollY - 100;
+				const y = element.getBoundingClientRect().top + window.pageYOffset - 90;
 				window.scrollTo({ top: y, behavior: 'smooth' });
 				this.activeSection = sectionId;
 			}
@@ -66,8 +110,8 @@ export class HelpArticleComponent {
 
 const ESCROW_ARTICLE: ArticleDoc = {
 	title: 'كيف يعمل حساب الضمان وكيف يحمي مالي؟',
-	subtitle: 'مركز المساعدة — وسيط AI',
-	sections: [
+	category: 'الدفع والمدفوعات', crumb: 'حساب الضمان', icon: 'shield',
+		sections: [
 		{ id: 's1', title: 'كيف يعمل خطوة بخطوة', content: [
 			'عند بدء المشروع، يُودع المبلغ بالكامل في حساب الضمان المالي. لا يصل مقدم الخدمة للمبلغ قبل استيفاء شروط الإفراج.',
 			'الإيداع يُحجز بالكامل حتى إفراج المرحلة المعنية. لا يتم تحويل أي مبلغ قبل تأكيد الإيداع.'
@@ -87,8 +131,8 @@ const ESCROW_ARTICLE: ArticleDoc = {
 
 const DISPUTES_ARTICLE: ArticleDoc = {
 	title: 'كيف أفتح نزاعاً وماذا يحدث بعده؟',
-	subtitle: 'مركز المساعدة — وسيط AI',
-	sections: [
+	category: 'النزاعات', crumb: 'فتح نزاع', icon: 'alert',
+		sections: [
 		{ id: 's1', title: 'متى يحق لي فتح نزاع؟', content: [
 			'يمكنك فتح نزاع إذا: لم يُسلَّم العمل في الموعد المتفق، أو كان التسليم مخالفاً جوهرياً للعقد، أو وجدت مشكلة واضحة في الجودة خلال مهلة المراجعة.'
 		]},
@@ -100,8 +144,8 @@ const DISPUTES_ARTICLE: ArticleDoc = {
 
 const AI_ARTICLE: ArticleDoc = {
 	title: 'كيف يعمل AI في وسيط AI؟',
-	subtitle: 'مركز المساعدة — وسيط AI',
-	sections: [
+	category: 'تقييم AI', crumb: 'دور AI', icon: 'trust-ai',
+		sections: [
 		{ id: 's1', title: 'أدوار AI', content: [
 			'يؤدي AI دورين أساسيين:',
 			['توصية: يساعد في صياغة الطلب، تحليل العرض، تنبيهات السعر والمدة', 'تقييم: جودة التسليم، التخصصات، مؤشرات الأداء']
@@ -117,8 +161,8 @@ const AI_ARTICLE: ArticleDoc = {
 
 const COMMISSIONS_ARTICLE: ArticleDoc = {
 	title: 'كيف تعمل عمولة الوسيط التسويقي؟',
-	subtitle: 'مركز المساعدة — وسيط AI',
-	sections: [
+	category: 'عمولة الوسيط', crumb: 'عمولة الوسيط', icon: 'broker',
+		sections: [
 		{ id: 's1', title: 'متى تستحق العمولة؟', content: [
 			'العمولة لا تُحسب عند التسجيل أو الإيداع. تُحسب فقط عند إفراج مرحلة أو استقرار معاملة مالية معتمدة من عميل أُحيل عبر رابطك.'
 		]},

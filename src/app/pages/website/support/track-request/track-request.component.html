@@ -1,53 +1,72 @@
-<section class="track-page" dir="rtl">
-	<div class="track-hero">
-		<div class="hero-badge">
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></svg>
-			تتبع طلب
-		</div>
-		<h1>تتبع طلبك</h1>
-		<p>أدخل رقم طلبك لمعرفة حالته وتفاصيله</p>
-	</div>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+</defs></svg>
 
-	<div class="track-form-wrap">
-		@if (!searched) {
-			<form [formGroup]="trackForm" (ngSubmit)="onSubmit()" class="track-form" novalidate>
-				<div class="field-grp">
-					<label class="field-lbl">رقم الطلب <span class="req">*</span></label>
-					<input type="text" class="field-in" formControlName="requestId" placeholder="مثال: REQ-2026-001"
-						[class.has-error]="trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid">
-					@if (trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid) {
-						<div class="field-err">يرجى إدخال رقم طلب صحيح</div>
-					}
-				</div>
-				<button type="submit" class="btn-primary">تتبع الطلب</button>
-			</form>
-		} @else {
-			<div class="track-result">
-				<div class="result-header">
-					<h2>نتائج التتبع</h2>
-					<button type="button" class="btn-text" (click)="resetSearch()">تتبع طلب آخر</button>
-				</div>
-				<div class="result-card">
-					<div class="result-row">
-						<span class="result-lbl">رقم الطلب</span>
-						<span class="result-val">{{ requestId }}</span>
-					</div>
-					<div class="result-row">
-						<span class="result-lbl">الحالة</span>
-						<span class="result-val"><span class="status-badge">قيد المعالجة</span></span>
-					</div>
-					<div class="result-row">
-						<span class="result-lbl">تاريخ الإنشاء</span>
-						<span class="result-val">—</span>
-					</div>
-					<div class="result-row">
-						<span class="result-lbl">آخر تحديث</span>
-						<span class="result-val">—</span>
-					</div>
-				</div>
-				<p class="result-note">للاطلاع على التفاصيل الكاملة، سجل دخولك إلى حسابك</p>
-				<a routerLink="/auth/login" class="btn-primary">تسجيل الدخول</a>
-			</div>
-		}
-	</div>
-</section>
+<div class="container">
+  <nav class="breadcrumb" aria-label="مسار التنقل">
+    <a routerLink="/">الرئيسية</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <a routerLink="/support/help-center">مركز المساعدة</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <span>تتبع طلب</span>
+  </nav>
+
+  <div class="track-hero">
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:14px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18);margin-bottom:14px">
+      <svg aria-hidden="true" style="width:22px;height:22px;color:var(--teal)"><use href="#ws-search"></use></svg>
+    </div>
+    <h1>تتبع طلبك</h1>
+    <p>أدخل رقم الطلب لمعرفة حالته الحالية</p>
+    <form class="search-box" [formGroup]="trackForm" (ngSubmit)="onSubmit()" novalidate>
+      <input type="text" class="search-input" formControlName="requestId" placeholder="مثال: ORD-2025-00412" dir="ltr" maxlength="20" aria-label="رقم الطلب">
+      <button type="submit" class="search-btn">تتبع</button>
+    </form>
+    @if (trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid) {
+      <div class="field-err">يرجى إدخال رقم طلب صحيح</div>
+    }
+    <div style="margin-top:10px;font-size:11px;color:var(--txt-3)">رقم الطلب موجود في بريدك الإلكتروني بعد الشراء</div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-area" [class.show]="searched">
+    @if (searched) {
+      <!-- There is no public (guest) order-lookup endpoint, so no status/timeline is shown here —
+           full details are available after signing in. -->
+      <div class="order-card">
+        <div class="order-top">
+          <div>
+            <div class="order-title">رقم الطلب: <span dir="ltr">{{ requestId }}</span></div>
+            <div class="order-sub">للاطلاع على الحالة والتفاصيل الكاملة، سجل دخولك إلى حسابك</div>
+          </div>
+          <a routerLink="/auth/login" class="search-btn" style="border-radius:999px;padding:9px 20px">تسجيل الدخول</a>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--txt-3)">
+        <button type="button" class="link-btn" (click)="resetSearch()">تتبع طلب آخر</button>
+        · مشكلة في الطلب؟ <a routerLink="/support/report-problem" style="color:var(--teal)">تواصل مع الدعم</a>
+      </div>
+    }
+  </div>
+
+  <!-- TIPS -->
+  <div class="tips-grid" style="max-width:560px;margin:32px auto;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="width:28px;height:28px;border-radius:8px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18);display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:12px;height:12px;color:var(--teal)"><use href="#ws-clock"></use></svg></span>
+        <span style="font-size:12px;font-weight:800;color:var(--txt)">أين رقم الطلب؟</span>
+      </div>
+      <p style="font-size:11px;color:var(--txt-3);line-height:1.6">في البريد الإلكتروني المرسل بعد إتمام الدفع</p>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="width:28px;height:28px;border-radius:8px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18);display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:12px;height:12px;color:var(--blue-txt)"><use href="#ws-file"></use></svg></span>
+        <span style="font-size:12px;font-weight:800;color:var(--txt)">مشكلة في الطلب؟</span>
+      </div>
+      <p style="font-size:11px;color:var(--txt-3);line-height:1.6"><a routerLink="/support/report-problem" style="color:var(--teal)">أبلغ عن مشكلة</a> وسنتابع معك</p>
+    </div>
+  </div>
+</div>
