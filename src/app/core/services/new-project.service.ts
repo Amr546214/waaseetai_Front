@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
@@ -32,13 +33,22 @@ export interface AiReviewEvaluation {
 @Injectable({
 	providedIn: 'root'
 })
-export class NewProjectService {
+export class NewProjectService implements OnDestroy {
 	private http = inject(HttpClient);
+	private platformId = inject(PLATFORM_ID);
+	private isBrowser = isPlatformBrowser(this.platformId);
 	private readonly API_URL = `${environment.url_api}/provider/services`;
 	private readonly AI_REVIEW_URL = `${environment.url_api}/ai-review`;
 	private socket: Socket | null = null;
 
-	initSocket(): Socket {
+	// Returns null during SSR: this is a browser-only real-time transport, and
+	// `new-project.ts`'s `ngOnInit()` calls this unconditionally, which also
+	// runs during server rendering — without this guard every SSR render of
+	// that page opened a real outbound socket.io connection from the Node
+	// render process that nothing ever closed.
+	initSocket(): Socket | null {
+		if (!this.isBrowser) return null;
+
 		if (!this.socket) {
 			let token: string | null = null;
 			if (typeof window !== 'undefined') {
@@ -59,28 +69,33 @@ export class NewProjectService {
 
 	streamSuggestText(title: string): void {
 		const s = this.initSocket();
+		if (!s) return;
 		s.emit('stream_ai_suggest_text', { title });
 	}
 
 	streamEnhanceDescription(title: string, description: string): void {
 		const s = this.initSocket();
+		if (!s) return;
 		s.emit('stream_ai_enhance_description', { title, description });
 	}
 
 	onStreamStart(callback: (data: { mode: string }) => void): void {
 		const s = this.initSocket();
+		if (!s) return;
 		s.off('ai_text_stream_start');
 		s.on('ai_text_stream_start', callback);
 	}
 
 	onStreamChunk(callback: (data: { chunk: string; mode: string }) => void): void {
 		const s = this.initSocket();
+		if (!s) return;
 		s.off('ai_text_stream_chunk');
 		s.on('ai_text_stream_chunk', callback);
 	}
 
 	onStreamEnd(callback: (data: { mode: string; message: string }) => void): void {
 		const s = this.initSocket();
+		if (!s) return;
 		s.off('ai_text_stream_end');
 		s.on('ai_text_stream_end', callback);
 	}
@@ -90,6 +105,10 @@ export class NewProjectService {
 			this.socket.disconnect();
 			this.socket = null;
 		}
+	}
+
+	ngOnDestroy(): void {
+		this.disconnectSocket();
 	}
 
 	getPreData(): Observable<ProviderPreData> {

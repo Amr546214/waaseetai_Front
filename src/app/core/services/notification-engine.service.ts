@@ -1,4 +1,5 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
@@ -56,9 +57,11 @@ interface IconStyle {
 @Injectable({
 	providedIn: 'root'
 })
-export class NotificationEngineService {
+export class NotificationEngineService implements OnDestroy {
 	private http = inject(HttpClient);
 	private soundService = inject(NotificationSoundService);
+	private platformId = inject(PLATFORM_ID);
+	private isBrowser = isPlatformBrowser(this.platformId);
 	private socket: Socket | null = null;
 
 	// Backend enum (NotificationCategory: ALL/OFFERS/PROJECTS/FINANCIAL/AI) ->
@@ -135,10 +138,20 @@ export class NotificationEngineService {
 	private toastTimer: any = null;
 
 	constructor() {
-		this.initSocket('ba85ed18-656e-4b66-a99d-463bfdbb1963'); // Default test room joining
+		// Socket.IO is browser-only real-time transport: creating it during SSR
+		// would open a real outbound connection from the Node render process on
+		// every server-rendered request (this service is `providedIn: 'root'`,
+		// so SSR's per-request injector instantiates it — and reconstructs it —
+		// on every request), leaking a connection per render with no owner left
+		// to close it.
+		if (this.isBrowser) {
+			this.initSocket('ba85ed18-656e-4b66-a99d-463bfdbb1963'); // Default test room joining
+		}
 	}
 
 	initSocket(userId?: string): void {
+		if (!this.isBrowser) return;
+
 		if (!this.socket) {
 			this.socket = io(environment.socketUrl, {
 				withCredentials: true,
@@ -235,6 +248,10 @@ export class NotificationEngineService {
 			this.socket.disconnect();
 			this.socket = null;
 		}
+	}
+
+	ngOnDestroy(): void {
+		this.disconnect();
 	}
 
 	/**
