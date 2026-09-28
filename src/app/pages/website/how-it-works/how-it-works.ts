@@ -15,7 +15,7 @@ interface StepItem {
 
 interface DetailCard {
   icon: string;
-  color: 'teal' | 'blue' | 'ai';
+  color: 'teal' | 'blue' | 'kahr' | 'ai';
   title: string;
   sub: string;
 }
@@ -25,6 +25,10 @@ interface RoleContent {
   color: 'teal' | 'blue' | 'kahr';
   icon: string;
   label: string;
+  /** Sub-caption under the role tab label (design `.role-btn-sub`). */
+  sub: string;
+  /** Eyebrow label above the section title (design `.section-label`). */
+  sectionLabel: string;
   sectionTitle: string;
   sectionSub: string;
   diffTitle?: string;
@@ -55,6 +59,8 @@ export class HowItWorks {
       color: 'teal',
       icon: 'client',
       label: 'طالب خدمة — فرد',
+      sub: 'تصفح واشترِ خدمات',
+      sectionLabel: 'طالب الخدمة — فرد',
       sectionTitle: 'من الفكرة إلى التسليم في 4 خطوات',
       sectionSub: 'سجّل مجاناً، تصفح آلاف الخدمات في الموقع، وادفع بأمان — مشروعك يبدأ في لوحتك بعد تأكيد الدفع',
       steps: [
@@ -74,6 +80,8 @@ export class HowItWorks {
       color: 'teal',
       icon: 'building',
       label: 'طالب خدمة — شركة',
+      sub: 'طلبات مؤسسية ضخمة',
+      sectionLabel: 'طالب الخدمة — شركة',
       sectionTitle: 'إدارة مشتريات الخدمات على مستوى المؤسسة',
       sectionSub: 'حساب شركة يتيح لك إدارة فرق متعددة، ميزانيات منفصلة، وطلبات ضخمة بعقود مؤسسية',
       diffTitle: 'ميزات إضافية مقارنةً بحساب الفرد',
@@ -100,6 +108,8 @@ export class HowItWorks {
       color: 'blue',
       icon: 'provider',
       label: 'مقدم خدمة — فرد',
+      sub: 'انشر خدماتك واكسب',
+      sectionLabel: 'مقدم الخدمة — فرد',
       sectionTitle: 'أنشئ خدماتك في لوحتك واكسب بثقة',
       sectionSub: 'انشر خدماتك في لوحة التحكم، تُعتمد ثم تظهر في سوق وسيط — وأرباحك مضمونة قبل البدء',
       steps: [
@@ -119,6 +129,8 @@ export class HowItWorks {
       color: 'blue',
       icon: 'building',
       label: 'مقدم خدمة — شركة',
+      sub: 'وكالات وفرق متخصصة',
+      sectionLabel: 'مقدم الخدمة — شركة',
       sectionTitle: 'وكالتك أو فريقك في سوق وسيط',
       sectionSub: 'حساب الشركة يتيح لوكالتك إدارة فريق من المقدمين، خدمات متعددة، وعقود مؤسسية بحجم أكبر',
       diffTitle: 'ميزات إضافية لحساب شركة المقدم',
@@ -146,6 +158,8 @@ export class HowItWorks {
       color: 'kahr',
       icon: 'broker',
       label: 'الوسيط التسويقي',
+      sub: 'اربط الأطراف واكسب عمولات',
+      sectionLabel: 'الوسيط التسويقي',
       sectionTitle: 'اكسب عمولات بلا حدود',
       sectionSub: 'كن جسراً بين طالبي الخدمة ومقدميها — استخدم قنواتك التسويقية واكسب على كل صفقة ناجحة',
       steps: [
@@ -155,7 +169,7 @@ export class HowItWorks {
         { title: 'احصل على عمولتك', sub: 'بعد كل مشروع ناجح تُحسب عمولتك تلقائياً وتُضاف لمحفظتك فوراً' }
       ],
       details: [
-        { icon: 'shield', color: 'ai', title: 'عمولات شفافة ومضمونة', sub: 'تعرف على نسبتك قبل إغلاق أي صفقة — لا مفاجآت، وتُدفع تلقائياً بعد كل إنجاز' },
+        { icon: 'shield', color: 'kahr', title: 'عمولات شفافة ومضمونة', sub: 'تعرف على نسبتك قبل إغلاق أي صفقة — لا مفاجآت، وتُدفع تلقائياً بعد كل إنجاز' },
         { icon: 'ai', color: 'ai', title: 'تقارير أداء القنوات', sub: 'تابع زوار وعملاء ونسبة تحويل كل قناة، مع نصائح تحسين مبنية على بياناتك الفعلية' },
         { icon: 'broker', color: 'teal', title: 'شبكة علاقات مهنية', sub: 'ابنِ شبكتك من المقدمين الموثوقين والعملاء الراضين — كل صفقة تقوّي علاقاتك' }
       ]

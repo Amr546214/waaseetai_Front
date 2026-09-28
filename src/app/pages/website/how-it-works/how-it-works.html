@@ -47,7 +47,10 @@
             <div class="role-btn-ico">
               <svg aria-hidden="true"><use [attr.href]="'#hiw-' + role.icon"></use></svg>
             </div>
-            <div>{{ role.label }}</div>
+            <div>
+              {{ role.label }}
+              <span class="role-btn-sub">{{ role.sub }}</span>
+            </div>
           </button>
         }
       </div>
@@ -55,7 +58,10 @@
   </div>
 
   <main>
-    <div class="role-content">
+    <div class="role-content active"
+         [class.c-teal]="active.color === 'teal'"
+         [class.c-blue]="active.color === 'blue'"
+         [class.c-kahr]="active.color === 'kahr'">
       <div class="container">
         <div class="steps-header">
           <div class="section-label"
@@ -63,14 +69,14 @@
                [class.label-blue]="active.color === 'blue'"
                [class.label-kahr]="active.color === 'kahr'">
             <svg aria-hidden="true"><use [attr.href]="'#hiw-' + active.icon"></use></svg>
-            {{ active.label }}
+            {{ active.sectionLabel }}
           </div>
           <h2 class="steps-title">{{ active.sectionTitle }}</h2>
           <p class="steps-sub">{{ active.sectionSub }}</p>
         </div>
 
         @if (active.diffItems) {
-          <div class="diff-box" [class.diff-blue]="active.color !== 'kahr'">
+          <div class="diff-box">
             <div class="diff-box-title"><svg aria-hidden="true"><use href="#hiw-info"></use></svg> {{ active.diffTitle }}</div>
             @for (item of active.diffItems; track item) {
               <div class="diff-row"><div class="diff-ico"><svg aria-hidden="true"><use href="#hiw-check"></use></svg></div>{{ item }}</div>
@@ -96,7 +102,7 @@
         <div class="detail-grid">
           @for (card of active.details; track card.title) {
             <div class="detail-card">
-              <div class="d-ico" [class.ico-teal]="card.color === 'teal'" [class.ico-blue]="card.color === 'blue'" [class.ico-ai]="card.color === 'ai'">
+              <div class="d-ico" [class.ico-teal]="card.color === 'teal'" [class.ico-blue]="card.color === 'blue'" [class.ico-kahr]="card.color === 'kahr'" [class.ico-ai]="card.color === 'ai'">
                 <svg aria-hidden="true"><use [attr.href]="'#hiw-' + card.icon"></use></svg>
               </div>
               <div class="d-title">{{ card.title }}</div>
