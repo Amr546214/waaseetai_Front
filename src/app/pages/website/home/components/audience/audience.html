@@ -1,65 +1,36 @@
-	<!-- ═══════════════════════════════
-     2. الأدوار
-     ═══════════════════════════════ -->
-	<section class="section-wrap reveal" aria-labelledby="aud-title">
-		<div class="container">
-			<div class="section-header">
-				<h2 class="section-title" id="aud-title">خمسة أدوار <span class="gradient">موقع واحد</span></h2>
-				<p class="section-sub">كل طرف يجد ما يحتاجه في بيئة واحدة موثوقة ومحمية</p>
-			</div>
-			<div class="aud-grid">
-				<div class="aud-card">
-					<div
-						style="width:60px;height:60px;border-radius:16px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px" class="txt-teal">
-						<svg aria-hidden="true" style="width:26px;height:26px">
-							<use href="#ws-client"></use>
-						</svg>
-					</div>
-					<div class="aud-name">طالب الخدمة</div>
-					<p class="aud-desc">احصل على خدماتك بعقود رسمية وضمان مالي يحمي حقوقك — ادفع فقط بعد التسليم الموثق
-					</p>
-					<div class="aud-chips">
-						<span class="aud-chip"><svg style="width:11px;height:11px" aria-hidden="true">
-								<use href="#ws-building"></use>
-							</svg> شركة</span>
-						<span class="aud-chip"><svg style="width:11px;height:11px" aria-hidden="true">
-								<use href="#ws-user"></use>
-							</svg> فرد</span>
-					</div>
-					<a routerLink="/auth/register" class="aud-cta">ابدأ مجاناً</a>
-				</div>
-				<div class="aud-card">
-					<div
-						style="width:60px;height:60px;border-radius:16px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px" class="txt-blue">
-						<svg aria-hidden="true" style="width:26px;height:26px">
-							<use href="#ws-provider"></use>
-						</svg>
-					</div>
-					<div class="aud-name">مقدم الخدمة</div>
-					<p class="aud-desc">قدم خدماتك بعقود واضحة واستلم مدفوعاتك في الوقت المحدد بضمان وسيط AI بدون تأخير
-					</p>
-					<div class="aud-chips">
-						<span class="aud-chip"><svg style="width:11px;height:11px" aria-hidden="true">
-								<use href="#ws-building"></use>
-							</svg> شركة</span>
-						<span class="aud-chip"><svg style="width:11px;height:11px" aria-hidden="true">
-								<use href="#ws-user"></use>
-							</svg> فرد</span>
-					</div>
-					<a routerLink="/auth/register" class="aud-cta">ابدأ مجاناً</a>
-				</div>
-				<div class="aud-card">
-					<div
-						style="width:60px;height:60px;border-radius:16px;background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px" class="txt-amber-dk">
-						<svg aria-hidden="true" style="width:26px;height:26px">
-							<use href="#ws-broker"></use>
-						</svg>
-					</div>
-					<div class="aud-name">الوسيط التسويقي</div>
-					<p class="aud-desc">قدم عملاء لمقدمي الخدمات واكسب عمولة تلقائية عند كل صفقة ناجحة يتتبعها ويدفعها
-						النظام</p>
-					<a routerLink="/auth/register" class="aud-cta">ابدأ مجاناً</a>
-				</div>
-			</div>
-		</div>
-	</section>
+<section id="audience" class="reveal" aria-labelledby="aud-title">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title" id="aud-title">خمسة ادوار <span class="gradient">موقع واحد</span></h2>
+      <p class="section-sub">كل طرف يجد ما يحتاجه في بيئة واحدة موثوقة ومحمية</p>
+    </div>
+    <div class="aud-grid">
+      <div class="aud-card">
+        <div class="aud-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#ws-client"></use></svg></div>
+        <div class="aud-name">طالب الخدمة</div>
+        <p class="aud-desc">احصل على خدماتك بعقود رسمية وضمان مالي يحمي حقوقك، ادفع فقط بعد التسليم الموثق</p>
+        <div class="aud-chips">
+          <span class="aud-chip"><svg class="icon" style="width:12px;height:12px" aria-hidden="true"><use href="#ws-building"></use></svg> طالب الخدمة شركة</span>
+          <span class="aud-chip"><svg class="icon" style="width:12px;height:12px" aria-hidden="true"><use href="#ws-user"></use></svg> طالب الخدمة فرد</span>
+        </div>
+        <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+      </div>
+      <div class="aud-card">
+        <div class="aud-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#ws-provider"></use></svg></div>
+        <div class="aud-name">مقدم الخدمة</div>
+        <p class="aud-desc">قدم خدماتك بعقود واضحة واستلم مدفوعاتك في الوقت المحدد بضمان وسيط AI بدون تاخير</p>
+        <div class="aud-chips">
+          <span class="aud-chip"><svg class="icon" style="width:12px;height:12px" aria-hidden="true"><use href="#ws-building"></use></svg> مقدم الخدمة شركة</span>
+          <span class="aud-chip"><svg class="icon" style="width:12px;height:12px" aria-hidden="true"><use href="#ws-user"></use></svg> مقدم الخدمة فرد</span>
+        </div>
+        <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+      </div>
+      <div class="aud-card">
+        <div class="aud-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#ws-broker"></use></svg></div>
+        <div class="aud-name">الوسيط التسويقي</div>
+        <p class="aud-desc">قدم عملاء لمقدمي الخدمات واكسب عمولة تلقائية عند كل صفقة ناجحة يتتبعها ويدفعها النظام تلقائيا</p>
+        <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+      </div>
+    </div>
+  </div>
+</section>

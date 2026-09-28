@@ -6,7 +6,6 @@ import { Hero } from './components/hero/hero';
 import { Audience } from './components/audience/audience';
 import { Steps } from './components/steps/steps';
 import { Kpi } from './components/kpi/kpi';
-import { MarketplacePreview } from './components/marketplace-preview/marketplace-preview';
 import { AiFeatures } from './components/ai-features/ai-features';
 import { OffersPreview } from './components/offers-preview/offers-preview';
 import { Operations } from './components/operations/operations';
@@ -21,14 +20,13 @@ import { Cta } from './components/cta/cta';
     Audience,
     Steps,
     Kpi,
-    MarketplacePreview,
     AiFeatures,
     OffersPreview,
     Operations,
     Cta
   ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
+  styleUrls: ['./home.component.css', './home-design.css'],
   encapsulation: ViewEncapsulation.None
 })
 export class HomeComponent implements AfterViewInit, OnInit {
