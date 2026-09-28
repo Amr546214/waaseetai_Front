@@ -40,25 +40,12 @@
 .tab-count{font-size:10px;font-weight:800;padding:1px 6px;border-radius:20px;background:rgba(255,255,255,.08);color:#6B7699}
 .tab.active .tab-count{background:rgba(43,212,199,.18);color:#2BD4C7}
 /* filter rail */
-.filter-rail{background:rgba(7,13,36,.6);backdrop-filter:blur(16px);border:1px solid rgba(43,212,199,.2);border-radius:14px;margin-bottom:14px;overflow:hidden}
+
 .fr-row{display:flex;align-items:stretch;flex-wrap:nowrap;border-bottom:1px solid rgba(255,255,255,.06)}
 .fr-row:last-child{border-bottom:0}
 .fr-rail-group{display:none}
 .fr-rail-group.active{display:grid}
-.fr-period-lbl{display:flex;align-items:center;padding:0 14px;font-size:10px;font-weight:900;letter-spacing:.5px;color:#5DA0FF;background:rgba(43,127,255,.1);border-inline-end:1px solid rgba(43,127,255,.2);white-space:nowrap}
-.date-segs{display:flex;align-items:center;gap:3px;padding:8px 12px;flex-shrink:0;flex-wrap:wrap}
-.date-segs:last-child{flex:1}
-.ds{padding:5px 12px;border-radius:8px;font-size:11.5px;font-weight:700;color:#6B7699;font-family:inherit;cursor:pointer;transition:all .15s;border:1px solid transparent;background:transparent}
-.ds:hover{background:rgba(43,212,199,.09);color:#B8CAE4;border-color:rgba(43,212,199,.18)}
-.ds.active{background:linear-gradient(135deg,rgba(43,212,199,.35),rgba(43,127,255,.25));border-color:rgba(43,212,199,.65);color:#fff;font-weight:800}
-.fr-spacer{flex:1}
-.fr-search{display:flex;align-items:center;gap:7px;padding:10px 14px;border-inline-start:1px solid rgba(255,255,255,.07)}
-.fr-search svg{width:13px;height:13px;color:#6B7699;flex-shrink:0}
-.fr-search input{background:none;border:none;outline:none;font-family:inherit;font-size:12.5px;color:#fff;width:100%;direction:rtl}
-.fr-search input::placeholder{color:#4A5568}
-.fr-end{display:flex;align-items:center;gap:8px;padding:0 14px;border-inline-start:1px solid rgba(255,255,255,.07)}
-.fr-export-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:11.5px;font-weight:700;color:#A8B2D1;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all .15s}
-.fr-export-btn:hover{background:rgba(43,212,199,.08);border-color:rgba(43,212,199,.25);color:#2BD4C7}
+
 /* table */
 .tbl-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:visible}
 .tbl-wrap{overflow:visible}
@@ -228,80 +215,9 @@
 :host-context(.light-theme) .modal-title,
 :host-context(.theme-light) .modal-title{color:#0F172A}
 
-:host-context(body.light-theme) .page-sub,
-:host-context(body.theme-light) .page-sub,
-:host-context(.light-theme) .page-sub,
-:host-context(.theme-light) .page-sub,
-:host-context(body.light-theme) .kpi-lbl,
-:host-context(body.theme-light) .kpi-lbl,
-:host-context(.light-theme) .kpi-lbl,
-:host-context(.theme-light) .kpi-lbl,
-:host-context(body.light-theme) .u-email,
-:host-context(body.theme-light) .u-email,
-:host-context(.light-theme) .u-email,
-:host-context(.theme-light) .u-email,
-:host-context(body.light-theme) .pg-info,
-:host-context(body.theme-light) .pg-info,
-:host-context(.light-theme) .pg-info,
-:host-context(.theme-light) .pg-info,
-:host-context(body.light-theme) .empty-sub,
-:host-context(body.theme-light) .empty-sub,
-:host-context(.light-theme) .empty-sub,
-:host-context(.theme-light) .empty-sub,
-:host-context(body.light-theme) .inner-foot,
-:host-context(body.theme-light) .inner-foot,
-:host-context(.light-theme) .inner-foot,
-:host-context(.theme-light) .inner-foot,
-:host-context(body.light-theme) .inner-foot-links a,
-:host-context(body.theme-light) .inner-foot-links a,
-:host-context(.light-theme) .inner-foot-links a,
-:host-context(.theme-light) .inner-foot-links a,
-:host-context(body.light-theme) .act-drop-item svg,
-:host-context(body.theme-light) .act-drop-item svg,
-:host-context(.light-theme) .act-drop-item svg,
-:host-context(.theme-light) .act-drop-item svg,
-:host-context(body.light-theme) .fr-search svg,
-:host-context(body.theme-light) .fr-search svg,
-:host-context(.light-theme) .fr-search svg,
-:host-context(.theme-light) .fr-search svg{color:#64748B}
+:host-context(body.light-theme) .page-sub,:host-context(body.theme-light) .page-sub,:host-context(.light-theme) .page-sub,:host-context(.theme-light) .page-sub,:host-context(body.light-theme) .kpi-lbl,:host-context(body.theme-light) .kpi-lbl,:host-context(.light-theme) .kpi-lbl,:host-context(.theme-light) .kpi-lbl,:host-context(body.light-theme) .u-email,:host-context(body.theme-light) .u-email,:host-context(.light-theme) .u-email,:host-context(.theme-light) .u-email,:host-context(body.light-theme) .pg-info,:host-context(body.theme-light) .pg-info,:host-context(.light-theme) .pg-info,:host-context(.theme-light) .pg-info,:host-context(body.light-theme) .empty-sub,:host-context(body.theme-light) .empty-sub,:host-context(.light-theme) .empty-sub,:host-context(.theme-light) .empty-sub,:host-context(body.light-theme) .inner-foot,:host-context(body.theme-light) .inner-foot,:host-context(.light-theme) .inner-foot,:host-context(.theme-light) .inner-foot,:host-context(body.light-theme) .inner-foot-links a,:host-context(body.theme-light) .inner-foot-links a,:host-context(.light-theme) .inner-foot-links a,:host-context(.theme-light) .inner-foot-links a,:host-context(body.light-theme) .act-drop-item svg,:host-context(body.theme-light) .act-drop-item svg,:host-context(.light-theme) .act-drop-item svg,:host-context(.theme-light) .act-drop-item svg {color:#64748B}
 
-:host-context(body.light-theme) .ai-disc-txt,
-:host-context(body.theme-light) .ai-disc-txt,
-:host-context(.light-theme) .ai-disc-txt,
-:host-context(.theme-light) .ai-disc-txt,
-:host-context(body.light-theme) .data-tbl tbody td,
-:host-context(body.theme-light) .data-tbl tbody td,
-:host-context(.light-theme) .data-tbl tbody td,
-:host-context(.theme-light) .data-tbl tbody td,
-:host-context(body.light-theme) .act-drop-item,
-:host-context(body.theme-light) .act-drop-item,
-:host-context(.light-theme) .act-drop-item,
-:host-context(.theme-light) .act-drop-item,
-:host-context(body.light-theme) .empty-ttl,
-:host-context(body.theme-light) .empty-ttl,
-:host-context(.light-theme) .empty-ttl,
-:host-context(.theme-light) .empty-ttl,
-:host-context(body.light-theme) .ds,
-:host-context(body.theme-light) .ds,
-:host-context(.light-theme) .ds,
-:host-context(.theme-light) .ds,
-:host-context(body.light-theme) .fr-export-btn,
-:host-context(body.theme-light) .fr-export-btn,
-:host-context(.light-theme) .fr-export-btn,
-:host-context(.theme-light) .fr-export-btn,
-:host-context(body.light-theme) .act-btn,
-:host-context(body.theme-light) .act-btn,
-:host-context(.light-theme) .act-btn,
-:host-context(.theme-light) .act-btn,
-:host-context(body.light-theme) .pg-btn,
-:host-context(body.theme-light) .pg-btn,
-:host-context(.light-theme) .pg-btn,
-:host-context(.theme-light) .pg-btn{color:#475569}
-
-:host-context(body.light-theme) .fr-period-lbl,
-:host-context(body.theme-light) .fr-period-lbl,
-:host-context(.light-theme) .fr-period-lbl,
-:host-context(.theme-light) .fr-period-lbl{color:#2563EB}
+:host-context(body.light-theme) .ai-disc-txt,:host-context(body.theme-light) .ai-disc-txt,:host-context(.light-theme) .ai-disc-txt,:host-context(.theme-light) .ai-disc-txt,:host-context(body.light-theme) .data-tbl tbody td,:host-context(body.theme-light) .data-tbl tbody td,:host-context(.light-theme) .data-tbl tbody td,:host-context(.theme-light) .data-tbl tbody td,:host-context(body.light-theme) .act-drop-item,:host-context(body.theme-light) .act-drop-item,:host-context(.light-theme) .act-drop-item,:host-context(.theme-light) .act-drop-item,:host-context(body.light-theme) .empty-ttl,:host-context(body.theme-light) .empty-ttl,:host-context(.light-theme) .empty-ttl,:host-context(.theme-light) .empty-ttl,:host-context(body.light-theme) .act-btn,:host-context(body.theme-light) .act-btn,:host-context(.light-theme) .act-btn,:host-context(.theme-light) .act-btn,:host-context(body.light-theme) .pg-btn,:host-context(body.theme-light) .pg-btn,:host-context(.light-theme) .pg-btn,:host-context(.theme-light) .pg-btn {color:#475569}
 
 :host-context(body.light-theme) .kpi-card,
 :host-context(body.theme-light) .kpi-card,
@@ -315,11 +231,6 @@
 :host-context(body.theme-light) .act-dropdown,
 :host-context(.light-theme) .act-dropdown,
 :host-context(.theme-light) .act-dropdown{background:#fff;border-color:#E7EAF1;box-shadow:0 12px 32px rgba(15,23,42,.10)}
-
-:host-context(body.light-theme) .filter-rail,
-:host-context(body.theme-light) .filter-rail,
-:host-context(.light-theme) .filter-rail,
-:host-context(.theme-light) .filter-rail{background:rgba(246,248,252,.9);border-color:rgba(43,127,255,.2)}
 
 :host-context(body.light-theme) .tabs-wrap,
 :host-context(body.theme-light) .tabs-wrap,
@@ -339,11 +250,6 @@
 :host-context(.light-theme) .pg-btn.active,
 :host-context(.theme-light) .pg-btn.active{color:#007A72}
 
-:host-context(body.light-theme) .fr-search input,
-:host-context(body.theme-light) .fr-search input,
-:host-context(.light-theme) .fr-search input,
-:host-context(.theme-light) .fr-search input{color:#1E293B}
-
 :host-context(body.light-theme) .data-tbl thead th,
 :host-context(body.theme-light) .data-tbl thead th,
 :host-context(.light-theme) .data-tbl thead th,
@@ -354,31 +260,9 @@
 :host-context(.light-theme) .data-tbl tbody tr:hover,
 :host-context(.theme-light) .data-tbl tbody tr:hover{background:rgba(7,13,36,.04)}
 
-:host-context(body.light-theme) .fr-export-btn,
-:host-context(body.theme-light) .fr-export-btn,
-:host-context(.light-theme) .fr-export-btn,
-:host-context(.theme-light) .fr-export-btn,
-:host-context(body.light-theme) .act-btn,
-:host-context(body.theme-light) .act-btn,
-:host-context(.light-theme) .act-btn,
-:host-context(.theme-light) .act-btn,
-:host-context(body.light-theme) .pg-btn,
-:host-context(body.theme-light) .pg-btn,
-:host-context(.light-theme) .pg-btn,
-:host-context(.theme-light) .pg-btn{background:rgba(7,13,36,.05);border-color:rgba(7,13,36,.12)}
+:host-context(body.light-theme) .act-btn,:host-context(body.theme-light) .act-btn,:host-context(.light-theme) .act-btn,:host-context(.theme-light) .act-btn,:host-context(body.light-theme) .pg-btn,:host-context(body.theme-light) .pg-btn,:host-context(.light-theme) .pg-btn,:host-context(.theme-light) .pg-btn {background:rgba(7,13,36,.05);border-color:rgba(7,13,36,.12)}
 
-:host-context(body.light-theme) .fr-export-btn:hover,
-:host-context(body.theme-light) .fr-export-btn:hover,
-:host-context(.light-theme) .fr-export-btn:hover,
-:host-context(.theme-light) .fr-export-btn:hover,
-:host-context(body.light-theme) .act-btn:hover,
-:host-context(body.theme-light) .act-btn:hover,
-:host-context(.light-theme) .act-btn:hover,
-:host-context(.theme-light) .act-btn:hover,
-:host-context(body.light-theme) .pg-btn:hover,
-:host-context(body.theme-light) .pg-btn:hover,
-:host-context(.light-theme) .pg-btn:hover,
-:host-context(.theme-light) .pg-btn:hover{background:rgba(7,13,36,.10);color:#1E293B}
+:host-context(body.light-theme) .act-btn:hover,:host-context(body.theme-light) .act-btn:hover,:host-context(.light-theme) .act-btn:hover,:host-context(.theme-light) .act-btn:hover,:host-context(body.light-theme) .pg-btn:hover,:host-context(body.theme-light) .pg-btn:hover,:host-context(.light-theme) .pg-btn:hover,:host-context(.theme-light) .pg-btn:hover {background:rgba(7,13,36,.10);color:#1E293B}
 
 :host-context(body.light-theme) .act-drop-item:hover,
 :host-context(body.theme-light) .act-drop-item:hover,
@@ -431,3 +315,6 @@
 :host-context(body.theme-light) .modal-btn-cancel:hover,
 :host-context(.light-theme) .modal-btn-cancel:hover,
 :host-context(.theme-light) .modal-btn-cancel:hover{background:rgba(7,13,36,.10)}
+
+/* Multi-row advanced filter: rows stack inside the shared filter-rail. */
+.filter-rail{flex-direction:column}

@@ -80,7 +80,7 @@
             <button class="ds" [class.active]="selectedStatus() === 'SUSPENDED'" (click)="setStatusFilter('SUSPENDED')">موقوف</button>
             <button class="ds" [class.active]="selectedStatus() === 'SUSPENDED_REVIEW'" (click)="setStatusFilter('SUSPENDED_REVIEW')">معلق مراجعة</button>
           </div>
-          <div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">القيمة المالية</div>
+          <div class="fr-period-lbl">القيمة المالية</div>
           <div class="date-segs">
             <button class="ds" [class.active]="selectedFinancialRange() === 'ALL'" (click)="setFinancialFilter('ALL')">الكل</button>
             <button class="ds" [class.active]="selectedFinancialRange() === 'UNDER_5K'" (click)="setFinancialFilter('UNDER_5K')">&lt;5K</button>
@@ -96,7 +96,7 @@
             <button class="ds" [class.active]="selectedRating() === '4_PLUS'" (click)="setRatingFilter('4_PLUS')">★ +4</button>
             <button class="ds" [class.active]="selectedRating() === 'UNDER_4'" (click)="setRatingFilter('UNDER_4')">★ أقل من 4</button>
           </div>
-          <div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">التاريخ</div>
+          <div class="fr-period-lbl">التاريخ</div>
           <div class="date-segs">
             <button class="ds" [class.active]="selectedJoinedDate() === 'ALL'" (click)="setDateFilter('ALL')">الكل</button>
             <button class="ds" [class.active]="selectedJoinedDate() === 'THIS_MONTH'" (click)="setDateFilter('THIS_MONTH')">هذا الشهر</button>
@@ -111,7 +111,7 @@
             <button class="ds txt-amber" [class.active]="selectedRiskLevel() === 'MEDIUM'" (click)="setRiskFilter('MEDIUM')">متوسط 30-70</button>
             <button class="ds txt-coral" [class.active]="selectedRiskLevel() === 'HIGH'" (click)="setRiskFilter('HIGH')">مرتفع &gt;70</button>
           </div>
-          <div class="fr-period-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">آخر نشاط</div>
+          <div class="fr-period-lbl">آخر نشاط</div>
           <div class="date-segs">
             <button class="ds" [class.active]="selectedLastActive() === 'ALL'" (click)="setLastActiveFilter('ALL')">الكل</button>
             <button class="ds" [class.active]="selectedLastActive() === 'TODAY'" (click)="setLastActiveFilter('TODAY')">اليوم</button>
