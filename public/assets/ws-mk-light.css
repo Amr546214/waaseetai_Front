@@ -608,24 +608,6 @@ body.theme-light .results-bar { color:#475569 !important; }
 body.theme-light .results-count { color:#0F172A !important; }
 body.theme-light .sort-select { background:#FFFFFF !important; border-color:#D8DFEC !important; color:#0F172A !important; }
 
-/* ── filter-rail sort bar (P-MK-006) ── */
-body.theme-light .filter-rail {
-  background:#FFFFFF !important;
-  border-color:#D8DFEC !important;
-}
-body.theme-light .fr-lbl {
-  background:rgba(43,127,255,.06) !important;
-  border-inline-end-color:#D8DFEC !important;
-  color:#1D6FE0 !important;
-}
-body.theme-light .fr-btn { color:#64748B !important; }
-body.theme-light .fr-btn:hover { background:rgba(15,138,127,.06) !important; color:#0F8A7F !important; }
-body.theme-light .fr-btn.active {
-  background:linear-gradient(135deg,rgba(15,138,127,.15),rgba(43,127,255,.12)) !important;
-  border-color:rgba(15,138,127,.4) !important;
-  color:#0F8A7F !important;
-}
-
 /* ── countdown timer (P-MK-021) ── */
 body.theme-light .countdown-timer { color:#0F8A7F !important; font-weight:800 !important; }
 body.theme-light .offer-countdown,

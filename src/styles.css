@@ -40,7 +40,7 @@
   --sec-bd:rgba(255,255,255,.07);
   --sec-bd-hover:rgba(0,210,255,.35);
   --sec-bg-hover:rgba(255,255,255,.07);
-  --card-shadow:0 4px 20px -2px rgba(0,0,0,.25);
+  --card-shadow:none;
   --txt:#FFFFFF; --txt-2:#A8B2D1; --txt-3:#6B7699;
   --teal:#2BD4C7; --teal-txt:#2BD4C7; --blue:#2B7FFF; --blue-txt:#5DA0FF;
   --green:#0FA99A; --kahr:#D98A0B; --red:#FF8C69;
@@ -1009,17 +1009,16 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
   .prov-name, .proj-title { color: #0F172A !important; }
   .prov-meta, .prov-rank, .proj-tags { color: #5B6472 !important; }
 
-  /* Filter rail (fr-*) */
-  .fr-btn, .fr-export-btn, .fr-sel {
+  /* Standalone filter selects (the filter-rail itself is token-driven in waseet-design-system.css) */
+  .fr-sel {
     background: #FFFFFF !important;
     border-color: #D8DFEC !important;
     color: #475569 !important;
   }
-  .fr-btn:hover, .fr-export-btn:hover, .fr-sel:hover {
+  .fr-sel:hover {
     background: #F3F5FA !important;
     color: #0F172A !important;
   }
-  .fr-lbl, .fr-period-lbl, .fr-search { color: #475569 !important; }
 
   /* Modals */
   .modal, .modal-bg {

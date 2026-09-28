@@ -1,0 +1,36 @@
+/* ============================================================
+   Checkout pages (P-BF-001 … P-BF-007) — shared design tokens.
+   Source: design-reference/extracted/00-تسليم-الموقع-والسوق/_assets/ws-site.css
+   Dark = its :root, light = its .theme-light block + the body-level
+   overrides ws-light-polish.js injects in light mode
+   (--teal-txt/--ai-txt/--kahr and body colour #1E293B).
+   Included first in every checkout component's styleUrls.
+   ============================================================ */
+:host{
+  display:block;
+  --border:rgba(255,255,255,.08);
+  --txt:#FFFFFF; --txt-2:#A8B2D1; --txt-3:#6B7699;
+  --teal:#2BD4C7; --teal-txt:#2BD4C7; --blue:#2B7FFF; --blue-txt:#5DA0FF;
+  --green:#0FA99A; --kahr:#D98A0B; --red:#FF8C69;
+  --ai:#7B2FBE; --ai-txt:#A56BE0; --ai-bg:rgba(123,47,190,.10); --ai-border:rgba(123,47,190,.22);
+  --grad:linear-gradient(135deg,#2BD4C7,#2B7FFF);
+  --container:1240px;
+  direction:rtl;
+}
+:host-context(.light-theme),:host-context(.theme-light){
+  --border:#E7EAF1;
+  --txt:#070D24; --txt-2:#56607D; --txt-3:#6B7699;
+  --teal-txt:#0F8A7F; --blue-txt:#1D6FE0; --green:#0A6F64; --kahr:#9A6700; --red:#B42318;
+  --ai-txt:#6B27A5; --ai-border:rgba(123,47,190,.28);
+  color:#1E293B;
+}
+
+/* design page reset (P-BF-00x <style> head) */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+a{text-decoration:none;color:inherit}
+a:hover{color:var(--teal)}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.container{max-width:var(--container);margin-inline:auto;padding:0 24px}
+
+/* ws-site.css — AI identity: the AI mark is always AI purple */
+svg use[href="#ws-trust-ai"]{color:var(--ai-txt)}
