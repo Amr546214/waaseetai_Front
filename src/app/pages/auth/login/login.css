@@ -1,724 +1,90 @@
-:root {
-  --navy-900: #070D24;
-  --navy-800: #0B1437;
-  --teal: #2BD4C7;
-  --blue: #2B7FFF;
-  --ai: #7B2FBE;
-  --gradient-brand: linear-gradient(135deg, #2BD4C7 0%, #2B7FFF 100%);
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
-  --pg: #070D24;
-  --txt: #FFFFFF;
-  --txt-2: #A8B2D1;
-  --txt-3: #6B7699;
-  --grad-text: linear-gradient(135deg, #2BD4C7 0%, #2B7FFF 100%);
-  --brand-bg: linear-gradient(135deg, #2BD4C7 0%, #2B7FFF 100%);
-  --brand-fill: transparent;
-  --bggrid-1: rgba(43, 212, 199, .15);
-  --bggrid-2: rgba(43, 127, 255, .15);
-  --bggrid-3: rgba(43, 212, 199, .05);
-  --grid-ln: rgba(43, 212, 199, .04);
-  --ptcl-glow: 0 0 10px #2BD4C7;
-  --hdr-bg: rgba(7, 13, 36, .7);
-  --hdr-bg-scr: rgba(7, 13, 36, .92);
-  --hdr-bd: rgba(43, 212, 199, .1);
-  --hdr-shd: none;
-  --nav-lnk: #A8B2D1;
-  --nav-lnk-hov: #FFFFFF;
-  --nav-lnk-hov-bg: rgba(255, 255, 255, .05);
-  --out-clr: #FFFFFF;
-  --out-bd: rgba(255, 255, 255, .15);
-  --out-bg: rgba(255, 255, 255, .05);
-  --out-hov-bg: rgba(255, 255, 255, .10);
-  --out-hov-bd: rgba(255, 255, 255, .15);
-  --menu-clr: #FFFFFF;
-  --menu-bg: rgba(255, 255, 255, .06);
-  --tgl-bd: rgba(255, 255, 255, .15);
-  --tgl-bg: rgba(255, 255, 255, .05);
-  --seg-clr: #A8B2D1;
-  --seg-d-bg: linear-gradient(135deg, #2BD4C7 0%, #2B7FFF 100%);
-  --seg-d-clr: #070D24;
-  --seg-l-bg: transparent;
-  --seg-l-clr: #A8B2D1;
-  --drw-ov: rgba(0, 0, 0, .6);
-  --drw-bg: rgba(7, 13, 36, .97);
-  --drw-bd: rgba(43, 212, 199, .12);
-  --drw-cls: #6B7699;
-  --drw-lnk: #A8B2D1;
-  --drw-lnk-hov: #FFFFFF;
-  --drw-lnk-hov-bg: rgba(43, 212, 199, .07);
-  --cta-shd: 0 12px 30px rgba(43, 212, 199, .4);
-  --cta-shd-hov: 0 18px 40px rgba(43, 212, 199, .6);
-  --nav-cta-shd: 0 6px 20px rgba(43, 212, 199, .30);
-  --nav-cta-hov: 0 10px 28px rgba(43, 212, 199, .50);
-  --sec-bg: rgba(255, 255, 255, .05);
-  --sec-clr: #FFFFFF;
-  --sec-bd: rgba(255, 255, 255, .15);
-  --sec-hov: rgba(255, 255, 255, .10);
-  --tint: linear-gradient(135deg, rgba(43, 212, 199, .06), rgba(43, 127, 255, .06));
-  --tint-bd: rgba(43, 212, 199, .15);
-  --ck-txt: #6B7699;
-  --ck-lnk: #2BD4C7;
-  --ck-dec-clr: #6B7699;
-  --ck-dec-bd: rgba(255, 255, 255, .12);
-  --crd-bg: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
-  --crd-bd: rgba(255, 255, 255, .08);
-  --crd-shd: none;
-  --ftr-bg: rgba(7, 13, 36, .6);
-  --ftr-bd: rgba(255, 255, 255, .08);
-  --ftr-tag: #A8B2D1;
-  --ftr-soc-bg: rgba(255, 255, 255, .04);
-  --ftr-soc-bd: rgba(255, 255, 255, .09);
-  --ftr-soc-clr: #6B7699;
-  --ftr-soc-hov-bd: rgba(43, 212, 199, .36);
-  --ftr-soc-hov-clr: #2BD4C7;
-  --ftr-col: #A8B2D1;
-  --ftr-lnk: #A8B2D1;
-  --ftr-lnk-hov: #2BD4C7;
-  --ftr-bdg: #6B7699;
-  --ftr-bdg-bd: rgba(255, 255, 255, .10);
-  --ftr-bot-bd: rgba(255, 255, 255, .06);
-  --ftr-cpy: #6B7699;
-  --ftr-leg: #6B7699;
-  --ftr-leg-hov: #2BD4C7;
-}
-
-
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-img { max-width: 100%; height: auto; display: block; }
-ul, ol { list-style: none; }
-button { font-family: inherit; cursor: pointer; border: none; background: none; }
-a { text-decoration: none; }
-
-.auth-section {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100px 16px 60px;
-  position: relative;
-  z-index: 2;
-}
-
-.auth-wrap {
-  width: 100%;
-  max-width: 460px;
-}
-
-.auth-card {
-  background: var(--crd-bg);
-  border: 1px solid var(--crd-bd);
-  border-radius: var(--radius-lg);
-  padding: 36px 32px 28px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, .2);
-}
-
-.auth-logo {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 18px;
-}
-
-.auth-logo img {
-  height: 36px;
-}
-
-.auth-h1 {
-  font-size: clamp(22px, 4vw, 28px);
-  font-weight: 900;
-  color: var(--txt);
-  text-align: center;
-  margin-bottom: 6px;
-  line-height: 1.25;
-}
-
-.auth-sub {
-  font-size: 13px;
-  color: var(--txt-2);
-  text-align: center;
-  margin-bottom: 22px;
-  line-height: 1.7;
-}
-
-.ai-auth-badge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  background: rgba(123, 47, 190, .07);
-  border: 1px solid rgba(123, 47, 190, .22);
-  border-radius: 50px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #A56BE0;
-  margin-bottom: 18px;
-  width: fit-content;
-  margin-inline: auto;
-}
-
-.ai-auth-icon {
-  width: 13px;
-  height: 13px;
-  color: #A56BE0;
-  flex-shrink: 0;
-}
-
-.modal-ai-icon {
-  width: 44px;
-  height: 44px;
-  color: #A56BE0;
-}
-
-.auth-banner {
-  border-radius: var(--radius-sm);
-  padding: 11px 14px;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  font-size: 13px;
-  line-height: 1.65;
-}
-
-.banner-error {
-  background: rgba(43, 127, 255, .09);
-  border: 1px solid rgba(43, 127, 255, .22);
-  color: var(--blue);
-}
-
-.banner-success {
-  background: rgba(15, 179, 163, .10);
-  border: 1px solid rgba(15, 179, 163, .24);
-  color: #0FA99A;
-}
-
-.banner-info {
-  background: rgba(43, 127, 255, .08);
-  border: 1px solid rgba(43, 127, 255, .18);
-  color: var(--blue);
-}
-
-.field-grp {
-  margin-bottom: 15px;
-}
-
-.field-lbl {
-  display: block;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--txt-2);
-  margin-bottom: 6px;
-}
-
-.field-in {
-  width: 100%;
-  padding: 12px 14px;
-  background: var(--out-bg);
-  border: 1px solid var(--out-bd);
-  border-radius: var(--radius-sm);
-  color: var(--txt);
-  font-family: inherit;
-  font-size: 15px;
-  outline: none;
-  transition: border-color .2s, box-shadow .2s;
-  box-sizing: border-box;
-}
-
-.field-in:focus {
-  border-color: rgba(43, 212, 199, .35);
-  box-shadow: 0 0 0 3px rgba(43, 212, 199, .08);
-}
-
-.field-in::placeholder {
-  color: var(--txt-3);
-}
-
-.field-in.has-error {
-  border-color: rgba(43, 127, 255, .45);
-}
-
-.field-in:-webkit-autofill,
-.field-in:-webkit-autofill:hover, 
-.field-in:-webkit-autofill:focus, 
-.field-in:-webkit-autofill:active {
-  transition: background-color 5000s ease-in-out 0s;
-  -webkit-text-fill-color: var(--txt) !important;
-}
-
-.pw-wrap {
-  position: relative;
-}
-
-.pw-wrap .field-in {
-  padding-inline-start: 42px;
-}
-
-.pw-eye {
-  position: absolute;
-  inset-inline-start: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--txt-3);
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  line-height: 0;
-  transition: color .2s;
-}
-
-.pw-eye:hover {
-  color: var(--teal);
-}
-
-.field-err {
-  font-size: 12px;
-  color: var(--blue);
-  margin-top: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.remember-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-
-.chk-lbl {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--txt-2);
-  cursor: pointer;
-  line-height: 1.4;
-}
-
-.chk-lbl input[type="checkbox"] {
-  width: 17px;
-  height: 17px;
-  accent-color: #2BD4C7;
-  flex-shrink: 0;
-}
-
-.captcha-area {
-  background: var(--out-bg);
-  border: 1px solid var(--out-bd);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  font-size: 13px;
-  color: var(--txt-2);
-}
-
-.captcha-area input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #2BD4C7;
-  flex-shrink: 0;
-}
-
-.attempt-info {
-  font-size: 12px;
-  color: var(--txt-3);
-  text-align: center;
-  margin-top: -8px;
-  margin-bottom: 10px;
-  line-height: 1.5;
-}
-
-.btn-primary {
-  background: var(--gradient-brand);
-  color: var(--navy-900);
-  padding: 16px 36px;
-  border-radius: 50px;
-  font-weight: 800;
-  font-size: 17px;
-  font-family: inherit;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border: none;
-  cursor: pointer;
-  box-shadow: var(--cta-shd);
-  transition: all .3s;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--cta-shd-hov);
-}
-
-.btn-primary:disabled {
-  opacity: .4;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-auth {
-  width: 100%;
-  justify-content: center;
-  font-size: 15px;
-  padding: 13px 20px;
-  margin-bottom: 14px;
-}
-
-.spin {
-  display: inline-block;
-  width: 15px;
-  height: 15px;
-  border: 2px solid rgba(7, 13, 36, .3);
-  border-top-color: #070D24;
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  vertical-align: middle;
-  margin-inline-end: 5px;
-  flex-shrink: 0;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.auth-lnk-row {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.auth-lnk {
-  font-size: 13px;
-  color: var(--teal);
-  font-weight: 600;
-  transition: opacity .2s;
-}
-
-.auth-lnk:hover {
-  opacity: .8;
-}
-
-.auth-switch {
-  text-align: center;
-  font-size: 14px;
-  color: var(--txt-2);
-  margin-bottom: 18px;
-  line-height: 1.7;
-}
-
-.auth-switch a {
-  color: var(--teal);
-  font-weight: 700;
-  margin-inline-start: 5px;
-}
-
-.trust-row {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, .06);
-}
-
-.trust-bdg {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--txt-3);
-  border: 1px solid rgba(255, 255, 255, .10);
-  border-radius: 4px;
-  padding: 3px 8px;
-}
-
-/* Social Login — exact copy from P-AU-002.html design source */
-.social-login {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.btn-social {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all .18s;
-  border: 1.5px solid var(--crd-bd);
-  background: var(--crd-bg);
-  color: var(--txt);
-}
-
-.btn-social:hover {
-  border-color: var(--teal);
-  background: var(--sec-hov);
-  transform: translateY(-1px);
-}
-
-.btn-social svg {
-  flex-shrink: 0;
-}
-
-.btn-social:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.social-note {
-  margin: -12px 0 14px;
-  padding: 9px 12px;
-  border-radius: 10px;
-  background: rgba(43, 212, 199, .08);
-  border: 1px solid rgba(43, 212, 199, .22);
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--teal);
-  text-align: center;
-}
-
-.social-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.social-divider::before, .social-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--crd-bd);
-}
-
-.social-divider span {
-  font-size: 12px;
-  color: var(--txt-3);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Google Sign-In Button - overlay technique:
-   The visible .btn-social button provides the visual, the invisible
-   asl-google-signin-button sits on top to capture the click and trigger OAuth.
-   Colors come from .btn-social (theme vars) so both social buttons stay identical. */
-.google-btn-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-/* The actual Google button is invisible and positioned on top to capture clicks */
-.google-btn-wrapper asl-google-signin-button {
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  opacity: 0 !important;
-  cursor: pointer !important;
-  z-index: 10 !important;
-}
-
-.google-btn-wrapper asl-google-signin-button > div[role="button"] {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* Modals & Overlay */
-.modal-ov {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, .65);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.modal-box {
-  background: var(--drw-bg);
-  border: 1px solid var(--crd-bd);
-  border-radius: var(--radius-lg);
-  padding: 28px 24px;
-  max-width: 380px;
-  width: 100%;
-  text-align: center;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-.modal-ico { margin-bottom: 12px; }
-.modal-title { font-size: 20px; font-weight: 900; color: var(--txt); margin-bottom: 8px; line-height: 1.3; }
-.modal-desc { font-size: 13px; color: var(--txt-2); margin-bottom: 20px; line-height: 1.8; text-wrap: balance; }
-.modal-actions { display: flex; flex-direction: column; gap: 8px; }
-
-.otp-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; direction: ltr; }
-.otp-in { width: 44px; height: 52px; text-align: center; font-size: 20px; font-weight: 700; background: var(--out-bg); border: 1px solid var(--out-bd); border-radius: var(--radius-sm); color: var(--txt); font-family: inherit; outline: none; transition: border-color .2s; }
-.otp-in:focus { border-color: rgba(43, 212, 199, .35); box-shadow: 0 0 0 3px rgba(43, 212, 199, .08); }
-.otp-hint { font-size: 12px; color: var(--txt-3); text-align: center; margin-bottom: 10px; }
-.otp-resend { font-size: 13px; color: var(--teal); cursor: pointer; background: none; border: none; font-family: inherit; display: block; margin: 0 auto 14px; font-weight: 600; }
-
-.btn-secondary {
-  background: var(--sec-bg);
-  color: var(--sec-clr);
-  padding: 12px 28px;
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 15px;
-  font-family: inherit;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border: 1px solid var(--sec-bd);
-  cursor: pointer;
-  transition: all .3s;
-  width: 100%;
-}
-
-.btn-secondary:hover {
-  background: var(--sec-hov);
-  border-color: var(--teal);
-}
-
-@media (max-width: 767px) {
-  .auth-section { padding: 80px 16px 36px; }
-  .auth-card { padding: 32px 22px 26px; }
-  .auth-wrap { max-width: 100%; }
-}
-
-/* ==========================================================================
-   LIGHT MODE OVERRIDES
-   The login.css :root defines dark-mode variables. The global styles.css
-   theme classes override some but not all of them. These rules ensure
-   the login page adapts correctly in light mode.
-   ========================================================================== */
-body.light-theme, body.theme-light, .light-theme, .theme-light {
-  --out-bg: #FFFFFF;
-  --out-bd: rgba(7, 13, 36, .14);
-  --out-hov-bg: #F3F5FA;
-  --out-hov-bd: rgba(7, 13, 36, .22);
-  --sec-hov: #F3F5FA;
-  --drw-bg: rgba(255, 255, 255, .98);
-  --drw-bd: #E7EAF1;
-  --hdr-bg: rgba(246, 248, 252, .94);
-  --hdr-bd: rgba(43, 127, 255, .14);
-  --nav-lnk: #56607D;
-  --nav-lnk-hov: #070D24;
-  --nav-lnk-hov-bg: rgba(7, 13, 36, .06);
-  --tgl-bd: #D8DFEC;
-  --tgl-bg: #F3F5FA;
-  --seg-clr: #56607D;
-  --ftr-bg: rgba(246, 248, 252, .6);
-  --ftr-bd: #E7EAF1;
-  --ftr-tag: #56607D;
-  --ftr-col: #475569;
-  --ftr-lnk: #475569;
-  --ftr-lnk-hov: #0F8A7F;
-  --ftr-bdg: #64748B;
-  --ftr-bdg-bd: #D8DFEC;
-  --ftr-bot-bd: #E7EAF1;
-  --ftr-cpy: #64748B;
-  --ftr-leg: #64748B;
-  --ftr-leg-hov: #0F8A7F;
-  --ftr-soc-bg: #F3F5FA;
-  --ftr-soc-bd: #D8DFEC;
-  --ftr-soc-clr: #64748B;
-  --ftr-soc-hov-bd: rgba(43, 212, 199, .36);
-  --ftr-soc-hov-clr: #0F8A7F;
-  --ck-txt: #56607D;
-  --ck-dec-clr: #56607D;
-  --ck-dec-bd: rgba(7, 13, 36, .14);
-  --tint: linear-gradient(135deg, rgba(43, 212, 199, .07), rgba(43, 127, 255, .05)), #FFFFFF;
-  --tint-bd: rgba(43, 127, 255, .14);
-  --crd-shd: 0 10px 30px rgba(7, 13, 36, .05);
-  --crd-bg: #FFFFFF;
-  --crd-bd: #E7EAF1;
-  --cta-shd: 0 12px 30px rgba(43, 127, 255, .28);
-  --cta-shd-hov: 0 18px 40px rgba(43, 127, 255, .40);
-  --nav-cta-shd: 0 4px 16px rgba(43, 212, 199, .20);
-  --nav-cta-hov: 0 8px 24px rgba(43, 212, 199, .30);
-}
-
-body.light-theme .ai-auth-icon,
-body.theme-light .ai-auth-icon,
-.light-theme .ai-auth-icon,
-.theme-light .ai-auth-icon {
-  color:var(--ai) !important;
-}
-
-/* Social buttons take their light-mode colors from --crd-bg / --crd-bd / --txt,
-   exactly like the design source — no per-button overrides, so Google and Apple
-   stay visually identical in both themes. */
-
-body.light-theme .ai-auth-badge,
-body.theme-light .ai-auth-badge,
-.light-theme .ai-auth-badge,
-.theme-light .ai-auth-badge {
-  color: #7B2FBE !important;
-}
-
-body.light-theme .trust-row,
-body.theme-light .trust-row,
-.light-theme .trust-row,
-.theme-light .trust-row {
-  border-top-color: #D8DFEC !important;
-}
-
-body.light-theme .trust-bdg,
-body.theme-light .trust-bdg,
-.light-theme .trust-bdg,
-.theme-light .trust-bdg {
-  border-color: #D8DFEC !important;
-}
-
-body.light-theme .social-divider::before,
-body.theme-light .social-divider::before,
-.light-theme .social-divider::before,
-body.light-theme .social-divider::after,
-body.theme-light .social-divider::after,
-.light-theme .social-divider::after {
-  background: #E7EAF1 !important;
-}
-
-body.light-theme .auth-lnk,
-body.theme-light .auth-lnk,
-.light-theme .auth-lnk,
-.theme-light .auth-lnk {
-  color: #0A6F64 !important;
-}
-
-body.light-theme .auth-switch a,
-body.theme-light .auth-switch a,
-.light-theme .auth-switch a,
-.theme-light .auth-switch a {
-  color: #0A6F64 !important;
-}
-
-body.light-theme .modal-box,
-body.theme-light .modal-box,
-.light-theme .modal-box,
-.theme-light .modal-box {
-  background: #fff !important;
-  border-color: #E7EAF1 !important;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, .12) !important;
-}
+/* Ported verbatim from design-reference/extracted/تسليم-نهائي/01-التسجيل-والدخول/P-AU-002.html.
+   Dark variables = design :root; light = design LIGHT map. Scoped to app-login (ViewEncapsulation.None). */
+app-login{--blue:#2B7FFF;--crd-bd:rgba(255,255,255,.08);--crd-bg:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));--cta-shd:0 12px 30px rgba(43,212,199,.4);--cta-shd-hov:0 18px 40px rgba(43,212,199,.6);--drw-bg:rgba(7,13,36,.97);--gradient-brand:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);--navy-900:#070D24;--out-bd:rgba(255,255,255,.15);--out-bg:rgba(255,255,255,.05);--radius-lg:24px;--radius-sm:10px;--sec-bd:rgba(255,255,255,.15);--sec-bg:rgba(255,255,255,.05);--sec-clr:#FFFFFF;--sec-hov:rgba(255,255,255,.10);--teal:#2BD4C7;--txt:#FFFFFF;--txt-2:#A8B2D1;--txt-3:#6B7699}
+:is(.light-theme,.theme-light) app-login{--crd-bd:#E7EAF1;--crd-bg:#FFFFFF;--cta-shd:0 12px 30px rgba(43,127,255,.28);--cta-shd-hov:0 18px 40px rgba(43,127,255,.40);--drw-bg:rgba(255,255,255,.98);--out-bd:rgba(7,13,36,.14);--out-bg:#FFFFFF;--sec-bd:rgba(7,13,36,.14);--sec-bg:#FFFFFF;--sec-clr:#070D24;--sec-hov:#F3F5FA;--txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699}
+:is(.light-theme,.theme-light) app-login div.trust-row{border-color:#D8DFEC !important;background:none !important}
+:is(.light-theme,.theme-light) app-login span.trust-bdg{border-color:#D8DFEC !important}
+:is(.light-theme,.theme-light) app-login #otp-resend{color:#0A6F64 !important}
+:is(.light-theme,.theme-light) app-login a.auth-lnk{color:#0A6F64 !important}
+:is(.light-theme,.theme-light) app-login .auth-switch a{color:#0A6F64 !important}
+html:not(.light-theme):not(.theme-light) app-login div.ai-auth-badge{color:#A56BE0 !important}
+app-login .btn-primary{background:var(--gradient-brand);color:var(--navy-900);padding:14px 32px;border-radius:50px;font-weight:800;font-size:16px;font-family:inherit;display:inline-flex;align-items:center;gap:10px;border:none;cursor:pointer;box-shadow:var(--cta-shd);transition:all .3s}
+app-login .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--cta-shd-hov)}
+app-login .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+app-login .btn-secondary{background:var(--sec-bg);color:var(--sec-clr);padding:12px 28px;border-radius:50px;font-weight:700;font-size:15px;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--sec-bd);cursor:pointer;transition:all .3s;width:100%}
+app-login .btn-secondary:hover{background:var(--sec-hov);border-color:var(--teal)}
+app-login .auth-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 16px 60px;position:relative;z-index:2}
+app-login .auth-wrap{width:100%;max-width:460px}
+app-login .auth-card{background:var(--crd-bg);border:1px solid var(--crd-bd);border-radius:var(--radius-lg);padding:36px 32px 28px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 24px 60px rgba(0,0,0,.2)}
+app-login .auth-logo{display:flex;justify-content:center;margin-bottom:18px}
+app-login .auth-logo img{height:36px}
+app-login .auth-h1{font-size:clamp(22px,4vw,28px);font-weight:900;color:var(--txt);text-align:center;margin-bottom:6px;line-height:1.25}
+app-login .auth-sub{font-size:13px;color:var(--txt-2);text-align:center;margin-bottom:22px;line-height:1.7}
+app-login .ai-auth-badge{display:flex;align-items:center;gap:7px;padding:7px 14px;background:rgba(123,47,190,.07);border:1px solid rgba(123,47,190,.22);border-radius:50px;font-size:12px;font-weight:700;color:#7B2FBE;margin-bottom:18px;width:fit-content;margin-inline:auto}
+app-login .auth-banner{border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.65}
+app-login .auth-banner[hidden]{display:none}
+app-login .banner-error{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);color:var(--blue)}
+app-login .banner-success{background:rgba(15,179,163,.10);border:1px solid rgba(15,179,163,.24);color:#0FA99A}
+app-login .banner-info{background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18);color:var(--blue)}
+app-login .field-grp{margin-bottom:15px}
+app-login .field-lbl{display:block;font-size:13px;font-weight:700;color:var(--txt-2);margin-bottom:6px}
+app-login .field-in{width:100%;padding:12px 14px;background:var(--out-bg);border:1px solid var(--out-bd);border-radius:var(--radius-sm);color:var(--txt);font-family:inherit;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box}
+app-login .field-in:focus{border-color:rgba(43,212,199,.35);box-shadow:0 0 0 3px rgba(43,212,199,.08)}
+app-login .field-in::placeholder{color:var(--txt-3)}
+app-login .field-in.has-error{border-color:rgba(43,127,255,.45)}
+app-login .pw-wrap{position:relative}
+app-login .pw-wrap .field-in{padding-inline-start:42px}
+app-login .pw-eye{position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);color:var(--txt-3);cursor:pointer;background:none;border:none;padding:4px;display:flex;align-items:center;line-height:0;transition:color .2s}
+app-login .pw-eye:hover{color:var(--teal)}
+app-login .field-err{font-size:12px;color:var(--blue);margin-top:5px;display:flex;align-items:center;gap:5px}
+app-login .field-err[hidden]{display:none}
+app-login .remember-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+app-login .chk-lbl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-2);cursor:pointer;line-height:1.4}
+app-login .chk-lbl input[type="checkbox"]{width:15px;height:15px;accent-color:#2BD4C7;flex-shrink:0}
+app-login .captcha-area{background:var(--out-bg);border:1px solid var(--out-bd);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:13px;color:var(--txt-2)}
+app-login .captcha-area[hidden]{display:none}
+app-login .captcha-area input[type="checkbox"]{width:18px;height:18px;accent-color:#2BD4C7;flex-shrink:0}
+app-login .attempt-info{font-size:12px;color:var(--txt-3);text-align:center;margin-top:-8px;margin-bottom:10px;line-height:1.5}
+app-login .attempt-info[hidden]{display:none}
+app-login .btn-auth{width:100%;justify-content:center;font-size:15px;padding:13px 20px;margin-bottom:14px}
+app-login .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(7,13,36,.3);border-top-color:#070D24;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-inline-end:5px;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+app-login .auth-lnk-row{text-align:center;margin-bottom:10px}
+app-login .auth-lnk{font-size:13px;color:var(--teal);font-weight:600;transition:opacity .2s}
+app-login .auth-lnk:hover{opacity:.8}
+app-login .auth-switch{text-align:center;font-size:14px;color:var(--txt-2);margin-bottom:18px;line-height:1.7}
+app-login .auth-switch a{color:var(--teal);font-weight:700;margin-inline-start:4px}
+app-login .trust-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
+app-login .trust-bdg{font-size:11px;font-weight:700;color:var(--txt-3);border:1px solid rgba(255,255,255,.10);border-radius:4px;padding:3px 8px}
+app-login .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+app-login .modal-ov[hidden]{display:none}
+app-login .modal-box{background:var(--drw-bg);border:1px solid var(--crd-bd);border-radius:var(--radius-lg);padding:28px 24px;max-width:380px;width:100%;text-align:center;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+app-login .modal-ico{margin-bottom:12px}
+app-login .modal-title{font-size:20px;font-weight:900;color:var(--txt);margin-bottom:8px;line-height:1.3}
+app-login .modal-desc{font-size:13px;color:var(--txt-2);margin-bottom:20px;line-height:1.8;text-wrap:balance}
+app-login .modal-actions{display:flex;flex-direction:column;gap:8px}
+app-login .otp-row{display:flex;gap:8px;justify-content:center;margin-bottom:18px;direction:ltr}
+app-login .otp-in{width:44px;height:52px;text-align:center;font-size:20px;font-weight:700;background:var(--out-bg);border:1px solid var(--out-bd);border-radius:var(--radius-sm);color:var(--txt);font-family:inherit;outline:none;transition:border-color .2s}
+app-login .otp-in:focus{border-color:rgba(43,212,199,.35);box-shadow:0 0 0 3px rgba(43,212,199,.08)}
+app-login .otp-hint{font-size:12px;color:var(--txt-3);text-align:center;margin-bottom:10px}
+app-login .otp-resend{font-size:13px;color:var(--teal);cursor:pointer;background:none;border:none;font-family:inherit;display:block;margin:0 auto 14px;font-weight:600}
+@media(max-width:767px){app-login .auth-section{padding:80px 16px 36px}app-login .auth-card{padding:26px 18px 22px}}
+app-login .social-login{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+app-login .btn-social{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;border:1.5px solid var(--crd-bd);background:var(--crd-bg);color:var(--txt)}
+app-login .btn-social:hover{border-color:var(--teal);background:var(--sec-hov);transform:translateY(-1px)}
+app-login .btn-social svg{flex-shrink:0}
+app-login .social-divider{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+app-login .social-divider::before,app-login .social-divider::after{content:'';flex:1;height:1px;background:var(--crd-bd)}
+app-login .social-divider span{font-size:12px;color:var(--txt-3);font-weight:600;white-space:nowrap}
+
+/* ── App-only additions (features the design has no rule for) ── */
+/* Browser autofill keeps the design text colour instead of the UA yellow box. */
+app-login .field-in:-webkit-autofill,app-login .field-in:-webkit-autofill:hover,app-login .field-in:-webkit-autofill:focus,app-login .field-in:-webkit-autofill:active{transition:background-color 5000s ease-in-out 0s;-webkit-text-fill-color:var(--txt) !important}
+app-login .btn-social:disabled{opacity:.5;cursor:not-allowed;transform:none !important}
+/* "Apple coming soon" notice shown under the social buttons. */
+app-login .social-note{margin:-12px 0 14px;padding:9px 12px;border-radius:10px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.22);font-size:12.5px;font-weight:600;color:var(--teal);text-align:center}
+/* Google Sign-In overlay: the visible .btn-social is the design button; the real
+   (invisible) Google button sits on top of it to capture the click. */
+app-login .google-btn-wrapper{position:relative;width:100%}
+app-login .google-btn-wrapper asl-google-signin-button{position:absolute !important;top:0;left:0;width:100% !important;height:100% !important;opacity:0 !important;cursor:pointer !important;z-index:10 !important}
+app-login .google-btn-wrapper asl-google-signin-button > div[role="button"]{width:100% !important;height:100% !important}

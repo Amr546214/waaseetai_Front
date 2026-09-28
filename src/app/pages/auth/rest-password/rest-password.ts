@@ -65,6 +65,15 @@ export class RestPassword implements OnDestroy {
     this.clearTimer();
   }
 
+  /** Design step pill (P-AU-013 showStep): "الخطوة n من 3", then "تم" on success. */
+  get stepPill(): string {
+    return ['', 'الخطوة 1 من 3', 'الخطوة 2 من 3', 'الخطوة 3 من 3', 'تم'][this.currentStep] || '';
+  }
+
+  stepState(i: number): string {
+    return i < this.currentStep ? 'step-done' : i === this.currentStep ? 'step-active' : 'step-idle';
+  }
+
   goBack() {
     this.location.back();
   }

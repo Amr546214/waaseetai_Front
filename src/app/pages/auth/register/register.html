@@ -1,399 +1,424 @@
-<svg id="ws-icons" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
-	<symbol id="i-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-		stroke-linejoin="round">
-		<circle cx="12" cy="12" r="2" />
-		<circle cx="4" cy="6" r="1.5" />
-		<circle cx="20" cy="6" r="1.5" />
-		<circle cx="4" cy="18" r="1.5" />
-		<circle cx="20" cy="18" r="1.5" />
-		<circle cx="12" cy="3" r="1.5" />
-		<circle cx="12" cy="21" r="1.5" />
-		<path
-			d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
-	</symbol>
-	<symbol id="ws-chevron-right" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
-	<symbol id="ws-role-client-company" viewBox="0 0 24 24">
-		<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-			d="M3 21h18M5 21V7l8-4v18M13 11h3m-3 4h3m-3 4h3M9 9v.01M9 13v.01M9 17v.01" />
-	</symbol>
-	<symbol id="ws-role-client-person" viewBox="0 0 24 24">
-		<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-			d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-		<circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.8" />
-	</symbol>
-	<symbol id="ws-role-provider-company" viewBox="0 0 24 24">
-		<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-			d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2M5 21H3m6-12h2m-2 4h2m-2 4h2m4-8h2m-2 4h2m-2 4h2" />
-	</symbol>
-	<symbol id="ws-role-provider-person" viewBox="0 0 24 24">
-		<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-			d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-		<circle cx="8.5" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.8" />
-		<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M17 11l2 2 4-4" />
-	</symbol>
-	<symbol id="ws-role-broker" viewBox="0 0 24 24">
-		<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-			d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
-	</symbol>
+<svg style="display:none" aria-hidden="true">
+<defs>
+<symbol id="ws-ai-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"></path></symbol>
+<symbol id="ws-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></symbol>
+<symbol id="ws-role-client-company" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="13" height="13" rx="1"></rect><path d="M2 8L8.5 4l6.5 4"></path><rect x="5" y="13" width="2.5" height="8" stroke-width="1.5"></rect><rect x="9.5" y="13" width="2.5" height="8" stroke-width="1.5"></rect><path d="M17.5 10.5l3 3-3 3"></path><path d="M20.5 13.5h-5"></path></symbol>
+<symbol id="ws-role-client-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"></circle><path d="M2 20c0-3.9 3.1-7 7-7"></path><path d="M17.5 10.5l3 3-3 3"></path><path d="M20.5 13.5h-5"></path></symbol>
+<symbol id="ws-role-provider-company" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="12" height="13" rx="1"></rect><path d="M2 7L8 3l6 4"></path><rect x="5" y="12" width="2.5" height="8" stroke-width="1.5"></rect><rect x="9" y="12" width="2.5" height="8" stroke-width="1.5"></rect><rect x="15.5" y="11" width="7" height="9" rx="2"></rect><path d="M17.5 11V9.5a1.5 1.5 0 0 1 3 0V11"></path></symbol>
+<symbol id="ws-role-provider-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="6" r="3"></circle><path d="M2 18c0-3.3 2.7-6 6-6"></path><rect x="13.5" y="11" width="9" height="10" rx="2"></rect><path d="M15.5 11V9.5a2 2 0 0 1 4 0V11"></path><path d="M15.5 15.5l2 2 3.5-3.5"></path></symbol>
+<symbol id="ws-role-broker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2.5"></circle><circle cx="4" cy="19" r="2.5"></circle><circle cx="20" cy="19" r="2.5"></circle><path d="M12 6.5L5.5 16.5"></path><path d="M12 6.5L18.5 16.5"></path><path d="M7 19h10"></path><path d="M18.5 9l2-2.5-2.5-1.5"></path></symbol>
+<symbol id="ws-eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c2-5 5.5-8 10-8s8 3 10 8c-2 5-5.5 8-10 8S4 17 2 12z"></path><circle cx="12" cy="12" r="3"></circle></symbol>
+<symbol id="ws-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></symbol>
+<symbol id="ws-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></symbol>
+<symbol id="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"></path></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></symbol>
+<symbol id="ws-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h4l2 5-2.5 1.5a11 11 0 0 0 7 7L17 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 4a2 2 0 0 1 2-2"></path></symbol>
+<symbol id="ws-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 8l10 7 10-7"></path></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 5.5V11c0 4.5 3.5 8.5 8 10.5 4.5-2 8-6 8-10.5V5.5L12 2z"></path><path d="M8.5 12l2.5 2.5 4.5-4.5"></path></symbol>
+<symbol id="ws-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></symbol>
+</defs>
 </svg>
 
-<section class="roles-section">
-	<div class="roles-inner">
-		<!-- STEP 1: Account Type Selection Grid View -->
-		<div *ngIf="currentStep === 1" style="text-align: center;">
+<!-- ===== STEP 1 — account type (P-AU-003) ===== -->
+@if (currentStep === 1) {
+<div class="rg-s1">
+<section class="roles-section" aria-labelledby="roles-title">
+  <div class="roles-inner">
+    <div class="auth-flow-head">
+      <a routerLink="/auth/login" class="auth-back-link" aria-label="الرجوع لصفحة تسجيل الدخول">
+        <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
+        رجوع
+      </a>
+      <span class="auth-step-pill">الخطوة 1 من 3</span>
+    </div>
+    <div class="stepper" role="list" aria-label="خطوات التسجيل" style="margin:0 auto 24px;max-width:440px">
+      <div class="step-row">
+        <div class="step-item step-active" role="listitem" aria-current="step">
+          <div class="step-node">1</div>
+          <div class="step-label">اختيار الدور</div>
+        </div>
+        <div class="step-connector" aria-hidden="true"></div>
+        <div class="step-item step-idle" role="listitem">
+          <div class="step-node">2</div>
+          <div class="step-label">البيانات الاساسية</div>
+        </div>
+        <div class="step-connector" aria-hidden="true"></div>
+        <div class="step-item step-idle" role="listitem">
+          <div class="step-node">3</div>
+          <div class="step-label">التحقق</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center">
+    <div class="roles-ai-badge" aria-label="مساعد الذكاء الاصطناعي" style="display:inline-flex">
+      <svg style="width:14px;height:14px;fill:none;stroke:#7B2FBE;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-ai-spark"></use></svg>
+      وسيط AI يقترح النوع الانسب لك
+    </div>
+    <h1 class="roles-h1" id="roles-title" style="text-align:center">اختيار نوع <span class="gradient">الحساب</span></h1>
+    <p class="roles-sub" style="text-align:center">اختر النوع المناسب لنشاطك لبدء التسجيل في وسيط AI</p>
+    </div>
 
-			<!-- AI Suggestion Badge -->
-			<div class="roles-ai-badge">
-				<svg class="register-ai-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-					aria-hidden="true">
-					<use href="#i-ai"></use>
-				</svg>
-				<span>وسيط AI يقترح النوع الأنسب لك</span>
-			</div>
+    <div class="roles-grid" role="list" aria-label="انواع الحسابات المتاحة">
+      @for (t of accountTypes; track t.id) {
+      <div class="role-card" role="listitem" [attr.tabindex]="t.disabled ? -1 : 0" [attr.aria-label]="t.title"
+        [class.selected]="selectedAccountType === t.id" [class.disabled]="t.disabled"
+        [attr.aria-selected]="selectedAccountType === t.id" [attr.aria-disabled]="t.disabled || null"
+        (click)="selectAccountType(t.id)" (keydown.enter)="$event.preventDefault(); selectAccountType(t.id)"
+        (keydown.space)="$event.preventDefault(); selectAccountType(t.id)">
+        @if (t.aiSuggest) {
+        <span class="ai-suggest" aria-label="الأكثر اختيارًا">الأكثر اختيارًا</span>
+        }
+        <div class="role-icon" aria-hidden="true">
+          <svg style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><use [attr.href]="t.icon"></use></svg>
+        </div>
+        <div class="role-name">{{ t.title }}</div>
+        <p class="role-desc">{{ t.desc }}</p>
+        <span class="role-state" [class.state-lock]="t.badgeType === 'warning'" [class.state-open]="t.badgeType !== 'warning'">{{ t.badge }}</span>
+        <button type="button" class="role-cta" [disabled]="t.disabled" (click)="$event.stopPropagation(); selectAndProceed(t.id)">متابعة</button>
+        @if (t.disabled) {
+        <div class="role-soon-overlay"><span class="role-soon-yellow">قريباً</span></div>
+        }
+      </div>
+      }
+    </div>
 
-			<!-- Main Title & Subtitle -->
-			<h1 class="roles-h1">اختيار نوع <span class="gradient">الحساب</span></h1>
-			<p class="roles-sub">اختر النوع المناسب لنشاطك لبدء التسجيل في وسيط AI</p>
-
-			<!-- Account Cards 5-Column Grid -->
-			<div class="roles-grid" role="list" aria-label="انواع الحسابات المتاحة">
-				<div *ngFor="let t of accountTypes" class="role-card" role="listitem" tabindex="0"
-					[attr.aria-label]="t.title" [class.selected]="selectedAccountType === t.id"
-					[class.disabled]="t.disabled" (click)="selectAccountType(t.id)">
-
-					<div class="role-card-body" [class.is-blurred]="t.disabled">
-						<div class="ai-suggest" *ngIf="t.aiSuggest" aria-label="الأكثر اختيارًا">
-							الأكثر اختيارًا
-						</div>
-
-						<div class="role-icon" aria-hidden="true">
-							<svg
-								style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round">
-								<use [attr.href]="t.icon"></use>
-							</svg>
-						</div>
-
-						<div class="role-name">{{ t.title }}</div>
-						<div class="role-desc">{{ t.desc }}</div>
-
-						<div class="role-state" [ngClass]="t.badgeType === 'warning' ? 'state-lock' : 'state-open'">
-							<span>{{ t.badge }}</span>
-						</div>
-
-						<button *ngIf="!t.disabled" type="button" class="role-cta"
-							(click)="$event.stopPropagation(); selectAndProceed(t.id)">
-							متابعة
-						</button>
-					</div>
-
-					<!-- Sharp Yellow 'قريباً' Badge Overlay -->
-					<div *ngIf="t.disabled" class="role-soon-overlay">
-						<span class="role-soon-yellow">قريباً</span>
-					</div>
-				</div>
-			</div>
-
-		</div>
-
-		<!-- STEPS 2 & 3: Standard Auth Form View -->
-		<div class="main-inner" *ngIf="currentStep > 1">
-			<!-- Top Bar Header: Back button -->
-			<div class="auth-flow-head">
-				<button type="button" class="auth-back-link" (click)="prevStep()">
-					<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
-						viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-					</svg>
-					<span>رجوع</span>
-				</button>
-			</div>
-
-			<!-- Step Title & Logo Header -->
-			<div class="auth-head">
-				<div class="auth-logo"><img src="/images/waseet-mark.png" alt="وسيط AI"></div>
-				<h1 class="auth-h1" *ngIf="currentStep === 2">البيانات الأساسية</h1>
-				<h1 class="auth-h1" *ngIf="currentStep === 3">التحقق من البريد الإلكتروني</h1>
-				<p class="auth-sub" *ngIf="currentStep === 2">الخطوة 2 من 3 في رحلة التسجيل في وسيط AI</p>
-				<p class="auth-sub" *ngIf="currentStep === 3">أدخل رمز التحقق المرسل إلى بريدك الإلكتروني</p>
-			</div>
-
-			<!-- Role Selector Bar (for Step 2 & 3) -->
-			<div class="role-bar" *ngIf="selectedAccountObject">
-				<svg width="18" height="18"
-					style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
-					aria-hidden="true">
-					<use [attr.href]="selectedAccountObject.icon"></use>
-				</svg>
-				<span class="role-bar-lbl">نوع الحساب</span>
-				<span class="role-bar-val">{{ selectedAccountObject.title }}</span>
-				<button type="button" class="role-bar-chg" (click)="currentStep = 1">تغيير</button>
-			</div>
-
-			<!-- Stepper Component -->
-			<div class="stepper" role="list" aria-label="خطوات التسجيل">
-				<div class="step-row">
-					<div class="step-item" [ngClass]="currentStep === 1 ? 'step-active' : 'step-done'" role="listitem">
-						<div class="step-node">
-							<svg *ngIf="currentStep > 1" width="14" height="14" fill="none" stroke="currentColor"
-								stroke-width="3" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-							</svg>
-							<span *ngIf="currentStep === 1">1</span>
-						</div>
-						<div class="step-label">اختيار الدور</div>
-					</div>
-					<div class="step-connector" [class.done]="currentStep >= 2" aria-hidden="true"></div>
-					<div class="step-item"
-						[ngClass]="currentStep === 2 ? 'step-active' : (currentStep > 2 ? 'step-done' : 'step-idle')"
-						role="listitem">
-						<div class="step-node">
-							<svg *ngIf="currentStep > 2" width="14" height="14" fill="none" stroke="currentColor"
-								stroke-width="3" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-							</svg>
-							<span *ngIf="currentStep <= 2">2</span>
-						</div>
-						<div class="step-label">البيانات الأساسية</div>
-					</div>
-					<div class="step-connector" [class.done]="currentStep >= 3" aria-hidden="true"></div>
-					<div class="step-item" [ngClass]="currentStep === 3 ? 'step-active' : 'step-idle'" role="listitem">
-						<div class="step-node">3</div>
-						<div class="step-label">التحقق</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Global Error Message Banner -->
-			<div class="banner-error" *ngIf="errorMessage">
-				<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-					stroke-linejoin="round" viewBox="0 0 24 24">
-					<path
-						d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-					<line x1="12" y1="9" x2="12" y2="13" />
-					<line x1="12" y1="17" x2="12.01" y2="17" />
-				</svg>
-				<span>{{ errorMessage }}</span>
-			</div>
-
-			<!-- Draft Restoration Banner -->
-		<div class="draft-banner" *ngIf="showDraftBanner">
-			<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-				stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-				<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-			</svg>
-			<div class="draft-banner-body">
-				<span class="draft-banner-ttl">هل تريد استرجاع البيانات السابقة؟</span>
-				<span class="draft-banner-sub">لديك مسودة محفوظة من تسجيل سابق</span>
-			</div>
-			<div class="draft-banner-actions">
-				<button type="button" class="draft-btn-restore" (click)="restoreDraft()">نعم</button>
-				<button type="button" class="draft-btn-dismiss" (click)="dismissDraft()">تجاهل</button>
-			</div>
-		</div>
-
-		<!-- STEP 2: Basic Info Form -->
-			<form *ngIf="currentStep === 2" [formGroup]="basicInfoForm" (ngSubmit)="nextStep()">
-				<div class="form-card">
-					<div class="form-card-title">
-						<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"
-							stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-							<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-							<circle cx="12" cy="7" r="4" />
-						</svg>
-						<span>البيانات الشخصية</span>
-					</div>
-
-					<div class="social-login">
-						<div class="google-btn-wrapper">
-							<button type="button" class="btn-social btn-google" id="btn-google" aria-label="المتابعة مع جوجل">
-								<svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-									<path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.91C16.36 14.1 17.64 11.85 17.64 9.2z" fill="#4285F4"/>
-									<path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/>
-									<path d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33z" fill="#FBBC05"/>
-									<path d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96L3.96 7.29C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/>
-								</svg>
-								المتابعة مع جوجل
-							</button>
-							<asl-google-signin-button type="standard" size="large" text="continue_with" [width]="440"
-								theme="filled_black"></asl-google-signin-button>
-						</div>
-						<button type="button" class="btn-social btn-apple" aria-label="المتابعة مع آبل" (click)="appleSignIn()">
-							<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-								<path
-									d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-							</svg>
-							المتابعة مع آبل
-						</button>
-					</div>
-					<div class="social-note" *ngIf="appleNotice">{{ appleNotice }}</div>
-					<div class="social-divider"><span>أو أدخل بياناتك يدوياً</span></div>
-
-					<div class="field-2col">
-						<div class="field-grp">
-							<label class="field-lbl">الاسم الأول <span class="field-req">*</span></label>
-							<input type="text" class="field-in" formControlName="firstName" placeholder="الاسم الأول"
-								[class.has-error]="basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid">
-							<div class="field-err"
-								*ngIf="basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid">
-								ادخل الاسم الأول</div>
-						</div>
-						<div class="field-grp">
-							<label class="field-lbl">اسم العائلة <span class="field-req">*</span></label>
-							<input type="text" class="field-in" formControlName="lastName" placeholder="اسم العائلة"
-								[class.has-error]="basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid">
-							<div class="field-err"
-								*ngIf="basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid">
-								ادخل اسم العائلة</div>
-						</div>
-					</div>
-
-					<div class="field-grp">
-						<label class="field-lbl">البريد الإلكتروني <span class="field-req">*</span></label>
-						<input type="email" class="field-in" formControlName="email" placeholder="name@example.com"
-							dir="ltr" style="text-align: right;"
-							[class.has-error]="basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid">
-						<div class="field-err"
-							*ngIf="basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid">ادخل
-							بريدا الكترونيا صحيحا</div>
-					</div>
-
-					<div class="field-grp">
-						<label class="field-lbl">رقم الجوال <span class="field-req">*</span></label>
-						<app-phone-input formControlName="phone"></app-phone-input>
-						<div class="field-err"
-							*ngIf="basicInfoForm.get('phone')?.touched && basicInfoForm.get('phone')?.invalid">ادخل رقم
-							جوال صحيح</div>
-					</div>
-
-					<div class="field-grp">
-						<label class="field-lbl">كلمة المرور <span class="field-req">*</span></label>
-						<div class="pw-wrap">
-							<input [type]="showPassword ? 'text' : 'password'" class="field-in"
-								formControlName="password" placeholder="8 احرف على الأقل مع رقم" autocomplete="new-password"
-								[class.has-error]="basicInfoForm.get('password')?.touched && basicInfoForm.get('password')?.invalid">
-							<button type="button" class="pw-eye" (click)="togglePassword()"
-								aria-label="تغيير عرض كلمة المرور">
-								<svg *ngIf="!showPassword" width="18" height="18" fill="none" stroke="currentColor"
-									stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-									viewBox="0 0 24 24">
-									<path d="M2 12c2-5 5.5-8 10-8s8 3 10 8c-2 5-5.5 8-10 8S4 17 2 12z" />
-									<circle cx="12" cy="12" r="3" />
-								</svg>
-								<svg *ngIf="showPassword" width="18" height="18" fill="none" stroke="currentColor"
-									stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-									viewBox="0 0 24 24">
-									<path
-										d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-									<line x1="1" y1="1" x2="23" y2="23" />
-								</svg>
-							</button>
-						</div>
-
-						<!-- Password Strength Indicator -->
-						<div class="strength-wrap" *ngIf="basicInfoForm.get('password')?.value"
-							[ngClass]="'str-' + passwordStrength.score">
-							<div class="strength-bars">
-								<div class="str-bar"></div>
-								<div class="str-bar"></div>
-								<div class="str-bar"></div>
-								<div class="str-bar"></div>
-							</div>
-							<span class="strength-lbl">كلمة المرور {{ passwordStrength.label }}</span>
-						</div>
-						<div class="field-err"
-							*ngIf="basicInfoForm.get('password')?.touched && basicInfoForm.get('password')?.invalid">
-							كلمة المرور يجب ان تكون 8 احرف على الأقل وتحتوي رقما</div>
-					</div>
-
-					<div class="field-grp" style="margin-bottom:0">
-						<label class="field-lbl">تأكيد كلمة المرور <span class="field-req">*</span></label>
-						<div class="pw-wrap">
-							<input [type]="showConfirmPassword ? 'text' : 'password'" class="field-in"
-								formControlName="confirmPassword" placeholder="اعد كتابة كلمة المرور" autocomplete="new-password"
-								[class.has-error]="(basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')">
-							<button type="button" class="pw-eye" (click)="toggleConfirmPassword()"
-								aria-label="تغيير عرض تأكيد كلمة المرور">
-								<svg *ngIf="!showConfirmPassword" width="18" height="18" fill="none"
-									stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-									stroke-linejoin="round" viewBox="0 0 24 24">
-									<path d="M2 12c2-5 5.5-8 10-8s8 3 10 8c-2 5-5.5 8-10 8S4 17 2 12z" />
-									<circle cx="12" cy="12" r="3" />
-								</svg>
-								<svg *ngIf="showConfirmPassword" width="18" height="18" fill="none"
-									stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-									stroke-linejoin="round" viewBox="0 0 24 24">
-									<path
-										d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-									<line x1="1" y1="1" x2="23" y2="23" />
-								</svg>
-							</button>
-						</div>
-						<div class="field-err"
-							*ngIf="(basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')">
-							كلمة المرور غير متطابقة</div>
-					</div>
-				</div>
-
-				<div class="terms-card">
-					<label class="chk-row">
-						<input type="checkbox" formControlName="agreeData">
-						<span>أقر بأن جميع البيانات المدخلة صحيحة ودقيقة وتمثلني بشكل حقيقي</span>
-					</label>
-					<label class="chk-row">
-						<input type="checkbox" formControlName="agreeTerms">
-						<span>
-							اطلعت على
-							<a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="auth-lnk">شروط
-								الاستخدام</a>
-							و
-							<a routerLink="/privacy" target="_blank" rel="noopener noreferrer" class="auth-lnk">سياسة
-								الخصوصية</a>
-							وأوافق عليها
-						</span> </label>
-				</div>
-
-				<div class="btn-group">
-					<button type="submit" class="btn-primary" [disabled]="isSubmitting || basicInfoForm.invalid">
-						<span *ngIf="!isSubmitting">التالي: التحقق</span>
-						<span *ngIf="isSubmitting">جاري التسجيل...</span>
-					</button>
-					<button type="button" class="btn-tertiary" (click)="currentStep = 1">
-						<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
-							viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-						</svg>
-						<span>رجوع</span>
-					</button>
-				</div>
-			</form>
-
-			<!-- STEP 3: OTP Verification -->
-			<form *ngIf="currentStep === 3" [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
-				<div class="form-card" style="text-align: center;">
-					<p class="auth-sub" style="margin-bottom: 20px;">تم إرسال رمز التفعيل المكون من 6 أرقام إلى بريدك
-						الإلكتروني</p>
-
-					<div class="otp-row" role="group" aria-label="خانات رمز التحقق" dir="ltr" (paste)="onOtpPaste($event)">
-						@for (i of otpIndexes; track i) {
-						<input class="otp-in" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*"
-							maxlength="1" autocomplete="one-time-code" [id]="'otp-' + i"
-							[attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)"
-							(keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
-						}
-					</div>
-
-					<p class="otp-hint" *ngIf="countdown > 0">إعادة إرسال الرمز بعد <span dir="ltr">{{ formattedCountdown }}</span></p>
-					<button type="button" class="otp-resend" *ngIf="countdown === 0" (click)="resendOtp()"
-						[disabled]="isSubmitting">إعادة إرسال الرمز الآن</button>
-
-					<div class="btn-group" style="margin-top: 24px;">
-						<button type="submit" class="btn-primary" [disabled]="isSubmitting || verificationForm.invalid">
-							<span *ngIf="!isSubmitting">تأكيد التفعيل والدخول</span>
-							<span *ngIf="isSubmitting">جاري التحقق...</span>
-						</button>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
+    <div class="proceed-row">
+      <button type="button" class="btn-primary btn-proceed" id="btn-proceed" [disabled]="!selectedAccountType" (click)="nextStep()">متابعة</button>
+      <span class="proceed-hint" id="proceed-hint">{{ selectedAccountType ? '' : 'اختر نوع الحساب للمتابعة' }}</span>
+    </div>
+  </div>
 </section>
+</div>
+}
+
+<!-- ===== STEP 2 — basic data (P-AU-004) ===== -->
+@if (currentStep === 2) {
+<div class="rg-s2">
+<section class="auth-section" aria-labelledby="page-h1">
+  <div class="auth-inner">
+
+    <div class="auth-flow-head">
+      <button type="button" class="auth-back-link" aria-label="الرجوع لاختيار نوع الحساب" (click)="prevStep()">
+        <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
+        رجوع
+      </button>
+      <span class="auth-step-pill">الخطوة 2 من 3</span>
+    </div>
+
+    @if (showDraftBanner) {
+    <div class="draft-banner" id="draft-banner" role="alert">
+      <svg style="width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-ai-spark"></use></svg>
+      <span>هل تريد استرجاع البيانات السابقة</span>
+      <div class="draft-banner-btns">
+        <button class="draft-btn-yes" id="draft-yes" type="button" (click)="restoreDraft()">نعم</button>
+        <button class="draft-btn-no" id="draft-no" type="button" (click)="dismissDraft()">تجاهل</button>
+      </div>
+    </div>
+    }
+
+    <div id="main-form-area">
+      <div class="auth-head">
+        <div class="auth-logo"><img src="/images/waseet-mark.png" alt="وسيط AI"></div>
+        <h1 class="auth-h1" id="page-h1">البيانات الأساسية</h1>
+        <p class="auth-sub">الخطوة 2 من 3 في رحلة التسجيل في وسيط AI</p>
+      </div>
+
+      <div class="role-bar" id="role-bar">
+        <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-user"></use></svg>
+        <span class="role-bar-lbl">نوع الحساب</span>
+        <span class="role-bar-val" id="role-bar-val">{{ selectedAccountType ? selectedAccountObject.title : 'غير محدد' }}</span>
+        <button type="button" class="role-bar-chg" (click)="currentStep = 1">تغيير</button>
+      </div>
+
+      <div class="stepper" role="list" aria-label="خطوات التسجيل">
+        <div class="step-row">
+          <div class="step-item step-done" role="listitem">
+            <div class="step-node">
+              <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
+            </div>
+            <div class="step-label">اختيار الدور</div>
+          </div>
+          <div class="step-connector done" aria-hidden="true"></div>
+          <div class="step-item step-active" role="listitem" aria-current="step">
+            <div class="step-node">2</div>
+            <div class="step-label">البيانات الأساسية</div>
+          </div>
+          <div class="step-connector" aria-hidden="true"></div>
+          <div class="step-item step-idle" role="listitem">
+            <div class="step-node">3</div>
+            <div class="step-label">التحقق</div>
+          </div>
+        </div>
+      </div>
+
+      @if (errorMessage) {
+      <div class="banner-error" id="banner-error" role="alert">
+        <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-warn"></use></svg>
+        <span id="banner-error-txt">{{ errorMessage }}</span>
+      </div>
+      }
+
+      <form id="complete-form" novalidate [formGroup]="basicInfoForm" (ngSubmit)="nextStep()">
+        <div class="form-card">
+          <div class="form-card-title">
+            <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-user"></use></svg>
+            البيانات الشخصية
+          </div>
+
+          <div class="social-login">
+            <div class="google-btn-wrapper">
+              <button type="button" class="btn-social btn-google" id="btn-google" aria-label="المتابعة مع جوجل">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.91C16.36 14.1 17.64 11.85 17.64 9.2z" fill="#4285F4"/>
+                  <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/>
+                  <path d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33z" fill="#FBBC05"/>
+                  <path d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96L3.96 7.29C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/>
+                </svg>
+                المتابعة مع جوجل
+              </button>
+              <asl-google-signin-button type="standard" size="large" text="continue_with" [width]="400" theme="filled_black"></asl-google-signin-button>
+            </div>
+            <button type="button" class="btn-social btn-apple" id="btn-apple" aria-label="المتابعة مع آبل" (click)="appleSignIn()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+              المتابعة مع آبل
+            </button>
+          </div>
+          @if (appleNotice) {
+          <div class="social-note">{{ appleNotice }}</div>
+          }
+          <div class="social-divider"><span>أو أدخل بياناتك يدوياً</span></div>
+
+          <div class="field-2col">
+            <div class="field-grp">
+              <label class="field-lbl" for="first-name">الاسم الأول <span class="field-req" aria-hidden="true">*</span></label>
+              <input class="field-in" type="text" id="first-name" formControlName="firstName" placeholder="الاسم الأول" autocomplete="given-name" aria-required="true"
+                [class.has-error]="basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid">
+              @if (basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid) {
+              <div class="field-err" id="err-first-name">
+                <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+                <span>ادخل الاسم الأول</span>
+              </div>
+              }
+            </div>
+            <div class="field-grp">
+              <label class="field-lbl" for="last-name">اسم العائلة <span class="field-req" aria-hidden="true">*</span></label>
+              <input class="field-in" type="text" id="last-name" formControlName="lastName" placeholder="اسم العائلة" autocomplete="family-name" aria-required="true"
+                [class.has-error]="basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid">
+              @if (basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid) {
+              <div class="field-err" id="err-last-name">
+                <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+                <span>ادخل اسم العائلة</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div class="field-grp">
+            <label class="field-lbl" for="email">البريد الإلكتروني <span class="field-req" aria-hidden="true">*</span></label>
+            <input class="field-in" type="email" id="email" formControlName="email" placeholder="name@example.com" autocomplete="email" aria-required="true" dir="ltr" style="text-align:right"
+              [class.has-error]="basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid">
+            @if (basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid) {
+            <div class="field-err" id="err-email">
+              <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+              <span>ادخل بريدا الكترونيا صحيحا</span>
+            </div>
+            }
+          </div>
+
+          <div class="field-grp">
+            <label class="field-lbl" for="mobile">رقم الجوال <span class="field-req" aria-hidden="true">*</span></label>
+            <app-phone-input formControlName="phone"></app-phone-input>
+            @if (basicInfoForm.get('phone')?.touched && basicInfoForm.get('phone')?.invalid) {
+            <div class="field-err" id="err-mobile">
+              <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+              <span>ادخل رقم جوال صحيح</span>
+            </div>
+            }
+          </div>
+
+          <div class="field-grp">
+            <label class="field-lbl" for="password">كلمة المرور <span class="field-req" aria-hidden="true">*</span></label>
+            <div class="pw-wrap">
+              <input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="8 احرف على الأقل مع رقم" autocomplete="new-password" aria-required="true" aria-describedby="strength-lbl"
+                [class.has-error]="basicInfoForm.get('password')?.touched && basicInfoForm.get('password')?.invalid">
+              <button type="button" class="pw-eye" id="pw-toggle-1" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'اخفاء كلمة المرور' : 'اظهار كلمة المرور'">
+                @if (!showPassword) {
+                <svg id="pw-show-1" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-eye-on"></use></svg>
+                } @else {
+                <svg id="pw-hide-1" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-eye-off"></use></svg>
+                }
+              </button>
+            </div>
+            <div class="strength-wrap" aria-live="polite">
+              <div class="strength-bars" id="strength-bars" aria-hidden="true" [ngClass]="passwordStrength.score ? 'str-' + passwordStrength.score : ''">
+                <div class="str-bar"></div>
+                <div class="str-bar"></div>
+                <div class="str-bar"></div>
+                <div class="str-bar"></div>
+              </div>
+              <div class="strength-lbl" id="strength-lbl">{{ passwordStrength.label }}</div>
+            </div>
+            @if (basicInfoForm.get('password')?.touched && basicInfoForm.get('password')?.invalid) {
+            <div class="field-err" id="err-password">
+              <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+              <span>كلمة المرور يجب ان تكون 8 احرف على الأقل وتحتوي رقما</span>
+            </div>
+            }
+          </div>
+
+          <div class="field-grp" style="margin-bottom:0">
+            <label class="field-lbl" for="password-confirm">تأكيد كلمة المرور <span class="field-req" aria-hidden="true">*</span></label>
+            <div class="pw-wrap">
+              <input class="field-in" [type]="showConfirmPassword ? 'text' : 'password'" id="password-confirm" formControlName="confirmPassword" placeholder="اعد كتابة كلمة المرور" autocomplete="new-password" aria-required="true"
+                [class.has-error]="(basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')">
+              <button type="button" class="pw-eye" id="pw-toggle-2" (click)="toggleConfirmPassword()" [attr.aria-label]="showConfirmPassword ? 'اخفاء تأكيد كلمة المرور' : 'اظهار تأكيد كلمة المرور'">
+                @if (!showConfirmPassword) {
+                <svg id="pw-show-2" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-eye-on"></use></svg>
+                } @else {
+                <svg id="pw-hide-2" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-eye-off"></use></svg>
+                }
+              </button>
+            </div>
+            @if ((basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')) {
+            <div class="field-err" id="err-confirm">
+              <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+              <span>كلمة المرور غير متطابقة</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="terms-card">
+          <label class="chk-row" for="chk-accuracy">
+            <input type="checkbox" id="chk-accuracy" formControlName="agreeData" aria-required="true">
+            <span>أقر بأن جميع البيانات المدخلة صحيحة ودقيقة وتمثلني بشكل حقيقي</span>
+          </label>
+          <label class="chk-row" for="terms-chk">
+            <input type="checkbox" id="terms-chk" formControlName="agreeTerms" aria-required="true">
+            <span>اطلعت على <a routerLink="/terms" target="_blank" rel="noopener noreferrer">شروط الاستخدام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a> وأوافق عليها</span>
+          </label>
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting || basicInfoForm.invalid">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}</button>
+          <button type="button" class="btn-tertiary" id="btn-back" (click)="currentStep = 1">
+            <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
+            رجوع
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>
+</div>
+}
+
+<!-- ===== STEP 3 — verification (P-AU-009) ===== -->
+@if (currentStep === 3) {
+<div class="rg-s3">
+<section class="auth-section" aria-labelledby="page-h1">
+  <div class="auth-inner">
+
+    <div class="auth-flow-head">
+      <button type="button" class="auth-back-link" aria-label="الرجوع للبيانات الاساسية" (click)="prevStep()">
+        <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
+        رجوع
+      </button>
+      <span class="auth-step-pill">الخطوة 3 من 3</span>
+    </div>
+
+    <div class="auth-head">
+      <div class="auth-logo"><img src="/images/waseet-mark.png" alt="وسيط AI"></div>
+      <h1 class="auth-h1" id="page-h1">تأكيد البريد الإلكتروني</h1>
+      <p class="auth-sub">الخطوة 3 من 3 في رحلة التسجيل في وسيط AI</p>
+    </div>
+
+    <div class="role-bar" id="role-bar">
+      <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-user"></use></svg>
+      <span class="role-bar-lbl">نوع الحساب</span>
+      <span class="role-bar-val" id="role-bar-val">{{ selectedAccountType ? selectedAccountObject.title : 'غير محدد' }}</span>
+      <button type="button" class="role-bar-chg" (click)="currentStep = 1">تغيير</button>
+    </div>
+
+    <div class="stepper" role="list" aria-label="خطوات التسجيل">
+      <div class="step-row">
+        <div class="step-item step-done" role="listitem">
+          <div class="step-node">
+            <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
+          </div>
+          <div class="step-label">اختيار الدور</div>
+        </div>
+        <div class="step-connector done" aria-hidden="true"></div>
+        <div class="step-item step-done" role="listitem">
+          <div class="step-node">
+            <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
+          </div>
+          <div class="step-label">البيانات الاساسية</div>
+        </div>
+        <div class="step-connector done" aria-hidden="true"></div>
+        <div class="step-item step-active" role="listitem" aria-current="step">
+          <div class="step-node">3</div>
+          <div class="step-label">التحقق</div>
+        </div>
+      </div>
+    </div>
+
+    @if (maskedEmail) {
+    <div class="masked-wrap" id="masked-wrap" aria-label="بيانات الارسال">
+      <div class="masked-row">
+        <span class="masked-icon">
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-mail"></use></svg>
+        </span>
+        <span class="masked-val" id="masked-email" dir="ltr">{{ maskedEmail }}</span>
+        <span class="masked-type">بريد</span>
+      </div>
+    </div>
+    }
+
+    @if (errorMessage) {
+    <div class="banner-error" id="banner-error" role="alert">
+      <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-warn"></use></svg>
+      <span id="banner-error-txt">{{ errorMessage }}</span>
+    </div>
+    }
+
+    <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
+      <div class="otp-card">
+        <div class="otp-card-title">رمز التحقق</div>
+        <div class="otp-group" id="otp-group" aria-label="خانات رمز التحقق" role="group" dir="ltr" (paste)="onOtpPaste($event)">
+          @for (i of otpIndexes; track i) {
+          <input class="otp-box" [class.filled]="!!otpDigit(i)" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+            [id]="'otp-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
+          }
+        </div>
+
+        @if (countdown > 0) {
+        <div class="timer-block" id="timer-block">
+          <span class="timer-label">إعادة الارسال بعد</span>
+          <span class="timer-val" id="timer-val" aria-live="polite" dir="ltr">{{ formattedCountdown }}</span>
+        </div>
+        }
+        <div style="text-align:center;margin-top:8px">
+          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="countdown > 0 || isSubmitting" (click)="resendOtp()">اعادة الارسال</button>
+        </div>
+      </div>
+
+      <div class="btn-group" style="margin-top:4px">
+        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isSubmitting || verificationForm.invalid" [attr.aria-disabled]="isSubmitting || verificationForm.invalid">
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
+          {{ isSubmitting ? 'جاري التحقق...' : 'التالي: لوحة التحكم' }}
+        </button>
+        <button type="button" class="btn-tertiary" (click)="prevStep()">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
+          رجوع
+        </button>
+      </div>
+    </form>
+
+  </div>
+</section>
+</div>
+}

@@ -457,6 +457,17 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		});
 	}
 
+	/** Masked email for the verification step, same format as the design (P-AU-009 maskEmail). */
+	get maskedEmail(): string {
+		const e: string = this.basicInfoForm.get('email')?.value || '';
+		if (!e || e.indexOf('@') < 0) return '';
+		const [name, domain] = e.split('@');
+		const mn = name.length > 2 ? name[0] + '***' + name.slice(-1) : name[0] + '*';
+		const dp = domain.split('.');
+		const md = dp[0].length > 2 ? dp[0].slice(0, 2) + '***' : dp[0][0] + '*';
+		return mn + '@' + md + (dp.length > 1 ? '.' + dp.slice(1).join('.') : '');
+	}
+
 	passwordMatchValidator(g: FormGroup) {
 		const password = g.get('password')?.value;
 		const confirmPassword = g.get('confirmPassword')?.value;
@@ -478,8 +489,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 		switch (score) {
 			case 1: return { score: 1, label: 'ضعيفة', bgClass: 'bg-red-500', textClass: 'text-red-500' };
-			case 2: return { score: 2, label: 'متوسطة', bgClass: 'bg-orange-500', textClass: 'text-orange-500' };
-			case 3: return { score: 3, label: 'مقبولة', bgClass: 'bg-[#2B7FFF]', textClass: 'text-[#2B7FFF]' };
+			case 2: return { score: 2, label: 'مقبولة', bgClass: 'bg-orange-500', textClass: 'text-orange-500' };
+			case 3: return { score: 3, label: 'جيدة', bgClass: 'bg-[#2B7FFF]', textClass: 'text-[#2B7FFF]' };
 			case 4: return { score: 4, label: 'قوية', bgClass: 'bg-[var(--teal)]', textClass: 'text-[var(--teal)]' };
 			default: return { score: 0, label: '', bgClass: '', textClass: '' };
 		}
