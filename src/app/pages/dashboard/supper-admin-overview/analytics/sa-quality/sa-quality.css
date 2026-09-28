@@ -55,7 +55,7 @@
 .sq-prov-action-warn,.sq-prov-action-notice{background:rgba(255,180,0,.10);border:1px solid rgba(255,180,0,.22);color:#FFB400}
 
 .sq-contested-list{display:flex;flex-direction:column;gap:6px}
-.sq-contested{padding:10px;background:rgba(123,47,190,.05);border:1px solid rgba(123,47,190,.16);border-radius:9px}
+.sq-contested{padding:10px;background:rgba(255,140,105,.05);border:1px solid rgba(255,140,105,.16);border-radius:9px}
 .sq-contested-head{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
 .sq-contested-text{font-size:11px;color:#A8B2D1;margin-bottom:6px}
 .sq-contested-actions{display:flex;gap:6px}

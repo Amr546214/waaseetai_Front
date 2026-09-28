@@ -63,7 +63,7 @@
 .svc-card:hover{transform:translateY(-3px);border-color:rgba(43,212,199,.2);box-shadow:0 12px 36px rgba(0,0,0,.28)}
 .svc-thumb{height:140px;background:linear-gradient(135deg,#0A1020,#12183C);display:flex;align-items:center;justify-content:center;position:relative}
 .svc-thumb .ph{opacity:.22;color:var(--txt-3)}
-.svc-lvl{position:absolute;top:9px;right:9px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(123,47,190,.85);color:#E0C6FF}
+.svc-lvl{position:absolute;top:9px;right:9px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(43,127,255,.85);color:#D9E8FF}
 .discount-tag{position:absolute;bottom:9px;left:9px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;background:rgba(255,140,105,.9);color:#2A0A00}
 
 /* PODIUM (top-3 showcase) */

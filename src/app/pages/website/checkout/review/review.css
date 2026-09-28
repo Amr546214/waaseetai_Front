@@ -34,7 +34,7 @@
 .order-thumb img{width:100%;height:100%;object-fit:cover}
 .order-thumb svg{width:20px;height:20px;opacity:.3;color:var(--txt-3)}
 .order-thumb .lvl{position:absolute;top:4px;right:4px;padding:1px 5px;border-radius:6px;font-size:8px;font-weight:800}
-.order-thumb .lvl.lvl-expert{background:rgba(123,47,190,.85);color:#E0C6FF}
+.order-thumb .lvl.lvl-expert{background:rgba(43,127,255,.85);color:#D9E8FF}
 .order-thumb .lvl.lvl-advanced{background:rgba(43,127,255,.85);color:#fff}
 .order-info{flex:1;min-width:0}
 .order-cat{font-size:10px;font-weight:800;color:var(--teal);letter-spacing:.04em;margin-bottom:3px}

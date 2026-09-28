@@ -99,7 +99,7 @@
 .tag-done{background:rgba(15,169,154,.10);color:#0FA99A;border:1px solid rgba(15,169,154,.22)}
 .tag-progress{background:rgba(43,127,255,.10);color:#5DA0FF;border:1px solid rgba(43,127,255,.22)}
 .tag-pending{background:rgba(255,180,0,.10);color:var(--kahr,#D98A0B);border:1px solid rgba(255,180,0,.22)}
-.tag-review{background:rgba(123,47,190,.10);color:var(--ai-txt,#A56BE0);border:1px solid rgba(123,47,190,.22)}
+.tag-review{background:rgba(93,160,255,.10);color:#5DA0FF;border:1px solid rgba(93,160,255,.22)}
 
 @media(max-width:900px){.tm-stats{grid-template-columns:repeat(2,1fr)}.emp-list,.role-grid{grid-template-columns:1fr}.grp-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.tm-page{padding:16px}.page-ttl{font-size:18px}.tm-stats{grid-template-columns:1fr}.emp-actions{flex-direction:column}}

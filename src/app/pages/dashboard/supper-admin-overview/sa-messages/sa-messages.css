@@ -27,7 +27,7 @@
 .ms-c-av{width:37px;height:37px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0}
 .ms-c-av.type-sk{background:linear-gradient(135deg,rgba(43,212,199,.2),rgba(43,127,255,.15));border:1px solid rgba(43,212,199,.22);color:#2BD4C7}
 .ms-c-av.type-pr{background:linear-gradient(135deg,rgba(43,127,255,.2),rgba(43,127,255,.1));border:1px solid rgba(43,127,255,.22);color:#5DA0FF}
-.ms-c-av.type-co{background:linear-gradient(135deg,rgba(165,107,224,.2),rgba(43,127,255,.1));border:1px solid rgba(165,107,224,.22);color:#A56BE0}
+.ms-c-av.type-co{background:linear-gradient(135deg,rgba(217,138,11,.2),rgba(43,127,255,.1));border:1px solid rgba(217,138,11,.22);color:#D98A0B}
 
 .ms-conv-meta{flex:1;min-width:0}
 .ms-c-name{font-size:13px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
@@ -43,7 +43,7 @@
 .ms-mh-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0}
 .ms-mh-av.type-sk{background:linear-gradient(135deg,rgba(43,212,199,.2),rgba(43,127,255,.15));border:1px solid rgba(43,212,199,.22);color:#2BD4C7}
 .ms-mh-av.type-pr{background:linear-gradient(135deg,rgba(43,127,255,.2),rgba(43,127,255,.1));border:1px solid rgba(43,127,255,.22);color:#5DA0FF}
-.ms-mh-av.type-co{background:linear-gradient(135deg,rgba(165,107,224,.2),rgba(43,127,255,.1));border:1px solid rgba(165,107,224,.22);color:#A56BE0}
+.ms-mh-av.type-co{background:linear-gradient(135deg,rgba(217,138,11,.2),rgba(43,127,255,.1));border:1px solid rgba(217,138,11,.22);color:#D98A0B}
 .ms-mh-name{font-size:13px;font-weight:900;color:#fff}
 .ms-mh-role{font-size:10px;color:#2BD4C7;font-weight:600}
 .ms-mh-stat{display:flex;align-items:center;gap:5px;font-size:11px;color:#6B7699;margin-inline-start:auto}

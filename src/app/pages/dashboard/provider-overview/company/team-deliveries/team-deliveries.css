@@ -109,8 +109,8 @@
 .tds-pill-pending::before { background: #5DA0FF; }
 .tds-pill-approved { background: rgba(15, 169, 154, .10); color: #0FA99A; border: 1px solid rgba(15, 169, 154, .22); }
 .tds-pill-approved::before { background: #0FA99A; }
-.tds-pill-notes { background: rgba(123, 47, 190, .10); color: #A56BE0; border: 1px solid rgba(123, 47, 190, .22); }
-.tds-pill-notes::before { background: #A56BE0; }
+.tds-pill-notes { background: rgba(217, 138, 11, .10); color: #D98A0B; border: 1px solid rgba(217, 138, 11, .22); }
+.tds-pill-notes::before { background: #D98A0B; }
 .tds-ai-match { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 800; color: #A56BE0; }
 .tds-date-cell { font-size: 11.5px; color: var(--tds-txt-muted); white-space: nowrap; }
 .tds-empty-cell { text-align: center; padding: 30px; font-size: 12px; color: var(--tds-txt-muted); }

@@ -52,7 +52,7 @@
 .svc-card:hover{transform:translateY(-3px);border-color:rgba(43,212,199,.2)}
 .svc-thumb{height:148px;background:linear-gradient(135deg,#0A1020,#12183C);display:flex;align-items:center;justify-content:center;position:relative}
 .svc-thumb .ph{opacity:.22;color:var(--txt-3)}
-.svc-lvl{position:absolute;top:10px;right:10px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(123,47,190,.85);color:#E0C6FF}
+.svc-lvl{position:absolute;top:10px;right:10px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(43,127,255,.85);color:#D9E8FF}
 .svc-remove{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;background:rgba(7,13,36,.75);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,border-color .15s;z-index:2;color:var(--txt-3)}
 .svc-remove:hover{background:rgba(255,80,80,.18);border-color:rgba(255,80,80,.3)}
 .svc-remove:disabled{opacity:.5;cursor:default}
