@@ -1,8 +1,66 @@
-import { Component, Input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 
-export type ErrorType = '500' | '403' | 'maintenance' | 'session-expired';
+export type ErrorType = '404' | '500' | '403' | 'maintenance' | 'session-expired';
+
+interface ErrorConfig {
+	code: string;
+	icon: 'search' | 'alert' | 'lock' | 'clock' | 'user';
+	tone: 'red' | 'kahr' | 'blue' | 'ai';
+	title: string;
+	desc: string;
+	primaryBtn: string;
+	/** Router link for the primary button; when empty the button reloads the page. */
+	primaryRoute: string;
+	secondaryBtn: string;
+	secondaryRoute: string;
+	showRef?: boolean;
+	showEta?: boolean;
+	showBack?: boolean;
+}
+
+// Texts, icons and colours follow design-reference/.../12-النظام-والاخطاء/P-SY-001..005.html
+const CONFIGS: Record<ErrorType, ErrorConfig> = {
+	'404': {
+		code: '404', icon: 'search', tone: 'red',
+		title: 'الصفحة غير موجودة',
+		desc: 'الصفحة التي تبحث عنها ربما نُقلت أو حُذفت أو الرابط غير صحيح.',
+		primaryBtn: 'العودة للرئيسية', primaryRoute: '/',
+		secondaryBtn: 'تصفح الخدمات', secondaryRoute: '/marketplace',
+		showBack: true
+	},
+	'500': {
+		code: '500', icon: 'alert', tone: 'red',
+		title: 'خطأ في الخادم',
+		desc: 'حدث خطأ غير متوقع من جانبنا. فريقنا أُشعر تلقائياً وسيعمل على الإصلاح فوراً.',
+		primaryBtn: 'حاول مجدداً', primaryRoute: '',
+		secondaryBtn: 'أبلغ عن المشكلة', secondaryRoute: '/support/report-problem',
+		showRef: true
+	},
+	'403': {
+		code: '403', icon: 'lock', tone: 'ai',
+		title: 'وصول مرفوض',
+		desc: 'ليس لديك صلاحية الوصول لهذه الصفحة. سجّل دخولك بحساب مناسب أو عد للرئيسية.',
+		primaryBtn: 'تسجيل الدخول', primaryRoute: '/auth/login',
+		secondaryBtn: 'الرئيسية', secondaryRoute: '/'
+	},
+	'maintenance': {
+		code: '', icon: 'clock', tone: 'kahr',
+		title: 'صيانة مجدولة',
+		desc: 'وسيط في وضع الصيانة لتحديثات مهمة. سنعود قريباً — شكراً لصبرك.',
+		primaryBtn: 'تحديث الصفحة', primaryRoute: '',
+		secondaryBtn: '', secondaryRoute: '',
+		showEta: true
+	},
+	'session-expired': {
+		code: '', icon: 'user', tone: 'blue',
+		title: 'انتهت جلستك',
+		desc: 'انتهت صلاحية جلستك لأسباب أمنية. سجّل دخولك مجدداً للمتابعة.',
+		primaryBtn: 'تسجيل الدخول', primaryRoute: '/auth/login',
+		secondaryBtn: 'الرئيسية', secondaryRoute: '/'
+	}
+};
 
 @Component({
 	selector: 'app-error-page',
@@ -11,113 +69,48 @@ export type ErrorType = '500' | '403' | 'maintenance' | 'session-expired';
 	templateUrl: './error-page.html',
 	styleUrls: ['./error-page.css']
 })
-export class ErrorPageComponent {
-	@Input() type: ErrorType = '500';
+export class ErrorPageComponent implements OnInit, AfterViewInit {
+	@Input() type: ErrorType | '' = '';
 
-	private router = inject(Router);
+	@ViewChild('particles') private particlesRef?: ElementRef<HTMLDivElement>;
+
 	private route = inject(ActivatedRoute);
+	private location = inject(Location);
+	private platformId = inject(PLATFORM_ID);
 
 	ngOnInit() {
-		// Read from route data if type input not set explicitly
-		if (!this.type || this.type === '500') {
+		// Read from route data if the type input was not set explicitly
+		if (!this.type) {
 			const data = this.route.snapshot.data;
-			if (data && data['type']) {
-				this.type = data['type'] as ErrorType;
-			}
+			this.type = (data && data['type'] ? data['type'] : '500') as ErrorType;
 		}
 	}
 
-	get config() {
-		switch (this.type) {
-			case '500':
-				return {
-					code: '500',
-					icon: 'alert',
-					iconBg: 'rgba(255,140,105,.1)',
-					iconBd: 'rgba(255,140,105,.25)',
-					iconColor: '#FF8068',
-					title: 'خطأ في الخادم',
-					desc: 'حدث خطأ غير متوقع من جانبنا. فريقنا أُشعر تلقائياً وسيعمل على الإصلاح فوراً.',
-					primaryBtn: 'حاول مجدداً',
-					primaryAction: 'reload',
-					secondaryBtn: 'أبلغ عن المشكلة',
-					secondaryRoute: '/help',
-					showRef: true
-				};
-			case '403':
-				return {
-					code: '403',
-					icon: 'lock',
-					iconBg: 'rgba(123,47,190,.1)',
-					iconBd: 'rgba(123,47,190,.25)',
-					iconColor: '#A56BE0',
-					title: 'وصول مرفوض',
-					desc: 'ليس لديك صلاحية الوصول لهذه الصفحة. سجّل دخولك بحساب مناسب أو عد للرئيسية.',
-					primaryBtn: 'تسجيل الدخول',
-					primaryAction: 'login',
-					secondaryBtn: 'الرئيسية',
-					secondaryRoute: '/',
-					showRef: false
-				};
-			case 'maintenance':
-				return {
-					code: '',
-					icon: 'clock',
-					iconBg: 'rgba(217,138,11,.1)',
-					iconBd: 'rgba(217,138,11,.25)',
-					iconColor: '#D98A0B',
-					title: 'صيانة مجدولة',
-					desc: 'وسيط في وضع الصيانة لتحديثات مهمة. سنعود قريباً — شكراً لصبرك.',
-					primaryBtn: 'تحديث الصفحة',
-					primaryAction: 'reload',
-					secondaryBtn: '',
-					secondaryRoute: '',
-					showRef: false,
-					showEta: true
-				};
-			case 'session-expired':
-				return {
-					code: '',
-					icon: 'user',
-					iconBg: 'rgba(43,127,255,.1)',
-					iconBd: 'rgba(43,127,255,.25)',
-					iconColor: '#5DA0FF',
-					title: 'انتهت جلستك',
-					desc: 'انتهت صلاحية جلستك لأسباب أمنية. سجّل دخولك مجدداً للمتابعة.',
-					primaryBtn: 'تسجيل الدخول',
-					primaryAction: 'login',
-					secondaryBtn: 'الرئيسية',
-					secondaryRoute: '/',
-					showRef: false
-				};
-			default:
-				return {
-					code: '500',
-					icon: 'alert',
-					iconBg: 'rgba(255,140,105,.1)',
-					iconBd: 'rgba(255,140,105,.25)',
-					iconColor: '#FF8068',
-					title: 'خطأ',
-					desc: 'حدث خطأ غير متوقع.',
-					primaryBtn: 'حاول مجدداً',
-					primaryAction: 'reload',
-					secondaryBtn: '',
-					secondaryRoute: '',
-					showRef: false
-				};
+	ngAfterViewInit() {
+		// Same floating particles as the design (25 desktop / 11 mobile)
+		const pc = this.particlesRef?.nativeElement;
+		if (!pc || !isPlatformBrowser(this.platformId)) return;
+		const n = window.innerWidth < 768 ? 11 : 25;
+		for (let i = 0; i < n; i++) {
+			const p = document.createElement('div');
+			p.className = 'particle';
+			const sz = (Math.random() * 2.5 + 2).toFixed(1) + 'px';
+			p.style.cssText = 'left:' + (Math.random() * 100) + '%;width:' + sz + ';height:' + sz + ';animation-duration:' + (Math.random() * 9 + 5).toFixed(1) + 's;animation-delay:-' + (Math.random() * 12).toFixed(1) + 's;opacity:' + (Math.random() * .35 + .08).toFixed(2);
+			pc.appendChild(p);
 		}
 	}
 
-	doPrimary() {
-		const action = this.config.primaryAction;
-		if (action === 'reload') {
-			window.location.reload();
-		} else if (action === 'login') {
-			this.router.navigate(['/auth/login']);
-		}
+	get config(): ErrorConfig {
+		return CONFIGS[(this.type || '500') as ErrorType] ?? CONFIGS['500'];
 	}
 
-	goHome() {
-		this.router.navigate(['/']);
+	doPrimary(ev: Event) {
+		ev.preventDefault();
+		window.location.reload();
+	}
+
+	goBack(ev: Event) {
+		ev.preventDefault();
+		this.location.back();
 	}
 }
