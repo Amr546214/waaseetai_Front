@@ -90,7 +90,7 @@
                   <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
                 }
                 @if (slot.model.level) {
-                  <div class="pc-lvl" [style.background]="slot.model.levelBg || 'rgba(123,47,190,.85)'" [style.color]="slot.model.levelColor || '#E0C6FF'">{{ slot.model.level }}</div>
+                  <div class="pc-lvl" [style.background]="slot.model.levelBg || 'rgba(43,127,255,.85)'" [style.color]="slot.model.levelColor || '#D9E8FF'">{{ slot.model.level }}</div>
                 }
               </div>
               <div class="pc-body">
@@ -151,7 +151,7 @@
                 <svg class="ph" aria-hidden="true" style="width:32px;height:32px"><use href="#ws-image"></use></svg>
               }
               @if (m.level) {
-                <span class="svc-lvl" [style.background]="m.levelBg || 'rgba(123,47,190,.85)'" [style.color]="m.levelColor || '#E0C6FF'">{{ m.level }}</span>
+                <span class="svc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</span>
               }
               @if (m.discountPercentage) {
                 <span class="discount-tag">خصم {{ m.discountPercentage }}%</span>

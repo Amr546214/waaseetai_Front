@@ -864,7 +864,7 @@
   background: rgba(15, 23, 42, 0.7);
 }
 .bbl.other .msg-ctx-preview {
-  border-right-color: rgba(168, 85, 247, 0.5);
+  border-right-color: rgba(43, 212, 199, 0.5);
 }
 .msg-ctx-preview .msg-ctx-label {
   font-size: 10px;
@@ -872,7 +872,7 @@
   color: #2DD4BF;
 }
 .bbl.other .msg-ctx-preview .msg-ctx-label {
-  color: #C084FC;
+  color: #2BD4C7;
 }
 .msg-ctx-preview .msg-ctx-title {
   font-size: 12px;
