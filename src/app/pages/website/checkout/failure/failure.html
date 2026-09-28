@@ -1,101 +1,74 @@
-<div class="checkout-page">
-  <div class="checkout-container">
-    <div class="failure-body">
-      <!-- Failure Icon -->
-      <div class="failure-icon-wrapper">
-        <div class="failure-icon-circle">
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="15" y1="9" x2="9" y2="15" />
-            <line x1="9" y1="9" x2="15" y2="15" />
-          </svg>
-        </div>
+<!-- P-BF-006 فشل الدفع — ported from design-reference/extracted/00-تسليم-الموقع-والسوق/09-الشراء-والدفع/P-BF-006.html -->
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></symbol>
+<symbol id="ws-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+<symbol id="ws-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+<symbol id="ws-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></symbol>
+<symbol id="ws-support" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+</defs></svg>
+
+<div class="container">
+  <div class="fail-wrap">
+    <div class="fail-icon-ring" role="img" aria-label="فشل الدفع">
+      <div class="fail-icon-inner">
+        <svg aria-hidden="true"><use href="#ws-x-circle"></use></svg>
       </div>
+    </div>
+    <h1 class="fail-title">لم يتم إتمام الدفع</h1>
+    <p class="fail-sub">عذراً، تعذّر تحصيل المبلغ من البطاقة المُدخلة.<br>طلبك محفوظ في السلة ويمكنك المحاولة مرة أخرى.</p>
 
-      <h1 class="failure-title">فشل الدفع</h1>
-      <p class="failure-subtitle">تعذّر إتمام عملية الدفع</p>
-
-      <!-- Error Message -->
-      @if (errorMessage()) {
-        <div class="error-message-card">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="16" x2="12" y2="12" />
-            <line x1="12" y1="8" x2="12.01" y2="8" />
-          </svg>
-          <span>{{ errorMessage() }}</span>
-        </div>
-      }
-
-      <!-- Order Info (if exists) -->
-      @if (hasOrder()) {
-        <div class="order-info-card">
-          <div class="order-info-row">
-            <span class="info-label">رقم الطلب</span>
-            <span class="info-value">{{ orderNumber() }}</span>
-          </div>
-          <div class="order-info-row">
-            <span class="info-label">المبلغ</span>
-            <span class="info-value">{{ formatPrice(orderTotal()) }} ريال</span>
-          </div>
-          <div class="order-info-row">
-            <span class="info-label">حالة الدفع</span>
-            <span class="info-value status-failed">فشل</span>
-          </div>
-        </div>
-      }
-
-      <!-- Help Card -->
-      <div class="help-card">
-        <h3 class="card-title">معلومات مهمة</h3>
-        <div class="help-list">
-          @for (item of helpItems; track item) {
-            <div class="help-item">
-              <div class="help-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="16" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-              </div>
-              <span class="help-text">{{ item }}</span>
-            </div>
-          }
-        </div>
+    <!-- backend error (the design's error-code pill) -->
+    @if (errorMessage()) {
+      <div class="error-code">
+        <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+        {{ errorMessage() }}
       </div>
+    }
 
-      <!-- Action Buttons -->
-      <div class="failure-actions">
-        <a routerLink="/checkout/payment" class="btn-primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10" />
-            <polyline points="1 20 1 14 7 14" />
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-          </svg>
-          إعادة المحاولة
-        </a>
-        <a routerLink="/checkout/payment" class="btn-secondary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-            <line x1="1" y1="10" x2="23" y2="10" />
-          </svg>
-          تغيير طريقة الدفع
-        </a>
-        <a routerLink="/cart" class="btn-tertiary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="21" r="1" />
-            <circle cx="20" cy="21" r="1" />
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-          </svg>
-          العودة للسلة
-        </a>
-        <a routerLink="/contact" class="btn-tertiary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          تواصل مع الدعم
-        </a>
+    <!-- Order info (app feature — drawn with the design's reasons card) -->
+    @if (hasOrder()) {
+      <div class="reasons-card">
+        <div class="reasons-title">
+          <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+          تفاصيل الطلب
+        </div>
+        <div class="reason-item order-row"><span>رقم الطلب</span><span class="order-row-val" dir="ltr">{{ orderNumber() }}</span></div>
+        <div class="reason-item order-row"><span>المبلغ</span><span class="order-row-val">{{ formatPrice(orderTotal()) }} ريال</span></div>
+        <div class="reason-item order-row"><span>حالة الدفع</span><span class="order-row-val" style="color:var(--red)">فشل</span></div>
       </div>
+    }
+
+    <!-- REASONS -->
+    <div class="reasons-card">
+      <div class="reasons-title">
+        <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+        الأسباب الشائعة لرفض الدفع
+      </div>
+      <div class="reason-item"><div class="reason-dot"></div> رصيد غير كافٍ في البطاقة</div>
+      <div class="reason-item"><div class="reason-dot"></div> بيانات البطاقة غير صحيحة (الرقم، تاريخ الانتهاء، CVV)</div>
+      <div class="reason-item"><div class="reason-dot"></div> البطاقة محظورة للمدفوعات الإلكترونية أو الدولية</div>
+      <div class="reason-item"><div class="reason-dot"></div> تجاوز الحد اليومي أو الشهري للبطاقة</div>
+      <div class="reason-item"><div class="reason-dot"></div> انتهاء صلاحية رمز OTP المُرسل</div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions-col">
+      <a routerLink="/checkout/payment" class="btn-retry">
+        <svg aria-hidden="true"><use href="#ws-refresh"></use></svg>
+        إعادة المحاولة بنفس البطاقة
+      </a>
+      <a routerLink="/checkout/payment" class="btn-alt">
+        <svg aria-hidden="true"><use href="#ws-cart"></use></svg>
+        تغيير طريقة الدفع
+      </a>
+      <a routerLink="/cart" class="btn-alt">
+        العودة إلى السلة
+      </a>
+    </div>
+
+    <div class="support-note">
+      <svg aria-hidden="true" style="width:13px;height:13px;color:var(--teal)"><use href="#ws-support"></use></svg>
+      هل تحتاج مساعدة؟ <a routerLink="/contact">تواصل مع الدعم</a>
     </div>
   </div>
 </div>

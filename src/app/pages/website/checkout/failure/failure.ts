@@ -8,7 +8,7 @@ import { CheckoutService } from '../../../../core/services/checkout.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './failure.html',
-  styleUrl: './failure.css',
+  styleUrls: ['../components/checkout-tokens.css', './failure.css'],
 })
 export class CheckoutFailureComponent implements OnInit {
   private checkoutService = inject(CheckoutService);
@@ -23,14 +23,9 @@ export class CheckoutFailureComponent implements OnInit {
   orderNumber = computed(() => this.currentOrder()?.orderNumber || '');
   orderTotal = computed(() => this.currentOrder()?.total || 0);
 
-  helpItems = [
-    'لم يتم خصم أي مبلغ إذا لم تكتمل العملية',
-    'يمكنك إعادة المحاولة أو اختيار طريقة دفع أخرى',
-    'إذا استمرت المشكلة تواصل مع الدعم',
-  ];
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
   }
 
   ngOnInit(): void {

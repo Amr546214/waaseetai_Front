@@ -1,251 +1,52 @@
-.checkout-page {
-  min-height: 60vh;
-  padding: 24px 16px;
-}
+/* ============================================================
+   P-BF-006 فشل الدفع — ported verbatim from
+   design-reference/extracted/00-تسليم-الموقع-والسوق/09-الشراء-والدفع/P-BF-006.html
+   Tokens: ../components/checkout-tokens.css
+   ============================================================ */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes fade-up{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
 
-.checkout-container {
-  max-width: 520px;
-  margin: 0 auto;
-}
+/* FAIL CONTENT */
+.fail-wrap{max-width:520px;margin:0 auto;padding:40px 0 80px;text-align:center}
+.fail-icon-ring{width:88px;height:88px;border-radius:50%;background:radial-gradient(circle,rgba(255,140,105,.2) 0%,rgba(255,140,105,.04) 70%);border:2px solid rgba(255,140,105,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;animation:shake .5s .1s both}
+.fail-icon-inner{width:56px;height:56px;border-radius:50%;background:rgba(255,140,105,.15);display:flex;align-items:center;justify-content:center}
+.fail-icon-inner svg{width:26px;height:26px;color:var(--red)}
+.fail-title{font-size:22px;font-weight:900;color:var(--txt);margin-bottom:8px;animation:fade-up .4s .2s both}
+.fail-sub{font-size:13px;color:var(--txt-2);line-height:1.7;margin-bottom:24px;animation:fade-up .4s .3s both}
 
-.failure-body {
-  text-align: center;
-  padding: 24px 0;
-}
+/* ERROR CODE */
+.error-code{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.2);border-radius:20px;font-size:11px;font-weight:800;color:var(--red);margin-bottom:24px;animation:fade-up .4s .35s both}
+.error-code svg{width:11px;height:11px}
 
-/* === FAILURE ICON === */
-.failure-icon-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
+/* REASONS */
+.reasons-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:24px;text-align:right;animation:fade-up .4s .4s both}
+.reasons-title{font-size:12px;font-weight:800;color:var(--txt-2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.reasons-title svg{width:12px;height:12px;color:var(--kahr)}
+.reason-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-top:1px solid rgba(255,255,255,.04);font-size:12px;color:var(--txt-2);line-height:1.5}
+.reason-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,140,105,.5);flex-shrink:0;margin-top:5px}
 
-.failure-icon-circle {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: rgba(255, 140, 105, 0.08);
-  border: 2px solid var(--red);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--red);
-  animation: failurePop 0.4s ease;
-}
+/* ACTIONS */
+.actions-col{display:flex;flex-direction:column;gap:10px;animation:fade-up .4s .45s both}
+.btn-retry{padding:13px 28px;border-radius:999px;background:var(--grad);font-size:14px;font-weight:900;color:#070D24;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s}
+.btn-retry:hover{opacity:.88}
+.btn-retry svg{width:15px;height:15px}
+.btn-alt{padding:11px 28px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--txt-2);text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
+.btn-alt:hover{border-color:rgba(43,212,199,.35);color:var(--teal)}
+.btn-alt svg{width:14px;height:14px}
 
-@keyframes failurePop {
-  from {
-    transform: scale(0.7);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+/* SUPPORT */
+.support-note{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;font-size:11px;color:var(--txt-3);animation:fade-up .4s .5s both}
+.support-note a{color:var(--teal);font-weight:700}
 
-/* === TITLES === */
-.failure-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--txt);
-  margin: 0 0 8px;
-}
+/* ── App states the design does not draw ── */
+.reasons-card + .reasons-card{margin-top:-10px}
+.order-row{justify-content:space-between}
+.order-row-val{color:var(--txt);font-weight:800}
 
-.failure-subtitle {
-  font-size: 13px;
-  color: var(--txt-2);
-  line-height: 1.7;
-  margin: 0 0 24px;
-}
-
-/* === ERROR MESSAGE CARD === */
-.error-message-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: rgba(255, 140, 105, 0.06);
-  border: 1px solid rgba(255, 140, 105, 0.2);
-  border-radius: 10px;
-  font-size: 13px;
-  color: var(--red);
-  margin-bottom: 16px;
-  text-align: start;
-}
-
-/* === ORDER INFO CARD === */
-.order-info-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 16px;
-  text-align: start;
-}
-
-.order-info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.order-info-row:last-child {
-  border-bottom: none;
-}
-
-.info-label {
-  font-size: 13px;
-  color: var(--txt-2);
-  font-weight: 600;
-}
-
-.info-value {
-  font-size: 14px;
-  color: var(--txt);
-  font-weight: 700;
-}
-
-.status-failed {
-  color: var(--red);
-}
-
-/* === HELP CARD === */
-.help-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 24px;
-  text-align: start;
-}
-
-.card-title {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--txt);
-  margin: 0 0 14px;
-}
-
-.help-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.help-item {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-
-.help-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: rgba(255, 140, 105, 0.06);
-  border: 1px solid rgba(255, 140, 105, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--red);
-  flex-shrink: 0;
-}
-
-.help-text {
-  font-size: 13px;
-  color: var(--txt-2);
-  line-height: 1.5;
-  padding-top: 4px;
-}
-
-/* === ACTION BUTTONS === */
-.failure-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: var(--grad);
-  color: #070d24;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 15px;
-  font-weight: 800;
-  text-decoration: none;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.15s;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-}
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: var(--surface);
-  color: var(--txt);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 15px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-}
-
-.btn-secondary:hover {
-  border-color: rgba(43, 212, 199, 0.3);
-  color: var(--teal);
-}
-
-.btn-tertiary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: none;
-  color: var(--txt-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-}
-
-.btn-tertiary:hover {
-  border-color: rgba(43, 212, 199, 0.3);
-  color: var(--teal);
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 540px) {
-  .order-info-card,
-  .help-card {
-    padding: 16px;
-  }
-
-  .failure-actions {
-    gap: 10px;
-  }
-}
+/* ============================================================
+   LIGHT — ws-mk-light.css rules + static result of ws-light-polish.js
+   ============================================================ */
+:host-context(.light-theme) .reasons-card,:host-context(.theme-light) .reasons-card{background:#FFFFFF;border-color:#CBD5E1;box-shadow:0 2px 10px rgba(15,23,42,.08),0 1px 3px rgba(15,23,42,.05)}
+:host-context(.light-theme) .reason-item,:host-context(.theme-light) .reason-item{border-top-color:rgba(7,13,36,.07)}
+:host-context(.light-theme) .btn-alt,:host-context(.theme-light) .btn-alt{border-color:#CBD5E1}
+:host-context(.light-theme) .support-note a,:host-context(.theme-light) .support-note a{color:#0A6F64}

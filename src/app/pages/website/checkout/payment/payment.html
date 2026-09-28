@@ -1,354 +1,320 @@
-<div class="checkout-page">
-  <div class="checkout-container">
-    <app-checkout-stepper [step]="step" />
+<!-- P-BF-003 الدفع — ported from design-reference/extracted/00-تسليم-الموقع-والسوق/09-الشراء-والدفع/P-BF-003.html -->
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="ws-credit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></symbol>
+<symbol id="ws-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4z"/><circle cx="18" cy="12" r="2"/><path d="M2 9h18"/></symbol>
+<symbol id="ws-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></symbol>
+<symbol id="ws-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="ws-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+<symbol id="ws-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+<symbol id="ws-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></symbol>
+</defs></svg>
 
-    @if (itemCount() > 0) {
-      <div class="pay-layout">
-        <!-- MAIN -->
-        <div>
-          <!-- Coming soon toast -->
-          @if (showComingSoon()) {
-            <div class="coming-soon-toast">
-              هذه الطريقة غير متاحة حالياً — قريباً
-            </div>
-          }
+<div class="container">
+  <nav class="breadcrumb" aria-label="مسار التنقل">
+    <a routerLink="/">الرئيسية</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <a routerLink="/marketplace">السوق</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <a routerLink="/cart">السلة</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <a routerLink="/checkout/review">المراجعة</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <span>الدفع</span>
+  </nav>
 
-          <!-- Error message -->
-          @if (errorMessage()) {
-            <div class="payment-error">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                <path d="M12 12v4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              {{ errorMessage() }}
-            </div>
-          }
+  <!-- STEPPER -->
+  <div class="stepper" role="list" aria-label="خطوات الشراء">
+    <div style="display:flex;align-items:center">
+      <div class="step-inner">
+        <div class="step-circle done"><svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-check"></use></svg></div>
+        <div class="step-label done">السلة</div>
+      </div>
+    </div>
+    <div class="step-line done"></div>
+    <div style="display:flex;align-items:center">
+      <div class="step-inner">
+        <div class="step-circle done"><svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-check"></use></svg></div>
+        <div class="step-label done">المراجعة</div>
+      </div>
+    </div>
+    <div class="step-line done"></div>
+    <div style="display:flex;align-items:center">
+      <div class="step-inner">
+        <div class="step-circle active">3</div>
+        <div class="step-label active">الدفع</div>
+      </div>
+    </div>
+    <div class="step-line"></div>
+    <div style="display:flex;align-items:center">
+      <div class="step-inner">
+        <div class="step-circle">4</div>
+        <div class="step-label">التأكيد</div>
+      </div>
+    </div>
+  </div>
 
-          <!-- PAYMENT METHODS HEADER -->
-          <div class="sec-hd">
-            <div class="sec-hd-title">
-              <span class="sec-hd-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2)">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="txt-blue">
-                  <rect x="1" y="4" width="22" height="16" rx="2"/>
-                  <line x1="1" y1="10" x2="23" y2="10"/>
-                </svg>
-              </span>
-              طريقة الدفع
-            </div>
+  @if (itemCount() > 0) {
+    <div class="pay-layout">
+      <!-- MAIN -->
+      <div>
+        <!-- PAYMENT METHODS -->
+        <div class="sec-hd">
+          <div class="sec-hd-title">
+            <span class="sec-hd-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2)">
+              <svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-credit"></use></svg>
+            </span>
+            طريقة الدفع
           </div>
+        </div>
 
-          <!-- PAYMENT METHODS -->
-          <div class="pay-methods" role="radiogroup" aria-label="اختر طريقة الدفع">
-            @for (method of paymentMethods(); track method.id) {
-              <div
-                class="pay-method"
-                [class.selected]="selectedMethod() === method.id"
-                [class.disabled]="!method.available"
-                role="radio"
-                [attr.aria-checked]="selectedMethod() === method.id"
-                tabindex="0"
-                (click)="selectMethod(method)"
-              >
-                <div class="pay-method-header">
-                  <div class="pay-method-radio"><div class="pay-method-radio-dot"></div></div>
-                  <div
-                    class="pay-method-ico"
-                    [style.background]="method.icon === 'card' ? 'rgba(43,127,255,.08)' : method.icon === 'stc' ? 'rgba(123,47,190,.06)' : 'rgba(255,255,255,.04)'"
-                    [style.border-color]="method.icon === 'card' ? 'rgba(43,127,255,.2)' : method.icon === 'stc' ? 'rgba(123,47,190,.2)' : 'var(--border)'"
-                  >
-                    @switch (method.icon) {
-                      @case ('card') {
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="txt-blue">
-                          <rect x="1" y="4" width="22" height="16" rx="2"/>
-                          <line x1="1" y1="10" x2="23" y2="10"/>
-                        </svg>
-                      }
-                      @case ('wallet') {
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="txt-teal">
-                          <path d="M20 12V8a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4z"/>
-                          <circle cx="18" cy="12" r="2"/>
-                          <path d="M2 9h18"/>
-                        </svg>
-                      }
-                      @case ('stc') {
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="txt-purple">
-                          <rect x="5" y="2" width="14" height="20" rx="2"/>
-                          <line x1="12" y1="18" x2="12.01" y2="18"/>
-                        </svg>
-                      }
-                      @case ('apple') {
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="txt-slate">
-                          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                        </svg>
-                      }
-                    }
-                  </div>
-                  <div>
-                    <div class="pay-method-label">{{ method.label }}</div>
-                    <div class="pay-method-sub">{{ method.sub }}</div>
-                  </div>
-                  @if (method.id === 'card') {
-                    <div class="card-logos">
-                      <span class="card-logo">VISA</span>
-                      <span class="card-logo">MC</span>
-                      <span class="card-logo">مدى</span>
+        @if (showComingSoon()) {
+          <div class="form-error">
+            <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+            هذه الطريقة غير متاحة حالياً — قريباً
+          </div>
+        }
+        @if (errorMessage()) {
+          <div class="form-error">
+            <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <div class="pay-methods" role="radiogroup" aria-label="اختر طريقة الدفع">
+          @for (method of paymentMethods(); track method.id) {
+            <div
+              class="pay-method"
+              [class.selected]="selectedMethod() === method.id"
+              [class.disabled]="!method.available"
+              role="radio"
+              [attr.aria-checked]="selectedMethod() === method.id"
+              [attr.aria-disabled]="!method.available"
+              tabindex="0"
+              (click)="selectMethod(method)"
+              (keydown.enter)="selectMethod(method)"
+              (keydown.space)="$event.preventDefault(); selectMethod(method)"
+            >
+              <div class="pay-method-header">
+                <div class="pay-method-radio"><div class="pay-method-radio-dot"></div></div>
+                @switch (method.icon) {
+                  @case ('card') {
+                    <div class="pay-method-ico" style="background:rgba(43,127,255,.08);border-color:rgba(43,127,255,.2)">
+                      <svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-credit"></use></svg>
                     </div>
-                  } @else if (method.badge) {
-                    <span class="pay-method-badge">{{ method.badge }}</span>
+                  }
+                  @case ('wallet') {
+                    <div class="pay-method-ico">
+                      <svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-wallet"></use></svg>
+                    </div>
+                  }
+                  @case ('stc') {
+                    <div class="pay-method-ico" style="background:rgba(123,47,190,.06);border-color:rgba(123,47,190,.2)">
+                      <svg aria-hidden="true" style="color:var(--ai)"><use href="#ws-phone"></use></svg>
+                    </div>
+                  }
+                  @case ('apple') {
+                    <div class="pay-method-ico">
+                      <svg aria-hidden="true" style="color:var(--txt-2)" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                    </div>
+                  }
+                }
+                <div>
+                  <div class="pay-method-label">{{ method.label }}</div>
+                  <div class="pay-method-sub">{{ method.sub }}</div>
+                </div>
+                @if (method.id === 'card') {
+                  <div class="card-logos">
+                    <span class="card-logo">VISA</span>
+                    <span class="card-logo">MC</span>
+                    <span class="card-logo">مدى</span>
+                  </div>
+                } @else if (method.badge) {
+                  <span class="pay-method-badge">{{ method.badge }}</span>
+                }
+              </div>
+
+              @if (method.id === 'card') {
+                <div class="pay-method-body">
+                  <div class="card-form">
+                    <div class="form-field full">
+                      <label class="form-label" for="card-num">رقم البطاقة</label>
+                      <input class="form-input" id="card-num" type="text" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="cc-number" inputmode="numeric" (input)="formatCardNumber($event)" (click)="$event.stopPropagation()">
+                    </div>
+                    <div class="form-row">
+                      <div class="form-field">
+                        <label class="form-label" for="card-exp">تاريخ الانتهاء</label>
+                        <input class="form-input" id="card-exp" type="text" placeholder="MM / YY" maxlength="7" autocomplete="cc-exp" (input)="formatCardExpiry($event)" (click)="$event.stopPropagation()">
+                      </div>
+                      <div class="form-field">
+                        <label class="form-label" for="card-cvv">CVV</label>
+                        <input class="form-input" id="card-cvv" type="text" placeholder="3 أرقام" maxlength="4" autocomplete="cc-csc" inputmode="numeric" (click)="$event.stopPropagation()">
+                      </div>
+                    </div>
+                    <div class="form-field full">
+                      <label class="form-label" for="card-name">الاسم على البطاقة</label>
+                      <input class="form-input" id="card-name" type="text" placeholder="الاسم كما هو على البطاقة" autocomplete="cc-name" (click)="$event.stopPropagation()">
+                    </div>
+                    <div class="secure-note">
+                      <svg aria-hidden="true"><use href="#ws-shield"></use></svg>
+                      معاملاتك محمية بتشفير SSL 256-bit
+                    </div>
+                  </div>
+                </div>
+              }
+
+              @if (method.id === 'wallet') {
+                <div class="pay-method-body">
+                  <div class="wallet-row">
+                    <div>
+                      <div class="wallet-bal-label">رصيدك الحالي</div>
+                      <div class="wallet-bal-val">{{ method.balance != null ? formatPrice(method.balance) : '—' }} ريال</div>
+                    </div>
+                    <div style="text-align:end">
+                      <div class="wallet-bal-label">بعد الدفع</div>
+                      <div style="font-size:14px;font-weight:800;color:var(--txt)">{{ walletAfterPay(method.balance) }} ريال</div>
+                    </div>
+                  </div>
+                  @if (method.balance != null && method.balance >= total()) {
+                    <div class="wallet-note">الرصيد المتاح كافٍ لإتمام هذا الطلب ({{ formatPrice(total()) }} ريال). سيُخصم المبلغ فوراً عند تأكيد الدفع.</div>
+                  } @else if (method.balance != null) {
+                    <div class="wallet-note">الرصيد المتاح غير كافٍ لإتمام هذا الطلب ({{ formatPrice(total()) }} ريال).</div>
+                  } @else {
+                    <div class="wallet-note">سيُخصم المبلغ ({{ formatPrice(total()) }} ريال) فوراً من رصيد المحفظة عند تأكيد الدفع.</div>
                   }
                 </div>
+              }
 
-                <!-- CARD FORM -->
-                @if (method.id === 'card') {
-                  <div class="pay-method-body">
-                    <div class="card-form">
-                      <div class="form-field full">
-                        <label class="form-label" for="card-num">رقم البطاقة</label>
-                        <input class="form-input" id="card-num" type="text" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="cc-number" inputmode="numeric" />
-                      </div>
-                      <div class="form-row">
-                        <div class="form-field">
-                          <label class="form-label" for="card-exp">تاريخ الانتهاء</label>
-                          <input class="form-input" id="card-exp" type="text" placeholder="MM / YY" maxlength="7" autocomplete="cc-exp" />
-                        </div>
-                        <div class="form-field">
-                          <label class="form-label" for="card-cvv">CVV</label>
-                          <input class="form-input" id="card-cvv" type="text" placeholder="3 أرقام" maxlength="4" autocomplete="cc-csc" inputmode="numeric" />
-                        </div>
-                      </div>
-                      <div class="form-field full">
-                        <label class="form-label" for="card-name">الاسم على البطاقة</label>
-                        <input class="form-input" id="card-name" type="text" placeholder="الاسم كما هو على البطاقة" autocomplete="cc-name" />
-                      </div>
-                      <div class="secure-note">
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        </svg>
-                        معاملاتك محمية بتشفير SSL 256-bit
-                      </div>
-                    </div>
-                  </div>
-                }
+              @if (method.id === 'stc_pay') {
+                <div class="pay-method-body">
+                  <button class="alt-pay-btn" type="button" style="background:rgba(123,47,190,.15);border:1px solid rgba(123,47,190,.3);color:#C084FC">
+                    <svg aria-hidden="true"><use href="#ws-phone"></use></svg>
+                    فتح تطبيق STC Pay
+                  </button>
+                  <div style="font-size:10px;color:var(--txt-3);margin-top:8px;text-align:center">سيتم توجيهك لتطبيق STC Pay لإتمام الدفع</div>
+                </div>
+              }
 
-                <!-- WALLET BODY -->
-                @if (method.id === 'wallet') {
-                  <div class="pay-method-body">
-                    <div class="wallet-row">
-                      <div>
-                        <div class="wallet-bal-label">رصيدك الحالي</div>
-                        <div class="wallet-bal-val">{{ method.balance ? formatPrice(method.balance) : '—' }} ريال</div>
-                      </div>
-                      <div style="text-align:end">
-                        <div class="wallet-bal-label">بعد الدفع</div>
-                        <div style="font-size:14px;font-weight:800" class="txt-white">
-                          {{ walletAfterPay(method.balance) }} ريال
-                        </div>
-                      </div>
-                    </div>
-                    <div class="wallet-note">الرصيد المتاح كافٍ لإتمام هذا الطلب ({{ formatPrice(total()) }} ريال). سيُخصم المبلغ فوراً عند تأكيد الدفع.</div>
-                  </div>
-                }
+              @if (method.id === 'apple_pay') {
+                <div class="pay-method-body">
+                  <button class="alt-pay-btn" type="button" style="background:#000;color:#fff;border:none">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:16px;height:16px"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                    Pay
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
 
-                <!-- STC PAY BODY -->
-                @if (method.id === 'stc_pay') {
-                  <div class="pay-method-body">
-                    <button class="alt-pay-btn txt-teal" style="background:rgba(43,212,199,.15);border:1px solid rgba(43,212,199,.3)" type="button">
-                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="5" y="2" width="14" height="20" rx="2"/>
-                        <line x1="12" y1="18" x2="12.01" y2="18"/>
-                      </svg>
-                      فتح تطبيق STC Pay
-                    </button>
-                    <div style="font-size:10px;margin-top:8px;text-align:center" class="txt-muted">سيتم توجيهك لتطبيق STC Pay لإتمام الدفع</div>
-                  </div>
-                }
+        <!-- TERMS NOTE -->
+        <div class="terms-note">
+          <input type="checkbox" id="terms-chk" style="margin-top:3px;accent-color:var(--teal);width:16px;height:16px;flex-shrink:0" [checked]="agreedToTerms()" (change)="toggleTerms()">
+          <label for="terms-chk" style="font-size:12px;color:var(--txt-2);line-height:1.7;cursor:pointer">
+            أوافق على <a routerLink="/terms" class="terms-link" style="color:var(--teal);font-weight:700">الشروط والأحكام</a> و<a routerLink="/privacy" class="terms-link" style="color:var(--teal);font-weight:700">سياسة الخصوصية</a> وأقر بأن المعلومات المُدخلة صحيحة وكاملة
+          </label>
+        </div>
+      </div>
 
-                <!-- APPLE PAY BODY -->
-                @if (method.id === 'apple_pay') {
-                  <div class="pay-method-body">
-                    <button class="alt-pay-btn txt-white" style="background:#000;border:none" type="button">
-                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:16px;height:16px">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                      </svg>
-                      Pay
-                    </button>
-                  </div>
-                }
+      <!-- SIDEBAR -->
+      <div class="sidebar" style="display:flex;flex-direction:column;gap:14px;position:sticky;top:80px">
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">
+            <div class="sidebar-card-title-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)">
+              <svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-file"></use></svg>
+            </div>
+            ملخص الطلب
+          </div>
+          <div class="order-items-mini">
+            @for (item of activeItems(); track item.id) {
+              <div class="order-item-mini">
+                <div class="order-mini-thumb">
+                  @if (item.coverImage) {
+                    <img [src]="item.coverImage" [alt]="item.title" loading="lazy">
+                  } @else {
+                    <svg aria-hidden="true"><use href="#ws-image"></use></svg>
+                  }
+                </div>
+                <div class="order-mini-info">
+                  <div class="order-mini-title">{{ item.title }}</div>
+                  <div class="order-mini-sub">{{ item.provider.name }} · {{ item.totalDays }} أيام</div>
+                </div>
+                <div class="order-mini-price">{{ formatPrice(item.totalAmount) }}</div>
               </div>
             }
           </div>
-
-          <!-- TERMS NOTE -->
-          <div class="terms-block">
-            <input
-              type="checkbox"
-              id="terms-chk"
-              class="terms-chk"
-              [checked]="agreedToTerms()"
-              (change)="toggleTerms()"
-            />
-            <label for="terms-chk" class="terms-label">
-              أوافق على <a routerLink="/terms" class="terms-link">الشروط والأحكام</a> و<a routerLink="/privacy" class="terms-link">سياسة الخصوصية</a> وأقر بأن المعلومات المُدخلة صحيحة وكاملة
-            </label>
-          </div>
-        </div>
-
-        <!-- SIDEBAR -->
-        <div class="cart-sidebar">
-          <!-- ORDER SUMMARY -->
-          <div class="sidebar-card">
-            <div class="sidebar-card-title">
-              <div class="sidebar-card-title-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="txt-teal">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                </svg>
-              </div>
-              ملخص الطلب
+          <div class="summary-rows">
+            <div class="sum-row">
+              <span class="sum-row-label">المجموع الفرعي</span>
+              <span class="sum-row-val">{{ formatPrice(subtotal()) }} ريال</span>
             </div>
-            <div class="order-items-mini">
-              @for (item of activeItems(); track item.id) {
-                <div class="order-item-mini">
-                  <div class="order-mini-thumb">
-                    @if (item.coverImage) {
-                      <img [src]="item.coverImage" [alt]="item.title" loading="lazy" />
-                    } @else {
-                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="3"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                      </svg>
-                    }
-                  </div>
-                  <div class="order-mini-info">
-                    <div class="order-mini-title">{{ item.title }}</div>
-                    <div class="order-mini-sub">{{ item.provider.name }} · {{ item.totalDays }} أيام</div>
-                  </div>
-                  <div class="order-mini-price">{{ formatPrice(item.totalAmount) }}</div>
-                </div>
-              }
-            </div>
-            <div class="summary-rows">
+            @if (coupon()) {
               <div class="sum-row">
-                <span class="sum-row-label">المجموع الفرعي</span>
-                <span class="sum-row-val">{{ formatPrice(subtotal()) }} ريال</span>
+                <span class="sum-row-label">خصم الكوبون</span>
+                <span class="sum-row-val discount-val" style="color:var(--teal)">- {{ formatPrice(discount()) }} ريال</span>
               </div>
-              @if (coupon()) {
-                <div class="sum-row">
-                  <span class="sum-row-label">خصم الكوبون ({{ coupon()!.code }})</span>
-                  <span class="sum-row-val txt-teal">- {{ formatPrice(discount()) }} ريال</span>
-                </div>
+            }
+            <div class="sum-row total">
+              <span class="sum-row-label">الإجمالي</span>
+              <span class="sum-row-val">{{ formatPrice(total()) }} ريال</span>
+            </div>
+          </div>
+          <div class="pay-btn-wrap">
+            <button class="btn-pay" type="button" [disabled]="!canPay()" (click)="payNow()">
+              @if (isProcessing()) {
+                جاري المعالجة...
+              } @else {
+                <svg aria-hidden="true"><use href="#ws-lock"></use></svg>
+                ادفع الآن — {{ formatPrice(total()) }} ريال
               }
-              <div class="sum-row total">
-                <span class="sum-row-label">الإجمالي</span>
-                <span class="sum-row-val">{{ formatPrice(total()) }} ريال</span>
-              </div>
-            </div>
-            <div class="pay-btn-wrap">
-              <button
-                class="btn-pay"
-                type="button"
-                [disabled]="!canPay()"
-                (click)="payNow()"
-              >
-                @if (isProcessing()) {
-                  جاري المعالجة...
-                } @else {
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                  ادفع الآن — {{ formatPrice(total()) }} ريال
-                }
-              </button>
-              <a routerLink="/checkout/review" class="back-link">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12"/>
-                  <polyline points="12 19 5 12 12 5"/>
-                </svg>
-                العودة للمراجعة
-              </a>
-            </div>
+            </button>
+            <a routerLink="/checkout/review" class="back-link">
+              <svg aria-hidden="true"><use href="#ws-arrow-left"></use></svg>
+              العودة للمراجعة
+            </a>
           </div>
+        </div>
 
-          <!-- PAYMENT SECURITY -->
-          <div class="sidebar-card">
-            <div class="sidebar-card-title">
-              <div class="sidebar-card-title-ico" style="background:rgba(15,169,154,.08);border:1px solid rgba(15,169,154,.2)">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="txt-green">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-              </div>
-              أمان الدفع
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">
+            <div class="sidebar-card-title-ico" style="background:rgba(15,169,154,.08);border:1px solid rgba(15,169,154,.2)">
+              <svg aria-hidden="true" style="color:var(--green)"><use href="#ws-shield"></use></svg>
             </div>
-            <div class="trust-mini">
-              <div class="trust-mini-item">
-                <div class="trust-mini-ico" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="txt-green">
-                    <rect x="3" y="11" width="18" height="11" rx="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                </div>
-                تشفير SSL 256-bit
-              </div>
-              <div class="trust-mini-item">
-                <div class="trust-mini-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="txt-teal">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  </svg>
-                </div>
-                لا نحفظ بيانات بطاقتك
-              </div>
-              <div class="trust-mini-item">
-                <div class="trust-mini-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="txt-blue">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                </div>
-                ضمان مالي وفق سياسة الإلغاء والاسترداد
-              </div>
+            أمان الدفع
+          </div>
+          <div class="trust-mini">
+            <div class="trust-mini-item">
+              <div class="trust-mini-ico" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="color:var(--green)"><use href="#ws-lock"></use></svg></div>
+              تشفير SSL 256-bit
             </div>
-            <div class="pci-bar">
-              <div class="pci-item">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-                PCI DSS
-              </div>
-              <div class="pci-item">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-                3D Secure
-              </div>
-              <div class="pci-item">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                SSL/TLS
-              </div>
+            <div class="trust-mini-item">
+              <div class="trust-mini-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-shield"></use></svg></div>
+              لا نحفظ بيانات بطاقتك
             </div>
+            <div class="trust-mini-item">
+              <div class="trust-mini-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-check"></use></svg></div>
+              ضمان مالي وفق سياسة الإلغاء والاسترداد
+            </div>
+          </div>
+          <div class="pci-bar">
+            <div class="pci-item"><svg aria-hidden="true"><use href="#ws-shield"></use></svg> PCI DSS</div>
+            <div class="pci-item"><svg aria-hidden="true"><use href="#ws-lock"></use></svg> 3D Secure</div>
+            <div class="pci-item"><svg aria-hidden="true"><use href="#ws-check"></use></svg> SSL/TLS</div>
           </div>
         </div>
       </div>
-    } @else {
-      <!-- Empty cart state -->
-      <div class="empty-payment">
-        <div class="empty-payment-icon">
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="9" cy="21" r="1" fill="currentColor"/>
-            <circle cx="20" cy="21" r="1" fill="currentColor"/>
-          </svg>
-        </div>
-        <h2 class="empty-payment-title">لا يوجد طلب للدفع</h2>
-        <p class="empty-payment-text">سلتك فارغة. أضف خدمات من السوق للبدء.</p>
-        <div class="empty-payment-cta">
-          <a routerLink="/marketplace" class="btn-browse">تصفح السوق</a>
-          <a routerLink="/cart" class="btn-go-cart">الذهاب للسلة</a>
-        </div>
-      </div>
-    }
-  </div>
+    </div>
+  } @else {
+    <!-- Empty state (app feature — styled with P-BF-001's empty-cart block) -->
+    <div class="empty-cart" style="margin-bottom:80px">
+      <div class="empty-cart-ico"><svg style="width:24px;height:24px" aria-hidden="true"><use href="#ws-cart"></use></svg></div>
+      <p class="empty-cart-title">لا يوجد طلب للدفع</p>
+      <p class="empty-cart-sub">سلتك فارغة. أضف خدمات من السوق للبدء.</p>
+      <a routerLink="/marketplace" class="btn-browse">تصفح الخدمات</a>
+    </div>
+  }
 </div>

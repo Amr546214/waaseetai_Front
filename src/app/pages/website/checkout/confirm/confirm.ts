@@ -1,16 +1,15 @@
 import { Component, inject, signal, computed, OnDestroy, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CheckoutStepper } from '../components/checkout-stepper/checkout-stepper';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 
 @Component({
   selector: 'app-checkout-confirm',
   standalone: true,
-  imports: [CommonModule, CheckoutStepper, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './confirm.html',
-  styleUrl: './confirm.css',
+  styleUrls: ['../components/checkout-tokens.css', './confirm.css'],
 })
 export class CheckoutConfirmComponent implements OnDestroy {
   step = 4;
@@ -193,13 +192,13 @@ export class CheckoutConfirmComponent implements OnDestroy {
     if (seconds <= 0) return '';
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${String(secs).padStart(2, '0')}`;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   });
 
   canResend = computed(() => this.countdown() === 0);
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
   }
 
   private normalizeDigits(value: string): string {

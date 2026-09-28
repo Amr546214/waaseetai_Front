@@ -16,7 +16,7 @@ interface Category {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './custom-request.html',
-  styleUrl: './custom-request.css',
+  styleUrls: ['../components/checkout-tokens.css', './custom-request.css'],
 })
 export class CustomRequestComponent implements OnInit {
   private projectApi = inject(ProjectApiService);
@@ -119,10 +119,30 @@ export class CustomRequestComponent implements OnInit {
   handleFiles(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) {
-      const newFiles = Array.from(input.files).filter(f => f.size <= 10 * 1024 * 1024);
-      this.attachments.update(f => [...f, ...newFiles].slice(0, 5));
+      this.addFiles(input.files);
       input.value = '';
     }
+  }
+
+  // P-BF-007 file-upload drag & drop
+  isDragging = signal(false);
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging.set(true);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging.set(false);
+    if (event.dataTransfer?.files?.length) {
+      this.addFiles(event.dataTransfer.files);
+    }
+  }
+
+  private addFiles(files: FileList): void {
+    const newFiles = Array.from(files).filter(f => f.size <= 10 * 1024 * 1024);
+    this.attachments.update(f => [...f, ...newFiles].slice(0, 5));
   }
 
   removeFile(index: number): void {

@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CheckoutStepper } from '../components/checkout-stepper/checkout-stepper';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 import { CheckoutApiService, PaymentMethodItem } from '../../../../core/services/checkout-api.service';
@@ -27,9 +26,9 @@ const FALLBACK_METHODS: PaymentMethodOption[] = [
 @Component({
   selector: 'app-checkout-payment',
   standalone: true,
-  imports: [CommonModule, CheckoutStepper, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './payment.html',
-  styleUrl: './payment.css',
+  styleUrls: ['../components/checkout-tokens.css', './payment.css'],
 })
 export class CheckoutPaymentComponent implements OnInit {
   step = 3;
@@ -83,14 +82,23 @@ export class CheckoutPaymentComponent implements OnInit {
           balance: m.balance,
         }));
         this.paymentMethods.set(mapped.length > 0 ? mapped : FALLBACK_METHODS);
+        this.preselectCard();
         this.methodsLoading.set(false);
       },
       error: (err: any) => {
         console.error('[Payment] Failed to load payment methods:', err);
         this.paymentMethods.set(FALLBACK_METHODS);
+        this.preselectCard();
         this.methodsLoading.set(false);
       },
     });
+  }
+
+  // P-BF-003 opens with the card method selected (form expanded)
+  private preselectCard() {
+    if (this.selectedMethod()) return;
+    const card = this.paymentMethods().find(m => m.id === 'card' && m.available);
+    if (card) this.selectedMethod.set(card.id);
   }
 
   selectMethod(method: PaymentMethodOption) {
@@ -153,12 +161,26 @@ export class CheckoutPaymentComponent implements OnInit {
     });
   }
 
+  // P-BF-003 card-number / expiry input formatting (design script)
+  formatCardNumber(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const v = input.value.replace(/\D/g, '').substring(0, 16);
+    input.value = v.replace(/(.{4})/g, '$1 ').trim();
+  }
+
+  formatCardExpiry(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let v = input.value.replace(/\D/g, '').substring(0, 4);
+    if (v.length > 2) v = v.substring(0, 2) + ' / ' + v.substring(2);
+    input.value = v;
+  }
+
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
   }
 
   walletAfterPay(balance?: number): string {
-    if (!balance) return '—';
+    if (balance == null) return '—';
     return this.formatPrice(Math.max(0, balance - this.total()));
   }
 }

@@ -1,168 +1,165 @@
-<div class="checkout-page">
-  <div class="checkout-container">
-    @if (showSuccess()) {
-      <!-- Success State -->
-      <div class="success-state">
-        <div class="success-icon">
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 12l2 2 4-4" />
-            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
-          </svg>
-        </div>
-        <h2 class="success-title">تم إنشاء الطلب بنجاح</h2>
-        <p class="success-desc">تم إرسال طلبك الخاص، وسيقوم فريقنا بتحليله واقتراح أفضل مقدمي الخدمة المناسبين خلال 24-48 ساعة.</p>
-        <div class="success-actions">
-          <button class="btn-primary" (click)="goToDashboard()">الذهاب للوحة التحكم</button>
-          <a routerLink="/marketplace" class="btn-tertiary">تصفح الخدمات</a>
-        </div>
+<!-- P-BF-007 طلب خدمة مخصصة — ported from design-reference/extracted/00-تسليم-الموقع-والسوق/09-الشراء-والدفع/P-BF-007.html -->
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="ws-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></symbol>
+<symbol id="ws-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+<symbol id="ws-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+</defs></svg>
+
+<div class="container">
+  <nav class="breadcrumb" aria-label="مسار التنقل">
+    <a routerLink="/">الرئيسية</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <a routerLink="/marketplace">السوق</a>
+    <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+    <span>طلب خدمة مخصصة</span>
+  </nav>
+
+  <div class="page-hero">
+    <h1 class="page-hero-title">
+      <span style="width:36px;height:36px;border-radius:10px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg aria-hidden="true" style="width:16px;height:16px;color:var(--teal)"><use href="#ws-send"></use></svg>
+      </span>
+      طلب خدمة مخصصة
+    </h1>
+    <p class="page-hero-sub">ما وجدت الخدمة التي تحتاجها؟ أرسل طلبك واستقبل العروض من مقدمي الخدمات المناسبين</p>
+  </div>
+
+  @if (showSuccess()) {
+    <!-- Success state (app state — drawn with the design's form card) -->
+    <div class="form-card done-card">
+      <div class="done-ico"><svg aria-hidden="true"><use href="#ws-check"></use></svg></div>
+      <h2 class="done-title">تم إنشاء الطلب بنجاح</h2>
+      <p class="done-sub">تم إرسال طلبك الخاص، وسيقوم فريقنا بتحليله واقتراح أفضل مقدمي الخدمة المناسبين خلال 24-48 ساعة.</p>
+      <div class="done-actions">
+        <button class="btn-submit" type="button" (click)="goToDashboard()">الذهاب للوحة التحكم</button>
+        <a routerLink="/marketplace" class="btn-ghost">تصفح الخدمات</a>
       </div>
-    } @else {
-      <!-- Form State -->
-      <div class="form-body">
-        <h1 class="page-title">طلب خدمة مخصصة</h1>
+    </div>
+  } @else {
+    <!-- HELPER BANNER — the design's AI-matching banner claims unsupported AI review (G16);
+         this slot keeps the banner layout with a factual, non-AI message in teal -->
+    <div class="ai-banner info-banner" style="margin-top:20px">
+      <div class="ai-banner-ico">
+        <svg aria-hidden="true"><use href="#ws-file"></use></svg>
+      </div>
+      <div class="ai-banner-txt">
+        <strong style="color:var(--txt)">طلب خدمة مخصصة</strong> — اكتب تفاصيل احتياجك بدقة ليتمكن فريقنا من اقتراح أفضل مقدمي الخدمة المناسبين لك
+      </div>
+    </div>
 
-        <!-- Custom Request Helper Banner -->
-        <div class="ai-banner">
-          <div class="ai-banner-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
-          </div>
-          <div class="ai-banner-text">
-            <span class="ai-banner-title">طلب خدمة مخصصة</span>
-            <span class="ai-banner-desc">اكتب تفاصيل احتياجك بدقة ليتمكن فريقنا من اقتراح أفضل مقدمي الخدمة المناسبين لك</span>
-          </div>
-        </div>
-
-        <!-- Error Message -->
+    <div class="form-layout">
+      <!-- FORM -->
+      <div>
         @if (errorMessage()) {
-          <div class="error-banner">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="16" x2="12" y2="12" />
-              <line x1="12" y1="8" x2="12.01" y2="8" />
-            </svg>
-            <span>{{ errorMessage() }}</span>
+          <div class="form-error" role="alert">
+            <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+            {{ errorMessage() }}
           </div>
         }
 
-        <!-- Form -->
         <div class="form-card">
-          <!-- Title -->
-          <div class="form-group">
-            <label class="form-label">عنوان الطلب <span class="required">*</span></label>
-            <input
-              type="text"
-              class="form-input"
-              [class.error]="titleError()"
-              placeholder="مثال: تطوير متجر إلكتروني متكامل"
-              [value]="title()"
-              (input)="title.set($any($event.target).value)"
-              (blur)="markTouched('title')"
-            />
-            @if (titleError()) {
-              <span class="field-error">{{ titleError() }}</span>
-            }
-          </div>
-
-          <!-- Category -->
-          <div class="form-group">
-            <label class="form-label">التخصص <span class="required">*</span></label>
-            @if (categoriesLoading()) {
-              <div class="select-loading">جارٍ تحميل التخصصات...</div>
-            } @else {
-              <select
-                class="form-select"
-                [class.error]="categoryError()"
-                [value]="selectedCategoryId()"
-                (change)="selectedCategoryId.set($any($event.target).value)"
-                (blur)="markTouched('category')"
-              >
-                <option value="">اختر التخصص</option>
-                @for (cat of categories(); track cat.id) {
-                  <option [value]="cat.id">{{ cat.name }}</option>
-                }
-              </select>
-            }
-            @if (categoryError()) {
-              <span class="field-error">{{ categoryError() }}</span>
-            }
-          </div>
-
-          <!-- Description -->
-          <div class="form-group">
-            <label class="form-label">وصف الخدمة المطلوبة <span class="required">*</span></label>
-            <textarea
-              class="form-textarea"
-              [class.error]="descriptionError()"
-              placeholder="اكتب وصفاً تفصيلياً لما تحتاجه..."
-              rows="5"
-              [value]="description()"
-              (input)="description.set($any($event.target).value)"
-              (blur)="markTouched('description')"
-            ></textarea>
-            @if (descriptionError()) {
-              <span class="field-error">{{ descriptionError() }}</span>
-            }
-          </div>
-
-          <!-- Budget & Delivery Days -->
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">الميزانية (ريال) <span class="required">*</span></label>
-              <input
-                type="number"
-                class="form-input"
-                [class.error]="budgetError()"
-                placeholder="0"
-                min="1"
-                [value]="budget()"
-                (input)="budget.set($any($event.target).valueAsNumber || null)"
-                (blur)="markTouched('budget')"
-              />
-              @if (budgetError()) {
-                <span class="field-error">{{ budgetError() }}</span>
-              }
+          <!-- SECTION 1 -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+              تفاصيل الطلب
             </div>
-
-            <div class="form-group">
-              <label class="form-label">مدة التنفيذ المتوقعة (أيام) <span class="required">*</span></label>
-              <input
-                type="number"
-                class="form-input"
-                [class.error]="deliveryDaysError()"
-                placeholder="0"
-                min="1"
-                [value]="deliveryDays()"
-                (input)="deliveryDays.set($any($event.target).valueAsNumber || null)"
-                (blur)="markTouched('deliveryDays')"
-              />
-              @if (deliveryDaysError()) {
-                <span class="field-error">{{ deliveryDaysError() }}</span>
-              }
+            <div class="form-grid">
+              <div class="form-field full">
+                <label class="form-label" for="req-title">عنوان الطلب <span class="req">*</span></label>
+                <input class="form-input" id="req-title" type="text" placeholder="مثال: أحتاج مصمم جرافيك لتصميم هوية بصرية كاملة"
+                  [class.invalid]="titleError()"
+                  [value]="title()"
+                  (input)="title.set($any($event.target).value)"
+                  (blur)="markTouched('title')">
+                @if (titleError()) { <span class="field-error">{{ titleError() }}</span> }
+              </div>
+              <div class="form-field full">
+                <label class="form-label" for="req-cat">التخصص المطلوب <span class="req">*</span></label>
+                <select class="form-select" id="req-cat"
+                  [class.invalid]="categoryError()"
+                  [disabled]="categoriesLoading()"
+                  [value]="selectedCategoryId()"
+                  (change)="selectedCategoryId.set($any($event.target).value)"
+                  (blur)="markTouched('category')">
+                  <option value="">{{ categoriesLoading() ? 'جارٍ تحميل التخصصات...' : 'اختر التخصص' }}</option>
+                  @for (cat of categories(); track cat.id) {
+                    <option [value]="cat.id">{{ cat.name }}</option>
+                  }
+                </select>
+                @if (categoryError()) { <span class="field-error">{{ categoryError() }}</span> }
+              </div>
+              <div class="form-field full">
+                <label class="form-label" for="req-desc">وصف تفصيلي للطلب <span class="req">*</span></label>
+                <textarea class="form-input" id="req-desc" placeholder="اشرح ما تحتاجه بالتفصيل: الهدف من الخدمة، الجمهور المستهدف، أي مواصفات خاصة، أمثلة مرجعية..."
+                  [class.invalid]="descriptionError()"
+                  [value]="description()"
+                  (input)="description.set($any($event.target).value)"
+                  (blur)="markTouched('description')"></textarea>
+                @if (descriptionError()) { <span class="field-error">{{ descriptionError() }}</span> }
+              </div>
             </div>
           </div>
 
-          <!-- Attachments -->
-          <div class="form-group">
-            <label class="form-label">المرفقات (اختياري)</label>
-            <div class="upload-area">
-              <label class="upload-label">
-                <input type="file" multiple (change)="handleFiles($event)" class="upload-input" />
-                <span class="upload-text">اضغط لاختيار ملفات (حد أقصى 10MB لكل ملف، 5 ملفات)</span>
-              </label>
+          <!-- SECTION 2 -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+              الميزانية والوقت
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-label" for="req-budget">الميزانية (ريال) <span class="req">*</span></label>
+                <input class="form-input" id="req-budget" type="number" min="1" placeholder="مثال: 2000" dir="ltr" style="text-align:right"
+                  [class.invalid]="budgetError()"
+                  [value]="budget()"
+                  (input)="budget.set($any($event.target).valueAsNumber || null)"
+                  (blur)="markTouched('budget')">
+                @if (budgetError()) { <span class="field-error">{{ budgetError() }}</span> }
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="req-deadline">المدة المطلوبة (أيام) <span class="req">*</span></label>
+                <input class="form-input" id="req-deadline" type="number" min="1" placeholder="مثال: 7" dir="ltr" style="text-align:right"
+                  [class.invalid]="deliveryDaysError()"
+                  [value]="deliveryDays()"
+                  (input)="deliveryDays.set($any($event.target).valueAsNumber || null)"
+                  (blur)="markTouched('deliveryDays')">
+                @if (deliveryDaysError()) { <span class="field-error">{{ deliveryDaysError() }}</span> }
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 3 -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <svg aria-hidden="true"><use href="#ws-upload"></use></svg>
+              ملفات مرجعية (اختياري)
+            </div>
+            <div class="file-upload" role="button" tabindex="0"
+              [class.drag]="isDragging()"
+              (click)="fileInp.click()"
+              (keydown.enter)="fileInp.click()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="isDragging.set(false)"
+              (drop)="onDrop($event)">
+              <svg aria-hidden="true"><use href="#ws-upload"></use></svg>
+              <div class="file-upload-txt"><strong>اضغط لرفع الملفات</strong> أو اسحبها هنا</div>
+              <div style="font-size:10px;color:var(--txt-3);margin-top:4px">PDF, PNG, JPG, DOCX — حجم أقصى 10MB لكل ملف (حتى 5 ملفات)</div>
+              <input #fileInp type="file" id="file-inp" multiple accept=".pdf,.png,.jpg,.jpeg,.docx" style="display:none" (change)="handleFiles($event)">
             </div>
             @if (attachments().length > 0) {
               <div class="files-list">
                 @for (file of attachments(); track $index) {
                   <div class="file-item">
+                    <svg aria-hidden="true" class="file-item-ico"><use href="#ws-file"></use></svg>
                     <span class="file-name">{{ file.name }}</span>
-                    <button class="file-remove" (click)="removeFile($index)" type="button">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
+                    <button class="file-remove" type="button" (click)="removeFile($index)" [attr.aria-label]="'إزالة ' + file.name">
+                      <svg aria-hidden="true"><use href="#ws-close"></use></svg>
                     </button>
                   </div>
                 }
@@ -170,40 +167,105 @@
             }
           </div>
 
-          <!-- Additional Notes -->
-          <div class="form-group">
-            <label class="form-label">ملاحظات إضافية (اختياري)</label>
-            <textarea
-              class="form-textarea"
-              placeholder="أي متطلبات أو ملاحظات خاصة..."
-              rows="3"
+          <!-- SECTION 4 (app field — the design has no notes field) -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+              ملاحظات إضافية (اختياري)
+            </div>
+            <textarea class="form-input" id="req-notes" placeholder="أي متطلبات أو ملاحظات خاصة..." style="min-height:80px"
               [value]="additionalNotes()"
-              (input)="additionalNotes.set($any($event.target).value)"
-            ></textarea>
+              (input)="additionalNotes.set($any($event.target).value)"></textarea>
           </div>
 
-          <!-- Submit & Secondary Actions -->
-          <div class="form-actions">
-            <button
-              class="btn-primary"
-              [disabled]="!canSubmit()"
-              (click)="submitRequest()"
-              type="button"
-            >
+          <div class="submit-wrap">
+            <button class="btn-submit" type="button" [disabled]="!canSubmit()" (click)="submitRequest()">
               @if (isSubmitting()) {
                 <span class="spinner"></span>
                 جارٍ الإرسال...
               } @else {
-                إنشاء الطلب
+                <svg aria-hidden="true"><use href="#ws-send"></use></svg>
+                إرسال الطلب وانتظار العروض
               }
             </button>
-            <div class="secondary-actions">
-              <a routerLink="/marketplace" class="btn-tertiary">العودة للسوق</a>
-              <a routerLink="/cart" class="btn-tertiary">العودة للسلة</a>
+            <div class="submit-note">
+              بالإرسال توافق على <a routerLink="/terms" style="color:var(--teal)">الشروط والأحكام</a> — طلبك سيُحال للوحة التحكم بعد الإرسال
+            </div>
+            <div class="submit-note">
+              <a routerLink="/marketplace" class="sub-link">العودة للسوق</a> · <a routerLink="/cart" class="sub-link">العودة للسلة</a>
             </div>
           </div>
         </div>
       </div>
-    }
-  </div>
+
+      <!-- SIDEBAR -->
+      <div class="cart-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">
+            <div class="sidebar-card-title-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)">
+              <svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-info"></use></svg>
+            </div>
+            كيف يعمل الطلب المخصص
+          </div>
+          <div class="how-steps">
+            <div class="how-step">
+              <div class="how-step-num">1</div>
+              <div class="how-step-body">
+                <div class="how-step-title">أرسل طلبك</div>
+                <div class="how-step-sub">اشرح ما تحتاجه بالتفصيل مع الميزانية والمدة</div>
+              </div>
+            </div>
+            <div class="how-step">
+              <div class="how-step-num">2</div>
+              <div class="how-step-body">
+                <div class="how-step-title">نقترح المقدمين المناسبين</div>
+                <div class="how-step-sub">يراجع فريقنا طلبك ويقترح أنسب مقدمي الخدمة لتخصصه</div>
+              </div>
+            </div>
+            <div class="how-step">
+              <div class="how-step-num">3</div>
+              <div class="how-step-body">
+                <div class="how-step-title">تستلم العروض</div>
+                <div class="how-step-sub">خلال 24–48 ساعة تصلك عروض المقدمين في لوحتك</div>
+              </div>
+            </div>
+            <div class="how-step">
+              <div class="how-step-num">4</div>
+              <div class="how-step-body">
+                <div class="how-step-title">تفاوض واختر</div>
+                <div class="how-step-sub">تفاوض على السعر والتفاصيل في لوحة التحكم ثم ادفع</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">
+            <div class="sidebar-card-title-ico" style="background:rgba(15,169,154,.08);border:1px solid rgba(15,169,154,.2)">
+              <svg aria-hidden="true" style="color:var(--green)"><use href="#ws-shield"></use></svg>
+            </div>
+            ضمانات وسيط AI
+          </div>
+          <div class="trust-mini">
+            <div class="trust-mini-item">
+              <div class="trust-mini-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-check"></use></svg></div>
+              الطلب مجاني تماماً
+            </div>
+            <div class="trust-mini-item">
+              <div class="trust-mini-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-file"></use></svg></div>
+              عقد موثّق عند الاتفاق
+            </div>
+            <div class="trust-mini-item">
+              <div class="trust-mini-ico" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="color:var(--green)"><use href="#ws-shield"></use></svg></div>
+              ضمان مالي وفق سياسة الإلغاء والاسترداد
+            </div>
+            <div class="trust-mini-item">
+              <div class="trust-mini-ico" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)"><svg aria-hidden="true" style="color:var(--green)"><use href="#ws-check"></use></svg></div>
+              مقدمون موثقون أو معتمدون حسب التخصص والحالة
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>

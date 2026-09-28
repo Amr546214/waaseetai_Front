@@ -11,7 +11,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './success.html',
-  styleUrl: './success.css',
+  styleUrls: ['../components/checkout-tokens.css', './success.css'],
 })
 export class CheckoutSuccessComponent implements OnInit {
   private checkoutService = inject(CheckoutService);
@@ -51,7 +51,7 @@ export class CheckoutSuccessComponent implements OnInit {
   ];
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
   }
 
   ngOnInit(): void {

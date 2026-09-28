@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CheckoutStepper } from '../components/checkout-stepper/checkout-stepper';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -9,9 +8,9 @@ import { AuthStore } from '../../../../core/store/auth.store';
 @Component({
   selector: 'app-checkout-review',
   standalone: true,
-  imports: [CommonModule, CheckoutStepper, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './review.html',
-  styleUrl: './review.css',
+  styleUrls: ['../components/checkout-tokens.css', './review.css'],
 })
 export class CheckoutReviewComponent {
   step = 2;
@@ -67,7 +66,7 @@ export class CheckoutReviewComponent {
   }
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
   }
 
   // Fallback deliverables derived from item category/package (no API calls)

@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { MarketplaceService, MarketplaceModel } from '../../../../core/services/marketplace.service';
+import { AuthStore } from '../../../../core/store/auth.store';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -10,7 +11,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './cart.html',
-  styleUrl: './cart.css',
+  styleUrls: ['../components/checkout-tokens.css', './cart.css'],
 })
 export class CartComponent implements OnInit, OnDestroy {
   step = 1;
@@ -18,6 +19,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private cartService = inject(CartService);
   private marketplaceService = inject(MarketplaceService);
   private router = inject(Router);
+  private authStore = inject(AuthStore);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
 
@@ -29,7 +31,7 @@ export class CartComponent implements OnInit, OnDestroy {
   total = this.cartService.total;
 
   couponInput = signal('');
-  couponMessage = signal<{ type: 'success' | 'error'; text: string } | null>(null);
+  couponMessage = signal<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
   isApplyingCoupon = signal(false);
   aiRecommendations = signal<MarketplaceModel[]>([]);
   aiLoading = signal(false);
@@ -37,6 +39,11 @@ export class CartComponent implements OnInit, OnDestroy {
   // Reflects the backend's honest generationSource — never assume GEMINI
   // before a response actually confirms it (see F6 security follow-up).
   aiGenerationSource = signal<'GEMINI' | 'DETERMINISTIC' | null>(null);
+
+  // "إضافة للسلة" on the recommendation cards (P-BF-001 rec-add-btn)
+  addedRecIds = signal<Set<string>>(new Set());
+  addingRecId = signal<string | null>(null);
+  recError = signal<string | null>(null);
 
   private aiSub?: Subscription;
 
@@ -58,7 +65,7 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
   }
 
   removeItem(itemId: string) {
@@ -80,7 +87,10 @@ export class CartComponent implements OnInit, OnDestroy {
 
   applyCoupon() {
     const code = this.couponInput().trim();
-    if (!code) return;
+    if (!code) {
+      this.couponMessage.set({ type: 'info', text: 'أدخل كود الخصم أولاً' });
+      return;
+    }
     this.isApplyingCoupon.set(true);
     this.cartService.applyCoupon(code).subscribe({
       next: (result) => {
@@ -109,6 +119,47 @@ export class CartComponent implements OnInit, OnDestroy {
   proceedToCheckout() {
     if (this.itemCount() === 0) return;
     this.router.navigate(['/checkout/review']);
+  }
+
+  addRecommendation(event: Event, rec: MarketplaceModel) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.addingRecId() || this.addedRecIds().has(rec.id)) return;
+    if (!this.authStore.isAuthenticated()) {
+      this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+    this.addingRecId.set(rec.id);
+    this.recError.set(null);
+    this.cartService.addToCart$({
+      modelId: rec.id,
+      title: rec.title,
+      category: rec.category,
+      categorySlug: rec.categorySlug,
+      coverImage: rec.coverImage,
+      totalAmount: rec.totalAmount,
+      totalDays: rec.totalDays,
+      level: rec.level,
+      aiScore: rec.aiScore,
+      provider: {
+        id: rec.provider.id,
+        name: rec.provider.name,
+        avatar: rec.provider.avatar,
+        initials: rec.provider.initials,
+        isVerified: rec.isVerified,
+      },
+      savedForLater: false,
+    }).subscribe({
+      next: () => {
+        this.addingRecId.set(null);
+        this.addedRecIds.update(ids => new Set(ids).add(rec.id));
+      },
+      error: (err) => {
+        this.addingRecId.set(null);
+        this.recError.set(err?.displayMessage || err?.error?.message || 'تعذر إضافة الخدمة إلى السلة');
+        setTimeout(() => this.recError.set(null), 5000);
+      },
+    });
   }
 
   private loadAiRecommendations() {
