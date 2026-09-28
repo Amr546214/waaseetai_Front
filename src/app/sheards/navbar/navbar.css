@@ -222,3 +222,11 @@
   .nav-links,.nav-actions{display:none}
   .menu-btn{display:flex}
 }
+/* Real bug found in QA: on narrow phones (~375-390px) the full wordmark +
+   theme-toggle pill + hamburger button don't fit on one row (none of them
+   shrink/wrap), overflowing the header horizontally and clipping the logo.
+   Icon-only logo on very small screens is an approved pattern (identity
+   doc's logo-xs size). Verified this frees enough width down to 375px. */
+@media(max-width:420px){
+  .logo-text{display:none}
+}

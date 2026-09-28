@@ -33,7 +33,7 @@
 		<a routerLink="/" class="logo-wrap" (click)="closeMobileMenu()">
 			<img src="/images/waseet-mark.png" alt="وسيط AI" height="34"
 				style="height:34px;width:auto;object-fit:contain">
-			<span style="font-size:18px;font-weight:900" class="txt-teal">وسيط AI</span>
+			<span style="font-size:18px;font-weight:900" class="txt-teal logo-text">وسيط AI</span>
 		</a>
 
 		<!-- Desktop Nav Links — centered via flex:1 -->
@@ -42,6 +42,7 @@
 				[routerLinkActiveOptions]="exactMatchOptions">الرئيسية</a>
 			<a routerLink="/marketplace" class="nav-link" routerLinkActive="active">تسوق الخدمات</a>
 			<a routerLink="/about" class="nav-link" routerLinkActive="active">من نحن</a>
+			<a routerLink="/blog" class="nav-link" routerLinkActive="active">المدونة</a>
 			<a routerLink="/contact" class="nav-link" routerLinkActive="active">اتصل بنا</a>
 		</nav>
 
@@ -50,32 +51,11 @@
 		<div class="theme-toggle" id="theme-toggle" role="group" aria-label="تبديل الثيم">
 			<button class="seg" id="btn-dark" [class.is-selected]="themeService.theme() === 'dark'"
 				(click)="themeService.setTheme('dark')" type="button"
-				[attr.aria-pressed]="themeService.theme() === 'dark'"
-				style="display:inline-flex;align-items:center;gap:4px">
-				<svg aria-hidden="true" style="width:11px;height:11px;fill:currentColor;stroke:none"
-					viewBox="0 0 24 24">
-					<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-				</svg>
-				داكن
+				[attr.aria-pressed]="themeService.theme() === 'dark'">داكن
 			</button>
 			<button class="seg" id="btn-light" [class.is-selected]="themeService.theme() === 'light'"
 				(click)="themeService.setTheme('light')" type="button"
-				[attr.aria-pressed]="themeService.theme() === 'light'"
-				style="display:inline-flex;align-items:center;gap:4px">
-				<svg aria-hidden="true"
-					style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
-					viewBox="0 0 24 24">
-					<circle cx="12" cy="12" r="5" />
-					<line x1="12" y1="1" x2="12" y2="3" />
-					<line x1="12" y1="21" x2="12" y2="23" />
-					<line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-					<line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-					<line x1="1" y1="12" x2="3" y2="12" />
-					<line x1="21" y1="12" x2="23" y2="12" />
-					<line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-					<line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-				</svg>
-				فاتح
+				[attr.aria-pressed]="themeService.theme() === 'light'">فاتح
 			</button>
 		</div>
 		}
@@ -333,42 +313,14 @@
 				<line x1="6" y1="6" x2="18" y2="18"></line>
 			</svg>
 		</button>
-		<a routerLink="/" class="drawer-link active" (click)="closeMobileMenu()">
-			<svg aria-hidden="true"
-				style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0">
-				<circle cx="11" cy="11" r="8" />
-				<path d="m21 21-4.35-4.35" />
-			</svg>
-			الرئيسية
-		</a>
-		<a routerLink="/marketplace" class="drawer-link" (click)="closeMobileMenu()">
-			<svg aria-hidden="true"
-				style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0">
-				<rect x="3" y="8" width="18" height="13" rx="2" />
-				<path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-				<path d="M8.5 14.5l2.5 2.5 5-5" />
-			</svg>
-			تسوق الخدمات
-		</a>
-		<a routerLink="/about" class="drawer-link" (click)="closeMobileMenu()">
-			<svg aria-hidden="true"
-				style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0">
-				<circle cx="12" cy="8" r="4" />
-				<path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" />
-			</svg>
-			من نحن
-		</a>
-		<a routerLink="/contact" class="drawer-link" (click)="closeMobileMenu()">
-			<svg aria-hidden="true"
-				style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0">
-				<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-			</svg>
-			اتصل بنا
-		</a>
+		<a routerLink="/" class="drawer-link" routerLinkActive="active" [routerLinkActiveOptions]="exactMatchOptions" (click)="closeMobileMenu()">الرئيسية</a>
+		<a routerLink="/marketplace" class="drawer-link" routerLinkActive="active" [routerLinkActiveOptions]="exactMatchOptions" (click)="closeMobileMenu()">تسوق الخدمات</a>
+		<a routerLink="/marketplace/categories" class="drawer-link" routerLinkActive="active" (click)="closeMobileMenu()">الفئات</a>
+		<a routerLink="/about" class="drawer-link" routerLinkActive="active" (click)="closeMobileMenu()">من نحن</a>
 		<div class="drawer-sep"></div>
 		<ng-container *ngIf="!authStore.isAuthenticated()">
 			<a routerLink="/auth/login" class="drawer-link" (click)="closeMobileMenu()">دخول</a>
-			<a routerLink="/auth/register" class="drawer-link ic-teal" (click)="closeMobileMenu()"
+			<a routerLink="/auth/register" class="drawer-link" style="color:var(--teal);font-weight:800" (click)="closeMobileMenu()"
 				>تسجيل حساب</a>
 		</ng-container>
 		<ng-container *ngIf="authStore.isAuthenticated()">
