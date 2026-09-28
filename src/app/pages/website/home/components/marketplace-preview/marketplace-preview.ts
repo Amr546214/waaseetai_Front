@@ -111,7 +111,7 @@ export class MarketplacePreview implements OnInit {
 			{ bg: 'rgba(217,138,11,.12)', color: 'var(--kahr)' },
 			{ bg: 'rgba(15,169,154,.12)', color: 'var(--green)' },
 			{ bg: 'rgba(255,140,105,.12)', color: 'var(--red)' },
-			{ bg: 'rgba(123,47,190,.12)', color: 'var(--ai)' }
+			{ bg: 'rgba(89,193,245,.12)', color: '#59C1F5' }
 		];
 		return colors[index % colors.length];
 	}

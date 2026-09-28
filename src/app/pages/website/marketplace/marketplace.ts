@@ -69,7 +69,7 @@ export class Marketplace implements OnInit, OnDestroy {
 		{ bg: 'rgba(15,169,154,.10)', border: 'rgba(15,169,154,.20)', color: 'var(--green)' },
 		{ bg: 'rgba(217,138,11,.10)', border: 'rgba(217,138,11,.20)', color: 'var(--kahr)' },
 		{ bg: 'rgba(255,140,105,.10)', border: 'rgba(255,140,105,.20)', color: 'var(--red)' },
-		{ bg: 'rgba(123,47,190,.10)', border: 'rgba(123,47,190,.20)', color: 'var(--ai-txt)' }
+		{ bg: 'rgba(89,193,245,.10)', border: 'rgba(89,193,245,.20)', color: '#59C1F5' }
 	];
 
 	// Maps a category's icon href (e.g. "#ws-cat-code", "ws-cat-code", or a bare
