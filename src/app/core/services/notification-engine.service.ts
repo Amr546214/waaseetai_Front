@@ -1,10 +1,11 @@
-import { Injectable, signal, inject, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Injectable, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { NotificationSoundService } from './notification-sound.service';
+import { AuthStore } from '../store/auth.store';
 
 export interface NotificationEvent {
 	id?: string;
@@ -62,7 +63,15 @@ export class NotificationEngineService implements OnDestroy {
 	private soundService = inject(NotificationSoundService);
 	private platformId = inject(PLATFORM_ID);
 	private isBrowser = isPlatformBrowser(this.platformId);
+	private authStore = inject(AuthStore);
 	private socket: Socket | null = null;
+	// The user ID the socket is currently (or should be) joined as. Distinct
+	// from `undefined` (no effect run yet) so the very first effect run is
+	// never mistaken for a no-op when the user is genuinely anonymous (`null`).
+	// Comparing against this — rather than reacting to every `currentUser()`
+	// emission — is what stops an unrelated profile-field update (same user,
+	// new object reference) from tearing down and recreating the socket.
+	private joinedUserId: string | null | undefined = undefined;
 
 	// Backend enum (NotificationCategory: ALL/OFFERS/PROJECTS/FINANCIAL/AI) ->
 	// the frontend's own category union. ALL/unrecognized falls back to the
@@ -145,62 +154,98 @@ export class NotificationEngineService implements OnDestroy {
 		// on every request), leaking a connection per render with no owner left
 		// to close it.
 		if (this.isBrowser) {
-			this.initSocket('ba85ed18-656e-4b66-a99d-463bfdbb1963'); // Default test room joining
+			// Follows AuthStore.currentUser() for the socket's entire lifecycle —
+			// not just at startup — so login, logout, and an account switch are
+			// all handled the same way. AuthStore hydrates its signals
+			// synchronously from cookies/localStorage before this constructor
+			// runs, so a persisted session is already visible on the very first
+			// run; an anonymous session simply stays disconnected until a real
+			// login populates currentUser().
+			effect(() => {
+				const user = this.authStore.currentUser();
+				const userId = user?.id ?? null;
+				if (userId === this.joinedUserId) return;
+
+				// Always start from a clean socket on any identity change
+				// (login, logout, or switching to a different account) — the
+				// backend has no "leave user room" event, so the only
+				// guaranteed way to stop the previous user's room membership
+				// is to fully disconnect rather than reuse the connection.
+				this.disconnect();
+				this.joinedUserId = userId;
+
+				if (userId) {
+					this.initSocket(userId);
+				}
+			});
 		}
 	}
 
-	initSocket(userId?: string): void {
-		if (!this.isBrowser) return;
+	initSocket(userId: string): void {
+		if (!this.isBrowser || this.socket) return;
 
-		if (!this.socket) {
-			this.socket = io(environment.socketUrl, {
-				withCredentials: true,
-				reconnection: true
-			});
+		this.socket = io(environment.socketUrl, {
+			withCredentials: true,
+			reconnection: true,
+			// Matches the same auth.token handshake pattern already used by
+			// ChatService/AntiCheatService/etc.: the backend's connection
+			// handler (waseetai-backend/src/socket.ts) verifies this JWT and
+			// auto-joins `user_<id>`/`project_owner_<id>` on every connect —
+			// including every automatic reconnect, since socket.io-client
+			// resends the current `auth` value on each attempt.
+			auth: { token: this.authStore.token() },
+		});
 
-			console.log('🔌 NotificationEngine connected to WebSocket');
+		console.log('🔌 NotificationEngine connected to WebSocket');
 
-			const handleNewNotification = (notif: any) => {
-				console.log('📬 Real-time notification received:', notif);
+		// The backend's own auto-join already covers this on every connect,
+		// but explicitly re-asserting room membership here matches the
+		// established pattern in ChatService and is a harmless no-op when the
+		// backend already joined the room from the handshake token.
+		this.socket.on('connect', () => {
+			if (this.joinedUserId) {
+				this.socket?.emit('join_user_room', this.joinedUserId);
+			}
+		});
+
+		const handleNewNotification = (notif: any) => {
+			console.log('📬 Real-time notification received:', notif);
+			this.unreadCount.update(c => c + 1);
+			this.realtimeNewNotification.set(notif);
+			this.soundService.playPopSound();
+			this.triggerToast(notif);
+		};
+
+		this.socket.on('notification:new', handleNewNotification);
+		this.socket.on('new_notification', handleNewNotification);
+
+		this.socket.on('notification_read', (data: { id: string }) => {
+			if (data && data.id) {
+				this.realtimeReadNotification.set(data.id);
+			}
+		});
+
+		this.socket.on('all_notifications_read', () => {
+			this.unreadCount.set(0);
+			this.realtimeReadAll.set(true);
+		});
+
+		const handleModelUpdate = (updateData: any) => {
+			console.log('✨ Model Audit Status Update arrived:', updateData);
+			this.latestModelStatusUpdate.set(updateData);
+			if (updateData.notification && !updateData._notified) {
+				updateData._notified = true;
 				this.unreadCount.update(c => c + 1);
-				this.realtimeNewNotification.set(notif);
 				this.soundService.playPopSound();
-				this.triggerToast(notif);
-			};
+				this.triggerToast(updateData.notification);
+			}
+		};
 
-			this.socket.on('notification:new', handleNewNotification);
-			this.socket.on('new_notification', handleNewNotification);
+		this.socket.on('model:status_updated', handleModelUpdate);
+		this.socket.on('model_status_update', handleModelUpdate);
 
-			this.socket.on('notification_read', (data: { id: string }) => {
-				if (data && data.id) {
-					this.realtimeReadNotification.set(data.id);
-				}
-			});
-
-			this.socket.on('all_notifications_read', () => {
-				this.unreadCount.set(0);
-				this.realtimeReadAll.set(true);
-			});
-
-			const handleModelUpdate = (updateData: any) => {
-				console.log('✨ Model Audit Status Update arrived:', updateData);
-				this.latestModelStatusUpdate.set(updateData);
-				if (updateData.notification && !updateData._notified) {
-					updateData._notified = true;
-					this.unreadCount.update(c => c + 1);
-					this.soundService.playPopSound();
-					this.triggerToast(updateData.notification);
-				}
-			};
-
-			this.socket.on('model:status_updated', handleModelUpdate);
-			this.socket.on('model_status_update', handleModelUpdate);
-		}
-
-		if (userId && this.socket) {
-			this.socket.emit('join_user_room', userId);
-			console.log(`📡 NotificationEngine subscribed to room for user: ${userId}`);
-		}
+		this.socket.emit('join_user_room', userId);
+		console.log(`📡 NotificationEngine subscribed to room for user: ${userId}`);
 	}
 
 	fetchNotifications(category?: string): Observable<any> {
