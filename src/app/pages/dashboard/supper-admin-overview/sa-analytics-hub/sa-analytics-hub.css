@@ -42,7 +42,7 @@
 .ah-period-btn.active { background: rgba(43,212,199,.12); color: #2BD4C7; }
 .ah-compare { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6B7699; cursor: pointer; }
 .ah-compare input { accent-color: #2BD4C7; cursor: pointer; }
-.ah-updated { margin-inline-start: auto; font-size: 11px; color: #A56BE0; }
+.ah-updated { margin-inline-start: auto; font-size: 11px; color: var(--txt-3); }
 
 :host-context(body.light-theme) .ah-controls,
 :host-context(body.theme-light) .ah-controls,

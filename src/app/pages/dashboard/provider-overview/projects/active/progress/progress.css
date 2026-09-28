@@ -361,7 +361,7 @@
 /* RIGHT PANEL: MILESTONE LOG */
 .up-log-panel{background:rgba(7,13,36,.6);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;position:sticky;top:22px}
 .up-log-ph{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
-.up-log-ph-ic{width:32px;height:32px;border-radius:9px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.22);display:flex;align-items:center;justify-content:center;color:#A56BE0;flex-shrink:0}
+.up-log-ph-ic{width:32px;height:32px;border-radius:9px;background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.22);display:flex;align-items:center;justify-content:center;color:#2BD4C7;flex-shrink:0}
 .up-log-ph-ic svg{width:15px;height:15px}
 .up-log-ph-ttl{font-size:13px;font-weight:800;color:#fff}
 .up-log-ph-sub{font-size:11px;font-weight:600;color:#6B7699}
@@ -440,7 +440,7 @@
 /* Cards */
 :host-context(body.light-theme) .up-card,:host-context(body.theme-light) .up-card,:host-context(.light-theme) .up-card,:host-context(.theme-light) .up-card{background:#fff;border-color:#E7EAF1;box-shadow:0 2px 10px rgba(15,23,42,.05)}
 :host-context(body.light-theme) .up-card-ico,:host-context(body.theme-light) .up-card-ico,:host-context(.light-theme) .up-card-ico,:host-context(.theme-light) .up-card-ico{background:rgba(15,169,154,.08);border-color:rgba(15,169,154,.18);color:#0A6F64}
-:host-context(body.light-theme) .up-card-ico.ai,:host-context(body.theme-light) .up-card-ico.ai,:host-context(.light-theme) .up-card-ico.ai,:host-context(.theme-light) .up-card-ico.ai{background:rgba(123,47,190,.06);border-color:rgba(123,47,190,.14);color:#6B27A5}
+:host-context(body.light-theme) .up-card-ico.ai,:host-context(body.theme-light) .up-card-ico.ai,:host-context(.light-theme) .up-card-ico.ai,:host-context(.theme-light) .up-card-ico.ai{background:rgba(15,138,127,.06);border-color:rgba(15,138,127,.14);color:#0F8A7F}
 :host-context(body.light-theme) .up-card-title,:host-context(body.theme-light) .up-card-title,:host-context(.light-theme) .up-card-title,:host-context(.theme-light) .up-card-title{color:#0F172A}
 :host-context(body.light-theme) .up-card-title.ai,:host-context(body.theme-light) .up-card-title.ai,:host-context(.light-theme) .up-card-title.ai,:host-context(.theme-light) .up-card-title.ai{color:#6B27A5}
 :host-context(body.light-theme) .up-card-sub,:host-context(body.theme-light) .up-card-sub,:host-context(.light-theme) .up-card-sub,:host-context(.theme-light) .up-card-sub{color:#5B6472}

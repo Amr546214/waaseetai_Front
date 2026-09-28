@@ -153,7 +153,7 @@
 :host-context(body.theme-light) .cover-lbl,
 :host-context(.light-theme) .cover-lbl,
 :host-context(.theme-light) .cover-lbl {
-  color: rgba(107, 39, 165, .7);
+  color: rgba(15, 138, 127, .85);
 }
 
 :host-context(body.light-theme) .cover-ico,
