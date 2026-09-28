@@ -1,23 +1,21 @@
-<div class="bg-grid" aria-hidden="true"></div>
-
+<!-- P-LN-007 الشركاء والتكاملات — markup ported verbatim from the design (links → app routes). -->
 <svg style="display:none" aria-hidden="true"><defs>
-<symbol id="ptn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
-<symbol id="ptn-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-<symbol id="ptn-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
-<symbol id="ptn-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
-<symbol id="ptn-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
-<symbol id="ptn-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
-<symbol id="ptn-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></symbol>
-<symbol id="ptn-applepay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></symbol>
-<symbol id="ptn-bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/></symbol>
 <symbol id="ptn-broker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/></symbol>
+<symbol id="ptn-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ptn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ptn-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="ptn-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ptn-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+<symbol id="ptn-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
 </defs></svg>
 
-<div class="page-wrap partners-page">
+<div class="page-wrap">
   <main class="container">
     <nav class="breadcrumb" aria-label="مسار التنقل">
       <a routerLink="/">الرئيسية</a>
-      <svg class="breadcrumb-sep" aria-hidden="true"><use href="#ptn-chevron"></use></svg>
+      <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ptn-chevron"></use></svg>
+      <a routerLink="/about">من نحن</a>
+      <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ptn-chevron"></use></svg>
       <span>الشركاء والتكاملات</span>
     </nav>
 
@@ -34,38 +32,38 @@
     <!-- PARTNER TYPES -->
     <section class="types-section">
       <div class="sec-hd">
-        <div class="sec-label"><svg aria-hidden="true"><use href="#ptn-shield"></use></svg> أنواع الشراكات</div>
+        <div class="sec-label" style="color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ptn-shield"></use></svg> أنواع الشراكات</div>
         <h2 class="sec-title">ثلاثة أنواع من الشراكة الاستراتيجية</h2>
         <p class="sec-sub">كل نوع شراكة مصمم لخدمة أطراف المعادلة — مقدم الخدمة وطالبها والوسيط التسويقي</p>
       </div>
       <div class="types-grid">
         <div class="type-card">
-          <div class="type-ico ico-teal"><svg aria-hidden="true"><use href="#ptn-shield"></use></svg></div>
+          <div class="type-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ptn-shield"></use></svg></div>
           <div class="type-name">شركاء الدفع والمال</div>
           <div class="type-desc">بوابات دفع محلية وعالمية معتمدة لضمان أمان تعاملاتك المالية الكاملة</div>
           <div class="type-benefits">
-            <div class="type-benefit"><div class="chk ico-teal"><svg aria-hidden="true"><use href="#ptn-check"></use></svg></div>دفع محلي بمدى وكارت ائتماني</div>
-            <div class="type-benefit"><div class="chk ico-teal"><svg aria-hidden="true"><use href="#ptn-check"></use></svg></div>سحب الأرباح لأي حساب بنكي</div>
-            <div class="type-benefit"><div class="chk ico-teal"><svg aria-hidden="true"><use href="#ptn-check"></use></svg></div>تشفير كامل لبيانات الدفع</div>
+            <div class="type-benefit"><div class="chk" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.22)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ptn-check"></use></svg></div>دفع محلي بمدى وكارت ائتماني</div>
+            <div class="type-benefit"><div class="chk" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.22)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ptn-check"></use></svg></div>سحب الأرباح لأي حساب بنكي</div>
+            <div class="type-benefit"><div class="chk" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.22)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ptn-check"></use></svg></div>تشفير كامل لبيانات الدفع</div>
           </div>
         </div>
         <div class="type-card">
-          <div class="type-ico ico-blue"><svg aria-hidden="true"><use href="#ptn-file"></use></svg></div>
+          <div class="type-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ptn-file"></use></svg></div>
           <div class="type-name">شركاء التحقق والهوية</div>
           <div class="type-desc">منصات توثيق موثوقة لاعتماد هويات المقدمين وضمان مصداقية كل طرف</div>
           <div class="type-benefits">
-            <div class="type-benefit"><div class="chk ico-blue"><svg aria-hidden="true"><use href="#ptn-check"></use></svg></div>توثيق الهوية الوطنية</div>
-            <div class="type-benefit"><div class="chk ico-blue"><svg aria-hidden="true"><use href="#ptn-check"></use></svg></div>اعتماد السجل التجاري للشركات</div>
-            <div class="type-benefit"><div class="chk ico-blue"><svg aria-hidden="true"><use href="#ptn-check"></use></svg></div>تحقق رقمي سريع وآمن</div>
+            <div class="type-benefit"><div class="chk" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.22)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ptn-check"></use></svg></div>توثيق الهوية الوطنية</div>
+            <div class="type-benefit"><div class="chk" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.22)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ptn-check"></use></svg></div>اعتماد السجل التجاري للشركات</div>
+            <div class="type-benefit"><div class="chk" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.22)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ptn-check"></use></svg></div>تحقق رقمي سريع وآمن</div>
           </div>
         </div>
         <div class="type-card">
-          <div class="type-ico ico-ai"><svg aria-hidden="true"><use href="#ptn-trust-ai"></use></svg></div>
+          <div class="type-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="color:var(--ai)"><use href="#ptn-trust-ai"></use></svg></div>
           <div class="type-name">شركاء الذكاء الاصطناعي</div>
           <div class="type-desc">تقنيات AI متخصصة تعزز جودة التحليل والتوصيات</div>
           <div class="type-benefits">
-            <div class="type-benefit"><div class="chk ico-ai"><svg aria-hidden="true"><use href="#ptn-check"></use></svg></div>تحليل جودة الخدمات تلقائياً</div>
-            <div class="type-benefit"><div class="chk ico-ai"><svg aria-hidden="true"><use href="#ptn-check"></use></svg></div>توصيات مخصصة لكل مستخدم</div>
+            <div class="type-benefit"><div class="chk" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="color:var(--ai)"><use href="#ptn-check"></use></svg></div>تحليل جودة الخدمات تلقائياً</div>
+            <div class="type-benefit"><div class="chk" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="color:var(--ai)"><use href="#ptn-check"></use></svg></div>توصيات مخصصة لكل مستخدم</div>
           </div>
         </div>
       </div>
@@ -74,40 +72,50 @@
     <!-- PAYMENT PARTNERS -->
     <section class="payment-section">
       <div class="sec-hd">
-        <div class="sec-label"><svg aria-hidden="true"><use href="#ptn-tag"></use></svg> بوابات الدفع المدعومة</div>
+        <div class="sec-label" style="color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ptn-tag"></use></svg> بوابات الدفع المدعومة</div>
         <h2 class="sec-title">ادفع واستلم بالطريقة التي تناسبك</h2>
         <p class="sec-sub">ندعم طرق الدفع الأكثر استخداماً في المنطقة</p>
       </div>
       <div class="payment-grid">
         <div class="payment-card">
-          <div class="payment-ico ico-teal"><svg aria-hidden="true"><use href="#ptn-card"></use></svg></div>
+          <div class="payment-ico" style="background:rgba(43,212,199,.06);border-color:rgba(43,212,199,.15)">
+            <svg aria-hidden="true" style="color:var(--teal);width:22px;height:22px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
           <div class="payment-name">مدى</div>
           <div class="payment-desc">البطاقة المحلية السعودية</div>
         </div>
         <div class="payment-card">
-          <div class="payment-ico ico-blue"><svg aria-hidden="true"><use href="#ptn-card"></use></svg></div>
+          <div class="payment-ico">
+            <svg aria-hidden="true" style="color:var(--blue-txt);width:22px;height:22px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
           <div class="payment-name">Visa / Mastercard</div>
           <div class="payment-desc">البطاقات الائتمانية الدولية</div>
         </div>
         <div class="payment-card">
-          <div class="payment-ico ico-green"><svg aria-hidden="true"><use href="#ptn-applepay"></use></svg></div>
+          <div class="payment-ico" style="background:rgba(15,169,154,.06);border-color:rgba(15,169,154,.15)">
+            <svg aria-hidden="true" style="color:var(--green);width:22px;height:22px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
           <div class="payment-name">Apple Pay</div>
           <div class="payment-desc">دفع سريع من أجهزة آبل</div>
         </div>
         <div class="payment-card">
-          <div class="payment-ico ico-blue"><svg aria-hidden="true"><use href="#ptn-bank"></use></svg></div>
+          <div class="payment-ico" style="background:rgba(43,127,255,.06);border-color:rgba(43,127,255,.15)">
+            <svg aria-hidden="true" style="color:var(--blue-txt);width:22px;height:22px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/></svg>
+          </div>
           <div class="payment-name">تحويل بنكي</div>
           <div class="payment-desc">للشركات والمبالغ الكبيرة</div>
         </div>
       </div>
     </section>
 
-    <!-- TRUST BANNER -->
-    <div class="ai-banner">
+    <!-- TRUST BANNER — the design's "AI monitors every transaction / detects abnormal activity"
+         banner is an unsupported claim (no such backend capability), so it states the real escrow
+         protection instead. Non-AI content, so it uses the teal treatment rather than reserved AI purple. -->
+    <div class="ai-banner trust-banner">
       <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ptn-shield"></use></svg></div>
-      <div class="ai-banner-body">
-        <div class="ai-banner-label">حماية مالية لكل معاملة</div>
-        <div class="ai-banner-text">نحتفظ بمبلغ كل طلب في ضمان آمن ولا نحرره للمقدم إلا بعد اعتماد التسليم — حماية حقيقية لكل طرف</div>
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:3px">حماية مالية لكل معاملة</div>
+        <div style="font-size:13px;color:var(--txt-2)">نحتفظ بمبلغ كل طلب في ضمان آمن ولا نحرره للمقدم إلا بعد اعتماد التسليم — حماية حقيقية لكل طرف</div>
       </div>
       <span class="ai-banner-badge">ضمان الدفع</span>
     </div>

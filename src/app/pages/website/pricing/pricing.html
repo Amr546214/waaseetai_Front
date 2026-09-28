@@ -1,5 +1,3 @@
-<div class="bg-grid" aria-hidden="true"></div>
-
 <svg style="display:none" aria-hidden="true"><defs>
 <symbol id="pr-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
 <symbol id="pr-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
@@ -12,40 +10,45 @@
 <symbol id="pr-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></symbol>
 </defs></svg>
 
-<div class="page-wrap pricing-page">
+<div class="page-wrap">
   <main class="container">
     <nav class="breadcrumb" aria-label="مسار التنقل">
       <a routerLink="/">الرئيسية</a>
-      <svg class="breadcrumb-sep" aria-hidden="true"><use href="#pr-chevron"></use></svg>
+      <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#pr-chevron"></use></svg>
+      <a routerLink="/about">من نحن</a>
+      <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#pr-chevron"></use></svg>
       <span>الباقات والتسعير</span>
     </nav>
 
     <!-- HERO -->
     <section class="page-hero">
-      <div class="hero-badge">
-        <svg aria-hidden="true"><use href="#pr-provider"></use></svg>
-        للمقدمين فقط
-      </div>
-      <h1 class="hero-title">تسعير شفاف — تدفع فقط<br>عند النجاح</h1>
-      <p class="hero-sub">وسيط AI يعمل بنموذج عمولة على الإنجاز. لا اشتراكات شهرية ولا رسوم خفية — تدفع نسبة من قيمة المشروع فقط بعد اعتماد التسليم وتحرير المدفوعات.</p>
-      <div class="free-note">
-        <svg aria-hidden="true"><use href="#pr-check"></use></svg>
-        تسجيل مجاني — لا رسوم حتى تنجح مشاريعك
-      </div>
-
-      <div class="toggle-wrap">
-        <button type="button" class="toggle-btn" [class.active]="accountType() === 'ind'" (click)="setAccountType('ind')">مقدم خدمة — فرد</button>
-        <button type="button" class="toggle-btn" [class.active]="accountType() === 'co'" (click)="setAccountType('co')">مقدم خدمة — شركة</button>
+      <div style="position:relative">
+        <div class="hero-badge">
+          <svg aria-hidden="true"><use href="#pr-provider"></use></svg>
+          للمقدمين فقط
+        </div>
+        <h1 class="hero-title">تسعير شفاف — تدفع فقط<br>عند النجاح</h1>
+        <p class="hero-sub">وسيط AI يعمل بنموذج عمولة على الإنجاز. لا اشتراكات شهرية ولا رسوم خفية — تدفع نسبة من قيمة المشروع فقط بعد اعتماد التسليم وتحرير المدفوعات.</p>
+        <div class="free-note">
+          <svg aria-hidden="true"><use href="#pr-check"></use></svg>
+          تسجيل مجاني — لا رسوم حتى تنجح مشاريعك
+        </div>
+        <!-- TYPE TOGGLE -->
+        <div class="toggle-wrap">
+          <button class="toggle-btn" type="button" [class.active]="accountType() === 'ind'" [attr.aria-pressed]="accountType() === 'ind'" (click)="setAccountType('ind')">مقدم خدمة — فرد</button>
+          <button class="toggle-btn" type="button" [class.active]="accountType() === 'co'" [attr.aria-pressed]="accountType() === 'co'" (click)="setAccountType('co')">مقدم خدمة — شركة</button>
+        </div>
       </div>
     </section>
 
     <!-- PLANS -->
     <section class="plans-section">
+      <!-- AI BANNER -->
       <div class="ai-banner">
         <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#pr-trust-ai"></use></svg></div>
-        <div class="ai-banner-body">
-          <div class="ai-banner-label">تحليل الذكاء الاصطناعي</div>
-          <div class="ai-banner-text">كلما ارتفع AI Trust Score الخاص بك، <strong>كلما انخفضت نسبة العمولة</strong> — وسيط يكافئ الجودة والالتزام</div>
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:3px">تحليل الذكاء الاصطناعي</div>
+          <div style="font-size:13px;color:var(--txt-2)">كلما ارتفع AI Trust Score الخاص بك، <strong>كلما انخفضت نسبة العمولة</strong> — وسيط يكافئ الجودة والالتزام</div>
         </div>
         <span class="ai-banner-badge">AI · نشط</span>
       </div>
@@ -61,22 +64,18 @@
             </div>
             <div class="plan-name">{{ plan.name }}</div>
             <div class="plan-desc">{{ plan.desc }}</div>
-            <div class="plan-commission" [class.commission-blue]="plan.featured">
+            <div class="plan-commission" [style.border-color]="plan.featured ? 'rgba(43,127,255,.15)' : null">
               <div class="plan-commission-label">نسبة العمولة</div>
-              <div class="plan-commission-val" [class.val-blue]="plan.featured">{{ plan.commission }} <span>من قيمة المشروع</span></div>
+              <div class="plan-commission-val" [style.color]="plan.featured ? 'var(--blue-txt)' : null">{{ plan.commission }} <span style="font-size:14px;font-weight:400;color:var(--txt-3)">من قيمة المشروع</span></div>
               <div class="plan-commission-sub">{{ plan.commissionSub }}</div>
             </div>
             <div class="plan-features">
               @for (feat of plan.features; track feat.text) {
-                <div class="plan-feat">
-                  @if (feat.included) {
-                    <div class="feat-chk yes"><svg aria-hidden="true"><use href="#pr-check"></use></svg></div>
-                    <span>{{ feat.text }}</span>
-                  } @else {
-                    <div class="feat-chk no"><span class="no-line"></span></div>
-                    <span class="feat-muted">{{ feat.text }}</span>
-                  }
-                </div>
+                @if (feat.included) {
+                  <div class="plan-feat"><div class="feat-chk yes"><svg aria-hidden="true"><use href="#pr-check"></use></svg></div> {{ feat.text }}</div>
+                } @else {
+                  <div class="plan-feat"><div class="feat-chk no"><div style="width:10px;height:1.5px;background:rgba(255,255,255,.18);border-radius:1px"></div></div> <span style="color:var(--txt-3)">{{ feat.text }}</span></div>
+                }
               }
             </div>
             <a routerLink="/auth/register" class="plan-cta" [class.primary]="plan.featured" [class.ghost]="!plan.featured">{{ plan.ctaLabel }}</a>
@@ -85,26 +84,26 @@
       </div>
     </section>
 
-    <!-- MODEL -->
+    <!-- MODEL SECTION -->
     <section class="model-section">
       <div class="sec-hd">
-        <div class="sec-label"><svg aria-hidden="true"><use href="#pr-shield"></use></svg> كيف يعمل نموذج العمولة</div>
+        <div class="sec-label" style="color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal);width:13px;height:13px"><use href="#pr-shield"></use></svg> كيف يعمل نموذج العمولة</div>
         <h2 class="sec-title">شفافية كاملة في كل خطوة</h2>
         <p class="sec-sub">نسبة العمولة تُحسم تلقائياً من المبلغ المحجوز في حساب الضمان — لا تدخل يدوي، لا مفاجآت</p>
       </div>
       <div class="model-grid">
         <div class="model-card">
-          <div class="model-ico ico-teal"><svg aria-hidden="true"><use href="#pr-shield"></use></svg></div>
+          <div class="model-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.18)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#pr-shield"></use></svg></div>
           <div class="model-title">حساب الضمان يحمي الجميع</div>
           <div class="model-desc">المبلغ يُحجز عند دفع الطالب — لا يصل إليك إلا بعد اعتماده للتسليم. ضمان لك ولعميلك في آنٍ واحد.</div>
         </div>
         <div class="model-card">
-          <div class="model-ico ico-blue"><svg aria-hidden="true"><use href="#pr-tag"></use></svg></div>
+          <div class="model-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#pr-tag"></use></svg></div>
           <div class="model-title">العمولة تتحسن بالأداء</div>
           <div class="model-desc">كلما ارتفع AI Trust Score الخاص بك وزادت مشاريعك الناجحة، انخفضت نسبة العمولة تلقائياً — بدون طلبات.</div>
         </div>
         <div class="model-card">
-          <div class="model-ico ico-ai"><svg aria-hidden="true"><use href="#pr-trust-ai"></use></svg></div>
+          <div class="model-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="color:var(--ai);width:16px;height:16px"><use href="#pr-trust-ai"></use></svg></div>
           <div class="model-title">AI يحسب المستوى تلقائياً</div>
           <div class="model-desc">الذكاء الاصطناعي يحسب مستواك تلقائياً بناءً على تقييماتك ومشاريعك المكتملة — بدون تدخل يدوي.</div>
         </div>
@@ -114,7 +113,7 @@
     <!-- FAQ -->
     <section class="faq-section">
       <div class="sec-hd">
-        <div class="sec-label"><svg aria-hidden="true"><use href="#pr-check"></use></svg> أسئلة شائعة</div>
+        <div class="sec-label" style="color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal);width:13px;height:13px"><use href="#pr-check"></use></svg> أسئلة شائعة</div>
         <h2 class="sec-title">كل ما تريد معرفته عن التسعير</h2>
       </div>
       <div class="faq-list">
@@ -131,9 +130,9 @@
     </section>
 
     <!-- ROLE SWITCH -->
-    <div class="role-switch-wrap">
-      <div class="role-switch-lbl">هل أنت في دور مختلف؟</div>
-      <div class="role-switch-links">
+    <div style="text-align:center;padding-bottom:48px">
+      <div style="font-size:13px;color:var(--txt-3);margin-bottom:14px">هل أنت في دور مختلف؟</div>
+      <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
         <a routerLink="/how-it-works/client" class="switch-link">طالب الخدمة</a>
         <a routerLink="/how-it-works/marketer" class="switch-link">الوسيط التسويقي</a>
       </div>

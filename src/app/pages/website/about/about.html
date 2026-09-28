@@ -1,27 +1,24 @@
 <div class="page-wrap about-page">
-  <!-- SVG SPRITE -->
-  <svg class="sprite-defs" aria-hidden="true"><defs>
-    <symbol id="ws-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
-    <symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <!-- SVG SPRITE (design P-LN-001 artwork, verbatim) -->
+  <svg style="display:none" aria-hidden="true"><defs>
     <symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-    <symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
+    <symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
     <symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
     <symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
-    <symbol id="ws-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
-    <symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
-    <symbol id="ws-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
-    <symbol id="ws-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="ws-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+    <symbol id="ws-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
     <symbol id="ws-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
     <symbol id="ws-lightning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
-    <symbol id="ws-social-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="20" y2="20"></line><line x1="20" y1="4" x2="4" y2="20"></line></symbol>
-    <symbol id="ws-social-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17" cy="7" r="1"></circle></symbol>
-    <symbol id="ws-social-linkedin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><line x1="7.5" y1="10.5" x2="7.5" y2="16.5"></line><circle cx="7.5" cy="7" r="0.9" fill="currentColor" stroke="none"></circle><path d="M11.5 16.5v-4a2 2 0 0 1 4 0v4"></path><line x1="11.5" y1="10.5" x2="11.5" y2="16.5"></line></symbol>
+    <symbol id="ws-social-x" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></symbol>
+    <symbol id="ws-social-linkedin" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></symbol>
   </defs></svg>
 
   <!-- HERO -->
   <section class="about-hero">
     <div class="container">
       <div class="hero-label">
+        <svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg>
         من نحن
       </div>
       <h1>نبني مستقبل<br><span>الخدمات المهنية</span> بالذكاء</h1>
@@ -39,26 +36,6 @@
     </div>
   </section>
 
-  <!-- STATS -->
-  <div class="stats-bar">
-    <div class="stat-item">
-      <div class="stat-num"><span>+12,000</span></div>
-      <div class="stat-label">مقدم خدمة معتمد</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num"><span>+85,000</span></div>
-      <div class="stat-label">مشروع مكتمل</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num"><span>٪97</span></div>
-      <div class="stat-label">نسبة رضا العملاء</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num"><span>24</span></div>
-      <div class="stat-label">تخصصاً مهنياً</div>
-    </div>
-  </div>
-
   <main>
     <!-- MISSION -->
     <section class="section">
@@ -75,7 +52,7 @@
           <div class="mission-visual">
             <div class="mission-point">
               <div class="mission-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)">
-                <svg aria-hidden="true" class="txt-teal"><use href="#ws-shield"></use></svg>
+                <svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-shield"></use></svg>
               </div>
               <div>
                 <div class="mission-point-title">حماية جميع الأطراف</div>
@@ -84,7 +61,7 @@
             </div>
             <div class="mission-point">
               <div class="mission-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border)">
-                <svg aria-hidden="true" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
+                <svg aria-hidden="true" style="color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
               </div>
               <div>
                 <div class="mission-point-title">ذكاء اصطناعي في كل خطوة</div>
@@ -93,7 +70,7 @@
             </div>
             <div class="mission-point">
               <div class="mission-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)">
-                <svg aria-hidden="true" class="txt-blue"><use href="#ws-globe"></use></svg>
+                <svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-globe"></use></svg>
               </div>
               <div>
                 <div class="mission-point-title">سوق عربي متكامل</div>
@@ -102,7 +79,7 @@
             </div>
             <div class="mission-point">
               <div class="mission-ico" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)">
-                <svg aria-hidden="true" class="txt-green"><use href="#ws-users"></use></svg>
+                <svg aria-hidden="true" style="color:var(--green)"><use href="#ws-users"></use></svg>
               </div>
               <div>
                 <div class="mission-point-title">مجتمع مهني موثوق</div>
@@ -127,42 +104,42 @@
         <div class="values-grid">
           <div class="value-card">
             <div class="value-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)">
-              <svg aria-hidden="true" class="txt-teal"><use href="#ws-shield"></use></svg>
+              <svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-shield"></use></svg>
             </div>
             <div class="value-title">الثقة أولاً</div>
             <div class="value-sub">كل معاملة موثقة بعقد رقمي، وكل مدفوعة محمية حتى اعتماد التسليم</div>
           </div>
           <div class="value-card">
             <div class="value-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border)">
-              <svg aria-hidden="true" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
+              <svg aria-hidden="true" style="color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
             </div>
             <div class="value-title">الذكاء في الخدمة</div>
             <div class="value-sub">الذكاء الاصطناعي شريك لا بديل — يحلل ويقترح ليجعل قراراتك أفضل</div>
           </div>
           <div class="value-card">
             <div class="value-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)">
-              <svg aria-hidden="true" class="txt-blue"><use href="#ws-check"></use></svg>
+              <svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-check"></use></svg>
             </div>
             <div class="value-title">الشفافية الكاملة</div>
             <div class="value-sub">لا رسوم خفية، لا وعود فارغة — كل شيء واضح من لحظة الاتفاق حتى التسليم</div>
           </div>
           <div class="value-card">
             <div class="value-ico" style="background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2)">
-              <svg aria-hidden="true" class="txt-green"><use href="#ws-lightning"></use></svg>
+              <svg aria-hidden="true" style="color:var(--green)"><use href="#ws-lightning"></use></svg>
             </div>
             <div class="value-title">الجودة لا الكمية</div>
             <div class="value-sub">نختار المقدمين بعناية ونراقب أداءهم باستمرار لضمان تجربة استثنائية</div>
           </div>
           <div class="value-card">
             <div class="value-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2)">
-              <svg aria-hidden="true" class="txt-kahr"><use href="#ws-users"></use></svg>
+              <svg aria-hidden="true" style="color:var(--kahr)"><use href="#ws-users"></use></svg>
             </div>
             <div class="value-title">نمو الجميع</div>
             <div class="value-sub">ننجح حين ينجح مقدمو الخدمات وطالبوها معاً — نموذج عمل يخدم الطرفين</div>
           </div>
           <div class="value-card">
             <div class="value-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.15)">
-              <svg aria-hidden="true" class="txt-teal"><use href="#ws-globe"></use></svg>
+              <svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-globe"></use></svg>
             </div>
             <div class="value-title">هوية عربية</div>
             <div class="value-sub">بيئة صُممت بعمق للسوق العربي في لغته وثقافته وطريقة تعامله</div>
@@ -181,7 +158,7 @@
               الذكاء الاصطناعي في وسيط
             </div>
             <h2 class="section-title" style="margin-bottom:10px">ليس مجرد أتمتة</h2>
-            <p style="font-size:14px;line-height:1.7;margin-bottom:0" class="txt-slate">الذكاء الاصطناعي في وسيط يعمل على طبقات متعددة — من تقييم مقدمي الخدمة إلى اقتراح الأنسب لكل طلب</p>
+            <p class="ai-intro" style="font-size:14px;color:var(--txt-2);line-height:1.7;margin-bottom:0">الذكاء الاصطناعي في وسيط يعمل على طبقات متعددة — من تقييم مقدمي الخدمة إلى اقتراح الأنسب لكل طلب</p>
             <div class="ai-features">
               <div class="ai-feat">
                 <div class="ai-feat-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
@@ -296,4 +273,3 @@
     </div>
   </main>
 </div>
-

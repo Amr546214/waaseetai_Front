@@ -22,6 +22,28 @@ export interface BlogPost {
   content: BlogPostSection[];
 }
 
+/** Visual key per category (design P-LN-009/010: icon + thumbnail tint + avatar gradient). */
+export type BlogCategoryKey = 'prov' | 'client' | 'broker' | 'ai' | 'tips';
+
+const CATEGORY_KEYS: Record<string, BlogCategoryKey> = {
+  'للمقدمين': 'prov',
+  'للطالبين': 'client',
+  'للوسطاء': 'broker',
+  'الذكاء الاصطناعي': 'ai',
+  'نصائح وإرشادات': 'tips',
+};
+
+const FALLBACK_KEYS: Record<BlogPost['categoryColor'], BlogCategoryKey> = {
+  blue: 'prov',
+  teal: 'client',
+  kahr: 'tips',
+  ai: 'ai',
+};
+
+export function blogCategoryKey(post: Pick<BlogPost, 'category' | 'categoryColor'>): BlogCategoryKey {
+  return CATEGORY_KEYS[post.category] ?? FALLBACK_KEYS[post.categoryColor] ?? 'client';
+}
+
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'ai-trust-score-explained',
