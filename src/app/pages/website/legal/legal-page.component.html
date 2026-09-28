@@ -1,61 +1,150 @@
-<section class="legal-page" dir="rtl">
-	<div class="legal-container">
-		<!-- Sidebar TOC -->
-		<aside class="legal-toc">
-			<div class="legal-toc-sticky">
-				<div class="legal-toc-ttl">المحتويات</div>
-				<nav>
-					@for (sec of document.sections; track sec.id) {
-						<button type="button" class="toc-link" [class.active]="activeSection === sec.id" (click)="scrollTo(sec.id)">
-							{{ sec.title }}
-						</button>
-					}
-				</nav>
-				<div class="legal-toc-foot">
-					<a routerLink="/terms" class="toc-back-link">الشروط والأحكام</a>
-					<a routerLink="/privacy" class="toc-back-link">سياسة الخصوصية</a>
-				</div>
-			</div>
-		</aside>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-provider" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></symbol>
+</defs></svg>
 
-		<!-- Content -->
-		<div class="legal-content">
-			<div class="legal-header">
-				<div class="legal-badge">الملحق القانوني</div>
-				<h1 class="legal-h1">{{ document.title }}</h1>
-				<p class="legal-subtitle">{{ document.subtitle }}</p>
-				<div class="legal-meta">
-					<span>آخر تحديث: 2026</span>
-					<span class="dot">·</span>
-					<span>وسيط AI</span>
-				</div>
-			</div>
+<!-- Shared block renderer: paragraphs, lists, and the design's h3 / checklist / callout / table markup -->
+<ng-template #blocks let-sec>
+  @for (raw of sec.paragraphs; track $index) {
+    @let b = norm(raw);
+    @switch (b.kind) {
+      @case ('p') { <p [innerHTML]="b.html"></p> }
+      @case ('ul') {
+        <ul>
+          @for (li of b.items; track $index) { <li [innerHTML]="li"></li> }
+        </ul>
+      }
+      @case ('h3') { <h3 [innerHTML]="b.html"></h3> }
+      @case ('ob') {
+        <div class="ob-list">
+          @for (li of b.items; track $index) {
+            <div class="ob-item">
+              <div class="ob-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-check"></use></svg></div>
+              <div class="ob-body" [innerHTML]="li"></div>
+            </div>
+          }
+        </div>
+      }
+      @case ('callout') {
+        @if (b.tone === 'warn') {
+          <div class="callout callout-warn">
+            <div class="callout-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.22)"><svg aria-hidden="true" style="color:var(--kahr)"><use href="#ws-clock"></use></svg></div>
+            <div class="callout-txt" style="color:var(--txt-2)" [innerHTML]="b.html"></div>
+          </div>
+        } @else {
+          <div class="callout callout-blue">
+            <div class="callout-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.22)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-provider"></use></svg></div>
+            <div class="callout-txt" style="color:var(--txt-2)" [innerHTML]="b.html"></div>
+          </div>
+        }
+      }
+      @case ('table') {
+        <table>
+          <thead><tr>@for (h of b.head; track $index) { <th>{{ h }}</th> }</tr></thead>
+          <tbody>
+            @for (row of b.rows; track $index) {
+              <tr>@for (cell of row; track $index) { <td>{{ cell }}</td> }</tr>
+            }
+          </tbody>
+        </table>
+      }
+    }
+  }
+</ng-template>
 
-			<div class="legal-body">
-				@for (sec of document.sections; track sec.id) {
-					<section [id]="sec.id" class="legal-section">
-						<h2 class="legal-h2">{{ sec.title }}</h2>
-						@for (p of sec.paragraphs; track $index) {
-							@if (typeof p === 'string') {
-								<p class="legal-p" [innerHTML]="p"></p>
-							} @else {
-								<ul class="legal-list">
-									@for (li of p; track $index) {
-										<li [innerHTML]="li"></li>
-									}
-								</ul>
-							}
-						}
-					</section>
-				}
-			</div>
+@if (isAgreement) {
+  <!-- P-LG-002 — اتفاقية مقدم الخدمة -->
+  <div class="container lg-agreement">
+    <nav class="breadcrumb" aria-label="مسار التنقل">
+      <a routerLink="/">الرئيسية</a>
+      <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+      <a routerLink="/terms">الشروط القانونية</a>
+      <svg class="breadcrumb-sep" aria-hidden="true" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+      <span>اتفاقية المقدم</span>
+    </nav>
 
-			<div class="legal-foot">
-				<a routerLink="/" class="legal-back">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
-					العودة للرئيسية
-				</a>
-			</div>
-		</div>
-	</div>
-</section>
+    <section class="legal-hero">
+      <div class="legal-badge">
+        <svg aria-hidden="true"><use href="#ws-provider"></use></svg>
+        لمقدمي الخدمة
+      </div>
+      <h1 class="legal-title">{{ document.title }}</h1>
+      <div class="legal-meta">
+        <div style="display:flex;align-items:center;gap:5px"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> آخر تحديث: 2026</div>
+        <div class="meta-dot">·</div>
+        <div>{{ document.subtitle }}</div>
+      </div>
+    </section>
+
+    <div class="legal-layout">
+      <article class="legal-content" id="legal-body">
+        @for (sec of document.sections; track sec.id; let i = $index) {
+          <h2 [id]="sec.id"><span class="h-num">{{ i + 1 }}</span> {{ sec.title }}</h2>
+          <ng-container *ngTemplateOutlet="blocks; context: { $implicit: sec }"></ng-container>
+        }
+      </article>
+
+      <aside class="legal-side">
+        <div class="toc-card">
+          <div class="toc-label">المحتوى</div>
+          <div class="toc-list">
+            @for (sec of document.sections; track sec.id; let i = $index) {
+              <div class="toc-link" role="button" tabindex="0" [class.active]="activeSection === sec.id" (click)="scrollTo(sec.id)" (keydown.enter)="scrollTo(sec.id)">{{ i + 1 }}. {{ sec.toc || sec.title }}</div>
+            }
+          </div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-title">الوثائق القانونية</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            @for (rel of related; track rel.route) {
+              <a [routerLink]="rel.route" class="other-link">{{ rel.label }} <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></a>
+            }
+          </div>
+        </div>
+
+        <div style="background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.2);border-radius:14px;padding:16px;text-align:center">
+          <div style="font-size:13px;font-weight:900;color:var(--txt);margin-bottom:6px">جاهز تبدأ؟</div>
+          <div style="font-size:11px;color:var(--txt-3);line-height:1.6;margin-bottom:12px">سجّل كمقدم خدمة وأنشئ أول خدمة مجاناً</div>
+          <a routerLink="/auth/register" style="display:block;padding:9px;border-radius:999px;background:var(--grad);font-size:12px;font-weight:900;color:#070D24;text-decoration:none">سجّل الآن</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+} @else {
+  <!-- P-LG-010 … P-LG-014 — annex documents -->
+  <div class="container lg-annex">
+    <div class="legal-hero">
+      <div class="legal-badge"><svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-file"></use></svg> وثيقة قانونية</div>
+      <h1 class="legal-h1">{{ document.title }}</h1>
+      <div class="legal-meta"><span>{{ document.subtitle }}</span><span>آخر تحديث: 2026</span></div>
+    </div>
+    <div class="legal-layout">
+      <article class="legal-body">
+        @for (sec of document.sections; track sec.id) {
+          <h2 [id]="sec.id">{{ sec.title }}</h2>
+          <ng-container *ngTemplateOutlet="blocks; context: { $implicit: sec }"></ng-container>
+        }
+      </article>
+      <aside class="legal-side">
+        <div class="side-card">
+          <div class="side-hd">المحتويات</div>
+          <div class="side-toc">
+            @for (sec of document.sections; track sec.id) {
+              <span class="toc-link" role="button" tabindex="0" [class.active]="activeSection === sec.id" (click)="scrollTo(sec.id)" (keydown.enter)="scrollTo(sec.id)">{{ sec.toc || sec.title }}</span>
+            }
+          </div>
+        </div>
+        <div class="side-card">
+          <div class="side-hd">الوثائق القانونية</div>
+          @for (rel of related; track rel.route + rel.label) {
+            <a [routerLink]="rel.route" class="related-link">{{ rel.label }} <svg aria-hidden="true" style="width:10px;height:10px;transform:rotate(180deg)"><use href="#ws-chevron"></use></svg></a>
+          }
+        </div>
+      </aside>
+    </div>
+  </div>
+}

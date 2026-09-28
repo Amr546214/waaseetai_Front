@@ -1,11 +1,11 @@
-import { Component, HostListener, Inject, PLATFORM_ID, ElementRef, ViewChildren, QueryList, OnInit } from '@angular/core';
+import { Component, HostListener, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
 	selector: 'app-terms',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterLink, RouterLinkActive],
 	templateUrl: './terms.component.html',
 	styleUrls: ['./terms.component.css']
 })

@@ -1,50 +1,99 @@
-<div class="bg-grid" aria-hidden="true"></div>
-<div class="particles" aria-hidden="true"></div>
-
-<!-- SVG SPRITE -->
 <svg style="display:none" aria-hidden="true"><defs>
-<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></symbol>
-<symbol id="ws-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+<symbol id="pv-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
 </defs></svg>
 
-<div class="page-wrap">
-  <main class="container">
+<div class="legal-main">
 
-    <!-- HERO -->
-    <div class="legal-hero">
-      <div class="legal-badge">
-        <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-file"></use></svg>
-        وثيقة قانونية
-      </div>
-      <h1 class="legal-h1">سياسة الخصوصية والبيانات</h1>
-      <div class="legal-meta">
-        <span>تاريخ الإعداد: 2026-07-21</span>
-        <span>الحالة: مسودة مرجعية حاكمة</span>
+<div class="legal-page-header">
+  <div class="legal-inner">
+    <div class="legal-title-row">
+      <div>
+        <h1 class="legal-h1" id="page-h1">سياسة الخصوصية والبيانات</h1>
+        <div class="legal-meta">
+          <span class="legal-meta-item">تاريخ الإعداد: 2026-07-21</span>
+          <span class="legal-meta-item">الحالة: مسودة مرجعية حاكمة</span>
+        </div>
       </div>
     </div>
-    <!-- LAYOUT -->
-    <div class="legal-layout">
+  </div>
+</div>
 
-      <!-- ARTICLE BODY -->
-      <article class="legal-body">
+<div class="legal-inner">
 
-        <h2 id="s1">الغرض</h2>
-        <p>توضح هذه السياسة أنواع البيانات التي يجمعها وسيط AI، وأغراض استخدامها، وحدود مشاركتها، ومدة الاحتفاظ بها، وأثر حذف الحساب.</p>
+  <div class="rights-card" id="sec-rights" role="region" aria-label="حقوقك وفق PDPL">
+    <div class="rights-card-title">
+      <svg style="width:18px;height:18px;fill:none;stroke:var(--teal);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#pv-shield"></use></svg>
+      حقوقك وفق نظام حماية البيانات الشخصية السعودي (PDPL)
+    </div>
+    <div class="rights-grid">
+      <div class="right-item"><span class="right-dot" aria-hidden="true"></span><span class="right-text">حق الاطلاع على بياناتك</span></div>
+      <div class="right-item"><span class="right-dot" aria-hidden="true"></span><span class="right-text">حق تصحيح البيانات غير الدقيقة</span></div>
+      <div class="right-item"><span class="right-dot" aria-hidden="true"></span><span class="right-text">حق حذف بياناتك</span></div>
+      <div class="right-item"><span class="right-dot" aria-hidden="true"></span><span class="right-text">حق تقييد المعالجة</span></div>
+      <div class="right-item"><span class="right-dot" aria-hidden="true"></span><span class="right-text">حق النقل الالكتروني للبيانات</span></div>
+      <div class="right-item"><span class="right-dot" aria-hidden="true"></span><span class="right-text">حق الاعتراض على المعالجة</span></div>
+      <div class="right-item"><span class="right-dot" aria-hidden="true"></span><span class="right-text">حق تقديم شكوى لـ SDAIA</span></div>
+    </div>
+  </div>
 
-        <h2 id="s2">البيانات التي تُجمع</h2>
-        <p>قد يجمع وسيط AI:</p>
-        <ul>
+  <div class="legal-layout">
+
+    <aside class="legal-toc" aria-label="فهرس المحتوى">
+      <div class="toc-box">
+        <div class="toc-title">فهرس المحتوى</div>
+        <nav aria-label="اقسام سياسة الخصوصية">
+          <a [attr.href]="'#s1'" class="toc-link" [class.active]="activeSection === 's1'" (click)="$event.preventDefault(); scrollTo('s1')">الغرض</a>
+          <a [attr.href]="'#s2'" class="toc-link" [class.active]="activeSection === 's2'" (click)="$event.preventDefault(); scrollTo('s2')">البيانات التي تُجمع</a>
+          <a [attr.href]="'#s3'" class="toc-link" [class.active]="activeSection === 's3'" (click)="$event.preventDefault(); scrollTo('s3')">أغراض الاستخدام</a>
+          <a [attr.href]="'#s4'" class="toc-link" [class.active]="activeSection === 's4'" (click)="$event.preventDefault(); scrollTo('s4')">السرية الافتراضية</a>
+          <a [attr.href]="'#s5'" class="toc-link" [class.active]="activeSection === 's5'" (click)="$event.preventDefault(); scrollTo('s5')">مشاركة البيانات</a>
+          <a [attr.href]="'#s6'" class="toc-link" [class.active]="activeSection === 's6'" (click)="$event.preventDefault(); scrollTo('s6')">حذف الحساب</a>
+          <a [attr.href]="'#s7'" class="toc-link" [class.active]="activeSection === 's7'" (click)="$event.preventDefault(); scrollTo('s7')">مدة الاحتفاظ</a>
+          <a [attr.href]="'#s8'" class="toc-link" [class.active]="activeSection === 's8'" (click)="$event.preventDefault(); scrollTo('s8')">حقوق المستخدم</a>
+          <a [attr.href]="'#s9'" class="toc-link" [class.active]="activeSection === 's9'" (click)="$event.preventDefault(); scrollTo('s9')">أمن البيانات</a>
+        </nav>
+      </div>
+      <div class="toc-box">
+        <div class="toc-title">الوثائق القانونية</div>
+        <nav aria-label="الوثائق القانونية">
+          <a routerLink="/terms" routerLinkActive="active" class="toc-link">الشروط والأحكام</a>
+          <a routerLink="/privacy" routerLinkActive="active" class="toc-link">سياسة الخصوصية والبيانات</a>
+        </nav>
+      </div>
+    </aside>
+
+    <div class="legal-content">
+
+      <article class="legal-section" id="s1">
+        <span class="sec-num">01</span>
+        <h2 class="sec-h2">الغرض</h2>
+        <div class="sec-body">
+          <p>توضح هذه السياسة أنواع البيانات التي يجمعها وسيط AI، وأغراض استخدامها، وحدود مشاركتها، ومدة الاحتفاظ بها، وأثر حذف الحساب.</p>
+        </div>
+      </article>
+
+      <article class="legal-section" id="s2">
+        <span class="sec-num">02</span>
+        <h2 class="sec-h2">البيانات التي تُجمع</h2>
+        <div class="sec-body">
+          <p>قد يجمع وسيط AI:</p>
+          <ul class="sec-list">
           <li><strong>بيانات الحساب:</strong> الاسم، البريد، الجوال، كلمة المرور المشفرة، نوع الحساب</li>
           <li><strong>بيانات التحقق:</strong> هوية، سجل تجاري، تفويض، وثائق ملكية، بيانات الشركة</li>
           <li><strong>بيانات مالية تشغيلية:</strong> معاملات الدفع، الفواتير، الرصيد، طلبات السحب، بيانات بنكية عند الحاجة</li>
           <li><strong>بيانات المشاريع:</strong> الطلبات، العروض، العقود، المراحل، الملفات، التسليمات، المحادثات، النزاعات</li>
           <li><strong>بيانات AI:</strong> التحليلات، نسب المطابقة، التقييمات، أسباب التوصيات</li>
           <li><strong>بيانات الاستخدام:</strong> الجلسات، الأجهزة، سجلات الأمان، تفضيلات الواجهة، الكوكيز</li>
-        </ul>
+          </ul>
+        </div>
+      </article>
 
-        <h2 id="s3">أغراض الاستخدام</h2>
-        <p>تستخدم البيانات من أجل:</p>
-        <ul>
+      <article class="legal-section" id="s3">
+        <span class="sec-num">03</span>
+        <h2 class="sec-h2">أغراض الاستخدام</h2>
+        <div class="sec-body">
+          <p>تستخدم البيانات من أجل:</p>
+          <ul class="sec-list">
           <li>تشغيل الحسابات والخدمات</li>
           <li>التحقق والاعتماد</li>
           <li>حفظ العقود والأدلة</li>
@@ -53,80 +102,81 @@
           <li>تحسين المطابقة والتقييم وAI</li>
           <li>منع الاحتيال والمخالفات</li>
           <li>الامتثال للأنظمة والطلبات النظامية عند الحاجة</li>
-        </ul>
+          </ul>
+        </div>
+      </article>
 
-        <h2 id="s4">قاعدة السرية الافتراضية</h2>
-        <p>ملفات المشاريع والمخرجات والمحادثات والوثائق سرية افتراضياً. لا تستخدم في المعارض أو الصفحات العامة أو التسويق إلا بإذن صريح محفوظ أو إذا كانت أصلاً منشورة من صاحب الحق.</p>
+      <article class="legal-section" id="s4">
+        <span class="sec-num">04</span>
+        <h2 class="sec-h2">قاعدة السرية الافتراضية</h2>
+        <div class="sec-body">
+          <p>ملفات المشاريع والمخرجات والمحادثات والوثائق سرية افتراضياً. لا تستخدم في المعارض أو الصفحات العامة أو التسويق إلا بإذن صريح محفوظ أو إذا كانت أصلاً منشورة من صاحب الحق.</p>
+        </div>
+      </article>
 
-        <h2 id="s5">مشاركة البيانات</h2>
-        <p>قد تشارك البيانات بالقدر اللازم مع:</p>
-        <ul>
+      <article class="legal-section" id="s5">
+        <span class="sec-num">05</span>
+        <h2 class="sec-h2">مشاركة البيانات</h2>
+        <div class="sec-body">
+          <p>قد تشارك البيانات بالقدر اللازم مع:</p>
+          <ul class="sec-list">
           <li>بوابات الدفع والبنوك لمعالجة الدفع أو السحب أو الاسترداد</li>
           <li>مزودي البنية التقنية والتخزين والأمان</li>
           <li>أدوات AI المعتمدة تشغيلياً دون إظهار أسمائها للعامة</li>
           <li>الجهات المختصة إذا وجد طلب نظامي أو ضرورة قانونية</li>
           <li>أطراف المشروع بما يلزم لتنفيذ العقد فقط</li>
-        </ul>
-        <p>لا تباع البيانات الشخصية للمعلنين.</p>
-
-        <h2 id="s6">حذف الحساب</h2>
-        <p>حذف الحساب يوقف وصول المستخدم إلى واجهة الحساب أو يخفيه عنه، لكنه لا يحذف السجلات التي يحتاجها وسيط AI لحفظ الحقوق والعقود والنزاعات والالتزامات المالية والأدلة.</p>
-        <p>المبالغ المحررة أو المستحقة لا تضيع بسبب حذف واجهة الحساب، وتبقى محفوظة وفق السجلات المالية وسياسات السحب والتحقق.</p>
-
-        <h2 id="s7">مدة الاحتفاظ</h2>
-        <table>
-          <thead>
-            <tr><th>نوع البيانات</th><th>مدة الاحتفاظ</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>العقود والفواتير والسجلات المالية</td><td>10 سنوات</td></tr>
-            <tr><td>النزاعات والقرارات الإدارية وسجل التدقيق</td><td>10 سنوات</td></tr>
-            <tr><td>بيانات التحقق والهوية</td><td>مدة الحساب + 5 سنوات بعد الإغلاق</td></tr>
-            <tr><td>ملفات المشاريع والتسليمات</td><td>مدة المشروع + 3 سنوات</td></tr>
-            <tr><td>المحادثات المرتبطة بمشروع</td><td>مدة المشروع + 5 سنوات</td></tr>
-            <tr><td>سجلات الأمان والجلسات</td><td>12 إلى 24 شهراً</td></tr>
-            <tr><td>تفضيلات الكوكيز</td><td>12 شهراً أو حتى تغييرها</td></tr>
-          </tbody>
-        </table>
-
-        <h2 id="s8">حقوق المستخدم</h2>
-        <p>يمكن للمستخدم طلب تحديث بياناته أو تصحيحها أو إغلاق حسابه أو الاستفسار عن بياناته عبر الدعم. لا يوجد حالياً مسار تصدير بيانات شامل معتمد، ويجب عدم وعد المستخدم به قبل برمجته.</p>
-
-        <h2 id="s9">أمن البيانات</h2>
-        <p>تستخدم وسائل حماية مناسبة مثل التشفير، التحكم بالصلاحيات، سجلات التدقيق، مراقبة الدخول، وعدم تخزين بيانات البطاقات البنكية الحساسة داخل وسيط AI إذا كانت بوابة الدفع تتولاها.</p>
-
+          </ul>
+          <p>لا تباع البيانات الشخصية للمعلنين.</p>
+        </div>
       </article>
 
-      <!-- SIDEBAR -->
-      <aside class="legal-side">
-        <div class="side-card">
-          <div class="side-hd">المحتويات</div>
-          <div class="side-toc">
-            <span class="toc-link" [class.active-toc]="activeSection === 's1'" (click)="scrollTo('s1')">الغرض</span>
-            <span class="toc-link" [class.active-toc]="activeSection === 's2'" (click)="scrollTo('s2')">البيانات التي تُجمع</span>
-            <span class="toc-link" [class.active-toc]="activeSection === 's3'" (click)="scrollTo('s3')">أغراض الاستخدام</span>
-            <span class="toc-link" [class.active-toc]="activeSection === 's4'" (click)="scrollTo('s4')">السرية الافتراضية</span>
-            <span class="toc-link" [class.active-toc]="activeSection === 's5'" (click)="scrollTo('s5')">مشاركة البيانات</span>
-            <span class="toc-link" [class.active-toc]="activeSection === 's6'" (click)="scrollTo('s6')">حذف الحساب</span>
-            <span class="toc-link" [class.active-toc]="activeSection === 's7'" (click)="scrollTo('s7')">مدة الاحتفاظ</span>
-            <span class="toc-link" [class.active-toc]="activeSection === 's8'" (click)="scrollTo('s8')">حقوق المستخدم</span>
-            <span class="toc-link" [class.active-toc]="activeSection === 's9'" (click)="scrollTo('s9')">أمن البيانات</span>
-          </div>
+      <article class="legal-section" id="s6">
+        <span class="sec-num">06</span>
+        <h2 class="sec-h2">حذف الحساب</h2>
+        <div class="sec-body">
+          <p>حذف الحساب يوقف وصول المستخدم إلى واجهة الحساب أو يخفيه عنه، لكنه لا يحذف السجلات التي يحتاجها وسيط AI لحفظ الحقوق والعقود والنزاعات والالتزامات المالية والأدلة.</p>
+          <p>المبالغ المحررة أو المستحقة لا تضيع بسبب حذف واجهة الحساب، وتبقى محفوظة وفق السجلات المالية وسياسات السحب والتحقق.</p>
         </div>
+      </article>
 
-        <div class="side-card">
-          <div class="side-hd">الوثائق القانونية</div>
-          <a routerLink="/terms" class="related-link">
-            الشروط والأحكام
-            <svg aria-hidden="true"><use href="#ws-chevron"></use></svg>
-          </a>
-          <a routerLink="/privacy" class="related-link">
-            سياسة الخصوصية والبيانات
-            <svg aria-hidden="true"><use href="#ws-chevron"></use></svg>
-          </a>
+      <article class="legal-section" id="s7">
+        <span class="sec-num">07</span>
+        <h2 class="sec-h2">مدة الاحتفاظ</h2>
+        <div class="sec-body">
+          <div class="cookie-table-wrap"><table class="cookie-table">
+          <thead>
+          <tr><th>نوع البيانات</th><th>مدة الاحتفاظ</th></tr>
+          </thead>
+          <tbody>
+          <tr><td class="td-name">العقود والفواتير والسجلات المالية</td><td>10 سنوات</td></tr>
+          <tr><td class="td-name">النزاعات والقرارات الإدارية وسجل التدقيق</td><td>10 سنوات</td></tr>
+          <tr><td class="td-name">بيانات التحقق والهوية</td><td>مدة الحساب + 5 سنوات بعد الإغلاق</td></tr>
+          <tr><td class="td-name">ملفات المشاريع والتسليمات</td><td>مدة المشروع + 3 سنوات</td></tr>
+          <tr><td class="td-name">المحادثات المرتبطة بمشروع</td><td>مدة المشروع + 5 سنوات</td></tr>
+          <tr><td class="td-name">سجلات الأمان والجلسات</td><td>12 إلى 24 شهراً</td></tr>
+          <tr><td class="td-name">تفضيلات الكوكيز</td><td>12 شهراً أو حتى تغييرها</td></tr>
+          </tbody>
+          </table></div>
         </div>
-      </aside>
+      </article>
+
+      <article class="legal-section" id="s8">
+        <span class="sec-num">08</span>
+        <h2 class="sec-h2">حقوق المستخدم</h2>
+        <div class="sec-body">
+          <p>يمكن للمستخدم طلب تحديث بياناته أو تصحيحها أو إغلاق حسابه أو الاستفسار عن بياناته عبر الدعم. لا يوجد حالياً مسار تصدير بيانات شامل معتمد، ويجب عدم وعد المستخدم به قبل برمجته.</p>
+        </div>
+      </article>
+
+      <article class="legal-section" id="s9">
+        <span class="sec-num">09</span>
+        <h2 class="sec-h2">أمن البيانات</h2>
+        <div class="sec-body">
+          <p>تستخدم وسائل حماية مناسبة مثل التشفير، التحكم بالصلاحيات، سجلات التدقيق، مراقبة الدخول، وعدم تخزين بيانات البطاقات البنكية الحساسة داخل وسيط AI إذا كانت بوابة الدفع تتولاها.</p>
+        </div>
+      </article>
 
     </div>
-  </main>
+  </div>
+</div>
 </div>

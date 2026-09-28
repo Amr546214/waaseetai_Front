@@ -1,14 +1,13 @@
-import { Component, HostListener, Inject, PLATFORM_ID, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, HostListener, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
 	selector: 'app-privacy',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [CommonModule, RouterLink, RouterLinkActive],
 	templateUrl: './privacy.component.html',
-	styleUrls: ['./privacy.component.css'],
-	encapsulation: ViewEncapsulation.None
+	styleUrls: ['./privacy.component.css']
 })
 export class PrivacyComponent implements OnInit {
 	activeSection = 's1';

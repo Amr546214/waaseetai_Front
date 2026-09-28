@@ -1,118 +1,117 @@
-:host{display:block}
-.legal-page{padding:40px 16px 60px}
-.legal-container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:240px 1fr;gap:32px}
+/* ============================================================
+   Legal documents — ported verbatim from the final design
+   design-reference/extracted/00-تسليم-الموقع-والسوق/القانونية-الإضافية/
+   · P-LG-002 (provider agreement) → .lg-agreement
+   · P-LG-010 … P-LG-014 (annexes, identical stylesheet) → .lg-annex
+   Each design file's rules are scoped under its wrapper because both define
+   .legal-hero / .legal-layout / .legal-side / .side-card / .toc-link differently.
+   Site header/drawer/footer rules omitted (website layout provides them; its <main>
+   carries the 64px offset). Tokens: global ws-site.css; light polish: global
+   ws-light-polish.js — exactly as in the design.
+   ============================================================ */
+:host{display:block;position:relative;z-index:2}
+a{text-decoration:none;color:inherit}
+a:hover{color:var(--teal)}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
 
-/* TOC */
-.legal-toc{position:sticky;top:90px;align-self:start;max-height:calc(100vh - 110px);overflow-y:auto}
-.legal-toc-sticky{display:flex;flex-direction:column;gap:12px}
-.legal-toc-ttl{font-size:12px;font-weight:900;color:#6B7699;letter-spacing:.04em;padding:0 4px}
-.toc-link{display:block;text-align:right;background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;color:#A8B2D1;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all .15s;text-decoration:none}
-.toc-link:hover{background:rgba(43,212,199,.06);color:#fff}
-.toc-link.active{background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.08));color:#2BD4C7;font-weight:800}
-.legal-toc-foot{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:6px}
-.toc-back-link{font-size:12px;font-weight:700;color:#6B7699;text-decoration:none;padding:4px 12px;border-radius:6px;transition:color .15s}
-.toc-back-link:hover{color:#2BD4C7}
+/* ---------- P-LG-010 … P-LG-014 ---------- */
+.lg-annex .legal-hero{padding:44px 0 28px;border-bottom:1px solid var(--border)}
+.lg-annex .legal-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:999px;font-size:10px;font-weight:800;color:var(--teal);letter-spacing:.05em;margin-bottom:12px}
+.lg-annex .legal-h1{font-size:clamp(22px,3.5vw,36px);font-weight:900;color:var(--txt);margin-bottom:8px}
+.lg-annex .legal-meta{font-size:12px;color:var(--txt-3);display:flex;gap:16px;flex-wrap:wrap}
+.lg-annex .legal-layout{display:grid;grid-template-columns:1fr 220px;gap:40px;padding:36px 0 64px;align-items:start}
+.lg-annex .legal-body{font-size:14px;color:var(--txt-2);line-height:1.85}
+.lg-annex .legal-body h2{font-size:16px;font-weight:900;color:var(--txt);margin:32px 0 10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
+.lg-annex .legal-body h2:first-child{margin-top:0;border-top:none;padding-top:0}
+.lg-annex .legal-body p{margin-bottom:12px}
+.lg-annex .legal-body ul,.lg-annex .legal-body ol{margin:8px 0 14px;padding-inline-start:20px}
+.lg-annex .legal-body li{margin-bottom:7px;line-height:1.7}
+.lg-annex .legal-body strong{color:var(--txt);font-weight:800}
+.lg-annex .legal-body table{width:100%;border-collapse:collapse;font-size:12px;margin:14px 0}
+.lg-annex .legal-body th{background:rgba(43,212,199,.07);color:var(--txt);font-weight:800;padding:8px 10px;border:1px solid rgba(255,255,255,.1);text-align:right}
+.lg-annex .legal-body td{padding:8px 10px;border:1px solid rgba(255,255,255,.07);color:var(--txt-2);vertical-align:top}
+.lg-annex .legal-body tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.lg-annex .legal-side{position:sticky;top:80px;display:flex;flex-direction:column;gap:12px}
+.lg-annex .side-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.lg-annex .side-hd{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;font-weight:900;color:var(--txt)}
+.lg-annex .side-toc{display:flex;flex-direction:column}
+.lg-annex .toc-link{display:block;padding:9px 14px;font-size:11px;color:var(--txt-3);border-bottom:1px solid rgba(255,255,255,.05);text-decoration:none;transition:background .15s,color .15s;cursor:pointer}
+.lg-annex .toc-link:last-child{border-bottom:none}
+.lg-annex .toc-link:hover{background:rgba(43,212,199,.05);color:var(--teal)}
+.lg-annex .related-link{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:11px;color:var(--txt-2);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.05);transition:background .15s}
+.lg-annex .related-link:last-child{border-bottom:none}
+.lg-annex .related-link:hover{background:rgba(43,212,199,.05);color:var(--teal)}
+@media(max-width:900px){.lg-annex .legal-layout{grid-template-columns:1fr}.lg-annex .legal-side{position:static}}
+/* app: scroll-spy active TOC entry (styled like the design's hover); toc entries are
+   keyboard-focusable spans; lists need their markers back (Tailwind preflight removes them);
+   text bound via [innerHTML] needs ::ng-deep */
+.lg-annex .toc-link.active{background:rgba(43,212,199,.05);color:var(--teal)}
+.lg-annex .legal-body ul{list-style:disc}
+.lg-annex .legal-body ol{list-style:decimal}
+.lg-annex .legal-body h2{scroll-margin-top:90px}
+.lg-annex .legal-body ::ng-deep strong{color:var(--txt);font-weight:800}
+.lg-annex .legal-body ::ng-deep a{color:var(--teal)}
+.lg-annex .legal-body ::ng-deep code{font-size:12px;direction:ltr;unicode-bidi:embed}
 
-/* Content */
-.legal-content{min-width:0}
-.legal-header{margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.08)}
-.legal-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);color:#2BD4C7;font-size:10px;font-weight:800;letter-spacing:.05em;padding:4px 12px;border-radius:999px;margin-bottom:12px}
-.legal-h1{font-size:clamp(22px,3.5vw,36px);font-weight:900;color:#fff;margin:0 0 8px;line-height:1.3}
-.legal-subtitle{font-size:14px;color:#A8B2D1;margin:0 0 12px}
-.legal-meta{font-size:12px;color:#6B7699;display:flex;align-items:center;gap:8px}
-.legal-meta .dot{opacity:.5}
-
-.legal-body{display:flex;flex-direction:column;gap:28px}
-.legal-section{scroll-margin-top:100px}
-.legal-h2{font-size:16px;font-weight:900;color:#fff;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)}
-.legal-p{font-size:14px;line-height:1.85;color:#A8B2D1;margin:0 0 12px}
-.legal-p:last-child{margin-bottom:0}
-.legal-list{margin:0 0 12px;padding-right:20px;display:flex;flex-direction:column;gap:6px}
-.legal-list li{font-size:14px;line-height:1.7;color:#A8B2D1}
-.legal-list li::marker{color:#2BD4C7}
-
-.legal-foot{margin-top:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,.08)}
-.legal-back{display:inline-flex;align-items:center;gap:8px;color:#A8B2D1;font-size:13px;font-weight:700;text-decoration:none;transition:color .15s}
-.legal-back:hover{color:#2BD4C7}
-.legal-back svg{width:18px;height:18px}
-
-@media(max-width:900px){
-	.legal-container{grid-template-columns:1fr;gap:20px}
-	.legal-toc{position:relative;top:0;max-height:none}
-	.legal-toc-sticky{flex-direction:row;flex-wrap:wrap;gap:6px}
-	.legal-toc-ttl{width:100%}
-	.toc-link{font-size:12px;padding:5px 10px}
-	.legal-toc-foot{width:100%;flex-direction:row;gap:12px}
-}
-
-@media(max-width:600px){
-	.legal-h1{font-size:22px}
-	.legal-h2{font-size:16px}
-	.legal-p,.legal-list li{font-size:13px}
-}
-
-/* === Light mode === */
-:host-context(body.light-theme) .toc-link,
-:host-context(body.theme-light) .toc-link,
-:host-context(.light-theme) .toc-link,
-:host-context(.theme-light) .toc-link{color:#56607D}
-:host-context(body.light-theme) .toc-link:hover,
-:host-context(body.theme-light) .toc-link:hover,
-:host-context(.light-theme) .toc-link:hover,
-:host-context(.theme-light) .toc-link:hover{background:rgba(43,212,199,.06);color:#070D24}
-:host-context(body.light-theme) .toc-link.active,
-:host-context(body.theme-light) .toc-link.active,
-:host-context(.light-theme) .toc-link.active,
-:host-context(.theme-light) .toc-link.active{color:#0F8A7F}
-:host-context(body.light-theme) .legal-toc-foot,
-:host-context(body.theme-light) .legal-toc-foot,
-:host-context(.light-theme) .legal-toc-foot,
-:host-context(.theme-light) .legal-toc-foot{border-color:#E7EAF1}
-:host-context(body.light-theme) .toc-back-link,
-:host-context(body.theme-light) .toc-back-link,
-:host-context(.light-theme) .toc-back-link,
-:host-context(.theme-light) .toc-back-link{color:#6B7699}
-:host-context(body.light-theme) .toc-back-link:hover,
-:host-context(body.theme-light) .toc-back-link:hover,
-:host-context(.light-theme) .toc-back-link:hover,
-:host-context(.theme-light) .toc-back-link:hover{color:#0F8A7F}
-:host-context(body.light-theme) .legal-header,
-:host-context(body.theme-light) .legal-header,
-:host-context(.light-theme) .legal-header,
-:host-context(.theme-light) .legal-header{border-color:#E7EAF1}
-:host-context(body.light-theme) .legal-h1,
-:host-context(body.theme-light) .legal-h1,
-:host-context(.light-theme) .legal-h1,
-:host-context(.theme-light) .legal-h1{color:#070D24}
-:host-context(body.light-theme) .legal-subtitle,
-:host-context(body.theme-light) .legal-subtitle,
-:host-context(.light-theme) .legal-subtitle,
-:host-context(.theme-light) .legal-subtitle{color:#56607D}
-:host-context(body.light-theme) .legal-h2,
-:host-context(body.theme-light) .legal-h2,
-:host-context(.light-theme) .legal-h2,
-:host-context(.theme-light) .legal-h2{color:#070D24;border-color:#E7EAF1}
-:host-context(body.light-theme) .legal-p,
-:host-context(body.theme-light) .legal-p,
-:host-context(.light-theme) .legal-p,
-:host-context(.theme-light) .legal-p,
-:host-context(body.light-theme) .legal-list li,
-:host-context(body.theme-light) .legal-list li,
-:host-context(.light-theme) .legal-list li,
-:host-context(.theme-light) .legal-list li{color:#56607D}
-:host-context(body.light-theme) .legal-foot,
-:host-context(body.theme-light) .legal-foot,
-:host-context(.light-theme) .legal-foot,
-:host-context(.theme-light) .legal-foot{border-color:#E7EAF1}
-:host-context(body.light-theme) .legal-back,
-:host-context(body.theme-light) .legal-back,
-:host-context(.light-theme) .legal-back,
-:host-context(.theme-light) .legal-back{color:#56607D}
-:host-context(body.light-theme) .legal-back:hover,
-:host-context(body.theme-light) .legal-back:hover,
-:host-context(.light-theme) .legal-back:hover,
-:host-context(.theme-light) .legal-back:hover{color:#0F8A7F}
-:host-context(body.light-theme) .legal-badge,
-:host-context(body.theme-light) .legal-badge,
-:host-context(.light-theme) .legal-badge,
-:host-context(.theme-light) .legal-badge{background:rgba(15,138,127,.07);border-color:rgba(15,138,127,.18);color:#0F8A7F}
+/* ---------- P-LG-002 ---------- */
+.lg-agreement .breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-3);padding:14px 0;flex-wrap:wrap}
+.lg-agreement .breadcrumb a{color:var(--txt-3);text-decoration:none;transition:color .15s}
+.lg-agreement .breadcrumb a:hover{color:var(--teal)}
+.lg-agreement .breadcrumb-sep{opacity:.4}
+/* LAYOUT */
+.lg-agreement .legal-layout{display:grid;grid-template-columns:1fr 260px;gap:40px;padding:32px 0 64px;align-items:start}
+/* HERO */
+.lg-agreement .legal-hero{padding:44px 0 36px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.lg-agreement .legal-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 80% at 0% 50%,rgba(43,127,255,.05),transparent);pointer-events:none}
+.lg-agreement .legal-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:999px;font-size:10px;font-weight:800;color:var(--blue-txt);letter-spacing:.06em;margin-bottom:14px}
+.lg-agreement .legal-badge svg{width:11px;height:11px}
+.lg-agreement .legal-title{font-size:clamp(22px,4vw,36px);font-weight:900;color:var(--txt);margin-bottom:10px;line-height:1.2}
+.lg-agreement .legal-meta{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--txt-3);flex-wrap:wrap}
+.lg-agreement .legal-meta svg{width:12px;height:12px}
+/* CONTENT */
+.lg-agreement .legal-content{font-size:14px;color:var(--txt-2);line-height:1.85}
+.lg-agreement .legal-content h2{font-size:17px;font-weight:900;color:var(--txt);margin:32px 0 12px;padding-top:6px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px}
+.lg-agreement .legal-content h2 .h-num{width:26px;height:26px;border-radius:7px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--blue-txt);flex-shrink:0}
+.lg-agreement .legal-content h3{font-size:14px;font-weight:800;color:var(--txt);margin:20px 0 8px}
+.lg-agreement .legal-content p{margin-bottom:14px}
+.lg-agreement .legal-content ul,.lg-agreement .legal-content ol{margin:0 0 14px 0;padding-inline-start:20px}
+.lg-agreement .legal-content li{margin-bottom:8px;line-height:1.7}
+.lg-agreement .legal-content strong{color:var(--txt);font-weight:800}
+.lg-agreement .legal-content a{color:var(--teal)}
+/* CALLOUT */
+.lg-agreement .callout{display:flex;gap:12px;padding:14px 16px;border-radius:12px;margin:16px 0}
+.lg-agreement .callout-blue{background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.2)}
+.lg-agreement .callout-warn{background:rgba(217,138,11,.06);border:1px solid rgba(217,138,11,.2)}
+.lg-agreement .callout-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lg-agreement .callout-ico svg{width:13px;height:13px}
+.lg-agreement .callout-txt{font-size:13px;line-height:1.65}
+/* OBLIGATION LIST */
+.lg-agreement .ob-list{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.lg-agreement .ob-item{display:flex;gap:12px;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px}
+.lg-agreement .ob-ico{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.lg-agreement .ob-ico svg{width:10px;height:10px}
+.lg-agreement .ob-body{font-size:13px;color:var(--txt-2);line-height:1.6}
+.lg-agreement .ob-body strong{color:var(--txt)}
+/* SIDEBAR */
+.lg-agreement .legal-side{position:sticky;top:80px;display:flex;flex-direction:column;gap:14px}
+.lg-agreement .toc-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px}
+.lg-agreement .toc-label{font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.06em;margin-bottom:10px}
+.lg-agreement .toc-list{display:flex;flex-direction:column;gap:2px}
+.lg-agreement .toc-link{font-size:12px;color:var(--txt-3);padding:6px 10px;border-radius:7px;cursor:pointer;transition:all .15s;border-inline-start:2px solid transparent;line-height:1.4}
+.lg-agreement .toc-link:hover{color:var(--teal);background:rgba(43,212,199,.04)}
+.lg-agreement .toc-link.active{color:var(--teal);background:rgba(43,212,199,.06);border-inline-start-color:var(--teal)}
+.lg-agreement .side-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px}
+.lg-agreement .side-title{font-size:13px;font-weight:900;color:var(--txt);margin-bottom:12px}
+.lg-agreement .other-link{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:9px;font-size:12px;color:var(--txt-2);cursor:pointer;transition:all .15s;text-decoration:none;border:1px solid transparent}
+.lg-agreement .other-link:hover{background:rgba(255,255,255,.03);border-color:var(--border);color:var(--teal)}
+.lg-agreement .other-link svg{width:12px;height:12px;transform:rotate(180deg)}
+@media(max-width:900px){.lg-agreement .legal-layout{grid-template-columns:1fr}.lg-agreement .legal-side{position:static}}
+/* app: lists need their markers back (Tailwind preflight); [innerHTML] text needs ::ng-deep;
+   the design's meta separator uses an inline white-alpha colour (kept) */
+.lg-agreement .legal-content ul{list-style:disc}
+.lg-agreement .legal-content ol{list-style:decimal}
+.lg-agreement .legal-content h2{scroll-margin-top:90px}
+.lg-agreement .legal-content ::ng-deep strong{color:var(--txt);font-weight:800}
+.lg-agreement .legal-content ::ng-deep a{color:var(--teal)}
+.lg-agreement .ob-body ::ng-deep strong,.lg-agreement .callout-txt ::ng-deep strong{color:var(--txt)}
+.lg-agreement .meta-dot{color:rgba(255,255,255,.15)}
