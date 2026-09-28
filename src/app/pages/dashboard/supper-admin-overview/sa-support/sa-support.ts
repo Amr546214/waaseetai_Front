@@ -56,7 +56,7 @@ export class SaSupport {
       ],
     },
     {
-      id: 'TK-2838', subject: 'مشكلة في رفع ملف التسليم', user: 'سارة القحطاني', userAv: 'س', userBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',
+      id: 'TK-2838', subject: 'مشكلة في رفع ملف التسليم', user: 'سارة القحطاني', userAv: 'س', userBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)',
       userType: 'مقدم فرد', category: 'التقنية', status: 'open', priority: 'medium', time: 'قبل 4 ساعات',
       messages: [{ from: 'user', text: 'عندما أحاول رفع ملف PSD تظهر رسالة خطأ ولا يكتمل الرفع.', time: 'اليوم 8:30 ص' }],
     },
@@ -79,7 +79,7 @@ export class SaSupport {
       messages: [{ from: 'user', text: 'حاولت تسجيل الدخول بالبريد والرقم السري لكن يقول بيانات غير صحيحة.', time: '12 يوليو 2026' }],
     },
     {
-      id: 'TK-2810', subject: 'استفسار عن رسوم العمولة', user: 'ريم البلوي', userAv: 'ر', userBg: 'linear-gradient(135deg,#FFB400,#A56BE0)',
+      id: 'TK-2810', subject: 'استفسار عن رسوم العمولة', user: 'ريم البلوي', userAv: 'ر', userBg: 'linear-gradient(135deg,#FFB400,#59C1F5)',
       userType: 'مقدم فرد', category: 'أخرى', status: 'resolved', priority: 'low', time: 'قبل أسبوع',
       messages: [
         { from: 'user', text: 'ما هي نسبة عمولة المنصة على المشاريع؟', time: '5 يوليو 2026' },

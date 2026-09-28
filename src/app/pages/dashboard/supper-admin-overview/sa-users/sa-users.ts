@@ -100,7 +100,7 @@ export class SaUsers implements OnInit {
       ];
     } else if (tab === 'pr-co') {
       return [
-        { ic: 'i-person', bg: 'rgba(123,47,190,.12)', cl: '#A56BE0', lbl: 'شركات مقدمة', val: formatNumber(stats.tabCounts['pr-co']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
+        { ic: 'i-person', bg: 'rgba(89,193,245,.12)', cl: '#59C1F5', lbl: 'شركات مقدمة', val: formatNumber(stats.tabCounts['pr-co']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
         { ic: 'i-wallet', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#0FA99A' },
         { ic: 'i-escrow', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'الموقوفون والمراجعة', val: formatNumber(stats.suspendedCount.count), sub: `${stats.suspendedCount.pendingReview} بانتظار مراجعة`, subCl: '#6B7699' },
         { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'شركات جديدة', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }

@@ -95,7 +95,7 @@ export class SaAnalyticsHub {
   readonly geoDistribution = [
     { city: 'الرياض', pct: 68, color: '#2BD4C7' },
     { city: 'جدة', pct: 18, color: '#5DA0FF' },
-    { city: 'الدمام', pct: 8, color: '#A56BE0' },
+    { city: 'الدمام', pct: 8, color: '#59C1F5' },
     { city: 'أخرى', pct: 6, color: '#FFB400' },
   ];
 
@@ -106,7 +106,7 @@ export class SaAnalyticsHub {
     { label: 'طالب خدمة (فرد)', count: '4.2K', pct: 34, growth: '+3.1%', newCount: 84, color: '#2BD4C7' },
     { label: 'طالب خدمة (شركة)', count: '1.8K', pct: 15, growth: '+2.8%', newCount: 32, color: '#FFB400' },
     { label: 'مقدم خدمة (فرد)', count: '5.1K', pct: 41, growth: '+5.2%', newCount: 96, color: '#5DA0FF' },
-    { label: 'مقدم خدمة (شركة)', count: '890', pct: 7, growth: '+1.9%', newCount: 14, color: '#A56BE0' },
+    { label: 'مقدم خدمة (شركة)', count: '890', pct: 7, growth: '+1.9%', newCount: 14, color: '#59C1F5' },
     { label: 'وسطاء تسويقيون', count: '382', pct: 3, growth: '+4.7%', newCount: 18, color: '#0FA99A' },
   ];
 

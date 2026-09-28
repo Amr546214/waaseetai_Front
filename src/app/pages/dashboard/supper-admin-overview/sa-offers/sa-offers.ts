@@ -58,7 +58,7 @@ export class SaOffers {
 
   items = signal<Offer[]>([
     {
-      id: 'OF-4812', provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',
+      id: 'OF-4812', provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)',
       request: 'تصميم بنرات إعلانية × 10', spec: 'تصميم', price: '3,200 ر.س', priceValue: 3200, marketAvg: 3100,
       days: '5 أيام', rating: 4.9, date: '2026-09-08', status: 'accepted', aiClean: true,
       reliability: 97, disputesRate: '0%', completionRate: '100%', level: 'Platinum',
@@ -72,7 +72,7 @@ export class SaOffers {
       negotiationNote: 'لم يُقبل — الطالب فضّل عرضاً بمدة أقصر رغم فارق السعر البسيط.',
     },
     {
-      id: 'OF-4810', provider: 'ريم الحربي', pAv: 'ر', pBg: 'linear-gradient(135deg,#FFB400,#A56BE0)',
+      id: 'OF-4810', provider: 'ريم الحربي', pAv: 'ر', pBg: 'linear-gradient(135deg,#FFB400,#59C1F5)',
       request: 'تطوير تطبيق iOS', spec: 'برمجة', price: '24,000 ر.س', priceValue: 24000, marketAvg: 26000,
       days: '45 يوم', rating: 4.8, date: '2026-09-07', status: 'pending', aiClean: true,
       reliability: 94, disputesRate: '1.1%', completionRate: '98%', level: 'Gold',
@@ -86,7 +86,7 @@ export class SaOffers {
       negotiationNote: 'السعر أقل من متوسط السوق بنسبة كبيرة — العرض موقوف للمراجعة اليدوية.',
     },
     {
-      id: 'OF-4805', provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',
+      id: 'OF-4805', provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)',
       request: 'تحرير ومونتاج فيديو', spec: 'تصميم', price: '3,800 ر.س', priceValue: 3800, marketAvg: 3600,
       days: '7 أيام', rating: 4.9, date: '2026-09-05', status: 'pending', aiClean: true,
       reliability: 97, disputesRate: '0%', completionRate: '100%', level: 'Platinum',

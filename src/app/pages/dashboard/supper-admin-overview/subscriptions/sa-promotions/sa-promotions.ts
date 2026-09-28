@@ -30,6 +30,6 @@ export class SaPromotions {
   readonly services: PromoService[] = [
     { name: 'Boost يومي', color: '#2BD4C7', desc: 'ظهور مميز في أعلى نتائج البحث لمدة 24 ساعة', price: '45 ر.س', period: '/يوم', subscribers: 892, ctr: 8.4, roi: 4.2 },
     { name: 'بروفايل مميز', color: '#5DA0FF', desc: 'شارة مميزة + ظهور أولوية لمدة أسبوع كامل', price: '199 ر.س', period: '/أسبوع', subscribers: 614, ctr: 11.2, roi: 5.1 },
-    { name: 'اشتراك Elite', color: '#A56BE0', desc: 'كل مزايا الترويج + أولوية في عروض الطلبات الجديدة', price: '599 ر.س', period: '/شهر', subscribers: 247, ctr: 14.8, roi: 6.2 },
+    { name: 'اشتراك Elite', color: '#59C1F5', desc: 'كل مزايا الترويج + أولوية في عروض الطلبات الجديدة', price: '599 ر.س', period: '/شهر', subscribers: 247, ctr: 14.8, roi: 6.2 },
   ];
 }

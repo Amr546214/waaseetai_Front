@@ -48,7 +48,7 @@ export class SaActiveSubs {
   readonly typeColors: Record<UserType, string> = {
     client: '#2BD4C7',
     provider: '#5DA0FF',
-    broker: '#A56BE0',
+    broker: '#59C1F5',
   };
 
   readonly statusLabels: Record<SubStatus, string> = {
@@ -72,7 +72,7 @@ export class SaActiveSubs {
 
   readonly subscriptions: Subscription[] = [
     { id: 'SUB-4821', user: 'هيثم القرني', type: 'client', plan: 'Pro', planColor: '#2BD4C7', startDate: '1 يناير 2026', renewDate: '1 أغسطس 2026', autoRenew: true, status: 'active' },
-    { id: 'SUB-4820', user: 'نورة السهلي', type: 'provider', plan: 'Business', planColor: '#A56BE0', startDate: '15 مارس 2026', renewDate: '15 أغسطس 2026', autoRenew: true, status: 'active' },
+    { id: 'SUB-4820', user: 'نورة السهلي', type: 'provider', plan: 'Business', planColor: '#59C1F5', startDate: '15 مارس 2026', renewDate: '15 أغسطس 2026', autoRenew: true, status: 'active' },
     { id: 'SUB-4815', user: 'خالد المطيري', type: 'client', plan: 'أساسي', planColor: '#5DA0FF', startDate: '1 يوليو 2026', renewDate: '31 يوليو 2026', autoRenew: false, status: 'expiring' },
     { id: 'SUB-4810', user: 'شركة الأفق', type: 'provider', plan: 'Enterprise', planColor: '#FF8C69', startDate: '1 يناير 2026', renewDate: '1 يناير 2027', autoRenew: true, status: 'active' },
     { id: 'SUB-4803', user: 'مؤسسة الوساطة الذهبية', type: 'broker', plan: 'Pro', planColor: '#2BD4C7', startDate: '10 فبراير 2026', renewDate: '10 أغسطس 2026', autoRenew: true, status: 'active' },

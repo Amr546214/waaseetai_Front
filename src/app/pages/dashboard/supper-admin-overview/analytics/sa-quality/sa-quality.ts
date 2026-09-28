@@ -49,7 +49,7 @@ export class SaQuality {
     { label: 'رضا طالبي الخدمة', value: 92, display: '92%', color: '#0FA99A' },
     { label: 'رضا مقدمي الخدمة', value: 88, display: '88%', color: '#2BD4C7' },
     { label: 'معدل إتمام المشاريع', value: 85, display: '85%', color: '#5DA0FF' },
-    { label: 'حل النزاعات خلال 7 أيام', value: 94, display: '94%', color: '#A56BE0' },
+    { label: 'حل النزاعات خلال 7 أيام', value: 94, display: '94%', color: '#59C1F5' },
     { label: 'متوسط وقت الرد (دعم)', value: 68, display: '3.2h', color: '#FFB400' },
     { label: 'تقييمات سلبية (<3★)', value: 12, display: '12%', color: '#FF8C69' },
   ];
@@ -67,7 +67,7 @@ export class SaQuality {
   ];
 
   readonly worstProviders: WorstProvider[] = [
-    { initial: 'ع', avatarGradient: 'linear-gradient(135deg,#FF6B6B,#A56BE0)', name: 'عبدالرحمن الدوسري', meta: '2.8★ · 4 بلاغات · احتيال مشتبه', tone: 'critical' },
+    { initial: 'ع', avatarGradient: 'linear-gradient(135deg,#FF6B6B,#59C1F5)', name: 'عبدالرحمن الدوسري', meta: '2.8★ · 4 بلاغات · احتيال مشتبه', tone: 'critical' },
     { initial: 'ر', avatarGradient: 'linear-gradient(135deg,#FFB400,#FF8C69)', name: 'ريم الحربي', meta: '3.1★ · تأخر متكرر · 21 يوم بلا نشاط', tone: 'warn' },
     { initial: 'خ', avatarGradient: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', name: 'خالد الدوسري', meta: '3.3★ · عقدان ملغيان · تحذير أول', tone: 'notice' },
   ];

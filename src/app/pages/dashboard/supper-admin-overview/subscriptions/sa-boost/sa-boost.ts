@@ -46,7 +46,7 @@ export class SaBoost {
     active: '#0FA99A',
     expiring: '#FFB400',
     ended: '#6B7699',
-    pending: '#A56BE0',
+    pending: '#59C1F5',
   };
 
   readonly kpis = [

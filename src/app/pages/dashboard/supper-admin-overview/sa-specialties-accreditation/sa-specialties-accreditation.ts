@@ -60,7 +60,7 @@ export class SaSpecialtiesAccreditation {
 
   requests = signal<AccreditationRequest[]>([
     {
-      id: 'AC-081', provider: 'سارة القحطاني', avatar: 'س', avatarBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',
+      id: 'AC-081', provider: 'سارة القحطاني', avatar: 'س', avatarBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)',
       specialty: 'موشن جرافيك', accountType: 'مقدم خدمة فرد', subCategory: 'إنتاج فيديو ورسوم متحركة', yearsExperience: 5,
       currentRating: 4.9, projects: 23, docsCount: 3, docsOk: true, aiRec: 'accept', aiScore: 94,
       date: '15 يوليو 2026', status: 'pending', memberSince: 'يناير 2025', priorReports: 0,
@@ -73,7 +73,7 @@ export class SaSpecialtiesAccreditation {
       documents: ['شهادة خبرة من استوديو الإبداع', 'شهادة Adobe After Effects Certified'],
     },
     {
-      id: 'AC-080', provider: 'ريم الحربي', avatar: 'ر', avatarBg: 'linear-gradient(135deg,#FFB400,#A56BE0)',
+      id: 'AC-080', provider: 'ريم الحربي', avatar: 'ر', avatarBg: 'linear-gradient(135deg,#FFB400,#59C1F5)',
       specialty: 'تصميم UX/UI', accountType: 'مقدم خدمة فرد', subCategory: 'تصميم تطبيقات الجوال', yearsExperience: 4,
       currentRating: 4.8, projects: 18, docsCount: 4, docsOk: true, aiRec: 'accept', aiScore: 91,
       date: '15 يوليو 2026', status: 'pending', memberSince: 'مارس 2025', priorReports: 0,

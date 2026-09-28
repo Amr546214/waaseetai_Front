@@ -58,7 +58,7 @@ export class SaFees {
     { label: 'مدة احتجاز الضمان', value: '72 ساعة', color: '#5DA0FF', desc: 'من قبول التسليم حتى الإفراج' },
     { label: 'رسوم السحب', value: '0%', color: '#6B7699', desc: 'بدون رسوم تحويل للبنك' },
     { label: 'تعزيز الظهور (Boost)', value: '49 ر.س', color: '#0FA99A', desc: 'ظهور مميز لمدة 7 أيام' },
-    { label: 'نسبة الكاش باك', value: '2%', color: '#A56BE0', desc: 'لطالبي الخدمة على كل مشروع' },
+    { label: 'نسبة الكاش باك', value: '2%', color: '#59C1F5', desc: 'لطالبي الخدمة على كل مشروع' },
   ]);
 
   readonly packagesByTab: Record<AccountTab, Package[]> = {
@@ -102,7 +102,7 @@ export class SaFees {
     { type: 'طالب فرد', color: '#2BD4C7', plan: 'أساسي 99 ر.س', subscribers: '2,841', revenue: '281K ر.س', churn: '3.2%' },
     { type: 'طالب شركة', color: '#FFB400', plan: 'شركات 499 ر.س', subscribers: '1,240', revenue: '619K ر.س', churn: '1.8%' },
     { type: 'مقدم فرد', color: '#5DA0FF', plan: 'مهني 199 ر.س', subscribers: '3,480', revenue: '692K ر.س', churn: '2.4%' },
-    { type: 'مقدم شركة', color: '#A56BE0', plan: 'شركة 999 ر.س', subscribers: '742', revenue: '741K ر.س', churn: '1.2%' },
+    { type: 'مقدم شركة', color: '#59C1F5', plan: 'شركة 999 ر.س', subscribers: '742', revenue: '741K ر.س', churn: '1.2%' },
   ];
 
   setTab(tab: AccountTab) {

@@ -73,14 +73,14 @@ export class SaContracts {
   items = signal<Contract[]>([
     {
       id: 'CO-1301', client: 'شركة الخليج التقنية', cAv: 'خ', cBg: 'linear-gradient(135deg,#FFB400,#FF8C69)',
-      provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',
+      provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)',
       desc: 'تصميم بنرات إعلانية × 10', value: '3,200 ر.س', valueNum: 3200, feePct: 10,
       escrow: 'محتجز', signed: '2026-09-08', deadline: '2026-09-20', status: 'active',
       scope: 'تصميم 10 بنرات إعلانية رقمية بأحجام متعددة لمنصات التواصل الاجتماعي مع ملفات المصدر بصيغة PSD.',
       log: [
         { text: 'إيداع الضمان 3,200 ر.س', time: '8 سبتمبر 2026', color: '#0FA99A' },
         { text: 'توقيع العقد من الطرفين', time: '8 سبتمبر 2026', color: '#5DA0FF' },
-        { text: 'إنشاء العقد بعد قبول العرض', time: '8 سبتمبر 2026', color: '#A56BE0' },
+        { text: 'إنشاء العقد بعد قبول العرض', time: '8 سبتمبر 2026', color: '#59C1F5' },
       ],
     },
     {
@@ -118,7 +118,7 @@ export class SaContracts {
       ],
     },
     {
-      id: 'CO-1285', client: 'ريم الحربي', cAv: 'ر', cBg: 'linear-gradient(135deg,#FFB400,#A56BE0)',
+      id: 'CO-1285', client: 'ريم الحربي', cAv: 'ر', cBg: 'linear-gradient(135deg,#FFB400,#59C1F5)',
       provider: 'خالد المالكي', pAv: 'خ', pBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)',
       desc: 'استشارة قانونية', value: '2,000 ر.س', valueNum: 2000, feePct: 10,
       escrow: 'مُفرَج', signed: '2026-08-25', deadline: '2026-09-03', status: 'completed',
@@ -130,7 +130,7 @@ export class SaContracts {
     },
     {
       id: 'CO-1260', client: 'سعد الغامدي', cAv: 'س', cBg: 'linear-gradient(135deg,#0FA99A,#2BD4C7)',
-      provider: 'ريم السهلي', pAv: 'ر', pBg: 'linear-gradient(135deg,#A56BE0,#FF8C69)',
+      provider: 'ريم السهلي', pAv: 'ر', pBg: 'linear-gradient(135deg,#59C1F5,#FF8C69)',
       desc: 'مونتاج فيديو', value: '4,500 ر.س', valueNum: 4500, feePct: 10,
       escrow: 'مُسترَد', signed: '2026-08-20', deadline: '2026-09-01', status: 'cancelled',
       scope: 'مونتاج فيديو ترويجي احترافي بمدة 3 دقائق.',

@@ -72,7 +72,7 @@ export class SaRevenues {
   readonly revenueSources: RevenueSource[] = this.withDonutOffsets([
     { label: 'رسوم المشاريع', pct: 58, value: '1.65M', color: '#2BD4C7' },
     { label: 'رسوم الباقات', pct: 22, value: '624K', color: '#5DA0FF' },
-    { label: 'عمولات الوسطاء', pct: 12, value: '341K', color: '#A56BE0' },
+    { label: 'عمولات الوسطاء', pct: 12, value: '341K', color: '#59C1F5' },
     { label: 'نماذج الأعمال', pct: 5, value: '142K', color: '#FFB400' },
     { label: 'Boost + إعلانات', pct: 3, value: '77K', color: '#FF8C69' },
   ]);

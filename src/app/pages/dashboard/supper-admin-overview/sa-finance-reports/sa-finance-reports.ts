@@ -52,7 +52,7 @@ export class SaFinanceReports {
   readonly expenseBreakdown = [
     { label: 'رواتب الفريق', value: '1.8M', pct: 42, color: '#FF8C69' },
     { label: 'بنية تقنية (IT)', value: '620K', pct: 15, color: '#5DA0FF' },
-    { label: 'عمولات مدفوعة', value: '1.4M', pct: 33, color: '#A56BE0' },
+    { label: 'عمولات مدفوعة', value: '1.4M', pct: 33, color: '#59C1F5' },
     { label: 'تسويق ونمو', value: '430K', pct: 10, color: '#FFB400' },
   ];
 

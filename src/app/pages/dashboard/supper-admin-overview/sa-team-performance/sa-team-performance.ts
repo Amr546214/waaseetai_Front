@@ -47,7 +47,7 @@ export class SaTeamPerformance {
   );
 
   readonly members = signal<TeamMember[]>([
-    { name: 'هيثم القرني', role: 'مشرف نزاعات', avatarColor: '#A56BE0', tasks: 142, sla: 98, rating: 4.8, score: 94 },
+    { name: 'هيثم القرني', role: 'مشرف نزاعات', avatarColor: '#59C1F5', tasks: 142, sla: 98, rating: 4.8, score: 94 },
     { name: 'نوف السهلي', role: 'مشرف دعم', avatarColor: '#2BD4C7', tasks: 89, sla: 95, rating: 4.7, score: 91 },
     { name: 'ريم الحربي', role: 'مشرف دعم', avatarColor: '#FF8C69', tasks: 104, sla: 97, rating: 4.6, score: 89 },
     { name: 'محمد الشهري', role: 'مشرف محتوى', avatarColor: '#FFB400', tasks: 67, sla: 93, rating: 4.5, score: 88 },

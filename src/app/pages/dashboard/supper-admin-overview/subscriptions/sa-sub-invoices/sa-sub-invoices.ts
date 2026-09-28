@@ -53,7 +53,7 @@ export class SaSubInvoices {
 
   readonly invoices: SubInvoice[] = [
     { id: 'SINV-4821', subscriber: 'هيثم القرني', plan: 'Pro', planColor: '#2BD4C7', amount: '299 ر.س', amountColor: '#0FA99A', issueDate: '1 يوليو', status: 'official' },
-    { id: 'SINV-4820', subscriber: 'نورة السهلي', plan: 'Business', planColor: '#A56BE0', amount: '699 ر.س', amountColor: '#0FA99A', issueDate: '1 يوليو', status: 'official' },
+    { id: 'SINV-4820', subscriber: 'نورة السهلي', plan: 'Business', planColor: '#59C1F5', amount: '699 ر.س', amountColor: '#0FA99A', issueDate: '1 يوليو', status: 'official' },
     { id: 'SINV-4815', subscriber: 'خالد المطيري', plan: 'أساسي', planColor: '#5DA0FF', amount: '99 ر.س', amountColor: '#FFB400', issueDate: '1 يوليو', status: 'processing' },
     { id: 'SINV-4810', subscriber: 'شركة الأفق', plan: 'Enterprise', planColor: '#FF8C69', amount: '5,750 ر.س', amountColor: '#0FA99A', issueDate: '1 يناير', status: 'official' },
     { id: 'SINV-4804', subscriber: 'فاطمة العتيبي', plan: 'أساسي', planColor: '#5DA0FF', amount: '99 ر.س', amountColor: '#5DA0FF', issueDate: '1 يوليو', status: 'auto-renew' },

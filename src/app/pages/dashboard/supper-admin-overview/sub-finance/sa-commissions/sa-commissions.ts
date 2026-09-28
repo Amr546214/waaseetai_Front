@@ -36,7 +36,7 @@ export class SaCommissions {
     { code: 'M11', name: 'إمبراطور', rate: '13%', minReferrals: 300, minSales: '300k', brokerCount: 9, totalPaid: '98k', color: '#5DA0FF' },
     { code: 'M12', name: 'سيد الإحالة', rate: '14%', minReferrals: 400, minSales: '400k', brokerCount: 6, totalPaid: '94k', color: '#5DA0FF' },
     { code: 'M13', name: 'محترف', rate: '15%', minReferrals: 500, minSales: '500k', brokerCount: 5, totalPaid: '84k', color: '#5DA0FF' },
-    { code: 'M14', name: 'نخبة', rate: '16%', minReferrals: 750, minSales: '750k', brokerCount: 4, totalPaid: '72k', color: '#A56BE0' },
+    { code: 'M14', name: 'نخبة', rate: '16%', minReferrals: 750, minSales: '750k', brokerCount: 4, totalPaid: '72k', color: '#59C1F5' },
     { code: 'M15', name: 'أفضل الوسطاء', rate: '18%', minReferrals: 1000, minSales: '1M', brokerCount: 12, totalPaid: '198k', color: '#FF8C69' },
   ];
 

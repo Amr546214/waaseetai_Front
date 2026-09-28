@@ -56,7 +56,7 @@ export class SaPlanDetails {
   readonly advancedStats: StatRow[] = [
     { label: 'نسخة تجريبية مجانية', value: '7 أيام', color: '#2BD4C7' },
     { label: 'الحد الأقصى للمستخدمين', value: '1 مستخدم' },
-    { label: 'الكود الترويجي', value: 'PRO20', color: '#A56BE0' },
+    { label: 'الكود الترويجي', value: 'PRO20', color: '#59C1F5' },
   ];
 
   saved = signal(false);

@@ -59,7 +59,7 @@ export class SaBusinessModels {
 
   models = signal<BusinessModel[]>([
     {
-      id: 'MDL-089', name: 'خطة تسويق رقمي شاملة لشركات ناشئة', provider: 'سارة القحطاني', avatar: 'س', avatarBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',
+      id: 'MDL-089', name: 'خطة تسويق رقمي شاملة لشركات ناشئة', provider: 'سارة القحطاني', avatar: 'س', avatarBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)',
       specialty: 'تسويق', type: 'خطة عمل', price: '250 ر.س', aiScore: 94, date: '15 يوليو 2026', status: 'pending',
       accountType: 'مقدم فرد', usersCount: 0, createdAt: 'يوليو 2026', acceptanceRate: 0, avgRating: 0, completionRate: 0,
       aiNotes: ['النموذج يغطي كل مراحل التسويق الرقمي بخطة زمنية واضحة — جودة عالية (94/100)', 'لا مخالفات محتوى أو ادعاءات مبالغ فيها'],
@@ -97,7 +97,7 @@ export class SaBusinessModels {
       pricing: [{ name: 'أساسي', price: '80 ر.س', delivery: 'فوري', features: 'قالب Word + PowerPoint' }],
     },
     {
-      id: 'MDL-084', name: 'نموذج عقد تصميم هوية بصرية', provider: 'سارة القحطاني', avatar: 'س', avatarBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',
+      id: 'MDL-084', name: 'نموذج عقد تصميم هوية بصرية', provider: 'سارة القحطاني', avatar: 'س', avatarBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)',
       specialty: 'تصميم', type: 'نموذج عقد', price: '120 ر.س', aiScore: 92, date: '11 يوليو 2026', status: 'pending',
       accountType: 'مقدم فرد', usersCount: 0, createdAt: 'يوليو 2026', acceptanceRate: 0, avgRating: 0, completionRate: 0,
       aiNotes: ['بنود واضحة لمراحل التسليم والمراجعات — جودة عالية (92/100)'],

@@ -47,13 +47,13 @@ export class SaAnalyticsProviders {
   readonly kpis = [
     { value: '6,010', label: 'مقدمو خدمة نشطون', color: '#2BD4C7' },
     { value: '4.3★', label: 'متوسط التقييم', color: '#0FA99A' },
-    { value: '299M', label: 'إجمالي الإيرادات (ر.س)', color: '#A56BE0' },
+    { value: '299M', label: 'إجمالي الإيرادات (ر.س)', color: '#59C1F5' },
     { value: '85%', label: 'معدل إتمام المشاريع', color: '#FFB400' },
   ];
 
   readonly topEarners: TopEarner[] = [
-    { rank: 1, rankColor: '#FFB400', initial: 'ن', avatarGradient: 'linear-gradient(135deg,#A56BE0,#5DA0FF)', name: 'شركة الرياض للتصميم', meta: 'مقدم شركة · 52 مشروع · 4.8★', barPct: 100, revenue: '210K', revenueColor: '#2BD4C7' },
-    { rank: 2, rankColor: '#6B7699', initial: 'ن', avatarGradient: 'linear-gradient(135deg,#A56BE0,#5DA0FF)', name: 'نورة السهلي', meta: 'مقدم فرد · Platinum · 4.9★', barPct: 59, revenue: '124K', revenueColor: '#5DA0FF' },
+    { rank: 1, rankColor: '#FFB400', initial: 'ن', avatarGradient: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', name: 'شركة الرياض للتصميم', meta: 'مقدم شركة · 52 مشروع · 4.8★', barPct: 100, revenue: '210K', revenueColor: '#2BD4C7' },
+    { rank: 2, rankColor: '#6B7699', initial: 'ن', avatarGradient: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', name: 'نورة السهلي', meta: 'مقدم فرد · Platinum · 4.9★', barPct: 59, revenue: '124K', revenueColor: '#5DA0FF' },
     { rank: 3, rankColor: '#6B7699', initial: 'أ', avatarGradient: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', name: 'أحمد الزهراني', meta: 'مقدم فرد · Platinum · 4.7★', barPct: 28, revenue: '58K', revenueColor: '#A8B2D1' },
     { rank: 4, rankColor: '#6B7699', initial: 'س', avatarGradient: 'linear-gradient(135deg,#FFB400,#0FA99A)', name: 'سارة القحطاني', meta: 'مقدم فرد · Gold · 4.9★', barPct: 15, revenue: '32K', revenueColor: '#A8B2D1' },
   ];

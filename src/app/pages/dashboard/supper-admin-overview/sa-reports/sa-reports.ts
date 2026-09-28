@@ -59,7 +59,7 @@ export class SaReports {
   ];
 
   readonly typeColors: Record<ReportType, string> = {
-    fraud: '#FF8C69', content: '#D98A0B', behavior: '#A56BE0',
+    fraud: '#FF8C69', content: '#D98A0B', behavior: '#59C1F5',
   };
 
   reports = signal<ComplaintReport[]>([
@@ -75,8 +75,8 @@ export class SaReports {
       ],
     },
     {
-      id: 'FR-097', type: 'behavior', typeLabel: 'مضايقة', reporter: 'سارة القحطاني', reporterAv: 'س', reporterBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)',
-      reported: 'مستخدم غير موثق', reportedAv: 'م', reportedBg: 'linear-gradient(135deg,#FF8C69,#A56BE0)',
+      id: 'FR-097', type: 'behavior', typeLabel: 'مضايقة', reporter: 'سارة القحطاني', reporterAv: 'س', reporterBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)',
+      reported: 'مستخدم غير موثق', reportedAv: 'م', reportedBg: 'linear-gradient(135deg,#FF8C69,#59C1F5)',
       desc: 'يرسل رسائل مسيئة ومضايقة خارج نطاق العمل بشكل متكرر', aiSuggestion: 'تحذير رسمي',
       date: '14 يوليو 2026', status: 'new', priority: 'medium', severity: 'خطورة متوسطة', aiRiskScore: 61,
       disputedAmount: '—', priorReports: 0,
@@ -111,14 +111,14 @@ export class SaReports {
     },
     {
       id: 'FR-082', type: 'content', typeLabel: 'محتوى مخالف', reporter: 'فهد العنزي', reporterAv: 'ف', reporterBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)',
-      reported: 'ريان س.', reportedAv: 'ر', reportedBg: 'linear-gradient(135deg,#A56BE0,#FF8C69)',
+      reported: 'ريان س.', reportedAv: 'ر', reportedBg: 'linear-gradient(135deg,#59C1F5,#FF8C69)',
       desc: 'نشر رابط خارجي مشبوه في وصف الخدمة المعروضة', aiSuggestion: 'رفض البلاغ',
       date: '2 يوليو 2026', status: 'dismissed', priority: 'low', severity: 'خطورة منخفضة', aiRiskScore: 22,
       disputedAmount: '—', priorReports: 0,
       evidence: [{ label: 'لقطة شاشة الوصف', meta: 'listing.png · 0.3 MB', note: 'الرابط تابع لمعرض أعمال شخصي موثوق — لا مخالفة' }],
     },
     {
-      id: 'FR-076', type: 'fraud', typeLabel: 'احتيال', reporter: 'ريم الحربي', reporterAv: 'ر', reporterBg: 'linear-gradient(135deg,#FFB400,#A56BE0)',
+      id: 'FR-076', type: 'fraud', typeLabel: 'احتيال', reporter: 'ريم الحربي', reporterAv: 'ر', reporterBg: 'linear-gradient(135deg,#FFB400,#59C1F5)',
       reported: 'خالد ب.', reportedAv: 'خ', reportedBg: 'linear-gradient(135deg,#FF6B6B,#FFB400)',
       desc: 'انتحل صفة مدير حساب وسيط AI للتواصل وطلب بيانات دفع', aiSuggestion: 'تعليق فوري',
       date: '28 يونيو 2026', status: 'actioned', priority: 'high', severity: 'خطورة عالية', aiRiskScore: 95,

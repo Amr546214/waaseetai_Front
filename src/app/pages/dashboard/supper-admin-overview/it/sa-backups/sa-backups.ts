@@ -40,7 +40,7 @@ export class SaBackups {
     switch (type) {
       case 'يومية': return { bg: 'rgba(43,212,199,.1)', color: '#2BD4C7' };
       case 'أسبوعية': return { bg: 'rgba(43,127,255,.1)', color: '#5DA0FF' };
-      default: return { bg: 'rgba(165,107,224,.1)', color: '#A56BE0' };
+      default: return { bg: 'rgba(89,193,245,.1)', color: '#59C1F5' };
     }
   }
 

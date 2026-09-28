@@ -105,7 +105,7 @@ export class SaRequests {
     },
     {
       id: 'RQ-1255', title: 'إعداد خطة أعمال استثمارية', client: 'شركة الأفق',
-      clientAv: 'أ', clientBg: 'linear-gradient(135deg,#A56BE0,#2BD4C7)', spec: 'استشارات',
+      clientAv: 'أ', clientBg: 'linear-gradient(135deg,#59C1F5,#2BD4C7)', spec: 'استشارات',
       budget: '9,000 ر.س', offers: 3, date: '2026-08-30', status: 'completed', aiClean: true,
       description: 'إعداد خطة أعمال متكاملة لمشروع استثماري جديد في قطاع التقنية.',
       requirements: ['دراسة جدوى', 'خطة تسويقية', 'توقعات مالية 3 سنوات'],

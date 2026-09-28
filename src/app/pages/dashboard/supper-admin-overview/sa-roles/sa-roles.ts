@@ -30,7 +30,7 @@ export class SaRoles {
   roles = signal<Role[]>([
     { name: 'Super Admin', color: '#FF8C69', perms: 15, members: 1, desc: 'تحكم كامل — مالك وسيط AI' },
     { name: 'مدير فريق', color: '#D98A0B', perms: 11, members: 2, desc: 'يدير الموظفين ويوزع المهام' },
-    { name: 'مشرف نزاعات', color: '#A56BE0', perms: 8, members: 4, desc: 'يحل النزاعات ويراجع البلاغات' },
+    { name: 'مشرف نزاعات', color: '#59C1F5', perms: 8, members: 4, desc: 'يحل النزاعات ويراجع البلاغات' },
     { name: 'مشرف دعم', color: '#2BD4C7', perms: 6, members: 5, desc: 'يعالج تذاكر الدعم الفني' },
     { name: 'مشرف محتوى', color: '#5DA0FF', perms: 5, members: 3, desc: 'يعتمد التخصصات والملفات' },
     { name: 'مشرف مالي', color: '#0FA99A', perms: 4, members: 2, desc: 'يراجع السحوبات والمعاملات' },

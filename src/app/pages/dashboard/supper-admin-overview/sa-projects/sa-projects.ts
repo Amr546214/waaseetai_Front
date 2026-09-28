@@ -71,7 +71,7 @@ export class SaProjects {
   items = signal<Project[]>([
     {
       id: 'PR-1301', title: 'تصميم بنرات إعلانية × 10', client: 'شركة الخليج التقنية', cAv: 'خ', cBg: 'linear-gradient(135deg,#FFB400,#FF8C69)',
-      provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#A56BE0,#5DA0FF)', value: '3,200 ر.س',
+      provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', value: '3,200 ر.س',
       escrowTotal: 3200, escrowReleased: 1280, spec: 'تصميم', progress: 40, deadline: '2026-09-20', status: 'active', risk: 'low',
       milestones: [
         { name: 'التصميم الأولي', state: 'done', progress: 100 },
@@ -104,7 +104,7 @@ export class SaProjects {
       aiNote: 'المشروع متأخر 3 أيام — لا تراسل بين الطرفين منذ 48 ساعة، مؤشر خطر على توقف العمل.',
     },
     {
-      id: 'PR-1285', title: 'استشارة قانونية عقد تجاري', client: 'ريم الحربي', cAv: 'ر', cBg: 'linear-gradient(135deg,#FFB400,#A56BE0)',
+      id: 'PR-1285', title: 'استشارة قانونية عقد تجاري', client: 'ريم الحربي', cAv: 'ر', cBg: 'linear-gradient(135deg,#FFB400,#59C1F5)',
       provider: 'خالد المالكي', pAv: 'خ', pBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', value: '2,000 ر.س',
       escrowTotal: 2000, escrowReleased: 2000, spec: 'استشارات', progress: 100, deadline: '2026-09-05', status: 'completed', risk: 'low',
       milestones: [
