@@ -1,23 +1,21 @@
-<div class="bg-grid" aria-hidden="true"></div>
-<div class="particles" id="particles-container" aria-hidden="true"></div>
-
-<!-- SVG SPRITE -->
+<!-- SVG SPRITE — symbols from P-MK-010 / 011 / 012 / 013 -->
 <svg style="display:none" aria-hidden="true"><defs>
-<symbol id="ws-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
 <symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
-<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></symbol>
 <symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
 <symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
-<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
 <symbol id="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
 <symbol id="ws-cat-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
 <symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
-<symbol id="ws-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+<symbol id="ws-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
 <symbol id="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
-<symbol id="ws-provider" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></symbol>
-<symbol id="ws-trust-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 2v6h6"/><path d="M8 13l3 3 5-5"/></symbol>
-<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+<symbol id="ws-trust-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
 <symbol id="ws-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></symbol>
+<symbol id="ws-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="ws-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
 </defs></svg>
 
 @if (!loading() && provider()) {
@@ -30,7 +28,19 @@
       <span class="breadcrumb-sep">/</span>
       <a routerLink="/marketplace">تسوق الخدمات</a>
       <span class="breadcrumb-sep">/</span>
-      <span class="txt-slate">{{ provider()?.header?.fullName || 'مزود خدمة' }}</span>
+      @if (activeTab() === 'profile') {
+        <span style="color:var(--txt-2)">{{ provider()?.header?.fullName || 'مزود خدمة' }}</span>
+      } @else {
+        <a style="cursor:pointer" (click)="activeTab.set('profile')">{{ provider()?.header?.fullName || 'مزود خدمة' }}</a>
+        <span class="breadcrumb-sep">/</span>
+        <span style="color:var(--txt-2)">
+          @switch (activeTab()) {
+            @case ('services') { الخدمات }
+            @case ('reviews') { التقييمات }
+            @case ('portfolio') { نماذج الأعمال }
+          }
+        </span>
+      }
     </div>
 
     <!-- COVER BANNER -->
@@ -42,7 +52,7 @@
       <div class="cover-deco-2"></div>
       <div class="cover-deco-3"></div>
       <div class="cover-deco-4"></div>
-      <div style="position:absolute;top:18px;left:24px;font-size:10px;color:rgba(255,255,255,.18);font-weight:700;letter-spacing:.1em;text-transform:uppercase">{{ provider()?.specialties?.[0]?.specialtyName || 'WASEET AI' }}</div>
+      <div style="position:absolute;top:18px;left:24px;font-size:10px;color:rgba(255,255,255,.18);font-weight:700;letter-spacing:.1em">{{ provider()?.specialties?.[0]?.specialtyName || 'WASEET AI' }}</div>
     </div>
 
     <!-- PROFILE IDENTITY -->
@@ -50,7 +60,7 @@
       <div class="identity-row">
         <div style="position:relative;flex-shrink:0">
           @if (provider()?.header?.avatarUrl) {
-            <img [src]="provider()?.header?.avatarUrl" class="profile-av" style="object-fit: cover;" alt="avatar">
+            <img [src]="provider()?.header?.avatarUrl" class="profile-av" style="object-fit:cover" alt="avatar">
           } @else {
             <div class="profile-av">{{ provider()?.header?.fullName?.substring(0, 2) || 'م.خ' }}</div>
           }
@@ -59,9 +69,9 @@
         <div class="identity-info">
           <div class="identity-name-row">
             <span class="identity-name">{{ provider()?.header?.fullName || 'مزود خدمة' }}</span>
-            <span class="level-badge level-خبير">
+            <span class="level-badge" [ngClass]="levelClass(provider()?.header?.levelInfo?.levelName)">
               <svg aria-hidden="true" style="width:9px;height:9px"><use href="#ws-star"></use></svg>
-              {{ provider()?.header?.levelInfo?.levelName || 'خبير' }}
+              {{ provider()?.header?.levelInfo?.levelName || 'مبتدئ' }}
             </span>
             @if (provider()?.header?.isVerified) {
               <span class="verified-badge">
@@ -69,7 +79,7 @@
                 موثّق
               </span>
             }
-            <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700" class="txt-green">
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#0FA99A;font-weight:700">
               <span style="width:7px;height:7px;border-radius:50%;background:#0FA99A"></span>
               متاحة الآن · ترد خلال 3 ساعات
             </span>
@@ -77,15 +87,18 @@
           <div class="identity-title">{{ provider()?.basicInfo?.headline || 'مزود خدمة محترف' }} — {{ provider()?.basicInfo?.yearsOfExperience || 'بدون خبرة مسجلة' }}</div>
         </div>
         <div class="identity-actions">
-          <button class="btn-primary-sm">اطلب خدمة</button>
-          <button class="btn-ghost-sm">
+          <button class="btn-primary-sm" type="button" (click)="goToServices()">اطلب خدمة</button>
+          <button class="btn-ghost-sm" type="button">
             <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-msg"></use></svg>
             إرسال رسالة
           </button>
-          <button class="btn-ghost-sm" id="fav-btn">
+          <button class="btn-ghost-sm" id="fav-btn" type="button" (click)="toggleFav()"
+                  [style.color]="favSaved() ? 'var(--red)' : null"
+                  [style.border-color]="favSaved() ? 'rgba(255,140,105,.3)' : null">
             <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-heart"></use></svg>
+            @if (favSaved()) { محفوظ }
           </button>
-          <button class="btn-ghost-sm">
+          <button class="btn-ghost-sm" type="button">
             <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-share"></use></svg>
           </button>
         </div>
@@ -99,27 +112,38 @@
     </div>
 
     <!-- STATS BAR -->
-    <div class="stats-bar" style="background:#070D24;border-inline:1px solid var(--border)">
+    <div class="stats-bar" style="background:var(--pg);border-inline:1px solid var(--border)">
       <div class="stat-cell">
-        <div class="stat-n txt-kahr">{{ provider()?.header?.stats?.clientRating / 20 | number:'1.1-1' }} <span style="font-size:13px">★</span></div>
-        <div class="stat-sub">رضا العملاء ({{ provider()?.header?.stats?.clientRating }}%)</div>
+        <div class="stat-n" style="color:var(--kahr)">{{ (provider()?.header?.stats?.clientRating || 0) / 20 | number:'1.1-1' }} <span style="font-size:13px">★</span></div>
+        <div class="stat-sub">من {{ provider()?.header?.stats?.reviewsCount || 0 }} تقييم</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n">{{ provider()?.header?.stats?.completedProjects || 0 }}</div>
+        <div class="stat-n">{{ (provider()?.header?.stats?.completedProjects || 0) | number }}</div>
         <div class="stat-sub">مشروع مكتمل</div>
       </div>
-      <div class="stat-cell">
-        <div class="stat-n txt-teal">{{ provider()?.header?.stats?.publishedServices || 0 }}</div>
-        <div class="stat-sub">خدمات معتمدة</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-n" style="font-size:16px">{{ provider()?.header?.stats?.completedTasks || 0 }}</div>
-        <div class="stat-sub">مهام منجزة</div>
-      </div>
+      @if (activeTab() === 'portfolio') {
+        <div class="stat-cell">
+          <div class="stat-n">{{ provider()?.header?.stats?.portfolioCount || 0 }}</div>
+          <div class="stat-sub">عمل في نماذج الأعمال</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-n" style="color:var(--teal)">{{ provider()?.aiMetrics?.clientSatisfaction || 0 }}%</div>
+          <div class="stat-sub">رضا العملاء</div>
+        </div>
+      } @else {
+        <div class="stat-cell">
+          <div class="stat-n" style="color:var(--teal)">{{ provider()?.aiMetrics?.onTimeDelivery || 0 }}%</div>
+          <div class="stat-sub">نسبة الالتزام</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-n" style="font-size:16px">{{ provider()?.header?.stats?.completedTasks || 0 }}</div>
+          <div class="stat-sub">مهام منجزة</div>
+        </div>
+      }
       <div class="stat-cell" style="background:rgba(123,47,190,.04)">
-        <div class="stat-n txt-purple">{{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }} <span style="font-size:11px;font-weight:600" class="txt-muted">/100</span></div>
+        <div class="stat-n" style="color:var(--ai-txt)">{{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }} <span style="font-size:11px;font-weight:600;color:var(--txt-3)">/100</span></div>
         <div class="stat-sub" style="display:flex;align-items:center;gap:3px;justify-content:center">
-          <svg aria-hidden="true" style="width:10px;height:10px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
+          <svg aria-hidden="true" style="width:10px;height:10px;color:var(--ai-txt)"><use href="#ws-trust-ai"></use></svg>
           نقاط AI
         </div>
       </div>
@@ -129,11 +153,11 @@
     <div class="ai-metrics-block">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">
         <span style="width:30px;height:30px;border-radius:8px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg aria-hidden="true" style="width:14px;height:14px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
+          <svg aria-hidden="true" style="width:14px;height:14px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
         </span>
-        <span style="font-size:13px;font-weight:800" class="txt-purple">تحليل الذكاء الاصطناعي الشامل</span>
-        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800" class="txt-purple">AI · نشط</span>
-        <span style="font-size:11px" class="txt-muted">مؤشرات الأداء الفعلية</span>
+        <span style="font-size:13px;font-weight:800;color:var(--ai-txt)">تحليل الذكاء الاصطناعي الشامل</span>
+        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)">AI · نشط</span>
+        <span style="font-size:11px;color:var(--txt-3)">مؤشرات الأداء الفعلية</span>
       </div>
       <div class="ai-metrics-inner">
         <!-- RINGS -->
@@ -141,34 +165,34 @@
           <div class="ai-ring-item">
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
               <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(123,47,190,.14)" stroke-width="5"/>
-              <circle cx="36" cy="36" r="28" fill="none" stroke="#A56BE0" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.executionQuality || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.executionQuality || 0"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#A56BE0" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [attr.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.executionQuality || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.executionQuality || 0"/>
               <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#A56BE0;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.executionQuality || 0 }}</text>
             </svg>
-            <div style="font-size:10px" class="txt-muted">جودة التنفيذ</div>
+            <div style="font-size:10px;color:var(--txt-3)">جودة التنفيذ</div>
           </div>
           <div class="ai-ring-item">
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
               <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(43,212,199,.14)" stroke-width="5"/>
-              <circle cx="36" cy="36" r="28" fill="none" stroke="#2BD4C7" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.onTimeDelivery || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.onTimeDelivery || 0"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#2BD4C7" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [attr.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.onTimeDelivery || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.onTimeDelivery || 0"/>
               <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#2BD4C7;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.onTimeDelivery || 0 }}</text>
             </svg>
-            <div style="font-size:10px" class="txt-muted">الالتزام بالمواعيد</div>
+            <div style="font-size:10px;color:var(--txt-3)">الالتزام بالمواعيد</div>
           </div>
           <div class="ai-ring-item">
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
               <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(43,127,255,.14)" stroke-width="5"/>
-              <circle cx="36" cy="36" r="28" fill="none" stroke="#5DA0FF" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.communication || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.communication || 0"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#5DA0FF" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [attr.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.communication || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.communication || 0"/>
               <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#5DA0FF;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.communication || 0 }}</text>
             </svg>
-            <div style="font-size:10px" class="txt-muted">التواصل</div>
+            <div style="font-size:10px;color:var(--txt-3)">التواصل</div>
           </div>
           <div class="ai-ring-item">
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
               <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(15,169,154,.14)" stroke-width="5"/>
-              <circle cx="36" cy="36" r="28" fill="none" stroke="#0FA99A" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [style.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.clientSatisfaction || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.clientSatisfaction || 0"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#0FA99A" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [attr.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.clientSatisfaction || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.clientSatisfaction || 0"/>
               <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#0FA99A;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.clientSatisfaction || 0 }}</text>
             </svg>
-            <div style="font-size:10px" class="txt-muted">رضا العملاء</div>
+            <div style="font-size:10px;color:var(--txt-3)">رضا العملاء</div>
           </div>
         </div>
 
@@ -176,29 +200,29 @@
         <div class="ai-perf-bars">
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span class="txt-slate">معدل الإنجاز في الوقت المحدد</span>
-              <span style="font-weight:800" class="txt-teal">{{ provider()?.aiMetrics?.onTimeCompletionRate || 0 }}%</span>
+              <span style="color:var(--txt-2)">معدل الإنجاز في الوقت المحدد</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.onTimeCompletionRate || 0 }}%</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.onTimeCompletionRate || 0" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span class="txt-slate">معدل إعادة الطلب من نفس العميل</span>
-              <span style="font-weight:800" class="txt-teal">{{ provider()?.aiMetrics?.repeatClientRate || 0 }}%</span>
+              <span style="color:var(--txt-2)">معدل إعادة الطلب من نفس العميل</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.repeatClientRate || 0 }}%</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.repeatClientRate || 0" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span class="txt-slate">نسبة الخدمات فوق 4.8 نجمة</span>
-              <span style="font-weight:800" class="txt-kahr">{{ provider()?.aiMetrics?.highRatingServicesRate || 0 }}%</span>
+              <span style="color:var(--txt-2)">نسبة الخدمات فوق 4.8 نجمة</span>
+              <span style="color:var(--kahr);font-weight:800">{{ provider()?.aiMetrics?.highRatingServicesRate || 0 }}%</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.highRatingServicesRate || 0" style="background:linear-gradient(90deg,#D98A0B,#FFB400)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span class="txt-slate">نسبة التسليم بدون نزاعات</span>
-              <span style="font-weight:800" class="txt-teal">{{ provider()?.aiMetrics?.conflictFreeDeliveryRate || 0 }}%</span>
+              <span style="color:var(--txt-2)">نسبة التسليم بدون نزاعات</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.conflictFreeDeliveryRate || 0 }}%</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.conflictFreeDeliveryRate || 0" style="background:linear-gradient(90deg,#0FA99A,#2BD4C7)"></div></div>
           </div>
@@ -208,37 +232,37 @@
 
     <!-- TABS -->
     <div class="profile-tabs">
-      <a class="ptab cursor-pointer" [class.active]="activeTab() === 'profile'" (click)="activeTab.set('profile')">الملف الشخصي</a>
-      <a class="ptab cursor-pointer" [class.active]="activeTab() === 'services'" (click)="activeTab.set('services')">الخدمات ({{ provider()?.header?.stats?.publishedServices || 0 }})</a>
-      <a class="ptab cursor-pointer" [class.active]="activeTab() === 'reviews'" (click)="activeTab.set('reviews')">التقييمات ({{ provider()?.header?.stats?.reviewsCount || 0 }})</a>
-      <a class="ptab cursor-pointer" [class.active]="activeTab() === 'portfolio'" (click)="activeTab.set('portfolio')">نماذج الأعمال ({{ provider()?.header?.stats?.portfolioCount || 0 }})</a>
+      <a class="ptab" [class.active]="activeTab() === 'profile'" (click)="activeTab.set('profile')">الملف الشخصي</a>
+      <a class="ptab" [class.active]="activeTab() === 'services'" (click)="activeTab.set('services')">الخدمات ({{ provider()?.header?.stats?.publishedServices || 0 }})</a>
+      <a class="ptab" [class.active]="activeTab() === 'reviews'" (click)="activeTab.set('reviews')">التقييمات ({{ provider()?.header?.stats?.reviewsCount || 0 }})</a>
+      <a class="ptab" [class.active]="activeTab() === 'portfolio'" (click)="activeTab.set('portfolio')">نماذج الأعمال ({{ provider()?.header?.stats?.portfolioCount || 0 }})</a>
     </div>
 
-    <!-- MAIN LAYOUT -->
+    <!-- ═══ P-MK-010 — الملف الشخصي ═══ -->
+    @if (activeTab() === 'profile') {
     <div class="profile-layout">
 
       <!-- CONTENT COLUMN -->
       <div class="content-col">
 
-        @if (activeTab() === 'profile') {
         <!-- ABOUT -->
         <div class="section-card">
           <div class="section-title">
             <div class="section-title-left">
-              <span class="section-ico txt-teal" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.15)">
+              <span class="section-ico" style="background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.15);color:var(--teal)">
                 <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-user"></use></svg>
               </span>
               نبذة مهنية
             </div>
           </div>
-          <p style="font-size:13px;line-height:1.85;margin-bottom:12px;white-space:pre-wrap" class="txt-slate">{{ provider()?.basicInfo?.bio || 'لا يوجد نبذة شخصية حتى الآن.' }}</p>
+          <p style="font-size:13px;color:var(--txt-2);line-height:1.85;white-space:pre-wrap">{{ provider()?.basicInfo?.bio || 'لا يوجد نبذة شخصية حتى الآن.' }}</p>
         </div>
 
         <!-- SKILLS -->
         <div class="section-card">
           <div class="section-title">
             <div class="section-title-left">
-              <span class="section-ico txt-blue" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.15)">
+              <span class="section-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.15);color:var(--blue-txt)">
                 <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-cat-pen"></use></svg>
               </span>
               المهارات والتخصصات
@@ -247,169 +271,75 @@
 
           @for (specialty of provider()?.specialties; track specialty.id) {
           <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.07em;margin-bottom:7px" class="txt-muted">{{ specialty.specialtyName }}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.07em;margin-bottom:7px">{{ specialty.specialtyName }}</div>
+            <div>
               @for (sub of specialty.subSpecialties; track sub) {
                 <span class="tag-blue">{{ sub }}</span>
               }
               @if (!specialty.subSpecialties || specialty.subSpecialties.length === 0) {
-                <span style="font-size:11px" class="txt-muted">لا توجد تخصصات فرعية مضافة</span>
+                <span style="font-size:11px;color:var(--txt-3)">لا توجد تخصصات فرعية مضافة</span>
               }
             </div>
           </div>
           }
 
           @if (provider()?.skills?.length) {
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.07em;margin-bottom:7px" class="txt-muted">مهارات إضافية</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <div>
+            <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.07em;margin-bottom:7px">مهارات إضافية</div>
+            <div>
               @for (skill of provider()?.skills; track skill) {
                 <span class="tag-teal">{{ skill }}</span>
               }
             </div>
           </div>
           }
-          
+
           @if (!provider()?.specialties?.length && !provider()?.skills?.length) {
-            <div style="font-size:12px;margin-top:10px" class="txt-muted">لم يتم إضافة أي مهارات أو تخصصات بعد.</div>
+            <div style="font-size:12px;color:var(--txt-3)">لم يتم إضافة أي مهارات أو تخصصات بعد.</div>
           }
         </div>
-        }
-
-        @if (activeTab() === 'services') {
-        <div class="section-card">
-          <div class="section-title">الخدمات المنشورة</div>
-          @if (provider()?.services?.length) {
-            <div style="display:grid;grid-template-columns:1fr;gap:15px">
-              @for (srv of provider()?.services; track srv.id) {
-                <div style="padding:15px;background:var(--surface);border-radius:12px;border:1px solid var(--border);display:flex;gap:15px;align-items:center;">
-                  <div style="width:80px;height:60px;border-radius:8px;background:linear-gradient(135deg,#0A1020,#12183C);overflow:hidden;flex-shrink:0;">
-                    @if (srv.gallery?.[0]) {
-                      <img [src]="srv.gallery[0]" style="width:100%;height:100%;object-fit:cover;" alt="service">
-                    } @else {
-                      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center" class="txt-muted">
-                        <svg aria-hidden="true" style="width:20px;height:20px"><use href="#ws-image"></use></svg>
-                      </div>
-                    }
-                  </div>
-                  <div style="flex:1">
-                    <div style="font-size:14px;font-weight:700;margin-bottom:5px" class="txt-white">{{ srv.title }}</div>
-					<div style="font-size:12px" class="txt-kahr">تبدأ من {{ srv.totalAmount }} ريال</div>
-                  </div>
-				  <a [routerLink]="['/marketplace/offer', srv.id]" style="padding:8px 15px;background:var(--blue);border-radius:8px;font-size:12px;font-weight:700" class="txt-white">عرض الخدمة</a>
-                </div>
-              }
-            </div>
-          } @else {
-            <div style="text-align:center;padding:40px 0;font-size:13px" class="txt-muted">لا توجد خدمات منشورة حالياً.</div>
-          }
-        </div>
-        }
-
-        @if (activeTab() === 'reviews') {
-        <div class="section-card">
-          <div class="section-title">تقييمات العملاء</div>
-          @if (provider()?.reviews?.length) {
-            <div style="display:flex;flex-direction:column;gap:15px">
-              @for (rev of provider()?.reviews; track rev.id) {
-                <div style="padding:15px;background:var(--surface);border-radius:12px;border:1px solid var(--border)">
-                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-                    <img [src]="rev.client?.avatarUrl || 'assets/images/default-avatar.png'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" (error)="$event.target.src='assets/images/default-avatar.png'">
-                    <div>
-                      <div style="font-size:13px;font-weight:700" class="txt-white">{{ rev.client?.firstName }} {{ rev.client?.lastName }}</div>
-                      <div style="font-size:11px" class="txt-muted">مشروع: {{ rev.project?.title || 'عام' }}</div>
-                    </div>
-                    <div style="margin-right:auto;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:800" class="txt-kahr">
-                      <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-star"></use></svg>
-                      {{ rev.rating }}
-                    </div>
-                  </div>
-                  <p style="font-size:13px;line-height:1.6" class="txt-slate">{{ rev.comment || 'لا يوجد تعليق.' }}</p>
-                </div>
-              }
-            </div>
-          } @else {
-            <div style="text-align:center;padding:40px 0;font-size:13px" class="txt-muted">لم يتلقَ المزود أي تقييمات بعد.</div>
-          }
-        </div>
-        }
-
-        @if (activeTab() === 'portfolio') {
-        <div class="section-card">
-          <div class="section-title">نماذج الأعمال</div>
-          @if (provider()?.portfolioItems?.length) {
-            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:15px">
-              @for (item of provider()?.portfolioItems; track item.id) {
-                <div style="background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s ease">
-                  <div style="height:140px;background:linear-gradient(135deg,#0A1020,#12183C)">
-                    @if (item.images?.[0] || item.thumbnailUrl) {
-                      <img [src]="item.images?.[0] || item.thumbnailUrl" style="width:100%;height:100%;object-fit:cover;" alt="portfolio">
-                    } @else {
-                      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center" class="txt-muted">
-                        <svg aria-hidden="true" style="width:30px;height:30px"><use href="#ws-image"></use></svg>
-                      </div>
-                    }
-                  </div>
-                  <div style="padding:12px">
-                    <div style="font-size:13px;font-weight:700;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="txt-white">{{ item.title }}</div>
-                    <div style="display:flex;gap:5px;flex-wrap:wrap">
-                      @for (tech of item.technologies?.slice(0,3); track tech) {
-                        <span style="font-size:9px;padding:2px 6px;background:rgba(43,212,199,.1);border-radius:4px" class="txt-teal">{{ tech }}</span>
-                      }
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          } @else {
-            <div style="text-align:center;padding:40px 0;font-size:13px" class="txt-muted">لا توجد نماذج أعمال مضافة حالياً.</div>
-          }
-        </div>
-        }
 
       </div><!-- end content col -->
 
       <!-- SIDEBAR COLUMN -->
       <div class="sidebar-col">
 
-
-
         <!-- BADGES -->
         <div class="sidebar-card">
           <div class="sidebar-title">
             <span style="width:28px;height:28px;border-radius:7px;background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg aria-hidden="true" style="width:13px;height:13px" class="txt-kahr"><use href="#ws-shield"></use></svg>
+              <svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-shield"></use></svg>
             </span>
             الشارات والإنجازات
           </div>
           <div style="display:flex;flex-direction:column;gap:9px">
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(217,138,11,.03);border:1px solid rgba(217,138,11,.1);border-radius:9px">
               <span style="width:30px;height:30px;border-radius:7px;background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg aria-hidden="true" style="width:13px;height:13px" class="txt-kahr"><use href="#ws-star"></use></svg>
+                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-star"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800" class="txt-white">مستوى المزود</div><div style="font-size:10px" class="txt-muted">{{ provider()?.header?.levelInfo?.levelName || 'مبتدئ' }}</div></div>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">مستوى المزود</div><div style="font-size:10px;color:var(--txt-3)">{{ provider()?.header?.levelInfo?.levelName || 'مبتدئ' }}</div></div>
             </div>
             @if (provider()?.header?.isVerified) {
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(43,212,199,.03);border:1px solid rgba(43,212,199,.1);border-radius:9px">
               <span style="width:30px;height:30px;border-radius:7px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg aria-hidden="true" style="width:13px;height:13px" class="txt-teal"><use href="#ws-trust-doc"></use></svg>
+                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--teal)"><use href="#ws-trust-doc"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800" class="txt-white">هوية موثّقة</div><div style="font-size:10px" class="txt-muted">تم التحقق من هوية مقدم الخدمة</div></div>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">هوية موثّقة</div><div style="font-size:10px;color:var(--txt-3)">تم التحقق من هوية مقدم الخدمة</div></div>
             </div>
             }
             @if (provider()?.specialties?.length && provider()?.specialties?.[0]?.status === 'APPROVED') {
-            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(123,47,190,.03);border:1px solid rgba(123,47,190,.1);border-radius:9px">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:9px">
               <span style="width:30px;height:30px;border-radius:7px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg aria-hidden="true" style="width:13px;height:13px" class="txt-purple"><use href="#ws-trust-ai"></use></svg>
+                <svg aria-hidden="true" style="width:13px;height:13px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800" class="txt-white">ثقة AI عالية</div><div style="font-size:10px" class="txt-muted">نقاط {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }}/100 من الذكاء</div></div>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">ثقة AI عالية</div><div style="font-size:10px;color:var(--txt-3)">نقاط {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }}/100 من الذكاء</div></div>
             </div>
             }
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(15,169,154,.03);border:1px solid rgba(15,169,154,.1);border-radius:9px">
               <span style="width:30px;height:30px;border-radius:7px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <svg aria-hidden="true" style="width:13px;height:13px" class="txt-green"><use href="#ws-check"></use></svg>
+                <svg aria-hidden="true" style="width:13px;height:13px;color:#0FA99A"><use href="#ws-check"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800" class="txt-white">{{ provider()?.header?.stats?.completedProjects || 0 }}+ مشروع</div><div style="font-size:10px" class="txt-muted">عضو منذ {{ provider()?.header?.memberSince }}</div></div>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">{{ provider()?.header?.stats?.completedProjects || 0 }}+ مشروع</div><div style="font-size:10px;color:var(--txt-3)">عضو منذ {{ provider()?.header?.memberSince }}</div></div>
             </div>
           </div>
         </div>
@@ -417,17 +347,240 @@
         <!-- MEMBER INFO -->
         <div class="sidebar-card">
           <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span class="txt-muted">عضو منذ</span><span style="font-weight:700" class="txt-white">{{ provider()?.header?.memberSince }}</span></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span class="txt-muted">آخر نشاط</span><span style="font-weight:700" class="txt-green">الآن</span></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span class="txt-muted">اللغات</span><span style="font-weight:700" class="txt-white">العربية · الإنجليزية</span></div>
-            <div style="display:flex;justify-content:space-between;align-items:center"><span class="txt-muted">الموقع</span><span style="font-weight:700" class="txt-white">{{ provider()?.header?.location || 'غير محدد' }}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">عضو منذ</span><span style="font-weight:700;color:var(--txt)">{{ provider()?.header?.memberSince }}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">آخر نشاط</span><span style="font-weight:700;color:#0FA99A">الآن</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid var(--border)"><span style="color:var(--txt-3)">اللغات</span><span style="font-weight:700;color:var(--txt)">العربية · الإنجليزية</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--txt-3)">الموقع</span><span style="font-weight:700;color:var(--txt)">{{ provider()?.header?.location || 'غير محدد' }}</span></div>
           </div>
         </div>
 
       </div><!-- end sidebar -->
     </div><!-- end layout -->
+    }
+
+    <!-- ═══ P-MK-011 — الخدمات ═══ -->
+    @if (activeTab() === 'services') {
+    <div style="padding:24px 0 80px">
+
+      <!-- SORT BAR -->
+      <div class="sort-bar">
+        <span style="font-size:12px;color:var(--txt-3);font-weight:700;display:flex;align-items:center;gap:5px">
+          <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-filter"></use></svg>
+          ترتيب حسب:
+        </span>
+        <button class="sort-chip" type="button" [class.active]="serviceSort() === 'popular'" (click)="serviceSort.set('popular')">الأكثر طلباً</button>
+        <button class="sort-chip" type="button" [class.active]="serviceSort() === 'newest'" (click)="serviceSort.set('newest')">الأحدث</button>
+        <button class="sort-chip" type="button" [class.active]="serviceSort() === 'priceAsc'" (click)="serviceSort.set('priceAsc')">السعر: الأقل أولاً</button>
+        <button class="sort-chip" type="button" [class.active]="serviceSort() === 'priceDesc'" (click)="serviceSort.set('priceDesc')">السعر: الأعلى أولاً</button>
+        <span style="margin-inline-start:auto;font-size:12px;color:var(--txt-3)">{{ sortedServices().length }} خدمات</span>
+      </div>
+
+      @if (sortedServices().length) {
+      <!-- SERVICES GRID -->
+      <div class="services-grid">
+        @for (srv of sortedServices(); track srv.id; let i = $index) {
+        <a [routerLink]="['/marketplace/offer', srv.id]" class="svc-card">
+          <div class="svc-thumb" [style.background]="svcThumbBgs[i % svcThumbBgs.length]">
+            @if (srv.gallery?.[0]) {
+              <img [src]="srv.gallery[0]" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            } @else {
+              <svg aria-hidden="true" style="width:36px;height:36px"><use [attr.href]="i % 2 === 0 ? '#ws-cat-pen' : '#ws-image'"></use></svg>
+            }
+            @if (srv.aiScore) {
+              <span class="svc-ai-badge">AI {{ srv.aiScore }}</span>
+            }
+          </div>
+          <div class="svc-body">
+            <div class="svc-title">{{ srv.title }}</div>
+            <div class="svc-footer">
+              <div class="svc-price"><span>يبدأ من </span>{{ (srv.totalAmount || 0) | number }} ر</div>
+              @if (srv.totalDays) {
+              <div class="svc-delivery">
+                <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-clock"></use></svg>
+                {{ srv.totalDays }} أيام
+              </div>
+              }
+            </div>
+          </div>
+        </a>
+        }
+      </div><!-- end grid -->
+      } @else {
+        <div style="text-align:center;padding:40px 0;font-size:13px;color:var(--txt-3)">لا توجد خدمات منشورة حالياً.</div>
+      }
+    </div>
+    }
+
+    <!-- ═══ P-MK-012 — التقييمات ═══ -->
+    @if (activeTab() === 'reviews') {
+    <div style="padding:28px 0 80px">
+
+      @if (provider()?.reviews?.length) {
+      <!-- RATING SUMMARY + STAR BARS -->
+      <div class="rating-summary">
+        <div class="rating-big">
+          <div class="rating-big-num">{{ (provider()?.header?.stats?.clientRating || 0) / 20 | number:'1.1-1' }}</div>
+          <div class="rating-stars-big">
+            @for (s of [1, 2, 3, 4, 5]; track s) {<span [style.color]="s <= filledStars() ? 'var(--kahr)' : 'var(--txt-3)'">★</span>}
+          </div>
+          <div class="rating-count">{{ provider()?.header?.stats?.reviewsCount || 0 }} تقييم موثّق</div>
+        </div>
+        <div class="star-bars">
+          @for (row of starRows(); track row.star) {
+          <div class="star-bar-row">
+            <span style="font-weight:800" [style.color]="row.star >= 4 ? 'var(--kahr)' : 'var(--txt-3)'">★ {{ row.star }}</span>
+            <div class="star-bar-track"><div class="star-bar-fill" [style.width.%]="row.pct"
+              [style.background]="row.star === 3 ? 'rgba(107,118,153,.5)' : row.star === 2 ? 'rgba(107,118,153,.3)' : row.star === 1 ? 'rgba(255,140,105,.3)' : null"></div></div>
+            <span class="star-bar-pct">{{ row.pct }}%</span>
+            <span style="font-size:11px;color:var(--txt-3)">({{ row.count }})</span>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- FILTER CHIPS -->
+      <div class="filter-chips">
+        <button class="fchip" type="button" [class.active]="reviewFilter() === 'all'" (click)="reviewFilter.set('all')">الكل ({{ provider()?.reviews?.length }})</button>
+        <button class="fchip" type="button" [class.active]="reviewFilter() === '5'" (click)="reviewFilter.set('5')">5 نجوم ({{ reviewCounts()[5] }})</button>
+        <button class="fchip" type="button" [class.active]="reviewFilter() === '4'" (click)="reviewFilter.set('4')">4 نجوم ({{ reviewCounts()[4] }})</button>
+        <button class="fchip" type="button" [class.active]="reviewFilter() === 'low'" (click)="reviewFilter.set('low')">3 نجوم أو أقل ({{ reviewCounts()[3] + reviewCounts()[2] + reviewCounts()[1] }})</button>
+        <span style="width:1px;background:var(--border);margin:0 4px;height:20px;align-self:center"></span>
+        <button class="fchip" type="button" [class.active]="reviewSort() === 'newest'" (click)="reviewSort.set('newest')">الأحدث</button>
+        <button class="fchip" type="button" [class.active]="reviewSort() === 'oldest'" (click)="reviewSort.set('oldest')">الأقدم</button>
+      </div>
+
+      <!-- REVIEW CARDS -->
+      @for (rev of visibleReviews(); track rev.id; let i = $index) {
+      <div class="review-card">
+        <div class="review-header">
+          @if (rev.client?.avatarUrl) {
+            <img class="reviewer-av" [src]="rev.client.avatarUrl" alt="" style="object-fit:cover">
+          } @else {
+            <div class="reviewer-av" [style.background]="reviewerAvBgs[i % reviewerAvBgs.length].bg" [style.color]="reviewerAvBgs[i % reviewerAvBgs.length].color">{{ initials(rev.client?.firstName, rev.client?.lastName) }}</div>
+          }
+          <div class="reviewer-info">
+            <div class="reviewer-name">{{ rev.client?.firstName }} {{ rev.client?.lastName }}</div>
+            <div class="reviewer-meta">عميل موثّق</div>
+          </div>
+          <span class="review-rating-badge" style="color:var(--kahr)">★ {{ rev.rating | number:'1.1-1' }}</span>
+          @if (rev.project?.title) {
+            <span class="review-service-tag">{{ rev.project.title }}</span>
+          }
+          <span style="font-size:11px;color:var(--txt-3);margin-inline-start:auto">{{ relativeTime(rev.createdAt) }}</span>
+        </div>
+        <div class="review-body">{{ rev.comment || 'لا يوجد تعليق.' }}</div>
+      </div>
+      } @empty {
+        <div style="text-align:center;padding:40px 0;font-size:13px;color:var(--txt-3)">لا توجد تقييمات مطابقة.</div>
+      }
+      } @else {
+        <div style="text-align:center;padding:40px 0;font-size:13px;color:var(--txt-3)">لم يتلقَ المزود أي تقييمات بعد.</div>
+      }
+
+    </div>
+    }
+
+    <!-- ═══ P-MK-013 — نماذج الأعمال ═══ -->
+    @if (activeTab() === 'portfolio') {
+    <div style="padding:28px 0 80px">
+
+      @if (provider()?.portfolioItems?.length) {
+      <!-- PORTFOLIO GRID -->
+      <div class="pf-grid">
+        @for (item of provider()?.portfolioItems; track item.id; let i = $index) {
+        <div class="pf-card" (click)="openLightbox(item)">
+          <div class="pf-card-img" [style.background]="pfCardBgs[i % pfCardBgs.length]">
+            @if (item.images?.[0] || item.thumbnailUrl) {
+              <img [src]="item.images?.[0] || item.thumbnailUrl" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            } @else {
+              <svg aria-hidden="true" style="width:36px;height:36px;color:rgba(43,212,199,.25)"><use href="#ws-image"></use></svg>
+            }
+          </div>
+          <div class="pf-card-body">
+            <div style="font-size:13px;font-weight:800;color:var(--txt);margin-bottom:5px">{{ item.title }}</div>
+            @if (item.description) {
+              <div style="font-size:11px;color:var(--txt-3);margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ item.description }}</div>
+            }
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;gap:5px;flex-wrap:wrap">
+                @for (tech of item.technologies?.slice(0, 2); track tech) {
+                  <span style="padding:2px 7px;border-radius:6px;font-size:9px;font-weight:700;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.12);color:var(--teal)">{{ tech }}</span>
+                }
+              </div>
+              <button class="view-btn" type="button" (click)="openLightbox(item, $event)" style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--teal);background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:6px;padding:4px 10px;cursor:pointer">
+                <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-eye"></use></svg>
+                عرض
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+        <div style="text-align:center;padding:40px 0;font-size:13px;color:var(--txt-3)">لا توجد نماذج أعمال مضافة حالياً.</div>
+      }
+
+      <!-- CTA STRIP -->
+      <div style="margin-top:48px;padding:28px 32px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.15);border-radius:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px">
+          <div style="font-size:18px;font-weight:900;color:var(--txt);margin-bottom:6px">أعجبك عمل {{ provider()?.header?.fullName || 'مزود الخدمة' }}؟</div>
+          <div style="font-size:13px;color:var(--txt-3)">احجز خدمة مخصصة أو تواصل مباشرة لمناقشة مشروعك</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-shrink:0">
+          <button class="btn-primary-sm" type="button" (click)="goToServices()">اطلب خدمة مشابهة</button>
+          <button class="btn-ghost-sm" type="button">
+            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-msg"></use></svg>
+            تواصل مع المزود
+          </button>
+        </div>
+      </div>
+
+    </div>
+    }
 
   </div>
+</div>
+
+<!-- LIGHTBOX (P-MK-013) -->
+<div class="lightbox" [class.open]="!!lightboxItem()" (click)="closeLightbox()">
+  @if (lightboxItem(); as lb) {
+  <div class="lightbox-panel" (click)="$event.stopPropagation()">
+    <div class="lb-img" style="background:linear-gradient(135deg,#0A1628,#0D1F3C)">
+      @if (lb.images?.[0] || lb.thumbnailUrl) {
+        <img [src]="lb.images?.[0] || lb.thumbnailUrl" alt="" style="width:100%;height:100%;object-fit:contain">
+      } @else {
+        <svg aria-hidden="true" style="width:56px;height:56px;color:rgba(43,212,199,.25)"><use href="#ws-image"></use></svg>
+      }
+      <button class="lb-close" type="button" (click)="closeLightbox()" aria-label="إغلاق">
+        <svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-close"></use></svg>
+      </button>
+    </div>
+    <div class="lb-body">
+      <div style="flex:1">
+        <div style="font-size:19px;font-weight:900;color:var(--txt);margin-bottom:8px">{{ lb.title }}</div>
+        @if (lb.description) {
+          <div style="font-size:13px;color:var(--txt-3);line-height:1.75;word-break:break-word">{{ lb.description }}</div>
+        }
+        @if (lb.technologies?.length) {
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          @for (t of lb.technologies; track t) {
+            <span style="padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.15);color:var(--teal)">{{ t }}</span>
+          }
+        </div>
+        }
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;flex-shrink:0">
+        <button type="button" (click)="goToServices()" style="padding:10px 20px;border-radius:10px;background:var(--grad);font-size:13px;font-weight:800;color:#070D24;border:none;cursor:pointer">اطلب مشابهاً</button>
+        @if (lb.images?.[0] || lb.thumbnailUrl) {
+        <a [href]="lb.images?.[0] || lb.thumbnailUrl" target="_blank" rel="noopener" download style="padding:9px 16px;border-radius:10px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-2);cursor:pointer;display:flex;align-items:center;gap:5px;justify-content:center">
+          <svg aria-hidden="true" style="width:12px;height:12px"><use href="#ws-download"></use></svg>
+          تحميل معاينة
+        </a>
+        }
+      </div>
+    </div>
+  </div>
+  }
 </div>
 } @else if (loading()) {
 <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px">
@@ -437,7 +590,19 @@
       <circle cx="25" cy="25" r="20" fill="none" stroke="var(--blue)" stroke-width="4" stroke-dasharray="30 100" stroke-linecap="round"></circle>
     </svg>
   </div>
-  <div style="font-size:14px;font-weight:700;letter-spacing:0.5px" class="txt-white">جاري جلب بيانات المزود...</div>
-  <div style="font-size:12px" class="txt-muted">يتم الآن تحليل وتقييم مستوى الأداء باستخدام AI</div>
+  <div style="font-size:14px;font-weight:700;letter-spacing:0.5px;color:var(--txt)">جاري جلب بيانات المزود...</div>
+  <div style="font-size:12px;color:var(--txt-3)">يتم الآن تحليل وتقييم مستوى الأداء باستخدام AI</div>
+</div>
+} @else if (notFound()) {
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">
+  <div style="font-size:18px;font-weight:900;color:var(--txt)">لم يتم العثور على هذا الملف الشخصي</div>
+  <p style="font-size:13px;max-width:360px;color:var(--txt-3)">الرابط غير صحيح أو أن هذا المزود غير متاح حالياً.</p>
+  <a routerLink="/marketplace" class="btn-primary-sm">تصفح السوق</a>
+</div>
+} @else if (error()) {
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">
+  <div style="font-size:18px;font-weight:900;color:var(--txt)">تعذر تحميل الملف الشخصي</div>
+  <p style="font-size:13px;max-width:360px;color:var(--txt-3)">{{ error() }}</p>
+  <button type="button" (click)="retry()" class="btn-primary-sm">إعادة المحاولة</button>
 </div>
 }

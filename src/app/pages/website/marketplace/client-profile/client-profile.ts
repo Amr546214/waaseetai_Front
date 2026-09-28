@@ -1,5 +1,5 @@
-import { Component, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ClientPublicProfileService } from '../../../../core/services/client-public-profile.service';
@@ -25,7 +25,6 @@ import { ClientPublicProfile } from '../../../../core/models/client-public-profi
 	styleUrl: './client-profile.css'
 })
 export class ClientProfileComponent implements OnInit {
-	private platformId = inject(PLATFORM_ID);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
@@ -59,9 +58,6 @@ export class ClientProfileComponent implements OnInit {
 				this.loading.set(false);
 				if (res.success && res.data) {
 					this.profile.set(res.data);
-					if (isPlatformBrowser(this.platformId)) {
-						setTimeout(() => this.initParticles(), 0);
-					}
 				} else {
 					this.notFound.set(true);
 				}
@@ -99,18 +95,24 @@ export class ClientProfileComponent implements OnInit {
 		try { return new Date(p.memberSince).getFullYear().toString(); } catch { return ''; }
 	}
 
+	/** P-MK-016 identity line: "جدة، المملكة العربية السعودية · عضو منذ 2023". */
+	identityLine(p: ClientPublicProfile): string {
+		const year = this.memberSinceYear(p);
+		return [this.location(p), year ? 'عضو منذ ' + year : ''].filter(Boolean).join(' · ');
+	}
+
 	reviewDate(iso: string): string {
 		try { return new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(new Date(iso)); } catch { return ''; }
 	}
 
-	starArray(rating: number): ('full' | 'half' | 'empty')[] {
-		const result: ('full' | 'half' | 'empty')[] = [];
-		for (let i = 1; i <= 5; i++) {
-			if (rating >= i) result.push('full');
-			else if (rating >= i - 0.5) result.push('half');
-			else result.push('empty');
-		}
-		return result;
+	/** P-MK-016 renders review stars as text (★★★★☆) in the kahr colour. */
+	starText(rating: number): string {
+		const full = Math.max(0, Math.min(5, Math.floor(rating)));
+		return '★'.repeat(full) + '☆'.repeat(5 - full);
+	}
+
+	ratingLabel(rating: number): string {
+		return Number.isFinite(rating) ? rating.toFixed(1) : '';
 	}
 
 	sendMessage() {
@@ -121,15 +123,4 @@ export class ClientProfileComponent implements OnInit {
 		this.router.navigate(['/provider-overview/messages']);
 	}
 
-	private initParticles() {
-		const pc = document.getElementById('particles-container');
-		if (!pc || pc.children.length > 0) return;
-		const n = window.innerWidth < 768 ? 11 : 25;
-		for (let i = 0; i < n; i++) {
-			const p = document.createElement('div');
-			p.className = 'particle';
-			p.style.cssText = 'left:' + Math.random() * 100 + '%;width:' + (Math.random() * 3 + 2) + 'px;height:' + (Math.random() * 3 + 2) + 'px;animation-duration:' + (Math.random() * 20 + 15) + 's;animation-delay:-' + (Math.random() * 20) + 's';
-			pc.appendChild(p);
-		}
-	}
 }
