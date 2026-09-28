@@ -1,619 +1,622 @@
-<div class="page-wrap marketplace-page">
-	<!-- SVG SPRITE -->
-	<svg class="sprite-defs" aria-hidden="true">
-		<defs>
-			<symbol id="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
-			<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
-			<symbol id="ws-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round">
-				<line x1="3" y1="12" x2="21" y2="12" />
-				<line x1="3" y1="6" x2="21" y2="6" />
-				<line x1="3" y1="18" x2="21" y2="18" />
-			</symbol>
-			<symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-				stroke-linecap="round" stroke-linejoin="round">
-				<line x1="18" y1="6" x2="6" y2="18" />
-				<line x1="6" y1="6" x2="18" y2="18" />
-			</symbol>
-			<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-				stroke-linecap="round" stroke-linejoin="round">
-				<polyline points="20 6 9 17 4 12" />
-			</symbol>
-			<symbol id="ws-chevron-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-				stroke-linecap="round" stroke-linejoin="round">
-				<polyline points="9 18 15 12 9 6" />
-			</symbol>
-			<symbol id="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-				stroke-linecap="round" stroke-linejoin="round">
-				<polyline points="15 18 9 12 15 6" />
-			</symbol>
-			<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-				stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></symbol>
-			<symbol id="ws-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6L12.6 20.6a2 2 0 0 1-2.8 0L2.6 13.4a2 2 0 0 1 0-2.8L10.6 2.6a2 2 0 0 1 1.4-.6H19a2 2 0 0 1 2 2v6.6a2 2 0 0 1-.4 1.4z"/><circle cx="14.5" cy="7.5" r="1.5"/></symbol>
-			<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-				stroke-linecap="round" stroke-linejoin="round">
-				<circle cx="12" cy="12" r="2" />
-				<circle cx="4" cy="6" r="1.5" />
-				<circle cx="20" cy="6" r="1.5" />
-				<circle cx="4" cy="18" r="1.5" />
-				<circle cx="20" cy="18" r="1.5" />
-				<circle cx="12" cy="3" r="1.5" />
-				<circle cx="12" cy="21" r="1.5" />
-				<path
-					d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
-			</symbol>
-			<symbol id="ws-cat-design" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="3.5"/><path d="M1 18a1 1 0 0 1 1-1h4l4 4H2a1 1 0 0 1-1-1z"/><path d="M9 21l10-10 3 3-10 10z"/></symbol>
-			<symbol id="ws-cat-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round">
-				<polyline points="16 18 22 12 16 6" />
-				<polyline points="8 6 2 12 8 18" />
-			</symbol>
-			<symbol id="ws-cat-writing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round">
-				<path d="M12 20h9" />
-				<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-			</symbol>
-			<symbol id="ws-cat-marketing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v4a1 1 0 0 0 1 1h3l4 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 8a5 5 0 0 1 0 8"/><path d="M19 5a9 9 0 0 1 0 14"/></symbol>
-			<symbol id="ws-cat-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round">
-				<polygon points="23 7 16 12 23 17 23 7" />
-				<rect x="1" y="5" width="15" height="14" rx="2" />
-			</symbol>
-			<symbol id="ws-cat-translate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round">
-				<path d="m5 8 6 6" />
-				<path d="m4 14 6-6 2-3" />
-				<path d="M2 5h12" />
-				<path d="M7 2h1" />
-				<path d="m22 22-5-10-5 10" />
-				<path d="M14 18h6" />
-			</symbol>
-			<symbol id="ws-cat-consult" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round">
-				<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-			</symbol>
-			<symbol id="ws-cat-data" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14a8 3 0 0 0 16 0V5"/><path d="M4 12a8 3 0 0 0 16 0"/></symbol>
-			<symbol id="ws-cat-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
-			<symbol id="ws-cat-audio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></symbol>
-			<symbol id="ws-cat-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
-			<symbol id="ws-cat-legal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 4 9 9 10 5-1 9-5 9-10V7z"/></symbol>
-			<symbol id="ws-cat-training" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></symbol>
-			<symbol id="ws-cat-admin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
-			<symbol id="ws-cat-business" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
-			<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-				<polygon
-					points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-			</symbol>
-			<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				stroke-linecap="round" stroke-linejoin="round">
-				<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-			</symbol>
-		</defs>
-	</svg>
+<!-- SVG SPRITE (design P-MK-001 + P-MK-005 symbols) -->
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol>
+<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+<symbol id="ws-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+<symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-chevron-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="9" y1="15" x2="15" y2="9"/><circle cx="9.5" cy="9.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="14.5" cy="14.5" r="1.5" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+<symbol id="ws-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="8" height="18" rx="2"/><rect x="14" y="3" width="8" height="18" rx="2"/></symbol>
+<symbol id="ws-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
+<symbol id="ws-cat-design" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="3.5"/><path d="M1 18a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v2H1v-2z"/><path d="M13 18c0-2.8 2.2-5 5-5s5 2.2 5 5v2H13v-2z"/></symbol>
+<symbol id="ws-cat-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
+<symbol id="ws-cat-writing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+<symbol id="ws-cat-marketing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+<symbol id="ws-cat-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></symbol>
+<symbol id="ws-cat-translate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></symbol>
+<symbol id="ws-cat-consult" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ws-cat-data" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+<!-- design category-nav inline icons (audio / edu / eng / pm) as symbols, for API categories beyond the sprite -->
+<symbol id="ws-cat-audio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+<symbol id="ws-cat-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+<symbol id="ws-cat-training" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+<symbol id="ws-cat-business" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+<symbol id="ws-cat-admin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+<symbol id="ws-cat-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+<symbol id="ws-cat-legal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+</defs></svg>
 
-	<!-- SEARCH BAR -->
-	<div class="search-bar">
-		<div class="search-inner">
-			<div class="search-field" role="search">
-				<div class="search-ico" aria-hidden="true"><svg>
-						<use href="#ws-search"></use>
-					</svg></div>
-				<input type="search" id="main-search" placeholder="ابحث عن خدمة، مهارة أو مقدم..." aria-label="بحث"
-					(input)="onSearchInput($event)" (keyup.enter)="triggerSearch()" [value]="searchQuery()">
-				<button type="button" (click)="triggerSearch()" aria-label="بحث">ابحث الآن</button>
-			</div>
-		</div>
-	</div>
+<!-- Card thumbnail artwork, cycled from the P-MK-001 cards (used when the service has no image) -->
+<ng-template #thumbArt let-i>
+  @switch (i % 4) {
+    @case (0) { <svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><rect x="10" y="10" width="40" height="40" rx="6" stroke="rgba(43,127,255,.6)" stroke-width="1.5" fill="none"/><rect x="18" y="18" width="24" height="24" rx="3" stroke="rgba(43,127,255,.3)" stroke-width="1" fill="rgba(43,127,255,.06)"/></svg> }
+    @case (1) { <svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><circle cx="30" cy="30" r="22" stroke="rgba(43,212,199,.5)" stroke-width="1.5" fill="none"/><line x1="8" y1="30" x2="52" y2="30" stroke="rgba(43,212,199,.3)" stroke-width="1"/></svg> }
+    @case (2) { <svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><circle cx="30" cy="30" r="20" stroke="rgba(15,169,154,.6)" stroke-width="1.5"/><path d="M18 30 Q30 18 42 30 Q30 42 18 30Z" stroke="rgba(15,169,154,.4)" stroke-width="1" fill="rgba(15,169,154,.07)"/></svg> }
+    @default { <svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><rect x="10" y="10" width="40" height="40" rx="3" stroke="rgba(217,138,11,.6)" stroke-width="1.5" fill="none"/><line x1="18" y1="22" x2="42" y2="22" stroke="rgba(217,138,11,.4)" stroke-width="1"/><line x1="18" y1="30" x2="38" y2="30" stroke="rgba(217,138,11,.3)" stroke-width="1"/></svg> }
+  }
+</ng-template>
 
-	<!-- CATS NAV (مثل Noon) -->
-	<nav class="cats-nav" aria-label="فئات الخدمات">
-		<button type="button" class="cats-nav-arrow cats-nav-arrow-r" aria-label="عرض الفئات السابقة"
-			[disabled]="!canScrollCatsRight()" [class.disabled]="!canScrollCatsRight()" (click)="scrollCatsRight()">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-				stroke-linejoin="round">
-				<polyline points="9 6 15 12 9 18"></polyline>
-			</svg>
-		</button>
-		<button type="button" class="cats-nav-arrow cats-nav-arrow-l" aria-label="عرض المزيد من الفئات"
-			[disabled]="!canScrollCatsLeft()" [class.disabled]="!canScrollCatsLeft()" (click)="scrollCatsLeft()">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-				stroke-linejoin="round">
-				<polyline points="15 6 9 12 15 18"></polyline>
-			</svg>
-		</button>
-		<div class="cats-nav-inner" #catsNavInner (scroll)="checkCatsScrollState()">
-			<a routerLink="/marketplace/categories" class="cats-nav-item cursor-pointer"
-				style="color:var(--teal);border-left:1px solid var(--border);margin-left:4px;padding-left:14px;padding-right:16px">كل
-				الفئات @if (categories().length > 0) {+{{ categories().length }}}</a>
-			@for (cat of categories(); track cat.id) {
-			<div class="cat-has-drop" (mouseenter)="onCatEnter(cat, $event)" (mouseleave)="onCatLeave()">
-				<a [routerLink]="['/marketplace', cat.slug]" class="cats-nav-item cursor-pointer"
-					[class.drop-open]="hoveredCategory()?.id === cat.id">
-					<svg aria-hidden="true">
-						<use [attr.href]="categoryIcon(cat.icon)"></use>
-					</svg>
-					{{ cat.name }}
-					@if (cat.subSpecialties && cat.subSpecialties.length > 0) {
-					<svg class="cat-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-						stroke-width="2.5">
-						<polyline points="6 9 12 15 18 9"></polyline>
-					</svg>
-					}
-				</a>
-			</div>
-			}
-		</div>
-	</nav>
+<!-- P-MK-001 service card (svc-card inside .mk-home). mode: 'flash' | 'ai' | 'grid' -->
+<ng-template #homeCard let-model let-i="i" let-mode="mode">
+  <a [routerLink]="['/marketplace/offer', model.id]" class="svc-card">
+    <div class="svc-thumb" [style.background]="thumbGradient(i)">
+      @if (model.gallery && model.gallery.length > 0) {
+      <img class="svc-thumb-img" [src]="model.gallery[0]" [alt]="model.title" loading="lazy">
+      } @else {
+      <ng-container *ngTemplateOutlet="thumbArt; context: { $implicit: i }"></ng-container>
+      }
+      @if (model.level) {
+      <span class="svc-lvl" [style.color]="homeLevelStyle(model).color" [style.border-color]="homeLevelStyle(model).border" [style.background]="homeLevelStyle(model).bg">{{ model.level }}</span>
+      }
+      @if (mode === 'flash') {
+      <span class="flash-disc-tag">خصم {{ model.discountPercentage }}%</span>
+      } @else if (model.aiMatchPercentage || model.aiScore) {
+      <span class="svc-ai-tag">{{ mode === 'ai' && aiGenerationSource() !== 'GEMINI' ? 'تطابق' : 'AI' }} {{ model.aiMatchPercentage ?? model.aiScore }}%</span>
+      }
+      <button class="svc-fav" type="button" aria-label="أضف للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
+    </div>
+    <div class="svc-body">
+      <h3 class="svc-title">{{ model.title }}</h3>
+      <div class="svc-prov"><div class="svc-av" [style.background]="avatarGradient(i)">{{ model.provider?.initials || 'م' }}</div><span class="svc-pname">{{ model.provider?.name }}</span>@if (model.isVerified) {<span class="svc-ok"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</span>}</div>
+      <div class="svc-rating"><span class="svc-stars">★★★★★</span><span class="svc-score">{{ model.rating ?? 0 }}</span><span class="svc-cnt">({{ model.reviewsCount || 0 }})</span></div>
+      @if (mode === 'flash') {
+      <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} ريال <span style="font-size:10px;text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | number:'1.0-0' }}</span></div></div></div>
+      } @else if (mode === 'ai') {
+      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} ريال</div></div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div>
+      } @else {
+      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} ريال</div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div></div>
+      }
+    </div>
+  </a>
+</ng-template>
 
-	@if (hoveredCategory(); as hcat) {
-	<div class="cat-drop" [style.top.px]="dropdownPos().top" [style.right.px]="dropdownPos().right"
-		(mouseenter)="onDropdownEnter()" (mouseleave)="onCatLeave()">
-		@for (sub of hcat.subSpecialties; track sub.id || sub.name) {
-		<a [routerLink]="['/marketplace', hcat.slug]" [queryParams]="{ sub: sub.slug }" class="cat-drop-item cursor-pointer">
-			{{ sub.name }}
-		</a>
-		}
-	</div>
-	}
+@if (!resultsMode()) {
+<!-- ═══════════════ P-MK-001 — landing ═══════════════ -->
+<div class="page-wrap mk-home">
 
-	<!-- HERO SLIDER -->
-	<div class="hero-slider" role="region" aria-label="عروض مميزة" aria-live="polite">
-		<!-- Slide 1 -->
-		<div class="slide" [class.active]="currentSlide === 0" id="slide-0">
-			<div class="slide-bg" style="background:linear-gradient(135deg,#050E24 0%,#0A1840 40%,#0D2252 100%)">
-				<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(43,127,255,.25),transparent 60%)"
-					aria-hidden="true"></div>
-			</div>
-			<div class="slide-content">
-				<div class="slide-tag badge-blue"
-					>
-					<svg aria-hidden="true" style="width:11px;height:11px">
-						<use href="#ws-cat-design"></use>
-					</svg>
-					الأكثر طلباً هذا الأسبوع
-				</div>
-				<h2 class="slide-h">هويات بصرية احترافية<br>مع ضمان التسليم الكامل</h2>
-				<p class="slide-sub">+{{ categoryCount('design') }} خدمة تصميم من مقدمين — شعارات، UI/UX، مطبوعات وأكثر، مدعومة بضمانات
-					العقد الموثق.</p>
-				<a (click)="selectCategory('design', '')" class="slide-cta cursor-pointer">تصفح خدمات التصميم</a>
-			</div>
-			<div class="slide-visual">
-				<!-- Abstract design visual -->
-				<svg width="280" height="280" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-					<rect x="40" y="40" width="120" height="120" rx="20" fill="rgba(43,127,255,.1)"
-						stroke="rgba(43,127,255,.3)" stroke-width="2" />
-					<circle cx="100" cy="100" r="30" fill="rgba(43,212,199,.2)" stroke="var(--teal)" stroke-width="2" />
-					<path d="M40 100 L160 100 M100 40 L100 160" stroke="rgba(43,127,255,.2)" stroke-width="1"
-						stroke-dasharray="4 4" />
-				</svg>
-			</div>
-		</div>
-		<!-- Slide 2 -->
-		<div class="slide" [class.active]="currentSlide === 1" id="slide-1">
-			<div class="slide-bg" style="background:linear-gradient(135deg,#050E1A 0%,#071822 40%,#092030 100%)">
-				<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(43,212,199,.2),transparent 60%)"
-					aria-hidden="true"></div>
-			</div>
-			<div class="slide-content">
-				<div class="slide-tag txt-teal"
-					style="background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.3)">
-					<svg aria-hidden="true" style="width:11px;height:11px">
-						<use href="#ws-cat-code"></use>
-					</svg>
-					الأكثر نمواً
-				</div>
-				<h2 class="slide-h">تطبيقات ومواقع احترافية<br>مع عقود موثقة وضمان</h2>
-				<p class="slide-sub">+{{ categoryCount('code') }} خدمة برمجية — Flutter، WordPress، React، APIs وذكاء اصطناعي، جميعها تحت
-					إشراف المنصة لضمان حقك.</p>
-				<a (click)="selectCategory('code', '')" class="slide-cta cursor-pointer">تصفح خدمات البرمجة</a>
-			</div>
-			<div class="slide-visual">
-				<!-- Abstract code visual -->
-				<svg width="280" height="280" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-					<rect x="30" y="50" width="140" height="100" rx="12" fill="rgba(43,212,199,.05)"
-						stroke="var(--teal)" stroke-width="2" />
-					<circle cx="50" cy="70" r="5" fill="var(--teal)" />
-					<circle cx="70" cy="70" r="5" fill="rgba(43,212,199,.5)" />
-					<circle cx="90" cy="70" r="5" fill="rgba(43,212,199,.2)" />
-					<rect x="50" y="90" width="80" height="8" rx="4" fill="rgba(255,255,255,.2)" />
-					<rect x="50" y="110" width="100" height="8" rx="4" fill="rgba(255,255,255,.1)" />
-					<rect x="50" y="130" width="60" height="8" rx="4" fill="rgba(255,255,255,.1)" />
-				</svg>
-			</div>
-		</div>
-		<!-- Slide 3 -->
-		<div class="slide" [class.active]="currentSlide === 2" id="slide-2">
-			<div class="slide-bg" style="background:linear-gradient(135deg,#120A1A 0%,#1B0F2A 40%,#24153B 100%)">
-				<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(123,47,190,.25),transparent 60%)"
-					aria-hidden="true"></div>
-			</div>
-			<div class="slide-content">
-				<div class="slide-tag txt-lilac"
-					style="background:rgba(123,47,190,.15);border:1px solid rgba(123,47,190,.3)">
-					<svg aria-hidden="true" style="width:11px;height:11px">
-						<use href="#ws-trust-ai"></use>
-					</svg>
-					الذكاء الاصطناعي
-				</div>
-				<h2 class="slide-h">خدمات ذكية تُضاعف<br>إنتاجية عملك</h2>
-				<p class="slide-sub">بناء نماذج، تحليل بيانات، ووكلاء ذكاء اصطناعي (AI Agents) لتطوير مشروعك بكفاءة
-					وسرعة.</p>
-				<a (click)="selectCategory('data', '')" class="slide-cta cursor-pointer">تصفح خدمات الذكاء الاصطناعي</a>
-			</div>
-			<div class="slide-visual">
-				<!-- Abstract AI visual -->
-				<svg width="280" height="280" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-					<circle cx="100" cy="100" r="50" fill="rgba(123,47,190,.1)" stroke="rgba(123,47,190,.5)"
-						stroke-width="2" stroke-dasharray="8 8" />
-					<circle cx="100" cy="100" r="30" fill="rgba(123,47,190,.3)" stroke="#D4A6FF" stroke-width="2" />
-					<circle cx="100" cy="100" r="10" fill="#fff" />
-					<path
-						d="M100 50 L100 20 M100 150 L100 180 M50 100 L20 100 M150 100 L180 100 M65 65 L40 40 M135 135 L160 160 M135 65 L160 40 M65 135 L40 160"
-						stroke="rgba(123,47,190,.3)" stroke-width="2" />
-				</svg>
-			</div>
-		</div>
-		<button class="slider-arrow prev" (click)="moveSlide(-1)" aria-label="السابق"><svg aria-hidden="true">
-				<use href="#ws-chevron-r"></use>
-			</svg></button>
-		<button class="slider-arrow next" (click)="moveSlide(1)" aria-label="التالي"><svg aria-hidden="true">
-				<use href="#ws-chevron-l"></use>
-			</svg></button>
-		<div class="slider-dots" role="tablist" aria-label="الشرائح">
-			<div class="dot" [class.active]="currentSlide === 0" (click)="setSlide(0)" role="tab"></div>
-			<div class="dot" [class.active]="currentSlide === 1" (click)="setSlide(1)" role="tab"></div>
-			<div class="dot" [class.active]="currentSlide === 2" (click)="setSlide(2)" role="tab"></div>
-		</div>
-	</div>
+  <!-- SEARCH BAR -->
+  <div class="search-bar">
+    <div class="search-inner">
+      <div class="search-field" role="search">
+        <div class="search-ico" aria-hidden="true"><svg><use href="#ws-search"></use></svg></div>
+        <input type="search" id="main-search" placeholder="ابحث عن خدمة، مهارة أو مقدم..." aria-label="بحث" [value]="searchQuery()" (input)="onSearchInput($event)" (keydown.enter)="triggerSearch()">
+        <button type="button" (click)="triggerSearch()" aria-label="بحث">ابحث الآن</button>
+      </div>
+    </div>
+  </div>
 
-	<!-- QUICK CATS (Tiles بعد السلايدر) -->
-	<div class="quick-cats">
-		<div class="quick-cats-inner" role="list">
-			@for (cat of categories().slice(0, 8); track cat.id; let i = $index) {
-			<a [routerLink]="['/marketplace', cat.slug]" class="qcat cursor-pointer" role="listitem">
-				<div class="qcat-ico"
-					[style.background]="categoryPalette(i).bg"
-					[style.border-color]="categoryPalette(i).border"
-					[style.color]="categoryPalette(i).color"><svg>
-						<use [attr.href]="categoryIcon(cat.icon)"></use>
-					</svg></div>
-				<div class="qcat-name">{{ cat.name }}</div>
-			</a>
-			}
-			<a routerLink="/top-rated" class="qcat cursor-pointer" role="listitem">
-				<div class="qcat-ico"
-					style="background:rgba(217,138,11,.10);border-color:rgba(217,138,11,.20);color:var(--kahr)"><svg>
-						<use href="#ws-star"></use>
-					</svg></div>
-				<div class="qcat-name">الأعلى</div>
-			</a>
-			<a routerLink="/exclusive" class="qcat cursor-pointer" role="listitem">
-				<div class="qcat-ico"
-					style="background:rgba(255,140,105,.10);border-color:rgba(255,140,105,.20);color:var(--red)"><svg>
-						<use href="#ws-tag"></use>
-					</svg></div>
-				<div class="qcat-name">العروض</div>
-			</a>
-		</div>
-	</div>
+  <!-- CATEGORY NAV BAR -->
+  <nav class="cats-nav" aria-label="فئات الخدمات">
+    <div class="cats-nav-inner">
+      <a routerLink="/marketplace/categories" class="cats-nav-item" style="color:var(--teal);border-left:1px solid var(--border);margin-left:4px;padding-left:14px">كل الفئات @if (allCatsCount() > 0) {+{{ allCatsCount() }}}</a>
+      @for (cat of categories(); track cat.id) {
+      <div class="cat-has-drop">
+        <a [routerLink]="['/marketplace', cat.slug]" class="cats-nav-item"><svg aria-hidden="true"><use [attr.href]="categoryIcon(cat.icon)"></use></svg> {{ cat.name }} @if (cat.subSpecialties?.length) {<svg class="cat-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>}</a>
+        @if (cat.subSpecialties?.length) {
+        <div class="cat-drop">
+          @for (sub of cat.subSpecialties; track sub.id || sub.name) {
+          <a [routerLink]="['/marketplace', cat.slug]" [queryParams]="{ sub: sub.slug }" class="cat-drop-item">{{ sub.name }}</a>
+          }
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </nav>
 
-	<div class="container" style="padding-top:0">
-		<!-- AI BANNER -->
-		<div class="ai-banner" style="margin-top:20px">
-			<div class="ai-ico"><svg>
-					<use href="#ws-trust-ai"></use>
-				</svg></div>
-			<div class="ai-txt">{{ aiBannerInsight() }}</div>
-			<span class="ai-bdg">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'ذكي · نشط' }}</span>
-		</div>
+  <!-- HERO SLIDER -->
+  <div class="hero-slider" role="region" aria-label="عروض مميزة" aria-live="polite" (mouseenter)="stopAuto()" (mouseleave)="startAuto()">
 
-		<!-- FLASH DEALS -->
-		@if (featuredModels().length > 0) {
-		<div class="mkt-section flash-section">
-			<div class="flash-hdr">
-				<div class="flash-title">
-					<div class="flash-ico"><svg aria-hidden="true">
-							<use href="#ws-tag"></use>
-						</svg></div>
-					عروض لفترة محدودة
-				</div>
-				<div class="flash-timer">
-					<svg aria-hidden="true">
-						<use href="#ws-clock"></use>
-					</svg>
-					<div>
-						<div style="font-size:9px;font-weight:600;opacity:.7;line-height:1">تنتهي خلال</div>
-						<span style="font-variant-numeric:tabular-nums;letter-spacing:.5px">{{ featuredModels()[0].offerEndsAt | date:'short' }}</span>
-					</div>
-				</div>
-				<a routerLink="/marketplace" class="see-all" style="margin-inline-start:auto">كل العروض <svg
-						aria-hidden="true">
-						<use href="#ws-chevron-l"></use>
-					</svg></a>
-			</div>
-			<div class="flash-grid">
-				@for (model of featuredModels().slice(0, 6); track model.id) {
-				<a [routerLink]="'/marketplace/offer/' + model.id" class="svc-card">
-					<div class="svc-thumb" style="background:linear-gradient(135deg,#0A1628,#0D1E38)">
-						<!-- Service visual placeholder -->
-						<svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true">
-							<rect x="10" y="10" width="40" height="40" rx="6" stroke="rgba(43,127,255,.6)"
-								stroke-width="1.5" fill="none" />
-							<rect x="18" y="18" width="24" height="24" rx="3" stroke="rgba(43,127,255,.3)"
-								stroke-width="1" fill="rgba(43,127,255,.06)" />
-						</svg>
-						<span class="svc-lvl" [style.color]="model.levelColor || '#5DA0FF'"
-							[style.background]="model.levelBg || 'rgba(43,127,255,.2)'"
-							[style.borderColor]="model.levelColor || 'rgba(123,47,190,.5)'">{{ model.level || 'خبير'
-							}}</span>
-						<span class="flash-disc-tag">خصم {{ model.discountPercentage }}%</span>
-						<button class="svc-fav" type="button" aria-label="أضف للمفضلة"><svg aria-hidden="true">
-								<use href="#ws-heart"></use>
-							</svg></button>
-					</div>
-					<div class="svc-body">
-						<h3 class="svc-title">{{ model.title }}</h3>
-						<div class="svc-prov">
-							<div class="svc-av" style="background:var(--grad)">{{ model.provider.initials || 'مز' }}
-							</div><span class="svc-pname">{{ model.provider.name }}</span><span class="svc-ok" [style.display]="model.isVerified ? '' : 'none'"><svg
-									aria-hidden="true">
-									<use href="#ws-check"></use>
-								</svg> معتمد</span>
-						</div>
-						<div class="svc-rating"><span class="svc-stars">★★★★★</span><span class="svc-score">{{
-							model.rating }}</span><span class="svc-cnt">({{ model.reviewsCount || 0 }})</span>
-						</div>
-						<div class="svc-foot">
-							<div>
-								<div class="svc-price-lbl">سعر النموذج</div>
-								<div class="svc-price">{{ model.totalAmount }} ريال</div>
-							</div>
-						<div class="svc-del">{{ model.discountPercentage ? (model.totalAmount / (1 - model.discountPercentage / 100) | number:'1.0-0') : model.totalAmount }} ريال</div>
-						</div>
-					</div>
-				</a>
-				}
-			</div>
-		</div>
-		}
+    <!-- Slide 1 — تصميم -->
+    <div class="slide" [class.active]="currentSlide === 0" id="slide-0">
+      <div class="slide-bg" style="background:linear-gradient(135deg,#050E24 0%,#0A1840 40%,#0D2252 100%)">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(43,127,255,.25),transparent 60%)" aria-hidden="true"></div>
+      </div>
+      <div class="slide-content">
+        <div class="slide-tag" style="background:rgba(43,127,255,.15);border:1px solid rgba(43,127,255,.3);color:#5DA0FF">
+          <svg aria-hidden="true" style="width:11px;height:11px"><use href="#ws-cat-design"></use></svg>
+          الأكثر طلباً هذا الأسبوع
+        </div>
+        <h2 class="slide-h">هويات بصرية احترافية<br>مع ضمان التسليم الكامل</h2>
+        <p class="slide-sub">@if (slideCount('design') > 0) {+{{ slideCount('design') | number }} }خدمة تصميم من مقدمين معتمدين — شعارات، UI/UX، مطبوعات وأكثر</p>
+        <a [routerLink]="slideLink('design')" class="slide-cta">تصفح خدمات التصميم</a>
+      </div>
+      <div class="slide-visual" aria-hidden="true">
+        <svg width="260" height="260" viewBox="0 0 260 260" fill="none"><circle cx="130" cy="130" r="100" stroke="rgba(43,127,255,.2)" stroke-width="1"/><circle cx="130" cy="130" r="70" stroke="rgba(43,127,255,.15)" stroke-width="1"/><rect x="90" y="90" width="80" height="80" rx="12" fill="rgba(43,127,255,.08)" stroke="rgba(43,127,255,.4)" stroke-width="1.5"/><rect x="105" y="105" width="50" height="50" rx="8" fill="rgba(43,127,255,.12)" stroke="rgba(43,127,255,.3)" stroke-width="1"/><circle cx="155" cy="105" r="14" fill="rgba(165,107,224,.3)" stroke="rgba(165,107,224,.6)" stroke-width="1.5"/><circle cx="130" cy="130" r="6" fill="rgba(43,127,255,.6)"/></svg>
+      </div>
+    </div>
 
-		<!-- INTERACTIVE CATEGORY BROWSING -->
-		<div class="mkt-section">
-			<div class="sec-hdr">
-				<h2 class="sec-title">
-					<span class="sec-title-ico txt-teal"
-						style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg
-							aria-hidden="true">
-							<use href="#ws-menu"></use>
-						</svg></span>
-					تصفح حسب التخصص
-				</h2>
-			</div>
-			<div class="cat-blocks">
-				@for (cat of categories().slice(0, 4); track cat.id; let ci = $index) {
-				<div class="cat-block" [routerLink]="['/marketplace', cat.slug]">
-					<h3 class="cat-block-h">{{ cat.name }}</h3>
-					<div class="cat-block-grid">
-						@for (sub of (cat.subSpecialties || []).slice(0, 4); track sub.id) {
-						<a (click)="$event.stopPropagation(); selectCategory(cat.slug, sub.slug || sub.name || sub.id)"
-							class="cat-block-item cursor-pointer">
-							<div class="cat-block-ico"
-								[style.background]="categoryPalette(ci).bg"
-								[style.border-color]="categoryPalette(ci).border"
-								[style.color]="categoryPalette(ci).color">
-								<svg>
-									<use [attr.href]="categoryIcon(cat.icon)"></use>
-								</svg>
-							</div>
-							<span class="cat-block-name">{{ sub.name }}</span>
-						</a>
-						}
-					</div>
-					<a (click)="$event.stopPropagation(); selectCategory(cat.slug, '')" class="cat-block-see cursor-pointer">عرض جميع التخصصات
-						الفرعية لـ {{ cat.name }} <svg aria-hidden="true"
-							style="width:10px;height:10px;vertical-align:middle;margin-right:2px">
-							<use href="#ws-chevron-l"></use>
-						</svg></a>
-				</div>
-				}
-			</div>
-		</div>
+    <!-- Slide 2 — برمجة -->
+    <div class="slide" [class.active]="currentSlide === 1" id="slide-1">
+      <div class="slide-bg" style="background:linear-gradient(135deg,#050E1A 0%,#071822 40%,#092030 100%)">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(43,212,199,.2),transparent 60%)" aria-hidden="true"></div>
+      </div>
+      <div class="slide-content">
+        <div class="slide-tag" style="background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.3);color:var(--teal)">
+          <svg aria-hidden="true" style="width:11px;height:11px"><use href="#ws-cat-code"></use></svg>
+          الأكثر نمواً
+        </div>
+        <h2 class="slide-h">تطبيقات ومواقع احترافية<br>مع عقود موثقة وضمان</h2>
+        <p class="slide-sub">@if (slideCount('code') > 0) {+{{ slideCount('code') | number }} }خدمة برمجية — Flutter، WordPress، React، APIs وذكاء اصطناعي</p>
+        <a [routerLink]="slideLink('code')" class="slide-cta">تصفح خدمات البرمجة</a>
+      </div>
+      <div class="slide-visual" aria-hidden="true">
+        <svg width="260" height="260" viewBox="0 0 260 260" fill="none"><rect x="50" y="70" width="160" height="120" rx="10" fill="rgba(43,212,199,.05)" stroke="rgba(43,212,199,.3)" stroke-width="1.5"/><rect x="50" y="70" width="160" height="28" rx="10" fill="rgba(43,212,199,.1)" stroke="rgba(43,212,199,.3)" stroke-width="1.5"/><circle cx="68" cy="84" r="5" fill="rgba(255,140,105,.6)"/><circle cx="84" cy="84" r="5" fill="rgba(217,138,11,.6)"/><circle cx="100" cy="84" r="5" fill="rgba(15,169,154,.6)"/><text x="70" y="120" fill="rgba(43,212,199,.6)" font-size="12" font-family="monospace">const app = () =&gt; &#123;</text><text x="80" y="136" fill="rgba(43,127,255,.5)" font-size="12" font-family="monospace">return &lt;UI/&gt;;</text><text x="70" y="152" fill="rgba(43,212,199,.6)" font-size="12" font-family="monospace">&#125;</text></svg>
+      </div>
+    </div>
 
-		<!-- AI REC -->
-		<div class="mkt-section">
-			<div class="sec-hdr">
-				<h2 class="sec-title">
-					<span class="sec-title-ico txt-purple"
-						style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg
-							aria-hidden="true">
-							<use href="#ws-trust-ai"></use>
-						</svg></span>
-					اختيارات الذكاء الاصطناعي لك
-				</h2>
-				<span
-					style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;background:var(--ai-bg);border:1px solid var(--ai-border)" class="txt-purple">توافق
-					{{ aiMatchAverage() }}%</span>
-			</div>
-			<div class="svcs-scroll">
-				@for (model of aiRecommendedModels(); track model.id) {
-				<a [routerLink]="'/marketplace/offer/' + model.id" class="svc-card">
-					<div class="svc-thumb" style="background:linear-gradient(135deg,#120A1A,#1B0F2A)">
-						<!-- Service visual placeholder -->
-						<svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true">
-							<circle cx="30" cy="30" r="16" stroke="rgba(123,47,190,.6)" stroke-width="1.5" fill="none"
-								stroke-dasharray="4 4" />
-							<circle cx="30" cy="30" r="8" fill="rgba(123,47,190,.3)" stroke="#D4A6FF"
-								stroke-width="1" />
-						</svg>
-						<span class="svc-lvl" [style.color]="model.levelColor || '#C084FC'"
-							[style.background]="model.levelBg || 'rgba(123,47,190,.2)'"
-							[style.borderColor]="model.levelColor || 'rgba(123,47,190,.5)'">{{ model.level || 'خبير'
-							}}</span>
-						<span class="svc-ai-tag">{{ aiGenerationSource() === 'GEMINI' ? 'AI' : 'تطابق' }} {{ model.aiMatchPercentage ?? model.aiScore }}%</span>
-						<button class="svc-fav" type="button" aria-label="أضف للمفضلة"><svg aria-hidden="true">
-								<use href="#ws-heart"></use>
-							</svg></button>
-					</div>
-					<div class="svc-body">
-						<h3 class="svc-title">{{ model.title }}</h3>
-						<div class="svc-prov">
-							<div class="svc-av" style="background:linear-gradient(135deg, #7B2FBE, #D4A6FF)">{{
-								model.provider.initials || 'AI' }}</div><span class="svc-pname">{{ model.provider.name
-								}}</span><span class="svc-ok" [style.display]="model.isVerified ? '' : 'none'"><svg aria-hidden="true">
-									<use href="#ws-check"></use>
-								</svg> معتمد</span>
-						</div>
-						<div class="svc-rating"><span class="svc-stars">★★★★★</span><span class="svc-score">{{
-							model.rating }}</span><span class="svc-cnt">({{ model.reviewsCount || 0 }})</span>
-						</div>
-						<div class="svc-foot">
-							<div>
-								<div class="svc-price-lbl">سعر النموذج</div>
-								<div class="svc-price">{{ model.totalAmount }} ريال</div>
-							</div>
-							<div class="svc-del">{{ model.totalDays }} يوم</div>
-						</div>
-					</div>
-				</a>
-				}
-			</div>
-		</div>
+    <!-- Slide 3 — عروض -->
+    <div class="slide" [class.active]="currentSlide === 2" id="slide-2">
+      <div class="slide-bg" style="background:linear-gradient(135deg,#070D24 0%,#0D1A10 40%,#0A1F14 100%)">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(15,169,154,.25),transparent 60%)" aria-hidden="true"></div>
+      </div>
+      <div class="slide-content">
+        <div class="slide-tag" style="background:rgba(217,138,11,.12);border:1px solid rgba(217,138,11,.3);color:var(--kahr)">
+          <svg aria-hidden="true" style="width:11px;height:11px"><use href="#ws-tag"></use></svg>
+          عروض لفترة محدودة
+        </div>
+        <h2 class="slide-h">خصومات تصل إلى <span style="background:linear-gradient(135deg,#D98A0B,#FFB400);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">60%</span><br>على أبرز الخدمات</h2>
+        <p class="slide-sub">عروض يومية حصرية من مقدمين معتمدين — ادفع اليوم واستلم بضمان كامل</p>
+        <a routerLink="/exclusive" class="slide-cta">تصفح كل العروض</a>
+      </div>
+      <div class="slide-visual" aria-hidden="true">
+        <svg width="240" height="240" viewBox="0 0 240 240" fill="none"><circle cx="120" cy="120" r="90" fill="rgba(217,138,11,.06)" stroke="rgba(217,138,11,.2)" stroke-width="1.5"/><circle cx="120" cy="120" r="60" fill="rgba(217,138,11,.08)" stroke="rgba(217,138,11,.25)" stroke-width="1.5"/><text x="120" y="136" fill="rgba(217,138,11,.8)" font-size="40" font-weight="900" font-family="Tajawal,sans-serif" text-anchor="middle">%60</text><text x="120" y="162" fill="rgba(217,138,11,.5)" font-size="14" font-family="Tajawal,sans-serif" text-anchor="middle">توفير</text></svg>
+      </div>
+    </div>
 
-		<!-- TOP RATED -->
-		<div class="mkt-section">
-			<div class="sec-hdr">
-				<h2 class="sec-title">
-					<span class="sec-title-ico badge-kahr"
-						><svg
-							aria-hidden="true">
-							<use href="#ws-star"></use>
-						</svg></span>
-					الأعلى تقييماً في المنصة
-				</h2>
-				<a routerLink="/marketplace" [queryParams]="{sort: 'top_rated'}" class="see-all">كل الأعلى تقييماً <svg
-						aria-hidden="true">
-						<use href="#ws-chevron-l"></use>
-					</svg></a>
-			</div>
-			<div class="svcs-grid">
-				@for (model of topRatedModels().slice(0, 4); track model.id) {
-				<a [routerLink]="'/marketplace/offer/' + model.id" class="svc-card">
-					<div class="svc-thumb" style="background:linear-gradient(135deg,#121A0F,#0A1A14)">
-						<!-- Service visual placeholder -->
-						<svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true">
-							<polygon points="30 14 42 46 18 46" fill="rgba(15,169,154,.1)" stroke="rgba(15,169,154,.6)"
-								stroke-width="1.5" />
-							<circle cx="30" cy="36" r="4" fill="var(--teal)" />
-						</svg>
-						<span class="svc-lvl" [style.color]="model.levelColor || '#C084FC'"
-							[style.background]="model.levelBg || 'rgba(123,47,190,.2)'"
-							[style.borderColor]="model.levelColor || 'rgba(123,47,190,.5)'">{{ model.level || 'خبير'
-							}}</span>
-						<span class="svc-ai-tag">AI {{ model.aiMatchPercentage ?? model.aiScore }}%</span>
-						<button class="svc-fav" type="button" aria-label="أضف للمفضلة"><svg aria-hidden="true">
-								<use href="#ws-heart"></use>
-							</svg></button>
-					</div>
-					<div class="svc-body">
-						<h3 class="svc-title">{{ model.title }}</h3>
-						<div class="svc-prov">
-							<div class="svc-av" style="background:var(--grad)">{{ model.provider.initials || 'أح' }}
-							</div><span class="svc-pname">{{ model.provider.name }}</span><span class="svc-ok" [style.display]="model.isVerified ? '' : 'none'"><svg
-									aria-hidden="true">
-									<use href="#ws-check"></use>
-								</svg> معتمد</span>
-						</div>
-						<div class="svc-rating"><span class="svc-stars">★★★★★</span><span class="svc-score">{{
-							model.rating }}</span><span class="svc-cnt">({{ model.reviewsCount || 0 }})</span>
-						</div>
-						<div class="svc-foot">
-							<div>
-								<div class="svc-price-lbl">سعر النموذج</div>
-								<div class="svc-price">{{ model.totalAmount }} ريال</div>
-							</div>
-							<div class="svc-del">{{ model.totalDays }} يوم</div>
-						</div>
-					</div>
-				</a>
-				}
-			</div>
-		</div>
+    <!-- Arrows -->
+    <button class="slider-arrow prev" type="button" (click)="moveSlide(-1)" aria-label="السابق"><svg aria-hidden="true"><use href="#ws-chevron-r"></use></svg></button>
+    <button class="slider-arrow next" type="button" (click)="moveSlide(1)" aria-label="التالي"><svg aria-hidden="true"><use href="#ws-chevron-l"></use></svg></button>
+    <div class="slider-dots" role="tablist" aria-label="الشرائح">
+      @for (d of [0, 1, 2]; track d) {
+      <div class="dot" [class.active]="currentSlide === d" (click)="setSlide(d)" role="tab" [attr.aria-selected]="currentSlide === d"></div>
+      }
+    </div>
+  </div>
 
-		<!-- ALL SERVICES -->
-		<div class="mkt-section" id="marketplace-results">
-			<div class="sec-hdr">
-				<h2 class="sec-title">
-					<span class="sec-title-ico badge-blue"
-						><svg
-							aria-hidden="true">
-							<use href="#ws-shield"></use>
-						</svg></span>
-					{{ resultsSectionTitle() }}
-				</h2>
-				<a routerLink="/marketplace" class="see-all">عرض الكل <svg aria-hidden="true">
-						<use href="#ws-chevron-l"></use>
-					</svg></a>
-			</div>
-			<div class="svcs-grid">
-				@for (model of allModels(); track model.id) {
-				<a [routerLink]="'/marketplace/offer/' + model.id" class="svc-card">
-					<div class="svc-thumb" style="background:linear-gradient(135deg,#0A1628,#0D1E38)">
-						<svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true">
-							<rect x="10" y="10" width="40" height="40" rx="6" stroke="rgba(43,127,255,.6)"
-								stroke-width="1.5" fill="none" />
-							<rect x="18" y="18" width="24" height="24" rx="3" stroke="rgba(43,127,255,.3)"
-								stroke-width="1" fill="rgba(43,127,255,.06)" />
-						</svg>
-						<span class="svc-lvl" [style.color]="model.levelColor || '#C084FC'"
-							[style.background]="model.levelBg || 'rgba(123,47,190,.2)'"
-							[style.borderColor]="model.levelColor || 'rgba(123,47,190,.5)'">{{ model.level || 'خبير'
-							}}</span>
-						<span class="svc-ai-tag">AI {{ model.aiMatchPercentage ?? model.aiScore }}%</span>
-						<button class="svc-fav" type="button" aria-label="أضف للمفضلة"><svg aria-hidden="true">
-								<use href="#ws-heart"></use>
-							</svg></button>
-					</div>
-					<div class="svc-body">
-						<h3 class="svc-title">{{ model.title }}</h3>
-						<div class="svc-prov">
-							<div class="svc-av" style="background:var(--grad)">{{ model.provider.initials || 'مز' }}
-							</div><span class="svc-pname">{{ model.provider.name }}</span><span class="svc-ok" [style.display]="model.isVerified ? '' : 'none'"><svg
-									aria-hidden="true">
-									<use href="#ws-check"></use>
-								</svg> معتمد</span>
-						</div>
-						<div class="svc-rating"><span class="svc-stars">★★★★★</span><span class="svc-score">{{
-							model.rating }}</span><span class="svc-cnt">({{ model.reviewsCount || 0 }})</span>
-						</div>
-						<div class="svc-foot">
-							<div>
-								<div class="svc-price-lbl">سعر النموذج</div>
-								<div class="svc-price">{{ model.totalAmount }} ريال</div>
-							</div>
-							<div class="svc-del">{{ model.totalDays }} يوم</div>
-						</div>
-					</div>
-				</a>
-				}
-			</div>
-		</div>
+  <!-- QUICK CATEGORY TILES -->
+  <div class="quick-cats">
+    <div class="quick-cats-inner" role="list">
+      @for (cat of categories().slice(0, 8); track cat.id; let i = $index) {
+      <a [routerLink]="['/marketplace', cat.slug]" class="qcat" role="listitem">
+        <div class="qcat-ico" [style.background]="categoryPalette(i).bg" [style.border-color]="categoryPalette(i).border" [style.color]="categoryPalette(i).color"><svg><use [attr.href]="categoryIcon(cat.icon)"></use></svg></div>
+        <div class="qcat-name">{{ cat.name }}</div>
+      </a>
+      }
+      <a routerLink="/top-rated" class="qcat" role="listitem">
+        <div class="qcat-ico" style="background:rgba(217,138,11,.1);border-color:rgba(217,138,11,.2);color:var(--kahr)"><svg><use href="#ws-star"></use></svg></div>
+        <div class="qcat-name">الأعلى</div>
+      </a>
+      <a routerLink="/exclusive" class="qcat" role="listitem">
+        <div class="qcat-ico" style="background:rgba(255,140,105,.1);border-color:rgba(255,140,105,.2);color:var(--red)"><svg><use href="#ws-tag"></use></svg></div>
+        <div class="qcat-name">العروض</div>
+      </a>
+    </div>
+  </div>
 
-		<!-- CUSTOM REQUEST -->
-		<div class="custom-cta">
-			<div>
-				<div style="font-size:18px;font-weight:900;margin-bottom:6px" class="txt-white">ما وجدت الخدمة المناسبة؟
-				</div>
-				<div style="font-size:14px" class="txt-slate">أنشئ طلباً وسيجلب لك الذكاء الاصطناعي أفضل العروض من
-					المهنيين المعتمدين</div>
-			</div>
-			<a routerLink="/client-overview/create-request" class="btn-primary">أنشئ طلباً مخصصاً</a>
-		</div>
+  <!-- MAIN CONTENT -->
+  <div class="container" style="padding-top:0">
 
-	</div>
+    <!-- AI BANNER -->
+    <div class="ai-banner" style="margin-top:20px">
+      <div class="ai-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
+      <div class="ai-txt">{{ aiBannerInsight() }}</div>
+      <span class="ai-bdg">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'ذكي · نشط' }}</span>
+    </div>
+
+    <!-- FLASH DEALS -->
+    @if (flashModels().length > 0) {
+    <div class="mkt-section">
+      <div class="sec-hdr">
+        <h2 class="sec-title">
+          <span class="sec-title-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);color:var(--kahr)"><svg aria-hidden="true"><use href="#ws-tag"></use></svg></span>
+          عروض لفترة محدودة
+        </h2>
+        @if (flashCountdown(); as cd) {
+        <div class="flash-timer">
+          <svg aria-hidden="true"><use href="#ws-clock"></use></svg>
+          <div>
+            <div style="font-size:9px;font-weight:600;opacity:.7;line-height:1">تنتهي خلال</div>
+            <span class="countdown-timer" style="font-variant-numeric:tabular-nums;letter-spacing:.5px">{{ cd }}</span>
+          </div>
+        </div>
+        }
+        <a routerLink="/exclusive" class="see-all" style="margin-inline-start:auto">كل العروض <svg aria-hidden="true"><use href="#ws-chevron-l"></use></svg></a>
+      </div>
+      <div class="svcs-grid">
+        @for (model of flashModels(); track model.id; let i = $index) {
+        <ng-container *ngTemplateOutlet="homeCard; context: { $implicit: model, i: i, mode: 'flash' }"></ng-container>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- AMAZON-STYLE CATEGORY BLOCKS -->
+    @if (categories().length > 0) {
+    <div class="mkt-section">
+      <div class="sec-hdr">
+        <h2 class="sec-title">تصفح حسب التخصص</h2>
+        <a routerLink="/marketplace/categories" class="see-all">كل الفئات <svg aria-hidden="true"><use href="#ws-chevron-l"></use></svg></a>
+      </div>
+      <div class="cat-blocks">
+        @for (cat of categories().slice(0, 2); track cat.id; let ci = $index) {
+        <div class="cat-block">
+          <div class="cat-block-h">{{ cat.name }}</div>
+          <div class="cat-block-grid">
+            @for (sub of (cat.subSpecialties || []).slice(0, 4); track sub.id || sub.name; let si = $index) {
+            <a [routerLink]="['/marketplace', cat.slug]" [queryParams]="{ sub: sub.slug }" class="cat-block-item">
+              <div class="cat-block-ico" [style.background]="blockItemPalette(ci, si).bg" [style.border-color]="blockItemPalette(ci, si).border" [style.color]="blockItemPalette(ci, si).color"><svg aria-hidden="true"><use [attr.href]="categoryIcon(cat.icon)"></use></svg></div>
+              <div class="cat-block-name">{{ sub.name }}</div>
+            </a>
+            }
+          </div>
+          <a [routerLink]="['/marketplace', cat.slug]" class="cat-block-see">عرض كل خدمات {{ cat.name }} ←</a>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- SECTION: اختيارات AI (horizontal scroll) -->
+    @if (aiRecommendedModels().length > 0) {
+    <div class="mkt-section">
+      <div class="sec-hdr">
+        <h2 class="sec-title">
+          <span class="sec-title-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border);color:var(--ai)"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></span>
+          اختيارات الذكاء الاصطناعي
+        </h2>
+        <a routerLink="/marketplace" [queryParams]="{ sort: 'ai' }" class="see-all">عرض الكل <svg aria-hidden="true"><use href="#ws-chevron-l"></use></svg></a>
+      </div>
+      <div class="svcs-scroll">
+        @for (model of aiRecommendedModels(); track model.id; let i = $index) {
+        <ng-container *ngTemplateOutlet="homeCard; context: { $implicit: model, i: i, mode: 'ai' }"></ng-container>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- SECTION: الأعلى تقييماً GRID -->
+    @if (topRatedModels().length > 0) {
+    <div class="mkt-section">
+      <div class="sec-hdr">
+        <h2 class="sec-title">
+          <span class="sec-title-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);color:var(--kahr)"><svg aria-hidden="true"><use href="#ws-star"></use></svg></span>
+          الأعلى تقييماً
+        </h2>
+        <a routerLink="/top-rated" class="see-all">عرض الكل <svg aria-hidden="true"><use href="#ws-chevron-l"></use></svg></a>
+      </div>
+      <div class="svcs-grid">
+        @for (model of topRatedModels(); track model.id; let i = $index) {
+        <ng-container *ngTemplateOutlet="homeCard; context: { $implicit: model, i: i + 4, mode: 'grid' }"></ng-container>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- SECTION: الأبرز في السوق -->
+    <div class="mkt-section" id="marketplace-results">
+      <div class="sec-hdr">
+        <h2 class="sec-title">
+          <span class="sec-title-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);color:var(--blue-txt)"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></span>
+          الأبرز في السوق
+        </h2>
+        <a routerLink="/marketplace" [queryParams]="{ page: 1 }" class="see-all">عرض الكل <svg aria-hidden="true"><use href="#ws-chevron-l"></use></svg></a>
+      </div>
+      <div class="svcs-grid">
+        @for (model of allModels().slice(0, 8); track model.id; let i = $index) {
+        <ng-container *ngTemplateOutlet="homeCard; context: { $implicit: model, i: i + 2, mode: 'grid' }"></ng-container>
+        } @empty {
+        @if (!isLoading()) {
+        <div class="mk-empty">لا توجد خدمات منشورة حالياً.</div>
+        }
+        }
+      </div>
+      @if (allModels().length > 8) {
+      <div style="display:flex;justify-content:center;margin-top:28px">
+        <a routerLink="/marketplace" [queryParams]="{ page: 1 }" class="btn-ghost" style="padding:12px 40px;font-size:14px;font-weight:700">تصفح المزيد من الخدمات</a>
+      </div>
+      }
+    </div>
+
+    <!-- CUSTOM REQUEST -->
+    <div class="custom-cta">
+      <div>
+        <div style="font-size:18px;font-weight:900;color:var(--txt);margin-bottom:6px">ما وجدت الخدمة المناسبة؟</div>
+        <div style="font-size:14px;color:var(--txt-2)">أنشئ طلباً وسيجلب لك الذكاء الاصطناعي أفضل العروض من المهنيين المعتمدين</div>
+      </div>
+      <a routerLink="/custom-request" class="btn-primary">أنشئ طلباً مخصصاً</a>
+    </div>
+
+  </div>
 </div>
+} @else {
+<!-- ═══════════════ P-MK-005 — search / filtered results ═══════════════ -->
+<div class="page-wrap mk-results">
+  <!-- HERO -->
+  <section class="cat-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a routerLink="/">الرئيسية</a>
+        <span class="breadcrumb-sep">/</span>
+        <a routerLink="/marketplace">السوق</a>
+        <span class="breadcrumb-sep">/</span>
+        <span style="color:var(--txt-2)">نتائج البحث</span>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="search-bar-wrap">
+        <div class="search-bar">
+          <svg aria-hidden="true"><use href="#ws-search"></use></svg>
+          <input type="text" [value]="searchQuery()" (input)="onSearchInput($event)" (keydown.enter)="triggerSearch()" placeholder="ابحث عن خدمة، مهارة أو مقدم..." aria-label="بحث عن خدمة">
+        </div>
+        <button class="search-btn" type="button" (click)="triggerSearch()">بحث</button>
+      </div>
+
+      <div class="hero-meta">
+        @if (searchQuery()) {
+        <span class="query-label">نتائج البحث عن: <strong>«{{ searchQuery() }}»</strong></span>
+        } @else {
+        <span class="query-label">نتائج: <strong>{{ selectedSubData()?.name || selectedCategoryData()?.name || 'كل الخدمات' }}</strong></span>
+        }
+      </div>
+
+      <!-- STATS -->
+      <div class="hero-stats">
+        <div class="hstat c1"><div class="hstat-n">{{ totalResults() | number }}</div><div class="hstat-l">نتيجة مطابقة</div></div>
+        <div class="hstat c2"><div class="hstat-n">{{ providersCount() | number }}</div><div class="hstat-l">مقدم متاح</div></div>
+        <div class="hstat c3"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
+        <div class="hstat c4"><div class="hstat-n">{{ completedOrders() | number }}</div><div class="hstat-l">طلب مكتمل</div></div>
+        <div class="hstat c5"><div class="hstat-n">{{ totalReviews() | number }}</div><div class="hstat-l">تقييم من العملاء</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REFINEMENT STRIP -->
+  @if (refinements().length > 0) {
+  <div class="subcats-wrap">
+    <div class="container">
+      <div class="subcats-row">
+        <div class="subcats-inner" role="tablist" aria-label="تنقيح البحث">
+          <button class="subcat-btn" type="button" role="tab" [class.active]="selectedCategoryData() ? !selectedSub() : selectedCategory() === 'all'" [attr.aria-selected]="selectedCategoryData() ? !selectedSub() : selectedCategory() === 'all'" (click)="selectRefinement('', !!selectedCategoryData())">
+            <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use href="#ws-search"></use></svg></span>
+            الكل @if (refinementAllCount()) {<span class="sub-cnt">{{ refinementAllCount() | number }}</span>}
+          </button>
+          @for (r of refinements(); track r.key) {
+          <button class="subcat-btn" type="button" role="tab" [class.active]="r.isSub ? selectedSub() === r.key : selectedCategory() === r.key" [attr.aria-selected]="r.isSub ? selectedSub() === r.key : selectedCategory() === r.key" (click)="selectRefinement(r.key, r.isSub)">
+            <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(r.icon)"></use></svg></span>
+            {{ r.name }} <span class="sub-cnt">{{ r.count | number }}</span>
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- BODY -->
+  <div class="container">
+    <div class="body-layout">
+
+      <!-- FILTER SIDEBAR -->
+      <aside class="filter-sidebar" aria-label="فلتر البحث">
+        <div class="filter-header">
+          <div class="filter-title">
+            <span class="filter-title-ico"><svg><use href="#ws-filter"></use></svg></span>
+            تصفية النتائج
+          </div>
+          <button class="filter-reset" type="button" (click)="resetFilters()">إعادة ضبط</button>
+        </div>
+
+        @if (categories().length > 0) {
+        <div class="filter-section">
+          <div class="filter-lbl">الفئة</div>
+          <div class="filter-opts">
+            @for (cat of categories(); track cat.id) {
+            <label class="fopt" (click)="selectCategoryFilter(cat.slug)"><span class="fopt-box" [class.checked]="selectedCategory() === cat.slug"></span><span class="fopt-lbl">{{ cat.name }}</span><span class="fopt-count">{{ cat.count || 0 }}</span></label>
+            }
+          </div>
+        </div>
+        }
+
+        <div class="filter-section">
+          <div class="filter-lbl">ميزانية الخدمة (ريال)</div>
+          <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="selectedMaxPrice() || priceLimit()" (change)="setMaxPrice($event)" aria-label="ميزانية الخدمة">
+          <div class="range-vals"><span>0</span><span>{{ (selectedMaxPrice() || priceLimit()) | number:'1.0-0' }}</span><span>{{ priceLimit() | number:'1.0-0' }}+</span></div>
+        </div>
+
+        @if (levelOptions().length > 0) {
+        <div class="filter-section">
+          <div class="filter-lbl">مستوى المقدم</div>
+          <div class="filter-opts">
+            @for (level of levelOptions(); track level.value) {
+            <label class="fopt" (click)="toggleLevel(level.value)"><span class="fopt-box" [class.checked]="selectedLevels().includes(level.value)"></span><span class="fopt-lbl">{{ level.value }}</span><span class="fopt-count">{{ level.count }}</span></label>
+            }
+          </div>
+        </div>
+        }
+
+        <div class="filter-section">
+          <div class="filter-lbl">التقييم</div>
+          <div class="filter-opts">
+            @for (rating of ratingOptions(); track rating.value) {
+            <label class="fopt" (click)="setRating(rating.value)"><span class="fopt-box" [class.checked]="selectedRating() === rating.value"></span><span class="fopt-lbl">{{ rating.label }}</span><span class="fopt-count">{{ rating.count }}</span></label>
+            }
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-lbl">مدة التسليم</div>
+          <div class="filter-opts">
+            @for (days of deliveryOptions; track days) {
+            <label class="fopt" (click)="setMaxDays(days)"><span class="fopt-box" [class.checked]="selectedMaxDays() === days"></span><span class="fopt-lbl">{{ deliveryLabel(days) }}</span></label>
+            }
+          </div>
+        </div>
+
+        <button class="filter-apply" type="button" (click)="applyFilters()">تطبيق الفلتر</button>
+      </aside>
+
+      <!-- MAIN -->
+      <main>
+
+        <!-- AI INSIGHT -->
+        <div class="ai-insight">
+          <div class="ai-insight-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
+          <div class="ai-insight-body">
+            <div class="ai-insight-lbl">تحليل الذكاء الاصطناعي</div>
+            <div class="ai-insight-txt">
+              @if (aiInsightBest(); as best) {
+              وجدنا <strong>{{ totalResults() | number }} نتيجة</strong> — الأعلى توافقاً مع طلبك: <strong>{{ best.title }}</strong>
+              } @else if (isLoading()) {
+              جاري البحث في الخدمات المنشورة...
+              } @else {
+              لا توجد نتائج مطابقة لهذا البحث حالياً
+              }
+            </div>
+          </div>
+          <span class="ai-badge">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'ذكي · نشط' }}</span>
+        </div>
+
+        <!-- NO RESULTS CTA -->
+        <div class="no-results-cta">
+          <div class="no-results-ico"><svg><use href="#ws-person"></use></svg></div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px">ما وجدت ما تبحث عنه بالضبط؟</div>
+            <div style="font-size:12px;color:var(--txt-3)">أنشئ طلباً مخصصاً والذكاء يجلب لك العروض من أفضل المقدمين</div>
+          </div>
+          <a routerLink="/custom-request" style="padding:8px 16px;border-radius:999px;background:var(--grad);color:#070D24;font-size:12px;font-weight:800;white-space:nowrap;text-decoration:none;flex-shrink:0">أنشئ طلباً</a>
+        </div>
+
+        <!-- ACTIVE FILTERS -->
+        @if (activeFilters().length > 0) {
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+          <span style="font-size:11px;font-weight:800;color:var(--txt-3);white-space:nowrap">فلاتر نشطة:</span>
+          @for (chip of activeFilters(); track chip.key) {
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.25);font-size:12px;font-weight:700;color:var(--teal)">{{ chip.label }} <button type="button" (click)="removeFilter(chip.key)" [attr.aria-label]="'إزالة ' + chip.label" style="display:inline-flex;align-items:center;color:var(--teal);opacity:.7;margin-inline-start:2px;font-size:14px;line-height:1">×</button></span>
+          }
+          <button type="button" (click)="resetFilters()" style="font-size:11px;font-weight:700;color:var(--red);background:none;border:none;cursor:pointer;padding:4px 8px">مسح الكل</button>
+        </div>
+        }
+
+        <!-- RESULTS BAR -->
+        <div class="results-bar">
+          <div class="results-count"><strong>{{ totalResults() | number }}</strong> نتيجة @if (activeFilters().length) {بعد الفلترة}</div>
+          <div class="sort-row">
+            @if (comparedModels().size >= 2) {
+            <a routerLink="/compare-services" [queryParams]="{ ids: compareIds() }" class="svc-compare is-compared"><svg><use href="#ws-compare"></use></svg>قارن ({{ comparedModels().size }})</a>
+            }
+            <span class="sort-lbl">ترتيب:</span>
+            <select class="sort-sel" [value]="sortBy()" (change)="setSort($event)" aria-label="ترتيب">
+              <option value="relevance">الأكثر صلة</option>
+              <option value="rating">الأعلى تقييماً</option>
+              <option value="price_asc">الأقل سعراً</option>
+              <option value="delivery">الأسرع تسليماً</option>
+              <option value="newest">الأحدث</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SERVICE CARDS -->
+        <div class="svc-grid" id="svc-grid">
+          @if (isLoading()) {
+          @for (sk of [1, 2, 3]; track sk) {
+          <div class="svc-card is-skeleton" aria-hidden="true"><div class="svc-thumb"></div><div class="svc-body"></div></div>
+          }
+          } @else {
+          @for (model of allModels(); track model.id; let idx = $index) {
+          <a [routerLink]="['/marketplace/offer', model.id]" class="svc-card">
+            <div class="svc-thumb" [style.background]="thumbGradient(idx)">
+              @if (model.gallery && model.gallery.length > 0) {
+              <img class="svc-thumb-img" [src]="model.gallery[0]" [alt]="model.title" loading="lazy">
+              } @else {
+              <div class="svc-thumb-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)">
+                <svg><use [attr.href]="categoryIcon(selectedCategoryData()?.icon)"></use></svg>
+              </div>
+              }
+              @if (model.level) {
+              <div class="svc-badges">
+                <span class="svc-level" [style.background]="resultLevelStyle(model).bg" [style.color]="resultLevelStyle(model).color">{{ model.level }}</span>
+              </div>
+              }
+              @if (model.aiScore) {
+              <div class="ai-score-badge">AI {{ model.aiScore }}%</div>
+              }
+              <button class="svc-fav" type="button" aria-label="إضافة للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)">
+                <svg><use href="#ws-heart"></use></svg>
+              </button>
+              @if (model.category) {
+              <span class="svc-cat-tag">{{ model.category }}</span>
+              }
+            </div>
+            <div class="svc-body">
+              <div class="svc-provider">
+                <div class="svc-avatar" [style.background]="avatarGradient(idx)" style="color:#070D24">{{ model.provider?.initials || 'م' }}</div>
+                <span class="svc-pname">{{ model.provider?.name }}</span>
+                @if (model.isVerified) {
+                <span class="svc-verified"><svg><use href="#ws-check"></use></svg>معتمد</span>
+                }
+              </div>
+              <div class="svc-title">{{ model.title }}</div>
+              <div class="svc-rating">
+                <span class="stars">★★★★★</span>
+                <span class="svc-score">{{ model.rating ?? 0 }}</span>
+                <span class="svc-reviews">({{ model.reviewsCount ?? 0 }})</span>
+                @if (model.aiScore) {
+                <span class="quality-pill">جودة {{ model.aiScore }}%</span>
+                }
+              </div>
+            </div>
+            <div class="svc-foot">
+              <div class="svc-price">
+                <span class="svc-price-lbl">يبدأ من</span>
+                <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">ريال</span></span>
+              </div>
+              @if (model.totalDays) {
+              <div class="svc-delivery">
+                <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--teal)"><svg style="width:10px;height:10px"><use href="#ws-clock"></use></svg></span>
+                {{ model.totalDays }} أيام
+              </div>
+              }
+              <button class="svc-compare" type="button" [class.is-compared]="isCompared(model.id)" [attr.aria-pressed]="isCompared(model.id)" (click)="toggleCompare(model.id, $event)">
+                <svg><use href="#ws-compare"></use></svg>{{ isCompared(model.id) ? 'تمت الإضافة' : 'مقارنة' }}
+              </button>
+            </div>
+          </a>
+          } @empty {
+          <div class="svc-empty">
+            <h4>لا توجد نتائج مطابقة</h4>
+            <p>جرّب كلمات بحث أخرى أو أعد ضبط الفلاتر لمشاهدة كل الخدمات المنشورة.</p>
+            <button type="button" (click)="resetFilters()">إعادة ضبط الفلاتر</button>
+          </div>
+          }
+          }
+        </div>
+
+        <!-- PAGINATION -->
+        @if (totalPages() > 1) {
+        <nav class="pagination" aria-label="صفحات النتائج">
+          <button class="pg-btn" type="button" aria-label="الصفحة السابقة" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)"><svg><use href="#ws-chevron-r"></use></svg></button>
+          @for (page of pageItems(); track $index) {
+          @if (page === null) {
+          <span style="color:var(--txt-3);font-size:13px;padding:0 4px">...</span>
+          } @else {
+          <button class="pg-btn" type="button" [class.active]="currentPage() === page" [attr.aria-current]="currentPage() === page ? 'page' : null" (click)="goToPage(page)">{{ page }}</button>
+          }
+          }
+          <button class="pg-btn" type="button" aria-label="الصفحة التالية" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)"><svg><use href="#ws-chevron-l"></use></svg></button>
+        </nav>
+        }
+
+      </main>
+    </div>
+  </div>
+</div>
+}

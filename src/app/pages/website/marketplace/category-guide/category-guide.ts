@@ -7,6 +7,8 @@ interface CategoryPalette {
 	bg: string;
 	border: string;
 	color: string;
+	/** icon chip background used by the quick-nav pills (design uses a stronger .15 alpha) */
+	pill: string;
 }
 
 @Component({
@@ -56,24 +58,18 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 	// per category — with a dynamic category list we cycle through the same palette
 	// the rest of the app already uses, e.g. marketplace-preview.ts getCategoryColor()).
 	private readonly palette: CategoryPalette[] = [
-		{ bg: 'rgba(43,127,255,.12)', border: 'rgba(43,127,255,.22)', color: '#5DA0FF' },
-		{ bg: 'rgba(43,212,199,.10)', border: 'rgba(43,212,199,.20)', color: 'var(--teal)' },
-		{ bg: 'rgba(15,169,154,.10)', border: 'rgba(15,169,154,.20)', color: 'var(--green)' },
-		{ bg: 'rgba(217,138,11,.10)', border: 'rgba(217,138,11,.20)', color: 'var(--kahr)' },
-		{ bg: 'rgba(255,140,105,.10)', border: 'rgba(255,140,105,.20)', color: 'var(--red)' },
-		{ bg: 'rgba(89,193,245,.10)', border: 'rgba(89,193,245,.20)', color: '#59C1F5' }
+		{ bg: 'rgba(43,127,255,.12)', border: 'rgba(43,127,255,.22)', color: '#5DA0FF', pill: 'rgba(43,127,255,.15)' },
+		{ bg: 'rgba(43,212,199,.1)', border: 'rgba(43,212,199,.2)', color: 'var(--teal)', pill: 'rgba(43,212,199,.15)' },
+		{ bg: 'rgba(15,169,154,.1)', border: 'rgba(15,169,154,.2)', color: 'var(--green)', pill: 'rgba(15,169,154,.15)' },
+		{ bg: 'rgba(217,138,11,.1)', border: 'rgba(217,138,11,.2)', color: 'var(--kahr)', pill: 'rgba(217,138,11,.15)' },
+		{ bg: 'rgba(255,140,105,.1)', border: 'rgba(255,140,105,.2)', color: 'var(--red)', pill: 'rgba(255,140,105,.15)' },
+		{ bg: 'rgba(43,127,255,.1)', border: 'rgba(43,127,255,.2)', color: 'var(--blue-txt)', pill: 'rgba(43,127,255,.15)' }
 	];
 
-	// ---- Presentational fallbacks -------------------------------------------------
 	// The /marketplace/categories endpoint (MarketplaceService.getCategories) does not
 	// return a verified-providers aggregate, nor per-category rating / delivery-time /
-	// satisfaction figures. Those numbers do not exist anywhere in the app's services,
-	// so — per the design spec's own fallback guidance — presentational placeholders are
-	// used for them instead of inventing per-category data.
-	readonly verifiedProvidersFallback = 4200;
-	readonly cardRatingFallback = '4.8';
-	readonly cardDeliveryFallback = '3-5 أيام';
-	readonly cardSatisfactionFallback = 96;
+	// satisfaction figures — those numbers don't exist anywhere in the app's services,
+	// so the design's fabricated placeholders for them were dropped rather than invented.
 
 	isLoading = signal<boolean>(true);
 	searchQuery = signal<string>('');
@@ -118,13 +114,58 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 	ngAfterViewInit() {
 		if (this.isBrowser) {
 			window.addEventListener('scroll', this.scrollHandler, { passive: true });
+			document.addEventListener('mouseup', this.dragEnd);
+			document.addEventListener('mouseleave', this.dragEnd);
+			document.addEventListener('mousemove', this.dragMove);
+			document.addEventListener('mousedown', this.dragStart);
 		}
 	}
 
 	ngOnDestroy() {
 		if (this.isBrowser) {
 			window.removeEventListener('scroll', this.scrollHandler);
+			document.removeEventListener('mouseup', this.dragEnd);
+			document.removeEventListener('mouseleave', this.dragEnd);
+			document.removeEventListener('mousemove', this.dragMove);
+			document.removeEventListener('mousedown', this.dragStart);
 		}
+	}
+
+	// DRAG SCROLL for the categories quick-nav strip (design P-MK-002 behaviour).
+	// Listeners are delegated on document because the strip renders only after the
+	// categories request resolves.
+	private dragEl: HTMLElement | null = null;
+	private dragStartX = 0;
+	private dragScrollLeft = 0;
+	private dragMoved = false;
+	private dragStart = (e: MouseEvent) => {
+		const el = (e.target as HTMLElement | null)?.closest?.('app-category-guide .trending-inner') as HTMLElement | null;
+		if (!el) return;
+		this.dragEl = el;
+		this.dragMoved = false;
+		el.classList.add('dragging');
+		this.dragStartX = e.clientX;
+		this.dragScrollLeft = el.scrollLeft;
+		e.preventDefault();
+	};
+	private dragMove = (e: MouseEvent) => {
+		if (!this.dragEl) return;
+		e.preventDefault();
+		const dx = e.clientX - this.dragStartX;
+		if (Math.abs(dx) > 3) this.dragMoved = true;
+		this.dragEl.scrollLeft = this.dragScrollLeft - dx;
+	};
+	private dragEnd = () => {
+		if (!this.dragEl) return;
+		this.dragEl.classList.remove('dragging');
+		this.dragEl = null;
+	};
+
+	/** Quick-nav pill click: ignore the click that ends a drag, otherwise scroll to the category. */
+	onPillClick(event: Event, slug: string) {
+		event.preventDefault();
+		if (this.dragMoved) { this.dragMoved = false; return; }
+		this.scrollToCategory(slug);
 	}
 
 	loadCategories() {
@@ -210,7 +251,7 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 			const val = n / 1000;
 			return (Number.isInteger(val) ? val.toString() : val.toFixed(1)) + 'k';
 		}
-		return n.toLocaleString('ar-EG');
+		return n.toLocaleString('en-US');
 	}
 
 	private updateActiveCategory() {

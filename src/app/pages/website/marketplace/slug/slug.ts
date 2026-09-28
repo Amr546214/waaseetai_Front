@@ -2,13 +2,13 @@ import { Component, AfterViewInit, OnDestroy, OnInit, PLATFORM_ID, Inject, ViewE
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { MarketplaceModel, MarketplaceService } from '../../../../core/services/marketplace.service';
-import { Card } from '../../../../sheards/card/card';
+import { AuthStore } from '../../../../core/store/auth.store';
 import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-slug',
 	standalone: true,
-	imports: [CommonModule, RouterLink, Card],
+	imports: [CommonModule, RouterLink],
 	templateUrl: './slug.html',
 	styleUrl: './slug.css',
 	encapsulation: ViewEncapsulation.None
@@ -37,6 +37,99 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 	categoryData = computed(() => {
 		return this.categories().find(c => c.slug === this.slug() || c.id === this.slug());
 	});
+
+	/** The selected sub-specialty (?sub=...) — switches the page to the P-MK-004 variant. */
+	selectedSubData = computed(() => {
+		const sub = this.selectedSub();
+		if (!sub) return null;
+		return this.categoryData()?.subSpecialties?.find((s: any) => s.slug === sub) || null;
+	});
+
+	/** Name shown in the hero / results bar: the sub-specialty when one is selected, else the category. */
+	heroName = computed(() => this.selectedSubData()?.name || this.categoryData()?.name || this.slug());
+
+	/** Design title pattern: first word plain, the rest in the gradient <span> ("برمجة <span>وتقنية</span>"). */
+	heroTitleHead = computed(() => {
+		const words = String(this.heroName() || '').trim().split(/\s+/);
+		return words.length > 1 ? words[0] : '';
+	});
+	heroTitleTail = computed(() => {
+		const words = String(this.heroName() || '').trim().split(/\s+/);
+		return words.length > 1 ? words.slice(1).join(' ') : words[0];
+	});
+
+	/** Published-services count for the hero stat: the selected sub's count, else the category's. */
+	heroCount = computed(() => {
+		const sub = this.selectedSubData();
+		return sub ? (Number(sub.count) || 0) : (Number(this.categoryData()?.count) || 0);
+	});
+
+	/** Other sub-specialties of the same category (design P-MK-004 "تخصصات مشابهة"). */
+	relatedSubs = computed(() => {
+		const sub = this.selectedSub();
+		if (!sub) return [];
+		return (this.categoryData()?.subSpecialties || []).filter((s: any) => s.slug !== sub);
+	});
+
+	/** Pagination items with the design's "…" gap (1 2 3 … 28). */
+	pageItems = computed<(number | null)[]>(() => {
+		const total = this.totalPages();
+		const cur = this.currentPage();
+		if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+		const set = new Set<number>([1, total, cur - 1, cur, cur + 1]);
+		if (cur <= 3) { set.add(2); set.add(3); }
+		if (cur >= total - 2) { set.add(total - 1); set.add(total - 2); }
+		const nums = Array.from(set).filter(n => n >= 1 && n <= total).sort((a, b) => a - b);
+		const out: (number | null)[] = [];
+		nums.forEach((n, i) => {
+			if (i > 0 && n - nums[i - 1] > 1) out.push(null);
+			out.push(n);
+		});
+		return out;
+	});
+
+	// Favourites / compare — same behaviour the shared app-card provided before the
+	// design's own card markup was inlined here.
+	favoriteModels = signal<Set<string>>(new Set());
+	comparedModels = signal<Set<string>>(new Set());
+
+	// Card presentation cycles, taken verbatim from the design cards (P-MK-003).
+	private readonly thumbGradients = [
+		'linear-gradient(135deg,#061422,#0A1E38)',
+		'linear-gradient(135deg,#071520,#0A2030)',
+		'linear-gradient(135deg,#0A1020,#0E1828)',
+		'linear-gradient(135deg,#060E20,#0B1832)',
+		'linear-gradient(135deg,#07101E,#0B1A30)',
+		'linear-gradient(135deg,#080E1C,#0C1828)'
+	];
+	private readonly avatarStyles = [
+		{ background: 'var(--grad)', border: 'none', color: '#070D24' },
+		{ background: 'rgba(43,127,255,.2)', border: '1px solid rgba(43,127,255,.3)', color: 'var(--blue-txt)' },
+		{ background: 'rgba(15,169,154,.2)', border: '1px solid rgba(15,169,154,.3)', color: 'var(--green)' },
+		{ background: 'rgba(43,212,199,.15)', border: '1px solid rgba(43,212,199,.25)', color: 'var(--teal)' },
+		{ background: 'rgba(217,138,11,.15)', border: '1px solid rgba(217,138,11,.25)', color: 'var(--kahr)' },
+		{ background: 'rgba(255,140,105,.15)', border: '1px solid rgba(255,140,105,.25)', color: 'var(--red)' }
+	];
+	// Design level-badge colours; levels the design doesn't show fall back to the
+	// backend-provided levelBg/levelColor (as app-card did).
+	private readonly levelStyles: Record<string, { bg: string; color: string }> = {
+		'خبير': { bg: 'rgba(123,47,190,.85)', color: '#E0C6FF' },
+		'محترف': { bg: 'rgba(43,127,255,.85)', color: '#C6E0FF' },
+		'أخصائي': { bg: 'rgba(43,212,199,.75)', color: '#070D24' }
+	};
+
+	thumbGradient(index: number): string {
+		return this.thumbGradients[index % this.thumbGradients.length];
+	}
+
+	avatarStyle(index: number) {
+		return this.avatarStyles[index % this.avatarStyles.length];
+	}
+
+	levelStyle(model: MarketplaceModel): { bg: string; color: string } {
+		const known = model.level ? this.levelStyles[model.level] : undefined;
+		return known || { bg: model.levelBg || 'rgba(43,212,199,.6)', color: model.levelColor || '#2BD4C7' };
+	}
 
 	// Symbols this component ships in its own local sprite (see slug.html).
 	// Any category icon href that isn't in this set falls back to the generic ws-tag glyph.
@@ -98,9 +191,9 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 
 	deliveryOptions = [3, 7, 14];
 
-	aiInsightTitle = computed(() => {
-		const best = [...this.models()].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0))[0];
-		return best ? `الأعلى توافقاً مع الذكاء الاصطناعي: ${best.title}` : 'لا توجد خدمات متاحة حالياً';
+	/** Highest-aiScore model on the current page (rendered as "الأعلى توافقاً مع الذكاء الاصطناعي: <strong>title</strong>"). */
+	aiInsightBest = computed(() => {
+		return [...this.models()].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0))[0] || null;
 	});
 
 	providersCount = computed(() => {
@@ -130,10 +223,54 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 		@Inject(PLATFORM_ID) platformId: Object,
 		private route: ActivatedRoute,
 		private router: Router,
-		private marketplaceService: MarketplaceService
+		private marketplaceService: MarketplaceService,
+		private authStore: AuthStore
 	) {
 		this.isBrowser = isPlatformBrowser(platformId);
 
+		// Favorites are private. Public marketplace pages must not call this endpoint
+		// for guests, otherwise the expected 401 would trigger a login redirect.
+		if (this.authStore.isAuthenticated()) {
+			this.marketplaceService.getFavorites().subscribe({
+				next: response => this.favoriteModels.set(new Set(response?.data || response || [])),
+				error: () => undefined
+			});
+		}
+	}
+
+	isFav(id: string): boolean {
+		return this.favoriteModels().has(id);
+	}
+
+	isCompared(id: string): boolean {
+		return this.comparedModels().has(id);
+	}
+
+	toggleFavorite(id: string, event: Event): void {
+		event.preventDefault();
+		event.stopPropagation();
+		if (!this.authStore.isAuthenticated()) {
+			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
+			return;
+		}
+		const current = new Set(this.favoriteModels());
+		if (current.has(id)) current.delete(id); else current.add(id);
+		this.favoriteModels.set(current);
+		this.marketplaceService.setFavorite(id, current.has(id)).subscribe({
+			error: () => {
+				const reverted = new Set(this.favoriteModels());
+				if (current.has(id)) reverted.delete(id); else reverted.add(id);
+				this.favoriteModels.set(reverted);
+			}
+		});
+	}
+
+	toggleCompare(id: string, event: Event): void {
+		event.preventDefault();
+		event.stopPropagation();
+		const current = new Set(this.comparedModels());
+		if (current.has(id)) current.delete(id); else current.add(id);
+		this.comparedModels.set(current);
 	}
 
 	ngOnInit() {
@@ -259,31 +396,16 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 	ngAfterViewInit() {
 		if (!this.isBrowser) return;
 
-		this.initParticles();
+		// Particles / bg-grid are owned by the shared website layout.
 		this.initDragScroll();
-		this.initFilters();
 	}
 
 	ngOnDestroy() {
 		this.subscriptions.unsubscribe();
 	}
 
-	private initParticles() {
-		const pc = document.getElementById('particles-container');
-		if (pc) {
-			const n = window.innerWidth < 768 ? 11 : 25;
-			for (let i = 0; i < n; i++) {
-				const p = document.createElement('div');
-				p.className = 'particle';
-				const sz = (Math.random() * 2.5 + 2).toFixed(1) + 'px';
-				p.style.cssText = 'left:' + (Math.random() * 100) + '%;width:' + sz + ';height:' + sz + ';animation-duration:' + (Math.random() * 9 + 5).toFixed(1) + 's;animation-delay:' + (Math.random() * -12).toFixed(1) + 's;opacity:' + (Math.random() * 0.35 + 0.08).toFixed(2);
-				pc.appendChild(p);
-			}
-		}
-	}
-
 	private initDragScroll() {
-		const el = document.querySelector('.subcats-inner') as HTMLElement;
+		const el = document.querySelector("app-slug .subcats-inner") as HTMLElement;
 		if (!el) return;
 
 		let isDown = false;
@@ -315,7 +437,4 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 		});
 	}
 
-	private initFilters() {
-		// Remaining filter initialization if needed for other non-angular filters like range sliders
-	}
 }

@@ -1,5 +1,5 @@
-import { Component, OnInit, PLATFORM_ID, inject, signal, computed } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -15,7 +15,6 @@ const MAX_COMPARE = 3;
 	styleUrl: './compare-services.css'
 })
 export class CompareServicesComponent implements OnInit {
-	private platformId = inject(PLATFORM_ID);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private marketplaceService = inject(MarketplaceService);
@@ -29,6 +28,15 @@ export class CompareServicesComponent implements OnInit {
 		if (!list.length) return null;
 		return [...list].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0))[0]?.id || null;
 	});
+
+	winnerModel = computed(() => {
+		const wid = this.winnerId();
+		return wid ? this.models().find(m => m.id === wid) || null : null;
+	});
+
+	/** Design P-MK-017: winner feature ticks use a stronger teal tint. */
+	readonly winnerYesStyle = 'background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.3)';
+	readonly starSlots = [0, 1, 2, 3, 4];
 
 	cheapestModel = computed(() => {
 		const list = this.models();
@@ -75,9 +83,6 @@ export class CompareServicesComponent implements OnInit {
 				.filter((m): m is MarketplaceModel => !!m && !!m.id);
 			this.models.set(models);
 			this.loading.set(false);
-			if (isPlatformBrowser(this.platformId)) {
-				setTimeout(() => this.initParticles(), 0);
-			}
 		});
 	}
 
@@ -94,15 +99,21 @@ export class CompareServicesComponent implements OnInit {
 		this.router.navigate(['/marketplace']);
 	}
 
-	private initParticles() {
-		const pc = document.getElementById('particles-container');
-		if (!pc || pc.children.length > 0) return;
-		const n = window.innerWidth < 768 ? 11 : 25;
-		for (let i = 0; i < n; i++) {
-			const p = document.createElement('div');
-			p.className = 'particle';
-			p.style.cssText = 'left:' + Math.random() * 100 + '%;width:' + (Math.random() * 3 + 2) + 'px;height:' + (Math.random() * 3 + 2) + 'px;animation-duration:' + (Math.random() * 20 + 15) + 's;animation-delay:-' + (Math.random() * 20) + 's';
-			pc.appendChild(p);
+	/** Maps the level label to the design's badge colour class (P-MK-017). */
+	levelClass(level?: string): string {
+		switch ((level || '').trim()) {
+			case 'خبير': return 'expert';
+			case 'متقدم': return 'advanced';
+			case 'محترف': return 'pro';
+			default: return '';
 		}
+	}
+
+	filledStars(rating: number | null | undefined): number {
+		return Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+	}
+
+	ordinal(index: number): string {
+		return ['أولى', 'ثانية', 'ثالثة', 'رابعة'][index] || 'أخرى';
 	}
 }

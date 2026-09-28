@@ -1,5 +1,5 @@
-import { Component, OnInit, PLATFORM_ID, inject, signal, computed } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -21,6 +21,9 @@ export interface CompareProviderCard {
 	completedProjects: number;
 	responseHours: number | null;
 	hourlyRate: number | null;
+	/** Lowest / highest totalAmount among the provider's published services. */
+	minServicePrice: number | null;
+	maxServicePrice: number | null;
 	skills: string[];
 	location: string;
 }
@@ -28,6 +31,9 @@ export interface CompareProviderCard {
 function mapToCard(id: string, raw: any): CompareProviderCard | null {
 	const data = raw?.data || raw;
 	if (!data) return null;
+	const prices: number[] = (data.services || [])
+		.map((s: any) => Number(s?.totalAmount))
+		.filter((n: number) => Number.isFinite(n) && n > 0);
 	const fullName = data.header?.fullName || data.companyName || 'مزود خدمة';
 	return {
 		id,
@@ -43,6 +49,8 @@ function mapToCard(id: string, raw: any): CompareProviderCard | null {
 		completedProjects: data.header?.stats?.completedProjects || 0,
 		responseHours: data.header?.avgResponseHours ?? null,
 		hourlyRate: data.basicInfo?.hourlyRate ?? data.hourlyRate ?? null,
+		minServicePrice: prices.length ? Math.min(...prices) : null,
+		maxServicePrice: prices.length ? Math.max(...prices) : null,
 		skills: (data.skills || []).slice(0, 4),
 		location: data.header?.location || data.basicInfo?.location || 'غير محدد'
 	};
@@ -56,7 +64,6 @@ function mapToCard(id: string, raw: any): CompareProviderCard | null {
 	styleUrl: './compare-providers.css'
 })
 export class CompareProvidersComponent implements OnInit {
-	private platformId = inject(PLATFORM_ID);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private marketplaceService = inject(MarketplaceService);
@@ -71,6 +78,16 @@ export class CompareProvidersComponent implements OnInit {
 		return [...list].sort((a, b) => b.aiScore - a.aiScore)[0]?.id || null;
 	});
 
+	winner = computed(() => {
+		const wid = this.winnerId();
+		return wid ? this.providers().find(p => p.id === wid) || null : null;
+	});
+
+	fastestResponse = computed(() => {
+		const list = this.providers().filter(p => p.responseHours != null);
+		return list.length ? [...list].sort((a, b) => (a.responseHours || 0) - (b.responseHours || 0))[0] : null;
+	});
+
 	topRated = computed(() => {
 		const list = this.providers();
 		return list.length ? [...list].sort((a, b) => b.rating - a.rating)[0] : null;
@@ -81,10 +98,16 @@ export class CompareProvidersComponent implements OnInit {
 		return list.length ? [...list].sort((a, b) => b.completedProjects - a.completedProjects)[0] : null;
 	});
 
+	/** Best price: lowest starting service price; falls back to hourly rate when no provider has priced services. */
 	cheapest = computed(() => {
+		const byService = this.providers().filter(p => p.minServicePrice != null);
+		if (byService.length) return [...byService].sort((a, b) => (a.minServicePrice || 0) - (b.minServicePrice || 0))[0];
 		const list = this.providers().filter(p => p.hourlyRate != null);
 		return list.length ? [...list].sort((a, b) => (a.hourlyRate || 0) - (b.hourlyRate || 0))[0] : null;
 	});
+
+	/** Design P-MK-024: winner feature ticks / stats use teal accents. */
+	readonly winnerPstatStyle = 'border-color:rgba(43,212,199,.15)';
 
 	emptySlots = computed(() => Math.max(0, this.maxCompare - this.providers().length));
 	emptySlotsArray = computed(() => Array.from({ length: this.emptySlots() }));
@@ -113,9 +136,6 @@ export class CompareProvidersComponent implements OnInit {
 				.filter((c): c is CompareProviderCard => !!c);
 			this.providers.set(cards);
 			this.loading.set(false);
-			if (isPlatformBrowser(this.platformId)) {
-				setTimeout(() => this.initParticles(), 0);
-			}
 		});
 	}
 
@@ -132,15 +152,21 @@ export class CompareProvidersComponent implements OnInit {
 		this.router.navigate(['/marketplace']);
 	}
 
-	private initParticles() {
-		const pc = document.getElementById('particles-container');
-		if (!pc || pc.children.length > 0) return;
-		const n = window.innerWidth < 768 ? 11 : 25;
-		for (let i = 0; i < n; i++) {
-			const p = document.createElement('div');
-			p.className = 'particle';
-			p.style.cssText = 'left:' + Math.random() * 100 + '%;width:' + (Math.random() * 3 + 2) + 'px;height:' + (Math.random() * 3 + 2) + 'px;animation-duration:' + (Math.random() * 20 + 15) + 's;animation-delay:-' + (Math.random() * 20) + 's';
-			pc.appendChild(p);
+	/** Level pill colours from design P-MK-024 / P-MK-017 (خبير / متقدم / محترف). */
+	levelStyle(level: string): { background: string; color: string } {
+		switch ((level || '').trim()) {
+			case 'خبير': return { background: 'rgba(123,47,190,.85)', color: '#E0C6FF' };
+			case 'محترف': return { background: 'rgba(15,169,154,.85)', color: '#fff' };
+			default: return { background: 'rgba(43,127,255,.85)', color: '#fff' };
 		}
+	}
+
+	starsText(rating: number): string {
+		const n = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+		return '★'.repeat(n) + '☆'.repeat(5 - n);
+	}
+
+	ordinal(index: number): string {
+		return ['أول', 'ثانٍ', 'ثالث', 'رابع'][index] || 'آخر';
 	}
 }

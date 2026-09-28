@@ -27,6 +27,7 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	alreadyInCart = signal<boolean>(false);
 	cartError = signal<string | null>(null);
 	negotiationMessage = signal<string>('');
+	questionMessage = signal<string>('');
 	reviewFilter = signal<number | null>(null);
 	private routeSub!: Subscription;
 	private paramSub!: Subscription;
@@ -142,6 +143,17 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	openNegotiation() { this.showNegotiation.set(true); }
 	closeNegotiation() { this.showNegotiation.set(false); }
 	updateNegotiationMessage(event: Event) { this.negotiationMessage.set((event.target as HTMLTextAreaElement).value); }
+	updateQuestionMessage(event: Event) { this.questionMessage.set((event.target as HTMLTextAreaElement).value); }
+	toggleNegTag(event: Event) { (event.currentTarget as HTMLElement).classList.toggle('active'); }
+
+	/** Q&A tab ask box: the question reaches the provider through the same
+	 *  real request/conversation flow the negotiation modal uses. */
+	askQuestion() {
+		const question = this.questionMessage().trim();
+		if (!question) return;
+		this.negotiationMessage.set(question);
+		this.requestService('negotiation');
+	}
 
 	requestService(mode: 'order' | 'negotiation') {
 		const id = this.model()?.id;
@@ -234,54 +246,16 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	}
 	clientInitial(name?: string) { return name?.trim().charAt(0) || 'م'; }
 	starIndexes() { return [1, 2, 3, 4, 5]; }
+	/** P-MK-008 rating bars fade from 5★ (full) down to 1★. */
+	barOpacity(star: number) { return ({ 5: null, 4: .7, 3: .5, 2: .4, 1: .3 } as Record<number, number | null>)[star] ?? null; }
 
 	private reInitViews() {
+		// Background grid + particles come from the website layout.
 		if (this.activeTab() === 'overview') {
-			this.initParticles();
 			this.initGallery();
 			this.initReadMore();
-		} else if (this.activeTab() === 'reviews') {
-			this.initParticles();
-		} else if (this.activeTab() === 'faq') {
-			this.initParticles();
-			this.initFaq();
 		}
 	}
-
-	private initFaq() {
-		document.querySelectorAll('.faq-item').forEach(item => {
-			const btn = item.querySelector('.faq-btn');
-			if (btn) {
-				btn.addEventListener('click', function (this: HTMLElement) {
-					item.classList.toggle('active');
-					const content = item.querySelector('.faq-content') as HTMLElement;
-					if (content) {
-						if (item.classList.contains('active')) {
-							content.style.maxHeight = content.scrollHeight + 'px';
-						} else {
-							content.style.maxHeight = '0px';
-						}
-					}
-				});
-			}
-		});
-	}
-
-	private initParticles() {
-		const pc = document.getElementById('particles-container');
-		if (pc && pc.children.length === 0) { // Only init once
-			const n = window.innerWidth < 768 ? 11 : 25;
-			for (let i = 0; i < n; i++) {
-				const p = document.createElement('div');
-				p.className = 'particle';
-				const sz = (Math.random() * 2.5 + 2).toFixed(1) + 'px';
-				p.style.cssText = 'left:' + (Math.random() * 100) + '%;width:' + sz + ';height:' + sz + ';animation-duration:' + (Math.random() * 9 + 5).toFixed(1) + 's;animation-delay:-' + (Math.random() * 12).toFixed(1) + 's;opacity:' + (Math.random() * 0.35 + 0.08).toFixed(2);
-				pc.appendChild(p);
-			}
-		}
-	}
-
-
 
 	private initGallery() {
 		const gtabs = document.querySelectorAll('.gtab');

@@ -1,30 +1,24 @@
-<div class="bg-grid" aria-hidden="true"></div>
-<div class="particles" id="particles-container" aria-hidden="true"></div>
-
-<!-- SVG SPRITE -->
+<!-- SVG SPRITE (artwork from designs P-MK-003.html / P-MK-004.html; ws-cat-* extras cover API category icons) -->
 <svg style="display:none" aria-hidden="true"><defs>
-<symbol id="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
-<symbol id="ws-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
-<symbol id="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
-<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></symbol>
-<symbol id="ws-chevron-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
-<symbol id="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
-<symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
-<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-chevron-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
 <symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
 <symbol id="ws-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
-<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
-<symbol id="ws-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14"/><path d="M4 7l4-4 4 4"/><path d="M16 21V7"/><path d="M12 17l4 4 4-4"/></symbol>
+<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+<symbol id="ws-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="8" height="18" rx="2"/><rect x="14" y="3" width="8" height="18" rx="2"/></symbol>
 <symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+<symbol id="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
 <symbol id="ws-cat-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
-<symbol id="ws-cat-design" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="3.5"/><path d="M1 18a1 1 0 0 1 1-1h4l4 4H2a1 1 0 0 1-1-1z"/><path d="M9 21l10-10 3 3-10 10z"/></symbol>
+<symbol id="ws-cat-mobile" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5" stroke-linecap="round"/></symbol>
+<symbol id="ws-cat-design" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="3.5"/><path d="M1 18a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v2H1v-2z"/><path d="M13 18c0-2.8 2.2-5 5-5s5 2.2 5 5v2H13v-2z"/></symbol>
 <symbol id="ws-cat-writing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
-<symbol id="ws-cat-marketing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v4a1 1 0 0 0 1 1h3l4 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 8a5 5 0 0 1 0 8"/><path d="M19 5a9 9 0 0 1 0 14"/></symbol>
+<symbol id="ws-cat-marketing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
 <symbol id="ws-cat-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></symbol>
 <symbol id="ws-cat-translate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></symbol>
 <symbol id="ws-cat-consult" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
-<symbol id="ws-cat-data" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14a8 3 0 0 0 16 0V5"/><path d="M4 12a8 3 0 0 0 16 0"/></symbol>
+<symbol id="ws-cat-data" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
 <symbol id="ws-cat-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
 <symbol id="ws-cat-audio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></symbol>
 <symbol id="ws-cat-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
@@ -32,22 +26,24 @@
 <symbol id="ws-cat-training" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></symbol>
 <symbol id="ws-cat-admin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
 <symbol id="ws-cat-business" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
-<symbol id="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
-<symbol id="ws-social-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="20" y2="20"></line><line x1="20" y1="4" x2="4" y2="20"></line></symbol>
-<symbol id="ws-social-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17" cy="7" r="1"></circle></symbol>
-<symbol id="ws-social-linkedin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><line x1="7.5" y1="10.5" x2="7.5" y2="16.5"></line><circle cx="7.5" cy="7" r="0.9" fill="currentColor" stroke="none"></circle><path d="M11.5 16.5v-4a2 2 0 0 1 4 0v4"></path><line x1="11.5" y1="10.5" x2="11.5" y2="16.5"></line></symbol>
 </defs></svg>
 
-<div class="page-wrap slug-page-wrap">
+<div class="page-wrap">
   <!-- HERO -->
   <section class="cat-hero">
     <div class="container">
       <div class="breadcrumb">
         <a routerLink="/">الرئيسية</a>
         <span class="breadcrumb-sep">/</span>
-        <a routerLink="/marketplace">الفئات</a>
+        <a routerLink="/marketplace/categories">الفئات</a>
         <span class="breadcrumb-sep">/</span>
-        <span class="txt-slate">{{ categoryData()?.name }}</span>
+        @if (selectedSubData()) {
+        <a [routerLink]="['/marketplace', slug()]">{{ categoryData()?.name || slug() }}</a>
+        <span class="breadcrumb-sep">/</span>
+        <span style="color:var(--txt-2)">{{ selectedSubData()?.name }}</span>
+        } @else {
+        <span style="color:var(--txt-2)">{{ categoryData()?.name || slug() }}</span>
+        }
       </div>
 
       <div class="hero-top">
@@ -55,20 +51,20 @@
           <svg><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg>
         </div>
         <div class="hero-text">
-          <h1 class="cat-hero-title">{{ categoryData()?.name || slug() }}</h1>
+          <h1 class="cat-hero-title">{{ heroTitleHead() ? heroTitleHead() + ' ' : '' }}<span>{{ heroTitleTail() }}</span></h1>
           <p class="cat-hero-desc">مقدمون معتمدون متخصصون في هذا المجال — جميع المشاريع محمية بعقود رسمية وضمان مالي</p>
           <div class="hero-chips">
             <div class="hero-chip">
-              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:inline-flex;align-items:center;justify-content:center" class="txt-teal"><svg style="width:10px;height:10px"><use href="#ws-shield"></use></svg></span>
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--teal)"><svg style="width:10px;height:10px"><use href="#ws-shield"></use></svg></span>
               ضمان مالي كامل
             </div>
             <div class="hero-chip">
-              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:inline-flex;align-items:center;justify-content:center" class="txt-blue"><svg style="width:10px;height:10px"><use href="#ws-check"></use></svg></span>
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--blue-txt)"><svg style="width:10px;height:10px"><use href="#ws-check"></use></svg></span>
               عقود رسمية موثّقة
             </div>
             <div class="hero-chip">
-              <span style="width:18px;height:18px;border-radius:4px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2);display:inline-flex;align-items:center;justify-content:center" class="txt-green"><svg style="width:10px;height:10px"><use href="#ws-user"></use></svg></span>
-              {{ providersCount() }} مقدم معتمد
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--green)"><svg style="width:10px;height:10px"><use href="#ws-user"></use></svg></span>
+              +{{ providersCount() }} مقدم معتمد
             </div>
           </div>
         </div>
@@ -76,10 +72,10 @@
 
       <!-- STATS -->
       <div class="hero-stats">
-        <div class="hstat c1"><div class="hstat-n">{{ categoryData()?.count || 0 }}</div><div class="hstat-l">خدمة منشورة</div></div>
+        <div class="hstat c1"><div class="hstat-n">+{{ heroCount() | number }}</div><div class="hstat-l">خدمة منشورة</div></div>
         <div class="hstat c2"><div class="hstat-n">+{{ providersCount() }}</div><div class="hstat-l">مقدم معتمد</div></div>
         <div class="hstat c3"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
-        <div class="hstat c4"><div class="hstat-n">+{{ totalReviews() }}</div><div class="hstat-l">مراجعة مكتملة</div></div>
+        <div class="hstat c4"><div class="hstat-n">+{{ totalReviews() | number }}</div><div class="hstat-l">مراجعة مكتملة</div></div>
         <div class="hstat c5"><div class="hstat-n">{{ averageAiScore() }}%</div><div class="hstat-l">جودة النماذج (AI)</div></div>
       </div>
     </div>
@@ -89,17 +85,16 @@
   <div class="subcats-wrap">
     <div class="container">
       <div class="subcats-row">
-        <div class="subcats-inner" role="tablist" aria-label="تخصصات">
-        <button class="subcat-btn" [class.active]="selectedSub() === ''" (click)="selectSubCategory('')" role="tab" [attr.aria-selected]="selectedSub() === ''">
-          <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" class="txt-teal"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg></span>
-          الكل <span class="sub-cnt">{{ categoryData()?.count || 0 }}</span>
+        <div class="subcats-inner" role="tablist" [attr.aria-label]="'تخصصات ' + (categoryData()?.name || '')">
+        <button class="subcat-btn" type="button" [class.active]="selectedSub() === ''" (click)="selectSubCategory('')" role="tab" [attr.aria-selected]="selectedSub() === ''">
+          <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg></span>
+          الكل <span class="sub-cnt">{{ (categoryData()?.count || 0) | number }}</span>
         </button>
-        
         @for (sub of categoryData()?.subSpecialties; track sub.id) {
-          <button class="subcat-btn" [class.active]="selectedSub() === sub.slug" (click)="selectSubCategory(sub.slug)" role="tab" [attr.aria-selected]="selectedSub() === sub.slug">
-            <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" class="txt-teal"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg></span>
-            {{ sub.name }} <span class="sub-cnt">{{ getSubCount(sub.slug) }}</span>
-          </button>
+        <button class="subcat-btn" type="button" [class.active]="selectedSub() === sub.slug" (click)="selectSubCategory(sub.slug)" role="tab" [attr.aria-selected]="selectedSub() === sub.slug">
+          <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg></span>
+          {{ sub.name }} <span class="sub-cnt">{{ getSubCount(sub.slug) | number }}</span>
+        </button>
         }
         </div>
       </div>
@@ -120,29 +115,19 @@
           <button class="filter-reset" type="button" (click)="resetFilters()">إعادة ضبط</button>
         </div>
 
-        <!-- SPECIALTY -->
         <div class="filter-section">
           <div class="filter-lbl">التخصص</div>
           <div class="filter-opts">
-            <label class="fopt" (click)="selectSubCategory('')">
-              <div class="fopt-box" [class.checked]="selectedSub() === ''"></div>
-              <span class="fopt-lbl">الكل</span>
-              <span class="fopt-count">{{ categoryData()?.count || 0 }}</span>
-            </label>
-            
+            <label class="fopt" (click)="selectSubCategory('')"><span class="fopt-box" [class.checked]="selectedSub() === ''"></span><span class="fopt-lbl">الكل</span><span class="fopt-count">{{ categoryData()?.count || 0 }}</span></label>
             @for (sub of categoryData()?.subSpecialties; track sub.id) {
-              <label class="fopt" (click)="selectSubCategory(sub.slug)">
-                <div class="fopt-box" [class.checked]="selectedSub() === sub.slug"></div>
-                <span class="fopt-lbl">{{ sub.name }}</span>
-                <span class="fopt-count">{{ getSubCount(sub.slug) }}</span>
-              </label>
+            <label class="fopt" (click)="selectSubCategory(sub.slug)"><span class="fopt-box" [class.checked]="selectedSub() === sub.slug"></span><span class="fopt-lbl">{{ sub.name }}</span><span class="fopt-count">{{ getSubCount(sub.slug) }}</span></label>
             }
           </div>
         </div>
 
         <div class="filter-section">
           <div class="filter-lbl">ميزانية الخدمة (ريال)</div>
-          <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="selectedMaxPrice() || priceLimit()" (change)="setMaxPrice($event)">
+          <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="selectedMaxPrice() || priceLimit()" (change)="setMaxPrice($event)" aria-label="ميزانية الخدمة">
           <div class="range-vals"><span>0</span><span>{{ (selectedMaxPrice() || priceLimit()) | number:'1.0-0' }}</span><span>{{ priceLimit() | number:'1.0-0' }}+</span></div>
         </div>
 
@@ -150,10 +135,7 @@
           <div class="filter-lbl">مستوى المقدم</div>
           <div class="filter-opts">
             @for (level of levelOptions(); track level.value) {
-              <label class="fopt" (click)="toggleLevel(level.value)">
-                <span class="fopt-box" [class.checked]="selectedLevels().includes(level.value)"></span>
-                <span class="fopt-lbl">{{ level.value }}</span><span class="fopt-count">{{ level.count }}</span>
-              </label>
+            <label class="fopt" (click)="toggleLevel(level.value)"><span class="fopt-box" [class.checked]="selectedLevels().includes(level.value)"></span><span class="fopt-lbl">{{ level.value }}</span><span class="fopt-count">{{ level.count }}</span></label>
             }
           </div>
         </div>
@@ -162,10 +144,7 @@
           <div class="filter-lbl">التقييم</div>
           <div class="filter-opts">
             @for (rating of ratingOptions(); track rating.value) {
-              <label class="fopt" (click)="setRating(rating.value)">
-                <span class="fopt-box" [class.checked]="selectedRating() === rating.value"></span>
-                <span class="fopt-lbl">{{ rating.label }}</span><span class="fopt-count">{{ rating.count }}</span>
-              </label>
+            <label class="fopt" (click)="setRating(rating.value)"><span class="fopt-box" [class.checked]="selectedRating() === rating.value"></span><span class="fopt-lbl">{{ rating.label }}</span><span class="fopt-count">{{ rating.count }}</span></label>
             }
           </div>
         </div>
@@ -174,13 +153,21 @@
           <div class="filter-lbl">مدة التسليم</div>
           <div class="filter-opts">
             @for (days of deliveryOptions; track days) {
-              <label class="fopt" (click)="setMaxDays(selectedMaxDays() === days ? 0 : days)">
-                <span class="fopt-box" [class.checked]="selectedMaxDays() === days"></span>
-                <span class="fopt-lbl">حتى {{ days }} أيام</span>
-              </label>
+            <label class="fopt" (click)="setMaxDays(selectedMaxDays() === days ? 0 : days)"><span class="fopt-box" [class.checked]="selectedMaxDays() === days"></span><span class="fopt-lbl">{{ days === 14 ? 'حتى 14 يوماً' : 'حتى ' + days + ' أيام' }}</span></label>
             }
           </div>
         </div>
+
+        @if (relatedSubs().length > 0) {
+        <div class="filter-section">
+          <div class="filter-lbl">تخصصات مشابهة</div>
+          <div class="filter-opts" style="flex-direction:column;gap:0">
+            @for (sub of relatedSubs(); track sub.id) {
+            <a [routerLink]="['/marketplace', slug()]" [queryParams]="{ sub: sub.slug }" class="related-link"><span style="font-size:12px;color:var(--txt-2)">{{ sub.name }}</span><span style="font-size:11px;color:var(--txt-3)">{{ getSubCount(sub.slug) | number }}</span></a>
+            }
+          </div>
+        </div>
+        }
 
         <button class="filter-apply" type="button" (click)="applyFilters()">تطبيق الفلتر</button>
       </aside>
@@ -193,17 +180,23 @@
           <div class="ai-insight-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
           <div class="ai-insight-body">
             <div class="ai-insight-lbl">تحليل الذكاء الاصطناعي</div>
-          <div class="ai-insight-txt">{{ aiInsightTitle() }}</div>
+            <div class="ai-insight-txt">
+              @if (aiInsightBest(); as best) {
+              الأعلى توافقاً مع الذكاء الاصطناعي: <strong>{{ best.title }}</strong>
+              } @else {
+              لا توجد خدمات متاحة حالياً
+              }
+            </div>
           </div>
           <span class="ai-badge">AI · نشط</span>
         </div>
 
         <!-- RESULTS BAR -->
         <div class="results-bar">
-          <div class="results-count"><strong>{{ totalResults() }}</strong> خدمة في {{ categoryData()?.name }}</div>
+          <div class="results-count"><strong>{{ totalResults() | number }}</strong> خدمة في {{ heroName() }}</div>
           <div class="sort-row">
             <span class="sort-lbl">ترتيب:</span>
-            <select class="sort-sel" [value]="sortBy()" (change)="setSort($event)">
+            <select class="sort-sel" [value]="sortBy()" (change)="setSort($event)" aria-label="ترتيب">
               <option value="relevance">الأكثر صلة</option>
               <option value="rating">الأعلى تقييماً</option>
               <option value="price_asc">الأقل سعراً</option>
@@ -213,20 +206,104 @@
           </div>
         </div>
 
-        <!-- SERVICE CARDS -->
-        <app-card
-          [models]="filteredModels()"
-          [isLoading]="isLoading()"
-          (categoryReset)="selectSubCategory('')" />
-
+        <!-- SERVICE CARDS (design card markup; behaviour mirrors the shared app-card) -->
+        <div class="svc-grid">
+          @if (isLoading()) {
+          @for (sk of [1, 2, 3]; track sk) {
+          <div class="svc-card is-skeleton" aria-hidden="true">
+            <div class="svc-thumb"></div>
+            <div class="svc-body">
+              <div class="sk-line w60"></div>
+              <div class="sk-line w90"></div>
+              <div class="sk-line w40"></div>
+            </div>
+          </div>
+          }
+          } @else {
+          @for (model of filteredModels(); track model.id; let idx = $index) {
+          <a [routerLink]="['/marketplace/offer', model.id]" class="svc-card">
+            <div class="svc-thumb" [style.background]="thumbGradient(idx)">
+              @if (model.gallery && model.gallery.length > 0) {
+              <img class="svc-thumb-img" [src]="model.gallery[0]" [alt]="model.title" loading="lazy">
+              } @else {
+              <div class="svc-thumb-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)">
+                <svg><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg>
+              </div>
+              }
+              @if (model.level) {
+              <div class="svc-badges">
+                <span class="svc-level" [style.background]="levelStyle(model).bg" [style.color]="levelStyle(model).color">{{ model.level }}</span>
+              </div>
+              }
+              <div class="ai-score-badge">AI {{ model.aiScore ?? 0 }}%</div>
+              <button class="svc-fav" type="button" aria-label="إضافة للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)">
+                <svg><use href="#ws-heart"></use></svg>
+              </button>
+            </div>
+            <div class="svc-body">
+              <div class="svc-provider">
+                <div class="svc-avatar" [style.background]="avatarStyle(idx).background" [style.border]="avatarStyle(idx).border" [style.color]="avatarStyle(idx).color">
+                  @if (model.provider?.avatar) {
+                  <img [src]="model.provider.avatar" [alt]="model.provider.name">
+                  } @else {
+                  {{ model.provider?.initials || 'م' }}
+                  }
+                </div>
+                <span class="svc-pname">{{ model.provider?.name || 'مقدم خدمة معتمد' }}</span>
+                @if (model.isVerified !== false) {
+                <span class="svc-verified"><svg><use href="#ws-check"></use></svg>معتمد</span>
+                }
+              </div>
+              <div class="svc-title">{{ model.title }}</div>
+              <div class="svc-rating">
+                <span class="stars">★★★★★</span>
+                <span class="svc-score">{{ model.rating ?? 0 }}</span>
+                <span class="svc-reviews">({{ model.reviewsCount ?? 0 }})</span>
+                <span class="quality-pill">جودة {{ model.aiScore ?? 0 }}%</span>
+              </div>
+            </div>
+            <div class="svc-foot">
+              <div class="svc-price">
+                @if (model.totalAmount) {
+                <span class="svc-price-lbl">يبدأ من</span>
+                <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">ريال</span></span>
+                } @else {
+                <span class="svc-price-lbl">سعر الخدمة</span>
+                <span class="svc-price-val" style="font-size:12px">نشط وقابل للطلب</span>
+                }
+              </div>
+              @if (model.totalDays) {
+              <div class="svc-delivery">
+                <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--teal)"><svg style="width:10px;height:10px"><use href="#ws-clock"></use></svg></span>
+                {{ model.totalDays }} يوم
+              </div>
+              }
+              <button class="svc-compare" type="button" [class.is-compared]="isCompared(model.id)" (click)="toggleCompare(model.id, $event)">
+                <svg><use href="#ws-compare"></use></svg>{{ isCompared(model.id) ? 'تمت الإضافة' : 'مقارنة' }}
+              </button>
+            </div>
+          </a>
+          } @empty {
+          <div class="svc-empty">
+            <h4>لا توجد خدمات متاحة حالياً في هذه الفئة</h4>
+            <p>يرجى اختيار فئة أخرى أو إعادة تعيين الفلترة لمشاهدة كافة الخدمات المنشورة.</p>
+            <button type="button" (click)="selectSubCategory('')">عرض كل الفئات</button>
+          </div>
+          }
+          }
+        </div>
 
         <!-- PAGINATION -->
         <nav class="pagination" aria-label="تصفح الصفحات">
-          <button class="pg-btn" aria-label="السابق" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)"><svg><use href="#ws-chevron-r"></use></svg></button>
-          @for (page of pages(); track page) {
-            <button class="pg-btn" [class.active]="currentPage() === page" [attr.aria-current]="currentPage() === page ? 'page' : null" (click)="goToPage(page)">{{ page }}</button>
+          <button class="pg-btn" type="button" aria-label="السابق" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)"><svg><use href="#ws-chevron-r"></use></svg></button>
+          @for (page of pageItems(); track $index) {
+          @if (page === null) {
+          <button class="pg-btn" type="button" style="color:var(--txt-3);border:none;background:none;cursor:default" tabindex="-1" aria-hidden="true">…</button>
+          } @else {
+          <button class="pg-btn" type="button" [class.active]="currentPage() === page" [attr.aria-current]="currentPage() === page ? 'page' : null" (click)="goToPage(page)">{{ page }}</button>
           }
-          <button class="pg-btn" aria-label="التالي" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)"><svg><use href="#ws-chevron-l"></use></svg></button>
+          }
+          <button class="pg-btn" type="button" aria-label="التالي" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)"><svg><use href="#ws-chevron"></use></svg></button>
         </nav>
 
       </main>

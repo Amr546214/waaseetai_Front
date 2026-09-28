@@ -48,6 +48,30 @@ export class FavoritesComponent implements OnInit {
 		return sorted;
 	});
 
+	/** The design groups saved services into collections; the app's collections are the service categories. */
+	collections = computed(() => {
+		const groups = new Map<string, MarketplaceModel[]>();
+		this.filteredFavorites().forEach(m => {
+			const key = m.category || 'أخرى';
+			if (!groups.has(key)) groups.set(key, []);
+			groups.get(key)!.push(m);
+		});
+		return Array.from(groups, ([name, items]) => ({ name, items }));
+	});
+
+	/** How many saved services the "مقارنة المحفوظة" action sends to the compare page (max 3). */
+	compareCount = computed(() => Math.min(this.favorites().length, 3));
+
+	private readonly collectionDots = ['#2BD4C7', 'var(--blue-txt)', 'var(--kahr)'];
+	collectionDot(i: number): string {
+		return this.collectionDots[i % this.collectionDots.length];
+	}
+
+	stars(rating: number): string {
+		const full = Math.max(0, Math.min(5, Math.round(rating || 0)));
+		return '★'.repeat(full) + '☆'.repeat(5 - full);
+	}
+
 	averageRating = computed(() => {
 		const list = this.favorites();
 		if (!list.length) return '0.0';
@@ -61,13 +85,10 @@ export class FavoritesComponent implements OnInit {
 			return;
 		}
 		this.loadFavorites();
-		if (isPlatformBrowser(this.platformId)) {
-			setTimeout(() => this.initParticles(), 0);
-		}
 	}
 
 	goToLogin() {
-		this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/marketplace/favorites' } });
+		this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/favorites' } });
 	}
 
 	private loadFavorites() {
@@ -118,17 +139,5 @@ export class FavoritesComponent implements OnInit {
 
 	compareIds(): string {
 		return this.favorites().slice(0, 3).map(m => m.id).join(',');
-	}
-
-	private initParticles() {
-		const pc = document.getElementById('particles-container');
-		if (!pc || pc.children.length > 0) return;
-		const n = window.innerWidth < 768 ? 11 : 25;
-		for (let i = 0; i < n; i++) {
-			const p = document.createElement('div');
-			p.className = 'particle';
-			p.style.cssText = 'left:' + Math.random() * 100 + '%;width:' + (Math.random() * 3 + 2) + 'px;height:' + (Math.random() * 3 + 2) + 'px;animation-duration:' + (Math.random() * 20 + 15) + 's;animation-delay:-' + (Math.random() * 20) + 's';
-			pc.appendChild(p);
-		}
 	}
 }

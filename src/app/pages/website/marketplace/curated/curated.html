@@ -1,189 +1,657 @@
-<div class="bg-grid" aria-hidden="true"></div>
-<div class="particles" id="particles-container" aria-hidden="true"></div>
-
 <svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
 <symbol id="ws-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></symbol>
+<symbol id="ws-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="ws-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+<symbol id="ws-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+<symbol id="ws-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+<symbol id="ws-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ws-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
 <symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
-<symbol id="ws-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6L12.6 20.6a2 2 0 0 1-2.8 0L2.6 13.4a2 2 0 0 1 0-2.8L10.6 2.6a2 2 0 0 1 1.4-.6H19a2 2 0 0 1 2 2v6.6a2 2 0 0 1-.4 1.4z"/><circle cx="14.5" cy="7.5" r="1.5"/></symbol>
-<symbol id="ws-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
-<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-<symbol id="ws-trust-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
-<symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></symbol>
-<symbol id="ws-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+<symbol id="ws-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+<symbol id="ws-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 15l.75 2.25L22 18l-2.25.75L19 21l-.75-2.25L16 18l2.25-.75z"/><path d="M5 3l.5 1.5L7 5l-1.5.5L5 7l-.5-1.5L3 5l1.5-.5z"/></symbol>
+<symbol id="ws-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
 </defs></svg>
 
-<div class="page-wrap">
+<div class="page-wrap" [class]="'page-wrap m-' + mode()">
   <!-- HERO -->
   <div class="hero-section">
     <div class="container">
       <nav class="breadcrumb">
         <a routerLink="/">الرئيسية</a>
-        <span class="breadcrumb-sep">/</span>
+        <svg class="breadcrumb-sep" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
         <a routerLink="/marketplace">السوق</a>
-        <span class="breadcrumb-sep">/</span>
-        <span>{{ config().badgeLabel }}</span>
+        <svg class="breadcrumb-sep" style="width:12px;height:12px"><use href="#ws-chevron"></use></svg>
+        @switch (mode()) {
+          @case ('top-rated') { <span>الأعلى تقييماً</span> }
+          @case ('most-ordered') { <span>الأكثر طلباً</span> }
+          @case ('featured') { <span>خدمات مميزة</span> }
+          @case ('exclusive') { <span>عروض حصرية</span> }
+          @case ('newest') { <span>الجديد في السوق</span> }
+        }
       </nav>
       <div class="hero-inner">
-        <div>
-          <div class="hero-badge" [style.color]="config().badgeColorVar">
-            <span class="hero-badge-ico"><svg aria-hidden="true" style="width:13px;height:13px"><use [attr.href]="'#' + config().badgeIcon"></use></svg></span>
-            {{ config().badgeLabel }}
-          </div>
-          <h1 class="hero-title">
-            {{ config().titlePrefix }}
-            <span class="highlight" [style.background-image]="config().highlightGradient" style="-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">{{ config().titleHighlight }}</span>
-            @if (config().titleSuffix) { <br>{{ config().titleSuffix }} }
-          </h1>
-          <p class="hero-sub">{{ config().subtitle }}</p>
-          <div class="hero-stats">
-            <div class="hstat"><div class="hstat-n gold">{{ averageRating() }}</div><div class="hstat-l">متوسط تقييم القائمة</div></div>
-            <div class="hstat"><div class="hstat-n">{{ totalReviews() }}+</div><div class="hstat-l">تقييم موثّق</div></div>
-            <div class="hstat"><div class="hstat-n">{{ satisfactionRate() }}٪</div><div class="hstat-l">نسبة رضا العملاء</div></div>
-          </div>
-        </div>
-        <div class="hero-visual">
-          <div class="hero-ring"></div>
-          <div class="hero-ring-pulse"></div>
-          <div class="hero-ring-pulse hero-ring-pulse2"></div>
-          <div class="hero-center">
-            <div class="hero-crown-ico" [style.color]="config().badgeColorVar"><svg aria-hidden="true"><use [attr.href]="'#' + config().badgeIcon"></use></svg></div>
-            <div class="hero-center-label" [style.color]="config().badgeColorVar">{{ config().statLabel }}</div>
-          </div>
-        </div>
+        @switch (mode()) {
+          @case ('top-rated') {
+            <div>
+              <div class="hero-badge">
+                <div class="hero-badge-ico"><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
+                تصنيف المتميزين
+              </div>
+              <h1 class="hero-title">الأعلى <span class="highlight">تقييماً</span><br>في وسيط</h1>
+              <p class="hero-sub">خدمات اختارها العملاء وأثنوا عليها — مرتبة حسب التقييم الحقيقي والجودة الموثقة بذكاء وسيط.</p>
+              <div class="hero-stats">
+                <div class="hstat"><div class="hstat-n gold">{{ averageRating() }}</div><div class="hstat-l">متوسط تقييم القائمة</div></div>
+                <div class="hstat"><div class="hstat-n">{{ totalReviews() | number }}</div><div class="hstat-l">تقييم موثّق</div></div>
+                <div class="hstat"><div class="hstat-n">٪{{ satisfactionRate() }}</div><div class="hstat-l">نسبة رضا العملاء</div></div>
+              </div>
+            </div>
+            <div class="hero-visual">
+              <div class="hero-ring"></div>
+              <div class="hero-ring-pulse"></div>
+              <div class="hero-ring-pulse hero-ring-pulse2"></div>
+              <div class="hero-center">
+                <div class="hero-crown-ico"><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
+                <div class="hero-center-label">TOP RATED</div>
+              </div>
+            </div>
+          }
+          @case ('most-ordered') {
+            <div>
+              <div class="hero-badge">
+                <div class="hero-badge-ico"><svg aria-hidden="true"><use href="#ws-chart"></use></svg></div>
+                الأكثر طلباً
+              </div>
+              <h1 class="hero-title">الأكثر <span class="highlight">طلباً</span><br>في وسيط</h1>
+              <p class="hero-sub">الخدمات الأعلى طلباً من العملاء — مرتبة حسب عدد الطلبات الفعلية.</p>
+              <div class="hero-stats">
+                <div class="hstat"><div class="hstat-n" style="color:var(--teal)">{{ totalOrders() | number }}</div><div class="hstat-l">طلب مكتمل</div></div>
+                <div class="hstat"><div class="hstat-n">{{ totalReviews() | number }}</div><div class="hstat-l">تقييم موثّق</div></div>
+                <div class="hstat"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
+              </div>
+            </div>
+            <div class="hero-visual">
+              <div class="hero-ring"></div>
+              <div class="hero-ring-pulse"></div>
+              <div class="hero-ring-pulse hero-ring-pulse2"></div>
+              <div class="hero-center">
+                <div class="hero-crown-ico"><svg aria-hidden="true"><use href="#ws-chart"></use></svg></div>
+                <div class="hero-center-label">TRENDING</div>
+              </div>
+            </div>
+          }
+          @case ('featured') {
+            <div>
+              <div class="hero-badge">
+                <div class="hero-badge-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+                خدمات مميزة ومعتمدة
+              </div>
+              <h1 class="hero-title">خدمات <span class="highlight">مميزة</span><br>باحتراف مضمون</h1>
+              <p class="hero-sub">خدمات من مقدمين معتمدين اختارهم وسيط لعرض تجربة استثنائية — جودة موثقة وتسليم مضمون في كل مشروع.</p>
+              <div class="hero-stats">
+                <div class="hstat"><div class="hstat-n" style="color:var(--kahr)">{{ models().length }}</div><div class="hstat-l">خدمة مميزة</div></div>
+                <div class="hstat"><div class="hstat-n">٪{{ satisfactionRate() }}</div><div class="hstat-l">معدل رضا العملاء</div></div>
+                <div class="hstat"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
+              </div>
+            </div>
+            <div class="hero-visual">
+              <div class="hero-ring"></div>
+              <div class="hero-ring-pulse"></div>
+              <div class="hero-ring-pulse hero-ring-pulse2"></div>
+              <div class="hero-center">
+                <div class="hero-crown-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+                <div class="hero-center-label">FEATURED</div>
+              </div>
+            </div>
+          }
+          @case ('exclusive') {
+            <div>
+              <div class="hero-badge">
+                <div class="hero-badge-ico"><svg aria-hidden="true"><use href="#ws-tag"></use></svg></div>
+                عروض محدودة الوقت
+              </div>
+              <h1 class="hero-title">عروض <span class="highlight">حصرية</span><br>لا تفوتها</h1>
+              <p class="hero-sub">خصومات حقيقية على خدمات محترفة — كل عرض محدود بوقت فانقض الفرصة قبل انتهائها.</p>
+              <div class="hero-stats">
+                <div class="hstat"><div class="hstat-n" style="color:var(--red)">{{ models().length }}</div><div class="hstat-l">عرض نشط الآن</div></div>
+                <div class="hstat"><div class="hstat-n">٪{{ maxDiscount() }}</div><div class="hstat-l">أعلى خصم متاح</div></div>
+                <div class="hstat"><div class="hstat-n">٪{{ avgDiscount() }}</div><div class="hstat-l">متوسط الخصم</div></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0">
+              <div style="width:120px;height:120px;border-radius:50%;border:2px solid rgba(255,140,105,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,140,105,.04)">
+                <div style="width:48px;height:48px;border-radius:13px;background:rgba(255,140,105,.1);border:1px solid rgba(255,140,105,.25);display:flex;align-items:center;justify-content:center">
+                  <svg aria-hidden="true" style="width:24px;height:24px;color:var(--red)"><use href="#ws-tag"></use></svg>
+                </div>
+                <div style="font-size:11px;font-weight:800;color:var(--red);margin-top:6px;letter-spacing:.04em">SALE</div>
+              </div>
+            </div>
+          }
+          @case ('newest') {
+            <div>
+              <div class="hero-badge">
+                <div class="hero-badge-ico"><svg aria-hidden="true"><use href="#ws-sparkle"></use></svg></div>
+                وصل الآن
+              </div>
+              <h1 class="hero-title">الجديد في<br><span class="highlight">السوق</span></h1>
+              <p class="hero-sub">أحدث الخدمات التي أضافها مقدمو الخدمة — اكتشف الفرص الجديدة أولاً.</p>
+              <div class="hero-stats">
+                <div class="hstat"><div class="hstat-n teal">{{ newTodayCount() }}</div><div class="hstat-l">خدمة جديدة اليوم</div></div>
+                <div class="hstat"><div class="hstat-n">{{ newWeekCount() }}</div><div class="hstat-l">هذا الأسبوع</div></div>
+                <div class="hstat"><div class="hstat-n">{{ models().length }}</div><div class="hstat-l">إجمالي الخدمات</div></div>
+              </div>
+            </div>
+            <div class="hero-visual">
+              <div class="hero-ring"></div>
+              <div class="hero-ring-pulse"></div>
+              <div class="hero-ring-pulse hero-ring-pulse2"></div>
+              <div class="hero-center">
+                <div class="hero-center-ico"><svg aria-hidden="true"><use href="#ws-sparkle"></use></svg></div>
+                <div class="hero-center-label">NEW</div>
+              </div>
+            </div>
+          }
+        }
       </div>
     </div>
   </div>
 
-  <div class="container" style="padding-bottom:60px">
-    <!-- AI BANNER -->
-    <div class="ai-banner">
-      <div class="ai-banner-ico"><svg aria-hidden="true" style="width:16px;height:16px"><use href="#ws-trust-ai"></use></svg></div>
-      <div class="ai-banner-content">
-        <div class="ai-banner-label">تحليل الذكاء الاصطناعي</div>
-        <div class="ai-banner-text">هذه القائمة محدَّثة مباشرة من بيانات السوق الفعلية ومرتبة تلقائياً حسب معايير "{{ config().badgeLabel }}"</div>
-      </div>
-      <div class="ai-banner-badge">AI · تحليل</div>
-    </div>
+  <div class="container" [style.padding-bottom]="mode() === 'newest' ? '80px' : null">
+    <!-- BANNER (per page) -->
+    @switch (mode()) {
+      @case ('top-rated') {
+        <div class="ai-banner">
+          <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
+          <div class="ai-banner-content">
+            <div class="ai-banner-label">تحليل الذكاء الاصطناعي</div>
+            <div class="ai-banner-text">الترتيب مبني على تقييمات العملاء الموثقة — يتحدث <strong>مباشرة</strong> من بيانات السوق الفعلية</div>
+          </div>
+          <div class="ai-banner-badge">AI · تحليل</div>
+        </div>
+      }
+      @case ('most-ordered') {
+        <div class="ai-banner">
+          <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
+          <div class="ai-banner-content">
+            <div class="ai-banner-label">تحليل الذكاء الاصطناعي</div>
+            <div class="ai-banner-text">الترتيب مبني على عدد الطلبات الفعلية المكتملة — يتحدث <strong>مباشرة</strong> من بيانات السوق الفعلية</div>
+          </div>
+          <div class="ai-banner-badge">AI · تحليل</div>
+        </div>
+      }
+      @case ('featured') {
+        <div class="featured-info">
+          <div class="featured-info-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+          <p>الخدمات المميزة يختارها فريق وسيط بناءً على <strong>جودة التسليم</strong> وتاريخ المقدم وتقييمات العملاء الفعلية. كل خدمة مميزة تخضع لضمان مالي وفق سياسة الإلغاء والاسترداد.</p>
+        </div>
+      }
+      @case ('exclusive') {
+        @if (globalCountdown(); as gc) {
+          <div class="global-countdown">
+            <div class="gc-ico"><svg aria-hidden="true"><use href="#ws-clock"></use></svg></div>
+            <div class="gc-content">
+              <div class="gc-label">انتهاء أقرب عرض</div>
+              <div class="gc-desc">استفد من الخصومات قبل انتهاء الوقت المحدد</div>
+            </div>
+            <div class="gc-timer">
+              <div class="gc-unit"><span class="gc-num">{{ gc.h }}</span><span class="gc-lbl">ساعة</span></div>
+              <div class="gc-sep">:</div>
+              <div class="gc-unit"><span class="gc-num">{{ gc.m }}</span><span class="gc-lbl">دقيقة</span></div>
+              <div class="gc-sep">:</div>
+              <div class="gc-unit"><span class="gc-num">{{ gc.s }}</span><span class="gc-lbl">ثانية</span></div>
+            </div>
+          </div>
+        } @else {
+          <div style="height:24px"></div>
+        }
+      }
+      @case ('newest') {
+        <div class="ai-banner">
+          <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
+          <div class="ai-banner-content">
+            <div class="ai-banner-label">فحص الذكاء الاصطناعي</div>
+            <div class="ai-banner-text">كل خدمة جديدة تظهر مع درجة AI لوضوحها وجدواها — تتحدث القائمة <strong>مباشرة</strong> من بيانات السوق</div>
+          </div>
+          <div class="ai-banner-badge">AI · مباشر</div>
+        </div>
+      }
+    }
 
-    @if (!loading() && podiumSlots().length) {
-      <!-- PODIUM -->
-      <div class="podium-section">
-        <div class="section-head">
-          <div class="section-title">
-            <div class="stitle-ico"><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
-            المراكز الثلاثة الأولى
+    @if (loading()) {
+      <div class="state-msg">جاري تحميل الخدمات...</div>
+    } @else if (!models().length) {
+      <div class="empty-state">
+        <div class="empty-title">لا توجد خدمات ضمن هذه القائمة حالياً</div>
+        <a routerLink="/marketplace" class="empty-cta">تصفح كل الخدمات</a>
+      </div>
+    } @else {
+
+      <!-- ═══ PODIUM (top-rated / most-ordered) ═══ -->
+      @if (podiumSlots().length) {
+        <div class="podium-section">
+          <div class="section-head">
+            <div class="section-title">
+              @if (mode() === 'top-rated') {
+                <div class="stitle-ico"><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
+                المراكز الثلاثة الأولى
+              } @else {
+                <div class="stitle-ico"><svg aria-hidden="true"><use href="#ws-chart"></use></svg></div>
+                أكثر 3 خدمات طلباً
+              }
+            </div>
+          </div>
+          <div class="podium-wrap">
+            @for (slot of podiumSlots(); track slot.model.id) {
+              <div class="pc" [class.r1]="slot.rank === 1" [class.r2]="slot.rank === 2" [class.r3]="slot.rank === 3">
+                <div class="pc-strip">
+                  @if (mode() === 'top-rated') {
+                    <div class="pc-strip-ico"><svg aria-hidden="true" style="width:10px;height:10px" [style.color]="slot.rank === 1 ? 'var(--kahr)' : slot.rank === 2 ? '#8899aa' : '#a08060'"><use href="#ws-star"></use></svg></div>
+                    {{ slot.rank === 1 ? 'المرتبة الأولى — الأعلى تقييماً' : slot.rank === 2 ? 'المرتبة الثانية' : 'المرتبة الثالثة' }}
+                  } @else {
+                    <div class="pc-strip-ico"><svg aria-hidden="true" style="width:10px;height:10px" [style.color]="slot.rank === 1 ? 'var(--teal)' : slot.rank === 2 ? '#8899aa' : 'var(--blue-txt)'"><use href="#ws-chart"></use></svg></div>
+                    {{ slot.rank === 1 ? 'الأكثر طلباً — #1' : slot.rank === 2 ? 'المرتبة الثانية' : 'المرتبة الثالثة' }}
+                  }
+                </div>
+                <div class="pc-thumb">
+                  <div class="pc-glow"></div>
+                  @if (slot.model.coverImage) {
+                    <img [src]="slot.model.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+                  } @else {
+                    <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
+                  }
+                  @if (slot.model.level) {
+                    <div class="pc-lvl" [style.background]="slot.model.levelBg || 'rgba(43,127,255,.85)'" [style.color]="slot.model.levelColor || '#D9E8FF'">{{ slot.model.level }}</div>
+                  }
+                  @if (mode() === 'most-ordered') {
+                    <div class="pc-orders-tag">{{ (slot.model.salesCount || 0) | number }} طلب مكتمل</div>
+                  }
+                </div>
+                <div class="pc-body">
+                  @if (mode() === 'top-rated' && slot.rank === 1) {
+                    <div class="pc-ai gold"><svg aria-hidden="true" style="color:var(--kahr)"><use href="#ws-trust-ai"></use></svg> AI {{ slot.model.aiScore }}</div>
+                  } @else {
+                    <div class="pc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ slot.model.aiScore }}</div>
+                  }
+                  <div class="pc-title">{{ slot.model.title }}</div>
+                  <div class="pc-prov">
+                    <div class="pc-av">{{ slot.model.provider.initials }}</div>
+                    <div>
+                      <div class="pc-pname">{{ slot.model.provider.name }}</div>
+                      @if (slot.model.isVerified) {
+                        <div class="pc-verified"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div>
+                      }
+                    </div>
+                  </div>
+                  @if (mode() === 'top-rated') {
+                    <div class="pc-score">
+                      <div class="pc-stars">@for (on of stars(slot.model.rating); track $index) {<svg aria-hidden="true" [style.opacity]="on ? null : '.4'"><use href="#ws-star"></use></svg>}</div>
+                      <span class="pc-score-val">{{ slot.model.rating }}</span>
+                      <span class="pc-score-cnt">({{ slot.model.reviewsCount || 0 }} تقييم)</span>
+                    </div>
+                  } @else {
+                    <div class="pc-demand">
+                      <div class="pc-demand-ico"><svg aria-hidden="true"><use href="#ws-chart"></use></svg></div>
+                      <div><div class="pc-demand-val" [style.color]="slot.rank === 1 ? 'var(--teal)' : null">{{ (slot.model.salesCount || 0) | number }}</div><div class="pc-demand-lbl">طلب مكتمل</div></div>
+                    </div>
+                  }
+                  <div class="pc-price">
+                    <span class="pc-price-val" [style.color]="slot.rank === 1 ? (mode() === 'top-rated' ? 'var(--kahr)' : 'var(--teal)') : null">{{ slot.model.totalAmount | number }}</span><span class="pc-price-lbl">ريال</span>
+                    <div class="pc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(slot.model.totalDays) }}</div>
+                    <button class="pc-btn" type="button" [routerLink]="['/marketplace/offer', slot.model.id]">{{ slot.rank === 1 ? 'اطلب الآن' : 'عرض الخدمة' }}</button>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
-        <div class="podium-wrap">
-          @for (slot of podiumSlots(); track slot.model.id) {
-            <a [routerLink]="['/marketplace/offer', slot.model.id]" class="pc" [class]="'r' + slot.rank">
-              <div class="pc-strip">
-                <div class="pc-strip-ico"><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
-                {{ rankStripLabel(slot.rank) }}
+      }
+
+      <!-- ═══ FEATURED HERO CARDS ═══ -->
+      @if (mode() === 'featured' && showcase().length) {
+        <div class="featured-hero">
+          <div class="section-head">
+            <div class="section-title">
+              <div class="stitle-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+              الخدمات المميزة الأبرز
+            </div>
+            <span style="font-size:12px;color:var(--txt-3)">مختارة بعناية من الفريق</span>
+          </div>
+          <div class="featured-grid">
+            @for (m of showcase(); track m.id; let first = $first) {
+              <div class="fc" [class.hero]="first" [class.side]="!first">
+                <div class="fc-featured-strip">
+                  <div class="fc-strip-ico"><svg aria-hidden="true" style="width:9px;height:9px" [style.color]="first ? 'var(--kahr)' : 'var(--txt-3)'"><use href="#ws-shield"></use></svg></div>
+                  {{ first ? 'الأبرز هذا الشهر' : 'خدمة مميزة' }}
+                </div>
+                <div class="fc-thumb">
+                  @if (first) { <div class="fc-glow"></div> }
+                  @if (m.coverImage) {
+                    <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+                  } @else {
+                    <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
+                  }
+                  @if (m.level) {
+                    <div class="fc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</div>
+                  }
+                  <div class="fc-badge"><svg aria-hidden="true"><use href="#ws-shield"></use></svg> مميزة</div>
+                </div>
+                <div class="fc-body">
+                  <div class="fc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
+                  <div class="fc-title">{{ m.title }}</div>
+                  <div class="fc-prov">
+                    <div class="fc-av">{{ m.provider.initials }}</div>
+                    <div><div class="fc-pname">{{ m.provider.name }}</div>@if (m.isVerified) {<div class="fc-verified"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div>}</div>
+                  </div>
+                  <div class="fc-rating-row">
+                    <div class="fc-stars">@for (on of stars(m.rating); track $index) {<svg aria-hidden="true" [style.opacity]="on ? null : '.4'"><use href="#ws-star"></use></svg>}</div>
+                    <span class="fc-score">{{ m.rating }}</span><span class="fc-cnt">({{ m.reviewsCount || 0 }})</span>
+                  </div>
+                  <div class="fc-price">
+                    <div>
+                      <span class="fc-price-lbl">يبدأ من</span>
+                      <span class="fc-price-val">{{ m.totalAmount | number }}</span>
+                      <span style="font-size:11px;color:var(--txt-3)"> ريال</span>
+                      <div class="fc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
+                    </div>
+                    <button class="fc-btn" type="button" [routerLink]="['/marketplace/offer', m.id]">{{ first ? 'اطلب الآن' : 'عرض' }}</button>
+                  </div>
+                </div>
               </div>
-              <div class="pc-thumb">
-                <div class="pc-glow"></div>
-                @if (slot.model.coverImage) {
-                  <img [src]="slot.model.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ═══ EXCLUSIVE DEAL CARDS ═══ -->
+      @if (mode() === 'exclusive' && showcase().length) {
+        <div class="section-head">
+          <div class="section-title">
+            <div class="stitle-ico"><svg aria-hidden="true"><use href="#ws-tag"></use></svg></div>
+            عروض اليوم الأبرز
+          </div>
+        </div>
+        <div class="deal-hero-wrap">
+          @for (m of showcase(); track m.id; let first = $first) {
+            <a [routerLink]="['/marketplace/offer', m.id]" [class]="first ? 'deal-hero' : 'deal-side'">
+              <div class="deal-top-strip">
+                <div class="deal-strip-ico"><svg aria-hidden="true" style="width:9px;height:9px" [style.color]="first ? 'var(--red)' : 'var(--txt-3)'"><use href="#ws-tag"></use></svg></div>
+                {{ first ? 'عرض اليوم الأبرز — ينتهي قريباً' : 'عرض حصري' }}
+              </div>
+              <div class="deal-thumb">
+                @if (first) { <div class="deal-thumb-glow"></div> }
+                @if (m.coverImage) {
+                  <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
                 } @else {
                   <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
                 }
-                @if (slot.model.level) {
-                  <div class="pc-lvl" [style.background]="slot.model.levelBg || 'rgba(43,127,255,.85)'" [style.color]="slot.model.levelColor || '#D9E8FF'">{{ slot.model.level }}</div>
+                @if (m.level) {
+                  <div class="deal-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</div>
                 }
+                <div class="discount-badge">٪{{ m.discountPercentage }} خصم</div>
               </div>
-              <div class="pc-body">
-                <div class="pc-ai" [class.gold]="slot.rank===1"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ slot.model.aiScore }}</div>
-                <div class="pc-title">{{ slot.model.title }}</div>
-                <div class="pc-prov">
-                  <div class="pc-av">{{ slot.model.provider.initials }}</div>
-                  <div>
-                    <div class="pc-pname">{{ slot.model.provider.name }}</div>
-                    @if (slot.model.isVerified) { <div class="pc-verified"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div> }
+              <div class="deal-body">
+                <div class="deal-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
+                <div class="deal-title">{{ m.title }}</div>
+                <div class="deal-prov">
+                  <div class="deal-av">{{ m.provider.initials }}</div>
+                  <div><div class="deal-pname">{{ m.provider.name }}</div>@if (m.isVerified) {<div class="deal-verified"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div>}</div>
+                </div>
+                @if (offerCountdown(m); as cd) {
+                  <div class="card-countdown">
+                    <div class="card-countdown-ico"><svg aria-hidden="true"><use href="#ws-clock"></use></svg></div>
+                    <div class="card-countdown-lbl">{{ first ? 'ينتهي العرض خلال' : 'ينتهي خلال' }}</div>
+                    <div class="card-countdown-time">{{ cd }}</div>
                   </div>
-                </div>
-                <div class="pc-score">
-                  <div class="pc-stars"><svg aria-hidden="true"><use href="#ws-star"></use></svg><svg aria-hidden="true"><use href="#ws-star"></use></svg><svg aria-hidden="true"><use href="#ws-star"></use></svg><svg aria-hidden="true"><use href="#ws-star"></use></svg><svg aria-hidden="true"><use href="#ws-star"></use></svg></div>
-                  <span class="pc-score-val">{{ slot.model.rating }}</span>
-                  <span class="pc-score-cnt">({{ slot.model.reviewsCount || 0 }} تقييم)</span>
-                </div>
-                <div class="pc-price">
-                  <span class="pc-price-val">{{ slot.model.totalAmount }}</span><span class="pc-price-lbl">ريال</span>
-                  <div class="pc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ slot.model.totalDays }} يوم</div>
-                  <span class="pc-btn">عرض الخدمة</span>
+                }
+                <div class="deal-pricing">
+                  <div class="price-before">{{ priceBefore(m) | number }} ريال</div>
+                  <div class="price-after">{{ m.totalAmount | number }} <span>ريال</span></div>
+                  <div class="price-saving">توفر {{ saving(m) | number }} ريال</div>
+                  <button class="deal-btn" type="button">{{ first ? 'استفد من العرض الآن' : 'استفد الآن' }}</button>
                 </div>
               </div>
             </a>
           }
         </div>
-      </div>
-    }
+      }
 
-    <!-- FILTER -->
-    @if (categories().length > 1) {
-      <div class="sticky-sort">
-        <div class="filter-rail">
-          <button class="filter-pill" [class.active]="categoryFilter()==='all'" (click)="setCategoryFilter('all')">الكل</button>
+      <!-- ═══ FILTER ═══ -->
+      @if (mode() === 'newest') {
+        <div class="filter-strip" #fstrip (mousedown)="dragStart($event, fstrip)" (mousemove)="dragMove($event)" (mouseup)="dragEnd()" (mouseleave)="dragEnd()">
+          <button class="ftag" type="button" [class.active]="categoryFilter() === 'all'" (click)="setCategoryFilter('all')">الكل</button>
           @for (cat of categories(); track cat) {
-            <button class="filter-pill" [class.active]="categoryFilter()===cat" (click)="setCategoryFilter(cat)">{{ cat }}</button>
+            <button class="ftag" type="button" [class.active]="categoryFilter() === cat" (click)="setCategoryFilter(cat)">{{ cat }}</button>
           }
         </div>
-      </div>
-    }
+      } @else {
+        <div class="sticky-sort">
+          <div class="filter-row">
+            <div class="filter-rail" #rail role="group" aria-label="تصفية حسب التصنيف" (mousedown)="dragStart($event, rail)" (mousemove)="dragMove($event)" (mouseup)="dragEnd()" (mouseleave)="dragEnd()">
+              <button class="filter-pill" type="button" [class.active]="categoryFilter() === 'all'" (click)="setCategoryFilter('all')"><svg aria-hidden="true"><use href="#ws-filter"></use></svg> الكل</button>
+              @for (cat of categories(); track cat) {
+                <button class="filter-pill" type="button" [class.active]="categoryFilter() === cat" (click)="setCategoryFilter(cat)">{{ cat }}</button>
+              }
+              @if (mode() === 'exclusive') {
+                <button class="filter-pill" type="button" [class.active]="categoryFilter() === DISC_30" (click)="setCategoryFilter(DISC_30)">خصم 30+ ٪</button>
+                <button class="filter-pill" type="button" [class.active]="categoryFilter() === DISC_50" (click)="setCategoryFilter(DISC_50)">خصم 50+ ٪</button>
+              }
+            </div>
+            @if (mode() === 'top-rated' || mode() === 'most-ordered') {
+              <div class="view-toggle">
+                <button class="vbtn" type="button" [class.active]="viewMode() === 'grid'" (click)="setView('grid')" aria-label="عرض شبكة"><svg aria-hidden="true"><use href="#ws-grid"></use></svg></button>
+                <button class="vbtn" type="button" [class.active]="viewMode() === 'list'" (click)="setView('list')" aria-label="عرض قائمة"><svg aria-hidden="true"><use href="#ws-list"></use></svg></button>
+              </div>
+            }
+          </div>
+          <div class="results-meta">
+            @switch (mode()) {
+              @case ('featured') { <strong>{{ filteredModels().length }}</strong> خدمة مميزة معتمدة }
+              @case ('exclusive') { <strong>{{ filteredModels().length }}</strong> عرض نشط }
+              @case ('most-ordered') { <strong>{{ filteredModels().length }}</strong> خدمة }
+              @default { <strong>{{ filteredModels().length }}</strong> خدمة ضمن القائمة }
+            }
+          </div>
+        </div>
+      }
 
-    @if (loading()) {
-      <div style="text-align:center;padding:60px 0;font-size:13px" class="txt-muted">جاري تحميل الخدمات...</div>
-    } @else if (!filteredModels().length) {
-      <div class="empty-state">
-        <div style="font-size:14px;font-weight:700;margin-bottom:6px" class="txt-white">لا توجد خدمات ضمن هذا التصنيف حالياً</div>
-        <a routerLink="/marketplace" class="empty-cta">تصفح كل الخدمات</a>
-      </div>
-    } @else if (restModels().length) {
-      <div class="results-meta"><strong>{{ filteredModels().length }}</strong> خدمة ضمن القائمة</div>
-      <div class="services-grid">
-        @for (m of restModels(); track m.id) {
-          <a [routerLink]="['/marketplace/offer', m.id]" class="svc-card">
-            <div class="svc-thumb">
-              @if (m.coverImage) {
-                <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover">
-              } @else {
-                <svg class="ph" aria-hidden="true" style="width:32px;height:32px"><use href="#ws-image"></use></svg>
-              }
-              @if (m.level) {
-                <span class="svc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</span>
-              }
-              @if (m.discountPercentage) {
-                <span class="discount-tag">خصم {{ m.discountPercentage }}%</span>
-              }
-            </div>
-            <div class="svc-body">
-              <div class="svc-ai"><svg aria-hidden="true" style="width:9px;height:9px"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
-              <div class="svc-title">{{ m.title }}</div>
-              <div class="svc-prov">
-                <div class="svc-av">{{ m.provider.initials }}</div>
-                <div>
-                  <div class="svc-pname">{{ m.provider.name }}</div>
-                  @if (m.isVerified) { <div class="svc-verified">✓ معتمد</div> }
+      @if (!filteredModels().length) {
+        <div class="empty-state">
+          <div class="empty-title">لا توجد خدمات ضمن هذا التصنيف حالياً</div>
+          <a routerLink="/marketplace" class="empty-cta">تصفح كل الخدمات</a>
+        </div>
+      }
+
+      <!-- ═══ NEWEST: TIME GROUPS ═══ -->
+      @if (mode() === 'newest') {
+        @if (visibleNewGroups().length) {
+          <div class="time-groups">
+            @for (g of visibleNewGroups(); track g.key) {
+              <div class="tgroup">
+                <div class="tgroup-header">
+                  <div class="tgroup-dot" [class]="'tgroup-dot ' + g.dot"></div>
+                  <div class="tgroup-title">{{ g.title }}</div>
+                  <div class="tgroup-sub">{{ g.sub }}</div>
+                  <div class="tgroup-line"></div>
+                  @if (g.badge) { <span class="tgroup-badge" [class]="'tgroup-badge ' + g.badge.cls">{{ g.badge.label }}</span> }
+                </div>
+                <div class="hscroll-row" #row (mousedown)="dragStart($event, row)" (mousemove)="dragMove($event)" (mouseup)="dragEnd()" (mouseleave)="dragEnd()">
+                  @for (m of g.items; track m.id) {
+                    <a [routerLink]="['/marketplace/offer', m.id]" class="svc-card" [class.is-new]="g.key === 'live'" style="min-width:270px;flex-shrink:0">
+                      <div class="svc-thumb">
+                        @if (m.coverImage) {
+                          <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:1">
+                        } @else {
+                          <svg aria-hidden="true"><use href="#ws-image"></use></svg>
+                        }
+                        @if (m.level) {
+                          <span class="svc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</span>
+                        }
+                        @if (g.key === 'live') {
+                          <span class="svc-new-badge">NEW</span>
+                        } @else if (g.key === 'today') {
+                          <span class="svc-new-badge" style="background:rgba(43,127,255,.85)">اليوم</span>
+                        }
+                        @if (timeAgo(m)) {
+                          <span class="svc-time-badge"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ timeAgo(m) }}</span>
+                        }
+                      </div>
+                      <div class="svc-body">
+                        <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
+                        <div class="svc-title">{{ m.title }}</div>
+                        <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><div class="svc-prov-info-wrap"><span class="svc-pname">{{ m.provider.name }}</span>@if (m.isVerified) {<span class="svc-verified">✓ معتمد</span>}</div></div>
+                        <div class="svc-rating"><span class="stars">{{ starText(m.rating) }}</span><span class="score">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
+                        <div class="svc-footer">
+                          <div>
+                            <div class="svc-price">{{ m.totalAmount | number }} <span>ريال</span></div>
+                            <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
+                          </div>
+                          <button class="svc-fav" type="button" [class.is-favorite]="isFav(m.id)" aria-label="أضف للمفضلة" (click)="toggleFavorite(m.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
+                        </div>
+                      </div>
+                    </a>
+                  }
                 </div>
               </div>
-              <div class="svc-rating">
-                <svg aria-hidden="true" style="width:11px;height:11px" class="txt-kahr"><use href="#ws-star"></use></svg>
-                <span class="score">{{ m.rating }}</span>
-                <span>({{ m.reviewsCount || 0 }})</span>
-                @if (m.salesCount) { <span style="margin-inline-start:auto" class="txt-muted">{{ m.salesCount }} مبيعة</span> }
-              </div>
-              <div class="svc-footer">
-                <div>
-                  <div class="svc-price">{{ m.totalAmount }} <span>ريال</span></div>
-                  <div class="svc-days"><svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-clock"></use></svg> {{ m.totalDays }} يوم</div>
-                </div>
-                <span class="svc-order-btn">اطلب الآن</span>
-              </div>
-            </div>
-          </a>
+            }
+          </div>
         }
-      </div>
+        @if (hasOlderGroups()) {
+          <button class="load-more-btn" type="button" style="margin-top:32px" (click)="showOlder.set(true)">
+            <svg aria-hidden="true"><use href="#ws-refresh"></use></svg>
+            {{ olderButtonLabel() }}
+          </button>
+        }
+      }
+
+      <!-- ═══ GRID (top-rated / most-ordered / featured / exclusive) ═══ -->
+      @if (mode() !== 'newest' && visibleRest().length) {
+        @if (viewMode() === 'grid') {
+          <div class="services-grid">
+            @for (m of visibleRest(); track m.id; let i = $index) {
+              @switch (mode()) {
+                @case ('exclusive') {
+                  <a [routerLink]="['/marketplace/offer', m.id]" class="svc-card">
+                    <div class="svc-thumb">
+                      @if (m.coverImage) {
+                        <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+                      } @else {
+                        <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
+                      }
+                      @if (m.level) {
+                        <div class="svc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</div>
+                      }
+                      <div class="svc-disc">٪{{ m.discountPercentage }} خصم</div>
+                    </div>
+                    <div class="svc-body">
+                      <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
+                      <div class="svc-title">{{ m.title }}</div>
+                      <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><span>{{ m.provider.name }}</span>@if (m.isVerified) {<span style="font-size:9px;color:var(--teal);display:flex;align-items:center;gap:2px"><svg aria-hidden="true" style="width:8px;height:8px"><use href="#ws-check"></use></svg> معتمد</span>}</div>
+                      @if (offerCountdown(m); as cd) {
+                        <div class="svc-cd"><svg aria-hidden="true"><use href="#ws-clock"></use></svg><span class="svc-cd-lbl">ينتهي خلال</span><span class="svc-cd-time">{{ cd }}</span></div>
+                      }
+                      <div class="svc-pricing"><div class="svc-before">{{ priceBefore(m) | number }} ريال</div><div class="svc-after">{{ m.totalAmount | number }} <span>ريال</span></div></div>
+                    </div>
+                  </a>
+                }
+                @default {
+                  <a [routerLink]="['/marketplace/offer', m.id]" class="svc-card" [class.featured-card]="mode() === 'featured'">
+                    <div class="svc-thumb">
+                      @if (m.coverImage) {
+                        <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+                      } @else {
+                        <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
+                      }
+                      @if (m.level) {
+                        <div class="svc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</div>
+                      }
+                      @if (mode() === 'featured') {
+                        <div class="svc-feat-badge"><svg aria-hidden="true" style="width:8px;height:8px;color:#fff"><use href="#ws-shield"></use></svg> مميزة</div>
+                      }
+                    </div>
+                    <div class="svc-body">
+                      <div class="svc-top">
+                        @if (mode() !== 'featured') { <span class="svc-rank-badge">#{{ i + rankOffset() }}</span> }
+                        <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
+                      </div>
+                      <div class="svc-title">{{ m.title }}</div>
+                      <div class="svc-prov">
+                        <div class="svc-av">{{ m.provider.initials }}</div>
+                        <div><div class="svc-pname">{{ m.provider.name }}</div>@if (m.isVerified) {<div class="svc-v"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div>}</div>
+                      </div>
+                      @if (mode() === 'most-ordered') {
+                        <div class="svc-demand"><div style="width:16px;height:16px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:9px;height:9px;color:var(--teal)"><use href="#ws-chart"></use></svg></div><span class="svc-demand-val">{{ (m.salesCount || 0) | number }}</span><span>طلب</span></div>
+                      } @else {
+                        <div class="svc-rating"><div class="svc-stars">@for (on of stars(m.rating); track $index) {<svg aria-hidden="true" style="width:10px;height:10px;color:var(--kahr)" [style.opacity]="on ? null : '.4'"><use href="#ws-star"></use></svg>}</div><span class="svc-rating-val">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
+                      }
+                      <div class="svc-bottom">
+                        <div><div class="svc-price"><span>من </span>{{ m.totalAmount | number }} <span>ريال</span></div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
+                        <button class="svc-fav" type="button" [class.is-favorite]="isFav(m.id)" aria-label="مفضلة" (click)="toggleFavorite(m.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
+                      </div>
+                    </div>
+                  </a>
+                }
+              }
+            }
+          </div>
+        } @else {
+          <!-- LIST VIEW (top-rated / most-ordered) -->
+          <div class="services-list">
+            @for (m of visibleRest(); track m.id; let i = $index) {
+              <a [routerLink]="['/marketplace/offer', m.id]" class="list-card">
+                <div class="list-thumb">
+                  <div class="list-rank-big">#{{ i + rankOffset() }}</div>
+                  <svg class="ph" aria-hidden="true" [style.width]="mode() === 'top-rated' ? '24px' : null" [style.height]="mode() === 'top-rated' ? '24px' : null"><use href="#ws-image"></use></svg>
+                </div>
+                <div class="list-body">
+                  <div class="list-main">
+                    <div class="list-meta">
+                      <span class="svc-rank-badge">#{{ i + rankOffset() }}</span>
+                      <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
+                    </div>
+                    <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px">{{ m.title }}</div>
+                    <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><div><div class="svc-pname">{{ m.provider.name }}</div>@if (m.isVerified) {<div class="svc-v"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div>}</div></div>
+                    @if (mode() === 'most-ordered') {
+                      <div class="svc-demand"><div style="width:16px;height:16px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:9px;height:9px;color:var(--teal)"><use href="#ws-chart"></use></svg></div><span class="svc-demand-val">{{ (m.salesCount || 0) | number }}</span><span>طلب</span></div>
+                    } @else {
+                      <div class="svc-rating"><div class="svc-stars">@for (on of stars(m.rating); track $index) {<svg aria-hidden="true" style="width:10px;height:10px;color:var(--kahr)" [style.opacity]="on ? null : '.4'"><use href="#ws-star"></use></svg>}</div><span class="svc-rating-val">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
+                    }
+                  </div>
+                  <div class="list-right">
+                    <div class="list-price">{{ m.totalAmount | number }} <span>ريال</span></div>
+                    <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
+                    <button type="button" style="padding:8px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit;white-space:nowrap">عرض الخدمة</button>
+                  </div>
+                </div>
+              </a>
+            }
+          </div>
+        }
+
+        @if (hasMore()) {
+          @switch (mode()) {
+            @case ('featured') {
+              <div style="text-align:center;padding:24px 0 64px">
+                <button type="button" class="load-more-inline load-more-kahr" (click)="loadMore()">تحميل المزيد</button>
+              </div>
+            }
+            @case ('exclusive') {
+              <div style="text-align:center;padding:24px 0 64px">
+                <button type="button" class="load-more-inline load-more-red" (click)="loadMore()">تحميل المزيد</button>
+              </div>
+            }
+            @default {
+              <div class="load-more-wrap">
+                <button class="load-more-btn" type="button" (click)="loadMore()">تحميل المزيد</button>
+              </div>
+            }
+          }
+        } @else {
+          <div style="height:48px"></div>
+        }
+      }
     }
   </div>
 </div>
