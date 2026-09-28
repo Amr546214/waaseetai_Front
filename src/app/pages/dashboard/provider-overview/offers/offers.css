@@ -23,82 +23,7 @@
   color:var(--ai);
 }
 
-.filter-rail {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, .03);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 14px;
-  margin-bottom: 18px;
-  overflow-x: auto;
-  
-  /* Firefox Scrollbar Styling */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-}
-
 /* WebKit (Chrome/Safari/Edge) Scrollbar Styling */
-.filter-rail::-webkit-scrollbar {
-  height: 4px;
-}
-.filter-rail::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 14px;
-}
-.filter-rail::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 14px;
-}
-.filter-rail::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.filter-label-tag {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6B7699;
-  padding: 4px 8px;
-  white-space: nowrap;
-}
-
-.filter-chip {
-  padding: 6px 14px;
-  background: rgba(255, 255, 255, .04);
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #A8B2D1;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all .15s ease;
-  white-space: nowrap;
-}
-
-.filter-chip:hover {
-  background: rgba(255, 255, 255, .08);
-  color: #fff;
-}
-
-.filter-chip.active {
-  background: rgba(43, 212, 199, .14);
-  border-color: rgba(43, 212, 199, .30);
-  color: #2BD4C7;
-  font-weight: 700;
-}
-
-.search-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: rgba(0, 0, 0, .2);
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 10px;
-}
 
 .adm-card {
   background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
@@ -214,72 +139,12 @@
 }
 
 /* Filter Rail */
-:host-context(body.light-theme) .filter-rail,
-:host-context(body.theme-light) .filter-rail,
-:host-context(.light-theme) .filter-rail,
-:host-context(.theme-light) .filter-rail {
-  background: #FFFFFF;
-  border-color: #E7EAF1;
-  scrollbar-color: rgba(107, 118, 153, 0.25) transparent;
-}
-
-:host-context(body.light-theme) .filter-rail::-webkit-scrollbar-thumb,
-:host-context(body.theme-light) .filter-rail::-webkit-scrollbar-thumb,
-:host-context(.light-theme) .filter-rail::-webkit-scrollbar-thumb,
-:host-context(.theme-light) .filter-rail::-webkit-scrollbar-thumb {
-  background: rgba(107, 118, 153, 0.25);
-}
-
-:host-context(body.light-theme) .filter-rail::-webkit-scrollbar-thumb:hover,
-:host-context(body.theme-light) .filter-rail::-webkit-scrollbar-thumb:hover,
-:host-context(.light-theme) .filter-rail::-webkit-scrollbar-thumb:hover,
-:host-context(.theme-light) .filter-rail::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 118, 153, 0.4);
-}
 
 /* Filter Label Tag */
-:host-context(body.light-theme) .filter-label-tag,
-:host-context(body.theme-light) .filter-label-tag,
-:host-context(.light-theme) .filter-label-tag,
-:host-context(.theme-light) .filter-label-tag {
-  color: #1D6FE0;
-}
 
 /* Filter Chips */
-:host-context(body.light-theme) .filter-chip,
-:host-context(body.theme-light) .filter-chip,
-:host-context(.light-theme) .filter-chip,
-:host-context(.theme-light) .filter-chip {
-  background: #F6F8FC;
-  border-color: #E7EAF1;
-  color: #475569;
-}
-
-:host-context(body.light-theme) .filter-chip:hover,
-:host-context(body.theme-light) .filter-chip:hover,
-:host-context(.light-theme) .filter-chip:hover,
-:host-context(.theme-light) .filter-chip:hover {
-  background: rgba(43, 212, 199, .08);
-  color: #0F172A;
-}
-
-:host-context(body.light-theme) .filter-chip.active,
-:host-context(body.theme-light) .filter-chip.active,
-:host-context(.light-theme) .filter-chip.active,
-:host-context(.theme-light) .filter-chip.active {
-  background: rgba(15, 138, 127, .12);
-  border-color: rgba(15, 138, 127, .35);
-  color: #0A6F64;
-}
 
 /* Search Wrap */
-:host-context(body.light-theme) .search-wrap,
-:host-context(body.theme-light) .search-wrap,
-:host-context(.light-theme) .search-wrap,
-:host-context(.theme-light) .search-wrap {
-  background: #F6F8FC;
-  border-color: #D8DFEC;
-}
 
 /* Admin Card */
 :host-context(body.light-theme) .adm-card,

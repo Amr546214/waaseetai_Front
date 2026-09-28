@@ -75,9 +75,8 @@
 				(click)="setSpecialty(spec.id)">{{ spec.label }}</button>
 			}
 		</div>
-		<div class="fr-period-lbl" aria-hidden="true" style="border-inline-start:1px solid rgba(255,255,255,.07)">ترتيب
-		</div>
-		<div class="date-segs" role="group" aria-label="ترتيب النتائج">
+		<div class="date-segs fr-sort" role="group" aria-label="ترتيب النتائج">
+			<svg class="fr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/></svg>
 			@for (sort of sortOptions; track sort.id) {
 			<button class="ds" [class.active]="activeSort() === sort.id" type="button" (click)="setSort(sort.id)">{{
 				sort.label }}</button>
@@ -96,14 +95,14 @@
 			<div class="fr-active"
 				[class.show]="searchQuery() !== '' || activeSpecialty() !== 'all' || activeSort() !== 'match'"
 				id="fr-active-count" aria-live="polite">
-				<span id="fr-cnt-lbl">فلتر نشط</span>
-				<button type="button" class="fr-clear" (click)="resetFilters()">مسح ×</button>
+				<span id="fr-cnt-lbl">{{ (searchQuery() !== '' ? 1 : 0) + (activeSpecialty() !== 'all' ? 1 : 0) + (activeSort() !== 'match' ? 1 : 0) }} فلتر نشط</span>
+				<button type="button" class="fr-clear" (click)="resetFilters()" aria-label="مسح كل الفلاتر"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
 			</div>
 			<button type="button" class="fr-export-btn" (click)="openFilter()">
 				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 					aria-hidden="true">
 					<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-				</svg>فلترة متقدمة
+				</svg>فلترة
 			</button>
 		</div>
 	</div>

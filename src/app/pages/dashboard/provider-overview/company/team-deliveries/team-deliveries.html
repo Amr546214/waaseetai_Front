@@ -24,15 +24,15 @@
 	</div>
 
 	<!-- Filter rail -->
-	<div class="tds-filter-rail">
-		<div class="tds-fr-lbl">الفترة</div>
-		<div class="tds-fr-segs">
-			<button class="tds-ds" [class.active]="activePeriod() === 'all'" (click)="setPeriod('all')">الكل</button>
-			<button class="tds-ds" [class.active]="activePeriod() === 'week'" (click)="setPeriod('week')">هذا الأسبوع</button>
-			<button class="tds-ds" [class.active]="activePeriod() === 'month'" (click)="setPeriod('month')">هذا الشهر</button>
+	<div class="filter-rail">
+		<div class="fr-lbl">الفترة</div>
+		<div class="fr-segs">
+			<button class="ds" [class.active]="activePeriod() === 'all'" (click)="setPeriod('all')">الكل</button>
+			<button class="ds" [class.active]="activePeriod() === 'week'" (click)="setPeriod('week')">هذا الأسبوع</button>
+			<button class="ds" [class.active]="activePeriod() === 'month'" (click)="setPeriod('month')">هذا الشهر</button>
 		</div>
-		<div class="tds-fr-spacer"></div>
-		<div class="tds-fr-search">
+		<div class="fr-spacer"></div>
+		<div class="fr-search">
 			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
 			<input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="ابحث في التسليمات..." />
 		</div>

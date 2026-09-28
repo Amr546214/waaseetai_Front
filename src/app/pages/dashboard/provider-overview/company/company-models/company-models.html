@@ -28,23 +28,23 @@
 	</div>
 
 	<!-- Filter rail -->
-	<div class="cml-filter-rail" role="search" aria-label="فلترة نماذج الشركة">
-		<div class="cml-fr-lbl">التخصص</div>
-		<div class="cml-fr-segs" role="group">
+	<div class="filter-rail" role="search" aria-label="فلترة نماذج الشركة">
+		<div class="fr-lbl">التخصص</div>
+		<div class="fr-segs" role="group">
 			@for (tab of filterTabs(); track tab.id) {
-			<button class="cml-ds" [class.active]="activeCategory() === tab.id" type="button" (click)="setCategory(tab.id)">
+			<button class="ds" [class.active]="activeCategory() === tab.id" type="button" (click)="setCategory(tab.id)">
 				{{ tab.name }} <span class="cml-ds-count">({{ tab.count }})</span>
 			</button>
 			}
 		</div>
-		<div class="cml-fr-lbl cml-fr-lbl-mid">ترتيب</div>
-		<div class="cml-fr-segs" role="group">
-			<button class="cml-ds" [class.active]="activeSort() === 'views'" type="button" (click)="setSort('views')">الأكثر مشاهدة</button>
-			<button class="cml-ds" [class.active]="activeSort() === 'top-rated'" type="button" (click)="setSort('top-rated')">أعلى تقييم AI</button>
-			<button class="cml-ds" [class.active]="activeSort() === 'newest'" type="button" (click)="setSort('newest')">الأحدث</button>
+		<div class="fr-segs fr-sort" role="group" aria-label="ترتيب النتائج">
+			<svg class="fr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/></svg>
+			<button class="ds" [class.active]="activeSort() === 'views'" type="button" (click)="setSort('views')">الأكثر مشاهدة</button>
+			<button class="ds" [class.active]="activeSort() === 'top-rated'" type="button" (click)="setSort('top-rated')">أعلى تقييم AI</button>
+			<button class="ds" [class.active]="activeSort() === 'newest'" type="button" (click)="setSort('newest')">الأحدث</button>
 		</div>
-		<div class="cml-fr-spacer"></div>
-		<div class="cml-fr-search">
+		<div class="fr-spacer"></div>
+		<div class="fr-search">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
 			<input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="ابحث في نماذج الشركة..." aria-label="بحث" />
 		</div>

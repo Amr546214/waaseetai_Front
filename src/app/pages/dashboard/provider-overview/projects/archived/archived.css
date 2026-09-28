@@ -150,18 +150,6 @@
 .co-archived .kpi-c .l{font-size:11px;color:var(--txt-3,#6B7699);font-weight:600}
 .co-archived .state-card{border-radius:14px}
 
-.co-filter-rail{display:flex;align-items:stretch;gap:0;background:rgba(7,13,36,.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(43,212,199,.2);border-radius:14px;margin-bottom:16px;overflow:hidden;flex-wrap:wrap}
-.co-fr-lbl{display:flex;align-items:center;padding:0 14px;font-size:10px;font-weight:900;letter-spacing:.5px;color:#5DA0FF;background:rgba(43,127,255,.1);border-inline-end:1px solid rgba(43,127,255,.2);white-space:nowrap}
-.co-fr-segs{display:flex;align-items:center;gap:3px;padding:8px 12px;flex-shrink:0;flex-wrap:wrap}
-.co-ds{padding:5px 12px;border-radius:8px;font-size:11.5px;font-weight:700;color:#6B7699;font-family:inherit;cursor:pointer;transition:all .15s;border:1px solid transparent;background:transparent}
-.co-ds:hover{background:rgba(43,212,199,.09);color:#B8CAE4;border-color:rgba(43,212,199,.18)}
-.co-ds.active{background:linear-gradient(135deg,rgba(43,212,199,.35),rgba(43,127,255,.25));border-color:rgba(43,212,199,.65);color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(43,212,199,.18)}
-.co-fr-vd{width:1px;background:rgba(255,255,255,.07);align-self:stretch}
-.co-fr-gap{flex:1}
-.co-fr-search{display:flex;align-items:center;gap:7px;padding:10px 14px;border-inline-start:1px solid rgba(255,255,255,.07);min-width:160px;max-width:240px}
-.co-fr-search svg{width:13px;height:13px;color:#6B7699;flex-shrink:0}
-.co-fr-search input{background:none;border:none;outline:none;font-family:'Tajawal',sans-serif;font-size:12.5px;color:#fff;width:100%;direction:rtl}
-.co-fr-search input::placeholder{color:#4A5568}
 .co-fr-mav{width:13px;height:13px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:6px;font-weight:900;color:#fff}
 
 .co-st-tabs{display:flex;gap:4px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
@@ -203,10 +191,7 @@
 :host-context(body.light-theme) .co-archived .ai-disc-txt, :host-context(body.theme-light) .co-archived .ai-disc-txt, :host-context(.light-theme) .co-archived .ai-disc-txt, :host-context(.theme-light) .co-archived .ai-disc-txt {color:#475569}
 :host-context(body.light-theme) .co-archived .kpi-c, :host-context(body.theme-light) .co-archived .kpi-c, :host-context(.light-theme) .co-archived .kpi-c, :host-context(.theme-light) .co-archived .kpi-c {background:#fff;border-color:#E7EAF1}
 :host-context(body.light-theme) .co-archived .kpi-c .l, :host-context(body.theme-light) .co-archived .kpi-c .l, :host-context(.light-theme) .co-archived .kpi-c .l, :host-context(.theme-light) .co-archived .kpi-c .l {color:#64748B}
-:host-context(body.light-theme) .co-filter-rail, :host-context(body.theme-light) .co-filter-rail, :host-context(.light-theme) .co-filter-rail, :host-context(.theme-light) .co-filter-rail {background:rgba(246,248,252,.96);border-color:rgba(43,212,199,.18)}
-:host-context(body.light-theme) .co-fr-lbl, :host-context(body.theme-light) .co-fr-lbl, :host-context(.light-theme) .co-fr-lbl, :host-context(.theme-light) .co-fr-lbl {background:rgba(43,127,255,.06);border-color:rgba(43,127,255,.12);color:#2B7FFF}
-:host-context(body.light-theme) .co-ds, :host-context(body.theme-light) .co-ds, :host-context(.light-theme) .co-ds, :host-context(.theme-light) .co-ds {color:#56607D}
-:host-context(body.light-theme) .co-fr-search input, :host-context(body.theme-light) .co-fr-search input, :host-context(.light-theme) .co-fr-search input, :host-context(.theme-light) .co-fr-search input {color:#0F172A}
+
 :host-context(body.light-theme) .co-st-tab, :host-context(body.theme-light) .co-st-tab, :host-context(.light-theme) .co-st-tab, :host-context(.theme-light) .co-st-tab {color:#56607D}
 :host-context(body.light-theme) .co-st-tab.active, :host-context(body.theme-light) .co-st-tab.active, :host-context(.light-theme) .co-st-tab.active, :host-context(.theme-light) .co-st-tab.active {color:#007A72;border-bottom-color:#007A72}
 :host-context(body.light-theme) .proj-card, :host-context(body.theme-light) .proj-card, :host-context(.light-theme) .proj-card, :host-context(.theme-light) .proj-card {background:#fff;border-color:#E7EAF1}
@@ -218,6 +203,5 @@
 
 @media(max-width:767px){
   .co-archived .kpi-row{grid-template-columns:repeat(2,1fr)}
-  .co-filter-rail{flex-direction:column;align-items:stretch}
-  .co-fr-search{max-width:none;border-inline-start:none;border-top:1px solid rgba(255,255,255,.07)}
+
 }

@@ -30,64 +30,58 @@
 	<!-- Filter Rail -->
 	<div class="filter-rail" role="search" aria-label="فلترة العروض">
 
-		<span class="filter-label-tag text-[#5DA0FF]">الحالة</span>
-		<div class="flex items-center gap-1.5 shrink-0 flex-nowrap">
+		<span class="fr-lbl">الحالة</span>
+		<div class="fr-segs" role="group">
 			@for (stat of statusOptions; track stat.id) {
 			<button type="button" (click)="setStatus(stat.id)" [class.active]="activeStatus() === stat.id"
-				class="filter-chip">
-				{{ stat.label }} <span class="text-[10px] opacity-70">({{ stat.count }})</span>
+				class="ds">
+				{{ stat.label }} <span class="opacity-70">({{ stat.count }})</span>
 			</button>
 			}
 		</div>
 
-		<div class="w-px h-5 bg-white/10 mx-1 shrink-0"></div>
-
-		<span class="filter-label-tag text-[#5DA0FF]">طالب الخدمة</span>
-		<div class="flex items-center gap-1.5 shrink-0 flex-nowrap">
+		<span class="fr-lbl">طالب الخدمة</span>
+		<div class="fr-segs" role="group">
 			@for (client of clientOptions; track client.id) {
 			<button type="button" (click)="setClientType(client.id)" [class.active]="activeClientType() === client.id"
-				class="filter-chip">
+				class="ds">
 				{{ client.label }}
 			</button>
 			}
 		</div>
 
-		<div class="w-px h-5 bg-white/10 mx-1 shrink-0"></div>
-
-		<span class="filter-label-tag text-[#5DA0FF]">ترتيب</span>
-		<div class="flex items-center gap-1.5 shrink-0 flex-nowrap">
+		<div class="fr-segs fr-sort" role="group" aria-label="ترتيب النتائج">
+			<svg class="fr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/></svg>
 			@for (sort of sortOptions; track sort.id) {
 			<button type="button" (click)="setSort(sort.id)" [class.active]="activeSort() === sort.id"
-				class="filter-chip">
+				class="ds">
 				{{ sort.label }}
 			</button>
 			}
 		</div>
 
 		@if (isCompanyMode()) {
-		<div class="w-px h-5 bg-white/10 mx-1 shrink-0"></div>
 
-		<span class="filter-label-tag text-[#5DA0FF]">التخصص</span>
-		<div class="flex items-center gap-1.5 shrink-0 flex-nowrap">
+		<span class="fr-lbl">التخصص</span>
+		<div class="fr-segs" role="group">
 			@for (spec of companySpecialtyOptions; track spec.id) {
 			<button type="button" (click)="setCompanySpecialty(spec.id)" [class.active]="companySpecialtyFilter() === spec.id"
-				class="filter-chip">
+				class="ds">
 				{{ spec.label }}
 			</button>
 			}
 		</div>
 		}
 
-		<div class="flex-1 min-w-[12px]" aria-hidden="true"></div>
+		<div class="fr-spacer" aria-hidden="true"></div>
 
-		<div class="search-wrap min-w-[160px] max-w-[240px] shrink-0">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
-				class="w-3.5 h-3.5 text-[#6B7699] shrink-0">
+		<div class="fr-search">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 				<circle cx="11" cy="11" r="8" />
 				<path d="m21 21-4.35-4.35" />
 			</svg>
 			<input type="search" placeholder="ابحث في عروضك..." (input)="onSearch($event)" [value]="searchQuery()"
-				class="bg-transparent border-0 outline-none text-xs text-white w-full placeholder:text-[#6B7699] shrink-0">
+				aria-label="بحث">
 		</div>
 	</div>
 

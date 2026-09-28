@@ -46,7 +46,6 @@
 				<button type="button" class="ds" [class.active]="activeTpl() === t.id" (click)="setTpl(t.id)">{{ t.label }}</button>
 			}
 		</div>
-		<div class="fr-divider"></div>
 		<div class="fr-lbl">المقدِّم</div>
 		<div class="fr-segs">
 			@for (m of memberFilters; track m.id) {

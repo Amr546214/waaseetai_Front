@@ -46,7 +46,6 @@
 			<button class="ds" [class.active]="specFilter() === spec.id" type="button" (click)="setSpec(spec.id)">{{ spec.label }}</button>
 			}
 		</div>
-		<div class="fr-vd"></div>
 		<div class="fr-period-lbl">التوافر</div>
 		<div class="date-segs">
 			@for (av of availOptions; track av.id) {

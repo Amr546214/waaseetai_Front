@@ -196,26 +196,25 @@
 		</div>
 
 		<!-- Filter Rail -->
-		<div class="co-filter-rail">
-			<div class="co-fr-lbl">المقدِّم</div>
-			<div class="co-fr-segs">
-				<button class="co-ds" [class.active]="memberFilter()==='all'" (click)="setMemberFilter('all')">الكل</button>
+		<div class="filter-rail">
+			<div class="fr-lbl">المقدِّم</div>
+			<div class="fr-segs">
+				<button class="ds" [class.active]="memberFilter()==='all'" (click)="setMemberFilter('all')">الكل</button>
 				@for (m of teamMembers(); track m.name) {
-					<button class="co-ds" [class.active]="memberFilter()===m.name" (click)="setMemberFilter(m.name)">
+					<button class="ds" [class.active]="memberFilter()===m.name" (click)="setMemberFilter(m.name)">
 						<span style="display:inline-flex;align-items:center;gap:3px"><span class="co-fr-mav" [style.background]="m.color">{{m.initial}}</span>{{m.name.split(' ')[0]}}</span>
 					</button>
 				}
 			</div>
-			<div class="co-fr-vd"></div>
-			<div class="co-fr-lbl" style="border-inline-start:1px solid rgba(255,255,255,.07)">الفترة</div>
-			<div class="co-fr-segs">
-				<button class="co-ds" [class.active]="periodFilter()==='all'" (click)="setPeriodFilter('all')">الكل</button>
-				<button class="co-ds" [class.active]="periodFilter()==='month'" (click)="setPeriodFilter('month')">هذا الشهر</button>
-				<button class="co-ds" [class.active]="periodFilter()==='quarter'" (click)="setPeriodFilter('quarter')">هذا الربع</button>
-				<button class="co-ds" [class.active]="periodFilter()==='year'" (click)="setPeriodFilter('year')">هذه السنة</button>
+			<div class="fr-lbl">الفترة</div>
+			<div class="fr-segs">
+				<button class="ds" [class.active]="periodFilter()==='all'" (click)="setPeriodFilter('all')">الكل</button>
+				<button class="ds" [class.active]="periodFilter()==='month'" (click)="setPeriodFilter('month')">هذا الشهر</button>
+				<button class="ds" [class.active]="periodFilter()==='quarter'" (click)="setPeriodFilter('quarter')">هذا الربع</button>
+				<button class="ds" [class.active]="periodFilter()==='year'" (click)="setPeriodFilter('year')">هذه السنة</button>
 			</div>
-			<div class="co-fr-gap"></div>
-			<div class="co-fr-search">
+			<div class="fr-spacer"></div>
+			<div class="fr-search">
 				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 				<input type="search" placeholder="ابحث في المشاريع..." [value]="searchQuery()" (input)="updateSearch($event)" />
 			</div>

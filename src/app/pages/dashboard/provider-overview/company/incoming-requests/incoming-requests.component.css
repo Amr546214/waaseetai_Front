@@ -30,19 +30,6 @@
 .ai-disc-badge { padding: 1px 7px; background: rgba(123,47,190,.16); border: 1px solid rgba(123,47,190,.28); border-radius: 4px; font-size: 10px; font-weight: 700; color: #A56BE0; }
 
 /* Filter Rail */
-.filter-rail { display: flex; align-items: stretch; gap: 0; background: rgba(7,13,36,.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(43,212,199,.2); border-radius: 14px; margin-bottom: 16px; overflow: hidden; flex-wrap: wrap; }
-.fr-lbl { display: flex; align-items: center; padding: 0 14px; font-size: 10px; font-weight: 900; letter-spacing: .5px; color: #5DA0FF; background: rgba(43,127,255,.1); border-inline-end: 1px solid rgba(43,127,255,.2); white-space: nowrap; }
-.fr-lbl:last-of-type { border-inline-end: none; }
-.fr-divider { width: 1px; background: rgba(255,255,255,.07); align-self: stretch; flex-shrink: 0; }
-.fr-segs { display: flex; align-items: center; gap: 3px; padding: 8px 12px; flex-shrink: 0; flex-wrap: wrap; }
-.ds { padding: 5px 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: #6B7699; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
-.ds:hover { background: rgba(43,212,199,.09); color: #B8CAE4; border-color: rgba(43,212,199,.18); }
-.ds.active { background: linear-gradient(135deg, rgba(43,212,199,.35), rgba(43,127,255,.25)); border-color: rgba(43,212,199,.65); color: #fff; font-weight: 800; box-shadow: 0 2px 8px rgba(43,212,199,.18); }
-.fr-spacer { flex: 1; }
-.fr-search { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-inline-start: 1px solid rgba(255,255,255,.07); min-width: 160px; }
-.fr-search svg { width: 13px; height: 13px; color: #6B7699; flex-shrink: 0; }
-.fr-search input { flex: 1; background: none; border: none; outline: none; color: #fff; font-size: 12.5px; font-family: inherit; direction: rtl; }
-.fr-search input::placeholder { color: #4A5568; }
 
 /* Status Tabs */
 .ord-tabs { display: flex; gap: 4px; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
@@ -177,10 +164,7 @@
 :host-context(body.theme-light) .assign-close,
 :host-context(.light-theme) .assign-close,
 :host-context(.theme-light) .assign-close { background: #F6F8FC; border-color: #E7EAF1; }
-:host-context(body.light-theme) .fr-lbl,
-:host-context(body.theme-light) .fr-lbl,
-:host-context(.light-theme) .fr-lbl,
-:host-context(.theme-light) .fr-lbl { color: #1D6FE0; background: rgba(43,127,255,.08); border-inline-end-color: rgba(43,127,255,.2); }
+
 :host-context(body.light-theme) .ai-disc,
 :host-context(body.theme-light) .ai-disc,
 :host-context(.light-theme) .ai-disc,
@@ -205,26 +189,7 @@
 :host-context(body.theme-light) .ai-disc-txt,
 :host-context(.light-theme) .ai-disc-txt,
 :host-context(.theme-light) .ai-disc-txt { color: #475569; }
-:host-context(body.light-theme) .filter-rail,
-:host-context(body.theme-light) .filter-rail,
-:host-context(.light-theme) .filter-rail,
-:host-context(.theme-light) .filter-rail { background: rgba(246,248,252,.9); border-color: #E7EAF1; }
-:host-context(body.light-theme) .ds,
-:host-context(body.theme-light) .ds,
-:host-context(.light-theme) .ds,
-:host-context(.theme-light) .ds { color: #56607D; }
-:host-context(body.light-theme) .ds:hover,
-:host-context(body.theme-light) .ds:hover,
-:host-context(.light-theme) .ds:hover,
-:host-context(.theme-light) .ds:hover { background: rgba(43,212,199,.12); color: #0F172A; border-color: rgba(43,212,199,.25); }
-:host-context(body.light-theme) .ds.active,
-:host-context(body.theme-light) .ds.active,
-:host-context(.light-theme) .ds.active,
-:host-context(.theme-light) .ds.active { background: linear-gradient(135deg, rgba(43,212,199,.9), rgba(43,127,255,.75)); border-color: rgba(43,212,199,.5); color: #fff; }
-:host-context(body.light-theme) .fr-search input,
-:host-context(body.theme-light) .fr-search input,
-:host-context(.light-theme) .fr-search input,
-:host-context(.theme-light) .fr-search input { color: #070D24; }
+
 :host-context(body.light-theme) .ord-tab,
 :host-context(body.theme-light) .ord-tab,
 :host-context(.light-theme) .ord-tab,
