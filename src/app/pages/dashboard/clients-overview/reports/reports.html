@@ -31,59 +31,72 @@
 		</div>
 	</div>
 
+	<!-- Loading State -->
+	@if (isLoading()) {
+		<div class="state-card" style="padding:32px;text-align:center">جارٍ تحميل تقاريرك...</div>
+	} @else if (hasError()) {
+		<div class="state-card" style="padding:32px;text-align:center">
+			<div style="margin-bottom:10px">تعذر تحميل التقارير</div>
+			<button type="button" class="tb-btn" (click)="retry()">إعادة المحاولة</button>
+		</div>
+	} @else if (data(); as d) {
+
 	<!-- KPI Row -->
 	<div class="kpi-row">
 		<div class="state-card kpi-card">
 			<div class="kpi-lbl">إجمالي الطلبات</div>
-			<div class="kpi-val">12</div>
+			<div class="kpi-val">{{ d.kpis.totalRequests }}</div>
 			<div class="kpi-foot">
-				<span class="kpi-trend">▲ 3 هذا الشهر</span>
-				<div class="spark"><div class="spb" style="height:40%"></div><div class="spb" style="height:55%"></div><div class="spb" style="height:45%"></div><div class="spb" style="height:65%"></div><div class="spb" style="height:80%"></div><div class="spb" style="height:100%"></div></div>
+				@if (d.kpis.requestsDeltaThisMonth > 0) {
+					<span class="kpi-trend">▲ {{ d.kpis.requestsDeltaThisMonth }} هذا الشهر</span>
+				} @else {
+					<span class="kpi-unit">لا جديد هذا الشهر</span>
+				}
 			</div>
 		</div>
 		<div class="state-card kpi-card">
 			<div class="kpi-lbl">مشاريع مكتملة</div>
-			<div class="kpi-val">8</div>
+			<div class="kpi-val">{{ d.kpis.completedProjectsCount }}</div>
 			<div class="kpi-foot">
-				<span class="kpi-trend">▲ 2 هذا الشهر</span>
-				<div class="spark"><div class="spb" style="height:30%"></div><div class="spb" style="height:50%"></div><div class="spb" style="height:60%"></div><div class="spb" style="height:70%"></div><div class="spb" style="height:85%"></div><div class="spb" style="height:100%"></div></div>
+				@if (d.kpis.completedDeltaThisMonth > 0) {
+					<span class="kpi-trend">▲ {{ d.kpis.completedDeltaThisMonth }} هذا الشهر</span>
+				} @else {
+					<span class="kpi-unit">لا جديد هذا الشهر</span>
+				}
 			</div>
 		</div>
 		<div class="state-card kpi-card">
 			<div class="kpi-lbl">إجمالي الإنفاق</div>
-			<div class="kpi-val kpi-val-teal">47.2K</div>
+			<div class="kpi-val kpi-val-teal">{{ formatBudget(d.kpis.totalSpent) }}</div>
 			<div class="kpi-foot">
 				<span class="kpi-unit">ريال سعودي</span>
-				<div class="spark"><div class="spb" style="height:35%"></div><div class="spb" style="height:60%"></div><div class="spb" style="height:55%"></div><div class="spb" style="height:78%"></div><div class="spb" style="height:90%"></div><div class="spb" style="height:100%"></div></div>
 			</div>
 		</div>
 		<div class="state-card kpi-card">
 			<div class="kpi-lbl">متوسط التقييم</div>
-			<div class="kpi-val kpi-val-teal">4.8</div>
-			<div class="kpi-stars">
-				<svg width="13" height="13" viewBox="0 0 100 100" fill="#2BD4C7"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-				<svg width="13" height="13" viewBox="0 0 100 100" fill="#2BD4C7"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-				<svg width="13" height="13" viewBox="0 0 100 100" fill="#2BD4C7"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-				<svg width="13" height="13" viewBox="0 0 100 100" fill="#2BD4C7"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-				<svg width="13" height="13" viewBox="0 0 100 100" fill="rgba(43,212,199,.3)"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-			</div>
+			<div class="kpi-val kpi-val-teal">{{ d.kpis.avgRating || '—' }}</div>
 			<div class="kpi-foot">
-				<span class="kpi-trend">▲ 0.3 عن السابق</span>
-				<div class="spark"><div class="spb" style="height:72%"></div><div class="spb" style="height:76%"></div><div class="spb" style="height:80%"></div><div class="spb" style="height:88%"></div><div class="spb" style="height:92%"></div><div class="spb" style="height:96%"></div></div>
+				@if (d.kpis.ratingDelta !== 0) {
+					<span class="kpi-trend">{{ d.kpis.ratingDelta > 0 ? '▲' : '▼' }} {{ d.kpis.ratingDelta < 0 ? d.kpis.ratingDelta * -1 : d.kpis.ratingDelta }} عن السابق</span>
+				} @else {
+					<span class="kpi-unit">بلا تغيير</span>
+				}
 			</div>
 		</div>
 	</div>
 
 	<!-- AI Insight -->
+	@if (d.orders.acceptanceBySpecialty.length > 0) {
 	<div class="state-card ai-insight">
 		<div class="ai-insight-ico">
 			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
 		</div>
 		<div class="ai-insight-body">
-			<div class="ai-insight-lbl">توصية الذكاء</div>
-			<div class="ai-insight-txt">معدل قبول طلباتك ارتفع 9% هذا الشهر. الخدمات ذات الميزانية 100–500k تحقق أعلى جودة. يُنصح بتحديد متطلبات المشروع بدقة أعلى لصالح قبول أسرع.</div>
+			<div class="ai-insight-lbl">تحليل الذكاء</div>
+			<div class="ai-insight-txt">أعلى معدل قبول لطلباتك في تخصص «{{ d.orders.acceptanceBySpecialty[0].specialty }}» بنسبة {{ d.orders.acceptanceBySpecialty[0].rate }}%، من إجمالي {{ d.orders.acceptanceBySpecialty[0].total }} طلب في هذا التخصص.</div>
 		</div>
 	</div>
+	}
 
 	<!-- Global Filter Rail -->
 	<div class="filter-rail" role="search" aria-label="فلترة التقارير">
@@ -121,19 +134,19 @@
 	<div class="rep-tabs" role="tablist" aria-label="أقسام التقارير">
 		<button type="button" class="rep-tab" [class.active]="activeTab() === 'orders'" (click)="switchTab('orders')">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-			الطلبات <span class="tc">12</span>
+			الطلبات <span class="tc">{{ tabCount('orders') }}</span>
 		</button>
 		<button type="button" class="rep-tab" [class.active]="activeTab() === 'projects'" (click)="switchTab('projects')">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-			المشاريع <span class="tc">8</span>
+			المشاريع <span class="tc">{{ tabCount('projects') }}</span>
 		</button>
 		<button type="button" class="rep-tab" [class.active]="activeTab() === 'finance'" (click)="switchTab('finance')">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
-			المالية <span class="tc">24</span>
+			المالية <span class="tc">{{ tabCount('finance') }}</span>
 		</button>
 		<button type="button" class="rep-tab" [class.active]="activeTab() === 'disputes'" (click)="switchTab('disputes')">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-			النزاعات <span class="tc">2</span>
+			النزاعات <span class="tc">{{ tabCount('disputes') }}</span>
 		</button>
 	</div>
 
@@ -143,17 +156,13 @@
 			<div class="tab-frow">
 				<div class="tf-lc">الحالة</div>
 				<div class="tf-pg">
-					<button class="f-pill" [class.on]="ordersStatusFilter() === 'all'" type="button" (click)="ordersStatusFilter.set('all')">الكل <span class="fp-n">12</span></button>
-					<button class="f-pill" [class.on]="ordersStatusFilter() === 'active'" type="button" (click)="ordersStatusFilter.set('active')">نشط <span class="fp-n">5</span></button>
-					<button class="f-pill" [class.on]="ordersStatusFilter() === 'done'" type="button" (click)="ordersStatusFilter.set('done')">مكتمل <span class="fp-n">8</span></button>
-					<button class="f-pill pw" [class.on]="ordersStatusFilter() === 'pending'" type="button" (click)="ordersStatusFilter.set('pending')">بانتظار عرض <span class="fp-n">3</span></button>
-					<button class="f-pill prd" [class.on]="ordersStatusFilter() === 'cancelled'" type="button" (click)="ordersStatusFilter.set('cancelled')">ملغي <span class="fp-n">2</span></button>
+					<button class="f-pill" [class.on]="ordersStatusFilter() === 'all'" type="button" (click)="ordersStatusFilter.set('all')">الكل <span class="fp-n">{{ d.orders.counts.all }}</span></button>
+					<button class="f-pill" [class.on]="ordersStatusFilter() === 'active'" type="button" (click)="ordersStatusFilter.set('active')">نشط <span class="fp-n">{{ d.orders.counts.active }}</span></button>
+					<button class="f-pill" [class.on]="ordersStatusFilter() === 'done'" type="button" (click)="ordersStatusFilter.set('done')">مكتمل <span class="fp-n">{{ d.orders.counts.completed }}</span></button>
+					<button class="f-pill pw" [class.on]="ordersStatusFilter() === 'pending'" type="button" (click)="ordersStatusFilter.set('pending')">بانتظار عرض <span class="fp-n">{{ d.orders.counts.published }}</span></button>
+					<button class="f-pill prd" [class.on]="ordersStatusFilter() === 'cancelled'" type="button" (click)="ordersStatusFilter.set('cancelled')">ملغي <span class="fp-n">{{ d.orders.counts.cancelled }}</span></button>
 					<span class="tf-push"></span>
-					<span class="results-badge">يُعرض 12 من 12</span>
-					<button type="button" class="sort-btn">
-						<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M11 5H21M7 12H21M3 19H21"/></svg>
-						الأحدث
-					</button>
+					<span class="results-badge">يُعرض {{ pagedOrders().length }} من {{ filteredOrders().length }}</span>
 				</div>
 			</div>
 		</div>
@@ -165,23 +174,31 @@
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
 					توزيع حالات الطلبات
 				</div>
-				<div class="bar-list">
-					<div class="bar-row"><span class="opill op-active bar-pill">منشور</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:linear-gradient(90deg,#0FA99A,#2BD4C7)"></div></div><span class="bar-num">5</span></div>
-					<div class="bar-row"><span class="opill op-done bar-pill">مكتمل</span><div class="bar-track"><div class="bar-fill" style="width:67%;background:linear-gradient(90deg,#5DA0FF,#2BD4C7)"></div></div><span class="bar-num">8</span></div>
-					<div class="bar-row"><span class="opill op-hold bar-pill">بانتظار</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:linear-gradient(90deg,#FFB400,#D98A0B)"></div></div><span class="bar-num">3</span></div>
-					<div class="bar-row"><span class="opill op-cancel bar-pill">ملغي</span><div class="bar-track"><div class="bar-fill" style="width:17%;background:rgba(255,140,105,.5)"></div></div><span class="bar-num">2</span></div>
-				</div>
+				@if (d.orders.counts.all === 0) {
+					<div class="tbl-empty">لا توجد طلبات بعد</div>
+				} @else {
+					<div class="bar-list">
+						<div class="bar-row"><span class="opill op-hold bar-pill">منشور</span><div class="bar-track"><div class="bar-fill" [style.width.%]="statusBarWidth(d.orders.statusDistribution['منشور'])" style="background:linear-gradient(90deg,#FFB400,#D98A0B)"></div></div><span class="bar-num">{{ d.orders.statusDistribution['منشور'] }}</span></div>
+						<div class="bar-row"><span class="opill op-done bar-pill">مكتمل</span><div class="bar-track"><div class="bar-fill" [style.width.%]="statusBarWidth(d.orders.statusDistribution['مكتمل'])" style="background:linear-gradient(90deg,#5DA0FF,#2BD4C7)"></div></div><span class="bar-num">{{ d.orders.statusDistribution['مكتمل'] }}</span></div>
+						<div class="bar-row"><span class="opill op-active bar-pill">نشط</span><div class="bar-track"><div class="bar-fill" [style.width.%]="statusBarWidth(d.orders.statusDistribution['نشط'])" style="background:linear-gradient(90deg,#0FA99A,#2BD4C7)"></div></div><span class="bar-num">{{ d.orders.statusDistribution['نشط'] }}</span></div>
+						<div class="bar-row"><span class="opill op-cancel bar-pill">ملغي</span><div class="bar-track"><div class="bar-fill" [style.width.%]="statusBarWidth(d.orders.statusDistribution['ملغي'])" style="background:rgba(255,140,105,.5)"></div></div><span class="bar-num">{{ d.orders.statusDistribution['ملغي'] }}</span></div>
+					</div>
+				}
 			</div>
 			<div class="state-card chart-card">
 				<div class="chart-ttl">
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 					معدل القبول بالتخصص
 				</div>
-				<div class="bar-list">
-					<div class="bar-row"><span class="bar-label">تطوير تقني</span><div class="bar-track"><div class="bar-fill" style="width:85%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div><span class="bar-pct">85%</span></div>
-					<div class="bar-row"><span class="bar-label">تصميم</span><div class="bar-track"><div class="bar-fill" style="width:72%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div><span class="bar-pct">72%</span></div>
-					<div class="bar-row"><span class="bar-label">تسويق</span><div class="bar-track"><div class="bar-fill" style="width:60%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div><span class="bar-pct">60%</span></div>
-				</div>
+				@if (d.orders.acceptanceBySpecialty.length === 0) {
+					<div class="tbl-empty">لا توجد بيانات كافية بعد</div>
+				} @else {
+					<div class="bar-list">
+						@for (spec of d.orders.acceptanceBySpecialty; track spec.specialty) {
+							<div class="bar-row"><span class="bar-label">{{ spec.specialty }}</span><div class="bar-track"><div class="bar-fill" [style.width.%]="spec.rate" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div><span class="bar-pct">{{ spec.rate }}%</span></div>
+						}
+					</div>
+				}
 			</div>
 		</div>
 
@@ -191,27 +208,39 @@
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
 				تفاصيل الطلبات
 			</div>
+			@if (filteredOrders().length === 0) {
+				<div class="tbl-empty">لا توجد طلبات مطابقة</div>
+			} @else {
 			<div class="tbl-wrap">
 				<table class="rep-tbl">
 					<thead><tr>
 						<th>الطلب</th><th>التخصص</th><th>الميزانية</th><th>العروض</th><th>الحالة</th><th>التاريخ</th>
 					</tr></thead>
 					<tbody>
-						<tr><td><div class="td-main">تطوير تطبيق iOS</div><div class="td-sub">#ORD-2026-0612</div></td><td>تطوير تقني</td><td class="td-bold">15,000 ﷼</td><td class="td-offers">7</td><td><span class="opill op-active">نشط</span></td><td>اليوم</td></tr>
-						<tr><td><div class="td-main">تصميم هوية بصرية</div><div class="td-sub">#ORD-2026-0608</div></td><td>تصميم</td><td class="td-bold">8,000 ﷼</td><td class="td-offers">12</td><td><span class="opill op-done">مكتمل</span></td><td>أمس</td></tr>
-						<tr><td><div class="td-main">حملة تسويق رقمي</div><div class="td-sub">#ORD-2026-0602</div></td><td>تسويق</td><td class="td-bold">12,000 ﷼</td><td class="td-offers">5</td><td><span class="opill op-hold">بانتظار</span></td><td>منذ 10 أيام</td></tr>
-						<tr><td><div class="td-main">تطوير موقع تجاري</div><div class="td-sub">#ORD-2026-0525</div></td><td>تطوير تقني</td><td class="td-bold">22,000 ﷼</td><td class="td-offers">9</td><td><span class="opill op-done">مكتمل</span></td><td>شهر</td></tr>
+						@for (o of pagedOrders(); track o.id) {
+							<tr>
+								<td><div class="td-main">{{ o.title }}</div><div class="td-sub">{{ orderRef(o.id) }}</div></td>
+								<td>{{ o.specialty }}</td>
+								<td class="td-bold">{{ formatBudget(o.budget) }}</td>
+								<td class="td-offers">{{ o.proposalsCount }}</td>
+								<td><span class="opill" [ngClass]="opillClass(o.bucket)">{{ o.bucket }}</span></td>
+								<td>{{ formatRelativeDate(o.createdAt) }}</td>
+							</tr>
+						}
 					</tbody>
 				</table>
 			</div>
 			<div class="tbl-foot">
-				<span>يُعرض 4 من 12</span>
-				<div class="pg-btns">
-					<button class="pg-btn on" type="button">1</button>
-					<button class="pg-btn" type="button">2</button>
-					<button class="pg-btn" type="button">3</button>
-				</div>
+				<span>يُعرض {{ pagedOrders().length }} من {{ filteredOrders().length }}</span>
+				@if (ordersPageCount() > 1) {
+					<div class="pg-btns">
+						@for (p of [].constructor(ordersPageCount()); track $index) {
+							<button class="pg-btn" [class.on]="ordersPage() === $index + 1" type="button" (click)="setOrdersPage($index + 1)">{{ $index + 1 }}</button>
+						}
+					</div>
+				}
 			</div>
+			}
 		</div>
 	}
 
@@ -221,26 +250,11 @@
 			<div class="tab-frow">
 				<div class="tf-lc">الحالة</div>
 				<div class="tf-pg">
-					<button class="f-pill on" type="button">الكل <span class="fp-n">8</span></button>
-					<button class="f-pill" type="button">نشط <span class="fp-n">3</span></button>
-					<button class="f-pill" type="button">مكتمل <span class="fp-n">5</span></button>
-					<span class="tf-grp-sep"></span>
-					<span class="tf-sub-lbl">التقييم</span>
-					<button class="f-pill on" type="button">الكل</button>
-					<button class="f-pill" type="button">5 ★</button>
-					<button class="f-pill" type="button">4★ فأعلى</button>
+					<button class="f-pill" [class.on]="projectsStatusFilter() === 'all'" type="button" (click)="projectsStatusFilter.set('all')">الكل <span class="fp-n">{{ d.projects.activeCount + d.projects.completedCount }}</span></button>
+					<button class="f-pill" [class.on]="projectsStatusFilter() === 'active'" type="button" (click)="projectsStatusFilter.set('active')">نشط <span class="fp-n">{{ d.projects.activeCount }}</span></button>
+					<button class="f-pill" [class.on]="projectsStatusFilter() === 'done'" type="button" (click)="projectsStatusFilter.set('done')">مكتمل <span class="fp-n">{{ d.projects.completedCount }}</span></button>
 					<span class="tf-push"></span>
-					<span class="results-badge">يُعرض 8 من 8</span>
-					<button type="button" class="sort-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M11 5H21M7 12H21M3 19H21"/></svg>الأحدث</button>
-				</div>
-			</div>
-			<div class="tab-frow">
-				<div class="tf-lc">المدة</div>
-				<div class="tf-pg">
-					<button class="f-pill on" type="button">الكل</button>
-					<button class="f-pill" type="button">أقل من أسبوع</button>
-					<button class="f-pill" type="button">أسبوع–شهر</button>
-					<button class="f-pill" type="button">أكثر من شهر</button>
+					<span class="results-badge">يُعرض {{ filteredProjects().length }} من {{ projectOrders().length }}</span>
 				</div>
 			</div>
 		</div>
@@ -252,10 +266,17 @@
 					أداء المشاريع
 				</div>
 				<div class="kv-list">
-					<div class="kv-row"><span class="kv-lbl">مشاريع نشطة</span><span class="kv-val">3</span></div>
-					<div class="kv-row"><span class="kv-lbl">مكتملة بدون تأخير</span><span class="kv-val kv-val-green">7 / 8</span></div>
-					<div class="kv-row"><span class="kv-lbl">متوسط مدة التنفيذ</span><span class="kv-val">18 يوم</span></div>
-					<div class="kv-row"><span class="kv-lbl">متوسط التقييم</span><span class="kv-val kv-val-teal">4.8 <svg width="16" height="16" viewBox="0 0 100 100" fill="#FFB400" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></span></div>
+					<div class="kv-row"><span class="kv-lbl">مشاريع نشطة</span><span class="kv-val">{{ d.projects.activeCount }}</span></div>
+					<div class="kv-row"><span class="kv-lbl">مكتملة بدون تأخير</span><span class="kv-val kv-val-green">{{ d.projects.completedOnTime }} / {{ d.projects.completedTotal }}</span></div>
+					<div class="kv-row"><span class="kv-lbl">متوسط مدة التنفيذ</span><span class="kv-val">{{ d.projects.avgDurationDays ? d.projects.avgDurationDays + ' يوم' : '—' }}</span></div>
+					<div class="kv-row">
+						<span class="kv-lbl">متوسط التقييم</span>
+						<span class="kv-val kv-val-teal">
+							@if (d.projects.avgRating) {
+								{{ d.projects.avgRating }} <svg width="16" height="16" viewBox="0 0 100 100" fill="#FFB400" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+							} @else { — }
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -265,8 +286,137 @@
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
 				سجل المشاريع
 			</div>
-			<div class="tbl-empty">البيانات جاهزة للعرض</div>
+			@if (filteredProjects().length === 0) {
+				<div class="tbl-empty">لا توجد مشاريع مطابقة</div>
+			} @else {
+				<div class="tbl-wrap">
+					<table class="rep-tbl">
+						<thead><tr>
+							<th>المشروع</th><th>التخصص</th><th>الميزانية</th><th>الحالة</th><th>تاريخ البدء</th>
+						</tr></thead>
+						<tbody>
+							@for (p of filteredProjects(); track p.id) {
+								<tr>
+									<td><div class="td-main">{{ p.title }}</div><div class="td-sub">{{ orderRef(p.id) }}</div></td>
+									<td>{{ p.specialty }}</td>
+									<td class="td-bold">{{ formatBudget(p.budget) }}</td>
+									<td><span class="opill" [ngClass]="opillClass(p.bucket)">{{ p.bucket }}</span></td>
+									<td>{{ formatRelativeDate(p.createdAt) }}</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
+	}
+
+	<!-- TAB: المالية -->
+	@if (activeTab() === 'finance') {
+		<div class="tab-frows">
+			<div class="tab-frow">
+				<div class="tf-lc">النوع</div>
+				<div class="tf-pg">
+					<button class="f-pill" [class.on]="financeTypeFilter() === 'all'" type="button" (click)="financeTypeFilter.set('all')">الكل <span class="fp-n">{{ d.finance.transactions.length }}</span></button>
+					@for (t of transactionTypes(); track t) {
+						<button class="f-pill" [class.on]="financeTypeFilter() === t" type="button" (click)="financeTypeFilter.set(t)">{{ t }}</button>
+					}
+					<span class="tf-push"></span>
+					<span class="results-badge">يُعرض {{ filteredTransactions().length }} من {{ d.finance.transactions.length }}</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="chart-grid">
+			<div class="state-card chart-card">
+				<div class="chart-ttl">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+					ملخص مالي
+				</div>
+				<div class="kv-list">
+					<div class="kv-row"><span class="kv-lbl">إجمالي الإنفاق</span><span class="kv-val kv-val-teal">{{ formatBudget(d.finance.totalSpent) }}</span></div>
+					<div class="kv-row"><span class="kv-lbl">محتجز في الضمان</span><span class="kv-val">{{ formatBudget(d.finance.escrowHeld) }}</span></div>
+					<div class="kv-row"><span class="kv-lbl">عدد الحركات</span><span class="kv-val">{{ d.finance.transactions.length }}</span></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="state-card tbl-card">
+			<div class="tbl-head">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+				سجل الحركات المالية
+			</div>
+			@if (filteredTransactions().length === 0) {
+				<div class="tbl-empty">لا توجد حركات مالية</div>
+			} @else {
+				<div class="tbl-wrap">
+					<table class="rep-tbl">
+						<thead><tr>
+							<th>الوصف</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th>
+						</tr></thead>
+						<tbody>
+							@for (tx of filteredTransactions(); track tx.id) {
+								<tr>
+									<td><div class="td-main">{{ tx.description || '—' }}</div><div class="td-sub">{{ orderRef(tx.id) }}</div></td>
+									<td>{{ tx.type }}</td>
+									<td [ngClass]="txAmountClass(tx.amount)">{{ formatAmount(tx.amount) }}</td>
+									<td><span class="opill" [ngClass]="txStatusClass(tx.status)">{{ tx.status }}</span></td>
+									<td>{{ formatRelativeDate(tx.createdAt) }}</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+
+	<!-- TAB: النزاعات -->
+	@if (activeTab() === 'disputes') {
+		<div class="tab-frows">
+			<div class="tab-frow">
+				<div class="tf-lc">الحالة</div>
+				<div class="tf-pg">
+					<button class="f-pill" [class.on]="disputesStatusFilter() === 'all'" type="button" (click)="disputesStatusFilter.set('all')">الكل <span class="fp-n">{{ d.disputes.counts.all }}</span></button>
+					<button class="f-pill pw" [class.on]="disputesStatusFilter() === 'open'" type="button" (click)="disputesStatusFilter.set('open')">مفتوح <span class="fp-n">{{ d.disputes.counts.open }}</span></button>
+					<button class="f-pill" [class.on]="disputesStatusFilter() === 'resolved'" type="button" (click)="disputesStatusFilter.set('resolved')">محلول <span class="fp-n">{{ d.disputes.counts.resolved }}</span></button>
+					<button class="f-pill prd" [class.on]="disputesStatusFilter() === 'rejected'" type="button" (click)="disputesStatusFilter.set('rejected')">مرفوض <span class="fp-n">{{ d.disputes.counts.rejected }}</span></button>
+					<span class="tf-push"></span>
+					<span class="results-badge">يُعرض {{ filteredDisputes().length }} من {{ d.disputes.counts.all }}</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="state-card tbl-card">
+			<div class="tbl-head">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+				سجل النزاعات
+			</div>
+			@if (filteredDisputes().length === 0) {
+				<div class="tbl-empty">لا توجد نزاعات</div>
+			} @else {
+				<div class="tbl-wrap">
+					<table class="rep-tbl">
+						<thead><tr>
+							<th>النزاع</th><th>السبب</th><th>الحالة</th><th>تاريخ الفتح</th><th>تاريخ الحل</th>
+						</tr></thead>
+						<tbody>
+							@for (x of filteredDisputes(); track x.id) {
+								<tr>
+									<td><div class="td-main">{{ orderRef(x.id) }}</div></td>
+									<td>{{ x.reason || '—' }}</td>
+									<td><span class="opill" [ngClass]="disputeStatusClass(x.status)">{{ disputeStatusLabel(x.status) }}</span></td>
+									<td>{{ formatRelativeDate(x.createdAt) }}</td>
+									<td>{{ x.resolvedAt ? formatRelativeDate(x.resolvedAt) : '—' }}</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+
 	}
 
 	<!-- Date Picker Modal -->
