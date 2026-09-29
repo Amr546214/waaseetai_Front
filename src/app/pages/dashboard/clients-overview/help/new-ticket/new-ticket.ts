@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { TicketApiService } from '../../../../../core/services/ticket-api.service';
 
 @Component({
 	selector: 'app-new-ticket',
@@ -16,6 +17,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 export class NewTicketComponent {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
+	private ticketApi = inject(TicketApiService);
 
 	isCompanyMode = computed(() => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY);
 
@@ -52,6 +54,10 @@ export class NewTicketComponent {
 	categories = computed(() => this.isCompanyMode() ? this.companyCategories : this.individualCategories);
 	priorities = ['عادية', 'عالية', 'عاجلة'];
 
+	// Placeholder option lists — no real "client company projects/team
+	// members" directory endpoint exists yet to source these from; kept as
+	// free-text-equivalent choices stored on the ticket as-is (see
+	// SupportTicket.relatedProject/relatedMember), not fabricated further.
 	companyProjects = [
 		{ id: 'ORD-3092', name: 'تصميم هوية بصرية لمنتج' },
 		{ id: 'ORD-3093', name: 'تطوير متجر إلكتروني للشركة' },
@@ -79,12 +85,29 @@ export class NewTicketComponent {
 		if (Object.keys(errs).length > 0) return;
 
 		this.submitting.set(true);
-		// Simulate submit — replace with real API call when backend supports tickets
-		setTimeout(() => {
-			this.submitting.set(false);
-			this.showToast('تم فتح تذكرتك بنجاح');
-			setTimeout(() => this.router.navigate(['/client-overview/help']), 1200);
-		}, 800);
+		this.ticketApi.createTicket('client', {
+			subject: this.subject().trim(),
+			category: this.category(),
+			priority: this.priority(),
+			description: this.description().trim(),
+			relatedOrder: this.relatedOrder().trim() || undefined,
+			relatedProject: this.relatedProject() || undefined,
+			relatedMember: this.teamMember() || undefined,
+		}).subscribe({
+			next: (res) => {
+				this.submitting.set(false);
+				if (res.success && res.data) {
+					this.showToast('تم فتح تذكرتك بنجاح');
+					setTimeout(() => this.router.navigate(['/client-overview/help/tickets', res.data!.id]), 1200);
+				} else {
+					this.showToast(res.message || 'تعذر فتح التذكرة');
+				}
+			},
+			error: (err) => {
+				this.submitting.set(false);
+				this.showToast(err?.error?.message || 'تعذر فتح التذكرة، حاول مرة أخرى');
+			}
+		});
 	}
 
 	get helpBackLink(): string { return '/client-overview/help'; }

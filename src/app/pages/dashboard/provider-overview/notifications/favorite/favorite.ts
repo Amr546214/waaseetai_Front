@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 
 export interface PreferenceItem {
   id: string;
@@ -99,9 +100,12 @@ export interface PreferenceSection {
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Favorite {
+export class Favorite implements OnInit {
+  private preferencesService = inject(NotificationPreferencesService);
+
   isLoading = signal<boolean>(false);
   hasError = signal<boolean>(false);
+  isSaving = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
 
   sections = signal<PreferenceSection[]>([
@@ -145,17 +149,69 @@ export class Favorite {
     }
   ]);
 
+  ngOnInit(): void {
+    this.loadPreferences();
+  }
+
+  // Flattens the sections/items structure into a plain string->boolean map
+  // (each item's own `id`, e.g. "orders_offers_new") for the shared
+  // NotificationPreference backend row — see its schema.prisma doc comment.
+  private toSettingsMap(): Record<string, boolean> {
+    const map: Record<string, boolean> = {};
+    for (const section of this.sections()) {
+      for (const item of section.items) {
+        map[item.id] = item.enabled;
+      }
+    }
+    return map;
+  }
+
+  private applySettingsMap(settings: Record<string, boolean>): void {
+    this.sections.update(sections => sections.map(section => ({
+      ...section,
+      items: section.items.map(item => ({
+        ...item,
+        enabled: settings[item.id] !== undefined ? settings[item.id] : item.enabled,
+      })),
+    })));
+  }
+
+  loadPreferences() {
+    this.isLoading.set(true);
+    this.hasError.set(false);
+    this.preferencesService.getPreferences().subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        if (res.success) {
+          this.applySettingsMap(res.data?.settings || {});
+        } else {
+          this.hasError.set(true);
+        }
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.hasError.set(true);
+      }
+    });
+  }
+
   savePreferences() {
-    // API logic goes here
-    this.showToast('تم حفظ تفضيلات الإشعارات بنجاح');
+    if (this.isSaving()) return;
+    this.isSaving.set(true);
+    this.preferencesService.updatePreferences(this.toSettingsMap()).subscribe({
+      next: (res) => {
+        this.isSaving.set(false);
+        this.showToast(res.success ? 'تم حفظ تفضيلات الإشعارات بنجاح' : (res.message || 'تعذر حفظ التفضيلات'));
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.showToast('تعذر حفظ التفضيلات، حاول مرة أخرى');
+      }
+    });
   }
 
   retry() {
-    this.hasError.set(false);
-    this.isLoading.set(true);
-    setTimeout(() => {
-      this.isLoading.set(false);
-    }, 1000);
+    this.loadPreferences();
   }
 
   showToast(msg: string) {

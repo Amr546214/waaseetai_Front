@@ -32,10 +32,16 @@
       <h2 style="font-size:22px;font-weight:900" class="txt-white">الإشعارات</h2>
       <p style="font-size:13px" class="txt-muted">{{ unreadCount() }} إشعارات غير مقروءة</p>
     </div>
-    <button type="button" (click)="markAllRead()" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-      تعليم الكل كمقروء
-    </button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" (click)="markAllRead()" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        تعليم الكل كمقروء
+      </button>
+      <a routerLink="/marketer-overview/ref-links" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-settings"></use></svg>
+        تفضيلات
+      </a>
+    </div>
   </div>
 
   <!-- فلتر -->

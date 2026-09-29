@@ -312,54 +312,28 @@
 	</div>
 	<div class="mb-5">
 
-		<a routerLink="/client-overview/help/tickets/4821" class="tk-card">
+		<!-- No support-ticket backend exists yet to preview the user's real recent
+		     tickets here (see BACKEND_BLOCKED_ISSUES.md), so this links out to the
+		     tickets list instead of fabricating ticket cards. -->
+		<a routerLink="/client-overview/help/tickets" class="tk-card">
 			<div
 				class="w-[38px] h-[38px] rounded-[10px] bg-[rgba(43,127,255,.10)] flex items-center justify-center shrink-0 text-[#5DA0FF]">
-				<svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-					<rect x="3" y="11" width="18" height="11" rx="2" />
-					<path d="M7 11V7a5 5 0 0 1 10 0v4" />
-					<circle cx="12" cy="17" r="1.5" fill="currentColor" />
+				<svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+					stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+					<path
+						d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="tk-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">تأخر الإفراج عن مبلغ الضمان</div>
-				<div class="text-[11px] text-[var(--txt-3,#6B7699)] flex gap-2 items-center flex-wrap">
-					<span class="dir-ltr italic">TK-4821</span>
-					<span class="w-[3px] h-[3px] rounded-full bg-[var(--txt-3,#4A5568)]"></span>
-					<span>العقود والضمان</span>
-					<span class="w-[3px] h-[3px] rounded-full bg-[var(--txt-3,#4A5568)]"></span>
-					<span>قبل ساعتين</span>
-				</div>
+				<div class="tk-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">تصفّح تذاكر الدعم الخاصة بك</div>
+				<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-normal">عرض التذاكر المفتوحة والسابقة ومتابعة ردود فريق الدعم</div>
 			</div>
-			<span
-				class="inline-flex items-center gap-1.5 px-3 py-1.25 rounded-[20px] text-[11px] font-bold shrink-0 whitespace-nowrap bg-[rgba(255,180,0,.10)] text-[var(--kahr,#D98A0B)] border border-[rgba(255,180,0,.26)]">
-				<span class="w-[5px] h-[5px] rounded-full shrink-0 bg-[#FFB400]"></span>لدى فريق الدعم
-			</span>
-		</a>
-
-		<a routerLink="/client-overview/help/tickets/4815" class="tk-card">
-			<div
-				class="w-[38px] h-[38px] rounded-[10px] bg-[rgba(43,127,255,.10)] flex items-center justify-center shrink-0 text-[#5DA0FF]">
-				<svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-					<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-					<circle cx="16" cy="14" r="1.5" fill="currentColor" />
-				</svg>
-			</div>
-			<div class="flex-1 min-w-0">
-				<div class="tk-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">توضيح مطلوب لإكمال تسوية رصيد
-				</div>
-				<div class="text-[11px] text-[var(--txt-3,#6B7699)] flex gap-2 items-center flex-wrap">
-					<span class="dir-ltr italic">TK-4815</span>
-					<span class="w-[3px] h-[3px] rounded-full bg-[var(--txt-3,#4A5568)]"></span>
-					<span>المدفوعات</span>
-					<span class="w-[3px] h-[3px] rounded-full bg-[var(--txt-3,#4A5568)]"></span>
-					<span>أمس</span>
-				</div>
-			</div>
-			<span
-				class="tk-status-wait inline-flex items-center gap-1.5 px-3 py-1.25 rounded-[20px] text-[11px] font-bold shrink-0 whitespace-nowrap bg-[rgba(255,255,255,.05)] text-[var(--txt-2,#A8B2D1)] border border-[rgba(255,255,255,.12)]">
-				<span class="w-[5px] h-[5px] rounded-full shrink-0 bg-[var(--txt-3,#6B7699)]"></span>بانتظار ردّك
-			</span>
+			<span class="text-[var(--txt-3,#4A5568)] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
+					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="5" y1="12" x2="19" y2="12" />
+					<polyline points="12 5 19 12 12 19" />
+				</svg></span>
 		</a>
 
 	</div>
@@ -479,9 +453,9 @@
 				</svg>
 			</div>
 			<div class="chan-ttl text-[14px] font-extrabold text-[var(--txt,#fff)] mb-1">المساعد الذكي</div>
-			<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-[1.55]">واجهة محادثة قيد التطوير</div>
+			<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-[1.55]">دردشة فورية مع المساعد الذكي</div>
 			<span
-				class="inline-block mt-2.25 text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(255,180,0,.10)] text-[#D98A0B] border border-[rgba(255,180,0,.22)]">قريباً</span>
+				class="inline-block mt-2.25 text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(15,169,154,.10)] text-[var(--green,#0FA99A)] border border-[rgba(15,169,154,.22)]">متاح الآن</span>
 		</a>
 
 		<a routerLink="/client-overview/help/live-support" class="chan">
@@ -494,8 +468,7 @@
 			<div class="chan-ttl text-[14px] font-extrabold text-[var(--txt,#fff)] mb-1">الدعم المباشر</div>
 			<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-[1.55]">شات مباشر مع موظف دعم بشري</div>
 			<span
-				class="inline-block mt-2.25 text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(15,169,154,.10)] text-[var(--green,#0FA99A)] border border-[rgba(15,169,154,.22)]">الرد
-				خلال دقائق</span>
+				class="inline-block mt-2.25 text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(255,180,0,.10)] text-[#D98A0B] border border-[rgba(255,180,0,.22)]">قريباً</span>
 		</a>
 
 		<a routerLink="/client-overview/help/tickets/new" class="chan">

@@ -10,6 +10,12 @@ export interface CreateDisputePayload {
   evidence?: string[];
 }
 
+export interface DisputePartyRef {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 export interface Dispute {
   id: string;
   requestId?: string | null;
@@ -22,6 +28,13 @@ export interface Dispute {
   resolutionNote?: string | null;
   createdAt: string;
   resolvedAt?: string | null;
+  // Included by GET /client/disputes, /provider/disputes, and their :id
+  // detail routes (own-disputes endpoints) — not present on every response.
+  openedById?: string;
+  openedBy?: DisputePartyRef;
+  againstUserId?: string | null;
+  againstUser?: DisputePartyRef | null;
+  request?: { id: string; title?: string } | null;
 }
 
 export interface DisputePagination {

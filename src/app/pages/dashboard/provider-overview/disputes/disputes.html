@@ -3,7 +3,7 @@
     <h1 class="text-[20px] font-black text-[var(--txt)] m-0">النزاعات</h1>
     <div class="text-[12px] font-semibold text-[var(--txt-3)] mt-1">{{ isCompanyMode() ? 'نزاعات مشاريع الفريق — مراقبة، توثيق، وتقديم الأدلة' : 'طلبات النزاع والإلغاء بالتراضي، تراجعها الإدارة حتى الإقفال' }}</div>
   </div>
-  <button type="button" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-[#2BD4C7]/15 to-[#2B7FFF]/10 border border-[#2BD4C7]/30 rounded-[10px] text-[#2BD4C7] text-[13px] font-bold transition-all hover:bg-[#2BD4C7]/20" (click)="openToast('سيُتاح رفع النزاع من صفحة متابعة المشروع مباشرة')">
+  <button type="button" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-[#2BD4C7]/15 to-[#2B7FFF]/10 border border-[#2BD4C7]/30 rounded-[10px] text-[#2BD4C7] text-[13px] font-bold transition-all hover:bg-[#2BD4C7]/20" (click)="goToActiveProjects()">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>رفع نزاع جديد
   </button>
 </div>
@@ -25,35 +25,35 @@
     <div class="w-7 h-7 rounded-[8px] bg-[#FFB400]/15 text-[#FFB400] flex items-center justify-center mb-2.5">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     </div>
-    <div class="text-[20px] font-black text-[var(--txt)] leading-none">1</div>
+    <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().activeDisputes }}</div>
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">نزاع نشط</div>
   </div>
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
     <div class="w-7 h-7 rounded-[8px] bg-[#5DA0FF]/15 text-[#5DA0FF] flex items-center justify-center mb-2.5">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l4-2 5 2 5-2 4 2v6l-4 2-5-2-5 2-4-2z"/><path d="M12 9v6"/></svg>
     </div>
-    <div class="text-[20px] font-black text-[var(--txt)] leading-none">1</div>
+    <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().activeCancellations }}</div>
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">إلغاء بالتراضي</div>
   </div>
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
     <div class="w-7 h-7 rounded-[8px] bg-[#2BD4C7]/15 text-[#2BD4C7] flex items-center justify-center mb-2.5">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
-    <div class="text-[20px] font-black text-[var(--txt)] leading-none">2</div>
+    <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().closedAmicably }}</div>
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">مُغلقة بالتراضي</div>
   </div>
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
     <div class="w-7 h-7 rounded-[8px] bg-[#7B2FBE]/15 text-[#A56BE0] flex items-center justify-center mb-2.5">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
     </div>
-    <div class="text-[20px] font-black text-[var(--txt)] leading-none">جارٍ</div>
+    <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().followUpStatus }}</div>
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">قيد المتابعة</div>
   </div>
 </div>
 
 <!-- TABS -->
 <div class="flex gap-1 border-b border-[var(--sec-bd)] mb-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-  @for(tab of [{id:'all', label:'الكل', count: 4}, {id:'open', label:'نشطة', count: 2}, {id:'closed', label:'مُغلقة', count: 2}, {id:'mine', label:'رفعتها أنا', count: 3}, {id:'against', label:'مرفوعة ضدي', count: 1}, {id:'pending', label:'بانتظار ردي', count: 1}, {id:'review', label:'قيد المراجعة', count: 1}]; track tab.id) {
+  @for(tab of tabs(); track tab.id) {
     <button class="px-4 py-2.5 text-[13px] font-bold flex items-center gap-2 whitespace-nowrap border-b-2 transition-all -mb-[1px]"
             [class]="currentTab() === tab.id ? 'text-[#2BD4C7] border-[#2BD4C7]' : 'text-[var(--txt-3)] border-transparent hover:text-[var(--txt-2)]'"
             (click)="setTab(tab.id)">
@@ -81,6 +81,12 @@
           <div>
             <div class="text-[14.5px] font-black text-[var(--txt)] mb-1">{{ d.title }}</div>
             <div class="text-[11px] font-bold text-[var(--txt-3)]" dir="ltr"><span class="float-right text-right">{{ d.project }}</span> <span class="mx-1.5 float-right">·</span> <span class="float-right tracking-wider">{{ d.id }}</span></div>
+            @if (isCompanyMode() && d.teamMember) {
+              <div class="flex items-center gap-1.5 mt-2">
+                <div class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[7px] font-black text-[#070D24] shrink-0" [style.background]="d.teamMember.gradient">{{ d.teamMember.initials }}</div>
+                <span class="text-[11px] font-bold text-[var(--txt-3)]">عضو الفريق المسؤول: <span class="text-[var(--txt-2)]">{{ d.teamMember.name }}</span></span>
+              </div>
+            }
           </div>
         </div>
         <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[10.5px] font-black border" [ngClass]="d.badgeClass">{{ d.badgeText }}</span>
@@ -141,6 +147,11 @@
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
             تفاصيل النزاع
           </a>
+          @if(isCompanyMode() && d.teamMember) {
+            <button class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#2B7FFF]/10 border border-[#2B7FFF]/25 rounded-[10px] text-[#5DA0FF] text-[12.5px] font-black transition-all hover:bg-[#2B7FFF]/20" (click)="openGuidance(d)">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>توجيه {{ d.teamMember.name }}
+            </button>
+          }
           <button class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-[12.5px] font-black transition-all"
                   [ngClass]="d.status === 'open' ? 'bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24]' : 'bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[#2BD4C7]/10 hover:border-[#2BD4C7]/30 hover:text-[#2BD4C7]'">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -159,8 +170,13 @@
       <div class="w-[54px] h-[54px] rounded-2xl mx-auto mb-4 bg-[#2BD4C7]/10 flex items-center justify-center text-[#2BD4C7]">
         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">لا يوجد نزاعات</div>
-      <div class="text-[12px] font-semibold text-[var(--txt-3)] max-w-sm mx-auto">لا توجد نزاعات أو طلبات إلغاء. تُرفع النزاعات من صفحة متابعة المشروع عند الحاجة.</div>
+      @if (listUnavailable()) {
+        <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">تعذر تحميل سجلّ النزاعات</div>
+        <div class="text-[12px] font-semibold text-[var(--txt-3)] max-w-sm mx-auto">حدث خطأ أثناء جلب سجلّ النزاعات، حاول تحديث الصفحة أو المحاولة لاحقًا.</div>
+      } @else {
+        <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">لا يوجد نزاعات</div>
+        <div class="text-[12px] font-semibold text-[var(--txt-3)] max-w-sm mx-auto">لا توجد نزاعات أو طلبات إلغاء. تُرفع النزاعات من صفحة متابعة المشروع عند الحاجة.</div>
+      }
     </div>
   }
 </div>
@@ -172,4 +188,32 @@
     <span class="text-[14px] font-bold text-white">{{ showToast() }}</span>
   </div>
 </div>
+}
+
+<!-- GUIDANCE MODAL (company mode) -->
+@if (guidanceTarget(); as gt) {
+  <div class="fixed inset-0 z-[400] flex items-center justify-center p-5 bg-[#070D24]/70 backdrop-blur-[6px]" (click)="closeGuidance()">
+    <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[18px] p-5.5 w-full max-w-[420px]" (click)="$event.stopPropagation()">
+      <div class="flex items-start gap-2.5 mb-3.5">
+        <span class="w-8 h-8 rounded-[8px] bg-[#2B7FFF]/10 text-[#5DA0FF] flex items-center justify-center shrink-0">
+          <svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        <div>
+          <h3 class="text-[14px] font-black text-[var(--txt)]">توجيه {{ gt.teamMember?.name }}</h3>
+          <p class="text-[11.5px] text-[var(--txt-3)] mt-0.5">بخصوص {{ gt.title }} · {{ gt.id }}</p>
+        </div>
+        <button type="button" class="ms-auto w-6.5 h-6.5 rounded-[6px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-3)] flex items-center justify-center shrink-0" (click)="closeGuidance()">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="mb-3.5">
+        <label class="block text-[12px] font-bold text-[var(--txt)] mb-1.5">توجيهاتك لـ{{ gt.teamMember?.name }}</label>
+        <textarea class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] px-3 py-2.5 text-[12.5px] text-[var(--txt)] resize-y min-h-[80px] leading-relaxed" placeholder="مثال: زوّد الدعم بسجل التسليم الأصلي كدليل إضافي..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
+      </div>
+      <div class="flex gap-2.5">
+        <button type="button" class="flex-1 py-2.5 rounded-[8px] text-[12.5px] font-black bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt)]" (click)="closeGuidance()">إلغاء</button>
+        <button type="button" class="flex-1 py-2.5 rounded-[8px] text-[12.5px] font-black bg-[#2BD4C7]/10 border border-[#2BD4C7]/26 text-[#2BD4C7]" (click)="sendGuidance()">إرسال</button>
+      </div>
+    </div>
+  </div>
 }

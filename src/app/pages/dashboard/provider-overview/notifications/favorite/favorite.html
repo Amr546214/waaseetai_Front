@@ -61,8 +61,8 @@
 
     <!-- Actions -->
     <div class="flex gap-3 flex-wrap mt-6">
-      <button type="button" (click)="savePreferences()" class="px-6 py-3 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-xl text-[#070D24] font-black text-sm hover:opacity-90 transition-opacity">
-        حفظ التفضيلات
+      <button type="button" [disabled]="isSaving()" (click)="savePreferences()" class="px-6 py-3 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-xl text-[#070D24] font-black text-sm hover:opacity-90 transition-opacity disabled:opacity-60">
+        {{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التفضيلات' }}
       </button>
     </div>
   </div>

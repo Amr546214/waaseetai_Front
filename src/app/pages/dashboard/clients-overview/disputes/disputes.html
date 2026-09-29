@@ -3,8 +3,8 @@
   <!-- Header -->
   <div class="ord-head">
     <div>
-      <div class="ord-title">النزاعات</div>
-      <div class="ord-sub">طلبات النزاع والإلغاء بالتراضي، تراجعها الإدارة حتى الإقفال</div>
+      <div class="ord-title">{{ isCompany() ? 'النزاعات والإلغاءات' : 'النزاعات' }}</div>
+      <div class="ord-sub">{{ isCompany() ? 'نزاعات الشركة ونزاعات فريقك مع مقدّمي الخدمة — مُدارة بالذكاء الاصطناعي' : 'طلبات النزاع والإلغاء بالتراضي، تراجعها الإدارة حتى الإقفال' }}</div>
     </div>
     <button type="button" class="disp-raise-btn" (click)="openToast('سيُتاح رفع النزاع من صفحة متابعة المشروع مباشرة')">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -27,29 +27,29 @@
   <div class="inv-kpis">
     <div class="inv-kpi">
       <div class="ic inv-ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-      <div class="v">1</div>
+      <div class="v">{{ kpis().activeDisputes }}</div>
       <div class="l">نزاع نشط</div>
     </div>
     <div class="inv-kpi">
       <div class="ic inv-ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l4-2 5 2 5-2 4 2v6l-4 2-5-2-5 2-4-2z"/><path d="M12 9v6"/></svg></div>
-      <div class="v">1</div>
+      <div class="v">{{ kpis().mutualCancelPending }}</div>
       <div class="l">إلغاء بالتراضي</div>
     </div>
     <div class="inv-kpi">
       <div class="ic inv-ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div class="v">2</div>
+      <div class="v">{{ kpis().closedMutual }}</div>
       <div class="l">مُغلقة بالتراضي</div>
     </div>
     <div class="inv-kpi">
       <div class="ic inv-ic-ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg></div>
-      <div class="v">جارٍ</div>
+      <div class="v">{{ kpis().overallStatus }}</div>
       <div class="l">قيد المتابعة</div>
     </div>
   </div>
 
   <!-- Tabs -->
   <div class="inv-tabs" role="tablist">
-    @for(tab of [{id:'all', label:'الكل', count: 4}, {id:'open', label:'نشطة', count: 2}, {id:'closed', label:'مُغلقة', count: 2}, {id:'mine', label:'رفعتها أنا', count: 3}, {id:'against', label:'مرفوعة ضدي', count: 1}, {id:'pending', label:'بانتظار ردي', count: 1}, {id:'review', label:'قيد المراجعة', count: 1}]; track tab.id) {
+    @for(tab of tabsList(); track tab.id) {
       <button type="button" class="inv-tab" [class.active]="currentTab() === tab.id" (click)="setTab(tab.id)">
         {{ tab.label }}
         <span class="c">{{ tab.count }}</span>
@@ -135,10 +135,19 @@
     @if (filteredDisputes().length === 0) {
       <div class="state-card disp-empty">
         <div class="disp-empty-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          @if (listUnavailable()) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          }
         </div>
-        <div class="disp-empty-ttl">لا يوجد نزاعات</div>
-        <div class="disp-empty-sub">لا توجد نزاعات أو طلبات إلغاء. تُرفع النزاعات من صفحة متابعة المشروع عند الحاجة.</div>
+        @if (listUnavailable()) {
+          <div class="disp-empty-ttl">تعذر تحميل سجلّ النزاعات</div>
+          <div class="disp-empty-sub">حدث خطأ أثناء جلب سجلّ النزاعات، حاول تحديث الصفحة أو المحاولة لاحقًا.</div>
+        } @else {
+          <div class="disp-empty-ttl">لا يوجد نزاعات</div>
+          <div class="disp-empty-sub">لا توجد نزاعات أو طلبات إلغاء. تُرفع النزاعات من صفحة متابعة المشروع عند الحاجة.</div>
+        }
       </div>
     }
   </div>

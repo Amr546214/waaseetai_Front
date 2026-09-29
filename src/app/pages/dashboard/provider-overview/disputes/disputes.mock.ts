@@ -39,6 +39,18 @@ export interface DisputeStatusStep {
 	state: 'done' | 'active' | 'pending';
 }
 
+// Company-mode only: which team member on the provider company's side this
+// dispute/project involves. Mock/placeholder — there is no backend field
+// linking a dispute to a specific company team member yet (dispute.service.ts
+// has no team-member assignment concept at all). Deterministic per dispute id
+// (not random) so the list and detail pages always agree.
+export interface DisputeTeamMember {
+	name: string;
+	role: string;
+	initials: string;
+	gradient: string;
+}
+
 // Final AI cleanup batch: confidencePct/verdictFor/verdictAgainst/meters
 // (a fabricated AI-adjudication apparatus — a fake "AI confidence" score,
 // AI-authored arguments for each side, and AI-assigned fault percentages)
@@ -75,6 +87,8 @@ export interface Dispute {
 	messages: number;
 	date: string;
 	detail?: DisputeDetail;
+	/** Company-mode only — see DisputeTeamMember. Mock/placeholder field. */
+	teamMember?: DisputeTeamMember;
 }
 
 export const DISPUTES_MOCK: Dispute[] = [
@@ -133,7 +147,8 @@ export const DISPUTES_MOCK: Dispute[] = [
 				{ label: 'مسؤول الدعم', value: 'بانتظار التعيين' },
 				{ label: 'الموعد المتوقع', value: '13 يونيو 2026', valueClass: 'amber' }
 			]
-		}
+		},
+		teamMember: { name: 'فهد العتيبي', role: 'تصميم هوية بصرية', initials: 'فه', gradient: 'linear-gradient(135deg,#2B7FFF,#1A5FCC)' }
 	},
 	{
 		id: 'CNL-2026-007',
@@ -185,7 +200,8 @@ export const DISPUTES_MOCK: Dispute[] = [
 				{ label: 'المبلغ المتجمّد بالضمان', value: '1,900 ريال', valueClass: 'teal' },
 				{ label: 'الحالة', value: 'بانتظار موافقة الطرفين', valueClass: 'amber' }
 			]
-		}
+		},
+		teamMember: { name: 'سارة الزهراني', role: 'كتابة محتوى متجر', initials: 'سا', gradient: 'linear-gradient(135deg,#FFB400,#D98A0B)' }
 	},
 	{
 		id: 'DSP-2026-009',
@@ -228,7 +244,8 @@ export const DISPUTES_MOCK: Dispute[] = [
 				{ label: 'تاريخ الإغلاق', value: '12 مايو 2026' },
 				{ label: 'حالة المبلغ', value: 'أُفرج بالكامل', valueClass: 'teal' }
 			]
-		}
+		},
+		teamMember: { name: 'ريم الدوسري', role: 'تطوير متجر', initials: 'ري', gradient: 'linear-gradient(135deg,#0FA99A,#0D8A7E)' }
 	},
 	{
 		id: 'CNL-2026-003',
@@ -270,6 +287,7 @@ export const DISPUTES_MOCK: Dispute[] = [
 				{ label: 'تاريخ الإغلاق', value: '28 أبريل 2026' },
 				{ label: 'المبلغ المُعاد', value: '1,500 ريال', valueClass: 'teal' }
 			]
-		}
+		},
+		teamMember: { name: 'فهد العتيبي', role: 'استشارة تسويقية', initials: 'فه', gradient: 'linear-gradient(135deg,#2B7FFF,#1A5FCC)' }
 	}
 ];

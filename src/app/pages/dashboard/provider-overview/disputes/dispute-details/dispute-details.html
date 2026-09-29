@@ -59,6 +59,9 @@
 			<div class="dd-ai-sec">
 				<div class="dd-recommendation">
 					<strong>مقترح الإدارة:</strong> {{ detail.recommendation }}
+					@if (isCompanyMode() && d.teamMember) {
+						<div style="margin-top:8px;font-size:11px;color:var(--txt-3, #6B7699)">موجَّه لعضو الفريق: <strong style="color:var(--txt, #fff)">{{ d.teamMember.name }}</strong></div>
+					}
 				</div>
 			</div>
 			}
@@ -149,13 +152,22 @@
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
 					أطراف النزاع
 				</div>
-				@for (p of detail.parties; track p.name) {
+				@for (p of detail.parties; track p.name; let idx = $index) {
 				<div class="dd-party-row">
-					<div class="dd-party-av" [style.background]="p.gradient">{{ p.initials }}</div>
-					<div>
-						<div class="dd-party-name">{{ p.name }}</div>
-						<div class="dd-party-role">{{ p.role }}</div>
-					</div>
+					@if (idx === 0 && isCompanyMode() && d.teamMember; as tm) {
+						<div class="dd-party-av" [style.background]="tm.gradient">{{ tm.initials }}</div>
+						<div style="flex:1;min-width:0">
+							<div class="dd-party-name">{{ tm.name }}</div>
+							<div class="dd-party-role">{{ tm.role }} — مقدِّم الخدمة</div>
+						</div>
+						<button type="button" class="dd-btn-ghost" style="padding:5px 10px;font-size:11px" (click)="openGuidance()">توجيه</button>
+					} @else {
+						<div class="dd-party-av" [style.background]="p.gradient">{{ p.initials }}</div>
+						<div>
+							<div class="dd-party-name">{{ p.name }}</div>
+							<div class="dd-party-role">{{ p.role }}</div>
+						</div>
+					}
 				</div>
 				}
 			</div>
@@ -172,6 +184,12 @@
 			}
 
 			<div class="dd-act-col">
+				@if (isCompanyMode() && d.teamMember; as tm) {
+					<button type="button" class="dd-btn-ghost" style="background:rgba(43,127,255,.09);border-color:rgba(43,127,255,.24);color:#5DA0FF" (click)="openGuidance()">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+						توجيه {{ tm.name }}
+					</button>
+				}
 				<a routerLink="/provider-overview/disputes" class="dd-btn-ghost">
 					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
 					العودة للنزاعات
@@ -184,5 +202,42 @@
 	<div class="dd-inner-foot">
 		<span>&#169; 2026 وسيط AI &middot; v1.0.0</span>
 	</div>
+
+	<!-- GUIDANCE MODAL (company mode) -->
+	@if (guidanceOpen() && isCompanyMode() && d.teamMember; as tm) {
+		<div style="position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(7,13,36,.7);backdrop-filter:blur(6px)" (click)="closeGuidance()">
+			<div style="background:var(--sec-bg, rgba(11,20,55,.97));border:1px solid var(--sec-bd, rgba(255,255,255,.12));border-radius:18px;padding:22px;width:100%;max-width:440px" (click)="$event.stopPropagation()">
+				<div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:14px">
+					<span style="width:32px;height:32px;border-radius:8px;background:rgba(43,127,255,.12);color:#5DA0FF;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+					</span>
+					<div>
+						<h3 style="font-size:14px;font-weight:900;color:var(--txt, #fff)">توجيه {{ tm.name }}</h3>
+						<p style="font-size:11.5px;color:var(--txt-2, #A8B2D1);margin-top:2px">بخصوص نزاع {{ d.id }}</p>
+					</div>
+					<button type="button" style="margin-inline-start:auto;width:26px;height:26px;border-radius:6px;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.08));color:var(--txt-3, #6B7699);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" (click)="closeGuidance()">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+					</button>
+				</div>
+				<div style="margin-bottom:12px">
+					<label style="display:block;font-size:12px;font-weight:700;color:var(--txt, #fff);margin-bottom:5px">توجيهاتك لـ{{ tm.name }}</label>
+					<textarea style="width:100%;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.10));border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--txt, #fff);font-family:inherit;resize:vertical;min-height:80px;line-height:1.6" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
+				</div>
+				<div style="display:flex;gap:9px">
+					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid var(--sec-bd, rgba(255,255,255,.12));background:var(--sec-bg, rgba(255,255,255,.05));color:var(--txt, #fff)" (click)="closeGuidance()">إلغاء</button>
+					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid rgba(43,212,199,.26);background:rgba(43,212,199,.10);color:#2BD4C7" (click)="sendGuidance()">إرسال</button>
+				</div>
+			</div>
+		</div>
+	}
 	}
 </div>
+
+@if (toastMsg()) {
+<div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500">
+	<div style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
+		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+		<span style="font-size:14px;font-weight:700;color:#fff">{{ toastMsg() }}</span>
+	</div>
+</div>
+}

@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 import { DISPUTES_MOCK, Dispute } from '../disputes.mock';
 
 @Component({
@@ -12,9 +14,39 @@ import { DISPUTES_MOCK, Dispute } from '../disputes.mock';
 })
 export class DisputeDetails implements OnInit {
 	private route = inject(ActivatedRoute);
+	private authStore = inject(AuthStore);
 
 	dispute = signal<Dispute | null>(null);
 	notFound = signal<boolean>(false);
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
+
+	// Company mode: sends written guidance to the assigned team member. No
+	// backend "dispute guidance" endpoint exists yet — this just confirms via
+	// toast, matching the pattern used on the disputes list page.
+	guidanceOpen = signal<boolean>(false);
+	guidanceText = signal<string>('');
+	toastMsg = signal<string>('');
+
+	openGuidance() {
+		this.guidanceText.set('');
+		this.guidanceOpen.set(true);
+	}
+
+	closeGuidance() {
+		this.guidanceOpen.set(false);
+	}
+
+	sendGuidance() {
+		const name = this.dispute()?.teamMember?.name;
+		this.closeGuidance();
+		if (!name) return;
+		this.toastMsg.set(`تم إرسال التوجيه لـ${name}`);
+		setTimeout(() => this.toastMsg.set(''), 3000);
+	}
 
 	statusLabel = computed(() => {
 		const d = this.dispute();

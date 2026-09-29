@@ -49,6 +49,26 @@ export class DisputeApiService {
     );
   }
 
+  /**
+   * Client lists their own disputes (as opener or respondent).
+   * GET /api/client/disputes
+   */
+  getClientDisputes(query?: AdminDisputesQuery): Observable<DisputeListApiResponse> {
+    let params = new HttpParams();
+    if (query?.status) params = params.set('status', query.status);
+    if (query?.page) params = params.set('page', query.page);
+    if (query?.limit) params = params.set('limit', query.limit);
+    return this.http.get<DisputeListApiResponse>(`${this.baseUrl}/client/disputes`, { params });
+  }
+
+  /**
+   * Client gets a single dispute they're a party to.
+   * GET /api/client/disputes/:id
+   */
+  getClientDispute(id: string): Observable<DisputeApiResponse> {
+    return this.http.get<DisputeApiResponse>(`${this.baseUrl}/client/disputes/${id}`);
+  }
+
   // ── Provider ────────────────────────────────────────────────────────
 
   /**
@@ -71,6 +91,26 @@ export class DisputeApiService {
       `${this.baseUrl}/provider/requests/${requestId}/cancel`,
       payload ?? {},
     );
+  }
+
+  /**
+   * Provider lists their own disputes (as opener or respondent).
+   * GET /api/provider/disputes
+   */
+  getProviderDisputes(query?: AdminDisputesQuery): Observable<DisputeListApiResponse> {
+    let params = new HttpParams();
+    if (query?.status) params = params.set('status', query.status);
+    if (query?.page) params = params.set('page', query.page);
+    if (query?.limit) params = params.set('limit', query.limit);
+    return this.http.get<DisputeListApiResponse>(`${this.baseUrl}/provider/disputes`, { params });
+  }
+
+  /**
+   * Provider gets a single dispute they're a party to.
+   * GET /api/provider/disputes/:id
+   */
+  getProviderDispute(id: string): Observable<DisputeApiResponse> {
+    return this.http.get<DisputeApiResponse>(`${this.baseUrl}/provider/disputes/${id}`);
   }
 
   // ── Admin ───────────────────────────────────────────────────────────
@@ -118,12 +158,8 @@ export class DisputeApiService {
     );
   }
 
-  // ── Backend gaps (not in Swagger) ───────────────────────────────────
+  // ── Remaining backend gaps (not in Swagger) ─────────────────────────
   //
-  // No GET /client/disputes — cannot list a client's own disputes.
-  // No GET /provider/disputes — cannot list a provider's own disputes.
-  // No GET /client/disputes/:id — no client dispute detail endpoint.
-  // No GET /provider/disputes/:id — no provider dispute detail endpoint.
   // No dispute messages / conversation endpoints (no POST /disputes/:id/messages).
   // No dedicated evidence upload endpoint — use existing upload routes and pass URIs.
 }

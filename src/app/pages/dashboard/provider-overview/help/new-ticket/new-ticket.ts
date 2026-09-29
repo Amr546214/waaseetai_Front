@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { TicketApiService } from '../../../../../core/services/ticket-api.service';
 
 @Component({
 	selector: 'app-new-ticket',
@@ -16,6 +17,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 export class NewTicketComponent {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
+	private ticketApi = inject(TicketApiService);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -98,12 +100,30 @@ export class NewTicketComponent {
 		if (Object.keys(errs).length > 0) return;
 
 		this.submitting.set(true);
-		setTimeout(() => {
-			this.submitting.set(false);
-			this.showToast('تم فتح تذكرتك بنجاح');
-			const route = this.isCompanyMode() ? '/provider-overview/help' : '/client-overview/help';
-			setTimeout(() => this.router.navigate([route]), 1200);
-		}, 800);
+		this.ticketApi.createTicket('provider', {
+			subject: this.subject().trim(),
+			category: this.category(),
+			priority: this.priority(),
+			description: this.description().trim(),
+			relatedOrder: this.relatedOrder().trim() || undefined,
+			relatedProject: this.relatedProject() || undefined,
+			relatedMember: this.relatedMember() || undefined,
+			ccEmail: this.ccEmail().trim() || undefined,
+		}).subscribe({
+			next: (res) => {
+				this.submitting.set(false);
+				if (res.success && res.data) {
+					this.showToast('تم فتح تذكرتك بنجاح');
+					setTimeout(() => this.router.navigate(['/provider-overview/help/tickets', res.data!.id]), 1200);
+				} else {
+					this.showToast(res.message || 'تعذر فتح التذكرة');
+				}
+			},
+			error: (err) => {
+				this.submitting.set(false);
+				this.showToast(err?.error?.message || 'تعذر فتح التذكرة، حاول مرة أخرى');
+			}
+		});
 	}
 
 	showToast(msg: string) {

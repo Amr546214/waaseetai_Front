@@ -1,12 +1,58 @@
-import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { TicketApiService, SupportTicket, SupportTicketMessage, TicketStatus } from '../../../../../core/services/ticket-api.service';
 
 interface TimelineStep { label: string; state: 'done' | 'active' | 'idle'; }
-interface ChatMessage { from: 'me' | 'ai' | 'agent' | 'sys'; name?: string; time: string; text: string; isAi?: boolean; isAgent?: boolean; }
+interface ChatMessage { from: 'me' | 'agent'; name: string; time: string; text: string; }
+
+interface TicketView {
+	id: string;
+	code: string;
+	title: string;
+	createdAt: string;
+	status: string;
+	statusLabel: string;
+	category: string;
+	priority: string;
+	related: string | null;
+	companyProject: string | null;
+	companyMember: string | null;
+	updatedAt: string;
+}
+
+const STATUS_LABELS: Record<TicketStatus, string> = {
+	OPEN: 'مفتوحة',
+	IN_PROGRESS: 'قيد المراجعة',
+	AWAITING_CUSTOMER: 'بانتظار ردّك',
+	RESOLVED: 'محلولة',
+	CLOSED: 'مغلقة',
+};
+
+function formatDate(iso: string): string {
+	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function formatTime(iso: string): string {
+	return new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+}
+
+function buildTimeline(status: TicketStatus): TimelineStep[] {
+	const opened: TimelineStep = { label: 'مفتوحة', state: 'done' };
+	const inReview: TimelineStep = {
+		label: 'قيد المراجعة',
+		state: status === 'RESOLVED' || status === 'CLOSED' ? 'done' : 'active',
+	};
+	const resolved: TimelineStep = {
+		label: 'الحل',
+		state: status === 'RESOLVED' || status === 'CLOSED' ? 'done' : 'idle',
+	};
+	const closed: TimelineStep = { label: 'الإغلاق', state: status === 'CLOSED' ? 'done' : 'idle' };
+	return [opened, inReview, resolved, closed];
+}
 
 @Component({
 	selector: 'app-ticket-detail',
@@ -16,108 +62,124 @@ interface ChatMessage { from: 'me' | 'ai' | 'agent' | 'sys'; name?: string; time
 	styleUrls: ['./ticket-detail.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TicketDetailComponent {
+export class TicketDetailComponent implements OnInit {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
+	private ticketApi = inject(TicketApiService);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
 		return user?.accountType === AccountType.PROVIDER_COMPANY;
 	});
 
-	ticketId = signal<string>('TK-—');
+	ticketId = signal<string>('');
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
 	replyText = signal<string>('');
 	toast = signal<string | null>(null);
+	sending = signal<boolean>(false);
+	closing = signal<boolean>(false);
 
-	ticket = signal<any>(null);
+	ticket = signal<TicketView | null>(null);
 	timeline = signal<TimelineStep[]>([]);
 	messages = signal<ChatMessage[]>([]);
 
 	ngOnInit() {
-		const id = this.route.snapshot.paramMap.get('id') || '—';
-		this.ticketId.set(`TK-${id}`);
+		const id = this.route.snapshot.paramMap.get('id') || '';
+		this.ticketId.set(id);
 		this.loadTicket(id);
 	}
 
-	loadTicket(id: string) {
-		this.isLoading.set(true);
-		this.hasError.set(false);
-		// Simulate loading from API — replace with real API call when backend supports tickets
-		setTimeout(() => {
-			if (this.isCompanyMode()) {
-				this.ticket.set({
-					id: `TKT-2026-0188`,
-					title: 'أمر تغيير معتمد لم يُضف لمحفظة الشركة',
-					createdAt: '22 يوليو 2026',
-					status: 'processing',
-					statusLabel: 'قيد المعالجة',
-					category: 'مالية',
-					priority: 'متوسطة',
-					priorityColor: '#FFB400',
-					related: 'PRJ-3091',
-					updatedAt: 'منذ ساعة',
-				});
-				this.timeline.set([
-					{ label: 'فُتحت التذكرة', state: 'done' },
-					{ label: 'أُحيلت لفريق المالية', state: 'done' },
-					{ label: 'تم التحقق من حالة المبلغ', state: 'done' },
-					{ label: 'متابعة حتى الإفراج', state: 'active' },
-				]);
-				this.messages.set([
-					{ from: 'me', name: 'الخليج للتقنية', time: '22 يوليو 2026 — 09:12', text: 'وافق العميل على أمر التغيير في مشروع PRJ-3091 بتاريخ 20 يوليو، والمبلغ لم يظهر في محفظة الشركة حتى الآن. أرفقت لقطة شاشة للمحفظة وسجل أمر التغيير.' },
-					{ from: 'agent', name: 'فريق الدعم', time: '22 يوليو 2026 — 11:40', isAgent: true, text: 'شكراً لتواصلك. استلمنا التذكرة وأحلناها لفريق المالية للتحقق من حالة المبلغ في حساب الضمان. سنوافيك بالنتيجة خلال يوم عمل.' },
-					{ from: 'agent', name: 'عبدالله المطيري', time: '23 يوليو 2026 — 10:05', isAgent: true, text: 'تم التحقق: مبلغ أمر التغيير محتجز في حساب الضمان مرتبطاً بالمرحلة الثالثة، ويُفرَج عنه تلقائياً بعد اعتماد العميل لتسليم المرحلة. لا يوجد خلل في العملية.' },
-					{ from: 'me', name: 'الخليج للتقنية', time: '23 يوليو 2026 — 13:22', text: 'واضح، شكراً للتوضيح. أرجو إبقاء التذكرة مفتوحة حتى يتم الإفراج فعلياً لنتأكد من ظهور المبلغ في سجل المعاملات.' },
-					{ from: 'agent', name: 'عبدالله المطيري', time: '25 يوليو 2026 — 11:09', isAgent: true, text: 'تمام، أبقيتُ التذكرة مفتوحة مع تنبيه متابعة. بمجرد اعتماد التسليم سيظهر المبلغ في سجل معاملات الشركة وسنؤكد لك ذلك على التذكرة.' },
-				]);
-			} else {
-				this.ticket.set({
-					id: `TK-${id}`,
-					title: 'تأخر الإفراج عن مبلغ الضمان',
-					createdAt: '21 يونيو 2026',
-					status: 'human',
-					statusLabel: 'لدى فريق الدعم',
-					category: 'العقود والضمان',
-					priority: 'عالية',
-					priorityColor: '#D98A0B',
-					related: 'ORD-3092',
-					updatedAt: 'قبل ساعتين',
-					aiVerdict: 'صُنِّفت التذكرة تحت «العقود والضمان» بأولوية عالية لتعلّقها بمبلغ محتجز، ووُجِّهت لفريق الدعم المالي. اقتراح أولي: غالبًا التأخير بسبب عدم اكتمال «قبول التسليم» من طرفك'
-				});
-				this.timeline.set([
-					{ label: 'مفتوحة', state: 'done' },
-					{ label: 'فرز الذكاء', state: 'done' },
-					{ label: 'قيد مراجعة الدعم', state: 'active' },
-					{ label: 'الحل', state: 'idle' },
-					{ label: 'الإغلاق', state: 'idle' }
-				]);
-				this.messages.set([
-					{ from: 'sys', time: '21 يونيو 10:02ص', text: 'أنشئت التذكرة وصنّفها المساعد الذكي تلقائيًّا' },
-					{ from: 'me', name: 'أنت', time: '10:02ص', text: 'سلّمت المشروع منذ يومين والمقدّم أكّد الإنهاء، لكن مبلغ الضمان لم يُفرَج بعد ولا أعرف سبب التأخير' },
-					{ from: 'ai', name: 'المساعد الذكي', time: '10:02ص', isAi: true, text: 'يُفرَج مبلغ الضمان تلقائيًّا فور ضغطك «قبول التسليم» من صفحة المشروع. يبدو أن خطوة القبول لم تكتمل بعد. راجع التسليم واعتمده، وإن كان معتمدًا فعلًا فقد رفعت تذكرتك لفريق الدعم المالي للتحقق.' },
-					{ from: 'agent', name: 'سارة · فريق الدعم المالي', time: 'قبل ساعتين', isAgent: true, text: 'شكرًا لتواصلك. راجعنا المشروع ORD-3092 ووجدنا أن التسليم بانتظار اعتمادك النهائي من صفحة «مراجعة التسليم». بمجرد اعتمادك يُفرَج المبلغ فورًا. هل ترغب أن نرشدك للخطوة؟' }
-				]);
-			}
-			this.isLoading.set(false);
-		}, 400);
+	private mapMessages(raw: SupportTicketMessage[]): ChatMessage[] {
+		const currentUserId = this.authStore.currentUser()?.id;
+		return raw.map(m => ({
+			from: m.senderId === currentUserId ? 'me' : 'agent',
+			name: m.senderId === currentUserId ? 'أنت' : (m.sender ? `${m.sender.firstName} ${m.sender.lastName}` : 'فريق الدعم'),
+			time: formatTime(m.createdAt),
+			text: m.body,
+		}));
 	}
 
-	retry() { this.loadTicket(this.ticketId().replace('TK-', '')); }
+	loadTicket(id: string) {
+		if (!id) { this.hasError.set(true); this.isLoading.set(false); return; }
+		this.isLoading.set(true);
+		this.hasError.set(false);
+		this.ticketApi.getTicket('provider', id).subscribe({
+			next: (res) => {
+				this.isLoading.set(false);
+				if (res.success && res.data) {
+					const t: SupportTicket = res.data.ticket;
+					this.ticket.set({
+						id: t.id,
+						code: t.ticketNumber,
+						title: t.subject,
+						createdAt: formatDate(t.createdAt),
+						status: t.status,
+						statusLabel: STATUS_LABELS[t.status],
+						category: t.category,
+						priority: t.priority,
+						related: t.relatedOrder || null,
+						companyProject: t.relatedProject || null,
+						companyMember: t.relatedMember || null,
+						updatedAt: formatDate(t.updatedAt),
+					});
+					this.timeline.set(buildTimeline(t.status));
+					this.messages.set(this.mapMessages(res.data.messages));
+				} else {
+					this.hasError.set(true);
+				}
+			},
+			error: () => {
+				this.isLoading.set(false);
+				this.hasError.set(true);
+			}
+		});
+	}
+
+	retry() { this.loadTicket(this.ticketId()); }
 
 	sendReply() {
 		const text = this.replyText().trim();
-		if (!text) return;
-		this.messages.update(msgs => [...msgs, { from: 'me', name: 'أنت', time: 'الآن', text }]);
-		this.replyText.set('');
-		this.showToast('تم إرسال ردّك');
+		if (!text || this.sending()) return;
+		this.sending.set(true);
+		this.ticketApi.replyToTicket('provider', this.ticketId(), text).subscribe({
+			next: (res) => {
+				this.sending.set(false);
+				if (res.success) {
+					this.replyText.set('');
+					this.showToast('تم إرسال ردّك');
+					this.loadTicket(this.ticketId());
+				} else {
+					this.showToast(res.message || 'تعذر إرسال الرد');
+				}
+			},
+			error: (err) => {
+				this.sending.set(false);
+				this.showToast(err?.error?.message || 'تعذر إرسال الرد، حاول مرة أخرى');
+			}
+		});
 	}
 
-	markResolved() { this.showToast('وُسمت التذكرة كمحلولة، شكرًا لك'); }
-	escalate() { this.showToast('طُلب تصعيد التذكرة لمشرف الدعم'); }
-	closeTicket() { this.showToast('أُغلقت التذكرة، يمكنك إعادة فتحها لاحقًا'); }
+	closeTicket() {
+		if (this.closing()) return;
+		this.closing.set(true);
+		this.ticketApi.closeTicket('provider', this.ticketId()).subscribe({
+			next: (res) => {
+				this.closing.set(false);
+				if (res.success) {
+					this.showToast('أُغلقت التذكرة');
+					this.loadTicket(this.ticketId());
+				} else {
+					this.showToast(res.message || 'تعذر إغلاق التذكرة');
+				}
+			},
+			error: (err) => {
+				this.closing.set(false);
+				this.showToast(err?.error?.message || 'تعذر إغلاق التذكرة، حاول مرة أخرى');
+			}
+		});
+	}
 
 	showToast(msg: string) {
 		this.toast.set(msg);
@@ -125,7 +187,6 @@ export class TicketDetailComponent {
 	}
 
 	goBack() {
-		const route = this.isCompanyMode() ? '/provider-overview/help' : '/client-overview/help';
-		this.router.navigate([route]);
+		this.router.navigate(['/provider-overview/help']);
 	}
 }
