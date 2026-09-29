@@ -48,7 +48,7 @@
 .dp-pag-btns{display:flex;gap:6px}
 
 .dp-mov{position:fixed;inset:0;background:rgba(7,13,36,.7);backdrop-filter:blur(6px);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px}
-.dp-mbox{background:rgba(11,20,55,.97);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:22px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+.dp-mbox{background:rgba(11,20,55,.97);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:22px;width:100%;max-width:760px;max-height:90vh;overflow-y:auto}
 .dp-md-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
 .dp-md-hdr h3{font-size:16px;color:#fff;margin:0 0 6px}
 .dp-md-hdr .dp-badge{font-size:11px}
@@ -101,7 +101,66 @@
 .dp-rf-err{font-size:12px;color:#FF8C69;font-weight:700;margin:8px 0 0}
 .dp-rf-actions{display:flex;gap:8px;margin-top:12px}
 
-@media(max-width:768px){.dp-list{grid-template-columns:1fr}.dp-md-row{flex-direction:column}.dp-page{padding:14px 16px}}
+/* ── Detail-modal additions: parties, evidence comparison, activity log,
+   escrow-split slider, similar cases ────────────────────────────────── */
+.dp-mock-notice{font-size:11px;line-height:1.7;color:#D98A0B;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.22);border-radius:10px;padding:10px 12px}
+.dp-mock-notice strong{font-weight:800}
+
+.dp-parties{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dp-party-card{padding:12px 14px;border-radius:10px;border:1px solid}
+.dp-party-claimant{background:rgba(43,127,255,.06);border-color:rgba(43,127,255,.18)}
+.dp-party-respondent{background:rgba(15,169,154,.06);border-color:rgba(15,169,154,.18)}
+.dp-party-role{font-size:10px;font-weight:800;margin-bottom:6px}
+.dp-party-claimant .dp-party-role{color:#5DA0FF}
+.dp-party-respondent .dp-party-role{color:#0FA99A}
+.dp-party-top{display:flex;align-items:center;gap:8px}
+.dp-party-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#070D24;flex-shrink:0}
+.dp-party-name{font-size:13px;font-weight:700;color:#fff}
+.dp-party-claim{margin-top:8px;font-size:12px;color:#A8B2D1;line-height:1.6}
+
+.dp-ev-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dp-ev-col{padding:10px 12px;border-radius:10px;border:1px solid;display:flex;flex-direction:column;gap:5px}
+.dp-ev-col-claimant{background:rgba(43,127,255,.05);border-color:rgba(43,127,255,.16)}
+.dp-ev-col-respondent{background:rgba(15,169,154,.05);border-color:rgba(15,169,154,.16)}
+.dp-ev-col-hdr{font-size:11px;font-weight:800;color:#A8B2D1;margin-bottom:2px}
+.dp-ev-mini{display:block;padding:6px 8px;background:rgba(255,255,255,.04);border-radius:6px;font-size:11px;color:#A8B2D1;text-decoration:none;word-break:break-all;transition:color .15s}
+.dp-ev-mini:hover{color:#2BD4C7}
+
+.dp-act-list{display:flex;flex-direction:column}
+.dp-act-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.dp-act-item:last-child{border-bottom:0}
+.dp-act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.dp-act-lbl{font-size:12.5px;font-weight:700;color:#fff;margin-bottom:2px;line-height:1.5}
+.dp-act-date{font-size:11px;color:#6B7699}
+.dp-act-approx{color:#8A7B4A;font-style:italic}
+
+.dp-split-panel{padding:14px;background:rgba(43,212,199,.05);border:1px solid rgba(43,212,199,.16);border-radius:12px;display:flex;flex-direction:column;gap:10px}
+.dp-split-hdr{font-size:12px;font-weight:800;color:#2BD4C7}
+.dp-split-row{display:flex;align-items:center;gap:10px}
+.dp-split-side{font-size:11px;font-weight:700;min-width:88px;flex-shrink:0}
+.dp-split-claimant{color:#5DA0FF}
+.dp-split-respondent{color:#2BD4C7;text-align:left}
+.dp-split-slider{flex:1;accent-color:#2BD4C7}
+.dp-split-amounts{display:flex;justify-content:space-between;font-size:12px;font-weight:800}
+.dp-verdict-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dp-vbtn{display:flex;align-items:center;justify-content:center;padding:9px 10px;border-radius:9px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;transition:all .15s;border:1px solid transparent;text-align:center}
+.dp-vbtn-client{background:rgba(43,127,255,.14);border-color:rgba(93,160,255,.28);color:#5DA0FF}
+.dp-vbtn-client:hover{background:rgba(43,127,255,.22)}
+.dp-vbtn-provider{background:rgba(15,169,154,.14);border-color:rgba(43,212,199,.28);color:#0FA99A}
+.dp-vbtn-provider:hover{background:rgba(15,169,154,.22)}
+.dp-vbtn-split{background:rgba(255,180,0,.10);border-color:rgba(255,180,0,.25);color:#D98A0B}
+.dp-vbtn-split:hover{background:rgba(255,180,0,.18)}
+.dp-vbtn-mutual{background:rgba(123,47,190,.10);border-color:rgba(123,47,190,.25);color:#A56BE0}
+.dp-vbtn-mutual:hover{background:rgba(123,47,190,.18)}
+
+.dp-similar{background:rgba(123,47,190,.05);border:1px solid rgba(123,47,190,.16);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.dp-similar-hdr{font-size:12px;font-weight:800;color:#A56BE0}
+.dp-similar-row{display:flex;align-items:center;gap:10px;padding:7px 9px;background:rgba(255,255,255,.03);border-radius:8px;font-size:11px}
+.dp-similar-id{font-family:monospace;color:#2BD4C7;flex-shrink:0}
+.dp-similar-sum{flex:1;color:#A8B2D1}
+.dp-similar-outcome{font-weight:700;flex-shrink:0;white-space:nowrap}
+
+@media(max-width:768px){.dp-list{grid-template-columns:1fr}.dp-md-row{flex-direction:column}.dp-page{padding:14px 16px}.dp-parties{grid-template-columns:1fr}.dp-ev-compare{grid-template-columns:1fr}.dp-verdict-btns{grid-template-columns:1fr}.dp-split-row{flex-wrap:wrap}}
 
 /* ==========================================================================
    LIGHT MODE OVERRIDES — based on design reference P-AD-008 / shared admin light polish
@@ -330,4 +389,130 @@
 :host-context(.theme-light) .dp-rf-input,
 :host-context(.theme-light) .dp-rf-ta {
   background: #fff; border-color: #CBD5E1; color: #1E293B;
+}
+
+:host-context(body.light-theme) .dp-mock-notice,
+:host-context(body.theme-light) .dp-mock-notice,
+:host-context(.light-theme) .dp-mock-notice,
+:host-context(.theme-light) .dp-mock-notice {
+  color: #92620A; background: rgba(255,180,0,.08); border-color: rgba(217,138,11,.28);
+}
+
+:host-context(body.light-theme) .dp-party-card,
+:host-context(body.theme-light) .dp-party-card,
+:host-context(.light-theme) .dp-party-card,
+:host-context(.theme-light) .dp-party-card {
+  background: #fff;
+}
+:host-context(body.light-theme) .dp-party-claimant,
+:host-context(body.theme-light) .dp-party-claimant,
+:host-context(.light-theme) .dp-party-claimant,
+:host-context(.theme-light) .dp-party-claimant {
+  background: rgba(43,127,255,.04); border-color: rgba(43,127,255,.22);
+}
+:host-context(body.light-theme) .dp-party-respondent,
+:host-context(body.theme-light) .dp-party-respondent,
+:host-context(.light-theme) .dp-party-respondent,
+:host-context(.theme-light) .dp-party-respondent {
+  background: rgba(15,169,154,.04); border-color: rgba(15,169,154,.22);
+}
+:host-context(body.light-theme) .dp-party-name,
+:host-context(body.theme-light) .dp-party-name,
+:host-context(.light-theme) .dp-party-name,
+:host-context(.theme-light) .dp-party-name {
+  color: #1E293B;
+}
+:host-context(body.light-theme) .dp-party-claim,
+:host-context(body.theme-light) .dp-party-claim,
+:host-context(.light-theme) .dp-party-claim,
+:host-context(.theme-light) .dp-party-claim {
+  color: #475569;
+}
+
+:host-context(body.light-theme) .dp-ev-col-claimant,
+:host-context(body.theme-light) .dp-ev-col-claimant,
+:host-context(.light-theme) .dp-ev-col-claimant,
+:host-context(.theme-light) .dp-ev-col-claimant {
+  background: rgba(43,127,255,.03); border-color: rgba(43,127,255,.20);
+}
+:host-context(body.light-theme) .dp-ev-col-respondent,
+:host-context(body.theme-light) .dp-ev-col-respondent,
+:host-context(.light-theme) .dp-ev-col-respondent,
+:host-context(.theme-light) .dp-ev-col-respondent {
+  background: rgba(15,169,154,.03); border-color: rgba(15,169,154,.20);
+}
+:host-context(body.light-theme) .dp-ev-col-hdr,
+:host-context(body.theme-light) .dp-ev-col-hdr,
+:host-context(.light-theme) .dp-ev-col-hdr,
+:host-context(.theme-light) .dp-ev-col-hdr {
+  color: #475569;
+}
+:host-context(body.light-theme) .dp-ev-mini,
+:host-context(body.theme-light) .dp-ev-mini,
+:host-context(.light-theme) .dp-ev-mini,
+:host-context(.theme-light) .dp-ev-mini {
+  background: rgba(7,13,36,.04); color: #475569;
+}
+:host-context(body.light-theme) .dp-ev-mini:hover,
+:host-context(body.theme-light) .dp-ev-mini:hover,
+:host-context(.light-theme) .dp-ev-mini:hover,
+:host-context(.theme-light) .dp-ev-mini:hover {
+  color: #007A72;
+}
+
+:host-context(body.light-theme) .dp-act-item,
+:host-context(body.theme-light) .dp-act-item,
+:host-context(.light-theme) .dp-act-item,
+:host-context(.theme-light) .dp-act-item {
+  border-color: #EEF1F6;
+}
+:host-context(body.light-theme) .dp-act-lbl,
+:host-context(body.theme-light) .dp-act-lbl,
+:host-context(.light-theme) .dp-act-lbl,
+:host-context(.theme-light) .dp-act-lbl {
+  color: #1E293B;
+}
+:host-context(body.light-theme) .dp-act-date,
+:host-context(body.theme-light) .dp-act-date,
+:host-context(.light-theme) .dp-act-date,
+:host-context(.theme-light) .dp-act-date {
+  color: #64748B;
+}
+
+:host-context(body.light-theme) .dp-split-panel,
+:host-context(body.theme-light) .dp-split-panel,
+:host-context(.light-theme) .dp-split-panel,
+:host-context(.theme-light) .dp-split-panel {
+  background: rgba(43,212,199,.04); border-color: rgba(43,212,199,.22);
+}
+:host-context(body.light-theme) .dp-split-hdr,
+:host-context(body.theme-light) .dp-split-hdr,
+:host-context(.light-theme) .dp-split-hdr,
+:host-context(.theme-light) .dp-split-hdr {
+  color: #007A72;
+}
+
+:host-context(body.light-theme) .dp-similar,
+:host-context(body.theme-light) .dp-similar,
+:host-context(.light-theme) .dp-similar,
+:host-context(.theme-light) .dp-similar {
+  background: rgba(123,47,190,.03); border-color: rgba(123,47,190,.18);
+}
+:host-context(body.light-theme) .dp-similar-hdr,
+:host-context(body.theme-light) .dp-similar-hdr,
+:host-context(.light-theme) .dp-similar-hdr,
+:host-context(.theme-light) .dp-similar-hdr {
+  color: #7B2FBE;
+}
+:host-context(body.light-theme) .dp-similar-row,
+:host-context(body.theme-light) .dp-similar-row,
+:host-context(.light-theme) .dp-similar-row,
+:host-context(.theme-light) .dp-similar-row {
+  background: rgba(7,13,36,.03);
+}
+:host-context(body.light-theme) .dp-similar-sum,
+:host-context(body.theme-light) .dp-similar-sum,
+:host-context(.light-theme) .dp-similar-sum,
+:host-context(.theme-light) .dp-similar-sum {
+  color: #475569;
 }

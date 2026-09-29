@@ -93,11 +93,27 @@ export class SaTasks {
     }));
   });
 
-  readonly workload = [
-    { name: 'هيثم القرني', count: 8, pct: 85, color: '#FF8C69' },
-    { name: 'ريم الحربي', count: 6, pct: 60, color: '#FFB400' },
-    { name: 'فهد العتيبي', count: 3, pct: 30, color: '#0FA99A' },
-  ];
+  // Real per-employee open-task counts, derived from the actual `tasks` list
+  // (grouped by assignee, counting non-completed tasks) instead of a
+  // hardcoded array that could drift from the real data.
+  private readonly workloadColors = ['#FF8C69', '#FFB400', '#0FA99A', '#5DA0FF', '#2BD4C7'];
+
+  readonly workload = computed(() => {
+    const counts = new Map<string, number>();
+    for (const t of this.tasks()) {
+      if (t.tab === 'done') continue;
+      counts.set(t.assignee, (counts.get(t.assignee) ?? 0) + 1);
+    }
+    const maxCount = Math.max(1, ...Array.from(counts.values()));
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count], i) => ({
+        name,
+        count,
+        pct: Math.round((count / maxCount) * 100),
+        color: this.workloadColors[i % this.workloadColors.length],
+      }));
+  });
 
   setTab(tab: TaskTab) {
     this.activeTab.set(tab);

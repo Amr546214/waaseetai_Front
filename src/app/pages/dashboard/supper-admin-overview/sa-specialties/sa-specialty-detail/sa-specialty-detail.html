@@ -1,0 +1,154 @@
+<div class="p-6 h-full flex flex-col font-[Tajawal] rtl" dir="rtl">
+	<div class="spd-crumb">
+		<a routerLink="/supper-admin-overview/specialties">&rarr; العودة إلى التخصصات</a>
+	</div>
+
+	<div *ngIf="loading()" class="py-16 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
+		<p class="text-sm font-semibold">جاري تحميل التفاصيل…</p>
+	</div>
+
+	<div *ngIf="!loading() && notFound()" class="py-16 flex flex-col items-center justify-center gap-4 text-slate-500 dark:text-slate-400">
+		<p class="text-sm font-semibold">لم يتم العثور على التخصص المطلوب</p>
+		<a routerLink="/supper-admin-overview/specialties"
+			class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">العودة للقائمة</a>
+	</div>
+
+	<div *ngIf="!loading() && !notFound() && error()" class="py-16 flex flex-col items-center justify-center gap-4 text-slate-500 dark:text-slate-400">
+		<p class="text-sm font-semibold">{{ error() }}</p>
+		<button type="button" (click)="retry()"
+			class="px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] hover:opacity-90 text-[#070D24] text-sm font-bold rounded-xl transition-all shadow-lg shadow-[#2B7FFF]/20 cursor-pointer">إعادة المحاولة</button>
+	</div>
+
+	<!-- Specialty Detail / Analytics (read-only) -->
+	<div *ngIf="!loading() && !notFound() && !error() && selectedSpec() as s"
+		class="spd-box bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 rounded-2xl p-6 w-full max-w-3xl shadow-[0_20px_56px_rgba(0,0,0,0.4)]">
+
+		<!-- Header -->
+		<div class="flex items-start justify-between gap-4 mb-6">
+			<div>
+				<div class="flex items-center gap-2 flex-wrap">
+					<h3 class="text-lg font-black text-slate-800 dark:text-white tracking-tight">{{ s.nameAr }}</h3>
+					<span *ngIf="s.isActive" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">مُفعَّل</span>
+					<span *ngIf="!s.isActive" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-500/10 text-slate-400 border border-slate-500/20">معطَّل</span>
+				</div>
+				<p *ngIf="selectedSpecCategory() as cat" class="text-xs text-slate-500 dark:text-slate-400 mt-1">ضمن قسم: {{ cat.nameAr }}</p>
+			</div>
+		</div>
+
+		<ng-container *ngIf="specialtyAnalytics() as a">
+
+			<!-- Transparency note: only the KPI row's providers/requests figures are live data -->
+			<div class="mb-6 p-3 rounded-xl bg-[#5DA0FF]/5 border border-[#5DA0FF]/15 text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-start gap-2">
+				<svg class="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#5DA0FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+				<span>مؤشرات "مقدمو الخدمة" و"الطلبات" وترتيب القسم حقيقية من المنصة. الرسم البياني الشهري ومؤشرات الأداء وقائمة مقدمي الخدمة أدناه توضيحية (نموذج عرض) لحين ربطها بتقرير تحليلات مخصص.</span>
+			</div>
+
+			<!-- KPI mini-grid -->
+			<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+				<div class="bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl p-3">
+					<div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">مقدمو الخدمة</div>
+					<div class="text-xl font-black text-[#2BD4C7]">{{ a.kpis.activeProviders }}</div>
+				</div>
+				<div class="bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl p-3">
+					<div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">طلبات/شهر</div>
+					<div class="text-xl font-black text-[#5DA0FF]">{{ a.kpis.monthlyRequests }}</div>
+				</div>
+				<div class="bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl p-3">
+					<div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">طلب/مقدم خدمة</div>
+					<div class="text-xl font-black text-[#FFB400]">{{ a.kpis.requestsPerProvider }}</div>
+				</div>
+				<div class="bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl p-3">
+					<div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">الترتيب ضمن القسم</div>
+					<div class="text-xl font-black text-[#0FA99A]">{{ a.kpis.categoryRank }}</div>
+				</div>
+			</div>
+
+			<!-- 12-month demand chart -->
+			<div class="mb-6">
+				<h4 class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-3">الطلب الشهري خلال آخر 12 شهر</h4>
+				<div class="bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl p-4">
+					<div class="flex items-end justify-between gap-1.5 h-28">
+						<div *ngFor="let p of a.demandTrend" class="flex-1 flex flex-col items-center justify-end gap-1.5 h-full">
+							<div class="w-full max-w-[18px] rounded-t bg-gradient-to-t from-[#2BD4C7] to-[#2B7FFF]"
+								[style.height.%]="a.demandTrendMax ? (p.value / a.demandTrendMax) * 100 : 0" [title]="p.value + ' طلب'"></div>
+							<span class="text-[9px] font-bold text-slate-400">{{ p.label.substring(0, 3) }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Supply / demand gap -->
+			<div class="mb-6">
+				<h4 class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-3">تحليل الفجوة بين العرض والطلب</h4>
+				<div class="bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
+					<div>
+						<div class="text-xs text-slate-500 dark:text-slate-400 mb-1">معدل الطلبات لكل مقدم خدمة</div>
+						<div class="text-2xl font-black text-slate-800 dark:text-white">{{ a.gap.ratio }}</div>
+					</div>
+					<span class="text-xs font-bold px-3 py-1.5 rounded-full" [style.background]="a.gap.statusColor + '1A'" [style.color]="a.gap.statusColor">{{ a.gap.statusLabel }}</span>
+				</div>
+			</div>
+
+			<!-- Top 5 providers -->
+			<div class="mb-6">
+				<h4 class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-3">أفضل مقدمي الخدمة (نموذج توضيحي)</h4>
+				<div *ngIf="a.topProviders.length === 0" class="text-xs text-slate-500 dark:text-slate-400 p-4 text-center bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl">
+					لا يوجد مقدمو خدمة معتمدون في هذا التخصص بعد
+				</div>
+				<div *ngIf="a.topProviders.length > 0" class="flex flex-col gap-2">
+					<div *ngFor="let p of a.topProviders; let i = index"
+						class="flex items-center justify-between gap-3 bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl px-4 py-2.5">
+						<div class="flex items-center gap-3">
+							<span class="w-6 h-6 rounded-lg bg-[#2BD4C7]/10 text-[#2BD4C7] text-[11px] font-black flex items-center justify-center shrink-0">{{ i + 1 }}</span>
+							<span class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ p.name }}</span>
+						</div>
+						<div class="flex items-center gap-4 text-[11px] text-slate-500 dark:text-slate-400">
+							<span>⭐ {{ p.rating }}</span>
+							<span>{{ p.completedJobs }} مشروع</span>
+							<span>رد خلال {{ p.responseHours }} س</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Performance metrics -->
+			<div class="mb-6">
+				<h4 class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-3">مؤشرات الأداء</h4>
+				<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+					<div *ngFor="let m of a.performanceMetrics" class="bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-800/60 rounded-xl p-3 text-center">
+						<div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">{{ m.label }}</div>
+						<div class="text-sm font-black text-slate-800 dark:text-white">{{ m.value }}</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sub-specialty tiers -->
+			<div class="mb-6">
+				<h4 class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-3">مستويات الخبرة داخل التخصص</h4>
+				<div class="flex flex-wrap gap-2">
+					<span *ngFor="let sub of a.subSpecialties"
+						class="text-xs font-bold px-3 py-1.5 rounded-full bg-[#5DA0FF]/10 text-[#5DA0FF] border border-[#5DA0FF]/20">{{ sub }}</span>
+				</div>
+			</div>
+
+			<!-- AI insights -->
+			<div class="p-4 rounded-xl bg-gradient-to-br from-[#7B2FBE]/5 to-[#2B7FFF]/5 border border-[#7B2FBE]/15">
+				<div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+					<span class="text-xs font-black text-[#A56BE0]">🤖 رؤى وتحليل</span>
+					<span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">مبنية على بيانات التخصص الحالية</span>
+				</div>
+				<ul class="flex flex-col gap-2">
+					<li *ngFor="let insight of a.aiInsights" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed flex items-start gap-2">
+						<span class="text-[#A56BE0] mt-0.5">•</span>
+						<span>{{ insight }}</span>
+					</li>
+				</ul>
+			</div>
+		</ng-container>
+
+		<div class="flex justify-end mt-6">
+			<button type="button" (click)="goBack()"
+				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">إغلاق</button>
+		</div>
+	</div>
+</div>

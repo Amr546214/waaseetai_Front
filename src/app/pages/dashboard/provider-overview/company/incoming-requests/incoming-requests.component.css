@@ -60,8 +60,8 @@
 .op-assigned::before { background: #5DA0FF; }
 .op-neg { background: rgba(217,138,11,.1); color: #D98A0B; border: 1px solid rgba(217,138,11,.26); }
 .op-neg::before { background: #FFB400; }
-.op-done { background: rgba(15,169,154,.1); color: #0FA99A; border: 1px solid rgba(15,169,154,.24); }
-.op-done::before { background: #0FA99A; }
+.op-done { background: rgba(43,127,255,.10); color: #5DA0FF; border: 1px solid rgba(43,127,255,.24); }
+.op-done::before { background: #5DA0FF; }
 
 /* AI Suggestion */
 .ai-sug { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 8px 11px; background: rgba(123,47,190,.07); border: 1px solid rgba(123,47,190,.16); border-radius: 10px; }

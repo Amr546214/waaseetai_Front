@@ -115,6 +115,187 @@
 	</svg>
 	<h1 class="sr-only">لوحة طالب الخدمة الرئيسية</h1>
 
+	@if (isCompany()) {
+
+	@if (companyLoading()) {
+	<div id="state-loading-co" role="region" aria-label="حالة التحميل">
+		<div class="state-card">
+			<div class="skeleton-box" style="height:88px"></div>
+			<div class="skeleton-box" style="height:88px"></div>
+			<div class="skeleton-box" style="height:88px"></div>
+		</div>
+	</div>
+	} @else if (companyError()) {
+	<div id="state-error-co" role="alert" aria-label="حالة خطأ">
+		<div class="state-card" style="text-align:center;padding:48px 24px;border-color:rgba(43,127,255,.25)">
+			<div style="width:64px;height:64px;border-radius:16px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.22);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-escrow"></use></svg>
+			</div>
+			<div style="font-size:18px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحة الشركة</div>
+			<div style="font-size:12px;margin-bottom:4px" class="txt-muted">{{ companyError() }}</div>
+			<button type="button" (click)="retryCompanyDashboard()"
+				style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit"
+				class="txt-navy">إعادة المحاولة</button>
+		</div>
+	</div>
+	} @else if (companyData(); as c) {
+	<div class="co-dash">
+
+		@if (c.pendingProfileCompletionRequired && !isCompanyProfileBannerDismissed) {
+		<div class="co-banner">
+			<button type="button" class="co-banner-close" (click)="closeCompanyProfileBanner()" aria-label="إغلاق">✕</button>
+			<div class="co-banner-body">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+				<div>
+					<div class="co-banner-ttl">استكمل بيانات شركتك</div>
+					<div class="co-banner-sub">لتفعيل كافة الصلاحيات — تم إكمال {{ c.profileCompletionPercent }}% من بيانات الشركة</div>
+				</div>
+			</div>
+			<a routerLink="/client-overview/profile" class="co-banner-cta">استكمال بيانات الشركة</a>
+		</div>
+		}
+
+		<div class="co-hdr">
+			<div class="co-hdr-name">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7"/></svg>
+				{{ c.companyName }}
+				<span class="co-hdr-badge">حساب الشركة</span>
+			</div>
+			<div class="co-hdr-sub">{{ c.companyBadge }}</div>
+		</div>
+
+		<div class="co-kpi-grid">
+			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="co-kpi-val">{{ c.kpis.remainingBudget | number:'1.0-0' }}</div><div class="co-kpi-lbl">الميزانية المتبقية (ريال)</div></div>
+			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-add-user"></use></svg></div><div class="co-kpi-val">{{ c.kpis.activeEmployees }}</div><div class="co-kpi-lbl">الموظفون النشطون</div></div>
+			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div><div class="co-kpi-val">{{ c.kpis.quarterSpend | number:'1.0-0' }}</div><div class="co-kpi-lbl">إنفاق الربع (ريال)</div></div>
+			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-market"></use></svg></div><div class="co-kpi-val">{{ c.kpis.activeTeamProjects }}</div><div class="co-kpi-lbl">مشاريع الفريق النشطة</div></div>
+			<div class="co-kpi co-kpi-warn"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-check-sm"></use></svg></div><div class="co-kpi-val">{{ c.kpis.pendingYourApproval }}</div><div class="co-kpi-lbl">بانتظار اعتمادك</div></div>
+		</div>
+
+		<div class="co-budget-bar">
+			<div class="co-budget-lbl">{{ c.quarterBudget.percent }}% <span>ميزانية الربع المستهلكة، {{ c.quarterBudget.used | number:'1.0-0' }} من {{ c.quarterBudget.total | number:'1.0-0' }} ريال</span></div>
+			<div class="co-budget-track"><div class="co-budget-fill" [style.width.%]="c.quarterBudget.percent"></div></div>
+		</div>
+
+		@if (c.actionCards.length) {
+		<div class="co-action-cards">
+			@for (ac of c.actionCards; track ac.key) {
+			<div class="co-action-card">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use [attr.href]="ac.key === 'budget-overrun' ? '#i-check-sm' : '#i-list'"></use></svg>
+				<div class="co-action-val">{{ ac.count }}</div>
+				<div class="co-action-lbl">{{ ac.label }}</div>
+			</div>
+			}
+		</div>
+		}
+
+		<div class="co-level">
+			<div class="co-level-badge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>مستوى الشركة</div>
+			<div class="co-level-track"><div class="co-level-fill" [style.width.%]="(c.levelProgress.points / c.levelProgress.nextLevelPoints) * 100"></div></div>
+			<div class="co-level-lbl">{{ c.levelProgress.points }} نقطة · نشط - المستوى {{ c.levelProgress.currentLevel }}</div>
+		</div>
+
+		<div class="co-grid">
+			<div class="co-col">
+				<div class="co-panel">
+					<div class="co-panel-hdr">إجراءات سريعة</div>
+					<a routerLink="/client-overview/create-request" class="co-qa co-qa-pri">إنشاء طلب للشركة</a>
+					<a routerLink="/client-overview/request-approvals" class="co-qa">اعتماد الطلبات المعلّقة</a>
+					<a routerLink="/client-overview/team" class="co-qa">إدارة الفريق والصلاحيات</a>
+					<a routerLink="/client-overview/reports" class="co-qa">تقارير الشركة</a>
+				</div>
+				<div class="co-panel">
+					<div class="co-panel-hdr">محفظة الشركة</div>
+					<div class="co-wallet-val">{{ c.walletBalance | number:'1.0-0' }} ريال</div>
+					<a routerLink="/client-overview/finance/wallet" class="co-qa" style="margin-top:10px">إدارة المحفظة</a>
+				</div>
+				@if (c.employeeSpending.length) {
+				<div class="co-panel">
+					<div class="co-panel-hdr">الإنفاق حسب الموظف (الربع)</div>
+					@for (e of c.employeeSpending; track e.employeeName) {
+					<div class="co-spend-row">
+						<div class="co-spend-top"><span>{{ e.employeeName }}</span><span>{{ e.amount | number:'1.0-0' }}</span></div>
+						<div class="co-spend-track"><div class="co-spend-fill" [style.width.%]="employeeSpendBarWidth(e.amount, c.employeeSpending)"></div></div>
+					</div>
+					}
+				</div>
+				}
+				@if (c.aiInsight) {
+				<div class="co-ai-panel">
+					<span class="co-ai-badge">AI Insights</span>
+					<p>{{ c.aiInsight }}</p>
+				</div>
+				}
+			</div>
+
+			<div class="co-col co-col-wide">
+				@if (c.pendingApprovals.length) {
+				<div class="co-panel">
+					<div class="co-panel-hdr-row"><span class="co-panel-hdr">طلبات بانتظار اعتمادك</span><a routerLink="/client-overview/request-approvals" class="co-see-all">عرض الكل</a></div>
+					@for (ap of c.pendingApprovals; track ap.id) {
+					<div class="co-approval-row">
+						<div class="co-av">{{ ap.requesterInitials }}</div>
+						<div class="co-approval-body">
+							<div class="co-approval-ttl">{{ ap.title }}</div>
+							<div class="co-approval-sub">{{ ap.requesterName }} @if (ap.overBudget) {<span class="co-tag-warn">بتجاوز السقف</span>}</div>
+						</div>
+						<div class="co-approval-amt">{{ ap.amount | number:'1.0-0' }} ريال</div>
+						<div class="co-approval-actions">
+							<button type="button" class="co-btn-ghost">رفض</button>
+							<button type="button" class="co-btn-pri">اعتماد</button>
+						</div>
+					</div>
+					}
+				</div>
+				}
+
+				@if (c.recentTeamRequests.length) {
+				<div class="co-panel">
+					<div class="co-panel-hdr-row"><span class="co-panel-hdr">أحدث طلبات الفريق</span><a routerLink="/client-overview/my-requests" class="co-see-all">عرض الكل</a></div>
+					@for (r of c.recentTeamRequests; track r.id) {
+					<div class="co-req-row">
+						<div class="co-av co-av-alt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-escrow"></use></svg></div>
+						<div class="co-approval-body">
+							<div class="co-approval-ttl">{{ r.title }}</div>
+							<div class="co-approval-sub">{{ r.requesterName }} · {{ r.department }}</div>
+						</div>
+						<div class="co-approval-amt">{{ r.amount | number:'1.0-0' }} ريال</div>
+						<span class="co-status-tag" [class]="'co-status-' + r.status">
+							@switch (r.status) {
+								@case ('approved') { معتمد }
+								@case ('pending-approval') { بانتظار اعتماد }
+								@case ('new-offers') { {{ r.offersCount }} عروض جديدة }
+								@case ('completed') { مكتمل }
+							}
+						</span>
+					</div>
+					}
+				</div>
+				}
+
+				@if (c.recentActivity.length) {
+				<div class="co-panel">
+					<div class="co-panel-hdr">نشاط الفريق الأخير</div>
+					@for (act of c.recentActivity; track act.timeLabel + act.actorName) {
+					<div class="co-activity-row">
+						<div class="co-av co-av-sm">{{ act.actorInitials }}</div>
+						<div class="co-activity-body">
+							<span class="co-activity-name">{{ act.actorName }}</span> {{ act.action }}
+							@if (act.highlight) {<span class="co-activity-hl">{{ act.highlight }}</span>}
+						</div>
+						<div class="co-activity-time">{{ act.timeLabel }}</div>
+					</div>
+					}
+				</div>
+				}
+			</div>
+		</div>
+
+	</div>
+	}
+
+	} @else {
+
 	@if (dashboardStore.isLoadingDashboard()) {
 	<div id="state-loading" role="region" aria-label="حالة التحميل">
 		<div class="state-card">
@@ -336,7 +517,7 @@
 					</svg></div>
 			</div>
 			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number }}</div>
-			<div class="stat-sub">ريال محجوز</div>
+			<div class="stat-sub">$ محجوز</div>
 		</div>
 		<div class="stat-card">
 			<div class="stat-top">
@@ -422,7 +603,7 @@
 							{{ project.status === 'OPEN' ? 'مفتوح للعروض' : (project.status === 'IN_PROGRESS' ? 'قيد
 							التنفيذ' : (project.status === 'COMPLETED' ? 'مكتمل' : 'متنازع عليه')) }}
 						</span>
-						<span class="req-budget">{{ project.budget | number }} ريال</span>
+						<span class="req-budget">{{ project.budget | number }} $</span>
 					</div>
 				</a>
 				}
@@ -456,12 +637,12 @@
 						</svg>
 						<span>محفظتي</span>
 					</a>
-					<a routerLink="/client-overview/my-requests" class="qa-btn">
+					<button type="button" class="qa-btn" (click)="goToCompareOffers()">
 						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<use href="#i-doc"></use>
 						</svg>
 						<span>مقارنة العروض</span>
-					</a>
+					</button>
 				</div>
 			</div>
 
@@ -469,7 +650,7 @@
 			<div class="eb-card">
 				<div class="eb-lbl">رصيد الضمان</div>
 				<div class="eb-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number }} <span
-						style="font-size:14px;font-weight:700">ريال</span></div>
+						style="font-size:14px;font-weight:700">$</span></div>
 				<div class="eb-sub">مبلغ محجوز بأمان عبر منصة وسيط</div>
 			</div>
 
@@ -519,7 +700,7 @@
 	<section class="offers-section" role="region" aria-label="اخر العروض">
 		<div class="card-hd">
 			<h2 class="card-ttl">اخر العروض</h2>
-			<button type="button" class="card-lnk" routerLink="/client-overview/my-requests">مقارنة العروض</button>
+			<button type="button" class="card-lnk" (click)="goToCompareOffers()">مقارنة العروض</button>
 		</div>
 		<div class="offers-grid">
 
@@ -589,7 +770,6 @@
 									<path
 										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 								</svg>
-								<span style="font-size:10px;margin-inline-start:3px" class="txt-slate">4.8</span>
 							</div>
 							<div class="offer-type">{{ offer.projectTitle || 'مقدم خدمة استشارة' }}</div>
 						</div>
@@ -600,15 +780,9 @@
 							aria-hidden="true">
 							<use href="#i-ai"></use>
 						</svg>AI {{ offer.aiMatchScore }}%</div>
-					} @else {
-					<div class="offer-ai-match"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-							stroke="#7B2FBE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-							aria-hidden="true">
-							<use href="#i-ai"></use>
-						</svg>AI 95%</div>
 					}
 				</div>
-				<div class="offer-price">{{ offer.price | number }} <span>ريال</span></div>
+				<div class="offer-price">{{ offer.price | number }} <span>$</span></div>
 				<div class="offer-meta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
 						aria-hidden="true">
@@ -622,5 +796,7 @@
 
 
 	</div>
+	}
+
 	}
 </main>

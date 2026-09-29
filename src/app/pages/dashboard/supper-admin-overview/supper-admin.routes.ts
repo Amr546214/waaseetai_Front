@@ -17,9 +17,19 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         data: { title: 'المستخدمون' }
     },
     {
+        path: 'users/:id',
+        loadComponent: () => import('./sa-users/sa-user-detail/sa-user-detail').then(m => m.SaUserDetail),
+        data: { title: 'ملف المستخدم' }
+    },
+    {
         path: 'accreditations',
         loadComponent: () => import('./sa-accreditations/sa-accreditations').then(m => m.SaAccreditations),
         data: { title: 'الاعتمادات' }
+    },
+    {
+        path: 'accreditations/:id',
+        loadComponent: () => import('./sa-accreditations/sa-accreditation-detail/sa-accreditation-detail').then(m => m.SaAccreditationDetail),
+        data: { title: 'مراجعة الاعتماد' }
     },
     {
         path: 'requests',
@@ -27,9 +37,19 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         data: { title: 'الطلبات' }
     },
     {
+        path: 'requests/:id',
+        loadComponent: () => import('./sa-requests/sa-request-detail/sa-request-detail').then(m => m.SaRequestDetail),
+        data: { title: 'تفاصيل الطلب' }
+    },
+    {
         path: 'offers',
         loadComponent: () => import('./sa-offers/sa-offers').then(m => m.SaOffers),
         data: { title: 'العروض' }
+    },
+    {
+        path: 'offers/:id',
+        loadComponent: () => import('./sa-offers/sa-offer-detail/sa-offer-detail').then(m => m.SaOfferDetail),
+        data: { title: 'تفاصيل العرض' }
     },
     {
         path: 'projects',
@@ -37,9 +57,19 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         data: { title: 'المشاريع' }
     },
     {
+        path: 'projects/:id',
+        loadComponent: () => import('./sa-projects/sa-project-detail/sa-project-detail').then(m => m.SaProjectDetail),
+        data: { title: 'تفاصيل المشروع' }
+    },
+    {
         path: 'contracts',
         loadComponent: () => import('./sa-contracts/sa-contracts').then(m => m.SaContracts),
         data: { title: 'العقود' }
+    },
+    {
+        path: 'contracts/:id',
+        loadComponent: () => import('./sa-contracts/sa-contract-detail/sa-contract-detail').then(m => m.SaContractDetail),
+        data: { title: 'تفاصيل العقد' }
     },
     {
         path: 'specialties',
@@ -47,14 +77,29 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         data: { title: 'التخصصات' }
     },
     {
+        path: 'specialties/:id',
+        loadComponent: () => import('./sa-specialties/sa-specialty-detail/sa-specialty-detail').then(m => m.SaSpecialtyDetail),
+        data: { title: 'تفاصيل التخصص' }
+    },
+    {
         path: 'specialties-accreditation',
         loadComponent: () => import('./sa-specialties-accreditation/sa-specialties-accreditation').then(m => m.SaSpecialtiesAccreditation),
         data: { title: 'اعتماد التخصصات' }
     },
     {
+        path: 'specialties-accreditation/:id',
+        loadComponent: () => import('./sa-specialties-accreditation/sa-specialty-accreditation-detail/sa-specialty-accreditation-detail').then(m => m.SaSpecialtyAccreditationDetail),
+        data: { title: 'مراجعة طلب التخصص' }
+    },
+    {
         path: 'business-models',
         loadComponent: () => import('./sa-business-models/sa-business-models').then(m => m.SaBusinessModels),
         data: { title: 'نماذج الأعمال' }
+    },
+    {
+        path: 'business-models/:id',
+        loadComponent: () => import('./sa-business-models/sa-business-model-detail/sa-business-model-detail').then(m => m.SaBusinessModelDetail),
+        data: { title: 'تفاصيل النموذج' }
     },
     {
         path: 'categories',
@@ -67,14 +112,29 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         data: { title: 'الوسطاء' }
     },
     {
+        path: 'brokers/:id',
+        loadComponent: () => import('./sa-brokers/sa-broker-detail/sa-broker-detail').then(m => m.SaBrokerDetail),
+        data: { title: 'تفاصيل الوسيط' }
+    },
+    {
         path: 'disputes',
         loadComponent: () => import('./sa-disputes/sa-disputes').then(m => m.SaDisputes),
         data: { title: 'النزاعات' }
     },
     {
+        path: 'disputes/:id',
+        loadComponent: () => import('./sa-disputes/sa-dispute-detail/sa-dispute-detail').then(m => m.SaDisputeDetail),
+        data: { title: 'تفاصيل النزاع' }
+    },
+    {
         path: 'reports',
         loadComponent: () => import('./sa-reports/sa-reports').then(m => m.SaReports),
         data: { title: 'البلاغات' }
+    },
+    {
+        path: 'reports/:id',
+        loadComponent: () => import('./sa-reports/sa-report-detail/sa-report-detail').then(m => m.SaReportDetail),
+        data: { title: 'تفاصيل البلاغ' }
     },
     {
         path: 'analytics-hub',
@@ -87,6 +147,11 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         data: { title: 'الدعم الفني' }
     },
     {
+        path: 'support/:id',
+        loadComponent: () => import('./sa-support/sa-support-detail/sa-support-detail').then(m => m.SaSupportDetail),
+        data: { title: 'تفاصيل التذكرة' }
+    },
+    {
         path: 'modification-requests',
         loadComponent: () => import('./sa-modification-requests/sa-modification-requests').then(m => m.SaModificationRequests),
         data: { title: 'طلبات التعديل' }
@@ -95,6 +160,11 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         path: 'withdrawals',
         loadComponent: () => import('./sa-withdrawals/sa-withdrawals').then(m => m.SaWithdrawals),
         data: { title: 'طلبات السحب' }
+    },
+    {
+        path: 'withdrawals/:id',
+        loadComponent: () => import('./sa-withdrawals/sa-withdrawal-detail/sa-withdrawal-detail').then(m => m.SaWithdrawalDetail),
+        data: { title: 'تفاصيل طلب السحب' }
     },
     {
         path: 'revenues',
@@ -115,6 +185,11 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         path: 'team',
         loadComponent: () => import('./sa-team/sa-team').then(m => m.SaTeam),
         data: { title: 'فريق الإدارة' }
+    },
+    {
+        path: 'team/:id',
+        loadComponent: () => import('./sa-team/sa-team-member-detail/sa-team-member-detail').then(m => m.SaTeamMemberDetail),
+        data: { title: 'ملف الموظف' }
     },
     {
         path: 'roles',
@@ -273,6 +348,26 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         path: 'cdn',
         loadComponent: () => import('./it/sa-cdn/sa-cdn').then(m => m.SaCdn),
         data: { title: 'CDN + الأصول' }
+    },
+        ]
+    },
+    {
+        path: 'ai',
+        children: [
+    {
+        path: 'dashboard',
+        loadComponent: () => import('./ai/sa-ai-dashboard/sa-ai-dashboard').then(m => m.SaAiDashboard),
+        data: { title: 'AI Insights Dashboard' }
+    },
+    {
+        path: 'match-engine',
+        loadComponent: () => import('./ai/sa-match-engine/sa-match-engine').then(m => m.SaMatchEngine),
+        data: { title: 'AI Match Engine' }
+    },
+    {
+        path: 'audit',
+        loadComponent: () => import('./ai/sa-ai-audit/sa-ai-audit').then(m => m.SaAiAudit),
+        data: { title: 'AI Recommendations + Audit' }
     },
         ]
     },

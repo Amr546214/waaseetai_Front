@@ -11,7 +11,7 @@
   </div>
 
   <div class="rl-roles-grid">
-    @for (r of roles(); track r.name) {
+    @for (r of rolesView(); track r.name) {
       <div class="rl-role-card" [style.border-color]="r.color + '38'">
         <div class="rl-role-top">
           <div class="rl-role-dot" [style.background]="r.color"></div>
@@ -40,7 +40,7 @@
         <thead>
           <tr>
             <th class="rl-th-perm">الصلاحية</th>
-            @for (r of roles(); track r.name) {
+            @for (r of rolesView(); track r.name) {
               <th [style.color]="r.color">{{ r.name }}</th>
             }
           </tr>
@@ -49,8 +49,17 @@
           @for (perm of permissionLabels; track perm; let pi = $index) {
             <tr>
               <td class="rl-td-perm">{{ perm }}</td>
-              @for (val of matrix[pi]; track $index) {
-                <td class="rl-td-check">
+              @for (val of matrix()[pi]; track $index; let ri = $index) {
+                <td
+                  class="rl-td-check rl-td-toggle"
+                  role="button"
+                  tabindex="0"
+                  [attr.aria-pressed]="!!val"
+                  [attr.title]="(val ? 'إلغاء صلاحية: ' : 'منح صلاحية: ') + perm + ' — ' + rolesView()[ri].name"
+                  (click)="togglePermission(pi, ri)"
+                  (keydown.enter)="togglePermission(pi, ri)"
+                  (keydown.space)="togglePermission(pi, ri); $event.preventDefault()"
+                >
                   @if (val) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg>
                   } @else {
@@ -90,12 +99,14 @@
         <button type="button" class="rl-modal-close" (click)="closeEdit()">×</button>
       </div>
       <div class="rl-modal-body">
-        <label class="rl-field-lbl">الوصف</label>
-        <textarea class="rl-textarea" [value]="role.desc" readonly></textarea>
+        <label class="rl-field-lbl">اسم الدور</label>
+        <input class="rl-input" type="text" [value]="editName()" (input)="editName.set($any($event.target).value)" />
+        <label class="rl-field-lbl" style="margin-top: 12px;">الوصف</label>
+        <textarea class="rl-textarea" [value]="editDesc()" (input)="editDesc.set($any($event.target).value)"></textarea>
         <div class="rl-modal-note">تعديل مصفوفة الصلاحيات لهذا الدور متاح من جدول المصفوفة أعلاه.</div>
       </div>
       <div class="rl-modal-actions">
-        <button type="button" class="rl-btn rl-btn-primary" (click)="showToast('تم حفظ التعديلات على دور ' + role.name); closeEdit()">حفظ</button>
+        <button type="button" class="rl-btn rl-btn-primary" (click)="saveEdit()">حفظ</button>
         <button type="button" class="rl-btn rl-btn-ghost" (click)="closeEdit()">إلغاء</button>
       </div>
     </div>

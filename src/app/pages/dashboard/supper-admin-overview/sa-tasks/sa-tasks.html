@@ -88,7 +88,7 @@
   <div class="tk-workload">
     <div class="tk-sec-ttl">توازن العبء على الفريق</div>
     <div class="tk-wl-list">
-      @for (w of workload; track w.name) {
+      @for (w of workload(); track w.name) {
         <div class="tk-wl-row">
           <span class="tk-wl-name">{{ w.name }}</span>
           <div class="tk-wl-bar"><div class="tk-wl-fill" [style.width.%]="w.pct" [style.background]="w.color"></div></div>

@@ -1,10 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AdminBrokerApiService } from '../../../../core/services/admin-broker-api.service';
 import {
-  AdminBrokerDetail,
   AdminBrokerListItem,
   AdminBrokerPagination,
   BrokerUserStatus,
@@ -25,7 +25,7 @@ type StatusFilter = 'all' | BrokerUserStatus;
 @Component({
   selector: 'app-sa-brokers',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './sa-brokers.html',
   styleUrl: './sa-brokers.css',
 })
@@ -50,11 +50,6 @@ export class SaBrokers implements OnInit {
     SUSPENDED_REVIEW: 0,
   });
   countsLoading = signal(false);
-
-  selected = signal<AdminBrokerDetail | null>(null);
-  detailLoading = signal(false);
-  detailError = signal('');
-  showDetail = signal(false);
 
   readonly filters: { key: StatusFilter; label: string }[] = [
     { key: 'all', label: 'الكل' },
@@ -163,35 +158,7 @@ export class SaBrokers implements OnInit {
     }
   }
 
-  openDetail(broker: AdminBrokerListItem) {
-    this.showDetail.set(true);
-    this.detailError.set('');
-    this.selected.set(broker as AdminBrokerDetail);
-    this.detailLoading.set(true);
-    this.brokerApi.getBrokerDetail(broker.id).subscribe({
-      next: (res) => {
-        if (res.success && res.data) this.selected.set(res.data);
-        this.detailLoading.set(false);
-      },
-      error: (err) => {
-        this.detailError.set(err?.error?.message || 'تعذر تحميل تفاصيل الوسيط');
-        this.detailLoading.set(false);
-      },
-    });
-  }
-
-  closeDetail() {
-    this.showDetail.set(false);
-    this.selected.set(null);
-    this.detailError.set('');
-  }
-
   initial(name: string | null): string {
     return name?.trim() ? name.trim().charAt(0) : '؟';
-  }
-
-  formatDate(value: string | null | undefined): string {
-    if (!value) return '—';
-    return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
   }
 }

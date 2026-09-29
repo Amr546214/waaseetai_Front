@@ -1,0 +1,5 @@
+.sup-detail-crumb{margin-bottom:14px}
+.sup-detail-crumb a{color:#A8B2D1;font-size:13px;text-decoration:none}
+.sup-detail-crumb a:hover{color:#2BD4C7}
+.sup-detail-nf{display:flex;flex-direction:column;align-items:center;gap:12px}
+.sup-detail-nf a{color:#2BD4C7;font-size:13px;text-decoration:none}

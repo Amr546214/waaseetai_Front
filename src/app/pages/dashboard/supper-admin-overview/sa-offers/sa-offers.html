@@ -49,7 +49,7 @@
           </thead>
           <tbody>
             @for (o of filtered(); track o.id) {
-              <tr (click)="openDetail(o)">
+              <tr [routerLink]="[o.id]">
                 <td class="of-muted">{{ o.id }}</td>
                 <td>
                   <div class="of-u-cell">
@@ -73,58 +73,3 @@
     </div>
   }
 </section>
-
-@if (showDetail()) {
-  <div class="of-mov" (click)="closeDetail()">
-    <div class="of-mbox" (click)="$event.stopPropagation()">
-      @if (selected(); as d) {
-        <div class="of-md-hdr">
-          <div>
-            <div class="of-md-id">{{ d.id }} · {{ statusLabels[d.status] }}</div>
-            <h3>{{ d.request }}</h3>
-          </div>
-          <button type="button" class="of-mclose" (click)="closeDetail()">×</button>
-        </div>
-
-        <div class="of-price-row">
-          <div class="of-price-box"><div class="of-price-big">{{ d.price }}</div></div>
-          <div class="of-price-box"><div class="of-price-big">{{ d.days }}</div></div>
-          <div class="of-tags">
-            <span class="of-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
-            <span class="of-spec">{{ d.spec }}</span>
-          </div>
-        </div>
-
-        <div class="of-section-ttl">سجل التفاوض</div>
-        <p class="of-neg-note">{{ d.negotiationNote }}</p>
-
-        <div class="of-section-ttl">موثوقية مقدم الخدمة</div>
-        <div class="of-reliab-row">
-          <div class="of-reliab-score">
-            <div class="of-reliab-num">{{ d.reliability }}</div>
-            <div class="of-reliab-lbl">Reliability</div>
-          </div>
-          <div class="of-reliab-stats">
-            <div><span>معدل الإتمام</span><strong>{{ d.completionRate }}</strong></div>
-            <div><span>معدل النزاعات</span><strong>{{ d.disputesRate }}</strong></div>
-            <div><span>المستوى</span><strong>{{ d.level }}</strong></div>
-          </div>
-        </div>
-
-        <div class="of-md-meta-row">
-          <div class="of-md-meta"><span>مقارنة السوق</span><strong [ngClass]="priceIntel(d).cls">{{ priceIntel(d).label }}</strong></div>
-          <div class="of-md-meta"><span>تاريخ العرض</span><strong>{{ d.date }}</strong></div>
-        </div>
-
-        @if (actionMessage()) {
-          <div class="of-action-msg">{{ actionMessage() }}</div>
-        }
-
-        <div class="of-md-actions">
-          <button type="button" class="of-btn of-btn-ghost" (click)="notifyProvider()">إشعار المقدم</button>
-          <button type="button" class="of-btn of-btn-warn" (click)="suspendOffer()">تعليق العرض</button>
-        </div>
-      }
-    </div>
-  </div>
-}

@@ -1,0 +1,178 @@
+<section class="tm-page" dir="rtl">
+  <div class="tm-detail-crumb">
+    <a routerLink="/supper-admin-overview/team">&rarr; العودة إلى فريق الإدارة</a>
+  </div>
+
+  @if (selectedMember(); as m) {
+    <div class="tm-modal tm-modal-detail tm-detail-box">
+      <div class="tm-modal-hdr">
+        <div class="tm-modal-head">
+          <div class="tm-avatar tm-avatar-lg" [style.background]="m.color">{{ m.avatar }}</div>
+          <div>
+            <h3>
+              {{ m.name }}
+              <span class="tm-badge" [style.color]="m.online ? '#0FA99A' : '#6B7699'" [style.background]="m.online ? 'rgba(15,169,154,.12)' : 'rgba(107,118,153,.12)'">{{ m.online ? 'نشط الآن' : 'غير متاح' }}</span>
+            </h3>
+            <div class="tm-role">{{ m.role }} · {{ m.dept }} · <span dir="ltr">{{ m.email }}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tm-modal-actions-row">
+        <button type="button" class="tm-btn tm-btn-ghost tm-btn-sm" (click)="setDetailTab('perms')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          تعديل الصلاحيات
+        </button>
+        <button type="button" class="tm-btn tm-btn-warn tm-btn-sm" (click)="showToast('تم تعليق حساب ' + m.name)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          تعليق الحساب
+        </button>
+      </div>
+
+      <div class="tm-modal-stats tm-modal-stats-4">
+        <div class="tm-stat"><div class="tm-stat-val txt-teal">{{ m.tasksOpen }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
+        <div class="tm-stat"><div class="tm-stat-val txt-green">{{ m.solved }}</div><div class="tm-stat-lbl">مُحلَّلة</div></div>
+        <div class="tm-stat"><div class="tm-stat-val txt-amber">{{ avgResolutionTimeFor(m) }}</div><div class="tm-stat-lbl">متوسط وقت الحل</div></div>
+        <div class="tm-stat"><div class="tm-stat-val" [style.color]="scoreColor(m.score)">{{ m.score }}%</div><div class="tm-stat-lbl">أداء</div></div>
+      </div>
+
+      <div class="tm-tabs tm-detail-tabs">
+        @for (t of detailTabs; track t.key) {
+          <button type="button" class="tm-tab" [class.active]="detailTab() === t.key" (click)="setDetailTab(t.key)">{{ t.label }}</button>
+        }
+      </div>
+
+      <div class="tm-modal-body tm-modal-body-scroll">
+        @if (detailTab() === 'overview') {
+          <div class="tm-sec-ttl">المعلومات الوظيفية</div>
+          <div class="tm-info-grid">
+            <div class="tm-info-item"><div class="tm-info-lbl">الاسم الكامل</div><div class="tm-info-val">{{ m.name }}</div></div>
+            <div class="tm-info-item"><div class="tm-info-lbl">البريد الإداري</div><div class="tm-info-val" dir="ltr" style="font-size:11px">{{ m.email }}</div></div>
+            <div class="tm-info-item"><div class="tm-info-lbl">الدور الإداري</div><div class="tm-info-val">{{ m.role }}</div></div>
+            <div class="tm-info-item"><div class="tm-info-lbl">القسم</div><div class="tm-info-val">{{ m.dept }}</div></div>
+            <div class="tm-info-item"><div class="tm-info-lbl">تاريخ الانضمام</div><div class="tm-info-val">{{ m.joined }}</div></div>
+            <div class="tm-info-item"><div class="tm-info-lbl">آخر دخول</div><div class="tm-info-val">{{ lastLoginFor(m) }}</div></div>
+          </div>
+
+          <div class="tm-sec-ttl">مؤشرات الأداء الشهرية</div>
+          <div style="margin-bottom:14px">
+            @for (metric of perfMetricsFor(m); track metric.label) {
+              <div class="tm-metric-row">
+                <span class="tm-metric-lbl">{{ metric.label }}</span>
+                <div class="tm-metric-track"><div class="tm-metric-fill" [style.width.%]="metric.value" [style.background]="'linear-gradient(90deg,' + metric.from + ',' + metric.to + ')'"></div></div>
+                <span class="tm-metric-val" [style.color]="metric.color">{{ metric.value }}%</span>
+              </div>
+            }
+          </div>
+
+          <div class="tm-split-grid">
+            <div class="tm-panel">
+              <div class="tm-panel-ttl">أداء الموظف — 6 أشهر</div>
+              @let history = perfHistoryFor(m);
+              <div class="tm-chart">
+                @for (v of history.values; track $index) {
+                  <div class="tm-chart-col"><div class="tm-chart-bar" [class.active]="$index === history.values.length - 1" [style.height.%]="perfBarHeight(history.values, v)" [title]="v + '%'"></div></div>
+                }
+              </div>
+              <div class="tm-chart-months">
+                @for (mo of history.months; track mo) { <span>{{ mo }}</span> }
+              </div>
+              <div class="tm-chart-foot">
+                <span>متوسط الإنجاز: <strong style="color:#2BD4C7">{{ history.avg }}%</strong></span>
+                <span>Trend: <strong [style.color]="history.trendUp ? '#0FA99A' : '#FF8C69'">{{ history.trendUp ? '↑ صاعد' : '↓ هابط' }}</strong></span>
+              </div>
+            </div>
+            <div class="tm-panel">
+              <div class="tm-panel-ttl">سجل الحالات مع النتائج</div>
+              <div class="tm-case-list">
+                @for (c of caseHistoryFor(m); track c.case) {
+                  <div class="tm-case-row" [style.background]="c.bg"><span>{{ c.case }}</span><span [style.color]="c.color">{{ c.outcome }}</span></div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="tm-csat">
+            <div class="tm-csat-ttl">رضا المستخدمين عن هذا الموظف</div>
+            @let csat = csatFor(m);
+            <div class="tm-csat-kpis">
+              <div class="tm-csat-kpi"><div class="tm-csat-kpi-val" style="color:#0FA99A">{{ csat.avg }}★</div><div class="tm-csat-kpi-lbl">متوسط التقييم</div></div>
+              <div class="tm-csat-kpi"><div class="tm-csat-kpi-val" style="color:#2BD4C7">{{ csat.satisfaction }}%</div><div class="tm-csat-kpi-lbl">معدل الرضا</div></div>
+              <div class="tm-csat-kpi"><div class="tm-csat-kpi-val" style="color:#fff">{{ csat.total }}</div><div class="tm-csat-kpi-lbl">تقييم استُلم</div></div>
+            </div>
+            @for (b of csat.breakdown; track b.stars) {
+              <div class="tm-csat-row"><span>{{ b.stars }}</span><div class="tm-csat-track"><div class="tm-csat-fill" [style.width.%]="b.pct" [style.background]="b.color"></div></div><span>{{ b.pct }}%</span></div>
+            }
+          </div>
+
+          <div class="tm-sec-ttl">روابط سريعة</div>
+          <div class="tm-quicklinks">
+            @for (link of quickLinksFor(m); track link.label) {
+              <button type="button" class="tm-qlink" [class.highlight]="link.highlight" (click)="goQuickLink(link.tab)">
+                <span>{{ link.label }}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            }
+          </div>
+        }
+
+        @if (detailTab() === 'tasks') {
+          <div class="tm-sec-ttl">المهام الحالية ({{ m.tasksOpen }} مهام)</div>
+          <table class="tm-table">
+            <thead><tr><th>المهمة</th><th>النوع</th><th>الأولوية</th><th>الموعد</th><th>الحالة</th></tr></thead>
+            <tbody>
+              @for (t of tasksFor(m); track t.title) {
+                <tr>
+                  <td>{{ t.title }}</td>
+                  <td>{{ t.type }}</td>
+                  <td><span class="tm-badge" [style.color]="t.priority.color" [style.background]="t.priority.bg">{{ t.priority.label }}</span></td>
+                  <td [style.color]="t.due.color">{{ t.due.label }}</td>
+                  <td><span class="tm-badge" [style.color]="t.status.color" [style.background]="t.status.bg">{{ t.status.label }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+        @if (detailTab() === 'perms') {
+          <div class="tm-sec-ttl">الصلاحيات الممنوحة</div>
+          @for (p of modalPerms(); track p.label; let i = $index) {
+            <div class="tm-perm-row">
+              <span class="tm-perm-label" [class.granted]="p.granted" [class.revoked]="!p.granted">{{ p.label }}</span>
+              <button type="button" class="tm-switch" [class.on]="p.granted" (click)="togglePerm(i)" aria-label="تبديل"></button>
+            </div>
+          }
+          <div style="margin-top:12px">
+            <button type="button" class="tm-btn tm-btn-primary" (click)="savePermissions()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              حفظ الصلاحيات
+            </button>
+            @if (permsSavedMsg()) { <span style="margin-inline-start:10px;font-size:12px;color:#0FA99A;font-weight:700">تم الحفظ بنجاح</span> }
+          </div>
+        }
+
+        @if (detailTab() === 'log') {
+          <div class="tm-sec-ttl">سجل النشاط الأخير</div>
+          @for (l of activityLogFor(m); track l.action) {
+            <div class="tm-log-item">
+              <div class="tm-log-dot" [style.background]="l.color"></div>
+              <div><div class="tm-log-action">{{ l.action }}</div><div class="tm-log-time">{{ l.time }}</div></div>
+            </div>
+          }
+        }
+      </div>
+      <div class="tm-modal-actions">
+        <button type="button" class="tm-btn tm-btn-ghost" (click)="goBack()">إغلاق</button>
+      </div>
+    </div>
+  } @else {
+    <div class="tm-empty">
+      <p>لم يتم العثور على الموظف المطلوب</p>
+      <a routerLink="/supper-admin-overview/team" class="tm-btn tm-btn-ghost">العودة للقائمة</a>
+    </div>
+  }
+</section>
+
+@if (toast()) {
+  <div class="tm-toast">{{ toast() }}</div>
+}

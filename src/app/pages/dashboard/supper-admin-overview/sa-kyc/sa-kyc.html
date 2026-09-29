@@ -32,24 +32,24 @@
     <!-- Summary Cards -->
     <div class="sk-stats">
       <div class="sk-stat">
-        <div class="sk-stat-lbl">قيد المراجعة</div>
+        <div class="sk-stat-lbl">قيد المراجعة (هذه الصفحة)</div>
         <div class="sk-stat-val sk-stat-amber">{{ onboardingPending() }}</div>
-        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة، وليس إجمالي كل الصفحات</div>
       </div>
       <div class="sk-stat">
-        <div class="sk-stat-lbl">مقبولة</div>
+        <div class="sk-stat-lbl">مقبولة (هذه الصفحة)</div>
         <div class="sk-stat-val sk-stat-green">{{ onboardingApproved() }}</div>
-        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة، وليس إجمالي كل الصفحات</div>
       </div>
       <div class="sk-stat">
-        <div class="sk-stat-lbl">مرفوضة</div>
+        <div class="sk-stat-lbl">مرفوضة (هذه الصفحة)</div>
         <div class="sk-stat-val sk-stat-red">{{ onboardingRejected() }}</div>
-        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة، وليس إجمالي كل الصفحات</div>
       </div>
       <div class="sk-stat">
         <div class="sk-stat-lbl">إجمالي العناصر</div>
         <div class="sk-stat-val sk-stat-cyan">{{ onboardingTotal() }}</div>
-        <div class="sk-stat-sub">كل الطلبات</div>
+        <div class="sk-stat-sub">كل الطلبات (كل الصفحات)</div>
       </div>
     </div>
 
@@ -60,6 +60,16 @@
           {{ opt.label }}
         </button>
       }
+      <div class="sk-search-wrap">
+        <input
+          type="text"
+          class="sk-search-input"
+          placeholder="ابحث بالاسم أو البريد أو المعرف..."
+          [value]="onboardingSearchQuery()"
+          (input)="onOnboardingSearchInput($any($event.target).value)"
+        />
+        <svg class="sk-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+      </div>
     </div>
 
     <!-- Loading -->
@@ -93,8 +103,19 @@
       </div>
     }
 
+    <!-- Empty (search filtered out everything on this page) -->
+    @if (!onboardingLoading() && !onboardingError() && onboarding().length > 0 && filteredOnboarding().length === 0) {
+      <div class="sk-card sk-empty">
+        <div class="sk-empty-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <h3 class="sk-empty-ttl">لا نتائج مطابقة للبحث</h3>
+        <p class="sk-empty-txt">جرّب مصطلح بحث آخر ضمن العناصر المحمّلة في هذه الصفحة.</p>
+      </div>
+    }
+
     <!-- Onboarding Table -->
-    @if (!onboardingLoading() && !onboardingError() && onboarding().length > 0) {
+    @if (!onboardingLoading() && !onboardingError() && filteredOnboarding().length > 0) {
       <div class="sk-table-wrap">
         <table class="sk-table">
           <thead>
@@ -110,7 +131,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (o of onboarding(); track o.id) {
+            @for (o of filteredOnboarding(); track o.id) {
               <tr>
                 <td data-label="المعرف"><span class="sk-cell-id">#{{ getShortId(o.id) }}</span></td>
                 <td data-label="المستخدم">
@@ -157,24 +178,24 @@
     <!-- Summary Cards -->
     <div class="sk-stats">
       <div class="sk-stat">
-        <div class="sk-stat-lbl">قيد المراجعة / غير موثق</div>
+        <div class="sk-stat-lbl">قيد المراجعة / غير موثق (هذه الصفحة)</div>
         <div class="sk-stat-val sk-stat-amber">{{ providersPending() }}</div>
-        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة، وليس إجمالي كل الصفحات</div>
       </div>
       <div class="sk-stat">
-        <div class="sk-stat-lbl">موثقون</div>
+        <div class="sk-stat-lbl">موثقون (هذه الصفحة)</div>
         <div class="sk-stat-val sk-stat-green">{{ providersVerified() }}</div>
-        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة، وليس إجمالي كل الصفحات</div>
       </div>
       <div class="sk-stat">
-        <div class="sk-stat-lbl">مرفوضون</div>
+        <div class="sk-stat-lbl">مرفوضون (هذه الصفحة)</div>
         <div class="sk-stat-val sk-stat-red">{{ providersRejected() }}</div>
-        <div class="sk-stat-sub">من العناصر المحمّلة</div>
+        <div class="sk-stat-sub">من العناصر المحمّلة، وليس إجمالي كل الصفحات</div>
       </div>
       <div class="sk-stat">
         <div class="sk-stat-lbl">إجمالي المقدمين</div>
         <div class="sk-stat-val sk-stat-cyan">{{ providersTotal() }}</div>
-        <div class="sk-stat-sub">كل المقدمين</div>
+        <div class="sk-stat-sub">كل المقدمين (كل الصفحات)</div>
       </div>
     </div>
 
@@ -185,6 +206,16 @@
           {{ opt.label }}
         </button>
       }
+      <div class="sk-search-wrap">
+        <input
+          type="text"
+          class="sk-search-input"
+          placeholder="ابحث بالاسم أو البريد أو المعرف..."
+          [value]="providersSearchQuery()"
+          (input)="onProvidersSearchInput($any($event.target).value)"
+        />
+        <svg class="sk-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+      </div>
     </div>
 
     <!-- Loading -->
@@ -218,8 +249,19 @@
       </div>
     }
 
+    <!-- Empty (search filtered out everything on this page) -->
+    @if (!providersLoading() && !providersError() && providers().length > 0 && filteredProviders().length === 0) {
+      <div class="sk-card sk-empty">
+        <div class="sk-empty-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <h3 class="sk-empty-ttl">لا نتائج مطابقة للبحث</h3>
+        <p class="sk-empty-txt">جرّب مصطلح بحث آخر ضمن العناصر المحمّلة في هذه الصفحة.</p>
+      </div>
+    }
+
     <!-- Providers Table -->
-    @if (!providersLoading() && !providersError() && providers().length > 0) {
+    @if (!providersLoading() && !providersError() && filteredProviders().length > 0) {
       <div class="sk-table-wrap">
         <table class="sk-table">
           <thead>
@@ -234,7 +276,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (p of providers(); track p.userId) {
+            @for (p of filteredProviders(); track p.userId) {
               <tr>
                 <td data-label="المستخدم">
                   <div class="sk-cell-user">

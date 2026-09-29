@@ -217,6 +217,57 @@
   box-shadow: 0 4px 14px rgba(43, 212, 199, .3);
 }
 
+/* ── Search ─────────────────────────────────────────────────────────── */
+.sk-search-wrap {
+  position: relative;
+  flex: 1 1 220px;
+  max-width: 320px;
+  margin-inline-start: auto;
+}
+
+.sk-search-input {
+  width: 100%;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 999px;
+  padding: 8px 38px 8px 16px;
+  font-size: 12.5px;
+  color: #fff;
+  font-family: inherit;
+}
+
+:host-context(body.light-theme) .sk-search-input,
+:host-context(body.theme-light) .sk-search-input,
+:host-context(.light-theme) .sk-search-input,
+:host-context(.theme-light) .sk-search-input {
+  background: #F8FAFC !important;
+  border-color: #E7EAF1 !important;
+  color: #1E293B !important;
+}
+
+.sk-search-input::placeholder { color: #6B7699; }
+.sk-search-input:focus { outline: none; border-color: rgba(43, 212, 199, .4); }
+
+.sk-search-ico {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: #6B7699;
+  pointer-events: none;
+}
+
+:host-context(body.light-theme) .sk-search-ico,
+:host-context(body.theme-light) .sk-search-ico,
+:host-context(.light-theme) .sk-search-ico,
+:host-context(.theme-light) .sk-search-ico { color: #64748B !important; }
+
+@media (max-width: 600px) {
+  .sk-search-wrap { max-width: none; flex-basis: 100%; margin-inline-start: 0; }
+}
+
 /* ── Cards / States ─────────────────────────────────────────────────── */
 .sk-card {
   background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));

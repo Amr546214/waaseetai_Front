@@ -37,93 +37,40 @@
     </div>
   </div>
 
-  <div class="sup-layout">
-    <div class="sup-tlist">
-      @if (filteredTickets().length === 0) {
-        <div class="sup-empty">لا توجد تذاكر مطابقة</div>
-      } @else {
-        @for (t of filteredTickets(); track t.id) {
-          <div class="sup-tcard" [class.active]="t.id === activeTicketId()" (click)="openTicket(t)">
-            <div class="sup-tc-hdr">
-              <div>
-                <div class="sup-tc-id">{{ t.id }}</div>
-                <div class="sup-tc-subject">{{ t.subject }}</div>
-              </div>
-              <span class="sup-tc-time">{{ t.time }}</span>
+  <div class="sup-tlist sup-tlist-full">
+    @if (filteredTickets().length === 0) {
+      <div class="sup-empty">لا توجد تذاكر مطابقة</div>
+    } @else {
+      @for (t of filteredTickets(); track t.id) {
+        <div class="sup-tcard" [routerLink]="[t.id]">
+          <div class="sup-tc-hdr">
+            <div>
+              <div class="sup-tc-id">{{ t.id }}</div>
+              <div class="sup-tc-subject">{{ t.subject }}</div>
             </div>
-            <div class="sup-tc-meta">
-              <span class="sup-bdg" [class]="'sup-st-' + t.status">
-                @switch (t.status) {
-                  @case ('open') { مفتوح }
-                  @case ('pending') { بانتظار رد }
-                  @case ('escalated') { مصعَّد }
-                  @case ('resolved') { محلول }
-                }
-              </span>
-              <span class="sup-bdg sup-bdg-cat">{{ t.category }}</span>
-              @if (t.priority === 'high') {
-                <span class="sup-bdg sup-bdg-high">عالية</span>
-              }
-            </div>
-            <div class="sup-tc-user">
-              <div class="sup-tc-av" [style.background]="t.userBg">{{ t.userAv }}</div>
-              <span>{{ t.user }} · {{ t.userType }}</span>
-            </div>
-            <div class="sup-tc-preview">{{ t.messages[t.messages.length - 1].text }}</div>
+            <span class="sup-tc-time">{{ t.time }}</span>
           </div>
-        }
-      }
-    </div>
-
-    <div class="sup-chat">
-      @if (activeTicket(); as t) {
-        <div class="sup-chat-hdr">
-          <div class="sup-chat-hdr-ttl">{{ t.subject }}</div>
-          <div class="sup-chat-hdr-sub">{{ t.id }} · {{ t.user }} · {{ t.category }}</div>
-        </div>
-        <div class="sup-chat-msgs">
-          @for (m of t.messages; track $index) {
-            <div class="sup-msg" [class.from-admin]="m.from === 'admin'">
-              <div class="sup-msg-bubble">{{ m.text }}</div>
-              <div class="sup-msg-time">{{ m.time }}</div>
-            </div>
-          }
-        </div>
-        @if (t.status !== 'resolved') {
-          <div class="sup-chat-actions">
-            <button type="button" class="sup-ca-btn sup-ca-close" (click)="closeTicket()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              إغلاق التذكرة
-            </button>
-            @if (t.status !== 'escalated') {
-              <button type="button" class="sup-ca-btn sup-ca-escalate" (click)="escalateTicket()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                تصعيد
-              </button>
+          <div class="sup-tc-meta">
+            <span class="sup-bdg" [class]="'sup-st-' + t.status">
+              @switch (t.status) {
+                @case ('open') { مفتوح }
+                @case ('pending') { بانتظار رد }
+                @case ('escalated') { مصعَّد }
+                @case ('resolved') { محلول }
+              }
+            </span>
+            <span class="sup-bdg sup-bdg-cat">{{ t.category }}</span>
+            @if (t.priority === 'high') {
+              <span class="sup-bdg sup-bdg-high">عالية</span>
             }
           </div>
-          <div class="sup-chat-input-area">
-            <textarea class="sup-chat-input" rows="1" placeholder="اكتب ردك هنا..." [value]="draftReply()" (input)="draftReply.set($any($event.target).value)"></textarea>
-            <button type="button" class="sup-chat-send" (click)="sendReply()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
+          <div class="sup-tc-user">
+            <div class="sup-tc-av" [style.background]="t.userBg">{{ t.userAv }}</div>
+            <span>{{ t.user }} · {{ t.userType }}</span>
           </div>
-        } @else {
-          <div class="sup-chat-resolved-note">تم حل هذه التذكرة</div>
-        }
-      } @else {
-        <div class="sup-chat-empty">
-          <div class="sup-chat-empty-ttl">اختر تذكرة للرد</div>
-          <div class="sup-chat-empty-sub">اضغط على أي تذكرة من القائمة</div>
+          <div class="sup-tc-preview">{{ t.messages[t.messages.length - 1].text }}</div>
         </div>
       }
-    </div>
+    }
   </div>
-
-  @if (toast()) {
-    <div class="sup-toast">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      <span>{{ toast() }}</span>
-    </div>
-  }
 </section>

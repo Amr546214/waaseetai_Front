@@ -1,0 +1,164 @@
+<section class="rp-page" dir="rtl">
+  <div class="rp-detail-crumb">
+    <a routerLink="/supper-admin-overview/reports">&rarr; العودة إلى البلاغات</a>
+  </div>
+
+  @if (notFound()) {
+    <div class="rp-empty">
+      <div class="rp-empty-ttl">لم يتم العثور على البلاغ المطلوب</div>
+      <a routerLink="/supper-admin-overview/reports" class="rp-btn rp-btn-ghost">العودة للقائمة</a>
+    </div>
+  } @else if (selected(); as r) {
+    <div class="rp-mbox rp-detail-box">
+      <div class="rp-md-hdr">
+        <div>
+          <div class="rp-md-id">{{ r.id }} · {{ r.typeLabel }}</div>
+          <h3>{{ r.desc }}</h3>
+          <div class="rp-md-badges">
+            <span class="rp-bdg rp-sev">{{ r.severity }}</span>
+            <span class="rp-bdg" [class]="'rp-st-' + r.status">
+              @switch (r.status) {
+                @case ('new') { جديد }
+                @case ('investigating') { قيد التحقيق }
+                @case ('dismissed') { رُفض }
+                @case ('actioned') { اتُّخذ إجراء }
+              }
+            </span>
+            <span class="rp-bdg rp-ai-risk">درجة الخطورة: {{ r.aiRiskScore }}/100</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rp-md-stats">
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">تاريخ البلاغ</div><div class="rp-md-stat-val">{{ r.date }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">نوع المخالفة</div><div class="rp-md-stat-val txt-coral">{{ r.typeLabel }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">المبلغ المتنازع عليه</div><div class="rp-md-stat-val txt-amber">{{ r.disputedAmount }}</div></div>
+        <div class="rp-md-stat"><div class="rp-md-stat-lbl">بلاغات سابقة</div><div class="rp-md-stat-val txt-red">{{ r.priorReports }}</div></div>
+      </div>
+
+      <div class="rp-md-body">
+        <div class="rp-md-field">
+          <label>أطراف البلاغ</label>
+          <div class="rp-parties-grid">
+            <div class="rp-party-box reporter">
+              <div class="rp-party-box-lbl">المُبلِّغ</div>
+              <div class="rp-party-box-row">
+                <div class="rp-av" [style.background]="r.reporterBg">{{ r.reporterAv }}</div>
+                <span class="rp-party-box-name">{{ r.reporter }}</span>
+              </div>
+            </div>
+            <div class="rp-party-box reported">
+              <div class="rp-party-box-lbl">المُبلَّغ عنه</div>
+              <div class="rp-party-box-row">
+                <div class="rp-av" [style.background]="r.reportedBg">{{ r.reportedAv }}</div>
+                <span class="rp-party-box-name">{{ r.reported }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rp-md-field">
+          <label>الأدلة المرفوعة ({{ r.evidence.length }})</label>
+          <div class="rp-ev-list">
+            @for (ev of r.evidence; track ev.label) {
+              <div class="rp-ev-item">
+                <div class="rp-ev-hdr"><span class="rp-ev-name">📄 {{ ev.label }}</span><span class="rp-ev-meta">{{ ev.meta }}</span></div>
+                <p class="rp-ev-note">{{ ev.note }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="rp-md-field">
+          <label>شبكة الحسابات المشبوهة ({{ r.linkedAccounts.length }})</label>
+          @if (r.linkedAccounts.length > 1) {
+            <div class="rp-net-alert">⚠️ AI اكتشف {{ r.linkedAccounts.length }} حسابات مرتبطة بنفس الجهاز أو IP — نمط احتيال محتمل</div>
+          }
+          <div class="rp-net-list">
+            @for (acc of r.linkedAccounts; track acc.id) {
+              <div class="rp-net-node" [class]="'rp-net-' + acc.status">
+                <div class="rp-av rp-net-av" [style.background]="acc.avBg">{{ acc.av }}</div>
+                <div class="rp-net-body">
+                  <div class="rp-net-name">{{ acc.name }}</div>
+                  <div class="rp-net-meta">{{ acc.note }}</div>
+                </div>
+                <div class="rp-net-side">
+                  <span class="rp-net-id">{{ acc.id }}</span>
+                  <span class="rp-net-tag">{{ acc.meta }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="rp-md-field">
+          <label>سجل IP والجهاز (تمثيل جغرافي مبسّط)</label>
+          <div class="rp-ip-list">
+            @for (ip of r.ipHistory; track ip.ip) {
+              <div class="rp-ip-row" [class]="'rp-ip-' + ip.status">
+                <div>
+                  <div class="rp-ip-addr" dir="ltr">{{ ip.ip }}</div>
+                  <div class="rp-ip-loc">{{ ip.location }} · {{ ip.device }}</div>
+                </div>
+                <span class="rp-ip-badge" [class]="'rp-ip-badge-' + ip.status">{{ ip.statusLabel }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="rp-md-field">
+          <label>قائمة التحقق للمحقق ({{ r.checklist.length }})</label>
+          <div class="rp-checklist">
+            @for (item of r.checklist; track item.label) {
+              <div class="rp-check-item" [class]="'rp-check-' + item.state">
+                <span class="rp-check-ico">{{ checklistIcon[item.state] }}</span>
+                <span>{{ item.label }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="rp-md-field">
+          <label>بلاغات سابقة ضد هذا المستخدم ({{ r.priorReportsList.length }})</label>
+          @if (r.priorReportsList.length) {
+            <div class="rp-prior-list">
+              @for (pr of r.priorReportsList; track pr.id) {
+                <div class="rp-prior-item" [class.current]="pr.current">
+                  <div class="rp-prior-hdr">
+                    <span class="rp-prior-id">{{ pr.id }}@if (pr.current) { ← الحالي }</span>
+                    <span class="rp-prior-date">{{ pr.date }}</span>
+                  </div>
+                  <div class="rp-prior-reason">{{ pr.reason }}</div>
+                  <div class="rp-prior-outcome">{{ pr.outcome }}</div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="rp-prior-empty">لا توجد بلاغات سابقة ضد هذا المستخدم</div>
+          }
+        </div>
+      </div>
+
+      <div class="rp-md-actions">
+        @if (r.status === 'new' || r.status === 'investigating') {
+          @if (r.priority === 'high') {
+            <button type="button" class="rp-btn rp-btn-warn" (click)="suspendImmediately(r)">تعليق فوري</button>
+          }
+          <button type="button" class="rp-btn rp-btn-warn" (click)="issueWarning(r)">تحذير رسمي</button>
+          @if (r.status === 'new') {
+            <button type="button" class="rp-btn rp-btn-ghost" (click)="markInvestigating(r)">نقل للتحقيق</button>
+          }
+          <button type="button" class="rp-btn rp-btn-dismiss" (click)="dismiss(r)">رفض البلاغ</button>
+        }
+        <button type="button" class="rp-btn rp-btn-ghost" (click)="goBack()">إغلاق</button>
+      </div>
+    </div>
+  }
+
+  @if (toast()) {
+    <div class="rp-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>{{ toast() }}</span>
+    </div>
+  }
+</section>

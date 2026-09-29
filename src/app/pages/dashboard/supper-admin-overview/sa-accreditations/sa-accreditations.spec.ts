@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import { of, throwError, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -70,6 +71,7 @@ describe('SaAccreditations', () => {
     await TestBed.configureTestingModule({
       imports: [SaAccreditations],
       providers: [
+        provideRouter([]),
         { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), post: (...args: any[]) => postSpy(...args) } },
       ],
     }).compileComponents();
@@ -93,6 +95,7 @@ describe('SaAccreditations', () => {
     await TestBed.configureTestingModule({
       imports: [SaAccreditations],
       providers: [
+        provideRouter([]),
         { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), post: (...args: any[]) => postSpy(...args) } },
       ],
     }).compileComponents();
@@ -141,66 +144,8 @@ describe('SaAccreditations', () => {
     expect(text).not.toContain('اكتمال البيانات');
   });
 
-  it('approve action calls the real POST /admin/accreditation/samples/:id/approve endpoint', async () => {
-    await setup(
-      (url: string) => (String(url).includes('/samples/sample-1') ? of({ success: true, data: makeSample() }) : of(makeListResponse())),
-      () => of({ success: true, message: 'تم اعتماد نموذج الاعتماد بنجاح', data: makeSample({ status: 'AI_VERIFIED' }) }),
-    );
-    component.openDetail(component.samples()[0]);
-    fixture.detectChanges();
-    component.submitApprove();
-    expect(postSpy.mock.calls[0][0]).toContain('/admin/accreditation/samples/sample-1/approve');
-    expect(component.actionSuccess()).toBe('تم اعتماد نموذج الاعتماد بنجاح');
-  });
-
-  it('approve action failure shows an honest error, not a fake success', async () => {
-    await setup(
-      () => of(makeListResponse()),
-      () => throwError(() => ({ error: { message: 'تم اعتماد هذا النموذج مسبقاً' } })),
-    );
-    component.selected.set(makeSample());
-    component.submitApprove();
-    expect(component.actionError()).toBe('تم اعتماد هذا النموذج مسبقاً');
-    expect(component.actionSuccess()).toBe('');
-  });
-
-  it('reject action requires a reason and calls the real POST .../reject endpoint with it', async () => {
-    await setup(
-      () => of(makeListResponse()),
-      () => of({ success: true, message: 'تم رفض نموذج الاعتماد', data: makeSample({ status: 'REJECTED' }) }),
-    );
-    component.selected.set(makeSample());
-    component.openRejectForm();
-    component.rejectionReason.set('المستندات غير كافية');
-    component.submitReject();
-    expect(postSpy.mock.calls[0][0]).toContain('/admin/accreditation/samples/sample-1/reject');
-    expect(postSpy.mock.calls[0][1]).toEqual({ rejectionReason: 'المستندات غير كافية' });
-    expect(component.actionSuccess()).toBe('تم رفض نموذج الاعتماد');
-  });
-
-  it('reject action failure shows an honest error, not a fake success', async () => {
-    await setup(
-      () => of(makeListResponse()),
-      () => throwError(() => ({ error: { message: 'تم رفض هذا النموذج مسبقاً' } })),
-    );
-    component.selected.set(makeSample());
-    component.openRejectForm();
-    component.rejectionReason.set('سبب الرفض');
-    component.submitReject();
-    expect(component.actionError()).toBe('تم رفض هذا النموذج مسبقاً');
-    expect(component.actionSuccess()).toBe('');
-  });
-
-  it('does not submit a reject request with an empty/too-short reason (matches backend 2-char minimum)', async () => {
-    await setup(() => of(makeListResponse()));
-    postSpy.mockClear();
-    component.selected.set(makeSample());
-    component.openRejectForm();
-    component.rejectionReason.set('a');
-    component.submitReject();
-    expect(postSpy).not.toHaveBeenCalled();
-    expect(component.actionError()).toContain('سبب الرفض');
-  });
+  // Approve/reject action tests moved to sa-accreditation-detail/sa-accreditation-detail.spec.ts
+  // (the review modal became the routed accreditations/:id page).
 
   // Phase 3 fix: F15 authority boundary — AI_VERIFIED on the sample now only
   // means "AI recommends approval, pending final confirmation". Eligibility

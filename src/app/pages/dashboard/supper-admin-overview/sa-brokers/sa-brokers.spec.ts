@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import { of, throwError, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -64,7 +65,7 @@ describe('SaBrokers', () => {
     getSpy = vi.fn(getImpl);
     await TestBed.configureTestingModule({
       imports: [SaBrokers],
-      providers: [{ provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } }],
+      providers: [provideRouter([]), { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SaBrokers);
@@ -103,7 +104,7 @@ describe('SaBrokers', () => {
     });
     await TestBed.configureTestingModule({
       imports: [SaBrokers],
-      providers: [{ provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } }],
+      providers: [provideRouter([]), { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } }],
     }).compileComponents();
     fixture = TestBed.createComponent(SaBrokers);
     component = fixture.componentInstance;
@@ -131,7 +132,7 @@ describe('SaBrokers', () => {
     });
     await TestBed.configureTestingModule({
       imports: [SaBrokers],
-      providers: [{ provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } }],
+      providers: [provideRouter([]), { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } }],
     }).compileComponents();
     fixture = TestBed.createComponent(SaBrokers);
     component = fixture.componentInstance;
@@ -186,51 +187,6 @@ describe('SaBrokers', () => {
     expect(text).not.toContain('تحويل للسحب اليدوي');
   });
 
-  it('opens a real broker detail fetched from GET /admin/brokers/:id with real channel/commission data', async () => {
-    getSpy = vi.fn((url: string, opts?: any) => {
-      const status = opts?.params?.get ? opts.params.get('status') : undefined;
-      const limit = opts?.params?.get ? opts.params.get('limit') : undefined;
-      if (status && limit === '1') return of(makeListResponse([], 0, 1, 1));
-      if (String(url).includes(`/admin/brokers/${makeBroker().id}`)) {
-        return of({ success: true, data: makeBrokerDetail() });
-      }
-      return of(makeListResponse());
-    });
-    await TestBed.configureTestingModule({
-      imports: [SaBrokers],
-      providers: [{ provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } }],
-    }).compileComponents();
-    fixture = TestBed.createComponent(SaBrokers);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    component.openDetail(component.brokers()[0]);
-    fixture.detectChanges();
-    expect(component.selected()?.recentCommissions?.[0]?.referredUserName).toBe('خالد المطيري');
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('خالد المطيري');
-  });
-
-  it('shows an honest detail error state on failure instead of fabricated commission data', async () => {
-    getSpy = vi.fn((url: string, opts?: any) => {
-      const status = opts?.params?.get ? opts.params.get('status') : undefined;
-      const limit = opts?.params?.get ? opts.params.get('limit') : undefined;
-      if (status && limit === '1') return of(makeListResponse([], 0, 1, 1));
-      if (String(url).includes(`/admin/brokers/${makeBroker().id}`)) {
-        return throwError(() => ({ error: { message: 'تعذر تحميل تفاصيل الوسيط' } }));
-      }
-      return of(makeListResponse());
-    });
-    await TestBed.configureTestingModule({
-      imports: [SaBrokers],
-      providers: [{ provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } }],
-    }).compileComponents();
-    fixture = TestBed.createComponent(SaBrokers);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    component.openDetail(component.brokers()[0]);
-    fixture.detectChanges();
-    expect(component.detailError()).toBe('تعذر تحميل تفاصيل الوسيط');
-  });
+  // Detail-view tests moved to sa-broker-detail/sa-broker-detail.spec.ts
+  // (the broker modal became the routed brokers/:id page).
 });

@@ -10,8 +10,12 @@
     </div>
   </div>
 
+  @if (bulkResult()) {
+    <div class="san-toast">{{ bulkResult() }}</div>
+  }
+
   <div class="san-stats">
-    @for (s of stats; track s.label) {
+    @for (s of stats(); track s.label) {
       <div class="san-stat"><div class="san-stat-v" [style.color]="s.color">{{ s.value }}</div><div class="san-stat-l">{{ s.label }}</div></div>
     }
   </div>
@@ -52,7 +56,7 @@
       <table class="san-tbl">
         <thead><tr><th>القالب</th><th>المستلمون</th><th>معدل الفتح</th><th>التاريخ</th></tr></thead>
         <tbody>
-          @for (h of history; track h.template) {
+          @for (h of history(); track h.template + h.date) {
             <tr>
               <td class="san-td-strong">{{ h.template }}</td>
               <td>{{ h.recipients }}</td>
@@ -73,37 +77,42 @@
 
       <div class="san-field">
         <div class="san-field-lbl">الجمهور المستهدف</div>
-        <select class="san-input">
-          <option>كل المستخدمين (12,480)</option>
-          <option>طالبو الخدمة فقط (6,070)</option>
-          <option>مقدمو الخدمة فقط (6,010)</option>
-          <option>المشتركون في الباقة المتقدمة</option>
-          <option>المستخدمون غير النشطين (30 يوم)</option>
+        <select class="san-input" [ngModel]="bulkAudience()" (ngModelChange)="bulkAudience.set($event)">
+          @for (a of bulkAudiences; track a) { <option [value]="a">{{ a }}</option> }
         </select>
       </div>
 
       <div class="san-field">
         <div class="san-field-lbl">قنوات الإرسال</div>
         <div class="san-checks">
-          <label class="san-check"><input type="checkbox" checked>Email</label>
-          <label class="san-check"><input type="checkbox">SMS</label>
-          <label class="san-check"><input type="checkbox" checked>Push</label>
+          <label class="san-check"><input type="checkbox" [checked]="bulkChannels().email" (change)="toggleBulkChannel('email')">Email</label>
+          <label class="san-check"><input type="checkbox" [checked]="bulkChannels().sms" (change)="toggleBulkChannel('sms')">SMS</label>
+          <label class="san-check"><input type="checkbox" [checked]="bulkChannels().push" (change)="toggleBulkChannel('push')">Push</label>
         </div>
       </div>
 
       <div class="san-field">
         <div class="san-field-lbl">عنوان الإشعار</div>
-        <input type="text" class="san-input" placeholder="عنوان مختصر...">
+        <input type="text" class="san-input" placeholder="عنوان مختصر..." [ngModel]="bulkSubject()" (ngModelChange)="bulkSubject.set($event)">
       </div>
 
       <div class="san-field">
         <div class="san-field-lbl">نص الرسالة</div>
-        <textarea class="san-textarea" placeholder="أدخل نص الإشعار... يمكنك استخدام [الاسم] للإشارة لاسم المستخدم"></textarea>
+        <textarea class="san-textarea" placeholder="أدخل نص الإشعار... يمكنك استخدام [الاسم] للإشارة لاسم المستخدم" [ngModel]="bulkMessage()" (ngModelChange)="bulkMessage.set($event)"></textarea>
       </div>
 
+      <div class="san-field">
+        <div class="san-field-lbl">جدولة (اختياري — مطلوب عند اختيار "جدولة الإرسال")</div>
+        <input type="datetime-local" class="san-input" [ngModel]="bulkScheduleDate()" (ngModelChange)="bulkScheduleDate.set($event)">
+      </div>
+
+      @if (bulkError()) {
+        <div class="san-error">{{ bulkError() }}</div>
+      }
+
       <div class="san-modal-actions">
-        <button type="button" class="san-btn san-btn-pri" style="flex:1" (click)="closeSendModal()">إرسال الآن</button>
-        <button type="button" class="san-btn san-btn-gh" style="flex:1" (click)="closeSendModal()">جدولة الإرسال</button>
+        <button type="button" class="san-btn san-btn-pri" style="flex:1" (click)="sendBulkNow()">إرسال الآن</button>
+        <button type="button" class="san-btn san-btn-gh" style="flex:1" (click)="scheduleBulkSend()">جدولة الإرسال</button>
         <button type="button" class="san-btn san-btn-gh" (click)="closeSendModal()">إلغاء</button>
       </div>
     </div>

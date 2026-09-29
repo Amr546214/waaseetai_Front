@@ -4,6 +4,8 @@
     <symbol id="spa-i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
     <symbol id="spa-i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
     <symbol id="spa-i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="spa-i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol>
+    <symbol id="spa-i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
   </defs></svg>
 
   <div class="spa-layout">
@@ -130,8 +132,7 @@
             <div class="spa-row">
               <div><div class="spa-row-lbl">{{ k.label }}</div><div class="spa-row-sub">{{ k.desc }}</div></div>
               <div class="spa-key-row">
-                <input class="spa-inp" style="direction:ltr" [type]="isRevealed(i) ? 'text' : 'password'" value="sk_live_9f2a7c4e1b8d3f5091" readonly />
-                <button type="button" class="spa-btn spa-btn-gh" (click)="toggleReveal(i)"><svg><use href="#spa-i-eye"></use></svg></button>
+                <input class="spa-inp" style="direction:ltr" type="text" value="•••••••••••••••••••••• — غير متاح للعرض من الواجهة" readonly />
               </div>
             </div>
           }
@@ -141,13 +142,26 @@
       @if (activeSection() === 'audit') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">Audit Trail</div><div class="spa-sec-sub">سجل كامل لكل تغيير في إعدادات النظام والإجراءات الإدارية</div></div>
+          <button type="button" class="spa-btn spa-btn-gh" (click)="exportAuditCsv()"><svg><use href="#spa-i-download"></use></svg>تصدير CSV</button>
+        </div>
+        <div class="spa-filter-row">
+          <div class="spa-fr-search">
+            <svg aria-hidden="true"><use href="#spa-i-search"></use></svg>
+            <input type="search" placeholder="ابحث في السجل..." aria-label="بحث" [value]="auditSearch()" (input)="setAuditSearch($any($event.target).value)" />
+          </div>
+          <select class="spa-fr-sel" aria-label="نوع الإجراء" [value]="auditTypeFilter()" (change)="setAuditType($any($event.target).value)">
+            @for (t of auditActionTypes(); track t) { <option [value]="t">{{ t }}</option> }
+          </select>
+          <select class="spa-fr-sel" aria-label="المنفذ" [value]="auditActorFilter()" (change)="setAuditActor($any($event.target).value)">
+            @for (a of auditActors(); track a) { <option [value]="a">{{ a }}</option> }
+          </select>
         </div>
         <div class="spa-card spa-card-flush">
           <div class="spa-tbl-wrap">
             <table class="spa-tbl">
               <thead><tr><th>#</th><th>الإجراء</th><th>التفاصيل</th><th>المنفذ</th><th>الدور</th><th>IP</th><th>التاريخ</th><th>الخطورة</th></tr></thead>
               <tbody>
-                @for (r of auditRows; track r.n) {
+                @for (r of pagedAuditRows(); track r.n) {
                   <tr>
                     <td class="spa-mono">#{{ r.n }}</td>
                     <td class="spa-strong">{{ r.action }}</td>
@@ -158,9 +172,21 @@
                     <td class="spa-date">{{ r.date }}</td>
                     <td><span class="spa-bdg" [style.background]="sevConfig[r.sev].bg" [style.color]="sevConfig[r.sev].color">{{ sevConfig[r.sev].lbl }}</span></td>
                   </tr>
+                } @empty {
+                  <tr><td colspan="8" class="spa-empty">لا توجد نتائج مطابقة</td></tr>
                 }
               </tbody>
             </table>
+          </div>
+          <div class="spa-pag-foot">
+            <span class="spa-pag-info">{{ auditRangeLabel() }}</span>
+            <div class="spa-pag-btns">
+              <button type="button" class="spa-page-btn" [disabled]="auditPage() <= 1" (click)="prevAuditPage()" aria-label="الصفحة السابقة">‹</button>
+              @for (p of auditPageNumbers(); track p) {
+                <button type="button" class="spa-page-btn" [class.active]="p === auditPage()" (click)="goAuditPage(p)">{{ p }}</button>
+              }
+              <button type="button" class="spa-page-btn" [disabled]="auditPage() >= totalAuditPages()" (click)="nextAuditPage()" aria-label="الصفحة التالية">›</button>
+            </div>
           </div>
         </div>
       }
@@ -174,7 +200,7 @@
           @for (d of dangerActions; track d.key) {
             <div class="spa-row">
               <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }}</div><div class="spa-row-sub">{{ d.desc }}</div></div>
-              <button type="button" class="spa-btn spa-btn-danger" (click)="requestDanger(d)">{{ d.buttonLabel }}</button>
+              <button type="button" class="spa-btn spa-btn-danger" disabled [title]="dangerBlockedTooltip" style="opacity:.5;cursor:not-allowed">{{ d.buttonLabel }}</button>
             </div>
           }
         </div>
@@ -185,19 +211,6 @@
 
   <div class="spa-foot">© 2026 وسيط AI · v2.0.0</div>
 </section>
-
-@if (confirmingAction(); as action) {
-  <div class="spa-mov" (click)="cancelDanger()">
-    <div class="spa-mbox" (click)="$event.stopPropagation()">
-      <div class="spa-mhdr"><svg class="spa-mwarn"><use href="#spa-i-warn"></use></svg><h3>تأكيد الإجراء</h3></div>
-      <p class="spa-mtext">هذا الإجراء يتطلب تأكيد 2FA: <strong>{{ action.label }}</strong>. هل أنت متأكد من المتابعة؟</p>
-      <div class="spa-mactions">
-        <button type="button" class="spa-btn spa-btn-danger" (click)="confirmDanger()">تأكيد التنفيذ</button>
-        <button type="button" class="spa-btn spa-btn-gh" (click)="cancelDanger()">إلغاء</button>
-      </div>
-    </div>
-  </div>
-}
 
 @if (toastMessage()) {
   <div class="spa-toast">{{ toastMessage() }}</div>

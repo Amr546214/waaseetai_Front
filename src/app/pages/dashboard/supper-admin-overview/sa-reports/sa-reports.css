@@ -208,6 +208,79 @@
 :host-context(.light-theme) .rp-ev-note,
 :host-context(.theme-light) .rp-ev-note { color: #334155; }
 
+/* Suspicious account network */
+.rp-net-alert { display: flex; align-items: center; padding: 8px 12px; background: rgba(255,107,107,.08); border: 1px solid rgba(255,107,107,.2); border-radius: 8px; font-size: 11px; color: #FF8C69; margin-bottom: 10px; }
+.rp-net-list { display: flex; flex-direction: column; gap: 6px; }
+.rp-net-node { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; }
+.rp-net-node.rp-net-suspect { border-color: rgba(255,107,107,.25); background: rgba(255,107,107,.04); }
+.rp-net-node.rp-net-watch { border-color: rgba(255,180,0,.2); }
+.rp-net-av { width: 30px; height: 30px; font-size: 11px; }
+.rp-net-body { flex: 1; min-width: 0; }
+.rp-net-name { font-size: 12px; font-weight: 700; color: #fff; }
+.rp-net-meta { font-size: 10px; color: #6B7699; margin-top: 1px; }
+.rp-net-side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.rp-net-id { font-size: 10px; font-family: monospace; color: #6B7699; }
+.rp-net-tag { font-size: 10px; font-weight: 700; color: #FF8C69; }
+
+:host-context(body.light-theme) .rp-net-node,
+:host-context(body.theme-light) .rp-net-node,
+:host-context(.light-theme) .rp-net-node,
+:host-context(.theme-light) .rp-net-node { background: #F8FAFC; border-color: #E2E8F0; }
+:host-context(body.light-theme) .rp-net-name,
+:host-context(body.theme-light) .rp-net-name,
+:host-context(.light-theme) .rp-net-name,
+:host-context(.theme-light) .rp-net-name { color: #0F172A; }
+
+/* IP / device history */
+.rp-ip-list { display: flex; flex-direction: column; gap: 6px; }
+.rp-ip-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); border-radius: 9px; }
+.rp-ip-row.rp-ip-blocked { background: rgba(255,107,107,.06); border-color: rgba(255,107,107,.16); }
+.rp-ip-row.rp-ip-normal { background: rgba(255,180,0,.05); border-color: rgba(255,180,0,.14); }
+.rp-ip-addr { font-size: 12px; font-weight: 700; color: #fff; }
+.rp-ip-loc { font-size: 10px; color: #6B7699; margin-top: 1px; }
+.rp-ip-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; }
+.rp-ip-badge-blocked { background: rgba(255,107,107,.14); color: #FF6B6B; }
+.rp-ip-badge-normal { background: rgba(255,180,0,.12); color: #FFB400; }
+.rp-ip-badge-shared { background: rgba(255,255,255,.08); color: #A8B2D1; }
+
+:host-context(body.light-theme) .rp-ip-row,
+:host-context(body.theme-light) .rp-ip-row,
+:host-context(.light-theme) .rp-ip-row,
+:host-context(.theme-light) .rp-ip-row { background: #F8FAFC; border-color: #E2E8F0; }
+:host-context(body.light-theme) .rp-ip-addr,
+:host-context(body.theme-light) .rp-ip-addr,
+:host-context(.light-theme) .rp-ip-addr,
+:host-context(.theme-light) .rp-ip-addr { color: #0F172A; }
+
+/* Investigator checklist */
+.rp-checklist { display: flex; flex-direction: column; gap: 6px; }
+.rp-check-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 12px; }
+.rp-check-item.rp-check-done { background: rgba(15,169,154,.06); border: 1px solid rgba(15,169,154,.16); color: #0FA99A; }
+.rp-check-item.rp-check-pending { background: rgba(255,180,0,.06); border: 1px solid rgba(255,180,0,.16); color: #FFB400; }
+.rp-check-item.rp-check-todo { background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); color: #6B7699; }
+.rp-check-ico { font-size: 12px; flex-shrink: 0; }
+
+/* Prior reports list */
+.rp-prior-list { display: flex; flex-direction: column; gap: 6px; }
+.rp-prior-item { padding: 9px 12px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); border-radius: 9px; }
+.rp-prior-item.current { background: rgba(255,107,107,.08); border-color: rgba(255,107,107,.22); }
+.rp-prior-hdr { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+.rp-prior-id { font-size: 11px; font-weight: 800; color: #FF8C69; font-family: monospace; }
+.rp-prior-item.current .rp-prior-id { color: #FF6B6B; }
+.rp-prior-date { font-size: 10px; color: #6B7699; }
+.rp-prior-reason { font-size: 12px; color: #A8B2D1; margin-bottom: 2px; line-height: 1.4; }
+.rp-prior-outcome { font-size: 10px; font-weight: 700; color: #6B7699; }
+.rp-prior-empty { font-size: 12px; color: #6B7699; padding: 10px 0; }
+
+:host-context(body.light-theme) .rp-prior-item,
+:host-context(body.theme-light) .rp-prior-item,
+:host-context(.light-theme) .rp-prior-item,
+:host-context(.theme-light) .rp-prior-item { background: #F8FAFC; border-color: #E2E8F0; }
+:host-context(body.light-theme) .rp-prior-reason,
+:host-context(body.theme-light) .rp-prior-reason,
+:host-context(.light-theme) .rp-prior-reason,
+:host-context(.theme-light) .rp-prior-reason { color: #334155; }
+
 .rp-md-actions { display: flex; justify-content: flex-end; margin-top: 18px; gap: 8px; flex-wrap: wrap; }
 
 @media (max-width: 900px) {

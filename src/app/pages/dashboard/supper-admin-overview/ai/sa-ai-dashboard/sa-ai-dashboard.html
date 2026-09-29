@@ -1,0 +1,65 @@
+<section class="page" dir="rtl">
+  <h1 class="sr-only">AI Insights Dashboard</h1>
+
+  <div class="page-hdr">
+    <div>
+      <h2 class="page-ttl">AI Insights Dashboard</h2>
+      <p class="page-sub">لوحة مراقبة محركات الذكاء الاصطناعي — الأداء والدقة والاستخدام لكل نموذج</p>
+    </div>
+    <div class="hdr-actions">
+      <button type="button" class="btn btn-ghost">تصدير تقرير</button>
+      <button type="button" class="btn btn-primary">إعادة تدريب</button>
+    </div>
+  </div>
+
+  <div class="ai-disc">
+    <div class="ai-disc-ico">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /></svg>
+    </div>
+    <div>
+      <div class="ai-disc-lbl">Self-meta AI</div>
+      <p class="ai-disc-txt">وسيط AI يراقب أداء نماذجه الخاصة ويضبط المعاملات تلقائياً للحفاظ على أعلى دقة ممكنة
+        <span class="ai-disc-bdg">كل النماذج سليمة</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    @for (k of kpis; track k.label) {
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-ic" [style.background]="k.color + '1f'" [style.color]="k.color">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg>
+          </div>
+          <span class="kpi-lbl">{{ k.label }}</span>
+        </div>
+        <div class="kpi-val" [style.color]="k.color">{{ k.value }}</div>
+        <div class="kpi-unit">{{ k.unit }}</div>
+        <div class="kpi-sub" [style.color]="k.subColor">{{ k.sub }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="ai-grid">
+    @for (m of models; track m.name) {
+      <div class="ai-card" [style.borderColor]="m.color + '33'">
+        <div class="ai-card-head">
+          <span class="ai-card-name" [style.color]="m.color">{{ m.name }}</span>
+          <span class="ai-card-status">{{ m.status }}</span>
+        </div>
+        <div class="ai-card-body">
+          <div class="ai-metric"><span class="ai-metric-lbl">الدقة</span><span class="ai-metric-val" style="color:#0FA99A">{{ m.accuracy }}%</span></div>
+          <div class="ai-bar"><div class="ai-fill" [style.width.%]="m.accuracy" [style.background]="'linear-gradient(90deg,' + m.color + ',#2B7FFF)'"></div></div>
+          <div class="ai-metric"><span class="ai-metric-lbl">طلبات اليوم</span><span class="ai-metric-val">{{ m.requestsToday }}</span></div>
+          <div class="ai-metric"><span class="ai-metric-lbl">متوسط زمن الاستجابة</span><span class="ai-metric-val" style="color:#0FA99A">{{ m.avgResponse }}</span></div>
+          <div class="ai-metric"><span class="ai-metric-lbl">آخر تدريب</span><span class="ai-metric-val cell-muted">{{ m.lastTraining }}</span></div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="inner-foot">
+    <span>© 2026 وسيط AI · AI Insights Dashboard</span>
+    <span>12 نموذج نشط | متوسط الدقة: 94.2%</span>
+  </div>
+</section>

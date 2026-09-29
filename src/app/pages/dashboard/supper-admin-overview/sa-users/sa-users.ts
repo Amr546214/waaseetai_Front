@@ -67,6 +67,11 @@ export class SaUsers implements OnInit {
     const tab = this.selectedAccountType();
 
     const formatNumber = (num?: number) => (num !== undefined ? num.toLocaleString('en-US') : '0');
+    // No fabricated numbers: when getStats() genuinely doesn't return a field
+    // (e.g. per-account-type spend/orders/commissions/ratings), show an honest
+    // placeholder instead — matching the "غير متاح" convention used elsewhere
+    // in the codebase (see request-details.ts) rather than inventing a value.
+    const NA = 'غير متاح';
 
     if (!stats) {
       return [
@@ -80,14 +85,14 @@ export class SaUsers implements OnInit {
     if (tab === 'sk-ind') {
       return [
         { ic: 'i-person', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'طلاب الخدمة الفرد', val: formatNumber(stats.tabCounts['sk-ind']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
-        { ic: 'i-list', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'إجمالي الطلبات', val: formatNumber(stats.totalUsers.count * 2), sub: 'محدث مباشرة', subCl: '#6B7699' },
-        { ic: 'i-wallet', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'إجمالي الإنفاق', val: 'نشط', sub: 'هذا العام', subCl: '#0FA99A' },
+        { ic: 'i-list', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'إجمالي الطلبات', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
+        { ic: 'i-wallet', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'إجمالي الإنفاق', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
         { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
     } else if (tab === 'sk-co') {
       return [
         { ic: 'i-person', bg: 'rgba(255,180,0,.12)', cl: '#D98A0B', lbl: 'شركات طالبة', val: formatNumber(stats.tabCounts['sk-co']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
-        { ic: 'i-wallet', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'إجمالي الميزانيات', val: 'نشط', sub: 'تراكمي', subCl: '#6B7699' },
+        { ic: 'i-wallet', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'إجمالي الميزانيات', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
         { ic: 'i-check', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'المستخدمون النشطون', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#6B7699' },
         { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'شركات جديدة', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
@@ -95,7 +100,7 @@ export class SaUsers implements OnInit {
       return [
         { ic: 'i-person', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'مقدمو الخدمة الفرد', val: formatNumber(stats.tabCounts['pr-ind']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
         { ic: 'i-wallet', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#0FA99A' },
-        { ic: 'i-check', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'متوسط التقييم', val: '4.8 ★', sub: 'من 5 نجوم', subCl: '#6B7699' },
+        { ic: 'i-check', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'متوسط التقييم', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
         { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'مقدمون جدد', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
     } else if (tab === 'pr-co') {
@@ -109,7 +114,7 @@ export class SaUsers implements OnInit {
       return [
         { ic: 'i-market', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'وسطاء تسويقيون', val: formatNumber(stats.tabCounts['affiliate']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
         { ic: 'i-check', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'نشطون هذا الشهر', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#6B7699' },
-        { ic: 'i-wallet', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'عمولات مستحقة', val: 'نشط', sub: 'بانتظار الصرف', subCl: '#D98A0B' },
+        { ic: 'i-wallet', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'عمولات مستحقة', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
         { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'وسطاء جدد', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
     } else if (tab === 'admin') {

@@ -1,0 +1,203 @@
+<section class="pj-page" dir="rtl">
+  <div class="pj-detail-crumb">
+    <a routerLink="/supper-admin-overview/projects">&rarr; العودة إلى المشاريع</a>
+  </div>
+
+  @if (notFound()) {
+    <div class="pj-empty">
+      <p>لم يتم العثور على المشروع المطلوب</p>
+      <a routerLink="/supper-admin-overview/projects" class="pj-btn pj-btn-ghost">العودة للقائمة</a>
+    </div>
+  } @else if (selected(); as d) {
+    <div class="pj-mbox pj-detail-box">
+      <div class="pj-md-hdr">
+        <div>
+          <div class="pj-md-id">{{ d.id }}</div>
+          <h3>{{ d.title }}</h3>
+          <div class="pj-md-tags">
+            <span class="pj-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
+            <span class="pj-risk" [ngClass]="riskClasses[d.risk]">خطر: {{ riskLabels[d.risk] }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pj-section-ttl">تقدم المشروع العام</div>
+      <div class="pj-overall-prog">
+        <div class="pj-prog-track big"><div class="pj-prog-fill" [style.width.%]="d.progress"></div></div>
+        <span class="pj-overall-pct">{{ d.progress }}%</span>
+      </div>
+
+      <div class="pj-section-ttl">المراحل والمعالم</div>
+      <div class="pj-milestones">
+        @for (m of d.milestones; track m.name) {
+          <div class="pj-ms-item" [class]="'ms-' + m.state">
+            <div class="pj-ms-dot"></div>
+            <div class="pj-ms-body">
+              <div class="pj-ms-name">{{ m.name }}</div>
+              <div class="pj-ms-track"><div class="pj-ms-fill" [style.width.%]="m.progress"></div></div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pj-section-ttl">الضمان المالي (Escrow)</div>
+      <div class="pj-escrow-row">
+        <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ d.escrowTotal | number }} ر.س</strong></div>
+        <div class="pj-escrow-item"><span>محرَّر حتى الآن</span><strong class="txt-green">{{ d.escrowReleased | number }} ر.س</strong></div>
+        <div class="pj-escrow-item"><span>محتجز حالياً</span><strong class="txt-amber">{{ (d.escrowTotal - d.escrowReleased) | number }} ر.س</strong></div>
+      </div>
+
+      <div class="pj-ai-note">
+        <strong>تحليل AI:</strong> {{ d.aiNote }}
+      </div>
+
+      <div class="pj-section-ttl">التسليمات والملفات</div>
+      <div class="pj-dtabs">
+        @for (t of deliverableTabs; track t.key) {
+          <button type="button" class="pj-dtab" [class.active]="deliverableFilter() === t.key" (click)="setDeliverableFilter(t.key)">
+            {{ t.label }}<span class="pj-dtab-count">{{ deliverableCounts()[t.key] }}</span>
+          </button>
+        }
+      </div>
+      <div class="pj-deliv-list">
+        @for (item of filteredDeliverables(); track item.name) {
+          <div class="pj-deliv-item">
+            <div class="pj-deliv-ic" [class]="'ic-' + item.icon">
+              @if (item.icon === 'doc') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              } @else if (item.icon === 'image') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              }
+            </div>
+            <div class="pj-deliv-body">
+              <div class="pj-deliv-name">{{ item.name }}</div>
+              <div class="pj-deliv-meta">{{ item.meta }}</div>
+            </div>
+            <span class="pj-dstatus" [ngClass]="deliverableStatusClasses[item.status]">{{ deliverableStatusLabels[item.status] }}</span>
+          </div>
+        } @empty {
+          <div class="pj-empty-inline">لا توجد تسليمات ضمن هذا التصنيف</div>
+        }
+      </div>
+
+      <div class="pj-section-ttl">سجل التراسل (قراءة فقط)</div>
+      @if (d.commStale) {
+        <div class="pj-comm-warn">⚠️ {{ d.commStaleNote }}</div>
+      }
+      <div class="pj-chat-wrap">
+        @for (m of d.commLog; track $index) {
+          <div class="pj-chat-msg" [class]="'pj-chat-' + m.role">
+            @if (m.role !== 'admin') {
+              <div class="pj-chat-sender">{{ m.sender }}</div>
+            }
+            {{ m.text }}
+            <div class="pj-chat-time">{{ m.time }}</div>
+          </div>
+        }
+      </div>
+
+      <div class="pj-section-ttl">مخطط المراحل — محور زمني (Gantt)</div>
+      <div class="pj-gantt">
+        @for (g of d.gantt; track g.name) {
+          <div class="pj-gantt-row">
+            <div class="pj-gantt-lbl" [class]="'gs-' + g.state">{{ g.name }}</div>
+            <div class="pj-gantt-track">
+              <div class="pj-gantt-bar" [class]="'gb-' + g.state" [style.inset-inline-start.%]="g.startPct" [style.width.%]="g.widthPct"></div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="pj-gantt-legend">
+        <span class="gl-done"><i></i>مكتمل</span>
+        <span class="gl-active"><i></i>جارٍ</span>
+        <span class="gl-pending"><i></i>مخطط</span>
+      </div>
+
+      <div class="pj-section-ttl">سجل النشاط الكامل</div>
+      <div class="pj-activity-list">
+        @for (a of d.activityLog; track $index) {
+          <div class="pj-act-item">
+            <div class="pj-act-dot" [style.background]="a.color"></div>
+            <div class="pj-act-body">
+              <div class="pj-act-text">{{ a.text }}</div>
+              <div class="pj-act-time">{{ a.time }}</div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pj-info-grid">
+        <div class="pj-info-card">
+          <div class="pj-section-ttl sm">معلومات المشروع</div>
+          <div class="pj-info-row"><span>رقم المشروع</span><strong class="mono">{{ d.id }}</strong></div>
+          <div class="pj-info-row"><span>تاريخ البدء</span><strong>{{ d.startDate }}</strong></div>
+          <div class="pj-info-row"><span>الموعد النهائي</span><strong [class.txt-coral]="d.status === 'late'">{{ d.deadline }}</strong></div>
+          <div class="pj-info-row"><span>قيمة العقد</span><strong class="txt-green">{{ d.value }}</strong></div>
+          <div class="pj-info-row"><span>نوع العقد</span><strong>{{ d.contractType }}</strong></div>
+          <div class="pj-info-row"><span>التخصص</span><strong>{{ d.spec }}</strong></div>
+        </div>
+
+        <div class="pj-info-card">
+          <div class="pj-section-ttl sm">كيانات مرتبطة</div>
+          @for (le of d.linkedEntities; track le.refId) {
+            <a class="pj-linked-item" [routerLink]="le.route">
+              <div class="pj-linked-ic" [class]="'lk-' + le.kind">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="pj-linked-body">
+                <div class="pj-linked-name">{{ le.label }}</div>
+                <div class="pj-linked-id">{{ le.refId }}</div>
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+
+      <div class="pj-section-ttl">أطراف المشروع</div>
+      <div class="pj-parties-grid">
+        <div class="pj-party-card">
+          <div class="pj-party-head">
+            <div class="pj-party-av" [style.background]="d.clientParty.bg">{{ d.clientParty.avatar }}</div>
+            <div>
+              <div class="pj-party-name">{{ d.clientParty.name }}</div>
+              <div class="pj-party-role">{{ d.clientParty.role }}</div>
+            </div>
+          </div>
+          <div class="pj-party-stats">
+            <div class="pj-ps-item"><div class="pj-ps-val">{{ d.clientParty.projectsCount }}</div><div class="pj-ps-lbl">مشروع</div></div>
+            <div class="pj-ps-item"><div class="pj-ps-val">{{ riskLabels[d.clientParty.risk] }}</div><div class="pj-ps-lbl">مخاطر</div></div>
+            <div class="pj-ps-item"><div class="pj-ps-val">{{ d.clientParty.rating }}★</div><div class="pj-ps-lbl">تقييمه</div></div>
+          </div>
+          <a class="pj-btn pj-btn-ghost pj-btn-full" [routerLink]="['/supper-admin-overview/users', d.clientParty.userId]">عرض الملف الكامل</a>
+        </div>
+        <div class="pj-party-card">
+          <div class="pj-party-head">
+            <div class="pj-party-av" [style.background]="d.providerParty.bg">{{ d.providerParty.avatar }}</div>
+            <div>
+              <div class="pj-party-name">{{ d.providerParty.name }}</div>
+              <div class="pj-party-role">{{ d.providerParty.role }}</div>
+            </div>
+          </div>
+          <div class="pj-party-stats">
+            <div class="pj-ps-item"><div class="pj-ps-val">{{ d.providerParty.projectsCount }}</div><div class="pj-ps-lbl">مشروع</div></div>
+            <div class="pj-ps-item"><div class="pj-ps-val">{{ riskLabels[d.providerParty.risk] }}</div><div class="pj-ps-lbl">مخاطر</div></div>
+            <div class="pj-ps-item"><div class="pj-ps-val">{{ d.providerParty.rating }}★</div><div class="pj-ps-lbl">تقييمه</div></div>
+          </div>
+          <a class="pj-btn pj-btn-ghost pj-btn-full" [routerLink]="['/supper-admin-overview/users', d.providerParty.userId]">عرض الملف الكامل</a>
+        </div>
+      </div>
+
+      @if (actionMessage()) {
+        <div class="pj-action-msg">{{ actionMessage() }}</div>
+      }
+
+      <div class="pj-md-actions">
+        <button type="button" class="pj-btn pj-btn-ghost" (click)="messageParties()">مراسلة الطرفين</button>
+        <button type="button" class="pj-btn pj-btn-warn" (click)="extendDeadline()">تمديد المهلة</button>
+        <button type="button" class="pj-btn pj-btn-danger" (click)="escalate()">تصعيد لنزاع</button>
+      </div>
+    </div>
+  }
+</section>

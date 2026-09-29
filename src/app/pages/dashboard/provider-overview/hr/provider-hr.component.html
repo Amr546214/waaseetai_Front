@@ -1,110 +1,970 @@
 <div class="hr-page" dir="rtl">
-	<div class="page-hd">
-		<div class="page-ttl-wrap">
-			<div class="page-ttl">إدارة الموارد البشرية</div>
-			<div class="page-sub">إدارة الموظفين والخدمات والأداء</div>
+
+	<!-- PAGE HEADER -->
+	<div class="page-hdr">
+		<div>
+			<div class="page-hdr-title">إدارة الموارد البشرية والخدمات</div>
+			<div class="page-hdr-sub">إدارة الموظفين الإداريين ومقدمي الخدمات التابعين للشركة</div>
 		</div>
-		<button type="button" class="btn-secondary">
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/></svg>
-			إضافة موظف
-		</button>
 	</div>
 
-	<div class="hr-stats">
-		@for (s of stats; track s.lbl) {
-			<div class="hr-stat">
-				<div class="hr-stat-val" [ngClass]="'val-' + s.color">{{ s.val }}</div>
-				<div class="hr-stat-lbl">{{ s.lbl }}</div>
-			</div>
-		}
+	<!-- STATS -->
+	<div class="stats-row">
+		<div class="stat-c c-teal">
+			<div class="stat-n">{{ employees().length }}</div>
+			<div class="stat-l">الموظفون الإداريون</div>
+			<div class="stat-sub">{{ adminEmployeesActiveCount() }} نشطون / {{ adminEmployeesPendingCount() }} دعوة</div>
+		</div>
+		<div class="stat-c c-blue">
+			<div class="stat-n">{{ providers().length }}</div>
+			<div class="stat-l">مقدمو الخدمات</div>
+			<div class="stat-sub">{{ providersActiveCount() }} نشطون / {{ providersPendingCount() }} دعوة</div>
+		</div>
+		<div class="stat-c c-amber">
+			<div class="stat-n">{{ missingDocsTotalCount() }}</div>
+			<div class="stat-l">مستندات ناقصة</div>
+			<div class="stat-sub">تحتاج مراجعة</div>
+		</div>
 	</div>
 
-	<div class="hr-tabs" role="tablist">
+	<!-- AI DISCLOSURE -->
+	<div class="ai-disclosure">
+		<div class="ai-disc-ico">
+			<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></svg>
+		</div>
+		<div class="ai-disc-body">
+			<div class="ai-disc-lbl">وسيط AI: إفصاح الذكاء الاصطناعي</div>
+			<p class="ai-disc-txt">AI يراقب أداء الفريق ويكتشف تضارب الصلاحيات وانقطاع المستندات <span class="ai-disc-badge">دقة 95%</span> الإنسان يحتفظ بالقرار النهائي</p>
+		</div>
+	</div>
+
+	<!-- GOVERNING RULES -->
+	<div class="notice-banner nb-amber">
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+		<div>
+			<strong class="nb-title">قواعد حاكمة لإدارة الشركة</strong>
+			(1) مقدم الخدمة التابع لا ينفذ الأعمال بشكل مباشر كفرد. (2) مقدم الخدمة التابع لا يستطيع إضافة مهارات جديدة بنفسه - الشركة فقط تسندها. (3) يستطيع فقط رفع مستندات تثبت المهارات المسندة. (4) الموظف الإداري يعمل حسب صلاحياته فقط
+		</div>
+	</div>
+
+	<!-- TABS -->
+	<div class="tabs-line" role="tablist">
 		@for (tab of tabs; track tab.id) {
-			<button type="button" class="hr-tab" [class.active]="activeTab === tab.id" (click)="switchTab(tab.id)" role="tab">
+			<button type="button" class="tab-l" [class.active]="activeTab() === tab.id" role="tab" [attr.aria-selected]="activeTab() === tab.id" (click)="setTab(tab.id)">
 				{{ tab.label }}
+				@if (tab.id === 'emp') { <span class="tab-count">{{ employees().length }}</span> }
+				@if (tab.id === 'prov') { <span class="tab-count">{{ providers().length }}</span> }
+				@if (tab.id === 'tasks') { <span class="tab-count">{{ tasks().length }}</span> }
 			</button>
 		}
 	</div>
 
-	@if (activeTab === 'employees') {
-		<div class="emp-grid">
-			@for (emp of employees; track emp.id) {
-				<div class="emp-card">
-					<div class="emp-hd">
-						<div class="emp-av">{{ emp.avatar }}</div>
-						<div class="emp-info">
-							<div class="emp-name">{{ emp.name }}</div>
-							<div class="emp-role">{{ emp.role }}</div>
-						</div>
-						<span class="emp-status" [ngClass]="'st-' + emp.status">{{ statusLabel(emp.status) }}</span>
-					</div>
-					<div class="emp-stats">
-						<div class="emp-stat">
-							<div class="emp-stat-val">{{ emp.services }}</div>
-							<div class="emp-stat-lbl">خدمات</div>
-						</div>
-						<div class="emp-stat">
-							<div class="emp-stat-val">{{ emp.rating }}</div>
-							<div class="emp-stat-lbl">تقييم</div>
-						</div>
-					</div>
-					<div class="emp-actions">
-						<button type="button" class="emp-btn emp-btn-pri">تعديل</button>
-						<button type="button" class="emp-btn emp-btn-sec">التكليفات</button>
-					</div>
-				</div>
-			}
+	<!-- ======================= TAB 1: ADMIN EMPLOYEES ======================= -->
+	@if (activeTab() === 'emp') {
+	<div class="tab-panel">
+		<div class="tab-toolbar-top">
+			<div class="tab-toolbar-hint">إدارة الموظفين الإداريين ودعوتهم وتحديد مهامهم</div>
+			<button type="button" class="btn-primary" (click)="openInviteAdmin()">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/></svg>
+				دعوة موظف إداري
+			</button>
 		</div>
+
+		<div class="toolbar">
+			<div class="search-box">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+				<input type="text" placeholder="بحث بالاسم أو البريد..." [ngModel]="empSearch()" (ngModelChange)="empSearch.set($event)" />
+			</div>
+			<select class="filter-sel" [ngModel]="empStatusFilter()" (ngModelChange)="empStatusFilter.set($event)">
+				<option value="">كل الحالات</option>
+				<option value="نشط">نشط</option>
+				<option value="موقوف">موقوف</option>
+				<option value="دعوة معلقة">دعوة معلقة</option>
+			</select>
+			<select class="filter-sel" [ngModel]="empTaskFilter()" (ngModelChange)="empTaskFilter.set($event)">
+				<option value="">كل المهام</option>
+				@for (t of tasks(); track t.id) { <option [value]="t.name">{{ t.name }}</option> }
+			</select>
+		</div>
+
+		<div class="section-card">
+			<div class="section-card-hdr">
+				<div class="sc-title">الموظفون الإداريون</div>
+				<span class="count-badge">{{ filteredEmployees().length }} موظفين</span>
+			</div>
+			<div class="tbl-wrap">
+				<table class="emp-tbl">
+					<thead>
+						<tr>
+							<th>الموظف</th><th>الوظيفة</th><th>المهام والصلاحيات</th><th>آخر دخول</th><th>حالة الحساب</th><th>استكمال البيانات</th><th>حالة الدعوة</th><th>الإجراءات</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for (e of filteredEmployees(); track e.id) {
+						<tr>
+							<td>
+								<div class="emp-name-col">
+									<div class="av-wrap">
+										<div class="emp-av" [style.background]="e.avatarColor" [class.distinguished]="e.distinguished">{{ e.avatarInitials }}</div>
+										@if (e.distinguished) {
+											<div class="av-badge"><svg width="7" height="7" viewBox="0 0 100 100" fill="#070D24"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
+										}
+									</div>
+									<div>
+										<div class="emp-name">{{ e.name }}</div>
+										<div class="emp-sub">{{ e.email }}</div>
+									</div>
+								</div>
+							</td>
+							<td><span class="job-title">{{ e.jobTitle || 'لم تحدد بعد' }}</span></td>
+							<td>
+								@if (e.taskIds.length) {
+									<div class="perm-tags">
+										@for (id of e.taskIds; track id) { <span class="perm-tag">{{ taskName(id) }}</span> }
+									</div>
+								} @else {
+									<span class="muted-txt">{{ e.inviteStatus === 'pending' ? 'في انتظار القبول' : 'لا مهام مسندة' }}</span>
+								}
+							</td>
+							<td><span class="login-txt" [class.recent]="e.lastLogin.includes('ساعة') || e.lastLogin.includes('دقيقة')">{{ e.lastLogin }}</span></td>
+							<td>
+								<span class="pill" [class.pill-green]="e.accountStatus === 'active'" [class.pill-amber]="e.accountStatus === 'suspended'" [class.pill-gray]="e.accountStatus === 'inactive'">
+									{{ e.accountStatus === 'active' ? 'نشط' : e.accountStatus === 'suspended' ? 'موقوف مؤقت' : 'غير نشط' }}
+								</span>
+							</td>
+							<td>
+								<span class="pill" [class.pill-green]="e.completion === 'complete'" [class.pill-amber]="e.completion === 'partial'" [class.pill-gray]="e.completion === 'none'">{{ completionLabel(e) }}</span>
+							</td>
+							<td>
+								<span class="pill" [class.pill-green]="e.inviteStatus === 'accepted'" [class.pill-amber]="e.inviteStatus === 'pending'">{{ e.inviteStatus === 'accepted' ? 'مقبول' : 'دعوة معلقة' }}</span>
+							</td>
+							<td>
+								@if (e.inviteStatus === 'accepted') {
+									<div class="act-grp">
+										<button type="button" class="act-btn act-edit" title="تعديل الصلاحيات" (click)="openEditEmployee(e)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+										</button>
+										<button type="button" class="act-btn act-log" title="سجل النشاط" (click)="viewLogFor(e.name)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+										</button>
+										@if (e.accountStatus === 'suspended') {
+											<button type="button" class="act-btn act-resume" title="تفعيل الحساب" (click)="pauseOrResumeEmployee(e)">
+												<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+											</button>
+										} @else {
+											<button type="button" class="act-btn act-stop" title="إيقاف مؤقت" (click)="pauseOrResumeEmployee(e)">
+												<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+											</button>
+										}
+										<button type="button" class="act-btn act-ban" title="حظر" (click)="banEmployee(e)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+										</button>
+										<button type="button" class="act-btn act-del" title="حذف" (click)="deleteEmployee(e)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+										</button>
+									</div>
+								} @else {
+									<div class="act-grp">
+										<button type="button" class="act-btn act-log" title="إعادة إرسال الدعوة" (click)="resendInvite(e)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+										</button>
+										<button type="button" class="act-btn act-del" title="إلغاء الدعوة" (click)="cancelInvite(e)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+										</button>
+									</div>
+								}
+							</td>
+						</tr>
+						}
+						@if (filteredEmployees().length === 0) {
+							<tr><td colspan="8" class="empty-row">لا يوجد موظفون مطابقون لهذا الفلتر</td></tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 	}
 
-	@if (activeTab === 'services') {
-		<div class="svc-list">
-			@for (svc of services; track svc.id) {
-				<div class="svc-card">
-					<div class="svc-name">{{ svc.name }}</div>
-					<div class="svc-meta">
-						<div class="svc-meta-item">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
-							{{ svc.assignedTo }}
-						</div>
-						<div class="svc-meta-item">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-							{{ svc.deadline }}
-						</div>
-					</div>
-					<span class="svc-status" [ngClass]="'st-' + svc.status">{{ serviceStatusLabel(svc.status) }}</span>
-				</div>
-			}
+	<!-- ======================= TAB 2: AFFILIATED PROVIDERS ======================= -->
+	@if (activeTab() === 'prov') {
+	<div class="tab-panel">
+		<div class="tab-toolbar-top">
+			<div class="tab-toolbar-hint">مقدمو الخدمات التابعون لشركتك يُسند لهم تخصصاتهم ومهاراتهم من خلال تبويب التخصصات</div>
+			<button type="button" class="btn-primary" (click)="openInviteProvider()">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/></svg>
+				دعوة مقدم خدمة تابع
+			</button>
 		</div>
+
+		<div class="notice-banner nb-teal">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+			<div><strong class="nb-title nb-title-teal">مقدمو الخدمات التابعون</strong>المهارات تحددها الشركة فقط. المقدم التابع يستطيع فقط رفع مستندات تثبت المهارات المسندة إليه. لا يستطيع تعديل مهاراته بنفسه</div>
+		</div>
+
+		<div class="toolbar">
+			<div class="search-box">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+				<input type="text" placeholder="بحث بالاسم أو التخصص..." [ngModel]="provSearch()" (ngModelChange)="provSearch.set($event)" />
+			</div>
+			<select class="filter-sel" [ngModel]="provStatusFilter()" (ngModelChange)="provStatusFilter.set($event)">
+				<option value="">كل الحالات</option>
+				<option value="نشط">نشط</option>
+				<option value="موقوف">موقوف</option>
+			</select>
+			<select class="filter-sel" [ngModel]="provSpecFilter()" (ngModelChange)="provSpecFilter.set($event)">
+				<option value="">كل التخصصات</option>
+				@for (m of mainSpecialties(); track m.id) { <option [value]="m.name">{{ m.name }}</option> }
+			</select>
+		</div>
+
+		<div class="section-card">
+			<div class="section-card-hdr">
+				<div class="sc-title">مقدمو الخدمات التابعون النشطون</div>
+				<span class="count-badge">{{ filteredProviders().length }} مقدمين</span>
+			</div>
+			<div class="tbl-wrap">
+				<table class="emp-tbl">
+					<thead>
+						<tr><th>مقدم الخدمة</th><th>المهارات المسندة</th><th>التقييم</th><th>مشاريع نشطة</th><th>آخر تسليم</th><th>المستندات</th><th>حالة الحساب</th><th>الإجراءات</th></tr>
+					</thead>
+					<tbody>
+						@for (p of filteredProviders(); track p.id) {
+						<tr>
+							<td>
+								<div class="emp-name-col">
+									<div class="av-wrap">
+										<div class="emp-av" [style.background]="p.avatarColor" [style.border]="'2px solid ' + p.levelColor" [style.color]="p.levelColor">{{ p.avatarInitials }}</div>
+										<div class="av-badge" [style.background]="p.levelColor"><svg width="7" height="7" viewBox="0 0 100 100" fill="#070D24"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
+									</div>
+									<div>
+										<div class="emp-name">{{ p.name }}</div>
+										<div class="emp-sub prov-sub">
+											{{ p.email }} ·
+											<span class="ws-level-tag" [style.color]="p.levelColor" [style.background]="p.levelColor + '1A'" [style.borderColor]="p.levelColor + '38'">
+												<svg width="7" height="7" viewBox="0 0 100 100" [attr.fill]="p.levelColor"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+												{{ p.level }}
+											</span>
+										</div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<div class="skill-pills">
+									@for (id of p.skillIds; track id) { <span class="skill-pill">{{ skillName(id) }}</span> }
+								</div>
+								<div class="skill-pill-note">مسندة من الشركة</div>
+							</td>
+							<td>
+								<div class="rating-stars">
+									@for (n of [1,2,3,4,5]; track n) {
+										<svg width="12" height="12" viewBox="0 0 100 100" [attr.fill]="n <= p.rating ? '#FFB400' : 'rgba(255,180,0,.25)'"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+									}
+									<span class="rating-num">{{ p.rating }}</span>
+								</div>
+							</td>
+							<td><span class="proj-count">{{ p.activeProjects }}</span> <span class="muted-txt">{{ p.activeProjects === 1 ? 'مشروع' : 'مشاريع' }}</span></td>
+							<td><span class="login-txt">{{ p.lastDelivery }}</span></td>
+							<td>
+								<div class="docs-wrap">
+									<div class="docs-bar"><div class="docs-fill" [class]="docsFillClass(p)" [style.width.%]="docsPct(p)"></div></div>
+									<span class="docs-num" [class.tone-green]="docsFillClass(p) === 'full'" [class.tone-amber]="docsFillClass(p) === 'partial'" [class.tone-red]="docsFillClass(p) === 'low'">{{ p.docsAccepted }}/{{ p.docsTotal }}</span>
+								</div>
+							</td>
+							<td>
+								<span class="pill" [class.pill-green]="p.accountStatus === 'active'" [class.pill-amber]="p.accountStatus === 'suspended'">{{ p.accountStatus === 'active' ? 'نشط' : 'موقوف مؤقت' }}</span>
+							</td>
+							<td>
+								<div class="act-grp">
+									<button type="button" class="act-btn act-edit" title="تعديل المهارات" (click)="openEditProvider(p)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+									</button>
+									<button type="button" class="act-btn act-doc" [class.act-doc-warn]="p.docsAccepted < p.docsTotal" title="مراجعة المستندات" (click)="openDocsReview(p)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+									</button>
+									<button type="button" class="act-btn act-log" title="سجل النشاط" (click)="viewLogFor(p.name)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+									</button>
+									@if (p.accountStatus === 'suspended') {
+										<button type="button" class="act-btn act-resume" title="تفعيل الحساب" (click)="pauseOrResumeProvider(p)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+										</button>
+									} @else {
+										<button type="button" class="act-btn act-stop" title="إيقاف مؤقت" (click)="pauseOrResumeProvider(p)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+										</button>
+									}
+									<button type="button" class="act-btn act-del" title="حذف" (click)="deleteProvider(p)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+									</button>
+								</div>
+							</td>
+						</tr>
+						}
+						@if (filteredProviders().length === 0) {
+							<tr><td colspan="8" class="empty-row">لا يوجد مقدمو خدمة مطابقون لهذا الفلتر</td></tr>
+						}
+						@if (pendingProviderInvites() > 0) {
+						<tr>
+							<td colspan="8" class="pending-row">
+								+ {{ pendingProviderInvites() }} مقدمان آخران في انتظار قبول الدعوة.
+								<button type="button" class="link-btn" (click)="showPendingInvites()">عرض الدعوات المعلقة</button>
+							</td>
+						</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 	}
 
-	@if (activeTab === 'performance') {
-		<div class="perf-list">
-			@for (p of performance; track p.name) {
-				<div class="perf-card">
-					<div class="perf-name">{{ p.name }}</div>
-					<div class="perf-grid">
-						<div class="perf-item">
-							<div class="perf-lbl">مهام مكتملة</div>
-							<div class="perf-val">{{ p.completed }}</div>
-						</div>
-						<div class="perf-item">
-							<div class="perf-lbl">التقييم</div>
-							<div class="perf-val">{{ p.rating }} / 5</div>
-						</div>
-						<div class="perf-item">
-							<div class="perf-lbl">الالتزام بالمواعيد</div>
-							<div class="perf-val">{{ p.onTime }}%</div>
-						</div>
+	<!-- ======================= TAB 3: COMPANY SPECIALTIES ======================= -->
+	@if (activeTab() === 'specs') {
+	<div class="tab-panel">
+		<div class="notice-banner nb-blue">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+			<div>مقدم الخدمة التابع لا يستطيع إضافة مهارات بنفسه. الشركة تحدد التخصصات وتسندها. المقدم يستطيع فقط رفع مستندات الإثبات</div>
+		</div>
+
+		@if (createSpecOpen()) {
+		<div class="create-form-box open spec-form">
+			<div class="cf-title cf-title-blue">إنشاء تخصص / مهارة جديدة</div>
+			<div class="cf-row">
+				<div class="cf-group">
+					<label class="cf-label">اسم التخصص <span class="cf-req">*</span></label>
+					<input type="text" class="cf-inp" placeholder="مثال: تطوير تطبيقات الجوال" [ngModel]="specName()" (ngModelChange)="specName.set($event)" />
+				</div>
+				<div class="cf-group">
+					<label class="cf-label">النوع</label>
+					<select class="cf-sel" [ngModel]="specType()" (ngModelChange)="specType.set($event)">
+						<option value="main">تخصص رئيسي (عام)</option>
+						<option value="sub">تخصص فرعي</option>
+					</select>
+				</div>
+			</div>
+			@if (specType() === 'sub') {
+			<div class="cf-row">
+				<div class="cf-group" style="grid-column:1/-1">
+					<label class="cf-label">التخصص الرئيسي الأب <span class="cf-req">*</span></label>
+					<select class="cf-sel" [ngModel]="specParentId()" (ngModelChange)="specParentId.set($event)">
+						<option value="">اختر التخصص الرئيسي</option>
+						@for (m of mainSpecialties(); track m.id) { <option [value]="m.id">{{ m.name }}</option> }
+					</select>
+				</div>
+			</div>
+			}
+			<div class="cf-full">
+				<div class="cf-group">
+					<label class="cf-label">الوصف (اختياري)</label>
+					<input type="text" class="cf-inp" placeholder="وصف مختصر للتخصص" [ngModel]="specDesc()" (ngModelChange)="specDesc.set($event)" />
+				</div>
+			</div>
+			<div class="cf-actions">
+				<button type="button" class="btn-primary" (click)="saveSpec()">حفظ التخصص</button>
+				<button type="button" class="btn-sec" (click)="toggleCreateSpec()">إلغاء</button>
+			</div>
+		</div>
+		}
+
+		<div class="section-card">
+			<div class="section-card-hdr">
+				<div class="sc-title">تخصصات ومهارات الشركة</div>
+				<button type="button" class="btn-primary" (click)="toggleCreateSpec()">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+					إنشاء تخصص جديد
+				</button>
+			</div>
+			<div class="tbl-wrap">
+				<table class="emp-tbl">
+					<thead><tr><th>التخصص / المهارة</th><th>النوع</th><th>التخصص الأب</th><th>مقدمون مسندون</th><th>مستندات ناقصة</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+					<tbody>
+						@for (s of specialtyRows(); track s.id) {
+						<tr [class.spec-row-main]="s.type === 'main'" [class.spec-row-sub]="s.type === 'sub'">
+							<td>
+								@if (s.type === 'main') {
+									<div class="spec-main-name">{{ s.name }}</div>
+								} @else {
+									<div class="spec-indent">{{ s.name }}</div>
+								}
+							</td>
+							<td><span class="pill" [class.pill-teal]="s.type === 'main'" [class.pill-gray]="s.type === 'sub'">{{ s.type === 'main' ? 'رئيسي' : 'فرعي' }}</span></td>
+							<td><span class="muted-txt">{{ s.parentId ? skillName(s.parentId) : 'لا يوجد' }}</span></td>
+							<td><span class="pill pill-green">{{ s.assignedProviderIds.length }} {{ s.assignedProviderIds.length === 1 ? 'مقدم' : 'مقدمين' }}</span></td>
+							<td>
+								@if (s.missingDocsCount > 0) {
+									<span class="pill" [class.pill-amber]="s.missingDocsCount === 1" [class.pill-red]="s.missingDocsCount > 1">{{ s.missingDocsCount }} مستند</span>
+								} @else {
+									<span class="muted-txt">0</span>
+								}
+							</td>
+							<td><span class="pill pill-green">نشط</span></td>
+							<td>
+								<div class="act-grp">
+									<button type="button" class="act-btn act-edit" title="تعديل" (click)="editSpecialty(s)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+									</button>
+									<button type="button" class="act-btn act-del" title="حذف" (click)="deleteSpecialty(s)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+									</button>
+								</div>
+							</td>
+						</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+
+			<div class="assign-strip">
+				<div class="assign-strip-title">
+					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/></svg>
+					إسناد تخصص لمقدم خدمة تابع
+				</div>
+				<div class="assign-strip-row">
+					<select class="inv-select" [ngModel]="assignSpecProviderId()" (ngModelChange)="assignSpecProviderId.set($event)">
+						<option value="">اختر مقدم الخدمة</option>
+						@for (p of providers(); track p.id) { <option [value]="p.id">{{ p.name }}</option> }
+					</select>
+					<select class="inv-select assign-strip-flex" [ngModel]="assignSpecSkillId()" (ngModelChange)="assignSpecSkillId.set($event)">
+						<option value="">اختر التخصص / المهارة</option>
+						@for (s of specialtyRows(); track s.id) { <option [value]="s.id">{{ s.name }}</option> }
+					</select>
+					<button type="button" class="btn-primary" (click)="assignSpecialtyToProvider()">إسناد التخصص</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	}
+
+	<!-- ======================= TAB 4: TASKS & PERMISSIONS ======================= -->
+	@if (activeTab() === 'tasks') {
+	<div class="tab-panel">
+		<div class="subtog">
+			<button type="button" class="subtog-btn" [class.active]="tasksSubTab() === 'tasks'" (click)="setTasksSubTab('tasks')">المهام الوظيفية</button>
+			<button type="button" class="subtog-btn" [class.active]="tasksSubTab() === 'groups'" (click)="setTasksSubTab('groups')">مجموعات المهام</button>
+		</div>
+
+		@if (tasksSubTab() === 'tasks') {
+		<div>
+			<div class="hint-banner">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+				المهمة الوظيفية هي قالب الصلاحية. اسندها للموظف الإداري وتحدد له بشكل تلقائي ما يستطيع فعله
+			</div>
+
+			@if (createTaskOpen()) {
+			<div class="create-form-box open">
+				<div class="cf-title">إنشاء مهمة وظيفية جديدة</div>
+				<div class="cf-row">
+					<div class="cf-group">
+						<label class="cf-label">اسم المهمة <span class="cf-req">*</span></label>
+						<input type="text" class="cf-inp" placeholder="مثال: متابعة أداء مقدمي الخدمات" [ngModel]="taskFormName()" (ngModelChange)="taskFormName.set($event)" />
 					</div>
-					<div class="perf-bar-wrap">
-						<div class="perf-bar">
-							<div class="perf-fill" [style.width.%]="p.onTime"></div>
+					<div class="cf-group">
+						<label class="cf-label">المجموعة <span class="cf-req">*</span></label>
+						<select class="cf-sel" [ngModel]="taskFormGroupId()" (ngModelChange)="taskFormGroupId.set($event)">
+							<option value="">اختر المجموعة</option>
+							@for (g of taskGroups(); track g.id) { <option [value]="g.id">{{ g.name }}</option> }
+						</select>
+					</div>
+				</div>
+				<div class="cf-full">
+					<div class="cf-group">
+						<label class="cf-label">وصف المهمة</label>
+						<textarea class="cf-textarea" placeholder="وصف مختصر لصلاحيات هذه المهمة..." [ngModel]="taskFormDesc()" (ngModelChange)="taskFormDesc.set($event)"></textarea>
+					</div>
+				</div>
+
+				@for (cat of permissionCategories; track cat.label) {
+					<div class="perm-section-hdr">{{ cat.label }}</div>
+					<div class="perm-grid">
+						@for (id of cat.ids; track id) {
+							<label class="perm-item" [class.is-checked]="taskFormPermIds().has(id)" (click)="toggleTaskFormPerm(id)">
+								<input type="checkbox" [checked]="taskFormPermIds().has(id)" />{{ permLabel(id) }}
+							</label>
+						}
+					</div>
+				}
+
+				<div class="cf-actions">
+					<button type="button" class="btn-primary" (click)="saveTask()">حفظ المهمة</button>
+					<button type="button" class="btn-sec" (click)="toggleCreateTask()">إلغاء</button>
+				</div>
+			</div>
+			}
+
+			<div class="section-card">
+				<div class="section-card-hdr">
+					<div class="sc-title">المهام الوظيفية الحالية</div>
+					<button type="button" class="btn-primary" (click)="toggleCreateTask()">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+						إنشاء مهمة جديدة
+					</button>
+				</div>
+				<div class="tbl-wrap">
+					<table class="emp-tbl">
+						<thead><tr><th>اسم المهمة</th><th>المجموعة</th><th>الوصف</th><th>المسندون</th><th>عدد الصلاحيات</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+						<tbody>
+							@for (t of tasks(); track t.id) {
+							<tr>
+								<td>
+									<button type="button" class="task-expand-btn" (click)="toggleTaskExpand(t.id)">
+										<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [style.transform]="t.expanded ? 'rotate(0deg)' : 'rotate(-90deg)'"><polyline points="6 9 12 15 18 9"/></svg>
+										{{ t.name }}
+									</button>
+								</td>
+								<td><span class="pill pill-teal">{{ groupName(t.groupId) || 'بدون مجموعة' }}</span></td>
+								<td><span class="muted-txt">{{ t.description || '—' }}</span></td>
+								<td><span class="pill pill-green">{{ t.assignedEmployeeIds.length }} {{ t.assignedEmployeeIds.length === 1 ? 'موظف' : 'موظفين' }}</span></td>
+								<td><span class="muted-txt">{{ t.permissionIds.length }} صلاحيات</span></td>
+								<td><span class="pill" [class.pill-green]="t.active" [class.pill-gray]="!t.active">{{ t.active ? 'نشطة' : 'مخفية' }}</span></td>
+								<td>
+									<div class="act-grp">
+										<button type="button" class="act-btn act-edit" title="تعديل" (click)="toast('تعديل المهمة (عرض فقط في هذه النسخة)')">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+										</button>
+										<button type="button" class="act-btn act-stop" title="إخفاء" (click)="toggleTaskHidden(t)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+										</button>
+										<button type="button" class="act-btn act-del" title="حذف" (click)="deleteTask(t)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+										</button>
+									</div>
+								</td>
+							</tr>
+							@if (t.expanded) {
+							<tr>
+								<td colspan="7" class="task-expand-cell">
+									<div class="task-expand open">
+										<div class="task-expand-lbl">الصلاحيات المحددة</div>
+										<div class="task-perm-chips">
+											@for (pid of t.permissionIds; track pid) {
+												<span class="task-perm-chip">
+													<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+													{{ permLabel(pid) }}
+												</span>
+											}
+										</div>
+									</div>
+								</td>
+							</tr>
+							}
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		}
+
+		@if (tasksSubTab() === 'groups') {
+		<div>
+			@if (createGroupOpen()) {
+			<div class="create-form-box open">
+				<div class="cf-title">إنشاء مجموعة مهام جديدة</div>
+				<div class="cf-row">
+					<div class="cf-group"><label class="cf-label">اسم المجموعة <span class="cf-req">*</span></label><input type="text" class="cf-inp" placeholder="مثال: مجموعة العمليات" [ngModel]="groupFormName()" (ngModelChange)="groupFormName.set($event)" /></div>
+					<div class="cf-group"><label class="cf-label">وصف المجموعة</label><input type="text" class="cf-inp" placeholder="وصف مختصر" [ngModel]="groupFormDesc()" (ngModelChange)="groupFormDesc.set($event)" /></div>
+				</div>
+				<div class="cf-full">
+					<div class="cf-group">
+						<label class="cf-label">المهام داخل المجموعة</label>
+						<div class="modal-tasks-grid">
+							@for (t of tasks(); track t.id) {
+								<label class="modal-task-item" [class.is-checked]="groupFormTaskIds().has(t.id)" (click)="toggleGroupFormTask(t.id)">
+									<input type="checkbox" [checked]="groupFormTaskIds().has(t.id)" />
+									<div><div>{{ t.name }}</div><div class="modal-task-desc">{{ t.description }}</div></div>
+								</label>
+							}
 						</div>
 					</div>
 				</div>
+				<div class="cf-actions">
+					<button type="button" class="btn-primary" (click)="saveGroup()">حفظ المجموعة</button>
+					<button type="button" class="btn-sec" (click)="toggleCreateGroup()">إلغاء</button>
+				</div>
+			</div>
 			}
+			<div class="section-card">
+				<div class="section-card-hdr">
+					<div class="sc-title">مجموعات المهام الحالية</div>
+					<button type="button" class="btn-primary" (click)="toggleCreateGroup()">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+						إنشاء مجموعة
+					</button>
+				</div>
+				<div class="tbl-wrap">
+					<table class="emp-tbl">
+						<thead><tr><th>المجموعة</th><th>الوصف</th><th>عدد المهام</th><th>عدد الموظفين</th><th>الإجراءات</th></tr></thead>
+						<tbody>
+							@for (g of taskGroups(); track g.id) {
+							<tr>
+								<td><span class="spec-main-name">{{ g.name }}</span></td>
+								<td><span class="muted-txt">{{ g.description }}</span></td>
+								<td><span class="pill pill-teal">{{ g.taskIds.length }} مهام</span></td>
+								<td><span class="pill pill-blue">{{ groupEmployeeCount(g) }} موظفين</span></td>
+								<td>
+									<div class="act-grp">
+										<button type="button" class="act-btn act-edit" title="تعديل" (click)="editGroup(g)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+										</button>
+										<button type="button" class="act-btn act-stop" title="إخفاء" (click)="toggleGroupHidden(g)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+										</button>
+										<button type="button" class="act-btn act-del" title="حذف" (click)="deleteGroup(g)">
+											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+										</button>
+									</div>
+								</td>
+							</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
+		}
+	</div>
 	}
+
+	<!-- ======================= TAB 5: ASSIGNMENT ======================= -->
+	@if (activeTab() === 'assign') {
+	<div class="tab-panel">
+		<div class="assign-panel">
+			<div class="assign-title">إسناد جديد</div>
+			<div class="assign-grid">
+				<div>
+					<div class="assign-sub-lbl">إسناد مهام للموظفين الإداريين</div>
+					<div class="assign-strip-row wrap">
+						<select class="inv-select" [ngModel]="assignTaskEmployeeId()" (ngModelChange)="assignTaskEmployeeId.set($event)">
+							<option value="">اختر موظف إداري</option>
+							@for (e of employees(); track e.id) { <option [value]="e.id">{{ e.name }}</option> }
+						</select>
+						<select class="inv-select" [ngModel]="assignTaskTaskId()" (ngModelChange)="assignTaskTaskId.set($event)">
+							<option value="">اختر مهمة</option>
+							@for (t of tasks(); track t.id) { <option [value]="t.id">{{ t.name }}</option> }
+						</select>
+						<select class="inv-select" [ngModel]="assignTaskGroupId()" (ngModelChange)="assignTaskGroupId.set($event)">
+							<option value="">مجموعة (اختياري)</option>
+							@for (g of taskGroups(); track g.id) { <option [value]="g.id">{{ g.name }}</option> }
+						</select>
+						<input type="date" class="inv-inp date-inp" [ngModel]="assignTaskDate()" (ngModelChange)="assignTaskDate.set($event)" />
+						<button type="button" class="btn-primary" (click)="applyTaskAssignment()">تطبيق</button>
+					</div>
+				</div>
+				<div>
+					<div class="assign-sub-lbl">إسناد تخصصات لمقدمي الخدمات</div>
+					<div class="assign-strip-row wrap">
+						<select class="inv-select" [ngModel]="assignSpecProviderId2()" (ngModelChange)="assignSpecProviderId2.set($event)">
+							<option value="">اختر مقدم خدمة</option>
+							@for (p of providers(); track p.id) { <option [value]="p.id">{{ p.name }}</option> }
+						</select>
+						<select class="inv-select" [ngModel]="assignSpecMainId2()" (ngModelChange)="assignSpecMainId2.set($event); assignSpecSubId2.set('')">
+							<option value="">تخصص عام</option>
+							@for (m of mainSpecialties(); track m.id) { <option [value]="m.id">{{ m.name }}</option> }
+						</select>
+						<select class="inv-select" [ngModel]="assignSpecSubId2()" (ngModelChange)="assignSpecSubId2.set($event)">
+							<option value="">تخصص فرعي (اختياري)</option>
+							@for (s of subSpecialtiesOf(assignSpecMainId2()); track s.id) { <option [value]="s.id">{{ s.name }}</option> }
+						</select>
+						<button type="button" class="btn-primary" (click)="applySpecialtyAssignment()">تطبيق</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="section-card">
+			<div class="section-card-hdr">
+				<div class="sc-title">الإسنادات الحالية</div>
+				<span class="count-badge">{{ assignments().length }} إسنادات</span>
+			</div>
+			<div class="tbl-wrap">
+				<table class="emp-tbl">
+					<thead><tr><th>العضو</th><th>النوع</th><th>المهمة / التخصص</th><th>تاريخ البداية</th><th>حالة الإسناد</th><th>الإجراءات</th></tr></thead>
+					<tbody>
+						@for (a of assignments(); track a.id) {
+						<tr>
+							<td>
+								<div class="emp-name-col">
+									<div class="emp-av" [style.background]="a.memberColor">{{ a.memberInitials }}</div>
+									<div class="emp-name">{{ a.memberName }}</div>
+								</div>
+							</td>
+							<td><span class="pill" [class.pill-teal]="a.type === 'admin'" [class.pill-blue]="a.type === 'provider'">{{ a.type === 'admin' ? 'موظف إداري' : 'مقدم خدمة' }}</span></td>
+							<td><span class="assign-label">{{ a.label }}</span></td>
+							<td><span class="muted-txt">{{ a.startDate }}</span></td>
+							<td><span class="pill" [class.pill-green]="a.active" [class.pill-gray]="!a.active">{{ a.active ? 'نشط' : 'موقوف' }}</span></td>
+							<td>
+								<div class="act-grp">
+									<button type="button" class="act-btn act-edit" title="تعديل" (click)="editAssignment(a)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+									</button>
+									<button type="button" class="act-btn act-stop" title="إيقاف" (click)="pauseAssignment(a)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+									</button>
+									<button type="button" class="act-btn act-del" title="حذف" (click)="deleteAssignment(a)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+									</button>
+								</div>
+							</td>
+						</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	}
+
+	<!-- ======================= TAB 6: ACTIVITY LOG ======================= -->
+	@if (activeTab() === 'log') {
+	<div class="tab-panel">
+		<div class="act-filter-bar">
+			<button type="button" class="act-filter-btn" [class.active]="activityFilter() === 'all'" (click)="setActivityFilter('all')">الكل</button>
+			<button type="button" class="act-filter-btn" [class.active]="activityFilter() === 'add'" (click)="setActivityFilter('add')">إضافة</button>
+			<button type="button" class="act-filter-btn" [class.active]="activityFilter() === 'edit'" (click)="setActivityFilter('edit')">تعديل</button>
+			<button type="button" class="act-filter-btn" [class.active]="activityFilter() === 'doc'" (click)="setActivityFilter('doc')">مستندات</button>
+			<button type="button" class="act-filter-btn" [class.active]="activityFilter() === 'warn'" (click)="setActivityFilter('warn')">تحذيرات</button>
+			<button type="button" class="act-filter-btn" [class.active]="activityFilter() === 'ai'" (click)="setActivityFilter('ai')">نشاط AI</button>
+		</div>
+
+		<div class="section-card">
+			<div class="section-card-hdr">
+				<div class="sc-title">سجل النشاط الكامل</div>
+				<button type="button" class="btn-sec" (click)="exportLog()">تصدير</button>
+			</div>
+			<div class="activity-feed">
+				@for (a of filteredActivity(); track a.id) {
+				<div class="act-item" [class]="'act-type-' + a.type">
+					<div class="act-ico">
+						@switch (a.type) {
+							@case ('login') { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> }
+							@case ('doc') { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
+							@case ('add') { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> }
+							@case ('ai') { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></svg> }
+							@case ('edit') { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> }
+							@case ('warn') { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> }
+						}
+					</div>
+					<div class="act-body">
+						<div class="act-who">{{ a.who }}</div>
+						<div class="act-desc">{{ a.desc }}</div>
+						<div class="act-meta">
+							@for (m of a.meta; track m.text) {
+								<span [class.tone-amber]="m.tone === 'amber'" [class.tone-purple]="m.tone === 'purple'">{{ m.text }}</span>
+							}
+						</div>
+					</div>
+				</div>
+				}
+				@if (filteredActivity().length === 0) {
+					<div class="empty-row">لا توجد سجلات مطابقة لهذا الفلتر</div>
+				}
+			</div>
+		</div>
+	</div>
+	}
+
+	<!-- ======================= MODALS ======================= -->
+
+	@if (activeModal() === 'invite-admin') {
+	<div class="modal-overlay" (click)="closeModal()">
+		<div class="modal-box modal-md" (click)="$event.stopPropagation()">
+			<div class="modal-hdr">
+				<span class="modal-title">دعوة موظف إداري</span>
+				<button type="button" class="modal-close" (click)="closeModal()">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</div>
+			<div class="modal-row">
+				<div class="modal-group">
+					<label class="modal-label">الجوال أو البريد <span class="req-star">*</span></label>
+					<input type="text" class="modal-inp" placeholder="05XXXXXXXX أو email@company.com" [ngModel]="inviteAdminContact()" (ngModelChange)="inviteAdminContact.set($event)" />
+				</div>
+				<div class="modal-group">
+					<label class="modal-label">المسمى الوظيفي <span class="req-star">*</span></label>
+					<input type="text" class="modal-inp" placeholder="مثال: مديرة العمليات" [ngModel]="inviteAdminJob()" (ngModelChange)="inviteAdminJob.set($event)" />
+				</div>
+			</div>
+			<div class="modal-sec-title">المهام الوظيفية المسندة <span class="req-star">*</span></div>
+			<div class="modal-tasks-grid">
+				@for (t of tasks(); track t.id) {
+					<label class="modal-task-item" [class.is-checked]="inviteAdminTaskIds().has(t.id)" (click)="toggleInviteAdminTask(t.id)">
+						<input type="checkbox" [checked]="inviteAdminTaskIds().has(t.id)" />
+						<div><div>{{ t.name }}</div><div class="modal-task-desc">{{ t.permissionIds.length }} صلاحيات</div></div>
+					</label>
+				}
+			</div>
+			<div class="modal-foot">
+				<button type="button" class="btn-primary" (click)="sendAdminInvite()">إرسال الدعوة</button>
+				<button type="button" class="btn-sec" (click)="closeModal()">إلغاء</button>
+			</div>
+		</div>
+	</div>
+	}
+
+	@if (activeModal() === 'invite-provider') {
+	<div class="modal-overlay" (click)="closeModal()">
+		<div class="modal-box modal-md" (click)="$event.stopPropagation()">
+			<div class="modal-hdr">
+				<span class="modal-title">دعوة مقدم خدمة تابع</span>
+				<button type="button" class="modal-close" (click)="closeModal()">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</div>
+			<div class="modal-row">
+				<div class="modal-group">
+					<label class="modal-label">الجوال أو البريد <span class="req-star">*</span></label>
+					<input type="text" class="modal-inp" placeholder="05XXXXXXXX أو email@provider.com" [ngModel]="inviteProvContact()" (ngModelChange)="inviteProvContact.set($event)" />
+				</div>
+				<div class="modal-group">
+					<label class="modal-label">التخصص الرئيسي <span class="req-star">*</span></label>
+					<select class="modal-inp" [ngModel]="inviteProvSpecId()" (ngModelChange)="inviteProvSpecId.set($event)">
+						<option value="">اختر التخصص</option>
+						@for (s of specialtyRows(); track s.id) { <option [value]="s.id">{{ s.name }}</option> }
+					</select>
+				</div>
+			</div>
+			<div class="modal-sec-title">الصلاحيات الممنوحة لمقدم الخدمة</div>
+			<div class="modal-tasks-grid">
+				@for (perm of providerPermissionOptions; track perm.id) {
+					<label class="modal-task-item" [class.is-checked]="inviteProvPermIds().has(perm.id)" (click)="toggleInviteProvPerm(perm.id)">
+						<input type="checkbox" [checked]="inviteProvPermIds().has(perm.id)" />
+						<div>{{ perm.label }}</div>
+					</label>
+				}
+			</div>
+			<div class="modal-warn-box">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+				مقدم الخدمة التابع لا يستطيع إضافة تخصصات بنفسه. التخصصات المسندة هنا هي ما يعرض للعملاء
+			</div>
+			<div class="modal-foot">
+				<button type="button" class="btn-primary" (click)="sendProviderInvite()">إرسال الدعوة</button>
+				<button type="button" class="btn-sec" (click)="closeModal()">إلغاء</button>
+			</div>
+		</div>
+	</div>
+	}
+
+	@if (activeModal() === 'edit-employee' && editingEmployee(); as target) {
+	<div class="modal-overlay" (click)="closeModal()">
+		<div class="modal-box modal-md" (click)="$event.stopPropagation()">
+			<div class="modal-hdr">
+				<span class="modal-title">تعديل بيانات الموظف</span>
+				<button type="button" class="modal-close" (click)="closeModal()">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</div>
+			<div class="modal-row">
+				<div class="modal-group"><label class="modal-label">الاسم الكامل</label><input type="text" class="modal-inp" [ngModel]="editEmpName()" (ngModelChange)="editEmpName.set($event)" /></div>
+				<div class="modal-group"><label class="modal-label">المسمى الوظيفي</label><input type="text" class="modal-inp" [ngModel]="editEmpJob()" (ngModelChange)="editEmpJob.set($event)" /></div>
+			</div>
+			<div class="modal-full"><div class="modal-group"><label class="modal-label">البريد الإلكتروني</label><input type="email" class="modal-inp" [ngModel]="editEmpEmail()" (ngModelChange)="editEmpEmail.set($event)" /></div></div>
+			<div class="modal-divider"></div>
+			<div class="modal-sec-title">المهام الوظيفية المسندة</div>
+			<div class="modal-tasks-grid">
+				@for (t of tasks(); track t.id) {
+					<label class="modal-task-item" [class.is-checked]="editEmpTaskIds().has(t.id)" (click)="toggleEditEmpTask(t.id)">
+						<input type="checkbox" [checked]="editEmpTaskIds().has(t.id)" />
+						<div><div>{{ t.name }}</div><div class="modal-task-desc">{{ t.permissionIds.length }} صلاحيات</div></div>
+					</label>
+				}
+			</div>
+			<div class="modal-foot">
+				<button type="button" class="btn-primary" (click)="saveEditEmployee()">حفظ التعديلات</button>
+				<button type="button" class="btn-sec" (click)="closeModal()">إلغاء</button>
+			</div>
+		</div>
+	</div>
+	}
+
+	@if (activeModal() === 'edit-provider' && editingProvider(); as target) {
+	<div class="modal-overlay" (click)="closeModal()">
+		<div class="modal-box modal-md" (click)="$event.stopPropagation()">
+			<div class="modal-hdr">
+				<span class="modal-title">تعديل مهارات مقدم الخدمة</span>
+				<button type="button" class="modal-close" (click)="closeModal()">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</div>
+			<div class="modal-warn-box" style="margin-bottom:16px">
+				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+				التعديلات هنا تغيّر المهارات التي يعرضها مقدم الخدمة للعملاء. المقدم لا يستطيع تعديلها بنفسه
+			</div>
+			<div class="modal-prov-name">{{ target.name }}</div>
+			<div class="modal-sec-title">المهارات المسندة (من تخصصات الشركة)</div>
+			<div class="modal-tasks-grid">
+				@for (s of specialtyRows(); track s.id) {
+					<label class="modal-task-item" [class.is-checked]="editProvSkillIds().has(s.id)" (click)="toggleEditProvSkill(s.id)">
+						<input type="checkbox" [checked]="editProvSkillIds().has(s.id)" />
+						<div><div>{{ s.name }}</div><div class="modal-task-desc">{{ s.type === 'main' ? 'تخصص رئيسي' : 'تخصص فرعي: ' + skillName(s.parentId!) }}</div></div>
+					</label>
+				}
+			</div>
+			<div class="modal-divider"></div>
+			<div class="modal-sec-title">صلاحيات مقدم الخدمة</div>
+			<div class="modal-tasks-grid">
+				@for (perm of providerPermissionOptions; track perm.id) {
+					<label class="modal-task-item" [class.is-checked]="editProvPermIds().has(perm.id)" (click)="toggleEditProvPerm(perm.id)">
+						<input type="checkbox" [checked]="editProvPermIds().has(perm.id)" />
+						<div>{{ perm.label }}</div>
+					</label>
+				}
+			</div>
+			<div class="modal-foot">
+				<button type="button" class="btn-primary" (click)="saveEditProvider()">حفظ التعديلات</button>
+				<button type="button" class="btn-sec" (click)="closeModal()">إلغاء</button>
+			</div>
+		</div>
+	</div>
+	}
+
+	@if (activeModal() === 'docs-review' && reviewingProvider(); as p) {
+	<div class="modal-overlay" (click)="closeModal()">
+		<div class="modal-box modal-sm" (click)="$event.stopPropagation()">
+			<div class="modal-hdr">
+				<span class="modal-title">مستندات مقدم الخدمة</span>
+				<button type="button" class="modal-close" (click)="closeModal()">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</div>
+			<div class="modal-prov-name">{{ p.name }}: {{ skillName(p.skillIds[0]) }}</div>
+			@for (d of p.docs; track d.name) {
+				<div class="doc-item">
+					<div class="doc-icon" [class.doc-icon-green]="d.accepted" [class.doc-icon-amber]="!d.accepted">
+						@if (d.accepted) {
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+						} @else {
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+						}
+					</div>
+					<div style="flex:1">
+						<div class="doc-name">{{ d.name }}</div>
+						<div class="doc-status" [class.tone-green]="d.accepted" [class.tone-amber]="!d.accepted">{{ d.accepted ? ('مقبول. رُفع ' + d.date) : 'ناقص - لم يُرفع بعد' }}</div>
+					</div>
+				</div>
+			}
+			@if (p.docsAccepted < p.docsTotal) {
+				<div class="modal-next-steps">
+					<strong>الخطوات التالية</strong>
+					تواصل مع {{ p.name }} وطلب رفع المستند الناقص. المقدم مسؤول عن رفع هذا المستند من حسابه
+				</div>
+			}
+			<div class="modal-foot">
+				<button type="button" class="btn-primary" (click)="sendDocReminder()">إرسال تذكير</button>
+				<button type="button" class="btn-sec" (click)="closeModal()">إغلاق</button>
+			</div>
+		</div>
+	</div>
+	}
+
+	<!-- TOAST -->
+	@if (toastMessage()) {
+	<div class="toast-wrap">
+		<div class="toast-box">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+			<span>{{ toastMessage() }}</span>
+		</div>
+	</div>
+	}
+
 </div>

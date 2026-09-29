@@ -44,6 +44,54 @@ export interface AdminUser {
   createdAt: string;
 }
 
+export interface AdminUserDetailKpis {
+  reports: number;
+  disputes: number;
+  avgRating: number | null;
+  totalRevenue: string;
+  completedProjects: number;
+}
+
+export interface AdminUserRiskBreakdownItem {
+  label: string;
+  ok: boolean;
+}
+
+export interface AdminUserRevenuePoint {
+  label: string;
+  value: number;
+}
+
+export interface AdminUserLinkedAccount {
+  email?: string;
+  iban?: string;
+}
+
+export interface AdminUserPersonalInfo {
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  city?: string;
+  device?: string;
+  bankAccountLast4?: string;
+  bankAccountVerified?: boolean;
+  nationalIdLast4?: string;
+  nationalIdVerified?: boolean;
+  registeredAt: string;
+  lastLoginAt?: string;
+}
+
+export interface AdminUserDetail extends AdminUser {
+  kpis: AdminUserDetailKpis;
+  riskScore: number;
+  riskLabel: string;
+  riskBreakdown: AdminUserRiskBreakdownItem[];
+  revenueHistory: AdminUserRevenuePoint[];
+  linkedAccounts: AdminUserLinkedAccount[];
+  aiInsights: string[];
+  personalInfo: AdminUserPersonalInfo;
+}
+
 export interface AdminUsersStats {
   totalUsers: { count: number; growth: string };
   activeThisMonth: { count: number; ratio: string };
@@ -87,6 +135,10 @@ export class SaUsersService {
 
   getStats(): Observable<{ success: boolean; data: AdminUsersStats }> {
     return this.http.get<{ success: boolean; data: AdminUsersStats }>(`${this.apiUrl}/stats`);
+  }
+
+  getUserDetail(id: string): Observable<{ success: boolean; data: AdminUserDetail }> {
+    return this.http.get<{ success: boolean; data: AdminUserDetail }>(`${this.apiUrl}/${id}`);
   }
 
   getUsers(params: AdminUsersQueryParams): Observable<GetAdminUsersResponse> {

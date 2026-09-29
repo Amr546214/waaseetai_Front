@@ -1,13 +1,16 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
-import { SaDisputes } from './sa-disputes';
-import { Dispute } from '../../../../core/models/dispute.model';
+import { SaDisputeDetail } from './sa-dispute-detail';
+import { Dispute } from '../../../../../core/models/dispute.model';
 
 // Implementation Batch 2, Part B — advisory-only AI dispute summary panel
-// on the REAL admin dispute detail view. These tests prove the panel is
+// on the REAL admin dispute detail view (now the routed disputes/:id page,
+// formerly the in-list modal). These tests prove the panel is
 // purely additive: it never touches the manual resolve/reject state, never
 // pre-fills resolutionText/resolutionNote, and never renders a
 // verdict/fault/confidence-style field (only caseSummary/timelineSummary/
@@ -41,29 +44,27 @@ function makeAiSummary(overrides: Record<string, any> = {}) {
   };
 }
 
-describe('SaDisputes — advisory AI summary panel', () => {
-  let component: SaDisputes;
-  let fixture: ComponentFixture<SaDisputes>;
+describe('SaDisputeDetail — advisory AI summary panel', () => {
+  let component: SaDisputeDetail;
+  let harness: RouterTestingHarness;
   let getSpy: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
   let postSpy: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
 
   async function setup(postImpl: (...args: any[]) => any) {
-    getSpy = vi.fn((url: string) =>
-      String(url).includes('/disputes/dispute-1') ? of({ success: true, data: makeDispute() }) : of({ success: true, data: { items: [makeDispute()], pagination: { page: 1, limit: 10, total: 1, pages: 1 } } }),
-    );
+    getSpy = vi.fn((url: string) => {
+      const m = String(url).match(/\/disputes\/(dispute-\d+)/);
+      return of({ success: true, data: makeDispute({ id: m ? m[1] : 'dispute-1' }) });
+    });
     postSpy = vi.fn(postImpl);
-    await TestBed.configureTestingModule({
-      imports: [SaDisputes],
+    TestBed.configureTestingModule({
       providers: [
+        provideRouter([{ path: 'disputes/:id', component: SaDisputeDetail }]),
         { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), post: (...args: any[]) => postSpy(...args) } },
       ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(SaDisputes);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-    component.openDetail(makeDispute());
-    fixture.detectChanges();
+    });
+    harness = await RouterTestingHarness.create();
+    component = await harness.navigateByUrl('/disputes/dispute-1', SaDisputeDetail);
+    harness.detectChanges();
   }
 
   it('requestAiSummary() calls the real POST /admin/disputes/:id/ai-summary endpoint', async () => {
@@ -89,9 +90,9 @@ describe('SaDisputes — advisory AI summary panel', () => {
   it('renders the real advisory fields on success', async () => {
     await setup(() => of({ success: true, data: makeAiSummary() }));
     component.requestAiSummary();
-    fixture.detectChanges();
+    harness.detectChanges();
 
-    const text = fixture.nativeElement.textContent as string;
+    const text = harness.routeNativeElement!.textContent as string;
     expect(text).toContain('ملخص محايد للحالة بناءً على البيانات المتاحة.');
     expect(text).toContain('هل تم التواصل بخصوص التأخير؟');
   });
@@ -107,9 +108,9 @@ describe('SaDisputes — advisory AI summary panel', () => {
   it('never renders a verdict/fault/confidence-style field — only the advisory shape', async () => {
     await setup(() => of({ success: true, data: makeAiSummary() }));
     component.requestAiSummary();
-    fixture.detectChanges();
+    harness.detectChanges();
 
-    const text = fixture.nativeElement.textContent as string;
+    const text = harness.routeNativeElement!.textContent as string;
     expect(text).not.toContain('نسبة المسؤولية');
     expect(text).not.toContain('القرار النهائي: ');
     expect(text).not.toContain('الفائز');
@@ -128,7 +129,7 @@ describe('SaDisputes — advisory AI summary panel', () => {
   it('manual resolve/reject controls remain fully independent of the AI summary state', async () => {
     await setup(() => of({ success: true, data: makeAiSummary() }));
     component.requestAiSummary();
-    fixture.detectChanges();
+    harness.detectChanges();
 
     expect(component.canResolve('OPEN')).toBe(true);
     component.openResolveForm('resolve');
@@ -138,12 +139,12 @@ describe('SaDisputes — advisory AI summary panel', () => {
     expect(component.aiSummary()).toBeTruthy();
   });
 
-  it('resets the AI summary state when a different dispute is opened', async () => {
+  it('resets the AI summary state when navigating to a different dispute', async () => {
     await setup(() => of({ success: true, data: makeAiSummary() }));
     component.requestAiSummary();
     expect(component.aiSummary()).toBeTruthy();
 
-    component.openDetail(makeDispute({ id: 'dispute-2' }));
+    component = await harness.navigateByUrl('/disputes/dispute-2', SaDisputeDetail);
 
     expect(component.aiSummary()).toBeNull();
     expect(component.aiSummaryError()).toBe('');

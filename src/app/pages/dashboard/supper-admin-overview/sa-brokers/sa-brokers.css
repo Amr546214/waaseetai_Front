@@ -229,11 +229,97 @@
 
 .bk-md-actions { display: flex; justify-content: flex-end; margin-top: 18px; gap: 8px; flex-wrap: wrap; }
 
+.bk-toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 500; display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: linear-gradient(135deg, rgba(43,212,199,.14), rgba(43,127,255,.10)); border: 1px solid rgba(43,212,199,.30); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.4); backdrop-filter: blur(16px); }
+.bk-toast svg { width: 18px; height: 18px; color: #2BD4C7; flex-shrink: 0; }
+.bk-toast span { font-size: 14px; font-weight: 700; color: #fff; }
+
+:host-context(body.light-theme) .bk-toast span,
+:host-context(body.theme-light) .bk-toast span,
+:host-context(.light-theme) .bk-toast span,
+:host-context(.theme-light) .bk-toast span { color: #1E293B; }
+
+.bk-ai-panel { background: linear-gradient(135deg, rgba(123,47,190,.08), rgba(43,127,255,.04)); border: 1px solid rgba(123,47,190,.18); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+.bk-ai-panel-hdr { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: #A56BE0; margin-bottom: 10px; }
+.bk-ai-panel-hdr svg { width: 14px; height: 14px; }
+.bk-ai-note { font-size: 12px; color: #A56BE0; line-height: 1.6; padding: 7px 10px; border-radius: 8px; background: rgba(123,47,190,.05); border: 1px solid rgba(123,47,190,.10); margin: 0 0 6px; }
+.bk-ai-note:last-child { margin-bottom: 0; }
+
+:host-context(body.light-theme) .bk-ai-panel-hdr,
+:host-context(body.theme-light) .bk-ai-panel-hdr,
+:host-context(.light-theme) .bk-ai-panel-hdr,
+:host-context(.theme-light) .bk-ai-panel-hdr,
+:host-context(body.light-theme) .bk-ai-note,
+:host-context(body.theme-light) .bk-ai-note,
+:host-context(.light-theme) .bk-ai-note,
+:host-context(.theme-light) .bk-ai-note { color: #6B27A5; }
+
+.bk-md-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.bk-tier-list { display: flex; flex-direction: column; gap: 5px; }
+.bk-tier-item { display: flex; justify-content: space-between; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); font-size: 12px; color: #6B7699; }
+.bk-tier-item span:last-child { font-weight: 700; }
+.bk-tier-item.active { background: rgba(43,212,199,.07); border-color: rgba(43,212,199,.16); color: #2BD4C7; }
+
+:host-context(body.light-theme) .bk-tier-item,
+:host-context(body.theme-light) .bk-tier-item,
+:host-context(.light-theme) .bk-tier-item,
+:host-context(.theme-light) .bk-tier-item { background: #F8FAFC; border-color: #E2E8F0; }
+
+.bk-withdraw-card { padding: 12px; border-radius: 10px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); }
+.bk-withdraw-amount { font-size: 22px; font-weight: 900; color: #0FA99A; margin-bottom: 2px; }
+.bk-withdraw-sub { font-size: 11px; color: #6B7699; margin-bottom: 10px; }
+.bk-btn-approve { background: rgba(15,169,154,.12); border-color: rgba(15,169,154,.28); color: #0FA99A; width: 100%; justify-content: center; }
+.bk-btn-approve:hover { background: rgba(15,169,154,.20); }
+.bk-btn-approve svg { width: 15px; height: 15px; }
+
+:host-context(body.light-theme) .bk-withdraw-card,
+:host-context(body.theme-light) .bk-withdraw-card,
+:host-context(.light-theme) .bk-withdraw-card,
+:host-context(.theme-light) .bk-withdraw-card { background: #F8FAFC; border-color: #E2E8F0; }
+
+.bk-tree { padding: 12px; border-radius: 10px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07); }
+.bk-tree-root { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; background: rgba(15,169,154,.06); border: 1px solid rgba(15,169,154,.16); margin-bottom: 8px; }
+.bk-tree-av { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: #070D24; flex-shrink: 0; }
+.bk-tree-name { font-size: 12px; font-weight: 700; color: #fff; }
+.bk-tree-sub { font-size: 10px; color: #6B7699; }
+.bk-tree-children { display: flex; flex-direction: column; gap: 5px; padding-inline-end: 20px; border-inline-end: 1px dashed rgba(43,212,199,.3); margin-inline-end: 14px; }
+.bk-tree-node { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 7px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); font-size: 11px; }
+.bk-tree-node-name { color: #A8B2D1; font-weight: 700; }
+.bk-tree-node-meta { color: #2BD4C7; font-size: 10px; white-space: nowrap; }
+
+:host-context(body.light-theme) .bk-tree,
+:host-context(body.theme-light) .bk-tree,
+:host-context(.light-theme) .bk-tree,
+:host-context(.theme-light) .bk-tree { background: #F8FAFC; border-color: #E2E8F0; }
+:host-context(body.light-theme) .bk-tree-name,
+:host-context(body.theme-light) .bk-tree-name,
+:host-context(.light-theme) .bk-tree-name,
+:host-context(.theme-light) .bk-tree-name { color: #1E293B; }
+:host-context(body.light-theme) .bk-tree-node,
+:host-context(body.theme-light) .bk-tree-node,
+:host-context(.light-theme) .bk-tree-node,
+:host-context(.theme-light) .bk-tree-node { background: #fff; border-color: #E2E8F0; }
+
+.bk-pay-list { display: flex; flex-direction: column; gap: 5px; }
+.bk-pay-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; background: rgba(15,169,154,.05); font-size: 11px; }
+.bk-pay-row.expected { background: rgba(255,180,0,.05); }
+.bk-pay-month { color: #A8B2D1; }
+.bk-pay-amount { color: #0FA99A; font-weight: 700; }
+.bk-pay-row.expected .bk-pay-amount { color: #FFB400; }
+.bk-pay-status { color: #6B7699; font-size: 10px; }
+.bk-pay-row.expected .bk-pay-status { color: #FFB400; }
+
+:host-context(body.light-theme) .bk-pay-month,
+:host-context(body.theme-light) .bk-pay-month,
+:host-context(.light-theme) .bk-pay-month,
+:host-context(.theme-light) .bk-pay-month { color: #334155; }
+
 @media (max-width: 1100px) {
   .bk-kpis { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 700px) {
   .bk-md-kpis { grid-template-columns: 1fr 1fr; }
+  .bk-md-grid-2 { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .bk-page { padding: 14px 16px; }

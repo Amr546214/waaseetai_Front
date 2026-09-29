@@ -11,7 +11,7 @@
   </div>
 
   <div class="sap-kpis">
-    @for (k of kpis; track k.label) {
+    @for (k of kpis(); track k.label) {
       <div class="sap-kpi"><div class="sap-kpi-v" [style.color]="k.color">{{ k.value }}</div><div class="sap-kpi-l">{{ k.label }}</div></div>
     }
   </div>
@@ -22,7 +22,7 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         أعلى مقدمين إيراداً
       </div>
-      @for (e of topEarners; track e.name) {
+      @for (e of topEarners(); track e.name) {
         <div class="sap-prov">
           <div class="sap-prov-rank" [style.color]="e.rankColor">{{ e.rank }}</div>
           <div class="sap-prov-av" [style.background]="e.avatarGradient">{{ e.initial }}</div>
@@ -39,7 +39,7 @@
     <div>
       <div class="sap-card">
         <div class="sap-card-ttl">مقدمون في خطر التراجع</div>
-        @for (r of atRisk; track r.name) {
+        @for (r of atRisk(); track r.name) {
           <div class="sap-risk" [style.background]="r.bg" [style.border-color]="r.border">
             <div class="sap-risk-name" [style.color]="r.color">{{ r.name }}</div>
             <div class="sap-risk-meta">{{ r.meta }}</div>
@@ -48,7 +48,7 @@
       </div>
       <div class="sap-card">
         <div class="sap-card-ttl">مرشحون للترقية</div>
-        @for (u of upgradeCandidates; track u.name) {
+        @for (u of upgradeCandidates(); track u.name) {
           <div class="sap-upgrade">
             <div class="sap-upgrade-name">{{ u.name }}</div>
             <div class="sap-upgrade-meta">{{ u.meta }}</div>
@@ -58,7 +58,7 @@
       <div class="sap-card">
         <div class="sap-card-ttl">فجوات التخصص (Gap)</div>
         <div class="sap-gap-list">
-          @for (g of gaps; track g.name) {
+          @for (g of gaps(); track g.name) {
             <div class="sap-gap-row"><span class="sap-gap-name">{{ g.name }}</span><span class="sap-gap-status" [style.color]="g.color">{{ g.status }}</span></div>
           }
         </div>

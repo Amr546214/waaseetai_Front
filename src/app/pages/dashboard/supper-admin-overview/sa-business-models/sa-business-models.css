@@ -280,6 +280,24 @@
 
 .bm-md-actions { display: flex; justify-content: flex-end; margin-top: 18px; gap: 8px; flex-wrap: wrap; }
 
+.bm-metrics { display: flex; flex-direction: column; gap: 8px; }
+.bm-metric-row { display: flex; align-items: center; gap: 10px; }
+.bm-metric-lbl { font-size: 12px; color: #6B7699; width: 150px; flex-shrink: 0; }
+.bm-metric-track { flex: 1; height: 6px; background: rgba(255,255,255,.07); border-radius: 3px; overflow: hidden; }
+.bm-metric-fill { height: 100%; border-radius: 3px; }
+.bm-metric-fill-blue { background: linear-gradient(90deg, #2BD4C7, #2B7FFF); }
+.bm-metric-fill-amber { background: linear-gradient(90deg, #FFB400, #D98A0B); }
+.bm-metric-fill-teal { background: linear-gradient(90deg, #0FA99A, #2BD4C7); }
+.bm-metric-val { font-size: 12px; font-weight: 700; width: 42px; text-align: left; flex-shrink: 0; }
+.bm-metric-val-blue { color: #2BD4C7; }
+.bm-metric-val-amber { color: #FFB400; }
+.bm-metric-val-teal { color: #0FA99A; }
+
+:host-context(body.light-theme) .bm-metric-track,
+:host-context(body.theme-light) .bm-metric-track,
+:host-context(.light-theme) .bm-metric-track,
+:host-context(.theme-light) .bm-metric-track { background: #E7EAF1; }
+
 @media (max-width: 900px) {
   .bm-kpis { grid-template-columns: 1fr 1fr; }
   .bm-md-grid { grid-template-columns: 1fr; }
@@ -289,4 +307,5 @@
   .bm-page { padding: 14px 16px; }
   .bm-filters { flex-direction: column; align-items: stretch; }
   .bm-filters-end { flex-direction: column; align-items: stretch; }
+  .bm-metric-lbl { width: 110px; }
 }

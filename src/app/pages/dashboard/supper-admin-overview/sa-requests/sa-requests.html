@@ -61,7 +61,7 @@
           </thead>
           <tbody>
             @for (r of filtered(); track r.id) {
-              <tr (click)="openDetail(r)">
+              <tr [routerLink]="[r.id]">
                 <td class="rq-muted">{{ r.id }}</td>
                 <td><span class="rq-title-lnk">{{ r.title }}</span></td>
                 <td>
@@ -89,60 +89,3 @@
     </div>
   }
 </section>
-
-@if (showDetail()) {
-  <div class="rq-mov" (click)="closeDetail()">
-    <div class="rq-mbox" (click)="$event.stopPropagation()">
-      @if (selected(); as d) {
-        <div class="rq-md-hdr">
-          <div>
-            <div class="rq-md-id">{{ d.id }}</div>
-            <h3>{{ d.title }}</h3>
-            <div class="rq-md-tags">
-              <span class="rq-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
-              <span class="rq-spec">{{ d.spec }}</span>
-              @if (d.aiClean) { <span class="rq-ai-clean">✓ AI: نظيف</span> }
-            </div>
-          </div>
-          <button type="button" class="rq-mclose" (click)="closeDetail()">×</button>
-        </div>
-
-        <div class="rq-md-meta-row">
-          <div class="rq-md-meta"><span>الميزانية</span><strong class="txt-teal">{{ d.budget }}</strong></div>
-          <div class="rq-md-meta"><span>العروض</span><strong>{{ d.offers }} عروض</strong></div>
-          <div class="rq-md-meta"><span>المدة المطلوبة</span><strong>{{ d.durationRange }}</strong></div>
-          @if (d.linkedContract) { <div class="rq-md-meta"><span>العقد</span><strong class="txt-green">{{ d.linkedContract }}</strong></div> }
-        </div>
-
-        <div class="rq-section-ttl">مسار الطلب</div>
-        <div class="rq-timeline">
-          @for (step of timeline(d); track step.label) {
-            <div class="rq-tl-step" [class.done]="step.done">
-              <div class="rq-tl-dot">@if (step.done) { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> }</div>
-              <div>
-                <div class="rq-tl-name">{{ step.label }}</div>
-                <div class="rq-tl-note">{{ step.note }}</div>
-              </div>
-            </div>
-          }
-        </div>
-
-        <div class="rq-section-ttl">وصف الطلب والمتطلبات</div>
-        <p class="rq-desc">{{ d.description }}</p>
-        <ul class="rq-req-list">
-          @for (req of d.requirements; track req) { <li>{{ req }}</li> }
-        </ul>
-
-        @if (actionMessage()) {
-          <div class="rq-action-msg">{{ actionMessage() }}</div>
-        }
-
-        <div class="rq-md-actions">
-          <button type="button" class="rq-btn rq-btn-ghost" (click)="notifyOwner()">إشعار صاحب الطلب</button>
-          <button type="button" class="rq-btn rq-btn-warn" (click)="suspend()">تعليق الطلب مؤقتاً</button>
-          <button type="button" class="rq-btn rq-btn-danger" (click)="cancelRequest()">إلغاء الطلب</button>
-        </div>
-      }
-    </div>
-  </div>
-}

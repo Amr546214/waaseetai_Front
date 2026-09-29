@@ -8,21 +8,50 @@
 	<div class="pg-hd">
 		<div>
 			<div class="pg-title">إدارة الفريق</div>
-			<div class="pg-sub">الخليج للتقنية · 10 مقدم خدمة (8 نشطون) · 3 موظفين</div>
+			<div class="pg-sub">{{ counts().totalProviders }} مقدم خدمة ({{ counts().providers }} نشطون) · {{ counts().employees }} موظفين</div>
 		</div>
-		<button type="button" class="invite-btn">
+		<button type="button" class="invite-btn" (click)="toggleForm()">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-			إضافة مقدم خدمة
+			{{ showForm() ? 'إلغاء' : 'إضافة عضو للفريق' }}
 		</button>
 	</div>
 
+	@if (showForm()) {
+	<form class="add-form" (ngSubmit)="submitForm()">
+		<div class="add-grid">
+			<label class="fld"><span>الاسم *</span><input type="text" name="name" [(ngModel)]="form.name" required maxlength="120" /></label>
+			<label class="fld"><span>البريد الإلكتروني *</span><input type="email" name="email" [(ngModel)]="form.email" required maxlength="254" dir="ltr" /></label>
+			<label class="fld"><span>رقم الجوال</span><input type="tel" name="phone" [(ngModel)]="form.phone" maxlength="30" dir="ltr" /></label>
+			<label class="fld"><span>المسمى الوظيفي *</span><input type="text" name="jobTitle" [(ngModel)]="form.jobTitle" required maxlength="120" /></label>
+			<label class="fld"><span>النوع</span>
+				<select name="memberType" [(ngModel)]="form.memberType">
+					<option value="PROVIDER">مقدم خدمة</option>
+					<option value="EMPLOYEE">موظف</option>
+				</select>
+			</label>
+			<label class="fld"><span>الحالة</span>
+				<select name="status" [(ngModel)]="form.status">
+					<option value="PENDING">دعوة معلقة</option>
+					<option value="ACTIVE">نشط</option>
+					<option value="INACTIVE">غير نشط</option>
+				</select>
+			</label>
+		</div>
+		@if (formError()) {
+		<div class="form-err">{{ formError() }}</div>
+		}
+		<div class="add-actions">
+			<button type="submit" class="mem-btn mem-btn-primary" [disabled]="saving()">{{ saving() ? 'جارٍ الحفظ...' : 'حفظ العضو' }}</button>
+		</div>
+	</form>
+	}
+
 	<!-- KPIs -->
 	<div class="kpi-row">
-		<div class="kpi-c"><div class="kpi-v txt-teal">8</div><div class="kpi-l">مقدمو خدمة نشطون</div></div>
-		<div class="kpi-c"><div class="kpi-v txt-purple">3</div><div class="kpi-l">موظفون</div></div>
-		<div class="kpi-c"><div class="kpi-v txt-amber">2</div><div class="kpi-l">دعوة معلقة</div></div>
-		<div class="kpi-c"><div class="kpi-v txt-blue">14</div><div class="kpi-l">مشروع نشط مُسند</div></div>
-		<div class="kpi-c"><div class="kpi-v txt-green-br">87,400</div><div class="kpi-l">إيرادات هذا الشهر (ريال)</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-teal">{{ counts().providers }}</div><div class="kpi-l">مقدمو خدمة نشطون</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-purple">{{ counts().employees }}</div><div class="kpi-l">موظفون</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-amber">{{ counts().pending }}</div><div class="kpi-l">دعوة معلقة</div></div>
+		<div class="kpi-c"><div class="kpi-v txt-blue">{{ counts().inactive }}</div><div class="kpi-l">غير نشط</div></div>
 	</div>
 
 	<!-- Notice -->
@@ -33,7 +62,7 @@
 
 	<!-- Tabs -->
 	<div class="ord-tabs" role="tablist">
-		@for (tab of tabs; track tab.id) {
+		@for (tab of tabs(); track tab.id) {
 		<button type="button" class="ord-tab" [class.active]="activeTab() === tab.id" (click)="setTab(tab.id)">{{ tab.label }} <span>{{ tab.count }}</span></button>
 		}
 	</div>
@@ -46,66 +75,53 @@
 			<button class="ds" [class.active]="specFilter() === spec.id" type="button" (click)="setSpec(spec.id)">{{ spec.label }}</button>
 			}
 		</div>
-		<div class="fr-period-lbl">التوافر</div>
-		<div class="date-segs">
-			@for (av of availOptions; track av.id) {
-			<button class="ds" [class.active]="availFilter() === av.id" type="button" (click)="setAvail(av.id)">{{ av.label }}</button>
-			}
-		</div>
 		<div class="fr-spacer"></div>
 		<div class="fr-search">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-			<input type="search" placeholder="ابحث بالاسم أو التخصص..." [value]="searchQuery()" (input)="onSearch($event)" />
+			<input type="search" placeholder="ابحث بالاسم أو المسمى أو البريد..." [value]="searchQuery()" (input)="onSearch($event)" />
 		</div>
 	</div>
 
 	<!-- Member Cards Grid -->
 	<div class="mem-grid">
+		@if (loading()) {
+		<div class="empty-state"><h3>جارٍ تحميل أعضاء الفريق...</h3></div>
+		} @else if (loadError()) {
+		<div class="empty-state">
+			<h3>{{ loadError() }}</h3>
+			<button type="button" class="mem-btn mem-btn-ghost retry-btn" (click)="loadMembers()">إعادة المحاولة</button>
+		</div>
+		} @else {
 		@for (m of filteredMembers(); track m.id) {
 		<div class="mem-card">
 			<div class="mem-card-top">
-				<div class="mem-av" [style.background]="m.avatarBg">{{ m.initials }}</div>
+				@if (m.avatarUrl) {
+				<img class="mem-av" [src]="m.avatarUrl" [alt]="m.name" />
+				} @else {
+				<div class="mem-av" [style.background]="avatarBg(m.id)">{{ initials(m.name) }}</div>
+				}
 				<div style="flex:1;min-width:0">
 					<div class="mem-name">{{ m.name }}</div>
-					<div class="mem-spec">{{ m.spec }}</div>
-					<span class="mem-level" [style.color]="m.levelColor" [style.borderColor]="m.levelColor + '33'" [style.background]="m.levelColor + '12'">{{ m.level }}</span>
+					<div class="mem-spec">{{ m.jobTitle }}</div>
+					<span class="mem-level">{{ typeLabels[m.memberType] }}</span>
 				</div>
 				<div class="mem-status">
-					<span class="pill" [class.pill-warn]="m.avail === 'busy'" [class.pill-ok]="m.avail === 'free'">{{ m.availLabel }}</span>
+					<span class="pill" [class.pill-ok]="m.status === 'ACTIVE'" [class.pill-warn]="m.status === 'PENDING'" [class.pill-off]="m.status === 'INACTIVE'">{{ statusLabels[m.status] }}</span>
 				</div>
 			</div>
-			@if (m.type === 'provider') {
-			<div class="mem-stats">
-				<div class="mem-stat"><div class="mem-stat-v">{{ m.projects }}</div><div class="mem-stat-l">مشروع</div></div>
-				<div class="mem-stat"><div class="mem-stat-v txt-green-br">{{ m.revenue.toLocaleString() }}</div><div class="mem-stat-l">ريال</div></div>
-				<div class="mem-stat"><div class="mem-stat-v txt-amber">{{ m.activeProjects }}</div><div class="mem-stat-l">نشط</div></div>
-				<div class="mem-stat"><div class="mem-stat-v txt-teal">{{ m.rating }}</div><div class="mem-stat-l">تقييم</div></div>
-			</div>
-			<div class="mem-share">
-				<div class="mem-share-hd"><span>حصة الإيرادات</span><span class="txt-teal">{{ m.revenueShare }}%</span></div>
-				<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" [style.width.%]="m.revenueShare" [style.background]="m.avatarBg"></div></div></div>
-			</div>
-			<div class="mem-tags">
-				@for (t of m.tags; track t) {
-				<span class="mem-tag">{{ t }}</span>
-				}
-			</div>
-			}
 			<div class="assign-sec">
-				<div class="assign-bar">
-					<span class="assign-bar-lbl">الأدوار</span>
-					<div class="assign-cur">
-						@for (r of m.roles; track r) {
-						<span class="achip on">{{ r }}</span>
-						}
-					</div>
-				</div>
+				<div class="mem-contact"><span class="assign-bar-lbl">البريد</span><span dir="ltr">{{ m.email }}</span></div>
+				@if (m.phone) {
+				<div class="mem-contact"><span class="assign-bar-lbl">الجوال</span><span dir="ltr">{{ m.phone }}</span></div>
+				}
 			</div>
 			<div class="mem-actions">
-				<button type="button" class="mem-btn mem-btn-ghost">ملف المقدم</button>
-				@if (m.type === 'provider') {
-				<button type="button" class="mem-btn mem-btn-primary">إسناد طلب</button>
+				@if (m.status === 'ACTIVE') {
+				<button type="button" class="mem-btn mem-btn-ghost" [disabled]="busyId() === m.id" (click)="setStatus(m, 'INACTIVE')">إيقاف</button>
+				} @else {
+				<button type="button" class="mem-btn mem-btn-primary" [disabled]="busyId() === m.id" (click)="setStatus(m, 'ACTIVE')">تفعيل</button>
 				}
+				<button type="button" class="mem-btn mem-btn-danger" [disabled]="busyId() === m.id" (click)="removeMember(m)">حذف</button>
 			</div>
 		</div>
 		}
@@ -114,9 +130,15 @@
 			<div class="empty-icon">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 			</div>
+			@if (members().length === 0) {
+			<h3>لا يوجد أعضاء في الفريق بعد</h3>
+			<p>استخدم زر "إضافة عضو للفريق" لإضافة أول عضو</p>
+			} @else {
 			<h3>لا يوجد أعضاء بهذا الفلتر</h3>
 			<p>جرّب تعديل الفلاتر أو ابحث باسم آخر</p>
+			}
 		</div>
+		}
 		}
 	</div>
 </div>

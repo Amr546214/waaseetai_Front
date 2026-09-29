@@ -1,0 +1,103 @@
+<section class="bm-page" dir="rtl">
+  <div class="bm-detail-crumb">
+    <a routerLink="/supper-admin-overview/business-models">&rarr; العودة إلى نماذج الأعمال</a>
+  </div>
+
+  @if (selected(); as m) {
+    <div class="bm-mbox bm-detail-box">
+      <div class="bm-md-hdr">
+        <div>
+          <h3>{{ m.name }}</h3>
+          <div class="bm-md-sub">نموذج {{ m.id }} · {{ m.provider }} · {{ m.specialty }}
+            <span class="bm-status" [class]="'bm-st-' + m.status">
+              @switch (m.status) {
+                @case ('pending') { بانتظار الاعتماد }
+                @case ('approved') { معتمد }
+                @case ('rejected') { مرفوض }
+                @case ('revision') { يحتاج تعديل }
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bm-md-body">
+        <div class="bm-ai-panel">
+          <div class="bm-ai-panel-hdr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+            وسيط AI: تحليل النموذج
+          </div>
+          @for (note of m.aiNotes; track note) {
+            <p class="bm-ai-note">{{ note }}</p>
+          }
+        </div>
+
+        <div class="bm-md-field">
+          <label>هيكل التسعير</label>
+          <div class="bm-pricing-grid">
+            @for (p of m.pricing; track p.name) {
+              <div class="bm-pkg" [class.featured]="p.featured">
+                <div class="bm-pkg-name">{{ p.name }}</div>
+                <div class="bm-pkg-price">{{ p.price }}</div>
+                <div class="bm-pkg-delivery">{{ p.delivery }}</div>
+                <div class="bm-pkg-features">{{ p.features }}</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="bm-md-grid">
+          <div class="bm-md-field"><label>نوع الحساب</label><p>{{ m.accountType }}</p></div>
+          <div class="bm-md-field"><label>تاريخ الإنشاء</label><p>{{ m.createdAt }}</p></div>
+          <div class="bm-md-field"><label>عدد المستخدمين</label><p>{{ m.usersCount }} مقدم</p></div>
+        </div>
+
+        <div class="bm-md-field">
+          <label>مؤشرات الأداء</label>
+          <div class="bm-metrics">
+            <div class="bm-metric-row">
+              <span class="bm-metric-lbl">معدل قبول العروض</span>
+              <div class="bm-metric-track"><div class="bm-metric-fill bm-metric-fill-blue" [style.width.%]="m.acceptanceRate"></div></div>
+              <span class="bm-metric-val bm-metric-val-blue">{{ m.acceptanceRate }}%</span>
+            </div>
+            <div class="bm-metric-row">
+              <span class="bm-metric-lbl">متوسط التقييم</span>
+              <div class="bm-metric-track"><div class="bm-metric-fill bm-metric-fill-amber" [style.width.%]="ratingPct(m.avgRating)"></div></div>
+              <span class="bm-metric-val bm-metric-val-amber">{{ m.avgRating }}★</span>
+            </div>
+            <div class="bm-metric-row">
+              <span class="bm-metric-lbl">معدل إتمام المشاريع</span>
+              <div class="bm-metric-track"><div class="bm-metric-fill bm-metric-fill-teal" [style.width.%]="m.completionRate"></div></div>
+              <span class="bm-metric-val bm-metric-val-teal">{{ m.completionRate }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      @if (m.status === 'pending') {
+        <div class="bm-md-actions">
+          <button type="button" class="bm-btn bm-btn-approve" (click)="approveModel(m)">اعتماد النموذج</button>
+          <button type="button" class="bm-btn bm-btn-more" (click)="requestRevision(m)">طلب تعديل</button>
+          <button type="button" class="bm-btn bm-btn-reject" (click)="rejectModel(m)">رفض</button>
+          <button type="button" class="bm-btn bm-btn-ghost" (click)="goBack()">إغلاق</button>
+        </div>
+      } @else {
+        <div class="bm-md-actions">
+          <button type="button" class="bm-btn bm-btn-ghost" (click)="goBack()">إغلاق</button>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="bm-empty">
+      <div class="bm-empty-ttl">لم يتم العثور على النموذج المطلوب</div>
+      <a routerLink="/supper-admin-overview/business-models" class="bm-btn bm-btn-ghost">العودة للقائمة</a>
+    </div>
+  }
+
+  @if (toast()) {
+    <div class="bm-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>{{ toast() }}</span>
+    </div>
+  }
+</section>

@@ -49,7 +49,7 @@
           </thead>
           <tbody>
             @for (c of filtered(); track c.id) {
-              <tr (click)="openDetail(c)">
+              <tr [routerLink]="[c.id]">
                 <td class="ct-muted">{{ c.id }}</td>
                 <td><div class="ct-u-cell"><div class="ct-u-av" [style.background]="c.cBg">{{ c.cAv }}</div><span>{{ c.client }}</span></div></td>
                 <td><div class="ct-u-cell"><div class="ct-u-av" [style.background]="c.pBg">{{ c.pAv }}</div><span>{{ c.provider }}</span></div></td>
@@ -66,75 +66,3 @@
     </div>
   }
 </section>
-
-@if (showDetail()) {
-  <div class="ct-mov" (click)="closeDetail()">
-    <div class="ct-mbox" (click)="$event.stopPropagation()">
-      @if (selected(); as d) {
-        <div class="ct-md-hdr">
-          <div>
-            <div class="ct-md-id">{{ d.id }}</div>
-            <h3>{{ d.desc }}</h3>
-            <div class="ct-md-tags">
-              <span class="ct-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
-              <span class="ct-escrow" [ngClass]="escrowClasses[d.escrow]">{{ d.escrow }}</span>
-            </div>
-          </div>
-          <div class="ct-md-value">
-            <span>قيمة العقد</span>
-            <strong>{{ d.value }}</strong>
-          </div>
-          <button type="button" class="ct-mclose" (click)="closeDetail()">×</button>
-        </div>
-
-        <div class="ct-parties-row">
-          <div class="ct-party">
-            <div class="ct-u-av" [style.background]="d.cBg">{{ d.cAv }}</div>
-            <div><span>الطرف الأول (طالب)</span><strong>{{ d.client }}</strong></div>
-          </div>
-          <div class="ct-party">
-            <div class="ct-u-av" [style.background]="d.pBg">{{ d.pAv }}</div>
-            <div><span>الطرف الثاني (مقدم)</span><strong>{{ d.provider }}</strong></div>
-          </div>
-        </div>
-
-        <div class="ct-section-ttl">نطاق العمل</div>
-        <p class="ct-scope">{{ d.scope }}</p>
-
-        <div class="ct-section-ttl">بيانات الضمان</div>
-        <div class="ct-escrow-block">
-          <div class="ct-escrow-row"><span>المبلغ المودَع</span><strong class="txt-green">{{ d.value }}</strong></div>
-          <div class="ct-escrow-row"><span>رسوم وسيط AI ({{ d.feePct }}%)</span><strong class="txt-teal">{{ feeAmount(d) | number }} ر.س</strong></div>
-          <div class="ct-escrow-row"><span>صافي المقدم عند الإفراج</span><strong>{{ netAmount(d) | number }} ر.س</strong></div>
-        </div>
-
-        @if (d.status !== 'completed' && d.status !== 'cancelled') {
-          <div class="ct-escrow-actions">
-            <button type="button" class="ct-btn ct-btn-release" (click)="releaseEscrow()">إفراج يدوي عن الضمان</button>
-            <button type="button" class="ct-btn ct-btn-refund" (click)="refundClient()">إعادة المبلغ للطالب</button>
-          </div>
-        }
-
-        <div class="ct-section-ttl">سجل العقد</div>
-        <div class="ct-log">
-          @for (l of d.log; track l.text) {
-            <div class="ct-log-item">
-              <div class="ct-log-dot" [style.background]="l.color"></div>
-              <div><div class="ct-log-text">{{ l.text }}</div><div class="ct-log-time">{{ l.time }}</div></div>
-            </div>
-          }
-        </div>
-
-        @if (actionMessage()) {
-          <div class="ct-action-msg">{{ actionMessage() }}</div>
-        }
-
-        <div class="ct-md-actions">
-          @if (d.status !== 'dispute' && d.status !== 'completed' && d.status !== 'cancelled') {
-            <button type="button" class="ct-btn ct-btn-warn" (click)="openDispute()">فتح نزاع يدوياً</button>
-          }
-        </div>
-      }
-    </div>
-  </div>
-}

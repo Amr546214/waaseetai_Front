@@ -64,7 +64,7 @@
   @if (activeSection() === 'overview') {
     <div class="ah-alerts">
       <div class="ah-alerts-ttl">تنبيهات AI الذكية</div>
-      @for (a of alerts; track a.text) {
+      @for (a of alerts(); track a.text) {
         <div class="ah-alert" [class]="'ah-alert-' + a.level">
           <span class="ah-alert-text">{{ a.text }}</span>
           <span class="ah-alert-note">— {{ a.note }}</span>
@@ -78,14 +78,18 @@
           <div class="ah-card-ttl">الإيرادات الشهرية (12 شهر)</div>
           <div class="ah-legend">
             <span class="txt-teal"><i style="background:#2BD4C7"></i>هذا العام</span>
-            <span class="txt-muted"><i style="background:rgba(43,212,199,.3)"></i>العام الماضي</span>
+            @if (compareEnabled()) {
+              <span class="txt-muted"><i style="background:rgba(43,212,199,.3)"></i>العام الماضي</span>
+            }
           </div>
         </div>
         <div class="ah-bars">
-          @for (m of revenueMonths; track m.m) {
+          @for (m of revenueMonths(); track m.m) {
             <div class="ah-bar-wrap">
               <div class="ah-bar-pair">
-                <div class="ah-bar ah-bar-prev" [style.height.%]="(m.prev / maxRevenueMonth()) * 100"></div>
+                @if (compareEnabled()) {
+                  <div class="ah-bar ah-bar-prev" [style.height.%]="(m.prev / maxRevenueMonth()) * 100"></div>
+                }
                 <div class="ah-bar ah-bar-cur" [style.height.%]="(m.v / maxRevenueMonth()) * 100"></div>
               </div>
               <div class="ah-bar-lbl">{{ m.m.substring(0, 3) }}</div>
@@ -101,7 +105,7 @@
 
       <div class="ah-card">
         <div class="ah-card-ttl">معدل التحويل (Conversion Funnel)</div>
-        @for (f of conversionFunnel; track f.label) {
+        @for (f of conversionFunnel(); track f.label) {
           <div class="ah-funnel-step">
             <span class="ah-funnel-lbl">{{ f.label }}</span>
             <div class="ah-funnel-track"><div class="ah-funnel-fill" [style.width.%]="f.pct"></div></div>
@@ -119,7 +123,7 @@
           <table class="ah-table">
             <thead><tr><th>التخصص</th><th>إيرادات</th><th>مشاريع</th><th>نمو</th></tr></thead>
             <tbody>
-              @for (s of topSpecialties; track s.name) {
+              @for (s of topSpecialties(); track s.name) {
                 <tr>
                   <td>{{ s.name }}</td>
                   <td class="strong">{{ s.revenue }}</td>
@@ -134,7 +138,7 @@
       <div class="ah-card">
         <div class="ah-card-ttl">التوزيع الجغرافي (المملكة)</div>
         <div class="ah-geo-list">
-          @for (g of geoDistribution; track g.city) {
+          @for (g of geoDistribution(); track g.city) {
             <div class="ah-geo-row">
               <span class="ah-geo-city">{{ g.city }}</span>
               <div class="ah-geo-track"><div class="ah-geo-fill" [style.width.%]="g.pct" [style.background]="g.color"></div></div>
@@ -159,7 +163,7 @@
       <div class="ah-card">
         <div class="ah-card-ttl">توزيع المستخدمين حسب النوع</div>
         <div class="ah-usertype-list">
-          @for (u of userTypes; track u.label) {
+          @for (u of userTypes(); track u.label) {
             <div class="ah-usertype-row" [style.background]="u.color + '0D'" [style.border-color]="u.color + '20'">
               <div class="ah-usertype-badge" [style.background]="u.color + '20'" [style.color]="u.color">{{ u.count }}</div>
               <div class="ah-usertype-body">
@@ -174,7 +178,7 @@
       <div class="ah-card">
         <div class="ah-card-ttl">نمو المستخدمين (12 شهر)</div>
         <div class="ah-bars ah-bars-single">
-          @for (u of userGrowth; track u.m) {
+          @for (u of userGrowth(); track u.m) {
             <div class="ah-bar-wrap">
               <div class="ah-bar-pair">
                 <div class="ah-bar ah-bar-cur" [style.height.%]="(u.v / maxUserGrowth()) * 100"></div>
@@ -194,7 +198,7 @@
         <table class="ah-table">
           <thead><tr><th>التخصص</th><th>معدل الإكمال</th><th>نزاعات مفتوحة</th></tr></thead>
           <tbody>
-            @for (s of specialtyCompletion; track s.name) {
+            @for (s of specialtyCompletion(); track s.name) {
               <tr>
                 <td>{{ s.name }}</td>
                 <td>
@@ -218,12 +222,12 @@
           <thead>
             <tr>
               <th>المؤشر</th>
-              @for (m of financeMonthLabels; track m) { <th>{{ m }}</th> }
+              @for (m of financeMonthLabels(); track m) { <th>{{ m }}</th> }
               <th>التغيير</th>
             </tr>
           </thead>
           <tbody>
-            @for (row of financeComparison; track row.metric) {
+            @for (row of financeComparison(); track row.metric) {
               <tr>
                 <td>{{ row.metric }}</td>
                 @for (v of row.values; track $index) { <td>{{ v }}</td> }
@@ -239,7 +243,7 @@
   @if (activeSection() === 'specialties') {
     <div class="ah-card">
       <div class="ah-card-ttl">تحليل الطلب مقابل العرض (Gap Analysis)</div>
-      @for (g of specialtyGaps; track g.name) {
+      @for (g of specialtyGaps(); track g.name) {
         <div class="ah-gap-row">
           <span class="ah-gap-name">{{ g.name }}</span>
           <div class="ah-gap-bars">
@@ -263,7 +267,7 @@
         <table class="ah-table">
           <thead><tr><th>#</th><th>الوسيط</th><th>الإحالات</th><th>العمولة (ر.س)</th><th>التحويل</th></tr></thead>
           <tbody>
-            @for (a of topAffiliates; track a.name) {
+            @for (a of topAffiliates(); track a.name) {
               <tr>
                 <td class="strong">{{ a.rank }}</td>
                 <td>{{ a.name }}</td>
@@ -283,7 +287,7 @@
       <div class="ah-card">
         <div class="ah-card-ttl">مؤشرات جودة الخدمة</div>
         <div class="ah-quality-grid">
-          @for (q of qualityMetrics; track q.label) {
+          @for (q of qualityMetrics(); track q.label) {
             <div class="ah-quality-item">
               <div class="ah-quality-val" [style.color]="q.color">{{ q.value }}</div>
               <div class="ah-quality-lbl">{{ q.label }}</div>

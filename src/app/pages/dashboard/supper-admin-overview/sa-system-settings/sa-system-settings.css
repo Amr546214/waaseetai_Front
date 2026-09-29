@@ -48,9 +48,9 @@
 .ss-changelog-list{display:flex;flex-direction:column;gap:6px;font-size:12px}
 .ss-changelog-row{display:flex;gap:10px;padding:8px 10px;background:rgba(43,127,255,.04);border:1px solid rgba(43,127,255,.12);border-radius:8px;flex-wrap:wrap}
 .ss-changelog-row.warn{background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.12)}
-.ss-cl-time{font-family:monospace;color:#6B7699;flex-shrink:0}
-.ss-cl-msg{flex:1;color:#A8B2D1;min-width:180px}
-.ss-cl-ip{color:#5DA0FF;flex-shrink:0;font-weight:700}
+.ss-cl-time{font-family:monospace;color:var(--txt-3);flex-shrink:0}
+.ss-cl-msg{flex:1;color:var(--txt-2);min-width:180px}
+.ss-cl-ip{color:var(--blue-txt);flex-shrink:0;font-weight:700}
 .ss-cl-ip.warn{color:#FFB400}
 
 .ss-foot{margin-top:20px;padding:10px 0;font-size:10px;color:#6B7699;border-top:1px solid rgba(255,255,255,.05)}

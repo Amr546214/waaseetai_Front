@@ -1,0 +1,119 @@
+<section class="sac-page" dir="rtl">
+  <div class="sac-detail-crumb">
+    <a routerLink="/supper-admin-overview/specialties-accreditation">&rarr; العودة إلى اعتماد التخصصات</a>
+  </div>
+
+  @if (selected(); as r) {
+    <div class="sac-mbox sac-detail-box">
+      <div class="sac-md-hdr">
+        <div>
+          <h3>مراجعة طلب اعتماد — {{ r.id }}</h3>
+          <div class="sac-md-sub">{{ r.provider }} · {{ r.specialty }} · {{ r.date }}
+            <span class="sac-status" [class]="'sac-st-' + r.status">
+              @switch (r.status) {
+                @case ('pending') { قيد المراجعة }
+                @case ('approved') { مقبول }
+                @case ('rejected') { مرفوض }
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sac-md-body">
+        <div class="sac-ai-panel">
+          <div class="sac-ai-panel-hdr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+            وسيط AI: تقييم الملف
+          </div>
+          @for (note of r.aiNotes; track note) {
+            <p class="sac-ai-note">{{ note }}</p>
+          }
+        </div>
+
+        <div class="sac-md-grid">
+          <div class="sac-md-field"><label>نوع الحساب</label><p>{{ r.accountType }}</p></div>
+          <div class="sac-md-field"><label>الفئة الفرعية</label><p>{{ r.subCategory }}</p></div>
+          <div class="sac-md-field"><label>سنوات الخبرة</label><p>{{ r.yearsExperience }} سنوات</p></div>
+          <div class="sac-md-field"><label>عضو منذ</label><p>{{ r.memberSince }} · {{ r.priorReports }} بلاغات</p></div>
+        </div>
+
+        <div class="sac-md-field">
+          <label>نماذج المحفظة ({{ r.portfolio.length }})</label>
+          <div class="sac-port-grid">
+            @for (p of r.portfolio; track p.label) {
+              <div class="sac-port-item">{{ p.emoji }}<span>{{ p.label }}</span></div>
+            }
+          </div>
+        </div>
+
+        <div class="sac-md-field">
+          <label>الوثائق المرفقة</label>
+          <div class="sac-doc-list">
+            @for (d of r.documents; track d) {
+              <div class="sac-doc-item">📄 <span>{{ d }}</span></div>
+            }
+          </div>
+        </div>
+
+        <div class="sac-md-field">
+          <label>ملاحظة المراجع (اختياري)</label>
+          <textarea rows="3" placeholder="أضف ملاحظة توضيحية..." [value]="reviewerNote()" (input)="reviewerNote.set($any($event.target).value)"></textarea>
+        </div>
+
+        <div class="sac-md-field">
+          <label>ملف المقدم</label>
+          <div class="sac-profile-card">
+            <div class="sac-av" [style.background]="r.avatarBg">{{ r.avatar }}</div>
+            <div class="sac-profile-info">
+              <div class="sac-profile-name">{{ r.provider }}</div>
+              <div class="sac-profile-meta">عضو منذ {{ r.memberSince }} · {{ r.priorReports }} بلاغات</div>
+            </div>
+          </div>
+          <a class="sac-profile-link" [routerLink]="['/supper-admin-overview/users', r.userId]">عرض الملف الكامل</a>
+        </div>
+
+        <div class="sac-md-field">
+          <label>طلبات أخرى معلقة ({{ r.otherPending.length }})</label>
+          @if (r.otherPending.length === 0) {
+            <p class="sac-no-pending">لا توجد طلبات أخرى معلقة لهذا المقدم</p>
+          } @else {
+            <div class="sac-pending-list">
+              @for (p of r.otherPending; track p.specialty) {
+                <div class="sac-pending-item">
+                  <span class="sac-bdg sac-bdg-amber">{{ r.provider }}</span>
+                  <span class="sac-pending-spec">{{ p.specialty }}</span>
+                  <span class="sac-pending-status">{{ p.status }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (r.status === 'pending') {
+        <div class="sac-md-actions">
+          <button type="button" class="sac-btn sac-btn-approve" (click)="approveRequest(r)">قبول الاعتماد</button>
+          <button type="button" class="sac-btn sac-btn-reject" (click)="rejectRequest(r)">رفض الطلب</button>
+          <button type="button" class="sac-btn sac-btn-ghost" (click)="goBack()">إغلاق</button>
+        </div>
+      } @else {
+        <div class="sac-md-actions">
+          <button type="button" class="sac-btn sac-btn-ghost" (click)="goBack()">إغلاق</button>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="sac-empty">
+      <div class="sac-empty-ttl">لم يتم العثور على طلب الاعتماد المطلوب</div>
+      <a routerLink="/supper-admin-overview/specialties-accreditation" class="sac-btn sac-btn-ghost">العودة للقائمة</a>
+    </div>
+  }
+
+  @if (toast()) {
+    <div class="sac-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>{{ toast() }}</span>
+    </div>
+  }
+</section>

@@ -93,14 +93,18 @@
         <div class="rev-card-title">الإيرادات اليومية — يناير 2025</div>
         <div class="rev-legend">
           <span class="rev-legend-item txt-teal"><i style="background:#2BD4C7"></i>هذا الشهر</span>
-          <span class="rev-legend-item txt-muted"><i style="background:rgba(43,212,199,.3)"></i>الشهر الماضي</span>
+          @if (compareEnabled()) {
+            <span class="rev-legend-item txt-muted"><i style="background:rgba(43,212,199,.3)"></i>الشهر الماضي</span>
+          }
         </div>
       </div>
       <div class="rev-bar-chart">
-        @for (d of dailyRevenue; track d.day) {
+        @for (d of dailyRevenue(); track d.day) {
           <div class="rev-bar-wrap">
             <div class="rev-bar-pair">
-              <div class="rev-bar rev-bar-prev" [style.height.%]="(d.lastMonth / maxBar()) * 100"></div>
+              @if (compareEnabled()) {
+                <div class="rev-bar rev-bar-prev" [style.height.%]="(d.lastMonth / maxBar()) * 100"></div>
+              }
               <div class="rev-bar rev-bar-cur" [style.height.%]="(d.thisMonth / maxBar()) * 100"></div>
             </div>
             <div class="rev-bar-lbl">{{ d.day }}</div>
@@ -119,7 +123,7 @@
       <div class="rev-donut-wrap">
         <svg class="rev-donut-svg" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"/>
-          @for (s of revenueSources; track s.label) {
+          @for (s of revenueSources(); track s.label) {
             <circle cx="50" cy="50" r="38" fill="none" [attr.stroke]="s.color" stroke-width="12"
               [attr.stroke-dasharray]="s.dashArray"
               [attr.stroke-dashoffset]="s.dashOffset"
@@ -129,7 +133,7 @@
           <text x="50" y="58" text-anchor="middle" font-size="8" fill="#6B7699">ر.س</text>
         </svg>
         <div class="rev-donut-legend">
-          @for (s of revenueSources; track s.label) {
+          @for (s of revenueSources(); track s.label) {
             <div class="rev-dl-item">
               <div class="rev-dl-dot" [style.background]="s.color"></div>
               <span class="rev-dl-lbl">{{ s.label }}</span>
@@ -185,7 +189,7 @@
           <tr><th>المؤشر</th><th>يناير 2025</th><th>ديسمبر 2024</th><th>نوفمبر 2024</th><th>أكتوبر 2024</th><th>التغيير</th></tr>
         </thead>
         <tbody>
-          @for (row of monthlyComparison; track row.metric) {
+          @for (row of monthlyComparison(); track row.metric) {
             <tr>
               <td>{{ row.metric }}</td>
               <td class="strong">{{ row.jan }}</td>

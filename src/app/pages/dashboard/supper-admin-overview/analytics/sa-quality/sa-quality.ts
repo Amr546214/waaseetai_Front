@@ -83,7 +83,11 @@ export class SaQuality {
     { value: '12%', label: 'سلبي', color: '#FF8C69', bg: 'rgba(255,107,107,.06)' },
   ];
 
+  toast = signal<string>('');
+
   handleReview(action: 'keep' | 'remove', item: ContestedReview): void {
     this.contestedReviews.update((list) => list.filter((r) => r !== item));
+    this.toast.set(action === 'keep' ? 'تم إبقاء التقييم كما هو' : 'تم حذف التقييم');
+    setTimeout(() => this.toast.set(''), 2500);
   }
 }

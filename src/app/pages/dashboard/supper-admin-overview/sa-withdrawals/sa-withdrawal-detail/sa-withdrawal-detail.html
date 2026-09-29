@@ -1,0 +1,233 @@
+<section class="wd-page" dir="rtl">
+  <div class="wd-detail-crumb">
+    <a routerLink="/supper-admin-overview/withdrawals">&rarr; العودة إلى طلبات السحب</a>
+  </div>
+
+  @if (loading()) {
+    <div class="wd-loading">
+      <div class="wd-spinner"></div>
+      <p>جاري تحميل التفاصيل…</p>
+    </div>
+  } @else if (notFound()) {
+    <div class="wd-error">
+      <p class="wd-error-msg">لم يتم العثور على طلب السحب المطلوب</p>
+      <a routerLink="/supper-admin-overview/withdrawals" class="wd-btn wd-btn-gh">العودة للقائمة</a>
+    </div>
+  } @else if (error()) {
+    <div class="wd-error">
+      <p class="wd-error-msg">{{ error() }}</p>
+      <button type="button" class="wd-btn wd-btn-pri" (click)="retry()">إعادة المحاولة</button>
+    </div>
+  } @else if (selectedWithdrawal(); as w) {
+    <div class="wd-mbox wd-detail-box">
+      <div class="wd-md-hdr">
+        <div>
+          <h3>تفاصيل طلب السحب #{{ shortId(w.id) }}</h3>
+          <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] }}</span>
+        </div>
+      </div>
+      <div class="wd-md-body">
+        <!-- AI risk analysis (mock — no backend risk-scoring endpoint yet) -->
+        <div class="wd-ai-panel">
+          <div class="wd-ai-hdr">
+            <span class="wd-ai-ic">✦</span>
+            <span>وسيط AI: تحليل الطلب</span>
+          </div>
+          @for (insight of riskInsights(w); track insight) {
+            <div class="wd-ai-row">
+              <span class="wd-ai-dot">✦</span>
+              <p>{{ insight }}</p>
+            </div>
+          }
+        </div>
+
+        <div class="wd-md-field">
+          <label>المبلغ</label>
+          <p>{{ formatAmount(w.amount, w.currency) }}</p>
+        </div>
+        <div class="wd-md-row">
+          <div class="wd-md-field">
+            <label>الرصيد المتاح</label>
+            <p class="wd-hl-teal">{{ formatAmount(availableBalance(w), w.currency) }}</p>
+          </div>
+          <div class="wd-md-field">
+            <label>الرصيد بعد السحب</label>
+            <p>{{ formatAmount(balanceAfterWithdrawal(w), w.currency) }}</p>
+          </div>
+        </div>
+        <div class="wd-md-row">
+          <div class="wd-md-field">
+            <label>المستخدم</label>
+            <p>{{ userDisplay(w) }}</p>
+          </div>
+          <div class="wd-md-field">
+            <label>طريقة السحب</label>
+            <p>{{ w.method || '—' }}</p>
+          </div>
+        </div>
+        <div class="wd-md-row">
+          <div class="wd-md-field">
+            <label>تاريخ الطلب</label>
+            <p>{{ formatDate(w.createdAt) }}</p>
+          </div>
+          <div class="wd-md-field">
+            <label>تاريخ المعالجة</label>
+            <p>{{ formatDate(w.processedAt) }}</p>
+          </div>
+        </div>
+        @if (w.bankInfo) {
+          <div class="wd-md-section">
+            <label>
+              البيانات البنكية
+              @if (ibanVerified(w)) {
+                <span class="wd-verify-badge">✓ IBAN محقق <span class="wd-mock-tag">تقديري</span></span>
+              }
+            </label>
+            <div class="wd-md-bank">
+              <div class="wd-md-row">
+                <div class="wd-md-field">
+                  <label>اسم البنك</label>
+                  <p>{{ w.bankInfo?.bankName || '—' }}</p>
+                </div>
+                <div class="wd-md-field">
+                  <label>اسم صاحب الحساب</label>
+                  <p>{{ w.bankInfo?.accountHolderName || '—' }}</p>
+                </div>
+              </div>
+              <div class="wd-md-row">
+                <div class="wd-md-field">
+                  <label>IBAN</label>
+                  <p dir="ltr" style="text-align:right">{{ w.bankInfo?.iban || '—' }}</p>
+                </div>
+                <div class="wd-md-field">
+                  <label>SWIFT</label>
+                  <p>{{ w.bankInfo?.swiftCode || '—' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Balance source breakdown (mock — recent paid projects) -->
+        <div class="wd-md-section">
+          <label>مصدر الرصيد (آخر المشاريع المسدَّدة) <span class="wd-mock-tag">بيانات تقديرية</span></label>
+          <div class="wd-md-table-wrap">
+            <table class="wd-md-table">
+              <thead>
+                <tr>
+                  <th>المشروع</th>
+                  <th>القيمة</th>
+                  <th>بعد رسوم 10%</th>
+                  <th>التاريخ</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of balanceSource(w); track row.title) {
+                  <tr>
+                    <td>{{ row.title }}</td>
+                    <td class="wd-hl-green">{{ formatAmount(row.gross, w.currency) }}</td>
+                    <td class="wd-hl-teal">{{ formatAmount(row.net, w.currency) }}</td>
+                    <td class="wd-muted">{{ row.date }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        @if (w.adminNote) {
+          <div class="wd-md-field">
+            <label>ملاحظات الإدارة</label>
+            <p>{{ w.adminNote }}</p>
+          </div>
+        }
+        @if (w.rejectionReason) {
+          <div class="wd-md-field">
+            <label>سبب الرفض</label>
+            <p>{{ w.rejectionReason }}</p>
+          </div>
+        }
+
+        <!-- Request-status timeline -->
+        <div class="wd-md-section">
+          <label>مسار الطلب</label>
+          <div class="wd-timeline">
+            @for (step of timelineSteps(w); track step.title) {
+              <div class="wd-tl-item">
+                <span class="wd-tl-dot" [class.wd-tl-done]="step.state === 'done'" [class.wd-tl-current]="step.state === 'current'" [class.wd-tl-rejected]="step.state === 'rejected'">
+                  @if (step.state === 'rejected') { × } @else if (step.state === 'done' || step.state === 'current') { ✓ } @else { · }
+                </span>
+                <div class="wd-tl-body">
+                  <div class="wd-tl-ttl" [class.wd-muted]="step.state === 'pending'">{{ step.title }}</div>
+                  <div class="wd-tl-sub">{{ step.sub }}</div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      @if (actionSuccess()) {
+        <div class="wd-md-success">
+          <p>{{ actionSuccess() }}</p>
+        </div>
+      }
+      @if (infoRequestSuccess()) {
+        <div class="wd-md-success">
+          <p>{{ infoRequestSuccess() }}</p>
+        </div>
+      }
+
+      @if (canAct(w.status) && !showActionForm() && !showInfoRequestForm()) {
+        <div class="wd-md-actions">
+          <button type="button" class="wd-btn wd-btn-pri" (click)="openActionForm('approve')">قبول طلب السحب</button>
+          <button type="button" class="wd-btn wd-btn-reject" (click)="openActionForm('reject')">رفض طلب السحب</button>
+          <button type="button" class="wd-btn wd-btn-info" (click)="openInfoRequestForm()">طلب معلومات إضافية</button>
+          <button type="button" class="wd-btn wd-btn-gh" (click)="goBack()">العودة للقائمة</button>
+        </div>
+      } @else if (showInfoRequestForm()) {
+        <div class="wd-action-form">
+          <h4 class="wd-af-ttl">طلب معلومات إضافية من مقدم الطلب</h4>
+          <div class="wd-md-field">
+            <label>الرسالة</label>
+            <textarea class="wd-af-ta" [value]="infoRequestMessage()" (input)="infoRequestMessage.set($any($event.target).value)" placeholder="اكتب توضيحاً بما هو مطلوب من مقدم الطلب…"></textarea>
+          </div>
+          <div class="wd-af-actions">
+            <button type="button" class="wd-btn wd-btn-pri" (click)="submitInfoRequest()">إرسال الطلب</button>
+            <button type="button" class="wd-btn wd-btn-gh" (click)="cancelInfoRequestForm()">إلغاء</button>
+          </div>
+        </div>
+      } @else if (showActionForm()) {
+        <div class="wd-action-form">
+          <h4 class="wd-af-ttl">{{ actionType() === 'approve' ? 'تأكيد القبول' : 'تأكيد الرفض' }}</h4>
+
+          @if (actionType() === 'approve') {
+            <div class="wd-md-field">
+              <label>ملاحظات الإدارة (اختياري)</label>
+              <textarea class="wd-af-ta" [value]="adminNote()" (input)="adminNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+            </div>
+          } @else {
+            <div class="wd-md-field">
+              <label>سبب الرفض <span class="wd-req">*</span></label>
+              <textarea class="wd-af-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض…"></textarea>
+            </div>
+          }
+
+          @if (actionError()) {
+            <p class="wd-af-err">{{ actionError() }}</p>
+          }
+
+          <div class="wd-af-actions">
+            <button type="button" class="wd-btn wd-btn-pri" [disabled]="submittingAction()" (click)="submitAction()">
+              {{ submittingAction() ? 'جارٍ الحفظ...' : 'تأكيد' }}
+            </button>
+            <button type="button" class="wd-btn wd-btn-gh" [disabled]="submittingAction()" (click)="cancelActionForm()">إلغاء</button>
+          </div>
+        </div>
+      } @else {
+        <div class="wd-md-actions">
+          <button type="button" class="wd-btn wd-btn-gh" (click)="goBack()">العودة للقائمة</button>
+        </div>
+      }
+    </div>
+  }
+</section>

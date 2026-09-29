@@ -79,7 +79,7 @@
           </thead>
           <tbody>
             @for (s of filtered(); track s.id) {
-              <tr (click)="openDetail(s)">
+              <tr [routerLink]="[s.id]">
                 <td>
                   <div class="acc-u-cell">
                     <div class="acc-u-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ providerInitial(s) }}</div>
@@ -97,9 +97,9 @@
                 <td>
                   <div class="acc-row-actions" (click)="$event.stopPropagation()">
                     @if (canApprove(s)) {
-                      <button type="button" class="acc-act acc-act-accept" (click)="openDetail(s)">مراجعة</button>
+                      <button type="button" class="acc-act acc-act-accept" [routerLink]="[s.id]">مراجعة</button>
                     } @else {
-                      <button type="button" class="acc-act acc-act-view" (click)="openDetail(s)">عرض</button>
+                      <button type="button" class="acc-act acc-act-view" [routerLink]="[s.id]">عرض</button>
                     }
                   </div>
                 </td>
@@ -121,145 +121,3 @@
     }
   }
 </section>
-
-@if (showDetail()) {
-  <div class="acc-mov" (click)="closeDetail()">
-    <div class="acc-mbox" (click)="$event.stopPropagation()">
-      @if (detailLoading()) {
-        <div class="acc-md-loading">
-          <div class="acc-spinner"></div>
-          <p>جاري تحميل التفاصيل…</p>
-        </div>
-      } @else if (detailError()) {
-        <div class="acc-md-error">
-          <p>{{ detailError() }}</p>
-          <button type="button" class="acc-btn acc-btn-ghost" (click)="closeDetail()">إغلاق</button>
-        </div>
-      } @else if (selected(); as d) {
-        <div class="acc-md-hdr">
-          <div>
-            <h3>{{ d.title }}</h3>
-            <span class="acc-ai-pill" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
-          </div>
-          <button type="button" class="acc-mclose" (click)="closeDetail()">×</button>
-        </div>
-
-        <div class="acc-score-row">
-          <div class="acc-score-ring">
-            <div class="acc-score-num">{{ d.aiScore != null ? d.aiScore : '—' }}</div>
-          </div>
-          <div class="acc-score-bars">
-            <div class="acc-md-field">
-              <label>تصنيف الجودة</label>
-              <p>{{ d.aiQualityRating || 'غير متاح' }}</p>
-            </div>
-            <div class="acc-md-field">
-              <label>تاريخ التدقيق</label>
-              <p>{{ formatDate(d.aiAuditedAt) }}</p>
-            </div>
-          </div>
-        </div>
-
-        @if (d.aiFeedbackAr) {
-          <div class="acc-ai-note">{{ d.aiFeedbackAr }}</div>
-        }
-
-        @if (d.aiStrengths && d.aiStrengths.length) {
-          <div class="acc-md-field" style="margin-bottom:12px">
-            <label>نقاط القوة (AI)</label>
-            <ul class="acc-list">
-              @for (s of d.aiStrengths; track s) { <li>{{ s }}</li> }
-            </ul>
-          </div>
-        }
-
-        @if (d.aiRecommendations && d.aiRecommendations.length) {
-          <div class="acc-md-field" style="margin-bottom:12px">
-            <label>توصيات AI</label>
-            <ul class="acc-list">
-              @for (r of d.aiRecommendations; track r) { <li>{{ r }}</li> }
-            </ul>
-          </div>
-        }
-
-        <div class="acc-md-field-row">
-          <div class="acc-md-field"><label>مقدم الخدمة</label><p>{{ providerName(d) }}</p></div>
-          <div class="acc-md-field"><label>البريد الإلكتروني</label><p>{{ d.providerProfile?.user?.email || '—' }}</p></div>
-          <div class="acc-md-field"><label>التخصص</label><p>{{ specialtyName(d) }}</p></div>
-        </div>
-
-        <div class="acc-md-field" style="margin-bottom:12px">
-          <label>الوصف</label>
-          <p>{{ d.description }}</p>
-        </div>
-
-        @if (d.technologiesUsed && d.technologiesUsed.length) {
-          <div class="acc-md-field" style="margin-bottom:12px">
-            <label>التقنيات المستخدمة</label>
-            <div class="acc-chip-row">
-              @for (t of d.technologiesUsed; track t) { <span class="acc-chip">{{ t }}</span> }
-            </div>
-          </div>
-        }
-
-        <div class="acc-md-field-row">
-          @if (d.projectUrl) {
-            <div class="acc-md-field"><label>رابط المشروع</label><a class="acc-lnk" [href]="d.projectUrl" target="_blank" rel="noopener">{{ d.projectUrl }}</a></div>
-          }
-          @if (d.githubUrl) {
-            <div class="acc-md-field"><label>GitHub</label><a class="acc-lnk" [href]="d.githubUrl" target="_blank" rel="noopener">{{ d.githubUrl }}</a></div>
-          }
-        </div>
-
-        @if (d.attachments && d.attachments.length) {
-          <div class="acc-md-field" style="margin-bottom:12px">
-            <label>المرفقات ({{ d.attachments.length }})</label>
-            <div class="acc-ev-list">
-              @for (url of d.attachments; track url) {
-                <a class="acc-ev-link" [href]="url" target="_blank" rel="noopener">{{ url }}</a>
-              }
-            </div>
-          </div>
-        }
-
-        @if (actionSuccess()) {
-          <div class="acc-action-msg">{{ actionSuccess() }}</div>
-        }
-
-        @if (!showRejectForm()) {
-          <div class="acc-md-actions">
-            @if (canApprove(d)) {
-              <button type="button" class="acc-btn acc-btn-accept" [disabled]="submittingAction()" (click)="submitApprove()">
-                {{ submittingAction() ? 'جارٍ الاعتماد...' : 'اعتماد النموذج' }}
-              </button>
-            }
-            @if (canReject(d.status)) {
-              <button type="button" class="acc-btn acc-btn-reject" [disabled]="submittingAction()" (click)="openRejectForm()">رفض النموذج</button>
-            }
-            <button type="button" class="acc-btn acc-btn-ghost" (click)="closeDetail()">إغلاق</button>
-          </div>
-          @if (actionError()) {
-            <p class="acc-rf-err">{{ actionError() }}</p>
-          }
-        } @else {
-          <div class="acc-resolve-form">
-            <h4 class="acc-rf-ttl">رفض نموذج الاعتماد</h4>
-            <div class="acc-md-field">
-              <label>سبب الرفض <span class="acc-req">*</span></label>
-              <textarea class="acc-rf-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض (سيُضاف إلى ملاحظات التقييم)…"></textarea>
-            </div>
-            @if (actionError()) {
-              <p class="acc-rf-err">{{ actionError() }}</p>
-            }
-            <div class="acc-rf-actions">
-              <button type="button" class="acc-btn acc-btn-reject" [disabled]="submittingAction()" (click)="submitReject()">
-                {{ submittingAction() ? 'جارٍ الرفض...' : 'تأكيد الرفض' }}
-              </button>
-              <button type="button" class="acc-btn acc-btn-ghost" [disabled]="submittingAction()" (click)="cancelRejectForm()">إلغاء</button>
-            </div>
-          </div>
-        }
-      }
-    </div>
-  </div>
-}

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Role {
@@ -26,6 +26,10 @@ interface AuditEntry {
 export class SaRoles {
   toast = signal('');
   editingRole = signal<Role | null>(null);
+  editName = signal('');
+  editDesc = signal('');
+
+  private readonly newRoleColors = ['#FF8C69', '#D98A0B', '#59C1F5', '#2BD4C7', '#5DA0FF', '#0FA99A', '#9B8AFB', '#F472B6'];
 
   roles = signal<Role[]>([
     { name: 'Super Admin', color: '#FF8C69', perms: 15, members: 1, desc: 'تحكم كامل — مالك وسيط AI' },
@@ -53,7 +57,7 @@ export class SaRoles {
   ];
 
   // matrix[permissionIndex][roleIndex] = 1 | 0, aligned with `roles` order above
-  readonly matrix: number[][] = [
+  matrix = signal<number[][]>([
     [1, 1, 1, 1, 0, 0],
     [1, 1, 1, 0, 0, 0],
     [1, 0, 0, 0, 0, 0],
@@ -67,7 +71,17 @@ export class SaRoles {
     [1, 0, 0, 0, 0, 0],
     [1, 0, 0, 0, 0, 0],
     [1, 0, 0, 0, 0, 0],
-  ];
+  ]);
+
+  // roles with `perms` recomputed live from the matrix, so the count shown on each
+  // card always matches what's actually toggled on in the table below.
+  rolesView = computed(() => {
+    const mx = this.matrix();
+    return this.roles().map((r, ri) => ({
+      ...r,
+      perms: mx.reduce((sum, row) => sum + (row[ri] ? 1 : 0), 0),
+    }));
+  });
 
   auditTrail: AuditEntry[] = [
     { time: 'منذ 2h', text: 'مدير النظام أضاف صلاحية <strong>مراجعة النزاعات</strong> لدور "مشرف دعم"', actor: 'مدير النظام', kind: 'added' },
@@ -85,10 +99,47 @@ export class SaRoles {
 
   openEdit(role: Role) {
     this.editingRole.set(role);
+    this.editName.set(role.name);
+    this.editDesc.set(role.desc);
   }
 
   closeEdit() {
     this.editingRole.set(null);
+    this.editName.set('');
+    this.editDesc.set('');
+  }
+
+  saveEdit() {
+    const role = this.editingRole();
+    if (!role) return;
+    const newName = this.editName().trim();
+    const newDesc = this.editDesc().trim();
+    if (!newName) {
+      this.showToast('اسم الدور مطلوب');
+      return;
+    }
+    const originalName = role.name;
+    this.roles.update((roles) => roles.map((r) => (r.name === originalName ? { ...r, name: newName, desc: newDesc } : r)));
+    this.pushAudit(`تم تعديل دور "${originalName}"${newName !== originalName ? ` إلى "${newName}"` : ''}`, 'edited');
+    this.showToast(`تم حفظ التعديلات على دور ${newName}`);
+    this.closeEdit();
+  }
+
+  togglePermission(pi: number, ri: number) {
+    this.matrix.update((mx) => {
+      const next = mx.map((row) => [...row]);
+      next[pi][ri] = next[pi][ri] ? 0 : 1;
+      return next;
+    });
+    const granted = !!this.matrix()[pi][ri];
+    const role = this.roles()[ri];
+    const permLabel = this.permissionLabels[pi];
+    if (role) {
+      this.pushAudit(
+        `${granted ? 'أُضيفت' : 'حُذفت'} صلاحية <strong>${permLabel}</strong> ${granted ? 'لدور' : 'من دور'} "${role.name}"`,
+        granted ? 'added' : 'removed',
+      );
+    }
   }
 
   showToast(msg: string) {
@@ -97,6 +148,23 @@ export class SaRoles {
   }
 
   addRole() {
-    this.showToast('فتح نموذج إضافة دور جديد');
+    const name = window.prompt('اسم الدور الجديد:');
+    if (!name || !name.trim()) return;
+    const trimmedName = name.trim();
+    if (this.roles().some((r) => r.name === trimmedName)) {
+      this.showToast('يوجد دور بنفس الاسم بالفعل');
+      return;
+    }
+    const desc = (window.prompt('وصف الدور (اختياري):') || '').trim();
+    const color = this.newRoleColors[this.roles().length % this.newRoleColors.length];
+
+    this.roles.update((roles) => [...roles, { name: trimmedName, color, perms: 0, members: 0, desc }]);
+    this.matrix.update((mx) => mx.map((row) => [...row, 0]));
+    this.pushAudit(`أُنشئ دور جديد "${trimmedName}"`, 'new');
+    this.showToast(`تمت إضافة دور "${trimmedName}"`);
+  }
+
+  private pushAudit(text: string, kind: AuditEntry['kind']) {
+    this.auditTrail = [{ time: 'الآن', text, actor: 'أنت', kind }, ...this.auditTrail];
   }
 }

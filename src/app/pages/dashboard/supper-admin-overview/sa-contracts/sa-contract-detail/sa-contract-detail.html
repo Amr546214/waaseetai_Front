@@ -1,0 +1,159 @@
+<section class="ct-page" dir="rtl">
+  <div class="ct-detail-crumb">
+    <a routerLink="/supper-admin-overview/contracts">&rarr; العودة إلى العقود</a>
+  </div>
+
+  @if (notFound()) {
+    <div class="ct-empty">
+      <p>لم يتم العثور على العقد المطلوب</p>
+      <a routerLink="/supper-admin-overview/contracts" class="ct-btn ct-btn-ghost">العودة للقائمة</a>
+    </div>
+  } @else if (selected(); as d) {
+    <div class="ct-mbox ct-detail-box">
+      <div class="ct-md-hdr">
+        <div>
+          <div class="ct-md-id">{{ d.id }}</div>
+          <h3>{{ d.desc }}</h3>
+          <div class="ct-md-tags">
+            <span class="ct-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
+            <span class="ct-escrow" [ngClass]="escrowClasses[d.escrow]">{{ d.escrow }}</span>
+          </div>
+        </div>
+        <div class="ct-md-value">
+          <span>قيمة العقد</span>
+          <strong>{{ d.value }}</strong>
+        </div>
+      </div>
+
+      <div class="ct-parties-row">
+        <div class="ct-party">
+          <div class="ct-u-av" [style.background]="d.cBg">{{ d.cAv }}</div>
+          <div><span>الطرف الأول (طالب)</span><strong>{{ d.client }}</strong></div>
+        </div>
+        <div class="ct-party">
+          <div class="ct-u-av" [style.background]="d.pBg">{{ d.pAv }}</div>
+          <div><span>الطرف الثاني (مقدم)</span><strong>{{ d.provider }}</strong></div>
+        </div>
+      </div>
+
+      <div class="ct-section-ttl">بنود العقد</div>
+      <div class="ct-clauses">
+        @for (cl of d.clauses; track cl.num) {
+          <div class="ct-clause">
+            <div class="ct-clause-num">{{ cl.num }}</div>
+            <div class="ct-clause-body">
+              <div class="ct-clause-ttl">{{ cl.title }}</div>
+              <p class="ct-clause-text">{{ cl.text }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="ct-ai-panel">
+        <div class="ct-ai-panel-hdr">
+          <div class="ct-ai-panel-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+          </div>
+          <span>وسيط AI: تحليل العقد</span>
+        </div>
+        <div class="ct-ai-verdict" [class.ct-ai-verdict-warn]="!d.aiVerdictOk">
+          @if (d.aiVerdictOk) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          }
+          <span>{{ d.aiVerdict }}</span>
+        </div>
+        @for (f of d.aiFindings; track f) {
+          <div class="ct-ai-row">
+            <div class="ct-ai-row-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+            </div>
+            <p>{{ f }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="ct-section-ttl">بيانات الضمان</div>
+      <div class="ct-escrow-block">
+        <div class="ct-escrow-row"><span>المبلغ المودَع</span><strong class="txt-green">{{ d.value }}</strong></div>
+        <div class="ct-escrow-row"><span>رسوم وسيط AI ({{ d.feePct }}%)</span><strong class="txt-teal">{{ feeAmount(d) | number }} ر.س</strong></div>
+        <div class="ct-escrow-row"><span>صافي المقدم عند الإفراج</span><strong>{{ netAmount(d) | number }} ر.س</strong></div>
+      </div>
+
+      @if (d.status !== 'completed' && d.status !== 'cancelled') {
+        <div class="ct-escrow-actions">
+          <button type="button" class="ct-btn ct-btn-release" (click)="releaseEscrow()">إفراج يدوي عن الضمان</button>
+          <button type="button" class="ct-btn ct-btn-refund" (click)="refundClient()">إعادة المبلغ للطالب</button>
+        </div>
+      }
+
+      <div class="ct-section-ttl">سجل التوقيع الإلكتروني</div>
+      <div class="ct-sig-block">
+        @for (s of d.signatures; track s.name) {
+          <div class="ct-sig-row">
+            <div class="ct-sig-info">
+              <div class="ct-sig-name">{{ s.name }} <span class="ct-sig-role">({{ s.role }})</span></div>
+              <div class="ct-sig-meta">{{ s.order }} · {{ s.time }}</div>
+              <div class="ct-sig-ip">IP: {{ s.ip }} · {{ s.location }}</div>
+            </div>
+            <span class="ct-sig-badge">✓ موقّع</span>
+          </div>
+        }
+      </div>
+
+      <div class="ct-section-ttl">سجل التعديلات (Diff Viewer)</div>
+      <div class="ct-rev-block">
+        @for (r of d.revisions; track r.version) {
+          <div class="ct-rev-item">
+            <div class="ct-rev-hdr">
+              <span class="ct-rev-ver">النسخة {{ r.version }} — {{ r.label }}</span>
+              <span class="ct-rev-meta">{{ r.date }} · {{ r.author }}</span>
+            </div>
+            <div class="ct-rev-changes">
+              @for (ch of r.changes; track ch.text) {
+                <div class="ct-diff-line"
+                     [class.ct-diff-added]="ch.type === 'added'"
+                     [class.ct-diff-removed]="ch.type === 'removed'"
+                     [class.ct-diff-note]="ch.type === 'note'">
+                  @if (ch.type === 'added') { <span>+ </span> }
+                  @if (ch.type === 'removed') { <span>- </span> }
+                  @if (ch.type === 'note') { <span>= </span> }
+                  {{ ch.text }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="ct-section-ttl">سجل العقد</div>
+      <div class="ct-log">
+        @for (l of d.log; track l.text) {
+          <div class="ct-log-item">
+            <div class="ct-log-dot" [style.background]="l.color"></div>
+            <div><div class="ct-log-text">{{ l.text }}</div><div class="ct-log-time">{{ l.time }}</div></div>
+          </div>
+        }
+      </div>
+
+      @if (actionMessage()) {
+        <div class="ct-action-msg">{{ actionMessage() }}</div>
+      }
+
+      <div class="ct-md-actions">
+        <a routerLink="/supper-admin-overview/projects" class="ct-btn ct-btn-ghost">المشروع المرتبط ({{ d.projectId }})</a>
+        <button type="button" class="ct-btn ct-btn-ghost" (click)="messageParties()">مراسلة الطرفين</button>
+        @if (d.status !== 'completed' && d.status !== 'cancelled') {
+          <button type="button" class="ct-btn ct-btn-extend" (click)="extendContract()">تمديد مدة العقد</button>
+        }
+        @if (d.status !== 'dispute' && d.status !== 'completed' && d.status !== 'cancelled') {
+          <button type="button" class="ct-btn ct-btn-warn" (click)="openDispute()">فتح نزاع يدوياً</button>
+        }
+        @if (d.status !== 'completed' && d.status !== 'cancelled') {
+          <button type="button" class="ct-btn ct-btn-cancel" (click)="cancelContract()">إلغاء العقد</button>
+        }
+      </div>
+    </div>
+  }
+</section>

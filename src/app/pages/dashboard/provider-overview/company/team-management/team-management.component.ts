@@ -1,46 +1,80 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CompanyTeamService } from '../../../../../core/services/company-team.service';
+import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
+import {
+	CompanyTeamMember,
+	CreateTeamMemberPayload,
+	TeamMemberStatus,
+	TeamMemberType,
+} from '../../../../../core/models/company-team.model';
 
-interface TeamMember {
-	id: string;
-	name: string;
-	initials: string;
-	spec: string;
-	avatarBg: string;
-	level: string;
-	levelColor: string;
-	avail: 'free' | 'busy';
-	availLabel: string;
-	projects: number;
-	revenue: number;
-	activeProjects: number;
-	rating: number;
-	revenueShare: number;
-	tags: string[];
-	roles: string[];
-	type: 'provider' | 'employee' | 'pending' | 'inactive';
+type TeamTab = 'providers' | 'employees' | 'pending' | 'inactive';
+
+const AVATAR_GRADIENTS = [
+	'linear-gradient(135deg,#A56BE0,#7B2FBE)',
+	'linear-gradient(135deg,#2B7FFF,#1A5FCC)',
+	'linear-gradient(135deg,#0FA99A,#0D8A7E)',
+	'linear-gradient(135deg,#FFB400,#D98A0B)',
+	'linear-gradient(135deg,#E05B6B,#C0394A)',
+	'linear-gradient(135deg,#2BD4C7,#2B7FFF)',
+];
+
+const STATUS_LABELS: Record<TeamMemberStatus, string> = {
+	ACTIVE: 'نشط',
+	PENDING: 'دعوة معلقة',
+	INACTIVE: 'غير نشط',
+};
+
+const TYPE_LABELS: Record<TeamMemberType, string> = {
+	PROVIDER: 'مقدم خدمة',
+	EMPLOYEE: 'موظف',
+};
+
+/** Keyword match against the member's real `jobTitle` (no separate specialty field exists). */
+const SPEC_KEYWORDS: Record<string, string[]> = {
+	design: ['تصميم', 'مصمم', 'UI', 'UX', 'هوية'],
+	web: ['ويب', 'web', 'Laravel', 'Vue', 'Node', 'backend', 'frontend'],
+	app: ['تطبيق', 'app', 'mobile', 'React Native', 'Flutter'],
+	content: ['محتوى', 'كاتب', 'تسويق', 'content'],
+};
+
+function emptyForm(): CreateTeamMemberPayload {
+	return { name: '', email: '', phone: '', jobTitle: '', memberType: 'PROVIDER', status: 'PENDING' };
 }
 
 @Component({
 	selector: 'app-company-team-management',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, FormsModule],
 	templateUrl: './team-management.component.html',
 	styleUrls: ['./team-management.component.css']
 })
-export class CompanyTeamManagementComponent {
-	activeTab = signal<string>('providers');
+export class CompanyTeamManagementComponent implements OnInit {
+	private teamApi = inject(CompanyTeamService);
+	private confirmModal = inject(ConfirmModalService);
+	private destroyRef = inject(DestroyRef);
+
+	readonly statusLabels = STATUS_LABELS;
+	readonly typeLabels = TYPE_LABELS;
+
+	members = signal<CompanyTeamMember[]>([]);
+	loading = signal<boolean>(true);
+	loadError = signal<string | null>(null);
+
+	activeTab = signal<TeamTab>('providers');
 	searchQuery = signal<string>('');
 	specFilter = signal<string>('all');
-	availFilter = signal<string>('all');
 
-	tabs = [
-		{ id: 'providers', label: 'مقدمو الخدمات', count: 8 },
-		{ id: 'employees', label: 'الموظفون', count: 3 },
-		{ id: 'pending', label: 'دعوات معلقة', count: 2 },
-		{ id: 'inactive', label: 'غير نشط', count: 0 },
-	];
+	showForm = signal<boolean>(false);
+	saving = signal<boolean>(false);
+	formError = signal<string | null>(null);
+	form: CreateTeamMemberPayload = emptyForm();
+	busyId = signal<string | null>(null);
 
 	specOptions = [
 		{ id: 'all', label: 'الكل' },
@@ -50,48 +84,155 @@ export class CompanyTeamManagementComponent {
 		{ id: 'content', label: 'محتوى' },
 	];
 
-	availOptions = [
-		{ id: 'all', label: 'الكل' },
-		{ id: 'free', label: 'متاح' },
-		{ id: 'busy', label: 'مشغول' },
-	];
+	counts = computed(() => {
+		const list = this.members();
+		return {
+			providers: list.filter(m => m.memberType === 'PROVIDER' && m.status === 'ACTIVE').length,
+			employees: list.filter(m => m.memberType === 'EMPLOYEE' && m.status === 'ACTIVE').length,
+			pending: list.filter(m => m.status === 'PENDING').length,
+			inactive: list.filter(m => m.status === 'INACTIVE').length,
+			totalProviders: list.filter(m => m.memberType === 'PROVIDER').length,
+		};
+	});
 
-	members: TeamMember[] = [
-		{ id: 'TM-001', name: 'سارة الزهراني', initials: 'سا', spec: 'مصممة UI/UX', avatarBg: 'linear-gradient(135deg,#A56BE0,#7B2FBE)', level: '★ 7 · خبير', levelColor: '#2ECC8A', avail: 'busy', availLabel: 'مشغول', projects: 21, revenue: 37380, activeProjects: 2, rating: 4.9, revenueShare: 43, tags: ['UI/UX', 'هوية بصرية'], roles: ['مقدم قياسي'], type: 'provider' },
-		{ id: 'TM-002', name: 'فهد العتيبي', initials: 'فه', spec: 'مطوّر ويب', avatarBg: 'linear-gradient(135deg,#2B7FFF,#1A5FCC)', level: '★ 6 · متقن', levelColor: '#5DA0FF', avail: 'busy', availLabel: 'مشغول', projects: 14, revenue: 24500, activeProjects: 1, rating: 4.7, revenueShare: 28, tags: ['Laravel', 'Vue.js'], roles: ['مقدم قياسي'], type: 'provider' },
-		{ id: 'TM-003', name: 'ريم الدوسري', initials: 'ري', spec: 'مطوّرة تطبيقات', avatarBg: 'linear-gradient(135deg,#0FA99A,#0D8A7E)', level: '★ 5 · متقن', levelColor: '#5DA0FF', avail: 'free', availLabel: 'متاح', projects: 9, revenue: 18600, activeProjects: 0, rating: 4.8, revenueShare: 21, tags: ['React Native', 'Flutter'], roles: ['مقدم قياسي'], type: 'provider' },
-		{ id: 'TM-004', name: 'خالد الحربي', initials: 'خا', spec: 'مطوّر ويب', avatarBg: 'linear-gradient(135deg,#A56BE0,#7B2FBE)', level: '★ 4 · متمكن', levelColor: '#FFB400', avail: 'busy', availLabel: 'مشغول', projects: 7, revenue: 12100, activeProjects: 1, rating: 4.5, revenueShare: 14, tags: ['Node.js', 'Express'], roles: ['مقدم قياسي'], type: 'provider' },
-		{ id: 'TM-005', name: 'نورة القحطاني', initials: 'نو', spec: 'كاتبة محتوى', avatarBg: 'linear-gradient(135deg,#FFB400,#D98A0B)', level: '★ 5 · متقن', levelColor: '#5DA0FF', avail: 'free', availLabel: 'متاح', projects: 12, revenue: 9800, activeProjects: 0, rating: 4.6, revenueShare: 11, tags: ['محتوى', 'تسويق'], roles: ['مقدم قياسي'], type: 'provider' },
-		{ id: 'TM-006', name: 'عبدالله الشمري', initials: 'عب', spec: 'محاسب', avatarBg: 'linear-gradient(135deg,#6B7699,#4A5568)', level: 'موظف', levelColor: '#6B7699', avail: 'free', availLabel: 'متاح', projects: 0, revenue: 0, activeProjects: 0, rating: 0, revenueShare: 0, tags: ['مالية'], roles: ['محاسب'], type: 'employee' },
-		{ id: 'TM-007', name: 'منى العتيبي', initials: 'من', spec: 'مديرة مشاريع', avatarBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', level: 'موظف', levelColor: '#6B7699', avail: 'busy', availLabel: 'مشغول', projects: 0, revenue: 0, activeProjects: 0, rating: 0, revenueShare: 0, tags: ['إدارة'], roles: ['مدير مشاريع'], type: 'employee' },
-		{ id: 'TM-008', name: 'سعد الدوسري', initials: 'سع', spec: 'مراقب جودة', avatarBg: 'linear-gradient(135deg,#E05B6B,#C0394A)', level: 'موظف', levelColor: '#6B7699', avail: 'free', availLabel: 'متاح', projects: 0, revenue: 0, activeProjects: 0, rating: 0, revenueShare: 0, tags: ['جودة'], roles: ['مراقب جودة'], type: 'employee' },
-	];
+	tabs = computed(() => {
+		const c = this.counts();
+		return [
+			{ id: 'providers' as TeamTab, label: 'مقدمو الخدمات', count: c.providers },
+			{ id: 'employees' as TeamTab, label: 'الموظفون', count: c.employees },
+			{ id: 'pending' as TeamTab, label: 'دعوات معلقة', count: c.pending },
+			{ id: 'inactive' as TeamTab, label: 'غير نشط', count: c.inactive },
+		];
+	});
 
 	filteredMembers = computed(() => {
-		let list = this.members.filter(m => {
-			if (this.activeTab() === 'providers') return m.type === 'provider';
-			if (this.activeTab() === 'employees') return m.type === 'employee';
-			if (this.activeTab() === 'pending') return m.type === 'pending';
-			if (this.activeTab() === 'inactive') return m.type === 'inactive';
-			return true;
+		const tab = this.activeTab();
+		let list = this.members().filter(m => {
+			if (tab === 'providers') return m.memberType === 'PROVIDER' && m.status === 'ACTIVE';
+			if (tab === 'employees') return m.memberType === 'EMPLOYEE' && m.status === 'ACTIVE';
+			if (tab === 'pending') return m.status === 'PENDING';
+			return m.status === 'INACTIVE';
 		});
 		if (this.specFilter() !== 'all') {
-			const specMap: { [k: string]: string[] } = { design: ['UI/UX', 'هوية بصرية', 'تصميم'], web: ['ويب', 'Laravel', 'Vue.js', 'Node.js'], app: ['تطبيقات', 'React Native', 'Flutter'], content: ['محتوى', 'تسويق'] };
-			const specs = specMap[this.specFilter()] || [];
-			list = list.filter(m => m.tags.some(t => specs.some(s => t.includes(s))) || m.spec.includes(specs[0] || ''));
+			const keywords = (SPEC_KEYWORDS[this.specFilter()] || []).map(k => k.toLowerCase());
+			list = list.filter(m => keywords.some(k => m.jobTitle.toLowerCase().includes(k)));
 		}
-		if (this.availFilter() !== 'all') {
-			list = list.filter(m => m.avail === this.availFilter());
-		}
-		if (this.searchQuery().trim()) {
-			const q = this.searchQuery().trim().toLowerCase();
-			list = list.filter(m => m.name.toLowerCase().includes(q) || m.spec.toLowerCase().includes(q));
+		const q = this.searchQuery().trim().toLowerCase();
+		if (q) {
+			list = list.filter(m =>
+				m.name.toLowerCase().includes(q) ||
+				m.jobTitle.toLowerCase().includes(q) ||
+				m.email.toLowerCase().includes(q));
 		}
 		return list;
 	});
 
-	setTab(tab: string) { this.activeTab.set(tab); }
+	ngOnInit(): void {
+		this.loadMembers();
+	}
+
+	loadMembers(): void {
+		this.loading.set(true);
+		this.loadError.set(null);
+		this.teamApi.list().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+			next: res => {
+				this.members.set(res.data ?? []);
+				this.loading.set(false);
+			},
+			error: (err: HttpErrorResponse) => {
+				this.loadError.set(err.error?.message || 'تعذر تحميل أعضاء الفريق');
+				this.loading.set(false);
+			},
+		});
+	}
+
+	setTab(tab: TeamTab) { this.activeTab.set(tab); }
 	setSpec(id: string) { this.specFilter.set(id); }
-	setAvail(id: string) { this.availFilter.set(id); }
 	onSearch(event: Event) { this.searchQuery.set((event.target as HTMLInputElement).value); }
+
+	initials(name: string): string {
+		const parts = name.trim().split(/\s+/).filter(Boolean);
+		if (parts.length >= 2) return parts[0][0] + parts[1][0];
+		return name.trim().slice(0, 2);
+	}
+
+	avatarBg(id: string): string {
+		let hash = 0;
+		for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+		return AVATAR_GRADIENTS[hash % AVATAR_GRADIENTS.length];
+	}
+
+	toggleForm(): void {
+		this.showForm.update(v => !v);
+		this.formError.set(null);
+		if (!this.showForm()) this.form = emptyForm();
+	}
+
+	submitForm(): void {
+		if (this.saving()) return;
+		const payload: CreateTeamMemberPayload = {
+			name: this.form.name.trim(),
+			email: this.form.email.trim(),
+			phone: this.form.phone?.trim() || null,
+			jobTitle: this.form.jobTitle.trim(),
+			memberType: this.form.memberType,
+			status: this.form.status,
+		};
+		if (!payload.name || !payload.email || !payload.jobTitle) {
+			this.formError.set('الاسم والبريد الإلكتروني والمسمى الوظيفي حقول مطلوبة');
+			return;
+		}
+		this.saving.set(true);
+		this.formError.set(null);
+		this.teamApi.create(payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+			next: res => {
+				this.members.update(list => [res.data, ...list]);
+				this.saving.set(false);
+				this.showForm.set(false);
+				this.form = emptyForm();
+			},
+			error: (err: HttpErrorResponse) => {
+				this.formError.set(err.error?.message || 'تعذر إضافة عضو الفريق');
+				this.saving.set(false);
+			},
+		});
+	}
+
+	setStatus(member: CompanyTeamMember, status: TeamMemberStatus): void {
+		if (this.busyId()) return;
+		this.busyId.set(member.id);
+		this.teamApi.update(member.id, { status }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+			next: res => {
+				this.members.update(list => list.map(m => (m.id === member.id ? res.data : m)));
+				this.busyId.set(null);
+			},
+			error: (err: HttpErrorResponse) => {
+				this.busyId.set(null);
+				this.confirmModal.notify('تعذر التحديث', err.error?.message || 'تعذر تحديث حالة العضو', 'danger');
+			},
+		});
+	}
+
+	async removeMember(member: CompanyTeamMember): Promise<void> {
+		if (this.busyId()) return;
+		const ok = await this.confirmModal.confirm({
+			title: 'حذف عضو الفريق',
+			message: `هل تريد حذف ${member.name} من الفريق نهائيًا؟`,
+			type: 'danger',
+			confirmText: 'حذف',
+			cancelText: 'إلغاء',
+		});
+		if (!ok) return;
+		this.busyId.set(member.id);
+		this.teamApi.remove(member.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+			next: () => {
+				this.members.update(list => list.filter(m => m.id !== member.id));
+				this.busyId.set(null);
+			},
+			error: (err: HttpErrorResponse) => {
+				this.busyId.set(null);
+				this.confirmModal.notify('تعذر الحذف', err.error?.message || 'تعذر حذف العضو', 'danger');
+			},
+		});
+	}
 }

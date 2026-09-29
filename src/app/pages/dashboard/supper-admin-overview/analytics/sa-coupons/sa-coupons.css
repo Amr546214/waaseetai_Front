@@ -30,8 +30,8 @@
 
 .scp-coupon{padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .scp-coupon.expired{opacity:.6}
-.scp-code{font-family:monospace;font-size:16px;font-weight:900;padding:6px 12px;background:rgba(43,212,199,.08);border:1px dashed rgba(43,212,199,.3);border-radius:7px;color:#2BD4C7;min-width:120px;text-align:center}
-.scp-code.expired{color:#6B7699;border-color:rgba(107,118,153,.3)}
+.scp-code{font-family:monospace;font-size:16px;font-weight:900;padding:6px 12px;background:rgba(var(--teal-rgb),.08);border:1px dashed rgba(var(--teal-rgb),.3);border-radius:7px;color:var(--teal);min-width:120px;text-align:center}
+.scp-code.expired{color:var(--txt-3);border-color:rgba(107,118,153,.3)}
 .scp-coupon-body{flex:1;min-width:160px}
 .scp-coupon-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
 .scp-coupon-meta{font-size:11px;color:#6B7699}

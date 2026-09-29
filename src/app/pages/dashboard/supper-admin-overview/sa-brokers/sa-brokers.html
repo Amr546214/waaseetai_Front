@@ -62,7 +62,7 @@
         </thead>
         <tbody>
           @for (b of brokers(); track b.id) {
-            <tr class="bk-row" (click)="openDetail(b)">
+            <tr class="bk-row" [routerLink]="[b.id]">
               <td>
                 <div class="bk-u-cell">
                   <div class="bk-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ initial(b.name) }}</div>
@@ -81,7 +81,7 @@
               <td><span class="bk-status" [ngClass]="statusClasses[b.status]">{{ statusLabels[b.status] }}</span></td>
               <td (click)="$event.stopPropagation()">
                 <div class="bk-row-actions">
-                  <button type="button" class="bk-act bk-act-view" (click)="openDetail(b)">ملف</button>
+                  <button type="button" class="bk-act bk-act-view" [routerLink]="[b.id]">ملف</button>
                 </div>
               </td>
             </tr>
@@ -101,105 +101,3 @@
     }
   }
 </section>
-
-@if (showDetail() && selected(); as b) {
-  <div class="bk-mov" (click)="closeDetail()">
-    <div class="bk-mbox" (click)="$event.stopPropagation()">
-      <div class="bk-md-hdr">
-        <div class="bk-md-head-info">
-          <div class="bk-md-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ initial(b.name) }}</div>
-          <div>
-            <h3>{{ b.name || '—' }} <span class="bk-status" [ngClass]="statusClasses[b.status]">{{ statusLabels[b.status] }}</span></h3>
-            <div class="bk-md-sub">{{ b.email }} · منذ {{ formatDate(b.joinedAt) }}</div>
-          </div>
-        </div>
-        <button type="button" class="bk-mclose" (click)="closeDetail()">×</button>
-      </div>
-
-      @if (detailLoading()) {
-        <div class="bk-loading"><div class="bk-spinner"></div><p>جاري تحميل التفاصيل...</p></div>
-      } @else if (detailError()) {
-        <p class="bk-error-msg">{{ detailError() }}</p>
-      } @else {
-        <div class="bk-md-kpis">
-          <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي الإحالات</div><div class="bk-md-kpi-val txt-teal">{{ b.totalReferrals }}</div><div class="bk-md-kpi-sub">{{ b.convertedReferrals }} محوّلة</div></div>
-          <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">نسبة التحويل</div><div class="bk-md-kpi-val txt-green">{{ b.conversionRate }}%</div></div>
-          <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">عمولة معتمدة</div><div class="bk-md-kpi-val txt-amber">{{ b.paidCommission | number:'1.0-0' }} ر.س</div></div>
-          <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">عمولة معلقة</div><div class="bk-md-kpi-val txt-purple">{{ b.pendingCommission | number:'1.0-0' }} ر.س</div></div>
-        </div>
-
-        <div class="bk-md-body">
-          @if (b.channels?.length) {
-            <div class="bk-md-field">
-              <label>القنوات المسجلة</label>
-              <div class="bk-mini-tbl-wrap">
-                <table class="bk-mini-tbl">
-                  <thead><tr><th>المنصة</th><th>المعرّف</th><th>الرابط</th></tr></thead>
-                  <tbody>
-                    @for (ch of b.channels; track ch.handle) {
-                      <tr><td>{{ ch.platform }}</td><td dir="ltr">{{ ch.handle }}</td><td dir="ltr">{{ ch.url || '—' }}</td></tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          }
-
-          @if (b.channelMetrics?.length) {
-            <div class="bk-md-field">
-              <label>أداء القنوات</label>
-              <div class="bk-mini-tbl-wrap">
-                <table class="bk-mini-tbl">
-                  <thead><tr><th>القناة</th><th>زوار</th><th>عملاء</th><th>نسبة التحويل</th></tr></thead>
-                  <tbody>
-                    @for (m of b.channelMetrics; track m.channel) {
-                      <tr><td>{{ m.channel }}</td><td>{{ m.visitors }}</td><td class="bk-converted">{{ m.clients }}</td><td>{{ m.conversionPercentage }}%</td></tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          }
-
-          @if (b.customLinks?.length) {
-            <div class="bk-md-field">
-              <label>روابط الحملات المخصصة</label>
-              <div class="bk-mini-tbl-wrap">
-                <table class="bk-mini-tbl">
-                  <thead><tr><th>القناة</th><th>UTM Source</th><th>الرابط المخصص</th></tr></thead>
-                  <tbody>
-                    @for (l of b.customLinks; track l.utmSource) {
-                      <tr><td>{{ l.channelName }}</td><td dir="ltr">{{ l.utmSource }}</td><td dir="ltr">{{ l.customSlug || '—' }}</td></tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          }
-
-          @if (b.recentCommissions?.length) {
-            <div class="bk-md-field">
-              <label>آخر العمولات</label>
-              <div class="bk-mini-tbl-wrap">
-                <table class="bk-mini-tbl">
-                  <thead><tr><th>المستخدم المُحال</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
-                  <tbody>
-                    @for (c of b.recentCommissions; track c.createdAt) {
-                      <tr><td>{{ c.referredUserName || '—' }}</td><td>{{ c.type }}</td><td class="bk-converted">{{ c.amount }} {{ c.currency }}</td><td>{{ c.status }}</td><td class="bk-date">{{ formatDate(c.createdAt) }}</td></tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          } @else {
-            <p class="txt-muted" style="font-size:13px">لا توجد عمولات مسجلة بعد.</p>
-          }
-        </div>
-      }
-
-      <div class="bk-md-actions">
-        <button type="button" class="bk-btn bk-btn-ghost" (click)="closeDetail()">إغلاق</button>
-      </div>
-    </div>
-  </div>
-}

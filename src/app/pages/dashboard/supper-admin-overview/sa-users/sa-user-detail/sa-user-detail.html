@@ -1,0 +1,200 @@
+<div class="bg-grid" aria-hidden="true"></div>
+
+<svg style="display:none" aria-hidden="true">
+	<symbol id="ud-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+	<symbol id="ud-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+	<symbol id="ud-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></symbol>
+	<symbol id="ud-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></symbol>
+	<symbol id="ud-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+	<symbol id="ud-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+	<symbol id="ud-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></symbol>
+	<symbol id="ud-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+	<symbol id="ud-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+	<symbol id="ud-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+	<symbol id="ud-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></symbol>
+	<symbol id="ud-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+	<symbol id="ud-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+	<symbol id="ud-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></symbol>
+</svg>
+
+<main class="main">
+	<div class="main-inner">
+
+		<div class="breadcrumb">
+			<a routerLink="/supper-admin-overview/users">
+				<svg aria-hidden="true"><use href="#ud-home"></use></svg>
+				العودة إلى المستخدمين
+			</a>
+		</div>
+
+		@if (loading()) {
+		<div class="state-box">
+			<div class="ud-spinner"></div>
+			<div class="state-txt">جاري تحميل ملف المستخدم...</div>
+		</div>
+		} @else if (notFound()) {
+		<div class="state-box">
+			<div class="state-ico state-ico-warn"><svg aria-hidden="true"><use href="#ud-warn"></use></svg></div>
+			<div class="state-ttl">لم يتم العثور على هذا المستخدم</div>
+			<p class="state-txt">الرابط غير صحيح أو أن هذا الحساب غير متاح</p>
+			<a routerLink="/supper-admin-overview/users" class="btn btn-primary">العودة لقائمة المستخدمين</a>
+		</div>
+		} @else if (error()) {
+		<div class="state-box">
+			<div class="state-ico state-ico-warn"><svg aria-hidden="true"><use href="#ud-warn"></use></svg></div>
+			<div class="state-ttl">تعذر تحميل ملف المستخدم</div>
+			<p class="state-txt">{{ error() }}</p>
+			<button type="button" (click)="retry()" class="btn btn-primary">إعادة المحاولة</button>
+		</div>
+		} @else if (user(); as u) {
+
+		<!-- HEADER -->
+		<div class="ud-hdr-card">
+			<div class="ud-hdr-top">
+				<div class="ud-av" [style.background]="u.avBg">{{ u.av }}</div>
+				<div class="ud-hdr-info">
+					<div class="ud-hdr-name-row">
+						<h1 class="ud-name">{{ u.name }}</h1>
+						<span class="status-dot" [class]="SC[u.statusOriginal] || 's-active'">{{ SL[u.statusOriginal] || u.status }}</span>
+						<span class="type-badge" [style.background]="u.typeBg" [style.color]="u.typeColor">{{ u.typeLabel }}</span>
+						@if (u.risk) {
+						<span class="risk-badge" [style.color]="RC[u.risk]" [style.background]="RC[u.risk] + '1A'">مخاطر {{ RL(u.risk) }}</span>
+						}
+						@if (u.rating) {
+						<span class="level-badge" [style.color]="LC[u.level || ''] || '#D98A0B'">
+							<svg aria-hidden="true"><use href="#ud-star"></use></svg>{{ u.rating }} {{ u.level }}
+						</span>
+						}
+					</div>
+					<div class="ud-hdr-meta">
+						<span>{{ u.email }}</span>
+						@if (u.phoneNumber) {<span>·</span><span dir="ltr">{{ u.phoneNumber }}</span>}
+						<span>·</span><span>{{ u.id }}</span>
+						<span>·</span><span>منذ {{ u.createdAt }}</span>
+					</div>
+				</div>
+			</div>
+			<div class="ud-actions">
+				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-edit"></use></svg>تعديل سريع</button>
+				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-pause"></use></svg>تعليق الحساب</button>
+				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-warn"></use></svg>إنذار سريع</button>
+				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-shield"></use></svg>تعديل الصلاحيات</button>
+				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-chat"></use></svg>إرسال رسالة</button>
+				<button type="button" class="ud-act ud-act-danger"><svg aria-hidden="true"><use href="#ud-trash"></use></svg>حذف الحساب</button>
+			</div>
+		</div>
+
+		<!-- KPIs -->
+		<div class="ud-kpi-grid">
+			<div class="kpi-card">
+				<div class="kpi-lbl">بلاغاته</div>
+				<div class="kpi-val">{{ u.kpis.reports }}</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-lbl">نزاعاته</div>
+				<div class="kpi-val">{{ u.kpis.disputes }}</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-lbl">متوسط التقييم</div>
+				<div class="kpi-val">{{ u.kpis.avgRating ?? '—' }}</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-lbl">إجمالي الإيرادات</div>
+				<div class="kpi-val kpi-val-sm">{{ u.kpis.totalRevenue }}</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-lbl">مشاريع مكتملة</div>
+				<div class="kpi-val">{{ u.kpis.completedProjects }}</div>
+			</div>
+		</div>
+
+		<!-- TABS -->
+		<div class="tabs-wrap">
+			@for (t of tabs; track t.key) {
+			<button type="button" class="tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">
+				{{ t.label }}
+				@if (tabCount(u, t.key); as c) {<span class="tab-count">{{ c }}</span>}
+			</button>
+			}
+		</div>
+
+		@if (activeTab() === 'overview') {
+		<div class="ud-grid">
+
+			<div class="ud-panel ud-panel-wide">
+				<div class="ud-panel-hdr">الإيرادات (6 أشهر)</div>
+				<div class="ud-chart">
+					@for (p of u.revenueHistory; track p.label) {
+					<div class="ud-bar-col">
+						<div class="ud-bar" [style.height.%]="revenueBarHeight(u, p.value)"></div>
+						<span class="ud-bar-lbl">{{ p.label }}</span>
+					</div>
+					}
+					@if (!u.revenueHistory.length) {
+					<div class="ud-empty-inline">لا توجد بيانات إيرادات لعرضها بعد</div>
+					}
+				</div>
+			</div>
+
+			<div class="ud-panel">
+				<div class="ud-panel-hdr">Risk Score Breakdown</div>
+				<div class="ud-risk-score" [style.color]="RC[u.risk] || '#0FA99A'">{{ u.riskScore }}</div>
+				<div class="ud-risk-lbl">{{ u.riskLabel }}</div>
+				<ul class="ud-risk-list">
+					@for (item of u.riskBreakdown; track item.label) {
+					<li [class.ok]="item.ok"><svg aria-hidden="true"><use href="#ud-check"></use></svg>{{ item.label }}</li>
+					}
+				</ul>
+			</div>
+
+			<div class="ud-panel">
+				<div class="ud-panel-hdr">شبكة الحسابات المرتبطة</div>
+				@if (u.linkedAccounts.length) {
+				<ul class="ud-linked-list">
+					@for (acc of u.linkedAccounts; track acc.email) {
+					<li>{{ acc.email }} @if (acc.iban) {· {{ acc.iban }}}</li>
+					}
+				</ul>
+				} @else {
+				<div class="ud-empty-inline">لا توجد حسابات مرتبطة بنفس الجهاز أو IBAN</div>
+				}
+			</div>
+
+			<div class="ud-panel ud-panel-wide">
+				<div class="ud-panel-hdr ud-panel-hdr-ai"><svg aria-hidden="true"><use href="#ud-ai"></use></svg>وسيط AI: تحليل الحساب</div>
+				@if (u.aiInsights.length) {
+				<ul class="ud-ai-list">
+					@for (insight of u.aiInsights; track insight) {
+					<li>{{ insight }}</li>
+					}
+				</ul>
+				} @else {
+				<div class="ud-empty-inline">لا توجد تحليلات ذكاء اصطناعي متاحة بعد لهذا الحساب</div>
+				}
+			</div>
+
+			<div class="ud-panel ud-panel-wide">
+				<div class="ud-panel-hdr">المعلومات الشخصية</div>
+				<div class="ud-info-grid">
+					<div class="ud-info-item"><span class="ud-info-lbl">الاسم الكامل</span><span class="ud-info-val">{{ u.personalInfo.fullName }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">البريد الإلكتروني</span><span class="ud-info-val">{{ u.personalInfo.email }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">رقم الجوال</span><span class="ud-info-val" dir="ltr">{{ u.personalInfo.phoneNumber || '—' }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">تاريخ التسجيل</span><span class="ud-info-val">{{ u.personalInfo.registeredAt }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">آخر دخول</span><span class="ud-info-val">{{ u.personalInfo.lastLoginAt || '—' }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">المدينة</span><span class="ud-info-val">{{ u.personalInfo.city || '—' }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">الجهاز</span><span class="ud-info-val">{{ u.personalInfo.device || '—' }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">الحساب البنكي</span><span class="ud-info-val">{{ u.personalInfo.bankAccountLast4 ? ('SA xx ' + u.personalInfo.bankAccountLast4) : '—' }} @if (u.personalInfo.bankAccountVerified) {<svg class="ud-verified" aria-hidden="true"><use href="#ud-check"></use></svg>}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">رقم الهوية</span><span class="ud-info-val">{{ u.personalInfo.nationalIdLast4 ? ('xxxxxxx' + u.personalInfo.nationalIdLast4) : '—' }} @if (u.personalInfo.nationalIdVerified) {<svg class="ud-verified" aria-hidden="true"><use href="#ud-check"></use></svg>}</span></div>
+				</div>
+			</div>
+
+		</div>
+		} @else {
+		<div class="ud-panel">
+			<div class="ud-empty-inline">لا توجد بيانات لعرضها في هذا القسم حالياً</div>
+		</div>
+		}
+
+		}
+	</div>
+</main>

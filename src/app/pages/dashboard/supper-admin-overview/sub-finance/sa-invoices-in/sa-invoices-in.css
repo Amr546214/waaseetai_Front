@@ -51,8 +51,8 @@
 .fii-data-tbl tbody td{padding:10px 14px;color:#A8B2D1;border-bottom:1px solid rgba(255,255,255,.04)}
 .fii-data-tbl tbody tr:last-child td{border-bottom:0}
 .fii-data-tbl tbody tr:hover{background:rgba(255,255,255,.03)}
-.fii-mono{font-family:monospace;font-size:11px;color:#6B7699}
-.fii-supplier{color:#fff}
+.fii-mono{font-family:monospace;font-size:11px;color:var(--txt-3)}
+.fii-supplier{color:var(--txt)}
 .fii-amount{font-weight:800}
 .fii-date{color:#6B7699;font-size:11px}
 .fii-empty{text-align:center;color:#6B7699;padding:24px;font-size:12.5px}

@@ -132,6 +132,62 @@
 .acc-btn-reject{background:rgba(255,140,105,.10);border-color:rgba(255,140,105,.22);color:#FF8C69}
 .acc-btn-reject:hover{background:rgba(255,140,105,.18)}
 
+/* ---- new detail-modal sections: document viewer / checklist / risk panel / rejection templates ---- */
+.acc-section{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px 16px}
+.acc-section-ttl{font-size:13px;font-weight:800;color:#fff;margin:0 0 4px}
+.acc-section-note{font-size:11px;color:#6B7699;margin:0 0 10px;line-height:1.6}
+
+.acc-doc{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;margin-bottom:8px}
+.acc-doc:last-child{margin-bottom:0}
+.acc-doc-head{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
+.acc-doc-ic{width:26px;height:26px;border-radius:7px;background:rgba(43,212,199,.10);color:#2BD4C7;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.acc-doc-ic svg{width:12px;height:12px}
+.acc-doc-name{flex:1;font-size:12px;font-weight:700;color:#A8B2D1;text-decoration:none;word-break:break-all}
+.acc-doc-name:hover{color:#2BD4C7;text-decoration:underline}
+.acc-doc-badge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+.acc-doc-badge-verified{background:rgba(15,169,154,.12);border:1px solid rgba(15,169,154,.2);color:#0FA99A}
+.acc-doc-badge-warn{background:rgba(255,180,0,.12);border:1px solid rgba(255,180,0,.2);color:#D98A0B}
+.acc-doc-badge-score{background:rgba(43,127,255,.12);border:1px solid rgba(43,127,255,.2);color:#5DA0FF}
+.acc-doc-body{padding:10px 12px}
+.acc-doc-fields{display:flex;gap:16px;flex-wrap:wrap}
+.acc-doc-flbl{display:block;font-size:10px;color:#6B7699;font-weight:700;margin-bottom:2px}
+.acc-doc-fval{display:block;font-size:12px;font-weight:700;color:#fff}
+.acc-doc-fval.acc-ok{color:#0FA99A}
+.acc-doc-note{font-size:11.5px;color:#A8B2D1;margin:0;line-height:1.6}
+.acc-doc-note.acc-warn{color:#D98A0B}
+
+.acc-check{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:6px;border:1px solid;cursor:pointer;transition:all .15s}
+.acc-check:last-of-type{margin-bottom:0}
+.acc-check-done{background:rgba(15,169,154,.05);border-color:rgba(15,169,154,.18)}
+.acc-check-pending{background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.07)}
+.acc-check-warn{background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.16)}
+.acc-check-box{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.acc-check-box svg{width:10px;height:10px}
+.acc-check-box-done{background:linear-gradient(135deg,#0FA99A,#2BD4C7);color:#070D24}
+.acc-check-box-pending{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.acc-check-box-warn{background:rgba(255,180,0,.15);border:1px solid rgba(255,180,0,.3);color:#D98A0B}
+.acc-check-lbl{font-size:12px;font-weight:700;color:#fff;line-height:1.4}
+.acc-check-pending .acc-check-lbl{color:#A8B2D1}
+.acc-check-warn .acc-check-lbl{color:#FFB400}
+.acc-check-sub{font-size:11px;color:#6B7699;margin-top:2px;font-weight:500}
+.acc-check-warn-note{margin-top:8px;padding:9px 12px;background:rgba(255,180,0,.05);border:1px solid rgba(255,180,0,.15);border-radius:9px;font-size:11px;color:#D98A0B}
+
+.acc-risk-grid{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.acc-risk-row{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.acc-risk-lbl{color:#A8B2D1}
+.acc-risk-val{font-weight:700}
+.acc-risk-val.acc-ok{color:#0FA99A}
+.acc-risk-val.acc-warn{color:#D98A0B}
+.acc-risk-summary{padding:9px 12px;border-radius:9px;font-size:11.5px;font-weight:700}
+.acc-risk-summary-low{background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.16);color:#2BD4C7}
+.acc-risk-summary-medium{background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);color:#D98A0B}
+.acc-risk-summary-high{background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.2);color:#FF8C69}
+
+.acc-rej-tmpl-list{display:flex;flex-direction:column;gap:5px}
+.acc-rej-tmpl{display:block;width:100%;text-align:right;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:8px;font-size:11.5px;color:#A8B2D1;font-family:inherit;cursor:pointer;transition:all .15s;line-height:1.5}
+.acc-rej-tmpl:hover{border-color:rgba(255,140,105,.25);color:#FF8C69}
+.acc-rej-tmpl.active{border-color:rgba(255,140,105,.4);background:rgba(255,140,105,.08);color:#FF8C69}
+
 @media(max-width:900px){.acc-kpi-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){.acc-page{padding:14px 16px}.acc-md-field-row{flex-direction:column}}
 
@@ -407,4 +463,95 @@
 :host-context(.theme-light) .acc-md-loading p,
 :host-context(.theme-light) .acc-pag-info {
   color: #64748B;
+}
+
+:host-context(body.light-theme) .acc-section,
+:host-context(body.light-theme) .acc-doc,
+:host-context(body.light-theme) .acc-rej-tmpl,
+:host-context(body.theme-light) .acc-section,
+:host-context(body.theme-light) .acc-doc,
+:host-context(body.theme-light) .acc-rej-tmpl,
+:host-context(.light-theme) .acc-section,
+:host-context(.light-theme) .acc-doc,
+:host-context(.light-theme) .acc-rej-tmpl,
+:host-context(.theme-light) .acc-section,
+:host-context(.theme-light) .acc-doc,
+:host-context(.theme-light) .acc-rej-tmpl {
+  background: #F8FAFC !important; border-color: #E7EAF1 !important;
+}
+
+:host-context(body.light-theme) .acc-doc-head,
+:host-context(body.theme-light) .acc-doc-head,
+:host-context(.light-theme) .acc-doc-head,
+:host-context(.theme-light) .acc-doc-head {
+  background: #F1F5F9 !important; border-bottom-color: #E7EAF1 !important;
+}
+
+:host-context(body.light-theme) .acc-section-ttl,
+:host-context(body.theme-light) .acc-section-ttl,
+:host-context(.light-theme) .acc-section-ttl,
+:host-context(.theme-light) .acc-section-ttl {
+  color: #1E293B;
+}
+
+:host-context(body.light-theme) .acc-section-note,
+:host-context(body.light-theme) .acc-check-sub,
+:host-context(body.theme-light) .acc-section-note,
+:host-context(body.theme-light) .acc-check-sub,
+:host-context(.light-theme) .acc-section-note,
+:host-context(.light-theme) .acc-check-sub,
+:host-context(.theme-light) .acc-section-note,
+:host-context(.theme-light) .acc-check-sub {
+  color: #64748B;
+}
+
+:host-context(body.light-theme) .acc-doc-name,
+:host-context(body.light-theme) .acc-doc-fval,
+:host-context(body.light-theme) .acc-doc-note,
+:host-context(body.light-theme) .acc-check-lbl,
+:host-context(body.light-theme) .acc-risk-lbl,
+:host-context(body.theme-light) .acc-doc-name,
+:host-context(body.theme-light) .acc-doc-fval,
+:host-context(body.theme-light) .acc-doc-note,
+:host-context(body.theme-light) .acc-check-lbl,
+:host-context(body.theme-light) .acc-risk-lbl,
+:host-context(.light-theme) .acc-doc-name,
+:host-context(.light-theme) .acc-doc-fval,
+:host-context(.light-theme) .acc-doc-note,
+:host-context(.light-theme) .acc-check-lbl,
+:host-context(.light-theme) .acc-risk-lbl,
+:host-context(.theme-light) .acc-doc-name,
+:host-context(.theme-light) .acc-doc-fval,
+:host-context(.theme-light) .acc-doc-note,
+:host-context(.theme-light) .acc-check-lbl,
+:host-context(.theme-light) .acc-risk-lbl {
+  color: #1E293B;
+}
+
+:host-context(body.light-theme) .acc-check-done,
+:host-context(body.theme-light) .acc-check-done,
+:host-context(.light-theme) .acc-check-done,
+:host-context(.theme-light) .acc-check-done {
+  background: rgba(15,169,154,.05) !important;
+}
+
+:host-context(body.light-theme) .acc-check-pending,
+:host-context(body.theme-light) .acc-check-pending,
+:host-context(.light-theme) .acc-check-pending,
+:host-context(.theme-light) .acc-check-pending {
+  background: #F8FAFC !important; border-color: #E2E8F0 !important;
+}
+
+:host-context(body.light-theme) .acc-check-pending .acc-check-lbl,
+:host-context(body.theme-light) .acc-check-pending .acc-check-lbl,
+:host-context(.light-theme) .acc-check-pending .acc-check-lbl,
+:host-context(.theme-light) .acc-check-pending .acc-check-lbl {
+  color: #64748B;
+}
+
+:host-context(body.light-theme) .acc-rej-tmpl:hover,
+:host-context(body.theme-light) .acc-rej-tmpl:hover,
+:host-context(.light-theme) .acc-rej-tmpl:hover,
+:host-context(.theme-light) .acc-rej-tmpl:hover {
+  background: rgba(255,140,105,.06) !important;
 }

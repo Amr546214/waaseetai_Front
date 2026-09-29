@@ -260,9 +260,9 @@
 .rev-table td:first-child { color: #fff; font-weight: 700; }
 .rev-table td.strong { font-weight: 800; color: #fff; }
 .rev-table td.up { color: #0FA99A; font-weight: 700; }
-.rev-table td.mono { font-family: monospace; color: #6B7699; }
-.rev-table td.ltr { direction: ltr; text-align: right; color: #6B7699; }
-.rev-table-empty { text-align: center; color: #6B7699; padding: 20px; }
+.rev-table td.mono { font-family: monospace; color: var(--txt-3); }
+.rev-table td.ltr { direction: ltr; text-align: right; color: var(--txt-3); }
+.rev-table-empty { text-align: center; color: var(--txt-3); padding: 20px; }
 
 :host-context(body.light-theme) .rev-table th,
 :host-context(body.theme-light) .rev-table th,

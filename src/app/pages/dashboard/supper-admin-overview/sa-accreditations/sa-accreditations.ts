@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AccreditationApiService } from '../../../../core/services/accreditation-api.service';
@@ -14,7 +15,7 @@ type StatusFilter = 'all' | AccreditationStatus;
 @Component({
   selector: 'app-sa-accreditations',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './sa-accreditations.html',
   styleUrl: './sa-accreditations.css',
 })
@@ -43,16 +44,6 @@ export class SaAccreditations implements OnInit {
   });
   countsLoading = signal(false);
 
-  selected = signal<AccreditationSample | null>(null);
-  detailLoading = signal(false);
-  detailError = signal('');
-  showDetail = signal(false);
-
-  showRejectForm = signal(false);
-  rejectionReason = signal('');
-  submittingAction = signal(false);
-  actionError = signal('');
-  actionSuccess = signal('');
 
   readonly filters: { key: StatusFilter; label: string }[] = [
     { key: 'all', label: 'الكل' },
@@ -173,113 +164,12 @@ export class SaAccreditations implements OnInit {
     }
   }
 
-  openDetail(sample: AccreditationSample) {
-    this.showDetail.set(true);
-    this.detailError.set('');
-    this.actionError.set('');
-    this.actionSuccess.set('');
-    this.showRejectForm.set(false);
-    this.selected.set(sample);
-    this.detailLoading.set(true);
-    this.accreditationApi.getAdminSample(sample.id).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.selected.set(res.data);
-        }
-        this.detailLoading.set(false);
-      },
-      error: (err) => {
-        this.detailError.set(err?.error?.message || 'تعذر تحميل تفاصيل نموذج الاعتماد');
-        this.detailLoading.set(false);
-      },
-    });
-  }
-
-  closeDetail() {
-    this.showDetail.set(false);
-    this.selected.set(null);
-    this.detailError.set('');
-    this.cancelRejectForm();
-  }
-
   // AI_VERIFIED on the sample itself now only ever means "AI recommends
   // approval, pending final confirmation" — the real "already granted"
   // condition is whether the linked ProviderSpecialty has actually been
   // approved (by a prior explicit admin action), not the sample's own label.
   canApprove(sample: AccreditationSample): boolean {
     return sample.providerSpecialty?.status !== 'APPROVED';
-  }
-
-  canReject(status: AccreditationStatus): boolean {
-    return status !== 'REJECTED';
-  }
-
-  submitApprove() {
-    const sample = this.selected();
-    if (!sample || this.submittingAction()) return;
-    this.actionError.set('');
-    this.submittingAction.set(true);
-    this.accreditationApi.approveSample(sample.id).subscribe({
-      next: (res) => {
-        this.submittingAction.set(false);
-        if (res.success) {
-          this.actionSuccess.set('تم اعتماد نموذج الاعتماد بنجاح');
-          if (res.data) this.selected.update((cur) => (cur ? { ...cur, ...res.data } : cur));
-          this.fetchSamples();
-          this.fetchStatusCounts();
-        } else {
-          this.actionError.set(res.message || 'تعذر اعتماد النموذج، حاول مرة أخرى');
-        }
-      },
-      error: (err) => {
-        this.submittingAction.set(false);
-        this.actionError.set(err?.error?.message || 'تعذر اعتماد النموذج، حاول مرة أخرى');
-      },
-    });
-  }
-
-  openRejectForm() {
-    this.rejectionReason.set('');
-    this.actionError.set('');
-    this.actionSuccess.set('');
-    this.showRejectForm.set(true);
-  }
-
-  cancelRejectForm() {
-    this.showRejectForm.set(false);
-    this.rejectionReason.set('');
-    this.actionError.set('');
-  }
-
-  submitReject() {
-    const sample = this.selected();
-    if (!sample || this.submittingAction()) return;
-    const reason = this.rejectionReason().trim();
-    if (reason.length < 2) {
-      this.actionError.set('يرجى كتابة سبب الرفض (حرفان على الأقل)');
-      return;
-    }
-    this.actionError.set('');
-    this.submittingAction.set(true);
-    this.accreditationApi.rejectSample(sample.id, { rejectionReason: reason }).subscribe({
-      next: (res) => {
-        this.submittingAction.set(false);
-        if (res.success) {
-          this.actionSuccess.set('تم رفض نموذج الاعتماد');
-          this.showRejectForm.set(false);
-          this.rejectionReason.set('');
-          if (res.data) this.selected.update((cur) => (cur ? { ...cur, ...res.data } : cur));
-          this.fetchSamples();
-          this.fetchStatusCounts();
-        } else {
-          this.actionError.set(res.message || 'تعذر رفض النموذج، حاول مرة أخرى');
-        }
-      },
-      error: (err) => {
-        this.submittingAction.set(false);
-        this.actionError.set(err?.error?.message || 'تعذر رفض النموذج، حاول مرة أخرى');
-      },
-    });
   }
 
   providerName(sample: AccreditationSample): string {
@@ -309,7 +199,4 @@ export class SaAccreditations implements OnInit {
     }).format(new Date(value));
   }
 
-  shortId(id: string): string {
-    return id.length > 8 ? id.slice(0, 8) + '…' : id;
-  }
 }

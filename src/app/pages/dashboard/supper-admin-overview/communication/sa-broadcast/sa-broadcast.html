@@ -13,6 +13,9 @@
   @if (sendResult()) {
     <div class="sbr-toast">{{ sendResult() }}</div>
   }
+  @if (errorMessage()) {
+    <div class="sbr-error">{{ errorMessage() }}</div>
+  }
 
   <div class="sbr-layout">
     <div class="sbr-card">
@@ -53,8 +56,8 @@
       <div class="sbr-field">
         <div class="sbr-field-lbl">جدولة الإرسال</div>
         <div class="sbr-schedule-row">
-          <input type="datetime-local" class="sbr-input" style="flex:1">
-          <button type="button" class="sbr-btn sbr-btn-gh">إرسال فوري</button>
+          <input type="datetime-local" class="sbr-input" style="flex:1" [ngModel]="scheduleDate()" (ngModelChange)="scheduleDate.set($event)">
+          <button type="button" class="sbr-btn sbr-btn-gh" (click)="scheduleIt()">جدولة</button>
         </div>
       </div>
 
@@ -70,7 +73,7 @@
     <div class="sbr-side">
       <div class="sbr-card">
         <div class="sbr-card-ttl">حملات سابقة</div>
-        @for (c of campaigns; track c.name) {
+        @for (c of campaigns(); track c.name + c.meta) {
           <div class="sbr-history">
             <div class="sbr-history-body">
               <div class="sbr-history-name">{{ c.name }}</div>
@@ -83,7 +86,7 @@
       <div class="sbr-card">
         <div class="sbr-card-ttl sbr-card-ttl-sm">إحصاءات هذا الشهر</div>
         <div class="sbr-stat-grid">
-          @for (s of monthStats; track s.label) {
+          @for (s of monthStats(); track s.label) {
             <div class="sbr-stat"><div class="sbr-stat-v" [style.color]="s.color">{{ s.value }}</div><div class="sbr-stat-l">{{ s.label }}</div></div>
           }
         </div>

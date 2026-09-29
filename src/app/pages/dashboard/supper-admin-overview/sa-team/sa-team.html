@@ -68,7 +68,7 @@
           <div class="tm-pending-note">في انتظار القبول</div>
         </div>
       } @else {
-        <button type="button" class="tm-card" (click)="openDetail(m)">
+        <button type="button" class="tm-card" [routerLink]="[m.email]">
           <div class="tm-card-top">
             <div class="tm-avatar" [style.background]="m.color">{{ m.avatar }}</div>
             <div class="tm-card-head-body"><div class="tm-name">{{ m.name }}</div><div class="tm-role">{{ m.role }}</div></div>
@@ -93,38 +93,6 @@
 
   <div class="tm-foot">© 2026 وسيط AI · v2.0.0</div>
 </section>
-
-@if (showDetail()) {
-  <div class="tm-overlay" (click)="closeDetail()">
-    <div class="tm-modal" (click)="$event.stopPropagation()">
-      @if (selectedMember(); as m) {
-        <div class="tm-modal-hdr">
-          <div class="tm-modal-head">
-            <div class="tm-avatar tm-avatar-lg" [style.background]="m.color">{{ m.avatar }}</div>
-            <div>
-              <h3>{{ m.name }}</h3>
-              <div class="tm-role">{{ m.role }} · {{ m.dept }}</div>
-            </div>
-          </div>
-          <button type="button" class="tm-modal-close" (click)="closeDetail()">×</button>
-        </div>
-        <div class="tm-modal-body">
-          <div class="tm-detail-row"><span>البريد الإلكتروني</span><span dir="ltr">{{ m.email }}</span></div>
-          <div class="tm-detail-row"><span>تاريخ الانضمام</span><span>{{ m.joined }}</span></div>
-          <div class="tm-detail-row"><span>الحالة</span><span [style.color]="m.online ? '#0FA99A' : '#6B7699'">{{ m.online ? 'نشط الآن' : 'غير متاح' }}</span></div>
-          <div class="tm-modal-stats">
-            <div class="tm-stat"><div class="tm-stat-val txt-teal">{{ m.tasksOpen }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
-            <div class="tm-stat"><div class="tm-stat-val txt-green">{{ m.solved }}</div><div class="tm-stat-lbl">مُحلَّلة</div></div>
-            <div class="tm-stat"><div class="tm-stat-val" [style.color]="scoreColor(m.score)">{{ m.score }}%</div><div class="tm-stat-lbl">أداء</div></div>
-          </div>
-        </div>
-        <div class="tm-modal-actions">
-          <button type="button" class="tm-btn tm-btn-ghost" (click)="closeDetail()">إغلاق</button>
-        </div>
-      }
-    </div>
-  </div>
-}
 
 @if (showInvite()) {
   <div class="tm-overlay" (click)="closeInvite()">

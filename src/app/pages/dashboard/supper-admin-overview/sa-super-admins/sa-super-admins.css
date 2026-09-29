@@ -55,6 +55,24 @@
 .spa-btn-danger{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.28);color:#FF6B6B}
 .spa-btn-danger:hover{background:rgba(255,107,107,.20)}
 
+.spa-filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.spa-fr-search{position:relative;flex:1;min-width:180px}
+.spa-fr-search svg{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#6B7699;pointer-events:none}
+.spa-fr-search input{width:100%;height:34px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:0 32px 0 12px;font-size:12.5px;color:#fff;font-family:inherit;outline:none;direction:rtl;transition:border-color .15s}
+.spa-fr-search input:focus{border-color:rgba(43,212,199,.30)}
+.spa-fr-search input::placeholder{color:#4A5568}
+.spa-fr-sel{height:34px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:0 10px;font-size:12.5px;color:#A8B2D1;font-family:inherit;outline:none;cursor:pointer}
+.spa-fr-sel option{background:#0B1437;color:#fff}
+
+.spa-empty{padding:30px;text-align:center;color:#6B7699;font-size:12px}
+
+.spa-pag-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:10px}
+.spa-pag-info{font-size:12px;color:#6B7699}
+.spa-pag-btns{display:flex;gap:4px}
+.spa-page-btn{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#6B7699;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.spa-page-btn.active{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.25);color:#2BD4C7}
+.spa-page-btn:disabled{opacity:.4;cursor:not-allowed}
+
 .spa-tbl-wrap{overflow-x:auto}
 .spa-tbl{width:100%;border-collapse:collapse;font-size:12px}
 .spa-tbl thead tr{border-bottom:1px solid rgba(255,255,255,.07)}
@@ -200,3 +218,45 @@
 :host-context(body.theme-light) .spa-row,
 :host-context(.light-theme) .spa-row,
 :host-context(.theme-light) .spa-row{border-color:rgba(7,13,36,.08)}
+
+:host-context(body.light-theme) .spa-filter-row,
+:host-context(body.theme-light) .spa-filter-row,
+:host-context(.light-theme) .spa-filter-row,
+:host-context(.theme-light) .spa-filter-row{border-color:rgba(7,13,36,.08)}
+
+:host-context(body.light-theme) .spa-fr-search input,
+:host-context(body.theme-light) .spa-fr-search input,
+:host-context(.light-theme) .spa-fr-search input,
+:host-context(.theme-light) .spa-fr-search input,
+:host-context(body.light-theme) .spa-fr-sel,
+:host-context(body.theme-light) .spa-fr-sel,
+:host-context(.light-theme) .spa-fr-sel,
+:host-context(.theme-light) .spa-fr-sel{background:#fff;border-color:#CBD5E1;color:#1E293B}
+
+:host-context(body.light-theme) .spa-fr-search svg,
+:host-context(body.theme-light) .spa-fr-search svg,
+:host-context(.light-theme) .spa-fr-search svg,
+:host-context(.theme-light) .spa-fr-search svg,
+:host-context(body.light-theme) .spa-pag-info,
+:host-context(body.theme-light) .spa-pag-info,
+:host-context(.light-theme) .spa-pag-info,
+:host-context(.theme-light) .spa-pag-info,
+:host-context(body.light-theme) .spa-empty,
+:host-context(body.theme-light) .spa-empty,
+:host-context(.light-theme) .spa-empty,
+:host-context(.theme-light) .spa-empty{color:#64748B}
+
+:host-context(body.light-theme) .spa-pag-foot,
+:host-context(body.theme-light) .spa-pag-foot,
+:host-context(.light-theme) .spa-pag-foot,
+:host-context(.theme-light) .spa-pag-foot{border-color:#E7EAF1}
+
+:host-context(body.light-theme) .spa-page-btn,
+:host-context(body.theme-light) .spa-page-btn,
+:host-context(.light-theme) .spa-page-btn,
+:host-context(.theme-light) .spa-page-btn{background:rgba(7,13,36,.04);border-color:rgba(7,13,36,.10);color:#64748B}
+
+:host-context(body.light-theme) .spa-page-btn.active,
+:host-context(body.theme-light) .spa-page-btn.active,
+:host-context(.light-theme) .spa-page-btn.active,
+:host-context(.theme-light) .spa-page-btn.active{background:rgba(43,212,199,.14);border-color:rgba(43,212,199,.30);color:#007A72}

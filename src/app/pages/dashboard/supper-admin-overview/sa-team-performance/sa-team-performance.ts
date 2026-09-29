@@ -32,19 +32,40 @@ interface BenchmarkRow {
 export class SaTeamPerformance {
   readonly period = signal<Period>('month');
 
-  readonly months = ['أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر'];
-  readonly current = [78, 82, 85, 88, 91, 94];
-  readonly previous = [65, 68, 70, 72, 75, 79];
+  private readonly seriesByPeriod: Record<Period, { labels: string[]; current: number[]; previous: number[] }> = {
+    month: {
+      labels: ['أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر'],
+      current: [78, 82, 85, 88, 91, 94],
+      previous: [65, 68, 70, 72, 75, 79],
+    },
+    quarter: {
+      labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'],
+      current: [74, 81, 87, 92],
+      previous: [60, 66, 71, 77],
+    },
+    year: {
+      labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
+      current: [58, 64, 71, 79, 86, 94],
+      previous: [45, 50, 56, 63, 70, 77],
+    },
+  };
 
-  readonly chartBars = computed(() =>
-    this.months.map((m, i) => ({
+  readonly months = computed(() => this.seriesByPeriod[this.period()].labels);
+  readonly current = computed(() => this.seriesByPeriod[this.period()].current);
+  readonly previous = computed(() => this.seriesByPeriod[this.period()].previous);
+
+  readonly chartBars = computed(() => {
+    const labels = this.months();
+    const current = this.current();
+    const previous = this.previous();
+    return labels.map((m, i) => ({
       label: m.substring(0, 3),
-      current: this.current[i],
-      previous: this.previous[i],
-      currentPct: Math.round((this.current[i] / 100) * 100),
-      previousPct: Math.round((this.previous[i] / 100) * 100),
-    }))
-  );
+      current: current[i],
+      previous: previous[i],
+      currentPct: Math.round((current[i] / 100) * 100),
+      previousPct: Math.round((previous[i] / 100) * 100),
+    }));
+  });
 
   readonly members = signal<TeamMember[]>([
     { name: 'هيثم القرني', role: 'مشرف نزاعات', avatarColor: '#59C1F5', tasks: 142, sla: 98, rating: 4.8, score: 94 },

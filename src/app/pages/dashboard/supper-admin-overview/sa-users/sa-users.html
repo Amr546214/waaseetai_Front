@@ -169,7 +169,7 @@
                     <div class="u-cell">
                       <div class="u-av" [style.background]="u.avBg">{{ u.av }}</div>
                       <div>
-                        <a routerLink="." class="u-name">{{ u.name }}</a>
+                        <a [routerLink]="['/supper-admin-overview/users', u.id]" class="u-name">{{ u.name }}</a>
                         <div class="u-email">{{ u.email }}</div>
                       </div>
                     </div>
@@ -266,13 +266,13 @@
                   
                   <td>
                     <div class="row-actions">
-                      <a routerLink="." class="act-btn" title="عرض الملف"><svg aria-hidden="true"><use href="#i-eye"></use></svg></a>
+                      <a [routerLink]="['/supper-admin-overview/users', u.id]" class="act-btn" title="عرض الملف"><svg aria-hidden="true"><use href="#i-eye"></use></svg></a>
                       <button type="button" class="act-btn" title="إرسال تنبيه"><svg aria-hidden="true"><use href="#i-mail"></use></svg></button>
                       <div class="act-more">
                         <button type="button" class="act-btn" (click)="toggleDropdown($event, u.id)"><svg aria-hidden="true"><use href="#i-dots"></use></svg></button>
                         @if (isDropdownOpen[u.id]) {
                           <div class="act-dropdown" (click)="$event.stopPropagation()">
-                            <a routerLink="." class="act-drop-item"><svg aria-hidden="true"><use href="#i-eye"></use></svg>عرض الملف الكامل</a>
+                            <a [routerLink]="['/supper-admin-overview/users', u.id]" class="act-drop-item"><svg aria-hidden="true"><use href="#i-eye"></use></svg>عرض الملف الكامل</a>
                             <button type="button" class="act-drop-item"><svg aria-hidden="true"><use href="#i-list"></use></svg>سجل النشاط</button>
                             <button type="button" class="act-drop-item"><svg aria-hidden="true"><use href="#i-escrow"></use></svg>مشاريعه</button>
                             <button type="button" class="act-drop-item"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>معاملاته المالية</button>

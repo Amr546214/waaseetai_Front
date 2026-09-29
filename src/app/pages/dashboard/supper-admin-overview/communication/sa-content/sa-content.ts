@@ -65,7 +65,7 @@ export class SaContent {
     const page = this.pages.find((p) => p.key === this.selectedKey());
     if (page) page.content = this.draftContent();
     this.dirty.set(false);
-    this.savedMsg.set('تم الحفظ والنشر بنجاح');
+    this.savedMsg.set('تم الحفظ محليًا لهذه الجلسة — النشر الفعلي على الموقع قيد التفعيل قريبًا');
     setTimeout(() => this.savedMsg.set(''), 2500);
   }
 }

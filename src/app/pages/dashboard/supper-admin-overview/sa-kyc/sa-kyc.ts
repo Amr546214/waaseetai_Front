@@ -42,6 +42,13 @@ export class SaKyc implements OnInit {
     { value: 'REJECTED', label: 'مرفوض' },
   ];
 
+  // Search filters over the currently loaded page. SaKycService's
+  // OnboardingQuery/KycProviderQuery don't expose a `search` param, so we
+  // filter client-side over the already-loaded items (no debounce needed
+  // since this doesn't trigger a network request).
+  onboardingSearchQuery = signal<string>('');
+  providersSearchQuery = signal<string>('');
+
   // ── Provider KYC state ──────────────────────────────────────────────
   providers = signal<KycProvider[]>([]);
   providersLoading = signal<boolean>(false);
@@ -83,6 +90,36 @@ export class SaKyc implements OnInit {
   providersPending = computed(() => this.providers().filter(p => p.kycStatus === 'PENDING' || p.kycStatus === 'UNVERIFIED').length);
   providersVerified = computed(() => this.providers().filter(p => p.kycStatus === 'VERIFIED' || p.isVerified === true).length);
   providersRejected = computed(() => this.providers().filter(p => p.kycStatus === 'REJECTED').length);
+
+  // ── Client-side search over the loaded page ─────────────────────────
+  filteredOnboarding = computed(() => {
+    const q = this.onboardingSearchQuery().trim().toLowerCase();
+    if (!q) return this.onboarding();
+    return this.onboarding().filter(o =>
+      (o.userName || '').toLowerCase().includes(q) ||
+      (o.userEmail || '').toLowerCase().includes(q) ||
+      (o.documentName || '').toLowerCase().includes(q) ||
+      (o.id || '').toLowerCase().includes(q)
+    );
+  });
+
+  filteredProviders = computed(() => {
+    const q = this.providersSearchQuery().trim().toLowerCase();
+    if (!q) return this.providers();
+    return this.providers().filter(p =>
+      (p.userName || '').toLowerCase().includes(q) ||
+      (p.userEmail || '').toLowerCase().includes(q) ||
+      (p.userId || '').toLowerCase().includes(q)
+    );
+  });
+
+  onOnboardingSearchInput(value: string) {
+    this.onboardingSearchQuery.set(value);
+  }
+
+  onProvidersSearchInput(value: string) {
+    this.providersSearchQuery.set(value);
+  }
 
   ngOnInit() {
     this.loadOnboarding();

@@ -47,7 +47,7 @@
   } @else {
     <div class="rp-list">
       @for (r of filteredReports(); track r.id) {
-        <div class="rp-card" [class]="'rp-priority-' + r.priority" (click)="openDetail(r)">
+        <div class="rp-card" [class]="'rp-priority-' + r.priority" [routerLink]="[r.id]">
           <div class="rp-card-hdr">
             <div>
               <div class="rp-card-id">{{ r.id }} · {{ r.date }}</div>
@@ -82,10 +82,10 @@
             }
             @if (r.status === 'new' || r.status === 'investigating') {
               <button type="button" class="rp-btn rp-btn-warn" (click)="issueWarning(r)">تحذير رسمي</button>
-              <button type="button" class="rp-btn rp-btn-ghost" (click)="openDetail(r)">مراجعة الحساب</button>
+              <button type="button" class="rp-btn rp-btn-ghost" [routerLink]="[r.id]">مراجعة الحساب</button>
               <button type="button" class="rp-btn rp-btn-dismiss" (click)="dismiss(r)">رفض البلاغ</button>
             } @else {
-              <button type="button" class="rp-btn rp-btn-ghost" (click)="openDetail(r)">عرض التفاصيل</button>
+              <button type="button" class="rp-btn rp-btn-ghost" [routerLink]="[r.id]">عرض التفاصيل</button>
             }
           </div>
         </div>
@@ -100,84 +100,3 @@
     </div>
   }
 </section>
-
-@if (showDetail() && selected(); as r) {
-  <div class="rp-mov" (click)="closeDetail()">
-    <div class="rp-mbox" (click)="$event.stopPropagation()">
-      <div class="rp-md-hdr">
-        <div>
-          <div class="rp-md-id">{{ r.id }} · {{ r.typeLabel }}</div>
-          <h3>{{ r.desc }}</h3>
-          <div class="rp-md-badges">
-            <span class="rp-bdg rp-sev">{{ r.severity }}</span>
-            <span class="rp-bdg" [class]="'rp-st-' + r.status">
-              @switch (r.status) {
-                @case ('new') { جديد }
-                @case ('investigating') { قيد التحقيق }
-                @case ('dismissed') { رُفض }
-                @case ('actioned') { اتُّخذ إجراء }
-              }
-            </span>
-            <span class="rp-bdg rp-ai-risk">درجة الخطورة: {{ r.aiRiskScore }}/100</span>
-          </div>
-        </div>
-        <button type="button" class="rp-mclose" (click)="closeDetail()">×</button>
-      </div>
-
-      <div class="rp-md-stats">
-        <div class="rp-md-stat"><div class="rp-md-stat-lbl">تاريخ البلاغ</div><div class="rp-md-stat-val">{{ r.date }}</div></div>
-        <div class="rp-md-stat"><div class="rp-md-stat-lbl">نوع المخالفة</div><div class="rp-md-stat-val txt-coral">{{ r.typeLabel }}</div></div>
-        <div class="rp-md-stat"><div class="rp-md-stat-lbl">المبلغ المتنازع عليه</div><div class="rp-md-stat-val txt-amber">{{ r.disputedAmount }}</div></div>
-        <div class="rp-md-stat"><div class="rp-md-stat-lbl">بلاغات سابقة</div><div class="rp-md-stat-val txt-red">{{ r.priorReports }}</div></div>
-      </div>
-
-      <div class="rp-md-body">
-        <div class="rp-md-field">
-          <label>أطراف البلاغ</label>
-          <div class="rp-parties-grid">
-            <div class="rp-party-box reporter">
-              <div class="rp-party-box-lbl">المُبلِّغ</div>
-              <div class="rp-party-box-row">
-                <div class="rp-av" [style.background]="r.reporterBg">{{ r.reporterAv }}</div>
-                <span class="rp-party-box-name">{{ r.reporter }}</span>
-              </div>
-            </div>
-            <div class="rp-party-box reported">
-              <div class="rp-party-box-lbl">المُبلَّغ عنه</div>
-              <div class="rp-party-box-row">
-                <div class="rp-av" [style.background]="r.reportedBg">{{ r.reportedAv }}</div>
-                <span class="rp-party-box-name">{{ r.reported }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="rp-md-field">
-          <label>الأدلة المرفوعة ({{ r.evidence.length }})</label>
-          <div class="rp-ev-list">
-            @for (ev of r.evidence; track ev.label) {
-              <div class="rp-ev-item">
-                <div class="rp-ev-hdr"><span class="rp-ev-name">📄 {{ ev.label }}</span><span class="rp-ev-meta">{{ ev.meta }}</span></div>
-                <p class="rp-ev-note">{{ ev.note }}</p>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <div class="rp-md-actions">
-        @if (r.status === 'new' || r.status === 'investigating') {
-          @if (r.priority === 'high') {
-            <button type="button" class="rp-btn rp-btn-warn" (click)="suspendImmediately(r)">تعليق فوري</button>
-          }
-          <button type="button" class="rp-btn rp-btn-warn" (click)="issueWarning(r)">تحذير رسمي</button>
-          @if (r.status === 'new') {
-            <button type="button" class="rp-btn rp-btn-ghost" (click)="markInvestigating(r)">نقل للتحقيق</button>
-          }
-          <button type="button" class="rp-btn rp-btn-dismiss" (click)="dismiss(r)">رفض البلاغ</button>
-        }
-        <button type="button" class="rp-btn rp-btn-ghost" (click)="closeDetail()">إغلاق</button>
-      </div>
-    </div>
-  </div>
-}

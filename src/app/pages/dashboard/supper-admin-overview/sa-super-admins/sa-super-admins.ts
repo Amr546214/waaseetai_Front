@@ -1,4 +1,4 @@
-import { Component, signal, WritableSignal } from '@angular/core';
+import { Component, computed, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'integrations' | 'audit' | 'danger';
@@ -104,8 +104,6 @@ export class SaSuperAdmins {
     { label: 'SMS Gateway (Twilio)', desc: 'مفتاح خدمة الرسائل' },
     { label: 'Payment Gateway (HyperPay)', desc: 'مفتاح بوابة الدفع' },
   ];
-  readonly revealedKeys = signal<Set<number>>(new Set());
-
   readonly auditRows: SpaAuditRow[] = [
     { n: 4812, action: 'تغيير إعداد', detail: 'رسوم النظام: 8% ← 10%', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'اليوم 3:12 م', sev: 'high' },
     { n: 4811, action: 'تسجيل دخول', detail: 'دخول ناجح من الرياض', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'اليوم 2:40 م', sev: 'info' },
@@ -123,6 +121,55 @@ export class SaSuperAdmins {
     danger: { bg: 'rgba(255,80,80,.12)', color: '#FF5050', lbl: 'خطر' },
   };
 
+  // Audit Trail filters + pagination — genuine client-side filtering/paging
+  // over the mock auditRows array above (no backend audit-log API exists
+  // yet; see BACKEND_BLOCKED_ISSUES.md). This mirrors the filter-row +
+  // pagination footer specified in design-reference P-AD-021 (Super Admin
+  // → Audit Trail tab), which the implementation previously lacked entirely.
+  readonly auditSearch = signal('');
+  readonly auditTypeFilter = signal('الكل');
+  readonly auditActorFilter = signal('الكل');
+  readonly auditPage = signal(1);
+  readonly auditPageSize = 5;
+
+  readonly auditActionTypes = computed(() => ['الكل', ...Array.from(new Set(this.auditRows.map((r) => r.action)))]);
+  readonly auditActors = computed(() => ['الكل', ...Array.from(new Set(this.auditRows.map((r) => r.by)))]);
+
+  readonly filteredAuditRows = computed(() => {
+    const type = this.auditTypeFilter();
+    const actor = this.auditActorFilter();
+    const query = this.auditSearch().trim().toLowerCase();
+    return this.auditRows.filter((r) => {
+      const matchesType = type === 'الكل' || r.action === type;
+      const matchesActor = actor === 'الكل' || r.by === actor;
+      const matchesQuery =
+        !query ||
+        r.action.toLowerCase().includes(query) ||
+        r.detail.toLowerCase().includes(query) ||
+        r.by.toLowerCase().includes(query);
+      return matchesType && matchesActor && matchesQuery;
+    });
+  });
+
+  readonly totalAuditPages = computed(() => Math.max(1, Math.ceil(this.filteredAuditRows().length / this.auditPageSize)));
+
+  readonly pagedAuditRows = computed(() => {
+    const page = Math.min(this.auditPage(), this.totalAuditPages());
+    const start = (page - 1) * this.auditPageSize;
+    return this.filteredAuditRows().slice(start, start + this.auditPageSize);
+  });
+
+  readonly auditPageNumbers = computed(() => Array.from({ length: this.totalAuditPages() }, (_, i) => i + 1));
+
+  readonly auditRangeLabel = computed(() => {
+    const total = this.filteredAuditRows().length;
+    if (!total) return 'لا توجد نتائج';
+    const page = Math.min(this.auditPage(), this.totalAuditPages());
+    const start = (page - 1) * this.auditPageSize + 1;
+    const end = Math.min(page * this.auditPageSize, total);
+    return `عرض ${start}–${end} من ${total}`;
+  });
+
   readonly dangerActions: DangerAction[] = [
     { key: 'maintenance', label: 'تفعيل وضع الصيانة الكامل', desc: 'يعطل النظام لجميع المستخدمين', buttonLabel: 'تفعيل' },
     { key: 'wipeTest', label: 'مسح قاعدة بيانات الاختبار', desc: 'حذف بيانات بيئة التطوير', buttonLabel: 'تنفيذ' },
@@ -130,9 +177,19 @@ export class SaSuperAdmins {
     { key: 'backup', label: 'تصدير نسخة احتياطية كاملة', desc: 'DB Snapshot — مشفّرة', buttonLabel: 'تصدير' },
   ];
 
-  readonly confirmingAction = signal<DangerAction | null>(null);
   readonly toastMessage = signal('');
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Batch: none of the 4 danger-zone actions (maintenance mode, test-DB wipe,
+  // all-user broadcast, full DB backup export) has a backend endpoint —
+  // confirmed via grep across AdminSecurityApiService and every
+  // system-settings service. Showing a fake "تم تنفيذ" success toast for a
+  // destructive/irreversible action would make an admin believe data was
+  // wiped or 12,480 users were messaged when nothing happened. These buttons
+  // are disabled with an explanatory tooltip until real endpoints exist —
+  // see BACKEND_BLOCKED_ISSUES.md.
+  readonly dangerBlockedTooltip =
+    'قيد التفعيل قريباً — يتطلب ربط هذا الإجراء بالخادم الخلفي؛ لا يوجد حالياً أي تنفيذ فعلي له';
 
   setSection(s: SpaSection) {
     this.activeSection.set(s);
@@ -142,36 +199,50 @@ export class SaSuperAdmins {
     list.update((rows) => rows.map((r) => (r.key === key ? { ...r, on: !r.on } : r)));
   }
 
-  toggleReveal(index: number) {
-    this.revealedKeys.update((set) => {
-      const next = new Set(set);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
-      return next;
-    });
-  }
-
-  isRevealed(index: number): boolean {
-    return this.revealedKeys().has(index);
-  }
-
-  requestDanger(action: DangerAction) {
-    this.confirmingAction.set(action);
-  }
-
-  cancelDanger() {
-    this.confirmingAction.set(null);
-  }
-
-  confirmDanger() {
-    const action = this.confirmingAction();
-    if (!action) return;
-    this.confirmingAction.set(null);
-    this.showToast(`تم تنفيذ: ${action.label}`);
-  }
-
   save() {
     this.showToast('تم حفظ التغييرات');
+  }
+
+  setAuditSearch(value: string) {
+    this.auditSearch.set(value);
+    this.auditPage.set(1);
+  }
+
+  setAuditType(value: string) {
+    this.auditTypeFilter.set(value);
+    this.auditPage.set(1);
+  }
+
+  setAuditActor(value: string) {
+    this.auditActorFilter.set(value);
+    this.auditPage.set(1);
+  }
+
+  prevAuditPage() {
+    if (this.auditPage() > 1) this.auditPage.update((p) => p - 1);
+  }
+
+  nextAuditPage() {
+    if (this.auditPage() < this.totalAuditPages()) this.auditPage.update((p) => p + 1);
+  }
+
+  goAuditPage(p: number) {
+    this.auditPage.set(p);
+  }
+
+  exportAuditCsv() {
+    const rows = ['#,الإجراء,التفاصيل,المنفذ,الدور,IP,التاريخ,الخطورة'];
+    this.filteredAuditRows().forEach((r) =>
+      rows.push(`${r.n},"${r.action}","${r.detail}",${r.by},${r.role},${r.ip},${r.date},${this.sevConfig[r.sev].lbl}`),
+    );
+    const csv = '﻿' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `audit-trail-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   private showToast(msg: string) {

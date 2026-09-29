@@ -83,6 +83,49 @@
 .rq-req-list{margin:0 0 14px;padding-inline-start:18px;display:flex;flex-direction:column;gap:5px}
 .rq-req-list li{font-size:12px;color:#A8B2D1}
 
+/* offer comparison matrix */
+.rq-offers-empty{padding:16px;text-align:center;font-size:12px;color:#6B7699;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;margin-bottom:14px}
+.rq-offers-note{padding:8px 12px;background:rgba(43,212,199,.05);border:1px solid rgba(43,212,199,.12);border-radius:8px;font-size:11px;color:#2BD4C7;margin-bottom:10px}
+.rq-offers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.rq-offer-card{position:relative;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;transition:border-color .15s}
+.rq-offer-card.best{border-color:rgba(43,212,199,.3);background:rgba(43,212,199,.04)}
+.rq-offer-badge{font-size:9.5px;font-weight:800;color:#2BD4C7;margin-bottom:6px}
+.rq-offer-badge-ai{color:#A56BE0}
+.rq-oc-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.rq-oc-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;color:#070D24}
+.rq-oc-name{font-size:12px;font-weight:700;color:#fff}
+.rq-oc-level{font-size:10px;color:#6B7699}
+.rq-oc-price{font-size:18px;font-weight:900;color:#2BD4C7;margin-bottom:4px}
+.rq-oc-dur{font-size:11px;color:#6B7699;margin-bottom:8px}
+.rq-oc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.rq-oc-stat{text-align:center;padding:5px 2px;background:rgba(255,255,255,.03);border-radius:6px}
+.rq-oc-sv{font-size:11px;font-weight:800;color:#fff}
+.rq-oc-sl{font-size:8.5px;color:#6B7699;font-weight:700}
+
+/* financial breakdown */
+.rq-fin-blocked{padding:10px 12px;background:rgba(255,140,105,.06);border:1px solid rgba(255,140,105,.18);border-radius:9px;font-size:12px;color:#FF8C69;margin-bottom:14px}
+.rq-fin-note{font-size:11px;color:#6B7699;margin-bottom:8px}
+.rq-fin-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:8px;margin-bottom:4px;font-size:12.5px;background:rgba(255,255,255,.02);color:#A8B2D1}
+.rq-fin-escrow{background:rgba(43,212,199,.04)}
+.rq-fin-total{background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.16);font-weight:900;color:#fff;margin-top:4px;margin-bottom:14px}
+
+/* activity log */
+.rq-act-list{margin-bottom:14px}
+.rq-act-item{display:flex;gap:10px;padding:8px 2px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.rq-act-item:last-child{border-bottom:none}
+.rq-act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.rq-act-body{flex:1;color:#A8B2D1;line-height:1.5}
+.rq-act-time{font-size:10px;color:#6B7699;margin-top:2px}
+
+/* client profile card */
+.rq-client-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:14px}
+.rq-client-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.rq-client-av{width:40px;height:40px;font-size:15px}
+.rq-client-name{font-size:13.5px;font-weight:700;color:#fff}
+.rq-client-sub{font-size:11px;color:#6B7699;margin-top:2px}
+.rq-client-stats{margin:0 0 12px}
+.rq-client-link{display:inline-flex;width:100%;text-align:center;justify-content:center;text-decoration:none}
+
 .rq-action-msg{padding:10px 14px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.25);border-radius:10px;margin-bottom:12px;font-size:12.5px;color:#0FA99A;font-weight:700}
 
 .rq-md-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
@@ -298,4 +341,88 @@
 :host-context(.theme-light) .rq-desc,
 :host-context(.theme-light) .rq-req-list li {
   color: #475569;
+}
+
+:host-context(body.light-theme) .rq-offers-empty,
+:host-context(body.theme-light) .rq-offers-empty,
+:host-context(.light-theme) .rq-offers-empty,
+:host-context(.theme-light) .rq-offers-empty {
+  background: #F8FAFC !important; border-color: #E7EAF1 !important; color: #64748B;
+}
+
+:host-context(body.light-theme) .rq-offer-card,
+:host-context(body.theme-light) .rq-offer-card,
+:host-context(.light-theme) .rq-offer-card,
+:host-context(.theme-light) .rq-offer-card {
+  background: #F8FAFC !important; border-color: #E7EAF1 !important;
+}
+
+:host-context(body.light-theme) .rq-offer-card.best,
+:host-context(body.theme-light) .rq-offer-card.best,
+:host-context(.light-theme) .rq-offer-card.best,
+:host-context(.theme-light) .rq-offer-card.best {
+  background: rgba(43,212,199,.06) !important; border-color: rgba(43,212,199,.35) !important;
+}
+
+:host-context(body.light-theme) .rq-oc-name,
+:host-context(body.theme-light) .rq-oc-name,
+:host-context(.light-theme) .rq-oc-name,
+:host-context(.theme-light) .rq-oc-name {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .rq-oc-stat,
+:host-context(body.theme-light) .rq-oc-stat,
+:host-context(.light-theme) .rq-oc-stat,
+:host-context(.theme-light) .rq-oc-stat {
+  background: #fff !important;
+}
+
+:host-context(body.light-theme) .rq-oc-sv,
+:host-context(body.theme-light) .rq-oc-sv,
+:host-context(.light-theme) .rq-oc-sv,
+:host-context(.theme-light) .rq-oc-sv {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .rq-fin-row,
+:host-context(body.theme-light) .rq-fin-row,
+:host-context(.light-theme) .rq-fin-row,
+:host-context(.theme-light) .rq-fin-row {
+  background: #F8FAFC !important; color: #475569;
+}
+
+:host-context(body.light-theme) .rq-fin-total,
+:host-context(body.theme-light) .rq-fin-total,
+:host-context(.light-theme) .rq-fin-total,
+:host-context(.theme-light) .rq-fin-total {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .rq-act-item,
+:host-context(body.theme-light) .rq-act-item,
+:host-context(.light-theme) .rq-act-item,
+:host-context(.theme-light) .rq-act-item {
+  border-bottom-color: #F1F5F9 !important;
+}
+
+:host-context(body.light-theme) .rq-act-body,
+:host-context(body.theme-light) .rq-act-body,
+:host-context(.light-theme) .rq-act-body,
+:host-context(.theme-light) .rq-act-body {
+  color: #475569;
+}
+
+:host-context(body.light-theme) .rq-client-card,
+:host-context(body.theme-light) .rq-client-card,
+:host-context(.light-theme) .rq-client-card,
+:host-context(.theme-light) .rq-client-card {
+  background: #F8FAFC !important; border-color: #E7EAF1 !important;
+}
+
+:host-context(body.light-theme) .rq-client-name,
+:host-context(body.theme-light) .rq-client-name,
+:host-context(.light-theme) .rq-client-name,
+:host-context(.theme-light) .rq-client-name {
+  color: #0F172A;
 }

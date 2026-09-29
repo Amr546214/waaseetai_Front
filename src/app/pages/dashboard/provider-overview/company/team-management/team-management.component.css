@@ -43,7 +43,7 @@
 .mem-av { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: #fff; flex-shrink: 0; }
 .mem-name { font-size: 14px; font-weight: 800; color: #fff; }
 .mem-spec { font-size: 11.5px; color: var(--txt-2, #A8B2D1); margin-top: 2px; }
-.mem-level { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: 3px; border: 1px solid; }
+.mem-level { color: #5DA0FF; border-color: rgba(93, 160, 255, .25); background: rgba(93, 160, 255, .08); display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: 3px; border: 1px solid; }
 .mem-status { flex-shrink: 0; }
 .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 700; border: 1px solid; }
 .pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
@@ -52,31 +52,9 @@
 .pill-ok { background: rgba(15, 169, 154, .10); color: #0FA99A; border-color: rgba(15, 169, 154, .22); }
 .pill-ok::before { background: #0FA99A; }
 
-/* Member Stats */
-.mem-stats { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, .06); border-bottom: 1px solid rgba(255, 255, 255, .06); margin-bottom: 10px; }
-.mem-stat { flex: 1; text-align: center; }
-.mem-stat-v { font-size: 14px; font-weight: 900; color: #fff; }
-.mem-stat-l { font-size: 9.5px; color: var(--txt-2, #A8B2D1); margin-top: 2px; }
-
-/* Revenue Share */
-.mem-share { margin-bottom: 10px; }
-.mem-share-hd { display: flex; justify-content: space-between; font-size: 11px; color: var(--txt-2, #A8B2D1); margin-bottom: 4px; }
-.prog-wrap { display: flex; align-items: center; gap: 7px; }
-.prog-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, .07); border-radius: 2px; overflow: hidden; }
-.prog-fill { height: 100%; border-radius: 2px; transition: width .3s; }
-
-/* Tags */
-.mem-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
-.mem-tag { padding: 2px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 700; background: rgba(43, 212, 199, .10); color: #2BD4C7; border: 1px solid rgba(43, 212, 199, .20); }
-
 /* Assign Section */
 .assign-sec { border-top: 1px solid rgba(255, 255, 255, .06); padding-top: 8px; margin-bottom: 8px; }
-.assign-bar { display: flex; align-items: center; gap: 7px; padding: 4px 6px; border-radius: 7px; cursor: pointer; transition: background .15s; }
-.assign-bar:hover { background: rgba(255, 255, 255, .03); }
 .assign-bar-lbl { font-size: 9.5px; font-weight: 800; color: var(--txt-2, #A8B2D1); letter-spacing: .05em; white-space: nowrap; }
-.assign-cur { display: flex; gap: 3px; flex-wrap: wrap; flex: 1; min-width: 0; }
-.achip { padding: 1px 7px; border-radius: 7px; font-size: 10px; font-weight: 700; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .09); color: var(--txt-2, #A8B2D1); cursor: pointer; }
-.achip.on { background: rgba(43, 212, 199, .12); border-color: rgba(43, 212, 199, .30); color: var(--teal-txt, #2BD4C7); }
 
 /* Actions */
 .mem-actions { display: flex; gap: 7px; }
@@ -85,6 +63,28 @@
 .mem-btn-ghost:hover { background: rgba(255, 255, 255, .08); color: #fff; }
 .mem-btn-primary { background: linear-gradient(135deg, rgba(43, 212, 199, .14), rgba(43, 127, 255, .10)); border-color: rgba(43, 212, 199, .32); color: #fff; }
 .mem-btn-primary:hover { background: linear-gradient(135deg, rgba(43, 212, 199, .22), rgba(43, 127, 255, .16)); }
+
+.pill-off { background: rgba(107, 118, 153, .10); color: #6B7699; border-color: rgba(107, 118, 153, .22); }
+.pill-off::before { background: #6B7699; }
+img.mem-av { object-fit: cover; }
+
+/* Contact rows */
+.mem-contact { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 6px; font-size: 11.5px; color: var(--txt-2, #A8B2D1); min-width: 0; }
+.mem-contact span[dir="ltr"] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mem-btn:disabled { opacity: .5; cursor: not-allowed; }
+.mem-btn-danger { background: rgba(224, 91, 107, .08); border-color: rgba(224, 91, 107, .28); color: #E05B6B; }
+.mem-btn-danger:hover { background: rgba(224, 91, 107, .16); }
+.retry-btn { flex: none; margin-top: 10px; }
+
+/* Add member form */
+.add-form { background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)); border: 1px solid rgba(43, 212, 199, .22); border-radius: 13px; padding: 16px; margin-bottom: 16px; }
+.add-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.fld { display: flex; flex-direction: column; gap: 5px; font-size: 11.5px; font-weight: 700; color: var(--txt-2, #A8B2D1); }
+.fld input, .fld select { padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .12); background: rgba(255, 255, 255, .04); color: #fff; font-family: inherit; font-size: 13px; }
+.fld select option { color: #0F172A; }
+.form-err { margin-top: 10px; font-size: 12px; color: #E05B6B; }
+.add-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+.add-actions .mem-btn { flex: none; padding: 8px 22px; }
 
 /* Empty State */
 .empty-state { grid-column: 1 / -1; text-align: center; padding: 48px 20px; }
@@ -107,22 +107,27 @@
 :host-context(body.light-theme) .mem-card, :host-context(body.theme-light) .mem-card, :host-context(.light-theme) .mem-card, :host-context(.theme-light) .mem-card { background: #fff; border-color: #E7EAF1; }
 :host-context(body.light-theme) .mem-name, :host-context(body.theme-light) .mem-name, :host-context(.light-theme) .mem-name, :host-context(.theme-light) .mem-name { color: #0F172A; }
 :host-context(body.light-theme) .mem-spec, :host-context(body.theme-light) .mem-spec, :host-context(.light-theme) .mem-spec, :host-context(.theme-light) .mem-spec { color: #64748B; }
-:host-context(body.light-theme) .mem-stat-v, :host-context(body.theme-light) .mem-stat-v, :host-context(.light-theme) .mem-stat-v, :host-context(.theme-light) .mem-stat-v { color: #0F172A; }
-:host-context(body.light-theme) .mem-stat-l, :host-context(body.theme-light) .mem-stat-l, :host-context(.light-theme) .mem-stat-l, :host-context(.theme-light) .mem-stat-l { color: #64748B; }
-:host-context(body.light-theme) .mem-share-hd, :host-context(body.theme-light) .mem-share-hd, :host-context(.light-theme) .mem-share-hd, :host-context(.theme-light) .mem-share-hd { color: #64748B; }
 :host-context(body.light-theme) .assign-sec, :host-context(body.theme-light) .assign-sec, :host-context(.light-theme) .assign-sec, :host-context(.theme-light) .assign-sec { border-top-color: #EEF2FA; }
-:host-context(body.light-theme) .assign-bar:hover, :host-context(body.theme-light) .assign-bar:hover, :host-context(.light-theme) .assign-bar:hover, :host-context(.theme-light) .assign-bar:hover { background: rgba(15, 23, 42, .03); }
 :host-context(body.light-theme) .assign-bar-lbl, :host-context(body.theme-light) .assign-bar-lbl, :host-context(.light-theme) .assign-bar-lbl, :host-context(.theme-light) .assign-bar-lbl { color: #64748B; }
 :host-context(body.light-theme) .mem-btn-ghost, :host-context(body.theme-light) .mem-btn-ghost, :host-context(.light-theme) .mem-btn-ghost, :host-context(.theme-light) .mem-btn-ghost { background: rgba(15, 23, 42, .03); border-color: rgba(15, 23, 42, .08); color: #64748B; }
 :host-context(body.light-theme) .mem-btn-ghost:hover, :host-context(body.theme-light) .mem-btn-ghost:hover, :host-context(.light-theme) .mem-btn-ghost:hover, :host-context(.theme-light) .mem-btn-ghost:hover { background: rgba(15, 23, 42, .06); color: #0F172A; }
 :host-context(body.light-theme) .empty-state h3, :host-context(body.theme-light) .empty-state h3, :host-context(.light-theme) .empty-state h3, :host-context(.theme-light) .empty-state h3 { color: #64748B; }
 :host-context(body.light-theme) .empty-state p, :host-context(body.theme-light) .empty-state p, :host-context(.light-theme) .empty-state p, :host-context(.theme-light) .empty-state p { color: #94A3B8; }
 
+:host-context(body.light-theme) .add-form, :host-context(body.theme-light) .add-form, :host-context(.light-theme) .add-form, :host-context(.theme-light) .add-form { background: #fff; border-color: #E7EAF1; }
+:host-context(body.light-theme) .fld input, :host-context(body.theme-light) .fld input, :host-context(.light-theme) .fld input, :host-context(.theme-light) .fld input,
+:host-context(body.light-theme) .fld select, :host-context(body.theme-light) .fld select, :host-context(.light-theme) .fld select, :host-context(.theme-light) .fld select { background: #fff; border-color: #E7EAF1; color: #0F172A; }
+:host-context(body.light-theme) .mem-contact, :host-context(body.theme-light) .mem-contact, :host-context(.light-theme) .mem-contact, :host-context(.theme-light) .mem-contact { color: #64748B; }
+
 /* Responsive */
 @media (max-width: 900px) {
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
 }
+@media (max-width: 900px) {
+  .add-grid { grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 600px) {
   .mem-grid { grid-template-columns: 1fr; }
+  .add-grid { grid-template-columns: 1fr; }
 
 }

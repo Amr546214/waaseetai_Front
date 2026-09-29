@@ -49,7 +49,7 @@
           </thead>
           <tbody>
             @for (p of filtered(); track p.id) {
-              <tr (click)="openDetail(p)">
+              <tr [routerLink]="[p.id]">
                 <td class="pj-muted">{{ p.id }}</td>
                 <td class="pj-title">{{ p.title }}</td>
                 <td><div class="pj-u-cell"><div class="pj-u-av" [style.background]="p.cBg">{{ p.cAv }}</div><span>{{ p.client }}</span></div></td>
@@ -72,63 +72,3 @@
     </div>
   }
 </section>
-
-@if (showDetail()) {
-  <div class="pj-mov" (click)="closeDetail()">
-    <div class="pj-mbox" (click)="$event.stopPropagation()">
-      @if (selected(); as d) {
-        <div class="pj-md-hdr">
-          <div>
-            <div class="pj-md-id">{{ d.id }}</div>
-            <h3>{{ d.title }}</h3>
-            <div class="pj-md-tags">
-              <span class="pj-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
-              <span class="pj-risk" [ngClass]="riskClasses[d.risk]">خطر: {{ riskLabels[d.risk] }}</span>
-            </div>
-          </div>
-          <button type="button" class="pj-mclose" (click)="closeDetail()">×</button>
-        </div>
-
-        <div class="pj-section-ttl">تقدم المشروع العام</div>
-        <div class="pj-overall-prog">
-          <div class="pj-prog-track big"><div class="pj-prog-fill" [style.width.%]="d.progress"></div></div>
-          <span class="pj-overall-pct">{{ d.progress }}%</span>
-        </div>
-
-        <div class="pj-section-ttl">المراحل والمعالم</div>
-        <div class="pj-milestones">
-          @for (m of d.milestones; track m.name) {
-            <div class="pj-ms-item" [class]="'ms-' + m.state">
-              <div class="pj-ms-dot"></div>
-              <div class="pj-ms-body">
-                <div class="pj-ms-name">{{ m.name }}</div>
-                <div class="pj-ms-track"><div class="pj-ms-fill" [style.width.%]="m.progress"></div></div>
-              </div>
-            </div>
-          }
-        </div>
-
-        <div class="pj-section-ttl">الضمان المالي (Escrow)</div>
-        <div class="pj-escrow-row">
-          <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ d.escrowTotal | number }} ر.س</strong></div>
-          <div class="pj-escrow-item"><span>محرَّر حتى الآن</span><strong class="txt-green">{{ d.escrowReleased | number }} ر.س</strong></div>
-          <div class="pj-escrow-item"><span>محتجز حالياً</span><strong class="txt-amber">{{ (d.escrowTotal - d.escrowReleased) | number }} ر.س</strong></div>
-        </div>
-
-        <div class="pj-ai-note">
-          <strong>تحليل AI:</strong> {{ d.aiNote }}
-        </div>
-
-        @if (actionMessage()) {
-          <div class="pj-action-msg">{{ actionMessage() }}</div>
-        }
-
-        <div class="pj-md-actions">
-          <button type="button" class="pj-btn pj-btn-ghost" (click)="messageParties()">مراسلة الطرفين</button>
-          <button type="button" class="pj-btn pj-btn-warn" (click)="extendDeadline()">تمديد المهلة</button>
-          <button type="button" class="pj-btn pj-btn-danger" (click)="escalate()">تصعيد لنزاع</button>
-        </div>
-      }
-    </div>
-  </div>
-}

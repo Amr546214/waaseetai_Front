@@ -10,6 +10,9 @@
 .san-btn-gh:hover{background:rgba(255,255,255,.1);color:#fff}
 .san-btn-sm{height:28px;padding:0 10px;font-size:11px}
 
+.san-toast{padding:10px 14px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.25);border-radius:10px;color:#0FA99A;font-size:12.5px;font-weight:700;margin-bottom:14px}
+.san-error{padding:10px 14px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.28);border-radius:10px;color:#FF6B6B;font-size:12.5px;font-weight:700;margin-bottom:12px}
+
 .san-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
 .san-stat{padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;text-align:center}
 .san-stat-v{font-size:20px;font-weight:900;margin-bottom:2px}

@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { SaSpecialtiesService, AdminCategory, AdminSpecialty, AdminSpecialtyStats } from './sa-specialties.service';
 
@@ -16,6 +17,7 @@ interface CatalogBlock {
 	create?: { slug: string; nameAr: string; icon: string };
 	specialties: CatalogSpecialty[];
 }
+
 const IMPORT_CATALOG: CatalogBlock[] = [
 	{
 		existingCategoryId: '8a66bcc7-f947-4028-88af-aec7a46efd7d', // design-creative
@@ -97,7 +99,7 @@ const IMPORT_CATALOG: CatalogBlock[] = [
 @Component({
   selector: 'app-sa-specialties',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './sa-specialties.html'
 })
 export class SaSpecialties implements OnInit {
