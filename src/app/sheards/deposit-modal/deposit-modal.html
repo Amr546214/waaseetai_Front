@@ -12,7 +12,7 @@
 					<polyline points="20 6 9 17 4 12" />
 				</svg></div>
 			<h2>تم الإيداع بنجاح</h2>
-			<p>أُضيف مبلغ <strong>{{ amount().toLocaleString('en-US') }} $</strong> إلى رصيد {{ isCompany() ? 'محفظة الشركة' : 'محفظتك' }}.</p>
+			<p>أُضيف مبلغ <strong>{{ amount().toLocaleString('en-US') }} $</strong> إلى رصيد محفظتك.</p>
 			<div class="payment-reference"><span>رقم العملية</span><b>{{ paymentReference() }}</b></div>
 			<button type="button" class="payment-done-btn" (click)="onClose()">العودة إلى المحفظة</button>
 		</div>
@@ -21,8 +21,8 @@
 		<!-- Header -->
 		<div class="flex items-center justify-between px-5 py-4 border-b border-slate-800/80 bg-slate-900/50 flex-shrink-0">
 			<div class="flex flex-col gap-0.5">
-				<h2 class="text-base sm:text-lg font-black text-white">{{ isCompany() ? 'شحن رصيد محفظة الشركة' : 'إيداع رصيد في المحفظة' }}</h2>
-				<p class="text-[11px] font-bold text-slate-400">{{ isCompany() ? 'شحن فوري لتمويل ضمان مشاريع الشركة' : 'شحن فوري لتمويل الضمان عند بدء المشاريع' }}</p>
+				<h2 class="text-base sm:text-lg font-black text-white">إيداع رصيد في المحفظة</h2>
+				<p class="text-[11px] font-bold text-slate-400">شحن فوري لتمويل الضمان عند بدء المشاريع</p>
 			</div>
 			<button (click)="onClose()"
 				class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
@@ -42,7 +42,7 @@
 				<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 					<path d="M20 6 9 17l-5-5" />
 				</svg>
-				<span class="text-[11px] font-bold leading-tight">{{ isCompany() ? 'الرصيد يُستخدم لتمويل ضمان مشاريع الشركة، ويتم الإيداع بأمان عبر PayPal.' : 'الرصيد يُستخدم لتمويل الضمان والمشاريع، ويتم الإيداع بأمان عبر PayPal.' }}</span>
+				<span class="text-[11px] font-bold leading-tight">الرصيد يُستخدم لتمويل الضمان والمشاريع، ويتم الإيداع بأمان عبر PayPal.</span>
 			</div>
 
 			<!-- Amount Input -->
@@ -189,11 +189,7 @@
 					</svg> }
 				</div>
 				<div class="text-[11px] font-bold text-slate-300">
-					@if (isCompany()) {
-					أوافق على <span class="text-cyan-400">شروط الإيداع</span> والمبلغ يضاف إلى رصيد الشركة ويُستخدم لتمويل ضمان مشاريع الشركة.
-					} @else {
 					أوافق على <span class="text-cyan-400">شروط الإيداع</span> والمبلغ مخصص للاستخدام داخل المنصة.
-					}
 				</div>
 			</div>
 
