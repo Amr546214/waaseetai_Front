@@ -4,6 +4,8 @@ import { RouterModule } from '@angular/router';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
 import { DashboardStore } from '../../../../core/store/dashboard.store';
 import { firstValueFrom } from 'rxjs';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 interface FilterTab {
 	id: string;
@@ -21,6 +23,8 @@ interface FilterTab {
 export class MyRequest implements OnInit {
 	private projectApi = inject(ProjectApiService);
 	private dashboardStore = inject(DashboardStore);
+	private authStore = inject(AuthStore);
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	requests = signal<any[]>([]);
 	tabs = signal<FilterTab[]>([
