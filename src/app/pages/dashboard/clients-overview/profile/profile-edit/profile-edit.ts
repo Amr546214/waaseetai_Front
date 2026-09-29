@@ -6,7 +6,7 @@ import { ProfileApiService } from '../../../../../core/services/profile-api.serv
 import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-input.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ExperienceLevel } from '../../../../../core/models/profile.model';
-import { AccountType } from '../../../../../core/models/auth.model';
+import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 
 type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security';
 
@@ -95,8 +95,25 @@ export class ProfileEdit {
 		this.initForms();
 		const currentUser = this.authStore.currentUser();
 		this.accountType = currentUser?.accountType || '';
-		this.isClient = this.accountType.includes('CLIENT');
-		this.isProvider = this.accountType.includes('PROVIDER');
+		// accountType is fixed at signup and never changes even after a user
+		// adds another role and switches dashboards (see the backend's own
+		// profile.controller.ts comment: "target role is the caller's
+		// CURRENTLY ACTIVE role, not original signup accountType"). This page
+		// is reachable only from the client dashboard (client.routes.ts), so
+		// a provider who later added a CLIENT role and switched activeRole
+		// to CLIENT would previously still match accountType.includes
+		// ('PROVIDER') and silently render the provider form here — with
+		// hourlyRate/experienceLevel fields that don't belong on a client
+		// profile. Key off activeRole instead; fall back to accountType only
+		// when activeRole isn't populated (single-role legacy accounts).
+		const activeRole = currentUser?.activeRole;
+		if (activeRole) {
+			this.isClient = activeRole === UserRole.CLIENT;
+			this.isProvider = activeRole === UserRole.PROVIDER;
+		} else {
+			this.isClient = this.accountType.includes('CLIENT');
+			this.isProvider = this.accountType.includes('PROVIDER');
+		}
 	}
 
 	loadChangeRequests() {

@@ -1,0 +1,53 @@
+/* Ported from design-reference/extracted/.../P-CM-001.html ("مرحبا بك" / Welcome).
+   Dark variables = design :root; light = design LIGHT map. Scoped to
+   app-welcome (ViewEncapsulation.None), same convention as app-login. The
+   design's own top-bar/particles/theme-toggle are NOT ported here — the
+   surrounding AuthLayoutComponent already provides the navbar/footer/bg-grid
+   chrome for every /auth/* page. */
+app-welcome{--navy-900:#070D24;--teal:#2BD4C7;--blue:#2B7FFF;--gradient-brand:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);--radius-lg:24px;--txt:#FFFFFF;--txt-2:#A8B2D1;--txt-3:#6B7699;--crd-bg:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));--crd-bd:rgba(255,255,255,.08);--cta-shd:0 12px 30px rgba(43,212,199,.4);--cta-shd-hov:0 18px 40px rgba(43,212,199,.6);--tint:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.06));--tint-bd:rgba(43,212,199,.15);--req-bg:linear-gradient(135deg,rgba(43,127,255,.07),rgba(43,127,255,.02));--req-bd:rgba(43,127,255,.22);--opt-bg:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.03));--opt-bd:rgba(43,212,199,.20)}
+:is(.light-theme,.theme-light) app-welcome{--txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699;--crd-bg:#FFFFFF;--crd-bd:#E7EAF1;--tint:linear-gradient(135deg,rgba(43,212,199,.07),rgba(43,127,255,.05)),#FFFFFF;--tint-bd:rgba(43,127,255,.14);--cta-shd:0 12px 30px rgba(43,127,255,.28);--cta-shd-hov:0 18px 40px rgba(43,127,255,.40);--req-bg:linear-gradient(135deg,rgba(43,127,255,.06),rgba(43,127,255,.02));--req-bd:rgba(43,127,255,.18);--opt-bg:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.03));--opt-bd:rgba(43,212,199,.18)}
+
+app-welcome .welcome-section{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:60px 20px 64px;position:relative;z-index:2}
+app-welcome .welcome-inner{width:100%;max-width:540px}
+app-welcome .success-circle{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.08));border:2px solid rgba(43,212,199,.30);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:var(--teal)}
+app-welcome .brand-gradient{background:var(--gradient-brand);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline}
+:is(.light-theme,.theme-light) app-welcome .brand-gradient{background:none;-webkit-text-fill-color:var(--txt)}
+app-welcome .welcome-h1{font-size:clamp(26px,5vw,34px);font-weight:900;text-align:center;margin-bottom:8px;line-height:1.2;color:var(--txt)}
+app-welcome .welcome-sub{font-size:15px;color:var(--txt-2);text-align:center;margin-bottom:24px;line-height:1.65}
+app-welcome .role-badge{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:50px;background:var(--tint);border:1px solid var(--tint-bd);font-size:14px;font-weight:700;color:var(--txt);margin:0 auto 28px;width:fit-content;max-width:100%}
+app-welcome .role-badge-lbl{font-size:12px;font-weight:600;color:var(--txt-3)}
+app-welcome .completion-card{border-radius:var(--radius-lg);padding:22px 20px;margin-bottom:20px}
+app-welcome .completion-card.required{background:var(--req-bg);border:1px solid var(--req-bd)}
+app-welcome .completion-card.optional{background:var(--opt-bg);border:1px solid var(--opt-bd)}
+app-welcome .card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+app-welcome .card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+app-welcome .card-icon.req{background:rgba(43,127,255,.12);color:var(--blue)}
+app-welcome .card-icon.opt{background:rgba(43,212,199,.10);color:var(--teal)}
+app-welcome .card-title{font-size:15px;font-weight:800;color:var(--txt);flex:1}
+app-welcome .card-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+app-welcome .card-badge.req{background:rgba(43,127,255,.12);color:var(--blue);border:1px solid rgba(43,127,255,.25)}
+app-welcome .card-badge.opt{background:rgba(43,212,199,.10);color:var(--teal);border:1px solid rgba(43,212,199,.25)}
+app-welcome .card-note{font-size:14px;color:var(--txt-2);line-height:1.7}
+app-welcome .restrictions-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+app-welcome .restrict-label{font-size:11px;font-weight:700;color:var(--txt-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+app-welcome .restriction-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-2)}
+app-welcome .restriction-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0}
+app-welcome .btn-group{display:flex;flex-direction:column;gap:10px}
+app-welcome .btn-primary{background:var(--gradient-brand);color:var(--navy-900);padding:14px 24px;border-radius:50px;font-weight:800;font-size:15px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;box-shadow:var(--cta-shd);transition:all .3s;text-align:center}
+app-welcome .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--cta-shd-hov)}
+app-welcome .btn-secondary{background:var(--crd-bg);color:var(--txt);padding:14px 24px;border-radius:50px;font-weight:700;font-size:15px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--crd-bd);cursor:pointer;transition:all .2s;text-align:center}
+app-welcome .btn-secondary:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.06)}
+:is(.light-theme,.theme-light) app-welcome .btn-secondary:hover{background:#F3F5FA;border-color:rgba(7,13,36,.22)}
+app-welcome .btn-muted{opacity:.55}
+app-welcome .error-card{background:var(--req-bg);border:1px solid var(--req-bd);border-radius:var(--radius-lg);padding:32px 24px;text-align:center}
+app-welcome .error-icon{width:60px;height:60px;border-radius:50%;background:rgba(43,127,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--blue)}
+app-welcome .error-title{font-size:20px;font-weight:900;color:var(--txt);margin-bottom:8px}
+app-welcome .error-note{font-size:14px;color:var(--txt-2);margin-bottom:24px;line-height:1.7}
+
+@media(max-width:480px){
+  app-welcome .welcome-section{padding:36px 16px 48px}
+  app-welcome .welcome-h1{font-size:clamp(22px,7vw,28px)}
+  app-welcome .btn-primary,app-welcome .btn-secondary{padding:13px 18px;font-size:14px}
+  app-welcome .completion-card{padding:18px 16px}
+  app-welcome .card-head{gap:10px}
+}

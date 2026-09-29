@@ -155,6 +155,9 @@
       <div class="banner-error" id="banner-error" role="alert">
         <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-warn"></use></svg>
         <span id="banner-error-txt">{{ errorMessage }}</span>
+        @if (accountExistsError) {
+        <a routerLink="/auth/login" class="banner-error-link" id="banner-error-login-link">تسجيل الدخول</a>
+        }
       </div>
       }
 
@@ -165,6 +168,12 @@
             البيانات الشخصية
           </div>
 
+          @if (isGoogleFlow) {
+          <div class="social-note" id="google-confirmed-note">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
+            تم التحقق من حساب جوجل ({{ basicInfoForm.get('email')?.value }})، أكمل باقي البيانات لإنشاء حسابك
+          </div>
+          } @else {
           <div class="social-login">
             <div class="google-btn-wrapper">
               <button type="button" class="btn-social btn-google" id="btn-google" aria-label="المتابعة مع جوجل">
@@ -189,6 +198,7 @@
           <div class="social-note">{{ appleNotice }}</div>
           }
           <div class="social-divider"><span>أو أدخل بياناتك يدوياً</span></div>
+          }
 
           <div class="field-2col">
             <div class="field-grp">
@@ -218,6 +228,7 @@
           <div class="field-grp">
             <label class="field-lbl" for="email">البريد الإلكتروني <span class="field-req" aria-hidden="true">*</span></label>
             <input class="field-in" type="email" id="email" formControlName="email" placeholder="name@example.com" autocomplete="email" aria-required="true" dir="ltr" style="text-align:right"
+              [readonly]="isGoogleFlow"
               [class.has-error]="basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid">
             @if (basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid) {
             <div class="field-err" id="err-email">
@@ -238,6 +249,7 @@
             }
           </div>
 
+          @if (!isGoogleFlow) {
           <div class="field-grp">
             <label class="field-lbl" for="password">كلمة المرور <span class="field-req" aria-hidden="true">*</span></label>
             <div class="pw-wrap">
@@ -288,6 +300,7 @@
             </div>
             }
           </div>
+          }
         </div>
 
         <div class="terms-card">

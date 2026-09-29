@@ -137,7 +137,7 @@
             } @else if (req.status === ChangeRequestStatus.REJECTED) {
               <button type="button" class="req-btn req-btn-primary" (click)="showDetails('فتح طلب تعديل جديد مصحح')">طلب مصحح</button>
             } @else {
-              <button type="button" class="req-btn req-btn-ghost" (click)="showDetails('عرض تفاصيل الطلب ' + req.requestNumber)">التفاصيل</button>
+              <button type="button" class="req-btn req-btn-ghost" (click)="openRequestDetails(req)">التفاصيل</button>
             }
           </div>
         </div>
@@ -153,3 +153,32 @@
     }
   </div>
 </div>
+
+@if (selectedRequest(); as req) {
+<div class="modal-ov show" role="dialog" aria-modal="true" (click)="closeRequestDetails()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-ico"><svg aria-hidden="true"><use href="#i-doc"></use></svg></div>
+    <div class="modal-title">تفاصيل طلب التعديل</div>
+    <div class="modal-info-list">
+      <div class="modal-info-row"><span class="modal-info-lbl">رقم الطلب</span><span class="modal-info-val" dir="ltr">{{ req.requestNumber }}</span></div>
+      <div class="modal-info-row"><span class="modal-info-lbl">الحقل</span><span class="modal-info-val">{{ req.fieldLabel }}</span></div>
+      <div class="modal-info-row"><span class="modal-info-lbl">القيمة الحالية</span><span class="modal-info-val" dir="ltr">{{ req.currentValue || 'لا يوجد' }}</span></div>
+      <div class="modal-info-row"><span class="modal-info-lbl">القيمة المطلوبة</span><span class="modal-info-val" dir="ltr">{{ req.requestedValue }}</span></div>
+      <div class="modal-info-row"><span class="modal-info-lbl">تاريخ الطلب</span><span class="modal-info-val">{{ req.createdAt | date:'yyyy-MM-dd HH:mm' }}</span></div>
+      @if (req.status === ChangeRequestStatus.APPROVED_AND_APPLIED) {
+        <div class="modal-info-row"><span class="modal-info-lbl">تاريخ التطبيق</span><span class="modal-info-val">{{ req.appliedAt ? (req.appliedAt | date:'yyyy-MM-dd HH:mm') : '—' }}</span></div>
+        <div class="modal-info-row"><span class="modal-info-lbl">اعتمده</span><span class="modal-info-val">{{ req.reviewedBy || '—' }}</span></div>
+      }
+      @if (req.status === ChangeRequestStatus.WITHDRAWN) {
+        <div class="modal-info-row"><span class="modal-info-lbl">الحالة</span><span class="modal-info-val">مسحوب من قِبلك</span></div>
+      }
+      @if (req.aiRecommendation) {
+        <div class="modal-info-row modal-info-full"><span class="modal-info-lbl">توصية الذكاء</span><span class="modal-info-val">{{ req.aiRecommendation }}</span></div>
+      }
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn modal-btn-cancel" (click)="closeRequestDetails()">إغلاق</button>
+    </div>
+  </div>
+</div>
+}

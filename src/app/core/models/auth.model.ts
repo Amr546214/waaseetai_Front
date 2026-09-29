@@ -57,6 +57,21 @@ export interface AuthResponse {
 		userId?: string; // Present if verified: false
 		token?: string;  // Present if verified: true
 		user?: User;     // Present if verified: true
+		// Present when POST /auth/google is called with intent 'register' for a
+		// brand-new email: the identity is verified but no user/session/token is
+		// created yet — the frontend must collect the rest of the registration
+		// form and submit it to /auth/register with googleIdToken.
+		registrationRequired?: boolean;
+		googleProfile?: {
+			email: string;
+			firstName: string;
+			lastName: string;
+		};
+		// Present on /auth/login and /auth/google (intent 'login') when
+		// verified is false: the password/Google identity was correct, but the
+		// account requires a phone OTP (see /auth/login/verify-otp) before a
+		// session is issued.
+		phoneOtpRequired?: boolean;
 	};
 }
 
@@ -68,6 +83,7 @@ export interface RegisterInput {
 	phoneCountryCode: string;
 	phoneNumber: string;
 	password?: string;
+	googleIdToken?: string;
 	agreedToTerms: boolean;
 }
 

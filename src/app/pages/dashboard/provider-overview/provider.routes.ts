@@ -1,11 +1,12 @@
 import { Routes } from "@angular/router";
 import { quizLockGuard } from "../../../core/guards/quiz-lock.guard";
+import { companyAccountGuard } from "../../../core/guards/company-account.guard";
 
 export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: '',
 		loadComponent: () => import('./provider-overview/provider-overview').then(m => m.ProviderOverview),
-		data: { title: "لوحة التحكم" }
+		data: { title: "لوحة التحكم", allowIncompleteProfile: true }
 	},
 	{
 		path: 'messages',
@@ -98,6 +99,11 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "سجل المعاملات" }
 	},
 	{
+		path: 'finance/transactions/:id',
+		loadComponent: () => import('./finance/transaction-details/transaction-details').then(m => m.TransactionDetails),
+		data: { title: "تفاصيل المعاملة" }
+	},
+	{
 		path: 'finance/invoices',
 		loadComponent: () => import('./finance/invoices/invoices').then(m => m.InvoicesComponent),
 		data: { title: "فواتير مشاريعي" }
@@ -172,7 +178,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'profile/setup',
 		loadComponent: () => import('./profile/profile-setup/profile-setup').then(m => m.ProfileSetupDashboard),
-		data: { title: "استكمال البيانات" }
+		data: { title: "استكمال البيانات", allowIncompleteProfile: true }
 	},
 	{
 		path: 'profile/level',
@@ -208,6 +214,11 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'help',
 		loadComponent: () => import('./help/help').then(m => m.Help),
 		data: { title: "مركز المساعدة" }
+	},
+	{
+		path: 'help/ai-assistant',
+		loadComponent: () => import('./help/ai-assistant/ai-assistant').then(m => m.ProviderAiAssistantComponent),
+		data: { title: "المساعد الذكي" }
 	},
 	{
 		path: 'help/live-support',
@@ -249,6 +260,65 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'business-models/sales-tracking',
 		loadComponent: () => import('./business-models/sales-tracking/sales-tracking.component').then(m => m.SalesTrackingComponent),
 		data: { title: "متابعة المبيعات" }
+	},
+	// Marketing (P-PR-039..041 / P-CO-MK-005..008) — sibling of business-models,
+	// one component per screen shared by individual + company accounts.
+	{
+		path: 'marketing',
+		redirectTo: 'marketing/center',
+		pathMatch: 'full'
+	},
+	{
+		path: 'marketing/center',
+		loadComponent: () => import('./marketing/center/center').then(m => m.MarketingCenter),
+		data: { title: "مركز التسويق" }
+	},
+	{
+		path: 'marketing/coupons',
+		loadComponent: () => import('./marketing/coupons/coupons').then(m => m.MarketingCoupons),
+		data: { title: "كوبونات الخصم" }
+	},
+	{
+		path: 'marketing/coupons/new',
+		loadComponent: () => import('./marketing/coupon-form/coupon-form').then(m => m.MarketingCouponForm),
+		data: { title: "كوبون خصم جديد" }
+	},
+	{
+		path: 'marketing/coupons/:id/edit',
+		loadComponent: () => import('./marketing/coupon-form/coupon-form').then(m => m.MarketingCouponForm),
+		data: { title: "تعديل الكوبون" }
+	},
+	{
+		path: 'marketing/coupons/:id',
+		loadComponent: () => import('./marketing/coupon-details/coupon-details').then(m => m.MarketingCouponDetails),
+		data: { title: "إحصائيات الكوبون" }
+	},
+	{
+		path: 'marketing/offers',
+		loadComponent: () => import('./marketing/offers/offers').then(m => m.MarketingOffers),
+		data: { title: "العروض الخاصة" }
+	},
+	{
+		path: 'marketing/offers/new',
+		loadComponent: () => import('./marketing/offer-form/offer-form').then(m => m.MarketingOfferForm),
+		data: { title: "عرض خاص جديد" }
+	},
+	{
+		path: 'marketing/offers/:id/edit',
+		loadComponent: () => import('./marketing/offer-form/offer-form').then(m => m.MarketingOfferForm),
+		data: { title: "تعديل العرض" }
+	},
+	{
+		path: 'marketing/offers/:id',
+		loadComponent: () => import('./marketing/offer-details/offer-details').then(m => m.MarketingOfferDetails),
+		data: { title: "إحصائيات العرض" }
+	},
+	{
+		path: 'marketing/approvals',
+		// Company accounts only — individual providers are redirected to the marketing center.
+		canActivate: [companyAccountGuard],
+		loadComponent: () => import('./marketing/approvals/approvals').then(m => m.MarketingApprovals),
+		data: { title: "طلبات الموافقة", companyFallback: '/provider-overview/marketing/center' }
 	},
 	// HR management
 	{

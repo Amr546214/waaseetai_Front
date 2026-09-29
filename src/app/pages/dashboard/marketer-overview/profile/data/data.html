@@ -215,65 +215,6 @@
 			</div>
 		</div>
 
-		<div class="form-card">
-			<div class="form-card-hdr">
-				<div class="form-card-ico"><svg aria-hidden="true">
-						<use href="#i-link"></use>
-					</svg></div>
-				<div>
-					<div class="form-card-title">الروابط الاضافية</div>
-					<div class="form-card-sub">اختيارية، تعزز مصداقيتك</div>
-				</div>
-			</div>
-			<div class="form-grid form-col-2">
-				<div class="inp-group">
-					<label class="inp-label" for="af-website">الموقع الشخصي او المدونة</label>
-					<input type="url" id="af-website" class="inp-field" placeholder="https://myblog.com" dir="ltr">
-				</div>
-				<div class="inp-group">
-					<label class="inp-label" for="af-linkedin">LinkedIn (للتسويق B2B)</label>
-					<input type="url" id="af-linkedin" class="inp-field" placeholder="linkedin.com/in/..." dir="ltr">
-				</div>
-			</div>
-		</div>
-
-		<div class="form-card">
-			<div class="form-card-hdr">
-				<div class="form-card-ico"><svg aria-hidden="true">
-						<use href="#i-settings"></use>
-					</svg></div>
-				<div>
-					<div class="form-card-title">التفضيلات والاشعارات</div>
-				</div>
-			</div>
-			<div class="form-grid form-col-2" style="margin-bottom:14px">
-				<div class="inp-group">
-					<label class="inp-label" for="af-lang">لغة الواجهة</label>
-					<select id="af-lang" class="inp-field">
-						<option value="ar" selected>العربية</option>
-						<option value="en">English</option>
-					</select>
-				</div>
-				<div class="inp-group">
-					<label class="inp-label" for="af-tz">المنطقة الزمنية</label>
-					<select id="af-tz" class="inp-field">
-						<option selected>توقيت الرياض (GMT+3)</option>
-						<option>UTC</option>
-					</select>
-				</div>
-			</div>
-			<div>
-				<div class="inp-label" style="margin-bottom:8px">قنوات استلام الاشعارات</div>
-				<div class="notif-checks">
-					<label class="notif-check"><input type="checkbox" checked>البريد الالكتروني</label>
-					<label class="notif-check"><input type="checkbox" checked>SMS</label>
-					<label class="notif-check"><input type="checkbox" checked>داخل النظام</label>
-					<label class="notif-check"><input type="checkbox">WhatsApp</label>
-					<label class="notif-check"><input type="checkbox">Telegram</label>
-				</div>
-			</div>
-		</div>
-
 		<div class="actions-row">
 			<button type="button" class="btn-primary" [disabled]="savingProfile()" (click)="saveMarketingProfile()">{{ savingProfile() ? 'جارٍ الحفظ...' : 'حفظ الملف التسويقي' }}</button>
 			<button type="button" class="btn-secondary" (click)="cancelAndReturn()">الغاء والعودة</button>
@@ -360,6 +301,61 @@
 			</div>
 			<div class="actions-row"><button type="button" class="btn-primary" disabled title="قريباً">حفظ بيانات الاحالة</button></div>
 		</div>
+
+		<div class="form-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-link"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">روابط الإحالة الاجتماعية</div>
+					<div class="form-card-sub">انشر رابط كل قناة وتابع أداءها، كل من يفتح الرابط يحول لموقع وسيط AI</div>
+				</div>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+				@for (p of referralSocialLinks(); track p.src) {
+				<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+					<span style="min-width:90px;font-size:12px;font-weight:700" class="txt-slate">{{ p.name }}</span>
+					<input type="text" class="inp-field" readonly dir="ltr" [value]="p.link"
+						style="flex:1;min-width:160px;font-size:11px;opacity:.8">
+					<button type="button" class="btn-primary" style="padding:9px 14px;font-size:12px"
+						[disabled]="!p.link" (click)="copyToClipboard(p.link, 'ref-' + p.src)">{{ copiedField() === ('ref-' + p.src) ? 'تم النسخ' : 'نسخ' }}</button>
+				</div>
+				}
+			</div>
+			<div style="font-size:13px;font-weight:700;margin-bottom:10px" class="txt-white">تقرير أداء القنوات</div>
+			@if (channelPerformance().length > 0) {
+			<div style="overflow-x:auto">
+				<table style="width:100%;border-collapse:collapse;min-width:420px">
+					<thead>
+						<tr>
+							<th style="padding:8px 10px;font-size:11px;text-align:right" class="txt-muted">القناة</th>
+							<th style="padding:8px 10px;font-size:11px;text-align:center" class="txt-muted">الزيارات</th>
+							<th style="padding:8px 10px;font-size:11px;text-align:center" class="txt-muted">التسجيلات</th>
+							<th style="padding:8px 10px;font-size:11px;text-align:center" class="txt-muted">العملاء</th>
+							<th style="padding:8px 10px;font-size:11px;text-align:center" class="txt-muted">التحويل</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for (row of channelPerformance(); track row.channel) {
+						<tr>
+							<td style="padding:8px 10px;font-size:12px;font-weight:700" class="txt-white">{{ row.channel }}</td>
+							<td style="padding:8px 10px;font-size:12px;text-align:center" class="txt-slate">{{ row.visitors }}</td>
+							<td style="padding:8px 10px;font-size:12px;text-align:center" class="txt-muted">—</td>
+							<td style="padding:8px 10px;font-size:12px;font-weight:700;text-align:center" class="txt-teal">{{ row.clients }}</td>
+							<td style="padding:8px 10px;font-size:12px;text-align:center" class="txt-blue">{{ row.conversionPercentage }}%</td>
+						</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			<span style="display:block;font-size:11px;margin-top:8px" class="txt-muted">عمود "التسجيلات" غير متاح حالياً في واجهة البيانات، سيُعرض فور توفره</span>
+			} @else if (loadingChannelPerformance()) {
+			<div style="font-size:12px;text-align:center;padding:14px" class="txt-muted">جارٍ تحميل تقرير الأداء...</div>
+			} @else {
+			<div style="font-size:12px;text-align:center;padding:14px" class="txt-muted">لا توجد بيانات أداء للقنوات بعد</div>
+			}
+		</div>
 	</div>
 	}
 
@@ -400,6 +396,22 @@
 					<div style="font-size:11px;margin-top:3px" class="txt-muted">المستوى التالي</div>
 				</div>
 			</div>
+			<div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px">
+				<div style="font-size:13px;font-weight:700;margin-bottom:8px" class="txt-white">آخر العمولات</div>
+				@if (recentCommissions().length > 0) {
+				@for (log of recentCommissions(); track log.id; let last = $last) {
+				<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:8px 0"
+					[style.border-bottom]="!last ? '1px solid rgba(255,255,255,.05)' : 'none'" class="txt-slate">
+					<span>{{ log.source }}</span>
+					<span style="color:#0FA99A">{{ log.amount }} ريال</span>
+				</div>
+				}
+				} @else if (loadingRecentCommissions()) {
+				<div style="font-size:12px;text-align:center;padding:8px" class="txt-muted">جارٍ التحميل...</div>
+				} @else {
+				<div style="font-size:12px;text-align:center;padding:8px" class="txt-muted">لا توجد عمولات سابقة حالياً</div>
+				}
+			</div>
 		</div>
 	</div>
 	}
@@ -434,7 +446,11 @@
 					<div style="display:flex;align-items:center;gap:6px"><span
 							style="padding:10px 12px;font-size:13px;font-weight:700;flex-shrink:0" class="badge-teal">SA</span><input
 							type="text" id="afbk-iban" class="inp-field" placeholder="XX XXXX XXXX XXXX XXXX XXXX"
-							maxlength="24" dir="ltr" formControlName="iban"></div>
+							maxlength="24" dir="ltr" formControlName="iban"
+							[attr.aria-invalid]="bankForm.get('iban')?.invalid && bankForm.get('iban')?.touched"></div>
+					@if (bankForm.get('iban')?.invalid && bankForm.get('iban')?.touched) {
+						<span class="field-error">أدخل رقم IBAN صالحًا (رمز الدولة، رقما التحقق، ثم رقم الحساب)</span>
+					}
 				</div>
 				<div class="inp-group"><label class="inp-label" for="afbk-bank">اسم البنك</label><select id="afbk-bank"
 						class="inp-field" formControlName="bankName">
@@ -482,26 +498,53 @@
 				</div><span
 					style="font-size:11px;font-weight:700;padding:4px 10px" class="badge-green">مفعلة</span>
 			</div>
-			<div
-				style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:16px">
-				<div>
-					<div style="font-size:13px;font-weight:700" class="txt-white">تغيير كلمة المرور</div>
-					<div style="font-size:11px;margin-top:2px" class="txt-muted">ينصح بتغييرها كل 90 يوما</div>
-				</div><button type="button" class="btn-primary" disabled title="قريباً" style="min-width:fit-content;padding:9px 16px;opacity:.5;cursor:not-allowed">تغيير
-					كلمة المرور</button>
+			<div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:16px">
+				<div style="display:flex;align-items:center;justify-content:space-between">
+					<div>
+						<div style="font-size:13px;font-weight:700" class="txt-white">تغيير كلمة المرور</div>
+						<div style="font-size:11px;margin-top:2px" class="txt-muted">ينصح بتغييرها كل 90 يوما</div>
+					</div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px" (click)="passwordFormVisible.set(!passwordFormVisible())">تغيير
+						كلمة المرور</button>
+				</div>
+				@if (passwordFormVisible()) {
+				<div [formGroup]="passwordForm" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
+					<div class="form-grid form-col-2">
+						<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="mkt-pwd-old">كلمة المرور الحالية<span class="req">*</span></label>
+							<input type="password" id="mkt-pwd-old" class="inp-field" formControlName="currentPassword" autocomplete="current-password" dir="ltr"></div>
+						<div class="inp-group"><label class="inp-label" for="mkt-pwd-new">كلمة المرور الجديدة<span class="req">*</span></label>
+							<input type="password" id="mkt-pwd-new" class="inp-field" formControlName="newPassword" autocomplete="new-password" dir="ltr">
+							<div class="pwd-strength"><div class="pwd-strength-bar" [style.width.%]="passwordStrength().percent" [style.background]="passwordStrength().color"></div></div>
+							<div class="pwd-strength-lbl">{{ passwordStrength().label }} — استخدم 3 أنواع من الأحرف والأرقام والرموز</div>
+						</div>
+						<div class="inp-group"><label class="inp-label" for="mkt-pwd-conf">تأكيد كلمة المرور الجديدة<span class="req">*</span></label>
+							<input type="password" id="mkt-pwd-conf" class="inp-field" formControlName="confirmPassword" autocomplete="new-password" dir="ltr">
+							@if (passwordForm.get('confirmPassword')?.hasError('mismatch')) {<span class="field-error">كلمتا المرور غير متطابقتين</span>}
+						</div>
+					</div>
+					<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isChangingPassword()" (click)="changePassword()">{{ isChangingPassword() ? 'جاري التغيير...' : 'حفظ كلمة المرور الجديدة' }}</button></div>
+				</div>
+				}
 			</div>
 			<div style="font-size:12px;font-weight:700;margin-bottom:10px" class="txt-slate">تفضيلات التنبيهات</div>
 			<div style="display:flex;flex-direction:column;gap:8px">
 				<label
 					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
-					عند احالة جديدة ناجحة<input type="checkbox" checked
+					عند احالة جديدة ناجحة<input type="checkbox" [(ngModel)]="alertPreferences.marketer_new_referral"
 						style="accent-color:#2BD4C7" class="txt-teal"></label>
 				<label
 					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
-					عند وصول عمولة جديدة<input type="checkbox" checked
+					عند وصول عمولة جديدة<input type="checkbox" [(ngModel)]="alertPreferences.marketer_new_commission"
+						style="accent-color:#2BD4C7" class="txt-teal"></label>
+				<label
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
+					عند الترقية لمستوى جديد<input type="checkbox" [(ngModel)]="alertPreferences.marketer_tier_upgrade"
+						style="accent-color:#2BD4C7" class="txt-teal"></label>
+				<label
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيهات
+					تسويقية ونصائح AI<input type="checkbox" [(ngModel)]="alertPreferences.marketer_ai_tips"
 						style="accent-color:#2BD4C7" class="txt-teal"></label>
 			</div>
-			<div class="actions-row"><button type="button" class="btn-primary" disabled title="قريباً">حفظ الإعدادات</button></div>
+			<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSavingAlerts()" (click)="saveAlertPreferences()">{{ isSavingAlerts() ? 'جارٍ الحفظ...' : 'حفظ الإعدادات' }}</button></div>
 		</div>
 	</div>
 	}

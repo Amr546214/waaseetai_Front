@@ -34,11 +34,17 @@ export class Public implements OnInit {
     });
   }
 
+  // No backend field currently tracks per-channel ownership verification
+  // (`AffiliateChannelHandle` has no `verified`/`status` property — see
+  // BACKEND_BLOCKED_ISSUES.md). Claiming every channel is "موثّق" (verified)
+  // would be fabricated, so this shows a neutral, honest "pending review"
+  // state for all channels instead of a false positive, until a real
+  // verification pipeline/field exists.
   getChannelStatus(platform: string): string {
-    return 'موثّق';
+    return 'قيد المراجعة';
   }
 
   getChannelStatusClass(platform: string): string {
-    return 'status-verified';
+    return 'status-pending';
   }
 }

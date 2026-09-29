@@ -1,16 +1,25 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { MarketerOverviewService, MarketerSummary } from '../../../../../core/services/marketer-overview.service';
+import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
+import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { ibanValidator } from '../../../../../core/validators/iban.validator';
 import { environment } from '../../../../../../environments/environment';
+
+const DEFAULT_ALERT_PREFERENCES = {
+	marketer_new_referral: true,
+	marketer_new_commission: true,
+	marketer_tier_upgrade: true,
+	marketer_ai_tips: false,
+};
 
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, RouterLink],
+	imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })
@@ -19,6 +28,7 @@ export class Data implements OnInit {
 	private router = inject(Router);
 	private overviewService = inject(MarketerOverviewService);
 	private profileService = inject(MarketerProfileService);
+	private notificationPreferencesService = inject(NotificationPreferencesService);
 
 	summary = signal<MarketerSummary | null>(null);
 	profile = signal<MarketerProfile | null>(null);
@@ -39,16 +49,54 @@ export class Data implements OnInit {
 	submittingBasics = signal<boolean>(false);
 	loadingProfile = signal<boolean>(false);
 	profileLoadError = signal<boolean>(false);
+	passwordFormVisible = signal<boolean>(false);
+	isChangingPassword = signal<boolean>(false);
+	alertPreferences = { ...DEFAULT_ALERT_PREFERENCES };
+	isSavingAlerts = signal<boolean>(false);
 
 	referralLink = computed(() => {
 		const slug = this.profile()?.referralSlug;
 		return slug ? `${environment.url_api.replace(/\/api\/?$/, '')}/ref/${slug}` : '';
 	});
 
+	// روابط الإحالة الاجتماعية — real per-platform tracking links derived from
+	// the affiliate's own real referralSlug (same base link as referralLink()
+	// above), each tagged with a platform-specific `src` query param so clicks
+	// can later be attributed per channel. Not fabricated data: it's the same
+	// real referral link, just parameterized per platform, matching the design.
+	private readonly socialPlatforms: { name: string; src: string }[] = [
+		{ name: 'إكس (تويتر)', src: 'x' },
+		{ name: 'إنستقرام', src: 'ig' },
+		{ name: 'سناب شات', src: 'snap' },
+		{ name: 'تيك توك', src: 'tiktok' },
+		{ name: 'لينكدإن', src: 'linkedin' },
+		{ name: 'واتساب', src: 'wa' },
+	];
+	referralSocialLinks = computed(() => {
+		const base = this.referralLink();
+		return this.socialPlatforms.map(p => ({
+			...p,
+			link: base ? `${base}?src=${p.src}` : ''
+		}));
+	});
+
+	// تقرير أداء القنوات — real per-channel performance from the backend.
+	// Note: the backend's ChannelPerformance shape has no "registrations"
+	// (التسجيلات) field, only visitors/clients/conversionPercentage — that
+	// column is rendered as "—" rather than a fabricated number.
+	channelPerformance = signal<ChannelPerformance[]>([]);
+	loadingChannelPerformance = signal<boolean>(false);
+
+	// آخر العمولات — reuses the same real commissions endpoint the dedicated
+	// commissions page (`commissions.ts`) is built on.
+	recentCommissions = signal<CommissionLog[]>([]);
+	loadingRecentCommissions = signal<boolean>(false);
+
 	marketingForm!: FormGroup;
 	bankForm!: FormGroup;
 	channelForm!: FormGroup;
 	basicsForm!: FormGroup;
+	passwordForm!: FormGroup;
 
 	ngOnInit() {
 		this.marketingForm = this.fb.group({
@@ -58,7 +106,7 @@ export class Data implements OnInit {
 
 		this.bankForm = this.fb.group({
 			accountHolderName: [''],
-			iban: [''],
+			iban: ['', [ibanValidator]],
 			bankName: [''],
 			swiftCode: ['']
 		});
@@ -82,6 +130,12 @@ export class Data implements OnInit {
 			handle: ['', Validators.required]
 		});
 
+		this.passwordForm = this.fb.group({
+			currentPassword: ['', Validators.required],
+			newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
+			confirmPassword: ['', Validators.required]
+		});
+
 		this.overviewService.getSummary().subscribe({
 			next: (res) => {
 				if (res.success) {
@@ -97,6 +151,40 @@ export class Data implements OnInit {
 		});
 
 		this.loadProfile();
+
+		this.notificationPreferencesService.getPreferences().subscribe({
+			next: (res) => {
+				if (res.success) {
+					const saved = res.data?.settings || {};
+					this.alertPreferences = { ...DEFAULT_ALERT_PREFERENCES, ...saved } as typeof DEFAULT_ALERT_PREFERENCES;
+				}
+			},
+			error: () => {}
+		});
+
+		this.loadingChannelPerformance.set(true);
+		this.overviewService.getChannelPerformance().pipe(
+			finalize(() => this.loadingChannelPerformance.set(false))
+		).subscribe({
+			next: (res) => {
+				if (res.success) {
+					this.channelPerformance.set(res.data);
+				}
+			},
+			error: () => {}
+		});
+
+		this.loadingRecentCommissions.set(true);
+		this.overviewService.getRecentCommissions(5).pipe(
+			finalize(() => this.loadingRecentCommissions.set(false))
+		).subscribe({
+			next: (res) => {
+				if (res.success) {
+					this.recentCommissions.set(res.data);
+				}
+			},
+			error: () => {}
+		});
 	}
 
 	loadProfile() {
@@ -172,6 +260,11 @@ export class Data implements OnInit {
 			return;
 		}
 		if (this.savingBank()) return;
+		if (this.bankForm.get('iban')?.invalid) {
+			this.bankForm.get('iban')?.markAsTouched();
+			this.showToast('أدخل رقم IBAN صالحًا قبل الإرسال', 'error');
+			return;
+		}
 
 		this.savingBank.set(true);
 		this.profileService.updateBankInfo(this.bankForm.value).pipe(
@@ -318,6 +411,58 @@ export class Data implements OnInit {
 			},
 			error: (err) => {
 				this.showToast(err?.error?.message || 'تعذر حذف القناة، حاول مرة أخرى', 'error');
+			}
+		});
+	}
+
+	passwordStrength() {
+		const value = String(this.passwordForm?.get('newPassword')?.value || '');
+		if (!value) return { percent: 0, label: 'قوة كلمة المرور', color: 'transparent' };
+		const groups = [/[a-z]/.test(value), /[A-Z]/.test(value), /\d/.test(value), /[^A-Za-z0-9]/.test(value)].filter(Boolean).length;
+		const score = Math.min(4, (value.length >= 8 ? 1 : 0) + (value.length >= 12 ? 1 : 0) + Math.min(2, groups - 1));
+		return score <= 1 ? { percent: 25, label: 'ضعيفة', color: '#FF6B6B' }
+			: score === 2 ? { percent: 50, label: 'متوسطة', color: '#FFB400' }
+			: score === 3 ? { percent: 75, label: 'جيدة', color: '#2B7FFF' }
+			: { percent: 100, label: 'قوية', color: '#2BD4C7' };
+	}
+
+	changePassword() {
+		if (this.isChangingPassword()) return;
+		const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
+		if (this.passwordForm.invalid) { this.passwordForm.markAllAsTouched(); this.showToast('كلمة المرور الجديدة يجب أن تتكون من 8 أحرف على الأقل', 'error'); return; }
+		if (newPassword !== confirmPassword) { this.passwordForm.get('confirmPassword')?.setErrors({ mismatch: true }); this.showToast('تأكيد كلمة المرور غير مطابق', 'error'); return; }
+		const groups = [/[a-z]/.test(newPassword), /[A-Z]/.test(newPassword), /\d/.test(newPassword), /[^A-Za-z0-9]/.test(newPassword)].filter(Boolean).length;
+		if (groups < 3) { this.showToast('استخدم ثلاثة أنواع على الأقل: أحرف صغيرة وكبيرة وأرقام ورموز', 'error'); return; }
+		this.isChangingPassword.set(true);
+		this.profileService.changePassword(currentPassword, newPassword).subscribe({
+			next: () => {
+				this.isChangingPassword.set(false);
+				this.passwordForm.reset();
+				this.passwordFormVisible.set(false);
+				this.showToast('تم تغيير كلمة المرور بنجاح', 'success');
+			},
+			error: (err: any) => {
+				this.isChangingPassword.set(false);
+				const reason = err?.error?.message;
+				this.showToast(reason === 'CURRENT_PASSWORD_INCORRECT' ? 'كلمة المرور الحالية غير صحيحة'
+					: reason === 'PASSWORD_UNCHANGED' ? 'كلمة المرور الجديدة مطابقة للحالية'
+					: reason === 'WEAK_PASSWORD' ? 'كلمة المرور الجديدة لا تحقق متطلبات الأمان'
+					: 'تعذر تغيير كلمة المرور، حاول مجددًا', 'error');
+			}
+		});
+	}
+
+	saveAlertPreferences() {
+		if (this.isSavingAlerts()) return;
+		this.isSavingAlerts.set(true);
+		this.notificationPreferencesService.updatePreferences(this.alertPreferences).subscribe({
+			next: (res) => {
+				this.isSavingAlerts.set(false);
+				this.showToast(res.success ? 'تم حفظ إعدادات التنبيهات بنجاح' : (res.message || 'تعذر حفظ الإعدادات'), res.success ? 'success' : 'error');
+			},
+			error: () => {
+				this.isSavingAlerts.set(false);
+				this.showToast('تعذر حفظ الإعدادات، حاول مرة أخرى', 'error');
 			}
 		});
 	}

@@ -1,11 +1,12 @@
 import { Component, signal, OnInit, inject, PLATFORM_ID, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { HttpEventType } from '@angular/common/http';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { ibanValidator } from '../../../../../core/validators/iban.validator';
 
 interface DocumentUploadState {
   name: string;
@@ -24,16 +25,6 @@ interface ActiveSession {
   lastActiveAt: string;
   createdAt: string;
   isCurrent: boolean;
-}
-
-function ibanValidator(control: AbstractControl): ValidationErrors | null {
-  const iban = String(control.value || '').replace(/\s/g, '').toUpperCase();
-  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)) return { iban: true };
-  const rearranged = `${iban.slice(4)}${iban.slice(0, 4)}`;
-  const numeric = rearranged.replace(/[A-Z]/g, char => String(char.charCodeAt(0) - 55));
-  let remainder = 0;
-  for (const digit of numeric) remainder = (remainder * 10 + Number(digit)) % 97;
-  return remainder === 1 ? null : { iban: true };
 }
 
 @Component({
@@ -165,7 +156,7 @@ export class Data implements OnInit {
 
     this.bankingForm = this.fb.group({
       accountHolderName: ['', Validators.required],
-      ibanNumber: ['', [Validators.required]],
+      ibanNumber: ['', [Validators.required, ibanValidator]],
       bankName: ['', Validators.required]
     });
 

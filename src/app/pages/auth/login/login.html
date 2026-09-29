@@ -134,26 +134,38 @@
 	</div>
 </section>
 
-<div class="modal-ov" id="modal-otp" hidden="hidden" role="dialog" aria-modal="true" aria-labelledby="otp-title">
+<div class="modal-ov" id="modal-otp" [hidden]="!otpRequired" role="dialog" aria-modal="true" aria-labelledby="otp-title">
 	<div class="modal-box">
 		<div class="modal-ico"><svg style="width:44px;height:44px;fill:none;stroke:#2BD4C7;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-ai-spark"></use></svg></div>
 		<h2 class="modal-title" id="otp-title">تحقق من هويتك</h2>
 		<p class="modal-desc">ادخل الرمز المرسل لجوالك المسجل</p>
-		<div class="otp-row" aria-label="حقول رمز التحقق">
-			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 1">
-			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 2">
-			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 3">
-			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 4">
-			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 5">
-			<input class="otp-in" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم 6">
-		</div>
-		<p class="otp-hint">صالح لمدة 5 دقائق</p>
-		<button type="button" class="otp-resend" id="otp-resend">اعادة ارسال الرمز</button>
-		<div class="modal-actions">
-			<button type="button" class="btn-primary" id="btn-otp-verify"
-				style="width:100%;justify-content:center">تحقق</button>
-			<button type="button" class="btn-secondary" id="btn-otp-cancel">الغاء</button>
-		</div>
+		@if (errorMessage) {
+		<p class="field-err" id="otp-err" role="alert" style="justify-content:center;margin-bottom:12px">
+			<svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+			<span>{{ errorMessage }}</span>
+		</p>
+		}
+		<form [formGroup]="otpForm" (ngSubmit)="submitLoginOtp()">
+			<div class="otp-row" aria-label="حقول رمز التحقق" dir="ltr" (paste)="onOtpPaste($event)">
+				@for (i of otpIndexes; track i) {
+				<input class="otp-in" [class.filled]="!!otpDigit(i)" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+					[id]="'login-otp-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
+				}
+			</div>
+			<p class="otp-hint">
+				@if (otpCountdown > 0) {
+				اعادة الارسال بعد {{ formattedOtpCountdown }}
+				} @else {
+				صالح لمدة 5 دقائق
+				}
+			</p>
+			<button type="button" class="otp-resend" id="otp-resend" [disabled]="otpCountdown > 0 || isSubmitting" (click)="resendLoginOtp()">اعادة ارسال الرمز</button>
+			<div class="modal-actions">
+				<button type="submit" class="btn-primary" id="btn-otp-verify" [disabled]="otpForm.invalid || isSubmitting"
+					style="width:100%;justify-content:center">{{ isSubmitting ? 'جاري التحقق...' : 'تحقق' }}</button>
+				<button type="button" class="btn-secondary" id="btn-otp-cancel" (click)="closeOtpModal()">الغاء</button>
+			</div>
+		</form>
 	</div>
 </div>
 

@@ -111,7 +111,11 @@
         </div>
         <div class="form-grid form-col2">
           <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">اسم صاحب الحساب<span class="req">*</span></label><input type="text" class="inp-field" formControlName="accountHolderName" placeholder="الاسم الثلاثي كما في البطاقة"></div>
-          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">رقم IBAN<span class="req">*</span></label><input type="text" class="inp-field" formControlName="iban" placeholder="SAxx xxxx xxxx xxxx xxxx xxxx" dir="ltr"></div>
+          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">رقم IBAN<span class="req">*</span></label><input type="text" class="inp-field" formControlName="iban" placeholder="SAxx xxxx xxxx xxxx xxxx xxxx" dir="ltr">
+            @if (bankForm.get('iban')?.invalid && bankForm.get('iban')?.touched) {
+              <span style="font-size:11px;color:#ff8c69;margin-top:3px">أدخل رقم IBAN صالحًا (رمز الدولة، رقما التحقق، ثم رقم الحساب)</span>
+            }
+          </div>
           <div class="inp-group"><label class="inp-label">اسم البنك</label>
             <select class="inp-field" formControlName="bankName">
               <option value="">اختر البنك</option>

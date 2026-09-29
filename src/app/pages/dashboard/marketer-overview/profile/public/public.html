@@ -34,8 +34,8 @@
       <div style="font-size:12px;margin-bottom:16px" class="txt-muted">وسيط تسويقي · منذ 2024</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
         <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-teal">{{ summary()?.successfulReferrals || 0 }}</div><div style="font-size:10px" class="txt-muted">إحالة</div></div>
-        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-green">1.8%</div><div style="font-size:10px" class="txt-muted">تحويل</div></div>
-        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-amber">4.8</div><div style="font-size:10px" class="txt-muted">تقييم</div></div>
+        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-green">{{ summary()?.overallConversionRate || 0 }}%</div><div style="font-size:10px" class="txt-muted">تحويل</div></div>
+        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-amber">—</div><div style="font-size:10px" class="txt-muted">تقييم</div></div>
       </div>
       <a routerLink="/marketer-overview/profile/data" style="display:block;margin-top:16px;padding:9px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;text-align:center" class="txt-teal">تعديل الملف</a>
     </div>
@@ -58,7 +58,7 @@
             <div style="display:flex;align-items:center;gap:8px">
               <span style="width:70px;font-size:12px" class="txt-slate">{{ channel.platform }}</span>
               <span style="font-size:12px" dir="ltr" class="txt-teal">{{ channel.handle }}</span>
-              <span style="margin-inline-start:auto;font-size:11px" class="txt-green">موثّق</span>
+              <span style="margin-inline-start:auto;font-size:11px" [class.txt-green]="getChannelStatusClass(channel.platform) === 'status-verified'" [class.txt-amber]="getChannelStatusClass(channel.platform) === 'status-pending'">{{ getChannelStatus(channel.platform) }}</span>
             </div>
           }
           @if (channels().length === 0) {

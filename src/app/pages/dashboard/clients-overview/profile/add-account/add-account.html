@@ -165,17 +165,13 @@
 				</div>
 
 				<!-- مقدم خدمة شركة -->
-				<div class="role-card" [ngClass]="{'role-disabled': isRoleActive('provider-co')}"
-					(click)="selectType('provider-co')">
+				<div class="role-card" [ngClass]="{'role-disabled': isRoleActive('provider-co') || isRoleUnavailable('provider-co')}">
 					<span *ngIf="isRoleActive('provider-co')"
 						class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-[rgba(43,212,199,.14)] text-[#2BD4C7] border border-[rgba(43,212,199,.24)] rounded-full">الحساب
 						الحالي النشط</span>
-					<span *ngIf="isRoleOwned('provider-co') && !isRoleActive('provider-co')"
-						class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full">حساب
-						مفعل</span>
-					<span *ngIf="!isRoleOwned('provider-co')"
-						class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">متاح
-						للإضافة</span>
+					<span *ngIf="!isRoleActive('provider-co') && isRoleUnavailable('provider-co')"
+						class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-slate-500/10 text-slate-400 border border-slate-500/20 rounded-full">غير
+						متاح حاليًا</span>
 
 					<div
 						class="w-14 h-14 rounded-2xl bg-[rgba(15,169,154,.1)] flex items-center justify-center mb-3.5 shrink-0 text-[#0FA99A]">
@@ -188,28 +184,22 @@
 					</div>
 					<div class="text-[15px] font-black text-[var(--txt)] mb-1.5">مقدم الخدمة (شركة)</div>
 					<p class="text-xs text-[var(--txt-3)] leading-relaxed flex-1 mb-3">للشركات التي تقدم خدمات احترافية
-						وتريد العمل بعقود رسمية</p>
-					<button type="button" class="role-cta" [disabled]="isRoleActive('provider-co')"
-						[class.opacity-50]="isRoleActive('provider-co')">
+						وتريد العمل بعقود رسمية<span *ngIf="isRoleUnavailable('provider-co') && !isRoleActive('provider-co')"> — إنشاء حساب شركة غير متاح من هذه الصفحة حاليًا</span></p>
+					<button type="button" class="role-cta" [disabled]="isRoleActive('provider-co') || isRoleUnavailable('provider-co')"
+						[class.opacity-50]="isRoleActive('provider-co') || isRoleUnavailable('provider-co')">
 						<span *ngIf="isRoleActive('provider-co')">الحساب النشط حالياً</span>
-						<span *ngIf="isRoleOwned('provider-co') && !isRoleActive('provider-co')">تبديل إلى هذه
-							اللوحة</span>
-						<span *ngIf="!isRoleOwned('provider-co')">تفعيل الحساب الآن</span>
+						<span *ngIf="!isRoleActive('provider-co') && isRoleUnavailable('provider-co')">غير متاح حاليًا</span>
 					</button>
 				</div>
 
 				<!-- طالب خدمة شركة -->
-				<div class="role-card" [ngClass]="{'role-disabled': isRoleActive('seeker-co')}"
-					(click)="selectType('seeker-co')">
+				<div class="role-card" [ngClass]="{'role-disabled': isRoleActive('seeker-co') || isRoleUnavailable('seeker-co')}">
 					<span *ngIf="isRoleActive('seeker-co')"
 						class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-[rgba(43,212,199,.14)] text-[#2BD4C7] border border-[rgba(43,212,199,.24)] rounded-full">الحساب
 						الحالي النشط</span>
-					<span *ngIf="isRoleOwned('seeker-co') && !isRoleActive('seeker-co')"
-						class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full">حساب
-						مفعل</span>
-					<span *ngIf="!isRoleOwned('seeker-co')"
-						class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">متاح
-						للإضافة</span>
+					<span *ngIf="!isRoleActive('seeker-co') && isRoleUnavailable('seeker-co')"
+						class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-slate-500/10 text-slate-400 border border-slate-500/20 rounded-full">غير
+						متاح حاليًا</span>
 
 					<div
 						class="w-14 h-14 rounded-2xl bg-[rgba(43,212,199,.08)] flex items-center justify-center mb-3.5 shrink-0 text-[#2BD4C7]">
@@ -220,12 +210,11 @@
 					</div>
 					<div class="text-[15px] font-black text-[var(--txt)] mb-1.5">طالب الخدمة (شركة)</div>
 					<p class="text-xs text-[var(--txt-3)] leading-relaxed flex-1 mb-3">للشركات التي تحتاج خدمات مهنية
-						موثقة عبر عقود رسمية</p>
-					<button type="button" class="role-cta" [disabled]="isRoleActive('seeker-co')"
-						[class.opacity-50]="isRoleActive('seeker-co')">
+						موثقة عبر عقود رسمية<span *ngIf="isRoleUnavailable('seeker-co') && !isRoleActive('seeker-co')"> — إنشاء حساب شركة غير متاح من هذه الصفحة حاليًا</span></p>
+					<button type="button" class="role-cta" [disabled]="isRoleActive('seeker-co') || isRoleUnavailable('seeker-co')"
+						[class.opacity-50]="isRoleActive('seeker-co') || isRoleUnavailable('seeker-co')">
 						<span *ngIf="isRoleActive('seeker-co')">الحساب النشط حالياً</span>
-						<span *ngIf="isRoleOwned('seeker-co') && !isRoleActive('seeker-co')">تبديل إلى هذه اللوحة</span>
-						<span *ngIf="!isRoleOwned('seeker-co')">تفعيل الحساب الآن</span>
+						<span *ngIf="!isRoleActive('seeker-co') && isRoleUnavailable('seeker-co')">غير متاح حاليًا</span>
 					</button>
 				</div>
 

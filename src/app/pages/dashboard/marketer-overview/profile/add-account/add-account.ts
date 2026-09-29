@@ -332,8 +332,22 @@ export class AddAccount implements OnInit {
     return false;
   }
 
+  // Phase 3 item 2 ("تعطيل حسابات الشركات وفق الملاحظة"): this self-service
+  // flow can never actually produce a real company account — addAccountType()
+  // only ever grants the generic PROVIDER/CLIENT role (see mapTypeToRole()
+  // above); accountType (the field that actually distinguishes *_COMPANY
+  // from *_INDIVIDUAL) is fixed at signup and is never touched here. Before
+  // this fix, selecting "provider-co"/"seeker-co" silently added a plain
+  // individual-equivalent role while collecting company name/CR number that
+  // were never used to create a real company account — misleading. Disabled
+  // unconditionally until a real company-account creation path exists,
+  // rather than faking one.
+  isRoleUnavailable(typeKey: string): boolean {
+    return typeKey === 'provider-co' || typeKey === 'seeker-co';
+  }
+
   selectType(type: string) {
-    if (this.isRoleActive(type)) {
+    if (this.isRoleActive(type) || this.isRoleUnavailable(type)) {
       return;
     }
 

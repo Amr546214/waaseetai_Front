@@ -1,0 +1,112 @@
+<svg style="display:none" aria-hidden="true">
+<defs>
+<symbol id="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></symbol>
+<symbol id="ws-role-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"></path></symbol>
+<symbol id="ws-role-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="14" rx="1"></rect><path d="M4 7L12 2l8 5"></path><rect x="8.5" y="12" width="2.5" height="9" stroke-width="1.6"></rect><rect x="13" y="12" width="2.5" height="9" stroke-width="1.6"></rect></symbol>
+<symbol id="ws-role-provider" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"></rect><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><path d="M8.5 14.5l2.5 2.5 5-5"></path></symbol>
+<symbol id="ws-role-broker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2.5"></circle><circle cx="4.5" cy="19" r="2.5"></circle><circle cx="19.5" cy="19" r="2.5"></circle><path d="M12 6.5L5.5 16.5M12 6.5L18.5 16.5M7 19h10"></path></symbol>
+<symbol id="ws-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></symbol>
+<symbol id="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 5.5V11c0 4.5 3.5 8.5 8 10.5 4.5-2 8-6 8-10.5V5.5L12 2z"></path><path d="M8.5 12l2.5 2.5 4.5-4.5"></path></symbol>
+<symbol id="ws-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></symbol>
+<symbol id="ws-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></symbol>
+</defs>
+</svg>
+
+<section class="welcome-section">
+  <div class="welcome-inner">
+
+    @if (cfg) {
+      <div class="success-circle" aria-hidden="true">
+        <svg style="width:38px;height:38px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><use href="#ws-check"></use></svg>
+      </div>
+
+      <h1 class="welcome-h1" id="page-h1">مرحبا بك في <span class="brand-gradient">وسيط AI</span></h1>
+      <p class="welcome-sub">{{ cfg.canSkip ? 'تم تسجيل دخولك بنجاح، حسابك جاهز للاستخدام الأساسي' : 'تم تسجيل دخولك بنجاح، يتطلب حسابك استكمال البيانات' }}</p>
+
+      <div class="role-badge" aria-label="نوع الحساب المختار">
+        <span class="role-badge-lbl">نوع الحساب</span>
+        <svg aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:var(--teal);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><use [attr.href]="'#' + cfg.icon"></use></svg>
+        <span>{{ cfg.name }}</span>
+      </div>
+
+      @if (cfg.canSkip) {
+        <div class="completion-card optional" role="region" aria-labelledby="card-optional-title">
+          <div class="card-head">
+            <div class="card-icon opt" aria-hidden="true">
+              <svg style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><use href="#ws-shield"></use></svg>
+            </div>
+            <span class="card-title" id="card-optional-title">استكمال البيانات</span>
+            <span class="card-badge opt">اختياري الآن</span>
+          </div>
+          <p class="card-note">{{ cfg.completionNote }}</p>
+          @if (cfg.restrictions?.length) {
+            <div class="restrictions-list">
+              <p class="restrict-label">غير متاح قبل الاستكمال</p>
+              @for (r of cfg.restrictions; track r) {
+                <div class="restriction-item" role="listitem">
+                  <span class="restriction-dot" aria-hidden="true"></span>
+                  <span>{{ r }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="btn-group" role="group" aria-label="خيارات الدخول للوحة التحكم">
+          <a [routerLink]="cfg.profileSetupRoute" class="btn-primary" aria-label="استكمال البيانات الآن داخل لوحة التحكم">
+            <svg aria-hidden="true" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ws-shield"></use></svg>
+            استكمال البيانات داخل اللوحة
+          </a>
+          <a [routerLink]="dashboardRoute" class="btn-secondary" aria-label="تخطي الاستكمال الآن والدخول للوحة التحكم">
+            تخطي الآن والدخول للوحة
+          </a>
+        </div>
+      } @else {
+        <div class="completion-card required" role="region" aria-labelledby="card-required-title">
+          <div class="card-head">
+            <div class="card-icon req" aria-hidden="true">
+              <svg style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><use href="#ws-warn"></use></svg>
+            </div>
+            <span class="card-title" id="card-required-title">استكمال البيانات مطلوب</span>
+            <span class="card-badge req">إلزامي</span>
+          </div>
+          <p class="card-note">{{ cfg.completionNote }}</p>
+          <div class="restrictions-list">
+            <p class="restrict-label">الميزات المقيدة حتى الاستكمال</p>
+            @for (r of mandatoryRestrictions; track r) {
+              <div class="restriction-item" role="listitem">
+                <span class="restriction-dot" aria-hidden="true"></span>
+                <span>{{ r }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="btn-group" role="group" aria-label="خيارات الدخول للوحة التحكم">
+          <a [routerLink]="cfg.profileSetupRoute" class="btn-primary" aria-label="استكمال البيانات الآن داخل لوحة التحكم">
+            <svg aria-hidden="true" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ws-shield"></use></svg>
+            استكمال البيانات الآن
+          </a>
+          <a [routerLink]="dashboardRoute" class="btn-secondary btn-muted" aria-label="الدخول للوحة التحكم، بعض الميزات مقيدة">
+            <svg aria-hidden="true" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><use href="#ws-lock"></use></svg>
+            الدخول للوحة (بعض الميزات مقيدة)
+          </a>
+        </div>
+      }
+
+    } @else {
+      <div class="error-card" role="alert">
+        <div class="error-icon" aria-hidden="true">
+          <svg style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><use href="#ws-warn"></use></svg>
+        </div>
+        <p class="error-title">تعذر تحديد نوع الحساب</p>
+        <p class="error-note">حدث خطأ في التحقق من بيانات الجلسة. يرجى تسجيل الدخول مجددا</p>
+        <a routerLink="/auth/login" class="btn-primary" style="width:100%;margin-top:4px" aria-label="العودة لصفحة تسجيل الدخول">
+          <svg aria-hidden="true" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ws-arrow-left"></use></svg>
+          تسجيل الدخول مجددا
+        </a>
+      </div>
+    }
+
+  </div>
+</section>

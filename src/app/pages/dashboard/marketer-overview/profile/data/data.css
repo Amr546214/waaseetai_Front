@@ -75,6 +75,10 @@
 .inp-field { background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .10); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: #fff; font-family: 'Tajawal', sans-serif; width: 100%; transition: border-color .15s; }
 .inp-field:focus { outline: none; border-color: rgba(43, 212, 199, .40); }
 .inp-hint { font-size: 11px; color: #6B7699; margin-top: 3px; }
+.field-error { font-size: 11px; color: #ff8c69; margin-top: 3px; }
+.pwd-strength { height: 6px; border-radius: 4px; background: rgba(255, 255, 255, .08); overflow: hidden; margin-top: 8px; }
+.pwd-strength-bar { height: 100%; width: 0; border-radius: 4px; transition: width .25s, background .25s; }
+.pwd-strength-lbl { font-size: 11px; font-weight: 700; margin-top: 6px; color: #6B7699; }
 textarea.inp-field { resize: vertical; min-height: 110px; line-height: 1.6; }
 .char-counter { font-size: 11px; color: #6B7699; text-align: left; margin-top: 3px; }
 
@@ -336,3 +340,8 @@ select optgroup { background: #0B1437; color: #A8B2D1; font-weight: 800; }
 :host-context(body.theme-light) select optgroup,
 :host-context(.light-theme) select optgroup,
 :host-context(.theme-light) select optgroup { background: #F1F5FB; color: #475569; }
+
+:host-context(body.light-theme) .pwd-strength,
+:host-context(body.theme-light) .pwd-strength,
+:host-context(.light-theme) .pwd-strength,
+:host-context(.theme-light) .pwd-strength { background: #E2E8F4; }

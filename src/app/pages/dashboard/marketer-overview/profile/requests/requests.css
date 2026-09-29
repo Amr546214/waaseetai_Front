@@ -256,3 +256,47 @@
 :host-context(body.theme-light) [style*="color:#A8B2D1"],
 :host-context(.light-theme) [style*="color:#A8B2D1"],
 :host-context(.theme-light) [style*="color:#A8B2D1"] { color: #475569 !important; }
+
+@keyframes ws-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Request details modal */
+.modal-ov { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, .55); z-index: 85; align-items: center; justify-content: center; }
+.modal-ov.show { display: flex; }
+.modal-box { width: 100%; max-width: 480px; background: rgba(11, 20, 55, .96); border: 1px solid rgba(43, 212, 199, .20); border-radius: 18px; padding: 24px; box-shadow: 0 28px 80px rgba(0, 0, 0, .6); animation: ws-fade .2s ease both; }
+.modal-ico { width: 46px; height: 46px; border-radius: 12px; background: rgba(43, 212, 199, .14); display: flex; align-items: center; justify-content: center; color: var(--teal-txt, #2BD4C7); margin-bottom: 14px; }
+.modal-ico svg { width: 23px; height: 23px; }
+.modal-title { font-size: 17px; font-weight: 900; color: #fff; margin-bottom: 14px; }
+.modal-info-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.modal-info-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 8px 12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 9px; font-size: 12.5px; }
+.modal-info-row.modal-info-full { flex-direction: column; gap: 4px; }
+.modal-info-lbl { color: #6B7699; font-weight: 700; flex-shrink: 0; }
+.modal-info-val { color: #fff; font-weight: 700; text-align: left; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-btn { flex: 1; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; font-family: inherit; border: 1px solid; transition: all .15s; }
+.modal-btn-cancel { background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .12); color: #A8B2D1; }
+.modal-btn-cancel:hover { background: rgba(255, 255, 255, .09); color: #fff; }
+
+:host-context(body.light-theme) .modal-box,
+:host-context(body.theme-light) .modal-box,
+:host-context(.light-theme) .modal-box,
+:host-context(.theme-light) .modal-box { background: #fff; border-color: #E2E8F4; box-shadow: 0 28px 80px rgba(15, 23, 42, .22); }
+:host-context(body.light-theme) .modal-title,
+:host-context(body.theme-light) .modal-title,
+:host-context(.light-theme) .modal-title,
+:host-context(.theme-light) .modal-title { color: #0F172A; }
+:host-context(body.light-theme) .modal-info-row,
+:host-context(body.theme-light) .modal-info-row,
+:host-context(.light-theme) .modal-info-row,
+:host-context(.theme-light) .modal-info-row { background: #F8FAFC; border-color: #E2E8F4; }
+:host-context(body.light-theme) .modal-info-val,
+:host-context(body.theme-light) .modal-info-val,
+:host-context(.light-theme) .modal-info-val,
+:host-context(.theme-light) .modal-info-val { color: #0F172A; }
+:host-context(body.light-theme) .modal-btn-cancel,
+:host-context(body.theme-light) .modal-btn-cancel,
+:host-context(.light-theme) .modal-btn-cancel,
+:host-context(.theme-light) .modal-btn-cancel { background: rgba(15, 23, 42, .04); border-color: rgba(15, 23, 42, .14); color: #475569; }
+:host-context(body.light-theme) .modal-btn-cancel:hover,
+:host-context(body.theme-light) .modal-btn-cancel:hover,
+:host-context(.light-theme) .modal-btn-cancel:hover,
+:host-context(.theme-light) .modal-btn-cancel:hover { background: #eef1f7; color: #0F172A; }

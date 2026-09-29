@@ -14,6 +14,7 @@ export class Requests implements OnInit {
 
   activeFilter = signal<string>('all');
   summary = signal<ProfileRequestsSummary | null>(null);
+  selectedRequest = signal<ProfileChangeRequest | null>(null);
 
   ChangeRequestStatus = ChangeRequestStatus;
 
@@ -60,5 +61,16 @@ export class Requests implements OnInit {
 
   showDetails(msg: string) {
     alert(msg);
+  }
+
+  // Replaces the previous bare alert("عرض تفاصيل الطلب " + requestNumber) —
+  // every field shown here was already loaded by getRequests(), just never
+  // surfaced for an approved/withdrawn request's own "التفاصيل" action.
+  openRequestDetails(req: ProfileChangeRequest) {
+    this.selectedRequest.set(req);
+  }
+
+  closeRequestDetails() {
+    this.selectedRequest.set(null);
   }
 }

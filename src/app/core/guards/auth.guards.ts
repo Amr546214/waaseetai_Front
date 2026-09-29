@@ -134,6 +134,30 @@ export const getDefaultDashboard = (accountType?: AccountType, activeRole?: User
 };
 
 /**
+ * Maps an accountType to the `role` query param key expected by the
+ * "مرحبا بك" welcome screen (/auth/welcome, design P-CM-001). Returns
+ * undefined for account types the design doesn't define a welcome-card
+ * variant for (e.g. SUPER_ADMIN) — the welcome screen falls back to its
+ * error state in that case.
+ */
+export const getWelcomeRoleKey = (accountType?: AccountType): string | undefined => {
+  switch (accountType) {
+    case AccountType.CLIENT_INDIVIDUAL:
+      return 'client-individual';
+    case AccountType.CLIENT_COMPANY:
+      return 'client-company';
+    case AccountType.PROVIDER_INDIVIDUAL:
+      return 'provider-individual';
+    case AccountType.PROVIDER_COMPANY:
+      return 'provider-company';
+    case AccountType.MARKETING_BROKER:
+      return 'broker';
+    default:
+      return undefined;
+  }
+};
+
+/**
  * Protects Client routes - only Client users allowed
  */
 export const clientGuard: CanActivateFn = (route, state) => {

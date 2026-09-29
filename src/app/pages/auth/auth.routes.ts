@@ -24,6 +24,10 @@ export const AUTH_ROUTES: Routes = [
 				path: 'verify-otp',
 				canActivate: [verificationGuard],
 				loadComponent: () => import('./verify-otp/verify-otp').then(m => m.VerifyOtp),
+			},
+			{
+				path: 'welcome',
+				loadComponent: () => import('./welcome/welcome').then(m => m.Welcome),
 			}
 
 		]

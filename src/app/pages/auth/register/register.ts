@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { AuthStore } from '../../../core/store/auth.store';
 import { AccountType } from '../../../core/models/auth.model';
-import { getDefaultDashboard } from '../../../core/guards/auth.guards';
+import { getWelcomeRoleKey } from '../../../core/guards/auth.guards';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 
@@ -33,6 +33,15 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	isSubmitting = false;
 	errorMessage = '';
 	appleNotice = '';
+
+	// Set once /auth/google confirms a NEW Google identity (intent: register).
+	// submitRegistration() sends it back as googleIdToken so the backend can
+	// finish creating the account without a local password.
+	private googleIdToken: string | null = null;
+	isGoogleFlow = false;
+	// Set on a 409 from /auth/google (intent: register) — the email already has
+	// an account, so we point the user at the login page instead of retrying.
+	accountExistsError = false;
 
 	// Draft restoration
 	showDraftBanner = false;
@@ -153,18 +162,46 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				}
 				this.isSubmitting = true;
 				this.errorMessage = '';
+				this.accountExistsError = false;
 				this.cdr.markForCheck();
 
 				this.authApi.googleAuth(user.idToken, this.accountTypeMap[this.selectedAccountType]).subscribe({
 					next: (res) => {
 						this.isSubmitting = false;
 						this.cdr.markForCheck();
+
+						if (res.data?.registrationRequired && res.data.googleProfile) {
+							// New Google identity: no account was created yet. Store the
+							// idToken to forward on submit and switch the form into
+							// "complete your profile" mode instead of routing to /welcome
+							// as if signup already succeeded.
+							this.googleIdToken = user.idToken ?? null;
+							this.applyGoogleProfile(res.data.googleProfile);
+							return;
+						}
+
+						// Defensive fallback: the backend never returns a token/user for
+						// intent 'register', but if that ever changes, still route home
+						// correctly instead of silently doing nothing.
 						const authedUser = res.data?.user || this.authStore.currentUser();
-						this.router.navigate([getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole)]);
+						if (authedUser) {
+							this.router.navigate(['/auth/welcome'], {
+								queryParams: {
+									role: getWelcomeRoleKey(authedUser.accountType),
+									accountType: authedUser.accountType,
+									activeRole: authedUser.activeRole
+								}
+							});
+						}
 					},
 					error: (err) => {
 						this.isSubmitting = false;
-						this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء التسجيل بجوجل';
+						if (err.status === 409) {
+							this.accountExistsError = true;
+							this.errorMessage = err.error?.message || 'هذا الحساب موجود بالفعل، يرجى تسجيل الدخول';
+						} else {
+							this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء التسجيل بجوجل';
+						}
 						this.cdr.markForCheck();
 					}
 				});
@@ -178,6 +215,28 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	ngOnDestroy() {
 		if (this.countdownTimer) clearInterval(this.countdownTimer);
+	}
+
+	/** Switches step 2 into "complete your Google signup" mode: pre-fills the
+	 * verified identity fields and drops the password requirement, since the
+	 * account will be created with googleIdToken instead of a local password. */
+	private applyGoogleProfile(profile: { email: string; firstName: string; lastName: string }) {
+		this.isGoogleFlow = true;
+		this.errorMessage = '';
+		this.basicInfoForm.patchValue({
+			firstName: profile.firstName,
+			lastName: profile.lastName,
+			email: profile.email
+		});
+		const password = this.basicInfoForm.get('password');
+		const confirmPassword = this.basicInfoForm.get('confirmPassword');
+		password?.setValue('');
+		password?.clearValidators();
+		password?.updateValueAndValidity();
+		confirmPassword?.setValue('');
+		confirmPassword?.clearValidators();
+		confirmPassword?.updateValueAndValidity();
+		this.cdr.markForCheck();
 	}
 
 	private checkDraft() {
@@ -260,7 +319,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			email: val.email,
 			phoneCountryCode: val.phone?.dialCode || '+966',
 			phoneNumber: val.phone?.number || '',
-			password: val.password,
+			password: this.isGoogleFlow ? undefined : val.password,
+			googleIdToken: this.isGoogleFlow ? this.googleIdToken || undefined : undefined,
 			agreedToTerms: !!(val.agreeData && val.agreeTerms)
 		};
 
@@ -321,7 +381,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 					this.isSubmitting = false;
 					this.cdr.markForCheck();
 					const authedUser = res.data?.user || this.authStore.currentUser();
-					this.router.navigate([getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole)]);
+					this.router.navigate(['/auth/welcome'], {
+						queryParams: {
+							role: getWelcomeRoleKey(authedUser?.accountType),
+							accountType: authedUser?.accountType,
+							activeRole: authedUser?.activeRole
+						}
+					});
 				},
 				error: (err) => {
 					this.isSubmitting = false;

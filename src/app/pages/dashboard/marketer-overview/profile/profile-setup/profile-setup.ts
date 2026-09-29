@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MarketerProfileService, MarketerProfile } from '../../../../../core/services/marketer-profile.service';
+import { ibanValidator } from '../../../../../core/validators/iban.validator';
 
 @Component({
 	selector: 'app-marketer-profile-setup',
@@ -41,7 +42,7 @@ export class ProfileSetup implements OnInit {
 
 	bankForm: FormGroup = this.fb.group({
 		accountHolderName: ['', Validators.required],
-		iban: ['', Validators.required],
+		iban: ['', [Validators.required, ibanValidator]],
 		bankName: ['', Validators.required],
 	});
 

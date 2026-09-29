@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AUTH_ROUTES } from './pages/auth/auth.routes';
 import { authGuard, clientGuard, providerGuard, marketerGuard, superAdminGuard } from './core/guards/auth.guards';
+import { providerProfileCompleteGuard } from './core/guards/profile-complete.guard';
 import { WEBSITE_ROUTES } from './pages/website/website.routes';
 import { CLIENT_OVERVIEW_ROUTES } from './pages/dashboard/clients-overview/client.routes';
 import { PROVIDER_OVERVIEW_ROUTES } from './pages/dashboard/provider-overview/provider.routes';
@@ -29,6 +30,7 @@ export const routes: Routes = [
 	{
 		path: 'provider-overview',
 		canActivate: [authGuard, providerGuard],
+		canActivateChild: [providerProfileCompleteGuard],
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
 		children: PROVIDER_OVERVIEW_ROUTES
 	},

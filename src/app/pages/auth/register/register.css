@@ -136,8 +136,9 @@ app-register .rg-s2 .chk-row{display:flex;align-items:flex-start;gap:10px;font-s
 app-register .rg-s2 .chk-row input[type="checkbox"]{width:16px;height:16px;accent-color:#2BD4C7;flex-shrink:0;margin-top:2px}
 app-register .rg-s2 .chk-row a{color:var(--teal);font-weight:600}
 app-register .rg-s2 .btn-group{display:flex;flex-direction:column;gap:10px}
-app-register .rg-s2 .banner-error{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--blue)}
+app-register .rg-s2 .banner-error{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap;font-size:13px;color:var(--blue)}
 app-register .rg-s2 .banner-error[hidden]{display:none}
+app-register .rg-s2 .banner-error-link{margin-inline-start:auto;font-weight:700;text-decoration:underline;white-space:nowrap;color:var(--blue)}
 @media(max-width:767px){app-register .rg-s2 .auth-section{padding:76px 14px 40px}app-register .rg-s2 .auth-inner{max-width:100%}app-register .rg-s2 .form-card{padding:18px 16px}app-register .rg-s2 .field-2col{grid-template-columns:1fr}app-register .rg-s2 .stepper .step-label{display:none}app-register .rg-s2 .step-connector{margin-top:14px}app-register .rg-s2 .btn-group{gap:8px}}
 
 /* ===== Step 3 — P-AU-009 ===== */
