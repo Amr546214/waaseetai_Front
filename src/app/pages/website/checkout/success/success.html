@@ -47,9 +47,9 @@
         </div>
         <div class="sum-rows">
           @for (item of orderItems(); track item.modelId) {
-            <div class="sum-row"><span class="sum-row-label">{{ item.title }} — {{ item.provider.name }}</span><span>{{ formatPrice(item.totalAmount) }} ريال</span></div>
+            <div class="sum-row"><span class="sum-row-label">{{ item.title }} — {{ item.provider.name }}</span><span>{{ formatPrice(item.totalAmount) }} $</span></div>
           }
-          <div class="sum-row total"><span class="sum-row-label">الإجمالي المدفوع</span><span class="sum-row-val">{{ formatPrice(orderTotal()) }} ريال</span></div>
+          <div class="sum-row total"><span class="sum-row-label">الإجمالي المدفوع</span><span class="sum-row-val">{{ formatPrice(orderTotal()) }} $</span></div>
         </div>
         <div style="padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--txt-3);display:flex;align-items:center;gap:6px">
           <svg aria-hidden="true" style="width:11px;height:11px;color:var(--teal)"><use href="#ws-check"></use></svg>
