@@ -76,9 +76,6 @@ body.theme-light .slide-content-sub { color:#475569 !important; }
 body.theme-light .slide-indicator { background:rgba(7,13,36,.15) !important; }
 body.theme-light .slide-indicator.active { background:var(--teal) !important; }
 
-/* ── bg-grid (hide dark dot grid) ── */
-body.theme-light .bg-grid { opacity:.03 !important; }
-
 /* ── Particles (lighten) ── */
 body.theme-light .particle {
   background:#0F8A7F !important;

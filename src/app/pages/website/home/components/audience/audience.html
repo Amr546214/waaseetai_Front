@@ -13,7 +13,9 @@
           <span class="aud-chip"><svg class="icon" style="width:12px;height:12px" aria-hidden="true"><use href="#ws-building"></use></svg> طالب الخدمة شركة</span>
           <span class="aud-chip"><svg class="icon" style="width:12px;height:12px" aria-hidden="true"><use href="#ws-user"></use></svg> طالب الخدمة فرد</span>
         </div>
-        <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+        @if (!authStore.isAuthenticated()) {
+          <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+        }
       </div>
       <div class="aud-card">
         <div class="aud-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#ws-provider"></use></svg></div>
@@ -23,13 +25,17 @@
           <span class="aud-chip"><svg class="icon" style="width:12px;height:12px" aria-hidden="true"><use href="#ws-building"></use></svg> مقدم الخدمة شركة</span>
           <span class="aud-chip"><svg class="icon" style="width:12px;height:12px" aria-hidden="true"><use href="#ws-user"></use></svg> مقدم الخدمة فرد</span>
         </div>
-        <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+        @if (!authStore.isAuthenticated()) {
+          <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+        }
       </div>
       <div class="aud-card">
         <div class="aud-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#ws-broker"></use></svg></div>
         <div class="aud-name">الوسيط التسويقي</div>
         <p class="aud-desc">قدم عملاء لمقدمي الخدمات واكسب عمولة تلقائية عند كل صفقة ناجحة يتتبعها ويدفعها النظام تلقائيا</p>
-        <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+        @if (!authStore.isAuthenticated()) {
+          <a routerLink="/auth/register" class="aud-cta">ابدأ مجانا</a>
+        }
       </div>
     </div>
   </div>

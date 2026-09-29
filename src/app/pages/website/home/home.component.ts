@@ -73,8 +73,25 @@ export class HomeComponent implements AfterViewInit, OnInit {
           });
         }, { threshold: 0.08 });
         reveals.forEach((el) => {
-          obs.observe(el);
+          // An element already on/near screen when this hook runs (e.g. after
+          // hydration settles mid-scroll) may never fire an "entering
+          // viewport" intersection event, so check its current position too
+          // instead of relying solely on the observer's first callback.
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            el.classList.add('visible');
+          } else {
+            obs.observe(el);
+          }
         });
+        // Safety net: never let a section stay invisible indefinitely if the
+        // observer misses it for any reason (hydration timing, etc.).
+        window.setTimeout(() => {
+          document.querySelectorAll('.reveal:not(.visible)').forEach((el) => {
+            el.classList.add('visible');
+            obs.unobserve(el);
+          });
+        }, 2000);
       } else {
         reveals.forEach((el) => {
           el.classList.add('visible');

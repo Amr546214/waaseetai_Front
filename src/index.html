@@ -15,7 +15,7 @@
 				var h = document.documentElement;
 				if (t === 'light') {
 					h.classList.add('light-theme', 'theme-light');
-					h.style.background = '#EEF2FA';
+					h.style.background = '#F6F8FC';
 					h.setAttribute('data-theme', 'light');
 				} else {
 					h.classList.add('dark');
@@ -29,7 +29,7 @@
 		/* Base html/body colors — set here so the first paint uses the correct theme
 		   even before the app stylesheet loads (prevents SSR dark → client light flash). */
 		html { background: #070D24; }
-		html.light-theme, html.theme-light { background: #EEF2FA; }
+		html.light-theme, html.theme-light { background: #F6F8FC; }
 		body { margin: 0; background: inherit; }
 	</style>
 	<base href="/">

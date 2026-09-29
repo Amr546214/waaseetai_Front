@@ -1,0 +1,55 @@
+:host #ai {
+  padding-block: 24px 56px;
+  margin-bottom: 28px;
+}
+
+:host .section-header {
+  margin-bottom: 32px;
+}
+
+:host .ai-layout {
+  gap: 24px;
+}
+
+:host .ai-persona {
+  padding: 28px 18px;
+}
+
+:host .ai-cards {
+  gap: 18px;
+}
+
+:host .ai-card {
+  padding: 24px;
+}
+
+:host .ai-card-head {
+  margin-bottom: 12px;
+}
+
+:host .ai-note {
+  padding: 18px 24px;
+  margin-top: 4px;
+}
+
+@media (max-width: 767px) {
+  :host #ai {
+    padding-block: 16px 40px;
+  }
+
+  :host .section-header {
+    margin-bottom: 28px;
+  }
+
+  :host .ai-layout {
+    gap: 20px;
+  }
+
+  :host .ai-card {
+    padding: 20px;
+  }
+
+  :host .ai-note {
+    padding: 18px 20px;
+  }
+}

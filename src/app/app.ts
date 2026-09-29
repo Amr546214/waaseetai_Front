@@ -2,11 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { AuthStore } from './core/store/auth.store';
+import { ConfirmModalComponent } from './sheards/confirm-modal/confirm-modal.component';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [RouterOutlet, AsyncPipe, NgIf],
+	imports: [RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent],
 	styleUrl: './app.css',
 	template: `
 		<ng-container *ngIf="authStore.isInitialized$ | async">
@@ -20,6 +21,8 @@ import { AuthStore } from './core/store/auth.store';
 				<h2 class="loader-text">جاري تهيئة بيئة العمل...</h2>
 			</div>
 		</div>
+
+		<app-confirm-modal />
 	`,
 })
 export class App implements OnInit {

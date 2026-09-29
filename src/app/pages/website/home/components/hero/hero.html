@@ -7,7 +7,9 @@
     </h1>
     <p class="hero-desc">ربط طالبي الخدمة بمقدميها عبر عقود رقمية موثقة وضمانات مالية وذكاء اصطناعي يدعم كل خطوة مع بقاء القرار لك</p>
     <div class="hero-actions">
-      <a routerLink="/auth/register" class="btn-primary">ابدأ مجانا الان</a>
+      @if (!authStore.isAuthenticated()) {
+        <a routerLink="/auth/register" class="btn-primary">ابدأ مجانا الان</a>
+      }
       <a href="#how" class="btn-secondary">شاهد كيف يعمل</a>
     </div>
     <div class="hero-trust" role="list">

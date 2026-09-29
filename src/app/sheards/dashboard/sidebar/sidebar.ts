@@ -8,6 +8,7 @@ import { filter, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ChatStateService } from '../../../core/services/chat-state.service';
 import { ProviderApiService } from '../../../core/services/provider-api.service';
+import { MarketingCenterService } from '../../../core/services/marketing-center.service';
 
 export interface NavItem {
 	type: 'header' | 'link' | 'accordion' | 'button' | 'divider';
@@ -35,6 +36,7 @@ export class Sidebar implements OnInit {
 	public chatStateService = inject(ChatStateService);
 	private cdRef = inject(ChangeDetectorRef);
 	private providerApiService = inject(ProviderApiService);
+	private marketingCenterService = inject(MarketingCenterService);
 
 	isProviderProfileIncomplete = signal<boolean>(false);
 
@@ -56,6 +58,10 @@ export class Sidebar implements OnInit {
 				},
 				error: (err) => console.error('Failed to load provider stats for sidebar', err)
 			});
+			// Company accounts: seed the "طلبات الموافقة" pending badge.
+			if (this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY) {
+				this.marketingCenterService.refreshPendingCount();
+			}
 		}
 	}
 
@@ -286,6 +292,14 @@ export class Sidebar implements OnInit {
 					{ type: 'link', label: 'CDN + الأصول', route: '/supper-admin-overview/it/cdn', icon: icons.globe }
 				]
 			},
+			{
+				type: 'accordion', id: 'sa-ai', label: 'محركات الذكاء', icon: icons.chart,
+				children: [
+					{ type: 'link', label: 'لوحة الذكاء الاصطناعي', route: '/supper-admin-overview/ai/dashboard', icon: icons.chart },
+					{ type: 'link', label: 'محرك المطابقة', route: '/supper-admin-overview/ai/match-engine', icon: icons.check },
+					{ type: 'link', label: 'التوصيات والتدقيق', route: '/supper-admin-overview/ai/audit', icon: icons.shield }
+				]
+			},
 			{ type: 'header', label: 'الأدوات الإدارية' },
 			{ type: 'link', label: 'Audit Trail', route: '/supper-admin-overview/audit-trail', icon: icons.shield },
 			{
@@ -442,6 +456,7 @@ export class Sidebar implements OnInit {
 						{ type: 'link', label: 'طلبات الاعتماد', route: '/provider-overview/business-models/accreditation/list', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' }
 					]
 				},
+				this.getProviderMarketingNavItem(),
 				{
 					type: 'accordion',
 					id: 'projects',
@@ -549,7 +564,40 @@ export class Sidebar implements OnInit {
 		return items;
 	}
 
+	/**
+	 * "التسويق" accordion (P-PR-039..041 / P-CO-MK-005..008). "طلبات الموافقة"
+	 * exists only for PROVIDER_COMPANY accounts, with a live pending badge fed
+	 * by MarketingCenterService (company.pendingApprovals.count).
+	 */
+	private getProviderMarketingNavItem(): NavItem {
+		const isCompany = this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY;
+		const pending = isCompany ? this.marketingCenterService.pendingApprovalsCount() ?? 0 : 0;
+		const children: NavItem[] = [
+			{ type: 'link', label: 'مركز التسويق', route: '/provider-overview/marketing/center', icon: 'M18 20V10M12 20V4M6 20v-6' },
+			{ type: 'link', label: 'كوبونات الخصم', route: '/provider-overview/marketing/coupons', icon: 'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01' },
+			{ type: 'link', label: 'العروض الخاصة', route: '/provider-overview/marketing/offers', icon: 'M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z' },
+		];
+		if (isCompany) {
+			children.push({
+				type: 'link',
+				label: 'طلبات الموافقة',
+				route: '/provider-overview/marketing/approvals',
+				icon: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
+				badge: pending > 0 ? pending : undefined
+			});
+		}
+		return {
+			type: 'accordion',
+			id: 'marketing',
+			label: 'التسويق',
+			icon: 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z',
+			badge: pending > 0 ? pending : undefined,
+			children
+		};
+	}
+
 	private getClientNavItems(): NavItem[] {
+		const isCompanyClient = this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 				return [
 			{ type: 'header', label: 'الرئيسية' },
 			{
@@ -600,7 +648,7 @@ export class Sidebar implements OnInit {
 				label: 'المالية',
 				icon: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z',
 				children: [
-					{ type: 'link', label: 'محفظتي', route: '/client-overview/finance/wallet', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+					{ type: 'link', label: isCompanyClient ? 'محفظة الشركة' : 'محفظتي', route: '/client-overview/finance/wallet', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
 					{ type: 'link', label: 'الفواتير المستلمة', route: '/client-overview/finance/invoices', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }
 				]
 			},
