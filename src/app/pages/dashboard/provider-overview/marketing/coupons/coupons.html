@@ -1,0 +1,118 @@
+<nav class="bc">
+	<a routerLink="/provider-overview">لوحة التحكم</a><span class="sep">‹</span>
+	<a routerLink="/provider-overview/marketing/center">مركز التسويق</a><span class="sep">‹</span>
+	<span>كوبونات الخصم</span>
+</nav>
+
+<div class="pg-hd">
+	<div>
+		<div class="pg-title">كوبونات الخصم</div>
+		<div class="pg-sub">أكواد خصم تُستخدم عند طلب {{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجي' }} في السوق — فعّل أو أوقف أي كوبون مباشرة من الجدول</div>
+	</div>
+	<a class="btn-pri" routerLink="/provider-overview/marketing/coupons/new">+ كوبون جديد</a>
+</div>
+
+<div class="kpi-row">
+	<div class="kpi-c"><div class="kpi-v">{{ kpis().active }}</div><div class="kpi-l">نشط</div></div>
+	<div class="kpi-c"><div class="kpi-v">{{ kpis().paused }}</div><div class="kpi-l">متوقف يدوياً</div></div>
+	@if (isCompanyMode()) {
+		<div class="kpi-c"><div class="kpi-v">{{ kpis().pending }}</div><div class="kpi-l">بانتظار الموافقة</div></div>
+	} @else {
+		<div class="kpi-c"><div class="kpi-v">{{ kpis().ended }}</div><div class="kpi-l">منتهي/مستهلك</div></div>
+	}
+	<div class="kpi-c"><div class="kpi-v">{{ fmt(kpis().totalUses) }}</div><div class="kpi-l">إجمالي مرات الاستخدام</div></div>
+</div>
+
+<div class="filter-bar">
+	<input class="search-inp" type="search" placeholder="ابحث بالكود..." [ngModel]="search()" (ngModelChange)="search.set($event)">
+	@if (isCompanyMode()) {
+		<select class="sel-filter" [ngModel]="memberFilter()" (ngModelChange)="memberFilter.set($event)">
+			<option value="all">كل أعضاء الفريق</option>
+			<option value="none">كل الشركة (غير مُسنَد)</option>
+			@for (m of team(); track m.id) { <option [value]="m.id">{{ m.name }}</option> }
+		</select>
+	}
+	<div class="filter-chip-row">
+		@for (chip of statusChips(); track chip.id) {
+			<button type="button" class="filter-chip" [class.active]="statusFilter() === chip.id" (click)="statusFilter.set(chip.id)">{{ chip.label }}</button>
+		}
+	</div>
+</div>
+
+@if (!isCompanyMode() && selected().size > 0) {
+	<div class="bulk-bar">
+		<span>{{ selected().size }} كوبون محدَّد</span>
+		<div>
+			<button type="button" class="btn-sec btn-sm" (click)="bulkSetActive(false)">إيقاف المحدَّد</button>
+			<button type="button" class="btn-sec btn-sm" (click)="bulkSetActive(true)">تفعيل المحدَّد</button>
+		</div>
+	</div>
+}
+
+@if (loading() && !coupons().length) {
+	<div class="state-box">جاري تحميل الكوبونات...</div>
+} @else if (error()) {
+	<div class="state-box err">{{ error() }}<br><button type="button" class="btn-sec" (click)="load()">إعادة المحاولة</button></div>
+} @else {
+	<div class="tbl-wrap"><div class="tbl-scroll">
+		<table class="tbl">
+			<thead>
+				<tr>
+					@if (!isCompanyMode()) {
+						<th><input type="checkbox" class="chk" [checked]="allVisibleSelected()" (change)="toggleSelectAll()" aria-label="تحديد الكل"></th>
+					}
+					<th>كود الكوبون</th><th>الخصم</th><th>يشمل</th>
+					@if (isCompanyMode()) { <th>مُسنَد لـ</th> }
+					<th>الاستخدام</th><th>الصلاحية</th><th>الحالة</th><th>تفعيل</th><th></th>
+				</tr>
+			</thead>
+			<tbody>
+				@for (r of filteredRows(); track r.coupon.id) {
+					<tr class="clickable" (click)="openDetails(r.coupon)">
+						@if (!isCompanyMode()) {
+							<td (click)="$event.stopPropagation()">
+								<input type="checkbox" class="chk" [disabled]="!toggleable(r.status)" [checked]="selected().has(r.coupon.id)" (change)="toggleSelect(r.coupon.id, $event)">
+							</td>
+						}
+						<td><span class="code-chip" title="نسخ الكود" (click)="copyCode(r.coupon.code, $event)">{{ r.coupon.code }}
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></td>
+						<td>{{ discountLabel(r.coupon) }}</td>
+						<td>{{ r.scope }}</td>
+						@if (isCompanyMode()) {
+							<td>
+								@if (r.assignee) {
+									<span class="mem-chip"><span class="mem-av-sm" [style.background]="avatarBg(r.assignee.id)">{{ initials(r.assignee.name) }}</span>{{ r.assignee.name }}</span>
+								} @else { <span class="mem-chip">كل الشركة</span> }
+							</td>
+						}
+						<td>{{ usageLabel(r.coupon) }}</td>
+						<td>{{ validity(r.coupon.startAt, r.coupon.expiresAt) }}</td>
+						<td><span class="pill" [ngClass]="statusPill[r.status]">{{ statusLabels[r.status] }}</span></td>
+						<td (click)="$event.stopPropagation()">
+							<label class="sw" [title]="toggleable(r.status) ? '' : 'لا يمكن تفعيل هذا الكوبون من هنا'">
+								<input type="checkbox" [checked]="r.coupon.active" [disabled]="!toggleable(r.status) || busy().has(r.coupon.id)" (change)="toggleActive(r.coupon, $event)">
+								<span class="sw-track"><span class="sw-thumb"></span></span>
+							</label>
+						</td>
+						<td (click)="$event.stopPropagation()">
+							<div class="act-cell">
+								<a class="btn-sec btn-sm" [routerLink]="['/provider-overview/marketing/coupons', r.coupon.id, 'edit']">تعديل</a>
+								<a class="btn-sec btn-sm" [routerLink]="['/provider-overview/marketing/coupons', r.coupon.id]">إحصائيات</a>
+							</div>
+						</td>
+					</tr>
+				} @empty {
+					<tr><td class="empty-cell" colspan="10">
+						@if (coupons().length) { لا توجد كوبونات مطابقة للبحث أو الفلتر } @else { لا توجد كوبونات بعد — <a class="lnk" routerLink="/provider-overview/marketing/coupons/new">أنشئ أول كوبون</a> }
+					</td></tr>
+				}
+			</tbody>
+		</table>
+	</div></div>
+}
+
+<div class="note-card plain"><p>الكوبون المنتهي تاريخه أو المستهلك بالكامل يُرفض تلقائياً برسالة توضّح السبب للعميل، ولا يمكن إعادة تفعيله من هنا — أنشئ كوبوناً جديداً بدلاً منه.@if (isCompanyMode()) { الكوبونات التي تتجاوز خصم 30% أو بلا حد استخدام تبقى متوقفة حتى تعتمدها من <a class="lnk" routerLink="/provider-overview/marketing/approvals">طلبات الموافقة</a>.}</p></div>
+
+@if (flash.message(); as m) {
+	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
+}

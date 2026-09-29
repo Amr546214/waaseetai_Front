@@ -1,0 +1,167 @@
+<a class="bc" routerLink="/provider-overview/marketing/coupons">→ رجوع لكوبونات الخصم</a>
+
+<div class="pg-hd">
+	<div>
+		<div class="pg-title">{{ editId() ? 'تعديل الكوبون ' + (original()?.code ?? '') : 'كوبون خصم جديد' }}</div>
+		<div class="pg-sub">حدّد بيانات الكوبون ثم {{ isCompanyMode() ? 'الإسناد ونطاق التطبيق' : 'نطاق تطبيقه على نماذجك' }}</div>
+	</div>
+</div>
+
+@if (loading()) {
+	<div class="state-box">جاري تحميل الكوبون...</div>
+} @else if (loadError()) {
+	<div class="state-box err">{{ loadError() }}<br><a class="btn-sec" routerLink="/provider-overview/marketing/coupons">العودة للقائمة</a></div>
+} @else {
+	@if (original()?.approvalStatus === 'PENDING') {
+		<div class="note-card warn"><p>هذا الكوبون بانتظار موافقة مدير الحساب ولن يظهر في السوق حتى يُعتمد.</p></div>
+	}
+	@if (original()?.approvalStatus === 'REJECTED') {
+		<div class="note-card bad"><p>رُفض هذا الكوبون{{ original()?.rejectionReason ? ': ' + original()?.rejectionReason : '' }}. تعديل نسبة الخصم أو حد الاستخدام يعيد إرساله للمراجعة.</p></div>
+	}
+
+	<div class="step-tabs">
+		<button type="button" class="step-tab" [class.active]="step() === 1" (click)="step.set(1)"><span class="n">1</span>بيانات الكوبون</button>
+		<button type="button" class="step-tab" [class.active]="step() === 2" (click)="goStep2()"><span class="n">2</span>{{ isCompanyMode() ? 'الإسناد ونطاق التطبيق' : 'نطاق التطبيق' }}</button>
+	</div>
+
+	@if (step() === 1) {
+		<div class="form-card">
+			<div class="f-grid f2">
+				<div class="f-g">
+					<label class="f-lbl" for="cp-code">كود الكوبون <span>*</span></label>
+					<input id="cp-code" class="f-inp" type="text" placeholder="مثال: HOWIA25" dir="ltr" maxlength="50"
+						[class.invalid]="errors().code" [disabled]="!!editId()"
+						[ngModel]="form().code" (ngModelChange)="patch({ code: $event.toUpperCase() })">
+					@if (errors().code) { <div class="f-err">{{ errors().code }}</div> }
+					@else { <div class="f-hint">{{ editId() ? 'لا يمكن تغيير كود كوبون قائم' : 'حروف وأرقام إنجليزية بدون مسافات — هذا هو الكود الذي يُدخله العميل' }}</div> }
+				</div>
+				<div class="f-g">
+					<label class="f-lbl">نوع الخصم</label>
+					<div class="seg-row">
+						<button type="button" class="seg-btn" [class.sel]="form().discountType === 'percentage'" (click)="patch({ discountType: 'percentage' })">نسبة %</button>
+						<button type="button" class="seg-btn" [class.sel]="form().discountType === 'fixed'" (click)="patch({ discountType: 'fixed' })">مبلغ ثابت</button>
+					</div>
+				</div>
+				<div class="f-g">
+					<label class="f-lbl" for="cp-val">قيمة الخصم ({{ form().discountType === 'percentage' ? '%' : 'ريال' }}) <span>*</span></label>
+					<div class="f-suffix-wrap">
+						<input id="cp-val" class="f-inp" type="number" min="0" [attr.max]="form().discountType === 'percentage' ? 100 : null" placeholder="مثال: 25"
+							[class.invalid]="errors().discountValue" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
+						<span class="f-suffix">{{ form().discountType === 'percentage' ? '%' : 'ريال' }}</span>
+					</div>
+					@if (errors().discountValue) { <div class="f-err">{{ errors().discountValue }}</div> }
+					@else { <div class="f-hint">{{ form().discountType === 'percentage' ? 'نسبة من قيمة الطلب، حتى 100%' : 'مبلغ ثابت يُخصم من قيمة الطلب' }}</div> }
+				</div>
+				<div class="f-g">
+					<label class="f-lbl" for="cp-min">الحد الأدنى لقيمة الطلب (اختياري)</label>
+					<input id="cp-min" class="f-inp" type="number" min="0" placeholder="مثال: 500 ريال"
+						[class.invalid]="errors().minimumAmount" [ngModel]="form().minimumAmount" (ngModelChange)="patch({ minimumAmount: $event })">
+					@if (errors().minimumAmount) { <div class="f-err">{{ errors().minimumAmount }}</div> }
+				</div>
+				<div class="f-g">
+					<label class="f-lbl" for="cp-start">تاريخ البداية</label>
+					<input id="cp-start" class="f-inp" type="date" [class.invalid]="errors().startAt" [ngModel]="form().startAt" (ngModelChange)="patch({ startAt: $event })">
+					@if (errors().startAt) { <div class="f-err">{{ errors().startAt }}</div> }
+				</div>
+				<div class="f-g">
+					<label class="f-lbl" for="cp-end">تاريخ الانتهاء</label>
+					<input id="cp-end" class="f-inp" type="date" [class.invalid]="errors().expiresAt" [ngModel]="form().expiresAt" (ngModelChange)="patch({ expiresAt: $event })">
+					@if (errors().expiresAt) { <div class="f-err">{{ errors().expiresAt }}</div> } @else { <div class="f-hint">اتركه فارغاً لكوبون بلا تاريخ انتهاء</div> }
+				</div>
+				<div class="f-g">
+					<label class="f-lbl" for="cp-max">الحد الأقصى لمرات الاستخدام (للجميع)</label>
+					<input id="cp-max" class="f-inp" type="number" min="1" step="1" placeholder="مثال: 50"
+						[class.invalid]="errors().maxUses" [ngModel]="form().maxUses" (ngModelChange)="patch({ maxUses: $event })">
+					@if (errors().maxUses) { <div class="f-err">{{ errors().maxUses }}</div> } @else { <div class="f-hint">اتركه فارغاً لاستخدام غير محدود</div> }
+				</div>
+				<div class="f-g">
+					<label class="f-lbl" for="cp-per">الحد الأقصى للعميل الواحد</label>
+					<input id="cp-per" class="f-inp" type="number" min="1" step="1"
+						[class.invalid]="errors().maxUsesPerUser" [ngModel]="form().maxUsesPerUser" (ngModelChange)="patch({ maxUsesPerUser: $event })">
+					@if (errors().maxUsesPerUser) { <div class="f-err">{{ errors().maxUsesPerUser }}</div> }
+				</div>
+			</div>
+		</div>
+
+		@if (needsApproval()) {
+			<div class="note-card warn"><p>سيحتاج هذا الكوبون موافقة مدير الحساب قبل ظهوره في السوق ({{ approvalReason() }}). الكوبونات التي تتجاوز خصم {{ threshold }}% أو بلا حد أقصى للاستخدام تُرسل تلقائياً إلى طلبات الموافقة.</p></div>
+		}
+
+		<div><button type="button" class="btn-pri" (click)="goStep2()">التالي</button></div>
+	}
+
+	@if (step() === 2) {
+		@if (isCompanyMode()) {
+			<div class="form-card">
+				<div class="form-card-title">الإسناد</div>
+				<div class="form-card-sub">حدد عضو الفريق المسؤول عن هذا الكوبون، أو اتركه على مستوى الشركة كاملة</div>
+				<app-marketing-assign-picker [members]="team()" [value]="form().assignedToTeamMemberId" (valueChange)="patch({ assignedToTeamMemberId: $event })" />
+			</div>
+		}
+
+		<div class="form-card">
+			<div class="form-card-title">النماذج المشمولة</div>
+			<div class="form-card-sub">اختر كل {{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجك' }} أو حدّد نماذج معيّنة يُطبَّق عليها الكوبون</div>
+			<div class="seg-row">
+				<button type="button" class="seg-btn" [class.sel]="form().scopeMode === 'all'" (click)="setScopeMode('all')">{{ isCompanyMode() ? 'كل نماذج الشركة' : 'كل نماذجي' }}</button>
+				<button type="button" class="seg-btn" [class.sel]="form().scopeMode === 'specific'" (click)="setScopeMode('specific')">نماذج محددة</button>
+			</div>
+			@if (modelsLoading()) {
+				<div class="chip-row">جاري تحميل النماذج...</div>
+			} @else if (!models().length) {
+				<div class="chip-row">لا توجد نماذج منشورة في السوق بعد — <a class="lnk" routerLink="/provider-overview/business-models/market">انشر نموذجاً أولاً</a></div>
+			} @else if (form().scopeMode === 'all') {
+				<div class="chip-row">
+					يُطبَّق على كل النماذج ({{ models().length > 50 ? 'أول 50 من ' : '' }}{{ models().length }} نموذج)
+				</div>
+			} @else {
+				<div class="chip-row">
+					@for (m of models(); track m.id) {
+						<button type="button" class="chip-tpl" [class.sel]="form().serviceIds.includes(m.id)" (click)="toggleService(m.id)">{{ m.title }}@if (form().serviceIds.includes(m.id)) { <b>✓</b> }</button>
+					}
+				</div>
+			}
+			@if (errors().serviceIds) { <div class="f-err" style="margin-top:6px">{{ errors().serviceIds }}</div> }
+		</div>
+
+		@if (form().scopeMode === 'all' && models().length > 1) {
+			<div class="form-card">
+				<div class="form-card-title">استثناءات (اختياري)</div>
+				<div class="form-card-sub">نماذج لا يُطبَّق عليها الكوبون حتى لو كانت داخل النطاق أعلاه</div>
+				<div class="chip-row">
+					@for (m of models(); track m.id) {
+						<button type="button" class="chip-tpl" [class.excl]="form().excludedServiceIds.includes(m.id)" (click)="toggleExcluded(m.id)">{{ m.title }}@if (form().excludedServiceIds.includes(m.id)) { <b>×</b> }</button>
+					}
+				</div>
+			</div>
+		}
+
+		<div class="form-card">
+			<div class="form-card-title">ملاحظة داخلية (اختياري)</div>
+			<div class="form-card-sub">لا تظهر للعميل — تذكير لك بسبب إنشاء هذا الكوبون</div>
+			<textarea class="f-inp" maxlength="2000" placeholder="مثال: كوبون لحملة عيد الأضحى، أوقفه بعد نهاية الموسم"
+				[ngModel]="form().internalNote" (ngModelChange)="patch({ internalNote: $event })"></textarea>
+			@if (errors().internalNote) { <div class="f-err">{{ errors().internalNote }}</div> }
+		</div>
+
+		<div class="save-bar">
+			<div>
+				@if (needsApproval()) {
+					<span class="warn">سيُرسل الكوبون لموافقة مدير الحساب ({{ approvalReason() }}) ولن يظهر في السوق حتى يُعتمد</span>
+				} @else if (isCompanyMode()) {
+					سيظهر الكوبون فوراً في السوق بعد الحفظ — قد يحتاج موافقة مدير الحساب إن تجاوز الخصم {{ threshold }}%
+				} @else {
+					سيظهر الكوبون فوراً في السوق بعد الحفظ
+				}
+			</div>
+			<div>
+				<button type="button" class="btn-sec" (click)="step.set(1)">رجوع</button>
+				<button type="button" class="btn-pri" (click)="save()" [disabled]="saving()">{{ saving() ? 'جاري الحفظ...' : 'حفظ الكوبون' }}</button>
+			</div>
+		</div>
+	}
+}
+
+@if (flash.message(); as m) {
+	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
+}

@@ -1,0 +1,86 @@
+<nav class="bc">
+	<a routerLink="/provider-overview">لوحة التحكم</a><span class="sep">‹</span>
+	<a routerLink="/provider-overview/marketing/center">مركز التسويق</a><span class="sep">‹</span>
+	<span>طلبات الموافقة</span>
+</nav>
+
+<div class="pg-hd">
+	<div>
+		<div class="pg-title">طلبات الموافقة على التسويق</div>
+		<div class="pg-sub">كوبونات وعروض تجاوزت حد الخصم المسموح تلقائياً وتحتاج موافقتك قبل ظهورها في السوق</div>
+	</div>
+</div>
+
+@if (!isCompanyMode()) {
+	<div class="state-box">هذه الصفحة متاحة لحسابات الشركات فقط — كوبونات وعروض الحساب الفردي تُعتمد تلقائياً.<br>
+		<a class="btn-sec" routerLink="/provider-overview/marketing/center">العودة لمركز التسويق</a></div>
+} @else {
+	<div class="kpi-row">
+		<div class="kpi-c"><div class="kpi-v">{{ kpis().pending }}</div><div class="kpi-l">بانتظار القرار</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ kpis().approvedMonth }}</div><div class="kpi-l">معتمَدة هذا الشهر</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ kpis().rejectedMonth }}</div><div class="kpi-l">مرفوضة هذا الشهر</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ threshold }}%</div><div class="kpi-l">حد الخصم الذي يستوجب موافقة</div></div>
+	</div>
+
+	<div class="filter-chip-row" role="tablist" style="margin-bottom:14px">
+		<button type="button" role="tab" class="filter-chip" [class.active]="tab() === 'pending'" (click)="tab.set('pending')">بانتظار القرار @if (kpis().pending) { <span class="cnt">{{ kpis().pending }}</span> }</button>
+		<button type="button" role="tab" class="filter-chip" [class.active]="tab() === 'approved'" (click)="tab.set('approved')">معتمَدة</button>
+		<button type="button" role="tab" class="filter-chip" [class.active]="tab() === 'rejected'" (click)="tab.set('rejected')">مرفوضة</button>
+	</div>
+
+	@if (loading()) {
+		<div class="state-box">جاري تحميل الطلبات...</div>
+	} @else if (error()) {
+		<div class="state-box err">{{ error() }}<br><button type="button" class="btn-sec" (click)="load()">إعادة المحاولة</button></div>
+	} @else {
+		@for (i of byTab(); track key(i)) {
+			<div class="offer-card">
+				<div class="offer-top">
+					<div>
+						<div class="offer-name">
+							<a [routerLink]="i.link">{{ i.title }}</a>
+							@if (i.status === 'PENDING') { <span class="pill pill-warn">{{ i.tag }}</span> }
+						</div>
+						<div class="offer-meta">
+							@if (memberName(i.memberId); as mn) {
+								{{ i.memberVerb }} <a routerLink="/provider-overview/company/team-management">{{ mn }}</a> ·
+							}
+							{{ i.meta }} · {{ i.status === 'PENDING' ? rel(i.createdAt) : (i.status === 'APPROVED' ? 'اعتُمد ' : 'رُفض ') + rel(i.updatedAt) }}
+						</div>
+					</div>
+					@if (i.status === 'PENDING') {
+						<div class="offer-ctrl">
+							@if (rejectingKey() !== key(i)) {
+								<button type="button" class="btn-sec" (click)="startReject(i)" [disabled]="busyKey() === key(i)">رفض</button>
+								<button type="button" class="btn-pri" (click)="decide(i, 'APPROVED')" [disabled]="busyKey() === key(i)">اعتماد</button>
+							}
+						</div>
+					} @else if (i.status === 'APPROVED') {
+						<span class="pill pill-ok">معتمَد</span>
+					} @else {
+						<span class="pill pill-bad">مرفوض</span>
+					}
+				</div>
+				@if (i.status === 'PENDING') {
+					<div class="offer-body">{{ i.body }}</div>
+					@if (rejectingKey() === key(i)) {
+						<div class="approval-actions" style="margin-top:10px">
+							<input class="f-inp" type="text" maxlength="1000" placeholder="سبب الرفض (مطلوب — يظهر لعضو الفريق)" [(ngModel)]="rejectReason">
+							<button type="button" class="btn-sec btn-sm btn-danger" (click)="decide(i, 'REJECTED')" [disabled]="busyKey() === key(i)">تأكيد الرفض</button>
+							<button type="button" class="btn-sec btn-sm" (click)="rejectingKey.set(null)">إلغاء</button>
+						</div>
+					}
+				}
+				@if (i.status === 'REJECTED' && i.rejectionReason) {
+					<div class="offer-body">سبب الرفض: {{ i.rejectionReason }}</div>
+				}
+			</div>
+		} @empty {
+			<div class="state-box">لا توجد طلبات في هذا التصنيف</div>
+		}
+	}
+}
+
+@if (flash.message(); as m) {
+	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
+}

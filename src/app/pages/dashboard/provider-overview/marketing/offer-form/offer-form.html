@@ -1,0 +1,161 @@
+<a class="bc" routerLink="/provider-overview/marketing/offers">→ رجوع للعروض الخاصة</a>
+
+<div class="pg-hd">
+	<div>
+		<div class="pg-title">{{ editId() ? 'تعديل العرض' : 'عرض خاص جديد' }}</div>
+		<div class="pg-sub">اربط بين نموذجين كباقة، أو أضف خصماً مباشراً يظهر كشارة في السوق</div>
+	</div>
+</div>
+
+@if (loading()) {
+	<div class="state-box">جاري تحميل العرض...</div>
+} @else if (loadError()) {
+	<div class="state-box err">{{ loadError() }}<br><a class="btn-sec" routerLink="/provider-overview/marketing/offers">العودة للقائمة</a></div>
+} @else {
+	@if (original()?.approvalStatus === 'PENDING') {
+		<div class="note-card warn"><p>هذا العرض بانتظار موافقة مدير الحساب ولن يظهر في السوق حتى يُعتمد.</p></div>
+	}
+	@if (original()?.approvalStatus === 'REJECTED') {
+		<div class="note-card bad"><p>رُفض هذا العرض{{ original()?.rejectionReason ? ': ' + original()?.rejectionReason : '' }}. تعديل نسبة الخصم يعيد إرساله للمراجعة.</p></div>
+	}
+	@if (!modelsLoading() && models().length < (form().type === 'BUNDLE' ? 2 : 1)) {
+		<div class="note-card warn"><p>
+			{{ form().type === 'BUNDLE' ? 'عرض الباقة يحتاج نموذجين منشورين على الأقل في السوق.' : 'لا توجد نماذج منشورة في السوق بعد.' }}
+			<a class="lnk" routerLink="/provider-overview/business-models/market">إدارة نماذجي في السوق</a>
+		</p></div>
+	}
+
+	<div class="form-card">
+		<div class="form-card-title">نوع العرض</div>
+		<div class="form-card-sub">يحدّد الحقول المطلوبة أدناه</div>
+		<div class="seg-row">
+			<button type="button" class="seg-btn" [class.sel]="form().type === 'BUNDLE'" (click)="patch({ type: 'BUNDLE' })">باقة مرتبطة — X يحصل خصماً على Y</button>
+			<button type="button" class="seg-btn" [class.sel]="form().type === 'DIRECT_DISCOUNT'" (click)="patch({ type: 'DIRECT_DISCOUNT' })">خصم نسبة مباشر على نموذج</button>
+		</div>
+	</div>
+
+	<div class="form-card">
+		<div class="form-card-title">تفاصيل العرض</div>
+		<div class="f-grid f2">
+			<div class="f-g">
+				<label class="f-lbl" for="of-name">اسم العرض <span>*</span></label>
+				<input id="of-name" class="f-inp" type="text" maxlength="100" placeholder="مثال: باقة الهوية + الموقع"
+					[class.invalid]="errors().name" [ngModel]="form().name" (ngModelChange)="patch({ name: $event })">
+				@if (errors().name) { <div class="f-err">{{ errors().name }}</div> }
+			</div>
+			<div class="f-g">
+				<label class="f-lbl" for="of-disc">نسبة الخصم <span>*</span></label>
+				<div class="f-suffix-wrap">
+					<input id="of-disc" class="f-inp" type="number" min="1" max="100" placeholder="مثال: 20"
+						[class.invalid]="errors().discountValue" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
+					<span class="f-suffix">%</span>
+				</div>
+				@if (errors().discountValue) { <div class="f-err">{{ errors().discountValue }}</div> }
+			</div>
+
+			@if (form().type === 'BUNDLE') {
+				<div class="f-g">
+					<label class="f-lbl" for="of-x">النموذج الأساسي (X) <span>*</span></label>
+					<select id="of-x" class="f-inp" [class.invalid]="errors().primaryServiceId" [ngModel]="form().primaryServiceId" (ngModelChange)="patch({ primaryServiceId: $event })">
+						<option value="">اختر النموذج...</option>
+						@for (m of models(); track m.id) { <option [value]="m.id">{{ m.title }}</option> }
+					</select>
+					@if (errors().primaryServiceId) { <div class="f-err">{{ errors().primaryServiceId }}</div> }
+				</div>
+				<div class="f-g">
+					<label class="f-lbl" for="of-y">النموذج المستفيد (Y) — يحصل على الخصم <span>*</span></label>
+					<select id="of-y" class="f-inp" [class.invalid]="errors().beneficiaryServiceId" [ngModel]="form().beneficiaryServiceId" (ngModelChange)="patch({ beneficiaryServiceId: $event })">
+						<option value="">اختر النموذج...</option>
+						@for (m of models(); track m.id) { <option [value]="m.id" [disabled]="m.id === form().primaryServiceId">{{ m.title }}</option> }
+					</select>
+					@if (errors().beneficiaryServiceId) { <div class="f-err">{{ errors().beneficiaryServiceId }}</div> }
+				</div>
+				<div class="f-g">
+					<label class="f-lbl" for="of-days">صالح خلال (أيام من الطلب الأول) <span>*</span></label>
+					<input id="of-days" class="f-inp" type="number" min="1" max="365" step="1" placeholder="مثال: 14"
+						[class.invalid]="errors().validityDays" [ngModel]="form().validityDays" (ngModelChange)="patch({ validityDays: $event })">
+					@if (errors().validityDays) { <div class="f-err">{{ errors().validityDays }}</div> }
+				</div>
+			} @else {
+				<div class="f-g">
+					<label class="f-lbl" for="of-t">النموذج المستهدف بالخصم المباشر <span>*</span></label>
+					<select id="of-t" class="f-inp" [class.invalid]="errors().targetServiceId" [ngModel]="form().targetServiceId" (ngModelChange)="patch({ targetServiceId: $event })">
+						<option value="">اختر النموذج...</option>
+						@for (m of models(); track m.id) { <option [value]="m.id">{{ m.title }}</option> }
+					</select>
+					@if (errors().targetServiceId) { <div class="f-err">{{ errors().targetServiceId }}</div> }
+				</div>
+			}
+
+			<div class="f-g">
+				<label class="f-lbl" for="of-start">تاريخ البداية</label>
+				<input id="of-start" class="f-inp" type="date" [class.invalid]="errors().startAt" [ngModel]="form().startAt" (ngModelChange)="patch({ startAt: $event })">
+				@if (errors().startAt) { <div class="f-err">{{ errors().startAt }}</div> }
+			</div>
+			<div class="f-g">
+				<label class="f-lbl" for="of-end">تاريخ الانتهاء</label>
+				<input id="of-end" class="f-inp" type="date" [class.invalid]="errors().expiresAt" [ngModel]="form().expiresAt" (ngModelChange)="patch({ expiresAt: $event })">
+				@if (errors().expiresAt) { <div class="f-err">{{ errors().expiresAt }}</div> } @else { <div class="f-hint">اتركه فارغاً لعرض بلا تاريخ انتهاء</div> }
+			</div>
+		</div>
+	</div>
+
+	@if (needsApproval()) {
+		<div class="note-card warn"><p>سيحتاج هذا العرض موافقة مدير الحساب قبل ظهوره في السوق لأن خصمه يتجاوز {{ threshold }}%.</p></div>
+	}
+
+	<div class="form-card">
+		<div class="form-card-title">شارة العرض في السوق</div>
+		<div class="form-card-sub">النص القصير الذي يظهر على بطاقة النموذج في نتائج البحث</div>
+		<div class="f-g">
+			<label class="f-lbl" for="of-badge">نص الشارة <span>*</span></label>
+			<input id="of-badge" class="f-inp" type="text" maxlength="50" placeholder="مثال: خصم 20%"
+				[class.invalid]="errors().badgeText" [ngModel]="form().badgeText" (ngModelChange)="onBadgeInput($event)">
+			@if (errors().badgeText) { <div class="f-err">{{ errors().badgeText }}</div> }
+		</div>
+		<div class="badge-preview">معاينة: <span class="offer-badge-prev">{{ form().badgeText || '—' }}</span></div>
+	</div>
+
+	<div class="form-card">
+		<div class="form-card-title">رسالة العرض في صفحة النموذج</div>
+		<textarea class="f-inp" maxlength="2000" placeholder="مثال: اطلب هوية بصرية متكاملة واحصل على خصم 20% على موقعك الإلكتروني خلال 14 يوماً"
+			[ngModel]="form().customerMessage" (ngModelChange)="patch({ customerMessage: $event })"></textarea>
+		@if (errors().customerMessage) { <div class="f-err">{{ errors().customerMessage }}</div> }
+	</div>
+
+	<div class="form-card">
+		<div class="form-card-title">ملاحظة داخلية (اختياري)</div>
+		<div class="form-card-sub">لا تظهر للعميل — تذكير لك بسبب إنشاء هذا العرض</div>
+		<textarea class="f-inp" maxlength="2000" placeholder="مثال: عرض لتنشيط نماذج الموبايل بعد ضعف الطلب هذا الشهر"
+			[ngModel]="form().internalNote" (ngModelChange)="patch({ internalNote: $event })"></textarea>
+		@if (errors().internalNote) { <div class="f-err">{{ errors().internalNote }}</div> }
+	</div>
+
+	@if (isCompanyMode()) {
+		<div class="form-card">
+			<div class="form-card-title">الإسناد</div>
+			<div class="form-card-sub">حدد عضو الفريق المسؤول عن هذا العرض، أو اتركه على مستوى الشركة كاملة</div>
+			<app-marketing-assign-picker [members]="team()" [value]="form().assignedToTeamMemberId" (valueChange)="patch({ assignedToTeamMemberId: $event })" />
+		</div>
+	}
+
+	<div class="save-bar">
+		<div>
+			@if (needsApproval()) {
+				<span class="warn">سيُرسل العرض لموافقة مدير الحساب (الخصم يتجاوز {{ threshold }}%) ولن يظهر في السوق حتى يُعتمد</span>
+			} @else if (isCompanyMode()) {
+				سيظهر العرض فوراً في السوق بعد الحفظ — قد يحتاج موافقة مدير الحساب إن تجاوز خصم العرض {{ threshold }}%
+			} @else {
+				سيظهر العرض فوراً في السوق بعد الحفظ ويمكن إيقافه أو تعديله في أي وقت من قائمة العروض
+			}
+		</div>
+		<div>
+			<a class="btn-sec" routerLink="/provider-overview/marketing/offers">إلغاء</a>
+			<button type="button" class="btn-pri" (click)="save()" [disabled]="saving()">{{ saving() ? 'جاري الحفظ...' : 'حفظ العرض' }}</button>
+		</div>
+	</div>
+}
+
+@if (flash.message(); as m) {
+	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
+}

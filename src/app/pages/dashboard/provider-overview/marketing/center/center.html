@@ -1,0 +1,210 @@
+<nav class="bc">
+	<a routerLink="/provider-overview">لوحة التحكم</a><span class="sep">‹</span><span>مركز التسويق</span>
+</nav>
+
+<div class="pg-hd">
+	<div>
+		<div class="pg-title">مركز التسويق</div>
+		<div class="pg-sub">
+			@if (isCompanyMode()) {
+				إدارة كوبونات الخصم والعروض الخاصة على نماذج الشركة في السوق، بإحصائيات مباشرة على مستوى الفريق
+			} @else {
+				إدارة كوبونات الخصم والعروض الخاصة على نماذجك في السوق، بإحصائيات مباشرة
+			}
+		</div>
+	</div>
+	<button type="button" class="btn-sec" (click)="exportReport()" [disabled]="!data()">تصدير تقرير التسويق</button>
+</div>
+
+@if (loading() && !data()) {
+	<div class="state-box">جاري تحميل بيانات التسويق...</div>
+} @else if (error()) {
+	<div class="state-box err">{{ error() }}<br><button type="button" class="btn-sec" (click)="load()">إعادة المحاولة</button></div>
+} @else if (data(); as d) {
+	<div class="kpi-row">
+		<div class="kpi-c">
+			<div class="kpi-v">{{ fmt(d.kpis.activeTools.count) }}</div>
+			<div class="kpi-l">أدوات تسويقية نشطة</div>
+			<div class="kpi-delta" [class.up]="d.kpis.activeTools.createdThisMonth > 0">
+				@if (d.kpis.activeTools.createdThisMonth > 0) { ↑ {{ d.kpis.activeTools.createdThisMonth }} أُنشئت هذا الشهر } @else { {{ d.kpis.activeTools.coupons }} كوبون · {{ d.kpis.activeTools.offers }} عرض }
+			</div>
+		</div>
+		<div class="kpi-c">
+			<div class="kpi-v">{{ fmt(d.kpis.monthlyUsage.value) }}</div>
+			<div class="kpi-l">مرات الاستخدام هذا الشهر</div>
+			<div class="kpi-delta" [ngClass]="deltaClass(d.kpis.monthlyUsage)">{{ deltaText(d.kpis.monthlyUsage) }}</div>
+		</div>
+		<div class="kpi-c">
+			<div class="kpi-v">{{ fmt(d.kpis.discountedValue.value) }}</div>
+			<div class="kpi-l">القيمة المخصومة (ريال)</div>
+			<div class="kpi-delta" [ngClass]="deltaClass(d.kpis.discountedValue)">{{ deltaText(d.kpis.discountedValue) }}</div>
+		</div>
+		<div class="kpi-c">
+			<div class="kpi-v">{{ fmt(d.kpis.extraRevenue.value) }}</div>
+			<div class="kpi-l">إيراد إضافي محقَّق (ريال)</div>
+			<div class="kpi-delta" [ngClass]="deltaClass(d.kpis.extraRevenue)">{{ deltaText(d.kpis.extraRevenue) }}</div>
+		</div>
+	</div>
+
+	@if (isCompanyMode() && company(); as co) {
+		<div class="two-col">
+			<div class="card">
+				<div class="sec-hd">
+					<div>
+						<div class="sec-title">السقف المالي الشهري</div>
+						<div class="sec-sub">إجمالي الخصومات المسموح بها للشركة</div>
+					</div>
+					@if (!editingCap()) {
+						<button type="button" class="btn-sec btn-sm" (click)="startEditCap()">{{ co.spendCap.configured ? 'تعديل السقف' : 'تحديد سقف' }}</button>
+					}
+				</div>
+				@if (editingCap()) {
+					<div class="cap-edit">
+						<div class="f-suffix-wrap">
+							<input class="f-inp" type="number" min="1" [(ngModel)]="capInput" placeholder="مثال: 10000">
+							<span class="f-suffix">ريال</span>
+						</div>
+						<div class="cap-edit-actions">
+							<button type="button" class="btn-pri btn-sm" (click)="saveCap()" [disabled]="savingCap()">حفظ</button>
+							@if (co.spendCap.configured) {
+								<button type="button" class="btn-sec btn-sm btn-danger" (click)="saveCap(true)" [disabled]="savingCap()">إزالة السقف</button>
+							}
+							<button type="button" class="btn-sec btn-sm" (click)="editingCap.set(false)" [disabled]="savingCap()">إلغاء</button>
+						</div>
+					</div>
+				} @else if (co.spendCap.configured) {
+					<div class="prog-hd">
+						<span>استُهلك <b>{{ fmt(co.spendCap.consumed) }}</b> من <b>{{ fmt(co.spendCap.cap) }}</b> ريال</span>
+						<span>{{ co.spendCap.percentUsed ?? 0 }}%</span>
+					</div>
+					<div class="prog-bg"><div class="prog-fill" [class.warn]="(co.spendCap.percentUsed ?? 0) >= 80" [style.width.%]="(co.spendCap.percentUsed ?? 0) > 100 ? 100 : (co.spendCap.percentUsed ?? 0)"></div></div>
+					<div class="cap-foot">المتبقي {{ money(co.spendCap.remaining) }} · يُعاد ضبط السقف أول كل شهر ميلادي</div>
+				} @else {
+					<div class="cap-foot">لا يوجد سقف شهري محدد — الخصومات المستهلكة هذا الشهر: {{ money(co.spendCap.consumed) }}</div>
+				}
+			</div>
+			<div class="card">
+				<div class="sec-hd"><div class="sec-title">طلبات معلّقة</div></div>
+				<a class="pending-card" routerLink="/provider-overview/marketing/approvals">
+					<div class="pending-ico">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+					</div>
+					<div class="pending-b">
+						<div class="pending-v">{{ co.pendingApprovals.count }}</div>
+						<div class="pending-l">
+							@if (co.pendingApprovals.count) {
+								{{ co.pendingApprovals.coupons }} كوبون و{{ co.pendingApprovals.offers }} عرض بانتظار موافقتك
+							} @else {
+								لا توجد طلبات بانتظار موافقتك
+							}
+						</div>
+					</div>
+					<span class="pending-go">مراجعة الطلبات ←</span>
+				</a>
+			</div>
+		</div>
+	}
+
+	<div class="two-col">
+		<div class="card">
+			<div class="sec-hd"><div><div class="sec-title">الاستخدام الشهري</div><div class="sec-sub">آخر 6 أشهر</div></div></div>
+			<div class="chart-wrap">
+				@for (bar of trendBars(); track bar.label) {
+					<div class="bar-col" [class.current]="bar.current">
+						<div class="bar-val">{{ bar.value }}</div>
+						<div class="bar-body" [style.height.%]="bar.height"></div>
+						<div class="bar-lbl">{{ bar.label }}</div>
+					</div>
+				}
+			</div>
+		</div>
+
+		@if (isCompanyMode() && company(); as co) {
+			<div class="card">
+				<div class="sec-hd">
+					<div class="sec-title">أداء الفريق في التسويق</div>
+					<a class="sec-link" routerLink="/provider-overview/company/team-management">إدارة الفريق ←</a>
+				</div>
+				@for (r of co.teamPerformance; track r.teamMemberId) {
+					<a class="mini-row" routerLink="/provider-overview/company/team-management">
+						<div class="mini-ic" [style.background]="avatarBg(r.teamMemberId)">{{ initials(r.name) }}</div>
+						<div class="mini-b"><div class="mini-t">{{ r.name }}</div><div class="mini-s">{{ teamRowSub(r) }}</div></div>
+						<div class="mini-v">{{ r.discountedValue ? money(r.discountedValue) : '—' }}</div>
+					</a>
+				} @empty {
+					<div class="state-box">لا يوجد أعضاء في الفريق بعد — <a class="sec-link" routerLink="/provider-overview/company/team-management">أضف أعضاء الفريق</a></div>
+				}
+			</div>
+		} @else {
+			<div class="card">
+				<div class="sec-hd"><div class="sec-title">توزيع الاستخدام حسب الأداة</div></div>
+				@for (l of leaderboard(); track l.name) {
+					<div class="leaderbar">
+						<span class="leaderbar-lbl" [title]="l.name">{{ l.name }}</span>
+						<div class="leaderbar-bg"><div class="leaderbar-fill" [style.width.%]="l.width">{{ l.value }}</div></div>
+					</div>
+				} @empty {
+					<div class="state-box">لم تُستخدم أي أداة تسويقية بعد</div>
+				}
+			</div>
+		}
+	</div>
+
+	<div class="qc-grid">
+		<a class="qc" routerLink="/provider-overview/marketing/coupons">
+			<div class="qc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01"/></svg></div>
+			<div class="qc-t">كوبونات الخصم</div>
+			<div class="qc-d">{{ summaryText(d.toolSummaries.coupons, 'coupon') }}{{ d.toolSummaries.coupons.total ? (isCompanyMode() ? ' — على مستوى الشركة كاملة' : ' — أنشئ، فعّل، أوقِف، أو عدّل أي كوبون في أي وقت.') : '' }}</div>
+		</a>
+		<a class="qc" routerLink="/provider-overview/marketing/offers">
+			<div class="qc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+			<div class="qc-t">العروض الخاصة</div>
+			<div class="qc-d">{{ summaryText(d.toolSummaries.offers, 'offer') }}{{ d.toolSummaries.offers.total ? ' — باقات مرتبطة أو خصم مباشر يظهر كشارة على النموذج في السوق.' : '' }}</div>
+		</a>
+	</div>
+
+	@if (isCompanyMode()) {
+		<div class="note-card plain"><p>برنامج الإحالة ليس ميزة داخل حساب الشركة — يخص حساب الوسيط التسويقي المرتبط حصراً، ويُدار من لوحته لا من مركز التسويق هذا.</p></div>
+	}
+
+	<div class="sec-hd"><div class="sec-title">أفضل الأدوات أداءً</div></div>
+	<div class="tbl-wrap"><div class="tbl-scroll">
+		<table class="tbl">
+			<thead>
+				<tr>
+					<th>النوع</th><th>الاسم</th>
+					@if (isCompanyMode()) { <th>مُسنَد لـ</th> }
+					<th>الاستخدام</th><th>القيمة المخصومة</th><th>الحالة</th>
+					@if (!isCompanyMode()) { <th>آخر استخدام</th> }
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				@for (t of d.topTools; track t.kind + t.id) {
+					<tr>
+						<td><span class="pill" [ngClass]="t.kind === 'COUPON' ? 'pill-ok' : 'pill-used'">{{ t.kind === 'COUPON' ? 'كوبون' : 'عرض' }}</span></td>
+						<td>{{ t.name }}</td>
+						@if (isCompanyMode()) {
+							<td>
+								@if (t.assignedTo) {
+									<a class="mem-chip" routerLink="/provider-overview/company/team-management"><span class="mem-av-sm" [style.background]="avatarBg(t.assignedTo.id)">{{ initials(t.assignedTo.name) }}</span>{{ t.assignedTo.name }}</a>
+								} @else { كل الشركة }
+							</td>
+						}
+						<td>{{ toolUsage(t) }}</td>
+						<td>{{ t.discountedValue ? money(t.discountedValue) : '—' }}</td>
+						<td><span class="pill" [ngClass]="statusPill[t.status]">{{ statusLabels[t.status] }}</span></td>
+						@if (!isCompanyMode()) { <td>{{ rel(t.lastUsedAt) }}</td> }
+						<td><a class="lnk" [routerLink]="toolLink(t)">فتح</a></td>
+					</tr>
+				} @empty {
+					<tr><td class="empty-cell" [attr.colspan]="7">لا توجد أدوات تسويقية بعد — ابدأ بإنشاء <a class="lnk" routerLink="/provider-overview/marketing/coupons/new">كوبون خصم</a> أو <a class="lnk" routerLink="/provider-overview/marketing/offers/new">عرض خاص</a>.</td></tr>
+				}
+			</tbody>
+		</table>
+	</div></div>
+}
+
+@if (flash.message(); as m) {
+	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
+}

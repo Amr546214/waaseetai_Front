@@ -1,0 +1,13 @@
+.sec-link { font-size: 11.5px; font-weight: 700; color: var(--mk-teal); }
+.cap-foot { font-size: 11px; color: var(--mk-txt2); margin-top: 10px; line-height: 1.6; }
+.cap-edit { display: flex; flex-direction: column; gap: 10px; }
+.cap-edit-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.pending-card { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 12px; background: rgba(255, 180, 0, .06); border: 1px solid rgba(255, 180, 0, .22); transition: border-color .15s; }
+.pending-card:hover { border-color: rgba(255, 180, 0, .45); }
+.pending-ico { width: 40px; height: 40px; border-radius: 11px; background: rgba(255, 180, 0, .14); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pending-ico svg { width: 18px; height: 18px; color: #FFB400; }
+.pending-b { flex: 1; min-width: 0; }
+.pending-v { font-size: 24px; font-weight: 900; color: var(--mk-head); line-height: 1; }
+.pending-l { font-size: 11.5px; color: var(--mk-txt2); margin-top: 4px; }
+.pending-go { font-size: 12px; font-weight: 800; color: #FFB400; white-space: nowrap; }

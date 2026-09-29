@@ -1,0 +1,180 @@
+<a class="bc" routerLink="/provider-overview/marketing/coupons">→ رجوع لكوبونات الخصم</a>
+
+@if (loading()) {
+	<div class="state-box">جاري تحميل الكوبون...</div>
+} @else if (error()) {
+	<div class="state-box err">{{ error() }}<br><a class="btn-sec" routerLink="/provider-overview/marketing/coupons">العودة للقائمة</a></div>
+} @else if (coupon(); as c) {
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">إحصائيات كوبون
+				<span class="code-chip" title="نسخ الكود" (click)="copyCode()">{{ c.code }}
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+			</div>
+			<div class="pg-sub">{{ subtitle() }}</div>
+		</div>
+		<div class="pg-actions">
+			<span class="pill" [ngClass]="statusPill[status()!]">{{ statusLabels[status()!] }}</span>
+			<label class="sw" [title]="canToggle() ? '' : 'لا يمكن تفعيل هذا الكوبون من هنا'">
+				<input type="checkbox" [checked]="c.active" [disabled]="!canToggle() || busy()" (change)="toggleActive($event)">
+				<span class="sw-track"><span class="sw-thumb"></span></span>
+			</label>
+			<a class="btn-sec" [routerLink]="['/provider-overview/marketing/coupons', c.id, 'edit']">تعديل الكوبون</a>
+		</div>
+	</div>
+
+	@if (c.approvalStatus === 'PENDING') {
+		<div class="note-card warn approval-banner">
+			<p>
+				<b>بانتظار الموافقة</b> — تجاوز هذا الكوبون حد الخصم المسموح تلقائياً (30%) أو ليس له حد أقصى للاستخدام، لذلك لن يظهر في السوق ولا يمكن تفعيله حتى يعتمده مدير الحساب.
+			</p>
+			@if (isCompanyMode()) {
+				<div class="approval-actions">
+					@if (rejecting()) {
+						<input class="f-inp" type="text" maxlength="1000" placeholder="سبب الرفض (مطلوب)" [(ngModel)]="rejectReason">
+						<button type="button" class="btn-sec btn-sm btn-danger" (click)="decide('REJECTED')" [disabled]="busy()">تأكيد الرفض</button>
+						<button type="button" class="btn-sec btn-sm" (click)="rejecting.set(false)">إلغاء</button>
+					} @else {
+						<button type="button" class="btn-sec btn-sm" (click)="rejecting.set(true)" [disabled]="busy()">رفض</button>
+						<button type="button" class="btn-pri btn-sm" (click)="decide('APPROVED')" [disabled]="busy()">اعتماد</button>
+					}
+				</div>
+			}
+		</div>
+	}
+	@if (c.approvalStatus === 'REJECTED') {
+		<div class="note-card bad"><p><b>مرفوض</b>{{ c.rejectionReason ? ' — سبب الرفض: ' + c.rejectionReason : '' }}. عدّل نسبة الخصم أو حد الاستخدام من زر «تعديل الكوبون» لإعادة إرساله للمراجعة.</p></div>
+	}
+
+	<div class="kpi-row">
+		<div class="kpi-c"><div class="kpi-v">{{ fmt(c.usedCount) }}</div><div class="kpi-l">مرة استخدام{{ c.maxUses ? ' (من ' + c.maxUses + ')' : '' }}</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedValue }}</div><div class="kpi-l">القيمة المخصومة (ريال)</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ statText().revenue }}</div><div class="kpi-l">إيراد الطلبات المرتبطة (ريال)</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ consumption() ? consumption()!.pct + '%' : '∞' }}</div><div class="kpi-l">{{ consumption() ? 'نسبة الاستهلاك من الحد الأقصى' : 'بلا حد أقصى للاستخدام' }}</div></div>
+	</div>
+
+	<div class="two-col">
+		<div class="card">
+			<div class="sec-hd"><div><div class="sec-title">الاستخدام خلال الفترة</div><div class="sec-sub">آخر 6 أسابيع</div></div></div>
+			@if (statsError()) {
+				<div class="state-box err">{{ statsError() }}</div>
+			} @else if (!stats()) {
+				<div class="state-box">جاري تحميل الإحصائيات...</div>
+			} @else {
+				<div class="chart-wrap">
+					@for (bar of weekBars(); track bar.key) {
+						<div class="bar-col" [class.current]="bar.current">
+							<div class="bar-val">{{ bar.value }}</div>
+							<div class="bar-body" [style.height.%]="bar.height"></div>
+							<div class="bar-lbl">{{ bar.label }}</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
+
+		<div class="card">
+			<div class="sec-hd"><div class="sec-title">تقدّم الاستهلاك</div></div>
+			@if (consumption(); as cons) {
+				<div class="prog-hd"><span>{{ c.usedCount }} من {{ c.maxUses }} استخدام</span><span>{{ cons.pct }}%</span></div>
+				<div class="prog-bg"><div class="prog-fill" [class.warn]="cons.pct >= 80" [style.width.%]="cons.pct"></div></div>
+				<div class="mini-row" style="margin-top:10px">
+					<div class="mini-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+					<div class="mini-b"><div class="mini-t">متبقٍ من الحد الأقصى</div><div class="mini-s">{{ cons.remaining }} استخدام قبل الوصول للحد</div></div>
+					<div class="mini-v">{{ cons.remaining }}</div>
+				</div>
+			} @else {
+				<div class="prog-hd"><span>{{ c.usedCount }} استخدام</span><span>بلا حد</span></div>
+			}
+			<div class="mini-row">
+				<div class="mini-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+				<div class="mini-b">
+					<div class="mini-t">عملاء فريدون استخدموه</div>
+					<div class="mini-s">{{ statText().repeatNote }}</div>
+				</div>
+				<div class="mini-v">{{ statText().uniqueCustomers }}</div>
+			</div>
+			<div class="mini-row">
+				<div class="mini-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+				<div class="mini-b"><div class="mini-t">متوسط قيمة الطلب بالكوبون</div><div class="mini-s">قبل الخصم</div></div>
+				<div class="mini-v">{{ statText().averageOrderValue }}</div>
+			</div>
+			<div class="mini-row">
+				<div class="mini-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+				<div class="mini-b"><div class="mini-t">الحد الأقصى للعميل الواحد</div><div class="mini-s">عدد مرات استخدام الكود لكل عميل</div></div>
+				<div class="mini-v">{{ c.maxUsesPerUser }}</div>
+			</div>
+			<div class="mini-row">
+				<div class="mini-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+				<div class="mini-b"><div class="mini-t">الحد الأدنى لقيمة الطلب</div><div class="mini-s">شرط تطبيق الخصم</div></div>
+				<div class="mini-v">{{ c.minimumAmount ? money(c.minimumAmount) : 'بدون' }}</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card" style="margin-bottom:16px">
+			<div class="sec-hd"><div class="sec-title">تفاصيل الكوبون</div></div>
+			<div class="mini-row">
+				<div class="mini-b"><div class="mini-t">الصلاحية</div><div class="mini-s">من {{ day(c.startAt) }} {{ c.expiresAt ? 'حتى ' + day(c.expiresAt) : '— بلا تاريخ انتهاء' }}</div></div>
+			</div>
+			<div class="mini-row">
+				<div class="mini-b">
+					<div class="mini-t">النماذج المشمولة</div>
+					<div class="mini-s">{{ scopeNames().included.join('، ') || '—' }}</div>
+					@if (scopeNames().excluded.length) { <div class="mini-s">مستثنى: {{ scopeNames().excluded.join('، ') }}</div> }
+				</div>
+			</div>
+			@if (isCompanyMode()) {
+				<div class="mini-row">
+					<div class="mini-b"><div class="mini-t">مُسنَد لـ</div></div>
+					@if (assignee(); as a) {
+						<a class="mem-chip" routerLink="/provider-overview/company/team-management"><span class="mem-av-sm" [style.background]="avatarBg(a.id)">{{ initials(a.name) }}</span>{{ a.name }}</a>
+					} @else { <span class="mem-chip">كل الشركة</span> }
+				</div>
+			}
+			@if (c.internalNote) {
+				<div class="mini-row"><div class="mini-b"><div class="mini-t">ملاحظة داخلية</div><div class="mini-s">{{ c.internalNote }}</div></div></div>
+			}
+			<div class="mini-row"><div class="mini-b"><div class="mini-t">تاريخ الإنشاء</div><div class="mini-s">{{ day(c.createdAt) }} · آخر تعديل {{ rel(c.updatedAt) }}</div></div></div>
+	</div>
+
+	<div class="sec-hd"><div class="sec-title">الطلبات التي استخدمت هذا الكوبون</div></div>
+	<div class="tbl-wrap"><div class="tbl-scroll">
+		<table class="tbl">
+			<thead><tr><th>رقم الطلب</th><th>العميل</th><th>قيمة الطلب</th><th>الخصم المطبَّق</th><th>الصافي</th><th>التاريخ</th></tr></thead>
+			<tbody>
+				@if (stats(); as st) {
+					@for (r of st.redemptions.items; track r.redemptionId) {
+						<tr>
+							<td>{{ r.orderNumber ?? '—' }}</td>
+							<td>{{ r.customer?.name ?? '—' }}</td>
+							<td>{{ r.orderValue != null ? money(r.orderValue) : '—' }}</td>
+							<td>−{{ money(r.discountApplied) }}</td>
+							<td>{{ r.netValue != null ? money(r.netValue) : '—' }}</td>
+							<td>{{ rel(r.createdAt) }}</td>
+						</tr>
+					} @empty {
+						<tr><td class="empty-cell" colspan="6">لم يُستخدم هذا الكوبون في أي طلب بعد.</td></tr>
+					}
+				} @else {
+					<tr><td class="empty-cell" colspan="6">{{ statsError() ?? (statsLoading() ? 'جاري التحميل...' : '—') }}</td></tr>
+				}
+			</tbody>
+		</table>
+	</div></div>
+	@if (stats(); as st) {
+		@if (st.redemptions.totalPages > 1) {
+			<div class="filter-bar">
+				<button type="button" class="btn-sec btn-sm" [disabled]="statsLoading() || st.redemptions.page <= 1" (click)="goToPage(st.redemptions.page - 1)">السابق</button>
+				<span class="sec-sub">صفحة {{ st.redemptions.page }} من {{ st.redemptions.totalPages }} · {{ st.redemptions.total }} طلباً</span>
+				<button type="button" class="btn-sec btn-sm" [disabled]="statsLoading() || st.redemptions.page >= st.redemptions.totalPages" (click)="goToPage(st.redemptions.page + 1)">التالي</button>
+			</div>
+		}
+	}
+
+	<div class="note-card plain"><p>يمكنك إيقاف الكوبون فوراً من المفتاح أعلى الصفحة دون حذفه — يبقى سجل استخدامه محفوظاً. الكوبون المنتهي أو المستهلك بالكامل لا يمكن إعادة تفعيله.</p></div>
+}
+
+@if (flash.message(); as m) {
+	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
+}

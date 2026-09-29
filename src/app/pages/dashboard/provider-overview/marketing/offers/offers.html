@@ -1,0 +1,84 @@
+<nav class="bc">
+	<a routerLink="/provider-overview">لوحة التحكم</a><span class="sep">‹</span>
+	<a routerLink="/provider-overview/marketing/center">مركز التسويق</a><span class="sep">‹</span>
+	<span>العروض الخاصة</span>
+</nav>
+
+<div class="pg-hd">
+	<div>
+		<div class="pg-title">العروض الخاصة</div>
+		<div class="pg-sub">باقات مرتبطة بين {{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجي' }} أو خصم مباشر يظهر كشارة في السوق</div>
+	</div>
+	<a class="btn-pri" routerLink="/provider-overview/marketing/offers/new">+ عرض جديد</a>
+</div>
+
+<div class="kpi-row">
+	<div class="kpi-c"><div class="kpi-v">{{ kpis().active }}</div><div class="kpi-l">نشط</div></div>
+	@if (isCompanyMode()) {
+		<div class="kpi-c"><div class="kpi-v">{{ kpis().pending }}</div><div class="kpi-l">بانتظار الموافقة</div></div>
+	} @else {
+		<div class="kpi-c"><div class="kpi-v">{{ kpis().expired }}</div><div class="kpi-l">منتهي</div></div>
+	}
+	<div class="kpi-c"><div class="kpi-v">{{ fmt(kpis().totalUses) }}</div><div class="kpi-l">إجمالي مرات الاستخدام</div></div>
+	<div class="kpi-c"><div class="kpi-v">{{ bundleRevenue() !== null ? fmt(bundleRevenue()) : '—' }}</div><div class="kpi-l">إيراد إضافي من الباقات (ريال)</div></div>
+</div>
+
+<div class="filter-bar">
+	<input class="search-inp" type="search" placeholder="ابحث باسم العرض..." [ngModel]="search()" (ngModelChange)="search.set($event)">
+	@if (isCompanyMode()) {
+		<select class="sel-filter" [ngModel]="memberFilter()" (ngModelChange)="memberFilter.set($event)">
+			<option value="all">كل أعضاء الفريق</option>
+			<option value="none">كل الشركة (غير مُسنَد)</option>
+			@for (m of team(); track m.id) { <option [value]="m.id">{{ m.name }}</option> }
+		</select>
+	}
+</div>
+
+@if (loading() && !offers().length) {
+	<div class="state-box">جاري تحميل العروض...</div>
+} @else if (error()) {
+	<div class="state-box err">{{ error() }}<br><button type="button" class="btn-sec" (click)="load()">إعادة المحاولة</button></div>
+} @else {
+	@for (r of filteredRows(); track r.offer.id) {
+		<div class="offer-card">
+			<div class="offer-top">
+				<div>
+					<div class="offer-name"><a [routerLink]="['/provider-overview/marketing/offers', r.offer.id]">{{ r.offer.name }}</a></div>
+					<div class="offer-meta">
+						{{ r.meta }}
+						@if (isCompanyMode()) {
+							· مُسنَد لـ
+							@if (r.assignee) {
+								<span class="mem-chip"><span class="mem-av-sm" [style.background]="avatarBg(r.assignee.id)">{{ initials(r.assignee.name) }}</span>{{ r.assignee.name }}</span>
+							} @else { كل الشركة }
+						}
+					</div>
+				</div>
+				<div class="offer-ctrl">
+					<span class="pill" [ngClass]="statusPill[r.status]">{{ statusLabels[r.status] }}</span>
+					<label class="sw" [title]="toggleable(r.status) ? '' : 'لا يمكن تفعيل هذا العرض من هنا'">
+						<input type="checkbox" [checked]="r.offer.active" [disabled]="!toggleable(r.status) || busy().has(r.offer.id)" (change)="toggleActive(r.offer, $event)">
+						<span class="sw-track"><span class="sw-thumb"></span></span>
+					</label>
+					<a class="btn-sec btn-sm" [routerLink]="['/provider-overview/marketing/offers', r.offer.id, 'edit']">تعديل</a>
+					<a class="btn-sec btn-sm" [routerLink]="['/provider-overview/marketing/offers', r.offer.id]">إحصائيات</a>
+				</div>
+			</div>
+			<div class="offer-body">{{ r.description }} الشارة الظاهرة في السوق: <span class="offer-badge-prev">{{ r.offer.badgeText }}</span></div>
+			@if (r.status === 'REJECTED' && r.offer.rejectionReason) {
+				<div class="offer-body rej">سبب الرفض: {{ r.offer.rejectionReason }}</div>
+			}
+			<div class="offer-foot"><span>استُخدم {{ r.offer.usedCount }} {{ r.offer.usedCount === 1 ? 'مرة' : 'مرات' }}</span><span>·</span><span>{{ validity(r.offer.startAt, r.offer.expiresAt) }}</span></div>
+		</div>
+	} @empty {
+		<div class="state-box">
+			@if (offers().length) { لا توجد عروض مطابقة للبحث } @else { لا توجد عروض خاصة بعد — <a class="lnk" routerLink="/provider-overview/marketing/offers/new">أنشئ أول عرض</a> }
+		</div>
+	}
+}
+
+<div class="note-card plain"><p>كل عرض باقة يشترط نموذجين مختلفين على الأقل من {{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجي' }}. العرض المنتهي لا يمكن تفعيله من هنا — عدّله لتاريخ جديد من زر تعديل.@if (isCompanyMode()) { العروض التي يتجاوز خصمها 30% تبقى متوقفة حتى تعتمدها من <a class="lnk" routerLink="/provider-overview/marketing/approvals">طلبات الموافقة</a>.}</p></div>
+
+@if (flash.message(); as m) {
+	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
+}

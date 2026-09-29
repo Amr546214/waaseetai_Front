@@ -1,0 +1,199 @@
+<a class="bc" routerLink="/provider-overview/marketing/offers">→ رجوع للعروض الخاصة</a>
+
+@if (loading()) {
+	<div class="state-box">جاري تحميل العرض...</div>
+} @else if (error()) {
+	<div class="state-box err">{{ error() }}<br><a class="btn-sec" routerLink="/provider-overview/marketing/offers">العودة للقائمة</a></div>
+} @else if (offer(); as o) {
+	<div class="pg-hd">
+		<div>
+			<div class="pg-title">إحصائيات عرض «{{ o.name }}»</div>
+			<div class="pg-sub">{{ subtitle() }}</div>
+		</div>
+		<div class="pg-actions">
+			<span class="pill" [ngClass]="statusPill[status()!]">{{ statusLabels[status()!] }}</span>
+			<label class="sw" [title]="canToggle() ? '' : 'لا يمكن تفعيل هذا العرض من هنا'">
+				<input type="checkbox" [checked]="o.active" [disabled]="!canToggle() || busy()" (change)="toggleActive($event)">
+				<span class="sw-track"><span class="sw-thumb"></span></span>
+			</label>
+			<a class="btn-sec" [routerLink]="['/provider-overview/marketing/offers', o.id, 'edit']">تعديل العرض</a>
+		</div>
+	</div>
+
+	@if (o.approvalStatus === 'PENDING') {
+		<div class="note-card warn approval-banner">
+			<p><b>بانتظار الموافقة</b> — خصم هذا العرض يتجاوز الحد المسموح تلقائياً (30%)، لذلك لن تظهر شارته في السوق ولا يمكن تفعيله حتى يعتمده مدير الحساب.</p>
+			@if (isCompanyMode()) {
+				<div class="approval-actions">
+					@if (rejecting()) {
+						<input class="f-inp" type="text" maxlength="1000" placeholder="سبب الرفض (مطلوب)" [(ngModel)]="rejectReason">
+						<button type="button" class="btn-sec btn-sm btn-danger" (click)="decide('REJECTED')" [disabled]="busy()">تأكيد الرفض</button>
+						<button type="button" class="btn-sec btn-sm" (click)="rejecting.set(false)">إلغاء</button>
+					} @else {
+						<button type="button" class="btn-sec btn-sm" (click)="rejecting.set(true)" [disabled]="busy()">رفض</button>
+						<button type="button" class="btn-pri btn-sm" (click)="decide('APPROVED')" [disabled]="busy()">اعتماد</button>
+					}
+				</div>
+			}
+		</div>
+	}
+	@if (o.approvalStatus === 'REJECTED') {
+		<div class="note-card bad"><p><b>مرفوض</b>{{ o.rejectionReason ? ' — سبب الرفض: ' + o.rejectionReason : '' }}. عدّل نسبة الخصم من زر «تعديل العرض» لإعادة إرساله للمراجعة.</p></div>
+	}
+
+	<div class="kpi-row">
+		<div class="kpi-c"><div class="kpi-v">{{ fmt(o.usedCount) }}</div><div class="kpi-l">مرات الاستفادة</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedValue }}</div><div class="kpi-l">القيمة المخصومة (ريال)</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedServiceRevenue }}</div><div class="kpi-l">{{ o.type === 'BUNDLE' ? 'إيراد ' + modelName(o.beneficiaryServiceId) + ' المرتبط بالباقة (ريال)' : 'إيراد ' + modelName(o.targetServiceId) + ' بالعرض (ريال)' }}</div></div>
+		@if (o.type === 'BUNDLE') {
+			<div class="kpi-c"><div class="kpi-v">{{ statText().conversion }}</div><div class="kpi-l">نسبة تحويل {{ modelName(o.primaryServiceId) }} ← {{ modelName(o.beneficiaryServiceId) }} بعد العرض</div></div>
+		} @else {
+			<div class="kpi-c"><div class="kpi-v">{{ o.discountValue }}%</div><div class="kpi-l">خصم مباشر على النموذج</div></div>
+		}
+	</div>
+
+	<div class="two-col">
+		<div class="card">
+			<div class="sec-hd"><div><div class="sec-title">الاستفادة من العرض</div><div class="sec-sub">آخر 6 أسابيع</div></div></div>
+			@if (statsError()) {
+				<div class="state-box err">{{ statsError() }}</div>
+			} @else if (!stats()) {
+				<div class="state-box">جاري تحميل الإحصائيات...</div>
+			} @else {
+				<div class="chart-wrap">
+					@for (bar of weekBars(); track bar.key) {
+						<div class="bar-col" [class.current]="bar.current">
+							<div class="bar-val">{{ bar.value }}</div>
+							<div class="bar-body" [style.height.%]="bar.height"></div>
+							<div class="bar-lbl">{{ bar.label }}</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
+
+		@if (o.type === 'BUNDLE') {
+			<div class="card">
+				<div class="sec-hd"><div class="sec-title">أثر الباقة على السلوك</div></div>
+				<div class="mini-row">
+					<div class="mini-ic">X</div>
+					<div class="mini-b"><div class="mini-t">عملاء طلبوا النموذج الأساسي X</div><div class="mini-s">{{ modelName(o.primaryServiceId) }} · منذ بدء العرض</div></div>
+					<div class="mini-v">{{ statText().primaryCustomers }}</div>
+				</div>
+				<div class="mini-row">
+					<div class="mini-ic">Y</div>
+					<div class="mini-b"><div class="mini-t">استفادوا من خصم النموذج Y خلال {{ o.validityDays }} يوماً</div><div class="mini-s">{{ modelName(o.beneficiaryServiceId) }}</div></div>
+					<div class="mini-v">{{ statText().convertedCustomers }}</div>
+				</div>
+				<div class="mini-row">
+					<div class="mini-ic">%</div>
+					<div class="mini-b"><div class="mini-t">نسبة التحويل</div><div class="mini-s">من طلب X إلى الاستفادة من خصم Y داخل نافذة الباقة</div></div>
+					<div class="mini-v">{{ statText().conversion }}</div>
+				</div>
+			</div>
+		} @else {
+			<div class="card">
+				<div class="sec-hd"><div class="sec-title">ملخص الاستفادة</div></div>
+				<div class="mini-row">
+					<div class="mini-b"><div class="mini-t">عملاء فريدون استفادوا</div></div>
+					<div class="mini-v">{{ stats() ? fmt(stats()!.totals.uniqueCustomers) : '—' }}</div>
+				</div>
+				<div class="mini-row">
+					<div class="mini-b"><div class="mini-t">آخر استفادة</div></div>
+					<div class="mini-v">{{ stats()?.totals?.lastUsedAt ? rel(stats()!.totals.lastUsedAt) : 'لم يُستخدم' }}</div>
+				</div>
+			</div>
+		}
+	</div>
+
+	<div class="two-col">
+		<div class="card">
+			<div class="sec-hd"><div class="sec-title">{{ o.type === 'BUNDLE' ? 'آلية الباقة' : 'آلية الخصم' }}</div></div>
+			@if (o.type === 'BUNDLE') {
+				<div class="mini-row">
+					<div class="mini-ic">X</div>
+					<div class="mini-b"><div class="mini-t">النموذج الأساسي</div><div class="mini-s">{{ modelName(o.primaryServiceId) }}</div></div>
+				</div>
+				<div class="mini-row">
+					<div class="mini-ic">Y</div>
+					<div class="mini-b"><div class="mini-t">النموذج المستفيد من الخصم</div><div class="mini-s">{{ modelName(o.beneficiaryServiceId) }}</div></div>
+					<div class="mini-v">−{{ o.discountValue }}%</div>
+				</div>
+				<div class="mini-row">
+					<div class="mini-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+					<div class="mini-b"><div class="mini-t">نافذة الاستفادة</div><div class="mini-s">من تاريخ أول طلب للنموذج الأساسي</div></div>
+					<div class="mini-v">{{ o.validityDays }} يوماً</div>
+				</div>
+			} @else {
+				<div class="mini-row">
+					<div class="mini-ic">%</div>
+					<div class="mini-b"><div class="mini-t">النموذج المستهدف</div><div class="mini-s">{{ modelName(o.targetServiceId) }}</div></div>
+					<div class="mini-v">−{{ o.discountValue }}%</div>
+				</div>
+			}
+			<div class="mini-row">
+				<div class="mini-b"><div class="mini-t">الشارة في السوق</div></div>
+				<span class="offer-badge-prev">{{ o.badgeText }}</span>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="sec-hd"><div class="sec-title">تفاصيل العرض</div></div>
+			<div class="mini-row"><div class="mini-b"><div class="mini-t">الصلاحية</div><div class="mini-s">من {{ day(o.startAt) }} {{ o.expiresAt ? 'حتى ' + day(o.expiresAt) : '— بلا تاريخ انتهاء' }}</div></div></div>
+			@if (o.customerMessage) {
+				<div class="mini-row"><div class="mini-b"><div class="mini-t">رسالة العرض للعميل</div><div class="mini-s">{{ o.customerMessage }}</div></div></div>
+			}
+			@if (isCompanyMode()) {
+				<div class="mini-row">
+					<div class="mini-b"><div class="mini-t">مُسنَد لـ</div></div>
+					@if (assignee(); as a) {
+						<a class="mem-chip" routerLink="/provider-overview/company/team-management"><span class="mem-av-sm" [style.background]="avatarBg(a.id)">{{ initials(a.name) }}</span>{{ a.name }}</a>
+					} @else { <span class="mem-chip">كل الشركة</span> }
+				</div>
+			}
+			@if (o.internalNote) {
+				<div class="mini-row"><div class="mini-b"><div class="mini-t">ملاحظة داخلية</div><div class="mini-s">{{ o.internalNote }}</div></div></div>
+			}
+			<div class="mini-row"><div class="mini-b"><div class="mini-t">تاريخ الإنشاء</div><div class="mini-s">{{ day(o.createdAt) }} · آخر تعديل {{ rel(o.updatedAt) }}</div></div></div>
+		</div>
+	</div>
+
+	<div class="sec-hd"><div class="sec-title">الطلبات المستفيدة من العرض</div></div>
+	<div class="tbl-wrap"><div class="tbl-scroll">
+		<table class="tbl">
+			<thead><tr><th>رقم الطلب</th><th>العميل</th><th>النموذج المستفيد</th><th>الخصم المطبَّق</th><th>التاريخ</th></tr></thead>
+			<tbody>
+				@if (stats(); as st) {
+					@for (r of st.redemptions.items; track r.redemptionId) {
+						<tr>
+							<td>{{ r.orderNumber ?? '—' }}</td>
+							<td>{{ r.customer?.name ?? '—' }}</td>
+							<td>{{ r.discountedItem?.title ?? '—' }}</td>
+							<td>−{{ money(r.discountApplied) }}</td>
+							<td>{{ rel(r.createdAt) }}</td>
+						</tr>
+					} @empty {
+						<tr><td class="empty-cell" colspan="5">لم يستفد أي طلب من هذا العرض بعد.</td></tr>
+					}
+				} @else {
+					<tr><td class="empty-cell" colspan="5">{{ statsError() ?? (statsLoading() ? 'جاري التحميل...' : '—') }}</td></tr>
+				}
+			</tbody>
+		</table>
+	</div></div>
+	@if (stats(); as st) {
+		@if (st.redemptions.totalPages > 1) {
+			<div class="filter-bar">
+				<button type="button" class="btn-sec btn-sm" [disabled]="statsLoading() || st.redemptions.page <= 1" (click)="goToPage(st.redemptions.page - 1)">السابق</button>
+				<span class="sec-sub">صفحة {{ st.redemptions.page }} من {{ st.redemptions.totalPages }} · {{ st.redemptions.total }} طلباً</span>
+				<button type="button" class="btn-sec btn-sm" [disabled]="statsLoading() || st.redemptions.page >= st.redemptions.totalPages" (click)="goToPage(st.redemptions.page + 1)">التالي</button>
+			</div>
+		}
+	}
+
+	<div class="note-card plain"><p>إيقاف العرض من المفتاح أعلى الصفحة يوقف ظهور شارته في السوق فوراً دون حذف بياناته أو سجل استخدامه.</p></div>
+}
+
+@if (flash.message(); as m) {
+	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
+}
