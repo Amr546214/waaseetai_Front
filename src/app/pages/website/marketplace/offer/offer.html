@@ -149,6 +149,9 @@
 </ng-template>
 
 <ng-template #cartFeedback>
+  @if (activePurchase()) {
+    <div style="margin:0 0 8px;padding:8px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:10px;font-size:12px;text-align:center;color:var(--txt-2)">اشتريت هذه الخدمة ومشروعك ما زال قيد التنفيذ — لا يمكن شراؤها مرة أخرى قبل اكتماله</div>
+  }
   @if (alreadyInCart()) {
     <div style="margin:0 0 8px;padding:8px 12px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);border-radius:10px;font-size:12px;text-align:center;color:var(--teal)">الخدمة موجودة بالفعل في السلة</div>
   }
@@ -254,7 +257,7 @@
                     }
                   </div>
                 }
-                <button class="pkg-order-btn" type="button" [disabled]="isSubmitting()" (click)="addToCart()">اطلب الآن</button>
+                <button class="pkg-order-btn" type="button" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
               </div>
             </div>
 
@@ -374,7 +377,7 @@
             <div class="sidebar-card">
               <div class="order-card-body">
                 <ng-container *ngTemplateOutlet="orderIncludes"></ng-container>
-                <button class="btn-order-primary" type="button" id="sidebar-order-btn" [disabled]="isSubmitting()" (click)="addToCart()">اطلب الآن</button>
+                <button class="btn-order-primary" type="button" id="sidebar-order-btn" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
                 <ng-container *ngTemplateOutlet="cartFeedback"></ng-container>
                 <button class="btn-order-ghost" type="button" (click)="openNegotiation()"><svg aria-hidden="true"><use href="#ws-msg"></use></svg>تواصل مع {{ model()?.provider?.name || 'المقدم' }}</button>
                 <button class="btn-order-ghost" type="button" (click)="openNegotiation()" style="margin-top:0"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-negotiate"></use></svg>طلب تفاوض مع المقدم</button>
@@ -510,7 +513,7 @@
             <div class="sidebar-card">
               <div class="order-card-body">
                 <ng-container *ngTemplateOutlet="orderIncludes"></ng-container>
-                <button class="btn-order-primary" type="button" [disabled]="isSubmitting()" (click)="addToCart()">اطلب الآن</button>
+                <button class="btn-order-primary" type="button" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
                 <ng-container *ngTemplateOutlet="cartFeedback"></ng-container>
                 <button class="btn-order-ghost" type="button" (click)="openNegotiation()"><svg aria-hidden="true"><use href="#ws-file"></use></svg>تواصل مع {{ model()?.provider?.name || 'المقدم' }}</button>
                 <div class="order-guarantee"><svg aria-hidden="true"><use href="#ws-shield"></use></svg>ضمان مالي وفق سياسة الإلغاء والاسترداد</div>
@@ -605,7 +608,7 @@
 
             <!-- ORDER COMPACT -->
             <div style="padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:14px">
-              <button [disabled]="isSubmitting()" (click)="addToCart()" type="button" style="width:100%;padding:11px;border-radius:999px;background:var(--grad);color:#070D24;font-family:inherit;font-size:13px;font-weight:900;border:none;cursor:pointer;margin-bottom:10px">اطلب الآن</button>
+              <button [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()" type="button" style="width:100%;padding:11px;border-radius:999px;background:var(--grad);color:#070D24;font-family:inherit;font-size:13px;font-weight:900;border:none;cursor:pointer;margin-bottom:10px">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
               <ng-container *ngTemplateOutlet="cartFeedback"></ng-container>
               <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--green);padding:8px 10px;background:rgba(15,169,154,.05);border:1px solid rgba(15,169,154,.13);border-radius:8px">
                 <svg aria-hidden="true" style="width:12px;height:12px;flex-shrink:0"><use href="#ws-shield"></use></svg>

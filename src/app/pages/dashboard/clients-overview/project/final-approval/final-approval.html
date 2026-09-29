@@ -166,7 +166,7 @@
 				<div class="fa-srow"><span>إجمالي قيمة العقد</span><b>{{ formatNumber(totalAmount()) }} $</b></div>
 				<div class="fa-srow"><span>أُفرِج عبر المراحل السابقة</span><b class="fa-v-free">{{ formatNumber(releasedAmount()) }} $</b></div>
 				<div class="fa-srow"><span>الدفعة النهائية (محتجزة بالضمان)</span><b class="fa-v-held">{{ formatNumber(finalPayment()) }} $</b></div>
-				<div class="fa-srow fa-srow-tot"><span>يُفرَج للمقدّم عند اعتمادك</span><b>{{ formatNumber(finalPayment()) }} $</b></div>
+				<div class="fa-srow fa-srow-tot"><span>الرصيد المتبقي من قيمة العقد</span><b>{{ formatNumber(finalPayment()) }} $</b></div>
 			</div>
 			<div class="fa-settle-bar">
 				@if (totalAmount() > 0) {
@@ -180,13 +180,17 @@
 			</div>
 		</div>
 
-		<!-- Final acceptance -->
+		<!-- Final acceptance. Copy intentionally does NOT claim this click releases
+		     the final payment — no backend endpoint exists to do that (see
+		     confirmAndRate() in final-approval.ts and BACKEND_BLOCKED_ISSUES.md).
+		     Only real, backend-sourced figures (contract total, already-released
+		     amount, final stage amount) are shown. -->
 		<div class="fa-final">
 			<div class="fa-final-t">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
 				الاستلام النهائي للمشروع
 			</div>
-			<p>باعتمادك النهائي: تستلم حزمة المشروع كاملةً دفعةً واحدة، يُفرَج المبلغ المتبقّي للمقدّم، تنتقل ملكية التصاميم إليك بالكامل، ويبدأ سريان ضمان 30 يومًا.</p>
+			<p>باعتمادك النهائي: تستلم حزمة المشروع كاملةً دفعةً واحدة، تنتقل ملكية التصاميم إليك بالكامل، ويبدأ سريان ضمان 30 يومًا.</p>
 			<div class="fa-final-acts">
 				<button type="button" class="fa-btn fa-btn-pri" (click)="openConfirm()">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
@@ -208,8 +212,8 @@
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 				</div>
 				<h3>استلام واعتماد المشروع</h3>
-				<p>تستلم حزمة المشروع كاملةً، يُفرَج المبلغ المتبقّي للمقدّم، تنتقل الملكية إليك، ويبدأ سريان ضمان 30 يومًا</p>
-				<div class="fsm-amt"><span>يُفرَج للمقدّم</span><b>{{ formatNumber(finalPayment()) }} <small>$</small></b></div>
+				<p>تستلم حزمة المشروع كاملةً، تنتقل الملكية إليك، ويبدأ سريان ضمان 30 يومًا</p>
+				<div class="fsm-amt"><span>الدفعة النهائية</span><b>{{ formatNumber(finalPayment()) }} <small>$</small></b></div>
 				<div class="fsm-acts">
 					<button type="button" class="fsm-btn fsm-gh" (click)="closeConfirm()" [disabled]="confirming()">تراجع</button>
 					<button type="button" class="fsm-btn fsm-pri" (click)="confirmAndRate()" [disabled]="confirming()">

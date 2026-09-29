@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, effect, inject } from '@angular/core';
+import { Component, signal, computed, OnInit, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProviderApiService } from '../../../../core/services/provider-api.service';
 import { RouterLink } from '@angular/router';
@@ -66,13 +66,24 @@ export class ExploreRequests implements OnInit {
 		{ id: 'saved', label: 'محفوظة', count: 0 }
 	];
 
+	// Batch: the "مستوى الخبرة المطلوبة" (required experience level) filter
+	// section was removed. Neither the primary ClientRequest model nor the
+	// data actually returned by GET /explore-requests carries any
+	// experience-level field for a request (the legacy Project model has an
+	// unrelated `provLevel` column used only by the AI matching engine, and
+	// it isn't selected/returned by this endpoint), so there was nothing
+	// real to filter by — a fake control was removed rather than left
+	// non-functional. Budget, duration, client type and competition size
+	// ARE all present on every request already loaded into `requests()`
+	// (see fetchRequests below), so those are filtered for real,
+	// client-side, when "تطبيق الفلاتر" is clicked.
 	filterSections = signal([
 		{
 			id: 'budget',
 			title: 'الميزانية',
 			options: [
-				{ id: 'b1', label: 'أقل من 2,000 $', checked: true },
-				{ id: 'b2', label: '2,000 - 5,000 $', checked: true },
+				{ id: 'b1', label: 'أقل من 2,000 $', checked: false },
+				{ id: 'b2', label: '2,000 - 5,000 $', checked: false },
 				{ id: 'b3', label: '5,000 - 15,000 $', checked: false },
 				{ id: 'b4', label: 'أكثر من 15,000 $', checked: false }
 			]
@@ -82,8 +93,8 @@ export class ExploreRequests implements OnInit {
 			title: 'مدة التنفيذ',
 			options: [
 				{ id: 'd1', label: 'أقل من أسبوع', checked: false },
-				{ id: 'd2', label: '1 - 2 أسبوع', checked: true },
-				{ id: 'd3', label: '3 - 4 أسابيع', checked: true },
+				{ id: 'd2', label: '1 - 2 أسبوع', checked: false },
+				{ id: 'd3', label: '3 - 4 أسابيع', checked: false },
 				{ id: 'd4', label: 'أكثر من شهر', checked: false }
 			]
 		},
@@ -91,29 +102,30 @@ export class ExploreRequests implements OnInit {
 			id: 'clientType',
 			title: 'نوع العميل',
 			options: [
-				{ id: 'c1', label: 'فرد', checked: true },
-				{ id: 'c2', label: 'شركة', checked: true }
-			]
-		},
-		{
-			id: 'experience',
-			title: 'مستوى الخبرة المطلوبة',
-			options: [
-				{ id: 'e1', label: 'مبتدئ', checked: false },
-				{ id: 'e2', label: 'متوسط', checked: true },
-				{ id: 'e3', label: 'خبير', checked: true }
+				{ id: 'c1', label: 'فرد', checked: false },
+				{ id: 'c2', label: 'شركة', checked: false }
 			]
 		},
 		{
 			id: 'competition',
 			title: 'حجم المنافسة',
 			options: [
-				{ id: 'comp1', label: 'أقل من 5 عروض', checked: true },
+				{ id: 'comp1', label: 'أقل من 5 عروض', checked: false },
 				{ id: 'comp2', label: '5 - 10 عروض', checked: false },
 				{ id: 'comp3', label: 'أكثر من 10 عروض', checked: false }
 			]
 		}
 	]);
+
+	// Snapshot of the checked options at the moment "تطبيق الفلاتر" was last
+	// clicked — filtering is only ever computed from this, never from the
+	// live (in-progress) checkbox state in the drawer.
+	appliedFilters = signal<{ budget: string[]; duration: string[]; clientType: string[]; competition: string[] }>({
+		budget: [],
+		duration: [],
+		clientType: [],
+		competition: []
+	});
 
 	openFilter() {
 		this.isFilterOpen.set(true);
@@ -140,6 +152,93 @@ export class ExploreRequests implements OnInit {
 			return [...sections];
 		});
 	}
+
+	/** Reads the currently-checked option ids out of a drawer section. */
+	private checkedIds(sections: { id: string; options: { id: string; checked: boolean }[] }[], sectionId: string): string[] {
+		return sections.find(s => s.id === sectionId)?.options.filter(o => o.checked).map(o => o.id) || [];
+	}
+
+	/** Snapshots the drawer's checked options as the active filter set and closes the drawer. */
+	applyFilters() {
+		const sections = this.filterSections();
+		this.appliedFilters.set({
+			budget: this.checkedIds(sections, 'budget'),
+			duration: this.checkedIds(sections, 'duration'),
+			clientType: this.checkedIds(sections, 'clientType'),
+			competition: this.checkedIds(sections, 'competition')
+		});
+		this.closeFilter();
+	}
+
+	private matchesBudget(req: any, ids: string[]): boolean {
+		if (ids.length === 0) return true;
+		const value = req.budgetMax > 0 ? req.budgetMax : req.budgetMin;
+		return ids.some(id => {
+			switch (id) {
+				case 'b1': return value < 2000;
+				case 'b2': return value >= 2000 && value < 5000;
+				case 'b3': return value >= 5000 && value < 15000;
+				case 'b4': return value >= 15000;
+				default: return false;
+			}
+		});
+	}
+
+	private matchesDuration(req: any, ids: string[]): boolean {
+		if (ids.length === 0) return true;
+		const days = req.durationDaysRaw || 0;
+		return ids.some(id => {
+			switch (id) {
+				case 'd1': return days < 7;
+				case 'd2': return days >= 7 && days < 14;
+				case 'd3': return days >= 14 && days < 30;
+				case 'd4': return days >= 30;
+				default: return false;
+			}
+		});
+	}
+
+	private matchesClientType(req: any, ids: string[]): boolean {
+		if (ids.length === 0) return true;
+		return ids.some(id => {
+			if (id === 'c1') return req.clientType === 'فرد';
+			if (id === 'c2') return req.clientType === 'شركة';
+			return false;
+		});
+	}
+
+	private matchesCompetition(req: any, ids: string[]): boolean {
+		if (ids.length === 0) return true;
+		const count = req.offersCount || 0;
+		return ids.some(id => {
+			switch (id) {
+				case 'comp1': return count < 5;
+				case 'comp2': return count >= 5 && count <= 10;
+				case 'comp3': return count > 10;
+				default: return false;
+			}
+		});
+	}
+
+	/** The list actually rendered — `requests()` narrowed by the last-applied drawer filters. */
+	visibleRequests = computed(() => {
+		const list = this.requests();
+		const f = this.appliedFilters();
+		if (f.budget.length === 0 && f.duration.length === 0 && f.clientType.length === 0 && f.competition.length === 0) {
+			return list;
+		}
+		return list.filter(r =>
+			this.matchesBudget(r, f.budget) &&
+			this.matchesDuration(r, f.duration) &&
+			this.matchesClientType(r, f.clientType) &&
+			this.matchesCompetition(r, f.competition)
+		);
+	});
+
+	activeDrawerFilterCount = computed(() => {
+		const f = this.appliedFilters();
+		return f.budget.length + f.duration.length + f.clientType.length + f.competition.length;
+	});
 
 	requests = signal<any[]>([]);
 
@@ -174,7 +273,10 @@ export class ExploreRequests implements OnInit {
 						desc: p.description,
 						specialty: p.category,
 						clientBudget: p.budgetMin && p.budgetMax ? `${p.budgetMin} - ${p.budgetMax} $` : (p.budgetMin ? `${p.budgetMin} $` : 'غير محدد'),
+						budgetMin: p.budgetMin || 0,
+						budgetMax: p.budgetMax || 0,
 						clientDuration: `${p.durationDays} يوم`,
+						durationDaysRaw: p.durationDays || 0,
 						offersCount: p.proposalsCount,
 						timeAgo: p.createdAtFormatted,
 						clientType: p.clientType,
@@ -237,6 +339,8 @@ export class ExploreRequests implements OnInit {
 		this.activeSort.set('match');
 		this.activeTab.set('all');
 		this.searchQuery.set('');
+		this.resetDrawerFilters();
+		this.appliedFilters.set({ budget: [], duration: [], clientType: [], competition: [] });
 	}
 
 	toggleSave(target: any, reqId: string) {

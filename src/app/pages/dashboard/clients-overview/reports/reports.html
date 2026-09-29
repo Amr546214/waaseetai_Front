@@ -69,7 +69,7 @@
 			<div class="kpi-lbl">إجمالي الإنفاق</div>
 			<div class="kpi-val kpi-val-teal">{{ formatBudget(d.kpis.totalSpent) }}</div>
 			<div class="kpi-foot">
-				<span class="kpi-unit">ريال سعودي</span>
+				<span class="kpi-unit">دولار أمريكي</span>
 			</div>
 		</div>
 		<div class="state-card kpi-card">
@@ -359,7 +359,7 @@
 								<tr>
 									<td><div class="td-main">{{ tx.description || '—' }}</div><div class="td-sub">{{ orderRef(tx.id) }}</div></td>
 									<td>{{ tx.type }}</td>
-									<td [ngClass]="txAmountClass(tx.amount)">{{ formatAmount(tx.amount) }}</td>
+									<td [ngClass]="txAmountClass(tx.amount)">{{ formatAmount(tx.amount, tx.currency) }}</td>
 									<td><span class="opill" [ngClass]="txStatusClass(tx.status)">{{ tx.status }}</span></td>
 									<td>{{ formatRelativeDate(tx.createdAt) }}</td>
 								</tr>

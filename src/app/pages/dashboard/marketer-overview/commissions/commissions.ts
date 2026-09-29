@@ -25,6 +25,43 @@ export class Commissions implements OnInit {
     return list.filter(log => log.status === status);
   });
 
+  // "محجوزة" — commissions still pending confirmation, not yet released to the
+  // affiliate's withdrawable balance.
+  heldAmount = computed(() => this.commissions()
+    .filter(log => log.status === 'PENDING')
+    .reduce((sum, log) => sum + (log.amount || 0), 0));
+
+  // "منسحبة" — commissions already paid out/withdrawn.
+  withdrawnAmount = computed(() => this.commissions()
+    .filter(log => log.status === 'PAID')
+    .reduce((sum, log) => sum + (log.amount || 0), 0));
+
+  private amountInMonth(date: Date): number {
+    return this.commissions()
+      .filter(log => {
+        const d = new Date(log.time);
+        return d.getFullYear() === date.getFullYear() && d.getMonth() === date.getMonth();
+      })
+      .reduce((sum, log) => sum + (log.amount || 0), 0);
+  }
+
+  // "هذا الشهر" — real month-scoped total, computed from the loaded commission
+  // log rather than reusing the all-time total.
+  thisMonthAmount = computed(() => this.amountInMonth(new Date()));
+
+  private lastMonthAmount = computed(() => {
+    const now = new Date();
+    return this.amountInMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+  });
+
+  // Real month-over-month delta instead of a hardcoded "+0%".
+  monthDeltaPercentage = computed(() => {
+    const last = this.lastMonthAmount();
+    const current = this.thisMonthAmount();
+    if (last === 0) return current > 0 ? 100 : 0;
+    return Math.round(((current - last) / last) * 100);
+  });
+
   ngOnInit() {
     this.loadData();
   }

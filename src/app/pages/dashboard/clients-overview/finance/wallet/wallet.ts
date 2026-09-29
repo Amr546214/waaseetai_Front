@@ -1,11 +1,14 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DepositModal } from '../../../../../sheards/deposit-modal/deposit-modal';
-import { ClientFinanceService, ClientWalletData } from '../../../../../core/services/client-finance.service';
+import { ClientFinanceService, ClientWalletData, ClientWalletEmployeeSpend } from '../../../../../core/services/client-finance.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 export interface DisplayTransaction {
   id: string;
+  referenceId?: string;
   title: string;
   description: string;
   date: string;
@@ -14,6 +17,7 @@ export interface DisplayTransaction {
   status: string;
   statusType: 'done' | 'hold' | 'pending';
   icon: 'escrow' | 'wallet';
+  employeeName?: string;
 }
 
 @Component({
@@ -27,6 +31,9 @@ export class Wallet implements OnInit {
   private clientFinanceService = inject(ClientFinanceService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private authStore = inject(AuthStore);
+
+  readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
   isDepositModalOpen = signal(false);
   isLoading = signal(true);
@@ -36,6 +43,21 @@ export class Wallet implements OnInit {
   escrowBalance = signal(0);
   activeProjectsCount = signal(0);
   transactions = signal<DisplayTransaction[]>([]);
+
+  quarterSpend = signal(0);
+  quarterBudget = signal(0);
+  employeeSpending = signal<ClientWalletEmployeeSpend[]>([]);
+
+  quarterBudgetPercent = computed(() => {
+    const total = this.quarterBudget();
+    if (total <= 0) return 0;
+    return Math.min(100, Math.round((this.quarterSpend() / total) * 100));
+  });
+
+  employeeSpendBarWidth(amount: number): number {
+    const max = Math.max(...this.employeeSpending().map(e => e.amount), 1);
+    return Math.max(4, Math.round((amount / max) * 100));
+  }
 
   availableRatio = computed(() => {
     const avail = this.balance();
@@ -68,7 +90,7 @@ export class Wallet implements OnInit {
     this.loadWalletData();
   }
 
-  loadWalletData() {
+  loadWalletData(onLoaded?: () => void) {
     this.isLoading.set(true);
     this.hasError.set(false);
 
@@ -76,6 +98,7 @@ export class Wallet implements OnInit {
       next: (res) => {
         if (res?.success && res.data) {
           this.applyWalletData(res.data);
+          onLoaded?.();
         } else {
           this.hasError.set(true);
         }
@@ -93,6 +116,9 @@ export class Wallet implements OnInit {
     this.balance.set(data.summary?.availableBalance ?? 0);
     this.escrowBalance.set(data.summary?.escrowBalance ?? 0);
     this.activeProjectsCount.set(data.summary?.activeProjectsCount ?? 0);
+    this.quarterSpend.set(data.summary?.quarterSpend ?? 0);
+    this.quarterBudget.set(data.summary?.quarterBudget ?? 0);
+    this.employeeSpending.set(data.employeeSpending ?? []);
 
     if (data.transactions && data.transactions.length > 0) {
       const mapped = data.transactions.map(tx => {
@@ -121,6 +147,7 @@ export class Wallet implements OnInit {
 
         return {
           id: tx.id,
+          referenceId: tx.referenceId,
           title: tx.description || (isDeposit ? 'إيداع رصيد بالمحفظة' : 'معاملة مالية'),
           description: tx.referenceId ? `رقم العملية ${tx.referenceId}` : (tx.paymentMethod || 'محفظة وسيط AI'),
           date: formattedDate,
@@ -128,7 +155,8 @@ export class Wallet implements OnInit {
           direction,
           status: statusText,
           statusType,
-          icon
+          icon,
+          employeeName: tx.employeeName
         } as DisplayTransaction;
       });
 
@@ -147,8 +175,19 @@ export class Wallet implements OnInit {
   }
 
   onDepositComplete(payment: { amount: number; reference: string; method: string }) {
-    this.loadWalletData();
     this.closeDepositModal();
+    // Open the resulting transaction's details instead of just closing the
+    // modal — WalletTransaction.referenceId is set server-side to the same
+    // gateway reference this event carries (Moyasar payment.id / PayPal
+    // capture id), so the freshly reloaded list can be matched against it.
+    // If no match is found (e.g. the transaction hasn't posted yet), stay on
+    // the wallet page rather than navigating somewhere wrong.
+    this.loadWalletData(() => {
+      const tx = this.transactions().find(t => t.referenceId === payment.reference);
+      if (tx) {
+        this.router.navigate(['/client-overview/finance/transactions', tx.id]);
+      }
+    });
   }
 
   retryLoading() {

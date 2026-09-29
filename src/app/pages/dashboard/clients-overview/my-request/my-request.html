@@ -4,8 +4,8 @@
 		<!-- Header Section -->
 		<div class="ord-head">
 			<div>
-				<div class="ord-title">طلباتي</div>
-				<div class="ord-sub">إدارة كل طلباتك ومتابعة عروضها في مكان واحد</div>
+				<div class="ord-title">{{ isCompany() ? 'طلبات الشركة' : 'طلباتي' }}</div>
+				<div class="ord-sub">{{ isCompany() ? 'إدارة طلبات الفريق ومتابعة عروضها في مكان واحد' : 'إدارة كل طلباتك ومتابعة عروضها في مكان واحد' }}</div>
 			</div>
 			<div class="ord-head-actions">
 				<div class="ord-search">

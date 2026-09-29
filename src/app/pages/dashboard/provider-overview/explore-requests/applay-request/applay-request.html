@@ -130,29 +130,6 @@
 
     <!-- STEP 1 -->
     @if(activeStep() === 1) {
-      @if(isCompanyMode()) {
-        <!-- Company Team Assignment Section -->
-        <div class="co-assign-sec" style="margin-bottom:18px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:14px;font-weight:800" class="txt-white">إسناد الطلب لعضو الفريق</div>
-            <span style="font-size:11px" class="txt-muted">اختر المقدم المناسب لتنفيذ هذا الطلب</span>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
-            @for (m of companyTeamMembers; track m.id) {
-              <div class="co-assign-card" [class.co-assign-selected]="assignedMemberId() === m.id" (click)="assignToMember(m.id)" style="display:flex;align-items:center;gap:10px;padding:12px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:12px;cursor:pointer;transition:all .15s">
-                <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0" [style.background]="m.color" class="txt-navy">{{ m.initials }}</div>
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:800" class="txt-white">{{ m.name }}</div>
-                  <div style="font-size:10.5px;margin-top:2px" class="txt-muted">مقدم خدمة تابع</div>
-                </div>
-                @if(assignedMemberId() === m.id) {
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
-                }
-              </div>
-            }
-          </div>
-        </div>
-      }
       <app-step1-general
         [proposal]="proposal()"
         (proposalChange)="proposal.set($event)"

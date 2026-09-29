@@ -508,6 +508,72 @@
   100% { background-position: -200% 0 }
 }
 
+/* ── Company-mode: per-provider revenue breakdown panel ───────────────── */
+.wal-emp-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+:host-context(body.light-theme) .wal-emp-panel,
+:host-context(body.theme-light) .wal-emp-panel,
+:host-context(.light-theme) .wal-emp-panel,
+:host-context(.theme-light) .wal-emp-panel {
+  background: #fff !important;
+  border-color: #D8DFEC !important;
+}
+
+.wal-emp-row {
+  margin-bottom: 14px;
+}
+
+.wal-emp-row:last-child {
+  margin-bottom: 0;
+}
+
+.wal-emp-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+:host-context(body.light-theme) .wal-emp-top,
+:host-context(body.theme-light) .wal-emp-top,
+:host-context(.light-theme) .wal-emp-top,
+:host-context(.theme-light) .wal-emp-top {
+  color: #0F172A !important;
+}
+
+.wal-emp-dept {
+  color: #6B7699;
+  font-weight: 600;
+}
+
+.wal-emp-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+  overflow: hidden;
+}
+
+:host-context(body.light-theme) .wal-emp-track,
+:host-context(body.theme-light) .wal-emp-track,
+:host-context(.light-theme) .wal-emp-track,
+:host-context(.theme-light) .wal-emp-track {
+  background: #E7EAF1 !important;
+}
+
+.wal-emp-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2BD4C7, #2B7FFF);
+}
+
 @media(max-width: 900px) {
   .wal-grid {
     grid-template-columns: 1fr;

@@ -11,8 +11,8 @@
   <!-- Header -->
   <div class="ord-head">
     <div>
-      <div class="ord-title">محفظتي</div>
-      <div class="ord-sub">رصيدك وأرباحك المتراكمة ومعاملاتك المالية</div>
+      <div class="ord-title">{{ isCompany() ? 'محفظة الشركة' : 'محفظتي' }}</div>
+      <div class="ord-sub">{{ isCompany() ? 'نظرة موحّدة على أرباح الشركة من جميع مقدمي الخدمة ومعاملاتها المالية' : 'رصيدك وأرباحك المتراكمة ومعاملاتك المالية' }}</div>
     </div>
   </div>
 
@@ -20,8 +20,13 @@
   <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
     <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
     <div class="ai-disc-body">
-      <div class="ai-disc-lbl">وسيط AI، الضمان المالي</div>
-      <p class="ai-disc-txt">تُحفظ أموالك في حساب ضمان حتى تعتمد التسليم، ولا تُصرف لمقدم الخدمة قبل ذلك</p>
+      @if (isCompany()) {
+        <div class="ai-disc-lbl">وسيط AI، حماية معاملات الشركة</div>
+        <p class="ai-disc-txt">AI يراقب أرباح الشركة الموزّعة على مقدمي الخدمة ويرصد أي نشاط غير معتاد على محفظة الشركة</p>
+      } @else {
+        <div class="ai-disc-lbl">وسيط AI، الضمان المالي</div>
+        <p class="ai-disc-txt">تُحفظ أموالك في حساب ضمان حتى تعتمد التسليم، ولا تُصرف لمقدم الخدمة قبل ذلك</p>
+      }
     </div>
   </div>
 
@@ -74,7 +79,7 @@
               <rect x="2" y="5" width="20" height="14" rx="2"/>
               <line x1="2" y1="10" x2="22" y2="10"/>
             </svg>
-            إيداع رصيد
+            {{ isCompany() ? 'شحن رصيد' : 'إيداع رصيد' }}
           </button>
         </div>
       </div>
@@ -93,17 +98,30 @@
         </div>
       </div>
 
-      <!-- Side Card 2: Performance Rewards -->
-      <div class="wal-side">
-        <div class="wal-side-lbl txt-teal">
-          <svg aria-hidden="true"><use href="#i-check"></use></svg>
-          مكافآت الأداء
+      <!-- Side Card 2: Performance Rewards (individual) / Company Total Revenue (company) -->
+      @if (isCompany()) {
+        <div class="wal-side">
+          <div class="wal-side-lbl txt-teal">
+            <svg aria-hidden="true"><use href="#i-check"></use></svg>
+            إجمالي إيرادات الشركة
+          </div>
+          <div class="wal-side-val txt-teal">
+            {{ wallet.summary.totalEarnings | number:'1.0-2' }}
+          </div>
+          <div class="wal-side-sub">أُفرج هذا الشهر {{ wallet.summary.releasedThisMonth | number:'1.0-2' }} $</div>
         </div>
-        <div class="wal-side-val txt-teal">
-          {{ ((wallet.summary.availableBalance * 0.03) | number:'1.0-0') || '186' }}
+      } @else {
+        <div class="wal-side">
+          <div class="wal-side-lbl txt-teal">
+            <svg aria-hidden="true"><use href="#i-check"></use></svg>
+            مكافآت الأداء
+          </div>
+          <div class="wal-side-val txt-teal">
+            {{ ((wallet.summary.availableBalance * 0.03) | number:'1.0-0') || '186' }}
+          </div>
+          <div class="wal-side-sub">عميل موثّق · 3%</div>
         </div>
-        <div class="wal-side-sub">عميل موثّق · 3%</div>
-      </div>
+      }
     </div>
 
     <!-- Escrow Breakdown if present -->
@@ -128,6 +146,22 @@
       </div>
     }
 
+    <!-- Company-mode only: per-provider revenue breakdown (P-CO-FN-001/002 "أداء مقدمي الخدمة") -->
+    @if (isCompany() && providerSpending().length) {
+      <div class="sec-ttl">أداء مقدمي الخدمة — هذا الشهر</div>
+      <div class="wal-emp-panel">
+        @for (p of providerSpending(); track p.providerName) {
+          <div class="wal-emp-row">
+            <div class="wal-emp-top">
+              <span>{{ p.providerName }}@if (p.specialty) { <span class="wal-emp-dept">· {{ p.specialty }}</span> }</span>
+              <span>{{ p.revenue | number:'1.0-0' }} $</span>
+            </div>
+            <div class="wal-emp-track"><div class="wal-emp-fill" [style.width.%]="providerSpendBarWidth(p.revenue)"></div></div>
+          </div>
+        }
+      </div>
+    }
+
     <!-- Transactions List -->
     <div class="sec-ttl">سجلّ المعاملات</div>
     <div class="ord-tbl-wrap">
@@ -136,6 +170,7 @@
           <thead>
             <tr>
               <th>المعاملة</th>
+              @if (isCompany()) {<th>المقدم</th>}
               <th>التاريخ</th>
               <th>المبلغ</th>
               <th>الحالة</th>
@@ -155,6 +190,7 @@
                     </div>
                   </div>
                 </td>
+                @if (isCompany()) {<td>{{ tx.providerName || '—' }}</td>}
                 <td>{{ tx.createdAt | date:'yyyy-MM-dd' }}</td>
                 <td>
                   <span [ngClass]="tx.type === 'credit' ? 'tx-amt-in' : 'tx-amt-out'">
@@ -170,36 +206,7 @@
             }
             @empty {
               <tr>
-                <td>
-                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-out" style="background:rgba(255,140,105,.12)"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إيداع بالضمان</div><div style="font-size:11px" class="txt-muted">مشروع تصميم هوية</div></div></div>
-                </td>
-                <td>2026-05-01</td>
-                <td><span class="tx-amt-out">1,500- $</span></td>
-                <td><span class="tx-st tx-hold">محجوز</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-in" style="background:rgba(15,169,154,.12)"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">كاش باك</div><div style="font-size:11px" class="txt-muted">عميل موثّق 3%</div></div></div>
-                </td>
-                <td>2026-04-28</td>
-                <td><span class="tx-amt-in">45+ $</span></td>
-                <td><span class="tx-st tx-done">مكتمل</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-out" style="background:rgba(255,140,105,.12)"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إفراج دفعة</div><div style="font-size:11px" class="txt-muted">المرحلة 1 للمشروع</div></div></div>
-                </td>
-                <td>2026-04-20</td>
-                <td><span class="tx-amt-out">1,500- $</span></td>
-                <td><span class="tx-st tx-done">مكتمل</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="display:flex;align-items:center;gap:11px"><span class="tx-ico tx-in" style="background:rgba(15,169,154,.12)"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></span><div><div style="font-weight:700;font-size:13px" class="txt-white">إيداع بنكي</div><div style="font-size:11px" class="txt-muted">تعبئة رصيد</div></div></div>
-                </td>
-                <td>2026-04-15</td>
-                <td><span class="tx-amt-in">5,000+ $</span></td>
-                <td><span class="tx-st tx-done">مكتمل</span></td>
+                <td [attr.colspan]="isCompany() ? 5 : 4" style="text-align:center;padding:32px 12px" class="txt-muted">لا توجد معاملات مالية بعد</td>
               </tr>
             }
           </tbody>

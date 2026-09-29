@@ -162,7 +162,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
 
   /** Maps the backend level title onto the design's 4-colour level system (P-MK-010 "لون حسب المستوى"). */
   levelClass(levelName: string | null | undefined): string {
-    const expert = ['خبير', 'رصين', 'مستشار', 'رائد', 'مراجع', 'مبتكر'];
+    const expert = ['خبير', 'رصين', 'مستشار', 'رائد', 'مراجع', 'مبتكر', 'مرجع'];
     const advanced = ['متمكن', 'أخصائي', 'محترف'];
     const mid = ['منجز', 'منفذ', 'بارع', 'متقن'];
     const name = (levelName || '').trim();

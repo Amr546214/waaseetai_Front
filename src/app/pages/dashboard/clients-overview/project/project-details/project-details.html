@@ -13,6 +13,33 @@
 		<div class="state-card error-state" role="alert"><div class="state-title">تعذر تحميل مساحة العمل</div><div class="state-code">ERR-SK-014A</div><button type="button" class="lc-btn lc-btn-pri" (click)="load()">إعادة المحاولة</button></div>
 	} @else if (project(); as data) {
 		@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
+
+		@if (isCompany()) {
+		<div class="co-ctx-banner">
+			<div class="co-ctx-item">
+				<div class="co-ctx-lbl">المسؤول الحالي</div>
+				<div class="co-ctx-person"><span class="co-ctx-av">{{ (data.companyContext?.ownerName || '—').slice(0,2) }}</span><span>{{ data.companyContext?.ownerName || '—' }}</span></div>
+			</div>
+			<div class="co-ctx-item">
+				<div class="co-ctx-lbl">صلاحيتك</div>
+				<span class="co-ctx-badge co-ctx-badge-teal">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+					{{ data.companyContext?.viewerPermission || 'عرض فقط' }}
+				</span>
+			</div>
+			<div class="co-ctx-item">
+				<div class="co-ctx-lbl">صلاحية الاعتماد</div>
+				<div class="co-ctx-val">{{ data.companyContext?.approverRole || 'مالك الشركة' }}</div>
+			</div>
+			<div class="co-ctx-item">
+				<div class="co-ctx-lbl">حالة الاعتماد</div>
+				<span class="co-ctx-badge co-ctx-badge-amber">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+					{{ data.companyContext?.approvalStatus || 'بانتظار الاعتماد' }}
+				</span>
+			</div>
+		</div>
+		}
 		@if (disputeSuccess()) { <div class="rt-success-msg" role="status">{{ disputeSuccess() }}</div> }
 		@if (canRate(data)) {
 			<div class="rt-banner">

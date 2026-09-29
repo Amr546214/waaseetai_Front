@@ -1,0 +1,144 @@
+/* Always a dark glass surface, in both themes — the modal system is
+   intentionally theme-independent per the identity spec (5.4). */
+
+.cm-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: var(--z-modal, 400);
+	background: rgba(3, 6, 18, .62);
+	backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	animation: cm-fade var(--dur-slow, 360ms) var(--ease-slow, ease) both;
+}
+
+.cm-box {
+	position: relative;
+	width: 380px;
+	max-width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+	background: rgba(11, 20, 42, .92);
+	backdrop-filter: blur(22px);
+	border: 1px solid rgba(255, 255, 255, .12);
+	border-radius: 12px;
+	padding: 24px;
+	color: #FFFFFF;
+	font-family: inherit;
+	animation: cm-rise var(--dur-slow, 360ms) var(--ease-slow, ease) both;
+}
+
+.cm-box.cm-md { width: 560px; }
+.cm-box.cm-lg { width: 760px; }
+
+@media (max-width: 767px) {
+	.cm-box { padding: 16px; }
+}
+
+.cm-close {
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	width: 28px;
+	height: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, .05);
+	border: none;
+	color: #6B7699;
+	cursor: pointer;
+	transition: background .15s, color .15s;
+}
+.cm-close:hover { background: rgba(255, 255, 255, .1); color: #FFFFFF; }
+.cm-close svg { width: 16px; height: 16px; }
+
+.cm-head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding-inline-end: 32px;
+	margin-bottom: 12px;
+}
+
+.cm-icon {
+	flex-shrink: 0;
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.cm-icon svg { width: 19px; height: 19px; }
+
+.cm-icon-success { background: rgba(15, 169, 154, .12); color: #0FA99A; }
+.cm-icon-info { background: rgba(43, 127, 255, .12); color: #5DA0FF; }
+.cm-icon-warning { background: rgba(217, 138, 11, .12); color: #D98A0B; }
+.cm-icon-danger { background: rgba(255, 140, 105, .12); color: #FF8C69; }
+
+.cm-title {
+	font-size: 16px;
+	font-weight: 800;
+	margin: 0;
+	line-height: 1.35;
+	/* A global `h1,h2,h3{color:var(--txt)}` reset otherwise wins over this
+	   h2's inherited white, since inheritance loses to any direct rule. */
+	color: #FFFFFF;
+}
+
+.cm-msg {
+	font-size: 13px;
+	line-height: 1.7;
+	color: #A8B2D1;
+	white-space: pre-line;
+	margin: 0 0 22px;
+}
+
+.cm-actions {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+/* Primary stays the brand teal gradient in every case, including delete/leave
+   confirmations — severity is conveyed by the icon above, not by a red button. */
+.cm-btn-primary {
+	padding: 10px 22px;
+	border-radius: 999px;
+	background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
+	color: #070D24;
+	font-size: 13px;
+	font-weight: 800;
+	border: none;
+	cursor: pointer;
+	transition: opacity .15s;
+}
+.cm-btn-primary:hover { opacity: .9; }
+.cm-btn-primary:focus-visible { outline: 2px solid rgba(43, 212, 199, .5); outline-offset: 2px; }
+
+.cm-btn-secondary {
+	padding: 10px 22px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, .05);
+	color: #FFFFFF;
+	font-size: 13px;
+	font-weight: 700;
+	border: 1px solid rgba(255, 255, 255, .14);
+	cursor: pointer;
+	transition: background .15s;
+}
+.cm-btn-secondary:hover { background: rgba(255, 255, 255, .1); }
+
+@keyframes cm-fade {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes cm-rise {
+	from { opacity: 0; transform: translateY(12px); }
+	to { opacity: 1; transform: translateY(0); }
+}

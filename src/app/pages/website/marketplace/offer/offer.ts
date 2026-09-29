@@ -26,6 +26,10 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	showNegotiation = signal<boolean>(false);
 	alreadyInCart = signal<boolean>(false);
 	cartError = signal<string | null>(null);
+	/** Phase 4 — the signed-in client's own active purchase of this service
+	 *  (read back from the server, never inferred locally). While set, the
+	 *  "order now" actions are replaced by a link to the running project. */
+	activePurchase = signal<{ projectId: string | null; contractStatus: string | null } | null>(null);
 	negotiationMessage = signal<string>('');
 	questionMessage = signal<string>('');
 	reviewFilter = signal<number | null>(null);
@@ -81,6 +85,9 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 							next: favorites => this.isFavorite.set((favorites?.data || favorites || []).includes(id)),
 							error: () => this.isFavorite.set(false)
 						});
+						this.loadPurchaseStatus(id);
+					} else {
+						this.activePurchase.set(null);
 					}
 				}
 				this.isLoading.set(false);
@@ -92,6 +99,25 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 				console.error('Failed to fetch model:', err);
 				this.isLoading.set(false);
 			}
+		});
+	}
+
+	/** Opens the client's already-running project for this service (the real
+	 *  contract-backed project id returned by the server). */
+	openActiveProject() {
+		const projectId = this.activePurchase()?.projectId;
+		this.router.navigate(projectId ? ['/client-overview/projects', projectId] : ['/client-overview/projects/active']);
+	}
+
+	private loadPurchaseStatus(id: string) {
+		this.marketplaceService.getMyPurchaseStatus(id).subscribe({
+			next: res => {
+				const data = res?.data;
+				this.activePurchase.set(data?.active ? { projectId: data.projectId, contractStatus: data.contractStatus } : null);
+			},
+			// Unknown state: keep the buy actions; the backend still refuses a
+			// duplicate purchase authoritatively (409) at cart/order/payment.
+			error: () => this.activePurchase.set(null)
 		});
 	}
 
@@ -180,6 +206,7 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	addToCart(): void {
 		const model = this.model();
 		if (!model || this.isSubmitting()) return;
+		if (this.activePurchase()) return;
 		if (!this.authStore.isAuthenticated()) {
 			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
 			return;
@@ -202,6 +229,9 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 				this.isSubmitting.set(false);
 				const msg = err?.displayMessage || err?.error?.message || err?.message || 'تعذر إضافة الخدمة إلى السلة';
 				this.cartError.set(msg);
+				// 409 = the server found an active purchase of this service —
+				// re-read it so the page switches to the "under execution" state.
+				if (err?.status === 409) this.loadPurchaseStatus(model.id);
 				setTimeout(() => this.cartError.set(null), 5000);
 			},
 		});

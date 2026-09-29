@@ -1109,6 +1109,135 @@
   to { transform: rotate(360deg); }
 }
 
+/* ── Company OTP modal ──────────────────────────────────────────────── */
+.wd-otp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 13, 36, .7);
+  backdrop-filter: blur(6px);
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.wd-otp-box {
+  background: rgba(11, 20, 55, .97);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 18px;
+  padding: 26px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+  color: #fff;
+}
+
+:host-context(body.light-theme) .wd-otp-box,
+:host-context(body.theme-light) .wd-otp-box,
+:host-context(.light-theme) .wd-otp-box,
+:host-context(.theme-light) .wd-otp-box {
+  background: #fff !important;
+  border-color: #E7EAF1 !important;
+  color: #0F172A !important;
+}
+
+.wd-otp-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(123, 47, 190, .14);
+  color: #A56BE0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.wd-otp-ico svg {
+  width: 22px;
+  height: 22px;
+}
+
+.wd-otp-ttl {
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.wd-otp-txt {
+  font-size: 12.5px;
+  color: #A8B2D1;
+  line-height: 1.7;
+  margin: 0 0 18px;
+}
+
+:host-context(body.light-theme) .wd-otp-txt,
+:host-context(body.theme-light) .wd-otp-txt,
+:host-context(.light-theme) .wd-otp-txt,
+:host-context(.theme-light) .wd-otp-txt {
+  color: #475569 !important;
+}
+
+.wd-otp-input {
+  width: 100%;
+  background: rgba(7, 13, 36, .5);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 10px;
+  text-align: center;
+  color: #fff;
+  font-family: inherit;
+}
+
+:host-context(body.light-theme) .wd-otp-input,
+:host-context(body.theme-light) .wd-otp-input,
+:host-context(.light-theme) .wd-otp-input,
+:host-context(.theme-light) .wd-otp-input {
+  background: #F8FAFC !important;
+  border-color: #D8DFEC !important;
+  color: #0F172A !important;
+}
+
+.wd-otp-input:focus {
+  outline: none;
+  border-color: rgba(43, 212, 199, .5);
+}
+
+.wd-otp-resend {
+  margin-top: 12px;
+  font-size: 11.5px;
+  color: #6B7699;
+}
+
+.wd-otp-resend-btn {
+  background: none;
+  border: none;
+  color: #2BD4C7;
+  font-weight: 700;
+  font-size: 11.5px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.wd-otp-resend-btn:hover {
+  text-decoration: underline;
+}
+
+.wd-otp-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.wd-otp-actions .wd-btn {
+  flex: 1;
+}
+
 /* ── Responsive ─────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .wal-grid {

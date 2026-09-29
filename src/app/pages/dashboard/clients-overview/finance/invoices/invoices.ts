@@ -2,6 +2,8 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ClientFinanceService, ClientInvoice } from '../../../../../core/services/client-finance.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-invoices',
@@ -13,7 +15,10 @@ import { ClientFinanceService, ClientInvoice } from '../../../../../core/service
 export class Invoices implements OnInit {
   private router = inject(Router);
   private financeService = inject(ClientFinanceService);
-  
+  private authStore = inject(AuthStore);
+
+  readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
+
   activeTab = signal<'all' | 'paid' | 'due'>('all');
 
   invoices = signal<ClientInvoice[]>([]);

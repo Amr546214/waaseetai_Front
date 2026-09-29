@@ -8,6 +8,14 @@ import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-mo
 import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../../core/models/dispute.model';
 import { MessageContext } from '../../../../../../core/services/chat.service';
+import { AuthStore } from '../../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../../core/models/auth.model';
+
+// P-PR-009 change-order request ("طلب تعديل") / mutual-cancellation
+// ("إلغاء بالتراضي") quick-action flows. Mirrors the client-side
+// project-details.ts SupportAction pattern exactly (no 'dispute' branch here
+// since this page already has its own dedicated app-dispute-modal).
+type SupportAction = 'edit' | 'cancel' | null;
 
 @Component({
   selector: 'app-progress', standalone: true,
@@ -18,6 +26,37 @@ export class Progress implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private disputeApi = inject(DisputeApiService);
+  private authStore = inject(AuthStore);
+
+  // Company-mode branching (same pattern as delivery-review.ts): for a
+  // PROVIDER_COMPANY account this workspace renders as manager/admin
+  // follow-up on the assigned team member's work, rather than the
+  // individual provider's own first-person delivery workflow.
+  isCompanyMode = computed<boolean>(() => {
+    const user = this.authStore.currentUser();
+    return user?.accountType === AccountType.PROVIDER_COMPANY;
+  });
+
+  // The team member actively working this project, derived from real
+  // delivery-thread data (author/authorInitial already returned by the
+  // workspace API) — the most recent submitted thread across all stages.
+  // No fabricated job title/specialty is attached (none exists in the
+  // backend's data model), mirroring delivery-review.ts's "from-member"
+  // badge which shows only name + a static descriptive tag.
+  assignedProvider = computed<{ name: string; initial: string } | null>(() => {
+    const data = this.projectData();
+    if (!data?.stages?.length) return null;
+    let latest: any = null;
+    for (const s of data.stages) {
+      for (const t of (s.threads || [])) {
+        if (!t?.author) continue;
+        if (!latest || (t.date && (!latest.date || new Date(t.date).getTime() > new Date(latest.date).getTime()))) latest = t;
+      }
+    }
+    if (!latest?.author) return null;
+    return { name: latest.author, initial: latest.authorInitial || latest.author.charAt(0) };
+  });
+
   projectData = signal<any>(null);
   loading = signal(true); error = signal(''); saving = signal(false);
   activeTab = signal<'overview' | 'miles' | 'msgs' | 'files' | 'delivs' | 'edits'>('overview');
@@ -36,6 +75,18 @@ export class Progress implements OnInit {
   disputeSuccess = signal('');
   disputeError = signal('');
   disputeSubmitted = signal(false);
+  // P-PR-009 change-order request / mutual-cancellation modal state.
+  // NOTE (anti-fabrication): there is no backend endpoint anywhere in this
+  // app for creating a project change-order or a mutual-cancellation request
+  // (grepped ActiveProjectsService, ProjectApiService and every service under
+  // core/services for changeOrder/modification/cancelProject/mutualCancel —
+  // none exist; the client-side project-details.ts's identical 'edit'/'cancel'
+  // flow has the same gap and resolves it the same way: submit routes the
+  // request into the real conversation thread with the client instead of
+  // claiming a fake success). See BACKEND_BLOCKED_ISSUES.md for the tracked gap.
+  supportAction = signal<SupportAction>(null);
+  supportNote = '';
+  editType = 'إضافة مرحلة أو عنصر جديد';
   // P-PR-013 multi-step state (display-only; submit still calls same API)
   deliveryStep = signal(1); // 1=details, 2=review (preparing+result), 3=confirm, 4=success
   deliverySuccess = false;
@@ -166,8 +217,21 @@ export class Progress implements OnInit {
     if (stage?.status === 'completed') return 'مكتملة';
     return 'جارية';
   }
-  deliveryStageAmount(stage: any): string { return stage?.amount ? (stage.amount + ' ريال') : '—'; }
+  deliveryStageAmount(stage: any): string { return stage?.amount ? (stage.amount + ' $') : '—'; }
   deliveryNoteLength(): number { return (this.deliveryNote || '').length; }
+  // Company-mode header copy for the top AI disclosure strip — same real
+  // "متابعة المشروع" concept, reworded for the admin/oversight framing and
+  // naming the real assigned team member when known (no fabricated data).
+  workspaceDisclosureLabel(): string {
+    return this.isCompanyMode() ? 'وسيط AI، متابعة الإدارة للمشروع' : 'وسيط، متابعة دورة حياة المشروع';
+  }
+  workspaceDisclosureText(): string {
+    if (!this.isCompanyMode()) return 'تُتابَع المراحل تلقائياً وفق مواعيدها، ويُربط الإفراج المالي بالتسليمات الفعلية';
+    const p = this.assignedProvider();
+    return p
+      ? `AI يتابع تسليمات ${p.name} ويربط الإفراج المالي بجودة العقد، وينبّه الإدارة عند الحاجة للتدخل قبل إرسال أي تسليم للعميل`
+      : 'AI يتابع تسليمات فريق الشركة ويربط الإفراج المالي بجودة العقد، وينبّه الإدارة عند الحاجة للتدخل';
+  }
   approvedCount(data: any) { return data.stages?.filter((s: any) => s.status === 'completed').length || 0; }
   pendingCount(data: any) { return data.deliveries?.filter((d: any) => d.status === 'pending').length || 0; }
   approvedDeliveryCount(data: any) { return data.deliveries?.filter((d: any) => d.status === 'approved').length || 0; }
@@ -222,8 +286,8 @@ export class Progress implements OnInit {
       return dt.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }) + '، ' + dt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
     } catch { return d.date; }
   }
-  // Escrow amount formatted "2,500 ريال"
-  escrowAmountLabel(stage: any): string { return stage?.amount ? (stage.amount | 0).toLocaleString('en-US') + ' ريال' : '—'; }
+  // Escrow amount formatted "2,500 $" (active contract/escrow pricing is USD-canonical)
+  escrowAmountLabel(stage: any): string { return stage?.amount ? (stage.amount | 0).toLocaleString('en-US') + ' $' : '—'; }
 
   // === Batch 8 — real, on-demand Gemini project health analysis ===
   // Replaces the previously-permanent aiInsights placeholder. Not fetched
@@ -296,6 +360,17 @@ export class Progress implements OnInit {
   goToProviderRatingPage() {
     this.router.navigate(['/provider-overview/projects', this.projectId, 'rating']);
   }
+
+  // P-PR-009 change-order / mutual-cancellation modal — see field comment
+  // above for why submit doesn't call a backend endpoint (none exists).
+  openSupport(action: Exclude<SupportAction, null>) { this.supportNote = ''; this.supportAction.set(action); }
+  closeSupport() { this.supportAction.set(null); }
+  // No real create-change-order/create-cancellation endpoint exists (see field
+  // comment above), so this honestly does the one real thing available: closes
+  // the modal and opens the real conversation thread with the client, exactly
+  // like the client-side project-details.ts's continueInConversation(). It
+  // never shows a fabricated "request sent" success state.
+  continueInConversation() { this.supportAction.set(null); this.openConversation(); }
 
   openDisputeModal() {
     if (this.disputeSubmitted()) return;

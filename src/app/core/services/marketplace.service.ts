@@ -98,6 +98,16 @@ export class MarketplaceService {
     return this.http.put<any>(`${this.baseUrl}/models/${id}/favorite`, { favorite });
   }
 
+  /**
+   * Phase 4 — the signed-in user's own active (contract-backed, not yet
+   * completed/cancelled) purchase of this service, if any. Backed by
+   * GET /marketplace/models/:id/my-purchase — the same rule the backend
+   * enforces on cart add / order create / wallet payment.
+   */
+  public getMyPurchaseStatus(id: string): Observable<{ success: boolean; data: { serviceId: string; active: boolean; projectId: string | null; projectStatus: string | null; contractStatus: string | null } }> {
+    return this.http.get<any>(`${this.baseUrl}/models/${id}/my-purchase`);
+  }
+
   public requestService(id: string, payload: { mode: 'order' | 'negotiation'; message?: string }): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/models/${id}/request`, payload);
   }

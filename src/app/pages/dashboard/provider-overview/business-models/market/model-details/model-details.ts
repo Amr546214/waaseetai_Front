@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NewProjectService } from '../../../../../../core/services/new-project.service';
 import { ThemeService } from '../../../../../../core/services/theme.service';
@@ -10,16 +10,6 @@ import { MarketModel } from '../market';
 export interface AiMetric {
 	label: string;
 	value: number;
-}
-
-export interface ModelReview {
-	initials: string;
-	name: string;
-	roleLabel: string;
-	dateLabel: string;
-	rating: number;
-	comment: string;
-	gradient: string;
 }
 
 @Component({
@@ -34,6 +24,7 @@ export class ModelDetails implements OnInit {
 	private newProjectService = inject(NewProjectService);
 	public themeService = inject(ThemeService);
 	private authStore = inject(AuthStore);
+	private platformId = inject(PLATFORM_ID);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -62,31 +53,22 @@ export class ModelDetails implements OnInit {
 		];
 	});
 
-	reviews = computed<ModelReview[]>(() => {
-		const m = this.model();
-		if (!m || !m.reviewsCount || m.reviewsCount <= 0) return [];
-		const gradients = ['linear-gradient(135deg,#2BD4C7,#2B7FFF)', 'linear-gradient(135deg,#A56BE0,#7B2FBE)'];
-		return [
-			{
-				initials: 'ع',
-				name: 'عميل سابق',
-				roleLabel: 'طالب خدمة',
-				dateLabel: 'خلال آخر 30 يوماً',
-				rating: 5,
-				comment: 'تنفيذ احترافي وتسليم في الوقت المتفق عليه، جودة العمل تعكس تقييم الذكاء الاصطناعي المرتفع.',
-				gradient: gradients[0]
-			},
-			{
-				initials: 'ع',
-				name: 'عميل سابق',
-				roleLabel: 'طالب خدمة',
-				dateLabel: 'خلال آخر 90 يوماً',
-				rating: 4,
-				comment: 'فهم واضح لمتطلبات المشروع، وتواصل جيد أثناء التنفيذ.',
-				gradient: gradients[1]
-			}
-		].slice(0, m.reviewsCount >= 2 ? 2 : 1);
-	});
+	// `MarketModel` only ever carries an aggregate `reviewsCount`/`rating` from the
+	// backend (GET /business-models/my-market-models) — there is no per-review
+	// text/author/date field on the object. Individual review cards used to be
+	// filled with two hardcoded canned quotes attributed to a fake "عميل سابق" for
+	// every model with reviewsCount >= 1/2; that fabricated content has been
+	// removed. Once the backend exposes real per-review records, wire them in here.
+
+	async shareModel(): Promise<void> {
+		if (!isPlatformBrowser(this.platformId)) return;
+		const title = this.model()?.title || document.title;
+		if (navigator.share) {
+			await navigator.share({ title, url: window.location.href }).catch(() => undefined);
+			return;
+		}
+		await navigator.clipboard?.writeText(window.location.href);
+	}
 
 	ngOnInit(): void {
 		const id = this.route.snapshot.paramMap.get('id');

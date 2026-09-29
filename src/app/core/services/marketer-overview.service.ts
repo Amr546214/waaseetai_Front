@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../models/api.model';
+import { Withdrawal, WithdrawalListData } from '../models/withdrawal.model';
 
 export interface MarketerSummary {
 	tier: string;
@@ -84,5 +86,15 @@ export class MarketerOverviewService {
 
 	updateSettings(data: { notifyOnNewReferral?: boolean; sharePerformanceStats?: boolean }): Observable<{ success: boolean; data: any }> {
 		return this.http.patch<{ success: boolean; data: any }>(`${this.apiUrl}/ref-links/settings`, data);
+	}
+
+	// Destination (IBAN/bank name) is resolved server-side from the
+	// affiliate's own saved profile — only the amount is sent here.
+	submitWithdrawal(amount: number): Observable<ApiResponse<Withdrawal>> {
+		return this.http.post<ApiResponse<Withdrawal>>(`${this.apiUrl}/withdrawals`, { amount });
+	}
+
+	getWithdrawals(page: number = 1, limit: number = 10): Observable<ApiResponse<WithdrawalListData>> {
+		return this.http.get<ApiResponse<WithdrawalListData>>(`${this.apiUrl}/withdrawals?page=${page}&limit=${limit}`);
 	}
 }

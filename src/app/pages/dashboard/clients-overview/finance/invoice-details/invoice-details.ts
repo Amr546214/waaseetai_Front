@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClientFinanceService, ClientInvoice } from '../../../../../core/services/client-finance.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-invoice-details',
@@ -14,6 +16,8 @@ export class InvoiceDetails implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private financeService = inject(ClientFinanceService);
+  private authStore = inject(AuthStore);
+  readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
   invoice = signal<ClientInvoice | null>(null);
   loading = signal(true);

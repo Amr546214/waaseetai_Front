@@ -57,17 +57,22 @@ export class ProfileRequests implements OnInit {
 	}
 
 	cancelRequest(id: string) {
+		// BACKEND-BLOCKED (see BACKEND_BLOCKED_ISSUES.md): there is no
+		// withdraw/cancel endpoint for CLIENT profile change requests.
+		// ProfileApiService only exposes getMyChangeRequests() (GET
+		// /profiles/my-change-requests), and that endpoint is itself backed by
+		// a backend stub (profile.service.ts#getMyChangeRequests) that always
+		// returns an empty array — the real query is commented out. The only
+		// real "withdraw" endpoint that exists (POST
+		// /marketer/profile/requests/:id/withdraw, used by the marketer-side
+		// Requests page) operates on the affiliate/marketer profile model
+		// (profileRequestsService.withdrawRequest looks up an
+		// AffiliateProfile by userId) and has no equivalent for clients, so it
+		// cannot be reused here. Until a client-facing endpoint exists, this
+		// must NOT claim success or mutate local state to CANCELLED — that
+		// would misrepresent a no-op as a real withdrawal.
 		if (confirm(`هل أنت متأكد من سحب هذا الطلب؟`)) {
-			// Mocked cancellation for now until backend endpoint is available for clients
-			this.displayToast(`تم سحب الطلب بنجاح`);
-			const current = this.requestsData();
-			if (current) {
-				const reqs = current.requests.map((r: any) => r.id === id ? {...r, status: 'CANCELLED'} : r);
-				this.requestsData.set({
-					...current,
-					requests: reqs
-				});
-			}
+			this.displayToast('سحب الطلب غير متاح حالياً — قيد التفعيل قريباً');
 		}
 	}
 

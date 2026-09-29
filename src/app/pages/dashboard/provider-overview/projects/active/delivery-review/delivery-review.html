@@ -37,7 +37,7 @@
 			}
 		</div>
 		<div class="dr-meta">
-			<div class="dr-meta-item"><div class="l">إجمالي العقد</div><div class="v">{{ formatMoney(totalContractValue()) }} <small>ريال</small></div></div>
+			<div class="dr-meta-item"><div class="l">إجمالي العقد</div><div class="v">{{ formatMoney(totalContractValue()) }} <small>$</small></div></div>
 			<div class="dr-meta-item"><div class="l">أُفرِج سابقًا</div><div class="v ok">{{ formatMoney(releasedValue()) }}</div></div>
 			<div class="dr-meta-item"><div class="l">الدفعة الأخيرة</div><div class="v wait">{{ formatMoney(finalStage().amount) }}</div></div>
 			<div class="dr-meta-item"><div class="l">المراحل</div><div class="v">{{ completedStages().length }}<small>/{{ stages().length }}</small></div></div>
@@ -125,7 +125,7 @@
 					<div class="dr-stage-d">{{ stage.statusText || (stage.isDone ? 'مكتملة ومعتمدة' : 'قيد التنفيذ') }}</div>
 				</div>
 				<span class="dr-stage-pay" [class.pay-held]="!(stage.isDone || stage.status === 'completed')">
-					{{ (stage.isDone || stage.status === 'completed') ? 'أُفرِج' : 'محتجز' }} {{ formatMoney(stage.amount) }} ريال
+					{{ (stage.isDone || stage.status === 'completed') ? 'أُفرِج' : 'محتجز' }} {{ formatMoney(stage.amount) }} $
 				</span>
 			</div>
 			@if (stage === finalStage()) {
@@ -149,9 +149,9 @@
 
 	<div class="sec-ttl">الخلاصة المالية للمشروع</div>
 	<div class="dr-settle">
-		<div class="settle-row"><span>إجمالي قيمة العقد</span><b>{{ formatMoney(totalContractValue()) }} ريال</b></div>
-		<div class="settle-row"><span>أُفرِج عبر المراحل المكتملة</span><b class="ok">{{ formatMoney(releasedValue()) }} ريال</b></div>
-		<div class="settle-row"><span>الدفعة النهائية (محتجزة بالضمان)</span><b class="wait">{{ formatMoney(heldValue()) }} ريال</b></div>
+		<div class="settle-row"><span>إجمالي قيمة العقد</span><b>{{ formatMoney(totalContractValue()) }} $</b></div>
+		<div class="settle-row"><span>أُفرِج عبر المراحل المكتملة</span><b class="ok">{{ formatMoney(releasedValue()) }} $</b></div>
+		<div class="settle-row"><span>الدفعة النهائية (محتجزة بالضمان)</span><b class="wait">{{ formatMoney(heldValue()) }} $</b></div>
 		<div class="settle-bar"><i class="free" [style.width.%]="releasedPct()"></i><i class="held" [style.width.%]="100 - releasedPct()"></i></div>
 	</div>
 

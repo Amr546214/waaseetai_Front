@@ -213,7 +213,7 @@
     <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:ws-fade .4s .4s ease both">
       <button type="button" class="btn-primary" (click)="goDashboard()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        متابعة المشروع
+        {{ isCompany() ? 'متابعة طلباتي' : 'متابعة المشروع' }}
       </button>
       <a routerLink="/client-overview/projects/active" class="btn-secondary">المشاريع</a>
     </div>

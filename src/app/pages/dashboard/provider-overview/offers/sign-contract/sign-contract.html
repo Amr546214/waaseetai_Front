@@ -33,6 +33,21 @@
     </div>
   </div>
 
+  @if (isCompanyMode()) {
+  <div class="od-card" style="display:flex;align-items:center;gap:12px">
+    <div style="width:34px;height:34px;border-radius:9px;background:rgba(43,212,199,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" class="txt-teal">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7"/></svg>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:800" class="txt-teal">التوقيع نيابة عن الشركة</div>
+      <div style="font-size:12px;margin-top:2px" class="txt-slate">
+        {{ signerName() || 'غير محدد' }}
+        @if (signerCommercialRegistration()) {<span> · س.ت {{ signerCommercialRegistration() }}</span>}
+      </div>
+    </div>
+  </div>
+  }
+
   <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
     <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
     <div class="ai-disc-body">

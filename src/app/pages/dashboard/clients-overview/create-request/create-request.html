@@ -35,7 +35,7 @@
 			<nav class="breadcrumb flex items-center gap-2 text-[13px] text-[var(--txt-3)] font-medium" aria-label="مسار التنقل">
 				<a routerLink="/client-overview" class="hover:text-[var(--txt)] transition-colors">الرئيسية</a>
 				<span class="breadcrumb-sep text-[var(--txt-3)]" aria-hidden="true">&#8250;</span>
-				<a routerLink="/client-overview/my-requests" class="hover:text-[var(--txt)] transition-colors">طلباتي</a>
+				<a routerLink="/client-overview/my-requests" class="hover:text-[var(--txt)] transition-colors">{{ isCompany() ? 'طلبات الشركة' : 'طلباتي' }}</a>
 				<span class="breadcrumb-sep text-[var(--txt-3)]" aria-hidden="true">&#8250;</span>
 				<span class="breadcrumb-current text-[var(--txt)] font-bold">طلب جديد</span>
 			</nav>
@@ -89,6 +89,23 @@
 				}
 			</div>
 		</div>
+
+		@if (currentStep() === 1 && isCompany()) {
+		<div class="co-req-banner">
+			<div class="co-req-banner-hdr">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7"/></svg>
+				طلب نيابة عن الشركة
+			</div>
+			<div class="co-req-field">
+				<label>الموظف صاحب الطلب</label>
+				<div class="co-req-employee">{{ requesterName() }}</div>
+			</div>
+			<div class="co-req-note">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+				يُرسل هذا الطلب لاعتماد المدير قبل نشره للسوق — المال يُدار من محفظة الشركة بحسب صلاحياتك
+			</div>
+		</div>
+		}
 
 		<!-- ============================== -->
 		<!-- STEP 1: التخصص -->

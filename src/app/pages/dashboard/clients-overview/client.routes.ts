@@ -141,8 +141,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	},
 	{
 		path: 'finance/transactions',
-		loadComponent: () => import('./finance/transactions/transactions').then(m => m.Transactions),
-		data: { title: "Transactions" }
+		redirectTo: 'finance/wallet'
 	},
 	{
 		path: 'finance/transactions/:id',

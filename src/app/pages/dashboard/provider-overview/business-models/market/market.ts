@@ -232,10 +232,20 @@ export class Market implements OnInit, OnDestroy {
 		);
 	}
 
+	// "Skip at my own risk" — matches design intent (P-PR-026-سوق): the button itself
+	// is labelled "تخطى على مسؤوليتي" (skip at my own risk), so it must always be
+	// available, including for requests with AI-flagged issues — that's the whole
+	// point of an at-your-own-risk skip. No backend endpoint persists a "skipped"
+	// state for a modification request yet, so this only surfaces the confirmation
+	// the design specifies; it does not remove the request from the list.
 	onSkipRequest(req: ModificationRequest) {
-		this.showToast('لا يمكن تجاوز مراجعة نموذج غير معتمد؛ يمكنك تعديله وإعادة إرساله');
+		this.showToast('تم التخطي على مسؤوليتك');
 	}
 
+	// No backend endpoint exists yet to approve a modification request (see
+	// BACKEND_BLOCKED_ISSUES.md). The button is kept disabled in market.html with a
+	// "قيد التفعيل قريباً" note instead of silently no-oping, so this handler is
+	// effectively unreachable until that endpoint ships.
 	onApproveRequest(req: ModificationRequest) {
 		if (!req.canApprove) return;
 	}

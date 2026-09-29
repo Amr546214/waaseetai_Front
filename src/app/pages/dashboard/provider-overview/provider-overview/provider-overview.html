@@ -259,7 +259,7 @@
 						</svg></div>
 				</div>
 				<div class="stat-val">{{ data.summary.availableEarnings | number }}</div>
-				<div class="stat-sub">ريال في المحفظة</div>
+				<div class="stat-sub">$ في المحفظة</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -336,7 +336,7 @@
 								{{ getStatusLabel(p.status, p.type) }}
 							</span>
 							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number }}
-								ريال</span>
+								$</span>
 						</div>
 					</a>
 
@@ -407,7 +407,7 @@
 				<!-- Escrow Balance -->
 				<div class="eb-card">
 					<div class="eb-lbl">أرباحي المتاحة</div>
-					<div class="eb-val">{{ data.summary.availableEarnings | number }} ريال</div>
+					<div class="eb-val">{{ data.summary.availableEarnings | number }} $</div>
 					<div class="eb-sub">قابلة للسحب الآن</div>
 				</div>
 
@@ -484,7 +484,7 @@
 						style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
 						<span style="font-size:11px" *ngIf="m.deliveryDays" class="txt-muted">المدة: {{ m.deliveryDays }}
 							أيام</span>
-						<div>{{ m.budget | number }} <span style="font-size:11px;">ريال</span></div>
+						<div>{{ m.budget | number }} <span style="font-size:11px;">$</span></div>
 					</div>
 				</button>
 
@@ -668,7 +668,7 @@
 					<div class="stat-ico amber" aria-hidden="true"><svg><use href="#i-wallet"></use></svg></div>
 				</div>
 				<div class="stat-val">{{ data.summary?.monthlyEarnings | number }}</div>
-				<div class="stat-sub">ريال صافي للشركة</div>
+				<div class="stat-sub">$ صافي للشركة</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -707,7 +707,7 @@
 		<!-- Revenue Strip -->
 		<div class="budget-strip" role="region" aria-label="إيرادات الشركة هذا الشهر">
 			<div class="bs-row">
-				<span>إيرادات الشركة هذا الشهر: {{ data.summary?.monthlyEarnings | number }} من هدف {{ (data.summary?.monthlyEarnings || 0) * 2 | number }} ريال</span>
+				<span>إيرادات الشركة هذا الشهر: {{ data.summary?.monthlyEarnings | number }} من هدف {{ (data.summary?.monthlyEarnings || 0) * 2 | number }} $</span>
 				<span class="bs-pct">{{ data.summary?.profileCompletionPercent || 61 }}%</span>
 			</div>
 			<div class="bs-bar"><div class="bs-fill" [style.width.%]="data.summary?.profileCompletionPercent || 61"></div></div>
@@ -752,7 +752,7 @@
 							<span class="req-status" [ngClass]="getStatusTextClass(p.status)">
 								{{ getStatusLabel(p.status, p.type) }}
 							</span>
-							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number }} ريال</span>
+							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number }} $</span>
 						</div>
 					</a>
 
@@ -809,7 +809,7 @@
 				<!-- Company Wallet -->
 				<div class="eb-card">
 					<div class="eb-lbl">أرباح الشركة المتاحة</div>
-					<div class="eb-val">{{ data.summary.availableEarnings | number }} ريال</div>
+					<div class="eb-val">{{ data.summary.availableEarnings | number }} $</div>
 					<div class="eb-sub">قابلة للسحب · محفظة مركزية</div>
 				</div>
 

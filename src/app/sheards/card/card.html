@@ -92,7 +92,7 @@
 			<div class="svc-footer">
 				<div>
 					<div style="font-size:11px" class="txt-muted">سعر الخدمة</div>
-					<div class="svc-price">{{ model.totalAmount ? (model.totalAmount + ' ريال') : 'نشط وقابل للطلب' }}
+					<div class="svc-price">{{ model.totalAmount ? (model.totalAmount + ' $') : 'نشط وقابل للطلب' }}
 					</div>
 				</div>
 				<button class="svc-compare-btn" [class.is-compared]="isCompared(model.id)" type="button"

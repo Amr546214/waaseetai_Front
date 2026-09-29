@@ -6,6 +6,8 @@ import { ThemeService } from '../../../../../core/services/theme.service';
 import { environment } from '../../../../../../environments/environment';
 import { ClientFinanceService } from '../../../../../core/services/client-finance.service';
 import { DepositModal } from '../../../../../sheards/deposit-modal/deposit-modal';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
 	selector: 'app-escrow-deposit',
@@ -21,6 +23,8 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	private http = inject(HttpClient);
 	private clientFinanceService = inject(ClientFinanceService);
 	public themeService = inject(ThemeService);
+	private authStore = inject(AuthStore);
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	requestId = signal<string>('');
 	offerId = signal<string | null>(null);

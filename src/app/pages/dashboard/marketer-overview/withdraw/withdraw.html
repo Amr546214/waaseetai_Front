@@ -30,17 +30,17 @@
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px" class="resp-grid-3">
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
       <div style="font-size:12px;margin-bottom:6px" class="txt-muted">الرصيد القابل للسحب</div>
-      <div style="font-size:28px;font-weight:900" class="txt-teal">{{ summary()?.totalCommissions || 0 }}</div>
+      <div style="font-size:28px;font-weight:900" class="txt-teal">{{ withdrawableBalance() }}</div>
       <div style="font-size:11px" class="txt-muted">ريال سعودي</div>
     </div>
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
       <div style="font-size:12px;margin-bottom:6px" class="txt-muted">محجوز</div>
-      <div style="font-size:28px;font-weight:900" class="txt-amber">0</div>
-      <div style="font-size:11px" class="txt-muted">بانتظار إتمام مشاريع</div>
+      <div style="font-size:28px;font-weight:900" class="txt-amber">{{ reservedAmount() }}</div>
+      <div style="font-size:11px" class="txt-muted">طلبات سحب قيد المعالجة</div>
     </div>
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
       <div style="font-size:12px;margin-bottom:6px" class="txt-muted">إجمالي السحوبات</div>
-      <div style="font-size:28px;font-weight:900" class="txt-green">0</div>
+      <div style="font-size:28px;font-weight:900" class="txt-green">{{ completedAmount() }}</div>
       <div style="font-size:11px" class="txt-muted">ريال سعودي</div>
     </div>
   </div>
@@ -48,24 +48,29 @@
   <!-- نموذج السحب -->
   <div class="adm-card">
     <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-escrow"></use></svg>طلب سحب عمولات</div>
-    <div style="max-width:520px">
+    <div [formGroup]="withdrawForm" style="max-width:520px">
       <div style="margin-bottom:14px">
         <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">المبلغ (ريال)</label>
-        <input type="number" placeholder="أدخل المبلغ" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-family:inherit;outline:none" [value]="summary()?.totalCommissions || 0" class="txt-white">
-        <div style="font-size:11px;margin-top:5px" class="txt-muted">الحد الأدنى: 300 ريال · الحد الأقصى: {{ summary()?.totalCommissions || 0 }} ريال</div>
+        <input type="number" formControlName="amount" placeholder="أدخل المبلغ" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-family:inherit;outline:none" class="txt-white">
+        <div style="font-size:11px;margin-top:5px" class="txt-muted">الحد الأدنى: 300 ريال · الحد الأقصى: {{ withdrawableBalance() }} ريال</div>
       </div>
       <div style="margin-bottom:14px">
         <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">الحساب البنكي</label>
-        <select style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-family:inherit;outline:none" class="txt-white">
-          <option>بنك الراجحي — SA12 3456 7890 1234</option>
-          <option>بنك الأهلي — SA98 7654 3210 9876</option>
-        </select>
+        @if (hasBankInfo()) {
+        <div style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px" class="txt-white">
+          {{ profile()?.bankName || 'بنك غير محدد' }} — <span dir="ltr">{{ profile()?.iban }}</span>
+        </div>
+        } @else {
+        <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.28);border-radius:10px;font-size:12px" class="txt-slate">
+          لم تُضف بيانات حساب بنكي بعد. <a routerLink="/marketer-overview/profile/data" style="font-weight:700" class="txt-teal">أضِف IBAN من الملف الشخصي</a>
+        </div>
+        }
       </div>
       <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(123,47,190,.07);border:1px solid rgba(123,47,190,.18);border-radius:10px;margin-bottom:16px">
         <svg width="14" height="14" style="flex-shrink:0" aria-hidden="true" class="txt-purple"><use href="#i-ai"></use></svg>
         <span style="font-size:12px" class="txt-slate">تُصرف طلبات السحب يوم الأربعاء · يصل التحويل غالباً خلال 1-3 أيام عمل بعد الصرف · يُعلَّق السحب عند وجود نزاع نشط أو شبهة احتيال أو مراجعة امتثال</span>
       </div>
-      <button type="button" class="btn-primary-gradient txt-navy" disabled title="سحب عمولات الوسيط التسويقي قيد التفعيل قريباً" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:not-allowed;font-family:inherit;opacity:.5;transition: opacity 0.2s ease-in-out">تأكيد طلب السحب</button>
+      <button type="button" class="btn-primary-gradient txt-navy" [disabled]="submitting()" (click)="submitWithdrawal()" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:800;font-family:inherit;transition: opacity 0.2s ease-in-out" [style.opacity]="submitting() ? .6 : 1" [style.cursor]="submitting() ? 'not-allowed' : 'pointer'">{{ submitting() ? 'جارٍ الإرسال...' : 'تأكيد طلب السحب' }}</button>
     </div>
   </div>
 
@@ -79,12 +84,14 @@
           <tbody>
             @for (log of withdrawals(); track log.id) {
               <tr>
-                <td>{{ log.time | date:'yyyy-MM-dd' }}</td>
+                <td>{{ log.createdAt | date:'yyyy-MM-dd' }}</td>
                 <td style="font-weight:700" class="txt-green">{{ log.amount }} ريال</td>
-                <td>{{ log.account }}</td>
+                <td dir="ltr">{{ log.iban || log.accountName || '—' }}</td>
                 <td>
                   @if (log.status === 'COMPLETED') {
                     <span style="background:rgba(15,169,154,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-green">مكتمل</span>
+                  } @else if (log.status === 'REJECTED') {
+                    <span style="background:rgba(255,140,105,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" style="color:#FF8C69">مرفوض</span>
                   } @else {
                     <span style="background:rgba(93,160,255,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-blue">قيد المعالجة</span>
                   }
@@ -99,9 +106,24 @@
         <div class="w-14 h-14 rounded-2xl bg-white/[0.03] flex items-center justify-center mb-4 text-slate-600">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
         </div>
-        <p class="text-[14px] text-slate-300 font-medium mb-1">لا توجد سحوبات سابقة حالياً</p>
-        <p class="text-[12px] text-slate-500">قم بتقديم طلب سحب لاستلام أرباحك</p>
+        <p class="text-[14px] text-slate-300 font-medium mb-1">لا توجد عمليات سحب مسجّلة بعد</p>
+        <p class="text-[12px] text-slate-500">قدّم أول طلب سحب من النموذج أعلاه</p>
       </div>
     }
   </div>
 </div>
+
+@if (toastMessage(); as toast) {
+<div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
+	<div [style]="toast.type === 'error'
+		? 'display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(255,140,105,.16),rgba(180,35,24,.10));border:1px solid rgba(255,140,105,.35);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)'
+		: 'display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)'">
+		@if (toast.type === 'error') {
+		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF8C69" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+		} @else {
+		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+		}
+		<span style="font-size:14px;font-weight:700" class="txt-white">{{ toast.text }}</span>
+	</div>
+</div>
+}

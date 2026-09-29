@@ -1875,7 +1875,7 @@ button.btn-outline-sm {
 
 /* === Profile completion extras (P-AU-011) === */
 .bio-actions{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
-.ai-suggest-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.3);border-radius:8px;color:#2BD4C7;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.ai-suggest-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(var(--teal-rgb),.1);border:1px solid rgba(var(--teal-rgb),.3);border-radius:8px;color:var(--teal);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
 .ai-suggest-btn:hover:not(:disabled){background:rgba(43,212,199,.18)}
 .ai-suggest-btn:disabled{opacity:.5;cursor:not-allowed}
 .skills-input-row{display:flex;gap:8px;align-items:center}

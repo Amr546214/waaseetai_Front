@@ -23,7 +23,7 @@
     
     <div class="flex items-center justify-between py-[9px] border-b border-[rgba(255,255,255,.05)]">
       <span class="text-[12px] text-[#6B7699]">سعرك الإجمالي</span>
-      <span class="text-[16px] font-extrabold text-[#2BD4C7]">{{ totalAmount | number }} ريال</span>
+      <span class="text-[16px] font-extrabold text-[#2BD4C7]">{{ totalAmount | number }} $</span>
     </div>
     <div class="flex items-center justify-between py-[9px] border-b border-[rgba(255,255,255,.05)]">
       <span class="text-[12px] text-[#6B7699]">مدة التنفيذ</span>
@@ -78,7 +78,7 @@
           <div class="text-[11px] text-[#6B7699] mt-[2px]">{{ m.days || 0 }} أيام</div>
         </div>
         <div class="text-left">
-          <div class="text-[13px] font-black text-[#2BD4C7]">{{ m.pct ? (totalAmount * m.pct / 100 | number) : 0 }} ريال</div>
+          <div class="text-[13px] font-black text-[#2BD4C7]">{{ m.pct ? (totalAmount * m.pct / 100 | number) : 0 }} $</div>
           <div class="text-[11px] text-[#6B7699] text-center">{{ m.pct || 0 }}%</div>
         </div>
       </div>
@@ -90,7 +90,7 @@
       <div class="flex gap-[20px]">
         <div class="text-center"><div class="text-[10px] text-[#6B7699]">الأيام</div><div class="text-[13px] font-black text-white">{{ totalDays }} يوم</div></div>
         <div class="text-center"><div class="text-[10px] text-[#6B7699]">النسبة</div><div class="text-[13px] font-black text-[#2BD4C7]">{{ totalPct }}%</div></div>
-        <div class="text-center"><div class="text-[10px] text-[#6B7699]">المبلغ</div><div class="text-[13px] font-black text-[#2BD4C7]">{{ totalAmount | number }} ريال</div></div>
+        <div class="text-center"><div class="text-[10px] text-[#6B7699]">المبلغ</div><div class="text-[13px] font-black text-[#2BD4C7]">{{ totalAmount | number }} $</div></div>
       </div>
     </div>
   </div>
@@ -130,7 +130,7 @@
     <svg class="w-4 h-4 shrink-0 text-[#D98A0B] mt-[2px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-warn"></use></svg>
     <div class="text-[12.5px] text-[#A8B2D1] leading-[1.75]">
       <strong class="text-[#D98A0B]">بعد الإرسال لن يمكن التعديل.</strong>
-      سعرك <strong class="text-white">{{ totalAmount | number }} ريال</strong> ومدتك <strong class="text-white">{{ totalDays }} يومًا</strong> ملزمان بعد قبول العميل وتأكيد الدفع ووصول أمر بدء المرحلة أو المشروع.
+      سعرك <strong class="text-white">{{ totalAmount | number }} $</strong> ومدتك <strong class="text-white">{{ totalDays }} يومًا</strong> ملزمان بعد قبول العميل وتأكيد الدفع ووصول أمر بدء المرحلة أو المشروع.
       بالضغط على إرسال العرض توافق على شروط الاستخدام وسياسة وسيط AI.
     </div>
   </div>

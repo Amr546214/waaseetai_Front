@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { MessageContext } from '../../../../../core/services/chat.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
 	selector: 'app-delivery-review', standalone: true,
@@ -15,6 +17,8 @@ export class DeliveryReview implements OnInit {
 	private http = inject(HttpClient);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
+	private authStore = inject(AuthStore);
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	project = signal<any>(null);
 	stage = signal<any>(null);

@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { io, Socket } from 'socket.io-client';
 import { AuthStore } from '../../../../../core/store/auth.store';
-import { AccountType } from '../../../../../core/models/auth.model';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { Step1General } from './components/step1-general/step1-general';
 import { Step2Pricing } from './components/step2-pricing/step2-pricing';
@@ -85,24 +84,6 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	private authStore = inject(AuthStore);
 	private providerApi = inject(ProviderApiService);
 	private socket?: Socket;
-
-	isCompanyMode = computed<boolean>(() => {
-		const user = this.authStore.currentUser();
-		return user?.accountType === AccountType.PROVIDER_COMPANY;
-	});
-
-	// Company team members for assignment
-	companyTeamMembers = [
-		{ id: 'sara', name: 'سارة الزهراني', initials: 'سا', color: '#FFB400' },
-		{ id: 'fahad', name: 'فهد العتيبي', initials: 'فه', color: '#2BD4C7' },
-		{ id: 'reem', name: 'ريم الدوسري', initials: 'ري', color: '#A56BE0' },
-		{ id: 'khaled', name: 'خالد الحربي', initials: 'خا', color: '#5DA0FF' },
-	];
-	assignedMemberId = signal<string | null>(null);
-
-	assignToMember(memberId: string) {
-		this.assignedMemberId.set(memberId);
-	}
 
 	reqId = signal<string | null>(null);
 	activeStep = signal<number>(1);

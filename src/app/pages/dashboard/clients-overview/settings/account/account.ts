@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-provider-settings-account',
+  selector: 'app-client-settings-account',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './account.html',
@@ -170,68 +171,21 @@ import { FormsModule } from '@angular/forms';
       color: #5B6472;
     }
 
-    /* Delete Modal */
-    .del-box {
-      background: rgba(11,20,55,.97);
-      border: 1px solid rgba(255,255,255,.12);
-    }
-    .del-fld input {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
-      color: #fff;
-    }
-    .del-cancel {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.12);
-      color: #fff;
-    }
-    :host-context(body.light-theme) .del-box,
-    :host-context(body.theme-light) .del-box,
-    :host-context(.light-theme) .del-box,
-    :host-context(.theme-light) .del-box {
-      background: #fff;
-      border-color: #E7EAF1;
-    }
-    :host-context(body.light-theme) .del-box h3,
-    :host-context(body.theme-light) .del-box h3,
-    :host-context(.light-theme) .del-box h3,
-    :host-context(.theme-light) .del-box h3 {
-      color: #0F172A;
-    }
-    :host-context(body.light-theme) .del-box > p,
-    :host-context(body.theme-light) .del-box > p,
-    :host-context(.light-theme) .del-box > p,
-    :host-context(.theme-light) .del-box > p,
-    :host-context(body.light-theme) .del-fld label,
-    :host-context(body.theme-light) .del-fld label,
-    :host-context(.light-theme) .del-fld label,
-    :host-context(.theme-light) .del-fld label {
-      color: #475569;
-    }
-    :host-context(body.light-theme) .del-fld input,
-    :host-context(body.theme-light) .del-fld input,
-    :host-context(.light-theme) .del-fld input,
-    :host-context(.theme-light) .del-fld input {
-      background: #f5f7fc;
-      border-color: #C9D0E3;
-      color: #0F172A;
-    }
-    :host-context(body.light-theme) .del-cancel,
-    :host-context(body.theme-light) .del-cancel,
-    :host-context(.light-theme) .del-cancel,
-    :host-context(.theme-light) .del-cancel {
-      background: #EEF2FA;
-      border-color: #D8DFEC;
-      color: #0F172A;
-    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Account {
+  private router = inject(Router);
+
   isLoading = signal<boolean>(false);
   hasError = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
 
+  // NOTE: no backend endpoint exists yet for 2FA / login-alert preferences (checked
+  // AccountService, AuthApiService, ProfileApiService, AccountLogsService — none expose
+  // a 2FA/login-alert read or write method). These signals are display-only and are
+  // never persisted; the toggles are rendered disabled in the template so the UI does
+  // not imply a save that never happens. See BACKEND_BLOCKED_ISSUES.md.
   twoFactorAuth = signal<boolean>(true);
   newLoginAlert = signal<boolean>(true);
 
@@ -243,33 +197,16 @@ export class Account {
   showProfile = signal<boolean>(true);
   shareData = signal<boolean>(true);
 
-  showDeleteModal = signal<boolean>(false);
-  deleteConfirmText = signal<string>('');
-
-  get isDeleteEnabled(): boolean {
-    return this.deleteConfirmText().trim() === 'حذف';
-  }
-
-  requestDataDownload() {
-    this.showToast('سيصلك رابط تنزيل بياناتك خلال 24 ساعة');
-  }
-
   manageDevices() {
     this.showToast('عرض الأجهزة النشطة وإنهاء الجلسات');
   }
 
-  openDeleteModal() {
-    this.deleteConfirmText.set('');
-    this.showDeleteModal.set(true);
-  }
-
-  closeDeleteModal() {
-    this.showDeleteModal.set(false);
-  }
-
-  confirmDelete() {
-    this.showDeleteModal.set(false);
-    this.showToast('أُرسل طلب حذف الحساب، يراجعه فريق الدعم');
+  // Account deletion has no backend endpoint (no delete/deactivate-account method on
+  // any service in src/app/core/services). Sending the user to the existing support
+  // ticket flow is the honest option here — it does not claim the deletion itself
+  // happened, only that a human channel has been opened. See BACKEND_BLOCKED_ISSUES.md.
+  contactSupportForDeletion() {
+    this.router.navigate(['/client-overview/help/tickets/new']);
   }
 
   retry() {

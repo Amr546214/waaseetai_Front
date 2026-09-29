@@ -8,6 +8,8 @@ export interface ConfirmModalConfig {
   confirmText?: string;
   cancelText?: string;
   showCancel?: boolean;
+  /** sm (380px, default) for confirmations · md (560px) for quick forms · lg (760px) for composite content */
+  size?: 'sm' | 'md' | 'lg';
 }
 
 @Injectable({
@@ -35,7 +37,8 @@ export class ConfirmModalService {
     const defaults: Partial<ConfirmModalConfig> = {
       confirmText: customConfig.confirmText || 'تأكيد والمتابعة',
       cancelText: customConfig.cancelText || 'إلغاء التراجع',
-      showCancel: customConfig.showCancel !== undefined ? customConfig.showCancel : true
+      showCancel: customConfig.showCancel !== undefined ? customConfig.showCancel : true,
+      size: customConfig.size || 'sm'
     };
 
     this.config.set({ ...customConfig, ...defaults } as ConfirmModalConfig);

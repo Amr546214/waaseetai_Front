@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 type ProjectFilter = 'all' | 'run' | 'wait' | 'late';
 
@@ -32,6 +34,8 @@ interface ProjectItem {
 	stagesCount: number;
 	daysLeft: number;
 	updatedAt?: string;
+	employeeName?: string;
+	employeeDept?: string;
 }
 
 @Component({
@@ -43,6 +47,8 @@ interface ProjectItem {
 })
 export class ActiveProject implements OnInit {
 	private http = inject(HttpClient);
+	private authStore = inject(AuthStore);
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	isLoading = signal(true);
 	hasError = signal(false);
@@ -143,6 +149,8 @@ export class ActiveProject implements OnInit {
 			stagesCount: Math.max(1, Number(project.stagesCount) || 1),
 			daysLeft,
 			updatedAt: project.updatedAt,
+			employeeName: project.employee?.name || project.employeeName || undefined,
+			employeeDept: project.employee?.department || project.employeeDept || undefined,
 		};
 	}
 

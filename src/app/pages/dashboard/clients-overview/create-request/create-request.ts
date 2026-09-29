@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
 import { SpecialtyService } from '../../../../core/services/specialty.service';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../../../environments/environment';
 
@@ -89,6 +91,15 @@ export class CreateRequest implements OnInit, OnDestroy {
   private specialtyService = inject(SpecialtyService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
+  private authStore = inject(AuthStore);
+
+  /** Company-mode requests are submitted on behalf of the company and need
+   *  manager approval before publishing — see P-SK-002-شركة. */
+  readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
+  readonly requesterName = () => {
+    const u = this.authStore.currentUser();
+    return u ? `${u.firstName} ${u.lastName}`.trim() : '';
+  };
 
   constructor(
     private router: Router,

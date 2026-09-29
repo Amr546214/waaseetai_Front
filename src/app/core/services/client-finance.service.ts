@@ -9,6 +9,9 @@ export interface ClientWalletSummary {
 	totalDeposited: number;
 	activeProjectsCount: number;
 	currency: string;
+	/** Company-mode only (P-SK-018-شركة): this quarter's total spend and the quarter's budget cap. */
+	quarterSpend?: number;
+	quarterBudget?: number;
 }
 
 export interface ClientWalletTransaction {
@@ -21,11 +24,21 @@ export interface ClientWalletTransaction {
 	referenceId?: string;
 	description: string;
 	createdAt: string;
+	/** Company-mode only: which employee made/triggered this transaction. */
+	employeeName?: string;
+}
+
+export interface ClientWalletEmployeeSpend {
+	employeeName: string;
+	department?: string;
+	amount: number;
 }
 
 export interface ClientWalletData {
 	summary: ClientWalletSummary;
 	transactions: ClientWalletTransaction[];
+	/** Company-mode only: per-employee spend breakdown for the current quarter. */
+	employeeSpending?: ClientWalletEmployeeSpend[];
 }
 
 export interface ClientInvoice {
@@ -48,6 +61,8 @@ export interface ClientInvoice {
 	verificationScore: number;
 	taxDocumentAvailable: boolean;
 	commercialRegistrationAvailable: boolean;
+	/** Company-mode only: which employee's project/request this invoice belongs to. */
+	employeeName?: string;
 }
 
 export interface ClientInvoicesData {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 type ProjectStatus = 'done' | 'cancel' | 'arch';
 type FilterStatus = 'all' | ProjectStatus;
@@ -37,6 +39,8 @@ interface ArchivedKpi {
 })
 export class ArchivedProjects implements OnInit {
 	private http = inject(HttpClient);
+	private authStore = inject(AuthStore);
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	searchQuery = signal<string>('');
 	activeFilter = signal<FilterStatus>('all');
@@ -230,7 +234,7 @@ export class ArchivedProjects implements OnInit {
 
 		const numericAmount = p.totalPrice != null ? Number(p.totalPrice) : Number(p.amount) || 0;
 		const amount = numericAmount > 0
-			? `${numericAmount.toLocaleString('en-US')} ريال`
+			? `${numericAmount.toLocaleString('en-US')} $`
 			: '—';
 
 		let dateStr = '—';

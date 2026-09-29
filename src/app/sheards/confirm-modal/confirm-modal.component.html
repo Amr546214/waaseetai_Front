@@ -1,0 +1,33 @@
+@if (modal.isOpen()) {
+<div class="cm-overlay" (mousedown)="onBackdrop()">
+	@if (modal.config(); as cfg) {
+	<div #box class="cm-box" [class.cm-md]="cfg.size === 'md'" [class.cm-lg]="cfg.size === 'lg'" role="alertdialog"
+		aria-modal="true" [attr.aria-label]="cfg.title" (mousedown)="$event.stopPropagation()">
+		<button type="button" class="cm-close" (click)="modal.reject()" aria-label="إغلاق">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+				<line x1="18" y1="6" x2="6" y2="18"></line>
+				<line x1="6" y1="6" x2="18" y2="18"></line>
+			</svg>
+		</button>
+		<div class="cm-head">
+			<span class="cm-icon" [class]="'cm-icon-' + cfg.type">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+					stroke-linejoin="round">
+					<circle cx="12" cy="12" r="9"></circle>
+					<path [attr.d]="iconPath(cfg.type)"></path>
+				</svg>
+			</span>
+			<h2 class="cm-title">{{ cfg.title }}</h2>
+		</div>
+		<p class="cm-msg">{{ cfg.message }}</p>
+		<div class="cm-actions">
+			<button #confirmBtn type="button" class="cm-btn-primary" (click)="modal.accept()">{{ cfg.confirmText
+				}}</button>
+			@if (cfg.showCancel) {
+			<button type="button" class="cm-btn-secondary" (click)="modal.reject()">{{ cfg.cancelText }}</button>
+			}
+		</div>
+	</div>
+	}
+</div>
+}

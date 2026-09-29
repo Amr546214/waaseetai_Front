@@ -177,6 +177,17 @@
 .od-meta-lbl{font-size:10px;color:var(--txt-3);font-weight:700;margin-bottom:4px}
 .od-meta-val{font-size:14px;font-weight:800;color:var(--txt)}
 
+/* Company mode — assigned team member badge (mirrors delivery-review.css .from-member) */
+.from-member{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.16);border-radius:10px;margin-bottom:14px}
+.from-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2B7FFF,#1A5FCC);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#070D24;flex-shrink:0}
+.from-body{flex:1;min-width:0}
+.from-name{font-size:13px;font-weight:700;color:var(--txt)}
+.from-spec{font-size:11px;color:var(--txt-3)}
+.from-tag{display:inline-flex;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;background:rgba(93,160,255,.10);border:1px solid rgba(93,160,255,.20);color:#5DA0FF;flex-shrink:0}
+
+/* Company mode — quick action linking to the orphaned team-deliveries page */
+.lc-qa-team .qi{background:rgba(123,47,190,.14);color:#A56BE0}
+
 /* Status pill — copied from P-PR-010.html .opill */
 .opill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
 .opill .lv{width:5px;height:5px;border-radius:50%}
@@ -569,3 +580,44 @@
 :host-context(body.light-theme) .lc-crate-star-off,:host-context(body.theme-light) .lc-crate-star-off,:host-context(.light-theme) .lc-crate-star-off,:host-context(.theme-light) .lc-crate-star-off{color:#C8D0DC}
 :host-context(body.light-theme) .lc-crate-val,:host-context(body.theme-light) .lc-crate-val,:host-context(.light-theme) .lc-crate-val,:host-context(.theme-light) .lc-crate-val{color:#0F172A}
 :host-context(body.light-theme) .lc-crate-comment,:host-context(body.theme-light) .lc-crate-comment,:host-context(.light-theme) .lc-crate-comment,:host-context(.theme-light) .lc-crate-comment{background:#F5F7FC;border-color:#E2E8F4;color:#475569}
+
+/* ===== P-PR-009 change-order request ("طلب تعديل") / mutual-cancellation
+   ("إلغاء بالتراضي") modal — mirrors client-side project-details.css's
+   lc-mov/lc-mbox pattern exactly (same design family, P-PR-009 vs P-SK-014) ===== */
+.lc-qa-chg .qi{background:rgba(43,127,255,.14);color:#5DA0FF}
+.lc-mov{display:flex;position:fixed;inset:0;background:rgba(7,13,36,.7);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:20px}
+.lc-mbox{background:rgba(11,20,55,.97);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:22px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 80px rgba(0,0,0,.5)}
+.lc-mhd{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.lc-mhd .mi{width:38px;height:38px;border-radius:11px;background:rgba(43,212,199,.14);color:#2BD4C7;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+.lc-mhd .mi svg{width:18px;height:18px}
+.lc-mhd>div{flex:1}
+.lc-mhd h3{font-size:16px;font-weight:900;color:#fff;margin:0 0 3px}
+.lc-mhd p{font-size:12px;color:#A8B2D1;margin-top:3px;line-height:1.5}
+.lc-mhd-canc .mi{background:rgba(255,140,105,.12);color:#FF8C69}
+.lc-mclose{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#A8B2D1;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lc-mclose svg{width:15px;height:15px}
+.lc-flow-note{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;padding:11px;margin-bottom:14px;background:linear-gradient(135deg,rgba(43,127,255,.08),rgba(43,212,199,.05));border:1px solid rgba(123,47,190,.20);border-radius:11px}
+.lc-flow-note svg{width:13px;height:13px;color:#6B7699;flex-shrink:0}
+.lc-flow-s{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700}
+.lc-flow-s span{width:18px;height:18px;border-radius:50%;background:rgba(43,127,255,.18);color:#5DA0FF;display:inline-flex;align-items:center;justify-content:center;font-size:9px}
+.lc-warn{display:flex;gap:9px;font-size:11.5px;color:#FFB400;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.22);border-radius:10px;padding:11px 13px;margin-bottom:14px;line-height:1.5}
+.lc-warn svg{width:15px;height:15px;flex-shrink:0;margin-top:1px}
+.lc-fld{margin-bottom:14px}
+.lc-fld label{display:block;font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:6px}
+.lc-fld label .rq{color:#FFB400;margin-inline-start:3px;font-size:10px}
+.lc-sel{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:10px 13px;font-size:13px;color:#fff;font-family:inherit;cursor:pointer}
+.lc-sel:focus{outline:none;border-color:rgba(255,180,0,.4)}
+.lc-ta{width:100%;min-height:90px;resize:vertical;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;color:#fff;padding:10px 13px;font:13px/1.6 inherit;outline:none}
+.lc-ta:focus{outline:none;border-color:rgba(255,180,0,.4)}
+.lc-mact{display:flex;gap:10px}
+.lc-mact .lc-btn{flex:1}
+.lc-btn-warn2{background:linear-gradient(135deg,#FFB400,#FF8C69);color:#2a1c00}
+
+:host-context(body.light-theme) .lc-mbox,:host-context(body.theme-light) .lc-mbox,:host-context(.light-theme) .lc-mbox,:host-context(.theme-light) .lc-mbox{background:#fff}
+:host-context(body.light-theme) .lc-mhd h3,:host-context(body.theme-light) .lc-mhd h3,:host-context(.light-theme) .lc-mhd h3,:host-context(.theme-light) .lc-mhd h3{color:#0F172A}
+:host-context(body.light-theme) .lc-mhd p,:host-context(body.theme-light) .lc-mhd p,:host-context(.light-theme) .lc-mhd p,:host-context(.theme-light) .lc-mhd p{color:#475569}
+:host-context(body.light-theme) .lc-mclose,:host-context(body.theme-light) .lc-mclose,:host-context(.light-theme) .lc-mclose,:host-context(.theme-light) .lc-mclose{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
+:host-context(body.light-theme) .lc-sel,:host-context(body.theme-light) .lc-sel,:host-context(.light-theme) .lc-sel,:host-context(.theme-light) .lc-sel{background:#F5F7FC;border-color:#C9D0E3;color:#0F172A}
+:host-context(body.light-theme) .lc-ta,:host-context(body.theme-light) .lc-ta,:host-context(.light-theme) .lc-ta,:host-context(.theme-light) .lc-ta{background:#F5F7FC;border-color:#C9D0E3;color:#0F172A}
+:host-context(body.light-theme) .lc-fld label,:host-context(body.theme-light) .lc-fld label,:host-context(.light-theme) .lc-fld label,:host-context(.theme-light) .lc-fld label{color:#475569}
+:host-context(body.light-theme) .lc-mhd-canc .mi,:host-context(body.theme-light) .lc-mhd-canc .mi,:host-context(.light-theme) .lc-mhd-canc .mi,:host-context(.theme-light) .lc-mhd-canc .mi{background:rgba(255,140,105,.06);color:#C25B43}

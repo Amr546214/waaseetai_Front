@@ -4,8 +4,8 @@
 	<!-- Header -->
 	<div class="ord-head">
 		<div>
-			<div class="ord-title">المشاريع المكتملة والأرشيف</div>
-			<div class="ord-sub">سجلّ مشاريعك المنتهية للرجوع إليها وإعادة الطلب وتنزيل الفواتير</div>
+			<div class="ord-title">{{ isCompany() ? 'المكتملة والأرشيف' : 'المشاريع المكتملة والأرشيف' }}</div>
+			<div class="ord-sub">{{ isCompany() ? 'سجلّ مشاريع الفريق المنتهية بالموظف المسؤول وتنزيل الفواتير' : 'سجلّ مشاريعك المنتهية للرجوع إليها وإعادة الطلب وتنزيل الفواتير' }}</div>
 		</div>
 		<div class="ord-head-actions">
 			<div class="ord-search">

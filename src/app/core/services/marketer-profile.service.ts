@@ -132,4 +132,10 @@ export class MarketerProfileService {
 	withdrawRequest(requestId: string): Observable<ApiResponse<any>> {
 		return this.http.post<ApiResponse<any>>(`${this.apiUrl}/requests/${requestId}/withdraw`, {});
 	}
+
+	// Role-agnostic endpoint (see backend routes/provider-profile.routes.ts) —
+	// works for any authenticated user, not just providers, despite the path.
+	changePassword(currentPassword: string, newPassword: string): Observable<ApiResponse<any>> {
+		return this.http.put<ApiResponse<any>>(`${environment.url_api}/provider/profile/password`, { currentPassword, newPassword });
+	}
 }

@@ -134,7 +134,7 @@ export class RatingPage implements OnInit {
 		if (this.isStageRating) {
 			return `${this.projectTitle()} · ${this.stageTitle()} · شارك تقييمك حول جودة تسليم هذه المرحلة`;
 		}
-		return `${this.projectTitle()} · مع ${this.providerName()} · أُفرِج كامل المبلغ ${this.releasedAmount()} ريال`;
+		return `${this.projectTitle()} · مع ${this.providerName()} · أُفرِج كامل المبلغ ${this.releasedAmount()} $`;
 	}
 	sectionTitle(): string {
 		return this.isStageRating ? 'تقييم المرحلة' : 'قيّم تجربتك';

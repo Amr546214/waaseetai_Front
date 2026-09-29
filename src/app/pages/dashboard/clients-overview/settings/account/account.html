@@ -41,11 +41,12 @@
       
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">التحقق بخطوتين <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(15,169,154,.14)] text-[#0FA99A] border border-[rgba(15,169,154,.28)]"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>مُفعّل</span></div>
+          <div class="text-[13.5px] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">التحقق بخطوتين <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(148,163,184,.14)] text-[var(--txt-3)] border border-[rgba(148,163,184,.28)]">قيد التفعيل قريبًا</span></div>
           <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">رمز يُرسل لجوالك عند كل دخول جديد</div>
+          <div class="text-[10.5px] text-[var(--txt-3)] mt-1 opacity-70">هذا الإعداد لا يُحفظ حاليًا — التفعيل الفعلي قيد الربط مع الخادم</div>
         </div>
-        <label class="sw">
-          <input type="checkbox" [(ngModel)]="twoFactorAuth">
+        <label class="sw" style="opacity:.55;cursor:not-allowed" title="لا يُحفظ بعد — الميزة قيد التفعيل">
+          <input type="checkbox" [(ngModel)]="twoFactorAuth" disabled>
           <span class="sw-track"><span class="sw-thumb"></span></span>
         </label>
       </div>
@@ -54,9 +55,10 @@
         <div class="flex-1">
           <div class="text-[13.5px] font-bold text-[var(--txt)]">تنبيه عند دخول جديد</div>
           <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">إشعار عند تسجيل الدخول من جهاز غير معروف</div>
+          <div class="text-[10.5px] text-[var(--txt-3)] mt-1 opacity-70">هذا الإعداد لا يُحفظ حاليًا — التفعيل الفعلي قيد الربط مع الخادم</div>
         </div>
-        <label class="sw">
-          <input type="checkbox" [(ngModel)]="newLoginAlert">
+        <label class="sw" style="opacity:.55;cursor:not-allowed" title="لا يُحفظ بعد — الميزة قيد التفعيل">
+          <input type="checkbox" [(ngModel)]="newLoginAlert" disabled>
           <span class="sw-track"><span class="sw-thumb"></span></span>
         </label>
       </div>
@@ -159,7 +161,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنزيل بياناتي</div>
           <div class="text-[12px] text-[var(--txt-3)]">نسخة من بياناتك وفق نظام حماية البيانات PDPL</div>
         </div>
-        <button type="button" (click)="requestDataDownload()" class="px-3.5 py-2 bg-[rgba(43,127,255,.10)] border border-[rgba(43,127,255,.22)] rounded-lg text-[#5DA0FF] text-xs font-bold hover:bg-[rgba(43,127,255,.18)] transition-all set-edit whitespace-nowrap">طلب نسخة</button>
+        <button type="button" disabled title="ميزة تنزيل البيانات قيد التفعيل، ستتوفر قريبًا" class="px-3.5 py-2 bg-[rgba(43,127,255,.10)] border border-[rgba(43,127,255,.22)] rounded-lg text-[#5DA0FF] text-xs font-bold set-edit whitespace-nowrap opacity-50 cursor-not-allowed">طلب نسخة</button>
       </div>
 
     </div>
@@ -171,7 +173,11 @@
         منطقة حسّاسة
       </div>
       <p>حذف الحساب نهائي ولا يمكن التراجع عنه. لا يمكنك الحذف أثناء وجود مشاريع نشطة أو مبالغ في الضمان. تُحفظ سجلّاتك المالية وفق الأنظمة قبل الإغلاق.</p>
-      <button type="button" (click)="openDeleteModal()" class="danger-btn">طلب حذف الحساب</button>
+      <p class="text-[11.5px] leading-relaxed" style="color:#FF8C69;opacity:.85;margin-top:-6px;margin-bottom:14px">حذف الحساب ذاتيًا قيد التفعيل حاليًا. لطلب حذف حسابك الآن، تواصل مع فريق الدعم مباشرة عبر مركز المساعدة.</p>
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <button type="button" disabled title="حذف الحساب قيد التفعيل، تواصل مع الدعم لطلب الحذف" class="danger-btn opacity-50 cursor-not-allowed">طلب حذف الحساب</button>
+        <button type="button" (click)="contactSupportForDeletion()" class="danger-btn">تواصل مع الدعم</button>
+      </div>
     </div>
 
   </div>
@@ -181,35 +187,6 @@
     <div class="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[rgba(43,212,199,.14)] to-[rgba(43,127,255,.10)] border border-[rgba(43,212,199,.30)] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,.4)] backdrop-blur-md">
       <svg class="w-[18px] h-[18px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       <span class="text-sm font-bold text-[var(--txt)]">{{ toastMessage() }}</span>
-    </div>
-  </div>
-
-  <!-- Delete Modal -->
-  <div *ngIf="showDeleteModal()" class="fixed inset-0 bg-[rgba(7,13,36,.7)] backdrop-blur-sm z-[400] flex items-center justify-center p-5">
-    <div class="del-box rounded-[18px] p-[22px] w-full max-w-[440px]">
-      <h3 class="text-[17px] font-black text-white flex items-center gap-2 mb-1.5">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF8C69" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-        تأكيد حذف الحساب
-      </h3>
-      <p class="text-[12.5px] text-[#A8B2D1] mb-4 leading-relaxed">
-        هذا الإجراء نهائي ولا يمكن التراجع عنه. اكتب كلمة <b class="text-[#FF8C69]">حذف</b> للمتابعة. يتولّى فريق الدعم البشري المراجعة قبل الإغلاق النهائي.
-      </p>
-      
-      <div class="del-fld mb-4">
-        <label class="block text-xs font-bold text-[#A8B2D1] mb-1.5">اكتب «حذف» للتأكيد</label>
-        <input type="text" placeholder="حذف" [(ngModel)]="deleteConfirmText" class="w-full rounded-xl px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:border-[rgba(255,140,105,.5)] transition-colors">
-      </div>
-      
-      <div class="flex gap-2.5">
-        <button type="button" (click)="closeDeleteModal()" class="flex-1 del-cancel py-3 rounded-xl text-[13px] font-extrabold transition-opacity hover:opacity-80">إلغاء</button>
-        <button type="button" 
-                [disabled]="!isDeleteEnabled" 
-                (click)="confirmDelete()" 
-                [ngClass]="isDeleteEnabled ? 'opacity-100 pointer-events-auto' : 'opacity-50 pointer-events-none'"
-                class="flex-1 py-3 rounded-xl text-[13px] font-extrabold text-[#FF8C69] bg-[rgba(255,140,105,.2)] border border-[rgba(255,140,105,.4)] transition-all">
-          حذف نهائي
-        </button>
-      </div>
     </div>
   </div>
 

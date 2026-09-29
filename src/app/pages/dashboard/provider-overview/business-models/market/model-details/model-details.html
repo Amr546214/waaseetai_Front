@@ -73,7 +73,7 @@
 				</div>
 				<div class="mdl-actions">
 					<a routerLink="/provider-overview/business-models/new-project" class="mdl-btn-secondary">رفع نموذج مشابه</a>
-					<button type="button" class="mdl-btn-primary">مشاركة النموذج</button>
+					<button type="button" class="mdl-btn-primary" (click)="shareModel()">مشاركة النموذج</button>
 				</div>
 			</div>
 
@@ -167,28 +167,12 @@
 			<span class="mdl-reviews-count">({{ m.reviewsCount || 0 }} تقييم)</span>
 		</div>
 
-		@if (reviews().length > 0) {
-		<div class="mdl-reviews-list">
-			@for (review of reviews(); track review.name + review.comment) {
-			<div class="mdl-review-card">
-				<div class="mdl-review-top">
-					<div class="mdl-review-av" [style.background]="review.gradient">{{ review.initials }}</div>
-					<div>
-						<div class="mdl-review-name">{{ review.name }}</div>
-						<div class="mdl-review-meta">{{ review.roleLabel }} &middot; {{ review.dateLabel }}</div>
-					</div>
-					<div class="mdl-review-stars">
-						@for (filled of [1,2,3,4,5]; track $index) {
-						<svg width="12" height="12" viewBox="0 0 24 24" [attr.fill]="$index < review.rating ? '#FFB400' : 'none'" [attr.stroke]="$index < review.rating ? 'none' : '#FFB400'" stroke-width="2" aria-hidden="true">
-							<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-						</svg>
-						}
-					</div>
-				</div>
-				<div class="mdl-review-text">{{ review.comment }}</div>
-			</div>
-			}
-		</div>
+		<!-- The backend only returns an aggregate reviewsCount/rating for a model —
+		     there is no per-review text/author data to render as individual cards,
+		     so we show the real count/rating above and an honest note here instead
+		     of fabricated testimonials. -->
+		@if ((m.reviewsCount || 0) > 0) {
+		<div class="mdl-reviews-empty">لا توجد تعليقات تفصيلية متاحة بعد</div>
 		} @else {
 		<div class="mdl-reviews-empty">لا توجد تقييمات على هذا النموذج بعد</div>
 		}

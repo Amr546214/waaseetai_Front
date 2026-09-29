@@ -33,6 +33,16 @@
 			<span class="nego-badge">قيد التفاوض</span>
 		</div>
 
+		@if (isCompanyMode()) {
+		<div class="nego-assignee">
+			<span class="nego-assignee-av">{{ negotiatorInitials() }}</span>
+			<div class="nego-assignee-info">
+				<span class="nego-assignee-lbl">المكلّف بالتفاوض نيابة عن الشركة</span>
+				<span class="nego-assignee-name">{{ negotiatorName() || 'غير محدد' }}</span>
+			</div>
+		</div>
+		}
+
 		<!-- Timeline -->
 		<div class="nego-timeline">
 			@for (step of timelineSteps(); track $index) {
@@ -53,8 +63,8 @@
 		<div class="ai-disc-body">
 			<div class="ai-disc-lbl">وسيط، نقطة تسوية مقترحة</div>
 			<p class="ai-disc-txt">
-				الفارق الحالي {{ priceDiff() | number }} ريال — نقطة تسوية مقترحة عند
-				<b>{{ suggestedSettlement() | number }} ريال</b>
+				الفارق الحالي {{ priceDiff() | number }} $ — نقطة تسوية مقترحة عند
+				<b>{{ suggestedSettlement() | number }} $</b>
 				<span class="ai-disc-badge">القرار النهائي لك</span>
 			</p>
 		</div>
@@ -65,14 +75,14 @@
 	<div class="nego-compare">
 		<div class="cmp-col cmp-client">
 			<div class="cmp-lbl">آخر عرض من طالب الخدمة</div>
-			<div class="cmp-val">{{ (latestClientRound()?.price || 0) | number }} <small>ريال</small></div>
+			<div class="cmp-val">{{ (latestClientRound()?.price || 0) | number }} <small>$</small></div>
 		</div>
 		<div class="cmp-arrow">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
 		</div>
 		<div class="cmp-col cmp-provider">
 			<div class="cmp-lbl">آخر عرض منك</div>
-			<div class="cmp-val">{{ (latestProviderRound()?.price || 0) | number }} <small>ريال</small></div>
+			<div class="cmp-val">{{ (latestProviderRound()?.price || 0) | number }} <small>$</small></div>
 		</div>
 	</div>
 
@@ -90,7 +100,7 @@
 				</div>
 				<span class="round-time">{{ round.timestamp | date:'MMM d, HH:mm' }}</span>
 			</div>
-			<div class="round-price">{{ round.price | number }} ريال @if (round.duration) {<span class="round-dur"> · {{ round.duration }}</span>}</div>
+			<div class="round-price">{{ round.price | number }} $ @if (round.duration) {<span class="round-dur"> · {{ round.duration }}</span>}</div>
 			@if (round.message) {<div class="round-msg">{{ round.message }}</div>}
 			@if (round.aiNote) {
 			<div class="round-ai">
@@ -107,7 +117,7 @@
 	<div class="nego-card">
 		<div class="composer-grid">
 			<div class="inp-group">
-				<label class="inp-label">السعر المقترح (ريال)<span class="req">*</span></label>
+				<label class="inp-label">السعر المقترح ($)<span class="req">*</span></label>
 				<input type="number" class="inp-field" min="0" [value]="counterPrice()" (input)="setCounterPrice($any($event.target).value)" placeholder="مثال: 14800">
 			</div>
 			<div class="inp-group">
@@ -163,7 +173,7 @@
 				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
 			</div>
 			<h3>تأكيد قبول العرض</h3>
-			<p>سيُعتمد السعر {{ (latestClientRound()?.price || 0) | number }} ريال وتنتقل إلى توقيع العقد.</p>
+			<p>سيُعتمد السعر {{ (latestClientRound()?.price || 0) | number }} $ وتنتقل إلى توقيع العقد.</p>
 			<div class="modal-acts">
 				<button type="button" class="btn-gh" (click)="closeAcceptConfirm()">تراجع</button>
 				<button type="button" class="btn-pri" (click)="confirmAccept()">تأكيد ومتابعة</button>

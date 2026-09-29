@@ -204,8 +204,22 @@ export class FinalApproval implements OnInit {
 	confirmAndRate() {
 		if (this.confirming()) return;
 		this.confirming.set(true);
-		// TODO: when backend exposes a final-approval endpoint, call it here before navigating.
-		// For now, navigate directly to the rating page (P-SK-017) as the design shows.
+		// Honest note (see BACKEND_BLOCKED_ISSUES.md → "Final project approval /
+		// escrow release is not wired to a real endpoint"): there is no backend
+		// endpoint anywhere in this app that finalizes a project or releases the
+		// held final-stage escrow amount. Every service was checked
+		// (ProjectApiService, ClientFinanceService, RatingApiService, and every
+		// HTTP call under clients-overview) — the only endpoint that affects
+		// escrow is POST .../stages/:stageId/review, and it only accepts a
+		// stage that is still 'submitted'. This page is only reachable once
+		// every stage — including the final one — is already 'completed' (see
+		// canRate() in project-details.ts), so that endpoint cannot validly be
+		// called again from here. Rather than fabricate a fake "funds released"
+		// success (or block the real, working rating flow below by disabling
+		// this button), this action only records the client's confirmation
+		// locally and proceeds to rating; the confirmation/summary copy in
+		// final-approval.html has been corrected to stop claiming this click
+		// releases funds.
 		this.router.navigate(['/client-overview/projects', this.projectId, 'rating']);
 	}
 

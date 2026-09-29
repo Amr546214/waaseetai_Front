@@ -389,3 +389,16 @@ button{font-family:inherit}
 :host-context(body.light) .tx-tbl td[style*="color"] {
   color: #6B7699 !important;
 }
+
+/* Company-mode additions (P-SK-018-شركة) */
+.wal-perm-note{display:flex;align-items:flex-start;gap:10px;background:var(--surface,rgba(255,255,255,.03));border:1px solid var(--border,rgba(255,255,255,.08));border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:11.5px;color:var(--txt-3,#6B7699);line-height:1.7}
+.wal-perm-note svg{width:15px;height:15px;color:#5DA0FF;flex-shrink:0;margin-top:1px}
+.wal-perm-note b{color:var(--txt-2,#A8B2D1);font-weight:800}
+
+.wal-emp-panel{background:var(--surface,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)));border:1px solid var(--border,rgba(255,255,255,.08));border-radius:14px;padding:16px;margin-bottom:18px}
+.wal-emp-row{margin-bottom:14px}
+.wal-emp-row:last-child{margin-bottom:0}
+.wal-emp-top{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--txt,#fff);margin-bottom:6px}
+.wal-emp-dept{color:var(--txt-3,#6B7699);font-weight:600}
+.wal-emp-track{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.wal-emp-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)}

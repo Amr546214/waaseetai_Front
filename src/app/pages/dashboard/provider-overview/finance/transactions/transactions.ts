@@ -8,7 +8,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 
 interface FinancialEvent {
   id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED';
-  amount: number; currency: 'SAR'; title: string; description: string; projectId: string;
+  amount: number; currency: string; title: string; description: string; projectId: string;
   projectTitle: string; stageId: string | null; status: 'COMPLETED' | 'HELD' | 'RELEASED' | 'REFUNDED'; createdAt: string;
 }
 
@@ -46,8 +46,16 @@ export class Transactions implements OnInit {
   setPeriod(value: string) { this.currentPeriod.set(value); }
   setType(value: string) { this.currentType.set(value); }
   setSearch(event: Event) { this.searchQuery.set((event.target as HTMLInputElement).value.trim().toLowerCase()); }
+
+  statusLabel(t: FinancialEvent) {
+    if (t.type === 'credit') return 'مفرج ومكتمل';
+    if (t.status === 'HELD') return 'محتجز في الضمان';
+    if (t.status === 'REFUNDED') return 'مسترد';
+    return 'تم الإفراج';
+  }
+
   exportCSV() {
-    const rows = [['رقم المعاملة','النوع','المشروع','الوصف','المبلغ','العملة','الحالة','التاريخ'], ...this.filteredTransactions().map(t => [t.id,t.title,t.projectTitle,t.description,String(t.amount),'SAR',t.status,new Date(t.createdAt).toISOString()])];
+    const rows = [['رقم المعاملة','النوع','المشروع','الوصف','المبلغ','العملة','الحالة','التاريخ'], ...this.filteredTransactions().map(t => [t.id,t.title,t.projectTitle,t.description,String(t.amount),t.currency || 'USD',t.status,new Date(t.createdAt).toISOString()])];
     const csv = '\ufeff' + rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = `provider-transactions-${new Date().toISOString().slice(0,10)}.csv`; anchor.click(); URL.revokeObjectURL(url);

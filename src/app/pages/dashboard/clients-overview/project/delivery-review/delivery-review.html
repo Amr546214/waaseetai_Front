@@ -20,13 +20,16 @@
 				<div class="dr-hd-top">
 					<div>
 						<div class="dr-hd-ttl">تسليم المرحلة {{ stage.stageNumber }}: {{ stage.title }}</div>
-						<div class="dr-hd-id">#{{ data.contractRef }} · من {{ data.clientName }}</div>
+						<div class="dr-hd-id">#{{ data.contractRef }} · من {{ data.clientName }}@if (isCompany() && data.companyContext?.ownerName) { · المسؤول: {{ data.companyContext.ownerName }} }</div>
 					</div>
 					<span class="dr-pill" [class]="statusBadgeClass(stage)">{{ statusBadgeText(stage) }}</span>
 				</div>
 				<div class="dr-meta">
 					<div class="dr-meta-item"><div class="dr-meta-lbl">قيمة المرحلة</div><div class="dr-meta-val">{{ formatNumber(stage.amount) }} $</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">سُلّمت</div><div class="dr-meta-val">{{ submittedTimeAgo(stage) }}</div></div>
+					@if (isCompany()) {
+						<div class="dr-meta-item"><div class="dr-meta-lbl">الموظف المسؤول</div><div class="dr-meta-val">{{ data.companyContext?.ownerName || '—' }}</div></div>
+					}
 					<div class="dr-meta-item"><div class="dr-meta-lbl">مهلة المراجعة</div><div class="dr-meta-val">{{ reviewDeadlineText() }}</div></div>
 					<div class="dr-meta-item"><div class="dr-meta-lbl">الملفات</div><div class="dr-meta-val">{{ stageFileCount(stage) }} ملفات</div></div>
 				</div>

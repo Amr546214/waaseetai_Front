@@ -42,6 +42,10 @@ export interface Withdrawal {
   createdAt?: string;
   updatedAt?: string;
   processedAt?: string | null;
+  // Admin detail only (GET /api/admin/withdrawals/:id) — real withdrawable
+  // balance for this withdrawal's ledger (provider earnings or affiliate
+  // commissions), computed server-side. Not present on list responses.
+  availableBalance?: number;
   [key: string]: unknown;
 }
 

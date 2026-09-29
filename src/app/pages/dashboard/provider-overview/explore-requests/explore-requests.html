@@ -21,7 +21,7 @@
 		}
 
 		<div class="flt-actions">
-			<button class="flt-apply-btn" (click)="closeFilter()">تطبيق الفلاتر</button>
+			<button class="flt-apply-btn" (click)="applyFilters()">تطبيق الفلاتر</button>
 			<button class="flt-reset-btn" (click)="resetDrawerFilters()">إعادة تعيين</button>
 		</div>
 	</div>
@@ -93,16 +93,16 @@
 		</div>
 		<div class="fr-end" style="gap:6px">
 			<div class="fr-active"
-				[class.show]="searchQuery() !== '' || activeSpecialty() !== 'all' || activeSort() !== 'match'"
+				[class.show]="searchQuery() !== '' || activeSpecialty() !== 'all' || activeSort() !== 'match' || activeDrawerFilterCount() > 0"
 				id="fr-active-count" aria-live="polite">
-				<span id="fr-cnt-lbl">{{ (searchQuery() !== '' ? 1 : 0) + (activeSpecialty() !== 'all' ? 1 : 0) + (activeSort() !== 'match' ? 1 : 0) }} فلتر نشط</span>
+				<span id="fr-cnt-lbl">{{ (searchQuery() !== '' ? 1 : 0) + (activeSpecialty() !== 'all' ? 1 : 0) + (activeSort() !== 'match' ? 1 : 0) + activeDrawerFilterCount() }} فلتر نشط</span>
 				<button type="button" class="fr-clear" (click)="resetFilters()" aria-label="مسح كل الفلاتر"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
 			</div>
 			<button type="button" class="fr-export-btn" (click)="openFilter()">
 				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 					aria-hidden="true">
 					<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-				</svg>فلترة
+				</svg>فلترة{{ activeDrawerFilterCount() > 0 ? ' (' + activeDrawerFilterCount() + ')' : '' }}
 			</button>
 		</div>
 	</div>
@@ -118,7 +118,7 @@
 
 	<!-- بطاقات الاستكشاف -->
 	<div class="req-list" id="reqs-grid">
-		@for (req of requests(); track req.id) {
+		@for (req of visibleRequests(); track req.id) {
 		<div class="req-card-ex">
 			<div class="rc-ai">
 				<div class="rc-ai-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -224,7 +224,7 @@
 	</div>
 
 	<div class="ord-pager">
-		<span id="ord-count">يظهر 1-{{ requests().length }} نتيجة</span>
+		<span id="ord-count">يظهر 1-{{ visibleRequests().length }} نتيجة</span>
 		<div class="ord-pages">
 			<button type="button" class="ord-pg active">1</button>
 			<button type="button" class="ord-pg">&#8250;</button>

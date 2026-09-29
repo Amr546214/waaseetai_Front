@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ClientFinanceService } from '../../core/services/client-finance.service';
 import { PaypalDepositService } from '../../core/services/paypal-deposit.service';
 import { environment } from '../../../environments/environment';
+import { AuthStore } from '../../core/store/auth.store';
+import { AccountType } from '../../core/models/auth.model';
 
 declare const Moyasar: any;
 declare const paypal: any;
@@ -17,6 +19,8 @@ declare const paypal: any;
 export class DepositModal implements AfterViewInit, OnDestroy {
 	private clientFinanceService = inject(ClientFinanceService);
 	private paypalDepositService = inject(PaypalDepositService);
+	private authStore = inject(AuthStore);
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 	private sdkPoll?: ReturnType<typeof setInterval>;
 	private reinitTimer?: ReturnType<typeof setTimeout>;
 	private initSequence = 0;

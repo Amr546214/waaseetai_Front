@@ -441,3 +441,12 @@ body.theme-light .success-sub,
   color: #64748B !important;
 }
 
+
+/* Company-mode "on behalf of the company" banner (step 1, P-SK-002-شركة) */
+.co-req-banner{background:linear-gradient(135deg,rgba(43,127,255,.08),rgba(43,127,255,.02));border:1px solid rgba(43,127,255,.22);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.co-req-banner-hdr{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:#5DA0FF;margin-bottom:12px}
+.co-req-banner-hdr svg{width:16px;height:16px}
+.co-req-field label{display:block;font-size:11px;color:var(--txt-3,#6B7699);font-weight:600;margin-bottom:6px}
+.co-req-employee{display:inline-flex;align-items:center;padding:8px 14px;border-radius:9px;background:var(--surface,rgba(255,255,255,.04));border:1px solid var(--border,rgba(255,255,255,.08));font-size:13px;font-weight:700;color:var(--txt,#fff)}
+.co-req-note{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--txt-3,#6B7699);margin-top:12px;line-height:1.6}
+.co-req-note svg{width:14px;height:14px;color:#0FA99A;flex-shrink:0}

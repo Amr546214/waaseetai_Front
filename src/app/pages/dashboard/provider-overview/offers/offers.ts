@@ -33,15 +33,6 @@ export class Offers implements OnInit {
 		return user?.accountType === AccountType.PROVIDER_COMPANY;
 	});
 
-	// Company team members for advanced filter
-	companyTeamMembers = [
-		{ id: 'tm1', name: 'سارة', initials: 'سا', color: 'linear-gradient(135deg,#FFB400,#D98A0B)' },
-		{ id: 'tm2', name: 'فهد', initials: 'فه', color: 'linear-gradient(135deg,#2B7FFF,#1A5FCC)' },
-		{ id: 'tm3', name: 'ريم', initials: 'ري', color: 'linear-gradient(135deg,#0FA99A,#0D8A7E)' },
-		{ id: 'tm4', name: 'خالد', initials: 'خا', color: 'linear-gradient(135deg,#A56BE0,#7B2FBE)' },
-		{ id: 'tm5', name: 'ليلى', initials: 'لي', color: 'linear-gradient(135deg,#E05B6B,#C0394A)' },
-	];
-
 	// Company specialty filter
 	companySpecialtyFilter = signal<string>('all');
 	companySpecialtyOptions = [
@@ -89,6 +80,16 @@ export class Offers implements OnInit {
 
 	offers = signal<Offer[]>([]);
 
+	// The offer currently shown in the "تفاصيل العرض" (offer detail) modal —
+	// opened from handleOfferAction() for offers still awaiting the client's
+	// response (pending / PENDING_RESPONSE / pending_response). No dedicated
+	// "view offer" screen or negotiation-round data exists yet for an offer
+	// that hasn't been responded to, so this shows only the real, already-
+	// loaded offer fields (title, ref, price, client, status) rather than
+	// silently doing nothing or fabricating negotiation content that never
+	// happened (see OfferNegotiate, which assumes an active back-and-forth).
+	selectedPendingOffer = signal<Offer | null>(null);
+
 	filteredOffers = computed(() => {
 		return this.offers().filter(o => {
 			const matchStatus = this.activeStatus() === 'all' ||
@@ -127,7 +128,7 @@ export class Offers implements OnInit {
 						id: item.offerId || item.id,
 						ref: item.projectRef || item.ref,
 						title: item.projectTitle || item.title,
-						price: typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} ريال` : (item.price || '0 ريال'),
+						price: typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || '0 $'),
 						status: item.statusKey || (item.status === 'UNDER_NEGOTIATION' ? 'nego' : item.status === 'ACCEPTED' ? 'accepted' : item.status === 'PENDING_RESPONSE' ? 'pending_response' : 'pending'),
 						statusText: item.statusText || 'بانتظار الرد',
 						clientName: item.clientName || 'عميل وسيط',
@@ -213,9 +214,35 @@ export class Offers implements OnInit {
 			this.router.navigate(['/provider-overview/projects/active']);
 		} else if (status === 'nego' || status === 'under_negotiation') {
 			this.router.navigate(['/provider-overview/offers', offer.id, 'negotiate']);
+		} else if (status === 'pending' || status === 'pending_response') {
+			// 'pending'/'PENDING_RESPONSE' — the default "awaiting client
+			// response" state most offers start in. No negotiation has
+			// happened yet, so routing to OfferNegotiate (which always shows
+			// a fabricated client counter-offer round) would be dishonest.
+			// Instead, show a real offer-detail view built only from the
+			// already-loaded, real offer fields.
+			this.selectedPendingOffer.set(offer);
 		} else {
-			// Handle other actions like opening details or negotiation
-			console.log('Action clicked for offer:', offer);
+			// Any other/unknown status still gets a real detail view rather
+			// than silently doing nothing.
+			this.selectedPendingOffer.set(offer);
 		}
+	}
+
+	closePendingOfferModal() {
+		this.selectedPendingOffer.set(null);
+	}
+
+	messageOfferClient(offer: Offer) {
+		this.selectedPendingOffer.set(null);
+		this.router.navigate(['/provider-overview/messages'], {
+			state: {
+				messageContext: {
+					type: 'PROJECT',
+					projectId: offer.id,
+					projectTitle: offer.title,
+				}
+			}
+		});
 	}
 }

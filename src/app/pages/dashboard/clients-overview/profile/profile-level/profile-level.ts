@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, signal, inject, PLATFORM_ID } from '@angu
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { GamificationService, GamificationLevelResponse } from '../../../../../core/services/gamification.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 import { Subscription } from 'rxjs';
 import { filter, take, switchMap } from 'rxjs/operators';
 
@@ -55,6 +56,7 @@ export class ProfileLevel implements OnInit, OnDestroy {
   private gamificationService = inject(GamificationService);
   private authStore = inject(AuthStore);
   private platformId = inject(PLATFORM_ID);
+  readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
   levelData = signal<GamificationLevelResponse | null>(null);
   isLoading = signal<boolean>(true);

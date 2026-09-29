@@ -26,12 +26,12 @@
 .apr-card-hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
 .apr-pri{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
 .pri-high{background:#FFB400}
-.pri-med{background:#5DA0FF}
-.pri-low{background:#6B7699}
+.pri-med{background:var(--blue-txt)}
+.pri-low{background:var(--txt-3)}
 .apr-body{flex:1;min-width:0}
-.apr-id{font-size:12px;font-weight:800;color:#5DA0FF;font-family:monospace;margin-bottom:4px}
-.apr-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
-.apr-type{font-size:12px;font-weight:700;color:#2BD4C7}
+.apr-id{font-size:12px;font-weight:800;color:var(--blue-txt);font-family:monospace;margin-bottom:4px}
+.apr-title{font-size:15px;font-weight:800;color:var(--txt);margin-bottom:4px}
+.apr-type{font-size:12px;font-weight:700;color:var(--teal)}
 .apr-status{padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:800;flex-shrink:0;white-space:nowrap;display:inline-block}
 .st-pending{background:rgba(255,180,0,.1);color:#FFB400;border:1px solid rgba(255,180,0,.22)}
 .st-approved{background:rgba(15,169,154,.1);color:#0FA99A;border:1px solid rgba(15,169,154,.22)}

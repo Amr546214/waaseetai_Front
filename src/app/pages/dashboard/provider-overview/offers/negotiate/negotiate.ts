@@ -38,6 +38,21 @@ export class OfferNegotiate implements OnInit {
 		return user?.accountType === AccountType.PROVIDER_COMPANY;
 	});
 
+	// Company mode: identifies which team member (the logged-in company user)
+	// is conducting this negotiation, matching the design's "المكلّف" (assignee)
+	// indicator shown per negotiation thread. Sourced from the real authenticated
+	// user — no dedicated "assigned negotiator" backend field exists yet.
+	negotiatorName = computed<string>(() => {
+		const user = this.authStore.currentUser();
+		if (!user) return '';
+		return `${user.firstName || ''} ${user.lastName || ''}`.trim();
+	});
+
+	negotiatorInitials = computed<string>(() => {
+		const name = this.negotiatorName();
+		return name ? name.trim().charAt(0) : 'م';
+	});
+
 	offerId = signal<string>('');
 	offer = signal<any>(null);
 	loading = signal<boolean>(true);
@@ -160,7 +175,7 @@ export class OfferNegotiate implements OnInit {
 				actorLabel: offer.clientName,
 				price: clientPrice,
 				message: 'السعر أعلى قليلاً من ميزانيتنا، هل يمكن تخفيضه مع الإبقاء على نفس نطاق العمل؟',
-				aiNote: `الفارق ${Math.max(0, providerPrice - clientPrice).toLocaleString('en-US')} ريال فقط — نقطة وسط قد تُغلق الصفقة بسرعة.`,
+				aiNote: `الفارق ${Math.max(0, providerPrice - clientPrice).toLocaleString('en-US')} $ فقط — نقطة وسط قد تُغلق الصفقة بسرعة.`,
 				aiConfidence: 88,
 				timestamp: new Date(now - 1000 * 60 * 60 * 6),
 				isUrgent: true,
@@ -223,7 +238,7 @@ export class OfferNegotiate implements OnInit {
 		const offer = this.offer();
 		const agreedPrice = this.latestClientRound()?.price ?? offer?.offeredPrice;
 		this.router.navigate(['/provider-overview/offers', this.offerId(), 'sign-contract'], {
-			state: { offer: { ...offer, price: `${(agreedPrice || 0).toLocaleString('en-US')} ريال` } }
+			state: { offer: { ...offer, price: `${(agreedPrice || 0).toLocaleString('en-US')} $` } }
 		});
 	}
 

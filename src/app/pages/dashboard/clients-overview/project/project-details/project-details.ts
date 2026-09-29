@@ -10,6 +10,8 @@ import { DisputeApiService } from '../../../../../core/services/dispute-api.serv
 import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
 import { MessageContext } from '../../../../../core/services/chat.service';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type SupportAction = 'edit' | 'dispute' | 'cancel' | null;
@@ -25,6 +27,8 @@ export class ProjectDetails implements OnInit {
 	private router = inject(Router);
 	private disputeApi = inject(DisputeApiService);
 	private ratingApi = inject(RatingApiService);
+	private authStore = inject(AuthStore);
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 	project = signal<any>(null);
 	isLoading = signal(true);
 	error = signal('');

@@ -28,9 +28,9 @@
   <!-- KPI سجل العمولات -->
   <div class="kpi-grid">
     <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">إجمالي العمولات</span></div><div class="kpi-val txt-green">{{ summary()?.totalCommissions || 0 }}</div><div class="kpi-delta txt-muted">ريال منذ الانضمام</div></div>
-    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">هذا الشهر</span></div><div class="kpi-val txt-teal">{{ summary()?.totalCommissions || 0 }}</div><div class="kpi-delta txt-green">+0% من الشهر الماضي</div></div>
-    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">محجوزة</span></div><div class="kpi-val txt-amber">0</div><div class="kpi-delta txt-muted">بانتظار إتمام مشاريع</div></div>
-    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-check"></use></svg></div><span class="kpi-lbl">منسحبة</span></div><div class="kpi-val txt-blue">0</div><div class="kpi-delta txt-muted">ريال إجمالي السحوبات</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">هذا الشهر</span></div><div class="kpi-val txt-teal">{{ thisMonthAmount() }}</div><div class="kpi-delta" [class.txt-green]="monthDeltaPercentage() >= 0" [class.txt-coral]="monthDeltaPercentage() < 0">{{ monthDeltaPercentage() >= 0 ? '+' : '' }}{{ monthDeltaPercentage() }}% من الشهر الماضي</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">محجوزة</span></div><div class="kpi-val txt-amber">{{ heldAmount() }}</div><div class="kpi-delta txt-muted">بانتظار إتمام مشاريع</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-check"></use></svg></div><span class="kpi-lbl">منسحبة</span></div><div class="kpi-val txt-blue">{{ withdrawnAmount() }}</div><div class="kpi-delta txt-muted">ريال إجمالي السحوبات</div></div>
   </div>
 
   <div class="adm-card">

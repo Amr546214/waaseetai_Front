@@ -1,8 +1,10 @@
-import { Component, signal, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, computed, signal, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { OffersService } from '../../../../../core/services/offers.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
 	selector: 'app-sign-contract',
@@ -15,6 +17,26 @@ export class SignContract {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private offersService = inject(OffersService);
+	private authStore = inject(AuthStore);
+
+	isCompanyMode = computed<boolean>(() => {
+		const user = this.authStore.currentUser();
+		return user?.accountType === AccountType.PROVIDER_COMPANY;
+	});
+
+	// Company mode: identifies who is signing on behalf of the company and its
+	// commercial registration number, for the contract's signing-party info.
+	// Both are real fields already on the authenticated user — no dedicated
+	// "signing authority" endpoint exists on the backend yet.
+	signerName = computed<string>(() => {
+		const user = this.authStore.currentUser();
+		if (!user) return '';
+		return `${user.firstName || ''} ${user.lastName || ''}`.trim();
+	});
+
+	signerCommercialRegistration = computed<string>(() => {
+		return this.authStore.currentUser()?.commercialRegistration || '';
+	});
 
 	offerId = signal<string>('');
 	offerTitle = signal<string>('جارٍ تحميل العقد...');
@@ -68,7 +90,7 @@ export class SignContract {
 				this.offerTitle.set(item.projectTitle || item.title || this.offerTitle());
 				this.offerRef.set(item.projectRef || item.ref || this.offerRef());
 				this.providerName.set(item.providerName || item.clientName || this.providerName());
-				this.price.set(typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} ريال` : (item.price || this.price()));
+				this.price.set(typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || this.price()));
 				this.duration.set(item.duration || item.offeredDuration || this.duration());
 				this.phases.set(item.phases || item.milestones || this.phases());
 			},

@@ -120,8 +120,9 @@ export class Reports implements OnInit {
 		return { 'نشط': 'op-active', 'مكتمل': 'op-done', 'منشور': 'op-hold', 'ملغي': 'op-cancel' }[bucket] || 'op-hold';
 	}
 
+	// Project budgets / escrow have no stored currency and are USD-canonical.
 	formatBudget(n: number): string {
-		return n ? `${n.toLocaleString('en-US')} ﷼` : '—';
+		return n ? `${n.toLocaleString('en-US')} $` : '—';
 	}
 
 	orderRef(id: string): string {
@@ -181,9 +182,12 @@ export class Reports implements OnInit {
 		return amount < 0 ? 'td-bold' : 'td-bold kv-val-green';
 	}
 
-	formatAmount(n: number): string {
+	// Wallet transactions display their OWN stored currency (historical SAR
+	// rows stay SAR, PayPal/current rows are USD) — never relabeled.
+	formatAmount(n: number, currency?: string): string {
 		const abs = Math.abs(n);
-		return `${n < 0 ? '−' : ''}${abs.toLocaleString('en-US')} ﷼`;
+		const label = currency === 'SAR' ? '﷼' : (currency && currency !== 'USD' ? currency : '$');
+		return `${n < 0 ? '−' : ''}${abs.toLocaleString('en-US')} ${label}`;
 	}
 
 	txStatusClass(status: string): string {

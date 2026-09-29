@@ -129,12 +129,7 @@
 
 <!-- MAIN TABS -->
 <div class="flex gap-1 border-b border-[var(--sec-bd)] mb-5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-  @for(tab of [
-    {id:'orders', label:'طلبات العملاء', icon:'list', count:12}, 
-    {id:'projects', label:'مشاريعي', icon:'doc', count:8}, 
-    {id:'finance', label:'إيراداتي', icon:'wallet', count:24}, 
-    {id:'disputes', label:'النزاعات', icon:'dispute', count:2}
-  ]; track tab.id) {
+  @for(tab of tabs(); track tab.id) {
     <button class="px-4 py-3 text-[13.5px] font-bold flex items-center gap-2 whitespace-nowrap border-b-[2.5px] transition-all -mb-[1px]"
             [class]="currentTab() === tab.id ? 'text-[#2BD4C7] border-[#2BD4C7]' : 'text-[var(--txt-3)] border-transparent hover:text-[var(--txt-2)]'"
             (click)="setTab(tab.id)">
@@ -142,7 +137,8 @@
       @if(tab.icon === 'doc'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
       @if(tab.icon === 'wallet'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg> }
       @if(tab.icon === 'dispute'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> }
-      
+      @if(tab.icon === 'team'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> }
+
       {{ tab.label }}
       <span class="min-w-[20px] h-[18px] rounded-full text-[10px] font-black inline-flex items-center justify-center px-1.5 transition-colors"
             [class]="currentTab() === tab.id ? 'bg-[#2BD4C7]/15 text-[#2BD4C7]' : 'bg-[var(--sec-bd)] text-[var(--txt-3)]'">{{ tab.count }}</span>
@@ -347,6 +343,85 @@
           <button class="w-7 h-7 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-3)] font-bold flex items-center justify-center transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt-2)]">2</button>
           <button class="w-7 h-7 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-3)] font-bold flex items-center justify-center transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt-2)]">3</button>
         </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if(currentTab() === 'team') {
+  <div class="animate-ws-fade">
+    <!-- Team Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+      <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
+        <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">مدفوعات للمقدمين</div>
+        <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ providerPayoutsTotal }} ﷼</div>
+        <div class="flex items-center justify-between mt-3">
+          <span class="text-[11px] font-bold text-[#0FA99A]">▲ {{ providerPayoutsTrend }}</span>
+        </div>
+      </div>
+      <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
+        <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">نسبة الحل لصالح المقدم</div>
+        <div class="text-[26px] font-black text-[var(--txt)] leading-none mb-2 tracking-tight">{{ disputeResolutionProviderRate }}%</div>
+        <div class="flex items-center justify-between mt-3">
+          <span class="text-[11px] font-bold text-[var(--txt-3)]">من إجمالي النزاعات المحلولة آخر 6 أشهر</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Performance Table -->
+    <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden shadow-sm">
+      <div class="flex items-center justify-between gap-3 px-4 py-3.5 border-b border-[var(--sec-bd)]">
+        <div class="text-[13px] font-black text-[var(--txt)] flex items-center gap-2">
+          <svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          أداء الفريق
+        </div>
+      </div>
+
+      <div class="overflow-x-auto [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[var(--sec-bd)] [&::-webkit-scrollbar-thumb]:rounded-full">
+        <table class="w-full text-right border-collapse min-w-[760px]">
+          <thead>
+            <tr class="border-b border-[var(--sec-bd)] bg-[var(--sec-bg)]/40">
+              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">المقدم / الموظف</th>
+              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">التخصص</th>
+              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">مشاريع</th>
+              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">تقييم</th>
+              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">في الوقت</th>
+              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">الإيراد</th>
+              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(member of teamPerformance; track member.name) {
+              <tr class="border-b border-[var(--sec-bd)] last:border-b-0 hover:bg-[var(--sec-bg-hover)] transition-colors">
+                <td class="py-3 px-4">
+                  <div class="text-[13px] font-black text-[var(--txt)] mb-0.5">{{ member.name }}</div>
+                  <div class="text-[11px] font-bold text-[var(--txt-3)]">{{ member.level }}</div>
+                </td>
+                <td class="py-3 px-4 text-[12.5px] font-bold text-[var(--txt-2)]">{{ member.role }}</td>
+                <td class="py-3 px-4 text-[13px] font-black text-[var(--txt-2)]">{{ member.projects }}</td>
+                <td class="py-3 px-4 text-[13px] font-black text-[#FFB400]">{{ member.rating }} ★</td>
+                <td class="py-3 px-4 text-[13px] font-black"
+                    [ngClass]="member.onTime >= 90 ? 'text-[#0FA99A]' : member.onTime >= 75 ? 'text-[#FFB400]' : 'text-[#FF8C69]'">{{ member.onTime }}%</td>
+                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ member.revenue }} ﷼</td>
+                <td class="py-3 px-4">
+                  @if(member.status === 'active') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A] text-[10px] font-black whitespace-nowrap">
+                      <div class="w-1.5 h-1.5 rounded-full bg-[#0FA99A]"></div> نشط
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFB400]/10 border border-[#FFB400]/30 text-[#FFB400] text-[10px] font-black whitespace-nowrap">
+                      <div class="w-1.5 h-1.5 rounded-full bg-[#FFB400]"></div> تأخير
+                    </span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between px-4 py-3 border-t border-[var(--sec-bd)] text-[12px] font-bold text-[var(--txt-3)]">
+        <span>يُعرض {{ teamPerformance.length }} من {{ teamPerformance.length }}</span>
       </div>
     </div>
   </div>

@@ -166,7 +166,7 @@ export class ProjectModificationsComponent implements OnInit {
 	formatBudgetDelta(value: number | null): string {
 		if (value === null || value === 0) return 'بلا تغيير';
 		const sign = value > 0 ? '+' : '-';
-		return `${sign}${Math.abs(value).toLocaleString('en-US')} ريال`;
+		return `${sign}${Math.abs(value).toLocaleString('en-US')} $`;
 	}
 
 	formatDurationDelta(value: number | null): string {
