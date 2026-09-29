@@ -298,7 +298,7 @@
                     </div>
                   }
                   <div class="pc-price">
-                    <span class="pc-price-val" [style.color]="slot.rank === 1 ? (mode() === 'top-rated' ? 'var(--kahr)' : 'var(--teal)') : null">{{ slot.model.totalAmount | number }}</span><span class="pc-price-lbl">ريال</span>
+                    <span class="pc-price-val" [style.color]="slot.rank === 1 ? (mode() === 'top-rated' ? 'var(--kahr)' : 'var(--teal)') : null">{{ slot.model.totalAmount | number }}</span><span class="pc-price-lbl">$</span>
                     <div class="pc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(slot.model.totalDays) }}</div>
                     <button class="pc-btn" type="button" [routerLink]="['/marketplace/offer', slot.model.id]">{{ slot.rank === 1 ? 'اطلب الآن' : 'عرض الخدمة' }}</button>
                   </div>
@@ -353,7 +353,7 @@
                     <div>
                       <span class="fc-price-lbl">يبدأ من</span>
                       <span class="fc-price-val">{{ m.totalAmount | number }}</span>
-                      <span style="font-size:11px;color:var(--txt-3)"> ريال</span>
+                      <span style="font-size:11px;color:var(--txt-3)"> $</span>
                       <div class="fc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                     </div>
                     <button class="fc-btn" type="button" [routerLink]="['/marketplace/offer', m.id]">{{ first ? 'اطلب الآن' : 'عرض' }}</button>
@@ -407,9 +407,9 @@
                   </div>
                 }
                 <div class="deal-pricing">
-                  <div class="price-before">{{ priceBefore(m) | number }} ريال</div>
-                  <div class="price-after">{{ m.totalAmount | number }} <span>ريال</span></div>
-                  <div class="price-saving">توفر {{ saving(m) | number }} ريال</div>
+                  <div class="price-before">{{ priceBefore(m) | number }} $</div>
+                  <div class="price-after">{{ m.totalAmount | number }} <span>$</span></div>
+                  <div class="price-saving">توفر {{ saving(m) | number }} $</div>
                   <button class="deal-btn" type="button">{{ first ? 'استفد من العرض الآن' : 'استفد الآن' }}</button>
                 </div>
               </div>
@@ -505,7 +505,7 @@
                         <div class="svc-rating"><span class="stars">{{ starText(m.rating) }}</span><span class="score">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
                         <div class="svc-footer">
                           <div>
-                            <div class="svc-price">{{ m.totalAmount | number }} <span>ريال</span></div>
+                            <div class="svc-price">{{ m.totalAmount | number }} <span>$</span></div>
                             <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                           </div>
                           <button class="svc-fav" type="button" [class.is-favorite]="isFav(m.id)" aria-label="أضف للمفضلة" (click)="toggleFavorite(m.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
@@ -552,7 +552,7 @@
                       @if (offerCountdown(m); as cd) {
                         <div class="svc-cd"><svg aria-hidden="true"><use href="#ws-clock"></use></svg><span class="svc-cd-lbl">ينتهي خلال</span><span class="svc-cd-time">{{ cd }}</span></div>
                       }
-                      <div class="svc-pricing"><div class="svc-before">{{ priceBefore(m) | number }} ريال</div><div class="svc-after">{{ m.totalAmount | number }} <span>ريال</span></div></div>
+                      <div class="svc-pricing"><div class="svc-before">{{ priceBefore(m) | number }} $</div><div class="svc-after">{{ m.totalAmount | number }} <span>$</span></div></div>
                     </div>
                   </a>
                 }
@@ -587,7 +587,7 @@
                         <div class="svc-rating"><div class="svc-stars">@for (on of stars(m.rating); track $index) {<svg aria-hidden="true" style="width:10px;height:10px;color:var(--kahr)" [style.opacity]="on ? null : '.4'"><use href="#ws-star"></use></svg>}</div><span class="svc-rating-val">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
                       }
                       <div class="svc-bottom">
-                        <div><div class="svc-price"><span>من </span>{{ m.totalAmount | number }} <span>ريال</span></div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
+                        <div><div class="svc-price"><span>من </span>{{ m.totalAmount | number }} <span>$</span></div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
                         <button class="svc-fav" type="button" [class.is-favorite]="isFav(m.id)" aria-label="مفضلة" (click)="toggleFavorite(m.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
                       </div>
                     </div>
@@ -620,7 +620,7 @@
                     }
                   </div>
                   <div class="list-right">
-                    <div class="list-price">{{ m.totalAmount | number }} <span>ريال</span></div>
+                    <div class="list-price">{{ m.totalAmount | number }} <span>$</span></div>
                     <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                     <button type="button" style="padding:8px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit;white-space:nowrap">عرض الخدمة</button>
                   </div>

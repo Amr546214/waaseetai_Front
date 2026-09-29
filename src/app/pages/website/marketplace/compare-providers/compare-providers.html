@@ -104,13 +104,13 @@
               @if (pr.minServicePrice != null) {
                 <div class="prov-price-row">
                   <div class="prov-price-label">يبدأ من</div>
-                  <div class="prov-price-range" [style.color]="isWinner ? 'var(--teal)' : null">{{ pr.minServicePrice | number }} <span>ريال / مشروع</span></div>
-                  <div class="prov-price-note">أعلى خدمة: {{ pr.maxServicePrice | number }} ريال</div>
+                  <div class="prov-price-range" [style.color]="isWinner ? 'var(--teal)' : null">{{ pr.minServicePrice | number }} <span>$ / مشروع</span></div>
+                  <div class="prov-price-note">أعلى خدمة: {{ pr.maxServicePrice | number }} $</div>
                 </div>
               } @else if (pr.hourlyRate) {
                 <div class="prov-price-row">
                   <div class="prov-price-label">سعر الساعة</div>
-                  <div class="prov-price-range" [style.color]="isWinner ? 'var(--teal)' : null">{{ pr.hourlyRate | number }} <span>ريال / ساعة</span></div>
+                  <div class="prov-price-range" [style.color]="isWinner ? 'var(--teal)' : null">{{ pr.hourlyRate | number }} <span>$ / ساعة</span></div>
                 </div>
               }
               <div class="prov-btn-row">
@@ -166,9 +166,9 @@
               <div class="sum-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-file"></use></svg></div>
               <div><div class="sum-lbl">أفضل سعر</div>
                 @if (c.minServicePrice != null) {
-                  <div class="sum-val">{{ c.minServicePrice | number }} ريال — {{ c.fullName }}</div>
+                  <div class="sum-val">{{ c.minServicePrice | number }} $ — {{ c.fullName }}</div>
                 } @else {
-                  <div class="sum-val">{{ c.hourlyRate | number }} ريال / ساعة — {{ c.fullName }}</div>
+                  <div class="sum-val">{{ c.hourlyRate | number }} $ / ساعة — {{ c.fullName }}</div>
                 }
               </div>
             </div>

@@ -136,7 +136,7 @@
                   <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><div><div class="svc-pname">{{ m.provider.name }}</div>@if (m.isVerified) {<div class="svc-verified">✓ معتمد</div>}</div></div>
                   <div class="svc-rating"><span class="stars">{{ stars(m.rating) }}</span><span class="score">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
                   <div class="svc-footer">
-                    <div><div class="svc-price">{{ m.totalAmount }} <span>ريال</span></div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ m.totalDays }} يوم</div></div>
+                    <div><div class="svc-price">{{ m.totalAmount }} <span>$</span></div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ m.totalDays }} يوم</div></div>
                     <a class="svc-order-btn" [routerLink]="['/marketplace/offer', m.id]">اطلب الآن</a>
                   </div>
                 </div>

@@ -68,11 +68,11 @@
       <div class="svc-prov"><div class="svc-av" [style.background]="avatarGradient(i)">{{ model.provider?.initials || 'م' }}</div><span class="svc-pname">{{ model.provider?.name }}</span>@if (model.isVerified) {<span class="svc-ok"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</span>}</div>
       <div class="svc-rating"><span class="svc-stars">★★★★★</span><span class="svc-score">{{ model.rating ?? 0 }}</span><span class="svc-cnt">({{ model.reviewsCount || 0 }})</span></div>
       @if (mode === 'flash') {
-      <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} ريال <span style="font-size:10px;text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | number:'1.0-0' }}</span></div></div></div>
+      <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $ <span style="font-size:10px;text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | number:'1.0-0' }}</span></div></div></div>
       } @else if (mode === 'ai') {
-      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} ريال</div></div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div>
+      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $</div></div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div>
       } @else {
-      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} ريال</div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div></div>
+      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $</div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div></div>
       }
     </div>
   </a>
@@ -81,6 +81,8 @@
 @if (!resultsMode()) {
 <!-- ═══════════════ P-MK-001 — landing ═══════════════ -->
 <div class="page-wrap mk-home">
+
+  <h1 class="sr-only">تسوق الخدمات</h1>
 
   <!-- SEARCH BAR -->
   <div class="search-bar">
@@ -340,6 +342,7 @@
 } @else {
 <!-- ═══════════════ P-MK-005 — search / filtered results ═══════════════ -->
 <div class="page-wrap mk-results">
+  <h1 class="sr-only">نتائج البحث في تسوق الخدمات</h1>
   <!-- HERO -->
   <section class="cat-hero">
     <div class="container">
@@ -427,7 +430,7 @@
         }
 
         <div class="filter-section">
-          <div class="filter-lbl">ميزانية الخدمة (ريال)</div>
+          <div class="filter-lbl">ميزانية الخدمة ($)</div>
           <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="selectedMaxPrice() || priceLimit()" (change)="setMaxPrice($event)" aria-label="ميزانية الخدمة">
           <div class="range-vals"><span>0</span><span>{{ (selectedMaxPrice() || priceLimit()) | number:'1.0-0' }}</span><span>{{ priceLimit() | number:'1.0-0' }}+</span></div>
         </div>
@@ -577,7 +580,7 @@
             <div class="svc-foot">
               <div class="svc-price">
                 <span class="svc-price-lbl">يبدأ من</span>
-                <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">ريال</span></span>
+                <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">$</span></span>
               </div>
               @if (model.totalDays) {
               <div class="svc-delivery">

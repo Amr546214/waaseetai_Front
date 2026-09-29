@@ -6,10 +6,47 @@ import { CheckoutApiService, CheckoutOrderPayload, PaymentInitPayload, PaymentCo
 import { mapOrder, BackendOrderResponse } from './checkout-mappers';
 import { Order, OrderStatus, PaymentMethod } from '../models/checkout.model';
 
+/**
+ * Smallest compatible typed contract for the backend's wallet-insufficient
+ * 402 response ({ success:false, message, errors:[{required,available,shortfall}] }
+ * — see waseetai-backend's error.middleware.ts / cart-checkout.service.ts).
+ * Only these three numbers are ever surfaced — never any other backend/error
+ * internal detail (no raw error object, no stack, no message beyond the
+ * fixed one already in `message`).
+ */
+export interface InsufficientBalanceInfo {
+	required: number;
+	available: number;
+	shortfall: number;
+}
+
 export interface CheckoutResult {
 	success: boolean;
 	message: string;
 	data?: any;
+	/** Present ONLY when the failure was specifically a 402 wallet-insufficient-balance response — never set for any other failure. */
+	insufficientBalance?: InsufficientBalanceInfo;
+}
+
+/**
+ * Narrow, defensive extraction of the 402 insufficient-balance shape from a
+ * raw Angular HttpErrorResponse — never trusts anything beyond `status` and
+ * the three expected numeric fields; any other 402/4xx/5xx shape safely
+ * yields undefined, falling through to the existing generic failure
+ * handling untouched.
+ */
+function extractInsufficientBalance(err: any): InsufficientBalanceInfo | undefined {
+	if (err?.status !== 402) return undefined;
+	const detail = err?.error?.errors?.[0];
+	if (
+		detail &&
+		typeof detail.required === 'number' &&
+		typeof detail.available === 'number' &&
+		typeof detail.shortfall === 'number'
+	) {
+		return { required: detail.required, available: detail.available, shortfall: detail.shortfall };
+	}
+	return undefined;
 }
 
 @Injectable({
@@ -81,7 +118,7 @@ export class CheckoutService {
 
 		const payload: PaymentInitPayload = {
 			orderId: order.id,
-			paymentMethod: method as 'card' | 'moyasar' | 'wallet',
+			paymentMethod: method,
 		};
 
 		return this.checkoutApi.initiatePayment(payload).pipe(
@@ -106,7 +143,8 @@ export class CheckoutService {
 				const errBody = err?.error;
 				const msg = errBody?.message || errBody?.error || err?.message || 'فشل بدء عملية الدفع';
 				this._error.set(msg);
-				return of({ success: false, message: msg } as CheckoutResult);
+				const insufficientBalance = extractInsufficientBalance(err);
+				return of({ success: false, message: msg, ...(insufficientBalance && { insufficientBalance }) } as CheckoutResult);
 			})
 		);
 	}
@@ -156,7 +194,8 @@ export class CheckoutService {
 				const errBody = err?.error;
 				const msg = errBody?.message || errBody?.error || err?.message || 'رمز التحقق غير صحيح';
 				this._error.set(msg);
-				return of({ success: false, message: msg } as CheckoutResult);
+				const insufficientBalance = extractInsufficientBalance(err);
+				return of({ success: false, message: msg, ...(insufficientBalance && { insufficientBalance }) } as CheckoutResult);
 			})
 		);
 	}

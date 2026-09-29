@@ -28,7 +28,8 @@ export interface PaymentMethodItem {
 
 export interface PaymentInitPayload {
 	orderId: string;
-	paymentMethod: 'card' | 'moyasar' | 'wallet';
+	// Wallet-only internal purchasing — see checkout.model.ts's PaymentMethod.
+	paymentMethod: 'wallet';
 }
 
 export interface PaymentInitResponse {

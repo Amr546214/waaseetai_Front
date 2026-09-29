@@ -54,7 +54,7 @@
           </div>
           <div class="ai-banner-content">
             <div class="ai-banner-label">تحليل الذكاء الاصطناعي</div>
-            <div class="ai-banner-text">بناءً على معايير الجودة، <strong>{{ w.provider.name }}</strong> هي الأعلى توافقاً — نقاط AI {{ w.aiScore }} وسعر يبدأ من {{ w.totalAmount }} ريال</div>
+            <div class="ai-banner-text">بناءً على معايير الجودة، <strong>{{ w.provider.name }}</strong> هي الأعلى توافقاً — نقاط AI {{ w.aiScore }} وسعر يبدأ من {{ w.totalAmount }} $</div>
           </div>
           <div class="ai-banner-badge">AI · تحليل</div>
         </div>
@@ -134,7 +134,7 @@
               </div>
               <div class="pcard-price-row">
                 <div class="pcard-price-label">يبدأ من</div>
-                <span class="pcard-price-val" [style.color]="isWinner ? 'var(--teal)' : null">{{ m.totalAmount }}</span><span class="pcard-price-cur">ريال</span>
+                <span class="pcard-price-val" [style.color]="isWinner ? 'var(--teal)' : null">{{ m.totalAmount }}</span><span class="pcard-price-cur">$</span>
                 <div class="pcard-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ m.totalDays }} أيام</div>
               </div>
               <button class="pcard-btn" type="button" [class.primary]="isWinner" [class.ghost]="!isWinner" [routerLink]="['/marketplace/offer', m.id]">{{ isWinner ? 'اطلب الآن' : 'عرض الخدمة' }}</button>
@@ -188,7 +188,7 @@
               <div class="summary-item-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-star"></use></svg></div>
               <div>
                 <div class="summary-item-label">أفضل سعر</div>
-                <div class="summary-item-val">{{ c.totalAmount }} ريال — {{ c.provider.name }}</div>
+                <div class="summary-item-val">{{ c.totalAmount }} $ — {{ c.provider.name }}</div>
               </div>
             </div>
           }

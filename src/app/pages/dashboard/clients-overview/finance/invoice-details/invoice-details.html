@@ -108,6 +108,14 @@
 							<span class="text-base font-black text-slate-900 dark:text-white">{{ invoice()?.project
 								}}</span>
 						</div>
+						@if (isCompany()) {
+						<div
+							class="p-5 flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800/60">
+							<span class="text-xs font-bold text-slate-500">الموظف المسؤول</span>
+							<span class="text-base font-black text-slate-900 dark:text-white">{{ invoice()?.employeeName || '—'
+								}}</span>
+						</div>
+						}
 					</div>
 				</div>
 			</div>
@@ -128,12 +136,12 @@
 					<div class="flex items-center justify-between text-base">
 						<span class="font-bold text-slate-500 dark:text-slate-400">المبلغ الأساسي</span>
 						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.subtotal |
-							number }} ريال</span>
+							number }} $</span>
 					</div>
 					<div class="flex items-center justify-between text-base">
 						<span class="font-bold text-slate-500 dark:text-slate-400">ضريبة القيمة المضافة (15%)</span>
 						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.tax | number }}
-							ريال</span>
+							$</span>
 					</div>
 
 					<div class="w-full h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
@@ -141,7 +149,7 @@
 					<div class="flex items-center justify-between">
 						<span class="text-lg font-black text-slate-900 dark:text-white">الإجمالي المستحق</span>
 						<span class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ invoice()?.total | number
-							}} ريال</span>
+							}} $</span>
 					</div>
 				</div>
 			</div>

@@ -128,7 +128,7 @@
             </div>
             <div class="cart-actions">
               <div>
-                <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">ريال</span></div>
+                <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
               </div>
               <button class="cart-save-btn" type="button" (click)="toggleSaveForLater(item.id)">
                 <svg aria-hidden="true"><use href="#ws-heart"></use></svg>
@@ -180,7 +180,7 @@
               </div>
               <div class="cart-actions">
                 <div>
-                  <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">ريال</span></div>
+                  <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
                 </div>
                 <button class="cart-save-btn" type="button" (click)="toggleSaveForLater(item.id)">
                   <svg aria-hidden="true"><use href="#ws-cart"></use></svg>
@@ -227,7 +227,7 @@
                 </div>
                 <div class="rec-body">
                   <div class="rec-title-text">{{ rec.title }}</div>
-                  <div class="rec-price">{{ formatPrice(rec.totalAmount) }} <span>ريال</span></div>
+                  <div class="rec-price">{{ formatPrice(rec.totalAmount) }} <span>$</span></div>
                   <div class="rec-prov">{{ rec.provider.name }}@if (rec.level) { · {{ rec.level }}}</div>
                   <button class="rec-add-btn" type="button" [class.added]="addedRecIds().has(rec.id)" [disabled]="addingRecId() === rec.id" (click)="addRecommendation($event, rec)">
                     {{ addedRecIds().has(rec.id) ? 'تمت الإضافة ✓' : 'إضافة للسلة' }}
@@ -257,12 +257,12 @@
           @for (item of activeItems; track item.id) {
             <div class="sum-row">
               <span class="sum-row-label">{{ item.title }}</span>
-              <span class="sum-row-val">{{ formatPrice(item.totalAmount) }} ريال</span>
+              <span class="sum-row-val">{{ formatPrice(item.totalAmount) }} $</span>
             </div>
           }
           <div class="sum-row" style="padding-top:8px;border-top:1px solid var(--border);margin-top:2px">
             <span class="sum-row-label">المجموع الفرعي</span>
-            <span class="sum-row-val">{{ formatPrice(subtotal()) }} ريال</span>
+            <span class="sum-row-val">{{ formatPrice(subtotal()) }} $</span>
           </div>
 
           <div class="sum-row" style="margin-top:2px;padding:0">
@@ -272,7 +272,7 @@
             </span>
             <span class="sum-row-val" style="color:var(--teal)">
               @if (coupon()) {
-                - {{ formatPrice(discount()) }} ريال
+                - {{ formatPrice(discount()) }} $
               } @else {
                 —
               }
@@ -280,7 +280,7 @@
           </div>
           <div class="sum-row total">
             <span class="sum-row-label">الإجمالي</span>
-            <span class="sum-row-val">{{ formatPrice(total()) }} ريال</span>
+            <span class="sum-row-val">{{ formatPrice(total()) }} $</span>
           </div>
         </div>
         <div class="coupon-wrap">
@@ -293,7 +293,7 @@
                 @if (coupon()!.discountType === 'percentage') {
                   خصم {{ coupon()!.discountValue }}%
                 } @else {
-                  خصم {{ formatPrice(coupon()!.discountValue) }} ريال
+                  خصم {{ formatPrice(coupon()!.discountValue) }} $
                 }
               </span>
               <button class="coupon-btn" type="button" (click)="removeCoupon()">إزالة</button>

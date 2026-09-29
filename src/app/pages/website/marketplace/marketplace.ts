@@ -304,7 +304,7 @@ export class Marketplace implements OnInit, OnDestroy {
 		if (this.selectedSub()) chips.push({ key: 'sub', label: sub?.name || this.selectedSub() });
 		if (this.selectedRating()) chips.push({ key: 'minRating', label: this.selectedRating() + ' وأعلى' });
 		if (this.selectedMaxDays()) chips.push({ key: 'maxDays', label: this.deliveryLabel(this.selectedMaxDays()) });
-		if (this.selectedMaxPrice()) chips.push({ key: 'maxPrice', label: 'حتى ' + this.selectedMaxPrice() + ' ريال' });
+		if (this.selectedMaxPrice()) chips.push({ key: 'maxPrice', label: 'حتى ' + this.selectedMaxPrice() + ' $' });
 		if (this.selectedLevels().length) chips.push({ key: 'level', label: this.selectedLevels().join(' + ') });
 		return chips;
 	});

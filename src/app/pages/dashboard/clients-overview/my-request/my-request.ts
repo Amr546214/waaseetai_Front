@@ -4,6 +4,8 @@ import { RouterModule } from '@angular/router';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
 import { DashboardStore } from '../../../../core/store/dashboard.store';
 import { firstValueFrom } from 'rxjs';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
 interface FilterTab {
 	id: string;
@@ -21,6 +23,8 @@ interface FilterTab {
 export class MyRequest implements OnInit {
 	private projectApi = inject(ProjectApiService);
 	private dashboardStore = inject(DashboardStore);
+	private authStore = inject(AuthStore);
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	requests = signal<any[]>([]);
 	tabs = signal<FilterTab[]>([
@@ -125,10 +129,10 @@ export class MyRequest implements OnInit {
 		const fixedB = p.budgetFixed || p.fixedBudget;
 		const hourlyB = p.budgetHourly || p.hourlyBudget;
 
-		if (fixedB) return `${Number(fixedB).toLocaleString()} ريال`;
-		if (minB && maxB) return `${Number(minB).toLocaleString()} - ${Number(maxB).toLocaleString()} ريال`;
-		if (minB) return `${Number(minB).toLocaleString()} ريال`;
-		if (hourlyB) return `${Number(hourlyB).toLocaleString()} ريال/ساعة`;
+		if (fixedB) return `${Number(fixedB).toLocaleString()} $`;
+		if (minB && maxB) return `${Number(minB).toLocaleString()} - ${Number(maxB).toLocaleString()} $`;
+		if (minB) return `${Number(minB).toLocaleString()} $`;
+		if (hourlyB) return `${Number(hourlyB).toLocaleString()} $/ساعة`;
 		return 'غير محدد';
 	}
 

@@ -66,6 +66,20 @@
 .wallet-bal-val{font-size:16px;font-weight:900;color:var(--teal)}
 .wallet-note{font-size:10px;color:var(--txt-3);margin-top:8px;line-height:1.6}
 
+/* WALLET PAYMENT CONFIRMATION (wallet-only checkout) */
+.wallet-confirm{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1.5px solid var(--border);border-radius:14px;padding:6px 16px;margin-bottom:24px;display:flex;flex-direction:column}
+.wallet-confirm.insufficient{border-color:rgba(255,140,105,.35);background:rgba(255,140,105,.03)}
+.wallet-confirm-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.wallet-confirm-row:last-of-type{border-bottom:none}
+.wallet-confirm-row-label{font-size:12px;color:var(--txt-3);font-weight:600}
+.wallet-confirm-row-val{font-size:15px;color:var(--txt);font-weight:800}
+.wallet-confirm-row.total{border-top:1px solid var(--border);margin-top:2px}
+.wallet-confirm-row.total .wallet-confirm-row-val{font-size:17px;color:var(--teal)}
+.wallet-confirm-row.shortfall .wallet-confirm-row-val{color:var(--red)}
+.btn-add-funds{width:100%;padding:12px;border-radius:999px;background:var(--grad);font-size:13px;font-weight:900;color:#070D24;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0 10px}
+.btn-add-funds:hover{opacity:.88}
+.btn-add-funds svg{width:14px;height:14px}
+
 /* APPLE/STCPAY */
 .alt-pay-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:800;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
 .alt-pay-btn svg{width:16px;height:16px}

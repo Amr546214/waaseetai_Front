@@ -2,31 +2,14 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
-import { CheckoutService } from '../../../../core/services/checkout.service';
-import { CheckoutApiService, PaymentMethodItem } from '../../../../core/services/checkout-api.service';
-import { PaymentMethod } from '../../../../core/models/checkout.model';
-
-interface PaymentMethodOption {
-  id: PaymentMethod;
-  label: string;
-  sub: string;
-  icon: 'card' | 'wallet' | 'stc' | 'apple';
-  available: boolean;
-  badge?: string;
-  balance?: number;
-}
-
-const FALLBACK_METHODS: PaymentMethodOption[] = [
-  { id: 'card', label: 'بطاقة ائتمانية / مدى', sub: 'Visa · Mastercard · مدى', icon: 'card', available: true },
-  { id: 'wallet', label: 'المحفظة الإلكترونية', sub: 'رصيد المحفظة', icon: 'wallet', available: true, badge: 'متاح' },
-  { id: 'stc_pay', label: 'STC Pay', sub: 'ادفع عبر تطبيق STC Pay', icon: 'stc', available: true },
-  { id: 'apple_pay', label: 'Apple Pay', sub: 'ادفع بلمسة واحدة', icon: 'apple', available: true },
-];
+import { CheckoutService, InsufficientBalanceInfo } from '../../../../core/services/checkout.service';
+import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
+import { DepositModal } from '../../../../sheards/deposit-modal/deposit-modal';
 
 @Component({
   selector: 'app-checkout-payment',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, DepositModal],
   templateUrl: './payment.html',
   styleUrls: ['../components/checkout-tokens.css', './payment.css'],
 })
@@ -46,82 +29,94 @@ export class CheckoutPaymentComponent implements OnInit {
   coupon = this.cartService.coupon;
   currentOrder = this.checkoutService.currentOrder;
 
-  selectedMethod = signal<PaymentMethod | null>(null);
   isProcessing = signal(false);
   errorMessage = signal<string | null>(null);
-  showComingSoon = signal(false);
-  methodsLoading = signal(false);
   agreedToTerms = signal(false);
 
-  paymentMethods = signal<PaymentMethodOption[]>(FALLBACK_METHODS);
+  // Wallet-only internal purchasing: 'wallet' is the ONLY payment method —
+  // there is no selector anymore. This page reads the authoritative wallet
+  // balance (never trusts a frontend-only value) so the "confirm purchase"
+  // vs. "insufficient balance" UI can be shown correctly BEFORE the user
+  // even attempts to pay.
+  walletBalance = signal<number | null>(null);
+  balanceLoading = signal(false);
+  showAddFunds = signal(false);
+
+  // Set ONLY when the backend itself reports a 402 insufficient-balance
+  // response (the advisory initPayment() pre-check, or a genuine
+  // concurrent-spend race caught at confirm time) — takes priority over the
+  // plain client-side shortfall computed from the last-loaded balance below.
+  private raceInsufficientBalance = signal<InsufficientBalanceInfo | null>(null);
 
   activeItems = computed(() => this.items().filter(i => !i.savedForLater));
 
+  shortfall = computed(() => {
+    const race = this.raceInsufficientBalance();
+    if (race) return race.shortfall;
+    const balance = this.walletBalance();
+    if (balance === null) return 0;
+    return Math.max(0, Math.round((this.total() - balance) * 100) / 100);
+  });
+
+  hasSufficientBalance = computed(() => {
+    if (this.raceInsufficientBalance()) return false;
+    const balance = this.walletBalance();
+    return balance !== null && balance >= this.total();
+  });
+
   canPay = computed(() => {
-    const method = this.selectedMethod();
-    return method !== null && !this.isProcessing() && this.itemCount() > 0 && this.agreedToTerms();
+    return this.hasSufficientBalance() && !this.isProcessing() && this.itemCount() > 0 && this.agreedToTerms();
   });
 
   ngOnInit() {
-    this.loadPaymentMethods();
+    this.loadWalletBalance();
   }
 
-  private loadPaymentMethods() {
-    this.methodsLoading.set(true);
+  private loadWalletBalance() {
+    this.balanceLoading.set(true);
     this.checkoutApi.getPaymentMethods().subscribe({
       next: (res: any) => {
         const data = res?.data ?? res;
         const methods = Array.isArray(data) ? data : [];
-        const mapped: PaymentMethodOption[] = methods.map((m: PaymentMethodItem) => ({
-          id: m.id as PaymentMethod,
-          label: m.name || m.id,
-          sub: m.badge || m.id,
-          icon: (m.id === 'wallet' ? 'wallet' : m.id === 'stc_pay' ? 'stc' : m.id === 'apple_pay' ? 'apple' : 'card') as any,
-          available: m.available,
-          badge: m.badge,
-          balance: m.balance,
-        }));
-        this.paymentMethods.set(mapped.length > 0 ? mapped : FALLBACK_METHODS);
-        this.preselectCard();
-        this.methodsLoading.set(false);
+        const wallet = methods.find((m: any) => m.id === 'wallet');
+        this.walletBalance.set(typeof wallet?.balance === 'number' ? wallet.balance : 0);
+        this.balanceLoading.set(false);
       },
       error: (err: any) => {
-        console.error('[Payment] Failed to load payment methods:', err);
-        this.paymentMethods.set(FALLBACK_METHODS);
-        this.preselectCard();
-        this.methodsLoading.set(false);
+        console.error('[Payment] Failed to load wallet balance:', err);
+        this.walletBalance.set(null);
+        this.balanceLoading.set(false);
       },
     });
-  }
-
-  // P-BF-003 opens with the card method selected (form expanded)
-  private preselectCard() {
-    if (this.selectedMethod()) return;
-    const card = this.paymentMethods().find(m => m.id === 'card' && m.available);
-    if (card) this.selectedMethod.set(card.id);
-  }
-
-  selectMethod(method: PaymentMethodOption) {
-    if (!method.available) {
-      this.showComingSoon.set(true);
-      setTimeout(() => this.showComingSoon.set(false), 2500);
-      return;
-    }
-    this.selectedMethod.set(method.id);
-    this.errorMessage.set(null);
   }
 
   toggleTerms() {
     this.agreedToTerms.set(!this.agreedToTerms());
   }
 
+  openAddFunds() {
+    this.showAddFunds.set(true);
+  }
+
+  /**
+   * Deliberately does NOT auto-submit the purchase after a successful
+   * top-up — the refreshed balance is shown and the user explicitly clicks
+   * "ادفع من المحفظة" again once sufficient, matching the approved flow
+   * ("prefer requiring the user to confirm the Wallet purchase after the
+   * refreshed balance is visible").
+   */
+  onWalletDepositComplete() {
+    this.showAddFunds.set(false);
+    this.raceInsufficientBalance.set(null);
+    this.loadWalletBalance();
+  }
+
   payNow() {
     if (!this.canPay()) return;
-    const method = this.selectedMethod();
-    if (!method) return;
 
     this.isProcessing.set(true);
     this.errorMessage.set(null);
+    this.raceInsufficientBalance.set(null);
 
     if (!this.currentOrder()) {
       this.checkoutService.createOrder().subscribe({
@@ -131,7 +126,7 @@ export class CheckoutPaymentComponent implements OnInit {
             this.isProcessing.set(false);
             return;
           }
-          this.proceedToPaymentStep(method);
+          this.proceedToPaymentStep();
         },
         error: () => {
           this.errorMessage.set('حدث خطأ، حاول مرة أخرى');
@@ -141,45 +136,44 @@ export class CheckoutPaymentComponent implements OnInit {
       return;
     }
 
-    this.proceedToPaymentStep(method);
+    this.proceedToPaymentStep();
   }
 
-  private proceedToPaymentStep(method: PaymentMethod) {
-    this.checkoutService.initiatePayment(method).subscribe({
+  private proceedToPaymentStep() {
+    this.checkoutService.initiatePayment('wallet').subscribe({
       next: (result) => {
         if (result.success) {
           this.router.navigate(['/checkout/confirm']);
-        } else {
-          this.errorMessage.set(result.message);
-          this.isProcessing.set(false);
+          return;
         }
+        // Approved conflict-resolution rule: insufficient-wallet-balance
+        // ALWAYS takes priority and must never navigate to /checkout/failure
+        // — stay on this page, surface Required/Current/Shortfall, refresh
+        // the balance, and let the user Add Funds. This branch runs BEFORE
+        // the other agent's own generic failure-navigation fallback below,
+        // which is preserved verbatim for every other failure.
+        if (result.insufficientBalance) {
+          this.isProcessing.set(false);
+          this.raceInsufficientBalance.set(result.insufficientBalance);
+          this.loadWalletBalance();
+          return;
+        }
+        this.isProcessing.set(false);
+        this.router.navigate(['/checkout/failure']);
       },
       error: () => {
-        this.errorMessage.set('حدث خطأ، حاول مرة أخرى');
         this.isProcessing.set(false);
+        this.router.navigate(['/checkout/failure']);
       },
     });
-  }
-
-  // P-BF-003 card-number / expiry input formatting (design script)
-  formatCardNumber(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const v = input.value.replace(/\D/g, '').substring(0, 16);
-    input.value = v.replace(/(.{4})/g, '$1 ').trim();
-  }
-
-  formatCardExpiry(event: Event) {
-    const input = event.target as HTMLInputElement;
-    let v = input.value.replace(/\D/g, '').substring(0, 4);
-    if (v.length > 2) v = v.substring(0, 2) + ' / ' + v.substring(2);
-    input.value = v;
   }
 
   formatPrice(value: number): string {
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
   }
 
-  walletAfterPay(balance?: number): string {
+  walletAfterPay(): string {
+    const balance = this.walletBalance();
     if (balance == null) return '—';
     return this.formatPrice(Math.max(0, balance - this.total()));
   }

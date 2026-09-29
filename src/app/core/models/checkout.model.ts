@@ -40,7 +40,11 @@ export interface CouponData {
 	discountAmount: number;
 }
 
-export type PaymentMethod = 'card' | 'moyasar' | 'wallet' | 'stc_pay' | 'apple_pay';
+// Wallet-only internal purchasing: the WaseetAI Wallet is the ONLY accepted
+// checkout payment method. PayPal/Moyasar/card/STC Pay/Apple Pay are wallet
+// TOP-UP rails only (see the shared Add Funds deposit modal) — never a
+// direct checkout payment method again.
+export type PaymentMethod = 'wallet';
 
 export type OrderStatus = 'pending_payment' | 'paid' | 'failed' | 'cancelled';
 
