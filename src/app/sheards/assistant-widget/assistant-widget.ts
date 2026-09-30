@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, PLATFORM_ID, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, PLATFORM_ID, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AssistantStore } from '../../core/store/assistant.store';
 import { BeboAvatarComponent } from '../bebo-avatar/bebo-avatar';
@@ -11,6 +11,17 @@ import { AssistantChatComponent } from '../assistant-chat/assistant-chat';
 // marketer / admin), so it survives in-dashboard route changes. Uses logical
 // CSS properties (inset-inline-end) so the panel sits on the correct side in
 // both RTL and LTR; Bebo's home spot is the same corner.
+//
+// Positioning contract (Bebo launcher): in floating mode robot.js makes
+// <cute-robot> position: fixed itself (left/top 0 + translate3d) and places
+// it on the viewport floor, 12px from the edge — it does NOT follow this
+// host's box. This host is therefore aligned to that same 12px corner and
+// reserves Bebo's height + a gap under the panel: closed = Bebo alone in the
+// corner (launcher pad from BeboAvatar); open = panel directly above Bebo,
+// edges aligned. No ancestor of the widget may get a transform / filter /
+// contain / will-change, or Bebo's fixed box would be trapped inside it.
+// z-index 950: above the dashboard chrome (main 1, sidebar 85/90, topbar 100)
+// and below toasts / global loader / video-call modal (99999+).
 
 const STATE_LABELS = { idle: 'جاهز', thinking: 'يفكّر…', listening: 'يستمع…', speaking: 'يتحدث', error: 'تعذر الرد' } as const;
 const BEBO_SIZE = 96;
@@ -46,17 +57,19 @@ const BEBO_SIZE_MOBILE = 72;
 			[size]="beboSize()"
 			[homeX]="beboHomeX"
 			[label]="beboLabel()"
+			[active]="store.panelOpen()"
 			(activate)="store.toggle()"
 		/>
 	</div>
 	`,
 	styles: [`
-		:host { position: fixed; inset-block-end: 16px; inset-inline-end: 16px; z-index: 950; pointer-events: none; }
-		/* The panel opens above Bebo's home spot (bottom corner, 12px from the
-		   viewport edge — robot.js floating padding). */
-		.aw { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; padding-block-end: calc(var(--bebo-size, 96px) + 4px); }
+		:host { position: fixed; inset-block-end: 12px; inset-inline-end: 12px; z-index: 950; pointer-events: none; }
+		/* The panel opens directly above Bebo's home spot (bottom corner, 12px
+		   from the viewport edge — robot.js floating padding, matched above), so
+		   Bebo never sits under or over the panel / its input. */
+		.aw { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; padding-block-end: calc(var(--bebo-size, 96px) + 10px); }
 		.aw__bebo { pointer-events: none; }
-		.aw__panel { pointer-events: auto; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 32px)); height: min(560px, calc(100dvh - 150px));
+		.aw__panel { pointer-events: auto; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 32px)); height: min(560px, calc(100dvh - var(--bebo-size, 96px) - 90px));
 			padding: 14px; border-radius: 18px; background: rgba(9,18,48,.97); backdrop-filter: blur(14px);
 			border: 1px solid rgba(123,47,190,.3); box-shadow: 0 18px 50px rgba(0,0,0,.45); color: #fff;
 			/* The panel is always dark: pin the theme tokens the chat uses so the
@@ -70,8 +83,7 @@ const BEBO_SIZE_MOBILE = 72;
 		.aw__close svg { width: 100%; height: 100%; }
 		.aw__chat { flex: 1; min-height: 0; }
 		@media (max-width: 640px) {
-			:host { inset-block-end: 12px; inset-inline-end: 12px; }
-			.aw__panel { width: calc(100vw - 24px); height: min(70dvh, calc(100dvh - 110px)); }
+			.aw__panel { width: calc(100vw - 24px); height: min(70dvh, calc(100dvh - var(--bebo-size, 72px) - 90px)); }
 		}
 	`],
 })
@@ -92,6 +104,11 @@ export class AssistantWidgetComponent {
 
 	constructor() {
 		const destroyRef = inject(DestroyRef);
+		// Opening the panel brings a dragged-away Bebo back to its launcher spot
+		// under the panel, so the open assistant and Bebo stay together.
+		effect(() => {
+			if (this.store.panelOpen()) untracked(() => this.avatar()?.returnHome());
+		});
 		// Real answer-audio loudness → Bebo's mouth (outside the Angular zone).
 		const offSpeech = this.store.onSpeechLevel((level) => this.avatar()?.setSpeechLevel(level));
 		destroyRef.onDestroy(offSpeech);

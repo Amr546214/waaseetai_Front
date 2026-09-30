@@ -151,6 +151,17 @@ describe('BeboAvatarComponent (Bebo v4 renderer)', () => {
 		expect(host.activations).toBe(1);
 	});
 
+	it('returnHome(): no-op at the home spot, engine resetPosition() when dragged away', () => {
+		const cmp = fixture.debugElement.children[0].componentInstance as BeboAvatarComponent;
+		const r = robot();
+		const reset = vi.spyOn(r, 'resetPosition');
+		cmp.returnHome();
+		expect(reset).not.toHaveBeenCalled();
+		Object.defineProperty(r, 'position', { configurable: true, get: () => ({ x: 500, y: 40 }) });
+		cmp.returnHome();
+		expect(reset).toHaveBeenCalledTimes(1);
+	});
+
 	it('keeps the handoff interactions: hover jump, and drag → drop → land', () => {
 		const r = robot();
 		const button = r.shadowRoot!.querySelector('button')!;

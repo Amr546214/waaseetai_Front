@@ -89,6 +89,60 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 		expect(el().querySelector('.aw__panel')).toBeNull();
 	});
 
+	describe('Bebo launcher positioning (closed ↔ open)', () => {
+		const avatarHost = () => el().querySelector('app-bebo-avatar') as HTMLElement;
+		const click = () => { robot().dispatchEvent(new MouseEvent('click', { bubbles: true })); fixture.detectChanges(); };
+
+		it('closed: exactly one Bebo, in floating (viewport-fixed) launcher mode, no panel', () => {
+			expect(el().querySelectorAll('cute-robot').length).toBe(1);
+			expect(robot().hasAttribute('floating')).toBe(true); // robot.js :host([floating]) → position: fixed
+			expect(avatarHost().hasAttribute('data-active')).toBe(false);
+			expect(el().querySelector('.aw__panel')).toBeNull();
+			// Bebo is the widget's own child, never nested in the panel.
+			expect(robot().closest('.aw__panel')).toBeNull();
+		});
+
+		it('open: Bebo stays rendered (same element, not inside the panel) and is marked active', () => {
+			const first = robot();
+			click();
+			expect(store.panelOpen()).toBe(true);
+			expect(el().querySelector('.aw__panel')).toBeTruthy();
+			expect(robot()).toBe(first);
+			expect(robot().isConnected).toBe(true);
+			expect(robot().closest('.aw__panel')).toBeNull();
+			expect(el().querySelectorAll('cute-robot').length).toBe(1);
+			expect(avatarHost().hasAttribute('data-active')).toBe(true);
+			// Panel first, Bebo after it: the panel sits above Bebo's corner.
+			const aw = el().querySelector('.aw')!;
+			expect(aw.lastElementChild).toBe(avatarHost());
+		});
+
+		it('closing returns to the launcher state with the same single Bebo', () => {
+			const first = robot();
+			click();
+			(el().querySelector('.aw__close') as HTMLButtonElement).click();
+			fixture.detectChanges();
+			expect(store.panelOpen()).toBe(false);
+			expect(el().querySelector('.aw__panel')).toBeNull();
+			expect(robot()).toBe(first);
+			expect(avatarHost().hasAttribute('data-active')).toBe(false);
+			click(); // Bebo still launches after a close
+			expect(store.panelOpen()).toBe(true);
+			expect(el().querySelectorAll('cute-robot').length).toBe(1);
+		});
+
+		it('opening brings a dragged-away Bebo back to its launcher spot; an at-home Bebo is left alone', () => {
+			const reset = vi.spyOn(robot(), 'resetPosition');
+			click();
+			expect(reset).not.toHaveBeenCalled(); // already home → click-wave not cut off
+			store.close();
+			fixture.detectChanges();
+			Object.defineProperty(robot(), 'position', { configurable: true, get: () => ({ x: 640, y: 300 }) });
+			click();
+			expect(reset).toHaveBeenCalledTimes(1);
+		});
+	});
+
 	it('drives Bebo from the real store state (idle → thinking → happy on a completed answer)', () => {
 		store.ask('سؤال');
 		fixture.detectChanges();

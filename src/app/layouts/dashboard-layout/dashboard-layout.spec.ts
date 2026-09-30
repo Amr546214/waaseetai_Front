@@ -65,6 +65,9 @@ describe('DashboardLayout', () => {
 		await fixture.whenStable();
 
 		expect(el.querySelectorAll('app-assistant-widget').length).toBe(1);
+		expect(el.querySelectorAll('cute-robot').length).toBe(1);
+		// Mounted beside (not inside) the routed page content / cards.
+		expect(el.querySelector('app-assistant-widget')!.closest('.main')).toBeNull();
 		expect(el.querySelector('app-assistant-widget app-bebo-avatar cute-robot')).toBeTruthy();
 		expect(el.querySelector('app-robot-avatar')).toBeNull();
 		expect(el.querySelector('app-assistant-widget canvas')).toBeNull();

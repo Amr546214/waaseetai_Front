@@ -23,6 +23,8 @@ export interface BeboPlayOptions {
 /** Public API of the `<cute-robot>` element defined by robot.js. */
 export interface CuteRobotElement extends HTMLElement {
 	readonly state: BeboPose;
+	/** Current engine position (px; viewport-relative in floating mode). */
+	readonly position: { x: number; y: number };
 	paused: boolean;
 	play(state: BeboPose, options?: BeboPlayOptions): CuteRobotElement;
 	/** 0–1 loudness of the audio being spoken, or null to cycle speech frames. */
