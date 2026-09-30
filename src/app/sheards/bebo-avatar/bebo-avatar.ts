@@ -54,7 +54,6 @@ const LOOPING_ACTIONS: readonly BeboAction[] = ['typing', 'sleep', 'rest', 'idle
 		class: 'bebo-avatar',
 		'[attr.data-state]': 'state()',
 		'[attr.data-ready]': 'ready() ? "" : null',
-		'[attr.data-active]': 'active() ? "" : null',
 	},
 	template: `
 		<cute-robot
@@ -76,23 +75,6 @@ const LOOPING_ACTIONS: readonly BeboAction[] = ['typing', 'sleep', 'rest', 'idle
 	styles: [`
 		:host { display: inline-block; line-height: 0; }
 		cute-robot { pointer-events: auto; }
-		/* Launcher pad. In floating mode robot.js positions <cute-robot> itself
-		   (position: fixed on the viewport floor via its :host([floating]) rule);
-		   position, transform, will-change and contain stay owned by the engine.
-		   Only paint is added here, on the element robot.js moves, so the pad
-		   travels with Bebo (drag, walk, landing) and Bebo reads as the
-		   assistant's launcher button, not a bare sprite over the page cards. */
-		cute-robot[floating] {
-			border-radius: 50%;
-			background: radial-gradient(circle at 50% 42%, rgba(165,107,224,.32), rgba(9,18,48,.92) 68%);
-			box-shadow: 0 0 0 1.5px rgba(165,107,224,.55), 0 0 22px rgba(123,47,190,.35), 0 10px 26px rgba(0,0,0,.45);
-			transition: box-shadow .2s ease;
-		}
-		/* Assistant panel open: a brighter ring ties Bebo to the panel above it. */
-		:host([data-active]) cute-robot[floating] {
-			box-shadow: 0 0 0 2px rgba(43,212,199,.75), 0 0 26px rgba(43,212,199,.35), 0 10px 26px rgba(0,0,0,.45);
-		}
-		@media (prefers-reduced-motion: reduce) { cute-robot[floating] { transition: none; } }
 		.bebo-avatar__fallback { pointer-events: auto; padding: 10px 14px; border-radius: 999px; border: 0; font: inherit; font-size: 13px; font-weight: 800; line-height: 1.4; color: #fff; background: linear-gradient(135deg, #7B2FBE, #A56BE0); cursor: pointer; }
 	`],
 })
@@ -107,8 +89,6 @@ export class BeboAvatarComponent implements OnDestroy {
 	readonly floorOffset = input(0);
 	readonly homeX = input<number | null>(null);
 	readonly label = input('بيبو — المساعد الذكي');
-	/** The assistant panel Bebo launches is open (visual accent only). */
-	readonly active = input(false);
 	/** Local motion command (AssistantStore.beboCommand); each new seq runs once. */
 	readonly command = input<BeboCommand | null>(null);
 

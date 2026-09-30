@@ -57,7 +57,6 @@ const BEBO_SIZE_MOBILE = 72;
 			[size]="beboSize()"
 			[homeX]="beboHomeX"
 			[label]="beboLabel()"
-			[active]="store.panelOpen()"
 			(activate)="store.toggle()"
 		/>
 	</div>

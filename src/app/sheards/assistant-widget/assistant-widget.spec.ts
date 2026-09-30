@@ -96,13 +96,12 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 		it('closed: exactly one Bebo, in floating (viewport-fixed) launcher mode, no panel', () => {
 			expect(el().querySelectorAll('cute-robot').length).toBe(1);
 			expect(robot().hasAttribute('floating')).toBe(true); // robot.js :host([floating]) → position: fixed
-			expect(avatarHost().hasAttribute('data-active')).toBe(false);
 			expect(el().querySelector('.aw__panel')).toBeNull();
 			// Bebo is the widget's own child, never nested in the panel.
 			expect(robot().closest('.aw__panel')).toBeNull();
 		});
 
-		it('open: Bebo stays rendered (same element, not inside the panel) and is marked active', () => {
+		it('open: Bebo stays rendered (same element, not inside the panel)', () => {
 			const first = robot();
 			click();
 			expect(store.panelOpen()).toBe(true);
@@ -111,7 +110,6 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 			expect(robot().isConnected).toBe(true);
 			expect(robot().closest('.aw__panel')).toBeNull();
 			expect(el().querySelectorAll('cute-robot').length).toBe(1);
-			expect(avatarHost().hasAttribute('data-active')).toBe(true);
 			// Panel first, Bebo after it: the panel sits above Bebo's corner.
 			const aw = el().querySelector('.aw')!;
 			expect(aw.lastElementChild).toBe(avatarHost());
@@ -125,10 +123,22 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 			expect(store.panelOpen()).toBe(false);
 			expect(el().querySelector('.aw__panel')).toBeNull();
 			expect(robot()).toBe(first);
-			expect(avatarHost().hasAttribute('data-active')).toBe(false);
 			click(); // Bebo still launches after a close
 			expect(store.panelOpen()).toBe(true);
 			expect(el().querySelectorAll('cute-robot').length).toBe(1);
+		});
+
+		it('Bebo is shown by itself: no launcher plate / ring / shadow, closed or open', () => {
+			const bare = () => {
+				const cs = getComputedStyle(robot());
+				expect(cs.boxShadow === '' || cs.boxShadow === 'none').toBe(true);
+				expect(cs.backgroundImage === '' || cs.backgroundImage === 'none').toBe(true);
+				expect(avatarHost().hasAttribute('data-active')).toBe(false);
+			};
+			bare();
+			click();
+			expect(store.panelOpen()).toBe(true);
+			bare();
 		});
 
 		it('opening brings a dragged-away Bebo back to its launcher spot; an at-home Bebo is left alone', () => {
