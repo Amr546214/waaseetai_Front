@@ -85,6 +85,10 @@ export interface RegisterInput {
 	password?: string;
 	googleIdToken?: string;
 	agreedToTerms: boolean;
+	// Single-tier direct referral attribution (P-LG-012) — an affiliate's
+	// referralSlug or raw id, from either manual entry or name search.
+	// Omitted entirely (never sent as '' or null) when the user picked none.
+	affiliateIdentifier?: string;
 }
 
 export interface VerifyOtpInput {

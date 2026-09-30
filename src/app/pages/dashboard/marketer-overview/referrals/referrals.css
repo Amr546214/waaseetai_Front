@@ -59,6 +59,18 @@
 @keyframes ws-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes skel-pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+/* ── Pagination (same pattern as provider-overview finance/withdraw) ──── */
+.wd-pager { display: flex; gap: 6px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.wd-page-btn { min-width: 36px; height: 36px; border-radius: 9px; border: 1px solid rgba(255, 255, 255, .1); background: rgba(7, 13, 36, .4); color: #A8B2D1; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+.wd-page-btn:disabled { opacity: .4; cursor: not-allowed; }
+.wd-page-btn:hover:not(:disabled) { border-color: rgba(43, 212, 199, .4); }
+.wd-page-active { background: linear-gradient(135deg, #2BD4C7, #2B7FFF) !important; color: #070D24 !important; border-color: transparent !important; }
+
+:host-context(body.light-theme) .wd-page-btn,
+:host-context(body.theme-light) .wd-page-btn,
+:host-context(.light-theme) .wd-page-btn,
+:host-context(.theme-light) .wd-page-btn { background: #fff !important; border-color: #D8DFEC !important; color: #475569 !important; }
+
 @media(max-width:900px){
   .kpi-grid { grid-template-columns: 1fr 1fr; }
 }

@@ -1,0 +1,79 @@
+:host { display: block; }
+
+.aff-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm, 10px);
+  background: rgba(43, 212, 199, .08);
+  border: 1px solid rgba(43, 212, 199, .22);
+  color: var(--teal, #2BD4C7);
+  font-size: 13px;
+  font-weight: 600;
+}
+.aff-confirm strong { color: var(--txt, #fff); font-weight: 800; }
+.aff-clear {
+  margin-inline-start: auto;
+  background: none;
+  border: none;
+  color: var(--txt-2, #A8B2D1);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline;
+  padding: 0;
+}
+.aff-clear:hover { color: var(--teal, #2BD4C7); }
+
+.aff-code-row { display: flex; gap: 8px; }
+.aff-code-row .field-in { flex: 1; }
+.aff-verify-btn {
+  flex-shrink: 0;
+  padding: 0 16px;
+  border-radius: var(--radius-sm, 10px);
+  border: 1px solid rgba(43, 212, 199, .28);
+  background: rgba(43, 212, 199, .06);
+  color: var(--teal, #2BD4C7);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .2s;
+}
+.aff-verify-btn:hover:not(:disabled) { background: rgba(43, 212, 199, .12); }
+.aff-verify-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.aff-divider { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; }
+.aff-divider::before, .aff-divider::after { content: ''; flex: 1; height: 1px; background: var(--out-bd, rgba(255,255,255,.12)); }
+.aff-divider span { font-size: 11px; color: var(--txt-3, #6B7699); }
+
+.aff-search-grp { margin-bottom: 0; position: relative; }
+.aff-combo { position: relative; }
+
+.aff-panel {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--navy-900, #0B1437);
+  border: 1px solid var(--out-bd, rgba(255,255,255,.12));
+  border-radius: var(--radius-sm, 10px);
+  box-shadow: 0 16px 40px rgba(0,0,0,.4);
+  padding: 6px;
+}
+
+.aff-item {
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--txt, #fff);
+  cursor: pointer;
+  transition: background .15s;
+}
+.aff-item:hover { background: rgba(43, 212, 199, .10); }
+
+.aff-empty { padding: 10px 12px; font-size: 12px; color: var(--txt-3, #6B7699); text-align: center; }

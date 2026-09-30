@@ -74,44 +74,39 @@
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="filter-chip" [class.active]="filterStatus() === 'all'" (click)="setFilter('all')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">الكل</button>
-        <button class="filter-chip" [class.active]="filterStatus() === 'qualified'" (click)="setFilter('qualified')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">أول مشروع مؤهل</button>
-        <button class="filter-chip" [class.active]="filterStatus() === 'pending'" (click)="setFilter('pending')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">بانتظار الاكتمال</button>
-        <button class="filter-chip" [class.active]="filterStatus() === 'cancelled'" (click)="setFilter('cancelled')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">ملغاة</button>
+        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.PENDING" (click)="setFilter(ReferralStatus.PENDING)" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">معلقة</button>
+        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.QUALIFIED" (click)="setFilter(ReferralStatus.QUALIFIED)" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">مؤهلة</button>
+        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.CONVERTED" (click)="setFilter(ReferralStatus.CONVERTED)" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">محولة</button>
       </div>
     </div>
 
     <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" class="inp-field" placeholder="بحث بالاسم" style="margin-bottom:14px">
 
+    @if (isLoading()) {
+      <p style="text-align:center;font-size:12px;padding:18px 0" class="txt-muted">جاري تحميل الإحالات...</p>
+    } @else if (errorMessage()) {
+      <p style="text-align:center;font-size:12px;padding:18px 0" class="txt-coral">{{ errorMessage() }}</p>
+    } @else {
     <div style="overflow-x:auto">
       <table class="act-tbl">
         <thead>
           <tr>
             <th>المُحال</th>
-            <th>نوع الخدمة</th>
-            <th>القناة</th>
             <th>تاريخ التسجيل</th>
             <th>الحالة</th>
             <th>العمولة</th>
           </tr>
         </thead>
         <tbody>
-          @for (item of filteredReferrals(); track item.id) {
+          @for (item of filteredReferrals(); track item.referredUserDisplayName + item.joinedAt) {
             <tr (click)="openRefModal(item)">
-              <td>{{ item.name }}</td>
-              <td>{{ item.service }}</td>
-              <td>{{ item.channel }}</td>
-              <td>{{ item.date }}</td>
+              <td>{{ item.referredUserDisplayName }}</td>
+              <td>{{ item.joinedAt | date:'yyyy-MM-dd' }}</td>
               <td>
-                @if (item.status === 'qualified') {
-                  <span style="background:rgba(15,169,154,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-green">{{ item.statusLabel }}</span>
-                } @else if (item.status === 'pending') {
-                  <span style="background:rgba(255,180,0,.10);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-amber">{{ item.statusLabel }}</span>
-                } @else {
-                  <span style="background:rgba(255,140,105,.10);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-coral">{{ item.statusLabel }}</span>
-                }
+                <span [style.background]="getStatusBg(item.status)" style="padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" [class]="getStatusClass(item.status)">{{ getStatusLabel(item.status) }}</span>
               </td>
-              <td [style.color]="item.status === 'qualified' ? '#0FA99A' : '#6B7699'" [style.font-weight]="item.status !== 'cancelled' ? '700' : 'normal'">
-                {{ item.commission }}
+              <td [class]="getStatusClass(item.status)" style="font-weight:700">
+                {{ formatCommission(item.commissionEarned) }}
               </td>
             </tr>
           }
@@ -122,6 +117,17 @@
     @if (filteredReferrals().length === 0) {
       <p style="text-align:center;font-size:12px;padding:18px 0" class="txt-muted">لا توجد إحالات مطابقة</p>
     }
+
+    @if (totalPages() > 1) {
+      <div class="wd-pager">
+        <button type="button" class="wd-page-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">السابق</button>
+        @for (p of getPagesArray(); track p) {
+          <button type="button" class="wd-page-btn" [class.wd-page-active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
+        }
+        <button type="button" class="wd-page-btn" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">التالي</button>
+      </div>
+    }
+    }
   </div>
 
   @if (selectedReferral(); as ref) {
@@ -129,12 +135,10 @@
       <div class="ref-modal-box" (click)="$event.stopPropagation()">
         <div class="modal-ico"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div>
         <div class="modal-title">تفاصيل الإحالة</div>
-        <div class="ref-detail-row"><span class="ref-detail-lbl">المُحال</span><span class="ref-detail-val">{{ ref.name }}</span></div>
-        <div class="ref-detail-row"><span class="ref-detail-lbl">نوع الخدمة</span><span class="ref-detail-val">{{ ref.service }}</span></div>
-        <div class="ref-detail-row"><span class="ref-detail-lbl">القناة</span><span class="ref-detail-val">{{ ref.channel }}</span></div>
-        <div class="ref-detail-row"><span class="ref-detail-lbl">تاريخ التسجيل</span><span class="ref-detail-val">{{ ref.date }}</span></div>
-        <div class="ref-detail-row"><span class="ref-detail-lbl">الحالة</span><span class="ref-detail-val">{{ ref.statusLabel }}</span></div>
-        <div class="ref-detail-row"><span class="ref-detail-lbl">العمولة</span><span class="ref-detail-val">{{ ref.commission }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">المُحال</span><span class="ref-detail-val">{{ ref.referredUserDisplayName }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">تاريخ التسجيل</span><span class="ref-detail-val">{{ ref.joinedAt | date:'yyyy-MM-dd' }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">الحالة</span><span class="ref-detail-val">{{ getStatusLabel(ref.status) }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">العمولة</span><span class="ref-detail-val">{{ formatCommission(ref.commissionEarned) }}</span></div>
         <div class="modal-actions" style="margin-top:16px">
           <button type="button" class="modal-btn modal-btn-cancel" (click)="closeRefModal()">إغلاق</button>
         </div>

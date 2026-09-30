@@ -1,0 +1,47 @@
+<div class="aff-wrap">
+  @if (selectedName(); as name) {
+    <div class="aff-confirm">
+      <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
+      <span>الوسيط المحدد: <strong>{{ name }}</strong></span>
+      <button type="button" class="aff-clear" (click)="clearSelection()">إزالة</button>
+    </div>
+  } @else {
+    <div class="field-grp">
+      <label class="field-lbl" for="aff-code">لديك كود إحالة؟ (اختياري)</label>
+      <div class="aff-code-row">
+        <input class="field-in" type="text" id="aff-code" [ngModel]="manualCode()" (ngModelChange)="onManualCodeInput($event)" (blur)="verifyManualCode()" placeholder="ادخل كود أو رقم الوسيط" autocomplete="off">
+        <button type="button" class="aff-verify-btn" (click)="verifyManualCode()" [disabled]="resolving() || !manualCode().trim()">{{ resolving() ? '...' : 'تحقق' }}</button>
+      </div>
+      @if (resolveState() === 'not-found') {
+        <div class="field-err" id="aff-code-notfound">
+          <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+          <span>لم يتم العثور على هذا الكود، سيتم إرساله كما أدخلته</span>
+        </div>
+      }
+    </div>
+
+    <div class="aff-divider"><span>أو</span></div>
+
+    <div class="field-grp aff-search-grp">
+      <label class="field-lbl" for="aff-search">ابحث عن الوسيط بالاسم (اختياري)</label>
+      <div class="aff-combo">
+        <input class="field-in" type="search" id="aff-search" [ngModel]="searchQuery()" (ngModelChange)="onSearchInput($event)" (focus)="openSearch()" placeholder="اكتب اسم الوسيط...">
+        @if (searchOpen()) {
+          <div class="aff-panel">
+            @if (searching()) {
+              <div class="aff-empty">جاري البحث...</div>
+            } @else if (searchResults().length) {
+              @for (a of searchResults(); track a.id) {
+                <div class="aff-item" (click)="pickResult(a)">{{ a.displayName }}</div>
+              }
+            } @else if (searchQuery().trim().length >= 2) {
+              <div class="aff-empty">لا يوجد وسيط مطابق</div>
+            } @else {
+              <div class="aff-empty">اكتب حرفين على الأقل للبحث</div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

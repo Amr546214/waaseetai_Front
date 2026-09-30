@@ -35,6 +35,31 @@ export interface AiInsight {
 	text: string;
 }
 
+// Single-tier direct referral status (P-LG-012). A referred user starts
+// PENDING, becomes QUALIFIED once their first project stage escrow is
+// released, and CONVERTED once they're a recurring/paying client — the
+// commission engine (backend, disabled by default) is what actually moves
+// a row between these states, this page only displays them.
+export enum ReferralStatus {
+	PENDING = 'PENDING',
+	QUALIFIED = 'QUALIFIED',
+	CONVERTED = 'CONVERTED'
+}
+
+export interface ReferredUser {
+	referredUserDisplayName: string;
+	status: ReferralStatus | string;
+	joinedAt: string;
+	commissionEarned: number | null;
+}
+
+export interface ReferralListData {
+	items: ReferredUser[];
+	page: number;
+	limit: number;
+	total: number;
+}
+
 export interface ReferralCustomLink {
 	id: string;
 	channelName: string;
@@ -74,6 +99,13 @@ export class MarketerOverviewService {
 
 	getAiInsights(): Observable<{ success: boolean; data: AiInsight[] }> {
 		return this.http.get<{ success: boolean; data: AiInsight[] }>(`${this.apiUrl}/ai-insights`);
+	}
+
+	// Backed by real ReferralStatus/CommissionLog rows once the backend's
+	// commission engine work lands; shape per the agreed contract:
+	// { success, data: { items, page, limit, total } }.
+	getReferrals(page: number = 1, limit: number = 10): Observable<{ success: boolean; data: ReferralListData }> {
+		return this.http.get<{ success: boolean; data: ReferralListData }>(`${this.apiUrl}/referrals?page=${page}&limit=${limit}`);
 	}
 
 	getRefLinks(): Observable<{ success: boolean; data: RefLinksData }> {

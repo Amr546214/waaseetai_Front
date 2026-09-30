@@ -1,18 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
-
-export interface ReferralItem {
-  id: string;
-  name: string;
-  service: string;
-  channel: string;
-  date: string;
-  status: 'qualified' | 'pending' | 'cancelled';
-  statusLabel: string;
-  commission: string;
-}
+import { MarketerOverviewService, MarketerSummary, ReferredUser, ReferralStatus } from '../../../../core/services/marketer-overview.service';
 
 @Component({
   selector: 'app-referrals',
@@ -24,29 +13,33 @@ export interface ReferralItem {
 export class Referrals implements OnInit {
   private service = inject(MarketerOverviewService);
 
+  readonly ReferralStatus = ReferralStatus;
+
   summary = signal<MarketerSummary | null>(null);
   isLoading = signal(true);
-  
-  filterStatus = signal<string>('all');
+  errorMessage = signal('');
+
+  filterStatus = signal<'all' | ReferralStatus>('all');
   searchQuery = signal<string>('');
-  selectedReferral = signal<ReferralItem | null>(null);
+  selectedReferral = signal<ReferredUser | null>(null);
 
-  // Referral list data
-  referrals = signal<ReferralItem[]>([
-    { id: '1', name: 'سارة الزهراني', service: 'طلب خدمة', channel: 'تيك توك', date: '2026-06-28', status: 'qualified', statusLabel: 'أول مشروع مؤهل', commission: '+120 ريال' },
-    { id: '2', name: 'فهد العتيبي', service: 'اشتراك باقة', channel: 'إكس', date: '2026-06-20', status: 'pending', statusLabel: 'بانتظار الاكتمال', commission: '80 ريال معلقة' },
-    { id: '3', name: 'نورة القحطاني', service: 'طلب خدمة', channel: 'إنستقرام', date: '2026-06-15', status: 'qualified', statusLabel: 'أول مشروع مؤهل', commission: '+150 ريال' },
-    { id: '4', name: 'محمد الشمري', service: 'طلب خدمة', channel: 'تيك توك', date: '2026-06-10', status: 'qualified', statusLabel: 'أول مشروع مؤهل', commission: '+200 ريال' },
-    { id: '5', name: 'لمى الدوسري', service: 'تسجيل فقط', channel: 'إكس', date: '2026-05-30', status: 'cancelled', statusLabel: 'ملغاة', commission: 'لا عمولة' }
-  ]);
+  // Real referred-users list — GET /api/marketer-overview/referrals?page=&limit=
+  readonly limit = 10;
+  currentPage = signal(1);
+  total = signal(0);
+  referrals = signal<ReferredUser[]>([]);
 
+  totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.limit)));
+
+  // Client-side status/name filtering within the currently loaded page —
+  // the endpoint only supports page/limit, not server-side search.
   filteredReferrals = computed(() => {
     const status = this.filterStatus();
     const query = this.searchQuery().trim().toLowerCase();
-    
+
     return this.referrals().filter(ref => {
       const matchesStatus = status === 'all' || ref.status === status;
-      const matchesQuery = !query || ref.name.toLowerCase().includes(query);
+      const matchesQuery = !query || ref.referredUserDisplayName?.toLowerCase().includes(query);
       return matchesStatus && matchesQuery;
     });
   });
@@ -62,17 +55,87 @@ export class Referrals implements OnInit {
         if (res.success) {
           this.summary.set(res.data);
         }
-        this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => {}
+    });
+
+    this.loadReferrals(this.currentPage());
+  }
+
+  loadReferrals(page: number) {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.service.getReferrals(page, this.limit).subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        if (res.success && res.data) {
+          this.referrals.set(res.data.items ?? []);
+          this.total.set(res.data.total ?? 0);
+          this.currentPage.set(res.data.page ?? page);
+        } else {
+          this.referrals.set([]);
+          this.total.set(0);
+        }
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.referrals.set([]);
+        this.total.set(0);
+        this.errorMessage.set('تعذر تحميل قائمة الإحالات، حاول مرة أخرى');
+      }
     });
   }
 
-  setFilter(status: string) {
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages() || page === this.currentPage()) return;
+    this.loadReferrals(page);
+  }
+
+  getPagesArray(): number[] {
+    const pages: number[] = [];
+    for (let i = 1; i <= this.totalPages(); i++) pages.push(i);
+    return pages;
+  }
+
+  setFilter(status: 'all' | ReferralStatus) {
     this.filterStatus.set(status);
   }
 
-  openRefModal(ref: ReferralItem) {
+  /** Arabic label for the backend's ReferralStatus enum, house style per withdraw.ts's getStatusLabel(). */
+  getStatusLabel(status: ReferralStatus | string): string {
+    const map: Record<string, string> = {
+      PENDING: 'معلقة',
+      QUALIFIED: 'مؤهلة',
+      CONVERTED: 'محولة'
+    };
+    return map[status as string] || status || 'غير محدد';
+  }
+
+  getStatusClass(status: ReferralStatus | string): string {
+    const map: Record<string, string> = {
+      PENDING: 'txt-amber',
+      QUALIFIED: 'txt-teal',
+      CONVERTED: 'txt-green'
+    };
+    return map[status as string] || 'txt-muted';
+  }
+
+  getStatusBg(status: ReferralStatus | string): string {
+    const map: Record<string, string> = {
+      PENDING: 'rgba(255,180,0,.10)',
+      QUALIFIED: 'rgba(43,212,199,.12)',
+      CONVERTED: 'rgba(15,169,154,.12)'
+    };
+    return map[status as string] || 'rgba(255,255,255,.06)';
+  }
+
+  /** Never blank/undefined: null/undefined shows as "—", a real 0 shows as "0 ريال". */
+  formatCommission(amount: number | null | undefined): string {
+    if (amount === null || amount === undefined) return '—';
+    return `${amount} ريال`;
+  }
+
+  openRefModal(ref: ReferredUser) {
     this.selectedReferral.set(ref);
   }
 
