@@ -1,9 +1,19 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+
+export interface ProviderSession {
+  id: string;
+  browser?: string;
+  os?: string;
+  device?: string;
+  lastActiveAt: string;
+  isCurrent: boolean;
+}
 
 @Component({
   selector: 'app-provider-settings-account',
@@ -173,60 +183,6 @@ import { AccountType } from '../../../../../core/models/auth.model';
       color: #5B6472;
     }
 
-    /* Delete Modal */
-    .del-box {
-      background: rgba(11,20,55,.97);
-      border: 1px solid rgba(255,255,255,.12);
-    }
-    .del-fld input {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
-      color: #fff;
-    }
-    .del-cancel {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.12);
-      color: #fff;
-    }
-    :host-context(body.light-theme) .del-box,
-    :host-context(body.theme-light) .del-box,
-    :host-context(.light-theme) .del-box,
-    :host-context(.theme-light) .del-box {
-      background: #fff;
-      border-color: #E7EAF1;
-    }
-    :host-context(body.light-theme) .del-box h3,
-    :host-context(body.theme-light) .del-box h3,
-    :host-context(.light-theme) .del-box h3,
-    :host-context(.theme-light) .del-box h3 {
-      color: #0F172A;
-    }
-    :host-context(body.light-theme) .del-box > p,
-    :host-context(body.theme-light) .del-box > p,
-    :host-context(.light-theme) .del-box > p,
-    :host-context(.theme-light) .del-box > p,
-    :host-context(body.light-theme) .del-fld label,
-    :host-context(body.theme-light) .del-fld label,
-    :host-context(.light-theme) .del-fld label,
-    :host-context(.theme-light) .del-fld label {
-      color: #475569;
-    }
-    :host-context(body.light-theme) .del-fld input,
-    :host-context(body.theme-light) .del-fld input,
-    :host-context(.light-theme) .del-fld input,
-    :host-context(.theme-light) .del-fld input {
-      background: #f5f7fc;
-      border-color: #C9D0E3;
-      color: #0F172A;
-    }
-    :host-context(body.light-theme) .del-cancel,
-    :host-context(body.theme-light) .del-cancel,
-    :host-context(.light-theme) .del-cancel,
-    :host-context(.theme-light) .del-cancel {
-      background: #EEF2FA;
-      border-color: #D8DFEC;
-      color: #0F172A;
-    }
 
     /* ===== Company Settings (P-CO-AC-009) ===== */
     .co-settings-page{display:block}
@@ -344,8 +300,17 @@ import { AccountType } from '../../../../../core/models/auth.model';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Account {
+export class Account implements OnInit {
   private authStore = inject(AuthStore);
+  private providerProfileService = inject(ProviderProfileService);
+
+  ngOnInit() {
+    // Company mode shows the sessions list unconditionally (no expand
+    // button in that layout), so it needs real data up front. Individual
+    // mode loads lazily, on demand, when "إدارة" is clicked (see
+    // manageDevices()).
+    if (this.isCompanyMode()) this.loadSessions();
+  }
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -393,8 +358,15 @@ export class Account {
   hasError = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
 
-  twoFactorAuth = signal<boolean>(true);
-  newLoginAlert = signal<boolean>(true);
+  // 2FA and "new login alert" were previously interactive toggles backed by
+  // nothing at all (no MFA/2FA capability and no acted-upon login-alert
+  // preference exist anywhere in the backend — confirmed by a full-text
+  // search of the backend source). Flipping them changed only a local
+  // signal and always rendered as "enabled"/"protected" regardless. Kept as
+  // plain, honest, non-interactive state rather than removed outright, so
+  // the security section can still explain what these would do once real
+  // backend support exists.
+  readonly securityFeatureUnavailableLabel = 'غير متاح حاليًا';
 
   language = signal<string>('العربية');
   timezone = signal<string>('توقيت الرياض (GMT+3)');
@@ -404,34 +376,150 @@ export class Account {
   showProfile = signal<boolean>(true);
   shareData = signal<boolean>(true);
 
-  showDeleteModal = signal<boolean>(false);
-  deleteConfirmText = signal<string>('');
+  // --- Real authenticated password change (PUT .../password) ---
+  passwordFormVisible = signal(false);
+  isChangingPassword = signal(false);
+  currentPasswordValue = signal('');
+  newPasswordValue = signal('');
+  confirmPasswordValue = signal('');
+  passwordError = signal<string | null>(null);
 
-  get isDeleteEnabled(): boolean {
-    return this.deleteConfirmText().trim() === 'حذف';
+  togglePasswordForm() {
+    this.passwordFormVisible.update(v => !v);
+    if (!this.passwordFormVisible()) this.resetPasswordForm();
   }
 
-  requestDataDownload() {
-    this.showToast('سيصلك رابط تنزيل بياناتك خلال 24 ساعة');
+  private resetPasswordForm() {
+    this.currentPasswordValue.set('');
+    this.newPasswordValue.set('');
+    this.confirmPasswordValue.set('');
+    this.passwordError.set(null);
+  }
+
+  changePassword() {
+    if (this.isChangingPassword()) return; // prevent double submit
+
+    const current = this.currentPasswordValue();
+    const next = this.newPasswordValue();
+    const confirm = this.confirmPasswordValue();
+
+    // Validated client-side first, mirroring the backend's own rules
+    // exactly (provider-profile.service.ts changePassword()) — an invalid
+    // attempt never reaches the network at all.
+    if (!current || !next || !confirm) {
+      this.passwordError.set('يرجى تعبئة جميع الحقول');
+      return;
+    }
+    if (next.length < 8 || next.length > 72) {
+      this.passwordError.set('كلمة المرور الجديدة يجب أن تتكون من 8 إلى 72 حرفًا');
+      return;
+    }
+    const characterGroups = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter(re => re.test(next)).length;
+    if (characterGroups < 3) {
+      this.passwordError.set('استخدم ثلاثة أنواع على الأقل: أحرف صغيرة وكبيرة وأرقام ورموز');
+      return;
+    }
+    if (next !== confirm) {
+      this.passwordError.set('تأكيد كلمة المرور غير مطابق');
+      return;
+    }
+
+    this.passwordError.set(null);
+    this.isChangingPassword.set(true);
+    this.providerProfileService.changePassword(current, next).subscribe({
+      next: () => {
+        this.isChangingPassword.set(false);
+        this.resetPasswordForm();
+        this.passwordFormVisible.set(false);
+        this.showToast('تم تغيير كلمة المرور بنجاح');
+      },
+      error: (err: any) => {
+        this.isChangingPassword.set(false);
+        const reason = err?.error?.message;
+        this.passwordError.set(
+          reason === 'CURRENT_PASSWORD_INCORRECT' ? 'كلمة المرور الحالية غير صحيحة'
+          : reason === 'PASSWORD_UNCHANGED' ? 'كلمة المرور الجديدة مطابقة للحالية'
+          : reason === 'WEAK_PASSWORD' ? 'كلمة المرور الجديدة لا تحقق متطلبات الأمان'
+          : reason === 'PASSWORD_FIELDS_REQUIRED' ? 'يرجى تعبئة جميع الحقول'
+          : 'تعذر تغيير كلمة المرور، حاول مجددًا'
+        );
+        // Deliberately NOT clearing fields on error — the user shouldn't
+        // have to retype everything to fix one mistake. Never logged: only
+        // the server error *code* is read here, never the password values.
+      },
+    });
+  }
+
+  // --- Real device/session management (GET/DELETE .../sessions) ---
+  sessions = signal<ProviderSession[]>([]);
+  sessionsLoading = signal(false);
+  sessionsError = signal<string | null>(null);
+  devicesExpanded = signal(false);
+  revokingSessionId = signal<string | null>(null);
+
+  private loadSessions() {
+    this.sessionsLoading.set(true);
+    this.sessionsError.set(null);
+    this.providerProfileService.getActiveSessions().subscribe({
+      next: (res: any) => {
+        this.sessions.set(Array.isArray(res?.data) ? res.data : []);
+        this.sessionsLoading.set(false);
+      },
+      error: () => {
+        this.sessionsError.set('تعذر تحميل الأجهزة النشطة');
+        this.sessionsLoading.set(false);
+      },
+    });
   }
 
   manageDevices() {
-    this.showToast('عرض الأجهزة النشطة وإنهاء الجلسات');
+    this.devicesExpanded.update(v => !v);
+    if (this.devicesExpanded() && this.sessions().length === 0 && !this.sessionsLoading()) {
+      this.loadSessions();
+    }
   }
 
-  openDeleteModal() {
-    this.deleteConfirmText.set('');
-    this.showDeleteModal.set(true);
+  endSession(sessionId: string) {
+    if (this.revokingSessionId()) return; // prevent double submit per row
+    this.revokingSessionId.set(sessionId);
+    this.providerProfileService.revokeSession(sessionId).subscribe({
+      next: () => {
+        this.sessions.update(list => list.filter(s => s.id !== sessionId));
+        this.revokingSessionId.set(null);
+        this.showToast('تم إنهاء الجلسة بنجاح');
+      },
+      error: (err: any) => {
+        this.revokingSessionId.set(null);
+        const reason = err?.error?.message;
+        this.showToast(reason === 'CANNOT_REVOKE_CURRENT_SESSION' ? 'لا يمكن إنهاء الجلسة الحالية' : 'تعذر إنهاء الجلسة');
+      },
+    });
   }
 
-  closeDeleteModal() {
-    this.showDeleteModal.set(false);
+  sessionLabel(s: ProviderSession): string {
+    const parts = [s.browser, s.os].filter(Boolean);
+    return parts.length ? parts.join(' · ') : 'جهاز غير معروف';
   }
 
-  confirmDelete() {
-    this.showDeleteModal.set(false);
-    this.showToast('أُرسل طلب حذف الحساب، يراجعه فريق الدعم');
+  sessionActivityLabel(s: ProviderSession): string {
+    if (s.isCurrent) return 'الجلسة الحالية · نشطة الآن';
+    const date = new Date(s.lastActiveAt);
+    return 'آخر نشاط: ' + date.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
+
+  // --- Data export: no backend endpoint exists anywhere (confirmed by a
+  // full-text search of the backend source) — truthfully unavailable rather
+  // than a fake "your download link is on its way" toast. ---
+  dataExportAvailable = false;
+
+  // --- Account deletion: only an ADMIN-ONLY hard-delete endpoint exists
+  // backend-side; there is no self-service deletion-*request* endpoint at
+  // all, so there is nothing safe to wire here. Per instructions this stays
+  // truthfully unavailable rather than showing a fake "submitted for
+  // review" success — see the Batch 2 report for the recommended follow-up
+  // (routing this through the existing, real provider support-ticket
+  // system instead, pending explicit approval). ---
+  accountDeletionAvailable = false;
 
   retry() {
     this.hasError.set(false);
