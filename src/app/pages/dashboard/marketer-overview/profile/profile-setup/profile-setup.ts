@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MarketerProfileService, MarketerProfile } from '../../../../../core/services/marketer-profile.service';
 import { ibanValidator } from '../../../../../core/validators/iban.validator';
+import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
 
 @Component({
 	selector: 'app-marketer-profile-setup',
@@ -51,6 +52,7 @@ export class ProfileSetup implements OnInit {
 	completionPercentage = computed(() => this.profile()?.completionPercentage ?? 0);
 	hasChannel = computed(() => (this.profile()?.marketingChannels?.length ?? 0) > 0);
 	hasBank = computed(() => !!this.profile()?.iban);
+	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
 
 	ngOnInit(): void {
 		this.loadProfile();

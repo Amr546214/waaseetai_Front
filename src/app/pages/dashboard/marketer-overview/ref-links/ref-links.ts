@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarketerOverviewService, RefLinksData, ReferralCustomLink, MarketerSummary } from '../../../../core/services/marketer-overview.service';
+import { buildReferralUrl } from '../../../../core/utils/referral-link.util';
 
 @Component({
   selector: 'app-ref-links',
@@ -22,6 +23,19 @@ export class RefLinks implements OnInit {
   showNewChannelForm = signal(false);
 
   toastMessage = signal<string | null>(null);
+
+  // The backend's own `primaryLink` field is hardcoded to the production
+  // domain (https://waseet.ai/ref/...) regardless of which environment the
+  // request came from — correct on production, wrong on DEV/local. Built
+  // client-side instead via the same environment-derived helper already
+  // used by the marketer profile page's own full-link field.
+  fullReferralLink = computed(() => buildReferralUrl(this.data()?.primarySlug));
+
+  channelLink(utmSource: string): string {
+    const base = this.fullReferralLink();
+    if (!base) return '';
+    return `${base}?utm_source=${utmSource}`;
+  }
 
   ngOnInit() {
     this.loadData();

@@ -43,7 +43,7 @@
           <div class="inp-group"><label class="inp-label">الاسم</label><input type="text" class="inp-field" readonly [value]="(profile()?.user?.firstName || '') + ' ' + (profile()?.user?.lastName || '')"></div>
           <div class="inp-group"><label class="inp-label">البريد الإلكتروني</label><input type="email" class="inp-field" readonly dir="ltr" [value]="profile()?.user?.email || ''"></div>
           <div class="inp-group"><label class="inp-label">رقم الجوال</label><input type="tel" class="inp-field" readonly dir="ltr" [value]="(profile()?.user?.phoneCountryCode || '') + (profile()?.user?.phoneNumber || '')"></div>
-          <div class="inp-group"><label class="inp-label">رابط الإحالة</label><input type="text" class="inp-field" readonly dir="ltr" [value]="profile()?.referralSlug || ''"></div>
+          <div class="inp-group"><label class="inp-label">رابط الإحالة</label><input type="text" class="inp-field" readonly dir="ltr" [value]="referralLink()"></div>
         </div>
         <div class="inp-hint" style="margin-top:8px">لتعديل بياناتك الأساسية لاحقاً استخدم صفحة "طلبات تعديل الملف"</div>
       </div>

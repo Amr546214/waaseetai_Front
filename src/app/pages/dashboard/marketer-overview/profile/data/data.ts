@@ -7,7 +7,7 @@ import { MarketerOverviewService, MarketerSummary, ChannelPerformance, Commissio
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { ibanValidator } from '../../../../../core/validators/iban.validator';
-import { environment } from '../../../../../../environments/environment';
+import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
 
 const DEFAULT_ALERT_PREFERENCES = {
 	marketer_new_referral: true,
@@ -54,10 +54,7 @@ export class Data implements OnInit {
 	alertPreferences = { ...DEFAULT_ALERT_PREFERENCES };
 	isSavingAlerts = signal<boolean>(false);
 
-	referralLink = computed(() => {
-		const slug = this.profile()?.referralSlug;
-		return slug ? `${environment.url_api.replace(/\/api\/?$/, '')}/ref/${slug}` : '';
-	});
+	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
 
 	// روابط الإحالة الاجتماعية — real per-platform tracking links derived from
 	// the affiliate's own real referralSlug (same base link as referralLink()
