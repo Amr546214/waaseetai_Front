@@ -10,8 +10,6 @@ export interface MarketerSummary {
 	successfulReferrals: number;
 	totalCommissions: number;
 	overallConversionRate: number;
-	nextTierThreshold: number;
-	progressPercentage: number;
 }
 
 export interface ChannelPerformance {

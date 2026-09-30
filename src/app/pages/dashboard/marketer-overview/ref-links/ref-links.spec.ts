@@ -12,7 +12,7 @@ function setup(refLinksData: any = {
 	settings: { notifyOnNewReferral: true, sharePerformanceStats: false }
 }) {
 	const fakeService: any = {
-		getSummary: () => of({ success: true, data: { tier: 'مساعد', successfulReferrals: 0, totalCommissions: 0, progressPercentage: 0, nextTierThreshold: 10 } }),
+		getSummary: () => of({ success: true, data: { tier: 'مساعد', successfulReferrals: 0, totalCommissions: 0 } }),
 		getRefLinks: () => of({ success: true, data: refLinksData }),
 		createCustomLink: () => of({ success: true, data: {} }),
 		updateSettings: () => of({ success: true, data: {} })
