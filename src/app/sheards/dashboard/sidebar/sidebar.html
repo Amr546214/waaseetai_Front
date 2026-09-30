@@ -86,7 +86,7 @@
 									(click)="child.disabled ? $event.preventDefault() : onCloseSidebar()"
 									[ngClass]="child.disabled ? 'opacity-40 grayscale pointer-events-none' : 'hover:text-slate-200 hover:bg-white/[0.04] cursor-pointer'"
 									[attr.aria-current]="isRouteActive(child) ? 'page' : null"
-									class="flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-normal text-slate-400 border border-transparent transition-all duration-200 w-full text-right group/sub">
+									class="flex items-center gap-2 py-1.5 px-3 rounded-lg text-[13px] font-normal text-slate-400 border border-transparent transition-all duration-200 w-full text-right group/sub">
 									<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
 										class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-500 group-hover/sub:text-slate-300 transition-colors duration-200">
 										<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="child.icon" />
@@ -98,7 +98,7 @@
 								</a>
 							}
 							@if (child.type === 'button') {
-								<button type="button" class="flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs font-normal text-slate-400 border border-transparent hover:text-slate-200 hover:bg-white/[0.04] transition-all duration-200 w-full text-right cursor-pointer group/sub">
+								<button type="button" class="flex items-center gap-2 py-1.5 px-3 rounded-lg text-[13px] font-normal text-slate-400 border border-transparent hover:text-slate-200 hover:bg-white/[0.04] transition-all duration-200 w-full text-right cursor-pointer group/sub">
 									<svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
 										class="w-4 h-4 shrink-0 stroke-[1.5] text-slate-500 group-hover/sub:text-slate-300 transition-colors duration-200">
 										<path stroke-linecap="round" stroke-linejoin="round" [attr.d]="child.icon" />

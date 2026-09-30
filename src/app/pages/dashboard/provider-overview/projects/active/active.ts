@@ -1,5 +1,5 @@
 import { Component, signal, computed, OnInit, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../core/services/active.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
@@ -36,6 +36,7 @@ interface Project {
 export class Active implements OnInit {
 	private activeProjectsService = inject(ActiveProjectsService);
 	private authStore = inject(AuthStore);
+	private route = inject(ActivatedRoute);
 
 	activeFilter = signal<'all' | 'run' | 'wait' | 'late' | 'review'>('all');
 	memberFilter = signal<string>('all');
@@ -53,6 +54,15 @@ export class Active implements OnInit {
 
 	ngOnInit() {
 		this.loadProjects();
+
+		const requestedFilter = this.route.snapshot.queryParamMap.get('filter');
+		if (this.isValidFilter(requestedFilter)) {
+			this.setFilter(requestedFilter);
+		}
+	}
+
+	private isValidFilter(value: string | null): value is 'all' | 'run' | 'wait' | 'late' | 'review' {
+		return value === 'all' || value === 'run' || value === 'wait' || value === 'late' || value === 'review';
 	}
 
 	loadProjects() {

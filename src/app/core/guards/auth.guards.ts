@@ -64,8 +64,13 @@ export const guestGuard: CanActivateFn = (route, state) => {
     take(1),
     map(() => {
       if (authStore.isAuthenticated()) {
-        // Already logged in, force redirect to their dashboard
-        return router.createUrlTree(['/client-overview']);
+        // Already logged in — redirect to THEIR actual dashboard (never a
+        // hard-coded '/client-overview'), so a Provider/Marketer/Admin who
+        // lands here (e.g. via a stale "Change Password" link pointing at
+        // this logged-out-only route) doesn't get bounced into a dashboard
+        // they don't belong to.
+        const user = authStore.currentUser();
+        return router.createUrlTree([getDefaultDashboard(user?.accountType, user?.activeRole)]);
       }
 
       // Pending OTP verification only auto-resumes the OTP step when the user

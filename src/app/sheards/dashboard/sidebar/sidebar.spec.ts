@@ -373,4 +373,42 @@ describe('End-to-end: clicking a real CHAT notification in the bell dropdown act
 		expect(messagesAnchor).toBeTruthy();
 		expect(messagesAnchor!.classList.contains('active-nav-item')).toBe(true);
 	});
+
+	// Regression coverage for the confirmed 1px inconsistency: accordion
+	// sub-items rendered at text-xs (12px) while every flat top-level item
+	// and accordion parent rendered at text-[13px] — same sidebar, same
+	// visual level, two different sizes. Rendering a route that opens an
+	// accordion puts both kinds of items in the DOM at once.
+	describe('typography consistency (flat items vs. accordion sub-items)', () => {
+		it('never renders the old accordion-sub-item text-xs class anywhere in the sidebar', async () => {
+			const { fixture, router } = setup('CLIENT_INDIVIDUAL');
+			fixture.detectChanges();
+			await router.navigateByUrl('/client-overview/projects/active');
+			fixture.detectChanges();
+
+			const el = fixture.nativeElement as HTMLElement;
+			// Sanity check: an accordion is actually open and rendering children.
+			expect(el.querySelector('a[href="/client-overview/projects/active"]')).toBeTruthy();
+
+			const anyTextXs = Array.from(el.querySelectorAll('a, button'))
+				.some(node => (node as HTMLElement).classList.contains('text-xs'));
+			expect(anyTextXs).toBe(false);
+		});
+
+		it('an accordion sub-item link uses the same text-[13px] size as a flat top-level item', async () => {
+			const { fixture, router } = setup('CLIENT_INDIVIDUAL');
+			fixture.detectChanges();
+			await router.navigateByUrl('/client-overview/projects/active');
+			fixture.detectChanges();
+
+			const el = fixture.nativeElement as HTMLElement;
+			const subItem = el.querySelector('a[href="/client-overview/projects/active"]');
+			const flatTopLevelItem = el.querySelector('a[href="/client-overview/messages"]');
+
+			expect(subItem).toBeTruthy();
+			expect(flatTopLevelItem).toBeTruthy();
+			expect((subItem as HTMLElement).classList.contains('text-[13px]')).toBe(true);
+			expect((flatTopLevelItem as HTMLElement).classList.contains('text-[13px]')).toBe(true);
+		});
+	});
 });

@@ -23,6 +23,21 @@ describe('CreateRequest', () => {
     // may have left behind — restoration must not leak across tests.
     sessionStorage.clear();
 
+    // Pre-existing test-environment gap (unrelated to this batch): this
+    // runner provides sessionStorage natively but not a global localStorage,
+    // and CreateRequest injects the real AuthStore, whose constructor reads
+    // localStorage synchronously — every test in this file crashed before
+    // even reaching its own logic. A minimal stub (re-applied before every
+    // test, including ones inside the inner describe block below that calls
+    // vi.unstubAllGlobals() in its own afterEach) is enough for AuthStore to
+    // initialize as "no stored session", which is all this component needs.
+    vi.stubGlobal('localStorage', {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+    });
+
     postSpy = vi.fn(() => of({ success: true, data: { id: 'new-request-id' } }));
 
     await TestBed.configureTestingModule({
@@ -507,6 +522,121 @@ describe('CreateRequest', () => {
       const stored = sessionStorage.getItem(DRAFT_KEY)!;
       expect(stored).not.toContain('test.pdf');
       expect(readDraft().step5).toBeUndefined();
+    });
+  });
+
+  // Regression coverage for the confirmed bug: refreshing the browser right
+  // after a successful publish (draft already cleared) used to fall through
+  // to the default currentStep=1 and silently re-show the empty wizard,
+  // looking like the just-submitted request was lost.
+  describe('Post-submit success-screen persistence (refresh vs. new request)', () => {
+    const DRAFT_KEY = 'waseetai:create-request:draft:v1';
+    const SUBMITTED_KEY = 'waseetai:create-request:submitted:v1';
+
+    // A real browser refresh discards the old page's JS context outright —
+    // nothing about the old instance ever runs again, including its
+    // ngOnDestroy and its autosave effect. TestBed has no direct equivalent
+    // of "the process was just killed", so this gets there in two steps:
+    // (1) suppress only the marker-clearing call on the OLD instance (the
+    // one real thing ngOnDestroy does that a true refresh would never get a
+    // chance to run) and (2) actually destroy the old fixture so its
+    // autosave effect can never fire again and clobber sessionStorage out
+    // from under the fresh instance created afterward — the exact pitfall
+    // the draft describe block's own remount() comment above warns about.
+    async function simulateHardRefresh(): Promise<CreateRequest> {
+      vi.spyOn(component as any, 'clearSubmittedMarker').mockImplementation(() => {});
+      fixture.destroy();
+
+      const freshFixture = TestBed.createComponent(CreateRequest);
+      await freshFixture.whenStable();
+      return freshFixture.componentInstance;
+    }
+
+    // Client-side navigation away from the success screen (its own "عرض
+    // طلباتي"/"لوحة التحكم" buttons, or anywhere else) DOES run ngOnDestroy —
+    // this is the accurate simulation for "the user is done with this
+    // success screen and later starts a genuinely new request".
+    async function navigateAwayThenRemount(): Promise<CreateRequest> {
+      fixture.destroy();
+      const freshFixture = TestBed.createComponent(CreateRequest);
+      await freshFixture.whenStable();
+      return freshFixture.componentInstance;
+    }
+
+    it('(A) a mid-draft refresh is unaffected — no submitted marker is written before a successful publish', async () => {
+      component.title.set('عنوان أثناء التعبئة');
+      await fixture.whenStable();
+
+      expect(sessionStorage.getItem(SUBMITTED_KEY)).toBeNull();
+
+      const restored = await simulateHardRefresh();
+
+      expect(restored.showSuccessOverlay()).toBe(false);
+      expect(restored.title()).toBe('عنوان أثناء التعبئة');
+    });
+
+    it('(B) a successful submission writes the submitted marker alongside clearing the draft', async () => {
+      await component.submitRequest();
+
+      expect(sessionStorage.getItem(DRAFT_KEY)).toBeNull();
+      expect(sessionStorage.getItem(SUBMITTED_KEY)).not.toBeNull();
+    });
+
+    it('(C) refreshing immediately after a successful submission re-shows the success screen, not step 1', async () => {
+      await component.submitRequest();
+
+      const restored = await simulateHardRefresh();
+
+      expect(restored.showSuccessOverlay()).toBe(true);
+      expect(restored.currentStep()).toBe(1); // wizard fields are irrelevant now; the overlay covers them
+    });
+
+    it('(C) the restored success screen does not resubmit or duplicate the request', async () => {
+      await component.submitRequest();
+      const restored = await simulateHardRefresh();
+
+      expect(restored.showSuccessOverlay()).toBe(true);
+      expect(postSpy).toHaveBeenCalledTimes(1); // only the original submit — refresh alone never calls createProject again
+    });
+
+    it('(C) an expired/stale submitted marker (>24h old) is ignored and cleared rather than restored', async () => {
+      await component.submitRequest();
+      sessionStorage.setItem(SUBMITTED_KEY, JSON.stringify({ at: Date.now() - 25 * 60 * 60 * 1000 }));
+
+      const restored = await simulateHardRefresh();
+
+      expect(restored.showSuccessOverlay()).toBe(false);
+      expect(sessionStorage.getItem(SUBMITTED_KEY)).toBeNull();
+    });
+
+    it('(C) a corrupt submitted marker does not crash and is cleared, falling back to step 1', async () => {
+      sessionStorage.setItem(SUBMITTED_KEY, '{not valid json');
+
+      const restored = await simulateHardRefresh();
+
+      expect(restored.showSuccessOverlay()).toBe(false);
+      expect(restored.currentStep()).toBe(1);
+      expect(sessionStorage.getItem(SUBMITTED_KEY)).toBeNull();
+    });
+
+    it('(D) navigating away from the success screen and starting a genuinely new request clears the marker and starts at step 1', async () => {
+      await component.submitRequest();
+      expect(sessionStorage.getItem(SUBMITTED_KEY)).not.toBeNull();
+
+      const restored = await navigateAwayThenRemount();
+
+      expect(sessionStorage.getItem(SUBMITTED_KEY)).toBeNull();
+      expect(restored.showSuccessOverlay()).toBe(false);
+      expect(restored.currentStep()).toBe(1);
+    });
+
+    it('(D) a later refresh of that genuinely-new, still-empty wizard does not resurrect the old success screen', async () => {
+      await component.submitRequest();
+      await navigateAwayThenRemount(); // user moved on, started a new request
+
+      const restoredAgain = await simulateHardRefresh();
+
+      expect(restoredAgain.showSuccessOverlay()).toBe(false);
     });
   });
 });

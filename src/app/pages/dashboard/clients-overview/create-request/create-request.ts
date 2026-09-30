@@ -33,6 +33,22 @@ interface Milestone { name: string; pct: number; }
 const DRAFT_STORAGE_KEY = 'waseetai:create-request:draft:v1';
 const DRAFT_VERSION = 1;
 
+// Lightweight marker (no form data) set only once the backend has confirmed
+// publish and the draft has already been cleared. Its sole purpose is
+// surviving a refresh of the post-submit success screen — without it, a
+// refresh right after submitting finds no draft (already cleared) and falls
+// back to step 1, looking like the request was lost. Cleared on component
+// destroy (i.e. as soon as the user navigates away from this page) so a
+// later, genuinely new visit to this page always starts clean, and bounded
+// to 24h so it can never outlive a reasonable session even if that somehow
+// didn't run.
+const SUBMITTED_STORAGE_KEY = 'waseetai:create-request:submitted:v1';
+const SUBMITTED_MARKER_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+interface SubmittedMarker {
+  at: number;
+}
+
 interface CreateRequestDraftV1 {
   version: 1;
   currentStep: number;
@@ -151,6 +167,7 @@ export class CreateRequest implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.restoreDraft();
+    this.restoreSubmittedState();
     this.loadSpecialtiesFromDatabase();
   }
 
@@ -239,6 +256,50 @@ export class CreateRequest implements OnInit, OnDestroy {
     } catch {
       // Malformed JSON — never let a corrupt draft crash the page.
       this.clearDraft();
+    }
+  }
+
+  private markSubmitted(): void {
+    if (!this.isBrowser) return;
+    try {
+      sessionStorage.setItem(SUBMITTED_STORAGE_KEY, JSON.stringify({ at: Date.now() } satisfies SubmittedMarker));
+    } catch {
+      // Storage unavailable — a refresh right after submit will fall back to
+      // step 1 instead of the success screen, but the request itself was
+      // already published server-side either way.
+    }
+  }
+
+  private clearSubmittedMarker(): void {
+    if (!this.isBrowser) return;
+    try {
+      sessionStorage.removeItem(SUBMITTED_STORAGE_KEY);
+    } catch {
+      // Ignore — nothing to clean up if storage isn't accessible.
+    }
+  }
+
+  private restoreSubmittedState(): void {
+    if (!this.isBrowser) return;
+    let raw: string | null = null;
+    try {
+      raw = sessionStorage.getItem(SUBMITTED_STORAGE_KEY);
+    } catch {
+      return;
+    }
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      const isValid = parsed && typeof parsed === 'object' && typeof parsed.at === 'number'
+        && Date.now() - parsed.at < SUBMITTED_MARKER_MAX_AGE_MS;
+      if (isValid) {
+        this.showSuccessOverlay.set(true);
+      } else {
+        this.clearSubmittedMarker();
+      }
+    } catch {
+      this.clearSubmittedMarker();
     }
   }
 
@@ -834,8 +895,11 @@ export class CreateRequest implements OnInit, OnDestroy {
         // Only clear the draft once the backend has actually confirmed the
         // request was published — never on error, never before this point.
         this.clearDraft();
+        this.markSubmitted();
         // Stay on the success overlay until the user explicitly picks
-        // "عرض طلباتي" or "لوحة التحكم" — no automatic navigation.
+        // "عرض طلباتي" or "لوحة التحكم" — no automatic navigation. Persisted
+        // via markSubmitted() so a refresh here restores this same screen
+        // instead of falling back to step 1 (the draft is already gone).
         this.showSuccessOverlay.set(true);
       },
       error: (err) => {
@@ -858,5 +922,10 @@ export class CreateRequest implements OnInit, OnDestroy {
     if (this.socket) {
       this.socket.disconnect();
     }
+    // Navigating away from this page (e.g. via the success screen's own
+    // "عرض طلباتي"/"لوحة التحكم" buttons) means the just-submitted state has
+    // been acknowledged — clear the marker so a later, genuinely new visit
+    // to this page starts at step 1 instead of re-showing this success screen.
+    this.clearSubmittedMarker();
   }
 }

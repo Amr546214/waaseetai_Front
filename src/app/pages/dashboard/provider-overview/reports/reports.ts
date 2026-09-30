@@ -42,7 +42,10 @@ export class Reports {
 
   tabs = computed(() => {
     const list = [
-      { id: 'orders', label: 'طلبات العملاء', icon: 'list', count: 12 }
+      // Kept in sync with the actual number of mock rows rendered below
+      // (the now-removed page-2/3 pagination controls previously implied a
+      // 12-item total that doesn't exist).
+      { id: 'orders', label: 'طلبات العملاء', icon: 'list', count: 4 }
     ];
     if (this.isCompanyMode()) {
       list.push({ id: 'team', label: 'أداء الفريق', icon: 'team', count: this.teamPerformance.length });

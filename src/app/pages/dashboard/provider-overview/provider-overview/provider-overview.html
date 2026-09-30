@@ -160,7 +160,7 @@
 			</a>
 
 			<!-- Amber Card -->
-			<a routerLink="/provider-overview/projects/active" class="act-card act-amber">
+			<a routerLink="/provider-overview/projects/active" [queryParams]="{filter: 'wait'}" class="act-card act-amber">
 				<div class="act-ico" aria-hidden="true">
 					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 						stroke-linecap="round" stroke-linejoin="round">
@@ -572,7 +572,7 @@
 			<span style="width:7px;height:7px;border-radius:50%;background:#D98A0B;box-shadow:0 0 8px rgba(255,180,0,.5);flex-shrink:0" aria-hidden="true"></span>
 		</div>
 		<div class="action-center">
-			<a routerLink="/provider-overview/projects/active" class="act-card act-amber">
+			<a routerLink="/provider-overview/projects/active" [queryParams]="{filter: 'wait'}" class="act-card act-amber">
 				<div class="act-ico" aria-hidden="true">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-check"></use>
