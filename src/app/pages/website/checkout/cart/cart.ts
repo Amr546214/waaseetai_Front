@@ -1,10 +1,11 @@
-import { Component, inject, signal, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, effect, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { MarketplaceService, MarketplaceModel } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cart',
@@ -45,7 +46,49 @@ export class CartComponent implements OnInit, OnDestroy {
   addingRecId = signal<string | null>(null);
   recError = signal<string | null>(null);
 
+  // Gap 1/2 (duplicate-purchase awareness on the cart page) — reuses the
+  // same GET /marketplace/models/:id/my-purchase endpoint the offer page
+  // already relies on (findActiveServicePurchases on the backend). Keyed by
+  // modelId -> the client's already-running project for that service, so a
+  // link can jump straight to it (same nav pattern as offer.ts's
+  // openActiveProject()).
+  conflictingItems = signal<Map<string, { projectId: string | null }>>(new Map());
+  // Same conflict data, but for the AI-recommendation cards below the cart —
+  // lets the "إضافة للسلة" button be proactively disabled before the user
+  // ever clicks, instead of relying only on the backend's reactive 409.
+  recConflictIds = signal<Set<string>>(new Set());
+  checkoutBlockedMessage = signal<string | null>(null);
+
+  readonly duplicatePurchaseMessage = 'لديك مشروع نشط لهذه الخدمة — لا يمكن شراؤها مرة أخرى قبل اكتمال المشروع الحالي';
+
   private aiSub?: Subscription;
+  private lastCheckedCartKey = '';
+  private lastCheckedRecKey = '';
+
+  constructor() {
+    // Cart items load asynchronously (CartService.loadCart() is fire-and-
+    // forget), and addRecommendation()/removeItem()/etc. mutate the items
+    // signal later too — an effect (rather than a one-shot call right after
+    // loadCart()) means every one of those cases is covered by the same
+    // logic, including "a newly-added recommendation must be included".
+    effect(() => {
+      if (!this.isBrowser) return;
+      const ids = Array.from(new Set(this.activeItems.map(i => i.modelId)));
+      const key = ids.slice().sort().join('|');
+      if (key === this.lastCheckedCartKey) return;
+      this.lastCheckedCartKey = key;
+      this.refreshCartConflicts(ids);
+    });
+
+    effect(() => {
+      if (!this.isBrowser) return;
+      const ids = this.aiRecommendations().map(r => r.id);
+      const key = ids.slice().sort().join('|');
+      if (key === this.lastCheckedRecKey) return;
+      this.lastCheckedRecKey = key;
+      this.refreshRecommendationConflicts(ids);
+    });
+  }
 
   ngOnInit() {
     this.cartService.loadCart();
@@ -54,6 +97,50 @@ export class CartComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.aiSub?.unsubscribe();
+  }
+
+  /** Batch-checks GET /marketplace/models/:id/my-purchase for every given
+   *  service id in parallel, returning only the ones the client already has
+   *  an active (non-terminal) contract-backed project for. A per-call
+   *  catchError means one failing lookup can never break the whole batch —
+   *  worst case that one service is silently treated as "no conflict",
+   *  exactly like offer.ts's own error handling for this same endpoint. */
+  private fetchActivePurchaseMap(ids: string[]): Observable<Map<string, { projectId: string | null }>> {
+    const uniqueIds = Array.from(new Set(ids.filter(Boolean)));
+    if (!uniqueIds.length) return of(new Map<string, { projectId: string | null }>());
+    const calls = uniqueIds.map(id =>
+      this.marketplaceService.getMyPurchaseStatus(id).pipe(
+        map((res: any) => ({ id, data: res?.data })),
+        catchError(() => of({ id, data: null as any }))
+      )
+    );
+    return forkJoin(calls).pipe(
+      map(results => {
+        const conflictMap = new Map<string, { projectId: string | null }>();
+        for (const r of results) {
+          if (r.data?.active) conflictMap.set(r.id, { projectId: r.data.projectId ?? null });
+        }
+        return conflictMap;
+      })
+    );
+  }
+
+  private refreshCartConflicts(ids: string[] = Array.from(new Set(this.activeItems.map(i => i.modelId)))) {
+    this.fetchActivePurchaseMap(ids).subscribe(conflictMap => {
+      this.conflictingItems.set(conflictMap);
+      if (conflictMap.size === 0) this.checkoutBlockedMessage.set(null);
+    });
+  }
+
+  private refreshRecommendationConflicts(ids: string[] = this.aiRecommendations().map(r => r.id)) {
+    this.fetchActivePurchaseMap(ids).subscribe(conflictMap => this.recConflictIds.set(new Set(conflictMap.keys())));
+  }
+
+  /** Follows the client's already-running project for a conflicting cart
+   *  item — same navigation pattern as offer.ts's openActiveProject(). */
+  followConflictingProject(modelId: string) {
+    const projectId = this.conflictingItems().get(modelId)?.projectId ?? null;
+    this.router.navigate(projectId ? ['/client-overview/projects', projectId] : ['/client-overview/projects/active']);
   }
 
   get activeItems() {
@@ -118,13 +205,23 @@ export class CartComponent implements OnInit, OnDestroy {
 
   proceedToCheckout() {
     if (this.itemCount() === 0) return;
+    // Gap 1: block navigation to /checkout/review while any active cart
+    // item still conflicts with an already-running project for that same
+    // service — the backend would reject this at createOrder() anyway (409),
+    // but surfacing it here avoids a pointless round-trip to the review page.
+    if (this.conflictingItems().size > 0) {
+      this.checkoutBlockedMessage.set('يرجى إزالة الخدمة/الخدمات التي لديك مشروع نشط لها من السلة، أو متابعة المشروع الحالي، قبل إتمام الشراء');
+      setTimeout(() => this.checkoutBlockedMessage.set(null), 6000);
+      return;
+    }
+    this.checkoutBlockedMessage.set(null);
     this.router.navigate(['/checkout/review']);
   }
 
   addRecommendation(event: Event, rec: MarketplaceModel) {
     event.preventDefault();
     event.stopPropagation();
-    if (this.addingRecId() || this.addedRecIds().has(rec.id)) return;
+    if (this.addingRecId() || this.addedRecIds().has(rec.id) || this.recConflictIds().has(rec.id)) return;
     if (!this.authStore.isAuthenticated()) {
       this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
       return;
@@ -153,6 +250,11 @@ export class CartComponent implements OnInit, OnDestroy {
       next: () => {
         this.addingRecId.set(null);
         this.addedRecIds.update(ids => new Set(ids).add(rec.id));
+        // Gap 1: re-run the cart conflict check so this newly-added
+        // recommendation is immediately reflected if it turns out to
+        // conflict (defense-in-depth alongside the items()-driven effect
+        // above, which would also pick this up reactively on its own).
+        this.refreshCartConflicts();
       },
       error: (err) => {
         this.addingRecId.set(null);

@@ -125,6 +125,12 @@
                   </span>
                 }
               </div>
+              @if (conflictingItems().has(item.modelId)) {
+                <div class="cart-conflict-alert">
+                  <span>{{ duplicatePurchaseMessage }}</span>
+                  <button type="button" class="cart-conflict-link" (click)="followConflictingProject(item.modelId)">متابعة المشروع الحالي</button>
+                </div>
+              }
             </div>
             <div class="cart-actions">
               <div>
@@ -134,7 +140,7 @@
                 <svg aria-hidden="true"><use href="#ws-heart"></use></svg>
                 حفظ
               </button>
-              <button class="cart-remove-btn" type="button" (click)="removeItem(item.id)">
+              <button class="cart-remove-btn" type="button" [class.cart-remove-btn-emphasis]="conflictingItems().has(item.modelId)" (click)="removeItem(item.id)">
                 <svg aria-hidden="true"><use href="#ws-trash"></use></svg>
                 حذف
               </button>
@@ -229,8 +235,11 @@
                   <div class="rec-title-text">{{ rec.title }}</div>
                   <div class="rec-price">{{ formatPrice(rec.totalAmount) }} <span>$</span></div>
                   <div class="rec-prov">{{ rec.provider.name }}@if (rec.level) { · {{ rec.level }}}</div>
-                  <button class="rec-add-btn" type="button" [class.added]="addedRecIds().has(rec.id)" [disabled]="addingRecId() === rec.id" (click)="addRecommendation($event, rec)">
-                    {{ addedRecIds().has(rec.id) ? 'تمت الإضافة ✓' : 'إضافة للسلة' }}
+                  @if (recConflictIds().has(rec.id)) {
+                    <div class="rec-conflict-tag">{{ duplicatePurchaseMessage }}</div>
+                  }
+                  <button class="rec-add-btn" type="button" [class.added]="addedRecIds().has(rec.id)" [disabled]="addingRecId() === rec.id || recConflictIds().has(rec.id)" (click)="addRecommendation($event, rec)">
+                    {{ addedRecIds().has(rec.id) ? 'تمت الإضافة ✓' : (recConflictIds().has(rec.id) ? 'لديك مشروع نشط' : 'إضافة للسلة') }}
                   </button>
                 </div>
               </a>
@@ -320,6 +329,9 @@
           }
         </div>
         <div class="checkout-wrap">
+          @if (checkoutBlockedMessage()) {
+            <div class="checkout-blocked-msg">{{ checkoutBlockedMessage() }}</div>
+          }
           <button class="btn-checkout" type="button" [disabled]="itemCount() === 0" (click)="proceedToCheckout()">
             <svg aria-hidden="true"><use href="#ws-lock"></use></svg>
             إتمام الشراء
