@@ -109,10 +109,19 @@ export class AuthApiService {
 	}
 
 	/**
-	 * Authenticate using Google
+	 * Authenticate using Google. `intent` is always sent explicitly — the
+	 * backend's own fallback (inferring 'register' merely from whether
+	 * accountType was supplied) must never be the sole signal, since the
+	 * caller (Login vs Register page) always knows unambiguously which one
+	 * the user actually chose.
+	 *
+	 * `affiliateIdentifier` (P-LG-012 single-tier referral attribution) is
+	 * only meaningful for intent 'register'; the Register page passes it
+	 * through when set, undefined otherwise, and HttpClient's JSON
+	 * serialization drops undefined keys so it's never sent as '' or null.
 	 */
-	public googleAuth(idToken: string, accountType?: string): Observable<AuthResponse> {
-		return this.http.post<AuthResponse>(`${this.baseUrl}/google`, { idToken, accountType }).pipe(
+	public googleAuth(idToken: string, intent: 'login' | 'register', accountType?: string, affiliateIdentifier?: string): Observable<AuthResponse> {
+		return this.http.post<AuthResponse>(`${this.baseUrl}/google`, { idToken, intent, accountType, affiliateIdentifier }).pipe(
 			tap((res) => {
 				if (res.success && res.data?.token && res.data?.user) {
 					this.authStore.authenticate(res.data.token, res.data.user);

@@ -28,6 +28,9 @@
 					<use href="#ws-warn"></use>
 				</svg>
 				<span id="banner-error-txt">{{ errorMessage }}</span>
+				@if (accountNotFoundError) {
+				<a routerLink="/auth/register" class="banner-error-link" id="banner-error-signup-link">إنشاء حساب</a>
+				}
 			</div>
 			}
 

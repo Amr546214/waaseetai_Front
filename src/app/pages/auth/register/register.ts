@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -8,11 +9,12 @@ import { AccountType } from '../../../core/models/auth.model';
 import { getWelcomeRoleKey } from '../../../core/guards/auth.guards';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
+import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 
 @Component({
 	selector: 'app-register',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule],
+	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, AffiliatePicker],
 	templateUrl: './register.html',
 	styleUrl: './register.css',
 	encapsulation: ViewEncapsulation.None,
@@ -42,6 +44,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	// Set on a 409 from /auth/google (intent: register) — the email already has
 	// an account, so we point the user at the login page instead of retrying.
 	accountExistsError = false;
+
+	// Optional single-tier referral attribution (P-LG-012), set by the
+	// app-affiliate-picker below (manual code entry or name search — both
+	// resolve to this one field). Sent as `affiliateIdentifier` on both the
+	// email/password and Google registration paths; left undefined (never
+	// '' or null) in the payload when nothing was picked.
+	affiliateIdentifier: string | null = null;
 
 	// Draft restoration
 	showDraftBanner = false;
@@ -118,7 +127,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		private authStore: AuthStore,
 		private router: Router,
 		private cdr: ChangeDetectorRef,
-		private socialAuthService: SocialAuthService
+		private socialAuthService: SocialAuthService,
+		private destroyRef: DestroyRef
 	) {
 		this.basicInfoForm = this.fb.group({
 			firstName: ['', Validators.required],
@@ -154,7 +164,34 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		// start a brand new registration. The happy-path jump to step 3 within
 		// the same session is handled directly by submitRegistration() instead.
 
-		this.socialAuthService.authState.subscribe((user) => {
+		// CRITICAL (part 1 — stale subscription leak): SocialAuthService.authState
+		// is a single app-wide ReplaySubject(1) singleton, and this subscription
+		// is set up in ngOnInit (re-created every time this page is visited).
+		// Without takeUntilDestroyed(), navigating away never unsubscribes it —
+		// the closure leaks and stays alive for the rest of the tab session,
+		// permanently frozen at whatever `currentStep`/`selectedAccountType` it
+		// had when the page was last left. A later, unrelated Google sign-in
+		// event fired from a completely different page (e.g. Login) would then
+		// ALSO reach this leaked handler. Real incident: visiting /auth/login
+		// earlier in the same tab left ITS leaked subscription alive, so a
+		// subsequent Sign Up + Google for an EXISTING account was silently
+		// logged in by that stale handler (intent:'login' always succeeds for
+		// an existing account) racing against this page's own correct 409
+		// handling.
+		//
+		// CRITICAL (part 2 — replay-on-subscribe): takeUntilDestroyed() alone
+		// is NOT sufficient. Being a ReplaySubject(1), EVERY brand-new
+		// subscription (e.g. arriving back at THIS page) immediately,
+		// synchronously receives whatever Google credential was last emitted
+		// anywhere in the app, even if the user never touched this page's
+		// Google button this visit. Google's real sign-in flow is always
+		// asynchronous, so a value delivered SYNCHRONOUSLY during
+		// .subscribe() itself can only be a replayed leftover, never a
+		// genuine action on this instance — `allowProcessing` starts false
+		// and is flipped true only after .subscribe() returns.
+		let allowProcessing = false;
+		this.socialAuthService.authState.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
+			if (!allowProcessing) return;
 			if (user && user.idToken && this.currentStep === 2) {
 				if (!this.selectedAccountType) {
 					this.errorMessage = 'الرجاء اختيار نوع الحساب أولاً';
@@ -165,7 +202,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				this.accountExistsError = false;
 				this.cdr.markForCheck();
 
-				this.authApi.googleAuth(user.idToken, this.accountTypeMap[this.selectedAccountType]).subscribe({
+				this.authApi.googleAuth(user.idToken, 'register', this.accountTypeMap[this.selectedAccountType], this.affiliateIdentifier || undefined).subscribe({
 					next: (res) => {
 						this.isSubmitting = false;
 						this.cdr.markForCheck();
@@ -207,6 +244,11 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				});
 			}
 		});
+		// Any buffered replay was delivered synchronously above, inside
+		// .subscribe() itself — this line only runs once that's done, so
+		// flipping the gate here makes every subsequent (necessarily async,
+		// necessarily real) emission processable.
+		allowProcessing = true;
 	}
 
 	ngAfterViewInit() {
@@ -321,7 +363,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			phoneNumber: val.phone?.number || '',
 			password: this.isGoogleFlow ? undefined : val.password,
 			googleIdToken: this.isGoogleFlow ? this.googleIdToken || undefined : undefined,
-			agreedToTerms: !!(val.agreeData && val.agreeTerms)
+			agreedToTerms: !!(val.agreeData && val.agreeTerms),
+			affiliateIdentifier: this.affiliateIdentifier || undefined
 		};
 
 		this.authApi.register(payload).subscribe({

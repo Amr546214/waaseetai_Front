@@ -1,11 +1,12 @@
-import { Component, OnDestroy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectorRef, DestroyRef, ViewEncapsulation } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { AuthStore } from '../../../core/store/auth.store';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
-import { getWelcomeRoleKey } from '../../../core/guards/auth.guards';
+import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,10 @@ export class Login implements OnDestroy {
   errorMessage = '';
   appleNotice = '';
   isSubmitting = false;
+  // Set on a 404 from /auth/google (intent: 'login') — no Waseet account
+  // exists for that Google identity. Per product requirement: a Login
+  // attempt must never auto-create an account, only point the user at Sign Up.
+  accountNotFoundError = false;
 
   // Login-time phone OTP challenge (see auth.service.ts loginUser/googleAuth
   // — set when the account has phoneOtpEnabled). userId comes from the
@@ -38,7 +43,8 @@ export class Login implements OnDestroy {
     private authStore: AuthStore,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private socialAuthService: SocialAuthService
+    private socialAuthService: SocialAuthService,
+    private destroyRef: DestroyRef
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -57,11 +63,39 @@ export class Login implements OnDestroy {
   }
 
   ngOnInit() {
-    this.socialAuthService.authState.subscribe((user) => {
+    // CRITICAL (part 1 — stale subscription leak): SocialAuthService.authState
+    // is a single app-wide ReplaySubject(1) singleton, and this subscription
+    // is set up in ngOnInit (re-created every time this page is visited).
+    // Without takeUntilDestroyed(), navigating away never unsubscribes it —
+    // the closure leaks and stays alive for the rest of the tab session. A
+    // later Google sign-in event fired from a completely different page
+    // (e.g. Register) would then ALSO reach this leaked handler, which
+    // unconditionally sends intent:'login' — silently authenticating a real
+    // session behind an unrelated signup attempt.
+    //
+    // CRITICAL (part 2 — replay-on-subscribe): takeUntilDestroyed() alone is
+    // NOT sufficient. Being a ReplaySubject(1), EVERY brand-new subscription
+    // (e.g. arriving at THIS page fresh, after clicking "تسجيل الدخول" from
+    // Register's "account already exists" message) immediately, synchronously
+    // receives whatever Google credential was last emitted anywhere in the
+    // app — even though the user never touched this page's Google button.
+    // Google's real sign-in flow is always asynchronous (a network
+    // round-trip + user interaction with Google's own popup/consent screen),
+    // so a value delivered SYNCHRONOUSLY during .subscribe() itself can only
+    // ever be a replayed leftover from before this component existed, never
+    // a genuine action on this instance — `allowProcessing` starts false and
+    // is flipped true only after .subscribe() returns, so that one
+    // synchronous replay (if any) is deliberately ignored, while any real
+    // future click is processed normally.
+    let allowProcessing = false;
+    this.socialAuthService.authState.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
+      if (!allowProcessing) return;
       if (user && user.idToken) {
         this.isSubmitting = true;
+        this.errorMessage = '';
+        this.accountNotFoundError = false;
         this.cdr.markForCheck();
-        this.authApi.googleAuth(user.idToken).subscribe({
+        this.authApi.googleAuth(user.idToken, 'login').subscribe({
           next: (res) => {
             this.isSubmitting = false;
             this.cdr.markForCheck();
@@ -71,24 +105,31 @@ export class Login implements OnDestroy {
               return;
             }
 
+            // intent: 'login' can only ever succeed for an existing,
+            // already-registered account (the backend 404s otherwise, caught
+            // below) — never a first-time signup, so this always goes
+            // straight to the dashboard, never the profile-completion splash.
             const authedUser = res.data?.user || this.authStore.currentUser();
-
-            this.router.navigate(['/auth/welcome'], {
-              queryParams: {
-                role: getWelcomeRoleKey(authedUser?.accountType),
-                accountType: authedUser?.accountType,
-                activeRole: authedUser?.activeRole
-              }
-            });
+            this.router.navigateByUrl(getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole));
           },
           error: (err) => {
             this.isSubmitting = false;
-            this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء تسجيل الدخول بجوجل';
+            if (err.status === 404) {
+              this.accountNotFoundError = true;
+              this.errorMessage = err.error?.message || 'لا يوجد حساب بهذا البريد الإلكتروني، يرجى إنشاء حساب أولاً';
+            } else {
+              this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء تسجيل الدخول بجوجل';
+            }
             this.cdr.markForCheck();
           }
         });
       }
     });
+    // Any buffered replay was delivered synchronously above, inside
+    // .subscribe() itself — this line only runs once that's done, so
+    // flipping the gate here makes every subsequent (necessarily async,
+    // necessarily real) emission processable.
+    allowProcessing = true;
   }
 
   ngOnDestroy() {
@@ -123,14 +164,7 @@ export class Login implements OnDestroy {
           this.cdr.markForCheck();
           if (res.data?.verified) {
             const user = res.data.user || this.authStore.currentUser();
-
-            this.router.navigate(['/auth/welcome'], {
-              queryParams: {
-                role: getWelcomeRoleKey(user?.accountType),
-                accountType: user?.accountType,
-                activeRole: user?.activeRole
-              }
-            });
+            this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
           } else if (res.data?.phoneOtpRequired && res.data?.userId) {
             this.openOtpModal(res.data.userId);
           } else {
@@ -223,13 +257,7 @@ export class Login implements OnDestroy {
         this.cdr.markForCheck();
 
         const user = res.data?.user || this.authStore.currentUser();
-        this.router.navigate(['/auth/welcome'], {
-          queryParams: {
-            role: getWelcomeRoleKey(user?.accountType),
-            accountType: user?.accountType,
-            activeRole: user?.activeRole
-          }
-        });
+        this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
       },
       error: (err) => {
         this.isSubmitting = false;
