@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
+import { AssistantStore } from '../../../../core/store/assistant.store';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -72,6 +73,7 @@ import { AccountType } from '../../../../core/models/auth.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Help {
+  readonly assistant = inject(AssistantStore);
   private authStore = inject(AuthStore);
 
   isCompanyMode = computed<boolean>(() => {
@@ -85,24 +87,13 @@ export class Help {
 
   searchQuery = signal<string>('');
   searchedQuery = signal<string>('');
-  aiAnswer = signal<any | null>(null);
-  isTyping = signal<boolean>(false);
 
   faqState = signal<boolean[]>([false, false, false, false, false]);
 
-  knowledgeBase = [
-    { k: ['ضمان','الضمان','افرج','أفرج','افراج','إفراج'], a: 'يُحتجز مبلغ طلبك في حساب ضمان مرخّص فور توقيع العقد، ولا يصل لمقدّم الخدمة إلا بعد قبولك للتسليم. للإفراج: افتح المشروع وراجع التسليم ثم اضغط «قبول التسليم» فيُحوَّل المبلغ تلقائيًّا. إن لم يكتمل العمل تستردّ مبلغك وفق شروط العقد', links: [['العقود والضمان', '/provider-overview/finance/wallet']] },
-    { k: ['تسوية','رصيد','إلغاء','الغاء'], a: 'عند اعتماد إلغاء الطلب تظهر تسوية الرصيد في محفظتك خلال مدة العقد المتّفق عليها، ويمكنك استخدام الرصيد في طلب جديد مباشرة. كل الحركات تظهر في سجلّ محفظتك', links: [['محفظتي', '/provider-overview/finance/wallet']] },
-    { k: ['عروض','العروض','أقارن','اقارن','مقارنة','اختار'], a: 'تُرتَّب الطلبات حسب توافقها مع تخصصك والسعر وتقييم المقدّم وزمن التسليم. تظهر نسبة التوافق بجوار كل طلب، ويبقى اختيار العرض قرارك أنت في كل الأحوال', links: [['طلباتي والعروض', '/provider-overview/explore-requests']] },
-    { k: ['نزاع','النزاع','خلاف','شكوى','اختلفت'], a: 'إذا اختلفت مع مقدّم الخدمة افتح نزاعًا من صفحة النزاعات وأرفق الأدلة. يبقى المبلغ محتجزًا في الضمان حتى يصدر الفريق المختص قراره بعد مراجعة الطرفين', links: [['النزاعات', '/provider-overview/disputes']] },
-    { k: ['بريد','جوال','كلمة المرور','تعديل','أعدل','اعدل','رقم'], a: 'البيانات الحسّاسة كالبريد والجوال وكلمة المرور تُعدّل عبر مسار محكوم من صفحة طلبات تعديل الملف، ليراجعها الفريق المختص قبل تطبيقها حفاظًا على أمان حسابك', links: [['طلبات تعديل الملف', '/provider-overview/profile/requests']] },
-    { k: ['كاش باك','كاشباك','نقاط'], a: 'يُحتسب الكاش باك كنسبة من قيمة المشاريع المكتملة ويُضاف إلى محفظتك تلقائيًّا بعد إغلاق المشروع. تفاصيل كل عملية تظهر في سجلّ معاملات محفظتك', links: [['محفظتي', '/provider-overview/finance/wallet']] }
-  ];
-
-  // Client-side keyword matching against a fixed FAQ list — an honest,
-  // transparent FAQ search, not a real AI call (there's no backend endpoint
-  // for that on this page). The brief delay is a UX pacing choice, not a
-  // simulation of "AI thinking".
+  // The help search box now asks the ONE real shared assistant (WaseetAI
+  // help via the backend) and shows the streamed answer in the dashboard
+  // Avatar panel. The previous client-side keyword match + setTimeout
+  // "answer" was removed.
   askAI() {
     const q = this.searchQuery().trim();
     if (!q) {
@@ -110,22 +101,7 @@ export class Help {
       return;
     }
     this.searchedQuery.set(q);
-    this.aiAnswer.set(null);
-    this.isTyping.set(true);
-
-    setTimeout(() => {
-      this.isTyping.set(false);
-      const match = this.knowledgeBase.find(item => item.k.some(kw => q.includes(kw)));
-
-      if (match) {
-        this.aiAnswer.set(match);
-      } else {
-        this.aiAnswer.set({
-          a: 'لم نجد إجابة مطابقة لسؤالك في الأسئلة الشائعة. يمكنك إعادة صياغة سؤالك، أو التواصل مع فريق الدعم مباشرةً',
-          links: []
-        });
-      }
-    }, 800);
+    this.assistant.openAndAsk(q);
   }
 
   fillQ(text: string) {
