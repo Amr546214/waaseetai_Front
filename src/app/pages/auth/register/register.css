@@ -104,6 +104,11 @@ app-register .rg-s2 .role-bar-chg:hover{background:rgba(43,212,199,.12)}
 app-register .rg-s2 .form-card{background:var(--crd-bg);border:1px solid var(--crd-bd);border-radius:var(--radius-lg);padding:24px 24px 20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);margin-bottom:14px}
 app-register .rg-s2 .form-card-title{font-size:14px;font-weight:800;color:var(--txt-2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 app-register .rg-s2 .form-card-title svg{color:var(--teal)}
+app-register .rg-s2 .affiliate-locked{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.25);border-radius:var(--radius-sm)}
+app-register .rg-s2 .affiliate-locked svg{color:var(--teal);flex-shrink:0;margin-top:2px}
+app-register .rg-s2 .affiliate-locked-text{display:flex;flex-direction:column;gap:4px}
+app-register .rg-s2 .affiliate-locked-name{font-size:14px;font-weight:700;color:var(--txt)}
+app-register .rg-s2 .affiliate-locked-note{font-size:12px;color:var(--txt-3)}
 app-register .rg-s2 .field-grp{margin-bottom:14px}
 app-register .rg-s2 .field-lbl{display:block;font-size:13px;font-weight:700;color:var(--txt-2);margin-bottom:6px}
 app-register .rg-s2 .field-req{color:var(--teal);font-size:11px;margin-inline-start:3px}

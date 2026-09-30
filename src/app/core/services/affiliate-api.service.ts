@@ -37,4 +37,16 @@ export class AffiliateApiService {
 	public search(query: string): Observable<{ success: boolean; data: AffiliateSummary[] }> {
 		return this.http.get<{ success: boolean; data: AffiliateSummary[] }>(`${this.baseUrl}/search?q=${encodeURIComponent(query)}`);
 	}
+
+	/**
+	 * Reads the (httpOnly, frontend-unreadable) `waseet_ref_code` referral
+	 * cookie server-side and reports whether it resolves to a real affiliate
+	 * (P-LG-012 locked-attribution UI). Always 200 — `active: false` (no
+	 * referralSlug/displayName) means no cookie or an unresolvable one, never
+	 * an error status. Callers must treat a failed/errored call the same as
+	 * `active: false` (fail open to the normal optional picker).
+	 */
+	public getReferralStatus(): Observable<{ success: boolean; data: { active: boolean; referralSlug?: string; displayName?: string } }> {
+		return this.http.get<{ success: boolean; data: { active: boolean; referralSlug?: string; displayName?: string } }>(`${this.baseUrl}/referral-status`);
+	}
 }

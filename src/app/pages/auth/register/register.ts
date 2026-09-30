@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -10,6 +10,7 @@ import { getWelcomeRoleKey } from '../../../core/guards/auth.guards';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
+import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
 
 @Component({
 	selector: 'app-register',
@@ -51,6 +52,18 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	// email/password and Google registration paths; left undefined (never
 	// '' or null) in the payload when nothing was picked.
 	affiliateIdentifier: string | null = null;
+
+	// Locked attribution (P-LG-012): populated when GET /affiliates/referral-status
+	// confirms a valid `waseet_ref_code` cookie server-side (the frontend cannot
+	// and must not read that httpOnly cookie itself). When non-null, the
+	// affiliate section renders as a read-only display instead of the
+	// interactive app-affiliate-picker, and `affiliateIdentifier` above is
+	// deliberately left untouched (never populated from this) — the actual
+	// attribution happens entirely server-side at POST /auth/register via the
+	// backend's own cookie read, so the frontend never carries or duplicates
+	// the value, only displays it for the user's confirmation.
+	private affiliateApi = inject(AffiliateApiService);
+	lockedAffiliate = signal<{ referralSlug: string; displayName: string } | null>(null);
 
 	// Draft restoration
 	showDraftBanner = false;
@@ -154,6 +167,25 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	ngOnInit() {
 		// Check for saved draft
 		this.checkDraft();
+
+		// P-LG-012 locked attribution: checked once per page load, independent of
+		// `currentStep` (the affiliate section only renders once step 2 is
+		// reached, but the cookie/lock state doesn't change while the user is
+		// still on step 1, so there's nothing gained by deferring this — and
+		// nothing to over-fetch since it only ever runs this one time). A
+		// failed/errored call fails open to the normal optional picker: this
+		// check must never block or degrade registration.
+		this.affiliateApi.getReferralStatus().subscribe({
+			next: (res) => {
+				if (res.success && res.data?.active && res.data.referralSlug && res.data.displayName) {
+					this.lockedAffiliate.set({ referralSlug: res.data.referralSlug, displayName: res.data.displayName });
+					this.cdr.markForCheck();
+				}
+			},
+			error: () => {
+				// Fail open — leave lockedAffiliate() null, normal picker renders.
+			}
+		});
 
 		// Note: pendingUserId (set after a successful registration submit, or by
 		// an unverified login) is intentionally NOT used here to auto-jump to

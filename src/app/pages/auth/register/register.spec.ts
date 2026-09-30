@@ -16,6 +16,12 @@ class BlankTestComponent {}
 
 function setup() {
 	const postSpy = vi.fn<(...args: any[]) => any>();
+	// GET is only used by AffiliateApiService.getReferralStatus() (checked once
+	// in Register's ngOnInit — P-LG-012 locked attribution) and by
+	// AffiliatePicker's own resolve()/search() calls. Defaults to "no lock" so
+	// every pre-existing test (written before this endpoint existed) keeps
+	// exercising the normal unlocked picker without having to know about it.
+	const getSpy = vi.fn<(...args: any[]) => any>().mockReturnValue(of({ success: true, data: { active: false } }));
 	const fakeAuthStore = {
 		currentUser: signal<any>(null),
 		pendingUserId: signal<any>(null),
@@ -38,7 +44,7 @@ function setup() {
 		imports: [Register],
 		providers: [
 			provideRouter([{ path: '**', component: BlankTestComponent }]),
-			{ provide: HttpClient, useValue: { post: (...args: any[]) => postSpy(...args) } },
+			{ provide: HttpClient, useValue: { post: (...args: any[]) => postSpy(...args), get: (...args: any[]) => getSpy(...args) } },
 			{ provide: AuthStore, useValue: fakeAuthStore },
 			{ provide: SocialAuthService, useValue: fakeSocialAuthService },
 		],
@@ -47,7 +53,7 @@ function setup() {
 	const fixture: ComponentFixture<Register> = TestBed.createComponent(Register);
 	const component = fixture.componentInstance;
 
-	return { fixture, component, postSpy, authState };
+	return { fixture, component, postSpy, getSpy, authState };
 }
 
 describe('Register', () => {
@@ -190,6 +196,94 @@ describe('Register', () => {
 				expect.stringContaining('/google'),
 				expect.objectContaining({ affiliateIdentifier: 'AFF-CODE-1' })
 			);
+		});
+	});
+
+	describe('Locked attribution via referral cookie (P-LG-012)', () => {
+		it('renders the locked affiliate display with the resolved displayName when getReferralStatus() reports an active attribution', () => {
+			const { fixture, component, getSpy } = setup();
+			getSpy.mockReturnValue(of({
+				success: true,
+				data: { active: true, referralSlug: 'marketer-sara', displayName: 'سارة المسوقة' }
+			}));
+
+			// app-affiliate-picker (and its locked-display replacement) only render
+			// once step 2 is shown — set before the single detectChanges() call so
+			// ngOnInit's getReferralStatus() and the step-2 render happen together,
+			// same pattern as the other picker tests above.
+			component.currentStep = 2;
+			fixture.detectChanges();
+
+			expect(component.lockedAffiliate()).toEqual({ referralSlug: 'marketer-sara', displayName: 'سارة المسوقة' });
+			const locked = fixture.debugElement.query(By.css('#affiliate-locked-display'));
+			expect(locked).toBeTruthy();
+			expect(locked.nativeElement.textContent).toContain('سارة المسوقة');
+		});
+
+		it('renders zero interactive picker controls when locked — no app-affiliate-picker is instantiated at all', () => {
+			const { fixture, component, getSpy } = setup();
+			getSpy.mockReturnValue(of({
+				success: true,
+				data: { active: true, referralSlug: 'marketer-sara', displayName: 'سارة المسوقة' }
+			}));
+
+			component.currentStep = 2;
+			fixture.detectChanges();
+
+			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeNull();
+			expect(fixture.debugElement.query(By.css('#aff-code'))).toBeNull();
+			expect(fixture.debugElement.query(By.css('#aff-search'))).toBeNull();
+			expect(fixture.debugElement.query(By.css('#affiliate-locked-display input'))).toBeNull();
+			expect(fixture.debugElement.query(By.css('#affiliate-locked-display button'))).toBeNull();
+		});
+
+		it('never sends affiliateIdentifier on submit when locked — attribution stays entirely server-side via the cookie', () => {
+			const { fixture, component, postSpy, getSpy } = setup();
+			getSpy.mockReturnValue(of({
+				success: true,
+				data: { active: true, referralSlug: 'marketer-sara', displayName: 'سارة المسوقة' }
+			}));
+
+			component.currentStep = 2;
+			fixture.detectChanges();
+
+			// Confirms the design decision: the locked display never populates
+			// affiliateIdentifier, even though a lock is in effect.
+			expect(component.affiliateIdentifier).toBeNull();
+
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
+			(component as any).submitRegistration();
+
+			// Same convention as the "clearing the selection" test above: the payload
+			// literal always structurally defines the key, but with value
+			// `undefined` — which JSON.stringify (the actual HTTP body) drops
+			// entirely, so it is never sent over the wire.
+			const lastCall = postSpy.mock.calls[postSpy.mock.calls.length - 1];
+			expect(lastCall[1].affiliateIdentifier).toBeUndefined();
+			expect(JSON.stringify(lastCall[1])).not.toContain('affiliateIdentifier');
+		});
+
+		it('falls back to the normal interactive picker when getReferralStatus() reports active:false', () => {
+			const { fixture, component, getSpy } = setup();
+			getSpy.mockReturnValue(of({ success: true, data: { active: false } }));
+
+			component.currentStep = 2;
+			fixture.detectChanges();
+
+			expect(component.lockedAffiliate()).toBeNull();
+			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeTruthy();
+			expect(fixture.debugElement.query(By.css('#affiliate-locked-display'))).toBeNull();
+		});
+
+		it('fails open to the normal interactive picker when getReferralStatus() errors', () => {
+			const { fixture, component, getSpy } = setup();
+			getSpy.mockReturnValue(throwError(() => new Error('network error')));
+
+			component.currentStep = 2;
+			fixture.detectChanges();
+
+			expect(component.lockedAffiliate()).toBeNull();
+			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeTruthy();
 		});
 	});
 });

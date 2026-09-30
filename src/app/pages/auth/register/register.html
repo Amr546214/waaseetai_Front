@@ -306,9 +306,19 @@
         <div class="form-card">
           <div class="form-card-title">
             <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-user"></use></svg>
-            وسيط الإحالة (اختياري)
+            @if (lockedAffiliate()) { الوسيط المُحيل } @else { وسيط الإحالة (اختياري) }
           </div>
+          @if (lockedAffiliate(); as locked) {
+          <div class="affiliate-locked" id="affiliate-locked-display">
+            <svg style="width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-lock"></use></svg>
+            <div class="affiliate-locked-text">
+              <span class="affiliate-locked-name">{{ locked.displayName }}</span>
+              <span class="affiliate-locked-note">تم تحديد الوسيط تلقائيًا عبر رابط الإحالة ولا يمكن تغييره</span>
+            </div>
+          </div>
+          } @else {
           <app-affiliate-picker [(value)]="affiliateIdentifier"></app-affiliate-picker>
+          }
         </div>
 
         <div class="terms-card">
