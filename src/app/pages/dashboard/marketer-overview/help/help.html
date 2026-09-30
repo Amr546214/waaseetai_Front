@@ -124,12 +124,54 @@
       <div class="chan-sub">إجابة فورية على أسئلتك</div>
       <span class="chan-badge">متاح الآن</span>
     </a>
-    <a routerLink="/support/report-problem" class="chan">
+    <button type="button" (click)="toggleNewTicketForm()" class="chan" style="cursor:pointer;width:100%;border:1px solid rgba(255,255,255,.08)">
       <div class="chan-ico" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
       <div class="chan-ttl">فتح تذكرة دعم</div>
       <div class="chan-sub">راسل فريق الدعم بمشكلتك</div>
       <span class="chan-badge">الرد خلال 24 ساعة</span>
-    </a>
+    </button>
+  </div>
+
+  <!-- تذاكر الدعم — نظام التذاكر الحقيقي المشترك (نفس الخدمة المستخدمة لدى العميل ومقدم الخدمة) -->
+  <div class="adm-card" style="margin-top:16px">
+    <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>تذاكري</div>
+
+    @if (newTicketFormVisible()) {
+      <div style="padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:14px">
+        <div style="margin-bottom:10px">
+          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">الموضوع</label>
+          <input type="text" [ngModel]="ticketSubject()" (ngModelChange)="ticketSubject.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px">
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">وصف المشكلة</label>
+          <textarea rows="4" [ngModel]="ticketDescription()" (ngModelChange)="ticketDescription.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;resize:vertical"></textarea>
+        </div>
+        @if (ticketCreateError()) {
+          <div style="color:#FF8C69;font-size:11.5px;font-weight:700;margin-bottom:10px">{{ ticketCreateError() }}</div>
+        }
+        <button type="button" class="btn-primary" [disabled]="isCreatingTicket()" (click)="submitTicket()">{{ isCreatingTicket() ? 'جارٍ الإرسال...' : 'إرسال التذكرة' }}</button>
+      </div>
+    }
+
+    @if (ticketsLoading()) {
+      <div style="font-size:12px" class="txt-muted">جارٍ تحميل تذاكرك...</div>
+    } @else if (ticketsError()) {
+      <div style="color:#FF8C69;font-size:12px;font-weight:700">{{ ticketsError() }}</div>
+    } @else {
+      <div style="display:flex;flex-direction:column;gap:8px">
+        @for (t of tickets(); track t.id) {
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px">
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:700" class="txt-white">{{ t.subject }}</div>
+              <div style="font-size:11px;margin-top:2px" class="txt-muted">{{ t.ticketNumber }}</div>
+            </div>
+            <span style="font-size:10.5px;font-weight:700;padding:4px 10px;white-space:nowrap" class="badge-teal">{{ t.status }}</span>
+          </div>
+        } @empty {
+          <div style="font-size:12px" class="txt-muted">لا توجد تذاكر دعم سابقة</div>
+        }
+      </div>
+    }
   </div>
 
   @if (toastMessage()) {
