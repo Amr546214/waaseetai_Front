@@ -146,12 +146,9 @@ export class CheckoutPaymentComponent implements OnInit {
           this.router.navigate(['/checkout/confirm']);
           return;
         }
-        // Approved conflict-resolution rule: insufficient-wallet-balance
-        // ALWAYS takes priority and must never navigate to /checkout/failure
-        // — stay on this page, surface Required/Current/Shortfall, refresh
-        // the balance, and let the user Add Funds. This branch runs BEFORE
-        // the other agent's own generic failure-navigation fallback below,
-        // which is preserved verbatim for every other failure.
+        // Insufficient-wallet-balance ALWAYS takes priority — stay on this
+        // page, surface Required/Current/Shortfall, refresh the balance,
+        // and let the user Add Funds via the existing wallet-top-up flow.
         if (result.insufficientBalance) {
           this.isProcessing.set(false);
           this.raceInsufficientBalance.set(result.insufficientBalance);
@@ -159,6 +156,16 @@ export class CheckoutPaymentComponent implements OnInit {
           return;
         }
         this.isProcessing.set(false);
+        // Real backend business errors (a 409 conflict such as "you already
+        // have an active request for this service", or a 400 validation
+        // error) carry a safe, real message meant to be shown to the user —
+        // never a payment failure, never the generic /checkout/failure
+        // screen. Only a genuinely unexpected failure (5xx, network error,
+        // an unrecognized shape) falls back to that neutral screen.
+        if (result.errorKind === 'CONFLICT' || result.errorKind === 'VALIDATION') {
+          this.errorMessage.set(result.message);
+          return;
+        }
         this.router.navigate(['/checkout/failure']);
       },
       error: () => {

@@ -20,12 +20,33 @@ export interface InsufficientBalanceInfo {
 	shortfall: number;
 }
 
+/**
+ * Structured classification of a checkout failure, derived ONLY from the
+ * real HTTP status code the backend returned — never from string-matching
+ * the Arabic `message`, which is free-form business copy and must stay
+ * decoupled from routing/display decisions.
+ *
+ * - INSUFFICIENT_BALANCE (402): the one case with its own dedicated UI
+ *   (required/available/shortfall + Add Funds) — never a "failure" at all.
+ * - CONFLICT (409): a real, safe backend business message (e.g. "you
+ *   already have an active request for this service") — must be shown
+ *   inline, never as a payment failure, never via /checkout/failure.
+ * - VALIDATION (400): a real, safe backend business-validation message —
+ *   same treatment as CONFLICT.
+ * - UNEXPECTED: anything else (5xx, network failure, an unrecognized
+ *   shape) — the only case that may fall back to the neutral
+ *   /checkout/failure screen.
+ */
+export type CheckoutErrorKind = 'INSUFFICIENT_BALANCE' | 'CONFLICT' | 'VALIDATION' | 'UNEXPECTED';
+
 export interface CheckoutResult {
 	success: boolean;
 	message: string;
 	data?: any;
 	/** Present ONLY when the failure was specifically a 402 wallet-insufficient-balance response — never set for any other failure. */
 	insufficientBalance?: InsufficientBalanceInfo;
+	/** Present ONLY when success is false — see CheckoutErrorKind. */
+	errorKind?: CheckoutErrorKind;
 }
 
 /**
@@ -47,6 +68,15 @@ function extractInsufficientBalance(err: any): InsufficientBalanceInfo | undefin
 		return { required: detail.required, available: detail.available, shortfall: detail.shortfall };
 	}
 	return undefined;
+}
+
+/** Classifies a failed HttpErrorResponse by its real status code only. */
+function classifyCheckoutError(err: any): CheckoutErrorKind {
+	const status = err?.status;
+	if (status === 402) return 'INSUFFICIENT_BALANCE';
+	if (status === 409) return 'CONFLICT';
+	if (status === 400) return 'VALIDATION';
+	return 'UNEXPECTED';
 }
 
 @Injectable({
@@ -100,7 +130,7 @@ export class CheckoutService {
 				const errBody = err?.error;
 				const msg = errBody?.message || errBody?.error || err?.message || 'فشل إنشاء الطلب';
 				this._error.set(msg);
-				return of({ success: false, message: msg } as CheckoutResult);
+				return of({ success: false, message: msg, errorKind: classifyCheckoutError(err) } as CheckoutResult);
 			})
 		);
 	}
@@ -144,7 +174,12 @@ export class CheckoutService {
 				const msg = errBody?.message || errBody?.error || err?.message || 'فشل بدء عملية الدفع';
 				this._error.set(msg);
 				const insufficientBalance = extractInsufficientBalance(err);
-				return of({ success: false, message: msg, ...(insufficientBalance && { insufficientBalance }) } as CheckoutResult);
+				return of({
+					success: false,
+					message: msg,
+					errorKind: classifyCheckoutError(err),
+					...(insufficientBalance && { insufficientBalance }),
+				} as CheckoutResult);
 			})
 		);
 	}
@@ -195,7 +230,12 @@ export class CheckoutService {
 				const msg = errBody?.message || errBody?.error || err?.message || 'رمز التحقق غير صحيح';
 				this._error.set(msg);
 				const insufficientBalance = extractInsufficientBalance(err);
-				return of({ success: false, message: msg, ...(insufficientBalance && { insufficientBalance }) } as CheckoutResult);
+				return of({
+					success: false,
+					message: msg,
+					errorKind: classifyCheckoutError(err),
+					...(insufficientBalance && { insufficientBalance }),
+				} as CheckoutResult);
 			})
 		);
 	}

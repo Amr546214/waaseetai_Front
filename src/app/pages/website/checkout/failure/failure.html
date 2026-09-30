@@ -14,8 +14,8 @@
         <svg aria-hidden="true"><use href="#ws-x-circle"></use></svg>
       </div>
     </div>
-    <h1 class="fail-title">لم يتم إتمام الدفع</h1>
-    <p class="fail-sub">عذراً، تعذّر تحصيل المبلغ من البطاقة المُدخلة.<br>طلبك محفوظ في السلة ويمكنك المحاولة مرة أخرى.</p>
+    <h1 class="fail-title">تعذر إكمال العملية</h1>
+    <p class="fail-sub">لم نتمكن من إكمال عملية الدفع من المحفظة، ولم يتم تأكيد العملية.<br>طلبك محفوظ في السلة، يمكنك المحاولة مرة أخرى أو مراجعة الطلب.</p>
 
     <!-- backend error (the design's error-code pill) -->
     @if (errorMessage()) {
@@ -34,32 +34,26 @@
         </div>
         <div class="reason-item order-row"><span>رقم الطلب</span><span class="order-row-val" dir="ltr">{{ orderNumber() }}</span></div>
         <div class="reason-item order-row"><span>المبلغ</span><span class="order-row-val">{{ formatPrice(orderTotal()) }} $</span></div>
-        <div class="reason-item order-row"><span>حالة الدفع</span><span class="order-row-val" style="color:var(--red)">فشل</span></div>
+        <div class="reason-item order-row"><span>حالة الدفع</span><span class="order-row-val" style="color:var(--red)">لم يتم التأكيد</span></div>
       </div>
     }
 
-    <!-- REASONS -->
+    <!-- REASONS (wallet-only — no card/PayPal-direct-checkout reasons here) -->
     <div class="reasons-card">
       <div class="reasons-title">
         <svg aria-hidden="true"><use href="#ws-info"></use></svg>
-        الأسباب الشائعة لرفض الدفع
+        الأسباب الشائعة لتعذر إكمال العملية
       </div>
-      <div class="reason-item"><div class="reason-dot"></div> رصيد غير كافٍ في البطاقة</div>
-      <div class="reason-item"><div class="reason-dot"></div> بيانات البطاقة غير صحيحة (الرقم، تاريخ الانتهاء، CVV)</div>
-      <div class="reason-item"><div class="reason-dot"></div> البطاقة محظورة للمدفوعات الإلكترونية أو الدولية</div>
-      <div class="reason-item"><div class="reason-dot"></div> تجاوز الحد اليومي أو الشهري للبطاقة</div>
-      <div class="reason-item"><div class="reason-dot"></div> انتهاء صلاحية رمز OTP المُرسل</div>
+      <div class="reason-item"><div class="reason-dot"></div> انقطاع مؤقت في الاتصال بالخادم</div>
+      <div class="reason-item"><div class="reason-dot"></div> انتهاء صلاحية رمز التحقق المُرسل</div>
+      <div class="reason-item"><div class="reason-dot"></div> تعذر تأكيد حالة الطلب من الخادم</div>
     </div>
 
     <!-- ACTIONS -->
     <div class="actions-col">
       <a routerLink="/checkout/payment" class="btn-retry">
         <svg aria-hidden="true"><use href="#ws-refresh"></use></svg>
-        إعادة المحاولة بنفس البطاقة
-      </a>
-      <a routerLink="/checkout/payment" class="btn-alt">
-        <svg aria-hidden="true"><use href="#ws-cart"></use></svg>
-        تغيير طريقة الدفع
+        إعادة المحاولة
       </a>
       <a routerLink="/cart" class="btn-alt">
         العودة إلى السلة
