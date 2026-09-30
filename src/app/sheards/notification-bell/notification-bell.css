@@ -1,0 +1,292 @@
+:host {
+  display: block;
+}
+
+.nb-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Bell trigger — copied from the shared .t-notif/.t-notif-dot look used
+   elsewhere in the header so this drop-in replacement renders identically
+   to the plain link it replaces. */
+.t-notif {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #A8B2D1;
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
+  padding: 0;
+  font-family: inherit;
+}
+.t-notif:hover {
+  background: rgba(255, 255, 255, .10);
+  color: #fff;
+}
+.t-notif svg {
+  width: 17px;
+  height: 17px;
+}
+.t-notif-dot {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2BD4C7;
+  border: 2px solid #0B1437;
+}
+
+/* Dropdown panel — matches .user-dropdown's dark glass card style. */
+.nb-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  max-height: min(480px, calc(100vh - 88px));
+  display: flex;
+  flex-direction: column;
+  background: rgba(7, 13, 36, .92);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 14px;
+  box-shadow: 0 20px 56px rgba(0, 0, 0, .6);
+  z-index: 300;
+  animation: nb-fade .15s ease both;
+  direction: rtl;
+}
+
+@keyframes nb-fade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nb-head {
+  padding: 12px 14px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6B7699;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+  flex-shrink: 0;
+}
+
+.nb-body {
+  overflow-y: auto;
+  padding: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.nb-state {
+  padding: 24px 10px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #A8B2D1;
+}
+.nb-state-err {
+  color: #FF8C69;
+}
+
+.nb-skel-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px;
+}
+.nb-skel {
+  height: 52px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.05) 75%);
+  background-size: 200% 100%;
+  animation: nb-skel-pulse 1.5s infinite;
+}
+@keyframes nb-skel-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.nb-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background .15s;
+  text-align: right;
+  direction: rtl;
+  font-family: inherit;
+}
+.nb-item:hover,
+.nb-item:focus-visible {
+  background: rgba(255, 255, 255, .06);
+}
+.nb-item.unread {
+  background: rgba(43, 212, 199, .05);
+}
+.nb-item.unread:hover {
+  background: rgba(43, 212, 199, .09);
+}
+.nb-item + .nb-item {
+  margin-top: 2px;
+}
+
+.nb-ico {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.nb-ico svg {
+  width: 12px;
+  height: 12px;
+}
+
+.nb-b {
+  flex: 1;
+  min-width: 0;
+}
+
+.nb-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.nb-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2BD4C7;
+  flex-shrink: 0;
+}
+
+.nb-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nb-time {
+  font-size: 10.5px;
+  color: #6B7699;
+  margin-inline-start: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nb-msg {
+  font-size: 11.5px;
+  color: #A8B2D1;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nb-foot {
+  display: block;
+  flex-shrink: 0;
+  text-align: center;
+  padding: 11px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #2BD4C7;
+  text-decoration: none;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  transition: background .15s;
+}
+.nb-foot:hover {
+  background: rgba(43, 212, 199, .06);
+}
+
+/* ── Responsive: keep the panel inside the viewport on small screens ── */
+@media (max-width: 480px) {
+  .nb-panel {
+    width: min(340px, calc(100vw - 24px));
+    left: -60px;
+  }
+}
+
+/* ── Light theme (matches the app's ::host-context(body.light[-theme]) convention) ── */
+:host-context(body.light-theme) .t-notif,
+:host-context(body.light) .t-notif {
+  background: #F1F5F9;
+  border-color: #E2E8F0;
+  color: #475569;
+}
+:host-context(body.light-theme) .t-notif:hover,
+:host-context(body.light) .t-notif:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+:host-context(body.light-theme) .nb-panel,
+:host-context(body.light) .nb-panel {
+  background: rgba(255, 255, 255, .98);
+  border-color: #E2E8F4;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, .12);
+}
+:host-context(body.light-theme) .nb-head,
+:host-context(body.light) .nb-head {
+  color: #64748B;
+  border-bottom-color: #E7EAF1;
+}
+:host-context(body.light-theme) .nb-state,
+:host-context(body.light) .nb-state {
+  color: #64748B;
+}
+:host-context(body.light-theme) .nb-item:hover,
+:host-context(body.light) .nb-item:hover {
+  background: #F1F5F9;
+}
+:host-context(body.light-theme) .nb-item.unread,
+:host-context(body.light) .nb-item.unread {
+  background: #F0FBFA;
+}
+:host-context(body.light-theme) .nb-item.unread:hover,
+:host-context(body.light) .nb-item.unread:hover {
+  background: #E6FDFB;
+}
+:host-context(body.light-theme) .nb-title,
+:host-context(body.light) .nb-title {
+  color: #0F172A;
+}
+:host-context(body.light-theme) .nb-msg,
+:host-context(body.light) .nb-msg {
+  color: #64748B;
+}
+:host-context(body.light-theme) .nb-time,
+:host-context(body.light) .nb-time {
+  color: #94A3B8;
+}
+:host-context(body.light-theme) .nb-foot,
+:host-context(body.light) .nb-foot {
+  border-top-color: #E7EAF1;
+}
+:host-context(body.light-theme) .nb-foot:hover,
+:host-context(body.light) .nb-foot:hover {
+  background: #F0FBFA;
+}

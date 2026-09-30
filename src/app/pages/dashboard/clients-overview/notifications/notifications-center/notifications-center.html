@@ -58,7 +58,7 @@
       <div class="text-[11px] font-extrabold text-[var(--txt-3)] tracking-[0.04em] mt-[18px] mb-[10px]" [class.mt-0]="first">{{ group.date }}</div>
       
       <div *ngFor="let nt of group.items" class="nt" [class.unread]="nt.isUnread" (click)="onNotificationClick(nt)">
-        <div class="nt-ico" [ngClass]="nt.iconBgClass + ' ' + nt.iconColorClass" [innerHTML]="'<svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.8\' stroke-linecap=\'round\' stroke-linejoin=\'round\'>' + nt.svgIcon + '</svg>'"></div>
+        <div class="nt-ico" [ngClass]="nt.iconBgClass + ' ' + nt.iconColorClass" [innerHTML]="nt.svgIcon"></div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
             <span *ngIf="nt.isUnread" class="nt-dot"></span>

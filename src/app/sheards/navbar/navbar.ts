@@ -9,11 +9,12 @@ import { ChatStateService } from '../../core/services/chat-state.service';
 import { CartService } from '../../core/services/cart.service';
 import { UserRole, AccountType } from '../../core/models/auth.model';
 import { getDefaultDashboard } from '../../core/guards/auth.guards';
+import { NotificationBell } from '../notification-bell/notification-bell';
 
 @Component({
 	selector: 'app-navbar',
 	standalone: true,
-	imports: [RouterModule, CommonModule],
+	imports: [RouterModule, CommonModule, NotificationBell],
 	templateUrl: './navbar.html',
 	styleUrl: './navbar.css',
 	host: {
@@ -179,8 +180,17 @@ export class Navbar {
 
 	switchRole(role: UserRole) {
 		if (role === this.activeRole()) {
+			// Clicking the row for the account that's already active must not
+			// be a no-op — it's a legitimate "take me to my dashboard"
+			// shortcut, usable from any page. No role switch is needed (and
+			// no switchActiveRole API call is made) since nothing is
+			// changing — just a plain in-app navigation via the same
+			// canonical role→dashboard resolver used app-wide
+			// (getDefaultDashboard), not the local, incomplete
+			// getRoleDashboardUrl() below (which has no SUPER_ADMIN case).
 			this.isUserDropdownOpen.set(false);
 			this.isDashSubMenuOpen.set(false);
+			this.router.navigateByUrl(getDefaultDashboard(this.currentUser()?.accountType, role));
 			return;
 		}
 
@@ -224,6 +234,21 @@ export class Navbar {
 		this.isUserDropdownOpen.set(false);
 		this.isDashSubMenuOpen.set(false);
 		this.authStore.logout('/auth/login');
+	}
+
+	onToastActionClick() {
+		// [routerLink] wraps a single string command in a one-element array
+		// and only ever splits it on "/", never "?" — so an actionUrl like
+		// "/client-overview/messages?conversationId=..." would have its query
+		// string glued onto the last path segment as literal text instead of
+		// being parsed. navigateByUrl parses the whole string correctly via
+		// the router's UrlSerializer, matching the notification bell's own
+		// (working) click handler.
+		const url = this.notifEngine.latestNotification()?.actionUrl;
+		this.notifEngine.closeToast();
+		if (url) {
+			this.router.navigateByUrl(url);
+		}
 	}
 
 	private updateBodyScroll() {

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -18,6 +18,13 @@ const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
 vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
 
 import { Notifications } from './notifications';
+
+// svgIcon is a pre-trusted SafeHtml block (see buildIconHtml() in
+// NotificationEngineService), not a plain string — unwrap it via this
+// documented, test-only escape hatch before asserting on its content.
+function unwrapSafeHtml(value: unknown): string {
+	return (value as any)?.changingThisBreaksApplicationSecurity ?? String(value);
+}
 
 function rawNotification(overrides: any = {}) {
 	return {
@@ -37,12 +44,11 @@ describe('Notifications (provider)', () => {
 	let fixture: ComponentFixture<Notifications>;
 	let getSpy: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
 	let patchSpy: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
-	let navigateByUrlSpy: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
+	let navigateByUrlSpy: ReturnType<typeof vi.spyOn>;
 
 	beforeEach(async () => {
 		getSpy = vi.fn(() => of({ success: false }));
 		patchSpy = vi.fn(() => of({ success: true }));
-		navigateByUrlSpy = vi.fn();
 
 		vi.stubGlobal('localStorage', {
 			getItem: () => null,
@@ -53,13 +59,20 @@ describe('Notifications (provider)', () => {
 		await TestBed.configureTestingModule({
 			imports: [Notifications],
 			providers: [
+				// The template's breadcrumb <a routerLink="..."> needs a real
+				// Router/ActivatedRoute from the router's own DI tree —
+				// provideRouter([]) supplies that. A plain useValue stub for the
+				// Router token breaks RouterLink (it reads real router-internal
+				// state), so instead the real Router's navigateByUrl is spied on
+				// below, after the component is created.
+				provideRouter([]),
 				{ provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), patch: (...args: any[]) => patchSpy(...args) } },
-				{ provide: Router, useValue: { navigateByUrl: navigateByUrlSpy, navigate: vi.fn() } },
 			],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(Notifications);
 		component = fixture.componentInstance;
+		navigateByUrlSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 	});
 
 	afterEach(() => {
@@ -74,7 +87,32 @@ describe('Notifications (provider)', () => {
 		expect(list.length).toBe(1);
 		expect(list[0].time).not.toContain('undefined');
 		expect(list[0].dateCategory).not.toContain('undefined');
-		expect(list[0].svgIcon).not.toContain('undefined');
+		expect(unwrapSafeHtml(list[0].svgIcon)).not.toContain('undefined');
+	});
+
+	it('a MODEL_APPROVED notification with serviceId metadata navigates to the exact published-model detail page', () => {
+		getSpy.mockReturnValue(of({
+			success: true,
+			data: [rawNotification({ id: 'n8', type: 'MODEL_APPROVED', category: 'AI', metadata: { serviceId: 'svc-4' }, isRead: true })]
+		}));
+		fixture.detectChanges();
+
+		const nt = component.notifications()[0];
+		expect(nt.actionUrl).toBe('/provider-overview/business-models/market/svc-4');
+
+		component.onNotificationClick(nt);
+		expect(navigateByUrlSpy).toHaveBeenCalledWith('/provider-overview/business-models/market/svc-4');
+	});
+
+	it('an old MODEL_APPROVED notification with no metadata falls back to the generic center page', () => {
+		getSpy.mockReturnValue(of({
+			success: true,
+			data: [rawNotification({ id: 'n9', type: 'MODEL_APPROVED', category: 'AI', actionUrl: '/provider-overview/business-models/center', isRead: true })]
+		}));
+		fixture.detectChanges();
+
+		const nt = component.notifications()[0];
+		expect(nt.actionUrl).toBe('/provider-overview/business-models/center');
 	});
 
 	it('a notification click with a valid resolved target navigates via navigateByUrl', () => {

@@ -45,6 +45,21 @@ export class Sidebar implements OnInit {
 			this.chatStateService.totalUnreadCount();
 			this.cdRef.markForCheck();
 		});
+
+		// Route-driven active state (isRouteActive()/isAccordionOpen(), both
+		// read in the template) depends on currentPath(), fed by router
+		// events arriving from a completely separate branch of the real app's
+		// component tree (the header, several components away) — not
+		// something to leave to ambient change-detection propagation to
+		// notice on its own. detectChanges() forces an immediate, local,
+		// synchronous re-check of this component the instant the path
+		// changes, regardless of whatever triggered the navigation (a
+		// sidebar click, a notification click several components away, a
+		// deep link, or a refresh).
+		effect(() => {
+			this.currentPath();
+			this.cdRef.detectChanges();
+		});
 	}
 
 	ngOnInit() {
@@ -76,6 +91,18 @@ export class Sidebar implements OnInit {
 		),
 		{ initialValue: this.router.url }
 	);
+
+	// currentUrl() includes the query string/fragment (e.g. a notification
+	// deep link's "?conversationId=..."); accordion auto-expansion must match
+	// on the path alone, never on query params — see isAccordionOpen().
+	currentPath = computed(() => {
+		const url = this.currentUrl() || '';
+		const cut = Math.min(
+			...[url.indexOf('?'), url.indexOf('#')].filter(i => i >= 0),
+			url.length
+		);
+		return url.slice(0, cut);
+	});
 
 	// Manually toggled accordion ID; defaults to null to allow automatic URL matching
 	activeAccordion = signal<string | null>(null);
@@ -461,6 +488,13 @@ export class Sidebar implements OnInit {
 					type: 'accordion',
 					id: 'projects',
 					label: 'المشاريع',
+					// Section-root fallback: progress/rating/delivery-review
+					// detail pages for a specific project (e.g.
+					// /provider-overview/projects/progress/:id,
+					// /provider-overview/projects/:id/rating) are siblings of
+					// the 2 listed children below, not nested under either —
+					// this keeps "المشاريع" active/expanded there too.
+					route: '/provider-overview/projects',
 					icon: 'M4 6h16M4 10h16M4 14h16M4 18h16',
 					children: [
 						{ type: 'link', label: 'المشاريع النشطة', route: '/provider-overview/projects/active', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
@@ -471,6 +505,13 @@ export class Sidebar implements OnInit {
 					type: 'accordion',
 					id: 'finance',
 					label: 'المالية',
+					// Section-root fallback: /provider-overview/finance/withdraw
+					// and /provider-overview/finance/invoices have no listed
+					// child of their own, and a transaction's detail page
+					// (finance/transactions/:id) is a notification deep-link
+					// target — this keeps "المالية" active/expanded for all of
+					// them.
+					route: '/provider-overview/finance',
 					icon: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z',
 					children: [
 						{ type: 'link', label: 'الأرباح والمحفظة', route: '/provider-overview/finance/wallet', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
@@ -628,6 +669,13 @@ export class Sidebar implements OnInit {
 				type: 'accordion',
 				id: 'projects',
 				label: 'المشاريع',
+				// Section-root fallback: a project's own detail pages
+				// (/client-overview/projects/:id, .../final-approval,
+				// .../rating, .../stages/:stageId/rating,
+				// .../delivery-review/:stageId) are siblings of the 4 listed
+				// children below, not nested under any of them — this keeps
+				// "المشاريع" active/expanded on those pages too.
+				route: '/client-overview/projects',
 				icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
 				children: [
 					{ type: 'link', label: 'المشاريع النشطة', route: '/client-overview/projects/active', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
@@ -646,6 +694,12 @@ export class Sidebar implements OnInit {
 				type: 'accordion',
 				id: 'finance',
 				label: 'المالية',
+				// Section-root fallback: a specific transaction's detail page
+				// (/client-overview/finance/transactions/:id — a real,
+				// existing route and now also a notification deep-link
+				// target) has no listed child of its own; this keeps
+				// "المالية" active/expanded there too.
+				route: '/client-overview/finance',
 				icon: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z',
 				children: [
 					{ type: 'link', label: isCompanyClient ? 'محفظة الشركة' : 'محفظتي', route: '/client-overview/finance/wallet', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
@@ -715,13 +769,58 @@ export class Sidebar implements OnInit {
 		this.activeAccordion.update(current => current === id ? null : id);
 	}
 
+	/**
+	 * The single source of truth for "is this flat link (or accordion
+	 * child) the current route" — driven ENTIRELY by currentPath() (the
+	 * Router's own URL, query/fragment stripped), never by click history or
+	 * routerLinkActive's own internal timing. Bound explicitly in the
+	 * template via [class.active-nav-item]/[class.active-sub-item] instead
+	 * of relying on the routerLinkActive directive, so the visual state
+	 * can never drift out of sync with it.
+	 */
+	isRouteActive(item: NavItem): boolean {
+		if (!item.route) return false;
+		return this.isPathWithinSection(this.currentPath(), item.route, !!item.exact);
+	}
+
 	isAccordionOpen(item: NavItem): boolean {
 		if (this.activeAccordion() === item.id) {
 			return true;
 		}
-		// Also check if any child route matches current URL
-		const url = this.currentUrl() || '';
-		return !!item.children?.some(c => c.route && url.includes(c.route));
+		const path = this.currentPath();
+		// item.route (when set on an accordion) is that section's own root —
+		// e.g. '/client-overview/projects' — used to catch a detail/sibling
+		// page (like a specific project's id) that isn't itself one of the
+		// listed children below (see isPathWithinSection()).
+		if (item.route && this.isPathWithinSection(path, item.route)) {
+			return true;
+		}
+		return !!item.children?.some(c => c.route && this.isPathWithinSection(path, c.route));
+	}
+
+	/**
+	 * True when `path` IS `sectionRoute`, or is nested under it as a real
+	 * path segment (`sectionRoute + '/...'`) — never on a shared string
+	 * prefix alone. This is what makes a detail page (e.g.
+	 * "/client-overview/projects/abc123") keep its parent section
+	 * ("/client-overview/projects") active/expanded, while still correctly
+	 * rejecting an unrelated route that merely starts with the same
+	 * characters (e.g. "/client-overview/project-modifications" does NOT
+	 * match "/client-overview/projects", because the character right after
+	 * the shared prefix isn't a "/"). `exact` (set from a NavItem's own
+	 * `exact` flag, e.g. the dashboard-home link) requires a precise match
+	 * instead — a trailing slash on either side is normalized away first so
+	 * "/client-overview/" and "/client-overview" are treated identically.
+	 */
+	private isPathWithinSection(path: string, sectionRoute: string, exact = false): boolean {
+		const p = this.stripTrailingSlash(path);
+		const s = this.stripTrailingSlash(sectionRoute);
+		if (exact) return p === s;
+		return p === s || p.startsWith(`${s}/`);
+	}
+
+	private stripTrailingSlash(path: string): string {
+		return path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
 	}
 
 	onCloseSidebar() {

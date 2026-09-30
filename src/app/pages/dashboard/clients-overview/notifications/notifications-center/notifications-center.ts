@@ -1,26 +1,12 @@
 import { Component, ChangeDetectionStrategy, signal, computed, OnInit, OnDestroy, inject, effect, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { NotificationEngineService } from '../../../../../core/services/notification-engine.service';
+import { NotificationEngineService, AppNotification } from '../../../../../core/services/notification-engine.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { Subscription } from 'rxjs';
 import { filter, take, switchMap } from 'rxjs/operators';
 
-export interface AppNotification {
-	id: string;
-	category: 'offers' | 'projects' | 'finance' | 'ai' | 'security';
-	title: string;
-	time: string;
-	message: string;
-	isUnread: boolean;
-	actionText?: string;
-	actionUrl?: string;
-	dateCategory: 'اليوم' | 'أمس' | 'أقدم';
-	// Styling hints
-	iconColorClass: string;
-	iconBgClass: string;
-	svgIcon: string;
-}
+export type { AppNotification };
 
 @Component({
 	selector: 'app-notifications-center',
@@ -92,17 +78,17 @@ export interface AppNotification {
 
     /* Notification Icon Container */
     .nt-ico {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
     .nt-ico svg {
-      width: 17px;
-      height: 17px;
+      width: 14px;
+      height: 14px;
     }
 
     /* Filter Chips */
@@ -200,13 +186,28 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 
 	private dataSub?: Subscription;
 
+	/**
+	 * Normalizes a raw backend/socket notification the same way the bell
+	 * dropdown and the provider notifications page do (icon, time, date
+	 * grouping, category), via the single shared mapper — passing
+	 * '/client-overview' so role-aware types (CHAT, FINANCIAL) resolve to
+	 * this dashboard's real routes instead of the resolver's provider
+	 * default. Types with no dedicated case (e.g. NEW_PROPOSAL,
+	 * STAGE_DELIVERY) fall through to the resolver's own raw-actionUrl
+	 * passthrough, which already accepts a /client-overview/ prefix.
+	 */
+	private toClientNotification(raw: any): AppNotification {
+		return this.notificationEngine.mapToAppNotification(raw, '/client-overview');
+	}
+
 	constructor() {
 		effect(() => {
 			const newNotif = this.notificationEngine.realtimeNewNotification();
 			if (newNotif && newNotif.id) {
 				const existing = this.notifications().find(n => n.id === newNotif.id);
 				if (!existing) {
-					this.notifications.update(list => [newNotif as AppNotification, ...list]);
+					const mapped = this.toClientNotification(newNotif);
+					this.notifications.update(list => [mapped, ...list]);
 				}
 			}
 		});
@@ -245,7 +246,7 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 			next: (res: any) => {
 				this.isLoading.set(false);
 				if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-					this.notifications.set(res.data);
+					this.notifications.set(res.data.map((raw: any) => this.toClientNotification(raw)));
 					this.notificationEngine.unreadCount.set(this.unreadCount());
 				} else {
 					// Use demo fallback if API returns no data
@@ -267,7 +268,11 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	}
 
 	private getDemoNotifications(): AppNotification[] {
-		return [
+		// svgIcon here is raw inner <path>/<circle> markup, not yet a SafeHtml
+		// block — wrapped through the shared buildIconHtml() below, the same
+		// helper mapToAppNotification() uses for real data, so demo items
+		// render through the exact same trusted-HTML mechanism.
+		const items: (Omit<AppNotification, 'svgIcon'> & { svgIcon: string })[] = [
 			// اليوم
 			{
 				id: 'demo-1', category: 'offers', title: 'عرض جديد على طلبك', time: 'قبل ساعة',
@@ -319,6 +324,7 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 				svgIcon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'
 			},
 		];
+		return items.map(d => ({ ...d, svgIcon: this.notificationEngine.buildIconHtml(d.svgIcon) }));
 	}
 
 	// Computed Properties
@@ -387,7 +393,12 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 			});
 		}
 		if (nt.actionUrl) {
-			this.router.navigate([nt.actionUrl]);
+			// actionUrl may include a query string (e.g. a CHAT notification's
+			// ?conversationId=...) — navigateByUrl parses it correctly, unlike
+			// navigate([...]) which treats a single array element as a literal
+			// path segment and would mangle the "?". Matches the provider
+			// notifications page's own click handler.
+			this.router.navigateByUrl(nt.actionUrl);
 		}
 	}
 
@@ -399,7 +410,7 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 			next: (res: any) => {
 				this.isLoading.set(false);
 				if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-					this.notifications.set(res.data);
+					this.notifications.set(res.data.map((raw: any) => this.toClientNotification(raw)));
 					this.notificationEngine.unreadCount.set(this.unreadCount());
 				} else {
 					this.notifications.set(this.getDemoNotifications());

@@ -1,11 +1,18 @@
 import { Injectable, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { NotificationSoundService } from './notification-sound.service';
 import { AuthStore } from '../store/auth.store';
+
+// The real, existing dashboard roots this app has — every notification
+// destination must resolve to one of these (see resolveNotificationTarget()/
+// isSafeInternalUrl()). Never invented: each is a real top-level route
+// section already registered for its account type.
+export type NotificationBasePath = '/provider-overview' | '/client-overview' | '/marketer-overview';
 
 export interface NotificationEvent {
 	id?: string;
@@ -46,7 +53,13 @@ export interface AppNotification {
 	// Styling hints
 	iconColorClass: string;
 	iconBgClass: string;
-	svgIcon: string;
+	// A ready-to-render, pre-trusted <svg>...</svg> block (see buildIconHtml()
+	// below) — NOT raw markup. Angular's default [innerHTML] sanitizer strips
+	// <svg>/<path>/<circle> elements from a plain string (they are not on its
+	// safe-elements allowlist), so binding a raw string here would silently
+	// render an empty icon box. Every view should bind this directly, e.g.
+	// [innerHTML]="nt.svgIcon", with no further string concatenation.
+	svgIcon: SafeHtml;
 }
 
 interface IconStyle {
@@ -64,6 +77,8 @@ export class NotificationEngineService implements OnDestroy {
 	private platformId = inject(PLATFORM_ID);
 	private isBrowser = isPlatformBrowser(this.platformId);
 	private authStore = inject(AuthStore);
+	private sanitizer = inject(DomSanitizer);
+	private iconHtmlCache = new Map<string, SafeHtml>();
 	private socket: Socket | null = null;
 	// The user ID the socket is currently (or should be) joined as. Distinct
 	// from `undefined` (no effect run yet) so the very first effect run is
@@ -114,6 +129,13 @@ export class NotificationEngineService implements OnDestroy {
 	// type is the primary icon signal (e.g. a CHAT notification should always
 	// look like a message regardless of its category); category is only a
 	// fallback for types this map doesn't know about.
+	// The single source of truth for "what icon does this notification show" —
+	// shared by the notification bell dropdown and every full notifications
+	// page (provider + client) via mapToAppNotification() below, so none of
+	// them can drift out of sync with each other. Every `type` literal here
+	// is one actually produced by a real `notification.create`/`createMany`
+	// call in the backend (grepped exhaustively) — GENERAL is the untyped
+	// default for the two admin-decision notifications that pass no type.
 	private static readonly ICON_BY_TYPE: Record<string, IconStyle> = {
 		CHAT: NotificationEngineService.ICON_MESSAGE,
 		PROJECT_MATCH: NotificationEngineService.ICON_PROJECT,
@@ -124,6 +146,7 @@ export class NotificationEngineService implements OnDestroy {
 		NEW_PROPOSAL: NotificationEngineService.ICON_OFFER,
 		MODEL_APPROVED: NotificationEngineService.ICON_AI,
 		FINANCIAL: NotificationEngineService.ICON_FINANCE,
+		GENERAL: NotificationEngineService.ICON_GENERAL,
 	};
 
 	private static readonly ICON_BY_CATEGORY: Record<AppNotification['category'], IconStyle> = {
@@ -133,6 +156,8 @@ export class NotificationEngineService implements OnDestroy {
 		ai: NotificationEngineService.ICON_AI,
 		security: NotificationEngineService.ICON_GENERAL,
 	};
+
+	private static readonly SAFE_BASE_PATHS: NotificationBasePath[] = ['/provider-overview', '/client-overview', '/marketer-overview'];
 
 	unreadCount = signal<number>(0);
 	latestNotification = signal<NotificationEvent | null>(null);
@@ -304,8 +329,14 @@ export class NotificationEngineService implements OnDestroy {
 	 * populated AppNotification — never leaving a field undefined. This is
 	 * the single place that understands the raw notification contract, so
 	 * every list (real-time or fetched) renders consistently.
+	 *
+	 * `basePath` is the current viewer's own dashboard root ('/provider-overview'
+	 * by default, matching this method's original behavior for every
+	 * pre-existing caller) — pass '/client-overview' or '/marketer-overview'
+	 * when mapping for that dashboard so role-aware types (CHAT, FINANCIAL,
+	 * GENERAL) resolve to that dashboard's real routes instead.
 	 */
-	mapToAppNotification(raw: any): AppNotification {
+	mapToAppNotification(raw: any, basePath: NotificationBasePath = '/provider-overview'): AppNotification {
 		const createdAt = raw?.createdAt ? new Date(raw.createdAt) : new Date();
 		const category = NotificationEngineService.CATEGORY_MAP[String(raw?.category ?? '').toUpperCase()] ?? 'security';
 		const iconStyle = NotificationEngineService.ICON_BY_TYPE[raw?.type as string]
@@ -320,13 +351,13 @@ export class NotificationEngineService implements OnDestroy {
 			message: raw?.message ?? '',
 			isUnread: raw?.isUnread !== undefined ? Boolean(raw.isUnread) : !raw?.isRead,
 			actionText: raw?.actionText ?? undefined,
-			actionUrl: this.resolveNotificationTarget(raw) ?? undefined,
+			actionUrl: this.resolveNotificationTarget(raw, basePath) ?? undefined,
 			time: this.formatRelativeTime(createdAt),
 			dateCategory: this.resolveDateCategory(createdAt),
 			metadata: raw?.metadata ?? null,
 			iconColorClass: iconStyle.color,
 			iconBgClass: iconStyle.bg,
-			svgIcon: iconStyle.svg,
+			svgIcon: this.buildIconHtml(iconStyle.svg),
 		};
 	}
 
@@ -334,37 +365,169 @@ export class NotificationEngineService implements OnDestroy {
 	 * Resolves a notification to a real, existing Angular route — or null
 	 * when no valid destination exists. Never fabricates a route: known
 	 * types are only followed when their required metadata is present, and
-	 * an unrecognized type falls back to the raw actionUrl only when it
-	 * points somewhere inside this app's own dashboard sections (guards
-	 * against known-bad values such as a "/dashboard/..." prefix, which
-	 * never exists in this app's router).
+	 * an unrecognized type (or a known type whose metadata is missing —
+	 * e.g. an older row created before that type started carrying it) falls
+	 * back to the raw actionUrl only when it passes isSafeInternalUrl().
+	 *
+	 * `basePath` is the CURRENT VIEWER's own dashboard root — never the
+	 * notification recipient's stored role (this app has no such field on a
+	 * notification; the same row is only ever visible to its own `userId`
+	 * when they view their own list). PROJECT_MATCH/OFFER_ACCEPTED/
+	 * STAGE_REVIEW/PROJECT_COMPLETION_REWARD are only ever created for a
+	 * provider, and STAGE_DELIVERY/NEW_PROPOSAL only ever for a client
+	 * (verified against every real backend `notification.create` call
+	 * site), so those stay hardcoded regardless of `basePath`. CHAT and
+	 * FINANCIAL are genuinely sent to any role, so they resolve against
+	 * `basePath`.
 	 */
-	resolveNotificationTarget(nt: { type?: string; actionUrl?: string | null; metadata?: any }): string | null {
+	resolveNotificationTarget(
+		nt: { type?: string; actionUrl?: string | null; metadata?: any },
+		basePath: NotificationBasePath = '/provider-overview'
+	): string | null {
 		const metadata = nt?.metadata || {};
 
 		switch (nt?.type) {
 			case 'CHAT':
 				return metadata.conversationId
-					? `/provider-overview/messages?conversationId=${metadata.conversationId}`
+					? `${basePath}/messages?conversationId=${metadata.conversationId}`
 					: null;
 			case 'PROJECT_MATCH':
-				return metadata.clientRequestId
-					? `/provider-overview/explore-requests/${metadata.clientRequestId}/apply`
-					: null;
+				// Provider-only. Always resolves into the Marketplace (never
+				// null) — see resolveProjectMatchTarget().
+				return this.resolveProjectMatchTarget(metadata, nt?.actionUrl);
 			case 'OFFER_ACCEPTED':
-				return metadata.offerId
-					? `/provider-overview/offers/${metadata.offerId}/sign-contract`
-					: null;
+				if (metadata.offerId) {
+					return `/provider-overview/offers/${metadata.offerId}/sign-contract`;
+				}
+				// Older rows (created before offerId metadata existed) stored
+				// "/provider-overview/projects/<requestId>/contract" — never a
+				// real route, and it carries no offer id. The provider's own
+				// offers list ("عروضي") is where that accepted offer is signed.
+				return '/provider-overview/offers';
 			case 'STAGE_REVIEW':
 			case 'PROJECT_COMPLETION_REWARD':
+				// The provider Progress page has no stage-scoped route/param
+				// today (verified against provider.routes.ts) — project-level
+				// is the exact destination this UI currently supports.
 				return metadata.projectId
 					? `/provider-overview/projects/active/progress/${metadata.projectId}`
 					: null;
+			case 'STAGE_DELIVERY':
+				// Client-only. delivery-review/:stageId is a real, actively
+				// used route (the component reads stageId to find the exact
+				// stage) — more precise than the project-level fallback below,
+				// which is all older rows lacking stageId metadata can reach.
+				if (metadata.projectId && metadata.stageId) {
+					return `/client-overview/projects/${metadata.projectId}/delivery-review/${metadata.stageId}`;
+				}
+				return this.isSafeInternalUrl(nt?.actionUrl) ? nt!.actionUrl! : null;
+			case 'NEW_PROPOSAL':
+				// Client-only. RequestDetails already shows every proposal on
+				// the request — the exact destination this UI supports (it has
+				// no per-offer route/query param to select one specifically).
+				if (metadata.requestId) {
+					return `/client-overview/my-requests/${metadata.requestId}`;
+				}
+				return this.isSafeInternalUrl(nt?.actionUrl) ? nt!.actionUrl! : null;
+			case 'MODEL_APPROVED':
+				// Provider-only. business-models/market/:id is the exact
+				// published-model detail page (confirmed to share ServiceCatalog
+				// ids with metadata.serviceId) — more precise than the generic
+				// center/list page older rows without metadata fall back to.
+				if (metadata.serviceId) {
+					return `/provider-overview/business-models/market/${metadata.serviceId}`;
+				}
+				return this.isSafeInternalUrl(nt?.actionUrl) ? nt!.actionUrl! : null;
+			case 'FINANCIAL':
+				// A specific transaction detail page exists and is more exact,
+				// but only new rows (created after this fix) carry
+				// metadata.transactionId. Deliberately ignores the raw actionUrl
+				// otherwise: older stored rows may still hold the historical,
+				// non-existent "/dashboard/clients-overview/finance/wallet"
+				// value — recomputing the plain wallet route here normalizes
+				// every such row without a DB migration/backfill.
+				return metadata.transactionId
+					? `${basePath}/finance/transactions/${metadata.transactionId}`
+					: `${basePath}/finance/wallet`;
 			default:
-				return nt?.actionUrl && nt.actionUrl.startsWith('/provider-overview/')
-					? nt.actionUrl
-					: null;
+				// Covers GENERAL and any future/unrecognized type: never
+				// fabricates a route, only ever trusts an already-real,
+				// same-app actionUrl.
+				return this.isSafeInternalUrl(nt?.actionUrl) ? nt!.actionUrl! : null;
 		}
+	}
+
+	/**
+	 * PROJECT_MATCH ("فرصة مشروع جديدة") → the exact Marketplace opportunity.
+	 * The opportunity entity is a ClientRequest; its id is also the id of
+	 * the mirrored legacy Project row the backend creates alongside it, so
+	 * explore-requests/:id/apply (which loads GET /projects/:id/summary and
+	 * hosts the offer form) is the exact "view details + submit offer" page —
+	 * the same route the Marketplace list's own "تقديم عرض" button opens.
+	 *
+	 * Order of precedence, never parsing the notification title:
+	 *  1. metadata.clientRequestId (every row created by the current backend).
+	 *  2. A structured id inside the stored actionUrl: either the current
+	 *     "/provider-overview/explore-requests/<id>/apply" or the historical
+	 *     "/provider-overview/projects/<clientRequestId>" value the backend
+	 *     wrote before metadata existed (that route never existed in the
+	 *     provider router, which is why old rows were dead links).
+	 *  3. The Marketplace list itself — never an unrelated page.
+	 */
+	private resolveProjectMatchTarget(metadata: any, actionUrl: string | null | undefined): string {
+		const marketplace = '/provider-overview/explore-requests';
+		const safeId = (value: unknown): string | null =>
+			typeof value === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(value) ? value : null;
+
+		const metaId = safeId(metadata?.clientRequestId);
+		if (metaId) return `${marketplace}/${metaId}/apply`;
+
+		const path = typeof actionUrl === 'string' ? actionUrl.split(/[?#]/)[0].replace(/\/+$/, '') : '';
+		const current = /^\/provider-overview\/explore-requests\/([^/]+)\/apply$/.exec(path);
+		const legacy = /^\/provider-overview\/projects\/([^/]+)$/.exec(path);
+		// Real sibling routes under /projects that must never be mistaken for an id.
+		const reserved = new Set(['active', 'archived', 'phases', 'progress']);
+		const urlId = safeId(current?.[1] ?? (legacy && !reserved.has(legacy[1]) ? legacy[1] : undefined));
+		if (urlId) return `${marketplace}/${urlId}/apply`;
+
+		return marketplace;
+	}
+
+	/**
+	 * True only for a relative path into one of this app's own dashboard
+	 * sections (the sole existing "is this navigable" concept in the app —
+	 * see resolveNotificationTarget()). Rejects anything else outright,
+	 * including a bare "/marketer-overview" with no trailing segment, any
+	 * other internal route, and — since it requires the string to start with
+	 * one of these exact known-safe prefixes — any absolute/external URL or
+	 * a "javascript:" pseudo-protocol (neither can ever start with
+	 * "/provider-overview/" etc.).
+	 */
+	private isSafeInternalUrl(url: string | null | undefined): url is string {
+		if (!url) return false;
+		return NotificationEngineService.SAFE_BASE_PATHS.some(base => url.startsWith(`${base}/`));
+	}
+
+	/**
+	 * Builds a trusted, ready-to-render <svg>...</svg> block from one of this
+	 * file's own static IconStyle path constants — the single place any
+	 * surface (bell dropdown, provider/client full pages) should go through
+	 * to render a notification icon. Angular's default [innerHTML] sanitizer
+	 * strips <svg>/<path>/<circle> elements from a plain string (they are
+	 * not on its safe-elements allowlist), so binding a raw concatenated
+	 * string directly to [innerHTML] silently renders an empty icon box.
+	 * bypassSecurityTrustHtml() is safe here specifically because the inner
+	 * markup always comes from this service's own static icon maps, never
+	 * from backend/user-controlled content.
+	 */
+	buildIconHtml(innerMarkup: string): SafeHtml {
+		const cached = this.iconHtmlCache.get(innerMarkup);
+		if (cached) return cached;
+		const html = this.sanitizer.bypassSecurityTrustHtml(
+			`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${innerMarkup}</svg>`
+		);
+		this.iconHtmlCache.set(innerMarkup, html);
+		return html;
 	}
 
 	private formatRelativeTime(date: Date): string {

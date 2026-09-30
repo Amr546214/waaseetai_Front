@@ -6,8 +6,8 @@
 .nt{display:flex;gap:13px;padding:15px 17px;border-radius:13px;border:1px solid rgba(255,255,255,.07);background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));margin-bottom:10px;transition:border-color .15s;cursor:pointer}
 .nt:hover{border-color:rgba(43,212,199,.2)}
 .nt.unread{background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border-color:rgba(43,212,199,.16)}
-.nt-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.nt-ico svg{width:17px;height:17px}
+.nt-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nt-ico svg{width:14px;height:14px}
 .filter-chip{padding:7px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:20px;font-size:12px;font-weight:700;color:#A8B2D1;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .filter-chip:hover{background:rgba(255,255,255,.08);color:#fff}
 .filter-chip.active{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.30);color:#2BD4C7}
@@ -252,8 +252,8 @@
 .nt-row{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:11px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);margin-bottom:8px;transition:all .15s;cursor:pointer}
 .nt-row:hover{border-color:rgba(43,212,199,.18)}
 .nt-row.unread{background:rgba(43,212,199,.045);border-color:rgba(43,212,199,.16)}
-.nt-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.nt-ic svg{width:16px;height:16px}
+.nt-ic{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nt-ic svg{width:13px;height:13px}
 .nt-b{flex:1;min-width:0}
 .nt-t{font-size:13px;font-weight:700;color:#fff}
 .nt-d{font-size:11.5px;color:var(--txt-2,#A8B2D1);margin-top:3px;line-height:1.6}

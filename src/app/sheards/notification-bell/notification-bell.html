@@ -1,0 +1,48 @@
+<div class="nb-wrap">
+	<button type="button" class="t-notif" aria-label="الاشعارات" aria-haspopup="true"
+		[attr.aria-expanded]="isOpen()" (click)="toggle()">
+		<svg aria-hidden="true">
+			<use href="#i-bell"></use>
+		</svg>
+		@if (unreadCount() > 0) {
+		<span class="t-notif-dot" aria-hidden="true"></span>
+		}
+	</button>
+
+	@if (isOpen()) {
+	<div class="nb-panel" role="menu" aria-label="أحدث الإشعارات">
+		<div class="nb-head">أحدث الإشعارات</div>
+
+		<div class="nb-body">
+			@if (isLoading()) {
+			<div class="nb-skel-wrap" aria-hidden="true">
+				<div class="nb-skel"></div>
+				<div class="nb-skel"></div>
+				<div class="nb-skel"></div>
+			</div>
+			} @else if (hasError()) {
+			<div class="nb-state nb-state-err">تعذر تحميل الإشعارات</div>
+			} @else if (notifications().length === 0) {
+			<div class="nb-state">لا توجد إشعارات</div>
+			} @else {
+			@for (nt of notifications(); track nt.id) {
+			<button type="button" role="menuitem" class="nb-item" [class.unread]="nt.isUnread"
+				(click)="onItemClick(nt)">
+				<div class="nb-ico" [ngClass]="nt.iconBgClass + ' ' + nt.iconColorClass" [innerHTML]="nt.svgIcon"></div>
+				<div class="nb-b">
+					<div class="nb-row">
+						@if (nt.isUnread) { <span class="nb-dot" aria-hidden="true"></span> }
+						<span class="nb-title">{{ nt.title }}</span>
+						<span class="nb-time">{{ nt.time }}</span>
+					</div>
+					<div class="nb-msg">{{ nt.message }}</div>
+				</div>
+			</button>
+			}
+			}
+		</div>
+
+		<a [routerLink]="viewAllLink()" class="nb-foot" role="menuitem" (click)="onViewAllClick()">عرض كل الإشعارات</a>
+	</div>
+	}
+</div>
