@@ -84,12 +84,6 @@ export class SaBusinessModels {
     this.setStatus(model, 'revision', `طُلب تعديل النموذج "${model.name}"`);
   }
 
-  approveAllFeatured() {
-    const pending = this.models().filter((m) => m.status === 'pending' && m.aiScore >= 80);
-    this.models.update((list) => list.map((m) => (m.status === 'pending' && m.aiScore >= 80 ? { ...m, status: 'approved' as ModelStatus } : m)));
-    this.showToast(`تم اعتماد ${pending.length} نماذج بـ AI Score 80+`);
-  }
-
   showToast(msg: string) {
     this.toast.set(msg);
     setTimeout(() => this.toast.set(''), 3000);
