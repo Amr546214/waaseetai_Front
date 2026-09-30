@@ -40,6 +40,19 @@ export interface MarketplaceModel {
   aiRecommendationReason?: string;
   aiMatchPercentage?: number;
   reviews?: Array<{ id: string; rating: number; comment?: string; createdAt: string; client?: { name: string; avatar?: string } | null }>;
+  /**
+   * Batch 4 — the requesting Client's own active-purchase eligibility for
+   * this exact service, read back from the SAME findActiveServicePurchases()
+   * helper the checkout write-path guard uses. Present ONLY when the request
+   * was made by an authenticated Client (undefined for guests and every
+   * other role) — its absence must never be treated as "eligible", only as
+   * "unknown from this response" (the authoritative check still happens at
+   * checkout time regardless).
+   */
+  eligibility?: {
+    hasActivePurchase: boolean;
+    activeProjectId: string | null;
+  };
 }
 
 @Injectable({

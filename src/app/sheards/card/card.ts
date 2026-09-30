@@ -101,4 +101,24 @@ export class Card {
 	resetCategory(): void {
 		this.categoryReset.emit();
 	}
+
+	// Batch 4 — model.eligibility is populated server-side (see
+	// marketplace-service.service.ts getMarketplaceModels) ONLY for an
+	// authenticated Client, via the same findActiveServicePurchases() helper
+	// the checkout write-path guard uses. undefined for guests/other roles,
+	// so these simply fall through to the normal card behavior for them.
+	hasActivePurchase(model: MarketplaceModel): boolean {
+		return Boolean(model.eligibility?.hasActivePurchase);
+	}
+
+	/** Navigates straight to the existing running project instead of the
+	 *  normal offer/buy page when the Client already has an active purchase
+	 *  for this exact service — never a fabricated id, only ever the real
+	 *  activeProjectId the backend returned. */
+	cardLink(model: MarketplaceModel): (string | null)[] {
+		if (model.eligibility?.hasActivePurchase && model.eligibility.activeProjectId) {
+			return ['/client-overview/projects', model.eligibility.activeProjectId];
+		}
+		return [this.linkBase(), model.id];
+	}
 }

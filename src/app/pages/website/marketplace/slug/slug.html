@@ -221,7 +221,7 @@
           }
           } @else {
           @for (model of filteredModels(); track model.id; let idx = $index) {
-          <a [routerLink]="['/marketplace/offer', model.id]" class="svc-card">
+          <a [routerLink]="cardLink(model)" class="svc-card">
             <div class="svc-thumb" [style.background]="thumbGradient(idx)">
               @if (model.gallery && model.gallery.length > 0) {
               <img class="svc-thumb-img" [src]="model.gallery[0]" [alt]="model.title" loading="lazy">
@@ -230,7 +230,11 @@
                 <svg><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg>
               </div>
               }
-              @if (model.level) {
+              @if (hasActivePurchase(model)) {
+              <div class="svc-badges">
+                <span class="svc-level" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
+              </div>
+              } @else if (model.level) {
               <div class="svc-badges">
                 <span class="svc-level" [style.background]="levelStyle(model).bg" [style.color]="levelStyle(model).color">{{ model.level }}</span>
               </div>
@@ -264,7 +268,10 @@
             </div>
             <div class="svc-foot">
               <div class="svc-price">
-                @if (model.totalAmount) {
+                @if (hasActivePurchase(model)) {
+                <span class="svc-price-lbl">لديك طلب قائم</span>
+                <span class="svc-price-val" style="font-size:12px">قيد التنفيذ</span>
+                } @else if (model.totalAmount) {
                 <span class="svc-price-lbl">يبدأ من</span>
                 <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">$</span></span>
                 } @else {

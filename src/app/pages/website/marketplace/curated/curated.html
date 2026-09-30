@@ -300,7 +300,7 @@
                   <div class="pc-price">
                     <span class="pc-price-val" [style.color]="slot.rank === 1 ? (mode() === 'top-rated' ? 'var(--kahr)' : 'var(--teal)') : null">{{ slot.model.totalAmount | number }}</span><span class="pc-price-lbl">$</span>
                     <div class="pc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(slot.model.totalDays) }}</div>
-                    <button class="pc-btn" type="button" [routerLink]="['/marketplace/offer', slot.model.id]">{{ slot.rank === 1 ? 'اطلب الآن' : 'عرض الخدمة' }}</button>
+                    <button class="pc-btn" type="button" [routerLink]="cardLink(slot.model)">{{ hasActivePurchase(slot.model) ? 'قيد التنفيذ — متابعة المشروع' : (slot.rank === 1 ? 'اطلب الآن' : 'عرض الخدمة') }}</button>
                   </div>
                 </div>
               </div>
@@ -356,7 +356,7 @@
                       <span style="font-size:11px;color:var(--txt-3)"> $</span>
                       <div class="fc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                     </div>
-                    <button class="fc-btn" type="button" [routerLink]="['/marketplace/offer', m.id]">{{ first ? 'اطلب الآن' : 'عرض' }}</button>
+                    <button class="fc-btn" type="button" [routerLink]="cardLink(m)">{{ hasActivePurchase(m) ? 'قيد التنفيذ' : (first ? 'اطلب الآن' : 'عرض') }}</button>
                   </div>
                 </div>
               </div>
@@ -375,10 +375,10 @@
         </div>
         <div class="deal-hero-wrap">
           @for (m of showcase(); track m.id; let first = $first) {
-            <a [routerLink]="['/marketplace/offer', m.id]" [class]="first ? 'deal-hero' : 'deal-side'">
+            <a [routerLink]="cardLink(m)" [class]="first ? 'deal-hero' : 'deal-side'">
               <div class="deal-top-strip">
                 <div class="deal-strip-ico"><svg aria-hidden="true" style="width:9px;height:9px" [style.color]="first ? 'var(--red)' : 'var(--txt-3)'"><use href="#ws-tag"></use></svg></div>
-                {{ first ? 'عرض اليوم الأبرز — ينتهي قريباً' : 'عرض حصري' }}
+                {{ hasActivePurchase(m) ? 'لديك طلب نشط على هذه الخدمة' : (first ? 'عرض اليوم الأبرز — ينتهي قريباً' : 'عرض حصري') }}
               </div>
               <div class="deal-thumb">
                 @if (first) { <div class="deal-thumb-glow"></div> }
@@ -410,7 +410,7 @@
                   <div class="price-before">{{ priceBefore(m) | number }} $</div>
                   <div class="price-after">{{ m.totalAmount | number }} <span>$</span></div>
                   <div class="price-saving">توفر {{ saving(m) | number }} $</div>
-                  <button class="deal-btn" type="button">{{ first ? 'استفد من العرض الآن' : 'استفد الآن' }}</button>
+                  <button class="deal-btn" type="button">{{ hasActivePurchase(m) ? 'قيد التنفيذ — متابعة المشروع' : (first ? 'استفد من العرض الآن' : 'استفد الآن') }}</button>
                 </div>
               </div>
             </a>
@@ -479,14 +479,16 @@
                 </div>
                 <div class="hscroll-row" #row (mousedown)="dragStart($event, row)" (mousemove)="dragMove($event)" (mouseup)="dragEnd()" (mouseleave)="dragEnd()">
                   @for (m of g.items; track m.id) {
-                    <a [routerLink]="['/marketplace/offer', m.id]" class="svc-card" [class.is-new]="g.key === 'live'" style="min-width:270px;flex-shrink:0">
+                    <a [routerLink]="cardLink(m)" class="svc-card" [class.is-new]="g.key === 'live'" style="min-width:270px;flex-shrink:0">
                       <div class="svc-thumb">
                         @if (m.coverImage) {
                           <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:1">
                         } @else {
                           <svg aria-hidden="true"><use href="#ws-image"></use></svg>
                         }
-                        @if (m.level) {
+                        @if (hasActivePurchase(m)) {
+                          <span class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
+                        } @else if (m.level) {
                           <span class="svc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</span>
                         }
                         @if (g.key === 'live') {
@@ -505,7 +507,11 @@
                         <div class="svc-rating"><span class="stars">{{ starText(m.rating) }}</span><span class="score">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
                         <div class="svc-footer">
                           <div>
-                            <div class="svc-price">{{ m.totalAmount | number }} <span>$</span></div>
+                            @if (hasActivePurchase(m)) {
+                              <div class="svc-price">قيد التنفيذ</div>
+                            } @else {
+                              <div class="svc-price">{{ m.totalAmount | number }} <span>$</span></div>
+                            }
                             <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                           </div>
                           <button class="svc-fav" type="button" [class.is-favorite]="isFav(m.id)" aria-label="أضف للمفضلة" (click)="toggleFavorite(m.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
@@ -533,14 +539,16 @@
             @for (m of visibleRest(); track m.id; let i = $index) {
               @switch (mode()) {
                 @case ('exclusive') {
-                  <a [routerLink]="['/marketplace/offer', m.id]" class="svc-card">
+                  <a [routerLink]="cardLink(m)" class="svc-card">
                     <div class="svc-thumb">
                       @if (m.coverImage) {
                         <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
                       } @else {
                         <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
                       }
-                      @if (m.level) {
+                      @if (hasActivePurchase(m)) {
+                        <div class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</div>
+                      } @else if (m.level) {
                         <div class="svc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</div>
                       }
                       <div class="svc-disc">٪{{ m.discountPercentage }} خصم</div>
@@ -552,19 +560,25 @@
                       @if (offerCountdown(m); as cd) {
                         <div class="svc-cd"><svg aria-hidden="true"><use href="#ws-clock"></use></svg><span class="svc-cd-lbl">ينتهي خلال</span><span class="svc-cd-time">{{ cd }}</span></div>
                       }
-                      <div class="svc-pricing"><div class="svc-before">{{ priceBefore(m) | number }} $</div><div class="svc-after">{{ m.totalAmount | number }} <span>$</span></div></div>
+                      @if (hasActivePurchase(m)) {
+                        <div class="svc-pricing"><div class="svc-after">قيد التنفيذ — متابعة المشروع</div></div>
+                      } @else {
+                        <div class="svc-pricing"><div class="svc-before">{{ priceBefore(m) | number }} $</div><div class="svc-after">{{ m.totalAmount | number }} <span>$</span></div></div>
+                      }
                     </div>
                   </a>
                 }
                 @default {
-                  <a [routerLink]="['/marketplace/offer', m.id]" class="svc-card" [class.featured-card]="mode() === 'featured'">
+                  <a [routerLink]="cardLink(m)" class="svc-card" [class.featured-card]="mode() === 'featured'">
                     <div class="svc-thumb">
                       @if (m.coverImage) {
                         <img [src]="m.coverImage" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
                       } @else {
                         <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
                       }
-                      @if (m.level) {
+                      @if (hasActivePurchase(m)) {
+                        <div class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</div>
+                      } @else if (m.level) {
                         <div class="svc-lvl" [style.background]="m.levelBg || 'rgba(43,127,255,.85)'" [style.color]="m.levelColor || '#D9E8FF'">{{ m.level }}</div>
                       }
                       @if (mode() === 'featured') {
@@ -587,7 +601,11 @@
                         <div class="svc-rating"><div class="svc-stars">@for (on of stars(m.rating); track $index) {<svg aria-hidden="true" style="width:10px;height:10px;color:var(--kahr)" [style.opacity]="on ? null : '.4'"><use href="#ws-star"></use></svg>}</div><span class="svc-rating-val">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
                       }
                       <div class="svc-bottom">
-                        <div><div class="svc-price"><span>من </span>{{ m.totalAmount | number }} <span>$</span></div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
+                        @if (hasActivePurchase(m)) {
+                          <div><div class="svc-price">قيد التنفيذ</div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
+                        } @else {
+                          <div><div class="svc-price"><span>من </span>{{ m.totalAmount | number }} <span>$</span></div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
+                        }
                         <button class="svc-fav" type="button" [class.is-favorite]="isFav(m.id)" aria-label="مفضلة" (click)="toggleFavorite(m.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
                       </div>
                     </div>
@@ -600,7 +618,7 @@
           <!-- LIST VIEW (top-rated / most-ordered) -->
           <div class="services-list">
             @for (m of visibleRest(); track m.id; let i = $index) {
-              <a [routerLink]="['/marketplace/offer', m.id]" class="list-card">
+              <a [routerLink]="cardLink(m)" class="list-card">
                 <div class="list-thumb">
                   <div class="list-rank-big">#{{ i + rankOffset() }}</div>
                   <svg class="ph" aria-hidden="true" [style.width]="mode() === 'top-rated' ? '24px' : null" [style.height]="mode() === 'top-rated' ? '24px' : null"><use href="#ws-image"></use></svg>
@@ -620,9 +638,13 @@
                     }
                   </div>
                   <div class="list-right">
-                    <div class="list-price">{{ m.totalAmount | number }} <span>$</span></div>
+                    @if (hasActivePurchase(m)) {
+                      <div class="list-price">قيد التنفيذ</div>
+                    } @else {
+                      <div class="list-price">{{ m.totalAmount | number }} <span>$</span></div>
+                    }
                     <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
-                    <button type="button" style="padding:8px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit;white-space:nowrap">عرض الخدمة</button>
+                    <button type="button" style="padding:8px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit;white-space:nowrap">{{ hasActivePurchase(m) ? 'متابعة المشروع' : 'عرض الخدمة' }}</button>
                   </div>
                 </div>
               </a>

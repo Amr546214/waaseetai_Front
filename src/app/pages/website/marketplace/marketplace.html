@@ -46,14 +46,16 @@
 
 <!-- P-MK-001 service card (svc-card inside .mk-home). mode: 'flash' | 'ai' | 'grid' -->
 <ng-template #homeCard let-model let-i="i" let-mode="mode">
-  <a [routerLink]="['/marketplace/offer', model.id]" class="svc-card">
+  <a [routerLink]="cardLink(model)" class="svc-card">
     <div class="svc-thumb" [style.background]="thumbGradient(i)">
       @if (model.gallery && model.gallery.length > 0) {
       <img class="svc-thumb-img" [src]="model.gallery[0]" [alt]="model.title" loading="lazy">
       } @else {
       <ng-container *ngTemplateOutlet="thumbArt; context: { $implicit: i }"></ng-container>
       }
-      @if (model.level) {
+      @if (hasActivePurchase(model)) {
+      <span class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
+      } @else if (model.level) {
       <span class="svc-lvl" [style.color]="homeLevelStyle(model).color" [style.border-color]="homeLevelStyle(model).border" [style.background]="homeLevelStyle(model).bg">{{ model.level }}</span>
       }
       @if (mode === 'flash') {
@@ -67,7 +69,9 @@
       <h3 class="svc-title">{{ model.title }}</h3>
       <div class="svc-prov"><div class="svc-av" [style.background]="avatarGradient(i)">{{ model.provider?.initials || 'م' }}</div><span class="svc-pname">{{ model.provider?.name }}</span>@if (model.isVerified) {<span class="svc-ok"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</span>}</div>
       <div class="svc-rating"><span class="svc-stars">★★★★★</span><span class="svc-score">{{ model.rating ?? 0 }}</span><span class="svc-cnt">({{ model.reviewsCount || 0 }})</span></div>
-      @if (mode === 'flash') {
+      @if (hasActivePurchase(model)) {
+      <div class="svc-foot"><div><div class="svc-price-lbl">لديك طلب قائم</div><div class="svc-price">قيد التنفيذ — متابعة</div></div></div>
+      } @else if (mode === 'flash') {
       <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $ <span style="font-size:10px;text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | number:'1.0-0' }}</span></div></div></div>
       } @else if (mode === 'ai') {
       <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $</div></div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div>
@@ -532,7 +536,7 @@
           }
           } @else {
           @for (model of allModels(); track model.id; let idx = $index) {
-          <a [routerLink]="['/marketplace/offer', model.id]" class="svc-card">
+          <a [routerLink]="cardLink(model)" class="svc-card">
             <div class="svc-thumb" [style.background]="thumbGradient(idx)">
               @if (model.gallery && model.gallery.length > 0) {
               <img class="svc-thumb-img" [src]="model.gallery[0]" [alt]="model.title" loading="lazy">
@@ -541,7 +545,11 @@
                 <svg><use [attr.href]="categoryIcon(selectedCategoryData()?.icon)"></use></svg>
               </div>
               }
-              @if (model.level) {
+              @if (hasActivePurchase(model)) {
+              <div class="svc-badges">
+                <span class="svc-level" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
+              </div>
+              } @else if (model.level) {
               <div class="svc-badges">
                 <span class="svc-level" [style.background]="resultLevelStyle(model).bg" [style.color]="resultLevelStyle(model).color">{{ model.level }}</span>
               </div>
@@ -575,10 +583,17 @@
               </div>
             </div>
             <div class="svc-foot">
+              @if (hasActivePurchase(model)) {
+              <div class="svc-price">
+                <span class="svc-price-lbl">لديك طلب قائم</span>
+                <span class="svc-price-val">قيد التنفيذ</span>
+              </div>
+              } @else {
               <div class="svc-price">
                 <span class="svc-price-lbl">يبدأ من</span>
                 <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">$</span></span>
               </div>
+              }
               @if (model.totalDays) {
               <div class="svc-delivery">
                 <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:inline-flex;align-items:center;justify-content:center;color:var(--teal)"><svg style="width:10px;height:10px"><use href="#ws-clock"></use></svg></span>

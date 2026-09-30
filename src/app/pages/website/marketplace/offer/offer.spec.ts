@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
+import { vi } from 'vitest';
 
 import { Offer } from './offer';
 
@@ -7,8 +9,15 @@ describe('Offer', () => {
   let fixture: ComponentFixture<Offer>;
 
   beforeEach(async () => {
+    // Pre-existing test-environment gaps (unrelated to this batch): no
+    // global localStorage for the real AuthStore, and no ActivatedRoute
+    // provider for this route-param-driven component — every test in this
+    // file crashed before reaching its own logic.
+    vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
+
     await TestBed.configureTestingModule({
-      imports: [Offer]
+      imports: [Offer],
+      providers: [provideRouter([])],
     })
     .compileComponents();
 
@@ -17,8 +26,35 @@ describe('Offer', () => {
     await fixture.whenStable();
   });
 
+  afterEach(() => vi.unstubAllGlobals());
+
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  // Regression coverage (Batch 4 — re-verification, not a new fix): the
+  // purchase HANDLER itself already respects eligibility, not just button
+  // styling — confirming this still holds on current main untouched.
+  describe('active-purchase eligibility guard (addToCart/openActiveProject)', () => {
+    it('3) addToCart() is a no-op when the Client already has an active purchase — it never calls the cart service', () => {
+      const addToCartSpy = vi.spyOn((component as any).cartService, 'addToCart$');
+      component.model.set({ id: 'svc-1', title: 't', category: 'c', status: 'PUBLISHED', totalAmount: 100, totalDays: 5, aiScore: 0, rating: 0, provider: { id: 'p1', name: 'p', initials: 'p' } } as any);
+      component.activePurchase.set({ projectId: 'proj-1', contractStatus: 'ACTIVE' });
+
+      component.addToCart();
+
+      expect(addToCartSpy).not.toHaveBeenCalled();
+    });
+
+    it('openActiveProject() navigates to the real project id the backend returned, never a fabricated one', () => {
+      const router = TestBed.inject(Router);
+      const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      component.activePurchase.set({ projectId: 'real-proj-77', contractStatus: 'ACTIVE' });
+
+      component.openActiveProject();
+
+      expect(navigateSpy).toHaveBeenCalledWith(['/client-overview/projects', 'real-proj-77']);
+    });
   });
 
   // Batch 6: the sidebar previously showed a hardcoded "عادل" (fair) price

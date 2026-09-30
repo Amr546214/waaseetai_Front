@@ -13,7 +13,7 @@
 	}
 	} @else {
 	@for (model of models(); track model.id; let idx = $index) {
-	<a [routerLink]="[linkBase(), model.id]" class="svc-card dynamic-spec-card">
+	<a [routerLink]="cardLink(model)" class="svc-card dynamic-spec-card">
 
 		<!-- Card Thumbnail with Gradient -->
 		<div class="svc-thumb group relative" [style.background]="getCardGradient(idx)">
@@ -32,10 +32,14 @@
 
 			<!-- Badges -->
 			<div class="svc-badges" style="z-index: 2;">
+				@if (hasActivePurchase(model)) {
+				<span class="svc-badge-level" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
+				} @else {
 				<span class="svc-badge-level" [style.background]="model.levelBg || 'rgba(43,212,199,.6)'"
 					[style.color]="model.levelColor || '#2BD4C7'">
 					{{ model.level }}
 				</span>
+				}
 			</div>
 
 			<span class="svc-ai-match" style="z-index: 2;">AI Match {{ model.aiScore ?? 0 }}%</span>
@@ -91,9 +95,13 @@
 			<!-- Card Footer -->
 			<div class="svc-footer">
 				<div>
-					<div style="font-size:11px" class="txt-muted">سعر الخدمة</div>
+					<div style="font-size:11px" class="txt-muted">{{ hasActivePurchase(model) ? 'لديك طلب قائم على هذه الخدمة' : 'سعر الخدمة' }}</div>
+					@if (hasActivePurchase(model)) {
+					<div class="svc-price">قيد التنفيذ — متابعة المشروع</div>
+					} @else {
 					<div class="svc-price">{{ model.totalAmount ? (model.totalAmount + ' $') : 'نشط وقابل للطلب' }}
 					</div>
+					}
 				</div>
 				<button class="svc-compare-btn" [class.is-compared]="isCompared(model.id)" type="button"
 					(click)="toggleCompare(model.id, $event)">

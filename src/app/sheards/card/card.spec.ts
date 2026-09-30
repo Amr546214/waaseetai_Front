@@ -1,0 +1,122 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
+
+import { Card } from './card';
+import { MarketplaceModel, MarketplaceService } from '../../core/services/marketplace.service';
+import { AuthStore } from '../../core/store/auth.store';
+
+// Regression coverage (Batch 4): a Client already having an active purchase
+// for a service must not be offered a normal, actionable "buy again" card —
+// the card must clearly indicate this and navigate to the real existing
+// project instead, using ONLY the real activeProjectId the backend
+// returned (never fabricated). model.eligibility is populated server-side
+// (marketplace-service.service.ts getMarketplaceModels) exclusively for an
+// authenticated Client — undefined for guests/other roles, who must see the
+// exact same behavior as before this batch.
+
+function baseModel(overrides: Partial<MarketplaceModel> = {}): MarketplaceModel {
+	return {
+		id: 'svc-1',
+		title: 'خدمة تجريبية',
+		category: 'تصميم',
+		status: 'PUBLISHED',
+		totalAmount: 500,
+		totalDays: 5,
+		aiScore: 80,
+		rating: 4.5,
+		provider: { id: 'p1', name: 'مزود', initials: 'م' },
+		...overrides,
+	};
+}
+
+function setup() {
+	TestBed.configureTestingModule({
+		imports: [Card],
+		providers: [
+			provideRouter([]),
+			{ provide: MarketplaceService, useValue: { getFavorites: () => of({ success: true, data: [] }), setFavorite: () => of({ success: true }) } },
+			{ provide: AuthStore, useValue: { isAuthenticated: signal(false) } },
+		],
+	});
+	const fixture: ComponentFixture<Card> = TestBed.createComponent(Card);
+	return { fixture, component: fixture.componentInstance };
+}
+
+describe('Card (shared marketplace card) — active-purchase eligibility', () => {
+	it('2) a service the Client has not purchased keeps the normal offer/buy link', () => {
+		const { component } = setup();
+		const model = baseModel({ eligibility: { hasActivePurchase: false, activeProjectId: null } });
+
+		expect(component.hasActivePurchase(model)).toBe(false);
+		expect(component.cardLink(model)).toEqual(['/marketplace/offer', 'svc-1']);
+	});
+
+	it('2) a service with an active purchase links to the real existing project, not the offer page', () => {
+		const { component } = setup();
+		const model = baseModel({ eligibility: { hasActivePurchase: true, activeProjectId: 'proj-42' } });
+
+		expect(component.hasActivePurchase(model)).toBe(true);
+		expect(component.cardLink(model)).toEqual(['/client-overview/projects', 'proj-42']);
+	});
+
+	it('5) never fabricates a destination — an active purchase with no activeProjectId falls back to the offer page, not a broken route', () => {
+		const { component } = setup();
+		const model = baseModel({ eligibility: { hasActivePurchase: true, activeProjectId: null } });
+
+		expect(component.cardLink(model)).toEqual(['/marketplace/offer', 'svc-1']);
+	});
+
+	it('6) a model with no `eligibility` field at all (guest, or a non-Client role) behaves exactly as before this batch', () => {
+		const { component } = setup();
+		const model = baseModel(); // no eligibility key
+
+		expect(component.hasActivePurchase(model)).toBe(false);
+		expect(component.cardLink(model)).toEqual(['/marketplace/offer', 'svc-1']);
+	});
+
+	it('4) the truthful-state badge/copy renders for an eligible-active card and the price footer is replaced, never showing a normal price alongside it', () => {
+		const { fixture, component } = setup();
+		fixture.componentRef.setInput('models', [baseModel({ eligibility: { hasActivePurchase: true, activeProjectId: 'proj-42' } })]);
+		fixture.detectChanges();
+
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(text).toContain('لديك طلب نشط');
+		expect(text).toContain('قيد التنفيذ');
+		expect(text).not.toContain('500 $');
+	});
+
+	it('an eligible (non-active) card in the same list still shows its real price normally — the fix does not affect unrelated cards', () => {
+		const { fixture, component } = setup();
+		fixture.componentRef.setInput('models', [baseModel({ id: 'svc-2', totalAmount: 750, eligibility: { hasActivePurchase: false, activeProjectId: null } })]);
+		fixture.detectChanges();
+
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(text).toContain('750');
+		expect(text).not.toContain('لديك طلب نشط');
+	});
+
+	it('7) listing rendering never triggers a per-card my-purchase request — eligibility comes only from model data already on hand', () => {
+		const getFavoritesSpy = vi.fn(() => of({ success: true, data: [] }));
+		TestBed.configureTestingModule({
+			imports: [Card],
+			providers: [
+				provideRouter([]),
+				{ provide: MarketplaceService, useValue: { getFavorites: getFavoritesSpy, setFavorite: () => of({ success: true }), getMyPurchaseStatus: vi.fn() } },
+				{ provide: AuthStore, useValue: { isAuthenticated: signal(true) } },
+			],
+		});
+		const fixture: ComponentFixture<Card> = TestBed.createComponent(Card);
+		fixture.componentRef.setInput('models', [
+			baseModel({ id: 's1', eligibility: { hasActivePurchase: true, activeProjectId: 'p1' } }),
+			baseModel({ id: 's2', eligibility: { hasActivePurchase: false, activeProjectId: null } }),
+			baseModel({ id: 's3', eligibility: { hasActivePurchase: false, activeProjectId: null } }),
+		]);
+		fixture.detectChanges();
+
+		const marketplaceService = TestBed.inject(MarketplaceService) as any;
+		expect(marketplaceService.getMyPurchaseStatus).not.toHaveBeenCalled();
+	});
+});

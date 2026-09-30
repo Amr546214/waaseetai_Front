@@ -395,4 +395,21 @@ export class CuratedComponent implements OnInit {
 		this.drag.el.classList.remove('dragging');
 		this.drag = null;
 	}
+
+	// Batch 4 — same eligibility contract/behavior as the shared <app-card>
+	// component (src/app/sheards/card/card.ts): model.eligibility is only
+	// ever populated server-side for an authenticated Client, via the exact
+	// same findActiveServicePurchases() helper the checkout write-path guard
+	// uses. Kept here too since this page renders its own card markup rather
+	// than reusing <app-card> (out of scope to unify in this batch).
+	hasActivePurchase(m: MarketplaceModel): boolean {
+		return Boolean(m.eligibility?.hasActivePurchase);
+	}
+
+	cardLink(m: MarketplaceModel): (string | null)[] {
+		if (m.eligibility?.hasActivePurchase && m.eligibility.activeProjectId) {
+			return ['/client-overview/projects', m.eligibility.activeProjectId];
+		}
+		return ['/marketplace/offer', m.id];
+	}
 }
