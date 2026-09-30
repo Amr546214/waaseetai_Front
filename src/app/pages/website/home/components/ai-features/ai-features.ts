@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { RobotAvatar } from '../../../../../sheards/robot-avatar/robot-avatar';
 
 @Component({
   selector: 'app-ai-features',
