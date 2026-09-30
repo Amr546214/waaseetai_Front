@@ -11,11 +11,12 @@ import { NotificationSoundService } from '../../core/services/notification-sound
 
 import { VideoCallModalComponent } from '../../sheards/dashboard/video-call-modal/video-call-modal';
 import { PageLoader } from '../../sheards/page-loader/page-loader';
+import { AssistantWidgetComponent } from '../../sheards/assistant-widget/assistant-widget';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavDashboard, Sidebar, VideoCallModalComponent, PageLoader],
+  imports: [CommonModule, RouterModule, NavDashboard, Sidebar, VideoCallModalComponent, PageLoader, AssistantWidgetComponent],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css'
 })
