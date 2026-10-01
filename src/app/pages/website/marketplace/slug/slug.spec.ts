@@ -56,4 +56,22 @@ describe('Slug', () => {
       expect(component.cardLink(baseModel)).toEqual(['/marketplace/offer', 'svc-1']);
     });
   });
+
+  // Batch 5 — service-detail's own level badge was already the canonical
+  // real-data reference other surfaces were compared against; levelStyle()
+  // now delegates to the single shared helper (provider-level-style.util.ts)
+  // instead of its own private map, so this page's behavior is unchanged
+  // while the duplication is removed.
+  describe('canonical provider level styling (Batch 5)', () => {
+    const baseModel: any = { id: 'svc-1', title: 't', provider: { id: 'p1', name: 'p', initials: 'p' } };
+
+    it('uses the canonical highlighted-level color for a known real level', () => {
+      expect(component.levelStyle({ ...baseModel, level: 'خبير' })).toEqual({ bg: 'rgba(123,47,190,.85)', color: '#E0C6FF' });
+    });
+
+    it('falls back to the neutral default rather than fabricating a color for an unhighlighted/unexpected level', () => {
+      expect(component.levelStyle({ ...baseModel, level: 'مبتدئ' })).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
+      expect(component.levelStyle({ ...baseModel, level: undefined })).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
+    });
+  });
 });

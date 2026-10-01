@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MarketplaceModel, MarketplaceService } from '../../core/services/marketplace.service';
 import { AuthStore } from '../../core/store/auth.store';
+import { resolveProviderLevelBadgeStyle } from '../../core/utils/provider-level-style.util';
 
 @Component({
 	selector: 'app-card',
@@ -100,6 +101,13 @@ export class Card {
 
 	resetCategory(): void {
 		this.categoryReset.emit();
+	}
+
+	/** Batch 5 — same canonical badge styling as marketplace.ts/slug.ts/
+	 *  curated.ts, so a provider's level badge is never a different color
+	 *  here than on the already-correct result-grid pages. */
+	levelStyle(model: MarketplaceModel): { bg: string; color: string } {
+		return resolveProviderLevelBadgeStyle(model.level, model.levelBg, model.levelColor);
 	}
 
 	// Batch 4 — model.eligibility is populated server-side (see

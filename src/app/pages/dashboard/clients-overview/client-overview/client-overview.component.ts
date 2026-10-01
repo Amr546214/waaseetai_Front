@@ -6,6 +6,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { CompanyDashboardApiService } from '../../../../core/services/company-dashboard-api.service';
 import { CompanyDashboardData } from '../../../../core/models/company-dashboard.model';
+import { resolveProviderLevelBadgeStyle } from '../../../../core/utils/provider-level-style.util';
 
 @Component({
 	selector: 'app-client-overview',
@@ -128,22 +129,13 @@ export class ClientOverviewComponent implements OnInit {
 		return styles[index % styles.length];
 	}
 
-	getLevelBadgeStyle(index: number): string {
-		const styles = [
-			'font-size:9px;font-weight:800;color:#2ECC8A;background:rgba(46,204,138,.12);border:1px solid rgba(46,204,138,.25);border-radius:7px;padding:1px 6px',
-			'font-size:9px;font-weight:800;color:#5DA0FF;background:rgba(93,160,255,.12);border:1px solid rgba(93,160,255,.25);border-radius:7px;padding:1px 6px',
-			'font-size:9px;font-weight:800;color:#2BD4C7;background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.25);border-radius:7px;padding:1px 6px'
-		];
-		return styles[index % styles.length];
+	/** Batch 5 (completion pass) — real gamification-derived level now on
+	 *  the proposal payload (DashboardService::getClientStats), resolved
+	 *  through the same canonical shared helper as marketplace/slug/card/
+	 *  curated. Never called for a null/missing providerLevel — callers
+	 *  must guard with `@if (offer.providerLevel)` first. */
+	levelStyle(level: string): { bg: string; color: string } {
+		return resolveProviderLevelBadgeStyle(level);
 	}
 
-	getLevelColor(index: number): string {
-		const colors = ['#2ECC8A', '#5DA0FF', '#2BD4C7'];
-		return colors[index % colors.length];
-	}
-
-	getLevelLabel(index: number): string {
-		const labels = ['خبير', 'متقن', 'أخصائي', 'محترف', 'مبكر'];
-		return labels[index % labels.length];
-	}
 }

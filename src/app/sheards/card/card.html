@@ -35,8 +35,8 @@
 				@if (hasActivePurchase(model)) {
 				<span class="svc-badge-level" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
 				} @else {
-				<span class="svc-badge-level" [style.background]="model.levelBg || 'rgba(43,212,199,.6)'"
-					[style.color]="model.levelColor || '#2BD4C7'">
+				<span class="svc-badge-level" [style.background]="levelStyle(model).bg"
+					[style.color]="levelStyle(model).color">
 					{{ model.level }}
 				</span>
 				}

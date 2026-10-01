@@ -737,31 +737,32 @@
 							</div>
 						</div>
 						<div>
-							<div class="offer-name">{{ offer.providerName }} <span class="ws-level-tag"
-									[style]="getLevelBadgeStyle(idx)"><svg class="ws-star-svg" width="7" height="7"
-										viewBox="0 0 100 100" [attr.fill]="getLevelColor(idx)">
-										<path
-											d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-									</svg>{{ getLevelLabel(idx) }}</span></div>
+							<div class="offer-name">{{ offer.providerName }}
+								@if (offer.providerLevel) {
+								<span class="ws-level-tag"
+									[style.background]="levelStyle(offer.providerLevel).bg"
+									[style.color]="levelStyle(offer.providerLevel).color">{{ offer.providerLevel }}</span>
+								}
+							</div>
 							<div
 								style="display:inline-flex;align-items:center;gap:2px;margin-top:2px;margin-bottom:2px">
 								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="getLevelColor(idx)">
+									fill="#2ECC8A">
 									<path
 										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 								</svg>
 								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="getLevelColor(idx)">
+									fill="#2ECC8A">
 									<path
 										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 								</svg>
 								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="getLevelColor(idx)">
+									fill="#2ECC8A">
 									<path
 										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 								</svg>
 								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="getLevelColor(idx)">
+									fill="#2ECC8A">
 									<path
 										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 								</svg>

@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MarketplaceModel, MarketplaceService } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { resolveProviderLevelBadgeStyle } from '../../../../core/utils/provider-level-style.util';
 
 export type CuratedMode = 'top-rated' | 'most-ordered' | 'featured' | 'exclusive' | 'newest';
 
@@ -411,5 +412,14 @@ export class CuratedComponent implements OnInit {
 			return ['/client-overview/projects', m.eligibility.activeProjectId];
 		}
 		return ['/marketplace/offer', m.id];
+	}
+
+	/** Batch 5 — same canonical badge styling as marketplace.ts/slug.ts/
+	 *  card.ts (the already-correct result-grid pages), extracted into one
+	 *  shared helper instead of duplicating/inventing a third mapping here.
+	 *  curated.html previously fell back to a single flat color for every
+	 *  level regardless of the real value. */
+	levelStyle(m: MarketplaceModel): { bg: string; color: string } {
+		return resolveProviderLevelBadgeStyle(m.level, m.levelBg, m.levelColor);
 	}
 }

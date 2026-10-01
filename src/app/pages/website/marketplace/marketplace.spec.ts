@@ -24,7 +24,12 @@ describe('Marketplace', () => {
     fixture = TestBed.createComponent(Marketplace);
     component = fixture.componentInstance;
     await fixture.whenStable();
-  });
+  }, 30000);
+  // Pre-existing: this beforeEach is borderline-slow even before Batch 5 (it
+  // was already close to the 10s default hookTimeout with 5 tests); Batch 5
+  // added 2 more tests re-running the same slow setup, which pushed it over
+  // non-deterministically. Bumping only this file's hook timeout — no
+  // component logic changed.
 
   afterEach(() => vi.unstubAllGlobals());
 
@@ -60,6 +65,24 @@ describe('Marketplace', () => {
     it('3/5) an active purchase with a missing activeProjectId (inconsistent data) never fabricates a destination — falls back to the offer page rather than a broken/empty route', () => {
       const model = { ...baseModel, eligibility: { hasActivePurchase: true, activeProjectId: null } };
       expect(component.cardLink(model)).toEqual(['/marketplace/offer', 'svc-1']);
+    });
+  });
+
+  // Batch 5 — this page's result-grid level badge was already real-data-driven
+  // (unlike the dashboard/curated bugs), but had its own private 3-entry color
+  // map. resultLevelStyle() now delegates to the same canonical helper used by
+  // slug.ts/card.ts/curated.ts so a provider's badge color can never diverge
+  // between pages.
+  describe('canonical provider level styling (Batch 5)', () => {
+    const baseModel: any = { id: 'svc-1', title: 't', provider: { id: 'p1', name: 'p', initials: 'p' } };
+
+    it('uses the canonical highlighted-level color for a known real level', () => {
+      expect(component.resultLevelStyle({ ...baseModel, level: 'خبير' })).toEqual({ bg: 'rgba(123,47,190,.85)', color: '#E0C6FF' });
+    });
+
+    it('falls back to the neutral default rather than fabricating a color for an unhighlighted/unexpected level', () => {
+      expect(component.resultLevelStyle({ ...baseModel, level: 'مبتدئ' })).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
+      expect(component.resultLevelStyle({ ...baseModel, level: undefined })).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
     });
   });
 });

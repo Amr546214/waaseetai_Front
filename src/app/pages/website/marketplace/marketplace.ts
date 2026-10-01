@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { MarketplaceModel, MarketplaceService } from '../../../core/services/marketplace.service';
 import { AuthStore } from '../../../core/store/auth.store';
+import { resolveProviderLevelBadgeStyle } from '../../../core/utils/provider-level-style.util';
 import { combineLatest, Subscription } from 'rxjs';
 
 interface CategoryPalette {
@@ -120,12 +121,6 @@ export class Marketplace implements OnInit, OnDestroy {
 		'متقن': { color: '#FFB4A2', border: 'rgba(255,140,105,.4)', bg: 'rgba(255,140,105,.6)' }
 	};
 	// P-MK-005 level badges (svc-level).
-	private readonly resultLevelStyles: Record<string, { bg: string; color: string }> = {
-		'خبير': { bg: 'rgba(123,47,190,.85)', color: '#E0C6FF' },
-		'محترف': { bg: 'rgba(43,127,255,.85)', color: '#C6E0FF' },
-		'أخصائي': { bg: 'rgba(43,212,199,.75)', color: '#070D24' }
-	};
-
 	categoryIcon(icon?: string): string {
 		if (!icon) return '#ws-tag';
 		const id = icon.startsWith('#') ? icon.slice(1) : icon;
@@ -156,8 +151,7 @@ export class Marketplace implements OnInit, OnDestroy {
 	}
 
 	resultLevelStyle(model: MarketplaceModel) {
-		const known = model.level ? this.resultLevelStyles[model.level] : undefined;
-		return known || { bg: model.levelBg || 'rgba(43,212,199,.6)', color: model.levelColor || '#2BD4C7' };
+		return resolveProviderLevelBadgeStyle(model.level, model.levelBg, model.levelColor);
 	}
 
 	/** Original price before the discount (design: struck-through number next to the price). */

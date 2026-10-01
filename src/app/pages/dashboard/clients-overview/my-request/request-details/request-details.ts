@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { ChatService } from '../../../../../core/services/chat.service';
+import { resolveProviderLevelBadgeStyle } from '../../../../../core/utils/provider-level-style.util';
 
 interface Offer {
 	id: string;
@@ -13,8 +14,11 @@ interface Offer {
 	provider?: { id: string; name: string };
 	providerName: string;
 	providerInitials: string;
-	providerLevel: string;
-	levelNumber?: number;
+	// Batch 5 (truthfulness pass) — the REAL gamification progression level
+	// (DashboardService/client-requests.service.ts::resolveProviderProgression),
+	// never the accreditation `badge` field. null when the provider genuinely
+	// has no progression data — never fabricated.
+	providerLevel: string | null;
 	levelColor: string;
 	specialty: string;
 	projectsCount: number;
@@ -184,9 +188,8 @@ export class RequestDetails implements OnInit {
 								provider: { id: prop.provider?.id || prop.providerId || prop.id, name: providerName },
 								providerName: providerName,
 								providerInitials: initials || 'مـ',
-								providerLevel: prop.provider?.badge || prop.provider?.level || 'خبير',
-								levelNumber: (prop.provider?.completedProjects ?? 0) > 50 ? 9 : 5,
-								levelColor: prop.provider?.badge === 'خبير' ? '#2ECC8A' : '#0EA5E9',
+								providerLevel: prop.provider?.providerLevel ?? null,
+								levelColor: resolveProviderLevelBadgeStyle(prop.provider?.providerLevel ?? null).color,
 								specialty: prop.provider?.category || prop.provider?.specialty || 'خدمات',
 								projectsCount: prop.provider?.completedProjects ?? 0,
 								// Never a fabricated default (e.g. a fake 5.0 or 85%) — null

@@ -61,6 +61,10 @@ export interface DashboardStatsPayload {
     deliveryDays: number;
     aiMatchScore: number | null;
     providerName: string;
+    // Batch 5 — the real gamification-derived provider level (same
+    // resolver/source marketplace uses), never an accreditation badge.
+    // null when the provider genuinely has no progression data.
+    providerLevel?: string | null;
     status: ProposalStatus;
     createdAt: Date;
   }>;

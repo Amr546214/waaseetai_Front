@@ -3,6 +3,7 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { MarketplaceModel, MarketplaceService } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { resolveProviderLevelBadgeStyle } from '../../../../core/utils/provider-level-style.util';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -110,14 +111,6 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 		{ background: 'rgba(217,138,11,.15)', border: '1px solid rgba(217,138,11,.25)', color: 'var(--kahr)' },
 		{ background: 'rgba(255,140,105,.15)', border: '1px solid rgba(255,140,105,.25)', color: 'var(--red)' }
 	];
-	// Design level-badge colours; levels the design doesn't show fall back to the
-	// backend-provided levelBg/levelColor (as app-card did).
-	private readonly levelStyles: Record<string, { bg: string; color: string }> = {
-		'خبير': { bg: 'rgba(123,47,190,.85)', color: '#E0C6FF' },
-		'محترف': { bg: 'rgba(43,127,255,.85)', color: '#C6E0FF' },
-		'أخصائي': { bg: 'rgba(43,212,199,.75)', color: '#070D24' }
-	};
-
 	thumbGradient(index: number): string {
 		return this.thumbGradients[index % this.thumbGradients.length];
 	}
@@ -127,8 +120,7 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	levelStyle(model: MarketplaceModel): { bg: string; color: string } {
-		const known = model.level ? this.levelStyles[model.level] : undefined;
-		return known || { bg: model.levelBg || 'rgba(43,212,199,.6)', color: model.levelColor || '#2BD4C7' };
+		return resolveProviderLevelBadgeStyle(model.level, model.levelBg, model.levelColor);
 	}
 
 	// Symbols this component ships in its own local sprite (see slug.html).

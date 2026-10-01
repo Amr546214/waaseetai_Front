@@ -180,7 +180,7 @@
 						<div class="v1-lv"
 							style="background:#070D24;display:flex;align-items:center;justify-content:center"
 							[style.border]="'2px solid ' + (offer.isBestMatch ? '#2ECC8A' : offer.levelColor)"
-							[attr.aria-label]="'المستوى ' + (offer.levelNumber || 5) + ' — ' + offer.providerLevel">
+							[attr.aria-label]="offer.providerLevel ? ('مستوى مقدم الخدمة: ' + offer.providerLevel) : 'مستوى مقدم الخدمة غير متاح'">
 							<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
 								[attr.fill]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor">
 								<path
@@ -191,6 +191,7 @@
 					<div style="flex:1;min-width:0">
 						<div class="v1-nm">
 							{{ offer.providerName }}
+							@if (offer.providerLevel) {
 							<span
 								style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:800;margin-inline-start:6px"
 								class="ws-level-tag"
@@ -204,6 +205,7 @@
 								</svg>
 								{{ offer.providerLevel }}
 							</span>
+							}
 						</div>
 						<div class="v1-meta">
 							{{ offer.specialty }} · {{ offer.projectsCount }} مشروعا ·
@@ -468,6 +470,7 @@
 					{{ offer.providerInitials }}
 				</div>
 				<div class="cmp-head-nm">{{ offer.providerName }}</div>
+				@if (offer.providerLevel) {
 				<span class="ws-level-tag" style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:800"
 					[style.background]="(offer.isBestMatch ? 'rgba(46,204,138,.15)' : offer.levelColor + '26')"
 					[style.color]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor"
@@ -479,6 +482,7 @@
 					</svg>
 					{{ offer.providerLevel }}
 				</span>
+				}
 				@if (offer.isBestMatch) {
 				<span class="cmp-head-ai-badge">ترشيح الذكاء</span>
 				}
