@@ -6,6 +6,15 @@ import { vi } from 'vitest';
 
 import { ProjectDetails } from './project-details';
 
+// Batch 6 — ProjectDetails now also injects ClientCompanyTeamService
+// alongside the pre-existing AuthStore injection; with AuthStore unmocked in
+// any describe block in this file, Angular constructs the REAL AuthStore,
+// whose constructor reads localStorage synchronously — this runner provides
+// no global localStorage. Pre-existing test-environment gap (same class
+// already worked around elsewhere this session, e.g. marketplace.spec.ts),
+// not a production bug.
+vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
+
 // AI disclosure cleanup batch: aiMatchPct/aiConfidence/aiEarlyDays/aiRiskLevel/
 // aiBullets previously fabricated a positive-looking value (a computed 88-96%
 // match, a fake 95% confidence, a fake early-days estimate, a fake risk level,
@@ -160,5 +169,95 @@ describe('ProjectDetails — Batch 8 on-demand project health analysis', () => {
     await setup(() => of({ success: true, data: {} }));
     fixture.detectChanges();
     expect(component).toBeTruthy();
+  });
+});
+
+// Batch 6 — real "الموظف المسؤول عن المتابعة" (responsible employee)
+// assignment on the canonical project workspace page, backed by
+// Project.assignedEmployeeId via PUT /client/projects/:id/assigned-employee.
+// No parallel "employee projects" page was kept — this IS the real page.
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
+import { ClientCompanyTeamService } from '../../../../../core/services/client-company-team.service';
+
+describe('ProjectDetails — real employee assignment (Batch 6)', () => {
+  function makeMember(overrides: any = {}) {
+    return { id: 'emp-1', name: 'سارة القحطاني', email: 's@x.sa', phone: null, jobTitle: 'مديرة المشتريات', status: 'ACTIVE', avatarUrl: null, createdAt: '', updatedAt: '', ...overrides };
+  }
+
+  async function setup(opts: { workspaceData?: any; putImpl?: (...args: any[]) => any; listImpl?: () => any; isCompany?: boolean } = {}) {
+    const isCompany = opts.isCompany ?? true;
+    const fixture = TestBed.configureTestingModule({
+      imports: [ProjectDetails],
+      providers: [
+        provideRouter([]),
+        {
+          provide: HttpClient, useValue: {
+            get: () => of({ success: true, data: { title: 'مشروع', stages: [], files: [], messages: [], employee: null, ...opts.workspaceData } }),
+            post: () => of({ success: true, data: {} }),
+            put: opts.putImpl ?? (() => of({ success: true, data: { id: 'proj-1', employee: makeMember() } })),
+          }
+        },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } },
+        { provide: AuthStore, useValue: { currentUser: () => ({ accountType: isCompany ? AccountType.CLIENT_COMPANY : AccountType.CLIENT_INDIVIDUAL }) } },
+        { provide: ClientCompanyTeamService, useValue: { list: opts.listImpl ?? (() => of({ success: true, data: [makeMember()] })) } },
+      ],
+    });
+    const created = TestBed.createComponent(ProjectDetails);
+    created.detectChanges();
+    await created.whenStable();
+    return { fixture: created, component: created.componentInstance };
+  }
+
+  it('1) renders the real assigned employee name/jobTitle from the workspace response', async () => {
+    const { fixture } = await setup({ workspaceData: { employee: { id: 'emp-1', name: 'سارة القحطاني', jobTitle: 'مديرة المشتريات' } } });
+    const text = (fixture.nativeElement as HTMLElement).textContent || '';
+    expect(text).toContain('سارة القحطاني');
+    expect(text).toContain('مديرة المشتريات');
+  });
+
+  it('2) shows a truthful unassigned state, never a fabricated name, when employee is null', async () => {
+    const { fixture } = await setup({ workspaceData: { employee: null } });
+    const text = (fixture.nativeElement as HTMLElement).textContent || '';
+    expect(text).toContain('غير معيّن');
+  });
+
+  it('3) opening the assignment picker loads real ACTIVE roster members only', async () => {
+    const { component } = await setup({
+      listImpl: () => of({ success: true, data: [makeMember({ id: 'e1', status: 'ACTIVE' }), makeMember({ id: 'e2', status: 'PENDING' }), makeMember({ id: 'e3', status: 'INACTIVE' })] }),
+    });
+    component.openAssignPicker();
+    expect(component.employeeOptions().length).toBe(1);
+    expect(component.employeeOptions()[0].id).toBe('e1');
+  });
+
+  it('4) assigning an employee calls the real PUT endpoint and updates the displayed state only from the server response', async () => {
+    const putSpy = vi.fn((_url: string, _body: any) => of({ success: true, data: { id: 'proj-1', employee: { id: 'e1', name: 'خالد', jobTitle: 'محاسب' } } }));
+    const { component } = await setup({ putImpl: putSpy });
+    component.assignEmployee('e1');
+    expect(putSpy.mock.calls[0][0]).toContain('/client/projects/proj-1/assigned-employee');
+    expect(putSpy.mock.calls[0][1]).toEqual({ employeeId: 'e1' });
+    expect(component.project()?.employee).toEqual({ id: 'e1', name: 'خالد', jobTitle: 'محاسب' });
+  });
+
+  it('5) a failed assignment never shows a fake-success state — the picker stays open with a real error', async () => {
+    const { component } = await setup({ putImpl: () => throwError(() => ({ error: { message: 'فشل التعيين' } })) });
+    component.openAssignPicker();
+    component.assignEmployee('e1');
+    expect(component.showAssignPicker()).toBe(true);
+    expect(component.assignError()).toBe('فشل التعيين');
+  });
+
+  it('6) unassignEmployee calls assignEmployee(null)', async () => {
+    const putSpy = vi.fn((_url: string, _body: any) => of({ success: true, data: { id: 'proj-1', employee: null } }));
+    const { component } = await setup({ putImpl: putSpy });
+    component.unassignEmployee();
+    expect(putSpy.mock.calls[0][1]).toEqual({ employeeId: null });
+  });
+
+  it('7) a CLIENT_INDIVIDUAL never sees the responsible-employee UI at all', async () => {
+    const { fixture } = await setup({ isCompany: false, workspaceData: { employee: { id: 'e1', name: 'سارة', jobTitle: 'مديرة' } } });
+    const text = (fixture.nativeElement as HTMLElement).textContent || '';
+    expect(text).not.toContain('الموظف المسؤول عن المتابعة');
   });
 });

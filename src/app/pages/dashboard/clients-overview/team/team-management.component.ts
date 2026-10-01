@@ -1,85 +1,158 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ClientCompanyTeamService } from '../../../../core/services/client-company-team.service';
+import { ClientCompanyTeamMember } from '../../../../core/models/client-company-team.model';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 
-interface Employee {
-	id: string; name: string; email: string; role: string; roleColor: string;
-	status: 'active' | 'suspended'; avatar: string; joinedAt: string; tasksCount: number;
-}
-
-interface Role {
-	id: string; name: string; count: number; color: string; permissions: string[];
-}
-
-interface Group {
-	id: string; name: string; lead: string; members: string[]; memberCount: number;
-}
-
-interface Task {
-	id: string; title: string; desc: string; priority: 'high' | 'med' | 'low';
-	status: 'done' | 'progress' | 'pending' | 'review'; assignee: string; due: string;
-}
-
+// Batch 6 — this page used to render 4 fully hardcoded arrays (employees,
+// roles, groups, tasks) with zero backend behind any of them (not even a
+// shared mock file — each was a private literal in this component). The
+// roster (Employees) is now wired to a REAL backend (client-company-team.
+// service, reusing the same CompanyTeamMember table the PROVIDER_COMPANY
+// roster already uses — Batch 6 investigation found no schema change was
+// needed for this part).
+//
+// Roles/Groups/Tasks were REMOVED outright for launch (approved product
+// decision) rather than left as permanent "backend required" placeholders
+// in market-facing UI: no Role/Group/Task model exists anywhere in the
+// schema (confirmed via full Prisma schema search), Roles specifically
+// conflicts with the already-decided "employees have no WaseetAI login"
+// architecture (a real RBAC system presupposes employees who can log in and
+// act), and Tasks duplicated data already real elsewhere (CompanyDashboard
+// Data's pendingApprovals[]/recentTeamRequests[]). This page is now a single
+// real employee roster, not a tabbed shell.
 @Component({
 	selector: 'app-team-management',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, FormsModule, RouterModule],
 	templateUrl: './team-management.component.html',
 	styleUrls: ['./team-management.component.css']
 })
-export class TeamManagementComponent {
-	activeTab = 'employees';
+export class TeamManagementComponent implements OnInit {
+	private teamService = inject(ClientCompanyTeamService);
+	private authStore = inject(AuthStore);
 
-	stats = [
-		{ ico: 'group', color: 'teal', val: 8, lbl: 'إجمالي الموظفين' },
-		{ ico: 'check', color: 'green', val: 6, lbl: 'موظفون نشطون' },
-		{ ico: 'task', color: 'amber', val: 14, lbl: 'مهام نشطة' },
-		{ ico: 'group', color: 'blue', val: 3, lbl: 'مجموعات عمل' }
-	];
+	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
-	employees: Employee[] = [
-		{ id: '1', name: 'أحمد العتيبي', email: 'ahmed@company.sa', role: 'مالك الشركة', roleColor: 'teal', status: 'active', avatar: 'أ', joinedAt: '2025-01-15', tasksCount: 3 },
-		{ id: '2', name: 'سارة القحطاني', email: 'sara@company.sa', role: 'مدير المشاريع', roleColor: 'blue', status: 'active', avatar: 'س', joinedAt: '2025-02-10', tasksCount: 5 },
-		{ id: '3', name: 'محمد الزهراني', email: 'mohammed@company.sa', role: 'محاسب', roleColor: 'amber', status: 'active', avatar: 'م', joinedAt: '2025-03-01', tasksCount: 2 },
-		{ id: '4', name: 'نورة الحربي', email: 'noura@company.sa', role: 'مراقب', roleColor: 'gray', status: 'active', avatar: 'ن', joinedAt: '2025-03-20', tasksCount: 1 },
-		{ id: '5', name: 'خالد الدوسري', email: 'khaled@company.sa', role: 'موظف', roleColor: 'gray', status: 'suspended', avatar: 'خ', joinedAt: '2025-04-05', tasksCount: 0 },
-		{ id: '6', name: 'فاطمة الغامدي', email: 'fatima@company.sa', role: 'موظف', roleColor: 'gray', status: 'active', avatar: 'ف', joinedAt: '2025-04-15', tasksCount: 3 }
-	];
+	employees = signal<ClientCompanyTeamMember[]>([]);
+	isLoading = signal<boolean>(true);
+	loadError = signal<string>('');
 
-	roles: Role[] = [
-		{ id: 'owner', name: 'مالك الشركة', count: 1, color: 'teal', permissions: ['كل الصلاحيات', 'إدارة الموظفين', 'إدارة المالية', 'إعدادات الحساب'] },
-		{ id: 'manager', name: 'مدير المشاريع', count: 2, color: 'blue', permissions: ['إنشاء الطلبات', 'متابعة المشاريع', 'توقيع العقود', 'مراجعة التسليم'] },
-		{ id: 'accountant', name: 'محاسب', count: 1, color: 'amber', permissions: ['عرض الفواتير', 'عرض المحفظة', 'تقارير الإنفاق'] },
-		{ id: 'observer', name: 'مراقب', count: 3, color: 'gray', permissions: ['عرض المشاريع', 'عرض التقارير'] }
-	];
+	// Only real, backend-derived stats — the mock page also claimed "مهام
+	// نشطة"/"مجموعات عمل" (active tasks / work groups), which have no
+	// backing model at all (see Roles/Groups/Tasks tabs below) and were
+	// dropped rather than shown as a fabricated/always-zero tile.
+	totalEmployees = computed(() => this.employees().length);
+	activeEmployees = computed(() => this.employees().filter(e => e.status === 'ACTIVE').length);
 
-	groups: Group[] = [
-		{ id: '1', name: 'فريق التطوير', lead: 'سارة القحطاني', members: ['س', 'م', 'ف'], memberCount: 4 },
-		{ id: '2', name: 'فريق المالية', lead: 'محمد الزهراني', members: ['م', 'ن'], memberCount: 2 },
-		{ id: '3', name: 'فريق المتابعة', lead: 'نورة الحربي', members: ['ن', 'خ'], memberCount: 2 }
-	];
+	// Invite-employee inline form state
+	showInviteForm = signal<boolean>(false);
+	inviteName = '';
+	inviteEmail = '';
+	invitePhone = '';
+	inviteJobTitle = '';
+	isSubmittingInvite = signal<boolean>(false);
+	inviteError = signal<string>('');
 
-	tasks: Task[] = [
-		{ id: '1', title: 'مراجعة طلب رقم REQ-2026-042', desc: 'مراجعة تفاصيل الطلب وتأكيد النطاق', priority: 'high', status: 'progress', assignee: 'سارة القحطاني', due: '2026-09-15' },
-		{ id: '2', title: 'توقيع عقد رقم C-2026-018', desc: 'مراجعة بنود العقد والتوقيع', priority: 'high', status: 'review', assignee: 'أحمد العتيبي', due: '2026-09-14' },
-		{ id: '3', title: 'إعداد تقرير الإنفاق الشهري', desc: 'تجميع بيانات الإنفاق لشهر أغسطس', priority: 'med', status: 'pending', assignee: 'محمد الزهراني', due: '2026-09-20' },
-		{ id: '4', title: 'متابعة تسليم المرحلة 2', desc: 'مراجعة تسليم المرحلة الثانية من المشروع', priority: 'med', status: 'progress', assignee: 'نورة الحربي', due: '2026-09-18' },
-		{ id: '5', title: 'تحديث بيانات الموردين', desc: 'تحديث قائمة الموردين المعتمدين', priority: 'low', status: 'done', assignee: 'فاطمة الغامدي', due: '2026-09-10' }
-	];
+	// Per-row busy state so a slow status/edit request can't be double-fired
+	busyMemberId = signal<string | null>(null);
 
-	switchTab(tab: string) {
-		this.activeTab = tab;
+	ngOnInit(): void {
+		if (!this.isCompany()) {
+			this.isLoading.set(false);
+			return;
+		}
+		this.fetchEmployees();
 	}
 
-	statusLabel(s: string): string {
-		return s === 'active' ? 'نشط' : 'موقوف';
+	fetchEmployees(): void {
+		this.isLoading.set(true);
+		this.loadError.set('');
+		this.teamService.list().subscribe({
+			next: (res) => {
+				this.employees.set(res?.data || []);
+				this.isLoading.set(false);
+			},
+			error: () => {
+				this.loadError.set('تعذر تحميل بيانات الموظفين. حاول مرة أخرى.');
+				this.isLoading.set(false);
+			}
+		});
 	}
 
-	priorityLabel(p: string): string {
-		return p === 'high' ? 'عالية' : p === 'med' ? 'متوسطة' : 'منخفضة';
+	statusLabel(s: ClientCompanyTeamMember['status']): string {
+		return s === 'ACTIVE' ? 'نشط' : s === 'PENDING' ? 'بانتظار القبول' : 'موقوف';
 	}
 
-	statusTag(s: string): string {
-		return s === 'done' ? 'مكتمل' : s === 'progress' ? 'قيد التنفيذ' : s === 'pending' ? 'معلق' : 'مراجعة';
+	initials(name: string): string {
+		return name.split(' ').map(p => p[0] || '').join('').substring(0, 2) || 'م';
+	}
+
+	openInviteForm(): void {
+		this.inviteName = '';
+		this.inviteEmail = '';
+		this.invitePhone = '';
+		this.inviteJobTitle = '';
+		this.inviteError.set('');
+		this.showInviteForm.set(true);
+	}
+
+	cancelInvite(): void {
+		this.showInviteForm.set(false);
+	}
+
+	submitInvite(): void {
+		if (!this.inviteName.trim() || !this.inviteEmail.trim() || !this.inviteJobTitle.trim()) {
+			this.inviteError.set('الاسم والبريد الإلكتروني والمسمى الوظيفي مطلوبة');
+			return;
+		}
+		this.isSubmittingInvite.set(true);
+		this.inviteError.set('');
+		this.teamService.create({
+			name: this.inviteName.trim(),
+			email: this.inviteEmail.trim(),
+			phone: this.invitePhone.trim() || null,
+			jobTitle: this.inviteJobTitle.trim(),
+		}).subscribe({
+			next: (res) => {
+				this.isSubmittingInvite.set(false);
+				this.showInviteForm.set(false);
+				if (res?.data) {
+					this.employees.update(list => [res.data as ClientCompanyTeamMember, ...list]);
+				} else {
+					// Never show a fake-success state without the real created
+					// record — refetch from the backend instead.
+					this.fetchEmployees();
+				}
+			},
+			error: (err) => {
+				this.isSubmittingInvite.set(false);
+				this.inviteError.set(err?.error?.message || 'تعذر دعوة الموظف. حاول مرة أخرى.');
+			}
+		});
+	}
+
+	toggleStatus(emp: ClientCompanyTeamMember): void {
+		const nextStatus = emp.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+		this.busyMemberId.set(emp.id);
+		this.teamService.update(emp.id, { status: nextStatus }).subscribe({
+			next: (res) => {
+				this.busyMemberId.set(null);
+				if (res?.data) {
+					this.employees.update(list => list.map(e => e.id === emp.id ? res.data as ClientCompanyTeamMember : e));
+				} else {
+					this.fetchEmployees();
+				}
+			},
+			error: () => {
+				this.busyMemberId.set(null);
+				// Failed mutation — never flip the UI state optimistically; the
+				// signal above was never touched, so the card still shows the
+				// real (unchanged) status.
+			}
+		});
 	}
 }

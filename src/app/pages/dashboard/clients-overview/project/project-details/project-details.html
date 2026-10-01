@@ -39,6 +39,42 @@
 				</span>
 			</div>
 		</div>
+
+		<!-- Batch 6 — real "الموظف المسؤول عن المتابعة" (responsible employee),
+		     backed by Project.assignedEmployeeId. Never fabricated: shows a
+		     truthful unassigned state when data.employee is null. -->
+		<div class="co-ctx-banner" style="margin-top:10px">
+			<div class="co-ctx-item" style="flex:1">
+				<div class="co-ctx-lbl">الموظف المسؤول عن المتابعة</div>
+				@if (data.employee) {
+					<div class="co-ctx-person"><span class="co-ctx-av">{{ data.employee.name.slice(0,2) }}</span><span>{{ data.employee.name }} · {{ data.employee.jobTitle }}</span></div>
+				} @else {
+					<div class="co-ctx-val txt-muted">غير معيّن</div>
+				}
+			</div>
+			<button type="button" class="lc-btn lc-btn-gh" (click)="openAssignPicker()">{{ data.employee ? 'إعادة التعيين' : 'تعيين موظف' }}</button>
+		</div>
+
+		@if (showAssignPicker()) {
+		<div class="state-card" role="dialog" aria-label="تعيين الموظف المسؤول" style="margin-top:10px">
+			@if (isLoadingEmployeeOptions()) {
+				<div>جارٍ تحميل قائمة الموظفين...</div>
+			} @else if (employeeOptions().length === 0) {
+				<div>لا يوجد موظفون نشطون في فريق شركتك حالياً. يمكنك إضافة موظف من <a routerLink="/client-overview/team">صفحة إدارة الفريق</a>.</div>
+			} @else {
+				<div class="lc-tlrow" style="flex-wrap:wrap;gap:8px">
+					@for (emp of employeeOptions(); track emp.id) {
+						<button type="button" class="emp-btn emp-btn-sec" [disabled]="isAssigning()" (click)="assignEmployee(emp.id)">{{ emp.name }} · {{ emp.jobTitle }}</button>
+					}
+				</div>
+			}
+			@if (data.employee) {
+				<button type="button" class="lc-btn lc-btn-gh" style="margin-top:8px" [disabled]="isAssigning()" (click)="unassignEmployee()">إلغاء التعيين</button>
+			}
+			@if (assignError()) { <div class="inline-error" role="alert" style="margin-top:8px">{{ assignError() }}</div> }
+			<button type="button" class="lc-btn lc-btn-gh" style="margin-top:8px" [disabled]="isAssigning()" (click)="closeAssignPicker()">إغلاق</button>
+		</div>
+		}
 		}
 		@if (disputeSuccess()) { <div class="rt-success-msg" role="status">{{ disputeSuccess() }}</div> }
 		@if (canRate(data)) {

@@ -35,7 +35,7 @@ interface ProjectItem {
 	daysLeft: number;
 	updatedAt?: string;
 	employeeName?: string;
-	employeeDept?: string;
+	employeeJobTitle?: string;
 }
 
 @Component({
@@ -149,8 +149,11 @@ export class ActiveProject implements OnInit {
 			stagesCount: Math.max(1, Number(project.stagesCount) || 1),
 			daysLeft,
 			updatedAt: project.updatedAt,
-			employeeName: project.employee?.name || project.employeeName || undefined,
-			employeeDept: project.employee?.department || project.employeeDept || undefined,
+			// Batch 6 — project.employee is now real data from Project.
+			// assignedEmployeeId (resolved server-side in getActiveProjects,
+			// never fabricated). null/absent means genuinely unassigned.
+			employeeName: project.employee?.name || undefined,
+			employeeJobTitle: project.employee?.jobTitle || undefined,
 		};
 	}
 

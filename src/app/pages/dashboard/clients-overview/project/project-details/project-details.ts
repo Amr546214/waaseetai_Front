@@ -12,6 +12,8 @@ import { MessageContext } from '../../../../../core/services/chat.service';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { ClientCompanyTeamService } from '../../../../../core/services/client-company-team.service';
+import { ClientCompanyTeamMember } from '../../../../../core/models/client-company-team.model';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type SupportAction = 'edit' | 'dispute' | 'cancel' | null;
@@ -28,7 +30,20 @@ export class ProjectDetails implements OnInit {
 	private disputeApi = inject(DisputeApiService);
 	private ratingApi = inject(RatingApiService);
 	private authStore = inject(AuthStore);
+	private clientTeamService = inject(ClientCompanyTeamService);
 	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
+
+	// Batch 6 — real "الموظف المسؤول عن المتابعة" (responsible employee)
+	// assignment, backed by Project.assignedEmployeeId. data().employee comes
+	// from the real backend (GET workspace); this state is only for the
+	// assignment picker UI. Backend remains authoritative — only ACTIVE
+	// roster members are offered here, but the server independently
+	// re-validates on write.
+	showAssignPicker = signal(false);
+	employeeOptions = signal<ClientCompanyTeamMember[]>([]);
+	isLoadingEmployeeOptions = signal(false);
+	isAssigning = signal(false);
+	assignError = signal('');
 	project = signal<any>(null);
 	isLoading = signal(true);
 	error = signal('');
@@ -288,5 +303,58 @@ export class ProjectDetails implements OnInit {
 	// P-SK-016: navigate to the final approval & closure page (design expects a full page before rating).
 	openFinalApproval() {
 		this.router.navigate(['/client-overview/projects', this.projectId, 'final-approval']);
+	}
+
+	// Batch 6 — real employee assignment picker (Project.assignedEmployeeId).
+	openAssignPicker() {
+		this.assignError.set('');
+		this.showAssignPicker.set(true);
+		if (this.employeeOptions().length === 0) this.loadEmployeeOptions();
+	}
+
+	closeAssignPicker() {
+		if (this.isAssigning()) return;
+		this.showAssignPicker.set(false);
+	}
+
+	loadEmployeeOptions() {
+		this.isLoadingEmployeeOptions.set(true);
+		this.clientTeamService.list().subscribe({
+			next: res => {
+				// Backend remains authoritative on write regardless — this is a
+				// UX-only narrowing so the picker doesn't offer an ineligible
+				// member in the first place.
+				this.employeeOptions.set((res?.data || []).filter(m => m.status === 'ACTIVE'));
+				this.isLoadingEmployeeOptions.set(false);
+			},
+			error: () => this.isLoadingEmployeeOptions.set(false)
+		});
+	}
+
+	assignEmployee(employeeId: string | null) {
+		if (this.isAssigning()) return;
+		this.isAssigning.set(true);
+		this.assignError.set('');
+		this.http.put<any>(`${environment.url_api}/client/projects/${this.projectId}/assigned-employee`, { employeeId }).subscribe({
+			next: res => {
+				this.isAssigning.set(false);
+				if (res?.success && res.data) {
+					// Only update the real displayed state from the server's own
+					// confirmed response — never optimistically before success.
+					this.project.update(current => current ? { ...current, employee: res.data.employee } : current);
+					this.showAssignPicker.set(false);
+				} else {
+					this.assignError.set('تعذر تحديث الموظف المسؤول');
+				}
+			},
+			error: event => {
+				this.isAssigning.set(false);
+				this.assignError.set(event.error?.message || 'تعذر تحديث الموظف المسؤول');
+			}
+		});
+	}
+
+	unassignEmployee() {
+		this.assignEmployee(null);
 	}
 }

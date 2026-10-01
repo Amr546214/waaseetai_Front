@@ -37,15 +37,22 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		loadComponent: () => import('./project/active-project/active-project').then(m => m.ActiveProject),
 		data: { title: "Active Projects" }
 	},
+	// Batch 6 — these two routes used to be a fully mock, separate "employee
+	// projects" sub-system. Investigation confirmed Employee Projects was
+	// never meant to be a second project backend (design code
+	// P-SK-014-موظفين-شركة is a company-mode VARIANT of the ordinary active
+	// projects list, not a new surface) — real employee assignment is now
+	// integrated into the canonical projects/active + projects/:id pages
+	// (see active-project.ts / project-details.ts). These routes redirect
+	// rather than disappear, so any existing bookmark/deep-link still lands
+	// somewhere real and correct instead of 404ing.
 	{
 		path: 'projects/employee',
-		loadComponent: () => import('./project/employee-projects/employee-projects.component').then(m => m.EmployeeProjectsComponent),
-		data: { title: "مشاريع الموظفين" }
+		redirectTo: 'projects/active'
 	},
 	{
 		path: 'projects/employee/:id',
-		loadComponent: () => import('./project/employee-project-details/employee-project-details.component').then(m => m.EmployeeProjectDetailsComponent),
-		data: { title: "متابعة مشروع موظف" }
+		redirectTo: (redirectData) => `/client-overview/projects/${redirectData.params['id']}`
 	},
 	//   help
 	{
