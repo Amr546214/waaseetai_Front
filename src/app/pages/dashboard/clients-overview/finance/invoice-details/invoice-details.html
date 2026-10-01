@@ -52,7 +52,10 @@
 		<!-- Body -->
 		<div class="p-6 md:p-8 flex flex-col gap-8">
 
-			<!-- AI Tax Notice -->
+			<!-- Invoice data-completeness notice. The former static "وسيط AI: تم التحقق..."
+			     sentence was removed: no AI/backend check links the invoice to the
+			     contract/delivery. verificationScore below is a real backend field
+			     (required-field completeness), kept as-is (AI Cleanup Batch 1). -->
 			<div
 				class="flex items-center justify-between p-5 bg-gradient-to-l from-slate-50 to-indigo-50/30 dark:from-slate-800/50 dark:to-indigo-500/5 border border-slate-200 dark:border-slate-700 rounded-2xl">
 				<div class="flex items-center gap-4 text-slate-700 dark:text-slate-300">
@@ -63,7 +66,7 @@
 							<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>
 						</svg>
 					</div>
-					<span class="text-sm font-bold leading-relaxed">وسيط AI: تم التحقق من ربط الفاتورة بالعقد والتسليم والمبالغ المسجلة في المنصة.</span>
+					<span class="text-sm font-bold leading-relaxed">نسبة اكتمال بيانات الفاتورة</span>
 				</div>
 				<span
 					class="text-xs font-black px-3 py-1.5 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg shadow-sm">دقة

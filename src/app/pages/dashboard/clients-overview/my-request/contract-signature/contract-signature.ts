@@ -37,10 +37,9 @@ export class ContractSignature implements OnInit {
 	
 	showTermsModal = signal<boolean>(false);
 	termsInput = signal<string>('');
-	chatMessages = signal<any[]>([
-		{ text: 'أهلا، أي بند ترغب بتعديله قبل التوقيع؟', isMe: false, sender: 'مقدم الخدمة' }
-	]);
-	showAiExtract = signal<boolean>(false);
+	// Starts empty: the provider never sent a message here. A hardcoded greeting
+	// used to be shown attributed to the provider by name (AI Cleanup Batch 1).
+	chatMessages = signal<any[]>([]);
 
 	// Toast state
 	showToastSignal = signal<boolean>(false);
@@ -88,11 +87,6 @@ export class ContractSignature implements OnInit {
 						this.duration.set(targetOffer.deliveryDays ? `${targetOffer.deliveryDays} أيام` : (targetOffer.durationText || 'غير محدد'));
 						this.plan.set(targetOffer.outputs || targetOffer.workPlan || '');
 						this.description.set(targetOffer.message || targetOffer.description || '');
-						
-						// Reset initial chat message with correct provider name
-						this.chatMessages.set([
-							{ text: 'أهلا، أي بند ترغب بتعديله قبل التوقيع؟', isMe: false, sender: name }
-						]);
 					}
 				}
 				this.isLoading.set(false);
@@ -134,12 +128,6 @@ export class ContractSignature implements OnInit {
 		this.showToast('تعديل البنود يجب أن يتم عبر غرفة التفاوض قبل اختيار العرض. لا يتم اعتماد موافقات تلقائية.');
 	}
 	
-	approveTerm() {
-		this.showAiExtract.set(false);
-		this.closeTerms();
-		this.showToast('لم يتم تغيير العقد. استخدم غرفة التفاوض لتوثيق أي تعديل جديد.');
-	}
-
 	showToast(msg: string) {
 		this.toastMessage.set(msg);
 		this.showToastSignal.set(true);

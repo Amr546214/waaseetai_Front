@@ -70,15 +70,10 @@
 
 			<!-- Authenticated Full Dashboard Bar -->
 			<ng-container *ngIf="authStore.isAuthenticated()">
-				<!-- 1. AI Security Badge -->
-				<div class="t-ai-badge" aria-label="الذكاء الاصطناعي نشط">
-					<svg aria-hidden="true">
-						<use href="#i-ai"></use>
-					</svg>
-					AI &middot; 95%
-				</div>
+				<!-- The former "AI · 95%" status badge was removed: it was static text with
+				     no backend/AI signal behind it (AI Cleanup Batch 1). -->
 
-				<!-- 2. Theme Switcher -->
+				<!-- Theme Switcher -->
 				<div class="t-toggle" id="theme-toggle" role="group" aria-label="تبديل الثيم">
 					<button class="seg" [class.is-selected]="themeService.theme() === 'dark'"
 						(click)="themeService.setTheme('dark')" type="button"

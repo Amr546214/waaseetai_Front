@@ -58,8 +58,11 @@ export class SignContract {
 	chatMessages = signal<{ text: string, isMe: boolean }[]>([]);
 	termInput = '';
 
-	showAiExtract = signal<boolean>(false);
-	aiExtractText = signal<string>('');
+	// Initials of the other contract party, derived from the real name loaded
+	// from the offers API (replaces hardcoded "نو" initials).
+	counterpartyInitials = computed<string>(() =>
+		this.providerName().split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2)
+	);
 
 	constructor() {
 		const nav = this.router.getCurrentNavigation();
@@ -154,11 +157,5 @@ export class SignContract {
 		if (!this.termInput.trim()) return;
 		this.termInput = '';
 		this.displayToast('لا يمكن تعديل العقد من هذه الشاشة. اطلب التعديل عبر غرفة التفاوض قبل التوقيع.');
-	}
-
-	approveTerm() {
-		this.showAiExtract.set(false);
-		this.closeTermsModal();
-		this.displayToast('لم يتم تغيير العقد. يجب توثيق التعديل عبر التفاوض وإصدار نسخة عقد جديدة.');
 	}
 }

@@ -63,13 +63,16 @@
   </div>
   
   <div class="od-card">
+    <!-- Clause 1 ("نطاق العمل") used to show fixed sample text ("تصميم هوية بصرية
+         متكاملة...") as if it were this contract's scope. GET /provider/offers returns
+         no scope/description field, so the sample clause was removed rather than
+         replaced with invented text (AI Cleanup Batch 1). -->
     <p class="od-desc">
-      <strong class="txt-white">1. نطاق العمل:</strong> تصميم هوية بصرية متكاملة (شعار + ألوان + خطوط + 3 تطبيقات).<br>
       <strong class="txt-white">2. المراحل والسداد:</strong> يحجز المبلغ كاملا في الضمان، ويفرج عنه على 3 مراحل بعد اعتماد كل تسليم.<br>
       <strong class="txt-white">3. التعديلات:</strong> تعديلات حسب الباقة والعقد وضمن النطاق المتفق عليه.<br>
       <strong class="txt-white">4. الضمان:</strong> 30 يوما بعد التسليم النهائي لإصلاح أي عيوب.<br>
       <strong class="txt-white">5. الملكية الفكرية:</strong> تنتقل ملكية التصاميم للطالب بعد السداد الكامل.<br>
-      <strong class="txt-white">6. فض النزاع:</strong> عبر طبقة الذكاء أولا ثم الدعم البشري وفق سياسة الموقع.
+      <strong class="txt-white">6. فض النزاع:</strong> عبر الدعم البشري وفق سياسة الموقع.
     </p>
   </div>
 
@@ -125,19 +128,22 @@
       <div class="modal-content" style="width:100%;max-width:520px;background:rgba(11,20,55,.97);border:1px solid rgba(43,127,255,.26);border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.6);display:flex;flex-direction:column;max-height:88vh;overflow:hidden">
         <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:11px">
           <div style="position:relative;flex-shrink:0">
-            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.16),rgba(43,127,255,.12));border:2.5px solid #2ECC8A;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900" class="txt-green-br">نو</div>
-            <div style="position:absolute;bottom:-2px;right:-2px;width:15px;height:15px;border-radius:50%;background:#2ECC8A;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;border:2px solid rgba(11,20,55,.97)" class="txt-navy">9</div>
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(43,212,199,.16),rgba(43,127,255,.12));border:2.5px solid #2ECC8A;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900" class="txt-green-br">{{ counterpartyInitials() }}</div>
+            <!-- A hardcoded "9" badge used to sit here; the offers API exposes no
+                 unread/message count, so it was removed (AI Cleanup Batch 1). -->
           </div>
           <div style="flex:1">
             <div id="terms-t" style="font-size:15px;font-weight:900" class="txt-white">تفاوض بنود العقد مع {{ providerName() }}</div>
-            <div style="font-size:11px" class="txt-muted">الذكاء يراقب المحادثة ويستخلص البنود المتفق عليها</div>
+            <!-- The former "AI monitors the chat and extracts agreed terms" subtitle was
+                 removed: no such AI exists (AI Cleanup Batch 1). -->
           </div>
           <button type="button" (click)="closeTermsModal()" style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px" class="txt-slate">×</button>
         </div>
         
         <div id="terms-chat" style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px;min-height:240px">
-          <div style="align-self:flex-start;max-width:80%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px 12px 12px 3px;padding:9px 13px;font-size:13px;line-height:1.6" class="txt-slate">أهلا، أي بند ترغب بتعديله قبل التوقيع؟<div style="font-size:10px;margin-top:3px" class="txt-muted">{{ providerName() }}</div></div>
-          
+          <!-- A hardcoded greeting attributed to the other party by name used to be shown
+               here although that person never sent it (AI Cleanup Batch 1). -->
+
           @for (msg of chatMessages(); track $index) {
             <div [style]="msg.isMe ? 'align-self:flex-end;max-width:80%;background:linear-gradient(135deg,rgba(43,212,199,.16),rgba(43,127,255,.12));border:1px solid rgba(43,212,199,.24);border-radius:12px 12px 3px 12px;padding:9px 13px;font-size:13px;color:#fff;line-height:1.6' : 'align-self:flex-start;max-width:80%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px 12px 12px 3px;padding:9px 13px;font-size:13px;color:#A8B2D1;line-height:1.6'">
               {{ msg.text }}
@@ -147,19 +153,6 @@
             </div>
           }
         </div>
-
-        @if (showAiExtract()) {
-          <div style="margin:0 20px 12px;padding:12px 14px;background:linear-gradient(135deg,rgba(123,47,190,.10),rgba(43,127,255,.06));border:1px solid rgba(123,47,190,.22);border-radius:12px">
-            <div style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;margin-bottom:8px" class="txt-purple">
-              <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>استخلص الذكاء البند المتفق عليه
-            </div>
-            <div style="font-size:12.5px;line-height:1.6;margin-bottom:10px" [innerHTML]="aiExtractText()" class="txt-white"></div>
-            <div style="display:flex;gap:8px">
-              <button type="button" (click)="approveTerm()" style="flex:1;padding:9px;border-radius:8px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit" class="txt-navy">موافق، سجله بالعقد</button>
-              <button type="button" (click)="showAiExtract.set(false)" style="padding:9px 14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" class="txt-slate">مواصلة النقاش</button>
-            </div>
-          </div>
-        }
 
         <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:9px">
           <input type="text" [(ngModel)]="termInput" placeholder="اكتب اقتراحك للبند" style="flex:1;padding:11px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;font-family:inherit;font-size:14px;outline:none" (keydown.enter)="sendTermMsg()" class="txt-white">
