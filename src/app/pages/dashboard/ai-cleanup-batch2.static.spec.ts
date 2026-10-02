@@ -308,3 +308,25 @@ describe('AI Cleanup Batch 2 — no locally computed AI confidence/review claims
 		expect(offenders).toEqual([]);
 	});
 });
+
+describe('AI Cleanup Batch 2 — bio suggestion stays disabled while the backend answers AI_FEATURE_UNAVAILABLE', () => {
+	const setupHtml = readSrc('provider-overview/profile/profile-setup/profile-setup.html');
+	const setupTs = readSrc('provider-overview/profile/profile-setup/profile-setup.ts');
+	const profileSvc = readFileSync(join(process.cwd(), 'src/app/core/services/provider-profile.service.ts'), 'utf8');
+
+	it('the bio AI button is disabled, has no click handler and says it is unavailable', () => {
+		const btn = /<button[^>]*data-testid="bio-suggest-disabled"[^>]*>/.exec(setupHtml)?.[0] ?? '';
+		expect(btn).toContain(' disabled');
+		expect(btn).not.toContain('(click)');
+		expect(setupHtml).toContain('اقتراح النبذة غير متاح حاليًا');
+	});
+
+	it('nothing in the profile setup page or service can call suggest-bio', () => {
+		for (const src of [setupHtml, setupTs, profileSvc]) {
+			expect(src).not.toContain('suggest-bio');
+			expect(src).not.toContain('suggestBio');
+			expect(src).not.toContain('applyBioSuggestion');
+		}
+		expect(setupHtml).not.toContain('bio-preview');
+	});
+});

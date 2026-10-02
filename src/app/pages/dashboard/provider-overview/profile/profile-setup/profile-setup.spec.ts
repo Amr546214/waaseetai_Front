@@ -63,56 +63,19 @@ describe('provider setup AI suggestions', () => {
     expect(text).toContain('أديت 8 من أصل 10');
   });
 
-  it('requests bio once, displays loading, then previews without overwriting or saving', () => {
-    component.suggestBio();
-    component.suggestBio();
+  it('bio suggestion is disabled with an honest message and never calls the backend', () => {
     fixture.detectChanges();
-    expect(component.isSuggestingBio()).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('جاري إنشاء الاقتراح');
-    const req = request(http, 'bio');
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ jobTitle: 'مطور مواقع', mainSpecialty: undefined, experienceRange: undefined, existingSkills: ['HTML'] });
-    expect(req.request.body.userId).toBeUndefined();
-    req.flush({ success: true, data: { suggestedBio: 'أقدم خدمات تطوير المواقع.' } });
-    fixture.detectChanges();
-    expect(component.isSuggestingBio()).toBe(false);
-    expect(fixture.nativeElement.querySelector('[data-testid="bio-preview"]').textContent).toContain('أقدم خدمات تطوير المواقع.');
-    expect(component.setupForm.get('profData.bio')?.value).toBe('نبذتي الحالية');
-    expect(save).not.toHaveBeenCalled();
-  });
-
-  it('applies bio only to the local form via the rendered apply button', () => {
-    component.suggestBio();
-    request(http, 'bio').flush({ success: true, data: { suggestedBio: 'نبذة جديدة' } });
-    fixture.detectChanges();
-    fixture.nativeElement.querySelector('[data-testid="bio-preview"] button').click();
-    expect(component.setupForm.get('profData.bio')?.value).toBe('نبذة جديدة');
-    expect(component.suggestedBio()).toBeNull();
-    expect(save).not.toHaveBeenCalled();
-  });
-
-  it('dismisses preview and allows regeneration without changing bio', () => {
-    component.suggestBio();
-    request(http, 'bio').flush({ success: true, data: { suggestedBio: 'اقتراح أول' } });
-    component.dismissBioSuggestion();
-    expect(component.suggestedBio()).toBeNull();
-    component.suggestBio();
-    request(http, 'bio').flush({ success: true, data: { suggestedBio: 'اقتراح آخر' } });
-    expect(component.suggestedBio()).toBe('اقتراح آخر');
-    expect(component.setupForm.get('profData.bio')?.value).toBe('نبذتي الحالية');
-  });
-
-  it('Gemini failure clears preview, releases loading and never fabricates template content', () => {
-    component.suggestedBio.set('اقتراح قديم');
-    component.suggestBio();
-    request(http, 'bio').flush({}, { status: 503, statusText: 'Unavailable' });
-    fixture.detectChanges();
-    expect(component.suggestedBio()).toBeNull();
-    expect(component.isSuggestingBio()).toBe(false);
-    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('تعذر إنشاء اقتراح بالذكاء الاصطناعي');
+    const btn = fixture.nativeElement.querySelector('[data-testid="bio-suggest-disabled"]') as HTMLButtonElement;
+    expect(btn).not.toBeNull();
+    expect(btn.disabled).toBe(true);
+    expect(btn.textContent).toContain('اقتراح النبذة غير متاح حاليًا');
+    btn.click();
+    http.expectNone((r) => r.url.includes('suggest-bio'));
     expect(fixture.nativeElement.querySelector('[data-testid="bio-preview"]')).toBeNull();
+    // manual bio editing is untouched
     expect(component.setupForm.get('profData.bio')?.value).toBe('نبذتي الحالية');
-    expect(fixture.nativeElement.textContent).not.toContain('اقتراح نموذج نبذة');
+    component.setupForm.get('profData.bio')?.setValue('نبذة مكتوبة يدويًا');
+    expect(component.setupForm.get('profData.bio')?.value).toBe('نبذة مكتوبة يدويًا');
   });
 
   it('requests skills from the visible button, guards double submission and shows separate suggestions', () => {

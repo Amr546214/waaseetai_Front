@@ -106,12 +106,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	avatarUrl = signal<string>('');
 	skillsList = signal<string[]>([]);
 	skillInput = '';
-	isSuggestingBio = signal<boolean>(false);
 	isSuggestingSkills = signal<boolean>(false);
 	notifChannels = signal<string[]>(['email']);
 	aiSuggestedSkills = signal<string[]>([]);
-	suggestedBio = signal<string | null>(null);
-	bioSuggestionError = signal('');
 	skillsSuggestionError = signal('');
 	skillsSuggestionReady = signal(false);
 
@@ -466,36 +463,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			existingSkills: this.skillsList()
 		};
 	}
-
-	suggestBio() {
-		if (this.isSuggestingBio()) return;
-		this.isSuggestingBio.set(true);
-		this.suggestedBio.set(null);
-		this.bioSuggestionError.set('');
-		this.providerProfileService.suggestBio(this.suggestionInput()).pipe(
-			takeUntilDestroyed(this.destroyRef), finalize(() => this.isSuggestingBio.set(false))
-		).subscribe({
-			next: res => {
-				if (res.success && res.data?.suggestedBio) this.suggestedBio.set(res.data.suggestedBio);
-				else this.bioSuggestionError.set('تعذر إنشاء اقتراح بالذكاء الاصطناعي');
-			},
-			error: (err) => this.bioSuggestionError.set(
-				err?.error?.code === 'AI_FEATURE_UNAVAILABLE' && err?.error?.message
-					? err.error.message
-					: 'تعذر إنشاء اقتراح بالذكاء الاصطناعي. يمكنك المحاولة مجدداً أو كتابة النبذة يدوياً.'
-			)
-		});
-	}
-
-	applyBioSuggestion() {
-		if (!this.suggestedBio()) return;
-		const control = this.setupForm.get('profData.bio');
-		control?.setValue(this.suggestedBio());
-		control?.markAsDirty();
-		this.dismissBioSuggestion();
-	}
-
-	dismissBioSuggestion() { this.suggestedBio.set(null); }
 
 	suggestSkills() {
 		if (this.isSuggestingSkills()) return;
