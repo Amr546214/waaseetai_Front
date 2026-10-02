@@ -6,7 +6,7 @@
 // to still be present, so the cleanup cannot silently drop real data.
 // Same raw-source approach as ai-cleanup-batch1.static.spec.ts.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 function readSrc(relativePath: string): string {
@@ -242,5 +242,19 @@ describe('AI Cleanup Batch 2 — single score not shown as six independent metri
 		expect(marketerDataHtml).not.toContain('32%');
 		expect(marketerDataHtml).not.toContain('useAiChannelSuggestion');
 		expect(marketerDataTs).not.toContain('useAiChannelSuggestion');
+	});
+});
+
+describe('AI Cleanup Batch 2 — no hardcoded AI accuracy badges', () => {
+	const appRoot = join(process.cwd(), 'src/app');
+	const htmlFiles = (dir: string): string[] =>
+		readdirSync(dir).flatMap((n) => {
+			const p = join(dir, n);
+			return statSync(p).isDirectory() ? htmlFiles(p) : p.endsWith('.html') ? [p] : [];
+		});
+
+	it('no template shows a literal "دقة NN%" badge', () => {
+		const offenders = htmlFiles(appRoot).filter((f) => /دقة\s*\d+(\.\d+)?\s*%/.test(readFileSync(f, 'utf8')));
+		expect(offenders).toEqual([]);
 	});
 });
