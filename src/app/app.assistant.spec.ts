@@ -55,6 +55,7 @@ describe('App-level assistant (single floating Bebo)', () => {
 					{ path: 'auth', component: Page, data: { hideAssistant: true }, children: [{ path: 'login', component: Page }] },
 					{ path: 'error/500', component: Page, data: { type: '500', hideAssistant: true } },
 					{ path: 'client-overview', component: Page },
+					{ path: 'wizard', component: Page, data: { assistantLift: true } },
 					{ path: '**', component: Page, data: { hideAssistant: true } },
 				]),
 				{ provide: AuthStore, useValue: authStub },
@@ -124,6 +125,20 @@ describe('App-level assistant (single floating Bebo)', () => {
 			await go('/marketplace');
 			await mountWidget();
 			expect(el().querySelectorAll('app-assistant-widget').length).toBe(1);
+		});
+	});
+
+	describe('pages with a fixed bottom action bar (wizards)', () => {
+		const lift = () => (el().querySelector('app-assistant-widget cute-robot') as HTMLElement).getAttribute('floor-offset');
+
+		it('floats the robot above the footer there, and settles back on other pages', async () => {
+			await go('/wizard');
+			await mountWidget();
+			expect(lift()).toBe('96');
+			expect((el().querySelector('app-assistant-widget') as HTMLElement).style.insetBlockEnd).toBe('108px');
+			await go('/marketplace');
+			expect(lift()).toBe('0');
+			expect((el().querySelector('app-assistant-widget') as HTMLElement).style.insetBlockEnd).toBe('12px');
 		});
 	});
 

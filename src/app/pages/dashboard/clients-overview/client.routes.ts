@@ -9,7 +9,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'create-request',
 		loadComponent: () => import('./create-request/create-request').then(m => m.CreateRequest),
-		data: { title: "Create New Request" }
+		data: { title: "Create New Request", assistantLift: true }
 	},
 	{
 		path: 'my-requests',
@@ -19,7 +19,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'my-requests/:id',
 		loadComponent: () => import('./my-request/request-details/request-details').then(m => m.RequestDetails),
-		data: { title: "Request Details" }
+		data: { title: "Request Details", assistantLift: true }
 	},
 	{
 		path: 'my-requests/:id/contract',
@@ -29,7 +29,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'my-requests/:id/deposit',
 		loadComponent: () => import('./my-request/escrow-deposit/escrow-deposit').then(m => m.EscrowDeposit),
-		data: { title: "إيداع الضمان" }
+		data: { title: "إيداع الضمان", assistantLift: true }
 	},
 	// projects
 	{

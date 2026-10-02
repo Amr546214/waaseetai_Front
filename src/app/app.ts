@@ -6,7 +6,7 @@ import { AsyncPipe, NgIf } from '@angular/common';
 import { AuthStore } from './core/store/auth.store';
 import { ConfirmModalComponent } from './sheards/confirm-modal/confirm-modal.component';
 import { AssistantWidgetComponent } from './sheards/assistant-widget/assistant-widget';
-import { isAssistantHidden } from './sheards/assistant-widget/assistant-visibility';
+import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/assistant-visibility';
 
 @Component({
 	selector: 'app-root',
@@ -34,7 +34,7 @@ import { isAssistantHidden } from './sheards/assistant-widget/assistant-visibili
 		     Lazy-loaded after the page is idle; browser-only. -->
 		@if ((authStore.isInitialized$ | async) && !assistantHidden()) {
 			@defer (on idle) {
-				<app-assistant-widget />
+				<app-assistant-widget [lift]="assistantLift()" />
 			}
 		}
 	`,
@@ -45,15 +45,17 @@ export class App implements OnInit {
 	private readonly router = inject(Router);
 	/** True on routes that opt out of the floating assistant (`data.hideAssistant`). */
 	readonly assistantHidden = signal(false);
+	/** Extra px the assistant floats above the viewport floor on pages with a bottom action bar. */
+	readonly assistantLift = signal(0);
 
 	constructor() {
 		this.router.events
 			.pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed(inject(DestroyRef)))
-			.subscribe(() => this.assistantHidden.set(isAssistantHidden(this.router.routerState.snapshot.root)));
+			.subscribe(() => this.syncAssistantRoute());
 	}
 
 	ngOnInit() {
-		this.assistantHidden.set(isAssistantHidden(this.router.routerState.snapshot.root));
+		this.syncAssistantRoute();
 		this.authStore.isInitialized$.subscribe(isInit => {
 			if (isInit) {
 				// Wait 500ms for the CSS fade-out transition to complete before removing from DOM
@@ -62,5 +64,11 @@ export class App implements OnInit {
 				}, 500);
 			}
 		});
+	}
+
+	private syncAssistantRoute(): void {
+		const root = this.router.routerState.snapshot.root;
+		this.assistantHidden.set(isAssistantHidden(root));
+		this.assistantLift.set(assistantLiftPx(root));
 	}
 }
