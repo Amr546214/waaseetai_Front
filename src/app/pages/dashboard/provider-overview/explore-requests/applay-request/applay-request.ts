@@ -11,6 +11,7 @@ import { Step1General } from './components/step1-general/step1-general';
 import { Step2Pricing } from './components/step2-pricing/step2-pricing';
 import { Step3Review } from './components/step3-review/step3-review';
 import { Step4Success } from './components/step4-success/step4-success';
+import { aiSuggestInputError } from './ai-suggest-input';
 
 export interface Milestone {
 	id: string;
@@ -269,8 +270,13 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	useAISuggest() {
 		if (this.isFetchingAiSuggest()) return;
 		const current = this.proposal();
-		if (!this.reqId() || (!current.title?.trim() && !current.message?.trim())) {
-			alert('اكتب عنوان العرض أو نصه أولاً ليتمكن الذكاء الاصطناعي من تحسينه.');
+		if (!this.reqId()) {
+			alert('معرّف المشروع غير موجود');
+			return;
+		}
+		const inputError = aiSuggestInputError(current.title, current.message);
+		if (inputError) {
+			alert(inputError);
 			return;
 		}
 		this.isFetchingAiSuggest.set(true);
