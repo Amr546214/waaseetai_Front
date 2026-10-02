@@ -869,7 +869,7 @@
 							[ngClass]="quizResult()?.passed ? 'text-[#2BD4C7]' : 'text-[#FF6B6B]'">{{
 							quizResult()?.scorePercentage }}%</div>
 					</div>
-					<div
+					<div *ngIf="quizResult()?.correctAnswers !== null && quizResult()?.correctAnswers !== undefined"
 						class="p-4 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.1)] rounded-2xl text-center">
 						<div class="text-xs text-[var(--txt-3)] font-bold mb-1">الإجابات الصحيحة</div>
 						<div class="text-2xl font-black text-white">{{ quizResult()?.correctAnswers }} <span

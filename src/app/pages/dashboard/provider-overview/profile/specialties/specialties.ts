@@ -126,7 +126,9 @@ export class Specialties implements OnInit, OnDestroy {
 	quizResult = signal<{
 		passed: boolean;
 		scorePercentage: number;
-		correctAnswers: number;
+		// Only present when the backend really computed it (legacy attempts);
+		// WaseetAI-graded attempts report a score only. Never derived from %.
+		correctAnswers: number | null;
 		totalQuestions: number;
 		status: string;
 		badgeGrantedAt?: string;
@@ -258,14 +260,19 @@ export class Specialties implements OnInit, OnDestroy {
 	// sets quizResult from a socket-delivered outcome.
 	private applyEvaluationResult(res: any) {
 		const totalQ = this.quizQuestions().length || 20;
-		const scoreVal = res.score !== undefined ? res.score : (res.scorePercentage || 80);
+		const scoreVal = Number.isFinite(res?.score) ? res.score : (Number.isFinite(res?.scorePercentage) ? res.scorePercentage : null);
+		if (scoreVal === null) {
+			// No real score arrived: never invent one.
+			this.applyFallbackResults();
+			return;
+		}
 		this.quizResult.set({
 			passed: Boolean(res.isPassed),
 			scorePercentage: scoreVal,
-			correctAnswers: Math.round((scoreVal / 100) * totalQ),
+			correctAnswers: Number.isFinite(res.correctAnswers) ? res.correctAnswers : null,
 			totalQuestions: totalQ,
 			status: res.status || (res.isPassed ? 'APPROVED' : 'FAILED'),
-			badgeGrantedAt: res.completedAt || new Date().toISOString(),
+			badgeGrantedAt: res.completedAt,
 			feedbackAr: res.feedbackAr,
 			strengths: res.strengths || [],
 			weaknesses: res.weaknesses || [],
@@ -1122,15 +1129,21 @@ export class Specialties implements OnInit, OnDestroy {
 				this.submissionSettledForAttempt = attemptId;
 				if (res.success && res.data) {
 					const d = res.data;
-					const totalQ = this.quizQuestions().length || 5;
-					const scoreVal = d.score !== undefined ? d.score : 80;
+					const totalQ = this.quizQuestions().length || 20;
+					if (!Number.isFinite(d.score)) {
+						// No real score arrived: never invent one.
+						this.applyFallbackResults();
+						this.finishSubmission();
+						return;
+					}
+					const scoreVal = d.score;
 					this.quizResult.set({
 						passed: Boolean(d.isPassed),
 						scorePercentage: scoreVal,
-						correctAnswers: Math.round((scoreVal / 100) * totalQ),
+						correctAnswers: Number.isFinite(d.correctAnswers) ? d.correctAnswers : null,
 						totalQuestions: totalQ,
 						status: d.status || (d.isPassed ? 'APPROVED' : 'FAILED'),
-						badgeGrantedAt: d.completedAt || new Date().toISOString(),
+						badgeGrantedAt: d.completedAt,
 						feedbackAr: d.feedbackAr,
 						strengths: d.strengths || [],
 						weaknesses: d.weaknesses || [],
@@ -1244,24 +1257,15 @@ export class Specialties implements OnInit, OnDestroy {
 		}, 60);
 	}
 
-	// Honest failure — this used to fabricate a guaranteed-passing 80% score
-	// (and even marked answers as "correct" purely by question index,
-	// ignoring what the user actually selected) whenever both the socket and
-	// REST submission paths failed. No real grading ever happened in that
-	// case, so it must never report a pass, a score, or a badge. Reuses the
-	// existing "did not pass" UI branch — no new UI was introduced.
+	// A response without a real score is a SERVICE/DATA error, not a result:
+	// it must never be shown as the user failing the assessment, never carry a
+	// score or badge, and never alter the user's approval (nothing here writes
+	// anything). It reuses the existing assessment error state with retry.
+	// (This used to fabricate a guaranteed-passing 80% score, and later a
+	// 0% "did not pass" result — both were wrong for a missing score.)
 	private applyFallbackResults() {
-		const total = this.quizQuestions().length || 20;
-
-		this.quizResult.set({
-			passed: false,
-			scorePercentage: 0,
-			correctAnswers: 0,
-			totalQuestions: total,
-			status: 'SUBMISSION_FAILED',
-			detailedResults: [],
-			message: 'تعذر تسليم واحتساب نتيجة التقييم حالياً بسبب انقطاع الاتصال بالخادم. لم يتم احتساب أي درجة أو اعتماد تخصصك؛ يرجى إعادة المحاولة.'
-		});
+		this.quizResult.set(null);
+		this.quizGenerationError.set('تعذر استلام نتيجة التقييم من الخدمة. لم يتم احتساب أي درجة، ولم يتأثر اعتماد تخصصك. يرجى إعادة المحاولة.');
 	}
 
 	ngOnDestroy(): void {

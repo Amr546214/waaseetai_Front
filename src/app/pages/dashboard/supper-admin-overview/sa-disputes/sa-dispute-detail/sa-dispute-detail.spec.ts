@@ -13,8 +13,8 @@ import { Dispute } from '../../../../../core/models/dispute.model';
 // formerly the in-list modal). These tests prove the panel is
 // purely additive: it never touches the manual resolve/reject state, never
 // pre-fills resolutionText/resolutionNote, and never renders a
-// verdict/fault/confidence-style field (only caseSummary/timelineSummary/
-// evidenceSummary/evidenceGaps/suggestedQuestions).
+// verdict/fault/confidence-style field (only summary/clientPerspective/
+// providerPerspective; the upstream recommendation is never shown).
 
 function makeDispute(overrides: Partial<Dispute> = {}): Dispute {
   return {
@@ -35,11 +35,9 @@ function makeDispute(overrides: Partial<Dispute> = {}): Dispute {
 
 function makeAiSummary(overrides: Record<string, any> = {}) {
   return {
-    caseSummary: 'ملخص محايد للحالة بناءً على البيانات المتاحة.',
-    timelineSummary: 'تسلسل زمني موجز حتى فتح النزاع.',
-    evidenceSummary: ['دليل واحد مرفق من الطرف الذي فتح النزاع.'],
-    evidenceGaps: ['لا يوجد إثبات واضح لتاريخ التسليم.'],
-    suggestedQuestions: ['هل تم التواصل بخصوص التأخير؟'],
+    summary: 'ملخص محايد للحالة بناءً على البيانات المتاحة.',
+    clientPerspective: 'وجهة نظر العميل حسب ما سُجّل.',
+    providerPerspective: 'وجهة نظر مقدم الخدمة حسب ما سُجّل.',
     ...overrides,
   };
 }
@@ -94,7 +92,8 @@ describe('SaDisputeDetail — advisory AI summary panel', () => {
 
     const text = harness.routeNativeElement!.textContent as string;
     expect(text).toContain('ملخص محايد للحالة بناءً على البيانات المتاحة.');
-    expect(text).toContain('هل تم التواصل بخصوص التأخير؟');
+    expect(text).toContain('وجهة نظر العميل حسب ما سُجّل.');
+    expect(text).toContain('وجهة نظر مقدم الخدمة حسب ما سُجّل.');
   });
 
   it('shows an honest error on failure, never a fabricated summary', async () => {
@@ -106,7 +105,7 @@ describe('SaDisputeDetail — advisory AI summary panel', () => {
   });
 
   it('never renders a verdict/fault/confidence-style field — only the advisory shape', async () => {
-    await setup(() => of({ success: true, data: makeAiSummary() }));
+    await setup(() => of({ success: true, data: makeAiSummary({ recommendation: 'تسوية مقترحة' }) }));
     component.requestAiSummary();
     harness.detectChanges();
 
@@ -115,6 +114,7 @@ describe('SaDisputeDetail — advisory AI summary panel', () => {
     expect(text).not.toContain('القرار النهائي: ');
     expect(text).not.toContain('الفائز');
     expect(text).not.toContain('confidence');
+    expect(text).not.toContain('تسوية مقترحة');
   });
 
   it('does not pre-fill the manual resolution form from the AI summary', async () => {

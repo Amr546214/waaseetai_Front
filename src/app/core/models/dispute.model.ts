@@ -69,12 +69,12 @@ export type ResolveDisputeApiResponse = ApiResponse<Dispute>;
 // Advisory-only AI summary (Implementation Batch 2, Part B). Never a
 // verdict/fault/money field — the human admin resolve/reject flow above is
 // completely separate and is never pre-filled from this.
+// Served by WaseetAI. The upstream `recommendation` is intentionally absent:
+// the backend drops it and the UI never shows or acts on it.
 export interface DisputeAiSummary {
-  caseSummary: string;
-  timelineSummary: string;
-  evidenceSummary: string[];
-  evidenceGaps: string[];
-  suggestedQuestions: string[];
+  summary: string;
+  clientPerspective: string;
+  providerPerspective: string;
 }
 
 export type DisputeAiSummaryApiResponse = ApiResponse<DisputeAiSummary>;

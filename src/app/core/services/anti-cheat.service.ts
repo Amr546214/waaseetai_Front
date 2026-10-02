@@ -30,7 +30,7 @@ export class AntiCheatService implements OnDestroy {
 
   // Event subjects for component reactive overlays and streaming
   public questionStreamed$ = new Subject<StreamedQuestionPayload>();
-  public assessmentReady$ = new Subject<{ attemptId: string; totalQuestions: number; timeLimitMinutes: number; generationSource?: 'GEMINI' | 'STATIC_FALLBACK' }>();
+  public assessmentReady$ = new Subject<{ attemptId: string; totalQuestions: number; timeLimitMinutes: number; generationSource?: string }>();
   public evaluationComplete$ = new Subject<any>();
   // Batch 3D-2: real backend failures for the primary assessment socket flow
   // (auth/rate-limit/ownership/generation/submission exceptions) — previously

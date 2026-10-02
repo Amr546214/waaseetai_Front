@@ -289,7 +289,12 @@ export class New implements OnInit, OnDestroy {
 			next: (res) => {
 				this.isAnalyzing.set(false);
 				if (res && res.success && res.data) {
-					this.evaluationResult.set(res.data.evaluation);
+					if (res.data.evaluation) {
+						this.evaluationResult.set(res.data.evaluation);
+					} else {
+						// Sample stored for manual review; no AI evaluation was produced.
+						this.hasError.set(res.data.aiEvaluation?.message || res.message || 'تم استلام النموذج وسيُراجع يدوياً؛ التقييم الآلي متوقف مؤقتاً.');
+					}
 				} else {
 					this.hasError.set(res.message || 'تعذر إكمال فحص الذكاء الاصطناعي');
 				}

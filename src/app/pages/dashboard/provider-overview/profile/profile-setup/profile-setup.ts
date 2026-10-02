@@ -479,7 +479,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				if (res.success && res.data?.suggestedBio) this.suggestedBio.set(res.data.suggestedBio);
 				else this.bioSuggestionError.set('تعذر إنشاء اقتراح بالذكاء الاصطناعي');
 			},
-			error: () => this.bioSuggestionError.set('تعذر إنشاء اقتراح بالذكاء الاصطناعي. يمكنك المحاولة مجدداً أو كتابة النبذة يدوياً.')
+			error: (err) => this.bioSuggestionError.set(
+				err?.error?.code === 'AI_FEATURE_UNAVAILABLE' && err?.error?.message
+					? err.error.message
+					: 'تعذر إنشاء اقتراح بالذكاء الاصطناعي. يمكنك المحاولة مجدداً أو كتابة النبذة يدوياً.'
+			)
 		});
 	}
 
