@@ -37,6 +37,32 @@ describe('provider setup AI suggestions', () => {
   afterEach(() => { http.verify(); fixture.destroy(); });
   const request = (http: HttpTestingController, kind: string) => http.expectOne(req => req.url.endsWith(`/provider/profile/suggest-${kind}`));
 
+  it('setup-test result without a correct-answers count shows the score only — no invented correct/wrong boxes', () => {
+    const svc = TestBed.inject(SetupTestService) as any;
+    svc.result.set({ score: 73.3, total: 15, message: 'تم' });
+    component.currentStep.set(7);
+    component.isTestStarted.set(true);
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('73.3%');
+    expect(text).toContain('في اختبار من 15 أسئلة');
+    expect(text).not.toContain('إجابات صحيحة');
+    expect(text).not.toContain('إجابات خاطئة');
+    expect(text).not.toContain('بشكل صحيح');
+  });
+
+  it('setup-test result that carries a real correct count still shows it', () => {
+    const svc = TestBed.inject(SetupTestService) as any;
+    svc.result.set({ score: 80, total: 10, correct: 8, message: 'تم' });
+    component.currentStep.set(7);
+    component.isTestStarted.set(true);
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('إجابات صحيحة');
+    expect(text).toContain('إجابات خاطئة');
+    expect(text).toContain('أديت 8 من أصل 10');
+  });
+
   it('requests bio once, displays loading, then previews without overwriting or saving', () => {
     component.suggestBio();
     component.suggestBio();

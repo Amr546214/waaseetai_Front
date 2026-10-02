@@ -24,7 +24,7 @@ describe('ProviderOverview', () => {
 
 // AI Cleanup Batch 5 — the "طلبات مطابقة لتخصصاتك" widget is fed by the real
 // matching engine (GET /provider/statistics → ai-matching-engine.service.ts).
-// A GEMINI item carries a genuine AI score; the DETERMINISTIC rule-engine
+// An AI-sourced item carries a genuine AI score; the DETERMINISTIC rule-engine
 // fallback carries aiMatchScore = null and must show no percentage, no "(AI)"
 // claim and no "أفضل مطابقة" superlative.
 import { provideRouter } from '@angular/router';
@@ -54,7 +54,7 @@ describe('ProviderOverview — matching widget truthfulness (AI Cleanup Batch 5)
   const item = { id: 'p1', title: 'مشروع', specialty: 'تطوير الويب', budget: 1000, matchReasons: ['سبب'], createdAt: new Date().toISOString() };
 
   it('a real GEMINI score is displayed exactly, labeled as AI', () => {
-    const host = render([{ ...item, aiMatchScore: 87, generationSource: 'GEMINI' }]);
+    const host = render([{ ...item, aiMatchScore: 87, generationSource: 'WASEET_AI' }]);
     expect(host.querySelector('.offer-ai-match')?.textContent?.replace(/\s+/g, ' ').trim()).toBe('توافق AI • 87%');
     expect(host.textContent).toContain('طلبات مطابقة لتخصصاتك (AI)');
   });
@@ -72,10 +72,19 @@ describe('ProviderOverview — matching widget truthfulness (AI Cleanup Batch 5)
     expect(text).toContain('دون AI');
   });
 
+  it('a percentage the backend really provides for the DETERMINISTIC source is shown with a plain "rules, no AI" label (no AI wording or icon)', () => {
+    const host = render([{ ...item, aiMatchScore: 76, generationSource: 'DETERMINISTIC' }]);
+    const badge = host.querySelector('.offer-ai-match');
+    expect(badge?.textContent?.replace(/\s+/g, ' ').trim()).toBe('نسبة مطابقة (قواعد ثابتة، دون AI) • 76%');
+    expect(badge?.querySelector('svg')).toBeNull();
+    expect(host.textContent).not.toContain('(AI)');
+    expect(host.textContent).not.toContain('توافق AI');
+  });
+
   it('keeps the backend order exactly', () => {
     const host = render([
-      { ...item, id: 'a', title: 'أول', aiMatchScore: 70, generationSource: 'GEMINI' },
-      { ...item, id: 'b', title: 'ثاني', aiMatchScore: 95, generationSource: 'GEMINI' },
+      { ...item, id: 'a', title: 'أول', aiMatchScore: 70, generationSource: 'WASEET_AI' },
+      { ...item, id: 'b', title: 'ثاني', aiMatchScore: 95, generationSource: 'WASEET_AI' },
     ]);
     const names = Array.from(host.querySelectorAll('.offer-card .offer-name')).map(el => el.textContent?.trim().split(/\s+/)[0]);
     expect(names).toEqual(['أول', 'ثاني']);

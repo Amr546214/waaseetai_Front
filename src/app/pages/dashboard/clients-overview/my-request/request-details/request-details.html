@@ -390,18 +390,33 @@
 									d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
 							</svg>تقييم العرض · {{ offer.matchScore !== null ? offer.matchScore + '%' : 'غير متاح' }}
 						</div>
+						<!-- Price/duration fairness rows exist only for older proposals that stored
+						     them; proposals evaluated by WaseetAI carry no such judgement, so the
+						     rows are not rendered as "غير متاح" placeholders. -->
+						@if (offer.aiAnalysis.fairPrice || offer.aiAnalysis.priceNote) {
 						<div class="cmp2-row">
 							<div class="cmp2-k">السعر العادل</div>
 							<div class="cmp2-v">{{ offer.aiAnalysis.fairPrice || 'غير متاح' }}</div>
 							<div class="cmp2-note" [class.warn]="offer.aiAnalysis.priceNoteType === 'warn'">{{
 								offer.aiAnalysis.priceNote || 'غير متاح' }}</div>
 						</div>
+						}
+						@if (offer.aiAnalysis.fairDuration || offer.aiAnalysis.durationNote) {
 						<div class="cmp2-row">
 							<div class="cmp2-k">المدة العادلة</div>
 							<div class="cmp2-v">{{ offer.aiAnalysis.fairDuration || 'غير متاح' }}</div>
 							<div class="cmp2-note" [class.warn]="offer.aiAnalysis.durationNoteType === 'warn'">{{
 								offer.aiAnalysis.durationNote || 'غير متاح' }}</div>
 						</div>
+						}
+						@if (offer.aiAnalysis.qualitySummary) {
+						<div class="cmp2-row" data-testid="offer-quality-review">
+							<div class="cmp2-k">تقييم جودة العرض</div>
+							<div class="cmp2-v">{{ offer.aiAnalysis.qualityTag || '' }}</div>
+							<div class="cmp2-note">{{ offer.aiAnalysis.qualitySummary }}</div>
+							<div class="cmp2-note" style="opacity:.75;font-size:11px">يقيّم هذا التقييم نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع مشروعك ولا عدالة السعر مقارنة بميزانيتك.</div>
+						</div>
+						}
 					</div>
 				</div>
 				<div class="v1-verdict" [class.warn]="offer.aiAnalysis.verdictType === 'warn'">

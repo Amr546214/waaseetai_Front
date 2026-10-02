@@ -47,6 +47,9 @@ interface Offer {
 	// value — null (never a hardcoded phrase like "مطابق لتقديرات السوق")
 	// when the backend didn't return one. Templates show "غير متاح".
 	aiAnalysis: {
+		/** WaseetAI proposal-quality review (plan/price/days of the proposal only). */
+		qualityTag?: string | null;
+		qualitySummary?: string | null;
 		fairPrice: string | null;
 		priceNote: string | null;
 		priceNoteType: 'fair' | 'warn';
@@ -67,6 +70,15 @@ interface Offer {
 	encapsulation: ViewEncapsulation.None
 })
 export class RequestDetails implements OnInit {
+	/** Arabic label for the quality tag WaseetAI returns (English words); unknown tags are shown as received. */
+	private static readonly QUALITY_TAG_AR: Record<string, string> = {
+		excellent: 'ممتاز', strong: 'قوي', good: 'جيد', average: 'متوسط', acceptable: 'مقبول', weak: 'ضعيف', poor: 'ضعيف'
+	};
+	qualityTagAr(tag: string | null | undefined): string | null {
+		if (!tag) return null;
+		return RequestDetails.QUALITY_TAG_AR[String(tag).trim().toLowerCase()] ?? String(tag);
+	}
+
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private http = inject(HttpClient);
@@ -205,15 +217,19 @@ export class RequestDetails implements OnInit {
 								files: prop.attachments || [],
 								milestones: prop.milestones || [],
 								aiAnalysis: prop.aiFeedback ? {
+									qualityTag: this.qualityTagAr(prop.aiQualityTag),
+									qualitySummary: prop.aiQualitySummary || null,
 									fairPrice: prop.aiFeedback.fairPrice || prop.aiPriceTag || null,
 									priceNote: prop.aiFeedback.priceNote || prop.aiPriceTag || null,
 									priceNoteType: (prop.aiFeedback.priceNoteType || prop.aiPriceTag || '').includes('أعلى') ? 'warn' : 'fair',
 									fairDuration: prop.aiFeedback.fairDuration || null,
 									durationNote: prop.aiFeedback.durationNote || null,
 									durationNoteType: prop.aiFeedback.durationNoteType || 'fair',
-									verdict: prop.aiFeedback.verdict || prop.aiQualityTag || null,
+									verdict: prop.aiFeedback.verdict || this.qualityTagAr(prop.aiQualityTag) || null,
 									verdictType: prop.aiFeedback.verdictType || (prop.aiQualityTag ? 'fair' : 'warn')
 								} : {
+									qualityTag: this.qualityTagAr(prop.aiQualityTag),
+									qualitySummary: prop.aiQualitySummary || null,
 									// No hardcoded "مطابق لتقديرات السوق" / "مناسب لحجم العمل" /
 									// "العرض متوافق مع متطلبات المشروع" fallbacks — those asserted
 									// a specific AI verdict that was never actually computed.
@@ -225,7 +241,7 @@ export class RequestDetails implements OnInit {
 									fairDuration: null,
 									durationNote: null,
 									durationNoteType: 'fair',
-									verdict: prop.aiBadge || prop.aiQualityTag || null,
+									verdict: prop.aiBadge || this.qualityTagAr(prop.aiQualityTag) || null,
 									verdictType: prop.aiBadge || prop.aiQualityTag ? 'fair' : 'warn'
 								}
 							};
