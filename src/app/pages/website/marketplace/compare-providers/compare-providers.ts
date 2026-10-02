@@ -75,7 +75,13 @@ export class CompareProvidersComponent implements OnInit {
 	winnerId = computed(() => {
 		const list = this.providers();
 		if (!list.length) return null;
-		return [...list].sort((a, b) => b.aiScore - a.aiScore)[0]?.id || null;
+		// Batch 5: see compare-services.ts — no winner without a real score or
+		// on a tie (aiScore is 0 here when the provider has none).
+		const ranked = [...list].sort((a, b) => b.aiScore - a.aiScore);
+		const top = ranked[0]?.aiScore || 0;
+		if (top <= 0) return null;
+		if (ranked.length > 1 && ranked[1].aiScore === top) return null;
+		return ranked[0].id || null;
 	});
 
 	winner = computed(() => {

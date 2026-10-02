@@ -367,8 +367,10 @@ export class ApplayRequest implements OnInit, OnDestroy {
 						const specName = s.providerSpecialty?.specialty?.nameAr || s.providerSpecialty?.specialty?.name || 'تخصص معتمد';
 						const techList = Array.isArray(s.technologiesUsed) ? s.technologiesUsed : [];
 						const techStr = techList.length > 0 ? techList.slice(0, 3).join(' · ') : '';
-						const scoreStr = s.aiScore ? `اعتماد AI ${Math.round(s.aiScore)}%` : 'معتمد AI';
-						const metaParts = [specName, scoreStr];
+						// Batch 5: no "معتمد AI" claim when no real AI score exists.
+						const scoreStr = s.aiScore ? `اعتماد AI ${Math.round(s.aiScore)}%` : null;
+						const metaParts: string[] = [specName];
+						if (scoreStr) metaParts.push(scoreStr);
 						if (techStr) metaParts.push(techStr);
 
 						return {
@@ -377,7 +379,11 @@ export class ApplayRequest implements OnInit, OnDestroy {
 							meta: metaParts.join(' · '),
 							badge: s.status === 'AI_VERIFIED' || s.status === 'APPROVED' ? '✓' : 'AI',
 							gradient: gradients[idx % gradients.length],
-							isBestMatch: idx === 0 || (s.aiScore && s.aiScore >= 90),
+							// Batch 5: was `idx === 0 || ...` and rendered as "الأقرب
+							// للطلب" — no comparison against the request ever ran,
+							// so the first sample was simply declared the closest.
+							// Now flags only a real high stored AI accreditation score.
+							isBestMatch: typeof s.aiScore === 'number' && s.aiScore >= 90,
 							aiScore: s.aiScore,
 							status: s.status
 						};

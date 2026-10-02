@@ -60,9 +60,9 @@
 			</svg>
 		</div>
 		<div class="ai-disc-body">
-			<div class="ai-disc-lbl">وسيط AI - نظام الترتيب الذكي</div>
-			<p class="ai-disc-txt">نظام وسيط الذكي يرتّب لك الطلبات حسب توافقها مع تخصصك ويبرز أكثرها ملاءمةً <span
-					class="ai-disc-badge">مطابقة تخصص</span> - الإنسان يحتفظ بالقرار النهائي</p>
+			<div class="ai-disc-lbl">وسيط - ترتيب حسب التخصص</div>
+			<p class="ai-disc-txt">يرتّب وسيط الطلبات افتراضياً حسب تقاطعها مع تخصصاتك المسجلة ثم الأحدث (قواعد ثابتة، دون
+				تقييم AI) <span class="ai-disc-badge">مطابقة تخصص</span> - الإنسان يحتفظ بالقرار النهائي</p>
 		</div>
 	</div>
 
@@ -132,13 +132,14 @@
 						<circle cx="12" cy="21" r="1.5" />
 						<path
 							d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
-					</svg>تحليل التطابق</div>
-				<div class="rc-ai-pct">{{ req.aiScore }}%</div>
+					</svg>مؤشرات الطلب</div>
+				@if (req.relevanceLabel) {
+				<div class="rc-ai-row-sub teal-sub rc-relevance">{{ req.relevanceLabel }}</div>
+				}
 				<div class="rc-ai-row">
 					<div class="rc-ai-row-lbl">السعر المقترح</div>
 					<div class="rc-ai-row-val">{{ req.aiPriceRange }}</div>
-					<div class="rc-ai-row-sub" [class.teal-sub]="req.aiScore >= 90"
-						[class.orange-sub]="req.aiScore < 90">{{ req.aiPriceEval }}</div>
+					<div class="rc-ai-row-sub teal-sub">{{ req.aiPriceEval }}</div>
 				</div>
 				<div class="rc-ai-row">
 					<div class="rc-ai-row-lbl">المدة المقترحة</div>

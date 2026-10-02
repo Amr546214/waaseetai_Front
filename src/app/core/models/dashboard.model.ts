@@ -46,7 +46,8 @@ export interface DashboardStatsPayload {
     title: string;
     budget: number;
     specialty: string;
-    aiMatchScore: number;
+    // Batch 5: null — this /dashboard/stats list has no real score.
+    aiMatchScore: number | null;
     matchReasons?: string[];
     aiAnalysis?: string;
     deliveryDays?: number;

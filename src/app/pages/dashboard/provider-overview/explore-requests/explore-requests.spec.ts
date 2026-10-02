@@ -56,4 +56,71 @@ describe('ExploreRequests', () => {
 		expect(text).not.toContain('إدارة الإسناد');
 		expect(text).not.toContain('لم يُسند');
 	});
+
+	// AI Cleanup Batch 5 — the per-card percentage was fabricated on the
+	// backend (fixed base + hash of the request id). The card now shows no
+	// percentage at all; only the real deterministic specialty-relevance
+	// tier, as words. The user-triggered "تحليل AI" modal (a real Gemini
+	// call) keeps its genuine matchPercent untouched.
+	const baseProject = { title: 'مشروع', description: 'وصف', category: 'ويب', durationDays: 5, proposalsCount: 2, createdAtFormatted: 'اليوم', clientType: 'فرد', aiNote: 'ملاحظة', isSaved: false, hasApplied: false };
+
+	it('Batch 5: renders no percentage on cards, even if a legacy aiMatchScore number were sent', () => {
+		const fixture = setup({
+			projects: [{ ...baseProject, id: 'p1', aiMatchScore: 91, specialtyRelevance: 'NONE' }],
+			counts: { all: 1, notApplied: 1, applied: 0, saved: 0 }, providerSpecialties: [],
+		});
+		fixture.detectChanges();
+		const card = (fixture.nativeElement as HTMLElement).querySelector('.req-card-ex') as HTMLElement;
+		expect(card.textContent).not.toMatch(/\d+%/);
+		expect(card.querySelector('.rc-ai-pct')).toBeNull();
+		expect(card.querySelector('.rc-relevance')).toBeNull();
+		expect((fixture.componentInstance as any).requests()[0].aiScore).toBeUndefined();
+	});
+
+	it('Batch 5: shows the real specialty-relevance tier in words, never as a percentage', () => {
+		const fixture = setup({
+			projects: [
+				{ ...baseProject, id: 'p1', aiMatchScore: null, specialtyRelevance: 'REQUIREMENTS' },
+				{ ...baseProject, id: 'p2', aiMatchScore: null, specialtyRelevance: 'SPECIALTY' },
+			],
+			counts: { all: 2, notApplied: 2, applied: 0, saved: 0 }, providerSpecialties: [],
+		});
+		fixture.detectChanges();
+		const labels = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.rc-relevance')).map(el => el.textContent?.trim());
+		expect(labels).toEqual(['متطلباته تتقاطع مع تخصصاتك', 'ضمن تخصصاتك المسجلة']);
+	});
+
+	it('Batch 5: keeps the backend order exactly and makes no AI-ranking claim', () => {
+		const fixture = setup({
+			projects: [{ ...baseProject, id: 'b', title: 'ب' }, { ...baseProject, id: 'a', title: 'أ' }],
+			counts: { all: 2, notApplied: 2, applied: 0, saved: 0 }, providerSpecialties: [],
+		});
+		fixture.detectChanges();
+		const titles = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.rc-title')).map(el => el.textContent?.trim());
+		expect(titles).toEqual(['ب', 'أ']);
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(text).not.toContain('نظام الترتيب الذكي');
+		expect(text).not.toContain('الأعلى تطابقاً');
+		expect(text).toContain('دون');
+	});
+
+	it('Batch 5: the genuine user-triggered AI analysis still displays its real matchPercent', () => {
+		const fixture = setup();
+		const component: any = fixture.componentInstance;
+		const api = TestBed.inject(ProviderApiService) as any;
+		api.analyzeProjectWithAi = () => of({ success: true, data: { matchPercent: 76, matchSummary: 'ملخص', winningStrategy: ['خطوة'], suggestedBidPrice: 100, priceRationale: 'x', clientInsights: 'x', riskAssessment: 'x' } });
+		component.openAiAnalysis({ id: 'p1', title: 'مشروع', offersCount: 1 });
+		fixture.detectChanges();
+		expect(component.aiAnalysisData().matchPercent).toBe(76);
+		expect((fixture.nativeElement as HTMLElement).textContent).toContain('76%');
+	});
+
+	it('Batch 5: a failed AI analysis shows the honest unavailable state, never a fallback percentage', () => {
+		const fixture = setup();
+		const component: any = fixture.componentInstance;
+		component.openAiAnalysis({ id: 'p1', title: 'مشروع', offersCount: 1 });
+		fixture.detectChanges();
+		expect(component.aiUnavailable()).toBe(true);
+		expect(component.aiAnalysisData()).toBeNull();
+	});
 });

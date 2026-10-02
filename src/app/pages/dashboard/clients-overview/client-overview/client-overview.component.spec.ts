@@ -214,4 +214,27 @@ describe('ClientOverviewComponent — latest offers level badge (Batch 5)', () =
 		const names = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.offer-name')).map(el => el.textContent?.trim());
 		expect(names).toEqual(['س', 'ص', 'ع']);
 	});
+
+	// AI Cleanup Batch 5 — "اخر العروض" is a newest-first list (backend
+	// createdAt desc, top 3). The per-offer score is the stored proposal score
+	// (Gemini proposal-quality score blended with price closeness), so it is
+	// labeled "تقييم العرض", never a bare "AI x%" match/ranking claim.
+	it('Batch 5: labels the real per-offer score as "تقييم العرض", not a bare "AI x%"', () => {
+		const fixture = offersFixture([makeOffer({ aiMatchScore: 77 })]);
+		const chip = (fixture.nativeElement as HTMLElement).querySelector('.offer-ai-match');
+		expect(chip?.textContent?.trim()).toBe('تقييم العرض 77%');
+		expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('AI 77%');
+	});
+
+	it('Batch 5: shows no percentage at all when the offer has no stored score', () => {
+		const fixture = offersFixture([makeOffer({ aiMatchScore: null })]);
+		expect((fixture.nativeElement as HTMLElement).querySelector('.offer-ai-match')).toBeNull();
+	});
+
+	it('Batch 5: the offers section makes no AI-ranking claim', () => {
+		const fixture = offersFixture([makeOffer()]);
+		const section = (fixture.nativeElement as HTMLElement).querySelector('.offers-section');
+		expect(section?.textContent).toContain('اخر العروض');
+		expect(section?.textContent).not.toMatch(/مرتبة بتطابق|رتب(ها)? (ال)?AI|AI رتب/);
+	});
 });

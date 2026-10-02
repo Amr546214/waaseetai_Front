@@ -71,8 +71,13 @@
 		</div>
 		<div class="ai-disc-body">
 			<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-			<p class="ai-disc-txt">AI رتب العروض حسب تطابقها مع طلبك (الخبرة، السعر، التقييم، الخطة المقترحة) القرار
-				النهائي لك</p>
+			<!-- AI Cleanup Batch 5: offers are NOT AI-ranked — the backend returns
+			     them createdAt desc (client-requests.service.ts getRequestDetails)
+			     and this page does not re-sort. "تقييم العرض" is the stored
+			     proposal score: Gemini's proposal-quality score blended 60/40 with
+			     price closeness to the request budget (proposal.service.ts). -->
+			<p class="ai-disc-txt">العروض معروضة من الأحدث إلى الأقدم. «تقييم العرض» يجمع تقييم AI لجودة نص العرض مع قرب
+				السعر من ميزانيتك، وهو مؤشر استرشادي — القرار النهائي لك</p>
 		</div>
 	</div>
 
@@ -100,7 +105,7 @@
 	@if (!showComparisonView()) {
 	<!-- Section Title & Compare Toggle -->
 	<div class="sec-ttl">
-		العروض المقدمة للمشروع <span class="cnt">· {{ offers().length }} عروض، مرتبة بتطابق الذكاء</span>
+		العروض المقدمة للمشروع <span class="cnt">· {{ offers().length }} عروض، مرتبة من الأحدث</span>
 		@if (offers().length >= 2) {
 		<button type="button" (click)="toggleCompare()"
 			style="margin-inline-start:auto;font-size:12px;font-weight:700;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.20);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px"
@@ -167,7 +172,7 @@
 						<path
 							d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
 					</svg>
-					أفضل تطابق ورأي الذكاء، الأنسب لمشروعك
+					تقييم عرض مرتفع (90% فأكثر)
 				</div>
 				}
 				<div class="v1-top">
@@ -257,7 +262,7 @@
 							<path
 								d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
 						</svg>
-						{{ offer.isBestMatch ? 'الأنسب لمشروعك' : (offer.matchScore !== null ? 'تطابق ' + offer.matchScore + '%' : 'تطابق غير متاح') }}
+						{{ offer.matchScore !== null ? 'تقييم العرض ' + offer.matchScore + '%' : 'تقييم العرض غير متاح' }}
 					</span>
 				</div>
 				<div class="v1-desc"><strong>وصف العرض: </strong>{{ offer.description }}</div>
@@ -383,7 +388,7 @@
 								<circle cx="12" cy="21" r="1.5" />
 								<path
 									d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
-							</svg>تحليل AI · {{ offer.matchScore !== null ? offer.matchScore + '%' : 'غير متاح' }}
+							</svg>تقييم العرض · {{ offer.matchScore !== null ? offer.matchScore + '%' : 'غير متاح' }}
 						</div>
 						<div class="cmp2-row">
 							<div class="cmp2-k">السعر العادل</div>
@@ -456,8 +461,8 @@
 			</div>
 			<div class="ai-disc-body">
 				<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-				<p class="ai-disc-txt">AI يحلل العروض المختارة ويرشح الأنسب توازنا بين السعر والخبرة والسرعة القرار
-					النهائي لك</p>
+				<p class="ai-disc-txt">قارن العروض المختارة جنباً إلى جنب. «تقييم العرض» مؤشر استرشادي يجمع تقييم AI لجودة
+					نص العرض مع قرب السعر من ميزانيتك — القرار النهائي لك</p>
 			</div>
 		</div>
 
@@ -484,7 +489,7 @@
 				</span>
 				}
 				@if (offer.isBestMatch) {
-				<span class="cmp-head-ai-badge">ترشيح الذكاء</span>
+				<span class="cmp-head-ai-badge">تقييم مرتفع</span>
 				}
 			</div>
 			}
@@ -492,7 +497,7 @@
 
 		<div class="cmp-page-table" [style.grid-template-columns]="'190px repeat(' + comparisonOffers().length + ', 1fr)'">
 			<div class="cmp-row">
-				<div class="cmp-row-lbl">تطابق الذكاء</div>
+				<div class="cmp-row-lbl">تقييم العرض</div>
 				@for (offer of comparisonOffers(); track offer.id) {
 				<div class="cmp-row-cell">{{ offer.matchScore !== null ? offer.matchScore + '%' : 'غير متاح' }}</div>
 				}

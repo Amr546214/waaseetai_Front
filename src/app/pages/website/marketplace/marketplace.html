@@ -61,7 +61,10 @@
       @if (mode === 'flash') {
       <span class="flash-disc-tag">خصم {{ model.discountPercentage }}%</span>
       } @else if (model.aiMatchPercentage || model.aiScore) {
-      <span class="svc-ai-tag">{{ mode === 'ai' && aiGenerationSource() !== 'GEMINI' ? 'تطابق' : 'AI' }} {{ model.aiMatchPercentage ?? model.aiScore }}%</span>
+      <!-- AI Cleanup Batch 5: aiMatchPercentage exists only for a real Gemini
+           recommendation; otherwise the shown value is the model's stored AI
+           quality score, labeled as quality — never as a match. -->
+      <span class="svc-ai-tag">{{ model.aiMatchPercentage ? 'تطابق AI' : 'جودة AI' }} {{ model.aiMatchPercentage || model.aiScore }}%</span>
       }
       <button class="svc-fav" type="button" aria-label="أضف للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
     </div>
@@ -213,7 +216,7 @@
     <div class="ai-banner" style="margin-top:20px">
       <div class="ai-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
       <div class="ai-txt">{{ aiBannerInsight() }}</div>
-      <span class="ai-bdg">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'ذكي · نشط' }}</span>
+      <span class="ai-bdg">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'دون AI' }}</span>
     </div>
 
     <!-- FLASH DEALS -->
@@ -275,7 +278,7 @@
       <div class="sec-hdr">
         <h2 class="sec-title">
           <span class="sec-title-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border);color:var(--ai)"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></span>
-          اختيارات الذكاء الاصطناعي
+          {{ aiGenerationSource() === 'GEMINI' ? 'اختيارات الذكاء الاصطناعي' : 'الأكثر مشاهدة' }}
         </h2>
         <a routerLink="/marketplace" [queryParams]="{ sort: 'ai' }" class="see-all">عرض الكل <svg aria-hidden="true"><use href="#ws-chevron-l"></use></svg></a>
       </div>
@@ -475,10 +478,12 @@
         <div class="ai-insight">
           <div class="ai-insight-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
           <div class="ai-insight-body">
-            <div class="ai-insight-lbl">تحليل الذكاء الاصطناعي</div>
+            <!-- Batch 5: aiInsightBest is just the highest stored AI quality
+                 score on this page — not an analysis of the search, not a match. -->
+            <div class="ai-insight-lbl">ملخص النتائج</div>
             <div class="ai-insight-txt">
               @if (aiInsightBest(); as best) {
-              وجدنا <strong>{{ totalResults() | number }} نتيجة</strong> — الأعلى توافقاً مع طلبك: <strong>{{ best.title }}</strong>
+              وجدنا <strong>{{ totalResults() | number }} نتيجة</strong> — الأعلى في تقييم جودة AI بهذه الصفحة: <strong>{{ best.title }}</strong>
               } @else if (isLoading()) {
               جاري البحث في الخدمات المنشورة...
               } @else {
@@ -486,7 +491,6 @@
               }
             </div>
           </div>
-          <span class="ai-badge">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'ذكي · نشط' }}</span>
         </div>
 
         <!-- NO RESULTS CTA -->

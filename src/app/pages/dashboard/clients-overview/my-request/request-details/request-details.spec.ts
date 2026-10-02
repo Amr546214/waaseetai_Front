@@ -298,3 +298,58 @@ describe('RequestDetails — real provider level vs accreditation badge (Batch 5
 		expect(offer.price).toBe('500 $');
 	});
 });
+
+// AI Cleanup Batch 5 — the backend returns proposals createdAt desc
+// (client-requests.service.ts getRequestDetails) and this page never re-sorts
+// them, so it must not claim the list is AI-ranked. The per-offer score is
+// the stored proposal score (Gemini proposal-quality blended with price
+// closeness), labeled "تقييم العرض" rather than an AI "match"/"best fit".
+describe('RequestDetails — offer ordering & score labels (AI Cleanup Batch 5)', () => {
+	function scoredProposal(id: string, aiMatchScore: number | null, createdAt: string) {
+		return { ...proposalFixture({ id, providerName: `مقدم ${id}` }), aiMatchScore, createdAt };
+	}
+
+	async function setup(proposals: any[]) {
+		await TestBed.configureTestingModule({
+			imports: [RequestDetails],
+			providers: [
+				{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'req-1' } } } },
+				{ provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
+				{ provide: HttpClient, useValue: { get: () => of({ success: true, data: { status: 'OPEN', proposals } }), post: () => of({ success: false }) } },
+				{ provide: ThemeService, useValue: { theme: () => 'dark' } },
+				{ provide: ChatService, useValue: {} },
+			],
+		}).compileComponents();
+		const fixture: ComponentFixture<RequestDetails> = TestBed.createComponent(RequestDetails);
+		fixture.componentInstance.fetchRequestDetails('req-1');
+		fixture.detectChanges();
+		await fixture.whenStable();
+		return fixture;
+	}
+
+	it('keeps the backend (newest-first) order exactly — a higher score never moves an offer up', async () => {
+		const fixture = await setup([
+			scoredProposal('newest', 40, '2026-03-01T00:00:00Z'),
+			scoredProposal('middle', 99, '2026-02-01T00:00:00Z'),
+			scoredProposal('oldest', null, '2026-01-01T00:00:00Z'),
+		]);
+		expect(fixture.componentInstance.offers().map(o => o.id)).toEqual(['newest', 'middle', 'oldest']);
+	});
+
+	it('no longer claims the offers are ranked by AI, and states the real order', async () => {
+		const fixture = await setup([scoredProposal('a', 95, '2026-01-01T00:00:00Z'), scoredProposal('b', 50, '2026-01-01T00:00:00Z')]);
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(text).not.toContain('مرتبة بتطابق الذكاء');
+		expect(text).not.toContain('AI رتب العروض');
+		expect(text).not.toContain('الأنسب لمشروعك');
+		expect(text).toContain('مرتبة من الأحدث');
+	});
+
+	it('renders the real score as "تقييم العرض" and no percentage when there is none', async () => {
+		const fixture = await setup([scoredProposal('a', 73, '2026-01-01T00:00:00Z'), scoredProposal('b', null, '2026-01-01T00:00:00Z')]);
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(text).toContain('تقييم العرض 73%');
+		expect(text).toContain('تقييم العرض غير متاح');
+		expect(text).not.toContain('null%');
+	});
+});

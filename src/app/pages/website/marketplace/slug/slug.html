@@ -179,10 +179,10 @@
         <div class="ai-insight">
           <div class="ai-insight-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
           <div class="ai-insight-body">
-            <div class="ai-insight-lbl">تحليل الذكاء الاصطناعي</div>
+            <div class="ai-insight-lbl">ملخص النتائج</div>
             <div class="ai-insight-txt">
               @if (aiInsightBest(); as best) {
-              الأعلى توافقاً مع الذكاء الاصطناعي: <strong>{{ best.title }}</strong>
+              الأعلى في تقييم جودة AI بهذه الصفحة: <strong>{{ best.title }}</strong>
               } @else {
               لا توجد خدمات متاحة حالياً
               }

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
+import { of } from 'rxjs';
 
 import { Marketplace } from './marketplace';
 
@@ -83,6 +84,42 @@ describe('Marketplace', () => {
     it('falls back to the neutral default rather than fabricating a color for an unhighlighted/unexpected level', () => {
       expect(component.resultLevelStyle({ ...baseModel, level: 'مبتدئ' })).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
       expect(component.resultLevelStyle({ ...baseModel, level: undefined })).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
+    });
+  });
+
+  // AI Cleanup Batch 5 — the landing "AI picks" row is backed by
+  // POST /marketplace/ai-recommendations: a real Gemini result (GEMINI) or an
+  // honest viewsCount-desc fallback (DETERMINISTIC, aiMatchPercentage null).
+  describe('AI recommendations truthfulness (Batch 5)', () => {
+    const rec = (over: any = {}) => ({ id: 'm1', title: 'نموذج', totalAmount: 100, totalDays: 3, aiScore: 81, aiMatchPercentage: null, provider: { id: 'p', name: 'p', initials: 'p' }, ...over });
+
+    function load(data: any) {
+      vi.spyOn((component as any).marketplaceService, 'getAiRecommendations').mockReturnValue(of({ data }));
+      component.loadAiRecommendations();
+      fixture.detectChanges();
+      return fixture.nativeElement as HTMLElement;
+    }
+
+    it('a DETERMINISTIC fallback is not titled as AI picks and shows the stored score as quality, never as a match', () => {
+      const host = load({ generationSource: 'DETERMINISTIC', bannerInsight: 'تم استرجاع 1 نموذج من البيانات المنشورة المطابقة للبحث الحالي.', recommendations: [rec()] });
+      const text = host.textContent || '';
+      expect(component.aiGenerationSource()).toBe('DETERMINISTIC');
+      expect(text).not.toContain('اختيارات الذكاء الاصطناعي');
+      expect(text).toContain('الأكثر مشاهدة');
+      expect(text).toContain('جودة AI 81%');
+      expect(text).not.toContain('تطابق 81%');
+    });
+
+    it('a genuine GEMINI recommendation keeps its real match percentage and AI title', () => {
+      const host = load({ generationSource: 'GEMINI', bannerInsight: 'جملة AI', recommendations: [rec({ aiScore: 74, aiMatchPercentage: 74 })] });
+      const text = host.textContent || '';
+      expect(text).toContain('اختيارات الذكاء الاصطناعي');
+      expect(text).toContain('تطابق AI 74%');
+    });
+
+    it('the banner shows the backend bannerInsight instead of staying on the "جاري تحليل" placeholder', () => {
+      load({ generationSource: 'DETERMINISTIC', bannerInsight: 'تم استرجاع 2 نموذج', recommendations: [] });
+      expect(component.aiBannerInsight()).toBe('تم استرجاع 2 نموذج');
     });
   });
 });

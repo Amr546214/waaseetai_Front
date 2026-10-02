@@ -53,7 +53,9 @@ export class ExploreRequests implements OnInit {
 	];
 
 	sortOptions = [
-		{ id: 'match', label: 'الأعلى تطابقاً' },
+		// Batch 5: backend 'MATCH' sort = real specialty-relevance tier, then
+		// requirement overlap, then newest (explore-requests.service.ts).
+		{ id: 'match', label: 'الأقرب لتخصصك' },
 		{ id: 'newest', label: 'الأحدث' },
 		{ id: 'budget', label: 'الأعلى ميزانية' },
 		{ id: 'closing', label: 'قرب الإغلاق' }
@@ -280,7 +282,11 @@ export class ExploreRequests implements OnInit {
 						offersCount: p.proposalsCount,
 						timeAgo: p.createdAtFormatted,
 						clientType: p.clientType,
-						aiScore: p.aiMatchScore,
+						// AI Cleanup Batch 5: no per-card percentage. The old
+						// backend value was fabricated (fixed base + hash of the
+						// request id). Only the real, deterministic specialty
+						// relevance tier is shown, as words, when there is one.
+						relevanceLabel: ExploreRequests.relevanceLabel(p.specialtyRelevance),
 						aiPriceRange: p.aiSuggestedBudget,
 						aiPriceEval: p.aiPriceEval || 'عادل ومطابق لمتطلبات السوق',
 						aiDurationRange: p.aiSuggestedDuration,
@@ -289,7 +295,7 @@ export class ExploreRequests implements OnInit {
 						// so this is a defensive fallback only — kept honest (no "AI
 						// determined this" claim) since this list's ranking is a
 						// deterministic keyword/heuristic engine, not Gemini/OpenAI.
-						aiNote: p.aiNote || (p.aiMatchScore > 90 ? 'نظام المطابقة يوضح هذا الطلب كأفضل توافق مع تخصصك وأسلوبك' : (p.aiMatchScore > 80 ? 'منافسة منخفضة - فرصة جيدة للفوز بالعرض' : 'السعر أقل من التقدير - يمكنك طلب تفاوض للخدمة')),
+						aiNote: p.aiNote || '',
 						isSaved: p.isSaved,
 						isApplied: p.hasApplied
 					}));
@@ -315,6 +321,13 @@ export class ExploreRequests implements OnInit {
 			},
 			error: (err) => console.error('Error fetching explore requests', err)
 		});
+	}
+
+	/** Words for the backend's real specialty-relevance tier; null = show nothing. */
+	static relevanceLabel(tier: unknown): string | null {
+		if (tier === 'REQUIREMENTS') return 'متطلباته تتقاطع مع تخصصاتك';
+		if (tier === 'SPECIALTY') return 'ضمن تخصصاتك المسجلة';
+		return null;
 	}
 
 	setSpecialty(id: string) {

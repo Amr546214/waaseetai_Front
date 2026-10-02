@@ -26,7 +26,14 @@ export class CompareServicesComponent implements OnInit {
 	winnerId = computed(() => {
 		const list = this.models();
 		if (!list.length) return null;
-		return [...list].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0))[0]?.id || null;
+		// Batch 5: highest REAL stored AI score wins. No winner when nobody has a
+		// score (the old `|| 0` sort crowned the first card with "AI 0") or
+		// when the top score is tied (the old sort picked one arbitrarily).
+		const ranked = [...list].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
+		const top = ranked[0]?.aiScore || 0;
+		if (top <= 0) return null;
+		if (ranked.length > 1 && (ranked[1].aiScore || 0) === top) return null;
+		return ranked[0].id || null;
 	});
 
 	winnerModel = computed(() => {

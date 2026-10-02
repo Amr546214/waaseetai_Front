@@ -35,7 +35,7 @@
     @if (model()?.aiScore) {
       <span class="ai-match-big">
         <svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg>
-        توافق AI {{ model()?.aiScore }}%
+        جودة AI {{ model()?.aiScore }}%
       </span>
     }
     <button (click)="toggleFavorite()" [style.color]="isFavorite() ? 'var(--red)' : 'var(--txt-3)'" [style.border-color]="isFavorite() ? 'rgba(255,140,105,.3)' : 'var(--border)'" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" id="fav-btn" type="button">
@@ -98,12 +98,12 @@
         <div class="ai-analysis-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
         <div>
           <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تحليل الذكاء الاصطناعي للخدمة</div>
-          <div style="font-size:11px;color:var(--txt-2)">سعر، وقت، وصف، وتوافق</div>
+          <div style="font-size:11px;color:var(--txt-2)">سعر، وقت، ووصف</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-inline-start:auto;flex-shrink:0">
           <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">AI · نشط</span>
-          <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore ?? 0 }}%</span>
-          <span style="font-size:9px;color:var(--txt-3)">درجة التوافق</span>
+          <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore != null ? model()?.aiScore + '%' : 'غير متاح' }}</span>
+          <span style="font-size:9px;color:var(--txt-3)">تقييم الجودة</span>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
@@ -129,7 +129,7 @@
 
 <ng-template #aiMetrics>
   <div class="ai-metrics">
-    <div class="ai-metric m2"><div class="ai-metric-n">{{ model()?.aiScore ?? 0 }}%</div><div class="ai-metric-l">جودة التحليل</div></div>
+    <div class="ai-metric m2"><div class="ai-metric-n">{{ model()?.aiScore != null ? model()?.aiScore + '%' : 'غير متاح' }}</div><div class="ai-metric-l">جودة التحليل</div></div>
     <div class="ai-metric m3"><div class="ai-metric-n">{{ model()?.rating ?? 0 }}</div><div class="ai-metric-l">تقييم الجودة</div></div>
     <div class="ai-metric m4"><div class="ai-metric-n">{{ model()?.reviewsCount ?? 0 }}</div><div class="ai-metric-l">عدد التقييمات</div></div>
     <div class="ai-metric m1"><div class="ai-metric-n">{{ model()?.salesCount ?? 0 }}</div><div class="ai-metric-l">مشروع مكتمل</div></div>
@@ -590,12 +590,12 @@
                   <div class="ai-analysis-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
                   <div>
                     <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تحليل الذكاء الاصطناعي للخدمة</div>
-                    <div style="font-size:11px;color:var(--txt-2)">سعر، وقت، وصف، وتوافق</div>
+                    <div style="font-size:11px;color:var(--txt-2)">سعر، وقت، ووصف</div>
                   </div>
                   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-inline-start:auto;flex-shrink:0">
                     <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">AI · نشط</span>
-                    <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore ?? 0 }}%</span>
-                    <span style="font-size:9px;color:var(--txt-3)">درجة التوافق</span>
+                    <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore != null ? model()?.aiScore + '%' : 'غير متاح' }}</span>
+                    <span style="font-size:9px;color:var(--txt-3)">تقييم الجودة</span>
                   </div>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:10px">

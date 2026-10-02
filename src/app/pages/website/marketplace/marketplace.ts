@@ -429,8 +429,13 @@ export class Marketplace implements OnInit, OnDestroy {
 				const recs = res?.data?.recommendations || res?.recommendations || [];
 				this.aiRecommendedModels.set(recs);
 				this.aiGenerationSource.set(res?.data?.generationSource === 'GEMINI' ? 'GEMINI' : 'DETERMINISTIC');
-				if (res?.data?.matchSummary) {
-					this.aiBannerInsight.set(res.data.matchSummary);
+				// Batch 5: the backend field is `bannerInsight` (a real Gemini
+				// sentence, or the honest deterministic "تم استرجاع N نموذج…").
+				// `matchSummary` was never sent, so the banner stayed stuck on
+				// the "جاري تحليل…" placeholder forever.
+				const banner = res?.data?.bannerInsight ?? res?.data?.matchSummary;
+				if (banner) {
+					this.aiBannerInsight.set(banner);
 				}
 			},
 			error: (err) => {

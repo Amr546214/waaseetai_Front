@@ -64,8 +64,11 @@ export interface ProviderStatsResponse {
 			title: string;
 			specialty?: string;
 			category?: string;
-			budget: number;
-			aiMatchScore: number;
+			// Batch 5: null = project has no budget set (never an invented amount).
+			budget: number | null;
+			// Batch 5: a real Gemini score for GEMINI items; always null for the
+			// DETERMINISTIC rule-engine fallback (never shown as a percentage).
+			aiMatchScore: number | null;
 			matchReasons?: string[];
 			aiAnalysis?: string;
 			deliveryDays?: number;

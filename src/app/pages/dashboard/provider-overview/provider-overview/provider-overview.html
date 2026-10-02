@@ -122,7 +122,7 @@
 				<div class="dash-sub" *ngIf="data.summary.hasApprovedSpecialties"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-ai"></use>
-					</svg>{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'توصية AI' : 'توصية ذكية' }}: لديك {{ data.aiMatchingProjects?.length || 0 }} طلبات جديدة تناسب تخصصك و{{
+					</svg>{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'توصية AI' : 'حسب تخصصك' }}: لديك {{ data.aiMatchingProjects?.length || 0 }} طلبات جديدة تناسب تخصصك و{{
 					data.summary?.pendingOffersCount || 0 }} تسليم بانتظار اعتماد العميل</div>
 			</div>
 			<div class="dash-chips">
@@ -297,8 +297,10 @@
 				</svg>
 			</div>
 			<div class="ai-disc-body">
-				<div class="ai-disc-lbl">وسيط AI - نظام الترتيب الذكي</div>
-				<p class="ai-disc-txt">{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'AI' : 'نظام وسيط الذكي' }} يرتّب لك طلبات العملاء حسب توافقها مع تخصصك وتاريخك <span
+				<!-- AI Cleanup Batch 5: GEMINI = real Gemini ranking (ai-matching-engine);
+				     otherwise the rule-engine fallback, which is not AI and shows no %. -->
+				<div class="ai-disc-lbl">{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'وسيط AI - ترتيب الطلبات' : 'وسيط - ترتيب حسب التخصص' }}</div>
+				<p class="ai-disc-txt">{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'AI يرتّب' : 'قواعد ثابتة (دون AI) ترتّب' }} لك طلبات العملاء حسب توافقها مع تخصصك وتاريخك <span
 						class="ai-disc-badge">مطابقة تخصص</span> - الإنسان يحتفظ بالقرار النهائي دائما</p>
 			</div>
 		</div>
@@ -430,7 +432,7 @@
 						stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 						<use href="#i-ai"></use>
 					</svg>
-					طلبات مطابقة لتخصصاتك (AI)
+					طلبات مطابقة لتخصصاتك{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? ' (AI)' : '' }}
 				</h2>
 				<a class="card-lnk cursor-pointer txt-violet"
 					style="background:rgba(123,47,190,.12);padding:6px 14px;border-radius:20px;border:1px solid rgba(123,47,190,.3);text-decoration:none"
@@ -458,20 +460,22 @@
 							<div>
 								<div class="offer-name txt-white" style="font-weight:700;font-size:14px">{{ m.title }}
 									<span class="ws-level-tag txt-green-br"
-										style="font-size:9px;font-weight:800;background:rgba(46,204,138,.12);border:1px solid rgba(46,204,138,.25);border-radius:7px;padding:1px 6px;margin-inline-start:4px">أفضل
-										مطابقة</span>
+										style="font-size:9px;font-weight:800;background:rgba(46,204,138,.12);border:1px solid rgba(46,204,138,.25);border-radius:7px;padding:1px 6px;margin-inline-start:4px">ضمن
+										تخصصك</span>
 								</div>
 								<div class="offer-type txt-slate" style="font-size:11px;margin-top:2px">{{
 									m.category || m.specialty || 'خدمة تخصصية' }}</div>
 							</div>
 						</div>
-						<div class="offer-ai-match txt-violet"
+						<!-- Batch 5: a percentage only for a real Gemini score; the
+						     deterministic fallback sends aiMatchScore = null. -->
+						<div *ngIf="m.generationSource === 'GEMINI' && m.aiMatchScore !== null && m.aiMatchScore !== undefined" class="offer-ai-match txt-violet"
 							style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:12px;font-weight:800;background:rgba(123,47,190,.14);border:1px solid rgba(123,47,190,.28);white-space:nowrap">
 							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 								stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 								<use href="#i-ai"></use>
 							</svg>
-							{{ m.generationSource === 'GEMINI' ? 'AI' : 'تطابق' }} • {{ m.aiMatchScore }}%
+							توافق AI • {{ m.aiMatchScore }}%
 						</div>
 					</div>
 					<div *ngIf="m.matchReasons?.length" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
@@ -484,7 +488,7 @@
 						style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
 						<span style="font-size:11px" *ngIf="m.deliveryDays" class="txt-muted">المدة: {{ m.deliveryDays }}
 							أيام</span>
-						<div>{{ m.budget | number }} <span style="font-size:11px;">$</span></div>
+						<div *ngIf="m.budget">{{ m.budget | number }} <span style="font-size:11px;">$</span></div>
 					</div>
 				</button>
 
@@ -500,8 +504,8 @@
 						</div>
 						<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد
 							طلبات مطابقة لتخصصاتك حالياً</div>
-						<div style="font-size:13px;max-width:380px;margin:0 auto" class="txt-muted">يجري الذكاء الاصطناعي
-							مسحاً دورياً للسوق وسيرسل لك إشعاراً فور طرح مشروع يطابق مهاراتك</div>
+						<div style="font-size:13px;max-width:380px;margin:0 auto" class="txt-muted">ستظهر هنا الطلبات
+							المفتوحة الجديدة ضمن تخصصاتك المعتمدة فور نشرها</div>
 					</div>
 				</ng-container>
 
@@ -547,7 +551,7 @@
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-ai"></use>
 					</svg>
-					{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'توصية AI' : 'توصية ذكية' }}: {{ data.summary?.pendingClientApprovalCount || 0 }} تسليمات بانتظار مراجعتك
+					تذكير: {{ data.summary?.pendingClientApprovalCount || 0 }} تسليمات بانتظار مراجعتك
 				</div>
 			</div>
 			<div class="dash-chips">

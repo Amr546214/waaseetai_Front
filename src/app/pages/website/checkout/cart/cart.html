@@ -227,8 +227,10 @@
                   } @else {
                     <svg aria-hidden="true"><use href="#ws-image"></use></svg>
                   }
-                  @if (rec.aiMatchPercentage) {
-                    <span class="rec-match">{{ aiGenerationSource() === 'GEMINI' ? 'AI' : 'تطابق' }} {{ rec.aiMatchPercentage }}%</span>
+                  <!-- Batch 5: a match % exists only for a real Gemini recommendation
+                       (the deterministic fallback sends aiMatchPercentage = null). -->
+                  @if (aiGenerationSource() === 'GEMINI' && rec.aiMatchPercentage) {
+                    <span class="rec-match">تطابق AI {{ rec.aiMatchPercentage }}%</span>
                   }
                 </div>
                 <div class="rec-body">

@@ -48,8 +48,8 @@
       @if (winner(); as w) {
         <div class="ai-banner">
           <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
-          <div class="ai-banner-content">بناءً على معايير التقييم، <strong>{{ w.fullName }}</strong> هو الأعلى توافقاً — AI Trust Score {{ w.aiScore }}</div>
-          <div class="ai-banner-badge">AI · تحليل</div>
+          <div class="ai-banner-content">صاحب أعلى AI Trust Score بين المقدمين المختارين: <strong>{{ w.fullName }}</strong> — {{ w.aiScore }}</div>
+          <div class="ai-banner-badge">AI · تقييم</div>
         </div>
       }
 
@@ -59,7 +59,7 @@
           @let isWinner = pr.id === winnerId();
           <div class="prov-card" [class.winner]="isWinner">
             @if (isWinner) {
-              <div class="prov-winner-strip">الأعلى توافقاً بتحليل الذكاء</div>
+              <div class="prov-winner-strip">الأعلى في تقييم AI</div>
             }
             <button class="prov-remove" type="button" aria-label="إزالة من المقارنة" (click)="removeProvider(pr.id)"><svg aria-hidden="true"><use href="#ws-close"></use></svg></button>
             <div class="prov-header" [style.background]="isWinner ? 'linear-gradient(180deg,rgba(43,212,199,.06),transparent)' : null">
@@ -140,7 +140,7 @@
           @if (winner(); as w) {
             <div class="sum-item winner">
               <div class="sum-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-check"></use></svg></div>
-              <div><div class="sum-lbl">الأعلى توافقاً بالذكاء</div><div class="sum-val" style="color:var(--teal)">{{ w.fullName }} — AI {{ w.aiScore }}</div></div>
+              <div><div class="sum-lbl">الأعلى في تقييم AI</div><div class="sum-val" style="color:var(--teal)">{{ w.fullName }} — AI {{ w.aiScore }}</div></div>
             </div>
           }
           @if (topRated(); as t) {
