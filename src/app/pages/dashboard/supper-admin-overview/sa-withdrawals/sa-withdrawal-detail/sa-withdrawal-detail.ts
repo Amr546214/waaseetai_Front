@@ -29,12 +29,6 @@ export class SaWithdrawalDetail implements OnInit {
   actionError = signal('');
   actionSuccess = signal('');
 
-  // Request-more-information: UI-only mock action — no backend endpoint exists
-  // for this yet (matches the design mockup, which stubs it with an alert()).
-  showInfoRequestForm = signal(false);
-  infoRequestMessage = signal('');
-  infoRequestSuccess = signal('');
-
   readonly statusLabels: Record<string, string> = {
     PENDING: 'قيد المراجعة',
     APPROVED: 'مقبول',
@@ -69,9 +63,7 @@ export class SaWithdrawalDetail implements OnInit {
     this.error.set('');
     this.selectedWithdrawal.set(null);
     this.actionSuccess.set('');
-    this.infoRequestSuccess.set('');
     this.cancelActionForm();
-    this.cancelInfoRequestForm();
     this.withdrawalApi.getAdminWithdrawal(id).subscribe({
       next: (res) => {
         this.loading.set(false);
@@ -107,7 +99,6 @@ export class SaWithdrawalDetail implements OnInit {
   }
 
   openActionForm(action: 'approve' | 'reject') {
-    this.showInfoRequestForm.set(false);
     this.actionType.set(action);
     this.adminNote.set('');
     this.rejectionReason.set('');
@@ -196,26 +187,6 @@ export class SaWithdrawalDetail implements OnInit {
     }
   }
 
-  openInfoRequestForm() {
-    this.showActionForm.set(false);
-    this.actionType.set(null);
-    this.showInfoRequestForm.set(true);
-    this.infoRequestMessage.set('');
-    this.infoRequestSuccess.set('');
-  }
-
-  cancelInfoRequestForm() {
-    this.showInfoRequestForm.set(false);
-    this.infoRequestMessage.set('');
-  }
-
-  submitInfoRequest() {
-    // Simulated locally — there is no backend endpoint for this action yet.
-    this.showInfoRequestForm.set(false);
-    this.infoRequestMessage.set('');
-    this.infoRequestSuccess.set('تم إرسال طلب المعلومات الإضافية إلى مقدم الطلب');
-  }
-
   shortId(id: string): string {
     return id.length > 8 ? id.slice(0, 8) + '…' : id;
   }
@@ -231,7 +202,7 @@ export class SaWithdrawalDetail implements OnInit {
     }).format(new Date(value));
   }
 
-  formatAmount(amount: number | undefined, currency: string | undefined): string {
+  formatAmount(amount: number | null | undefined, currency: string | undefined): string {
     if (amount == null) return '—';
     const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     return currency ? `${formatted} ${currency}` : `${formatted} ر.س`;
@@ -247,115 +218,28 @@ export class SaWithdrawalDetail implements OnInit {
     return w.userName || w.userEmail || (w.userId ? this.shortId(w.userId) : '—');
   }
 
-  // ── Mock/demo helpers ──────────────────────────────────────────────
-  // The backend (WithdrawalApiService) does not yet return AI risk scoring,
-  // balance context, an IBAN-verification flag, or a balance-source
-  // breakdown. The values below are generated deterministically from the
-  // withdrawal's own id/amount so the UI stays stable across re-renders,
-  // but they are NOT real data — see the component's final audit report.
-
-  private hashSeed(id: string): number {
-    let h = 0;
-    for (let i = 0; i < id.length; i++) {
-      h = (h * 31 + id.charCodeAt(i)) >>> 0;
-    }
-    return h || 1;
-  }
-
-  private seededRandom(seed: number): () => number {
-    let s = seed % 2147483647;
-    if (s <= 0) s += 2147483646;
-    return () => {
-      s = (s * 16807) % 2147483647;
-      return (s - 1) / 2147483646;
-    };
-  }
-
-  private readonly mockProjectPool: { title: string; base: number }[] = [
-    { title: 'هوية بصرية لمؤسسة النور', base: 4666 },
-    { title: 'تصميم منيو مطعم', base: 2000 },
-    { title: 'تطوير متجر إلكتروني متكامل', base: 8200 },
-    { title: 'إدارة حسابات تواصل اجتماعي - 3 أشهر', base: 3300 },
-    { title: 'تصميم شعار وهوية تجارية', base: 1800 },
-    { title: 'كتابة محتوى تسويقي لموقع إلكتروني', base: 1200 },
-    { title: 'تصميم واجهات تطبيق جوال', base: 6400 },
-    { title: 'حملة إعلانية ممولة على السوشيال ميديا', base: 5000 },
-  ];
-
-  private readonly mockMonths = ['يناير 2025', 'فبراير 2025', 'مارس 2025', 'أبريل 2025', 'مايو 2025', 'يونيو 2025'];
+  // AI Cleanup Batch 3: the former hash-seeded "mock/demo helpers" (AI risk
+  // insights, IBAN-verified flag, balance-source project table) were removed —
+  // they were generated from the withdrawal id, not real data, and could sway a
+  // real approval decision. No backend risk scoring exists.
 
   /**
    * Real value from GET /api/admin/withdrawals/:id (withdrawalService.get()
    * -> resolveApprovalLedger() + the same withdrawable-balance arithmetic
    * approve() itself uses) — the withdrawal's ledger balance (provider
    * earnings or affiliate commissions) net of the user's other outstanding
-   * withdrawals. Previously a hash-of-id mock; release-blocker fix (2B).
-   * The `?? ` fallback only matters for a response from a stale API build
-   * that hasn't deployed this field yet.
+   * withdrawals. null (rendered as "—") when the API response doesn't carry
+   * it, instead of assuming the balance covers the requested amount.
    */
-  availableBalance(w: Withdrawal): number {
-    return w.availableBalance ?? (w.amount ?? 0);
+  availableBalance(w: Withdrawal): number | null {
+    return w.availableBalance ?? null;
   }
 
-  /** Mock: balance remaining after this withdrawal is processed. */
-  balanceAfterWithdrawal(w: Withdrawal): number {
-    const amount = w.amount ?? 0;
-    return Math.round(this.availableBalance(w) - amount);
-  }
-
-  /** Mock: IBAN-verification badge. Real IBAN value comes from the API; the "verified" flag itself does not. */
-  ibanVerified(w: Withdrawal): boolean {
-    return !!(w.bankInfo?.iban || w.iban);
-  }
-
-  /** Mock: AI risk-analysis notes shown in the "وسيط AI" panel. */
-  riskInsights(w: Withdrawal): string[] {
-    const insights: string[] = [];
-
-    insights.push(
-      this.ibanVerified(w)
-        ? 'الحساب البنكي محقق ومطابق لبيانات صاحب الطلب — لا مخاطر'
-        : 'تعذر التحقق من مطابقة بيانات الحساب البنكي — يُنصح بالمراجعة اليدوية'
-    );
-
-    const amount = w.amount ?? 0;
+  /** Balance remaining after this withdrawal (derived from the real balance above). */
+  balanceAfterWithdrawal(w: Withdrawal): number | null {
     const avail = this.availableBalance(w);
-    insights.push(
-      amount <= avail
-        ? 'المبلغ المطلوب ضمن الرصيد المتاح كاملاً — لا نقص في الرصيد'
-        : 'المبلغ المطلوب يتجاوز الرصيد المتاح المقدَّر — يتطلب مراجعة إضافية'
-    );
-
-    const seed = this.hashSeed(w.id);
-    insights.push(
-      seed % 5 === 0
-        ? 'تم رصد نشاط سحب متكرر خلال آخر 30 يوماً — يُنصح بمراجعة إضافية قبل الموافقة'
-        : 'لا نشاط مشبوه على الحساب خلال آخر 30 يوماً — يُوصى بالموافقة'
-    );
-
-    return insights;
-  }
-
-  /** Mock: recent paid projects that make up the current balance. */
-  balanceSource(w: Withdrawal): { title: string; gross: number; net: number; date: string }[] {
-    const seed = this.hashSeed(w.id + ':src');
-    const rand = this.seededRandom(seed);
-    const count = 2 + Math.floor(rand() * 2); // 2–3 rows
-    const usedIdx = new Set<number>();
-    const rows: { title: string; gross: number; net: number; date: string }[] = [];
-
-    for (let i = 0; i < count; i++) {
-      let idx = Math.floor(rand() * this.mockProjectPool.length);
-      while (usedIdx.has(idx)) idx = (idx + 1) % this.mockProjectPool.length;
-      usedIdx.add(idx);
-      const proj = this.mockProjectPool[idx];
-      const gross = proj.base + Math.floor(rand() * 400);
-      const net = Math.round(gross * 0.9);
-      const monthIdx = Math.floor(rand() * this.mockMonths.length);
-      rows.push({ title: proj.title, gross, net, date: this.mockMonths[monthIdx] });
-    }
-
-    return rows;
+    if (avail == null) return null;
+    return Math.round(avail - (w.amount ?? 0));
   }
 
   /** Mostly real (status/dates from API), UI framing (steps/labels) is mock. */

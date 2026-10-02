@@ -4,67 +4,16 @@
   <div class="it-hdr">
     <div>
       <h2 class="it-ttl">لوحة البنية التقنية</h2>
-      <p class="it-sub">صحة الأنظمة وحالة الخوادم في الوقت الفعلي — uptime 99.98%</p>
-    </div>
-    <div class="it-actions">
-      <button type="button" class="it-btn it-btn-ghost" [disabled]="refreshing()" (click)="refresh()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-        {{ refreshing() ? 'جارٍ التحديث...' : 'تحديث' }}
-      </button>
-      <button type="button" class="it-btn it-btn-primary">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-        الخوادم
-      </button>
+      <p class="it-sub">صحة الأنظمة وحالة الخوادم</p>
     </div>
   </div>
 
-  <div class="it-ai">
-    <div class="it-ai-ico">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/></svg>
-    </div>
-    <div class="it-ai-body">
-      <div class="it-ai-lbl">حالة الخوادم</div>
-      <p class="it-ai-txt">تُعرض حالة البنية التقنية الحالية <span class="it-ai-badge">لا تنبيهات حالياً</span></p>
-    </div>
-  </div>
-
-  <div class="it-kpi-grid">
-    @for (k of kpis; track k.label) {
-      <div class="it-kpi-card">
-        <div class="it-kpi-top">
-          <div class="it-kpi-ic" [style.background]="k.bg" [style.color]="k.color">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/></svg>
-          </div>
-          <span class="it-kpi-lbl">{{ k.label }}</span>
-        </div>
-        <div class="it-kpi-val" [style.color]="k.color">{{ k.value }}</div>
-        <div class="it-kpi-unit">{{ k.unit }}</div>
-        <div class="it-kpi-sub" [style.color]="k.color">{{ k.sub }}</div>
-      </div>
-    }
-  </div>
-
-  <div class="itsv-grid">
-    @for (s of servers(); track s.name) {
-      <div class="itsv-card">
-        <div class="itsv-head">
-          <span class="itsv-name">{{ s.name }}</span>
-          <span class="itsv-dot" [style.background]="statusColor(s.status)" [style.boxShadow]="'0 0 6px ' + statusColor(s.status)"></span>
-        </div>
-        @for (m of s.metrics; track m.label) {
-          <div class="itsv-metric">
-            <span class="itsv-metric-lbl">{{ m.label }}</span>
-            <span class="itsv-metric-val" [style.color]="m.color">{{ m.value }}{{ m.suffix }}</span>
-          </div>
-          <div class="itsv-bar"><div class="itsv-fill" [style.width.%]="m.value <= 100 ? m.value : 100" [style.background]="m.color"></div></div>
-        }
-        <div class="itsv-meta">{{ s.meta }}</div>
-      </div>
-    }
-  </div>
-
-  <div class="it-foot">
-    <span>© 2026 وسيط AI · البنية التقنية</span>
-    <span>تحديث تلقائي كل 30 ثانية | آخر تحديث: {{ formatTime(lastUpdated()) }}</span>
+  <!-- AI Cleanup Batch 3: uptime, response time, error rate, request rate and every
+       server card (CPU/memory/disk/queue values, regions, uptime days) were
+       hardcoded, and "refresh" randomly nudged them to look live. No infrastructure
+       metrics source is connected, so nothing is shown here until one exists. -->
+  <div class="na-card" role="status">
+    <div class="na-ttl">مراقبة الخوادم غير متاحة بعد</div>
+    <div class="na-sub">لا يوجد حاليا مصدر متصل لقياسات الخوادم (المعالج، الذاكرة، زمن التشغيل، معدل الطلبات)، لذلك لا تُعرض أي أرقام هنا. ستتوفر هذه اللوحة عند ربط أداة مراقبة حقيقية.</div>
   </div>
 </section>

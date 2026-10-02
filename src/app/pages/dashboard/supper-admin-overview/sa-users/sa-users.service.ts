@@ -18,9 +18,9 @@ export interface AdminUser {
   last: string;
   lastActiveAt?: string;
   projects: number;
-  risk: string;
-  aiRiskScore: number;
-  aiSuspiciousNotes?: string;
+  // AI Cleanup Batch 3: risk / aiRiskScore / aiSuspiciousNotes are intentionally not
+  // typed here. The API still sends them, but no risk engine populates them (the
+  // values are schema defaults), so the UI must not display them.
   av: string;
   avBg: string;
   spending?: string;
@@ -52,11 +52,6 @@ export interface AdminUserDetailKpis {
   completedProjects: number;
 }
 
-export interface AdminUserRiskBreakdownItem {
-  label: string;
-  ok: boolean;
-}
-
 export interface AdminUserRevenuePoint {
   label: string;
   value: number;
@@ -83,12 +78,8 @@ export interface AdminUserPersonalInfo {
 
 export interface AdminUserDetail extends AdminUser {
   kpis: AdminUserDetailKpis;
-  riskScore: number;
-  riskLabel: string;
-  riskBreakdown: AdminUserRiskBreakdownItem[];
   revenueHistory: AdminUserRevenuePoint[];
   linkedAccounts: AdminUserLinkedAccount[];
-  aiInsights: string[];
   personalInfo: AdminUserPersonalInfo;
 }
 
@@ -120,7 +111,6 @@ export interface AdminUsersQueryParams {
   financialRange?: string;
   rating?: string;
   joinedDate?: string;
-  riskLevel?: string;
   lastActive?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';

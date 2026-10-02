@@ -14,7 +14,6 @@
 	<symbol id="ud-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></symbol>
 	<symbol id="ud-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
 	<symbol id="ud-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
-	<symbol id="ud-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></symbol>
 </svg>
 
 <main class="main">
@@ -57,9 +56,6 @@
 						<h1 class="ud-name">{{ u.name }}</h1>
 						<span class="status-dot" [class]="SC[u.statusOriginal] || 's-active'">{{ SL[u.statusOriginal] || u.status }}</span>
 						<span class="type-badge" [style.background]="u.typeBg" [style.color]="u.typeColor">{{ u.typeLabel }}</span>
-						@if (u.risk) {
-						<span class="risk-badge" [style.color]="RC[u.risk]" [style.background]="RC[u.risk] + '1A'">مخاطر {{ RL(u.risk) }}</span>
-						}
 						@if (u.rating) {
 						<span class="level-badge" [style.color]="LC[u.level || ''] || '#D98A0B'">
 							<svg aria-hidden="true"><use href="#ud-star"></use></svg>{{ u.rating }} {{ u.level }}
@@ -136,16 +132,10 @@
 				</div>
 			</div>
 
-			<div class="ud-panel">
-				<div class="ud-panel-hdr">Risk Score Breakdown</div>
-				<div class="ud-risk-score" [style.color]="RC[u.risk] || '#0FA99A'">{{ u.riskScore }}</div>
-				<div class="ud-risk-lbl">{{ u.riskLabel }}</div>
-				<ul class="ud-risk-list">
-					@for (item of u.riskBreakdown; track item.label) {
-					<li [class.ok]="item.ok"><svg aria-hidden="true"><use href="#ud-check"></use></svg>{{ item.label }}</li>
-					}
-				</ul>
-			</div>
+			<!-- AI Cleanup Batch 3: removed the header "مخاطر …" badge, the "Risk Score
+			     Breakdown" panel and the AI account-analysis panel. No risk engine or
+			     AI account analysis exists in the backend (User.aiRiskScore/aiRiskLevel are
+			     never computed). -->
 
 			<div class="ud-panel">
 				<div class="ud-panel-hdr">شبكة الحسابات المرتبطة</div>
@@ -157,19 +147,6 @@
 				</ul>
 				} @else {
 				<div class="ud-empty-inline">لا توجد حسابات مرتبطة بنفس الجهاز أو IBAN</div>
-				}
-			</div>
-
-			<div class="ud-panel ud-panel-wide">
-				<div class="ud-panel-hdr ud-panel-hdr-ai"><svg aria-hidden="true"><use href="#ud-ai"></use></svg>وسيط AI: تحليل الحساب</div>
-				@if (u.aiInsights.length) {
-				<ul class="ud-ai-list">
-					@for (insight of u.aiInsights; track insight) {
-					<li>{{ insight }}</li>
-					}
-				</ul>
-				} @else {
-				<div class="ud-empty-inline">لا توجد تحليلات ذكاء اصطناعي متاحة بعد لهذا الحساب</div>
 				}
 			</div>
 

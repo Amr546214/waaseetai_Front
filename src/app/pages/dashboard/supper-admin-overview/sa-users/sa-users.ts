@@ -19,7 +19,6 @@ export class SaUsers implements OnInit {
   // Reactive State Signals
   selectedAccountType = signal<string>('all');
   selectedStatus = signal<string>('ALL');
-  selectedRiskLevel = signal<string>('ALL');
   selectedFinancialRange = signal<string>('ALL');
   selectedRating = signal<string>('ALL');
   selectedJoinedDate = signal<string>('ALL');
@@ -38,9 +37,9 @@ export class SaUsers implements OnInit {
   private searchSubject = new Subject<string>();
 
   // Dictionaries for UI badging and colors
-  RL: Record<string, string> = { low: 'منخفض', medium: 'متوسط', high: 'عالٍ' };
-  RC: Record<string, string> = { low: '#0FA99A', medium: '#D98A0B', high: '#FF8C69' };
-  RB: Record<string, string> = { low: 'rgba(15,169,154,.10)', medium: 'rgba(255,180,0,.10)', high: 'rgba(255,140,105,.10)' };
+  // AI Cleanup Batch 3: the "AI مخاطر" column (and its RL/RC/RB colour maps) was
+  // removed. The backend returns aiRiskLevel || 'LOW' / aiRiskScore || 10, but no
+  // risk engine ever writes those fields, so every user showed a fake "Low" risk.
   
   SL: Record<string, string> = { active: 'نشط', suspended: 'موقوف', suspended_review: 'معلق مراجعة', pending_verification: 'معلق' };
   SC: Record<string, string> = { active: 's-active', suspended: 's-suspended', suspended_review: 's-pending', pending_verification: 's-pending' };
@@ -49,13 +48,13 @@ export class SaUsers implements OnInit {
   LB: Record<string, string> = { Bronze: 'rgba(205,127,50,.12)', Silver: 'rgba(168,169,173,.12)', Gold: 'rgba(255,180,0,.12)', Platinum: 'rgba(93,160,255,.12)' };
 
   COLS: Record<string, string[]> = {
-    'all':       ['المستخدم','النوع','الحالة','آخر نشاط','القيمة المالية','التقييم/المستوى','المشاريع','AI مخاطر','إجراءات'],
-    'sk-ind':    ['المستخدم','الحالة','آخر نشاط','القيمة المالية','المشاريع','عدد الطلبات','آخر طلب','متوسط قيمة الطلب','AI مخاطر','إجراءات'],
-    'sk-co':     ['الشركة','الحالة','آخر نشاط','القيمة المالية','المشاريع','المسؤول','حجم الفريق','ميزانية الشهر الحالي','AI مخاطر','إجراءات'],
-    'pr-ind':    ['المستخدم','الحالة','آخر نشاط','القيمة المالية','التقييم','المستوى','التخصص','المشاريع الجارية','إجمالي الإيرادات','AI مخاطر','إجراءات'],
-    'pr-co':     ['الشركة','الحالة','آخر نشاط','القيمة المالية','عدد المقدمين','التخصصات','المشاريع الجارية','إجمالي الإيرادات','AI مخاطر','إجراءات'],
-    'affiliate': ['المستخدم','الحالة','آخر نشاط','القيمة المالية (عمولات)','المستوى','إجمالي الإحالات','هذا الشهر','نسبة التحويل','AI مخاطر','إجراءات'],
-    'admin':     ['المستخدم','الحالة','آخر دخول','الدور','الصلاحيات','مهام جارية','مهام مكتملة','آخر إجراء','AI مخاطر','إجراءات']
+    'all':       ['المستخدم','النوع','الحالة','آخر نشاط','القيمة المالية','التقييم/المستوى','المشاريع','إجراءات'],
+    'sk-ind':    ['المستخدم','الحالة','آخر نشاط','القيمة المالية','المشاريع','عدد الطلبات','آخر طلب','متوسط قيمة الطلب','إجراءات'],
+    'sk-co':     ['الشركة','الحالة','آخر نشاط','القيمة المالية','المشاريع','المسؤول','حجم الفريق','ميزانية الشهر الحالي','إجراءات'],
+    'pr-ind':    ['المستخدم','الحالة','آخر نشاط','القيمة المالية','التقييم','المستوى','التخصص','المشاريع الجارية','إجمالي الإيرادات','إجراءات'],
+    'pr-co':     ['الشركة','الحالة','آخر نشاط','القيمة المالية','عدد المقدمين','التخصصات','المشاريع الجارية','إجمالي الإيرادات','إجراءات'],
+    'affiliate': ['المستخدم','الحالة','آخر نشاط','القيمة المالية (عمولات)','المستوى','إجمالي الإحالات','هذا الشهر','نسبة التحويل','إجراءات'],
+    'admin':     ['المستخدم','الحالة','آخر دخول','الدور','الصلاحيات','مهام جارية','مهام مكتملة','آخر إجراء','إجراءات']
   };
 
   get currentCols() {
@@ -172,7 +171,6 @@ export class SaUsers implements OnInit {
       search: this.searchQuery(),
       accountType: this.selectedAccountType(),
       status: this.selectedStatus(),
-      riskLevel: this.selectedRiskLevel(),
       financialRange: this.selectedFinancialRange(),
       rating: this.selectedRating(),
       joinedDate: this.selectedJoinedDate(),
@@ -221,12 +219,6 @@ export class SaUsers implements OnInit {
 
   setDateFilter(dateRange: string) {
     this.selectedJoinedDate.set(dateRange);
-    this.currentPage.set(1);
-    this.fetchUsers();
-  }
-
-  setRiskFilter(risk: string) {
-    this.selectedRiskLevel.set(risk);
     this.currentPage.set(1);
     this.fetchUsers();
   }
@@ -311,7 +303,6 @@ export class SaUsers implements OnInit {
       search: this.searchQuery(),
       accountType: this.selectedAccountType(),
       status: this.selectedStatus(),
-      riskLevel: this.selectedRiskLevel(),
       financialRange: this.selectedFinancialRange(),
       rating: this.selectedRating(),
       joinedDate: this.selectedJoinedDate(),

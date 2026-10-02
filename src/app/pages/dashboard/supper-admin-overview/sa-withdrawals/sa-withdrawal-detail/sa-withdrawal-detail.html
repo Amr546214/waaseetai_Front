@@ -27,20 +27,13 @@
         </div>
       </div>
       <div class="wd-md-body">
-        <!-- AI risk analysis (mock — no backend risk-scoring endpoint yet) -->
-        <div class="wd-ai-panel">
-          <div class="wd-ai-hdr">
-            <span class="wd-ai-ic">✦</span>
-            <span>وسيط AI: تحليل الطلب</span>
-          </div>
-          @for (insight of riskInsights(w); track insight) {
-            <div class="wd-ai-row">
-              <span class="wd-ai-dot">✦</span>
-              <p>{{ insight }}</p>
-            </div>
-          }
-        </div>
-
+        <!-- AI Cleanup Batch 3: removed the "وسيط AI" risk panel (its "no suspicious
+             activity — approval recommended" line was picked from a hash of the
+             withdrawal id), the "IBAN verified" badge (only checked that an IBAN
+             string exists), the hash-seeded "balance source" project table and the
+             local-only "request more information" action. No backend risk scoring,
+             IBAN verification, balance-source breakdown or info-request endpoint
+             exists. Real withdrawal data and the approve/reject controls are unchanged. -->
         <div class="wd-md-field">
           <label>المبلغ</label>
           <p>{{ formatAmount(w.amount, w.currency) }}</p>
@@ -77,12 +70,7 @@
         </div>
         @if (w.bankInfo) {
           <div class="wd-md-section">
-            <label>
-              البيانات البنكية
-              @if (ibanVerified(w)) {
-                <span class="wd-verify-badge">✓ IBAN محقق <span class="wd-mock-tag">تقديري</span></span>
-              }
-            </label>
+            <label>البيانات البنكية</label>
             <div class="wd-md-bank">
               <div class="wd-md-row">
                 <div class="wd-md-field">
@@ -107,33 +95,6 @@
             </div>
           </div>
         }
-
-        <!-- Balance source breakdown (mock — recent paid projects) -->
-        <div class="wd-md-section">
-          <label>مصدر الرصيد (آخر المشاريع المسدَّدة) <span class="wd-mock-tag">بيانات تقديرية</span></label>
-          <div class="wd-md-table-wrap">
-            <table class="wd-md-table">
-              <thead>
-                <tr>
-                  <th>المشروع</th>
-                  <th>القيمة</th>
-                  <th>بعد رسوم 10%</th>
-                  <th>التاريخ</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of balanceSource(w); track row.title) {
-                  <tr>
-                    <td>{{ row.title }}</td>
-                    <td class="wd-hl-green">{{ formatAmount(row.gross, w.currency) }}</td>
-                    <td class="wd-hl-teal">{{ formatAmount(row.net, w.currency) }}</td>
-                    <td class="wd-muted">{{ row.date }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
 
         @if (w.adminNote) {
           <div class="wd-md-field">
@@ -171,30 +132,12 @@
           <p>{{ actionSuccess() }}</p>
         </div>
       }
-      @if (infoRequestSuccess()) {
-        <div class="wd-md-success">
-          <p>{{ infoRequestSuccess() }}</p>
-        </div>
-      }
 
-      @if (canAct(w.status) && !showActionForm() && !showInfoRequestForm()) {
+      @if (canAct(w.status) && !showActionForm()) {
         <div class="wd-md-actions">
           <button type="button" class="wd-btn wd-btn-pri" (click)="openActionForm('approve')">قبول طلب السحب</button>
           <button type="button" class="wd-btn wd-btn-reject" (click)="openActionForm('reject')">رفض طلب السحب</button>
-          <button type="button" class="wd-btn wd-btn-info" (click)="openInfoRequestForm()">طلب معلومات إضافية</button>
           <button type="button" class="wd-btn wd-btn-gh" (click)="goBack()">العودة للقائمة</button>
-        </div>
-      } @else if (showInfoRequestForm()) {
-        <div class="wd-action-form">
-          <h4 class="wd-af-ttl">طلب معلومات إضافية من مقدم الطلب</h4>
-          <div class="wd-md-field">
-            <label>الرسالة</label>
-            <textarea class="wd-af-ta" [value]="infoRequestMessage()" (input)="infoRequestMessage.set($any($event.target).value)" placeholder="اكتب توضيحاً بما هو مطلوب من مقدم الطلب…"></textarea>
-          </div>
-          <div class="wd-af-actions">
-            <button type="button" class="wd-btn wd-btn-pri" (click)="submitInfoRequest()">إرسال الطلب</button>
-            <button type="button" class="wd-btn wd-btn-gh" (click)="cancelInfoRequestForm()">إلغاء</button>
-          </div>
         </div>
       } @else if (showActionForm()) {
         <div class="wd-action-form">

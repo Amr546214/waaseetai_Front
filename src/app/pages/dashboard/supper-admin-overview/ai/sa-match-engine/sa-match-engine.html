@@ -1,126 +1,19 @@
 <section class="page" dir="rtl">
-  <h1 class="sr-only">AI Match Engine Visualizer</h1>
+  <h1 class="sr-only">محرك المطابقة</h1>
 
   <div class="page-hdr">
     <div>
-      <h2 class="page-ttl">AI Match Engine Visualizer</h2>
-      <p class="page-sub">تصوير عمل محرك المطابقة — الأوزان + العوامل + شرح كيف تتم المطابقة</p>
-    </div>
-    <div class="hdr-actions">
-      <button type="button" class="btn btn-ghost">تصدير التقرير</button>
-      <button type="button" class="btn btn-primary">ضبط الأوزان</button>
+      <h2 class="page-ttl">محرك المطابقة</h2>
+      <p class="page-sub">عرض قرارات مطابقة الطلبات مع مقدمي الخدمة</p>
     </div>
   </div>
 
-  <div class="ai-disc">
-    <div class="ai-disc-ico">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /></svg>
-    </div>
-    <div>
-      <div class="ai-disc-lbl">Self-explain AI</div>
-      <p class="ai-disc-txt">محرك المطابقة يشرح قراراته — يعرض وزن كل عامل وكيف أدى إلى النتيجة
-        <span class="ai-disc-bdg">دقة 94.8%</span>
-      </p>
-    </div>
-  </div>
-
-  <div class="match-layout">
-    <div class="factor-card">
-      <div class="factor-ttl">عوامل المطابقة وأوزانها الحالية</div>
-      @for (f of factors; track f.name) {
-        <div class="factor-item">
-          <span class="factor-name">{{ f.name }}</span>
-          <div class="factor-bar"><div class="factor-fill" [style.width.%]="f.weight" [style.background]="f.color"></div></div>
-          <span class="factor-weight" [style.color]="f.color">{{ f.weight }}%</span>
-        </div>
-      }
-      <div class="how-box">
-        <strong class="how-ttl">كيف تعمل المطابقة:</strong>
-        1. يُحلل الطلب ويستخرج متطلبات التخصص والميزانية<br />
-        2. يُقيّم المقدمين النشطين بناءً على الأوزان أعلاه<br />
-        3. يُعيد ترتيبهم حسب درجة المطابقة<br />
-        4. يعرض أفضل 10 مطابقات للطالب
-      </div>
-    </div>
-
-    <div class="sample-card">
-      <div class="sample-ttl">مثال مطابقة حي</div>
-      <div class="match-preview">
-        <div class="match-score">{{ liveMatch.score }}</div>
-        <div class="match-lbl">درجة مطابقة</div>
-        <div class="match-detail">
-          <strong class="detail-strong">الطلب:</strong> {{ liveMatch.request }}<br />
-          <strong class="detail-strong">المطابق:</strong> {{ liveMatch.matched }}<br /><br />
-          @for (b of liveMatch.breakdown; track b.label) {
-            ✓ {{ b.label }}: <span [style.color]="b.color">{{ b.value }}</span><br />
-          }
-        </div>
-      </div>
-      <div class="sample-meta">
-        آخر تدريب: {{ liveMatch.lastTraining }}<br />
-        حجم بيانات التدريب: {{ liveMatch.trainingSize }}<br />
-        نموذج: {{ liveMatch.model }}
-      </div>
-    </div>
-  </div>
-
-  <div class="tbl-card">
-    <div class="tbl-hdr">
-      <span class="tbl-ttl">أحدث قرارات المطابقة + شرح AI</span>
-      <span class="tbl-count">آخر 24 ساعة</span>
-    </div>
-    <div class="tbl-wrap">
-      <table class="data-tbl">
-        <thead>
-          <tr><th>الطلب</th><th>أفضل مطابقة</th><th>الدرجة</th><th>العامل الأبرز</th><th>هل قبل الطالب؟</th></tr>
-        </thead>
-        <tbody>
-          @for (r of decisionRows; track r.request) {
-            <tr>
-              <td class="cell-strong">{{ r.request }}</td>
-              <td style="color:#2BD4C7">{{ r.bestMatch }}</td>
-              <td class="cell-num" [style.color]="r.scoreColor">{{ r.score }}%</td>
-              <td class="cell-muted">{{ r.topFactor }}</td>
-              <td>
-                @if (r.accepted) {
-                  <span class="bdg bdg-success">✓ قبل</span>
-                } @else {
-                  <span class="bdg bdg-danger">✗ رفض</span>
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="explain-card">
-    <div class="explain-ttl">Explainability Drill-Down — لماذا اختار AI هذا المقدم؟</div>
-    <div class="explain-btns">
-      @for (d of decisions; track d.name; let i = $index) {
-        <button type="button" class="explain-btn" [class.active]="selectedDecision() === i" (click)="showDecision(i)">{{ d.name }} — {{ d.score }}</button>
-      }
-    </div>
-    <div class="explain-panel">
-      <div class="explain-intro">لماذا اختار AI <strong class="detail-strong">{{ activeDecision().name }}</strong> بدرجة <strong style="color:#A56BE0">{{ activeDecision().score }}</strong></div>
-      @for (f of activeDecision().factors; track f.label) {
-        <div class="explain-row">
-          <div class="explain-row-body">
-            <div class="explain-row-lbl">{{ f.label }}</div>
-            <div class="explain-row-note">{{ f.note }}</div>
-          </div>
-          <div class="explain-row-bar-wrap">
-            <div class="explain-row-bar"><div class="explain-row-fill" [style.width.%]="f.val" [style.background]="f.color"></div></div>
-            <div class="explain-row-val" [style.color]="f.color">{{ f.val }}%</div>
-          </div>
-        </div>
-      }
-    </div>
-  </div>
-
-  <div class="inner-foot">
-    <span>© 2026 وسيط AI · Match Engine Visualizer</span>
-    <span>دقة المطابقة: 94.8% | 2.4M عينة تدريب</span>
+  <!-- AI Cleanup Batch 3: factor weights, match scores, model name, training-set size,
+       recent decisions and per-provider explanations were all hardcoded. The backend
+       does not log match decisions, scores or factor contributions and exposes no
+       configurable weights, so nothing is shown here until that capability exists. -->
+  <div class="na-card" role="status">
+    <div class="na-ttl">عرض محرك المطابقة غير متاح بعد</div>
+    <div class="na-sub">لا يحتفظ النظام حاليا بسجل لقرارات المطابقة أو درجاتها أو أوزان عواملها، ولا تتوفر واجهة لضبط هذه الأوزان، لذلك لا تُعرض أي بيانات هنا.</div>
   </div>
 </section>

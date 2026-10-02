@@ -104,13 +104,8 @@
           </div>
         </div>
         <div class="fr-row">
-          <div class="fr-period-lbl">Risk Score (AI)</div>
-          <div class="date-segs">
-            <button class="ds" [class.active]="selectedRiskLevel() === 'ALL'" (click)="setRiskFilter('ALL')">الكل</button>
-            <button class="ds txt-green" [class.active]="selectedRiskLevel() === 'LOW'" (click)="setRiskFilter('LOW')">منخفض &lt;30</button>
-            <button class="ds txt-amber" [class.active]="selectedRiskLevel() === 'MEDIUM'" (click)="setRiskFilter('MEDIUM')">متوسط 30-70</button>
-            <button class="ds txt-coral" [class.active]="selectedRiskLevel() === 'HIGH'" (click)="setRiskFilter('HIGH')">مرتفع &gt;70</button>
-          </div>
+          <!-- AI Cleanup Batch 3: the AI risk-score filter was removed — User.aiRiskLevel is
+               never computed (every user carries the schema default LOW). -->
           <div class="fr-period-lbl">آخر نشاط</div>
           <div class="date-segs">
             <button class="ds" [class.active]="selectedLastActive() === 'ALL'" (click)="setLastActiveFilter('ALL')">الكل</button>
@@ -260,10 +255,6 @@
                     }
                   }
 
-                  <td>
-                    <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;" [style.background]="RB[u.risk]" [style.color]="RC[u.risk]">{{ RL[u.risk] || u.risk }}</span>
-                  </td>
-                  
                   <td>
                     <div class="row-actions">
                       <a [routerLink]="['/supper-admin-overview/users', u.id]" class="act-btn" title="عرض الملف"><svg aria-hidden="true"><use href="#i-eye"></use></svg></a>

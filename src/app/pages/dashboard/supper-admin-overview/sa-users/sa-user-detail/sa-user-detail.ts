@@ -23,9 +23,6 @@ export class SaUserDetail implements OnInit {
 	error = signal<string>('');
 	activeTab = signal<DetailTab>('overview');
 
-	RC: Record<string, string> = { low: '#0FA99A', medium: '#D98A0B', high: '#FF8C69' };
-	private RL_MAP: Record<string, string> = { low: 'منخفضة', medium: 'متوسطة', high: 'عالية' };
-	RL(risk: string): string { return this.RL_MAP[risk] || risk; }
 	SL: Record<string, string> = { active: 'نشط', suspended: 'موقوف', suspended_review: 'معلق مراجعة', pending_verification: 'معلق' };
 	SC: Record<string, string> = { active: 's-active', suspended: 's-suspended', suspended_review: 's-pending', pending_verification: 's-pending' };
 	LC: Record<string, string> = { Bronze: '#CD7F32', Silver: '#A8A9AD', Gold: '#D98A0B', Platinum: '#5DA0FF' };

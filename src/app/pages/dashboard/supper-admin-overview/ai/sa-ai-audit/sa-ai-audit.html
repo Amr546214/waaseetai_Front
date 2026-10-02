@@ -1,88 +1,19 @@
 <section class="page" dir="rtl">
-  <h1 class="sr-only">AI Recommendations + Audit</h1>
+  <h1 class="sr-only">سجل توصيات الذكاء الاصطناعي</h1>
 
   <div class="page-hdr">
     <div>
-      <h2 class="page-ttl">AI Recommendations + Audit</h2>
-      <p class="page-sub">سجل كل توصيات AI + مدى دقتها + سجل التدقيق لكل قرار اتخذه النظام</p>
-    </div>
-    <div class="hdr-actions">
-      <button type="button" class="btn btn-ghost">تصدير Audit Log</button>
-      <button type="button" class="btn btn-primary">تقرير الدقة</button>
+      <h2 class="page-ttl">سجل توصيات الذكاء الاصطناعي</h2>
+      <p class="page-sub">سجل التدقيق لتوصيات الذكاء الاصطناعي ونتائجها</p>
     </div>
   </div>
 
-  <div class="ai-disc">
-    <div class="ai-disc-ico">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /></svg>
-    </div>
-    <div>
-      <div class="ai-disc-lbl">Self-explain AI</div>
-      <p class="ai-disc-txt">كل توصية AI محفوظة مع سجل شامل — لماذا أوصى بها؟ ما النتيجة؟ ما معدل قبولها؟
-        <span class="ai-disc-bdg">89.4% معدل القبول</span>
-      </p>
-    </div>
-  </div>
-
-  <div class="kpi-grid">
-    @for (k of kpis; track k.label) {
-      <div class="kpi-card">
-        <div class="kpi-top">
-          <div class="kpi-ic" [style.background]="k.color + '1f'" [style.color]="k.color">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /></svg>
-          </div>
-          <span class="kpi-lbl">{{ k.label }}</span>
-        </div>
-        <div class="kpi-val" [style.color]="k.color">{{ k.value }}</div>
-        <div class="kpi-unit">{{ k.unit }}</div>
-        <div class="kpi-sub" [style.color]="k.subColor">{{ k.sub }}</div>
-      </div>
-    }
-  </div>
-
-  <div class="tabs-wrap">
-    @for (t of tabs; track t.key) {
-      <button type="button" class="tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
-    }
-  </div>
-
-  <div class="tbl-card">
-    <div class="tbl-hdr">
-      <span class="tbl-ttl">سجل توصيات AI + Audit</span>
-      <span class="tbl-count">{{ filteredRows().length }} سجل — آخر 24 ساعة</span>
-    </div>
-    <div class="tbl-wrap">
-      <table class="data-tbl">
-        <thead>
-          <tr><th>الوقت</th><th>نوع التوصية</th><th>المستخدم</th><th>التوصية</th><th>الثقة</th><th>سبب القرار</th><th>النتيجة</th></tr>
-        </thead>
-        <tbody>
-          @for (r of filteredRows(); track r.time + r.user) {
-            <tr>
-              <td class="cell-mono">{{ r.time }}</td>
-              <td><span class="bdg" [style.background]="r.typeColor + '1a'" [style.color]="r.typeColor">{{ r.typeLabel }}</span></td>
-              <td class="cell-strong">{{ r.user }}</td>
-              <td class="cell-rec" [style.color]="r.recColor">{{ r.recommendation }}</td>
-              <td>
-                <div class="conf-wrap">
-                  <div class="conf-bar"><div class="conf-fill" [style.width.%]="r.confidence" [style.background]="r.confColor"></div></div>
-                  <span class="conf-val" [style.color]="r.confColor">{{ r.confidence }}%</span>
-                </div>
-              </td>
-              <td class="cell-muted">{{ r.reason }}</td>
-              <td><span class="bdg" [style.background]="outcomeColors[r.outcome] + '1a'" [style.color]="outcomeColors[r.outcome]">{{ outcomeLabels[r.outcome] }}</span></td>
-            </tr>
-          }
-          @if (filteredRows().length === 0) {
-            <tr><td colspan="7" class="empty-cell">لا توجد سجلات لهذا التصنيف</td></tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="inner-foot">
-    <span>© 2026 وسيط AI · AI Recommendations + Audit</span>
-    <span>معدل القبول: 89.4% | 42M سجل محفوظ</span>
+  <!-- AI Cleanup Batch 3: the KPIs, acceptance rate and every audit row (users,
+       transactions, confidence %, reasons, outcomes) were hardcoded. The backend has
+       no store of AI recommendations or their outcomes, so nothing is shown here
+       until that capability exists. -->
+  <div class="na-card" role="status">
+    <div class="na-ttl">سجل التدقيق غير متاح بعد</div>
+    <div class="na-sub">لا يسجّل النظام حاليا توصيات الذكاء الاصطناعي أو نتائجها، لذلك لا توجد سجلات لعرضها هنا.</div>
   </div>
 </section>
