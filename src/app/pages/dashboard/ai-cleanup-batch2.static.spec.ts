@@ -6,7 +6,7 @@
 // to still be present, so the cleanup cannot silently drop real data.
 // Same raw-source approach as ai-cleanup-batch1.static.spec.ts.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 function readSrc(relativePath: string): string {
@@ -26,6 +26,7 @@ const signContractHtml = readSrc('provider-overview/offers/sign-contract/sign-co
 const applyBase = 'provider-overview/explore-requests/applay-request/';
 const applyStep3Html = readSrc(applyBase + 'components/step3-review/step3-review.html');
 const applyStep4Html = readSrc(applyBase + 'components/step4-success/step4-success.html');
+const applyStep1Html = readSrc(applyBase + 'components/step1-general/step1-general.html');
 const applyHtml = readSrc(applyBase + 'applay-request.html');
 
 const incomingHtml = readSrc('provider-overview/company/incoming-requests/incoming-requests.component.html');
@@ -130,6 +131,13 @@ describe('AI Cleanup Batch 2 — provider negotiate', () => {
 });
 
 describe('AI Cleanup Batch 2 — provider apply-request steps 3 & 4', () => {
+	it('step 1: proposal AI suggest tooltip has no hardcoded proposal text or fake confidence', () => {
+		expect(applyStep1Html).not.toContain('أحتاج إلى تطوير متجر إلكتروني متكامل');
+		expect(applyStep1Html).not.toContain('دقة AI: 95%');
+		expect(applyStep1Html).toContain('لا يستخدم هذا الاقتراح ميزانية المشروع لتحديد سعر عادل');
+		expect(applyStep1Html).toContain('تشغيل الاقتراح');
+	});
+
 	it('step 3: no fixed "optimal" price/duration panel or fixed duration note', () => {
 		expect(applyStep3Html).not.toContain('4,500');
 		expect(applyStep3Html).not.toContain('14 يوم');
@@ -234,5 +242,19 @@ describe('AI Cleanup Batch 2 — single score not shown as six independent metri
 		expect(marketerDataHtml).not.toContain('32%');
 		expect(marketerDataHtml).not.toContain('useAiChannelSuggestion');
 		expect(marketerDataTs).not.toContain('useAiChannelSuggestion');
+	});
+});
+
+describe('AI Cleanup Batch 2 — no hardcoded AI accuracy badges', () => {
+	const appRoot = join(process.cwd(), 'src/app');
+	const htmlFiles = (dir: string): string[] =>
+		readdirSync(dir).flatMap((n) => {
+			const p = join(dir, n);
+			return statSync(p).isDirectory() ? htmlFiles(p) : p.endsWith('.html') ? [p] : [];
+		});
+
+	it('no template shows a literal "دقة NN%" badge', () => {
+		const offenders = htmlFiles(appRoot).filter((f) => /دقة\s*\d+(\.\d+)?\s*%/.test(readFileSync(f, 'utf8')));
+		expect(offenders).toEqual([]);
 	});
 });

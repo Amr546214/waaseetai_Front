@@ -198,6 +198,48 @@ describe('RequestDetails — Compare Offers', () => {
 		expect(html).not.toContain('85%');
 		expect(html).not.toContain('95%');
 	});
+	it('shows "تقييم جودة العرض" with the WaseetAI summary and a caveat that it does not measure project fit or price fairness', async () => {
+		const offer = makeOffer({
+			aiAnalysis: { ...makeOffer().aiAnalysis, qualityTag: 'قوي', qualitySummary: 'عرض قوي بخطة واضحة على ثلاث مراحل.' }
+		});
+		component.offers.set([offer]);
+		fixture.detectChanges();
+		await fixture.whenStable();
+		const html: string = fixture.nativeElement.innerHTML;
+		expect(html).toContain('تقييم جودة العرض');
+		expect(html).toContain('عرض قوي بخطة واضحة على ثلاث مراحل.');
+		expect(html).toContain('ولا يقيس توافقه مع مشروعك ولا عدالة السعر');
+		// No fabricated fairness rows for a proposal that carries no such judgement.
+		expect(html).not.toContain('السعر العادل');
+		expect(html).not.toContain('المدة العادلة');
+	});
+
+	it('shows no quality review block (and no fairness placeholders) when nothing was evaluated', async () => {
+		component.offers.set([makeOffer()]);
+		fixture.detectChanges();
+		await fixture.whenStable();
+		const html: string = fixture.nativeElement.innerHTML;
+		expect(html).not.toContain('تقييم جودة العرض');
+		expect(html).not.toContain('السعر العادل');
+	});
+
+	it('still shows the price/duration fairness rows for older proposals that stored them', async () => {
+		const offer = makeOffer({ aiAnalysis: { ...makeOffer().aiAnalysis, fairPrice: '900 - 1200 $', priceNote: 'ضمن النطاق' } });
+		component.offers.set([offer]);
+		fixture.detectChanges();
+		await fixture.whenStable();
+		const html: string = fixture.nativeElement.innerHTML;
+		expect(html).toContain('السعر العادل');
+		expect(html).toContain('900 - 1200 $');
+	});
+
+	it('translates known quality tags and leaves unknown ones as received', () => {
+		expect(component.qualityTagAr('Strong')).toBe('قوي');
+		expect(component.qualityTagAr('excellent')).toBe('ممتاز');
+		expect(component.qualityTagAr('Mystery')).toBe('Mystery');
+		expect(component.qualityTagAr(null)).toBeNull();
+	});
+
 });
 
 // Batch 5 (truthfulness pass) — request-details used to read the

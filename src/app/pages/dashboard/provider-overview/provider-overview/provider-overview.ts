@@ -13,6 +13,17 @@ import { AccountType } from '../../../../core/models/auth.model';
   styleUrl: './provider-overview.css',
 })
 export class ProviderOverview implements OnInit {
+	/**
+	 * True only when the backend says the ranking was produced by an AI
+	 * service. The matching list is currently produced by fixed rules
+	 * ('DETERMINISTIC'), which must never be labelled as AI. The old check
+	 * compared against the removed 'GEMINI' source and could never be true.
+	 */
+	isAiRanked(list: Array<{ generationSource?: string }> | null | undefined): boolean {
+		const source = list?.[0]?.generationSource;
+		return !!source && source !== 'DETERMINISTIC';
+	}
+
   private providerApiService = inject(ProviderApiService);
   private authStore = inject(AuthStore);
 

@@ -9,7 +9,8 @@ export interface SetupTestResult {
   score: number;
   message: string;
   total: number;
-  correct: number;
+  /** Only when the backend really counted correct answers; WaseetAI-graded tests report a score only. */
+  correct?: number;
 }
 
 export interface SetupTestQuestion {

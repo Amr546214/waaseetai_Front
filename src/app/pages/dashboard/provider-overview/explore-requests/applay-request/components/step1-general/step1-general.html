@@ -67,11 +67,11 @@
 			            صياغة AI المقترحة
           </div>
           <div class="text-[13.5px] text-[#A8B2D1] leading-relaxed mb-3 italic ai-tooltip-body">
-            "أحتاج إلى تطوير متجر إلكتروني متكامل لعلامة تجارية في قطاع الأزياء. يشمل المشروع تصميم واجهة مستخدم عصرية RTL، صفحات منتجات، نظام دفع إلكتروني متوافق مع SAMA، لوحة إدارة، وتكامل مع منصات التوصيل المحلية."
+            سيعيد وسيط AI صياغة عنوان العرض ورسالته بناءً على النص الذي كتبته فقط. لا يستخدم هذا الاقتراح ميزانية المشروع لتحديد سعر عادل، ولا يقيس مطابقة عرضك مع المشروع.
           </div>
-          <div class="text-[11px] font-bold text-[#6B7699] mb-[10px] ai-tooltip-conf">دقة AI: 95%، بناء على طلبات مشابهة</div>
+          <div class="text-[11px] font-bold text-[#6B7699] mb-[10px] ai-tooltip-conf">راجع الصياغة قبل اعتمادها؛ القرار النهائي لك.</div>
           <div class="flex gap-2 ai-tooltip-actions">
-            <button type="button" class="py-[7px] px-[14px] bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.25)] rounded-lg text-xs font-bold text-[#2BD4C7] cursor-pointer transition-all duration-150 hover:bg-[rgba(43,212,199,.20)] ai-use-btn" (click)="useAISuggest.emit()">استخدم هذا الوصف</button>
+            <button type="button" class="py-[7px] px-[14px] bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.25)] rounded-lg text-xs font-bold text-[#2BD4C7] cursor-pointer transition-all duration-150 hover:bg-[rgba(43,212,199,.20)] ai-use-btn" (click)="useAISuggest.emit()">تشغيل الاقتراح</button>
             <button type="button" class="py-[7px] px-[14px] bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.10)] rounded-lg text-xs font-bold text-[#6B7699] cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,.08)] hover:text-[#A8B2D1] ai-dismiss-btn" (click)="showAiSuggestChange.emit(!showAiSuggest)">تجاهل</button>
           </div>
         </div>
@@ -95,7 +95,7 @@
 
     <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.14);border-radius:10px;margin-bottom:14px;font-size:12.5px" class="txt-purple">
       <svg style="width:13px;height:13px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
-      AI يقترح متطلبات بناء على تخصصك، يمكنك إضافتها أو تعديلها
+      قد يقترح AI مزايا لصياغة العرض بناءً على النص الذي كتبته، ويمكنك إضافتها أو تعديلها
     </div>
 
     <div class="flex flex-col gap-2 mb-3 req-list">

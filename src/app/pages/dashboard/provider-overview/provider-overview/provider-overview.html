@@ -122,7 +122,7 @@
 				<div class="dash-sub" *ngIf="data.summary.hasApprovedSpecialties"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-ai"></use>
-					</svg>{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'توصية AI' : 'حسب تخصصك' }}: لديك {{ data.aiMatchingProjects?.length || 0 }} طلبات جديدة تناسب تخصصك و{{
+					</svg>{{ isAiRanked(data.aiMatchingProjects) ? 'توصية AI' : 'حسب تخصصك' }}: لديك {{ data.aiMatchingProjects?.length || 0 }} طلبات جديدة تناسب تخصصك و{{
 					data.summary?.pendingOffersCount || 0 }} تسليم بانتظار اعتماد العميل</div>
 			</div>
 			<div class="dash-chips">
@@ -297,10 +297,10 @@
 				</svg>
 			</div>
 			<div class="ai-disc-body">
-				<!-- AI Cleanup Batch 5: GEMINI = real Gemini ranking (ai-matching-engine);
-				     otherwise the rule-engine fallback, which is not AI and shows no %. -->
-				<div class="ai-disc-lbl">{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'وسيط AI - ترتيب الطلبات' : 'وسيط - ترتيب حسب التخصص' }}</div>
-				<p class="ai-disc-txt">{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? 'AI يرتّب' : 'قواعد ثابتة (دون AI) ترتّب' }} لك طلبات العملاء حسب توافقها مع تخصصك وتاريخك <span
+				<!-- Labelled as AI only when the backend reports a non-deterministic source;
+				     the rule engine is not AI and sends no percentage. -->
+				<div class="ai-disc-lbl">{{ isAiRanked(data.aiMatchingProjects) ? 'وسيط AI - ترتيب الطلبات' : 'وسيط - ترتيب حسب التخصص' }}</div>
+				<p class="ai-disc-txt">{{ isAiRanked(data.aiMatchingProjects) ? 'AI يرتّب' : 'قواعد ثابتة (دون AI) ترتّب' }} لك طلبات العملاء حسب توافقها مع تخصصك وتاريخك <span
 						class="ai-disc-badge">مطابقة تخصص</span> - الإنسان يحتفظ بالقرار النهائي دائما</p>
 			</div>
 		</div>
@@ -432,7 +432,7 @@
 						stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 						<use href="#i-ai"></use>
 					</svg>
-					طلبات مطابقة لتخصصاتك{{ data.aiMatchingProjects?.[0]?.generationSource === 'GEMINI' ? ' (AI)' : '' }}
+					طلبات مطابقة لتخصصاتك{{ isAiRanked(data.aiMatchingProjects) ? ' (AI)' : '' }}
 				</h2>
 				<a class="card-lnk cursor-pointer txt-violet"
 					style="background:rgba(123,47,190,.12);padding:6px 14px;border-radius:20px;border:1px solid rgba(123,47,190,.3);text-decoration:none"
@@ -467,15 +467,15 @@
 									m.category || m.specialty || 'خدمة تخصصية' }}</div>
 							</div>
 						</div>
-						<!-- Batch 5: a percentage only for a real Gemini score; the
-						     deterministic fallback sends aiMatchScore = null. -->
-						<div *ngIf="m.generationSource === 'GEMINI' && m.aiMatchScore !== null && m.aiMatchScore !== undefined" class="offer-ai-match txt-violet"
+						<!-- A percentage is shown only when the backend actually provides one (the rule
+						     engine sends none). Its label says what produced it. -->
+						<div *ngIf="m.aiMatchScore !== null && m.aiMatchScore !== undefined" class="offer-ai-match txt-violet"
 							style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:12px;font-weight:800;background:rgba(123,47,190,.14);border:1px solid rgba(123,47,190,.28);white-space:nowrap">
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							<ng-container *ngIf="m.generationSource !== 'DETERMINISTIC'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 								stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 								<use href="#i-ai"></use>
-							</svg>
-							توافق AI • {{ m.aiMatchScore }}%
+							</svg></ng-container>
+							{{ m.generationSource === 'DETERMINISTIC' ? 'نسبة مطابقة (قواعد ثابتة، دون AI)' : 'توافق AI' }} • {{ m.aiMatchScore }}%
 						</div>
 					</div>
 					<div *ngIf="m.matchReasons?.length" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
