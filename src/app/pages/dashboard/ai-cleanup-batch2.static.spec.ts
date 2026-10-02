@@ -330,3 +330,11 @@ describe('AI Cleanup Batch 2 — bio suggestion stays disabled while the backend
 		expect(setupHtml).not.toContain('bio-preview');
 	});
 });
+
+describe('AI Cleanup Batch 2 — proposal AI suggest requires title and message together', () => {
+	it('apply page uses the shared check and no longer accepts a single field', () => {
+		expect(applyTs).toContain('aiSuggestInputError(current.title, current.message)');
+		expect(applyTs).not.toContain('أو نصه أولاً');
+		expect(applyTs).not.toMatch(/!current\.title\?\.trim\(\) && !current\.message\?\.trim\(\)/);
+	});
+});
