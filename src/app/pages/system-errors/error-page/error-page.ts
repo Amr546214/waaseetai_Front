@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Input, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 
@@ -71,6 +71,11 @@ const CONFIGS: Record<ErrorType, ErrorConfig> = {
 })
 export class ErrorPageComponent implements OnInit, AfterViewInit {
 	@Input() type: ErrorType | '' = '';
+	/**
+	 * True when the page is rendered INSIDE the dashboard layout (route data `embedded: true`):
+	 * the layout already provides the background grid, particles and logo, so only the card is drawn.
+	 */
+	@HostBinding('class.embedded') embedded = false;
 
 	@ViewChild('particles') private particlesRef?: ElementRef<HTMLDivElement>;
 
@@ -80,10 +85,11 @@ export class ErrorPageComponent implements OnInit, AfterViewInit {
 
 	ngOnInit() {
 		// Read from route data if the type input was not set explicitly
+		const data = this.route.snapshot.data;
 		if (!this.type) {
-			const data = this.route.snapshot.data;
 			this.type = (data && data['type'] ? data['type'] : '500') as ErrorType;
 		}
+		this.embedded = data?.['embedded'] === true;
 	}
 
 	ngAfterViewInit() {

@@ -366,5 +366,10 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'company/team-deliveries',
 		loadComponent: () => import('./company/team-deliveries/team-deliveries').then(m => m.TeamDeliveries),
 		data: { title: "سجل تسليمات الفريق" }
+	},
+	{
+		path: '**',
+		loadComponent: () => import('../../../sheards/not-found/not-found').then(m => m.NotFoundComponent),
+		data: { title: "الصفحة غير موجودة", hideAssistant: true, embedded: true }
 	}
 ];

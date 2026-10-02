@@ -426,4 +426,9 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
     },
         ]
     },
+	{
+		path: '**',
+		loadComponent: () => import('../../../sheards/not-found/not-found').then(m => m.NotFoundComponent),
+		data: { title: "الصفحة غير موجودة", hideAssistant: true, embedded: true }
+	}
 ];

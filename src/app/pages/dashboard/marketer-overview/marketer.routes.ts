@@ -70,5 +70,10 @@ export const MARKETER_ROUTES: Routes = [
 		path: 'help',
 		loadComponent: () => import('./help/help').then(m => m.Help),
 		data: { title: "المساعدة" }
+	},
+	{
+		path: '**',
+		loadComponent: () => import('../../../sheards/not-found/not-found').then(m => m.NotFoundComponent),
+		data: { title: "الصفحة غير موجودة", hideAssistant: true, embedded: true }
 	}
 ];
