@@ -248,14 +248,22 @@ describe('Specialties — submission transport consolidation (Batch 3D-3 + 3D-4 
 		expect(fixture.nativeElement.textContent).toContain('الإجابات الصحيحة');
 	});
 
-	it('a result with no real score is an honest failure, never a default 80%', () => {
+	it('a result with no real score is a service error, never a failed/rejected result for the user', () => {
 		submitViaSocket();
 
-		antiCheatService.evaluationComplete$.next({ attemptId: 'attempt-1', isPassed: true, status: 'COMPLETED' });
+		antiCheatService.evaluationComplete$.next({ attemptId: 'attempt-1', isPassed: false, status: 'COMPLETED' });
+		component.currentStep.set(4);
+		fixture.detectChanges();
 
-		expect(component.quizResult()?.passed).toBe(false);
-		expect(component.quizResult()?.scorePercentage).toBe(0);
-		expect(component.quizResult()?.status).toBe('SUBMISSION_FAILED');
+		expect(component.quizResult()).toBeNull();
+		expect(component.quizGenerationError()).toContain('لم يتم احتساب أي درجة');
+		expect(component.isSubmittingQuiz()).toBe(false);
+		const text = fixture.nativeElement.textContent as string;
+		expect(text).toContain('تعذر إكمال التقييم الفني'); // the error card is shown
+		expect(text).toContain('إعادة المحاولة');
+		expect(text).not.toContain('0%');
+		expect(text).not.toContain('معلقة مؤقتاً'); // no "badge locked" / failed-result screen
+		expect(postSpy).not.toHaveBeenCalled(); // nothing was submitted or changed
 	});
 
 	// Batch 3D-4, requirements 3 & 16 — success is received and applied

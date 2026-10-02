@@ -1257,24 +1257,15 @@ export class Specialties implements OnInit, OnDestroy {
 		}, 60);
 	}
 
-	// Honest failure — this used to fabricate a guaranteed-passing 80% score
-	// (and even marked answers as "correct" purely by question index,
-	// ignoring what the user actually selected) whenever both the socket and
-	// REST submission paths failed. No real grading ever happened in that
-	// case, so it must never report a pass, a score, or a badge. Reuses the
-	// existing "did not pass" UI branch — no new UI was introduced.
+	// A response without a real score is a SERVICE/DATA error, not a result:
+	// it must never be shown as the user failing the assessment, never carry a
+	// score or badge, and never alter the user's approval (nothing here writes
+	// anything). It reuses the existing assessment error state with retry.
+	// (This used to fabricate a guaranteed-passing 80% score, and later a
+	// 0% "did not pass" result — both were wrong for a missing score.)
 	private applyFallbackResults() {
-		const total = this.quizQuestions().length || 20;
-
-		this.quizResult.set({
-			passed: false,
-			scorePercentage: 0,
-			correctAnswers: null,
-			totalQuestions: total,
-			status: 'SUBMISSION_FAILED',
-			detailedResults: [],
-			message: 'تعذر تسليم واحتساب نتيجة التقييم حالياً بسبب انقطاع الاتصال بالخادم. لم يتم احتساب أي درجة أو اعتماد تخصصك؛ يرجى إعادة المحاولة.'
-		});
+		this.quizResult.set(null);
+		this.quizGenerationError.set('تعذر استلام نتيجة التقييم من الخدمة. لم يتم احتساب أي درجة، ولم يتأثر اعتماد تخصصك. يرجى إعادة المحاولة.');
 	}
 
 	ngOnDestroy(): void {
