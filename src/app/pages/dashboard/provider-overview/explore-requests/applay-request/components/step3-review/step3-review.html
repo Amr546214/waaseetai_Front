@@ -3,8 +3,8 @@
   <div class="ai-disc" role="note">
     <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
     <div>
-      <div class="ai-disc-lbl">وسيط AI — الفحص الذكي للعرض</div>
-      <div class="ai-disc-txt">يفحص الذكاء الاصطناعي رسالتك مقابل ملفك المهني ويقارن سعرك ومدتك بتوقعات العميل، والقرار النهائي لك</div>
+      <div class="ai-disc-lbl">وسيط AI — مراجعة جودة العرض</div>
+      <div class="ai-disc-txt">يراجع الذكاء الاصطناعي جودة نص عرضك وخطته وسعره كما كُتبت فقط. لا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل، والقرار النهائي لك</div>
     </div>
   </div>
 
@@ -14,7 +14,7 @@
       <div class="scan-wrap" style="margin-bottom:14px">
         <div class="scan-line"></div>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ai-txt,#A56BE0)" stroke-width="1.8" aria-hidden="true" style="animation:pulse-ring 1.5s ease infinite"><use href="#i-ai"></use></svg>
-        <div class="scan-txt">AI يفحص عرضك...</div>
+        <div class="scan-txt">AI يراجع جودة عرضك...</div>
         <div style="font-size:11px;margin-top:4px" class="txt-muted">{{ auditProgressMessage }}</div>
       </div>
     </div>
@@ -26,12 +26,12 @@
       <div class="form-card">
         <div class="card-title txt-purple">
           <svg aria-hidden="true"><use href="#i-ai"></use></svg>
-          فحص رسالة العرض مقابل ملفك المهني
+          مراجعة جودة العرض
         </div>
 
         <!-- مقتطف من رسالة العرض -->
         <div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;margin-bottom:14px;font-size:12.5px;line-height:1.75;border-inline-start:3px solid rgba(123,47,190,.4)" class="txt-slate">
-          <span style="font-size:10px;font-weight:800;display:block;margin-bottom:5px" class="txt-purple">رسالتك المُفحوصة</span>
+          <span style="font-size:10px;font-weight:800;display:block;margin-bottom:5px" class="txt-purple">رسالتك التي تمت مراجعتها</span>
           "{{ proposal.message.length > 150 ? proposal.message.substring(0, 150) + '...' : (proposal.message || 'لا توجد رسالة') }}"
         </div>
 
@@ -56,7 +56,6 @@
           <button type="button" (click)="prevStep.emit(); prevStep.emit()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.10)'" onmouseout="this.style.background='rgba(255,255,255,.05)'" class="txt-slate">
             <svg width="12" height="12" aria-hidden="true"><use href="#i-doc"></use></svg>تعديل يدوي
           </button>
-          <button type="button" (click)="skipRec.emit('msg-rec')" [class.opacity-40]="skippedMsgRec" [class.pointer-events-none]="skippedMsgRec" style="padding:8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.04)'" class="txt-muted">تخطي</button>
         </div>
 
         <!-- AI Cleanup Batch 2: a fixed "AI-improved message" (with an invented client-satisfaction
@@ -64,166 +63,78 @@
              proposal and its accept button changed nothing, so the panel and its trigger were removed. -->
       </div>
 
-      <!-- قسم 2: مقارنة السعر والوقت -->
+      <!-- قسم 2: ملخص عرضك (بياناتك أنت فقط، دون أي تقدير من AI) -->
       <div class="form-card">
         <div class="card-title txt-teal">
           <svg aria-hidden="true" class="txt-teal"><use href="#i-wallet"></use></svg>
-          مقارنة السعر والمدة — ثلاثية الأطراف
+          ملخص عرضك
         </div>
-
-        <!-- جدول المقارنة -->
         <div class="cmp-table" style="margin-bottom:14px">
-          <div class="cmp-head">
-            <div class="cmp-head-cell">العميل</div>
-            <div class="cmp-head-cell provider">عرضك</div>
-            <div class="cmp-head-cell ai">
-              <svg width="11" height="11" aria-hidden="true" style="vertical-align:-1px;margin-inline-end:3px"><use href="#i-ai"></use></svg>توصية AI
-            </div>
-          </div>
-
           <div class="cmp-row">
-            <div>
-              <div class="cmp-row-label">السعر</div>
-              <div class="cmp-cell">{{ currentAudit.triPartyComparison.client.budget }}</div>
-            </div>
             <div>
               <div class="cmp-row-label">سعرك</div>
               <div class="cmp-cell highlight ok">{{ currentAudit.triPartyComparison.provider.budget }}</div>
-            </div>
-            <div>
-              <div class="cmp-row-label">السعر العادل</div>
-              <div class="cmp-cell txt-purple">{{ currentAudit.triPartyComparison.aiRecommendation.budget }}</div>
-            </div>
-          </div>
-
-          <div class="cmp-row">
-            <div>
-              <div class="cmp-row-label">المدة المطلوبة</div>
-              <div class="cmp-cell">{{ currentAudit.triPartyComparison.client.duration }}</div>
             </div>
             <div>
               <div class="cmp-row-label">مدتك</div>
               <div class="cmp-cell highlight ok">{{ currentAudit.triPartyComparison.provider.duration }}</div>
             </div>
             <div>
-              <div class="cmp-row-label">المدة المنطقية</div>
-              <div class="cmp-cell txt-purple">{{ currentAudit.triPartyComparison.aiRecommendation.duration }}</div>
-            </div>
-          </div>
-
-          <div class="cmp-row">
-            <div>
-              <div class="cmp-row-label">عدد المراحل</div>
-              <div class="cmp-cell">{{ currentAudit.triPartyComparison.client.milestones }}</div>
-            </div>
-            <div>
               <div class="cmp-row-label">مراحلك</div>
               <div class="cmp-cell highlight">{{ currentAudit.triPartyComparison.provider.milestones }}</div>
             </div>
-            <div>
-              <div class="cmp-row-label">الموصى به</div>
-              <div class="cmp-cell txt-purple">{{ currentAudit.triPartyComparison.aiRecommendation.milestones }}</div>
-            </div>
           </div>
-
           <div class="cmp-row">
             <div>
               <div class="cmp-row-label">عروض أخرى</div>
               <div class="cmp-cell">{{ projectDetails?.proposalsCount ?? 'غير متاح' }}</div>
             </div>
           </div>
-
           <div class="cmp-verdict">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" aria-hidden="true"><use href="#i-check"></use></svg>
             <span style="font-size:12.5px" class="txt-slate">{{ currentAudit.triPartyNote }}</span>
           </div>
         </div>
 
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-          <button type="button" (click)="prevStep.emit()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.10)'" onmouseout="this.style.background='rgba(255,255,255,.05)'" class="txt-slate">
+          <button type="button" (click)="prevStep.emit()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer" class="txt-slate">
             <svg width="12" height="12" aria-hidden="true"><use href="#i-doc"></use></svg>تعديل يدوي
           </button>
-          <button type="button" (click)="skipRec.emit('price-rec')" [class.opacity-40]="skippedPriceRec" [class.pointer-events-none]="skippedPriceRec" style="padding:8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.04)'" class="txt-muted">تخطي</button>
         </div>
-
-        <!-- AI Cleanup Batch 2: removed a fixed "optimal price/duration" panel and a fixed
-             "client duration vs. AI-expected range" note; neither came from the audit. The real
-             AI recommendation is the third column of the comparison table above. -->
-
       </div>
 
-      <!-- قسم 3: النتائج النهائية -->
+      <!-- قسم 3: نتيجة مراجعة الجودة فقط -->
       <div class="form-card" style="background:linear-gradient(135deg,rgba(123,47,190,.08),rgba(43,127,255,.05));border-color:rgba(123,47,190,.22)">
         <div class="card-title txt-purple">
           <svg aria-hidden="true"><use href="#i-ai"></use></svg>
-          النتائج النهائية لفحص AI
+          نتيجة مراجعة جودة العرض
         </div>
 
-        <div class="score-section" style="margin-bottom:20px">
-          <div class="score-ring-wrap">
-            <div class="score-ring">
-              <svg viewBox="0 0 100 100">
-                <defs>
-                  <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#2BD4C7"></stop>
-                    <stop offset="100%" stop-color="#7B2FBE"></stop>
-                  </linearGradient>
-                </defs>
-                <circle class="score-track" cx="50" cy="50" r="42"></circle>
-                <circle class="score-fill" cx="50" cy="50" r="42" [style.stroke-dashoffset]="263 - (263 * currentAudit.finalMetrics.overallScore / 100)" style="stroke:url(#sg)"></circle>
-              </svg>
-              <div class="score-text">
-                <span class="score-num">{{ currentAudit.finalMetrics.overallScore }}</span>
-                <span class="score-denom">/100</span>
+        @if (currentAudit.finalMetrics.overallScore !== null && currentAudit.finalMetrics.overallScore !== undefined) {
+          <div class="score-section" style="margin-bottom:12px">
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#2BD4C7"></stop>
+                      <stop offset="100%" stop-color="#7B2FBE"></stop>
+                    </linearGradient>
+                  </defs>
+                  <circle class="score-track" cx="50" cy="50" r="42"></circle>
+                  <circle class="score-fill" cx="50" cy="50" r="42" [style.stroke-dashoffset]="263 - (263 * currentAudit.finalMetrics.overallScore / 100)" style="stroke:url(#sg)"></circle>
+                </svg>
+                <div class="score-text">
+                  <span class="score-num">{{ currentAudit.finalMetrics.overallScore }}</span>
+                  <span class="score-denom">/100</span>
+                </div>
               </div>
-            </div>
-            <span class="score-label">جودة العرض</span>
-          </div>
-
-          <div class="metrics-wrap">
-            <div class="metric-row">
-              <span class="metric-label">توافق الملف المهني</span>
-              <div class="metric-bar-wrap"><div class="metric-bar" [style.width]="currentAudit.finalMetrics.profileMatch + '%'" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
-              <span class="metric-val txt-teal">{{ currentAudit.finalMetrics.profileMatch }}%</span>
-            </div>
-            <div class="metric-row">
-              <span class="metric-label">مهنية الرسالة</span>
-              <div class="metric-bar-wrap"><div class="metric-bar" [style.width]="currentAudit.finalMetrics.messageClarity + '%'" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
-              <span class="metric-val txt-teal">{{ currentAudit.finalMetrics.messageClarity }}%</span>
-            </div>
-            <div class="metric-row">
-              <span class="metric-label">تنافسية السعر</span>
-              <div class="metric-bar-wrap"><div class="metric-bar" [style.width]="currentAudit.finalMetrics.priceCompetitiveness + '%'" style="background:linear-gradient(90deg,#7B2FBE,#2B7FFF)"></div></div>
-              <span class="metric-val txt-teal">{{ currentAudit.finalMetrics.priceCompetitiveness }}%</span>
-            </div>
-            <div class="metric-row">
-              <span class="metric-label">منطقية الجدول الزمني</span>
-              <div class="metric-bar-wrap"><div class="metric-bar" [style.width]="currentAudit.finalMetrics.timelineFeasibility + '%'" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
-              <span class="metric-val txt-teal">{{ currentAudit.finalMetrics.timelineFeasibility }}%</span>
-            </div>
-            <div class="metric-row">
-              <span class="metric-label">اكتمال العرض</span>
-              <div class="metric-bar-wrap"><div class="metric-bar" [style.width]="currentAudit.finalMetrics.completeness + '%'" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
-              <span class="metric-val" [ngClass]="currentAudit.finalMetrics.completeness >= 85 ? 'text-[#2BD4C7]' : 'text-[#D98A0B]'">{{ currentAudit.finalMetrics.completeness }}%</span>
+              <span class="score-label">جودة العرض</span>
             </div>
           </div>
-        </div>
-
-        <!-- الحكم النهائي -->
-        <div class="verdict-banner verdict-ok">
-          <div class="verdict-icon" style="background:rgba(15,169,154,.18)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" aria-hidden="true"><use href="#i-check"></use></svg>
-          </div>
-          <div>
-            <div style="font-size:13px;font-weight:900;margin-bottom:4px" class="txt-green">{{ currentAudit.acceptanceOdds.statusText }}</div>
-            <div style="font-size:12.5px;line-height:1.7" class="txt-slate">{{ currentAudit.acceptanceOdds.description }}</div>
-          </div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.16);border-radius:10px;margin-top:4px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--teal-txt,#2BD4C7)" stroke-width="2" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          <span style="font-size:13px;font-weight:800" class="txt-teal">{{ currentAudit.acceptanceOdds.topPercentage }}</span>
-        </div>
+        } @else {
+          <div style="font-size:12.5px;line-height:1.7;margin-bottom:8px" class="txt-slate">لم تكتمل مراجعة الجودة، ولا توجد درجة لعرضها. يمكنك المتابعة وتقديم العرض بشكل طبيعي.</div>
+        }
+        <div style="font-size:11.5px;line-height:1.7" class="txt-muted">{{ currentAudit.triPartyNote }}</div>
       </div>
 
       <!-- الإقرارات -->

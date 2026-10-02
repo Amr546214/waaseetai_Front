@@ -56,12 +56,13 @@ export interface AiAuditResult {
 	};
 	triPartyNote: string;
 	finalMetrics: {
-		overallScore: number;
-		profileMatch: number;
-		messageClarity: number;
-		priceCompetitiveness: number;
-		timelineFeasibility: number;
-		completeness: number;
+		// Only overallScore (WaseetAI proposal-quality) is ever real; the rest are null.
+		overallScore: number | null;
+		profileMatch: number | null;
+		messageClarity: number | null;
+		priceCompetitiveness: number | null;
+		timelineFeasibility: number | null;
+		completeness: number | null;
 	};
 	acceptanceOdds: {
 		statusText: string;
@@ -118,8 +119,6 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	ack2 = signal<boolean>(false);
 	ack3 = signal<boolean>(false);
 
-	skippedMsgRec = signal<boolean>(false);
-	skippedPriceRec = signal<boolean>(false);
 
 	// Step 4 State
 	isSubmitting = signal<boolean>(false);
@@ -456,11 +455,6 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		return this.ack1() && this.ack2() && this.ack3();
 	});
 
-	skipRec(id: string) {
-		if (id === 'msg-rec') this.skippedMsgRec.set(true);
-		if (id === 'price-rec') this.skippedPriceRec.set(true);
-	}
-
 	// Navigation
 	nextStep() {
 		const isValid = this.activeStep() === 1 ? this.isStep1Valid() : (this.activeStep() === 2 ? this.isStep2Valid() : (this.activeStep() === 3 ? this.isStep3Valid() : true));
@@ -484,8 +478,21 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	}
 
 	triggerAiAudit() {
+		// Real values only — no placeholder project/provider/price/duration is ever sent.
+		const projectId = this.reqId();
+		const providerId = this.authStore.currentUser()?.id;
+		const title = this.proposal().title?.trim();
+		const message = this.proposal().message?.trim();
+		const price = this.totalAmount || this.totalBudget();
+		const durationDays = this.totalDays();
+		if (!projectId || !providerId || !title || !message || !(price > 0) || !(durationDays > 0)) {
+			this.auditResult.set(this.getUnavailableAudit());
+			this.isScanning.set(false);
+			return;
+		}
+
 		this.isScanning.set(true);
-		this.auditProgressMessage.set('جاري استدعاء بيانات المشروع والملف المهني...');
+		this.auditProgressMessage.set('جاري مراجعة جودة العرض...');
 
 		if (!this.socket) {
 			let token: string | null = null;
@@ -499,14 +506,14 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		}
 
 		const payload = {
-			projectId: this.reqId() || 'proj-demo-101',
-			providerId: this.authStore.currentUser()?.id || 'prov-demo-101',
+			projectId,
+			providerId,
 			proposalDraft: {
-				title: this.proposal().title || 'عرض فني وتطويري',
-				message: this.proposal().message,
-				price: this.totalAmount || this.totalBudget() || 4500,
-				durationDays: this.totalDays() || 14,
-				milestonesCount: this.proposal().milestones.length || 2,
+				title,
+				message,
+				price,
+				durationDays,
+				milestonesCount: this.proposal().milestones.length,
 				selectedPortfolioIds: this.proposal().portfolioIds
 			}
 		};
@@ -518,7 +525,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			if (data.message) {
 				this.auditProgressMessage.set(data.message);
 			} else {
-				this.auditProgressMessage.set(`حالة الفحص الذكي: ${data.status}`);
+				this.auditProgressMessage.set(`حالة المراجعة: ${data.status}`);
 			}
 			if (data.status === 'COMPLETED') {
 				this.isScanning.set(false);
@@ -554,19 +561,15 @@ export class ApplayRequest implements OnInit, OnDestroy {
 
 	getUnavailableAudit(): AiAuditResult {
 		return {
-			profileAudit: [{ title: 'تعذر إكمال فحص AI', subtitle: 'لم يتم إنشاء تقييم بديل أو درجات وهمية. يمكنك إعادة المحاولة.', status: 'WARNING', badge: 'غير متاح' }],
+			profileAudit: [{ title: 'تعذر إكمال مراجعة الجودة', subtitle: 'لم يتم إنشاء تقييم بديل أو درجات وهمية. يمكنك المتابعة وتقديم العرض بشكل طبيعي.', status: 'WARNING', badge: 'غير متاح' }],
 			triPartyComparison: {
 				client: { budget: 'غير متاح', duration: 'غير متاح', milestones: 'غير متاح' },
 				provider: { budget: `${this.totalAmount} $`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
-				aiRecommendation: { budget: 'لم يُحلل', duration: 'لم يُحلل', milestones: 'لم يُحلل' }
+				aiRecommendation: { budget: 'غير مدعوم', duration: 'غير مدعوم', milestones: 'غير مدعوم' }
 			},
-			triPartyNote: 'خدمة التحليل غير متاحة حالياً؛ لم تُولد المنصة أي استنتاج بديل.',
-			finalMetrics: { overallScore: 0, profileMatch: 0, messageClarity: 0, priceCompetitiveness: 0, timelineFeasibility: 0, completeness: 0 },
-			acceptanceOdds: {
-				statusText: 'لم يتم حساب احتمال القبول',
-				description: 'أعد تشغيل الفحص للحصول على نتيجة حقيقية.',
-				topPercentage: 'غير متاح'
-			}
+			triPartyNote: 'يقيّم هذا الفحص نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل. مراجعة الجودة غير متاحة حالياً ولم تُولد المنصة أي استنتاج بديل.',
+			finalMetrics: { overallScore: null, profileMatch: null, messageClarity: null, priceCompetitiveness: null, timelineFeasibility: null, completeness: null },
+			acceptanceOdds: { statusText: 'غير مدعوم', description: 'غير مدعوم', topPercentage: 'غير مدعوم' }
 		};
 	}
 
