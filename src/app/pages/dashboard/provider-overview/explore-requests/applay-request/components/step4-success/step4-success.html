@@ -7,8 +7,12 @@
     <div>
       <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-[2px]">وسيط AI — إفصاح الذكاء الاصطناعي</div>
       <div class="text-[12px] text-[#A8B2D1] leading-relaxed">
-        AI راجع عرضك وأعطاه <strong class="text-[#2BD4C7]">{{ currentAudit.finalMetrics.overallScore }}/100</strong>
-        <span class="inline-flex bg-[rgba(15,169,154,.12)] border border-[rgba(15,169,154,.25)] rounded-[4px] px-[7px] py-[1px] text-[10px] font-bold text-[#0FA99A] mx-1">{{ currentAudit.acceptanceOdds.statusText }}</span>
+        @if (hasAuditResult()) {
+          راجع AI جودة نص عرضك وخطته وسعره كما كُتبت: <strong class="text-[#2BD4C7]">{{ currentAudit.finalMetrics.overallScore }}/100</strong>
+          <span class="inline-flex bg-[rgba(15,169,154,.12)] border border-[rgba(15,169,154,.25)] rounded-[4px] px-[7px] py-[1px] text-[10px] font-bold text-[#0FA99A] mx-1">{{ currentAudit.profileAudit[0]?.badge }}</span>
+        } @else {
+          لم تتوفر مراجعة جودة AI لهذا العرض.
+        }
         — الإنسان يحتفظ بالقرار النهائي
       </div>
     </div>
@@ -34,15 +38,15 @@
       <span class="text-[13px] font-extrabold text-white">{{ proposal.milestones.length }} مرحلة</span>
     </div>
     <div class="flex items-center justify-between py-[9px] border-b border-[rgba(255,255,255,.05)]">
-      <span class="text-[12px] text-[#6B7699]">تقييم AI للعرض</span>
+      <span class="text-[12px] text-[#6B7699]">مراجعة جودة العرض</span>
+      @if (hasAuditResult()) {
       <span class="inline-flex items-center gap-[5px] px-[10px] py-[3px] bg-[rgba(15,169,154,.10)] border border-[rgba(15,169,154,.22)] rounded-full text-[12px] font-extrabold text-[#0FA99A]">
         <svg class="w-[11px] h-[11px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-check"></use></svg>
         {{ currentAudit.finalMetrics.overallScore }}/100
       </span>
-    </div>
-    <div class="flex items-center justify-between pt-[9px]">
-      <span class="text-[12px] text-[#6B7699]">التنافسية</span>
-      <span class="text-[13px] font-extrabold text-[#0FA99A]">{{ currentAudit.acceptanceOdds.topPercentage }}</span>
+      } @else {
+      <span class="text-[12px] text-[#6B7699]">غير متاح</span>
+      }
     </div>
   </div>
 
@@ -55,14 +59,6 @@
     <div class="text-[12.5px] text-[#A8B2D1] leading-[1.85] p-[14px] bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.07)] rounded-[10px] border-r-[3px] border-r-[rgba(123,47,190,.4)]">
       {{ proposal.message || 'لا توجد رسالة' }}
     </div>
-    <!-- AI Cleanup Batch 2: these two values were fixed numbers; they now come from the real
-         proposal-audit result (finalMetrics) and are hidden when no audit result exists. -->
-    @if (hasAuditResult()) {
-    <div class="flex gap-[16px] mt-[10px] flex-wrap">
-      <span class="text-[11px] text-[#A8B2D1]">مهنية الأسلوب <strong class="text-[#0FA99A]">{{ currentAudit.finalMetrics.messageClarity }}%</strong></span>
-      <span class="text-[11px] text-[#A8B2D1]">توافق الملف المهني <strong class="text-[#0FA99A]">{{ currentAudit.finalMetrics.profileMatch }}%</strong></span>
-    </div>
-    }
   </div>
 
   <!-- 3. خطة المراحل -->

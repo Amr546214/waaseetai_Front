@@ -14,13 +14,10 @@ export class Step3Review {
   @Input() currentAudit!: any;
   @Input() proposal!: any;
   @Input() projectDetails: any = null;
-  @Input() skippedMsgRec = false;
-  @Input() skippedPriceRec = false;
   @Input() ack1 = false;
   @Input() ack2 = false;
   @Input() ack3 = false;
 
   @Output() prevStep = new EventEmitter<void>();
-  @Output() skipRec = new EventEmitter<string>();
   @Output() toggleAck = new EventEmitter<number>();
 }

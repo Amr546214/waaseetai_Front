@@ -35,6 +35,7 @@ const applyStep3Html = readSrc(applyBase + 'components/step3-review/step3-review
 const applyStep4Html = readSrc(applyBase + 'components/step4-success/step4-success.html');
 const applyStep1Html = readSrc(applyBase + 'components/step1-general/step1-general.html');
 const applyHtml = readSrc(applyBase + 'applay-request.html');
+const applyTs = readSrc(applyBase + 'applay-request.ts');
 
 const incomingHtml = readSrc('provider-overview/company/incoming-requests/incoming-requests.component.html');
 const incomingTs = readSrc('provider-overview/company/incoming-requests/incoming-requests.component.ts');
@@ -169,10 +170,22 @@ describe('AI Cleanup Batch 2 — provider apply-request steps 3 & 4', () => {
 		expect(applyStep3Html).toContain('projectDetails?.proposalsCount');
 	});
 
-	it('step 3: real Gemini audit values are kept', () => {
+	it('step 3: is a proposal QUALITY review only — no fair price, acceptance odds or fit claims', () => {
+		expect(applyStep3Html).toContain('مراجعة جودة العرض');
 		expect(applyStep3Html).toContain('currentAudit.finalMetrics.overallScore');
-		expect(applyStep3Html).toContain('currentAudit.triPartyComparison.aiRecommendation.budget');
-		expect(applyStep3Html).toContain('currentAudit.acceptanceOdds.statusText');
+		expect(applyStep3Html).toContain('لا يقيس توافقه مع المشروع ولا عدالة السعر');
+		for (const banned of ['السعر العادل', 'المدة المنطقية', 'الموصى به', 'توصية AI', 'acceptanceOdds', 'topPercentage', 'احتمال', 'مقارنة السعر والمدة', 'توافق الملف المهني', 'تنافسية السعر', 'منطقية الجدول الزمني', 'تجاهل']) {
+			expect(applyStep3Html).not.toContain(banned);
+		}
+		expect(applyStep3Html).not.toContain('metrics.profileMatch');
+		expect(applyStep3Html).not.toContain('metrics.priceCompetitiveness');
+	});
+
+	it('apply wizard sends no placeholder project/provider/price/duration to the audit', () => {
+		for (const banned of ['proj-demo-101', 'prov-demo-101', '|| 4500', '|| 14', 'عرض فني وتطويري']) {
+			expect(applyTs).not.toContain(banned);
+		}
+		expect(applyTs).toContain('overallScore: null');
 	});
 
 	it('step 4: no fixed 93% / 97% / +35% / "best priced among N" claims', () => {
@@ -183,11 +196,12 @@ describe('AI Cleanup Batch 2 — provider apply-request steps 3 & 4', () => {
 		expect(applyStep4Html).not.toContain('— مرتفع');
 	});
 
-	it('step 4: style/profile values now come from the real audit; real overall score kept', () => {
-		expect(applyStep4Html).toContain('currentAudit.finalMetrics.messageClarity');
-		expect(applyStep4Html).toContain('currentAudit.finalMetrics.profileMatch');
+	it('step 4: only the real quality score is shown; no style/profile/competitiveness figures', () => {
 		expect(applyStep4Html).toContain('currentAudit.finalMetrics.overallScore');
-		expect(applyStep4Html).toContain('currentAudit.acceptanceOdds.topPercentage');
+		expect(applyStep4Html).toContain('مراجعة جودة العرض');
+		for (const banned of ['messageClarity', 'profileMatch', 'topPercentage', 'التنافسية', 'acceptanceOdds', 'تقييم AI للعرض']) {
+			expect(applyStep4Html).not.toContain(banned);
+		}
 	});
 });
 

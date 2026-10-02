@@ -17,12 +17,11 @@ export class Step4Success {
   @Input() portfolioOptions: any[] = [];
 
   /**
-   * True only when a real proposal-audit result is present. The parent's
-   * "unavailable" fallback zeroes every metric, so a zero overall score means
-   * there is nothing real to show.
+   * True only when a real WaseetAI proposal-quality score is present. The
+   * parent's "unavailable" fallback leaves overallScore null.
    */
   hasAuditResult(): boolean {
-    return (this.currentAudit?.finalMetrics?.overallScore ?? 0) > 0;
+    return typeof this.currentAudit?.finalMetrics?.overallScore === 'number';
   }
 
   getPortfolioItem(id: string) {
