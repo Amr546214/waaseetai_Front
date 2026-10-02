@@ -108,51 +108,10 @@
         </div>
       </div>
 
-      <!-- مقاييس -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px" class="txt-slate">جودة التنفيذ</span>
-            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
-          </div>
-          <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px" class="txt-slate">أصالة العمل</span>
-            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
-          </div>
-          <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px" class="txt-slate">توافق مع السوق</span>
-            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
-          </div>
-          <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px" class="txt-slate">دقة التفاصيل</span>
-            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
-          </div>
-          <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px" class="txt-slate">ملاءمة التخصص</span>
-            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
-          </div>
-          <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:11px" class="txt-slate">إثبات الملكية</span>
-            <span style="font-size:11px;font-weight:800" class="txt-white">{{ sampleDetails()?.aiScore || 0 }}%</span>
-          </div>
-          <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px"><div [style.width.%]="sampleDetails()?.aiScore || 0" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div></div>
-        </div>
-      </div>
+      <!-- AI Cleanup Batch 2: six "sub-metric" bars (execution quality, originality, market
+           fit, detail accuracy, specialty fit, ownership proof) all rendered the same single
+           aiScore, presenting one score as six independent measurements. The backend stores
+           only that one score, which is shown once above; the fake breakdown was removed. -->
 
       <!-- ملاحظات AI -->
       <div style="background:rgba(123,47,190,.08);border:1px solid rgba(123,47,190,.18);border-radius:10px;padding:14px">

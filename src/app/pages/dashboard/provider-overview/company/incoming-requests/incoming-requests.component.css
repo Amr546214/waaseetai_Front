@@ -258,3 +258,10 @@
 :host-context(body.theme-light) .empty-state,
 :host-context(.light-theme) .empty-state,
 :host-context(.theme-light) .empty-state { background: #fff; border-color: #E7EAF1; }
+
+/* AI Cleanup Batch 2 — honest "not available yet" state (replaces fabricated mock data). */
+.na-card { text-align: center; padding: 48px 20px; border: 1px dashed rgba(255,255,255,.12); border-radius: 16px; background: rgba(255,255,255,.02); }
+.na-ttl { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.na-sub { font-size: 12.5px; color: #8A99C4; line-height: 1.7; max-width: 520px; margin: 0 auto; }
+.na-link { display: inline-flex; margin-top: 14px; padding: 8px 18px; border-radius: 999px; font-size: 12.5px; font-weight: 800; color: #2BD4C7; border: 1px solid rgba(43,212,199,.3); text-decoration: none; }
+:host-context(.light-theme) .na-ttl, :host-context(body.light-theme) .na-ttl, :host-context(.theme-light) .na-ttl, :host-context(body.theme-light) .na-ttl { color: #0B1437; }

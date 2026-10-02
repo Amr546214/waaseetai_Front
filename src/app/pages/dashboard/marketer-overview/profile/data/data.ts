@@ -470,11 +470,6 @@ export class Data implements OnInit {
 		this.toastTimer = setTimeout(() => this.toastMessage.set(null), type === 'error' ? 5000 : 3000);
 	}
 
-	useAiChannelSuggestion() {
-		this.setActiveTab('profile');
-		this.channelForm.patchValue({ platform: 'LINKEDIN' });
-	}
-
 	copyToClipboard(text: string, field: string) {
 		if (!text) return;
 		navigator.clipboard.writeText(text).then(() => {

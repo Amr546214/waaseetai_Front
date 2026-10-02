@@ -56,26 +56,12 @@
           <button type="button" (click)="prevStep.emit(); prevStep.emit()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.10)'" onmouseout="this.style.background='rgba(255,255,255,.05)'" class="txt-slate">
             <svg width="12" height="12" aria-hidden="true"><use href="#i-doc"></use></svg>تعديل يدوي
           </button>
-          <button type="button" (click)="applyAIEdit.emit('msg')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(123,47,190,.22)'" onmouseout="this.style.background='rgba(123,47,190,.12)'" class="txt-purple">
-            <svg width="12" height="12" aria-hidden="true"><use href="#i-ai"></use></svg>تعديل بمساعدة AI
-          </button>
           <button type="button" (click)="skipRec.emit('msg-rec')" [class.opacity-40]="skippedMsgRec" [class.pointer-events-none]="skippedMsgRec" style="padding:8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.04)'" class="txt-muted">تخطي</button>
         </div>
 
-        <!-- AI panel للرسالة -->
-        @if(showAiMsgPanel) {
-          <div id="ai-msg-panel" style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);padding-top:14px">
-            <div style="font-size:11px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px" class="txt-purple"><svg width="12" height="12" aria-hidden="true"><use href="#i-ai"></use></svg>الرسالة المُحسَّنة من AI</div>
-            <div style="font-size:12.5px;line-height:1.85;padding:14px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.18);border-radius:10px;margin-bottom:12px" class="txt-slate">
-              "مرحبًا، أنا مصمم جرافيك متخصص في الهويات البصرية بخبرة 5 سنوات. نفّذت مشروعًا مشابهًا وحقّق رضا العميل 98%. سأقدم لك 3 خيارات شعار مع مراجعة غير محدودة."
-            </div>
-            <div style="font-size:11px;margin-bottom:10px;padding:8px 12px;background:rgba(43,212,199,.05);border-radius:8px" class="txt-muted">التحسينات: أُضيف مثال مشروع مشابه من ملفك + جملة إثبات نتائج ← احتمال القبول +35%</div>
-            <div style="display:flex;gap:8px">
-              <button type="button" (click)="acceptAiMsg.emit()" style="padding:9px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:9px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer" class="txt-navy">قبول واستخدام هذه الرسالة</button>
-              <button type="button" (click)="showAiMsgPanelChange.emit(false)" style="padding:9px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:9px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer" class="txt-muted">إلغاء</button>
-            </div>
-          </div>
-        }
+        <!-- AI Cleanup Batch 2: a fixed "AI-improved message" (with an invented client-satisfaction
+             percentage and a fixed acceptance-uplift claim) was shown here; it was not generated from the
+             proposal and its accept button changed nothing, so the panel and its trigger were removed. -->
       </div>
 
       <!-- قسم 2: مقارنة السعر والوقت -->
@@ -143,15 +129,7 @@
           <div class="cmp-row">
             <div>
               <div class="cmp-row-label">عروض أخرى</div>
-              <div class="cmp-cell">{{ projectDetails?.proposalsCount || 3 }} عروض</div>
-            </div>
-            <div>
-              <div class="cmp-row-label">ترتيبك التنافسي</div>
-              <div class="cmp-cell ok">الأفضل سعرًا</div>
-            </div>
-            <div>
-              <div class="cmp-row-label">فرصة الفوز</div>
-              <div class="cmp-cell ok">مرتفعة</div>
+              <div class="cmp-cell">{{ projectDetails?.proposalsCount ?? 'غير متاح' }}</div>
             </div>
           </div>
 
@@ -165,43 +143,13 @@
           <button type="button" (click)="prevStep.emit()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.10)'" onmouseout="this.style.background='rgba(255,255,255,.05)'" class="txt-slate">
             <svg width="12" height="12" aria-hidden="true"><use href="#i-doc"></use></svg>تعديل يدوي
           </button>
-          <button type="button" (click)="applyAIEdit.emit('price')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(123,47,190,.22)'" onmouseout="this.style.background='rgba(123,47,190,.12)'" class="txt-purple">
-            <svg width="12" height="12" aria-hidden="true"><use href="#i-ai"></use></svg>تعديل بمساعدة AI
-          </button>
           <button type="button" (click)="skipRec.emit('price-rec')" [class.opacity-40]="skippedPriceRec" [class.pointer-events-none]="skippedPriceRec" style="padding:8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.04)'" class="txt-muted">تخطي</button>
         </div>
 
-        <!-- AI panel للسعر -->
-        @if(showAiPricePanel) {
-          <div id="ai-price-panel" style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);padding-top:14px">
-            <div style="font-size:11px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px" class="txt-purple"><svg width="12" height="12" aria-hidden="true"><use href="#i-ai"></use></svg>توصية AI للسعر والمدة</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-              <div style="padding:14px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.20);border-radius:10px;text-align:center">
-                <div style="font-size:10px;margin-bottom:5px" class="txt-muted">السعر الأمثل</div>
-                <div style="font-size:20px;font-weight:900" class="txt-teal">4,500 $</div>
-                <div style="font-size:10px;margin-top:3px" class="txt-muted">ضمن النطاق العادل للسوق</div>
-              </div>
-              <div style="padding:14px;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.20);border-radius:10px;text-align:center">
-                <div style="font-size:10px;margin-bottom:5px" class="txt-muted">المدة الأمثل</div>
-                <div style="font-size:20px;font-weight:900" class="txt-teal">14 يوم</div>
-                <div style="font-size:10px;margin-top:3px" class="txt-muted">ميزة تنافسية أمام العميل</div>
-              </div>
-            </div>
-            <div style="font-size:11px;margin-bottom:10px;padding:8px 12px;background:rgba(43,212,199,.05);border-radius:8px" class="txt-muted">سعرك الحالي 4,500 $ ومدتك 14 يومًا مثاليان — لا يلزم أي تعديل</div>
-            <div style="display:flex;gap:8px">
-              <button type="button" (click)="acceptAiPrice.emit()" style="padding:9px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:9px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer" class="txt-navy">تأكيد الإبقاء</button>
-              <button type="button" (click)="showAiPricePanelChange.emit(false)" style="padding:9px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:9px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer" class="txt-muted">إلغاء</button>
-            </div>
-          </div>
-        }
+        <!-- AI Cleanup Batch 2: removed a fixed "optimal price/duration" panel and a fixed
+             "client duration vs. AI-expected range" note; neither came from the audit. The real
+             AI recommendation is the third column of the comparison table above. -->
 
-        <!-- تحليل مدة العميل -->
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.18);border-radius:10px">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--kahr,#D98A0B)" stroke-width="1.8" aria-hidden="true" style="flex-shrink:0;margin-top:2px"><use href="#i-warn"></use></svg>
-          <div style="font-size:12.5px;line-height:1.7" class="txt-slate">
-            <strong class="txt-kahr">ملاحظة AI:</strong> العميل طلب 30 يومًا لكن AI يرى أن هذا النوع من المشاريع ينجز في 10-18 يومًا — مدتك الأقل جاذبية للعميل وميزة تنافسية مهمة.
-          </div>
-        </div>
       </div>
 
       <!-- قسم 3: النتائج النهائية -->

@@ -4,7 +4,7 @@
 <!-- AI DISCLOSURE -->
 <div class="ai-disclosure" role="note">
 	<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
-	<div><strong>وسيط، الفحص النهائي:</strong> اكتملت مراجعة الطلب، الإنسان يحتفظ بالقرار النهائي في النشر</div>
+	<div><strong>مراجعة قبل النشر:</strong> راجع البيانات التي أدخلتها بنفسك، القرار النهائي في النشر لك</div>
 </div>
 
 <!-- DEFAULT STATE -->
@@ -32,8 +32,7 @@
 			@empty { لا يوجد }
 		</span></div>
 		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-ok"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>محقق بالذكاء · 96%</span></div>
-		<div style="margin-top:8px;padding:9px 12px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.16);border-radius:9px;display:flex;align-items:center;gap:7px"><span style="display:inline-flex;width:13px;height:13px" class="txt-purple"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></span><span style="font-size:11.5px;line-height:1.5" class="txt-purple">تطابق <strong class="txt-white">عال</strong> مع متطلبات الطلب، اجتاز فحص الذكاء بالكامل، لا حاجة لتعديل</span></div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
 	</div>
 
 	<!-- Card 2: التفاصيل -->
@@ -51,25 +50,9 @@
 		<div class="sc-rows">
 		<div class="sc-row"><span class="sc-row-key">العنوان</span><span class="sc-row-val" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ parent.title() || 'بدون عنوان' }}</span></div>
 		<div class="sc-row"><span class="sc-row-key">المدة</span><span class="sc-row-val">{{ parent.deliveryDays() }} يوما</span></div>
-		<div class="sc-row"><span class="sc-row-key">الأولوية</span><span class="sc-row-val">عالية</span></div>
 		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-partial"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg> · 89%</span></div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
 		
-		@if (!recDetailsDone()) {
-		<div class="sc-rec" id="rec-details">
-			<div class="sc-rec-head"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>توصية</div>
-			<div class="sc-rec-txt">أضف <span class="sc-rec-val">معايير قبول واضحة للتسليم</span> لرفع وضوح الطلب وتقليل احتمال النزاعات</div>
-			<div class="sc-rec-acts">
-				<button type="button" class="sc-rec-btn sc-rec-ok" (click)="applyRecDetails()">موافق</button>
-				<button type="button" class="sc-rec-btn sc-rec-edit" (click)="parent.currentStep.set(3)">تعديل يدوي</button>
-				<button type="button" class="sc-rec-btn sc-rec-skip" (click)="skipRecDetails()">تخطي</button>
-			</div>
-		</div>
-		} @else {
-		<div class="sc-rec done">
-			<span class="sc-rec-status">تم التفاعل مع التوصية</span>
-		</div>
-		}
 	</div>
 
 	<!-- Card 3: الميزانية -->
@@ -97,23 +80,8 @@
 			@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number }} $ }
 		</span></div>
 		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-edit"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>يحتاج تعديل · 88%</span></div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
 		
-		@if (!recBudgetDone()) {
-		<div class="sc-rec" id="rec-budget">
-			<div class="sc-rec-head"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>توصية</div>
-			<div class="sc-rec-txt">السوق لمشروع مماثل بين <span class="sc-rec-val">9,500 و 11,000 $</span>، الميزانية الحالية قد تقلل عدد العروض. القيمة المقترحة <span class="sc-rec-val">10,000 $</span></div>
-			<div class="sc-rec-acts">
-				<button type="button" class="sc-rec-btn sc-rec-ok" (click)="applyRecBudget()">موافق وتطبيق 10,000</button>
-				<button type="button" class="sc-rec-btn sc-rec-edit" (click)="parent.currentStep.set(4)">تعديل يدوي</button>
-				<button type="button" class="sc-rec-btn sc-rec-skip" (click)="skipRecBudget()">تخطي</button>
-			</div>
-		</div>
-		} @else {
-		<div class="sc-rec done">
-			<span class="sc-rec-status">تم التفاعل مع التوصية</span>
-		</div>
-		}
 	</div>
 
 	<!-- Card 4: الملفات -->
@@ -130,9 +98,8 @@
 		</div>
 		<div class="sc-rows">
 		<div class="sc-row"><span class="sc-row-key">الملفات</span><span class="sc-row-val">{{ parent.files().length }} ملفات</span></div>
-		<div class="sc-row"><span class="sc-row-key">الفحص</span><span class="sc-row-val txt-green">نظيفة</span></div>
 		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div><span class="sc-ai sc-ai-ok"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>محقق بالذكاء · 94%</span></div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
 	</div>
 
 	<!-- Card 5: الشروط، Full width -->
@@ -157,45 +124,18 @@
 			<div class="sc-row"><span class="sc-row-key">الموقع</span><span class="sc-row-val">{{ parent.provLocation() === 'sa' ? 'السعودية' : parent.provLocation() === 'gcc' ? 'دول الخليج' : parent.provLocation() === 'any' ? 'عالمي' : 'أي موقع' }}</span></div>
 		</div>
 		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل، لا تعارض</div><span class="sc-ai sc-ai-ok"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>محقق بالذكاء · 97%</span></div>
+		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
 	</div>
 
 	</div>
 
-	<!-- AI FINAL CHECK -->
-	<div class="ai-final" role="region" aria-label="الفحص النهائي للذكاء الاصطناعي">
-	<div class="ai-score-block">
-		<div class="ai-score-ring">
-		<svg viewBox="0 0 100 100">
-			<circle class="ai-score-track" cx="50" cy="50" r="40"/>
-			<circle class="ai-score-fill" cx="50" cy="50" r="40" style="stroke-dashoffset: 20;"/>
-		</svg>
-		<div class="ai-score-text">
-			<span class="ai-score-num">92</span>
-			<span class="ai-score-denom">/100</span>
-		</div>
-		</div>
-		<span class="ai-score-label">جودة الطلب</span>
-	</div>
-	<div class="ai-right">
-		<div class="ai-final-title">
-		<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
-		اكتملت مراجعة الطلب
-		</div>
-		<div class="ai-metrics">
-		<div class="ai-metric">
-			<span class="ai-metric-label">وضوح الطلب</span>
-		</div>
-		<div class="ai-metric">
-			<span class="ai-metric-label">اكتمال البيانات</span>
-		</div>
-		<div class="ai-metric">
-			<span class="ai-metric-label">الميزانية ضمن نطاق السوق</span>
-		</div>
-		</div>
-		<div style="margin-top:12px;display:flex;align-items:center;gap:7px;font-size:11.5px;background:rgba(123,47,190,.07);border:1px solid rgba(123,47,190,.18);border-radius:9px;padding:9px 13px" class="txt-purple"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span>التوصيات لكل بند معروضة داخل بطاقته أعلاه، اختر <strong class="txt-white">موافق</strong> أو <strong class="txt-white">تعديل</strong> أو <strong class="txt-white">تخطي</strong> لكل بطاقة</span></div>
-	</div>
-	</div>
+	<!-- AI Cleanup Batch 2: the per-card AI-verification percentage badges, the overall
+	     request-quality score ring (and its copy in the confirm modal), the fixed market-budget
+	     recommendation with its one-click budget overwrite, the fixed priority row and the
+	     "files scanned clean" row were all hardcoded. No request-quality, verification, market-
+	     pricing or file-scan capability exists (ai-suggest returns specialty/budget/duration
+	     suggestions only; the description socket returns text only), so they were removed
+	     rather than replaced with a computed frontend score. -->
 
 	<!-- ACKNOWLEDGMENTS -->
 	<div class="ack-card" role="group" aria-labelledby="ackTitle">
@@ -287,7 +227,6 @@
 		@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number }} $ }
 		@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number }} $ }
 	  </span></div>
-      <div class="modal-info-row"><span class="modal-info-key">جودة AI</span><span class="modal-info-val txt-green">92/100</span></div>
     </div>
     <div class="modal-btns">
       <button class="btn-primary" style="width:100%;justify-content:center" (click)="confirmPublish()">

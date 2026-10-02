@@ -1,0 +1,238 @@
+/// <reference types="node" />
+
+// AI Cleanup Batch 2: static-content regression guards. Each assertion pins
+// the removal of a hardcoded / frontend-invented value or a local-only action
+// that pretended to succeed. Real bindings that sit next to them are asserted
+// to still be present, so the cleanup cannot silently drop real data.
+// Same raw-source approach as ai-cleanup-batch1.static.spec.ts.
+
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+function readSrc(relativePath: string): string {
+	return readFileSync(join(__dirname, relativePath), 'utf-8');
+}
+
+const createReq = 'clients-overview/create-request/';
+const step6Html = readSrc(createReq + 'components/step6-review/step6-review.html');
+const step6Ts = readSrc(createReq + 'components/step6-review/step6-review.ts');
+const step2Html = readSrc(createReq + 'components/step2-conditions/step2-conditions.html');
+const createReqTs = readSrc(createReq + 'create-request.ts');
+
+const negotiateHtml = readSrc('provider-overview/offers/negotiate/negotiate.html');
+const negotiateTs = readSrc('provider-overview/offers/negotiate/negotiate.ts');
+const signContractHtml = readSrc('provider-overview/offers/sign-contract/sign-contract.html');
+
+const applyBase = 'provider-overview/explore-requests/applay-request/';
+const applyStep3Html = readSrc(applyBase + 'components/step3-review/step3-review.html');
+const applyStep4Html = readSrc(applyBase + 'components/step4-success/step4-success.html');
+const applyHtml = readSrc(applyBase + 'applay-request.html');
+
+const incomingHtml = readSrc('provider-overview/company/incoming-requests/incoming-requests.component.html');
+const incomingTs = readSrc('provider-overview/company/incoming-requests/incoming-requests.component.ts');
+const changeOrdersHtml = readSrc('provider-overview/company/change-orders/change-orders.component.html');
+const changeOrdersTs = readSrc('provider-overview/company/change-orders/change-orders.component.ts');
+const salesStatsHtml = readSrc('provider-overview/company/sales-stats/sales-stats.component.html');
+const salesStatsTs = readSrc('provider-overview/company/sales-stats/sales-stats.component.ts');
+const marketHtml = readSrc('provider-overview/business-models/market/market.html');
+const marketTs = readSrc('provider-overview/business-models/market/market.ts');
+const reportsHtml = readSrc('provider-overview/reports/reports.html');
+
+const accreditationHtml = readSrc('provider-overview/business-models/center/accreditation-details/accreditation-details.html');
+const marketerDataHtml = readSrc('marketer-overview/profile/data/data.html');
+const marketerDataTs = readSrc('marketer-overview/profile/data/data.ts');
+
+describe('AI Cleanup Batch 2 — Step 0: provider sign-contract clause numbering', () => {
+	it('remaining clauses are numbered from 1 (no gap left by the removed sample scope clause)', () => {
+		expect(signContractHtml).toContain('1. المراحل والسداد:');
+		expect(signContractHtml).toContain('5. فض النزاع:');
+		expect(signContractHtml).not.toContain('6. فض النزاع:');
+		expect(signContractHtml).not.toContain('نطاق العمل:');
+	});
+});
+
+describe('AI Cleanup Batch 2 — client create-request', () => {
+	it('step 6: no hardcoded per-card AI verification percentages', () => {
+		for (const v of ['96%', '89%', '88%', '94%', '97%']) {
+			expect(step6Html).not.toContain(v);
+		}
+		expect(step6Html).not.toContain('محقق بالذكاء');
+		expect(step6Html).not.toContain('اجتاز فحص الذكاء');
+	});
+
+	it('step 6: no hardcoded 92/100 request-quality score (ring or confirm modal)', () => {
+		expect(step6Html).not.toContain('92');
+		expect(step6Html).not.toContain('جودة AI');
+		expect(step6Html).not.toContain('ai-score-num');
+	});
+
+	it('step 6: no fixed market-budget recommendation that overwrites the budget', () => {
+		expect(step6Html).not.toContain('9,500');
+		expect(step6Html).not.toContain('10,000');
+		expect(step6Ts).not.toContain('10000');
+		expect(step6Ts).not.toContain('applyRecBudget');
+	});
+
+	it('step 6: no fixed priority / "files scanned clean" / "no conflict" claims', () => {
+		expect(step6Html).not.toContain('>عالية<');
+		expect(step6Html).not.toContain('نظيفة');
+		expect(step6Html).not.toContain('لا تعارض');
+		expect(step6Html).not.toContain('اكتملت مراجعة الطلب');
+	});
+
+	it('step 6: real entered values and the publish flow are kept', () => {
+		expect(step6Html).toContain('parent.title()');
+		expect(step6Html).toContain('parent.deliveryDays()');
+		expect(step6Html).toContain('parent.files().length');
+		expect(step6Html).toContain('(click)="confirmPublish()"');
+		expect(step6Ts).toContain('this.parent.submitRequest()');
+	});
+
+	it('step 2: no fixed "no conflict with system policies" verdict and no claim of an automatic policy check', () => {
+		expect(step2Html).not.toContain('لا تعارض مع سياسات النظام');
+		expect(step2Html).not.toContain('يفحص الشروط المخصصة تلقائيا');
+		expect(step2Html).toContain('parent.customConditions()');
+	});
+
+	it('ai-suggest failure no longer auto-selects a specialty and reports it as an applied AI suggestion', () => {
+		expect(createReqTs).not.toContain('تم تطبيق اقتراح AI:');
+		expect(createReqTs).toContain('this.projectApi.aiSuggest(payload)');
+	});
+});
+
+describe('AI Cleanup Batch 2 — provider negotiate', () => {
+	it('no fabricated client round, client message, or AI confidence', () => {
+		expect(negotiateTs).not.toContain('السعر أعلى قليلاً من ميزانيتنا');
+		expect(negotiateTs).not.toContain('aiConfidence');
+		expect(negotiateTs).not.toContain('0.88');
+		expect(negotiateTs).not.toContain("actor: 'client'");
+		expect(negotiateHtml).not.toContain('تحليل AI');
+	});
+
+	it('no midpoint "settlement" suggestion derived from an invented client price', () => {
+		expect(negotiateTs).not.toContain('suggestedSettlement');
+		expect(negotiateHtml).not.toContain('نقطة تسوية مقترحة');
+	});
+
+	it('no local-only counter-offer / accept / end actions that showed fake success', () => {
+		expect(negotiateTs).not.toContain('تم إرسال عرضك المضاد');
+		expect(negotiateTs).not.toContain('تم إنهاء التفاوض');
+		expect(negotiateTs).not.toContain('submitCounterOffer');
+		expect(negotiateTs).not.toContain('confirmAccept');
+		expect(negotiateHtml).not.toContain('إرسال العرض المضاد');
+		expect(negotiateHtml).toContain('غير متاح حاليا');
+	});
+
+	it('real offer load and the real conversation link are kept', () => {
+		expect(negotiateTs).toContain('this.offersService.getOfferById(id)');
+		expect(negotiateHtml).toContain('(click)="openConversation()"');
+	});
+});
+
+describe('AI Cleanup Batch 2 — provider apply-request steps 3 & 4', () => {
+	it('step 3: no fixed "optimal" price/duration panel or fixed duration note', () => {
+		expect(applyStep3Html).not.toContain('4,500');
+		expect(applyStep3Html).not.toContain('14 يوم');
+		expect(applyStep3Html).not.toContain('10-18');
+		expect(applyStep3Html).not.toContain('مثاليان');
+	});
+
+	it('step 3: no fixed "AI-improved" message and no "+35%" uplift', () => {
+		expect(applyStep3Html).not.toContain('+35%');
+		expect(applyStep3Html).not.toContain('98%');
+		expect(applyStep3Html).not.toContain('الرسالة المُحسَّنة من AI');
+		expect(applyHtml).not.toContain('acceptAiMsg');
+		expect(applyHtml).not.toContain('acceptAiPrice');
+	});
+
+	it('step 3: no fixed competitive rank / win chance; real proposalsCount has no invented fallback', () => {
+		expect(applyStep3Html).not.toContain('الأفضل سعرًا');
+		expect(applyStep3Html).not.toContain('>مرتفعة<');
+		expect(applyStep3Html).not.toContain('proposalsCount || 3');
+		expect(applyStep3Html).toContain('projectDetails?.proposalsCount');
+	});
+
+	it('step 3: real Gemini audit values are kept', () => {
+		expect(applyStep3Html).toContain('currentAudit.finalMetrics.overallScore');
+		expect(applyStep3Html).toContain('currentAudit.triPartyComparison.aiRecommendation.budget');
+		expect(applyStep3Html).toContain('currentAudit.acceptanceOdds.statusText');
+	});
+
+	it('step 4: no fixed 93% / 97% / +35% / "best priced among N" claims', () => {
+		expect(applyStep4Html).not.toContain('93%');
+		expect(applyStep4Html).not.toContain('97%');
+		expect(applyStep4Html).not.toContain('+35%');
+		expect(applyStep4Html).not.toContain('الأفضل سعرًا');
+		expect(applyStep4Html).not.toContain('— مرتفع');
+	});
+
+	it('step 4: style/profile values now come from the real audit; real overall score kept', () => {
+		expect(applyStep4Html).toContain('currentAudit.finalMetrics.messageClarity');
+		expect(applyStep4Html).toContain('currentAudit.finalMetrics.profileMatch');
+		expect(applyStep4Html).toContain('currentAudit.finalMetrics.overallScore');
+		expect(applyStep4Html).toContain('currentAudit.acceptanceOdds.topPercentage');
+	});
+});
+
+describe('AI Cleanup Batch 2 — company-mode provider pages', () => {
+	it('incoming-requests: no mock requests, team members, AI match or local-only assign', () => {
+		for (const src of [incomingHtml, incomingTs]) {
+			expect(src).not.toContain('سارة الزهراني');
+			expect(src).not.toContain('RQ-001');
+			expect(src).not.toContain('aiMatch');
+			expect(src).not.toContain('doAssign');
+		}
+		expect(incomingHtml).toContain('na-card');
+	});
+
+	it('change-orders: no mock orders, KPIs or "AI:" notes', () => {
+		for (const src of [changeOrdersHtml, changeOrdersTs]) {
+			expect(src).not.toContain('CO-001');
+			expect(src).not.toContain('aiNote');
+			expect(src).not.toContain('23,500');
+		}
+		expect(changeOrdersHtml).toContain('na-card');
+	});
+
+	it('sales-stats: no mock revenue, funnel, conversion or per-member performance', () => {
+		for (const src of [salesStatsHtml, salesStatsTs]) {
+			expect(src).not.toContain('87,400');
+			expect(src).not.toContain('38%');
+			expect(src).not.toContain('teamPerf');
+			expect(src).not.toContain('funnel');
+		}
+		expect(salesStatsHtml).toContain('na-card');
+	});
+
+	it('market (company mode): KPIs bound to real stats; fixed numbers and fake member filter removed', () => {
+		for (const v of ['>12<', '2,841', '↑ 22%', '>94<', '>58<', '36٪']) {
+			expect(marketHtml).not.toContain(v);
+		}
+		expect(marketHtml).toContain('stats().totalModels');
+		expect(marketHtml).toContain('stats().totalViews');
+		expect(marketHtml).not.toContain('companyMembers');
+		expect(marketTs).not.toContain("name: 'سارة'");
+	});
+
+	it('reports: no fixed "acceptance rate up 12%" AI recommendation', () => {
+		expect(reportsHtml).not.toContain('ارتفع 12%');
+		expect(reportsHtml).not.toContain('5k–20k');
+	});
+});
+
+describe('AI Cleanup Batch 2 — single score not shown as six independent metrics', () => {
+	it('accreditation-details: aiScore shown once, no six-bar fake breakdown', () => {
+		const repeats = accreditationHtml.split('sampleDetails()?.aiScore || 0 }}%').length - 1;
+		expect(repeats).toBe(0);
+		for (const label of ['جودة التنفيذ', 'أصالة العمل', 'توافق مع السوق', 'دقة التفاصيل', 'ملاءمة التخصص', 'إثبات الملكية']) {
+			expect(accreditationHtml).not.toContain(label);
+		}
+		expect(accreditationHtml).toContain("sampleDetails()?.aiScore || '-'");
+	});
+
+	it('marketer profile: no hardcoded "LinkedIn raises commissions by 32%" AI claim', () => {
+		expect(marketerDataHtml).not.toContain('32%');
+		expect(marketerDataHtml).not.toContain('useAiChannelSuggestion');
+		expect(marketerDataTs).not.toContain('useAiChannelSuggestion');
+	});
+});

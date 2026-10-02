@@ -16,140 +16,14 @@
 		</div>
 	</div>
 
-	<!-- KPIs -->
-	<div class="kpi-row">
-		@for (k of kpis; track k.label) {
-			<div class="kpi-c">
-				<div class="kpi-v" [style.color]="k.color">{{ k.value }}</div>
-				<div class="kpi-l">{{ k.label }}</div>
-				<div class="kpi-s">{{ k.sub }}</div>
-			</div>
-		}
+	<!-- AI Cleanup Batch 2: the request list, KPIs, tab counts, team members, "AI suggested member"
+	     and match percentages were all hardcoded, and "assign" only changed local state.
+	     The backend has no provider-side endpoint that lists marketplace requests on company
+	     models and no endpoint to assign one to a team member, so nothing is shown here
+	     until that capability exists. -->
+	<div class="na-card" role="status">
+		<div class="na-ttl">عرض الطلبات الواردة على نماذج الشركة غير متاح بعد</div>
+		<div class="na-sub">تصلك طلبات العملاء على نماذج الشركة حاليا كمحادثات. قائمة مخصصة للطلبات الواردة وإسنادها لأعضاء الفريق لم تُبنَ بعد.</div>
+		<a class="na-link" routerLink="/provider-overview/messages">فتح المحادثات</a>
 	</div>
-
-	<!-- AI Disclosure -->
-	<div class="ai-disc">
-		<div class="ai-disc-ico">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
-		</div>
-		<div class="ai-disc-body">
-			<div class="ai-disc-lbl">وسيط، ترتيب الطلبات</div>
-			<p class="ai-disc-txt">تُرتَّب الطلبات تلقائياً حسب جاهزيتها للتعاقد — والقرار النهائي لك</p>
-		</div>
-	</div>
-
-	<!-- Filter Rail -->
-	<div class="filter-rail">
-		<div class="fr-lbl">النموذج</div>
-		<div class="fr-segs">
-			@for (t of tplFilters; track t.id) {
-				<button type="button" class="ds" [class.active]="activeTpl() === t.id" (click)="setTpl(t.id)">{{ t.label }}</button>
-			}
-		</div>
-		<div class="fr-lbl">المقدِّم</div>
-		<div class="fr-segs">
-			@for (m of memberFilters; track m.id) {
-				<button type="button" class="ds" [class.active]="activeMember() === m.id" (click)="setMember(m.id)">{{ m.label }}</button>
-			}
-		</div>
-		<div class="fr-spacer"></div>
-		<div class="fr-search">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-			<input type="search" placeholder="ابحث باسم العميل أو النموذج..." [value]="searchQuery()" (input)="onSearch($event)">
-		</div>
-	</div>
-
-	<!-- Status Tabs -->
-	<div class="ord-tabs">
-		@for (t of tabs; track t.id) {
-			<button type="button" class="ord-tab" [class.active]="activeTab() === t.id" (click)="setTab(t.id)">
-				{{ t.label }} <span class="tab-count">{{ t.count }}</span>
-			</button>
-		}
-	</div>
-
-	<!-- Request Cards -->
-	<div class="req-list">
-		@for (req of filteredRequests(); track req.id) {
-			<div class="rq-card">
-				<div class="rq-top">
-					<div class="rq-av" [style.background]="req.clientColor">{{ req.clientInitials }}</div>
-					<div class="rq-head">
-						<div class="rq-tpl-name">{{ req.tplName }}</div>
-						<div class="rq-meta">
-							<span>{{ req.client }}</span>
-							<span class="dot"></span>
-							<span>{{ req.budget.toLocaleString() }} ريال · {{ req.days }} يوم</span>
-							<span class="dot"></span>
-							<span>{{ req.arrivedAt }}</span>
-						</div>
-					</div>
-					<div class="rq-status">
-						@if (req.status === 'new') { <span class="opill op-new">جديد</span> }
-						@if (req.status === 'assigned') { <span class="opill op-assigned">مُسند</span> }
-						@if (req.status === 'negotiate') { <span class="opill op-neg">قيد التفاوض</span> }
-						@if (req.status === 'done') { <span class="opill op-done">مغلق</span> }
-					</div>
-				</div>
-
-				@if (req.assignedMember) {
-					<div class="rq-assigned">
-						<span class="rq-assigned-lbl">مُسند إلى:</span>
-						<span class="rq-assigned-name">{{ req.assignedMember }}</span>
-					</div>
-				}
-
-				<div class="rq-actions">
-					@if (req.status === 'new') {
-						<button type="button" class="rq-btn rq-btn-assign" (click)="openAssign(req.id)">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/></svg>
-							إسناد لمقدم
-						</button>
-					}
-					<a [routerLink]="['/provider-overview/explore-requests', req.id, 'apply']" class="rq-btn rq-btn-view">
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-						معاينة الطلب
-					</a>
-				</div>
-
-				<!-- Assign dropdown -->
-				@if (assigningFor() === req.id) {
-					<div class="assign-drop">
-						<div class="assign-drop-hd">اختر مقدم الخدمة</div>
-						@for (m of teamMembers; track m.id) {
-							<div class="assign-opt" [class.disabled]="m.busy" (click)="!m.busy && doAssign(req, m)">
-								<div class="ao-av" [style.background]="m.color">{{ m.initials }}</div>
-								<div>
-									<div class="ao-name">{{ m.name }}</div>
-									<div class="ao-spec">{{ m.specialty }}</div>
-								</div>
-								@if (m.busy) { <span class="ao-busy">مشغول</span> }
-								@else if (m.match) { <span class="ao-match">{{ m.match }}%</span> }
-							</div>
-						}
-						<button type="button" class="assign-close" (click)="closeAssign()">إلغاء</button>
-					</div>
-				}
-			</div>
-		}
-		@empty {
-			<div class="empty-state">
-				<div class="empty-ico">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-				</div>
-				<div class="empty-ttl">لا توجد طلبات مطابقة</div>
-				<div class="empty-sub">جرّب تغيير الفلاتر أو ابحث بكلمة أخرى</div>
-			</div>
-		}
-	</div>
-
-	<!-- Toast -->
-	@if (toast()) {
-		<div class="toast">
-			<div class="toast-inner">
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-				<span class="toast-txt">{{ toast() }}</span>
-			</div>
-		</div>
-	}
 </div>

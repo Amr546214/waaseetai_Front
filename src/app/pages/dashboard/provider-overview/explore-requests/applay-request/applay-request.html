@@ -175,18 +175,13 @@
         [currentAudit]="currentAudit()"
         [proposal]="proposal()"
         [projectDetails]="projectDetails()"
-        [(showAiMsgPanel)]="showAiMsgPanel"
-        [(showAiPricePanel)]="showAiPricePanel"
         [skippedMsgRec]="skippedMsgRec()"
         [skippedPriceRec]="skippedPriceRec()"
         [ack1]="ack1()"
         [ack2]="ack2()"
         [ack3]="ack3()"
         (prevStep)="prevStep()"
-        (applyAIEdit)="applyAIEdit($event)"
         (skipRec)="skipRec($event)"
-        (acceptAiMsg)="acceptAiMsg()"
-        (acceptAiPrice)="acceptAiPrice()"
         (toggleAck)="toggleAck($event)">
       </app-step3-review>
     }

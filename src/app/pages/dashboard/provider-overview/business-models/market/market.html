@@ -30,12 +30,24 @@
 	</div>
 
 	@if (isCompanyMode()) {
-	<!-- Company KPIs -->
-	<div class="co-mkt-kpi-row">
-		<div class="co-mkt-kpi-c"><div class="v">12</div><div class="l">نماذج الشركة</div><div class="s">في 4 تخصصات</div></div>
-		<div class="co-mkt-kpi-c"><div class="v">2,841</div><div class="l">مشاهدة هذا الشهر</div><div class="s">↑ 22% عن الشهر الماضي</div></div>
-		<div class="co-mkt-kpi-c"><div class="v">94<span style="font-size:12px" class="txt-slate">/100</span></div><div class="l">متوسط تقييم AI</div><div class="s">جودة عالية</div></div>
-		<div class="co-mkt-kpi-c"><div class="v">58</div><div class="l">عروض مولَّدة من النماذج</div><div class="s">21 قُبلت · 36٪ تحويل</div></div>
+	<!-- Company KPIs — AI Cleanup Batch 2: the previous four cards were fixed numbers
+	     (model count, monthly views + trend, average AI score, offers/conversion). They
+	     now show only what GET /business-models/my-market-models really returns;
+	     monthly trends and offers/conversion have no backend source and were removed. -->
+	<div class="co-mkt-kpi-row" style="grid-template-columns:repeat(3,1fr)">
+		<div class="co-mkt-kpi-c"><div class="v">{{ stats().totalModels | number }}</div><div class="l">نماذج الشركة</div><div class="s">في {{ groups().length }} تخصصات</div></div>
+		<div class="co-mkt-kpi-c"><div class="v">{{ stats().totalViews | number }}</div><div class="l">إجمالي المشاهدات</div></div>
+		<div class="co-mkt-kpi-c">
+			<div class="v">
+				@if (avgAiScore() !== null) {
+				<span>{{ avgAiScore() }}</span><span style="font-size:12px" class="txt-slate">/100</span>
+				} @else {
+				<span class="txt-slate">—</span>
+				}
+			</div>
+			<div class="l">متوسط درجة التدقيق الآلي</div>
+			<div class="s">من نماذجك المدققة</div>
+		</div>
 	</div>
 	}
 
@@ -58,15 +70,6 @@
 			<button class="ds" [class.active]="activeSort() === 'top-rated' || activeSort() === 'rating'" type="button"
 				(click)="setSort('top-rated')">الأعلى تقييماً</button>
 		</div>
-
-		@if (isCompanyMode()) {
-		<div class="fr-period-lbl">المقدِّم</div>
-		<div class="date-segs" role="group">
-			@for (mem of companyMembers; track mem.id) {
-			<button class="ds" [class.active]="companyMemberFilter() === mem.id" type="button" (click)="setCompanyMember(mem.id)">{{ mem.name }}</button>
-			}
-		</div>
-		}
 
 		<div class="fr-spacer"></div>
 

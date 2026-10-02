@@ -66,20 +66,6 @@ export class Market implements OnInit, OnDestroy {
 		return user?.accountType === AccountType.PROVIDER_COMPANY;
 	});
 
-	// Company team member filter
-	companyMemberFilter = signal<string>('all');
-	companyMembers = [
-		{ id: 'all', name: 'الكل' },
-		{ id: 'sara', name: 'سارة' },
-		{ id: 'fahad', name: 'فهد' },
-		{ id: 'reem', name: 'ريم' },
-		{ id: 'khaled', name: 'خالد' },
-	];
-
-	setCompanyMember(id: string) {
-		this.companyMemberFilter.set(id);
-	}
-
 	models = signal<MarketModel[]>([]);
 	groups = signal<MarketGroup[]>([]);
 	filterTabs = signal<{ id: string; name: string; count: number }[]>([
@@ -88,7 +74,15 @@ export class Market implements OnInit, OnDestroy {
 
 	stats = signal({
 		totalModels: 0,
+		totalViews: 0,
 		pendingModifications: 0
+	});
+
+	/** Average of the real stored audit scores; null when no model has been scored. */
+	avgAiScore = computed<number | null>(() => {
+		const scored = this.models().map(m => Number(m.aiScore) || 0).filter(v => v > 0);
+		if (!scored.length) return null;
+		return Math.round(scored.reduce((a, b) => a + b, 0) / scored.length);
 	});
 
 	activeCategory = signal<string>('all');

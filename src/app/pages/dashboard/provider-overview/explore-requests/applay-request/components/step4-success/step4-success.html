@@ -37,12 +37,12 @@
       <span class="text-[12px] text-[#6B7699]">تقييم AI للعرض</span>
       <span class="inline-flex items-center gap-[5px] px-[10px] py-[3px] bg-[rgba(15,169,154,.10)] border border-[rgba(15,169,154,.22)] rounded-full text-[12px] font-extrabold text-[#0FA99A]">
         <svg class="w-[11px] h-[11px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-check"></use></svg>
-        {{ currentAudit.finalMetrics.overallScore }}/100 — مرتفع
+        {{ currentAudit.finalMetrics.overallScore }}/100
       </span>
     </div>
     <div class="flex items-center justify-between pt-[9px]">
       <span class="text-[12px] text-[#6B7699]">التنافسية</span>
-      <span class="text-[13px] font-extrabold text-[#0FA99A]">الأفضل سعرًا وملاءمة بین {{ projectDetails?.proposalsCount || 3 }} عروض</span>
+      <span class="text-[13px] font-extrabold text-[#0FA99A]">{{ currentAudit.acceptanceOdds.topPercentage }}</span>
     </div>
   </div>
 
@@ -55,10 +55,14 @@
     <div class="text-[12.5px] text-[#A8B2D1] leading-[1.85] p-[14px] bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.07)] rounded-[10px] border-r-[3px] border-r-[rgba(123,47,190,.4)]">
       {{ proposal.message || 'لا توجد رسالة' }}
     </div>
+    <!-- AI Cleanup Batch 2: these two values were fixed numbers; they now come from the real
+         proposal-audit result (finalMetrics) and are hidden when no audit result exists. -->
+    @if (hasAuditResult()) {
     <div class="flex gap-[16px] mt-[10px] flex-wrap">
-      <span class="text-[11px] text-[#A8B2D1]">مهنية الأسلوب <strong class="text-[#0FA99A]">93%</strong></span>
-      <span class="text-[11px] text-[#A8B2D1]">توافق الملف المهني <strong class="text-[#0FA99A]">97%</strong></span>
+      <span class="text-[11px] text-[#A8B2D1]">مهنية الأسلوب <strong class="text-[#0FA99A]">{{ currentAudit.finalMetrics.messageClarity }}%</strong></span>
+      <span class="text-[11px] text-[#A8B2D1]">توافق الملف المهني <strong class="text-[#0FA99A]">{{ currentAudit.finalMetrics.profileMatch }}%</strong></span>
     </div>
+    }
   </div>
 
   <!-- 3. خطة المراحل -->
@@ -118,10 +122,7 @@
       <div class="flex items-center gap-[10px] p-[11px_13px] bg-[rgba(255,255,255,.02)] border border-[rgba(255,255,255,.06)] rounded-[10px]">
         <div class="text-[12px] text-[#6B7699]">لم تقم بإرفاق نموذج أعمال مع هذا العرض</div>
       </div>
-      <div class="mt-[10px] text-[11.5px] text-[#6B7699] flex items-center gap-[6px]">
-        <svg class="w-[11px] h-[11px] text-[#D98A0B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg>
-        إرفاق نموذج مشابه يرفع احتمال قبول العرض <strong class="text-[#D98A0B]">+35%</strong>
-      </div>
+      <div class="mt-[10px] text-[11.5px] text-[#6B7699]">يمكنك الرجوع للخطوة الأولى وإرفاق نموذج أعمال مشابه لدعم عرضك</div>
     }
   </div>
 

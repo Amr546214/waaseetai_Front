@@ -77,8 +77,10 @@ describe('AI Cleanup Batch 1 — fabricated AI claims removed', () => {
 	it('contract clause 6 (client + provider): no "via the AI layer" dispute claim; clause itself kept', () => {
 		for (const src of [contractSignatureHtml, signContractHtml]) {
 			expect(src).not.toContain('طبقة الذكاء');
-			expect(src).toContain('6. فض النزاع:');
 		}
+		expect(contractSignatureHtml).toContain('6. فض النزاع:');
+		// Provider screen lost sample clause 1 in Batch 1 and was renumbered in Batch 2 Step 0.
+		expect(signContractHtml).toContain('5. فض النزاع:');
 	});
 
 	it('provider sign-contract: no fabricated greeting and no "AI monitors the chat" claim; signing flow kept', () => {

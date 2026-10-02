@@ -519,12 +519,9 @@ export class CreateRequest implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        const techSpec = this.specialties().find(s => s.id === 'tech' || s.name.includes('تقنية')) || this.specialties()[0];
-        if (techSpec) {
-          this.selectSpec(techSpec.id);
-          this.showAIBanner.set(false);
-          this.showToast(`تم تطبيق اقتراح AI: ${techSpec.name}`, 'toast-ok');
-        }
+        // AI Cleanup Batch 2: this used to auto-select a hardcoded "tech" specialty and
+        // toast it as an applied AI suggestion even though the AI call had failed.
+        this.showToast('تعذر الحصول على اقتراح وسيط AI حاليا، يمكنك اختيار التخصص يدويا', 'toast-warn');
       }
     });
   }

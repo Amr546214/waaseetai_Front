@@ -5,7 +5,7 @@
 		<!-- AI DISCLOSURE -->
 		<div class="ai-disclosure flex items-start gap-3 p-3 px-4 rounded-xl mb-5" role="note">
 			<svg class="shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
-			<div class="text-xs leading-relaxed text-[var(--txt-2)]"><strong class="text-[var(--ai-txt)] font-bold">وسيط AI</strong> يفحص الشروط المخصصة تلقائيا لاكتشاف أي تعارض مع سياسات النظام، الإنسان يحتفظ بالقرار النهائي</div>
+			<div class="text-xs leading-relaxed text-[var(--txt-2)]">الشروط المخصصة تُرسل كما كتبتها ضمن الطلب، ولا يجري عليها فحص آلي حاليا، الإنسان يحتفظ بالقرار النهائي</div>
 		</div>
 
 		<!-- STRIKE BANNER (conditional) -->
@@ -163,11 +163,7 @@
 			</h2>
 				<textarea class="cond-textarea w-full px-3.5 py-3 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl text-[13px] font-medium text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[100px] leading-relaxed resize-y transition-colors" id="condText" placeholder="اكتب أي شروط إضافية تريد فرضها على مقدم الخدمة..." maxlength="2000" [ngModel]="parent.customConditions()" (ngModelChange)="parent.customConditions.set($event)" aria-label="الشروط المخصصة"></textarea>
 			<div class="char-count text-[11px] text-left mt-1 text-[var(--txt-3)] font-medium"><span id="charCount">{{ parent.customConditions().length }}</span> / 2000</div>
-			<!-- AI Conflict Check -->
-			@if (parent.customConditions().length > 10) {
-			<div class="ai-conflict ok show flex items-start gap-2 mt-2.5 p-3 px-3.5 rounded-[10px] text-xs font-semibold" id="aiConflict" role="status">
-				<svg class="w-3.5 h-3.5 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-				<span>وسيط AI: لا تعارض مع سياسات النظام، الشروط متوافقة</span>
-			</div>
-			}
+			<!-- AI Cleanup Batch 2: a fixed "no conflict with system policies" verdict used to
+			     appear whenever this text exceeded 10 characters. No policy check exists on the
+			     frontend or backend (customConditions is stored as-is), so the verdict was removed. -->
 		</div>

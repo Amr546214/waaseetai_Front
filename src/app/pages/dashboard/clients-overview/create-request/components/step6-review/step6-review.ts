@@ -36,33 +36,6 @@ export class Step6Review {
 		}
 	}
 
-	// Recommendations state
-	recDetailsDone = signal(false);
-	recBudgetDone = signal(false);
-
-	applyRecDetails() {
-		this.recDetailsDone.set(true);
-	}
-
-	applyRecBudget() {
-		this.recBudgetDone.set(true);
-		// Update budget Min/Max to 10000 if it was range or fixed
-		if (this.parent.budgetType() === 'range') {
-			this.parent.budgetMin.set(10000);
-			this.parent.budgetMax.set(10000);
-		} else if (this.parent.budgetType() === 'fixed') {
-			this.parent.budgetFixed.set(10000);
-		}
-	}
-
-	skipRecDetails() {
-		this.recDetailsDone.set(true);
-	}
-
-	skipRecBudget() {
-		this.recBudgetDone.set(true);
-	}
-
 	// Modal state
 	showConfirmModal = signal(false);
 

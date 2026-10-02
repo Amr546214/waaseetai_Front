@@ -119,8 +119,6 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	ack2 = signal<boolean>(false);
 	ack3 = signal<boolean>(false);
 
-	showAiMsgPanel = signal<boolean>(false);
-	showAiPricePanel = signal<boolean>(false);
 	skippedMsgRec = signal<boolean>(false);
 	skippedPriceRec = signal<boolean>(false);
 
@@ -455,22 +453,9 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		return this.ack1() && this.ack2() && this.ack3();
 	});
 
-	applyAIEdit(type: string) {
-		if (type === 'msg') this.showAiMsgPanel.update(v => !v);
-		if (type === 'price') this.showAiPricePanel.update(v => !v);
-	}
-
 	skipRec(id: string) {
 		if (id === 'msg-rec') this.skippedMsgRec.set(true);
 		if (id === 'price-rec') this.skippedPriceRec.set(true);
-	}
-
-	acceptAiMsg() {
-		this.showAiMsgPanel.set(false);
-	}
-
-	acceptAiPrice() {
-		this.showAiPricePanel.set(false);
 	}
 
 	// Navigation

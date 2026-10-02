@@ -16,6 +16,15 @@ export class Step4Success {
   @Input() projectDetails: any = null;
   @Input() portfolioOptions: any[] = [];
 
+  /**
+   * True only when a real proposal-audit result is present. The parent's
+   * "unavailable" fallback zeroes every metric, so a zero overall score means
+   * there is nothing real to show.
+   */
+  hasAuditResult(): boolean {
+    return (this.currentAudit?.finalMetrics?.overallScore ?? 0) > 0;
+  }
+
   getPortfolioItem(id: string) {
     return this.portfolioOptions.find((p: any) => p.id === id);
   }
