@@ -220,6 +220,44 @@ describe('Specialties — submission transport consolidation (Batch 3D-3 + 3D-4 
 		expect(postSpy).not.toHaveBeenCalled();
 	});
 
+	it('a WaseetAI-graded result (score only) never shows an invented correct-answers count or explanations', () => {
+		submitViaSocket();
+
+		antiCheatService.evaluationComplete$.next({ attemptId: 'attempt-1', isPassed: true, score: 85, status: 'COMPLETED', feedbackAr: 'جيد', strengths: ['أ'], weaknesses: [] });
+		component.currentStep.set(4);
+		fixture.detectChanges();
+
+		expect(component.quizResult()?.scorePercentage).toBe(85);
+		expect(component.quizResult()?.correctAnswers).toBeNull();
+		expect(component.quizResult()?.detailedResults).toEqual([]);
+		const text = fixture.nativeElement.textContent as string;
+		expect(text).toContain('85%'); // the result screen really rendered
+		expect(text).toContain('جيد'); // real WaseetAI feedback is shown
+		expect(text).not.toContain('الإجابات الصحيحة');
+		expect(text).not.toContain('مراجعة الإجابات التمحيصية');
+	});
+
+	it('a legacy result that really carries correctAnswers still shows it', () => {
+		submitViaSocket();
+
+		antiCheatService.evaluationComplete$.next({ attemptId: 'attempt-1', isPassed: true, score: 80, correctAnswers: 16, status: 'COMPLETED' });
+		component.currentStep.set(4);
+		fixture.detectChanges();
+
+		expect(component.quizResult()?.correctAnswers).toBe(16);
+		expect(fixture.nativeElement.textContent).toContain('الإجابات الصحيحة');
+	});
+
+	it('a result with no real score is an honest failure, never a default 80%', () => {
+		submitViaSocket();
+
+		antiCheatService.evaluationComplete$.next({ attemptId: 'attempt-1', isPassed: true, status: 'COMPLETED' });
+
+		expect(component.quizResult()?.passed).toBe(false);
+		expect(component.quizResult()?.scorePercentage).toBe(0);
+		expect(component.quizResult()?.status).toBe('SUBMISSION_FAILED');
+	});
+
 	// Batch 3D-4, requirements 3 & 16 — success is received and applied
 	// first; stopMonitoring()'s disconnect only happens as a consequence of
 	// that settlement, afterward.

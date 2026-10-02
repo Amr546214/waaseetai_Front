@@ -274,13 +274,17 @@ export class ApplayRequest implements OnInit, OnDestroy {
 
 	useAISuggest() {
 		if (this.isFetchingAiSuggest()) return;
+		const current = this.proposal();
+		if (!this.reqId() || (!current.title?.trim() && !current.message?.trim())) {
+			alert('اكتب عنوان العرض أو نصه أولاً ليتمكن الذكاء الاصطناعي من تحسينه.');
+			return;
+		}
 		this.isFetchingAiSuggest.set(true);
 
 		const payload = {
-			projectId: this.reqId() || 'proj-demo-101',
-			currentTitle: this.proposal().title || 'عرض تقديم خدمة تطويرية',
-			currentMessage: this.proposal().message || 'تفاصيل العمل والمراحل',
-			advantages: this.proposal().advantages
+			projectId: this.reqId()!,
+			currentTitle: current.title || '',
+			currentMessage: current.message || ''
 		};
 
 		this.http.post<any>(`${environment.url_api}/proposals/ai-suggest`, payload)
@@ -290,7 +294,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 					this.showAiSuggest.set(false);
 					if (res.data) {
 						const refinedTitle = res.data.suggestedTitle || this.proposal().title;
-						const refinedMsg = res.data.suggestedMessage || res.data.content || 'أحتاج إلى تطوير متجر إلكتروني متكامل لعلامة تجارية في قطاع الأزياء. يشمل المشروع تصميم واجهة مستخدم عصرية RTL، صفحات منتجات، نظام دفع إلكتروني متوافق مع SAMA، لوحة إدارة، وتكامل مع منصات التوصيل المحلية.';
+						const refinedMsg = res.data.suggestedMessage || this.proposal().message;
 						const suggestedAdvs = res.data.suggestedAdvantages || [];
 						this.proposal.update(p => ({
 							...p,

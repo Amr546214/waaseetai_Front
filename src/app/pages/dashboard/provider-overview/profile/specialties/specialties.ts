@@ -126,7 +126,9 @@ export class Specialties implements OnInit, OnDestroy {
 	quizResult = signal<{
 		passed: boolean;
 		scorePercentage: number;
-		correctAnswers: number;
+		// Only present when the backend really computed it (legacy attempts);
+		// WaseetAI-graded attempts report a score only. Never derived from %.
+		correctAnswers: number | null;
 		totalQuestions: number;
 		status: string;
 		badgeGrantedAt?: string;
@@ -258,14 +260,19 @@ export class Specialties implements OnInit, OnDestroy {
 	// sets quizResult from a socket-delivered outcome.
 	private applyEvaluationResult(res: any) {
 		const totalQ = this.quizQuestions().length || 20;
-		const scoreVal = res.score !== undefined ? res.score : (res.scorePercentage || 80);
+		const scoreVal = Number.isFinite(res?.score) ? res.score : (Number.isFinite(res?.scorePercentage) ? res.scorePercentage : null);
+		if (scoreVal === null) {
+			// No real score arrived: never invent one.
+			this.applyFallbackResults();
+			return;
+		}
 		this.quizResult.set({
 			passed: Boolean(res.isPassed),
 			scorePercentage: scoreVal,
-			correctAnswers: Math.round((scoreVal / 100) * totalQ),
+			correctAnswers: Number.isFinite(res.correctAnswers) ? res.correctAnswers : null,
 			totalQuestions: totalQ,
 			status: res.status || (res.isPassed ? 'APPROVED' : 'FAILED'),
-			badgeGrantedAt: res.completedAt || new Date().toISOString(),
+			badgeGrantedAt: res.completedAt,
 			feedbackAr: res.feedbackAr,
 			strengths: res.strengths || [],
 			weaknesses: res.weaknesses || [],
@@ -1122,15 +1129,21 @@ export class Specialties implements OnInit, OnDestroy {
 				this.submissionSettledForAttempt = attemptId;
 				if (res.success && res.data) {
 					const d = res.data;
-					const totalQ = this.quizQuestions().length || 5;
-					const scoreVal = d.score !== undefined ? d.score : 80;
+					const totalQ = this.quizQuestions().length || 20;
+					if (!Number.isFinite(d.score)) {
+						// No real score arrived: never invent one.
+						this.applyFallbackResults();
+						this.finishSubmission();
+						return;
+					}
+					const scoreVal = d.score;
 					this.quizResult.set({
 						passed: Boolean(d.isPassed),
 						scorePercentage: scoreVal,
-						correctAnswers: Math.round((scoreVal / 100) * totalQ),
+						correctAnswers: Number.isFinite(d.correctAnswers) ? d.correctAnswers : null,
 						totalQuestions: totalQ,
 						status: d.status || (d.isPassed ? 'APPROVED' : 'FAILED'),
-						badgeGrantedAt: d.completedAt || new Date().toISOString(),
+						badgeGrantedAt: d.completedAt,
 						feedbackAr: d.feedbackAr,
 						strengths: d.strengths || [],
 						weaknesses: d.weaknesses || [],
@@ -1256,7 +1269,7 @@ export class Specialties implements OnInit, OnDestroy {
 		this.quizResult.set({
 			passed: false,
 			scorePercentage: 0,
-			correctAnswers: 0,
+			correctAnswers: null,
 			totalQuestions: total,
 			status: 'SUBMISSION_FAILED',
 			detailedResults: [],
