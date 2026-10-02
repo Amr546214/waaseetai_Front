@@ -332,7 +332,7 @@
               <span style="width:30px;height:30px;border-radius:7px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
                 <svg aria-hidden="true" style="width:13px;height:13px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">ثقة AI عالية</div><div style="font-size:10px;color:var(--txt-3)">نقاط {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }}/100 من الذكاء</div></div>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">تخصص معتمد</div>@if (provider()?.specialties?.[0]?.aiMetrics?.aiScore != null) {<div style="font-size:10px;color:var(--txt-3)">نقاط {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore }}/100 من الذكاء</div>}</div>
             </div>
             }
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(15,169,154,.03);border:1px solid rgba(15,169,154,.1);border-radius:9px">

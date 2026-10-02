@@ -17,7 +17,6 @@ export class Step1General {
   @Input() messageLength = 0;
   @Input() outputsLength = 0;
   @Input() aiQuality: any = {};
-  @Input() showAiSuggest = false;
   @Input() isFetchingAiSuggest = false;
   @Input() newReq = '';
   @Input() portfolioOptions: PortfolioItem[] = [];
@@ -25,7 +24,6 @@ export class Step1General {
   @Input() selectedPortfolioNames = '';
 
   @Output() proposalChange = new EventEmitter<any>();
-  @Output() showAiSuggestChange = new EventEmitter<boolean>();
   @Output() newReqChange = new EventEmitter<string>();
 
   @Output() updateTitle = new EventEmitter<string>();

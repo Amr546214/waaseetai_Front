@@ -910,13 +910,9 @@
                       </div>
                       <div class="result-level-pill" [class.beginner]="testLevelLabel().includes('تمهيدي')" [class.mid]="testLevelLabel().includes('تطبيقي') || testLevelLabel().includes('بارع')" [class.expert]="testLevelLabel().includes('احترافي')">
                         <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        {{ testLevelLabel() }}
+                        مستوى حسب الدرجة: {{ testLevelLabel() }}
                       </div>
                       <div class="result-desc">@if (setupTestService.result()?.correct != null) {أديت {{ setupTestService.result()?.correct }} من أصل {{ setupTestService.result()?.total || 0 }} أسئلة بشكل صحيح.} @else {حصلت على {{ setupTestService.result()?.score | number:'1.0-1' }}% في اختبار من {{ setupTestService.result()?.total || 0 }} أسئلة.} AI صنفك كمقدم خدمة {{ testLevelLabel() }}، ستظهر طلبات مناسبة لمستواك في السوق فور اعتماد النتيجة</div>
-                      <div class="result-ai-conf">
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>
-                        ثقة AI في التصنيف: {{ testAiConfidence() }}%
-                      </div>
                     </div>
 
                     <div class="stats-row">
@@ -925,15 +921,6 @@
                       <div class="stat-box"><div class="stat-box-val">{{ testTimeSpent() }}</div><div class="stat-box-lbl">الوقت المستغرق</div></div>
                     </div>
 
-                    @if (testNeedsAdminReview()) {
-                      <div class="result-admin-banner">
-                        <div class="result-admin-banner-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg></div>
-                        <div>
-                          <div class="result-admin-ttl">قيد المراجعة، خلال ساعة واحدة</div>
-                          <div class="result-admin-sub">AI سيراجع نتيجتك ويعتمد التصنيف خلال ساعة واحدة. ستصلك إشعار فور الاعتماد وسيرفع Hard Lock تلقائيا للوصول الكامل للسوق</div>
-                        </div>
-                      </div>
-                    }
 
                     <div class="result-actions">
                       <button type="button" class="btn-to-profile" (click)="finishTestProcess()">
