@@ -43,11 +43,6 @@
 	<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 	<script src="assets/ws-light-polish.js" defer></script>
 
-	<!-- Bebo (site-wide): web components served from /bebo/ (public/bebo, copied verbatim from BeboAI-Ready).
-	     robot.js must stay next to its sprite PNGs (it resolves them from its own script URL). -->
-	<script defer src="/bebo/robot.js"></script>
-	<script defer src="/bebo/bebo-chat.js"></script>
-
 	<!-- Moyasar Web Form -->
 	<link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.14.0/moyasar.css" />
 	<!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=fetch"></script> -->
@@ -247,10 +242,6 @@
 			<div class="loader-text">جاري تهيئة مساحة العمل...</div>
 		</div>
 	</app-root>
-
-	<!-- Bebo elements live OUTSIDE <app-root> so they survive route changes. -->
-	<cute-robot id="bebo" size="112" floating interactive floor-offset="110" home-x="116"></cute-robot>
-	<bebo-chat robot="#bebo" api-base="https://waseet-ai-api-1041761245251.us-central1.run.app/v1/bebo"></bebo-chat>
 </body>
 
 </html>

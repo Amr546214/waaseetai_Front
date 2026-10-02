@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { AssistantWidgetComponent } from './assistant-widget';
@@ -9,6 +10,7 @@ import { HelpAssistantSocketService, HelpStreamEvent } from '../../core/services
 import type { CuteRobotElement } from '../bebo-avatar/bebo-loader';
 import { SECURE_CONTEXT, SPEECH_RECOGNITION } from '../../core/services/speech-recognition';
 import { AssistantTtsService } from '../../core/services/assistant-tts.service';
+import { AuthStore } from '../../core/store/auth.store';
 
 class FakeRecognition {
 	static last: FakeRecognition | null = null;
@@ -43,14 +45,19 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 	const events = new Subject<HelpStreamEvent>();
 	const socket = { events$: events.asObservable(), ask: vi.fn(() => 'w-1'), cancel: vi.fn(), disconnect: vi.fn() };
 	const tts = { synthesize: vi.fn(() => new Subject<Blob>().asObservable()) };
+	// Signed-in by default; the visitor suite below flips the token to null.
+	const authToken = signal<string | null>('test-token');
+	const authStub = { token: authToken.asReadonly(), currentUser: signal({ id: 'u1', activeRole: 'CLIENT' }) };
 
 	beforeEach(async () => {
+		authToken.set('test-token');
 		stubBrowserApis();
 		loadRealBeboEngine();
 		await TestBed.configureTestingModule({
 			imports: [AssistantWidgetComponent],
 			providers: [
-				provideRouter([]),
+				provideRouter([{ path: 'auth/login', children: [] }]),
+				{ provide: AuthStore, useValue: authStub },
 				{ provide: HelpAssistantSocketService, useValue: socket },
 				{ provide: AssistantTtsService, useValue: tts },
 				{ provide: SPEECH_RECOGNITION, useValue: FakeRecognition },
@@ -215,5 +222,54 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 		fixture.detectChanges();
 		expect(el().querySelector('.aw__state')!.textContent).toContain('يجهّز الصوت');
 		expect(tts.synthesize).toHaveBeenCalled();
+	});
+
+	describe('visitor (no session token): robot + login prompt only', () => {
+		const click = () => { robot().dispatchEvent(new MouseEvent('click', { bubbles: true })); fixture.detectChanges(); };
+		beforeEach(() => {
+			authToken.set(null);
+			fixture.detectChanges();
+			socket.ask.mockClear();
+			tts.synthesize.mockClear();
+		});
+
+		it('shows the robot, and clicking it opens a short login prompt instead of the chat', () => {
+			expect(robot()).toBeTruthy();
+			click();
+			expect(store.panelOpen()).toBe(true);
+			const prompt = el().querySelector('[data-testid="assistant-guest-prompt"]') as HTMLElement;
+			expect(prompt).toBeTruthy();
+			expect(prompt.textContent).toContain('سجّل الدخول لتتحدث مع بيبو');
+			expect(el().querySelector('app-assistant-chat')).toBeNull();
+			expect(el().querySelector('textarea, input')).toBeNull();
+			expect(el().querySelector('.aw__state')).toBeNull();
+		});
+
+		it('the login button points to /auth/login and closes the panel', () => {
+			click();
+			const link = el().querySelector('.aw__login') as HTMLAnchorElement;
+			expect(link.getAttribute('href')).toBe('/auth/login');
+			expect(link.textContent).toContain('تسجيل الدخول');
+			link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+			fixture.detectChanges();
+			expect(store.panelOpen()).toBe(false);
+		});
+
+		it('makes no network/socket call: nothing is asked, no audio is requested', () => {
+			click();
+			expect(socket.ask).not.toHaveBeenCalled();
+			expect(tts.synthesize).not.toHaveBeenCalled();
+		});
+
+		it('signing in removes the prompt; reopening then shows the real chat on the same robot', () => {
+			click();
+			const first = robot();
+			authToken.set('fresh-token');
+			fixture.detectChanges();
+			expect(el().querySelector('[data-testid="assistant-guest-prompt"]')).toBeNull();
+			if (!store.panelOpen()) click(); // a new identity resets the conversation/panel
+			expect(el().querySelector('.aw__panel app-assistant-chat')).toBeTruthy();
+			expect(robot()).toBe(first);
+		});
 	});
 });

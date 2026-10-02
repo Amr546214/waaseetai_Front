@@ -266,9 +266,5 @@
 	<!-- WebRTC Video Conference Modal -->
 	<app-video-call-modal></app-video-call-modal>
 
-	<!-- WaseetAI Help Assistant + Bebo avatar: mounted once for every dashboard
-	     role; lazy-loaded (Bebo sprites from /bebo/) after the page is idle. Browser-only. -->
-	@defer (on idle) {
-	<app-assistant-widget></app-assistant-widget>
-	}
+	<!-- The floating assistant (Bebo) is mounted once at the app root (app.ts), not here. -->
 </div>
