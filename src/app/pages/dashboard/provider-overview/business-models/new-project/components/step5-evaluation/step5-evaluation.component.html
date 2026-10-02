@@ -128,6 +128,7 @@
 					</div>
 				</div>
 
+				@if (eval.suggestedPricingStrategy) {
 				<div class="cmp-row">
 					<div>
 						<div class="cmp-row-label">نطاق التسعير الأمثل</div>
@@ -139,6 +140,7 @@
 							eval.suggestedPricingStrategy.recommendedRange }}</div>
 					</div>
 				</div>
+				}
 
 				<div class="cmp-row">
 					<div>
@@ -152,21 +154,25 @@
 					</div>
 				</div>
 
+				@if (eval.suggestedPricingStrategy) {
 				<div class="cmp-verdict">
 					<svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" aria-hidden="true">
 						<polyline points="20 6 9 17 4 12" />
 					</svg>
 					<span style="font-size:12.5px" class="txt-slate">{{ eval.suggestedPricingStrategy.reasoning }}</span>
 				</div>
+				}
 			</div>
 
 			<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+				@if (eval.suggestedPricingStrategy) {
 				<button type="button" (click)="onApplySuggestedPricing.emit()"
 					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" class="txt-purple">
 					<svg width="10" height="10" aria-hidden="true">
 						<use href="#i-ai"></use>
 					</svg>تطبيق التسعير
 				</button>
+				}
 				<button type="button" (click)="onApplySuggestedMilestones.emit()"
 					style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" class="txt-purple">
 					<svg width="10" height="10" aria-hidden="true">
@@ -253,6 +259,7 @@
 				</div>
 			</div>
 
+			@if (eval.marketFitRating) {
 			<div class="verdict-banner" [class.verdict-ok]="eval.marketFitRating === 'High'"
 				[class.verdict-warn]="eval.marketFitRating === 'Medium'"
 				[class.verdict-err]="eval.marketFitRating === 'Low'">
@@ -276,6 +283,7 @@
 					</div>
 				</div>
 			</div>
+			}
 
 		</div>
 

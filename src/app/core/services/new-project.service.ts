@@ -10,10 +10,14 @@ export interface ProviderPreData {
 	portfolioItems: any[];
 }
 
+// Backend (/api/ai-review/analyze) is backed by WaseetAI project-analysis.
+// WaseetAI does not return a pricing strategy or improvement list, and its
+// market-fit rating is only passed through when it is exactly High/Medium/Low
+// — otherwise these are honestly null/empty and the UI hides them.
 export interface AiReviewEvaluation {
 	clarityScore: number;
 	feasibilityScore: number;
-	marketFitRating: 'High' | 'Medium' | 'Low';
+	marketFitRating: 'High' | 'Medium' | 'Low' | null;
 	executiveSummary: string;
 	strengths: string[];
 	gapsAndRisks: string[];
@@ -27,7 +31,7 @@ export interface AiReviewEvaluation {
 	suggestedPricingStrategy: {
 		recommendedRange: string;
 		reasoning: string;
-	};
+	} | null;
 }
 
 @Injectable({
