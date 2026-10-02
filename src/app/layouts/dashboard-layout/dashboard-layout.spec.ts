@@ -55,21 +55,10 @@ describe('DashboardLayout', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('lazily mounts ONE assistant widget with the Bebo avatar (no 3D robot)', async () => {
+	it('does not mount its own assistant: the single floating Bebo lives at the app root', async () => {
 		const el = fixture.nativeElement as HTMLElement;
-		expect(el.querySelector('app-assistant-widget')).toBeNull(); // deferred until idle
-
-		const [block] = await fixture.getDeferBlocks();
-		await block.render(DeferBlockState.Complete);
-		fixture.detectChanges();
-		await fixture.whenStable();
-
-		expect(el.querySelectorAll('app-assistant-widget').length).toBe(1);
-		expect(el.querySelectorAll('cute-robot').length).toBe(1);
-		// Mounted beside (not inside) the routed page content / cards.
-		expect(el.querySelector('app-assistant-widget')!.closest('.main')).toBeNull();
-		expect(el.querySelector('app-assistant-widget app-bebo-avatar cute-robot')).toBeTruthy();
-		expect(el.querySelector('app-robot-avatar')).toBeNull();
-		expect(el.querySelector('app-assistant-widget canvas')).toBeNull();
+		expect((await fixture.getDeferBlocks()).length).toBe(0);
+		expect(el.querySelector('app-assistant-widget')).toBeNull();
+		expect(el.querySelector('cute-robot')).toBeNull();
 	});
 });

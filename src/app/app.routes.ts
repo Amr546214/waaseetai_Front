@@ -18,6 +18,7 @@ export const routes: Routes = [
 	{
 		path: 'auth',
 		loadComponent: () => import('./layouts/auth-layout/auth-layout').then(m => m.AuthLayoutComponent),
+		data: { hideAssistant: true },
 		children: AUTH_ROUTES,
 	},
 
@@ -50,25 +51,26 @@ export const routes: Routes = [
 	{
 		path: 'error/500',
 		loadComponent: () => import('./pages/system-errors/error-page/error-page').then(m => m.ErrorPageComponent),
-		data: { type: '500' }
+		data: { type: '500', hideAssistant: true }
 	},
 	{
 		path: 'error/403',
 		loadComponent: () => import('./pages/system-errors/error-page/error-page').then(m => m.ErrorPageComponent),
-		data: { type: '403' }
+		data: { type: '403', hideAssistant: true }
 	},
 	{
 		path: 'error/maintenance',
 		loadComponent: () => import('./pages/system-errors/error-page/error-page').then(m => m.ErrorPageComponent),
-		data: { type: 'maintenance' }
+		data: { type: 'maintenance', hideAssistant: true }
 	},
 	{
 		path: 'error/session-expired',
 		loadComponent: () => import('./pages/system-errors/error-page/error-page').then(m => m.ErrorPageComponent),
-		data: { type: 'session-expired' }
+		data: { type: 'session-expired', hideAssistant: true }
 	},
 	{
 		path: '**',
-		loadComponent: () => import('./sheards/not-found/not-found').then(m => m.NotFoundComponent)
+		loadComponent: () => import('./sheards/not-found/not-found').then(m => m.NotFoundComponent),
+		data: { hideAssistant: true }
 	}
 ];

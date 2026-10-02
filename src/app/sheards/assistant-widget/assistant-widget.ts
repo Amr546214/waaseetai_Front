@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, PLATFORM_ID, computed, 
 import { isPlatformBrowser } from '@angular/common';
 import { AssistantStore } from '../../core/store/assistant.store';
 import { BeboAvatarComponent } from '../bebo-avatar/bebo-avatar';
+import { RouterLink } from '@angular/router';
+import { AuthStore } from '../../core/store/auth.store';
 import { AssistantChatComponent } from '../assistant-chat/assistant-chat';
 
 // Floating dashboard assistant: the Bebo v4 pixel avatar (floating, as in the
@@ -30,23 +32,33 @@ const BEBO_SIZE_MOBILE = 72;
 @Component({
 	selector: 'app-assistant-widget',
 	standalone: true,
-	imports: [BeboAvatarComponent, AssistantChatComponent],
+	imports: [BeboAvatarComponent, AssistantChatComponent, RouterLink],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: { '(document:keydown.escape)': 'store.close()', '[style.--bebo-size.px]': 'beboSize()' },
 	template: `
 	<div class="aw" [attr.data-state]="store.state()">
 		@if (store.panelOpen()) {
-			<section class="aw__panel" role="dialog" aria-modal="false" aria-labelledby="aw-title">
+			<section class="aw__panel" [class.aw__panel--guest]="isGuest()" role="dialog" aria-modal="false" aria-labelledby="aw-title">
 				<header class="aw__head">
 					<div>
 						<h2 id="aw-title">المساعد الذكي — وسيط</h2>
-						<span class="aw__state" aria-live="polite">{{ stateLabel() }}</span>
+						@if (!isGuest()) {
+							<span class="aw__state" aria-live="polite">{{ stateLabel() }}</span>
+						}
 					</div>
 					<button type="button" class="aw__close" (click)="store.close()" aria-label="إغلاق المساعد">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
 					</button>
 				</header>
-				<app-assistant-chat class="aw__chat" [compact]="true" />
+				@if (isGuest()) {
+					<!-- Visitors: no input and no network call — just a prompt to sign in. -->
+					<div class="aw__guest" data-testid="assistant-guest-prompt">
+						<p>سجّل الدخول لتتحدث مع بيبو</p>
+						<a class="aw__login" routerLink="/auth/login" (click)="store.close()">تسجيل الدخول</a>
+					</div>
+				} @else {
+					<app-assistant-chat class="aw__chat" [compact]="true" />
+				}
 			</section>
 		}
 		<app-bebo-avatar
@@ -81,6 +93,10 @@ const BEBO_SIZE_MOBILE = 72;
 		.aw__close { width: 30px; height: 30px; padding: 6px; border-radius: 9px; border: 1px solid rgba(255,255,255,.12); background: transparent; color: #A8B2D1; cursor: pointer; }
 		.aw__close svg { width: 100%; height: 100%; }
 		.aw__chat { flex: 1; min-height: 0; }
+		.aw__panel--guest { height: auto; }
+		.aw__guest { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+		.aw__guest p { margin: 0; font-size: 14px; font-weight: 700; color: #fff; }
+		.aw__login { display: inline-flex; padding: 9px 18px; border-radius: 999px; background: linear-gradient(135deg, #2BD4C7, #2B7FFF); color: #070D24; font-size: 13px; font-weight: 800; text-decoration: none; }
 		@media (max-width: 640px) {
 			.aw__panel { width: calc(100vw - 24px); height: min(70dvh, calc(100dvh - var(--bebo-size, 72px) - 90px)); }
 		}
@@ -88,6 +104,9 @@ const BEBO_SIZE_MOBILE = 72;
 })
 export class AssistantWidgetComponent {
 	readonly store = inject(AssistantStore);
+	private readonly authStore = inject(AuthStore);
+	/** Visitors (no session token) get the robot and a login prompt only; no chat, mic or network. */
+	readonly isGuest = computed(() => !this.authStore.token());
 	readonly stateLabel = computed(() => (this.store.audioLoading() ? 'يجهّز الصوت…' : STATE_LABELS[this.store.state()]));
 	readonly beboLabel = computed(() =>
 		`بيبو، المساعد الذكي — ${this.store.panelOpen() ? 'اضغط لإغلاق المحادثة' : 'اضغط لفتح المحادثة'}`,
