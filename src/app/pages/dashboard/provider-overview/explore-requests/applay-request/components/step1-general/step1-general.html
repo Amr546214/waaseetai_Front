@@ -41,7 +41,7 @@
     <div class="mb-[18px] last:mb-0 field">
       <div class="flex items-center  justify-between gap-2 mb-[7px] field-header">
         <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-desc">رسالة عرضك <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
-        <button type="button" [disabled]="isFetchingAiSuggest" class="inline-flex items-center justify-center gap-[5px] py-[5px] px-[11px] whitespace-nowrap bg-[rgba(123,47,190,.10)] border border-[rgba(123,47,190,.22)] rounded-lg text-xs font-bold text-[#A56BE0] cursor-pointer transition-all duration-150 hover:bg-[rgba(123,47,190,.18)] ai-suggest-btn disabled:opacity-50 disabled:cursor-not-allowed" (click)="useAISuggest.emit()">
+        <button type="button" [disabled]="isFetchingAiSuggest" title="يعيد صياغة عنوان العرض ورسالته من النص الذي كتبته فقط؛ لا يستخدم ميزانية المشروع ولا يحدد سعرًا عادلًا" class="inline-flex items-center justify-center gap-[5px] py-[5px] px-[11px] whitespace-nowrap bg-[rgba(123,47,190,.10)] border border-[rgba(123,47,190,.22)] rounded-lg text-xs font-bold text-[#A56BE0] cursor-pointer transition-all duration-150 hover:bg-[rgba(123,47,190,.18)] ai-suggest-btn disabled:opacity-50 disabled:cursor-not-allowed" (click)="useAISuggest.emit()">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg>
           <span>{{ isFetchingAiSuggest ? 'جاري الصياغة...' : 'اقتراح AI' }}</span>
         </button>
@@ -58,24 +58,6 @@
         </div>
       </div>
 
-      <!-- AI TOOLTIP -->
-      @if(showAiSuggest) {
-        <div class="bg-gradient-to-br from-[rgba(7,13,36,.95)] to-[rgba(11,20,55,.95)] backdrop-blur-[20px] border border-[rgba(43,127,255,.22)] rounded-[14px] p-4 mt-[10px] animate-[ws-fade_.2s_ease] ai-tooltip" role="region" aria-label="اقتراح AI للوصف">
-          <div class="text-[11px] font-extrabold text-[#A56BE0] mb-2 flex items-center gap-1.5 ai-tooltip-ttl">
-	<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-			<use href="#i-ai"></use></svg>
-			            صياغة AI المقترحة
-          </div>
-          <div class="text-[13.5px] text-[#A8B2D1] leading-relaxed mb-3 italic ai-tooltip-body">
-            سيعيد وسيط AI صياغة عنوان العرض ورسالته بناءً على النص الذي كتبته فقط. لا يستخدم هذا الاقتراح ميزانية المشروع لتحديد سعر عادل، ولا يقيس مطابقة عرضك مع المشروع.
-          </div>
-          <div class="text-[11px] font-bold text-[#6B7699] mb-[10px] ai-tooltip-conf">راجع الصياغة قبل اعتمادها؛ القرار النهائي لك.</div>
-          <div class="flex gap-2 ai-tooltip-actions">
-            <button type="button" class="py-[7px] px-[14px] bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.25)] rounded-lg text-xs font-bold text-[#2BD4C7] cursor-pointer transition-all duration-150 hover:bg-[rgba(43,212,199,.20)] ai-use-btn" (click)="useAISuggest.emit()">تشغيل الاقتراح</button>
-            <button type="button" class="py-[7px] px-[14px] bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.10)] rounded-lg text-xs font-bold text-[#6B7699] cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,.08)] hover:text-[#A8B2D1] ai-dismiss-btn" (click)="showAiSuggestChange.emit(!showAiSuggest)">تجاهل</button>
-          </div>
-        </div>
-}
 
       <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px] field-err-msg" *ngIf="messageModel.invalid && (messageModel.dirty || messageModel.touched)">
         <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-warn"></use></svg>

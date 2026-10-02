@@ -951,18 +951,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
 	}
 
-	testAiConfidence() {
-		const score = this.setupTestService.result()?.score || 0;
-		// Higher confidence when score is far from the 50% boundary
-		const dist = Math.abs(score - 50);
-		return Math.min(95, Math.round(70 + dist * 0.5));
-	}
 
-	testNeedsAdminReview() {
-		const score = this.setupTestService.result()?.score || 0;
-		// Admin review required when score is borderline
-		return score >= 65 && score <= 80;
-	}
 
 	canGoPrev() {
 		const idx = this.setupTestService.currentQuestion()?.index ?? 0;

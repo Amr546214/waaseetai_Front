@@ -9,6 +9,13 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
+function htmlFilesUnder(dir: string): string[] {
+	return readdirSync(dir).flatMap((n) => {
+		const p = join(dir, n);
+		return statSync(p).isDirectory() ? htmlFilesUnder(p) : p.endsWith('.html') ? [p] : [];
+	});
+}
+
 function readSrc(relativePath: string): string {
 	return readFileSync(join(__dirname, relativePath), 'utf-8');
 }
@@ -131,11 +138,13 @@ describe('AI Cleanup Batch 2 — provider negotiate', () => {
 });
 
 describe('AI Cleanup Batch 2 — provider apply-request steps 3 & 4', () => {
-	it('step 1: proposal AI suggest tooltip has no hardcoded proposal text or fake confidence', () => {
+	it('step 1: proposal AI suggest has no dead tooltip, hardcoded text or fake confidence', () => {
 		expect(applyStep1Html).not.toContain('أحتاج إلى تطوير متجر إلكتروني متكامل');
 		expect(applyStep1Html).not.toContain('دقة AI: 95%');
-		expect(applyStep1Html).toContain('لا يستخدم هذا الاقتراح ميزانية المشروع لتحديد سعر عادل');
-		expect(applyStep1Html).toContain('تشغيل الاقتراح');
+		expect(applyStep1Html).not.toContain('ai-tooltip');
+		expect(applyStep1Html).not.toContain('showAiSuggest');
+		expect(applyStep1Html).toContain('اقتراح AI');
+		expect(applyStep1Html).toContain('ولا يحدد سعرًا عادلًا');
 	});
 
 	it('step 3: no fixed "optimal" price/duration panel or fixed duration note', () => {
@@ -247,14 +256,41 @@ describe('AI Cleanup Batch 2 — single score not shown as six independent metri
 
 describe('AI Cleanup Batch 2 — no hardcoded AI accuracy badges', () => {
 	const appRoot = join(process.cwd(), 'src/app');
-	const htmlFiles = (dir: string): string[] =>
-		readdirSync(dir).flatMap((n) => {
-			const p = join(dir, n);
-			return statSync(p).isDirectory() ? htmlFiles(p) : p.endsWith('.html') ? [p] : [];
-		});
+	const htmlFiles = htmlFilesUnder;
 
 	it('no template shows a literal "دقة NN%" badge', () => {
 		const offenders = htmlFiles(appRoot).filter((f) => /دقة\s*\d+(\.\d+)?\s*%/.test(readFileSync(f, 'utf8')));
+		expect(offenders).toEqual([]);
+	});
+});
+
+describe('AI Cleanup Batch 2 — no locally computed AI confidence/review claims', () => {
+	const setupHtml = readSrc('provider-overview/profile/profile-setup/profile-setup.html');
+	const setupTs = readSrc('provider-overview/profile/profile-setup/profile-setup.ts');
+
+	it('setup test result shows no AI confidence, no AI-review promise, and labels the level by score', () => {
+		expect(setupHtml).not.toContain('ثقة AI');
+		expect(setupHtml).not.toContain('سيراجع نتيجتك');
+		expect(setupHtml).not.toContain('testAiConfidence');
+		expect(setupHtml).not.toContain('testNeedsAdminReview');
+		expect(setupTs).not.toContain('testAiConfidence');
+		expect(setupTs).not.toContain('testNeedsAdminReview');
+		expect(setupHtml).toContain('مستوى حسب الدرجة');
+		expect(setupHtml).toContain('بناءً على درجتك، يظهر مستواك كمقدم خدمة');
+		expect(setupHtml).not.toContain('مراجعة AI');
+	});
+
+	it('setup flow never says AI classifies/approves/reviews the provider', () => {
+		expect(setupHtml).not.toMatch(/(AI|الذكاء)[^<{]{0,25}(صنفك|يصنفك|سيصنفك|يصنّفك|تصنيف|اعتماد|مراجعة)/);
+	});
+
+	it('no template says AI classified the user', () => {
+		const offenders = htmlFilesUnder(join(process.cwd(), 'src/app')).filter((f) => /(AI|الذكاء)\s*(صنفك|صنّفك|يصنفك|سيصنفك)/.test(readFileSync(f, 'utf8')));
+		expect(offenders).toEqual([]);
+	});
+
+	it('no template shows an "AI confidence" label', () => {
+		const offenders = htmlFilesUnder(join(process.cwd(), 'src/app')).filter((f) => /(ثقة|دقة)\s*(AI|الذكاء)/.test(readFileSync(f, 'utf8')));
 		expect(offenders).toEqual([]);
 	});
 });

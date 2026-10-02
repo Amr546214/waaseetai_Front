@@ -106,7 +106,6 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	});
 
 	newReq = signal<string>('');
-	showAiSuggest = signal<boolean>(false);
 	isFetchingAiSuggest = signal<boolean>(false);
 	totalBudget = signal<number>(4500);
 
@@ -268,10 +267,6 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	}
 
 	// AI Suggestion via Backend API
-	toggleAISuggest() {
-		this.showAiSuggest.update(v => !v);
-	}
-
 	useAISuggest() {
 		if (this.isFetchingAiSuggest()) return;
 		const current = this.proposal();
@@ -291,7 +286,6 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			.subscribe({
 				next: (res) => {
 					this.isFetchingAiSuggest.set(false);
-					this.showAiSuggest.set(false);
 					if (res.data) {
 						const refinedTitle = res.data.suggestedTitle || this.proposal().title;
 						const refinedMsg = res.data.suggestedMessage || this.proposal().message;
@@ -307,7 +301,6 @@ export class ApplayRequest implements OnInit, OnDestroy {
 				},
 				error: (err) => {
 					this.isFetchingAiSuggest.set(false);
-					this.showAiSuggest.set(false);
 					console.error('AI Suggest API failed:', err);
 					alert(err.error?.message || 'تعذر تشغيل اقتراح AI ولم يتم تغيير عرضك.');
 				}
