@@ -157,23 +157,11 @@
               <textarea class="f-inp f-ta" id="bio" maxlength="500" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
               <div class="bio-actions">
                 <span class="f-hint">بحد أقصى 500 حرف</span>
-                <button type="button" class="ai-suggest-btn" (click)="suggestBio()" [disabled]="isSuggestingBio()">
+                <button type="button" class="ai-suggest-btn" disabled aria-disabled="true" data-testid="bio-suggest-disabled" title="اقتراح النبذة غير متاح حاليًا">
                   <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>
-                  {{ isSuggestingBio() ? 'جاري إنشاء الاقتراح...' : 'اقتراح بالذكاء الاصطناعي' }}
+                  اقتراح النبذة غير متاح حاليًا
                 </button>
               </div>
-              @if (bioSuggestionError()) {
-                <p role="alert" class="f-hint">{{ bioSuggestionError() }}</p>
-              }
-              @if (suggestedBio(); as bioPreview) {
-                <div class="suggestion-preview" aria-live="polite" data-testid="bio-preview">
-                  <strong>نبذة مقترحة بالذكاء الاصطناعي — راجعها قبل الاستخدام</strong>
-                  <p>{{ bioPreview }}</p>
-                  <button type="button" class="ai-suggest-btn" (click)="applyBioSuggestion()">استخدام الاقتراح</button>
-                  <button type="button" class="ai-suggest-btn" (click)="dismissBioSuggestion()">تجاهل</button>
-                  <span class="f-hint">يُحفظ التغيير عند إرسال النموذج فقط.</span>
-                </div>
-              }
             </div>
           </div>
         </div>

@@ -58,10 +58,6 @@ export class ProviderProfileService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.url_api}/provider/profile`;
 
-  suggestBio(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedBio: string } }> {
-    return this.http.post<{ success: boolean; data: { suggestedBio: string } }>(`${this.apiUrl}/suggest-bio`, input);
-  }
-
   suggestSkills(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedSkills: string[] } }> {
     return this.http.post<{ success: boolean; data: { suggestedSkills: string[] } }>(`${this.apiUrl}/suggest-skills`, input);
   }
