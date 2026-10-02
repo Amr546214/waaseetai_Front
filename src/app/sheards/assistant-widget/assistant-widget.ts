@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, PLATFORM_ID, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, PLATFORM_ID, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AssistantStore } from '../../core/store/assistant.store';
 import { BeboAvatarComponent } from '../bebo-avatar/bebo-avatar';
@@ -34,7 +34,7 @@ const BEBO_SIZE_MOBILE = 72;
 	standalone: true,
 	imports: [BeboAvatarComponent, AssistantChatComponent, RouterLink],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	host: { '(document:keydown.escape)': 'store.close()', '[style.--bebo-size.px]': 'beboSize()' },
+	host: { '(document:keydown.escape)': 'store.close()', '[style.--bebo-size.px]': 'beboSize()', '[style.inset-block-end.px]': '12 + lift()' },
 	template: `
 	<div class="aw" [attr.data-state]="store.state()">
 		@if (store.panelOpen()) {
@@ -68,6 +68,7 @@ const BEBO_SIZE_MOBILE = 72;
 			[command]="store.beboCommand()"
 			[size]="beboSize()"
 			[homeX]="beboHomeX"
+			[floorOffset]="lift()"
 			[label]="beboLabel()"
 			(activate)="store.toggle()"
 		/>
@@ -103,6 +104,8 @@ const BEBO_SIZE_MOBILE = 72;
 	`],
 })
 export class AssistantWidgetComponent {
+	/** Extra px above the viewport floor (pages with a fixed bottom action bar); see assistant-visibility.ts. */
+	readonly lift = input(0);
 	readonly store = inject(AssistantStore);
 	private readonly authStore = inject(AuthStore);
 	/** Visitors (no session token) get the robot and a login prompt only; no chat, mic or network. */
@@ -126,6 +129,12 @@ export class AssistantWidgetComponent {
 		// under the panel, so the open assistant and Bebo stay together.
 		effect(() => {
 			if (this.store.panelOpen()) untracked(() => this.avatar()?.returnHome());
+		});
+		// Moving between a normal page and one with a bottom action bar: let Bebo settle at the
+		// new floor (a microtask, so the floor-offset attribute is already applied).
+		effect(() => {
+			this.lift();
+			untracked(() => queueMicrotask(() => this.avatar()?.settle()));
 		});
 		// Real answer-audio loudness → Bebo's mouth (outside the Angular zone).
 		const offSpeech = this.store.onSpeechLevel((level) => this.avatar()?.setSpeechLevel(level));

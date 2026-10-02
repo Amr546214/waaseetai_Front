@@ -272,4 +272,23 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 			expect(robot()).toBe(first);
 		});
 	});
+
+	describe('lift (pages with a fixed bottom action bar)', () => {
+		it('defaults to the normal corner: floor-offset 0 and 12px from the bottom', () => {
+			expect(robot().getAttribute('floor-offset')).toBe('0');
+			expect((fixture.nativeElement as HTMLElement).style.insetBlockEnd).toBe('12px');
+		});
+
+		it('lift floats Bebo and its panel up by the same amount, and clears it again', async () => {
+			fixture.componentRef.setInput('lift', 96);
+			fixture.detectChanges();
+			await fixture.whenStable();
+			expect(robot().getAttribute('floor-offset')).toBe('96');
+			expect((fixture.nativeElement as HTMLElement).style.insetBlockEnd).toBe('108px');
+			fixture.componentRef.setInput('lift', 0);
+			fixture.detectChanges();
+			expect(robot().getAttribute('floor-offset')).toBe('0');
+			expect((fixture.nativeElement as HTMLElement).style.insetBlockEnd).toBe('12px');
+		});
+	});
 });

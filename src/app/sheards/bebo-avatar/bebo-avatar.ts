@@ -168,6 +168,12 @@ export class BeboAvatarComponent implements OnDestroy {
 	 * the engine's own resetPosition(). A no-op when Bebo is already home, so
 	 * the click-wave that opened the panel is not cut off.
 	 */
+	/** Puts Bebo back on the (possibly changed) floor spot — used when the floor offset changes. */
+	settle(): void {
+		const robot = this.robot();
+		if (robot && this.floating()) robot.resetPosition();
+	}
+
 	returnHome(): void {
 		const robot = this.robot();
 		if (!robot || !this.floating()) return;

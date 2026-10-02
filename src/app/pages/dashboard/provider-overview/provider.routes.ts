@@ -21,7 +21,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'explore-requests/:id/apply',
 		loadComponent: () => import('./explore-requests/applay-request/applay-request').then(m => m.ApplayRequest),
-		data: { title: "تقديم عرض" }
+		data: { title: "تقديم عرض", assistantLift: true }
 	},
 	{
 		path: 'disputes',
@@ -116,7 +116,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'business-models/new-project',
 		loadComponent: () => import('./business-models/new-project/new-project').then(m => m.NewProject),
-		data: { title: "رفع مشروع للسوق" }
+		data: { title: "رفع مشروع للسوق", assistantLift: true }
 	},
 	{
 		path: 'business-models/market',
@@ -131,7 +131,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'business-models/accreditation/new',
 		loadComponent: () => import('./business-models/accreditation/new/new').then(m => m.New),
-		data: { title: "رفع نموذج للاعتماد" }
+		data: { title: "رفع نموذج للاعتماد", assistantLift: true }
 	},
 	// AccreditationDetails by id
 	{
