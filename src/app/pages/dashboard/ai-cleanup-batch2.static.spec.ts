@@ -276,6 +276,17 @@ describe('AI Cleanup Batch 2 — no locally computed AI confidence/review claims
 		expect(setupTs).not.toContain('testAiConfidence');
 		expect(setupTs).not.toContain('testNeedsAdminReview');
 		expect(setupHtml).toContain('مستوى حسب الدرجة');
+		expect(setupHtml).toContain('بناءً على درجتك، يظهر مستواك كمقدم خدمة');
+		expect(setupHtml).not.toContain('مراجعة AI');
+	});
+
+	it('setup flow never says AI classifies/approves/reviews the provider', () => {
+		expect(setupHtml).not.toMatch(/(AI|الذكاء)[^<{]{0,25}(صنفك|يصنفك|سيصنفك|يصنّفك|تصنيف|اعتماد|مراجعة)/);
+	});
+
+	it('no template says AI classified the user', () => {
+		const offenders = htmlFilesUnder(join(process.cwd(), 'src/app')).filter((f) => /(AI|الذكاء)\s*(صنفك|صنّفك|يصنفك|سيصنفك)/.test(readFileSync(f, 'utf8')));
+		expect(offenders).toEqual([]);
 	});
 
 	it('no template shows an "AI confidence" label', () => {
