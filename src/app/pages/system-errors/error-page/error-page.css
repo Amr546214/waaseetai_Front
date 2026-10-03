@@ -39,7 +39,11 @@ button{font-family:inherit;cursor:pointer}
 .btn-ghost{padding:12px 22px;border-radius:999px;border:1px solid var(--ghost-bd);background:transparent;font-size:13px;font-weight:700;color:var(--txt);text-decoration:none;display:inline-block}
 .btn-ghost:hover{border-color:rgba(43,212,199,.35);color:var(--teal)}
 .logo-bar{position:fixed;top:0;left:0;right:0;z-index:10;padding:14px 24px;display:flex;align-items:center;gap:9px;text-decoration:none;width:fit-content}
+.logo-bar img{display:block;height:30px;width:auto;max-width:none}
 .logo-bar span{font-size:16px;font-weight:900;color:var(--teal)}
+/* Inside the dashboard layout: no full-viewport chrome, just the card centred in the content area. */
+:host(.embedded){min-height:0;background:transparent;overflow:visible}
+:host(.embedded) .page-wrap{min-height:calc(100vh - 220px);padding:24px 16px}
 .err-ico{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:1px solid transparent}
 .err-ico svg{width:32px;height:32px}
 .err-ico.t-red{background:rgba(255,140,105,.1);border-color:rgba(255,140,105,.25);color:var(--red)}

@@ -1,5 +1,7 @@
-<div class="bg-grid" aria-hidden="true"></div>
-<div class="particles" #particles aria-hidden="true"></div>
+@if (!embedded) {
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="particles" #particles aria-hidden="true"></div>
+}
 <svg style="display:none" aria-hidden="true"><defs>
 <symbol id="ws-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
 <symbol id="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
@@ -9,10 +11,12 @@
 <symbol id="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 14"/></symbol>
 <symbol id="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
 </defs></svg>
-<a routerLink="/" class="logo-bar">
-  <img src="/images/waseet-mark.png" alt="وسيط AI" height="30">
-  <span>وسيط AI</span>
-</a>
+@if (!embedded) {
+  <a routerLink="/" class="logo-bar">
+    <img src="/images/waseet-mark.png" alt="وسيط AI" height="30">
+    <span>وسيط AI</span>
+  </a>
+}
 <div class="page-wrap">
   <div class="err-card">
     <div class="err-ico" [ngClass]="'t-' + config.tone">
