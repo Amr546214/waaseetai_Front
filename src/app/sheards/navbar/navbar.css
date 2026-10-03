@@ -67,7 +67,7 @@
 .udrop-av-dot{position:absolute;bottom:-1px;left:-1px;width:9px;height:9px;border-radius:50%;background:#2BD4C7;border:2px solid #0B1437}
 .udrop-acc-info{flex:1;text-align:right;min-width:0}
 .udrop-acc-lbl{font-size:10px;font-weight:700;color:#6B7699;letter-spacing:.04em;margin-bottom:1px}
-.udrop-acc-name{font-size:13px;font-weight:800;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.udrop-acc-name{font-size:13px;font-weight:800;color:#fff;line-height:1.4;padding-block:.1em;margin-block:-.1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .udrop-acc-role{font-size:10px;font-weight:700;color:#2BD4C7;margin-top:2px}
 .udrop-sub-arrow{width:14px;height:14px;color:#6B7699;flex-shrink:0;transition:transform .18s}
 .udrop-sub-arrow.rotated{transform:rotate(-90deg)}

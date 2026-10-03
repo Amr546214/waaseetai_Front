@@ -58,13 +58,13 @@ app-marketplace .mk-home .slider-arrow.prev{right:16px}
 app-marketplace .mk-home .slider-arrow.next{left:16px}
 app-marketplace .mk-home .slider-arrow svg{width:16px;height:16px}
 app-marketplace .mk-home .quick-cats{padding:18px 0;background:var(--pg);border-top:2px solid rgba(43,212,199,.2);border-bottom:1px solid var(--border)}
-app-marketplace .mk-home .quick-cats-inner{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:0 20px;justify-content:center;flex-wrap:wrap}
+app-marketplace .mk-home .quick-cats-inner{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:4px 20px;margin-block:-4px;justify-content:center;flex-wrap:wrap}
 app-marketplace .mk-home .quick-cats-inner::-webkit-scrollbar{display:none}
 app-marketplace .mk-home .qcat{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;cursor:pointer;text-decoration:none;width:80px}
 app-marketplace .mk-home .qcat-ico{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:all .18s;border:1px solid}
 app-marketplace .mk-home .qcat-ico svg{width:26px;height:26px}
 app-marketplace .mk-home .qcat:hover .qcat-ico{transform:translateY(-2px);filter:brightness(1.1)}
-app-marketplace .mk-home .qcat-name{font-size:12px;font-weight:700;color:var(--txt-2);text-align:center;line-height:1.3;white-space:nowrap}
+app-marketplace .mk-home .qcat-name{font-size:12px;font-weight:700;color:var(--txt-2);text-align:center;line-height:1.45;white-space:nowrap}
 app-marketplace .mk-home .mkt-section{padding:24px 0}
 app-marketplace .mk-home .mkt-section+.mkt-section{border-top:1px solid var(--border)}
 app-marketplace .mk-home .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -111,7 +111,7 @@ app-marketplace .mk-home .svc-fav{position:absolute;bottom:8px;left:8px;width:26
 app-marketplace .mk-home .svc-fav:hover{color:#FF8C69;border-color:rgba(255,140,105,.3)}
 app-marketplace .mk-home .svc-fav svg{width:12px;height:12px}
 app-marketplace .mk-home .svc-body{padding:11px}
-app-marketplace .mk-home .svc-title{font-size:12.5px;font-weight:700;color:var(--txt);line-height:1.35;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+app-marketplace .mk-home .svc-title{font-size:12.5px;font-weight:700;color:var(--txt);line-height:1.4;padding-top:.12em;margin-top:-.12em;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 app-marketplace .mk-home .svc-prov{display:flex;align-items:center;gap:5px;margin-bottom:5px}
 app-marketplace .mk-home .svc-av{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#070D24;flex-shrink:0}
 app-marketplace .mk-home .svc-pname{font-size:11px;color:var(--txt-2)}
