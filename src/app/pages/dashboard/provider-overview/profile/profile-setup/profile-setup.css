@@ -2221,3 +2221,6 @@ button.btn-outline-sm {
 .suggestion-preview { margin-top: 12px; padding: 14px; border: 1px solid var(--ai); border-radius: 12px; }
 .suggestion-preview p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
 .suggestion-preview .f-hint { display: block; margin-top: 8px; }
+
+/* Step 2: no sub-specialty chosen when trying to continue */
+.f-chips-wrap.has-error{border:1px solid #ff8c69;border-radius:12px;padding:10px;background:rgba(255,140,105,.06)}

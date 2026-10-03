@@ -75,7 +75,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}),
 		specialties: this.fb.group({
 			mainSpec: ['', Validators.required],
-			subSpecs: [[]]
+			// At least one sub-specialty is required to leave step 2 (portfolio samples are collected per sub-specialty).
+			subSpecs: [[], Validators.required]
 		}),
 		payout: this.fb.group({
 			paypalEmail: ['', paypalEmailValidators]
@@ -98,6 +99,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	categories = signal<any[]>([]);
 	subSpecialtiesList = signal<any[]>([]);
 	selectedSpecs = signal<string[]>([]);
+	/** Shown under the sub-specialty chips after trying to leave step 2 without choosing one. */
+	subSpecError = signal(false);
 
 	uploadedFrontId = signal<string>('');
 	uploadedFrontIdName = signal<string>('');
@@ -216,6 +219,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				this.subSpecialtiesList.set([]);
 			}
 			this.selectedSpecs.set([]);
+			this.subSpecError.set(false);
 			this.setupForm.get('specialties.subSpecs')?.setValue([]);
 		});
 
@@ -295,6 +299,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			}
 			if (this.currentStep() === 2 && this.setupForm.get('specialties')?.invalid) {
 				this.setupForm.get('specialties')?.markAllAsTouched();
+				// A missing sub-specialty gets its own message + highlight on the chips area.
+				if (this.selectedSpecs().length === 0 && this.setupForm.get('specialties.mainSpec')?.value) this.subSpecError.set(true);
 				return;
 			}
 			if (this.currentStep() === 3 && this.setupForm.get('payout')?.invalid) {
@@ -358,6 +364,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		if (idx > -1) current.splice(idx, 1);
 		else current.push(spec);
 		this.selectedSpecs.set(current);
+		if (current.length) this.subSpecError.set(false);
 		this.setupForm.get('specialties.subSpecs')?.setValue(current);
 	}
 
