@@ -1243,3 +1243,11 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light,
   .fdrawer.open{transform:none}
 }
 @media(prefers-reduced-motion:reduce){.fdrawer,.fdrawer-backdrop{transition:none}}
+
+/* ─── Bio / "نبذة" textareas (see app/shared/directives/bio-field.directive.ts) ───
+   unicode-bidi: plaintext + dir="auto": English text is LTR (full stop at the end of the sentence),
+   Arabic stays RTL, and the page direction is untouched. */
+.bio-field{unicode-bidi:plaintext;text-align:start}
+.bio-counter{margin-top:4px;font-size:11px;font-weight:700;color:var(--txt-3);text-align:end}
+.bio-counter.is-near{color:#d98a0b}
+.bio-counter.is-over{color:#ff8c69}

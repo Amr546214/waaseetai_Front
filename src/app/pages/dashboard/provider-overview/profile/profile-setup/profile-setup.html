@@ -139,9 +139,8 @@
             </div>
             <div class="f-wrap f-full">
               <label class="f-lbl" for="bio">النبذة المهنية <span class="f-req">*</span></label>
-              <textarea class="f-inp f-ta" id="bio" maxlength="500" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
+              <textarea class="f-inp f-ta" id="bio" maxlength="500" [appBioField]="500" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
               <div class="bio-actions">
-                <span class="f-hint">بحد أقصى 500 حرف</span>
                 <button type="button" class="ai-suggest-btn" disabled aria-disabled="true" data-testid="bio-suggest-disabled" title="اقتراح النبذة غير متاح حاليًا">
                   <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>
                   اقتراح النبذة غير متاح حاليًا

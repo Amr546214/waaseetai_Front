@@ -12,6 +12,7 @@ import { SpecialtyService } from '../../../../../core/services/specialty.service
 import { SetupTestService } from '../../../../../core/services/setup-test.service';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
+import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
 export interface SetupAlertModal {
   type: 'warning' | 'error' | 'banned' | 'info';
@@ -24,7 +25,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })

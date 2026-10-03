@@ -155,10 +155,8 @@
 			</div>
 			<div class="inp-group">
 				<label class="inp-label" for="af-bio">وصف تسويقي مختصر</label>
-				<textarea id="af-bio" class="inp-field" formControlName="bio"
+				<textarea id="af-bio" class="inp-field" [appBioField]="500" formControlName="bio"
 					placeholder="اكتب وصفا مختصرا عن تخصصك التسويقي وجمهورك المستهدف..."></textarea>
-				<div class="char-counter" id="bio-count">{{ marketingForm.get('bio')?.value?.length || 0 }} / 500 حرف
-				</div>
 			</div>
 		</div>
 
