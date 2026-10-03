@@ -301,7 +301,7 @@
             </div>
             <div class="f-wrap f-full">
               <label class="f-lbl">التخصصات الفرعية <span class="f-req">*</span></label>
-              <div class="f-chips-wrap">
+              <div class="f-chips-wrap" [class.has-error]="subSpecError()" id="sub-specs-area" [attr.aria-invalid]="subSpecError() ? 'true' : null">
                 <p class="f-chips-hint">يمكنك اختيار تخصص واحد أو أكثر. سيطلب منك رفع نماذج أعمال لكل تخصص فرعي تختاره</p>
                 <div class="f-chips">
                   @for (spec of subSpecialtiesList(); track spec) {
@@ -309,6 +309,9 @@
                   }
                 </div>
               </div>
+              @if (subSpecError()) {
+                <p class="f-hint" id="sub-specs-error" role="alert" style="margin-top:8px;color:#ff8c69;font-weight:700">اختر تخصصًا فرعيًا واحدًا على الأقل قبل المتابعة.</p>
+              }
               <p class="f-hint" style="margin-top:8px">
                 @if (selectedSpecs().length === 0) {
                   لم يتم اختيار أي تخصص فرعي بعد
@@ -757,7 +760,7 @@
         </div>
         <div class="ack-row">
           <input type="checkbox" class="ack-chk" id="ack-final" formControlName="ackFinal" aria-required="true">
-          <label class="ack-txt" for="ack-final">أقر بصحة جميع البيانات والنماذج المرفوعة وأوافق على <a href="#" class="ack-lnk">شروط الاستخدام</a></label>
+          <label class="ack-txt" for="ack-final">أقر بصحة جميع البيانات والنماذج المرفوعة وأوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="ack-lnk">شروط الاستخدام</a></label>
         </div>
         <div style="padding:14px 16px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.22);border-radius:12px;margin-bottom:16px">
           <div style="font-size:13px;font-weight:800;margin-bottom:4px" class="txt-teal">الخطوة التالية: اختبار التصنيف الأولي</div>

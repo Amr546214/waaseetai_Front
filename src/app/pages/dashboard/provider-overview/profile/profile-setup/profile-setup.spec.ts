@@ -135,7 +135,7 @@ describe('provider setup AI suggestions', () => {
   it('normal save includes chosen skills; unselected suggestions are not sent', () => {
     component.aiSuggestedSkills.set(['CSS', 'TypeScript']);
     component.addAiSkill('CSS');
-    component.setupForm.patchValue({ profData: { expYears: '1 الى 3 سنوات', country: 'السعودية', city: 'الرياض' }, specialties: { mainSpec: 'web' }, payout: { paypalEmail: 'me@example.com' }, agreements: { ackFinal: true } });
+    component.setupForm.patchValue({ profData: { expYears: '1 الى 3 سنوات', country: 'السعودية', city: 'الرياض' }, specialties: { mainSpec: 'web', subSpecs: ['تطوير مواقع'] }, payout: { paypalEmail: 'me@example.com' }, agreements: { ackFinal: true } });
     component.uploadedFrontId.set('existing-document');
     vi.spyOn(component, 'goToStep').mockImplementation(() => {});
     component.saveAndGoToTest();
@@ -188,5 +188,51 @@ describe('provider setup AI suggestions', () => {
       component.goToStep(4);
       expect(component.currentStep()).toBe(4);
     });
+  });
+
+  describe('step 2: a sub-specialty is required to continue', () => {
+    beforeEach(() => {
+      component.currentStep.set(2);
+      component.subSpecialtiesList.set(['تطوير مواقع', 'متاجر']);
+      component.setupForm.get('specialties.mainSpec')?.setValue('web', { emitEvent: false });
+      fixture.detectChanges();
+    });
+
+    it('stays on step 2 and shows the Arabic message + highlight when no sub-specialty is chosen', () => {
+      component.goToStep(3);
+      fixture.detectChanges();
+      expect(component.currentStep()).toBe(2);
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('#sub-specs-error')?.textContent).toContain('اختر تخصصًا فرعيًا واحدًا على الأقل قبل المتابعة.');
+      expect(el.querySelector('#sub-specs-area')?.classList.contains('has-error')).toBe(true);
+    });
+
+    it('choosing a sub-specialty clears the message and lets the user move to step 3', () => {
+      component.goToStep(3);
+      component.toggleSpec('تطوير مواقع');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('#sub-specs-error')).toBeNull();
+      component.goToStep(3);
+      expect(component.currentStep()).toBe(3);
+    });
+
+    it('a new main specialty clears the old sub-specialties and requires a new choice', () => {
+      component.toggleSpec('تطوير مواقع');
+      expect(component.setupForm.get('specialties')?.valid).toBe(true);
+      component.setupForm.get('specialties.mainSpec')?.setValue('design');
+      expect(component.selectedSpecs()).toEqual([]);
+      expect(component.setupForm.get('specialties.subSpecs')?.value).toEqual([]);
+      component.goToStep(3);
+      expect(component.currentStep()).toBe(2);
+    });
+  });
+
+  it('the terms link in the review step opens in a new tab (the form is not left)', () => {
+    component.currentStep.set(6);
+    fixture.detectChanges();
+    const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a.ack-lnk');
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(link.getAttribute('href')).toContain('/terms');
   });
 });
