@@ -10,7 +10,11 @@ import { CommonModule } from '@angular/common';
  * this component does not perform any HTTP call — it only collects an
  * amount, shows a summary matching the design (P-CO-FN-003), and emits a
  * `confirmed` event the host page can react to (e.g. show a "coming soon"
- * toast). It intentionally mirrors the visual language of the client-side
+ * toast).
+ *
+ * Payment policy (temporary): the platform supports PayPal only, and this dialog has no provider
+ * deposit endpoint behind it, so every method (card, bank transfer, PayPal) is shown disabled and
+ * the confirm button is disabled until a real PayPal deposit exists for providers. It intentionally mirrors the visual language of the client-side
  * app-deposit-modal (sheards/deposit-modal) without touching that
  * component or its Moyasar/ClientFinanceService payment flow.
  */
@@ -24,16 +28,18 @@ import { CommonModule } from '@angular/common';
 export class ProviderDepositModal {
 	@Input() currentBalance = 0;
 	@Output() close = new EventEmitter<void>();
-	@Output() confirmed = new EventEmitter<{ amount: number; method: 'card' | 'bank' }>();
+	@Output() confirmed = new EventEmitter<{ amount: number; method: 'card' | 'bank' | 'paypal' }>();
 
 	readonly quickAmounts = [500, 1000, 2500, 5000];
 
 	amount = signal<number>(1000);
-	selectedMethod = signal<'card' | 'bank'>('card');
+	selectedMethod = signal<'card' | 'bank' | 'paypal'>('paypal');
+	/** No provider deposit is available yet (see the class comment). */
+	readonly depositAvailable = false;
 
 	balanceAfter = computed(() => this.currentBalance + this.amount());
 
-	canSubmit = computed(() => this.amount() >= 50 && this.amount() <= 100000);
+	canSubmit = computed(() => this.depositAvailable && this.amount() >= 50 && this.amount() <= 100000);
 
 	setAmount(value: number): void {
 		this.amount.set(this.normaliseAmount(value));
@@ -47,7 +53,9 @@ export class ProviderDepositModal {
 		}
 	}
 
-	selectMethod(method: 'card' | 'bank'): void {
+	/** Methods are disabled for now; kept so enabling PayPal later is a one-line change. */
+	selectMethod(method: 'card' | 'bank' | 'paypal'): void {
+		if (!this.depositAvailable) return;
 		this.selectedMethod.set(method);
 	}
 
