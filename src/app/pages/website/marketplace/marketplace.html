@@ -420,7 +420,7 @@
             <span class="filter-title-ico"><svg><use href="#ws-filter"></use></svg></span>
             تصفية النتائج
           </div>
-          <div style="display:flex;align-items:center;gap:10px"><button class="filter-reset" type="button" (click)="resetFilters()">إعادة ضبط</button><button class="fdrawer-close" type="button" (click)="closeFilters()" aria-label="إغلاق الفلاتر"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+          <div style="display:flex;align-items:center;gap:10px"><button class="filter-reset" type="button" (click)="resetDraft()">إعادة ضبط</button><button class="fdrawer-close" type="button" (click)="closeFilters()" aria-label="إغلاق الفلاتر"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
         </div>
         <div class="fdrawer-body">
 
@@ -429,7 +429,7 @@
           <div class="filter-lbl">الفئة</div>
           <div class="filter-opts">
             @for (cat of categories(); track cat.id) {
-            <label class="fopt" (click)="selectCategoryFilter(cat.slug)"><span class="fopt-box" [class.checked]="selectedCategory() === cat.slug"></span><span class="fopt-lbl">{{ cat.name }}</span><span class="fopt-count">{{ cat.count || 0 }}</span></label>
+            <label class="fopt" (click)="draftCategory(cat.slug)"><span class="fopt-box" [class.checked]="draftView().cat === cat.slug"></span><span class="fopt-lbl">{{ cat.name }}</span><span class="fopt-count">{{ cat.count || 0 }}</span></label>
             }
           </div>
         </div>
@@ -437,7 +437,7 @@
 
         <div class="filter-section">
           <div class="filter-lbl">ميزانية الخدمة ($)</div>
-          <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="priceValue()" [style.--p]="priceFill()" (input)="onPriceInput($event)" (change)="setMaxPrice($event)" aria-label="ميزانية الخدمة">
+          <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="priceValue()" [style.--p]="priceFill()" (input)="onPriceInput($event)" aria-label="ميزانية الخدمة">
           <div class="range-vals"><span>0</span><span>{{ priceValue() | number:'1.0-0' }}</span><span>{{ priceLimit() | number:'1.0-0' }}+</span></div>
         </div>
 
@@ -446,7 +446,7 @@
           <div class="filter-lbl">مستوى المقدم</div>
           <div class="filter-opts">
             @for (level of levelOptions(); track level.value) {
-            <label class="fopt" (click)="toggleLevel(level.value)"><span class="fopt-box" [class.checked]="selectedLevels().includes(level.value)"></span><span class="fopt-lbl">{{ level.value }}</span><span class="fopt-count">{{ level.count }}</span></label>
+            <label class="fopt" (click)="draftLevel(level.value)"><span class="fopt-box" [class.checked]="draftView().levels.includes(level.value)"></span><span class="fopt-lbl">{{ level.value }}</span><span class="fopt-count">{{ level.count }}</span></label>
             }
           </div>
         </div>
@@ -456,7 +456,7 @@
           <div class="filter-lbl">التقييم</div>
           <div class="filter-opts">
             @for (rating of ratingOptions(); track rating.value) {
-            <label class="fopt" (click)="setRating(rating.value)"><span class="fopt-box" [class.checked]="selectedRating() === rating.value"></span><span class="fopt-lbl">{{ rating.label }}</span><span class="fopt-count">{{ rating.count }}</span></label>
+            <label class="fopt" (click)="draftRating(rating.value)"><span class="fopt-box" [class.checked]="draftView().rating === rating.value"></span><span class="fopt-lbl">{{ rating.label }}</span><span class="fopt-count">{{ rating.count }}</span></label>
             }
           </div>
         </div>
@@ -465,7 +465,7 @@
           <div class="filter-lbl">مدة التسليم</div>
           <div class="filter-opts">
             @for (days of deliveryOptions; track days) {
-            <label class="fopt" (click)="setMaxDays(days)"><span class="fopt-box" [class.checked]="selectedMaxDays() === days"></span><span class="fopt-lbl">{{ deliveryLabel(days) }}</span></label>
+            <label class="fopt" (click)="draftDays(days)"><span class="fopt-box" [class.checked]="draftView().maxDays === days"></span><span class="fopt-lbl">{{ deliveryLabel(days) }}</span></label>
             }
           </div>
         </div>

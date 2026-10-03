@@ -17,6 +17,9 @@ interface CategoryPalette {
  *  - landing (no query params)                       → P-MK-001
  *  - search / filtered results (q, cat, sub, sort …) → P-MK-005
  */
+/** Unapplied filter edits made inside the drawer. */
+interface FilterDraft { cat: string; levels: string[]; rating: number; maxDays: number; maxPrice: number | null }
+
 @Component({
 	selector: 'app-marketplace',
 	standalone: true,
@@ -464,49 +467,56 @@ export class Marketplace implements OnInit, OnDestroy {
 		else this.updateFilters({ cat: key || null, sub: null, page: null });
 	}
 
-	selectCategoryFilter(slug: string) {
-		const same = this.selectedCategory() === slug;
-		this.updateFilters({ cat: same ? null : slug, sub: null, page: null });
-	}
 
-	toggleLevel(level: string) {
-		const levels = new Set(this.selectedLevels());
-		if (levels.has(level)) levels.delete(level); else levels.add(level);
-		this.updateFilters({ level: Array.from(levels).join(',') || null, page: null });
-	}
-
-	setRating(rating: number) {
-		this.updateFilters({ minRating: rating || null, page: null });
-	}
-
-	setMaxDays(days: number) {
-		this.updateFilters({ maxDays: this.selectedMaxDays() === days ? null : days, page: null });
-	}
-
-
-	// ── Filters drawer + budget slider ──
+	// ── Filters drawer: edits are a local draft; nothing touches the URL/results until "تطبيق الفلاتر" ──
 	filtersOpen = signal(false);
-	/** Live slider value while dragging; the committed value lives in the URL (selectedMaxPrice). */
-	private priceDraft = signal<number | null>(null);
-	priceValue = computed(() => this.priceDraft() ?? (this.selectedMaxPrice() || this.priceLimit()));
+	private draft = signal<FilterDraft | null>(null);
+	/** What the drawer shows: the draft while open, otherwise the filters currently in the URL. */
+	draftView = computed<FilterDraft>(() => this.draft() ?? {
+		cat: this.selectedCategory(),
+		levels: [...this.selectedLevels()],
+		rating: this.selectedRating(),
+		maxDays: this.selectedMaxDays(),
+		maxPrice: this.selectedMaxPrice() || null,
+	});
+	priceValue = computed(() => this.draftView().maxPrice ?? this.priceLimit());
 	/** 0..1 share of the track to colour; drives the range fill (--p) so it follows the thumb. */
 	priceFill = computed(() => {
 		const limit = this.priceLimit();
 		return limit > 0 ? Math.min(1, Math.max(0, this.priceValue() / limit)) : 1;
 	});
 
-	openFilters() { this.filtersOpen.set(true); }
-	closeFilters() { this.filtersOpen.set(false); }
-	applyAndClose() { this.applyFilters(); this.closeFilters(); }
-	onPriceInput(event: Event) { this.priceDraft.set(Number((event.target as HTMLInputElement).value)); }
+	openFilters() { this.draft.set(null); this.draft.set(this.draftView()); this.filtersOpen.set(true); }
+	/** Closing (x / إغلاق / Escape / backdrop) throws away any unapplied draft. */
+	closeFilters() { this.filtersOpen.set(false); this.draft.set(null); }
+	private patchDraft(patch: Partial<FilterDraft>) { this.draft.set({ ...this.draftView(), ...patch }); }
+	draftCategory(slug: string) { this.patchDraft({ cat: this.draftView().cat === slug ? 'all' : slug }); }
+	draftLevel(level: string) {
+		const levels = new Set(this.draftView().levels);
+		if (levels.has(level)) levels.delete(level); else levels.add(level);
+		this.patchDraft({ levels: Array.from(levels) });
+	}
+	draftRating(rating: number) { this.patchDraft({ rating }); }
+	draftDays(days: number) { this.patchDraft({ maxDays: this.draftView().maxDays === days ? 0 : days }); }
+	onPriceInput(event: Event) { this.patchDraft({ maxPrice: Number((event.target as HTMLInputElement).value) }); }
+	/** Clears the draft only; it is applied by "تطبيق الفلاتر". */
+	resetDraft() { this.draft.set({ cat: 'all', levels: [], rating: 0, maxDays: 0, maxPrice: null }); }
+	/** Single navigation with the whole draft. */
+	applyAndClose() {
+		const d = this.draftView();
+		this.updateFilters({
+			cat: d.cat === 'all' ? null : d.cat,
+			...(d.cat !== this.selectedCategory() ? { sub: null } : {}),
+			level: d.levels.join(',') || null,
+			minRating: d.rating || null,
+			maxDays: d.maxDays || null,
+			maxPrice: d.maxPrice && d.maxPrice < this.priceLimit() ? d.maxPrice : null,
+			page: null,
+		});
+		this.closeFilters();
+	}
 	@HostListener('document:keydown.escape')
 	onEscape() { if (this.filtersOpen()) this.closeFilters(); }
-
-	setMaxPrice(event: Event) {
-		const value = Number((event.target as HTMLInputElement).value);
-		this.priceDraft.set(null);
-		this.updateFilters({ maxPrice: value < this.priceLimit() ? value : null, page: null });
-	}
 
 	setSort(event: Event) {
 		this.updateFilters({ sort: (event.target as HTMLSelectElement).value || null, page: null });
@@ -516,10 +526,6 @@ export class Marketplace implements OnInit, OnDestroy {
 		const params: Record<string, null> = { [key]: null, page: null };
 		if (key === 'cat') params['sub'] = null;
 		this.updateFilters(params);
-	}
-
-	applyFilters() {
-		this.loadModels();
 	}
 
 	resetFilters() {
