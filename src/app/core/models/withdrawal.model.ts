@@ -37,6 +37,8 @@ export interface Withdrawal {
   iban?: string;
   accountName?: string;
   accountNumber?: string;
+  /** PayPal destination snapshot of a 'paypal' withdrawal (when the API returns it). */
+  paypalEmail?: string;
   adminNote?: string | null;
   rejectionReason?: string | null;
   createdAt?: string;

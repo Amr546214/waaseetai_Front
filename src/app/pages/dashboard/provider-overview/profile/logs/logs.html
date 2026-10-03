@@ -47,7 +47,7 @@
       @if(objectEntries(selected.before).length){<section class="change-section"><h3>قبل التغيير</h3>@for(entry of objectEntries(selected.before); track entry[0]){<div class="change-row"><span>{{ entry[0] }}</span><code>{{ displayValue(entry[1]) }}</code></div>}</section>}
       @if(objectEntries(selected.after).length){<section class="change-section after"><h3>بعد التغيير</h3>@for(entry of objectEntries(selected.after); track entry[0]){<div class="change-row"><span>{{ entry[0] }}</span><code>{{ displayValue(entry[1]) }}</code></div>}</section>}
       @if(objectEntries(selected.details).length){<section class="change-section"><h3>بيانات المراجعة</h3>@for(entry of objectEntries(selected.details); track entry[0]){<div class="change-row"><span>{{ entry[0] }}</span><code>{{ displayValue(entry[1]) }}</code></div>}</section>}
-      <div class="security-note">لا يعرض السجل كلمات المرور أو رموز OTP أو التوكنات، وتظهر البيانات البنكية وبيانات التواصل بصيغة محجوبة.</div>
+      <div class="security-note">لا يعرض السجل كلمات المرور أو رموز OTP أو التوكنات، وتظهر بيانات التواصل بصيغة محجوبة.</div>
     }
   </aside></div>
 }

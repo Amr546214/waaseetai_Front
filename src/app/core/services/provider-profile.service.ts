@@ -51,6 +51,8 @@ export interface ProviderProfile {
   educations: any[];
   certificates: any[];
   certUrls?: string[];
+  /** PayPal payout destination (the only supported payout method for now). */
+  paypalPayoutEmail?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -60,6 +62,14 @@ export class ProviderProfileService {
 
   suggestSkills(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedSkills: string[] } }> {
     return this.http.post<{ success: boolean; data: { suggestedSkills: string[] } }>(`${this.apiUrl}/suggest-skills`, input);
+  }
+
+  /**
+   * Saves the provider's PayPal payout email on the existing profile endpoint
+   * (PUT /profiles/update, paypalPayoutEmail — provider role only; the setup endpoint ignores it).
+   */
+  savePaypalPayoutEmail(email: string): Observable<any> {
+    return this.http.put<any>(`${environment.url_api}/profiles/update`, { paypalPayoutEmail: email.trim() });
   }
 
   getProfile(): Observable<ProviderProfile> {

@@ -9,6 +9,7 @@ import {
 } from '../../../../../core/models/withdrawal.model';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 
 
 @Component({
@@ -21,6 +22,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 export class Withdraw implements OnInit {
   private withdrawalApi = inject(WithdrawalApiService);
   private authStore = inject(AuthStore);
+  private providerProfileService = inject(ProviderProfileService);
 
   readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY;
 
@@ -78,10 +80,10 @@ export class Withdraw implements OnInit {
 
   // ── Submit form ─────────────────────────────────────────────────────
   amount = signal<number | null>(null);
-  accountName = signal('');
-  iban = signal('');
-  accountNumber = signal('');
-  readonly method = 'bank_transfer';
+  /** PayPal is the only supported payout method for now; the destination is the provider's saved PayPal email. */
+  readonly method = 'paypal';
+  paypalEmail = signal('');
+  paypalLoading = signal(true);
 
   submitting = signal(false);
   submitError = signal('');
@@ -96,11 +98,24 @@ export class Withdraw implements OnInit {
 
   ngOnInit() {
     this.loadAll();
+    this.loadPaypalEmail();
   }
 
   loadAll() {
     this.loadWallet();
     this.loadHistory();
+  }
+
+  /** The destination is resolved server-side from the saved profile; it is only read here to show it. */
+  private loadPaypalEmail() {
+    this.paypalLoading.set(true);
+    this.providerProfileService.getProfile().subscribe({
+      next: profile => {
+        this.paypalEmail.set((profile?.paypalPayoutEmail || '').trim());
+        this.paypalLoading.set(false);
+      },
+      error: () => this.paypalLoading.set(false),
+    });
   }
 
   loadWallet() {
@@ -169,23 +184,6 @@ export class Withdraw implements OnInit {
     this.clearFieldError('amount');
   }
 
-  setAccountName(event: Event) {
-    this.accountName.set((event.target as HTMLInputElement).value);
-    this.clearFieldError('accountName');
-  }
-
-  setIban(event: Event) {
-    this.iban.set((event.target as HTMLInputElement).value);
-    this.clearFieldError('iban');
-    this.clearFieldError('accountNumber');
-  }
-
-  setAccountNumber(event: Event) {
-    this.accountNumber.set((event.target as HTMLInputElement).value);
-    this.clearFieldError('accountNumber');
-    this.clearFieldError('iban');
-  }
-
   private clearFieldError(field: string) {
     const errs = this.formErrors();
     if (errs[field]) {
@@ -209,15 +207,8 @@ export class Withdraw implements OnInit {
       errors['amount'] = `المبلغ يتجاوز رصيدك المتاح (${avail.toLocaleString('en-US')} ${this.currency()})`;
     }
 
-    if (!this.accountName().trim()) {
-      errors['accountName'] = 'اسم صاحب الحساب مطلوب';
-    }
-
-    const iban = this.iban().trim();
-    const accNum = this.accountNumber().trim();
-    if (!iban && !accNum) {
-      errors['iban'] = 'يجب إدخال رقم الآيبان (IBAN) أو رقم الحساب';
-      errors['accountNumber'] = 'يجب إدخال رقم الآيبان (IBAN) أو رقم الحساب';
+    if (!this.paypalEmail()) {
+      errors['paypal'] = 'أضف بريد PayPal لاستلام المدفوعات من صفحة بيانات الملف قبل طلب السحب';
     }
 
     this.formErrors.set(errors);
@@ -243,13 +234,8 @@ export class Withdraw implements OnInit {
     const amt = this.amount()!;
     this.submitting.set(true);
 
-    const payload = {
-      amount: amt,
-      method: this.method,
-      accountName: this.accountName().trim(),
-      ...(this.iban().trim() ? { iban: this.iban().trim() } : {}),
-      ...(this.accountNumber().trim() ? { accountNumber: this.accountNumber().trim() } : {}),
-    };
+    // PayPal withdrawal: the destination is NOT sent; the server reads the provider's saved PayPal email.
+    const payload = { amount: amt, method: this.method };
 
     this.withdrawalApi.submitProviderWithdrawal(payload).subscribe({
       next: () => {
@@ -323,9 +309,6 @@ export class Withdraw implements OnInit {
 
   private resetForm() {
     this.amount.set(null);
-    this.accountName.set('');
-    this.iban.set('');
-    this.accountNumber.set('');
     this.formErrors.set({});
   }
 
@@ -369,7 +352,8 @@ export class Withdraw implements OnInit {
 
   getMethodLabel(method?: string): string {
     const map: Record<string, string> = {
-      bank_transfer: 'تحويل بنكي',
+      paypal: 'PayPal',
+      bank_transfer: 'تحويل بنكي (قديم)',
       card: 'بطاقة',
     };
     return map[method || ''] || method || '—';
