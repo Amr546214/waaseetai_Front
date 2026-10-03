@@ -8,6 +8,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { ExperienceLevel } from '../../../../../core/models/profile.model';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
+import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
@@ -31,7 +32,14 @@ export class ProfileEdit {
 	fb = inject(FormBuilder);
 
 	activeTab = signal<Tab>('profile');
-	paymentMethod = signal<'bank' | 'wallet'>('bank');
+	/** PayPal is the only supported receiving method ('wallet' = PayPal); 'bank' is shown disabled. */
+	paymentMethod = signal<'bank' | 'wallet'>('wallet');
+	/**
+	 * Saving a client's PayPal email is NOT supported by the backend yet: ClientProfile has no PayPal field and
+	 * PUT /profiles/update/banking persists nothing (it only flips the account to PENDING_VERIFICATION).
+	 * Flip to true once the backend stores it (see the PR description); until then no request is sent.
+	 */
+	readonly paypalSaveSupported = false;
 	isChangingPassword = signal(false);
 
 	completionPercentage = signal<number>(0);
@@ -58,8 +66,8 @@ export class ProfileEdit {
 		if (!this.identityForm?.value?.idNumber) {
 			return 'أكمل بيانات الهوية الرسمية (KYC) لرفع نسبة الاكتمال';
 		}
-		if (!this.bankingForm?.value?.ibanNumber) {
-			return 'أضف بياناتك البنكية لتتمكن من استقبال المدفوعات';
+		if (!this.bankingForm?.value?.paypalEmail) {
+			return 'أضف حساب PayPal لتتمكن من استقبال المدفوعات';
 		}
 		if (!this.clientForm?.value?.bio && !this.providerForm?.value?.bio) {
 			return 'أضف نبذة تعريفية (Bio) عن نفسك أو شركتك';
@@ -231,7 +239,9 @@ export class ProfileEdit {
 		linkCountryCity(this.contactForm, this.destroyRef);
 
 		this.bankingForm = this.fb.group({
-			paymentMethod: ['bank'],
+			paymentMethod: ['wallet'],
+			paypalEmail: ['', paypalEmailValidators],
+			// Legacy saved values: kept in the form model so nothing stored is dropped, but never shown or sent.
 			accountHolderName: [''],
 			bankName: [''],
 			ibanNumber: [''],
@@ -318,8 +328,15 @@ export class ProfileEdit {
 		this.activeTab.set(tab);
 	}
 
+	/** Only PayPal ('wallet') can be chosen; 'bank' is unavailable for now. */
 	setPaymentMethod(method: 'bank' | 'wallet') {
-		this.paymentMethod.set(method);
+		if (method !== 'wallet') return;
+		this.paymentMethod.set('wallet');
+	}
+
+	paypalEmailMsg(): string | null {
+		const c = this.bankingForm?.get('paypalEmail');
+		return c && (c.touched || c.dirty) ? paypalEmailError(c.errors) : null;
 	}
 
 	togglePasswordChange() {
@@ -450,12 +467,25 @@ export class ProfileEdit {
 
 		if (!form) return;
 
-		if (form.invalid) {
-			this.errorMsg.set('يرجى التأكد من صحة البيانات المدخلة');
-			return;
+		if (tabName === 'banking') {
+			// PayPal email only; legacy bank/wallet values are never sent (no empty overwrite).
+			form.markAllAsTouched();
+			if (this.bankingForm.get('paypalEmail')?.invalid) {
+				this.errorMsg.set(paypalEmailError(this.bankingForm.get('paypalEmail')?.errors) || 'تحقق من بريد PayPal');
+				return;
+			}
+			if (!this.paypalSaveSupported) {
+				this.errorMsg.set('حفظ حساب PayPal لطالب الخدمة غير مفعّل بعد (بانتظار دعم الخادم).');
+				return;
+			}
+			payload = { paypalPayoutEmail: String(this.bankingForm.value.paypalEmail || '').trim() };
+		} else {
+			if (form.invalid) {
+				this.errorMsg.set('يرجى التأكد من صحة البيانات المدخلة');
+				return;
+			}
+			payload = form.value;
 		}
-
-		payload = form.value;
 
 		this.isSaving.set(true);
 		this.profileApi.updateTab(tabName, payload).subscribe({
