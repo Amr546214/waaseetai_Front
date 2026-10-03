@@ -265,8 +265,10 @@
   font-size: 13px;
   font-weight: 900;
   color: var(--mkt-txt);
+  margin-top: -.12em;
   margin-bottom: 3px;
-  line-height: 1.3;
+  padding-top: .12em;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

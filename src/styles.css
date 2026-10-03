@@ -1,11 +1,22 @@
 /* Keep production builds deterministic and usable offline. The local Arabic
-   font preserves the existing Tajawal token name used throughout the UI. */
+   font preserves the existing Tajawal token name used throughout the UI.
+
+   VERTICAL METRICS (measured, see docs/ui-arabic-text-clipping.md): the bundled
+   DIN Next LT Arabic files ship unbalanced font boxes - Bold: 1.20em above the
+   baseline / 0.27em below while the real glyphs reach 0.94em / 0.21em (text sits
+   low in its line box and descenders touch the bottom edge); Regular: 0.64em
+   above while glyphs reach 0.92em (tops overshoot the line box). The *-override
+   descriptors give both weights the same balanced box on every platform, so
+   Arabic text is vertically centred in buttons/nav/tabs and nothing is clipped. */
 @font-face {
   font-family: 'Tajawal';
   src: url('/assets/fonts/DINNextLTArabic-Regular-3.ttf') format('truetype');
   font-style: normal;
   font-weight: 300 600;
   font-display: swap;
+  ascent-override: 98%;
+  descent-override: 40%;
+  line-gap-override: 0%;
 }
 
 @font-face {
@@ -14,7 +25,24 @@
   font-style: normal;
   font-weight: 700 900;
   font-display: swap;
+  ascent-override: 98%;
+  descent-override: 40%;
+  line-gap-override: 0%;
 }
+/* ============================================================
+   Arabic text vertical safety net (shared; see docs/ui-arabic-text-clipping.md)
+   Single-line ellipsis and line-clamp boxes use overflow:hidden, which crops
+   Arabic marks/descenders that sit outside a tight line box. The padding gives
+   the glyphs room INSIDE the clip box; the equal negative margin keeps the
+   layout exactly where it was. :where() keeps specificity at 0 so any
+   component rule or utility can still override it.
+   - .truncate / .ws-text-safe : single-line ellipsis (top + bottom room)
+   - line-clamp-*              : multi-line clamp (top room only, so the hidden
+                                 next line can never peek into the padding)
+   ============================================================ */
+:where(.truncate, .ws-text-safe) { padding-block: .12em; margin-block: -.12em; }
+:where([class*="line-clamp-"]) { padding-top: .12em; margin-top: -.12em; }
+
 @import "../public/assets/ws-site.css";
 @import "../public/assets/ws-mk-light.css";
 
