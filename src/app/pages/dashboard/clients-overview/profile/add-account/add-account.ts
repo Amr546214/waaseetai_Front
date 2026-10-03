@@ -6,6 +6,7 @@ import { AccountService } from '../../../../../core/services/account.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { NotificationEngineService } from '../../../../../core/services/notification-engine.service';
 import { UserRole } from '../../../../../core/models/auth.model';
+import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
 interface FlowStep {
   id: string;
@@ -59,7 +60,7 @@ const TYPE_COLORS: Record<string, string> = {
 @Component({
 	selector: 'app-add-account',
 	standalone: true,
-	imports: [CommonModule, FormsModule],
+	imports: [CommonModule, FormsModule, BioFieldDirective],
 	templateUrl: './add-account.html',
 	styles: [`
     @keyframes ws-fade {

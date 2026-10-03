@@ -9,13 +9,14 @@ import { ExperienceLevel } from '../../../../../core/models/profile.model';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
+import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
 type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security';
 
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })

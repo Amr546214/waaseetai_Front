@@ -9,6 +9,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { ibanValidator } from '../../../../../core/validators/iban.validator';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
+import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
 interface DocumentUploadState {
   name: string;
@@ -32,7 +33,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
@@ -41,7 +42,6 @@ export class Data implements OnInit {
   showGovModal = signal<boolean>(false);
   govModalField = signal<string>('');
   showToast = signal<string>('');
-  bioCharCount = signal<number>(0);
   avatarUrl = signal<string | null>(null);
   passwordFormVisible = signal<boolean>(false);
 
@@ -180,10 +180,6 @@ export class Data implements OnInit {
       currentPassword: ['', Validators.required],
       newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
       confirmPassword: ['', Validators.required]
-    });
-
-    this.profileForm.get('bio')?.valueChanges.subscribe(val => {
-      this.bioCharCount.set(val?.length || 0);
     });
 
     if (isPlatformBrowser(this.platformId)) {
@@ -381,11 +377,6 @@ export class Data implements OnInit {
 
   setTab(tab: string) {
     this.currentTab.set(tab);
-  }
-
-  updateBioCount(event: Event) {
-    const target = event.target as HTMLTextAreaElement;
-    this.bioCharCount.set(target.value.length);
   }
 
   openGovernedEdit(field: string) {

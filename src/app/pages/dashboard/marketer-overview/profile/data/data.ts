@@ -8,6 +8,7 @@ import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from 
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { ibanValidator } from '../../../../../core/validators/iban.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
+import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
 const DEFAULT_ALERT_PREFERENCES = {
 	marketer_new_referral: true,
@@ -19,7 +20,7 @@ const DEFAULT_ALERT_PREFERENCES = {
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
+	imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })

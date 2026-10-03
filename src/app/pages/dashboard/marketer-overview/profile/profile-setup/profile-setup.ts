@@ -5,11 +5,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MarketerProfileService, MarketerProfile } from '../../../../../core/services/marketer-profile.service';
 import { ibanValidator } from '../../../../../core/validators/iban.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
+import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
 @Component({
 	selector: 'app-marketer-profile-setup',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective],
 	templateUrl: './profile-setup.html',
 	styleUrl: './profile-setup.css',
 })

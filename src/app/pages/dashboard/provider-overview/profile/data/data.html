@@ -78,7 +78,7 @@
 				</div>
 				<div class="fld">
 					<label for="f-desc">النبذة التفصيلية</label>
-					<textarea id="f-desc" formControlName="bio" placeholder="اكتب نبذة عن شركتك..."></textarea>
+					<textarea id="f-desc" [appBioField]="500" formControlName="bio" placeholder="اكتب نبذة عن شركتك..."></textarea>
 					<span class="fld-hint">اكتب ما يميّز شركتك فعلياً — تجنّب العبارات العامة</span>
 				</div>
 			</div>
@@ -316,10 +316,9 @@
     </div>
     <div class="inp-group">
       <label class="inp-label" for="bio">الوصف المهني</label>
-      <textarea id="bio" class="inp-field" formControlName="bio"
-        placeholder="اكتب وصفًا موجزًا عن خبرتك وما تقدمه من خدمات..." maxlength="500" (input)="updateBioCount($event)"
+      <textarea id="bio" class="inp-field" [appBioField]="500" formControlName="bio"
+        placeholder="اكتب وصفًا موجزًا عن خبرتك وما تقدمه من خدمات..." maxlength="500"
         aria-label="الوصف المهني"></textarea>
-      <div class="char-counter" id="bio-count">{{ bioCharCount() }} / 500 حرف</div>
     </div>
   </div>
 
