@@ -10,6 +10,8 @@ import { ProfileApiService } from '../../../../../core/services/profile-api.serv
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { SetupTestService } from '../../../../../core/services/setup-test.service';
+import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
+import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 
 export interface SetupAlertModal {
   type: 'warning' | 'error' | 'banned' | 'info';
@@ -36,6 +38,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private specialtyService = inject(SpecialtyService);
 	public setupTestService = inject(SetupTestService);
 
+	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
+	readonly countryNames = COUNTRY_NAMES;
+	readonly citiesOf = citiesOf;
+	readonly cityPlaceholder = cityPlaceholder;
+
 	isSubmitting = signal<boolean>(false);
 	currentStep = signal<number>(1);
 
@@ -55,7 +62,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		profData: this.fb.group({
 			jobTitle: ['', Validators.required],
 			expYears: ['', Validators.required],
-			country: ['السعودية', Validators.required],
+			country: ['', Validators.required],
 			city: ['', Validators.required],
 			languages: [[]],
 			bio: ['', [Validators.required, Validators.maxLength(500)]],
@@ -129,6 +136,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	alertModal = signal<SetupAlertModal | null>(null);
 
 	constructor() {
+		linkCountryCity(this.setupForm.get('profData'), this.destroyRef);
 		effect(() => {
 			const w = this.setupTestService.warningMsg();
 			if (w) {
@@ -220,7 +228,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.setupForm.patchValue({
 						profData: {
 							jobTitle: d.industry || '',
-							country: d.country || 'السعودية',
+							country: normalizeCountry(d.country),
 							city: d.city || '',
 							bio: d.bio || '',
 							languages: d.languages && d.languages.length ? d.languages : ['العربية'],

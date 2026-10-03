@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -6,6 +6,8 @@ import { ProfileApiService } from '../../../../../core/services/profile-api.serv
 import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-input.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ExperienceLevel } from '../../../../../core/models/profile.model';
+import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
+import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 
 type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security';
@@ -18,6 +20,11 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 	styleUrl: './profile-edit.css',
 })
 export class ProfileEdit {
+	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
+	readonly countryNames = COUNTRY_NAMES;
+	readonly citiesOf = citiesOf;
+	readonly cityPlaceholder = cityPlaceholder;
+	private destroyRef = inject(DestroyRef);
 	authStore = inject(AuthStore);
 	profileApi = inject(ProfileApiService);
 	fb = inject(FormBuilder);
@@ -207,7 +214,7 @@ export class ProfileEdit {
 			idNumber: [''],
 			idExpiryDate: [''],
 			nationality: [''],
-			country: ['السعودية'],
+			country: [''],
 			city: ['']
 		});
 
@@ -215,9 +222,12 @@ export class ProfileEdit {
 			email: [''],
 			phoneNumber: [''],
 			alternativePhone: [''],
-			country: ['السعودية'],
+			country: [''],
 			city: ['']
 		});
+
+		linkCountryCity(this.identityForm, this.destroyRef);
+		linkCountryCity(this.contactForm, this.destroyRef);
 
 		this.bankingForm = this.fb.group({
 			paymentMethod: ['bank'],

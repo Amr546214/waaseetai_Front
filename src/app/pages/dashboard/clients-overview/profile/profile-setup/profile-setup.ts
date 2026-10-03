@@ -1,9 +1,11 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
+import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 
 @Component({
 	selector: 'app-profile-setup-dashboard',
@@ -30,11 +32,17 @@ export class ProfileSetupDashboard implements OnInit {
 		{ id: 5, label: 'المراجعة والإرسال' }
 	];
 
+	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
+	readonly countryNames = COUNTRY_NAMES;
+	readonly citiesOf = citiesOf;
+	readonly cityPlaceholder = cityPlaceholder;
+	private destroyRef = inject(DestroyRef);
+
 	setupForm: FormGroup = this.fb.group({
 		details: this.fb.group({
 			idNumber: ['', [Validators.required, Validators.pattern(/^[12]\d{9}$/)]],
 			dob: ['', Validators.required],
-			country: ['السعودية', Validators.required],
+			country: ['', Validators.required],
 			city: ['', Validators.required],
 			occupation: ['', Validators.required],
 			address: ['', Validators.required]
@@ -61,6 +69,7 @@ export class ProfileSetupDashboard implements OnInit {
 	});
 
 	ngOnInit() {
+		linkCountryCity(this.setupForm.get('details'), this.destroyRef);
 		this.loadClientProfile();
 	}
 
@@ -74,7 +83,7 @@ export class ProfileSetupDashboard implements OnInit {
 					this.setupForm.get('details')?.patchValue({
 						idNumber: data.idNumber || '',
 						dob: data.dob ? new Date(data.dob).toISOString().split('T')[0] : '',
-						country: data.country || 'السعودية',
+						country: normalizeCountry(data.country),
 						city: data.city || '',
 						occupation: data.industry || '',
 						address: data.address || ''
