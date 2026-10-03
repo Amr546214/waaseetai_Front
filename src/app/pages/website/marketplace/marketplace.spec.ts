@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { vi } from 'vitest';
 import { of } from 'rxjs';
 
@@ -123,27 +123,75 @@ describe('Marketplace', () => {
     });
   });
 
-  describe('filters drawer + budget slider', () => {
-    it('opens, closes, and closes on Escape', () => {
-      expect(component.filtersOpen()).toBe(false);
+  describe('filters drawer draft (nothing applies until "تطبيق الفلاتر")', () => {
+    const input = (v: number) => ({ target: { value: String(v) } }) as unknown as Event;
+    let navigate: ReturnType<typeof vi.spyOn>;
+    beforeEach(() => {
+      navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+      component.priceLimit.set(1000);
+    });
+
+    it('editing inside the drawer never navigates or touches the committed filters', () => {
       component.openFilters();
-      expect(component.filtersOpen()).toBe(true);
+      component.onPriceInput(input(39));
+      component.draftLevel('خبير');
+      component.draftRating(4);
+      component.draftDays(7);
+      expect(component.priceValue()).toBe(39);
+      expect(navigate).not.toHaveBeenCalled();
+      expect(component.selectedMaxPrice()).toBeNull();
+      expect(component.selectedLevels()).toEqual([]);
+    });
+
+    it('closing discards the draft; reopening shows the current (unmodified) filters', () => {
+      component.openFilters();
+      component.onPriceInput(input(39));
+      component.closeFilters();
+      component.openFilters();
+      expect(component.priceValue()).toBe(1000);
+      expect(component.draftView().levels).toEqual([]);
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('Escape discards the draft', () => {
+      component.openFilters();
+      component.onPriceInput(input(39));
       component.onEscape();
       expect(component.filtersOpen()).toBe(false);
+      expect(component.priceValue()).toBe(1000);
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('apply navigates exactly once with the whole draft, then closes', () => {
       component.openFilters();
-      component.closeFilters();
+      component.onPriceInput(input(39));
+      component.draftLevel('خبير');
+      component.draftRating(4);
+      component.applyAndClose();
+      expect(navigate).toHaveBeenCalledTimes(1);
+      const params = (navigate.mock.calls[0] as any[]).find((a) => a && typeof a === 'object' && !Array.isArray(a) && 'queryParams' in a).queryParams;
+      expect(params).toMatchObject({ maxPrice: 39, level: 'خبير', minRating: 4, page: null });
       expect(component.filtersOpen()).toBe(false);
     });
 
     it('budget fill follows the slider: 0 at the first value, 1 at the last, live while dragging', () => {
-      component.priceLimit.set(1000);
-      expect(component.priceFill()).toBe(1); // no limit chosen => full range
-      component.onPriceInput({ target: { value: '0' } } as unknown as Event);
-      expect(component.priceFill()).toBe(0);
-      component.onPriceInput({ target: { value: '250' } } as unknown as Event);
-      expect(component.priceFill()).toBe(0.25);
-      component.onPriceInput({ target: { value: '1000' } } as unknown as Event);
+      component.openFilters();
       expect(component.priceFill()).toBe(1);
+      component.onPriceInput(input(0));
+      expect(component.priceFill()).toBe(0);
+      component.onPriceInput(input(250));
+      expect(component.priceFill()).toBe(0.25);
+      component.onPriceInput(input(1000));
+      expect(component.priceFill()).toBe(1);
+    });
+
+    it('reset inside the drawer only clears the draft; it is applied by apply', () => {
+      component.selectedMaxPrice.set(200);
+      component.openFilters();
+      component.resetDraft();
+      expect(navigate).not.toHaveBeenCalled();
+      expect(component.priceValue()).toBe(1000);
+      expect(component.selectedMaxPrice()).toBe(200);
     });
   });
 });
