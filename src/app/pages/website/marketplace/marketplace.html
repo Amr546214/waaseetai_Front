@@ -346,7 +346,7 @@
 </div>
 } @else {
 <!-- ═══════════════ P-MK-005 — search / filtered results ═══════════════ -->
-<div class="page-wrap mk-results">
+<div class="page-wrap mk-results" [class.filters-open]="filtersOpen()">
   <!-- HERO -->
   <section class="cat-hero">
     <div class="container">
@@ -413,14 +413,16 @@
     <div class="body-layout">
 
       <!-- FILTER SIDEBAR -->
-      <aside class="filter-sidebar" aria-label="فلتر البحث">
+      <div class="fdrawer-backdrop" [class.open]="filtersOpen()" (click)="closeFilters()" aria-hidden="true"></div>
+      <aside class="filter-sidebar fdrawer" id="filters-drawer" [class.open]="filtersOpen()" role="dialog" aria-modal="true" aria-label="فلتر البحث" [attr.aria-hidden]="filtersOpen() ? null : 'true'" [attr.inert]="filtersOpen() ? null : ''">
         <div class="filter-header">
           <div class="filter-title">
             <span class="filter-title-ico"><svg><use href="#ws-filter"></use></svg></span>
             تصفية النتائج
           </div>
-          <button class="filter-reset" type="button" (click)="resetFilters()">إعادة ضبط</button>
+          <div style="display:flex;align-items:center;gap:10px"><button class="filter-reset" type="button" (click)="resetFilters()">إعادة ضبط</button><button class="fdrawer-close" type="button" (click)="closeFilters()" aria-label="إغلاق الفلاتر"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
         </div>
+        <div class="fdrawer-body">
 
         @if (categories().length > 0) {
         <div class="filter-section">
@@ -435,8 +437,8 @@
 
         <div class="filter-section">
           <div class="filter-lbl">ميزانية الخدمة ($)</div>
-          <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="selectedMaxPrice() || priceLimit()" (change)="setMaxPrice($event)" aria-label="ميزانية الخدمة">
-          <div class="range-vals"><span>0</span><span>{{ (selectedMaxPrice() || priceLimit()) | number:'1.0-0' }}</span><span>{{ priceLimit() | number:'1.0-0' }}+</span></div>
+          <input class="range-inp" type="range" min="0" [max]="priceLimit()" [value]="priceValue()" [style.--p]="priceFill()" (input)="onPriceInput($event)" (change)="setMaxPrice($event)" aria-label="ميزانية الخدمة">
+          <div class="range-vals"><span>0</span><span>{{ priceValue() | number:'1.0-0' }}</span><span>{{ priceLimit() | number:'1.0-0' }}+</span></div>
         </div>
 
         @if (levelOptions().length > 0) {
@@ -468,7 +470,11 @@
           </div>
         </div>
 
-        <button class="filter-apply" type="button" (click)="applyFilters()">تطبيق الفلتر</button>
+        </div>
+        <div class="fdrawer-foot">
+          <button class="fdrawer-cancel" type="button" (click)="closeFilters()">إغلاق</button>
+          <button class="filter-apply" type="button" (click)="applyAndClose()">تطبيق الفلاتر</button>
+        </div>
       </aside>
 
       <!-- MAIN -->
@@ -518,6 +524,7 @@
         <div class="results-bar">
           <div class="results-count"><strong>{{ totalResults() | number }}</strong> نتيجة @if (activeFilters().length) {بعد الفلترة}</div>
           <div class="sort-row">
+            <button class="filters-btn" type="button" (click)="openFilters()" aria-haspopup="dialog" aria-controls="filters-drawer" [attr.aria-expanded]="filtersOpen()"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>الفلاتر @if (activeFilters().length > 0) {<span class="filters-count">{{ activeFilters().length }}</span>}</button>
             @if (comparedModels().size >= 2) {
             <a routerLink="/compare-services" [queryParams]="{ ids: compareIds() }" class="svc-compare is-compared"><svg><use href="#ws-compare"></use></svg>قارن ({{ comparedModels().size }})</a>
             }

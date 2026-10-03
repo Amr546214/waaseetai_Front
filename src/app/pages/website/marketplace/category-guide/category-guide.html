@@ -62,7 +62,7 @@
           <div class="trending-lbl">الفئات</div>
           <div class="trend-sep"></div>
           @for (cat of categories(); track cat.id; let i = $index) {
-          <a [href]="'#cat-' + cat.slug" (click)="onPillClick($event, cat.slug)" class="trend-pill" [class.hot]="cat.slug === topCategorySlug()">
+          <a [href]="'#cat-' + cat.slug" (click)="onPillClick($event, cat.slug)" class="trend-pill" [class.hot]="cat.slug === topCategorySlug()" [class.active]="cat.slug === activeCatSlug()" [attr.aria-current]="cat.slug === activeCatSlug() ? 'true' : null">
             <span style="width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" [style.background]="categoryPalette(i).pill" [style.color]="categoryPalette(i).color"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(cat.icon)"></use></svg></span>
             {{ cat.name }}
           </a>
@@ -76,20 +76,6 @@
   <!-- BODY -->
   <div class="container">
     <div class="body-layout">
-
-      <!-- SIDEBAR -->
-      <aside class="side-nav" aria-label="تصفح الفئات">
-        <div class="side-nav-title">الفئات الرئيسية</div>
-        <nav class="side-nav-list">
-          @for (cat of categories(); track cat.id; let i = $index) {
-          <a [href]="'#cat-' + cat.slug" (click)="$event.preventDefault(); scrollToCategory(cat.slug)" class="side-nav-item" [class.active]="activeCatSlug() === cat.slug">
-            <span class="side-ico" [style.background]="categoryPalette(i).bg" [style.border]="'1px solid ' + categoryPalette(i).border" [style.color]="categoryPalette(i).color"><svg><use [attr.href]="categoryIcon(cat.icon)"></use></svg></span>
-            {{ cat.name }}
-            <span class="side-count">{{ cat.count | number }}+</span>
-          </a>
-          }
-        </nav>
-      </aside>
 
       <!-- MAIN CONTENT -->
       <main>

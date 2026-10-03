@@ -73,10 +73,10 @@ app-slug .subcat-btn .sub-cnt{font-size:10px;font-weight:800;padding:2px 6px;bor
 app-slug .subcat-btn.active .sub-cnt{background:rgba(43,212,199,.12);color:var(--teal)}
 
 /* BODY LAYOUT */
-app-slug .body-layout{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:28px 0 80px;align-items:start}
+app-slug .body-layout{display:block;padding:28px 0 80px}
 
 /* FILTER SIDEBAR */
-app-slug .filter-sidebar{position:sticky;top:122px;background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+app-slug .filter-sidebar{border-radius:0;overflow:hidden}
 app-slug .filter-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border)}
 app-slug .filter-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:var(--txt)}
 app-slug .filter-title-ico{width:28px;height:28px;border-radius:7px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center;color:var(--teal)}
@@ -93,8 +93,11 @@ app-slug .fopt-box.checked{background:var(--teal);border-color:var(--teal)}
 app-slug .fopt-box.checked::after{content:'';width:8px;height:5px;border-left:2px solid #070D24;border-bottom:2px solid #070D24;transform:rotate(-45deg) translateY(-1px);display:block}
 app-slug .fopt-lbl{font-size:13px;color:var(--txt-2);font-weight:600}
 app-slug .fopt-count{font-size:11px;color:var(--txt-3);margin-inline-start:auto;font-weight:700}
-app-slug .range-inp{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:linear-gradient(to left,var(--teal) 70%,rgba(255,255,255,.1) 70%);outline:none;cursor:pointer}
+app-slug .range-inp{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:linear-gradient(to left,var(--teal) calc(8px + (100% - 16px) * var(--p,1)),rgba(255,255,255,.12) 0);outline:none;cursor:pointer;margin-top:6px}
+app-slug .range-inp:dir(ltr){background:linear-gradient(to right,var(--teal) calc(8px + (100% - 16px) * var(--p,1)),rgba(255,255,255,.12) 0)}
 app-slug .range-inp::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--teal);border:2px solid #070D24;cursor:pointer}
+app-slug .range-inp::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--teal);border:2px solid #070D24;cursor:pointer}
+app-slug .range-inp::-moz-range-track{background:transparent}
 app-slug .range-vals{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--txt-3);font-weight:700}
 app-slug .related-link{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);text-decoration:none;transition:color .15s}
 app-slug .related-link:last-child{border-bottom:none}
@@ -120,7 +123,7 @@ app-slug .sort-lbl{font-size:12px;color:var(--txt-3);font-weight:600}
 app-slug .sort-sel{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:var(--txt-2);font-family:inherit;font-size:12px;font-weight:700;padding:6px 10px;cursor:pointer;outline:none}
 
 /* SERVICE CARD */
-app-slug .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+app-slug .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 app-slug .svc-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s;cursor:pointer;display:flex;flex-direction:column}
 app-slug .svc-card:hover{border-color:rgba(43,212,199,.22);box-shadow:0 8px 32px rgba(0,0,0,.2);transform:translateY(-2px)}
 app-slug .svc-thumb{height:150px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -183,6 +186,6 @@ app-slug .pg-btn svg{width:14px;height:14px}
 
 /* RESPONSIVE */
 @media(max-width:1100px){app-slug .svc-grid{grid-template-columns:repeat(2,1fr)}app-slug .hero-stats{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){app-slug .body-layout{grid-template-columns:1fr}app-slug .filter-sidebar{position:static;display:none}app-slug .hero-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){app-slug .hero-stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:820px){app-slug .svc-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){app-slug .svc-grid{grid-template-columns:1fr}app-slug .hero-stats{grid-template-columns:repeat(2,1fr)}}
