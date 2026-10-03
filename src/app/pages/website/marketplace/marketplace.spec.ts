@@ -122,4 +122,28 @@ describe('Marketplace', () => {
       expect(component.aiBannerInsight()).toBe('تم استرجاع 2 نموذج');
     });
   });
+
+  describe('filters drawer + budget slider', () => {
+    it('opens, closes, and closes on Escape', () => {
+      expect(component.filtersOpen()).toBe(false);
+      component.openFilters();
+      expect(component.filtersOpen()).toBe(true);
+      component.onEscape();
+      expect(component.filtersOpen()).toBe(false);
+      component.openFilters();
+      component.closeFilters();
+      expect(component.filtersOpen()).toBe(false);
+    });
+
+    it('budget fill follows the slider: 0 at the first value, 1 at the last, live while dragging', () => {
+      component.priceLimit.set(1000);
+      expect(component.priceFill()).toBe(1); // no limit chosen => full range
+      component.onPriceInput({ target: { value: '0' } } as unknown as Event);
+      expect(component.priceFill()).toBe(0);
+      component.onPriceInput({ target: { value: '250' } } as unknown as Event);
+      expect(component.priceFill()).toBe(0.25);
+      component.onPriceInput({ target: { value: '1000' } } as unknown as Event);
+      expect(component.priceFill()).toBe(1);
+    });
+  });
 });

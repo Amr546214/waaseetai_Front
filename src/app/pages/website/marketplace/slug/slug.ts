@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, OnInit, PLATFORM_ID, Inject, ViewEncapsulation, signal, computed } from '@angular/core';
+import { Component, HostListener, AfterViewInit, OnDestroy, OnInit, PLATFORM_ID, Inject, ViewEncapsulation, signal, computed } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { MarketplaceModel, MarketplaceService } from '../../../../core/services/marketplace.service';
@@ -351,8 +351,33 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 		this.updateFilters({ maxDays: days || null, page: null });
 	}
 
+
+	// ── Filters drawer + budget slider ──
+	filtersOpen = signal(false);
+	/** Live slider value while dragging; the committed value lives in the URL (selectedMaxPrice). */
+	private priceDraft = signal<number | null>(null);
+	priceValue = computed(() => this.priceDraft() ?? (this.selectedMaxPrice() || this.priceLimit()));
+	/** 0..1 share of the track to colour; drives the range fill (--p) so it follows the thumb. */
+	priceFill = computed(() => {
+		const limit = this.priceLimit();
+		return limit > 0 ? Math.min(1, Math.max(0, this.priceValue() / limit)) : 1;
+	});
+
+	openFilters() { this.filtersOpen.set(true); }
+	closeFilters() { this.filtersOpen.set(false); }
+	applyAndClose() { this.applyFilters(); this.closeFilters(); }
+	onPriceInput(event: Event) { this.priceDraft.set(Number((event.target as HTMLInputElement).value)); }
+	@HostListener('document:keydown.escape')
+	onEscape() { if (this.filtersOpen()) this.closeFilters(); }
+
+	/** Number of active filter selections, shown on the "الفلاتر" button. */
+	activeFilterCount = computed(() =>
+		(this.selectedSub() ? 1 : 0) + this.selectedLevels().length + (this.selectedRating() ? 1 : 0) + (this.selectedMaxDays() ? 1 : 0) + (this.selectedMaxPrice() ? 1 : 0)
+	);
+
 	setMaxPrice(event: Event) {
 		const value = Number((event.target as HTMLInputElement).value);
+		this.priceDraft.set(null);
 		this.updateFilters({ maxPrice: value < this.priceLimit() ? value : null, page: null });
 	}
 
