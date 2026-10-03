@@ -1,12 +1,12 @@
 import { Component, signal, OnInit, inject, PLATFORM_ID, computed, DestroyRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { HttpEventType } from '@angular/common/http';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
-import { ibanValidator } from '../../../../../core/validators/iban.validator';
+import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
@@ -51,6 +51,7 @@ export class Data implements OnInit {
 
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
   // Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
   readonly countryNames = COUNTRY_NAMES;
   readonly citiesOf = citiesOf;
@@ -103,7 +104,8 @@ export class Data implements OnInit {
 
   profileForm!: FormGroup;
   contactForm!: FormGroup;
-  bankingForm!: FormGroup;
+  payoutForm!: FormGroup;
+  savingPaypal = signal(false);
   docsForm!: FormGroup;
   passwordForm!: FormGroup;
   isChangingPassword = signal(false);
@@ -117,7 +119,7 @@ export class Data implements OnInit {
   otpCode = signal('');
   otpEmailHint = signal('');
   pendingRequestId = signal('');
-  pendingSensitiveCategory = signal<'CONTACT' | 'BANKING' | 'DOCUMENTS' | null>(null);
+  pendingSensitiveCategory = signal<'CONTACT' | 'DOCUMENTS' | null>(null);
   isSaving = signal(false);
   isVerifyingOtp = signal(false);
   uploadingDocument = signal<string | null>(null);
@@ -129,6 +131,10 @@ export class Data implements OnInit {
   currentProfileData: any = null;
 
   ngOnInit() {
+    // e.g. the withdraw page links to ?tab=payout to add the PayPal email.
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab === 'payout') this.currentTab.set('payout');
+
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
@@ -163,10 +169,8 @@ export class Data implements OnInit {
       alternativePhone: ['', Validators.pattern(/^\+?[0-9]{8,15}$/)]
     });
 
-    this.bankingForm = this.fb.group({
-      accountHolderName: ['', Validators.required],
-      ibanNumber: ['', [Validators.required, ibanValidator]],
-      bankName: ['', Validators.required]
+    this.payoutForm = this.fb.group({
+      paypalPayoutEmail: ['', paypalEmailValidators]
     });
 
     this.docsForm = this.fb.group({
@@ -187,7 +191,7 @@ export class Data implements OnInit {
       this.loadActiveSessions();
       this.profileForm.valueChanges.subscribe(() => this.calculateCompletion());
       this.contactForm.valueChanges.subscribe(() => this.calculateCompletion());
-      this.bankingForm.valueChanges.subscribe(() => this.calculateCompletion());
+      this.payoutForm.valueChanges.subscribe(() => this.calculateCompletion());
       this.docsForm.valueChanges.subscribe(() => this.calculateCompletion());
     }
   }
@@ -245,11 +249,8 @@ export class Data implements OnInit {
             alternativePhone: profile.user?.alternativePhone || ''
           });
 
-          this.bankingForm.patchValue({
-            accountHolderName: profile.user?.accountHolderName || '',
-            // The API deliberately returns a masked IBAN. A replacement must be entered in full.
-            ibanNumber: String(profile.user?.ibanNumber || '').includes('*') ? '' : (profile.user?.ibanNumber || ''),
-            bankName: profile.user?.bankName || ''
+          this.payoutForm.patchValue({
+            paypalPayoutEmail: profile.paypalPayoutEmail || ''
           });
 
           this.docsForm.patchValue({
@@ -449,27 +450,30 @@ export class Data implements OnInit {
     this.saveContact();
   }
 
-  saveBanking() {
-    if (this.bankingForm.invalid) {
-      this.bankingForm.markAllAsTouched();
-      if (this.bankingForm.get('ibanNumber')?.invalid) {
-        this.displayToast('رقم IBAN غير صالح: تحقق من رمز الدولة ورقمي التحقق وبقية رقم الحساب');
-      } else if (this.bankingForm.get('accountHolderName')?.invalid) {
-        this.displayToast('اكتب اسم صاحب الحساب كما يظهر في البنك');
-      } else {
-        this.displayToast('اختر اسم البنك لإكمال الطلب');
-      }
-      return;
-    }
-    const value = this.bankingForm.value;
-    this.startSensitiveChange('BANKING', { ...value, ibanNumber: String(value.ibanNumber).replace(/\s/g, '').toUpperCase() });
+  /** Validation message of the PayPal email (once touched/edited). */
+  paypalEmailMsg(): string | null {
+    const c = this.payoutForm?.get('paypalPayoutEmail');
+    return c && (c.touched || c.dirty) ? paypalEmailError(c.errors) : null;
   }
 
-  onIbanInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const normalized = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 34);
-    this.bankingForm.get('ibanNumber')?.setValue(normalized, { emitEvent: false });
-    input.value = normalized;
+  savePaypal() {
+    if (this.payoutForm.invalid) {
+      this.payoutForm.markAllAsTouched();
+      this.displayToast(paypalEmailError(this.payoutForm.get('paypalPayoutEmail')?.errors) || 'تحقق من بريد PayPal');
+      return;
+    }
+    const email = String(this.payoutForm.value.paypalPayoutEmail || '').trim();
+    this.savingPaypal.set(true);
+    this.profileService.savePaypalPayoutEmail(email).subscribe({
+      next: () => {
+        this.savingPaypal.set(false);
+        this.displayToast('تم حفظ بريد PayPal لاستلام المدفوعات');
+      },
+      error: (err: any) => {
+        this.savingPaypal.set(false);
+        this.displayToast(err?.error?.message || 'تعذر حفظ بريد PayPal، حاول مرة أخرى');
+      }
+    });
   }
 
   onDocSelected(event: Event, controlName: string) {
@@ -554,7 +558,7 @@ export class Data implements OnInit {
     this.startSensitiveChange('DOCUMENTS', this.docsForm.value);
   }
 
-  private startSensitiveChange(category: 'CONTACT' | 'BANKING' | 'DOCUMENTS', changes: Record<string, unknown>) {
+  private startSensitiveChange(category: 'CONTACT' | 'DOCUMENTS', changes: Record<string, unknown>) {
     if (this.isSaving()) return;
     this.isSaving.set(true);
     this.profileService.initiateSensitiveChange(category, changes).subscribe({
@@ -690,7 +694,6 @@ export class Data implements OnInit {
 
     const pForm = this.profileForm.value;
     const cForm = this.contactForm.value;
-    const bForm = this.bankingForm.value;
     const dForm = this.docsForm.value;
 
     let current = 0;
@@ -735,10 +738,10 @@ export class Data implements OnInit {
     }
 
     // Tab 3: 15%
-    if (bForm.ibanNumber) {
+    if (this.payoutForm.get('paypalPayoutEmail')?.valid) {
       current += 15;
     } else {
-      missing.push({ name: 'bank', weight: 15, hint: 'بيانات الحساب البنكي' });
+      missing.push({ name: 'payout', weight: 15, hint: 'حساب PayPal لاستلام المدفوعات' });
     }
 
     // Tab 4: 15%

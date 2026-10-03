@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { SpecialtyService } from '../../../../../core/services/specialty.service
 import { SetupTestService } from '../../../../../core/services/setup-test.service';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
+import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
 export interface SetupAlertModal {
@@ -52,7 +53,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	steps = [
 		{ id: 1, label: 'البيانات المهنية' },
 		{ id: 2, label: 'التخصصات والمهارات' },
-		{ id: 3, label: 'البيانات البنكية' },
+		{ id: 3, label: 'حساب PayPal' },
 		{ id: 4, label: 'المستندات الرسمية' },
 		{ id: 5, label: 'نماذج الأعمال' },
 		{ id: 6, label: 'المراجعة والإرسال' },
@@ -76,10 +77,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			mainSpec: ['', Validators.required],
 			subSpecs: [[]]
 		}),
-		bank: this.fb.group({
-			bankName: ['', Validators.required],
-			accountOwner: ['', Validators.required],
-			iban: ['', Validators.required]
+		payout: this.fb.group({
+			paypalEmail: ['', paypalEmailValidators]
 		}),
 		docs: this.fb.group({
 			frontId: [''],
@@ -243,10 +242,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							mainSpec: d.mainSpecialty || '',
 							subSpecs: d.subSpecialties || []
 						},
-						bank: {
-							bankName: d.bankName || '',
-							accountOwner: d.accountHolder || '',
-							iban: d.iban || ''
+						payout: {
+							paypalEmail: d.paypalPayoutEmail || ''
 						},
 						docs: {
 							frontId: d.frontIdUrl || '',
@@ -300,8 +297,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				this.setupForm.get('specialties')?.markAllAsTouched();
 				return;
 			}
-			if (this.currentStep() === 3 && this.setupForm.get('bank')?.invalid) {
-				this.setupForm.get('bank')?.markAllAsTouched();
+			if (this.currentStep() === 3 && this.setupForm.get('payout')?.invalid) {
+				this.setupForm.get('payout')?.markAllAsTouched();
 				return;
 			}
 			if (this.currentStep() === 4 && (!this.uploadedFrontId())) {
@@ -830,11 +827,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			},
 			portfolio: this.sanitizePortfolioForPayload(this.portfolioItems()),
 
-			bank: {
-				bankName: this.setupForm.get('bank.bankName')?.value,
-				accountHolder: this.setupForm.get('bank.accountOwner')?.value,
-				iban: this.setupForm.get('bank.iban')?.value
-			},
+			// No `bank` key on purpose: the setup endpoint then leaves any saved bank values untouched
+			// (undefined is skipped by the upsert) instead of overwriting them with empty values.
 			agreements: {
 				accurate: this.setupForm.get('agreements.ackFinal')?.value,
 				terms: this.setupForm.get('agreements.ackFinal')?.value,
@@ -842,7 +836,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			}
 		};
 
-		this.profileApi.saveProviderProfileSetup(payload).subscribe({
+		// The setup endpoint does not persist the PayPal email, so it is saved on the profile endpoint
+		// that does (PUT /profiles/update, provider role) first; if that fails nothing else is submitted.
+		const paypalEmail = String(this.setupForm.get('payout.paypalEmail')?.value || '').trim();
+		this.providerProfileService.savePaypalPayoutEmail(paypalEmail).pipe(
+			switchMap(() => this.profileApi.saveProviderProfileSetup(payload))
+		).subscribe({
 			next: () => {
 				this.isSubmitting.set(false);
 				const user = this.authStore.currentUser();
@@ -857,6 +856,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				this.alertModal.set({ type: 'error', title: 'تعذر الحفظ', message: error.error?.message || 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });
 			}
 		});
+	}
+
+	/** Validation message of the PayPal email (shown once the field was touched/edited, or on a failed next). */
+	paypalEmailMsg(): string | null {
+		const c = this.setupForm.get('payout.paypalEmail');
+		return c && (c.touched || c.dirty) ? paypalEmailError(c.errors) : null;
 	}
 
 	startTest() {

@@ -224,10 +224,8 @@
     role="tab" aria-selected="false">بيانات التواصل<span class="tab-tier tt-sens"><svg aria-hidden="true">
         <use href="#ws-shield"></use>
       </svg>بمراجعة</span></button>
-  <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'banking'" (click)="setTab('banking')"
-    role="tab" aria-selected="false">البيانات البنكية<span class="tab-tier tt-sens"><svg aria-hidden="true">
-        <use href="#ws-shield"></use>
-      </svg>بمراجعة</span></button>
+  <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'payout'" (click)="setTab('payout')"
+    role="tab" aria-selected="false">حساب PayPal</button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'docs'" (click)="setTab('docs')"
     role="tab" aria-selected="false">المستندات<span class="tab-tier tt-sens"><svg aria-hidden="true">
         <use href="#ws-shield"></use>
@@ -513,49 +511,26 @@
   </div>
 </div>
 
-<div class="prof-tab-panel" [class.active]="currentTab() === 'banking'" id="prof-panel-banking" role="tabpanel"
-  [formGroup]="bankingForm">
+<div class="prof-tab-panel" [class.active]="currentTab() === 'payout'" id="prof-panel-payout" role="tabpanel"
+  [formGroup]="payoutForm">
   <div class="form-card">
     <div class="form-card-hdr">
       <div class="form-card-ico"><svg aria-hidden="true">
           <use href="#i-wallet"></use>
         </svg></div>
       <div>
-        <div class="form-card-title">البيانات البنكية</div>
-        <div class="form-card-sub">الحساب البنكي الشخصي لاستلام مدفوعاتك</div>
+        <div class="form-card-title">حساب PayPal لاستلام المدفوعات</div>
+        <div class="form-card-sub">المنصة تدعم حاليًا PayPal فقط لاستلام المستحقات</div>
       </div>
     </div>
-    <div class="gov-bar">
-      <div class="gov-bar-ico"><svg aria-hidden="true">
-          <use href="#ws-shield"></use>
-        </svg></div>
-      <div class="gov-bar-txt">تعديل الحساب البنكي ينشئ طلبًا يتحقق فيه النظام من صحة IBAN وتطابق الاسم ثم يعتمده مراجع
-        بشري</div><a routerLink="/provider-overview/profile/requests" class="gov-bar-link">طلباتي السابقة</a>
-    </div>
-    <div class="form-grid form-col-2" id="bk-bank-fields">
-      <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="bk-holder">اسم صاحب الحساب البنكي
-          (كما في البنك)<span class="req">*</span></label><input type="text" id="bk-holder" class="inp-field"
-          formControlName="accountHolderName" placeholder="الاسم الثلاثي كما في البطاقة البنكية"></div>
-      <div class="inp-group"><label class="inp-label" for="bk-iban">رقم IBAN<span class="req">*</span></label><input
-          type="text" id="bk-iban" class="inp-field" formControlName="ibanNumber" placeholder="رمز الدولة ثم رقم IBAN"
-          maxlength="34" dir="ltr" autocomplete="off" spellcheck="false" (input)="onIbanInput($event)"
-          [attr.aria-invalid]="bankingForm.get('ibanNumber')?.invalid && bankingForm.get('ibanNumber')?.touched">@if(bankingForm.get('ibanNumber')?.invalid
-        && bankingForm.get('ibanNumber')?.touched){<span class="field-error">أدخل IBAN دوليًا صالحًا: رمز الدولة، رقما التحقق، ثم رقم الحساب</span>}@else{<span class="inp-hint">من 15 إلى 34 خانة حسب الدولة، مثل MA أو SA أو FR أو DE</span>}
+    <div class="form-grid form-col-2" id="pp-fields">
+      <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pp-email">بريد PayPal<span class="req">*</span></label><input
+          type="email" id="pp-email" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com"
+          dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
+          [attr.aria-invalid]="paypalEmailMsg() ? 'true' : null">@if(paypalEmailMsg(); as msg){<span class="field-error" role="alert">{{ msg }}</span>}@else{<span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal.</span>}
       </div>
-      <div class="inp-group"><label class="inp-label" for="bk-bank">اسم البنك<span class="req">*</span></label><select
-          id="bk-bank" class="inp-field" formControlName="bankName">
-          <option value="">اختر البنك</option>
-          <option>البنك الاهلي السعودي (SNB)</option>
-          <option>مصرف الراجحي</option>
-          <option>بنك الرياض</option>
-          <option>بنك البلاد</option>
-          <option>اخرى</option>
-        </select></div>
     </div>
-    <div
-      style="margin-top:10px;padding:10px 14px;background:rgba(43,212,199,.04);border:1px solid rgba(43,212,199,.10);border-radius:9px;font-size:11px" class="txt-muted">
-      هذا الحساب للسحب والاسترداد فقط. مشفر ومحمي. تغيير بيانات الاستلام يتطلب مصادقة ثنائية.</div>
-    <div class="actions-row"><button type="button" class="btn-primary" (click)="saveBanking()">إرسال طلب تعديل</button>
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()" (click)="savePaypal()">حفظ بريد PayPal</button>
     </div>
   </div>
 </div>

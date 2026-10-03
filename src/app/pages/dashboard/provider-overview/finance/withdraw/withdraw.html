@@ -4,7 +4,7 @@
     <symbol id="wd-escrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/></symbol>
     <symbol id="wd-earn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
     <symbol id="wd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-    <symbol id="wd-bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+    <symbol id="wd-paypal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21 9.5 5H15a3.5 3.5 0 0 1 0 7h-4.5"/><path d="M10 21l1-6h3.5"/></symbol>
     <symbol id="wd-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
   </defs>
 </svg>
@@ -25,9 +25,9 @@
       <div class="ord-title">{{ isCompany() ? 'سحب أرباح الشركة' : 'سحب الأرباح' }}</div>
       <div class="ord-sub">
         @if (isCompany()) {
-          اسحب أرباح الشركة المتراكمة إلى الحساب البنكي المسجل للشركة. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيد الشركة حتى تعتمده الإدارة، ويتطلب تأكيداً برمز يُرسل إلى جوال الشركة.
+          اسحب أرباح الشركة المتراكمة إلى حساب PayPal المسجل للشركة. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيد الشركة حتى تعتمده الإدارة، ويتطلب تأكيداً برمز يُرسل إلى جوال الشركة.
         } @else {
-          اسحب أرباحك المتراكمة إلى حسابك البنكي. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيدك حتى تعتمده الإدارة.
+          اسحب أرباحك المتراكمة إلى حساب PayPal الخاص بك. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيدك حتى تعتمده الإدارة.
         }
       </div>
     </div>
@@ -39,10 +39,10 @@
     <div class="ai-disc-body">
       @if (isCompany()) {
         <div class="ai-disc-lbl">وسيط AI، حماية مالية للشركة</div>
-        <p class="ai-disc-txt">جميع طلبات سحب الشركة تمر بمراجعة الإدارة وتأكيد برمز إلى جوال الشركة قبل التنفيذ. تحويل بنكي خلال 1-3 أيام عمل بعد الموافقة.</p>
+        <p class="ai-disc-txt">جميع طلبات سحب الشركة تمر بمراجعة الإدارة وتأكيد برمز إلى جوال الشركة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
       } @else {
         <div class="ai-disc-lbl">وسيط AI، حماية مالية</div>
-        <p class="ai-disc-txt">جميع طلبات السحب تمر بمراجعة الإدارة قبل التنفيذ. تحويل بنكي خلال 1-3 أيام عمل بعد الموافقة.</p>
+        <p class="ai-disc-txt">جميع طلبات السحب تمر بمراجعة الإدارة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
       }
     </div>
   </div>
@@ -148,44 +148,25 @@
       <div class="wd-field">
         <label class="wd-lbl">طريقة السحب</label>
         <div class="wd-method-pill">
-          <svg aria-hidden="true"><use href="#wd-bank"></use></svg>
-          <span>تحويل بنكي (bank_transfer)</span>
+          <svg aria-hidden="true"><use href="#wd-paypal"></use></svg>
+          <span>PayPal</span>
         </div>
-        <div class="wd-field-hint">الطريقة الافتراضية المعتمدة حالياً</div>
+        <div class="wd-field-hint">PayPal هي طريقة السحب الوحيدة المدعومة حاليًا</div>
       </div>
 
-      <!-- Account name -->
+      <!-- PayPal destination (read-only: the saved profile email) -->
       <div class="wd-field">
-        <label class="wd-lbl" for="wdName">اسم صاحب الحساب <span class="wd-req">*</span></label>
-        <input id="wdName" type="text" placeholder="الاسم كما هو في الحساب البنكي"
-          [value]="accountName()" (input)="setAccountName($event)"
-          class="wd-input" [class.wd-input-err]="formErrors()['accountName']">
-        @if (formErrors()['accountName']; as err) {
-          <div class="wd-field-err">{{ err }}</div>
-        }
-      </div>
-
-      <!-- IBAN -->
-      <div class="wd-field">
-        <label class="wd-lbl" for="wdIban">رقم الآيبان (IBAN)</label>
-        <input id="wdIban" type="text" placeholder="SA00 0000 0000 0000 0000 0000" dir="ltr"
-          [value]="iban()" (input)="setIban($event)"
-          class="wd-input" [class.wd-input-err]="formErrors()['iban']">
-        @if (formErrors()['iban']; as err) {
-          <div class="wd-field-err">{{ err }}</div>
-        }
-      </div>
-
-      <!-- Account number (optional alternative) -->
-      <div class="wd-field">
-        <label class="wd-lbl" for="wdAcc">رقم الحساب (اختياري)</label>
-        <input id="wdAcc" type="text" placeholder="00000000000000" dir="ltr"
-          [value]="accountNumber()" (input)="setAccountNumber($event)"
-          class="wd-input" [class.wd-input-err]="formErrors()['accountNumber']">
-        @if (formErrors()['accountNumber']; as err) {
-          <div class="wd-field-err">{{ err }}</div>
+        <label class="wd-lbl">بريد PayPal لاستلام المدفوعات</label>
+        @if (paypalLoading()) {
+          <div class="wd-field-hint">جارٍ التحميل...</div>
+        } @else if (paypalEmail()) {
+          <div class="wd-method-pill" dir="ltr" data-testid="wd-paypal-email"><span>{{ paypalEmail() }}</span></div>
+          <div class="wd-field-hint">سنرسل مستحقاتك إلى هذا البريد. يمكنك تغييره من <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">بيانات الملف</a>.</div>
         } @else {
-          <div class="wd-field-hint">مطلوب رقم الآيبان أو رقم الحساب على الأقل</div>
+          <div class="wd-field-err" data-testid="wd-paypal-missing">لم تضف بريد PayPal بعد. <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">أضفه من بيانات الملف</a> لتتمكن من طلب السحب.</div>
+        }
+        @if (formErrors()['paypal']; as err) {
+          <div class="wd-field-err">{{ err }}</div>
         }
       </div>
     </div>
@@ -260,10 +241,14 @@
           </div>
           <div class="wd-item-amt">{{ formatAmount(w.amount, w.currency) }}</div>
           <div class="wd-item-meta">
-            <span class="wd-meta-chip"><svg aria-hidden="true"><use href="#wd-bank"></use></svg> {{ getMethodLabel(w.method) }}</span>
+            <span class="wd-meta-chip"><svg aria-hidden="true"><use [attr.href]="w.method === 'paypal' ? '#wd-paypal' : '#wd-wallet'"></use></svg> {{ getMethodLabel(w.method) }}</span>
             <span class="wd-meta-chip">{{ formatDate(w.createdAt) }}</span>
           </div>
           <div class="wd-item-bank">
+            @if (w.paypalEmail) {
+              <div class="wd-bank-row"><span class="wd-bank-key">PayPal</span><span class="wd-bank-val" dir="ltr">{{ w.paypalEmail }}</span></div>
+            }
+            <!-- Older requests were bank transfers; their saved destination is still shown in history. -->
             @if (w.accountName) {
               <div class="wd-bank-row"><span class="wd-bank-key">اسم الحساب</span><span class="wd-bank-val">{{ w.accountName }}</span></div>
             }

@@ -20,6 +20,8 @@ export interface ProviderProfileInput {
   hourlyRate?: number;
   experienceLevel?: ExperienceLevel;
   portfolioLinks?: string[];
+  /** The provider's PayPal payout destination (PUT /profiles/update, provider role only). */
+  paypalPayoutEmail?: string;
 }
 
 export interface ProfileResponse {
