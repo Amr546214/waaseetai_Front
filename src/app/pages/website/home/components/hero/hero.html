@@ -10,7 +10,7 @@
       @if (!authStore.isAuthenticated()) {
         <a routerLink="/auth/register" class="btn-primary">ابدأ مجانا الان</a>
       }
-      <a href="#how" class="btn-secondary">شاهد كيف يعمل</a>
+      <a href="/#how-it-works" class="btn-secondary" (click)="scrollToHowItWorks($event)">شاهد كيف يعمل</a>
     </div>
     <div class="hero-trust" role="list">
       <div class="trust-item" role="listitem"><span class="trust-icon"><svg class="icon icon-sm" aria-hidden="true"><use href="#ws-trust-free"></use></svg></span><span>بدون رسوم تسجيل</span></div>

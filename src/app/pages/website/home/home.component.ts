@@ -41,6 +41,27 @@ export class HomeComponent implements AfterViewInit, OnInit {
     }
   }
 
+  /**
+   * Opening /#how-it-works scrolls to the section as soon as the router renders the page, but web fonts
+   * and images settle afterwards and move the section, leaving its title under the fixed header. Re-align
+   * once the page has settled, unless the user already started scrolling.
+   */
+  private realignHashTarget(): void {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    let cancelled = false;
+    const cancel = () => { cancelled = true; };
+    const userEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'] as const;
+    userEvents.forEach((e) => window.addEventListener(e, cancel, { once: true, passive: true }));
+    const realign = () => {
+      if (!cancelled) document.getElementById(id)?.scrollIntoView({ block: 'start' });
+    };
+    const settled = () => requestAnimationFrame(() => requestAnimationFrame(realign));
+    const afterLoad = () => (document.fonts?.ready ?? Promise.resolve()).then(settled);
+    if (document.readyState === 'complete') afterLoad();
+    else window.addEventListener('load', afterLoad, { once: true });
+  }
+
   dismissCookie(value: string) {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('ws-cookie', value);
@@ -50,6 +71,7 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
+      this.realignHashTarget();
       const pc = document.getElementById('particles-container');
       if (pc && pc.children.length === 0) {
         const n = window.innerWidth < 768 ? 11 : 25;
