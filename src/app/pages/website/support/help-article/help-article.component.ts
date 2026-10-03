@@ -80,11 +80,11 @@ export class HelpArticleComponent implements OnInit {
 	@HostListener('window:scroll')
 	onScroll() {
 		if (isPlatformBrowser(this.platformId)) {
-			const body = document.getElementById('art-body');
-			if (body) {
-				const pct = Math.min(100, (-body.getBoundingClientRect().top / body.offsetHeight) * 100);
-				this.progress = Math.max(0, pct);
-			}
+			// Whole-page progress: scrollY / (scrollHeight - innerHeight), so it is 0% at the top and
+			// exactly 100% at the real end of the page (content after the article body, e.g. the footer,
+			// no longer leaves the bar short).
+			const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+			this.progress = maxScroll > 0 ? Math.min(100, Math.max(0, (window.scrollY / maxScroll) * 100)) : 0;
 			const scrollPosition = window.scrollY + 150;
 			for (const sec of this.document.sections) {
 				const el = document.getElementById(sec.id);

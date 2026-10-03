@@ -1,4 +1,4 @@
-import { loadBebo, resetBeboLoaderForTests } from './bebo-loader';
+import { BEBO_PRELOAD_ATLASES, loadBebo, preloadBeboAtlases, resetBeboLoaderForTests } from './bebo-loader';
 
 // The loader against a fake document: robot.js must be injected as ONE
 // classic <script> (it resolves its sprite atlases from currentScript.src),
@@ -48,5 +48,33 @@ describe('loadBebo (robot.js loader)', () => {
 		expect(appended.length).toBe(0);
 		loadBebo(doc);
 		expect(appended.length).toBe(1);
+	});
+});
+
+describe('preloadBeboAtlases (first-click flicker fix)', () => {
+	beforeEach(() => resetBeboLoaderForTests());
+
+	function docWithImages() {
+		const created: { src: string }[] = [];
+		class FakeImage {
+			src = '';
+			decoding = '';
+			constructor() { created.push(this); }
+			decode() { return Promise.resolve(); }
+		}
+		const doc = { baseURI: 'https://app.example/', defaultView: { Image: FakeImage } } as unknown as Document;
+		return { doc, created };
+	}
+
+	it('fetches the hover/click and speaking atlases from /bebo/ once, even when called repeatedly', () => {
+		const { doc, created } = docWithImages();
+		preloadBeboAtlases(doc);
+		preloadBeboAtlases(doc);
+		expect(created.map((i) => i.src)).toEqual(BEBO_PRELOAD_ATLASES.map((p) => 'https://app.example/' + p));
+		expect(created.map((i) => i.src)).toContain('https://app.example/bebo/robot-actions.png');
+	});
+
+	it('is a no-op without a window (SSR)', () => {
+		expect(() => preloadBeboAtlases({ baseURI: 'x', defaultView: null } as unknown as Document)).not.toThrow();
 	});
 });

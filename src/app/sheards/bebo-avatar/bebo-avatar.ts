@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import type { AvatarState, BeboCommand } from '../../core/store/assistant.store';
-import { BeboPose, CuteRobotElement, loadBebo } from './bebo-loader';
+import { BeboPose, CuteRobotElement, loadBebo, preloadBeboAtlases } from './bebo-loader';
 import type { BeboAction } from './bebo-commands';
 
 /**
@@ -116,6 +116,7 @@ export class BeboAvatarComponent implements OnDestroy {
 					if (this.destroyed) return;
 					this.robot.set(this.robotRef().nativeElement);
 					this.ready.set(true);
+					preloadBeboAtlases(this.doc);
 				},
 				() => { if (!this.destroyed) this.loadFailed.set(true); },
 			);

@@ -75,7 +75,38 @@ export function loadBebo(doc: Document): Promise<void> {
 	return pending;
 }
 
+/**
+ * Sprite atlases robot.js swaps in lazily (via CSS background-image) the first time a pose
+ * from that atlas plays. `robot-actions.png` carries jump/walk/drag/land (hover, click, drag) and
+ * `robot-speaking.png` the speaking pose. Each is ~1 MB, so the first swap pointed the sprite at a
+ * not-yet-fetched image and Bebo went blank until it arrived (disappear, then reappear). Warming
+ * them up front, fully decoded, makes the first pose change flicker-free. The base atlas
+ * (`robot-sprites.png`) is fetched by robot.js itself; the antics/emotions atlases only serve
+ * rare scripted commands and stay on-demand.
+ */
+export const BEBO_PRELOAD_ATLASES = ['bebo/robot-actions.png', 'bebo/robot-speaking.png'] as const;
+
+const preloaded = new Set<string>();
+/** Held so the decoded bitmaps stay alive until robot.js first paints them. */
+const keepAlive: HTMLImageElement[] = [];
+
+export function preloadBeboAtlases(doc: Document): void {
+	const win = doc.defaultView;
+	if (!win || typeof win.Image !== 'function') return;
+	for (const path of BEBO_PRELOAD_ATLASES) {
+		const href = new URL(path, doc.baseURI).href;
+		if (preloaded.has(href)) continue;
+		preloaded.add(href);
+		const img = new win.Image();
+		img.decoding = 'async';
+		img.src = href;
+		img.decode?.().catch(() => preloaded.delete(href));
+		keepAlive.push(img);
+	}
+}
+
 /** Test hook: forget a shared in-flight load. */
 export function resetBeboLoaderForTests(): void {
 	pending = null;
+	preloaded.clear();
 }
