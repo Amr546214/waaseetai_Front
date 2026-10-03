@@ -14,7 +14,9 @@ export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
 		provideRouter(routes, withInMemoryScrolling({
-			scrollPositionRestoration: 'top'
+			scrollPositionRestoration: 'top',
+			// Make /#fragment links (e.g. /#how-it-works) scroll to the element on load; the router otherwise ignores the hash.
+			anchorScrolling: 'enabled'
 		})),
 		provideClientHydration(withEventReplay()),
 		provideHttpClient(withFetch(), withInterceptors([loadingInterceptor, authInterceptor])),
