@@ -118,31 +118,16 @@
             <div class="f-wrap">
               <label class="f-lbl">الدولة <span class="f-req">*</span></label>
               <select class="f-inp" formControlName="country">
-                <option value="السعودية">السعودية</option>
-                <option value="الإمارات">الإمارات</option>
-                <option value="الكويت">الكويت</option>
-                <option value="قطر">قطر</option>
-                <option value="البحرين">البحرين</option>
-                <option value="عمان">عمان</option>
-                <option value="مصر">مصر</option>
-                <option value="الأردن">الأردن</option>
-                <option value="دولة أخرى">دولة أخرى</option>
-              </select>
+                <option value="" disabled>اختر الدولة</option>
+                @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
+               </select>
             </div>
             <div class="f-wrap">
               <label class="f-lbl" for="pr-city">المدينة <span class="f-req">*</span></label>
               <select class="f-inp" id="pr-city" formControlName="city" required>
-                <option value="" disabled selected>اختر المدينة</option>
-                <option value="الرياض">الرياض</option>
-                <option value="جدة">جدة</option>
-                <option value="مكة المكرمة">مكة المكرمة</option>
-                <option value="المدينة المنورة">المدينة المنورة</option>
-                <option value="الدمام">الدمام</option>
-                <option value="الخبر">الخبر</option>
-                <option value="تبوك">تبوك</option>
-                <option value="أبها">أبها</option>
-                <option value="مدينة أخرى">مدينة أخرى</option>
-              </select>
+                <option value="" disabled>{{ cityPlaceholder(setupForm.get('profData')?.get('country')?.value) }}</option>
+                @for (cityName of citiesOf(setupForm.get('profData')?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
+               </select>
             </div>
             <div class="f-wrap">
               <label class="f-lbl">اللغات</label>

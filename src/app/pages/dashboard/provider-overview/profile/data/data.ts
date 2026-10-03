@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject, PLATFORM_ID, computed } from '@angular/core';
+import { Component, signal, OnInit, inject, PLATFORM_ID, computed, DestroyRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
@@ -7,6 +7,8 @@ import { HttpEventType } from '@angular/common/http';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { ibanValidator } from '../../../../../core/validators/iban.validator';
+import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
+import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 
 interface DocumentUploadState {
   name: string;
@@ -48,6 +50,11 @@ export class Data implements OnInit {
   portfolioList = signal<any[]>([]);
 
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
+  // Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
+  readonly countryNames = COUNTRY_NAMES;
+  readonly citiesOf = citiesOf;
+  readonly cityPlaceholder = cityPlaceholder;
   private profileService = inject(ProviderProfileService);
   private platformId = inject(PLATFORM_ID);
   private authStore = inject(AuthStore);
@@ -130,8 +137,8 @@ export class Data implements OnInit {
       yearsOfExperience: [0, Validators.min(0)],
       availabilityStatus: ['AVAILABLE', Validators.required],
       specialty: ['', Validators.required],
-      country: ['السعودية', Validators.required],
-      city: ['الرياض', Validators.required],
+      country: ['', Validators.required],
+      city: ['', Validators.required],
       address: [''],
       bio: ['', Validators.maxLength(500)],
       websiteUrl: ['', Validators.pattern(/^https?:\/\/.+/i)],
@@ -147,6 +154,8 @@ export class Data implements OnInit {
       notifyInApp: [true],
       notifyWhatsapp: [false]
     });
+
+    linkCountryCity(this.profileForm, this.destroyRef);
 
     this.contactForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -217,8 +226,8 @@ export class Data implements OnInit {
             hourlyRate: profile.hourlyRate || 0,
             yearsOfExperience: profile.yearsOfExperience || 0,
             availabilityStatus: profile.availabilityStatus || 'AVAILABLE',
-            country: profile.country || 'السعودية',
-            city: profile.city || 'الرياض',
+            country: normalizeCountry(profile.country),
+            city: profile.city || '',
             address: profile.location || '',
             websiteUrl: profile.websiteUrl || '',
             linkedinUrl: profile.linkedinUrl || '',

@@ -135,7 +135,7 @@ describe('provider setup AI suggestions', () => {
   it('normal save includes chosen skills; unselected suggestions are not sent', () => {
     component.aiSuggestedSkills.set(['CSS', 'TypeScript']);
     component.addAiSkill('CSS');
-    component.setupForm.patchValue({ profData: { expYears: '1 الى 3 سنوات', city: 'الرياض' }, specialties: { mainSpec: 'web' }, bank: { bankName: 'بنك', accountOwner: 'اسم', iban: 'SA123' }, agreements: { ackFinal: true } });
+    component.setupForm.patchValue({ profData: { expYears: '1 الى 3 سنوات', country: 'السعودية', city: 'الرياض' }, specialties: { mainSpec: 'web' }, bank: { bankName: 'بنك', accountOwner: 'اسم', iban: 'SA123' }, agreements: { ackFinal: true } });
     component.uploadedFrontId.set('existing-document');
     vi.spyOn(component, 'goToStep').mockImplementation(() => {});
     component.saveAndGoToTest();

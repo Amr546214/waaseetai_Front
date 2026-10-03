@@ -53,12 +53,8 @@
 					<div class="fld">
 						<label for="f-city">المدينة</label>
 						<select id="f-city" formControlName="city">
-							<option value="">اختر المدينة</option>
-							<option value="riyadh">الرياض</option>
-							<option value="jeddah">جدة</option>
-							<option value="dammam">الدمام</option>
-							<option value="mecca">مكة المكرمة</option>
-							<option value="medina">المدينة المنورة</option>
+							<option value="" disabled>{{ cityPlaceholder(profileForm.get('country')?.value) }}</option>
+							@for (cityName of citiesOf(profileForm.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
 						</select>
 					</div>
 					<div class="fld">
@@ -294,10 +290,16 @@
       <div class="inp-group"><label class="inp-label" for="pr-spec">التخصص الرئيسي<span
             class="req">*</span></label><input id="pr-spec" class="inp-field" formControlName="specialty"
           placeholder="مثال: تصميم الهوية البصرية"></div>
-      <div class="inp-group"><label class="inp-label" for="pr-country">الدولة<span class="req">*</span></label><input
-          id="pr-country" class="inp-field" formControlName="country"></div>
-      <div class="inp-group"><label class="inp-label" for="pr-city">المدينة<span class="req">*</span></label><input
-          id="pr-city" class="inp-field" formControlName="city"></div>
+      <div class="inp-group"><label class="inp-label" for="pr-country">الدولة<span class="req">*</span></label><select
+          id="pr-country" class="inp-field" formControlName="country">
+          <option value="" disabled>اختر الدولة</option>
+          @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
+        </select></div>
+      <div class="inp-group"><label class="inp-label" for="pr-city">المدينة<span class="req">*</span></label><select
+          id="pr-city" class="inp-field" formControlName="city">
+          <option value="" disabled>{{ cityPlaceholder(profileForm.get('country')?.value) }}</option>
+          @for (cityName of citiesOf(profileForm.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
+        </select></div>
     </div>
   </div>
 
@@ -659,25 +661,13 @@
       <div class="inp-group"><label class="inp-label" for="ct-whatsapp">رقم WhatsApp (اختياري)</label><input type="tel"
           id="ct-whatsapp" class="inp-field" formControlName="alternativePhone" placeholder="مطابق للجوال غالبا"
           dir="ltr"></div>
-      <div class="inp-group"><label class="inp-label">الدولة<span class="req">*</span></label><select class="inp-field">
-          <option selected>السعودية</option>
-          <option>الإمارات</option>
-          <option>الكويت</option>
-          <option>قطر</option>
-          <option>البحرين</option>
-          <option>عمان</option>
-          <option>مصر</option>
-          <option>الأردن</option>
-          <option>دولة أخرى</option>
+      <div class="inp-group"><label class="inp-label" for="ct-country">الدولة<span class="req">*</span></label><select id="ct-country" class="inp-field" [formControl]="$any(profileForm.get('country'))">
+          <option value="" disabled>اختر الدولة</option>
+          @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
         </select></div>
-      <div class="inp-group"><label class="inp-label" for="ct-city">مدينة الاقامة</label><select id="ct-city"
-          class="inp-field">
-          <option>الرياض</option>
-          <option>جدة</option>
-          <option>الدمام</option>
-          <option>مكة المكرمة</option>
-          <option>المدينة المنورة</option>
-          <option>الخبر</option>
+      <div class="inp-group"><label class="inp-label" for="ct-city">مدينة الاقامة</label><select id="ct-city" class="inp-field" [formControl]="$any(profileForm.get('city'))">
+          <option value="" disabled>{{ cityPlaceholder(profileForm.get('country')?.value) }}</option>
+          @for (cityName of citiesOf(profileForm.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
         </select></div>
     </div>
     <div class="actions-row"><button type="button" class="btn-primary" (click)="saveContact()">إرسال طلب تعديل</button>

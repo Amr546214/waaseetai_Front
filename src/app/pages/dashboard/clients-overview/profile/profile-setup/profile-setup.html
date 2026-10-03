@@ -137,8 +137,8 @@
 										class="text-amber-500">*</span></label>
 								<select formControlName="country"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all appearance-none">
-									<option value="السعودية">السعودية</option>
-									<option value="غير ذلك">غير ذلك</option>
+									<option value="" disabled>اختر الدولة</option>
+									@for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
 								</select>
 							</div>
 							<div class="flex flex-col gap-2">
@@ -146,10 +146,8 @@
 										class="text-amber-500">*</span></label>
 								<select formControlName="city"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all appearance-none">
-									<option value="">اختر المدينة</option>
-									<option value="الرياض">الرياض</option>
-									<option value="جدة">جدة</option>
-									<option value="الدمام">الدمام</option>
+									<option value="" disabled>{{ cityPlaceholder(setupForm.get('details')?.get('country')?.value) }}</option>
+									@for (cityName of citiesOf(setupForm.get('details')?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
 								</select>
 							</div>
 							<div class="flex flex-col gap-2 md:col-span-2">

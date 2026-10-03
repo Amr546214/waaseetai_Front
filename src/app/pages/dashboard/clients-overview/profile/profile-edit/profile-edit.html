@@ -793,25 +793,16 @@
 								class="text-cyan-500">*</span></label>
 						<select formControlName="country"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
-							<option>السعودية</option>
-							<option>الإمارات</option>
-							<option>الكويت</option>
-							<option>قطر</option>
-							<option>البحرين</option>
-							<option>عمان</option>
-							<option>مصر</option>
-							<option>الأردن</option>
+							<option value="" disabled>اختر الدولة</option>
+							@for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
 						</select>
 					</div>
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">مدينة الإقامة</label>
 						<select formControlName="city"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
-							<option>الرياض</option>
-							<option>جدة</option>
-							<option>الدمام</option>
-							<option>مكة المكرمة</option>
-							<option>المدينة المنورة</option>
+							<option value="" disabled>{{ cityPlaceholder(identityForm?.get('country')?.value) }}</option>
+							@for (cityName of citiesOf(identityForm?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
 						</select>
 					</div>
 				</div>
@@ -1051,25 +1042,16 @@
 								class="text-cyan-500">*</span></label>
 						<select formControlName="country"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
-							<option selected>السعودية</option>
-							<option>الإمارات</option>
-							<option>الكويت</option>
-							<option>قطر</option>
-							<option>البحرين</option>
-							<option>عمان</option>
-							<option>مصر</option>
-							<option>الأردن</option>
+							<option value="" disabled>اختر الدولة</option>
+							@for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
 						</select>
 					</div>
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">مدينة الإقامة</label>
 						<select formControlName="city"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
-							<option>الرياض</option>
-							<option>جدة</option>
-							<option>الدمام</option>
-							<option>مكة المكرمة</option>
-							<option>المدينة المنورة</option>
+							<option value="" disabled>{{ cityPlaceholder(contactForm?.get('country')?.value) }}</option>
+							@for (cityName of citiesOf(contactForm?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
 						</select>
 					</div>
 				</div>
