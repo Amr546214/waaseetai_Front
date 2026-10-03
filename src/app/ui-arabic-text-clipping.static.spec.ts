@@ -125,3 +125,29 @@ describe('Arabic text vertical safety - no NEW tight clipped text', () => {
 		expect(stale, 'Remove fixed rules from the allow-list:\n' + stale.join('\n')).toEqual([]);
 	});
 });
+
+describe('hero + header buttons keep visible breathing room', () => {
+	const home = read(join(ROOT, 'src/app/pages/website/home/home-design.css'));
+	const nav = read(join(ROOT, 'src/app/sheards/navbar/navbar.css'));
+
+	it('hero h1 spans are inline-block with line-height >= 1.3 and padding-block (gradient text box)', () => {
+		const m = /app-home \.hero h1 \.gradient,app-home \.hero h1 \.hero-main-text\{([^}]*)\}/.exec(home);
+		expect(m, 'hero h1 span rule missing').toBeTruthy();
+		expect(m![1]).toMatch(/display:inline-block/);
+		expect(Number(/line-height:([0-9.]+)/.exec(m![1])![1])).toBeGreaterThanOrEqual(1.3);
+		expect(m![1]).toMatch(/padding-block:/);
+		expect(home).toMatch(/\.hero h1 \.gradient\{[^}]*background-clip:text/);
+	});
+
+	it.each([
+		['hero .btn-primary', home, /app-home \.btn-primary\{([^}]*)\}/],
+		['hero .btn-secondary', home, /app-home \.btn-secondary\{([^}]*)\}/],
+		['header .nav-cta-sm', nav, /\.nav-cta-sm\{([^}]*)\}/],
+		['header .btn-outline-sm', nav, /\.btn-outline-sm\{([^}]*)\}/],
+		['header .nav-link', nav, /\.nav-link\{([^}]*)\}/],
+	])('%s has line-height >= 1.4', (_n, css, re) => {
+		const m = re.exec(css);
+		expect(m).toBeTruthy();
+		expect(Number(/line-height:([0-9.]+)/.exec(m![1])![1])).toBeGreaterThanOrEqual(1.4);
+	});
+});

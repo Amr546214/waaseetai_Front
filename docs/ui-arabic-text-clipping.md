@@ -50,3 +50,13 @@ looked fine on one machine and clipped on another.
   the UI use the bundled font everywhere (and work offline) but visibly changes body text.
 * Hero headlines (`line-height:1.15`, 42-68px, inside `overflow:hidden` hero blocks) are not clipped today; 8 such
   cases are logged by the detector as "tight but not clipped".
+
+## Follow-up: visible hero / header / CTA breathing room
+
+The global font fix alone was hard to see in the hero, so the hero title and the buttons get explicit room too
+(screenshots: `docs/images/ui-arabic-text-clipping/*-before.png` vs `*-after.png`, 3x, Chromium):
+
+- `.hero h1 .gradient` / `.hero-main-text`: `display:inline-block; width:100%; line-height:1.35; padding-block:.14em` (gradient `background-clip:text` box now extends past the glyphs; before, the tail of «وسيط» fell 6.8px outside it at 68px).
+- Hero CTA buttons: `padding-block 19px` (mobile 12px + `min-height:56px`), `line-height:1.45`.
+- Header `.nav-cta-sm` / `.btn-outline-sm`: `inline-flex; align-items:center; line-height:1.45; padding-block 9px`; `.nav-link`: `line-height:1.45; padding-block 8px`.
+- Trade-off: hero title block is taller (~+32px per line on desktop); header stays 64px.
