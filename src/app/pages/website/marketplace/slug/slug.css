@@ -175,7 +175,7 @@ app-slug .sk-line.w40{width:40%}
 app-slug .svc-empty{grid-column:1/-1;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px 22px;text-align:center}
 app-slug .svc-empty h4{font-size:15px;font-weight:800;color:var(--txt);margin-bottom:6px}
 app-slug .svc-empty p{font-size:13px;color:var(--txt-2);line-height:1.6;margin-bottom:16px}
-app-slug .svc-empty button{display:inline-flex;align-items:center;justify-content:center;padding:9px 20px;border-radius:999px;background:var(--grad);color:#070D24;font-size:13px;font-weight:800}
+app-slug .svc-empty button,app-slug .svc-empty .svc-empty-cta{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:9px 20px;border-radius:999px;background:var(--grad);color:#070D24;font-size:13px;font-weight:800}
 
 /* PAGINATION */
 app-slug .pagination{display:flex;align-items:center;justify-content:center;gap:6px;padding:32px 0 0}
