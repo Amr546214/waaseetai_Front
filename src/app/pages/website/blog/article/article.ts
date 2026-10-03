@@ -112,11 +112,13 @@ export class BlogArticle {
   }
 
   onScroll(): void {
-    const body = this.document.getElementById('article-body');
-    if (body) {
-      const rect = body.getBoundingClientRect();
-      const scrolled = Math.max(0, -rect.top);
-      this.readProgress.set(rect.height ? Math.min(100, (scrolled / rect.height) * 100) : 0);
+    // Whole-page progress: scrollY / (scrollHeight - innerHeight) => 0% at the top, exactly 100% at
+    // the real end of the page (the article body alone never reaches its end while the footer and
+    // related-posts sections still add scroll distance after it).
+    const win = this.document.defaultView;
+    if (win) {
+      const maxScroll = this.document.documentElement.scrollHeight - win.innerHeight;
+      this.readProgress.set(maxScroll > 0 ? Math.min(100, Math.max(0, (win.scrollY / maxScroll) * 100)) : 0);
     }
     const items = this.tocItems();
     let active = items[0]?.id ?? '';
