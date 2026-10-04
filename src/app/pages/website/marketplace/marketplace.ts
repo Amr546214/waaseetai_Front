@@ -5,6 +5,7 @@ import { MarketplaceModel, MarketplaceService } from '../../../core/services/mar
 import { AuthStore } from '../../../core/store/auth.store';
 import { resolveProviderLevelBadgeStyle } from '../../../core/utils/provider-level-style.util';
 import { combineLatest, Subscription } from 'rxjs';
+import { SpecialtiesBar } from './specialties-bar/specialties-bar';
 
 interface CategoryPalette {
 	bg: string;
@@ -23,7 +24,7 @@ interface FilterDraft { cat: string; levels: string[]; rating: number; maxDays: 
 @Component({
 	selector: 'app-marketplace',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [CommonModule, RouterLink, SpecialtiesBar],
 	templateUrl: './marketplace.html',
 	styleUrl: './marketplace.css',
 	encapsulation: ViewEncapsulation.None

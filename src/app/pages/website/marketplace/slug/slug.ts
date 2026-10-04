@@ -5,6 +5,7 @@ import { MarketplaceModel, MarketplaceService } from '../../../../core/services/
 import { AuthStore } from '../../../../core/store/auth.store';
 import { resolveProviderLevelBadgeStyle } from '../../../../core/utils/provider-level-style.util';
 import { Subscription } from 'rxjs';
+import { SpecialtiesBar } from '../specialties-bar/specialties-bar';
 
 /** Unapplied filter edits made inside the drawer. */
 interface FilterDraft { sub: string; levels: string[]; rating: number; maxDays: number; maxPrice: number | null }
@@ -12,7 +13,7 @@ interface FilterDraft { sub: string; levels: string[]; rating: number; maxDays: 
 @Component({
 	selector: 'app-slug',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [CommonModule, RouterLink, SpecialtiesBar],
 	templateUrl: './slug.html',
 	styleUrl: './slug.css',
 	encapsulation: ViewEncapsulation.None

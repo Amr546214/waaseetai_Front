@@ -61,7 +61,7 @@ app-slug .hstat.c4 .hstat-n{color:var(--kahr)}
 app-slug .hstat.c5 .hstat-n{color:var(--teal)}
 
 /* SUBCATS STICKY */
-app-slug .subcats-wrap{position:sticky;top:64px;z-index:20;background:var(--header-bg);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+app-slug .subcats-wrap{position:sticky;top:116px;z-index:20;background:var(--header-bg);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
 app-slug .subcats-row{display:flex;align-items:center;gap:6px}
 app-slug .subcats-inner{display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:12px 0;flex:1;cursor:grab;user-select:none}
 app-slug .subcats-inner::-webkit-scrollbar{display:none}
