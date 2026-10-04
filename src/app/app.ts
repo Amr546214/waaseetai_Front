@@ -5,13 +5,14 @@ import { filter } from 'rxjs';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { AuthStore } from './core/store/auth.store';
 import { ConfirmModalComponent } from './sheards/confirm-modal/confirm-modal.component';
+import { NotificationHostComponent } from './shared/forms/notification-host.component';
 import { AssistantWidgetComponent } from './sheards/assistant-widget/assistant-widget';
 import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/assistant-visibility';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, AssistantWidgetComponent],
+	imports: [RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent],
 	styleUrl: './app.css',
 	template: `
 		<ng-container *ngIf="authStore.isInitialized$ | async">
@@ -27,6 +28,7 @@ import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/a
 		</div>
 
 		<app-confirm-modal />
+		<app-notification-host />
 
 		<!-- The ONE floating assistant (Bebo) for the whole site: signed-in users get the
 		     full assistant, visitors get the robot + a login prompt, and routes flagged
