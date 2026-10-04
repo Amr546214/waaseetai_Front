@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -11,13 +11,29 @@ import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
+import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../../../core/forms/form-helpers';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { httpUrlValidator } from '../../../../../core/forms/url.validator';
+import { IMAGE_MIMES, MB, validateFile } from '../../../../../core/forms/file-validation';
+import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
+import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+
+const PROFILE_LABELS: Record<string, string> = {
+	firstName: 'الاسم الأول',
+	lastName: 'الاسم الأخير',
+	website: 'موقع الشركة',
+	bio: 'النبذة التعريفية',
+	alternativePhone: 'رقم WhatsApp',
+	city: 'مدينة الإقامة',
+	country: 'الدولة',
+};
 
 type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security';
 
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })
@@ -30,6 +46,9 @@ export class ProfileEdit {
 	authStore = inject(AuthStore);
 	profileApi = inject(ProfileApiService);
 	fb = inject(FormBuilder);
+	private readonly host = inject(ElementRef<HTMLElement>);
+	/** What is missing after a failed save attempt (shown by <ws-form-summary>). */
+	missing = signal<InvalidField[]>([]);
 
 	activeTab = signal<Tab>('profile');
 	/** PayPal is the only supported receiving method ('wallet' = PayPal); 'bank' is shown disabled. */
@@ -186,11 +205,13 @@ export class ProfileEdit {
 			companyName: [''],
 			companySize: [''],
 			industry: [''],
-			website: ['', [Validators.pattern('https?://.+')]],
+			// Backend updateProfileSchema: website must be a URL, bio max 1000 (names min 2, above).
+			website: ['', [httpUrlValidator]],
 			bio: ['', [Validators.maxLength(1000)]],
-			portfolioUrl: ['', [Validators.pattern('https?://.+')]],
-			linkedinUrl: [''],
-			personalWebsiteUrl: ['', [Validators.pattern('https?://.+')]],
+			// The fields below are shown but NOT persisted for a client (see CLIENT_UNSAVED_FIELDS).
+			portfolioUrl: ['', [httpUrlValidator]],
+			linkedinUrl: ['', [httpUrlValidator]],
+			personalWebsiteUrl: ['', [httpUrlValidator]],
 			interfaceLanguage: ['العربية'],
 			timezone: ['(GMT+3) توقيت الرياض']
 		});
@@ -212,11 +233,13 @@ export class ProfileEdit {
 			// skills and portfolioLinks handled separately or explicitly mapped
 		});
 
+		// Only the name is saved by PUT /profiles/update/basics (the backend ignores email/phone: the verification flow
+		// for them does not exist yet), so those two are read-only and never sent.
 		this.basicsForm = this.fb.group({
-			firstName: [''],
-			lastName: [''],
-			email: [''],
-			phoneNumber: ['']
+			firstName: ['', [Validators.minLength(2)]],
+			lastName: ['', [Validators.minLength(2)]],
+			email: [{ value: '', disabled: true }],
+			phoneNumber: [{ value: '', disabled: true }]
 		});
 
 		this.identityForm = this.fb.group({
@@ -227,9 +250,10 @@ export class ProfileEdit {
 			city: ['']
 		});
 
+		// PUT /profiles/update/contact saves only alternativePhone (and city); email, phone and country are ignored.
 		this.contactForm = this.fb.group({
-			email: [''],
-			phoneNumber: [''],
+			email: [{ value: '', disabled: true }],
+			phoneNumber: [{ value: '', disabled: true }],
 			alternativePhone: [''],
 			country: [''],
 			city: ['']
@@ -325,6 +349,9 @@ export class ProfileEdit {
 	}
 
 	switchTab(tab: Tab) {
+		this.missing.set([]);
+		this.errorMsg.set('');
+		this.successMsg.set('');
 		this.activeTab.set(tab);
 	}
 
@@ -352,8 +379,10 @@ export class ProfileEdit {
 	onAvatarUpload(event: Event) {
 		const file = (event.target as HTMLInputElement).files?.[0];
 		if (file) {
-			if (file.size > 5 * 1024 * 1024) {
-				this.errorMsg.set('حجم الصورة يجب أن لا يتجاوز 5MB');
+			const problem = validateFile(file, { maxBytes: 5 * MB, mimeTypes: IMAGE_MIMES, typesLabel: 'JPG أو PNG أو WEBP' });
+			if (problem) {
+				this.errorMsg.set(`الصورة الشخصية: ${problem}`);
+				(event.target as HTMLInputElement).value = '';
 				return;
 			}
 			const reader = new FileReader();
@@ -412,22 +441,42 @@ export class ProfileEdit {
 		}
 	}
 
+	/**
+	 * Fields of the client form that PUT /profiles/update does not persist for a CLIENT (the zod schema drops them) or
+	 * cannot store (linkedinUrl is a provider column: the CLIENT upsert would hit an unknown column). They are shown
+	 * disabled with a notice and never sent.
+	 */
+	static readonly CLIENT_UNSAVED_FIELDS = ['portfolioUrl', 'linkedinUrl', 'personalWebsiteUrl', 'interfaceLanguage', 'timezone'];
+
+	private root(): HTMLElement {
+		return this.host.nativeElement as HTMLElement;
+	}
+
+	/** Server rejection -> Arabic message; zod-style field errors go on the matching inputs. */
+	private showSaveError(form: FormGroup, err: unknown, fallback: string) {
+		const mapped = mapHttpError(err, { fallback });
+		const unmatched = applyServerFieldErrors(form, mapped.fieldErrors);
+		this.errorMsg.set(Object.keys(mapped.fieldErrors).length && !unmatched.length ? 'يرجى تصحيح الحقول المحددة أدناه' : mapped.message);
+		if (Object.keys(mapped.fieldErrors).length) {
+			setTimeout(() => this.missing.set(attemptSubmit(form, { root: this.root(), labels: PROFILE_LABELS }).missing), 30);
+		}
+	}
+
 	saveProfile() {
 		this.errorMsg.set('');
 		this.successMsg.set('');
 
 		let payload: any = {};
+		const form = this.isClient ? this.clientForm : this.providerForm;
+		const attempt = attemptSubmit(form, { root: this.root(), labels: PROFILE_LABELS });
+		this.missing.set(attempt.missing);
+		if (!attempt.valid) return;
+
 		if (this.isClient) {
-			if (this.clientForm.invalid) {
-				this.errorMsg.set('يرجى التأكد من صحة البيانات المدخلة (مثال: رابط الموقع يجب أن يبدأ بـ http)');
-				return;
-			}
-			payload = { ...this.clientForm.value, interests: this.interests() };
+			// Only what the backend stores for a client (see CLIENT_UNSAVED_FIELDS).
+			const { portfolioUrl, linkedinUrl, personalWebsiteUrl, interfaceLanguage, timezone, ...saved } = this.clientForm.value;
+			payload = saved;
 		} else {
-			if (this.providerForm.invalid) {
-				this.errorMsg.set('يرجى التأكد من صحة البيانات المدخلة');
-				return;
-			}
 			payload = { ...this.providerForm.value, skills: this.skills(), interests: this.interests() };
 			// Ensure numeric rate
 			if (payload.hourlyRate) payload.hourlyRate = Number(payload.hourlyRate);
@@ -446,7 +495,7 @@ export class ProfileEdit {
 			},
 			error: (err) => {
 				this.isSaving.set(false);
-				this.errorMsg.set(err.error?.message || 'فشل الحفظ، يرجى المحاولة مرة أخرى');
+				this.showSaveError(form, err, 'فشل الحفظ، يرجى المحاولة مرة أخرى');
 			}
 		});
 	}
@@ -467,6 +516,13 @@ export class ProfileEdit {
 
 		if (!form) return;
 
+		if (tabName === 'identity') {
+			// The backend saves nothing for this tab and flags the account as PENDING_VERIFICATION, which would lock
+			// the user out until an OTP: it is disabled in the template and guarded here too (Enter key).
+			this.errorMsg.set('تعديل بيانات الهوية غير متاح حاليًا من هذه الصفحة. لإرسال وثائق الهوية استخدم "استكمال البيانات".');
+			return;
+		}
+
 		if (tabName === 'banking') {
 			// PayPal email only; legacy bank/wallet values are never sent (no empty overwrite).
 			form.markAllAsTouched();
@@ -480,19 +536,25 @@ export class ProfileEdit {
 			}
 			payload = { paypalPayoutEmail: String(this.bankingForm.value.paypalEmail || '').trim() };
 		} else {
-			if (form.invalid) {
-				this.errorMsg.set('يرجى التأكد من صحة البيانات المدخلة');
-				return;
-			}
-			payload = form.value;
+			const attempt = attemptSubmit(form, { root: this.root(), labels: PROFILE_LABELS });
+			this.missing.set(attempt.missing);
+			if (!attempt.valid) return;
+			// Send only what the backend stores for the tab (everything else is ignored there).
+			if (tabName === 'basics') payload = { firstName: form.getRawValue().firstName, lastName: form.getRawValue().lastName };
+			else if (tabName === 'contact') payload = { alternativePhone: form.getRawValue().alternativePhone, city: form.getRawValue().city };
+			else payload = form.value;
 		}
 
+		const doneMessage: Record<string, string> = {
+			basics: 'تم حفظ الاسم بنجاح',
+			contact: 'تم حفظ رقم WhatsApp والمدينة بنجاح',
+		};
 		this.isSaving.set(true);
 		this.profileApi.updateTab(tabName, payload).subscribe({
 			next: (res) => {
 				this.isSaving.set(false);
 				if (res.success) {
-					this.successMsg.set(res.message || 'تم إرسال الطلب بنجاح');
+					this.successMsg.set(doneMessage[tabName] || res.message || 'تم إرسال الطلب بنجاح');
 					setTimeout(() => this.successMsg.set(''), 5000);
 				} else {
 					this.errorMsg.set(res.message || 'حدث خطأ أثناء الحفظ');
@@ -500,7 +562,7 @@ export class ProfileEdit {
 			},
 			error: (err) => {
 				this.isSaving.set(false);
-				this.errorMsg.set(err.error?.message || 'فشل الإرسال، يرجى المحاولة مرة أخرى');
+				this.showSaveError(form!, err, 'فشل الإرسال، يرجى المحاولة مرة أخرى');
 			}
 		});
 	}

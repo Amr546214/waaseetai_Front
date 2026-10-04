@@ -132,18 +132,21 @@
 				<div>
 					<div class="av-btns">
 						<input type="file" hidden #avatarInput accept="image/png, image/jpeg"
-							(change)="onAvatarChange($event)">
+							(change)="onAvatarChange($event)" data-testid="avatar-input">
 						<button type="button" class="av-btn av-btn-p" [disabled]="savingProfile()" (click)="avatarInput.click()">رفع صورة
 							جديدة</button>
 						<button type="button" class="av-btn" [disabled]="savingProfile()" (click)="removeAvatar()">حذف الصورة</button>
 					</div>
-					<div style="font-size:11px;margin-top:4px" class="txt-muted">JPG او PNG، 400x400 بكسل، حجم اقصى 5MB
-					</div>
+					<div style="font-size:11px;margin-top:4px" class="txt-muted">JPG او PNG، يفضل 400x400 بكسل، حجم اقصى 5MB
+						</div>
+						@if (avatarError(); as avErr) {
+						<span class="field-error" role="alert" data-testid="avatar-error">{{ avErr }}</span>
+						}
 				</div>
 			</div>
 		</div>
 
-		<div class="form-card" [formGroup]="marketingForm">
+		<div class="form-card" [formGroup]="marketingForm" data-form="marketing">
 			<div class="form-card-hdr">
 				<div class="form-card-ico"><svg aria-hidden="true">
 						<use href="#i-person"></use>
@@ -157,7 +160,8 @@
 				<label class="inp-label" for="af-bio">وصف تسويقي مختصر</label>
 				<textarea id="af-bio" class="inp-field" [appBioField]="500" formControlName="bio"
 					placeholder="اكتب وصفا مختصرا عن تخصصك التسويقي وجمهورك المستهدف..."></textarea>
-			</div>
+					<ws-field-error [control]="marketingForm.get('bio')" label="الوصف التسويقي" />
+				</div>
 		</div>
 
 		<div class="form-card">
@@ -176,19 +180,23 @@
 					<div class="channel-status ok" title="محقق"></div>
 					<span class="channel-name">{{ channel.platform }}</span>
 					<span class="channel-handle">{{ channel.handle }}</span>
-					<button type="button" class="channel-edit" disabled title="قريباً">تعديل</button>
+					<button type="button" class="channel-edit" disabled title="تعديل القناة غير متاح حاليًا">تعديل</button>
 					<button type="button" class="channel-remove" [disabled]="removingChannelId() === channel.id" (click)="removeChannel(channel.id)">{{ removingChannelId() === channel.id ? 'جارٍ الحذف...' : 'حذف' }}</button>
 				</div>
 				}
-				@if (channels().length === 0) {
+				@if (channels().length > 0) {
+					<div style="font-size:11px;padding:4px 2px" class="txt-muted" data-testid="channel-edit-note">تعديل القناة غير متاح حاليًا، لتغيير قناة احذفها وأضفها من جديد</div>
+					}
+					@if (channels().length === 0) {
 				<div style="font-size:12px;text-align:center;padding:10px" class="txt-muted">لا توجد قنوات تسويقية مضافة
 				</div>
 				}
 			</div>
-			<div style="margin-top:14px" [formGroup]="channelForm">
+			<div style="margin-top:14px" [formGroup]="channelForm" data-form="channel">
 				<div style="font-size:12px;font-weight:700;margin-bottom:8px" class="txt-slate">اضافة قناة جديدة</div>
 				<div style="display:flex;gap:8px;flex-wrap:wrap">
-					<select formControlName="platform"
+						<div style="display:flex;flex-direction:column">
+						<select formControlName="platform"
 						style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif;cursor:pointer"
 						aria-label="نوع القناة" class="txt-white">
 						<option value="">اختر القناة</option>
@@ -198,19 +206,26 @@
 						<option value="WHATSAPP">WhatsApp</option>
 						<option value="TWITTER">Twitter / X</option>
 						<option value="INSTAGRAM">Instagram</option>
-					</select>
-					<input type="text" formControlName="handle"
+						</select>
+						<ws-field-error [control]="channelForm.get('platform')" [messages]="{ required: 'اختر نوع القناة' }" />
+						</div>
+						<div style="display:flex;flex-direction:column;flex:1;min-width:160px">
+						<input type="text" formControlName="handle"
 						style="flex:1;min-width:160px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif"
 						placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-label="معرف القناة" class="txt-white">
-					<button type="button" (click)="addChannel()"
+						<ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها' }" />
+						</div>
+						<button type="button" (click)="addChannel()"
 						style="padding:9px 16px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap"
-						[disabled]="!channelForm.valid || addingChannel()" class="txt-teal">{{ addingChannel() ? 'جارٍ الإضافة...' : 'اضافة' }}</button>
-				</div>
+						[disabled]="addingChannel()" class="txt-teal">{{ addingChannel() ? 'جارٍ الإضافة...' : 'اضافة' }}</button>
+					</div>
+					<ws-form-summary [items]="channelMissing()" />
 			</div>
 		</div>
 
+		<ws-form-summary [items]="missing()" />
 		<div class="actions-row">
-			<button type="button" class="btn-primary" [disabled]="savingProfile()" (click)="saveMarketingProfile()">{{ savingProfile() ? 'جارٍ الحفظ...' : 'حفظ الملف التسويقي' }}</button>
+			<button type="button" class="btn-primary" [disabled]="savingProfile()" (click)="submitMarketingProfile()">{{ savingProfile() ? 'جارٍ الحفظ...' : 'حفظ الملف التسويقي' }}</button>
 			<button type="button" class="btn-secondary" (click)="cancelAndReturn()">الغاء والعودة</button>
 		</div>
 	</div>
@@ -219,6 +234,9 @@
 	<!-- البيانات الاساسية -->
 	@if (activeTab() === 'basics') {
 	<div class="prof-tab-panel active" role="tabpanel" [formGroup]="basicsForm">
+		@if (identityPending()) {
+		<div class="pending-note" role="status" data-testid="identity-pending">طلب تعديل بياناتك الأساسية قيد المراجعة، لن تتغير البيانات المعروضة قبل اعتماده. يمكنك متابعته من "طلباتي السابقة".</div>
+		}
 		<div class="form-card">
 			<div class="form-card-hdr">
 				<div class="form-card-ico"><svg aria-hidden="true">
@@ -226,7 +244,7 @@
 					</svg></div>
 				<div>
 					<div class="form-card-title">البيانات الاساسية والهوية</div>
-					<div class="form-card-sub">تغيير البريد والجوال يتطلب OTP، الهوية مطلوبة للعمليات الرسمية</div>
+					<div class="form-card-sub">أدخل القيمة الجديدة للحقل الذي تريد تغييره فقط، الحقول التي تتركها كما هي لا تتغير</div>
 				</div>
 			</div>
 			<div class="gov-bar">
@@ -238,27 +256,29 @@
 			</div>
 			<div class="form-grid form-col-2">
 				<div class="inp-group"><label class="inp-label" for="af-fname">الاسم الاول</label><input type="text"
-						id="af-fname" class="inp-field" formControlName="firstName"></div>
+						id="af-fname" class="inp-field" formControlName="firstName"><ws-field-error [control]="basicsForm.get('firstName')" label="الاسم الأول" /></div>
 				<div class="inp-group"><label class="inp-label" for="af-lname">اسم العائلة</label><input type="text"
-						id="af-lname" class="inp-field" formControlName="lastName"></div>
-				<div class="inp-group"><label class="inp-label" for="af-email">البريد الالكتروني<span
-							class="req">*</span></label><input type="email" id="af-email" class="inp-field"
-						[value]="profile()?.user?.email || ''" dir="ltr" readonly></div>
-				<div class="inp-group"><label class="inp-label" for="af-phone">رقم الجوال<span
-							class="req">*</span></label><input type="tel" id="af-phone" class="inp-field"
-						formControlName="phoneNumber"
-						dir="ltr"><span class="inp-hint">يقبل ارقام دولية</span></div>
+						id="af-lname" class="inp-field" formControlName="lastName"><ws-field-error [control]="basicsForm.get('lastName')" label="اسم العائلة" /></div>
+				<div class="inp-group"><label class="inp-label" for="af-email">البريد الالكتروني</label><input type="email" id="af-email" class="inp-field"
+							[value]="profile()?.user?.email || ''" dir="ltr" readonly><span class="inp-hint" data-testid="email-readonly-hint">لا يمكن تغيير البريد الإلكتروني من هذه الصفحة</span></div>
+				<div class="inp-group"><label class="inp-label" for="af-phone">رقم الجوال</label><input type="tel" id="af-phone" class="inp-field"
+							formControlName="phoneNumber"
+							dir="ltr"><span class="inp-hint">يقبل ارقام دولية، حتى 20 خانة</span>
+						<ws-field-error [control]="basicsForm.get('phoneNumber')" label="رقم الجوال" /></div>
 				<div class="inp-group"><label class="inp-label" for="af-nid">رقم الهوية الوطنية</label><input
-						type="text" id="af-nid" class="inp-field" placeholder="1XXXXXXXXX" maxlength="10" dir="ltr"
-						formControlName="nationalId"></div>
+						type="text" id="af-nid" class="inp-field" dir="ltr"
+							formControlName="nationalId"><span class="inp-hint">رقم الهوية أو الإقامة، حتى 20 خانة</span>
+						<ws-field-error [control]="basicsForm.get('nationalId')" label="رقم الهوية الوطنية" /></div>
 				<div class="inp-group"><label class="inp-label" for="af-nat">الجنسية / الدولة</label><select id="af-nat"
-						class="inp-field">
-						<option>سعودي</option>
-						<option>مقيم في السعودية</option>
-						<option>خارج السعودية</option>
-					</select></div>
+							class="inp-field" disabled aria-describedby="af-nat-note">
+							<option value="">غير متاح</option>
+						</select><span class="inp-hint" id="af-nat-note" data-testid="nationality-note">تعديل الجنسية غير متاح حاليًا، ولا يتم إرسالها مع طلب التعديل</span></div>
 			</div>
-			<div class="actions-row"><button type="button" class="btn-primary" [disabled]="submittingBasics() || basicsForm.invalid" (click)="submitBasicsChangeRequest()">{{ submittingBasics() ? 'جارٍ الإرسال...' : 'إرسال طلب تعديل' }}</button></div>
+			<ws-form-summary [items]="missing()" />
+				@if (tabNotice(); as notice) {
+				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:12px;margin:8px 0">{{ notice }}</div>
+				}
+				<div class="actions-row"><button type="button" class="btn-primary" [disabled]="submittingBasics()" (click)="submitBasicsChangeRequest()">{{ submittingBasics() ? 'جارٍ الإرسال...' : 'إرسال طلب تعديل' }}</button></div>
 		</div>
 	</div>
 	}
@@ -291,9 +311,10 @@
 				</div>
 				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="aff-desc">وصف الحملة /
 						رسالة الاحالة</label><textarea id="aff-desc" class="inp-field"
-						placeholder="رسالة تسويقية مخصصة لعرضها مع رابط الاحالة..." maxlength="300"></textarea></div>
+						placeholder="رسالة تسويقية مخصصة لعرضها مع رابط الاحالة..." maxlength="300" disabled></textarea></div>
 			</div>
-			<div class="actions-row"><button type="button" class="btn-primary" disabled title="قريباً">حفظ بيانات الاحالة</button></div>
+			<div class="inp-hint" data-testid="referral-save-note" style="margin-top:8px">حفظ رسالة الإحالة غير متاح حاليًا لأن الخادم لا يدعم حفظها بعد، لذلك الحقل والزر معطلان.</div>
+				<div class="actions-row"><button type="button" class="btn-primary" disabled title="غير متاح حاليًا">حفظ بيانات الاحالة</button></div>
 		</div>
 
 		<div class="form-card">
@@ -306,8 +327,11 @@
 					<div class="form-card-sub">انشر رابط كل قناة وتابع أداءها، كل من يفتح الرابط يحول لموقع وسيط AI</div>
 				</div>
 			</div>
-			<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-				@for (p of referralSocialLinks(); track p.src) {
+			@if (!referralLink()) {
+				<div class="inp-hint" data-testid="referral-link-note" style="margin-bottom:8px">رابط الإحالة غير جاهز بعد، لذلك أزرار النسخ معطلة حتى يُنشأ كود الإحالة.</div>
+				}
+				<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+					@for (p of referralSocialLinks(); track p.src) {
 				<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
 					<span style="min-width:90px;font-size:12px;font-weight:700" class="txt-slate">{{ p.name }}</span>
 					<input type="text" class="inp-field" readonly dir="ltr" [value]="p.link"
@@ -413,7 +437,10 @@
 	<!-- البنكية والمستندات -->
 	@if (activeTab() === 'banking') {
 	<div class="prof-tab-panel active" role="tabpanel">
-		<div class="form-card" [formGroup]="bankForm">
+			@if (bankPending()) {
+			<div class="pending-note" role="status" data-testid="bank-pending">طلب تعديل بياناتك البنكية قيد المراجعة، ولن تُطبَّق القيم الجديدة قبل اعتماده. يمكنك متابعته من "طلباتي السابقة".</div>
+			}
+			<div class="form-card" [formGroup]="bankForm">
 			<div class="form-card-hdr">
 				<div class="form-card-ico"><svg aria-hidden="true">
 						<use href="#i-wallet"></use>
@@ -434,38 +461,44 @@
 				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afbk-holder">اسم صاحب
 						الحساب (كما في البنك)<span class="req">*</span></label><input type="text" id="afbk-holder"
 						class="inp-field" placeholder="الاسم الثلاثي كما في البطاقة"
-						formControlName="accountHolderName"></div>
+						formControlName="accountHolderName"><ws-field-error [control]="bankForm.get('accountHolderName')" label="اسم صاحب الحساب" /></div>
 				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afbk-iban">رقم IBAN
 						للسحب<span class="req">*</span></label>
-					<div style="display:flex;align-items:center;gap:6px"><span
-							style="padding:10px 12px;font-size:13px;font-weight:700;flex-shrink:0" class="badge-teal">SA</span><input
-							type="text" id="afbk-iban" class="inp-field" placeholder="XX XXXX XXXX XXXX XXXX XXXX"
-							maxlength="24" dir="ltr" formControlName="iban"
-							[attr.aria-invalid]="bankForm.get('iban')?.invalid && bankForm.get('iban')?.touched"></div>
-					@if (bankForm.get('iban')?.invalid && bankForm.get('iban')?.touched) {
-						<span class="field-error">أدخل رقم IBAN صالحًا (رمز الدولة، رقما التحقق، ثم رقم الحساب)</span>
-					}
+					<input type="text" id="afbk-iban" class="inp-field" placeholder="SA00 0000 0000 0000 0000 0000"
+								maxlength="42" dir="ltr" formControlName="iban" autocomplete="off"
+								[attr.aria-invalid]="bankForm.get('iban')?.invalid && bankForm.get('iban')?.touched">
+						<span class="inp-hint" data-testid="iban-hint">اكتب الرقم كاملًا بما فيه رمز الدولة (مثل SA) ثم رقما التحقق ورقم الحساب</span>
+						<ws-field-error [control]="bankForm.get('iban')" label="رقم IBAN" [messages]="{ iban: 'رقم IBAN غير صحيح، اكتبه كاملًا بما فيه رمز الدولة (مثل SA)', maxlength: 'رقم IBAN لا يزيد على 34 حرفًا' }" />
 				</div>
-				<div class="inp-group"><label class="inp-label" for="afbk-bank">اسم البنك</label><select id="afbk-bank"
-						class="inp-field" formControlName="bankName">
-						<option value="">اختر البنك</option>
+				<div class="inp-group"><label class="inp-label" for="afbk-bank">اسم البنك<span class="req">*</span></label><select id="afbk-bank"
+							class="inp-field" formControlName="bankName">
+							<option value="">اختر البنك</option>
+							@if (extraBankOption(); as extra) {
+							<option [value]="extra">{{ extra }}</option>
+							}
 						<option value="البنك الاهلي السعودي">البنك الاهلي السعودي</option>
 						<option value="مصرف الراجحي">مصرف الراجحي</option>
 						<option value="بنك الرياض">بنك الرياض</option>
 						<option value="STC Pay">STC Pay</option>
-					</select></div>
+						</select>
+						<ws-field-error [control]="bankForm.get('bankName')" label="اسم البنك" [messages]="{ required: 'اختر اسم البنك' }" /></div>
 			</div>
 			<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
-				<div style="font-size:13px;font-weight:700;margin-bottom:10px" class="txt-slate">المستندات والاقرارات</div>
+				<div style="font-size:13px;font-weight:700;margin-bottom:6px" class="txt-slate">المستندات والاقرارات</div>
+					<div class="inp-hint" data-testid="docs-note" style="margin-bottom:10px">رفع المستندات غير متاح حاليًا ولا يُرسل أي مستند مع هذا الطلب، لذلك الحقلان معطلان.</div>
 				<div class="form-grid form-col-2">
 					<div class="inp-group"><label class="inp-label" for="afdoc-front">هوية وطنية، وجه</label><input
-							type="file" id="afdoc-front" class="inp-field" accept=".jpg,.png"></div>
+							type="file" id="afdoc-front" class="inp-field" accept=".jpg,.png" disabled></div>
 					<div class="inp-group"><label class="inp-label" for="afdoc-back">هوية وطنية، ظهر</label><input
-							type="file" id="afdoc-back" class="inp-field" accept=".jpg,.png"></div>
+							type="file" id="afdoc-back" class="inp-field" accept=".jpg,.png" disabled></div>
 				</div>
 			</div>
-			<div class="actions-row"><button type="button" class="btn-primary"
-					(click)="openGovernedEdit('البيانات البنكية والمستندات')">إرسال طلب تعديل</button></div>
+			<ws-form-summary [items]="missing()" />
+				@if (tabNotice(); as notice) {
+				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:12px;margin:8px 0">{{ notice }}</div>
+				}
+				<div class="actions-row"><button type="button" class="btn-primary"
+						(click)="openGovernedEdit('البيانات البنكية والمستندات')">إرسال طلب تعديل</button></div>
 		</div>
 	</div>
 	}
@@ -501,25 +534,31 @@
 						كلمة المرور</button>
 				</div>
 				@if (passwordFormVisible()) {
-				<div [formGroup]="passwordForm" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
+				<div [formGroup]="passwordForm" data-form="password" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
 					<div class="form-grid form-col-2">
 						<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="mkt-pwd-old">كلمة المرور الحالية<span class="req">*</span></label>
-							<input type="password" id="mkt-pwd-old" class="inp-field" formControlName="currentPassword" autocomplete="current-password" dir="ltr"></div>
+							<input type="password" id="mkt-pwd-old" class="inp-field" formControlName="currentPassword" autocomplete="current-password" dir="ltr">
+								<ws-field-error [control]="passwordForm.get('currentPassword')" label="كلمة المرور الحالية" /></div>
 						<div class="inp-group"><label class="inp-label" for="mkt-pwd-new">كلمة المرور الجديدة<span class="req">*</span></label>
 							<input type="password" id="mkt-pwd-new" class="inp-field" formControlName="newPassword" autocomplete="new-password" dir="ltr">
 							<div class="pwd-strength"><div class="pwd-strength-bar" [style.width.%]="passwordStrength().percent" [style.background]="passwordStrength().color"></div></div>
-							<div class="pwd-strength-lbl">{{ passwordStrength().label }} — استخدم 3 أنواع من الأحرف والأرقام والرموز</div>
+							<div class="pwd-strength-lbl">{{ passwordStrength().label }} — من 8 إلى 72 حرفًا مع 3 أنواع على الأقل من: أحرف صغيرة، كبيرة، أرقام، رموز</div>
+								<ws-field-error [control]="passwordForm.get('newPassword')" label="كلمة المرور الجديدة" [messages]="{ groups: 'استخدم ثلاثة أنواع على الأقل: أحرف صغيرة وكبيرة وأرقام ورموز' }" />
 						</div>
 						<div class="inp-group"><label class="inp-label" for="mkt-pwd-conf">تأكيد كلمة المرور الجديدة<span class="req">*</span></label>
 							<input type="password" id="mkt-pwd-conf" class="inp-field" formControlName="confirmPassword" autocomplete="new-password" dir="ltr">
-							@if (passwordForm.get('confirmPassword')?.hasError('mismatch')) {<span class="field-error">كلمتا المرور غير متطابقتين</span>}
+							<ws-field-error [control]="passwordForm.get('confirmPassword')" label="تأكيد كلمة المرور الجديدة" [messages]="{ mismatch: 'كلمتا المرور غير متطابقتين' }" />
 						</div>
 					</div>
-					<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isChangingPassword()" (click)="changePassword()">{{ isChangingPassword() ? 'جاري التغيير...' : 'حفظ كلمة المرور الجديدة' }}</button></div>
+					<ws-form-summary [items]="missing()" />
+						<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isChangingPassword()" (click)="changePassword()">{{ isChangingPassword() ? 'جاري التغيير...' : 'حفظ كلمة المرور الجديدة' }}</button></div>
 				</div>
 				}
 			</div>
 			<div style="font-size:12px;font-weight:700;margin-bottom:10px" class="txt-slate">تفضيلات التنبيهات</div>
+				@if (alertsLoadFailed()) {
+				<div class="inp-hint" role="status" data-testid="alerts-load-note" style="margin-bottom:8px">تعذر تحميل تفضيلاتك المحفوظة، تُعرض القيم الافتراضية، وحفظ الإعدادات سيستبدل المحفوظ.</div>
+				}
 			<div style="display:flex;flex-direction:column;gap:8px">
 				<label
 					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه

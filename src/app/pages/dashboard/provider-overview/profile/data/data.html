@@ -26,150 +26,10 @@
 		</a>
 	</div>
 
-	<div class="notice">
-		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-		<p>تعديل <strong>الاسم التجاري</strong> و<strong>السجل التجاري</strong> و<strong>التخصصات</strong> يُنشئ طلب تعديل يُراجع من فريق وسيط AI. باقي الحقول تُحدَّث مباشرة. تابع حالة الطلب من <a routerLink="/provider-overview/profile/requests" style="text-decoration:underline" class="txt-amber">طلبات التعديل</a>.</p>
-	</div>
-
-	<form (ngSubmit)="saveProfile()" [formGroup]="profileForm">
-		<div class="grid2">
-			<div class="co-card" style="margin-bottom:0">
-				<div class="sec-hd"><div class="sec-ttl">بيانات الشركة</div><span class="pill pill-gold">يحتاج مراجعة</span></div>
-				<div class="fld">
-					<label for="f-name">الاسم التجاري</label>
-					<input type="text" id="f-name" formControlName="firstName" placeholder="الاسم التجاري">
-				</div>
-				<div class="f2">
-					<div class="fld">
-						<label for="f-cr">رقم السجل التجاري</label>
-						<input type="text" id="f-cr" formControlName="commercialRegistration" placeholder="1010XXXXXX">
-					</div>
-					<div class="fld">
-						<label for="f-un">الرقم الموحّد للمنشأة</label>
-						<input type="text" id="f-un" formControlName="nationalAddress" placeholder="7001XXXXXX">
-					</div>
-				</div>
-				<div class="f2">
-					<div class="fld">
-						<label for="f-city">المدينة</label>
-						<select id="f-city" formControlName="city">
-							<option value="" disabled>{{ cityPlaceholder(profileForm.get('country')?.value) }}</option>
-							@for (cityName of citiesOf(profileForm.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
-						</select>
-					</div>
-					<div class="fld">
-						<label for="f-size">حجم الفريق</label>
-						<select id="f-size" formControlName="teamSize">
-							<option value="1-5">1 – 5</option>
-							<option value="6-15">6 – 15</option>
-							<option value="16-50">16 – 50</option>
-							<option value="50+">أكثر من 50</option>
-						</select>
-					</div>
-				</div>
-			</div>
-
-			<div class="co-card" style="margin-bottom:0">
-				<div class="sec-hd"><div class="sec-ttl">وصف الشركة</div></div>
-				<div class="fld">
-					<label for="f-tag">العنوان التعريفي القصير</label>
-					<input type="text" id="f-tag" formControlName="headline" placeholder="حلول برمجية وتحول رقمي للمنشآت">
-					<span class="fld-hint">يظهر تحت اسم الشركة في نتائج البحث — 80 حرفاً كحد أقصى</span>
-				</div>
-				<div class="fld">
-					<label for="f-desc">النبذة التفصيلية</label>
-					<textarea id="f-desc" [appBioField]="500" formControlName="bio" placeholder="اكتب نبذة عن شركتك..."></textarea>
-					<span class="fld-hint">اكتب ما يميّز شركتك فعلياً — تجنّب العبارات العامة</span>
-				</div>
-			</div>
+		<div class="co-card" role="status" data-testid="company-unavailable">
+			<div class="sec-hd"><div class="sec-ttl">تعديل بيانات الشركة غير متاح حاليًا</div></div>
+			<p style="font-size:13px;line-height:1.9" class="txt-slate">نموذج تعديل ملف الشركة (الاسم التجاري، السجل التجاري، التخصصات، بيانات التواصل، المستندات) لم يُفعَّل بعد، لذلك لا يمكن حفظ أي تعديلات من هذه الصفحة، ولن نعرض لك رسالة نجاح وهمية. للتعديل الآن تواصل مع الدعم من <a routerLink="/provider-overview/help" style="text-decoration:underline" class="txt-amber">المساعدة</a>.</p>
 		</div>
-
-		<div class="co-card">
-			<div class="sec-hd"><div class="sec-ttl">التخصصات</div><span class="pill pill-gold">التعديل يحتاج مراجعة</span></div>
-			<div style="font-size:11.5px;margin-bottom:12px" class="txt-slate">التخصصات المفعّلة تحدّد الطلبات التي تظهر لشركتك في استكشاف الطلبات</div>
-			<div class="chips">
-				@for (s of companySpecialties(); track s.name) {
-					<span [class.chip-sel]="s.selected" [class.chip-off]="!s.selected" (click)="toggleSpecialty(s.name)">
-						@if (s.selected) {
-							<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-						}
-						{{ s.name }}
-					</span>
-				}
-			</div>
-		</div>
-
-		<div class="grid2">
-			<div class="co-card" style="margin-bottom:0">
-				<div class="sec-hd"><div class="sec-ttl">بيانات التواصل</div><span class="pill pill-teal">تحديث مباشر</span></div>
-				<div class="fld">
-					<label for="f-mail">البريد الرسمي</label>
-					<input type="email" id="f-mail" formControlName="email" placeholder="info@company.example">
-				</div>
-				<div class="f2">
-					<div class="fld">
-						<label for="f-tel">هاتف الشركة</label>
-						<input type="tel" id="f-tel" formControlName="phone" placeholder="011XXXXXXX">
-					</div>
-					<div class="fld">
-						<label for="f-mob">جوال مسؤول التواصل</label>
-						<input type="tel" id="f-mob" formControlName="mobile" placeholder="05XXXXXXXX">
-					</div>
-				</div>
-				<div class="fld">
-					<label for="f-web">الموقع الإلكتروني</label>
-					<input type="url" id="f-web" formControlName="website" placeholder="https://company.example">
-				</div>
-				<div class="fld" style="margin-bottom:0">
-					<label for="f-addr">العنوان الوطني</label>
-					<input type="text" id="f-addr" formControlName="address" placeholder="الرياض — حي الملقا">
-				</div>
-			</div>
-
-			<div class="co-card" style="margin-bottom:0">
-				<div class="sec-hd"><div class="sec-ttl">مستندات الشركة</div></div>
-				<div class="up-zone" (click)="coDocUpload.click()">
-					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-					<div class="up-t">اسحب المستندات هنا أو اضغط للاختيار</div>
-					<div class="up-s">PDF أو JPG أو PNG — حتى 10 ميجابايت للملف</div>
-				</div>
-				<input #coDocUpload type="file" style="display:none" multiple (change)="onDocumentSelect($event)" />
-				@for (doc of documentsList(); track doc.name) {
-					<div class="doc-row">
-						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-						<span class="doc-n">{{ doc.name }}</span>
-						<span class="doc-s">{{ doc.size || '—' }}</span>
-						<span class="pill" [class.pill-teal]="doc.status === 'verified'" [class.pill-gold]="doc.status === 'review'">{{ doc.status === 'verified' ? 'موثّق' : (doc.status === 'review' ? 'قيد التحقق' : 'مرفوع') }}</span>
-					</div>
-				}
-				@if (documentsList().length === 0) {
-					<div class="doc-row">
-						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-						<span class="doc-n">السجل التجاري.pdf</span>
-						<span class="doc-s">1.2 MB</span>
-						<span class="pill pill-teal">موثّق</span>
-					</div>
-					<div class="doc-row">
-						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-						<span class="doc-n">شهادة العنوان الوطني.pdf</span>
-						<span class="doc-s">0.6 MB</span>
-						<span class="pill pill-teal">موثّق</span>
-					</div>
-				}
-			</div>
-		</div>
-
-		<div class="save-bar">
-			<div style="font-size:12px" class="txt-slate">آخر تحديث للملف: 12 يوليو 2026 · التعديلات التي تحتاج مراجعة لن تظهر للعملاء قبل الاعتماد</div>
-			<div style="display:flex;gap:8px">
-				<a routerLink="/provider-overview/profile/public" class="btn btn-sec">إلغاء</a>
-				<button type="submit" class="btn btn-pri" [disabled]="isSaving()">
-					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-					{{ isSaving() ? 'جاري الحفظ...' : 'حفظ التعديلات' }}
-				</button>
-			</div>
-		</div>
-	</form>
 
 	<footer class="inner-foot">
 		<span>© 2026 وسيط AI · مقدمي الخدمة الشركات</span>
@@ -223,7 +83,7 @@
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'contact'" (click)="setTab('contact')"
     role="tab" aria-selected="false">بيانات التواصل<span class="tab-tier tt-sens"><svg aria-hidden="true">
         <use href="#ws-shield"></use>
-      </svg>بمراجعة</span></button>
+      </svg>برمز تحقق</span></button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'payout'" (click)="setTab('payout')"
     role="tab" aria-selected="false">حساب PayPal</button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'docs'" (click)="setTab('docs')"
@@ -263,6 +123,7 @@
           <button type="button" class="av-btn" (click)="removeAvatar()">حذف الصورة الحالية</button>
         </div>
         <div class="av-hint">JPG او PNG، حجم اقصى 5MB، يفضل 400x400 بكسل</div>
+        @if (avatarError()) { <span class="field-error" role="alert" data-testid="avatar-error">{{ avatarError() }}</span> }
       </div>
     </div>
   </div>
@@ -279,25 +140,25 @@
     </div>
     <div class="form-grid form-col-2">
       <div class="inp-group"><label class="inp-label" for="pr-fname">الاسم الأول<span class="req">*</span></label><input
-          id="pr-fname" class="inp-field" formControlName="firstName"></div>
+          id="pr-fname" class="inp-field" formControlName="firstName" maxlength="60"><ws-field-error [control]="profileForm.get('firstName')" label="الاسم الأول" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-lname">اسم العائلة<span class="req">*</span></label><input
-          id="pr-lname" class="inp-field" formControlName="lastName"></div>
+          id="pr-lname" class="inp-field" formControlName="lastName" maxlength="60"><ws-field-error [control]="profileForm.get('lastName')" label="اسم العائلة" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-title">المسمى المهني<span
-            class="req">*</span></label><input id="pr-title" class="inp-field" formControlName="headline"
-          placeholder="مثال: مصمم جرافيك — 8 سنوات خبرة"></div>
+            class="req">*</span></label><input id="pr-title" class="inp-field" formControlName="headline" maxlength="100"
+          placeholder="مثال: مصمم جرافيك — 8 سنوات خبرة"><ws-field-error [control]="profileForm.get('headline')" label="المسمى المهني" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-spec">التخصص الرئيسي<span
             class="req">*</span></label><input id="pr-spec" class="inp-field" formControlName="specialty"
-          placeholder="مثال: تصميم الهوية البصرية"></div>
+          placeholder="مثال: تصميم الهوية البصرية"><ws-field-error [control]="profileForm.get('specialty')" label="التخصص الرئيسي" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-country">الدولة<span class="req">*</span></label><select
           id="pr-country" class="inp-field" formControlName="country">
           <option value="" disabled>اختر الدولة</option>
           @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
-        </select></div>
+        </select><ws-field-error [control]="profileForm.get('country')" label="الدولة" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-city">المدينة<span class="req">*</span></label><select
           id="pr-city" class="inp-field" formControlName="city">
           <option value="" disabled>{{ cityPlaceholder(profileForm.get('country')?.value) }}</option>
           @for (cityName of citiesOf(profileForm.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
-        </select></div>
+        </select><ws-field-error [control]="profileForm.get('city')" label="المدينة" /></div>
     </div>
   </div>
 
@@ -317,6 +178,7 @@
       <textarea id="bio" class="inp-field" [appBioField]="500" formControlName="bio"
         placeholder="اكتب وصفًا موجزًا عن خبرتك وما تقدمه من خدمات..." maxlength="500"
         aria-label="الوصف المهني"></textarea>
+      <ws-field-error [control]="profileForm.get('bio')" label="الوصف المهني" />
     </div>
   </div>
 
@@ -337,9 +199,10 @@
     </div>
     <div class="skills-add-row">
       <input type="text" id="skill-inp" #skillInput class="skills-add-inp" placeholder="اضف اهتمام جديد"
-        (keydown.enter)="addSkill(skillInput); $event.preventDefault()" aria-label="اضف اهتمام جديد">
+        (keydown.enter)="addSkill(skillInput); $event.preventDefault()" (input)="skillError.set('')" aria-label="اضف اهتمام جديد">
       <button type="button" class="skills-add-btn" (click)="addSkill(skillInput)">اضافة</button>
     </div>
+    @if (skillError()) { <span class="field-error" role="alert" data-testid="skill-error">{{ skillError() }}</span> }
   </div>
 
   <!-- Card 4: Links -->
@@ -358,16 +221,19 @@
         <label class="inp-label" for="portfolio-url">معرض الأعمال (Portfolio)</label>
         <input type="url" id="portfolio-url" class="inp-field" formControlName="websiteUrl"
           placeholder="https://myportfolio.com" dir="ltr">
+        <ws-field-error [control]="profileForm.get('websiteUrl')" label="الرابط" />
       </div>
       <div class="inp-group">
         <label class="inp-label" for="linkedin-url">LinkedIn (اختياري)</label>
         <input type="url" id="linkedin-url" class="inp-field" formControlName="linkedinUrl"
-          placeholder="linkedin.com/in/..." dir="ltr">
+          placeholder="https://linkedin.com/in/..." dir="ltr">
+        <ws-field-error [control]="profileForm.get('linkedinUrl')" label="الرابط" />
       </div>
       <div class="inp-group">
         <label class="inp-label" for="website-url">GitHub / Behance</label>
         <input type="url" id="website-url" class="inp-field" formControlName="githubUrl"
           placeholder="https://github.com/..." dir="ltr">
+        <ws-field-error [control]="profileForm.get('githubUrl')" label="الرابط" />
       </div>
     </div>
   </div>
@@ -406,14 +272,15 @@
         <label class="notif-check"><input type="checkbox" formControlName="notifyEmail">البريد الالكتروني</label>
         <label class="notif-check"><input type="checkbox" formControlName="notifySms">رسائل SMS</label>
         <label class="notif-check"><input type="checkbox" formControlName="notifyInApp">الاشعارات داخل التطبيق</label>
-        <label class="notif-check"><input type="checkbox">Telegram</label>
+        <label class="notif-check" title="قناة Telegram غير متاحة حاليًا"><input type="checkbox" disabled>Telegram (غير متاحة حاليًا)</label>
         <label class="notif-check"><input type="checkbox" formControlName="notifyWhatsapp">WhatsApp</label>
       </div>
     </div>
   </div>
 
+  <ws-form-summary [items]="missingProfile()" (select)="onSummarySelect($event)" />
   <div class="actions-row">
-    <button type="button" class="btn-primary" (click)="saveProfile()">حفظ التعديلات</button>
+    <button type="button" class="btn-primary" [disabled]="isSavingProfile()" (click)="saveProfile()">{{ isSavingProfile() ? 'جاري الحفظ...' : 'حفظ التعديلات' }}</button>
     <a routerLink="../../" class="btn-secondary">إلغاء والعودة</a>
   </div>
 
@@ -443,7 +310,7 @@
         <label class="inp-label" for="doc-front">الهوية الوطنية<span class="req">*</span></label>
         <input #frontInput type="file" id="doc-front" hidden (change)="onDocSelected($event, 'idDocumentUrl')"
           accept=".jpg,.jpeg,.png,.pdf">
-        <div class="upload-card" [class.has-file]="documentState('idDocumentUrl')"
+        <div class="upload-card" id="doc-card-idDocumentUrl" tabindex="0" [class.has-file]="documentState('idDocumentUrl')"
           (click)="!documentState('idDocumentUrl') && frontInput.click()">
           @if(documentState('idDocumentUrl'); as file) {
           <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl"
@@ -459,14 +326,16 @@
               class="delete-file"
               (click)="$event.stopPropagation(); removeDocument('idDocumentUrl', frontInput)">حذف</button></div>
           } @else { <div class="upload-empty"><span>＋</span><strong>اختر ملفا للرفع</strong><small>JPG او PNG او PDF،
-              حجم اقصى 5MB</small></div> }
+              حجم اقصى 10MB</small></div> }
         </div>
+        <ws-field-error [control]="docsForm.get('idDocumentUrl')" label="مستند الهوية" />
+        @if (docFileErrors()['idDocumentUrl']) { <span class="field-error" role="alert">{{ docFileErrors()['idDocumentUrl'] }}</span> }
       </div>
       <div class="inp-group">
         <label class="inp-label" for="doc-back">شهادة أو مؤهل مهني</label>
         <input #backInput type="file" id="doc-back" hidden (change)="onDocSelected($event, 'certificatesUrl')"
           accept=".jpg,.jpeg,.png,.pdf">
-        <div class="upload-card" [class.has-file]="documentState('certificatesUrl')"
+        <div class="upload-card" id="doc-card-certificatesUrl" tabindex="0" [class.has-file]="documentState('certificatesUrl')"
           (click)="!documentState('certificatesUrl') && backInput.click()">
           @if(documentState('certificatesUrl'); as file) {
           <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl"
@@ -482,31 +351,36 @@
               class="delete-file"
               (click)="$event.stopPropagation(); removeDocument('certificatesUrl', backInput)">حذف</button></div>
           } @else { <div class="upload-empty"><span>＋</span><strong>اختر ملفا للرفع</strong><small>JPG او PNG او PDF،
-              حجم اقصى 5MB</small></div> }
+              حجم اقصى 10MB</small></div> }
         </div>
+        @if (docFileErrors()['certificatesUrl']) { <span class="field-error" role="alert">{{ docFileErrors()['certificatesUrl'] }}</span> }
       </div>
       <div class="inp-group"><label class="inp-label" for="doc-cr">السجل التجاري (إن وجد)</label><input #crInput
           type="file" id="doc-cr" hidden (change)="onDocSelected($event, 'commercialRegistration')" accept=".jpg,.jpeg,.png,.pdf">
-        <div class="upload-card" [class.has-file]="documentState('commercialRegistration')" (click)="!documentState('commercialRegistration') && crInput.click()">
+        <div class="upload-card" id="doc-card-commercialRegistration" tabindex="0" [class.has-file]="documentState('commercialRegistration')" (click)="!documentState('commercialRegistration') && crInput.click()">
           @if(documentState('commercialRegistration'); as file){
             <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl" alt="معاينة السجل التجاري">}@else{<span class="file-icon">PDF</span>}</div>
             <div class="file-details"><strong>{{ file.name }}</strong><span>{{ file.status === 'uploading' ? 'جاري التحميل...' : file.status === 'uploaded' ? 'تم الرفع بنجاح' : 'تعذر الرفع' }}</span>@if(file.status === 'uploading'){<div class="upload-progress"><div [style.width.%]="file.progress"></div></div><small>{{ file.progress }}%</small>}</div>
             <div class="file-actions"><button type="button" (click)="$event.stopPropagation(); previewDocument('commercialRegistration')">معاينة</button><button type="button" (click)="$event.stopPropagation(); crInput.click()">تغيير</button><button type="button" class="delete-file" (click)="$event.stopPropagation(); removeDocument('commercialRegistration', crInput)">حذف</button></div>
           }@else{<div class="upload-empty"><span class="upload-symbol">⇧</span><strong>اضغط لاختيار السجل التجاري</strong><small>PDF أو JPG أو PNG — حتى 10MB</small></div>}
         </div>
+        @if (docFileErrors()['commercialRegistration']) { <span class="field-error" role="alert">{{ docFileErrors()['commercialRegistration'] }}</span> }
       </div>
       <div class="inp-group"><label class="inp-label" for="doc-vat">شهادة التسجيل الضريبي (إن وجدت)</label><input
           #vatInput type="file" id="doc-vat" hidden (change)="onDocSelected($event, 'vatCertificateUrl')" accept=".jpg,.jpeg,.png,.pdf">
-        <div class="upload-card" [class.has-file]="documentState('vatCertificateUrl')" (click)="!documentState('vatCertificateUrl') && vatInput.click()">
+        <div class="upload-card" id="doc-card-vatCertificateUrl" tabindex="0" [class.has-file]="documentState('vatCertificateUrl')" (click)="!documentState('vatCertificateUrl') && vatInput.click()">
           @if(documentState('vatCertificateUrl'); as file){
             <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl" alt="معاينة شهادة الضريبة">}@else{<span class="file-icon">PDF</span>}</div>
             <div class="file-details"><strong>{{ file.name }}</strong><span>{{ file.status === 'uploading' ? 'جاري التحميل...' : file.status === 'uploaded' ? 'تم الرفع بنجاح' : 'تعذر الرفع' }}</span>@if(file.status === 'uploading'){<div class="upload-progress"><div [style.width.%]="file.progress"></div></div><small>{{ file.progress }}%</small>}</div>
             <div class="file-actions"><button type="button" (click)="$event.stopPropagation(); previewDocument('vatCertificateUrl')">معاينة</button><button type="button" (click)="$event.stopPropagation(); vatInput.click()">تغيير</button><button type="button" class="delete-file" (click)="$event.stopPropagation(); removeDocument('vatCertificateUrl', vatInput)">حذف</button></div>
           }@else{<div class="upload-empty"><span class="upload-symbol">⇧</span><strong>اضغط لاختيار شهادة الضريبة</strong><small>PDF أو JPG أو PNG — حتى 10MB</small></div>}
         </div>
+        @if (docFileErrors()['vatCertificateUrl']) { <span class="field-error" role="alert">{{ docFileErrors()['vatCertificateUrl'] }}</span> }
       </div>
     </div>
-    <div class="actions-row"><button type="button" class="btn-primary" (click)="saveDocs()">إرسال طلب تعديل</button>
+    <ws-form-summary [items]="missingDocs()" (select)="onSummarySelect($event)" />
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving() || docsUploading()" (click)="saveDocs()">{{ isSaving() ? 'جاري الإرسال...' : 'إرسال طلب تعديل' }}</button>
+      @if (docsUploading()) { <span class="inp-hint" data-testid="docs-upload-reason">جاري رفع المستند، انتظر اكتمال الرفع ثم أرسل الطلب</span> }
     </div>
   </div>
 </div>
@@ -527,10 +401,11 @@
       <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pp-email">بريد PayPal<span class="req">*</span></label><input
           type="email" id="pp-email" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com"
           dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
-          [attr.aria-invalid]="paypalEmailMsg() ? 'true' : null">@if(paypalEmailMsg(); as msg){<span class="field-error" role="alert">{{ msg }}</span>}@else{<span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal.</span>}
+          [attr.aria-invalid]="payoutForm.get('paypalPayoutEmail')?.invalid && payoutForm.get('paypalPayoutEmail')?.touched ? 'true' : null"><span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal.</span><ws-field-error [control]="payoutForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
       </div>
     </div>
-    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()" (click)="savePaypal()">حفظ بريد PayPal</button>
+    <ws-form-summary [items]="missingPayout()" (select)="onSummarySelect($event)" />
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()" (click)="savePaypal()">{{ savingPaypal() ? 'جاري الحفظ...' : 'حفظ بريد PayPal' }}</button>
     </div>
   </div>
 </div>
@@ -549,11 +424,10 @@
     <div
       style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:12px">
       <div>
-        <div style="font-size:13px;font-weight:700" class="txt-white">المصادقة الثنائية (MFA)</div>
-        <div style="font-size:11px;margin-top:2px" class="txt-muted">مفعلة، تحمي الحساب عند تسجيل الدخول وتغيير البيانات
-          الحساسة</div>
+        <div style="font-size:13px;font-weight:700" class="txt-white">تأكيد التغييرات الحساسة برمز تحقق</div>
+        <div style="font-size:11px;margin-top:2px" class="txt-muted">يُرسل رمز إلى بريدك الإلكتروني عند تغيير بيانات التواصل أو المستندات الرسمية</div>
       </div><span
-        style="font-size:11px;font-weight:700;padding:4px 10px" class="badge-green">مفعلة</span>
+        style="font-size:11px;font-weight:700;padding:4px 10px" class="badge-green">مفعّل</span>
     </div>
     <div
       style="padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:12px">
@@ -569,19 +443,21 @@
         <div class="form-grid form-col-2">
           <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pwd-old">كلمة المرور
               الحالية<span class="req">*</span></label><input type="password" id="pwd-old" class="inp-field"
-              placeholder="ادخل كلمة المرور الحالية" formControlName="currentPassword" autocomplete="current-password" dir="ltr"></div>
+              placeholder="ادخل كلمة المرور الحالية" formControlName="currentPassword" autocomplete="current-password" dir="ltr"><ws-field-error [control]="passwordForm.get('currentPassword')" label="كلمة المرور الحالية" /></div>
           <div class="inp-group"><label class="inp-label" for="pwd-new">كلمة المرور الجديدة<span
                 class="req">*</span></label><input type="password" id="pwd-new" class="inp-field"
               placeholder="8 أحرف على الأقل" formControlName="newPassword" autocomplete="new-password" dir="ltr">
             <div class="pwd-strength">
               <div class="pwd-strength-bar" id="pwd-bar" [style.width.%]="passwordStrength().percent" [style.background]="passwordStrength().color"></div>
             </div>
-            <div class="pwd-strength-lbl" id="pwd-lbl">{{ passwordStrength().label }} — استخدم 3 أنواع من الأحرف والأرقام والرموز</div>
+            <div class="pwd-strength-lbl" id="pwd-lbl">{{ passwordStrength().label }} — من 8 إلى 72 حرفًا، واستخدم 3 أنواع من الأحرف والأرقام والرموز</div>
+            <ws-field-error [control]="passwordForm.get('newPassword')" label="كلمة المرور الجديدة" [messages]="{ pattern: 'استخدم 3 أنواع على الأقل من: أحرف صغيرة، أحرف كبيرة، أرقام، رموز', sameAsCurrent: 'كلمة المرور الجديدة يجب أن تختلف عن الحالية' }" />
           </div>
           <div class="inp-group"><label class="inp-label" for="pwd-conf">تأكيد كلمة المرور الجديدة<span
                 class="req">*</span></label><input type="password" id="pwd-conf" class="inp-field"
-              placeholder="أعد إدخال كلمة المرور" formControlName="confirmPassword" autocomplete="new-password" dir="ltr">@if(passwordForm.get('confirmPassword')?.hasError('mismatch')){<span class="field-error">كلمتا المرور غير متطابقتين</span>}</div>
+              placeholder="أعد إدخال كلمة المرور" formControlName="confirmPassword" autocomplete="new-password" dir="ltr"><ws-field-error [control]="passwordForm.get('confirmPassword')" label="تأكيد كلمة المرور" [messages]="{ mismatch: 'تأكيد كلمة المرور غير مطابق' }" /></div>
         </div>
+        <ws-form-summary [items]="missingPassword()" (select)="onSummarySelect($event)" />
         <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isChangingPassword()" (click)="changePassword()">{{ isChangingPassword() ? 'جاري التغيير...' : 'حفظ كلمة المرور الجديدة' }}</button></div>
       </div>
     </div>
@@ -608,14 +484,14 @@
         </svg></div>
       <div>
         <div class="form-card-title">بيانات التواصل</div>
-        <div class="form-card-sub">تغيير البريد او الجوال يتطلب تاكيد OTP</div>
+        <div class="form-card-sub">تغيير البريد او الجوال يتطلب تاكيد رمز يصل إلى بريدك الإلكتروني الحالي</div>
       </div>
     </div>
     <div class="gov-bar">
       <div class="gov-bar-ico"><svg aria-hidden="true">
           <use href="#ws-shield"></use>
         </svg></div>
-      <div class="gov-bar-txt">تعديل هذه البيانات الحساسة ينشئ طلبا يفحصه الذكاء ثم يعتمده مراجع بشري قبل التطبيق</div>
+      <div class="gov-bar-txt">تعديل بيانات التواصل يتطلب تأكيد رمز التحقق، ويُطبَّق التغيير بعد تأكيده</div>
       <a routerLink="/provider-overview/profile/requests" class="gov-bar-link">طلباتي السابقة</a>
     </div>
     <div
@@ -625,54 +501,24 @@
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />
         <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>تغيير البريد الالكتروني او الجوال يتطلب تاكيد OTP على كلا القناتين</div>
+      </svg>يُرسل رمز التحقق إلى بريدك الإلكتروني الحالي فقط (لا يُرسل رمز إلى الجوال)</div>
     <div class="form-grid form-col-2">
       <div class="inp-group"><label class="inp-label" for="ct-email">البريد الالكتروني<span
             class="req">*</span></label><input type="email" id="ct-email" class="inp-field" formControlName="email"
-          dir="ltr"></div>
+          dir="ltr"><ws-field-error [control]="contactForm.get('email')" label="البريد الإلكتروني" /></div>
       <div class="inp-group"><label class="inp-label" for="ct-phone">رقم الجوال<span class="req">*</span></label><input
-          type="tel" id="ct-phone" class="inp-field" formControlName="phoneNumber" dir="ltr"></div>
+          type="tel" id="ct-phone" class="inp-field" formControlName="phoneNumber" dir="ltr"><ws-field-error [control]="contactForm.get('phoneNumber')" label="رقم الجوال" [messages]="{ pattern: 'رقم الجوال غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +' }" /></div>
       <div class="inp-group"><label class="inp-label" for="ct-whatsapp">رقم WhatsApp (اختياري)</label><input type="tel"
           id="ct-whatsapp" class="inp-field" formControlName="alternativePhone" placeholder="مطابق للجوال غالبا"
-          dir="ltr"></div>
-      <div class="inp-group"><label class="inp-label" for="ct-country">الدولة<span class="req">*</span></label><select id="ct-country" class="inp-field" [formControl]="$any(profileForm.get('country'))">
-          <option value="" disabled>اختر الدولة</option>
-          @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
-        </select></div>
-      <div class="inp-group"><label class="inp-label" for="ct-city">مدينة الاقامة</label><select id="ct-city" class="inp-field" [formControl]="$any(profileForm.get('city'))">
-          <option value="" disabled>{{ cityPlaceholder(profileForm.get('country')?.value) }}</option>
-          @for (cityName of citiesOf(profileForm.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
-        </select></div>
+          dir="ltr"><ws-field-error [control]="contactForm.get('alternativePhone')" label="رقم WhatsApp" [messages]="{ pattern: 'رقم WhatsApp غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +' }" /></div>
+      <div class="inp-group" style="grid-column:1/-1" data-testid="contact-location-note">
+        <span class="inp-label">الدولة والمدينة</span>
+        <span>{{ profileForm.get('country')?.value || 'غير محددة' }}{{ profileForm.get('city')?.value ? ' — ' + profileForm.get('city')?.value : '' }}</span>
+        <span class="inp-hint">الدولة والمدينة لا تُحفظ من هذا التبويب، يتم تعديلهما من تبويب «الملف المهني». <button type="button" class="gov-bar-link" (click)="setTab('profile')">الانتقال إلى الملف المهني</button></span>
+      </div>
     </div>
-    <div class="actions-row"><button type="button" class="btn-primary" (click)="saveContact()">إرسال طلب تعديل</button>
-    </div>
-  </div>
-</div>
-
-<div id="state-loading" style="display:none" role="region" aria-label="جاري الحفظ">
-  <div class="state-card">
-    <div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div>
-    <div class="skeleton-box" style="height:120px"></div>
-  </div>
-</div>
-<div id="state-error" style="display:none" role="alert">
-  <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
-    <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر حفظ التعديلات</div>
-    <div style="font-size:12px;margin-bottom:12px" class="txt-muted">ERR-SK-022</div>
-    <button type="button"
-      style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">اعادة
-      المحاولة</button>
-  </div>
-</div>
-<div id="state-success-toast" style="display:none" role="status">
-  <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
-    <div
-      style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5"
-        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-      <span style="font-size:14px;font-weight:700" class="txt-white">تم حفظ الملف الشخصي بنجاح</span>
+    <ws-form-summary [items]="missingContact()" (select)="onSummarySelect($event)" />
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving()" (click)="saveContact()">{{ isSaving() ? 'جاري الإرسال...' : 'إرسال رمز التحقق' }}</button>
     </div>
   </div>
 </div>
@@ -681,11 +527,12 @@
   <div class="modal-box">
     <div class="modal-ico">✉</div>
     <div class="modal-title">تأكيد البريد الإلكتروني</div>
-    <p class="modal-desc">أرسلنا رمز التحقق إلى {{ otpEmailHint() }}</p><input class="inp-field" inputmode="numeric"
-      maxlength="6" [value]="otpCode()" (input)="updateOtpCode($event)" placeholder="000000">
-    <div class="modal-actions"><button class="modal-btn modal-btn-cancel"
-        (click)="closeOtpModal()">إلغاء</button><button class="modal-btn modal-btn-confirm" (click)="verifyOtp()">تأكيد
-        الرمز</button></div>
+    <p class="modal-desc">أرسلنا رمز التحقق إلى {{ otpEmailHint() }}</p><input class="inp-field" id="otp-code" inputmode="numeric" dir="ltr"
+      maxlength="6" [value]="otpCode()" (input)="updateOtpCode($event)" (keydown.enter)="verifyOtp()" placeholder="000000"
+      [attr.aria-invalid]="otpError() ? 'true' : null">
+    @if (otpError()) { <span class="field-error" role="alert" data-testid="otp-error">{{ otpError() }}</span> }
+    <div class="modal-actions"><button type="button" class="modal-btn modal-btn-cancel"
+        (click)="closeOtpModal()">إلغاء</button><button type="button" class="modal-btn modal-btn-confirm" [disabled]="isVerifyingOtp()" (click)="verifyOtp()">{{ isVerifyingOtp() ? 'جاري التأكيد...' : 'تأكيد الرمز' }}</button></div>
   </div>
 </div>}
 @if(showToast()){<div class="ws-toast-wrap" role="status">
