@@ -17,6 +17,12 @@ function getCookieSync(name: string): string | null {
   return null;
 }
 
+/** Auth endpoints whose 401 is part of the flow (login, register, Google, OTP, password reset). */
+export const AUTH_ATTEMPT_URLS = [
+  '/auth/login', '/auth/register', '/auth/google', '/auth/verify-otp', '/auth/resend-otp',
+  '/auth/forgot-password', '/auth/verify-reset-code', '/auth/reset-password',
+];
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
   const router = inject(Router);
@@ -63,14 +69,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // example, if an old component calls favorites). Do not destroy the
       // guest session or redirect from a public page in that case.
       if (error.status === 401 && isBrowser && requestHadAuth) {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.removeItem('waseet_token');
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('token');
-          localStorage.removeItem('waseet_user');
-        }
-        const isAuthRoute = req.url.includes('/auth/login') || req.url.includes('/auth/register');
+        // A 401 from these calls means wrong credentials / bad code for THIS attempt, not an expired session:
+        // the page shows the error itself, so the stored session is left untouched and nobody is redirected.
+        const isAuthRoute = AUTH_ATTEMPT_URLS.some(u => req.url.includes(u));
         if (!isAuthRoute) {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.removeItem('waseet_token');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('waseet_user');
+          }
           authStore.logout('/auth/login');
         }
       }

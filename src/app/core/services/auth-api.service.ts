@@ -125,6 +125,10 @@ export class AuthApiService {
 			tap((res) => {
 				if (res.success && res.data?.token && res.data?.user) {
 					this.authStore.authenticate(res.data.token, res.data.user);
+				} else if (res.success && res.data && !res.data.token && res.data.verified === false
+					&& !res.data.phoneOtpRequired && res.data.userId) {
+					// Existing Google account that never finished email verification: resume at the OTP step.
+					this.authStore.setPendingVerification(res.data.userId);
 				}
 			})
 		);

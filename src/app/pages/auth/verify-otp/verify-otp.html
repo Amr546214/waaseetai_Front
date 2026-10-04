@@ -82,7 +82,7 @@
       </div>
 
       <div class="btn-group" style="margin-top:4px">
-        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isLoading || otpCtrl.invalid" [attr.aria-disabled]="isLoading || otpCtrl.invalid">
+        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isLoading" [attr.aria-disabled]="isLoading">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
           {{ isLoading ? 'جاري التحقق...' : 'التالي: لوحة التحكم' }}
         </button>

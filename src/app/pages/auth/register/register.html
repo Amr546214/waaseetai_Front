@@ -205,10 +205,10 @@
               <label class="field-lbl" for="first-name">الاسم الأول <span class="field-req" aria-hidden="true">*</span></label>
               <input class="field-in" type="text" id="first-name" formControlName="firstName" placeholder="الاسم الأول" autocomplete="given-name" aria-required="true"
                 [class.has-error]="basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid">
-              @if (basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid) {
+              @if (fieldError('firstName'); as msg_firstName) {
               <div class="field-err" id="err-first-name">
                 <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-                <span>ادخل الاسم الأول</span>
+                <span>{{ msg_firstName }}</span>
               </div>
               }
             </div>
@@ -216,10 +216,10 @@
               <label class="field-lbl" for="last-name">اسم العائلة <span class="field-req" aria-hidden="true">*</span></label>
               <input class="field-in" type="text" id="last-name" formControlName="lastName" placeholder="اسم العائلة" autocomplete="family-name" aria-required="true"
                 [class.has-error]="basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid">
-              @if (basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid) {
+              @if (fieldError('lastName'); as msg_lastName) {
               <div class="field-err" id="err-last-name">
                 <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-                <span>ادخل اسم العائلة</span>
+                <span>{{ msg_lastName }}</span>
               </div>
               }
             </div>
@@ -230,10 +230,10 @@
             <input class="field-in" type="email" id="email" formControlName="email" placeholder="name@example.com" autocomplete="email" aria-required="true" dir="ltr" style="text-align:right"
               [readonly]="isGoogleFlow"
               [class.has-error]="basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid">
-            @if (basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid) {
+            @if (fieldError('email'); as msg_email) {
             <div class="field-err" id="err-email">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-              <span>ادخل بريدا الكترونيا صحيحا</span>
+              <span>{{ msg_email }}</span>
             </div>
             }
           </div>
@@ -241,10 +241,10 @@
           <div class="field-grp">
             <label class="field-lbl" for="mobile">رقم الجوال <span class="field-req" aria-hidden="true">*</span></label>
             <app-phone-input formControlName="phone"></app-phone-input>
-            @if (basicInfoForm.get('phone')?.touched && basicInfoForm.get('phone')?.invalid) {
+            @if (fieldError('phone'); as msg_phone) {
             <div class="field-err" id="err-mobile">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-              <span>ادخل رقم جوال صحيح</span>
+              <span>{{ msg_phone }}</span>
             </div>
             }
           </div>
@@ -253,7 +253,7 @@
           <div class="field-grp">
             <label class="field-lbl" for="password">كلمة المرور <span class="field-req" aria-hidden="true">*</span></label>
             <div class="pw-wrap">
-              <input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="8 احرف على الأقل مع رقم" autocomplete="new-password" aria-required="true" aria-describedby="strength-lbl"
+              <input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="8 أحرف على الأقل، حرف كبير ورقم" autocomplete="new-password" aria-required="true" aria-describedby="strength-lbl"
                 [class.has-error]="basicInfoForm.get('password')?.touched && basicInfoForm.get('password')?.invalid">
               <button type="button" class="pw-eye" id="pw-toggle-1" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'اخفاء كلمة المرور' : 'اظهار كلمة المرور'">
                 @if (!showPassword) {
@@ -272,10 +272,11 @@
               </div>
               <div class="strength-lbl" id="strength-lbl">{{ passwordStrength.label }}</div>
             </div>
-            @if (basicInfoForm.get('password')?.touched && basicInfoForm.get('password')?.invalid) {
+            <div class="field-hint" id="password-rules">يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، وحرف إنجليزي كبير، ورقم.</div>
+            @if (fieldError('password'); as msg_password) {
             <div class="field-err" id="err-password">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-              <span>كلمة المرور يجب ان تكون 8 احرف على الأقل وتحتوي رقما</span>
+              <span>{{ msg_password }}</span>
             </div>
             }
           </div>
@@ -293,10 +294,10 @@
                 }
               </button>
             </div>
-            @if ((basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')) {
+            @if (confirmMismatchError; as msg_confirm) {
             <div class="field-err" id="err-confirm">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-              <span>كلمة المرور غير متطابقة</span>
+              <span>{{ msg_confirm }}</span>
             </div>
             }
           </div>
@@ -323,17 +324,25 @@
 
         <div class="terms-card">
           <label class="chk-row" for="chk-accuracy">
-            <input type="checkbox" id="chk-accuracy" formControlName="agreeData" aria-required="true">
-            <span>أقر بأن جميع البيانات المدخلة صحيحة ودقيقة وتمثلني بشكل حقيقي</span>
+            <input type="checkbox" id="chk-accuracy" formControlName="agreeData" aria-required="true" [attr.aria-invalid]="fieldError('agreeData') ? 'true' : null">
+            <span>أقر بأن جميع البيانات المدخلة صحيحة ودقيقة وتمثلني بشكل حقيقي <span class="field-req" aria-hidden="true">*</span></span>
           </label>
+          @if (fieldError('agreeData'); as msg_agreeData) {
+          <div class="field-err" id="err-agree-data"><span>{{ msg_agreeData }}</span></div>
+          }
           <label class="chk-row" for="terms-chk">
-            <input type="checkbox" id="terms-chk" formControlName="agreeTerms" aria-required="true">
-            <span>اطلعت على <a routerLink="/terms" target="_blank" rel="noopener noreferrer">شروط الاستخدام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a> وأوافق عليها</span>
+            <input type="checkbox" id="terms-chk" formControlName="agreeTerms" aria-required="true" [attr.aria-invalid]="fieldError('agreeTerms') ? 'true' : null">
+            <span>اطلعت على <a routerLink="/terms" target="_blank" rel="noopener noreferrer">شروط الاستخدام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a> وأوافق عليها <span class="field-req" aria-hidden="true">*</span></span>
           </label>
+          @if (fieldError('agreeTerms'); as msg_agreeTerms) {
+          <div class="field-err" id="err-agree-terms"><span>{{ msg_agreeTerms }}</span></div>
+          }
         </div>
 
+        <ws-form-summary [items]="missingFields" />
+
         <div class="btn-group">
-          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting || basicInfoForm.invalid">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}</button>
+          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}</button>
           <button type="button" class="btn-tertiary" id="btn-back" (click)="currentStep = 1">
             <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
             رجوع
@@ -438,7 +447,7 @@
       </div>
 
       <div class="btn-group" style="margin-top:4px">
-        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isSubmitting || verificationForm.invalid" [attr.aria-disabled]="isSubmitting || verificationForm.invalid">
+        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isSubmitting" [attr.aria-disabled]="isSubmitting">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
           {{ isSubmitting ? 'جاري التحقق...' : 'التالي: لوحة التحكم' }}
         </button>
