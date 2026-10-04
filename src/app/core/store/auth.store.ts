@@ -141,20 +141,10 @@ export class AuthStore {
   }
 
   /**
-   * Fully clear authentication state, cookies, and local storage, and revoke database session
+   * Drops the local session (signals, cookies, localStorage) WITHOUT calling the backend or navigating.
+   * Used for a corrupt/stale session (e.g. a token with no user) where a redirect must lead somewhere safe.
    */
-  public logout(redirectUrl: string = '/auth/login'): void {
-    const token = this._token();
-    if (token) {
-      this.http.post(`${environment.url_api}/auth/logout`, {}).subscribe({
-        error: () => {}
-      });
-    }
-
-    try {
-      this.socialAuthService?.signOut().catch(() => {});
-    } catch {}
-
+  public clearSession(): void {
     this._token.set(null);
     this._currentUser.set(null);
     this._pendingUserId.set(null);
@@ -170,6 +160,24 @@ export class AuthStore {
       localStorage.removeItem('waseet_user');
       localStorage.removeItem('waseet_pending_user_id');
     }
+  }
+
+  /**
+   * Fully clear authentication state, cookies, and local storage, and revoke database session
+   */
+  public logout(redirectUrl: string = '/auth/login'): void {
+    const token = this._token();
+    if (token) {
+      this.http.post(`${environment.url_api}/auth/logout`, {}).subscribe({
+        error: () => {}
+      });
+    }
+
+    try {
+      this.socialAuthService?.signOut().catch(() => {});
+    } catch {}
+
+    this.clearSession();
 
     this.router.navigate([redirectUrl]);
   }
