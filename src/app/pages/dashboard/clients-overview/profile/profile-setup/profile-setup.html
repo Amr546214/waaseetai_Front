@@ -121,6 +121,7 @@
 									<span class="text-amber-500">*</span></label>
 								<input type="text" formControlName="idNumber" placeholder="10XXXXXXXX" maxlength="10"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
+								<ws-field-error [control]="setupForm.get('details.idNumber')" label="رقم الهوية الوطنية" />
 								<span class="text-[10px] text-slate-500 mt-1">10 أرقام، هوية وطنية أو إقامة</span>
 							</div>
 							<div class="flex flex-col gap-2">
@@ -129,6 +130,7 @@
 								<div class="relative">
 									<input type="date" formControlName="dob"
 										class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all dark:[&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert">
+								<ws-field-error [control]="setupForm.get('details.dob')" label="تاريخ الميلاد" />
 								</div>
 								<span class="text-[10px] text-slate-500 mt-1">يجب أن يصل العمر إلى 18 سنة</span>
 							</div>
@@ -140,6 +142,7 @@
 									<option value="" disabled>اختر الدولة</option>
 									@for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
 								</select>
+								<ws-field-error [control]="setupForm.get('details.country')" label="الدولة" />
 							</div>
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المدينة <span
@@ -149,18 +152,21 @@
 									<option value="" disabled>{{ cityPlaceholder(setupForm.get('details')?.get('country')?.value) }}</option>
 									@for (cityName of citiesOf(setupForm.get('details')?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
 								</select>
+								<ws-field-error [control]="setupForm.get('details.city')" label="المدينة" />
 							</div>
 							<div class="flex flex-col gap-2 md:col-span-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المهنة الحالية <span
 										class="text-amber-500">*</span></label>
 								<input type="text" formControlName="occupation" placeholder="مثال: موظف حكومي"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
+								<ws-field-error [control]="setupForm.get('details.occupation')" label="المهنة الحالية" />
 							</div>
 							<div class="flex flex-col gap-2 md:col-span-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">العنوان
-									التفصيلي</label>
+									التفصيلي <span class="text-amber-500">*</span></label>
 								<input type="text" formControlName="address" placeholder="الحي، الشارع، رقم المبنى"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
+								<ws-field-error [control]="setupForm.get('details.address')" label="العنوان التفصيلي" />
 							</div>
 						</div>
 					</div>
@@ -183,7 +189,9 @@
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">صورة بطاقة الهوية،
-									الوجه الأمامي <span class="text-amber-500">*</span></label>
+									الوجه الأمامي <span class="font-normal text-slate-400">(اختياري)</span></label>
+								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
+								@if (fileErrors()['frontId']; as fe) { <span role="alert" class="text-[11px] font-bold text-red-500">{{ fe }}</span> }
 								<div
 									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
 									<input type="file" class="hidden" id="frontIdFile"
@@ -258,7 +266,9 @@
 
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">صورة بطاقة الهوية،
-									الوجه الخلفي <span class="text-amber-500">*</span></label>
+									الوجه الخلفي <span class="font-normal text-slate-400">(اختياري)</span></label>
+								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
+								@if (fileErrors()['backId']; as fe) { <span role="alert" class="text-[11px] font-bold text-red-500">{{ fe }}</span> }
 								<div
 									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
 									<input type="file" class="hidden" id="backIdFile"
@@ -407,6 +417,7 @@
 									<option value="snb">البنك الأهلي</option>
 									<option value="rajhi">مصرف الراجحي</option>
 								</select>
+								<ws-field-error [control]="setupForm.get('bank.bankName')" label="اسم البنك" />
 							</div>
 
 							<div class="flex flex-col gap-2">
@@ -414,6 +425,7 @@
 									<span class="text-amber-500">*</span></label>
 								<input type="text" formControlName="accountHolder" placeholder="الاسم كما في كشف الحساب"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
+								<ws-field-error [control]="setupForm.get('bank.accountHolder')" label="اسم صاحب الحساب" />
 							</div>
 
 							<div class="flex flex-col gap-2 md:col-span-2">
@@ -422,6 +434,7 @@
 								<input type="text" formControlName="iban" placeholder="SA00 0000 0000 0000 0000 0000"
 									maxlength="24" dir="ltr"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all font-mono tracking-widest placeholder:text-slate-400 dark:placeholder:text-slate-600">
+								<ws-field-error [control]="setupForm.get('bank.iban')" label="رقم الآيبان (IBAN)" [messages]="{ minlength: 'يجب أن يتكون الآيبان من 24 حرفًا بالضبط', maxlength: 'يجب أن يتكون الآيبان من 24 حرفًا بالضبط' }" />
 								<span class="text-[10px] text-slate-500 mt-1">24 حرفاً يبدأ بـ SA</span>
 							</div>
 						</div>
@@ -455,6 +468,8 @@
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المستندات
 									الداعمة</label>
+								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 3 ميغابايت</span>
+								@if (fileErrors()['supportingDocs']; as fe) { <span role="alert" class="text-[11px] font-bold text-red-500">{{ fe }}</span> }
 								<div
 									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
 									<input type="file" class="hidden" id="supportDocFile"
@@ -602,26 +617,29 @@
 								class="bg-slate-50 dark:bg-[#131C31]/50 border border-cyan-200 dark:border-[#38BDF8]/30 rounded-xl p-3 flex flex-col gap-3">
 								<label class="flex items-center justify-between cursor-pointer group">
 									<span class="text-xs text-slate-700 dark:text-slate-300">أقر بأن جميع البيانات
-										المدخلة صحيحة ودقيقة وتخصني</span>
+										المدخلة صحيحة ودقيقة وتخصني <span class="text-amber-500">*</span></span>
 									<input type="checkbox" formControlName="accurate"
 										class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-cyan-500 dark:text-[#38BDF8] focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
 								</label>
+								<ws-field-error [control]="setupForm.get('agreements.accurate')" [messages]="{ required: 'يجب الإقرار بصحة البيانات للمتابعة' }" />
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
 								<label class="flex items-center justify-between cursor-pointer group">
 									<span class="text-xs text-slate-700 dark:text-slate-300">أوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer"
 											class="text-cyan-600 dark:text-[#38BDF8] hover:underline">شروط
-											الاستخدام</a></span>
+											الاستخدام</a> <span class="text-amber-500">*</span></span>
 									<input type="checkbox" formControlName="terms"
 										class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-cyan-500 dark:text-[#38BDF8] focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
 								</label>
+								<ws-field-error [control]="setupForm.get('agreements.terms')" [messages]="{ required: 'يجب الموافقة على شروط الاستخدام للمتابعة' }" />
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
 								<label class="flex items-center justify-between cursor-pointer group">
 									<span class="text-xs text-slate-700 dark:text-slate-300">اطلعت على <a routerLink="/privacy" target="_blank" rel="noopener noreferrer"
 											class="text-cyan-600 dark:text-[#38BDF8] hover:underline">سياسة الخصوصية</a>
-										وأوافق على معالجة بياناتي وفق نظام حماية البيانات</span>
+										وأوافق على معالجة بياناتي وفق نظام حماية البيانات <span class="text-amber-500">*</span></span>
 									<input type="checkbox" formControlName="privacy"
 										class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-cyan-500 dark:text-[#38BDF8] focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
 								</label>
+								<ws-field-error [control]="setupForm.get('agreements.privacy')" [messages]="{ required: 'يجب الموافقة على سياسة الخصوصية للمتابعة' }" />
 							</div>
 						</div>
 					</div>
@@ -630,6 +648,8 @@
 					</div>
 
 				</div>
+
+				<div class="px-5 sm:px-6"><ws-form-summary [items]="missing()" /></div>
 
 				<!-- Footer Actions -->
 				<div

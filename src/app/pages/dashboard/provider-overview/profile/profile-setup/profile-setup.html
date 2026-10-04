@@ -101,6 +101,7 @@
             <div class="f-wrap">
               <label class="f-lbl" for="job-title">المسمى الوظيفي <span class="f-req">*</span></label>
               <input class="f-inp" id="job-title" formControlName="jobTitle" type="text" placeholder="مثال: مطور ويب كامل المكدس" required>
+              <ws-field-error [control]="setupForm.get('profData.jobTitle')" label="المسمى الوظيفي" />
             </div>
             <div class="f-wrap">
               <label class="f-lbl" for="exp-years">سنوات الخبرة <span class="f-req">*</span></label>
@@ -112,6 +113,7 @@
                 <option value="5 الى 10 سنوات">5 الى 10 سنوات</option>
                 <option value="أكثر من 10 سنوات">أكثر من 10 سنوات</option>
               </select>
+              <ws-field-error [control]="setupForm.get('profData.expYears')" label="سنوات الخبرة" />
             </div>
             <div class="f-wrap">
               <label class="f-lbl">الدولة <span class="f-req">*</span></label>
@@ -119,6 +121,7 @@
                 <option value="" disabled>اختر الدولة</option>
                 @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
                </select>
+              <ws-field-error [control]="setupForm.get('profData.country')" label="الدولة" />
             </div>
             <div class="f-wrap">
               <label class="f-lbl" for="pr-city">المدينة <span class="f-req">*</span></label>
@@ -126,6 +129,7 @@
                 <option value="" disabled>{{ cityPlaceholder(setupForm.get('profData')?.get('country')?.value) }}</option>
                 @for (cityName of citiesOf(setupForm.get('profData')?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
                </select>
+              <ws-field-error [control]="setupForm.get('profData.city')" label="المدينة" />
             </div>
             <div class="f-wrap">
               <label class="f-lbl">اللغات</label>
@@ -138,6 +142,7 @@
             <div class="f-wrap f-full">
               <label class="f-lbl" for="bio">النبذة المهنية <span class="f-req">*</span></label>
               <textarea class="f-inp f-ta" id="bio" maxlength="500" [appBioField]="500" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
+              <ws-field-error [control]="setupForm.get('profData.bio')" label="النبذة المهنية" />
               <div class="bio-actions">
                 <button type="button" class="ai-suggest-btn" disabled aria-disabled="true" data-testid="bio-suggest-disabled" title="اقتراح النبذة غير متاح حاليًا">
                   <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>
@@ -198,6 +203,7 @@
               {{ isSuggestingSkills() ? 'جاري إنشاء الاقتراح...' : 'اقتراح مهارات بالذكاء الاصطناعي' }}
             </button>
             @if (skillsSuggestionError()) { <p role="alert" class="f-hint">{{ skillsSuggestionError() }}</p> }
+            @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-hint" id="skills-server-error" style="color:#ff8c69;font-weight:700">{{ skillsErr }}</p> }
             @if (skillsSuggestionReady() && !aiSuggestedSkills().length) { <p class="f-hint" role="status">لا توجد اقتراحات مهارات جديدة حالياً.</p> }
             <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>اقتراحات بالذكاء الاصطناعي، اختر المهارات التي تتقنها</div>
             <div class="ai-chips" aria-label="مهارات مقترحة بالذكاء الاصطناعي" aria-live="polite">
@@ -279,6 +285,7 @@
             </select>
           </div>
         </div>
+        <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <span class="step-cnt">المرحلة 1 من 7</span>
           <button type="button" class="btn-wz-next" (click)="goToStep(2)">التالي<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
@@ -298,6 +305,7 @@
                   <option [value]="cat.slug">{{ cat.nameAr }}</option>
                 }
               </select>
+              <ws-field-error [control]="setupForm.get('specialties.mainSpec')" label="التخصص الرئيسي" />
             </div>
             <div class="f-wrap f-full">
               <label class="f-lbl">التخصصات الفرعية <span class="f-req">*</span></label>
@@ -322,6 +330,7 @@
             </div>
           </div>
         </div>
+        <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(1)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 2 من 7</span>
@@ -347,6 +356,7 @@
             </div>
           </div>
         </div>
+        <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(2)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 3 من 7</span>
@@ -433,7 +443,7 @@
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-id-card"></use></svg></div>
             <div class="doc-info">
-              <div class="doc-name">هوية وطنية، الظهر <span class="doc-required">إلزامي</span></div>
+              <div class="doc-name">هوية وطنية، الظهر <span class="doc-required" style="background:transparent;opacity:.75">اختياري</span></div>
               <div class="doc-desc">الوجه الخلفي للهوية الوطنية أو الإقامة، JPG/PNG/PDF حد أقصى 10MB</div>
             </div>
             <span class="ai-status-badge" [class.pending]="!getUploadState('backId')" [class.scanning]="getUploadState('backId')?.status === 'uploading'" [class.verified]="getUploadState('backId')?.status === 'uploaded'" [class.rejected]="getUploadState('backId')?.status === 'error'" aria-live="polite">
@@ -488,7 +498,7 @@
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-selfie"></use></svg></div>
             <div class="doc-info">
-              <div class="doc-name">صورة Selfie للتحقق <span class="doc-required">إلزامي</span></div>
+              <div class="doc-name">صورة Selfie للتحقق <span class="doc-required" style="background:transparent;opacity:.75">اختياري</span></div>
               <div class="doc-desc">صورة واضحة للوجه في ضوء جيد، تستخدم للتحقق من الهوية آليا بواسطة AI</div>
             </div>
             <span class="ai-status-badge" [class.pending]="!getUploadState('selfie')" [class.scanning]="getUploadState('selfie')?.status === 'uploading'" [class.verified]="getUploadState('selfie')?.status === 'uploaded'" [class.rejected]="getUploadState('selfie')?.status === 'error'" aria-live="polite">
@@ -624,6 +634,12 @@
           </div>
         </div>
 
+        @if (docFileErrors().length) {
+        <div role="alert" data-testid="doc-file-errors" class="f-hint" style="color:#ff8c69;font-weight:700;margin-bottom:10px">
+          @for (m of docFileErrors(); track m) { <div>{{ m }}</div> }
+        </div>
+        }
+        <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(3)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 4 من 7</span>
@@ -740,6 +756,12 @@
           }
         </div>
 
+        @if (portfolioFileErrors().length) {
+        <div role="alert" data-testid="portfolio-file-errors" class="f-hint" style="color:#ff8c69;font-weight:700;margin-bottom:10px">
+          @for (m of portfolioFileErrors(); track m) { <div>{{ m }}</div> }
+        </div>
+        }
+        <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(4)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 5 من 7</span>
@@ -761,11 +783,13 @@
         <div class="ack-row">
           <input type="checkbox" class="ack-chk" id="ack-final" formControlName="ackFinal" aria-required="true">
           <label class="ack-txt" for="ack-final">أقر بصحة جميع البيانات والنماذج المرفوعة وأوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="ack-lnk">شروط الاستخدام</a></label>
-        </div>
+        
+          <ws-field-error [control]="setupForm.get('agreements.ackFinal')" [messages]="{ required: 'يجب الموافقة على الإقرار والشروط لإرسال بياناتك' }" /></div>
         <div style="padding:14px 16px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.22);border-radius:12px;margin-bottom:16px">
           <div style="font-size:13px;font-weight:800;margin-bottom:4px" class="txt-teal">الخطوة التالية: اختبار التصنيف الأولي</div>
           <p style="font-size:12.5px;line-height:1.6" class="txt-slate">بعد الحفظ سيطلب منك اجتياز اختبار التصنيف. تأكد من جاهزيتك قبل المتابعة لأن الاختبار يبدأ بمجرد الضغط على "بدء الاختبار"</p>
         </div>
+        <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(5)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 6 من 7</span>

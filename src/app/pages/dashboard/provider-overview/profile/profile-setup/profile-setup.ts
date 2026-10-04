@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -14,6 +14,34 @@ import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../.
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
+import { attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } from '../../../../../core/forms/form-helpers';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { MB, validateFile } from '../../../../../core/forms/file-validation';
+import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
+import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+
+const SETUP_LABELS: Record<string, string> = {
+	jobTitle: 'المسمى الوظيفي',
+	expYears: 'سنوات الخبرة',
+	country: 'الدولة',
+	city: 'المدينة',
+	bio: 'النبذة المهنية',
+	mainSpec: 'التخصص الرئيسي',
+	subSpecs: 'التخصصات الفرعية',
+	paypalEmail: 'بريد PayPal',
+	ackFinal: 'الإقرار والموافقة النهائية',
+};
+
+/** Documents and portfolio files: PDF / JPG / PNG, 10 MB (the backend upload limit). */
+const DOC_RULE = { maxBytes: 10 * MB, mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'], typesLabel: 'PDF أو JPG أو PNG' };
+/** Portfolio samples: what the upload inputs themselves accept (images, PDF, ZIP, and MP4 for the main sample). */
+const PORTFOLIO_RULE = {
+	maxBytes: 10 * MB,
+	mimeTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/zip', 'application/x-zip-compressed', 'video/mp4'],
+	extensions: ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.zip', '.mp4'],
+	typesLabel: 'صورة أو PDF أو ZIP أو MP4',
+};
+const DOC_FILE_KEYS = ['frontId', 'backId', 'selfie', 'certs'];
 
 export interface SetupAlertModal {
   type: 'warning' | 'error' | 'banned' | 'info';
@@ -26,7 +54,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })
@@ -47,6 +75,15 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	isSubmitting = signal<boolean>(false);
 	currentStep = signal<number>(1);
+	private readonly host = inject(ElementRef<HTMLElement>);
+	/** What is missing after a failed Next/submit attempt (shown by <ws-form-summary>). */
+	missing = signal<InvalidField[]>([]);
+	/** Inline Arabic file problems (size/type/upload failure/required), keyed by upload slot. */
+	fileErrors = signal<Record<string, string>>({});
+	/** The backend rejected a skill (it must exist in the skills directory); shown next to the skills. */
+	skillsServerError = signal('');
+	docFileErrors = computed(() => Object.entries(this.fileErrors()).filter(([k]) => DOC_FILE_KEYS.includes(k)).map(([, m]) => m));
+	portfolioFileErrors = computed(() => Object.entries(this.fileErrors()).filter(([k]) => k.startsWith('portfolio')).map(([, m]) => m));
 
 	particles: { style: string }[] = [];
 
@@ -288,49 +325,115 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.particles = ps;
 	}
 
+	/** The chosen sub-specialties: the form value is the source of truth (toggleSpec keeps both in sync). */
+	private chosenSubSpecs(): string[] {
+		const v = this.setupForm.get('specialties.subSpecs')?.value;
+		return Array.isArray(v) && v.length ? v : this.selectedSpecs();
+	}
+
+	private setFileError(key: string, message: string) {
+		this.fileErrors.update(e => ({ ...e, [key]: message }));
+	}
+
+	private clearFileError(...keys: string[]) {
+		this.fileErrors.update(e => {
+			const next = { ...e };
+			for (const k of keys) delete next[k];
+			return next;
+		});
+	}
+
+	/** An upload failed on the server: say why (size limit, rate limit, network...) next to the file. */
+	private uploadFailed(key: string, file: File, err: unknown) {
+		this.setFileError(key, `تعذّر رفع «${file.name}»: ${mapHttpError(err).message}`);
+	}
+
+	private checkGroup(name: string): boolean {
+		const group = this.setupForm.get(name);
+		if (!group) return true;
+		const attempt = attemptSubmit(group, { root: (this.host.nativeElement as HTMLElement).querySelector('.step-panel.active') ?? this.host.nativeElement, labels: SETUP_LABELS });
+		this.missing.set(attempt.missing);
+		return attempt.valid;
+	}
+
+	/** One wizard step: marks touched, builds the summary, focuses the first missing field. */
+	private validateStep(step: number): boolean {
+		switch (step) {
+			case 1:
+				return this.checkGroup('profData');
+			case 2: {
+				const ok = this.checkGroup('specialties');
+				// A missing sub-specialty gets its own message + highlight on the chips area.
+				if (this.selectedSpecs().length === 0 && this.setupForm.get('specialties.mainSpec')?.value) this.subSpecError.set(true);
+				return ok;
+			}
+			case 3:
+				return this.checkGroup('payout');
+			case 4: {
+				const items: InvalidField[] = [];
+				if (this.isUploading()) {
+					items.push({ path: 'docs.upload', label: 'رفع الملفات', message: 'يرجى انتظار اكتمال رفع الملفات' });
+				} else if (!this.uploadedFrontId()) {
+					const message = 'صورة الهوية (الوجه الأمامي) مطلوبة، ارفع ملف PDF أو JPG أو PNG';
+					items.push({ path: 'docs.frontId', label: 'صورة الهوية (الوجه الأمامي)', message });
+					this.setFileError('frontId', message);
+				}
+				this.missing.set(items);
+				return items.length === 0;
+			}
+			case 5: {
+				const items: InvalidField[] = [];
+				if (this.isUploading()) {
+					items.push({ path: 'portfolio.upload', label: 'رفع الملفات', message: 'يرجى انتظار اكتمال رفع الملفات' });
+				} else if (this.chosenSubSpecs().length === 0) {
+					items.push({ path: 'specialties.subSpecs', label: 'التخصصات الفرعية', message: 'اختر تخصصًا فرعيًا واحدًا على الأقل في الخطوة 2' });
+				} else {
+					for (const spec of this.chosenSubSpecs()) {
+						const missingReview = (this.portfolioItems()[spec] || [{ review: '' }]).some(item => !item.review);
+						if (missingReview) {
+							const message = 'ارفع نموذج عمل واحدًا على الأقل لهذا التخصص الفرعي';
+							items.push({ path: `portfolio.${spec}`, label: `نموذج عمل: ${spec}`, message });
+							this.setFileError(`portfolio-${spec}`, `${spec}: ${message}`);
+						}
+					}
+				}
+				this.missing.set(items);
+				return items.length === 0;
+			}
+			case 6:
+				return this.checkGroup('agreements');
+			default:
+				return true;
+		}
+	}
+
+	/** After a step change the new step's inputs are not rendered yet: focus the first missing field once they are. */
+	private focusSoon() {
+		setTimeout(() => {
+			// All wizard panels stay in the DOM and only the active one is shown: look for the field inside it, never in
+			// a hidden step (focusing a hidden control does nothing).
+			const host = this.host.nativeElement as HTMLElement;
+			const panel = host.querySelector<HTMLElement>('.step-panel.active') ?? host;
+			// Upload slots are not form controls: when nothing invalid is focusable, focus the first upload input.
+			if (!focusFirstInvalid(panel)) panel.querySelector<HTMLElement>('.upload-file-inp, .upload-area')?.focus();
+		});
+	}
+
 	goToStep(step: number) {
 		if (step < 1 || step > 7) return;
 
-		// Validation to prevent skipping
+		// Moving forward validates EVERY step on the way (the step bar must not skip an incomplete one) and stops at
+		// the first incomplete step with its summary.
 		if (step > this.currentStep()) {
-			if (this.currentStep() === 1 && this.setupForm.get('profData')?.invalid) {
-				this.setupForm.get('profData')?.markAllAsTouched();
-				return;
-			}
-			if (this.currentStep() === 2 && this.setupForm.get('specialties')?.invalid) {
-				this.setupForm.get('specialties')?.markAllAsTouched();
-				// A missing sub-specialty gets its own message + highlight on the chips area.
-				if (this.selectedSpecs().length === 0 && this.setupForm.get('specialties.mainSpec')?.value) this.subSpecError.set(true);
-				return;
-			}
-			if (this.currentStep() === 3 && this.setupForm.get('payout')?.invalid) {
-				this.setupForm.get('payout')?.markAllAsTouched();
-				return;
-			}
-			if (this.currentStep() === 4 && (!this.uploadedFrontId())) {
-				this.alertModal.set({
-					type: 'warning', title: 'مستندات ناقصة', message: 'يرجى رفع صورة الهوية (الوجه الأمامي) للمتابعة.',
-					confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-				});
-				return;
-			}
-			if (this.currentStep() === 5) {
-				let hasMissingProofs = false;
-				this.selectedSpecs().forEach(s => {
-					const items = this.portfolioItems()[s] || [];
-					items.forEach(item => {
-						if (!item.review) hasMissingProofs = true;
-					});
-				});
-				if (hasMissingProofs || this.selectedSpecs().length === 0) {
-					this.alertModal.set({
-						type: 'warning', title: 'نماذج ناقصة', message: 'يرجى التأكد من رفع نموذج عمل لكل تخصص فرعي.',
-						confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-					});
+			for (let s = this.currentStep(); s < step; s++) {
+				if (!this.validateStep(s)) {
+					if (s !== this.currentStep()) this.currentStep.set(s);
+					this.focusSoon();
 					return;
 				}
 			}
 		}
+		this.missing.set([]);
 
 		// Auto-init portfolio when reaching step 5
 		if (step === 5) {
@@ -372,45 +475,29 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		const files = event.target.files;
 		if (!files || files.length === 0) return;
 
-		const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-		const maxSize = 10 * 1024 * 1024;
-
 		if (type === 'frontId' || type === 'backId' || type === 'selfie') {
 			const file = files[0] as File;
-			if (file.size > maxSize) {
-				this.alertModal.set({
-					type: 'warning', title: 'حجم ملف كبير', message: 'حجم المستند يجب أن لا يتجاوز 10 ميجابايت.',
-					confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-				});
+			const problem = validateFile(file, DOC_RULE);
+			if (problem) {
+				// Inline, next to the upload slot; nothing is uploaded and a previously uploaded file stays.
+				this.setFileError(type, problem);
+				event.target.value = '';
 				return;
 			}
-			if (!allowedTypes.includes(file.type)) {
-				this.alertModal.set({
-					type: 'warning', title: 'نوع ملف غير مدعوم', message: 'الملفات المسموحة PDF أو JPG أو PNG فقط.',
-					confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-				});
-				return;
-			}
+			this.clearFileError(type);
 			this.uploadSingleDoc(file, type);
 		} else if (type === 'certs') {
 			const validFiles: File[] = [];
 			for (const f of Array.from(files) as File[]) {
-				if (f.size > maxSize) {
-					this.alertModal.set({
-						type: 'warning', title: 'حجم ملف كبير', message: `الملف ${f.name} يتجاوز 10 ميجابايت.`,
-						confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-					});
-					return;
-				}
-				if (!allowedTypes.includes(f.type)) {
-					this.alertModal.set({
-						type: 'warning', title: 'نوع ملف غير مدعوم', message: `الملف ${f.name} ليس PDF أو JPG أو PNG.`,
-						confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-					});
+				const problem = validateFile(f, DOC_RULE);
+				if (problem) {
+					this.setFileError('certs', `«${f.name}»: ${problem}`);
+					event.target.value = '';
 					return;
 				}
 				validFiles.push(f);
 			}
+			this.clearFileError('certs');
 			this.uploadCerts(validFiles);
 		}
 	}
@@ -465,6 +552,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	removeSkill(skill: string) {
+		this.skillsServerError.set('');
 		this.skillsList.update(list => list.filter(s => s !== skill));
 	}
 
@@ -500,7 +588,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				}));
 				this.skillsSuggestionReady.set(true);
 			},
-			error: () => this.skillsSuggestionError.set('تعذر إنشاء اقتراح بالذكاء الاصطناعي. يرجى المحاولة مجدداً.')
+			error: (err) => {
+				const mapped = mapHttpError(err);
+				// Rate limit / no connection say so; any other failure keeps the generic retry wording.
+				const detail = mapped.kind === 'rate-limit' || mapped.kind === 'network' ? mapped.message : 'يرجى المحاولة مجدداً.';
+				this.skillsSuggestionError.set(`تعذر إنشاء اقتراح بالذكاء الاصطناعي. ${detail}`);
+			}
 		});
 	}
 
@@ -540,6 +633,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	private uploadSingleDoc(file: File, type: string) {
+		this.clearFileError(type);
 		const key = type;
 		this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
 
@@ -572,8 +666,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					}
 				}
 			},
-			error: () => {
+			error: (err) => {
 				this.setUploadState(key, { status: 'error', progress: 0, name: file.name });
+				this.uploadFailed(type, file, err);
 			}
 		});
 	}
@@ -611,8 +706,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						}
 					}
 				},
-				error: () => {
+				error: (err) => {
 					hasError = true;
+					this.uploadFailed('certs', file, err);
 					this.setUploadState(`${key}-${idx}`, { status: 'error', progress: 0, name: file.name });
 					this.setUploadState(key, { status: 'error', progress: 0, name: `${files.length} ملفات` });
 				}
@@ -689,14 +785,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	onPortfolioReviewChange(event: any, spec: string, idx: number) {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0] as File;
-			const maxSize = 10 * 1024 * 1024;
-			if (file.size > maxSize) {
-				this.alertModal.set({
-					type: 'warning', title: 'حجم ملف كبير', message: 'حجم المستند يجب أن لا يتجاوز 10 ميجابايت.',
-					confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-				});
+			const errKey = `portfolio-${spec}`;
+			const problem = validateFile(file, PORTFOLIO_RULE);
+			if (problem) {
+				this.setFileError(errKey, `${spec}: ${problem}`);
+				event.target.value = '';
 				return;
 			}
+			this.clearFileError(errKey);
 			const key = `portfolio-review-${spec}-${idx}`;
 			this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
 
@@ -720,8 +816,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						this.setUploadState(key, { status: 'uploaded', progress: 100, name });
 					}
 				},
-				error: () => {
+				error: (err) => {
 					this.setUploadState(key, { status: 'error', progress: 0, name: file.name });
+					this.uploadFailed(errKey, file, err);
 				}
 			});
 		}
@@ -730,14 +827,13 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	onPortfolioProofsChange(event: any, spec: string, idx: number) {
 		if (event.target.files && event.target.files.length > 0) {
 			const files = Array.from(event.target.files) as File[];
-			const maxSize = 10 * 1024 * 1024;
+			const errKey = `portfolio-${spec}`;
 
 			for (const f of files) {
-				if (f.size > maxSize) {
-					this.alertModal.set({
-						type: 'warning', title: 'حجم ملف كبير', message: `الملف ${f.name} يتجاوز 10 ميجابايت.`,
-						confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-					});
+				const problem = validateFile(f, PORTFOLIO_RULE);
+				if (problem) {
+					this.setFileError(errKey, `${spec} («${f.name}»): ${problem}`);
+					event.target.value = '';
 					return;
 				}
 			}
@@ -768,8 +864,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							this.setUploadState(key, { status: 'uploaded', progress: 100, name });
 						}
 					},
-					error: () => {
+					error: (err) => {
 						this.setUploadState(key, { status: 'error', progress: 0, name: file.name });
+						this.uploadFailed(errKey, file, err);
 					}
 				});
 			});
@@ -788,28 +885,23 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		for (const key of Object.keys(items)) {
 			sanitized[key] = items[key].map(item => ({
 				review: item.review,
-				proofs: item.proofs
+				// A proof whose upload failed leaves an empty placeholder: never send it.
+				proofs: item.proofs.filter(Boolean)
 			}));
 		}
 		return sanitized;
 	}
 
 	saveAndGoToTest() {
-		if (this.isUploading()) {
-			this.alertModal.set({
-				type: 'warning', title: 'جاري رفع الملفات', message: 'يرجى انتظار اكتمال رفع جميع الملفات قبل المتابعة.',
-				confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-			});
-			return;
+		// Everything is validated here, in step order: stop at the first incomplete step and say what is missing.
+		for (let step = 1; step <= 6; step++) {
+			if (!this.validateStep(step)) {
+				this.currentStep.set(step);
+				this.focusSoon();
+				return;
+			}
 		}
-		if (this.setupForm.invalid || !this.uploadedFrontId()) {
-			this.setupForm.markAllAsTouched();
-			this.alertModal.set({
-				type: 'error', title: 'بيانات ناقصة', message: 'يرجى التحقق من إكمال جميع الحقول المطلوبة والموافقة على الشروط.',
-				confirmText: 'حسناً', onConfirm: () => this.closeAlertModal()
-			});
-			return;
-		}
+		this.missing.set([]);
 
 		this.isSubmitting.set(true);
 		const payload = {
@@ -860,15 +952,60 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			},
 			error: (error) => {
 				this.isSubmitting.set(false);
-				this.alertModal.set({ type: 'error', title: 'تعذر الحفظ', message: error.error?.message || 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });
+				const mapped = mapHttpError(error, { fallback: 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });
+				// Server field messages (zod-style `errors[]`, names as the backend calls them) go to the matching inputs;
+				// the wizard returns to the step that holds the first one and focuses it.
+				if (this.applyServerFieldErrors(mapped.fieldErrors)) return;
+				// The backend rejects a skill that is not in the skills directory (400, Arabic): show it where the skills are.
+				if (mapped.kind === 'backend-validation' && /المهارات/.test(mapped.message)) {
+					this.skillsServerError.set(mapped.message);
+					this.currentStep.set(1); // the skills section is on step 1
+					this.missing.set([{ path: 'skills', label: 'المهارات', message: mapped.message }]);
+					// Focus the skills input (it is on the active step, visible on the next change detection).
+					setTimeout(() => (this.host.nativeElement as HTMLElement).querySelector<HTMLElement>('.skills-input')?.focus(), 100);
+				}
+				this.alertModal.set({ type: 'error', title: 'تعذر الحفظ', message: mapped.message });
 			}
 		});
+	}
+
+	/** Backend field name -> the form control that holds it and the wizard step it is on. */
+	private static readonly SERVER_FIELDS: Record<string, { control: string; step: number }> = {
+		occupation: { control: 'profData.jobTitle', step: 1 }, jobTitle: { control: 'profData.jobTitle', step: 1 },
+		expYears: { control: 'profData.expYears', step: 1 }, country: { control: 'profData.country', step: 1 },
+		city: { control: 'profData.city', step: 1 }, bio: { control: 'profData.bio', step: 1 },
+		mainSpec: { control: 'specialties.mainSpec', step: 2 }, subSpecs: { control: 'specialties.subSpecs', step: 2 },
+		paypalPayoutEmail: { control: 'payout.paypalEmail', step: 3 }, paypalEmail: { control: 'payout.paypalEmail', step: 3 },
+	};
+
+	/** Puts server field errors on the right controls; returns true when at least one matched (and the step was changed). */
+	private applyServerFieldErrors(fieldErrors: Record<string, string>): boolean {
+		const targets = Object.entries(fieldErrors)
+			.map(([name, message]) => ({ message, target: ProfileSetupDashboard.SERVER_FIELDS[name] }))
+			.filter(t => t.target && this.setupForm.get(t.target.control));
+		if (!targets.length) return false;
+		const firstStep = targets[0].target.step;
+		this.currentStep.set(firstStep);
+		// The step's inputs are created on the next render, and binding a control to its input revalidates it (dropping
+		// manual errors). So the server errors are set once the step is on screen.
+		setTimeout(() => {
+			for (const { message, target } of targets) {
+				const control = this.setupForm.get(target.control)!;
+				control.setErrors({ ...(control.errors ?? {}), server: message });
+				control.markAsTouched();
+			}
+			this.missing.set(collectInvalidFields(this.setupForm.get(['profData', 'specialties', 'payout'][Math.min(firstStep, 3) - 1])!, SETUP_LABELS));
+			setTimeout(() => this.focusSoon(), 60);
+		}, 30);
+		return true;
 	}
 
 	/** Validation message of the PayPal email (shown once the field was touched/edited, or on a failed next). */
 	paypalEmailMsg(): string | null {
 		const c = this.setupForm.get('payout.paypalEmail');
-		return c && (c.touched || c.dirty) ? paypalEmailError(c.errors) : null;
+		if (!c || !(c.touched || c.dirty)) return null;
+		const server = c.errors?.['server'];
+		return typeof server === 'string' ? server : paypalEmailError(c.errors);
 	}
 
 	startTest() {

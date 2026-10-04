@@ -60,8 +60,10 @@
         <div class="inp-group">
           <label class="inp-label" for="ps-bio">وصف تسويقي مختصر</label>
           <textarea id="ps-bio" class="inp-field" [appBioField]="500" formControlName="bio" rows="3" placeholder="اكتب وصفاً مختصراً عن تخصصك التسويقي وجمهورك المستهدف..."></textarea>
+          <ws-field-error [control]="marketingForm.get('bio')" label="الوصف التسويقي" />
         </div>
       </div>
+      <ws-form-summary [items]="missing()" />
       <div class="actions-row">
         <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="saveBio()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
         <button type="button" class="btn-secondary" (click)="nextStep()">تخطي</button>
@@ -83,7 +85,7 @@
           </div>
         }
         <div [formGroup]="channelForm" style="display:flex;gap:8px;flex-wrap:wrap">
-          <select formControlName="platform" class="inp-field" style="max-width:200px" aria-label="نوع القناة">
+          <div style="display:flex;flex-direction:column;max-width:200px"><select formControlName="platform" class="inp-field" style="max-width:200px" aria-label="نوع القناة" aria-required="true">
             <option value="">اختر القناة</option>
             <option value="LINKEDIN">LinkedIn</option>
             <option value="YOUTUBE">YouTube</option>
@@ -92,11 +94,15 @@
             <option value="TWITTER">Twitter / X</option>
             <option value="INSTAGRAM">Instagram</option>
           </select>
-          <input type="text" formControlName="handle" class="inp-field" style="flex:1;min-width:160px" placeholder="ادخل معرف القناة او رابطها" dir="ltr">
+          <ws-field-error [control]="channelForm.get('platform')" [messages]="{ required: 'اختر نوع القناة' }" /></div>
+          <div style="display:flex;flex-direction:column;flex:1;min-width:160px"><input type="text" formControlName="handle" class="inp-field" placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-required="true">
+          <ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها' }" /></div>
         </div>
+        <div class="inp-hint" style="margin-top:8px">اختر القناة وأدخل معرّفها ثم اضغط "إضافة ومتابعة"، أو اضغط "تخطي" للمتابعة بدونها.</div>
       </div>
+      <ws-form-summary [items]="missing()" />
       <div class="actions-row">
-        <button type="button" class="btn-primary" [disabled]="isSubmitting() || channelForm.invalid" (click)="addChannel()">{{ isSubmitting() ? 'جارٍ الإضافة...' : 'إضافة ومتابعة' }}</button>
+        <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="addChannel()">{{ isSubmitting() ? 'جارٍ الإضافة...' : 'إضافة ومتابعة' }}</button>
         <button type="button" class="btn-secondary" (click)="skipChannel()">تخطي</button>
       </div>
     }
@@ -109,25 +115,27 @@
           <div><div class="form-card-title">الحساب البنكي</div><div class="form-card-sub">مطلوب لاستلام عمولاتك عند السحب</div></div>
         </div>
         <div class="form-grid form-col2">
-          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">اسم صاحب الحساب<span class="req">*</span></label><input type="text" class="inp-field" formControlName="accountHolderName" placeholder="الاسم الثلاثي كما في البطاقة"></div>
+          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">اسم صاحب الحساب<span class="req">*</span></label><input type="text" class="inp-field" formControlName="accountHolderName" placeholder="الاسم الثلاثي كما في البطاقة" aria-required="true">
+            <ws-field-error [control]="bankForm.get('accountHolderName')" label="اسم صاحب الحساب" /></div>
           <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">رقم IBAN<span class="req">*</span></label><input type="text" class="inp-field" formControlName="iban" placeholder="SAxx xxxx xxxx xxxx xxxx xxxx" dir="ltr">
-            @if (bankForm.get('iban')?.invalid && bankForm.get('iban')?.touched) {
-              <span style="font-size:11px;color:#ff8c69;margin-top:3px">أدخل رقم IBAN صالحًا (رمز الدولة، رقما التحقق، ثم رقم الحساب)</span>
-            }
+            <ws-field-error [control]="bankForm.get('iban')" label="رقم IBAN" [messages]="{ iban: 'أدخل رقم IBAN صالحًا (رمز الدولة، رقما التحقق، ثم رقم الحساب)', maxlength: 'رقم IBAN لا يزيد على 34 حرفًا' }" />
           </div>
-          <div class="inp-group"><label class="inp-label">اسم البنك</label>
-            <select class="inp-field" formControlName="bankName">
+          <div class="inp-group"><label class="inp-label">اسم البنك<span class="req">*</span></label>
+            <select class="inp-field" formControlName="bankName" aria-required="true">
               <option value="">اختر البنك</option>
               <option value="البنك الاهلي السعودي">البنك الاهلي السعودي</option>
               <option value="مصرف الراجحي">مصرف الراجحي</option>
               <option value="بنك الرياض">بنك الرياض</option>
               <option value="STC Pay">STC Pay</option>
             </select>
+            <ws-field-error [control]="bankForm.get('bankName')" [messages]="{ required: 'اختر اسم البنك' }" />
           </div>
         </div>
       </div>
+      <div class="inp-hint" style="margin:0 0 10px">بعد الإرسال تُراجَع البيانات البنكية قبل اعتمادها، ويظهر لك الحالة "قيد المراجعة" حتى الموافقة.</div>
+      <ws-form-summary [items]="missing()" />
       <div class="actions-row">
-        <button type="button" class="btn-primary" [disabled]="isSubmitting() || bankForm.invalid" (click)="saveBankInfo()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
+        <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="saveBankInfo()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
         <button type="button" class="btn-secondary" (click)="nextStep()">تخطي</button>
       </div>
     }
@@ -144,7 +152,7 @@
         </div>
         <div class="review-row"><span class="txt-muted">الوصف التسويقي</span><span class="txt-white">{{ profile()?.bio ? 'مكتمل' : 'لم يُضف' }}</span></div>
         <div class="review-row"><span class="txt-muted">قنوات التسويق</span><span class="txt-white">{{ hasChannel() ? 'تمت إضافة قناة' : 'لم تُضف بعد' }}</span></div>
-        <div class="review-row"><span class="txt-muted">الحساب البنكي</span><span class="txt-white">{{ hasBank() ? 'مكتمل' : 'لم يُضف' }}</span></div>
+        <div class="review-row"><span class="txt-muted">الحساب البنكي</span><span class="txt-white">{{ bankReviewState() }}</span></div>
       </div>
       <div class="actions-row"><button type="button" class="btn-primary" (click)="finish()">إنهاء</button></div>
     }
