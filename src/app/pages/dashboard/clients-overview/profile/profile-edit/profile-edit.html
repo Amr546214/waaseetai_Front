@@ -97,6 +97,18 @@
 		</div>
 	</div>
 
+	<!-- Alerts: shown on EVERY tab (they used to live inside the profile tab only, so the other tabs gave no feedback at all) -->
+	<div class="mb-4 flex flex-col gap-3" aria-live="polite">
+		<div *ngIf="errorMsg()" role="alert" data-testid="tab-error"
+			class="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 rounded-xl text-sm font-bold">
+			{{ errorMsg() }}
+		</div>
+		<div *ngIf="successMsg()" role="status" data-testid="tab-success"
+			class="p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 text-green-600 rounded-xl text-sm font-bold">
+			{{ successMsg() }}
+		</div>
+	</div>
+
 	<!-- Tab Content: Profile -->
 	@if (activeTab() === 'profile') {
 	<div class="flex flex-col gap-6 animation-fade-in relative">
@@ -113,16 +125,6 @@
 				<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
 			</svg>
 			بيانات هذا القسم تحفظ فوراً وتحدث ملفك الشخصي
-		</div>
-
-		<!-- Alerts -->
-		<div *ngIf="errorMsg()"
-			class="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 rounded-xl text-sm font-bold">
-			{{ errorMsg() }}
-		</div>
-		<div *ngIf="successMsg()"
-			class="p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 text-green-600 rounded-xl text-sm font-bold">
-			{{ successMsg() }}
 		</div>
 
 		<!-- Card: Avatar -->
@@ -187,6 +189,7 @@
 					<input formControlName="website" type="url" dir="ltr"
 						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50"
 						placeholder="https://example.com">
+					<ws-field-error [control]="clientForm.get('website')" label="موقع الشركة" />
 				</div>
 			</div>
 			}
@@ -199,9 +202,12 @@
 					<textarea [appBioField]="1000" formControlName="bio"
 						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 h-32"
 						placeholder="اكتب نبذة مختصرة عن الشركة واحتياجاتها..."></textarea>
+					<ws-field-error [control]="clientForm.get('bio')" label="النبذة التعريفية" />
 				</div>
 			</div>
 
+			<fieldset disabled data-testid="unsaved-sections" class="m-0 flex min-w-0 flex-col gap-6 border-0 p-0 opacity-60">
+			<div role="note" data-testid="unsaved-notice" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">الاهتمامات والروابط الشخصية وتفضيلات العرض والإشعارات لا تُحفظ حاليًا (بانتظار دعم الخادم)، لذلك أصبحت للعرض فقط حتى لا تظهر رسالة نجاح لبيانات لم تُحفظ.</div>
 			<!-- Interests & Skills -->
 			<div
 				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
@@ -346,6 +352,9 @@
 				</div>
 			</div>
 
+			</fieldset>
+
+			<ws-form-summary [items]="missing()" />
 			<div class="flex items-center justify-end gap-3 mt-2">
 				<button type="button" routerLink="/client-overview/profile"
 					class="px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
@@ -666,24 +675,27 @@
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الاسم الأول</label>
 						<input type="text" formControlName="firstName"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
+						<ws-field-error [control]="basicsForm.get('firstName')" label="الاسم الأول" />
 					</div>
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">اسم العائلة</label>
 						<input type="text" formControlName="lastName"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
+						<ws-field-error [control]="basicsForm.get('lastName')" label="الاسم الأخير" />
 					</div>
 					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">البريد الالكتروني <span
-								class="text-cyan-500">*</span></label>
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">البريد الالكتروني <span class="font-normal text-slate-400">(للقراءة فقط)</span></label>
 						<input type="email" dir="ltr" formControlName="email"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
 					</div>
 					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال <span
-								class="text-cyan-500">*</span></label>
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال <span class="font-normal text-slate-400">(للقراءة فقط)</span></label>
 						<app-phone-input formControlName="phoneNumber"></app-phone-input>
 					</div>
 				</div>
+
+				<div role="note" data-testid="basics-note" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">المحفوظ من هذه الصفحة هو الاسم فقط. البريد الإلكتروني ورقم الجوال للقراءة ولا يمكن تغييرهما من هنا (لا يوجد مسار تحقق لهما بعد).</div>
+				<ws-form-summary [items]="missing()" />
 
 				<!-- Action -->
 				<button type="submit" [disabled]="isSaving() || isTabPending('BASICS_UPDATE')"
@@ -763,7 +775,8 @@
 			</div>
 
 			<!-- Form Grid -->
-			<form [formGroup]="identityForm" (ngSubmit)="saveTab('identity')">
+			<div role="note" data-testid="identity-unsupported" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">تعديل بيانات الهوية غير متاح حاليًا: الخادم لا يحفظ هذه البيانات من هذه الصفحة، وإرسالها كان يُحوّل حسابك إلى «قيد التحقق» ويطلب رمز OTP دون حفظ شيء. لإرسال وثائق الهوية استخدم «استكمال البيانات».</div>
+			<form [formGroup]="identityForm" (ngSubmit)="saveTab('identity')" inert class="opacity-60">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الهوية الوطنية /
@@ -930,9 +943,10 @@
 				</div>
 
 				<!-- Action -->
-				<button type="submit" [disabled]="isSaving() || isTabPending('IDENTITY_UPDATE')"
+				<button type="submit" disabled aria-disabled="true" aria-describedby="identity-unsupported-reason"
 					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
 					طلب تعديل</button>
+				<p id="identity-unsupported-reason" data-testid="identity-disabled-reason" class="mt-2 text-xs font-medium text-slate-600 dark:text-slate-400">الزر معطّل: تعديل بيانات الهوية غير متاح حاليًا (بانتظار دعم الخادم).</p>
 			</form>
 		</div>
 	</div>
@@ -1022,24 +1036,22 @@
 			<form [formGroup]="contactForm" (ngSubmit)="saveTab('contact')">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">البريد الالكتروني <span
-								class="text-cyan-500">*</span></label>
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">البريد الالكتروني <span class="font-normal text-slate-400">(للقراءة فقط)</span></label>
 						<input type="email" dir="ltr" formControlName="email"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
 					</div>
 					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال <span
-								class="text-cyan-500">*</span></label>
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال <span class="font-normal text-slate-400">(للقراءة فقط)</span></label>
 						<app-phone-input formControlName="phoneNumber"></app-phone-input>
 					</div>
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم WhatsApp
 							(اختياري)</label>
-						<app-phone-input formControlName="alternativePhone"></app-phone-input>
+						<app-phone-input formControlName="alternativePhone" [optional]="true"></app-phone-input>
+						<ws-field-error [control]="contactForm.get('alternativePhone')" label="رقم WhatsApp" />
 					</div>
 					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الدولة <span
-								class="text-cyan-500">*</span></label>
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الدولة <span class="font-normal text-slate-400">(لاختيار المدينة فقط)</span></label>
 						<select formControlName="country"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
 							<option value="" disabled>اختر الدولة</option>
@@ -1053,8 +1065,12 @@
 							<option value="" disabled>{{ cityPlaceholder(contactForm?.get('country')?.value) }}</option>
 							@for (cityName of citiesOf(contactForm?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
 						</select>
+						<ws-field-error [control]="contactForm.get('city')" [messages]="{ required: 'اختر مدينة الإقامة' }" />
 					</div>
 				</div>
+
+				<div role="note" data-testid="contact-note" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">المحفوظ من هذه الصفحة: رقم WhatsApp ومدينة الإقامة فقط. البريد والجوال للقراءة، والدولة تحدد قائمة المدن ولا تُحفظ من هنا.</div>
+				<ws-form-summary [items]="missing()" />
 
 				<!-- Action -->
 				<button type="submit" [disabled]="isSaving() || isTabPending('CONTACT_UPDATE')"
@@ -1215,11 +1231,12 @@
 				</div>
 			</div>
 
+						<div role="note" data-testid="security-unsupported" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">هذا القسم غير مفعّل بعد: تغيير كلمة المرور والمصادقة الثنائية وجلسات الدخول المعروضة هنا لا تُحفظ ولا تعكس بيانات حسابك الفعلية (بانتظار دعم الخادم). لتغيير كلمة المرور استخدم «نسيت كلمة المرور» من صفحة تسجيل الدخول.</div>
 			<div class="flex flex-col">
 				<!-- MFA -->
 				<div class="flex items-center justify-between py-5 border-b border-slate-200 dark:border-slate-700/50">
 					<div>
-						<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">المصادقة الثنائية (MFA)</h4>
+						<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">المصادقة الثنائية (MFA) <span class="font-normal text-slate-400">(عرض توضيحي)</span></h4>
 						<p class="text-xs text-slate-500 dark:text-slate-400">مفعلة، تحمي الحساب عند تسجيل الدخول وتغيير
 							البيانات الحساسة</p>
 					</div>
@@ -1286,9 +1303,10 @@
 						</div>
 
 						<!-- Action -->
-						<button type="button"
+						<button type="button" disabled aria-disabled="true" aria-describedby="security-pw-reason"
 							class="w-full mt-2 py-4 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all">حفظ
 							كلمة المرور الجديدة</button>
+						<p id="security-pw-reason" data-testid="security-disabled-reason" class="mt-2 text-xs font-medium text-slate-600 dark:text-slate-400">الزر معطّل: تغيير كلمة المرور من هذه الصفحة غير متاح حاليًا.</p>
 
 					</div>
 					}
@@ -1297,7 +1315,7 @@
 				<!-- Active Sessions -->
 				<div class="flex flex-col md:flex-row md:items-start justify-between py-5 gap-4">
 					<div>
-						<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">جلسات الدخول النشطة</h4>
+						<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">جلسات الدخول النشطة <span class="font-normal text-slate-400">(عرض توضيحي)</span></h4>
 						<div class="flex flex-col gap-2 mt-3">
 							<div class="flex items-center gap-3">
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

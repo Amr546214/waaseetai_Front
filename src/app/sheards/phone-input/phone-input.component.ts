@@ -82,6 +82,8 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	@Input() placeholder = 'رقم الجوال';
 	@Input() preferredCountries: CountryCode[] = ['SA', 'AE', 'KW', 'QA', 'BH', 'OM'];
 	@Input() defaultCountry: CountryCode = 'SA';
+	/** When true an empty value is valid (the field is optional); a non-empty value must still be a valid number. */
+	@Input() optional = false;
 
 	countries: CountryOption[] = ALL_COUNTRIES;
 	selectedCountry: CountryOption = ALL_COUNTRIES.find(c => c.code === 'SA') || ALL_COUNTRIES[0];
@@ -197,7 +199,7 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 
 	// ─── Validator ──────────────────────────────────────────────
 	validate(_control: AbstractControl): ValidationErrors | null {
-		if (!this.phoneNumber) return { required: true };
+		if (!this.phoneNumber) return this.optional ? null : { required: true };
 		const parsed = parsePhoneNumberFromString(
 			this.phoneNumber,
 			this.selectedCountry.code
