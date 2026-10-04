@@ -26,7 +26,7 @@
 	</div>
 
 	<!-- Error Alert -->
-	<div *ngIf="errorMessage()"
+	<div *ngIf="errorMessage()" role="alert" data-testid="add-account-error"
 		class="p-4 mb-6 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-400 text-xs font-bold flex items-center justify-between animate-[ws-fade_0.2s_ease]">
 		<div class="flex items-center gap-2">
 			<svg class="w-4 h-4 text-red-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -278,30 +278,33 @@
 						<div class="flex flex-col gap-1.5 md:col-span-2">
 							<label class="text-xs font-bold text-[var(--txt-3)]">التخصص الرئيسي<span
 									class="text-[#2BD4C7] ml-1">*</span></label>
-							<select [(ngModel)]="specMain" class="inp-field bg-[#0B1437]">
+							<select [formControl]="ctl.specMain" class="inp-field bg-[#0B1437]">
 								<option value="">اختر التخصص</option>
 								<option value="تصميم جرافيك وبصري">تصميم جرافيك وبصري</option>
 								<option value="تطوير ويب وتطبيقات">تطوير ويب وتطبيقات</option>
 								<option value="كتابة محتوى وترجمة">كتابة محتوى وترجمة</option>
 							</select>
+<ws-field-error [control]="ctl.specMain" label="التخصص الرئيسي" />
 						</div>
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-bold text-[var(--txt-3)]">سنوات الخبرة<span
 									class="text-[#2BD4C7] ml-1">*</span></label>
-							<select [(ngModel)]="specExp" class="inp-field bg-[#0B1437]">
+							<select [formControl]="ctl.specExp" class="inp-field bg-[#0B1437]">
 								<option>أقل من سنة</option>
 								<option>1-2 سنة</option>
 								<option>3-5 سنوات</option>
 								<option>أكثر من 5 سنوات</option>
 							</select>
+<ws-field-error [control]="ctl.specExp" label="سنوات الخبرة" />
 						</div>
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-bold text-[var(--txt-3)]">مستوى التخصص</label>
-							<select class="inp-field bg-[#0B1437]">
+							<select class="inp-field bg-[#0B1437]" disabled aria-disabled="true">
 								<option>مبتدئ</option>
 								<option>متوسط</option>
 								<option>متقدم</option>
 							</select>
+<span data-testid="field-unsupported" class="text-[11px] text-[var(--txt-3)]">غير متاح حاليًا ولا يُحفظ مع الطلب</span>
 						</div>
 					</div>
 				</div>
@@ -367,18 +370,21 @@
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-bold text-[var(--txt-3)]">رابط Portfolio أو Behance أو
 								LinkedIn</label>
-							<input type="url" class="inp-field" placeholder="https://..." dir="ltr">
+							<input type="url" class="inp-field" placeholder="https://..." dir="ltr" disabled aria-disabled="true">
+<span data-testid="field-unsupported" class="text-[11px] text-[var(--txt-3)]">غير متاح حاليًا ولا يُحفظ مع الطلب</span>
 						</div>
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-bold text-[var(--txt-3)]">رفع نموذج عمل (PDF أو صورة)</label>
-							<input type="file" class="inp-field p-2 text-sm" accept=".pdf,.jpg,.png">
+							<input type="file" class="inp-field p-2 text-sm" accept=".pdf,.jpg,.png" disabled aria-disabled="true">
+<span data-testid="field-unsupported" class="text-[11px] text-[var(--txt-3)]">غير متاح حاليًا ولا يُحفظ مع الطلب</span>
 							<span class="text-[11px] text-[var(--txt-3)]">حجم أقصى 10MB — يُفضل عملاً يعكس تخصصك</span>
 						</div>
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-bold text-[var(--txt-3)]">نبذة مهنية مختصرة<span
 									class="text-[#2BD4C7] ml-1">*</span></label>
-							<textarea [appBioField]="1000" [(ngModel)]="portfolioBio" class="inp-field min-h-[100px] resize-y"
+							<textarea [appBioField]="1000" [formControl]="ctl.portfolioBio" class="inp-field min-h-[100px] resize-y"
 								placeholder="اكتب 2-3 جمل تعريفية عن خبراتك ومجال عملك"></textarea>
+<ws-field-error [control]="ctl.portfolioBio" label="النبذة المهنية" />
 						</div>
 					</div>
 				</div>
@@ -426,16 +432,17 @@
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-bold text-[var(--txt-3)]">نوع القناة الرئيسية<span
 									class="text-[#2BD4C7] ml-1">*</span></label>
-							<select [(ngModel)]="chType" class="inp-field bg-[#0B1437]">
+							<select [formControl]="ctl.chType" class="inp-field bg-[#0B1437]">
 								<option value="">اختر</option>
 								<option value="موقع ويب / مدونة">موقع ويب / مدونة</option>
 								<option value="YouTube">YouTube</option>
 								<option value="Twitter / X">Twitter / X</option>
 							</select>
+<ws-field-error [control]="ctl.chType" label="نوع القناة الرئيسية" />
 						</div>
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-bold text-[var(--txt-3)]">عدد المتابعين / الزوار الشهريين</label>
-							<select [(ngModel)]="chReach" class="inp-field bg-[#0B1437]">
+							<select [formControl]="ctl.chReach" class="inp-field bg-[#0B1437]">
 								<option value="أقل من 1,000">أقل من 1,000</option>
 								<option value="1,000 - 10,000">1,000 - 10,000</option>
 								<option value="10,000 - 50,000">10,000 - 50,000</option>
@@ -472,19 +479,22 @@
 						<div class="flex flex-col gap-1.5 md:col-span-2">
 							<label class="text-xs font-bold text-[var(--txt-3)]">اسم الشركة<span
 									class="text-[#2BD4C7] ml-1">*</span></label>
-							<input type="text" [(ngModel)]="coName" class="inp-field"
+							<input type="text" [formControl]="ctl.coName" class="inp-field"
 								placeholder="الاسم الرسمي كما في السجل التجاري">
+<ws-field-error [control]="ctl.coName" label="اسم الشركة" />
 						</div>
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-bold text-[var(--txt-3)]">رقم السجل التجاري<span
 									class="text-[#2BD4C7] ml-1">*</span></label>
-							<input type="text" [(ngModel)]="coCrn" class="inp-field" placeholder="XXXXXXXXXX" dir="ltr">
+							<input type="text" [formControl]="ctl.coCrn" class="inp-field" placeholder="XXXXXXXXXX" dir="ltr">
+<ws-field-error [control]="ctl.coCrn" label="رقم السجل التجاري" />
 						</div>
 						<div class="flex flex-col gap-1.5 md:col-span-2">
 							<label class="text-xs font-bold text-[var(--txt-3)]">منصبك في الشركة<span
 									class="text-[#2BD4C7] ml-1">*</span></label>
-							<input type="text" [(ngModel)]="coRole" class="inp-field"
+							<input type="text" [formControl]="ctl.coRole" class="inp-field"
 								placeholder="مثال: المدير التنفيذي">
+<ws-field-error [control]="ctl.coRole" label="المنصب" />
 						</div>
 					</div>
 				</div>
@@ -550,6 +560,7 @@
 		</div>
 
 		<!-- Navigation Buttons -->
+		<ws-form-summary [items]="missing()" (select)="focusItem($event)" />
 		<div *ngIf="stepIdx() > 0" class="flex items-center gap-3 mt-6 animate-[ws-fade_0.2s_ease]">
 			<button type="button" (click)="prevStep()" [disabled]="isSubmitting()"
 				class="flex items-center gap-1.5 px-4 py-2.5 bg-[var(--inp-bg,rgba(255,255,255,.05))] border border-[var(--sec-bd)] rounded-xl text-[var(--txt-3)] text-[13px] font-bold hover:bg-[rgba(255,255,255,.09)] hover:text-[var(--txt)] transition-all outline-none disabled:opacity-50">
