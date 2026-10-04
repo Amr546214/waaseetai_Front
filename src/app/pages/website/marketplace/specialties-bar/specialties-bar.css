@@ -89,3 +89,5 @@
 	.spb-subs{grid-template-columns:repeat(2,1fr)}
 }
 html.spb-lock,html.spb-lock body{overflow:hidden}
+/* the floating assistant (z-index 950) must not sit on top of the open panel / sheet */
+html.spb-open app-assistant-widget,html.spb-open cute-robot{visibility:hidden!important;pointer-events:none!important}

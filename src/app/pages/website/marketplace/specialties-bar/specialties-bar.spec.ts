@@ -10,8 +10,8 @@ const CATS = [
   { id: '3', slug: 'legal', name: 'الخدمات القانونية', icon: 'scale', count: 4, subSpecialties: [] },
 ];
 
-@Component({ standalone: true, imports: [SpecialtiesBar], template: `<app-specialties-bar [categories]="cats" [activeCategory]="active" [activeSub]="sub" />` })
-class Host { cats: any[] = CATS; active = 'design'; sub = ''; }
+@Component({ standalone: true, imports: [SpecialtiesBar], template: `<app-specialties-bar [categories]="cats" [activeCategory]="active" [activeSub]="sub" [suspended]="suspended" />` })
+class Host { cats: any[] = CATS; active = 'design'; sub = ''; suspended = false; }
 
 describe('SpecialtiesBar', () => {
   let fixture: ComponentFixture<Host>;
@@ -25,7 +25,7 @@ describe('SpecialtiesBar', () => {
     fixture = TestBed.createComponent(Host);
     flush();
   });
-  afterEach(() => document.documentElement.classList.remove('spb-lock'));
+  afterEach(() => document.documentElement.classList.remove('spb-lock', 'spb-open'));
 
   it('renders one chip per specialty (real data) with its count, the active one highlighted, and the real total', () => {
     expect(all('.spb-chip').length).toBe(3);
@@ -87,6 +87,22 @@ describe('SpecialtiesBar', () => {
     q('.spb-cta')!.click(); flush();
     expect(q('[data-testid="spb-panel"]')).toBeNull();
     expect(nav).toHaveBeenCalled();
+  });
+
+  it('marks <html> while the panel is open (the floating assistant is hidden by it) and clears it on close', () => {
+    q('[data-testid="spb-all"]')!.click(); flush();
+    expect(document.documentElement.classList.contains('spb-open')).toBe(true);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); flush();
+    expect(document.documentElement.classList.contains('spb-open')).toBe(false);
+  });
+
+  it('emits megaOpened (the page closes its filters drawer) and closes itself when suspended by another layer', () => {
+    const bar = fixture.debugElement.children[0].componentInstance as SpecialtiesBar;
+    const opened = vi.fn(); bar.megaOpened.subscribe(opened);
+    q('[data-testid="spb-all"]')!.click(); flush();
+    expect(opened).toHaveBeenCalledTimes(1);
+    fixture.componentInstance.suspended = true; fixture.changeDetectorRef.detectChanges(); flush();
+    expect(q('[data-testid="spb-panel"]')).toBeNull();
   });
 
   it('renders nothing while there are no categories', () => {

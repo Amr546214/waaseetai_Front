@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnDestroy, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, ViewEncapsulation, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -48,6 +48,10 @@ export class SpecialtiesBar implements OnDestroy {
 	readonly activeSub = input<string>('');
 	/** Distance from the viewport top where the bar sticks (below the site header, and the search bar on the landing page). */
 	readonly stickyTop = input<number>(64);
+	/** True while another layer (the filters drawer) is open: the mega panel and dropdown close and stay closed. */
+	readonly suspended = input<boolean>(false);
+	/** Emitted when the mega panel opens, so the page can close its own layers (the filters drawer). */
+	readonly megaOpened = output<void>();
 
 	readonly megaOpen = signal(false);
 	readonly megaQuery = signal('');
@@ -56,6 +60,10 @@ export class SpecialtiesBar implements OnDestroy {
 	readonly hoverSlug = signal<string | null>(null);
 	readonly dropPos = signal<{ top: number; left: number } | null>(null);
 	private dropTimer: ReturnType<typeof setTimeout> | null = null;
+
+	constructor() {
+		effect(() => { if (this.suspended()) untracked(() => { this.closeMega(); this.closeDrop(); }); });
+	}
 
 	/** "كل التخصصات" counter: all sub-specialties, or the categories when none have subs. */
 	readonly total = computed(() => {
@@ -102,14 +110,15 @@ export class SpecialtiesBar implements OnDestroy {
 		this.megaQuery.set('');
 		this.megaSlug.set(this.activeCategory() || this.categories()[0]?.slug || null);
 		this.megaOpen.set(true);
-		this.lockScroll(true);
+		this.setLayerState(true);
+		this.megaOpened.emit();
 	}
 
 	closeMega() {
 		if (!this.megaOpen()) return;
 		this.megaOpen.set(false);
 		this.megaQuery.set('');
-		this.lockScroll(false);
+		this.setLayerState(false);
 	}
 
 	pickMega(slug: string) { this.megaSlug.set(slug); }
@@ -119,10 +128,15 @@ export class SpecialtiesBar implements OnDestroy {
 	@HostListener('document:keydown.escape')
 	onEscape() { this.closeMega(); this.closeDrop(); }
 
-	/** The sheet is a full-screen layer on phones: keep the page behind it from scrolling. */
-	private lockScroll(on: boolean) {
+	/**
+	 * While the panel is open: `spb-open` hides the floating assistant (it sits above the page chrome and would float over the
+	 * sheet), and on phones `spb-lock` keeps the page behind the full-screen sheet from scrolling.
+	 */
+	private setLayerState(on: boolean) {
+		const root = this.doc.documentElement.classList;
 		const phone = !!this.doc.defaultView?.matchMedia?.('(max-width: 768px)').matches;
-		this.doc.documentElement.classList.toggle('spb-lock', on && phone);
+		root.toggle('spb-open', on);
+		root.toggle('spb-lock', on && phone);
 	}
 
 	// ── small hover dropdown (desktop pointers only; outside the scrolling strip so it is never clipped) ──
@@ -150,5 +164,5 @@ export class SpecialtiesBar implements OnDestroy {
 	/** Navigating from any link closes whatever is open. */
 	onNavigate() { this.closeDrop(); this.closeMega(); }
 
-	ngOnDestroy() { this.cancelDropClose(); this.lockScroll(false); this.doc.documentElement.classList.remove('spb-lock'); }
+	ngOnDestroy() { this.cancelDropClose(); this.setLayerState(false); }
 }

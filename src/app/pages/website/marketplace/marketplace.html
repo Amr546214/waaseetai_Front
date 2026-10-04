@@ -101,7 +101,7 @@
   </div>
 
   <!-- SPECIALTIES BAR (design P-MK-001) -->
-  <app-specialties-bar [categories]="categories()" [activeCategory]="selectedCategory() === 'all' ? '' : selectedCategory()" [activeSub]="selectedSub()" [stickyTop]="109" />
+  <app-specialties-bar [suspended]="filtersOpen()" (megaOpened)="closeFilters()" [categories]="categories()" [activeCategory]="selectedCategory() === 'all' ? '' : selectedCategory()" [activeSub]="selectedSub()" [stickyTop]="109" />
 
   <!-- HERO SLIDER -->
   <div class="hero-slider" role="region" aria-label="عروض مميزة" aria-live="polite" (mouseenter)="stopAuto()" (mouseleave)="startAuto()">
@@ -371,7 +371,7 @@
   </section>
 
   <!-- SPECIALTIES BAR (design P-MK-001) -->
-  <app-specialties-bar [categories]="categories()" [activeCategory]="selectedCategory() === 'all' ? '' : selectedCategory()" [activeSub]="selectedSub()" [stickyTop]="64" />
+  <app-specialties-bar [suspended]="filtersOpen()" (megaOpened)="closeFilters()" [categories]="categories()" [activeCategory]="selectedCategory() === 'all' ? '' : selectedCategory()" [activeSub]="selectedSub()" [stickyTop]="64" />
 
   <!-- REFINEMENT STRIP: only the opened specialty's sub-specialties (the categories themselves live in the bar above) -->
   @if (selectedCategoryData() && refinements().length > 0) {
