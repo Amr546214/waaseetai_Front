@@ -18,11 +18,17 @@ describe('validationMessage (Arabic validator messages)', () => {
 
 	it('email, minlength, maxlength, min, max, pattern', () => {
 		expect(validationMessage(errs('not-an-email', Validators.email))).toContain('بريدًا إلكترونيًا صالحًا');
-		expect(validationMessage(errs('ab', Validators.minLength(5)), 'الاسم')).toBe('الاسم يجب ألا تقل عن 5 أحرف');
-		expect(validationMessage(errs('abcdef', Validators.maxLength(3)))).toBe('القيمة يجب ألا تزيد على 3 أحرف');
-		expect(validationMessage(errs(1, Validators.min(300)), 'المبلغ')).toBe('المبلغ يجب ألا تقل عن 300');
-		expect(validationMessage(errs(9, Validators.max(5)))).toBe('القيمة يجب ألا تزيد على 5');
+		expect(validationMessage(errs('ab', Validators.minLength(5)), 'الاسم')).toBe('الاسم يجب ألا يقل عن 5 أحرف');
+		expect(validationMessage(errs('abcdef', Validators.maxLength(3)))).toBe('القيمة يجب ألا يزيد على 3 أحرف');
+		expect(validationMessage(errs(1, Validators.min(300)), 'المبلغ')).toBe('المبلغ يجب ألا يقل عن 300');
+		expect(validationMessage(errs(9, Validators.max(5)))).toBe('القيمة يجب ألا يزيد على 5');
 		expect(validationMessage(errs('x', Validators.pattern(/^\d+$/)), 'الجوال')).toBe('صيغة الجوال غير صحيحة');
+	});
+
+	it('length phrases use correct Arabic counts (حرفين، 3 أحرف، 11 حرفًا)', () => {
+		expect(validationMessage(errs('a', Validators.minLength(2)), 'الاسم')).toBe('الاسم يجب ألا يقل عن حرفين');
+		expect(validationMessage(errs('a', Validators.minLength(1 + 1 + 1)))).toBe('القيمة يجب ألا يقل عن 3 أحرف');
+		expect(validationMessage(errs('a', Validators.minLength(11)))).toBe('القيمة يجب ألا يقل عن 11 حرفًا');
 	});
 
 	it('a server message wins over every other error', () => {

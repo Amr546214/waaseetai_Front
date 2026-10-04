@@ -43,6 +43,19 @@ describe('authInterceptor 401 handling', () => {
 		expect(logout).not.toHaveBeenCalled();
 	});
 
+	it('an auth-attempt 401 leaves the stored session untouched; any other 401 clears it', () => {
+		const removed: string[] = [];
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: (k: string) => removed.push(k) });
+		try {
+			fail401('/api/auth/verify-otp');
+			expect(removed).toEqual([]);
+			fail401('/api/client/requests');
+			expect(removed).toEqual(expect.arrayContaining(['waseet_token', 'waseet_user']));
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
 	it('a 401 anywhere else is an expired session: the user is logged out and redirected to login', () => {
 		expect(fail401('/api/client/requests')).toBe(401);
 		expect(logout).toHaveBeenCalledWith('/auth/login');

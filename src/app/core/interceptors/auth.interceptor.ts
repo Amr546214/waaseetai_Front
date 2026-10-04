@@ -69,16 +69,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // example, if an old component calls favorites). Do not destroy the
       // guest session or redirect from a public page in that case.
       if (error.status === 401 && isBrowser && requestHadAuth) {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.removeItem('waseet_token');
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('token');
-          localStorage.removeItem('waseet_user');
-        }
         // A 401 from these calls means wrong credentials / bad code for THIS attempt, not an expired session:
-        // the page shows the error itself, so the user must not be logged out or redirected.
+        // the page shows the error itself, so the stored session is left untouched and nobody is redirected.
         const isAuthRoute = AUTH_ATTEMPT_URLS.some(u => req.url.includes(u));
         if (!isAuthRoute) {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.removeItem('waseet_token');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('waseet_user');
+          }
           authStore.logout('/auth/login');
         }
       }

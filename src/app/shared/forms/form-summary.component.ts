@@ -13,13 +13,13 @@ import { InvalidField } from '../../core/forms/form-helpers';
 	template: `
 		@if (items().length) {
 			<div role="alert" data-testid="form-summary"
-				class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 dark:border-red-500/30 dark:bg-red-950 dark:text-red-100">
+				class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 dark:border-red-500/30 dark:bg-red-950 dark:text-red-100">
 				<div class="mb-2 font-bold">{{ title() }}</div>
 				<ul class="list-disc space-y-1 ps-5 leading-relaxed">
 					@for (it of items(); track it.path) {
 						<li>
 							<button type="button" class="text-start underline-offset-2 hover:underline" (click)="select.emit(it)">
-								@if (it.label) { <span class="font-semibold">{{ it.label }}:</span> }
+								@if (it.label) { <span class="me-1 font-semibold">{{ it.label }}:</span> }
 								<span>{{ it.message }}</span>
 							</button>
 						</li>
