@@ -67,9 +67,9 @@ describe('client profile-edit: PayPal-only receiving method', () => {
     }
   });
 
-  it('PayPal email is required and must be valid', () => {
+  it('PayPal email may be empty (clearing) but a non-empty value must be valid', () => {
     const c = component.bankingForm.get('paypalEmail')!;
-    expect(c.valid).toBe(false);
+    expect(c.valid).toBe(true);
     c.setValue('not-an-email'); expect(c.valid).toBe(false);
     c.setValue('a@b'); expect(c.valid).toBe(false);
     c.setValue('name@example.com'); expect(c.valid).toBe(true);
@@ -94,6 +94,32 @@ describe('client profile-edit: PayPal-only receiving method', () => {
       expect(payload).not.toHaveProperty(k);
     }
     http.expectNone(() => true);
+  });
+
+  it('clearing: saved email -> empty input -> save sends { paypalPayoutEmail: null } only', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [ProfileEdit],
+      providers: [
+        provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
+        { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' }), token: () => 't', authenticate: vi.fn() } },
+        { provide: ProfileApiService, useValue: {
+          getMyProfile: () => of({ success: true, data: { currentProfileData: { paypalPayoutEmail: 'saved@example.com' }, latestHistory: [] } }),
+          getChangeRequests: () => of({ success: true, data: [] }), updateTab, updateProfile: vi.fn(() => of({ success: true })) } },
+      ],
+    }).compileComponents();
+    const f = TestBed.createComponent(ProfileEdit);
+    f.detectChanges();
+    const c = f.componentInstance;
+    expect(c.bankingForm.get('paypalEmail')?.value).toBe('saved@example.com');
+    c.bankingForm.get('paypalEmail')!.setValue('');
+    expect(c.bankingForm.get('paypalEmail')!.valid).toBe(true);
+    c.saveTab('banking');
+    expect(updateTab).toHaveBeenCalledTimes(1);
+    const [tab, payload] = updateTab.mock.calls[0];
+    expect(tab).toBe('banking');
+    expect(payload).toEqual({ paypalPayoutEmail: null });
+    expect(c.errorMsg()).toBe('');
   });
 
   it('the saved paypalPayoutEmail from GET /profiles/me fills the field on load', async () => {

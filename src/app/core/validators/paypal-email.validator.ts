@@ -13,6 +13,12 @@ export const paypalEmailValidators: ValidatorFn[] = [
 	Validators.pattern(PAYPAL_EMAIL_PATTERN),
 ];
 
+/** Same as above but empty is allowed (used where clearing the saved email must be possible). */
+export const paypalEmailOptionalValidators: ValidatorFn[] = [
+	Validators.email,
+	Validators.pattern(PAYPAL_EMAIL_PATTERN),
+];
+
 /** Arabic message for the current error of a PayPal email control (null when valid). */
 export function paypalEmailError(errors: Record<string, unknown> | null | undefined): string | null {
 	if (!errors) return null;

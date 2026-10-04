@@ -8,7 +8,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { ExperienceLevel } from '../../../../../core/models/profile.model';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
-import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
+import { paypalEmailError, paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
@@ -239,7 +239,7 @@ export class ProfileEdit {
 
 		this.bankingForm = this.fb.group({
 			paymentMethod: ['wallet'],
-			paypalEmail: ['', paypalEmailValidators],
+			paypalEmail: ['', paypalEmailOptionalValidators], // empty = clear the saved email
 			// Legacy saved values: kept in the form model so nothing stored is dropped, but never shown or sent.
 			accountHolderName: [''],
 			bankName: [''],
@@ -478,7 +478,9 @@ export class ProfileEdit {
 				this.errorMsg.set('حفظ حساب PayPal لطالب الخدمة غير مفعّل بعد (بانتظار دعم الخادم).');
 				return;
 			}
-			payload = { paypalPayoutEmail: String(this.bankingForm.value.paypalEmail || '').trim() };
+			const email = String(this.bankingForm.value.paypalEmail || '').trim();
+			// Empty input clears the saved PayPal email (null); never touches bank/wallet fields.
+			payload = { paypalPayoutEmail: email || null };
 		} else {
 			if (form.invalid) {
 				this.errorMsg.set('يرجى التأكد من صحة البيانات المدخلة');
