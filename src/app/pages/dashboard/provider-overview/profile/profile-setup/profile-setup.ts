@@ -14,7 +14,7 @@ import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../.
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
-import { attemptSubmit, focusFirstInvalid, InvalidField } from '../../../../../core/forms/form-helpers';
+import { attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError } from '../../../../../core/forms/http-error';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -34,6 +34,13 @@ const SETUP_LABELS: Record<string, string> = {
 
 /** Documents and portfolio files: PDF / JPG / PNG, 10 MB (the backend upload limit). */
 const DOC_RULE = { maxBytes: 10 * MB, mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'], typesLabel: 'PDF أو JPG أو PNG' };
+/** Portfolio samples: what the upload inputs themselves accept (images, PDF, ZIP, and MP4 for the main sample). */
+const PORTFOLIO_RULE = {
+	maxBytes: 10 * MB,
+	mimeTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/zip', 'application/x-zip-compressed', 'video/mp4'],
+	extensions: ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.zip', '.mp4'],
+	typesLabel: 'صورة أو PDF أو ZIP أو MP4',
+};
 const DOC_FILE_KEYS = ['frontId', 'backId', 'selfie', 'certs'];
 
 export interface SetupAlertModal {
@@ -344,7 +351,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private checkGroup(name: string): boolean {
 		const group = this.setupForm.get(name);
 		if (!group) return true;
-		const attempt = attemptSubmit(group, { root: this.host.nativeElement, labels: SETUP_LABELS });
+		const attempt = attemptSubmit(group, { root: (this.host.nativeElement as HTMLElement).querySelector('.step-panel.active') ?? this.host.nativeElement, labels: SETUP_LABELS });
 		this.missing.set(attempt.missing);
 		return attempt.valid;
 	}
@@ -402,7 +409,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	/** After a step change the new step's inputs are not rendered yet: focus the first missing field once they are. */
 	private focusSoon() {
-		setTimeout(() => focusFirstInvalid(this.host.nativeElement));
+		setTimeout(() => {
+			// All wizard panels stay in the DOM and only the active one is shown: look for the field inside it, never in
+			// a hidden step (focusing a hidden control does nothing).
+			const host = this.host.nativeElement as HTMLElement;
+			const panel = host.querySelector<HTMLElement>('.step-panel.active') ?? host;
+			// Upload slots are not form controls: when nothing invalid is focusable, focus the first upload input.
+			if (!focusFirstInvalid(panel)) panel.querySelector<HTMLElement>('.upload-file-inp, .upload-area')?.focus();
+		});
 	}
 
 	goToStep(step: number) {
@@ -772,7 +786,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0] as File;
 			const errKey = `portfolio-${spec}`;
-			const problem = validateFile(file, DOC_RULE);
+			const problem = validateFile(file, PORTFOLIO_RULE);
 			if (problem) {
 				this.setFileError(errKey, `${spec}: ${problem}`);
 				event.target.value = '';
@@ -816,7 +830,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			const errKey = `portfolio-${spec}`;
 
 			for (const f of files) {
-				const problem = validateFile(f, DOC_RULE);
+				const problem = validateFile(f, PORTFOLIO_RULE);
 				if (problem) {
 					this.setFileError(errKey, `${spec} («${f.name}»): ${problem}`);
 					event.target.value = '';
@@ -939,21 +953,59 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			error: (error) => {
 				this.isSubmitting.set(false);
 				const mapped = mapHttpError(error, { fallback: 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });
+				// Server field messages (zod-style `errors[]`, names as the backend calls them) go to the matching inputs;
+				// the wizard returns to the step that holds the first one and focuses it.
+				if (this.applyServerFieldErrors(mapped.fieldErrors)) return;
 				// The backend rejects a skill that is not in the skills directory (400, Arabic): show it where the skills are.
 				if (mapped.kind === 'backend-validation' && /المهارات/.test(mapped.message)) {
 					this.skillsServerError.set(mapped.message);
-					this.currentStep.set(2);
+					this.currentStep.set(1); // the skills section is on step 1
 					this.missing.set([{ path: 'skills', label: 'المهارات', message: mapped.message }]);
+					// Focus the skills input (it is on the active step, visible on the next change detection).
+					setTimeout(() => (this.host.nativeElement as HTMLElement).querySelector<HTMLElement>('.skills-input')?.focus(), 100);
 				}
 				this.alertModal.set({ type: 'error', title: 'تعذر الحفظ', message: mapped.message });
 			}
 		});
 	}
 
+	/** Backend field name -> the form control that holds it and the wizard step it is on. */
+	private static readonly SERVER_FIELDS: Record<string, { control: string; step: number }> = {
+		occupation: { control: 'profData.jobTitle', step: 1 }, jobTitle: { control: 'profData.jobTitle', step: 1 },
+		expYears: { control: 'profData.expYears', step: 1 }, country: { control: 'profData.country', step: 1 },
+		city: { control: 'profData.city', step: 1 }, bio: { control: 'profData.bio', step: 1 },
+		mainSpec: { control: 'specialties.mainSpec', step: 2 }, subSpecs: { control: 'specialties.subSpecs', step: 2 },
+		paypalPayoutEmail: { control: 'payout.paypalEmail', step: 3 }, paypalEmail: { control: 'payout.paypalEmail', step: 3 },
+	};
+
+	/** Puts server field errors on the right controls; returns true when at least one matched (and the step was changed). */
+	private applyServerFieldErrors(fieldErrors: Record<string, string>): boolean {
+		const targets = Object.entries(fieldErrors)
+			.map(([name, message]) => ({ message, target: ProfileSetupDashboard.SERVER_FIELDS[name] }))
+			.filter(t => t.target && this.setupForm.get(t.target.control));
+		if (!targets.length) return false;
+		const firstStep = targets[0].target.step;
+		this.currentStep.set(firstStep);
+		// The step's inputs are created on the next render, and binding a control to its input revalidates it (dropping
+		// manual errors). So the server errors are set once the step is on screen.
+		setTimeout(() => {
+			for (const { message, target } of targets) {
+				const control = this.setupForm.get(target.control)!;
+				control.setErrors({ ...(control.errors ?? {}), server: message });
+				control.markAsTouched();
+			}
+			this.missing.set(collectInvalidFields(this.setupForm.get(['profData', 'specialties', 'payout'][Math.min(firstStep, 3) - 1])!, SETUP_LABELS));
+			setTimeout(() => this.focusSoon(), 60);
+		}, 30);
+		return true;
+	}
+
 	/** Validation message of the PayPal email (shown once the field was touched/edited, or on a failed next). */
 	paypalEmailMsg(): string | null {
 		const c = this.setupForm.get('payout.paypalEmail');
-		return c && (c.touched || c.dirty) ? paypalEmailError(c.errors) : null;
+		if (!c || !(c.touched || c.dirty)) return null;
+		const server = c.errors?.['server'];
+		return typeof server === 'string' ? server : paypalEmailError(c.errors);
 	}
 
 	startTest() {

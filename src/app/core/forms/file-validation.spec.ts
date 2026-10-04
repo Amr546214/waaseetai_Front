@@ -27,3 +27,16 @@ describe('validateFile', () => {
 		expect(formatMegabytes(1.5 * MB)).toBe('1.5');
 	});
 });
+
+describe('validateFile: extension fallback', () => {
+	const rule = { maxBytes: MB, mimeTypes: ['application/pdf'], extensions: ['.zip', '.mp4'], typesLabel: 'PDF أو ZIP أو MP4' };
+
+	it('accepts a file whose MIME type is odd/empty when its extension is allowed', () => {
+		expect(validateFile({ name: 'Sample.ZIP', size: 10, type: '' }, rule)).toBeNull();
+		expect(validateFile({ name: 'clip.mp4', size: 10, type: 'application/octet-stream' }, rule)).toBeNull();
+	});
+
+	it('still rejects when neither the MIME type nor the extension is allowed', () => {
+		expect(validateFile({ name: 'run.exe', size: 10, type: 'application/x-msdownload' }, rule)).toContain('نوع الملف غير مسموح');
+	});
+});

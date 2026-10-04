@@ -177,8 +177,12 @@ export class ProfileSetup implements OnInit {
 		setTimeout(() => this.router.navigate(['/marketer-overview']), 1200);
 	}
 
+	private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
 	showToast(msg: string): void {
 		this.toastMsg.set(msg);
-		setTimeout(() => this.toastMsg.set(null), 3000);
+		// A newer toast must not be cleared early by the timer of an older one.
+		if (this.toastTimer) clearTimeout(this.toastTimer);
+		this.toastTimer = setTimeout(() => this.toastMsg.set(null), 3000);
 	}
 }

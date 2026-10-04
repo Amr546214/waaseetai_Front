@@ -4,6 +4,8 @@ export interface FileRule {
 	maxBytes: number;
 	/** Allowed MIME types (e.g. 'image/png'). When empty any type is accepted. */
 	mimeTypes?: string[];
+	/** Allowed extensions (lower-case, with the dot). A file whose MIME type is unknown/odd is still accepted by extension. */
+	extensions?: string[];
 	/** Human-readable allowed types for the message, e.g. 'JPG أو PNG أو PDF'. */
 	typesLabel?: string;
 }
@@ -19,7 +21,8 @@ export function formatMegabytes(bytes: number): string {
 
 /** Returns an Arabic error for the first violated rule, or null when the file is acceptable. */
 export function validateFile(file: { size: number; type: string; name?: string }, rule: FileRule): string | null {
-	if (rule.mimeTypes?.length && !rule.mimeTypes.includes(file.type)) {
+	const byExtension = !!file.name && !!rule.extensions?.some(ext => file.name!.toLowerCase().endsWith(ext));
+	if (rule.mimeTypes?.length && !rule.mimeTypes.includes(file.type) && !byExtension) {
 		return `نوع الملف غير مسموح${rule.typesLabel ? `، المسموح: ${rule.typesLabel}` : ''}`;
 	}
 	if (file.size > rule.maxBytes) {

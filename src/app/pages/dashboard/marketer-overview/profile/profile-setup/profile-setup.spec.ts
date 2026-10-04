@@ -172,4 +172,16 @@ describe('ProfileSetup (marketer): shared validation', () => {
     component.prevStep();
     expect(component.missing()).toEqual([]);
   });
+
+  it('a newer toast is not cleared early by the timer of an older one', () => {
+    vi.useFakeTimers();
+    component.showToast('الأول');
+    vi.advanceTimersByTime(2500);
+    component.showToast('الثاني');
+    vi.advanceTimersByTime(1000); // the first toast's 3 s would have elapsed here
+    expect(component.toastMsg()).toBe('الثاني');
+    vi.advanceTimersByTime(2100);
+    expect(component.toastMsg()).toBeNull();
+    vi.useRealTimers();
+  });
 });

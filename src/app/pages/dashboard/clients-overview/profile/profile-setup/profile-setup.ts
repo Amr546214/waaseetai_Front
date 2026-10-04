@@ -319,39 +319,57 @@ export class ProfileSetupDashboard implements OnInit {
 		];
 		for (const [re, path, message, groupName] of fieldFix) {
 			if (re.test(raw)) {
-				const c = this.setupForm.get(path);
-				c?.setErrors({ ...(c.errors ?? {}), server: message });
-				c?.markAsTouched();
-				this.currentStep.set(Number(Object.keys(STEP_GROUPS).find(k => STEP_GROUPS[+k] === groupName)));
-				this.missing.set(collectInvalidFields(this.setupForm.get(groupName)!, SETUP_LABELS));
-				this.focusSoon();
+				this.showFieldErrors([{ path, message }], groupName);
 				return;
 			}
 		}
 		const mapped = this.notify.httpError(err, { fallback: 'حدث خطأ أثناء حفظ البيانات، يرجى المحاولة مرة أخرى' });
-		// Server field messages (zod-style `errors[]`) land on the matching inputs.
-		const names = Object.keys(mapped.fieldErrors);
-		if (names.length) {
-			for (const name of names) {
-				const c = this.findControl(name);
-				if (c) { c.setErrors({ ...(c.errors ?? {}), server: mapped.fieldErrors[name] }); c.markAsTouched(); }
-			}
-			this.missing.set(collectInvalidFields(this.setupForm, SETUP_LABELS));
-			this.focusSoon();
+		// Server field messages (zod-style `errors[]`) land on the matching inputs; if the field lives on another step,
+		// go back to that step and focus it.
+		const items: { path: string; message: string }[] = [];
+		let firstGroup = '';
+		for (const [name, message] of Object.entries(mapped.fieldErrors)) {
+			const found = this.findControl(name);
+			if (!found) continue;
+			items.push({ path: `${STEP_GROUPS[found.step]}.${name}`, message });
+			firstGroup = firstGroup || STEP_GROUPS[found.step];
 		}
+		if (items.length) this.showFieldErrors(items, firstGroup);
+	}
+
+	/**
+	 * Goes to the step of the first field and, once that step is on screen, puts the server messages on the inputs and
+	 * focuses the first one (binding a control to a freshly created input revalidates it, which would drop errors set
+	 * earlier).
+	 */
+	private showFieldErrors(items: { path: string; message: string }[], groupName: string) {
+		this.currentStep.set(Number(Object.keys(STEP_GROUPS).find(k => STEP_GROUPS[+k] === groupName)));
+		setTimeout(() => {
+			for (const { path, message } of items) {
+				const c = this.setupForm.get(path);
+				c?.setErrors({ ...(c.errors ?? {}), server: message });
+				c?.markAsTouched();
+			}
+			this.missing.set(collectInvalidFields(this.setupForm.get(groupName)!, SETUP_LABELS));
+			setTimeout(() => this.focusSoon(), 60);
+		}, 30);
 	}
 
 	private findControl(name: string) {
-		for (const g of Object.values(STEP_GROUPS)) {
-			const c = this.setupForm.get(`${g}.${name}`);
-			if (c) return c;
+		for (const [step, g] of Object.entries(STEP_GROUPS)) {
+			const control = this.setupForm.get(`${g}.${name}`);
+			if (control) return { control, step: Number(step) };
 		}
 		return null;
 	}
 
+	private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
 	showToast(msg: string) {
 		this.toastMsg.set(msg);
-		setTimeout(() => {
+		// A newer toast must not be cleared early by the timer of an older one.
+		if (this.toastTimer) clearTimeout(this.toastTimer);
+		this.toastTimer = setTimeout(() => {
 			this.toastMsg.set(null);
 		}, 3000);
 	}

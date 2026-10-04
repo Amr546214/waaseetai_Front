@@ -170,6 +170,9 @@ describe('client profile-setup: shared validation', () => {
 	});
 
 	describe('server errors', () => {
+		beforeEach(() => { vi.useFakeTimers(); });
+		afterEach(() => { vi.useRealTimers(); });
+		const settle = () => { vi.advanceTimersByTime(500); };
 		const failWith = (status: number, body: any) => save.mockReturnValue(throwError(() => new HttpErrorResponse({ status, error: body })));
 
 		it('the English "Invalid ID Number format." (400) becomes an Arabic field error on step 1', () => {
@@ -177,6 +180,7 @@ describe('client profile-setup: shared validation', () => {
 			failWith(400, { success: false, message: 'Invalid ID Number format.' });
 			component.currentStep.set(5);
 			component.submitForm();
+			settle();
 			render();
 			expect(component.currentStep()).toBe(1);
 			expect(component.setupForm.get('details.idNumber')!.errors?.['server']).toContain('10 أرقام');
@@ -188,6 +192,7 @@ describe('client profile-setup: shared validation', () => {
 			fillStep1(); fillBank(); fillAgreements();
 			failWith(400, { message: 'IBAN must be exactly 24 characters.' });
 			component.submitForm();
+			settle();
 			expect(component.currentStep()).toBe(3);
 			expect(component.setupForm.get('bank.iban')!.errors?.['server']).toContain('24');
 		});
@@ -204,10 +209,24 @@ describe('client profile-setup: shared validation', () => {
 			expect(component.setupForm.get('details.idNumber')!.value).toBe('1234567890');
 		});
 
+		it('a zod error for a field on an EARLIER step returns to that step and focuses the field', () => {
+			document.body.appendChild(el());
+			fillStep1(); fillBank(); fillAgreements();
+			failWith(400, { message: 'Validation Error', errors: [{ path: 'body.details.occupation', message: 'المهنة غير مقبولة' }] });
+			component.currentStep.set(5);
+			component.submitForm();
+			settle();
+			render();
+			expect(component.currentStep()).toBe(1);
+			expect(component.setupForm.get('details.occupation')!.errors?.['server']).toBe('المهنة غير مقبولة');
+			el().remove();
+		});
+
 		it('zod-style errors[] are placed on the matching fields', () => {
 			fillStep1(); fillBank(); fillAgreements();
 			failWith(400, { message: 'Validation Error', errors: [{ path: 'body.details.city', message: 'المدينة غير مدعومة' }] });
 			component.submitForm();
+			settle();
 			expect(component.setupForm.get('details.city')!.errors?.['server']).toBe('المدينة غير مدعومة');
 		});
 	});

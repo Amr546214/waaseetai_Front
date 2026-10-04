@@ -170,7 +170,7 @@ describe('provider profile-setup: shared validation', () => {
     it('portfolio sample: wrong type / oversize / failed upload are shown inline on step 5 for that specialty', () => {
       component.portfolioItems.set({ 'تطوير مواقع': [{ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] }] });
       component.currentStep.set(5); render();
-      component.onPortfolioReviewChange(pickEvent(file('s.zip', 'application/zip', 10)), 'تطوير مواقع', 0);
+      component.onPortfolioReviewChange(pickEvent(file('s.exe', 'application/x-msdownload', 10)), 'تطوير مواقع', 0);
       render();
       expect(component.fileErrors()['portfolio-تطوير مواقع']).toContain('نوع الملف غير مسموح');
       expect(el().querySelector('[data-testid="portfolio-file-errors"]')?.textContent).toContain('تطوير مواقع');
@@ -225,17 +225,38 @@ describe('provider profile-setup: shared validation', () => {
       expect(save.mock.calls[0][0].portfolio['تطوير مواقع'][0].proofs).toEqual(['p-url']);
     });
 
-    it('the backend 400 about a skill (Arabic) is shown next to the skills on step 2 and listed in the summary', () => {
+    it('the backend 400 about a skill (Arabic) is shown next to the skills (step 1) and listed in the summary', () => {
       allValid();
       save.mockReturnValue(throwError(() => ({ status: 400, error: { message: 'اختر مهارات موجودة في دليل المهارات' } })));
       component.saveAndGoToTest();
       passPaypal();
       render();
-      expect(component.currentStep()).toBe(2);
+      expect(component.currentStep()).toBe(1);
       expect(component.skillsServerError()).toContain('المهارات');
       expect(el().querySelector('#skills-server-error')?.textContent).toContain('المهارات');
       expect(summary()).toContain('المهارات');
       expect(component.isSubmitting()).toBe(false);
+    });
+
+    it('zod errors[] on fields of earlier steps return to that step (PayPal -> step 3, occupation -> step 1) with the field error set', () => {
+      vi.useFakeTimers();
+      allValid();
+      save.mockReturnValue(throwError(() => ({ status: 400, error: { message: 'Validation Error', errors: [{ path: 'body.paypalPayoutEmail', message: 'بريد PayPal غير صحيح' }] } })));
+      component.saveAndGoToTest();
+      passPaypal();
+      vi.advanceTimersByTime(500);
+      expect(component.currentStep()).toBe(3);
+      expect(component.setupForm.get('payout.paypalEmail')!.errors?.['server']).toBe('بريد PayPal غير صحيح');
+      expect(component.alertModal()).toBeNull();
+
+      allValid();
+      save.mockReturnValue(throwError(() => ({ status: 400, error: { errors: [{ path: 'details.occupation', message: 'المسمى غير مقبول' }] } })));
+      component.saveAndGoToTest();
+      passPaypal();
+      vi.advanceTimersByTime(500);
+      expect(component.currentStep()).toBe(1);
+      expect(component.setupForm.get('profData.jobTitle')!.errors?.['server']).toBe('المسمى غير مقبول');
+      vi.useRealTimers();
     });
 
     it('429 / 500 / network on save are shown in Arabic only', () => {
