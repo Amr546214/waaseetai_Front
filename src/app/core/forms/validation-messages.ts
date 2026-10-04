@@ -29,6 +29,8 @@ export function validationMessage(errors: ValidationErrors | null | undefined, l
 	if (errors['min']) return `${of('القيمة')} يجب ألا تقل عن ${errors['min'].min}`;
 	if (errors['max']) return `${of('القيمة')} يجب ألا تزيد على ${errors['max'].max}`;
 	if (errors['strongPassword']) return passwordRulesMessage(errors['strongPassword']);
+	if (errors['phoneDigits']) return `رقم الجوال يجب أن يتكون من ${errors['phoneDigits'].requiredLength} أرقام على الأقل`;
+	if (errors['invalidPhone']) return 'أدخل رقم جوال صحيحًا للدولة المختارة';
 	if (errors['mismatch']) return 'القيمتان غير متطابقتين';
 	if (errors['iban']) return 'أدخل رقم IBAN صالحًا';
 	if (errors['url']) return 'أدخل رابطًا صالحًا يبدأ بـ http:// أو https://';

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ChangeDetectorRef, DestroyRef, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -7,11 +7,18 @@ import { AuthApiService } from '../../../core/services/auth-api.service';
 import { AuthStore } from '../../../core/store/auth.store';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
+import { mapHttpError } from '../../../core/forms/http-error';
+import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
+import { validationMessage } from '../../../core/forms/validation-messages';
+import { UiNotificationService } from '../../../core/services/ui-notification.service';
+import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
+
+const LOGIN_LABELS = { email: 'البريد الإلكتروني', password: 'كلمة المرور' };
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, FormSummaryComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
   encapsulation: ViewEncapsulation.None,
@@ -22,6 +29,10 @@ export class Login implements OnDestroy {
   showPassword = false;
 
   errorMessage = '';
+  /** What is missing after a failed submit attempt (shown by <ws-form-summary>). */
+  missingFields: InvalidField[] = [];
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly notify = inject(UiNotificationService);
   appleNotice = '';
   isSubmitting = false;
   // Set on a 404 from /auth/google (intent: 'login') — no Waseet account
@@ -105,6 +116,13 @@ export class Login implements OnDestroy {
               return;
             }
 
+            // Existing Google account that never finished email verification: no token comes back,
+            // so resume at the email-OTP step instead of navigating with an empty user.
+            if (res.data && !res.data.token && res.data.verified === false && res.data.userId) {
+              this.goToEmailVerification();
+              return;
+            }
+
             // intent: 'login' can only ever succeed for an existing,
             // already-registered account (the backend 404s otherwise, caught
             // below) — never a first-time signup, so this always goes
@@ -116,9 +134,12 @@ export class Login implements OnDestroy {
             this.isSubmitting = false;
             if (err.status === 404) {
               this.accountNotFoundError = true;
-              this.errorMessage = err.error?.message || 'لا يوجد حساب بهذا البريد الإلكتروني، يرجى إنشاء حساب أولاً';
+              // Server text if it is Arabic, otherwise the fixed "no account" message.
+              this.errorMessage = /[\u0600-\u06FF]/.test(err.error?.message || '')
+                ? err.error.message
+                : 'لا يوجد حساب بهذا البريد الإلكتروني، يرجى إنشاء حساب أولاً';
             } else {
-              this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء تسجيل الدخول بجوجل';
+              this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء تسجيل الدخول بجوجل' }).message;
             }
             this.cdr.markForCheck();
           }
@@ -148,39 +169,57 @@ export class Login implements OnDestroy {
   }
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      this.isSubmitting = true;
-      this.errorMessage = '';
+    this.errorMessage = '';
+    this.accountNotFoundError = false;
+    const attempt = attemptSubmit(this.loginForm, { root: this.host.nativeElement, labels: LOGIN_LABELS });
+    this.missingFields = attempt.missing;
+    if (!attempt.valid) {
       this.cdr.markForCheck();
-      
-      const payload = {
-        email: this.loginForm.value.email,
-        password: this.loginForm.value.password
-      };
-
-      this.authApi.login(payload).subscribe({
-        next: (res) => {
-          this.isSubmitting = false;
-          this.cdr.markForCheck();
-          if (res.data?.verified) {
-            const user = res.data.user || this.authStore.currentUser();
-            this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
-          } else if (res.data?.phoneOtpRequired && res.data?.userId) {
-            this.openOtpModal(res.data.userId);
-          } else {
-            this.router.navigate(['/auth/register']);
-          }
-        },
-        error: (err) => {
-          this.isSubmitting = false;
-          // Sometimes the backend response is inside err.error.message or just err.message
-          this.errorMessage = err.error?.message || err.message || 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
-          this.cdr.markForCheck();
-        }
-      });
-    } else {
-      this.loginForm.markAllAsTouched();
+      return;
     }
+
+    this.isSubmitting = true;
+    this.cdr.markForCheck();
+
+    const payload = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
+    };
+
+    this.authApi.login(payload).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+        if (res.data?.verified) {
+          const user = res.data.user || this.authStore.currentUser();
+          this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
+        } else if (res.data?.phoneOtpRequired && res.data?.userId) {
+          this.openOtpModal(res.data.userId);
+        } else {
+          // Registered but never verified: the backend has just e-mailed a fresh code (and authApi.login
+          // stored the pending user id), so continue at the verification step instead of the sign-up page.
+          this.goToEmailVerification();
+        }
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        // 401 here means wrong credentials, never an expired session (and the interceptor must not log out).
+        this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials' }).message;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  /** Unverified account: send the user to the email-OTP step with an explanation. */
+  private goToEmailVerification() {
+    this.notify.info('حسابك غير مفعّل بعد. أرسلنا رمز تحقق إلى بريدك الإلكتروني، أدخله لإكمال التفعيل.', { duration: 8000 });
+    this.router.navigate(['/auth/verify-otp']);
+  }
+
+  /** Arabic message for a field of the login form (shown once touched, or after a submit attempt). */
+  fieldError(name: 'email' | 'password'): string | null {
+    const c = this.loginForm.get(name);
+    return c && (c.touched || c.dirty) && c.invalid ? validationMessage(c.errors, LOGIN_LABELS[name]) : null;
   }
 
   private openOtpModal(userId: string) {
@@ -233,14 +272,23 @@ export class Login implements OnDestroy {
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء إعادة الإرسال';
+        this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء إعادة الإرسال' }).message;
         this.cdr.markForCheck();
       }
     });
   }
 
   submitLoginOtp() {
-    if (!this.otpForm.valid || !this.pendingLoginUserId) return;
+    if (!this.pendingLoginUserId) return;
+    if (this.otpForm.invalid) {
+      // Never a silent no-op: say what is needed and put the cursor on the first empty box.
+      this.otpForm.markAllAsTouched();
+      this.errorMessage = 'أدخل رمز التحقق المكوّن من 6 أرقام';
+      const firstEmpty = this.otpIndexes.find(i => !this.otpDigit(i)) ?? 0;
+      this.focusOtpInput(firstEmpty);
+      this.cdr.markForCheck();
+      return;
+    }
 
     this.isSubmitting = true;
     this.errorMessage = '';
@@ -261,7 +309,7 @@ export class Login implements OnDestroy {
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.errorMessage = err.error?.message || err.message || 'رمز التحقق غير صحيح';
+        this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح' }).message;
         this.cdr.markForCheck();
       }
     });

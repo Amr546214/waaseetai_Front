@@ -60,29 +60,23 @@
 			<div class="social-divider"><span>أو بالبريد وكلمة المرور</span></div>
 			<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" id="login-form" novalidate>
 				<div class="field-grp">
-					<label class="field-lbl" for="identifier">البريد أو الجوال</label>
+					<label class="field-lbl" for="identifier">البريد الإلكتروني <span class="req" aria-hidden="true">*</span></label>
 					<input class="field-in" type="text" id="identifier" formControlName="email"
-						placeholder="example@email.com أو 05XXXXXXXX" autocomplete="username" dir="ltr"
+						placeholder="example@email.com" autocomplete="username" dir="ltr"
 						style="text-align:right"
 						[class.has-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
-					@if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+					@if (fieldError('email'); as msg) {
 					<div class="field-err" id="err-identifier">
 						<svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
 							aria-hidden="true">
 							<use href="#ws-warn"></use>
 						</svg>
-						<span id="err-identifier-txt">
-							@if (loginForm.get('email')?.errors?.['required']) {
-							يرجى إدخال البريد الإلكتروني
-							} @else if (loginForm.get('email')?.errors?.['email']) {
-							يرجى إدخال بريد إلكتروني صحيح
-							}
-						</span>
+						<span id="err-identifier-txt">{{ msg }}</span>
 					</div>
 					}
 				</div>
 				<div class="field-grp">
-					<label class="field-lbl" for="password">كلمة المرور</label>
+					<label class="field-lbl" for="password">كلمة المرور <span class="req" aria-hidden="true">*</span></label>
 					<div class="pw-wrap">
 						<input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password"
 							formControlName="password" placeholder="كلمة المرور" autocomplete="current-password"
@@ -101,13 +95,13 @@
 							</svg>
 						</button>
 					</div>
-					@if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+					@if (fieldError('password'); as pmsg) {
 					<div class="field-err" id="err-password">
 						<svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
 							aria-hidden="true">
 							<use href="#ws-warn"></use>
 						</svg>
-						<span id="err-password-txt">يرجى إدخال كلمة المرور</span>
+						<span id="err-password-txt">{{ pmsg }}</span>
 					</div>
 					}
 				</div>
@@ -117,8 +111,9 @@
 						<span>تذكرني لمدة 30 يوم</span>
 					</label>
 				</div>
+				<ws-form-summary [items]="missingFields" />
 				<button type="submit" class="btn-primary btn-auth" id="btn-login"
-					[disabled]="!loginForm.valid || isSubmitting">
+					[disabled]="isSubmitting">
 					@if (isSubmitting) {
 					<span class="spin"></span> <span id="btn-login-txt">جاري التحقق...</span>
 					} @else {
@@ -164,7 +159,7 @@
 			</p>
 			<button type="button" class="otp-resend" id="otp-resend" [disabled]="otpCountdown > 0 || isSubmitting" (click)="resendLoginOtp()">اعادة ارسال الرمز</button>
 			<div class="modal-actions">
-				<button type="submit" class="btn-primary" id="btn-otp-verify" [disabled]="otpForm.invalid || isSubmitting"
+				<button type="submit" class="btn-primary" id="btn-otp-verify" [disabled]="isSubmitting"
 					style="width:100%;justify-content:center">{{ isSubmitting ? 'جاري التحقق...' : 'تحقق' }}</button>
 				<button type="button" class="btn-secondary" id="btn-otp-cancel" (click)="closeOtpModal()">الغاء</button>
 			</div>

@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angu
 import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../core/store/auth.store';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { getDefaultDashboard } from '../../../core/guards/auth.guards';
+import { mapHttpError } from '../../../core/forms/http-error';
 
 @Component({
   selector: 'app-verify-otp',
@@ -39,8 +41,16 @@ export class VerifyOtp implements OnInit, OnDestroy {
     // If they arrived with an active token, they were redirected from a 403.
     // They need a fresh OTP sent automatically.
     if (this.authStore.token()) {
-      this.countdown = 0; // Bypass the guard
-      this.resendOtp();
+      // Every send counts against the shared auth rate limit (10/hour per IP), so a refresh or a back/forward
+      // visit must not fire a new code each time: send only if none was sent for this user in the last 90 s.
+      const recent = this.recentAutoSendSeconds(this.authStore.pendingUserId());
+      if (recent === null) {
+        this.countdown = 0; // Bypass the guard
+        this.resendOtp();
+      } else {
+        this.successMsg = 'أرسلنا لك رمز تحقق قبل قليل، استخدمه أو انتظر قبل طلب رمز جديد.';
+        this.startCountdown(Math.max(1, 90 - recent));
+      }
     } else {
       // Fresh registration flow
       this.startCountdown();
@@ -51,8 +61,24 @@ export class VerifyOtp implements OnInit, OnDestroy {
     this.clearTimer();
   }
 
-  private startCountdown() {
-    this.countdown = 60;
+  private static readonly AUTO_SEND_WINDOW_S = 90;
+
+  /** Seconds since the last automatic send for this user in this tab, or null when none/expired. */
+  private recentAutoSendSeconds(userId: string | null): number | null {
+    if (!userId) return null;
+    try {
+      const at = Number(sessionStorage.getItem(`waseet_otp_autosend_${userId}`));
+      const elapsed = at ? Math.floor((Date.now() - at) / 1000) : null;
+      return elapsed !== null && elapsed >= 0 && elapsed < VerifyOtp.AUTO_SEND_WINDOW_S ? elapsed : null;
+    } catch { return null; }
+  }
+
+  private markAutoSend(userId: string) {
+    try { sessionStorage.setItem(`waseet_otp_autosend_${userId}`, String(Date.now())); } catch { /* storage unavailable */ }
+  }
+
+  private startCountdown(seconds = 60) {
+    this.countdown = seconds;
     this.clearTimer();
     this.timer = setInterval(() => {
       if (this.countdown > 0) {
@@ -72,12 +98,20 @@ export class VerifyOtp implements OnInit, OnDestroy {
 
   async verify() {
     if (this.otpCtrl.invalid) {
+      // Never a silent no-op: say what is needed and put the cursor on the first empty box.
+      this.otpCtrl.markAsTouched();
       this.errorMsg = 'الرجاء إدخال رمز التحقق المكون من 6 أرقام';
+      this.focusOtpInput(this.otpIndexes.find(i => !this.otpDigit(i)) ?? 0);
+      this.cdr.markForCheck();
       return;
     }
-    
+
     const userId = this.authStore.pendingUserId();
-    if (!userId) return;
+    if (!userId) {
+      this.errorMsg = 'انتهت جلسة التفعيل. سجّل الدخول مرة أخرى لإكمال تفعيل حسابك.';
+      this.cdr.markForCheck();
+      return;
+    }
 
     this.isLoading = true;
     this.errorMsg = '';
@@ -87,8 +121,9 @@ export class VerifyOtp implements OnInit, OnDestroy {
         this.isLoading = false;
         if (res.success) {
           // AuthStore takes care of authentication and state updates via its API service tap().
-          // We redirect to dashboard
-          this.router.navigate(['/']);
+          // Continue to the user's own dashboard.
+          const user = res.data?.user || this.authStore.currentUser();
+          this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
         } else {
           this.errorMsg = res.message || 'حدث خطأ أثناء التحقق';
         }
@@ -96,7 +131,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMsg = err.error?.message || 'فشل التحقق، يرجى المحاولة مرة أخرى';
+        this.errorMsg = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل التحقق، يرجى المحاولة مرة أخرى' }).message;
         this.cdr.markForCheck();
       }
     });
@@ -191,7 +226,11 @@ export class VerifyOtp implements OnInit, OnDestroy {
     if (this.countdown > 0) return;
 
     const userId = this.authStore.pendingUserId();
-    if (!userId) return;
+    if (!userId) {
+      this.errorMsg = 'انتهت جلسة التفعيل. سجّل الدخول مرة أخرى لإكمال تفعيل حسابك.';
+      this.cdr.markForCheck();
+      return;
+    }
 
     this.errorMsg = '';
     this.successMsg = '';
@@ -202,6 +241,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
         this.isLoading = false;
         if (res.success) {
           this.successMsg = 'تم إرسال الرمز بنجاح';
+          this.markAutoSend(userId);
           this.startCountdown();
         } else {
           this.errorMsg = res.message || 'حدث خطأ أثناء إعادة الإرسال';
@@ -210,7 +250,10 @@ export class VerifyOtp implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMsg = err.error?.message || 'فشل إعادة الإرسال، يرجى المحاولة مرة أخرى';
+        const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل إعادة الإرسال، يرجى المحاولة مرة أخرى' });
+        this.errorMsg = mapped.message;
+        // Rate limited: keep resend locked for the time the server asked, instead of letting the user hammer it.
+        if (mapped.kind === 'rate-limit' && mapped.retryAfterSeconds) this.startCountdown(mapped.retryAfterSeconds);
         this.cdr.markForCheck();
       }
     });

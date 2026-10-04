@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -11,11 +11,28 @@ import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.co
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
+import { mapHttpError } from '../../../core/forms/http-error';
+import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
+import { validationMessage } from '../../../core/forms/validation-messages';
+import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
+import { backendPhoneValidator, phoneDigits } from '../../../core/forms/phone.validator';
+import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
+
+const REGISTER_LABELS: Record<string, string> = {
+	firstName: 'الاسم الأول',
+	lastName: 'اسم العائلة',
+	email: 'البريد الإلكتروني',
+	phone: 'رقم الجوال',
+	password: 'كلمة المرور',
+	confirmPassword: 'تأكيد كلمة المرور',
+	agreeData: 'الإقرار بصحة البيانات',
+	agreeTerms: 'الموافقة على شروط الاستخدام وسياسة الخصوصية',
+};
 
 @Component({
 	selector: 'app-register',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, AffiliatePicker],
+	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, AffiliatePicker, FormSummaryComponent],
 	templateUrl: './register.html',
 	styleUrl: './register.css',
 	encapsulation: ViewEncapsulation.None,
@@ -35,6 +52,9 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	isSubmitting = false;
 	errorMessage = '';
+	/** What is missing after a failed submit attempt (shown by <ws-form-summary>). */
+	missingFields: InvalidField[] = [];
+	private readonly host = inject(ElementRef<HTMLElement>);
 	appleNotice = '';
 
 	// Set once /auth/google confirms a NEW Google identity (intent: register).
@@ -144,15 +164,17 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		private destroyRef: DestroyRef
 	) {
 		this.basicInfoForm = this.fb.group({
-			firstName: ['', Validators.required],
-			lastName: ['', Validators.required],
+			// Same rules as the backend registerSchema (auth.schema.ts): names 2+ chars, password 8+ with an
+			// uppercase letter and a digit, phone digits only and at least 9.
+			firstName: ['', [Validators.required, Validators.minLength(2)]],
+			lastName: ['', [Validators.required, Validators.minLength(2)]],
 			email: ['', [Validators.required, Validators.email]],
-			phone: ['', Validators.required],
-			password: ['', [Validators.required, Validators.minLength(8)]],
+			phone: ['', [Validators.required, backendPhoneValidator]],
+			password: ['', [Validators.required, strongPasswordValidator]],
 			confirmPassword: ['', Validators.required],
 			agreeData: [false, Validators.requiredTrue],
 			agreeTerms: [false, Validators.requiredTrue]
-		}, { validators: this.passwordMatchValidator.bind(this) });
+		}, { validators: matchFieldsValidator('password', 'confirmPassword') });
 
 		this.verificationForm = this.fb.group({
 			code1: ['', Validators.required],
@@ -265,11 +287,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 					},
 					error: (err) => {
 						this.isSubmitting = false;
+						const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء التسجيل بجوجل' });
 						if (err.status === 409) {
 							this.accountExistsError = true;
-							this.errorMessage = err.error?.message || 'هذا الحساب موجود بالفعل، يرجى تسجيل الدخول';
+							this.errorMessage = /[\u0600-\u06FF]/.test(err.error?.message || '') ? err.error.message : 'هذا الحساب موجود بالفعل، يرجى تسجيل الدخول';
 						} else {
-							this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء التسجيل بجوجل';
+							this.errorMessage = mapped.message;
 						}
 						this.cdr.markForCheck();
 					}
@@ -368,10 +391,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 		// Validate Step 2 and Submit Registration
 		if (this.currentStep === 2) {
-			if (this.basicInfoForm.valid) {
+			this.errorMessage = '';
+			this.accountExistsError = false;
+			const attempt = attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS });
+			this.missingFields = attempt.missing;
+			if (attempt.valid) {
 				this.submitRegistration();
 			} else {
-				this.basicInfoForm.markAllAsTouched();
+				this.cdr.markForCheck();
 			}
 			return;
 		}
@@ -392,7 +419,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			lastName: val.lastName,
 			email: val.email,
 			phoneCountryCode: val.phone?.dialCode || '+966',
-			phoneNumber: val.phone?.number || '',
+			phoneNumber: phoneDigits(val.phone?.number),
 			password: this.isGoogleFlow ? undefined : val.password,
 			googleIdToken: this.isGoogleFlow ? this.googleIdToken || undefined : undefined,
 			agreedToTerms: !!(val.agreeData && val.agreeTerms),
@@ -408,7 +435,17 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			},
 			error: (err) => {
 				this.isSubmitting = false;
-				this.errorMessage = err.error?.message || err.message || 'حدث خطأ في التسجيل';
+				const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ في التسجيل' });
+				// Server field messages (zod) land on the matching inputs; the rest go to the banner.
+				const unmatched = applyServerFieldErrors(this.basicInfoForm, mapped.fieldErrors);
+				this.accountExistsError = mapped.kind === 'conflict';
+				this.errorMessage = unmatched.length || !Object.keys(mapped.fieldErrors).length
+					? mapped.message
+					: 'يرجى تصحيح الحقول المحددة أدناه';
+				if (Object.keys(mapped.fieldErrors).length) {
+					this.missingFields = [];
+					setTimeout(() => attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS }));
+				}
 				this.cdr.markForCheck();
 			}
 		});
@@ -436,7 +473,15 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	onVerificationSubmit() {
-		if (this.verificationForm.valid) {
+		if (this.verificationForm.invalid) {
+			// Never a silent no-op: say what is needed and put the cursor on the first empty box.
+			this.verificationForm.markAllAsTouched();
+			this.errorMessage = 'أدخل رمز التحقق المكوّن من 6 أرقام';
+			this.focusOtpInput(this.otpIndexes.find(i => !this.otpDigit(i)) ?? 0);
+			this.cdr.markForCheck();
+			return;
+		}
+		{
 			const pendingUserId = this.authStore.pendingUserId();
 			if (!pendingUserId) {
 				this.errorMessage = 'فقدت جلسة التفعيل. يرجى التسجيل مرة أخرى.';
@@ -466,7 +511,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				},
 				error: (err) => {
 					this.isSubmitting = false;
-					this.errorMessage = err.error?.message || err.message || 'رمز التحقق غير صحيح';
+					this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح' }).message;
 					this.cdr.markForCheck();
 				}
 			});
@@ -579,7 +624,11 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		if (this.countdown > 0 || this.isSubmitting) return;
 
 		const pendingUserId = this.authStore.pendingUserId();
-		if (!pendingUserId) return;
+		if (!pendingUserId) {
+			this.errorMessage = 'فقدت جلسة التفعيل. سجّل الدخول لإكمال تفعيل حسابك.';
+			this.cdr.markForCheck();
+			return;
+		}
 
 		this.isSubmitting = true;
 		this.errorMessage = '';
@@ -592,7 +641,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			},
 			error: (err) => {
 				this.isSubmitting = false;
-				this.errorMessage = err.error?.message || err.message || 'حدث خطأ أثناء الإرسال';
+				this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء الإرسال' }).message;
 				this.cdr.markForCheck();
 			}
 		});
@@ -607,6 +656,24 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		const dp = domain.split('.');
 		const md = dp[0].length > 2 ? dp[0].slice(0, 2) + '***' : dp[0][0] + '*';
 		return mn + '@' + md + (dp.length > 1 ? '.' + dp.slice(1).join('.') : '');
+	}
+
+	/** Arabic message for a field of the sign-up form (shown once touched, or after a submit attempt). */
+	fieldError(name: string): string | null {
+		const c = this.basicInfoForm.get(name);
+		if (!c || !(c.touched || c.dirty) || c.valid) return null;
+		if ((name === 'agreeData' || name === 'agreeTerms') && c.errors?.['required']) {
+			return name === 'agreeTerms'
+				? 'يجب الموافقة على شروط الاستخدام وسياسة الخصوصية للمتابعة'
+				: 'يجب الإقرار بصحة البيانات للمتابعة';
+		}
+		return validationMessage(c.errors, REGISTER_LABELS[name]);
+	}
+
+	/** Cross-field message (password confirmation). */
+	get confirmMismatchError(): string | null {
+		const touched = this.basicInfoForm.get('confirmPassword')?.touched || this.basicInfoForm.touched;
+		return touched && this.basicInfoForm.hasError('mismatch') ? 'كلمة المرور وتأكيدها غير متطابقتين' : null;
 	}
 
 	passwordMatchValidator(g: FormGroup) {

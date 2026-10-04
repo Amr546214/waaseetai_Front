@@ -1,20 +1,34 @@
-import { Component, OnDestroy, ChangeDetectorRef, ViewEncapsulation, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ChangeDetectorRef, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { mapHttpError } from '../../../core/forms/http-error';
+import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
+import { validationMessage } from '../../../core/forms/validation-messages';
+import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
+import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
+
+const RESET_LABELS: Record<string, string> = {
+  email: 'البريد الإلكتروني',
+  newPassword: 'كلمة المرور الجديدة',
+  confirmPassword: 'تأكيد كلمة المرور',
+};
 
 @Component({
   selector: 'app-rest-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, FormSummaryComponent],
   templateUrl: './rest-password.html',
   styleUrl: './rest-password.css',
   encapsulation: ViewEncapsulation.None,
 })
 export class RestPassword implements OnDestroy {
   private authApi = inject(AuthApiService);
+  private readonly host = inject(ElementRef<HTMLElement>);
+  /** What is missing after a failed submit attempt (shown by <ws-form-summary>). */
+  missingFields: InvalidField[] = [];
 
   currentStep = 1;
   // Phone-based recovery is disabled for now: SMS delivery isn't implemented on the backend.
@@ -41,7 +55,7 @@ export class RestPassword implements OnDestroy {
 
   constructor(private fb: FormBuilder, private location: Location, private cdr: ChangeDetectorRef) {
     this.recoveryForm = this.fb.group({
-      email: ['', [Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.minLength(9), Validators.maxLength(9), Validators.pattern('^[0-9]*$')]]
     });
 
@@ -55,10 +69,11 @@ export class RestPassword implements OnDestroy {
     });
 
     this.passwordForm = this.fb.group({
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]],
-      logoutAll: [true]
-    }, { validators: this.passwordMatchValidator });
+      // Backend resetPasswordSchema: 8+ chars, an uppercase letter, a digit. (No "log out all devices" option:
+      // the backend does not support it, so it is not offered.)
+      newPassword: ['', [Validators.required, strongPasswordValidator]],
+      confirmPassword: ['', [Validators.required]]
+    }, { validators: matchFieldsValidator('newPassword', 'confirmPassword') });
   }
 
   ngOnDestroy() {
@@ -86,10 +101,13 @@ export class RestPassword implements OnDestroy {
   }
 
   sendOtp() {
-    if (this.channel === 'email' && (!this.recoveryForm.value.email || this.recoveryForm.get('email')?.invalid)) {
-      this.bannerError = 'ادخل بريدا إلكترونيا صحيحا';
-      this.cdr.markForCheck();
-      return;
+    if (this.channel === 'email') {
+      const attempt = attemptSubmit(this.recoveryForm, { root: this.host.nativeElement, labels: RESET_LABELS });
+      if (!attempt.valid) {
+        this.bannerError = '';
+        this.cdr.markForCheck();
+        return;
+      }
     }
     if (this.channel === 'phone') {
       // Phone recovery isn't wired to a backend yet; the option is hidden, this is a guard.
@@ -113,7 +131,7 @@ export class RestPassword implements OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        this.bannerError = err.error?.message || 'حدث خطأ أثناء إرسال رمز التحقق، حاول مرة أخرى';
+        this.bannerError = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء إرسال رمز التحقق، حاول مرة أخرى' }).message;
         this.cdr.markForCheck();
       }
     });
@@ -219,9 +237,9 @@ export class RestPassword implements OnDestroy {
       .replace(/[^0-9]/g, '');
   }
 
-  startTimer() {
+  startTimer(seconds = 90) {
     this.clearTimer();
-    this.otpSeconds = 90;
+    this.otpSeconds = seconds;
     this.otpTimerInterval = setInterval(() => {
       this.otpSeconds--;
       if (this.otpSeconds <= 0) {
@@ -260,14 +278,26 @@ export class RestPassword implements OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        this.bannerError = err.error?.message || 'حدث خطأ أثناء إعادة إرسال الرمز، حاول مرة أخرى';
+        const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء إعادة إرسال الرمز، حاول مرة أخرى' });
+        this.bannerError = mapped.message;
+        // Rate limited: keep resend locked for the time the server asked.
+        if (mapped.kind === 'rate-limit' && mapped.retryAfterSeconds) this.startTimer(mapped.retryAfterSeconds);
         this.cdr.markForCheck();
       }
     });
   }
 
   verifyOtp() {
-    if (!this.verificationForm.valid || this.isLoading) return;
+    if (this.isLoading) return;
+    if (this.verificationForm.invalid) {
+      // Never a silent no-op: say what is needed and put the cursor on the first empty box.
+      this.verificationForm.markAllAsTouched();
+      this.showOtpError = true;
+      this.bannerError = 'أدخل رمز التحقق المكوّن من 6 أرقام';
+      this.focusOtpInput(this.otpIndexes.find(i => !this.otpDigit(i)) ?? 0);
+      this.cdr.markForCheck();
+      return;
+    }
 
     const code = this.getOtpCode();
     this.showOtpError = false;
@@ -285,7 +315,7 @@ export class RestPassword implements OnDestroy {
       error: (err) => {
         this.isLoading = false;
         this.showOtpError = true;
-        this.bannerError = err.error?.message || 'رمز التحقق غير صحيح أو منتهي الصلاحية';
+        this.bannerError = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح أو منتهي الصلاحية' }).message;
         this.cdr.markForCheck();
       }
     });
@@ -313,9 +343,16 @@ export class RestPassword implements OnDestroy {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  passwordMatchValidator(g: FormGroup) {
-    return g.get('newPassword')?.value === g.get('confirmPassword')?.value
-      ? null : { 'mismatch': true };
+  /** Arabic message for a field of the new-password form (shown once touched, or after a submit attempt). */
+  fieldError(form: FormGroup, name: string): string | null {
+    const c = form.get(name);
+    return c && (c.touched || c.dirty) && c.invalid ? validationMessage(c.errors, RESET_LABELS[name]) : null;
+  }
+
+  /** Cross-field message (password confirmation). */
+  get confirmMismatchError(): string | null {
+    const touched = this.passwordForm.get('confirmPassword')?.touched || this.passwordForm.touched;
+    return touched && this.passwordForm.hasError('mismatch') ? 'كلمة المرور وتأكيدها غير متطابقتين' : null;
   }
 
   get passwordStrength() {
@@ -331,12 +368,14 @@ export class RestPassword implements OnDestroy {
   }
 
   savePassword() {
-    if (this.passwordForm.hasError('mismatch')) {
-      this.bannerError = 'كلمة المرور غير متطابقة';
+    if (this.isLoading) return;
+    this.bannerError = '';
+    const attempt = attemptSubmit(this.passwordForm, { root: this.host.nativeElement, labels: RESET_LABELS });
+    this.missingFields = attempt.missing;
+    if (!attempt.valid) {
       this.cdr.markForCheck();
       return;
     }
-    if (!this.passwordForm.valid || this.isLoading) return;
 
     const newPassword = this.passwordForm.value.newPassword;
     this.bannerError = '';
@@ -351,7 +390,8 @@ export class RestPassword implements OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        this.bannerError = err.error?.message || 'حدث خطأ أثناء تغيير كلمة المرور، حاول مرة أخرى';
+        const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء تغيير كلمة المرور، حاول مرة أخرى' });
+        this.bannerError = mapped.message;
         this.cdr.markForCheck();
       }
     });
