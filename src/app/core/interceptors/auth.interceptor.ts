@@ -23,6 +23,14 @@ export const AUTH_ATTEMPT_URLS = [
   '/auth/forgot-password', '/auth/verify-reset-code', '/auth/reset-password',
 ];
 
+/**
+ * 401 bodies that are NOT an expired session: the backend answers 401 to "current password is wrong" on
+ * change-password (provider-profile.controller.ts). The user is logged in; the page must show the error.
+ * Matched on the body so a genuinely expired session on the same endpoint (a different 401 body) still logs out.
+ * (If the backend moves this to 400, this stays harmless.)
+ */
+export const NON_SESSION_401_MESSAGES = ['CURRENT_PASSWORD_INCORRECT'];
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
   const router = inject(Router);
@@ -71,7 +79,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401 && isBrowser && requestHadAuth) {
         // A 401 from these calls means wrong credentials / bad code for THIS attempt, not an expired session:
         // the page shows the error itself, so the stored session is left untouched and nobody is redirected.
-        const isAuthRoute = AUTH_ATTEMPT_URLS.some(u => req.url.includes(u));
+        const isAuthRoute = AUTH_ATTEMPT_URLS.some(u => req.url.includes(u))
+          || NON_SESSION_401_MESSAGES.includes(error.error?.message);
         if (!isAuthRoute) {
           if (typeof window !== 'undefined' && window.localStorage) {
             localStorage.removeItem('waseet_token');

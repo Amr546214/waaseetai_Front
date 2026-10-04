@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID, signal } from '@angular/core';
 import { Router, RouterStateSnapshot, UrlTree, provideRouter } from '@angular/router';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
-import { guestGuard } from './auth.guards';
+import { clientGuard, guestGuard, marketerGuard, providerGuard, superAdminGuard } from './auth.guards';
+import { vi } from 'vitest';
 import { AuthStore } from '../store/auth.store';
 import { AccountType, UserRole } from '../models/auth.model';
 
@@ -85,5 +86,72 @@ describe('guestGuard — role-aware redirect for already-authenticated users', (
 		expect(result).not.toBe(true);
 		expect(result instanceof UrlTree).toBe(true);
 		expect(TestBed.inject(Router).serializeUrl(result as UrlTree)).toBe('/client-overview');
+	});
+});
+
+
+// Regression: a token with NO user in storage (stale/partial session) froze the tab. guestGuard sent it to
+// /client-overview, clientGuard rejected it (no user) and redirected to getDefaultDashboard(undefined), which is
+// /client-overview again: an infinite redirect loop. A role guard must never redirect to its own area.
+describe('role guards — no self-redirect loop for a token without a usable user', () => {
+	const clearSession = vi.fn();
+
+	function setup(user: any, authenticated = true) {
+		clearSession.mockClear();
+		TestBed.resetTestingModule();
+		TestBed.configureTestingModule({
+			providers: [
+				provideRouter([]),
+				{ provide: PLATFORM_ID, useValue: 'browser' },
+				{ provide: AuthStore, useValue: { isInitialized$: new BehaviorSubject(true), isAuthenticated: signal(authenticated), currentUser: signal(user), clearSession } },
+			],
+		});
+	}
+	async function url(guard: any, state = '/x'): Promise<string | true> {
+		const r: any = await firstValueFrom(TestBed.runInInjectionContext(() => guard({} as any, { url: state } as RouterStateSnapshot)) as Observable<boolean | UrlTree>);
+		return r === true ? true : TestBed.inject(Router).serializeUrl(r as UrlTree);
+	}
+
+	it.each([
+		['clientGuard', clientGuard],
+		['providerGuard', providerGuard],
+		['marketerGuard', marketerGuard],
+		['superAdminGuard', superAdminGuard],
+	])('%s: no user -> drops the stale session and goes to /auth/login (never back into a dashboard)', async (_n, guard) => {
+		setup(null);
+		expect(await url(guard)).toBe('/auth/login');
+		expect(clearSession).toHaveBeenCalledTimes(1);
+	});
+
+	it('guestGuard: token without user -> drops the session and lets the guest page render (no redirect at all)', async () => {
+		setup(null);
+		expect(await url(guestGuard)).toBe(true);
+		expect(clearSession).toHaveBeenCalledTimes(1);
+	});
+
+	it('the full chain for the reported case ends on a guest page after at most one redirect', async () => {
+		setup(null);
+		expect(await url(guestGuard)).toBe(true); // /auth/login renders; nothing redirects into /client-overview
+	});
+
+	it('a user with no role of their own still cannot loop: client area -> login, not client area', async () => {
+		setup({ accountType: 'SOMETHING_ELSE' });
+		expect(await url(clientGuard)).toBe('/auth/login');
+		expect(clearSession).toHaveBeenCalled();
+	});
+
+	it('a normal cross-role redirect is unchanged and keeps the session', async () => {
+		setup({ accountType: AccountType.PROVIDER_INDIVIDUAL, activeRole: UserRole.PROVIDER });
+		expect(await url(clientGuard)).toBe('/provider-overview');
+		setup({ accountType: AccountType.CLIENT_INDIVIDUAL, activeRole: UserRole.CLIENT });
+		expect(await url(providerGuard)).toBe('/client-overview');
+		setup({ accountType: AccountType.CLIENT_INDIVIDUAL, activeRole: UserRole.CLIENT });
+		expect(await url(superAdminGuard)).toBe('/client-overview');
+		expect(clearSession).not.toHaveBeenCalled();
+	});
+
+	it('the matching role still passes', async () => {
+		setup({ accountType: AccountType.CLIENT_INDIVIDUAL, activeRole: UserRole.CLIENT });
+		expect(await url(clientGuard)).toBe(true);
 	});
 });

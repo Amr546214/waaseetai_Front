@@ -70,7 +70,13 @@ export const guestGuard: CanActivateFn = (route, state) => {
         // this logged-out-only route) doesn't get bounced into a dashboard
         // they don't belong to.
         const user = authStore.currentUser();
-        return router.createUrlTree([getDefaultDashboard(user?.accountType, user?.activeRole)]);
+        if (!user) {
+          // A token with no user is a stale/partial session: it cannot be sent to any dashboard (every role
+          // guard would bounce it back here). Drop it and show the guest page.
+          authStore.clearSession();
+          return true;
+        }
+        return router.createUrlTree([getDefaultDashboard(user.accountType, user.activeRole)]);
       }
 
       // Pending OTP verification only auto-resumes the OTP step when the user
@@ -163,6 +169,20 @@ export const getWelcomeRoleKey = (accountType?: AccountType): string | undefined
 };
 
 /**
+ * Where to send a user who may not enter a role area. It must never be the SAME area: that redirects to itself
+ * forever and freezes the tab. That happens when there is a token but no usable user (stale/partial session), or a
+ * user whose role has no dashboard of its own. In both cases the session is not usable, so it is dropped and the
+ * user lands on the login page.
+ */
+function roleAreaFallback(authStore: AuthStore, router: Router, user: { accountType?: AccountType; activeRole?: UserRole } | null | undefined, ownArea: string, target: string) {
+  if (!user || target === ownArea) {
+    authStore.clearSession();
+    return router.createUrlTree(['/auth/login']);
+  }
+  return router.createUrlTree([target]);
+}
+
+/**
  * Protects Client routes - only Client users allowed
  */
 export const clientGuard: CanActivateFn = (route, state) => {
@@ -181,8 +201,8 @@ export const clientGuard: CanActivateFn = (route, state) => {
         return true;
       }
       
-      // Fallback redirect to their proper dashboard
-      return router.createUrlTree([getDefaultDashboard(user?.accountType, user?.activeRole)]);
+      // Fallback: their own dashboard, unless that is this very area (would loop) - see roleAreaFallback.
+      return roleAreaFallback(authStore, router, user, '/client-overview', getDefaultDashboard(user?.accountType, user?.activeRole));
     })
   );
 };
@@ -206,8 +226,8 @@ export const providerGuard: CanActivateFn = (route, state) => {
         return true;
       }
 
-      // Fallback redirect to their proper dashboard
-      return router.createUrlTree([getDefaultDashboard(user?.accountType, user?.activeRole)]);
+      // Fallback: their own dashboard, unless that is this very area (would loop) - see roleAreaFallback.
+      return roleAreaFallback(authStore, router, user, '/provider-overview', getDefaultDashboard(user?.accountType, user?.activeRole));
     })
   );
 };
@@ -231,8 +251,8 @@ export const marketerGuard: CanActivateFn = (route, state) => {
         return true;
       }
 
-      // Fallback redirect to their proper dashboard
-      return router.createUrlTree([getDefaultDashboard(user?.accountType, user?.activeRole)]);
+      // Fallback: their own dashboard, unless that is this very area (would loop) - see roleAreaFallback.
+      return roleAreaFallback(authStore, router, user, '/marketer-overview', getDefaultDashboard(user?.accountType, user?.activeRole));
     })
   );
 };
@@ -256,8 +276,8 @@ export const superAdminGuard: CanActivateFn = (route, state) => {
         return true;
       }
 
-      // Fallback redirect to their proper dashboard
-      return router.createUrlTree([getDefaultDashboard(user?.accountType)]);
+      // Fallback: their own dashboard, unless that is this very area (would loop) - see roleAreaFallback.
+      return roleAreaFallback(authStore, router, user, '/supper-admin-overview', getDefaultDashboard(user?.accountType));
     })
   );
 };

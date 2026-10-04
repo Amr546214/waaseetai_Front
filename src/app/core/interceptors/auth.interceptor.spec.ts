@@ -25,10 +25,10 @@ describe('authInterceptor 401 handling', () => {
 		ctl = TestBed.inject(HttpTestingController);
 	});
 
-	const fail401 = (url: string) => {
+	const fail401 = (url: string, message = 'x') => {
 		let status = 0;
 		http.post(url, {}).subscribe({ error: e => (status = e.status) });
-		ctl.expectOne(url).flush({ message: 'x' }, { status: 401, statusText: 'Unauthorized' });
+		ctl.expectOne(url).flush({ message }, { status: 401, statusText: 'Unauthorized' });
 		return status;
 	};
 
@@ -58,6 +58,16 @@ describe('authInterceptor 401 handling', () => {
 
 	it('a 401 anywhere else is an expired session: the user is logged out and redirected to login', () => {
 		expect(fail401('/api/client/requests')).toBe(401);
+		expect(logout).toHaveBeenCalledWith('/auth/login');
+	});
+
+	it('wrong CURRENT password on change-password (401 CURRENT_PASSWORD_INCORRECT) does NOT log the user out', () => {
+		expect(fail401('/api/provider/profile/password', 'CURRENT_PASSWORD_INCORRECT')).toBe(401);
+		expect(logout).not.toHaveBeenCalled();
+	});
+
+	it('an expired session on the same endpoint (any other 401 body) still logs out', () => {
+		expect(fail401('/api/provider/profile/password', 'Unauthorized')).toBe(401);
 		expect(logout).toHaveBeenCalledWith('/auth/login');
 	});
 });
