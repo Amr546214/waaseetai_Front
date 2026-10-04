@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { UiNotificationService } from '../../core/services/ui-notification.service';
@@ -90,5 +90,46 @@ describe('SubmitButtonComponent (never silently disabled)', () => {
 		expect(q().disabled).toBe(true);
 		expect(reason()?.textContent).toContain('بانتظار مراجعة');
 		expect(q().getAttribute('aria-describedby')).toBe(reason()!.id);
+	});
+});
+
+import { FormControl, Validators } from '@angular/forms';
+import { FieldErrorComponent } from './field-error.component';
+
+describe('FieldErrorComponent', () => {
+	const setup = (control: FormControl, inputs: Record<string, any> = {}) => {
+		TestBed.resetTestingModule();
+		const f = TestBed.configureTestingModule({ imports: [FieldErrorComponent] }).createComponent(FieldErrorComponent);
+		f.componentRef.setInput('control', control);
+		for (const [k, v] of Object.entries(inputs)) f.componentRef.setInput(k, v);
+		f.detectChanges();
+		return { f, el: () => f.nativeElement.querySelector('[data-testid="field-error"]') as HTMLElement | null };
+	};
+
+	it('shows nothing while pristine/untouched, even if invalid', () => {
+		const { el } = setup(new FormControl('', Validators.required), { label: 'الاسم' });
+		expect(el()).toBeNull();
+	});
+
+	it('shows the Arabic message once touched and invalid, and hides it when fixed', () => {
+		const c = new FormControl('', Validators.required);
+		const { f, el } = setup(c, { label: 'الاسم' });
+		c.markAsTouched();
+		f.componentRef.injector.get(ChangeDetectorRef).markForCheck(); f.detectChanges();
+		expect(el()?.textContent).toContain('الاسم مطلوب');
+		expect(el()?.getAttribute('role')).toBe('alert');
+		c.setValue('x');
+		f.componentRef.injector.get(ChangeDetectorRef).markForCheck(); f.detectChanges();
+		expect(el()).toBeNull();
+	});
+
+	it('per-key custom messages win; a server error wins over validators', () => {
+		const c = new FormControl(false, Validators.requiredTrue);
+		c.markAsTouched();
+		const { el } = setup(c, { messages: { required: 'يجب الموافقة للمتابعة' } });
+		expect(el()?.textContent).toContain('يجب الموافقة للمتابعة');
+		const s = new FormControl('x'); s.setErrors({ server: 'مستخدم مسبقًا' }); s.markAsTouched();
+		const { el: el2 } = setup(s);
+		expect(el2()?.textContent).toContain('مستخدم مسبقًا');
 	});
 });

@@ -137,6 +137,7 @@ describe('provider setup AI suggestions', () => {
     component.addAiSkill('CSS');
     component.setupForm.patchValue({ profData: { expYears: '1 الى 3 سنوات', country: 'السعودية', city: 'الرياض' }, specialties: { mainSpec: 'web', subSpecs: ['تطوير مواقع'] }, payout: { paypalEmail: 'me@example.com' }, agreements: { ackFinal: true } });
     component.uploadedFrontId.set('existing-document');
+    component.portfolioItems.set({ 'تطوير مواقع': [{ review: 'sample-url', reviewDisplayName: 'sample.pdf', proofs: [], proofDisplayNames: [] }] });
     vi.spyOn(component, 'goToStep').mockImplementation(() => {});
     component.saveAndGoToTest();
     // The PayPal email goes to the profile endpoint first (the setup endpoint ignores it)...

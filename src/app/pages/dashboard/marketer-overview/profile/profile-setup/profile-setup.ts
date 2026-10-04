@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,11 +6,25 @@ import { MarketerProfileService, MarketerProfile } from '../../../../../core/ser
 import { ibanValidator } from '../../../../../core/validators/iban.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
+import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../../../core/forms/form-helpers';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
+import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+
+const MARKETER_LABELS: Record<string, string> = {
+	bio: 'الوصف التسويقي',
+	platform: 'نوع القناة',
+	handle: 'معرّف القناة أو رابطها',
+	accountHolderName: 'اسم صاحب الحساب',
+	iban: 'رقم IBAN',
+	bankName: 'اسم البنك',
+};
 
 @Component({
 	selector: 'app-marketer-profile-setup',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
 	templateUrl: './profile-setup.html',
 	styleUrl: './profile-setup.css',
 })
@@ -18,6 +32,13 @@ export class ProfileSetup implements OnInit {
 	private fb = inject(FormBuilder);
 	private router = inject(Router);
 	private profileService = inject(MarketerProfileService);
+	private readonly host = inject(ElementRef<HTMLElement>);
+	private readonly notify = inject(UiNotificationService);
+
+	/** What is missing after a failed save attempt (shown by <ws-form-summary>). */
+	missing = signal<InvalidField[]>([]);
+	/** True once the bank details were sent: the backend files them as a change request that waits for review. */
+	bankSubmitted = signal(false);
 
 	profile = signal<MarketerProfile | null>(null);
 	isLoading = signal(true);
@@ -43,9 +64,10 @@ export class ProfileSetup implements OnInit {
 	});
 
 	bankForm: FormGroup = this.fb.group({
-		accountHolderName: ['', Validators.required],
-		iban: ['', [Validators.required, ibanValidator]],
-		bankName: ['', Validators.required],
+		// Backend updateBankInfoSchema: bankName/accountHolderName max 120, iban max 34 and a valid IBAN.
+		accountHolderName: ['', [Validators.required, Validators.maxLength(120)]],
+		iban: ['', [Validators.required, ibanValidator, Validators.maxLength(34)]],
+		bankName: ['', [Validators.required, Validators.maxLength(120)]],
 	});
 
 	agree = signal(false);
@@ -53,6 +75,7 @@ export class ProfileSetup implements OnInit {
 	completionPercentage = computed(() => this.profile()?.completionPercentage ?? 0);
 	hasChannel = computed(() => (this.profile()?.marketingChannels?.length ?? 0) > 0);
 	hasBank = computed(() => !!this.profile()?.iban);
+	bankReviewState = computed(() => this.hasBank() ? 'مكتمل' : this.bankSubmitted() ? 'قيد المراجعة' : 'لم يُضف');
 	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
 
 	ngOnInit(): void {
@@ -79,32 +102,53 @@ export class ProfileSetup implements OnInit {
 	}
 
 	nextStep(): void {
+		this.missing.set([]);
 		if (this.currentStep() < 5) this.currentStep.update(v => v + 1);
 	}
 
 	prevStep(): void {
+		this.missing.set([]);
 		if (this.currentStep() > 1) this.currentStep.update(v => v - 1);
 	}
 
 	setStep(step: number): void {
+		// Every step is saved on its own and the optional ones can be skipped, so the bar is free navigation.
+		this.missing.set([]);
 		this.currentStep.set(step);
 	}
 
+	/** Marks the form touched, lists what is missing and focuses the first problem. Returns true when it is valid. */
+	private check(form: FormGroup): boolean {
+		const attempt = attemptSubmit(form, { root: this.host.nativeElement, labels: MARKETER_LABELS });
+		this.missing.set(attempt.missing);
+		return attempt.valid;
+	}
+
+	/** Server answer -> Arabic message (+ field errors from zod `errors[]` on the right inputs). */
+	private fail(form: FormGroup, err: unknown): void {
+		this.isSubmitting.set(false);
+		const mapped = this.notify.httpError(err);
+		if (Object.keys(mapped.fieldErrors).length) {
+			applyServerFieldErrors(form, mapped.fieldErrors);
+			this.check(form);
+		}
+	}
+
 	saveBio(): void {
-		if (this.marketingForm.invalid) { this.marketingForm.markAllAsTouched(); return; }
+		if (!this.check(this.marketingForm)) return;
 		this.isSubmitting.set(true);
 		this.profileService.updateMarketingInfo(this.marketingForm.value).subscribe({
 			next: () => { this.isSubmitting.set(false); this.showToast('تم حفظ الوصف التسويقي'); this.loadProfile(); this.nextStep(); },
-			error: () => { this.isSubmitting.set(false); this.showToast('حدث خطأ، حاول مرة أخرى'); }
+			error: (err) => this.fail(this.marketingForm, err)
 		});
 	}
 
 	addChannel(): void {
-		if (this.channelForm.invalid) { this.channelForm.markAllAsTouched(); return; }
+		if (!this.check(this.channelForm)) return;
 		this.isSubmitting.set(true);
 		this.profileService.addChannel(this.channelForm.value).subscribe({
 			next: () => { this.isSubmitting.set(false); this.showToast('تمت إضافة القناة'); this.loadProfile(); this.nextStep(); },
-			error: () => { this.isSubmitting.set(false); this.showToast('حدث خطأ، حاول مرة أخرى'); }
+			error: (err) => this.fail(this.channelForm, err)
 		});
 	}
 
@@ -113,11 +157,18 @@ export class ProfileSetup implements OnInit {
 	}
 
 	saveBankInfo(): void {
-		if (this.bankForm.invalid) { this.bankForm.markAllAsTouched(); return; }
+		if (!this.check(this.bankForm)) return;
 		this.isSubmitting.set(true);
 		this.profileService.updateBankInfo(this.bankForm.value).subscribe({
-			next: () => { this.isSubmitting.set(false); this.showToast('تم حفظ البيانات البنكية'); this.loadProfile(); this.nextStep(); },
-			error: () => { this.isSubmitting.set(false); this.showToast('حدث خطأ، حاول مرة أخرى'); }
+			next: () => {
+				this.isSubmitting.set(false);
+				this.bankSubmitted.set(true);
+				// The backend files this as a change request that is reviewed before it replaces the saved bank data.
+				this.showToast('تم إرسال بياناتك البنكية للمراجعة، وستُفعَّل بعد الاعتماد');
+				this.loadProfile();
+				this.nextStep();
+			},
+			error: (err) => this.fail(this.bankForm, err)
 		});
 	}
 
