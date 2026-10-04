@@ -35,11 +35,10 @@ export class ProfileEdit {
 	/** PayPal is the only supported receiving method ('wallet' = PayPal); 'bank' is shown disabled. */
 	paymentMethod = signal<'bank' | 'wallet'>('wallet');
 	/**
-	 * Saving a client's PayPal email is NOT supported by the backend yet: ClientProfile has no PayPal field and
-	 * PUT /profiles/update/banking persists nothing (it only flips the account to PENDING_VERIFICATION).
-	 * Flip to true once the backend stores it (see the PR description); until then no request is sent.
+	 * The backend stores a client's PayPal email (ClientProfile.paypalPayoutEmail, backend PR #13, 18ff50d):
+	 * PUT /profiles/update/banking { paypalPayoutEmail } saves it directly (empty/null clears it).
 	 */
-	readonly paypalSaveSupported = false;
+		readonly paypalSaveSupported = true;
 	isChangingPassword = signal(false);
 
 	completionPercentage = signal<number>(0);
@@ -292,6 +291,7 @@ export class ProfileEdit {
 					this.identityForm.patchValue(profile);
 					this.contactForm.patchValue(profile);
 					this.bankingForm.patchValue(profile);
+					this.bankingForm.patchValue({ paypalEmail: (profile as any).paypalPayoutEmail || '' });
 
 					// Map pending changes over the verified forms to reflect what the user submitted
 					const requests = this.changeRequests();

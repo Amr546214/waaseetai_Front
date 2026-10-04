@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
+import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 
 @Component({
@@ -27,7 +28,7 @@ export class ProfileSetupDashboard implements OnInit {
 	steps = [
 		{ id: 1, label: 'بيانات طالب الخدمة' },
 		{ id: 2, label: 'الهوية والتوثيق' },
-		{ id: 3, label: 'البيانات البنكية أو المحفظة' },
+		{ id: 3, label: 'حساب PayPal للاستلام' },
 		{ id: 4, label: 'المستندات عند الحاجة' },
 		{ id: 5, label: 'المراجعة والإرسال' }
 	];
@@ -52,10 +53,9 @@ export class ProfileSetupDashboard implements OnInit {
 			backId: ['']
 		}),
 		bank: this.fb.group({
-			paymentType: ['bank', Validators.required], // bank or wallet
-			bankName: ['', Validators.required],
-			accountHolder: ['', Validators.required],
-			iban: ['', [Validators.required, Validators.minLength(24), Validators.maxLength(24)]]
+			// PayPal is the only payout method for now; legacy bank/wallet values are neither shown nor sent.
+			paymentType: ['paypal', Validators.required],
+			paypalPayoutEmail: ['', paypalEmailValidators]
 		}),
 		documents: this.fb.group({
 			supportingDocs: [''],
@@ -89,12 +89,10 @@ export class ProfileSetupDashboard implements OnInit {
 						address: data.address || ''
 					});
 
-					// Patch bank
+					// Patch PayPal (a legacy bank/wallet paymentType is ignored: the step is PayPal-only)
 					this.setupForm.get('bank')?.patchValue({
-						paymentType: data.paymentType || 'bank',
-						bankName: data.bankName || '',
-						accountHolder: data.accountHolder || '',
-						iban: data.iban || ''
+						paymentType: 'paypal',
+						paypalPayoutEmail: data.paypalPayoutEmail || ''
 					});
 
 					// Patch documents preview
@@ -107,7 +105,6 @@ export class ProfileSetupDashboard implements OnInit {
 					if (data.kycStatus === 'VERIFIED') {
 						if (data.idNumber) this.setupForm.get('details.idNumber')?.disable();
 						if (data.dob) this.setupForm.get('details.dob')?.disable();
-						if (data.iban) this.setupForm.get('bank.iban')?.disable();
 					}
 				}
 			},
@@ -115,6 +112,11 @@ export class ProfileSetupDashboard implements OnInit {
 				console.error("Error loading profile setup data", err);
 			}
 		});
+	}
+
+	paypalEmailMsg(): string | null {
+		const c = this.setupForm.get('bank.paypalPayoutEmail');
+		return c && (c.touched || c.dirty) ? paypalEmailError(c.errors) : null;
 	}
 
 	nextStep() {
@@ -188,10 +190,8 @@ export class ProfileSetupDashboard implements OnInit {
 					backId: formVal.identity.backId
 				},
 				bank: {
-					paymentType: formVal.bank.paymentType,
-					bankName: formVal.bank.bankName,
-					accountHolder: formVal.bank.accountHolder,
-					iban: formVal.bank.iban
+					paymentType: 'paypal',
+					paypalPayoutEmail: String(formVal.bank.paypalPayoutEmail || '').trim()
 				},
 				documents: {
 					supportingDocs: formVal.documents.supportingDocs,

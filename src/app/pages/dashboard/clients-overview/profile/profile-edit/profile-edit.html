@@ -1171,23 +1171,16 @@
 						}
 					</div>
 
-					@if (!paypalSaveSupported) {
-					<div id="cl-paypal-pending" role="note"
-						class="p-3 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/5 text-[12px] font-bold text-amber-800 dark:text-amber-200">
-						حفظ حساب PayPal لطالب الخدمة غير مفعّل بعد (بانتظار دعم الخادم). لن يُرسل أي طلب ولن تتغير بياناتك.
-					</div>
-					}
 				</div>
 
 				<!-- Hint Text -->
 				<div class="text-center text-xs font-medium text-slate-500 dark:text-slate-400 mb-6">
-					هذا الحساب للسحب والاسترداد فقط. مشفر ومحمي. تغيير بيانات الاستلام يتطلب مصادقة ثنائية.
+					هذا الحساب للسحب والاسترداد فقط. يُحفظ بريد PayPal مباشرة ويظهر لك هنا بعد الحفظ.
 				</div>
 
 				<!-- Action -->
-				<button type="submit" [disabled]="isSaving() || isTabPending('BANKING_UPDATE') || !paypalSaveSupported" [attr.title]="paypalSaveSupported ? null : 'بانتظار دعم الخادم'"
-					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
-					طلب تعديل</button>
+				<button type="submit" [disabled]="isSaving() || isTabPending('BANKING_UPDATE')"
+					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">حفظ حساب PayPal</button>
 			</form>
 		</div>
 	</div>

@@ -77,14 +77,40 @@ describe('client profile-edit: PayPal-only receiving method', () => {
     expect(el().textContent).toContain('أدخل بريد PayPal صالحًا');
   });
 
-  it('saving is not offered yet (backend has no client PayPal field): the button is disabled and no request is ever sent', () => {
-    expect((el().querySelector('form button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
-    expect(el().querySelector('#cl-paypal-pending')?.textContent).toContain('غير مفعّل بعد');
-    component.bankingForm.get('paypalEmail')!.setValue('name@example.com');
+  it('saving is enabled: no "pending" notice and the submit button is clickable', () => {
+    expect(component.paypalSaveSupported).toBe(true);
+    expect(el().querySelector('#cl-paypal-pending')).toBeNull();
+    expect((el().querySelector('form button[type="submit"]') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('a valid email is sent as { paypalPayoutEmail } only - no bank/wallet keys, no empty overwrite', () => {
+    component.bankingForm.get('paypalEmail')!.setValue('Name@Example.com');
     component.saveTab('banking');
-    expect(updateTab).not.toHaveBeenCalled();
+    expect(updateTab).toHaveBeenCalledTimes(1);
+    const [tab, payload] = updateTab.mock.calls[0];
+    expect(tab).toBe('banking');
+    expect(payload).toEqual({ paypalPayoutEmail: 'Name@Example.com' });
+    for (const k of ['iban', 'ibanNumber', 'bankName', 'accountHolderName', 'accountHolder', 'paymentMethod', 'paymentType']) {
+      expect(payload).not.toHaveProperty(k);
+    }
     http.expectNone(() => true);
-    expect(component.errorMsg()).toContain('غير مفعّل');
+  });
+
+  it('the saved paypalPayoutEmail from GET /profiles/me fills the field on load', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [ProfileEdit],
+      providers: [
+        provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
+        { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' }), token: () => 't', authenticate: vi.fn() } },
+        { provide: ProfileApiService, useValue: {
+          getMyProfile: () => of({ success: true, data: { currentProfileData: { paypalPayoutEmail: 'saved@example.com' }, latestHistory: [] } }),
+          getChangeRequests: () => of({ success: true, data: [] }), updateTab, updateProfile: vi.fn(() => of({ success: true })) } },
+      ],
+    }).compileComponents();
+    const f = TestBed.createComponent(ProfileEdit);
+    f.detectChanges();
+    expect(f.componentInstance.bankingForm.get('paypalEmail')?.value).toBe('saved@example.com');
   });
 
   it('an invalid email is rejected before anything else', () => {
