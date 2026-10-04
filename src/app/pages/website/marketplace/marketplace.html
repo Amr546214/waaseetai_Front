@@ -100,24 +100,8 @@
     </div>
   </div>
 
-  <!-- CATEGORY NAV BAR -->
-  <nav class="cats-nav" aria-label="فئات الخدمات">
-    <div class="cats-nav-inner">
-      <a routerLink="/marketplace/categories" class="cats-nav-item" style="color:var(--teal);border-left:1px solid var(--border);margin-left:4px;padding-left:14px">كل الفئات @if (allCatsCount() > 0) {+{{ allCatsCount() }}}</a>
-      @for (cat of categories(); track cat.id) {
-      <div class="cat-has-drop">
-        <a [routerLink]="['/marketplace', cat.slug]" class="cats-nav-item"><svg aria-hidden="true"><use [attr.href]="categoryIcon(cat.icon)"></use></svg> {{ cat.name }} @if (cat.subSpecialties?.length) {<svg class="cat-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>}</a>
-        @if (cat.subSpecialties?.length) {
-        <div class="cat-drop">
-          @for (sub of cat.subSpecialties; track sub.id || sub.name) {
-          <a [routerLink]="['/marketplace', cat.slug]" [queryParams]="{ sub: sub.slug }" class="cat-drop-item">{{ sub.name }}</a>
-          }
-        </div>
-        }
-      </div>
-      }
-    </div>
-  </nav>
+  <!-- SPECIALTIES BAR (design P-MK-001) -->
+  <app-specialties-bar [suspended]="filtersOpen()" (megaOpened)="closeFilters()" [categories]="categories()" [activeCategory]="selectedCategory() === 'all' ? '' : selectedCategory()" [activeSub]="selectedSub()" [stickyTop]="109" />
 
   <!-- HERO SLIDER -->
   <div class="hero-slider" role="region" aria-label="عروض مميزة" aria-live="polite" (mouseenter)="stopAuto()" (mouseleave)="startAuto()">
@@ -386,8 +370,11 @@
     </div>
   </section>
 
-  <!-- REFINEMENT STRIP -->
-  @if (refinements().length > 0) {
+  <!-- SPECIALTIES BAR (design P-MK-001) -->
+  <app-specialties-bar [suspended]="filtersOpen()" (megaOpened)="closeFilters()" [categories]="categories()" [activeCategory]="selectedCategory() === 'all' ? '' : selectedCategory()" [activeSub]="selectedSub()" [stickyTop]="64" />
+
+  <!-- REFINEMENT STRIP: only the opened specialty's sub-specialties (the categories themselves live in the bar above) -->
+  @if (selectedCategoryData() && refinements().length > 0) {
   <div class="subcats-wrap">
     <div class="container">
       <div class="subcats-row">
