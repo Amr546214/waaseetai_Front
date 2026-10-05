@@ -10,6 +10,18 @@ export interface ProfileSuggestionInput {
   existingSkills?: string[];
 }
 
+/** One thing still needed to reach 100% (computed by the backend, so the percentage and this list always agree). */
+export interface CompletionMissingItem {
+  key: string;
+  label: string;
+  points: number;
+  /** 'pending_review' = the provider submitted it and it waits for the human review (not "missing"). */
+  status: 'missing' | 'pending_review';
+  /** Tab of the provider edit page that fixes it. */
+  tab: 'profile' | 'contact' | 'payout' | 'docs';
+  hint: string;
+}
+
 export interface ProviderProfile {
   id: string;
   userId: string;
@@ -37,6 +49,7 @@ export interface ProviderProfile {
   country: string | null;
   availabilityStatus: 'AVAILABLE' | 'BUSY' | 'OFFLINE';
   completionPercentage: number;
+  missingItems?: CompletionMissingItem[];
   mainSpecialty?: string | null;
   githubUrl: string | null;
   linkedinUrl: string | null;

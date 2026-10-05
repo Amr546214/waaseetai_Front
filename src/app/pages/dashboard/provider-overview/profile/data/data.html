@@ -50,8 +50,36 @@
   <div class="prog-bar">
     <div class="prog-fill" id="prog-fill" [style.width.%]="completionPercent()"></div>
   </div>
-  <div class="prog-hint">{{ nextStepHint().message }}</div>
+  <div class="prog-hint" data-testid="prog-hint">
+    @if (!missingItems().length) { ملفك المهني مكتمل 100% — أنت جاهز للعمل. }
+    @else if (!hasMissing()) { بياناتك كاملة، وننتظر مراجعة ما أرسلته. }
+  </div>
 </div>
+
+@if (missingItems().length) {
+<!-- What the backend still needs for 100% (same source as the percentage above) -->
+<div class="miss-box" data-testid="missing-items" role="region" aria-label="ما ينقص ملفك">
+  <div class="miss-title">{{ hasMissing() ? 'لإكمال ملفك إلى 100%، أكمل التالي:' : 'قيد المراجعة:' }}</div>
+  <ul class="miss-list">
+    @for (item of missingItems(); track item.key) {
+    <li class="miss-item" [class.is-pending]="item.status === 'pending_review'" [attr.data-status]="item.status" [attr.data-key]="item.key">
+      <button type="button" class="miss-link" [attr.data-tab]="item.tab" (click)="openMissingItem(item)">
+        <span class="miss-main">
+          <span class="miss-label">{{ item.label }}</span>
+          <span class="miss-hint">{{ item.hint }}</span>
+        </span>
+        @if (item.status === 'pending_review') {
+        <span class="miss-badge is-pending" data-testid="miss-pending">قيد المراجعة</span>
+        } @else {
+        <span class="miss-badge" data-testid="miss-missing">ناقص · +{{ item.points }}%</span>
+        }
+        <span class="miss-go" aria-hidden="true">←</span>
+      </button>
+    </li>
+    }
+  </ul>
+</div>
+}
 
 <!-- AI Disclosure -->
 <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
