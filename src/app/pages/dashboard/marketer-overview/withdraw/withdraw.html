@@ -49,8 +49,12 @@
         <div style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px" class="txt-white">
           {{ profile()?.bankName || 'بنك غير محدد' }} — <span dir="ltr">{{ profile()?.iban }}</span>
         </div>
+        } @else if (bankPendingReview()) {
+        <div data-testid="bank-pending-review" style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.3);border-radius:10px;font-size:12px" class="txt-slate">
+          بياناتك البنكية قيد المراجعة، يمكنك طلب السحب بعد اعتمادها. <a routerLink="/marketer-overview/profile/requests" style="font-weight:700" class="txt-teal">متابعة طلباتي</a>
+        </div>
         } @else {
-        <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.28);border-radius:10px;font-size:12px" class="txt-slate">
+        <div data-testid="bank-none" style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.28);border-radius:10px;font-size:12px" class="txt-slate">
           لم تُضف بيانات حساب بنكي بعد. <a routerLink="/marketer-overview/profile/data" style="font-weight:700" class="txt-teal">أضِف IBAN من الملف الشخصي</a>
         </div>
         }

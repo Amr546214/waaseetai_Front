@@ -56,7 +56,10 @@ export class Withdraw implements OnInit {
     return Math.max(0, total - this.reservedAmount() - this.completedAmount());
   });
 
-  hasBankInfo = computed(() => !!this.profile()?.iban);
+  /** Bank data state from the backend: approved / pending review / not added. */
+  bankStatus = computed(() => this.profile()?.bankStatus ?? (this.profile()?.iban ? 'approved' : 'none'));
+  hasBankInfo = computed(() => this.bankStatus() === 'approved');
+  bankPendingReview = computed(() => this.bankStatus() === 'pending_review');
 
   ngOnInit() {
     this.withdrawForm = this.fb.group({
@@ -106,7 +109,9 @@ export class Withdraw implements OnInit {
       return;
     }
     if (!this.hasBankInfo()) {
-      this.showToast('أضف رقم الحساب البنكي (IBAN) من الملف الشخصي أولاً', 'error');
+      this.showToast(this.bankPendingReview()
+        ? 'بياناتك البنكية قيد المراجعة، يمكنك طلب السحب بعد اعتمادها'
+        : 'أضف رقم الحساب البنكي (IBAN) من الملف الشخصي أولاً', 'error');
       return;
     }
     const amount = Number(this.withdrawForm.value.amount);

@@ -112,18 +112,22 @@ describe('ProfileSetup (marketer): shared validation', () => {
       expect(component.bankForm.get('iban')!.errors?.['maxlength']).toBeTruthy();
     });
 
-    it('valid details are sent; the success copy says they go to REVIEW and step 5 shows "قيد المراجعة" instead of "لم يُضف"', () => {
+    it('valid details are sent; the success copy says they go to REVIEW and step 5 shows "قيد المراجعة" from the BACKEND state (not a local flag)', () => {
       goTo(4);
       fillBank();
+      // After the request the backend reports the IBAN as pending review (this survives a reload).
+      svc.getProfile.mockReturnValue(of({ success: true, data: { marketingChannels: [], completionPercentage: 40, user: {}, bankStatus: 'pending_review', missingItems: [
+        { key: 'iban', label: 'الحساب البنكي (IBAN)', points: 30, status: 'pending_review', tab: 'bank', hint: 'طلب الحساب البنكي قيد المراجعة' }] } }));
       component.saveBankInfo();
       expect(svc.updateBankInfo).toHaveBeenCalledWith({ accountHolderName: 'محمد أحمد', iban: VALID_IBAN, bankName: 'مصرف الراجحي' });
       expect(component.toastMsg()).toContain('للمراجعة');
       expect(component.currentStep()).toBe(5);
       render();
-      const row = Array.from(el().querySelectorAll('.review-row')).find(r => r.textContent?.includes('الحساب البنكي'))!;
-      expect(row.textContent).toContain('قيد المراجعة');
-      expect(row.textContent).not.toContain('لم يُضف');
+      expect(el().querySelector('[data-testid="bank-state"]')!.textContent).toContain('قيد المراجعة');
+      expect(el().querySelector('[data-testid="bank-state"]')!.textContent).not.toContain('لم يُضف');
+      expect(el().querySelector('.cbx-item[data-key="iban"]')!.getAttribute('data-status')).toBe('pending_review');
     });
+
 
     it('zod errors[] from the server land on the matching input; the English 400 is never shown', () => {
       svc.updateBankInfo.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'Validation Error', errors: [{ path: 'body.iban', message: 'رقم IBAN غير صحيح' }] } })));
@@ -144,7 +148,7 @@ describe('ProfileSetup (marketer): shared validation', () => {
       component.saveBankInfo();
       expect(notify.toasts().at(-1)!.message).toContain('طلب تعديل معلّق');
       expect(component.currentStep()).toBe(4);
-      expect(component.bankSubmitted()).toBe(false);
+      expect(component.bankReviewState()).toBe('لم يُضف');
     });
   });
 

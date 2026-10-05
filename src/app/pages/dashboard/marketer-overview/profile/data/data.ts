@@ -14,6 +14,7 @@ import { validateFile, MB } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { CompletionBoxComponent, CompletionBoxItem } from '../../../../../shared/forms/completion-box.component';
 
 const LABELS: Record<string, string> = {
 	bio: 'الوصف التسويقي',
@@ -69,7 +70,7 @@ const DEFAULT_ALERT_PREFERENCES = {
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
+	imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })
@@ -308,6 +309,18 @@ export class Data implements OnInit {
 				this.notify.httpError(err, { fallback: 'تعذر تحميل بيانات الملف الشخصي، يرجى المحاولة مرة أخرى' });
 			}
 		});
+	}
+
+	/** Backend `missingItems` (same source as the percentage). */
+	missingItems = computed<CompletionBoxItem[]>(() => (this.profile()?.missingItems ?? []) as CompletionBoxItem[]);
+
+	/** A bank request is waiting for the review: from the backend (so it survives a reload) or just sent in this session. */
+	bankPendingReview = computed(() => this.bankPending() || this.profile()?.bankStatus === 'pending_review' || !!this.profile()?.bankChangePending);
+
+	/** "Complete your profile" item: opens the tab that fixes it (the bank item opens the bank tab). */
+	openMissingItem(item: CompletionBoxItem) {
+		this.setActiveTab(item.tab === 'bank' ? 'banking' : 'profile');
+		setTimeout(() => (this.host.nativeElement as HTMLElement).querySelector('.prof-tab-panel')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }), 30);
 	}
 
 	setActiveTab(tab: string) {

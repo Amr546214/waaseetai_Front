@@ -11,6 +11,7 @@ import { mapHttpError } from '../../../../../core/forms/http-error';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { CompletionBoxComponent, CompletionBoxItem } from '../../../../../shared/forms/completion-box.component';
 
 const MARKETER_LABELS: Record<string, string> = {
 	bio: 'الوصف التسويقي',
@@ -24,7 +25,7 @@ const MARKETER_LABELS: Record<string, string> = {
 @Component({
 	selector: 'app-marketer-profile-setup',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent],
 	templateUrl: './profile-setup.html',
 	styleUrl: './profile-setup.css',
 })
@@ -37,8 +38,6 @@ export class ProfileSetup implements OnInit {
 
 	/** What is missing after a failed save attempt (shown by <ws-form-summary>). */
 	missing = signal<InvalidField[]>([]);
-	/** True once the bank details were sent: the backend files them as a change request that waits for review. */
-	bankSubmitted = signal(false);
 
 	profile = signal<MarketerProfile | null>(null);
 	isLoading = signal(true);
@@ -74,8 +73,14 @@ export class ProfileSetup implements OnInit {
 
 	completionPercentage = computed(() => this.profile()?.completionPercentage ?? 0);
 	hasChannel = computed(() => (this.profile()?.marketingChannels?.length ?? 0) > 0);
-	hasBank = computed(() => !!this.profile()?.iban);
-	bankReviewState = computed(() => this.hasBank() ? 'مكتمل' : this.bankSubmitted() ? 'قيد المراجعة' : 'لم يُضف');
+	/** Backend `missingItems` (same source as the percentage). */
+	missingItems = computed<CompletionBoxItem[]>(() => (this.profile()?.missingItems ?? []) as CompletionBoxItem[]);
+	/** Bank state from the backend (survives a reload): approved / pending review / not added. */
+	bankReviewState = computed(() => {
+		const status = this.profile()?.bankStatus ?? (this.profile()?.iban ? 'approved' : 'none');
+		return status === 'approved' ? 'مكتمل' : status === 'pending_review' ? 'قيد المراجعة' : 'لم يُضف';
+	});
+	bioState = computed(() => this.missingItems().some(i => i.key === 'bio') ? (this.profile()?.bio?.trim() ? 'قصير (50 حرفًا على الأقل)' : 'لم يُضف') : 'مكتمل');
 	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
 
 	ngOnInit(): void {
@@ -162,7 +167,6 @@ export class ProfileSetup implements OnInit {
 		this.profileService.updateBankInfo(this.bankForm.value).subscribe({
 			next: () => {
 				this.isSubmitting.set(false);
-				this.bankSubmitted.set(true);
 				// The backend files this as a change request that is reviewed before it replaces the saved bank data.
 				this.showToast('تم إرسال بياناتك البنكية للمراجعة، وستُفعَّل بعد الاعتماد');
 				this.loadProfile();
@@ -170,6 +174,12 @@ export class ProfileSetup implements OnInit {
 			},
 			error: (err) => this.fail(this.bankForm, err)
 		});
+	}
+
+	/** Review-step box item: go back to the step that fixes it (bank step, or the bio / channel steps). */
+	openMissingItem(item: CompletionBoxItem): void {
+		const target = item.key === 'iban' ? 4 : item.key === 'channel' ? 3 : item.key === 'bio' ? 2 : null;
+		if (target !== null) this.setStep(target);
 	}
 
 	finish(): void {
