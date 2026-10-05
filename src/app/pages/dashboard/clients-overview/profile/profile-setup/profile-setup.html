@@ -371,72 +371,27 @@
 					</div>
 					}
 
-					<!-- Step 3: Bank -->
+					<!-- Step 3: Payout (PayPal is the only destination) -->
 					@if (currentStep() === 3) {
 					<div class="animation-fade-in" formGroupName="bank">
 						<div class="flex items-center gap-3 mb-5">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
-								<line x1="3" y1="22" x2="21" y2="22" />
-								<line x1="6" y1="18" x2="6" y2="11" />
-								<line x1="10" y1="18" x2="10" y2="11" />
-								<line x1="14" y1="18" x2="14" y2="11" />
-								<line x1="18" y1="18" x2="18" y2="11" />
-								<polygon points="12 2 20 7 4 7" />
+								<rect x="2" y="5" width="20" height="14" rx="2" />
+								<line x1="2" y1="10" x2="22" y2="10" />
 							</svg>
-							<h3 class="text-base font-bold text-slate-900 dark:text-white">طريقة الاستلام المالي</h3>
+							<h3 class="text-base font-bold text-slate-900 dark:text-white">حساب PayPal لاستلام المدفوعات</h3>
 						</div>
 
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div class="flex flex-col gap-2 md:col-span-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">نوع طريقة الاستلام
-									<span class="text-amber-500">*</span></label>
-								<div class="flex items-center gap-3">
-									<label
-										class="flex-1 flex items-center gap-3 p-3 bg-slate-50 dark:bg-[#131C31] border border-cyan-500 dark:border-[#38BDF8] rounded-xl cursor-pointer">
-										<input type="radio" formControlName="paymentType" value="bank"
-											class="w-4 h-4 text-cyan-600 dark:text-[#38BDF8] bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
-										<span class="text-sm font-bold text-slate-900 dark:text-white">حساب بنكي</span>
-									</label>
-									<label
-										class="flex-1 flex items-center gap-3 p-3 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer">
-										<input type="radio" formControlName="paymentType" value="wallet"
-											class="w-4 h-4 text-cyan-600 dark:text-[#38BDF8] bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:ring-cyan-500 dark:focus:ring-[#38BDF8]">
-										<span class="text-sm font-bold text-slate-600 dark:text-slate-400">محفظة
-											رقمية</span>
-									</label>
-								</div>
-							</div>
-
-							<div class="flex flex-col gap-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">اسم البنك <span
-										class="text-amber-500">*</span></label>
-								<select formControlName="bankName"
-									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all appearance-none">
-									<option value="">اختر البنك</option>
-									<option value="snb">البنك الأهلي</option>
-									<option value="rajhi">مصرف الراجحي</option>
-								</select>
-								<ws-field-error [control]="setupForm.get('bank.bankName')" label="اسم البنك" />
-							</div>
-
-							<div class="flex flex-col gap-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">اسم صاحب الحساب
-									<span class="text-amber-500">*</span></label>
-								<input type="text" formControlName="accountHolder" placeholder="الاسم كما في كشف الحساب"
-									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
-								<ws-field-error [control]="setupForm.get('bank.accountHolder')" label="اسم صاحب الحساب" />
-							</div>
-
-							<div class="flex flex-col gap-2 md:col-span-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">رقم الآيبان (IBAN)
-									<span class="text-amber-500">*</span></label>
-								<input type="text" formControlName="iban" placeholder="SA00 0000 0000 0000 0000 0000"
-									maxlength="24" dir="ltr"
-									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all font-mono tracking-widest placeholder:text-slate-400 dark:placeholder:text-slate-600">
-								<ws-field-error [control]="setupForm.get('bank.iban')" label="رقم الآيبان (IBAN)" [messages]="{ minlength: 'يجب أن يتكون الآيبان من 24 حرفًا بالضبط', maxlength: 'يجب أن يتكون الآيبان من 24 حرفًا بالضبط' }" />
-								<span class="text-[10px] text-slate-500 mt-1">24 حرفاً يبدأ بـ SA</span>
-							</div>
+						<div class="flex flex-col gap-2 max-w-xl">
+							<label class="text-xs font-bold text-slate-700 dark:text-slate-400" for="setup-paypal">بريد PayPal
+								<span class="text-amber-500">*</span></label>
+							<input type="email" id="setup-paypal" formControlName="paypalPayoutEmail" placeholder="name@example.com"
+								dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
+								class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:outline-none">
+							<ws-field-error [control]="setupForm.get('bank.paypalPayoutEmail')" label="بريد PayPal"
+								[messages]="{ required: 'بريد PayPal مطلوب', email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
+							<span class="text-[11px] text-slate-500 dark:text-slate-400">سنستخدم هذا البريد لإرسال مستحقاتك واستردادك عبر PayPal.</span>
 						</div>
 					</div>
 					}
@@ -589,8 +544,7 @@
 								<div class="flex items-center justify-between">
 									<div class="flex items-center gap-3"><span
 											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span><span
-											class="text-sm text-slate-900 dark:text-white font-medium">البيانات البنكية
-											أو المحفظة</span></div>
+											class="text-sm text-slate-900 dark:text-white font-medium">حساب PayPal</span></div>
 									<span class="text-xs text-slate-500">المرحلة 3</span>
 								</div>
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>

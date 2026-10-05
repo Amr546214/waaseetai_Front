@@ -115,9 +115,16 @@ export class Profile implements OnInit {
 	}
 
 	get completionPercent(): number {
+		// The backend value (a real 0 included) wins; the auth-store copy is only a fallback while the profile loads.
 		return this.profileData()?.profileCompletionPercent
-			|| this.authStore.currentUser()?.profileCompletionPercent
-			|| 0;
+			?? this.authStore.currentUser()?.profileCompletionPercent
+			?? 0;
+	}
+
+	/** What the backend still needs for 100% (GET /profiles/me -> missingItems). */
+	get missingItems(): { key: string; label: string; points: number }[] {
+		const items = this.profileData()?.missingItems;
+		return Array.isArray(items) ? items : [];
 	}
 
 	get rating(): number {

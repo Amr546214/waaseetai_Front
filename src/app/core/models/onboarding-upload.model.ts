@@ -165,11 +165,10 @@ export interface ClientSetupPayload {
     backId?: string;
     [key: string]: unknown;
   };
+  /** PayPal is the only payout destination: the backend stores `paypalPayoutEmail` and sets paymentType 'paypal'. */
   bank?: {
-    paymentType?: 'bank' | 'wallet';
-    bankName?: string;
-    accountHolder?: string;
-    iban?: string;
+    paymentType?: 'paypal';
+    paypalPayoutEmail?: string;
     [key: string]: unknown;
   };
   documents?: {

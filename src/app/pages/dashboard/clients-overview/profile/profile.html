@@ -146,9 +146,9 @@
 		</div>
 		<div class="completion-body">
 			<div class="completion-title">ملفك الشخصي مكتمل {{ completionPercent }}%</div>
-			<div class="completion-sub">أضف رقم الجوال والموقع الشخصي لرفع نسبة الاكتمال وزيادة موثوقيتك</div>
+			<div class="completion-sub" data-testid="completion-missing">@if (missingItems.length) { لإكمال ملفك أضف: @for (item of missingItems.slice(0, 3); track item.key; let last = $last) { {{ item.label }} (+{{ item.points }}%){{ last ? '' : '، ' }} }@if (missingItems.length > 3) { وغيرها } } @else { أكمل بيانات ملفك لزيادة موثوقيتك }</div>
 		</div>
-		<a routerLink="/client-overview/profile-setup" class="completion-cta">
+		<a routerLink="/client-overview/profile/edit" class="completion-cta">
 			<svg width="13" height="13" aria-hidden="true">
 				<use href="#ic-edit"></use>
 			</svg>

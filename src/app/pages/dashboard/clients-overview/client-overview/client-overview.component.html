@@ -355,9 +355,9 @@
 			<div class="profile-banner-body">
 				<div class="profile-banner-ttl">استكمل بيانات حسابك لتفعيل كافة الميزات</div>
 				<p class="profile-banner-sub">تم ملء {{ dashboardStore.dashboardData()!.summary.profileCompletionPercent
-					}}% من بياناتك — أضف صورة شخصية وبيانات التواصل لإكمال ملفك</p>
+					}}% من بياناتك — افتح «تعديل الملف الشخصي» لتعرف ما ينقصك وأكمله</p>
 			</div>
-			<a routerLink="/client-overview/profile-setup" class="profile-banner-btn">
+			<a routerLink="/client-overview/profile/edit" class="profile-banner-btn">
 				<span>استكمال البيانات</span>
 			</a>
 			<button type="button" class="pend-close" (click)="closeProfileBanner()" aria-label="إغلاق">

@@ -11,6 +11,7 @@ import { attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } 
 import { DOC_MIMES, MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
+import { paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 
 const SETUP_LABELS: Record<string, string> = {
@@ -20,10 +21,7 @@ const SETUP_LABELS: Record<string, string> = {
 	city: 'المدينة',
 	occupation: 'المهنة الحالية',
 	address: 'العنوان التفصيلي',
-	paymentType: 'نوع طريقة الاستلام',
-	bankName: 'اسم البنك',
-	accountHolder: 'اسم صاحب الحساب',
-	iban: 'رقم الآيبان (IBAN)',
+	paypalPayoutEmail: 'بريد PayPal',
 	accurate: 'الإقرار بصحة البيانات',
 	terms: 'الموافقة على شروط الاستخدام',
 	privacy: 'الموافقة على سياسة الخصوصية',
@@ -68,7 +66,7 @@ export class ProfileSetupDashboard implements OnInit {
 	steps = [
 		{ id: 1, label: 'بيانات طالب الخدمة' },
 		{ id: 2, label: 'الهوية والتوثيق' },
-		{ id: 3, label: 'البيانات البنكية أو المحفظة' },
+		{ id: 3, label: 'حساب PayPal' },
 		{ id: 4, label: 'المستندات عند الحاجة' },
 		{ id: 5, label: 'المراجعة والإرسال' }
 	];
@@ -92,11 +90,9 @@ export class ProfileSetupDashboard implements OnInit {
 			frontId: [''],
 			backId: ['']
 		}),
+		// PayPal is the only payout destination (saved to ClientProfile.paypalPayoutEmail, counts +20 in the completion).
 		bank: this.fb.group({
-			paymentType: ['bank', Validators.required], // bank or wallet
-			bankName: ['', Validators.required],
-			accountHolder: ['', Validators.required],
-			iban: ['', [Validators.required, Validators.minLength(24), Validators.maxLength(24)]]
+			paypalPayoutEmail: ['', paypalEmailValidators]
 		}),
 		documents: this.fb.group({
 			supportingDocs: [''],
@@ -131,12 +127,7 @@ export class ProfileSetupDashboard implements OnInit {
 					});
 
 					// Patch bank
-					this.setupForm.get('bank')?.patchValue({
-						paymentType: data.paymentType || 'bank',
-						bankName: data.bankName || '',
-						accountHolder: data.accountHolder || '',
-						iban: data.iban || ''
-					});
+					this.setupForm.get('bank')?.patchValue({ paypalPayoutEmail: data.paypalPayoutEmail || '' });
 
 					// Patch documents preview
 					if (data.frontIdUrl) this.setupForm.get('identity.frontId')?.setValue(data.frontIdUrl);
@@ -148,7 +139,6 @@ export class ProfileSetupDashboard implements OnInit {
 					if (data.kycStatus === 'VERIFIED') {
 						if (data.idNumber) this.setupForm.get('details.idNumber')?.disable();
 						if (data.dob) this.setupForm.get('details.dob')?.disable();
-						if (data.iban) this.setupForm.get('bank.iban')?.disable();
 					}
 				}
 			},
@@ -275,10 +265,8 @@ export class ProfileSetupDashboard implements OnInit {
 				backId: formVal.identity.backId
 			},
 			bank: {
-				paymentType: formVal.bank.paymentType,
-				bankName: formVal.bank.bankName,
-				accountHolder: formVal.bank.accountHolder,
-				iban: formVal.bank.iban
+				paymentType: 'paypal',
+				paypalPayoutEmail: String(formVal.bank.paypalPayoutEmail || '').trim()
 			},
 			documents: {
 				supportingDocs: formVal.documents.supportingDocs,
@@ -315,7 +303,7 @@ export class ProfileSetupDashboard implements OnInit {
 		const raw: string = err?.error?.message || '';
 		const fieldFix: [RegExp, string, string, string][] = [
 			[/ID Number/i, 'details.idNumber', 'رقم الهوية غير صحيح: يجب أن يتكون من 10 أرقام ويبدأ بـ 1 أو 2', 'details'],
-			[/IBAN/i, 'bank.iban', 'رقم الآيبان يجب أن يتكون من 24 حرفًا بالضبط', 'bank'],
+			[/PayPal/i, 'bank.paypalPayoutEmail', 'بريد PayPal غير صحيح', 'bank'],
 		];
 		for (const [re, path, message, groupName] of fieldFix) {
 			if (re.test(raw)) {

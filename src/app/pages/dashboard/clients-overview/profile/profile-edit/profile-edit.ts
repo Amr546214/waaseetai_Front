@@ -1,14 +1,15 @@
 import { Component, DestroyRef, ElementRef, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-input.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ExperienceLevel } from '../../../../../core/models/profile.model';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
-import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
+import type { CompletionMissingItem } from '../../../../../core/services/profile-api.service';
+import { paypalEmailError, paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../../../core/forms/form-helpers';
@@ -47,18 +48,13 @@ export class ProfileEdit {
 	profileApi = inject(ProfileApiService);
 	fb = inject(FormBuilder);
 	private readonly host = inject(ElementRef<HTMLElement>);
+	private readonly router = inject(Router);
 	/** What is missing after a failed save attempt (shown by <ws-form-summary>). */
 	missing = signal<InvalidField[]>([]);
 
 	activeTab = signal<Tab>('profile');
 	/** PayPal is the only supported receiving method ('wallet' = PayPal); 'bank' is shown disabled. */
 	paymentMethod = signal<'bank' | 'wallet'>('wallet');
-	/**
-	 * Saving a client's PayPal email is NOT supported by the backend yet: ClientProfile has no PayPal field and
-	 * PUT /profiles/update/banking persists nothing (it only flips the account to PENDING_VERIFICATION).
-	 * Flip to true once the backend stores it (see the PR description); until then no request is sent.
-	 */
-	readonly paypalSaveSupported = false;
 	isChangingPassword = signal(false);
 
 	completionPercentage = signal<number>(0);
@@ -72,26 +68,32 @@ export class ProfileEdit {
 	notifTelegram = signal(false);
 	notifWhatsapp = signal(false);
 
-	getCompletionHint(): string {
-		const p = this.completionPercentage();
-		if (p >= 100) return 'ملفك الشخصي مكتمل بنسبة 100%! شكراً لك.';
+	/** What the backend still needs for 100% (GET /profiles/me -> missingItems). Same source as the percentage above. */
+	missingItems = signal<CompletionMissingItem[]>([]);
 
-		if (!this.clientForm?.value?.avatarUrl && !this.providerForm?.value?.avatarUrl) {
-			return 'أضف صورة شخصية لرفع نسبة الاكتمال';
+	private applyCompletion(profile: any) {
+		this.completionPercentage.set(Number(profile?.profileCompletionPercent ?? profile?.completionPercentage) || 0);
+		this.missingItems.set(Array.isArray(profile?.missingItems) ? profile.missingItems : []);
+	}
+
+	/** Re-reads only the completion after a save (the forms keep what the user typed). */
+	private refreshCompletion() {
+		this.profileApi.getMyProfile().subscribe({
+			next: (res) => this.applyCompletion(res?.data?.currentProfileData || res?.data),
+			error: () => { /* keeps the last value */ },
+		});
+	}
+
+	/**
+	 * "Complete your profile" item: edit-page tabs open here; items only the setup wizard collects (occupation, ID number)
+	 * go to the wizard. Nothing links to a disabled form.
+	 */
+	openMissingItem(item: CompletionMissingItem) {
+		if (item.tab === 'setup') { this.router.navigate(['/client-overview/profile-setup']); return; }
+		if (item.tab === 'profile' || item.tab === 'basics' || item.tab === 'banking' || item.tab === 'contact') {
+			this.switchTab(item.tab as Tab);
+			setTimeout(() => this.host.nativeElement.querySelector('form')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }), 30);
 		}
-		if (!this.basicsForm?.value?.firstName) {
-			return 'أكمل البيانات الأساسية لرفع نسبة الاكتمال';
-		}
-		if (!this.identityForm?.value?.idNumber) {
-			return 'أكمل بيانات الهوية الرسمية (KYC) لرفع نسبة الاكتمال';
-		}
-		if (!this.bankingForm?.value?.paypalEmail) {
-			return 'أضف حساب PayPal لتتمكن من استقبال المدفوعات';
-		}
-		if (!this.clientForm?.value?.bio && !this.providerForm?.value?.bio) {
-			return 'أضف نبذة تعريفية (Bio) عن نفسك أو شركتك';
-		}
-		return 'أكمل الحقول المتبقية للوصول إلى 100%';
 	}
 
 	frontIdFileName = signal('');
@@ -264,7 +266,8 @@ export class ProfileEdit {
 
 		this.bankingForm = this.fb.group({
 			paymentMethod: ['wallet'],
-			paypalEmail: ['', paypalEmailValidators],
+			// Optional here: empty on save removes the saved address ({ paypalPayoutEmail: null }). The setup wizard keeps it required.
+			paypalEmail: ['', paypalEmailOptionalValidators],
 			// Legacy saved values: kept in the form model so nothing stored is dropped, but never shown or sent.
 			accountHolderName: [''],
 			bankName: [''],
@@ -287,7 +290,7 @@ export class ProfileEdit {
 				if (res.success && res.data) {
 					const profile = res.data.currentProfileData || res.data;
 
-					this.completionPercentage.set(profile.profileCompletionPercent || 0);
+					this.applyCompletion(profile);
 					const currentUser = this.authStore.currentUser();
 					if (currentUser) {
 						this.authStore.authenticate(this.authStore.token()!, {
@@ -316,6 +319,8 @@ export class ProfileEdit {
 					this.identityForm.patchValue(profile);
 					this.contactForm.patchValue(profile);
 					this.bankingForm.patchValue(profile);
+					// GET returns the saved address as paypalPayoutEmail; the form control is paypalEmail.
+					this.bankingForm.patchValue({ paypalEmail: (profile as any).paypalPayoutEmail || '' });
 
 					// Map pending changes over the verified forms to reflect what the user submitted
 					const requests = this.changeRequests();
@@ -489,6 +494,7 @@ export class ProfileEdit {
 				if (res.success) {
 					this.successMsg.set('تم تحديث بيانات البروفايل بنجاح!');
 					setTimeout(() => this.successMsg.set(''), 3000);
+					this.refreshCompletion();
 				} else {
 					this.errorMsg.set(res.message || 'حدث خطأ أثناء الحفظ');
 				}
@@ -523,6 +529,7 @@ export class ProfileEdit {
 			return;
 		}
 
+		let clearingPaypal = false;
 		if (tabName === 'banking') {
 			// PayPal email only; legacy bank/wallet values are never sent (no empty overwrite).
 			form.markAllAsTouched();
@@ -530,11 +537,10 @@ export class ProfileEdit {
 				this.errorMsg.set(paypalEmailError(this.bankingForm.get('paypalEmail')?.errors) || 'تحقق من بريد PayPal');
 				return;
 			}
-			if (!this.paypalSaveSupported) {
-				this.errorMsg.set('حفظ حساب PayPal لطالب الخدمة غير مفعّل بعد (بانتظار دعم الخادم).');
-				return;
-			}
-			payload = { paypalPayoutEmail: String(this.bankingForm.value.paypalEmail || '').trim() };
+			const email = String(this.bankingForm.value.paypalEmail || '').trim();
+			// Empty = remove the saved address (exactly { paypalPayoutEmail: null }); otherwise the validated address.
+			payload = { paypalPayoutEmail: email || null };
+			clearingPaypal = !email;
 		} else {
 			const attempt = attemptSubmit(form, { root: this.root(), labels: PROFILE_LABELS });
 			this.missing.set(attempt.missing);
@@ -548,14 +554,16 @@ export class ProfileEdit {
 		const doneMessage: Record<string, string> = {
 			basics: 'تم حفظ الاسم بنجاح',
 			contact: 'تم حفظ رقم WhatsApp والمدينة بنجاح',
+			banking: 'تم حفظ بريد PayPal بنجاح',
 		};
 		this.isSaving.set(true);
 		this.profileApi.updateTab(tabName, payload).subscribe({
 			next: (res) => {
 				this.isSaving.set(false);
 				if (res.success) {
-					this.successMsg.set(doneMessage[tabName] || res.message || 'تم إرسال الطلب بنجاح');
+					this.successMsg.set(tabName === 'banking' && clearingPaypal ? 'تم إزالة بريد PayPal' : (doneMessage[tabName] || res.message || 'تم إرسال الطلب بنجاح'));
 					setTimeout(() => this.successMsg.set(''), 5000);
+					this.refreshCompletion();
 				} else {
 					this.errorMsg.set(res.message || 'حدث خطأ أثناء الحفظ');
 				}
