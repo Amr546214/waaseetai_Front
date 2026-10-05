@@ -518,3 +518,91 @@ describe('Specialties — submission transport consolidation (Batch 3D-3 + 3D-4 
 		fakeSocket.emit.mockReset();
 	});
 });
+
+describe('Specialties — question generation never fabricates local questions', () => {
+	let component: Specialties;
+	let fixture: ComponentFixture<Specialties>;
+	let generate: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
+
+	beforeEach(async () => {
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, clear: () => {} });
+		await TestBed.configureTestingModule({
+			imports: [Specialties],
+			providers: [{ provide: HttpClient, useValue: { get: () => of({ success: false }), post: () => of({ success: true }) } }],
+		}).compileComponents();
+		fixture = TestBed.createComponent(Specialties);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+		generate = vi.fn();
+		(component as any).specialtyService.generateAiAssessment = generate;
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+		vi.unstubAllGlobals();
+	});
+
+	/** Starts the quiz and lets the 3.5 s "socket silent -> REST" timer fire. */
+	function startAndWaitForRestFallback() {
+		vi.useFakeTimers();
+		try {
+			(component as any).initiateDynamicQuiz();
+			vi.advanceTimersByTime(3600);
+		} finally {
+			vi.useRealTimers();
+		}
+	}
+
+	const expectHonestError = () => {
+		expect(component.quizGenerationError()).toContain('تعذر إنشاء أسئلة التقييم');
+		expect(component.quizQuestions()).toEqual([]);
+		expect(component.isStreamingQuestions()).toBe(false);
+		expect(component.usingStaticFallbackQuestions()).toBe(false);
+		expect(component.quizResult()).toBeNull();
+	};
+
+	it('REST failure: an explicit error, no questions at all (the old 20 local questions are gone)', () => {
+		generate.mockReturnValue(throwError(() => ({ status: 500, error: { message: 'boom' } })));
+		startAndWaitForRestFallback();
+		expectHonestError();
+		expect((component as any).applyFallback20Questions).toBeUndefined();
+	});
+
+	it('REST answers success:false: an explicit error, no questions', () => {
+		generate.mockReturnValue(of({ success: false }));
+		startAndWaitForRestFallback();
+		expectHonestError();
+	});
+
+	it('REST answers success with an empty question list: an explicit error, never an empty or invented quiz', () => {
+		generate.mockReturnValue(of({ success: true, data: { attemptId: 'a1', questions: [] } }));
+		startAndWaitForRestFallback();
+		expectHonestError();
+	});
+
+	it('GENERATION_IN_PROGRESS is not a failure: no error and no invented questions (the real ones arrive over the socket)', () => {
+		generate.mockReturnValue(throwError(() => ({ status: 409, error: { code: 'GENERATION_IN_PROGRESS' } })));
+		startAndWaitForRestFallback();
+		expect(component.quizGenerationError()).toBeNull();
+		expect(component.quizQuestions()).toEqual([]);
+	});
+
+	it('real REST questions still work and are shown as received (backend-reported static bank stays flagged)', () => {
+		generate.mockReturnValue(of({ success: true, data: { attemptId: 'a1', generationSource: 'STATIC_FALLBACK', questions: [{ id: 'q1', textAr: 'سؤال حقيقي', options: [{ id: 'a', text: 'ا' }] }] } }));
+		startAndWaitForRestFallback();
+		expect(component.quizQuestions().length).toBe(1);
+		expect(component.quizQuestions()[0].text).toBe('سؤال حقيقي');
+		expect(component.usingStaticFallbackQuestions()).toBe(true);
+		expect(component.quizGenerationError()).toBeNull();
+		(component as any).stopTimer();
+	});
+
+	it('the error offers a retry that clears it', () => {
+		generate.mockReturnValue(throwError(() => ({ status: 500 })));
+		startAndWaitForRestFallback();
+		expectHonestError();
+		component.retryQuizGeneration();
+		expect(component.quizGenerationError()).toBeNull();
+		(component as any).stopTimer();
+	});
+});

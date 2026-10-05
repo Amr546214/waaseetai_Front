@@ -149,3 +149,24 @@ describe('Card — canonical provider level styling (Batch 5)', () => {
 		expect(text).toContain('لديك طلب نشط');
 	});
 });
+
+describe('Card (shared marketplace card) — AI wording is honest', () => {
+	it('shows the stored score as "جودة AI", never "AI Match" or "معتمد AI", and the fallback copy no longer claims Waseet AI approval', () => {
+		const { fixture } = setup();
+		fixture.componentRef.setInput('models', [baseModel({ aiScore: 80, description: '' })]);
+		fixture.detectChanges();
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(text).toContain('جودة AI 80%');
+		expect(text).not.toContain('AI Match');
+		expect(text).not.toContain('معتمد AI');
+		expect(text).not.toContain('معتمدة من Waseet AI');
+		expect(text).toContain('راجع تفاصيل الخدمة والباقات قبل الطلب');
+	});
+
+	it('a real description is shown as is', () => {
+		const { fixture } = setup();
+		fixture.componentRef.setInput('models', [baseModel({ description: 'وصف حقيقي للخدمة' })]);
+		fixture.detectChanges();
+		expect((fixture.nativeElement as HTMLElement).textContent).toContain('وصف حقيقي للخدمة');
+	});
+});

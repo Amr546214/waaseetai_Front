@@ -42,7 +42,7 @@
 				}
 			</div>
 
-			<span class="svc-ai-match" style="z-index: 2;">AI Match {{ model.aiScore ?? 0 }}%</span>
+			<span class="svc-ai-match" style="z-index: 2;">جودة AI {{ model.aiScore ?? 0 }}%</span>
 
 			<!-- Favorite Button -->
 			<button class="svc-fav" [class.is-favorite]="isFav(model.id)" type="button" aria-label="أضف للمفضلة"
@@ -62,7 +62,7 @@
 			<h3 class="svc-title">{{ model.title }}</h3>
 
 			<p class="spec-desc">
-				{{ model.description || 'خدمة احترافية معتمدة من Waseet AI ومتوافقة مع متطلبات السوق الذكي.' }}
+				{{ model.description || 'راجع تفاصيل الخدمة والباقات قبل الطلب.' }}
 			</p>
 
 			<div class="svc-prov">
@@ -89,7 +89,7 @@
 				<span class="svc-stars">★★★★★</span>
 				<span class="svc-score">{{ model.rating ?? 0 }}</span>
 				<span class="svc-count">({{ model.reviewsCount ?? 0 }})</span>
-				<span class="svc-quality">معتمد AI {{ model.aiScore ?? 0 }}%</span>
+				<span class="svc-quality">جودة AI {{ model.aiScore ?? 0 }}%</span>
 			</div>
 
 			<!-- Card Footer -->

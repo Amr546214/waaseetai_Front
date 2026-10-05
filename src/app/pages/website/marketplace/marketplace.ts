@@ -430,14 +430,17 @@ export class Marketplace implements OnInit, OnDestroy {
 		this.aiRequest?.unsubscribe();
 		this.aiRequest = this.marketplaceService.getAiRecommendations(payload).subscribe({
 			next: (res) => {
-				const recs = res?.data?.recommendations || res?.recommendations || [];
+				// The backend may answer { success, data: { ... } } or the same fields at the top level: read both.
+				const body: any = res;
+				const recs = body?.data?.recommendations || body?.recommendations || [];
 				this.aiRecommendedModels.set(recs);
-				this.aiGenerationSource.set(res?.data?.generationSource === 'GEMINI' ? 'GEMINI' : 'DETERMINISTIC');
+				const source = body?.data?.generationSource ?? body?.generationSource;
+				this.aiGenerationSource.set(source === 'GEMINI' ? 'GEMINI' : 'DETERMINISTIC');
 				// Batch 5: the backend field is `bannerInsight` (a real Gemini
 				// sentence, or the honest deterministic "تم استرجاع N نموذج…").
 				// `matchSummary` was never sent, so the banner stayed stuck on
 				// the "جاري تحليل…" placeholder forever.
-				const banner = res?.data?.bannerInsight ?? res?.data?.matchSummary;
+				const banner = body?.data?.bannerInsight ?? body?.bannerInsight ?? body?.data?.matchSummary;
 				if (banner) {
 					this.aiBannerInsight.set(banner);
 				}
