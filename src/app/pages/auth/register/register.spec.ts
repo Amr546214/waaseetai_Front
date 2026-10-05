@@ -286,4 +286,23 @@ describe('Register', () => {
 			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeTruthy();
 		});
 	});
+
+	describe('never restores earlier input', () => {
+		it('purges a legacy draft (that could hold a password), shows no restore banner and starts with empty fields', () => {
+			const { fixture, component } = setup();
+			const removed: string[] = [];
+			vi.stubGlobal('localStorage', {
+				getItem: (k: string) => k === 'waseet_register_draft' ? JSON.stringify({ accountType: 'service_requester_ind', basicInfo: { email: 'old@example.com', password: 'OldPassw0rd!' } }) : null,
+				setItem: () => {},
+				removeItem: (k: string) => removed.push(k),
+			});
+			fixture.detectChanges();
+			const el: HTMLElement = fixture.nativeElement;
+			expect(removed).toContain('waseet_register_draft');
+			expect(el.querySelector('#draft-banner')).toBeNull();
+			expect(component.basicInfoForm.get('email')!.value).toBeFalsy();
+			expect(component.basicInfoForm.get('password')!.value).toBeFalsy();
+			expect(el.querySelector('use[href="#ws-ai-spark"]')).toBeNull();
+		});
+	});
 });

@@ -88,9 +88,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	private affiliateApi = inject(AffiliateApiService);
 	lockedAffiliate = signal<{ referralSlug: string; displayName: string } | null>(null);
 
-	// Draft restoration
-	showDraftBanner = false;
-	private draftKey = 'waseet_register_draft';
+	/** Legacy key of a removed "restore previous data" draft (it could hold a typed password). Only ever purged now. */
+	private static readonly LEGACY_DRAFT_KEY = 'waseet_register_draft';
 
 	countdown = 90;
 	countdownTimer: any = null;
@@ -190,8 +189,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	ngOnInit() {
-		// Check for saved draft
-		this.checkDraft();
+		// Registration never restores earlier input: drop any draft an older version left in the browser.
+		try { localStorage.removeItem(Register.LEGACY_DRAFT_KEY); } catch { /* storage unavailable */ }
 
 		// P-LG-012 locked attribution: checked once per page load, independent of
 		// `currentStep` (the affiliate section only renders once step 2 is
@@ -336,43 +335,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		confirmPassword?.setValue('');
 		confirmPassword?.clearValidators();
 		confirmPassword?.updateValueAndValidity();
-		this.cdr.markForCheck();
-	}
-
-	private checkDraft() {
-		try {
-			const draft = localStorage.getItem(this.draftKey);
-			if (draft) {
-				const data = JSON.parse(draft);
-				if (data && (data.firstName || data.email || data.phone)) {
-					this.showDraftBanner = true;
-					this.cdr.markForCheck();
-				}
-			}
-		} catch {}
-	}
-
-	restoreDraft() {
-		try {
-			const draft = localStorage.getItem(this.draftKey);
-			if (draft) {
-				const data = JSON.parse(draft);
-				if (data.accountType) {
-					this.selectedAccountType = data.accountType;
-				}
-				if (data.basicInfo) {
-					this.basicInfoForm.patchValue(data.basicInfo);
-				}
-				this.currentStep = 2;
-			}
-		} catch {}
-		this.showDraftBanner = false;
-		this.cdr.markForCheck();
-	}
-
-	dismissDraft() {
-		this.showDraftBanner = false;
-		try { localStorage.removeItem(this.draftKey); } catch {}
 		this.cdr.markForCheck();
 	}
 
