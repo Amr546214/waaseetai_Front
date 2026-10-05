@@ -18,7 +18,7 @@
 					<svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
 				</div>
 				<div class="text-base font-bold text-[var(--txt)] mb-1">اسحب ملفاتك هنا أو انقر للاختيار</div>
-				<div class="text-xs text-[var(--txt-3)] font-medium mb-4">حجم أقصى 10MB لكل ملف · يتم فحص كل ملف بواسطة AI</div>
+				<div class="text-xs text-[var(--txt-3)] font-medium mb-4">حجم أقصى 10MB لكل ملف · حتى 5 ملفات</div>
 				<div class="flex items-center justify-center gap-2">
 					<span class="px-2 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold rounded">PDF</span>
 					<span class="px-2 py-1 bg-blue-500/10 text-blue-500 text-[10px] font-bold rounded">PNG/JPG</span>
@@ -50,8 +50,7 @@
 			<!-- AI SUGGESTIONS -->
 			<div class="ai-suggestions p-5 rounded-xl bg-[var(--ai)]/5 border border-[var(--ai)]/10">
 				<div class="flex items-center gap-2 text-sm font-bold text-[var(--ai)] mb-4">
-<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-			<use href="#i-ai"></use></svg>					AI يقترح رفع هذه الملفات لتحسين جودة طلبك
+ملفات مقترحة لتحسين وضوح الطلب
 				</div>
 				<div class="flex flex-wrap gap-2">
 					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--ai)] hover:text-[var(--ai)] transition-colors" (click)="parent.addSuggestedFile('مخطط المشروع أو wireframe')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مخطط المشروع أو wireframe</button>
@@ -60,13 +59,4 @@
 				</div>
 			</div>
 
-			@if (parent.hasInappropriateFile()) {
-			<div class="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-start gap-3">
-				<svg class="w-5 h-5 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-				<div>
-					<div class="font-bold text-sm mb-1">تم رصد محتوى مشبوه في أحد الملفات</div>
-					<div class="text-xs font-medium opacity-90">AI رصد محتوى قد يخالف سياسة الاستخدام. تم إشعار فريق الإشراف تلقائيا. يمكنك المتابعة أو إزالة الملف.</div>
-				</div>
-			</div>
-			}
 		</div>

@@ -39,7 +39,7 @@
 				<div class="field-counter flex items-center justify-between">
 					<div class="ai-quality poor flex items-center gap-1.5 text-xs text-[var(--txt-3)] font-medium">
 						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>
-						<span id="ai-quality-text">{{ parent.description().trim().length > 50 ? ' وصف قوي ومتوافق مع المعايير' : 'أضف وصفا لتحليل الجودة' }}</span>
+						<span id="ai-quality-text">{{ parent.description().trim().length > 50 ? ' طول الوصف مناسب' : 'أضف وصفًا أوضح لطلبك' }}</span>
 					</div>
 					<span id="desc-count" class="field-count text-xs text-[var(--txt-3)]">{{ parent.description().length }} / 2000</span>
 				</div>
@@ -62,7 +62,7 @@
 						@if (parent.isAiStreaming()) {
 							<div class="ai-tooltip-badge inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--ai)]/20 border border-[var(--ai)]/40 text-[#D8B4FE] text-xs font-extrabold shadow-[0_0_12px_rgba(168,85,247,0.3)] animate-pulse w-fit">
 								<span class="w-2 h-2 rounded-full bg-[#D8B4FE]"></span>
-								{{ parent.aiPhase() === 'validating' ? 'جاري تحليل العنوان ومطابقته مع التخصصات...' : 'تم التحقق · جاري صياغة الوصف بواسطة الذكاء الاصطناعي...' }}
+								{{ parent.aiPhase() === 'validating' ? 'جاري الاتصال بخدمة الصياغة...' : 'جاري صياغة الوصف بواسطة الذكاء الاصطناعي...' }}
 							</div>
 						} @else {
 							<div class="ai-tooltip-done-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold w-fit">
@@ -79,14 +79,14 @@
 						} @else {
 							<div class="ai-tooltip-loading flex items-center justify-center gap-3 py-8 text-slate-400 italic">
 								<svg class="w-5 h-5 animate-spin text-[var(--ai)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-								<span>{{ parent.aiPhase() === 'validating' ? 'يفحص AI وضوح العنوان وتوافقه مع التخصص الرئيسي والفرعي...' : 'جاري صياغة هيكل المتطلبات الفنية والمواصفات...' }}</span>
+								<span>{{ parent.aiPhase() === 'validating' ? 'جاري الاتصال بخدمة الصياغة...' : 'جاري صياغة هيكل المتطلبات الفنية والمواصفات...' }}</span>
 							</div>
 						}
 					</div>
 
 					<div class="ai-tooltip-footer flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-4">
 						<div class="ai-tooltip-caption text-xs text-slate-400 font-bold flex items-center gap-2">
-							<span>🎯 متوافق مع متطلبات السوق وعقود العمل الحر الإقليمية</span>
+							<span>📝 مسودة قابلة للتعديل قبل الإرسال، راجع التفاصيل قبل الإرسال</span>
 						</div>
 						<div class="ai-tooltip-actions flex items-center gap-3 w-full sm:w-auto justify-end">
 							<button type="button"
@@ -120,7 +120,7 @@
 			<div class="flex items-center gap-2 p-3 rounded-xl bg-[var(--ai)]/10 border border-[var(--ai)]/20 text-[var(--ai)] text-xs font-bold mb-4">
 <svg viewBox="0 0 24 24"  width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 			<use href="#i-ai"></use></svg>
-							AI يقترح متطلبات بناء على تخصصك، يمكنك إضافتها أو تعديلها
+							أضف المتطلبات التي يجب أن يلتزم بها مقدم الخدمة، ويمكنك تعديلها أو حذفها
 			</div>
 
 			<div class="req-list flex flex-col gap-3 mb-4" id="req-list" aria-label="قائمة المتطلبات">
