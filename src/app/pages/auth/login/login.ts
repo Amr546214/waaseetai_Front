@@ -63,6 +63,13 @@ export class Login {
   }
 
   ngOnInit() {
+    // The login page always starts empty: no email/password is ever stored by the app, and the browser's
+    // saved-credential autofill / form restoration is switched off in the template. This also wipes anything
+    // a browser still managed to paint into the fields (it can do so after the first render).
+    this.clearCredentialFields();
+    setTimeout(() => this.clearCredentialFields(), 150);
+    setTimeout(() => this.clearCredentialFields(), 600);
+
     // CRITICAL (part 1 — stale subscription leak): SocialAuthService.authState
     // is a single app-wide ReplaySubject(1) singleton, and this subscription
     // is set up in ngOnInit (re-created every time this page is visited).
@@ -215,5 +222,19 @@ export class Login {
   private showSmsUnavailable() {
     this.errorMessage = SMS_UNAVAILABLE_MESSAGE;
     this.cdr.markForCheck();
+  }
+
+  /** Password/e-mail fields are read-only until the user focuses them, so browsers do not autofill saved credentials. */
+  unlockField(event: Event) {
+    (event.target as HTMLInputElement).removeAttribute('readonly');
+  }
+
+  private clearCredentialFields() {
+    const root: HTMLElement | undefined = this.host.nativeElement;
+    if (!this.loginForm.dirty) {
+      this.loginForm.reset({ email: '', password: '', remember: false });
+      root?.querySelectorAll<HTMLInputElement>('#identifier, #password').forEach(i => { if (document.activeElement !== i) i.value = ''; });
+      this.cdr.markForCheck();
+    }
   }
 }
