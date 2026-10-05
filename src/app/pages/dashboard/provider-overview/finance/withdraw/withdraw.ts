@@ -26,28 +26,6 @@ export class Withdraw implements OnInit {
 
   readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY;
 
-  // ── Company-mode OTP confirmation (P-CO-FN-004 "تأكيد طلب السحب") ────
-  // NOTE: there is no real OTP request/verify endpoint on the backend yet
-  // (WithdrawalApiService only exposes submitProviderWithdrawal, no OTP
-  // methods — see BACKEND_BLOCKED_ISSUES.md). This step is a UI-only gate
-  // that matches the design for company accounts: it accepts a 4-6 digit
-  // code entered client-side (nothing is actually sent/verified server-side)
-  // and, once accepted, calls the REAL submitProviderWithdrawal() endpoint —
-  // exactly the same write call the individual flow already makes directly.
-  showOtpModal = signal(false);
-  otpCode = signal('');
-  otpError = signal('');
-  otpResendSeconds = signal(30);
-  private otpResendTimer: ReturnType<typeof setInterval> | null = null;
-
-  // The company's registered phone, masked — reused from the real account
-  // record (never a fabricated number). Falls back to generic wording when
-  // the account has no phone on file yet.
-  companyPhoneMasked = computed(() => {
-    const phone = this.authStore.currentUser()?.phoneNumber;
-    return phone ? this.maskValue(phone) : 'الرقم المسجل لحساب الشركة';
-  });
-
   // ── Wallet ──────────────────────────────────────────────────────────
   wallet = signal<ProviderWalletData | null>(null);
   walletLoading = signal(true);
@@ -221,12 +199,7 @@ export class Withdraw implements OnInit {
     this.submitSuccess.set('');
     if (!this.validate()) return;
 
-    // Company accounts see an OTP confirmation step first (P-CO-FN-004);
-    // individual accounts submit directly, unchanged.
-    if (this.isCompany()) {
-      this.openOtpModal();
-      return;
-    }
+    // Every withdrawal goes to the admin review queue; there is no client-side (fake) OTP step.
     this.performSubmit();
   }
 
@@ -250,61 +223,6 @@ export class Withdraw implements OnInit {
         this.submitError.set(err?.error?.message || err?.message || 'تعذر إرسال طلب السحب');
       },
     });
-  }
-
-  // ── Company OTP modal ─────────────────────────────────────────────────
-  openOtpModal() {
-    this.otpCode.set('');
-    this.otpError.set('');
-    this.otpResendSeconds.set(30);
-    this.showOtpModal.set(true);
-    this.startOtpCountdown();
-  }
-
-  cancelOtp() {
-    this.showOtpModal.set(false);
-    this.stopOtpCountdown();
-  }
-
-  setOtpCode(event: Event) {
-    const v = (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 6);
-    this.otpCode.set(v);
-    this.otpError.set('');
-  }
-
-  resendOtp() {
-    this.otpResendSeconds.set(30);
-    this.startOtpCountdown();
-  }
-
-  confirmOtp() {
-    if (this.otpCode().trim().length < 4) {
-      this.otpError.set('أدخل رمز التحقق المرسل إلى جوال الشركة');
-      return;
-    }
-    this.showOtpModal.set(false);
-    this.stopOtpCountdown();
-    this.performSubmit();
-  }
-
-  private startOtpCountdown() {
-    this.stopOtpCountdown();
-    this.otpResendTimer = setInterval(() => {
-      const s = this.otpResendSeconds();
-      if (s <= 1) {
-        this.stopOtpCountdown();
-        this.otpResendSeconds.set(0);
-      } else {
-        this.otpResendSeconds.set(s - 1);
-      }
-    }, 1000);
-  }
-
-  private stopOtpCountdown() {
-    if (this.otpResendTimer) {
-      clearInterval(this.otpResendTimer);
-      this.otpResendTimer = null;
-    }
   }
 
   private resetForm() {

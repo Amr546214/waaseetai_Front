@@ -25,7 +25,7 @@
       <div class="ord-title">{{ isCompany() ? 'سحب أرباح الشركة' : 'سحب الأرباح' }}</div>
       <div class="ord-sub">
         @if (isCompany()) {
-          اسحب أرباح الشركة المتراكمة إلى حساب PayPal المسجل للشركة. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيد الشركة حتى تعتمده الإدارة، ويتطلب تأكيداً برمز يُرسل إلى جوال الشركة.
+          اسحب أرباح الشركة المتراكمة إلى حساب PayPal المسجل للشركة. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيد الشركة حتى تعتمده الإدارة.
         } @else {
           اسحب أرباحك المتراكمة إلى حساب PayPal الخاص بك. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيدك حتى تعتمده الإدارة.
         }
@@ -39,7 +39,7 @@
     <div class="ai-disc-body">
       @if (isCompany()) {
         <div class="ai-disc-lbl">وسيط AI، حماية مالية للشركة</div>
-        <p class="ai-disc-txt">جميع طلبات سحب الشركة تمر بمراجعة الإدارة وتأكيد برمز إلى جوال الشركة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
+        <p class="ai-disc-txt">جميع طلبات سحب الشركة تمر بمراجعة الإدارة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
       } @else {
         <div class="ai-disc-lbl">وسيط AI، حماية مالية</div>
         <p class="ai-disc-txt">جميع طلبات السحب تمر بمراجعة الإدارة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
@@ -284,41 +284,3 @@
     }
   }
 </div>
-
-<!-- Company-mode OTP confirmation modal (P-CO-FN-004 "تأكيد طلب السحب") -->
-@if (showOtpModal()) {
-  <div class="wd-otp-overlay" role="dialog" aria-modal="true" aria-label="تأكيد طلب السحب" (click)="cancelOtp()">
-    <div class="wd-otp-box" dir="rtl" (click)="$event.stopPropagation()">
-      <div class="wd-otp-ico"><svg aria-hidden="true"><use href="#wd-shield"></use></svg></div>
-      <div class="wd-otp-ttl">تأكيد طلب السحب</div>
-      <p class="wd-otp-txt">أرسلنا رمز التحقق إلى جوال الشركة <span dir="ltr">{{ companyPhoneMasked() }}</span></p>
-
-      <input
-        type="text" inputmode="numeric" placeholder="——————" maxlength="6" dir="ltr"
-        class="wd-otp-input" [class.wd-input-err]="otpError()"
-        [value]="otpCode()" (input)="setOtpCode($event)" aria-label="رمز التحقق">
-      @if (otpError()) {
-        <div class="wd-field-err" style="text-align:center;margin-top:6px">{{ otpError() }}</div>
-      }
-
-      <div class="wd-otp-resend">
-        @if (otpResendSeconds() > 0) {
-          <span>يمكنك إعادة الإرسال خلال {{ otpResendSeconds() }} ثانية</span>
-        } @else {
-          <button type="button" class="wd-otp-resend-btn" (click)="resendOtp()">لم يصلك الرمز؟ إعادة الإرسال</button>
-        }
-      </div>
-
-      <div class="wd-otp-actions">
-        <button type="button" class="wd-btn wd-btn-sec" (click)="cancelOtp()">إلغاء</button>
-        <button type="button" class="wd-btn wd-btn-pri" [disabled]="submitting()" (click)="confirmOtp()">
-          @if (submitting()) {
-            <span class="wd-spinner"></span> جاري التأكيد...
-          } @else {
-            تأكيد السحب
-          }
-        </button>
-      </div>
-    </div>
-  </div>
-}

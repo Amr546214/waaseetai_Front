@@ -28,7 +28,6 @@
 	<div class="pref-card">
 		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">الإشعارات داخل وسيط AI</div><div class="pref-sub">مركز الإشعارات</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.inApp"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
 		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">البريد الإلكتروني</div><div class="pref-sub">إلى بريدك المسجّل</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.email"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
-		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">الرسائل النصية SMS</div><div class="pref-sub">للتنبيهات العاجلة فقط</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.sms"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
 		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">إشعارات الجوال Push</div><div class="pref-sub">عبر تطبيق وسيط</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.push"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
 	</div>
 	<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving()" (click)="savePreferences()">{{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التفضيلات' }}</button></div>
