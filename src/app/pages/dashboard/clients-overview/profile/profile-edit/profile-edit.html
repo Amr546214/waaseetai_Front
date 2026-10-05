@@ -10,10 +10,32 @@
 			<div class="h-full bg-gradient-to-l from-cyan-400 to-blue-500 rounded-full transition-all duration-500"
 				[style.width.%]="completionPercentage()"></div>
 		</div>
-		<p class="text-xs font-medium text-slate-500 dark:text-slate-400">
-			{{ getCompletionHint() }}
-		</p>
+		@if (!missingItems().length) {
+		<p class="text-xs font-medium text-slate-500 dark:text-slate-400" data-testid="prog-hint">ملفك الشخصي مكتمل 100% — شكرًا لك.</p>
+		}
 	</div>
+
+	@if (missingItems().length) {
+	<!-- What the backend still needs for 100% (same source as the percentage above) -->
+	<div class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm dark:shadow-none" data-testid="missing-items" role="region" aria-label="ما ينقص ملفك">
+		<h3 class="text-sm font-black text-slate-900 dark:text-white mb-3">لإكمال ملفك إلى 100%، أكمل التالي:</h3>
+		<ul class="grid gap-2 sm:grid-cols-2 list-none p-0 m-0">
+			@for (item of missingItems(); track item.key) {
+			<li [attr.data-key]="item.key">
+				<button type="button" [attr.data-tab]="item.tab" (click)="openMissingItem(item)"
+					class="w-full flex items-center gap-3 text-start px-4 py-3 rounded-xl border border-amber-300/60 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/5 hover:bg-amber-100 dark:hover:bg-amber-500/10 transition-colors cursor-pointer">
+					<span class="flex-1 min-w-0 flex flex-col gap-0.5">
+						<span class="text-[13px] font-extrabold text-slate-900 dark:text-white">{{ item.label }}</span>
+						<span class="text-[11.5px] font-medium text-slate-500 dark:text-slate-400">{{ item.hint }}</span>
+					</span>
+					<span class="shrink-0 text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-200/70 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300" data-testid="miss-missing">ناقص · +{{ item.points }}%</span>
+					<span class="shrink-0 text-slate-400" aria-hidden="true">←</span>
+				</button>
+			</li>
+			}
+		</ul>
+	</div>
+	}
 
 	<!-- AI Disclosure -->
 	<div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] border border-[rgba(123,47,190,.22)] relative overflow-hidden backdrop-blur-md"
@@ -1187,23 +1209,17 @@
 						}
 					</div>
 
-					@if (!paypalSaveSupported) {
-					<div id="cl-paypal-pending" role="note"
-						class="p-3 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/5 text-[12px] font-bold text-amber-800 dark:text-amber-200">
-						حفظ حساب PayPal لطالب الخدمة غير مفعّل بعد (بانتظار دعم الخادم). لن يُرسل أي طلب ولن تتغير بياناتك.
-					</div>
-					}
 				</div>
 
 				<!-- Hint Text -->
 				<div class="text-center text-xs font-medium text-slate-500 dark:text-slate-400 mb-6">
-					هذا الحساب للسحب والاسترداد فقط. مشفر ومحمي. تغيير بيانات الاستلام يتطلب مصادقة ثنائية.
+					هذا الحساب للسحب والاسترداد فقط. يُحفظ بريد PayPal مباشرة ويمكنك تغييره في أي وقت.
 				</div>
 
 				<!-- Action -->
-				<button type="submit" [disabled]="isSaving() || isTabPending('BANKING_UPDATE') || !paypalSaveSupported" [attr.title]="paypalSaveSupported ? null : 'بانتظار دعم الخادم'"
+				<button type="submit" [disabled]="isSaving()"
 					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
-					طلب تعديل</button>
+					حفظ بريد PayPal</button>
 			</form>
 		</div>
 	</div>

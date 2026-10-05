@@ -2,13 +2,14 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { vi } from 'vitest';
 import { ProfileEdit } from './profile-edit';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 
-// Client profile/edit, "البيانات البنكية / المحفظة" tab: PayPal is the only usable receiving method.
+// Client profile/edit, PayPal tab: PayPal is the only receiving method and the backend stores it (PUT /profiles/update/banking).
 describe('client profile-edit: PayPal-only receiving method', () => {
   let fixture: ComponentFixture<ProfileEdit>;
   let component: ProfileEdit;
@@ -77,14 +78,42 @@ describe('client profile-edit: PayPal-only receiving method', () => {
     expect(el().textContent).toContain('أدخل بريد PayPal صالحًا');
   });
 
-  it('saving is not offered yet (backend has no client PayPal field): the button is disabled and no request is ever sent', () => {
-    expect((el().querySelector('form button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
-    expect(el().querySelector('#cl-paypal-pending')?.textContent).toContain('غير مفعّل بعد');
+  it('saving is enabled: a valid email is sent to PUT /profiles/update/banking as { paypalPayoutEmail } (nothing else) and confirmed', () => {
+    const btn = el().querySelector('form button[type="submit"]') as HTMLButtonElement;
+    expect(btn.disabled).toBe(false);
+    expect(btn.textContent).toContain('حفظ بريد PayPal');
+    expect(el().querySelector('#cl-paypal-pending')).toBeNull();
+    component.bankingForm.get('paypalEmail')!.setValue('Name@Example.com');
+    component.saveTab('banking');
+    expect(updateTab).toHaveBeenCalledTimes(1);
+    expect(updateTab).toHaveBeenCalledWith('banking', { paypalPayoutEmail: 'Name@Example.com' });
+    expect(component.successMsg()).toBe('تم حفظ بريد PayPal بنجاح');
+  });
+
+  it('a saved address (GET returns paypalPayoutEmail) prefills the field', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [ProfileEdit],
+      providers: [
+        provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
+        { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' }), token: () => 't', authenticate: vi.fn() } },
+        { provide: ProfileApiService, useValue: {
+          getMyProfile: () => of({ success: true, data: { currentProfileData: { paypalPayoutEmail: 'saved@example.com' }, latestHistory: [] } }),
+          getChangeRequests: () => of({ success: true, data: [] }), updateTab, updateProfile: vi.fn(() => of({ success: true })),
+        } },
+      ],
+    }).compileComponents();
+    const f = TestBed.createComponent(ProfileEdit);
+    f.detectChanges();
+    expect(f.componentInstance.bankingForm.get('paypalEmail')!.value).toBe('saved@example.com');
+  });
+
+  it('a server error is shown in Arabic and the form keeps the typed value', () => {
+    updateTab.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500, error: { message: 'Internal Server Error' } })));
     component.bankingForm.get('paypalEmail')!.setValue('name@example.com');
     component.saveTab('banking');
-    expect(updateTab).not.toHaveBeenCalled();
-    http.expectNone(() => true);
-    expect(component.errorMsg()).toContain('غير مفعّل');
+    expect(component.errorMsg()).not.toMatch(/Internal Server Error/);
+    expect(component.bankingForm.get('paypalEmail')!.value).toBe('name@example.com');
   });
 
   it('an invalid email is rejected before anything else', () => {

@@ -38,7 +38,7 @@ describe('client profile-setup: shared validation', () => {
 	const el = () => fixture.nativeElement as HTMLElement;
 	const summary = () => el().querySelector('[data-testid="form-summary"]')?.textContent || '';
 	const fillStep1 = () => component.setupForm.get('details')!.patchValue({ idNumber: '1234567890', dob: '1990-01-01', country: 'السعودية', city: 'الرياض', occupation: 'مهندس', address: 'الرياض' });
-	const fillBank = () => component.setupForm.get('bank')!.patchValue({ paymentType: 'bank', bankName: 'rajhi', accountHolder: 'اسم', iban: 'SA' + '0'.repeat(22) });
+	const fillBank = () => component.setupForm.get('bank')!.patchValue({ paypalPayoutEmail: 'pay@example.com' });
 	const fillAgreements = () => component.setupForm.get('agreements')!.patchValue({ accurate: true, terms: true, privacy: true });
 
 	it('Next on an empty step 1 stays on step 1, lists every missing field, shows inline errors and focuses the first one', () => {
@@ -76,17 +76,20 @@ describe('client profile-setup: shared validation', () => {
 		expect(component.currentStep()).toBe(3);
 	});
 
-	it('Next on step 3 (payout) validates bank fields: names the missing ones and an IBAN of the wrong length', () => {
+	it('Next on step 3 (PayPal payout) names the missing email, rejects a malformed one and accepts a valid one', () => {
 		fillStep1(); component.nextStep(); component.nextStep();
 		expect(component.currentStep()).toBe(3);
-		component.setupForm.get('bank.paymentType')!.setValue('bank');
-		component.setupForm.get('bank.iban')!.setValue('SA12');
 		component.nextStep();
 		render();
 		expect(component.currentStep()).toBe(3);
-		expect(summary()).toContain('اسم البنك');
-		expect(summary()).toContain('اسم صاحب الحساب');
-		expect(summary()).toContain('24');
+		expect(summary()).toContain('بريد PayPal');
+		component.setupForm.get('bank.paypalPayoutEmail')!.setValue('not-an-email');
+		component.nextStep(); render();
+		expect(component.currentStep()).toBe(3);
+		expect(el().textContent).toContain('أدخل بريد PayPal صالحًا');
+		component.setupForm.get('bank.paypalPayoutEmail')!.setValue('pay@example.com');
+		component.nextStep();
+		expect(component.currentStep()).toBe(4);
 	});
 
 	it('the step bar cannot skip an incomplete step: it stops at the first incomplete one', () => {
@@ -122,12 +125,12 @@ describe('client profile-setup: shared validation', () => {
 		expect(btn.disabled).toBe(false);
 	});
 
-	it('a valid form sends the SAME payload as before (bank fields unchanged)', () => {
+	it('a valid form sends the payout as PayPal (no bank / IBAN / wallet fields)', () => {
 		fillStep1(); fillBank(); fillAgreements();
 		component.submitForm();
 		expect(save).toHaveBeenCalledTimes(1);
 		const body = save.mock.calls[0][0];
-		expect(body.bank).toEqual({ paymentType: 'bank', bankName: 'rajhi', accountHolder: 'اسم', iban: 'SA' + '0'.repeat(22) });
+		expect(body.bank).toEqual({ paymentType: 'paypal', paypalPayoutEmail: 'pay@example.com' });
 		expect(body.details.idNumber).toBe('1234567890');
 		expect(body.agreements).toEqual({ accurate: true, terms: true, privacy: true });
 	});
@@ -188,13 +191,13 @@ describe('client profile-setup: shared validation', () => {
 			expect(component.isSubmitting()).toBe(false);
 		});
 
-		it('the English IBAN 400 lands on the IBAN field on step 3', () => {
+		it('a 400 about the PayPal email lands on the PayPal field on step 3', () => {
 			fillStep1(); fillBank(); fillAgreements();
-			failWith(400, { message: 'IBAN must be exactly 24 characters.' });
+			failWith(400, { success: false, message: 'بريد PayPal غير صحيح' });
 			component.submitForm();
 			settle();
 			expect(component.currentStep()).toBe(3);
-			expect(component.setupForm.get('bank.iban')!.errors?.['server']).toContain('24');
+			expect(component.setupForm.get('bank.paypalPayoutEmail')!.errors?.['server']).toContain('PayPal');
 		});
 
 		it('429 / 500 / network are shown in Arabic (never English), the form is kept', () => {

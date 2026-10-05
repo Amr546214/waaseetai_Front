@@ -7,6 +7,17 @@ import { AuthStore } from '../store/auth.store';
 import { UserStatus } from '../models/auth.model';
 import { ClientSetupPayload, ProviderSetupPayload } from '../models/onboarding-upload.model';
 
+/** One thing still needed to reach 100% (computed by the backend, so the percentage and this list always agree). */
+export interface CompletionMissingItem {
+  key: string;
+  label: string;
+  points: number;
+  status: 'missing' | 'pending_review';
+  /** Where it is fixed: an edit-page tab, or 'setup' (the profile-setup wizard). */
+  tab: 'profile' | 'basics' | 'contact' | 'banking' | 'setup' | 'payout' | 'docs';
+  hint: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
