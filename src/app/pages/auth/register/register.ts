@@ -76,6 +76,16 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	// '' or null) in the payload when nothing was picked.
 	affiliateIdentifier: string | null = null;
 
+	/** A marketer (affiliate) account is never attributed to another affiliate: the referral section is hidden and nothing is sent. */
+	get isMarketerAccount(): boolean {
+		return this.selectedAccountType === 'marketing_broker';
+	}
+
+	/** The referral identifier to send, or undefined (always undefined for a marketer account). */
+	private get referralToSend(): string | undefined {
+		return this.isMarketerAccount ? undefined : (this.affiliateIdentifier || undefined);
+	}
+
 	// Locked attribution (P-LG-012): populated when GET /affiliates/referral-status
 	// confirms a valid `waseet_ref_code` cookie server-side (the frontend cannot
 	// and must not read that httpOnly cookie itself). When non-null, the
@@ -258,7 +268,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				this.accountExistsError = false;
 				this.cdr.markForCheck();
 
-				this.authApi.googleAuth(user.idToken, 'register', this.accountTypeMap[this.selectedAccountType], this.affiliateIdentifier || undefined).subscribe({
+				this.authApi.googleAuth(user.idToken, 'register', this.accountTypeMap[this.selectedAccountType], this.referralToSend).subscribe({
 					next: (res) => {
 						this.isSubmitting = false;
 						this.cdr.markForCheck();
@@ -388,7 +398,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			password: this.isGoogleFlow ? undefined : val.password,
 			googleIdToken: this.isGoogleFlow ? this.googleIdToken || undefined : undefined,
 			agreedToTerms: !!(val.agreeData && val.agreeTerms),
-			affiliateIdentifier: this.affiliateIdentifier || undefined
+			affiliateIdentifier: this.referralToSend
 		};
 
 		this.authApi.register(payload).subscribe({

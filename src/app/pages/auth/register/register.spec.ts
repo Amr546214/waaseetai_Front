@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
-import { Component, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { Subject, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
@@ -303,6 +303,85 @@ describe('Register', () => {
 			expect(component.basicInfoForm.get('email')!.value).toBeFalsy();
 			expect(component.basicInfoForm.get('password')!.value).toBeFalsy();
 			expect(el.querySelector('use[href="#ws-ai-spark"]')).toBeNull();
+		});
+	});
+
+	describe('Referral section by account type (marketer is never attributed)', () => {
+		const LOCKED = { success: true, data: { active: true, referralSlug: 'marketer-sara', displayName: 'سارة المسوّقة' } };
+
+		function stepTwo(accountType: string, withReferralLink: boolean) {
+			const ctx = setup();
+			if (withReferralLink) ctx.getSpy.mockReturnValue(of(LOCKED));
+			ctx.fixture.detectChanges();
+			ctx.component.selectedAccountType = accountType;
+			ctx.component.currentStep = 2;
+			ctx.fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck();
+			ctx.fixture.detectChanges(false);
+			return { ...ctx, el: ctx.fixture.nativeElement as HTMLElement };
+		}
+		const sectionText = (el: HTMLElement) => el.textContent ?? '';
+
+		it('client account with a referral link: the locked referral box shows the referring marketer', () => {
+			const { el } = stepTwo('service_requester_ind', true);
+			expect(el.querySelector('#affiliate-locked-display')).not.toBeNull();
+			expect(sectionText(el)).toContain('سارة المسوّقة');
+		});
+
+		it('provider account with a referral link: the locked referral box shows', () => {
+			const { el } = stepTwo('service_provider_ind', true);
+			expect(el.querySelector('#affiliate-locked-display')).not.toBeNull();
+		});
+
+		it('client / provider without a link: the optional picker shows', () => {
+			expect(stepTwo('service_requester_ind', false).el.querySelector('app-affiliate-picker')).not.toBeNull();
+			TestBed.resetTestingModule();
+			expect(stepTwo('service_provider_ind', false).el.querySelector('app-affiliate-picker')).not.toBeNull();
+		});
+
+		it('marketer account with a referral link: no section at all (no locked box, no input, no search) and nothing is sent', () => {
+			const { el, component, postSpy } = stepTwo('marketing_broker', true);
+			expect(el.querySelector('#affiliate-locked-display')).toBeNull();
+			expect(el.querySelector('app-affiliate-picker')).toBeNull();
+			expect(sectionText(el)).not.toContain('وسيط الإحالة');
+			expect(sectionText(el)).not.toContain('الوسيط المُحيل');
+			// even if a value was picked earlier (e.g. before switching the account type), it is not sent
+			component.affiliateIdentifier = 'marketer-sara';
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
+			(component as any).submitRegistration();
+			const payload = postSpy.mock.calls.find(c => String(c[0]).includes('/register'))![1];
+			expect(payload.accountType).toBe('MARKETING_BROKER');
+			expect(payload.affiliateIdentifier).toBeUndefined();
+			expect(JSON.stringify(payload)).not.toContain('marketer-sara');
+		});
+
+		it('marketer direct registration (no link): the referral section is not rendered', () => {
+			const { el } = stepTwo('marketing_broker', false);
+			expect(el.querySelector('app-affiliate-picker')).toBeNull();
+			expect(el.querySelector('#affiliate-locked-display')).toBeNull();
+			expect(sectionText(el)).not.toContain('وسيط الإحالة');
+		});
+
+		it('marketer Google registration sends no referral either; a client still does', async () => {
+			const marketer = setup();
+			marketer.fixture.detectChanges();
+			marketer.component.currentStep = 2;
+			marketer.component.selectedAccountType = 'marketing_broker';
+			marketer.component.affiliateIdentifier = 'marketer-sara';
+			marketer.postSpy.mockReturnValue(of({ success: true, data: { verified: false, registrationRequired: true, googleProfile: { email: 'm@example.com', firstName: 'M', lastName: 'K' } } }));
+			marketer.authState.next({ idToken: 'google-id-token' });
+			await marketer.fixture.whenStable();
+			expect(marketer.postSpy.mock.calls.find(c => String(c[0]).includes('/google'))![1].affiliateIdentifier).toBeUndefined();
+			TestBed.resetTestingModule();
+
+			const client = setup();
+			client.fixture.detectChanges();
+			client.component.currentStep = 2;
+			client.component.selectedAccountType = 'service_requester_ind';
+			client.component.affiliateIdentifier = 'marketer-sara';
+			client.postSpy.mockReturnValue(of({ success: true, data: { verified: false, registrationRequired: true, googleProfile: { email: 'c@example.com', firstName: 'C', lastName: 'L' } } }));
+			client.authState.next({ idToken: 'google-id-token' });
+			await client.fixture.whenStable();
+			expect(client.postSpy.mock.calls.find(c => String(c[0]).includes('/google'))![1].affiliateIdentifier).toBe('marketer-sara');
 		});
 	});
 });
