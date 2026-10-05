@@ -111,10 +111,8 @@ export class Specialties implements OnInit, OnDestroy {
 	quizQuestions = signal<QuizQuestion[]>([]);
 	isStreamingQuestions = signal<boolean>(false);
 	streamProgressCount = signal<number>(0);
-	// True only when neither the real-time socket nor the REST fallback
-	// produced questions in time and the local static question bank is
-	// being shown instead — the UI must never present this as live AI
-	// generation.
+	// True only when the BACKEND reports it served its own static question bank (Gemini unavailable) — the UI must never
+	// present that as live AI generation. (There is no local question bank any more.)
 	usingStaticFallbackQuestions = signal<boolean>(false);
 
 	currentQuestionIdx = signal<number>(0);
@@ -146,7 +144,6 @@ export class Specialties implements OnInit, OnDestroy {
 	quizGenerationError = signal<string | null>(null);
 
 	private timerInterval: any = null;
-	private fallbackStreamInterval: any = null;
 	isSubmittingSamples = signal(false);
 	uploadProgress = signal(0);
 
@@ -454,8 +451,7 @@ export class Specialties implements OnInit, OnDestroy {
 
 			this.antiCheatService.stopMonitoring();
 			this.stopTimer();
-			this.stopFallbackStream();
-			this.isQuizActive.set(false);
+				this.isQuizActive.set(false);
 		}
 
 		if (this.currentStep() > 1) {
@@ -812,10 +808,14 @@ export class Specialties implements OnInit, OnDestroy {
 							}));
 							// The backend honestly reports when it had to use its own
 							// static bank (Gemini unavailable) — reflect that here too.
+							if (questions.length === 0) {
+								this.showQuestionGenerationError();
+								return;
+							}
 							this.usingStaticFallbackQuestions.set(res.data.generationSource === 'STATIC_FALLBACK');
 							this.setupQuizSession(attemptId, questions, 900, false);
 						} else {
-							this.applyFallback20Questions();
+							this.showQuestionGenerationError();
 						}
 					},
 					error: (err: any) => {
@@ -827,7 +827,7 @@ export class Specialties implements OnInit, OnDestroy {
 						// still arrive via the socket stream shortly. Only a genuine error
 						// falls back to the static question bank.
 						if (err?.error?.code === 'GENERATION_IN_PROGRESS') return;
-						this.applyFallback20Questions();
+						this.showQuestionGenerationError();
 					}
 				});
 			}
@@ -897,18 +897,10 @@ export class Specialties implements OnInit, OnDestroy {
 		this.timerStarted.set(false);
 	}
 
-	private stopFallbackStream() {
-		if (this.fallbackStreamInterval) {
-			clearInterval(this.fallbackStreamInterval);
-			this.fallbackStreamInterval = null;
-		}
-	}
-
 	private async handleQuizTimeout() {
 		if (!this.isQuizActive()) return;
 		console.warn('[Specialties Quiz] Time expired! Triggering timeout evaluation.');
 		this.antiCheatService.stopMonitoring();
-		this.stopFallbackStream();
 
 		await this.confirmModal.notify(
 			'⏱️ انتهاء الوقت المقرر',
@@ -1008,7 +1000,6 @@ export class Specialties implements OnInit, OnDestroy {
 		const attemptId = this.quizSessionId() || 'demo-session-2026';
 
 		this.stopTimer();
-		this.stopFallbackStream();
 
 		const submittedAnswersMap = this.userAnswers();
 		this.submissionSettledForAttempt = null;
@@ -1170,91 +1161,18 @@ export class Specialties implements OnInit, OnDestroy {
 		});
 	}
 
-	private applyFallback20Questions() {
-		const activeSubs = this.activeSubSpecialties();
-		const subs = activeSubs.length > 0 ? activeSubs : ['تطوير الأنظمة', 'الهندسة التقنية', 'الأمان السيبراني'];
-		const questions: QuizQuestion[] = [];
-
-		const baseScenarios = [
-			{
-				q: 'ما هو التدبير الأمني ومعيار التوثيق الأحدث لضمان استمرار العمل دون انقضاء صلاحيات الرموز (Tokens) في بيئات الخدمات المصغرة؟',
-				options: [
-					'تخزين كلمات المرور صالحة للأبد في متصفح العميل بدون تشفير',
-					'استخدام بنية JWT مع Refresh Token محمي داخل ملفات تعريف ارتباط آمنة (HttpOnly Cookies) وتطبيق تدوير الرموز',
-					'الاعتماد على جلسات الذاكرة الفردية على خادم واحد دون مزامنة',
-					'تعطيل تدابير الحماية اللاسلكية وبروتوكولات TLS لتسريع الاتصال'
-				]
-			},
-			{
-				q: 'عند توافق الأداء البطيء مع التحميل المتدفق للبيانات في الواجهات الأمامية، أي نمط تصميمي هو الأفضل تقنياً؟',
-				options: [
-					'جلب قاعدة البيانات كاملة إلى ذاكرة المتصفح عند بدء التطبيق',
-					'تطبيق التمرير اللانهائي (Infinite Scrolling) مع الترقيم الافتراضي (Virtual Scrolling)',
-					'تعطيل جدران الحماية وتقليل طبقة الأنماط التنسيقية',
-					'إعادة تحميل الصفحة بالكامل عند الضغط على أي عنصر تحكم'
-				]
-			},
-			{
-				q: 'في حالة حدوث عطل تزامني (Race Condition) أثناء التعامل مع المعاملات المالية الحساسة، كيف تتفادى خسارة وتناقض البيانات؟',
-				options: [
-					'تجاهل القيود السجلية والاعتماد على إدخال القيم بأوامر مباشرة',
-					'تطبيق أقفال قاعدة البيانات (Locking) والمعاملات الذرية (Atomic ACID Transactions)',
-					'انتظار فترة ثابتة قدرها خمس ثوانٍ بين كل عملية وأخرى برمجياً',
-					'حذف السجل وإعادة إنشائه بصلاحيات إدارية كاملة دون مراقبة الأخطاء'
-				]
-			},
-			{
-				q: 'ما هو أفضل منهج لاختبار توافق البرمجيات وكشف ثغرات الانحدار (Regression) قبل نشر الإصدارات الحية؟',
-				options: [
-					'إجراء الفحص اليدوي المرتاد من قبل مطور واحد قبل النشر مباشرة',
-					'بناء خط أنابيب CI/CD يشمل اختبارات الوحدة والاختبار المتكامل التلقائي',
-					'نشر التعديلات مباشرة على السيرفر الحي ومراقبة شكاوى العملاء',
-					'تشفير قاعدة البيانات لمنع وصول أي اختبار أوتوماتيكي للمنظومة'
-				]
-			}
-		];
-
-		for (let i = 0; i < 20; i++) {
-			const sub = subs[i % subs.length];
-			const sc = baseScenarios[i % baseScenarios.length];
-			const opts: QuizQuestionOption[] = sc.options.map((optText, optIdx) => ({
-				id: String.fromCharCode(97 + optIdx),
-				text: optText
-			}));
-			questions.push({
-				id: `q${i + 1}`,
-				subSpecialtyTag: sub,
-				text: `[تخصص: ${sub}] ${sc.q}`,
-				options: opts
-			});
-		}
-
-		const sessionId = `sess-${Date.now()}`;
-		this.usingStaticFallbackQuestions.set(true);
-		// Initialize session immediately in streaming mode
-		this.setupQuizSession(sessionId, [], 900, true);
-
-		// Render the local fallback as a fast progressive stream.
-		let streamIdx = 0;
-		this.stopFallbackStream();
-		const firstQuestion = questions[streamIdx++];
-		this.quizQuestions.set([firstQuestion]);
-		this.streamProgressCount.set(streamIdx);
-		this.startTimerOnceQuestionsAreVisible();
-		this.fallbackStreamInterval = setInterval(() => {
-			if (streamIdx < questions.length && this.isQuizActive()) {
-				const nextQ = questions[streamIdx];
-				this.quizQuestions.update(curr => [...curr, nextQ]);
-				streamIdx++;
-				this.streamProgressCount.set(streamIdx);
-				if (streamIdx >= questions.length) {
-					this.isStreamingQuestions.set(false);
-					this.stopFallbackStream();
-				}
-			} else {
-				this.stopFallbackStream();
-			}
-		}, 60);
+	/**
+	 * Question generation failed (socket and REST both gave nothing): say so and offer a retry. No questions are ever made up
+	 * locally (a built-in bank of 20 generic questions used to be shown here as if it were the real assessment).
+	 */
+	private showQuestionGenerationError() {
+		this.stopTimer();
+		this.isStreamingQuestions.set(false);
+		this.quizQuestions.set([]);
+		this.streamProgressCount.set(0);
+		this.usingStaticFallbackQuestions.set(false);
+		this.quizResult.set(null);
+		this.quizGenerationError.set('تعذر إنشاء أسئلة التقييم الآن. لم تُعرض أي أسئلة بديلة ولم يتأثر اعتماد تخصصك. يرجى المحاولة مرة أخرى بعد قليل.');
 	}
 
 	// A response without a real score is a SERVICE/DATA error, not a result:
@@ -1270,7 +1188,6 @@ export class Specialties implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this.stopTimer();
-		this.stopFallbackStream();
 		this.clearSubmissionWatchers();
 		this.antiCheatService.stopMonitoring();
 	}

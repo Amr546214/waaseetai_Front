@@ -117,6 +117,22 @@ describe('Marketplace', () => {
       expect(text).toContain('تطابق AI 74%');
     });
 
+    it('a TOP-LEVEL response (no `data` wrapper) is read too: recommendations, generationSource and bannerInsight', () => {
+      vi.spyOn((component as any).marketplaceService, 'getAiRecommendations').mockReturnValue(of({ generationSource: 'GEMINI', bannerInsight: 'جملة من المستوى الأعلى', recommendations: [rec({ aiScore: 74, aiMatchPercentage: 74 })] } as any));
+      component.loadAiRecommendations();
+      fixture.detectChanges();
+      expect(component.aiGenerationSource()).toBe('GEMINI');
+      expect(component.aiBannerInsight()).toBe('جملة من المستوى الأعلى');
+      expect(component.aiRecommendedModels().length).toBe(1);
+    });
+
+    it('a top-level DETERMINISTIC response is not presented as Gemini', () => {
+      vi.spyOn((component as any).marketplaceService, 'getAiRecommendations').mockReturnValue(of({ generationSource: 'DETERMINISTIC', bannerInsight: 'تم استرجاع 1 نموذج', recommendations: [rec()] } as any));
+      component.loadAiRecommendations();
+      expect(component.aiGenerationSource()).toBe('DETERMINISTIC');
+      expect(component.aiBannerInsight()).toBe('تم استرجاع 1 نموذج');
+    });
+
     it('the banner shows the backend bannerInsight instead of staying on the "جاري تحليل" placeholder', () => {
       load({ generationSource: 'DETERMINISTIC', bannerInsight: 'تم استرجاع 2 نموذج', recommendations: [] });
       expect(component.aiBannerInsight()).toBe('تم استرجاع 2 نموذج');
