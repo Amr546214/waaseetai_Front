@@ -9,7 +9,7 @@ import { ExperienceLevel } from '../../../../../core/models/profile.model';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import type { CompletionMissingItem } from '../../../../../core/services/profile-api.service';
-import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
+import { paypalEmailError, paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../../../core/forms/form-helpers';
@@ -266,7 +266,8 @@ export class ProfileEdit {
 
 		this.bankingForm = this.fb.group({
 			paymentMethod: ['wallet'],
-			paypalEmail: ['', paypalEmailValidators],
+			// Optional here: empty on save removes the saved address ({ paypalPayoutEmail: null }). The setup wizard keeps it required.
+			paypalEmail: ['', paypalEmailOptionalValidators],
 			// Legacy saved values: kept in the form model so nothing stored is dropped, but never shown or sent.
 			accountHolderName: [''],
 			bankName: [''],
@@ -528,6 +529,7 @@ export class ProfileEdit {
 			return;
 		}
 
+		let clearingPaypal = false;
 		if (tabName === 'banking') {
 			// PayPal email only; legacy bank/wallet values are never sent (no empty overwrite).
 			form.markAllAsTouched();
@@ -535,7 +537,10 @@ export class ProfileEdit {
 				this.errorMsg.set(paypalEmailError(this.bankingForm.get('paypalEmail')?.errors) || 'تحقق من بريد PayPal');
 				return;
 			}
-			payload = { paypalPayoutEmail: String(this.bankingForm.value.paypalEmail || '').trim() };
+			const email = String(this.bankingForm.value.paypalEmail || '').trim();
+			// Empty = remove the saved address (exactly { paypalPayoutEmail: null }); otherwise the validated address.
+			payload = { paypalPayoutEmail: email || null };
+			clearingPaypal = !email;
 		} else {
 			const attempt = attemptSubmit(form, { root: this.root(), labels: PROFILE_LABELS });
 			this.missing.set(attempt.missing);
@@ -556,7 +561,7 @@ export class ProfileEdit {
 			next: (res) => {
 				this.isSaving.set(false);
 				if (res.success) {
-					this.successMsg.set(doneMessage[tabName] || res.message || 'تم إرسال الطلب بنجاح');
+					this.successMsg.set(tabName === 'banking' && clearingPaypal ? 'تم إزالة بريد PayPal' : (doneMessage[tabName] || res.message || 'تم إرسال الطلب بنجاح'));
 					setTimeout(() => this.successMsg.set(''), 5000);
 					this.refreshCompletion();
 				} else {

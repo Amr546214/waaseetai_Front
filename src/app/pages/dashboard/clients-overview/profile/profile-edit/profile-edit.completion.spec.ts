@@ -99,4 +99,29 @@ describe('client profile-edit: backend completion + missing items', () => {
     expect(el().textContent).toContain('55%');
     expect(all('[data-testid="missing-items"] li').length).toBe(3);
   });
+
+  it('clearing a saved PayPal email: GET prefills it, emptying the field saves exactly { paypalPayoutEmail: null }, then the completion is re-read', () => {
+    setup({ paypalPayoutEmail: 'saved@example.com', profileCompletionPercent: 100, missingItems: [] });
+    expect(component.bankingForm.get('paypalEmail')!.value).toBe('saved@example.com');
+    getMyProfile.mockReturnValue(of(data({ paypalPayoutEmail: null, profileCompletionPercent: 80, missingItems: [ITEMS[3]] })));
+    component.switchTab('banking'); render();
+    component.bankingForm.get('paypalEmail')!.setValue('');
+    component.saveTab('banking'); render();
+    expect(updateTab).toHaveBeenCalledTimes(1);
+    expect(updateTab).toHaveBeenCalledWith('banking', { paypalPayoutEmail: null });
+    expect(Object.keys(updateTab.mock.calls[0][1])).toEqual(['paypalPayoutEmail']);
+    expect(component.successMsg()).toBe('تم إزالة بريد PayPal');
+    expect(getMyProfile).toHaveBeenCalledTimes(2); // load + the refresh after the save
+    expect(el().textContent).toContain('80%');
+    expect(all('[data-testid="missing-items"] li').map(li => li.getAttribute('data-key'))).toEqual(['payout']);
+  });
+
+  it('whitespace only counts as empty (removes), and an invalid address is rejected without a request', () => {
+    setup({ profileCompletionPercent: 35, missingItems: ITEMS });
+    component.switchTab('banking'); render();
+    component.bankingForm.get('paypalEmail')!.setValue('not-an-email');
+    component.saveTab('banking');
+    expect(updateTab).not.toHaveBeenCalled();
+    expect(component.errorMsg()).toContain('PayPal');
+  });
 });

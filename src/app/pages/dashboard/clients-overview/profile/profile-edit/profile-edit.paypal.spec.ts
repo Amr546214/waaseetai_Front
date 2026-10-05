@@ -68,14 +68,19 @@ describe('client profile-edit: PayPal-only receiving method', () => {
     }
   });
 
-  it('PayPal email is required and must be valid', () => {
+  it('PayPal email is optional on the edit page but must be valid when given', () => {
     const c = component.bankingForm.get('paypalEmail')!;
-    expect(c.valid).toBe(false);
+    expect(c.valid).toBe(true); // empty = "remove"
     c.setValue('not-an-email'); expect(c.valid).toBe(false);
     c.setValue('a@b'); expect(c.valid).toBe(false);
     c.setValue('name@example.com'); expect(c.valid).toBe(true);
     c.setValue('bad'); c.markAsTouched(); fixture.detectChanges();
     expect(el().textContent).toContain('أدخل بريد PayPal صالحًا');
+    expect(el().textContent).not.toMatch(/بريد PayPal\s*\*/);
+  });
+
+  it('the help text says the field can be left empty to remove the address', () => {
+    expect(el().textContent).toContain('اتركه فارغًا لإزالته');
   });
 
   it('saving is enabled: a valid email is sent to PUT /profiles/update/banking as { paypalPayoutEmail } (nothing else) and confirmed', () => {
