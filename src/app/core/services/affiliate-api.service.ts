@@ -3,13 +3,17 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-// These two endpoints are public/unauthenticated (used from the registration
-// page before a session exists) and deliberately return ONLY these three
-// fields (P-LG-012) — never email/phone/bank/etc.
+// These endpoints are public/unauthenticated (used from the registration page before a session exists) and
+// deliberately return only these public fields (P-LG-012) — never email/phone/bank/commission/etc.
 export interface AffiliateSummary {
 	id: string;
 	referralSlug: string;
 	displayName: string;
+	/** Level label (AffiliateProfile.currentLevel), when the backend sends it. Never a commission figure. */
+	levelName?: string | null;
+	/** Identity-verified marketer. */
+	verified?: boolean;
+	avatarUrl?: string | null;
 }
 
 @Injectable({
