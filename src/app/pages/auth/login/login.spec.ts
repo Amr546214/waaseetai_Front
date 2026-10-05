@@ -195,8 +195,6 @@ describe('Login', () => {
 	});
 
 	describe('always starts empty', () => {
-		afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
-
 		it('the form is empty on open, with browser autofill/restoration switched off', () => {
 			const { fixture, component } = setup();
 			fixture.detectChanges();
@@ -211,8 +209,7 @@ describe('Login', () => {
 			expect(el.querySelector('#password')!.hasAttribute('readonly')).toBe(false);
 		});
 
-		it('wipes credentials a browser painted into the fields after the first render', () => {
-			vi.useFakeTimers();
+		it('wipes credentials a browser painted into the fields after the first render', async () => {
 			const { fixture, component } = setup();
 			fixture.detectChanges();
 			const el: HTMLElement = fixture.nativeElement;
@@ -220,24 +217,24 @@ describe('Login', () => {
 			const pass = el.querySelector('#password') as HTMLInputElement;
 			email.value = 'saved@example.com';
 			pass.value = 'saved-password';
-			vi.advanceTimersByTime(700);
+			await new Promise(r => setTimeout(r, 700));
 			expect(email.value).toBe('');
 			expect(pass.value).toBe('');
 			expect(component.loginForm.value.email).toBe('');
 		});
 
 		it('the app never writes the e-mail or password to any storage while typing and submitting', () => {
-			const store: Record<string, string> = {};
-			const fake = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
-			vi.stubGlobal('localStorage', fake);
-			vi.stubGlobal('sessionStorage', fake);
-			const { fixture, component, postSpy } = setup();
-			fixture.detectChanges();
-			postSpy.mockReturnValue(throwError(() => ({ status: 401, error: { message: 'x' } })));
-			component.loginForm.patchValue({ email: 'typed@example.com', password: 'S3cret-typed' });
-			component.onSubmit();
-			expect(JSON.stringify(store)).not.toContain('typed@example.com');
-			expect(JSON.stringify(store)).not.toContain('S3cret-typed');
+			const written: string[] = [];
+			const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation((k: string, v: string) => { written.push(`${k}=${v}`); });
+			try {
+				const { fixture, component, postSpy } = setup();
+				fixture.detectChanges();
+				postSpy.mockReturnValue(throwError(() => ({ status: 401, error: { message: 'x' } })));
+				component.loginForm.patchValue({ email: 'typed@example.com', password: 'S3cret-typed' });
+				component.onSubmit();
+				expect(written.join('|')).not.toContain('typed@example.com');
+				expect(written.join('|')).not.toContain('S3cret-typed');
+			} finally { setItem.mockRestore(); }
 		});
 
 		it('the badge uses the shield icon, never the sparkle/star', () => {
