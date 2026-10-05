@@ -39,6 +39,7 @@ const MISLEADING = [
 	'يقترح التخصصات بناء على خياراتك',
 	'الصياغة الاحترافية',
 	'hasInappropriateFile',
+	'تعبّئ الحقول الفارغة فقط', // applyAISuggestion() also sets the budget and adds sub-specialties, not only empty fields
 ];
 
 describe('create request: AI copy is truthful', () => {
@@ -52,6 +53,10 @@ describe('create request: AI copy is truthful', () => {
 		const t = read('components/step1-specialty/step1-specialty.html');
 		expect(t).toContain('اقتراح بالذكاء الاصطناعي');
 		expect(t).toContain('بناءً على ما أدخلته حتى الآن');
+		// matches applyAISuggestion(): title/description/duration only when empty; budget range and sub-specialties may be added
+		expect(t).toContain('تُملأ العنوان والوصف والمدة إن كانت فارغة');
+		expect(t).toContain('وقد تُضاف ميزانية مقترحة وتخصصات فرعية');
+		expect(t).toContain('ويمكنك تعديل كل ذلك');
 		expect(t).toContain('اقترح لي');
 		expect(t).toContain('اقتراحات الذكاء الاصطناعي إرشادية وقابلة للتعديل');
 	});
