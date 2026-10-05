@@ -232,7 +232,8 @@ app-register .rg-s2 .btn-social:disabled{opacity:.5;cursor:not-allowed;transform
 app-register .rg-s2 .social-note{margin:-12px 0 14px;padding:9px 12px;border-radius:10px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.22);font-size:12.5px;font-weight:600;color:var(--teal);text-align:center}
 /* Google Sign-In overlay: the visible .btn-social is the design button; the real
    (invisible) Google button sits on top of it to capture the click. */
-app-register .google-btn-wrapper{position:relative;width:100%}
+/* the Google button renders a fixed 400px wide control (width input); clip it so it cannot widen the page on phones */
+app-register .google-btn-wrapper{position:relative;width:100%;overflow:hidden}
 app-register .google-btn-wrapper asl-google-signin-button{position:absolute !important;top:0;left:0;width:100% !important;height:100% !important;opacity:0 !important;cursor:pointer !important;z-index:10 !important}
 app-register .google-btn-wrapper asl-google-signin-button > div[role="button"]{width:100% !important;height:100% !important}
 /* Shared country-code phone input, dressed as the design's .phone-wrap / .phone-prefix / .phone-input. */

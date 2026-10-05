@@ -12,6 +12,7 @@ import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
 import { mapHttpError } from '../../../core/forms/http-error';
+import { registerNotice, resendNotice } from '../../../core/forms/otp-delivery';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
@@ -52,6 +53,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	isSubmitting = false;
 	errorMessage = '';
+	/** Honest delivery status of the activation code (shown on the OTP step). */
+	otpNotice = '';
 	/** What is missing after a failed submit attempt (shown by <ws-form-summary>). */
 	missingFields: InvalidField[] = [];
 	private readonly host = inject(ElementRef<HTMLElement>);
@@ -427,10 +430,19 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		};
 
 		this.authApi.register(payload).subscribe({
-			next: () => {
+			next: (res) => {
 				this.isSubmitting = false;
-				this.currentStep = 3; // Move to OTP
-				this.startCountdown();
+				this.currentStep = 3; // The account exists either way, so the OTP step opens
+				const notice = registerNotice(res);
+				if (notice.sent) {
+					this.otpNotice = notice.message;
+					this.startCountdown();
+				} else {
+					// Nothing was sent: say so, no countdown, resend stays available.
+					this.otpNotice = '';
+					this.errorMessage = notice.message;
+					this.stopCountdown();
+				}
 				this.cdr.markForCheck();
 			},
 			error: (err) => {
@@ -607,8 +619,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
 	}
 
-	startCountdown() {
-		this.countdown = 90;
+	stopCountdown() {
+		if (this.countdownTimer) clearInterval(this.countdownTimer);
+		this.countdown = 0;
+	}
+
+	startCountdown(seconds = 90) {
+		this.countdown = seconds;
 		if (this.countdownTimer) clearInterval(this.countdownTimer);
 		this.countdownTimer = setInterval(() => {
 			if (this.countdown > 0) {
@@ -633,15 +650,25 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.isSubmitting = true;
 		this.errorMessage = '';
 
+		this.otpNotice = '';
 		this.authApi.resendOtp(pendingUserId).subscribe({
-			next: () => {
+			next: (res) => {
 				this.isSubmitting = false;
-				this.startCountdown();
+				const notice = resendNotice(res);
+				if (notice.sent) {
+					this.otpNotice = notice.message;
+					this.startCountdown();
+				} else {
+					this.errorMessage = notice.message; // no countdown: nothing was sent
+				}
 				this.cdr.markForCheck();
 			},
 			error: (err) => {
 				this.isSubmitting = false;
-				this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء الإرسال' }).message;
+				const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء الإرسال' });
+				this.errorMessage = mapped.message;
+				// Rate limited: keep resend locked for the wait the server asked for.
+				if (mapped.kind === 'rate-limit' && mapped.retryAfterSeconds) this.startCountdown(mapped.retryAfterSeconds);
 				this.cdr.markForCheck();
 			}
 		});

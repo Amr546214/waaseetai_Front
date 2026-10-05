@@ -425,6 +425,13 @@
     </div>
     }
 
+    @if (otpNotice && !errorMessage) {
+    <div class="banner-success" id="otp-notice" role="status">
+      <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
+      <span>{{ otpNotice }}</span>
+    </div>
+    }
+
     <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
       <div class="otp-card">
         <div class="otp-card-title">رمز التحقق</div>

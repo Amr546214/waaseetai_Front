@@ -102,6 +102,8 @@ export function fieldErrorsFromBody(body: any): Record<string, string> {
 }
 
 function waitSecondsFrom(err: any, serverMessage: string | null): number | null {
+	const fromBody = (Array.isArray(err?.error?.errors) ? err.error.errors : [])
+		.map((x: any) => Number(x?.retryAfterSeconds)).find((n: number) => Number.isFinite(n) && n > 0);
 	const header = err?.headers?.get?.('Retry-After');
 	if (header) {
 		const n = Number(header);
@@ -109,6 +111,7 @@ function waitSecondsFrom(err: any, serverMessage: string | null): number | null 
 		const t = Date.parse(header);
 		if (!Number.isNaN(t)) return Math.max(0, Math.ceil((t - Date.now()) / 1000));
 	}
+	if (fromBody) return Math.ceil(fromBody);
 	// The backend limiter says "...try again after 15 minutes" / "after an hour".
 	if (serverMessage) {
 		const m = /(\d+)\s*minute/i.exec(serverMessage);
@@ -188,10 +191,14 @@ export function mapHttpError(err: unknown, options: MapHttpErrorOptions = {}): M
 
 	if (status === 429) {
 		const wait = waitSecondsFrom(e, serverMessage);
-		const message = arabicServer
+		// The Arabic server text already carries the wait; when it does not, the known wait is appended.
+		const message = (arabicServer && wait && !/\d|ثانية|دقيقة|دقيقتين|ساعة|ساعتين/.test(arabicServer) ? `${arabicServer} (${formatWait(wait)})` : arabicServer)
 			|| (wait ? `تجاوزت عدد المحاولات المسموح بها. حاول مرة أخرى بعد ${formatWait(wait)}.` : 'تجاوزت عدد المحاولات المسموح بها. انتظر قليلًا ثم حاول مجددًا.');
 		return make('rate-limit', 'محاولات كثيرة', message, { retryAfterSeconds: wait, retryable: true });
 	}
+
+	// A deliberate 503 from the backend (e.g. SMS verification not available) carries its own Arabic explanation.
+	if (status === 503 && arabicServer) return make('server', 'الخدمة غير متاحة', arabicServer, { retryable: true });
 
 	if (status >= 500) {
 		return make('server', 'خطأ في الخادم', 'حدث خطأ في الخادم. حاول مرة أخرى بعد قليل.', { retryable: true });
