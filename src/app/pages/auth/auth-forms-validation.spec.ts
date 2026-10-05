@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Router, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
@@ -120,6 +120,8 @@ describe('Register (shared validation)', () => {
 	const setup = (post: (...a: any[]) => any) => {
 		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
 		const { providers } = baseProviders({ post });
+		// opened through a referral link (?ref=1): these tests are about validation, not about the direct-visit cookie clear
+		providers.push({ provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({ ref: '1' }) } } });
 		TestBed.configureTestingModule({ imports: [Register], providers });
 		const fixture = TestBed.createComponent(Register);
 		render(fixture);

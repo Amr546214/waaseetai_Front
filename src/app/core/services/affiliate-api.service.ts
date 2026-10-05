@@ -49,4 +49,13 @@ export class AffiliateApiService {
 	public getReferralStatus(): Observable<{ success: boolean; data: { active: boolean; referralSlug?: string; displayName?: string } }> {
 		return this.http.get<{ success: boolean; data: { active: boolean; referralSlug?: string; displayName?: string } }>(`${this.baseUrl}/referral-status`);
 	}
+
+	/**
+	 * Current-visit attribution: the registration page opened WITHOUT the `?ref=1` marker (i.e. not through a real
+	 * referral link) removes any older `waseet_ref_code` cookie (HttpOnly, so only the backend can), so neither the page
+	 * nor the signup reuses a referrer from an earlier visit. Idempotent; callers ignore failures.
+	 */
+	public clearReferralCookie(): Observable<{ success: boolean; data?: { cleared: boolean } }> {
+		return this.http.post<{ success: boolean; data?: { cleared: boolean } }>(`${this.baseUrl}/referral-cookie/clear`, {});
+	}
 }

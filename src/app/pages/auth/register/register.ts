@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, OnDestroy, AfterViewInit, ChangeDetector
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { AuthStore } from '../../../core/store/auth.store';
 import { AccountType } from '../../../core/models/auth.model';
@@ -96,6 +96,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	// backend's own cookie read, so the frontend never carries or duplicates
 	// the value, only displays it for the user's confirmation.
 	private affiliateApi = inject(AffiliateApiService);
+	private route = inject(ActivatedRoute);
 	lockedAffiliate = signal<{ referralSlug: string; displayName: string } | null>(null);
 
 	/** Legacy key of a removed "restore previous data" draft (it could hold a typed password). Only ever purged now. */
@@ -202,24 +203,26 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		// Registration never restores earlier input: drop any draft an older version left in the browser.
 		try { localStorage.removeItem(Register.LEGACY_DRAFT_KEY); } catch { /* storage unavailable */ }
 
-		// P-LG-012 locked attribution: checked once per page load, independent of
-		// `currentStep` (the affiliate section only renders once step 2 is
-		// reached, but the cookie/lock state doesn't change while the user is
-		// still on step 1, so there's nothing gained by deferring this — and
-		// nothing to over-fetch since it only ever runs this one time). A
-		// failed/errored call fails open to the normal optional picker: this
-		// check must never block or degrade registration.
-		this.affiliateApi.getReferralStatus().subscribe({
-			next: (res) => {
-				if (res.success && res.data?.active && res.data.referralSlug && res.data.displayName) {
-					this.lockedAffiliate.set({ referralSlug: res.data.referralSlug, displayName: res.data.displayName });
-					this.cdr.markForCheck();
+		// Current-visit attribution. A real referral link (/ref/:slug) lands here with `?ref=1`; the marker stays in the URL,
+		// so a refresh keeps the referrer. Only then is the (httpOnly) referral cookie read for the locked box, as before.
+		// Opened WITHOUT the marker (typed/bookmarked/navigated, even right after an earlier referral visit): the old cookie
+		// is cleared first, so no locked box is shown, the normal optional picker renders, and the signup cannot be
+		// attributed from a previous visit. Both calls fail open: they must never block or degrade registration.
+		if (this.route.snapshot.queryParamMap.get('ref') === '1') {
+			this.affiliateApi.getReferralStatus().subscribe({
+				next: (res) => {
+					if (res.success && res.data?.active && res.data.referralSlug && res.data.displayName) {
+						this.lockedAffiliate.set({ referralSlug: res.data.referralSlug, displayName: res.data.displayName });
+						this.cdr.markForCheck();
+					}
+				},
+				error: () => {
+					// Fail open — leave lockedAffiliate() null, normal picker renders.
 				}
-			},
-			error: () => {
-				// Fail open — leave lockedAffiliate() null, normal picker renders.
-			}
-		});
+			});
+		} else {
+			this.affiliateApi.clearReferralCookie().subscribe({ error: () => { /* fail open: nothing to show or block */ } });
+		}
 
 		// Note: pendingUserId (set after a successful registration submit, or by
 		// an unverified login) is intentionally NOT used here to auto-jump to
