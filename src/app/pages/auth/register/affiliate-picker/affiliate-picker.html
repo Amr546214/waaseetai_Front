@@ -1,43 +1,61 @@
 <div class="aff-wrap">
-  @if (selectedName(); as name) {
-    <div class="aff-confirm">
-      <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
-      <span>الوسيط المحدد: <strong>{{ name }}</strong></span>
-      <button type="button" class="aff-clear" (click)="clearSelection()">إزالة</button>
+  @if (selected(); as a) {
+    <div class="aff-selected" id="aff-selected" role="status">
+      @if (a.avatarUrl) {
+        <img class="aff-avatar" [src]="a.avatarUrl" alt="" loading="lazy">
+      } @else {
+        <span class="aff-avatar aff-avatar-fallback" aria-hidden="true">{{ initials(a.displayName) }}</span>
+      }
+      <div class="aff-body">
+        <div class="aff-name-row">
+          <span class="aff-name">{{ a.displayName }}</span>
+          @if (a.verified) { <span class="aff-badge aff-badge-verified" data-testid="aff-verified">موثق</span> }
+        </div>
+        <div class="aff-meta">
+          <span class="aff-slug" dir="ltr">{{ a.referralSlug }}</span>
+          @if (a.levelName) { <span class="aff-level">{{ a.levelName }}</span> }
+        </div>
+        <div class="aff-note">الوسيط المحدد</div>
+      </div>
+      <button type="button" class="aff-clear" id="aff-clear" (click)="clearSelection()" aria-label="إزالة الوسيط المحدد">إزالة</button>
     </div>
   } @else {
-    <div class="field-grp">
-      <label class="field-lbl" for="aff-code">لديك كود إحالة؟ (اختياري)</label>
-      <div class="aff-code-row">
-        <input class="field-in" type="text" id="aff-code" [ngModel]="manualCode()" (ngModelChange)="onManualCodeInput($event)" (blur)="verifyManualCode()" placeholder="ادخل كود أو رقم الوسيط" autocomplete="off">
-        <button type="button" class="aff-verify-btn" (click)="verifyManualCode()" [disabled]="resolving() || !manualCode().trim()">{{ resolving() ? '...' : 'تحقق' }}</button>
-      </div>
-      @if (resolveState() === 'not-found') {
-        <div class="field-err" id="aff-code-notfound">
-          <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-          <span>لم يتم العثور على هذا الكود، سيتم إرساله كما أدخلته</span>
-        </div>
-      }
-    </div>
-
-    <div class="aff-divider"><span>أو</span></div>
-
     <div class="field-grp aff-search-grp">
-      <label class="field-lbl" for="aff-search">ابحث عن الوسيط بالاسم (اختياري)</label>
+      <label class="field-lbl" for="aff-search">اكتب اسم الوسيط أو كود الإحالة</label>
       <div class="aff-combo">
-        <input class="field-in" type="search" id="aff-search" [ngModel]="searchQuery()" (ngModelChange)="onSearchInput($event)" (focus)="openSearch()" placeholder="اكتب اسم الوسيط...">
-        @if (searchOpen()) {
-          <div class="aff-panel">
-            @if (searching()) {
-              <div class="aff-empty">جاري البحث...</div>
-            } @else if (searchResults().length) {
-              @for (a of searchResults(); track a.id) {
-                <div class="aff-item" (click)="pickResult(a)">{{ a.displayName }}</div>
+        <input class="field-in" type="search" id="aff-search" [ngModel]="query()" (ngModelChange)="onInput($event)" (focus)="openPanel()"
+          placeholder="اكتب اسم الوسيط أو كود الإحالة" autocomplete="off" autocapitalize="off" spellcheck="false"
+          role="combobox" aria-autocomplete="list" [attr.aria-expanded]="open()" aria-controls="aff-panel">
+        @if (open() && query().trim().length > 0) {
+          <div class="aff-panel" id="aff-panel" role="listbox">
+            @if (query().trim().length < 2) {
+              <div class="aff-empty" data-testid="aff-hint">اكتب حرفين على الأقل للبحث</div>
+            } @else if (searching()) {
+              <div class="aff-empty" data-testid="aff-searching">جاري البحث...</div>
+            } @else if (searchError()) {
+              <div class="aff-empty aff-error" data-testid="aff-error">تعذر البحث الآن، يمكنك إكمال التسجيل بدون وسيط.</div>
+            } @else if (results().length) {
+              @for (a of results(); track a.id) {
+                <button type="button" class="aff-card" role="option" data-testid="aff-card" (click)="pickResult(a)">
+                  @if (a.avatarUrl) {
+                    <img class="aff-avatar" [src]="a.avatarUrl" alt="" loading="lazy">
+                  } @else {
+                    <span class="aff-avatar aff-avatar-fallback" aria-hidden="true">{{ initials(a.displayName) }}</span>
+                  }
+                  <span class="aff-body">
+                    <span class="aff-name-row">
+                      <span class="aff-name">{{ a.displayName }}</span>
+                      @if (a.verified) { <span class="aff-badge aff-badge-verified" data-testid="aff-verified">موثق</span> }
+                    </span>
+                    <span class="aff-meta">
+                      <span class="aff-slug" dir="ltr">{{ a.referralSlug }}</span>
+                      @if (a.levelName) { <span class="aff-level">{{ a.levelName }}</span> }
+                    </span>
+                  </span>
+                </button>
               }
-            } @else if (searchQuery().trim().length >= 2) {
-              <div class="aff-empty">لا يوجد وسيط مطابق</div>
-            } @else {
-              <div class="aff-empty">اكتب حرفين على الأقل للبحث</div>
+            } @else if (showEmpty()) {
+              <div class="aff-empty" data-testid="aff-none">لا يوجد وسيط مطابق. تأكد من الاسم أو من كود الإحالة.</div>
             }
           </div>
         }
