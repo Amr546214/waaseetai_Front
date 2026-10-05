@@ -320,7 +320,7 @@ describe('VerifyOtp (shared validation)', () => {
 
 	it('auto-send still happens the first time (nothing recent) and is recorded', () => {
 		const data = sessionStore();
-		const post = vi.fn(() => of({ success: true }));
+		const post = vi.fn(() => of({ success: true, emailSent: true })); // recorded only when a code really went out
 		setup(post, { token: () => 'tok' });
 		expect(post).toHaveBeenCalledTimes(1);
 		expect(data['waseet_otp_autosend_u1']).toBeTruthy();

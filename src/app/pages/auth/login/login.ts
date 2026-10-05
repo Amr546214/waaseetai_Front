@@ -4,10 +4,13 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { AuthResponse } from '../../../core/models/auth.model';
 import { AuthStore } from '../../../core/store/auth.store';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
+import { unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
+import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
 import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { UiNotificationService } from '../../../core/services/ui-notification.service';
@@ -33,6 +36,7 @@ export class Login implements OnDestroy {
   missingFields: InvalidField[] = [];
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly notify = inject(UiNotificationService);
+  private readonly otpHandoff = inject(OtpHandoffService);
   appleNotice = '';
   isSubmitting = false;
   // Set on a 404 from /auth/google (intent: 'login') — no Waseet account
@@ -119,7 +123,7 @@ export class Login implements OnDestroy {
             // Existing Google account that never finished email verification: no token comes back,
             // so resume at the email-OTP step instead of navigating with an empty user.
             if (res.data && !res.data.token && res.data.verified === false && res.data.userId) {
-              this.goToEmailVerification();
+              this.goToEmailVerification(res.data);
               return;
             }
 
@@ -198,7 +202,7 @@ export class Login implements OnDestroy {
         } else {
           // Registered but never verified: the backend has just e-mailed a fresh code (and authApi.login
           // stored the pending user id), so continue at the verification step instead of the sign-up page.
-          this.goToEmailVerification();
+          this.goToEmailVerification(res.data);
         }
       },
       error: (err) => {
@@ -211,8 +215,11 @@ export class Login implements OnDestroy {
   }
 
   /** Unverified account: send the user to the email-OTP step with an explanation. */
-  private goToEmailVerification() {
-    this.notify.info('حسابك غير مفعّل بعد. أرسلنا رمز تحقق إلى بريدك الإلكتروني، أدخله لإكمال التفعيل.', { duration: 8000 });
+  private goToEmailVerification(data?: AuthResponse['data']) {
+    // Only claim "sent" when the backend says so; a throttled send tells the user the earlier code still works.
+    const notice = unverifiedLoginNotice(data);
+    this.otpHandoff.set(notice);
+    this.notify.info(notice.message, { duration: 8000 });
     this.router.navigate(['/auth/verify-otp']);
   }
 

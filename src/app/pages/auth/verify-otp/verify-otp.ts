@@ -6,6 +6,8 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
+import { resendNotice } from '../../../core/forms/otp-delivery';
+import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
 
 @Component({
   selector: 'app-verify-otp',
@@ -19,6 +21,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
   private authApi = inject(AuthApiService);
   private router = inject(Router);
+  private otpHandoff = inject(OtpHandoffService);
   // Zoneless app: timer ticks and HTTP callbacks must request a render explicitly.
   private cdr = inject(ChangeDetectorRef);
 
@@ -28,7 +31,8 @@ export class VerifyOtp implements OnInit, OnDestroy {
   errorMsg = '';
   successMsg = '';
 
-  countdown = 60;
+  // 0 until a code is really sent: the countdown means "a code was just sent, wait before asking for another".
+  countdown = 0;
   private timer: any;
 
   ngOnInit() {
@@ -52,8 +56,15 @@ export class VerifyOtp implements OnInit, OnDestroy {
         this.startCountdown(Math.max(1, 90 - recent));
       }
     } else {
-      // Fresh registration flow
-      this.startCountdown();
+      // Arrived from an unverified login: show what really happened. The resend countdown starts only when a
+      // code was actually sent; otherwise (not sent / throttled / reload) resend stays available.
+      const notice = this.otpHandoff.consume();
+      if (notice?.sent) {
+        this.successMsg = notice.message;
+        this.startCountdown();
+      } else if (notice) {
+        this.errorMsg = notice.message;
+      }
     }
   }
 
@@ -239,12 +250,14 @@ export class VerifyOtp implements OnInit, OnDestroy {
     this.authApi.resendOtp(userId).subscribe({
       next: (res) => {
         this.isLoading = false;
-        if (res.success) {
-          this.successMsg = 'تم إرسال الرمز بنجاح';
+        const notice = resendNotice(res);
+        if (notice.sent) {
+          this.successMsg = notice.message;
           this.markAutoSend(userId);
           this.startCountdown();
         } else {
-          this.errorMsg = res.message || 'حدث خطأ أثناء إعادة الإرسال';
+          // Nothing went out: say so, no countdown, the button stays usable.
+          this.errorMsg = notice.message;
         }
         this.cdr.markForCheck();
       },

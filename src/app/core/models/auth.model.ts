@@ -72,7 +72,13 @@ export interface AuthResponse {
 		// account requires a phone OTP (see /auth/login/verify-otp) before a
 		// session is issued.
 		phoneOtpRequired?: boolean;
+		// Activation-code delivery (register, resend-otp, unverified login): true only when the email really went out.
+		emailSent?: boolean;
+		// Unverified login whose send was throttled: seconds until a new code may be sent (the earlier code stays valid).
+		retryAfterSeconds?: number;
 	};
+	// resend-otp mirrors the delivery result at the top level as well (success is false when nothing was sent).
+	emailSent?: boolean;
 }
 
 export interface RegisterInput {
