@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { By } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { Subject, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
@@ -14,8 +14,14 @@ import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 @Component({ selector: 'app-test-blank', template: '' })
 class BlankTestComponent {}
 
-function setup() {
-	const postSpy = vi.fn<(...args: any[]) => any>();
+/**
+ * `ref: true` (default) = the page was opened through a real referral link (`/auth/register?ref=1`);
+ * `ref: false` = opened directly (no marker).
+ */
+function setup(opts: { ref?: boolean } = {}) {
+	const ref = opts.ref ?? true;
+	// The clear-cookie call made by a direct visit needs a real observable; every other POST is set per test.
+	const postSpy = vi.fn<(...args: any[]) => any>((url: string) => /referral-cookie\/clear/.test(String(url)) ? of({ success: true, data: { cleared: true } }) : undefined);
 	// GET is only used by AffiliateApiService.getReferralStatus() (checked once
 	// in Register's ngOnInit — P-LG-012 locked attribution) and by
 	// AffiliatePicker's own resolve()/search() calls. Defaults to "no lock" so
@@ -44,6 +50,7 @@ function setup() {
 		imports: [Register],
 		providers: [
 			provideRouter([{ path: '**', component: BlankTestComponent }]),
+			{ provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(ref ? { ref: '1' } : {}) } } },
 			{ provide: HttpClient, useValue: { post: (...args: any[]) => postSpy(...args), get: (...args: any[]) => getSpy(...args) } },
 			{ provide: AuthStore, useValue: fakeAuthStore },
 			{ provide: SocialAuthService, useValue: fakeSocialAuthService },
@@ -382,6 +389,102 @@ describe('Register', () => {
 			client.authState.next({ idToken: 'google-id-token' });
 			await client.fixture.whenStable();
 			expect(client.postSpy.mock.calls.find(c => String(c[0]).includes('/google'))![1].affiliateIdentifier).toBe('marketer-sara');
+		});
+	});
+
+	describe('Current-visit referral (?ref=1 marker)', () => {
+		const LOCKED = { success: true, data: { active: true, referralSlug: 'marketer-sara', displayName: 'سارة المسوقة' } };
+		const clearCalls = (postSpy: ReturnType<typeof vi.fn>) => postSpy.mock.calls.filter(c => /referral-cookie\/clear/.test(String(c[0])));
+		const statusCalls = (getSpy: ReturnType<typeof vi.fn>) => getSpy.mock.calls.filter(c => /referral-status/.test(String(c[0])));
+
+		it('/auth/register?ref=1 reads the referral status and shows the locked referrer; it never clears the cookie', () => {
+			const { fixture, component, getSpy, postSpy } = setup({ ref: true });
+			getSpy.mockReturnValue(of(LOCKED));
+			component.currentStep = 2;
+			fixture.detectChanges();
+			expect(statusCalls(getSpy).length).toBe(1);
+			expect(clearCalls(postSpy).length).toBe(0);
+			expect(fixture.debugElement.query(By.css('#affiliate-locked-display'))).toBeTruthy();
+			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeNull();
+		});
+
+		it('a refresh keeps the referral: the marker is still in the URL, so a fresh page load shows the locked referrer again', () => {
+			const first = setup({ ref: true });
+			first.getSpy.mockReturnValue(of(LOCKED));
+			first.component.currentStep = 2;
+			first.fixture.detectChanges();
+			expect(first.component.lockedAffiliate()).not.toBeNull();
+			first.fixture.destroy();
+			TestBed.resetTestingModule();
+
+			const reloaded = setup({ ref: true }); // same URL (?ref=1) after F5
+			reloaded.getSpy.mockReturnValue(of(LOCKED));
+			reloaded.component.currentStep = 2;
+			reloaded.fixture.detectChanges();
+			expect(reloaded.component.lockedAffiliate()).toEqual({ referralSlug: 'marketer-sara', displayName: 'سارة المسوقة' });
+			expect(clearCalls(reloaded.postSpy).length).toBe(0);
+		});
+
+		it('/auth/register direct (no marker) clears the old cookie first, does not even ask the status, and shows the normal picker', () => {
+			const { fixture, component, getSpy, postSpy } = setup({ ref: false });
+			getSpy.mockReturnValue(of(LOCKED)); // a stale cookie would have made the status "active"
+			component.currentStep = 2;
+			fixture.detectChanges();
+			expect(clearCalls(postSpy).length).toBe(1);
+			expect(statusCalls(getSpy).length).toBe(0);
+			expect(component.lockedAffiliate()).toBeNull();
+			expect(fixture.debugElement.query(By.css('#affiliate-locked-display'))).toBeNull();
+			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeTruthy();
+		});
+
+		it('visiting /ref/slug and then opening /auth/register directly is clean: no locked box, cookie cleared', () => {
+			// 1) the referral visit (?ref=1) shows the referrer
+			const visit = setup({ ref: true });
+			visit.getSpy.mockReturnValue(of(LOCKED));
+			visit.component.currentStep = 2;
+			visit.fixture.detectChanges();
+			expect(visit.component.lockedAffiliate()).not.toBeNull();
+			visit.fixture.destroy();
+			TestBed.resetTestingModule();
+
+			// 2) a later direct visit: the backend would still report the stale cookie as active, but the page never asks
+			const direct = setup({ ref: false });
+			direct.getSpy.mockReturnValue(of(LOCKED));
+			direct.component.currentStep = 2;
+			direct.fixture.detectChanges();
+			expect(clearCalls(direct.postSpy).length).toBe(1);
+			expect(direct.component.lockedAffiliate()).toBeNull();
+			expect(direct.fixture.debugElement.query(By.css('#affiliate-locked-display'))).toBeNull();
+		});
+
+		it('a failing clear call never blocks registration (fails open to the picker)', () => {
+			const { fixture, component, postSpy } = setup({ ref: false });
+			postSpy.mockReturnValue(throwError(() => ({ status: 500 })));
+			component.currentStep = 2;
+			expect(() => fixture.detectChanges()).not.toThrow();
+			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeTruthy();
+		});
+
+		it('manual picker still works on a direct visit: the typed code is sent as affiliateIdentifier', () => {
+			const { fixture, component, postSpy } = setup({ ref: false });
+			component.selectedAccountType = 'service_requester_ind';
+			component.currentStep = 2;
+			fixture.detectChanges();
+			component.affiliateIdentifier = 'AFF-CODE-1';
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
+			(component as any).submitRegistration();
+			const register = postSpy.mock.calls.find(c => /\/register/.test(String(c[0])))!;
+			expect(register[1].affiliateIdentifier).toBe('AFF-CODE-1');
+		});
+
+		it('a marketer account still hides the referral section on a referral-link visit', () => {
+			const { fixture, component, getSpy } = setup({ ref: true });
+			getSpy.mockReturnValue(of(LOCKED));
+			component.selectedAccountType = 'marketing_broker';
+			component.currentStep = 2;
+			fixture.detectChanges();
+			expect(fixture.debugElement.query(By.css('#affiliate-locked-display'))).toBeNull();
+			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeNull();
 		});
 	});
 });
