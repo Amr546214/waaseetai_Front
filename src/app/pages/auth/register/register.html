@@ -291,6 +291,7 @@
           }
         </div>
 
+        @if (!isMarketerAccount) {
         <div class="form-card">
           <div class="form-card-title">
             <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-user"></use></svg>
@@ -308,6 +309,7 @@
           <app-affiliate-picker [(value)]="affiliateIdentifier"></app-affiliate-picker>
           }
         </div>
+        }
 
         <div class="terms-card">
           <label class="chk-row" for="chk-accuracy">
