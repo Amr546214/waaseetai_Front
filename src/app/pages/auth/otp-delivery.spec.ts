@@ -179,7 +179,7 @@ describe('Login: unverified account hand-off', () => {
 		fixture.componentInstance.onSubmit();
 		fixture.detectChanges();
 		expect(fixture.componentInstance.errorMessage).toBe(SMS_503);
-		expect(fixture.componentInstance.otpRequired).toBe(false);
+		expect(fixture.nativeElement.querySelector('#modal-otp')).toBeNull();
 	});
 });
 
@@ -259,5 +259,20 @@ describe('Forgot password: 429 and no false "sent"', () => {
 		c.sendOtp();
 		expect(c.currentStep).toBe(1);
 		expect(c.bannerError).toContain('300');
+	});
+});
+
+describe('Email OTP cards carry no decorative star icon', () => {
+	afterEach(() => TestBed.resetTestingModule());
+
+	it('verify page: OTP card renders without the ws-ai-spark icon and without any SMS wording', () => {
+		const { list } = providers(vi.fn(), 'u1');
+		TestBed.configureTestingModule({ imports: [VerifyOtp], providers: list });
+		const fixture = TestBed.createComponent(VerifyOtp);
+		fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		expect(el.querySelectorAll('.otp-box').length).toBe(6);
+		expect(el.querySelector('.otp-card use[href="#ws-ai-spark"]')).toBeNull();
+		expect(el.textContent).not.toContain('لجوالك');
 	});
 });

@@ -113,32 +113,6 @@ describe('Login (shared validation)', () => {
 		expect(notify.toasts()[0].message).toContain('غير مفعّل');
 		notify.clearAll();
 	});
-
-	it('login OTP: an incomplete code is not a silent no-op and the verify button is not disabled', () => {
-		const post = vi.fn();
-		const { fixture, component, el } = setup(post);
-		(component as any).pendingLoginUserId = 'u1';
-		component.otpRequired = true;
-		render(fixture);
-		component.submitLoginOtp();
-		render(fixture);
-		expect(post).not.toHaveBeenCalled();
-		expect(component.errorMessage).toContain('6 أرقام');
-		expect((el.querySelector('#btn-otp-verify') as HTMLButtonElement).disabled).toBe(false);
-	});
-
-	it('login OTP: wrong code (400) and resend rate limit (429) show Arabic', () => {
-		let status = 400;
-		const { fixture, component } = setup(() => httpErr(status, status === 400 ? { message: 'رمز التحقق غير صحيح' } : { message: 'Too many requests' }));
-		(component as any).pendingLoginUserId = 'u1';
-		['1', '2', '3', '4', '5', '6'].forEach((d, i) => component.otpForm.get(`code${i + 1}`)!.setValue(d));
-		component.submitLoginOtp();
-		expect(component.errorMessage).toBe('رمز التحقق غير صحيح');
-		status = 429;
-		component.submitLoginOtp();
-		expect(component.errorMessage).not.toMatch(NO_ENGLISH);
-		fixture.destroy();
-	});
 });
 
 // ──────────────────────────────── Register ───────────────────────────────

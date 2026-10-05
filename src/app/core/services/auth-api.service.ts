@@ -51,26 +51,6 @@ export class AuthApiService {
 	}
 
 	/**
-	 * Verify the login-time phone OTP and commit the session
-	 */
-	public verifyLoginOtp(payload: VerifyOtpInput): Observable<AuthResponse> {
-		return this.http.post<AuthResponse>(`${this.baseUrl}/login/verify-otp`, payload).pipe(
-			tap((res) => {
-				if (res.success && res.data?.token && res.data?.user) {
-					this.authStore.authenticate(res.data.token, res.data.user);
-				}
-			})
-		);
-	}
-
-	/**
-	 * Resend the login-time phone OTP
-	 */
-	public resendLoginOtp(userId: string): Observable<AuthResponse> {
-		return this.http.post<AuthResponse>(`${this.baseUrl}/login/resend-otp`, { userId });
-	}
-
-	/**
 	 * Request a password-reset code by email
 	 */
 	public forgotPassword(payload: ForgotPasswordInput): Observable<GenericMessageResponse> {
@@ -100,7 +80,7 @@ export class AuthApiService {
 				if (res.success) {
 					if (res.data?.verified && res.data?.token && res.data?.user) {
 						this.authStore.authenticate(res.data.token, res.data.user);
-					} else if (!res.data?.verified && res.data?.userId) {
+					} else if (!res.data?.verified && !res.data?.phoneOtpRequired && res.data?.userId) {
 						this.authStore.setPendingVerification(res.data.userId);
 					}
 				}
