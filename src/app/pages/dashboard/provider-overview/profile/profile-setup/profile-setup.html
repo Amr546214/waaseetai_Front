@@ -266,11 +266,6 @@
                 <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
                 <span class="notif-lbl">البريد الإلكتروني</span>
               </div>
-              <div class="notif-item" [class.active]="notifChannels().includes('sms')" role="checkbox" [attr.aria-checked]="notifChannels().includes('sms')" tabindex="0" (click)="toggleNotifChannel('sms')">
-                <div class="notif-ico ic-teal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-chat"></use></svg></div>
-                <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
-                <span class="notif-lbl">رسائل SMS</span>
-              </div>
             </div>
           </div>
           <div class="pref-section" style="margin-bottom:0">

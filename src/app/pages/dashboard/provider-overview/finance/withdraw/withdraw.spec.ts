@@ -14,13 +14,13 @@ describe('provider withdraw (PayPal only)', () => {
   let component: Withdraw;
   let submit: ReturnType<typeof vi.fn>;
 
-  async function setup(paypalPayoutEmail: string | null) {
+  async function setup(paypalPayoutEmail: string | null, accountType = 'PROVIDER_INDIVIDUAL') {
     submit = vi.fn(() => of({ success: true }));
     await TestBed.configureTestingModule({
       imports: [Withdraw],
       providers: [
         provideRouter([]),
-        { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'PROVIDER_INDIVIDUAL' }) } },
+        { provide: AuthStore, useValue: { currentUser: () => ({ accountType }) } },
         { provide: ProviderProfileService, useValue: { getProfile: () => of({ paypalPayoutEmail }) } },
         {
           provide: WithdrawalApiService,
@@ -61,5 +61,16 @@ describe('provider withdraw (PayPal only)', () => {
     component.submit();
     expect(submit).not.toHaveBeenCalled();
     expect(component.formErrors()['paypal']).toBeTruthy();
+  });
+
+  it('company accounts: no fake "code sent to the company phone" step; the request goes straight to the admin review queue', async () => {
+    await setup('co@example.com', 'PROVIDER_COMPANY');
+    component.setAmount(100);
+    component.submit();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(submit).toHaveBeenCalledWith({ amount: 100, method: 'paypal' });
+    expect(el.querySelector('.wd-otp-overlay')).toBeNull();
+    expect(el.textContent).not.toContain('جوال الشركة');
   });
 });

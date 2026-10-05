@@ -143,7 +143,6 @@ export class Favorite implements OnInit {
       items: [
         { id: 'channel_inapp', title: 'الإشعارات داخل وسيط AI', subtitle: 'مركز الإشعارات', enabled: true },
         { id: 'channel_email', title: 'البريد الإلكتروني', subtitle: 'إلى بريدك المسجّل', enabled: true },
-        { id: 'channel_sms', title: 'الرسائل النصية SMS', subtitle: 'للتنبيهات العاجلة فقط', enabled: true },
         { id: 'channel_push', title: 'إشعارات الجوال Push', subtitle: 'عبر تطبيق وسيط', enabled: false },
       ]
     }
