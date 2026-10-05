@@ -498,3 +498,20 @@ select option{background:#0B1437;color:#fff}select optgroup{background:#0B1437;c
 @media(max-width:640px){
   .f2{grid-template-columns:1fr}
 }
+
+/* "complete your profile" box (items come from the backend) */
+.miss-box{margin:0 0 18px;padding:14px 16px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:var(--surface,rgba(255,255,255,.03))}
+.miss-title{font-size:14px;font-weight:800;color:var(--txt);margin-bottom:10px}
+.miss-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.miss-item{min-width:0}
+.miss-link{width:100%;display:flex;align-items:center;gap:10px;text-align:start;padding:10px 12px;border-radius:12px;border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.07);color:var(--txt);cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s}
+.miss-link:hover{background:rgba(245,158,11,.14)}
+.miss-item.is-pending .miss-link{border-color:rgba(43,127,255,.35);background:rgba(43,127,255,.07)}
+.miss-item.is-pending .miss-link:hover{background:rgba(43,127,255,.14)}
+.miss-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.miss-label{font-size:13px;font-weight:800}
+.miss-hint{font-size:11.5px;color:var(--txt-3)}
+.miss-badge{flex-shrink:0;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(245,158,11,.18);color:#B45309;white-space:nowrap}
+.miss-badge.is-pending{background:rgba(43,127,255,.16);color:#2B6CDE}
+.miss-go{flex-shrink:0;color:var(--txt-3)}
+@media (max-width:640px){.miss-list{grid-template-columns:1fr}.miss-link{padding:10px}}

@@ -2,7 +2,7 @@ import { Component, signal, OnInit, OnDestroy, inject, PLATFORM_ID, computed, De
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { ProviderProfileService, CompletionMissingItem } from '../../../../../core/services/provider-profile.service';
 import { HttpEventType } from '@angular/common/http';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
@@ -169,8 +169,11 @@ export class Data implements OnInit, OnDestroy {
   isVerifyingOtp = signal(false);
   documentUploads = signal<Record<string, DocumentUploadState>>({});
 
+  /** Both come from the backend (GET /provider/profile): the percentage and what is still needed, so they cannot disagree. */
   completionPercent = signal(0);
-  nextStepHint = signal({ percentage: 0, nextTargetPercentage: 0, message: '' });
+  missingItems = signal<CompletionMissingItem[]>([]);
+  hasMissing = computed(() => this.missingItems().some(i => i.status === 'missing'));
+  hasPending = computed(() => this.missingItems().some(i => i.status === 'pending_review'));
 
   currentProfileData: any = null;
 
@@ -236,10 +239,6 @@ export class Data implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.loadProfile();
       this.loadActiveSessions();
-      this.profileForm.valueChanges.subscribe(() => this.calculateCompletion());
-      this.contactForm.valueChanges.subscribe(() => this.calculateCompletion());
-      this.payoutForm.valueChanges.subscribe(() => this.calculateCompletion());
-      this.docsForm.valueChanges.subscribe(() => this.calculateCompletion());
     }
   }
 
@@ -327,7 +326,7 @@ export class Data implements OnInit, OnDestroy {
             this.languagesArray.push(this.fb.group({ name: [name], proficiency: [proficiency] }));
           });
 
-          this.calculateCompletion();
+          this.applyCompletion(profile);
         }
       },
       error: (err) => {
@@ -384,6 +383,7 @@ export class Data implements OnInit, OnDestroy {
         this.skillsArray.push(this.fb.control(skillName));
         skillInput.value = '';
         this.displayToast('تم إضافة المهارة بنجاح');
+        this.refreshCompletion();
       },
       error: (err) => this.skillError.set(mapHttpError(err, { fallback: 'تعذر إضافة المهارة، حاول مرة أخرى' }).message)
     });
@@ -398,6 +398,7 @@ export class Data implements OnInit, OnDestroy {
         this.skillsList.set(updatedProfile.skills);
         this.skillsArray.removeAt(index);
         this.displayToast('تم إزالة المهارة بنجاح');
+        this.refreshCompletion();
       },
       error: (err) => this.skillError.set(mapHttpError(err, { fallback: 'تعذر إزالة المهارة، حاول مرة أخرى' }).message)
     });
@@ -568,6 +569,7 @@ export class Data implements OnInit, OnDestroy {
         this.savingPaypal.set(false);
         this.missingPayout.set([]);
         this.displayToast('تم حفظ بريد PayPal لاستلام المدفوعات');
+        this.refreshCompletion();
       },
       error: (err: any) => {
         this.savingPaypal.set(false);
@@ -638,7 +640,6 @@ export class Data implements OnInit, OnDestroy {
     const next = { ...this.documentUploads() };
     delete next[controlName];
     this.documentUploads.set(next);
-    this.calculateCompletion();
     this.displayToast('تم حذف المستند من التعديلات الحالية. اضغط حفظ لتأكيد التغيير');
   }
 
@@ -839,95 +840,23 @@ export class Data implements OnInit, OnDestroy {
     this.showRequestsModal.set(false);
   }
 
-  calculateCompletion() {
-    const profile = this.currentProfileData;
-    if (!profile) return;
+  private applyCompletion(profile: any) {
+    this.completionPercent.set(Number(profile?.completionPercentage) || 0);
+    this.missingItems.set(Array.isArray(profile?.missingItems) ? profile.missingItems : []);
+  }
 
-    const pForm = this.profileForm.value;
-    const cForm = this.contactForm.value;
-    const dForm = this.docsForm.value;
+  /** Re-reads only the completion (percentage + missing items) after a save that does not reload the forms. */
+  private refreshCompletion() {
+    this.profileService.getProfile().subscribe({ next: (profile: any) => this.applyCompletion(profile), error: () => { /* keeps the last value */ } });
+  }
 
-    let current = 0;
-    let missing: { name: string; weight: number; hint: string }[] = [];
-
-    // Tab 1: 40%
-    if (this.avatarUrl() || profile.user?.avatarUrl) {
-      current += 10;
-    } else {
-      missing.push({ name: 'avatar', weight: 10, hint: 'صورة شخصية' });
-    }
-
-    if (pForm.firstName && pForm.lastName && pForm.headline && pForm.hourlyRate && pForm.yearsOfExperience) {
-      current += 10;
-    } else {
-      missing.push({ name: 'basicInfo', weight: 10, hint: 'البيانات الأساسية' });
-    }
-
-    if (pForm.bio && pForm.bio.length >= 50) {
-      current += 10;
-    } else {
-      missing.push({ name: 'bio', weight: 10, hint: 'وصفًا مهنيًا' });
-    }
-
-    if (this.portfolioList().length > 0) {
-      current += 10;
-    } else {
-      missing.push({ name: 'portfolio', weight: 10, hint: 'أمثلة أعمال' });
-    }
-
-    // Tab 2: 20%
-    if (cForm.phoneNumber) {
-      current += 10;
-    } else {
-      missing.push({ name: 'phone', weight: 10, hint: 'رقم الجوال' });
-    }
-
-    if (pForm.city && pForm.country) {
-      current += 10;
-    } else {
-      missing.push({ name: 'location', weight: 10, hint: 'المدينة والدولة' });
-    }
-
-    // Tab 3: 15%
-    if (this.payoutForm.get('paypalPayoutEmail')?.valid) {
-      current += 15;
-    } else {
-      missing.push({ name: 'payout', weight: 15, hint: 'حساب PayPal لاستلام المدفوعات' });
-    }
-
-    // Tab 4: 15%
-    if (dForm.idDocumentUrl || profile.user?.idDocumentUrl) {
-      current += 15;
-    } else {
-      missing.push({ name: 'id', weight: 15, hint: 'مستندات إثبات الهوية' });
-    }
-
-    // Tab 5: 10% (Security - Defaulting to 10 for now as MFA is visually active)
-    current += 10;
-
-    let nextTarget = current;
-    let hintMsg = '';
-
-    if (missing.length > 0) {
-      // Sort by weight descending to prioritize biggest impacts
-      missing.sort((a, b) => b.weight - a.weight);
-
-      const topMissing = missing.slice(0, 2);
-      const addedWeight = topMissing.reduce((sum, item) => sum + item.weight, 0);
-      nextTarget = current + addedWeight;
-
-      const hints = topMissing.map(m => m.hint).join(' و');
-      hintMsg = `أضف ${hints} لرفع الاكتمال إلى ${nextTarget}%`;
-    } else {
-      hintMsg = 'ملفك المهني مكتمل 100%! أنت جاهز للعمل.';
-    }
-
-    this.completionPercent.set(current);
-    this.nextStepHint.set({
-      percentage: current,
-      nextTargetPercentage: nextTarget,
-      message: hintMsg
-    });
+  /** "Complete your profile" box: opens the tab that fixes the item and brings its panel into view. */
+  openMissingItem(item: CompletionMissingItem) {
+    this.setTab(item.tab);
+    setTimeout(() => {
+      const panel = this.panel(item.tab);
+      panel?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+    }, 30);
   }
 
   displayToast(msg: string) {
