@@ -150,9 +150,10 @@
             <div style="font-size:12px" class="txt-muted">نسبة اكتمال الملف: {{ completionPercentage() }}%</div>
           </div>
         </div>
-        <div class="review-row"><span class="txt-muted">الوصف التسويقي</span><span class="txt-white">{{ profile()?.bio ? 'مكتمل' : 'لم يُضف' }}</span></div>
+        <ws-completion-box [items]="missingItems()" (select)="openMissingItem($event)" />
+        <div class="review-row"><span class="txt-muted">الوصف التسويقي</span><span class="txt-white" data-testid="bio-state">{{ bioState() }}</span></div>
         <div class="review-row"><span class="txt-muted">قنوات التسويق</span><span class="txt-white">{{ hasChannel() ? 'تمت إضافة قناة' : 'لم تُضف بعد' }}</span></div>
-        <div class="review-row"><span class="txt-muted">الحساب البنكي</span><span class="txt-white">{{ bankReviewState() }}</span></div>
+        <div class="review-row"><span class="txt-muted">الحساب البنكي</span><span class="txt-white" data-testid="bank-state">{{ bankReviewState() }}</span></div>
       </div>
       <div class="actions-row"><button type="button" class="btn-primary" (click)="finish()">إنهاء</button></div>
     }

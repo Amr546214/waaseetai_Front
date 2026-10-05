@@ -57,6 +57,20 @@ export interface AffiliateChannelHandle {
 	createdAt: string;
 }
 
+/** One thing still needed to reach 100% (backend `missingItems`). */
+export interface MarketerMissingItem {
+	key: string;
+	label: string;
+	points: number;
+	status: 'missing' | 'pending_review';
+	/** 'profile' (marketing info + channels) or 'bank' (the bank tab). */
+	tab: 'profile' | 'bank';
+	hint: string;
+}
+
+/** Bank data state: approved (an IBAN is on the profile), pending_review (a request waits for the review), none. */
+export type MarketerBankStatus = 'none' | 'pending_review' | 'approved';
+
 export interface MarketerProfile {
 	id: string;
 	userId: string;
@@ -84,6 +98,10 @@ export interface MarketerProfile {
 	payoutMethod: string;
 	minimumPayoutAmount: number;
 	completionPercentage: number;
+	missingItems?: MarketerMissingItem[];
+	bankStatus?: MarketerBankStatus;
+	/** A change request is pending even though an approved IBAN exists. */
+	bankChangePending?: boolean;
 }
 
 export interface ApiResponse<T> {

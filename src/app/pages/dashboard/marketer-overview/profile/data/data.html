@@ -15,7 +15,10 @@
 	<div class="prog-bar">
 		<div class="prog-fill" [style.width]="(profile()?.completionPercentage || 0) + '%'"></div>
 	</div>
-	<div class="prog-hint">اكمل التحقق من القنوات واضف Bio احترافي للترقية لمستوى موصل</div>
+	@if (!missingItems().length) {
+	<div class="prog-hint" data-testid="prog-hint">ملفك التسويقي مكتمل 100%</div>
+	}
+	<ws-completion-box [items]="missingItems()" (select)="openMissingItem($event)" />
 
 	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي" style="margin-top:20px">
 		<div class="ai-disc-ico"><svg aria-hidden="true">
@@ -177,7 +180,7 @@
 			<div class="channels-list">
 				@for (channel of channels(); track channel.id) {
 				<div class="channel-row">
-					<div class="channel-status ok" title="محقق"></div>
+					<div class="channel-status added" title="قناة مضافة (التحقق من القنوات غير متاح بعد)"></div>
 					<span class="channel-name">{{ channel.platform }}</span>
 					<span class="channel-handle">{{ channel.handle }}</span>
 					<button type="button" class="channel-edit" disabled title="تعديل القناة غير متاح حاليًا">تعديل</button>
@@ -437,7 +440,7 @@
 	<!-- البنكية والمستندات -->
 	@if (activeTab() === 'banking') {
 	<div class="prof-tab-panel active" role="tabpanel">
-			@if (bankPending()) {
+			@if (bankPendingReview()) {
 			<div class="pending-note" role="status" data-testid="bank-pending">طلب تعديل بياناتك البنكية قيد المراجعة، ولن تُطبَّق القيم الجديدة قبل اعتماده. يمكنك متابعته من "طلباتي السابقة".</div>
 			}
 			<div class="form-card" [formGroup]="bankForm">

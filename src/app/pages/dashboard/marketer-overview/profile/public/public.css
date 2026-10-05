@@ -13,7 +13,10 @@
 .adm-card-ttl svg { width:16px; height:16px; color:#2BD4C7; }
 
 @media(max-width:767px) {
-  .main-inner > div:nth-child(3) { grid-template-columns:1fr !important; }
+  /* minmax(0,1fr): a plain 1fr track cannot shrink below its content, which pushed the page 9px wider than a 390px phone */
+  .main-inner > div:nth-child(3) { grid-template-columns:minmax(0,1fr) !important; }
+  .main-inner > div:nth-child(3) > * { min-width:0; }
+  .state-card p { overflow-wrap:anywhere; }
 }
 
 /* ===== Light Mode ===== */
