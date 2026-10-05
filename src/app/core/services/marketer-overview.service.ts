@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api.model';
 import { Withdrawal, WithdrawalListData } from '../models/withdrawal.model';
@@ -45,6 +46,7 @@ export enum ReferralStatus {
 }
 
 export interface ReferredUser {
+	referralId?: string;
 	referredUserDisplayName: string;
 	status: ReferralStatus | string;
 	joinedAt: string;
@@ -56,6 +58,35 @@ export interface ReferralListData {
 	page: number;
 	limit: number;
 	total: number;
+}
+
+/**
+ * What GET /api/marketer-overview/referrals really returns: `data` is the ARRAY of referrals and the paging sits next to it
+ * (`pagination`), with `displayName` / `totalCommissionEarned` per row. (The page used to read `data.items` / `data.total`,
+ * which never existed, so the list was always empty even when referrals existed.)
+ */
+export interface ReferralsApiResponse {
+	success: boolean;
+	data: any;
+	pagination?: { page?: number; limit?: number; total?: number; totalPages?: number };
+}
+
+/** Maps the backend response (and, defensively, the older `{ items, total }` shape) to what the page renders. Every status is kept, PENDING included. */
+export function toReferralListData(res: ReferralsApiResponse, page: number, limit: number): ReferralListData {
+	const raw: any[] = Array.isArray(res?.data) ? res.data : Array.isArray(res?.data?.items) ? res.data.items : [];
+	const paging = res?.pagination ?? res?.data ?? {};
+	return {
+		items: raw.map((r) => ({
+			referralId: r.referralId,
+			referredUserDisplayName: r.referredUserDisplayName ?? r.displayName ?? '',
+			status: r.status,
+			joinedAt: r.joinedAt,
+			commissionEarned: r.commissionEarned ?? r.totalCommissionEarned ?? null,
+		})),
+		page: paging.page ?? page,
+		limit: paging.limit ?? limit,
+		total: paging.total ?? raw.length,
+	};
 }
 
 export interface ReferralCustomLink {
@@ -99,11 +130,11 @@ export class MarketerOverviewService {
 		return this.http.get<{ success: boolean; data: AiInsight[] }>(`${this.apiUrl}/ai-insights`);
 	}
 
-	// Backed by real ReferralStatus/CommissionLog rows once the backend's
-	// commission engine work lands; shape per the agreed contract:
-	// { success, data: { items, page, limit, total } }.
+	// Real referrals of the calling marketer (every status: PENDING, QUALIFIED, CONVERTED), paginated.
 	getReferrals(page: number = 1, limit: number = 10): Observable<{ success: boolean; data: ReferralListData }> {
-		return this.http.get<{ success: boolean; data: ReferralListData }>(`${this.apiUrl}/referrals?page=${page}&limit=${limit}`);
+		return this.http.get<ReferralsApiResponse>(`${this.apiUrl}/referrals?page=${page}&limit=${limit}`).pipe(
+			map((res) => ({ success: res.success, data: toReferralListData(res, page, limit) }))
+		);
 	}
 
 	getRefLinks(): Observable<{ success: boolean; data: RefLinksData }> {
