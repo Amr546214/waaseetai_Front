@@ -17,8 +17,7 @@ export class Reports {
     return user?.accountType === AccountType.PROVIDER_COMPANY;
   });
 
-  // Mock data — no team-performance / payouts / dispute-resolution-rate endpoint exists yet.
-  // Placeholder Arabic provider names, styled after the design reference (P-CO-TM-003).
+  // No team-performance / payouts / dispute-resolution-rate endpoint exists yet (the team tab shows "لا توجد بيانات بعد").
   teamPerformance: Array<{
     name: string;
     role: string;
@@ -28,17 +27,11 @@ export class Reports {
     onTime: number;
     revenue: string;
     status: 'active' | 'delay';
-  }> = [
-    { name: 'ريم الدوسري', role: 'مطورة تطبيقات', level: 'مستوى 8 · خبير', projects: 8, rating: 4.9, onTime: 97, revenue: '42,800', status: 'active' },
-    { name: 'سارة الزهراني', role: 'مصممة UI/UX', level: 'مستوى 7 · خبير', projects: 6, rating: 4.8, onTime: 95, revenue: '35,200', status: 'active' },
-    { name: 'فهد العتيبي', role: 'مطور ويب', level: 'مستوى 6 · متقن', projects: 5, rating: 4.7, onTime: 92, revenue: '28,500', status: 'active' },
-    { name: 'خالد القحطاني', role: 'مطور Full-Stack', level: 'مستوى 5 · متقن', projects: 3, rating: 4.6, onTime: 88, revenue: '19,400', status: 'active' },
-    { name: 'نواف الحربي', role: 'كاتب محتوى', level: 'مستوى 4 · متقن', projects: 4, rating: 4.3, onTime: 68, revenue: '12,100', status: 'delay' }
-  ];
+  }> = [];  // no team-member model / team-performance endpoint exists, so no invented members are shown
 
-  providerPayoutsTotal = '69,920';
-  providerPayoutsTrend = '8 مقدمين هذا الشهر';
-  disputeResolutionProviderRate = 30;
+  providerPayoutsTotal: string | null = null;
+  providerPayoutsTrend: string | null = null;
+  disputeResolutionProviderRate: number | null = null;
 
   tabs = computed(() => {
     const list = [

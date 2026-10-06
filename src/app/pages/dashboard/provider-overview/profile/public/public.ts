@@ -2,6 +2,7 @@ import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 
@@ -15,6 +16,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 export class Public implements OnInit {
 	private providerProfileService = inject(ProviderProfileService);
 	private authStore = inject(AuthStore);
+	private specialtyService = inject(SpecialtyService);
 	private router = inject(Router);
 
 	currentTab = signal<string>('info');
@@ -44,7 +46,7 @@ export class Public implements OnInit {
 	 *  approving a work sample, so the label does not attribute it to a single party. */
 	specStatusLabel(spec: any): string {
 		switch (spec?.status) {
-			case 'APPROVED': return spec?.isPassed && spec?.assessmentDetails ? 'تخصص معتمد · اجتاز اختبار التخصص' : 'تخصص معتمد';
+			case 'APPROVED': return spec?.isPassed && spec?.assessmentDetails ? 'تخصص معتمد · اجتاز اختبار AI' : 'تخصص معتمد';
 			case 'REJECTED': return 'تخصص غير معتمد';
 			case 'LOCKED_OUT': return 'التخصص مقفل مؤقتاً';
 			default: return 'قيد الاعتماد';
@@ -66,8 +68,24 @@ export class Public implements OnInit {
 		return name.slice(0, 2);
 	});
 
+	/** Specialty.id → Arabic name, from the public specialties list (a service only carries `specialtyId`). */
+	specialtyNames = signal<Record<string, string>>({});
+
 	ngOnInit() {
 		this.loadPublicProfile();
+		this.specialtyService.getPublicSpecialties().subscribe({
+			next: (res: any) => {
+				const map: Record<string, string> = {};
+				for (const s of (Array.isArray(res?.data) ? res.data : [])) if (s?.id) map[s.id] = s.nameAr || s.name || '';
+				this.specialtyNames.set(map);
+			},
+			error: () => this.specialtyNames.set({})
+		});
+	}
+
+	/** Name of a service's specialty, or '—' when it is not in the public (active) specialties list. */
+	specialtyName(id: string | null | undefined): string {
+		return (id && this.specialtyNames()[id]) || '—';
 	}
 
 	loadPublicProfile() {

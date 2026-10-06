@@ -66,10 +66,8 @@ export class Wallet implements OnInit {
     return Math.min(100, Math.max(0, Math.round((avail / total) * 100)));
   });
 
-  cashbackAmount = computed(() => {
-    const avail = this.balance();
-    return Math.round(avail * 0.03);
-  });
+  // Loyalty cashback is not computed anywhere in the backend (REQUESTER_LEVEL_MATRIX.rate in progression-calculators.ts is
+  // defined but never used or credited), so the wallet shows no cashback amount instead of an invented 3% of the balance.
 
   ngOnInit() {
     const moyasarPaymentId = this.route.snapshot.queryParamMap.get('id');

@@ -53,19 +53,14 @@ export class NewTicketComponent {
 		'أخرى'
 	];
 
+	// No company team/project-link source is wired to this form yet, so only the neutral option is offered
+	// (the previous list held invented project ids and team-member names).
 	companyProjects = [
-		'بدون ربط',
-		'PRJ-3091 — نظام إدارة المخزون',
-		'PRJ-3087 — الهوية البصرية',
-		'PRJ-3084 — تطبيق الحجز'
+		'بدون ربط'
 	];
 
 	companyMembers = [
-		'بدون تحديد',
-		'فهد العتيبي',
-		'ريم الدوسري',
-		'محمد الشهري',
-		'نورة القحطاني'
+		'بدون تحديد'
 	];
 
 	priorities = ['عادية', 'عالية', 'عاجلة'];

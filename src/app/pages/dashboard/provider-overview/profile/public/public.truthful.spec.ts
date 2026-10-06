@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { Public } from './public';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { SpecialtyService } from '../../../../../core/services/specialty.service';
 
 // The provider's own public-profile page must show only what GET /provider/profile/public returns
 // (backend provider-profile.service.ts getPublicProfile): no invented numbers, no static badges.
@@ -29,6 +30,7 @@ async function render(d: any, company = false) {
 		imports: [Public],
 		providers: [provideRouter([]),
 			{ provide: AuthStore, useValue: { currentUser: () => (company ? { accountType: 'PROVIDER_COMPANY', firstName: 'ش', lastName: 'ك' } : null) } },
+			{ provide: SpecialtyService, useValue: { getPublicSpecialties: () => of({ success: true, data: [{ id: 'sp1', nameAr: 'أنظمة الويب' }] }) } },
 			{ provide: ProviderProfileService, useValue: { getPublicProfile: () => of({ success: true, data: d }) } }],
 	}).compileComponents();
 	const f = TestBed.createComponent(Public);
@@ -64,7 +66,8 @@ describe('provider public profile shows only real data', () => {
 		let t = text(f);
 		expect(t).toContain('1 تخصص معتمد');
 		expect(t).toContain('موثّق باختبار AI');
-		expect(t).toContain('تخصص معتمد · اجتاز اختبار التخصص');
+		expect(t).toContain('تخصص معتمد · اجتاز اختبار AI');
+		expect(t).not.toContain('اجتاز اختبار التخصص');
 		expect(t).toContain('مستوى المقدّم');
 		expect(t).toContain('منجز');
 		expect(t).toContain('لم يُجرَ تدقيق بعد');
@@ -94,7 +97,7 @@ describe('provider public profile shows only real data', () => {
 	});
 
 	it('company mode: real header stats, real specialties/services, "لا توجد بيانات بعد" instead of demo rows', async () => {
-		const f = await render(data({ header: { fullName: 'شركة حقيقية', isVerified: true, levelInfo: { levelName: 'محترف' }, stats: { completedProjects: 3, publishedServices: 2, clientRating: 91 } }, specialties: [spec({ specialtyName: 'الجوال' })], services: [{ id: 'm1', title: 'خدمتي', status: 'PUBLISHED', salesCount: 4 }] }), true);
+		const f = await render(data({ header: { fullName: 'شركة حقيقية', isVerified: true, levelInfo: { levelName: 'محترف' }, stats: { completedProjects: 3, publishedServices: 2, clientRating: 91 } }, specialties: [spec({ specialtyName: 'الجوال' })], services: [{ id: 'm1', title: 'خدمتي', specialtyId: 'sp1', status: 'PUBLISHED', salesCount: 4 }, { id: 'm2', title: 'خدمة بلا تخصص', specialtyId: 'unknown', status: 'PUBLISHED', salesCount: 0 }] }), true);
 		let t = text(f);
 		expect(t).toContain('شركة حقيقية');
 		expect(t).toContain('3 مشروع مكتمل');
@@ -102,6 +105,7 @@ describe('provider public profile shows only real data', () => {
 		expect(t).toContain('الجوال');
 		expect(t).toContain('خدمتي');
 		expect(t).toContain('منشور');
+		expect(t).toContain('أنظمة الويب');
 		for (const demo of ['47', 'نظام إدارة المخزون السحابي', 'فهد العتيبي', 'تطوير تطبيقات الجوال', '4.7']) expect(t, demo).not.toContain(demo);
 		f.componentInstance.profileData.set(data({}));
 		f.detectChanges();

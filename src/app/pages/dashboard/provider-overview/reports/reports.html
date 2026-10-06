@@ -345,14 +345,14 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
         <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">مدفوعات للمقدمين</div>
-        <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ providerPayoutsTotal }} ﷼</div>
+        <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ providerPayoutsTotal != null ? providerPayoutsTotal + ' ﷼' : '—' }}</div>
         <div class="flex items-center justify-between mt-3">
-          <span class="text-[11px] font-bold text-[#0FA99A]">▲ {{ providerPayoutsTrend }}</span>
+          <span class="text-[11px] font-bold text-[var(--txt-3)]">{{ providerPayoutsTrend ?? 'لا توجد بيانات بعد' }}</span>
         </div>
       </div>
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
         <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">نسبة الحل لصالح المقدم</div>
-        <div class="text-[26px] font-black text-[var(--txt)] leading-none mb-2 tracking-tight">{{ disputeResolutionProviderRate }}%</div>
+        <div class="text-[26px] font-black text-[var(--txt)] leading-none mb-2 tracking-tight">{{ disputeResolutionProviderRate != null ? disputeResolutionProviderRate + '%' : '—' }}</div>
         <div class="flex items-center justify-between mt-3">
           <span class="text-[11px] font-bold text-[var(--txt-3)]">من إجمالي النزاعات المحلولة آخر 6 أشهر</span>
         </div>
@@ -406,6 +406,9 @@
                   }
                 </td>
               </tr>
+            }
+            @if (!teamPerformance.length) {
+              <tr><td colspan="7" class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">لا توجد بيانات بعد</td></tr>
             }
           </tbody>
         </table>
