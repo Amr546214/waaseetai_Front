@@ -42,32 +42,8 @@ export class SaDisputeDetail implements OnInit {
   // opening the existing manual resolve form pre-filled with it.
   splitClaimantPct = signal(50);
 
-  // ── Local, deterministic display-only enrichment ──────────────────────
-  // The admin dispute API (see DisputeApiService) does not return
-  // client/provider identity, an escrow/dispute amount, per-evidence party
-  // attribution, a step-by-step activity log, or similar-case precedents.
-  // Sibling admin pages in this module (sa-requests.ts, sa-contracts.ts)
-  // hardcode mock identity/amount fields the same way pending a real
-  // backend contract — this follows that established pattern. Everything
-  // below is seeded off the real dispute.id so a given dispute always shows
-  // the same mock party/amount on repeat opens (not re-randomized), but
-  // none of it is persisted or sent to the backend. See
-  // BACKEND_BLOCKED_ISSUES.md for the tracked gap.
-  private readonly mockClaimantNames = ['شركة الخليج التقنية', 'مؤسسة النور للتسويق', 'عبدالله المطيري', 'شركة رواد الأعمال', 'نورة العتيبي'];
-  private readonly mockRespondentNames = ['سعد الغامدي', 'خالد الحربي', 'مؤسسة الإبداع الرقمي', 'ريم القحطاني', 'فهد الدوسري'];
-  private readonly mockRespondentDefenses = [
-    'التأخير سببه تعديلات إضافية طلبها الطرف الآخر خارج نطاق الاتفاق الأصلي',
-    'تم تسليم العمل حسب المتفق عليه، والملاحظات المطروحة تقييمية وليست أخطاء فعلية',
-    'لم يتم تزويدي بكامل المتطلبات في الوقت المناسب مما أثّر على الجدول الزمني',
-    'العمل المنجز مطابق للبريف الأصلي المرسل قبل بدء التنفيذ',
-  ];
-  private readonly mockSimilarCases = [
-    { summary: 'تأخر تسليم + رسوم إضافية — تصميم ويب', outcome: 'حُلَّ: 30% للطالب', color: '#0FA99A' },
-    { summary: 'عدم مطابقة التسليم للمواصفات — برمجة ويب', outcome: 'حُلَّ: 50/50', color: '#5DA0FF' },
-    { summary: 'تعديلات خارج نطاق العقد — Frontend', outcome: 'حُلَّ: للمقدم 70%', color: '#FFB400' },
-    { summary: 'نزاع على جودة التسليم النهائي — تصميم جرافيك', outcome: 'حُلَّ: للمقدم بالكامل', color: '#2BD4C7' },
-    { summary: 'تأخر التواصل وتوقف التنفيذ — تسويق رقمي', outcome: 'حُلَّ: 40% للطالب', color: '#0FA99A' },
-  ];
+  // Parties come from the real dispute (openedBy / againstUser). The admin API returns no escrow amount, no
+  // respondent defence and no similar-case data, so none of those is shown (previously mock names/amounts/cases).
 
   readonly resolutionPresets = [
     'REFUND_CLIENT',
@@ -142,50 +118,27 @@ export class SaDisputeDetail implements OnInit {
     this.router.navigate(['/supper-admin-overview/disputes']);
   }
 
-  private seedHash(id: string): number {
-    let h = 0;
-    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-    return h;
+  private fullName(u?: { firstName?: string; lastName?: string } | null): string {
+    return [u?.firstName, u?.lastName].filter(Boolean).join(' ').trim();
   }
 
-  /** MOCK — no backend field for this yet. See class-level note above. */
-  mockDisputeAmount(d: Dispute): number {
-    const seed = this.seedHash(d.id);
-    return 2000 + (seed % 18) * 1000;
-  }
-
-  /** MOCK claimant/respondent identity. `claimText` for the claimant is the
-   *  real `d.reason`; the respondent's defense text is fully mock since the
-   *  API has no provider-response field. */
-  partyInfo(d: Dispute, role: 'claimant' | 'respondent'): { name: string; initials: string; avBg: string; roleLabel: string; claimText: string; isMockClaim: boolean } {
-    const seed = this.seedHash(d.id + role);
-    if (role === 'claimant') {
-      const name = this.mockClaimantNames[seed % this.mockClaimantNames.length];
-      return {
-        name,
-        initials: name.trim().charAt(0),
-        avBg: 'linear-gradient(135deg,#FFB400,#FF8C69)',
-        roleLabel: 'الطرف المدّعي (طالب)',
-        claimText: d.reason || 'لم يُسجَّل سبب صريح للادعاء',
-        isMockClaim: false,
-      };
-    }
-    const name = this.mockRespondentNames[seed % this.mockRespondentNames.length];
+  /** Real parties: the opener (claimant) and the other side. `claimText` for the claimant is the real `d.reason`;
+   *  the API has no respondent-response field, so none is shown. */
+  partyInfo(d: Dispute, role: 'claimant' | 'respondent'): { name: string; initials: string; avBg: string; roleLabel: string; claimText: string | null } {
+    const user = role === 'claimant' ? d.openedBy : d.againstUser;
+    const name = this.fullName(user) || 'غير متاح';
     return {
       name,
-      initials: name.trim().charAt(0),
-      avBg: 'linear-gradient(135deg,#0FA99A,#2BD4C7)',
-      roleLabel: 'الطرف المدّعى عليه (مقدم)',
-      claimText: this.mockRespondentDefenses[seed % this.mockRespondentDefenses.length],
-      isMockClaim: true,
+      initials: name === 'غير متاح' ? '—' : name.charAt(0),
+      avBg: role === 'claimant' ? 'linear-gradient(135deg,#FFB400,#FF8C69)' : 'linear-gradient(135deg,#0FA99A,#2BD4C7)',
+      roleLabel: role === 'claimant' ? 'مقدّم النزاع' : 'الطرف الآخر',
+      claimText: role === 'claimant' ? (d.reason || 'لم يُسجَّل سبب صريح للادعاء') : null,
     };
   }
 
-  /** Real evidence URLs from the API; the "submitted by" attribution is a
-   *  placeholder (alternating by upload order) since the API doesn't carry
-   *  a party association per evidence item. */
-  evidenceParty(index: number): 'claimant' | 'respondent' {
-    return index % 2 === 0 ? 'claimant' : 'respondent';
+  /** Evidence is attached by whoever opened the dispute; the API carries no per-file party, so it is all shown under the opener. */
+  evidenceParty(_index: number): 'claimant' | 'respondent' {
+    return 'claimant';
   }
 
   evidenceFileName(url: string): string {
@@ -237,24 +190,6 @@ export class SaDisputeDetail implements OnInit {
     return events;
   }
 
-  /** MOCK — no "similar disputes" endpoint exists yet. Picks 3 of 5 static
-   *  illustrative examples, deterministic per dispute.id. */
-  similarCases(d: Dispute): { id: string; summary: string; outcome: string; color: string }[] {
-    const seed = this.seedHash(d.id + 'similar');
-    const pool = this.mockSimilarCases;
-    const start = seed % pool.length;
-    const picks = [pool[start], pool[(start + 1) % pool.length], pool[(start + 2) % pool.length]];
-    return picks.map((p, i) => ({ id: `D-${100 + (seed % 800) + i * 7}`, ...p }));
-  }
-
-  splitClaimantAmount(d: Dispute): number {
-    return Math.round((this.mockDisputeAmount(d) * this.splitClaimantPct()) / 100);
-  }
-
-  splitRespondentAmount(d: Dispute): number {
-    return this.mockDisputeAmount(d) - this.splitClaimantAmount(d);
-  }
-
   onSplitInput(value: string) {
     const n = Number(value);
     if (!Number.isNaN(n)) this.splitClaimantPct.set(Math.min(100, Math.max(0, n)));
@@ -268,10 +203,8 @@ export class SaDisputeDetail implements OnInit {
     this.openResolveForm('resolve');
     if (preset === 'PARTIAL_REFUND') {
       const pct = this.splitClaimantPct();
-      const amt = this.splitClaimantAmount(d);
-      const amt2 = this.splitRespondentAmount(d);
       this.resolutionText.set(`PARTIAL_REFUND`);
-      this.resolutionNote.set(`تقسيم الضمان: ${pct}% للطرف المدّعي (${amt.toLocaleString('ar-SA')} ر.س) و${100 - pct}% للطرف المدّعى عليه (${amt2.toLocaleString('ar-SA')} ر.س)`);
+      this.resolutionNote.set(`تقسيم الضمان: ${pct}% لمقدّم النزاع و${100 - pct}% للطرف الآخر`);
     } else {
       this.selectPreset(preset);
     }

@@ -24,21 +24,21 @@
 		</div>
 
 		<div class="rk-hero">
-			<div class="rk-b">🥇</div>
+			<div class="rk-b" aria-hidden="true"><svg viewBox="0 0 100 100" fill="currentColor" width="28" height="28"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
 			<div class="rk-i">
-				<div class="rk-n">{{ levelData()?.currentLevel?.title || 'ذهبي' }}</div>
-				<div class="rk-s">شركة معتمدة بمستوى {{ levelData()?.currentLevel?.title || 'ذهبي' }} · يُجدَّد التقييم كل 3 أشهر</div>
-				<div class="rk-bar"><div class="rk-f" [style.width.%]="levelData()?.nextLevelProgress?.pointsPercent || 89"></div></div>
-				<div style="font-size:11px;margin-top:6px" class="txt-slate">{{ levelData()?.currentStats?.points || 2680 }} نقطة · {{ levelData()?.nextLevelProgress?.pointsGap || 320 }} نقطة للمستوى التالي</div>
+				<div class="rk-n">{{ levelData()?.currentLevel?.title ?? '—' }}</div>
+				<div class="rk-s">{{ levelData() ? 'المستوى ' + levelData()!.currentLevel.index + ' من 15' : 'لا توجد بيانات بعد' }}</div>
+				<div class="rk-bar"><div class="rk-f" [style.width.%]="levelData()?.nextLevelProgress?.pointsPercent ?? 0"></div></div>
+				<div style="font-size:11px;margin-top:6px" class="txt-slate">{{ levelData()?.currentStats?.points ?? '—' }} نقطة · {{ levelData()?.nextLevelProgress?.pointsGap ?? '—' }} نقطة للمستوى التالي</div>
 			</div>
 			<div style="display:flex;gap:8px;flex-shrink:0">
 				<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 16px">
-					<div style="font-size:20px;font-weight:900" class="txt-amber">{{ levelData()?.currentStats?.avgRating || 4.7 }}</div>
+					<div style="font-size:20px;font-weight:900" class="txt-amber">{{ levelData()?.currentStats?.avgRating != null ? (levelData()!.currentStats.avgRating | number:'1.1-1') : '—' }}</div>
 					<div style="font-size:10px;margin-top:2px" class="txt-slate">التقييم</div>
 				</div>
 				<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 16px">
-					<div style="font-size:20px;font-weight:900" class="txt-teal">98%</div>
-					<div style="font-size:10px;margin-top:2px" class="txt-slate">الإنجاز</div>
+					<div style="font-size:20px;font-weight:900" class="txt-teal">{{ levelData()?.currentStats?.completedProjects ?? '—' }}</div>
+					<div style="font-size:10px;margin-top:2px" class="txt-slate">مشاريع مكتملة</div>
 				</div>
 			</div>
 		</div>
@@ -47,40 +47,40 @@
 			<div class="co-card" style="margin-bottom:0">
 				<div class="sec-hd"><div class="sec-ttl">مؤشرات الجودة</div></div>
 				<div class="mt-row">
-					<div class="mt-b"><div class="mt-n">متوسط تقييم العملاء</div><div class="mt-bar"><div class="mt-f" [style.width.%]="94" style="background:linear-gradient(90deg,#FFB400,#D98A0B)"></div></div></div>
-					<span class="mt-v">{{ levelData()?.currentStats?.avgRating || 4.7 }} / 5</span>
+					<div class="mt-b"><div class="mt-n">متوسط تقييم العملاء</div><div class="mt-bar"><div class="mt-f" [style.width.%]="levelData() ? levelData()!.currentStats.avgRating / 5 * 100 : 0" style="background:linear-gradient(90deg,#FFB400,#D98A0B)"></div></div></div>
+					<span class="mt-v">{{ levelData()?.currentStats?.avgRating != null ? (levelData()!.currentStats.avgRating | number:'1.1-1') + ' / 5' : '—' }}</span>
 				</div>
 				<div class="mt-row">
-					<div class="mt-b"><div class="mt-n">جودة التسليم من أول مراجعة</div><div class="mt-bar"><div class="mt-f" [style.width.%]="88" style="background:linear-gradient(90deg,#2ECC8A,#0FA99A)"></div></div></div>
-					<span class="mt-v">88%</span>
+					<div class="mt-b"><div class="mt-n">جودة التسليم من أول مراجعة</div></div>
+					<span class="mt-v">—</span>
 				</div>
 				<div class="mt-row">
-					<div class="mt-b"><div class="mt-n">نسبة المشاريع بلا أوامر تغيير</div><div class="mt-bar"><div class="mt-f" [style.width.%]="76" style="background:linear-gradient(90deg,#5DA0FF,#2B7FFF)"></div></div></div>
-					<span class="mt-v">76%</span>
+					<div class="mt-b"><div class="mt-n">نسبة المشاريع بلا أوامر تغيير</div></div>
+					<span class="mt-v">—</span>
 				</div>
 				<div class="mt-row">
-					<div class="mt-b"><div class="mt-n">اكتمال الملف المهني</div><div class="mt-bar"><div class="mt-f" [style.width.%]="92" style="background:linear-gradient(90deg,#2BD4C7,#0FA99A)"></div></div></div>
-					<span class="mt-v">92%</span>
+					<div class="mt-b"><div class="mt-n">اكتمال الملف المهني</div></div>
+					<span class="mt-v">—</span>
 				</div>
 			</div>
 
 			<div class="co-card" style="margin-bottom:0">
 				<div class="sec-hd"><div class="sec-ttl">مؤشرات الالتزام</div></div>
 				<div class="mt-row">
-					<div class="mt-b"><div class="mt-n">الالتزام بمواعيد التسليم</div><div class="mt-bar"><div class="mt-f" [style.width.%]="98" style="background:linear-gradient(90deg,#2BD4C7,#0FA99A)"></div></div></div>
-					<span class="mt-v">98%</span>
+					<div class="mt-b"><div class="mt-n">الالتزام بمواعيد التسليم</div></div>
+					<span class="mt-v">—</span>
 				</div>
 				<div class="mt-row">
-					<div class="mt-b"><div class="mt-n">سرعة الرد على العملاء</div><div class="mt-bar"><div class="mt-f" [style.width.%]="85" style="background:linear-gradient(90deg,#2ECC8A,#0FA99A)"></div></div></div>
-					<span class="mt-v">أقل من ساعتين</span>
+					<div class="mt-b"><div class="mt-n">سرعة الرد على العملاء</div></div>
+					<span class="mt-v">—</span>
 				</div>
 				<div class="mt-row">
-					<div class="mt-b"><div class="mt-n">النزاعات المُقرَّرة ضد الشركة</div><div class="mt-bar"><div class="mt-f" [style.width.%]="4" style="background:#FF8C69"></div></div></div>
-					<span class="mt-v txt-coral">1 خلال سنة</span>
+					<div class="mt-b"><div class="mt-n">النزاعات المُقرَّرة ضد الشركة</div></div>
+					<span class="mt-v">—</span>
 				</div>
 				<div class="mt-row">
-					<div class="mt-b"><div class="mt-n">التزام أعضاء الفريق بالمهام</div><div class="mt-bar"><div class="mt-f" [style.width.%]="91" style="background:linear-gradient(90deg,#5DA0FF,#2B7FFF)"></div></div></div>
-					<span class="mt-v">91%</span>
+					<div class="mt-b"><div class="mt-n">التزام أعضاء الفريق بالمهام</div></div>
+					<span class="mt-v">—</span>
 				</div>
 			</div>
 		</div>
@@ -88,26 +88,28 @@
 		<div class="co-card" style="margin-top:14px">
 			<div class="sec-hd">
 				<div class="sec-ttl">عوامل رفع المستوى</div>
-				<span class="pill pill-gold">+{{ levelData()?.nextLevelProgress?.pointsGap || 320 }} نقطة للبلاتيني</span>
+				@if (levelData()?.nextLevelProgress; as next) {
+					<span class="pill pill-gold">للمستوى {{ next.title }}</span>
+				}
 			</div>
+			@if (levelData()?.nextLevelProgress; as next) {
 			<div style="display:flex;flex-direction:column;gap:8px">
-				<div class="rf-row" style="background:rgba(165,107,224,.06);border:1px solid rgba(165,107,224,.15)">
-					<span class="rf-txt">أكمل 3 مشاريع إضافية بتقييم 4.5+</span>
-					<span class="rf-val txt-purple">+60 نقطة</span>
-				</div>
-				<div class="rf-row" style="background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.15)">
-					<span class="rf-txt">ارفع متوسط التقييم إلى 4.8</span>
-					<span class="rf-val txt-amber">معامل أعلى</span>
-				</div>
 				<div class="rf-row" style="background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.15)">
-					<span class="rf-txt">أضف شهادتين معتمدتين للملف</span>
-					<span class="rf-val txt-teal">+200 نقطة</span>
+					<span class="rf-txt">النقاط المتبقية</span>
+					<span class="rf-val txt-teal">{{ next.pointsGap }} نقطة</span>
 				</div>
 				<div class="rf-row" style="background:rgba(93,160,255,.06);border:1px solid rgba(93,160,255,.15)">
-					<span class="rf-txt">أضف عضوين نشطين للفريق</span>
-					<span class="rf-val txt-blue">+60 نقطة</span>
+					<span class="rf-txt">المشاريع المكتملة المتبقية</span>
+					<span class="rf-val txt-blue">{{ next.projectsGap }} مشروع</span>
+				</div>
+				<div class="rf-row" style="background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.15)">
+					<span class="rf-txt">فرق متوسط التقييم المطلوب</span>
+					<span class="rf-val txt-amber">{{ next.ratingGap | number:'1.1-1' }}</span>
 				</div>
 			</div>
+			} @else {
+				<div class="mt-n">لا توجد بيانات بعد</div>
+			}
 		</div>
 	}
 

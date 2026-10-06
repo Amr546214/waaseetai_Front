@@ -18,6 +18,21 @@ function getCookieSync(name: string): string | null {
   return null;
 }
 
+export type ProviderReportRange = 'month' | '3m' | '6m' | 'year' | 'all';
+
+export interface ProviderReports {
+	range: ProviderReportRange;
+	requests: {
+		total: number;
+		byStatus: { pending: number; accepted: number; rejected: number; cancelled: number };
+		items: Array<{ id: string; title: string | null; specialty: string | null; price: number; status: string; bucket: 'pending' | 'accepted' | 'rejected' | 'cancelled'; createdAt: string }>;
+	};
+	offersBySpecialty: Array<{ specialty: string; total: number; accepted: number; rate: number | null }>;
+	projects: { totalCount: number; activeCount: number; completedCount: number; avgDurationDays: number | null; completedOnTime: number; completedWithAgreedDuration: number };
+	payments: { releasedTotal: number | null; heldInEscrow: number | null; transactions: Array<{ id: string; type: string; amount: number; currency: string; status: string; description: string | null; createdAt: string }> };
+	disputes: { items: Array<{ id: string; status: string; reason: string; createdAt: string; resolvedAt: string | null }>; counts: { all: number; open: number; resolved: number; rejected: number }; ratioPercent: number | null };
+}
+
 export interface ProviderActivityItem {
 	id: string;
 	title?: string;
@@ -117,6 +132,11 @@ export class ProviderApiService {
 				});
 			})
 		);
+	}
+
+	/** GET /provider/reports?range=month|3m|6m|year|all — real offers / projects / payments / disputes (null where the backend has no source). */
+	getProviderReports(range: ProviderReportRange): Observable<{ success: boolean; data?: ProviderReports; error?: string }> {
+		return this.http.get<{ success: boolean; data?: ProviderReports }>(`${this.apiUrl}/reports`, { params: { range } });
 	}
 
 	getOverviewStats(): Observable<ProviderStatsResponse> {
