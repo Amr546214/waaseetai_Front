@@ -63,6 +63,7 @@ describe('Specialties — assessment_error handling (Batch 3D-2)', () => {
 
 		fixture = TestBed.createComponent(Specialties);
 		component = fixture.componentInstance;
+component.providerSpecialtyId.set('spec-1'); // a real id is required (no demo default any more)
 		antiCheatService = TestBed.inject(AntiCheatService);
 		fixture.detectChanges();
 	});
@@ -159,6 +160,7 @@ describe('Specialties — submission transport consolidation (Batch 3D-3 + 3D-4 
 
 		fixture = TestBed.createComponent(Specialties);
 		component = fixture.componentInstance;
+component.providerSpecialtyId.set('spec-1'); // a real id is required (no demo default any more)
 		antiCheatService = TestBed.inject(AntiCheatService);
 		fixture.detectChanges();
 	});
@@ -532,6 +534,7 @@ describe('Specialties — question generation never fabricates local questions',
 		}).compileComponents();
 		fixture = TestBed.createComponent(Specialties);
 		component = fixture.componentInstance;
+component.providerSpecialtyId.set('spec-1'); // a real id is required (no demo default any more)
 		fixture.detectChanges();
 		generate = vi.fn();
 		(component as any).specialtyService.generateAiAssessment = generate;

@@ -81,6 +81,8 @@ export interface ApiSpecialty {
 	_count?: { providerSpecialties: number };
 }
 
+export const SPECIALTY_ID_MISSING_MESSAGE = 'تعذّر تحديد التخصص على الخادم. ارجع للخطوة الأولى واختر التخصص ثم أعد المحاولة.';
+
 @Component({
 	selector: 'app-profile-specialties',
 	standalone: true,
@@ -145,6 +147,8 @@ export class Specialties implements OnInit, OnDestroy {
 
 	private timerInterval: any = null;
 	isSubmittingSamples = signal(false);
+	/** Visible reason when a step cannot move on (selection / upload failed, file could not be processed). */
+	stepError = signal<string | null>(null);
 	uploadProgress = signal(0);
 
 	// Batch 3D-3 — submission transport consolidation. Socket is primary
@@ -382,23 +386,32 @@ export class Specialties implements OnInit, OnDestroy {
 				customName: this.selectedSpecId() === 'other' ? this.otherText() : undefined
 			};
 
+			this.stepError.set(null);
 			this.specialtyService.selectSpecialty(payload).subscribe({
 				next: (res: any) => {
+					// No server id → no invented one: the user stays on step 1 with a clear message.
 					if (res && res.success && res.data?.id) {
 						this.providerSpecialtyId.set(res.data.id);
+						this.currentStep.set(2);
 					} else {
-						this.providerSpecialtyId.set('demo-spec-uuid-101');
+						this.providerSpecialtyId.set(null);
+						this.stepError.set(SPECIALTY_ID_MISSING_MESSAGE);
 					}
-					this.currentStep.set(2);
 				},
-				error: () => {
-					this.providerSpecialtyId.set('demo-spec-uuid-101');
-					this.currentStep.set(2);
+				error: (err: any) => {
+					this.providerSpecialtyId.set(null);
+					this.stepError.set(err?.error?.message || SPECIALTY_ID_MISSING_MESSAGE);
 				}
 			});
 		} else if (this.currentStep() === 2 && this.canProceedToStep3()) {
+			const specId = this.providerSpecialtyId();
+			if (!specId) {
+				// never a default id: nothing is sent without the real providerSpecialtyId
+				this.stepError.set(SPECIALTY_ID_MISSING_MESSAGE);
+				return;
+			}
+			this.stepError.set(null);
 			const formData = new FormData();
-			const specId = this.providerSpecialtyId() || 'demo-spec-uuid-101';
 			formData.append('providerSpecialtyId', specId);
 			formData.append('sampleCount', this.samples().length.toString());
 
@@ -425,11 +438,11 @@ export class Specialties implements OnInit, OnDestroy {
 					}
 					if (event.type === HttpEventType.Response) this.finishSamplesUpload();
 				},
-				error: () => {
-					this.specialtyService.uploadSamples(formData).subscribe({
-						next: () => this.finishSamplesUpload(),
-						error: () => this.finishSamplesUpload()
-					});
+				error: (err: any) => {
+					// A failed upload must NOT advance to step 3 as if the samples were saved.
+					this.isSubmittingSamples.set(false);
+					this.uploadProgress.set(0);
+					this.stepError.set(err?.error?.message || 'تعذّر رفع النماذج. تحقق من الاتصال وأعد المحاولة؛ لم يتم حفظ أي نموذج.');
 				}
 			});
 		} else if (this.currentStep() === 3 && this.allDeclarationsChecked()) {
@@ -454,6 +467,7 @@ export class Specialties implements OnInit, OnDestroy {
 				this.isQuizActive.set(false);
 		}
 
+		this.stepError.set(null);
 		if (this.currentStep() > 1) {
 			this.currentStep.update(s => s - 1);
 		}
@@ -473,10 +487,28 @@ export class Specialties implements OnInit, OnDestroy {
 		);
 	});
 
+	/** Why the step-2 button is disabled (first unmet requirement), so a disabled button is never a silent dead end. */
+	step2Blocker = computed<string | null>(() => {
+		const list = this.samples();
+		if (list.length === 0) return 'أضف نموذج أعمال واحداً على الأقل.';
+		if (this.isSubmittingSamples()) return null;
+		for (const s of list) {
+			const label = s.subSpecialty || 'النموذج';
+			if (s.isUploading || s.isProcessingProofs) return `جارٍ معالجة ملفات «${label}»…`;
+			if (s.title.trim().length < 3) return `«${label}»: عنوان النموذج 3 أحرف على الأقل.`;
+			if ((s.description || '').trim().length < 20) return `«${label}»: الوصف 20 حرفاً على الأقل.`;
+			if (s.technologies.length === 0) return `«${label}»: أضف تقنية واحدة على الأقل.`;
+			if (s.publicFile === null) return `«${label}»: ارفع الملف العام للنموذج.`;
+			if (s.proofFiles.length === 0) return `«${label}»: ارفع ملف إثبات واحداً على الأقل.`;
+		}
+		return null;
+	});
+
 	private finishSamplesUpload() {
 		if (!this.isSubmittingSamples()) return;
 		this.uploadProgress.set(100);
 		this.isSubmittingSamples.set(false);
+		this.stepError.set(null);
 		this.currentStep.set(3);
 		this.isAnalyzing.set(true);
 		this.simulateAnalysis();
@@ -550,7 +582,9 @@ export class Specialties implements OnInit, OnDestroy {
 					isUploading: false
 				});
 			} catch {
+				// the file is NOT silently dropped: say why the step stays blocked
 				this.patchSample(sampleId, { isUploading: false });
+				this.stepError.set('تعذّر معالجة الملف العام للنموذج. جرّب صورة PNG/JPG أو ملف PDF آخر.');
 			}
 			input.value = '';
 		}
@@ -636,6 +670,7 @@ export class Specialties implements OnInit, OnDestroy {
 				);
 			} catch {
 				this.patchSample(sampleId, { isProcessingProofs: false });
+				this.stepError.set('تعذّر معالجة ملف الإثبات. جرّب صورة PNG/JPG أو ملف PDF آخر.');
 			}
 			input.value = '';
 		}
@@ -661,7 +696,8 @@ export class Specialties implements OnInit, OnDestroy {
 		this.isAnalyzing.set(true);
 		this.aiEvaluationUnavailable.set(false);
 		this.aiFeedback.set(null);
-		const id = this.providerSpecialtyId() || 'demo-spec-uuid-101';
+		const id = this.providerSpecialtyId();
+		if (!id) { this.isAnalyzing.set(false); this.aiEvaluationUnavailable.set(true); return; }
 
 		this.specialtyService.aiEvaluate(id).subscribe({
 			next: (res: any) => {
@@ -762,7 +798,8 @@ export class Specialties implements OnInit, OnDestroy {
 	});
 
 	private initiateDynamicQuiz() {
-		const specId = this.providerSpecialtyId() || 'demo-spec-uuid-101';
+		const specId = this.providerSpecialtyId();
+		if (!specId) { this.quizGenerationError.set(SPECIALTY_ID_MISSING_MESSAGE); return; }
 		this.isQuizActive.set(true);
 		this.quizGenerationError.set(null);
 		this.quizResult.set(null);
