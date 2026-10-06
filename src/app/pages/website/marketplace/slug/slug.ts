@@ -187,7 +187,7 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 
 	deliveryOptions = [3, 7, 14];
 
-	/** Highest-aiScore model on the current page (rendered as "الأعلى في تقييم جودة AI بهذه الصفحة: <strong>title</strong>" — Batch 5: a stored quality score, not a match). */
+	/** Highest-aiScore model on the current page (rendered as "الأعلى في تقييم درجة جودة مسجّلة بهذه الصفحة: <strong>title</strong>" — Batch 5: a stored quality score, not a match). */
 	aiInsightBest = computed(() => {
 		return [...this.models()].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0))[0] || null;
 	});

@@ -32,7 +32,7 @@ export class ReviewProject {
 		{ name: 'معاينة.png', type: 'png' },
 	];
 
-	aiQualityCheck = 'اجتاز فحص الذكاء: الملفات كاملة، بدقّة عالية، وبدون علامات مائية';
+	aiQualityCheck = 'لم تُقرأ محتويات الملفات: المراجعة استشارية على الأسماء والأنواع فقط';
 
 	openAccept() {
 		// Logic to accept the delivery

@@ -237,11 +237,12 @@ describe('Login', () => {
 			} finally { setItem.mockRestore(); }
 		});
 
-		it('the badge uses the shield icon, never the sparkle/star', () => {
+		it('there is no "AI protection" badge at all (no system behind it), and never the sparkle/star', () => {
 			const { fixture } = setup();
 			fixture.detectChanges();
 			const el: HTMLElement = fixture.nativeElement;
-			expect(el.querySelector('.ai-auth-badge use')!.getAttribute('href')).toBe('#ws-shield');
+			expect(el.querySelector('.ai-auth-badge')).toBeNull();
+			expect(el.textContent).not.toContain('حماية متقدمة بالذكاء الاصطناعي');
 			expect(el.querySelector('use[href="#ws-ai-spark"]')).toBeNull();
 		});
 	});

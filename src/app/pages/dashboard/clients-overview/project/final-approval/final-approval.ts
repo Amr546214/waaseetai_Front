@@ -127,7 +127,7 @@ export class FinalApproval implements OnInit {
 	// الاصطناعي" action on the delivery review page.
 	qualityNote(stage: any): string {
 		if (stage?.aiQualityNote) return stage.aiQualityNote;
-		return 'لا توجد ملاحظة جودة آلية لهذا التسليم بعد';
+		return 'لا توجد ملاحظة جودة لهذا التسليم بعد';
 	}
 	statusHint(stage: any) {
 		if (stage.status === 'completed' || stage.status === 'APPROVED') return `اعتُمدت${stage.completedDate ? ` · ${this.formatDate(stage.completedDate)}` : ''}`;

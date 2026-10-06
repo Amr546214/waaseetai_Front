@@ -156,7 +156,7 @@ describe('Card (shared marketplace card) — AI wording is honest', () => {
 		fixture.componentRef.setInput('models', [baseModel({ aiScore: 80, description: '' })]);
 		fixture.detectChanges();
 		const text = (fixture.nativeElement as HTMLElement).textContent || '';
-		expect(text).toContain('جودة AI 80%');
+		expect(text).toContain('درجة جودة مسجّلة 80%');
 		expect(text).not.toContain('AI Match');
 		expect(text).not.toContain('معتمد AI');
 		expect(text).not.toContain('معتمدة من Waseet AI');

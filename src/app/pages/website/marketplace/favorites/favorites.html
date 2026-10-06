@@ -131,7 +131,7 @@
                   <button class="svc-remove" type="button" (click)="removeFavorite(m.id)" [disabled]="removingIds().has(m.id)" aria-label="إزالة من المفضلة"><svg aria-hidden="true"><use href="#ws-close"></use></svg></button>
                 </div>
                 <div class="svc-body">
-                  <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
+                  <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> درجة جودة مسجّلة {{ m.aiScore }}</div>
                   <a [routerLink]="['/marketplace/offer', m.id]" class="svc-title">{{ m.title }}</a>
                   <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><div><div class="svc-pname">{{ m.provider.name }}</div>@if (m.isVerified) {<div class="svc-verified">✓ معتمد</div>}</div></div>
                   <div class="svc-rating"><span class="stars">{{ stars(m.rating) }}</span><span class="score">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>

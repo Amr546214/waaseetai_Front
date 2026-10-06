@@ -35,7 +35,7 @@
     @if (model()?.aiScore) {
       <span class="ai-match-big">
         <svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg>
-        جودة AI {{ model()?.aiScore }}%
+        درجة جودة مسجّلة {{ model()?.aiScore }}%
       </span>
     }
     <button (click)="toggleFavorite()" [style.color]="isFavorite() ? 'var(--red)' : 'var(--txt-3)'" [style.border-color]="isFavorite() ? 'rgba(255,140,105,.3)' : 'var(--border)'" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" id="fav-btn" type="button">
