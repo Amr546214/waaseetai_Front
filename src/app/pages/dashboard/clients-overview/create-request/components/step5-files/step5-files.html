@@ -47,15 +47,15 @@
 			</div>
 			}
 
-			<!-- AI SUGGESTIONS -->
-			<div class="ai-suggestions p-5 rounded-xl bg-[var(--ai)]/5 border border-[var(--ai)]/10">
-				<div class="flex items-center gap-2 text-sm font-bold text-[var(--ai)] mb-4">
+			<!-- Fixed list of commonly useful files (a static list, not an AI suggestion) -->
+			<div class="file-suggestions p-5 rounded-xl bg-[var(--teal,#2BD4C7)]/5 border border-[var(--teal,#2BD4C7)]/15">
+				<div class="flex items-center gap-2 text-sm font-bold text-[var(--teal,#2BD4C7)] mb-4">
 ملفات مقترحة لتحسين وضوح الطلب
 				</div>
 				<div class="flex flex-wrap gap-2">
-					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--ai)] hover:text-[var(--ai)] transition-colors" (click)="parent.addSuggestedFile('مخطط المشروع أو wireframe')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مخطط المشروع أو wireframe</button>
-					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--ai)] hover:text-[var(--ai)] transition-colors" (click)="parent.addSuggestedFile('لوجو وهوية بصرية حالية')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>لوجو وهوية بصرية حالية</button>
-					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--ai)] hover:text-[var(--ai)] transition-colors" (click)="parent.addSuggestedFile('مرجع تصميمي أو منافس')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مرجع تصميمي أو منافس</button>
+					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('مخطط المشروع أو wireframe')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مخطط المشروع أو wireframe</button>
+					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('لوجو وهوية بصرية حالية')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>لوجو وهوية بصرية حالية</button>
+					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('مرجع تصميمي أو منافس')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مرجع تصميمي أو منافس</button>
 				</div>
 			</div>
 

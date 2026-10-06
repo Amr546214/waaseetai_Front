@@ -93,15 +93,21 @@
             <div style="font-size:13.5px;font-weight:800;margin-bottom:3px;line-clamp:1" class="txt-white">{{ model.title }}</div>
             <div style="font-size:11px;margin-bottom:9px" class="txt-muted">{{ model.specialtyName }}</div>
             
-            <div style="font-size:10px;font-weight:800;margin-bottom:5px" class="txt-purple">تحليل الذكاء الاصطناعي</div>
+            <div style="font-size:10px;font-weight:800;margin-bottom:5px" class="txt-purple">حالة النموذج</div>
             <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:11px">
-              <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal"><span>✓</span>اكتمال متطلبات النموذج</div>
-              <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal"><span>✓</span>وضوح نطاق العمل</div>
+              <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
+                @if (model.status === 'AI_VERIFIED' || model.status === 'APPROVED') { <span>✓</span>معتمد من فريق وسيط }
+                @else { <span>⏳</span>قيد المراجعة اليدوية }
+              </div>
+              <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
+                @if (model.score > 0) { <span>✓</span>تقييم AI: {{ model.score }}% }
+                @else { <span>—</span>لم يُقيَّم بعد }
+              </div>
             </div>
             
             <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07);padding-top:9px">
               <span style="font-size:12px;font-weight:700" class="txt-teal">تفاصيل ›</span>
-              <span style="font-size:11px" class="txt-muted">★4.9 · {{ model.views }} مشاهدة</span>
+              <span style="font-size:11px" class="txt-muted">{{ model.views }} مشاهدة</span>
             </div>
           </div>
         </div>
