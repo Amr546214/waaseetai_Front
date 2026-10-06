@@ -183,11 +183,12 @@ describe('ClientProfileComponent (real public profile)', () => {
     expect(fixture.nativeElement.textContent).not.toContain('هوية موثّقة');
   });
 
-  it('when verified, labels it via Nafath, never "هوية مدققة من وسيط AI" or any AI-verification claim', async () => {
+  it('when verified (kycStatus VERIFIED upstream), shows "هوية موثّقة" without naming Nafath or any AI-verification claim', async () => {
     await setup('c-1', () => of({ success: true, data: realProfileFixture({ isVerified: true }) }));
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('هوية موثّقة عبر نفاذ');
+    expect(text).toContain('هوية موثّقة');
+    expect(text).not.toContain('نفاذ');
     expect(text).not.toContain('من وسيط AI');
     expect(text).not.toContain('مدققة من');
   });
