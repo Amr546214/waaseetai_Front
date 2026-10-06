@@ -18,6 +18,7 @@ const FORBIDDEN: Array<[string, RegExp]> = [
 	['suspension below 20', /دون 20|لدون 20/],
 	['levels tied to a 0–100 score', /0 إلى 100|من 0 إلى 100/],
 	['level bands as tier names with rates', /خبير \(|محترف \(|متقدم \(|مبتدئ \(/],
+	['commission-reduction promises (unproven: level commission is not confirmed as deducted)', /تنخفض (نسبة )?العمولة|انخفضت نسبة العمولة|كلما انخفضت|تخفيض العمولة|تخفيض العمولة|أقل نسبة|نسبة أقل|تُحسب نسبة العمولة تلقائياً|تحسب نسبة العمولة تلقائياً|تنخفض نسبة العمولة|انخفاض (نسبة )?العمولة/],
 	['unsupported search-priority promise', /أولوية قصوى في (البحث|ترتيب|نتائج)/],
 ];
 
@@ -38,6 +39,7 @@ describe('pricing/legal level & commission copy matches backend rules', () => {
 		const legal = read('legal/legal-page.component.ts');
 		expect(legal).toContain('سلّماً من 15 مستوى');
 		expect(legal).toContain('ببلوغ الحدود الثلاثة معاً');
-		expect(legal).toContain('تُعرض نسبة العمولة الحالية داخل لوحة التحكم حسب مستوى الحساب');
+		expect(legal).toContain('تُعرض تفاصيل العمولة والرسوم داخل لوحة التحكم وسياسة المدفوعات');
+		expect(legal).toContain('لا تُنشر نسب رقمية قبل اعتماد نموذج العمولة النهائي');
 	});
 });

@@ -37,16 +37,16 @@ export class Pricing {
   accountType = signal<AccountType>('ind');
   openFaq = signal<number | null>(0);
 
-  // Provider levels come from a fixed 15-level ladder (points + completed projects + client rating); the commission falls as
-  // the level rises. Exact percentages are shown per account inside the dashboard, never hard-coded here.
+  // Provider levels come from a fixed 15-level ladder (points + completed projects + client rating); the commission/fee model
+  // is NOT yet decided, so no percentage or reduction promise is published here (details live in the dashboard + payments policy).
   plansInd: Plan[] = [
     {
       name: 'المستويات الأولى',
       icon: 'user',
       iconColor: 'teal',
       desc: 'للمقدمين الجدد على وسيط: تبدأ من المستوى الأول وترتقي بالنقاط والمشاريع المكتملة وتقييمات الطالبين',
-      commission: 'نسبة البداية',
-      commissionSub: 'تُعرض نسبتك الحالية داخل لوحة التحكم حسب مستوى حسابك',
+      commission: 'تفاصيل العمولة داخل لوحة التحكم',
+      commissionSub: 'حسب مستوى الحساب',
       ctaLabel: 'سجّل مجاناً',
       features: [
         { text: 'نشر خدماتك في السوق بعد الاعتماد', included: true },
@@ -60,14 +60,14 @@ export class Pricing {
       icon: 'provider',
       iconColor: 'blue',
       desc: 'للمقدمين النشطين بتقييمات جيدة وسجل متنامٍ من المشاريع المكتملة',
-      commission: 'نسبة أقل',
-      commissionSub: 'تنخفض تدريجياً مع ارتفاع المستوى وفق قواعد المنصة',
+      commission: 'تفاصيل العمولة داخل لوحة التحكم',
+      commissionSub: 'حسب مستوى الحساب وفق قواعد المنصة المعتمدة',
       featured: true,
       ctaLabel: 'ابدأ الآن',
       features: [
         { text: 'كل مزايا المستويات الأولى', included: true },
         { text: 'مستوى يظهر في ملفك العام', included: true },
-        { text: 'تخفيض العمولة تلقائياً مع ارتفاع المستوى', included: true },
+        { text: 'تفاصيل العمولة والرسوم داخل لوحة التحكم', included: true },
         { text: 'تدقيق AI لخدماتك', included: true }
       ]
     },
@@ -76,12 +76,12 @@ export class Pricing {
       icon: 'star',
       iconColor: 'ai',
       desc: 'للمقدمين ذوي السجل المتميز من المشاريع المكتملة والتقييمات المرتفعة',
-      commission: 'أقل نسبة في السلم',
-      commissionSub: 'يُمنح تلقائياً عند بلوغ شروط المستوى',
+      commission: 'تفاصيل العمولة داخل لوحة التحكم',
+      commissionSub: 'تُعرض عند بدء التعاملات أو داخل لوحة التحكم',
       ctaLabel: 'سجّل وابدأ',
       features: [
         { text: 'كل مزايا المستويات المتوسطة', included: true },
-        { text: 'أقل نسبة عمولة في سلم المستويات', included: true },
+        { text: 'تفاصيل العمولة والرسوم داخل لوحة التحكم', included: true },
         { text: 'مستوى متقدم يظهر في ملفك العام', included: true }
       ]
     }
@@ -94,8 +94,8 @@ export class Pricing {
       icon: 'building',
       iconColor: 'teal',
       desc: 'للشركات الجديدة في المرحلة الأولى من بناء ملف الشركة',
-      commission: 'نسبة البداية',
-      commissionSub: 'تُعرض نسبتك الحالية داخل لوحة التحكم حسب مستوى حسابك',
+      commission: 'تفاصيل العمولة داخل لوحة التحكم',
+      commissionSub: 'حسب مستوى الحساب',
       ctaLabel: 'سجّل مجاناً',
       features: [
         { text: 'ملف شركة معتمد', included: true },
@@ -109,13 +109,13 @@ export class Pricing {
       icon: 'building',
       iconColor: 'blue',
       desc: 'للشركات ذات النشاط المستمر وسجل متنامٍ من المشاريع المكتملة',
-      commission: 'نسبة أقل',
-      commissionSub: 'تنخفض تدريجياً مع ارتفاع المستوى وفق قواعد المنصة',
+      commission: 'تفاصيل العمولة داخل لوحة التحكم',
+      commissionSub: 'حسب مستوى الحساب وفق قواعد المنصة المعتمدة',
       featured: true,
       ctaLabel: 'ابدأ الآن',
       features: [
         { text: 'كل مزايا المستويات الأولى', included: true },
-        { text: 'تخفيض العمولة تلقائياً مع ارتفاع المستوى', included: true },
+        { text: 'تفاصيل العمولة والرسوم داخل لوحة التحكم', included: true },
         { text: 'مستوى يظهر في ملف الشركة العام', included: true }
       ]
     },
@@ -124,22 +124,22 @@ export class Pricing {
       icon: 'star',
       iconColor: 'ai',
       desc: 'للشركات ذات السجل المتميز من المشاريع المكتملة والتقييمات المرتفعة',
-      commission: 'أقل نسبة في السلم',
-      commissionSub: 'يُمنح تلقائياً عند بلوغ شروط المستوى',
+      commission: 'تفاصيل العمولة داخل لوحة التحكم',
+      commissionSub: 'تُعرض عند بدء التعاملات أو داخل لوحة التحكم',
       ctaLabel: 'سجّل وابدأ',
       features: [
         { text: 'كل مزايا المستويات المتوسطة', included: true },
-        { text: 'أقل نسبة عمولة في سلم المستويات', included: true }
+        { text: 'تفاصيل العمولة والرسوم داخل لوحة التحكم', included: true }
       ]
     }
   ];
 
   faqs: FaqItem[] = [
     { q: 'هل التسجيل مجاني؟', a: 'نعم، التسجيل مجاني تماماً. لا تدفع أي شيء حتى تُكمل مشروعاً ويعتمده الطالب. تُوضَّح العمولة والرسوم في سياسة المدفوعات.' },
-    { q: 'متى تتحسن نسبة العمولة تلقائياً؟', a: 'يحسب النظام مستواك من نقاطك وعدد مشاريعك المكتملة ومتوسط تقييمات الطالبين. عند بلوغ معايير المستوى التالي تتحول نسبة عمولتك تلقائياً بدون طلب.' },
+    { q: 'كيف يُحسب مستوى حسابي؟', a: 'يحسب النظام مستواك تلقائياً من نقاطك وعدد مشاريعك المكتملة ومتوسط تقييمات الطالبين. ولا ننشر نسباً رقمية قبل اعتماد نموذج العمولة النهائي.' },
     { q: 'هل يوجد حد أدنى لسحب الأرباح؟', a: 'السحب متاح في أي وقت من محفظتك في اللوحة، لا يوجد حد أدنى للسحب، والتحويل يتم خلال 1-3 أيام عمل.' },
     { q: 'ما الفرق بين حساب الفرد والشركة؟', a: 'حساب الفرد للمتخصص المستقل — ملف مهني شخصي وسحب أرباح شخصي. حساب الشركة يضيف إدارة الفريق وصلاحيات متدرجة وفواتير رسمية مؤسسية وسحب على مستوى الشركة.' },
-    { q: 'أين أرى نسبة عمولتي الحالية؟', a: 'تُعرض نسبة العمولة الحالية داخل لوحة التحكم حسب مستوى الحساب، وتنخفض تدريجياً مع ارتفاع مستوى المقدم وفق قواعد المنصة.' }
+    { q: 'أين أرى نسبة عمولتي الحالية؟', a: 'تُعرض تفاصيل العمولة والرسوم داخل لوحة التحكم وسياسة المدفوعات، وقد تختلف حسب مستوى الحساب وفق قواعد المنصة المعتمدة.' }
   ];
 
   get plans(): Plan[] {
