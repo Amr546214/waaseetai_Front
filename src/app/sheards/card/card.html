@@ -43,7 +43,7 @@
 			</div>
 
 			@if (model.aiScore) {
-			<span class="svc-ai-match" style="z-index: 2;">درجة جودة مسجّلة {{ model.aiScore }}%</span>
+			<span class="svc-ai-match" style="z-index: 2;">جودة AI {{ model.aiScore }}%</span>
 			}
 
 			<!-- Favorite Button -->
@@ -92,7 +92,7 @@
 				<span class="svc-score">{{ model.rating ?? 0 }}</span>
 				<span class="svc-count">({{ model.reviewsCount ?? 0 }})</span>
 				@if (model.aiScore) {
-				<span class="svc-quality">درجة جودة مسجّلة {{ model.aiScore }}%</span>
+				<span class="svc-quality">جودة AI {{ model.aiScore }}%</span>
 				}
 			</div>
 

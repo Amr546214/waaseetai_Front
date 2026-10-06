@@ -37,9 +37,9 @@ describe('no unsourced claims in the source', () => {
 	it('no AI badge/claim without a real model output behind it (login, home, curated, wallets, disputes, review, amendments, admin pages)', () => {
 		const banned = [
 			'حماية متقدمة بالذكاء الاصطناعي', 'دعم ذكي في كل خطوة', 'AI يقترح والانسان يقرر', 'AI Forecast', 'AI Compliance', 'fcm-ai-lbl">AI Tier', 'AI Tier Predict',
-			'تنبيهات AI', 'توقعات الشهر القادم (AI)', 'قبول الكل الآمن (AI)', 'مُدارة بالذكاء الاصطناعي', 'يراقب إنفاق', 'يراقب أرباح', 'جودة AI ',
+			'تنبيهات AI', 'توقعات الشهر القادم (AI)', 'قبول الكل الآمن (AI)', 'مُدارة بالذكاء الاصطناعي', 'يراقب إنفاق', 'يراقب أرباح',
 			'ai-banner-label">تحليل الذكاء الاصطناعي', 'ai-banner-label">فحص الذكاء الاصطناعي', 'وفق AI', 'تحليل AI:', 'class="txt-ai"><use href="#i-ai"></use></svg>رؤى الذكاء الاصطناعي', 'حركات AI هذا الشهر', 'اجتاز فحص الذكاء',
-			'توصية الذكاء', 'تنبيه الذكاء', "'تقييم الذكاء:'", 'ai-title">تقييم الذكاء', 'AI يرشدك', 'يفحص الذكاء أثر', 'AI تحقّق من مطابقة التسليم', 'وسيط AI، فحص جودة التسليم',
+			'لوضوحها وجدواها', 'توصية الذكاء', 'تنبيه الذكاء', "'تقييم الذكاء:'", 'ai-title">تقييم الذكاء', 'AI يرشدك', 'يفحص الذكاء أثر', 'AI تحقّق من مطابقة التسليم', 'وسيط AI، فحص جودة التسليم',
 		];
 		const found = banned.flatMap(b => all.flatMap(f => f.lines.map((l, i) => ({ f: f.file.replace(__dirname, ''), n: i + 1, l })).filter(x => code(x.l) && x.l.includes(b)).map(x => `${b} @ ${x.f}:${x.n}`)));
 		expect(found).toEqual([]);

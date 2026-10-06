@@ -26,7 +26,7 @@
       <div class="page-hero-inner">
         <div>
           <h1 class="page-hero-title">مقارنة الخدمات</h1>
-          <p class="page-hero-sub">قارن بين الخدمات المختارة واختر الأنسب لاحتياجك — مع إبراز أعلى تقييم درجة جودة مسجّلة مسجّل</p>
+          <p class="page-hero-sub">قارن بين الخدمات المختارة واختر الأنسب لاحتياجك — مع إبراز أعلى تقييم جودة AI مسجّل</p>
         </div>
         <button class="add-more-btn" type="button" (click)="goToMarketplaceToAdd()">
           <svg aria-hidden="true"><use href="#ws-plus"></use></svg>
@@ -54,7 +54,7 @@
           </div>
           <div class="ai-banner-content">
             <div class="ai-banner-label">مقارنة تقييم AI</div>
-            <div class="ai-banner-text">صاحبة أعلى تقييم درجة جودة مسجّلة بين الخدمات المختارة: <strong>{{ w.provider.name }}</strong> — درجة جودة مسجّلة {{ w.aiScore }} وسعر يبدأ من {{ w.totalAmount }} $</div>
+            <div class="ai-banner-text">صاحبة أعلى تقييم جودة AI بين الخدمات المختارة: <strong>{{ w.provider.name }}</strong> — جودة AI {{ w.aiScore }} وسعر يبدأ من {{ w.totalAmount }} $</div>
           </div>
           <div class="ai-banner-badge">AI · تقييم</div>
         </div>
@@ -88,9 +88,9 @@
             </div>
             <div class="pcard-body">
               @if (isWinner) {
-                <div class="pcard-ai" style="background:rgba(43,212,199,.1);border-color:rgba(43,212,199,.25);color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-trust-ai"></use></svg> درجة جودة مسجّلة {{ m.aiScore }}</div>
+                <div class="pcard-ai" style="background:rgba(43,212,199,.1);border-color:rgba(43,212,199,.25);color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
               } @else {
-                <div class="pcard-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> درجة جودة مسجّلة {{ m.aiScore }}</div>
+                <div class="pcard-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
               }
               <div class="pcard-title">{{ m.title }}</div>
               <div class="pcard-prov">
@@ -161,7 +161,7 @@
               <div class="summary-item-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-check"></use></svg></div>
               <div>
                 <div class="summary-item-label">الأعلى في جودة AI</div>
-                <div class="summary-item-val" style="color:var(--teal)">{{ w.provider.name }} — درجة جودة مسجّلة {{ w.aiScore }}</div>
+                <div class="summary-item-val" style="color:var(--teal)">{{ w.provider.name }} — جودة AI {{ w.aiScore }}</div>
               </div>
             </div>
           }

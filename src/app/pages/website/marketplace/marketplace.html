@@ -476,7 +476,7 @@
             <div class="ai-insight-lbl">ملخص النتائج</div>
             <div class="ai-insight-txt">
               @if (aiInsightBest(); as best) {
-              وجدنا <strong>{{ totalResults() | number }} نتيجة</strong> — الأعلى في تقييم درجة جودة مسجّلة بهذه الصفحة: <strong>{{ best.title }}</strong>
+              وجدنا <strong>{{ totalResults() | number }} نتيجة</strong> — الأعلى في تقييم جودة AI بهذه الصفحة: <strong>{{ best.title }}</strong>
               } @else if (isLoading()) {
               جاري البحث في الخدمات المنشورة...
               } @else {
@@ -553,7 +553,7 @@
               </div>
               }
               @if (model.aiScore) {
-              <div class="ai-score-badge">درجة جودة مسجّلة {{ model.aiScore }}%</div>
+              <div class="ai-score-badge">جودة AI {{ model.aiScore }}%</div>
               }
               <button class="svc-fav" type="button" aria-label="إضافة للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)">
                 <svg><use href="#ws-heart"></use></svg>
@@ -576,7 +576,7 @@
                 <span class="svc-score">{{ model.rating ?? 0 }}</span>
                 <span class="svc-reviews">({{ model.reviewsCount ?? 0 }})</span>
                 @if (model.aiScore) {
-                <span class="quality-pill">درجة جودة مسجّلة {{ model.aiScore }}%</span>
+                <span class="quality-pill">جودة AI {{ model.aiScore }}%</span>
                 }
               </div>
             </div>
