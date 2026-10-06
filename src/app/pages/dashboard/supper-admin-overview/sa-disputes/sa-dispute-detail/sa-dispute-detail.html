@@ -27,10 +27,6 @@
         </div>
       </div>
       <div class="dp-md-body">
-        <div class="dp-mock-notice">
-          <strong>ملاحظة:</strong> بيانات الأطراف (الاسم/الدور)، مبلغ الضمان، توزيع الأدلة حسب الطرف، وتفاصيل النزاعات المشابهة أدناه <strong>تجريبية (Mock)</strong> — لا توجد بعد نقاط API تُرجع هذه البيانات (راجع BACKEND_BLOCKED_ISSUES.md). السبب والوصف والأدلة والقرار والتواريخ الأساسية أعلاه/أدناه حقيقية من الخادم، وأي "حل/رفض" يُرسَل فعلياً عبر API الحقيقي.
-        </div>
-
         <!-- Claimant / respondent party cards — MOCK identity, real claim text for the claimant (d.reason) -->
         <div class="dp-parties">
           @for (role of ['claimant','respondent']; track role) {
@@ -41,7 +37,7 @@
                   <div class="dp-party-av" [style.background]="p.avBg">{{ p.initials }}</div>
                   <div class="dp-party-name">{{ p.name }}</div>
                 </div>
-                <p class="dp-party-claim">{{ p.isMockClaim ? 'دفاعه: ' : 'سبب الادعاء: ' }}{{ p.claimText }}</p>
+                <p class="dp-party-claim">{{ p.claimText !== null ? 'سبب الادعاء: ' + p.claimText : 'لا يوجد رد مسجل' }}</p>
               }
             </div>
           }
@@ -100,7 +96,7 @@
           <!-- Side-by-side evidence-by-party comparison. Real evidence URLs;
                the "submitted by" split is an alternating placeholder (see note above). -->
           <div class="dp-md-field">
-            <label>مقارنة الأدلة حسب الطرف (تقديري)</label>
+            <label>الأدلة المرفقة</label>
             <div class="dp-ev-compare">
               @for (role of ['claimant','respondent']; track role) {
                 <div class="dp-ev-col" [class.dp-ev-col-claimant]="role === 'claimant'" [class.dp-ev-col-respondent]="role === 'respondent'">
@@ -175,9 +171,9 @@
              call via applyVerdict() -> the existing manual resolve form below. -->
         @if (canResolve(d.status)) {
           <div class="dp-split-panel">
-            <div class="dp-split-hdr">توزيع الضمان التفاعلي ({{ mockDisputeAmount(d).toLocaleString('ar-SA') }} ر.س تقديري)</div>
+            <div class="dp-split-hdr">توزيع الضمان (النسب فقط — مبلغ الضمان غير متاح في هذه الشاشة)</div>
             <div class="dp-split-row">
-              <span class="dp-split-side dp-split-claimant">المدّعي: {{ splitClaimantPct() }}%</span>
+              <span class="dp-split-side dp-split-claimant">مقدّم النزاع: {{ splitClaimantPct() }}%</span>
               <input
                 type="range"
                 class="dp-split-slider"
@@ -186,32 +182,16 @@
                 [value]="splitClaimantPct()"
                 (input)="onSplitInput($any($event.target).value)"
               />
-              <span class="dp-split-side dp-split-respondent">المقدّم: {{ 100 - splitClaimantPct() }}%</span>
-            </div>
-            <div class="dp-split-amounts">
-              <span class="dp-split-claimant">{{ splitClaimantAmount(d).toLocaleString('ar-SA') }} ر.س → المدّعي</span>
-              <span class="dp-split-respondent">المقدّم ← {{ splitRespondentAmount(d).toLocaleString('ar-SA') }} ر.س</span>
+              <span class="dp-split-side dp-split-respondent">الطرف الآخر: {{ 100 - splitClaimantPct() }}%</span>
             </div>
             <div class="dp-verdict-btns">
-              <button type="button" class="dp-vbtn dp-vbtn-client" (click)="applyVerdict('REFUND_CLIENT', d)">لصالح المدّعي بالكامل</button>
-              <button type="button" class="dp-vbtn dp-vbtn-provider" (click)="applyVerdict('RELEASE_TO_PROVIDER', d)">لصالح المقدّم بالكامل</button>
+              <button type="button" class="dp-vbtn dp-vbtn-client" (click)="applyVerdict('REFUND_CLIENT', d)">لصالح مقدّم النزاع بالكامل</button>
+              <button type="button" class="dp-vbtn dp-vbtn-provider" (click)="applyVerdict('RELEASE_TO_PROVIDER', d)">لصالح الطرف الآخر بالكامل</button>
               <button type="button" class="dp-vbtn dp-vbtn-split" (click)="applyVerdict('PARTIAL_REFUND', d)">تطبيق التقسيم أعلاه</button>
               <button type="button" class="dp-vbtn dp-vbtn-mutual" (click)="applyVerdict('MUTUAL_CLOSE', d)">تسوية بالتراضي</button>
             </div>
           </div>
         }
-
-        <!-- Similar-case precedents — fully MOCK, no "similar disputes" endpoint exists yet -->
-        <div class="dp-similar">
-          <div class="dp-similar-hdr">نزاعات مشابهة — للاستشهاد بسابقات (تجريبي)</div>
-          @for (c of similarCases(d); track c.id) {
-            <div class="dp-similar-row">
-              <span class="dp-similar-id">{{ c.id }}</span>
-              <span class="dp-similar-sum">{{ c.summary }}</span>
-              <span class="dp-similar-outcome" [style.color]="c.color">{{ c.outcome }}</span>
-            </div>
-          }
-        </div>
 
         @if (resolveSuccess()) {
           <div class="dp-md-success">

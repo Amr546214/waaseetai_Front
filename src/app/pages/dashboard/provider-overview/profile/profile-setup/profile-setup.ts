@@ -267,6 +267,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			next: (res: any) => {
 				if (res && res.data) {
 					const d = res.data;
+					this.storedSetupTestScore.set(typeof d.setupTestScore === 'number' ? d.setupTestScore : null);
+					this.storedSetupTestStatus.set(typeof d.setupTestStatus === 'string' ? d.setupTestStatus : null);
 					this.skillsList.set((d.skills || []).map((s: { name: string }) => s.name));
 					this.setupForm.patchValue({
 						profData: {
@@ -1060,6 +1062,16 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		const m = Math.floor(t / 60);
 		const s = t % 60;
 		return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+	}
+
+	/** Stored result of the setup test, when GET profile-setup returns it (— otherwise). */
+	storedSetupTestScore = signal<number | null>(null);
+	storedSetupTestStatus = signal<string | null>(null);
+	storedSetupTestStatusLabel(): string {
+		const st = this.storedSetupTestStatus();
+		if (!st) return '—';
+		const labels: Record<string, string> = { COMPLETED: 'مكتمل', PASSED: 'مكتمل', FAILED: 'لم يكتمل', PENDING: 'لم يبدأ', BANNED: 'موقوف مؤقتاً' };
+		return labels[st] ?? '—';
 	}
 
 	// === P-AU-012 test enhancements ===

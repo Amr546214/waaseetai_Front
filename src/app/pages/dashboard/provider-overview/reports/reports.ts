@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../../core/store/auth.store';
-import { ProviderApiService } from '../../../../core/services/provider-api.service';
+import { ProviderApiService, ProviderReportRange, ProviderReports } from '../../../../core/services/provider-api.service';
 import { AccountType } from '../../../../core/models/auth.model';
 
 @Component({
@@ -17,12 +17,46 @@ export class Reports implements OnInit {
   /** Real provider statistics (GET /provider/statistics) — the only source behind this page's KPI cards. */
   stats = signal<{ summary?: { monthlyEarnings?: number; humanRating?: number } } | null>(null);
 
+  /** Real provider reports (GET /provider/reports) for the selected range. */
+  reports = signal<ProviderReports | null>(null);
+  reportsLoading = signal<boolean>(true);
+  reportsError = signal<string>('');
+
   ngOnInit() {
     this.providerApi.getProviderStatistics().subscribe({
       next: (res: any) => this.stats.set(res?.success ? res.data : null),
       error: () => this.stats.set(null)
     });
+    this.loadReports();
   }
+
+  loadReports() {
+    this.reportsLoading.set(true);
+    this.reportsError.set('');
+    this.providerApi.getProviderReports(this.currentPeriod() as ProviderReportRange).subscribe({
+      next: res => { this.reports.set(res?.success ? res.data ?? null : null); this.reportsLoading.set(false); },
+      error: err => { this.reports.set(null); this.reportsLoading.set(false); this.reportsError.set(err?.error?.message || 'تعذّر تحميل التقارير'); }
+    });
+  }
+
+  periods: Array<{ id: ProviderReportRange; label: string }> = [
+    { id: 'month', label: 'هذا الشهر' }, { id: '3m', label: '3 أشهر' }, { id: '6m', label: '6 أشهر' }, { id: 'year', label: 'هذا العام' }, { id: 'all', label: 'الكل' }
+  ];
+
+  orderBuckets: Array<{ id: string; label: string }> = [
+    { id: 'all', label: 'الكل' }, { id: 'pending', label: 'بانتظار الرد' }, { id: 'accepted', label: 'مقبول' }, { id: 'rejected', label: 'مرفوض' }, { id: 'cancelled', label: 'ملغي' }
+  ];
+  bucketLabel(b: string): string { return this.orderBuckets.find(x => x.id === b)?.label ?? '—'; }
+  bucketCount(id: string): number | null {
+    const r = this.reports();
+    if (!r) return null;
+    return id === 'all' ? r.requests.total : (r.requests.byStatus as any)[id] ?? 0;
+  }
+  filteredRequests = computed(() => {
+    const r = this.reports();
+    const f = this.orderStatus();
+    return (r?.requests.items ?? []).filter(i => f === 'all' || i.bucket === f);
+  });
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -45,18 +79,19 @@ export class Reports implements OnInit {
   providerPayoutsTrend: string | null = null;
   disputeResolutionProviderRate: number | null = null;
 
-  // No endpoint backs these reports yet, so the tab badges show "—" instead of invented counts.
+  // Tab badges come from GET /provider/reports; "—" until it loads.
   tabs = computed(() => {
+    const r = this.reports();
     const list: Array<{ id: string; label: string; icon: string; count: number | null }> = [
-      { id: 'orders', label: 'طلبات العملاء', icon: 'list', count: null }
+      { id: 'orders', label: 'طلبات العملاء', icon: 'list', count: r ? r.requests.total : null }
     ];
     if (this.isCompanyMode()) {
       list.push({ id: 'team', label: 'أداء الفريق', icon: 'team', count: null });
     }
     list.push(
-      { id: 'projects', label: 'مشاريعي', icon: 'doc', count: null },
-      { id: 'finance', label: 'إيراداتي', icon: 'wallet', count: null },
-      { id: 'disputes', label: 'النزاعات', icon: 'dispute', count: null }
+      { id: 'projects', label: 'مشاريعي', icon: 'doc', count: r ? r.projects.totalCount : null },
+      { id: 'finance', label: 'إيراداتي', icon: 'wallet', count: r ? r.payments.transactions.length : null },
+      { id: 'disputes', label: 'النزاعات', icon: 'dispute', count: r ? r.disputes.counts.all : null }
     );
     return list;
   });
@@ -82,11 +117,7 @@ export class Reports implements OnInit {
   
   setPeriod(period: string) {
     this.currentPeriod.set(period);
-    if (period === 'custom') {
-      this.showDatePicker.set(true);
-    } else {
-      this.showDatePicker.set(false);
-    }
+    this.loadReports();
   }
   
   openToast(msg: string) {

@@ -31,7 +31,7 @@
           </div>
         }
         @if (filteredConversations().length === 0) {
-          <div class="ms-conv-empty">لا توجد محادثات مطابقة</div>
+          <div class="ms-conv-empty">{{ conversations().length ? 'لا توجد محادثات مطابقة' : 'لا توجد بيانات بعد' }}</div>
         }
       </div>
     </div>
