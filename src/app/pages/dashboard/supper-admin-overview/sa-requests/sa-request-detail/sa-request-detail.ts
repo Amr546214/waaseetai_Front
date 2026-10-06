@@ -61,7 +61,7 @@ export class SaRequestDetail implements OnInit {
   timeline(item: ServiceRequest): TimelineStep[] {
     const steps: TimelineStep[] = [
       { label: 'نشر الطلب', note: 'نُشر الطلب بتاريخ ' + item.date, done: true },
-      { label: 'فحص AI', note: item.aiClean ? 'نتيجة الفحص: نظيف لا مخالفات' : 'رُصد محتوى مخالف — الطلب موقوف للمراجعة', done: true },
+      { label: 'مراجعة أولية', note: item.aiClean ? 'نتيجة الفحص: نظيف لا مخالفات' : 'رُصد محتوى مخالف — الطلب موقوف للمراجعة', done: true },
       { label: 'استقبال العروض', note: item.offers + ' عرض تم استلامه', done: item.offers > 0 },
       { label: 'قبول عرض وبدء المشروع', note: item.status === 'in-progress' || item.status === 'completed' ? 'بدأ تنفيذ المشروع' : 'بانتظار قبول عرض', done: item.status === 'in-progress' || item.status === 'completed' },
       { label: 'إتمام الطلب', note: item.status === 'completed' ? 'اكتمل الطلب بنجاح' : 'لم يكتمل بعد', done: item.status === 'completed' },

@@ -17,7 +17,7 @@
           <div class="rq-md-tags">
             <span class="rq-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
             <span class="rq-spec">{{ d.spec }}</span>
-            @if (d.aiClean) { <span class="rq-ai-clean">✓ AI: نظيف</span> }
+            
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
       } @else {
         <div class="rq-offers-note">
           @if (acceptedOffer(d); as best) {
-            ✓ العرض المقبول موسوم بحد أخضر — {{ d.offersList.length }} عروض وردت، العرض الأفضل وفق AI: {{ best.provider }}
+            ✓ العرض المقبول موسوم بحد أخضر — {{ d.offersList.length }} عروض وردت، العرض المقبول: {{ best.provider }}
           } @else {
             {{ d.offersList.length }} عروض وردت — لم يُقبل عرض بعد
           }
@@ -57,9 +57,7 @@
           @for (o of d.offersList; track o.id) {
             <div class="rq-offer-card" [class.best]="o.accepted || o.aiTop">
               @if (o.accepted) {
-                <div class="rq-offer-badge rq-offer-badge-accepted">✓ المقبول@if (o.aiTop) { — أفضل بحسب AI }</div>
-              } @else if (o.aiTop) {
-                <div class="rq-offer-badge rq-offer-badge-ai">الأفضل وفق AI</div>
+                <div class="rq-offer-badge rq-offer-badge-accepted">✓ المقبول</div>
               }
               <div class="rq-oc-head">
                 <div class="rq-oc-av" [style.background]="o.providerBg">{{ o.providerAv }}</div>

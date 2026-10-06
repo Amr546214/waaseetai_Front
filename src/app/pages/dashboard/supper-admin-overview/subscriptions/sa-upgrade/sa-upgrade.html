@@ -7,17 +7,7 @@
     <button type="button" class="btn btn-primary">تصدير</button>
   </div>
 
-  <div class="ai-disc">
-    <div class="ai-disc-ico">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /></svg>
-    </div>
-    <div>
-      <div class="ai-disc-lbl">AI Tier Predict</div>
-      <p class="ai-disc-txt">AI يحلل نشاط المستخدم ويتوقع احتمالية ترقيته للباقة الأعلى — معدل تحويل AI 34%
-        <span class="ai-disc-bdg">482 مستخدم مرشح</span>
-      </p>
-    </div>
-  </div>
+  <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">توقع الترقية: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
 
   <div class="kpi-grid">
     @for (k of kpis; track k.label) {

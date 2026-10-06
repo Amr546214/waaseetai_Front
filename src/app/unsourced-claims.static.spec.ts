@@ -33,4 +33,22 @@ describe('no unsourced claims in the source', () => {
 		expect(txt).not.toMatch(/86\s*%/);
 		expect(txt).not.toContain('مؤشر التميز المهني');
 	});
+
+	it('no AI badge/claim without a real model output behind it (login, home, curated, wallets, disputes, review, amendments, admin pages)', () => {
+		const banned = [
+			'حماية متقدمة بالذكاء الاصطناعي', 'دعم ذكي في كل خطوة', 'AI يقترح والانسان يقرر', 'AI Forecast', 'AI Compliance', 'fcm-ai-lbl">AI Tier', 'AI Tier Predict',
+			'تنبيهات AI', 'توقعات الشهر القادم (AI)', 'قبول الكل الآمن (AI)', 'مُدارة بالذكاء الاصطناعي', 'يراقب إنفاق', 'يراقب أرباح',
+			'ai-banner-label">تحليل الذكاء الاصطناعي', 'ai-banner-label">فحص الذكاء الاصطناعي', 'وفق AI', 'تحليل AI:', 'class="txt-ai"><use href="#i-ai"></use></svg>رؤى الذكاء الاصطناعي', 'حركات AI هذا الشهر', 'اجتاز فحص الذكاء',
+			'لوضوحها وجدواها', 'توصية الذكاء', 'تنبيه الذكاء', "'تقييم الذكاء:'", 'ai-title">تقييم الذكاء', 'AI يرشدك', 'يفحص الذكاء أثر', 'AI تحقّق من مطابقة التسليم', 'وسيط AI، فحص جودة التسليم',
+		];
+		const found = banned.flatMap(b => all.flatMap(f => f.lines.map((l, i) => ({ f: f.file.replace(__dirname, ''), n: i + 1, l })).filter(x => code(x.l) && x.l.includes(b)).map(x => `${b} @ ${x.f}:${x.n}`)));
+		expect(found).toEqual([]);
+	});
+	it('the confidence percentage of change requests (a fixed backend constant) is not rendered, and the dead aiInsight block is gone', () => {
+		const t = all.filter(f => /requests?\.html$|profile-requests\.html$/.test(f.file)).map(f => f.lines.join('\n')).join('\n');
+		expect(t).not.toMatch(/ثقة\s*\{\{\s*req\.aiConfidence/);
+		expect(t).not.toContain('req.aiConfidenceScore');
+		const co = all.find(f => f.file.endsWith('client-overview.component.html'))!.lines.join('\n');
+		expect(co).not.toContain('aiInsight');
+	});
 });

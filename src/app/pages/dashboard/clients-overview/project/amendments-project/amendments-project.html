@@ -7,7 +7,7 @@
 			<div>
 				<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">طلبات تعديل المشاريع</h1>
 				<p class="text-sm text-slate-500 dark:text-slate-400">طلبات تعديل نطاق أو ميزانية أو مدة مشروع قائم،
-					تُرفع من صفحة متابعة المشروع وتمر بموافقة الطرفين وحوكمة الذكاء</p>
+					تُرفع من صفحة متابعة المشروع وتمر بموافقة الطرفين</p>
 			</div>
 		</div>
 
@@ -19,11 +19,9 @@
 				</svg>
 			</div>
 			<div>
-				<div class="ai-title mb-0.5">وسيط AI، حوكمة تعديل المشاريع
-				</div>
+				<div class="ai-title mb-0.5">حوكمة تعديل المشاريع</div>
 				<div class="ai-copy flex items-center flex-wrap gap-2">
-					يفحص الذكاء أثر كل تعديل على السعر والمدة والضمان ويقترح التسوية العادلة، ثم يوافق الطرفان ويُحدَّث
-					العقد
+					تُراجَع آثار كل تعديل على السعر والمدة والضمان، ثم يوافق الطرفان ويُحدَّث العقد
  
 					القرار النهائي لكما
 				</div>
@@ -84,7 +82,7 @@
 				</div>
 				<div>
 					<div class="text-xl font-black text-slate-900 dark:text-white mb-0.5 mt-1">جارٍ</div>
-					<div class="ai-title">تقييم الذكاء</div>
+					<div class="ai-title">قيد المراجعة</div>
 				</div>
 			</div>
 		</div>
@@ -211,8 +209,7 @@
 									</svg>
 								</div>
 								<span class="text-[10px] font-bold"
-									[ngClass]="item.flowStep >= 2 ? 'ai-title' : 'text-slate-500 dark:text-slate-400'">تقييم
-									الذكاء</span>
+									[ngClass]="item.flowStep >= 2 ? 'ai-title' : 'text-slate-500 dark:text-slate-400'">المراجعة</span>
 							</div>
 							<!-- Step 3: Provider/Client Reply -->
 							<div class="flex flex-col items-center gap-2">
@@ -273,7 +270,7 @@
 						</svg>
 					</div>
 					<div class="text-xs leading-relaxed font-medium">
-						<b class="font-bold">{{ item.isAiDone ? 'النتيجة:' : 'تقييم الذكاء:' }}</b>
+						<b class="font-bold">{{ item.isAiDone ? 'النتيجة:' : 'ملاحظات المراجعة:' }}</b>
 						{{item.aiAssessment}}
 					</div>
 				</div>
@@ -319,7 +316,7 @@
 				</div>
 				<h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">لا يوجد طلبات تعديل</h3>
 				<p class="text-sm text-slate-500 dark:text-slate-400">عند الحاجة لتعديل نطاق مشروع قائم أو ميزانيته أو
-					مدته، ارفع طلب تعديل ويتولّاه الذكاء ثم يوافق الطرفان</p>
+					مدته، ارفع طلب تعديل ثم يوافق الطرفان</p>
 			</div>
 			}
 		</div>

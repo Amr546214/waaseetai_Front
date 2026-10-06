@@ -62,15 +62,7 @@
   </div>
 
   @if (activeSection() === 'overview') {
-    <div class="ah-alerts">
-      <div class="ah-alerts-ttl">تنبيهات AI الذكية</div>
-      @for (a of alerts(); track a.text) {
-        <div class="ah-alert" [class]="'ah-alert-' + a.level">
-          <span class="ah-alert-text">{{ a.text }}</span>
-          <span class="ah-alert-note">— {{ a.note }}</span>
-        </div>
-      }
-    </div>
+    <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">التنبيهات: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
 
     <div class="ah-row-2">
       <div class="ah-card">

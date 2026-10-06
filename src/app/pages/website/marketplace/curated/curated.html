@@ -163,23 +163,15 @@
     <!-- BANNER (per page) -->
     @switch (mode()) {
       @case ('top-rated') {
-        <div class="ai-banner">
-          <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
-          <div class="ai-banner-content">
-            <div class="ai-banner-label">تحليل الذكاء الاصطناعي</div>
-            <div class="ai-banner-text">الترتيب مبني على تقييمات العملاء الموثقة — يتحدث <strong>مباشرة</strong> من بيانات السوق الفعلية</div>
-          </div>
-          <div class="ai-banner-badge">AI · تحليل</div>
+        <div class="featured-info">
+          <div class="featured-info-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+          <p>ترتيب حسب تقييمات العملاء الموثقة.</p>
         </div>
       }
       @case ('most-ordered') {
-        <div class="ai-banner">
-          <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
-          <div class="ai-banner-content">
-            <div class="ai-banner-label">تحليل الذكاء الاصطناعي</div>
-            <div class="ai-banner-text">الترتيب مبني على عدد الطلبات الفعلية المكتملة — يتحدث <strong>مباشرة</strong> من بيانات السوق الفعلية</div>
-          </div>
-          <div class="ai-banner-badge">AI · تحليل</div>
+        <div class="featured-info">
+          <div class="featured-info-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+          <p>ترتيب حسب الطلبات المكتملة فعليًا.</p>
         </div>
       }
       @case ('featured') {
@@ -209,13 +201,9 @@
         }
       }
       @case ('newest') {
-        <div class="ai-banner">
-          <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
-          <div class="ai-banner-content">
-            <div class="ai-banner-label">فحص الذكاء الاصطناعي</div>
-            <div class="ai-banner-text">كل خدمة جديدة تظهر مع درجة AI لوضوحها وجدواها — تتحدث القائمة <strong>مباشرة</strong> من بيانات السوق</div>
-          </div>
-          <div class="ai-banner-badge">AI · مباشر</div>
+        <div class="featured-info">
+          <div class="featured-info-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+          <p>أحدث الخدمات المضافة، مع درجة جودة مسجّلة لكل خدمة إن وُجدت.</p>
         </div>
       }
     }

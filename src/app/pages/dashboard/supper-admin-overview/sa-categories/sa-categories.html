@@ -64,7 +64,7 @@
       }
     </div>
     <div class="cat-card">
-      <div class="cat-card-ttl">حركات AI هذا الشهر</div>
+      <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">حركات الفئات هذا الشهر: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
       @for (m of aiUpgradesThisMonth(); track m.label) {
         <div class="cat-upd-item" [class.down]="m.down">
           <div class="cat-upd-lbl">

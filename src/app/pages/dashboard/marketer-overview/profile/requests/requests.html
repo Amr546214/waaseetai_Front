@@ -93,7 +93,6 @@
                 @if (req.status === ChangeRequestStatus.PENDING_AI_REVIEW) { قيد المراجعة }
                 @else if (req.status === ChangeRequestStatus.PENDING_HUMAN_APPROVAL) { نتيجة الفحص الآلي: تمرير للمراجعة }
                 @else { اعتمده المراجع }
-                <span class="ai-verdict-score">{{ req.aiConfidenceScore ? ('دقة ' + req.aiConfidenceScore + '%') : 'غير متاح' }}</span>
               </div>
               <p class="ai-verdict-txt">{{ req.aiRecommendation || 'لا توجد نتيجة فحص بعد' }}</p>
             </div>
