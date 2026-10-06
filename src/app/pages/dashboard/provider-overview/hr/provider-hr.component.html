@@ -177,7 +177,7 @@
 						</tr>
 						}
 						@if (filteredEmployees().length === 0) {
-							<tr><td colspan="8" class="empty-row">لا يوجد موظفون مطابقون لهذا الفلتر</td></tr>
+							<tr><td colspan="8" class="empty-row">{{ employees().length ? 'لا يوجد موظفون مطابقون لهذا الفلتر' : 'لا توجد بيانات بعد' }}</td></tr>
 						}
 					</tbody>
 				</table>
@@ -302,7 +302,7 @@
 						</tr>
 						}
 						@if (filteredProviders().length === 0) {
-							<tr><td colspan="8" class="empty-row">لا يوجد مقدمو خدمة مطابقون لهذا الفلتر</td></tr>
+							<tr><td colspan="8" class="empty-row">{{ providers().length ? 'لا يوجد مقدمو خدمة مطابقون لهذا الفلتر' : 'لا توجد بيانات بعد' }}</td></tr>
 						}
 						@if (pendingProviderInvites() > 0) {
 						<tr>
@@ -708,6 +708,9 @@
 							</td>
 						</tr>
 						}
+						@if (!assignments().length) {
+						<tr><td colspan="6" class="empty-row">لا توجد بيانات بعد</td></tr>
+						}
 					</tbody>
 				</table>
 			</div>
@@ -756,7 +759,7 @@
 				</div>
 				}
 				@if (filteredActivity().length === 0) {
-					<div class="empty-row">لا توجد سجلات مطابقة لهذا الفلتر</div>
+					<div class="empty-row">{{ activity().length ? 'لا توجد سجلات مطابقة لهذا الفلتر' : 'لا توجد بيانات بعد' }}</div>
 				}
 			</div>
 		</div>

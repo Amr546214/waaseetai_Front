@@ -46,7 +46,8 @@ export class LiveSupportComponent implements AfterViewChecked {
 		: ['عندي مشكلة في مبلغ الضمان', 'استفسار عن تسوية رصيد', 'مشكلة تقنية في الطلب', 'أريد فتح تذكرة']
 	);
 
-	ticketRef = computed(() => this.isCompanyMode() ? 'TKT-2026-0188' : null);
+	// No real live-support ticket context exists for this chat, so no ticket reference is invented.
+	ticketRef = computed<string | null>(() => null);
 
 	constructor() {
 		this.messages.set([

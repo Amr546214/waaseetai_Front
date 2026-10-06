@@ -82,12 +82,12 @@
 
       <div class="lv-card">
         <div class="lv-card-ttl">تذكرة المحادثة الحالية</div>
-        <div class="lv-row-kv"><span>رقم التذكرة</span><span class="v">{{ ticketRef() }}</span></div>
-        <div class="lv-row-kv"><span>الموضوع</span><span class="v">أمر تغيير معتمد</span></div>
-        <div class="lv-row-kv"><span>المشروع المرتبط</span><span class="v">PRJ-3091</span></div>
-        <div class="lv-row-kv"><span>الأولوية</span><span class="pill pill-gold">متوسطة</span></div>
-        <div class="lv-row-kv"><span>الحالة</span><span class="pill pill-teal">قيد المعالجة</span></div>
-        <a [routerLink]="['/provider-overview/help/tickets', '2026-0188']" class="lv-btn lv-btn-sec lv-btn-block">فتح تفاصيل التذكرة</a>
+        <div class="lv-row-kv"><span>رقم التذكرة</span><span class="v">{{ ticketRef() ?? 'لا توجد تذكرة بعد' }}</span></div>
+        <div class="lv-row-kv"><span>الموضوع</span><span class="v">—</span></div>
+        <div class="lv-row-kv"><span>المشروع المرتبط</span><span class="v">بدون ربط</span></div>
+        <div class="lv-row-kv"><span>الأولوية</span><span class="pill">—</span></div>
+        <div class="lv-row-kv"><span>الحالة</span><span class="pill">—</span></div>
+        <a [routerLink]="['/provider-overview/help/tickets']" class="lv-btn lv-btn-sec lv-btn-block">فتح تذاكري</a>
       </div>
 
       <div class="lv-card">

@@ -54,22 +54,11 @@ export class NewTicketComponent {
 	categories = computed(() => this.isCompanyMode() ? this.companyCategories : this.individualCategories);
 	priorities = ['عادية', 'عالية', 'عاجلة'];
 
-	// Placeholder option lists — no real "client company projects/team
-	// members" directory endpoint exists yet to source these from; kept as
-	// free-text-equivalent choices stored on the ticket as-is (see
-	// SupportTicket.relatedProject/relatedMember), not fabricated further.
-	companyProjects = [
-		{ id: 'ORD-3092', name: 'تصميم هوية بصرية لمنتج' },
-		{ id: 'ORD-3093', name: 'تطوير متجر إلكتروني للشركة' },
-		{ id: 'ORD-3094', name: 'حملة تسويق رقمي للموسم' },
-	];
+	// No client-company projects / team-members directory endpoint exists, so no options are invented here (the previous
+	// hard-coded orders and people were saved on the ticket as real data). The selects keep only their neutral option.
+	companyProjects: Array<{ id: string; name: string }> = [];
 
-	teamMembers = [
-		'سلطان العتيبي · المبيعات',
-		'خالد المطيري · تقنية المعلومات',
-		'نورة القحطاني · التسويق',
-		'فهد الغامدي · المالية',
-	];
+	teamMembers: string[] = [];
 
 	errors = signal<{ [k: string]: string }>({});
 

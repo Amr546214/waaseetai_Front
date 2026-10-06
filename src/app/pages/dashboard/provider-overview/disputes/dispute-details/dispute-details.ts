@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
-import { DISPUTES_MOCK, Dispute } from '../disputes.mock';
+import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
+import { Dispute } from '../disputes.model';
+import { mapDispute } from '../disputes.mapper';
 
 @Component({
 	selector: 'app-dispute-details',
@@ -15,7 +17,10 @@ import { DISPUTES_MOCK, Dispute } from '../disputes.mock';
 export class DisputeDetails implements OnInit {
 	private route = inject(ActivatedRoute);
 	private authStore = inject(AuthStore);
+	private disputeApi = inject(DisputeApiService);
 
+	isLoading = signal<boolean>(true);
+	loadError = signal<boolean>(false);
 	dispute = signal<Dispute | null>(null);
 	notFound = signal<boolean>(false);
 
@@ -55,18 +60,36 @@ export class DisputeDetails implements OnInit {
 	});
 
 	ngOnInit(): void {
+		this.load();
+	}
+
+	/** Reads the real dispute from GET /provider/disputes/:id (own disputes only). A 404 means it doesn't exist / isn't yours. */
+	load(): void {
 		const id = this.route.snapshot.paramMap.get('id');
-		// No provider-facing "get dispute by id" backend endpoint exists yet
-		// (dispute-api.service.ts only exposes admin-facing reads and
-		// createProviderDispute) — look the dispute up from the same shared
-		// mock array the list page (disputes.ts) renders from, so the two
-		// stay consistent.
-		const found = id ? DISPUTES_MOCK.find(d => d.id === id) : null;
-		if (found) {
-			this.dispute.set(found);
-		} else {
+		this.dispute.set(null);
+		this.notFound.set(false);
+		this.loadError.set(false);
+		if (!id) {
+			this.isLoading.set(false);
 			this.notFound.set(true);
+			return;
 		}
+		this.isLoading.set(true);
+		this.disputeApi.getProviderDispute(id).subscribe({
+			next: (res) => {
+				this.isLoading.set(false);
+				if (res.success && res.data) {
+					this.dispute.set(mapDispute(res.data, this.authStore.currentUser()?.id));
+				} else {
+					this.notFound.set(true);
+				}
+			},
+			error: (err) => {
+				this.isLoading.set(false);
+				if (err?.status === 404 || err?.status === 403) this.notFound.set(true);
+				else this.loadError.set(true);
+			}
+		});
 	}
 
 	historyIconPath(type: string): string {
