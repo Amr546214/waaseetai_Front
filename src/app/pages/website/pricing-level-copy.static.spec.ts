@@ -2,8 +2,10 @@
 
 // Pricing/legal must not state commission rates, score bands or suspension thresholds the backend does not implement.
 // Backend truth (progression-calculators.ts): fixed 15-level ladder per role, qualification = points AND completed
-// projects AND avg rating, commission falls as the level rises; no 0–100 bands, no individual/company split, no
-// "below 20" suspension rule. Exact rates are shown per account in the dashboard, never hard-coded on public pages.
+// projects AND avg rating; no 0–100 bands, no individual/company split, no "below 20" suspension rule. The commission
+// model is not approved, so no promise of a commission reduction is published; details live in the dashboard and the payments
+// policy. (The hero's "pay only on success" wording is deliberately untouched here: an open product decision, since checkout
+// charges fees at escrow deposit.)
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -23,6 +25,8 @@ const FORBIDDEN: Array<[string, RegExp]> = [
 	['levels tied to a 0–100 score', /0 إلى 100|من 0 إلى 100/],
 	['level bands as tier names with rates', /خبير \(|محترف \(|متقدم \(|مبتدئ \(/],
 	['commission-reduction promises (unproven: level commission is not confirmed as deducted)', /تنخفض (نسبة )?العمولة|انخفضت نسبة العمولة|كلما انخفضت|تخفيض العمولة|تخفيض العمولة|أقل نسبة|نسبة أقل|تُحسب نسبة العمولة تلقائياً|تحسب نسبة العمولة تلقائياً|تنخفض نسبة العمولة|انخفاض (نسبة )?العمولة|تنخفض معه نسبة|كلما ارتفع مستواك انخفضت|انخفضت نسبة العمولة|خفض (نسبة )?(ال)?عمولة|لخفض عمولة|تنخفض حتى|تُضاف لمحفظتك فوراً|لمحفظتك فوراً/],
+	['fee-free-until-success FAQ promise (checkout charges fees at escrow deposit)', /لا تدفع أي شيء حتى/],
+	['AI audit tied to a pricing level (every service is audited regardless of level)', /تدقيق AI لخدماتك/],
 	['unsupported search-priority promise', /أولوية قصوى في (البحث|ترتيب|نتائج)/],
 ];
 
