@@ -68,6 +68,12 @@ describe('partial AI features show only what the backend returns', () => {
 		const p = read(publicProfile);
 		expect(p).not.toContain('تدقيق تلقائي بالذكاء الاصطناعي');
 		expect(p).not.toContain('(كفاءة خبير)');
+		// codeMatchingIndex is only the mean of stored AccreditationSample.aiScore (> 0) of samples linked to published/approved
+		// services (provider-profile.service.ts:344-346, 489-501); nothing in the backend writes that score today and no code or
+		// architecture analysis exists, so neither "مطابقة الكود والمعمارية" nor "المعتمدة" may be claimed.
+		expect(p).not.toContain('مؤشر مطابقة الكود والمعمارية');
+		expect(p).not.toContain('متوسط درجات نماذج الأعمال المعتمدة');
+		expect(p).toContain('متوسط درجات نماذج الأعمال');
 		expect(p).not.toMatch(/averageTestScore \|\| 0|codeMatchingIndex \|\| 0/);
 	});
 
