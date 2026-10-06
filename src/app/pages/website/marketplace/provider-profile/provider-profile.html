@@ -141,10 +141,10 @@
         </div>
       }
       <div class="stat-cell" style="background:rgba(123,47,190,.04)">
-        <div class="stat-n" style="color:var(--ai-txt)">{{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || 0 }} <span style="font-size:11px;font-weight:600;color:var(--txt-3)">/100</span></div>
+        <div class="stat-n" style="color:var(--ai-txt)">{{ provider()?.specialties?.[0]?.aiMetrics?.aiScore || '—' }} <span style="font-size:11px;font-weight:600;color:var(--txt-3)">/100</span></div>
         <div class="stat-sub" style="display:flex;align-items:center;gap:3px;justify-content:center">
           <svg aria-hidden="true" style="width:10px;height:10px;color:var(--ai-txt)"><use href="#ws-trust-ai"></use></svg>
-          نقاط AI
+          درجة تقييم التخصص
         </div>
       </div>
     </div>
@@ -155,8 +155,8 @@
         <span style="width:30px;height:30px;border-radius:8px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg aria-hidden="true" style="width:14px;height:14px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
         </span>
-        <span style="font-size:13px;font-weight:800;color:var(--ai-txt)">تحليل الذكاء الاصطناعي الشامل</span>
-        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)">AI · نشط</span>
+        <span style="font-size:13px;font-weight:800;color:var(--ai-txt)">ملخص أداء المقدم بالذكاء الاصطناعي</span>
+        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)">{{ provider()?.aiMetrics?.executionQuality != null ? 'AI · ملخص مسجّل' : 'غير متاح حاليًا' }}</span>
         <span style="font-size:11px;color:var(--txt-3)">مؤشرات الأداء الفعلية</span>
       </div>
       <div class="ai-metrics-inner">
@@ -332,7 +332,7 @@
               <span style="width:30px;height:30px;border-radius:7px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
                 <svg aria-hidden="true" style="width:13px;height:13px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
               </span>
-              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">تخصص معتمد</div>@if (provider()?.specialties?.[0]?.aiMetrics?.aiScore != null) {<div style="font-size:10px;color:var(--txt-3)">نقاط {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore }}/100 من الذكاء</div>}</div>
+              <div><div style="font-size:12px;font-weight:800;color:var(--txt)">تخصص معتمد</div>@if (provider()?.specialties?.[0]?.aiMetrics?.aiScore) {<div style="font-size:10px;color:var(--txt-3)">درجة تقييم التخصص {{ provider()?.specialties?.[0]?.aiMetrics?.aiScore }}/100</div>}</div>
             </div>
             }
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(15,169,154,.03);border:1px solid rgba(15,169,154,.1);border-radius:9px">
@@ -387,7 +387,7 @@
               <svg aria-hidden="true" style="width:36px;height:36px"><use [attr.href]="i % 2 === 0 ? '#ws-cat-pen' : '#ws-image'"></use></svg>
             }
             @if (srv.aiScore) {
-              <span class="svc-ai-badge">AI {{ srv.aiScore }}</span>
+              <span class="svc-ai-badge">جودة AI {{ srv.aiScore }}</span>
             }
           </div>
           <div class="svc-body">
@@ -591,7 +591,7 @@
     </svg>
   </div>
   <div style="font-size:14px;font-weight:700;letter-spacing:0.5px;color:var(--txt)">جاري جلب بيانات المزود...</div>
-  <div style="font-size:12px;color:var(--txt-3)">يتم الآن تحليل وتقييم مستوى الأداء باستخدام AI</div>
+  <div style="font-size:12px;color:var(--txt-3)">يتم الآن تحميل الملف العام للمقدم</div>
 </div>
 } @else if (notFound()) {
 <div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">

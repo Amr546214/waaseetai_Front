@@ -25,7 +25,7 @@
     <div class="page-hero">
       <div>
         <h1 class="page-hero-title">مقارنة مقدمي الخدمة</h1>
-        <p class="page-hero-sub">قارن بين المقدمين واختر الأنسب لمشروعك — AI Trust Score + الخبرة + الالتزام</p>
+        <p class="page-hero-sub">قارن بين المقدمين واختر الأنسب لمشروعك — درجة تقييم التخصص + الخبرة + الالتزام</p>
       </div>
       <button class="add-btn" type="button" (click)="goToMarketplaceToAdd()">
         <svg aria-hidden="true"><use href="#ws-plus"></use></svg>
@@ -48,7 +48,7 @@
       @if (winner(); as w) {
         <div class="ai-banner">
           <div class="ai-banner-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
-          <div class="ai-banner-content">صاحب أعلى AI Trust Score بين المقدمين المختارين: <strong>{{ w.fullName }}</strong> — {{ w.aiScore }}</div>
+          <div class="ai-banner-content">صاحب أعلى درجة تقييم تخصص بين المقدمين المختارين: <strong>{{ w.fullName }}</strong> — {{ w.aiScore }}</div>
           <div class="ai-banner-badge">AI · تقييم</div>
         </div>
       }
@@ -59,7 +59,7 @@
           @let isWinner = pr.id === winnerId();
           <div class="prov-card" [class.winner]="isWinner">
             @if (isWinner) {
-              <div class="prov-winner-strip">الأعلى في تقييم AI</div>
+              <div class="prov-winner-strip">الأعلى في تقييم التخصص</div>
             }
             <button class="prov-remove" type="button" aria-label="إزالة من المقارنة" (click)="removeProvider(pr.id)"><svg aria-hidden="true"><use href="#ws-close"></use></svg></button>
             <div class="prov-header" [style.background]="isWinner ? 'linear-gradient(180deg,rgba(43,212,199,.06),transparent)' : null">
@@ -77,7 +77,7 @@
                 <div class="prov-verified"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد من وسيط</div>
               }
               <div class="prov-ai-row">
-                <div class="prov-ai-score" [class.winner-ai]="isWinner"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI Trust {{ pr.aiScore }}</div>
+                <div class="prov-ai-score" [class.winner-ai]="isWinner"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> تقييم التخصص {{ pr.aiScore }}</div>
               </div>
             </div>
             <div class="prov-body">
@@ -140,7 +140,7 @@
           @if (winner(); as w) {
             <div class="sum-item winner">
               <div class="sum-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-check"></use></svg></div>
-              <div><div class="sum-lbl">الأعلى في تقييم AI</div><div class="sum-val" style="color:var(--teal)">{{ w.fullName }} — AI {{ w.aiScore }}</div></div>
+              <div><div class="sum-lbl">الأعلى في تقييم التخصص</div><div class="sum-val" style="color:var(--teal)">{{ w.fullName }} — {{ w.aiScore }}</div></div>
             </div>
           }
           @if (topRated(); as t) {
@@ -192,7 +192,7 @@
         </div>
         <div class="trust-item">
           <div class="trust-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="color:var(--ai)"><use href="#ws-trust-ai"></use></svg></div>
-          تقييم AI لجودة المقدمين
+          اختبار تخصص بالذكاء الاصطناعي للمقدمين
         </div>
       </div>
     }

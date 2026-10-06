@@ -197,7 +197,7 @@
               }
             </div>
           </div>
-          <span class="ai-badge">AI · نشط</span>
+          <span class="ai-badge">جودة AI</span>
         </div>
 
         <!-- RESULTS BAR -->
@@ -249,7 +249,7 @@
                 <span class="svc-level" [style.background]="levelStyle(model).bg" [style.color]="levelStyle(model).color">{{ model.level }}</span>
               </div>
               }
-              <div class="ai-score-badge">AI {{ model.aiScore ?? 0 }}%</div>
+              @if (model.aiScore) {<div class="ai-score-badge">جودة AI {{ model.aiScore }}%</div>}
               <button class="svc-fav" type="button" aria-label="إضافة للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)">
                 <svg><use href="#ws-heart"></use></svg>
               </button>
@@ -273,7 +273,7 @@
                 <span class="stars">★★★★★</span>
                 <span class="svc-score">{{ model.rating ?? 0 }}</span>
                 <span class="svc-reviews">({{ model.reviewsCount ?? 0 }})</span>
-                <span class="quality-pill">جودة {{ model.aiScore ?? 0 }}%</span>
+                @if (model.aiScore) {<span class="quality-pill">جودة AI {{ model.aiScore }}%</span>}
               </div>
             </div>
             <div class="svc-foot">

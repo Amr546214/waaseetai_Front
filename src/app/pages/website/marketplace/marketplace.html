@@ -321,7 +321,7 @@
     <div class="custom-cta">
       <div>
         <div style="font-size:18px;font-weight:900;color:var(--txt);margin-bottom:6px">ما وجدت الخدمة المناسبة؟</div>
-        <div style="font-size:14px;color:var(--txt-2)">أنشئ طلباً وسيجلب لك الذكاء الاصطناعي أفضل العروض من المهنيين المعتمدين</div>
+        <div style="font-size:14px;color:var(--txt-2)">أنشئ طلباً مخصصاً وستصلك عروض من مقدمي الخدمة</div>
       </div>
       <a routerLink="/custom-request" class="btn-primary">أنشئ طلباً مخصصاً</a>
     </div>
@@ -491,7 +491,7 @@
           <div class="no-results-ico"><svg><use href="#ws-person"></use></svg></div>
           <div style="flex:1">
             <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px">ما وجدت ما تبحث عنه بالضبط؟</div>
-            <div style="font-size:12px;color:var(--txt-3)">أنشئ طلباً مخصصاً والذكاء يجلب لك العروض من أفضل المقدمين</div>
+            <div style="font-size:12px;color:var(--txt-3)">أنشئ طلباً مخصصاً وستصلك عروض من مقدمي الخدمة</div>
           </div>
           <a routerLink="/custom-request" style="padding:8px 16px;border-radius:999px;background:var(--grad);color:#070D24;font-size:12px;font-weight:800;white-space:nowrap;text-decoration:none;flex-shrink:0">أنشئ طلباً</a>
         </div>
@@ -553,7 +553,7 @@
               </div>
               }
               @if (model.aiScore) {
-              <div class="ai-score-badge">AI {{ model.aiScore }}%</div>
+              <div class="ai-score-badge">جودة AI {{ model.aiScore }}%</div>
               }
               <button class="svc-fav" type="button" aria-label="إضافة للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)">
                 <svg><use href="#ws-heart"></use></svg>
@@ -576,7 +576,7 @@
                 <span class="svc-score">{{ model.rating ?? 0 }}</span>
                 <span class="svc-reviews">({{ model.reviewsCount ?? 0 }})</span>
                 @if (model.aiScore) {
-                <span class="quality-pill">جودة {{ model.aiScore }}%</span>
+                <span class="quality-pill">جودة AI {{ model.aiScore }}%</span>
                 }
               </div>
             </div>

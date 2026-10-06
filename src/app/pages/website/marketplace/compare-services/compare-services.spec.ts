@@ -52,6 +52,6 @@ describe('CompareServicesComponent — AI-score winner (Batch 5)', () => {
 		fixture.detectChanges();
 		const text = (fixture.nativeElement as HTMLElement).textContent || '';
 		expect(text).not.toContain('الأعلى توافقاً');
-		expect(text).toContain('الأعلى في تقييم AI');
+		expect(text).toContain('الأعلى في جودة AI');
 	});
 });
