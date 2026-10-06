@@ -120,7 +120,7 @@
 					@for (m of (profileData()?.services || []); track m.id) {
 						<tr>
 							<td style="font-weight:700" class="txt-white">{{ m.title || '—' }}</td>
-							<td>—</td>
+							<td>{{ specialtyName(m.specialtyId) }}</td>
 							<td><span class="pill" [class.pill-ok]="m.status==='APPROVED' || m.status==='PUBLISHED'">{{ serviceStatusLabel(m.status) }}</span></td>
 							<td>{{ m.salesCount ?? '—' }}</td>
 						</tr>
@@ -188,7 +188,7 @@
 				{{ profileData()?.header?.levelInfo?.levelName || 'مبتدئ' }}
 			</span>
 			<span class="text-[10px] text-[var(--txt-3)] font-semibold">{{ profileData()?.header?.levelInfo?.points || 0
-				}} نقطة · كاش باك 3%</span>
+				}} نقطة · كاش باك الولاء حسب مستواك</span>
 		</div>
 	</div>
 	<button

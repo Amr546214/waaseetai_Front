@@ -712,9 +712,9 @@
 		<div class="budget-strip" role="region" aria-label="إيرادات الشركة هذا الشهر">
 			<div class="bs-row">
 				<span>إيرادات الشركة هذا الشهر: {{ data.summary?.monthlyEarnings | number }} من هدف {{ (data.summary?.monthlyEarnings || 0) * 2 | number }} $</span>
-				<span class="bs-pct">{{ data.summary?.profileCompletionPercent || 61 }}%</span>
+				<span class="bs-pct">{{ data.summary?.profileCompletionPercent != null ? data.summary?.profileCompletionPercent + '%' : '—' }}</span>
 			</div>
-			<div class="bs-bar"><div class="bs-fill" [style.width.%]="data.summary?.profileCompletionPercent || 61"></div></div>
+			<div class="bs-bar"><div class="bs-fill" [style.width.%]="data.summary?.profileCompletionPercent ?? 0"></div></div>
 		</div>
 
 		<!-- AI Disclosure -->
