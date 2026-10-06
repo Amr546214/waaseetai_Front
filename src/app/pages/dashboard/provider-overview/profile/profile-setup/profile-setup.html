@@ -825,11 +825,11 @@
               <div class="info-grid">
                 <div class="info-item">
                   <div class="info-item-ico ic-teal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-doc"></use></svg></div>
-                  <div><div class="info-item-val">{{ setupTestService.totalQuestions() || '—' }}</div><div class="info-item-lbl">سؤال</div></div>
+                  <div><div class="info-item-val">{{ setupTestService.totalQuestions() || setupTestQuestionCount }}</div><div class="info-item-lbl">سؤال</div></div>
                 </div>
                 <div class="info-item">
                   <div class="info-item-ico ic-blue"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-clock"></use></svg></div>
-                  <div><div class="info-item-val">{{ testTotalTime > 0 ? testTotalTime / 60 : '—' }}</div><div class="info-item-lbl">مدة الاختبار (دقيقة)</div></div>
+                  <div><div class="info-item-val">{{ testTotalTime > 0 ? testTotalTime / 60 : setupTestMinutes }}</div><div class="info-item-lbl">مدة الاختبار (دقيقة)</div></div>
                 </div>
                 <div class="info-item">
                   <div class="info-item-ico ic-amber"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg></div>

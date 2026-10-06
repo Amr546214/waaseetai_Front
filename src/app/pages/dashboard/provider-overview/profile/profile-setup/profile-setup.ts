@@ -9,7 +9,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
-import { SetupTestService } from '../../../../../core/services/setup-test.service';
+import { SetupTestService, SETUP_TEST_QUESTION_COUNT, SETUP_TEST_TIME_LIMIT_MINUTES } from '../../../../../core/services/setup-test.service';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
@@ -169,6 +169,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	// Test
 	isTestStarted = signal<boolean>(false);
 	testTotalTime = 0;
+	readonly setupTestQuestionCount = SETUP_TEST_QUESTION_COUNT;
+	readonly setupTestMinutes = SETUP_TEST_TIME_LIMIT_MINUTES;
 	testTimeLeft = signal<number>(0);
 	testTimer: any;
 	answeredCount = signal<number>(0);
@@ -1012,7 +1014,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.isTestStarted.set(true);
 		this.setupTestService.startTest();
 
-		this.testTotalTime = 30 * 60; // 30 mins
+		this.testTotalTime = SETUP_TEST_TIME_LIMIT_MINUTES * 60;
 		this.testTimeLeft.set(this.testTotalTime);
 		this.testTimer = setInterval(() => {
 			const current = this.testTimeLeft() - 1;
