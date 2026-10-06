@@ -87,7 +87,7 @@ export class MarketingCouponDetails implements OnInit {
   subtitle = computed(() => {
     const c = this.coupon();
     if (!c) return '';
-    const disc = c.discountType === 'percentage' ? `خصم ${c.discountValue}%` : `خصم ${formatNumber(c.discountValue)} ريال`;
+    const disc = c.discountType === 'percentage' ? `خصم ${c.discountValue}%` : `خصم ${formatNumber(c.discountValue)} دولار`;
     const inc = this.scopeNames().included;
     const scope = inc.length === 1 ? `على ${inc[0]}` : `على ${inc.length} نماذج`;
     return `${disc} ${scope} · ${validityLabel(c.startAt, c.expiresAt)}`;

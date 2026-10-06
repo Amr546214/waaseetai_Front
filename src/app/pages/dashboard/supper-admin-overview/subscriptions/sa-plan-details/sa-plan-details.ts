@@ -46,7 +46,7 @@ export class SaPlanDetails {
   readonly planStats: StatRow[] = [
     { label: 'المشتركون الحاليون', value: '1,842', color: '#2BD4C7' },
     { label: 'اشتراكات جديدة هذا الشهر', value: '+124', color: '#0FA99A' },
-    { label: 'الإيراد الشهري', value: '550,758 ر.س', color: '#0FA99A' },
+    { label: 'الإيراد الشهري', value: '550,758 $', color: '#0FA99A' },
     { label: 'معدل التجديد', value: '89%', color: '#5DA0FF' },
     { label: 'معدل الإلغاء', value: '1.2%', color: '#FF8C69' },
     { label: 'نسبة من الكل', value: '38%' },

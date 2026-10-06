@@ -43,7 +43,7 @@ export class SaPlans {
 
   readonly kpis: PlanKpi[] = [
     { label: 'إجمالي المشتركين', value: '4,821', unit: 'مشترك نشط', sub: '+124 هذا الشهر', color: '#2BD4C7', subColor: '#0FA99A' },
-    { label: 'إيرادات الاشتراكات', value: '2.96M', unit: 'ريال — 2026', sub: '20% من إجمالي الإيرادات', color: '#0FA99A', subColor: '#6B7699' },
+    { label: 'إيرادات الاشتراكات', value: '2.96M', unit: 'دولار — 2026', sub: '20% من إجمالي الإيرادات', color: '#0FA99A', subColor: '#6B7699' },
     { label: 'الباقة الأشهر', value: 'Pro', unit: 'الأكثر اشتراكاً', sub: '1,842 مشترك (38%)', color: '#FFB400', subColor: '#6B7699' },
     { label: 'معدل التجديد', value: '87%', unit: 'من الاشتراكات', sub: 'أعلى من المعيار', color: '#5DA0FF', subColor: '#0FA99A' },
   ];

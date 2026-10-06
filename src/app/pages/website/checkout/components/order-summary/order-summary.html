@@ -26,7 +26,7 @@
                   <span class="item-package">{{ item.packageName }}</span>
                 }
               </div>
-              <span class="item-price">{{ formatPrice(item.totalAmount) }} ر.س</span>
+              <span class="item-price">{{ formatPrice(item.totalAmount) }} $</span>
             </li>
           }
         }
@@ -37,7 +37,7 @@
     <div class="summary-totals">
       <div class="total-row">
         <span class="total-label">المجموع الفرعي</span>
-        <span class="total-value">{{ formatPrice(subtotal()) }} ر.س</span>
+        <span class="total-value">{{ formatPrice(subtotal()) }} $</span>
       </div>
 
       @if (coupon()) {
@@ -46,7 +46,7 @@
             الخصم
             <span class="coupon-badge">{{ coupon()!.code }}</span>
           </span>
-          <span class="total-value discount-value">-{{ formatPrice(discount()) }} ر.س</span>
+          <span class="total-value discount-value">-{{ formatPrice(discount()) }} $</span>
         </div>
       }
 
@@ -54,7 +54,7 @@
 
       <div class="total-row total-final">
         <span class="total-label">الإجمالي</span>
-        <span class="total-value final-value">{{ formatPrice(total()) }} ر.س</span>
+        <span class="total-value final-value">{{ formatPrice(total()) }} $</span>
       </div>
     </div>
   } @else {

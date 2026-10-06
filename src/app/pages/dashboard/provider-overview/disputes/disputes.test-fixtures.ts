@@ -27,7 +27,7 @@ export const DISPUTES_MOCK: Dispute[] = [
 		messages: 3,
 		date: '',
 		detail: {
-			recommendation: 'مقترح الإدارة: إعادة تنفيذ العنصرين الناقصين خلال 3 أيام دون تسوية مالية، أو تسوية 20٪ من الضمان (500 ريال) للعميل مقابل إغلاق النزاع فوراً.',
+			recommendation: 'مقترح الإدارة: إعادة تنفيذ العنصرين الناقصين خلال 3 أيام دون تسوية مالية، أو تسوية 20٪ من الضمان (500 دولار) للعميل مقابل إغلاق النزاع فوراً.',
 			history: [
 				{ title: 'رفع العميل النزاع', sub: 'يدّعي أن التسليم لا يطابق نطاق العقد بالكامل', time: '10 يونيو 2026 — 11:20 ص', iconType: 'open' },
 				{ title: 'تم جمع الأدلة', sub: 'مراجعة سجل الرسائل والملفات المرفوعة ونطاق العقد الموقّع', time: '10 يونيو 2026 — 11:26 ص', iconType: 'doc' },
@@ -53,7 +53,7 @@ export const DISPUTES_MOCK: Dispute[] = [
 			info: [
 				{ label: 'رقم النزاع', value: 'DSP-2026-014' },
 				{ label: 'تاريخ الرفع', value: '10 يونيو 2026' },
-				{ label: 'المبلغ المتنازع عليه', value: '2,500 ريال', valueClass: 'teal' },
+				{ label: 'المبلغ المتنازع عليه', value: '2,500 دولار', valueClass: 'teal' },
 				{ label: 'مسؤول الدعم', value: 'بانتظار التعيين' },
 				{ label: 'الموعد المتوقع', value: '13 يونيو 2026', valueClass: 'amber' }
 			]
@@ -78,14 +78,14 @@ export const DISPUTES_MOCK: Dispute[] = [
 			{ label: 'اعتماد الإدارة', icon: 'shield' },
 			{ label: 'الإقفال' }
 		],
-		aiText: ' تسوية مقترحة: احتساب 40٪ للعمل المنجَز (760 ريال) للمقدّم وردّ الباقي إليك. بانتظار موافقتكما في النقاش',
+		aiText: ' تسوية مقترحة: احتساب 40٪ للعمل المنجَز (760 دولار) للمقدّم وردّ الباقي إليك. بانتظار موافقتكما في النقاش',
 		aiDone: false,
 		amount: '1,900',
 		showEscalate: false,
 		messages: 1,
 		date: '',
 		detail: {
-			recommendation: 'تسوية مقترحة: احتساب 40٪ من قيمة العقد (760 ريال) لك مقابل العمل المنجَز، وردّ الباقي (1,140 ريال) للعميل، ثم إغلاق العقد بالتراضي.',
+			recommendation: 'تسوية مقترحة: احتساب 40٪ من قيمة العقد (760 دولار) لك مقابل العمل المنجَز، وردّ الباقي (1,140 دولار) للعميل، ثم إغلاق العقد بالتراضي.',
 			history: [
 				{ title: 'طلب العميل إلغاء المشروع', sub: 'بسبب تغيّر نطاق العمل المطلوب بعد بدء الكتابة', time: '2 يونيو 2026 — 3:10 م', iconType: 'open' },
 				{ title: 'اقتُرحت نسبة تسوية', sub: 'بناءً على نسبة الإنجاز الموثقة في سجل التسليمات الجزئية', time: '2 يونيو 2026 — 3:25 م', iconType: 'doc' },
@@ -107,7 +107,7 @@ export const DISPUTES_MOCK: Dispute[] = [
 			info: [
 				{ label: 'رقم الطلب', value: 'CNL-2026-007' },
 				{ label: 'تاريخ الرفع', value: '2 يونيو 2026' },
-				{ label: 'المبلغ المتجمّد بالضمان', value: '1,900 ريال', valueClass: 'teal' },
+				{ label: 'المبلغ المتجمّد بالضمان', value: '1,900 دولار', valueClass: 'teal' },
 				{ label: 'الحالة', value: 'بانتظار موافقة الطرفين', valueClass: 'amber' }
 			]
 		},
@@ -175,7 +175,7 @@ export const DISPUTES_MOCK: Dispute[] = [
 		amount: '',
 		showEscalate: false,
 		messages: 0,
-		date: 'أُغلق 28 أبريل · رُدّ 1,500 ريال',
+		date: 'أُغلق 28 أبريل · رُدّ 1,500 دولار',
 		detail: {
 			recommendation: 'تم الاتفاق على إلغاء العقد بالكامل دون أي عمل منجَز، وردّ كامل المبلغ للعميل.',
 			history: [
@@ -195,7 +195,7 @@ export const DISPUTES_MOCK: Dispute[] = [
 			info: [
 				{ label: 'رقم الطلب', value: 'CNL-2026-003' },
 				{ label: 'تاريخ الإغلاق', value: '28 أبريل 2026' },
-				{ label: 'المبلغ المُعاد', value: '1,500 ريال', valueClass: 'teal' }
+				{ label: 'المبلغ المُعاد', value: '1,500 دولار', valueClass: 'teal' }
 			]
 		},
 		teamMember: { name: 'فهد العتيبي', role: 'استشارة تسويقية', initials: 'فه', gradient: 'linear-gradient(135deg,#2B7FFF,#1A5FCC)' }

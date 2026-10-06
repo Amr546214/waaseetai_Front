@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ClientWalletData } from './client-finance.service';
 
-// PayPal Sandbox wallet deposit — a separate gateway from Moyasar
+// PayPal Sandbox wallet deposit (the only wallet deposit rail)
 // (ClientFinanceService), calling its own backend routes under the same
 // authenticated /client/finance base path.
 

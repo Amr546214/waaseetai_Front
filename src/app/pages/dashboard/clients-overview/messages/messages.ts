@@ -740,7 +740,7 @@ export class ClientMessages implements OnInit, OnDestroy {
     }
 
     if (action === 'ACCEPTED') {
-      const text = `✅ **تم قبول طلب التفاوض**\nيُسعدني قبول عرض التفاوض الخاص بك (${neg?.price ? neg.price + ' ريال' : ''}). تم اعتماد الشروط للبدء في تنفيذ المشروع.`;
+      const text = `✅ **تم قبول طلب التفاوض**\nيُسعدني قبول عرض التفاوض الخاص بك (${neg?.price ? neg.price + ' دولار' : ''}). تم اعتماد الشروط للبدء في تنفيذ المشروع.`;
       this.newMessageText.set(text);
       this.sendMessage('TEXT');
       this.showToast('✅ تم قبول طلب التفاوض بنجاح وتثبيت القرار');

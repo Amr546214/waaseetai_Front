@@ -40,10 +40,10 @@ export class SaFutureBilling {
   ];
 
   readonly invoices: EInvoice[] = [
-    { uuid: 'f82a-9c1e', kind: 'B2B', party: 'شركة الخليج', taxNumber: '310000000001233', amount: '6,670 ر.س', hasQr: true, status: 'issued' },
-    { uuid: 'a41d-77b3', kind: 'B2C', party: 'هيثم القرني', taxNumber: '—', amount: '343.85 ر.س', hasQr: true, status: 'issued' },
-    { uuid: 'c99e-3f2a', kind: 'B2B', party: 'مؤسسة النور', taxNumber: '310000000007841', amount: '14,260 ر.س', hasQr: true, status: 'processing' },
-    { uuid: 'b17f-5d09', kind: 'B2C', party: 'سارة القحطاني', taxNumber: '—', amount: '899.00 ر.س', hasQr: true, status: 'issued' },
+    { uuid: 'f82a-9c1e', kind: 'B2B', party: 'شركة الخليج', taxNumber: '310000000001233', amount: '6,670 $', hasQr: true, status: 'issued' },
+    { uuid: 'a41d-77b3', kind: 'B2C', party: 'هيثم القرني', taxNumber: '—', amount: '343.85 $', hasQr: true, status: 'issued' },
+    { uuid: 'c99e-3f2a', kind: 'B2B', party: 'مؤسسة النور', taxNumber: '310000000007841', amount: '14,260 $', hasQr: true, status: 'processing' },
+    { uuid: 'b17f-5d09', kind: 'B2C', party: 'سارة القحطاني', taxNumber: '—', amount: '899.00 $', hasQr: true, status: 'issued' },
   ];
 
   showToast(message: string) {

@@ -404,7 +404,7 @@
 					style="padding:14px;background:rgba(43,127,255,.05);border:1px solid rgba(43,127,255,.12);border-radius:12px;text-align:center">
 					<div style="font-size:20px;font-weight:900" class="txt-blue">{{ summary()?.totalCommissions || 0 }}
 					</div>
-					<div style="font-size:11px;margin-top:3px" class="txt-muted">ريال عمولات</div>
+					<div style="font-size:11px;margin-top:3px" class="txt-muted">دولار عمولات</div>
 				</div>
 				<div
 					style="padding:14px;background:rgba(155,139,122,.05);border:1px solid rgba(155,139,122,.12);border-radius:12px;text-align:center">
@@ -424,7 +424,7 @@
 				<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:8px 0"
 					[style.border-bottom]="!last ? '1px solid rgba(255,255,255,.05)' : 'none'" class="txt-slate">
 					<span>{{ log.source }}</span>
-					<span style="color:#0FA99A">{{ log.amount }} ريال</span>
+					<span style="color:#0FA99A">{{ log.amount }} دولار</span>
 				</div>
 				}
 				} @else if (loadingRecentCommissions()) {

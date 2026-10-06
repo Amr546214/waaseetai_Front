@@ -48,19 +48,19 @@ export class SaAnalyticsProviders {
     'يناير 2025': [
       { value: '6,010', label: 'مقدمو خدمة نشطون', color: '#2BD4C7' },
       { value: '4.3★', label: 'متوسط التقييم', color: '#0FA99A' },
-      { value: '299M', label: 'إجمالي الإيرادات (ر.س)', color: '#59C1F5' },
+      { value: '299M', label: 'إجمالي الإيرادات ($)', color: '#59C1F5' },
       { value: '85%', label: 'معدل إتمام المشاريع', color: '#FFB400' },
     ],
     'ديسمبر 2024': [
       { value: '5,742', label: 'مقدمو خدمة نشطون', color: '#2BD4C7' },
       { value: '4.2★', label: 'متوسط التقييم', color: '#0FA99A' },
-      { value: '253M', label: 'إجمالي الإيرادات (ر.س)', color: '#59C1F5' },
+      { value: '253M', label: 'إجمالي الإيرادات ($)', color: '#59C1F5' },
       { value: '82%', label: 'معدل إتمام المشاريع', color: '#FFB400' },
     ],
     'الربع الأول': [
       { value: '6,010', label: 'مقدمو خدمة نشطون', color: '#2BD4C7' },
       { value: '4.3★', label: 'متوسط التقييم', color: '#0FA99A' },
-      { value: '812M', label: 'إجمالي الإيرادات (ر.س)', color: '#59C1F5' },
+      { value: '812M', label: 'إجمالي الإيرادات ($)', color: '#59C1F5' },
       { value: '86%', label: 'معدل إتمام المشاريع', color: '#FFB400' },
     ],
   };

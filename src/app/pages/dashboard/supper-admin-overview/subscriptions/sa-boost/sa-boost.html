@@ -59,7 +59,7 @@
             <tr>
               <td class="cell-strong">{{ c.provider }}</td>
               <td class="cell-muted-lg">{{ c.specialty }}</td>
-              <td class="cell-cost">{{ c.dailyCost }} ر.س/يوم</td>
+              <td class="cell-cost">{{ c.dailyCost }} $/يوم</td>
               <td class="cell-num">{{ c.impressions | number }}</td>
               <td class="cell-num" [style.color]="c.ctr >= 8 ? '#0FA99A' : '#FFB400'">{{ c.clicks | number }}</td>
               <td class="cell-num" [style.color]="c.ctr >= 8 ? '#0FA99A' : '#FFB400'">{{ c.ctr }}%</td>
@@ -78,12 +78,12 @@
     <div class="sim-ttl">Bid Simulator — محاكاة السعر مقابل الظهور</div>
     <div class="sim-grid">
       <div class="sim-field">
-        <label class="sim-lbl">التكلفة اليومية (ر.س)</label>
+        <label class="sim-lbl">التكلفة اليومية ($)</label>
         <input type="range" min="5" max="200" [ngModel]="bidCost()" (ngModelChange)="bidCost.set($event)" class="sim-range sim-range--teal" />
         <div class="sim-scale">
-          <span>5 ر.س</span>
-          <span class="sim-scale-val txt-teal">{{ bidCost() }} ر.س</span>
-          <span>200 ر.س</span>
+          <span>5 $</span>
+          <span class="sim-scale-val txt-teal">{{ bidCost() }} $</span>
+          <span>200 $</span>
         </div>
       </div>
       <div class="sim-field">
@@ -98,7 +98,7 @@
     </div>
     <div class="sim-results">
       <div class="sim-res sim-res--neutral">
-        <div class="sim-res-val">{{ simResults().total }} ر.س</div>
+        <div class="sim-res-val">{{ simResults().total }} $</div>
         <div class="sim-res-lbl">التكلفة الكلية</div>
       </div>
       <div class="sim-res sim-res--teal">

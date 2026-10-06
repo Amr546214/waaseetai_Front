@@ -23,7 +23,7 @@ interface Coupon {
 export class SaCoupons {
   readonly kpis = [
     { value: '326', label: 'استخدام هذا الشهر', color: '#2BD4C7' },
-    { value: '12,840 ر.س', label: 'قيمة الخصومات', color: '#FF8C69' },
+    { value: '12,840 $', label: 'قيمة الخصومات', color: '#FF8C69' },
     { value: '68%', label: 'معدل التحويل', color: '#0FA99A' },
     { value: '2', label: 'كوبونات نشطة', color: '#FFB400' },
   ];
@@ -41,13 +41,13 @@ export class SaCoupons {
 
   coupons = signal<Coupon[]>([
     { code: 'WASEET20', name: 'خصم 20% على أول مشروع', meta: 'استُخدم 284 مرة · صالح حتى 28 فبراير · نشط', discountLabel: '20%', discountUnit: 'خصم', discountColor: '#0FA99A', active: true },
-    { code: 'KHALEEJ50', name: '50 ر.س على الباقة الأولى — لشركات', meta: 'استُخدم 42 مرة · صالح حتى 15 مارس · نشط', discountLabel: '50 ر.س', discountUnit: 'ثابت', discountColor: '#5DA0FF', active: true },
+    { code: 'KHALEEJ50', name: '50 $ على الباقة الأولى — لشركات', meta: 'استُخدم 42 مرة · صالح حتى 15 مارس · نشط', discountLabel: '50 $', discountUnit: 'ثابت', discountColor: '#5DA0FF', active: true },
     { code: 'RAMADAN24', name: 'خصم رمضان 15%', meta: 'استُخدم 1,284 مرة · منتهي الصلاحية', discountLabel: '15%', discountUnit: '', discountColor: '#6B7699', active: false, expired: true },
   ]);
 
   newCode = signal('');
   discountType = signal('نسبة مئوية %');
-  readonly discountTypes = ['نسبة مئوية %', 'مبلغ ثابت (ر.س)', 'شحن مجاني'];
+  readonly discountTypes = ['نسبة مئوية %', 'مبلغ ثابت ($)', 'شحن مجاني'];
   discountValue = signal<number | null>(null);
   audience = signal('كل المستخدمين');
   readonly audiences = ['كل المستخدمين', 'طالبو الخدمة فقط', 'مقدمو الخدمة فقط', 'المستخدمون الجدد'];
@@ -64,9 +64,9 @@ export class SaCoupons {
     this.coupons.update((list) => [
       {
         code: this.newCode().trim().toUpperCase(),
-        name: `خصم ${this.discountValue() ?? 0}${this.discountType() === 'نسبة مئوية %' ? '%' : ' ر.س'}`,
+        name: `خصم ${this.discountValue() ?? 0}${this.discountType() === 'نسبة مئوية %' ? '%' : ' $'}`,
         meta: `استُخدم 0 مرة · صالح حتى ${this.expiryDate() || '—'} · نشط`,
-        discountLabel: this.discountType() === 'نسبة مئوية %' ? `${this.discountValue() ?? 0}%` : `${this.discountValue() ?? 0} ر.س`,
+        discountLabel: this.discountType() === 'نسبة مئوية %' ? `${this.discountValue() ?? 0}%` : `${this.discountValue() ?? 0} $`,
         discountUnit: this.discountType() === 'نسبة مئوية %' ? 'خصم' : 'ثابت',
         discountColor: '#0FA99A',
         active: true,

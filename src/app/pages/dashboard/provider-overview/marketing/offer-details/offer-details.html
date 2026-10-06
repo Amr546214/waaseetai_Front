@@ -43,8 +43,8 @@
 
 	<div class="kpi-row">
 		<div class="kpi-c"><div class="kpi-v">{{ fmt(o.usedCount) }}</div><div class="kpi-l">مرات الاستفادة</div></div>
-		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedValue }}</div><div class="kpi-l">القيمة المخصومة (ريال)</div></div>
-		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedServiceRevenue }}</div><div class="kpi-l">{{ o.type === 'BUNDLE' ? 'إيراد ' + modelName(o.beneficiaryServiceId) + ' المرتبط بالباقة (ريال)' : 'إيراد ' + modelName(o.targetServiceId) + ' بالعرض (ريال)' }}</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedValue }}</div><div class="kpi-l">القيمة المخصومة (دولار)</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedServiceRevenue }}</div><div class="kpi-l">{{ o.type === 'BUNDLE' ? 'إيراد ' + modelName(o.beneficiaryServiceId) + ' المرتبط بالباقة (دولار)' : 'إيراد ' + modelName(o.targetServiceId) + ' بالعرض (دولار)' }}</div></div>
 		@if (o.type === 'BUNDLE') {
 			<div class="kpi-c"><div class="kpi-v">{{ statText().conversion }}</div><div class="kpi-l">نسبة تحويل {{ modelName(o.primaryServiceId) }} ← {{ modelName(o.beneficiaryServiceId) }} بعد العرض</div></div>
 		} @else {

@@ -232,7 +232,7 @@ export class MarketingCoupons implements OnInit {
   }
 
   discountLabel(c: ProviderCoupon): string {
-    return c.discountType === 'percentage' ? `${c.discountValue}%` : `${formatNumber(c.discountValue)} ريال`;
+    return c.discountType === 'percentage' ? `${c.discountValue}%` : `${formatNumber(c.discountValue)} دولار`;
   }
 
   usageLabel(c: ProviderCoupon): string {

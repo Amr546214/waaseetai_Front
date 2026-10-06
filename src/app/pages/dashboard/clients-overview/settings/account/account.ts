@@ -191,7 +191,7 @@ export class Account {
 
   language = signal<string>('العربية');
   timezone = signal<string>('توقيت الرياض (GMT+3)');
-  currency = signal<string>('ريال سعودي (SAR)');
+  currency = signal<string>('دولار أمريكي (USD)');
   dateFormat = signal<string>('هجري وميلادي');
 
   showProfile = signal<boolean>(true);

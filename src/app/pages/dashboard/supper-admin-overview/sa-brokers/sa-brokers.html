@@ -76,7 +76,7 @@
               <td class="bk-center bk-bold">{{ b.totalReferrals }}</td>
               <td class="bk-center bk-converted">{{ b.convertedReferrals }}</td>
               <td class="bk-center">{{ b.conversionRate }}%</td>
-              <td class="bk-pending">{{ b.paidCommission | number:'1.0-0' }} ر.س</td>
+              <td class="bk-pending">{{ b.paidCommission | number:'1.0-0' }} $</td>
               <td class="bk-center">{{ b.channelCount }}</td>
               <td><span class="bk-status" [ngClass]="statusClasses[b.status]">{{ statusLabels[b.status] }}</span></td>
               <td (click)="$event.stopPropagation()">

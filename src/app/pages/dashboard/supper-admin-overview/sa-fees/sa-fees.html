@@ -19,7 +19,7 @@
     <div class="fe-kpi">
       <div class="fe-kpi-top"><div class="fe-kpi-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">إيرادات الاشتراكات</span></div>
       <div class="fe-kpi-val txt-blue">248k</div>
-      <div class="fe-kpi-sub">ريال سعودي / شهر</div>
+      <div class="fe-kpi-sub">دولار أمريكي / شهر</div>
     </div>
     <div class="fe-kpi">
       <div class="fe-kpi-top"><div class="fe-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">أكثر باقة مشتركة</span></div>
@@ -68,7 +68,7 @@
         <div class="fe-pkg-top">
           <div class="fe-pkg-name" [style.color]="p.color">{{ p.name }}</div>
           <div class="fe-pkg-desc">{{ p.desc }}</div>
-          <div class="fe-pkg-price" [style.color]="p.color">{{ p.price === 'تفاوضي' ? 'تفاوضي' : (p.price + ' ر.س') }}</div>
+          <div class="fe-pkg-price" [style.color]="p.color">{{ p.price === 'تفاوضي' ? 'تفاوضي' : (p.price + ' $') }}</div>
           @if (p.period) {
             <div class="fe-pkg-period">{{ p.period }}</div>
           }
@@ -114,7 +114,7 @@
       </table>
     </div>
     <div class="fe-acct-rev-note">
-      MRR الإجمالي: <strong>2.33M ر.س</strong> · ARR المتوقع: <strong>27.9M ر.س</strong> · متوسط Churn: <strong>2.15%</strong>
+      MRR الإجمالي: <strong>2.33M $</strong> · ARR المتوقع: <strong>27.9M $</strong> · متوسط Churn: <strong>2.15%</strong>
     </div>
   </div>
 

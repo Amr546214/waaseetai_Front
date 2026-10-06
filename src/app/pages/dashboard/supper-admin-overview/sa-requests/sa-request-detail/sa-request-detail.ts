@@ -75,7 +75,7 @@ export class SaRequestDetail implements OnInit {
   }
 
   private fmtSar(n: number): string {
-    return n.toLocaleString('en-US') + ' ر.س';
+    return n.toLocaleString('en-US') + ' $';
   }
 
   acceptedOffer(item: ServiceRequest): RequestOffer | undefined {

@@ -48,8 +48,8 @@
 
 	<div class="kpi-row">
 		<div class="kpi-c"><div class="kpi-v">{{ fmt(c.usedCount) }}</div><div class="kpi-l">مرة استخدام{{ c.maxUses ? ' (من ' + c.maxUses + ')' : '' }}</div></div>
-		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedValue }}</div><div class="kpi-l">القيمة المخصومة (ريال)</div></div>
-		<div class="kpi-c"><div class="kpi-v">{{ statText().revenue }}</div><div class="kpi-l">إيراد الطلبات المرتبطة (ريال)</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ statText().discountedValue }}</div><div class="kpi-l">القيمة المخصومة (دولار)</div></div>
+		<div class="kpi-c"><div class="kpi-v">{{ statText().revenue }}</div><div class="kpi-l">إيراد الطلبات المرتبطة (دولار)</div></div>
 		<div class="kpi-c"><div class="kpi-v">{{ consumption() ? consumption()!.pct + '%' : '∞' }}</div><div class="kpi-l">{{ consumption() ? 'نسبة الاستهلاك من الحد الأقصى' : 'بلا حد أقصى للاستخدام' }}</div></div>
 	</div>
 

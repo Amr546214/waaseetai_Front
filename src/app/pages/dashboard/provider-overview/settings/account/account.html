@@ -22,7 +22,7 @@
 				<div class="fld"><label for="s-cal">التقويم</label><select id="s-cal" [ngModel]="coCalendar()" (ngModelChange)="coCalendar.set($event)"><option selected>ميلادي</option><option>هجري</option><option>هجري وميلادي</option></select></div>
 			</div>
 			<div class="f2">
-				<div class="fld"><label for="s-cur">عملة العرض</label><select id="s-cur" [ngModel]="coCurrency()" (ngModelChange)="coCurrency.set($event)"><option selected>الريال السعودي (SAR)</option></select></div>
+				<div class="fld"><label for="s-cur">عملة العرض</label><select id="s-cur" [ngModel]="coCurrency()" (ngModelChange)="coCurrency.set($event)"><option selected>الدولار السعودي (USD)</option></select></div>
 				<div class="fld" style="margin-bottom:0"><label for="s-num">صيغة الأرقام</label><select id="s-num" [ngModel]="coNumberFormat()" (ngModelChange)="coNumberFormat.set($event)"><option selected>1234 — عربية غربية</option><option>١٢٣٤ — عربية شرقية</option></select></div>
 			</div>
 		</div>
@@ -266,7 +266,7 @@
           <div class="text-[12px] text-[var(--txt-3)]">عملة عرض المبالغ</div>
         </div>
         <select class="set-sel" [(ngModel)]="currency">
-          <option value="ريال سعودي (SAR)">ريال سعودي (SAR)</option>
+          <option value="دولار أمريكي (USD)">دولار أمريكي (USD)</option>
           <option value="دولار أمريكي (USD)">دولار أمريكي (USD)</option>
         </select>
       </div>

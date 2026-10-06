@@ -134,10 +134,10 @@ export class Referrals implements OnInit {
     return map[status as string] || 'rgba(255,255,255,.06)';
   }
 
-  /** Never blank/undefined: null/undefined shows as "—", a real 0 shows as "0 ريال". */
+  /** Never blank/undefined: null/undefined shows as "—", a real 0 shows as "0 دولار". */
   formatCommission(amount: number | null | undefined): string {
     if (amount === null || amount === undefined) return '—';
-    return `${amount} ريال`;
+    return `${amount} دولار`;
   }
 
   openRefModal(ref: ReferredUser) {

@@ -177,7 +177,7 @@ export class SaBrokerDetail implements OnInit, OnDestroy {
   sendForWithdrawal(b: AdminBrokerDetail) {
     // UI action only — no withdrawal-mutation endpoint exists on the
     // backend yet, so this records intent locally via a confirmation toast.
-    this.showToast(`تم إرسال طلب سحب العمولة المعلقة (${b.pendingCommission?.toLocaleString('ar-SA') ?? 0} ر.س) لـ ${b.name || 'الوسيط'} يدوياً`);
+    this.showToast(`تم إرسال طلب سحب العمولة المعلقة (${b.pendingCommission?.toLocaleString('ar-SA') ?? 0} $) لـ ${b.name || 'الوسيط'} يدوياً`);
   }
 
   showToast(msg: string) {

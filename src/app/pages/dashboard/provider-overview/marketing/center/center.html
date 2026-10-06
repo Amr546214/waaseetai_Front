@@ -36,12 +36,12 @@
 		</div>
 		<div class="kpi-c">
 			<div class="kpi-v">{{ fmt(d.kpis.discountedValue.value) }}</div>
-			<div class="kpi-l">القيمة المخصومة (ريال)</div>
+			<div class="kpi-l">القيمة المخصومة (دولار)</div>
 			<div class="kpi-delta" [ngClass]="deltaClass(d.kpis.discountedValue)">{{ deltaText(d.kpis.discountedValue) }}</div>
 		</div>
 		<div class="kpi-c">
 			<div class="kpi-v">{{ fmt(d.kpis.extraRevenue.value) }}</div>
-			<div class="kpi-l">إيراد إضافي محقَّق (ريال)</div>
+			<div class="kpi-l">إيراد إضافي محقَّق (دولار)</div>
 			<div class="kpi-delta" [ngClass]="deltaClass(d.kpis.extraRevenue)">{{ deltaText(d.kpis.extraRevenue) }}</div>
 		</div>
 	</div>
@@ -62,7 +62,7 @@
 					<div class="cap-edit">
 						<div class="f-suffix-wrap">
 							<input class="f-inp" type="number" min="1" [(ngModel)]="capInput" placeholder="مثال: 10000">
-							<span class="f-suffix">ريال</span>
+							<span class="f-suffix">دولار</span>
 						</div>
 						<div class="cap-edit-actions">
 							<button type="button" class="btn-pri btn-sm" (click)="saveCap()" [disabled]="savingCap()">حفظ</button>
@@ -74,7 +74,7 @@
 					</div>
 				} @else if (co.spendCap.configured) {
 					<div class="prog-hd">
-						<span>استُهلك <b>{{ fmt(co.spendCap.consumed) }}</b> من <b>{{ fmt(co.spendCap.cap) }}</b> ريال</span>
+						<span>استُهلك <b>{{ fmt(co.spendCap.consumed) }}</b> من <b>{{ fmt(co.spendCap.cap) }}</b> دولار</span>
 						<span>{{ co.spendCap.percentUsed ?? 0 }}%</span>
 					</div>
 					<div class="prog-bg"><div class="prog-fill" [class.warn]="(co.spendCap.percentUsed ?? 0) >= 80" [style.width.%]="(co.spendCap.percentUsed ?? 0) > 100 ? 100 : (co.spendCap.percentUsed ?? 0)"></div></div>

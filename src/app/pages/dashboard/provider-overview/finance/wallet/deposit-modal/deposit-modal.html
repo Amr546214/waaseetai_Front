@@ -19,17 +19,17 @@
 
 		<div class="dpm-note">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
-			معاينة تصميم — الدفع الإلكتروني للإيداع سيُفعَّل قريباً، لن يتم خصم أي مبلغ فعلياً.
+			معاينة تصميم — الإيداع غير متاح حاليًا في محفظة المقدم ولن يتم خصم أي مبلغ.
 		</div>
 
 		<!-- AMOUNT -->
 		<div class="dpm-field">
-			<label class="dpm-label" for="dpmAmt">المبلغ (ر.س)</label>
+			<label class="dpm-label" for="dpmAmt">المبلغ ($)</label>
 			<div class="dpm-amt-wrap">
-				<input id="dpmAmt" class="dpm-amt-input" type="text" inputmode="numeric" [value]="amount() | number" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالريال" />
-				<span class="dpm-amt-cur">ر.س</span>
+				<input id="dpmAmt" class="dpm-amt-input" type="text" inputmode="numeric" [value]="amount() | number" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالدولار" />
+				<span class="dpm-amt-cur">$</span>
 			</div>
-			<div class="dpm-hint">أقل مبلغ للإيداع 50 ر.س، أعلى مبلغ 100,000 ر.س للعملية الواحدة</div>
+			<div class="dpm-hint">أقل مبلغ للإيداع 50، أعلى مبلغ 100,000 للعملية الواحدة (بالدولار)</div>
 		</div>
 
 		<div class="dpm-chips">
@@ -42,34 +42,26 @@
 		<div class="dpm-field">
 			<label class="dpm-label">طريقة الدفع</label>
 			<div class="dpm-methods">
-				<button type="button" class="dpm-method" disabled aria-disabled="true" data-method="card">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
-					بطاقة ائتمان / مدى <span class="dpm-soon">غير متاح حاليًا</span>
-				</button>
-				<button type="button" class="dpm-method" disabled aria-disabled="true" data-method="bank">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
-					تحويل بنكي <span class="dpm-soon">غير متاح حاليًا</span>
-				</button>
 				<button type="button" class="dpm-method" disabled aria-disabled="true" data-method="paypal">
 					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 21 9.5 5H15a3.5 3.5 0 0 1 0 7h-4.5" /><path d="M10 21l1-6h3.5" /></svg>
-					PayPal <span class="dpm-soon">قريبًا</span>
+					PayPal <span class="dpm-soon">غير متاح حاليًا</span>
 				</button>
 			</div>
-			<div class="dpm-soon-note" id="dpm-soon-note">الإيداع في محفظة المقدم غير متاح بعد. المنصة تدعم PayPal فقط، وسيُفعَّل الإيداع عبره قريبًا.</div>
+			<div class="dpm-soon-note" id="dpm-soon-note">الإيداع في محفظة المقدم غير متاح حاليًا. المنصة تدعم PayPal فقط، بالدولار الأمريكي.</div>
 		</div>
 
 		<!-- SUMMARY -->
 		<div class="dpm-summary">
-			<div class="dpm-summary-row"><span>رصيد المحفظة الحالي</span><span>{{ currentBalance | number:'1.0-2' }} ر.س</span></div>
-			<div class="dpm-summary-row"><span>مبلغ الإيداع</span><span>{{ amount() | number:'1.0-2' }} ر.س</span></div>
+			<div class="dpm-summary-row"><span>رصيد المحفظة الحالي</span><span>{{ currentBalance | number:'1.0-2' }} $</span></div>
+			<div class="dpm-summary-row"><span>مبلغ الإيداع</span><span>{{ amount() | number:'1.0-2' }} $</span></div>
 			<div class="dpm-summary-row"><span>رسوم المعالجة</span><span class="free">مجاناً</span></div>
 			<div class="dpm-summary-divider"></div>
-			<div class="dpm-summary-total"><span>الرصيد المتوقع بعد الإيداع</span><span>{{ balanceAfter() | number:'1.0-2' }} ر.س</span></div>
+			<div class="dpm-summary-total"><span>الرصيد المتوقع بعد الإيداع</span><span>{{ balanceAfter() | number:'1.0-2' }} $</span></div>
 		</div>
 
 		<div class="dpm-actions">
 			<button type="button" class="dpm-btn dpm-btn-gh" (click)="onClose()">إلغاء</button>
-			<button type="button" class="dpm-btn dpm-btn-pri" [disabled]="!canSubmit()" (click)="onConfirm()">{{ depositAvailable ? 'تأكيد الإيداع' : 'قريبًا' }}</button>
+			<button type="button" class="dpm-btn dpm-btn-pri" [disabled]="!canSubmit()" (click)="onConfirm()">{{ depositAvailable ? 'تأكيد الإيداع' : 'غير متاح' }}</button>
 		</div>
 
 	</div>

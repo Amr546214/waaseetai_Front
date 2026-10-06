@@ -67,7 +67,7 @@ describe('real data only (PR-A)', () => {
 
 	it('reports page has no invented KPIs, orders, specialties or counts', () => {
 		const h = read('pages/dashboard/provider-overview/reports/reports.html');
-		for (const x of ['47.2K', '#ORD-2026', '15,000 ﷼', '85%', 'قيد التطوير', 'قريباً', '▲ 3 هذا الشهر', '▲ 0.3 عن السابق']) expect(h, x).not.toContain(x);
+		for (const x of ['47.2K', '#ORD-2026', '15,000 $', '85%', 'قيد التطوير', 'قريباً', '▲ 3 هذا الشهر', '▲ 0.3 عن السابق']) expect(h, x).not.toContain(x);
 		expect(h).toContain('لا توجد بيانات بعد');
 		const ts = read('pages/dashboard/provider-overview/reports/reports.ts');
 		expect(ts).not.toMatch(/count:\s*\d/);

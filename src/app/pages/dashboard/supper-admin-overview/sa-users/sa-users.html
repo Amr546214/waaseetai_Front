@@ -184,21 +184,21 @@
                   <!-- Dynamic Data Cells -->
                   @switch (selectedAccountType()) {
                     @case ('sk-ind') {
-                      <td style="font-weight:700" class="txt-teal">{{ u.spending || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-teal">{{ u.spending || '0' }} $</td>
                       <td style="font-weight:700" class="txt-white">{{ u.projects }}</td>
                       <td style="font-weight:800" class="txt-blue">{{ u.requests || 0 }}</td>
                       <td style="font-size:12px" class="txt-muted">{{ u.lastReq || '-' }}</td>
                       <td style="font-size:12px" class="txt-slate">—</td>
                     }
                     @case ('sk-co') {
-                      <td style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} $</td>
                       <td style="font-weight:700" class="txt-white">{{ u.projects }}</td>
                       <td style="font-weight:600" class="txt-white">{{ u.manager || '-' }}</td>
                       <td style="font-weight:700" class="txt-slate">{{ u.teamSize || '0' }} موظف</td>
-                      <td style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} $</td>
                     }
                     @case ('pr-ind') {
-                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} $</td>
                       <td style="font-weight:800" class="txt-amber">{{ u.rating || '0' }} ★</td>
                       <td>
                         <span style="font-size:11px;font-weight:800;padding:2px 9px;border-radius:20px;" 
@@ -209,17 +209,17 @@
                       </td>
                       <td style="font-weight:600" class="txt-blue">{{ u.specialty || '-' }}</td>
                       <td style="font-weight:700" class="txt-white">{{ u.projects }}</td>
-                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} $</td>
                     }
                     @case ('pr-co') {
-                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} $</td>
                       <td style="font-weight:800" class="txt-white">{{ u.providerCount || '0' }} مقدم</td>
                       <td style="font-size:12px" class="txt-purple">{{ u.specialties || '-' }}</td>
                       <td style="font-weight:800" class="txt-white">{{ u.activeProjects || '0' }}</td>
-                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} $</td>
                     }
                     @case ('affiliate') {
-                      <td style="font-weight:700" class="txt-teal">{{ u.pendingCommission || '0' }} ر.س</td>
+                      <td style="font-weight:700" class="txt-teal">{{ u.pendingCommission || '0' }} $</td>
                       <td style="font-weight:700" class="txt-blue">مستوى {{ u.affiliateLevel || 1 }}</td>
                       <td style="font-weight:800" class="txt-white">{{ u.totalReferrals || 0 }}</td>
                       <td style="font-size:12px" class="txt-slate">-</td>
@@ -234,10 +234,10 @@
                     }
                     @default {
                       <td>
-                        @if (u.type === 'sk-ind') { <span style="font-weight:700" class="txt-teal">{{ u.spending || '0' }} ر.س</span> }
-                        @if (u.type === 'sk-co') { <span style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} ر.س</span> }
-                        @if (u.type === 'pr-ind' || u.type === 'pr-co') { <span style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} ر.س</span> }
-                        @if (u.type === 'affiliate') { <span style="font-weight:700" class="txt-teal">{{ u.pendingCommission || '0' }} ر.س</span> }
+                        @if (u.type === 'sk-ind') { <span style="font-weight:700" class="txt-teal">{{ u.spending || '0' }} $</span> }
+                        @if (u.type === 'sk-co') { <span style="font-weight:700" class="txt-amber">{{ u.monthlyBudget || '0' }} $</span> }
+                        @if (u.type === 'pr-ind' || u.type === 'pr-co') { <span style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} $</span> }
+                        @if (u.type === 'affiliate') { <span style="font-weight:700" class="txt-teal">{{ u.pendingCommission || '0' }} $</span> }
                         @if (u.type === 'admin') { <span style="font-weight:700" class="txt-amber">{{ u.role || 'مدير' }}</span> }
                       </td>
                       <td>

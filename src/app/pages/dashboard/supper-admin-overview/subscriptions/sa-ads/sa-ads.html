@@ -53,7 +53,7 @@
             <tr>
               <td class="cell-strong">{{ c.name }}</td>
               <td class="cell-muted-lg">{{ c.audience }}</td>
-              <td class="cell-budget">{{ c.dailyBudget }} ر.س</td>
+              <td class="cell-budget">{{ c.dailyBudget }} $</td>
               <td>{{ c.impressions | number }}</td>
               <td [style.color]="c.ctr >= 10 ? '#0FA99A' : '#FFB400'" class="cell-num">{{ c.ctr }}%</td>
               <td class="cell-muted">{{ c.endDate }}</td>

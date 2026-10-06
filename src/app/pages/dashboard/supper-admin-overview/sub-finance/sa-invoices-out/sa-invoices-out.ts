@@ -86,7 +86,7 @@ export class SaInvoicesOut {
   }
 
   formatAmount(v: number): string {
-    return v.toLocaleString('ar-SA') + ' ر.س';
+    return v.toLocaleString('ar-SA') + ' $';
   }
 
   showToast(message: string) {

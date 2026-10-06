@@ -182,11 +182,10 @@ export class Reports implements OnInit {
 		return amount < 0 ? 'td-bold' : 'td-bold kv-val-green';
 	}
 
-	// Wallet transactions display their OWN stored currency (historical SAR
-	// rows stay SAR, PayPal/current rows are USD) — never relabeled.
+	// Wallet transactions display their OWN stored currency (USD shown as '$') — never relabeled.
 	formatAmount(n: number, currency?: string): string {
 		const abs = Math.abs(n);
-		const label = currency === 'SAR' ? '﷼' : (currency && currency !== 'USD' ? currency : '$');
+		const label = !currency || currency === 'USD' ? '$' : currency;
 		return `${n < 0 ? '−' : ''}${abs.toLocaleString('en-US')} ${label}`;
 	}
 

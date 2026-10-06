@@ -77,8 +77,8 @@
       <div class="ct-section-ttl">بيانات الضمان</div>
       <div class="ct-escrow-block">
         <div class="ct-escrow-row"><span>المبلغ المودَع</span><strong class="txt-green">{{ d.value }}</strong></div>
-        <div class="ct-escrow-row"><span>رسوم وسيط AI ({{ d.feePct }}%)</span><strong class="txt-teal">{{ feeAmount(d) | number }} ر.س</strong></div>
-        <div class="ct-escrow-row"><span>صافي المقدم عند الإفراج</span><strong>{{ netAmount(d) | number }} ر.س</strong></div>
+        <div class="ct-escrow-row"><span>رسوم وسيط AI ({{ d.feePct }}%)</span><strong class="txt-teal">{{ feeAmount(d) | number }} $</strong></div>
+        <div class="ct-escrow-row"><span>صافي المقدم عند الإفراج</span><strong>{{ netAmount(d) | number }} $</strong></div>
       </div>
 
       @if (d.status !== 'completed' && d.status !== 'cancelled') {

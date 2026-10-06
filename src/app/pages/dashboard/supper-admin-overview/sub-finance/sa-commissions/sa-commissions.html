@@ -37,8 +37,8 @@
     <div class="fcm-kpi-card">
       <div class="fcm-kpi-top"><div class="fcm-kpi-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><span class="fcm-kpi-lbl">إجمالي العمولات المدفوعة</span></div>
       <div class="fcm-kpi-val txt-green">2.96M</div>
-      <div class="fcm-kpi-unit">ريال — 2026</div>
-      <div class="fcm-kpi-sub txt-muted">متوسط 2,374 ر.س/وسيط</div>
+      <div class="fcm-kpi-unit">دولار — 2026</div>
+      <div class="fcm-kpi-sub txt-muted">متوسط 2,374 $/وسيط</div>
     </div>
     <div class="fcm-kpi-card">
       <div class="fcm-kpi-top"><div class="fcm-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><span class="fcm-kpi-lbl">أعلى نسبة عمولة</span></div>
@@ -66,9 +66,9 @@
               <td class="fcm-tier-name">{{ t.name }}</td>
               <td class="fcm-tier-rate" [style.color]="t.color">{{ t.rate }}</td>
               <td class="fcm-muted">{{ t.minReferrals }} إحالة</td>
-              <td class="fcm-muted">{{ t.minSales }} ر.س</td>
+              <td class="fcm-muted">{{ t.minSales }} $</td>
               <td class="fcm-tier-count">{{ t.brokerCount }}</td>
-              <td class="fcm-tier-total">{{ t.totalPaid }} ر.س</td>
+              <td class="fcm-tier-total">{{ t.totalPaid }} $</td>
               <td><button type="button" class="fcm-edit-btn" (click)="editTier(t)">تعديل</button></td>
             </tr>
           }

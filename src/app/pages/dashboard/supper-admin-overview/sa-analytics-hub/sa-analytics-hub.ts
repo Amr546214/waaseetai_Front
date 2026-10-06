@@ -463,7 +463,7 @@ export class SaAnalyticsHub {
   /* ── KPI cards (per section, per period) ── */
   private readonly kpiBase: Record<SectionKey, { icon: string; color: string; bg: string; lbl: string }[]> = {
     overview: [
-      { icon: 'wallet', color: '#2BD4C7', bg: 'rgba(43,212,199,.12)', lbl: 'إجمالي الإيرادات (ر.س)' },
+      { icon: 'wallet', color: '#2BD4C7', bg: 'rgba(43,212,199,.12)', lbl: 'إجمالي الإيرادات ($)' },
       { icon: 'person', color: '#5DA0FF', bg: 'rgba(43,127,255,.12)', lbl: 'إجمالي المستخدمين' },
       { icon: 'escrow', color: '#0FA99A', bg: 'rgba(15,169,154,.12)', lbl: 'مشاريع مكتملة' },
       { icon: 'star', color: '#FFB400', bg: 'rgba(255,180,0,.12)', lbl: 'متوسط تقييم وسيط AI' },
@@ -495,7 +495,7 @@ export class SaAnalyticsHub {
     affiliates: [
       { icon: 'market', color: '#0FA99A', bg: 'rgba(15,169,154,.12)', lbl: 'وسطاء نشطون' },
       { icon: 'person', color: '#2BD4C7', bg: 'rgba(43,212,199,.12)', lbl: 'إجمالي الإحالات' },
-      { icon: 'wallet', color: '#FFB400', bg: 'rgba(255,180,0,.12)', lbl: 'عمولات مستحقة (ر.س)' },
+      { icon: 'wallet', color: '#FFB400', bg: 'rgba(255,180,0,.12)', lbl: 'عمولات مستحقة ($)' },
       { icon: 'check', color: '#5DA0FF', bg: 'rgba(43,127,255,.12)', lbl: 'معدل تحويل الإحالات' },
     ],
     performance: [

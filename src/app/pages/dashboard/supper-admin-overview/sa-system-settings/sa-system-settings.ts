@@ -63,8 +63,8 @@ export class SaSystemSettings {
     { key: 'ipBlock', label: 'حظر IP عند الفشل المتكرر', desc: 'حظر تلقائي بعد 5 محاولات فاشلة', on: true },
   ]);
 
-  readonly currency = signal('SAR');
-  readonly paymentGateway = signal('Moyasar');
+  readonly currency = signal('USD');
+  readonly paymentGateway = signal('PayPal');
   readonly financeToggles = signal<ToggleRow[]>([
     { key: 'futureBilling', label: 'تجهيز فوترة مستقبلية غير مفعّلة في V1', desc: 'تكامل مستقبلي مع الجهات الحكومية المختصة — Phase 2', on: true },
     { key: 'autoRelease', label: 'الإفراج التلقائي عن الضمان', desc: 'إفراج بعد 72 ساعة من قبول التسليم', on: true },
@@ -77,7 +77,7 @@ export class SaSystemSettings {
   readonly healthRows: HealthRow[] = [
     { name: 'خوادم التطبيق', value: '99.8% uptime', color: '#0FA99A' },
     { name: 'قاعدة البيانات', value: 'نشطة', color: '#0FA99A' },
-    { name: 'بوابة الدفع (Moyasar)', value: 'متصلة', color: '#0FA99A' },
+    { name: 'بوابة الدفع (PayPal)', value: 'متصلة', color: '#0FA99A' },
     { name: 'بوابة الفوترة (تجهيز مستقبلي)', value: 'غير مفعّلة في V1', color: '#6B7699' },
     { name: 'CDN وتسليم الملفات', value: 'نشط', color: '#0FA99A' },
     { name: 'خدمة البريد الإلكتروني', value: 'نشطة', color: '#0FA99A' },
