@@ -20,8 +20,8 @@
     <div class="tier-card tier-sens">
       <div class="tier-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
       <div>
-        <div class="tier-title">بيانات حساسة، بمراجعة الذكاء</div>
-        <div class="tier-desc">البريد والجوال والهوية والحساب البنكي تنشئ طلب تعديل يفحصه الذكاء ثم يعتمده مراجع بشري</div>
+        <div class="tier-title">بيانات حساسة، تخضع للمراجعة</div>
+        <div class="tier-desc">البريد والجوال والهوية والحساب البنكي تنشئ طلب تعديل يخضع للمراجعة ثم يعتمده مراجع بشري</div>
         <span class="tier-tag">تتبع كل طلب من هنا</span>
       </div>
     </div>
@@ -29,7 +29,7 @@
 
   <!-- إحصاء -->
   <div class="stat-row">
-    <div class="stat-box"><div class="stat-num txt-purple">{{ summary()?.pendingAiCount || 0 }}</div><div class="stat-lbl">قيد مراجعة الذكاء</div></div>
+    <div class="stat-box"><div class="stat-num txt-purple">{{ summary()?.pendingAiCount || 0 }}</div><div class="stat-lbl">قيد المراجعة</div></div>
     <div class="stat-box"><div class="stat-num txt-kahr">{{ summary()?.pendingHumanCount || 0 }}</div><div class="stat-lbl">بانتظار اعتماد بشري</div></div>
     <div class="stat-box"><div class="stat-num txt-teal">{{ summary()?.approvedCount || 0 }}</div><div class="stat-lbl">معتمد</div></div>
     <div class="stat-box"><div class="stat-num txt-coral">{{ summary()?.rejectedCount || 0 }}</div><div class="stat-lbl">مرفوض</div></div>
@@ -38,7 +38,7 @@
   <!-- فلاتر -->
   <div class="filter-row" role="tablist" aria-label="تصفية الطلبات">
     <button type="button" class="filter-chip" [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">الكل<span class="fc-count">{{ summary()?.totalRequests || 0 }}</span></button>
-    <button type="button" class="filter-chip" [class.active]="activeFilter() === 'ai'" (click)="setFilter('ai')">قيد مراجعة الذكاء<span class="fc-count">{{ summary()?.pendingAiCount || 0 }}</span></button>
+    <button type="button" class="filter-chip" [class.active]="activeFilter() === 'ai'" (click)="setFilter('ai')">قيد المراجعة<span class="fc-count">{{ summary()?.pendingAiCount || 0 }}</span></button>
     <button type="button" class="filter-chip" [class.active]="activeFilter() === 'human'" (click)="setFilter('human')">بانتظار اعتماد<span class="fc-count">{{ summary()?.pendingHumanCount || 0 }}</span></button>
     <button type="button" class="filter-chip" [class.active]="activeFilter() === 'ok'" (click)="setFilter('ok')">معتمد<span class="fc-count">{{ summary()?.approvedCount || 0 }}</span></button>
     <button type="button" class="filter-chip" [class.active]="activeFilter() === 'rej'" (click)="setFilter('rej')">مرفوض<span class="fc-count">{{ summary()?.rejectedCount || 0 }}</span></button>
@@ -67,7 +67,7 @@
           </div>
           
           @if (req.status === ChangeRequestStatus.PENDING_AI_REVIEW) {
-            <span class="req-status st-ai">قيد مراجعة الذكاء</span>
+            <span class="req-status st-ai">قيد المراجعة</span>
           } @else if (req.status === ChangeRequestStatus.PENDING_HUMAN_APPROVAL) {
             <span class="req-status st-human">بانتظار اعتماد بشري</span>
           } @else if (req.status === ChangeRequestStatus.APPROVED_AND_APPLIED) {
@@ -90,12 +90,12 @@
             <div class="ai-verdict-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
             <div class="ai-verdict-body">
               <div class="ai-verdict-lbl">
-                @if (req.status === ChangeRequestStatus.PENDING_AI_REVIEW) { فحص الذكاء جار }
-                @else if (req.status === ChangeRequestStatus.PENDING_HUMAN_APPROVAL) { توصية الذكاء، تمرير للمراجعة }
+                @if (req.status === ChangeRequestStatus.PENDING_AI_REVIEW) { قيد المراجعة }
+                @else if (req.status === ChangeRequestStatus.PENDING_HUMAN_APPROVAL) { نتيجة الفحص الآلي: تمرير للمراجعة }
                 @else { اعتمده المراجع }
                 <span class="ai-verdict-score">{{ req.aiConfidenceScore ? ('دقة ' + req.aiConfidenceScore + '%') : 'غير متاح' }}</span>
               </div>
-              <p class="ai-verdict-txt">{{ req.aiRecommendation || 'يتحقق الذكاء من البيانات...' }}</p>
+              <p class="ai-verdict-txt">{{ req.aiRecommendation || 'لا توجد نتيجة فحص بعد' }}</p>
             </div>
           </div>
         } @else if (req.status === ChangeRequestStatus.REJECTED) {
@@ -112,7 +112,7 @@
           <div class="req-timeline">
             <!-- AI Step -->
             <div class="tl-step" [class.done]="req.status !== ChangeRequestStatus.PENDING_AI_REVIEW && req.status !== ChangeRequestStatus.WITHDRAWN" [class.active]="req.status === ChangeRequestStatus.PENDING_AI_REVIEW">
-              <span class="tl-dot"><svg aria-hidden="true"><use [attr.href]="(req.status !== ChangeRequestStatus.PENDING_AI_REVIEW && req.status !== ChangeRequestStatus.WITHDRAWN) ? '#i-check' : '#i-ai'"></use></svg></span>مراجعة الذكاء
+              <span class="tl-dot"><svg aria-hidden="true"><use [attr.href]="(req.status !== ChangeRequestStatus.PENDING_AI_REVIEW && req.status !== ChangeRequestStatus.WITHDRAWN) ? '#i-check' : '#i-ai'"></use></svg></span>مراجعة أولية
             </div>
             <span class="tl-line" [class.done]="req.status !== ChangeRequestStatus.PENDING_AI_REVIEW && req.status !== ChangeRequestStatus.WITHDRAWN"></span>
             
@@ -173,7 +173,7 @@
         <div class="modal-info-row"><span class="modal-info-lbl">الحالة</span><span class="modal-info-val">مسحوب من قِبلك</span></div>
       }
       @if (req.aiRecommendation) {
-        <div class="modal-info-row modal-info-full"><span class="modal-info-lbl">توصية الذكاء</span><span class="modal-info-val">{{ req.aiRecommendation }}</span></div>
+        <div class="modal-info-row modal-info-full"><span class="modal-info-lbl">نتيجة الفحص الآلي</span><span class="modal-info-val">{{ req.aiRecommendation }}</span></div>
       }
     </div>
     <div class="modal-actions">

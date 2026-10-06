@@ -72,7 +72,7 @@ export class ProfileRequests implements OnInit {
 		// must NOT claim success or mutate local state to CANCELLED — that
 		// would misrepresent a no-op as a real withdrawal.
 		if (confirm(`هل أنت متأكد من سحب هذا الطلب؟`)) {
-			this.displayToast('سحب الطلب غير متاح حالياً — قيد التفعيل قريباً');
+			this.displayToast('سحب الطلب غير متاح حاليًا');
 		}
 	}
 

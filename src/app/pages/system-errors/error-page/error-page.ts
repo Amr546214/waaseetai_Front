@@ -48,7 +48,7 @@ const CONFIGS: Record<ErrorType, ErrorConfig> = {
 	'maintenance': {
 		code: '', icon: 'clock', tone: 'kahr',
 		title: 'صيانة مجدولة',
-		desc: 'وسيط في وضع الصيانة لتحديثات مهمة. سنعود قريباً — شكراً لصبرك.',
+		desc: 'وسيط في وضع الصيانة لتحديثات مهمة. سنعود بعد اكتمال التحديثات — شكراً لصبرك.',
 		primaryBtn: 'تحديث الصفحة', primaryRoute: '',
 		secondaryBtn: '', secondaryRoute: '',
 		showEta: true

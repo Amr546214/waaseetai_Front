@@ -31,14 +31,14 @@
       </div>
       <div>
         <div class="mr-tier-title">تصل للمراجعة البشرية</div>
-        <div class="mr-tier-desc">طلبات البيانات الحساسة (هوية، بنك، تواصل) من كل الحسابات، بعد فحص الذكاء</div>
+        <div class="mr-tier-desc">طلبات البيانات الحساسة (هوية، بنك، تواصل) من كل الحسابات، بعد المراجعة الأولية</div>
         <span class="mr-tier-tag">قرار المراجع نهائي ومسجّل</span>
       </div>
     </div>
   </div>
 
   <div class="mr-stats">
-    <div class="mr-stat"><div class="mr-stat-num txt-purple">{{ countFor('ai') }}</div><div class="mr-stat-lbl">قيد مراجعة الذكاء</div></div>
+    <div class="mr-stat"><div class="mr-stat-num txt-purple">{{ countFor('ai') }}</div><div class="mr-stat-lbl">قيد المراجعة</div></div>
     <div class="mr-stat"><div class="mr-stat-num txt-amber">{{ countFor('human') }}</div><div class="mr-stat-lbl">بانتظار اعتماد بشري</div></div>
     <div class="mr-stat"><div class="mr-stat-num txt-green">{{ countFor('ok') }}</div><div class="mr-stat-lbl">معتمد</div></div>
     <div class="mr-stat"><div class="mr-stat-num txt-coral">{{ countFor('rejected') }}</div><div class="mr-stat-lbl">مرفوض</div></div>
@@ -93,7 +93,7 @@
             </div>
             <span class="mr-status" [class]="'mr-st-' + r.status">
               @switch (r.status) {
-                @case ('ai') { قيد مراجعة الذكاء }
+                @case ('ai') { قيد المراجعة }
                 @case ('human') { بانتظار اعتماد بشري }
                 @case ('ok') { معتمد ومطبق }
                 @case ('rejected') { مرفوض }

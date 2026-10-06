@@ -64,7 +64,7 @@ describe('create request: AI copy is truthful', () => {
 	it('step 2: the default NDA and the custom-NDA note make no AI approval / scan claim', () => {
 		const t = read('components/step2-conditions/step2-conditions.html');
 		expect(t).toContain('اتفاقية موحدة تُطبَّق افتراضيًا');
-		expect(t).toContain('هذه الميزة قيد التطوير وستتوفر قريبا');
+		expect(t).toContain('هذه الميزة غير متاحة حاليًا');
 	});
 
 	it('step 3: the length hint is neutral, the draft is editable, and "requirements" are described as the client\'s own list', () => {
