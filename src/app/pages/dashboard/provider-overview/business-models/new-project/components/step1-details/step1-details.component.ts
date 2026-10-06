@@ -15,10 +15,13 @@ export class Step1DetailsComponent {
 	@Input({ required: true }) isStreamingText!: boolean;
 	@Input({ required: true }) isAiEnhancing!: boolean;
 	@Input({ required: true }) isAiSuggesting!: boolean;
+	/** Message of a failed AI stream (null when there is none). */
+	@Input() aiStreamError: string | null = null;
 
 	@Output() projectNameChange = new EventEmitter<string>();
 	@Output() projectDescChange = new EventEmitter<string>();
 	@Output() onAiAssist = new EventEmitter<'improve' | 'suggest'>();
+	@Output() onRetryAi = new EventEmitter<void>();
 
 	updateName(event: Event) {
 		this.projectNameChange.emit((event.target as HTMLInputElement).value);

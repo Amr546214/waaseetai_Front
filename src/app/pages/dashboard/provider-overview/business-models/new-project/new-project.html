@@ -99,7 +99,7 @@
 		<ng-container *ngSwitchCase="1">
 			<app-step1-details [projectName]="projectName()" [projectDesc]="projectDesc()" [descCount]="descCount()"
 				[isStreamingText]="isStreamingText()" [isAiEnhancing]="isAiEnhancing()"
-				[isAiSuggesting]="isAiSuggesting()" (projectNameChange)="projectName.set($event)"
+				[isAiSuggesting]="isAiSuggesting()" [aiStreamError]="aiStreamError()" (onRetryAi)="retryAiAssist()" (projectNameChange)="projectName.set($event)"
 				(projectDescChange)="projectDesc.set($event)" (onAiAssist)="aiAssist($event)">
 			</app-step1-details>
 		</ng-container>

@@ -100,12 +100,13 @@ export class CompanyModels implements OnInit {
 		this.activeSort.set(sort);
 	}
 
-	aiChecks(model: CompanyModelCard): { text: string; ok: boolean }[] {
-		// Derived, presentational checks based on the model's AI score —
-		// there is no per-check breakdown in the market-models API response.
-		const checks: { text: string; ok: boolean }[] = [{ text: 'اكتمال متطلبات النموذج', ok: true }];
-		checks.push({ text: model.aiScore >= 90 ? 'وضوح نطاق العمل' : 'نطاق العمل يحتاج توضيحاً', ok: model.aiScore >= 90 });
-		checks.push({ text: model.aiScore >= 92 ? 'التسعير مناسب للسوق' : 'أضف تفاصيل تسعير أدق', ok: model.aiScore >= 92 });
-		return checks;
+	/** Status rows built only from the model's real fields (status, stored AI score, client reviews) — never fixed ✓ marks or score thresholds. */
+	checks(model: CompanyModelCard): { text: string; ok: boolean }[] {
+		const live = model.status === 'PUBLISHED' || model.status === 'APPROVED';
+		return [
+			{ text: live ? 'منشور في السوق' : 'قيد المراجعة', ok: live },
+			{ text: model.aiScore > 0 ? `تقييم AI: ${model.aiScore}%` : 'لم يُقيَّم بتقييم AI بعد', ok: model.aiScore > 0 },
+			{ text: (model.reviewsCount ?? 0) > 0 ? `تقييم العملاء: ${model.rating} (${model.reviewsCount})` : 'لا تقييمات من العملاء بعد', ok: (model.reviewsCount ?? 0) > 0 },
+		];
 	}
 }

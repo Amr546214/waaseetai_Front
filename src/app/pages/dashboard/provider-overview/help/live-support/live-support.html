@@ -9,101 +9,77 @@
   <div class="ord-head">
     <div>
       <div class="ord-title">الدعم المباشر</div>
-      <div class="ord-sub">{{ isCompanyMode() ? 'محادثة مع موظف دعم بشري لحالات شركتك' : 'شات مباشر مع موظف دعم بشري · الرد خلال دقائق' }}</div>
+      <div class="ord-sub">تذاكر الدعم الخاصة بك ومحادثاتها مع فريق وسيط</div>
     </div>
-    <a *ngIf="isCompanyMode()" [routerLink]="['/provider-overview/help/tickets']" class="lv-btn lv-btn-sec">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-      تذاكر الشركة
-    </a>
+    <button type="button" class="lv-btn lv-btn-sec" (click)="startNew()">فتح تذكرة جديدة</button>
   </div>
 
-  <div class="lv-wrap" [class.lv-wrap-solo]="!isCompanyMode()">
+  <div class="lv-wrap">
 
     <div class="lv-pane">
-      <div class="lv-hd">
-        <div class="lv-orb" aria-hidden="true">{{ agentInitial() }}</div>
-        <div class="lv-hd-body">
-          <div class="lv-hd-name">{{ agentName() }} · {{ agentTitle() }}<span class="lv-live"><span class="lv-live-dot"></span>متصل الآن</span></div>
-          <div class="lv-hd-sub">موظف دعم بشري · متوسط زمن الرد أقل من دقيقتين</div>
-        </div>
-        <button type="button" class="lv-escalate" (click)="escalateToTicket()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-          <span>تحويل لتذكرة</span>
-        </button>
-      </div>
-
-      <div class="lv-disc" role="note">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
-        <span>أنت تتحدث مع موظف دعم بشري. قد تُسجَّل المحادثة لتحسين الخدمة. للحالات التي تحتاج متابعة موثّقة حوّلها إلى تذكرة دعم</span>
-      </div>
-
-      <div class="lv-thread" #thread>
-        <div *ngFor="let m of messages()" class="lv-row" [ngClass]="{'ai': m.from === 'agent', 'me': m.from === 'me', 'sys': m.from === 'sys'}">
-          <ng-container *ngIf="m.from !== 'sys'; else sysTpl">
-            <div class="lv-av" [ngClass]="m.from === 'agent' ? 'ai' : 'me'" aria-hidden="true">{{ m.from === 'agent' ? agentInitial() : 'أ' }}</div>
-            <div class="lv-msg">
-              <div class="lv-bubble">{{ m.text }}</div>
-              <div class="lv-time">{{ m.time }}</div>
-            </div>
-          </ng-container>
-          <ng-template #sysTpl>
-            <div class="lv-sys">{{ m.text }}</div>
-          </ng-template>
-        </div>
-
-        <div *ngIf="isTyping()" class="lv-row ai">
-          <div class="lv-av ai" aria-hidden="true">{{ agentInitial() }}</div>
-          <div class="lv-typing-bubble"><span></span><span></span><span></span></div>
-        </div>
-      </div>
-
-      <div class="lv-composer">
-        <div class="lv-quick">
-          <button type="button" class="lv-chip" *ngFor="let q of quickReplies()" (click)="sendQuick(q)">{{ q }}</button>
-        </div>
-        <form class="lv-input-row" (ngSubmit)="send($event)">
-          <textarea rows="1" placeholder="اكتب رسالتك لموظف الدعم" [ngModel]="inputText()" (ngModelChange)="inputText.set($event)" name="msg" aria-label="رسالتك"></textarea>
-          <button type="submit" class="lv-send" aria-label="إرسال">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
+      <ng-container *ngIf="creating(); else threadTpl">
+        <div class="lv-hd"><div class="lv-hd-body"><div class="lv-hd-name">تذكرة دعم جديدة</div></div></div>
+        <form class="lv-composer" (ngSubmit)="submitNew($event)">
+          <input type="text" name="subject" placeholder="عنوان التذكرة" [ngModel]="newSubject()" (ngModelChange)="newSubject.set($event)" aria-label="عنوان التذكرة" />
+          <select name="category" [ngModel]="newCategory()" (ngModelChange)="newCategory.set($event)" aria-label="التصنيف">
+            <option value="">اختر التصنيف</option>
+            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+          </select>
+          <textarea rows="5" name="description" placeholder="اشرح المشكلة بالتفصيل" [ngModel]="newDescription()" (ngModelChange)="newDescription.set($event)" aria-label="وصف المشكلة"></textarea>
+          <button type="submit" class="lv-btn" [disabled]="busy()">إرسال التذكرة</button>
         </form>
-        <div class="lv-note">يردّ موظف الدعم خلال دقائق في أوقات العمل. خارجها يردّ المساعد الذكي أو تُحوَّل لتذكرة</div>
-      </div>
+      </ng-container>
+
+      <ng-template #threadTpl>
+        <ng-container *ngIf="activeTicket() as t; else pickTpl">
+          <div class="lv-hd">
+            <div class="lv-hd-body">
+              <div class="lv-hd-name">{{ t.subject }}</div>
+              <div class="lv-hd-sub">{{ t.ticketNumber }} · {{ statusLabel(t.status) }}</div>
+            </div>
+            <button type="button" class="lv-escalate" *ngIf="canReply()" [disabled]="busy()" (click)="closeActive()"><span>إغلاق التذكرة</span></button>
+          </div>
+
+          <div class="lv-thread" #thread>
+            <div *ngIf="threadLoading()" class="lv-sys">جارٍ التحميل…</div>
+            <div *ngIf="threadError()" class="lv-sys">{{ threadError() }} <button type="button" class="lv-chip" (click)="openTicket(t)">إعادة المحاولة</button></div>
+            <div *ngIf="!threadLoading() && !threadError() && messages().length === 0" class="lv-sys">لا توجد رسائل بعد</div>
+            <div *ngFor="let m of messages()" class="lv-row" [ngClass]="isMine(m) ? 'me' : 'ai'">
+              <div class="lv-msg">
+                <div class="lv-bubble">{{ m.body }}</div>
+                <div class="lv-time">{{ senderName(m) }} · {{ m.createdAt | date: 'yyyy-MM-dd HH:mm' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lv-composer">
+            <form *ngIf="canReply(); else closedTpl" class="lv-input-row" (ngSubmit)="send($event)">
+              <textarea rows="1" placeholder="اكتب ردك على التذكرة" [ngModel]="inputText()" (ngModelChange)="inputText.set($event)" name="msg" aria-label="ردك"></textarea>
+              <button type="submit" class="lv-send" [disabled]="busy()" aria-label="إرسال">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </form>
+            <ng-template #closedTpl><div class="lv-note">هذه التذكرة مغلقة</div></ng-template>
+          </div>
+        </ng-container>
+        <ng-template #pickTpl>
+          <div class="lv-thread"><div class="lv-sys">اختر تذكرة من القائمة أو افتح تذكرة جديدة</div></div>
+        </ng-template>
+      </ng-template>
     </div>
 
-    <div *ngIf="isCompanyMode()" class="lv-side">
-      <div class="lv-qw">
-        <div class="lv-qw-n">2</div>
-        <div>
-          <div class="lv-qw-t">دقيقتان متوسط الانتظار</div>
-          <div class="lv-qw-d">دعم الشركات · أيام العمل 8ص — 6م</div>
-        </div>
-      </div>
-
+    <div class="lv-side">
       <div class="lv-card">
-        <div class="lv-card-ttl">تذكرة المحادثة الحالية</div>
-        <div class="lv-row-kv"><span>رقم التذكرة</span><span class="v">{{ ticketRef() ?? 'لا توجد تذكرة بعد' }}</span></div>
-        <div class="lv-row-kv"><span>الموضوع</span><span class="v">—</span></div>
-        <div class="lv-row-kv"><span>المشروع المرتبط</span><span class="v">بدون ربط</span></div>
-        <div class="lv-row-kv"><span>الأولوية</span><span class="pill">—</span></div>
-        <div class="lv-row-kv"><span>الحالة</span><span class="pill">—</span></div>
-        <a [routerLink]="['/provider-overview/help/tickets']" class="lv-btn lv-btn-sec lv-btn-block">فتح تذاكري</a>
+        <div class="lv-card-ttl">تذاكري</div>
+        <div *ngIf="listLoading()" class="lv-note">جارٍ التحميل…</div>
+        <div *ngIf="listError()" class="lv-note">{{ listError() }} <button type="button" class="lv-chip" (click)="loadTickets()">إعادة المحاولة</button></div>
+        <div *ngIf="!listLoading() && !listError() && tickets().length === 0" class="lv-note">لا توجد بيانات بعد</div>
+        <button type="button" class="lv-btn lv-btn-sec lv-btn-block" *ngFor="let t of tickets()" (click)="openTicket(t)">
+          {{ t.ticketNumber }} · {{ t.subject }} · {{ statusLabel(t.status) }}
+        </button>
       </div>
-
       <div class="lv-card">
-        <div class="lv-card-ttl">خيارات أخرى</div>
-        <button type="button" class="lv-btn lv-btn-sec lv-btn-block" (click)="goToHelp()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
-          المساعد الذكي
-        </button>
-        <button type="button" class="lv-btn lv-btn-sec lv-btn-block" (click)="escalateToTicket()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          فتح تذكرة جديدة
-        </button>
-        <button type="button" class="lv-btn lv-btn-sec lv-btn-block" (click)="goToHelp()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          مركز المساعدة
-        </button>
+        <button type="button" class="lv-btn lv-btn-sec lv-btn-block" (click)="goToHelp()">مركز المساعدة</button>
       </div>
     </div>
 

@@ -35,6 +35,8 @@ export interface Dispute {
   againstUserId?: string | null;
   againstUser?: DisputePartyRef | null;
   request?: { id: string; title?: string } | null;
+  /** Escrow still held for the dispute's project (own-disputes endpoints only; null = none/unknown, absent on an older backend). */
+  heldEscrowAmount?: number | null;
 }
 
 export interface DisputePagination {

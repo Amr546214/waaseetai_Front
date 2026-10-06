@@ -36,7 +36,7 @@
 			<div class="co-hero">
 				<div class="co-logo">{{ companyInitials() }}</div>
 				<div class="co-meta">
-					<div class="co-name">{{ profileData()?.header?.fullName || '—' }}</div>
+					<div class="co-name">{{ profileData()?.company?.companyName || profileData()?.header?.fullName || '—' }}</div>
 					<div class="co-tag">{{ profileData()?.basicInfo?.headline || profileData()?.basicInfo?.bio || '—' }}</div>
 					<div class="co-badges">
 						<span class="pill pill-ok">
@@ -44,7 +44,7 @@
 							{{ profileData()?.header?.isVerified ? 'شركة موثّقة' : 'لم يكتمل التوثيق بعد' }}
 						</span>
 						<span class="pill pill-gold" *ngIf="profileData()?.header?.levelInfo?.levelName">★ {{ profileData()?.header?.levelInfo?.levelName }}</span>
-						<span class="pill pill-teal">بيانات الفريق غير متاحة في هذا الملف</span>
+						<span class="pill pill-teal">{{ profileData()?.company?.activeTeamMembersCount ?? '—' }} أعضاء فريق نشطين</span>
 						<span class="pill pill-blue">{{ profileData()?.header?.stats?.completedProjects ?? '—' }} مشروع مكتمل</span>
 					</div>
 				</div>
@@ -120,7 +120,7 @@
 					@for (m of (profileData()?.services || []); track m.id) {
 						<tr>
 							<td style="font-weight:700" class="txt-white">{{ m.title || '—' }}</td>
-							<td>{{ specialtyName(m.specialtyId) }}</td>
+							<td>{{ specialtyOf(m) }}</td>
 							<td><span class="pill" [class.pill-ok]="m.status==='APPROVED' || m.status==='PUBLISHED'">{{ serviceStatusLabel(m.status) }}</span></td>
 							<td>{{ m.salesCount ?? '—' }}</td>
 						</tr>
@@ -560,11 +560,19 @@
 						<div class="flex flex-col gap-2.5 text-[12px]">
 							<div class="flex justify-between py-1.5 border-b border-[#182544]">
 								<span class="text-[#7e8eb5] font-semibold">عدد أسئلة الاختبار</span>
-								<span class="text-white font-bold">{{ spec.assessmentDetails.totalQuestions ?? 'غير متاح' }}</span>
+								<span class="text-white font-bold">{{ dash(spec.assessmentDetails.totalQuestions) }}</span>
+							</div>
+							<div class="flex justify-between py-1.5 border-b border-[#182544]">
+								<span class="text-[#7e8eb5] font-semibold">عدد الأسئلة المجاب عنها</span>
+								<span class="text-white font-bold">{{ dash(spec.assessmentDetails.answeredCount) }}</span>
 							</div>
 							<div class="flex justify-between py-1.5 border-b border-[#182544]">
 								<span class="text-[#7e8eb5] font-semibold">المدة المحددة للاختبار</span>
-								<span class="text-white font-bold">{{ spec.assessmentDetails.timeTakenMinutes ? spec.assessmentDetails.timeTakenMinutes + ' دقيقة' : 'غير متاح' }}</span>
+								<span class="text-white font-bold">{{ minutes(timeLimitOf(spec.assessmentDetails)) }}</span>
+							</div>
+							<div class="flex justify-between py-1.5 border-b border-[#182544]">
+								<span class="text-[#7e8eb5] font-semibold">الزمن المستغرق</span>
+								<span class="text-white font-bold">{{ minutes(spec.assessmentDetails.timeSpentMinutes) }}</span>
 							</div>
 							<div class="flex justify-between py-1.5 border-b border-[#182544]">
 								<span class="text-[#7e8eb5] font-semibold">مستوى المقدّم</span>

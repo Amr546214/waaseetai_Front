@@ -72,7 +72,8 @@ function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 			{ label: 'تاريخ الفتح', value: dateLabel(d.createdAt) },
 			{ label: 'المشروع', value: d.request?.title || '—' },
 			...(d.resolvedAt ? [{ label: 'تاريخ القرار', value: dateLabel(d.resolvedAt) }] : []),
-			{ label: 'المبلغ المحتجز', value: 'التفاصيل الكاملة غير متاحة' },
+			// heldEscrowAmount: null/absent -> 'غير متاح'; 0 is a real value and is shown as '0'.
+			{ label: 'المتبقي من مستحقاتك في الضمان', value: d.heldEscrowAmount === null || d.heldEscrowAmount === undefined ? 'غير متاح' : String(d.heldEscrowAmount) },
 			{ label: 'الرسائل', value: 'التفاصيل الكاملة غير متاحة' },
 		],
 	};

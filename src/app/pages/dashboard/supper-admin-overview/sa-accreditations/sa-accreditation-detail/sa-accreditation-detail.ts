@@ -44,7 +44,7 @@ export class SaAccreditationDetail implements OnInit {
   ];
 
   readonly statusLabels: Record<AccreditationStatus, string> = {
-    PENDING_AI_AUDIT: 'قيد الفحص الآلي',
+    PENDING_AI_AUDIT: 'قيد المراجعة اليدوية',
     AI_VERIFIED: 'معتمد',
     REJECTED: 'مرفوض',
     MANUAL_REVIEW: 'يتطلب مراجعة يدوية',
