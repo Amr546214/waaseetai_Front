@@ -41,7 +41,7 @@
           <div class="search-card">
             <div class="search-card-title">ابحث في المدونة</div>
             <div class="search-wrap">
-              <input class="search-input" type="search" placeholder="AI Trust Score، التسعير، التسليم..." aria-label="ابحث في المدونة" [value]="searchQuery()" (input)="onSearchInput($any($event.target).value)" (keyup.enter)="scrollToResults()">
+              <input class="search-input" type="search" placeholder="مستوى المقدم، التسعير، التسليم..." aria-label="ابحث في المدونة" [value]="searchQuery()" (input)="onSearchInput($any($event.target).value)" (keyup.enter)="scrollToResults()">
               <div class="search-ico"><svg aria-hidden="true"><use href="#bl-search"></use></svg></div>
             </div>
             <div class="quick-tags-lbl">بحث سريع</div>
@@ -149,7 +149,7 @@
             <div class="ai-side-ico"><svg aria-hidden="true"><use href="#bl-trust-ai"></use></svg></div>
             <div class="ai-side-label">رؤى الذكاء الاصطناعي</div>
           </div>
-          <div class="ai-side-txt">المقالات الأكثر قيمة لمقدمي الخدمات هذا الأسبوع تتمحور حول <strong>AI Trust Score</strong> و<strong>استراتيجيات التسعير</strong></div>
+          <div class="ai-side-txt">المقالات الأكثر قيمة لمقدمي الخدمات هذا الأسبوع تتمحور حول <strong>مستوى المقدم</strong> و<strong>استراتيجيات التسعير</strong></div>
           <div class="ai-side-stat">
             <div class="ai-stat"><div class="ai-stat-val">{{ posts.length }}</div><div class="ai-stat-lbl">مقالة</div></div>
             <div class="ai-stat"><div class="ai-stat-val">{{ categories().length }}</div><div class="ai-stat-lbl">تصنيفات</div></div>

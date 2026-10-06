@@ -37,7 +37,7 @@ export class Blog {
 
   posts: BlogPost[] = BLOG_POSTS;
 
-  readonly quickTags = ['AI Trust Score', 'التسعير', 'التسليم', 'نصائح', 'الضمان'];
+  readonly quickTags = ['مستوى المقدم', 'التسعير', 'التسليم', 'نصائح', 'الضمان'];
 
   activeCategory = signal<string>('الكل');
   searchQuery = signal<string>('');
