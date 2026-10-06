@@ -52,12 +52,13 @@ describe('marketplace / service pages: AI wording is truthful', () => {
 		}
 	});
 
-	it('the offer page labels the stored score "جودة AI" / "تدقيق AI" and the stored summary "ملخص تدقيق AI"', () => {
+	it('the offer page labels the stored score "جودة AI" / "تقييم AI" and shows the stored summary only when it exists', () => {
 		const t = read('marketplace/offer/offer.html');
-		expect(t).toContain('تدقيق الذكاء الاصطناعي للخدمة');
+		expect(t).toContain('تقييم AI الاسترشادي للخدمة');
 		expect(t).toContain('جودة AI');
-		expect(t).toContain('ملخص تدقيق AI:');
-		expect(t).toContain('لم يُجرَ تدقيق AI لهذه الخدمة بعد');
+		expect(t).toContain('ملخص التقييم الاسترشادي (AI):');
+		expect(t).toContain('@if (model()?.aiRecommendationReason)');
+		expect(t).toContain('لم تخضع هذه الخدمة لتقييم AI الاسترشادي بعد');
 		// the backend maps a missing audit to 0, so a score / sub-score is only shown when it is a real positive number
 		expect(t).toContain("@if (model()?.aiClarityScore)");
 		expect(t).toContain("@if (model()?.aiFeasibilityScore)");
@@ -68,7 +69,7 @@ describe('marketplace / service pages: AI wording is truthful', () => {
 		const t = read('marketplace/provider-profile/provider-profile.html');
 		expect(t).toContain('درجة تقييم التخصص');
 		expect(t).toContain('ملخص أداء المقدم بالذكاء الاصطناعي');
-		expect(t).toContain("executionQuality != null ? 'AI · ملخص مسجّل' : 'غير متاح حاليًا'");
+		expect(t).toContain("executionQuality != null ? 'ملخص AI من سجل المشاريع' : 'غير متاح حاليًا'");
 	});
 
 	it('the marketplace keeps the Gemini-only match / title / badge conditions', () => {

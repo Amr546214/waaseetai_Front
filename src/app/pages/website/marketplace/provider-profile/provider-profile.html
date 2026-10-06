@@ -127,12 +127,12 @@
           <div class="stat-sub">عمل في نماذج الأعمال</div>
         </div>
         <div class="stat-cell">
-          <div class="stat-n" style="color:var(--teal)">{{ provider()?.aiMetrics?.clientSatisfaction || 0 }}%</div>
+          <div class="stat-n" style="color:var(--teal)">{{ provider()?.aiMetrics?.clientSatisfaction != null ? provider()?.aiMetrics?.clientSatisfaction + '%' : 'غير متاح' }}</div>
           <div class="stat-sub">رضا العملاء</div>
         </div>
       } @else {
         <div class="stat-cell">
-          <div class="stat-n" style="color:var(--teal)">{{ provider()?.aiMetrics?.onTimeDelivery || 0 }}%</div>
+          <div class="stat-n" style="color:var(--teal)">{{ provider()?.aiMetrics?.onTimeDelivery != null ? provider()?.aiMetrics?.onTimeDelivery + '%' : 'غير متاح' }}</div>
           <div class="stat-sub">نسبة الالتزام</div>
         </div>
         <div class="stat-cell">
@@ -156,7 +156,7 @@
           <svg aria-hidden="true" style="width:14px;height:14px;color:var(--ai)"><use href="#ws-trust-ai"></use></svg>
         </span>
         <span style="font-size:13px;font-weight:800;color:var(--ai-txt)">ملخص أداء المقدم بالذكاء الاصطناعي</span>
-        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)">{{ provider()?.aiMetrics?.executionQuality != null ? 'AI · ملخص مسجّل' : 'غير متاح حاليًا' }}</span>
+        <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)">{{ provider()?.aiMetrics?.executionQuality != null ? 'ملخص AI من سجل المشاريع' : 'غير متاح حاليًا' }}</span>
         <span style="font-size:11px;color:var(--txt-3)">مؤشرات الأداء الفعلية</span>
       </div>
       <div class="ai-metrics-inner">
@@ -166,7 +166,7 @@
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
               <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(123,47,190,.14)" stroke-width="5"/>
               <circle cx="36" cy="36" r="28" fill="none" stroke="#A56BE0" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [attr.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.executionQuality || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.executionQuality || 0"/>
-              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#A56BE0;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.executionQuality || 0 }}</text>
+              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#A56BE0;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.executionQuality ?? '—' }}</text>
             </svg>
             <div style="font-size:10px;color:var(--txt-3)">جودة التنفيذ</div>
           </div>
@@ -174,7 +174,7 @@
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
               <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(43,212,199,.14)" stroke-width="5"/>
               <circle cx="36" cy="36" r="28" fill="none" stroke="#2BD4C7" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [attr.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.onTimeDelivery || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.onTimeDelivery || 0"/>
-              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#2BD4C7;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.onTimeDelivery || 0 }}</text>
+              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#2BD4C7;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.onTimeDelivery ?? '—' }}</text>
             </svg>
             <div style="font-size:10px;color:var(--txt-3)">الالتزام بالمواعيد</div>
           </div>
@@ -182,7 +182,7 @@
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
               <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(43,127,255,.14)" stroke-width="5"/>
               <circle cx="36" cy="36" r="28" fill="none" stroke="#5DA0FF" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [attr.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.communication || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.communication || 0"/>
-              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#5DA0FF;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.communication || 0 }}</text>
+              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#5DA0FF;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.communication ?? '—' }}</text>
             </svg>
             <div style="font-size:10px;color:var(--txt-3)">التواصل</div>
           </div>
@@ -190,7 +190,7 @@
             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)" aria-hidden="true">
               <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(15,169,154,.14)" stroke-width="5"/>
               <circle cx="36" cy="36" r="28" fill="none" stroke="#0FA99A" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.9" [attr.stroke-dashoffset]="175.9 - (175.9 * (provider()?.aiMetrics?.clientSatisfaction || 0) / 100)" class="ai-ring-p" [attr.data-pct]="provider()?.aiMetrics?.clientSatisfaction || 0"/>
-              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#0FA99A;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.clientSatisfaction || 0 }}</text>
+              <text x="36" y="43" text-anchor="middle" style="transform:rotate(90deg);transform-origin:36px 36px;font-size:15px;font-weight:900;fill:#0FA99A;font-family:Tajawal,sans-serif">{{ provider()?.aiMetrics?.clientSatisfaction ?? '—' }}</text>
             </svg>
             <div style="font-size:10px;color:var(--txt-3)">رضا العملاء</div>
           </div>
@@ -201,28 +201,28 @@
           <div class="ai-bar-row">
             <div class="ai-bar-label">
               <span style="color:var(--txt-2)">معدل الإنجاز في الوقت المحدد</span>
-              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.onTimeCompletionRate || 0 }}%</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.onTimeCompletionRate != null ? provider()?.aiMetrics?.onTimeCompletionRate + '%' : 'غير متاح' }}</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.onTimeCompletionRate || 0" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
               <span style="color:var(--txt-2)">معدل إعادة الطلب من نفس العميل</span>
-              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.repeatClientRate || 0 }}%</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.repeatClientRate != null ? provider()?.aiMetrics?.repeatClientRate + '%' : 'غير متاح' }}</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.repeatClientRate || 0" style="background:linear-gradient(90deg,#2BD4C7,#2B7FFF)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
-              <span style="color:var(--txt-2)">نسبة الخدمات فوق 4.8 نجمة</span>
-              <span style="color:var(--kahr);font-weight:800">{{ provider()?.aiMetrics?.highRatingServicesRate || 0 }}%</span>
+              <span style="color:var(--txt-2)">نسبة التقييمات بخمس نجوم</span>
+              <span style="color:var(--kahr);font-weight:800">{{ provider()?.aiMetrics?.highRatingServicesRate != null ? provider()?.aiMetrics?.highRatingServicesRate + '%' : 'غير متاح' }}</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.highRatingServicesRate || 0" style="background:linear-gradient(90deg,#D98A0B,#FFB400)"></div></div>
           </div>
           <div class="ai-bar-row">
             <div class="ai-bar-label">
               <span style="color:var(--txt-2)">نسبة التسليم بدون نزاعات</span>
-              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.conflictFreeDeliveryRate || 0 }}%</span>
+              <span style="color:var(--teal);font-weight:800">{{ provider()?.aiMetrics?.conflictFreeDeliveryRate != null ? provider()?.aiMetrics?.conflictFreeDeliveryRate + '%' : 'غير متاح' }}</span>
             </div>
             <div class="ai-bar-track"><div class="ai-bar-fill" [style.width.%]="provider()?.aiMetrics?.conflictFreeDeliveryRate || 0" style="background:linear-gradient(90deg,#0FA99A,#2BD4C7)"></div></div>
           </div>

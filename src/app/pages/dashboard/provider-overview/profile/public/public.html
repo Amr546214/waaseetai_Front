@@ -477,11 +477,7 @@
 				<div>
 					<div class="text-[11px] font-bold text-[var(--txt-3)] mb-0.5">متوسط أداء الاختبارات التقنية</div>
 					<div class="text-[17px] font-black text-white flex items-center gap-2">
-						{{ profileData()?.aiMetrics?.averageTestScore || 0 }}%
-						<span class="text-[#A56BE0] text-[12px] font-bold"
-							*ngIf="profileData()?.aiMetrics?.averageTestScore">(كفاءة خبير)</span>
-						<span class="text-[#A56BE0] text-[12px] font-bold"
-							*ngIf="!profileData()?.aiMetrics?.averageTestScore">(قيد التقييم)</span>
+						{{ profileData()?.aiMetrics?.averageTestScore ? profileData()?.aiMetrics?.averageTestScore + '%' : 'غير متاح' }}
 					</div>
 				</div>
 			</div>
@@ -500,8 +496,8 @@
 				<div>
 					<div class="text-[11px] font-bold text-[var(--txt-3)] mb-0.5">مؤشر مطابقة الكود والمعمارية</div>
 					<div class="text-[17px] font-black text-[#5DA0FF] flex items-center gap-1.5">
-						{{ profileData()?.aiMetrics?.codeMatchingIndex || 0 }}% <span
-							class="text-white text-[11px] font-semibold">تدقيق تلقائي بالذكاء الاصطناعي</span>
+						{{ profileData()?.aiMetrics?.codeMatchingIndex ? profileData()?.aiMetrics?.codeMatchingIndex + '%' : 'غير متاح' }} <span
+							class="text-white text-[11px] font-semibold">متوسط درجات نماذج الأعمال المعتمدة</span>
 					</div>
 				</div>
 			</div>
