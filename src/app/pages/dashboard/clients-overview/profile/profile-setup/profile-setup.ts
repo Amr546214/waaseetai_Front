@@ -191,9 +191,7 @@ export class ProfileSetupDashboard implements OnInit {
 		this.currentStep.set(target);
 	}
 
-	triggerNafath() {
-		this.showToast('جاري الربط مع NAFATH...');
-	}
+	// Nafath verification is unavailable (no integration): the button is disabled in the template, so there is nothing to trigger.
 
 	async onFileSelected(event: Event, groupName: string, controlName: string) {
 		const input = event.target as HTMLInputElement;

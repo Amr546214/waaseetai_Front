@@ -925,8 +925,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			identity: {
 				frontId: this.uploadedFrontId(),
 				backId: this.setupForm.get('docs.backId')?.value,
-				certs: this.uploadedCerts(),
-				isNafathVerified: this.isNafathVerified()
+				certs: this.uploadedCerts()
 			},
 			portfolio: this.sanitizePortfolioForPayload(this.portfolioItems()),
 
