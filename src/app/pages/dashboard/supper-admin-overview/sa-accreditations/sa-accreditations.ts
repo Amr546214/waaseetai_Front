@@ -47,14 +47,14 @@ export class SaAccreditations implements OnInit {
 
   readonly filters: { key: StatusFilter; label: string }[] = [
     { key: 'all', label: 'الكل' },
-    { key: 'PENDING_AI_AUDIT', label: 'قيد الفحص الآلي' },
+    { key: 'PENDING_AI_AUDIT', label: 'قيد المراجعة اليدوية' },
     { key: 'MANUAL_REVIEW', label: 'يتطلب مراجعة يدوية' },
     { key: 'AI_VERIFIED', label: 'معتمد' },
     { key: 'REJECTED', label: 'مرفوض' },
   ];
 
   readonly statusLabels: Record<AccreditationStatus, string> = {
-    PENDING_AI_AUDIT: 'قيد الفحص الآلي',
+    PENDING_AI_AUDIT: 'قيد المراجعة اليدوية',
     AI_VERIFIED: 'معتمد',
     REJECTED: 'مرفوض',
     MANUAL_REVIEW: 'يتطلب مراجعة يدوية',

@@ -127,7 +127,7 @@ export class Specialties implements OnInit, OnDestroy {
 		// Only present when the backend really computed it (legacy attempts);
 		// WaseetAI-graded attempts report a score only. Never derived from %.
 		correctAnswers: number | null;
-		totalQuestions: number;
+		totalQuestions: number | null;
 		status: string;
 		badgeGrantedAt?: string;
 		feedbackAr?: string;
@@ -256,7 +256,7 @@ export class Specialties implements OnInit, OnDestroy {
 	// (evaluation_complete) result shape — the sole authoritative place that
 	// sets quizResult from a socket-delivered outcome.
 	private applyEvaluationResult(res: any) {
-		const totalQ = this.quizQuestions().length || 20;
+		const totalQ = this.quizQuestions().length || null;
 		const scoreVal = Number.isFinite(res?.score) ? res.score : (Number.isFinite(res?.scorePercentage) ? res.scorePercentage : null);
 		if (scoreVal === null) {
 			// No real score arrived: never invent one.
@@ -1120,7 +1120,7 @@ export class Specialties implements OnInit, OnDestroy {
 				this.submissionSettledForAttempt = attemptId;
 				if (res.success && res.data) {
 					const d = res.data;
-					const totalQ = this.quizQuestions().length || 20;
+					const totalQ = this.quizQuestions().length || null;
 					if (!Number.isFinite(d.score)) {
 						// No real score arrived: never invent one.
 						this.applyFallbackResults();

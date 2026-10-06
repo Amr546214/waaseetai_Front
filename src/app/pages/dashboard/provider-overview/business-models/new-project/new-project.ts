@@ -90,11 +90,19 @@ export class NewProject implements OnInit, OnDestroy {
 	isAiEnhancing = signal<boolean>(false);
 	isAiSuggesting = signal<boolean>(false);
 	isStreamingText = signal<boolean>(false);
+	/** Set when a stream ends with `error:true` (backend BE-1): the user's draft was restored and a retry is offered. */
+	aiStreamError = signal<string | null>(null);
+	private draftBeforeStream = '';
+	private lastAiMode: 'improve' | 'suggest' = 'improve';
 
 	updateName(event: Event) { this.projectName.set((event.target as HTMLInputElement).value); }
 	updateDesc(event: Event) { this.projectDesc.set((event.target as HTMLTextAreaElement).value); }
 
+	retryAiAssist() { this.aiAssist(this.lastAiMode); }
+
 	aiAssist(mode: 'improve' | 'suggest') {
+		this.lastAiMode = mode;
+		this.aiStreamError.set(null);
 		const title = this.projectName().trim();
 		const desc = this.projectDesc().trim();
 
@@ -478,6 +486,8 @@ export class NewProject implements OnInit, OnDestroy {
 
 		this.newProjectService.onStreamStart((data) => {
 			this.isStreamingText.set(true);
+			// Remember the user's text: the stream replaces it as it arrives, but a failed stream must give it back.
+			this.draftBeforeStream = this.projectDesc();
 			if (data.mode === 'suggest') {
 				this.projectDesc.set('');
 			} else if (data.mode === 'improve') {
@@ -493,6 +503,13 @@ export class NewProject implements OnInit, OnDestroy {
 			this.isStreamingText.set(false);
 			this.isAiEnhancing.set(false);
 			this.isAiSuggesting.set(false);
+			if (data.error === true) {
+				// Failed stream: never keep partial chunks / an emptied textarea — restore the user's own draft and offer a retry.
+				this.projectDesc.set(this.draftBeforeStream);
+				this.aiStreamError.set(data.message || 'تعذّر إكمال الاقتراح. يمكنك إعادة المحاولة.');
+				return;
+			}
+			this.aiStreamError.set(null);
 			if (data.message) {
 				this.showToast(data.message);
 			}

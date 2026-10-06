@@ -53,6 +53,21 @@ export class Public implements OnInit {
 		}
 	}
 
+	/** "—" for a missing value; numbers (including 0) are shown as they are. */
+	dash(v: unknown): string | number {
+		return v === null || v === undefined || v === '' ? '—' : (v as string | number);
+	}
+
+	/** Minutes with a unit, "—" when the value is missing. */
+	minutes(v: number | null | undefined): string {
+		return v === null || v === undefined ? '—' : `${v} دقيقة`;
+	}
+
+	/** The test's time LIMIT: the new `timeLimitMinutes`, falling back to the legacy `timeTakenMinutes` (which always meant the limit). */
+	timeLimitOf(d: { timeLimitMinutes?: number | null; timeTakenMinutes?: number | null } | null | undefined): number | null {
+		return d?.timeLimitMinutes ?? d?.timeTakenMinutes ?? null;
+	}
+
 	serviceStatusLabel(status: string | null | undefined): string {
 		switch (status) {
 			case 'APPROVED': return 'معتمد';
@@ -81,6 +96,11 @@ export class Public implements OnInit {
 			},
 			error: () => this.specialtyNames.set({})
 		});
+	}
+
+	/** The service's specialty: the API's `specialtyName` first (new backend), else the public-specialties lookup, else '—'. */
+	specialtyOf(service: { specialtyName?: string | null; specialtyId?: string | null }): string {
+		return service?.specialtyName || this.specialtyName(service?.specialtyId);
 	}
 
 	/** Name of a service's specialty, or '—' when it is not in the public (active) specialties list. */

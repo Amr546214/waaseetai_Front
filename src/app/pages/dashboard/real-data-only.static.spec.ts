@@ -62,7 +62,7 @@ describe('real data only (PR-A)', () => {
 		const ts = read('pages/dashboard/provider-overview/help/live-support/live-support.ts');
 		for (const x of ['PRJ-3091', '2026-0188', 'أمر تغيير معتمد']) expect(h, x).not.toContain(x);
 		expect(ts).not.toContain('TKT-2026-0188');
-		expect(h).toContain('بدون ربط');
+		expect(h).toContain('ticketNumber');
 	});
 
 	it('reports page has no invented KPIs, orders, specialties or counts', () => {
@@ -77,7 +77,8 @@ describe('real data only (PR-A)', () => {
 	it('HR page and new-ticket forms are not seeded with invented people / projects', () => {
 		const hr = read('pages/dashboard/provider-overview/hr/provider-hr.component.ts');
 		for (const x of ['nora@company.com', 'm.harbi@freelancer.com', 'Safari على جهاز iPhone', 'قبل يومين']) expect(hr, x).not.toContain(x);
-		expect(hr).toMatch(/employees = signal<AdminEmployee\[\]>\(\[\]\);/);
+		expect(hr).toContain('members = signal<CompanyTeamMember[]>([]);');
+		expect(hr).toContain('this.teamApi.list()');
 		const nt = read('pages/dashboard/clients-overview/help/new-ticket/new-ticket.ts');
 		for (const x of ['ORD-3092', 'ORD-3093', 'ORD-3094', 'سلطان العتيبي', 'خالد المطيري', 'نورة القحطاني', 'فهد الغامدي']) expect(nt, x).not.toContain(x);
 	});

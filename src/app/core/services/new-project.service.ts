@@ -97,7 +97,8 @@ export class NewProjectService implements OnDestroy {
 		s.on('ai_text_stream_chunk', callback);
 	}
 
-	onStreamEnd(callback: (data: { mode: string; message: string }) => void): void {
+	/** `error`/`code` are set by the backend only when the stream FAILED (absent on success and on older backends). */
+	onStreamEnd(callback: (data: { mode: string; message: string; error?: boolean; code?: string }) => void): void {
 		const s = this.initSocket();
 		if (!s) return;
 		s.off('ai_text_stream_end');

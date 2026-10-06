@@ -55,6 +55,12 @@
 					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-all resize-y leading-[1.8] placeholder:text-[var(--txt-3)] custom-scrollbar"
 					[class.streaming-textarea]="isStreamingText"></textarea>
 			</div>
+			@if (aiStreamError) {
+			<div class="flex items-center justify-between gap-3 text-[12px] mt-2 p-3 rounded-[10px] bg-[rgba(255,107,107,.10)] border border-[rgba(255,107,107,.30)]" role="alert">
+				<span class="text-[#FF6B6B] font-bold">{{ aiStreamError }} نصّك الأصلي محفوظ كما كتبته.</span>
+				<button type="button" (click)="onRetryAi.emit()" class="px-3 py-1.5 bg-[#2BD4C7] text-[#070D24] text-[12px] font-extrabold rounded-lg hover:opacity-90">إعادة المحاولة</button>
+			</div>
+			}
 			<div class="flex items-center justify-between text-[12px] mt-1.5 font-bold">
 				<span class="text-[#2BD4C7]">{{ isStreamingText ? '💡 يمكنك مشاهدة النص أثناء صياغته كلمة
 					بكلمة بواسطة الذكاء الاصطناعي...' : '✓ جاهز لكتابة أو تعديل تفاصيل العرض' }}</span>
