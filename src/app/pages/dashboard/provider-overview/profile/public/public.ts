@@ -28,6 +28,37 @@ export class Public implements OnInit {
 		return user?.accountType === AccountType.PROVIDER_COMPANY;
 	});
 
+	/** Specialties whose verification status is APPROVED (null when the response has no specialties list). */
+	approvedSpecialtiesCount = computed<number | null>(() => {
+		const list = this.profileData()?.specialties;
+		return Array.isArray(list) ? list.filter((s: any) => s?.status === 'APPROVED').length : null;
+	});
+
+	/** Approved specialties that carry a completed, passed assessment attempt (the WaseetAI-graded test). */
+	aiPassedSpecialtiesCount = computed<number | null>(() => {
+		const list = this.profileData()?.specialties;
+		return Array.isArray(list) ? list.filter((s: any) => s?.status === 'APPROVED' && s?.isPassed && s?.assessmentDetails).length : null;
+	});
+
+	/** Real verification state of a specialty. APPROVED is set either by passing the assessment or by an admin
+	 *  approving a work sample, so the label does not attribute it to a single party. */
+	specStatusLabel(spec: any): string {
+		switch (spec?.status) {
+			case 'APPROVED': return spec?.isPassed && spec?.assessmentDetails ? 'تخصص معتمد · اجتاز اختبار التخصص' : 'تخصص معتمد';
+			case 'REJECTED': return 'تخصص غير معتمد';
+			case 'LOCKED_OUT': return 'التخصص مقفل مؤقتاً';
+			default: return 'قيد الاعتماد';
+		}
+	}
+
+	serviceStatusLabel(status: string | null | undefined): string {
+		switch (status) {
+			case 'APPROVED': return 'معتمد';
+			case 'PUBLISHED': return 'منشور';
+			default: return status || '—';
+		}
+	}
+
 	companyInitials = computed<string>(() => {
 		const user = this.authStore.currentUser();
 		if (!user) return 'خت';

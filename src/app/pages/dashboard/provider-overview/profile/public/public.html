@@ -36,22 +36,22 @@
 			<div class="co-hero">
 				<div class="co-logo">{{ companyInitials() }}</div>
 				<div class="co-meta">
-					<div class="co-name">{{ profileData()?.header?.companyName || profileData()?.header?.displayName || 'شركتك' }}</div>
-					<div class="co-tag">{{ profileData()?.header?.tagline || profileData()?.header?.bio || 'حلول برمجية وتحول رقمي للمنشآت' }}</div>
+					<div class="co-name">{{ profileData()?.header?.fullName || '—' }}</div>
+					<div class="co-tag">{{ profileData()?.basicInfo?.headline || profileData()?.basicInfo?.bio || '—' }}</div>
 					<div class="co-badges">
 						<span class="pill pill-ok">
 							<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-							شركة موثّقة
+							{{ profileData()?.header?.isVerified ? 'شركة موثّقة' : 'لم يكتمل التوثيق بعد' }}
 						</span>
 						<span class="pill pill-gold" *ngIf="profileData()?.header?.levelInfo?.levelName">★ {{ profileData()?.header?.levelInfo?.levelName }}</span>
-						<span class="pill pill-teal">{{ profileData()?.stats?.teamMembers || 8 }} أعضاء فريق</span>
-						<span class="pill pill-blue">{{ profileData()?.stats?.completedProjects || 47 }} مشروع مكتمل</span>
+						<span class="pill pill-teal">بيانات الفريق غير متاحة في هذا الملف</span>
+						<span class="pill pill-blue">{{ profileData()?.header?.stats?.completedProjects ?? '—' }} مشروع مكتمل</span>
 					</div>
 				</div>
 				<div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
 					<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 18px">
-						<div style="font-size:20px;font-weight:900" class="txt-amber">{{ profileData()?.stats?.rating || 4.7 }}</div>
-						<div style="font-size:10px;margin-top:2px" class="txt-slate">متوسط التقييم</div>
+						<div style="font-size:20px;font-weight:900" class="txt-amber">{{ profileData()?.header?.stats?.clientRating != null ? profileData()?.header?.stats?.clientRating + '%' : '—' }}</div>
+						<div style="font-size:10px;margin-top:2px" class="txt-slate">نسبة رضا العملاء</div>
 					</div>
 				</div>
 			</div>
@@ -59,10 +59,10 @@
 
 		<!-- KPIs -->
 		<div class="kpi-row">
-			<div class="kpi-c"><div class="kpi-v txt-teal">{{ profileData()?.stats?.completedProjects || 47 }}</div><div class="kpi-l">مشروع مكتمل</div></div>
-			<div class="kpi-c"><div class="kpi-v txt-green-br">{{ profileData()?.stats?.completionRate || 98 }}%</div><div class="kpi-l">نسبة الإنجاز</div></div>
-			<div class="kpi-c"><div class="kpi-v txt-blue">{{ profileData()?.stats?.approvedSpecialties || 6 }}</div><div class="kpi-l">تخصص معتمد</div></div>
-			<div class="kpi-c"><div class="kpi-v txt-amber">{{ profileData()?.stats?.approvedModels || 12 }}</div><div class="kpi-l">نموذج معتمد</div></div>
+			<div class="kpi-c"><div class="kpi-v txt-teal">{{ profileData()?.header?.stats?.completedProjects ?? '—' }}</div><div class="kpi-l">مشروع مكتمل</div></div>
+			<div class="kpi-c"><div class="kpi-v txt-green-br">—</div><div class="kpi-l">نسبة الإنجاز (غير متاحة)</div></div>
+			<div class="kpi-c"><div class="kpi-v txt-blue">{{ approvedSpecialtiesCount() ?? '—' }}</div><div class="kpi-l">تخصص معتمد</div></div>
+			<div class="kpi-c"><div class="kpi-v txt-amber">{{ profileData()?.header?.stats?.publishedServices ?? '—' }}</div><div class="kpi-l">خدمة منشورة</div></div>
 		</div>
 
 		<!-- Grid: Basic Data + Specialties/Team -->
@@ -76,7 +76,7 @@
 					<div class="dl-row"><span class="dl-k">تاريخ التأسيس</span><span class="dl-v">{{ profileData()?.commercial?.establishedDate || '—' }}</span></div>
 					<div class="dl-row"><span class="dl-k">المدينة</span><span class="dl-v">{{ profileData()?.header?.city || '—' }}</span></div>
 					<div class="dl-row"><span class="dl-k">البريد الرسمي</span><span class="dl-v">{{ profileData()?.header?.email || '—' }}</span></div>
-					<div class="dl-row" style="border-bottom:none"><span class="dl-k">حالة التوثيق</span><span class="pill pill-ok">موثّقة ومعتمدة</span></div>
+					<div class="dl-row" style="border-bottom:none"><span class="dl-k">حالة التوثيق</span><span class="pill" [class.pill-ok]="profileData()?.header?.isVerified">{{ profileData()?.header?.isVerified ? 'موثّقة' : 'لم يكتمل التوثيق بعد' }}</span></div>
 				</div>
 			</div>
 
@@ -84,19 +84,14 @@
 				<div class="co-card" style="margin-bottom:0">
 					<div class="sec-hd">
 						<div class="sec-ttl">التخصصات المعتمدة</div>
-						<span class="pill pill-teal">{{ profileData()?.stats?.approvedSpecialties || 6 }} تخصصات</span>
+						<span class="pill pill-teal">{{ approvedSpecialtiesCount() ?? '—' }} تخصصات</span>
 					</div>
 					<div class="chips">
-						@for (s of (profileData()?.specialties || []); track s) {
-							<span class="chip">{{ s.name || s }}</span>
+						@for (s of (profileData()?.specialties || []); track s.id) {
+							<span class="chip">{{ s.specialtyName }}</span>
 						}
 						@if (!(profileData()?.specialties?.length)) {
-							<span class="chip">تطوير تطبيقات الجوال</span>
-							<span class="chip">تطوير الويب</span>
-							<span class="chip">أنظمة إدارة المنشآت</span>
-							<span class="chip">تصميم واجهات وتجربة</span>
-							<span class="chip">التحول الرقمي</span>
-							<span class="chip">تحليل البيانات</span>
+							<span class="chip">لا توجد بيانات بعد</span>
 						}
 					</div>
 				</div>
@@ -106,25 +101,9 @@
 						<div class="sec-ttl">أعضاء الفريق</div>
 						<a routerLink="/provider-overview/company/team-management" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">إدارة الفريق</a>
 					</div>
-					@for (m of (profileData()?.team || []); track m.id || m.name) {
-						<div class="mem-row">
-							<div class="mem-av">{{ (m.name || 'مق').slice(0, 2) }}</div>
-							<div class="mem-body"><div class="mem-name">{{ m.name || '—' }}</div><div class="mem-role">{{ m.role || 'مقدم خدمة' }}</div></div>
-							<span class="pill pill-teal">{{ m.status || 'نشط' }}</span>
-						</div>
-					}
-					@if (!(profileData()?.team?.length)) {
-						<div class="mem-row">
-							<div class="mem-av">فع</div>
-							<div class="mem-body"><div class="mem-name">فهد العتيبي</div><div class="mem-role">مدير المشاريع · مشرف</div></div>
-							<span class="pill pill-teal">نشط</span>
-						</div>
-						<div class="mem-row">
-							<div class="mem-av">رد</div>
-							<div class="mem-body"><div class="mem-name">ريم الدوسري</div><div class="mem-role">مطوّرة تطبيقات · مقدم خدمة</div></div>
-							<span class="pill pill-teal">نشط</span>
-						</div>
-					}
+					<div class="mem-row">
+						<div class="mem-body"><div class="mem-name">لا توجد بيانات بعد</div><div class="mem-role">لا يتضمن هذا الملف بيانات أعضاء الفريق</div></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -132,24 +111,22 @@
 		<!-- Models Table -->
 		<div class="co-card">
 			<div class="sec-hd">
-				<div class="sec-ttl">النماذج والأعمال المعتمدة</div>
+				<div class="sec-ttl">النماذج والأعمال المنشورة</div>
 				<a routerLink="/provider-overview/business-models/market" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">كل نماذج الشركة</a>
 			</div>
 			<table class="tbl">
-				<thead><tr><th>النموذج</th><th>التخصص</th><th>حالة الاعتماد</th><th>مرات الشراء</th></tr></thead>
+				<thead><tr><th>النموذج</th><th>التخصص</th><th>الحالة</th><th>مرات الشراء</th></tr></thead>
 				<tbody>
-					@for (m of (profileData()?.models || []); track m.id || m.title) {
+					@for (m of (profileData()?.services || []); track m.id) {
 						<tr>
 							<td style="font-weight:700" class="txt-white">{{ m.title || '—' }}</td>
-							<td>{{ m.specialty || '—' }}</td>
-							<td><span class="pill" [class.pill-ok]="m.status==='approved'" [class.pill-gold]="m.status==='review'">{{ m.status === 'approved' ? 'معتمد' : (m.status === 'review' ? 'قيد المراجعة' : m.status || 'معتمد') }}</span></td>
-							<td>{{ m.purchases || '—' }}</td>
+							<td>—</td>
+							<td><span class="pill" [class.pill-ok]="m.status==='APPROVED' || m.status==='PUBLISHED'">{{ serviceStatusLabel(m.status) }}</span></td>
+							<td>{{ m.salesCount ?? '—' }}</td>
 						</tr>
 					}
-					@if (!(profileData()?.models?.length)) {
-						<tr><td style="font-weight:700" class="txt-white">نظام إدارة المخزون السحابي</td><td>أنظمة إدارة المنشآت</td><td><span class="pill pill-ok">معتمد</span></td><td>14</td></tr>
-						<tr><td style="font-weight:700" class="txt-white">تطبيق حجز مواعيد للعيادات</td><td>تطوير تطبيقات الجوال</td><td><span class="pill pill-ok">معتمد</span></td><td>9</td></tr>
-						<tr><td style="font-weight:700" class="txt-white">منصة تجارة إلكترونية متعددة البائعين</td><td>تطوير الويب</td><td><span class="pill pill-ok">معتمد</span></td><td>6</td></tr>
+					@if (!(profileData()?.services?.length)) {
+						<tr><td colspan="4">لا توجد بيانات بعد</td></tr>
 					}
 				</tbody>
 			</table>
@@ -184,9 +161,9 @@
 		</svg>
 	</div>
 	<div class="flex-1">
-		<div class="text-[10px] font-black text-[#A56BE0] tracking-widest mb-0.5">وسيط AI — إفصاح الذكاء الاصطناعي</div>
-		<div class="text-[12.5px] font-medium text-[var(--txt-3)] leading-relaxed">يُحلّل الذكاء اكتمال ملفك المهني
-			ويقترح تحسينات لرفع ظهورك — الإنسان يحتفظ بالقرار النهائي</div>
+		<div class="text-[10px] font-black text-[#A56BE0] tracking-widest mb-0.5">اكتمال الملف المهني</div>
+		<div class="text-[12.5px] font-medium text-[var(--txt-3)] leading-relaxed">يُحسب اكتمال ملفك من البيانات التي أدخلتها
+			ويُقترح عليك استكمال الناقص لتحسين ظهورك</div>
 	</div>
 </div>
 
@@ -456,10 +433,11 @@
 				<div>
 					<div class="text-[11px] font-bold text-[var(--txt-3)] mb-0.5">التخصصات المعتمدة</div>
 					<div class="text-[17px] font-black text-white flex items-center gap-2">
-						{{ profileData()?.specialties?.length }} تخصص معتمد
+						{{ approvedSpecialtiesCount() ?? '—' }} تخصص معتمد
+						@if ((approvedSpecialtiesCount() ?? 0) > 0) {
 						<span
-							class="px-2 py-0.5 rounded-full bg-[#2BD4C7]/20 text-[#2BD4C7] text-[10px] font-extrabold border border-[#2BD4C7]/30">موثّق
-							بالذكاء</span>
+							class="px-2 py-0.5 rounded-full bg-[#2BD4C7]/20 text-[#2BD4C7] text-[10px] font-extrabold border border-[#2BD4C7]/30">{{ aiPassedSpecialtiesCount() === approvedSpecialtiesCount() ? 'موثّق باختبار AI' : 'موثّق' }}</span>
+						}
 					</div>
 				</div>
 			</div>
@@ -530,8 +508,11 @@
 							<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
 								<polyline points="20 6 9 17 4 12" />
 							</svg>
-							تخصص معتمد ومفحوص بالذكاء الاصطناعي
+							{{ specStatusLabel(spec) }}
 						</span>
+						@if (spec.aiMetrics?.aiScore > 0) {
+						<span class="px-3 py-1 rounded-full bg-[#7B2FBE]/15 border border-[#7B2FBE]/30 text-[#A56BE0] text-[11px] font-extrabold">تقييم AI {{ spec.aiMetrics.aiScore }}%</span>
+						}
 					</div>
 
 					<!-- Sub-specialties pills -->
@@ -578,22 +559,20 @@
 
 						<div class="flex flex-col gap-2.5 text-[12px]">
 							<div class="flex justify-between py-1.5 border-b border-[#182544]">
-								<span class="text-[#7e8eb5] font-semibold">عدد الأسئلة المجابة</span>
-								<span class="text-white font-bold">{{ spec.assessmentDetails.totalQuestions }}/{{
-									spec.assessmentDetails.totalQuestions }} (مكتمل)</span>
+								<span class="text-[#7e8eb5] font-semibold">عدد أسئلة الاختبار</span>
+								<span class="text-white font-bold">{{ spec.assessmentDetails.totalQuestions ?? 'غير متاح' }}</span>
 							</div>
 							<div class="flex justify-between py-1.5 border-b border-[#182544]">
-								<span class="text-[#7e8eb5] font-semibold">وقت الإنجاز</span>
-								<span class="text-white font-bold">{{ spec.assessmentDetails.timeTakenMinutes }} دقيقة
-									(سرعة دقيقة)</span>
+								<span class="text-[#7e8eb5] font-semibold">المدة المحددة للاختبار</span>
+								<span class="text-white font-bold">{{ spec.assessmentDetails.timeTakenMinutes ? spec.assessmentDetails.timeTakenMinutes + ' دقيقة' : 'غير متاح' }}</span>
 							</div>
 							<div class="flex justify-between py-1.5 border-b border-[#182544]">
-								<span class="text-[#7e8eb5] font-semibold">مستوى الشارة المعين</span>
-								<span class="text-[#2bd4c7] font-black">مستقل معتمد - Tier A</span>
+								<span class="text-[#7e8eb5] font-semibold">مستوى المقدّم</span>
+								<span class="text-[#2bd4c7] font-black">{{ profileData()?.header?.levelInfo?.levelName || 'غير متاح' }}</span>
 							</div>
 							<div class="flex justify-between py-1.5">
 								<span class="text-[#7e8eb5] font-semibold">حالة التدقيق التلقائي</span>
-								<span class="text-[#38bdf8] font-bold">مطابق بنسبة 100%</span>
+								<span class="text-[#38bdf8] font-bold">{{ spec.aiMetrics?.aiScore > 0 ? 'مُقيَّم بدرجة ' + spec.aiMetrics.aiScore + '%' : 'لم يُجرَ تدقيق بعد' }}</span>
 							</div>
 						</div>
 					</div>
@@ -624,7 +603,7 @@
 						</div>
 						<p
 							class="text-[13px] font-medium text-[#b0c0e0] leading-relaxed m-0 bg-[#0e1832] p-3 rounded-lg border border-[#1d2d54]">
-							"{{ spec.assessmentDetails.feedbackAr }}"
+							@if (spec.assessmentDetails.feedbackAr) { "{{ spec.assessmentDetails.feedbackAr }}" } @else { لا يوجد تقييم بعد }
 						</p>
 					</div>
 
@@ -683,7 +662,7 @@
 						stroke-width="2">
 						<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
 					</svg>
-					نماذج الأعمال المعتمدة ومفحوصة الأكواد (AI Accredited Code Samples)
+					نماذج الأعمال المعتمدة
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 					@for (sample of spec.samples; track sample.title) {
@@ -705,7 +684,7 @@
 									stroke="currentColor" stroke-width="3">
 									<polyline points="20 6 9 17 4 12" />
 								</svg>
-								جودة {{ sample.aiScore }}%
+								{{ sample.aiScore > 0 ? 'تقييم AI ' + sample.aiScore + '%' : 'لم يُقيَّم بعد' }}
 							</span>
 						</div>
 
@@ -731,7 +710,7 @@
 								stroke="currentColor" stroke-width="2">
 								<path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z" />
 							</svg>
-							<span class="leading-snug">{{ sample.aiFeedbackAr }}</span>
+							<span class="leading-snug">{{ sample.aiFeedbackAr || 'لم يُقيَّم بعد' }}</span>
 						</div>
 					</div>
 					}

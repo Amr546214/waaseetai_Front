@@ -2,6 +2,12 @@ import { Injectable, signal } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 
+/** Single frontend source for the calibration test's limits. Mirrors the backend constants SETUP_TEST_QUESTION_COUNT and
+ *  SETUP_TEST_TIME_LIMIT_MINUTES (setup-test.gateway.ts:21-22, both 15). The `setup_test:ready` event only carries
+ *  totalQuestions — no expiry or duration — so the duration cannot be read from the backend yet. */
+export const SETUP_TEST_QUESTION_COUNT = 15;
+export const SETUP_TEST_TIME_LIMIT_MINUTES = 15;
+
 // Onboarding calibration test — no code path gates anything on a pass/fail
 // outcome, so the contract never claims a `passed` verdict that doesn't
 // exist. See setup-test.gateway.ts for the backend side of this fix.
