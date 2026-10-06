@@ -1173,6 +1173,11 @@
 		</div>
 	</ng-container>
 
+	<div *ngIf="stepError() as err" role="alert" data-testid="step-error"
+		class="mt-4 px-4 py-3 rounded-xl border border-[rgba(255,107,107,.35)] bg-[rgba(255,107,107,.08)] text-[13px] font-bold text-[#FF8C69]">{{ err }}</div>
+	<div *ngIf="currentStep() === 2 && step2Blocker() as why" data-testid="step2-blocker"
+		class="mt-4 px-4 py-2 rounded-xl text-[12px] font-bold text-[var(--txt-3)]">{{ why }}</div>
+
 	<!-- BOTTOM MAIN NAVIGATION FOR STEPS 1 to 3 -->
 	<div *ngIf="currentStep() < 4"
 		class="flex items-center justify-between mt-6 pt-5 border-t border-[rgba(255,255,255,.07)]">
