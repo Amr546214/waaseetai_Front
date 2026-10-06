@@ -19,7 +19,7 @@ export class ReviewProject {
 		title: 'تسليم المرحلة 2: الهوية الكاملة',
 		provider: 'نورة التصميم',
 		status: 'بانتظار اعتمادك',
-		amount: '1,500 ريال',
+		amount: '1,500 دولار',
 		submitted: 'قبل يوم',
 		deadline: '6 أيام',
 		filesCount: '4 ملفات'

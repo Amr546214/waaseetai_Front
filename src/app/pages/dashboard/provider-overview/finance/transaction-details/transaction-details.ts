@@ -8,7 +8,7 @@ import { MessageContext } from '../../../../../core/services/chat.service';
 
 interface FinancialEvent {
   id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED';
-  amount: number; currency: 'SAR'; title: string; description: string; projectId: string;
+  amount: number; currency: 'USD'; title: string; description: string; projectId: string;
   projectTitle: string; stageId: string | null; status: 'COMPLETED' | 'HELD' | 'RELEASED' | 'REFUNDED'; createdAt: string;
 }
 

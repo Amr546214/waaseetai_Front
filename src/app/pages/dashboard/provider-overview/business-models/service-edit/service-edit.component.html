@@ -52,11 +52,11 @@
 			<div class="form-card-title">الأسعار والتسليم</div>
 			<div class="field-row">
 				<div class="field-grp">
-					<label class="field-lbl">السعر الأساسي (ريال) <span class="req">*</span></label>
+					<label class="field-lbl">السعر الأساسي (دولار) <span class="req">*</span></label>
 					<input type="number" class="field-in" formControlName="basePrice" min="50" placeholder="0"
 						[class.has-error]="serviceForm.get('basePrice')?.touched && serviceForm.get('basePrice')?.invalid">
 					@if (serviceForm.get('basePrice')?.touched && serviceForm.get('basePrice')?.invalid) {
-						<div class="field-err">الحد الأدنى 50 ريال</div>
+						<div class="field-err">الحد الأدنى 50 دولار</div>
 					}
 				</div>
 				<div class="field-grp">

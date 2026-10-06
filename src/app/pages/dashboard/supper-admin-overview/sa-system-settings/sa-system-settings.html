@@ -87,14 +87,14 @@
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">العملة الافتراضية</div><div class="ss-row-desc">عملة المعاملات على وسيط AI</div></div>
             <select class="ss-input" [value]="currency()" (change)="currency.set($any($event.target).value)">
-              <option value="SAR">ريال سعودي (SAR)</option>
+              <option value="USD">دولار أمريكي (USD)</option>
               <option value="USD">دولار أمريكي (USD)</option>
             </select>
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">بوابة الدفع</div><div class="ss-row-desc">البوابة النشطة لمعالجة المدفوعات</div></div>
             <select class="ss-input" [value]="paymentGateway()" (change)="paymentGateway.set($any($event.target).value)">
-              <option value="Moyasar">Moyasar</option>
+              <option value="PayPal">PayPal</option>
               <option value="HyperPay">HyperPay</option>
               <option value="Tamara">Tamara</option>
             </select>

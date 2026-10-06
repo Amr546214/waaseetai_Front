@@ -43,18 +43,18 @@
 					</div>
 				</div>
 				<div class="f-g">
-					<label class="f-lbl" for="cp-val">قيمة الخصم ({{ form().discountType === 'percentage' ? '%' : 'ريال' }}) <span>*</span></label>
+					<label class="f-lbl" for="cp-val">قيمة الخصم ({{ form().discountType === 'percentage' ? '%' : 'دولار' }}) <span>*</span></label>
 					<div class="f-suffix-wrap">
 						<input id="cp-val" class="f-inp" type="number" min="0" [attr.max]="form().discountType === 'percentage' ? 100 : null" placeholder="مثال: 25"
 							[class.invalid]="errors().discountValue" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
-						<span class="f-suffix">{{ form().discountType === 'percentage' ? '%' : 'ريال' }}</span>
+						<span class="f-suffix">{{ form().discountType === 'percentage' ? '%' : 'دولار' }}</span>
 					</div>
 					@if (errors().discountValue) { <div class="f-err">{{ errors().discountValue }}</div> }
 					@else { <div class="f-hint">{{ form().discountType === 'percentage' ? 'نسبة من قيمة الطلب، حتى 100%' : 'مبلغ ثابت يُخصم من قيمة الطلب' }}</div> }
 				</div>
 				<div class="f-g">
 					<label class="f-lbl" for="cp-min">الحد الأدنى لقيمة الطلب (اختياري)</label>
-					<input id="cp-min" class="f-inp" type="number" min="0" placeholder="مثال: 500 ريال"
+					<input id="cp-min" class="f-inp" type="number" min="0" placeholder="مثال: 500 دولار"
 						[class.invalid]="errors().minimumAmount" [ngModel]="form().minimumAmount" (ngModelChange)="patch({ minimumAmount: $event })">
 					@if (errors().minimumAmount) { <div class="f-err">{{ errors().minimumAmount }}</div> }
 				</div>

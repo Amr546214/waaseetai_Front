@@ -52,7 +52,7 @@
       <div class="pkg-card" [class.featured]="p.featured">
         <div class="pkg-name" [style.color]="p.color">{{ p.name }}{{ p.featured ? ' ⭐' : '' }}</div>
         <div>
-          <div class="pkg-price" [style.color]="p.color">{{ p.price }}<span class="pkg-cur" *ngIf="p.price !== 'مخصص'"> ر.س</span></div>
+          <div class="pkg-price" [style.color]="p.color">{{ p.price }}<span class="pkg-cur" *ngIf="p.price !== 'مخصص'"> $</span></div>
           <div class="pkg-period">{{ p.period }}</div>
         </div>
         <div class="pkg-count">{{ p.count | number }} مشترك ({{ p.pct }}%)</div>

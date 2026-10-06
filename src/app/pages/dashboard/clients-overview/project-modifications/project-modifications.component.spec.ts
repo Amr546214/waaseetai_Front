@@ -156,14 +156,14 @@ describe('ProjectModificationsComponent', () => {
     expect(component.filteredAmendments().map(a => a.id)).toEqual(['a2']);
   });
 
-  it('formats a positive budget delta as +N ريال, from the real numeric field', async () => {
+  it('formats a positive budget delta as +N دولار, from the real numeric field', async () => {
     await setup(() => of({ success: true, data: [] }));
-    expect(component.formatBudgetDelta(1500)).toBe('+1,500 ريال');
+    expect(component.formatBudgetDelta(1500)).toBe('+1,500 دولار');
   });
 
-  it('formats a negative budget delta as -N ريال', async () => {
+  it('formats a negative budget delta as -N دولار', async () => {
     await setup(() => of({ success: true, data: [] }));
-    expect(component.formatBudgetDelta(-500)).toBe('-500 ريال');
+    expect(component.formatBudgetDelta(-500)).toBe('-500 دولار');
   });
 
   it('formats a null/zero budget delta as "بلا تغيير"', async () => {

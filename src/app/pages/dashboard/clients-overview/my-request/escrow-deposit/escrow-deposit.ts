@@ -65,7 +65,6 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 		const id = this.route.snapshot.paramMap.get('id');
 		const offerId = this.route.snapshot.queryParamMap.get('offerId');
 		const email = this.route.snapshot.queryParamMap.get('email');
-		const moyasarPaymentId = this.route.snapshot.queryParamMap.get('id');
 
 		if (email) {
 			this.clientEmail.set(this.maskEmail(email));
@@ -77,30 +76,6 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 				this.offerId.set(offerId);
 			}
 			this.fetchDetails(id, offerId);
-		}
-
-		if (moyasarPaymentId) {
-			this.clientFinanceService.verifyDeposit({ paymentId: moyasarPaymentId }).subscribe({
-				next: () => {
-					this.formError.set('تم شحن المحفظة عبر ميسر بنجاح. يمكنك الآن متابعة التوقيع والحجز.');
-					this.router.navigate([], {
-						relativeTo: this.route,
-						replaceUrl: true,
-						queryParams: { offerId },
-						queryParamsHandling: ''
-					});
-					this.loadWalletBalance();
-				},
-				error: (error) => {
-					this.formError.set(error.error?.message || 'تعذر تأكيد عملية ميسر. لم تتم إضافة رصيد.');
-					this.router.navigate([], {
-						relativeTo: this.route,
-						replaceUrl: true,
-						queryParams: { offerId },
-						queryParamsHandling: ''
-					});
-				}
-			});
 		}
 	}
 

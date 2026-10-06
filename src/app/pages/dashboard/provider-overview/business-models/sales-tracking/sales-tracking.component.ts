@@ -16,10 +16,10 @@ interface Sale {
 })
 export class SalesTrackingComponent {
 	stats = [
-		{ lbl: 'إجمالي المبيعات', val: '145,000 ريال', color: 'teal', ico: 'wallet' },
-		{ lbl: 'هذا الشهر', val: '32,500 ريال', color: 'blue', ico: 'chart' },
+		{ lbl: 'إجمالي المبيعات', val: '145,000 دولار', color: 'teal', ico: 'wallet' },
+		{ lbl: 'هذا الشهر', val: '32,500 دولار', color: 'blue', ico: 'chart' },
 		{ lbl: 'عدد المبيعات', val: '24', color: 'green', ico: 'check' },
-		{ lbl: 'متوسط قيمة الطلب', val: '6,041 ريال', color: 'amber', ico: 'tag' }
+		{ lbl: 'متوسط قيمة الطلب', val: '6,041 دولار', color: 'amber', ico: 'tag' }
 	];
 
 	topModels = [

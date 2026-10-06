@@ -115,7 +115,7 @@ export const PROJECT_RISK_CLASSES: Record<RiskLevel, string> = { low: 'pj-risk-l
 export const PROJECTS: Project[] = [
   {
     id: 'PR-1301', title: 'تصميم بنرات إعلانية × 10', client: 'شركة الخليج التقنية', cAv: 'خ', cBg: 'linear-gradient(135deg,#FFB400,#FF8C69)',
-    provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', value: '3,200 ر.س',
+    provider: 'سارة القحطاني', pAv: 'س', pBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', value: '3,200 $',
     escrowTotal: 3200, escrowReleased: 1280, spec: 'تصميم', progress: 40, deadline: '2026-09-20', startDate: '2026-09-01',
     contractType: 'نتائج محددة', status: 'active', risk: 'low',
     milestones: [
@@ -146,7 +146,7 @@ export const PROJECTS: Project[] = [
     activityLog: [
       { text: 'رفعت سارة القحطاني نسخة معدلة من البنر الثالث بعد ملاحظات العميل', time: 'اليوم، 15 سبتمبر 2026', color: '#2BD4C7' },
       { text: 'طلبت شركة الخليج التقنية تعديل ألوان البنر الثالث', time: '12 سبتمبر 2026، 09:40 ص', color: '#FFB400' },
-      { text: 'أُفرج عن دفعة أولى 1,280 ر.س بعد قبول التصميم الأولي', time: '8 سبتمبر 2026، 11:00 ص', color: '#0FA99A' },
+      { text: 'أُفرج عن دفعة أولى 1,280 $ بعد قبول التصميم الأولي', time: '8 سبتمبر 2026، 11:00 ص', color: '#0FA99A' },
       { text: 'قبلت شركة الخليج التقنية تسليمات المرحلة الأولى', time: '7 سبتمبر 2026، 04:10 م', color: '#0FA99A' },
       { text: 'بدأ المشروع رسمياً بعد توقيع العقد CO-1301 وإيداع الضمان الكامل', time: '1 سبتمبر 2026، 10:00 ص', color: '#A56BE0' },
     ],
@@ -155,12 +155,12 @@ export const PROJECTS: Project[] = [
     linkedEntities: [
       { kind: 'contract', label: 'عقد المشروع', refId: 'CO-1301 · نشط', status: 'نشط', route: '/supper-admin-overview/contracts' },
       { kind: 'request', label: 'الطلب الأصلي', refId: 'RQ-1301 · مكتمل', status: 'مكتمل', route: '/supper-admin-overview/requests' },
-      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4812 · 3,200 ر.س', status: 'مقبول', route: '/supper-admin-overview/offers' },
+      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4812 · 3,200 $', status: 'مقبول', route: '/supper-admin-overview/offers' },
     ],
   },
   {
     id: 'PR-1298', title: 'تطوير تطبيق iOS لمتجر', client: 'مؤسسة النور', cAv: 'ن', cBg: 'linear-gradient(135deg,#2BD4C7,#0FA99A)',
-    provider: 'هيثم القرني', pAv: 'هـ', pBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', value: '28,000 ر.س',
+    provider: 'هيثم القرني', pAv: 'هـ', pBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', value: '28,000 $',
     escrowTotal: 28000, escrowReleased: 11200, spec: 'برمجة', progress: 65, deadline: '2026-10-15', startDate: '2026-08-10',
     contractType: 'نتائج محددة على مراحل', status: 'active', risk: 'low',
     milestones: [
@@ -177,7 +177,7 @@ export const PROJECTS: Project[] = [
       { name: 'شاشات-الدفع-والمخزون.zip', meta: 'رُفع: 18 سبتمبر 2026 · 22.4 MB · الربط بالخلفية', status: 'pending', icon: 'doc' },
     ],
     commLog: [
-      { sender: 'مؤسسة النور (طالب)', role: 'client', text: 'التطبيق التجريبي يعمل بشكل ممتاز، هل يمكن إضافة دعم Apple Pay؟', time: '16 سبتمبر — 11:00 ص' },
+      { sender: 'مؤسسة النور (طالب)', role: 'client', text: 'التطبيق التجريبي يعمل بشكل ممتاز، هل يمكن إضافة دعم الدفع داخل التطبيق؟', time: '16 سبتمبر — 11:00 ص' },
       { sender: 'هيثم القرني (مقدم الخدمة)', role: 'provider', text: 'نعم، سأضيفها ضمن مرحلة الربط بالخلفية الحالية دون تكلفة إضافية.', time: '16 سبتمبر — 01:30 م' },
       { sender: 'مؤسسة النور', role: 'client', text: 'ممتاز، شكراً لسرعة الاستجابة.', time: '16 سبتمبر — 02:00 م' },
     ],
@@ -191,8 +191,8 @@ export const PROJECTS: Project[] = [
     ],
     activityLog: [
       { text: 'رفع هيثم القرني نسخة TestFlight تجريبية للاختبار', time: 'قبل 3 أيام', color: '#2BD4C7' },
-      { text: 'وافقت مؤسسة النور على إضافة دعم Apple Pay ضمن النطاق الحالي', time: '16 سبتمبر 2026، 02:00 م', color: '#5DA0FF' },
-      { text: 'أُفرج عن دفعة ثانية 5,600 ر.س بعد قبول واجهات المستخدم', time: '29 أغسطس 2026، 10:15 ص', color: '#0FA99A' },
+      { text: 'وافقت مؤسسة النور على إضافة دعم الدفع داخل التطبيق ضمن النطاق الحالي', time: '16 سبتمبر 2026، 02:00 م', color: '#5DA0FF' },
+      { text: 'أُفرج عن دفعة ثانية 5,600 $ بعد قبول واجهات المستخدم', time: '29 أغسطس 2026، 10:15 ص', color: '#0FA99A' },
       { text: 'قبلت مؤسسة النور تسليمات مرحلة التحليل والتخطيط', time: '16 أغسطس 2026، 09:00 ص', color: '#0FA99A' },
       { text: 'بدأ المشروع رسمياً بعد توقيع العقد CO-1298', time: '10 أغسطس 2026، 10:00 ص', color: '#A56BE0' },
     ],
@@ -201,12 +201,12 @@ export const PROJECTS: Project[] = [
     linkedEntities: [
       { kind: 'contract', label: 'عقد المشروع', refId: 'CO-1298 · نشط', status: 'نشط', route: '/supper-admin-overview/contracts' },
       { kind: 'request', label: 'الطلب الأصلي', refId: 'RQ-1298 · مكتمل', status: 'مكتمل', route: '/supper-admin-overview/requests' },
-      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4790 · 28,000 ر.س', status: 'مقبول', route: '/supper-admin-overview/offers' },
+      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4790 · 28,000 $', status: 'مقبول', route: '/supper-admin-overview/offers' },
     ],
   },
   {
     id: 'PR-1290', title: 'تصميم هوية بصرية كاملة', client: 'فهد العتيبي', cAv: 'ف', cBg: 'linear-gradient(135deg,#2B7FFF,#5DA0FF)',
-    provider: 'أحمد الزهراني', pAv: 'أ', pBg: 'linear-gradient(135deg,#2B7FFF,#5DA0FF)', value: '8,500 ر.س',
+    provider: 'أحمد الزهراني', pAv: 'أ', pBg: 'linear-gradient(135deg,#2B7FFF,#5DA0FF)', value: '8,500 $',
     escrowTotal: 8500, escrowReleased: 1700, spec: 'تصميم', progress: 30, deadline: '2026-09-14', startDate: '2026-08-20',
     contractType: 'نتائج محددة', status: 'late', risk: 'high',
     milestones: [
@@ -244,12 +244,12 @@ export const PROJECTS: Project[] = [
     linkedEntities: [
       { kind: 'contract', label: 'عقد المشروع', refId: 'CO-1247 · نشط', status: 'نشط', route: '/supper-admin-overview/contracts' },
       { kind: 'request', label: 'الطلب الأصلي', refId: 'RQ-1290 · مكتمل', status: 'مكتمل', route: '/supper-admin-overview/requests' },
-      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4776 · 8,500 ر.س', status: 'مقبول', route: '/supper-admin-overview/offers' },
+      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4776 · 8,500 $', status: 'مقبول', route: '/supper-admin-overview/offers' },
     ],
   },
   {
     id: 'PR-1285', title: 'استشارة قانونية عقد تجاري', client: 'ريم الحربي', cAv: 'ر', cBg: 'linear-gradient(135deg,#FFB400,#59C1F5)',
-    provider: 'خالد المالكي', pAv: 'خ', pBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', value: '2,000 ر.س',
+    provider: 'خالد المالكي', pAv: 'خ', pBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', value: '2,000 $',
     escrowTotal: 2000, escrowReleased: 2000, spec: 'استشارات', progress: 100, deadline: '2026-09-05', startDate: '2026-08-25',
     contractType: 'استشارة بالساعة', status: 'completed', risk: 'low',
     milestones: [
@@ -274,7 +274,7 @@ export const PROJECTS: Project[] = [
     ],
     activityLog: [
       { text: 'اكتمل المشروع بنجاح وتم إغلاقه', time: '5 سبتمبر 2026، 09:00 ص', color: '#0FA99A' },
-      { text: 'أُفرج عن كامل الضمان 2,000 ر.س بعد قبول التقرير النهائي', time: '4 سبتمبر 2026، 05:30 م', color: '#0FA99A' },
+      { text: 'أُفرج عن كامل الضمان 2,000 $ بعد قبول التقرير النهائي', time: '4 سبتمبر 2026، 05:30 م', color: '#0FA99A' },
       { text: 'قبلت ريم الحربي التقرير القانوني النهائي', time: '4 سبتمبر 2026، 05:00 م', color: '#0FA99A' },
       { text: 'بدأ المشروع رسمياً بعد توقيع العقد CO-1285', time: '25 أغسطس 2026، 10:00 ص', color: '#A56BE0' },
     ],
@@ -283,12 +283,12 @@ export const PROJECTS: Project[] = [
     linkedEntities: [
       { kind: 'contract', label: 'عقد المشروع', refId: 'CO-1285 · مكتمل', status: 'مكتمل', route: '/supper-admin-overview/contracts' },
       { kind: 'request', label: 'الطلب الأصلي', refId: 'RQ-1284 · مكتمل', status: 'مكتمل', route: '/supper-admin-overview/requests' },
-      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4795 · 2,000 ر.س', status: 'مقبول', route: '/supper-admin-overview/offers' },
+      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4795 · 2,000 $', status: 'مقبول', route: '/supper-admin-overview/offers' },
     ],
   },
   {
     id: 'PR-1277', title: 'واجهة تطبيق UX/UI', client: 'خالد المطيري', cAv: 'خ', cBg: 'linear-gradient(135deg,#5DA0FF,#2BD4C7)',
-    provider: 'سعد الغامدي', pAv: 'س', pBg: 'linear-gradient(135deg,#0FA99A,#2BD4C7)', value: '12,000 ر.س',
+    provider: 'سعد الغامدي', pAv: 'س', pBg: 'linear-gradient(135deg,#0FA99A,#2BD4C7)', value: '12,000 $',
     escrowTotal: 12000, escrowReleased: 1200, spec: 'تصميم', progress: 10, deadline: '2026-09-12', startDate: '2026-08-28',
     contractType: 'نتائج محددة', status: 'late', risk: 'high',
     milestones: [
@@ -324,13 +324,13 @@ export const PROJECTS: Project[] = [
     linkedEntities: [
       { kind: 'contract', label: 'عقد المشروع', refId: 'CO-1277 · نشط', status: 'نشط', route: '/supper-admin-overview/contracts' },
       { kind: 'request', label: 'الطلب الأصلي', refId: 'RQ-1277 · مكتمل', status: 'مكتمل', route: '/supper-admin-overview/requests' },
-      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4788 · 12,000 ر.س', status: 'مقبول', route: '/supper-admin-overview/offers' },
+      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4788 · 12,000 $', status: 'مقبول', route: '/supper-admin-overview/offers' },
       { kind: 'dispute', label: 'نزاع مفتوح', refId: 'DSP-3312 · قيد المراجعة', status: 'قيد المراجعة', route: '/supper-admin-overview/disputes' },
     ],
   },
   {
     id: 'PR-1265', title: 'بناء موقع متجر إلكتروني', client: 'منى الشمري', cAv: 'م', cBg: 'linear-gradient(135deg,#FFB400,#2BD4C7)',
-    provider: 'أحمد الزهراني', pAv: 'أ', pBg: 'linear-gradient(135deg,#2B7FFF,#5DA0FF)', value: '15,000 ر.س',
+    provider: 'أحمد الزهراني', pAv: 'أ', pBg: 'linear-gradient(135deg,#2B7FFF,#5DA0FF)', value: '15,000 $',
     escrowTotal: 15000, escrowReleased: 15000, spec: 'برمجة', progress: 100, deadline: '2026-09-01', startDate: '2026-08-01',
     contractType: 'نتائج محددة', status: 'completed', risk: 'low',
     milestones: [
@@ -357,7 +357,7 @@ export const PROJECTS: Project[] = [
     ],
     activityLog: [
       { text: 'اكتمل المشروع بنجاح وتم إغلاقه بتقييم 5 نجوم من الطرفين', time: '1 سبتمبر 2026، 05:00 م', color: '#0FA99A' },
-      { text: 'أُفرج عن كامل الضمان 15,000 ر.س بعد قبول جميع التسليمات', time: '1 سبتمبر 2026، 04:30 م', color: '#0FA99A' },
+      { text: 'أُفرج عن كامل الضمان 15,000 $ بعد قبول جميع التسليمات', time: '1 سبتمبر 2026، 04:30 م', color: '#0FA99A' },
       { text: 'قبلت منى الشمري رابط الموقع المباشر بعد النشر', time: '1 سبتمبر 2026، 04:00 م', color: '#0FA99A' },
       { text: 'بدأ المشروع رسمياً بعد توقيع العقد CO-1265', time: '1 أغسطس 2026، 10:00 ص', color: '#A56BE0' },
     ],
@@ -366,7 +366,7 @@ export const PROJECTS: Project[] = [
     linkedEntities: [
       { kind: 'contract', label: 'عقد المشروع', refId: 'CO-1265 · مكتمل', status: 'مكتمل', route: '/supper-admin-overview/contracts' },
       { kind: 'request', label: 'الطلب الأصلي', refId: 'RQ-1265 · مكتمل', status: 'مكتمل', route: '/supper-admin-overview/requests' },
-      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4770 · 15,000 ر.س', status: 'مقبول', route: '/supper-admin-overview/offers' },
+      { kind: 'offer', label: 'العرض المقبول', refId: 'OF-4770 · 15,000 $', status: 'مقبول', route: '/supper-admin-overview/offers' },
     ],
   },
 ];

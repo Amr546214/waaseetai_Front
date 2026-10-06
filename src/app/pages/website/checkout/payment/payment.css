@@ -80,7 +80,7 @@
 .btn-add-funds:hover{opacity:.88}
 .btn-add-funds svg{width:14px;height:14px}
 
-/* APPLE/STCPAY */
+/* alternative payment tiles */
 .alt-pay-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:800;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
 .alt-pay-btn svg{width:16px;height:16px}
 

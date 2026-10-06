@@ -105,7 +105,7 @@ export class Withdraw implements OnInit {
 
     if (this.withdrawForm.invalid) {
       this.withdrawForm.markAllAsTouched();
-      this.showToast(`الحد الأدنى لطلب السحب ${MINIMUM_WITHDRAWAL} ريال`, 'error');
+      this.showToast(`الحد الأدنى لطلب السحب ${MINIMUM_WITHDRAWAL} دولار`, 'error');
       return;
     }
     if (!this.hasBankInfo()) {

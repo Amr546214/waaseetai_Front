@@ -75,7 +75,7 @@ export function formatNumber(n: number | null | undefined): string {
 
 export function formatMoney(n: number | null | undefined): string {
   if (n === null || n === undefined) return '—';
-  return `${formatNumber(n)} ريال`;
+  return `${formatNumber(n)} دولار`;
 }
 
 const AR_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];

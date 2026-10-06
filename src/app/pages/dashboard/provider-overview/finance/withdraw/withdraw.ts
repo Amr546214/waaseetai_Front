@@ -36,14 +36,11 @@ export class Withdraw implements OnInit {
   escrowBalance = computed(() => this.wallet()?.summary?.escrowBalance ?? 0);
   // Reads the real currency code from the wallet API (now USD-semantic for
   // new/active balances) and renders it as the app's established symbol —
-  // never hardcodes SAR/USD, always follows the actual stored value so a
-  // historical SAR withdrawal (currency code, see formatAmount below) still
-  // displays correctly too.
+  // never hardcodes the currency, it follows the actual stored value.
   currency = computed(() => this.currencySymbol(this.wallet()?.summary?.currency || 'USD'));
 
   private currencySymbol(code: string): string {
     if (code === 'USD') return '$';
-    if (code === 'SAR') return 'ريال';
     return code;
   }
 
@@ -288,7 +285,7 @@ export class Withdraw implements OnInit {
     if (amount == null) return '—';
     const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     // currency here is the withdrawal record's OWN stored currency code
-    // (historical SAR withdrawals keep showing SAR; new ones are USD) —
+    // (a row shows its own stored currency code) —
     // never relabeled, only rendered as the app's symbol.
     return `${formatted} ${currency ? this.currencySymbol(currency) : this.currency()}`;
   }

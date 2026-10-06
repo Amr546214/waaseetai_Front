@@ -69,7 +69,7 @@ export class SaCashback {
   }
 
   formatAmount(v: number): string {
-    return `+${v} ر.س`;
+    return `+${v} $`;
   }
 
   showToast(message: string) {

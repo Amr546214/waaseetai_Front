@@ -55,17 +55,17 @@ export class SaSubFinance {
   );
 
   readonly breakdown: RevenueBreakdown[] = [
-    { name: 'رسوم إتمام الصفقات (72%)', amount: '10.7M ر.س', percent: 72, color: 'linear-gradient(90deg,#2BD4C7,#2B7FFF)' },
-    { name: 'اشتراكات الباقات (20%)', amount: '2.96M ر.س', percent: 20, color: '#5DA0FF' },
-    { name: 'خدمات إضافية (8%)', amount: '1.18M ر.س', percent: 8, color: '#D98A0B' },
+    { name: 'رسوم إتمام الصفقات (72%)', amount: '10.7M $', percent: 72, color: 'linear-gradient(90deg,#2BD4C7,#2B7FFF)' },
+    { name: 'اشتراكات الباقات (20%)', amount: '2.96M $', percent: 20, color: '#5DA0FF' },
+    { name: 'خدمات إضافية (8%)', amount: '1.18M $', percent: 8, color: '#D98A0B' },
   ];
 
   readonly transactions: FinanceTransaction[] = [
-    { type: 'رسوم خدمة', typeClass: 'tag-teal', amount: '+3,200 ر.س', positive: true, party: 'مشروع PR-4521', date: 'اليوم', status: 'sent' },
-    { type: 'اشتراك Pro', typeClass: 'tag-blue', amount: '+299 ر.س', positive: true, party: 'هيثم القرني', date: 'اليوم', status: 'sent' },
-    { type: 'عمولة وسيط', typeClass: 'tag-green', amount: '+840 ر.س', positive: true, party: 'وسيط #112', date: 'أمس', status: 'pending' },
-    { type: 'سحب', typeClass: 'tag-orange', amount: '-12,000 ر.س', positive: false, party: 'سارة القحطاني', date: 'أمس', status: 'sent' },
-    { type: 'رسوم خدمة', typeClass: 'tag-teal', amount: '+5,800 ر.س', positive: true, party: 'مشروع PR-4498', date: '12 يوليو', status: 'sent' },
+    { type: 'رسوم خدمة', typeClass: 'tag-teal', amount: '+3,200 $', positive: true, party: 'مشروع PR-4521', date: 'اليوم', status: 'sent' },
+    { type: 'اشتراك Pro', typeClass: 'tag-blue', amount: '+299 $', positive: true, party: 'هيثم القرني', date: 'اليوم', status: 'sent' },
+    { type: 'عمولة وسيط', typeClass: 'tag-green', amount: '+840 $', positive: true, party: 'وسيط #112', date: 'أمس', status: 'pending' },
+    { type: 'سحب', typeClass: 'tag-orange', amount: '-12,000 $', positive: false, party: 'سارة القحطاني', date: 'أمس', status: 'sent' },
+    { type: 'رسوم خدمة', typeClass: 'tag-teal', amount: '+5,800 $', positive: true, party: 'مشروع PR-4498', date: '12 يوليو', status: 'sent' },
   ];
 
   showToast(message: string) {

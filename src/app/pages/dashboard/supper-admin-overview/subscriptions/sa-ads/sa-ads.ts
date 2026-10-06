@@ -35,7 +35,7 @@ export class SaAds {
     { label: 'حملات نشطة', value: '24', unit: 'حملة', sub: '+3 هذا الأسبوع', color: '#2BD4C7', subColor: '#0FA99A' },
     { label: 'إجمالي الانطباعات', value: '2.4M', unit: 'هذا الشهر', sub: '+18% شهرياً', color: '#0FA99A', subColor: '#0FA99A' },
     { label: 'معدل CTR', value: '12.4%', unit: 'متوسط الحملات', sub: 'الصناعة: 2.1%', color: '#FFB400', subColor: '#6B7699' },
-    { label: 'إيراد الإعلانات', value: '248k', unit: 'ريال — هذا الشهر', sub: '+22% شهرياً', color: '#5DA0FF', subColor: '#0FA99A' },
+    { label: 'إيراد الإعلانات', value: '248k', unit: 'دولار — هذا الشهر', sub: '+22% شهرياً', color: '#5DA0FF', subColor: '#0FA99A' },
   ];
 
   readonly campaigns: AdCampaign[] = [

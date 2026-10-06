@@ -325,7 +325,7 @@ export class Account implements OnInit {
   coLanguage = signal<string>('العربية');
   coTimezone = signal<string>('(GMT+3) الرياض');
   coCalendar = signal<string>('ميلادي');
-  coCurrency = signal<string>('الريال السعودي (SAR)');
+  coCurrency = signal<string>('الدولار السعودي (USD)');
   coNumberFormat = signal<string>('1234 — عربية غربية');
   coLandingPage = signal<string>('لوحة التحكم');
   coIdleTimeout = signal<string>('30 دقيقة');
@@ -347,7 +347,7 @@ export class Account implements OnInit {
     this.coLanguage.set('العربية');
     this.coTimezone.set('(GMT+3) الرياض');
     this.coCalendar.set('ميلادي');
-    this.coCurrency.set('الريال السعودي (SAR)');
+    this.coCurrency.set('الدولار السعودي (USD)');
     this.coNumberFormat.set('1234 — عربية غربية');
     this.coLandingPage.set('لوحة التحكم');
     this.coIdleTimeout.set('30 دقيقة');
@@ -370,7 +370,7 @@ export class Account implements OnInit {
 
   language = signal<string>('العربية');
   timezone = signal<string>('توقيت الرياض (GMT+3)');
-  currency = signal<string>('ريال سعودي (SAR)');
+  currency = signal<string>('دولار أمريكي (USD)');
   dateFormat = signal<string>('هجري وميلادي');
 
   showProfile = signal<boolean>(true);

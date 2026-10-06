@@ -165,15 +165,15 @@
 		</div>
 
 		<div class="co-kpi-grid">
-			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="co-kpi-val">{{ c.kpis.remainingBudget | number:'1.0-0' }}</div><div class="co-kpi-lbl">الميزانية المتبقية (ريال)</div></div>
+			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="co-kpi-val">{{ c.kpis.remainingBudget | number:'1.0-0' }}</div><div class="co-kpi-lbl">الميزانية المتبقية (دولار)</div></div>
 			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-add-user"></use></svg></div><div class="co-kpi-val">{{ c.kpis.activeEmployees }}</div><div class="co-kpi-lbl">الموظفون النشطون</div></div>
-			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div><div class="co-kpi-val">{{ c.kpis.quarterSpend | number:'1.0-0' }}</div><div class="co-kpi-lbl">إنفاق الربع (ريال)</div></div>
+			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div><div class="co-kpi-val">{{ c.kpis.quarterSpend | number:'1.0-0' }}</div><div class="co-kpi-lbl">إنفاق الربع (دولار)</div></div>
 			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-market"></use></svg></div><div class="co-kpi-val">{{ c.kpis.activeTeamProjects }}</div><div class="co-kpi-lbl">مشاريع الفريق النشطة</div></div>
 			<div class="co-kpi co-kpi-warn"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-check-sm"></use></svg></div><div class="co-kpi-val">{{ c.kpis.pendingYourApproval }}</div><div class="co-kpi-lbl">بانتظار اعتمادك</div></div>
 		</div>
 
 		<div class="co-budget-bar">
-			<div class="co-budget-lbl">{{ c.quarterBudget.percent }}% <span>ميزانية الربع المستهلكة، {{ c.quarterBudget.used | number:'1.0-0' }} من {{ c.quarterBudget.total | number:'1.0-0' }} ريال</span></div>
+			<div class="co-budget-lbl">{{ c.quarterBudget.percent }}% <span>ميزانية الربع المستهلكة، {{ c.quarterBudget.used | number:'1.0-0' }} من {{ c.quarterBudget.total | number:'1.0-0' }} دولار</span></div>
 			<div class="co-budget-track"><div class="co-budget-fill" [style.width.%]="c.quarterBudget.percent"></div></div>
 		</div>
 
@@ -206,7 +206,7 @@
 				</div>
 				<div class="co-panel">
 					<div class="co-panel-hdr">محفظة الشركة</div>
-					<div class="co-wallet-val">{{ c.walletBalance | number:'1.0-0' }} ريال</div>
+					<div class="co-wallet-val">{{ c.walletBalance | number:'1.0-0' }} دولار</div>
 					<a routerLink="/client-overview/finance/wallet" class="co-qa" style="margin-top:10px">إدارة المحفظة</a>
 				</div>
 				@if (c.employeeSpending.length) {
@@ -239,7 +239,7 @@
 							<div class="co-approval-ttl">{{ ap.title }}</div>
 							<div class="co-approval-sub">{{ ap.requesterName }} @if (ap.overBudget) {<span class="co-tag-warn">بتجاوز السقف</span>}</div>
 						</div>
-						<div class="co-approval-amt">{{ ap.amount | number:'1.0-0' }} ريال</div>
+						<div class="co-approval-amt">{{ ap.amount | number:'1.0-0' }} دولار</div>
 						<div class="co-approval-actions">
 							<button type="button" class="co-btn-ghost">رفض</button>
 							<button type="button" class="co-btn-pri">اعتماد</button>
@@ -259,7 +259,7 @@
 							<div class="co-approval-ttl">{{ r.title }}</div>
 							<div class="co-approval-sub">{{ r.requesterName }} · {{ r.department }}</div>
 						</div>
-						<div class="co-approval-amt">{{ r.amount | number:'1.0-0' }} ريال</div>
+						<div class="co-approval-amt">{{ r.amount | number:'1.0-0' }} دولار</div>
 						<span class="co-status-tag" [class]="'co-status-' + r.status">
 							@switch (r.status) {
 								@case ('approved') { معتمد }

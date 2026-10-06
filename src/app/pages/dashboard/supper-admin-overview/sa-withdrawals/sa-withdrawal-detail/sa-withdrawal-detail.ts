@@ -205,7 +205,7 @@ export class SaWithdrawalDetail implements OnInit {
   formatAmount(amount: number | null | undefined, currency: string | undefined): string {
     if (amount == null) return '—';
     const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
-    return currency ? `${formatted} ${currency}` : `${formatted} ر.س`;
+    return currency ? `${formatted} ${currency === 'USD' ? '$' : currency}` : `${formatted} $`;
   }
 
   ibanLast4(iban: string | undefined): string {

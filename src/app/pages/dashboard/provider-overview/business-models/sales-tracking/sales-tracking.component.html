@@ -35,7 +35,7 @@
 				<div class="model-row">
 					<div class="model-info">
 						<div class="model-name">{{ m.name }}</div>
-						<div class="model-meta">{{ m.sales }} مبيع · {{ m.revenue.toLocaleString() }} ريال</div>
+						<div class="model-meta">{{ m.sales }} مبيع · {{ m.revenue.toLocaleString() }} دولار</div>
 					</div>
 					<div class="model-bar-wrap">
 						<div class="model-bar">
@@ -57,7 +57,7 @@
 					<div class="sale-id">{{ sale.id }}</div>
 					<div class="sale-model">{{ sale.model }}</div>
 					<div class="sale-client">{{ sale.client }}</div>
-					<div class="sale-amount">{{ sale.amount.toLocaleString() }} ريال</div>
+					<div class="sale-amount">{{ sale.amount.toLocaleString() }} دولار</div>
 					<div class="sale-date">{{ sale.date }}</div>
 					<span class="sale-status" [ngClass]="'st-' + sale.status">{{ statusLabel(sale.status) }}</span>
 				</div>

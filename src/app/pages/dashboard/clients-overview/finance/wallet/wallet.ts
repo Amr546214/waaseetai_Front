@@ -70,21 +70,6 @@ export class Wallet implements OnInit {
   // defined but never used or credited), so the wallet shows no cashback amount instead of an invented 3% of the balance.
 
   ngOnInit() {
-    const moyasarPaymentId = this.route.snapshot.queryParamMap.get('id');
-    if (moyasarPaymentId) {
-      this.clientFinanceService.verifyDeposit({ paymentId: moyasarPaymentId }).subscribe({
-        next: () => {
-          this.router.navigate([], { relativeTo: this.route, replaceUrl: true, queryParams: {} });
-          this.loadWalletData();
-        },
-        error: () => {
-          this.router.navigate([], { relativeTo: this.route, replaceUrl: true, queryParams: {} });
-          this.hasError.set(true);
-          this.isLoading.set(false);
-        }
-      });
-      return;
-    }
     this.loadWalletData();
   }
 
@@ -137,11 +122,9 @@ export class Wallet implements OnInit {
         });
 
         const sign = direction === 'in' ? '+' : '-';
-        // Use each transaction's own recorded currency — never assume SAR.
-        // Historical Moyasar deposits are genuinely SAR; PayPal deposits are
-        // genuinely USD; showing the wrong label on either would misstate
-        // real transaction history.
-        const currencyLabel = tx.currency === 'USD' ? '$' : (tx.currency === 'SAR' ? 'ريال' : tx.currency);
+        // Each transaction shows its own recorded currency: USD as '$'; a legacy row in any other currency shows no
+        // currency symbol at all (never an old riyal label).
+        const currencyLabel = tx.currency === 'USD' ? '$' : '';
 
         return {
           id: tx.id,
@@ -149,7 +132,7 @@ export class Wallet implements OnInit {
           title: tx.description || (isDeposit ? 'إيداع رصيد بالمحفظة' : 'معاملة مالية'),
           description: tx.referenceId ? `رقم العملية ${tx.referenceId}` : (tx.paymentMethod || 'محفظة وسيط AI'),
           date: formattedDate,
-          amount: `${sign}${tx.amount.toLocaleString('en-US')} ${currencyLabel}`,
+          amount: `${sign}${tx.amount.toLocaleString('en-US')}${currencyLabel ? ' ' + currencyLabel : ''}`,
           direction,
           status: statusText,
           statusType,
@@ -176,7 +159,7 @@ export class Wallet implements OnInit {
     this.closeDepositModal();
     // Open the resulting transaction's details instead of just closing the
     // modal — WalletTransaction.referenceId is set server-side to the same
-    // gateway reference this event carries (Moyasar payment.id / PayPal
+    // gateway reference this event carries (PayPal
     // capture id), so the freshly reloaded list can be matched against it.
     // If no match is found (e.g. the transaction hasn't posted yet), stay on
     // the wallet page rather than navigating somewhere wrong.

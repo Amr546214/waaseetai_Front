@@ -40,7 +40,7 @@ function makeBrokerDetail(overrides: Partial<AdminBrokerDetail> = {}): AdminBrok
     channelMetrics: [{ channel: 'Instagram', visitors: 900, clients: 17, conversionPercentage: 1.9 }],
     customLinks: [{ channelName: 'Instagram', utmSource: 'ig', customSlug: 'sara-promo', createdAt: '2026-01-05T00:00:00.000Z' }],
     recentCommissions: [
-      { type: 'REFERRAL', amount: 200, currency: 'SAR', status: 'PAID', createdAt: '2026-01-10T00:00:00.000Z', referredUserName: 'خالد المطيري' },
+      { type: 'REFERRAL', amount: 200, currency: 'USD', status: 'PAID', createdAt: '2026-01-10T00:00:00.000Z', referredUserName: 'خالد المطيري' },
     ],
     ...overrides,
   };

@@ -77,20 +77,6 @@ export interface ClientInvoicesData {
 	invoices: ClientInvoice[];
 }
 
-export interface DepositInitResponse {
-	reference: string;
-	amount: number;
-	currency: string;
-	publishableKey: string;
-	paymentMethod: string;
-	callbackUrl: string;
-	metadata: {
-		client_id: string;
-		deposit_reference: string;
-		purpose: 'wallet_deposit';
-	};
-}
-
 @Injectable({
 	providedIn: 'root'
 })
@@ -108,21 +94,5 @@ export class ClientFinanceService {
 
 	getInvoice(id: string): Observable<{ success: boolean; data: ClientInvoice }> {
 		return this.http.get<{ success: boolean; data: ClientInvoice }>(`${this.baseUrl}/invoices/${encodeURIComponent(id)}`);
-	}
-
-	initiateDeposit(amount: number, paymentMethod: string = 'card'): Observable<{ success: boolean; data: DepositInitResponse }> {
-		return this.http.post<{ success: boolean; data: DepositInitResponse }>(`${this.baseUrl}/deposit/init`, {
-			amount,
-			paymentMethod
-		});
-	}
-
-	verifyDeposit(payload: {
-		paymentId: string;
-		amount?: number;
-		paymentMethod?: string;
-		description?: string;
-	}): Observable<{ success: boolean; message: string; data: ClientWalletData }> {
-		return this.http.post<{ success: boolean; message: string; data: ClientWalletData }>(`${this.baseUrl}/deposit/verify`, payload);
 	}
 }

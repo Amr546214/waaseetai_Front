@@ -9,14 +9,12 @@ import { CommonModule } from '@angular/common';
  * WithdrawalApiService). To avoid inventing payment/wallet business logic,
  * this component does not perform any HTTP call — it only collects an
  * amount, shows a summary matching the design (P-CO-FN-003), and emits a
- * `confirmed` event the host page can react to (e.g. show a "coming soon"
+ * `confirmed` event the host page can react to (e.g. show an "unavailable"
  * toast).
  *
- * Payment policy (temporary): the platform supports PayPal only, and this dialog has no provider
- * deposit endpoint behind it, so every method (card, bank transfer, PayPal) is shown disabled and
- * the confirm button is disabled until a real PayPal deposit exists for providers. It intentionally mirrors the visual language of the client-side
- * app-deposit-modal (sheards/deposit-modal) without touching that
- * component or its Moyasar/ClientFinanceService payment flow.
+ * Payment policy: PayPal (USD) is the only deposit rail, and this dialog has no provider deposit endpoint
+ * behind it, so the PayPal method is shown disabled and the confirm button is disabled until a real PayPal
+ * deposit exists for providers.
  */
 @Component({
 	selector: 'app-provider-deposit-modal',
@@ -28,12 +26,12 @@ import { CommonModule } from '@angular/common';
 export class ProviderDepositModal {
 	@Input() currentBalance = 0;
 	@Output() close = new EventEmitter<void>();
-	@Output() confirmed = new EventEmitter<{ amount: number; method: 'card' | 'bank' | 'paypal' }>();
+	@Output() confirmed = new EventEmitter<{ amount: number; method: 'paypal' }>();
 
 	readonly quickAmounts = [500, 1000, 2500, 5000];
 
 	amount = signal<number>(1000);
-	selectedMethod = signal<'card' | 'bank' | 'paypal'>('paypal');
+	selectedMethod = signal<'paypal'>('paypal');
 	/** No provider deposit is available yet (see the class comment). */
 	readonly depositAvailable = false;
 
@@ -54,7 +52,7 @@ export class ProviderDepositModal {
 	}
 
 	/** Methods are disabled for now; kept so enabling PayPal later is a one-line change. */
-	selectMethod(method: 'card' | 'bank' | 'paypal'): void {
+	selectMethod(method: 'paypal'): void {
 		if (!this.depositAvailable) return;
 		this.selectedMethod.set(method);
 	}

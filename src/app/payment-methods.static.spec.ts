@@ -45,18 +45,20 @@ describe('only PayPal is a selectable payment method', () => {
 		expect(html).not.toMatch(/formControlName="(ibanNumber|bankName|walletProvider|walletPhone|walletId)"/);
 	});
 
-	it('provider wallet deposit dialog: every method button is disabled', () => {
+	it('provider wallet deposit dialog: PayPal is the only method and it is disabled', () => {
 		const html = read('pages/dashboard/provider-overview/finance/wallet/deposit-modal/deposit-modal.html');
 		const buttons = [...html.matchAll(/<button[^>]*class="dpm-method"[^>]*>/g)].map((m) => m[0]);
-		expect(buttons.length).toBe(3);
+		expect(buttons.length).toBe(1);
 		for (const b of buttons) expect(b).toMatch(/\bdisabled\b/);
 	});
 
-	it('shared client deposit dialog keeps the card option behind the disabled Moyasar flag and offers PayPal', () => {
+	it('shared client deposit dialog offers PayPal only (no Moyasar / card flow left)', () => {
 		const ts = read('sheards/deposit-modal/deposit-modal.ts');
-		expect(ts).toMatch(/readonly moyasarEnabled = false;/);
+		expect(ts).not.toMatch(/moyasar/i);
+		expect(ts).not.toContain('initiateDeposit');
 		const html = read('sheards/deposit-modal/deposit-modal.html');
-		expect(html).toContain("selectMethod('paypal')");
+		expect(html).not.toMatch(/moyasar|mysr/i);
+		expect(html).toContain('PayPal');
 	});
 
 	it('client onboarding step 3 is left as is on purpose (documented, not silently changed)', () => {

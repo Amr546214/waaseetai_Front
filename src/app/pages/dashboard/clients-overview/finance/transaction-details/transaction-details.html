@@ -27,7 +27,7 @@
       </div>
       <div class="txn-hero-title">{{ title() }}</div>
       <div class="txn-hero-amount" [class.amt-out]="direction() === 'out'" [class.amt-in]="direction() === 'in'">
-        {{ direction() === 'out' ? '-' : '+' }}{{ tx.amount | number }} {{ tx.currency === 'USD' ? '$' : (tx.currency === 'SAR' ? 'ريال' : tx.currency) }}
+        {{ direction() === 'out' ? '-' : '+' }}{{ tx.amount | number }} {{ tx.currency === 'USD' ? '$' : (tx.currency === 'USD' ? 'دولار' : tx.currency) }}
       </div>
       <span class="txn-pill" [class.st-hold]="isHeld()" [class.st-done]="isDone()" [class.st-pending]="!isHeld() && !isDone()">
         {{ statusLabel() }}
@@ -56,7 +56,7 @@
       </div>
       <div class="txn-row">
         <span class="txn-row-lbl">المبلغ</span>
-        <span class="txn-row-val" [class.amt-out]="direction() === 'out'" [class.amt-in]="direction() === 'in'">{{ tx.amount | number }} {{ tx.currency === 'USD' ? '$' : (tx.currency === 'SAR' ? 'ريال' : tx.currency) }}</span>
+        <span class="txn-row-val" [class.amt-out]="direction() === 'out'" [class.amt-in]="direction() === 'in'">{{ tx.amount | number }} {{ tx.currency === 'USD' ? '$' : (tx.currency === 'USD' ? 'دولار' : tx.currency) }}</span>
       </div>
       <div class="txn-row">
         <span class="txn-row-lbl">التاريخ والوقت</span>

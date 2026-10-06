@@ -65,8 +65,8 @@ export class SaFinanceReports {
   ];
 
   readonly forecastPoints = [
-    { label: 'توقع أغسطس 2026', value: '2.14M ر.س', note: '+8.4% عن يوليو', confidence: '91%' },
-    { label: 'توقع سبتمبر 2026', value: '2.31M ر.س', note: '+7.9% نمو متوقع', confidence: '87%' },
-    { label: 'توقع Q3 2026 (إجمالي)', value: '4.8M ر.س', note: 'بثقة 88%', confidence: '88%' },
+    { label: 'توقع أغسطس 2026', value: '2.14M $', note: '+8.4% عن يوليو', confidence: '91%' },
+    { label: 'توقع سبتمبر 2026', value: '2.31M $', note: '+7.9% نمو متوقع', confidence: '87%' },
+    { label: 'توقع Q3 2026 (إجمالي)', value: '4.8M $', note: 'بثقة 88%', confidence: '88%' },
   ];
 }

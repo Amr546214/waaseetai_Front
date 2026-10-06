@@ -28,7 +28,7 @@ export interface ClientReportTransaction {
 	id: string;
 	type: string;
 	amount: number;
-	/** The row's own stored currency (e.g. historical SAR, current USD). */
+	/** The row's own stored currency (USD). */
 	currency?: string;
 	status: string;
 	description: string | null;

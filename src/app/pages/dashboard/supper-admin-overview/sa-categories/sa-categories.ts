@@ -65,11 +65,11 @@ export class SaCategories {
   ]);
 
   providers = signal<TopProvider[]>([
-    { name: 'نورة السهلي', avatar: 'ن', avatarBg: 'linear-gradient(135deg,#0FA99A,#2BD4C7)', specialty: 'تصميم', rating: 4.98, projects: 68, tier: 'Platinum', revenue: '24,800 ر.س', since: 'يناير 2026' },
-    { name: 'هيثم القرني', avatar: 'هـ', avatarBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', specialty: 'برمجة', rating: 4.96, projects: 52, tier: 'Platinum', revenue: '38,200 ر.س', since: 'مارس 2026' },
-    { name: 'شركة الرياض للتصميم', avatar: 'ر', avatarBg: 'linear-gradient(135deg,#59C1F5,#FF8C69)', specialty: 'تصميم', rating: 4.95, projects: 104, tier: 'Platinum', revenue: '67,500 ر.س', since: 'نوفمبر 2025' },
-    { name: 'سارة القحطاني', avatar: 'س', avatarBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', specialty: 'تصميم', rating: 4.91, projects: 34, tier: 'Gold', revenue: '18,400 ر.س', since: 'مارس 2026' },
-    { name: 'أحمد الزهراني', avatar: 'أ', avatarBg: 'linear-gradient(135deg,#2B7FFF,#5DA0FF)', specialty: 'تصميم', rating: 4.82, projects: 28, tier: 'Gold', revenue: '12,200 ر.س', since: 'يونيو 2026' },
+    { name: 'نورة السهلي', avatar: 'ن', avatarBg: 'linear-gradient(135deg,#0FA99A,#2BD4C7)', specialty: 'تصميم', rating: 4.98, projects: 68, tier: 'Platinum', revenue: '24,800 $', since: 'يناير 2026' },
+    { name: 'هيثم القرني', avatar: 'هـ', avatarBg: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', specialty: 'برمجة', rating: 4.96, projects: 52, tier: 'Platinum', revenue: '38,200 $', since: 'مارس 2026' },
+    { name: 'شركة الرياض للتصميم', avatar: 'ر', avatarBg: 'linear-gradient(135deg,#59C1F5,#FF8C69)', specialty: 'تصميم', rating: 4.95, projects: 104, tier: 'Platinum', revenue: '67,500 $', since: 'نوفمبر 2025' },
+    { name: 'سارة القحطاني', avatar: 'س', avatarBg: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', specialty: 'تصميم', rating: 4.91, projects: 34, tier: 'Gold', revenue: '18,400 $', since: 'مارس 2026' },
+    { name: 'أحمد الزهراني', avatar: 'أ', avatarBg: 'linear-gradient(135deg,#2B7FFF,#5DA0FF)', specialty: 'تصميم', rating: 4.82, projects: 28, tier: 'Gold', revenue: '12,200 $', since: 'يونيو 2026' },
   ]);
 
   filteredProviders = computed(() => {

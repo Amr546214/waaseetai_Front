@@ -47,7 +47,7 @@ describe('TeamDeliveries', () => {
 					statusLabel: 'بانتظار رد العميل',
 					submittedAt: new Date().toISOString(),
 					contractRef: 'CT-ABCDEF',
-					amountLabel: '3,000 ريال',
+					amountLabel: '3,000 دولار',
 					files: ['final.zip'],
 					note: 'تم التسليم بالكامل.',
 				},

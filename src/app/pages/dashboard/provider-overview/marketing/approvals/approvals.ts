@@ -88,7 +88,7 @@ export class MarketingApprovals implements OnInit {
       if (c.approvalStatus === 'APPROVED' && !couponNeedsApproval(c)) continue;
       const high = c.discountType === 'percentage' && c.discountValue > COMPANY_APPROVAL_THRESHOLD;
       const uncapped = c.maxUses === null;
-      const disc = c.discountType === 'percentage' ? `${c.discountValue}%` : `${formatNumber(c.discountValue)} ريال`;
+      const disc = c.discountType === 'percentage' ? `${c.discountValue}%` : `${formatNumber(c.discountValue)} دولار`;
       const covered = c.serviceIds.filter(id => !c.excludedServiceIds.includes(id));
       const scope = allModels.length && allModels.every(m => c.serviceIds.includes(m.id))
         ? 'كل نماذج الشركة'
@@ -96,7 +96,7 @@ export class MarketingApprovals implements OnInit {
       const reasons: string[] = [];
       if (high) reasons.push(`تجاوز الكوبون حد الخصم المسموح تلقائياً (${COMPANY_APPROVAL_THRESHOLD}%)`);
       if (uncapped) reasons.push('ليس له حد أقصى لمرات الاستخدام وقد يستهلك السقف الشهري بسرعة');
-      const limits = `${c.maxUses ? `الحد الأقصى للاستخدام: ${c.maxUses} مرة` : 'بلا حد أقصى للاستخدام'}، ${c.minimumAmount ? `حد أدنى للطلب ${formatNumber(c.minimumAmount)} ريال` : 'بدون حد أدنى لقيمة الطلب'}.`;
+      const limits = `${c.maxUses ? `الحد الأقصى للاستخدام: ${c.maxUses} مرة` : 'بلا حد أقصى للاستخدام'}، ${c.minimumAmount ? `حد أدنى للطلب ${formatNumber(c.minimumAmount)} دولار` : 'بدون حد أدنى لقيمة الطلب'}.`;
       out.push({
         kind: 'COUPON', id: c.id, title: `كوبون ${c.code}`,
         tag: high ? `خصم ${disc}` : uncapped ? 'بلا حد استخدام' : `خصم ${disc}`,

@@ -16,7 +16,7 @@ type StatusFilter = 'all' | BrokerUserStatus;
 // (AffiliateProfile/Referral/CommissionLog/AffiliateChannelMetric via
 // GET /api/admin/brokers). The previous mock's fictional "15-level MLM
 // commission structure", per-broker aiFlag/aiNotes, and hardcoded top-line
-// KPIs (8,420 total referrals / 84,200 SAR) have all been removed — none
+// KPIs (8,420 total referrals / 84,200 USD) have all been removed — none
 // of that has a real backend source. The three action buttons
 // (suspendBroker/freezeCommissions/sendForWithdrawal) were also removed:
 // none had any backend behind them, and no new mutation was authorized

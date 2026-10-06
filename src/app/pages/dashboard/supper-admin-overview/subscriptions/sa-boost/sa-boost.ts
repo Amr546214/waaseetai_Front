@@ -51,7 +51,7 @@ export class SaBoost {
 
   readonly kpis = [
     { label: 'Boosts نشطة', value: '348', unit: 'حملة نشطة', sub: '+28 هذا الأسبوع', color: '#2BD4C7', subColor: '#0FA99A' },
-    { label: 'إيراد Boost', value: '1.18M', unit: 'ريال — 2026', sub: '8% من الإيرادات', color: '#0FA99A', subColor: '#6B7699' },
+    { label: 'إيراد Boost', value: '1.18M', unit: 'دولار — 2026', sub: '8% من الإيرادات', color: '#0FA99A', subColor: '#6B7699' },
     { label: 'متوسط CTR', value: '8.4%', unit: 'معدل النقر', sub: 'عام: 2.1%', color: '#FFB400', subColor: '#6B7699' },
     { label: 'متوسط ROI', value: '4.2x', unit: 'عائد الاستثمار', sub: 'أعلى من المعيار', color: '#5DA0FF', subColor: '#0FA99A' },
   ];
@@ -83,7 +83,7 @@ export class SaBoost {
 
     let insight: string;
     if (cost < 20) {
-      insight = 'تكلفة منخفضة — ظهور محدود، AI ينصح 30+ ر.س/يوم';
+      insight = 'تكلفة منخفضة — ظهور محدود، AI ينصح 30+ $/يوم';
     } else if (cost > 100) {
       insight = 'تكلفة مرتفعة — تأكد من اكتمال الملف الشخصي قبل البدء';
     } else {
