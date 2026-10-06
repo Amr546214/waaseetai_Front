@@ -97,11 +97,11 @@
       <div class="ai-analysis-header">
         <div class="ai-analysis-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
         <div>
-          <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تدقيق الذكاء الاصطناعي للخدمة</div>
-          <div style="font-size:11px;color:var(--txt-2)">{{ model()?.aiScore ? 'درجة تدقيق مسجّلة من خدمة الذكاء الاصطناعي' : 'لم يُجرَ تدقيق AI لهذه الخدمة بعد' }}</div>
+          <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تقييم AI الاسترشادي للخدمة</div>
+          <div style="font-size:11px;color:var(--txt-2)">{{ model()?.aiScore ? 'درجة استرشادية مسجّلة من خدمة الذكاء الاصطناعي' : 'لم تخضع هذه الخدمة لتقييم AI الاسترشادي بعد' }}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-inline-start:auto;flex-shrink:0">
-          <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">{{ model()?.aiScore ? 'تدقيق AI' : 'غير مُدقَّقة' }}</span>
+          <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">{{ model()?.aiScore ? 'تقييم AI' : 'غير مُقيَّمة' }}</span>
           <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore ? model()?.aiScore + '%' : 'غير متاح' }}</span>
           <span style="font-size:9px;color:var(--txt-3)">جودة AI</span>
         </div>
@@ -134,7 +134,7 @@
     <div class="ai-metric m4"><div class="ai-metric-n">{{ model()?.reviewsCount ?? 0 }}</div><div class="ai-metric-l">عدد التقييمات</div></div>
     <div class="ai-metric m1"><div class="ai-metric-n">{{ model()?.salesCount ?? 0 }}</div><div class="ai-metric-l">مشروع مكتمل</div></div>
   </div>
-  <div style="margin-top:10px;padding:9px 11px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.12);border-radius:8px;font-size:11px;color:var(--txt-2);line-height:1.55"><strong style="color:var(--ai-txt)">ملخص تدقيق AI:</strong> {{ model()?.aiRecommendationReason || 'لا يوجد ملخص تدقيق مسجّل لهذه الخدمة.' }}</div>
+  @if (model()?.aiRecommendationReason) {<div style="margin-top:10px;padding:9px 11px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.12);border-radius:8px;font-size:11px;color:var(--txt-2);line-height:1.55"><strong style="color:var(--ai-txt)">ملخص التقييم الاسترشادي (AI):</strong> {{ model()?.aiRecommendationReason }}</div>}
 </ng-template>
 
 <!-- ORDER INCLUDES (real delivery stages) + cart feedback -->
@@ -589,11 +589,11 @@
                 <div class="ai-analysis-header">
                   <div class="ai-analysis-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
                   <div>
-                    <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تدقيق الذكاء الاصطناعي للخدمة</div>
-                    <div style="font-size:11px;color:var(--txt-2)">{{ model()?.aiScore ? 'درجة تدقيق مسجّلة من خدمة الذكاء الاصطناعي' : 'لم يُجرَ تدقيق AI لهذه الخدمة بعد' }}</div>
+                    <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تقييم AI الاسترشادي للخدمة</div>
+                    <div style="font-size:11px;color:var(--txt-2)">{{ model()?.aiScore ? 'درجة استرشادية مسجّلة من خدمة الذكاء الاصطناعي' : 'لم تخضع هذه الخدمة لتقييم AI الاسترشادي بعد' }}</div>
                   </div>
                   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-inline-start:auto;flex-shrink:0">
-                    <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">{{ model()?.aiScore ? 'تدقيق AI' : 'غير مُدقَّقة' }}</span>
+                    <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">{{ model()?.aiScore ? 'تقييم AI' : 'غير مُقيَّمة' }}</span>
                     <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore ? model()?.aiScore + '%' : 'غير متاح' }}</span>
                     <span style="font-size:9px;color:var(--txt-3)">جودة AI</span>
                   </div>

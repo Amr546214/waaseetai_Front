@@ -56,19 +56,10 @@ export interface AiAuditResult {
 		aiRecommendation: { budget: string; duration: string; milestones: string };
 	};
 	triPartyNote: string;
+	// Only overallScore (WaseetAI proposal-quality) is real. The backend sends acceptance odds as the fixed
+	// 'غير مدعوم' and every other final metric as null, so none of them is modelled or displayed here.
 	finalMetrics: {
-		// Only overallScore (WaseetAI proposal-quality) is ever real; the rest are null.
 		overallScore: number | null;
-		profileMatch: number | null;
-		messageClarity: number | null;
-		priceCompetitiveness: number | null;
-		timelineFeasibility: number | null;
-		completeness: number | null;
-	};
-	acceptanceOdds: {
-		statusText: string;
-		description: string;
-		topPercentage: string;
 	};
 }
 
@@ -574,8 +565,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 				aiRecommendation: { budget: 'غير مدعوم', duration: 'غير مدعوم', milestones: 'غير مدعوم' }
 			},
 			triPartyNote: 'يقيّم هذا الفحص نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل. مراجعة الجودة غير متاحة حالياً ولم تُولد المنصة أي استنتاج بديل.',
-			finalMetrics: { overallScore: null, profileMatch: null, messageClarity: null, priceCompetitiveness: null, timelineFeasibility: null, completeness: null },
-			acceptanceOdds: { statusText: 'غير مدعوم', description: 'غير مدعوم', topPercentage: 'غير مدعوم' }
+			finalMetrics: { overallScore: null }
 		};
 	}
 
