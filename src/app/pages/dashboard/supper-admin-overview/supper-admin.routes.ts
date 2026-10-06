@@ -362,12 +362,12 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
     {
         path: 'match-engine',
         loadComponent: () => import('./ai/sa-match-engine/sa-match-engine').then(m => m.SaMatchEngine),
-        data: { title: 'AI Match Engine' }
+        data: { title: 'محرك المطابقة' }
     },
     {
         path: 'audit',
         loadComponent: () => import('./ai/sa-ai-audit/sa-ai-audit').then(m => m.SaAiAudit),
-        data: { title: 'AI Recommendations + Audit' }
+        data: { title: 'سجل التدقيق' }
     },
         ]
     },

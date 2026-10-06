@@ -89,8 +89,8 @@ export class SaSuperAdmins {
   readonly smtpFrom = signal('noreply@waseet.ai');
 
   readonly aiToggles = signal<SpaToggle[]>([
-    { key: 'match', label: 'AI Match Engine', desc: 'مطابقة المشاريع بمقدمي الخدمة', on: true },
-    { key: 'recommend', label: 'AI Recommendations', desc: 'توصيات مخصصة لكل مستخدم', on: true },
+    { key: 'match', label: 'مطابقة المشاريع', desc: 'إعداد إداري داخلي — لا يغيّر سلوك النظام حالياً', on: true },
+    { key: 'recommend', label: 'التوصيات المخصصة', desc: 'إعداد إداري داخلي — لا يغيّر سلوك النظام حالياً', on: true },
     // Batch 6: "AI Fraud Detection" and "AI Content Moderation" toggles were
     // removed entirely — no real capability of any kind (AI or
     // deterministic) exists behind either one, so a reworded label would

@@ -34,13 +34,13 @@ export class SaUpgrade {
     { key: 'all', label: 'الكل' },
     { key: 'completed', label: 'مكتملة' },
     { key: 'pending', label: 'معلقة' },
-    { key: 'ai', label: 'توصيات AI' },
+    { key: 'ai', label: 'توصيات مبدئية' },
   ];
 
   readonly statusLabels: Record<UpgradeStatus, string> = {
     completed: 'مكتملة',
     pending: 'معلقة',
-    ai: 'توصية AI',
+    ai: 'توصية مبدئية',
   };
 
   readonly statusColors: Record<UpgradeStatus, string> = {
@@ -53,7 +53,7 @@ export class SaUpgrade {
     { label: 'طلبات الترقية', value: '247', unit: 'هذا الشهر', sub: '+34% عن الشهر الماضي', color: '#2BD4C7', subColor: '#0FA99A' },
     { label: 'مكتملة', value: '218', unit: 'ترقية', sub: '88.3% معدل الإتمام', color: '#0FA99A', subColor: '#6B7699' },
     { label: 'معلقة', value: '29', unit: 'طلب', sub: 'بانتظار الدفع', color: '#FFB400', subColor: '#D98A0B' },
-    { label: 'توصيات AI', value: '482', unit: 'مستخدم مرشح', sub: 'احتمالية ترقية >70%', color: '#59C1F5', subColor: '#6B7699' },
+    { label: 'مرشحون للترقية', value: '482', unit: 'مستخدم مرشح', sub: 'احتمالية ترقية >70%', color: '#59C1F5', subColor: '#6B7699' },
   ];
 
   readonly requests: UpgradeRequest[] = [
