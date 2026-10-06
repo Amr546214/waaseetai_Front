@@ -25,6 +25,7 @@ const FORBIDDEN: Array<[string, RegExp]> = [
 	['AI judging provider performance', /حكم(اً)? شامل من الذكاء الاصطناعي|يقيّم أداء كل مقدم|يحلل AI عشرات المعايير|الذكاء الاصطناعي يحلل أداء/],
 	['AI bringing offers', /يقترح AI لها عروض|يطابق(ك)? AI|AI يطابق/],
 	['static "AI · نشط" badge', /AI · نشط/],
+	['unproven "best match for every request" claim', /اقتراح الأنسب لكل طلب/],
 	['fake AI accreditation engine label', /محرك الاعتماد الذكي/],
 ];
 
@@ -43,6 +44,10 @@ describe('marketing/static AI copy stays truthful', () => {
 			const s = read(`how-it-works/${r}/${r}.html`);
 			expect(s).toContain('مستوى المقدم');
 		}
+	});
+
+	it('the about page only promises AI recommendations conditionally', () => {
+		expect(read('about/about.html')).toContain('توصيات مساعدة عند توفر مصدر AI موثوق');
 	});
 
 	it('the how-it-works client page only promises AI suggestions conditionally', () => {
