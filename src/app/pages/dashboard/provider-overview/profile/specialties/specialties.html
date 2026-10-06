@@ -6,7 +6,7 @@
 		<a href="javascript:void(0)" class="hover:text-[var(--txt-2)] transition-colors">إدارة التخصصات</a>
 		<span class="text-[var(--sec-bd)]" aria-hidden="true">&#8249;</span>
 		<span class="text-[var(--txt-2)] font-semibold">{{ currentStep() === 1 ? 'اختيار التخصص' : (currentStep() === 2
-			? 'رفع النماذج' : (currentStep() === 3 ? 'مراجعة الذكاء' : 'الاختبار الفوري')) }}</span>
+			? 'رفع النماذج' : (currentStep() === 3 ? 'مراجعة النماذج' : 'الاختبار الفوري')) }}</span>
 	</nav>
 
 	<!-- STEPPER -->
@@ -47,7 +47,7 @@
 					</svg>
 				</ng-container>
 			</div>
-			<div class="step-label mt-1 text-xs text-[var(--txt-3)]">مراجعة الذكاء</div>
+			<div class="step-label mt-1 text-xs text-[var(--txt-3)]">مراجعة النماذج</div>
 		</div>
 		<div class="step-line" [class.done]="currentStep() > 3" aria-hidden="true"></div>
 		<div class="step-item" [class.active]="currentStep() === 4" role="listitem">
@@ -460,26 +460,14 @@
 	</ng-container>
 
 	<ng-container *ngIf="currentStep() === 3">
-		<!-- AI Banner -->
-		<div
+		<!-- Step banner: neutral wording; AI wording appears only inside a real model result below -->
+		<div data-testid="step3-banner"
 			class="flex items-center gap-3 p-4 bg-gradient-to-br from-[rgba(123,47,190,.16)] to-[rgba(43,127,255,.10)] border border-[rgba(123,47,190,.35)] rounded-2xl mb-6 shadow-[0_4px_25px_rgba(123,47,190,0.15)] backdrop-blur-md">
-			<div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20">
-				<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#7B2FBE" stroke-width="1.8"
-					stroke-linecap="round" stroke-linejoin="round">
-					<use href="#i-ai"></use>
-				</svg>
-			</div>
 			<div class="flex-1">
-				<div class="flex items-center gap-2 mb-1">
-					<span class="text-xs font-black text-white tracking-wider">محرك Waseet AI — المدقق التقني والمراجعة
-						الذكية</span>
-					<span
-						class="px-2 py-0.5 rounded-full bg-[rgba(43,212,199,.15)] border border-[rgba(43,212,199,.3)] text-[10px] font-bold text-[#2BD4C7]">تدقيق
-						متعدد الوسائط</span>
+				<div class="mb-1">
+					<span class="text-xs font-black text-white tracking-wider">مراجعة النماذج</span>
 				</div>
-				<p class="text-xs text-[var(--txt-3)] leading-relaxed">يقوم الذكاء الاصطناعي بتحليل عميق لنماذج أعمالك
-					وإثباتات الملكية السرية عبر خوارزميات كشف الأصالة وتقدير الجدارة المهنية قبل فتح بوابة الاختبار
-					الفوري.</p>
+				<p class="text-xs text-[var(--txt-3)] leading-relaxed">تُراجَع نماذج أعمالك وإثباتات الملكية قبل فتح بوابة الاختبار الفوري.</p>
 			</div>
 		</div>
 
@@ -506,9 +494,8 @@
 				</div>
 			</div>
 
-			<div class="text-base font-black text-white mb-2">جاري التدقيق التقني والتحقق من الملكية الفكرية...</div>
-			<div class="text-xs text-[var(--txt-3)] mb-6 max-w-sm text-center leading-relaxed">يتم الآن إجراء مطابقة
-				للبنية الفنية للملفات وفحص شهادات التوثيق السرية ضد قواعد بياناتنا المعتمدة.</div>
+			<div class="text-base font-black text-white mb-2">جارٍ مراجعة النماذج...</div>
+			<div class="text-xs text-[var(--txt-3)] mb-6 max-w-sm text-center leading-relaxed">يرجى الانتظار قليلًا حتى تكتمل المراجعة.</div>
 
 			<div
 				class="w-72 h-2 bg-[rgba(255,255,255,.05)] rounded-full overflow-hidden border border-[rgba(255,255,255,.1)]">
@@ -524,9 +511,9 @@
 			<div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl">
 				⚠️
 			</div>
-			<div class="text-base font-black text-white">تعذر إجراء التدقيق الذكي حالياً</div>
+			<div data-testid="step3-unavailable-title" class="text-base font-black text-white">الفحص الذكي متوقف مؤقتًا</div>
 			<p class="text-xs text-[var(--txt-3)] max-w-sm text-center leading-relaxed">
-				لم تتمكن خدمة الذكاء الاصطناعي من إتمام تقييم النماذج المرفوعة في الوقت الحالي. يرجى المحاولة مرة أخرى لاحقاً.
+				تم تحويل نماذجك للمراجعة. يمكنك المتابعة إلى الخطوة التالية بعد الموافقة على الإقرارات أدناه.
 			</p>
 			<button type="button" (click)="simulateAnalysis()"
 				class="mt-2 py-2 px-5 rounded-xl text-xs font-bold text-[#070d24] bg-gradient-to-r from-[#00d2ff] to-[#3b82f6] hover:from-[#2bd4c7] hover:to-[#2563eb] transition-all">
@@ -735,7 +722,10 @@
 				</div>
 			</div>
 
-			<!-- DECLARATIONS BEFORE TESTING -->
+		</div>
+
+		<!-- DECLARATIONS BEFORE TESTING — shown with a real result AND when the smart check is unavailable, so step 3 never dead-ends -->
+		<div data-testid="step3-declarations" *ngIf="!isAnalyzing() && (aiFeedback() || aiEvaluationUnavailable())" class="mt-6">
 			<div class="state-card !p-0 overflow-hidden border-[rgba(255,255,255,.09)] bg-[rgba(13,20,44,0.7)]">
 				<div
 					class="p-4 border-b border-[rgba(255,255,255,.07)] flex items-center gap-2 bg-[rgba(255,255,255,.02)]">
@@ -1196,7 +1186,7 @@
 			(click)="nextStep()"
 			class="inline-flex items-center gap-2 px-6 py-2.5 bg-[rgba(30,41,59,0.5)] border border-[rgba(43,212,199,0.3)] hover:bg-[rgba(43,212,199,0.1)] rounded-full text-[#2BD4C7] text-sm font-black disabled:opacity-50 disabled:cursor-not-allowed transition-all ml-auto"
 			[ngClass]="{'bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] !text-[#070D24] !border-none hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(43,127,255,.35)]': currentStep() !== 3 || (currentStep() === 3 && allDeclarationsChecked() && !isAnalyzing())}">
-			{{ currentStep() === 1 ? 'التالي — رفع النماذج' : (currentStep() === 2 ? 'التالي — مراجعة الذكاء' : 'التالي
+			{{ currentStep() === 1 ? 'التالي — رفع النماذج' : (currentStep() === 2 ? 'التالي — مراجعة النماذج' : 'التالي
 			— الاختبار الفوري') }}
 			<svg *ngIf="currentStep() === 1 || currentStep() === 2" width="14" height="14" viewBox="0 0 24 24"
 				fill="none" stroke="currentColor" stroke-width="2.5">
