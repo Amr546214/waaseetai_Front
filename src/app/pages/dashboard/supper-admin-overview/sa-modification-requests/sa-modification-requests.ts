@@ -47,7 +47,7 @@ export class SaModificationRequests implements OnInit {
 
   readonly filters: { key: FilterKey; label: string }[] = [
     { key: 'all', label: 'الكل' },
-    { key: 'ai', label: 'قيد مراجعة الذكاء' },
+    { key: 'ai', label: 'قيد المراجعة' },
     { key: 'human', label: 'بانتظار اعتماد' },
     { key: 'ok', label: 'معتمد' },
     { key: 'rejected', label: 'مرفوض' },
@@ -167,12 +167,12 @@ export class SaModificationRequests implements OnInit {
   private buildTimeline(status: ReqStatus): TimelineStep[] {
     if (status === 'rejected') {
       return [
-        { label: 'مراجعة الذكاء', state: 'done' },
+        { label: 'مراجعة أولية', state: 'done' },
         { label: 'رفض الاعتماد', state: 'rejected' },
       ];
     }
     return [
-      { label: 'مراجعة الذكاء', state: status === 'ai' ? 'active' : 'done' },
+      { label: 'مراجعة أولية', state: status === 'ai' ? 'active' : 'done' },
       { label: 'اعتماد بشري', state: status === 'ok' ? 'done' : (status === 'human' ? 'active' : 'pending') },
       { label: 'تطبيق', state: status === 'ok' ? 'done' : 'pending' },
     ];
@@ -193,11 +193,11 @@ export class SaModificationRequests implements OnInit {
       oldValue: r.currentValue || 'لا يوجد',
       newValue: r.requestedValue,
       timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
-      verdictLabel: status === 'ai' ? 'فحص الذكاء جار'
-        : status === 'human' ? 'توصية الذكاء، تمرير للمراجعة'
+      verdictLabel: status === 'ai' ? 'قيد المراجعة'
+        : status === 'human' ? 'نتيجة الفحص الآلي: تمرير للمراجعة'
         : status === 'ok' ? 'اعتمده المراجع'
         : 'مرفوض',
-      verdictText: r.rejectionReason || r.aiRecommendation || 'يتحقق الذكاء من البيانات...',
+      verdictText: r.rejectionReason || r.aiRecommendation || 'لا توجد نتيجة فحص بعد',
       verdictScore: r.aiConfidenceScore ? `دقة ${r.aiConfidenceScore}%` : (status === 'rejected' ? 'تعارض' : 'غير متاح'),
       reviewer: r.reviewedBy || undefined,
       timeline: this.buildTimeline(status),

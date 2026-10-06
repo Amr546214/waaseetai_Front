@@ -755,7 +755,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.alertModal.set({
 			type: 'info',
 			title: 'نفاذ غير مفعّل',
-			message: 'التحقق عبر نفاذ غير مفعّل حاليًا، وسيتم تفعيله بعد اعتماد واجهة التحقق من الخادم.',
+			message: 'التحقق عبر نفاذ غير متاح حاليًا.',
 			confirmText: 'حسناً',
 			onConfirm: () => this.closeAlertModal()
 		});

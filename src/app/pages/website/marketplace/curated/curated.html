@@ -378,7 +378,7 @@
             <a [routerLink]="cardLink(m)" [class]="first ? 'deal-hero' : 'deal-side'">
               <div class="deal-top-strip">
                 <div class="deal-strip-ico"><svg aria-hidden="true" style="width:9px;height:9px" [style.color]="first ? 'var(--red)' : 'var(--txt-3)'"><use href="#ws-tag"></use></svg></div>
-                {{ hasActivePurchase(m) ? 'لديك طلب نشط على هذه الخدمة' : (first ? 'عرض اليوم الأبرز — ينتهي قريباً' : 'عرض حصري') }}
+                {{ hasActivePurchase(m) ? 'لديك طلب نشط على هذه الخدمة' : (first ? 'عرض اليوم الأبرز' : 'عرض حصري') }}
               </div>
               <div class="deal-thumb">
                 @if (first) { <div class="deal-thumb-glow"></div> }

@@ -103,7 +103,7 @@ export class Market implements OnInit, OnDestroy {
 		//   subtitle: 'تعديل السعر والوصف · طلب REQ-5021',
 		//   date: '30 مايو · 11:42 ص',
 		//   matchRate: 94,
-		//   statusLabel: 'قيد مراجعة الذكاء',
+		//   statusLabel: 'قيد المراجعة',
 		//   isExpanded: false,
 		//   checks: [
 		//     { text: '✓ توافق السعر مع تخصصك المعتمد', status: 'سليم', type: 'success' },
@@ -119,7 +119,7 @@ export class Market implements OnInit, OnDestroy {
 		//   subtitle: 'تعديل الوصف والكلمات المفتاحية · طلب REQ-5019',
 		//   date: '28 مايو · 09:15 ص',
 		//   matchRate: 87,
-		//   statusLabel: 'قيد مراجعة الذكاء',
+		//   statusLabel: 'قيد المراجعة',
 		//   isExpanded: false,
 		//   checks: [
 		//     { text: '✓ توافق التخصص مع ملفك المهني', status: 'سليم', type: 'success' },
@@ -238,7 +238,7 @@ export class Market implements OnInit, OnDestroy {
 
 	// No backend endpoint exists yet to approve a modification request (see
 	// BACKEND_BLOCKED_ISSUES.md). The button is kept disabled in market.html with a
-	// "قيد التفعيل قريباً" note instead of silently no-oping, so this handler is
+	// "غير متاح حاليًا" note instead of silently no-oping, so this handler is
 	// effectively unreachable until that endpoint ships.
 	onApproveRequest(req: ModificationRequest) {
 		if (!req.canApprove) return;

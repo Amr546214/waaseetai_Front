@@ -157,7 +157,7 @@ export class Login {
   appleSignIn() {
     // Apple Sign-In is not wired to a backend endpoint yet — tell the user
     // instead of failing silently.
-    this.appleNotice = 'تسجيل الدخول عبر آبل سيكون متاحاً قريباً، يمكنك المتابعة بجوجل أو بالبريد';
+    this.appleNotice = 'تسجيل الدخول عبر آبل غير متاح حاليًا، يمكنك المتابعة بجوجل أو بالبريد';
     this.cdr.markForCheck();
   }
 

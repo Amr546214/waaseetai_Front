@@ -189,7 +189,7 @@ export class SaSuperAdmins {
   // are disabled with an explanatory tooltip until real endpoints exist —
   // see BACKEND_BLOCKED_ISSUES.md.
   readonly dangerBlockedTooltip =
-    'قيد التفعيل قريباً — يتطلب ربط هذا الإجراء بالخادم الخلفي؛ لا يوجد حالياً أي تنفيذ فعلي له';
+    'غير متاح حاليًا — يتطلب ربط هذا الإجراء بالخادم الخلفي؛ لا يوجد حالياً أي تنفيذ فعلي له';
 
   setSection(s: SpaSection) {
     this.activeSection.set(s);
