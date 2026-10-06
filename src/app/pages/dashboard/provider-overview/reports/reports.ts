@@ -1,6 +1,7 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { ProviderApiService } from '../../../../core/services/provider-api.service';
 import { AccountType } from '../../../../core/models/auth.model';
 
 @Component({
@@ -9,8 +10,19 @@ import { AccountType } from '../../../../core/models/auth.model';
   imports: [CommonModule],
   templateUrl: './reports.html'
 })
-export class Reports {
+export class Reports implements OnInit {
   private authStore = inject(AuthStore);
+  private providerApi = inject(ProviderApiService);
+
+  /** Real provider statistics (GET /provider/statistics) — the only source behind this page's KPI cards. */
+  stats = signal<{ summary?: { monthlyEarnings?: number; humanRating?: number } } | null>(null);
+
+  ngOnInit() {
+    this.providerApi.getProviderStatistics().subscribe({
+      next: (res: any) => this.stats.set(res?.success ? res.data : null),
+      error: () => this.stats.set(null)
+    });
+  }
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -33,20 +45,18 @@ export class Reports {
   providerPayoutsTrend: string | null = null;
   disputeResolutionProviderRate: number | null = null;
 
+  // No endpoint backs these reports yet, so the tab badges show "—" instead of invented counts.
   tabs = computed(() => {
-    const list = [
-      // Kept in sync with the actual number of mock rows rendered below
-      // (the now-removed page-2/3 pagination controls previously implied a
-      // 12-item total that doesn't exist).
-      { id: 'orders', label: 'طلبات العملاء', icon: 'list', count: 4 }
+    const list: Array<{ id: string; label: string; icon: string; count: number | null }> = [
+      { id: 'orders', label: 'طلبات العملاء', icon: 'list', count: null }
     ];
     if (this.isCompanyMode()) {
-      list.push({ id: 'team', label: 'أداء الفريق', icon: 'team', count: this.teamPerformance.length });
+      list.push({ id: 'team', label: 'أداء الفريق', icon: 'team', count: null });
     }
     list.push(
-      { id: 'projects', label: 'مشاريعي', icon: 'doc', count: 8 },
-      { id: 'finance', label: 'إيراداتي', icon: 'wallet', count: 24 },
-      { id: 'disputes', label: 'النزاعات', icon: 'dispute', count: 2 }
+      { id: 'projects', label: 'مشاريعي', icon: 'doc', count: null },
+      { id: 'finance', label: 'إيراداتي', icon: 'wallet', count: null },
+      { id: 'disputes', label: 'النزاعات', icon: 'dispute', count: null }
     );
     return list;
   });

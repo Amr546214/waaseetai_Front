@@ -249,15 +249,17 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 					this.notifications.set(res.data.map((raw: any) => this.toClientNotification(raw)));
 					this.notificationEngine.unreadCount.set(this.unreadCount());
 				} else {
-					// Use demo fallback if API returns no data
-					this.notifications.set(this.getDemoNotifications());
+					// No notifications yet: the page's "لا توجد إشعارات" empty state is shown — never invented items.
+					this.notifications.set([]);
 				}
 			},
 			error: (err: any) => {
 				if (!(err?.status === 401 && err?.statusText?.includes('SSR Bypassed'))) {
-					console.error('Failed to load client notifications, using demo fallback:', err);
+					console.error('Failed to load client notifications:', err);
 				}
-				this.notifications.set(this.getDemoNotifications());
+				// Honest error state ("تعذر تحميل الإشعارات" + retry) instead of invented notifications.
+				this.notifications.set([]);
+				this.hasError.set(true);
 				this.isLoading.set(false);
 			}
 		});
@@ -265,66 +267,6 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 
 	ngOnDestroy() {
 		this.dataSub?.unsubscribe();
-	}
-
-	private getDemoNotifications(): AppNotification[] {
-		// svgIcon here is raw inner <path>/<circle> markup, not yet a SafeHtml
-		// block — wrapped through the shared buildIconHtml() below, the same
-		// helper mapToAppNotification() uses for real data, so demo items
-		// render through the exact same trusted-HTML mechanism.
-		const items: (Omit<AppNotification, 'svgIcon'> & { svgIcon: string })[] = [
-			// اليوم
-			{
-				id: 'demo-1', category: 'offers', title: 'عرض جديد على طلبك', time: 'قبل ساعة',
-				message: 'قدّمت نورة التصنيم عرضًا على طلب تصميم الهوية البصرية بقيمة 4,500 ريال',
-				isUnread: true, actionText: 'عرض العرض', actionUrl: '/client-overview/my-request',
-				dateCategory: 'اليوم',
-				iconColorClass: 'text-[#5DA0FF]', iconBgClass: 'bg-[rgba(43,127,255,.12)]',
-				svgIcon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'
-			},
-			{
-				id: 'demo-2', category: 'projects', title: 'بانتظار اعتمادك', time: 'قبل 3 ساعات',
-				message: 'رفع مقدّم الخدمة تسليم المرحلة 2، لديك 6 أيام للمراجعة',
-				isUnread: true, actionText: 'مراجعة التسليم', actionUrl: '/client-overview/my-request',
-				dateCategory: 'اليوم',
-				iconColorClass: 'text-[#FFB400]', iconBgClass: 'bg-[rgba(255,180,0,.12)]',
-				svgIcon: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>'
-			},
-			{
-				id: 'demo-3', category: 'ai', title: 'توصية من الذكاء', time: 'قبل 5 ساعات',
-				message: 'طلبك الجديد يطابق 12 مقدّم خدمة بتقييم عالٍ، توقّع عروضًا خلال 24 ساعة',
-				isUnread: true,
-				dateCategory: 'اليوم',
-				iconColorClass: 'text-[#A56BE0]', iconBgClass: 'bg-[rgba(123,47,190,.12)]',
-				svgIcon: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/>'
-			},
-			// أمس
-			{
-				id: 'demo-4', category: 'finance', title: 'كاش باك جديد', time: 'أمس',
-				message: 'أُضيف 45 ريال كاش باك إلى محفظتك من مشروعك المكتمل',
-				isUnread: false, actionText: 'عرض المحفظة', actionUrl: '/client-overview/finance',
-				dateCategory: 'أمس',
-				iconColorClass: 'text-[#0FA99A]', iconBgClass: 'bg-[rgba(15,169,154,.12)]',
-				svgIcon: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>'
-			},
-			{
-				id: 'demo-5', category: 'projects', title: 'اكتمل مشروع', time: 'أمس',
-				message: 'اكتمل مشروع تصميم تطبيق الجوال بنجاح، لا تنسَ تقييم مقدّم الخدمة',
-				isUnread: false, actionText: 'تقييم', actionUrl: '/client-overview/my-request',
-				dateCategory: 'أمس',
-				iconColorClass: 'text-[#0FA99A]', iconBgClass: 'bg-[rgba(15,169,154,.12)]',
-				svgIcon: '<polyline points="20 6 9 17 4 12"/>'
-			},
-			{
-				id: 'demo-6', category: 'security', title: 'تسجيل دخول جديد', time: 'أمس',
-				message: 'تم تسجيل دخول لحسابك من جهاز جديد، إن لم يكن أنت راجع الأمان',
-				isUnread: false,
-				dateCategory: 'أمس',
-				iconColorClass: 'text-[#5DA0FF]', iconBgClass: 'bg-[rgba(43,127,255,.12)]',
-				svgIcon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'
-			},
-		];
-		return items.map(d => ({ ...d, svgIcon: this.notificationEngine.buildIconHtml(d.svgIcon) }));
 	}
 
 	// Computed Properties
@@ -413,11 +355,12 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 					this.notifications.set(res.data.map((raw: any) => this.toClientNotification(raw)));
 					this.notificationEngine.unreadCount.set(this.unreadCount());
 				} else {
-					this.notifications.set(this.getDemoNotifications());
+					this.notifications.set([]);
 				}
 			},
-			error: (err: any) => {
-				this.notifications.set(this.getDemoNotifications());
+			error: () => {
+				this.notifications.set([]);
+				this.hasError.set(true);
 				this.isLoading.set(false);
 			}
 		});

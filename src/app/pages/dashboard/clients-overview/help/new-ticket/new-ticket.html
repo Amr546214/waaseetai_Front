@@ -53,6 +53,9 @@
 					@for (p of companyProjects; track p.id) {
 						<option [value]="p.id">{{ p.name }} · {{ p.id }}</option>
 					}
+					@if (!companyProjects.length) {
+						<option value="" disabled>لا توجد بيانات بعد</option>
+					}
 				</select>
 				<div class="inp-hint">ربط التذكرة بالمشروع يساعد الفريق على الوصول للسياق أسرع</div>
 			</div>
@@ -64,6 +67,9 @@
 					<option value="" disabled selected>اختر الموظف</option>
 					@for (m of teamMembers; track m) {
 						<option [value]="m">{{ m }}</option>
+					}
+					@if (!teamMembers.length) {
+						<option value="" disabled>لا توجد بيانات بعد</option>
 					}
 				</select>
 			</div>

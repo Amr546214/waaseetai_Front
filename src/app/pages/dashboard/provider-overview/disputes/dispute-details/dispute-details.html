@@ -8,6 +8,17 @@
 		<span class="cur">تفاصيل النزاع</span>
 	</nav>
 
+	@if (isLoading()) {
+	<div class="dd-error"><div class="dd-error-title">جارٍ تحميل تفاصيل النزاع…</div></div>
+	}
+
+	@if (loadError()) {
+	<div class="dd-error">
+		<div class="dd-error-title">تعذّر تحميل تفاصيل النزاع</div>
+		<button type="button" class="dd-btn-ghost" (click)="load()">إعادة المحاولة</button>
+	</div>
+	}
+
 	@if (notFound()) {
 	<div class="dd-error">
 		<div class="dd-error-title">تعذر العثور على هذا النزاع</div>

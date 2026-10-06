@@ -195,13 +195,10 @@ export class ProviderHrComponent {
 
 	permLabel(id: string): string { return this.permissions.find(p => p.id === id)?.label ?? id; }
 
+	// No employee / affiliated-provider / assignment / activity endpoint (or model) exists — these lists start empty
+	// instead of being seeded with invented people (previously a hard-coded roster) and events.
 	/* ---------------- admin employees ---------------- */
-	employees = signal<AdminEmployee[]>([
-		{ id: 'e1', name: 'نورة القحطاني', email: 'nora@company.com', avatarInitials: 'نو', avatarColor: 'linear-gradient(135deg,rgba(43,212,199,.22),rgba(43,127,255,.14))', distinguished: true, jobTitle: 'مديرة العمليات', taskIds: ['t1', 't2'], lastLogin: 'منذ ساعة', accountStatus: 'active', completion: 'complete', completionPct: 100, inviteStatus: 'accepted' },
-		{ id: 'e2', name: 'فهد العنزي', email: 'fahad@company.com', avatarInitials: 'فه', avatarColor: 'rgba(43,127,255,.20)', distinguished: false, jobTitle: 'مسؤول مالي', taskIds: ['t3'], lastLogin: 'قبل 3 ساعات', accountStatus: 'active', completion: 'partial', completionPct: 55, inviteStatus: 'accepted' },
-		{ id: 'e3', name: 'لجين الزهراني', email: 'lujain@company.com', avatarInitials: 'لج', avatarColor: 'rgba(255,180,0,.16)', distinguished: false, jobTitle: 'منسقة تقنية', taskIds: [], lastLogin: 'أمس 6:30 م', accountStatus: 'suspended', completion: 'complete', completionPct: 100, inviteStatus: 'accepted' },
-		{ id: 'e4', name: 'رند الشمري', email: 'rand@company.com', avatarInitials: 'رن', avatarColor: 'rgba(15,169,154,.14)', distinguished: false, jobTitle: '', taskIds: [], lastLogin: 'لم تسجل دخول', accountStatus: 'inactive', completion: 'none', completionPct: 0, inviteStatus: 'pending' }
-	]);
+	employees = signal<AdminEmployee[]>([]);
 
 	empSearch = signal('');
 	empStatusFilter = signal('');
@@ -245,12 +242,7 @@ export class ProviderHrComponent {
 		}));
 	}
 
-	providers = signal<AffiliatedProvider[]>([
-		{ id: 'p1', name: 'محمد الحربي', email: 'm.harbi@freelancer.com', avatarInitials: 'مح', avatarColor: 'linear-gradient(135deg,rgba(43,212,199,.20),rgba(43,127,255,.14))', level: 'خبير', levelColor: '#2ECC8A', skillIds: ['s-fe-react', 's-uiux'], rating: 4.2, activeProjects: 3, lastDelivery: 'قبل يومين', docsTotal: 3, docsAccepted: 3, accountStatus: 'active', inviteStatus: 'accepted', docs: this.buildDocs(3, 3) },
-		{ id: 'p2', name: 'سلمى الدوسري', email: 'salma@designer.com', avatarInitials: 'سل', avatarColor: 'rgba(43,127,255,.18)', level: 'متقن', levelColor: '#5DA0FF', skillIds: ['s-graphic', 's-brand'], rating: 3.7, activeProjects: 1, lastDelivery: 'قبل أسبوع', docsTotal: 3, docsAccepted: 2, accountStatus: 'active', inviteStatus: 'accepted', docs: this.buildDocs(2, 3) },
-		{ id: 'p3', name: 'يوسف المالكي', email: 'yousuf@backend.dev', avatarInitials: 'يو', avatarColor: 'rgba(255,180,0,.14)', level: 'رصين', levelColor: '#FFB400', skillIds: ['s-be-node', 's-db'], rating: 4.8, activeProjects: 2, lastDelivery: 'قبل 4 أيام', docsTotal: 3, docsAccepted: 3, accountStatus: 'suspended', inviteStatus: 'accepted', docs: this.buildDocs(3, 3) },
-		{ id: 'p4', name: 'هند الغامدي', email: 'hend@writer.sa', avatarInitials: 'هن', avatarColor: 'rgba(15,169,154,.14)', level: 'محترف', levelColor: '#06B6A2', skillIds: ['s-content', 's-translate'], rating: 4.0, activeProjects: 1, lastDelivery: 'قبل 3 أيام', docsTotal: 3, docsAccepted: 1, accountStatus: 'active', inviteStatus: 'accepted', docs: this.buildDocs(1, 3) }
-	]);
+	providers = signal<AffiliatedProvider[]>([]);
 
 	pendingProviderInvites = signal(2);
 
@@ -485,13 +477,7 @@ export class ProviderHrComponent {
 	editGroup(g: TaskGroup) { this.toast(`تعديل المجموعة "${g.name}" (عرض فقط في هذه النسخة)`); }
 
 	/* ---------------- assignment tab ---------------- */
-	assignments = signal<Assignment[]>([
-		{ id: 'a1', memberId: 'e1', memberName: 'نورة القحطاني', memberInitials: 'نو', memberColor: 'linear-gradient(135deg,rgba(43,212,199,.22),rgba(43,127,255,.14))', type: 'admin', label: 'إدارة عقود مقدمي الخدمات', startDate: '1 يناير 2026', active: true },
-		{ id: 'a2', memberId: 'p2', memberName: 'سلمى الدوسري', memberInitials: 'سل', memberColor: 'rgba(43,127,255,.18)', type: 'provider', label: 'تصميم جرافيك', startDate: '10 مارس 2026', active: true },
-		{ id: 'a3', memberId: 'e2', memberName: 'فهد العنزي', memberInitials: 'فه', memberColor: 'rgba(43,127,255,.20)', type: 'admin', label: 'الشؤون المالية والسحب', startDate: '5 فبراير 2026', active: true },
-		{ id: 'a4', memberId: 'p3', memberName: 'يوسف المالكي', memberInitials: 'يو', memberColor: 'rgba(255,180,0,.14)', type: 'provider', label: 'Backend: Node.js', startDate: '2 أبريل 2026', active: true },
-		{ id: 'a5', memberId: 'e1', memberName: 'نورة القحطاني', memberInitials: 'نو', memberColor: 'linear-gradient(135deg,rgba(43,212,199,.22),rgba(43,127,255,.14))', type: 'admin', label: 'متابعة أداء مقدمي الخدمات', startDate: '1 يناير 2026', active: true }
-	]);
+	assignments = signal<Assignment[]>([]);
 
 	assignTaskEmployeeId = signal('');
 	assignTaskTaskId = signal('');
@@ -545,15 +531,7 @@ export class ProviderHrComponent {
 	}
 
 	/* ---------------- activity log ---------------- */
-	activity = signal<ActivityEntry[]>([
-		{ id: 'ac1', type: 'login', who: 'نورة القحطاني', desc: 'سجّلت الدخول من متصفح Safari على جهاز iPhone', meta: [{ text: 'اليوم 9:14 ص' }, { text: 'IP: 10.0.1.44' }, { text: 'الرياض' }] },
-		{ id: 'ac2', type: 'doc', who: 'نورة القحطاني - مراجعة مستندات', desc: 'تمت مراجعة مستندات هند الغامدي - مستندان ناقصان: شهادة الكفاءة + عينة أعمال', meta: [{ text: 'اليوم 9:30 ص' }, { text: 'يتطلب إجراء', tone: 'amber' }] },
-		{ id: 'ac3', type: 'add', who: 'المدير - شركة التقنية', desc: 'تم إسناد تخصص Backend: Node.js للمقدم يوسف المالكي', meta: [{ text: 'أمس 2:15 م' }, { text: 'نفذ بواسطة: Admin' }] },
-		{ id: 'ac5', type: 'edit', who: 'المدير - شركة التقنية', desc: 'تم تعديل صلاحيات فهد العنزي - إضافة صلاحية طلب سحب أرباح الشركة', meta: [{ text: 'قبل 3 أيام' }] },
-		{ id: 'ac6', type: 'add', who: 'المدير - شركة التقنية', desc: 'تم دعوة محمد الحربي كمقدم خدمة تابع بتخصص Frontend React', meta: [{ text: '10 يونيو 2026' }] },
-		{ id: 'ac7', type: 'doc', who: 'محمد الحربي - رفع مستند', desc: 'رفع شهادة إثبات خبرة React.js: بانتظار مراجعة المسؤول', meta: [{ text: '11 يونيو 2026' }, { text: 'بانتظار المراجعة', tone: 'amber' }] },
-		{ id: 'ac8', type: 'warn', who: 'يوسف المالكي: محاولة وصول', desc: 'محاولة تعديل مهاراته بشكل مباشر - تم الرفض. المهارات تُسند من الشركة فقط', meta: [{ text: '14 يونيو 2026' }, { text: 'تحذير أمني', tone: 'amber' }] }
-	]);
+	activity = signal<ActivityEntry[]>([]);
 
 	activityFilter = signal<ActivityFilter>('all');
 	setActivityFilter(f: ActivityFilter) { this.activityFilter.set(f); }

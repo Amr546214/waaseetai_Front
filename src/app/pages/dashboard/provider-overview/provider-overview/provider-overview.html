@@ -709,9 +709,9 @@
 		</div>
 
 		<!-- Revenue Strip -->
-		<div class="budget-strip" role="region" aria-label="إيرادات الشركة هذا الشهر">
+		<div class="budget-strip" role="region" aria-label="اكتمال الملف المهني">
 			<div class="bs-row">
-				<span>إيرادات الشركة هذا الشهر: {{ data.summary?.monthlyEarnings | number }} من هدف {{ (data.summary?.monthlyEarnings || 0) * 2 | number }} $</span>
+				<span>اكتمال الملف المهني</span>
 				<span class="bs-pct">{{ data.summary?.profileCompletionPercent != null ? data.summary?.profileCompletionPercent + '%' : '—' }}</span>
 			</div>
 			<div class="bs-bar"><div class="bs-fill" [style.width.%]="data.summary?.profileCompletionPercent ?? 0"></div></div>
