@@ -10,7 +10,11 @@ import { join } from 'node:path';
 
 const read = (p: string) => readFileSync(join(__dirname, p), 'utf-8');
 
-const FILES = ['pricing/pricing.html', 'pricing/pricing.ts', 'legal/legal-page.component.ts'];
+const FILES = [
+	'pricing/pricing.html', 'pricing/pricing.ts', 'legal/legal-page.component.ts',
+	'how-it-works/provider/provider.html', 'how-it-works/how-it-works.ts', 'blog/blog-data.ts', 'press/press.html',
+	'../dashboard/provider-overview/profile/level/level.html',
+];
 
 const FORBIDDEN: Array<[string, RegExp]> = [
 	['old commission range ٪7 / ٪18 (and plan rates ٪8/٪11/٪13/٪16)', /٪\s?(7|8|11|13|16|18)\b/],
@@ -18,7 +22,7 @@ const FORBIDDEN: Array<[string, RegExp]> = [
 	['suspension below 20', /دون 20|لدون 20/],
 	['levels tied to a 0–100 score', /0 إلى 100|من 0 إلى 100/],
 	['level bands as tier names with rates', /خبير \(|محترف \(|متقدم \(|مبتدئ \(/],
-	['commission-reduction promises (unproven: level commission is not confirmed as deducted)', /تنخفض (نسبة )?العمولة|انخفضت نسبة العمولة|كلما انخفضت|تخفيض العمولة|تخفيض العمولة|أقل نسبة|نسبة أقل|تُحسب نسبة العمولة تلقائياً|تحسب نسبة العمولة تلقائياً|تنخفض نسبة العمولة|انخفاض (نسبة )?العمولة/],
+	['commission-reduction promises (unproven: level commission is not confirmed as deducted)', /تنخفض (نسبة )?العمولة|انخفضت نسبة العمولة|كلما انخفضت|تخفيض العمولة|تخفيض العمولة|أقل نسبة|نسبة أقل|تُحسب نسبة العمولة تلقائياً|تحسب نسبة العمولة تلقائياً|تنخفض نسبة العمولة|انخفاض (نسبة )?العمولة|تنخفض معه نسبة|كلما ارتفع مستواك انخفضت|انخفضت نسبة العمولة|خفض (نسبة )?(ال)?عمولة|لخفض عمولة|تنخفض حتى|تُضاف لمحفظتك فوراً|لمحفظتك فوراً/],
 	['unsupported search-priority promise', /أولوية قصوى في (البحث|ترتيب|نتائج)/],
 ];
 
