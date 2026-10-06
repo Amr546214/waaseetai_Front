@@ -13,6 +13,8 @@ export class Step3EvaluationComponent {
 	@Input({ required: true }) isAnalyzing!: boolean;
 	@Input({ required: true }) hasError!: string | null;
 	@Input({ required: true }) evaluationResult!: EvaluationData | null;
+	/** Set when the sample was stored and is waiting for the Waseet team's manual review (the normal outcome today). */
+	@Input() manualReviewNotice: string | null = null;
 
 	@Output() onRetry = new EventEmitter<void>();
 	@Output() onViewAll = new EventEmitter<void>();

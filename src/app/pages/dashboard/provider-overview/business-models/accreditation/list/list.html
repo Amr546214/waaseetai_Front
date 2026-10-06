@@ -41,7 +41,7 @@
 		</div>
 	</div>
 
-	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
+	<div class="ai-disclosure" role="region" aria-label="متابعة طلبات الاعتماد">
 		<div class="ai-disc-ico">
 			<svg width="20" height="20" aria-hidden="true">
 				<use href="#i-ai"></use>
@@ -49,7 +49,7 @@
 		</div>
 		<div class="ai-disc-body">
 			<div class="ai-disc-lbl">وسيط، متابعة طلبات الاعتماد</div>
-			<p class="ai-disc-txt">تُتابَع طلباتك تلقائياً ويُبرز ما يحتاج متابعة أو ردًا عاجلاً</p>
+			<p class="ai-disc-txt">يراجع فريق وسيط طلبات الاعتماد يدوياً، وتظهر هنا حالة كل طلب</p>
 		</div>
 	</div>
 
@@ -81,9 +81,9 @@
 	<!-- تابات الحالة -->
 	<div class="ord-tabs" role="tablist" aria-label="حالة طلبات الاعتماد" style="margin-bottom:16px">
 		<button type="button" class="ord-tab active">الكل <span>{{ samples().length }}</span></button>
-		<button type="button" class="ord-tab">قيد الفحص <span>0</span></button>
-		<button type="button" class="ord-tab">مقبول <span>0</span></button>
-		<button type="button" class="ord-tab">مرفوض <span>0</span></button>
+		<button type="button" class="ord-tab">قيد المراجعة اليدوية <span>{{ counts().pending }}</span></button>
+		<button type="button" class="ord-tab">مقبول <span>{{ counts().accepted }}</span></button>
+		<button type="button" class="ord-tab">مرفوض <span>{{ counts().rejected }}</span></button>
 	</div>
 
 	@if (isLoading()) {
@@ -101,7 +101,7 @@
 	<div class="state-card" style="text-align:center;padding:40px 24px">
 		<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد نماذج اعتماد مرفوعة حتى الآن
 		</div>
-		<p style="font-size:12px;margin-bottom:20px" class="txt-muted">قم برفع نموذج عمل فني لإخضاعه لفحص الذكاء الاصطناعي
+		<p style="font-size:12px;margin-bottom:20px" class="txt-muted">قم برفع نموذج عمل فني ليراجعه فريق وسيط يدوياً
 			وتأكيد جدارتك المهنية للحصول على شارة الاعتماد.</p>
 		<a routerLink="/provider-overview/business-models/accreditation/new"
 			style="display:inline-block;padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;text-decoration:none" class="txt-navy">رفع
@@ -131,7 +131,7 @@
 						<td style="font-size:12px" class="txt-muted">{{ sample.createdAt | date:'d MMMM yyyy' }}</td>
 						<td>
 							@if (sample.status === 'PENDING_AI_AUDIT' || sample.status === 'MANUAL_REVIEW') {
-							<span class="opill op-active">قيد الفحص</span>
+							<span class="opill op-active">قيد المراجعة اليدوية</span>
 							} @else if (sample.status === 'AI_VERIFIED') {
 							<span class="opill op-done">مقبول</span>
 							} @else if (sample.status === 'REJECTED') {

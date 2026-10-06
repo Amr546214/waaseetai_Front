@@ -78,6 +78,7 @@ export class New implements OnInit, OnDestroy {
 
 	// Step 3 AI Result State
 	evaluationResult = signal<EvaluationData | null>(null);
+	manualReviewNotice = signal<string | null>(null);
 
 	// Form Agreement Checkboxes
 	declaredAccuracy = signal<boolean>(true);
@@ -269,6 +270,7 @@ export class New implements OnInit, OnDestroy {
 
 		this.isAnalyzing.set(true);
 		this.hasError.set(null);
+		this.manualReviewNotice.set(null);
 		this.currentStep.set(3);
 		window.scrollTo(0, 0);
 
@@ -292,17 +294,18 @@ export class New implements OnInit, OnDestroy {
 					if (res.data.evaluation) {
 						this.evaluationResult.set(res.data.evaluation);
 					} else {
-						// Sample stored for manual review; no AI evaluation was produced.
-						this.hasError.set(res.data.aiEvaluation?.message || res.message || 'تم استلام النموذج وسيُراجع يدوياً؛ التقييم الآلي متوقف مؤقتاً.');
+						// The sample is stored with status MANUAL_REVIEW (accreditation-ai.service.ts); no AI evaluation is produced.
+						// This is a successful submission, not an error — so it is shown as such (and "retry" would only create a duplicate).
+						this.manualReviewNotice.set('تم استلام نموذجك وتحويله للمراجعة اليدوية من فريق وسيط. ستظهر حالته ونتيجته في قائمة نماذج الاعتماد.');
 					}
 				} else {
-					this.hasError.set(res.message || 'تعذر إكمال فحص الذكاء الاصطناعي');
+					this.hasError.set(res.message || 'تعذّر إرسال النموذج للمراجعة');
 				}
 			},
 			error: (err) => {
 				console.error('AI Evaluation error:', err);
 				this.isAnalyzing.set(false);
-				this.hasError.set('حدث خطأ أثناء الاتصال بمحرك التقييم الآلي. يرجى المحاولة لاحقاً.');
+				this.hasError.set('حدث خطأ أثناء إرسال النموذج. يرجى المحاولة لاحقاً.');
 			}
 		});
 	}

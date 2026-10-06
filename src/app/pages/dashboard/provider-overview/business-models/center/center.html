@@ -58,12 +58,12 @@
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
       <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">مشاهدات هذا الشهر</div>
       <div style="font-size:26px;font-weight:900" class="txt-white">{{ stats()[1]?.value || 0 }}</div>
-      <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ stats()[1]?.sub || '↑ 18% عن الشهر الماضي' }}</div>
+      <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ stats()[1]?.sub || '' }}</div>
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
       <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">متوسط تقييم AI</div>
       <div style="font-size:26px;font-weight:900" class="txt-white">{{ stats()[2]?.value || 0 }}<span style="font-size:14px" class="txt-muted">/100</span></div>
-      <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ stats()[2]?.sub || 'جودة عالية' }}</div>
+      <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ stats()[2]?.sub || '' }}</div>
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
       <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">عروض مُولَّدة من النماذج</div>
@@ -148,10 +148,17 @@
             <div style="padding:13px 15px">
               <div style="font-size:13.5px;font-weight:800;margin-bottom:3px" class="truncate txt-white">{{ sample.title }}</div>
               <div style="font-size:11px;margin-bottom:9px" class="txt-muted">{{ sample.providerSpecialty?.specialty?.nameAr || 'اعتماد فني' }} <span *ngIf="sample.technologiesUsed.length">· {{ sample.technologiesUsed[0] }}</span></div>
-              <div style="font-size:10px;font-weight:800;margin-bottom:5px" class="txt-purple">تحليل الذكاء الاصطناعي</div>
+              <div style="font-size:10px;font-weight:800;margin-bottom:5px" class="txt-purple">حالة المراجعة</div>
               <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:11px;min-height:36px;">
-                <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal"><span>✓</span>اكتمال متطلبات النموذج</div>
-                <div *ngIf="sample.aiQualityRating" style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal"><span>✓</span>تقييم الجودة: {{ sample.aiQualityRating }}</div>
+                <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
+                  @if (sample.status === 'AI_VERIFIED') { <span>✓</span>معتمد من فريق وسيط }
+                  @else if (sample.status === 'REJECTED') { <span>⚠</span>يتطلب تعديلاً }
+                  @else { <span>⏳</span>قيد المراجعة اليدوية }
+                </div>
+                <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
+                  @if (sample.aiQualityRating) { <span>✓</span>تقييم AI: {{ sample.aiQualityRating }} }
+                  @else { <span>—</span>لم يُقيَّم بعد }
+                </div>
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07);padding-top:9px">
                 <span style="font-size:12px;font-weight:700" class="txt-teal">تفاصيل ›</span>
@@ -196,7 +203,7 @@
 					الحالة: معتمد بنجاح 🏅
 				</span>
 				<span *ngIf="selectedSampleForModal()?.status === 'PENDING_AI_AUDIT' || selectedSampleForModal()?.status === 'MANUAL_REVIEW'" class="text-amber-400 text-xs font-black">
-					الحالة: قيد مراجعة وتدقيق الذكاء ⏳
+					الحالة: قيد المراجعة اليدوية من فريق وسيط ⏳
 				</span>
 				<span *ngIf="selectedSampleForModal()?.status === 'REJECTED'" class="text-red-400 text-xs font-black">
 					الحالة: يتطلب تعديل وتحسين ⚠️
@@ -213,7 +220,7 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-[#2BD4C7]">
 					<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
 				</svg>
-				<span>وثائق ومرفقات التوثيق الفني المعاينة بواسطة AI ({{ selectedSampleForModal()?.attachments?.length }}):</span>
+				<span>وثائق ومرفقات التوثيق الفني ({{ selectedSampleForModal()?.attachments?.length }}):</span>
 			</div>
 
 			<!-- Images & Files Grid -->
@@ -243,10 +250,10 @@
 		<!-- AI Feedback Summary -->
 		<div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800/80 mb-4">
 			<div class="text-xs font-extrabold text-[#2BD4C7] mb-1.5 flex items-center gap-1.5">
-				<span>🤖 ملخص التقييم الفني (الذكاء الاصطناعي):</span>
+				<span>{{ selectedSampleForModal()?.aiFeedbackAr ? '🤖 ملخص تقييم AI المخزّن:' : 'ملخص التقييم الفني:' }}</span>
 			</div>
 			<p class="text-xs text-slate-200 leading-relaxed font-normal">
-				{{ selectedSampleForModal()?.aiFeedbackAr || 'التحليل الفني غير متاح حالياً لهذا النموذج.' }}
+				{{ selectedSampleForModal()?.aiFeedbackAr || 'لا يوجد تقييم بعد' }}
 			</p>
 		</div>
 

@@ -7,8 +7,7 @@
 			class="hover:text-[var(--txt-2)] transition-colors">نماذج الاعتماد الفني</a>
 		<span class="text-[10px] opacity-70">‹</span>
 		<span class="text-[var(--txt-2)] font-semibold">
-			{{ currentStep() === 1 ? 'اختيار التخصص' : currentStep() === 2 ? 'رفع النموذج والمرفقات' : 'مراجعة الذكاء
-			الاصطناعي' }}
+			{{ currentStep() === 1 ? 'اختيار التخصص' : currentStep() === 2 ? 'رفع النموذج والمرفقات' : 'المراجعة اليدوية' }}
 		</span>
 	</nav>
 
@@ -54,7 +53,7 @@
 			</div>
 			<div class="text-xs text-center transition-colors font-bold"
 				[class]="currentStep() === 3 ? 'text-[#2BD4C7]' : 'text-[var(--txt-3)]'">
-				مراجعة الذكاء الاصطناعي
+				المراجعة اليدوية
 			</div>
 		</div>
 	</div>
@@ -83,10 +82,10 @@
 			</app-step2-upload>
 		</ng-container>
 
-		<!-- ==================== STEP 3: REAL-TIME OPENAI EVALUATION ==================== -->
+		<!-- ==================== STEP 3: SUBMISSION RESULT (manual review by the Waseet team) ==================== -->
 		<ng-container *ngSwitchCase="3">
 			<app-step3-evaluation [isAnalyzing]="isAnalyzing()" [hasError]="hasError()"
-				[evaluationResult]="evaluationResult()" (onRetry)="submitForAiEvaluation()"
+				[evaluationResult]="evaluationResult()" [manualReviewNotice]="manualReviewNotice()" (onRetry)="submitForAiEvaluation()"
 				(onViewAll)="viewAllAccreditationSamples()">
 			</app-step3-evaluation>
 		</ng-container>
@@ -112,7 +111,7 @@
 				واحداً على الأقل</span>
 
 			<button type="button" class="btn-next" [disabled]="!isCurrentStepValid" (click)="goNext()">
-				<span>{{ currentStep() === 1 ? 'التالي: بيانات المرفقات الفنية' : 'إرسال للمراجعة والاعتماد بالذكاء الاصطناعي' }}</span>
+				<span>{{ currentStep() === 1 ? 'التالي: بيانات المرفقات الفنية' : 'إرسال للمراجعة اليدوية من فريق وسيط' }}</span>
 				<svg *ngIf="currentStep() === 1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
 					style="width:18px;height:18px">

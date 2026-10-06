@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
@@ -40,6 +40,16 @@ export class List implements OnInit {
 
   isLoading = signal<boolean>(true);
   samples = signal<AccreditationSampleItem[]>([]);
+
+  /** Real per-status counts of the loaded samples (these tab badges used to be a fixed 0). */
+  counts = computed(() => {
+    const list = this.samples();
+    return {
+      pending: list.filter(s => s.status === 'PENDING_AI_AUDIT' || s.status === 'MANUAL_REVIEW').length,
+      accepted: list.filter(s => s.status === 'AI_VERIFIED').length,
+      rejected: list.filter(s => s.status === 'REJECTED').length,
+    };
+  });
 
   ngOnInit() {
     this.fetchSamples();
