@@ -70,7 +70,7 @@ export class SaSpecialtiesAccreditation {
   approveAllSafe() {
     const safe = this.requests().filter((r) => r.status === 'pending' && r.aiRec === 'accept');
     this.requests.update((list) => list.map((r) => (r.status === 'pending' && r.aiRec === 'accept' ? { ...r, status: 'approved' as ReqStatus } : r)));
-    this.showToast(`تم قبول ${safe.length} طلباً بتوصية AI`);
+    this.showToast(`تم قبول ${safe.length} طلباً بتوصية مبدئية`);
   }
 
   showToast(msg: string) {
