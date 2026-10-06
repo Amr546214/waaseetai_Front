@@ -76,7 +76,7 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 	categories = signal<any[]>([]);
 	activeCatSlug = signal<string>('');
 	aiTopPicks = signal<{ id: string; title: string }[]>([]);
-	aiBannerInsight = signal<string>('توصيات الذكاء الاصطناعي تُحدَّث باستمرار بناءً على نشاط الطلبات على المنصة — تصفح الفئات الأكثر طلباً أدناه');
+	aiBannerInsight = signal<string>('تصفح الفئات والخدمات المنشورة على المنصة أدناه');
 	// Reflects the backend's honest generationSource — never assume GEMINI
 	// before a response actually confirms it (see F6 security follow-up).
 	aiGenerationSource = signal<'GEMINI' | 'DETERMINISTIC' | null>(null);
@@ -190,11 +190,16 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 	loadAiInsight() {
 		this.marketplaceService.getAiRecommendations({ limit: 2 }).subscribe({
 			next: (res) => {
-				const recs = res?.data?.recommendations || res?.recommendations || [];
+				// The backend answers { data: { ... } } or the same fields at the top level; the insight sentence is `bannerInsight`
+				// (`matchSummary` is the older name). generationSource decides whether it may be shown as AI.
+				const body: any = res;
+				const recs = body?.data?.recommendations || body?.recommendations || [];
 				this.aiTopPicks.set(recs.map((r: any) => ({ id: r.id, title: r.title })));
-				this.aiGenerationSource.set(res?.data?.generationSource === 'GEMINI' ? 'GEMINI' : 'DETERMINISTIC');
-				if (res?.data?.matchSummary) {
-					this.aiBannerInsight.set(res.data.matchSummary);
+				const source = body?.data?.generationSource ?? body?.generationSource;
+				this.aiGenerationSource.set(source === 'GEMINI' ? 'GEMINI' : 'DETERMINISTIC');
+				const banner = body?.data?.bannerInsight ?? body?.bannerInsight ?? body?.data?.matchSummary;
+				if (banner) {
+					this.aiBannerInsight.set(banner);
 				}
 			},
 			error: (err) => {

@@ -90,7 +90,7 @@ export class MarketplaceService {
   }
 
   /**
-   * Get personalized AI Match recommendations
+   * Get marketplace recommendations: Gemini picks (generationSource GEMINI) or a deterministic most-viewed list
    */
   public getAiRecommendations(payload: any = {}): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/ai-recommendations`, payload);

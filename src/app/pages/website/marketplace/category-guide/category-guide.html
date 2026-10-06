@@ -83,10 +83,10 @@
         <div class="ai-banner">
           <div class="ai-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
           <div class="ai-body">
-            <div class="ai-lbl">توصيات الذكاء الاصطناعي</div>
+            <div class="ai-lbl">{{ aiGenerationSource() === 'GEMINI' ? 'توصيات الذكاء الاصطناعي' : 'الخدمات الأكثر مشاهدة' }}</div>
             <div class="ai-txt-s">
               @if (aiTopPicks().length > 0) {
-                الأعلى طلباً الآن:
+                {{ aiGenerationSource() === 'GEMINI' ? 'اقتراحات الذكاء الاصطناعي:' : 'الأكثر مشاهدة الآن:' }}
                 @for (pick of aiTopPicks(); track pick.id; let last = $last) {
                   <strong>{{ pick.title }}</strong>{{ last ? '' : ' و' }}
                 }
@@ -95,7 +95,7 @@
               }
             </div>
           </div>
-          <span class="ai-badge">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'ذكي · نشط' }}</span>
+          <span class="ai-badge">{{ aiGenerationSource() === 'GEMINI' ? 'AI · نشط' : 'دون AI' }}</span>
         </div>
 
         <div class="cats-grid">
@@ -164,7 +164,7 @@
           <div class="req-cta">
             <div>
               <h3>ما وجدت الفئة المناسبة؟</h3>
-              <p>أنشئ طلباً مخصصاً وسيجلب لك الذكاء الاصطناعي أفضل العروض من المهنيين المعتمدين في وسيط AI</p>
+              <p>أنشئ طلباً مخصصاً وستصلك عروض من مقدمي الخدمة في وسيط AI</p>
             </div>
             <div class="req-btns">
               <a routerLink="/custom-request" class="btn-primary">أنشئ طلباً مخصصاً</a>

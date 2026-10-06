@@ -54,7 +54,7 @@
           </div>
           <div class="ai-banner-content">
             <div class="ai-banner-label">مقارنة تقييم AI</div>
-            <div class="ai-banner-text">صاحبة أعلى تقييم جودة AI بين الخدمات المختارة: <strong>{{ w.provider.name }}</strong> — نقاط AI {{ w.aiScore }} وسعر يبدأ من {{ w.totalAmount }} $</div>
+            <div class="ai-banner-text">صاحبة أعلى تقييم جودة AI بين الخدمات المختارة: <strong>{{ w.provider.name }}</strong> — جودة AI {{ w.aiScore }} وسعر يبدأ من {{ w.totalAmount }} $</div>
           </div>
           <div class="ai-banner-badge">AI · تقييم</div>
         </div>
@@ -66,7 +66,7 @@
           @let isWinner = m.id === winnerId();
           <div class="pcard" [class.winner]="isWinner">
             @if (isWinner) {
-              <div class="pcard-winner-strip">الأعلى في تقييم AI</div>
+              <div class="pcard-winner-strip">الأعلى في جودة AI</div>
             }
             <div class="pcard-thumb">
               @if (m.coverImage) {
@@ -88,9 +88,9 @@
             </div>
             <div class="pcard-body">
               @if (isWinner) {
-                <div class="pcard-ai" style="background:rgba(43,212,199,.1);border-color:rgba(43,212,199,.25);color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
+                <div class="pcard-ai" style="background:rgba(43,212,199,.1);border-color:rgba(43,212,199,.25);color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
               } @else {
-                <div class="pcard-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> AI {{ m.aiScore }}</div>
+                <div class="pcard-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
               }
               <div class="pcard-title">{{ m.title }}</div>
               <div class="pcard-prov">
@@ -160,8 +160,8 @@
             <div class="summary-item winner-summary">
               <div class="summary-item-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-check"></use></svg></div>
               <div>
-                <div class="summary-item-label">الأعلى في تقييم AI</div>
-                <div class="summary-item-val" style="color:var(--teal)">{{ w.provider.name }} — AI {{ w.aiScore }}</div>
+                <div class="summary-item-label">الأعلى في جودة AI</div>
+                <div class="summary-item-val" style="color:var(--teal)">{{ w.provider.name }} — جودة AI {{ w.aiScore }}</div>
               </div>
             </div>
           }
@@ -211,7 +211,7 @@
         </div>
         <div class="trust-item">
           <div class="trust-ico-sm" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="color:var(--ai)"><use href="#ws-trust-ai"></use></svg></div>
-          تقييم AI لجودة المقدمين
+          اختبار تخصص بالذكاء الاصطناعي للمقدمين
         </div>
       </div>
     }
