@@ -18,15 +18,15 @@
 			</div>
 			<div class="flex-1">
 				<div class="text-[15px] font-extrabold text-[var(--txt)] mb-1 flex items-center gap-2">
-					وسيط <span class="text-xs opacity-60">•</span> اقتراح لك
+					اقتراح بالذكاء الاصطناعي
 				</div>
-				<div class="text-[14px] text-[var(--txt-2)]">بناء على طلباتك السابقة: هل تحتاج خدمات تصميم ويب أو تطبيقات مجدداً؟</div>
+				<div class="text-[14px] text-[var(--txt-2)]">يمكن للذكاء الاصطناعي اقتراح عنوان ووصف ومدة وميزانية وتخصصات فرعية بناءً على ما أدخلته حتى الآن. الاقتراحات إرشادية: تُملأ العنوان والوصف والمدة إن كانت فارغة، وقد تُضاف ميزانية مقترحة وتخصصات فرعية، ويمكنك تعديل كل ذلك.</div>
 			</div>
 			<div class="flex items-center gap-3 shrink-0">
 				<button type="button"
 					class="px-6 py-2.5 rounded-full text-[14px] font-bold transition-all whitespace-nowrap shadow-sm hover:opacity-90 cursor-pointer txt-purple"
 					style="background: rgba(123, 47, 190, 0.25); border: 1px solid rgba(123, 47, 190, 0.4)"
-					(click)="parent.applyAISuggestion()">طبق الاقتراح</button>
+					(click)="parent.applyAISuggestion()">اقترح لي</button>
 				<button type="button"
 					class="w-8 h-8 rounded-lg text-[var(--txt-3)] flex items-center justify-center hover:text-[var(--txt)] transition-colors cursor-pointer"
 					(click)="parent.showAIBanner.set(false)">
@@ -126,6 +126,6 @@
 		<div class="ai-disc-note flex items-center gap-3 p-4 rounded-[20px] mb-8 bg-[var(--crd-bg)] border border-[var(--crd-bd)] text-xs text-[var(--txt-2)] shadow-md">
 			<svg viewBox="0 0 24 24" fill="none" width="24px" height="24px" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 			<use href="#i-ai"></use></svg>
-			<div><strong class="text-[var(--txt)]">وسيط AI إشعار الذكاء الاصطناعي:</strong> يقترح التخصصات بناء على خياراتك... اضغط التالي لمتابعة تفاصيل الطلب.</div>
+			<div><strong class="text-[var(--txt)]">تنبيه:</strong> اقتراحات الذكاء الاصطناعي إرشادية وقابلة للتعديل، ومسؤولية اختيار التخصص والتفاصيل تبقى لك. اضغط التالي لمتابعة تفاصيل الطلب.</div>
 		</div>
 		}

@@ -651,7 +651,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       if (data?.fullText && !this.aiStreamText()) {
         this.aiStreamText.set(data.fullText);
       }
-      this.showToast(data?.message || '✨ اكتملت الصياغة الاحترافية بالذكاء الاصطناعي!', 'toast-ok');
+      this.showToast(data?.message || 'اكتملت صياغة المسودة، راجعها وعدّلها قبل استخدامها', 'toast-ok');
     });
 
     this.socket.on('ai:description_error', (data: { message?: string }) => {
@@ -732,7 +732,6 @@ export class CreateRequest implements OnInit, OnDestroy {
   // STEP 5: Files (الملفات)
   // ==============================
   files = signal<File[]>([]);
-  hasInappropriateFile = signal(false);
 
   handleFiles(event: Event) {
     const input = event.target as HTMLInputElement;
