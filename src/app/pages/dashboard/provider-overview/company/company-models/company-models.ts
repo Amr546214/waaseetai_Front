@@ -16,6 +16,10 @@ export interface CompanyModelCard {
 	reviewsCount?: number;
 	viewsCount: number;
 	status: string;
+	/** false while the service is kept off the public market (provider KYC or specialty not approved). */
+	marketVisible?: boolean;
+	/** Arabic reason from the backend, shown as received (same field the provider models page uses). */
+	marketNotice?: string | null;
 	bgGradient?: string;
 	iconColor?: string;
 }
@@ -100,9 +104,16 @@ export class CompanyModels implements OnInit {
 		this.activeSort.set(sort);
 	}
 
+	/** Card badge: hidden by the owner / kept off the market by the backend (under review) / live. */
+	statusBadge(model: CompanyModelCard): { text: string; cls: 'hidden-status' | 'review-status' | '' } {
+		if (model.status === 'ARCHIVED') return { text: 'غير معروض', cls: 'hidden-status' };
+		if (model.status === 'UNDER_REVIEW' || model.marketVisible === false) return { text: 'قيد المراجعة', cls: 'review-status' };
+		return { text: '● في السوق', cls: '' };
+	}
+
 	/** Status rows built only from the model's real fields (status, stored AI score, client reviews) — never fixed ✓ marks or score thresholds. */
 	checks(model: CompanyModelCard): { text: string; ok: boolean }[] {
-		const live = model.status === 'PUBLISHED' || model.status === 'APPROVED';
+		const live = (model.status === 'PUBLISHED' || model.status === 'APPROVED') && model.marketVisible !== false;
 		return [
 			{ text: live ? 'منشور في السوق' : 'قيد المراجعة', ok: live },
 			{ text: model.aiScore > 0 ? `تقييم AI: ${model.aiScore}%` : 'لم يُقيَّم بتقييم AI بعد', ok: model.aiScore > 0 },

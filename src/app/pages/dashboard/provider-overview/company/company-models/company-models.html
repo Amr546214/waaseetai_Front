@@ -79,7 +79,7 @@
 					<rect x="3" y="3" width="18" height="18" rx="2" />
 					<path d="M3 9h18M9 21V9" />
 				</svg>
-				<span class="cml-card-status" [class.hidden-status]="m.status === 'ARCHIVED'">{{ m.status === 'ARCHIVED' ? 'غير معروض' : '● في السوق' }}</span>
+				<span class="cml-card-status" [class.hidden-status]="statusBadge(m).cls === 'hidden-status'" [class.review-status]="statusBadge(m).cls === 'review-status'" data-testid="model-status">{{ statusBadge(m).text }}</span>
 				<span class="cml-card-score">{{ m.aiScore }}</span>
 			</div>
 			<div class="cml-card-body">
@@ -97,6 +97,9 @@
 					</div>
 					}
 				</div>
+				@if (m.marketNotice) {
+				<div class="cml-notice" role="status" data-testid="market-notice">{{ m.marketNotice }}</div>
+				}
 				<div class="cml-card-foot">
 					<span class="cml-card-link">تفاصيل &rsaquo;</span>
 					<span class="cml-card-meta">&#9733;{{ m.rating || '—' }} &middot; {{ m.viewsCount | number }} مشاهدة</span>
