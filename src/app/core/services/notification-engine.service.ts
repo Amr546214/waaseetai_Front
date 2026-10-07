@@ -7,6 +7,8 @@ import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { NotificationSoundService } from './notification-sound.service';
 import { AuthStore } from '../store/auth.store';
+import { UiNotificationService } from './ui-notification.service';
+import { ACCOUNT_NOT_ACTIVE_CODE, accountBlockedText } from './account-state';
 
 // The real, existing dashboard roots this app has — every notification
 // destination must resolve to one of these (see resolveNotificationTarget()/
@@ -77,6 +79,7 @@ export class NotificationEngineService implements OnDestroy {
 	private platformId = inject(PLATFORM_ID);
 	private isBrowser = isPlatformBrowser(this.platformId);
 	private authStore = inject(AuthStore);
+	private ui = inject(UiNotificationService);
 	private sanitizer = inject(DomSanitizer);
 	private iconHtmlCache = new Map<string, SafeHtml>();
 	private socket: Socket | null = null;
@@ -241,6 +244,13 @@ export class NotificationEngineService implements OnDestroy {
 			this.triggerToast(notif);
 		};
 
+		// The server cut this connection because the account is no longer active (admin suspension), or refused it at the handshake.
+		this.socket.on('account_not_active', (payload: { message?: string }) => {
+			this.ui.showBanner('error', accountBlockedText(payload?.message), { title: 'الحساب غير نشط' });
+		});
+		this.socket.on('connect_error', (err: Error & { data?: { code?: string } }) => {
+			if (err?.data?.code === ACCOUNT_NOT_ACTIVE_CODE) this.ui.showBanner('error', accountBlockedText(undefined), { title: 'الحساب غير نشط' });
+		});
 		this.socket.on('notification:new', handleNewNotification);
 		this.socket.on('new_notification', handleNewNotification);
 
