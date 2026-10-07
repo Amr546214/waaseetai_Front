@@ -80,3 +80,7 @@
 .cml-card-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--cml-border); }
 .cml-card-link { font-size: 11.5px; font-weight: 700; color: var(--teal-txt); }
 .cml-card-meta { font-size: 10.5px; color: var(--cml-txt-muted); }
+
+.cml-card-status.review-status{color:#FFB400;background:rgba(255,180,0,.14);border-color:rgba(255,180,0,.45)}
+.cml-notice{margin:8px 0;padding:8px 10px;border-radius:8px;font-size:11.5px;font-weight:700;line-height:1.6;color:#FFB400;background:rgba(255,180,0,.10);border:1px solid rgba(255,180,0,.35)}
+:host-context(.theme-light) .cml-notice{color:#8A5A00;background:rgba(255,180,0,.14);border-color:rgba(184,120,0,.4)}
