@@ -14,6 +14,9 @@
 	</div>
 
 	<div class="req-list">
+		@if (filteredRequests.length === 0) {
+			<div class="py-6 text-center text-[13px] font-bold" style="padding:24px 0;text-align:center;opacity:.7" data-testid="empty-state">لا توجد بيانات بعد</div>
+		}
 		@for (req of filteredRequests; track req.id) {
 			<div class="req-card">
 				<div class="req-card-hd">

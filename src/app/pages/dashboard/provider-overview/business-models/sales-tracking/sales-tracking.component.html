@@ -31,6 +31,9 @@
 	<div class="section-card">
 		<div class="section-title">النماذج الأكثر مبيعاً</div>
 		<div class="models-list">
+			@if (topModels.length === 0) {
+				<div class="py-6 text-center text-[13px] font-bold" style="padding:24px 0;text-align:center;opacity:.7" data-testid="empty-state">لا توجد بيانات بعد</div>
+			}
 			@for (m of topModels; track m.name) {
 				<div class="model-row">
 					<div class="model-info">
@@ -52,6 +55,9 @@
 	<div class="section-card">
 		<div class="section-title">آخر المبيعات</div>
 		<div class="sales-list">
+			@if (sales.length === 0) {
+				<div class="py-6 text-center text-[13px] font-bold" style="padding:24px 0;text-align:center;opacity:.7" data-testid="empty-state">لا توجد بيانات بعد</div>
+			}
 			@for (sale of sales; track sale.id) {
 				<div class="sale-row">
 					<div class="sale-id">{{ sale.id }}</div>
