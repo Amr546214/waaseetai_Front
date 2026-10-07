@@ -32,7 +32,7 @@ describe('provider profile data tabs: shared validation', () => {
       updateBasicInfo: vi.fn(() => of({})),
       initiateSensitiveChange: vi.fn(() => of({ data: { requestId: 'r1', emailHint: 'a***@b.co' } })),
       verifySensitiveChange: vi.fn(() => of({ data: { status: 'APPLIED' } })),
-      savePaypalPayoutEmail: vi.fn(() => of({})),
+      savePaypalPayoutEmail: vi.fn(() => of({})), requestPaypalEmailChange: vi.fn(() => of({ emailSent: true, emailHint: 'ow***@example.com' })),
       changePassword: vi.fn(() => of({})),
       updateSkills: vi.fn(() => of({ skills: [] })),
       addPortfolioItem: vi.fn(() => of({})),
@@ -305,29 +305,29 @@ describe('provider profile data tabs: shared validation', () => {
 
     it('empty and malformed email: no request, summary, inline error, focus, enabled button', () => {
       component.payoutForm.patchValue({ paypalPayoutEmail: '' });
-      button('payout', 'حفظ بريد PayPal').click();
+      button('payout', 'تغيير بريد PayPal').click();
       render();
-      expect(svc['savePaypalPayoutEmail']).not.toHaveBeenCalled();
+      expect(svc['requestPaypalEmailChange']).not.toHaveBeenCalled();
       expect(summary('payout')).toContain('بريد PayPal مطلوب');
       expect(fieldErrors('payout')).toEqual(['بريد PayPal مطلوب']);
       expect(document.activeElement?.id).toBe('pp-email');
-      expect(button('payout', 'حفظ بريد PayPal').disabled).toBe(false);
+      expect(button('payout', 'تغيير بريد PayPal').disabled).toBe(false);
       fill(component.payoutForm, { paypalPayoutEmail: 'a@b' });
       component.savePaypal();
       render();
       expect(fieldErrors('payout')[0]).toContain('name@example.com');
-      expect(svc['savePaypalPayoutEmail']).not.toHaveBeenCalled();
+      expect(svc['requestPaypalEmailChange']).not.toHaveBeenCalled();
     });
 
     it('a zod 400 on paypalPayoutEmail becomes the field error; other failures are an Arabic notification', () => {
       component.payoutForm.patchValue({ paypalPayoutEmail: 'me@paypal.com' });
-      svc['savePaypalPayoutEmail'].mockReturnValue(httpError(400, 'Validation Error', { errors: [{ field: 'paypalPayoutEmail', message: 'بريد PayPal غير صحيح' }] }));
+      svc['requestPaypalEmailChange'].mockReturnValue(httpError(400, 'Validation Error', { errors: [{ field: 'paypalPayoutEmail', message: 'بريد PayPal غير صحيح' }] }));
       component.savePaypal();
       render();
       expect(component.payoutForm.get('paypalPayoutEmail')!.errors?.['server']).toBe('بريد PayPal غير صحيح');
       expect(ui.toasts().length).toBe(0);
       component.payoutForm.patchValue({ paypalPayoutEmail: 'me2@paypal.com' });
-      svc['savePaypalPayoutEmail'].mockReturnValue(httpError(500, 'Internal server error'));
+      svc['requestPaypalEmailChange'].mockReturnValue(httpError(500, 'Internal server error'));
       component.savePaypal();
       expect(toasts()).toMatch(ARABIC);
       expect(component.savingPaypal()).toBe(false);

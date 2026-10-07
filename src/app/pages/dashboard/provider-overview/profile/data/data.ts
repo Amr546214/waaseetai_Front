@@ -11,6 +11,7 @@ import { attemptSubmit, applyServerFieldErrors, InvalidField } from '../../../..
 import { mapHttpError, messageForBackendCode } from '../../../../../core/forms/http-error';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess, KycDocumentKey } from '../../../../../core/models/kyc-document.model';
@@ -105,7 +106,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
@@ -157,6 +158,8 @@ export class Data implements OnInit, OnDestroy {
   contactForm!: FormGroup;
   payoutForm!: FormGroup;
   savingPaypal = signal(false);
+  /** The new PayPal email waiting for its e-mailed code (finance #33); null when no change is in progress. */
+  pendingPaypalEmail = signal<string | null>(null);
   docsForm!: FormGroup;
   passwordForm!: FormGroup;
   isChangingPassword = signal(false);
@@ -591,12 +594,17 @@ export class Data implements OnInit, OnDestroy {
     if (!attempt.valid) return;
     const email = String(this.payoutForm.value.paypalPayoutEmail || '').trim();
     this.savingPaypal.set(true);
-    this.profileService.savePaypalPayoutEmail(email).subscribe({
-      next: () => {
+    // A PayPal email is never saved directly: a code is e-mailed to the account email first (finance #33).
+    this.profileService.requestPaypalEmailChange(email).subscribe({
+      next: (r) => {
         this.savingPaypal.set(false);
         this.missingPayout.set([]);
-        this.displayToast('تم حفظ بريد PayPal لاستلام المدفوعات');
-        this.refreshCompletion();
+        if (r.emailSent) {
+          this.pendingPaypalEmail.set(email);
+          this.displayToast('أرسلنا رمز التحقق إلى بريد حسابك لتأكيد بريد PayPal');
+        } else {
+          this.displayToast('تعذر إرسال رمز التحقق الآن، حاول مرة أخرى بعد قليل');
+        }
       },
       error: (err: any) => {
         this.savingPaypal.set(false);
@@ -606,6 +614,13 @@ export class Data implements OnInit, OnDestroy {
         this.notifyHttpError(err, { fallback: 'تعذر حفظ بريد PayPal، حاول مرة أخرى' });
       }
     });
+  }
+
+  onPaypalConfirmed(email: string) {
+    this.pendingPaypalEmail.set(null);
+    this.payoutForm.patchValue({ paypalPayoutEmail: email });
+    this.displayToast('تم تغيير بريد PayPal. السحب عبر PayPal متوقف لمدة 24 ساعة');
+    this.refreshCompletion();
   }
 
   /** True while any document is still uploading (saving then would send an empty/old URL). */

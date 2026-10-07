@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { KycAccess } from '../models/kyc-document.model';
 
@@ -89,6 +89,17 @@ export class ProviderProfileService {
    */
   savePaypalPayoutEmail(email: string): Observable<any> {
     return this.http.put<any>(`${environment.url_api}/profiles/update`, { paypalPayoutEmail: email.trim() });
+  }
+
+  /**
+   * PayPal payout email change (finance #33): the email is no longer saved directly. Step 1 e-mails a code to the ACCOUNT email
+   * (the new address stays pending), step 2 confirms it. After a confirmed change PayPal withdrawals are frozen for 24 hours.
+   */
+  requestPaypalEmailChange(email: string): Observable<{ emailSent: boolean; emailHint: string }> {
+    return this.http.post<{ data: { emailSent: boolean; emailHint: string } }>(`${environment.url_api}/profiles/paypal-email/change/request`, { paypalEmail: email.trim() }).pipe(map(r => r.data));
+  }
+  confirmPaypalEmailChange(code: string): Observable<{ paypalPayoutEmail: string }> {
+    return this.http.post<{ data: { paypalPayoutEmail: string } }>(`${environment.url_api}/profiles/paypal-email/change/confirm`, { code }).pipe(map(r => r.data));
   }
 
   getProfile(): Observable<ProviderProfile> {

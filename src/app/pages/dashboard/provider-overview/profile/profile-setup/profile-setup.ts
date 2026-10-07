@@ -1,6 +1,6 @@
 import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, switchMap } from 'rxjs';
+import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
@@ -17,6 +17,7 @@ import { BioFieldDirective } from '../../../../../shared/directives/bio-field.di
 import { attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError } from '../../../../../core/forms/http-error';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
+import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
@@ -58,7 +59,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })
@@ -78,6 +79,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	readonly cityPlaceholder = cityPlaceholder;
 
 	isSubmitting = signal<boolean>(false);
+	/** The PayPal email already stored on the profile (a different one needs the e-mailed code, finance #33). */
+	private storedPaypalEmail = '';
+	/** The new PayPal email waiting for its code on the last step; null when nothing is pending. */
+	pendingPaypalEmail = signal<string | null>(null);
 	currentStep = signal<number>(1);
 	private readonly host = inject(ElementRef<HTMLElement>);
 	/** What is missing after a failed Next/submit attempt (shown by <ws-form-summary>). */
@@ -275,6 +280,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			next: (res: any) => {
 				if (res && res.data) {
 					const d = res.data;
+					this.storedPaypalEmail = String(d.paypalPayoutEmail || '').trim();
 					this.storedSetupTestScore.set(typeof d.setupTestScore === 'number' ? d.setupTestScore : null);
 					this.storedSetupTestStatus.set(typeof d.setupTestStatus === 'string' ? d.setupTestStatus : null);
 					this.skillsList.set((d.skills || []).map((s: { name: string }) => s.name));
@@ -972,13 +978,17 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			}
 		};
 
-		// The setup endpoint does not persist the PayPal email, so it is saved on the profile endpoint
-		// that does (PUT /profiles/update, provider role) first; if that fails nothing else is submitted.
+		// The setup endpoint does not persist the PayPal email, and the email is never saved directly any more (finance #33): when it
+		// differs from the stored one, a code is e-mailed to the account email after the setup is saved and confirmed on the last step.
 		const paypalEmail = String(this.setupForm.get('payout.paypalEmail')?.value || '').trim();
-		this.providerProfileService.savePaypalPayoutEmail(paypalEmail).pipe(
-			switchMap(() => this.profileApi.saveProviderProfileSetup(payload))
-		).subscribe({
+		this.profileApi.saveProviderProfileSetup(payload).subscribe({
 			next: () => {
+				if (paypalEmail && paypalEmail.toLowerCase() !== this.storedPaypalEmail.toLowerCase()) {
+					this.providerProfileService.requestPaypalEmailChange(paypalEmail).subscribe({
+						next: (r) => { if (r.emailSent) this.pendingPaypalEmail.set(paypalEmail); },
+						error: () => { /* the code can be requested again from the profile data page */ }
+					});
+				}
 				this.isSubmitting.set(false);
 				const user = this.authStore.currentUser();
 				if (user) {

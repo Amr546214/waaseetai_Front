@@ -809,6 +809,10 @@
       <!-- STEP 7: اختبار التصنيف الأولي -->
       <div class="step-panel" [class.active]="currentStep() === 7" role="tabpanel">
 
+        @if (pendingPaypalEmail(); as pending) {
+          <ws-paypal-email-confirm [email]="pending" (confirmed)="pendingPaypalEmail.set(null)" (dismissed)="pendingPaypalEmail.set(null)" />
+        }
+
         @if (!isTestStarted()) {
           <div class="test-intro">
             <div style="margin-bottom:20px">

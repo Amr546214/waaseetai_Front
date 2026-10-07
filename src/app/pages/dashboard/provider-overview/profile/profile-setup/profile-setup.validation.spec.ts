@@ -214,7 +214,8 @@ describe('provider profile-setup: shared validation', () => {
 
   describe('final save', () => {
     const allValid = () => { step1(); step2(); step3(); step4(); step5(); component.setupForm.get('agreements.ackFinal')!.setValue(true); component.currentStep.set(6); };
-    const passPaypal = () => http.expectOne(r => r.method === 'PUT' && r.url.endsWith('/profiles/update')).flush({ success: true });
+    // Finance #33: the PayPal email is no longer saved by the wizard; after a successful setup a code request goes out (none on a failed save).
+    const passPaypal = () => http.match(r => r.method === 'POST' && r.url.endsWith('/profiles/paypal-email/change/request')).forEach(r => r.flush({ data: { emailSent: true, emailHint: 'ow***@example.com' } }));
 
     it('a failed proof upload leaves an empty placeholder: it is never sent to the backend', () => {
       allValid();
@@ -269,13 +270,16 @@ describe('provider profile-setup: shared validation', () => {
       }
     });
 
-    it('a PayPal save failure (the profile endpoint) is explained and nothing else is submitted', () => {
+    it('the PayPal email is not saved by the setup: after the setup is saved a code is requested and the confirm step opens (#33)', () => {
       allValid();
+      vi.spyOn(component, 'goToStep').mockImplementation(() => {});
       component.saveAndGoToTest();
-      http.expectOne(r => r.method === 'PUT' && r.url.endsWith('/profiles/update')).flush({ message: 'Internal Server Error' }, { status: 500, statusText: 'Server Error' });
-      expect(save).not.toHaveBeenCalled();
-      expect(component.alertModal()?.message).not.toMatch(/[A-Za-z]/);
-      expect(component.isSubmitting()).toBe(false);
+      http.expectNone(r => r.method === 'PUT' && r.url.endsWith('/profiles/update'));
+      expect(save).toHaveBeenCalled();
+      const req = http.expectOne(r => r.method === 'POST' && r.url.endsWith('/profiles/paypal-email/change/request'));
+      expect(req.request.body).toEqual({ paypalEmail: 'me@example.com' });
+      req.flush({ data: { emailSent: true, emailHint: 'ow***@example.com' } });
+      expect(component.pendingPaypalEmail()).toBe('me@example.com');
     });
   });
 });
