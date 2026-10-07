@@ -34,6 +34,16 @@ describe('AuthApiService — mandatory login email OTP', () => {
 		ctl.expectOne(r => r.url.endsWith('/auth/verify-otp')).flush({ success: true, data: {} });
 	});
 
+	it('Google sign-in challenge → no session; the OTP screen verifies through the LOGIN endpoint', () => {
+		api.googleAuth('idtok', 'login').subscribe();
+		ctl.expectOne(r => r.url.endsWith('/auth/google')).flush({ success: true, data: { verified: false, loginOtpRequired: true, userId: 'u1', emailSent: true } });
+		expect(authenticate).not.toHaveBeenCalled();
+		expect(setPending).toHaveBeenCalledWith('u1');
+		api.verifyOtp({ userId: 'u1', code: '123456' } as any).subscribe();
+		ctl.expectOne(r => r.url.endsWith('/auth/login/verify-otp')).flush({ success: true, data: { token: 't', user: { id: 'u1' } } });
+		expect(authenticate).toHaveBeenCalledWith('t', { id: 'u1' });
+	});
+
 	it('an unverified login keeps using the activation endpoints', () => {
 		api.login({ email: 'a@b.co', password: 'x' } as any).subscribe();
 		ctl.expectOne(r => r.url.endsWith('/auth/login')).flush({ success: true, data: { verified: false, userId: 'u1', emailSent: true } });
