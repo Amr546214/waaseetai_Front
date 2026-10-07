@@ -508,7 +508,9 @@ export class CreateRequest implements OnInit, OnDestroy {
 
           if (Array.isArray(data.suggestedSubSpecialties)) {
             const newSet = new Set(this.selectedSubs());
-            data.suggestedSubSpecialties.slice(0, this.MAX_SUBS).forEach((s: string) => {
+            // Only suggestions that exist as chips of the chosen specialty are applied: every counted sub-specialty is a visible, selected chip.
+            const listed = new Set(this.currentSpec()?.subs ?? []);
+            data.suggestedSubSpecialties.filter((s: string) => listed.has(s)).slice(0, this.MAX_SUBS).forEach((s: string) => {
               if (newSet.size < this.MAX_SUBS) newSet.add(s);
             });
             this.selectedSubs.set(newSet);

@@ -52,6 +52,14 @@ function setup() {
 }
 
 describe('Login', () => {
+	it('the trust row claims no MFA (there is no MFA feature): no "MFA" badge on the page', () => {
+		const { fixture } = setup();
+		fixture.detectChanges();
+		const badges = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.trust-bdg')).map(b => b.textContent?.trim());
+		expect(badges).not.toContain('MFA');
+		expect((fixture.nativeElement as HTMLElement).textContent).not.toMatch(/\bMFA\b/);
+	});
+
 	it('should create', () => {
 		const { fixture, component } = setup();
 		fixture.detectChanges();

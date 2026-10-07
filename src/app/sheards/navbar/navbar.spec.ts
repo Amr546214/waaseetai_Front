@@ -102,3 +102,22 @@ describe('Navbar — account-dropdown active-row click', () => {
 		expect(switchActiveRoleSpy).toHaveBeenCalledWith(UserRole.PROVIDER);
 	});
 });
+
+describe('Navbar — "account settings" link points to a route that exists for every account type', () => {
+	afterEach(() => vi.unstubAllGlobals());
+	const link = (accountType: string) => {
+		const { component } = setup({ firstName: 'A', lastName: 'B', accountType, activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT] });
+		return component.profileLink;
+	};
+	for (const [type, expected] of [
+		['PROVIDER_INDIVIDUAL', '/provider-overview/profile/data'],
+		['PROVIDER_COMPANY', '/provider-overview/profile/data'],
+		['MARKETING_BROKER', '/marketer-overview/profile/data'],
+		['CLIENT_INDIVIDUAL', '/client-overview/profile'],
+		['SUPER_ADMIN', '/supper-admin-overview/system-settings'],
+	] as const) {
+		it(`${type} → ${expected} (never the route-less /profile)`, () => {
+			expect(link(type)).toBe(expected);
+		});
+	}
+});

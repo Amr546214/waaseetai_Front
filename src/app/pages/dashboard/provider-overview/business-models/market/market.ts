@@ -24,6 +24,10 @@ export interface MarketModel {
 	icon?: string;
 	coverImage?: string;
 	status: string;
+	/** false while the service is kept off the public market (KYC or specialty not approved). */
+	marketVisible?: boolean;
+	/** Arabic reason from the backend; shown as received, never composed here. */
+	marketNotice?: string | null;
 }
 
 export interface MarketGroup {

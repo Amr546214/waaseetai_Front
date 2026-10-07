@@ -130,3 +130,74 @@ describe('SaAccreditationDetail', () => {
     expect(component.actionError()).toContain('سبب الرفض');
   });
 });
+
+// #20 — the advisory "للمراجعة" marks of the latest assessment attempt (never a change of score or status).
+describe('SaAccreditationDetail — assessment review marks (#20)', () => {
+  const review = (over: any = {}) => ({
+    attemptId: 'a1', status: 'FAILED', score: 35, completedAt: '2026-01-02T10:00:00.000Z',
+    review: {
+      flagged: true,
+      flags: [{ code: 'TOTAL_TIME_TOO_SHORT' }, { code: 'FAST_ANSWERS' }, { code: 'UNIFORM_ANSWERS' }, { code: 'REPEATING_PATTERN' }],
+      measured: { totalSeconds: 57, answered: 20, fastAnswers: 5, topShare: 0.9, periodicCycle: 4 },
+      thresholds: { minSecondsPerQuestion: 3, minTotalSeconds: 80, patternRatio: 0.9, fastAnswerMinCount: 3 },
+      ...over,
+    },
+  });
+
+  async function render(sample: Partial<AccreditationSample>) {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: 'accreditations/:id', component: SaAccreditationDetail }]),
+        { provide: HttpClient, useValue: { get: () => of({ success: true, data: makeSample(sample) }), post: () => of({}) } },
+      ],
+    });
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/accreditations/sample-1', SaAccreditationDetail);
+    harness.detectChanges();
+    return harness.routeNativeElement as HTMLElement;
+  }
+  const q = (el: HTMLElement, id: string) => el.querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('a flagged attempt shows the «للمراجعة» mark, each flag in plain Arabic with its threshold, the measurements and the "advisory only" note', async () => {
+    const el = await render({ assessmentReview: review() as any });
+    expect(q(el, 'review-pill')!.textContent).toContain('للمراجعة');
+    const flags = Array.from(el.querySelectorAll('[data-testid="review-flag"]')).map(f => f.textContent!.trim());
+    expect(flags.length).toBe(4);
+    expect(flags[0]).toContain('80 ثانية');
+    expect(flags[1]).toContain('3 ثوانٍ');
+    expect(flags[2]).toContain('90%');
+    expect(flags[3]).toContain('نمطًا دوريًا');
+    for (const f of flags) expect(f).toMatch(/[؀-ۿ]/);
+    expect(q(el, 'review-measured')!.textContent).toContain('57 ثانية');
+    expect(q(el, 'review-note')!.textContent).toContain('لم تغيّر الدرجة ولا حالة الاعتماد');
+  });
+
+  it('showing the marks changes nothing about the sample: the status label and AI score on the page are the same as without them', async () => {
+    const withMarks = await render({ assessmentReview: review() as any });
+    const status = withMarks.querySelector('.acc-ai-pill')!.textContent!.trim();
+    const score = withMarks.querySelector('.acc-score-num')!.textContent!.trim();
+    TestBed.resetTestingModule();
+    const without = await render({ assessmentReview: null });
+    expect(without.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe(status);
+    expect(without.querySelector('.acc-score-num')!.textContent!.trim()).toBe(score);
+  });
+
+  it('an attempt without flags says "no review marks"; an old attempt (no review data) says so; no attempt shows no panel', async () => {
+    let el = await render({ assessmentReview: review({ flagged: false, flags: [] }) as any });
+    expect(q(el, 'review-pill-ok')!.textContent).toContain('بلا علامات مراجعة');
+    expect(q(el, 'review-pill')).toBeNull();
+    TestBed.resetTestingModule();
+    el = await render({ assessmentReview: { ...review(), review: null } as any });
+    expect(q(el, 'review-none')!.textContent).toContain('قبل تسجيل التوقيت');
+    TestBed.resetTestingModule();
+    el = await render({ assessmentReview: null });
+    expect(q(el, 'assessment-review')).toBeNull();
+  });
+
+  it('a single mark shows only that mark', async () => {
+    const el = await render({ assessmentReview: review({ flags: [{ code: 'UNIFORM_ANSWERS' }] }) as any });
+    expect(el.querySelectorAll('[data-testid="review-flag"]').length).toBe(1);
+    expect(q(el, 'review-flag')!.getAttribute('data-code')).toBe('UNIFORM_ANSWERS');
+  });
+});

@@ -27,6 +27,31 @@
         </div>
                 </div>
 
+      @if (d.assessmentReview; as ar) {
+        <div class="acc-review" data-testid="assessment-review" [class.acc-review-flagged]="ar.review?.flagged">
+          <div class="acc-review-hdr">
+            <strong>اختبار التقييم</strong>
+            @if (ar.review?.flagged) { <span class="acc-review-pill" data-testid="review-pill">للمراجعة</span> }
+            @else if (ar.review) { <span class="acc-review-pill ok" data-testid="review-pill-ok">بلا علامات مراجعة</span> }
+          </div>
+          @if (ar.review?.flagged; as _f) {
+            <ul class="acc-review-list" data-testid="review-flags">
+              @for (f of ar.review!.flags; track f.code) { <li data-testid="review-flag" [attr.data-code]="f.code">{{ flagText(f.code, ar.review!) }}</li> }
+            </ul>
+            @if (ar.review!.measured; as m) {
+              <div class="acc-review-meta" data-testid="review-measured">
+                زمن الاختبار الكلي: {{ m.totalSeconds }} ثانية · أسئلة مجاب عنها: {{ m.answered }}
+                @if (m.fastAnswers !== null) { · إجابات أسرع من الحد: {{ m.fastAnswers }} }
+                @if (m.topShare !== null) { · أعلى نسبة لخيار واحد: {{ m.topShare * 100 | number:'1.0-0' }}% }
+              </div>
+            }
+            <p class="acc-review-note" data-testid="review-note">هذه علامات استرشادية لمساعدتك في المراجعة فقط؛ لم تغيّر الدرجة ولا حالة الاعتماد.</p>
+          } @else if (!ar.review) {
+            <p class="acc-review-note" data-testid="review-none">لا تتوفر بيانات مراجعة لهذه المحاولة (اختبار أُجري قبل تسجيل التوقيت).</p>
+          }
+        </div>
+      }
+
       <div class="acc-score-row">
         <div class="acc-score-ring">
           <div class="acc-score-num">{{ d.aiScore != null ? d.aiScore : '—' }}</div>

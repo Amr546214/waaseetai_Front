@@ -113,6 +113,8 @@ export class Data implements OnInit, OnDestroy {
   currentTab = signal<string>('profile');
   showToast = signal<string>('');
   avatarUrl = signal<string | null>(null);
+  /** True only after the user picked a new image or explicitly removed it; an untouched avatar is never sent (never as null). */
+  private avatarDirty = false;
   passwordFormVisible = signal<boolean>(false);
 
   // Dynamic relation states
@@ -291,7 +293,9 @@ export class Data implements OnInit, OnDestroy {
             notifyWhatsapp: profile.preferences?.notifyWhatsapp ?? false,
           });
 
-          this.avatarUrl.set(profile.user?.avatarUrl || null);
+          // The avatar the provider edits lives on the provider profile (the legacy user column is only a fallback).
+          this.avatarUrl.set(profile.avatarUrl || profile.user?.avatarUrl || null);
+          this.avatarDirty = false;
 
           this.contactForm.patchValue({
             email: profile.user?.email || '',
@@ -369,6 +373,7 @@ export class Data implements OnInit, OnDestroy {
     const reader = new FileReader();
     reader.onload = () => {
       this.avatarUrl.set(reader.result as string);
+      this.avatarDirty = true;
       this.displayToast('تم اختيار الصورة، سيتم حفظها عند النقر على حفظ');
     };
     reader.readAsDataURL(file);
@@ -378,6 +383,7 @@ export class Data implements OnInit, OnDestroy {
   removeAvatar() {
     this.avatarError.set('');
     this.avatarUrl.set(null);
+    this.avatarDirty = true;
     this.displayToast('تم إزالة الصورة محلياً، احفظ التغييرات للتأكيد');
   }
 
@@ -482,7 +488,8 @@ export class Data implements OnInit, OnDestroy {
 
   /** Raw backend code ("INVALID_URL:githubUrl" -> { code: 'INVALID_URL', arg: 'githubUrl' }), or null. */
   private rawCode(err: any): { code: string; arg: string } | null {
-    const raw = err?.error?.message;
+    // the error-message interceptor replaces `message` with Arabic and keeps the original code (and its ':arg') in rawMessage
+    const raw = err?.error?.rawMessage ?? err?.error?.message;
     if (typeof raw !== 'string') return null;
     const [code, ...rest] = raw.trim().split(':');
     return /^[A-Z_]+$/.test(code) ? { code, arg: rest.join(':').trim() } : null;
@@ -521,7 +528,8 @@ export class Data implements OnInit, OnDestroy {
     this.profileService.updateBasicInfo({
       firstName: val.firstName,
       lastName: val.lastName,
-      avatarUrl: this.avatarUrl(),
+      // sent only when the user changed it: a new image, or null for an explicit removal
+      ...(this.avatarDirty ? { avatarUrl: this.avatarUrl() } : {}),
       headline: val.headline,
       bio: val.bio,
       hourlyRate: val.hourlyRate,

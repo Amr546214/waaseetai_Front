@@ -1,0 +1,42 @@
+<section class="mk-card" aria-label="توثيق الهوية" data-testid="marketer-kyc-card">
+	<div class="mk-hdr">
+		<div class="mk-ttl">توثيق الهوية</div>
+		@switch (status()) {
+			@case ('APPROVED') { <span class="mk-pill ok" data-testid="kyc-status">موثّق</span> }
+			@case ('PENDING') { <span class="mk-pill wait" data-testid="kyc-status">قيد المراجعة</span> }
+			@case ('NONE') { <span class="mk-pill none" data-testid="kyc-status">لم يُرفع مستند</span> }
+		}
+	</div>
+
+	@if (loadFailed()) {
+		<div class="mk-err" role="alert">تعذر تحميل حالة التوثيق. <button type="button" class="mk-link" (click)="load()">إعادة المحاولة</button></div>
+	} @else if (status() === null) {
+		<div class="mk-muted">جارٍ التحميل…</div>
+	} @else {
+		@switch (status()) {
+			@case ('APPROVED') {
+				<p class="mk-txt" data-testid="kyc-approved-text">تم اعتماد هويتك. لا حاجة لرفع مستند جديد.</p>
+			}
+			@case ('PENDING') {
+				<p class="mk-txt" data-testid="kyc-pending-text">مستندك قيد المراجعة من فريق الإدارة. يمكنك مراجعته أو استبداله بمستند آخر ما دام الطلب قيد المراجعة.</p>
+				<div class="mk-row">
+					<app-kyc-document-link document="marketer_kyc_document" [access]="{ private: true, legacy: false }" label="عرض المستند" />
+				</div>
+			}
+			@default {
+				<p class="mk-txt" data-testid="kyc-none-text">ارفع مستند هويتك (الهوية الوطنية أو الإقامة أو جواز السفر) ليراجعه فريق الإدارة.</p>
+			}
+		}
+
+		@if (status() !== 'APPROVED') {
+			<label class="mk-upload" [class.busy]="uploading()">
+				<input type="file" class="mk-file" data-testid="kyc-file" [attr.accept]="rule.extensions.join(',')" [disabled]="uploading()" (change)="onFileSelected($event)">
+				<span>{{ uploading() ? 'جارٍ الرفع…' : (status() === 'PENDING' ? 'استبدال المستند' : 'رفع المستند') }}</span>
+			</label>
+			<div class="mk-hint">{{ rule.typesLabel }} · حتى 5 ميغابايت · ملف واحد</div>
+			<p class="mk-note" data-testid="kyc-reject-note">إذا لم يُعتمد المستند يصلك إشعار بالسبب، ويمكنك رفع مستند جديد.</p>
+		}
+		@if (error()) { <div class="mk-err" role="alert" data-testid="kyc-error">{{ error() }}</div> }
+		@if (success()) { <div class="mk-ok" role="status" data-testid="kyc-success">{{ success() }}</div> }
+	}
+</section>

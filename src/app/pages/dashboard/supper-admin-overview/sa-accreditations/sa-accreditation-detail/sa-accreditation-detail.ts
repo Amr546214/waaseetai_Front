@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AccreditationApiService } from '../../../../../core/services/accreditation-api.service';
-import { AccreditationSample, AccreditationStatus } from '../../../../../core/models/accreditation.model';
+import { AccreditationSample, AccreditationStatus, AssessmentFlagCode, AssessmentReviewData } from '../../../../../core/models/accreditation.model';
 
 @Component({
   selector: 'app-sa-accreditation-detail',
@@ -56,6 +56,18 @@ export class SaAccreditationDetail implements OnInit {
     REJECTED: 'acc-st-rejected',
     MANUAL_REVIEW: 'acc-st-manual',
   };
+
+  /** Plain Arabic text for each advisory mark. The thresholds shown come from the review itself (they are configurable on the server). */
+  flagText(code: AssessmentFlagCode, review: AssessmentReviewData): string {
+    const t = review.thresholds;
+    switch (code) {
+      case 'TOTAL_TIME_TOO_SHORT': return `أنهى الاختبار في وقت أقل من الحد الأدنى${t ? ` (${t.minTotalSeconds} ثانية)` : ''}`;
+      case 'FAST_ANSWERS': return `أجاب عن عدة أسئلة متتالية بأسرع من الحد الأدنى لكل سؤال${t ? ` (${t.minSecondsPerQuestion} ثوانٍ)` : ''}`;
+      case 'UNIFORM_ANSWERS': return `اختار الخيار نفسه في نسبة كبيرة من الأسئلة${t ? ` (${Math.round(t.patternRatio * 100)}% أو أكثر)` : ''}`;
+      case 'REPEATING_PATTERN': return 'تتبّعت إجاباته نمطًا دوريًا ثابتًا (مثل أ-ب-ج-د ثم تكرار)';
+      default: return String(code);
+    }
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {

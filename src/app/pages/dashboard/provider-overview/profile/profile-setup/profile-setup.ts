@@ -34,6 +34,8 @@ const SETUP_LABELS: Record<string, string> = {
 	ackFinal: 'الإقرار والموافقة النهائية',
 };
 
+export interface PortfolioItem { review: string; reviewDisplayName: string; proofs: string[]; proofDisplayNames: string[] }
+
 /** Documents and portfolio files: PDF / JPG / PNG, 10 MB (the backend upload limit). */
 const DOC_RULE = { maxBytes: 10 * MB, mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'], typesLabel: 'PDF أو JPG أو PNG' };
 /** Portfolio samples: what the upload inputs themselves accept (images, PDF, ZIP, and MP4 for the main sample). */
@@ -170,7 +172,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	isUploading = computed(() => Object.values(this.uploadStates()).some(s => s.status === 'uploading'));
 
 	// Portfolio — review/proofs store URLs; reviewDisplayName/proofDisplayNames store original filenames for UI
-	portfolioItems = signal<Record<string, { review: string; reviewDisplayName: string; proofs: string[]; proofDisplayNames: string[] }[]>>({});
+	portfolioItems = signal<Record<string, PortfolioItem[]>>({});
 
 	// Test
 	isTestStarted = signal<boolean>(false);
@@ -278,7 +280,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.skillsList.set((d.skills || []).map((s: { name: string }) => s.name));
 					this.setupForm.patchValue({
 						profData: {
-							jobTitle: d.industry || '',
+							jobTitle: d.headline || d.industry || '',
 							country: normalizeCountry(d.country),
 							city: d.city || '',
 							bio: d.bio || '',
@@ -313,6 +315,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (d.languages && d.languages.length) this.selectedLanguages.set(d.languages);
 					if (d.subSpecialties && d.subSpecialties.length) this.selectedSpecs.set(d.subSpecialties);
 					if (d.kycStatus === 'VERIFIED' || d.isNafathVerified) this.isNafathVerified.set(true);
+					// Stage 5: the saved portfolio comes back from the server, so a re-save never starts from an empty list.
+					const saved = this.portfolioFromServer(d.portfolioItems);
+					if (Object.keys(saved).length) this.portfolioItems.set(saved);
 				}
 			}
 		});
@@ -455,7 +460,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			let changed = false;
 			this.selectedSpecs().forEach(s => {
 				if (!current[s] || current[s].length === 0) {
-					current[s] = [{ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] }];
+					current[s] = [this.emptyPortfolioItem()];
 					changed = true;
 				}
 			});
@@ -780,18 +785,42 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		return this.portfolioItems()[spec] || [];
 	}
 
+	// All portfolio edits create NEW arrays/objects: the template's @for must see a new reference, otherwise the first click appeared to
+	// do nothing and only a second click showed the added card.
+	private emptyPortfolioItem() { return { review: '', reviewDisplayName: '', proofs: [] as string[], proofDisplayNames: [] as string[] }; }
+
+	private updatePortfolioItem(spec: string, idx: number, change: (item: PortfolioItem) => PortfolioItem) {
+		const current = { ...this.portfolioItems() };
+		current[spec] = (current[spec] || []).map((item, i) => (i === idx ? change(item) : item));
+		this.portfolioItems.set(current);
+	}
+
+	/** Rebuilds the wizard's per-specialty list from the rows GET /provider/profile/setup returns (title "نموذج أعمال - <spec>", description = work file, tags = proof files). */
+	portfolioFromServer(rows: unknown): Record<string, PortfolioItem[]> {
+		const out: Record<string, PortfolioItem[]> = {};
+		if (!Array.isArray(rows)) return out;
+		const nameOf = (url: string) => decodeURIComponent((url.split('?')[0].split('/').pop() || url));
+		for (const row of rows as Array<{ title?: string; description?: string | null; coverImage?: string | null; tags?: string[] | null }>) {
+			const spec = String(row?.title || '').replace(/^نموذج أعمال\s*-\s*/, '').trim();
+			if (!spec) continue;
+			const proofs = (row.tags && row.tags.length ? row.tags : row.coverImage ? [row.coverImage] : []).filter(Boolean);
+			const review = row.description || '';
+			(out[spec] ||= []).push({ review, reviewDisplayName: review ? nameOf(review) : '', proofs, proofDisplayNames: proofs.map(nameOf) });
+		}
+		return out;
+	}
+
 	addPortfolioItem(spec: string) {
 		const current = { ...this.portfolioItems() };
-		if (!current[spec]) current[spec] = [];
-		current[spec].push({ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] });
+		current[spec] = [...(current[spec] || []), this.emptyPortfolioItem()];
 		this.portfolioItems.set(current);
 	}
 
 	removePortfolioItem(spec: string, idx: number) {
 		const current = { ...this.portfolioItems() };
 		if (current[spec]) {
-			current[spec].splice(idx, 1);
-			if (current[spec].length === 0) current[spec] = [{ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] }];
+			const rest = current[spec].filter((_, i) => i !== idx);
+			current[spec] = rest.length ? rest : [this.emptyPortfolioItem()];
 			this.portfolioItems.set(current);
 		}
 	}
@@ -810,9 +839,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			const key = `portfolio-review-${spec}-${idx}`;
 			this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
 
-			const current = { ...this.portfolioItems() };
-			current[spec][idx].reviewDisplayName = file.name;
-			this.portfolioItems.set(current);
+			this.updatePortfolioItem(spec, idx, item => ({ ...item, reviewDisplayName: file.name }));
 
 			this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
 				next: (event: any) => {
@@ -823,10 +850,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (event.type === HttpEventType.Response) {
 						const url = event.body?.data?.url || '';
 						const name = event.body?.data?.name || file.name;
-						const c = { ...this.portfolioItems() };
-						c[spec][idx].review = url;
-						c[spec][idx].reviewDisplayName = name;
-						this.portfolioItems.set(c);
+						this.updatePortfolioItem(spec, idx, item => ({ ...item, review: url, reviewDisplayName: name }));
 						this.setUploadState(key, { status: 'uploaded', progress: 100, name });
 					}
 				},
@@ -857,10 +881,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			const key = `portfolio-proof-${spec}-${idx}-${baseProofIdx}`;
 			this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
 
-				const current = { ...this.portfolioItems() };
-				current[spec][idx].proofDisplayNames.push(file.name);
-				current[spec][idx].proofs.push(''); // placeholder until upload completes
-			this.portfolioItems.set(current);
+				// placeholder entry until the upload completes
+				this.updatePortfolioItem(spec, idx, item => ({ ...item, proofDisplayNames: [...item.proofDisplayNames, file.name], proofs: [...item.proofs, ''] }));
 
 				this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
 					next: (ev: any) => {
@@ -871,10 +893,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						if (ev.type === HttpEventType.Response) {
 							const url = ev.body?.data?.url || '';
 							const name = ev.body?.data?.name || file.name;
-							const c = { ...this.portfolioItems() };
-							c[spec][idx].proofs[baseProofIdx] = url;
-							c[spec][idx].proofDisplayNames[baseProofIdx] = name;
-							this.portfolioItems.set(c);
+							this.updatePortfolioItem(spec, idx, item => ({
+								...item,
+								proofs: item.proofs.map((p, i) => (i === baseProofIdx ? url : p)),
+								proofDisplayNames: item.proofDisplayNames.map((n, i) => (i === baseProofIdx ? name : n))
+							}));
 							this.setUploadState(key, { status: 'uploaded', progress: 100, name });
 						}
 					},
@@ -888,10 +911,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	removePortfolioProof(spec: string, itemIdx: number, proofIdx: number) {
-		const current = { ...this.portfolioItems() };
-		current[spec][itemIdx].proofs.splice(proofIdx, 1);
-		current[spec][itemIdx].proofDisplayNames.splice(proofIdx, 1);
-		this.portfolioItems.set(current);
+		this.updatePortfolioItem(spec, itemIdx, item => ({
+			...item,
+			proofs: item.proofs.filter((_, i) => i !== proofIdx),
+			proofDisplayNames: item.proofDisplayNames.filter((_, i) => i !== proofIdx)
+		}));
 	}
 
 	private sanitizePortfolioForPayload(items: Record<string, { review: string; reviewDisplayName: string; proofs: string[]; proofDisplayNames: string[] }[]>): Record<string, { review: string; proofs: string[] }[]> {

@@ -1,0 +1,47 @@
+<button type="button" class="pc-open" data-testid="phone-change-open" (click)="show()">تغيير الرقم</button>
+
+@if (open()) {
+	<div class="pc-bg" role="dialog" aria-modal="true" aria-label="تغيير رقم الجوال" data-testid="phone-change-dialog">
+		<div class="pc-box">
+			<div class="pc-ttl">تغيير رقم الجوال</div>
+
+			@switch (step()) {
+				@case (1) {
+					<p class="pc-txt">أدخل رقم الجوال الجديد. سنرسل رمز تحقق إلى بريدك الإلكتروني المسجّل في الحساب.</p>
+					<label class="pc-label" for="pc-phone">رقم الجوال الجديد</label>
+					<input id="pc-phone" class="pc-input" dir="ltr" type="tel" inputmode="numeric" autocomplete="tel" maxlength="20" data-testid="phone-new" placeholder="05xxxxxxxx"
+						[ngModel]="phone()" (ngModelChange)="onPhoneInput($event)" (keydown.enter)="sendCode()">
+					<div class="pc-hint">أرقام فقط، من 9 إلى 15 رقمًا.</div>
+				}
+				@case (2) {
+					<p class="pc-txt" data-testid="phone-code-sent">أرسلنا رمزًا من 6 أرقام إلى بريدك <span dir="ltr" class="pc-mail">{{ emailHint() }}</span>. أدخله لتأكيد الرقم الجديد.</p>
+					<label class="pc-label" for="pc-code">رمز التحقق</label>
+					<input id="pc-code" class="pc-input pc-code" dir="ltr" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" data-testid="phone-code" placeholder="000000"
+						[ngModel]="code()" (ngModelChange)="onCodeInput($event)" (paste)="onCodePaste($event)" (keydown.enter)="confirm()">
+					<div class="pc-resend">
+						@if (countdown() > 0) { <span data-testid="phone-countdown">يمكنك طلب رمز جديد بعد {{ countdown() }} ثانية</span> }
+						@else { <button type="button" class="pc-link" data-testid="phone-resend" [disabled]="busy()" (click)="resend()">إرسال رمز جديد</button> }
+					</div>
+				}
+				@case (3) {
+					<p class="pc-ok" role="status" data-testid="phone-changed">تم تغيير رقم الجوال بنجاح.</p>
+				}
+			}
+
+			@if (error()) { <div class="pc-err" role="alert" data-testid="phone-error">{{ error() }}</div> }
+
+			<div class="pc-actions">
+				@if (step() === 3) {
+					<button type="button" class="pc-btn primary" (click)="close()">إغلاق</button>
+				} @else {
+					<button type="button" class="pc-btn" (click)="step() === 2 ? back() : close()">{{ step() === 2 ? 'رجوع' : 'إلغاء' }}</button>
+					@if (step() === 1) {
+						<button type="button" class="pc-btn primary" data-testid="phone-send" [disabled]="busy() || !phoneValid()" (click)="sendCode()">{{ busy() ? 'جارٍ الإرسال…' : 'إرسال الرمز' }}</button>
+					} @else {
+						<button type="button" class="pc-btn primary" data-testid="phone-confirm" [disabled]="busy() || !codeValid()" (click)="confirm()">{{ busy() ? 'جارٍ التأكيد…' : 'تأكيد' }}</button>
+					}
+				}
+			</div>
+		</div>
+	</div>
+}

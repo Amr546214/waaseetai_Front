@@ -109,7 +109,8 @@
 				@for (sub of parent.currentSpec()!.subs; track sub) {
 				<button type="button"
 					class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-bold cursor-pointer transition-all border"
-					[ngClass]="parent.isSubSelected(sub) ? 'bg-[var(--sec-bg)] text-[var(--txt-2)] border-[var(--teal)]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt-2)] hover:border-[var(--teal)] hover:text-[var(--txt)]'"
+					[ngClass]="parent.isSubSelected(sub) ? 'bg-[var(--teal)]/15 text-[var(--teal)] border-[var(--teal)] ring-1 ring-[var(--teal)]/40' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)]'"
+					[attr.aria-pressed]="parent.isSubSelected(sub)"
 					(click)="parent.toggleSub(sub)">
 					@if (parent.isSubSelected(sub)) {
 					<svg class="w-4 h-4 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">

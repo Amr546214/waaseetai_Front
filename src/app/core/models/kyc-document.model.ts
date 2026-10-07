@@ -9,7 +9,7 @@ export type KycDocumentKey =
 	| 'client_front_id' | 'client_back_id' | 'client_supporting_docs'
 	| 'provider_front_id' | 'provider_back_id' | 'provider_supporting_docs' | 'provider_certificate'
 	| 'onboarding_document' | 'user_id_document' | 'user_vat_certificate'
-	| 'specialty_proof' | 'accreditation_proof';
+	| 'specialty_proof' | 'accreditation_proof' | 'marketer_kyc_document';
 
 export interface KycAccessRequest {
 	document: KycDocumentKey;
