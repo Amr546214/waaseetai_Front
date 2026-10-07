@@ -42,7 +42,7 @@ describe('provider documents tab (private KYC documents)', () => {
 				{ provide: KycDocumentService, useValue: { createAccessLink } },
 				{ provide: ProviderProfileService, useValue: {
 					getProfile: vi.fn(() => of(profile)), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
-					initiateSensitiveChange, savePaypalPayoutEmail: vi.fn(() => of({})), updateSkills: vi.fn(() => of({ skills: [] })),
+					initiateSensitiveChange, savePaypalPayoutEmail: vi.fn(() => of({})), requestPaypalEmailChange: vi.fn(() => of({ emailSent: true, emailHint: 'ow***@example.com' })), updateSkills: vi.fn(() => of({ skills: [] })),
 				} },
 			],
 		});

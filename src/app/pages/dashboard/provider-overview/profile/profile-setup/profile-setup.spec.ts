@@ -140,11 +140,10 @@ describe('provider setup AI suggestions', () => {
     component.portfolioItems.set({ 'تطوير مواقع': [{ review: 'sample-url', reviewDisplayName: 'sample.pdf', proofs: [], proofDisplayNames: [] }] });
     vi.spyOn(component, 'goToStep').mockImplementation(() => {});
     component.saveAndGoToTest();
-    // The PayPal email goes to the profile endpoint first (the setup endpoint ignores it)...
-    const put = http.expectOne(req => req.method === 'PUT' && req.url.endsWith('/profiles/update'));
-    expect(put.request.body).toEqual({ paypalPayoutEmail: 'me@example.com' });
-    put.flush({ success: true });
-    // ...then the setup is submitted, without any bank key (nothing saved is overwritten with empty values).
+    // The PayPal email is no longer saved here (finance #33): no PUT /profiles/update; a code is requested after the setup is saved.
+    http.expectNone(req => req.method === 'PUT' && req.url.endsWith('/profiles/update'));
+    http.expectOne(req => req.method === 'POST' && req.url.endsWith('/profiles/paypal-email/change/request')).flush({ data: { emailSent: true, emailHint: 'ow***@example.com' } });
+    // The setup is submitted without any bank key (nothing saved is overwritten with empty values).
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ skills: ['HTML', 'CSS'] }));
     expect(save.mock.calls[0][0]).not.toHaveProperty('bank');
   });

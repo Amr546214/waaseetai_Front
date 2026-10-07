@@ -37,7 +37,7 @@ describe('provider edit page: backend completion + missing items', () => {
         { provide: AuthStore, useValue: { currentUser: () => null } },
         { provide: ProviderProfileService, useValue: {
           getProfile, getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
-          updateSkills: vi.fn(() => of({ skills: [{ name: 'Figma' }, { name: 'Sketch' }] })), savePaypalPayoutEmail: vi.fn(() => of({})),
+          updateSkills: vi.fn(() => of({ skills: [{ name: 'Figma' }, { name: 'Sketch' }] })), savePaypalPayoutEmail: vi.fn(() => of({})), requestPaypalEmailChange: vi.fn(() => of({ emailSent: true, emailHint: 'ow***@example.com' })),
         } },
       ],
     });
@@ -100,11 +100,13 @@ describe('provider edit page: backend completion + missing items', () => {
     expect(component.currentTab()).toBe('profile');
   });
 
-  it('after saving PayPal or adding a skill the completion is re-read from the backend', () => {
+  it('after confirming the PayPal email (e-mailed code) or adding a skill the completion is re-read from the backend', () => {
     setup(MISSING_PAYPAL);
     getProfile.mockReturnValue(of(PENDING_ID));
     component.payoutForm.patchValue({ paypalPayoutEmail: 'pay@example.com' });
-    component.savePaypal(); render();
+    component.savePaypal();
+    expect(component.pendingPaypalEmail()).toBe('pay@example.com'); // not saved yet: the code step is open
+    component.onPaypalConfirmed('pay@example.com'); render();
     expect(q('#prog-pct')!.textContent).toContain('90%');
     expect(all('.miss-item').length).toBe(1);
   });

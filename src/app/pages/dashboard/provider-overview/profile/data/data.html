@@ -426,12 +426,15 @@
       <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pp-email">بريد PayPal<span class="req">*</span></label><input
           type="email" id="pp-email" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com"
           dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
-          [attr.aria-invalid]="payoutForm.get('paypalPayoutEmail')?.invalid && payoutForm.get('paypalPayoutEmail')?.touched ? 'true' : null"><span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal.</span><ws-field-error [control]="payoutForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
+          [attr.aria-invalid]="payoutForm.get('paypalPayoutEmail')?.invalid && payoutForm.get('paypalPayoutEmail')?.touched ? 'true' : null"><span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal. تغييره يتطلب رمزًا يُرسل إلى بريد حسابك، ويتوقف السحب عبر PayPal 24 ساعة بعده.</span><ws-field-error [control]="payoutForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
       </div>
     </div>
     <ws-form-summary [items]="missingPayout()" (select)="onSummarySelect($event)" />
-    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()" (click)="savePaypal()">{{ savingPaypal() ? 'جاري الحفظ...' : 'حفظ بريد PayPal' }}</button>
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()" (click)="savePaypal()">{{ savingPaypal() ? 'جاري الإرسال...' : 'تغيير بريد PayPal' }}</button>
     </div>
+    @if (pendingPaypalEmail(); as pending) {
+      <ws-paypal-email-confirm [email]="pending" (confirmed)="onPaypalConfirmed($event)" (dismissed)="pendingPaypalEmail.set(null)" />
+    }
   </div>
 </div>
 
