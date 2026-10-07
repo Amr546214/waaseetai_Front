@@ -2,11 +2,16 @@
 	<div class="page-hd">
 		<div>
 			<div class="page-ttl">تفاوض طلب خدمة</div>
+			@if (request) {
 			<div class="page-sub">{{ request.id }} · {{ request.title }}</div>
+			}
 		</div>
 		<a routerLink="/provider-overview/business-models/customer-requests" class="btn-back">رجوع للطلبات</a>
 	</div>
 
+	@if (!request) {
+		<div class="py-6 text-center text-[13px] font-bold" style="padding:24px 0;text-align:center;opacity:.7" data-testid="empty-state">لا توجد بيانات بعد</div>
+	} @else {
 	<div class="neg-layout">
 		<div class="neg-main">
 			<!-- Request Info -->
@@ -88,4 +93,5 @@
 			</div>
 		</aside>
 	</div>
+	}
 </div>

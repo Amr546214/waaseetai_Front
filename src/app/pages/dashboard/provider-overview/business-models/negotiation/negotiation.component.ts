@@ -18,27 +18,15 @@ export class NegotiationComponent {
 	counterForm: FormGroup;
 	messageForm: FormGroup;
 
-	request = {
-		id: 'REQ-2026-042',
-		title: 'تطوير تطبيق تجارة إلكترونية',
-		client: 'شركة التجارة الرقمية',
-		originalBudget: 45000,
-		originalDays: 30,
-		currentOffer: 42000,
-		currentDays: 28
-	};
+	// No negotiation data source exists for this page yet: nothing is invented, the page shows its empty state.
+	request: { id: string; title: string; client: string; originalBudget: number; originalDays: number; currentOffer: number; currentDays: number } | null = null;
 
-	messages: NegotiationMessage[] = [
-		{ id: '1', from: 'client', text: 'مرحباً، أنا مهتم بتطوير تطبيق تجارة إلكترونية. الميزانية المتاحة 45,000 $ والمدة 30 يوم.', time: '2026-09-10 14:30' },
-		{ id: '2', from: 'provider', text: 'أهلاً بك. يمكنني تنفيذ المشروع بميزانية 42,000 $ ومدة 28 يوم مع 3 مراجعات.', time: '2026-09-10 15:00' },
-		{ id: '3', from: 'client', text: 'ممتاز. هل يشمل ذلك تصميم الواجهة وتطوير الـ API؟', time: '2026-09-10 15:15' },
-		{ id: '4', from: 'provider', text: 'نعم، يشمل تصميم الواجهة وتطوير الـ API وربط بوابة الدفع. لا يشمل استضافة الخادم.', time: '2026-09-10 15:30' }
-	];
+	messages: NegotiationMessage[] = [];
 
 	constructor(private fb: FormBuilder) {
 		this.counterForm = this.fb.group({
-			amount: [42000, [Validators.required, Validators.min(1000)]],
-			days: [28, [Validators.required, Validators.min(1)]],
+			amount: [null as number | null, [Validators.required, Validators.min(1000)]],
+			days: [null as number | null, [Validators.required, Validators.min(1)]],
 			notes: ['', Validators.required]
 		});
 		this.messageForm = this.fb.group({
@@ -47,7 +35,7 @@ export class NegotiationComponent {
 	}
 
 	sendCounter() {
-		if (this.counterForm.valid) {
+		if (this.counterForm.valid && this.request) {
 			this.request.currentOffer = this.counterForm.value.amount;
 			this.request.currentDays = this.counterForm.value.days;
 			this.messages.push({
