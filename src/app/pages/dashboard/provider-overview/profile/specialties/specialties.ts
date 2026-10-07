@@ -970,6 +970,9 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	selectQuestionAnswer(questionId: string | number, optionChoice: string | number) {
+		// the server times the FIRST choice of each question (review marks only)
+		const sessionId = this.quizSessionId();
+		if (sessionId && this.userAnswers()[String(questionId)] === undefined) this.antiCheatService.recordAnswer(sessionId, String(questionId), String(optionChoice));
 		this.userAnswers.update(answers => ({
 			...answers,
 			[String(questionId)]: String(optionChoice)

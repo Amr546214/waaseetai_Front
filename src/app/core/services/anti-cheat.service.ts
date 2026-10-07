@@ -177,6 +177,14 @@ export class AntiCheatService implements OnDestroy {
     return false;
   }
 
+  /**
+   * Tells the server WHEN a choice was made (advisory timing for the "for review" marks; backend PR-J). Fire-and-forget: the answers themselves
+   * still travel with submitAssessmentAnswers, and a missing / old backend simply ignores the event.
+   */
+  public recordAnswer(attemptId: string, questionId: string, answer: string): void {
+    if (attemptId && this.socket?.connected) this.socket.emit('record_answer', { attemptId, questionId, answer });
+  }
+
   ngOnDestroy(): void {
     this.stopMonitoring();
   }

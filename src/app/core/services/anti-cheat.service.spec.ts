@@ -94,3 +94,18 @@ describe('AntiCheatService — assessment_error (Batch 3D-2)', () => {
 		expect(fakeSocket.disconnect).toHaveBeenCalled();
 	});
 });
+
+describe('AntiCheatService.recordAnswer (#20)', () => {
+	it('emits record_answer only when the socket is connected, and never throws otherwise', () => {
+		const svc: any = Object.create(AntiCheatService.prototype);
+		const emit = vi.fn();
+		svc.socket = { connected: true, emit };
+		svc.recordAnswer('att-1', '7', 'b');
+		expect(emit).toHaveBeenCalledWith('record_answer', { attemptId: 'att-1', questionId: '7', answer: 'b' });
+		svc.socket = { connected: false, emit };
+		svc.recordAnswer('att-1', '8', 'c');
+		svc.socket = null;
+		expect(() => svc.recordAnswer('att-1', '9', 'd')).not.toThrow();
+		expect(emit).toHaveBeenCalledTimes(1);
+	});
+});

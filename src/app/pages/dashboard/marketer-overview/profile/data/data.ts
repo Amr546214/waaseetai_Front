@@ -14,6 +14,7 @@ import { validateFile, MB } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { MarketerKycCard } from '../kyc-document/marketer-kyc-card';
 import { CompletionBoxComponent, CompletionBoxItem } from '../../../../../shared/forms/completion-box.component';
 
 const LABELS: Record<string, string> = {
@@ -70,7 +71,7 @@ const DEFAULT_ALERT_PREFERENCES = {
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent],
+	imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })

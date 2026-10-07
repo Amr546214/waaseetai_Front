@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { SaBrokerKycRequests } from './kyc-requests/sa-broker-kyc-requests';
 import { AdminBrokerApiService } from '../../../../core/services/admin-broker-api.service';
 import {
   AdminBrokerListItem,
@@ -25,7 +26,7 @@ type StatusFilter = 'all' | BrokerUserStatus;
 @Component({
   selector: 'app-sa-brokers',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SaBrokerKycRequests],
   templateUrl: './sa-brokers.html',
   styleUrl: './sa-brokers.css',
 })

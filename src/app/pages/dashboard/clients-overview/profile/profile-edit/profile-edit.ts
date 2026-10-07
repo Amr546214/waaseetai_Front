@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+import { PhoneChange } from '../../../../../sheards/phone-change/phone-change';
 import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-input.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ExperienceLevel } from '../../../../../core/models/profile.model';
@@ -34,7 +35,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, PhoneChange, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })

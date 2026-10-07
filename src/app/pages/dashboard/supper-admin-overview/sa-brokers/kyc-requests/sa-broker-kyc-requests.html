@@ -1,0 +1,53 @@
+<section class="kq-card" aria-label="طلبات توثيق الوسطاء" data-testid="broker-kyc-requests">
+	<div class="kq-hdr">
+		<div>
+			<h2 class="kq-ttl">طلبات توثيق الوسطاء</h2>
+			<p class="kq-sub">مستندات الهوية التي رفعها الوسطاء وتنتظر قرارك</p>
+		</div>
+		<span class="kq-count" data-testid="kyc-count">{{ loading() ? '—' : total() }}</span>
+	</div>
+
+	@if (notice()) { <div class="kq-ok" role="status" data-testid="kyc-notice">{{ notice() }}</div> }
+	@if (actionError()) { <div class="kq-err" role="alert" data-testid="kyc-action-error">{{ actionError() }}</div> }
+
+	@if (loadError()) {
+		<div class="kq-err" role="alert">{{ loadError() }} <button type="button" class="kq-link" (click)="load()">إعادة المحاولة</button></div>
+	} @else if (loading() && !items().length) {
+		<div class="kq-muted">جارٍ التحميل…</div>
+	} @else if (!items().length) {
+		<div class="kq-muted" data-testid="kyc-empty">لا توجد طلبات توثيق بانتظار المراجعة</div>
+	} @else {
+		<div class="kq-list">
+			@for (r of items(); track r.affiliateId) {
+				<div class="kq-row" data-testid="kyc-row">
+					<div class="kq-who">
+						<div class="kq-name">{{ r.name || '—' }}</div>
+						<div class="kq-meta">{{ r.email || '—' }} · {{ r.submittedAt | date:'shortDate' }}</div>
+					</div>
+					<div class="kq-actions">
+						<app-kyc-document-link document="marketer_kyc_document" [userId]="r.userId" [access]="{ private: true, legacy: false }" label="عرض المستند" />
+						<button type="button" class="kq-btn ok" data-testid="kyc-approve" [disabled]="busyId() === r.affiliateId" (click)="approve(r)">اعتماد</button>
+						<button type="button" class="kq-btn no" data-testid="kyc-reject" [disabled]="busyId() === r.affiliateId" (click)="openReject(r)">رفض</button>
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	@if (rejecting(); as r) {
+		<div class="kq-modal-bg" role="dialog" aria-modal="true" aria-label="رفض مستند الوسيط" data-testid="kyc-reject-dialog">
+			<div class="kq-modal">
+				<div class="kq-modal-ttl">رفض مستند {{ r.name || 'الوسيط' }}</div>
+				<label class="kq-label" for="kyc-reason">سبب الرفض <span class="kq-req">*</span></label>
+				<textarea id="kyc-reason" class="kq-ta" rows="4" [maxlength]="reasonMax" [ngModel]="reason()" (ngModelChange)="reason.set($event)" (blur)="reasonTouched.set(true)" data-testid="kyc-reason"
+					placeholder="مثال: الصورة غير واضحة، أعد رفع المستند"></textarea>
+				@if (reasonTouched() && reasonError()) { <div class="kq-err" role="alert" data-testid="kyc-reason-error">{{ reasonError() }}</div> }
+				<div class="kq-hint">يصل هذا السبب إلى الوسيط في إشعار.</div>
+				<div class="kq-modal-actions">
+					<button type="button" class="kq-btn" (click)="cancelReject()">إلغاء</button>
+					<button type="button" class="kq-btn no" data-testid="kyc-reject-confirm" [disabled]="busyId() === r.affiliateId" (click)="confirmReject()">تأكيد الرفض</button>
+				</div>
+			</div>
+		</div>
+	}
+</section>
