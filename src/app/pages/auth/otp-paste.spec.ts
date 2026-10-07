@@ -20,7 +20,7 @@ describe('OTP boxes: full paste (#23)', () => {
 				imports: [VerifyOtp],
 				providers: [provideRouter([]),
 					{ provide: AuthStore, useValue: { isPendingVerification: () => true, token: () => null, pendingUserId: () => 'u1', pendingEmail: () => 'a@b.co', pendingRole: () => null, pendingAccountType: () => null } },
-					{ provide: AuthApiService, useValue: { verifyOtp: vi.fn(), resendOtp: vi.fn() } }],
+					{ provide: AuthApiService, useValue: { verifyOtp: vi.fn(), resendOtp: vi.fn(), isLoginOtpPending: () => false } }],
 			});
 			const fixture = TestBed.createComponent(VerifyOtp);
 			fixture.detectChanges();

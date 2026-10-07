@@ -15,15 +15,22 @@
         <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
         رجوع
       </a>
+      @if (!loginMode) {
       <span class="auth-step-pill">الخطوة 3 من 3</span>
+      }
     </div>
 
     <div class="auth-head">
       <div class="auth-logo"><img src="/images/waseet-mark.png" alt="وسيط AI"></div>
-      <h1 class="auth-h1" id="page-h1">تأكيد البريد الإلكتروني</h1>
+      <h1 class="auth-h1" id="page-h1">{{ loginMode ? 'تأكيد تسجيل الدخول' : 'تأكيد البريد الإلكتروني' }}</h1>
+      @if (loginMode) {
+      <p class="auth-sub" data-testid="login-otp-sub">أدخل رمز التحقق المرسل إلى بريدك الإلكتروني لإكمال تسجيل الدخول</p>
+      } @else {
       <p class="auth-sub">الخطوة 3 من 3 في رحلة التسجيل في وسيط AI</p>
+      }
     </div>
 
+    @if (!loginMode) {
     <div class="stepper" role="list" aria-label="خطوات التسجيل">
       <div class="step-row">
         <div class="step-item step-done" role="listitem">
@@ -46,6 +53,7 @@
         </div>
       </div>
     </div>
+    }
 
     @if (errorMsg) {
     <div class="banner-error" id="banner-error" role="alert">
@@ -84,7 +92,7 @@
       <div class="btn-group" style="margin-top:4px">
         <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isLoading" [attr.aria-disabled]="isLoading">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
-          {{ isLoading ? 'جاري التحقق...' : 'التالي: لوحة التحكم' }}
+          {{ isLoading ? 'جاري التحقق...' : (loginMode ? 'الدخول إلى لوحة التحكم' : 'التالي: لوحة التحكم') }}
         </button>
         <a routerLink="/auth/login" class="btn-tertiary">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>

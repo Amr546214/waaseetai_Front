@@ -35,7 +35,11 @@ export class VerifyOtp implements OnInit, OnDestroy {
   countdown = 0;
   private timer: any;
 
+  /** Read once on entry (the flag is cleared when the login succeeds): true = mandatory LOGIN code, false = account activation. */
+  loginMode = false;
+
   ngOnInit() {
+    this.loginMode = this.authApi.isLoginOtpPending();
     if (!this.authStore.isPendingVerification()) {
       // If no pending user, redirect to login
       this.router.navigate(['/auth/login']);
