@@ -135,6 +135,15 @@
 						stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-check"></use>
 					</svg>تم إرسال بيانات الإعداد</span>
+				<!-- Verification badge: built ONLY from the real kycStatus; absent / other values hide it (no claim is made). -->
+				<span *ngIf="data.summary.kycStatus === 'VERIFIED'" class="dash-chip chip-loyal" data-testid="kyc-badge-verified"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
+						stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<use href="#i-check"></use>
+					</svg>مقدم موثّق<ng-container *ngIf="data.summary.commissionPercent !== null && data.summary.commissionPercent !== undefined"> · عمولة مستواك {{ data.summary.commissionPercent }}%</ng-container></span>
+				<span *ngIf="data.summary.kycStatus === 'PENDING'" class="dash-chip chip-verify" data-testid="kyc-badge-pending"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
+						stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<use href="#i-warn"></use>
+					</svg>التوثيق قيد المراجعة</span>
 			</div>
 		</div>
 

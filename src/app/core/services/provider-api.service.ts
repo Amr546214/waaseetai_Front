@@ -69,6 +69,10 @@ export interface ProviderStatsResponse {
 			hasApprovedSpecialties: boolean;
 			currentLevel: string;
 			currentPoints: number;
+			/** Real KYC status of the provider profile (null / absent when the backend has none). */
+			kycStatus?: 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED' | null;
+			/** Commission percentage stored for the provider's current level; null / absent when unknown. */
+			commissionPercent?: number | null;
 			firstName: string;
 			lastName: string;
 		};
