@@ -52,6 +52,8 @@
 .pl-ic-blue { background: rgba(43,127,255,.14); color: var(--blue-txt, #5DA0FF); }
 .pl-ic-amber { background: rgba(255,180,0,.14); color: #FFB400; }
 .pl-ic-ai { background: rgba(123,47,190,.14); color: var(--ai-txt, #A56BE0); }
+/* neutral blue-grey for the "total" card: purple is reserved for AI/وسيط elements. --txt-3 follows the theme (readable in dark and light). */
+.pl-ic-slate { background: rgba(148,163,184,.16); color: var(--txt-3, #94A3B8); }
 
 /* === Tabs (rounded glass capsules) === */
 .pl-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
