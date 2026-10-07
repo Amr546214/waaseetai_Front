@@ -19,12 +19,17 @@ const fakeSocket = {
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
 vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
 
-import { AntiCheatService } from './anti-cheat.service';
+// Loaded fresh in beforeEach: the unit-test runner can share the module registry between spec files, and another spec that imported
+// AntiCheatService first (with its own socket.io-client mock) would otherwise leave this file's `fakeSocket` unused (order-dependent failures).
+import type { AntiCheatService as AntiCheatServiceType } from './anti-cheat.service';
+let AntiCheatService: typeof AntiCheatServiceType;
 
 describe('AntiCheatService — assessment_error (Batch 3D-2)', () => {
-	let service: AntiCheatService;
+	let service: AntiCheatServiceType;
 
-	beforeEach(() => {
+	beforeEach(async () => {
+		vi.resetModules();
+		({ AntiCheatService } = await import('./anti-cheat.service'));
 		ioSpy.mockClear();
 		fakeSocket.on.mockClear();
 		fakeSocket.disconnect.mockClear();
@@ -96,8 +101,8 @@ describe('AntiCheatService — assessment_error (Batch 3D-2)', () => {
 });
 
 describe('AntiCheatService.recordAnswer (#20)', () => {
-	it('emits record_answer only when the socket is connected, and never throws otherwise', () => {
-		const svc: any = Object.create(AntiCheatService.prototype);
+	it('emits record_answer only when the socket is connected, and never throws otherwise', async () => {
+		const svc: any = Object.create((await import('./anti-cheat.service')).AntiCheatService.prototype);
 		const emit = vi.fn();
 		svc.socket = { connected: true, emit };
 		svc.recordAnswer('att-1', '7', 'b');
