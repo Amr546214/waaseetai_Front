@@ -327,6 +327,12 @@
           </div>
         }
       </div>
+    } @else {
+      <!-- No conversation at all: one centred empty state fills the panel (no header / toolbar is rendered without a conversation). -->
+      <div class="msg-empty-state" data-testid="messages-empty">
+        <div class="state-title">لا توجد محادثات بعد</div>
+        <div class="state-copy">عندما تبدأ محادثة مع عميل، ستظهر هنا.</div>
+      </div>
     }
   </div>
 </div>
