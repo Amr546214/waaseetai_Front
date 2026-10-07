@@ -312,7 +312,7 @@
 <div
 	class="flex gap-1 border-b border-[var(--sec-bd)] mb-5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 	@for(tab of [
-	{id:'info', label:'بيانات الشركة'},
+	{id:'info', label:'بيانات المقدم'},
 	{id:'skills', label:'مجالات العمل'},
 	{id:'links', label:'الروابط الرسمية'},
 	{id:'activity', label:'سجل النشاط'}
@@ -405,7 +405,7 @@
 					<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 					<polyline points="14 2 14 8 20 8" />
 				</svg>
-				نبذة عن الشركة
+				نبذة مهنية
 			</div>
 			<p class="text-[14px] font-medium text-[var(--txt-3)] leading-relaxed m-0">{{ profileData()?.basicInfo?.bio
 				|| 'لا يوجد نبذة مضافة بعد.' }}</p>
@@ -809,20 +809,7 @@
 			</svg>
 			سجل النشاط الأخير
 		</div>
-		<div class="flex flex-col divide-y divide-[var(--sec-bd)]">
-			<div class="flex items-center justify-between py-3.5">
-				<span class="text-[13px] font-bold text-[var(--txt)]">طلب جديد: تطوير تطبيق إدارة مشاريع</span>
-				<span class="text-[11px] font-bold text-[var(--txt-3)]">منذ يومين</span>
-			</div>
-			<div class="flex items-center justify-between py-3.5">
-				<span class="text-[13px] font-bold text-[var(--txt)]">اكتمال مشروع: تصميم هوية بصرية للشركة</span>
-				<span class="text-[11px] font-bold text-[var(--txt-3)]">الأسبوع الماضي</span>
-			</div>
-			<div class="flex items-center justify-between py-3.5 border-b-transparent">
-				<span class="text-[13px] font-bold text-[var(--txt)]">تقييم مقدّم خدمة: تطوير منصة B2B</span>
-				<span class="text-[11px] font-bold text-[var(--txt-3)]">منذ شهر</span>
-			</div>
-		</div>
+		<div class="py-6 text-center text-[13px] font-bold text-[var(--txt-3)]" data-testid="activity-empty">لا توجد بيانات بعد</div>
 	</div>
 	}
 </div>
