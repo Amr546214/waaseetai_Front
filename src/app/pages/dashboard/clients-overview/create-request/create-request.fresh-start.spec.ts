@@ -4,7 +4,7 @@ import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { vi } from 'vitest';
-import { CreateRequest } from './create-request';
+import { CreateRequest, resetCreateRequestPageLoadState } from './create-request';
 
 // A new request starts empty: the sessionStorage draft only resumes a refresh / back-forward, never an in-app arrival
 // (menu "إنشاء طلب", "طلب جديد", dashboard shortcuts). Budget fields start empty (no 0 / 500 / 1500 prefilled).
@@ -22,7 +22,12 @@ describe('create-request: fresh start vs resume', () => {
 	let router: Router;
 
 	// `inApp`: a navigation already completed in this page load (the wizard is reached from the menu / a button). `popstate`: browser back/forward.
-	async function mount(opts: { inApp: boolean; popstate?: boolean }): Promise<CreateRequest> {
+	// `landing`: how this page load itself started (the document navigation entry): a reload on the wizard, or a reload on another page.
+	async function mount(opts: { inApp: boolean; popstate?: boolean; landing?: 'reload-on-wizard' | 'reload-on-dashboard' }): Promise<CreateRequest> {
+		resetCreateRequestPageLoadState();
+		vi.spyOn(performance, 'getEntriesByType').mockReturnValue(opts.landing
+			? [{ type: 'reload', name: `https://dev.example.test${opts.landing === 'reload-on-wizard' ? '/client-overview/create-request' : '/client-overview'}` } as any]
+			: [{ type: 'navigate', name: 'https://dev.example.test/client-overview' } as any]);
 		Object.defineProperty(router, 'lastSuccessfulNavigation', { configurable: true, get: () => signal(opts.inApp ? ({ id: 2 } as any) : null) });
 		Object.defineProperty(router, 'currentNavigation', { configurable: true, value: signal(opts.popstate ? ({ id: 3, trigger: 'popstate' } as any) : null) });
 		const f = TestBed.createComponent(CreateRequest);
@@ -56,9 +61,9 @@ describe('create-request: fresh start vs resume', () => {
 		expect(JSON.stringify(saved ?? {})).not.toMatch(/500|1500|طلب قديم/);
 	});
 
-	it('a page refresh on the wizard (no navigation completed yet in this page load) resumes the draft', async () => {
+	it('a page refresh on the wizard resumes the draft (even though the router already completed a navigation: the landing entry says reload on this URL)', async () => {
 		sessionStorage.setItem(DRAFT_KEY, JSON.stringify(staleDraft()));
-		const c = await mount({ inApp: false });
+		const c = await mount({ inApp: true, landing: 'reload-on-wizard' });
 		expect(c.currentStep()).toBe(4);
 		expect(c.budgetMin()).toBe(500);
 		expect(c.budgetMax()).toBe(1500);
@@ -88,6 +93,27 @@ describe('create-request: fresh start vs resume', () => {
 		expect(second.budgetMax()).toBeNull();
 		expect(second.title()).toBe('');
 		expect(second.currentStep()).toBe(1);
+	});
+
+	it('the page was reloaded on the dashboard and the user then opens "إنشاء طلب": a new request, the old draft is not resumed', async () => {
+		sessionStorage.setItem(DRAFT_KEY, JSON.stringify(staleDraft()));
+		const c = await mount({ inApp: true, landing: 'reload-on-dashboard' });
+		expect(c.currentStep()).toBe(1);
+		expect(c.budgetMin()).toBeNull();
+	});
+
+	it('after a reload on the wizard only the FIRST creation resumes; opening the wizard again from the menu starts clean', async () => {
+		sessionStorage.setItem(DRAFT_KEY, JSON.stringify(staleDraft()));
+		resetCreateRequestPageLoadState();
+		vi.spyOn(performance, 'getEntriesByType').mockReturnValue([{ type: 'reload', name: 'https://dev.example.test/client-overview/create-request' } as any]);
+		Object.defineProperty(router, 'lastSuccessfulNavigation', { configurable: true, get: () => signal({ id: 2 } as any) });
+		Object.defineProperty(router, 'currentNavigation', { configurable: true, value: signal(null) });
+		const first = TestBed.createComponent(CreateRequest); await first.whenStable();
+		expect(first.componentInstance.budgetMin()).toBe(500);
+		first.destroy();
+		const second = TestBed.createComponent(CreateRequest); await second.whenStable();
+		expect(second.componentInstance.budgetMin()).toBeNull();
+		expect(second.componentInstance.currentStep()).toBe(1);
 	});
 
 	it('every budget type submits only its own amount (the fields of the other types are never sent)', async () => {
