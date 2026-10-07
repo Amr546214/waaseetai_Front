@@ -9,7 +9,7 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
+import { loginOtpNotice, unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
 import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
 import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
@@ -188,6 +188,12 @@ export class Login {
           this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
         } else if (res.data?.phoneOtpRequired) {
           this.showSmsUnavailable();
+        } else if (res.data?.loginOtpRequired) {
+          // Correct password: the login code was e-mailed (never SMS). The shared OTP screen finishes the login.
+          const notice = loginOtpNotice(res.data);
+          this.otpHandoff.set(notice);
+          this.notify.info(notice.message, { duration: 8000 });
+          this.router.navigate(['/auth/verify-otp']);
         } else {
           // Registered but never verified: the backend has just e-mailed a fresh code (and authApi.login
           // stored the pending user id), so continue at the verification step instead of the sign-up page.

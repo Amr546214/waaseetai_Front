@@ -23,6 +23,16 @@ export function registerNotice(res: Pick<AuthResponse, 'data'> | null | undefine
 		: { sent: false, message: REGISTER_NOT_SENT_MESSAGE };
 }
 
+/** POST /auth/login for an ACTIVE account: the mandatory login code goes to the account email (never SMS). */
+export function loginOtpNotice(data: AuthResponse['data'] | null | undefined): OtpNotice {
+	if (data?.emailSent === true) return { sent: true, message: 'أرسلنا رمز تسجيل الدخول إلى بريدك الإلكتروني، أدخله لإكمال الدخول.' };
+	const wait = data?.retryAfterSeconds;
+	if (data?.emailSent === false && typeof wait === 'number' && wait > 0) {
+		return { sent: false, message: `يمكنك استخدام الرمز السابق أو إعادة المحاولة بعد ${formatWait(wait)}.` };
+	}
+	return { sent: false, message: OTP_SEND_FAILED_MESSAGE };
+}
+
 /** POST /auth/login (or Google) for an account that is not verified yet. */
 export function unverifiedLoginNotice(data: AuthResponse['data'] | null | undefined): OtpNotice {
 	if (data?.emailSent === true) return { sent: true, message: 'حسابك غير مفعّل بعد. ' + OTP_SENT_MESSAGE + '، أدخله لإكمال التفعيل.' };
