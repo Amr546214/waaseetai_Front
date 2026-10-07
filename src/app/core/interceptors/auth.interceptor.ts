@@ -4,6 +4,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthStore } from '../store/auth.store';
+import { UiNotificationService } from '../services/ui-notification.service';
+import { isAccountBlockedResponse, accountBlockedText } from '../services/account-state';
 
 function getCookieSync(name: string): string | null {
   if (typeof document === 'undefined') return null;
@@ -34,6 +36,7 @@ export const NON_SESSION_401_MESSAGES = ['CURRENT_PASSWORD_INCORRECT'];
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
   const router = inject(Router);
+  const ui = inject(UiNotificationService);
   const platformId = inject(PLATFORM_ID);
   const isBrowser = isPlatformBrowser(platformId);
 
@@ -100,6 +103,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           authStore.setPendingVerification(user.id);
           router.navigate(['/auth/verify-otp']);
         }
+      }
+
+      // Suspended / under suspension review: one sticky banner with the backend's own message (the request itself still fails as before).
+      if (isBrowser && isAccountBlockedResponse(error.status, error.error?.message)) {
+        ui.showBanner('error', accountBlockedText(error.error?.message), { title: 'الحساب غير نشط' });
       }
 
       return throwError(() => error);
