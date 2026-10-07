@@ -507,7 +507,7 @@ describe('CreateRequest', () => {
       const restored = await remount();
 
       expect(restored.currentStep()).toBe(1);
-      expect(restored.budgetMin()).toBe(0);
+      expect(restored.budgetMin()).toBeNull(); // the budget fields start empty (was a prefilled 0)
       // No leftover data from the published request — the fresh instance's
       // own autosave reflects only its own (default) state.
       expect(readDraft()?.currentStep).toBe(1);
