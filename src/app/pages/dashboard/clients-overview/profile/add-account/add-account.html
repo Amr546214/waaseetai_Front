@@ -186,7 +186,7 @@
 					<button type="button" class="role-cta" [disabled]="isRoleActive('provider-co') || isRoleUnavailable('provider-co')"
 						[class.opacity-50]="isRoleActive('provider-co') || isRoleUnavailable('provider-co')">
 						<span *ngIf="isRoleActive('provider-co')">الحساب النشط حالياً</span>
-						<span *ngIf="!isRoleActive('provider-co') && isRoleUnavailable('provider-co')">غير متاح حاليًا</span>
+						<span *ngIf="!isRoleActive('provider-co') && isRoleUnavailable('provider-co')">قريبًا</span>
 					</button>
 				</div>
 
@@ -212,7 +212,7 @@
 					<button type="button" class="role-cta" [disabled]="isRoleActive('seeker-co') || isRoleUnavailable('seeker-co')"
 						[class.opacity-50]="isRoleActive('seeker-co') || isRoleUnavailable('seeker-co')">
 						<span *ngIf="isRoleActive('seeker-co')">الحساب النشط حالياً</span>
-						<span *ngIf="!isRoleActive('seeker-co') && isRoleUnavailable('seeker-co')">غير متاح حاليًا</span>
+						<span *ngIf="!isRoleActive('seeker-co') && isRoleUnavailable('seeker-co')">قريبًا</span>
 					</button>
 				</div>
 
