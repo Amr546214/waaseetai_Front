@@ -13,7 +13,7 @@ import { AuthStore } from '../../core/store/auth.store';
 import { ChatStateService } from '../../core/services/chat-state.service';
 import { VideoCallService } from '../../core/services/video-call.service';
 
-// Every role's messages page carries the same وسيط AI bar when a conversation is open, and none above the empty state.
+// Every role's messages page carries the same وسيط AI bar at the top of the message panel, with a conversation open or not (above the empty state).
 // The wording is the real review notice (support may review reported chats / disputes): the backend has no AI analysis of chat content,
 // so no monitoring claim and no accuracy figure appears (the former "AI monitors all chats · 97%" banner was removed for that reason).
 const BAR_TEXT = 'قد تُراجع المحادثات من فريق الدعم عند الإبلاغ عنها أو ضمن مراجعة نزاع';
@@ -37,7 +37,7 @@ async function render(cls: Type<unknown>, conversations: any[]) {
 describe('messages pages: وسيط AI bar', () => {
 	afterEach(() => TestBed.resetTestingModule());
 	for (const [role, cls] of [['client', ClientMessages], ['provider (and company)', ProviderMessages], ['marketer', MarketerMessages]] as const) {
-		it(`${role}: bar above the chat header when a conversation is open, honest text only`, async () => {
+		it(`${role}: conversation open -> bar above the chat header, honest text only`, async () => {
 			const el = await render(cls as Type<unknown>, [{ id: 'c1', name: 'طرف', project: 'مشروع' }]);
 			const bar = el.querySelector('[data-testid="chat-ai-bar"]') as HTMLElement;
 			expect(bar).not.toBeNull();
@@ -48,13 +48,21 @@ describe('messages pages: وسيط AI bar', () => {
 			expect(panel.firstElementChild).toBe(bar);
 			expect(panel.querySelector('.msg-hdr')).not.toBeNull();
 		});
-		it(`${role}: no bar (and no empty strip) above the empty state when there is no conversation`, async () => {
+		it(`${role}: no conversation -> the bar is still there, above the centred empty state, with no chat header`, async () => {
 			const el = await render(cls as Type<unknown>, []);
 			const panel = el.querySelector('.msg-panel') as HTMLElement;
-			expect(panel.querySelector('[data-testid="chat-ai-bar"]')).toBeNull();
+			const bar = panel.querySelector('[data-testid="chat-ai-bar"]') as HTMLElement;
+			expect(bar).not.toBeNull();
+			expect(bar.textContent).toContain('وسيط AI');
+			expect(bar.textContent).toContain(BAR_TEXT);
+			expect(bar.textContent).not.toMatch(/%|دقة|يراقب|مراقبة/);
 			expect(panel.querySelector('.msg-hdr')).toBeNull();
+			expect(panel.querySelector('.msgs')).toBeNull();
 			expect(panel.textContent).toContain('لا توجد محادثات بعد');
-			expect(panel.children.length).toBe(1);
+			// exactly two children: the bar, then the empty state (no empty strip, no other container)
+			expect(panel.children.length).toBe(2);
+			expect(panel.firstElementChild).toBe(bar);
+			expect(panel.lastElementChild?.classList.contains('msg-empty-state')).toBe(true);
 		});
 	}
 	it('admin messages keep their own review notice bar', () => {
