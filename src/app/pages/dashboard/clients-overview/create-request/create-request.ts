@@ -31,6 +31,12 @@ interface Milestone { name: string; pct: number; }
 // stored value whose version doesn't match, rather than guessing at
 // migrating an old shape.
 const DRAFT_STORAGE_KEY = 'waseetai:create-request:draft:v1';
+
+/** The wizard's own route, and whether it has already been created since this page load (the draft may resume only the first one, after a reload). */
+const CREATE_REQUEST_PATH = '/client-overview/create-request';
+let wizardCreatedSincePageLoad = false;
+/** Test seam: forget that the wizard was created in this page load. */
+export function resetCreateRequestPageLoadState(): void { wizardCreatedSincePageLoad = false; }
 const DRAFT_VERSION = 1;
 
 // Lightweight marker (no form data) set only once the backend has confirmed
@@ -181,10 +187,28 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   private shouldResumeDraft(): boolean {
-    // lastSuccessfulNavigation is null until the app has finished its very first navigation: a (re)load of the page that lands on this
-    // wizard. Any later arrival is an in-app navigation. (currentNavigation() is already cleared when the component is created.)
-    const arrivedInApp = this.router.lastSuccessfulNavigation() !== null;
-    return !arrivedInApp || this.router.currentNavigation()?.trigger === 'popstate';
+    // Resume only a refresh / browser back-forward, never a new request opened from the app:
+    //  - no navigation has completed yet in this page load (a direct load of this URL, or the component created outside the router);
+    //  - a popstate navigation (browser back / forward);
+    //  - the first time the wizard is created since the page loaded AND the page itself was (re)loaded on this very URL
+    //    (a reload / back_forward landing on the wizard, as the document navigation entry says).
+    // Anything else is an in-app arrival (menu "إنشاء طلب", "طلب جديد", a dashboard shortcut): the wizard starts clean.
+    const firstSincePageLoad = !wizardCreatedSincePageLoad;
+    wizardCreatedSincePageLoad = true;
+    if (this.router.lastSuccessfulNavigation() === null) return true;
+    if (this.router.currentNavigation()?.trigger === 'popstate') return true;
+    return firstSincePageLoad && this.pageWasReloadedOnThisWizard();
+  }
+
+  private pageWasReloadedOnThisWizard(): boolean {
+    if (!this.isBrowser) return false;
+    try {
+      const entry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+      if (!entry || (entry.type !== 'reload' && entry.type !== 'back_forward')) return false;
+      return new URL(entry.name).pathname.replace(/\/+$/, '') === CREATE_REQUEST_PATH;
+    } catch {
+      return false;
+    }
   }
 
   // ==============================
