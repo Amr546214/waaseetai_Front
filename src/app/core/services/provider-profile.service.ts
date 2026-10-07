@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { KycAccess } from '../models/kyc-document.model';
 
 export interface ProfileSuggestionInput {
   jobTitle?: string;
@@ -36,8 +37,11 @@ export interface ProviderProfile {
     ibanNumber?: string | null;
     bankName?: string | null;
     idDocumentUrl?: string | null;
+    /** Present when the stored document is private (idDocumentUrl is then null) or a legacy public URL. */
+    idDocumentUrlAccess?: KycAccess | null;
     commercialRegistration?: string | null;
     vatCertificateUrl?: string | null;
+    vatCertificateUrlAccess?: KycAccess | null;
   };
   companyName: string | null;
   headline: string | null;
@@ -63,7 +67,8 @@ export interface ProviderProfile {
   portfolioItems: any[];
   educations: any[];
   certificates: any[];
-  certUrls?: string[];
+  certUrls?: (string | null)[];
+  certUrlsAccess?: (KycAccess | null)[];
   /** PayPal payout destination (the only supported payout method for now). */
   paypalPayoutEmail?: string | null;
 }
@@ -114,8 +119,13 @@ export class ProviderProfileService {
     return this.http.post<any>(`${this.apiUrl}/sensitive-change/verify`, { requestId, code });
   }
 
-  uploadDocument(file: File): Observable<HttpEvent<any>> {
+  /**
+   * KYC / confidential documents are uploaded PRIVATE by default and the response carries a private reference (data.url) that is sent back
+   * unchanged in the next request; it is never shown. Content shown publicly on the profile (avatar, portfolio files) passes visibility 'public'.
+   */
+  uploadDocument(file: File, options: { visibility?: 'public' } = {}): Observable<HttpEvent<any>> {
     const body = new FormData();
+    if (options.visibility === 'public') body.append('visibility', 'public');
     body.append('file', file);
     return this.http.post<any>(`${this.apiUrl}/documents/upload`, body, {
       observe: 'events',

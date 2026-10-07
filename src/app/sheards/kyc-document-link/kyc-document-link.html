@@ -1,0 +1,12 @@
+@if (isPrivate()) {
+	<button type="button" class="kdl-btn" [class]="linkClass()" [disabled]="loading()" [attr.aria-busy]="loading()" (click)="$event.stopPropagation(); open()">
+		{{ loading() ? 'جارٍ الفتح…' : label() }}
+	</button>
+	@if (error(); as message) {
+		<span class="kdl-error" role="alert">{{ message }}</span>
+	}
+} @else if (isLegacy()) {
+	<a [href]="url()" target="_blank" rel="noopener" [class]="linkClass()">{{ label() }} ↗</a>
+} @else {
+	<span class="kdl-empty">لا شيء مرفوع</span>
+}

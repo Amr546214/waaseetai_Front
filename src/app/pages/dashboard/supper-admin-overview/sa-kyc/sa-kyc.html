@@ -412,11 +412,11 @@
                 </span>
               </span>
             </div>
-            @if (selectedOnboarding()!.documentUrl) {
+            @if (selectedOnboarding()!.documentUrl || selectedOnboarding()!.documentUrlAccess?.private) {
               <div class="sk-detail-row">
                 <span class="sk-detail-key">المستند</span>
                 <span class="sk-detail-val">
-                  <a [href]="selectedOnboarding()!.documentUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض المستند ↗</a>
+                  <app-kyc-document-link document="onboarding_document" [docId]="selectedOnboarding()!.id" [url]="selectedOnboarding()!.documentUrl" [access]="selectedOnboarding()!.documentUrlAccess" label="عرض المستند" linkClass="sk-doc-link" />
                 </span>
               </div>
             }
@@ -518,16 +518,16 @@
               <span class="sk-detail-key">إعداد الملف</span>
               <span class="sk-detail-val">{{ selectedProvider()!.isProfileSetupComplete ? 'مكتمل' : 'غير مكتمل' }}</span>
             </div>
-            @if (selectedProvider()!.frontIdUrl) {
+            @if (selectedProvider()!.frontIdUrl || selectedProvider()!.frontIdUrlAccess?.private) {
               <div class="sk-detail-row">
                 <span class="sk-detail-key">وجه الهوية</span>
-                <span class="sk-detail-val"><a [href]="selectedProvider()!.frontIdUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a></span>
+                <span class="sk-detail-val"><app-kyc-document-link document="provider_front_id" [userId]="selectedProvider()!.userId" [url]="selectedProvider()!.frontIdUrl" [access]="selectedProvider()!.frontIdUrlAccess" linkClass="sk-doc-link" /></span>
               </div>
             }
-            @if (selectedProvider()!.backIdUrl) {
+            @if (selectedProvider()!.backIdUrl || selectedProvider()!.backIdUrlAccess?.private) {
               <div class="sk-detail-row">
                 <span class="sk-detail-key">ظهر الهوية</span>
-                <span class="sk-detail-val"><a [href]="selectedProvider()!.backIdUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a></span>
+                <span class="sk-detail-val"><app-kyc-document-link document="provider_back_id" [userId]="selectedProvider()!.userId" [url]="selectedProvider()!.backIdUrl" [access]="selectedProvider()!.backIdUrlAccess" linkClass="sk-doc-link" /></span>
               </div>
             }
             @if (selectedProvider()!.selfieUrl) {
@@ -542,16 +542,16 @@
                 <span class="sk-detail-val">
                   <div class="sk-doc-list">
                     @for (url of selectedProvider()!.certUrls; track $index) {
-                      <a [href]="url" target="_blank" rel="noopener" class="sk-doc-link">شهادة #{{ $index + 1 }} ↗</a>
+                      <app-kyc-document-link document="provider_certificate" [userId]="selectedProvider()!.userId" [index]="$index" [url]="url" [access]="selectedProvider()!.certUrlsAccess?.[$index]" [label]="'شهادة #' + ($index + 1)" linkClass="sk-doc-link" />
                     }
                   </div>
                 </span>
               </div>
             }
-            @if (selectedProvider()!.supportingDocsUrl) {
+            @if (selectedProvider()!.supportingDocsUrl || selectedProvider()!.supportingDocsUrlAccess?.private) {
               <div class="sk-detail-row">
                 <span class="sk-detail-key">مستندات داعمة</span>
-                <span class="sk-detail-val"><a [href]="selectedProvider()!.supportingDocsUrl" target="_blank" rel="noopener" class="sk-doc-link">عرض ↗</a></span>
+                <span class="sk-detail-val"><app-kyc-document-link document="provider_supporting_docs" [userId]="selectedProvider()!.userId" [url]="selectedProvider()!.supportingDocsUrl" [access]="selectedProvider()!.supportingDocsUrlAccess" linkClass="sk-doc-link" /></span>
               </div>
             }
             @if (selectedProvider()!.bankName) {

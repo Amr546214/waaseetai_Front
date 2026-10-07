@@ -19,6 +19,8 @@ import { mapHttpError } from '../../../../../core/forms/http-error';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
+import { KycAccess } from '../../../../../core/models/kyc-document.model';
 
 const SETUP_LABELS: Record<string, string> = {
 	jobTitle: 'المسمى الوظيفي',
@@ -54,7 +56,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })
@@ -144,6 +146,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	uploadedBackIdName = signal<string>('');
 	uploadedSelfieName = signal<string>('');
 	uploadedCerts = signal<string[]>([]);
+	/** Documents already stored as PRIVATE (their value is not visible here; re-saving without a new file keeps them). */
+	storedFrontAccess = signal<KycAccess | null>(null);
+	storedBackAccess = signal<KycAccess | null>(null);
+	storedCertsAccess = signal<(KycAccess | null)[]>([]);
 	uploadedCertsNames = signal<string[]>([]);
 	isNafathVerified = signal<boolean>(false);
 	isNafathVerifying = signal<boolean>(false);
@@ -299,7 +305,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						}
 					});
 					if (d.frontIdUrl) this.uploadedFrontId.set(d.frontIdUrl);
-					if (d.certUrls && d.certUrls.length) this.uploadedCerts.set(d.certUrls);
+					if (d.frontIdUrlAccess?.private) this.storedFrontAccess.set(d.frontIdUrlAccess);
+					if (d.backIdUrlAccess?.private) this.storedBackAccess.set(d.backIdUrlAccess);
+					if (d.certUrlsAccess?.some((a: KycAccess | null) => a?.private)) this.storedCertsAccess.set(d.certUrlsAccess);
+					const legacyCerts = (d.certUrls || []).filter(Boolean);
+					if (legacyCerts.length) this.uploadedCerts.set(legacyCerts);
 					if (d.languages && d.languages.length) this.selectedLanguages.set(d.languages);
 					if (d.subSpecialties && d.subSpecialties.length) this.selectedSpecs.set(d.subSpecialties);
 					if (d.kycStatus === 'VERIFIED' || d.isNafathVerified) this.isNafathVerified.set(true);
@@ -377,7 +387,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				const items: InvalidField[] = [];
 				if (this.isUploading()) {
 					items.push({ path: 'docs.upload', label: 'رفع الملفات', message: 'يرجى انتظار اكتمال رفع الملفات' });
-				} else if (!this.uploadedFrontId()) {
+				} else if (!this.uploadedFrontId() && !this.storedFrontAccess()?.private) {
 					const message = 'صورة الهوية (الوجه الأمامي) مطلوبة، ارفع ملف PDF أو JPG أو PNG';
 					items.push({ path: 'docs.frontId', label: 'صورة الهوية (الوجه الأمامي)', message });
 					this.setFileError('frontId', message);
@@ -529,7 +539,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		reader.readAsDataURL(file);
 
 		this.setUploadState('avatar', { status: 'uploading', progress: 0, name: file.name });
-		this.providerProfileService.uploadDocument(file).subscribe({
+		this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
 			next: (event: any) => {
 				if (event.type === HttpEventType.UploadProgress) {
 					const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -804,7 +814,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			current[spec][idx].reviewDisplayName = file.name;
 			this.portfolioItems.set(current);
 
-			this.providerProfileService.uploadDocument(file).subscribe({
+			this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
 				next: (event: any) => {
 					if (event.type === HttpEventType.UploadProgress) {
 						const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -852,7 +862,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				current[spec][idx].proofs.push(''); // placeholder until upload completes
 			this.portfolioItems.set(current);
 
-				this.providerProfileService.uploadDocument(file).subscribe({
+				this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
 					next: (ev: any) => {
 						if (ev.type === HttpEventType.UploadProgress) {
 							const progress = ev.total ? Math.round((ev.loaded / ev.total) * 100) : 0;
