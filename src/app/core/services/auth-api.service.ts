@@ -20,6 +20,8 @@ export class AuthApiService {
 	private isLoginOtp(): boolean {
 		try { return typeof localStorage !== 'undefined' && localStorage.getItem(AuthApiService.LOGIN_OTP_KEY) === '1'; } catch { return false; }
 	}
+	/** True while the pending OTP step is the mandatory LOGIN code (not account activation): the OTP screen words itself accordingly. */
+	public isLoginOtpPending(): boolean { return this.isLoginOtp(); }
 	private markLoginOtp(on: boolean): void {
 		try {
 			if (typeof localStorage === 'undefined') return;
