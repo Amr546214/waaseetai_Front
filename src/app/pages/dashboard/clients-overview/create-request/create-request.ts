@@ -166,9 +166,23 @@ export class CreateRequest implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    this.restoreDraft();
-    this.restoreSubmittedState();
+    // The sessionStorage draft exists to survive a page refresh / reload (and a browser back/forward), NOT to prefill a new request:
+    // arriving here through an in-app navigation (menu "إنشاء طلب", "طلب جديد", a dashboard shortcut…) always starts from a clean
+    // wizard, so values typed in an earlier attempt never reappear. Resume = the app was (re)loaded on this URL (first navigation),
+    // a popstate (back/forward), or there is no navigation in flight (the component created directly, e.g. in tests).
+    if (this.shouldResumeDraft()) {
+      this.restoreDraft();
+      this.restoreSubmittedState();
+    } else {
+      this.clearDraft();
+      this.clearSubmittedMarker();
+    }
     this.loadSpecialtiesFromDatabase();
+  }
+
+  private shouldResumeDraft(): boolean {
+    const nav = this.router.getCurrentNavigation();
+    return !nav || nav.id === 1 || nav.trigger === 'popstate';
   }
 
   // ==============================
@@ -687,10 +701,10 @@ export class CreateRequest implements OnInit, OnDestroy {
   // STEP 4: Budget (الميزانية)
   // ==============================
   budgetType = signal('range');
-  budgetMin = signal<number | null>(0);
-  budgetMax = signal<number | null>(0);
-  budgetFixed = signal<number | null>(0);
-  budgetHourly = signal<number | null>(0);
+  budgetMin = signal<number | null>(null);
+  budgetMax = signal<number | null>(null);
+  budgetFixed = signal<number | null>(null);
+  budgetHourly = signal<number | null>(null);
   allowNegotiation = signal(true);
   splitMilestones = signal(false);
   milestones = signal<Milestone[]>([
