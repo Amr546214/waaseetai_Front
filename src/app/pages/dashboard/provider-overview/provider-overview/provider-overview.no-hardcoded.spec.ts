@@ -53,4 +53,23 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 		expect(text).toContain('4.6');
 		expect(text).toContain('من 5 نجوم');
 	});
+
+	it('#16 verification badge: shown only for a real VERIFIED status (with the real commission when present); pending says so; absent / other values show nothing', () => {
+		const verified = render({ kycStatus: 'VERIFIED', commissionPercent: 4.6 });
+		expect(verified).toContain('مقدم موثّق');
+		expect(verified).toContain('عمولة مستواك 4.6%');
+		TestBed.resetTestingModule();
+		const noCommission = render({ kycStatus: 'VERIFIED', commissionPercent: null });
+		expect(noCommission).toContain('مقدم موثّق');
+		expect(noCommission).not.toContain('عمولة مستواك');
+		TestBed.resetTestingModule();
+		expect(render({ kycStatus: 'PENDING', commissionPercent: 5 })).toContain('التوثيق قيد المراجعة');
+		for (const kyc of [undefined, null, 'UNVERIFIED', 'REJECTED']) {
+			TestBed.resetTestingModule();
+			const text = render({ kycStatus: kyc, commissionPercent: 5 });
+			expect(text, String(kyc)).not.toContain('مقدم موثّق');
+			expect(text, String(kyc)).not.toContain('عمولة مستواك');
+			expect(text, String(kyc)).not.toContain('قيد المراجعة');
+		}
+	});
 });
