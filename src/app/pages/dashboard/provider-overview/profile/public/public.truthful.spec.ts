@@ -49,6 +49,20 @@ describe('provider public profile shows only real data', () => {
 		expect(html).not.toMatch(/stats\?\.(approvedSpecialties|approvedModels|completionRate|teamMembers|rating)/);
 	});
 
+	it('individual mode: no company wording anywhere (tab, about heading, activity), and no invented activity rows', async () => {
+		const f = await render(data({ basicInfo: { headline: '', bio: 'مطور واجهات' } }));
+		f.detectChanges();
+		let t = text(f);
+		expect(t).toContain('بيانات المقدم');
+		expect(t).toContain('نبذة مهنية');
+		expect(t).not.toMatch(/شركة|الشركة|شركات|الشركات/);
+		f.componentInstance.setTab('activity');
+		f.detectChanges();
+		t = text(f);
+		expect(t).toContain('لا توجد بيانات بعد');
+		expect(t).not.toMatch(/شركة|الشركة|B2B|تطوير تطبيق إدارة مشاريع/);
+	});
+
 	it('individual mode, empty data: real zeros / honest placeholders, no invented values', async () => {
 		const f = await render(data({ specialties: [spec({ status: 'PENDING_TEST', isPassed: false, assessmentDetails: null })] }));
 		f.componentInstance.setTab('skills');
