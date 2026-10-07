@@ -25,8 +25,8 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 		for (const forbidden of ['مكافأة', '+2 هذا الشهر', '+3 منذ أمس', '199 نقطة', 'مقدم موثّق']) expect(text).not.toContain(forbidden);
 	});
 
-	it('the badge says only that the account data is complete (the API sends no verification or bonus value)', () => {
-		expect(render({ profileSetupCompleted: true })).toContain('تم استكمال بيانات الحساب');
+	it('the badge says only that the setup data was submitted (the API sends no verification, completion-100 or bonus value)', () => {
+		expect(render({ profileSetupCompleted: true, profileCompletionPercent: 50 })).toContain('تم إرسال بيانات الإعداد');
 	});
 
 	it('the secondary lines are the real API counts', () => {
