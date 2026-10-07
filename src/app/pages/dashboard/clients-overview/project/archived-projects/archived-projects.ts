@@ -27,7 +27,7 @@ interface ArchivedKpi {
 	icon: 'check' | 'warn' | 'doc' | 'list';
 	value: string | number;
 	label: string;
-	color: 'teal' | 'amber' | 'blue' | 'ai';
+	color: 'teal' | 'amber' | 'blue' | 'ai' | 'slate';
 }
 
 @Component({
@@ -59,7 +59,7 @@ export class ArchivedProjects implements OnInit {
 			{ icon: 'check', value: done, label: 'مكتملة', color: 'teal' },
 			{ icon: 'warn', value: cancel, label: 'ملغاة', color: 'amber' },
 			{ icon: 'doc', value: arch, label: 'مؤرشفة', color: 'blue' },
-			{ icon: 'list', value: all.length, label: 'إجمالي المنتهية', color: 'ai' },
+			{ icon: 'list', value: all.length, label: 'إجمالي المنتهية', color: 'slate' },
 		];
 	});
 
