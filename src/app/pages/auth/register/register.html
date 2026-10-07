@@ -74,7 +74,7 @@
         <span class="role-state" [class.state-lock]="t.badgeType === 'warning'" [class.state-open]="t.badgeType !== 'warning'">{{ t.badge }}</span>
         <button type="button" class="role-cta" [disabled]="t.disabled" (click)="$event.stopPropagation(); selectAndProceed(t.id)">متابعة</button>
         @if (t.disabled) {
-        <div class="role-soon-overlay"><span class="role-soon-yellow">غير متاح حاليًا</span></div>
+        <div class="role-soon-overlay"><span class="role-soon-yellow">قريبًا</span></div>
         }
       </div>
       }
