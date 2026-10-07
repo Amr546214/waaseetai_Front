@@ -8,7 +8,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
 
-// No conversation -> one centred empty state in the message panel and NO chat header / toolbar (no empty bar above it).
+// No conversation -> the وسيط AI bar and one centred empty state in the message panel, and NO chat header / toolbar.
 // With a conversation the header renders as before.
 async function render(conversations: any[]) {
 	await TestBed.configureTestingModule({
@@ -37,7 +37,7 @@ describe('provider messages: empty state', () => {
 		expect(panel.querySelector('[data-testid="messages-empty"]')?.textContent).toContain('لا توجد محادثات بعد');
 		expect(panel.querySelector('.msg-hdr')).toBeNull();
 		expect(panel.querySelector('.msgs')).toBeNull();
-		expect(panel.children.length).toBe(1);
+		expect(panel.children.length).toBe(2); // the وسيط AI bar + the empty state
 	});
 
 	it('with a conversation: the chat header renders and the empty state does not', async () => {
