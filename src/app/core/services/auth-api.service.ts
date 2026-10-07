@@ -123,8 +123,8 @@ export class AuthApiService {
 					this.authStore.authenticate(res.data.token, res.data.user);
 				} else if (res.success && res.data && !res.data.token && res.data.verified === false
 					&& !res.data.phoneOtpRequired && res.data.userId) {
-					// Existing Google account that never finished email verification: resume at the OTP step.
-					this.markLoginOtp(false);
+					// Existing Google account: either its mandatory LOGIN_EMAIL code (active) or the activation code (never verified).
+					this.markLoginOtp(res.data.loginOtpRequired === true);
 					this.authStore.setPendingVerification(res.data.userId);
 				}
 			})
