@@ -134,7 +134,7 @@
 				<span *ngIf="data.summary.profileSetupCompleted" class="dash-chip chip-loyal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-check"></use>
-					</svg>مقدم موثّق · مكافأة أداء 3%</span>
+					</svg>تم استكمال بيانات الحساب</span>
 			</div>
 		</div>
 
@@ -222,7 +222,7 @@
 						aria-valuemax="100">
 						<div class="prog-fill" [style.width.%]="data.summary?.profileCompletionPercent || 0"></div>
 					</div>
-					<span class="lvl-prog-hint txt-muted" style="font-size:10px;white-space:nowrap">199 نقطة للمستوى 3 (باحث)</span>
+					<span class="lvl-prog-hint txt-muted" style="font-size:10px;white-space:nowrap">اكتمال الملف {{ data.summary?.profileCompletionPercent || 0 }}%</span>
 				</div>
 			</div>
 			<button class="escrow-action cursor-pointer" routerLink="/provider-overview/profile/level">تفاصيل
@@ -239,7 +239,7 @@
 						</svg></div>
 				</div>
 				<div class="stat-val">{{ data.summary?.activeProjectsCount || 0 }}</div>
-				<div class="stat-sub">+2 هذا الشهر</div>
+				<div class="stat-sub">بانتظار اعتماد العميل: {{ data.summary?.pendingClientApprovalCount ?? 0 }}</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -249,7 +249,7 @@
 						</svg></div>
 				</div>
 				<div class="stat-val">{{ data.summary?.newOffersCount || 0 }}</div>
-				<div class="stat-sub">+3 منذ أمس</div>
+				<div class="stat-sub">قيد التفاوض: {{ data.summary?.negotiationOffersCount ?? 0 }}</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -270,8 +270,8 @@
 								d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 						</svg></div>
 				</div>
-				<div class="stat-val">{{ data.summary?.providerRating || 0 }}</div>
-				<div class="stat-sub">من 5 نجوم</div>
+				<div class="stat-val">{{ data.summary?.providerRating ? data.summary.providerRating : '—' }}</div>
+				<div class="stat-sub">{{ data.summary?.providerRating ? 'من 5 نجوم' : 'لا توجد تقييمات بعد' }}</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -283,8 +283,8 @@
 						</svg>
 					</div>
 				</div>
-				<div class="stat-val">{{ data.summary?.aiRating || 0 }}</div>
-				<div class="stat-sub">قيد التقييم</div>
+				<div class="stat-val">{{ data.summary?.aiRating ? data.summary.aiRating : '—' }}</div>
+				<div class="stat-sub">{{ data.summary?.aiRating ? 'من 5' : 'لا توجد بيانات بعد' }}</div>
 			</div>
 		</div>
 
@@ -691,8 +691,8 @@
 						</svg>
 					</div>
 				</div>
-				<div class="stat-val">{{ data.summary?.providerRating || 0 }}</div>
-				<div class="stat-sub">من 5 نجوم · {{ data.summary?.humanRating || 0 }} تقييم</div>
+				<div class="stat-val">{{ data.summary?.providerRating ? data.summary.providerRating : '—' }}</div>
+				<div class="stat-sub">{{ data.summary?.providerRating ? 'من 5 نجوم' : 'لا توجد تقييمات بعد' }}</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">

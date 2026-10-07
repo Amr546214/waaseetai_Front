@@ -113,6 +113,9 @@ export class Specialties implements OnInit, OnDestroy {
 	quizQuestions = signal<QuizQuestion[]>([]);
 	isStreamingQuestions = signal<boolean>(false);
 	streamProgressCount = signal<number>(0);
+	/** The real question count, as reported by the backend (stream payload / assessment_ready); null until it is known. */
+	expectedQuestions = signal<number | null>(null);
+	streamProgressPercent = computed(() => { const t = this.expectedQuestions(); return t ? Math.min(100, (this.streamProgressCount() / t) * 100) : 0; });
 	// True only when the BACKEND reports it served its own static question bank (Gemini unavailable) — the UI must never
 	// present that as live AI generation. (There is no local question bank any more.)
 	usingStaticFallbackQuestions = signal<boolean>(false);
@@ -217,6 +220,7 @@ export class Specialties implements OnInit, OnDestroy {
 				this.startTimerOnceQuestionsAreVisible();
 				this.streamProgressCount.set(streamItem.index + 1);
 			}
+			if (typeof streamItem.total === 'number' && streamItem.total > 0) this.expectedQuestions.set(streamItem.total);
 			if (streamItem.isLast || streamItem.index >= streamItem.total - 1) {
 				this.isStreamingQuestions.set(false);
 			}
@@ -226,6 +230,7 @@ export class Specialties implements OnInit, OnDestroy {
 			if (ready && ready.attemptId) {
 				this.quizSessionId.set(ready.attemptId);
 			}
+			if (ready && typeof ready.totalQuestions === 'number' && ready.totalQuestions > 0) this.expectedQuestions.set(ready.totalQuestions);
 			// The backend honestly reports when it had to use its own static
 			// bank (Gemini unavailable) — reflect that here too.
 			if (ready && ready.generationSource) {
@@ -890,6 +895,7 @@ export class Specialties implements OnInit, OnDestroy {
 			this.quizQuestions.set([]);
 			this.isStreamingQuestions.set(true);
 			this.streamProgressCount.set(0);
+			this.expectedQuestions.set(null);
 		} else {
 			this.quizQuestions.set(questions);
 			this.isStreamingQuestions.set(false);

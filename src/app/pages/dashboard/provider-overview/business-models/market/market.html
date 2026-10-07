@@ -237,9 +237,13 @@
 						}
 					</div>
 
+					@if (model.marketNotice) {
+					<div class="mkt-notice" role="status" data-testid="market-notice">{{ model.marketNotice }}</div>
+					}
+
 					<!-- Stats Row -->
 					<div class="mkt-card-stats">
-						<span style="font-weight:800;font-size:12px" class="txt-amber">★ {{ model.rating || '5.0' }}</span>
+						<span style="font-weight:800;font-size:12px" class="txt-amber">★ {{ model.rating ? model.rating : '—' }}</span>
 						<span class="txt-muted">({{ model.reviewsCount || 0 }} تقييم)</span>
 						<span style="font-weight:700" class="txt-slate">{{ model.offersCount || 0 }} عروض
 							مُولدة</span>

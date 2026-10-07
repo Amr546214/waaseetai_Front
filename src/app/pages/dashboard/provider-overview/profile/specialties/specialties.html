@@ -1021,7 +1021,7 @@
 								: '⚡ بث أسئلة الذكاء الاصطناعي عبر الـ WebSocket المباشر...' }}</span>
 							<span
 								class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#2BD4C7] text-[#070D24] font-black shadow-sm">{{
-								streamProgressCount() }} / 20</span>
+								streamProgressCount() }} / {{ expectedQuestions() ?? '—' }}</span>
 						</div>
 						<div class="text-xs text-[var(--txt-3)] mt-1 font-semibold">يمكنك البدء بقراءة وحل الأسئلة
 							المتاحة فوراً بينما يتواصل تدفق البقية بالتزامن دون انتظار!</div>
@@ -1031,9 +1031,9 @@
 					<div
 						class="w-36 h-2 bg-[rgba(255,255,255,.08)] rounded-full overflow-hidden border border-[rgba(255,255,255,.15)]">
 						<div class="h-full bg-gradient-to-r from-[#2BD4C7] to-[#A56BE0] rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(43,212,199,0.8)]"
-							[style.width.%]="(streamProgressCount() / 20) * 100"></div>
+							[style.width.%]="streamProgressPercent()"></div>
 					</div>
-					<span class="text-xs font-black text-[#2BD4C7] font-mono">{{ (streamProgressCount() / 20) * 100 |
+					<span class="text-xs font-black text-[#2BD4C7] font-mono">{{ streamProgressPercent() |
 						number:'1.0-0' }}%</span>
 				</div>
 			</div>

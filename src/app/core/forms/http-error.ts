@@ -66,6 +66,22 @@ export const BACKEND_CODE_MESSAGES: Record<string, string> = {
 	PASSWORD_UNCHANGED: 'كلمة المرور الجديدة يجب أن تختلف عن الحالية',
 	WEAK_PASSWORD: 'كلمة المرور ضعيفة: استخدم 8 أحرف على الأقل مع حرف كبير ورقم',
 	REQUEST_NOT_PENDING_OTP: 'انتهت صلاحية هذا الطلب، ابدأ من جديد',
+	REQUEST_NOT_PENDING_REVIEW: 'هذا الطلب لم يعد قيد المراجعة',
+	OTP_REQUIRED: 'يلزم إدخال رمز التحقق لإتمام هذا الإجراء',
+	INVALID_OR_EXPIRED_OTP: 'رمز التحقق غير صحيح أو منتهي الصلاحية',
+	INVALID_IBAN: 'رقم الآيبان غير صالح',
+	INVALID_BANK_NAME: 'اسم البنك غير صالح',
+	INVALID_ACCOUNT_HOLDER: 'اسم صاحب الحساب غير صالح',
+	PASSWORD_FIELDS_REQUIRED: 'أدخل كلمة المرور الحالية والجديدة',
+	SESSION_NOT_FOUND: 'الجلسة غير موجودة أو انتهت',
+	CANNOT_REVOKE_CURRENT_SESSION: 'لا يمكن إنهاء الجلسة الحالية من هنا',
+	AUDIT_LOG_NOT_FOUND: 'السجل المطلوب غير موجود',
+};
+
+/** Fixed Arabic texts for statuses whose body is often not ours (a proxy's HTML, or a short English line). */
+export const STATUS_MESSAGES: Record<number, string> = {
+	413: 'حجم الملفات أو البيانات كبير جدًا وأكبر من الحد المسموح. قلّل الحجم وحاول مجددًا.',
+	415: 'نوع الملف غير مدعوم، ارفع ملفًا بصيغة JPG أو PNG أو WEBP أو PDF',
 };
 
 function hasArabic(s: unknown): s is string {
@@ -186,7 +202,11 @@ export function mapHttpError(err: unknown, options: MapHttpErrorOptions = {}): M
 	}
 
 	if (status === 413) {
-		return make('payload', 'حجم كبير', 'حجم الملفات أو البيانات كبير جدًا. قلّل الحجم وحاول مجددًا.');
+		return make('payload', 'حجم كبير', arabicServer || STATUS_MESSAGES[413]);
+	}
+
+	if (status === 415) {
+		return make('payload', 'نوع ملف غير مدعوم', arabicServer || STATUS_MESSAGES[415]);
 	}
 
 	if (status === 429) {

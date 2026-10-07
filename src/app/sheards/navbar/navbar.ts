@@ -112,12 +112,12 @@ export class Navbar {
 
 		switch (user.accountType) {
 			case AccountType.SUPER_ADMIN:
-				return '/supper-admin-overview/profile';
+				return '/supper-admin-overview/system-settings';
 			case AccountType.MARKETING_BROKER:
-				return '/marketer-overview/profile';
+				return '/marketer-overview/profile/data';
 			case AccountType.PROVIDER_INDIVIDUAL:
 			case AccountType.PROVIDER_COMPANY:
-				return '/provider-overview/profile';
+				return '/provider-overview/profile/data';
 			case AccountType.CLIENT_INDIVIDUAL:
 			case AccountType.CLIENT_COMPANY:
 			default:

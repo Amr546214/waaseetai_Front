@@ -26,6 +26,7 @@ export interface CompletionMissingItem {
 export interface ProviderProfile {
   id: string;
   userId: string;
+  avatarUrl?: string | null;
   user?: {
     firstName: string;
     lastName: string;
