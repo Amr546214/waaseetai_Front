@@ -37,6 +37,26 @@ export interface AccreditationProviderSpecialty {
   specialty?: AccreditationSpecialtyRef;
 }
 
+/** Codes of the advisory "for review" marks the backend puts on a finished assessment attempt (they never change the score or status). */
+export type AssessmentFlagCode = 'TOTAL_TIME_TOO_SHORT' | 'FAST_ANSWERS' | 'UNIFORM_ANSWERS' | 'REPEATING_PATTERN';
+
+export interface AssessmentReviewData {
+  flagged: boolean;
+  flags: { code: AssessmentFlagCode; label?: string }[];
+  measured?: { totalSeconds: number; answered: number; fastAnswers: number | null; topShare: number | null; periodicCycle: number | null };
+  thresholds?: { minSecondsPerQuestion: number; minTotalSeconds: number; patternRatio: number; fastAnswerMinCount: number };
+  evaluatedAt?: string;
+}
+
+/** `assessmentReview` of GET /api/admin/accreditation/samples/:id — the latest finished assessment attempt of the sample's specialty. */
+export interface AssessmentReviewInfo {
+  attemptId: string;
+  status: string;
+  score: number | null;
+  completedAt: string | null;
+  review: AssessmentReviewData | null;
+}
+
 export interface AccreditationSample {
   id: string;
   providerProfileId: string;
@@ -68,6 +88,8 @@ export interface AccreditationSample {
   updatedAt?: string;
   providerProfile?: AccreditationProviderProfile;
   providerSpecialty?: AccreditationProviderSpecialty;
+  /** Admin detail only; null when the specialty has no finished assessment attempt. */
+  assessmentReview?: AssessmentReviewInfo | null;
 }
 
 export interface AccreditationPagination {
