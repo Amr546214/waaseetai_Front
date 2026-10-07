@@ -12,6 +12,8 @@ import { mapHttpError, messageForBackendCode } from '../../../../../core/forms/h
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
+import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
+import { KycAccess, KycDocumentKey } from '../../../../../core/models/kyc-document.model';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
@@ -85,6 +87,8 @@ interface DocumentUploadState {
   status: 'idle' | 'uploading' | 'uploaded' | 'error';
   previewUrl?: string;
   mimeType?: string;
+  /** A document already stored as PRIVATE: it has no previewUrl; it is opened through the access-link endpoint. */
+  stored?: { key: KycDocumentKey; index?: number };
 }
 
 interface ActiveSession {
@@ -101,7 +105,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
@@ -306,11 +310,26 @@ export class Data implements OnInit, OnDestroy {
             vatCertificateUrl: profile.user?.vatCertificateUrl || ''
           });
           const loadedDocuments: Record<string, DocumentUploadState> = {};
-          for (const controlName of ['idDocumentUrl', 'certificatesUrl', 'commercialRegistration', 'vatCertificateUrl']) {
-            const url = controlName === 'certificatesUrl' ? profile.certUrls?.[0] : profile.user?.[controlName];
-            if (url) loadedDocuments[controlName] = { name: this.fileNameFromUrl(url), progress: 100, status: 'uploaded', previewUrl: url };
+          // A stored PRIVATE document comes back as null plus a "<field>Access" marker; it is opened through the access-link endpoint.
+          const stored: Record<string, { url?: string | null; access?: KycAccess | null; key?: KycDocumentKey; index?: number }> = {
+            idDocumentUrl: { url: profile.user?.idDocumentUrl, access: profile.user?.idDocumentUrlAccess, key: 'user_id_document' },
+            certificatesUrl: { url: profile.certUrls?.[0], access: profile.certUrlsAccess?.[0], key: 'provider_certificate', index: 0 },
+            commercialRegistration: { url: profile.user?.commercialRegistration },
+            vatCertificateUrl: { url: profile.user?.vatCertificateUrl, access: profile.user?.vatCertificateUrlAccess, key: 'user_vat_certificate' }
+          };
+          for (const [controlName, doc] of Object.entries(stored)) {
+            if (doc.access?.private && doc.key) {
+              loadedDocuments[controlName] = { name: 'مستند محفوظ', progress: 100, status: 'uploaded', stored: { key: doc.key, index: doc.index } };
+            } else if (doc.url) {
+              loadedDocuments[controlName] = { name: this.fileNameFromUrl(doc.url), progress: 100, status: 'uploaded', previewUrl: doc.url };
+            }
           }
           this.documentUploads.set(loadedDocuments);
+          // The stored ID document is not visible to this page, so it cannot be re-sent: "required" is satisfied by it until the user replaces or removes it.
+          if (loadedDocuments['idDocumentUrl']?.stored) {
+            this.docsForm.get('idDocumentUrl')?.clearValidators();
+            this.docsForm.get('idDocumentUrl')?.updateValueAndValidity();
+          }
 
           // Sync relations
           this.skillsList.set(profile.skills || []);
@@ -635,6 +654,10 @@ export class Data implements OnInit, OnDestroy {
     const previewUrl = this.documentState(controlName)?.previewUrl;
     if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
     this.docsForm.get(controlName)?.setValue('');
+    if (controlName === 'idDocumentUrl') {
+      this.docsForm.get('idDocumentUrl')?.setValidators(Validators.required);
+      this.docsForm.get('idDocumentUrl')?.updateValueAndValidity();
+    }
     this.setDocFileError(controlName, '');
     if (input) input.value = '';
     const next = { ...this.documentUploads() };
@@ -670,7 +693,15 @@ export class Data implements OnInit, OnDestroy {
       this.focusField(attempt.missing[0].path);
       return;
     }
-    this.startSensitiveChange('DOCUMENTS', this.docsForm.value);
+    // A stored private document that was not touched is simply left out of the request: the backend keeps what is stored.
+    // An empty value would mean "remove it".
+    const changes: Record<string, unknown> = { ...this.docsForm.value };
+    for (const key of Object.keys(changes)) if (this.documentState(key)?.stored) delete changes[key];
+    if (Object.keys(changes).length === 0) {
+      this.displayToast('لا توجد تغييرات للحفظ');
+      return;
+    }
+    this.startSensitiveChange('DOCUMENTS', changes);
   }
 
   private startSensitiveChange(category: 'CONTACT' | 'DOCUMENTS', changes: Record<string, unknown>) {

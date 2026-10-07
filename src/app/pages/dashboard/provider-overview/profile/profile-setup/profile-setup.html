@@ -402,6 +402,9 @@
               }
             </span>
           </div>
+          @if (storedFrontAccess() && !uploadedFrontIdName()) {
+            <div class="uploaded-file visible"><div style="flex:1;min-width:0"><div class="uploaded-name">يوجد مستند مرفوع سابقًا</div></div><app-kyc-document-link document="provider_front_id" [access]="storedFrontAccess()" label="عرض" /></div>
+          }
           @if (!uploadedFrontIdName()) {
             <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الوجه الأمامي للهوية">
               <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، وجه" (change)="onFileSelected($event, 'frontId')">
@@ -457,6 +460,9 @@
               }
             </span>
           </div>
+          @if (storedBackAccess() && !uploadedBackIdName()) {
+            <div class="uploaded-file visible"><div style="flex:1;min-width:0"><div class="uploaded-name">يوجد مستند مرفوع سابقًا</div></div><app-kyc-document-link document="provider_back_id" [access]="storedBackAccess()" label="عرض" /></div>
+          }
           @if (!uploadedBackIdName()) {
             <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الظهر">
               <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، ظهر" (change)="onFileSelected($event, 'backId')">
@@ -576,6 +582,11 @@
             </span>
           </div>
           @if (uploadedCerts().length === 0) {
+            @for (access of storedCertsAccess(); track $index) {
+              @if (access?.private) {
+                <div class="uploaded-file visible"><div style="flex:1;min-width:0"><div class="uploaded-name">شهادة مرفوعة سابقًا</div></div><app-kyc-document-link document="provider_certificate" [index]="$index" [access]="access" label="عرض" /></div>
+              }
+            }
             <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر شهادات مهنية">
               <input type="file" class="upload-file-inp" accept="image/*,.pdf" multiple aria-label="رفع شهادات مهنية" (change)="onFileSelected($event, 'certs')">
               <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>

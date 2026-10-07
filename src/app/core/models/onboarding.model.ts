@@ -1,4 +1,5 @@
 import { ApiResponse } from './api.model';
+import { KycAccess } from './kyc-document.model';
 
 // ── Client Onboarding ────────────────────────────────────────────────
 
@@ -12,7 +13,9 @@ export interface OnboardingRequest {
   userPhone?: string;
   documentType?: string;
   documentName?: string;
-  documentUrl?: string;
+  documentUrl?: string | null;
+  /** Set by the backend when the stored document is private (documentUrl is then null) or a legacy public URL. */
+  documentUrlAccess?: KycAccess | null;
   documentFrontUrl?: string;
   documentBackUrl?: string;
   selfieUrl?: string;
@@ -64,10 +67,15 @@ export interface KycProvider {
   isVerified?: boolean;
   isProfileSetupComplete?: boolean;
   frontIdUrl?: string | null;
+  frontIdUrlAccess?: KycAccess | null;
   backIdUrl?: string | null;
+  backIdUrlAccess?: KycAccess | null;
   selfieUrl?: string | null;
-  certUrls?: string[] | null;
+  /** A private certificate appears as null here, with its marker at the same position in certUrlsAccess. */
+  certUrls?: (string | null)[] | null;
+  certUrlsAccess?: (KycAccess | null)[] | null;
   supportingDocsUrl?: string | null;
+  supportingDocsUrlAccess?: KycAccess | null;
   bankName?: string | null;
   iban?: string | null;
   accountNumber?: string | null;

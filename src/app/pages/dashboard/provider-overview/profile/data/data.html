@@ -347,8 +347,7 @@
             'uploading'){<div class="upload-progress">
               <div [style.width.%]="file.progress"></div>
             </div><small>{{ file.progress }}%</small>}</div>
-          <div class="file-actions"><button type="button"
-              (click)="$event.stopPropagation(); previewDocument('idDocumentUrl')">معاينة</button><button type="button"
+          <div class="file-actions">@if (file.stored; as st) {<app-kyc-document-link [document]="st.key" [index]="st.index" [access]="{ private: true, legacy: false }" label="معاينة" />} @else {<button type="button" (click)="$event.stopPropagation(); previewDocument('idDocumentUrl')">معاينة</button>}<button type="button"
               (click)="$event.stopPropagation(); frontInput.click()">تغيير</button><button type="button"
               class="delete-file"
               (click)="$event.stopPropagation(); removeDocument('idDocumentUrl', frontInput)">حذف</button></div>
@@ -372,8 +371,7 @@
             'uploading'){<div class="upload-progress">
               <div [style.width.%]="file.progress"></div>
             </div><small>{{ file.progress }}%</small>}</div>
-          <div class="file-actions"><button type="button"
-              (click)="$event.stopPropagation(); previewDocument('certificatesUrl')">معاينة</button><button
+          <div class="file-actions">@if (file.stored; as st) {<app-kyc-document-link [document]="st.key" [index]="st.index" [access]="{ private: true, legacy: false }" label="معاينة" />} @else {<button type="button" (click)="$event.stopPropagation(); previewDocument('certificatesUrl')">معاينة</button>}<button
               type="button" (click)="$event.stopPropagation(); backInput.click()">تغيير</button><button type="button"
               class="delete-file"
               (click)="$event.stopPropagation(); removeDocument('certificatesUrl', backInput)">حذف</button></div>
@@ -399,7 +397,7 @@
           @if(documentState('vatCertificateUrl'); as file){
             <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl" alt="معاينة شهادة الضريبة">}@else{<span class="file-icon">PDF</span>}</div>
             <div class="file-details"><strong>{{ file.name }}</strong><span>{{ file.status === 'uploading' ? 'جاري التحميل...' : file.status === 'uploaded' ? 'تم الرفع بنجاح' : 'تعذر الرفع' }}</span>@if(file.status === 'uploading'){<div class="upload-progress"><div [style.width.%]="file.progress"></div></div><small>{{ file.progress }}%</small>}</div>
-            <div class="file-actions"><button type="button" (click)="$event.stopPropagation(); previewDocument('vatCertificateUrl')">معاينة</button><button type="button" (click)="$event.stopPropagation(); vatInput.click()">تغيير</button><button type="button" class="delete-file" (click)="$event.stopPropagation(); removeDocument('vatCertificateUrl', vatInput)">حذف</button></div>
+            <div class="file-actions">@if (file.stored; as st) {<app-kyc-document-link [document]="st.key" [index]="st.index" [access]="{ private: true, legacy: false }" label="معاينة" />} @else {<button type="button" (click)="$event.stopPropagation(); previewDocument('vatCertificateUrl')">معاينة</button>}<button type="button" (click)="$event.stopPropagation(); vatInput.click()">تغيير</button><button type="button" class="delete-file" (click)="$event.stopPropagation(); removeDocument('vatCertificateUrl', vatInput)">حذف</button></div>
           }@else{<div class="upload-empty"><span class="upload-symbol">⇧</span><strong>اضغط لاختيار شهادة الضريبة</strong><small>PDF أو JPG أو PNG — حتى 10MB</small></div>}
         </div>
         @if (docFileErrors()['vatCertificateUrl']) { <span class="field-error" role="alert">{{ docFileErrors()['vatCertificateUrl'] }}</span> }

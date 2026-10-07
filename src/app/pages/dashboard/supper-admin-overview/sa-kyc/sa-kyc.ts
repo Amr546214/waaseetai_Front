@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SaKycService } from './sa-kyc.service';
+import { KycDocumentLink } from '../../../../sheards/kyc-document-link/kyc-document-link';
 import {
   OnboardingRequest,
   OnboardingStatus,
@@ -15,7 +16,7 @@ type Tab = 'clients' | 'providers';
 @Component({
   selector: 'app-sa-kyc',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, KycDocumentLink],
   templateUrl: './sa-kyc.html',
   styleUrls: ['./sa-kyc.css']
 })
@@ -460,7 +461,7 @@ export class SaKyc implements OnInit {
     return map[type || ''] || type || '—';
   }
 
-  getCertCount(urls?: string[] | null): number {
+  getCertCount(urls?: (string | null)[] | null): number {
     return Array.isArray(urls) ? urls.length : 0;
   }
 

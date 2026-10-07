@@ -191,6 +191,11 @@
 									الوجه الأمامي <span class="font-normal text-slate-400">(اختياري)</span></label>
 								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
 								@if (fileErrors()['frontId']; as fe) { <span role="alert" class="text-[11px] font-bold text-red-500">{{ fe }}</span> }
+								@if (storedDocs().frontId; as stored) {
+									@if (!setupForm.get('identity.frontId')?.value?.startsWith('data:')) {
+										<div class="flex items-center gap-2 text-[11px] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_front_id" [url]="stored.url" [access]="stored.access" /></div>
+									}
+								}
 								<div
 									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
 									<input type="file" class="hidden" id="frontIdFile"
@@ -268,6 +273,11 @@
 									الوجه الخلفي <span class="font-normal text-slate-400">(اختياري)</span></label>
 								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
 								@if (fileErrors()['backId']; as fe) { <span role="alert" class="text-[11px] font-bold text-red-500">{{ fe }}</span> }
+								@if (storedDocs().backId; as stored) {
+									@if (!setupForm.get('identity.backId')?.value?.startsWith('data:')) {
+										<div class="flex items-center gap-2 text-[11px] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_back_id" [url]="stored.url" [access]="stored.access" /></div>
+									}
+								}
 								<div
 									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
 									<input type="file" class="hidden" id="backIdFile"
@@ -423,6 +433,11 @@
 									الداعمة</label>
 								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 3 ميغابايت</span>
 								@if (fileErrors()['supportingDocs']; as fe) { <span role="alert" class="text-[11px] font-bold text-red-500">{{ fe }}</span> }
+								@if (storedDocs().supportingDocs; as stored) {
+									@if (!setupForm.get('documents.supportingDocs')?.value?.startsWith('data:')) {
+										<div class="flex items-center gap-2 text-[11px] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_supporting_docs" [url]="stored.url" [access]="stored.access" /></div>
+									}
+								}
 								<div
 									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
 									<input type="file" class="hidden" id="supportDocFile"

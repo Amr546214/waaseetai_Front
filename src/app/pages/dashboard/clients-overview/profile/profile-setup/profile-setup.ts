@@ -13,6 +13,8 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
+import { KycAccess } from '../../../../../core/models/kyc-document.model';
 
 const SETUP_LABELS: Record<string, string> = {
 	idNumber: 'رقم الهوية الوطنية',
@@ -43,10 +45,12 @@ const FILE_RULES: Record<string, { maxBytes: number; mimeTypes: string[]; typesL
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, FormSummaryComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, FormSummaryComponent, KycDocumentLink],
 	templateUrl: './profile-setup.html'
 })
 export class ProfileSetupDashboard implements OnInit {
+	/** Documents already stored for this client (legacy public URL or private marker); shown with a "view" link. */
+	storedDocs = signal<Record<'frontId' | 'backId' | 'supportingDocs', { url: string | null; access: KycAccess | null } | null>>({ frontId: null, backId: null, supportingDocs: null });
 	private fb = inject(FormBuilder);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
@@ -130,9 +134,16 @@ export class ProfileSetupDashboard implements OnInit {
 					this.setupForm.get('bank')?.patchValue({ paypalPayoutEmail: data.paypalPayoutEmail || '' });
 
 					// Patch documents preview
+					// A legacy (public) document keeps coming back as its URL and is re-sent as before. A PRIVATE one comes back as null plus a
+					// "<field>Access" marker: the form stays empty and re-saving without a new file keeps it (the backend keeps what is stored).
 					if (data.frontIdUrl) this.setupForm.get('identity.frontId')?.setValue(data.frontIdUrl);
 					if (data.backIdUrl) this.setupForm.get('identity.backId')?.setValue(data.backIdUrl);
 					if (data.supportingDocsUrl) this.setupForm.get('documents.supportingDocs')?.setValue(data.supportingDocsUrl);
+					this.storedDocs.set({
+						frontId: data.frontIdUrl || data.frontIdUrlAccess?.private ? { url: data.frontIdUrl ?? null, access: data.frontIdUrlAccess ?? null } : null,
+						backId: data.backIdUrl || data.backIdUrlAccess?.private ? { url: data.backIdUrl ?? null, access: data.backIdUrlAccess ?? null } : null,
+						supportingDocs: data.supportingDocsUrl || data.supportingDocsUrlAccess?.private ? { url: data.supportingDocsUrl ?? null, access: data.supportingDocsUrlAccess ?? null } : null
+					});
 					if (data.notes) this.setupForm.get('documents.notes')?.setValue(data.notes);
 
 					// Disable verified fields to prevent tampering
