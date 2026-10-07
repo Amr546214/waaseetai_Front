@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { signal } from '@angular/core';
 import { vi } from 'vitest';
 import { CreateRequest } from './create-request';
 
@@ -20,9 +21,10 @@ describe('create-request: fresh start vs resume', () => {
 	let postSpy: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
 	let router: Router;
 
-	async function mount(nav: { id: number; trigger: string } | null): Promise<CreateRequest> {
-		if (nav) vi.spyOn(router, 'getCurrentNavigation').mockReturnValue(nav as any);
-		else vi.spyOn(router, 'getCurrentNavigation').mockReturnValue(null);
+	// `inApp`: a navigation already completed in this page load (the wizard is reached from the menu / a button). `popstate`: browser back/forward.
+	async function mount(opts: { inApp: boolean; popstate?: boolean }): Promise<CreateRequest> {
+		Object.defineProperty(router, 'lastSuccessfulNavigation', { configurable: true, get: () => signal(opts.inApp ? ({ id: 2 } as any) : null) });
+		Object.defineProperty(router, 'currentNavigation', { configurable: true, value: signal(opts.popstate ? ({ id: 3, trigger: 'popstate' } as any) : null) });
 		const f = TestBed.createComponent(CreateRequest);
 		await f.whenStable();
 		return f.componentInstance;
@@ -42,7 +44,7 @@ describe('create-request: fresh start vs resume', () => {
 
 	it('arriving by an in-app navigation (menu / "طلب جديد") ignores and clears the earlier attempt: step 1, no 500/1500, nothing from the old request', async () => {
 		sessionStorage.setItem(DRAFT_KEY, JSON.stringify(staleDraft()));
-		const c = await mount({ id: 7, trigger: 'imperative' });
+		const c = await mount({ inApp: true });
 		expect(c.currentStep()).toBe(1);
 		expect(c.selectedSpec()).toBeNull();
 		expect(c.title()).toBe('');
@@ -54,23 +56,23 @@ describe('create-request: fresh start vs resume', () => {
 		expect(JSON.stringify(saved ?? {})).not.toMatch(/500|1500|طلب قديم/);
 	});
 
-	it('a page refresh on the wizard (first navigation of the app) resumes the draft', async () => {
+	it('a page refresh on the wizard (no navigation completed yet in this page load) resumes the draft', async () => {
 		sessionStorage.setItem(DRAFT_KEY, JSON.stringify(staleDraft()));
-		const c = await mount({ id: 1, trigger: 'imperative' });
+		const c = await mount({ inApp: false });
 		expect(c.currentStep()).toBe(4);
 		expect(c.budgetMin()).toBe(500);
 		expect(c.budgetMax()).toBe(1500);
 		expect(c.title()).toBe('طلب قديم');
 	});
 
-	it('browser back / forward (popstate) resumes the draft; a component created with no navigation in flight keeps the old resume behaviour', async () => {
+	it('browser back / forward (popstate) resumes the draft', async () => {
 		sessionStorage.setItem(DRAFT_KEY, JSON.stringify(staleDraft()));
-		expect((await mount({ id: 9, trigger: 'popstate' })).budgetMin()).toBe(500);
+		expect((await mount({ inApp: true, popstate: true })).budgetMin()).toBe(500);
 		TestBed.resetTestingModule();
 	});
 
 	it('"طلب جديد" a second time: after typing a budget, leaving and arriving again from the menu starts clean', async () => {
-		const first = await mount({ id: 3, trigger: 'imperative' });
+		const first = await mount({ inApp: true });
 		first.budgetMin.set(500);
 		first.budgetMax.set(1500);
 		first.title.set('محاولة أولى');
@@ -81,7 +83,7 @@ describe('create-request: fresh start vs resume', () => {
 			providers: [provideRouter([]), { provide: HttpClient, useValue: { get: () => of({ success: false }), post: (...a: any[]) => postSpy(...a) } }],
 		}).compileComponents();
 		router = TestBed.inject(Router);
-		const second = await mount({ id: 8, trigger: 'imperative' });
+		const second = await mount({ inApp: true });
 		expect(second.budgetMin()).toBeNull();
 		expect(second.budgetMax()).toBeNull();
 		expect(second.title()).toBe('');
@@ -89,7 +91,7 @@ describe('create-request: fresh start vs resume', () => {
 	});
 
 	it('every budget type submits only its own amount (the fields of the other types are never sent)', async () => {
-		const c = await mount({ id: 4, trigger: 'imperative' });
+		const c = await mount({ inApp: true });
 		c.selectedSpec.set('sp1');
 		c.budgetMin.set(500); c.budgetMax.set(1500); c.budgetFixed.set(8000); c.budgetHourly.set(40);
 		const cases: [string, number, number][] = [['range', 500, 1500], ['fixed', 8000, 8000], ['hourly', 40, 40]];

@@ -168,8 +168,8 @@ export class CreateRequest implements OnInit, OnDestroy {
   ngOnInit(): void {
     // The sessionStorage draft exists to survive a page refresh / reload (and a browser back/forward), NOT to prefill a new request:
     // arriving here through an in-app navigation (menu "إنشاء طلب", "طلب جديد", a dashboard shortcut…) always starts from a clean
-    // wizard, so values typed in an earlier attempt never reappear. Resume = the app was (re)loaded on this URL (first navigation),
-    // a popstate (back/forward), or there is no navigation in flight (the component created directly, e.g. in tests).
+    // wizard, so values typed in an earlier attempt never reappear. Resume = the app was (re)loaded on this URL (no navigation has
+    // completed yet) or a popstate (browser back/forward).
     if (this.shouldResumeDraft()) {
       this.restoreDraft();
       this.restoreSubmittedState();
@@ -181,8 +181,10 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   private shouldResumeDraft(): boolean {
-    const nav = this.router.getCurrentNavigation();
-    return !nav || nav.id === 1 || nav.trigger === 'popstate';
+    // lastSuccessfulNavigation is null until the app has finished its very first navigation: a (re)load of the page that lands on this
+    // wizard. Any later arrival is an in-app navigation. (currentNavigation() is already cleared when the component is created.)
+    const arrivedInApp = this.router.lastSuccessfulNavigation() !== null;
+    return !arrivedInApp || this.router.currentNavigation()?.trigger === 'popstate';
   }
 
   // ==============================
