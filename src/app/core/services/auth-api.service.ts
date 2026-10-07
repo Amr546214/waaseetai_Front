@@ -15,6 +15,18 @@ export class AuthApiService {
 
 	private readonly baseUrl = `${environment.url_api}/auth`;
 
+	/** The pending OTP step is a LOGIN code (not an account-activation code): decides which endpoints the shared OTP screen calls. */
+	private static readonly LOGIN_OTP_KEY = 'waseet_login_otp';
+	private isLoginOtp(): boolean {
+		try { return typeof localStorage !== 'undefined' && localStorage.getItem(AuthApiService.LOGIN_OTP_KEY) === '1'; } catch { return false; }
+	}
+	private markLoginOtp(on: boolean): void {
+		try {
+			if (typeof localStorage === 'undefined') return;
+			if (on) localStorage.setItem(AuthApiService.LOGIN_OTP_KEY, '1'); else localStorage.removeItem(AuthApiService.LOGIN_OTP_KEY);
+		} catch { /* storage unavailable: the activation endpoints are used */ }
+	}
+
 	/**
 	 * Register a new user
 	 */
@@ -23,6 +35,7 @@ export class AuthApiService {
 			tap((res) => {
 				if (res.success && res.data?.userId) {
 					// Route user into pending verification flow
+					this.markLoginOtp(false);
 					this.authStore.setPendingVerification(res.data.userId);
 				}
 			})
@@ -33,9 +46,11 @@ export class AuthApiService {
 	 * Verify OTP code and login
 	 */
 	public verifyOtp(payload: VerifyOtpInput): Observable<AuthResponse> {
-		return this.http.post<AuthResponse>(`${this.baseUrl}/verify-otp`, payload).pipe(
+		const url = this.isLoginOtp() ? `${this.baseUrl}/login/verify-otp` : `${this.baseUrl}/verify-otp`;
+		return this.http.post<AuthResponse>(url, payload).pipe(
 			tap((res) => {
 				if (res.success && res.data?.token && res.data?.user) {
+					this.markLoginOtp(false);
 					// Commit full authentication session
 					this.authStore.authenticate(res.data.token, res.data.user);
 				}
@@ -47,7 +62,7 @@ export class AuthApiService {
 	 * Resend OTP code
 	 */
 	public resendOtp(userId: string): Observable<AuthResponse> {
-		return this.http.post<AuthResponse>(`${this.baseUrl}/resend-otp`, { userId });
+		return this.http.post<AuthResponse>(`${this.baseUrl}${this.isLoginOtp() ? '/login/resend-otp' : '/resend-otp'}`, { userId });
 	}
 
 	/**
@@ -81,6 +96,7 @@ export class AuthApiService {
 					if (res.data?.verified && res.data?.token && res.data?.user) {
 						this.authStore.authenticate(res.data.token, res.data.user);
 					} else if (!res.data?.verified && !res.data?.phoneOtpRequired && res.data?.userId) {
+						this.markLoginOtp(res.data.loginOtpRequired === true);
 						this.authStore.setPendingVerification(res.data.userId);
 					}
 				}
@@ -108,6 +124,7 @@ export class AuthApiService {
 				} else if (res.success && res.data && !res.data.token && res.data.verified === false
 					&& !res.data.phoneOtpRequired && res.data.userId) {
 					// Existing Google account that never finished email verification: resume at the OTP step.
+					this.markLoginOtp(false);
 					this.authStore.setPendingVerification(res.data.userId);
 				}
 			})

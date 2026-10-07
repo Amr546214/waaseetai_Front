@@ -72,6 +72,8 @@ export interface AuthResponse {
 		// account requires a phone OTP (see /auth/login/verify-otp) before a
 		// session is issued.
 		phoneOtpRequired?: boolean;
+		// Active account, correct password: a login code was e-mailed (purpose LOGIN_EMAIL). Confirm it at /auth/login/verify-otp for the session.
+		loginOtpRequired?: boolean;
 		// Activation-code delivery (register, resend-otp, unverified login): true only when the email really went out.
 		emailSent?: boolean;
 		// Unverified login whose send was throttled: seconds until a new code may be sent (the earlier code stays valid).
