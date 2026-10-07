@@ -241,7 +241,7 @@
 .ai-bc-txt {
   flex: 1;
   font-size: 11px;
-  color: #A8B2D1;
+  color: var(--txt-3, #A8B2D1);
   line-height: 1.5;
 }
 .ai-bc-txt strong {

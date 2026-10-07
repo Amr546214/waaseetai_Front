@@ -70,8 +70,14 @@
   <!-- ── نافذة المحادثة النشطة ── -->
   <div class="msg-panel">
     @if (activeConversation(); as conv) {
-      <!-- The former "وسيط AI monitors all chats · 97% accuracy" banner was removed:
-           no chat-monitoring AI exists in the backend (AI Cleanup Batch 1). -->
+      <!-- شريط وسيط AI: ظاهر مع وجود محادثة فقط. لا يوجد في الخادم أي تحليل ذكاء اصطناعي لمحتوى المحادثات (AI Cleanup Batch 1)،
+           فالنص هنا هو إشعار المراجعة الفعلي نفسه الموجود في لوحة الأدمن، دون أي ادعاء مراقبة أو نسبة دقة. -->
+      <div class="ai-bc" role="note" data-testid="chat-ai-bar">
+        <div class="ai-bc-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5"/></svg>
+        </div>
+        <div class="ai-bc-txt"><strong>وسيط AI</strong> · قد تُراجع المحادثات من فريق الدعم عند الإبلاغ عنها أو ضمن مراجعة نزاع — لضمان جودة الخدمة وحماية الطرفين.</div>
+      </div>
 
       <!-- هيدر المحادثة -->
       <div class="msg-hdr">

@@ -200,6 +200,20 @@
   overflow: hidden;
 }
 
+/* Empty conversation list: a single centred message, no empty bar above it. */
+.msg-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 40px 24px;
+  text-align: center;
+}
+.msg-empty-state .state-title { font-size: 15px; font-weight: 800; color: var(--txt, #fff); }
+.msg-empty-state .state-copy { font-size: 12px; color: var(--txt-3, #6B7699); max-width: 320px; line-height: 1.6; }
+
 .ai-bc {
   display: flex;
   align-items: center;
@@ -227,7 +241,7 @@
 .ai-bc-txt {
   flex: 1;
   font-size: 11px;
-  color: #A8B2D1;
+  color: var(--txt-3, #A8B2D1);
   line-height: 1.5;
 }
 .ai-bc-txt strong {
