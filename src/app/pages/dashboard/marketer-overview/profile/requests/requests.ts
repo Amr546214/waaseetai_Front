@@ -14,6 +14,9 @@ export class Requests implements OnInit {
 
   activeFilter = signal<string>('all');
   summary = signal<ProfileRequestsSummary | null>(null);
+  isLoading = signal<boolean>(true);
+  /** The read failed (401/429/5xx/network): never shown as zero counters / "no requests". */
+  loadError = signal<boolean>(false);
   selectedRequest = signal<ProfileChangeRequest | null>(null);
 
   ChangeRequestStatus = ChangeRequestStatus;
@@ -23,9 +26,22 @@ export class Requests implements OnInit {
   }
 
   loadRequests() {
-    this.profileService.getRequests().subscribe(res => {
-      if (res.success && res.data) {
-        this.summary.set(res.data);
+    this.isLoading.set(true);
+    this.loadError.set(false);
+    this.profileService.getRequests().subscribe({
+      next: res => {
+        if (res?.success && res.data) {
+          this.summary.set(res.data);
+        } else {
+          this.summary.set(null);
+          this.loadError.set(true);
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.summary.set(null);
+        this.loadError.set(true);
+        this.isLoading.set(false);
       }
     });
   }

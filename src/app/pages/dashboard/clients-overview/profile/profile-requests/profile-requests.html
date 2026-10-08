@@ -66,6 +66,15 @@
 	</div>
 </div>
 
+@if (isLoading()) {
+<div class="h-[220px] mb-10 rounded-[18px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] animate-pulse" role="status" aria-live="polite" aria-label="جاري تحميل طلبات التعديل" data-testid="requests-loading"></div>
+} @else if (loadError()) {
+<div class="flex flex-col items-center text-center gap-3 py-14 px-6 mb-10 rounded-[18px] border border-[#FF8C69]/30 bg-[#FF8C69]/5" role="alert" data-testid="requests-load-error">
+	<div class="text-[16px] font-black text-[var(--txt)]">تعذر تحميل طلبات التعديل حاليًا</div>
+	<div class="text-[12px] text-[var(--txt-3)] max-w-[360px] leading-relaxed">لم نتمكن من جلب طلباتك، وهذا لا يعني أنه لا توجد طلبات. حاول مرة أخرى.</div>
+	<button type="button" (click)="loadRequests()" class="px-5 py-2 rounded-xl border border-[#2BD4C7]/40 bg-[#2BD4C7]/15 text-[#2BD4C7] text-[13px] font-bold cursor-pointer" data-testid="requests-retry">إعادة المحاولة</button>
+</div>
+} @else {
 <!-- Stats -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
 	<div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[13px] p-4 backdrop-blur-md">
@@ -277,6 +286,7 @@
 	</div>
 	}
 </div>
+}
 
 <!-- Removal of unused correction modal HTML -->
 

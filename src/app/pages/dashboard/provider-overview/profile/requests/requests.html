@@ -20,12 +20,14 @@
 		</a>
 	</div>
 
+	@if (!loadError()) {
 	<div class="kpi-row">
 		<div class="kpi-c"><div class="kpi-v txt-amber">{{ coKpis().pending }}</div><div class="kpi-l">قيد المراجعة</div></div>
 		<div class="kpi-c"><div class="kpi-v txt-green-br">{{ coKpis().approved }}</div><div class="kpi-l">مكتمل</div></div>
 		<div class="kpi-c"><div class="kpi-v txt-coral">{{ coKpis().rejected }}</div><div class="kpi-l">مرفوض</div></div>
 		<div class="kpi-c"><div class="kpi-v txt-teal">{{ coKpis().action }}</div><div class="kpi-l">يحتاج إجراء</div></div>
 	</div>
+	}
 
 	<div class="filter-rail" role="search">
 		<div class="fr-period-lbl">الحالة</div>
@@ -51,7 +53,13 @@
 	</div>
 
 	@if (isLoading()) {
-		<div class="co-card"><div class="co-skeleton" style="height:200px"></div></div>
+		<div class="co-card" role="status" aria-live="polite" aria-label="جاري تحميل طلبات التعديل" data-testid="requests-loading"><div class="co-skeleton" style="height:200px"></div></div>
+	} @else if (loadError()) {
+		<div class="co-card" role="alert" data-testid="requests-load-error" style="text-align:center;padding:40px 24px">
+			<div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر تحميل طلبات التعديل حاليًا</div>
+			<div class="txt-slate" style="font-size:12px;margin-bottom:14px">لم نتمكن من جلب طلباتك، وهذا لا يعني أنه لا توجد طلبات. حاول مرة أخرى.</div>
+			<button type="button" class="btn btn-pri" (click)="loadRequests()" data-testid="requests-retry">إعادة المحاولة</button>
+		</div>
 	} @else {
 		<div class="co-card">
 			<table class="tbl">
@@ -141,6 +149,15 @@
   </div>
 </div>
 
+@if (isLoading()) {
+<div class="h-[220px] mb-10 rounded-[18px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] animate-pulse" role="status" aria-live="polite" aria-label="جاري تحميل طلبات التعديل" data-testid="requests-loading"></div>
+} @else if (loadError()) {
+<div class="flex flex-col items-center text-center gap-3 py-14 px-6 mb-10 rounded-[18px] border border-[#FF8C69]/30 bg-[#FF8C69]/5" role="alert" data-testid="requests-load-error">
+  <div class="text-[16px] font-black text-[var(--txt)]">تعذر تحميل طلبات التعديل حاليًا</div>
+  <div class="text-[12px] text-[var(--txt-3)] max-w-[360px] leading-relaxed">لم نتمكن من جلب طلباتك، وهذا لا يعني أنه لا توجد طلبات. حاول مرة أخرى.</div>
+  <button type="button" (click)="loadRequests()" class="px-5 py-2 rounded-xl border border-[#2BD4C7]/40 bg-[#2BD4C7]/15 text-[#2BD4C7] text-[13px] font-bold cursor-pointer" data-testid="requests-retry">إعادة المحاولة</button>
+</div>
+} @else {
 <!-- Stats -->
 <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[13px] p-4 backdrop-blur-md">
@@ -341,6 +358,7 @@
     </div>
   }
 </div>
+}
 
 <!-- Removal of unused correction modal HTML -->
 
