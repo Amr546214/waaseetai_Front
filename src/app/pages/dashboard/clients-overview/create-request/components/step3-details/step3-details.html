@@ -13,22 +13,18 @@
 					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-title">عنوان الطلب <span class="field-req text-red-500">*</span></label>
 					<span id="title-count" dir="ltr" class="field-count text-xs text-[var(--txt-3)]">{{ parent.title().length }} / 80</span>
 				</div>
-					<input type="text" class="field-input w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)]" id="f-title" placeholder="مثال: تطوير متجر إلكتروني لبيع الملابس..." maxlength="80" [ngModel]="parent.title()" (ngModelChange)="parent.title.set($event)" autocomplete="off">
+					<input type="text" class="field-input w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)]" id="f-title" placeholder="مثال: تطوير متجر إلكتروني لبيع الملابس..." maxlength="80" [ngModel]="parent.title()" (ngModelChange)="parent.setTitle($event)" autocomplete="off">
 				<p class="mt-2 text-xs text-[var(--txt-3)]">اكتب الخدمة والهدف بوضوح؛ العناوين العامة مثل «تجربة» أو «مشروع جديد» لن تُرسل إلى AI.</p>
 			</div>
 
 			<div class="field">
 				<div class="field-header flex items-center justify-between mb-2">
 					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-desc">وصف تفصيلي <span class="field-req text-red-500">*</span></label>
-					<!-- A disabled button gets no hover/click: the wrapper carries the hint and the "write it first" message. -->
-					<span data-testid="ai-refine-wrap" class="inline-flex" [attr.title]="parent.canRefineWithAi() ? null : parent.rewriteInputMessage" (click)="!parent.canRefineWithAi() && parent.triggerAiDescription()">
+					<!-- Always visible and clickable: with a short title/description the press shows the "write it first" message and calls nothing. -->
 					<button type="button"
 						class="ai-suggest-btn text-xs font-extrabold px-4 py-2 bg-gradient-to-r from-[var(--ai)]/20 to-[var(--teal)]/20 text-[var(--ai)] rounded-xl border border-[var(--ai)]/30 shadow-[0_0_15px_rgba(123,47,190,0.15)] flex items-center gap-2 transition-all hover:bg-[var(--ai)]/30 hover:scale-[1.02] active:scale-95 cursor-pointer"
 						data-testid="ai-refine-btn"
-						[disabled]="parent.isAiStreaming() || !parent.canRefineWithAi()"
-						[class.opacity-50]="!parent.canRefineWithAi()"
-						[class.pointer-events-none]="!parent.canRefineWithAi()"
-						[class.cursor-not-allowed]="!parent.canRefineWithAi()"
+						[disabled]="parent.isAiStreaming()"
 						(click)="parent.triggerAiDescription()">
 						@if (parent.isAiStreaming()) {
 <svg viewBox="0 0 24 24"  width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -40,9 +36,8 @@
 										<span>تحسين وصياغة AI</span>
 						}
 					</button>
-					</span>
 				</div>
-					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[150px] mb-2 font-medium transition-colors" id="f-desc" placeholder="صف مشروعك بالتفصيل، ما تحتاجه، الجمهور المستهدف، المتطلبات التقنية، أي تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" rows="6" [ngModel]="parent.description()" (ngModelChange)="parent.description.set($event)"></textarea>
+					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[150px] mb-2 font-medium transition-colors" id="f-desc" placeholder="صف مشروعك بالتفصيل، ما تحتاجه، الجمهور المستهدف، المتطلبات التقنية، أي تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" rows="6" [ngModel]="parent.description()" (ngModelChange)="parent.setDescription($event)"></textarea>
 				<div class="field-counter flex items-center justify-between">
 					<div class="ai-quality poor flex items-center gap-1.5 text-xs text-[var(--txt-3)] font-medium">
 						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>

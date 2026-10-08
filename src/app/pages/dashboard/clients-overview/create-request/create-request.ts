@@ -598,6 +598,12 @@ export class CreateRequest implements OnInit, OnDestroy {
   deliveryDays = signal<number | null>(14);
   showAiSuggest = signal(false);
 
+  static readonly TITLE_MAX = 80;
+  static readonly DESCRIPTION_MAX = 2000;
+  /** The fields stop at their limits even when the text arrives by paste/drop (the counter never reads past the maximum). */
+  setTitle(value: string) { this.title.set((value ?? '').slice(0, CreateRequest.TITLE_MAX)); }
+  setDescription(value: string) { this.description.set((value ?? '').slice(0, CreateRequest.DESCRIPTION_MAX)); }
+
   addRequirement() {
     const req = this.newRequirement().trim();
     if (req) {
@@ -641,7 +647,6 @@ export class CreateRequest implements OnInit, OnDestroy {
   aiPhase = signal<'idle' | 'validating' | 'generating'>('idle');
 
   /** Rewriting only: the AI restates a title + description the client already wrote, it never writes them. */
-  readonly rewriteInputMessage = REWRITE_INPUT_REQUIRED_MESSAGE;
   canRefineWithAi = computed(() => canRewrite(this.title(), this.description()));
 
   triggerAiDescription() {
