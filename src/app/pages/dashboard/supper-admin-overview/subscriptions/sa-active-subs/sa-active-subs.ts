@@ -1,4 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -21,7 +22,7 @@ interface Subscription {
 @Component({
   selector: 'app-sa-active-subs',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, WsSelectComponent],
   templateUrl: './sa-active-subs.html',
   styleUrl: './sa-active-subs.css',
 })
@@ -81,6 +82,8 @@ export class SaActiveSubs {
   ];
 
   readonly planOptions = ['كل الباقات', 'مجاني', 'أساسي', 'Pro', 'Business', 'Enterprise'];
+  /** Same values the native select posted: the first choice means "all" (value 'all'). */
+  readonly planFilterOptions = this.planOptions.map(p => ({ value: p === 'كل الباقات' ? 'all' : p, label: p }));
   readonly statusOptions: { value: string; label: string }[] = [
     { value: 'all', label: 'كل الحالات' },
     { value: 'active', label: 'نشط' },

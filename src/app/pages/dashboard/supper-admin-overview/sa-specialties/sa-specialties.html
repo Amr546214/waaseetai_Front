@@ -298,11 +298,7 @@
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">القسم</label>
-			<select [ngModel]="newSpecCatId()" (ngModelChange)="newSpecCatId.set($event)"
-				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl cursor-pointer">
-				<option *ngFor="let cat of categories()" [value]="cat.id"
-					class="dark:bg-[#131B36] text-slate-800 dark:text-white">{{ cat.nameAr }}</option>
-			</select>
+			<ws-select [options]="categoryOptions()" [ngModel]="newSpecCatId()" (ngModelChange)="newSpecCatId.set($event)" ariaLabel="القسم" placeholder="اختر القسم"></ws-select>
 		</div>
 
 		<div class="mb-6">

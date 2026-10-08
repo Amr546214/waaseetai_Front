@@ -1,4 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -19,7 +21,7 @@ interface AuditEvent {
 @Component({
   selector: 'app-sa-audit-trail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, WsSelectComponent, FormsModule],
   templateUrl: './sa-audit-trail.html',
   styleUrl: './sa-audit-trail.css',
 })

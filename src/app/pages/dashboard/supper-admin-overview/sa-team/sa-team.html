@@ -37,17 +37,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="search" placeholder="ابحث باسم الموظف..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)">
     </div>
-    <select class="tm-select" [value]="roleFilter()" (change)="roleFilter.set($any($event.target).value)">
-      <option value="">كل الأدوار</option>
-      @for (r of roles; track r) {
-        <option [value]="r">{{ r }}</option>
-      }
-    </select>
-    <select class="tm-select" [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)">
-      <option value="">كل الحالات</option>
-      <option value="نشط">نشط</option>
-      <option value="غير متاح">غير متاح</option>
-    </select>
+    <ws-select [leading]="[{value: '', label: 'كل الأدوار'}]" [options]="roles" [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
+    <ws-select [options]="[{value: '', label: 'كل الحالات'}, {value: 'نشط', label: 'نشط'}, {value: 'غير متاح', label: 'غير متاح'}]" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
   </div>
 
   <div class="tm-workload">
@@ -105,11 +96,7 @@
         <label class="tm-field-lbl">البريد الإلكتروني</label>
         <input class="tm-input" type="email" placeholder="name@waseet.ai" [value]="inviteEmail()" (input)="inviteEmail.set($any($event.target).value)">
         <label class="tm-field-lbl">الدور</label>
-        <select class="tm-select tm-select-full" [value]="inviteRole()" (change)="inviteRole.set($any($event.target).value)">
-          @for (r of roles; track r) {
-            <option [value]="r">{{ r }}</option>
-          }
-        </select>
+        <ws-select [options]="roles" [ngModel]="inviteRole()" (ngModelChange)="inviteRole.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
       </div>
       <div class="tm-modal-actions">
         <button type="button" class="tm-btn tm-btn-primary" (click)="sendInvite()">إرسال الدعوة</button>

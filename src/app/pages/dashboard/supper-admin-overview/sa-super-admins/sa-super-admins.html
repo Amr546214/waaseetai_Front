@@ -149,12 +149,8 @@
             <svg aria-hidden="true"><use href="#spa-i-search"></use></svg>
             <input type="search" placeholder="ابحث في السجل..." aria-label="بحث" [value]="auditSearch()" (input)="setAuditSearch($any($event.target).value)" />
           </div>
-          <select class="spa-fr-sel" aria-label="نوع الإجراء" [value]="auditTypeFilter()" (change)="setAuditType($any($event.target).value)">
-            @for (t of auditActionTypes(); track t) { <option [value]="t">{{ t }}</option> }
-          </select>
-          <select class="spa-fr-sel" aria-label="المنفذ" [value]="auditActorFilter()" (change)="setAuditActor($any($event.target).value)">
-            @for (a of auditActors(); track a) { <option [value]="a">{{ a }}</option> }
-          </select>
+          <ws-select [options]="auditActionTypes()" [ngModel]="auditTypeFilter()" (ngModelChange)="setAuditType($event)" ariaLabel="نوع الإجراء" style="min-width:160px;max-width:100%;display:block"></ws-select>
+          <ws-select [options]="auditActors()" [ngModel]="auditActorFilter()" (ngModelChange)="setAuditActor($event)" ariaLabel="المنفذ" style="min-width:160px;max-width:100%;display:block"></ws-select>
         </div>
         <div class="spa-card spa-card-flush">
           <div class="spa-tbl-wrap">

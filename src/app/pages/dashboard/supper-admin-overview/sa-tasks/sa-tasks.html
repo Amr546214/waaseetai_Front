@@ -36,14 +36,8 @@
       <svg><use href="#tk-i-search"></use></svg>
       <input type="search" placeholder="ابحث في المهام..." [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" />
     </div>
-    <select class="tk-sel" [value]="employeeFilter()" (change)="employeeFilter.set($any($event.target).value)">
-      <option value="all">كل الموظفين</option>
-      @for (e of employees(); track e) { <option [value]="e">{{ e }}</option> }
-    </select>
-    <select class="tk-sel" [value]="typeFilter()" (change)="typeFilter.set($any($event.target).value)">
-      <option value="all">كل الأنواع</option>
-      @for (ty of types(); track ty) { <option [value]="ty">{{ ty }}</option> }
-    </select>
+    <ws-select [leading]="[{value: 'all', label: 'كل الموظفين'}]" [options]="employees()" [ngModel]="employeeFilter()" (ngModelChange)="employeeFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
+    <ws-select [leading]="[{value: 'all', label: 'كل الأنواع'}]" [options]="types()" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
   </div>
 
   <div class="tk-card">

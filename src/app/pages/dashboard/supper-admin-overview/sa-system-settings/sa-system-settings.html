@@ -63,11 +63,7 @@
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">مدة جلسة الدخول</div><div class="ss-row-desc">انتهاء الجلسة تلقائياً بعد عدم النشاط</div></div>
-            <select class="ss-input" [value]="sessionDuration()" (change)="sessionDuration.set($any($event.target).value)">
-              <option value="8">8 ساعات</option>
-              <option value="24">24 ساعة</option>
-              <option value="48">48 ساعة</option>
-            </select>
+            <ws-select [options]="[{value: '8', label: '8 ساعات'}, {value: '24', label: '24 ساعة'}, {value: '48', label: '48 ساعة'}]" [ngModel]="sessionDuration()" (ngModelChange)="sessionDuration.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
           </div>
           @for (t of securityToggles(); track t.key) {
             @if (t.key !== '2fa') {
@@ -86,18 +82,11 @@
           <div class="ss-card-ttl">الإعدادات المالية</div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">العملة الافتراضية</div><div class="ss-row-desc">عملة المعاملات على وسيط AI</div></div>
-            <select class="ss-input" [value]="currency()" (change)="currency.set($any($event.target).value)">
-              <option value="USD">دولار أمريكي (USD)</option>
-              <option value="USD">دولار أمريكي (USD)</option>
-            </select>
+            <ws-select [options]="[{value: 'USD', label: 'دولار أمريكي (USD)'}]" [ngModel]="currency()" (ngModelChange)="currency.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">بوابة الدفع</div><div class="ss-row-desc">البوابة النشطة لمعالجة المدفوعات</div></div>
-            <select class="ss-input" [value]="paymentGateway()" (change)="paymentGateway.set($any($event.target).value)">
-              <option value="PayPal">PayPal</option>
-              <option value="HyperPay">HyperPay</option>
-              <option value="Tamara">Tamara</option>
-            </select>
+            <ws-select [options]="[{value: 'PayPal', label: 'PayPal'}, {value: 'HyperPay', label: 'HyperPay'}, {value: 'Tamara', label: 'Tamara'}]" [ngModel]="paymentGateway()" (ngModelChange)="paymentGateway.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
           </div>
           @for (t of financeToggles(); track t.key) {
             <div class="ss-row">
@@ -114,24 +103,15 @@
           <div class="ss-card-ttl">الإعدادات الإقليمية</div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">المنطقة الزمنية</div><div class="ss-row-desc">المنطقة الزمنية الافتراضية للنظام</div></div>
-            <select class="ss-input" [value]="timezone()" (change)="timezone.set($any($event.target).value)">
-              <option>Asia/Riyadh (GMT+3)</option>
-              <option>UTC</option>
-            </select>
+            <ws-select [options]="[{value: 'Asia/Riyadh (GMT+3)', label: 'Asia/Riyadh (GMT+3)'}, {value: 'UTC', label: 'UTC'}]" [ngModel]="timezone()" (ngModelChange)="timezone.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">تنسيق التاريخ</div><div class="ss-row-desc">طريقة عرض التواريخ في النظام</div></div>
-            <select class="ss-input" [value]="dateFormat()" (change)="dateFormat.set($any($event.target).value)">
-              <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-              <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-            </select>
+            <ws-select [options]="[{value: 'DD/MM/YYYY', label: 'DD/MM/YYYY'}, {value: 'YYYY-MM-DD', label: 'YYYY-MM-DD'}]" [ngModel]="dateFormat()" (ngModelChange)="dateFormat.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">نظام التقويم</div><div class="ss-row-desc">التقويم الافتراضي المستخدم</div></div>
-            <select class="ss-input" [value]="calendarSystem()" (change)="calendarSystem.set($any($event.target).value)">
-              <option value="ميلادي">ميلادي</option>
-              <option value="هجري">هجري</option>
-            </select>
+            <ws-select [options]="[{value: 'ميلادي', label: 'ميلادي'}, {value: 'هجري', label: 'هجري'}]" [ngModel]="calendarSystem()" (ngModelChange)="calendarSystem.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
           </div>
         </div>
         <div class="ss-save-row"><button type="button" class="ss-save-btn" (click)="save()"><svg><use href="#ss-i-check"></use></svg>حفظ</button></div>

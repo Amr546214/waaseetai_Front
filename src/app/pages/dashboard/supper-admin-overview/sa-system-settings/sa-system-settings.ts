@@ -1,4 +1,6 @@
 import { Component, signal, WritableSignal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 
 type SettingsSection = 'general' | 'notifications' | 'security' | 'finance' | 'localization' | 'health';
@@ -26,7 +28,7 @@ interface ChangeLogRow {
 @Component({
   selector: 'app-sa-system-settings',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WsSelectComponent, FormsModule],
   templateUrl: './sa-system-settings.html',
   styleUrl: './sa-system-settings.css',
 })

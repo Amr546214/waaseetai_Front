@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -23,7 +24,7 @@ interface SendHistoryRow {
 @Component({
   selector: 'app-sa-notifications',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, WsSelectComponent],
   templateUrl: './sa-notifications.html',
   styleUrl: './sa-notifications.css',
 })

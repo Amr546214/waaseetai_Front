@@ -37,15 +37,11 @@
   <div class="at-filters">
     <div class="at-filter-group">
       <div class="at-filter-lbl">نوع العملية</div>
-      <select [value]="typeFilter()" (change)="typeFilter.set($any($event.target).value)">
-        @for (t of actionTypes; track t) { <option [value]="t">{{ t }}</option> }
-      </select>
+      <ws-select [options]="actionTypes" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
     </div>
     <div class="at-filter-group">
       <div class="at-filter-lbl">الموظف</div>
-      <select [value]="employeeFilter()" (change)="employeeFilter.set($any($event.target).value)">
-        @for (e of employees; track e) { <option [value]="e">{{ e }}</option> }
-      </select>
+      <ws-select [options]="employees" [ngModel]="employeeFilter()" (ngModelChange)="employeeFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
     </div>
     <div class="at-filter-group">
       <div class="at-filter-lbl">من تاريخ</div>

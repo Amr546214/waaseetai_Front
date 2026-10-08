@@ -23,9 +23,7 @@
 
       <div class="sbr-field">
         <div class="sbr-field-lbl">الجمهور المستهدف</div>
-        <select class="sbr-input" [ngModel]="audience()" (ngModelChange)="audience.set($event)">
-          @for (a of audiences; track a) { <option [value]="a">{{ a }}</option> }
-        </select>
+        <ws-select [options]="audiences" [ngModel]="audience()" (ngModelChange)="audience.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="sbr-field">

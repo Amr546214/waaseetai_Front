@@ -1,4 +1,6 @@
 import { Component, computed, signal, WritableSignal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 
 type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'integrations' | 'audit' | 'danger';
@@ -31,7 +33,7 @@ interface DangerAction {
 @Component({
   selector: 'app-sa-super-admins',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WsSelectComponent, FormsModule],
   templateUrl: './sa-super-admins.html',
   styleUrl: './sa-super-admins.css',
 })
