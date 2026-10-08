@@ -16,14 +16,14 @@
 	<div class="grid2">
 		<div class="co-card" style="margin-bottom:0">
 			<div class="sec-hd"><div class="sec-ttl">اللغة والمنطقة</div></div>
-			<div class="fld"><label for="s-lang">لغة الواجهة</label><select id="s-lang" [ngModel]="coLanguage()" (ngModelChange)="coLanguage.set($event)"><option selected>العربية</option><option>English</option></select></div>
+			<div class="fld"><label for="s-lang">لغة الواجهة</label><ws-select [options]="[{value: 'العربية', label: 'العربية'}, {value: 'English', label: 'English'}]" id="s-lang" [ngModel]="coLanguage()" (ngModelChange)="coLanguage.set($event)" style="min-width:200px;max-width:100%;display:block"></ws-select></div>
 			<div class="f2">
-				<div class="fld"><label for="s-tz">المنطقة الزمنية</label><select id="s-tz" [ngModel]="coTimezone()" (ngModelChange)="coTimezone.set($event)"><option selected>(GMT+3) الرياض</option><option>(GMT+4) دبي</option><option>(GMT+2) القاهرة</option></select></div>
-				<div class="fld"><label for="s-cal">التقويم</label><select id="s-cal" [ngModel]="coCalendar()" (ngModelChange)="coCalendar.set($event)"><option selected>ميلادي</option><option>هجري</option><option>هجري وميلادي</option></select></div>
+				<div class="fld"><label for="s-tz">المنطقة الزمنية</label><ws-select [options]="[{value: '(GMT+3) الرياض', label: '(GMT+3) الرياض'}, {value: '(GMT+4) دبي', label: '(GMT+4) دبي'}, {value: '(GMT+2) القاهرة', label: '(GMT+2) القاهرة'}]" id="s-tz" [ngModel]="coTimezone()" (ngModelChange)="coTimezone.set($event)" style="min-width:200px;max-width:100%;display:block"></ws-select></div>
+				<div class="fld"><label for="s-cal">التقويم</label><ws-select [options]="[{value: 'ميلادي', label: 'ميلادي'}, {value: 'هجري', label: 'هجري'}, {value: 'هجري وميلادي', label: 'هجري وميلادي'}]" id="s-cal" [ngModel]="coCalendar()" (ngModelChange)="coCalendar.set($event)" style="min-width:200px;max-width:100%;display:block"></ws-select></div>
 			</div>
 			<div class="f2">
-				<div class="fld"><label for="s-cur">عملة العرض</label><select id="s-cur" [ngModel]="coCurrency()" (ngModelChange)="coCurrency.set($event)"><option selected>الدولار السعودي (USD)</option></select></div>
-				<div class="fld" style="margin-bottom:0"><label for="s-num">صيغة الأرقام</label><select id="s-num" [ngModel]="coNumberFormat()" (ngModelChange)="coNumberFormat.set($event)"><option selected>1234 — عربية غربية</option><option>١٢٣٤ — عربية شرقية</option></select></div>
+				<div class="fld"><label for="s-cur">عملة العرض</label><ws-select [options]="[{value: 'الدولار السعودي (USD)', label: 'الدولار السعودي (USD)'}]" id="s-cur" [ngModel]="coCurrency()" (ngModelChange)="coCurrency.set($event)" style="min-width:200px;max-width:100%;display:block"></ws-select></div>
+				<div class="fld" style="margin-bottom:0"><label for="s-num">صيغة الأرقام</label><ws-select [options]="[{value: '1234 — عربية غربية', label: '1234 — عربية غربية'}, {value: '١٢٣٤ — عربية شرقية', label: '١٢٣٤ — عربية شرقية'}]" id="s-num" [ngModel]="coNumberFormat()" (ngModelChange)="coNumberFormat.set($event)" style="min-width:200px;max-width:100%;display:block"></ws-select></div>
 			</div>
 		</div>
 		<div class="co-card" style="margin-bottom:0">
@@ -72,7 +72,7 @@
 					<div style="font-size:12px" class="txt-slate">لا توجد أجهزة أخرى نشطة</div>
 				}
 			}
-			<div class="fld" style="margin-top:14px;margin-bottom:0"><label for="s-idle">إنهاء الجلسة تلقائياً بعد خمول</label><select id="s-idle" [ngModel]="coIdleTimeout()" (ngModelChange)="coIdleTimeout.set($event)"><option>15 دقيقة</option><option selected>30 دقيقة</option><option>ساعة</option><option>لا تُنهِ الجلسة</option></select></div>
+			<div class="fld" style="margin-top:14px;margin-bottom:0"><label for="s-idle">إنهاء الجلسة تلقائياً بعد خمول</label><ws-select [options]="[{value: '15 دقيقة', label: '15 دقيقة'}, {value: '30 دقيقة', label: '30 دقيقة'}, {value: 'ساعة', label: 'ساعة'}, {value: 'لا تُنهِ الجلسة', label: 'لا تُنهِ الجلسة'}]" id="s-idle" [ngModel]="coIdleTimeout()" (ngModelChange)="coIdleTimeout.set($event)" style="min-width:200px;max-width:100%;display:block"></ws-select></div>
 		</div>
 		<div class="co-card" style="margin-bottom:0">
 			<div class="sec-hd"><div class="sec-ttl">الواجهة</div></div>
@@ -80,7 +80,7 @@
 			<div class="st-row"><div class="st-b"><div class="st-t">طيّ القائمة الجانبية افتراضياً</div><div class="st-d">مساحة أوسع للجداول والتقارير</div></div><div class="sw" [class.on]="coCollapseSidebar()" (click)="toggleCoCollapseSidebar()"></div></div>
 			<div class="st-row"><div class="st-b"><div class="st-t">كثافة عرض الجداول</div><div class="st-d">صفوف أضيق تعرض بيانات أكثر في الشاشة</div></div><div class="sw" [class.on]="coDenseTables()" (click)="toggleCoDenseTables()"></div></div>
 			<div class="st-row"><div class="st-b"><div class="st-t">تقليل الحركة والتأثيرات</div><div class="st-d">إيقاف الانتقالات المتحركة في الواجهة</div></div><div class="sw" [class.on]="coReduceMotion()" (click)="toggleCoReduceMotion()"></div></div>
-			<div class="fld" style="margin-top:14px;margin-bottom:0"><label for="s-land">الصفحة الافتتاحية بعد الدخول</label><select id="s-land" [ngModel]="coLandingPage()" (ngModelChange)="coLandingPage.set($event)"><option selected>لوحة التحكم</option><option>استكشاف الطلبات</option><option>المشاريع النشطة</option><option>لوحة مالية الشركة</option></select></div>
+			<div class="fld" style="margin-top:14px;margin-bottom:0"><label for="s-land">الصفحة الافتتاحية بعد الدخول</label><ws-select [options]="[{value: 'لوحة التحكم', label: 'لوحة التحكم'}, {value: 'استكشاف الطلبات', label: 'استكشاف الطلبات'}, {value: 'المشاريع النشطة', label: 'المشاريع النشطة'}, {value: 'لوحة مالية الشركة', label: 'لوحة مالية الشركة'}]" id="s-land" [ngModel]="coLandingPage()" (ngModelChange)="coLandingPage.set($event)" style="min-width:200px;max-width:100%;display:block"></ws-select></div>
 		</div>
 	</div>
 
@@ -243,10 +243,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
           <div class="text-[12px] text-[var(--txt-3)]">لغة واجهة الحساب</div>
         </div>
-        <select class="set-sel" [(ngModel)]="language">
-          <option value="العربية">العربية</option>
-          <option value="English">English</option>
-        </select>
+        <ws-select [options]="[{value: 'العربية', label: 'العربية'}, {value: 'English', label: 'English'}]" [(ngModel)]="language" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
@@ -254,10 +251,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">المنطقة الزمنية</div>
           <div class="text-[12px] text-[var(--txt-3)]">يُحتسب عليها مواعيد المشاريع</div>
         </div>
-        <select class="set-sel" [(ngModel)]="timezone">
-          <option value="توقيت الرياض (GMT+3)">توقيت الرياض (GMT+3)</option>
-          <option value="توقيت جدة (GMT+3)">توقيت جدة (GMT+3)</option>
-        </select>
+        <ws-select [options]="[{value: 'توقيت الرياض (GMT+3)', label: 'توقيت الرياض (GMT+3)'}, {value: 'توقيت جدة (GMT+3)', label: 'توقيت جدة (GMT+3)'}]" [(ngModel)]="timezone" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
@@ -265,10 +259,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">العملة</div>
           <div class="text-[12px] text-[var(--txt-3)]">عملة عرض المبالغ</div>
         </div>
-        <select class="set-sel" [(ngModel)]="currency">
-          <option value="دولار أمريكي (USD)">دولار أمريكي (USD)</option>
-          <option value="دولار أمريكي (USD)">دولار أمريكي (USD)</option>
-        </select>
+        <ws-select [options]="[{value: 'دولار أمريكي (USD)', label: 'دولار أمريكي (USD)'}, {value: 'دولار أمريكي (USD)', label: 'دولار أمريكي (USD)'}]" [(ngModel)]="currency" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 flex-wrap">
@@ -276,11 +267,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنسيق التاريخ</div>
           <div class="text-[12px] text-[var(--txt-3)]">طريقة عرض التواريخ في حسابك</div>
         </div>
-        <select class="set-sel" [(ngModel)]="dateFormat">
-          <option value="هجري وميلادي">هجري وميلادي</option>
-          <option value="ميلادي فقط">ميلادي فقط</option>
-          <option value="هجري فقط">هجري فقط</option>
-        </select>
+        <ws-select [options]="[{value: 'هجري وميلادي', label: 'هجري وميلادي'}, {value: 'ميلادي فقط', label: 'ميلادي فقط'}, {value: 'هجري فقط', label: 'هجري فقط'}]" [(ngModel)]="dateFormat" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
     </div>

@@ -21,10 +21,7 @@
         <div class="lv-hd"><div class="lv-hd-body"><div class="lv-hd-name">تذكرة دعم جديدة</div></div></div>
         <form class="lv-composer" (ngSubmit)="submitNew($event)">
           <input type="text" name="subject" placeholder="عنوان التذكرة" [ngModel]="newSubject()" (ngModelChange)="newSubject.set($event)" aria-label="عنوان التذكرة" />
-          <select name="category" [ngModel]="newCategory()" (ngModelChange)="newCategory.set($event)" aria-label="التصنيف">
-            <option value="">اختر التصنيف</option>
-            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
-          </select>
+          <ws-select name="category" [options]="categories" placeholder="اختر التصنيف" ariaLabel="التصنيف" [ngModel]="newCategory()" (ngModelChange)="newCategory.set($event)" />
           <textarea rows="5" name="description" placeholder="اشرح المشكلة بالتفصيل" [ngModel]="newDescription()" (ngModelChange)="newDescription.set($event)" aria-label="وصف المشكلة"></textarea>
           <button type="submit" class="lv-btn" [disabled]="busy()">إرسال التذكرة</button>
         </form>

@@ -19,12 +19,7 @@
 		<!-- Category -->
 		<div class="fld-row">
 			<label class="inp-label" for="tk-cat">{{ isCompanyMode() ? 'نوع الطلب' : 'التصنيف' }}<span class="req">*</span></label>
-			<select id="tk-cat" class="inp-field" [(ngModel)]="category" name="category" required>
-				<option value="" disabled selected>اختر {{ isCompanyMode() ? 'نوع الطلب' : 'التصنيف' }}</option>
-				@for (c of activeCategories; track c) {
-					<option [value]="c">{{ c }}</option>
-				}
-			</select>
+			<ws-select id="tk-cat" [options]="activeCategories" [placeholder]="'اختر ' + (isCompanyMode() ? 'نوع الطلب' : 'التصنيف')" [ariaLabel]="isCompanyMode() ? 'نوع الطلب' : 'التصنيف'" [(ngModel)]="category" name="category" required />
 			@if (errors()['cat']) { <div class="fld-err">{{ errors()['cat'] }}</div> }
 		</div>
 
@@ -32,21 +27,13 @@
 		<!-- Company: Related Project -->
 		<div class="fld-row">
 			<label class="inp-label" for="tk-prj">المشروع المرتبط (اختياري)</label>
-			<select id="tk-prj" class="inp-field" [(ngModel)]="relatedProject" name="project">
-				@for (p of companyProjects; track p) {
-					<option [value]="p">{{ p }}</option>
-				}
-			</select>
+			<ws-select id="tk-prj" [options]="companyProjects" placeholder="اختر المشروع" ariaLabel="المشروع المرتبط" [(ngModel)]="relatedProject" name="project" />
 		</div>
 
 		<!-- Company: Related Team Member -->
 		<div class="fld-row">
 			<label class="inp-label" for="tk-mem">عضو الفريق المعني (اختياري)</label>
-			<select id="tk-mem" class="inp-field" [(ngModel)]="relatedMember" name="member">
-				@for (m of companyMembers; track m) {
-					<option [value]="m">{{ m }}</option>
-				}
-			</select>
+			<ws-select id="tk-mem" [options]="companyMembers" placeholder="اختر الموظف" ariaLabel="الموظف المسؤول" [(ngModel)]="relatedMember" name="member" />
 		</div>
 		}
 
@@ -66,11 +53,7 @@
 		} @else {
 		<div class="fld-row">
 			<label class="inp-label" for="tk-priority">الأولوية</label>
-			<select id="tk-priority" class="inp-field" [(ngModel)]="priority" name="priority">
-				@for (p of priorities; track p) {
-					<option [value]="p">{{ p }}</option>
-				}
-			</select>
+			<ws-select id="tk-priority" [options]="priorities" placeholder="اختر الأولوية" ariaLabel="الأولوية" [(ngModel)]="priority" name="priority" />
 		</div>
 		}
 

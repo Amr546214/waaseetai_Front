@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -9,7 +10,7 @@ import { TicketApiService } from '../../../../../core/services/ticket-api.servic
 @Component({
 	selector: 'app-new-ticket',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule],
+	imports: [CommonModule, FormsModule, RouterModule, WsSelectComponent],
 	templateUrl: './new-ticket.html',
 	styleUrls: ['./new-ticket.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush

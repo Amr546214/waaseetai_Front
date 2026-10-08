@@ -43,7 +43,7 @@ let nextId = 0;
 		:host-context(.light-theme) .ws-sel-opt.is-selected, :host-context(.theme-light) .ws-sel-opt.is-selected { color: #0A6F64; background: rgba(43,212,199,.18); }
 	`],
 	template: `
-		<button type="button" class="ws-sel-trigger" role="combobox" [id]="id()" [disabled]="isDisabled()" [attr.aria-label]="ariaLabel() || null"
+		<button type="button" class="ws-sel-trigger" role="combobox" [disabled]="isDisabled()" [attr.aria-label]="ariaLabel() || null"
 			aria-haspopup="listbox" [attr.aria-expanded]="open()" [attr.aria-controls]="listId" [attr.aria-activedescendant]="open() ? optId(active()) : null"
 			data-testid="ws-select-trigger" (click)="toggle()" (keydown)="onKey($event)" (blur)="touch()">
 			<span class="ws-sel-value" [class.is-placeholder]="!selectedLabel()">{{ selectedLabel() || placeholder() }}</span>
@@ -69,7 +69,6 @@ export class WsSelectComponent implements ControlValueAccessor {
 
 	readonly options = input<ReadonlyArray<string | WsSelectOption>>([]);
 	readonly placeholder = input<string>('اختر');
-	readonly id = input<string | null>(null);
 	readonly ariaLabel = input<string | undefined>(undefined);
 
 	readonly listId = `ws-sel-list-${++nextId}`;

@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, signal, computed, inject } from '@angular/core';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -18,7 +19,7 @@ export interface ProviderSession {
 @Component({
   selector: 'app-provider-settings-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, WsSelectComponent],
   templateUrl: './account.html',
   styles: [`
     :host {
