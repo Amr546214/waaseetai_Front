@@ -9,7 +9,7 @@
   </div>
 
   <h2 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">استكمال بياناتك</h2>
-  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — يمكنك التخطي والعودة لاحقاً من صفحة ملفي التسويقي</p>
+  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — يمكنك المتابعة دون إكمال أي خطوة والعودة لاحقاً من صفحة ملفي التسويقي</p>
 
   @if (isLoading()) {
     <div class="adm-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
@@ -66,7 +66,7 @@
       <ws-form-summary [items]="missing()" />
       <div class="actions-row">
         <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="saveBio()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
-        <button type="button" class="btn-secondary" (click)="nextStep()">تخطي</button>
+        <button type="button" class="btn-secondary" (click)="nextStep()">التالي</button>
       </div>
     }
 
@@ -98,12 +98,12 @@
           <div style="display:flex;flex-direction:column;flex:1;min-width:160px"><input type="text" formControlName="handle" class="inp-field" placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-required="true">
           <ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها' }" /></div>
         </div>
-        <div class="inp-hint" style="margin-top:8px">اختر القناة وأدخل معرّفها ثم اضغط "إضافة ومتابعة"، أو اضغط "تخطي" للمتابعة بدونها.</div>
+        <div class="inp-hint" style="margin-top:8px">اختر القناة وأدخل معرّفها ثم اضغط "إضافة ومتابعة"، أو اضغط "التالي" للمتابعة بدونها.</div>
       </div>
       <ws-form-summary [items]="missing()" />
       <div class="actions-row">
         <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="addChannel()">{{ isSubmitting() ? 'جارٍ الإضافة...' : 'إضافة ومتابعة' }}</button>
-        <button type="button" class="btn-secondary" (click)="skipChannel()">تخطي</button>
+        <button type="button" class="btn-secondary" (click)="nextStep()">التالي</button>
       </div>
     }
 
@@ -136,7 +136,7 @@
       <ws-form-summary [items]="missing()" />
       <div class="actions-row">
         <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="saveBankInfo()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
-        <button type="button" class="btn-secondary" (click)="nextStep()">تخطي</button>
+        <button type="button" class="btn-secondary" (click)="nextStep()">التالي</button>
       </div>
     }
 
