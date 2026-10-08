@@ -9,6 +9,7 @@ import { vi } from 'vitest';
 import { ProfileEdit } from './profile-edit';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { MB } from '../../../../../core/forms/file-validation';
 
 // Client profile/edit tabs: shared validation UX, and honest handling of what the backend does not save.
@@ -17,19 +18,27 @@ describe('client profile-edit: shared validation', () => {
   let component: ProfileEdit;
   let updateTab: ReturnType<typeof vi.fn>;
   let updateProfile: ReturnType<typeof vi.fn>;
+  let getPrefs: ReturnType<typeof vi.fn<(...a: any[]) => any>>;
+  let updatePrefs: ReturnType<typeof vi.fn<(...a: any[]) => any>>;
+  let profileData: any;
 
-  async function configure(accountType: string) {
+  async function configure(accountType: string, over: { profile?: any; prefs?: any } = {}) {
     updateTab = vi.fn(() => of({ success: true, message: 'تم التحديث. التعديلات الحساسة تتطلب التحقق.' }));
     updateProfile = vi.fn(() => of({ success: true }));
+    getPrefs = vi.fn(() => of({ success: true, data: { settings: {} } }));
+    updatePrefs = vi.fn(() => of({ success: true, data: { settings: {} } }));
+    profileData = { firstName: 'سارة', lastName: 'أحمد', email: 'a@b.co', phoneNumber: '+966551234567', country: 'السعودية', city: 'الرياض', ...(over.profile || {}) };
+    if (over.prefs) getPrefs = vi.fn(() => over.prefs);
     await TestBed.configureTestingModule({
       imports: [ProfileEdit],
       providers: [
         provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
         { provide: AuthStore, useValue: { currentUser: () => ({ accountType, activeRole: 'CLIENT' }), token: () => 't', authenticate: vi.fn() } },
+        { provide: NotificationPreferencesService, useValue: { getPreferences: () => getPrefs(), updatePreferences: (x: any) => updatePrefs(x) } },
         {
           provide: ProfileApiService,
           useValue: {
-            getMyProfile: () => of({ success: true, data: { currentProfileData: { firstName: 'سارة', lastName: 'أحمد', email: 'a@b.co', phoneNumber: '+966551234567', country: 'السعودية', city: 'الرياض' }, latestHistory: [] } }),
+            getMyProfile: () => of({ success: true, data: { currentProfileData: profileData, latestHistory: [] } }),
             getChangeRequests: () => of({ success: true, data: [] }),
             updateTab, updateProfile,
           },
@@ -69,20 +78,26 @@ describe('client profile-edit: shared validation', () => {
       expect(errors().some(t => t.includes('1000'))).toBe(true);
     });
 
-    it('a valid save sends ONLY what the backend stores for a client (no linkedinUrl/portfolio/website2/language/timezone/interests)', () => {
-      component.clientForm.patchValue({ companyName: 'شركة', bio: 'نبذة', website: 'https://example.com', linkedinUrl: 'https://linkedin.com/in/x', portfolioUrl: 'https://p.example', personalWebsiteUrl: 'https://me.example' });
+    it('a valid save sends the bio, interests, links and display prefs (all stored for a client now), never provider-only fields', () => {
+      component.clientForm.patchValue({ companyName: 'شركة', bio: 'نبذة', website: 'https://example.com', linkedinUrl: 'https://linkedin.com/in/x', portfolioUrl: 'https://p.example.com', personalWebsiteUrl: 'https://me.example.com', interfaceLanguage: 'English', timezone: '(GMT+4) توقيت دبي' });
+      component.interests.set(['تصميم', 'برمجة']);
       component.saveProfile();
       expect(updateProfile).toHaveBeenCalledTimes(1);
       const body = updateProfile.mock.calls[0][0];
-      for (const k of ['linkedinUrl', 'portfolioUrl', 'personalWebsiteUrl', 'interfaceLanguage', 'timezone', 'interests']) expect(body, k).not.toHaveProperty(k);
-      expect(body).toEqual(expect.objectContaining({ companyName: 'شركة', bio: 'نبذة', website: 'https://example.com' }));
+      expect(body).toEqual(expect.objectContaining({ companyName: 'شركة', bio: 'نبذة', website: 'https://example.com', linkedinUrl: 'https://linkedin.com/in/x', portfolioUrl: 'https://p.example.com', personalWebsiteUrl: 'https://me.example.com', interfaceLanguage: 'English', timezone: '(GMT+4) توقيت دبي', interests: ['تصميم', 'برمجة'] }));
+      for (const k of ['skills', 'hourlyRate', 'experienceLevel']) expect(body, k).not.toHaveProperty(k);
     });
 
-    it('the sections the backend does not save are shown disabled with an explanation (no fake save)', () => {
-      const box = el().querySelector('[data-testid="unsaved-sections"]') as HTMLFieldSetElement;
-      expect(box.disabled).toBe(true);
-      expect(el().querySelector('[data-testid="unsaved-notice"]')?.textContent).toContain('لا تُحفظ حاليًا');
-      expect(box.querySelector('input[formcontrolname="linkedinUrl"]')).toBeTruthy();
+    it('the sections are live: no disabled fieldset, no "not saved" notice, the link inputs are enabled', () => {
+      expect(el().querySelector('[data-testid="unsaved-sections"]')).toBeNull();
+      expect(el().querySelector('[data-testid="unsaved-notice"]')).toBeNull();
+      expect(el().textContent).not.toContain('لا تُحفظ حاليًا');
+      for (const name of ['portfolioUrl', 'linkedinUrl', 'personalWebsiteUrl', 'interfaceLanguage', 'timezone']) {
+        const input = el().querySelector(`[formcontrolname="${name}"]`) as HTMLInputElement;
+        expect(input, name).toBeTruthy();
+        expect(input.disabled, name).toBe(false);
+        expect(input.closest('fieldset[disabled]'), name).toBeNull();
+      }
     });
 
     it('server zod errors land on the field (400 with errors[]); a 500 is shown in Arabic', () => {
@@ -180,6 +195,75 @@ describe('client profile-edit: shared validation', () => {
       component.saveTab('contact');
       expect(component.errorMsg()).toContain('15 دقيقة');
       expect(component.errorMsg()).not.toMatch(/[A-Za-z]/);
+    });
+  });
+
+  describe('public profile: interests / links / prefs persist and failures are honest', () => {
+    it('after a reload the saved bio, interests, links and prefs are shown again (read from GET /profiles/me)', async () => {
+      TestBed.resetTestingModule();
+      // a fresh page load fed by what the backend returns after the earlier save
+      await configure('CLIENT_INDIVIDUAL', {
+        profile: { bio: 'عميل مهتم بالتصميم', interests: ['تصميم', 'برمجة'], portfolioUrl: 'https://p.example.com', linkedinUrl: 'https://linkedin.com/in/x', personalWebsiteUrl: 'https://me.example.com', interfaceLanguage: 'English', timezone: '(GMT+4) توقيت دبي' },
+        prefs: of({ success: true, data: { settings: { channel_email: false, channel_in_app: true } } }),
+      });
+      expect(component.clientForm.value).toEqual(expect.objectContaining({ bio: 'عميل مهتم بالتصميم', portfolioUrl: 'https://p.example.com', linkedinUrl: 'https://linkedin.com/in/x', personalWebsiteUrl: 'https://me.example.com', interfaceLanguage: 'English', timezone: '(GMT+4) توقيت دبي' }));
+      expect(component.interests()).toEqual(['تصميم', 'برمجة']);
+      expect(component.notifEmail()).toBe(false);
+      expect(component.notifInApp()).toBe(true);
+    });
+
+    it('a never-saved language / timezone keeps the form defaults (no empty select)', () => {
+      expect(component.clientForm.value.interfaceLanguage).toBe('العربية');
+      expect(component.clientForm.value.timezone).toBe('(GMT+3) توقيت الرياض');
+    });
+
+    it('adding an interest in the UI is part of the next save and removing one is too', () => {
+      const input = document.createElement('input'); input.value = ' تسويق ';
+      component.addInterest(input);
+      expect(component.interests()).toContain('تسويق');
+      component.removeInterest('تسويق');
+      component.saveProfile();
+      expect(updateProfile.mock.calls[0][0].interests).not.toContain('تسويق');
+    });
+
+    it('success is shown only after the profile AND the notification preferences are stored', () => {
+      component.notifEmail.set(false);
+      component.saveProfile();
+      expect(updatePrefs).toHaveBeenCalledWith({ channel_email: false, channel_in_app: true });
+      expect(component.successMsg()).toContain('تم تحديث');
+      expect(component.errorMsg()).toBe('');
+    });
+
+    it('a failed profile save is an error and never a success (the preferences are not even sent)', () => {
+      updateProfile.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 500, error: { message: 'x' } })));
+      component.saveProfile();
+      expect(component.successMsg()).toBe('');
+      expect(component.errorMsg()).not.toBe('');
+      expect(updatePrefs).not.toHaveBeenCalled();
+    });
+
+    it('profile saved but preferences failed: an explicit error that says what was and was not saved, no success', () => {
+      updatePrefs.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 500 })));
+      component.saveProfile();
+      expect(component.successMsg()).toBe('');
+      expect(component.errorMsg()).toContain('تم حفظ بيانات الملف');
+      expect(component.errorMsg()).toContain('تفضيلات الإشعارات');
+    });
+
+    it('preferences that could not be loaded are not editable and are never overwritten on save', async () => {
+      TestBed.resetTestingModule();
+      await configure('CLIENT_INDIVIDUAL', { prefs: throwError(() => new HttpErrorResponse({ status: 500 })) });
+      expect(component.prefsState()).toBe('error');
+      render();
+      expect(el().querySelector('[data-testid="prefs-load-error"]')).toBeTruthy();
+      expect((el().querySelector('[data-testid="notif-email"]') as HTMLInputElement).disabled).toBe(true);
+      component.saveProfile();
+      expect(updatePrefs).not.toHaveBeenCalled();
+    });
+
+    it('Telegram and WhatsApp (no such channel in the platform) are not offered, with the reason', () => {
+      expect(el().textContent).toContain('غير مدعومتين');
+      expect(el().querySelector('input[type="checkbox"]:not([data-testid])')).toBeNull();
     });
   });
 

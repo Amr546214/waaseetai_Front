@@ -2,6 +2,7 @@ import { Component, DestroyRef, ElementRef, inject, signal, computed } from '@an
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { PhoneChange } from '../../../../../sheards/phone-change/phone-change';
 import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-input.component';
@@ -47,6 +48,7 @@ export class ProfileEdit {
 	private destroyRef = inject(DestroyRef);
 	authStore = inject(AuthStore);
 	profileApi = inject(ProfileApiService);
+	private prefsApi = inject(NotificationPreferencesService);
 	fb = inject(FormBuilder);
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly router = inject(Router);
@@ -68,6 +70,8 @@ export class ProfileEdit {
 	notifInApp = signal(true);
 	notifTelegram = signal(false);
 	notifWhatsapp = signal(false);
+	/** The shared notification-preferences map (email / in-app channel keys): loaded before the toggles are editable, saved with the profile. */
+	prefsState = signal<'loading' | 'ready' | 'error'>('loading');
 
 	/** What the backend still needs for 100% (GET /profiles/me -> missingItems). Same source as the percentage above. */
 	missingItems = signal<CompletionMissingItem[]>([]);
@@ -211,7 +215,7 @@ export class ProfileEdit {
 			// Backend updateProfileSchema: website must be a URL, bio max 1000 (names min 2, above).
 			website: ['', [httpUrlValidator]],
 			bio: ['', [Validators.maxLength(1000)]],
-			// The fields below are shown but NOT persisted for a client (see CLIENT_UNSAVED_FIELDS).
+			// Public-profile extras: stored on ClientProfile (PUT /profiles/update) and read back by GET /profiles/me.
 			portfolioUrl: ['', [httpUrlValidator]],
 			linkedinUrl: ['', [httpUrlValidator]],
 			personalWebsiteUrl: ['', [httpUrlValidator]],
@@ -308,8 +312,12 @@ export class ProfileEdit {
 
 					if (this.isClient) {
 						this.clientForm.patchValue(profile);
+						// a never-saved language / timezone comes back null: keep the form defaults instead of an empty select
 						const pAny = profile as any;
-						if (pAny.interests) this.interests.set(pAny.interests);
+						if (!pAny.interfaceLanguage) this.clientForm.patchValue({ interfaceLanguage: 'العربية' });
+						if (!pAny.timezone) this.clientForm.patchValue({ timezone: '(GMT+3) توقيت الرياض' });
+						this.interests.set(Array.isArray(pAny.interests) ? pAny.interests : []);
+						this.loadNotificationPrefs();
 					} else {
 						this.providerForm.patchValue(profile);
 						if (profile.skills) this.skills.set(profile.skills);
@@ -448,13 +456,6 @@ export class ProfileEdit {
 		}
 	}
 
-	/**
-	 * Fields of the client form that PUT /profiles/update does not persist for a CLIENT (the zod schema drops them) or
-	 * cannot store (linkedinUrl is a provider column: the CLIENT upsert would hit an unknown column). They are shown
-	 * disabled with a notice and never sent.
-	 */
-	static readonly CLIENT_UNSAVED_FIELDS = ['portfolioUrl', 'linkedinUrl', 'personalWebsiteUrl', 'interfaceLanguage', 'timezone'];
-
 	private root(): HTMLElement {
 		return this.host.nativeElement as HTMLElement;
 	}
@@ -469,6 +470,20 @@ export class ProfileEdit {
 		}
 	}
 
+	private loadNotificationPrefs() {
+		this.prefsState.set('loading');
+		this.prefsApi.getPreferences().subscribe({
+			next: (res) => {
+				const settings = (res?.success && res.data?.settings) ? res.data.settings : null;
+				if (!settings) { this.prefsState.set('error'); return; }
+				this.notifEmail.set(settings['channel_email'] !== false);
+				this.notifInApp.set(settings['channel_in_app'] !== false);
+				this.prefsState.set('ready');
+			},
+			error: () => this.prefsState.set('error')
+		});
+	}
+
 	saveProfile() {
 		this.errorMsg.set('');
 		this.successMsg.set('');
@@ -480,9 +495,7 @@ export class ProfileEdit {
 		if (!attempt.valid) return;
 
 		if (this.isClient) {
-			// Only what the backend stores for a client (see CLIENT_UNSAVED_FIELDS).
-			const { portfolioUrl, linkedinUrl, personalWebsiteUrl, interfaceLanguage, timezone, ...saved } = this.clientForm.value;
-			payload = saved;
+			payload = { ...this.clientForm.value, interests: this.interests() };
 		} else {
 			payload = { ...this.providerForm.value, skills: this.skills(), interests: this.interests() };
 			// Ensure numeric rate
@@ -492,13 +505,27 @@ export class ProfileEdit {
 		this.isSaving.set(true);
 		this.profileApi.updateProfile(payload).subscribe({
 			next: (res) => {
-				this.isSaving.set(false);
-				if (res.success) {
-					this.successMsg.set('تم تحديث بيانات البروفايل بنجاح!');
-					setTimeout(() => this.successMsg.set(''), 3000);
-					this.refreshCompletion();
-				} else {
+				if (!res.success) {
+					this.isSaving.set(false);
 					this.errorMsg.set(res.message || 'حدث خطأ أثناء الحفظ');
+					return;
+				}
+				// Client: the channel toggles are part of this save. Success is shown only when BOTH the profile and the preferences are stored.
+				if (this.isClient && this.prefsState() === 'ready') {
+					this.prefsApi.updatePreferences({ channel_email: this.notifEmail(), channel_in_app: this.notifInApp() }).subscribe({
+						next: (pr) => {
+							this.isSaving.set(false);
+							if (pr?.success) this.finishSave();
+							else this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
+						},
+						error: () => {
+							this.isSaving.set(false);
+							this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
+						}
+					});
+				} else {
+					this.isSaving.set(false);
+					this.finishSave();
 				}
 			},
 			error: (err) => {
@@ -506,6 +533,12 @@ export class ProfileEdit {
 				this.showSaveError(form, err, 'فشل الحفظ، يرجى المحاولة مرة أخرى');
 			}
 		});
+	}
+
+	private finishSave() {
+		this.successMsg.set('تم تحديث بيانات البروفايل بنجاح!');
+		setTimeout(() => this.successMsg.set(''), 3000);
+		this.refreshCompletion();
 	}
 
 	saveTab(tabName: string) {
