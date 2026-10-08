@@ -184,6 +184,9 @@
 							</svg>
 							<h3 class="text-base font-bold text-slate-900 dark:text-white">رفع وثائق الهوية</h3>
 						</div>
+						@if (kycPending()) {
+						<div role="status" data-testid="kyc-pending-note" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر أدناه كما حُفظت.</div>
+						}
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
 							<div class="flex flex-col gap-2">

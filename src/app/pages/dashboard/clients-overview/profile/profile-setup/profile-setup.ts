@@ -15,6 +15,7 @@ import { paypalEmailValidators } from '../../../../../core/validators/paypal-ema
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
+import { CLIENT_EDIT_PAGE, SETUP_REDIRECT_MESSAGE, resolveClientSetup } from './profile-setup-state';
 
 const SETUP_LABELS: Record<string, string> = {
 	idNumber: 'رقم الهوية الوطنية',
@@ -58,6 +59,8 @@ export class ProfileSetupDashboard implements OnInit {
 
 	isSubmitting = signal<boolean>(false);
 	currentStep = signal<number>(1);
+	/** ID documents were sent and wait for review (kycStatus PENDING): shown as pending, never as an empty step. */
+	kycPending = signal<boolean>(false);
 	toastMsg = signal<string | null>(null);
 	isUploading = signal<{ [key: string]: boolean }>({});
 	/** What is missing after a failed Next/submit attempt (shown by <ws-form-summary>). */
@@ -145,6 +148,19 @@ export class ProfileSetupDashboard implements OnInit {
 						supportingDocs: data.supportingDocsUrl || data.supportingDocsUrlAccess?.private ? { url: data.supportingDocsUrl ?? null, access: data.supportingDocsUrlAccess ?? null } : null
 					});
 					if (data.notes) this.setupForm.get('documents.notes')?.setValue(data.notes);
+
+					// Agreements that were already accepted stay accepted (the wizard saves them with the rest).
+					this.setupForm.get('agreements')?.patchValue({ accurate: !!data.accurateAgreed, terms: !!data.termsAgreed, privacy: !!data.privacyAgreed });
+					this.kycPending.set(data.kycStatus === 'PENDING');
+
+					// Open where the work really is (first missing step from the saved data), not always on step 1; nothing left for the wizard = go to the edit page.
+					const start = resolveClientSetup(data);
+					if (start.kind === 'redirect') {
+						this.notify.info(SETUP_REDIRECT_MESSAGE[start.reason]);
+						this.router.navigateByUrl(CLIENT_EDIT_PAGE);
+						return;
+					}
+					this.currentStep.set(start.step);
 
 					// Disable verified fields to prevent tampering
 					if (data.kycStatus === 'VERIFIED') {
@@ -237,6 +253,18 @@ export class ProfileSetupDashboard implements OnInit {
 		reader.readAsDataURL(file);
 	}
 
+	/** The saved data may have just taken the profile to 100%: update the completion the sidebar / banners read (best effort). */
+	private refreshStoredCompletion() {
+		this.profileApi.getClientProfileSetup().subscribe({
+			next: (res: any) => {
+				const pct = Number(res?.data?.completionPercentage);
+				const user = this.authStore.currentUser();
+				if (user && Number.isFinite(pct)) this.authStore.authenticate(this.authStore.token()!, { ...user, profileCompletionPercent: pct });
+			},
+			error: () => { /* the next dashboard / profile load refreshes it */ }
+		});
+	}
+
 	skipSetup() {
 		this.showToast('تم التخطي — يمكنك العودة لاحقاً');
 		setTimeout(() => {
@@ -292,6 +320,7 @@ export class ProfileSetupDashboard implements OnInit {
 			next: () => {
 				this.isSubmitting.set(false);
 				this.showToast('تم حفظ البيانات بنجاح وإرسال المستندات للمراجعة');
+				this.refreshStoredCompletion();
 
 				setTimeout(() => {
 					this.router.navigate(['/client-overview/profile']);

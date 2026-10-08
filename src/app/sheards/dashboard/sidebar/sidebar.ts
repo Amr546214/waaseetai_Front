@@ -639,6 +639,8 @@ export class Sidebar implements OnInit {
 
 	private getClientNavItems(): NavItem[] {
 		const isCompanyClient = this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
+		// 100% = nothing left for the "استكمال البيانات" wizard: its link disappears (individual clients; companies are untouched).
+		const clientProfileComplete = !isCompanyClient && Number(this.authStore.currentUser()?.profileCompletionPercent) >= 100;
 				return [
 			{ type: 'header', label: 'الرئيسية' },
 			{
@@ -721,7 +723,7 @@ export class Sidebar implements OnInit {
 				children: [
 					{ type: 'link', label: 'بيانات الملف', route: '/client-overview/profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
 					{ type: 'link', label: 'تعديل الملف الشخصي', route: '/client-overview/profile/edit', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
-					{ type: 'link', label: 'استكمال البيانات', route: '/client-overview/profile-setup', icon: 'M5 13l4 4L19 7' },
+					...(clientProfileComplete ? [] : [{ type: 'link', label: 'استكمال البيانات', route: '/client-overview/profile-setup', icon: 'M5 13l4 4L19 7' } as NavItem]),
 					{ type: 'link', label: 'طلبات تعديل الملف', route: '/client-overview/profile/requests', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
 					{ type: 'link', label: 'سجل إجراءات الحساب', route: '/client-overview/profile/logs', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
 					{ type: 'link', label: 'إضافة حساب', route: '/client-overview/profile/add-account', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },

@@ -30,12 +30,21 @@ export class ClientOverviewComponent implements OnInit {
 	companyError = signal<string>('');
 	isCompanyProfileBannerDismissed = false;
 
+	/** The completion the sidebar reads (to hide "استكمال البيانات" at 100%) follows what the dashboard just loaded. */
+	private syncStoredCompletion(): void {
+		const pct = Number(this.dashboardStore.dashboardData()?.summary?.profileCompletionPercent);
+		const user = this.authStore.currentUser();
+		if (!user || !Number.isFinite(pct) || user.profileCompletionPercent === pct) return;
+		const token = this.authStore.token();
+		if (token) this.authStore.authenticate(token, { ...user, profileCompletionPercent: pct });
+	}
+
 	ngOnInit(): void {
 		if (this.isCompany()) {
 			this.fetchCompanyDashboard();
 		} else {
 			setTimeout(() => {
-				this.dashboardStore.fetchDashboardStats();
+				this.dashboardStore.fetchDashboardStats().then(() => this.syncStoredCompletion());
 			});
 		}
 

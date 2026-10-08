@@ -1,4 +1,5 @@
 import { Routes } from "@angular/router";
+import { clientSetupGuard } from './profile/profile-setup/profile-setup.guard';
 
 export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{
@@ -207,6 +208,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	},
 	{
 		path: 'profile-setup',
+		canActivate: [clientSetupGuard],
 		loadComponent: () => import('./profile/profile-setup/profile-setup').then(m => m.ProfileSetupDashboard),
 		data: { title: "استكمال البيانات" }
 	},
