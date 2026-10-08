@@ -8,6 +8,8 @@
 </div>
 } @else {
 <div class="main-inner">
+	<!-- completion card: only while the profile is incomplete (hidden at 100%) -->
+	@if (profile() && (profile()!.completionPercentage || 0) < 100) {
 	<div class="prog-header">
 		<span class="prog-label">اكتمال الملف التسويقي</span>
 		<span class="prog-pct">{{ profile()?.completionPercentage || 0 }}%</span>
@@ -15,8 +17,6 @@
 	<div class="prog-bar">
 		<div class="prog-fill" [style.width]="(profile()?.completionPercentage || 0) + '%'"></div>
 	</div>
-	@if (!missingItems().length) {
-	<div class="prog-hint" data-testid="prog-hint">ملفك التسويقي مكتمل 100%</div>
 	}
 	<ws-completion-box [items]="missingItems()" (select)="openMissingItem($event)" />
 

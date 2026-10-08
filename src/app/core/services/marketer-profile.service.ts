@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export enum ChangeRequestStatus {
@@ -119,8 +119,13 @@ export class MarketerProfileService {
 	private http = inject(HttpClient);
 	private apiUrl = `${environment.url_api}/marketer/profile`;
 
+	/** The last profile any page read: the sidebar derives "is there still something to set up" from it (null until the first read). */
+	readonly profileSnapshot = signal<MarketerProfile | null>(null);
+
 	getProfile(): Observable<ApiResponse<MarketerProfile>> {
-		return this.http.get<ApiResponse<MarketerProfile>>(this.apiUrl);
+		return this.http.get<ApiResponse<MarketerProfile>>(this.apiUrl).pipe(
+			tap(res => { if (res?.success && res.data) this.profileSnapshot.set(res.data); })
+		);
 	}
 
 	updateMarketingInfo(data: { avatarUrl?: string; bio?: string }): Observable<ApiResponse<MarketerProfile>> {
