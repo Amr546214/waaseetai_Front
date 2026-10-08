@@ -61,6 +61,8 @@ export class ProfileEdit {
 	isChangingPassword = signal(false);
 
 	completionPercentage = signal<number>(0);
+	/** True once the completion came from the server: the progress card is shown only for a known value below 100 (no 0% flash for a complete profile). */
+	completionLoaded = signal<boolean>(false);
 	skills = signal<string[]>([]);
 	interests = signal<string[]>([]);
 
@@ -78,6 +80,7 @@ export class ProfileEdit {
 
 	private applyCompletion(profile: any) {
 		this.completionPercentage.set(Number(profile?.profileCompletionPercent ?? profile?.completionPercentage) || 0);
+		this.completionLoaded.set(true);
 		this.missingItems.set(Array.isArray(profile?.missingItems) ? profile.missingItems : []);
 	}
 
