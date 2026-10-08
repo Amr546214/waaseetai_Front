@@ -27,6 +27,17 @@
     </div>
   </div>
 
+  @if (isLoading()) {
+  <div class="empty-wrap" role="status" aria-live="polite" data-testid="requests-loading" style="opacity:.7">
+    <div style="font-size:14px;font-weight:700" class="txt-muted">جاري تحميل طلبات التعديل...</div>
+  </div>
+  } @else if (loadError()) {
+  <div class="empty-wrap" role="alert" data-testid="requests-load-error">
+    <div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل طلبات التعديل حاليًا</div>
+    <div style="font-size:12px;max-width:360px;margin:0 auto 14px" class="txt-muted">لم نتمكن من جلب طلباتك، وهذا لا يعني أنه لا توجد طلبات. حاول مرة أخرى.</div>
+    <button type="button" class="filter-chip active" (click)="loadRequests()" data-testid="requests-retry">إعادة المحاولة</button>
+  </div>
+  } @else {
   <!-- إحصاء -->
   <div class="stat-row">
     <div class="stat-box"><div class="stat-num txt-purple">{{ summary()?.pendingAiCount || 0 }}</div><div class="stat-lbl">قيد المراجعة</div></div>
@@ -151,6 +162,7 @@
       </div>
     }
   </div>
+  }
 </div>
 
 @if (selectedRequest(); as req) {

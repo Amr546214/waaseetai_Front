@@ -19,6 +19,8 @@ export class Requests implements OnInit {
   activeFilter = signal<string>('ALL');
   requestsData = signal<any | null>(null);
   isLoading = signal<boolean>(true);
+  /** The read failed (401/429/5xx/network): never shown as zero counters / "no requests". */
+  loadError = signal<boolean>(false);
   
   showToast = signal<string>('');
 
@@ -97,15 +99,21 @@ export class Requests implements OnInit {
 
   loadRequests() {
     this.isLoading.set(true);
+    this.loadError.set(false);
     this.providerProfileService.getRequests(this.activeFilter()).subscribe({
       next: (res: any) => {
-        if (res.success) {
+        if (res?.success && res.data) {
           this.requestsData.set(res.data);
+        } else {
+          this.requestsData.set(null);
+          this.loadError.set(true);
         }
         this.isLoading.set(false);
       },
       error: (err: any) => {
         console.error('Failed to load requests', err);
+        this.requestsData.set(null);
+        this.loadError.set(true);
         this.isLoading.set(false);
       }
     });

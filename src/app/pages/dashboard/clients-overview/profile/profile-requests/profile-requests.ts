@@ -14,6 +14,8 @@ export class ProfileRequests implements OnInit {
 	activeFilter = signal<string>('ALL');
 	requestsData = signal<any | null>(null);
 	isLoading = signal<boolean>(true);
+	/** The read failed (401/429/5xx/network): never shown as zero counters / "no requests". */
+	loadError = signal<boolean>(false);
 	showToast = signal<string>('');
 
 	ngOnInit() {
@@ -22,9 +24,16 @@ export class ProfileRequests implements OnInit {
 
 	loadRequests() {
 		this.isLoading.set(true);
+		this.loadError.set(false);
 		this.profileApiService.getMyChangeRequests().subscribe({
 			next: (res: any) => {
-				const dataArray = res.data || res || [];
+				const dataArray = res?.data ?? res;
+				if (!Array.isArray(dataArray)) {
+					this.requestsData.set(null);
+					this.loadError.set(true);
+					this.isLoading.set(false);
+					return;
+				}
 				
 				const filter = this.activeFilter();
 				const filteredReqs = filter === 'ALL' ? dataArray : dataArray.filter((r: any) => r.status === filter);
@@ -46,6 +55,8 @@ export class ProfileRequests implements OnInit {
 			},
 			error: (err: any) => {
 				console.error('Failed to load requests', err);
+				this.requestsData.set(null);
+				this.loadError.set(true);
 				this.isLoading.set(false);
 			}
 		});
