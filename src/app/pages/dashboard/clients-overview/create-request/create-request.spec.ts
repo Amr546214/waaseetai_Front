@@ -98,6 +98,7 @@ describe('CreateRequest', () => {
     it('sends the stored JWT via auth.token on the ai:generate_description socket connection', () => {
       (localStorage as any).setItem('waseet_token', 'test-jwt-abc');
       component.title.set('تطوير متجر إلكتروني لبيع الملابس');
+      component.description.set('أحتاج متجرًا إلكترونيًا لبيع الملابس يدعم الدفع عبر الإنترنت وإدارة المخزون');
 
       component.triggerAiDescription();
 
@@ -110,6 +111,7 @@ describe('CreateRequest', () => {
     it('never puts the token in the socket URL/query string', () => {
       (localStorage as any).setItem('waseet_token', 'test-jwt-abc');
       component.title.set('تطوير متجر إلكتروني لبيع الملابس');
+      component.description.set('أحتاج متجرًا إلكترونيًا لبيع الملابس يدعم الدفع عبر الإنترنت وإدارة المخزون');
 
       component.triggerAiDescription();
 
