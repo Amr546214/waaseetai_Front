@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -17,7 +18,7 @@ interface StatRow {
 @Component({
   selector: 'app-sa-plan-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, WsSelectComponent],
   templateUrl: './sa-plan-details.html',
   styleUrl: './sa-plan-details.css',
 })

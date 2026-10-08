@@ -55,15 +55,11 @@
         <div class="scp-field-lbl">رمز الكوبون</div>
         <input type="text" class="scp-input scp-uppercase" placeholder="MYCODE2025" [ngModel]="newCode()" (ngModelChange)="newCode.set($event)">
         <div class="scp-field-lbl">نوع الخصم</div>
-        <select class="scp-input" [ngModel]="discountType()" (ngModelChange)="discountType.set($event)">
-          @for (t of discountTypes; track t) { <option [value]="t">{{ t }}</option> }
-        </select>
+        <ws-select [options]="discountTypes" [ngModel]="discountType()" (ngModelChange)="discountType.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
         <div class="scp-field-lbl">قيمة الخصم</div>
         <input type="number" class="scp-input" placeholder="20" [ngModel]="discountValue()" (ngModelChange)="discountValue.set($event)">
         <div class="scp-field-lbl">الجمهور المستهدف</div>
-        <select class="scp-input" [ngModel]="audience()" (ngModelChange)="audience.set($event)">
-          @for (a of audiences; track a) { <option [value]="a">{{ a }}</option> }
-        </select>
+        <ws-select [options]="audiences" [ngModel]="audience()" (ngModelChange)="audience.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
         <div class="scp-field-lbl">تاريخ الانتهاء</div>
         <input type="date" class="scp-input" [ngModel]="expiryDate()" (ngModelChange)="expiryDate.set($event)">
         <div class="scp-field-lbl">الحد الأقصى للاستخدام</div>

@@ -70,6 +70,8 @@ export class WsSelectComponent implements ControlValueAccessor {
 	private readonly cdr = inject(ChangeDetectorRef);
 
 	readonly options = input<ReadonlyArray<string | WsSelectOption>>([]);
+	/** Fixed options shown before `options` (e.g. an "all" choice in front of a data-driven list). */
+	readonly leading = input<ReadonlyArray<string | WsSelectOption>>([]);
 	readonly placeholder = input<string>('اختر');
 	readonly ariaLabel = input<string | undefined>(undefined);
 
@@ -92,7 +94,7 @@ export class WsSelectComponent implements ControlValueAccessor {
 	private onTouched: () => void = () => {};
 
 	protected normalized(): WsSelectOption[] {
-		return this.options().map(o => typeof o === 'string' ? { value: o, label: o } : o);
+		return [...this.leading(), ...this.options()].map(o => typeof o === 'string' ? { value: o, label: o } : o);
 	}
 	protected selectedLabel(): string {
 		return this.normalized().find(o => o.value === this.value())?.label ?? '';

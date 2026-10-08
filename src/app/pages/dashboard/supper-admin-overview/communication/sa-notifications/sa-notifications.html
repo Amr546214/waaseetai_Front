@@ -77,9 +77,7 @@
 
       <div class="san-field">
         <div class="san-field-lbl">الجمهور المستهدف</div>
-        <select class="san-input" [ngModel]="bulkAudience()" (ngModelChange)="bulkAudience.set($event)">
-          @for (a of bulkAudiences; track a) { <option [value]="a">{{ a }}</option> }
-        </select>
+        <ws-select [options]="bulkAudiences" [ngModel]="bulkAudience()" (ngModelChange)="bulkAudience.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="san-field">

@@ -33,11 +33,7 @@
           </div>
           <div class="form-group">
             <label class="form-lbl">النوع</label>
-            <select class="form-input" [ngModel]="planType()" (ngModelChange)="planType.set($event)">
-              @for (t of typeOptions; track t.value) {
-                <option [value]="t.value">{{ t.label }}</option>
-              }
-            </select>
+            <ws-select [options]="typeOptions" [ngModel]="planType()" (ngModelChange)="planType.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
           </div>
         </div>
         <div class="form-row">

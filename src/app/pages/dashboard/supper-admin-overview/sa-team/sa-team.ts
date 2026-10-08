@@ -1,4 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TEAM_MEMBERS, TeamMember, TeamTab } from './sa-team.data';
@@ -6,7 +8,7 @@ import { TEAM_MEMBERS, TeamMember, TeamTab } from './sa-team.data';
 @Component({
   selector: 'app-sa-team',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, WsSelectComponent, FormsModule],
   templateUrl: './sa-team.html',
   styleUrl: './sa-team.css',
 })

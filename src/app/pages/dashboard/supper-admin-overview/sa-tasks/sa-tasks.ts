@@ -1,4 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 
 type TaskTab = 'open' | 'pending' | 'done' | 'all';
@@ -24,7 +26,7 @@ interface AdminTask {
 @Component({
   selector: 'app-sa-tasks',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WsSelectComponent, FormsModule],
   templateUrl: './sa-tasks.html',
   styleUrl: './sa-tasks.css',
 })

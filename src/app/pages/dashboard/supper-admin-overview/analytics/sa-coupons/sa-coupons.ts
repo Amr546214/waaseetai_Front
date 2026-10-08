@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -16,7 +17,7 @@ interface Coupon {
 @Component({
   selector: 'app-sa-coupons',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, WsSelectComponent],
   templateUrl: './sa-coupons.html',
   styleUrl: './sa-coupons.css',
 })

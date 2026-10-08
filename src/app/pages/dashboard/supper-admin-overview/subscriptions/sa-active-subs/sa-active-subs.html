@@ -37,16 +37,8 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
       <input type="search" placeholder="ابحث بالمستخدم أو رقم الاشتراك..." [ngModel]="search()" (ngModelChange)="search.set($event)" />
     </div>
-    <select class="fr-sel" [ngModel]="planFilter()" (ngModelChange)="planFilter.set($event)">
-      @for (p of planOptions; track p) {
-        <option [value]="p === 'كل الباقات' ? 'all' : p">{{ p }}</option>
-      }
-    </select>
-    <select class="fr-sel" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
-      @for (o of statusOptions; track o.value) {
-        <option [value]="o.value">{{ o.label }}</option>
-      }
-    </select>
+    <ws-select [options]="planFilterOptions" [ngModel]="planFilter()" (ngModelChange)="planFilter.set($event)" ariaLabel="الباقة" style="min-width:160px;max-width:100%;display:block"></ws-select>
+    <ws-select [options]="statusOptions" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
   </div>
 
   <div class="tbl-card">

@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal, effect } from '@angular/core';
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -99,7 +100,7 @@ const IMPORT_CATALOG: CatalogBlock[] = [
 @Component({
   selector: 'app-sa-specialties',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, WsSelectComponent],
   templateUrl: './sa-specialties.html'
 })
 export class SaSpecialties implements OnInit {
@@ -148,6 +149,7 @@ export class SaSpecialties implements OnInit {
   });
 
   filteredCategories = computed(() => this.categories());
+  categoryOptions = computed(() => this.categories().map(c => ({ value: c.id, label: c.nameAr })));
 
   activeSpecsPercentage = computed(() => {
     const s = this.stats();

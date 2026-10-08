@@ -4,9 +4,7 @@
       <h1 class="sap-ttl">Provider Intelligence</h1>
       <p class="sap-sub">تحليلات مقدمي الخدمة — الأعلى أداءً، الأقل، الفرص</p>
     </div>
-    <select class="sap-select" [ngModel]="period()" (ngModelChange)="period.set($event)">
-      @for (p of periods; track p) { <option [value]="p">{{ p }}</option> }
-    </select>
+    <ws-select [options]="periods" [ngModel]="period()" (ngModelChange)="period.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
     <button type="button" class="sap-btn sap-btn-gh">تصدير Excel</button>
   </div>
 
