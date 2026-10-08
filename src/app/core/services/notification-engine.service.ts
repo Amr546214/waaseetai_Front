@@ -152,6 +152,14 @@ export class NotificationEngineService implements OnDestroy {
 		GENERAL: NotificationEngineService.ICON_GENERAL,
 	};
 
+	// Rows created without a category (the backend defaults it to ALL, e.g. NEW_PROPOSAL, CHAT) would otherwise fall in the catch-all bucket and
+	// never count in the offers/projects/finance filters. The type is the real signal, so it decides the filter bucket when the category is generic.
+	private static readonly CATEGORY_BY_TYPE: Record<string, AppNotification['category']> = {
+		NEW_PROPOSAL: 'offers', OFFER_ACCEPTED: 'offers',
+		PROJECT_MATCH: 'projects', STAGE_REVIEW: 'projects', STAGE_DELIVERY: 'projects', PROJECT_COMPLETION_REWARD: 'projects',
+		FINANCIAL: 'finance',
+	};
+
 	private static readonly ICON_BY_CATEGORY: Record<AppNotification['category'], IconStyle> = {
 		offers: NotificationEngineService.ICON_OFFER,
 		projects: NotificationEngineService.ICON_PROJECT,
@@ -348,7 +356,9 @@ export class NotificationEngineService implements OnDestroy {
 	 */
 	mapToAppNotification(raw: any, basePath: NotificationBasePath = '/provider-overview'): AppNotification {
 		const createdAt = raw?.createdAt ? new Date(raw.createdAt) : new Date();
-		const category = NotificationEngineService.CATEGORY_MAP[String(raw?.category ?? '').toUpperCase()] ?? 'security';
+		const category = NotificationEngineService.CATEGORY_MAP[String(raw?.category ?? '').toUpperCase()]
+			?? NotificationEngineService.CATEGORY_BY_TYPE[String(raw?.type ?? '')]
+			?? 'security';
 		const iconStyle = NotificationEngineService.ICON_BY_TYPE[raw?.type as string]
 			?? NotificationEngineService.ICON_BY_CATEGORY[category]
 			?? NotificationEngineService.ICON_GENERAL;
