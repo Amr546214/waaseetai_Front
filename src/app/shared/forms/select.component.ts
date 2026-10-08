@@ -80,7 +80,13 @@ export class WsSelectComponent implements ControlValueAccessor {
 	readonly isDisabled = signal(false);
 	/** Fixed viewport position of the list (computed from the trigger when it opens). */
 	protected readonly pos = signal<{ top: number | null; bottom: number | null; left: number; width: number; maxHeight: number }>({ top: 0, bottom: null, left: 0, width: 0, maxHeight: 260 });
-	private readonly closeOnScroll = (e: Event) => { if (!(e.target instanceof Node && this.host.nativeElement.contains(e.target))) { this.close(); this.cdr.markForCheck(); } };
+	/** The page scrolled/resized under an open list: follow the trigger, and close only when the trigger left the viewport. */
+	private readonly reposition = (e?: Event) => {
+		if (!this.open() || (e?.target instanceof Node && this.host.nativeElement.contains(e.target))) return;
+		const r = (this.host.nativeElement.querySelector('button') as HTMLElement).getBoundingClientRect();
+		if (r.bottom < 0 || r.top > window.innerHeight) { this.close(); } else { this.place(); }
+		this.cdr.markForCheck();
+	};
 
 	private onChange: (v: string) => void = () => {};
 	private onTouched: () => void = () => {};
@@ -111,10 +117,10 @@ export class WsSelectComponent implements ControlValueAccessor {
 		this.cdr.detectChanges();
 		const panel = this.host.nativeElement.querySelector('.ws-sel-panel') as (HTMLElement & { showPopover?: () => void }) | null;
 		try { panel?.showPopover?.(); } catch { /* already shown / unsupported: the fixed + z-index fallback still applies */ }
-		window.addEventListener('scroll', this.closeOnScroll, true);
+		window.addEventListener('scroll', this.reposition, true);
 	}
 	private close() {
-		window.removeEventListener('scroll', this.closeOnScroll, true);
+		window.removeEventListener('scroll', this.reposition, true);
 		this.open.set(false); this.onTouched();
 	}
 
@@ -130,7 +136,7 @@ export class WsSelectComponent implements ControlValueAccessor {
 	}
 
 	@HostListener('window:resize')
-	protected onResize() { if (this.open()) { this.close(); this.cdr.markForCheck(); } }
+	protected onResize() { this.reposition(); }
 
 	pick(i: number) {
 		const o = this.normalized()[i];
