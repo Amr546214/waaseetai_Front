@@ -161,6 +161,9 @@ body{margin:0;font-family:'Tajawal',system-ui,sans-serif;background:var(--pg);co
   background: var(--navy, #0B1437) !important;
   color: var(--txt, #FFFFFF) !important;
 }
+/* Selects that are still native (country/city, admin/website forms): their popup follows the page theme instead of the OS default (white in dark mode). */
+select{color-scheme:dark}
+html.light-theme select,html.theme-light select,body.light-theme select,body.theme-light select{color-scheme:light}
 .container{max-width:var(--container);margin-inline:auto;padding:0 24px}
 
 /* الأرضية: نفس أرضية اللوحة (تدرّجات + شبكة + جزيئات 25/11) */

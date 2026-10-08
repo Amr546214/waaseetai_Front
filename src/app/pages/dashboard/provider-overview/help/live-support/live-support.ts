@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, inject, computed, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -21,7 +22,7 @@ const STATUS_LABELS: Record<TicketStatus, string> = {
 @Component({
 	selector: 'app-provider-live-support',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule],
+	imports: [CommonModule, FormsModule, RouterModule, WsSelectComponent],
 	templateUrl: './live-support.html',
 	styleUrls: ['./live-support.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush

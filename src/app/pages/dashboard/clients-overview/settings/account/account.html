@@ -85,10 +85,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
           <div class="text-[12px] text-[var(--txt-3)]">لغة واجهة الحساب</div>
         </div>
-        <select class="set-sel" [(ngModel)]="language">
-          <option value="العربية">العربية</option>
-          <option value="English">English</option>
-        </select>
+        <ws-select [options]="[{value: 'العربية', label: 'العربية'}, {value: 'English', label: 'English'}]" [(ngModel)]="language" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
@@ -96,10 +93,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">المنطقة الزمنية</div>
           <div class="text-[12px] text-[var(--txt-3)]">يُحتسب عليها مواعيد المشاريع</div>
         </div>
-        <select class="set-sel" [(ngModel)]="timezone">
-          <option value="توقيت الرياض (GMT+3)">توقيت الرياض (GMT+3)</option>
-          <option value="توقيت جدة (GMT+3)">توقيت جدة (GMT+3)</option>
-        </select>
+        <ws-select [options]="[{value: 'توقيت الرياض (GMT+3)', label: 'توقيت الرياض (GMT+3)'}, {value: 'توقيت جدة (GMT+3)', label: 'توقيت جدة (GMT+3)'}]" [(ngModel)]="timezone" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
@@ -107,10 +101,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">العملة</div>
           <div class="text-[12px] text-[var(--txt-3)]">عملة عرض المبالغ</div>
         </div>
-        <select class="set-sel" [(ngModel)]="currency">
-          <option value="دولار أمريكي (USD)">دولار أمريكي (USD)</option>
-          <option value="دولار أمريكي (USD)">دولار أمريكي (USD)</option>
-        </select>
+        <ws-select [options]="[{value: 'دولار أمريكي (USD)', label: 'دولار أمريكي (USD)'}, {value: 'دولار أمريكي (USD)', label: 'دولار أمريكي (USD)'}]" [(ngModel)]="currency" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 flex-wrap">
@@ -118,11 +109,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنسيق التاريخ</div>
           <div class="text-[12px] text-[var(--txt-3)]">طريقة عرض التواريخ في حسابك</div>
         </div>
-        <select class="set-sel" [(ngModel)]="dateFormat">
-          <option value="هجري وميلادي">هجري وميلادي</option>
-          <option value="ميلادي فقط">ميلادي فقط</option>
-          <option value="هجري فقط">هجري فقط</option>
-        </select>
+        <ws-select [options]="[{value: 'هجري وميلادي', label: 'هجري وميلادي'}, {value: 'ميلادي فقط', label: 'ميلادي فقط'}, {value: 'هجري فقط', label: 'هجري فقط'}]" [(ngModel)]="dateFormat" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
     </div>

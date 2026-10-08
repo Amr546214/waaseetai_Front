@@ -100,14 +100,7 @@
 				<div class="field-wrap relative">
 					<label class="field-label block text-xs font-bold text-[var(--txt-2)] mb-1.5" for="parent.provLevel">مستوى الخبرة</label>
 					<div class="relative">
-							<select class="field-select w-full px-3 py-2.5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] text-[13px] font-medium text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer transition-colors" id="provLevel" [ngModel]="parent.provLevel()" (ngModelChange)="parent.provLevel.set($event)">
-							<option value="">أي مستوى</option>
-							<option value="5">مستوى 5 فأعلى</option>
-							<option value="8">مستوى 8 فأعلى</option>
-							<option value="10">مستوى 10 فأعلى</option>
-							<option value="12">مستوى 12 فأعلى</option>
-						</select>
-						<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--txt-3)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+							<ws-select [options]="[{value: '', label: 'أي مستوى'}, {value: '5', label: 'مستوى 5 فأعلى'}, {value: '8', label: 'مستوى 8 فأعلى'}, {value: '10', label: 'مستوى 10 فأعلى'}, {value: '12', label: 'مستوى 12 فأعلى'}]" id="provLevel" [ngModel]="parent.provLevel()" (ngModelChange)="parent.provLevel.set($event)" ></ws-select>
 					</div>
 				</div>
 
@@ -115,13 +108,7 @@
 				<div class="field-wrap relative">
 					<label class="field-label block text-xs font-bold text-[var(--txt-2)] mb-1.5" for="parent.provRating">الحد الأدنى للتقييم</label>
 					<div class="relative">
-							<select class="field-select w-full px-3 py-2.5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] text-[13px] font-medium text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer transition-colors" id="provRating" [ngModel]="parent.provRating()" (ngModelChange)="parent.provRating.set($event)">
-							<option value="">بدون حد أدنى</option>
-							<option value="3">3 نجوم فأعلى</option>
-							<option value="4">4 نجوم فأعلى</option>
-							<option value="4.5">4.5 نجوم فأعلى</option>
-						</select>
-						<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--txt-3)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+							<ws-select [options]="[{value: '', label: 'بدون حد أدنى'}, {value: '3', label: '3 نجوم فأعلى'}, {value: '4', label: '4 نجوم فأعلى'}, {value: '4.5', label: '4.5 نجوم فأعلى'}]" id="provRating" [ngModel]="parent.provRating()" (ngModelChange)="parent.provRating.set($event)" ></ws-select>
 					</div>
 				</div>
 
@@ -129,12 +116,7 @@
 				<div class="field-wrap relative">
 					<label class="field-label block text-xs font-bold text-[var(--txt-2)] mb-1.5" for="parent.provLang">لغة التواصل</label>
 					<div class="relative">
-							<select class="field-select w-full px-3 py-2.5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] text-[13px] font-medium text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer transition-colors" id="provLang" [ngModel]="parent.provLang()" (ngModelChange)="parent.provLang.set($event)">
-							<option value="ar">العربية</option>
-							<option value="en">الإنجليزية</option>
-							<option value="both">كلتاهما</option>
-						</select>
-						<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--txt-3)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+							<ws-select [options]="[{value: 'ar', label: 'العربية'}, {value: 'en', label: 'الإنجليزية'}, {value: 'both', label: 'كلتاهما'}]" id="provLang" [ngModel]="parent.provLang()" (ngModelChange)="parent.provLang.set($event)" ></ws-select>
 					</div>
 				</div>
 
@@ -142,13 +124,7 @@
 				<div class="field-wrap relative">
 					<label class="field-label block text-xs font-bold text-[var(--txt-2)] mb-1.5" for="parent.provLocation">الموقع</label>
 					<div class="relative">
-							<select class="field-select w-full px-3 py-2.5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] text-[13px] font-medium text-[var(--txt)] outline-none focus:border-[var(--teal)] appearance-none cursor-pointer transition-colors" id="provLocation" [ngModel]="parent.provLocation()" (ngModelChange)="parent.provLocation.set($event)">
-							<option value="">أي موقع</option>
-							<option value="sa">المملكة العربية السعودية</option>
-							<option value="gcc">دول الخليج</option>
-							<option value="any">عالمي</option>
-						</select>
-						<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--txt-3)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+							<ws-select [options]="[{value: '', label: 'أي موقع'}, {value: 'sa', label: 'المملكة العربية السعودية'}, {value: 'gcc', label: 'دول الخليج'}, {value: 'any', label: 'عالمي'}]" id="provLocation" [ngModel]="parent.provLocation()" (ngModelChange)="parent.provLocation.set($event)" ></ws-select>
 					</div>
 				</div>
 			</div>
