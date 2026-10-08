@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse, ClientRequestAiSuggestPayload, ClientRequestPayload } from '../models/api.model';
+import { ApiResponse, ClientRequestPayload } from '../models/api.model';
 
 export interface UploadedAttachment {
 	fileName: string;
@@ -31,13 +31,6 @@ export class ProjectApiService {
 	 */
 	getMeta(): Observable<ApiResponse<unknown>> {
 		return this.http.get<ApiResponse<unknown>>(`${this.apiUrl}/meta`);
-	}
-
-	/**
-	 * Get AI-powered suggestions for client request draft
-	 */
-	aiSuggest(payload: ClientRequestAiSuggestPayload): Observable<ApiResponse<unknown>> {
-		return this.http.post<ApiResponse<unknown>>(`${this.apiUrl}/ai-suggest`, payload);
 	}
 
 	/**

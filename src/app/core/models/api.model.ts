@@ -41,10 +41,3 @@ export interface ClientRequestPayload {
   milestones?: Array<{ name: string; pct: number }>;
 }
 
-export interface ClientRequestAiSuggestPayload {
-  title?: string;
-  description?: string;
-  specialtyId?: string;
-  specialtyName?: string;
-  subSpecialties?: string[];
-}

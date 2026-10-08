@@ -156,7 +156,6 @@ export class CreateRequest implements OnInit, OnDestroy {
   selectedSpec = signal<string | null>(null);
   selectedSubs = signal<Set<string>>(new Set());
   otherText = signal('');
-  showAIBanner = signal(true);
   MAX_SUBS = 5;
 
   specialties = signal<Specialty[]>([
@@ -571,46 +570,6 @@ export class CreateRequest implements OnInit, OnDestroy {
 
   clearSearch() {
     this.searchQuery.set('');
-  }
-
-  applyAISuggestion() {
-    const payload = {
-      title: this.title(),
-      description: this.description(),
-      specialtyName: this.currentSpec()?.name || 'تقنية المعلومات',
-      subSpecialties: Array.from(this.selectedSubs())
-    };
-
-    this.projectApi.aiSuggest(payload).subscribe({
-      next: (res: any) => {
-        if (res && res.success && res.data) {
-          const data = res.data;
-          if (data.suggestedTitle && !this.title()) this.title.set(data.suggestedTitle);
-          if (data.suggestedDescription && !this.description()) this.description.set(data.suggestedDescription);
-          if (data.recommendedMinBudget) this.budgetMin.set(data.recommendedMinBudget);
-          if (data.recommendedMaxBudget) this.budgetMax.set(data.recommendedMaxBudget);
-          if (data.suggestedDurationDays && !this.deliveryDays()) this.deliveryDays.set(data.suggestedDurationDays);
-
-          if (Array.isArray(data.suggestedSubSpecialties)) {
-            const newSet = new Set(this.selectedSubs());
-            // Only suggestions that exist as chips of the chosen specialty are applied: every counted sub-specialty is a visible, selected chip.
-            const listed = new Set(this.currentSpec()?.subs ?? []);
-            data.suggestedSubSpecialties.filter((s: string) => listed.has(s)).slice(0, this.MAX_SUBS).forEach((s: string) => {
-              if (newSet.size < this.MAX_SUBS) newSet.add(s);
-            });
-            this.selectedSubs.set(newSet);
-          }
-
-          this.showAIBanner.set(false);
-          this.showToast(data.personalizedNote || 'تم تطبيق توصيات وسيط AI الذكية بنجاح!', 'toast-ok');
-        }
-      },
-      error: () => {
-        // AI Cleanup Batch 2: this used to auto-select a hardcoded "tech" specialty and
-        // toast it as an applied AI suggestion even though the AI call had failed.
-        this.showToast('تعذر الحصول على اقتراح وسيط AI حاليا، يمكنك اختيار التخصص يدويا', 'toast-warn');
-      }
-    });
   }
 
   // ==============================
