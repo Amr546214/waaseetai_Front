@@ -641,6 +641,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   aiPhase = signal<'idle' | 'validating' | 'generating'>('idle');
 
   /** Rewriting only: the AI restates a title + description the client already wrote, it never writes them. */
+  readonly rewriteInputMessage = REWRITE_INPUT_REQUIRED_MESSAGE;
   canRefineWithAi = computed(() => canRewrite(this.title(), this.description()));
 
   triggerAiDescription() {
