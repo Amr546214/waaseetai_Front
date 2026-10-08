@@ -172,6 +172,7 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
 	toastMessage = signal<string | null>(null);
+	markingAll = signal<boolean>(false);
 
 	filters = [
 		{ id: 'all', label: 'الكل' },
@@ -294,6 +295,17 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 		return groups;
 	});
 
+	/** The AI chip only exists when there really are AI notifications (or it is the open filter): no AI promise without AI data. */
+	visibleFilters = computed(() => this.filters.filter(f => f.id !== 'ai' || this.notifications().some(n => n.category === 'ai') || this.activeFilter() === 'ai'));
+
+	unreadLabel = computed(() => {
+		const n = this.unreadCount();
+		if (n === 0) return 'لا توجد إشعارات غير مقروءة';
+		if (n === 1) return 'إشعار واحد غير مقروء';
+		if (n === 2) return 'إشعاران غير مقروءين';
+		return n <= 10 ? `${n} إشعارات غير مقروءة` : `${n} إشعارًا غير مقروء`;
+	});
+
 	filterCount(catId: string) {
 		if (catId === 'all') return this.notifications().length;
 		return this.notifications().filter(n => n.category === catId).length;
@@ -305,20 +317,19 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	}
 
 	markAllRead() {
+		if (this.unreadCount() === 0 || this.markingAll()) return;
+		this.markingAll.set(true);
 		this.notificationEngine.markAllNotificationsAsRead().subscribe({
 			next: () => {
-				this.notifications.update(list =>
-					list.map(n => ({ ...n, isUnread: false }))
-				);
+				this.markingAll.set(false);
+				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false })));
 				this.notificationEngine.unreadCount.set(0);
 				this.showToast('تم تعليم كل الإشعارات كمقروءة');
 			},
-			error: (err) => {
-				console.error('Error marking all as read:', err);
-				this.notifications.update(list =>
-					list.map(n => ({ ...n, isUnread: false }))
-				);
-				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+			error: () => {
+				// Never fake it: the server did not record it, so the list and the counters stay as they are.
+				this.markingAll.set(false);
+				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
 			}
 		});
 	}

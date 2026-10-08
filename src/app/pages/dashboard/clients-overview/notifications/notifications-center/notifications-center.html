@@ -4,10 +4,10 @@
   <div class="flex items-start justify-between gap-3.5 flex-wrap mb-4">
     <div>
       <h1 class="text-xl font-black text-[var(--txt)]">الإشعارات</h1>
-      <div class="text-xs text-[var(--txt-3)] mt-1">{{ unreadCount() }} إشعارات غير مقروءة</div>
+      <div class="text-xs text-[var(--txt-3)] mt-1">{{ unreadLabel() }}</div>
     </div>
     <div class="flex gap-2.5 items-center flex-wrap">
-      <button type="button" (click)="markAllRead()" class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--inp-bg,rgba(255,255,255,.04))] border border-[var(--sec-bd,rgba(255,255,255,.10))] rounded-xl text-[var(--txt-3)] text-xs font-bold hover:bg-[rgba(255,255,255,.08)] hover:text-[var(--txt)] transition-all">
+      <button type="button" data-testid="mark-all-read" [disabled]="unreadCount() === 0 || markingAll()" (click)="markAllRead()" class="disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--inp-bg,rgba(255,255,255,.04))] border border-[var(--sec-bd,rgba(255,255,255,.10))] rounded-xl text-[var(--txt-3)] text-xs font-bold hover:bg-[rgba(255,255,255,.08)] hover:text-[var(--txt)] transition-all">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         تعليم الكل كمقروء
       </button>
@@ -21,20 +21,9 @@
     </div>
   </div>
 
-  <!-- AI Disclosure -->
-  <div class="flex items-center gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-2xl mb-4">
-    <div class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0 text-[var(--ai-txt,#7B2FBE)]">
-      <svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
-    </div>
-    <div class="flex-1">
-      <div class="text-[10px] font-extrabold text-[var(--ai-txt,#A56BE0)] tracking-wider mb-0.5">وسيط، ترتيب تلقائي</div>
-      <p class="text-[13px] text-[var(--txt-2,#A8B2D1)]">تُرتَّب إشعاراتك تلقائياً حسب الأهمية، ويُبرز ما يحتاج إجراءً عاجلاً</p>
-    </div>
-  </div>
-
   <!-- Filters -->
   <div class="flex gap-2 flex-wrap mb-3.5">
-    <button *ngFor="let f of filters" type="button" class="filter-chip" [class.active]="activeFilter() === f.id" (click)="setFilter(f.id)">
+    <button *ngFor="let f of visibleFilters()" type="button" class="filter-chip" [class.active]="activeFilter() === f.id" (click)="setFilter(f.id)">
       {{ f.label }}<span class="fc-count">{{ filterCount(f.id) }}</span>
     </button>
   </div>
@@ -66,7 +55,7 @@
             <span class="text-[11px] text-[var(--txt-3)] mr-auto whitespace-nowrap">{{ nt.time }}</span>
           </div>
           <div class="text-[12.5px] text-[var(--txt-3)] leading-relaxed">{{ nt.message }}</div>
-          <span *ngIf="nt.actionText" class="text-[11px] font-bold text-[var(--teal-txt,#2BD4C7)] mt-1.5 inline-block">{{ nt.actionText }}</span>
+          <span *ngIf="nt.actionText && nt.actionUrl" data-testid="nt-cta" class="text-[11px] font-bold text-[var(--teal-txt,#2BD4C7)] mt-1.5 inline-block">{{ nt.actionText }}</span>
         </div>
       </div>
     </ng-container>
