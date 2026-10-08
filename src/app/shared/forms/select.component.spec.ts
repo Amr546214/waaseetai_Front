@@ -81,4 +81,14 @@ describe('ws-select (site-styled replacement for the native select)', () => {
 		trigger().click(); f.detectChanges(); opts()[0].click(); f.detectChanges(); await f.whenStable(); f.detectChanges();
 		expect(form()).toContain('ng-valid');
 	});
+
+	it('the list is a top-layer popover positioned from the trigger (so a following card can never cover or clip it)', async () => {
+		const { f, trigger, panel } = await mount();
+		trigger().click(); f.detectChanges();
+		const ul = panel() as HTMLElement;
+		expect(ul.getAttribute('popover')).toBe('manual');
+		expect(ul.style.left).not.toBe('');
+		expect(ul.style.width).not.toBe('');
+		expect(ul.style.top !== '' || ul.style.bottom !== '').toBe(true);
+	});
 });
