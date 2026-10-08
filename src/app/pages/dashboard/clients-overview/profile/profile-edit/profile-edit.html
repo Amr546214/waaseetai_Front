@@ -226,8 +226,7 @@
 				</div>
 			</div>
 
-			<fieldset disabled data-testid="unsaved-sections" class="m-0 flex min-w-0 flex-col gap-6 border-0 p-0 opacity-60">
-			<div role="note" data-testid="unsaved-notice" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">الاهتمامات والروابط الشخصية وتفضيلات العرض والإشعارات لا تُحفظ حاليًا (بانتظار دعم الخادم)، لذلك أصبحت للعرض فقط حتى لا تظهر رسالة نجاح لبيانات لم تُحفظ.</div>
+			<div class="m-0 flex min-w-0 flex-col gap-6" data-testid="public-profile-sections">
 			<!-- Interests & Skills -->
 			<div
 				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
@@ -317,7 +316,7 @@
 					</div>
 					<div class="flex-grow">
 						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">تفضيلات العرض والإشعارات</h3>
-						<p class="text-sm text-slate-500 dark:text-slate-400">تحكم في لغة الواجهة وقنوات التواصل معك</p>
+						<p class="text-sm text-slate-500 dark:text-slate-400" data-testid="prefs-hint">تفضيلات حساب تُحفظ في ملفك فقط: لغة الواجهة والمنطقة الزمنية وقنوات الإشعارات. لا تغيّر لغة الموقع ولا توقف إرسال الإشعارات حاليًا.</p>
 					</div>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -342,32 +341,26 @@
 				</div>
 				<div class="flex flex-col gap-2">
 					<label class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">قنوات الإشعارات</label>
+					@if (prefsState() === 'error') {
+					<p data-testid="prefs-load-error" role="alert" class="text-xs font-bold text-red-600 dark:text-red-400">تعذر تحميل تفضيلات الإشعارات الحالية، لذلك لن تُعدَّل عند الحفظ. أعد تحميل الصفحة للمحاولة مرة أخرى.</p>
+					}
+					<p class="text-xs font-medium text-slate-500 dark:text-slate-400">قناتا Telegram وWhatsApp غير مدعومتين في المنصة حاليًا، لذلك لا تظهران هنا.</p>
 					<div class="flex flex-wrap gap-4 pt-1">
 						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
-							<input type="checkbox" [checked]="notifEmail()" (change)="notifEmail.set($any($event.target).checked)"
+							<input type="checkbox" data-testid="notif-email" [disabled]="prefsState() !== 'ready'" [checked]="notifEmail()" (change)="notifEmail.set($any($event.target).checked)"
 								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
 							البريد الإلكتروني
 						</label>
 						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
-							<input type="checkbox" [checked]="notifInApp()" (change)="notifInApp.set($any($event.target).checked)"
+							<input type="checkbox" data-testid="notif-inapp" [disabled]="prefsState() !== 'ready'" [checked]="notifInApp()" (change)="notifInApp.set($any($event.target).checked)"
 								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
 							إشعارات داخل التطبيق
-						</label>
-						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
-							<input type="checkbox" [checked]="notifTelegram()" (change)="notifTelegram.set($any($event.target).checked)"
-								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
-							Telegram
-						</label>
-						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
-							<input type="checkbox" [checked]="notifWhatsapp()" (change)="notifWhatsapp.set($any($event.target).checked)"
-								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
-							WhatsApp
 						</label>
 					</div>
 				</div>
 			</div>
 
-			</fieldset>
+			</div>
 
 			<ws-form-summary [items]="missing()" />
 			<div class="flex items-center justify-end gap-3 mt-2">
