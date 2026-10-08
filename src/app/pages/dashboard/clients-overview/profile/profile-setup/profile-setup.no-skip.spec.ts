@@ -58,6 +58,7 @@ describe('client setup wizard: no skip', () => {
 		expect(notice).not.toBeNull();
 		expect(notice.querySelectorAll('button, a').length).toBe(0);
 		expect(notice.textContent).toContain('يجب إكمال هذا المسار قبل استخدام بعض ميزات الحساب.');
+		expect((notice.textContent!.match(/يجب إكمال هذا المسار/g) || []).length).toBe(1);   // no repeated sentence (title is just "تنبيه")
 	});
 
 	it('Next / Previous / "إرسال للمراجعة" are still there', () => {
