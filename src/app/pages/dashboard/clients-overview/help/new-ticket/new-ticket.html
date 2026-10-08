@@ -19,23 +19,14 @@
 		<!-- Category -->
 		<div class="fld-row">
 			<label class="inp-label" for="tk-cat">التصنيف<span class="req">*</span></label>
-			<select id="tk-cat" class="inp-field" [(ngModel)]="category" name="category" required>
-				<option value="" disabled selected>اختر التصنيف</option>
-				@for (c of categories(); track c) {
-					<option [value]="c">{{ c }}</option>
-				}
-			</select>
+			<ws-select id="tk-cat" [options]="categories()" placeholder="اختر التصنيف" ariaLabel="التصنيف" [(ngModel)]="category" name="category" required />
 			@if (errors()['cat']) { <div class="fld-err">{{ errors()['cat'] }}</div> }
 		</div>
 
 		<!-- Priority -->
 		<div class="fld-row">
 			<label class="inp-label" for="tk-priority">الأولوية</label>
-			<select id="tk-priority" class="inp-field" [(ngModel)]="priority" name="priority">
-				@for (p of priorities; track p) {
-					<option [value]="p">{{ p }}</option>
-				}
-			</select>
+			<ws-select id="tk-priority" [options]="priorities" placeholder="اختر الأولوية" ariaLabel="الأولوية" [(ngModel)]="priority" name="priority" />
 		</div>
 
 		<!-- Related Order -->
@@ -48,30 +39,14 @@
 			<!-- Company: Related Project -->
 			<div class="fld-row">
 				<label class="inp-label" for="tk-proj">المشروع المرتبط (اختياري)</label>
-				<select id="tk-proj" class="inp-field" [(ngModel)]="relatedProject" name="project">
-					<option value="" disabled selected>اختر المشروع</option>
-					@for (p of companyProjects; track p.id) {
-						<option [value]="p.id">{{ p.name }} · {{ p.id }}</option>
-					}
-					@if (!companyProjects.length) {
-						<option value="" disabled>لا توجد بيانات بعد</option>
-					}
-				</select>
+				<ws-select id="tk-proj" [options]="projectOptions()" placeholder="اختر المشروع" ariaLabel="المشروع المرتبط" [(ngModel)]="relatedProject" name="project" />
 				<div class="inp-hint">ربط التذكرة بالمشروع يساعد الفريق على الوصول للسياق أسرع</div>
 			</div>
 
 			<!-- Company: Team Member -->
 			<div class="fld-row">
 				<label class="inp-label" for="tk-member">الموظف المسؤول (اختياري)</label>
-				<select id="tk-member" class="inp-field" [(ngModel)]="teamMember" name="member">
-					<option value="" disabled selected>اختر الموظف</option>
-					@for (m of teamMembers; track m) {
-						<option [value]="m">{{ m }}</option>
-					}
-					@if (!teamMembers.length) {
-						<option value="" disabled>لا توجد بيانات بعد</option>
-					}
-				</select>
+				<ws-select id="tk-member" [options]="memberOptions()" placeholder="اختر الموظف" ariaLabel="الموظف المسؤول" [(ngModel)]="teamMember" name="member" />
 			</div>
 		}
 
