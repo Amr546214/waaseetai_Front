@@ -26,7 +26,7 @@ let nextId = 0;
 		.ws-sel-value.is-placeholder { color: #6B7699; }
 		.ws-sel-caret { flex: none; width: 12px; height: 12px; color: #6B7699; transition: transform .15s; }
 		.ws-sel-trigger[aria-expanded="true"] .ws-sel-caret { transform: rotate(180deg); }
-		.ws-sel-panel { position: absolute; z-index: 60; inset-inline: 0; top: calc(100% + 6px); max-height: 260px; overflow-y: auto; margin: 0; padding: 6px; list-style: none;
+		.ws-sel-panel { position: fixed; z-index: 2000; inset: auto; margin: 0; overflow-y: auto; padding: 6px; list-style: none; box-sizing: border-box; color: inherit;
 			background: #0B1437; border: 1px solid rgba(43,212,199,.25); border-radius: 12px; box-shadow: 0 14px 32px rgba(0,0,0,.45); }
 		.ws-sel-opt { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; border-radius: 8px; font-size: 14px; color: #E6ECFF; cursor: pointer; }
 		.ws-sel-opt.is-active { background: rgba(43,212,199,.12); }
@@ -50,7 +50,9 @@ let nextId = 0;
 			<svg class="ws-sel-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
 		</button>
 		@if (open()) {
-			<ul class="ws-sel-panel" role="listbox" [id]="listId" data-testid="ws-select-panel" [attr.aria-label]="ariaLabel() || placeholder()">
+			<!-- popover="manual": shown in the browser top layer, so no card/stacking context of the page can paint over or clip the list. -->
+			<ul class="ws-sel-panel" popover="manual" role="listbox" [id]="listId" data-testid="ws-select-panel" [attr.aria-label]="ariaLabel() || placeholder()"
+				[style.top.px]="pos().top" [style.bottom.px]="pos().bottom" [style.left.px]="pos().left" [style.width.px]="pos().width" [style.max-height.px]="pos().maxHeight">
 				@for (o of normalized(); track o.value; let i = $index) {
 					<li class="ws-sel-opt" role="option" [id]="optId(i)" [class.is-active]="i === active()" [class.is-selected]="o.value === value()" [class.is-disabled]="o.disabled"
 						[attr.aria-selected]="o.value === value()" [attr.aria-disabled]="o.disabled ? true : null" data-testid="ws-select-option"
@@ -76,6 +78,9 @@ export class WsSelectComponent implements ControlValueAccessor {
 	readonly open = signal(false);
 	readonly active = signal(0);
 	readonly isDisabled = signal(false);
+	/** Fixed viewport position of the list (computed from the trigger when it opens). */
+	protected readonly pos = signal<{ top: number | null; bottom: number | null; left: number; width: number; maxHeight: number }>({ top: 0, bottom: null, left: 0, width: 0, maxHeight: 260 });
+	private readonly closeOnScroll = (e: Event) => { if (!(e.target instanceof Node && this.host.nativeElement.contains(e.target))) { this.close(); this.cdr.markForCheck(); } };
 
 	private onChange: (v: string) => void = () => {};
 	private onTouched: () => void = () => {};
@@ -101,9 +106,31 @@ export class WsSelectComponent implements ControlValueAccessor {
 		const opts = this.normalized();
 		const sel = opts.findIndex(o => o.value === this.value() && !o.disabled);
 		this.active.set(sel >= 0 ? sel : Math.max(0, opts.findIndex(o => !o.disabled)));
+		this.place();
 		this.open.set(true);
+		this.cdr.detectChanges();
+		const panel = this.host.nativeElement.querySelector('.ws-sel-panel') as (HTMLElement & { showPopover?: () => void }) | null;
+		try { panel?.showPopover?.(); } catch { /* already shown / unsupported: the fixed + z-index fallback still applies */ }
+		window.addEventListener('scroll', this.closeOnScroll, true);
 	}
-	private close() { this.open.set(false); this.onTouched(); }
+	private close() {
+		window.removeEventListener('scroll', this.closeOnScroll, true);
+		this.open.set(false); this.onTouched();
+	}
+
+	/** Below the trigger when there is room, otherwise above it; width = trigger width; never taller than the space available. */
+	private place() {
+		const r = (this.host.nativeElement.querySelector('button') as HTMLElement).getBoundingClientRect();
+		const gap = 6, margin = 12, want = Math.min(260, this.normalized().length * 40 + 12);
+		const below = window.innerHeight - r.bottom - gap - margin, above = r.top - gap - margin;
+		const up = below < want && above > below;
+		this.pos.set(up
+			? { top: null, bottom: window.innerHeight - r.top + gap, left: r.left, width: r.width, maxHeight: Math.max(120, Math.min(260, above)) }
+			: { top: r.bottom + gap, bottom: null, left: r.left, width: r.width, maxHeight: Math.max(120, Math.min(260, below)) });
+	}
+
+	@HostListener('window:resize')
+	protected onResize() { if (this.open()) { this.close(); this.cdr.markForCheck(); } }
 
 	pick(i: number) {
 		const o = this.normalized()[i];
