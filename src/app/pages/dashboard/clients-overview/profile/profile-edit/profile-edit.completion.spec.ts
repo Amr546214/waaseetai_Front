@@ -3,7 +3,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { ProfileEdit } from './profile-edit';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
@@ -25,14 +25,14 @@ describe('client profile-edit: backend completion + missing items', () => {
   let updateTab: ReturnType<typeof vi.fn>;
   let router: Router;
 
-  const setup = (profileOver: any) => {
+  const setup = (profileOver: any, accountType = 'CLIENT_INDIVIDUAL', activeRole = 'CLIENT') => {
     getMyProfile = vi.fn(() => of(data(profileOver)));
     updateTab = vi.fn(() => of({ success: true }));
     TestBed.configureTestingModule({
       imports: [ProfileEdit],
       providers: [
         provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
-        { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' }), token: () => 't', authenticate: vi.fn() } },
+        { provide: AuthStore, useValue: { currentUser: () => ({ accountType, activeRole }), token: () => 't', authenticate: vi.fn() } },
         { provide: ProfileApiService, useValue: { getMyProfile, getChangeRequests: () => of({ success: true, data: [] }), updateTab, updateProfile: vi.fn(() => of({ success: true })) } },
       ],
     });
@@ -64,10 +64,52 @@ describe('client profile-edit: backend completion + missing items', () => {
     expect(el().textContent).not.toContain('لرفع نسبة الاكتمال');
   });
 
-  it('100%: no box, a completed message', () => {
+  it('100%: the whole completion card is gone (title, percentage, progress bar, "مكتمل" message) and so is the missing box', () => {
     setup({ profileCompletionPercent: 100, missingItems: [] });
+    expect(el().textContent).not.toContain('اكتمال الملف الشخصي');
+    expect(q('[data-testid="prog-hint"]')).toBeNull();
     expect(q('[data-testid="missing-items"]')).toBeNull();
-    expect(q('[data-testid="prog-hint"]')!.textContent).toContain('مكتمل 100%');
+    expect(q('.bg-gradient-to-l.from-cyan-400')).toBeNull();               // the progress bar fill
+    expect(el().textContent).not.toContain('ملفك الشخصي مكتمل 100%');
+    // the edit page itself still works
+    expect(q('[formcontrolname="bio"]')).not.toBeNull();
+    expect(q('form button[type="submit"]')).not.toBeNull();
+  });
+
+  it('below 100: the card shows the title, the percentage and the progress bar', () => {
+    setup({ profileCompletionPercent: 60, missingItems: ITEMS });
+    expect(el().textContent).toContain('اكتمال الملف الشخصي');
+    expect(el().textContent).toContain('60%');
+    expect(q('.bg-gradient-to-l.from-cyan-400')).not.toBeNull();
+    expect((q('.bg-gradient-to-l.from-cyan-400') as HTMLElement).style.width).toBe('60%');
+  });
+
+  it('while the completion is not loaded yet the client sees no card (no 0% flash for a complete profile)', () => {
+    getMyProfile = vi.fn(() => new Subject<any>());
+    TestBed.configureTestingModule({
+      imports: [ProfileEdit],
+      providers: [
+        provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
+        { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' }), token: () => 't', authenticate: vi.fn() } },
+        { provide: ProfileApiService, useValue: { getMyProfile, getChangeRequests: () => of({ success: true, data: [] }), updateTab: vi.fn(), updateProfile: vi.fn() } },
+      ],
+    });
+    fixture = TestBed.createComponent(ProfileEdit);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('اكتمال الملف الشخصي');
+  });
+
+  it('reaching 100 after a save removes the card', () => {
+    setup({ profileCompletionPercent: 85, missingItems: [ITEMS[0]] });
+    expect(el().textContent).toContain('اكتمال الملف الشخصي');
+    getMyProfile.mockReturnValue(of(data({ profileCompletionPercent: 100, missingItems: [] })));
+    (component as any).refreshCompletion(); render();
+    expect(el().textContent).not.toContain('اكتمال الملف الشخصي');
+  });
+
+  it('other roles are untouched: a provider account still sees the card at 100%', () => {
+    setup({ profileCompletionPercent: 100, missingItems: [] }, 'PROVIDER_INDIVIDUAL', 'PROVIDER');
+    expect(el().textContent).toContain('اكتمال الملف الشخصي');
   });
 
   it('edit-page items open their tab; PayPal opens the (enabled) PayPal tab', () => {
