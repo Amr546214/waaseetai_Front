@@ -225,7 +225,7 @@
 					<span class="escrow-sub" style="margin-inline-start:auto">{{ data.summary?.currentPoints || 0 }}
 						نقطة</span>
 				</div>
-				<div style="display:flex;align-items:center;gap:8px">
+				<div style="display:flex;align-items:center;gap:8px" *ngIf="(data.summary?.profileCompletionPercent ?? 0) < 100" data-testid="level-completion">
 					<div class="prog-bar" role="progressbar"
 						[attr.aria-valuenow]="data.summary?.profileCompletionPercent || 0" aria-valuemin="0"
 						aria-valuemax="100">

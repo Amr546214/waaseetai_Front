@@ -21,6 +21,13 @@ export class Public implements OnInit {
 
 	currentTab = signal<string>('info');
 	showBanner = signal<boolean>(true);
+	/** The "ملفي المهني مكتمل X%" banner is for an incomplete profile only: hidden at 100% (an unknown value keeps the old behaviour; companies are untouched). */
+	bannerVisible = computed<boolean>(() => {
+		if (!this.showBanner()) return false;
+		if (this.isCompanyMode()) return true;
+		const pct = this.profileData()?.header?.levelInfo?.completionPercentage;
+		return typeof pct === 'number' ? pct < 100 : true;
+	});
 
 	profileData = signal<any | null>(null);
 	isLoading = signal<boolean>(true);
