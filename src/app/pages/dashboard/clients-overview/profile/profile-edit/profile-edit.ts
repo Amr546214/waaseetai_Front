@@ -247,8 +247,9 @@ export class ProfileEdit {
 
 		this.identityForm = this.fb.group({
 			idNumber: [''],
-			idExpiryDate: [''],
-			nationality: [''],
+			// not stored anywhere yet (no database column): read-only, never sent
+			idExpiryDate: [{ value: '', disabled: true }],
+			nationality: [{ value: '', disabled: true }],
 			country: [''],
 			city: ['']
 		});
@@ -524,9 +525,32 @@ export class ProfileEdit {
 		if (!form) return;
 
 		if (tabName === 'identity') {
-			// The backend saves nothing for this tab and flags the account as PENDING_VERIFICATION, which would lock
-			// the user out until an OTP: it is disabled in the template and guarded here too (Enter key).
-			this.errorMsg.set('تعديل بيانات الهوية غير متاح حاليًا من هذه الصفحة. لإرسال وثائق الهوية استخدم "استكمال البيانات".');
+			// country / city save at once; the national id becomes a modification request for an admin (the server decides which).
+			form.markAllAsTouched();
+			const raw = this.identityForm.getRawValue();
+			const idNumber = String(raw.idNumber || '').trim();
+			if (idNumber && !/^[12]\d{9}$/.test(idNumber)) {
+				this.errorMsg.set('رقم الهوية يجب أن يكون 10 أرقام ويبدأ بـ 1 أو 2');
+				return;
+			}
+			this.errorMsg.set('');
+			this.isSaving.set(true);
+			this.profileApi.updateTab('identity', { idNumber: idNumber || undefined, country: raw.country || undefined, city: raw.city || undefined }).subscribe({
+				next: (res) => {
+					this.isSaving.set(false);
+					if (res.success) {
+						this.successMsg.set(res.message || 'تم الحفظ');
+						setTimeout(() => this.successMsg.set(''), 6000);
+						this.refreshCompletion();
+					} else {
+						this.errorMsg.set(res.message || 'تعذر الحفظ');
+					}
+				},
+				error: (err) => {
+					this.isSaving.set(false);
+					this.showSaveError(this.identityForm, err, 'تعذر الحفظ، حاول مرة أخرى');
+				}
+			});
 			return;
 		}
 

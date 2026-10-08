@@ -54,13 +54,20 @@
 
   <div class="mr-section-title">طلبات التعديل <span class="mr-count">{{ filteredRequests().length }} طلبات</span></div>
 
+  @if (!isLoading() && !hasError() && failedSources().length) {
+    <div class="mr-empty" role="alert" data-testid="partial-load-error" style="padding:14px 16px;margin-bottom:12px">
+      <div class="mr-empty-ttl">تعذر تحميل طلبات: {{ failedSources().join('، ') }}. القائمة أدناه غير مكتملة.</div>
+      <button type="button" class="mr-btn mr-btn-ghost" (click)="loadRequests()">إعادة المحاولة</button>
+    </div>
+  }
+
   @if (isLoading()) {
-    <div class="mr-empty">
+    <div class="mr-empty" data-testid="admin-requests-loading">
       <div class="mr-empty-ttl">جارٍ تحميل الطلبات...</div>
     </div>
   } @else if (hasError()) {
     <div class="mr-empty">
-      <div class="mr-empty-ttl">تعذر تحميل طلبات التعديل</div>
+      <div class="mr-empty-ttl" data-testid="admin-requests-error">تعذر تحميل طلبات التعديل</div>
       <button type="button" class="mr-btn mr-btn-ghost" (click)="loadRequests()">إعادة المحاولة</button>
     </div>
   } @else if (filteredRequests().length === 0) {
@@ -140,10 +147,6 @@
               @if (r.status === 'ai' || r.status === 'human') {
                 <button type="button" class="mr-btn mr-btn-primary" [disabled]="processingId() === r.id" (click)="approve(r)">{{ processingId() === r.id ? 'جارٍ الاعتماد...' : 'اعتماد' }}</button>
                 <button type="button" class="mr-btn mr-btn-warn" [disabled]="processingId() === r.id" (click)="reject(r)">رفض</button>
-              } @else if (r.status === 'rejected') {
-                <button type="button" class="mr-btn mr-btn-primary" (click)="showToast('فتح طلب تعديل جديد مصحح')">طلب مصحح</button>
-              } @else {
-                <button type="button" class="mr-btn mr-btn-ghost" (click)="showToast('عرض تفاصيل الطلب ' + r.requestNumber)">التفاصيل</button>
               }
             </div>
           </div>

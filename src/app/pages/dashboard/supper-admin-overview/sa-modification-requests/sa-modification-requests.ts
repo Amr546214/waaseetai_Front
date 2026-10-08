@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { finalize } from 'rxjs';
-import { SaModificationRequestsService, AffiliateChangeRequest } from './sa-modification-requests.service';
+import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
+import { SaModificationRequestsService, AffiliateChangeRequest, ProfileModificationRequestRow } from './sa-modification-requests.service';
 
 type ReqStatus = 'ai' | 'human' | 'ok' | 'rejected';
 type FilterKey = 'all' | ReqStatus;
@@ -13,6 +13,8 @@ interface TimelineStep {
 
 interface ModificationRequest {
   id: string;
+  /** which backend model it belongs to: marketer requests (affiliate) or provider/client requests (profile) */
+  source: 'affiliate' | 'profile';
   requestNumber: string;
   field: string;
   requesterName: string;
@@ -27,6 +29,7 @@ interface ModificationRequest {
   verdictScore: string;
   reviewer?: string;
   timeline: TimelineStep[];
+  createdMs: number;
 }
 
 @Component({
@@ -53,11 +56,11 @@ export class SaModificationRequests implements OnInit {
     { key: 'rejected', label: 'مرفوض' },
   ];
 
-  // Only AffiliateProfile's ProfileChangeRequest is wired here — this page
-  // never reads/writes ProviderProfile's separate ProfileModificationRequest
-  // model, which has its own, already-working admin review flow under
-  // provider-profile routes.
+  // Two backend models feed this queue: marketers' ProfileChangeRequest and providers'/clients' ProfileModificationRequest. Both are loaded
+  // with their history (APPROVED / REJECTED too), so a decided request stays visible with its final status instead of vanishing.
   requests = signal<ModificationRequest[]>([]);
+  /** Which sources failed to load (the other one is still shown). */
+  failedSources = signal<string[]>([]);
 
   ngOnInit() {
     this.loadRequests();
@@ -66,21 +69,29 @@ export class SaModificationRequests implements OnInit {
   loadRequests() {
     this.isLoading.set(true);
     this.hasError.set(false);
-    this.service.list().pipe(
+    this.failedSources.set([]);
+    const failed: string[] = [];
+    forkJoin({
+      affiliate: this.service.list('ALL').pipe(catchError(() => { failed.push('الوسطاء'); return of(null); })),
+      profile: this.service.listProfileRequests('ALL').pipe(catchError(() => { failed.push('مقدمو الخدمة وطالبو الخدمة'); return of(null); })),
+    }).pipe(
       finalize(() => this.isLoading.set(false))
-    ).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.requests.set(
-            res.data
-              .filter(r => r.status !== 'WITHDRAWN')
-              .map(r => this.mapRequest(r))
-          );
-        } else {
-          this.hasError.set(true);
-        }
-      },
-      error: () => this.hasError.set(true)
+    ).subscribe(({ affiliate, profile }) => {
+      const okAffiliate = !!(affiliate && affiliate.success && affiliate.data);
+      const okProfile = !!(profile && profile.success && profile.data);
+      if (affiliate && !okAffiliate && !failed.includes('الوسطاء')) failed.push('الوسطاء');
+      if (profile && !okProfile && !failed.includes('مقدمو الخدمة وطالبو الخدمة')) failed.push('مقدمو الخدمة وطالبو الخدمة');
+      this.failedSources.set([...failed]);
+      if (!okAffiliate && !okProfile) {
+        this.requests.set([]);
+        this.hasError.set(true);
+        return;
+      }
+      const merged = [
+        ...(okAffiliate ? affiliate!.data!.filter(r => r.status !== 'WITHDRAWN').map(r => this.mapRequest(r)) : []),
+        ...(okProfile ? profile!.data!.filter(r => ['PENDING_HUMAN_REVIEW', 'APPROVED', 'REJECTED'].includes(r.status)).map(r => this.mapProfileRequest(r)) : []),
+      ].sort((x, y) => y.createdMs - x.createdMs);
+      this.requests.set(merged);
     });
   }
 
@@ -113,7 +124,8 @@ export class SaModificationRequests implements OnInit {
     if (this.processingId()) return;
 
     this.processingId.set(req.id);
-    this.service.approve(req.id).pipe(
+    const call$: Observable<{ success: boolean; message?: string }> = req.source === 'profile' ? this.service.reviewProfileRequest(req.id, true) : this.service.approve(req.id);
+    call$.pipe(
       finalize(() => this.processingId.set(null))
     ).subscribe({
       next: (res) => {
@@ -135,7 +147,8 @@ export class SaModificationRequests implements OnInit {
     if (!reason || !reason.trim()) return;
 
     this.processingId.set(req.id);
-    this.service.reject(req.id, reason.trim()).pipe(
+    const call$: Observable<{ success: boolean; message?: string }> = req.source === 'profile' ? this.service.reviewProfileRequest(req.id, false, reason.trim()) : this.service.reject(req.id, reason.trim());
+    call$.pipe(
       finalize(() => this.processingId.set(null))
     ).subscribe({
       next: (res) => {
@@ -184,6 +197,8 @@ export class SaModificationRequests implements OnInit {
 
     return {
       id: r.id,
+      source: 'affiliate',
+      createdMs: new Date(r.createdAt).getTime(),
       requestNumber: r.requestNumber,
       field: r.fieldLabel,
       requesterName,
@@ -200,6 +215,35 @@ export class SaModificationRequests implements OnInit {
       verdictText: r.rejectionReason || r.aiRecommendation || 'لا توجد نتيجة فحص بعد',
       verdictScore: (status === 'rejected' ? 'تعارض' : 'غير متاح'),
       reviewer: r.reviewedBy || undefined,
+      timeline: this.buildTimeline(status),
+    };
+  }
+
+  private requesterTypeLabel(accountType: string): string {
+    if (accountType.startsWith('CLIENT')) return 'طالب خدمة';
+    if (accountType.startsWith('PROVIDER')) return 'مقدم خدمة';
+    return 'مستخدم';
+  }
+
+  private mapProfileRequest(r: ProfileModificationRequestRow): ModificationRequest {
+    const status: ReqStatus = r.status === 'APPROVED' ? 'ok' : r.status === 'REJECTED' ? 'rejected' : 'human';
+    const name = `${r.provider?.firstName || ''} ${r.provider?.lastName || ''}`.trim() || r.provider?.email || 'مستخدم';
+    return {
+      id: r.id,
+      source: 'profile',
+      createdMs: new Date(r.createdAt).getTime(),
+      requestNumber: `REQ-${r.id.slice(0, 8)}`,
+      field: r.fieldLabel,
+      requesterName: name,
+      requesterType: this.requesterTypeLabel(r.provider?.accountType || ''),
+      sensitive: true,
+      status,
+      oldValue: r.currentValue || 'لا يوجد',
+      newValue: r.requestedValue,
+      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
+      verdictLabel: status === 'human' ? 'بانتظار قرار المراجع' : status === 'ok' ? 'اعتمده المراجع' : 'مرفوض',
+      verdictText: r.rejectionReason || r.aiRecommendation || 'لا توجد نتيجة فحص بعد',
+      verdictScore: status === 'rejected' ? 'تعارض' : 'غير متاح',
       timeline: this.buildTimeline(status),
     };
   }

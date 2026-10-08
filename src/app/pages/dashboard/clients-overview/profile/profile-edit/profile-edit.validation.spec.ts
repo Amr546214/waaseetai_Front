@@ -183,20 +183,49 @@ describe('client profile-edit: shared validation', () => {
     });
   });
 
-  describe('identity tab (the backend saves nothing and flags the account PENDING_VERIFICATION)', () => {
+  describe('identity tab: country/city save at once, the national id is a reviewed request, the rest is read-only', () => {
     beforeEach(() => goTab('identity'));
 
-    it('the button is disabled WITH a visible reason, the form is inert, and an explanation is shown', () => {
-      expect(submitBtn().disabled).toBe(true);
-      expect(el().querySelector('[data-testid="identity-disabled-reason"]')?.textContent).toContain('معطّل');
-      expect(el().querySelector('[data-testid="identity-unsupported"]')?.textContent).toContain('قيد التحقق');
-      expect(el().querySelector('form[inert]')).toBeTruthy();
+    it('the form is live (not inert), the button is enabled, the note explains what is reviewed and what is unavailable', () => {
+      expect(submitBtn().disabled).toBe(false);
+      expect(el().querySelector('form[inert]')).toBeNull();
+      expect(el().querySelector('[data-testid="identity-note"]')?.textContent).toContain('طلب تعديل');
+      expect(el().querySelector('[data-testid="identity-docs-pointer"]')?.textContent).toContain('استكمال البيانات');
+      // the fake upload zones (they only showed a file name and "تم الإرفاق بنجاح") are gone
+      expect(el().querySelector('input[type="file"]')).toBeNull();
+      expect(component.identityForm.get('nationality')!.disabled).toBe(true);
+      expect(component.identityForm.get('idExpiryDate')!.disabled).toBe(true);
     });
 
-    it('even if submitted (Enter key) nothing is sent', () => {
+    it('saving sends idNumber / country / city only (never nationality or the expiry date) and shows the SERVER message', () => {
+      updateTab.mockReturnValueOnce(of({ success: true, message: 'تم إرسال طلب تعديل رقم الهوية للمراجعة' }));
+      component.identityForm.patchValue({ idNumber: '2123456789', country: 'السعودية', city: 'الرياض' });
+      component.saveTab('identity'); render();
+      expect(updateTab).toHaveBeenCalledTimes(1);
+      const [tab, body] = updateTab.mock.calls[0];
+      expect(tab).toBe('identity');
+      expect(body).toEqual({ idNumber: '2123456789', country: 'السعودية', city: 'الرياض' });
+      expect(component.successMsg()).toBe('تم إرسال طلب تعديل رقم الهوية للمراجعة');
+      expect(component.errorMsg()).toBe('');
+    });
+
+    it('a malformed id is explained and never sent', () => {
+      component.identityForm.patchValue({ idNumber: '123' });
       component.saveTab('identity');
       expect(updateTab).not.toHaveBeenCalled();
-      expect(component.errorMsg()).toContain('غير متاح');
+      expect(component.errorMsg()).toContain('10 أرقام');
+    });
+
+    it('a rejected save (409 pending request / 400) shows the error and NO success', () => {
+      updateTab.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 409, error: { success: false, message: 'لديك طلب تعديل لرقم الهوية قيد المراجعة بالفعل' } })));
+      component.identityForm.patchValue({ idNumber: '2123456789' });
+      component.saveTab('identity'); render();
+      expect(component.successMsg()).toBe('');
+      expect(component.errorMsg()).toContain('قيد المراجعة');
+    });
+
+    it('"طلباتي السابقة" opens the real requests page', () => {
+      expect(el().querySelector('a[href$="/client-overview/profile/requests"]')).not.toBeNull();
     });
   });
 

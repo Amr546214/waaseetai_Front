@@ -24,6 +24,22 @@ export interface AffiliateChangeRequest {
 	};
 }
 
+/** A provider's or a client's governed-field request (profile_modification_requests), as the admin queue returns it. */
+export interface ProfileModificationRequestRow {
+	id: string;
+	fieldName: string;
+	fieldLabel: string;
+	currentValue: string | null;
+	requestedValue: string;
+	category: string;
+	status: 'PENDING_OTP' | 'IN_AI_REVIEW' | 'PENDING_HUMAN_REVIEW' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+	aiRecommendation?: string | null;
+	rejectionReason?: string | null;
+	appliedAt?: string | null;
+	createdAt: string;
+	provider: { firstName: string; lastName: string; email: string; accountType: string };
+}
+
 export interface ApiResponse<T> {
 	success: boolean;
 	data?: T;
@@ -34,6 +50,8 @@ export interface ApiResponse<T> {
 export class SaModificationRequestsService {
 	private http = inject(HttpClient);
 	private readonly baseUrl = `${environment.url_api}/admin/affiliate-requests`;
+	// Provider + client requests live in ProfileModificationRequest; their admin endpoints sit under the provider-profile router.
+	private readonly profileUrl = `${environment.url_api}/provider/profile`;
 
 	list(status?: string): Observable<ApiResponse<AffiliateChangeRequest[]>> {
 		let params = new HttpParams();
@@ -47,5 +65,14 @@ export class SaModificationRequestsService {
 
 	reject(id: string, rejectionReason: string): Observable<ApiResponse<AffiliateChangeRequest>> {
 		return this.http.post<ApiResponse<AffiliateChangeRequest>>(`${this.baseUrl}/${id}/reject`, { rejectionReason });
+	}
+
+	/** Provider + client requests: the queue and (with status=ALL) the decided history. */
+	listProfileRequests(status: string = 'ALL'): Observable<ApiResponse<ProfileModificationRequestRow[]>> {
+		return this.http.get<ApiResponse<ProfileModificationRequestRow[]>>(`${this.profileUrl}/admin/pending-reviews`, { params: new HttpParams().set('status', status) });
+	}
+
+	reviewProfileRequest(id: string, approved: boolean, rejectionReason?: string): Observable<ApiResponse<ProfileModificationRequestRow>> {
+		return this.http.post<ApiResponse<ProfileModificationRequestRow>>(`${this.profileUrl}/requests/${id}/review`, { approved, ...(rejectionReason ? { rejectionReason } : {}) });
 	}
 }

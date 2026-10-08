@@ -61,6 +61,11 @@ export class ProfileApiService {
     return this.http.get<any>(`${this.baseUrl}/my-change-requests`);
   }
 
+  /** Withdraw one of my own requests while it still waits for review. */
+  public cancelMyChangeRequest(id: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/my-change-requests/${id}/cancel`, {});
+  }
+
   /**
    * Setup initial profile
    */

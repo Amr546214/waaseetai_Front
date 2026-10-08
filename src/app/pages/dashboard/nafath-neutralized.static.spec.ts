@@ -33,8 +33,8 @@ describe('Nafath UI is neutralised', () => {
 		expect(client).not.toContain('triggerNafath');
 		expect(client).toContain('التحقق عبر نفاذ غير متاح حاليًا');
 		const edit = read('pages/dashboard/clients-overview/profile/profile-edit/profile-edit.html');
-		expect(edit).toContain('التحقق عبر نفاذ غير متاح حاليًا');
-		expect(edit).toMatch(/<button type="button" disabled aria-disabled="true"[^>]*>\s*<div>\s*<div class="text-sm font-bold mb-1">التحقق عبر نفاذ غير متاح حاليًا/);
+		// the edit page no longer carries a Nafath control at all (identity documents are collected in the setup wizard)
+		expect(edit).not.toContain('triggerNafath');
 		const provider = read('pages/dashboard/provider-overview/profile/profile-setup/profile-setup.html');
 		expect(provider).toContain('التحقق عبر نفاذ غير متاح حاليًا');
 		expect(provider).toMatch(/class="nafath-btn"[^>]*disabled/);

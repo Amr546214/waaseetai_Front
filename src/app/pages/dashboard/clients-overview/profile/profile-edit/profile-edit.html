@@ -659,9 +659,9 @@
 					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
 						طلباً يخضع للمراجعة ثم يعتمده مراجع بشري قبل التطبيق</span>
 				</div>
-				<button type="button" (click)="loadChangeRequests()"
+				<a routerLink="/client-overview/profile/requests"
 					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
-					السابقة</button>
+					السابقة</a>
 			</div>
 
 			<!-- Warning Bar -->
@@ -777,14 +777,14 @@
 					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
 						طلباً يخضع للمراجعة ثم يعتمده مراجع بشري قبل التطبيق</span>
 				</div>
-				<button type="button" (click)="loadChangeRequests()"
+				<a routerLink="/client-overview/profile/requests"
 					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
-					السابقة</button>
+					السابقة</a>
 			</div>
 
 			<!-- Form Grid -->
-			<div role="note" data-testid="identity-unsupported" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">تعديل بيانات الهوية غير متاح حاليًا: الخادم لا يحفظ هذه البيانات من هذه الصفحة، وإرسالها كان يُحوّل حسابك إلى «قيد التحقق» ويطلب رمز OTP دون حفظ شيء. لإرسال وثائق الهوية استخدم «استكمال البيانات».</div>
-			<form [formGroup]="identityForm" (ngSubmit)="saveTab('identity')" inert class="opacity-60">
+			<div role="note" data-testid="identity-note" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">الدولة والمدينة تُحفظ فورًا. رقم الهوية يُرسَل كطلب تعديل يراجعه مراجع بشري قبل تطبيقه، وستجد حالته في «طلباتي السابقة». الجنسية وتاريخ الانتهاء غير متاحَين للتعديل حاليًا.</div>
+			<form [formGroup]="identityForm" (ngSubmit)="saveTab('identity')" data-testid="identity-form">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الهوية الوطنية /
@@ -828,132 +828,15 @@
 					</div>
 				</div>
 
-				<!-- Nafath Button (Banner Style) -->
-				<button type="button" disabled aria-disabled="true"
-					class="w-full flex flex-col md:flex-row md:items-center justify-between gap-2 p-4 opacity-60 cursor-not-allowed bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 rounded-2xl mb-8 text-white transition-colors text-right md:text-right shadow-lg shadow-cyan-500/20">
-					<div>
-						<div class="text-sm font-bold mb-1">التحقق عبر نفاذ غير متاح حاليًا</div>
-					</div>
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-						class="w-6 h-6 hidden md:block opacity-80">
-						<path d="M9 18l6-6-6-6" />
-					</svg>
-				</button>
-				<hr class="border-slate-200 dark:border-slate-700/50 mb-8">
-
-
-				<!-- Documents Header -->
-				<div class="flex items-start gap-4 mb-6">
-					<div
-						class="flex-shrink-0 w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-slate-600 dark:text-slate-400">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
-							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-							<polyline points="14 2 14 8 20 8" />
-						</svg>
-					</div>
-					<div class="flex-grow">
-						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">مستندات الهوية الرسمية</h3>
-						<p class="text-sm text-slate-500 dark:text-slate-400">رفع صور الهوية يرفع مستوى الثقة ويفتح
-							الاجراءات الرسمية</p>
-					</div>
-				</div>
-
-				<!-- Documents Grid -->
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
-					<!-- Front ID -->
-					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الهوية الوطنية، الوجه
-							الأمامي</label>
-						<div
-							class="relative w-full h-36 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-500/50 bg-slate-50 dark:bg-slate-900/50 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 rounded-2xl flex flex-col items-center justify-center transition-all group overflow-hidden">
-							<input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-								accept=".jpg,.jpeg,.png,.pdf" (change)="onIdUpload($event, 'front')">
-
-							@if (frontIdFileName()) {
-							<div class="flex flex-col items-center gap-2">
-								<div
-									class="p-3 bg-cyan-100 dark:bg-cyan-900/30 rounded-full text-cyan-600 dark:text-cyan-400">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-										class="w-6 h-6">
-										<path d="M20 6L9 17l-5-5" />
-									</svg>
-								</div>
-								<span
-									class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[200px]"
-									dir="ltr">{{ frontIdFileName() }}</span>
-								<span class="text-[10px] text-cyan-600 dark:text-cyan-400">تم الإرفاق بنجاح</span>
-							</div>
-							} @else {
-							<div
-								class="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									class="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors">
-									<polyline points="16 16 12 12 8 16" />
-									<line x1="12" y1="12" x2="12" y2="21" />
-									<path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-								</svg>
-							</div>
-							<span
-								class="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">اسحب
-								وأفلت الملف هنا</span>
-							<span class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">أو انقر للتصفح من
-								جهازك</span>
-							}
-						</div>
-						<span class="text-[10px] font-bold text-slate-400">JPG أو PNG، حجم أقصى 5MB</span>
-					</div>
-
-					<!-- Back ID -->
-					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">الهوية الوطنية، الوجه
-							الخلفي</label>
-						<div
-							class="relative w-full h-36 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-500/50 bg-slate-50 dark:bg-slate-900/50 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 rounded-2xl flex flex-col items-center justify-center transition-all group overflow-hidden">
-							<input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-								accept=".jpg,.jpeg,.png,.pdf" (change)="onIdUpload($event, 'back')">
-
-							@if (backIdFileName()) {
-							<div class="flex flex-col items-center gap-2">
-								<div
-									class="p-3 bg-cyan-100 dark:bg-cyan-900/30 rounded-full text-cyan-600 dark:text-cyan-400">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-										class="w-6 h-6">
-										<path d="M20 6L9 17l-5-5" />
-									</svg>
-								</div>
-								<span
-									class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[200px]"
-									dir="ltr">{{ backIdFileName() }}</span>
-								<span class="text-[10px] text-cyan-600 dark:text-cyan-400">تم الإرفاق بنجاح</span>
-							</div>
-							} @else {
-							<div
-								class="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									class="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors">
-									<polyline points="16 16 12 12 8 16" />
-									<line x1="12" y1="12" x2="12" y2="21" />
-									<path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-								</svg>
-							</div>
-							<span
-								class="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">اسحب
-								وأفلت الملف هنا</span>
-							<span class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">أو انقر للتصفح من
-								جهازك</span>
-							}
-						</div>
-						<span class="text-[10px] font-bold text-slate-400">JPG أو PNG، حجم أقصى 5MB</span>
-					</div>
-
+				<!-- Identity documents: uploaded and reviewed in the setup wizard (the zone that used to be here only showed a file name and never sent it) -->
+				<div role="note" data-testid="identity-docs-pointer" class="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 mb-8 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-900/50">
+					<div class="text-sm font-medium text-slate-700 dark:text-slate-300">لرفع صور الهوية الرسمية وتوثيق الحساب استخدم «استكمال البيانات».</div>
+					<a routerLink="/client-overview/profile-setup" class="px-4 py-2 bg-cyan-100 dark:bg-cyan-500/10 text-cyan-800 dark:text-cyan-300 text-xs font-bold rounded-xl whitespace-nowrap">استكمال البيانات</a>
 				</div>
 
 				<!-- Action -->
-				<button type="submit" disabled aria-disabled="true" aria-describedby="identity-unsupported-reason"
-					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
-					طلب تعديل</button>
-				<p id="identity-unsupported-reason" data-testid="identity-disabled-reason" class="mt-2 text-xs font-medium text-slate-600 dark:text-slate-400">الزر معطّل: تعديل بيانات الهوية غير متاح حاليًا (بانتظار دعم الخادم).</p>
+				<button type="submit" [disabled]="isSaving()" data-testid="identity-submit"
+					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">{{ isSaving() ? 'جاري الإرسال...' : 'حفظ / إرسال طلب التعديل' }}</button>
 			</form>
 		</div>
 	</div>
@@ -1021,9 +904,9 @@
 					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
 						طلباً يخضع للمراجعة ثم يعتمده مراجع بشري قبل التطبيق</span>
 				</div>
-				<button type="button" (click)="loadChangeRequests()"
+				<a routerLink="/client-overview/profile/requests"
 					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
-					السابقة</button>
+					السابقة</a>
 			</div>
 
 			<!-- Warning Bar -->
@@ -1150,9 +1033,9 @@
 					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل حساب PayPal
 						ينشئ طلباً يعتمده مراجع بشري</span>
 				</div>
-				<button type="button" (click)="loadChangeRequests()"
+				<a routerLink="/client-overview/profile/requests"
 					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
-					السابقة</button>
+					السابقة</a>
 			</div>
 
 			<!-- Form Area -->
