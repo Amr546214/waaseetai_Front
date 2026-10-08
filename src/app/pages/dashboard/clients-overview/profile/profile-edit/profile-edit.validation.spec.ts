@@ -268,6 +268,14 @@ describe('client profile-edit: shared validation', () => {
       expect(el().textContent).not.toMatch(/توقف(ها)? الإشعارات فورًا|لن تصلك إشعارات|سيتوقف/);
     });
 
+    it('the interests / skills texts do not claim they appear in the public profile (they are saved in the edit page only)', () => {
+      const t = el().textContent || '';
+      expect(t).not.toContain('تظهر في ملفك العام');
+      expect(t).not.toContain('لتظهر في ملفك الشخصي');
+      expect(t).toContain('تُحفظ ضمن بيانات ملفك');
+      expect(t).toContain('لتُحفظ في ملفك');
+    });
+
     it('Telegram and WhatsApp (no such channel in the platform) are not offered, with the reason', () => {
       expect(el().textContent).toContain('غير مدعومتين');
       expect(el().querySelector('input[type="checkbox"]:not([data-testid])')).toBeNull();
