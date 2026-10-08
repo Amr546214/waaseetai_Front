@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { WsSelectComponent, WsSelectOption } from '../../../../../shared/forms/select.component';
 import { TicketApiService } from '../../../../../core/services/ticket-api.service';
 
 @Component({
 	selector: 'app-new-ticket',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule],
+	imports: [CommonModule, FormsModule, RouterModule, WsSelectComponent],
 	templateUrl: './new-ticket.html',
 	styleUrls: ['./new-ticket.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
@@ -59,6 +60,11 @@ export class NewTicketComponent {
 	companyProjects: Array<{ id: string; name: string }> = [];
 
 	teamMembers: string[] = [];
+
+	// Same neutral "no data yet" row the native selects showed when a directory is empty (a disabled, unselectable option).
+	private readonly noData: WsSelectOption[] = [{ value: '', label: 'لا توجد بيانات بعد', disabled: true }];
+	projectOptions = (): WsSelectOption[] => this.companyProjects.length ? this.companyProjects.map(p => ({ value: p.id, label: `${p.name} · ${p.id}` })) : this.noData;
+	memberOptions = (): WsSelectOption[] => this.teamMembers.length ? this.teamMembers.map(m => ({ value: m, label: m })) : this.noData;
 
 	errors = signal<{ [k: string]: string }>({});
 
