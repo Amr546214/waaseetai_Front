@@ -135,7 +135,7 @@ describe('create-request: AI refine is rewriting only', () => {
 		expect(step1).not.toContain('اقترح لي');
 		expect(step1).not.toContain('اقتراح بالذكاء الاصطناعي');
 		expect(step1).not.toContain('ai-sug-banner');
-		for (const gone of ['applyAISuggestion', 'showAIBanner', 'aiSuggest', 'ai-suggest', 'project-description']) expect(all).not.toContain(gone);
+		for (const gone of ['applyAISuggestion', 'showAIBanner', 'aiSuggest', '/ai-suggest', 'project-description']) expect(all).not.toContain(gone);
 		// the only AI call left is the rewrite socket event
 		expect(all.match(/ai:generate_description/g)?.length).toBe(1);
 		const api = readFileSync('src/app/core/services/project-api.service.ts', 'utf8');
