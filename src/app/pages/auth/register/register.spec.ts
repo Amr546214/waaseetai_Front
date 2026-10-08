@@ -294,6 +294,34 @@ describe('Register', () => {
 		});
 	});
 
+	describe('account-type step: one continue button per card, no duplicate bottom button', () => {
+		it('has no big bottom "متابعة" button / hint, and every card keeps its own button (disabled only on the "قريبًا" cards)', () => {
+			const { fixture } = setup();
+			fixture.detectChanges();
+			const el: HTMLElement = fixture.nativeElement;
+			expect(el.querySelector('#btn-proceed')).toBeNull();
+			expect(el.querySelector('#proceed-hint')).toBeNull();
+			expect(el.querySelector('.proceed-row')).toBeNull();
+			const cards = Array.from(el.querySelectorAll('.roles-grid .role-card'));
+			expect(cards.length).toBe(5);
+			const ctas = cards.map(c => c.querySelector<HTMLButtonElement>('button.role-cta'));
+			expect(ctas.every(b => !!b && b.textContent!.trim() === 'متابعة')).toBe(true);
+			expect(ctas.map(b => b!.disabled)).toEqual([true, false, true, false, false]);
+			expect(el.querySelectorAll('.role-soon-overlay').length).toBe(2);
+		});
+
+		for (const [idx, type] of [[1, 'service_requester_ind'], [3, 'service_provider_ind'], [4, 'marketing_broker']] as const) {
+			it(`the card button of ${type} selects it and moves to step 2`, () => {
+				const { fixture, component } = setup();
+				fixture.detectChanges();
+				fixture.nativeElement.querySelectorAll('.roles-grid .role-card')[idx].querySelector('button.role-cta').click();
+				fixture.detectChanges();
+				expect(component.selectedAccountType).toBe(type);
+				expect(component.currentStep).toBe(2);
+			});
+		}
+	});
+
 	describe('never restores earlier input', () => {
 		it('purges a legacy draft (that could hold a password), shows no restore banner and starts with empty fields', () => {
 			const { fixture, component } = setup();
