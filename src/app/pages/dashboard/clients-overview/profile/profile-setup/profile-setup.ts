@@ -189,12 +189,11 @@ export class ProfileSetupDashboard implements OnInit {
 		setTimeout(() => focusFirstInvalid(this.host.nativeElement));
 	}
 
+	/** Moving to the next step stores the current one first (database, never the browser); a failed save keeps the user on the step with the error. */
 	nextStep() {
 		const step = this.currentStep();
 		if (step >= 5) return;
-		if (!this.validateStep(step)) return;
-		this.missing.set([]);
-		this.currentStep.update(v => v + 1);
+		this.advanceTo(step + 1);
 	}
 
 	prevStep() {
@@ -204,18 +203,74 @@ export class ProfileSetupDashboard implements OnInit {
 		}
 	}
 
-	/** Step-bar click. Going forward validates every step on the way and stops at the first incomplete one. */
+	/** Step-bar click: backwards is free; going forward validates AND stores every step on the way and stops at the first one that fails. */
 	setStep(target: number) {
 		if (target < 1 || target > 5) return;
-		for (let s = this.currentStep(); s < target; s++) {
-			if (!this.validateStep(s)) {
-				this.currentStep.set(s);
-				this.focusSoon();
-				return;
-			}
+		if (target <= this.currentStep()) {
+			this.missing.set([]);
+			this.currentStep.set(target);
+			return;
 		}
-		this.missing.set([]);
-		this.currentStep.set(target);
+		this.advanceTo(target);
+	}
+
+	/** True while a step is being stored (the "التالي" button is disabled meanwhile). */
+	isSavingStep = signal<boolean>(false);
+
+	private advanceTo(target: number) {
+		const step = this.currentStep();
+		if (step >= target) { this.missing.set([]); return; }
+		if (this.isSavingStep()) return;
+		if (!this.validateStep(step)) { this.focusSoon(); return; }
+		this.persistStep(step, () => {
+			this.missing.set([]);
+			this.currentStep.set(step + 1);
+			this.advanceTo(target);
+		});
+	}
+
+	/** Only a NEW upload (a data URI) is sent: a document that is already stored is never re-submitted (that would re-open its review). */
+	private newUpload(value: unknown): string | undefined {
+		return typeof value === 'string' && value.startsWith('data:') ? value : undefined;
+	}
+
+	/** Builds the payload of one step; null = nothing to store for it (an optional step left empty). */
+	private stepPayload(step: number): { step: 1 | 2 | 3 | 4; body: Record<string, unknown> } | null {
+		const raw = this.setupForm.getRawValue();
+		if (step === 1) {
+			const d = raw.details;
+			return { step: 1, body: { details: { idNumber: d.idNumber, dob: d.dob ? new Date(d.dob).toISOString() : '', country: d.country, city: d.city, occupation: d.occupation, address: d.address } } };
+		}
+		if (step === 2) {
+			const frontId = this.newUpload(raw.identity.frontId), backId = this.newUpload(raw.identity.backId);
+			return frontId || backId ? { step: 2, body: { identity: { frontId, backId } } } : null;
+		}
+		if (step === 3) return { step: 3, body: { paypalPayoutEmail: String(raw.bank.paypalPayoutEmail || '').trim() } };
+		if (step === 4) {
+			const supportingDocs = this.newUpload(raw.documents.supportingDocs);
+			const notes = String(raw.documents.notes || '').trim();
+			return supportingDocs || notes ? { step: 4, body: { documents: { supportingDocs, notes } } } : null;
+		}
+		return null;
+	}
+
+	private persistStep(step: number, done: () => void) {
+		const payload = this.stepPayload(step);
+		if (!payload) { done(); return; }
+		this.isSavingStep.set(true);
+		this.profileApi.saveClientSetupStep(payload.step, payload.body).subscribe({
+			next: (res: any) => {
+				this.isSavingStep.set(false);
+				const pct = Number(res?.data?.completionPercentage);
+				const user = this.authStore.currentUser();
+				if (user && Number.isFinite(pct)) this.authStore.authenticate(this.authStore.token()!, { ...user, profileCompletionPercent: pct });
+				done();
+			},
+			error: (err: any) => {
+				this.isSavingStep.set(false);
+				this.handleSaveError(err);
+			}
+		});
 	}
 
 	// Nafath verification is unavailable (no integration): the button is disabled in the template, so there is nothing to trigger.

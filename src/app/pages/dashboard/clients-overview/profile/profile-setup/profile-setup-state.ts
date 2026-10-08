@@ -15,6 +15,9 @@ export interface ClientSetupData {
 	accurateAgreed?: boolean | null;
 	termsAgreed?: boolean | null;
 	privacyAgreed?: boolean | null;
+	supportingDocsUrl?: string | null;
+	supportingDocsUrlAccess?: { private?: boolean } | null;
+	notes?: string | null;
 	kycStatus?: string | null;
 	completionPercentage?: number | null;
 }
@@ -22,10 +25,10 @@ export interface ClientSetupData {
 /**
  * - `complete`: the profile is 100% — the wizard must not show at all.
  * - `nothing-to-collect`: everything the wizard collects is already saved (what is left, e.g. the avatar or the bio, lives in the edit page).
- * - `step`: the first step that is really missing: 1 (details) -> 3 (PayPal) -> 5 (agreements). Steps 2 (ID documents) and 4 (optional documents)
+ * - `step`: the first step that is really missing, from what each "التالي" stored: 1 (details) -> 3 (PayPal) -> 4 (optional documents) -> 5 (final review). Steps 2 (ID documents) and 4 (optional documents)
  *   never block: a document that was sent is "under review" (kycStatus PENDING), not "empty".
  */
-export type ClientSetupResolution = { kind: 'step'; step: 1 | 3 | 5 } | { kind: 'redirect'; reason: 'complete' | 'nothing-to-collect' };
+export type ClientSetupResolution = { kind: 'step'; step: 1 | 3 | 4 | 5 } | { kind: 'redirect'; reason: 'complete' | 'nothing-to-collect' };
 
 const filled = (v: unknown) => typeof v === 'string' ? v.trim().length > 0 : v !== null && v !== undefined && v !== '';
 
@@ -35,7 +38,12 @@ export function resolveClientSetup(data: ClientSetupData | null | undefined): Cl
 	const detailsMissing = !(filled(d.idNumber) && filled(d.dob) && filled(d.country) && filled(d.city) && filled(d.industry) && filled(d.address));
 	if (detailsMissing) return { kind: 'step', step: 1 };
 	if (!filled(d.paypalPayoutEmail)) return { kind: 'step', step: 3 };
-	if (!(d.accurateAgreed && d.termsAgreed && d.privacyAgreed)) return { kind: 'step', step: 5 };
+	if (!(d.accurateAgreed && d.termsAgreed && d.privacyAgreed)) {
+		// details + PayPal are saved (each step is stored when the user moves on): the user is standing at the optional documents (4), or, when
+		// something was already saved there, at the final review (5). Step 2 (ID documents) is optional and never decides where to open.
+		const step4Saved = filled(d.supportingDocsUrl) || !!d.supportingDocsUrlAccess?.private || filled(d.notes);
+		return { kind: 'step', step: step4Saved ? 5 : 4 };
+	}
 	return { kind: 'redirect', reason: 'nothing-to-collect' };
 }
 

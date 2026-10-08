@@ -25,8 +25,10 @@ describe('client setup wizard: where it opens (resolveClientSetup)', () => {
 	it('details saved but PayPal missing -> step 3, NOT step 1', () => {
 		expect(resolveClientSetup({ ...FULL, paypalPayoutEmail: '', completionPercentage: 60 })).toEqual({ kind: 'step', step: 3 });
 	});
-	it('details + PayPal saved but agreements not accepted -> step 5', () => {
-		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, completionPercentage: 70 })).toEqual({ kind: 'step', step: 5 });
+	it('details + PayPal saved, nothing in the optional documents -> step 4; something saved there -> step 5', () => {
+		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, completionPercentage: 70 })).toEqual({ kind: 'step', step: 4 });
+		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, notes: 'ملاحظة', completionPercentage: 70 })).toEqual({ kind: 'step', step: 5 });
+		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, supportingDocsUrl: 'https://x/y.pdf', completionPercentage: 70 })).toEqual({ kind: 'step', step: 5 });
 	});
 	it('a single missing detail (e.g. the address) sends back to step 1 only because it really is missing', () => {
 		expect(resolveClientSetup({ ...FULL, address: '  ', completionPercentage: 70 })).toEqual({ kind: 'step', step: 1 });
@@ -85,7 +87,7 @@ describe('client setup wizard component: resume from saved data', () => {
 			providers: [
 				provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
 				{ provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL' }), token: () => 't', authenticate: vi.fn() } },
-				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data }), saveClientProfileSetup: vi.fn(() => of({ success: true })) } },
+				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data }), saveClientProfileSetup: vi.fn(() => of({ success: true })), saveClientSetupStep: vi.fn(() => of({ success: true, data: {} })) } },
 			],
 		});
 		const router = TestBed.inject(Router);
@@ -116,9 +118,9 @@ describe('client setup wizard component: resume from saved data', () => {
 		expect(mount({ completionPercentage: 0 }).c.currentStep()).toBe(1);
 	});
 
-	it('already accepted agreements stay accepted; only the agreements missing -> step 5', () => {
+	it('already accepted agreements stay accepted; only the agreements missing -> step 4 (nothing saved in documents)', () => {
 		const { c } = mount({ ...FULL, accurateAgreed: false, termsAgreed: true, privacyAgreed: true, completionPercentage: 80 });
-		expect(c.currentStep()).toBe(5);
+		expect(c.currentStep()).toBe(4);
 		expect(c.setupForm.get('agreements')!.value).toEqual({ accurate: false, terms: true, privacy: true });
 	});
 

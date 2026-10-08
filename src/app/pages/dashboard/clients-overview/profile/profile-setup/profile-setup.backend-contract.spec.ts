@@ -22,7 +22,7 @@ describe('client profile-setup: backend contract (#17)', () => {
 		TestBed.configureTestingModule({
 			imports: [ProfileSetupDashboard],
 			providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: AuthStore, useValue: { currentUser: () => null } },
-				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: {} }), saveClientProfileSetup: save } }],
+				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: {} }), saveClientProfileSetup: save, saveClientSetupStep: vi.fn(() => of({ success: true, data: {} })) } }],
 		});
 		fixture = TestBed.createComponent(ProfileSetupDashboard);
 		component = fixture.componentInstance;

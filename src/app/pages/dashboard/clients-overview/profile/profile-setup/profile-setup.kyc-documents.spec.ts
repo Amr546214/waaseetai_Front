@@ -28,7 +28,7 @@ describe('client profile-setup: stored KYC documents', () => {
 				provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
 				{ provide: AuthStore, useValue: { currentUser: () => null } },
 				{ provide: KycDocumentService, useValue: { createAccessLink } },
-				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data }), saveClientProfileSetup: vi.fn(() => of({ success: true })) } },
+				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data }), saveClientProfileSetup: vi.fn(() => of({ success: true })), saveClientSetupStep: vi.fn(() => of({ success: true, data: {} })) } },
 			],
 		});
 		fixture = TestBed.createComponent(ProfileSetupDashboard);

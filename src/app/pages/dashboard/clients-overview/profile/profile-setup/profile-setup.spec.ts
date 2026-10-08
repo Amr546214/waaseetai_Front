@@ -25,7 +25,7 @@ describe('client profile-setup: shared validation', () => {
 			providers: [
 				provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
 				{ provide: AuthStore, useValue: { currentUser: () => null } },
-				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: {} }), saveClientProfileSetup: save } },
+				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: {} }), saveClientProfileSetup: save, saveClientSetupStep: vi.fn(() => of({ success: true, data: {} })) } },
 			],
 		});
 		fixture = TestBed.createComponent(ProfileSetupDashboard);

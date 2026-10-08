@@ -88,6 +88,14 @@ export class ProfileApiService {
   }
 
   /**
+   * Store ONE client setup step as soon as the user moves on (1 details, 2 identity documents, 3 PayPal, 4 optional documents), so a refresh
+   * resumes from what is saved in the database. The final submit (saveClientProfileSetup) still records the agreements.
+   */
+  public saveClientSetupStep(step: 1 | 2 | 3 | 4, body: Record<string, unknown>): Observable<any> {
+    return this.http.put<any>(`${environment.url_api}/client/profile/setup/step/${step}`, body);
+  }
+
+  /**
    * Get provider profile setup data
    */
   public getProviderProfileSetup(): Observable<any> {
