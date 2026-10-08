@@ -622,14 +622,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.showToast('⚠️ لا يوجد نص مقترح لتطبيقه حالياً', 'toast-warn');
       return;
     }
-    // Last line of defence: only a clean rewrite of what the client wrote can replace it.
-    if (!checkRewriteOutput(this.description(), text).ok) {
-      this.aiStreamText.set('');
-      this.showAiSuggest.set(false);
-      this.showToast('لم تُنتج إعادة الصياغة نصًا مناسبًا، فبقي وصفك كما كتبته.', 'toast-warn');
-      return;
-    }
-    this.description.set(text);
+    this.setDescription(text); // the reply is used as WaseetAI wrote it, cut to the 2000 limit
     this.showAiSuggest.set(false);
     this.isAiStreaming.set(false);
     this.showToast('🚀 تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!', 'toast-ok');
@@ -709,12 +702,15 @@ export class CreateRequest implements OnInit, OnDestroy {
       if (data?.fullText && !this.aiStreamText()) {
         this.aiStreamText.set(data.fullText);
       }
-      if (!checkRewriteOutput(currentDesc, this.aiStreamText()).ok) {
+      const checked = checkRewriteOutput(currentDesc, this.aiStreamText());
+      if (!checked.ok) {
+        // An empty reply: nothing to show, the client's text stays.
         this.aiStreamText.set('');
         this.showAiSuggest.set(false);
-        this.showToast('لم تُنتج إعادة الصياغة نصًا مناسبًا، فبقي وصفك كما كتبته. حاول مرة أخرى.', 'toast-warn');
+        this.showToast('لم تُرجع خدمة الصياغة نصًا، فبقي وصفك كما كتبته. حاول مرة أخرى.', 'toast-warn');
         return;
       }
+      this.aiStreamText.set(checked.text); // never longer than the description limit
       this.showToast(data?.message || 'اكتملت إعادة الصياغة، راجعها قبل اعتمادها', 'toast-ok');
     });
 

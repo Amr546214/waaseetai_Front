@@ -88,27 +88,40 @@ describe('create-request: AI refine is rewriting only', () => {
 
 	for (const [label, reply] of [
 		['"يبدو أنك"', 'يبدو أنك قمت بنسخ نص يحتوي على خيارات سابقة. أحتاج متجرًا إلكترونيًا لبيع الملابس.'],
-		['"إليك"', 'إليك صياغة محسنة: أحتاج إلى متجر إلكتروني لبيع الملابس يدعم الدفع وإدارة المخزون.'],
-		['"***"', '***أحتاج إلى متجر إلكتروني لبيع الملابس*** يدعم الدفع عبر الإنترنت وإدارة المخزون.'],
-		['an invented budget', 'أحتاج إلى متجر إلكتروني لبيع الملابس يدعم الدفع عبر الإنترنت وإدارة المخزون بميزانية 5000 دولار.'],
+		['"إليك" and "أنصحك"', 'إليك صياغة محسنة، أنصحك بها: أحتاج إلى متجر إلكتروني لبيع الملابس.'],
+		['markdown "***"', '***أحتاج إلى متجر إلكتروني لبيع الملابس*** يدعم الدفع وإدارة المخزون.'],
+		['markdown headings and bullets', '## الوصف\n- متجر ملابس\n- دفع إلكتروني'],
 	] as const) {
-		it(`a reply with ${label} is not put in the fields and the original text stays`, () => {
+		it(`a reply with ${label} is shown as written and goes into the description once accepted; the title never changes`, () => {
 			c.title.set(TITLE); c.description.set(DRAFT);
 			c.triggerAiDescription();
 			fire('ai:description_chunk', { chunk: reply }); fire('ai:description_complete', { fullText: reply });
-			expect(c.description()).toBe(DRAFT);
+			expect(c.showAiSuggest()).toBe(true);
+			expect(c.aiStreamText()).toBe(reply);
+			expect(c.description()).toBe(DRAFT); // still the client's until they accept the preview
+			c.useAiSuggest();
+			expect(c.description()).toBe(reply);
 			expect(c.title()).toBe(TITLE);
-			expect(c.aiStreamText()).toBe('');
-			expect(c.showAiSuggest()).toBe(false);
-			expect(toast()).toContain('بقي وصفك كما كتبته');
 		});
 	}
 
-	it('a bad text can never be applied, even if it reached the preview', () => {
+	it('a reply longer than 2000 never takes the description past 2000', () => {
 		c.title.set(TITLE); c.description.set(DRAFT);
-		c.aiStreamText.set('يبدو أنك قمت بنسخ نص. أحتاج متجرًا إلكترونيًا لبيع الملابس.');
+		c.triggerAiDescription();
+		const long = 'ا'.repeat(2600);
+		fire('ai:description_chunk', { chunk: long }); fire('ai:description_complete', { fullText: long });
+		expect(c.aiStreamText().length).toBe(2000);
 		c.useAiSuggest();
+		expect(c.description().length).toBe(2000);
+	});
+
+	it('an empty reply changes nothing and shows an error', () => {
+		c.title.set(TITLE); c.description.set(DRAFT);
+		c.triggerAiDescription();
+		fire('ai:description_complete', { fullText: '   ' });
 		expect(c.description()).toBe(DRAFT);
+		expect(c.showAiSuggest()).toBe(false);
+		expect(toast()).toContain('بقي وصفك كما كتبته');
 	});
 
 	it('AI failure: the original text stays and the error is shown', () => {
