@@ -22,6 +22,7 @@ describe('create-request: AI refine is rewriting only', () => {
 
 	beforeEach(async () => {
 		sockets.length = 0;
+		ioMock.mockReset();
 		ioMock.mockImplementation(() => {
 			const s: any = { handlers: {} as Record<string, (d?: any) => void>, emit: vi.fn(), off: vi.fn(), on(e: string, h: any) { this.handlers[e] = h; }, disconnect: vi.fn() };
 			sockets.push(s);
@@ -36,11 +37,14 @@ describe('create-request: AI refine is rewriting only', () => {
 		}).compileComponents();
 		const f = TestBed.createComponent(CreateRequest);
 		await f.whenStable();
+		fixtureRef = f;
 		c = f.componentInstance;
 	});
 	afterEach(() => { TestBed.resetTestingModule(); vi.unstubAllGlobals(); });
 
 	const toast = () => c.toast()?.msg ?? '';
+	let fixtureRef: any;
+	const render = () => { c.currentStep.set(3); fixtureRef.detectChanges(); return fixtureRef.nativeElement as HTMLElement; };
 
 	it('empty title and description: no AI call, no socket, nothing written, clear message', () => {
 		c.triggerAiDescription();
@@ -140,5 +144,58 @@ describe('create-request: AI refine is rewriting only', () => {
 		expect(all.match(/ai:generate_description/g)?.length).toBe(1);
 		const api = readFileSync('src/app/core/services/project-api.service.ts', 'utf8');
 		expect(api).not.toContain('ai-suggest');
+	});
+
+	describe('step 3 UI: counters and the refine button state', () => {
+		const btn = (el: HTMLElement) => el.querySelector('[data-testid=ai-refine-btn]') as HTMLButtonElement;
+
+		it('the counters read used / max (left-to-right isolated), for title, description and outputs', () => {
+			c.title.set('تطوير متجر'); c.description.set('وصف قصير');
+			const el = render();
+			expect(el.querySelector('#title-count')?.textContent?.trim()).toBe('10 / 80');
+			expect(el.querySelector('#desc-count')?.textContent?.trim()).toBe('8 / 2000');
+			expect(el.querySelector('#title-count')?.getAttribute('dir')).toBe('ltr');
+			expect(el.querySelector('#desc-count')?.getAttribute('dir')).toBe('ltr');
+			expect(el.querySelector('#outputs-count')?.getAttribute('dir')).toBe('ltr');
+		});
+
+		it('the button is really disabled with an empty form, a short description, or an incomplete title', () => {
+			let el = render();
+			expect(btn(el).disabled).toBe(true);
+			c.title.set(TITLE); c.description.set('متجر ملابس'); el = render();
+			expect(btn(el).disabled).toBe(true);
+			c.title.set('مشروع'); c.description.set(DRAFT); el = render();
+			expect(btn(el).disabled).toBe(true);
+		});
+
+		it('disabled: the hint shows on hover (title) and a press shows the message, with no socket and no field change', () => {
+			c.title.set(TITLE); c.description.set('متجر ملابس');
+			const el = render();
+			const wrap = el.querySelector('[data-testid=ai-refine-wrap]') as HTMLElement;
+			expect(wrap.getAttribute('title')).toBe('اكتب عنوان الطلب ووصفه أولًا، ثم استخدم تحسين الصياغة.');
+			wrap.click(); // a disabled button swallows the click; the wrapper receives it
+			expect(toast()).toBe('اكتب عنوان الطلب ووصفه أولًا، ثم استخدم تحسين الصياغة.');
+			expect(ioMock).not.toHaveBeenCalled();
+			expect(c.description()).toBe('متجر ملابس'); expect(c.title()).toBe(TITLE);
+		});
+
+		it('enabled with a sufficient title and description: no hint, and the press calls the rewrite', () => {
+			c.title.set(TITLE); c.description.set(DRAFT);
+			const el = render();
+			expect(btn(el).disabled).toBe(false);
+			expect((el.querySelector('[data-testid=ai-refine-wrap]') as HTMLElement).getAttribute('title')).toBeNull();
+			btn(el).click();
+			expect(ioMock).toHaveBeenCalledTimes(1);
+			expect(socket().emit.mock.calls[0][1].existingDescription).toBe(DRAFT);
+		});
+
+		it('the thresholds are the BE ones: 30 characters and 6 words', () => {
+			c.title.set(TITLE);
+			c.description.set('ثلاثون حرفا تماما هنا ولكن كلمات قليلة جدا'); // < 6 words check below
+			expect(c.canRefineWithAi()).toBe(true); // 8 words, > 30 chars
+			c.description.set('أ ب ج د هـ و ز'); expect(c.canRefineWithAi()).toBe(false); // 7 one-letter words, < 30 chars
+			c.description.set('كلمة طويلة جدا جدا جدا جدا جدا جدا'); expect(c.canRefineWithAi()).toBe(true);
+			c.description.set('كلماتطويلةجداجداجداجداجداجداجداجداجدا'); expect(c.canRefineWithAi()).toBe(false); // 1 word
+		});
 	});
 });
