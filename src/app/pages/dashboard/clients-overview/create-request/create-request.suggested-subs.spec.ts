@@ -48,12 +48,4 @@ describe('create request — sub-specialty chips vs the counter (R10-003)', () =
 		expect(idle.className).not.toContain('border-[var(--teal)]');
 		expect(idle.className).not.toContain('hover:border-[var(--teal)]');
 	});
-
-	it('AI-suggested sub-specialties are applied only when they exist as chips: the counter never counts something that is not shown selected', () => {
-		postImpl = () => of({ success: true, data: { suggestedSubSpecialties: ['واجهات', 'تخصص غير موجود', 'أمن'] } });
-		component.applyAISuggestion();
-		fixture.detectChanges();
-		expect(Array.from(component.selectedSubs()).sort()).toEqual(['أمن', 'واجهات']);
-		expect(chips().filter(c => c.getAttribute('aria-pressed') === 'true').length).toBe(component.selectedSubs().size);
-	});
 });

@@ -39,7 +39,10 @@ const MISLEADING = [
 	'يقترح التخصصات بناء على خياراتك',
 	'الصياغة الاحترافية',
 	'hasInappropriateFile',
-	'تعبّئ الحقول الفارغة فقط', // applyAISuggestion() also sets the budget and adds sub-specialties, not only empty fields
+	'تعبّئ الحقول الفارغة فقط',
+	'اقترح لي',
+	'اقتراح بالذكاء الاصطناعي',
+	'applyAISuggestion',
 ];
 
 describe('create request: AI copy is truthful', () => {
@@ -48,18 +51,6 @@ describe('create request: AI copy is truthful', () => {
 			expect(all()).not.toContain(phrase);
 		});
 	}
-
-	it('step 1: the AI banner describes what the real /ai-suggest call does, and the note says the suggestions are guidance', () => {
-		const t = read('components/step1-specialty/step1-specialty.html');
-		expect(t).toContain('اقتراح بالذكاء الاصطناعي');
-		expect(t).toContain('بناءً على ما أدخلته حتى الآن');
-		// matches applyAISuggestion(): title/description/duration only when empty; budget range and sub-specialties may be added
-		expect(t).toContain('تُملأ العنوان والوصف والمدة إن كانت فارغة');
-		expect(t).toContain('وقد تُضاف ميزانية مقترحة وتخصصات فرعية');
-		expect(t).toContain('ويمكنك تعديل كل ذلك');
-		expect(t).toContain('اقترح لي');
-		expect(t).toContain('اقتراحات الذكاء الاصطناعي إرشادية وقابلة للتعديل');
-	});
 
 	it('step 2: the default NDA and the custom-NDA note make no AI approval / scan claim', () => {
 		const t = read('components/step2-conditions/step2-conditions.html');

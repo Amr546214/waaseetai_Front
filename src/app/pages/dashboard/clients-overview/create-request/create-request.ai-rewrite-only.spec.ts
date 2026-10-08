@@ -123,4 +123,22 @@ describe('create-request: AI refine is rewriting only', () => {
 		expect(html).not.toMatch(/<span>\s*اقتراح AI\s*<\/span>/);
 		expect(html).toContain('تحسين وصياغة AI');
 	});
+
+	it('"اقترح لي" is gone: step 1 has no AI banner/button and nothing in create-request calls a generate-from-scratch endpoint', async () => {
+		const { readFileSync, readdirSync, statSync } = await import('node:fs');
+		const root = 'src/app/pages/dashboard/clients-overview/create-request';
+		const files: string[] = [];
+		const walk = (d: string) => readdirSync(d).forEach(f => { const q = `${d}/${f}`; statSync(q).isDirectory() ? walk(q) : (/\.(ts|html)$/.test(f) && !f.endsWith('.spec.ts') && files.push(q)); });
+		walk(root);
+		const all = files.map(f => readFileSync(f, 'utf8')).join('\n');
+		const step1 = readFileSync(`${root}/components/step1-specialty/step1-specialty.html`, 'utf8');
+		expect(step1).not.toContain('اقترح لي');
+		expect(step1).not.toContain('اقتراح بالذكاء الاصطناعي');
+		expect(step1).not.toContain('ai-sug-banner');
+		for (const gone of ['applyAISuggestion', 'showAIBanner', 'aiSuggest', '/ai-suggest', 'project-description']) expect(all).not.toContain(gone);
+		// the only AI call left is the rewrite socket event
+		expect(all.match(/ai:generate_description/g)?.length).toBe(1);
+		const api = readFileSync('src/app/core/services/project-api.service.ts', 'utf8');
+		expect(api).not.toContain('ai-suggest');
+	});
 });

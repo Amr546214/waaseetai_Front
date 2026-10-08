@@ -103,9 +103,9 @@ describe('AI Cleanup Batch 2 — client create-request', () => {
 		expect(step2Html).toContain('parent.customConditions()');
 	});
 
-	it('ai-suggest failure no longer auto-selects a specialty and reports it as an applied AI suggestion', () => {
+	it('the step-1 "اقترح لي" generation (/ai-suggest) is gone: no AI writes a request from scratch', () => {
 		expect(createReqTs).not.toContain('تم تطبيق اقتراح AI:');
-		expect(createReqTs).toContain('this.projectApi.aiSuggest(payload)');
+		expect(createReqTs).not.toContain('aiSuggest');
 	});
 });
 
