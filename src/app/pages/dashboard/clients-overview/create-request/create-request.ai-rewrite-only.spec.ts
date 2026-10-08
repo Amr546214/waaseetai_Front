@@ -159,31 +159,54 @@ describe('create-request: AI refine is rewriting only', () => {
 			expect(el.querySelector('#outputs-count')?.getAttribute('dir')).toBe('ltr');
 		});
 
-		it('the button is really disabled with an empty form, a short description, or an incomplete title', () => {
-			let el = render();
-			expect(btn(el).disabled).toBe(true);
-			c.title.set(TITLE); c.description.set('متجر ملابس'); el = render();
-			expect(btn(el).disabled).toBe(true);
-			c.title.set('مشروع'); c.description.set(DRAFT); el = render();
-			expect(btn(el).disabled).toBe(true);
-		});
-
-		it('disabled: the hint shows on hover (title) and a press shows the message, with no socket and no field change', () => {
-			c.title.set(TITLE); c.description.set('متجر ملابس');
+		it('the "تحسين وصياغة AI" button is visible and looks/behaves normal; "اقترح لي" does not exist', () => {
 			const el = render();
-			const wrap = el.querySelector('[data-testid=ai-refine-wrap]') as HTMLElement;
-			expect(wrap.getAttribute('title')).toBe('اكتب عنوان الطلب ووصفه أولًا، ثم استخدم تحسين الصياغة.');
-			wrap.click(); // a disabled button swallows the click; the wrapper receives it
-			expect(toast()).toBe('اكتب عنوان الطلب ووصفه أولًا، ثم استخدم تحسين الصياغة.');
-			expect(ioMock).not.toHaveBeenCalled();
-			expect(c.description()).toBe('متجر ملابس'); expect(c.title()).toBe(TITLE);
+			const b = btn(el);
+			expect(b).toBeTruthy();
+			expect(b.textContent).toContain('تحسين وصياغة AI');
+			expect(b.disabled).toBe(false);
+			expect(b.className).not.toContain('opacity-50');
+			expect(b.className).not.toContain('pointer-events-none');
+			expect(el.textContent).not.toContain('اقترح لي');
 		});
 
-		it('enabled with a sufficient title and description: no hint, and the press calls the rewrite', () => {
+		for (const [label, title, description] of [
+			['an empty form', '', ''],
+			['a short description', TITLE, 'متجر ملابس'],
+			['an incomplete title', 'مشروع', DRAFT],
+		] as const) {
+			it(`pressing it with ${label} shows the "write it first" message: no socket, no field change`, () => {
+				c.title.set(title); c.description.set(description);
+				const el = render();
+				btn(el).click();
+				expect(toast()).toBe('اكتب عنوان الطلب ووصفه أولًا، ثم استخدم تحسين الصياغة.');
+				expect(ioMock).not.toHaveBeenCalled();
+				expect(c.title()).toBe(title); expect(c.description()).toBe(description);
+				expect(c.showAiSuggest()).toBe(false);
+			});
+		}
+
+		it('the description is limited to 2000 characters: maxlength on the field, and typed/pasted text is clamped', () => {
+			const el = render();
+			const ta = el.querySelector('#f-desc') as HTMLTextAreaElement;
+			expect(ta.getAttribute('maxlength')).toBe('2000');
+			expect((el.querySelector('#f-title') as HTMLInputElement).getAttribute('maxlength')).toBe('80');
+			ta.value = 'ا'.repeat(2500); ta.dispatchEvent(new Event('input'));
+			expect(c.description().length).toBe(2000);
+			c.setDescription('ب'.repeat(5000)); expect(c.description().length).toBe(2000);
+			c.setTitle('ت'.repeat(200)); expect(c.title().length).toBe(80);
+		});
+
+		it('the counter shows current / 2000, e.g. 91 / 2000', () => {
+			c.description.set('ا'.repeat(91));
+			const el = render();
+			expect(el.querySelector('#desc-count')?.textContent?.trim()).toBe('91 / 2000');
+		});
+
+		it('enabled with a sufficient title and description: the press calls the rewrite', () => {
 			c.title.set(TITLE); c.description.set(DRAFT);
 			const el = render();
 			expect(btn(el).disabled).toBe(false);
-			expect((el.querySelector('[data-testid=ai-refine-wrap]') as HTMLElement).getAttribute('title')).toBeNull();
 			btn(el).click();
 			expect(ioMock).toHaveBeenCalledTimes(1);
 			expect(socket().emit.mock.calls[0][1].existingDescription).toBe(DRAFT);
