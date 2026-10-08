@@ -25,7 +25,7 @@ describe('client setup wizard: no skip', () => {
 			providers: [
 				provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
 				{ provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL' }), token: () => 't', authenticate: vi.fn() } },
-				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: { completionPercentage: 0 } }), saveClientProfileSetup: vi.fn(() => of({ success: true })) } },
+				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: { completionPercentage: 0 } }), saveClientProfileSetup: vi.fn(() => of({ success: true })), saveClientSetupStep: vi.fn(() => of({ success: true, data: {} })) } },
 			],
 		});
 		router = TestBed.inject(Router);
