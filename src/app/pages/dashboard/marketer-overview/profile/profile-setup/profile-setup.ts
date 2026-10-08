@@ -12,6 +12,7 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { CompletionBoxComponent, CompletionBoxItem } from '../../../../../shared/forms/completion-box.component';
+import { MARKETER_EDIT_PAGE, MARKETER_SETUP_MESSAGE, resolveMarketerSetup } from './marketer-setup-state';
 
 const MARKETER_LABELS: Record<string, string> = {
 	bio: 'الوصف التسويقي',
@@ -84,10 +85,11 @@ export class ProfileSetup implements OnInit {
 	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
 
 	ngOnInit(): void {
-		this.loadProfile();
+		this.loadProfile(true);
 	}
 
-	loadProfile(): void {
+	/** `initial`: the first read of the page also decides where the wizard opens (later reloads, after each saved step, never move the user). */
+	loadProfile(initial = false): void {
 		this.isLoading.set(true);
 		this.profileService.getProfile().subscribe({
 			next: (res) => {
@@ -100,6 +102,16 @@ export class ProfileSetup implements OnInit {
 						iban: res.data.iban || '',
 						bankName: res.data.bankName || '',
 					});
+					if (initial) {
+						// Open where the work really is (bio -> channel -> bank), not always on step 1; nothing left for the wizard = the profile page.
+						const start = resolveMarketerSetup(res.data);
+						if (start.kind === 'redirect') {
+							this.notify.info(MARKETER_SETUP_MESSAGE[start.reason]);
+							this.router.navigateByUrl(MARKETER_EDIT_PAGE);
+							return;
+						}
+						this.currentStep.set(start.step);
+					}
 				}
 			},
 			error: () => this.isLoading.set(false)

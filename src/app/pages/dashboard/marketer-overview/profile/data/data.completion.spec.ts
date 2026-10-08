@@ -73,10 +73,20 @@ describe('marketer data page: backend completion + missing items', () => {
     expect(c.activeTab()).toBe('profile');
   });
 
-  it('100%: no box and a completed message', async () => {
+  it('100%: the completion card (label, percentage, bar, "مكتمل" hint) and the missing box are gone', async () => {
     await setup({ ...base, completionPercentage: 100, missingItems: [], bankStatus: 'approved', iban: 'SA0380000000608010167519' });
     expect(q('[data-testid="missing-items"]')).toBeNull();
-    expect(q('[data-testid="prog-hint"]')!.textContent).toContain('100%');
+    expect(q('.prog-header')).toBeNull();
+    expect(q('.prog-fill')).toBeNull();
+    expect(q('[data-testid="prog-hint"]')).toBeNull();
+    expect(el().textContent).not.toContain('اكتمال الملف التسويقي');
+  });
+
+  it('below 100%: the card shows the label, the percentage and the bar width', async () => {
+    await setup({ ...base, completionPercentage: 40, missingItems: ITEMS, bankStatus: 'none' });
+    expect(q('.prog-header')).not.toBeNull();
+    expect(q('.prog-pct')!.textContent).toContain('40%');
+    expect((q('.prog-fill') as HTMLElement).style.width).toBe('40%');
   });
 
   it('a channel is shown as added, never as "محقق" (channel verification does not exist yet)', async () => {

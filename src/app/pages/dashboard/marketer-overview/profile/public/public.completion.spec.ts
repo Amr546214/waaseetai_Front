@@ -33,10 +33,9 @@ describe('marketer public card: completion copy', () => {
     expect(copy.querySelector('a')!.getAttribute('href')).toBe('/marketer-overview/profile/data');
   });
 
-  it('at 100% there is no "أكمل ملفك" link', async () => {
+  it('at 100% the whole completion card is gone (no "الملف مكتمل 100%", no bar, no link)', async () => {
     await setup(100);
-    const copy = fixture.nativeElement.querySelector('[data-testid="public-completion-copy"]') as HTMLElement;
-    expect(copy.textContent).toContain('الملف مكتمل 100%');
-    expect(copy.querySelector('a')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="public-completion-copy"]')).toBeNull();
+    expect((fixture.nativeElement.textContent as string)).not.toContain('اكتمال الملف الشخصي');
   });
 });

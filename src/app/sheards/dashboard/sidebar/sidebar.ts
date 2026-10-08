@@ -9,6 +9,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ChatStateService } from '../../../core/services/chat-state.service';
 import { ProviderApiService } from '../../../core/services/provider-api.service';
 import { MarketingCenterService } from '../../../core/services/marketing-center.service';
+import { MarketerProfileService } from '../../../core/services/marketer-profile.service';
+import { resolveMarketerSetup } from '../../../pages/dashboard/marketer-overview/profile/profile-setup/marketer-setup-state';
 
 export interface NavItem {
 	type: 'header' | 'link' | 'accordion' | 'button' | 'divider';
@@ -37,10 +39,16 @@ export class Sidebar implements OnInit {
 	private cdRef = inject(ChangeDetectorRef);
 	private providerApiService = inject(ProviderApiService);
 	private marketingCenterService = inject(MarketingCenterService);
+	private marketerProfileService = inject(MarketerProfileService);
 
 	isProviderProfileIncomplete = signal<boolean>(false);
 	/** Individual provider: the setup form AND the classification test are done -> the "استكمال البيانات" link goes away. */
 	providerSetupDone = signal<boolean>(false);
+	/** Marketer: is there still something the "استكمال البيانات" wizard can collect? Unknown (profile not read yet) counts as yes. */
+	marketerSetupNeeded = computed<boolean>(() => {
+		const p = this.marketerProfileService.profileSnapshot();
+		return p ? resolveMarketerSetup(p).kind === 'step' : true;
+	});
 
 	constructor() {
 		effect(() => {
@@ -65,6 +73,10 @@ export class Sidebar implements OnInit {
 	}
 
 	ngOnInit() {
+		// Marketer: read the profile once so the sidebar knows whether the setup wizard still has something to collect (pages keep it fresh).
+		if (this.effectiveRole() === UserRole.AFFILIATE && !this.marketerProfileService.profileSnapshot()) {
+			this.marketerProfileService.getProfile().subscribe({ error: () => { /* unknown = the link stays */ } });
+		}
 		// Fetch provider stats if role is provider to check profile completeness
 		if (this.effectiveRole() === UserRole.PROVIDER) {
 			this.providerApiService.getOverviewStats().subscribe({
@@ -411,7 +423,7 @@ export class Sidebar implements OnInit {
 					{ type: 'link', label: 'ملفي التسويقي', route: '/marketer-overview/profile/data', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
 					{ type: 'link', label: 'الملف العام', route: '/marketer-overview/profile/public', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
 					{ type: 'link', label: 'طلبات التعديل', route: '/marketer-overview/profile/requests', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
-					{ type: 'link', label: 'استكمال البيانات', route: '/marketer-overview/profile-setup', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+					...(this.marketerSetupNeeded() ? [{ type: 'link', label: 'استكمال البيانات', route: '/marketer-overview/profile-setup', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' } as NavItem] : []),
 					{ type: 'link', label: 'إضافة حساب', route: '/marketer-overview/profile/add-account', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' }
 				]
 			},

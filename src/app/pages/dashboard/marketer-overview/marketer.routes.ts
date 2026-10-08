@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { marketerSetupGuard } from './profile/profile-setup/profile-setup.guard';
 
 export const MARKETER_ROUTES: Routes = [
 	{
@@ -53,6 +54,7 @@ export const MARKETER_ROUTES: Routes = [
 	},
 	{
 		path: 'profile-setup',
+		canActivate: [marketerSetupGuard],
 		loadComponent: () => import('./profile/profile-setup/profile-setup').then(m => m.ProfileSetup),
 		data: { title: "استكمال البيانات" }
 	},
