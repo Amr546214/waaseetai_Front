@@ -92,6 +92,6 @@ describe('create request: AI copy is truthful', () => {
 	});
 
 	it('the completion toast no longer calls the draft "professional" and asks the user to review it', () => {
-		expect(read('create-request.ts')).toContain('راجعها وعدّلها قبل استخدامها');
+		expect(read('create-request.ts')).toContain('راجعها قبل اعتمادها');
 	});
 });

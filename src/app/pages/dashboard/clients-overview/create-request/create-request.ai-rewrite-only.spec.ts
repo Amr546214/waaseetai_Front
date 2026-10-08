@@ -1,0 +1,126 @@
+import { TestBed } from '@angular/core/testing';
+import { HttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
+import { CreateRequest, resetCreateRequestPageLoadState } from './create-request';
+
+// "تحسين وصياغة AI" rewrites what the client wrote: it never writes the title/description, never calls the AI without enough input,
+// and never puts a bad reply (assistant chatter, markdown, invented numbers) into the form.
+const sockets: any[] = [];
+const ioMock = vi.hoisted(() => vi.fn());
+vi.mock('socket.io-client', () => ({ io: ioMock }));
+
+const TITLE = 'تطوير متجر إلكتروني متكامل';
+const DRAFT = 'أحتاج متجرًا إلكترونيًا لبيع الملابس يدعم الدفع عبر الإنترنت وإدارة المخزون ولوحة تحكم للطلبات';
+const REWRITE = 'أحتاج إلى متجر إلكتروني لبيع الملابس يدعم الدفع عبر الإنترنت وإدارة المخزون، مع لوحة تحكم لمتابعة الطلبات.';
+
+describe('create-request: AI refine is rewriting only', () => {
+	let c: CreateRequest;
+	const socket = () => sockets[sockets.length - 1];
+	const fire = (event: string, data?: any) => socket().handlers[event]?.(data);
+
+	beforeEach(async () => {
+		sockets.length = 0;
+		ioMock.mockImplementation(() => {
+			const s: any = { handlers: {} as Record<string, (d?: any) => void>, emit: vi.fn(), off: vi.fn(), on(e: string, h: any) { this.handlers[e] = h; }, disconnect: vi.fn() };
+			sockets.push(s);
+			return s;
+		});
+		sessionStorage.clear();
+		resetCreateRequestPageLoadState();
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {}, clear: () => {} });
+		await TestBed.configureTestingModule({
+			imports: [CreateRequest],
+			providers: [provideRouter([]), { provide: HttpClient, useValue: { get: () => of({ success: false }), post: () => of({ success: false }) } }],
+		}).compileComponents();
+		const f = TestBed.createComponent(CreateRequest);
+		await f.whenStable();
+		c = f.componentInstance;
+	});
+	afterEach(() => { TestBed.resetTestingModule(); vi.unstubAllGlobals(); });
+
+	const toast = () => c.toast()?.msg ?? '';
+
+	it('empty title and description: no AI call, no socket, nothing written, clear message', () => {
+		c.triggerAiDescription();
+		expect(ioMock).not.toHaveBeenCalled();
+		expect(c.title()).toBe(''); expect(c.description()).toBe('');
+		expect(c.showAiSuggest()).toBe(false);
+		expect(toast()).toBe('اكتب عنوان الطلب ووصفه أولًا، ثم استخدم تحسين الصياغة.');
+	});
+
+	it('a title without a description, or a very short description, does not call the AI', () => {
+		c.title.set(TITLE); c.triggerAiDescription();
+		c.description.set('متجر ملابس'); c.triggerAiDescription();
+		c.description.set('كلمة كلمة كلمة كلمة كلمة كلمة'); c.triggerAiDescription();
+		expect(ioMock).not.toHaveBeenCalled();
+		expect(c.description()).toBe('كلمة كلمة كلمة كلمة كلمة كلمة');
+		expect(c.title()).toBe(TITLE);
+	});
+
+	it('a description without a meaningful title does not call the AI', () => {
+		c.description.set(DRAFT); c.triggerAiDescription();
+		c.title.set('مشروع جديد'); c.triggerAiDescription();
+		expect(ioMock).not.toHaveBeenCalled();
+	});
+
+	it('enough input: asks the AI to rewrite the client\'s own description and offers only the restated text', () => {
+		c.title.set(TITLE); c.description.set(DRAFT);
+		c.triggerAiDescription();
+		expect(ioMock).toHaveBeenCalledTimes(1);
+		const [event, payload] = socket().emit.mock.calls[0];
+		expect(event).toBe('ai:generate_description');
+		expect(payload.existingDescription).toBe(DRAFT);
+		expect(payload.projectTitle).toBe(TITLE);
+		expect(c.aiMode()).toBe('refine');
+		fire('ai:description_chunk', { chunk: REWRITE }); fire('ai:description_complete', { fullText: REWRITE });
+		expect(c.aiStreamText()).toBe(REWRITE);
+		expect(c.description()).toBe(DRAFT); // nothing is replaced until the client accepts
+		c.useAiSuggest();
+		expect(c.description()).toBe(REWRITE);
+		expect(c.title()).toBe(TITLE); // the title is never rewritten by AI
+	});
+
+	for (const [label, reply] of [
+		['"يبدو أنك"', 'يبدو أنك قمت بنسخ نص يحتوي على خيارات سابقة. أحتاج متجرًا إلكترونيًا لبيع الملابس.'],
+		['"إليك"', 'إليك صياغة محسنة: أحتاج إلى متجر إلكتروني لبيع الملابس يدعم الدفع وإدارة المخزون.'],
+		['"***"', '***أحتاج إلى متجر إلكتروني لبيع الملابس*** يدعم الدفع عبر الإنترنت وإدارة المخزون.'],
+		['an invented budget', 'أحتاج إلى متجر إلكتروني لبيع الملابس يدعم الدفع عبر الإنترنت وإدارة المخزون بميزانية 5000 دولار.'],
+	] as const) {
+		it(`a reply with ${label} is not put in the fields and the original text stays`, () => {
+			c.title.set(TITLE); c.description.set(DRAFT);
+			c.triggerAiDescription();
+			fire('ai:description_chunk', { chunk: reply }); fire('ai:description_complete', { fullText: reply });
+			expect(c.description()).toBe(DRAFT);
+			expect(c.title()).toBe(TITLE);
+			expect(c.aiStreamText()).toBe('');
+			expect(c.showAiSuggest()).toBe(false);
+			expect(toast()).toContain('بقي وصفك كما كتبته');
+		});
+	}
+
+	it('a bad text can never be applied, even if it reached the preview', () => {
+		c.title.set(TITLE); c.description.set(DRAFT);
+		c.aiStreamText.set('يبدو أنك قمت بنسخ نص. أحتاج متجرًا إلكترونيًا لبيع الملابس.');
+		c.useAiSuggest();
+		expect(c.description()).toBe(DRAFT);
+	});
+
+	it('AI failure: the original text stays and the error is shown', () => {
+		c.title.set(TITLE); c.description.set(DRAFT);
+		c.triggerAiDescription();
+		fire('ai:description_error', { message: 'تعذرت إعادة الصياغة من خدمة الذكاء الاصطناعي، وبقي وصفك كما كتبته. حاول مرة أخرى.' });
+		expect(c.description()).toBe(DRAFT);
+		expect(c.title()).toBe(TITLE);
+		expect(c.showAiSuggest()).toBe(false);
+		expect(toast()).toContain('بقي وصفك كما كتبته');
+	});
+
+	it('the button no longer offers a generate-from-scratch label', async () => {
+		const { readFileSync } = await import('node:fs');
+		const html = readFileSync('src/app/pages/dashboard/clients-overview/create-request/components/step3-details/step3-details.html', 'utf8');
+		expect(html).not.toMatch(/<span>\s*اقتراح AI\s*<\/span>/);
+		expect(html).toContain('تحسين وصياغة AI');
+	});
+});

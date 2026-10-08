@@ -1,4 +1,5 @@
 import { Component, computed, effect, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { canRewrite, checkRewriteOutput, REWRITE_INPUT_REQUIRED_MESSAGE } from './description-rewrite-guard';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavigationSkipped, NavigationSkippedCode, Router, RouterLink } from '@angular/router';
@@ -656,10 +657,17 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.showToast('⚠️ لا يوجد نص مقترح لتطبيقه حالياً', 'toast-warn');
       return;
     }
+    // Last line of defence: only a clean rewrite of what the client wrote can replace it.
+    if (!checkRewriteOutput(this.description(), text).ok) {
+      this.aiStreamText.set('');
+      this.showAiSuggest.set(false);
+      this.showToast('لم تُنتج إعادة الصياغة نصًا مناسبًا، فبقي وصفك كما كتبته.', 'toast-warn');
+      return;
+    }
     this.description.set(text);
     this.showAiSuggest.set(false);
     this.isAiStreaming.set(false);
-    this.showToast('🚀 تم اعتماد الوصف الاحترافي في حقل التفاصيل بنجاح!', 'toast-ok');
+    this.showToast('🚀 تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!', 'toast-ok');
   }
 
   dismissAiSuggest() {
@@ -670,13 +678,17 @@ export class CreateRequest implements OnInit, OnDestroy {
   // Real-Time AI Description Generator & Refiner (Socket.IO Token Streaming)
   isAiStreaming = signal(false);
   aiStreamText = signal('');
-  aiMode = signal<'generate' | 'refine' | null>(null);
+  aiMode = signal<'refine' | null>(null);
   aiPhase = signal<'idle' | 'validating' | 'generating'>('idle');
+
+  /** Rewriting only: the AI restates a title + description the client already wrote, it never writes them. */
+  canRefineWithAi = computed(() => canRewrite(this.title(), this.description()));
 
   triggerAiDescription() {
     const projTitle = this.title().trim();
-    if (!this.isMeaningfulProjectTitle(projTitle)) {
-      this.showToast('اكتب عنواناً واضحاً ومحدداً، مثل: تطوير متجر إلكتروني لبيع الملابس. العناوين العامة مثل «تجربة» لا تكفي للصياغة.', 'toast-warn');
+    if (!this.canRefineWithAi()) {
+      // No AI call, no socket, nothing written into the form.
+      this.showToast(REWRITE_INPUT_REQUIRED_MESSAGE, 'toast-warn');
       return;
     }
 
@@ -692,9 +704,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     }
 
     const currentDesc = this.description().trim();
-    const mode = currentDesc.length > 5 ? 'refine' : 'generate';
-
-    this.aiMode.set(mode);
+    this.aiMode.set('refine');
     this.aiStreamText.set('');
     this.isAiStreaming.set(true);
     this.aiPhase.set('validating');
@@ -720,9 +730,6 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.socket.on('ai:description_start', (data: any) => {
       this.isAiStreaming.set(true);
       this.aiPhase.set('generating');
-      if (data?.mode) {
-        this.aiMode.set(data.mode);
-      }
     });
 
     this.socket.on('ai:description_chunk', (data: { chunk: string; mode: string }) => {
@@ -737,7 +744,13 @@ export class CreateRequest implements OnInit, OnDestroy {
       if (data?.fullText && !this.aiStreamText()) {
         this.aiStreamText.set(data.fullText);
       }
-      this.showToast(data?.message || 'اكتملت صياغة المسودة، راجعها وعدّلها قبل استخدامها', 'toast-ok');
+      if (!checkRewriteOutput(currentDesc, this.aiStreamText()).ok) {
+        this.aiStreamText.set('');
+        this.showAiSuggest.set(false);
+        this.showToast('لم تُنتج إعادة الصياغة نصًا مناسبًا، فبقي وصفك كما كتبته. حاول مرة أخرى.', 'toast-warn');
+        return;
+      }
+      this.showToast(data?.message || 'اكتملت إعادة الصياغة، راجعها قبل اعتمادها', 'toast-ok');
     });
 
     this.socket.on('ai:description_error', (data: { message?: string }) => {
@@ -755,16 +768,6 @@ export class CreateRequest implements OnInit, OnDestroy {
       subSpecialties: Array.from(this.selectedSubs()),
       existingDescription: currentDesc
     });
-  }
-
-  private isMeaningfulProjectTitle(title: string): boolean {
-    const normalized = title.replace(/[\p{P}\p{S}_]+/gu, ' ').replace(/\s+/g, ' ').trim();
-    const genericTitles = new Set([
-      'تجربة', 'اختبار', 'مشروع', 'مشروع جديد', 'طلب', 'طلب جديد', 'خدمة', 'خدمة جديدة',
-      'test', 'testing', 'project', 'new project', 'request', 'service'
-    ]);
-    const words = normalized.split(' ').filter(word => word.length > 1);
-    return normalized.length >= 8 && words.length >= 2 && !genericTitles.has(normalized.toLowerCase());
   }
 
   // ==============================
