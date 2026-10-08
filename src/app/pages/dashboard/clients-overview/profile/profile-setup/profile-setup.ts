@@ -265,13 +265,6 @@ export class ProfileSetupDashboard implements OnInit {
 		});
 	}
 
-	skipSetup() {
-		this.showToast('تم التخطي — يمكنك العودة لاحقاً');
-		setTimeout(() => {
-			this.router.navigate(['/client-overview']);
-		}, 1500);
-	}
-
 	submitForm() {
 		if (this.setupForm.invalid) {
 			// Find the first step with something missing, go there, list everything that is missing, focus it.
