@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
-import { Router, provideRouter } from '@angular/router';
+import { NavigationSkipped, NavigationSkippedCode, Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { vi } from 'vitest';
@@ -114,6 +114,47 @@ describe('create-request: fresh start vs resume', () => {
 		const second = TestBed.createComponent(CreateRequest); await second.whenStable();
 		expect(second.componentInstance.budgetMin()).toBeNull();
 		expect(second.componentInstance.currentStep()).toBe(1);
+	});
+
+	it('"إنشاء طلب" clicked while already on the wizard (same URL, router skips it) resets everything, including the success screen', async () => {
+		const c = await mount({ inApp: true });
+		c.selectedSpec.set('sp1'); c.title.set('محاولة'); c.currentStep.set(4);
+		c.budgetMin.set(500); c.budgetMax.set(1500); c.budgetFixed.set(8000); c.budgetHourly.set(40); c.budgetType.set('hourly');
+		c.showSuccessOverlay.set(true);
+		(router.events as any).next(new NavigationSkipped(
+			{ id: 9, url: '/client-overview/create-request' } as any, '/client-overview/create-request', 'x', NavigationSkippedCode.IgnoredSameUrlNavigation));
+		expect(c.currentStep()).toBe(1);
+		expect(c.selectedSpec()).toBeNull();
+		expect(c.title()).toBe('');
+		expect([c.budgetMin(), c.budgetMax(), c.budgetFixed(), c.budgetHourly()]).toEqual([null, null, null, null]);
+		expect(c.budgetType()).toBe('range');
+		expect(c.showSuccessOverlay()).toBe(false);
+		await Promise.resolve();
+		expect(JSON.stringify(JSON.parse(sessionStorage.getItem(DRAFT_KEY) ?? '{}'))).not.toMatch(/500|1500|محاولة/);
+	});
+
+	it('a skipped same-URL navigation to another page does not reset the wizard', async () => {
+		const c = await mount({ inApp: true });
+		c.title.set('محاولة');
+		(router.events as any).next(new NavigationSkipped(
+			{ id: 9, url: '/client-overview/my-requests' } as any, '/client-overview/my-requests', 'x', NavigationSkippedCode.IgnoredSameUrlNavigation));
+		expect(c.title()).toBe('محاولة');
+	});
+
+	it('step 4 only renders the inputs of the selected budget type, and a fresh wizard shows them empty', async () => {
+		const f = TestBed.createComponent(CreateRequest);
+		await f.whenStable();
+		const c = f.componentInstance;
+		c.currentStep.set(4);
+		const q = (id: string) => (f.nativeElement as HTMLElement).querySelector<HTMLInputElement>('#' + id);
+		for (const [type, shown] of [['range', ['f-budget-from', 'f-budget-to']], ['fixed', ['f-budget-fixed']], ['hourly', ['f-budget-hourly']]] as const) {
+			c.budgetType.set(type);
+			f.detectChanges(); await f.whenStable();
+			for (const id of ['f-budget-from', 'f-budget-to', 'f-budget-fixed', 'f-budget-hourly']) {
+				expect(!!q(id), `${type}:${id}`).toBe((shown as readonly string[]).includes(id));
+				if (q(id)) expect(q(id)!.value, `${type}:${id}`).toBe('');
+			}
+		}
 	});
 
 	it('every budget type submits only its own amount (the fields of the other types are never sent)', async () => {
