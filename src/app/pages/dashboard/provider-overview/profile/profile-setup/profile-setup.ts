@@ -22,6 +22,8 @@ import { FieldErrorComponent } from '../../../../../shared/forms/field-error.com
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
+import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const SETUP_LABELS: Record<string, string> = {
 	jobTitle: 'المسمى الوظيفي',
@@ -67,6 +69,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private fb = inject(FormBuilder);
 	private destroyRef = inject(DestroyRef);
 	private router = inject(Router);
+	private uiNotify = inject(UiNotificationService);
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
 	private providerProfileService = inject(ProviderProfileService);
@@ -84,6 +87,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	/** The new PayPal email waiting for its code on the last step; null when nothing is pending. */
 	pendingPaypalEmail = signal<string | null>(null);
 	currentStep = signal<number>(1);
+	/** ID documents were sent and wait for review (kycStatus PENDING): shown as pending, never as a missing step. */
+	kycPending = signal<boolean>(false);
 	private readonly host = inject(ElementRef<HTMLElement>);
 	/** What is missing after a failed Next/submit attempt (shown by <ws-form-summary>). */
 	missing = signal<InvalidField[]>([]);
@@ -324,6 +329,16 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					// Stage 5: the saved portfolio comes back from the server, so a re-save never starts from an empty list.
 					const saved = this.portfolioFromServer(d.portfolioItems);
 					if (Object.keys(saved).length) this.portfolioItems.set(saved);
+					this.kycPending.set(d.kycStatus === 'PENDING');
+
+					// Open where the work really is (first missing step from the saved data; step 7 when only the test is left), not always on step 1.
+					const start = resolveProviderSetup(d);
+					if (start.kind === 'redirect') {
+						this.uiNotify.info(PROVIDER_SETUP_REDIRECT_MESSAGE);
+						this.router.navigateByUrl(PROVIDER_EDIT_PAGE);
+						return;
+					}
+					this.currentStep.set(start.step);
 				}
 			}
 		});

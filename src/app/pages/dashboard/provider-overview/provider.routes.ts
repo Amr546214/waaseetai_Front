@@ -1,6 +1,7 @@
 import { Routes } from "@angular/router";
 import { quizLockGuard } from "../../../core/guards/quiz-lock.guard";
 import { companyAccountGuard } from "../../../core/guards/company-account.guard";
+import { providerSetupGuard } from './profile/profile-setup/profile-setup.guard';
 
 export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
@@ -177,6 +178,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	},
 	{
 		path: 'profile/setup',
+		canActivate: [providerSetupGuard],
 		loadComponent: () => import('./profile/profile-setup/profile-setup').then(m => m.ProfileSetupDashboard),
 		data: { title: "استكمال البيانات", allowIncompleteProfile: true }
 	},

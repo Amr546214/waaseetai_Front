@@ -361,6 +361,9 @@
 
       <!-- STEP 4: المستندات الرسمية (P-AU-010) -->
       <div class="step-panel" [class.active]="currentStep() === 4" role="tabpanel" formGroupName="docs">
+        @if (kycPending()) {
+        <div role="status" data-testid="kyc-pending-note" class="notice-banner"><div><div class="notice-ttl">مستندات الهوية قيد المراجعة</div><p class="notice-txt">وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر كما حُفظت.</p></div></div>
+        }
 
         <!-- Notice Banner -->
         <div class="notice-banner" role="region" aria-label="تنبيه رفع المستندات">

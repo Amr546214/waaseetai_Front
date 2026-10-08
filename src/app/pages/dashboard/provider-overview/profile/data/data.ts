@@ -180,6 +180,8 @@ export class Data implements OnInit, OnDestroy {
 
   /** Both come from the backend (GET /provider/profile): the percentage and what is still needed, so they cannot disagree. */
   completionPercent = signal(0);
+  /** True once the completion came from the server: the progress card never flashes 0% for a complete profile. */
+  completionLoaded = signal(false);
   missingItems = signal<CompletionMissingItem[]>([]);
   hasMissing = computed(() => this.missingItems().some(i => i.status === 'missing'));
   hasPending = computed(() => this.missingItems().some(i => i.status === 'pending_review'));
@@ -896,6 +898,7 @@ export class Data implements OnInit, OnDestroy {
 
   private applyCompletion(profile: any) {
     this.completionPercent.set(Number(profile?.completionPercentage) || 0);
+    this.completionLoaded.set(true);
     this.missingItems.set(Array.isArray(profile?.missingItems) ? profile.missingItems : []);
   }
 

@@ -66,10 +66,27 @@ describe('provider edit page: backend completion + missing items', () => {
   it('does NOT use the old local formula: no hourlyRate/yearsOfExperience dependency and no 75% from local data', () => {
     // Backend says 100 although hourlyRate / yearsOfExperience are empty (the old local formula would have lost 10 points).
     setup(FULL);
-    expect(q('#prog-pct')!.textContent).toContain('100%');
     expect((component as any).calculateCompletion).toBeUndefined();
+    expect(component.completionPercent()).toBe(100);
     expect(q('[data-testid="missing-items"]')).toBeNull();
-    expect(q('[data-testid="prog-hint"]')!.textContent).toContain('مكتمل 100%');
+  });
+
+  it('100%: the whole completion card is gone (label, percentage, bar, "مكتمل 100%" message)', () => {
+    setup(FULL);
+    expect(q('.prog-wrap')).toBeNull();
+    expect(q('#prog-pct')).toBeNull();
+    expect(q('#prog-fill')).toBeNull();
+    expect(q('[data-testid="prog-hint"]')).toBeNull();
+    expect(el().textContent).not.toContain('اكتمال الملف المهني');
+    expect(el().textContent).not.toContain('ملفك المهني مكتمل 100%');
+  });
+
+  it('below 100%: the card shows the label, the percentage and the bar width', () => {
+    setup(MISSING_PAYPAL);
+    expect(q('.prog-wrap')).not.toBeNull();
+    expect(q('#prog-pct')!.textContent).toContain('80%');
+    expect((q('#prog-fill') as HTMLElement).style.width).toBe('80%');
+    expect(el().textContent).toContain('اكتمال الملف المهني');
   });
 
   it('a pending ID review is shown as "قيد المراجعة", not as missing', () => {

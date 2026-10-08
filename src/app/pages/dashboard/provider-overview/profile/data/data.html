@@ -41,6 +41,8 @@
 	</footer>
 </div>
 } @else {
+<!-- Progress card: shown only while the profile is incomplete (hidden at 100%) -->
+@if (completionLoaded() && completionPercent() < 100) {
 <!-- Progress Bar -->
 <div class="prog-wrap">
   <div class="prog-header">
@@ -55,6 +57,7 @@
     @else if (!hasMissing()) { بياناتك كاملة، وننتظر مراجعة ما أرسلته. }
   </div>
 </div>
+}
 
 @if (missingItems().length) {
 <!-- What the backend still needs for 100% (same source as the percentage above) -->
