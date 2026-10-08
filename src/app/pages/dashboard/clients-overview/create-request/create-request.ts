@@ -1,7 +1,8 @@
 import { Component, computed, effect, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationSkipped, NavigationSkippedCode, Router, RouterLink } from '@angular/router';
+import type { Subscription } from 'rxjs';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
 import { SpecialtyService } from '../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -184,6 +185,49 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.clearSubmittedMarker();
     }
     this.loadSpecialtiesFromDatabase();
+    // Clicking "إنشاء طلب" / "طلب جديد" while already on the wizard is a same-URL navigation: the router skips it and never recreates
+    // this component, so the old values would stay. Treat that skipped navigation as an explicit "start a new request".
+    this.sameUrlSub = this.router.events.subscribe(e => {
+      if (e instanceof NavigationSkipped && e.code === NavigationSkippedCode.IgnoredSameUrlNavigation
+        && e.url.split(/[?#]/)[0].replace(/\/+$/, '') === CREATE_REQUEST_PATH) {
+        this.resetWizard();
+      }
+    });
+  }
+
+  private sameUrlSub?: Subscription;
+
+  /** Back to a pristine wizard (step 1, every field empty / at its initial default, no success screen, no stored draft). */
+  resetWizard(): void {
+    this.clearDraft();
+    this.clearSubmittedMarker();
+    this.showSuccessOverlay.set(false);
+    this.currentStep.set(1);
+    this.searchQuery.set('');
+    this.selectedSpec.set(null);
+    this.selectedSubs.set(new Set());
+    this.otherText.set('');
+    this.ndaType.set('standard');
+    this.ipRights.set('client');
+    this.provLevel.set('');
+    this.provRating.set('4');
+    this.provLang.set('ar');
+    this.provLocation.set('sa');
+    this.customConditions.set('');
+    this.title.set('');
+    this.description.set('');
+    this.requirements.set([]);
+    this.outputs.set('');
+    this.deliveryDays.set(14);
+    this.budgetType.set('range');
+    this.budgetMin.set(null);
+    this.budgetMax.set(null);
+    this.budgetFixed.set(null);
+    this.budgetHourly.set(null);
+    this.allowNegotiation.set(true);
+    this.splitMilestones.set(false);
+    this.milestones.set([]);
+    this.files.set([]);
   }
 
   private shouldResumeDraft(): boolean {
@@ -957,6 +1001,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.sameUrlSub?.unsubscribe();
     if (this.socket) {
       this.socket.disconnect();
     }
