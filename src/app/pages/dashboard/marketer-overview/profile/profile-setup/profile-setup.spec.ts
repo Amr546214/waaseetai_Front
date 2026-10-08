@@ -60,9 +60,10 @@ describe('ProfileSetup (marketer): shared validation', () => {
       el().remove();
     });
 
-    it('the step explains that it can be skipped or completed', () => {
+    it('the step explains that it can be completed, or passed with "التالي"', () => {
       goTo(3);
-      expect(el().textContent).toContain('تخطي');
+      expect(el().textContent).not.toContain('تخطي');
+      expect(el().textContent).toContain('اضغط "التالي" للمتابعة بدونها');
       expect(el().textContent).toContain('اضغط "إضافة ومتابعة"');
     });
 

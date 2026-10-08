@@ -129,7 +129,7 @@ export class ProfileSetup implements OnInit {
 	}
 
 	setStep(step: number): void {
-		// Every step is saved on its own and the optional ones can be skipped, so the bar is free navigation.
+		// Every step is saved on its own and none of them is mandatory to move on ("التالي" passes without input), so the bar is free navigation.
 		this.missing.set([]);
 		this.currentStep.set(step);
 	}
@@ -167,10 +167,6 @@ export class ProfileSetup implements OnInit {
 			next: () => { this.isSubmitting.set(false); this.showToast('تمت إضافة القناة'); this.loadProfile(); this.nextStep(); },
 			error: (err) => this.fail(this.channelForm, err)
 		});
-	}
-
-	skipChannel(): void {
-		this.nextStep();
 	}
 
 	saveBankInfo(): void {
