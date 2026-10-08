@@ -1,13 +1,5 @@
 <div class="main-inner">
 
-  <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
-    <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
-    <div class="ai-disc-body">
-      <div class="ai-disc-lbl">وسيط AI، توصيات آلية</div>
-      <p class="ai-disc-txt">نحلّل أداء قنواتك ونعرض توصيات آلية مبنية على بيانات إحالاتك الفعلية لمساعدتك على زيادة الإحالات، والقرار النهائي لك</p>
-    </div>
-  </div>
-
   <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
     <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
     <div style="flex:1;min-width:220px">
@@ -19,10 +11,10 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
     <div>
       <h2 style="font-size:22px;font-weight:900" class="txt-white">الإشعارات</h2>
-      <p style="font-size:13px" class="txt-muted">{{ unreadCount() }} إشعارات غير مقروءة</p>
+      <p style="font-size:13px" class="txt-muted">{{ unreadLabel() }}</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button type="button" (click)="markAllRead()" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
+      <button type="button" data-testid="mark-all-read" [disabled]="unreadCount() === 0 || markingAll()" [style.opacity]="unreadCount() === 0 || markingAll() ? .5 : 1" (click)="markAllRead()" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
         تعليم الكل كمقروء
       </button>
@@ -35,7 +27,7 @@
 
   <!-- فلتر -->
   <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">
-    @for (f of filters; track f.id) {
+    @for (f of filters(); track f.id) {
       <button type="button" class="filter-chip" [class.active]="activeFilter() === f.id" (click)="setFilter(f.id)">
         {{ f.label }} ({{ filterCount(f.id) }})
       </button>
@@ -63,7 +55,7 @@
               </div>
               <div style="font-size:12px" class="txt-muted">
                 {{ nt.message }}
-                @if (nt.actionText) { <span style="color:#2BD4C7;font-weight:700"> {{ nt.actionText }} »</span> }
+                @if (nt.actionText && nt.target) { <span data-testid="nt-cta" style="color:#2BD4C7;font-weight:700"> {{ nt.actionText }} »</span> }
               </div>
             </div>
             <span style="font-size:10px;white-space:nowrap" class="txt-muted">{{ nt.timeLabel }}</span>

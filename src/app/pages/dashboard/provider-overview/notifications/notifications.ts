@@ -169,7 +169,7 @@ export class Notifications implements OnInit {
 		if (tab !== 'all') {
 			if (tab === 'new') list = list.filter(n => n.isUnread);
 			else if (tab === 'read') list = list.filter(n => !n.isUnread);
-			else if (tab === 'action') list = list.filter(n => !!n.actionText);
+			else if (tab === 'action') list = list.filter(n => this.needsAction(n));
 		}
 		if (q) {
 			list = list.filter(n => (n.title + ' ' + n.message).toLowerCase().includes(q));
@@ -182,10 +182,15 @@ export class Notifications implements OnInit {
 		return {
 			all: list.length,
 			new: list.filter(n => n.isUnread).length,
-			action: list.filter(n => !!n.actionText).length,
+			action: list.filter(n => this.needsAction(n)).length,
 			read: list.filter(n => !n.isUnread).length,
 		};
 	});
+
+	/** "Needs action" only when the notification carries a real, resolved destination: an action label alone is not an action. */
+	private needsAction(n: AppNotification): boolean {
+		return !!n.actionText && !!n.actionUrl;
+	}
 
 	private mapCategoryToCo(cat: string): string {
 		if (cat === 'projects') return 'projects';
@@ -197,7 +202,7 @@ export class Notifications implements OnInit {
 	}
 
 	private mapStatusToCo(n: AppNotification): string {
-		if (n.actionText) return 'action';
+		if (this.needsAction(n)) return 'action';
 		if (n.isUnread) return 'new';
 		return 'read';
 	}
@@ -226,6 +231,7 @@ export class Notifications implements OnInit {
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
 	toastMessage = signal<string | null>(null);
+	markingAll = signal<boolean>(false);
 
 	filters = [
 		{ id: 'all', label: 'الكل' },
@@ -318,6 +324,17 @@ export class Notifications implements OnInit {
 		return groups;
 	});
 
+	/** The AI chip only exists when there really are AI notifications (or it is the open filter). */
+	visibleFilters = computed(() => this.filters.filter(f => f.id !== 'ai' || this.notifications().some(n => n.category === 'ai') || this.activeFilter() === 'ai'));
+
+	unreadLabel = computed(() => {
+		const n = this.unreadCount();
+		if (n === 0) return 'لا توجد إشعارات غير مقروءة';
+		if (n === 1) return 'إشعار واحد غير مقروء';
+		if (n === 2) return 'إشعاران غير مقروءين';
+		return n <= 10 ? `${n} إشعارات غير مقروءة` : `${n} إشعارًا غير مقروء`;
+	});
+
 	filterCount(catId: string) {
 		if (catId === 'all') return this.notifications().length;
 		return this.notifications().filter(n => n.category === catId).length;
@@ -329,20 +346,19 @@ export class Notifications implements OnInit {
 	}
 
 	markAllRead() {
+		if (this.unreadCount() === 0 || this.markingAll()) return;
+		this.markingAll.set(true);
 		this.notificationEngine.markAllNotificationsAsRead().subscribe({
 			next: () => {
-				this.notifications.update(list =>
-					list.map(n => ({ ...n, isUnread: false }))
-				);
+				this.markingAll.set(false);
+				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false })));
 				this.notificationEngine.unreadCount.set(0);
 				this.showToast('تم تعليم كل الإشعارات كمقروءة');
 			},
-			error: (err) => {
-				console.error('Error marking all as read:', err);
-				this.notifications.update(list =>
-					list.map(n => ({ ...n, isUnread: false }))
-				);
-				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+			error: () => {
+				// Never fake it: the server did not record it, so the list and the counters stay as they are.
+				this.markingAll.set(false);
+				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
 			}
 		});
 	}

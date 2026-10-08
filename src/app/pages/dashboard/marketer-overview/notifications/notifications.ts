@@ -10,12 +10,18 @@ interface RawNotification {
 	message: string;
 	category?: string; // backend enum: ALL | OFFERS | PROJECTS | FINANCIAL | AI
 	type?: string;
+	metadata?: Record<string, unknown> | null;
 	actionUrl?: string | null;
 	actionText?: string | null;
+	/** Resolved, same-dashboard destination (see resolveTarget): never the raw stored URL. */
+	target?: string;
 	isRead?: boolean;
 	isUnread?: boolean;
 	createdAt: string;
 }
+
+type FilterGroup = 'finance' | 'general' | 'ai';
+type FilterId = 'all' | FilterGroup;
 
 interface DisplayNotification extends RawNotification {
 	timeLabel: string;
@@ -24,8 +30,9 @@ interface DisplayNotification extends RawNotification {
 	iconColorClass: string;
 	svgIcon: string;
 	categoryLabel: string;
-	filterGroup: 'offers' | 'finance' | 'ai';
+	filterGroup: FilterGroup;
 }
+
 
 @Component({
 	selector: 'app-marketer-notifications',
@@ -48,14 +55,25 @@ export class Notifications implements OnInit, OnDestroy {
 	private toastTimer: any = null;
 
 	notifications = signal<DisplayNotification[]>([]);
-	activeFilter = signal<'all' | 'offers' | 'finance' | 'ai'>('all');
+	activeFilter = signal<FilterId>('all');
+	markingAll = signal(false);
 
-	filters: { id: 'all' | 'offers' | 'finance' | 'ai'; label: string }[] = [
+	// Only groups that really exist for a marketer: commissions/finance, general account notices (KYC, requests, chat…), and AI ones when present.
+	private readonly allFilters: { id: FilterId; label: string }[] = [
 		{ id: 'all', label: 'الكل' },
-		{ id: 'offers', label: 'إحالات' },
 		{ id: 'finance', label: 'عمولات' },
-		{ id: 'ai', label: 'نظام' },
+		{ id: 'general', label: 'عام' },
+		{ id: 'ai', label: 'ذكاء AI' },
 	];
+	filters = computed(() => this.allFilters.filter(f => f.id !== 'ai' || this.notifications().some(n => n.filterGroup === 'ai') || this.activeFilter() === 'ai'));
+
+	unreadLabel = computed(() => {
+		const n = this.unreadCount();
+		if (n === 0) return 'لا توجد إشعارات غير مقروءة';
+		if (n === 1) return 'إشعار واحد غير مقروء';
+		if (n === 2) return 'إشعاران غير مقروءين';
+		return n <= 10 ? `${n} إشعارات غير مقروءة` : `${n} إشعارًا غير مقروء`;
+	});
 
 	filteredNotifications = computed(() => {
 		const filter = this.activeFilter();
@@ -76,7 +94,7 @@ export class Notifications implements OnInit, OnDestroy {
 
 	unreadCount = computed(() => this.notifications().filter(n => n.isUnread).length);
 
-	filterCount(id: 'all' | 'offers' | 'finance' | 'ai'): number {
+	filterCount(id: FilterId): number {
 		const list = this.notifications();
 		return id === 'all' ? list.length : list.filter(n => n.filterGroup === id).length;
 	}
@@ -137,21 +155,26 @@ export class Notifications implements OnInit, OnDestroy {
 		this.loadNotifications();
 	}
 
-	setFilter(id: 'all' | 'offers' | 'finance' | 'ai'): void {
+	setFilter(id: FilterId): void {
 		this.activeFilter.set(id);
 	}
 
 	markAllRead(): void {
+		if (this.unreadCount() === 0 || this.markingAll()) return;
+		this.markingAll.set(true);
 		this.notificationEngine.markAllNotificationsAsRead().subscribe({
-			next: () => this.applyMarkAllRead(),
-			error: () => this.applyMarkAllRead()
+			next: () => {
+				this.markingAll.set(false);
+				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false, isRead: true })));
+				this.notificationEngine.unreadCount.set(0);
+				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+			},
+			error: () => {
+				// Never fake it: the server did not record it, so the list and the counters stay as they are.
+				this.markingAll.set(false);
+				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
+			}
 		});
-	}
-
-	private applyMarkAllRead(): void {
-		this.notifications.update(list => list.map(n => ({ ...n, isUnread: false, isRead: true })));
-		this.notificationEngine.unreadCount.set(0);
-		this.showToast('تم تعليم كل الإشعارات كمقروءة');
 	}
 
 	onNotificationClick(nt: DisplayNotification): void {
@@ -163,9 +186,7 @@ export class Notifications implements OnInit, OnDestroy {
 				}
 			});
 		}
-		if (nt.actionUrl) {
-			this.router.navigate([nt.actionUrl]);
-		}
+		if (nt.target) this.router.navigateByUrl(nt.target);
 	}
 
 	private showToast(msg: string): void {
@@ -174,15 +195,27 @@ export class Notifications implements OnInit, OnDestroy {
 		this.toastTimer = setTimeout(() => this.toastMessage.set(null), 3000);
 	}
 
-	/** Maps a raw category/type into the display grouping used by the filter chips. */
-	private mapFilterGroup(category?: string): 'offers' | 'finance' | 'ai' {
-		const c = (category || '').toUpperCase();
-		if (c === 'FINANCIAL') return 'finance';
-		if (c === 'AI' || c === 'PROJECTS') return 'ai';
-		return 'offers';
+	/** Display group from the real category/type (never "everything else is offers", never PROJECTS-as-AI). */
+	private mapFilterGroup(raw: RawNotification): FilterGroup {
+		const c = (raw.category || '').toUpperCase();
+		if (c === 'AI') return 'ai';
+		if (c === 'FINANCIAL' || raw.type === 'FINANCIAL') return 'finance';
+		return 'general';
 	}
 
-	private iconFor(group: 'offers' | 'finance' | 'ai'): { bg: string; color: string; svg: string; label: string } {
+	/**
+	 * A real, existing marketer route or nothing (no CTA, no navigation): CHAT -> this dashboard's messages with the conversation,
+	 * FINANCIAL -> commissions, anything else only when its stored URL is already inside /marketer-overview/.
+	 */
+	private resolveTarget(raw: RawNotification): string | undefined {
+		const meta = (raw.metadata || {}) as Record<string, unknown>;
+		if (raw.type === 'CHAT') return typeof meta['conversationId'] === 'string' ? `/marketer-overview/messages?conversationId=${meta['conversationId']}` : undefined;
+		if (raw.type === 'FINANCIAL') return '/marketer-overview/commissions';
+		const url = raw.actionUrl;
+		return typeof url === 'string' && url.startsWith('/marketer-overview/') ? url : undefined;
+	}
+
+	private iconFor(group: FilterGroup): { bg: string; color: string; svg: string; label: string } {
 		if (group === 'finance') {
 			return {
 				bg: 'bg-[rgba(15,169,154,.14)]', color: 'text-[#0FA99A]',
@@ -194,18 +227,18 @@ export class Notifications implements OnInit, OnDestroy {
 			return {
 				bg: 'bg-[rgba(123,47,190,.14)]', color: 'text-[#A56BE0]',
 				svg: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>',
-				label: 'نظام'
+				label: 'ذكاء AI'
 			};
 		}
 		return {
-			bg: 'bg-[rgba(43,212,199,.14)]', color: 'text-[#2BD4C7]',
-			svg: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
-			label: 'إحالات'
+			bg: 'bg-[rgba(160,178,209,.12)]', color: 'text-[var(--txt-3)]',
+			svg: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>',
+			label: 'عام'
 		};
 	}
 
 	private toDisplay(raw: RawNotification): DisplayNotification {
-		const group = this.mapFilterGroup(raw.category);
+		const group = this.mapFilterGroup(raw);
 		const icon = this.iconFor(group);
 		return {
 			...raw,
@@ -217,6 +250,7 @@ export class Notifications implements OnInit, OnDestroy {
 			svgIcon: icon.svg,
 			categoryLabel: icon.label,
 			filterGroup: group,
+			target: this.resolveTarget(raw),
 		};
 	}
 
