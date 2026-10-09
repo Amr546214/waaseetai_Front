@@ -59,7 +59,6 @@ export interface AdminUserRevenuePoint {
 
 export interface AdminUserLinkedAccount {
   email?: string;
-  iban?: string;
 }
 
 export interface AdminUserPersonalInfo {
@@ -68,8 +67,6 @@ export interface AdminUserPersonalInfo {
   phoneNumber?: string;
   city?: string;
   device?: string;
-  bankAccountLast4?: string;
-  bankAccountVerified?: boolean;
   nationalIdLast4?: string;
   nationalIdVerified?: boolean;
   registeredAt: string;

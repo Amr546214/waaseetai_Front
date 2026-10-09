@@ -42,18 +42,14 @@
             <div class="wd-meta">
               <span>المستخدم: {{ userDisplay(w) }}</span>
               <span>·</span>
-              <span>الطريقة: {{ w.method || '—' }}</span>
+              <span>الطريقة: {{ isLegacy(w) ? 'سحب قديم' : (w.method ? 'PayPal' : '—') }}</span>
               <span>·</span>
               <span>{{ formatDate(w.createdAt) }}</span>
             </div>
-            @if (w.bankInfo?.iban) {
-              <div class="wd-meta">
-                <span>IBAN: {{ ibanLast4(w.bankInfo?.iban) }}</span>
-                @if (w.bankInfo?.bankName) {
-                  <span>·</span>
-                  <span>{{ w.bankInfo?.bankName }}</span>
-                }
-              </div>
+            @if (isLegacy(w)) {
+              <div class="wd-meta" data-testid="wd-legacy-destination">{{ legacyLabel }}</div>
+            } @else if (w.paypalEmail) {
+              <div class="wd-meta"><span>PayPal: </span><span dir="ltr" data-testid="wd-paypal-destination">{{ w.paypalEmail }}</span></div>
             }
           </div>
           <button type="button" class="wd-btn wd-btn-gh" [routerLink]="[w.id]">عرض التفاصيل</button>

@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
-import { Withdrawal, ApproveWithdrawalPayload, RejectWithdrawalPayload } from '../../../../../core/models/withdrawal.model';
+import { Withdrawal, LEGACY_WITHDRAWAL_LABEL, isLegacyWithdrawal, ApproveWithdrawalPayload, RejectWithdrawalPayload } from '../../../../../core/models/withdrawal.model';
 
 @Component({
   selector: 'app-sa-withdrawal-detail',
@@ -208,10 +208,10 @@ export class SaWithdrawalDetail implements OnInit {
     return currency ? `${formatted} ${currency === 'USD' ? '$' : currency}` : `${formatted} $`;
   }
 
-  ibanLast4(iban: string | undefined): string {
-    if (!iban) return '—';
-    const clean = iban.replace(/\s/g, '');
-    return clean.length > 4 ? `•••• ${clean.slice(-4)}` : clean;
+  readonly legacyLabel = LEGACY_WITHDRAWAL_LABEL;
+
+  isLegacy(w: Withdrawal): boolean {
+    return isLegacyWithdrawal(w);
   }
 
   userDisplay(w: Withdrawal): string {
@@ -219,7 +219,7 @@ export class SaWithdrawalDetail implements OnInit {
   }
 
   // AI Cleanup Batch 3: the former hash-seeded "mock/demo helpers" (AI risk
-  // insights, IBAN-verified flag, balance-source project table) were removed —
+  // insights, destination-verified flag, balance-source project table) were removed —
   // they were generated from the withdrawal id, not real data, and could sway a
   // real approval decision. No backend risk scoring exists.
 
@@ -262,7 +262,7 @@ export class SaWithdrawalDetail implements OnInit {
     });
 
     steps.push({
-      title: w.method || 'تحويل بنكي',
+      title: 'طلب سحب',
       sub: status === 'APPROVED' ? 'الحالة الحالية' : status === 'COMPLETED' ? 'تم التحويل' : 'ينتظر الموافقة',
       state: status === 'COMPLETED' ? 'done' : status === 'APPROVED' ? 'current' : 'pending',
     });

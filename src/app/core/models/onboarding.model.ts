@@ -76,10 +76,6 @@ export interface KycProvider {
   certUrlsAccess?: (KycAccess | null)[] | null;
   supportingDocsUrl?: string | null;
   supportingDocsUrlAccess?: KycAccess | null;
-  bankName?: string | null;
-  iban?: string | null;
-  accountNumber?: string | null;
-  accountHolderName?: string | null;
   notes?: string | null;
   rejectionReason?: string | null;
   reviewedAt?: string | null;

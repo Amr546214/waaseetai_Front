@@ -142,11 +142,11 @@
 				@if (u.linkedAccounts.length) {
 				<ul class="ud-linked-list">
 					@for (acc of u.linkedAccounts; track acc.email) {
-					<li>{{ acc.email }} @if (acc.iban) {· {{ acc.iban }}}</li>
+					<li>{{ acc.email }}</li>
 					}
 				</ul>
 				} @else {
-				<div class="ud-empty-inline">لا توجد حسابات مرتبطة بنفس الجهاز أو IBAN</div>
+				<div class="ud-empty-inline">لا توجد حسابات مرتبطة بنفس الجهاز</div>
 				}
 			</div>
 
@@ -160,7 +160,6 @@
 					<div class="ud-info-item"><span class="ud-info-lbl">آخر دخول</span><span class="ud-info-val">{{ u.personalInfo.lastLoginAt || '—' }}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">المدينة</span><span class="ud-info-val">{{ u.personalInfo.city || '—' }}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">الجهاز</span><span class="ud-info-val">{{ u.personalInfo.device || '—' }}</span></div>
-					<div class="ud-info-item"><span class="ud-info-lbl">الحساب البنكي</span><span class="ud-info-val">{{ u.personalInfo.bankAccountLast4 ? ('SA xx ' + u.personalInfo.bankAccountLast4) : '—' }} @if (u.personalInfo.bankAccountVerified) {<svg class="ud-verified" aria-hidden="true"><use href="#ud-check"></use></svg>}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">رقم الهوية</span><span class="ud-info-val">{{ u.personalInfo.nationalIdLast4 ? ('xxxxxxx' + u.personalInfo.nationalIdLast4) : '—' }} @if (u.personalInfo.nationalIdVerified) {<svg class="ud-verified" aria-hidden="true"><use href="#ud-check"></use></svg>}</span></div>
 				</div>
 			</div>

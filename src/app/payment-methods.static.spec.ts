@@ -37,10 +37,9 @@ describe('only PayPal is a selectable payment method', () => {
 		expect(offenders).toEqual([]);
 	});
 
-	it('client profile/edit: the bank option is a disabled, non-form radio with the "غير متاح حاليًا" badge', () => {
+	it('client profile/edit: no bank option at all (PayPal is the only payout method)', () => {
 		const html = read('pages/dashboard/clients-overview/profile/profile-edit/profile-edit.html');
-		expect(html).toMatch(/<input type="radio" name="pm-bank-unavailable" value="bank" disabled/);
-		expect(html).toContain('غير متاح حاليًا');
+		expect(html).not.toMatch(/name="pm-bank-unavailable"|value="bank"/);
 		expect(html).not.toMatch(/formControlName="paymentMethod" value="bank"/);
 		expect(html).not.toMatch(/formControlName="(ibanNumber|bankName|walletProvider|walletPhone|walletId)"/);
 	});

@@ -271,7 +271,6 @@
               <th>حالة KYC</th>
               <th>موثق</th>
               <th>المستندات</th>
-              <th>البنك</th>
               <th>إجراء</th>
             </tr>
           </thead>
@@ -300,16 +299,6 @@
                 </td>
                 <td data-label="المستندات">
                   <span class="sk-cell-docs">{{ getCertCount(p.certUrls) }} مستند</span>
-                </td>
-                <td data-label="البنك">
-                  @if (p.bankName) {
-                    <div class="sk-cell-bank">
-                      <div class="sk-bank-name">{{ p.bankName }}</div>
-                      @if (p.iban) { <div class="sk-bank-iban" dir="ltr">{{ p.iban }}</div> }
-                    </div>
-                  } @else {
-                    <span class="sk-cell-doc">—</span>
-                  }
                 </td>
                 <td data-label="إجراء">
                   <button type="button" class="sk-detail-btn" (click)="viewProviderDetail(p)">عرض التفاصيل</button>
@@ -552,30 +541,6 @@
               <div class="sk-detail-row">
                 <span class="sk-detail-key">مستندات داعمة</span>
                 <span class="sk-detail-val"><app-kyc-document-link document="provider_supporting_docs" [userId]="selectedProvider()!.userId" [url]="selectedProvider()!.supportingDocsUrl" [access]="selectedProvider()!.supportingDocsUrlAccess" linkClass="sk-doc-link" /></span>
-              </div>
-            }
-            @if (selectedProvider()!.bankName) {
-              <div class="sk-detail-row">
-                <span class="sk-detail-key">البنك</span>
-                <span class="sk-detail-val">{{ selectedProvider()!.bankName }}</span>
-              </div>
-            }
-            @if (selectedProvider()!.iban) {
-              <div class="sk-detail-row">
-                <span class="sk-detail-key">IBAN</span>
-                <span class="sk-detail-val" dir="ltr">{{ selectedProvider()!.iban }}</span>
-              </div>
-            }
-            @if (selectedProvider()!.accountNumber) {
-              <div class="sk-detail-row">
-                <span class="sk-detail-key">رقم الحساب</span>
-                <span class="sk-detail-val" dir="ltr">{{ selectedProvider()!.accountNumber }}</span>
-              </div>
-            }
-            @if (selectedProvider()!.accountHolderName) {
-              <div class="sk-detail-row">
-                <span class="sk-detail-key">اسم صاحب الحساب</span>
-                <span class="sk-detail-val">{{ selectedProvider()!.accountHolderName }}</span>
               </div>
             }
             @if (selectedProvider()!.notes) {

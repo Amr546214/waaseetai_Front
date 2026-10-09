@@ -7,18 +7,6 @@ import { ApiResponse } from './api.model';
 export type WithdrawalStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED' | string;
 
 /**
- * Bank info attached to a withdrawal request.
- * Fields are optional because Swagger does not define this schema.
- */
-export interface WithdrawalBankInfo {
-  bankName?: string;
-  accountHolderName?: string;
-  iban?: string;
-  swiftCode?: string;
-  [key: string]: unknown;
-}
-
-/**
  * Single withdrawal record.
  * Swagger references `WithdrawalResponse` but does not define the schema.
  * All fields except `id` are optional to stay safe against unknown backend shape.
@@ -32,11 +20,6 @@ export interface Withdrawal {
   currency?: string;
   status?: WithdrawalStatus;
   method?: string;
-  bankInfo?: WithdrawalBankInfo;
-  // Provider-side flat bank fields (returned by /api/provider/finance/withdrawals)
-  iban?: string;
-  accountName?: string;
-  accountNumber?: string;
   /** PayPal destination snapshot of a 'paypal' withdrawal (when the API returns it). */
   paypalEmail?: string;
   adminNote?: string | null;
@@ -91,7 +74,7 @@ export interface AdminWithdrawalsQuery {
 
 /**
  * Optional payload for POST /api/admin/withdrawals/:id/approve.
- * Swagger example: { "adminNote": "تمت مراجعة البيانات البنكية" }
+ * Swagger example: { "adminNote": "تمت مراجعة الطلب" }
  */
 export interface ApproveWithdrawalPayload {
   adminNote?: string;
@@ -99,7 +82,7 @@ export interface ApproveWithdrawalPayload {
 
 /**
  * Required payload for POST /api/admin/withdrawals/:id/reject.
- * Swagger example: { "rejectionReason": "البيانات البنكية غير مكتملة" }
+ * Swagger example: { "rejectionReason": "بيانات الطلب غير مكتملة" }
  */
 export interface RejectWithdrawalPayload {
   rejectionReason: string;
@@ -109,15 +92,11 @@ export interface RejectWithdrawalPayload {
 
 /**
  * Payload for POST /api/provider/finance/withdrawals.
- * `method` defaults to `bank_transfer` on the backend.
- * Either `iban` or `accountNumber` is required.
+ * PayPal is the only withdrawal method; the destination is the PayPal email saved in the profile.
  */
 export interface ProviderWithdrawalPayload {
   amount: number;
   method?: string;
-  iban?: string;
-  accountName?: string;
-  accountNumber?: string;
 }
 
 /**
@@ -146,6 +125,18 @@ export interface ProviderWalletData {
 export type ProviderWalletApiResponse = ApiResponse<ProviderWalletData>;
 export type ProviderWithdrawalApiResponse = ApiResponse<Withdrawal>;
 export type ProviderWithdrawalListApiResponse = ApiResponse<WithdrawalListData>;
+
+// ── Legacy rows ───────────────────────────────────────────────────────
+
+/** Shown instead of any destination of an old (pre PayPal-only) withdrawal row. */
+export const LEGACY_WITHDRAWAL_LABEL = 'طلب قديم — بيانات وسيلة السحب غير معروضة';
+
+/** True for a row whose method is not PayPal or that still carries legacy destination data. */
+export function isLegacyWithdrawal(w: Withdrawal): boolean {
+  const method = String(w.method ?? '').trim().toLowerCase();
+  if (method && method !== 'paypal') return true;
+  return ['bankInfo', 'iban', 'accountName', 'accountNumber'].some((k) => w[k] != null && w[k] !== '');
+}
 
 // ── API response types ────────────────────────────────────────────────
 

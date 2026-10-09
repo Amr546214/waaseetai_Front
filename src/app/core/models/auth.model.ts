@@ -44,9 +44,6 @@ export interface User {
 	address?: string;
 	city?: string;
 	region?: string;
-	ibanNumber?: string;
-	bankName?: string;
-	accountHolderName?: string;
 }
 
 export interface AuthResponse {

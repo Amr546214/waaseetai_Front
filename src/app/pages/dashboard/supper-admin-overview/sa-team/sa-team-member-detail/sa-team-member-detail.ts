@@ -93,7 +93,7 @@ export class SaTeamMemberDetail implements OnInit {
     ],
     'المالية والسحوبات': [
       { title: 'مراجعة طلب سحب WD-', type: 'سحب' },
-      { title: 'التحقق من حساب بنكي', type: 'تحقق' },
+      { title: 'التحقق من بريد PayPal', type: 'تحقق' },
       { title: 'إعداد كشف حساب شهري', type: 'تقرير' },
       { title: 'مراجعة معاملة مشبوهة', type: 'مراجعة' },
       { title: 'تسوية فرق مالي', type: 'تسوية' },
