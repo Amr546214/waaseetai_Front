@@ -212,6 +212,8 @@
 		<!-- Attach Document (only for inline edit) -->
 		<!-- Removed inline edit section -->
 
+		<ws-profile-ai-review [review]="req.aiReview" [status]="req.status" [category]="req.category" />
+
 		<!-- Verdict Banner -->
 		<div class="flex gap-2.5 p-3 rounded-[10px] mb-3 border"
 			[class]="req.status === 'REJECTED' ? 'bg-[#FF8C69]/10 border-[#FF8C69]/20' : 'bg-[#7B2FBE]/10 border-[#7B2FBE]/20'">

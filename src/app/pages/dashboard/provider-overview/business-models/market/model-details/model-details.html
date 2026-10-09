@@ -43,7 +43,7 @@
 			<div class="mdl-preview-badges">
 				<span class="badge badge-approved">{{ m.status === 'ARCHIVED' ? 'مخفي عن السوق' : m.status === 'UNDER_REVIEW' ? 'قيد المراجعة' : 'معتمد' }}</span>
 				@if (hasAuditScore()) {
-				<span class="badge badge-ai">AI {{ m.aiScore }}/100</span>
+				<span class="badge badge-ai">AI {{ auditScore() }}/100</span>
 				}
 			</div>
 			@if (m.marketNotice) {
@@ -98,7 +98,7 @@
 				</div>
 				@if (hasAuditScore()) {
 				<div class="mdl-stat-box">
-					<div class="mdl-stat-val mdl-stat-val-teal">{{ m.aiScore }}</div>
+					<div class="mdl-stat-val mdl-stat-val-teal">{{ auditScore() }}</div>
 					<div class="mdl-stat-lbl">تقييم AI</div>
 				</div>
 				}
@@ -117,7 +117,7 @@
 			</div>
 			@if (hasAuditScore()) {
 			<div class="mdl-ai-score">
-				<div class="mdl-ai-score-val">{{ m.aiScore }}</div>
+				<div class="mdl-ai-score-val">{{ auditScore() }}</div>
 				<div class="mdl-ai-score-lbl">من 100</div>
 			</div>
 			}
@@ -151,6 +151,14 @@
 					</svg>
 					{{ item }}
 				</li>
+				}
+			</ul>
+			}
+			@if (report.recommendations.length > 0) {
+			<div class="mdl-ai-notes-lbl">توصيات</div>
+			<ul class="mdl-ai-notes-list" data-testid="audit-recommendations">
+				@for (item of report.recommendations; track $index) {
+				<li>{{ item }}</li>
 				}
 			</ul>
 			}

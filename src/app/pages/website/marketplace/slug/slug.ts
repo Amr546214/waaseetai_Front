@@ -1,7 +1,7 @@
 import { Component, HostListener, AfterViewInit, OnDestroy, OnInit, PLATFORM_ID, Inject, ViewEncapsulation, signal, computed } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { MarketplaceModel, MarketplaceService } from '../../../../core/services/marketplace.service';
+import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { resolveProviderLevelBadgeStyle } from '../../../../core/utils/provider-level-style.util';
 import { Subscription } from 'rxjs';
@@ -189,7 +189,7 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 
 	/** Highest-aiScore model on the current page (rendered as "الأعلى في تقييم جودة AI بهذه الصفحة: <strong>title</strong>" — Batch 5: a stored quality score, not a match). */
 	aiInsightBest = computed(() => {
-		return [...this.models()].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0))[0] || null;
+		return [...this.models()].filter(m => hasAiScore(m.aiScore)).sort(byAiScoreDesc)[0] || null;
 	});
 
 	providersCount = computed(() => {
@@ -208,11 +208,11 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 		return this.models().reduce((acc, m) => acc + (m.reviewsCount || 0), 0);
 	});
 	
-	averageAiScore = computed(() => {
-		const mods = this.models();
-		if (!mods.length) return 0;
-		const sum = mods.reduce((acc, m) => acc + (m.aiScore || 0), 0);
-		return Math.round(sum / mods.length);
+	/** Average of REAL stored scores only (null scores are excluded, not counted as 0); null when none. */
+	averageAiScore = computed<number | null>(() => {
+		const scores = this.models().map(m => m.aiScore).filter(hasAiScore);
+		if (!scores.length) return null;
+		return Math.round(scores.reduce((acc, v) => acc + v, 0) / scores.length);
 	});
 
 	constructor(

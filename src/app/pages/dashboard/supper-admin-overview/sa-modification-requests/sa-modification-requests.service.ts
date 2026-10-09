@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ProfileAiReview } from '../../../../core/models/ai-result.model';
 import { environment } from '../../../../../environments/environment';
 
 export interface AffiliateChangeRequest {
@@ -33,7 +34,8 @@ export interface ProfileModificationRequestRow {
 	requestedValue: string;
 	category: string;
 	status: 'PENDING_OTP' | 'IN_AI_REVIEW' | 'PENDING_HUMAN_REVIEW' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
-	aiRecommendation?: string | null;
+	/** advisory AI pre-review; null when none ran. Legacy aiRecommendation / aiConfidence columns are not displayed. */
+	aiReview?: ProfileAiReview | null;
 	rejectionReason?: string | null;
 	appliedAt?: string | null;
 	createdAt: string;

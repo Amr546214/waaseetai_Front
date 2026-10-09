@@ -24,7 +24,7 @@ describe('CompareServicesComponent — AI-score winner (Batch 5)', () => {
 		const fixture = TestBed.createComponent(CompareServicesComponent);
 		return fixture;
 	}
-	const m = (id: string, aiScore: number | undefined): any => ({ id, title: id, aiScore, totalAmount: 100, totalDays: 3, provider: { name: id } });
+	const m = (id: string, aiScore: number | null | undefined): any => ({ id, title: id, aiScore, totalAmount: 100, totalDays: 3, provider: { name: id } });
 
 	it('picks the highest real score, regardless of input order', () => {
 		const c = create().componentInstance;
@@ -34,8 +34,14 @@ describe('CompareServicesComponent — AI-score winner (Batch 5)', () => {
 
 	it('declares no winner when no service has a real score', () => {
 		const c = create().componentInstance;
-		c.models.set([m('a', undefined), m('b', 0)]);
+		c.models.set([m('a', undefined), m('b', null)]);
 		expect(c.winnerId()).toBeNull();
+	});
+
+	it('a real score of 0 is a score (it can win over an unscored service); null is not', () => {
+		const c = create().componentInstance;
+		c.models.set([m('a', null), m('b', 0)]);
+		expect(c.winnerId()).toBe('b');
 	});
 
 	it('declares no winner on a tied top score instead of picking one arbitrarily', () => {

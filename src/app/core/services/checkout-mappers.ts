@@ -9,7 +9,7 @@ export interface BackendCartItemResponse {
 	specializationSlug?: string;
 	totalAmount: number;
 	totalDays: number;
-	aiScore?: number;
+	aiScore?: number | null;
 	level?: string;
 	provider: {
 		id: string;
@@ -36,7 +36,7 @@ export interface BackendOrderItemResponse {
 	packageName?: string;
 	price: number;
 	deliveryDays: number;
-	aiScore?: number;
+	aiScore?: number | null;
 }
 
 export interface BackendOrderResponse {

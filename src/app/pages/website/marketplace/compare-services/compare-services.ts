@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { MarketplaceModel, MarketplaceService } from '../../../../core/services/marketplace.service';
+import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 
 const MAX_COMPARE = 3;
 
@@ -29,10 +29,10 @@ export class CompareServicesComponent implements OnInit {
 		// Batch 5: highest REAL stored AI score wins. No winner when nobody has a
 		// score (the old `|| 0` sort crowned the first card with "AI 0") or
 		// when the top score is tied (the old sort picked one arbitrarily).
-		const ranked = [...list].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
-		const top = ranked[0]?.aiScore || 0;
-		if (top <= 0) return null;
-		if (ranked.length > 1 && (ranked[1].aiScore || 0) === top) return null;
+		const ranked = [...list].sort(byAiScoreDesc);
+		if (!hasAiScore(ranked[0]?.aiScore)) return null;
+		const top = ranked[0].aiScore as number;
+		if (ranked.length > 1 && ranked[1].aiScore === top) return null;
 		return ranked[0].id || null;
 	});
 

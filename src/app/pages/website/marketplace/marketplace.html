@@ -60,11 +60,11 @@
       }
       @if (mode === 'flash') {
       <span class="flash-disc-tag">خصم {{ model.discountPercentage }}%</span>
-      } @else if (model.aiMatchPercentage || model.aiScore) {
+      } @else if (model.aiMatchPercentage || model.aiScore != null) {
       <!-- AI Cleanup Batch 5: aiMatchPercentage exists only for a real Gemini
            recommendation; otherwise the shown value is the model's stored AI
            quality score, labeled as quality — never as a match. -->
-      <span class="svc-ai-tag">{{ model.aiMatchPercentage ? 'تطابق AI' : 'جودة AI' }} {{ model.aiMatchPercentage || model.aiScore }}%</span>
+      <span class="svc-ai-tag">{{ model.aiMatchPercentage ? 'تطابق AI' : 'جودة AI' }} {{ model.aiMatchPercentage ?? model.aiScore }}%</span>
       }
       <button class="svc-fav" type="button" aria-label="أضف للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
     </div>
@@ -477,6 +477,8 @@
             <div class="ai-insight-txt">
               @if (aiInsightBest(); as best) {
               وجدنا <strong>{{ totalResults() | number }} نتيجة</strong> — الأعلى في تقييم جودة AI بهذه الصفحة: <strong>{{ best.title }}</strong>
+              } @else if (!isLoading() && totalResults() > 0) {
+              وجدنا <strong>{{ totalResults() | number }} نتيجة</strong>
               } @else if (isLoading()) {
               جاري البحث في الخدمات المنشورة...
               } @else {
@@ -552,7 +554,7 @@
                 <span class="svc-level" [style.background]="resultLevelStyle(model).bg" [style.color]="resultLevelStyle(model).color">{{ model.level }}</span>
               </div>
               }
-              @if (model.aiScore) {
+              @if (model.aiScore != null) {
               <div class="ai-score-badge">جودة AI {{ model.aiScore }}%</div>
               }
               <button class="svc-fav" type="button" aria-label="إضافة للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)">
@@ -575,7 +577,7 @@
                 <span class="stars">★★★★★</span>
                 <span class="svc-score">{{ model.rating ?? 0 }}</span>
                 <span class="svc-reviews">({{ model.reviewsCount ?? 0 }})</span>
-                @if (model.aiScore) {
+                @if (model.aiScore != null) {
                 <span class="quality-pill">جودة AI {{ model.aiScore }}%</span>
                 }
               </div>

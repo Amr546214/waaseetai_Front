@@ -118,7 +118,7 @@
                   <svg aria-hidden="true"><use href="#ws-clock"></use></svg>
                   {{ item.totalDays }} أيام
                 </span>
-                @if (item.aiScore) {
+                @if (item.aiScore != null) {
                   <span class="cart-ai-badge">
                     <svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg>
                     جودة AI {{ item.aiScore }}

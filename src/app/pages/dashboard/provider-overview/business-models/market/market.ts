@@ -7,6 +7,16 @@ import { ThemeService } from '../../../../../core/services/theme.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 
+export interface ModelAiAudit {
+	status: 'PENDING' | 'READY' | 'NOT_ENOUGH_DATA' | 'FAILED';
+	source: string;
+	score: number | null;
+	summary: string | null;
+	recommendation: string | null;
+	details: { isApproved: boolean | null; strengths: string[]; issues: string[]; recommendations: string[] } | null;
+	generatedAt: string | null;
+}
+
 export interface MarketModel {
 	id: string;
 	title: string;
@@ -17,9 +27,10 @@ export interface MarketModel {
 	offersCount: number;
 	rating: number;
 	reviewsCount?: number;
-	aiScore: number;
-	/** Stored audit report (summary / strengths / issues) when the backend returns it. */
-	aiAuditReport?: { summary?: string; strengths?: string[]; issues?: string[] } | null;
+	/** Stored audit score; null = never audited (a real 0 is a real 0). */
+	aiScore: number | null;
+	/** The stored WaseetAI audit as the backend returns it (GET my-market-models). */
+	aiAudit?: ModelAiAudit | null;
 	tags: string[];
 	bgGradient?: string;
 	iconColor?: string;
@@ -45,7 +56,7 @@ export interface ModificationRequest {
 	title: string;
 	subtitle: string;
 	date: string;
-	matchRate: number;
+	matchRate: number | null;
 	statusLabel: string;
 	isExpanded: boolean;
 	checks: { text: string; status: string; type: 'success' | 'warning' | 'error' }[];
@@ -86,7 +97,7 @@ export class Market implements OnInit, OnDestroy {
 
 	/** Average of the real stored audit scores; null when no model has been scored. */
 	avgAiScore = computed<number | null>(() => {
-		const scored = this.models().map(m => Number(m.aiScore) || 0).filter(v => v > 0);
+		const scored = this.models().map(m => m.aiScore).filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
 		if (!scored.length) return null;
 		return Math.round(scored.reduce((a, b) => a + b, 0) / scored.length);
 	});

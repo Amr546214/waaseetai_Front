@@ -11,7 +11,8 @@ export interface CompanyModelCard {
 	category: string;
 	categorySlug?: string;
 	tags: string[];
-	aiScore: number;
+	/** Stored audit score; null = never audited (0 is a real score). */
+	aiScore: number | null;
 	rating: number;
 	reviewsCount?: number;
 	viewsCount: number;
@@ -58,7 +59,13 @@ export class CompanyModels implements OnInit {
 		}
 		const sort = this.activeSort();
 		list = [...list].sort((a, b) => {
-			if (sort === 'top-rated') return (b.aiScore || 0) - (a.aiScore || 0);
+			if (sort === 'top-rated') {
+				// a missing score (null) sorts last, it is never treated as 0
+				if (a.aiScore == null && b.aiScore == null) return 0;
+				if (a.aiScore == null) return 1;
+				if (b.aiScore == null) return -1;
+				return b.aiScore - a.aiScore;
+			}
 			if (sort === 'views') return (b.viewsCount || 0) - (a.viewsCount || 0);
 			return 0; // 'newest' keeps API order
 		});
@@ -116,7 +123,7 @@ export class CompanyModels implements OnInit {
 		const live = (model.status === 'PUBLISHED' || model.status === 'APPROVED') && model.marketVisible !== false;
 		return [
 			{ text: live ? 'منشور في السوق' : 'قيد المراجعة', ok: live },
-			{ text: model.aiScore > 0 ? `تقييم AI: ${model.aiScore}%` : 'لم يُقيَّم بتقييم AI بعد', ok: model.aiScore > 0 },
+			{ text: model.aiScore != null ? `تقييم AI: ${model.aiScore}%` : 'لم يُقيَّم بتقييم AI بعد', ok: model.aiScore != null },
 			{ text: (model.reviewsCount ?? 0) > 0 ? `تقييم العملاء: ${model.rating} (${model.reviewsCount})` : 'لا تقييمات من العملاء بعد', ok: (model.reviewsCount ?? 0) > 0 },
 		];
 	}

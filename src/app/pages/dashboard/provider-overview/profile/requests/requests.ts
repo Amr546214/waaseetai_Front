@@ -2,13 +2,14 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { ProfileAiReviewComponent } from '../../../../../shared/ai/profile-ai-review.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-profile-requests',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ProfileAiReviewComponent],
   templateUrl: './requests.html',
   styleUrls: ['./requests.css'],
 })

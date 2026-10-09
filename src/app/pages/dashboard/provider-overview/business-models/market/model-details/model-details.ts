@@ -12,6 +12,7 @@ export interface StoredAuditReport {
 	summary?: string;
 	strengths: string[];
 	issues: string[];
+	recommendations: string[];
 }
 
 @Component({
@@ -42,24 +43,29 @@ export class ModelDetails implements OnInit {
 		return Array.from({ length: 5 }, (_, i) => i < rating);
 	});
 
-	/** 0 / null / missing means the model has not been audited yet. */
-	hasAuditScore = computed<boolean>(() => {
-		const score = this.model()?.aiScore;
-		return score != null && score > 0;
+	/** The stored audit score: a real 0 is shown as 0, null means the model was never audited. */
+	auditScore = computed<number | null>(() => {
+		const m = this.model();
+		const fromAudit = m?.aiAudit?.status === 'READY' ? m.aiAudit.score : null;
+		const score = fromAudit ?? m?.aiScore ?? null;
+		return typeof score === 'number' && Number.isFinite(score) ? score : null;
 	});
 
+	hasAuditScore = computed<boolean>(() => this.auditScore() !== null);
+
 	/**
-	 * Only STORED fields of the audit report are shown (summary / strengths / issues). No sub-metric is derived
-	 * from the overall score and no static notes are composed here. Null = no report was returned.
+	 * Only the STORED WaseetAI audit (`aiAudit`, READY) is shown: summary / strengths / issues / recommendations.
+	 * No sub-metric is derived from the score and no static notes are composed here. Null = no report (pending / not enough data).
 	 */
 	auditReport = computed<StoredAuditReport | null>(() => {
-		const raw: any = (this.model() as any)?.aiAuditReport;
-		if (!raw || typeof raw !== 'object') return null;
+		const audit = this.model()?.aiAudit;
+		if (!audit || audit.status !== 'READY') return null;
 		const list = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x.trim().length > 0) : []);
-		const summary = typeof raw.summary === 'string' && raw.summary.trim() ? raw.summary.trim() : undefined;
-		const strengths = list(raw.strengths);
-		const issues = list(raw.issues);
-		return summary || strengths.length || issues.length ? { summary, strengths, issues } : null;
+		const summary = typeof audit.summary === 'string' && audit.summary.trim() ? audit.summary.trim() : undefined;
+		const strengths = list(audit.details?.strengths);
+		const issues = list(audit.details?.issues);
+		const recommendations = list(audit.details?.recommendations);
+		return summary || strengths.length || issues.length || recommendations.length ? { summary, strengths, issues, recommendations } : null;
 	});
 
 	// `MarketModel` only ever carries an aggregate `reviewsCount`/`rating` from the

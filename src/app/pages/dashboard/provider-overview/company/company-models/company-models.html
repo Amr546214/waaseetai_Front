@@ -80,7 +80,7 @@
 					<path d="M3 9h18M9 21V9" />
 				</svg>
 				<span class="cml-card-status" [class.hidden-status]="statusBadge(m).cls === 'hidden-status'" [class.review-status]="statusBadge(m).cls === 'review-status'" data-testid="model-status">{{ statusBadge(m).text }}</span>
-				@if (m.aiScore != null && m.aiScore > 0) {
+				@if (m.aiScore != null) {
 				<span class="cml-card-score">{{ m.aiScore }}</span>
 				}
 			</div>

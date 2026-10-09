@@ -25,7 +25,7 @@ export interface CartItem {
 	totalAmount: number;
 	totalDays: number;
 	level?: string;
-	aiScore?: number;
+	aiScore?: number | null;
 	provider: CartProvider;
 	packageId?: string;
 	packageName?: string;
@@ -57,7 +57,7 @@ export interface OrderItem {
 	totalDays: number;
 	provider: { id: string; name: string };
 	packageName?: string;
-	aiScore?: number;
+	aiScore?: number | null;
 	deliverables?: string[];
 	milestones?: { label: string; sub: string }[];
 }

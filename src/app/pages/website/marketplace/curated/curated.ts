@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MarketplaceModel, MarketplaceService } from '../../../../core/services/marketplace.service';
+import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { resolveProviderLevelBadgeStyle } from '../../../../core/utils/provider-level-style.util';
 
@@ -28,7 +28,7 @@ const MODE_CONFIG: Record<CuratedMode, CuratedModeConfig> = {
 	'top-rated': { sort: (a, b) => (b.rating || 0) - (a.rating || 0) },
 	'most-ordered': { sort: (a, b) => (b.salesCount || 0) - (a.salesCount || 0) },
 	'featured': {
-		sort: (a, b) => (b.aiScore || 0) - (a.aiScore || 0),
+		sort: byAiScoreDesc,
 		filter: m => !!m.isFeatured
 	},
 	'exclusive': {

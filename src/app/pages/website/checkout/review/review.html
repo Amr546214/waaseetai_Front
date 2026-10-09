@@ -104,7 +104,7 @@
                     <span class="order-pkg-chip">{{ item.packageName }}</span>
                   }
                   <span class="order-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ item.totalDays }} أيام</span>
-                  @if (item.aiScore) {
+                  @if (item.aiScore != null) {
                     <span class="order-ai-badge"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ item.aiScore }}</span>
                   }
                 </div>
