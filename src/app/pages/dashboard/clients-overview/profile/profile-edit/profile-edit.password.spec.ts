@@ -3,7 +3,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { vi } from 'vitest';
 import { ProfileEdit } from './profile-edit';
@@ -132,5 +132,23 @@ describe('client profile-edit: password change request', () => {
     type('#pw-new', 'a');
     expect((el().querySelector('#pw-new') as HTMLInputElement).value).toBe('a');
     expect(q('[data-testid="security-disabled-reason"]')).toBeNull();
+  });
+
+  it('while the POST is pending the button shows "جارٍ إرسال الطلب..." and is disabled; a second click/Enter sends nothing; it settles to the pending state', async () => {
+    const response = new Subject<any>();
+    await setup({ api: () => response.asObservable() });
+    fillValid();
+    submit();
+    expect(requestPasswordChange).toHaveBeenCalledTimes(1);
+    const btn = q('[data-testid="pw-submit"]') as HTMLButtonElement;
+    expect(btn.disabled).toBe(true);
+    expect(btn.textContent).toContain('جارٍ إرسال الطلب...');
+    c.submitPasswordChange();                                   // Enter key / double click while in flight
+    btn.click(); render();
+    expect(requestPasswordChange).toHaveBeenCalledTimes(1);     // no duplicate submit
+    expect(q('[data-testid="pw-success"]')).toBeNull();         // no success before the server answers
+    response.next({ success: true, data: { id: 'req-1' }}); response.complete(); render();
+    expect(q('[data-testid="pw-success"]')!.textContent).toContain('تم إرسال طلب تغيير كلمة المرور للمراجعة');
+    expect((q('[data-testid="pw-submit"]') as HTMLButtonElement).textContent).not.toContain('جارٍ إرسال الطلب');
   });
 });
