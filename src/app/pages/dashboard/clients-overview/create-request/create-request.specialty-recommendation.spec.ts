@@ -116,4 +116,15 @@ describe('create-request step 1: the specialty suggestion is real or absent', ()
 		expect(src).not.toContain('applyAISuggestion');
 		expect(src).not.toContain('/ai-suggest');
 	});
+
+	it('the sub-specialties counter reads selected / max (left-to-right isolated): 4 / 5', async () => {
+		const el = await mount(() => of({ success: true, data: rec() }));
+		c.selectSpec('c-dev');
+		for (const n of ['تطوير الواجهات الأمامية', 'تطوير تطبيقات iOS', 'تطوير تطبيقات أندرويد']) c.toggleSub(n);
+		c.selectedSubs.update(s => new Set([...s, 'x']));
+		fixture.detectChanges();
+		const counter = el.querySelector('#subs-count') as HTMLElement;
+		expect(counter.textContent?.trim()).toBe('4 / 5');
+		expect(counter.getAttribute('dir')).toBe('ltr');
+	});
 });
