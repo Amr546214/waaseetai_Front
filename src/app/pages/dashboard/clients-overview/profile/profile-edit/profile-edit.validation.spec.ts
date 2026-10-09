@@ -331,13 +331,21 @@ describe('client profile-edit: shared validation', () => {
   });
 
   describe('security tab', () => {
-    it('the demo parts (MFA, sessions) are labelled; the password form is a real form with an enabled submit', () => {
+    it('MFA stays (labelled demo) and the password form is a real form with an enabled submit', () => {
       goTab('security');
       component.isChangingPassword.set(true); render();
       expect(el().querySelector('[data-testid="security-unsupported"]')?.textContent).toContain('للعرض التوضيحي');
-      const btn = el().querySelector('[data-testid="pw-submit"]') as HTMLButtonElement;
-      expect(btn.disabled).toBe(false);
-      expect((el().textContent || '').match(/عرض توضيحي/g)?.length).toBeGreaterThanOrEqual(2);
+      expect((el().querySelector('[data-testid="pw-submit"]') as HTMLButtonElement).disabled).toBe(false);
+      expect(el().textContent).toContain('المصادقة الثنائية (MFA)');
+    });
+
+    it('no fake login sessions: no "جلسات الدخول النشطة", no device / browser / location, no end-sessions control; an honest note instead', () => {
+      goTab('security');
+      const text = el().textContent || '';
+      expect(text).not.toContain('جلسات الدخول النشطة');
+      expect(text).not.toMatch(/Chrome|Safari|Windows 11|iPhone|الرياض/);
+      expect(text).not.toMatch(/انهاء\s+الجلسات|إنهاء\s+الجلسات|الجلسة\s+الحالية/);
+      expect(el().querySelector('[data-testid="sessions-unavailable"]')!.textContent).toContain('إدارة جلسات الدخول غير متاحة حاليًا. يمكنك تسجيل الخروج من هذا الجهاز من زر تسجيل الخروج.');
     });
   });
 
