@@ -168,7 +168,7 @@
 			<button type="button"
 				class="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[#070d24] text-[15px] font-black cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not(:disabled):-translate-y-0.5 shadow-[0_4px_18px_rgba(43,212,199,0.35)] hover:not(:disabled):shadow-[0_6px_22px_rgba(43,212,199,0.5)]"
 				style="background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%);"
-				[disabled]="!canProceed() || isSubmitting()" (click)="goNext()">
+				[disabled]="(!canProceed() && !(currentStep() === 4 && splitMilestones())) || isSubmitting()" (click)="goNext()">
 				@if (isSubmitting()) {
 				<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-[#070d24]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
 				جاري النشر...

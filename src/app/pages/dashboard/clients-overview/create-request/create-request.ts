@@ -38,7 +38,8 @@ export interface ClientSpecialtyRecommendation {
   confidence?: number | null;
 }
 
-interface Milestone { name: string; pct: number; }
+/** `pct` is null while the field is empty (an intermediate editing state); it is only validated on blur / Add / Next. */
+interface Milestone { name: string; pct: number | null; }
 
 // Versioned sessionStorage draft shape. Bump DRAFT_VERSION (and the key
 // suffix) if this shape ever changes incompatibly — loadDraft() rejects any
@@ -495,7 +496,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.milestones.set(
       draft.step4.milestones
         .filter((m: any) => m && typeof m === 'object')
-        .map((m: any) => ({ name: typeof m.name === 'string' ? m.name : '', pct: typeof m.pct === 'number' ? m.pct : 0 }))
+        .map((m: any) => ({ name: typeof m.name === 'string' ? m.name : '', pct: typeof m.pct === 'number' ? m.pct : null }))
     );
     // canProceed() is a computed() reading these same signals, so it
     // automatically reflects the restored values on next read — no
@@ -811,12 +812,37 @@ export class CreateRequest implements OnInit, OnDestroy {
     // { name: 'الاختبار والتسليم', pct: 35 }
   ]);
 
+  /** Fields the user already left (blur) or tried to move past (Add / Next): only these show their error, never while typing. */
+  private milestoneTouched = signal<ReadonlySet<string>>(new Set());
+
+  touchMilestone(index: number, field: 'name' | 'pct') {
+    this.milestoneTouched.update(set => new Set(set).add(`${index}:${field}`));
+  }
+
+  private touchAllMilestones() {
+    this.milestoneTouched.set(new Set(this.milestones().flatMap((_, i) => [`${i}:name`, `${i}:pct`])));
+  }
+
+  private isMilestoneNameInvalid(m: Milestone) { return !m.name || m.name.trim().length < 2; }
+  private isMilestonePctInvalid(m: Milestone) { return m.pct === null || !Number.isFinite(m.pct) || m.pct <= 0 || m.pct > 100; }
+
+  /** Error text of one milestone field, or null (also null while the field has not been touched yet). */
+  milestoneFieldError(index: number, field: 'name' | 'pct'): string | null {
+    const m = this.milestones()[index];
+    if (!m || !this.milestoneTouched().has(`${index}:${field}`)) return null;
+    if (field === 'name') return this.isMilestoneNameInvalid(m) ? 'اسم المرحلة حرفان على الأقل' : null;
+    return this.isMilestonePctInvalid(m) ? 'أدخل نسبة صحيحة بين 1 و100' : null;
+  }
+
   addMilestone() {
-    this.milestones.update(m => [...m, { name: '', pct: 0 }]);
+    // Pressing Add reveals the errors of the rows already there (never while typing); the new row starts clean and untouched.
+    if (this.milestones().some(m => this.isMilestoneNameInvalid(m) || this.isMilestonePctInvalid(m))) this.touchAllMilestones();
+    this.milestones.update(m => [...m, { name: '', pct: null }]);
   }
 
   removeMilestone(index: number) {
     this.milestones.update(m => m.filter((_, i) => i !== index));
+    this.milestoneTouched.set(new Set());
   }
 
   // Milestone fields are edited via [ngModel]+(ngModelChange) rather than
@@ -831,7 +857,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   updateMilestonePct(index: number, pct: number | null) {
-    this.milestones.update(m => m.map((ms, i) => i === index ? { ...ms, pct: pct ?? 0 } : ms));
+    this.milestones.update(m => m.map((ms, i) => i === index ? { ...ms, pct: pct ?? null } : ms));
   }
 
   get milestoneTotalPct() {
@@ -901,7 +927,7 @@ export class CreateRequest implements OnInit, OnDestroy {
         if (this.milestoneTotalPct !== 100) return false;
         for (const m of this.milestones()) {
           if (!m.name || m.name.trim().length < 2) return false;
-          if (!m.pct || m.pct <= 0 || m.pct > 100) return false;
+          if (this.isMilestonePctInvalid(m)) return false;
         }
       }
       return true;
@@ -910,7 +936,11 @@ export class CreateRequest implements OnInit, OnDestroy {
   });
 
   goNext() {
-    if (!this.canProceed()) return;
+    if (!this.canProceed()) {
+      // Step 4 keeps Next clickable while milestones are split: pressing it reveals every invalid field instead of silently doing nothing.
+      if (this.currentStep() === 4 && this.splitMilestones()) this.touchAllMilestones();
+      return;
+    }
     const step = this.currentStep();
     if (step < 6) {
       this.currentStep.set(step + 1);
@@ -996,7 +1026,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       ipRights: this.ipRights(),
       allowNegotiation: this.allowNegotiation(),
       splitMilestones: this.splitMilestones(),
-      milestones: this.splitMilestones() ? this.milestones() : []
+      milestones: this.splitMilestones() ? this.milestones().map(m => ({ name: m.name, pct: m.pct as number })) : [] // validated: every pct is a number here
     };
 
     this.projectApi.createProject(payload).subscribe({
