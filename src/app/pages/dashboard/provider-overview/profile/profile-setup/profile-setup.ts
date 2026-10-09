@@ -629,6 +629,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				this.skillsSuggestionReady.set(true);
 			},
 			error: (err) => {
+				if (err?.status === 503) { this.skillsSuggestionError.set('اقتراح المهارات بالذكاء الاصطناعي غير متاح حاليًا.'); return; }
 				const mapped = mapHttpError(err);
 				// Rate limit / no connection say so; any other failure keeps the generic retry wording.
 				const detail = mapped.kind === 'rate-limit' || mapped.kind === 'network' ? mapped.message : 'يرجى المحاولة مجدداً.';

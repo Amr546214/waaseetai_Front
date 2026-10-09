@@ -121,9 +121,9 @@
 				<div class="dash-hello">أهلًا، {{ data.summary?.firstName }} {{ data.summary?.lastName }}</div>
 				<div class="dash-sub" *ngIf="data.summary.hasApprovedSpecialties"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<use href="#i-ai"></use>
+						<use [attr.href]="isAiRanked(data.aiMatchingProjects) ? '#i-ai' : '#i-doc'"></use>
 					</svg>{{ isAiRanked(data.aiMatchingProjects) ? 'توصية AI' : 'حسب تخصصك' }}: لديك {{ data.aiMatchingProjects?.length || 0 }} طلبات جديدة تناسب تخصصك و{{
-					data.summary?.pendingOffersCount || 0 }} تسليم بانتظار اعتماد العميل</div>
+					data.summary?.pendingClientApprovalCount || 0 }} تسليم بانتظار اعتماد العميل</div>
 			</div>
 			<div class="dash-chips">
 				<a *ngIf="!data.summary.profileSetupCompleted" routerLink="/provider-overview/profile/setup" class="dash-chip chip-verify"><svg aria-hidden="true"
@@ -292,8 +292,8 @@
 						</svg>
 					</div>
 				</div>
-				<div class="stat-val">{{ data.summary?.aiRating ? data.summary.aiRating : '—' }}</div>
-				<div class="stat-sub">{{ data.summary?.aiRating ? 'من 5' : 'لا توجد بيانات بعد' }}</div>
+				<div class="stat-val" data-testid="ai-rating-val">{{ data.summary?.aiRating != null ? data.summary.aiRating : '—' }}</div>
+				<div class="stat-sub">{{ data.summary?.aiRating != null ? 'من 5 · متوسط تقييم WaseetAI لعروضك' : 'لا توجد بيانات بعد' }}</div>
 			</div>
 		</div>
 
@@ -685,11 +685,11 @@
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
-					<span class="stat-lbl">نماذج في السوق</span>
+					<span class="stat-lbl">طلبات تناسب تخصصك</span>
 					<div class="stat-ico green" aria-hidden="true"><svg><use href="#i-brief"></use></svg></div>
 				</div>
 				<div class="stat-val">{{ data.aiMatchingProjects?.length || 0 }}</div>
-				<div class="stat-sub">معتمدة · بانتظار</div>
+				<div class="stat-sub">مطابقة حسب التخصص (أعلى 3)</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -705,15 +705,15 @@
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
-					<span class="stat-lbl">تقييم التوصيات</span>
+					<span class="stat-lbl">جودة عروضك (WaseetAI)</span>
 					<div class="stat-ico ai" aria-hidden="true">
 						<svg viewBox="0 0 24 24" fill="none" stroke="#7B2FBE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 							<use href="#i-ai"></use>
 						</svg>
 					</div>
 				</div>
-				<div class="stat-val">{{ data.summary?.aiRating ? (data.summary.aiRating * 20) + '%' : 'قيد التقييم' }}</div>
-				<div class="stat-sub">توصيات الإسناد</div>
+				<div class="stat-val">{{ data.summary?.aiRating != null ? (data.summary.aiRating! * 20) + '%' : '—' }}</div>
+				<div class="stat-sub">{{ data.summary?.aiRating != null ? 'متوسط تقييم WaseetAI لعروضك' : 'لا توجد عروض مُقيَّمة بعد' }}</div>
 			</div>
 		</div>
 

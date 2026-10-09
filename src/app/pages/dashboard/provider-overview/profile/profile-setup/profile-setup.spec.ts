@@ -122,7 +122,7 @@ describe('provider setup AI suggestions', () => {
     expect(component.isSuggestingSkills()).toBe(false);
     expect(component.aiSuggestedSkills()).toEqual([]);
     expect(component.skillsList()).toEqual(['HTML']);
-    expect(fixture.nativeElement.textContent).toContain('تعذر إنشاء اقتراح بالذكاء الاصطناعي');
+    expect(fixture.nativeElement.textContent).toContain('اقتراح المهارات بالذكاء الاصطناعي غير متاح حاليًا'); // 503 = not available (not a retry loop)
   });
 
   it('empty taxonomy result displays an honest empty state', () => {

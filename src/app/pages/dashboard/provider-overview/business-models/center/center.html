@@ -62,13 +62,13 @@
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
       <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">متوسط تقييم AI</div>
-      <div style="font-size:26px;font-weight:900" class="txt-white">{{ stats()[2]?.value || 0 }}<span style="font-size:14px" class="txt-muted">/100</span></div>
+      <div style="font-size:26px;font-weight:900" class="txt-white">{{ stats()[2]?.value != null ? stats()[2]?.value : '—' }}@if (stats()[2]?.value != null) {<span style="font-size:14px" class="txt-muted">/100</span>}</div>
       <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ stats()[2]?.sub || '' }}</div>
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
       <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">عروض مُولَّدة من النماذج</div>
       <div style="font-size:26px;font-weight:900" class="txt-white">{{ stats()[3]?.value || 0 }}</div>
-      <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ stats()[3]?.sub || '12 قُبلت' }}</div>
+      <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ stats()[3]?.sub || '' }}</div>
     </div>
   </div>
 

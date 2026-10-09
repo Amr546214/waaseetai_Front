@@ -205,6 +205,7 @@
             @if (skillsSuggestionError()) { <p role="alert" class="f-hint">{{ skillsSuggestionError() }}</p> }
             @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-hint" id="skills-server-error" style="color:#ff8c69;font-weight:700">{{ skillsErr }}</p> }
             @if (skillsSuggestionReady() && !aiSuggestedSkills().length) { <p class="f-hint" role="status">لا توجد اقتراحات مهارات جديدة حالياً.</p> }
+            @if (aiSuggestedSkills().length || isSuggestingSkills()) {
             <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>اقتراحات بالذكاء الاصطناعي، اختر المهارات التي تتقنها</div>
             <div class="ai-chips" aria-label="مهارات مقترحة بالذكاء الاصطناعي" aria-live="polite">
               @for (skill of aiSuggestedSkills(); track skill) {
@@ -214,6 +215,7 @@
                 <span class="ai-chip" style="opacity:.6">جاري الاقتراح...</span>
               }
             </div>
+            }
           </div>
           <div class="skills-input-row">
             <input type="text" class="skills-input" placeholder="أدخل اسم مهارة موجودة في الدليل..." maxlength="40" (keydown.enter)="addSkill($event)" [(ngModel)]="skillInput" [ngModelOptions]="{standalone: true}">

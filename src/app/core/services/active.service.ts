@@ -29,6 +29,11 @@ export class ActiveProjectsService {
 	// (not called automatically on page load); real result replaces the
 	// honest aiInsights placeholder in the UI, real failure shows an honest
 	// unavailable state — see progress.ts::analyzeProjectHealth().
+	// Advisory-only delivery review of a stage's submitted delivery (never approves or releases money). 503 when the LLM is not configured.
+	getDeliveryAiReview(projectId: string, stageId: string): Observable<any> {
+		return this.http.post<any>(`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/ai-review`, {});
+	}
+
 	getProjectHealthAnalysis(projectId: string): Observable<any> {
 		return this.http.post<any>(`${environment.url_api}/provider/projects/${projectId}/health`, {});
 	}

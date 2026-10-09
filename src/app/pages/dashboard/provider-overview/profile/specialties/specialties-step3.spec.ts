@@ -43,7 +43,7 @@ describe('Specialties wizard — step 3 when the smart check is unavailable', ()
 	it('shows the honest message, with no score, and no AI claim', () => {
 		expect(component.aiEvaluationUnavailable()).toBe(true);
 		const t = bodyText(fixture);
-		expect(t).toContain('الفحص الذكي متوقف مؤقتًا');
+		expect(t).toContain('هذه المراجعة غير متاحة حاليًا');
 		expect(t).toContain('تم تحويل نماذجك للمراجعة');
 		expect(t).not.toContain('AI Score');
 		expect(t).not.toContain('Waseet AI');

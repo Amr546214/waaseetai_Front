@@ -62,7 +62,7 @@ export interface ProviderStatsResponse {
 			totalEscrowAmount: number;
 			providerRating: number;
 			humanRating: number;
-			aiRating: number;
+			aiRating: number | null;
 			profileCompletionPercent: number;
 			profileSetupCompleted: boolean;
 			setupTestCompleted: boolean;
