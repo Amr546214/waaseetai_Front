@@ -111,7 +111,9 @@ describe('AI Cleanup Batch 3 — withdrawal detail (financial decision screen)',
 		expect(wdDetailHtml).toContain('(click)="submitAction()"');
 		expect(wdDetailHtml).toContain('formatAmount(w.amount, w.currency)');
 		expect(wdDetailHtml).toContain('formatAmount(availableBalance(w), w.currency)');
-		expect(wdDetailHtml).toContain('w.bankInfo?.iban');
+		expect(wdDetailHtml).toContain('isLegacy(w)');
+		expect(wdDetailHtml).toContain('w.paypalEmail');
+		expect(wdDetailHtml).not.toMatch(/bankInfo|IBAN/);
 		expect(wdDetailHtml).toContain('userDisplay(w)');
 		expect(wdDetailHtml).toContain('timelineSteps(w)');
 	});
@@ -180,7 +182,8 @@ describe('AI Cleanup Batch 3 — users AI risk', () => {
 		expect(usersHtml).toContain(`setStatusFilter('SUSPENDED')`);
 		expect(usersHtml).toContain(`setLastActiveFilter('ALL')`);
 		expect(userDetailHtml).toContain('SL[u.statusOriginal]');
-		expect(userDetailHtml).toContain('u.personalInfo.bankAccountVerified');
+		expect(userDetailHtml).toContain('u.personalInfo.nationalIdVerified');
+		expect(userDetailHtml).not.toMatch(/bankAccount|iban/i);
 		expect(userDetailHtml).toContain('u.personalInfo.nationalIdVerified');
 	});
 });

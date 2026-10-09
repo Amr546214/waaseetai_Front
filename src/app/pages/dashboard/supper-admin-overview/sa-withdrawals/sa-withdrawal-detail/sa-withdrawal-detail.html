@@ -29,10 +29,10 @@
       <div class="wd-md-body">
         <!-- AI Cleanup Batch 3: removed the "وسيط AI" risk panel (its "no suspicious
              activity — approval recommended" line was picked from a hash of the
-             withdrawal id), the "IBAN verified" badge (only checked that an IBAN
+             withdrawal id), the destination-verified badge (only checked that a destination
              string exists), the hash-seeded "balance source" project table and the
              local-only "request more information" action. No backend risk scoring,
-             IBAN verification, balance-source breakdown or info-request endpoint
+             destination verification, balance-source breakdown or info-request endpoint
              exists. Real withdrawal data and the approve/reject controls are unchanged. -->
         <div class="wd-md-field">
           <label>المبلغ</label>
@@ -55,7 +55,7 @@
           </div>
           <div class="wd-md-field">
             <label>طريقة السحب</label>
-            <p>{{ w.method || '—' }}</p>
+            <p>{{ isLegacy(w) ? 'سحب قديم' : (w.method ? 'PayPal' : '—') }}</p>
           </div>
         </div>
         <div class="wd-md-row">
@@ -68,31 +68,15 @@
             <p>{{ formatDate(w.processedAt) }}</p>
           </div>
         </div>
-        @if (w.bankInfo) {
-          <div class="wd-md-section">
-            <label>البيانات البنكية</label>
-            <div class="wd-md-bank">
-              <div class="wd-md-row">
-                <div class="wd-md-field">
-                  <label>اسم البنك</label>
-                  <p>{{ w.bankInfo?.bankName || '—' }}</p>
-                </div>
-                <div class="wd-md-field">
-                  <label>اسم صاحب الحساب</label>
-                  <p>{{ w.bankInfo?.accountHolderName || '—' }}</p>
-                </div>
-              </div>
-              <div class="wd-md-row">
-                <div class="wd-md-field">
-                  <label>IBAN</label>
-                  <p dir="ltr" style="text-align:right">{{ w.bankInfo?.iban || '—' }}</p>
-                </div>
-                <div class="wd-md-field">
-                  <label>SWIFT</label>
-                  <p>{{ w.bankInfo?.swiftCode || '—' }}</p>
-                </div>
-              </div>
-            </div>
+        @if (isLegacy(w)) {
+          <div class="wd-md-field" data-testid="wd-legacy-destination">
+            <label>وجهة السحب</label>
+            <p>{{ legacyLabel }}</p>
+          </div>
+        } @else if (w.paypalEmail) {
+          <div class="wd-md-field">
+            <label>بريد PayPal</label>
+            <p dir="ltr" style="text-align:right" data-testid="wd-paypal-destination">{{ w.paypalEmail }}</p>
           </div>
         }
 

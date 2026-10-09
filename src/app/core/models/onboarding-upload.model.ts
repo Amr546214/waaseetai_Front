@@ -132,10 +132,9 @@ export interface ProviderSetupPayload {
     isNafathVerified?: boolean;
     [key: string]: unknown;
   };
+  /** PayPal is the only payout destination. */
   bank?: {
-    bankName?: string;
-    accountHolder?: string;
-    iban?: string;
+    paypalPayoutEmail?: string;
     [key: string]: unknown;
   };
   docs?: SetupDocumentUrls;

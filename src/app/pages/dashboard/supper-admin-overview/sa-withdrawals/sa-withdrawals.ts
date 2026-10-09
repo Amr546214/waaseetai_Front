@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WithdrawalApiService } from '../../../../core/services/withdrawal-api.service';
-import { Withdrawal, WithdrawalPagination } from '../../../../core/models/withdrawal.model';
+import { Withdrawal, LEGACY_WITHDRAWAL_LABEL, isLegacyWithdrawal, WithdrawalPagination } from '../../../../core/models/withdrawal.model';
 
 type StatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
 
@@ -131,10 +131,10 @@ export class SaWithdrawals implements OnInit {
     return currency ? `${formatted} ${currency === 'USD' ? '$' : currency}` : `${formatted} $`;
   }
 
-  ibanLast4(iban: string | undefined): string {
-    if (!iban) return '—';
-    const clean = iban.replace(/\s/g, '');
-    return clean.length > 4 ? `•••• ${clean.slice(-4)}` : clean;
+  readonly legacyLabel = LEGACY_WITHDRAWAL_LABEL;
+
+  isLegacy(w: Withdrawal): boolean {
+    return isLegacyWithdrawal(w);
   }
 
   userDisplay(w: Withdrawal): string {
