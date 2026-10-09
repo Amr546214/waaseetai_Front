@@ -518,6 +518,12 @@
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none"></textarea>
 							</div>
 						</div>
+
+						<!-- The step is optional: continue without uploading (just moves on; nothing is uploaded or saved) -->
+						<div class="mt-5 flex justify-center">
+							<button type="button" data-testid="skip-documents" (click)="skipDocuments()"
+								class="text-xs font-bold text-cyan-600 dark:text-[#38BDF8] underline underline-offset-4 hover:opacity-80 transition-opacity">المتابعة بدون مستندات</button>
+						</div>
 					</div>
 					}
 

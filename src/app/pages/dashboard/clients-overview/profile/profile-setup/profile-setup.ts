@@ -196,6 +196,13 @@ export class ProfileSetupDashboard implements OnInit {
 		this.advanceTo(step + 1);
 	}
 
+	/** Step 4 (supporting documents) is optional: go straight to the review. No upload, no save, no validation of the step. */
+	skipDocuments() {
+		if (this.currentStep() !== 4) return;
+		this.missing.set([]);
+		this.currentStep.set(5);
+	}
+
 	prevStep() {
 		if (this.currentStep() > 1) {
 			this.missing.set([]);

@@ -107,4 +107,22 @@ describe('client setup wizard: each Next stores its step', () => {
 		expect(JSON.stringify({ ...localStorage })).not.toContain('1234567890');
 		expect(JSON.stringify({ ...sessionStorage })).not.toContain('1234567890');
 	});
+
+	it('step 4 has a "المتابعة بدون مستندات" link that only moves to the review: no upload, no step save', () => {
+		mount({ idNumber: '2000000001', dob: '1990-01-01T00:00:00.000Z', country: 'السعودية', city: 'الرياض', industry: 'مهندس', address: 'شارع 1', paypalPayoutEmail: 'p@x.co', completionPercentage: 60 });
+		expect(c.currentStep()).toBe(4);
+		fixture.detectChanges();
+		const btn = (fixture.nativeElement as HTMLElement).querySelector('[data-testid=skip-documents]') as HTMLButtonElement;
+		expect(btn?.textContent?.trim()).toBe('المتابعة بدون مستندات');
+		btn.click(); fixture.detectChanges();
+		expect(c.currentStep()).toBe(5);
+		expect(saveStep).not.toHaveBeenCalled();
+	});
+
+	it('the link exists only in the documents step (not in steps 1-3 or 5)', () => {
+		mount();
+		for (const step of [1, 2, 3, 5]) { c.currentStep.set(step); fixture.detectChanges(); expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid=skip-documents]')).toBeNull(); }
+		c.skipDocuments(); // outside step 4 it does nothing
+		expect(c.currentStep()).toBe(5);
+	});
 });
