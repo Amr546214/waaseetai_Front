@@ -36,6 +36,21 @@ describe('client reports — AI summary card', () => {
 		expect(el.textContent).toContain('ملاحظة');
 		expect(el.textContent).toContain('توصية');
 	});
+	it('top acceptance stat is plain data outside the AI card; hidden without data', () => {
+		const withData = JSON.parse(JSON.stringify(REPORT));
+		withData.data.orders.acceptanceBySpecialty = [{ specialty: 'تصميم', rate: 80, total: 5 }, { specialty: 'برمجة', rate: 50, total: 4 }];
+		TestBed.configureTestingModule({
+			imports: [Reports], providers: [provideRouter([]), { provide: ThemeService, useValue: { isDark: () => true, theme: () => 'dark' } }, { provide: ClientReportsService, useValue: { getReports: () => of(withData), getAiSummary: () => of(ai({})) } }],
+		});
+		const f = TestBed.createComponent(Reports); f.detectChanges();
+		const stat = (f.nativeElement as HTMLElement).querySelector('[data-testid="top-acceptance-stat"]')!;
+		expect(stat.textContent).toContain('«تصميم» بنسبة 80%');
+		expect(stat.closest('ws-ai-result-card')).toBeNull();
+		expect(stat.querySelector('circle')).toBeNull();
+		TestBed.resetTestingModule();
+		const { el } = setup(() => of(ai({})));
+		expect(el.querySelector('[data-testid="top-acceptance-stat"]')).toBeNull();
+	});
 	it('loading state', () => {
 		const { el } = setup(() => new Subject());
 		expect(el.querySelector('[data-testid="ai-card-loading"]')).toBeTruthy();

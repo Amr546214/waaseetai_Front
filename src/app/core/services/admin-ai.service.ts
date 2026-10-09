@@ -7,7 +7,11 @@ import { AiResult, MetricSummaryDetails } from '../models/ai-result.model';
 /** Deterministic database aggregates (NOT AI) returned next to the AI summary. */
 export interface ForecastMonth { month: string; inflow: number; outflow: number; inflowChangePercent: number | null; }
 export interface ForecastSeries {
-	currency: string;
+	/** null when there is no currency at all; never a default. */
+	currency: string | null;
+	/** More than one currency exists in the data: only `currency` is shown, never summed with another, and no next-month estimate is produced. */
+	mixedCurrencies?: boolean;
+	currenciesSeen?: string[];
 	months: ForecastMonth[];
 	monthsWithData: number;
 	inflowNextMonthEstimate: number | null;

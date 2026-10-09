@@ -13,7 +13,10 @@ import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.comp
 			<ws-ai-result-card title="ملخص التدفق المالي" [result]="st.result()" [loading]="st.loading()" [requestFailed]="st.failed()" (retry)="st.load()" />
 			@if (st.result()?.series; as s) {
 				<div class="fs-data" data-testid="forecast-series">
-					<div class="fs-ttl">بيانات فعلية — التدفق الشهري ({{ s.currency }})</div>
+					<div class="fs-ttl">بيانات فعلية — التدفق الشهري@if (s.currency) { ({{ s.currency }}) }</div>
+					@if (s.mixedCurrencies) {
+						<p class="fs-mixed" data-testid="forecast-mixed-currencies">عملات متعددة{{ s.currenciesSeen?.length ? ' (' + s.currenciesSeen!.join('، ') + ')' : '' }}: الأرقام أدناه لعملة {{ s.currency }} فقط ولا تُجمع مع غيرها، ولا يُعرض تقدير للشهر القادم.</p>
+					}
 					<table class="fs-tbl">
 						<thead><tr><th>الشهر</th><th>الوارد</th><th>الصادر</th><th>التغير %</th></tr></thead>
 						<tbody>
@@ -28,7 +31,7 @@ import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.comp
 						</tbody>
 					</table>
 					@if (s.inflowNextMonthEstimate !== null && s.inflowNextMonthEstimate !== undefined) {
-						<p class="fs-est" data-testid="forecast-estimate">تقدير الشهر القادم (اتجاه خطي بسيط من {{ s.inflowTrendBasedOnMonths }} شهر): {{ s.inflowNextMonthEstimate | number:'1.0-2' }} {{ s.currency }}</p>
+						<p class="fs-est" data-testid="forecast-estimate">تقدير الشهر القادم (اتجاه خطي بسيط من {{ s.inflowTrendBasedOnMonths }} شهر): {{ s.inflowNextMonthEstimate | number:'1.0-2' }}@if (s.currency) { {{ s.currency }} }</p>
 					}
 				</div>
 			}
@@ -40,6 +43,7 @@ import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.comp
 		.fs-ttl { font-size: 12px; font-weight: 800; margin-bottom: 8px; }
 		.fs-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 		.fs-tbl th, .fs-tbl td { text-align: start; padding: 6px 8px; border-bottom: 1px solid var(--sec-bd, rgba(255,255,255,.08)); }
+		.fs-mixed { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: #D98A0B; }
 		.fs-est { margin: 10px 0 0; font-size: 12px; color: var(--txt-3, #8892b0); }
 	`],
 })
