@@ -19,6 +19,11 @@ export class SpecialtyService {
 		return this.http.get(`${this.apiUrl}/specialties/public${param}`);
 	}
 
+	/** Rule-based suggestion from real data (proposal history / profile / open demand); never AI. */
+	getRecommendation(): Observable<any> {
+		return this.http.get(`${this.apiUrl}/provider/specialties/recommendations`);
+	}
+
 	selectSpecialty(payload: { specialtyId: string; subSpecialties: string[]; isCustom?: boolean; customName?: string }): Observable<any> {
 		return this.http.post(`${this.apiUrl}/specialties/provider/specialties/step1-select`, payload);
 	}

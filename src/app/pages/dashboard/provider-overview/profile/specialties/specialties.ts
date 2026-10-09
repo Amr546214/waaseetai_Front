@@ -81,6 +81,18 @@ export interface ApiSpecialty {
 	_count?: { providerSpecialties: number };
 }
 
+/** Shape of GET /provider/specialties/recommendations (data). `source` says what the suggestion is really based on. */
+export interface SpecialtyRecommendation {
+	hasRecommendation: boolean;
+	source: 'provider_history' | 'profile' | 'popular' | 'none';
+	reason: string;
+	message: string;
+	categoryId: string | null;
+	categoryName: string | null;
+	specialtyIds: string[];
+	specialtyNames?: string[];
+}
+
 export const SPECIALTY_ID_MISSING_MESSAGE = 'تعذّر تحديد التخصص على الخادم. ارجع للخطوة الأولى واختر التخصص ثم أعد المحاولة.';
 
 @Component({
@@ -197,7 +209,41 @@ export class Specialties implements OnInit, OnDestroy {
 
 	apiCategories = signal<ApiCategory[]>([]);
 
+	/** null = nothing to show (loading, none, or the request failed: the page just shows no suggestion, never an error). */
+	recommendation = signal<SpecialtyRecommendation | null>(null);
+	recommendationLoading = signal<boolean>(true);
+
+	/** Only a recommendation whose category still exists in the loaded catalog can be shown/applied. */
+	visibleRecommendation = computed(() => {
+		const r = this.recommendation();
+		if (!r || !r.hasRecommendation || !r.message || !r.categoryId) return null;
+		return this.apiCategories().some(c => c.id === r.categoryId) ? r : null;
+	});
+
+	private loadRecommendation() {
+		this.specialtyService.getRecommendation().subscribe({
+			next: (res: any) => {
+				this.recommendationLoading.set(false);
+				const d = res?.success ? res.data : null;
+				this.recommendation.set(d && typeof d === 'object' && d.hasRecommendation === true ? d as SpecialtyRecommendation : null);
+			},
+			error: () => { this.recommendationLoading.set(false); this.recommendation.set(null); }
+		});
+	}
+
+	/** Selects the suggested category and its suggested specialties in the page (no save: the provider continues from here). */
+	applyRecommendation() {
+		const r = this.visibleRecommendation();
+		if (!r || !r.categoryId) return;
+		const cat = this.apiCategories().find(c => c.id === r.categoryId);
+		if (!cat) return;
+		this.selectSpec(cat.id);
+		const names = cat.specialties.filter(sp => r.specialtyIds.includes(sp.id)).map(sp => sp.nameAr).slice(0, 5);
+		this.selectedSubs.set(new Set(names));
+	}
+
 	ngOnInit() {
+		this.loadRecommendation();
 		this.specialtyService.getCategories().subscribe({
 			next: (res: any) => {
 				if (res && res.success && res.data) {
