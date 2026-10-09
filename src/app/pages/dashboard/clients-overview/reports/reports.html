@@ -88,6 +88,19 @@
 	<!-- AI summary (real backend result) -->
 	<ws-ai-result-card title="ملخص ذكي لنشاطك" [result]="aiResult()" [loading]="aiLoading()" [requestFailed]="aiRequestFailed()" (retry)="retryAi()"></ws-ai-result-card>
 
+	<!-- A plain statistic from the report's own numbers (not AI): hidden when there is no data -->
+	@if (topAcceptance(); as top) {
+	<div class="state-card ai-insight" data-testid="top-acceptance-stat">
+		<div class="ai-insight-ico">
+			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+		</div>
+		<div class="ai-insight-body">
+			<div class="ai-insight-lbl">إحصاء</div>
+			<div class="ai-insight-txt">أعلى معدل قبول لطلباتك في تخصص «{{ top.specialty }}» بنسبة {{ top.rate }}%، من إجمالي {{ top.total }} طلب في هذا التخصص.</div>
+		</div>
+	</div>
+	}
+
 	<!-- Global Filter Rail -->
 	<div class="filter-rail" role="search" aria-label="فلترة التقارير">
 		<div class="fr-period-lbl">الفترة</div>

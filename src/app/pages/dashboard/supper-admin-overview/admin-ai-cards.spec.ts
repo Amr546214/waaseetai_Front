@@ -28,6 +28,37 @@ function setup(cmp: any, path: string) {
 }
 
 describe('admin AI cards', () => {
+	describe('forecast currency (no SAR/USD fallback shown)', () => {
+		const series = (o: any) => ({ ...ready, series: { currency: 'USD', monthsWithData: 3, inflowTrendBasedOnMonths: 3, inflowNextMonthEstimate: 1500, months: [{ month: '2026-09', inflow: 1200, outflow: 300, inflowChangePercent: null }], ...o } });
+		it('mixed currencies: says "عملات متعددة", no estimate line', () => {
+			const s = setup(ForecastSummaryComponent, 'forecast-summary');
+			s.respond({ success: true, data: series({ mixedCurrencies: true, currenciesSeen: ['USD', 'SAR'], inflowNextMonthEstimate: null, inflowTrendBasedOnMonths: null }) });
+			expect(s.el.querySelector('[data-testid="forecast-mixed-currencies"]')!.textContent).toContain('عملات متعددة');
+			expect(s.el.querySelector('[data-testid="forecast-estimate"]')).toBeNull();
+			expect(s.text()).not.toContain('SAR فقط');
+			s.http.verify();
+		});
+		it('no currency: no currency label is invented', () => {
+			const s = setup(ForecastSummaryComponent, 'forecast-summary');
+			s.respond({ success: true, data: series({ currency: null, months: [], inflowNextMonthEstimate: null }) });
+			expect(s.text()).not.toMatch(/SAR|USD|ر\.س/);
+			s.http.verify();
+		});
+	});
+
+	describe('A2 card states', () => {
+		it('FAILED / NOT_ENOUGH_DATA texts, no confidence, no AI mark unless READY from a real AI source', () => {
+			for (const [data, txt, ai] of [[failedR, 'تعذر تشغيل التحليل حاليًا', false], [empty, 'لا توجد بيانات كافية للتحليل', false], [{ ...ready, source: 'RULES' }, '', false], [ready, 'ملخص حقيقي', true], [{ ...ready, source: 'WASEET_AI' }, 'ملخص حقيقي', true]] as const) {
+				const s = setup(ForecastSummaryComponent, 'forecast-summary');
+				s.respond({ success: true, data: { ...data, confidence: 0.9, score: 80 } });
+				if (txt) expect(s.text()).toContain(txt);
+				expect(s.text()).not.toMatch(/ثقة|confidence|90|80\s*%/);
+				expect(!!s.el.querySelector('ws-ai-result-card circle')).toBe(ai);
+				TestBed.resetTestingModule();
+			}
+		});
+	});
+
 	describe('forecast summary', () => {
 		it('loading then READY: card + data table + simple trend estimate, no confidence %', () => {
 			const s = setup(ForecastSummaryComponent, 'forecast-summary');

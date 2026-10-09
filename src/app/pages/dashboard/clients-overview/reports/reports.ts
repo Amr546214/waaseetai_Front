@@ -135,6 +135,13 @@ export class Reports implements OnInit {
 		return list.slice(start, start + this.pageSize);
 	});
 
+	/** A plain statistic (NOT AI): the specialty with the highest acceptance rate, from the report's own numbers; null when there is no data. */
+	topAcceptance = computed(() => {
+		const rows = this.data()?.orders.acceptanceBySpecialty ?? [];
+		if (!rows.length) return null;
+		return rows.reduce((best, r) => (r.rate > best.rate ? r : best), rows[0]);
+	});
+
 	ordersPageCount = computed(() => Math.max(1, Math.ceil(this.filteredOrders().length / this.pageSize)));
 
 	setOrdersPage(page: number) {
