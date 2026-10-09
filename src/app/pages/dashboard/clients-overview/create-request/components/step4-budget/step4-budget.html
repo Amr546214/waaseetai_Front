@@ -134,17 +134,22 @@
 				</div>
 
 				<div class="flex flex-col gap-3">
-					@for (ms of parent.milestones(); track ms; let idx = $index) {
+					<!-- track by index: the row object is replaced on every keystroke, tracking it would re-create the inputs and drop typing/focus -->
+					@for (ms of parent.milestones(); track idx; let idx = $index) {
+					<div class="flex flex-col gap-1">
 					<div class="flex items-center gap-3">
 						<div class="w-8 h-8 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] flex items-center justify-center font-bold text-sm text-[var(--txt-3)] shrink-0">{{ idx + 1 }}</div>
-						<input type="text" class="flex-1 p-3 bg-[var(--crd-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" [ngModel]="ms.name" (ngModelChange)="parent.updateMilestoneName(idx, $event)" placeholder="اسم المرحلة">
+						<input type="text" class="flex-1 p-3 bg-[var(--crd-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" [class.border-red-500]="parent.milestoneFieldError(idx, 'name')" [ngModel]="ms.name" (ngModelChange)="parent.updateMilestoneName(idx, $event)" (blur)="parent.touchMilestone(idx, 'name')" placeholder="اسم المرحلة" [attr.aria-invalid]="parent.milestoneFieldError(idx, 'name') ? 'true' : null">
 						<div class="relative w-24 shrink-0">
-							<input type="number" class="w-full p-3 pl-8 bg-[var(--crd-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm text-center" [ngModel]="ms.pct" (ngModelChange)="parent.updateMilestonePct(idx, $event ? +$event : null)" min="1" max="100">
+							<input type="number" inputmode="decimal" class="w-full p-3 pl-8 bg-[var(--crd-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm text-center" [class.border-red-500]="parent.milestoneFieldError(idx, 'pct')" [ngModel]="ms.pct" (ngModelChange)="parent.updateMilestonePct(idx, $event === null || $event === '' || $event === undefined ? null : +$event)" (blur)="parent.touchMilestone(idx, 'pct')" [attr.aria-invalid]="parent.milestoneFieldError(idx, 'pct') ? 'true' : null">
 							<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--txt-3)]">%</span>
 						</div>
 						<button type="button" class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center hover:bg-red-500/20 transition-colors shrink-0" (click)="parent.removeMilestone(idx)">
 							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 						</button>
+					</div>
+					@if (parent.milestoneFieldError(idx, 'name'); as err) { <span class="text-[11px] font-bold text-red-500 pr-11" role="alert" data-testid="ms-name-error">{{ err }}</span> }
+					@if (parent.milestoneFieldError(idx, 'pct'); as err) { <span class="text-[11px] font-bold text-red-500 pr-11" role="alert" data-testid="ms-pct-error">{{ err }}</span> }
 					</div>
 					}
 				</div>
