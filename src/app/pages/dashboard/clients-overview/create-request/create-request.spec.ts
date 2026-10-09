@@ -166,17 +166,17 @@ describe('CreateRequest', () => {
       expect(component.canProceed()).toBe(false);
     });
 
-    it('total above 100 (e.g. 110) remains blocked', () => {
+    it('total can never pass 100: 60 then 50 is cut to the 40 that is left', () => {
       component.splitMilestones.set(true);
       component.addMilestone();
       component.addMilestone();
       component.updateMilestoneName(0, 'مرحلة أولى');
       component.updateMilestonePct(0, 60);
       component.updateMilestoneName(1, 'مرحلة ثانية');
-      component.updateMilestonePct(1, 50);
+      expect(component.updateMilestonePct(1, 50)).toBe(40);
 
-      expect(component.milestoneTotalPct).toBe(110);
-      expect(component.canProceed()).toBe(false);
+      expect(component.milestoneTotalPct).toBe(100);
+      expect(component.milestoneCapMessage()).toBe('مجموع النسب لا يمكن أن يتجاوز 100%');
     });
 
     it('an empty milestone name remains blocked even when the total is exactly 100', () => {

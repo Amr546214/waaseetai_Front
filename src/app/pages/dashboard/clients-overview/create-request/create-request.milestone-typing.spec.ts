@@ -66,12 +66,62 @@ describe('create-request: milestone inputs do not block typing', () => {
     expect(c.milestones()[0].pct).toBe(35);
   });
 
-  it('an invalid percentage shows its error after blur, under the field; typing is not blocked', () => {
-    type(inputs()[1], '150');
-    expect(inputs()[1].value).toBe('150');
+  it('an invalid percentage (0) shows its error after blur, under the field; typing is not blocked', () => {
+    type(inputs()[1], '0');
+    expect(inputs()[1].value).toBe('0');
     expect(el().querySelector('[data-testid="ms-pct-error"]')).toBeNull();
     inputs()[1].dispatchEvent(new Event('blur')); render();
     expect(el().querySelector('[data-testid="ms-pct-error"]')!.textContent).toContain('بين 1 و100');
+  });
+
+  it('60 in the first row, then 50 in the second: the second is cut to 40, the total stays 100 and the cap message shows', () => {
+    type(inputs()[1], '60');
+    type(inputs()[3], '50');
+    expect(c.milestones().map(m => m.pct)).toEqual([60, 40]);
+    expect(inputs()[3].value).toBe('40');                      // the field itself shows the kept value
+    expect(c.milestoneTotalPct).toBe(100);
+    expect(el().querySelector('[data-testid="ms-cap-message"]')!.textContent).toContain('مجموع النسب لا يمكن أن يتجاوز 100%');
+  });
+
+  it('pasting 999 / long digits / signs / decimals never lets the total pass 100', () => {
+    type(inputs()[1], '999');
+    expect(c.milestones()[0].pct).toBe(100);
+    expect(c.milestoneTotalPct).toBe(100);
+    type(inputs()[1], '-5.5e3');
+    expect(c.milestones()[0].pct).toBe(100);                   // digits only (553) -> cut to what is left
+  });
+
+  it('clearing a field leaves it empty (not 0); lowering an earlier row frees room for a later one', () => {
+    type(inputs()[1], '70');
+    type(inputs()[3], '30');
+    type(inputs()[3], '');
+    expect(c.milestones()[1].pct).toBeNull();
+    expect(inputs()[3].value).toBe('');
+    type(inputs()[3], '45');
+    expect(c.milestones()[1].pct).toBe(30);                    // only 30 was left
+    type(inputs()[1], '40');                                   // lowering the first row
+    type(inputs()[3], '55');
+    expect(c.milestones().map(m => m.pct)).toEqual([40, 55]);
+    expect(c.milestoneTotalPct).toBe(95);
+  });
+
+  it('the displayed total never exceeds 100 even for a forced state; Add is refused with a message at 100%', () => {
+    c.milestones.set([{ name: 'أ', pct: 80 }, { name: 'ب', pct: 80 }]); render();
+    expect(c.milestoneTotalPct).toBe(100);
+    expect(el().textContent).not.toContain('160%');
+    c.milestones.set([{ name: 'مرحلة أولى', pct: 60 }, { name: 'مرحلة ثانية', pct: 40 }]); render();
+    c.addMilestone(); render();
+    expect(c.milestones().length).toBe(2);
+    expect(el().querySelector('[data-testid="ms-add-blocked"]')!.textContent).toContain('وصل 100%');
+  });
+
+  it('Next stays blocked below 100% or with a short name; allowed at 100% with valid names', () => {
+    c.milestones.set([{ name: 'مرحلة أولى', pct: 60 }, { name: 'مرحلة ثانية', pct: 30 }]);
+    expect(c.canProceed()).toBe(false);
+    c.milestones.set([{ name: 'م', pct: 60 }, { name: 'مرحلة ثانية', pct: 40 }]);
+    expect(c.canProceed()).toBe(false);
+    c.milestones.set([{ name: 'مرحلة أولى', pct: 60 }, { name: 'مرحلة ثانية', pct: 40 }]);
+    expect(c.canProceed()).toBe(true);
   });
 
   it('Add reveals the errors of the invalid rows already there; Next (still clickable on step 4) reveals everything and blocks', () => {
