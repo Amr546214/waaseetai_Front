@@ -701,7 +701,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.setDescription(text); // the reply is used as WaseetAI wrote it, cut to the 2000 limit
     this.showAiSuggest.set(false);
     this.isAiStreaming.set(false);
-    this.showToast('🚀 تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!', 'toast-ok');
+    this.showToast('تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!', 'toast-ok');
   }
 
   dismissAiSuggest() {

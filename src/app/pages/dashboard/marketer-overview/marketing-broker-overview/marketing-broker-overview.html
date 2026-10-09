@@ -1,9 +1,9 @@
 <div class="main-inner">
-    <div class="ai-disclosure" role="region" aria-label="افصاح عن التوصيات">
-      <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+    <div class="ai-disclosure" role="region" aria-label="ملخص الأداء">
+      <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-chart"></use></svg></div>
       <div class="ai-disc-body">
-        <div class="ai-disc-lbl">وسيط AI، توصيات آلية</div>
-        <p class="ai-disc-txt">نحلّل أداء قنواتك ونعرض توصيات آلية مبنية على بيانات إحالاتك الفعلية لمساعدتك على زيادة الإحالات، والقرار النهائي لك</p>
+        <div class="ai-disc-lbl">ملخص لأدائك</div>
+        <p class="ai-disc-txt">أرقام مبنية على بيانات إحالاتك الفعلية لمساعدتك على متابعة أدائك</p>
       </div>
     </div>
 
@@ -46,14 +46,14 @@
         }
       </div>
       <div class="adm-card">
-        <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-ai"></use></svg>رؤى وتوصيات</div>
+        <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-zap"></use></svg>اقتراحات لك</div>
         @if (insights() && insights().length > 0) {
           @for (insight of insights(); track $index) {
-            <div class="ins-row"><div class="ins-ic"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div><div class="ins-txt">{{ insight.text }}</div></div>
+            <div class="ins-row"><div class="ins-ic"><svg aria-hidden="true"><use href="#i-zap"></use></svg></div><div class="ins-txt">{{ insight.text }}</div></div>
           }
         } @else {
           <div class="flex items-center justify-center h-[160px]">
-            <p class="text-sm text-slate-500">جاري جمع البيانات لتقديم توصيات لك...</p>
+            <p class="text-sm text-slate-500">جاري جمع البيانات لتقديم اقتراحات لك...</p>
           </div>
         }
       </div>

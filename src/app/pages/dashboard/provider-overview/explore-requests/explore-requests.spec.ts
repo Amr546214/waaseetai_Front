@@ -104,15 +104,49 @@ describe('ExploreRequests', () => {
 		expect(text).toContain('دون');
 	});
 
-	it('Batch 5: the genuine user-triggered AI analysis still displays its real matchPercent', () => {
+	const open = (res: any) => {
 		const fixture = setup();
 		const component: any = fixture.componentInstance;
 		const api = TestBed.inject(ProviderApiService) as any;
-		api.analyzeProjectWithAi = () => of({ success: true, data: { matchPercent: 76, matchSummary: 'ملخص', winningStrategy: ['خطوة'], suggestedBidPrice: 100, priceRationale: 'x', clientInsights: 'x', riskAssessment: 'x' } });
+		api.analyzeProjectWithAi = () => of(res);
 		component.openAiAnalysis({ id: 'p1', title: 'مشروع', offersCount: 1 });
 		fixture.detectChanges();
-		expect(component.aiAnalysisData().matchPercent).toBe(76);
-		expect((fixture.nativeElement as HTMLElement).textContent).toContain('76%');
+		return { fixture, component, text: (fixture.nativeElement as HTMLElement).textContent || '' };
+	};
+
+	it('project fit: real-shape success renders fit level, summary, matchPoints and gaps with no undefined', () => {
+		const { text } = open({ success: true, data: { generationSource: 'LLM', insufficientData: false, inputsUsed: [], unavailableFields: [], analysis: {
+			overallFit: 'HIGH', summary: 'ملخص حقيقي', matchPoints: [{ text: 'نقطة تطابق', basedOn: ['provider.skills'] }], gaps: [{ text: 'فجوة واحدة', basedOn: ['project.requirements'] }] } } });
+		expect(text).toContain('ملاءمة عالية');
+		expect(text).toContain('ملخص حقيقي');
+		expect(text).toContain('نقطة تطابق');
+		expect(text).toContain('فجوة واحدة');
+		expect(text).not.toContain('undefined');
+		expect(text).not.toContain('null');
+		expect(text).not.toContain('%');
+		expect(text).not.toContain('فرصة قوية');
+		expect(text).not.toContain('استراتيجية الفوز');
+	});
+
+	it('project fit: insufficientData shows the honest empty state with no numbers', () => {
+		const { component, text } = open({ success: true, data: { generationSource: null, insufficientData: true, analysis: null, inputsUsed: [], unavailableFields: [] } });
+		expect(component.aiInsufficient()).toBe(true);
+		expect(component.aiAnalysisData()).toBeNull();
+		expect(text).toContain('لا تتوفر بيانات كافية');
+		expect(text).not.toContain('undefined');
+	});
+
+	it('project fit: error response (503/NOT_CONFIGURED) shows the failure state with retry', () => {
+		const { component, text } = open({ success: false });
+		expect(component.aiUnavailable()).toBe(true);
+		expect(text).toContain('تعذر إجراء التحليل');
+		expect(text).toContain('إعادة المحاولة');
+	});
+
+	it('project fit: malformed success payload is treated as failure, not blanks', () => {
+		const { component, text } = open({ success: true, data: { insufficientData: false, analysis: { overallFit: 'HIGH' } } });
+		expect(component.aiUnavailable()).toBe(true);
+		expect(text).not.toContain('undefined');
 	});
 
 	it('Batch 5: a failed AI analysis shows the honest unavailable state, never a fallback percentage', () => {

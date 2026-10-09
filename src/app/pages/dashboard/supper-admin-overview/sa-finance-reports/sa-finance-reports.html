@@ -26,12 +26,6 @@
       <div class="frp-kpi-sub">هامش 62%</div>
     </div>
     <div class="frp-kpi">
-      <div class="frp-kpi-top"><div class="frp-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="frp-kpi-lbl">توقع Q3 2026</span></div>
-      <div class="frp-kpi-val txt-amber">4.8M</div>
-      <div class="frp-kpi-unit">دولار أمريكي</div>
-      <div class="frp-kpi-sub txt-amber-dk">بثقة 88%</div>
-    </div>
-    <div class="frp-kpi">
       <div class="frp-kpi-top"><div class="frp-kpi-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="frp-kpi-lbl">معدل النمو الشهري</span></div>
       <div class="frp-kpi-val txt-blue">8.4%</div>
       <div class="frp-kpi-unit">متوسط 2026</div>
@@ -126,19 +120,6 @@
     </div>
   }
 
-  @if (activeTab() === 'forecast') {
-    <div class="frp-forecast-grid">
-      @for (f of forecastPoints; track f.label) {
-        <div class="frp-forecast-card">
-          <div class="frp-forecast-card-lbl">{{ f.label }}</div>
-          <div class="frp-forecast-card-val">{{ f.value }}</div>
-          <div class="frp-forecast-card-note">{{ f.note }}</div>
-          <div class="frp-confidence-track"><div class="frp-confidence-fill" [style.width]="f.confidence"></div></div>
-          <div class="frp-confidence-lbl">ثقة النموذج: {{ f.confidence }}</div>
-        </div>
-      }
-    </div>
-  }
 
   <div class="frp-foot">
     <span>© 2026 وسيط AI · التقارير المالية</span>

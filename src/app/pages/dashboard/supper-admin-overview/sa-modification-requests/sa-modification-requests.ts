@@ -209,11 +209,11 @@ export class SaModificationRequests implements OnInit {
       newValue: r.requestedValue,
       timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
       verdictLabel: status === 'ai' ? 'قيد المراجعة'
-        : status === 'human' ? 'نتيجة الفحص الآلي: تمرير للمراجعة'
+        : status === 'human' ? 'تم تأكيد الهوية عبر الرمز وبانتظار مراجعة الفريق'
         : status === 'ok' ? 'اعتمده المراجع'
         : 'مرفوض',
-      verdictText: r.rejectionReason || r.aiRecommendation || 'لا توجد نتيجة فحص بعد',
-      verdictScore: (status === 'rejected' ? 'تعارض' : 'غير متاح'),
+      verdictText: r.rejectionReason || (status === 'ok' ? 'تم تطبيق التعديل بعد اعتماد الفريق' : 'بانتظار مراجعة الفريق'),
+      verdictScore: (status === 'rejected' ? 'تعارض' : ''),
       reviewer: r.reviewedBy || undefined,
       timeline: this.buildTimeline(status),
     };
@@ -242,8 +242,8 @@ export class SaModificationRequests implements OnInit {
       newValue: r.requestedValue,
       timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
       verdictLabel: status === 'human' ? 'بانتظار قرار المراجع' : status === 'ok' ? 'اعتمده المراجع' : 'مرفوض',
-      verdictText: r.rejectionReason || r.aiRecommendation || 'لا توجد نتيجة فحص بعد',
-      verdictScore: status === 'rejected' ? 'تعارض' : 'غير متاح',
+      verdictText: r.rejectionReason || (status === 'ok' ? 'تم تطبيق التعديل بعد اعتماد الفريق' : 'بانتظار مراجعة الفريق'),
+      verdictScore: status === 'rejected' ? 'تعارض' : '',
       timeline: this.buildTimeline(status),
     };
   }

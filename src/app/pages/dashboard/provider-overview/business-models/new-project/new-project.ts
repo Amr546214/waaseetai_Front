@@ -427,7 +427,7 @@ export class NewProject implements OnInit, OnDestroy {
 			return;
 		}
 		this.isAiSuggestingMilestones.set(true);
-		this.showToast('🤖 يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
+		this.showToast('يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
 
 		this.newProjectService.suggestMilestones(this.projectName(), this.projectDesc(), this.totalAmount()).subscribe({
 			next: (res) => {

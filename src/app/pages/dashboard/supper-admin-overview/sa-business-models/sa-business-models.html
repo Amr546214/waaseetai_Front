@@ -20,7 +20,6 @@
     <div class="bm-kpi"><div class="bm-kpi-num txt-amber">{{ countFor('pending') }}</div><div class="bm-kpi-lbl">بانتظار الاعتماد</div></div>
     <div class="bm-kpi"><div class="bm-kpi-num txt-green">{{ countFor('approved') }}</div><div class="bm-kpi-lbl">معتمدة ومنشورة</div></div>
     <div class="bm-kpi"><div class="bm-kpi-num txt-coral">{{ countFor('rejected') }}</div><div class="bm-kpi-lbl">مرفوضة</div></div>
-    <div class="bm-kpi"><div class="bm-kpi-num txt-purple">{{ avgAiScore() }}</div><div class="bm-kpi-lbl">متوسط AI Quality Score</div></div>
   </div>
 
   <div class="bm-filters">
@@ -56,7 +55,6 @@
             <th>التخصص</th>
             <th>النوع</th>
             <th>السعر</th>
-            <th>AI Quality</th>
             <th>تاريخ الرفع</th>
             <th>الحالة</th>
             <th>إجراءات</th>
@@ -75,7 +73,6 @@
               <td><span class="bm-bdg bm-bdg-blue">{{ m.specialty }}</span></td>
               <td class="bm-type">{{ m.type }}</td>
               <td class="bm-price">{{ m.price }}</td>
-              <td><span class="bm-ai-score" [class]="'bm-ai-' + aiTier(m.aiScore)">{{ m.aiScore }}</span></td>
               <td class="bm-date">{{ m.date }}</td>
               <td><span class="bm-status" [class]="'bm-st-' + m.status">
                 @switch (m.status) {

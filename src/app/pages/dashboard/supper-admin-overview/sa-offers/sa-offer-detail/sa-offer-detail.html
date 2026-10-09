@@ -23,7 +23,6 @@
         <div class="of-tags">
           <span class="of-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
           <span class="of-spec">{{ d.spec }}</span>
-          <span class="of-ai-score-tag">AI Score: {{ d.aiScore }}/100</span>
         </div>
       </div>
 
@@ -89,15 +88,6 @@
             }
             <div class="of-mkt-note">{{ d.marketNote }}</div>
           </div>
-
-          <div class="of-ai-card">
-            <div class="of-ai-card-ttl">تحليل AI للعرض</div>
-            <div class="of-ai-card-body">
-              @for (p of d.aiAnalysisPoints; track p) {
-                <div>{{ p }}</div>
-              }
-            </div>
-          </div>
         </div>
 
         <div class="of-md-side">
@@ -111,7 +101,6 @@
             @if (d.acceptedDate) {
               <div class="of-info-row"><span class="of-info-lbl">تاريخ القبول</span><span class="of-info-val">{{ d.acceptedDate }}</span></div>
             }
-            <div class="of-info-row"><span class="of-info-lbl">AI Score</span><span class="of-info-val">{{ d.aiScore }}/100</span></div>
             <div class="of-info-row">
               <span class="of-info-lbl">الطلب المرتبط</span>
               <a class="of-info-val of-info-link" [routerLink]="['/supper-admin-overview/requests']">{{ d.linkedRequestId }}</a>

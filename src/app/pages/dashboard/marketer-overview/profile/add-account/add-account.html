@@ -1,9 +1,9 @@
 <div class="w-full relative z-10 pb-10">
 
-  <!-- AI Disclosure -->
+  <!-- Info -->
   <div *ngIf="!isSuccess()" class="flex items-center gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-2xl mb-6">
     <div class="w-8 h-8 rounded-xl bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0">
-      <svg class="w-4 h-4 text-[#7B2FBE]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+      <svg class="w-4 h-4 text-[#7B2FBE]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
     </div>
     <div class="flex-1">
       <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-0.5">وسيط، المدفوعات عبر PayPal</div>
@@ -270,11 +270,11 @@
         
         <div class="flex items-start gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.08)] to-[rgba(43,127,255,.05)] border border-[rgba(123,47,190,.18)] rounded-xl mt-4">
           <div class="w-7 h-7 rounded-lg bg-[rgba(123,47,190,.14)] flex items-center justify-center shrink-0 text-[#7B2FBE]">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
           </div>
           <div>
-            <div class="text-xs font-extrabold text-[#A56BE0] mb-0.5">اختبار أهلية بالذكاء الاصطناعي</div>
-            <div class="text-xs text-[var(--txt-3)] leading-relaxed">بعد إرسال الطلب، قد يطلب الذكاء سؤالاً قصيراً للتحقق من خبرتك في تخصصك — الإجابة تستغرق أقل من دقيقة</div>
+            <div class="text-xs font-extrabold text-[#A56BE0] mb-0.5">مراجعة الأهلية</div>
+            <div class="text-xs text-[var(--txt-3)] leading-relaxed">بعد إرسال الطلب يراجع فريقنا أهليتك وخبرتك في تخصصك، وقد نتواصل معك إن احتجنا لمعلومات إضافية</div>
           </div>
         </div>
       </div>
@@ -363,7 +363,7 @@
     <div *ngIf="flow()[stepIdx()]?.id === 'panel-review'" class="wz-panel show">
       <div class="mb-5">
         <h3 class="text-lg font-black text-[var(--txt)] mb-1">مراجعة وإرسال الطلب</h3>
-        <p class="text-[13px] text-[var(--txt-3)]">تحقق من البيانات قبل الإرسال — يراجعه الذكاء ثم مراجع بشري</p>
+        <p class="text-[13px] text-[var(--txt-3)]">تحقق من البيانات قبل الإرسال — يراجعه فريق وسيط قبل التفعيل</p>
       </div>
       <div class="form-card">
         <div class="flex items-center gap-3 mb-4 pb-4 border-b border-[var(--sec-bd)]">
@@ -389,7 +389,7 @@
       
       <div class="flex items-start gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.08)] to-[rgba(43,127,255,.05)] border border-[rgba(123,47,190,.18)] rounded-xl mt-4">
         <div class="w-7 h-7 rounded-lg bg-[rgba(123,47,190,.14)] flex items-center justify-center shrink-0 text-[#7B2FBE]">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
         </div>
         <div>
           <div class="text-xs font-extrabold text-[#A56BE0] mb-0.5">آلية المراجعة والتفعيل</div>

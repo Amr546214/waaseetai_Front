@@ -77,11 +77,6 @@ export class SaQuality {
     { stars: '2★', pair: 'أحمد الزهراني ← شركة الخليج', text: '"خدمة سيئة" — بدون تفاصيل، مشبوه' },
   ]);
 
-  readonly sentiment = [
-    { value: '72%', label: 'إيجابي', color: '#0FA99A', bg: 'rgba(15,169,154,.08)' },
-    { value: '16%', label: 'محايد', color: '#A8B2D1', bg: 'rgba(255,255,255,.03)' },
-    { value: '12%', label: 'سلبي', color: '#FF8C69', bg: 'rgba(255,107,107,.06)' },
-  ];
 
   toast = signal<string>('');
 

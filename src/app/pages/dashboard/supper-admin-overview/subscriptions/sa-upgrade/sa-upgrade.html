@@ -2,7 +2,7 @@
   <div class="page-hdr">
     <div>
       <h1 class="page-ttl">ترقية الاشتراك</h1>
-      <p class="page-sub">طلبات الترقية من الباقات المجانية والأدنى — AI يتوقع أفضل وقت للترقية</p>
+      <p class="page-sub">طلبات الترقية من الباقات المجانية والأدنى</p>
     </div>
     <button type="button" class="btn btn-primary">تصدير</button>
   </div>
@@ -40,7 +40,7 @@
       <table class="data-tbl">
         <thead>
           <tr>
-            <th>المستخدم</th><th>من الباقة</th><th>إلى الباقة</th><th>الفرق الشهري</th><th>احتمال AI</th><th>التاريخ</th><th>الحالة</th>
+            <th>المستخدم</th><th>من الباقة</th><th>إلى الباقة</th><th>الفرق الشهري</th><th>التاريخ</th><th>الحالة</th>
           </tr>
         </thead>
         <tbody>
@@ -50,17 +50,11 @@
               <td><span class="bdg" [style.background]="r.from.color + '1a'" [style.color]="r.from.color">{{ r.from.name }}</span></td>
               <td><span class="bdg" [style.background]="r.to.color + '1a'" [style.color]="r.to.color">{{ r.to.name }}</span></td>
               <td class="cell-diff">{{ r.diff }}</td>
-              <td>
-                <div class="prob-cell">
-                  <div class="prob-bar"><div class="prob-fill" [style.width.%]="r.probability" [style.background]="r.probColor"></div></div>
-                  <span class="prob-val" [style.color]="r.probColor">{{ r.probability }}%</span>
-                </div>
-              </td>
               <td class="cell-muted">{{ r.date }}</td>
               <td><span class="bdg" [style.background]="statusColors[r.status] + '1a'" [style.color]="statusColors[r.status]">{{ statusLabels[r.status] }}</span></td>
             </tr>
           } @empty {
-            <tr><td colspan="7" class="empty-cell">لا توجد طلبات في هذا التصنيف</td></tr>
+            <tr><td colspan="6" class="empty-cell">لا توجد طلبات في هذا التصنيف</td></tr>
           }
         </tbody>
       </table>

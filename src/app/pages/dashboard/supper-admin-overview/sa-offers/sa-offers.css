@@ -10,7 +10,7 @@
 .of-ai-txt{font-size:13px;color:#A8B2D1;margin:0}
 .of-ai-badge{background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.28);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:#A56BE0}
 
-.of-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.of-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
 .of-kpi{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
 .of-kpi-lbl{font-size:11px;color:#6B7699;font-weight:600}
 .of-kpi-val{font-size:24px;font-weight:900;line-height:1}

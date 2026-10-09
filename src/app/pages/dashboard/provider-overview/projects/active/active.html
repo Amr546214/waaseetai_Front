@@ -2,23 +2,22 @@
   <symbol id="pa-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
   <symbol id="pa-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4.5" y="11" width="15" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
   <symbol id="pa-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></symbol>
-  <symbol id="pa-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></symbol>
   <symbol id="pa-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
   <symbol id="pa-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
 </defs></svg>
 
 <div class="ord-head"><div><div class="ord-title">{{ isCompanyMode() ? 'مشاريع الشركة النشطة' : 'مشاريعي النشطة' }}</div><div class="ord-sub">{{ isCompanyMode() ? 'نظرة عامة على مشاريع فريقك الجارية وحالة كل منها' : 'نظرة عامة على كل مشاريعك الجارية وحالة كل منها' }}</div></div></div>
 
-<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
-  <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#pa-ai"></use></svg></div>
-  <div class="ai-disc-body"><div class="ai-disc-lbl">وسيط، متابعة المشاريع</div><p class="ai-disc-txt">تُتابَع مشاريعك تلقائياً ويُبرز لك ما يحتاج إجراءً منك (رفع تسليم أو رد على تعليقات العميل)</p></div>
+<div class="ai-disclosure" role="region" aria-label="متابعة المشاريع">
+  <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
+  <div class="ai-disc-body"><div class="ai-disc-lbl">وسيط، متابعة المشاريع</div><p class="ai-disc-txt">تُعرض مشاريعك مرتبةً ويُبرز لك ما يحتاج إجراءً منك (رفع تسليم أو رد على تعليقات العميل)</p></div>
 </div>
 
 <div class="pl-kpis">
   <div class="pl-kpi"><div class="ic pl-ic-teal"><svg><use href="#pa-list"></use></svg></div><div class="v">{{counts().all}}</div><div class="l">مشاريع نشطة</div></div>
   <div class="pl-kpi"><div class="ic pl-ic-blue"><svg><use href="#pa-lock"></use></svg></div><div class="v">{{counts().totalEscrowFormatted}}</div><div class="l">محتجز بالضمان $</div></div>
   <div class="pl-kpi"><div class="ic pl-ic-amber"><svg><use href="#pa-clock"></use></svg></div><div class="v">{{counts().wait}}</div><div class="l">بانتظار رد العميل</div></div>
-  <div class="pl-kpi"><div class="ic pl-ic-ai"><svg><use href="#pa-ai"></use></svg></div><div class="v">{{counts().healthStatus}}</div><div class="l">الحالة العامة</div></div>
+  <div class="pl-kpi"><div class="ic pl-ic-ai"><svg><use href="#i-shield"></use></svg></div><div class="v">{{counts().healthStatus}}</div><div class="l">الحالة العامة</div></div>
 </div>
 
 @if (isCompanyMode()) {

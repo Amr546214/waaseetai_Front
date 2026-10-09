@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit' | 'forecast';
+type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit';
 
 interface MonthComparison {
   label: string;
@@ -31,7 +31,6 @@ export class SaSubFinanceReports {
     { key: 'revenue', label: 'الإيرادات' },
     { key: 'expenses', label: 'المصروفات' },
     { key: 'profit', label: 'الأرباح' },
-    { key: 'forecast', label: 'التوقعات' },
   ];
 
   readonly months: MonthComparison[] = [

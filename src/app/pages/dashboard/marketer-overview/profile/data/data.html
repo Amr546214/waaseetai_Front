@@ -22,16 +22,6 @@
 
 	<app-marketer-kyc-card />
 
-	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي" style="margin-top:20px">
-		<div class="ai-disc-ico"><svg aria-hidden="true">
-				<use href="#i-ai"></use>
-			</svg></div>
-		<div class="ai-disc-body">
-			<div class="ai-disc-lbl">وسيط AI، توصيات آلية</div>
-			<p class="ai-disc-txt">نحلّل أداء قنواتك ونعرض توصيات آلية مبنية على بيانات إحالاتك الفعلية لمساعدتك على زيادة الإحالات، والقرار النهائي لك</p>
-		</div>
-	</div>
-
 	<div class="tier-legend" role="note">
 		<span class="tier-legend-title">نوعا التعديل</span>
 		<div class="tier-legend-item"><span class="tlp tlp-free"><svg aria-hidden="true">
@@ -536,10 +526,6 @@
 				<label
 					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
 					عند الترقية لمستوى جديد<input type="checkbox" [(ngModel)]="alertPreferences.marketer_tier_upgrade"
-						style="accent-color:#2BD4C7" class="txt-teal"></label>
-				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيهات
-					تسويقية ونصائح AI<input type="checkbox" [(ngModel)]="alertPreferences.marketer_ai_tips"
 						style="accent-color:#2BD4C7" class="txt-teal"></label>
 			</div>
 			<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSavingAlerts()" (click)="saveAlertPreferences()">{{ isSavingAlerts() ? 'جارٍ الحفظ...' : 'حفظ الإعدادات' }}</button></div>

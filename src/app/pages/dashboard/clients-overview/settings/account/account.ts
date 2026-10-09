@@ -196,7 +196,6 @@ export class Account {
   dateFormat = signal<string>('هجري وميلادي');
 
   showProfile = signal<boolean>(true);
-  shareData = signal<boolean>(true);
 
   manageDevices() {
     this.showToast('عرض الأجهزة النشطة وإنهاء الجلسات');

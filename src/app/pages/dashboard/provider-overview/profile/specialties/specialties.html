@@ -129,7 +129,7 @@
 			<div class="text-sm font-extrabold text-white mb-1.5 flex items-center gap-2">
 				<svg class="w-3.5 h-3.5 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="1.8">
-					<circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /><circle cx="12" cy="3" r="1.5" /><circle cx="12" cy="21" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
+					<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>
 				</svg>
 				{{ selectedSpecId() === 'other' ? 'اقتراح تخصص' : 'التخصصات الفرعية' }}
 				<span *ngIf="selectedSpecId() !== 'other'"
@@ -161,7 +161,7 @@
 		<div class="mb-5">
 			<div class="text-2xl font-black text-white tracking-tight">رفع نماذج الأعمال للتخصصات الفرعية</div>
 			<div class="text-xs text-[var(--txt-3)] mt-1 font-medium">أضف نماذج أعمالك لكل تخصص فرعي اخترته مع وثائق
-				إثبات الملكية السرية للمراجعة من قبل محرك الذكاء</div>
+				إثبات الملكية السرية للمراجعة من قبل الإدارة</div>
 		</div>
 
 		<div
@@ -170,16 +170,15 @@
 				class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white shadow-md shadow-purple-500/20">
 				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7B2FBE" stroke-width="1.8"
 					stroke-linecap="round" stroke-linejoin="round">
-					<use href="#i-ai"></use>
+					<use href="#i-shield"></use>
 				</svg>
 			</div>
 			<div class="flex-1">
 				<div class="flex items-center gap-2 mb-1">
-					<span class="text-xs font-black text-white tracking-wider">وسيط AI — فحص الملكية والأصالة</span>
+					<span class="text-xs font-black text-white tracking-wider">مراجعة الملكية والأصالة</span>
  
 				</div>
-				<p class="text-xs text-[var(--txt-3)] leading-relaxed">الذكاء الاصطناعي يراجع وثائق الإثبات للتحقق من
-					ملكية الأعمال وأصالتها قبل نشرها في السوق. الوثائق تظل سرية ومحجوبة عن العامة والقرار النهائي لإدارة
+				<p class="text-xs text-[var(--txt-3)] leading-relaxed">تراجع الإدارة وثائق الإثبات للتحقق من ملكية الأعمال وأصالتها قبل نشرها في السوق. الوثائق تظل سرية ومحجوبة عن العامة والقرار النهائي لإدارة
 					المنصة.</p>
 			</div>
 		</div>
@@ -203,7 +202,7 @@
 					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
 				</svg>
 				<span class="text-xs font-extrabold text-[#A56BE0]">وثيقة الإثبات</span>
-				<span class="text-[11px] text-[var(--txt-3)] font-medium">للمراجعة من الذكاء والإدارة فقط — تثبت ملكيتك
+				<span class="text-[11px] text-[var(--txt-3)] font-medium">للمراجعة من الإدارة فقط — تثبت ملكيتك
 					الحصرية للعمل</span>
 			</div>
 		</div>
@@ -255,7 +254,7 @@
 							stroke-width="3">
 							<polyline points="20 6 9 17 4 12" />
 						</svg>
-						جاهز للتدقيق الذكي
+						جاهز للمراجعة
 					</div>
 				</div>
 
@@ -269,7 +268,7 @@
 								<div class="flex items-center justify-between gap-3 mb-4">
 									<div>
 										<div class="text-sm font-black sample-card-text">بيانات نموذج العمل</div>
-										<div class="text-[11px] text-[var(--txt-3)] mt-1">كلما كانت المعلومات دقيقة، كان تحليل الذكاء الاصطناعي أفضل</div>
+										<div class="text-[11px] text-[var(--txt-3)] mt-1">كلما كانت المعلومات دقيقة، كانت مراجعة الإدارة أسرع</div>
 									</div>
 									<span class="px-2.5 py-1 rounded-full bg-[rgba(165,107,224,.12)] border border-[rgba(165,107,224,.28)] text-[10px] font-black text-[#A56BE0]">معلومات مطلوبة</span>
 								</div>
@@ -951,8 +950,7 @@
 								<line x1="12" y1="8" x2="12.01" y2="8" />
 							</svg>
 							<div><span class="font-extrabold text-[#5DA0FF] block mb-1">التعليل الفني ومعيار الممارسة
-									المهنية:</span> {{ item.explanation || 'تم اعتماد هذه الإجابة وفق أحدث المقاييس
-								الهندسية وأطر الحوكمة في Waseet AI.' }}</div>
+									المهنية:</span> {{ item.explanation || 'لا يتوفر تعليل فني لهذه الإجابة.' }}</div>
 						</div>
 					</div>
 				</div>
@@ -1013,7 +1011,7 @@
 					<div>
 						<div class="text-sm font-black text-white flex items-center gap-2">
 							<span class="tracking-wide">{{ usingStaticFallbackQuestions()
-								? '⚡ عرض نموذج تقييم قياسي بديل (تعذر الاتصال بمحرك الذكاء الاصطناعي)...'
+								? '⚡ عرض نموذج تقييم قياسي بديل...'
 								: '⚡ بث أسئلة الذكاء الاصطناعي عبر الـ WebSocket المباشر...' }}</span>
 							<span
 								class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#2BD4C7] text-[#070D24] font-black shadow-sm">{{

@@ -259,9 +259,9 @@
                 </div>
                 <div class="pc-body">
                   @if (mode() === 'top-rated' && slot.rank === 1) {
-                    <div class="pc-ai gold"><svg aria-hidden="true" style="color:var(--kahr)"><use href="#ws-trust-ai"></use></svg> جودة AI {{ slot.model.aiScore }}</div>
+                    @if (slot.model.aiScore != null && slot.model.aiScore > 0) { <div class="pc-ai gold"><svg aria-hidden="true" style="color:var(--kahr)"><use href="#ws-trust-ai"></use></svg> جودة AI {{ slot.model.aiScore }}</div> }
                   } @else {
-                    <div class="pc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ slot.model.aiScore }}</div>
+                    @if (slot.model.aiScore != null && slot.model.aiScore > 0) { <div class="pc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ slot.model.aiScore }}</div> }
                   }
                   <div class="pc-title">{{ slot.model.title }}</div>
                   <div class="pc-prov">
@@ -327,7 +327,7 @@
                   <div class="fc-badge"><svg aria-hidden="true"><use href="#ws-shield"></use></svg> مميزة</div>
                 </div>
                 <div class="fc-body">
-                  <div class="fc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
+                  @if (m.aiScore != null && m.aiScore > 0) { <div class="fc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
                   <div class="fc-title">{{ m.title }}</div>
                   <div class="fc-prov">
                     <div class="fc-av">{{ m.provider.initials }}</div>
@@ -381,7 +381,7 @@
                 <div class="discount-badge">٪{{ m.discountPercentage }} خصم</div>
               </div>
               <div class="deal-body">
-                <div class="deal-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
+                @if (m.aiScore != null && m.aiScore > 0) { <div class="deal-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
                 <div class="deal-title">{{ m.title }}</div>
                 <div class="deal-prov">
                   <div class="deal-av">{{ m.provider.initials }}</div>
@@ -489,7 +489,7 @@
                         }
                       </div>
                       <div class="svc-body">
-                        <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
+                        @if (m.aiScore != null && m.aiScore > 0) { <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
                         <div class="svc-title">{{ m.title }}</div>
                         <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><div class="svc-prov-info-wrap"><span class="svc-pname">{{ m.provider.name }}</span>@if (m.isVerified) {<span class="svc-verified">✓ معتمد</span>}</div></div>
                         <div class="svc-rating"><span class="stars">{{ starText(m.rating) }}</span><span class="score">{{ m.rating }}</span><span>({{ m.reviewsCount || 0 }})</span></div>
@@ -542,7 +542,7 @@
                       <div class="svc-disc">٪{{ m.discountPercentage }} خصم</div>
                     </div>
                     <div class="svc-body">
-                      <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
+                      @if (m.aiScore != null && m.aiScore > 0) { <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
                       <div class="svc-title">{{ m.title }}</div>
                       <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><span>{{ m.provider.name }}</span>@if (m.isVerified) {<span style="font-size:9px;color:var(--teal);display:flex;align-items:center;gap:2px"><svg aria-hidden="true" style="width:8px;height:8px"><use href="#ws-check"></use></svg> معتمد</span>}</div>
                       @if (offerCountdown(m); as cd) {
@@ -576,7 +576,7 @@
                     <div class="svc-body">
                       <div class="svc-top">
                         @if (mode() !== 'featured') { <span class="svc-rank-badge">#{{ i + rankOffset() }}</span> }
-                        <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
+                        @if (m.aiScore != null && m.aiScore > 0) { <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
                       </div>
                       <div class="svc-title">{{ m.title }}</div>
                       <div class="svc-prov">
@@ -615,7 +615,7 @@
                   <div class="list-main">
                     <div class="list-meta">
                       <span class="svc-rank-badge">#{{ i + rankOffset() }}</span>
-                      <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div>
+                      @if (m.aiScore != null && m.aiScore > 0) { <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
                     </div>
                     <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px">{{ m.title }}</div>
                     <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><div><div class="svc-pname">{{ m.provider.name }}</div>@if (m.isVerified) {<div class="svc-v"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div>}</div></div>

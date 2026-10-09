@@ -23,7 +23,7 @@
 	<div class="cml-kpi-row">
 		<div class="cml-kpi-c"><div class="v">{{ stats().totalModels }}</div><div class="l">نماذج الشركة</div></div>
 		<div class="cml-kpi-c"><div class="v">{{ stats().viewsThisMonth | number }}</div><div class="l">مشاهدة هذا الشهر</div></div>
-		<div class="cml-kpi-c"><div class="v">{{ stats().avgAiScore }}<span class="unit">/100</span></div><div class="l">متوسط تقييم AI</div></div>
+		<div class="cml-kpi-c"><div class="v">{{ stats().avgAiScore > 0 ? stats().avgAiScore : '—' }}@if (stats().avgAiScore > 0) {<span class="unit">/100</span>}</div><div class="l">متوسط تقييم AI</div></div>
 		<div class="cml-kpi-c"><div class="v">{{ stats().offersGenerated }}</div><div class="l">عروض مولَّدة</div><div class="s">{{ stats().offersAccepted }} قُبلت</div></div>
 	</div>
 
@@ -80,7 +80,9 @@
 					<path d="M3 9h18M9 21V9" />
 				</svg>
 				<span class="cml-card-status" [class.hidden-status]="statusBadge(m).cls === 'hidden-status'" [class.review-status]="statusBadge(m).cls === 'review-status'" data-testid="model-status">{{ statusBadge(m).text }}</span>
+				@if (m.aiScore != null && m.aiScore > 0) {
 				<span class="cml-card-score">{{ m.aiScore }}</span>
+				}
 			</div>
 			<div class="cml-card-body">
 				<div class="cml-card-name">{{ m.title }}</div>

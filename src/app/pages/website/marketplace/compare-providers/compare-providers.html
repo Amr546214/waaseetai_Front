@@ -76,9 +76,11 @@
               @if (pr.isVerified) {
                 <div class="prov-verified"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد من وسيط</div>
               }
+              @if (pr.aiScore != null && pr.aiScore > 0) {
               <div class="prov-ai-row">
                 <div class="prov-ai-score" [class.winner-ai]="isWinner"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> تقييم التخصص {{ pr.aiScore }}</div>
               </div>
+              }
             </div>
             <div class="prov-body">
               <div class="prov-rating-row">

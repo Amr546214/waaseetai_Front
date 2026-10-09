@@ -375,7 +375,6 @@ export class Account implements OnInit {
   dateFormat = signal<string>('هجري وميلادي');
 
   showProfile = signal<boolean>(true);
-  shareData = signal<boolean>(true);
 
   // --- Real authenticated password change (PUT .../password) ---
   passwordFormVisible = signal(false);

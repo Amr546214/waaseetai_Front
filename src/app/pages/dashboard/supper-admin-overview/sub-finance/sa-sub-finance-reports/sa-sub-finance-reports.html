@@ -2,7 +2,7 @@
   <div class="frp-hdr">
     <div>
       <h1 class="frp-ttl">التقارير المالية</h1>
-      <p class="frp-sub">تحليلات مالية شاملة مع توقعات AI للأداء المالي المستقبلي</p>
+      <p class="frp-sub">تحليلات مالية شاملة للإيرادات والمصروفات والأرباح</p>
     </div>
     <div class="frp-actions">
       <button type="button" class="frp-btn frp-btn-ghost" (click)="exportExcel()">
@@ -34,12 +34,6 @@
       <div class="frp-kpi-val txt-green">9.2M</div>
       <div class="frp-kpi-unit">دولار أمريكي</div>
       <div class="frp-kpi-sub txt-muted">هامش 62%</div>
-    </div>
-    <div class="frp-kpi-card">
-      <div class="frp-kpi-top"><div class="frp-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="frp-kpi-lbl">توقع Q3 2026</span></div>
-      <div class="frp-kpi-val txt-amber">4.8M</div>
-      <div class="frp-kpi-unit">دولار أمريكي</div>
-      <div class="frp-kpi-sub txt-amber-dk">بثقة 88%</div>
     </div>
     <div class="frp-kpi-card">
       <div class="frp-kpi-top"><div class="frp-kpi-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="frp-kpi-lbl">معدل النمو الشهري</span></div>
@@ -81,11 +75,6 @@
             <div class="frp-donut-val" [style.color]="d.color">{{ d.percent }}%</div>
           </div>
         }
-      </div>
-      <div class="frp-forecast-box">
-        <div class="frp-forecast-lbl">توقع AI — أغسطس 2026</div>
-        <div class="frp-forecast-val">2.14M $</div>
-        <div class="frp-forecast-sub">+8.4% عن يوليو</div>
       </div>
     </div>
   </div>
