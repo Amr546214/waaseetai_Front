@@ -15,7 +15,7 @@ export class Reports implements OnInit {
   private providerApi = inject(ProviderApiService);
 
   /** Real provider statistics (GET /provider/statistics) — the only source behind this page's KPI cards. */
-  stats = signal<{ summary?: { monthlyEarnings?: number; humanRating?: number } } | null>(null);
+  stats = signal<{ summary?: { monthlyEarnings?: number; humanRating?: number | null } } | null>(null);
 
   /** Real provider reports (GET /provider/reports) for the selected range. */
   reports = signal<ProviderReports | null>(null);

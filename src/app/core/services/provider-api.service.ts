@@ -60,8 +60,8 @@ export interface ProviderStatsResponse {
 			availableEarnings: number;
 			monthlyEarnings: number;
 			totalEscrowAmount: number;
-			providerRating: number;
-			humanRating: number;
+			providerRating: number | null;
+			humanRating: number | null;
 			aiRating: number | null;
 			profileCompletionPercent: number;
 			profileSetupCompleted: boolean;
