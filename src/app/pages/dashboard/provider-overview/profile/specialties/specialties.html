@@ -57,23 +57,19 @@
 	</div>
 
 	<ng-container *ngIf="currentStep() === 1">
-		<!-- AI BANNER -->
-		<div
-			class="flex items-center gap-3 p-4 bg-gradient-to-br from-[rgba(123,47,190,.12)] to-[rgba(43,127,255,.07)] border border-[rgba(123,47,190,.25)] rounded-xl mb-5">
-			<div class="w-9 h-9 rounded-lg bg-[rgba(123,47,190,.18)] flex items-center justify-center shrink-0">
-				<svg class="w-4 h-4 text-[#A56BE0]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-					stroke-width="1.8">
-					<circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" /><circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /><circle cx="12" cy="3" r="1.5" /><circle cx="12" cy="21" r="1.5" /><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
-				</svg>
+		<!-- Specialty suggestion: real data only (the backend says what it is based on); hidden when there is none or the request failed -->
+		<div *ngIf="recommendationLoading()" class="h-[68px] rounded-xl mb-5 bg-[rgba(255,255,255,.04)] animate-pulse" data-testid="rec-loading" aria-hidden="true"></div>
+		<div *ngIf="visibleRecommendation() as rec" data-testid="rec-banner"
+			class="flex items-center gap-3 p-4 bg-gradient-to-br from-[rgba(43,212,199,.10)] to-[rgba(43,127,255,.06)] border border-[rgba(43,212,199,.25)] rounded-xl mb-5">
+			<div class="w-9 h-9 rounded-lg bg-[rgba(43,212,199,.16)] flex items-center justify-center shrink-0 text-[#2BD4C7]" aria-hidden="true">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>
 			</div>
 			<div class="flex-1">
-				<div class="text-sm font-extrabold text-white mb-1">اقتراح AI </div>
-				<div class="text-xs text-[var(--txt-3)]">بناء على طلباتك السابقة، هل تحتاج خدمة تطوير ويب أو تطبيقات
-					مجددا؟</div>
+				<div class="text-sm font-extrabold text-white mb-1">اقتراح لك</div>
+				<div class="text-xs text-[var(--txt-3)]" data-testid="rec-message">{{ rec.message }}</div>
 			</div>
-			<button type="button"
-				class="px-4 py-2 bg-[rgba(123,47,190,.16)] border border-[rgba(123,47,190,.30)] rounded-full text-xs font-bold text-[#A56BE0] hover:bg-[rgba(123,47,190,.26)] transition-colors shrink-0 whitespace-nowrap">طبق
-				الاقتراح</button>
+			<button type="button" data-testid="rec-apply" (click)="applyRecommendation()"
+				class="px-4 py-2 bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.30)] rounded-full text-xs font-bold text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors shrink-0 whitespace-nowrap">طبّق الاقتراح</button>
 		</div>
 
 		<!-- SEARCH -->
