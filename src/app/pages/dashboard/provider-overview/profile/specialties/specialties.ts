@@ -95,6 +95,19 @@ export interface SpecialtyRecommendation {
 
 export const SPECIALTY_ID_MISSING_MESSAGE = 'تعذّر تحديد التخصص على الخادم. ارجع للخطوة الأولى واختر التخصص ثم أعد المحاولة.';
 
+export interface PortfolioReviewItem { text: string; basedOn: string[] }
+/** Backend AiResult of the specialty portfolio review. Only READY from GEMINI/WASEET_AI is a real AI result. */
+export interface PortfolioReview {
+	status: 'READY' | 'NOT_ENOUGH_DATA' | 'FAILED' | 'PENDING';
+	source: 'GEMINI' | 'WASEET_AI' | 'RULES' | 'NONE';
+	score: number | null;
+	summary: string | null;
+	generatedAt: string | null;
+	details: { strengths: PortfolioReviewItem[]; warnings: PortfolioReviewItem[]; recommendations: PortfolioReviewItem[] } | null;
+	unavailableReason: 'NOT_CONFIGURED' | 'ERROR' | null;
+	samplesCount: number;
+}
+
 @Component({
 	selector: 'app-profile-specialties',
 	standalone: true,
@@ -115,10 +128,14 @@ export class Specialties implements OnInit, OnDestroy {
 
 	streamingPlaceholders = [1, 2, 3];
 	providerSpecialtyId = signal<string | null>(null);
-	aiFeedback = signal<AiEvaluationFeedback | null>(null);
-	// Honest failure state — set when the real AI evaluation fails or returns
-	// no data. Never paired with a fabricated aiFeedback value.
-	aiEvaluationUnavailable = signal<boolean>(false);
+	// Advisory AI review of the portfolio samples (step 3). Only a real backend result is ever shown; it never decides the specialty's status.
+	portfolioReview = signal<PortfolioReview | null>(null);
+	portfolioReviewLoading = signal<boolean>(false);
+	portfolioReviewFailed = signal<boolean>(false);
+	/** The "مراجعة بالذكاء الاصطناعي" button exists only when there are samples to review. */
+	hasReviewableSamples = computed(() => this.samples().length > 0);
+	/** Failed because the AI service is switched off on the server: asking again cannot help, so no retry is offered. */
+	portfolioReviewRetryable = computed(() => !(this.portfolioReview()?.unavailableReason === 'NOT_CONFIGURED'));
 
 	// Real-Time Quiz Signals & Streaming State
 	quizSessionId = signal<string | null>(null);
@@ -652,8 +669,7 @@ export class Specialties implements OnInit, OnDestroy {
 		this.isSubmittingSamples.set(false);
 		this.stepError.set(null);
 		this.currentStep.set(3);
-		this.isAnalyzing.set(true);
-		this.simulateAnalysis();
+		this.loadPortfolioReview();
 	}
 
 	getSamplesForSub(sub: string): WorkSampleForm[] {
@@ -832,50 +848,30 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	// Step 3 AI Review Engine
-	isAnalyzing = signal<boolean>(true);
-
-	simulateAnalysis() {
-		this.isAnalyzing.set(true);
-		this.aiEvaluationUnavailable.set(false);
-		this.aiFeedback.set(null);
+	/** Loads the latest stored review (no model call). */
+	loadPortfolioReview(): void {
 		const id = this.providerSpecialtyId();
-		if (!id) { this.isAnalyzing.set(false); this.aiEvaluationUnavailable.set(true); return; }
+		this.portfolioReview.set(null); this.portfolioReviewFailed.set(false);
+		if (!id) return;
+		this.portfolioReviewLoading.set(true);
+		this.specialtyService.getAiEvaluation(id).subscribe({
+			next: (res: any) => { this.portfolioReviewLoading.set(false); this.portfolioReview.set(res?.success && res.data?.status ? res.data as PortfolioReview : null); },
+			error: () => { this.portfolioReviewLoading.set(false); }
+		});
+	}
 
+	/** Asks the backend for a (new) review of the samples. A failure keeps the page working and shows an honest state. */
+	requestPortfolioReview(): void {
+		const id = this.providerSpecialtyId();
+		if (!id || this.portfolioReviewLoading() || !this.hasReviewableSamples()) return;
+		this.portfolioReviewLoading.set(true); this.portfolioReviewFailed.set(false);
 		this.specialtyService.aiEvaluate(id).subscribe({
 			next: (res: any) => {
-				const scores = res?.data?.scores;
-				const hasRealScores = scores
-					&& typeof scores.aiScore === 'number'
-					&& typeof scores.feasibilityScore === 'number'
-					&& typeof scores.clarityScore === 'number'
-					&& typeof scores.ownershipCredibility === 'number';
-
-				if (res?.success && hasRealScores) {
-					const feedbackData = res.data.feedback || {};
-					const feedback: AiEvaluationFeedback = {
-						aiScore: scores.aiScore,
-						feasibilityScore: scores.feasibilityScore,
-						clarityScore: scores.clarityScore,
-						ownershipCredibility: scores.ownershipCredibility,
-						summary: feedbackData.summary || '',
-						strengths: feedbackData.strengths || [],
-						warnings: feedbackData.warnings || [],
-						corrections: feedbackData.corrections || [],
-						// Reflects the backend's own real decision — never assumed true on success.
-						isEligibleForTesting: res.data.status === 'TEST_REQUIRED'
-					};
-					this.aiFeedback.set(feedback);
-					setTimeout(() => this.isAnalyzing.set(false), 2200);
-				} else {
-					// Honest failure — no invented scores, feedback, or eligibility.
-					this.isAnalyzing.set(false);
-					this.aiEvaluationUnavailable.set(true);
-				}
+				this.portfolioReviewLoading.set(false);
+				if (res?.success && res.data?.status) this.portfolioReview.set(res.data as PortfolioReview);
+				else this.portfolioReviewFailed.set(true);
 			},
-			error: () => {
-				this.isAnalyzing.set(false);
-				this.aiEvaluationUnavailable.set(true);
-			}
+			error: () => { this.portfolioReviewLoading.set(false); this.portfolioReviewFailed.set(true); }
 		});
 	}
 
