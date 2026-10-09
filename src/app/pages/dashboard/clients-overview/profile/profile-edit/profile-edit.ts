@@ -56,8 +56,6 @@ export class ProfileEdit {
 	missing = signal<InvalidField[]>([]);
 
 	activeTab = signal<Tab>('profile');
-	/** PayPal is the only supported receiving method ('wallet' = PayPal); 'bank' is shown disabled. */
-	paymentMethod = signal<'bank' | 'wallet'>('wallet');
 	isChangingPassword = signal(false);
 
 	completionPercentage = signal<number>(0);
@@ -196,7 +194,7 @@ export class ProfileEdit {
 		const names: Record<string, string> = {
 			'CONTACT_UPDATE': 'بيانات التواصل',
 			'IDENTITY_UPDATE': 'بيانات الهوية',
-			'BANKING_UPDATE': 'البيانات البنكية',
+			'BANKING_UPDATE': 'بريد PayPal',
 			'BASICS_UPDATE': 'البيانات الأساسية'
 		};
 		return names[tab] || tab;
@@ -289,16 +287,8 @@ export class ProfileEdit {
 		linkCountryCity(this.contactForm, this.destroyRef);
 
 		this.bankingForm = this.fb.group({
-			paymentMethod: ['wallet'],
 			// Optional here: empty on save removes the saved address ({ paypalPayoutEmail: null }). The setup wizard keeps it required.
 			paypalEmail: ['', paypalEmailOptionalValidators],
-			// Legacy saved values: kept in the form model so nothing stored is dropped, but never shown or sent.
-			accountHolderName: [''],
-			bankName: [''],
-			ibanNumber: [''],
-			walletProvider: [''],
-			walletPhone: [''],
-			walletId: ['']
 		});
 	}
 
@@ -348,7 +338,6 @@ export class ProfileEdit {
 					if (this.isClient) this.loadPendingNameRequest();
 					this.identityForm.patchValue(profile);
 					this.contactForm.patchValue(profile);
-					this.bankingForm.patchValue(profile);
 					// GET returns the saved address as paypalPayoutEmail; the form control is paypalEmail.
 					this.bankingForm.patchValue({ paypalEmail: (profile as any).paypalPayoutEmail || '' });
 
@@ -388,12 +377,6 @@ export class ProfileEdit {
 		this.errorMsg.set('');
 		this.successMsg.set('');
 		this.activeTab.set(tab);
-	}
-
-	/** Only PayPal ('wallet') can be chosen; 'bank' is unavailable for now. */
-	setPaymentMethod(method: 'bank' | 'wallet') {
-		if (method !== 'wallet') return;
-		this.paymentMethod.set('wallet');
 	}
 
 	paypalEmailMsg(): string | null {

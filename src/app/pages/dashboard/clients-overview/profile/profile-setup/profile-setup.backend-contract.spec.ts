@@ -44,7 +44,7 @@ describe('client profile-setup: backend contract (#17)', () => {
 		expect(body.agreements).toEqual({ accurate: true, terms: true, privacy: true });
 		expect(body.agreements.accurate).toBe(true);
 		expect(body.details.idNumber).toBe('1234567890');
-		expect(body.bank).toEqual({ paymentType: 'paypal', paypalPayoutEmail: 'pay@example.com' });
+		expect(body.bank).toEqual({ paypalPayoutEmail: 'pay@example.com' });
 	});
 
 	it('the three agreements cannot be left unchecked: submit is blocked client-side and nothing is sent', () => {

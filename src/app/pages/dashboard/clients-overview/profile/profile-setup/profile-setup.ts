@@ -73,7 +73,7 @@ export class ProfileSetupDashboard implements OnInit {
 	steps = [
 		{ id: 1, label: 'بيانات طالب الخدمة' },
 		{ id: 2, label: 'الهوية والتوثيق' },
-		{ id: 3, label: 'حساب PayPal' },
+		{ id: 3, label: 'بريد PayPal' },
 		{ id: 4, label: 'المستندات عند الحاجة' },
 		{ id: 5, label: 'المراجعة والإرسال' }
 	];
@@ -382,7 +382,6 @@ export class ProfileSetupDashboard implements OnInit {
 				backId: formVal.identity.backId
 			},
 			bank: {
-				paymentType: 'paypal',
 				paypalPayoutEmail: String(formVal.bank.paypalPayoutEmail || '').trim()
 			},
 			documents: {

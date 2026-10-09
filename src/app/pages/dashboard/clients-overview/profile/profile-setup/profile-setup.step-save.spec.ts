@@ -125,4 +125,28 @@ describe('client setup wizard: each Next stores its step', () => {
 		c.skipDocuments(); // outside step 4 it does nothing
 		expect(c.currentStep()).toBe(5);
 	});
+
+	it('PayPal-only financial step: one PayPal input, no bank / IBAN / wallet text or controls, and the step is incomplete without it', () => {
+		mount({ idNumber: '1', paypalPayoutEmail: null }); fill1();
+		c.currentStep.set(3); fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		const text = el.textContent || '';
+		expect(el.querySelector('#setup-paypal')).toBeTruthy();
+		expect(text).toContain('بريد PayPal');
+		expect(text).not.toMatch(/IBAN|آيبان|اسم البنك|حساب بنكي|صاحب الحساب|محفظة/);
+		for (const n of ['bankName', 'iban', 'ibanNumber', 'accountHolder', 'walletNumber', 'paymentType']) expect(el.querySelector(`[formcontrolname="${n}"]`), n).toBeNull();
+		expect(c.stepIsIncomplete(3)).toBe(true);
+		c.setupForm.get('bank.paypalPayoutEmail')!.setValue('me@example.com');
+		expect(c.stepIsIncomplete(3)).toBe(false);
+	});
+
+	it('refresh after saving PayPal: the financial step is complete and the review shows PayPal only', () => {
+		mount({ idNumber: '1', paypalPayoutEmail: 'me@example.com' }); fill1();
+		expect(c.stepIsIncomplete(3)).toBe(false);
+		c.currentStep.set(5); fixture.detectChanges();
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(fixture.nativeElement.querySelector('[data-testid="summary-step-3-done"]')).toBeTruthy();
+		expect(text).toContain('بريد PayPal');
+		expect(text).not.toMatch(/IBAN|اسم البنك|حساب بنكي|صاحب الحساب|محفظة/);
+	});
 });
