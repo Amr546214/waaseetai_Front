@@ -85,4 +85,9 @@ describe('create request: AI copy is truthful', () => {
 	it('the completion toast no longer calls the draft "professional" and asks the user to review it', () => {
 		expect(read('create-request.ts')).toContain('راجعها قبل اعتمادها');
 	});
+
+	it('step 4: the milestone-name hint bar is gone (the validation itself stays in the component)', () => {
+		expect(read('components/step4-budget/step4-budget.html')).not.toContain('اكتب اسما لكل مرحلة');
+		expect(read('create-request.ts')).toContain('milestoneNameError');
+	});
 });
