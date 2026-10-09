@@ -18,7 +18,7 @@ class BlankTestComponent {}
  * `ref: true` (default) = the page was opened through a real referral link (`/auth/register?ref=1`);
  * `ref: false` = opened directly (no marker).
  */
-function setup(opts: { ref?: boolean } = {}) {
+function setup(opts: { ref?: boolean; refValue?: string; refInvalid?: boolean } = {}) {
 	const ref = opts.ref ?? true;
 	// The clear-cookie call made by a direct visit needs a real observable; every other POST is set per test.
 	const postSpy = vi.fn<(...args: any[]) => any>((url: string) => /referral-cookie\/clear/.test(String(url)) ? of({ success: true, data: { cleared: true } }) : undefined);
@@ -50,7 +50,7 @@ function setup(opts: { ref?: boolean } = {}) {
 		imports: [Register],
 		providers: [
 			provideRouter([{ path: '**', component: BlankTestComponent }]),
-			{ provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(ref ? { ref: '1' } : {}) } } },
+			{ provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(opts.refInvalid ? { ref_invalid: '1' } : opts.refValue ? { ref: opts.refValue } : ref ? { ref: '1' } : {}) } } },
 			{ provide: HttpClient, useValue: { post: (...args: any[]) => postSpy(...args), get: (...args: any[]) => getSpy(...args) } },
 			{ provide: AuthStore, useValue: fakeAuthStore },
 			{ provide: SocialAuthService, useValue: fakeSocialAuthService },
@@ -417,6 +417,67 @@ describe('Register', () => {
 			client.authState.next({ idToken: 'google-id-token' });
 			await client.fixture.whenStable();
 			expect(client.postSpy.mock.calls.find(c => String(c[0]).includes('/google'))![1].affiliateIdentifier).toBe('marketer-sara');
+		});
+	});
+
+	describe('Real slug referral (/ref/:slug -> /auth/register?ref=<slug>)', () => {
+		const RESOLVED = { success: true, data: { id: 'a1', referralSlug: 'user90a8', displayName: 'مسوّق حقيقي' } };
+		const resolveCalls = (getSpy: ReturnType<typeof vi.fn>) => getSpy.mock.calls.filter(c => /affiliates\/resolve\?code=/.test(String(c[0])));
+
+		it('the exact slug is resolved, the referrer is shown with "تم تطبيق رابط إحالة", and the cookie is not cleared', () => {
+			const { fixture, component, getSpy, postSpy } = setup({ refValue: 'user90a8' });
+			getSpy.mockReturnValue(of(RESOLVED));
+			component.currentStep = 2;
+			fixture.detectChanges();
+			expect(String(resolveCalls(getSpy)[0][0])).toContain('code=user90a8');
+			expect(component.lockedAffiliate()).toEqual({ referralSlug: 'user90a8', displayName: 'مسوّق حقيقي' });
+			expect(fixture.nativeElement.querySelector('[data-testid="referral-applied"]')!.textContent).toContain('تم تطبيق رابط إحالة');
+			expect(postSpy.mock.calls.filter(c => /referral-cookie\/clear/.test(String(c[0]))).length).toBe(0);
+		});
+
+		it('the registration payload contains the real slug (never "1")', () => {
+			const { fixture, component, getSpy, postSpy } = setup({ refValue: 'user90a8' });
+			getSpy.mockReturnValue(of(RESOLVED));
+			component.currentStep = 2;
+			fixture.detectChanges();
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
+			(component as any).submitRegistration();
+			const payload = postSpy.mock.calls.find(c => /\/register/.test(String(c[0])))![1];
+			expect(payload.affiliateIdentifier).toBe('user90a8');
+		});
+
+		it('a marketer account never sends the referral', () => {
+			const { fixture, component, getSpy, postSpy } = setup({ refValue: 'user90a8' });
+			getSpy.mockReturnValue(of(RESOLVED));
+			component.selectedAccountType = 'marketing_broker';
+			component.currentStep = 2;
+			fixture.detectChanges();
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
+			(component as any).submitRegistration();
+			const payload = postSpy.mock.calls.find(c => /\/register/.test(String(c[0])))![1];
+			expect(payload.affiliateIdentifier).toBeUndefined();
+		});
+
+		it('an unknown slug (404) says so honestly, sends no attribution and still lets the signup proceed with the normal picker', () => {
+			const { fixture, component, getSpy, postSpy } = setup({ refValue: 'ghost' });
+			getSpy.mockReturnValue(throwError(() => ({ status: 404 })));
+			component.currentStep = 2;
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('[data-testid="referral-invalid"]')!.textContent).toContain('غير صالح أو منتهي');
+			expect(component.lockedAffiliate()).toBeNull();
+			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeTruthy();
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
+			(component as any).submitRegistration();
+			const payload = postSpy.mock.calls.find(c => /\/register/.test(String(c[0])))![1];
+			expect(payload.affiliateIdentifier).toBeUndefined();
+		});
+
+		it('/auth/register?ref_invalid=1 (from /ref/<bad slug>) shows the invalid-referral state and clears any old cookie', () => {
+			const { fixture, component, postSpy } = setup({ refInvalid: true });
+			component.currentStep = 2;
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('[data-testid="referral-invalid"]')).toBeTruthy();
+			expect(postSpy.mock.calls.filter(c => /referral-cookie\/clear/.test(String(c[0]))).length).toBe(1);
 		});
 	});
 

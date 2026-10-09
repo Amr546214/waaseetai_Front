@@ -83,7 +83,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	/** The referral identifier to send, or undefined (always undefined for a marketer account). */
 	private get referralToSend(): string | undefined {
-		return this.isMarketerAccount ? undefined : (this.affiliateIdentifier || undefined);
+		return this.isMarketerAccount ? undefined : (this.affiliateIdentifier || this.linkReferralSlug || undefined);
 	}
 
 	// Locked attribution (P-LG-012): populated when GET /affiliates/referral-status
@@ -98,6 +98,10 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	private affiliateApi = inject(AffiliateApiService);
 	private route = inject(ActivatedRoute);
 	lockedAffiliate = signal<{ referralSlug: string; displayName: string } | null>(null);
+	/** The REAL slug from `/auth/register?ref=<slug>` (a /ref/:slug visit). It is sent in the registration payload; the backend decides whether it attributes. */
+	private linkReferralSlug: string | null = null;
+	/** `/ref/:slug` of an unknown/expired slug (or a slug the backend could not resolve): said honestly, the signup continues without attribution. */
+	referralInvalid = signal(false);
 
 	/** Legacy key of a removed "restore previous data" draft (it could hold a typed password). Only ever purged now. */
 	private static readonly LEGACY_DRAFT_KEY = 'waseet_register_draft';
@@ -208,7 +212,23 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		// Opened WITHOUT the marker (typed/bookmarked/navigated, even right after an earlier referral visit): the old cookie
 		// is cleared first, so no locked box is shown, the normal optional picker renders, and the signup cannot be
 		// attributed from a previous visit. Both calls fail open: they must never block or degrade registration.
-		if (this.route.snapshot.queryParamMap.get('ref') === '1') {
+		const refParam = (this.route.snapshot.queryParamMap.get('ref') ?? '').trim();
+		if (refParam && refParam !== '1') {
+			// The real slug of a referral link: keep it for the payload and show the referrer when it resolves.
+			this.linkReferralSlug = refParam.slice(0, 100);
+			this.affiliateApi.resolve(this.linkReferralSlug).subscribe({
+				next: (res) => {
+					if (res.success && res.data?.displayName) {
+						this.lockedAffiliate.set({ referralSlug: res.data.referralSlug || this.linkReferralSlug!, displayName: res.data.displayName });
+						this.cdr.markForCheck();
+					}
+				},
+				error: (err) => {
+					// 404 = no such (active) marketer: no attribution, said honestly. Any other failure fails open (the backend still decides).
+					if (err?.status === 404) { this.linkReferralSlug = null; this.referralInvalid.set(true); this.cdr.markForCheck(); }
+				}
+			});
+		} else if (refParam === '1') {
 			this.affiliateApi.getReferralStatus().subscribe({
 				next: (res) => {
 					if (res.success && res.data?.active && res.data.referralSlug && res.data.displayName) {
@@ -221,6 +241,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				}
 			});
 		} else {
+			if (this.route.snapshot.queryParamMap.has('ref_invalid')) this.referralInvalid.set(true);
 			this.affiliateApi.clearReferralCookie().subscribe({ error: () => { /* fail open: nothing to show or block */ } });
 		}
 
