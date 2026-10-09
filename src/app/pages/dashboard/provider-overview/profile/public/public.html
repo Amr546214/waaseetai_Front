@@ -50,7 +50,7 @@
 				</div>
 				<div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
 					<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 18px">
-						<div style="font-size:20px;font-weight:900" class="txt-amber">{{ profileData()?.header?.stats?.clientRating != null ? profileData()?.header?.stats?.clientRating + '%' : '—' }}</div>
+						<div style="font-size:20px;font-weight:900" class="txt-amber">{{ (profileData()?.header?.stats?.reviewsCount || 0) > 0 && profileData()?.header?.stats?.clientRating != null ? profileData()?.header?.stats?.clientRating + '%' : '—' }}</div>
 						<div style="font-size:10px;margin-top:2px" class="txt-slate">نسبة رضا العملاء</div>
 					</div>
 				</div>
@@ -293,8 +293,7 @@
 			<div class="text-[11px] font-bold text-[var(--txt-3)]">خدمة منشورة</div>
 		</div>
 		<div class="p-3 text-center">
-			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{ profileData()?.header?.stats?.clientRating ||
-				0 }}%</div>
+			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{ (profileData()?.header?.stats?.reviewsCount || 0) > 0 ? (profileData()?.header?.stats?.clientRating + '%') : '—' }}</div>
 			<div class="text-[11px] font-bold text-[var(--txt-3)]">تقييم العملاء</div>
 		</div>
 	</div>

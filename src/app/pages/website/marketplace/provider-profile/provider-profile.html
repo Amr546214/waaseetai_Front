@@ -114,8 +114,8 @@
     <!-- STATS BAR -->
     <div class="stats-bar" style="background:var(--pg);border-inline:1px solid var(--border)">
       <div class="stat-cell">
-        <div class="stat-n" style="color:var(--kahr)">{{ (provider()?.header?.stats?.clientRating || 0) / 20 | number:'1.1-1' }} <span style="font-size:13px">★</span></div>
-        <div class="stat-sub">من {{ provider()?.header?.stats?.reviewsCount || 0 }} تقييم</div>
+        <div class="stat-n" style="color:var(--kahr)">@if ((provider()?.header?.stats?.reviewsCount || 0) > 0) {{{ (provider()?.header?.stats?.clientRating || 0) / 20 | number:'1.1-1' }} <span style="font-size:13px">★</span>} @else {—}</div>
+        <div class="stat-sub">{{ (provider()?.header?.stats?.reviewsCount || 0) > 0 ? 'من ' + provider()?.header?.stats?.reviewsCount + ' تقييم' : 'لا توجد تقييمات بعد' }}</div>
       </div>
       <div class="stat-cell">
         <div class="stat-n">{{ (provider()?.header?.stats?.completedProjects || 0) | number }}</div>

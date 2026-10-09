@@ -111,7 +111,7 @@ describe('provider public profile shows only real data', () => {
 	});
 
 	it('company mode: real header stats, real specialties/services, "لا توجد بيانات بعد" instead of demo rows', async () => {
-		const f = await render(data({ header: { fullName: 'شركة حقيقية', isVerified: true, levelInfo: { levelName: 'محترف' }, stats: { completedProjects: 3, publishedServices: 2, clientRating: 91 } }, specialties: [spec({ specialtyName: 'الجوال' })], services: [{ id: 'm1', title: 'خدمتي', specialtyId: 'sp1', status: 'PUBLISHED', salesCount: 4 }, { id: 'm2', title: 'خدمة بلا تخصص', specialtyId: 'unknown', status: 'PUBLISHED', salesCount: 0 }] }), true);
+		const f = await render(data({ header: { fullName: 'شركة حقيقية', isVerified: true, levelInfo: { levelName: 'محترف' }, stats: { completedProjects: 3, publishedServices: 2, clientRating: 91, reviewsCount: 5 } }, specialties: [spec({ specialtyName: 'الجوال' })], services: [{ id: 'm1', title: 'خدمتي', specialtyId: 'sp1', status: 'PUBLISHED', salesCount: 4 }, { id: 'm2', title: 'خدمة بلا تخصص', specialtyId: 'unknown', status: 'PUBLISHED', salesCount: 0 }] }), true);
 		let t = text(f);
 		expect(t).toContain('شركة حقيقية');
 		expect(t).toContain('3 مشروع مكتمل');

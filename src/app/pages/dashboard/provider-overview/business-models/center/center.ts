@@ -115,7 +115,7 @@ export class Center implements OnInit {
 		const verified = samples.filter(s => s.status === 'AI_VERIFIED').length;
 		const totalViews = samples.reduce((acc, s) => acc + (s.viewsCount || 0), 0);
 		const scores = samples.map(s => s.aiScore).filter((sc): sc is number => sc !== undefined && sc !== null);
-		const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+		const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
 		const totalOffers = samples.reduce((acc, s) => acc + (s.offersGenerated || 0), 0);
 		const totalAccepted = samples.reduce((acc, s) => acc + (s.offersAccepted || 0), 0);
 

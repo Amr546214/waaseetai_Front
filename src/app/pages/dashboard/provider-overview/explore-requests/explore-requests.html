@@ -139,12 +139,12 @@
 				<div class="rc-ai-row">
 					<div class="rc-ai-row-lbl">السعر المقترح</div>
 					<div class="rc-ai-row-val">{{ req.aiPriceRange }}</div>
-					<div class="rc-ai-row-sub teal-sub">{{ req.aiPriceEval }}</div>
+					@if (req.aiPriceEval) { <div class="rc-ai-row-sub teal-sub">{{ req.aiPriceEval }}</div> }
 				</div>
 				<div class="rc-ai-row">
 					<div class="rc-ai-row-lbl">المدة المقترحة</div>
 					<div class="rc-ai-row-val">{{ req.aiDurationRange }}</div>
-					<div class="rc-ai-row-sub teal-sub">{{ req.aiDurationEval }}</div>
+					@if (req.aiDurationEval) { <div class="rc-ai-row-sub teal-sub">{{ req.aiDurationEval }}</div> }
 				</div>
 				<div class="rc-ai-tip" (click)="openAiAnalysis(req)">{{ req.aiNote }}</div>
 			</div>

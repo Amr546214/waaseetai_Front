@@ -291,9 +291,9 @@ export class ExploreRequests implements OnInit {
 						// relevance tier is shown, as words, when there is one.
 						relevanceLabel: ExploreRequests.relevanceLabel(p.specialtyRelevance),
 						aiPriceRange: p.aiSuggestedBudget,
-						aiPriceEval: p.aiPriceEval || 'عادل ومطابق لمتطلبات السوق',
+						aiPriceEval: p.aiPriceEval || '',
 						aiDurationRange: p.aiSuggestedDuration,
-						aiDurationEval: p.aiDurationEval || 'واقعية ومناسبة',
+						aiDurationEval: p.aiDurationEval || '',
 						// The backend always sets aiNote (see explore-requests.service.ts),
 						// so this is a defensive fallback only — kept honest (no "AI
 						// determined this" claim) since this list's ranking is a

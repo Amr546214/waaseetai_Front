@@ -80,12 +80,12 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   });
 
   /** Big-star row in the P-MK-012 rating summary: filled up to the provider's rounded rating. */
-  /** True only when the provider has real history behind the performance metrics (a metric above 0). Zero rings are never drawn. */
+  /** True only when the backend sent performance metrics (it sends none for a provider with no history, so a real 0% is drawn as 0%). */
   hasHistoryMetrics = computed<boolean>(() => {
     const m = this.provider()?.aiMetrics;
     if (!m) return false;
     return [m.executionQuality, m.onTimeDelivery, m.communication, m.clientSatisfaction, m.onTimeCompletionRate, m.repeatClientRate, m.highRatingServicesRate, m.conflictFreeDeliveryRate]
-      .some((v: unknown) => typeof v === 'number' && v > 0);
+      .some((v: unknown) => typeof v === 'number' && Number.isFinite(v));
   });
 
   filledStars = computed(() => Math.round((Number(this.provider()?.header?.stats?.clientRating) || 0) / 20));

@@ -30,7 +30,7 @@ describe('Progress (provider delivery review) — honest AI-insights fallback', 
     component = fixture.componentInstance;
   }
 
-  const notComputed = { aiInsights: { confidence: 0, matchPercentage: null, earlyDays: 0, bullets: [], riskLevel: 'غير محسوبة' } };
+  const notComputed = { aiInsights: { confidence: null, matchPercentage: null, earlyDays: null, bullets: [], riskLevel: 'غير محسوبة' } };
 
   it('aiConfidence: shows "غير متاح", never a fabricated percentage, when the backend signals confidence:0', async () => {
     await setup();
@@ -136,7 +136,7 @@ describe('Progress — Batch 8 on-demand project health analysis', () => {
     expect(component.healthAnalysisError()).toBe(true);
     expect(component.healthAnalysis()).toBeNull();
     // Falls back to the honest static placeholder helpers, not a fake positive value.
-    expect(component.aiConfidence({ aiInsights: { confidence: 0 } })).toBe('غير متاح');
+    expect(component.aiConfidence({ aiInsights: { confidence: null } })).toBe('غير متاح');
   });
 
   it('error/unavailable: a non-success response body (success:false) is also treated as an honest failure, not silently accepted', async () => {

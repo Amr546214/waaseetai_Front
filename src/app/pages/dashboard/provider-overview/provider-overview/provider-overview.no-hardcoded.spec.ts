@@ -21,7 +21,7 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 
 	it('no hardcoded claims or deltas are rendered', () => {
-		const text = render({ activeProjectsCount: 0, availableEarnings: 0, monthlyEarnings: 0, totalEscrowAmount: 0, currentPoints: 40, currentLevel: 'مستكشف', profileCompletionPercent: 60, providerRating: 0, aiRating: 0, pendingClientApprovalCount: 0, negotiationOffersCount: 0 });
+		const text = render({ activeProjectsCount: 0, availableEarnings: 0, monthlyEarnings: 0, totalEscrowAmount: 0, currentPoints: 40, currentLevel: 'مستكشف', profileCompletionPercent: 60, providerRating: 0, aiRating: null, pendingClientApprovalCount: 0, negotiationOffersCount: 0 });
 		for (const forbidden of ['مكافأة', '+2 هذا الشهر', '+3 منذ أمس', '199 نقطة', 'مقدم موثّق']) expect(text).not.toContain(forbidden);
 	});
 
@@ -42,7 +42,7 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 	});
 
 	it('no ratings yet → "—" and an explicit empty text, never 0 or a default 5', () => {
-		const text = render({ providerRating: 0, aiRating: 0 });
+		const text = render({ providerRating: 0, aiRating: null });
 		expect(text).toContain('لا توجد تقييمات بعد');
 		expect(text).toContain('لا توجد بيانات بعد');
 		expect(text).not.toMatch(/تقييم العملاء\s*0\b/);

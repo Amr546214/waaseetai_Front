@@ -153,19 +153,24 @@ export class Progress implements OnInit {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
   goToDeliveryStep(step: number) { this.deliveryStep.set(step); }
+  // Real, advisory-only AI review of a SUBMITTED delivery (POST .../stages/:stageId/ai-review). One state per stage.
+  deliveryReviews = signal<Record<string, { loading: boolean; failed: boolean; data: any | null }>>({});
+  deliveryReviewOf(stageId: string) { return this.deliveryReviews()[stageId]; }
+  requestDeliveryReview(stageId: string): void {
+    if (!stageId || this.deliveryReviews()[stageId]?.loading) return;
+    const set = (v: { loading: boolean; failed: boolean; data: any | null }) => this.deliveryReviews.update(m => ({ ...m, [stageId]: v }));
+    set({ loading: true, failed: false, data: null });
+    this.service.getDeliveryAiReview(this.projectId, stageId).subscribe({
+      next: (res: any) => (res?.success && res.data && typeof res.data === 'object') ? set({ loading: false, failed: false, data: res.data }) : set({ loading: false, failed: true, data: null }),
+      error: () => set({ loading: false, failed: true, data: null })
+    });
+  }
+
   startAiCheck() {
-    // Honest self-review reminder step — no AI call, no fabricated score.
-    // The brief progress animation is a loading transition only.
+    // Plain self-review checklist: no AI call, no analysis animation, no fabricated score.
     this.deliveryStep.set(2);
-    this.aiCheckState.set('analyzing');
+    this.aiCheckState.set('complete');
     this.aiProgress.set(0);
-    if (this.aiTimer) clearInterval(this.aiTimer);
-    let pct = 0;
-    this.aiTimer = setInterval(() => {
-      pct += Math.floor(Math.random() * 12) + 6;
-      if (pct >= 100) { pct = 100; clearInterval(this.aiTimer); this.aiTimer = null; this.aiCheckState.set('complete'); }
-      this.aiProgress.set(pct);
-    }, 220);
   }
   cancelAiCheck() {
     if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; }
@@ -182,9 +187,6 @@ export class Progress implements OnInit {
       { title: 'طلبات التعديل', note: 'تأكد من معالجة ملاحظات الجولات السابقة', status: 'ok' },
       { title: 'اكتمال الملفات', note: 'راجع أن الملفات المرفقة بالصيغ المطلوبة وجاهزة للاستخدام', status: 'ok' },
     ];
-  }
-  aiWarnNote(): string {
-    return 'لم تُرفق أمثلة على تطبيق الهوية رقمياً (موقع / تطبيق) — غير ملزمة لكن مُستحسنة';
   }
   goToConfirmFromAi() {
     // Move from the self-review reminder (step 2) to confirm step (step 3)
@@ -327,7 +329,7 @@ export class Progress implements OnInit {
   }
   aiConfidence(data: any): string {
     const v = this.currentAiInsights(data)?.confidence;
-    return v ? v + '٪' : 'غير متاح';
+    return v != null ? v + '٪' : 'غير متاح';
   }
   aiBullets(data: any): string[] {
     const bullets = this.currentAiInsights(data)?.bullets;
@@ -336,7 +338,7 @@ export class Progress implements OnInit {
   }
   aiEarlyDays(data: any): string {
     const v = this.currentAiInsights(data)?.earlyDays;
-    return v ? String(v) : '—';
+    return v != null ? String(v) : '—';
   }
   aiMatchPct(data: any): string {
     const v = this.currentAiInsights(data)?.matchPercentage;
