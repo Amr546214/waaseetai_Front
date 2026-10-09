@@ -781,9 +781,13 @@
 			</div>
 			<h3 class="text-xl font-black text-white tracking-tight mb-3">تعذر إكمال التقييم الفني</h3>
 			<p class="text-sm text-[#FFB4B4] max-w-xl mx-auto leading-relaxed mb-6">{{ quizGenerationError() }}</p>
-			<button type="button" (click)="retryQuizGeneration()"
+			<button *ngIf="quizErrorRetryable()" type="button" (click)="retryQuizGeneration()"
 				class="inline-flex items-center gap-2.5 px-6 py-3 bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.35)] rounded-full text-xs font-bold text-[#2BD4C7] hover:bg-[rgba(43,212,199,.2)] transition-colors">
 				إعادة المحاولة
+			</button>
+			<button *ngIf="!quizErrorRetryable()" type="button" (click)="currentStep.set(1)"
+				class="inline-flex items-center gap-2.5 px-6 py-3 bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.2)] rounded-full text-xs font-bold text-white hover:bg-[rgba(255,255,255,.12)] transition-colors">
+				العودة إلى لوحة التخصصات
 			</button>
 		</div>
 
@@ -793,7 +797,7 @@
 			<div class="w-16 h-16 rounded-full border-4 border-dashed border-[#2BD4C7] animate-spin mx-auto mb-6"></div>
 			<h3 class="text-lg font-black text-white mb-2">جاري معالجة الإجابات والتقييم الذكي...</h3>
 			<p class="text-xs text-[var(--txt-3)] max-w-sm mx-auto">يتم الآن مطابقة إجاباتك الفنية واحتساب النسبة
-				المئوية واعتماد الشارة رسمياً في النظام.</p>
+				المئوية وتسجيل النتيجة.</p>
 		</div>
 
 		<!-- 3. COMPLETED CELEBRATORY / REVIEW SCREEN -->
@@ -823,15 +827,9 @@
 					</svg>
 				</div>
 
-				<h2 class="text-3xl font-black text-white tracking-tight mb-2">{{ quizResult()?.message ||
-					(quizResult()?.passed ? 'مبروك! تم اجتياز الاختبار بنجاح واعتماد تخصصك!' : 'لم تحقق الحد الأدنى
-					للاجتياز (أكثر من 25%)') }}</h2>
+				<h2 class="text-3xl font-black text-white tracking-tight mb-2">{{ resultHeadline() }}</h2>
 
-				<div class="text-sm font-semibold text-[var(--txt-3)] max-w-lg mx-auto mb-6">
-					{{ quizResult()?.passed ? 'تم ربط شارة الجدارة المهنية بملفك الشخصي بنجاح، وستظهر الآن في نتائج
-					البحث وعند تقديم العروض للعملاء.' : 'لم تحقق النسبة المطلوبة هذه المرة. يمكنك مراجعة إجاباتك أدناه
-					والمحاولة مرة أخرى.' }}
-				</div>
+				<div class="text-sm font-semibold text-[var(--txt-3)] max-w-lg mx-auto mb-6">{{ resultSubline() }}</div>
 
 				<!-- Score Breakdown Cards -->
 				<div class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl mx-auto mb-6">
@@ -853,8 +851,8 @@
 						class="p-4 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.1)] rounded-2xl text-center col-span-2 sm:col-span-1">
 						<div class="text-xs text-[var(--txt-3)] font-bold mb-1">حالة الشارة</div>
 						<div class="text-sm font-extrabold mt-1"
-							[ngClass]="quizResult()?.passed ? 'text-[#2BD4C7]' : 'text-[#FFB400]'">{{
-							quizResult()?.passed ? '🏅 مفعلة وموثقة' : '🔒 معلقة مؤقتاً' }}</div>
+							[ngClass]="quizResult()?.specialtyApproved ? 'text-[#2BD4C7]' : 'text-[#FFB400]'">{{
+							resultBadgeLabel() }}</div>
 					</div>
 				</div>
 
@@ -1010,8 +1008,8 @@
 					</div>
 					<div>
 						<div class="text-sm font-black text-white flex items-center gap-2">
-							<span class="tracking-wide">{{ usingStaticFallbackQuestions()
-								? '⚡ عرض نموذج تقييم قياسي بديل...'
+							<span class="tracking-wide">{{ generationInProgress()
+								? 'التقييم قيد التوليد…'
 								: '⚡ بث أسئلة الذكاء الاصطناعي عبر الـ WebSocket المباشر...' }}</span>
 							<span
 								class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#2BD4C7] text-[#070D24] font-black shadow-sm">{{
