@@ -19,8 +19,8 @@ describe('marketer setup wizard: no skip buttons', () => {
 	let svc: any;
 	function mount() {
 		svc = {
-			getProfile: vi.fn(() => of({ success: true, data: { marketingChannels: [], completionPercentage: 0, missingItems: [{ key: 'bio', status: 'missing' }, { key: 'channel', status: 'missing' }, { key: 'iban', status: 'missing' }], user: {} } })),
-			updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(() => of({ success: true })), updateBankInfo: vi.fn(() => of({ success: true })),
+			getProfile: vi.fn(() => of({ success: true, data: { marketingChannels: [], completionPercentage: 0, missingItems: [{ key: 'bio', status: 'missing' }, { key: 'channel', status: 'missing' }, { key: 'payout', status: 'missing' }], user: {} } })),
+			updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(() => of({ success: true })), updatePaypalPayout: vi.fn(() => of({ success: true })),
 		};
 		TestBed.configureTestingModule({ imports: [ProfileSetup], providers: [provideRouter([]), { provide: MarketerProfileService, useValue: svc }] });
 		const f = TestBed.createComponent(ProfileSetup);
@@ -60,18 +60,18 @@ describe('marketer setup wizard: no skip buttons', () => {
 		c.nextStep(); render(); expect(c.currentStep()).toBe(5);
 		expect(svc.updateMarketingInfo).not.toHaveBeenCalled();
 		expect(svc.addChannel).not.toHaveBeenCalled();
-		expect(svc.updateBankInfo).not.toHaveBeenCalled();
+		expect(svc.updatePaypalPayout).not.toHaveBeenCalled();
 	});
 
-	it('the save buttons still validate: an empty channel / empty bank form is not sent and the step does not advance', () => {
+	it('the save buttons still validate: an empty channel / empty PayPal form is not sent and the step does not advance', () => {
 		const { c, render } = mount();
 		c.setStep(3); render();
 		c.addChannel(); render();
 		expect(svc.addChannel).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(3);
 		c.setStep(4); render();
-		c.saveBankInfo(); render();
-		expect(svc.updateBankInfo).not.toHaveBeenCalled();
+		c.savePaypal(); render();
+		expect(svc.updatePaypalPayout).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(4);
 		expect(c.missing().length).toBeGreaterThan(0);
 	});

@@ -32,7 +32,7 @@ function setup(profileData: any | 'error') {
 describe('marketer sidebar: استكمال البيانات', () => {
 	afterEach(() => TestBed.resetTestingModule());
 	it('something still to collect (channel + bank missing): the link is there', () => {
-		expect(setup({ completionPercentage: 40, missingItems: [item('channel'), item('iban')] }).routes()).toContain(SETUP);
+		expect(setup({ completionPercentage: 40, missingItems: [item('channel'), item('payout')] }).routes()).toContain(SETUP);
 	});
 	it('100%: the link is gone, the profile link stays', () => {
 		const r = setup({ completionPercentage: 100, missingItems: [] }).routes();
@@ -40,7 +40,7 @@ describe('marketer sidebar: استكمال البيانات', () => {
 		expect(r).toContain('/marketer-overview/profile/data');
 	});
 	it('only a bank request under review is left: no link (pending is not missing)', () => {
-		expect(setup({ completionPercentage: 70, missingItems: [item('iban', 'pending_review')] }).routes()).not.toContain(SETUP);
+		expect(setup({ completionPercentage: 70, missingItems: [item('payout', 'pending_review')] }).routes()).not.toContain(SETUP);
 	});
 	it('profile not readable (unknown): the link stays', () => {
 		expect(setup('error').routes()).toContain(SETUP);

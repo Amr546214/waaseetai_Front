@@ -11,13 +11,9 @@ import { MarketerProfileService } from '../../../../../core/services/marketer-pr
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
-const VALID_IBAN = 'SA0380000000608010167519';
-const OTHER_IBAN = 'GB82WEST12345698765432';
-const BANK = 'مصرف الراجحي';
-
 const PROFILE = {
   id: 'p1', referralSlug: 'abc', completionPercentage: 40, marketingChannels: [{ id: 'c1', platform: 'LINKEDIN', handle: 'x', createdAt: '' }],
-  bio: 'نبذة', avatarUrl: '', bankName: BANK, accountHolderName: 'محمد أحمد', iban: VALID_IBAN, swiftCode: '',
+  bio: 'نبذة', avatarUrl: '', paypalPayoutEmail: 'm@example.com',
   user: { firstName: 'محمد', lastName: 'أحمد', email: 'm@x.com', phoneNumber: '501234567', phoneCountryCode: '+966', idNumber: '1234567890' },
 };
 
@@ -36,7 +32,7 @@ describe('Data (marketer profile): shared validation', () => {
       updateMarketingInfo: vi.fn(() => of({ success: true })),
       addChannel: vi.fn(() => of({ success: true })),
       removeChannel: vi.fn(() => of({ success: true })),
-      updateBankInfo: vi.fn(() => of({ success: true, data: { isPendingRequest: true } })),
+      updatePaypalPayout: vi.fn(() => of({ success: true, data: { paypalPayoutEmail: 'new@example.com' } })),
       createIdentityRequest: vi.fn(() => of({ success: true, data: [] })),
       changePassword: vi.fn(() => of({ success: true })),
     };
@@ -69,11 +65,11 @@ describe('Data (marketer profile): shared validation', () => {
   const notice = () => el().querySelector('[data-testid="tab-notice"]')?.textContent || '';
   const btn = (text: string) => Array.from(el().querySelectorAll('button')).find(b => b.textContent?.includes(text)) as HTMLButtonElement;
   const toasts = () => TestBed.inject(UiNotificationService).toasts().map(t => t.message).join(' | ');
-  const hasEnglish = (s: string) => /[A-Za-z]{4,}/.test(s.replace(/IBAN|SA|LinkedIn/g, ''));
+  const hasEnglish = (s: string) => /[A-Za-z]{4,}/.test(s.replace(/PayPal|LinkedIn/g, ''));
 
   it('should create and load the profile into the forms', () => {
     expect(c).toBeTruthy();
-    expect(c.bankForm.value.iban).toBe(VALID_IBAN);
+    expect(c.paypalForm.value.paypalPayoutEmail).toBe('m@example.com');
     expect(c.basicsForm.value.firstName).toBe('محمد');
   });
 
@@ -247,118 +243,47 @@ describe('Data (marketer profile): shared validation', () => {
     });
   });
 
-  describe('bank tab (governed edit)', () => {
+  describe('PayPal tab (the only payout destination)', () => {
     beforeEach(() => goTo('banking'));
-    const openBtn = () => btn('إرسال طلب تعديل');
+    const saveBtn = () => btn('حفظ بريد PayPal');
 
-    it('mandatory markers match the validation (holder, IBAN, bank)', () => {
-      for (const id of ['afbk-holder', 'afbk-iban', 'afbk-bank']) expect(el().querySelector(`label[for="${id}"] .req`)).not.toBeNull();
+    it('shows only the PayPal email: no bank, IBAN, holder, swift, wallet or document inputs', () => {
+      const text = el().textContent || '';
+      expect((el().querySelector('#afpp-email') as HTMLInputElement).value).toBe('m@example.com');
+      expect(text).not.toMatch(/IBAN|اسم البنك|الحساب البنكي|البيانات البنكية|صاحب الحساب|السويفت|محفظة/);
+      for (const n of ['iban', 'bankName', 'accountHolderName', 'swiftCode']) expect(el().querySelector(`[formcontrolname="${n}"]`), n).toBeNull();
+      expect(el().querySelector('#afdoc-front')).toBeNull();
     });
 
-    it('empty fields: modal stays closed, no request, summary + inline errors + focus, button enabled', () => {
-      c.bankForm.patchValue({ accountHolderName: '', iban: '', bankName: '' });
-      render();
-      c.openGovernedEdit('البيانات البنكية والمستندات');
-      render();
-      expect(c.isGovModalOpen()).toBe(false);
-      expect(svc.updateBankInfo).not.toHaveBeenCalled();
-      expect(summary()).toContain('اسم صاحب الحساب');
-      expect(summary()).toContain('رقم IBAN');
-      expect(summary()).toContain('اسم البنك');
-      expect(errors().length).toBeGreaterThanOrEqual(3);
-      expect(document.activeElement?.id).toBe('afbk-holder');
-      expect(openBtn().disabled).toBe(false);
+    it('an invalid email is not sent and is explained in Arabic', () => {
+      c.paypalForm.patchValue({ paypalPayoutEmail: 'not-an-email' });
+      c.savePaypal(); render();
+      expect(svc.updatePaypalPayout).not.toHaveBeenCalled();
+      expect(errors().some(t => t.includes('بريد PayPal صالحًا'))).toBe(true);
+      expect(saveBtn().disabled).toBe(false);
     });
 
-    it('digits only IBAN (no country code) is rejected with a hint to include it', () => {
-      c.bankForm.patchValue({ iban: '0380000000608010167519' });
-      c.openGovernedEdit('البيانات البنكية والمستندات');
-      render();
-      expect(c.isGovModalOpen()).toBe(false);
-      expect(errors().some(t => t.includes('رمز الدولة'))).toBe(true);
+    it('a valid email is saved at once (no governed modal) and only the email is sent', () => {
+      c.paypalForm.patchValue({ paypalPayoutEmail: 'new@example.com' });
+      c.savePaypal(); render();
+      expect(svc.updatePaypalPayout).toHaveBeenCalledWith('new@example.com');
+      expect(c.toastMessage()?.text).toBe('تم حفظ بريد PayPal');
+      expect(el().querySelector('.modal-ov')).toBeNull();
     });
 
-    it('IBAN input has no 24-char limit and no decorative SA badge; hint explains the country code', () => {
-      const iban = el().querySelector('#afbk-iban') as HTMLInputElement;
-      expect(Number(iban.getAttribute('maxlength'))).toBeGreaterThanOrEqual(34);
-      expect(el().querySelector('.badge-teal')).toBeNull();
-      expect(el().querySelector('[data-testid="iban-hint"]')?.textContent).toContain('رمز الدولة');
-      c.bankForm.patchValue({ iban: 'SA03 8000 0000 6080 1016 7519' });
-      expect(c.bankForm.get('iban')!.valid).toBe(true);
+    it('an empty email removes the saved one', () => {
+      c.paypalForm.patchValue({ paypalPayoutEmail: '' });
+      c.savePaypal(); render();
+      expect(svc.updatePaypalPayout).toHaveBeenCalledWith('');
+      expect(c.toastMessage()?.text).toBe('تم إزالة بريد PayPal');
     });
 
-    it('holder name over 120 chars is blocked', () => {
-      c.bankForm.patchValue({ accountHolderName: 'a'.repeat(121) });
-      c.openGovernedEdit('البيانات البنكية والمستندات');
-      expect(c.isGovModalOpen()).toBe(false);
-      expect(c.bankForm.get('accountHolderName')!.errors?.['maxlength']).toBeTruthy();
-    });
-
-    it('nothing changed: modal not opened, visible Arabic message', () => {
-      c.openGovernedEdit('البيانات البنكية والمستندات');
-      render();
-      expect(c.isGovModalOpen()).toBe(false);
-      expect(notice()).toContain('لم تغيّر');
-    });
-
-    it('document inputs are disabled and labelled honestly', () => {
-      expect((el().querySelector('#afdoc-front') as HTMLInputElement).disabled).toBe(true);
-      expect((el().querySelector('#afdoc-back') as HTMLInputElement).disabled).toBe(true);
-      expect(el().querySelector('[data-testid="docs-note"]')?.textContent).toContain('غير متاح');
-    });
-
-    it('valid change opens the modal, sends the request and shows a persistent "قيد المراجعة" note', () => {
-      c.bankForm.patchValue({ iban: OTHER_IBAN });
-      c.openGovernedEdit('البيانات البنكية والمستندات');
-      render();
-      expect(c.isGovModalOpen()).toBe(true);
-      c.confirmGovernedEdit();
-      render();
-      expect(svc.updateBankInfo).toHaveBeenCalled();
-      expect(c.isGovModalOpen()).toBe(false);
-      expect(el().querySelector('[data-testid="bank-pending"]')?.textContent).toContain('قيد المراجعة');
-    });
-
-    it('server zod error on iban: modal closes and the Arabic message is on the IBAN field', async () => {
-      svc.updateBankInfo.mockReturnValue(httpErr(400, { message: 'Validation Error', errors: [{ path: ['body', 'iban'], message: 'رقم IBAN غير صحيح' }] }));
-      c.bankForm.patchValue({ iban: OTHER_IBAN });
-      c.openGovernedEdit('البيانات البنكية والمستندات');
-      c.confirmGovernedEdit();
-      render();
-      expect(c.isGovModalOpen()).toBe(false);
-      expect(c.bankForm.get('iban')!.errors?.['server']).toBe('رقم IBAN غير صحيح');
-      expect(errors().some(t => t.includes('رقم IBAN غير صحيح'))).toBe(true);
-      expect(summary()).toContain('رقم IBAN');
-      await wait(100);
-      expect(document.activeElement?.id).toBe('afbk-iban');
-      expect(c.bankPending()).toBe(false);
-    });
-
-    it('409 pending duplicate: Arabic message visible on the tab after the modal closes', () => {
-      svc.updateBankInfo.mockReturnValue(httpErr(409, { message: 'يوجد طلب تعديل معلّق بالفعل لـ: رقم الحساب البنكي IBAN' }));
-      c.bankForm.patchValue({ iban: OTHER_IBAN });
-      c.openGovernedEdit('البيانات البنكية والمستندات');
-      c.confirmGovernedEdit();
-      render();
-      expect(c.isGovModalOpen()).toBe(false);
-      expect(notice()).toContain('معلّق بالفعل');
-    });
-
-    it('400 no-change from the server is shown in Arabic', () => {
-      svc.updateBankInfo.mockReturnValue(httpErr(400, { message: 'لم يتم إجراء أي تغيير على الحقول المطلوبة' }));
-      c.bankForm.patchValue({ bankName: 'بنك الرياض' });
-      c.openGovernedEdit('البيانات البنكية والمستندات');
-      c.confirmGovernedEdit();
-      render();
-      expect(notice()).toContain('لم يتم إجراء أي تغيير');
-    });
-
-    it('a saved bank outside the list stays selectable', () => {
-      svc.getProfile.mockReturnValue(of({ success: true, data: { ...PROFILE, bankName: 'بنك آخر' } }));
-      c.loadProfile();
-      render();
-      const opts = Array.from(el().querySelectorAll('#afbk-bank option')).map(o => o.textContent?.trim());
-      expect(opts).toContain('بنك آخر');
+    it('a server 400 (zod errors[]) lands on the PayPal field in Arabic', () => {
+      svc.updatePaypalPayout.mockReturnValue(httpErr(400, { message: 'Validation Error', errors: [{ path: ['body', 'paypalPayoutEmail'], message: 'أدخل بريد PayPal صالحًا مثل name@example.com' }] }));
+      c.paypalForm.patchValue({ paypalPayoutEmail: 'new@example.com' });
+      c.savePaypal(); render();
+      expect(c.paypalForm.get('paypalPayoutEmail')!.errors?.['server']).toBeTruthy();
+      expect(errors().some(t => t.includes('بريد PayPal صالحًا'))).toBe(true);
     });
   });
 

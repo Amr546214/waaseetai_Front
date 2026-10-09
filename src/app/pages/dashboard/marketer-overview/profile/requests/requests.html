@@ -21,7 +21,7 @@
       <div class="tier-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
       <div>
         <div class="tier-title">بيانات حساسة، تخضع للمراجعة</div>
-        <div class="tier-desc">البريد والجوال والهوية والحساب البنكي تنشئ طلب تعديل يخضع للمراجعة ثم يعتمده مراجع بشري</div>
+        <div class="tier-desc">البريد والجوال والهوية تنشئ طلب تعديل يخضع للمراجعة ثم يعتمده مراجع بشري</div>
         <span class="tier-tag">تتبع كل طلب من هنا</span>
       </div>
     </div>
@@ -62,9 +62,7 @@
       <div class="req-card" [attr.data-status]="req.status">
         <div class="req-top">
           <div class="req-field-ico">
-            @if (req.fieldType === 'IBAN') {
-              <svg aria-hidden="true"><use href="#i-wallet"></use></svg>
-            } @else if (req.fieldType === 'NATIONAL_ID') {
+            @if (req.fieldType === 'NATIONAL_ID') {
               <svg aria-hidden="true"><use href="#i-person"></use></svg>
             } @else if (req.fieldType === 'PHONE_NUMBER') {
               <svg aria-hidden="true"><use href="#i-chat"></use></svg>

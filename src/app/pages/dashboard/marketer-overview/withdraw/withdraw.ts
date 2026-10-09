@@ -56,10 +56,9 @@ export class Withdraw implements OnInit {
     return Math.max(0, total - this.reservedAmount() - this.completedAmount());
   });
 
-  /** Bank data state from the backend: approved / pending review / not added. */
-  bankStatus = computed(() => this.profile()?.bankStatus ?? (this.profile()?.iban ? 'approved' : 'none'));
-  hasBankInfo = computed(() => this.bankStatus() === 'approved');
-  bankPendingReview = computed(() => this.bankStatus() === 'pending_review');
+  /** PayPal is the only payout destination: withdrawing needs the saved PayPal email. */
+  paypalEmail = computed(() => this.profile()?.paypalPayoutEmail || '');
+  hasPaypal = computed(() => !!this.paypalEmail());
 
   ngOnInit() {
     this.withdrawForm = this.fb.group({
@@ -108,10 +107,8 @@ export class Withdraw implements OnInit {
       this.showToast(`الحد الأدنى لطلب السحب ${MINIMUM_WITHDRAWAL} دولار`, 'error');
       return;
     }
-    if (!this.hasBankInfo()) {
-      this.showToast(this.bankPendingReview()
-        ? 'بياناتك البنكية قيد المراجعة، يمكنك طلب السحب بعد اعتمادها'
-        : 'أضف رقم الحساب البنكي (IBAN) من الملف الشخصي أولاً', 'error');
+    if (!this.hasPaypal()) {
+      this.showToast('أضف بريد PayPal لاستلام الأرباح', 'error');
       return;
     }
     const amount = Number(this.withdrawForm.value.amount);

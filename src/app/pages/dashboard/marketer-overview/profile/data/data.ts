@@ -6,7 +6,7 @@ import { finalize } from 'rxjs';
 import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
-import { ibanValidator } from '../../../../../core/validators/iban.validator';
+import { paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { applyServerFieldErrors, attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } from '../../../../../core/forms/form-helpers';
@@ -21,10 +21,7 @@ const LABELS: Record<string, string> = {
 	bio: 'الوصف التسويقي',
 	platform: 'نوع القناة',
 	handle: 'معرّف القناة أو رابطها',
-	accountHolderName: 'اسم صاحب الحساب',
-	iban: 'رقم IBAN',
-	bankName: 'اسم البنك',
-	swiftCode: 'رمز السويفت',
+	paypalPayoutEmail: 'بريد PayPal',
 	firstName: 'الاسم الأول',
 	lastName: 'اسم العائلة',
 	nationalId: 'رقم الهوية الوطنية',
@@ -55,9 +52,7 @@ const confirmMatchesValidator = (control: AbstractControl): ValidationErrors | n
 	return control.value && control.value !== other ? { mismatch: true } : null;
 };
 
-const normalizeIban = (v: unknown) => String(v ?? '').replace(/\s/g, '').toUpperCase();
 
-const BANK_OPTIONS = ['البنك الاهلي السعودي', 'مصرف الراجحي', 'بنك الرياض', 'STC Pay'];
 
 const hasArabic = (s: unknown): s is string => typeof s === 'string' && /[؀-ۿ]/.test(s);
 
@@ -94,7 +89,6 @@ export class Data implements OnInit {
 	avatarError = signal<string | null>(null);
 	/** UI-only: the backend filed the request and it waits for review (a toast alone is easy to miss). */
 	identityPending = signal(false);
-	bankPending = signal(false);
 	alertsLoadFailed = signal(false);
 
 	summary = signal<MarketerSummary | null>(null);
@@ -102,15 +96,13 @@ export class Data implements OnInit {
 	channels = signal<AffiliateChannelHandle[]>([]);
 
 	activeTab = signal<string>('profile');
-	isGovModalOpen = signal<boolean>(false);
-	governedEditField = signal<string>('');
 	copiedField = signal<string>('');
 
 	toastMessage = signal<{ text: string; type: 'success' | 'error' } | null>(null);
 	private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
 	savingProfile = signal<boolean>(false);
-	savingBank = signal<boolean>(false);
+	savingPaypal = signal<boolean>(false);
 	addingChannel = signal<boolean>(false);
 	removingChannelId = signal<string | null>(null);
 	submittingBasics = signal<boolean>(false);
@@ -120,12 +112,6 @@ export class Data implements OnInit {
 	isChangingPassword = signal<boolean>(false);
 	alertPreferences = { ...DEFAULT_ALERT_PREFERENCES };
 	isSavingAlerts = signal<boolean>(false);
-
-	/** The saved bank name stays selectable even when it is not one of the listed banks. */
-	extraBankOption = computed(() => {
-		const name = this.profile()?.bankName;
-		return name && !BANK_OPTIONS.includes(name) ? name : '';
-	});
 
 	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
 
@@ -163,7 +149,7 @@ export class Data implements OnInit {
 	loadingRecentCommissions = signal<boolean>(false);
 
 	marketingForm!: FormGroup;
-	bankForm!: FormGroup;
+	paypalForm!: FormGroup;
 	channelForm!: FormGroup;
 	basicsForm!: FormGroup;
 	passwordForm!: FormGroup;
@@ -174,13 +160,9 @@ export class Data implements OnInit {
 			bio: ['', [Validators.maxLength(500)]],
 		});
 
-		// Backend updateBankInfoSchema: bankName/accountHolderName max 120, iban max 34 + valid IBAN, swiftCode max 11.
-		// The three visible fields are marked mandatory (*) and really validated.
-		this.bankForm = this.fb.group({
-			accountHolderName: ['', [Validators.required, notBlank, Validators.maxLength(120)]],
-			iban: ['', [Validators.required, ibanValidator, (c: AbstractControl) => normalizeIban(c.value).length > 34 ? { maxlength: { requiredLength: 34, actualLength: normalizeIban(c.value).length } } : null]],
-			bankName: ['', [Validators.required, Validators.maxLength(120)]],
-			swiftCode: ['', [Validators.maxLength(11)]]
+		// PayPal is the only payout destination (backend updatePaypalPayoutSchema). Empty = remove the saved email.
+		this.paypalForm = this.fb.group({
+			paypalPayoutEmail: ['', paypalEmailOptionalValidators],
 		});
 
 		// EMAIL is deliberately NOT part of this form — governed email changes
@@ -281,12 +263,7 @@ export class Data implements OnInit {
 						bio: res.data.bio || ''
 					});
 
-					this.bankForm.patchValue({
-						accountHolderName: res.data.accountHolderName || '',
-						iban: res.data.iban || '',
-						bankName: res.data.bankName || '',
-						swiftCode: res.data.swiftCode || ''
-					});
+					this.paypalForm.patchValue({ paypalPayoutEmail: res.data.paypalPayoutEmail || '' });
 
 					this.basicsForm.patchValue({
 						firstName: res.data.user?.firstName || '',
@@ -315,10 +292,7 @@ export class Data implements OnInit {
 	/** Backend `missingItems` (same source as the percentage). */
 	missingItems = computed<CompletionBoxItem[]>(() => (this.profile()?.missingItems ?? []) as CompletionBoxItem[]);
 
-	/** A bank request is waiting for the review: from the backend (so it survives a reload) or just sent in this session. */
-	bankPendingReview = computed(() => this.bankPending() || this.profile()?.bankStatus === 'pending_review' || !!this.profile()?.bankChangePending);
-
-	/** "Complete your profile" item: opens the tab that fixes it (the bank item opens the bank tab). */
+	/** "Complete your profile" item: opens the tab that fixes it (the PayPal item opens the PayPal tab). */
 	openMissingItem(item: CompletionBoxItem) {
 		this.setActiveTab(item.tab === 'bank' ? 'banking' : 'profile');
 		setTimeout(() => (this.host.nativeElement as HTMLElement).querySelector('.prof-tab-panel')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }), 30);
@@ -353,7 +327,7 @@ export class Data implements OnInit {
 			if (hasArabic(message)) { out[name] = message; continue; }
 			const label = LABELS[name] || 'القيمة';
 			const max = /at most (\d+)/i.exec(message || '');
-			out[name] = max ? `${label} يجب ألا يزيد على ${max[1]} حرفًا` : name === 'iban' ? 'رقم IBAN غير صحيح' : `${label} غير صالح`;
+			out[name] = max ? `${label} يجب ألا يزيد على ${max[1]} حرفًا` : `${label} غير صالح`;
 		}
 		return out;
 	}
@@ -379,73 +353,30 @@ export class Data implements OnInit {
 		return mapped;
 	}
 
-	// ---------- bank (governed edit) ----------
+	// ---------- PayPal (the only payout destination; saved at once, an empty email removes it) ----------
 
-	openGovernedEdit(field: string) {
+	savePaypal() {
+		if (this.savingPaypal()) return;
 		this.tabNotice.set(null);
-		if (field === 'البيانات البنكية والمستندات' && !this.validateBank()) return;
-		this.governedEditField.set(field);
-		this.isGovModalOpen.set(true);
-	}
-
-	closeGovernedEdit() {
-		if (this.savingBank()) return;
-		this.isGovModalOpen.set(false);
-	}
-
-	/** Required fields + backend limits + "something actually changed". Opens nothing, only reports. */
-	private validateBank(): boolean {
-		const attempt = attemptSubmit(this.bankForm, { root: this.panel(), labels: LABELS });
+		const attempt = attemptSubmit(this.paypalForm, { root: this.panel(), labels: LABELS });
 		this.missing.set(attempt.missing);
-		if (!attempt.valid) return false;
-		const p = this.profile();
-		const v = this.bankForm.value;
-		const unchanged = (v.accountHolderName ?? '').trim() === (p?.accountHolderName ?? '').trim()
-			&& normalizeIban(v.iban) === normalizeIban(p?.iban)
-			&& (v.bankName ?? '').trim() === (p?.bankName ?? '').trim()
-			&& (v.swiftCode ?? '').trim() === (p?.swiftCode ?? '').trim();
-		if (unchanged) {
-			this.tabNotice.set('لم تغيّر أي بيانات بنكية. عدّل اسم صاحب الحساب أو رقم IBAN أو البنك ثم أرسل الطلب.');
-			return false;
-		}
-		return true;
-	}
-
-	confirmGovernedEdit() {
-		if (this.governedEditField() !== 'البيانات البنكية والمستندات') {
-			this.closeGovernedEdit();
-			return;
-		}
-		if (this.savingBank()) return;
-		if (!this.validateBank()) {
-			this.isGovModalOpen.set(false);
-			return;
-		}
-
-		this.savingBank.set(true);
-		this.profileService.updateBankInfo(this.bankForm.value).pipe(
-			finalize(() => this.savingBank.set(false))
+		if (!attempt.valid) return;
+		const email = String(this.paypalForm.value.paypalPayoutEmail || '').trim();
+		this.savingPaypal.set(true);
+		this.profileService.updatePaypalPayout(email).pipe(
+			finalize(() => this.savingPaypal.set(false))
 		).subscribe({
 			next: (res) => {
 				if (res.success) {
 					this.loadProfile();
 					this.missing.set([]);
-					this.tabNotice.set(null);
-					// The backend answers { success, data: { isPendingRequest, requests } }.
-					if (res.isPendingRequest || (res.data as any)?.isPendingRequest) this.bankPending.set(true);
-					this.showToast('تم إرسال طلب تعديل البيانات البنكية للمراجعة', 'success');
-					this.isGovModalOpen.set(false);
+					this.showToast(email ? 'تم حفظ بريد PayPal' : 'تم إزالة بريد PayPal', 'success');
 				} else {
-					this.isGovModalOpen.set(false);
-					this.tabNotice.set(this.arabicOr(res.message, 'تعذر إرسال بيانات الحساب البنكي'));
-					this.notify.error(this.arabicOr(res.message, 'تعذر إرسال بيانات الحساب البنكي'));
+					this.tabNotice.set(this.arabicOr(res.message, 'تعذر حفظ بريد PayPal'));
+					this.notify.error(this.arabicOr(res.message, 'تعذر حفظ بريد PayPal'));
 				}
 			},
-			error: (err) => {
-				// The fields live on the tab behind the modal: close it so the errors are visible.
-				this.isGovModalOpen.set(false);
-				this.fail(err, this.bankForm, 'تعذر إرسال بيانات الحساب البنكي، حاول مرة أخرى', items => this.missing.set(items));
-			}
+			error: (err) => this.fail(err, this.paypalForm, 'تعذر حفظ بريد PayPal، حاول مرة أخرى', items => this.missing.set(items))
 		});
 	}
 

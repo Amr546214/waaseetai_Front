@@ -10,20 +10,20 @@ import { MarketerProfileService } from '../../../../../core/services/marketer-pr
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const item = (key: string, status: 'missing' | 'pending_review' = 'missing') => ({ key, status, label: key, points: 20, tab: 'profile', hint: '' });
-const profile = (over: any = {}) => ({ id: 'a1', user: {}, marketingChannels: [], completionPercentage: 40, missingItems: [], bio: '', iban: '', bankStatus: 'none', ...over });
+const profile = (over: any = {}) => ({ id: 'a1', user: {}, marketingChannels: [], completionPercentage: 40, missingItems: [], bio: '', paypalPayoutEmail: '', ...over });
 
 describe('marketer setup wizard: where it opens (resolveMarketerSetup)', () => {
 	it('100% -> redirect, no wizard', () => {
 		expect(resolveMarketerSetup({ completionPercentage: 100, missingItems: [] })).toEqual({ kind: 'redirect', reason: 'complete' });
 	});
 	it('bio missing -> step 2; bio saved but no channel -> step 3; only the bank missing -> step 4 (never always step 1)', () => {
-		expect(resolveMarketerSetup({ completionPercentage: 20, missingItems: [item('bio'), item('channel'), item('iban')] })).toEqual({ kind: 'step', step: 2 });
-		expect(resolveMarketerSetup({ completionPercentage: 40, missingItems: [item('channel'), item('iban')] })).toEqual({ kind: 'step', step: 3 });
-		expect(resolveMarketerSetup({ completionPercentage: 70, missingItems: [item('iban')] })).toEqual({ kind: 'step', step: 4 });
+		expect(resolveMarketerSetup({ completionPercentage: 20, missingItems: [item('bio'), item('channel'), item('payout')] })).toEqual({ kind: 'step', step: 2 });
+		expect(resolveMarketerSetup({ completionPercentage: 40, missingItems: [item('channel'), item('payout')] })).toEqual({ kind: 'step', step: 3 });
+		expect(resolveMarketerSetup({ completionPercentage: 70, missingItems: [item('payout')] })).toEqual({ kind: 'step', step: 4 });
 	});
 	it('a bank request under review (pending_review) is NOT missing and does not send the user back to the bank step', () => {
-		expect(resolveMarketerSetup({ completionPercentage: 70, missingItems: [item('iban', 'pending_review')] })).toEqual({ kind: 'redirect', reason: 'nothing-to-collect' });
-		expect(resolveMarketerSetup({ completionPercentage: 40, missingItems: [item('channel'), item('iban', 'pending_review')] })).toEqual({ kind: 'step', step: 3 });
+		expect(resolveMarketerSetup({ completionPercentage: 70, missingItems: [item('payout', 'pending_review')] })).toEqual({ kind: 'redirect', reason: 'nothing-to-collect' });
+		expect(resolveMarketerSetup({ completionPercentage: 40, missingItems: [item('channel'), item('payout', 'pending_review')] })).toEqual({ kind: 'step', step: 3 });
 	});
 	it('only the avatar left (edit page item) -> redirect to the edit page', () => {
 		expect(resolveMarketerSetup({ completionPercentage: 80, missingItems: [item('avatar')] })).toEqual({ kind: 'redirect', reason: 'nothing-to-collect' });
@@ -66,7 +66,7 @@ describe('marketer setup wizard component: resume from saved data', () => {
 		const getProfile = vi.fn(() => of({ success: true, data }));
 		TestBed.configureTestingModule({
 			imports: [ProfileSetup],
-			providers: [provideRouter([]), { provide: MarketerProfileService, useValue: { getProfile, updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(() => of({ success: true })), updateBankInfo: vi.fn(() => of({ success: true })) } }],
+			providers: [provideRouter([]), { provide: MarketerProfileService, useValue: { getProfile, updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(() => of({ success: true })), updatePaypalPayout: vi.fn(() => of({ success: true })) } }],
 		});
 		vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockImplementation(navigateByUrl);
 		const f = TestBed.createComponent(ProfileSetup);
@@ -78,19 +78,19 @@ describe('marketer setup wizard component: resume from saved data', () => {
 	const BIO = 'وصف تسويقي طويل يتجاوز الخمسين حرفًا ليكون مقبولًا في الاكتمال';
 
 	it('bio saved, channel missing: opens on step 3 with the saved bio prefilled', () => {
-		const { c } = mount(profile({ bio: BIO, missingItems: [item('channel'), item('iban')], completionPercentage: 40 }));
+		const { c } = mount(profile({ bio: BIO, missingItems: [item('channel'), item('payout')], completionPercentage: 40 }));
 		expect(c.currentStep()).toBe(3);
 		expect(c.marketingForm.value.bio).toBe(BIO);
 	});
-	it('only the bank missing: opens on step 4; a refresh (new instance) opens on the same step', () => {
-		const data = profile({ bio: BIO, marketingChannels: [{ id: 'c1' }], missingItems: [item('iban')], completionPercentage: 70 });
+	it('only PayPal missing: opens on step 4; a refresh (new instance) opens on the same step', () => {
+		const data = profile({ bio: BIO, marketingChannels: [{ id: 'c1' }], missingItems: [item('payout')], completionPercentage: 70 });
 		expect(mount(data).c.currentStep()).toBe(4);
 		TestBed.resetTestingModule();
 		expect(mount(data).c.currentStep()).toBe(4);
 	});
-	it('a bank request under review: shown as "قيد المراجعة", no bank step, redirected to the profile page', () => {
-		const { c, navigateByUrl } = mount(profile({ bio: BIO, marketingChannels: [{ id: 'c1' }], bankStatus: 'pending_review', missingItems: [item('iban', 'pending_review')], completionPercentage: 70 }));
-		expect(c.bankReviewState()).toBe('قيد المراجعة');
+	it('only the avatar left (PayPal saved): the PayPal state reads "مكتمل" and the user is sent to the profile page', () => {
+		const { c, navigateByUrl } = mount(profile({ bio: BIO, marketingChannels: [{ id: 'c1' }], paypalPayoutEmail: 'm@example.com', missingItems: [{ key: 'avatar', status: 'missing' }], completionPercentage: 70 }));
+		expect(c.paypalState()).toBe('مكتمل');
 		expect(navigateByUrl).toHaveBeenCalledWith(MARKETER_EDIT_PAGE);
 	});
 	it('100%: redirects to the profile page with a message, no wizard', () => {
@@ -99,7 +99,7 @@ describe('marketer setup wizard component: resume from saved data', () => {
 		expect(TestBed.inject(UiNotificationService).toasts().length).toBe(1);
 	});
 	it('re-reading the profile after a saved step never moves the user back (only the first read decides the step)', () => {
-		const { c } = mount(profile({ missingItems: [item('bio'), item('channel'), item('iban')], completionPercentage: 0 }));
+		const { c } = mount(profile({ missingItems: [item('bio'), item('channel'), item('payout')], completionPercentage: 0 }));
 		expect(c.currentStep()).toBe(2);
 		c.setStep(4);
 		c.loadProfile();                      // what saveBio/addChannel do after each save
