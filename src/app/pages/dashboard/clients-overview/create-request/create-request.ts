@@ -41,6 +41,17 @@ export interface ClientSpecialtyRecommendation {
 /** `pct` is null while the field is empty (an intermediate editing state); it is only validated on blur / Add / Next. */
 interface Milestone { name: string; pct: number | null; }
 
+/** Whole percentages only, and in row order each row keeps at most what is left of 100 (empty stays empty, never 0). */
+function capMilestones(rows: Milestone[]): Milestone[] {
+  let used = 0;
+  return rows.map(row => {
+    if (row.pct === null || row.pct === undefined || !Number.isFinite(row.pct)) return { ...row, pct: null };
+    const kept = Math.min(Math.max(0, Math.trunc(row.pct)), Math.max(0, 100 - used));
+    used += kept;
+    return kept === row.pct ? row : { ...row, pct: kept };
+  });
+}
+
 // Versioned sessionStorage draft shape. Bump DRAFT_VERSION (and the key
 // suffix) if this shape ever changes incompatibly — loadDraft() rejects any
 // stored value whose version doesn't match, rather than guessing at
@@ -806,11 +817,15 @@ export class CreateRequest implements OnInit, OnDestroy {
   budgetHourly = signal<number | null>(null);
   allowNegotiation = signal(true);
   splitMilestones = signal(false);
-  milestones = signal<Milestone[]>([
-    // { name: 'التصميم والتخطيط', pct: 25 },
-    // { name: 'التطوير الأساسي', pct: 40 },
-    // { name: 'الاختبار والتسليم', pct: 35 }
-  ]);
+  /**
+   * The source of truth for the payment milestones. EVERY write (typing, paste, a restored draft, a direct set/update) goes through
+   * capMilestones(), so the stored values - and with them the displayed total, the draft and the payload - can never add up to more than 100.
+   */
+  private readonly milestonesState = signal<Milestone[]>([]);
+  readonly milestones = Object.assign(computed(() => this.milestonesState()), {
+    set: (value: Milestone[]) => this.milestonesState.set(capMilestones(value)),
+    update: (fn: (current: Milestone[]) => Milestone[]) => this.milestonesState.set(capMilestones(fn(this.milestonesState()))),
+  });
 
   /** Fields the user already left (blur) or tried to move past (Add / Next): only these show their error, never while typing. */
   private milestoneTouched = signal<ReadonlySet<string>>(new Set());

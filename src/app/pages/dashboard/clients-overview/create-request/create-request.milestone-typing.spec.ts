@@ -151,3 +151,86 @@ describe('create-request: milestone inputs do not block typing', () => {
     expect(c.canProceed()).toBe(false);
   });
 });
+
+// Source-of-truth guards: the model (what the total, the payload and the draft read) can never hold a total above 100.
+describe('create-request: milestone total can never exceed 100 (model, display, payload)', () => {
+  let fixture: ComponentFixture<CreateRequest>;
+  let c: CreateRequest;
+  const render = () => { fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck(); fixture.detectChanges(); };
+  const el = () => fixture.nativeElement as HTMLElement;
+  const pctInputs = () => Array.from(el().querySelectorAll<HTMLInputElement>('.milestones-section input')).filter((_, i) => i % 2 === 1);
+  const type = (input: HTMLInputElement, value: string) => { input.value = value; input.dispatchEvent(new Event('input')); render(); };
+  const sum = () => c.milestones().reduce((n, m) => n + (m.pct || 0), 0);
+
+  beforeEach(async () => {
+    localStorage.clear(); sessionStorage.clear();
+    await TestBed.configureTestingModule({ imports: [CreateRequest], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] }).compileComponents();
+    fixture = TestBed.createComponent(CreateRequest);
+    c = fixture.componentInstance;
+    c.currentStep.set(4); c.budgetType.set('fixed'); c.budgetFixed.set(1000); c.splitMilestones.set(true);
+    fixture.detectChanges();
+    c.milestones.set([{ name: 'مرحلة أولى', pct: null }, { name: 'مرحلة ثانية', pct: null }]); render();
+  });
+  afterEach(() => { fixture?.destroy(); TestBed.resetTestingModule(); localStorage.clear(); });
+
+  it('row1=30 then row2=80 (typed char by char) => row2 is 70, total 100', () => {
+    type(pctInputs()[0], '30');
+    const row2 = pctInputs()[1];
+    type(row2, '8');
+    type(pctInputs()[1], '80');
+    expect(c.milestones().map(m => m.pct)).toEqual([30, 70]);
+    expect(pctInputs()[1].value).toBe('70');
+    expect(pctInputs()[1]).toBe(row2);                         // same element, no rebuild
+    expect(sum()).toBe(100);
+    expect(el().querySelector('[data-testid="ms-cap-message"]')!.textContent).toContain('مجموع النسب لا يمكن أن يتجاوز 100%');
+    expect(el().textContent).not.toContain('110%');
+  });
+
+  it('editing an EXISTING row 2 from 40 to 80 with row1=30 => max 70', () => {
+    type(pctInputs()[0], '30');
+    type(pctInputs()[1], '40');
+    expect(sum()).toBe(70);
+    type(pctInputs()[1], '80');
+    expect(c.milestones()[1].pct).toBe(70);
+    expect(sum()).toBe(100);
+  });
+
+  it('paste 999 into row2 with row1=30 => 70', () => {
+    type(pctInputs()[0], '30');
+    type(pctInputs()[1], '999');
+    expect(c.milestones()[1].pct).toBe(70);
+    expect(pctInputs()[1].value).toBe('70');
+  });
+
+  it('raising row 1 AFTER row 2 was filled is capped by row 2 (row2=80 then row1=30 => row1 20): the total never passes 100', () => {
+    type(pctInputs()[1], '80');
+    type(pctInputs()[0], '30');
+    expect(c.milestones().map(m => m.pct)).toEqual([20, 80]);
+    expect(sum()).toBe(100);
+  });
+
+  it('lowering row 1 from 60 to 30 lets row 2 grow to 70', () => {
+    type(pctInputs()[0], '60'); type(pctInputs()[1], '40');
+    type(pctInputs()[0], '30'); type(pctInputs()[1], '80');
+    expect(c.milestones().map(m => m.pct)).toEqual([30, 70]);
+  });
+
+  it('a change / blur event after the cap does not bring the cut value back; clearing stays empty', () => {
+    type(pctInputs()[0], '30'); type(pctInputs()[1], '80');
+    pctInputs()[1].dispatchEvent(new Event('change')); pctInputs()[1].dispatchEvent(new Event('blur')); render();
+    expect(c.milestones()[1].pct).toBe(70);
+    type(pctInputs()[1], '');
+    expect(c.milestones()[1].pct).toBeNull();
+    expect(pctInputs()[1].value).toBe('');
+  });
+
+  it('a restored draft / forced state with 30 + 80 is normalised: model, displayed total and payload are all <= 100', () => {
+    c.milestones.set([{ name: 'مرحلة أولى', pct: 30 }, { name: 'مرحلة ثانية', pct: 80 }]); render();
+    expect(sum()).toBeLessThanOrEqual(100);
+    expect(c.milestoneTotalPct).toBeLessThanOrEqual(100);
+    expect(el().textContent).not.toContain('110%');
+    const payload = (c as any).buildPayload?.() ?? null;
+    const sent = (payload?.milestones ?? c.milestones()) as { pct: number }[];
+    expect(sent.reduce((n, m) => n + m.pct, 0)).toBeLessThanOrEqual(100);
+  });
+});
