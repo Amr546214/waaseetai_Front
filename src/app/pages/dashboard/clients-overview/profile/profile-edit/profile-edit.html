@@ -1189,7 +1189,7 @@
 
 						<!-- Action -->
 						<button type="submit" data-testid="pw-submit" [disabled]="passwordSubmitting() || !!pendingPasswordRequest()"
-							class="w-full mt-2 py-4 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">{{ passwordSubmitting() ? 'جارٍ الإرسال...' : 'إرسال طلب تغيير كلمة المرور' }}</button>
+							class="w-full mt-2 py-4 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">{{ passwordSubmitting() ? 'جارٍ إرسال الطلب...' : 'إرسال طلب تغيير كلمة المرور' }}</button>
 						@if (pendingPasswordRequest()) { <p data-testid="pw-submit-disabled-reason" class="text-xs font-medium text-slate-600 dark:text-slate-400">الإرسال معطّل لأن لديك طلب تغيير كلمة مرور قيد المراجعة.</p> }
 					</form>
 					}
