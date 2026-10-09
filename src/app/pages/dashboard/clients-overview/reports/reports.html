@@ -85,18 +85,8 @@
 		</div>
 	</div>
 
-	<!-- AI Insight -->
-	@if (d.orders.acceptanceBySpecialty.length > 0) {
-	<div class="state-card ai-insight">
-		<div class="ai-insight-ico">
-			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-		</div>
-		<div class="ai-insight-body">
-			<div class="ai-insight-lbl">ملخص إحصائي</div>
-			<div class="ai-insight-txt">أعلى معدل قبول لطلباتك في تخصص «{{ d.orders.acceptanceBySpecialty[0].specialty }}» بنسبة {{ d.orders.acceptanceBySpecialty[0].rate }}%، من إجمالي {{ d.orders.acceptanceBySpecialty[0].total }} طلب في هذا التخصص.</div>
-		</div>
-	</div>
-	}
+	<!-- AI summary (real backend result) -->
+	<ws-ai-result-card title="ملخص ذكي لنشاطك" [result]="aiResult()" [loading]="aiLoading()" [requestFailed]="aiRequestFailed()" (retry)="retryAi()"></ws-ai-result-card>
 
 	<!-- Global Filter Rail -->
 	<div class="filter-rail" role="search" aria-label="فلترة التقارير">

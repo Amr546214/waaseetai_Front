@@ -13,7 +13,7 @@ describe('marketer dashboard — USD only, no invented claims (#28)', () => {
 				getSummary: () => of({ success: true, data: { tier: 'مساعد', successfulReferrals: 3, totalCommissions: 42.5, overallConversionRate: 12 } }),
 				getChannelPerformance: () => of({ success: true, data: [] }),
 				getRecentCommissions: () => of({ success: true, data: commissions }),
-				getAiInsights: () => of({ success: true, data: [] }),
+				getAiInsights: () => of({ success: true, data: { status: 'NOT_ENOUGH_DATA', source: 'NONE', score: null, confidence: null, summary: null, recommendation: null, details: null, generatedAt: null } }),
 			} }],
 		});
 		const fixture = TestBed.createComponent(MarketingBrokerOverview);

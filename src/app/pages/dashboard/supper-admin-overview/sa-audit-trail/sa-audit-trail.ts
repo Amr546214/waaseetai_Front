@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AnomalySummaryComponent } from './anomaly-summary.component';
 
 interface AuditEvent {
   type: string;
@@ -21,7 +22,7 @@ interface AuditEvent {
 @Component({
   selector: 'app-sa-audit-trail',
   standalone: true,
-  imports: [CommonModule, RouterLink, WsSelectComponent, FormsModule],
+  imports: [CommonModule, RouterLink, AnomalySummaryComponent, WsSelectComponent, FormsModule],
   templateUrl: './sa-audit-trail.html',
   styleUrl: './sa-audit-trail.css',
 })

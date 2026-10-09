@@ -18,3 +18,22 @@ export const CLIENT_PASSWORD_CHANGE_CATEGORY = 'CLIENT_PASSWORD_CHANGE';
 export function isRealAi(r: { status?: string | null; source?: string | null } | null | undefined): boolean {
 	return !!r && r.status === 'READY' && (r.source === 'GEMINI' || r.source === 'WASEET_AI');
 }
+
+/** Mirrors the backend AiResult<D> (ai-result.ts): the ONE shape of every AI-backed result. score / confidence / summary are null when missing (never 0). */
+export interface AiResult<D = unknown> {
+	status: AiStatus;
+	source: AiSource;
+	score: number | null;
+	confidence: number | null;
+	summary: string | null;
+	recommendation: string | null;
+	details: D | null;
+	generatedAt: string | null;
+}
+
+/** details of a metric-summary result (client reports / marketer insights / admin cards). */
+export interface MetricSummaryDetails {
+	observations: { text: string; basedOn?: string[] }[];
+	recommendations: { text: string; basedOn?: string[] }[];
+	[extra: string]: unknown;
+}

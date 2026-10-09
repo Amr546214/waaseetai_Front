@@ -1,5 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ForecastSummaryComponent } from './forecast-summary.component';
 
 type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit';
 
@@ -12,7 +13,7 @@ interface MonthPoint {
 @Component({
   selector: 'app-sa-finance-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ForecastSummaryComponent],
   templateUrl: './sa-finance-reports.html',
   styleUrl: './sa-finance-reports.css',
 })

@@ -1,11 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog, AiInsight } from '../../../../core/services/marketer-overview.service';
+import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.component';
+import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog, AiInsights }  from '../../../../core/services/marketer-overview.service';
 
 @Component({
 	selector: 'app-marketing-broker-overview',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, AiResultCardComponent],
 	templateUrl: './marketing-broker-overview.html',
 	styleUrl: './marketing-broker-overview.css',
 })
@@ -15,8 +16,10 @@ export class MarketingBrokerOverview implements OnInit {
 	summary = signal<MarketerSummary | null>(null);
 	channels = signal<ChannelPerformance[]>([]);
 	commissions = signal<CommissionLog[]>([]);
-	insights = signal<AiInsight[]>([]);
-	loading = signal<boolean>(true);
+	insights = signal<AiInsights | null>(null);
+	insightsLoading = signal<boolean>(true);
+	insightsFailed = signal<boolean>(false);
+	private insightsSeq = 0;
 
 	ngOnInit() {
 		this.fetchDashboardData();
@@ -41,15 +44,25 @@ export class MarketingBrokerOverview implements OnInit {
 			error: (err) => console.error('Failed to load commissions', err),
 		});
 
-		// Insights
+		this.loadInsights();
+	}
+
+	loadInsights() {
+		const seq = ++this.insightsSeq;
+		this.insightsLoading.set(true);
+		this.insightsFailed.set(false);
+		this.insights.set(null);
 		this.marketerOverviewService.getAiInsights().subscribe({
 			next: (res) => {
-				this.insights.set(res.data);
-				this.loading.set(false);
+				if (seq !== this.insightsSeq) return;
+				this.insightsLoading.set(false);
+				if (res?.success && res.data && !Array.isArray(res.data)) this.insights.set(res.data);
+				else this.insightsFailed.set(true);
 			},
-			error: (err) => {
-				console.error('Failed to load insights', err);
-				this.loading.set(false);
+			error: () => {
+				if (seq !== this.insightsSeq) return;
+				this.insightsLoading.set(false);
+				this.insightsFailed.set(true);
 			},
 		});
 	}

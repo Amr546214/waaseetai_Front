@@ -2,12 +2,14 @@ import { Component, signal, computed, inject, OnInit, effect } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ThemeService } from '../../../../core/services/theme.service';
+import { AiResult, MetricSummaryDetails } from '../../../../core/models/ai-result.model';
+import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.component';
 import { ClientReportsService, ClientReportsData, ClientReportDateRange, ClientReportOrderItem, ClientReportTransaction } from '../../../../core/services/client-reports.service';
 
 @Component({
 	selector: 'app-reports',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, AiResultCardComponent],
 	templateUrl: './reports.html',
 	styleUrl: './reports.css'
 })
@@ -35,6 +37,12 @@ export class Reports implements OnInit {
 	hasError = signal<boolean>(false);
 	data = signal<ClientReportsData | null>(null);
 
+	// AI summary (separate from the report so a model problem never blocks the page)
+	aiResult = signal<AiResult<MetricSummaryDetails> | null>(null);
+	aiLoading = signal<boolean>(false);
+	aiRequestFailed = signal<boolean>(false);
+	private aiSeq = 0;
+
 	ordersPage = signal<number>(1);
 	private readonly pageSize = 4;
 
@@ -45,8 +53,9 @@ export class Reports implements OnInit {
 		// instead of sending a fabricated range to the API.
 		effect(() => {
 			const filter = this.dateFilter();
-			if (filter === 'custom') return;
+			if (filter === 'custom') { this.aiSeq++; this.aiResult.set(null); this.aiLoading.set(false); this.aiRequestFailed.set(false); return; }
 			this.loadReports(filter);
+			this.loadAi(filter);
 		});
 	}
 
@@ -73,6 +82,31 @@ export class Reports implements OnInit {
 				this.hasError.set(true);
 			}
 		});
+	}
+
+	loadAi(range: ClientReportDateRange) {
+		const seq = ++this.aiSeq;
+		this.aiLoading.set(true);
+		this.aiRequestFailed.set(false);
+		this.aiResult.set(null);
+		this.reportsService.getAiSummary(range).subscribe({
+			next: (res) => {
+				if (seq !== this.aiSeq) return; // stale response
+				this.aiLoading.set(false);
+				if (res?.success && res.data) this.aiResult.set(res.data);
+				else this.aiRequestFailed.set(true);
+			},
+			error: () => {
+				if (seq !== this.aiSeq) return;
+				this.aiLoading.set(false);
+				this.aiRequestFailed.set(true);
+			},
+		});
+	}
+
+	retryAi() {
+		const filter = this.dateFilter();
+		if (filter !== 'custom') this.loadAi(filter);
 	}
 
 	retry() {

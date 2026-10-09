@@ -10,7 +10,6 @@
     </div>
   </div>
 
-  <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">التوقعات المالية: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
 
   <div class="frp-kpi-grid">
     <div class="frp-kpi">
@@ -32,6 +31,8 @@
       <div class="frp-kpi-sub up">أعلى من الهدف 7%</div>
     </div>
   </div>
+
+  <app-forecast-summary />
 
   <div class="frp-tabs">
     @for (t of tabs; track t.key) {
@@ -67,7 +68,6 @@
             </div>
           }
         </div>
-        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">التوقع المالي: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
       </div>
     </div>
   }

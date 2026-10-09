@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AiResult, MetricSummaryDetails } from '../models/ai-result.model';
 import { environment } from '../../../environments/environment';
 
 export type ClientReportDateRange = 'month' | '3m' | '6m' | 'year' | 'all';
@@ -79,5 +80,10 @@ export class ClientReportsService {
 
 	getReports(range: ClientReportDateRange = 'month'): Observable<{ success: boolean; data: ClientReportsData }> {
 		return this.http.get<{ success: boolean; data: ClientReportsData }>(this.baseUrl, { params: { range } });
+	}
+
+	/** Real AI summary for the same period. A model problem is HTTP 200 + status FAILED / NOT_ENOUGH_DATA, never an HTTP error. */
+	getAiSummary(range: ClientReportDateRange = 'month'): Observable<{ success: boolean; data: AiResult<MetricSummaryDetails> }> {
+		return this.http.get<{ success: boolean; data: AiResult<MetricSummaryDetails> }>(`${this.baseUrl}/ai-summary`, { params: { range } });
 	}
 }
