@@ -203,6 +203,31 @@ export class ProfileSetupDashboard implements OnInit {
 		this.currentStep.set(5);
 	}
 
+	/** Required steps (1 details, 3 PayPal) are "done" only while their fields are really valid; optional steps (2, 4) never count as incomplete. */
+	stepIsIncomplete(step: number): boolean {
+		if (step !== 1 && step !== 3) return false;
+		const group = this.setupForm.get(STEP_GROUPS[step]);
+		return !!group && !group.valid;
+	}
+
+	/** Identity documents were sent (a file in the form, or already under review): the review shows "تم الإرسال" instead of "اختياري". */
+	identityDocsProvided(): boolean {
+		const v = this.setupForm.getRawValue().identity;
+		return !!(v.frontId || v.backId) || this.kycPending();
+	}
+
+	/** Review shortcut to a step that is missing something: go there and show what is missing, right where the field is. */
+	goToStep(step: number) {
+		if (step < 1 || step > 5) return;
+		this.currentStep.set(step);
+		const group = this.setupForm.get(STEP_GROUPS[step]);
+		if (group) {
+			group.markAllAsTouched();
+			this.missing.set(collectInvalidFields(group, SETUP_LABELS, STEP_GROUPS[step]));
+		}
+		this.focusSoon();
+	}
+
 	prevStep() {
 		if (this.currentStep() > 1) {
 			this.missing.set([]);

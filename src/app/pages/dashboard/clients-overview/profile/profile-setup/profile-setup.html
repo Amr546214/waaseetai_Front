@@ -72,13 +72,16 @@
 						<div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300"
 							[ngClass]="{
                   'bg-cyan-500 text-white dark:bg-[#38BDF8] dark:text-[#0F1629] shadow-[0_0_15px_rgba(6,182,212,0.4)] dark:shadow-[0_0_15px_rgba(56,189,248,0.4)]': currentStep() === step.id,
-                  'bg-cyan-600 text-white dark:bg-[#0EA5E9] dark:text-white': currentStep() > step.id,
+                  'bg-cyan-600 text-white dark:bg-[#0EA5E9] dark:text-white': currentStep() > step.id && !stepIsIncomplete(step.id),
+                  'bg-amber-500 text-white dark:bg-amber-500 dark:text-white': currentStep() > step.id && stepIsIncomplete(step.id),
                   'bg-slate-100 text-slate-400 border border-slate-200 dark:bg-[#1E293B] dark:text-slate-500 dark:border-slate-700': currentStep() < step.id
                 }">
-							@if (currentStep() > step.id) {
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-5 h-5">
+							@if (currentStep() > step.id && !stepIsIncomplete(step.id)) {
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-5 h-5" data-testid="step-done-mark">
 								<polyline points="20 6 9 17 4 12" />
 							</svg>
+							} @else if (currentStep() > step.id) {
+							<span data-testid="step-incomplete-mark" aria-label="مرحلة ناقصة">!</span>
 							} @else {
 							{{ step.id }}
 							}
@@ -544,26 +547,29 @@
 							<div
 								class="bg-slate-50 dark:bg-[#131C31]/50 border border-slate-200 dark:border-slate-700/80 rounded-xl p-3 flex flex-col gap-3">
 								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3"><span
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span><span
+									<div class="flex items-center gap-3">@if (stepIsIncomplete(1)) {<span data-testid="summary-step-1-incomplete"
+											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[10px] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-1-done"
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span>}<span
 											class="text-sm text-slate-900 dark:text-white font-medium">بيانات طالب
 											الخدمة</span></div>
-									<span class="text-xs text-slate-500">المرحلة 1</span>
+									@if (stepIsIncomplete(1)) {<button type="button" data-testid="summary-fix-1" (click)="goToStep(1)" class="text-xs font-bold text-red-600 dark:text-red-300 underline underline-offset-4">أكمل المرحلة 1</button>} @else {<span class="text-xs text-slate-500">المرحلة 1</span>}
 								</div>
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
 								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3"><span
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span><span
+									<div class="flex items-center gap-3">@if (identityDocsProvided()) {<span data-testid="summary-step-2-done"
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">تم الإرسال</span>} @else {<span data-testid="summary-step-2-optional"
+											class="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] rounded-full font-bold">اختياري</span>}<span
 											class="text-sm text-slate-900 dark:text-white font-medium">الهوية
 											والتوثيق</span></div>
 									<span class="text-xs text-slate-500">المرحلة 2</span>
 								</div>
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
 								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3"><span
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span><span
+									<div class="flex items-center gap-3">@if (stepIsIncomplete(3)) {<span data-testid="summary-step-3-incomplete"
+											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[10px] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-3-done"
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span>}<span
 											class="text-sm text-slate-900 dark:text-white font-medium">حساب PayPal</span></div>
-									<span class="text-xs text-slate-500">المرحلة 3</span>
+									@if (stepIsIncomplete(3)) {<button type="button" data-testid="summary-fix-3" (click)="goToStep(3)" class="text-xs font-bold text-red-600 dark:text-red-300 underline underline-offset-4">أكمل المرحلة 3</button>} @else {<span class="text-xs text-slate-500">المرحلة 3</span>}
 								</div>
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
 								<div class="flex items-center justify-between">
