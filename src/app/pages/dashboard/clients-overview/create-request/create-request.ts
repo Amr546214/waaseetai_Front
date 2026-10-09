@@ -816,6 +816,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   private milestoneTouched = signal<ReadonlySet<string>>(new Set());
 
   touchMilestone(index: number, field: 'name' | 'pct') {
+    if (field === 'pct') this.milestoneCapMessage.set(null);
     this.milestoneTouched.update(set => new Set(set).add(`${index}:${field}`));
   }
 
@@ -834,7 +835,16 @@ export class CreateRequest implements OnInit, OnDestroy {
     return this.isMilestonePctInvalid(m) ? 'أدخل نسبة صحيحة بين 1 و100' : null;
   }
 
+  /** Message shown when Add is refused because the total already reached 100. */
+  milestoneAddBlockedMessage = signal<string | null>(null);
+
   addMilestone() {
+    // A new row could not receive any percentage once the total is 100: refuse with a clear message instead.
+    if (this.milestoneTotalPct >= 100) {
+      this.milestoneAddBlockedMessage.set('مجموع النسب وصل 100%. قلّل نسبة مرحلة أخرى لإضافة مرحلة جديدة');
+      return;
+    }
+    this.milestoneAddBlockedMessage.set(null);
     // Pressing Add reveals the errors of the rows already there (never while typing); the new row starts clean and untouched.
     if (this.milestones().some(m => this.isMilestoneNameInvalid(m) || this.isMilestonePctInvalid(m))) this.touchAllMilestones();
     this.milestones.update(m => [...m, { name: '', pct: null }]);
@@ -843,6 +853,8 @@ export class CreateRequest implements OnInit, OnDestroy {
   removeMilestone(index: number) {
     this.milestones.update(m => m.filter((_, i) => i !== index));
     this.milestoneTouched.set(new Set());
+    this.milestoneAddBlockedMessage.set(null);
+    this.milestoneCapMessage.set(null);
   }
 
   // Milestone fields are edited via [ngModel]+(ngModelChange) rather than
@@ -856,12 +868,46 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.milestones.update(m => m.map((ms, i) => i === index ? { ...ms, name } : ms));
   }
 
-  updateMilestonePct(index: number, pct: number | null) {
-    this.milestones.update(m => m.map((ms, i) => i === index ? { ...ms, pct: pct ?? null } : ms));
+  /** Shown under the group while a typed/pasted percentage was cut down to what is left of 100. */
+  milestoneCapMessage = signal<string | null>(null);
+
+  /** What is left of 100 for one row: 100 minus every OTHER row. */
+  milestoneRemaining(index: number): number {
+    const others = this.milestones().reduce((sum, m, i) => sum + (i === index ? 0 : (m.pct || 0)), 0);
+    return Math.max(0, 100 - others);
+  }
+
+  /**
+   * Sets one row's percentage. Whole numbers only; a value above what is left of 100 is cut to what is left (the total can never pass 100),
+   * empty stays empty (null, never forced to 0). Returns the value that was really kept so the input can show it.
+   */
+  updateMilestonePct(index: number, pct: number | null): number | null {
+    let kept: number | null = null;
+    if (pct !== null && Number.isFinite(pct)) {
+      const whole = Math.max(0, Math.trunc(pct));
+      const room = this.milestoneRemaining(index);
+      kept = Math.min(whole, room);
+      this.milestoneCapMessage.set(whole > room ? 'مجموع النسب لا يمكن أن يتجاوز 100%' : null);
+    } else {
+      this.milestoneCapMessage.set(null);
+    }
+    this.milestoneAddBlockedMessage.set(null);
+    this.milestones.update(m => m.map((ms, i) => i === index ? { ...ms, pct: kept } : ms));
+    return kept;
+  }
+
+  /** Raw typing/paste handler of a percentage input: digits only (no sign, decimals, symbols), at most 3 digits, then capped by the remainder. */
+  onMilestonePctInput(index: number, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const digits = (input.value ?? '').replace(/\D/g, '').slice(0, 3);
+    const kept = this.updateMilestonePct(index, digits === '' ? null : Number(digits));
+    const shown = kept === null ? '' : String(kept);
+    if (input.value !== shown) input.value = shown;   // the same input element is kept (no re-creation, focus stays)
   }
 
   get milestoneTotalPct() {
-    return this.milestones().reduce((sum, m) => sum + (m.pct || 0), 0);
+    // never displayed above 100 (a restored draft or a forced state cannot show 110%)
+    return Math.min(100, this.milestones().reduce((sum, m) => sum + (m.pct || 0), 0));
   }
 
   get milestoneNameError(): boolean {
