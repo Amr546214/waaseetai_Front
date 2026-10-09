@@ -6,6 +6,21 @@
 		</div>
 		<p class="text-[var(--txt-3)] font-medium mb-8">حدد التخصص الدقيق لمشروعك لمساعدتنا في ترشيح أفضل المستقلين.</p>
 
+		<!-- Specialty suggestion: real data only (typed text / the client's own history / platform demand); absent when there is none or the request failed. Rule-based: no AI mark. -->
+		@if (parent.visibleRecommendation(); as rec) {
+		<div data-testid="rec-banner" class="flex items-center gap-3 p-4 rounded-2xl mb-6 border border-[var(--teal)]/30 bg-[var(--teal)]/10">
+			<div class="w-9 h-9 rounded-lg bg-[var(--teal)]/15 flex items-center justify-center shrink-0 text-[var(--teal)]" aria-hidden="true">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>
+			</div>
+			<div class="flex-1 min-w-0">
+				<div class="text-sm font-extrabold text-[var(--txt)] mb-0.5" data-testid="rec-title">{{ parent.recommendationTitle() }}</div>
+				<div class="text-xs text-[var(--txt-3)]" data-testid="rec-message">{{ rec.message }}</div>
+			</div>
+			<button type="button" data-testid="rec-apply" (click)="parent.applyRecommendation()"
+				class="px-4 py-2 rounded-full text-xs font-bold border border-[var(--teal)]/40 bg-[var(--teal)]/15 text-[var(--teal)] hover:bg-[var(--teal)]/25 transition-colors shrink-0 whitespace-nowrap">طبّق الاقتراح</button>
+		</div>
+		}
+
 		<div class="relative mb-8">
 			<div class="absolute right-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] pointer-events-none">
 				<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -15,7 +30,7 @@
 			</div>
 			<input type="search"
 				class="w-full py-4 pr-[56px] pl-5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-2xl text-[var(--txt)] text-[15px] outline-none transition-colors focus:border-[var(--teal)] placeholder-[var(--txt-3)] shadow-sm"
-				placeholder="ابحث عن تخصص..." autocomplete="off" [ngModel]="parent.searchQuery()" (ngModelChange)="parent.searchQuery.set($event)">
+				placeholder="ابحث عن تخصص..." autocomplete="off" [ngModel]="parent.searchQuery()" (ngModelChange)="parent.onSearchInput($event)">
 		</div>
 
 		<!-- 4 COLUMNS GRID FOR SPECIALTIES -->

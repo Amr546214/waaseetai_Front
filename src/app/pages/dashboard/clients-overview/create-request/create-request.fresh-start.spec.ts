@@ -41,7 +41,7 @@ describe('create-request: fresh start vs resume', () => {
 		postSpy = vi.fn(() => of({ success: true, data: { id: 'new-request-id' } }));
 		await TestBed.configureTestingModule({
 			imports: [CreateRequest],
-			providers: [provideRouter([]), { provide: HttpClient, useValue: { get: () => of({ success: false }), post: (...a: any[]) => postSpy(...a) } }],
+			providers: [provideRouter([]), { provide: HttpClient, useValue: { get: () => of({ success: false }), post: (...a: any[]) => /specialty-recommendations/.test(String(a[0])) ? of({ success: false }) : postSpy(...a) } }],
 		}).compileComponents();
 		router = TestBed.inject(Router);
 	});
@@ -85,7 +85,7 @@ describe('create-request: fresh start vs resume', () => {
 		TestBed.resetTestingModule();
 		await TestBed.configureTestingModule({
 			imports: [CreateRequest],
-			providers: [provideRouter([]), { provide: HttpClient, useValue: { get: () => of({ success: false }), post: (...a: any[]) => postSpy(...a) } }],
+			providers: [provideRouter([]), { provide: HttpClient, useValue: { get: () => of({ success: false }), post: (...a: any[]) => /specialty-recommendations/.test(String(a[0])) ? of({ success: false }) : postSpy(...a) } }],
 		}).compileComponents();
 		router = TestBed.inject(Router);
 		const second = await mount({ inApp: true });

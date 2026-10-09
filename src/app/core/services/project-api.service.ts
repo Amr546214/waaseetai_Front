@@ -34,6 +34,14 @@ export class ProjectApiService {
 	}
 
 	/**
+	 * Rule-based specialty suggestion for create-request step 1 (typed text / the client's own history / platform demand).
+	 * Compute only: nothing is saved and no AI is involved.
+	 */
+	getSpecialtyRecommendation(query?: string): Observable<ApiResponse<unknown>> {
+		return this.http.post<ApiResponse<unknown>>(`${this.apiUrl}/specialty-recommendations`, query ? { query } : {});
+	}
+
+	/**
 	 * Upload files/attachments via multipart FormData
 	 */
 	uploadAttachments(files: File[]): Observable<ApiResponse<UploadedAttachment[]>> {

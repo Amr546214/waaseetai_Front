@@ -47,7 +47,7 @@ describe('CreateRequest', () => {
         // overlay's buttons resolve/click correctly, instead of a bare stub
         // that RouterLink's internals could choke on.
         provideRouter([]),
-        { provide: HttpClient, useValue: { get: () => of({ success: false }), post: (...args: any[]) => postSpy(...args) } }
+        { provide: HttpClient, useValue: { get: () => of({ success: false }), post: (...args: any[]) => /specialty-recommendations/.test(String(args[0])) ? of({ success: false }) : postSpy(...args) } }
       ]
     })
       .compileComponents();
