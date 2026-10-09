@@ -1093,7 +1093,7 @@
 				</div>
 			</div>
 
-						<div role="note" data-testid="security-unsupported" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">هذا القسم غير مفعّل بعد: تغيير كلمة المرور والمصادقة الثنائية وجلسات الدخول المعروضة هنا لا تُحفظ ولا تعكس بيانات حسابك الفعلية (بانتظار دعم الخادم). لتغيير كلمة المرور استخدم «نسيت كلمة المرور» من صفحة تسجيل الدخول.</div>
+						<div role="note" data-testid="security-unsupported" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">المصادقة الثنائية وجلسات الدخول المعروضة هنا للعرض التوضيحي فقط ولا تعكس بيانات حسابك الفعلية. تغيير كلمة المرور فعّال ويمر بمراجعة المراجع.</div>
 			<div class="flex flex-col">
 				<!-- MFA -->
 				<div class="flex items-center justify-between py-5 border-b border-slate-200 dark:border-slate-700/50">
@@ -1121,56 +1121,77 @@
 						</button>
 					</div>
 
+					<!-- Pending state: a request already waits for the admin -->
+					@if (pendingPasswordRequest()) {
+					<div role="status" data-testid="pw-pending" class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[13px] font-bold text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">
+						طلب تغيير كلمة المرور قيد المراجعة. تبقى كلمة مرورك الحالية سارية حتى يعتمد المراجع الطلب. <a routerLink="/client-overview/profile/requests" class="underline">طلبات التعديل</a>
+					</div>
+					}
+					@if (passwordSuccess()) {
+					<div role="status" data-testid="pw-success" class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[13px] font-bold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/5 dark:text-emerald-200">{{ passwordSuccess() }}</div>
+					}
+
 					<!-- Expanded Form -->
 					@if (isChangingPassword()) {
-					<div
+					<form [formGroup]="passwordForm" (ngSubmit)="submitPasswordChange()" novalidate autocomplete="off"
 						class="flex flex-col gap-6 mt-4 animation-fade-in bg-slate-50/50 dark:bg-slate-900/20 p-6 rounded-2xl border border-slate-200 dark:border-slate-700/50">
+						<p class="text-xs font-medium text-slate-600 dark:text-slate-400">تغيير كلمة المرور يمر بمراجعة المراجع قبل التطبيق، ولا تتغير كلمة مرورك قبل اعتماده.</p>
 
 						<!-- Current Password -->
 						<div class="flex flex-col gap-2">
-							<label class="text-sm font-bold text-slate-700 dark:text-slate-300">كلمة المرور الحالية
-								<span class="text-cyan-500">*</span></label>
-							<input type="password"
+							<label class="text-sm font-bold text-slate-700 dark:text-slate-300" for="pw-current">كلمة المرور الحالية <span class="text-cyan-500">*</span></label>
+							<input id="pw-current" [type]="showPasswords() ? 'text' : 'password'" formControlName="currentPassword" autocomplete="current-password" dir="ltr"
+								[attr.aria-invalid]="passwordFieldError('currentPassword') ? 'true' : null"
 								class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
 								placeholder="ادخل كلمة المرور الحالية">
+							@if (passwordFieldError('currentPassword'); as err) { <span class="text-[11px] font-bold text-red-500" role="alert" data-testid="pw-current-error">{{ err }}</span> }
 						</div>
 
 						<!-- New Password Grid -->
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<div class="flex flex-col gap-2">
-								<label class="text-sm font-bold text-slate-700 dark:text-slate-300">كلمة المرور الجديدة
-									<span class="text-cyan-500">*</span></label>
-								<input type="password"
+								<label class="text-sm font-bold text-slate-700 dark:text-slate-300" for="pw-new">كلمة المرور الجديدة <span class="text-cyan-500">*</span></label>
+								<input id="pw-new" [type]="showPasswords() ? 'text' : 'password'" formControlName="newPassword" autocomplete="new-password" dir="ltr" (input)="onPasswordInput()"
+									[attr.aria-invalid]="passwordFieldError('newPassword') ? 'true' : null" aria-describedby="pw-rules"
 									class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
-									placeholder="8 أحرف على الأقل">
+									placeholder="8 أحرف على الأقل، حرف كبير ورقم">
+								@if (passwordFieldError('newPassword'); as err) { <span class="text-[11px] font-bold text-red-500" role="alert" data-testid="pw-new-error">{{ err }}</span> }
 							</div>
 							<div class="flex flex-col gap-2">
-								<label class="text-sm font-bold text-slate-700 dark:text-slate-300">تأكيد كلمة المرور
-									الجديدة <span class="text-cyan-500">*</span></label>
-								<input type="password"
+								<label class="text-sm font-bold text-slate-700 dark:text-slate-300" for="pw-confirm">تأكيد كلمة المرور الجديدة <span class="text-cyan-500">*</span></label>
+								<input id="pw-confirm" [type]="showPasswords() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" dir="ltr"
+									[attr.aria-invalid]="passwordFieldError('confirmPassword') ? 'true' : null"
 									class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
 									placeholder="أعد إدخال كلمة المرور">
+								@if (passwordFieldError('confirmPassword'); as err) { <span class="text-[11px] font-bold text-red-500" role="alert" data-testid="pw-confirm-error">{{ err }}</span> }
 							</div>
+						</div>
+						<label class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 cursor-pointer w-fit"><input type="checkbox" [checked]="showPasswords()" (change)="showPasswords.set(!showPasswords())"> إظهار كلمات المرور</label>
+
+						<!-- Password Strength + rules checklist (live) -->
+						<div class="flex flex-col gap-2 mt-2" aria-live="polite">
+							<div class="text-xs font-bold text-slate-500 dark:text-slate-400">قوة كلمة المرور <span data-testid="pw-strength-label" [class]="passwordStrength().textClass">{{ passwordStrength().label }}</span></div>
+							<div class="flex gap-2 w-full h-1.5 rounded-full overflow-hidden" data-testid="pw-strength-bar" [attr.data-score]="passwordStrength().score">
+								@for (n of [1, 2, 3, 4]; track n) {
+								<div class="h-full w-1/4" [class]="passwordStrength().score >= n ? passwordStrength().barClass : 'bg-slate-200 dark:bg-slate-700'"></div>
+								}
+							</div>
+							<ul id="pw-rules" class="mt-1 flex flex-col gap-1" data-testid="pw-rules">
+								@for (rule of passwordChecks(); track rule.key) {
+								<li class="flex items-center gap-2 text-[12px] font-medium" [attr.data-ok]="rule.ok" [class]="rule.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'">
+									<span aria-hidden="true">{{ rule.ok ? '✓' : '○' }}</span>{{ rule.label }}
+								</li>
+								}
+							</ul>
 						</div>
 
-						<!-- Password Strength -->
-						<div class="flex flex-col gap-2 mt-2">
-							<div class="text-xs font-bold text-slate-500 dark:text-slate-400">قوة كلمة المرور</div>
-							<div class="flex gap-2 w-full h-1.5 rounded-full overflow-hidden">
-								<div class="h-full w-1/4 bg-slate-200 dark:bg-slate-700"></div>
-								<div class="h-full w-1/4 bg-slate-200 dark:bg-slate-700"></div>
-								<div class="h-full w-1/4 bg-slate-200 dark:bg-slate-700"></div>
-								<div class="h-full w-1/4 bg-slate-200 dark:bg-slate-700"></div>
-							</div>
-						</div>
+						@if (passwordError()) { <div role="alert" data-testid="pw-error" class="rounded-xl border border-red-200 bg-red-50 p-3 text-[12px] font-bold text-red-700 dark:border-red-500/20 dark:bg-red-500/5 dark:text-red-300">{{ passwordError() }}</div> }
 
 						<!-- Action -->
-						<button type="button" disabled aria-disabled="true" aria-describedby="security-pw-reason"
-							class="w-full mt-2 py-4 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all">حفظ
-							كلمة المرور الجديدة</button>
-						<p id="security-pw-reason" data-testid="security-disabled-reason" class="mt-2 text-xs font-medium text-slate-600 dark:text-slate-400">الزر معطّل: تغيير كلمة المرور من هذه الصفحة غير متاح حاليًا.</p>
-
-					</div>
+						<button type="submit" data-testid="pw-submit" [disabled]="passwordSubmitting() || !!pendingPasswordRequest()"
+							class="w-full mt-2 py-4 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">{{ passwordSubmitting() ? 'جارٍ الإرسال...' : 'إرسال طلب تغيير كلمة المرور' }}</button>
+						@if (pendingPasswordRequest()) { <p data-testid="pw-submit-disabled-reason" class="text-xs font-medium text-slate-600 dark:text-slate-400">الإرسال معطّل لأن لديك طلب تغيير كلمة مرور قيد المراجعة.</p> }
+					</form>
 					}
 				</div>
 

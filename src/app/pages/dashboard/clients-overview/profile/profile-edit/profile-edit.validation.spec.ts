@@ -330,14 +330,13 @@ describe('client profile-edit: shared validation', () => {
     });
   });
 
-  describe('security tab (static mock-up)', () => {
-    it('is flagged as not active: the password button is disabled with a reason and the demo data is labelled', () => {
+  describe('security tab', () => {
+    it('the demo parts (MFA, sessions) are labelled; the password form is a real form with an enabled submit', () => {
       goTab('security');
       component.isChangingPassword.set(true); render();
-      expect(el().querySelector('[data-testid="security-unsupported"]')?.textContent).toContain('غير مفعّل');
-      const btn = el().querySelector('button[aria-describedby="security-pw-reason"]') as HTMLButtonElement;
-      expect(btn.disabled).toBe(true);
-      expect(el().querySelector('[data-testid="security-disabled-reason"]')?.textContent).toContain('معطّل');
+      expect(el().querySelector('[data-testid="security-unsupported"]')?.textContent).toContain('للعرض التوضيحي');
+      const btn = el().querySelector('[data-testid="pw-submit"]') as HTMLButtonElement;
+      expect(btn.disabled).toBe(false);
       expect((el().textContent || '').match(/عرض توضيحي/g)?.length).toBeGreaterThanOrEqual(2);
     });
   });
