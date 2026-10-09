@@ -298,10 +298,12 @@
             <svg style="width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-lock"></use></svg>
             <div class="affiliate-locked-text">
               <span class="affiliate-locked-name">{{ locked.displayName }}</span>
+              <span class="affiliate-locked-badge" data-testid="referral-applied">تم تطبيق رابط إحالة</span>
               <span class="affiliate-locked-note">تم تحديد الوسيط تلقائيًا عبر رابط الإحالة ولا يمكن تغييره</span>
             </div>
           </div>
           } @else {
+          @if (referralInvalid()) { <p class="affiliate-invalid" role="status" data-testid="referral-invalid">رابط الإحالة غير صالح أو منتهي، يمكنك إكمال التسجيل بدون إحالة.</p> }
           <app-affiliate-picker [(value)]="affiliateIdentifier"></app-affiliate-picker>
           }
         </div>
