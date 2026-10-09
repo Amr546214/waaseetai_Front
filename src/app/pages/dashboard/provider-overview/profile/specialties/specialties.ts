@@ -130,7 +130,6 @@ export class Specialties implements OnInit, OnDestroy {
 	streamProgressPercent = computed(() => { const t = this.expectedQuestions(); return t ? Math.min(100, (this.streamProgressCount() / t) * 100) : 0; });
 	// True only when the BACKEND reports it served its own static question bank (Gemini unavailable) — the UI must never
 	// present that as live AI generation. (There is no local question bank any more.)
-	usingStaticFallbackQuestions = signal<boolean>(false);
 
 	currentQuestionIdx = signal<number>(0);
 	userAnswers = signal<Record<string, string>>({});
@@ -146,6 +145,10 @@ export class Specialties implements OnInit, OnDestroy {
 		correctAnswers: number | null;
 		totalQuestions: number | null;
 		status: string;
+		/** What to SHOW. 'approved' only when the backend says the specialty is approved; a pass alone is 'awaiting' (admin decides). */
+		outcome: 'approved' | 'awaiting' | 'passed_other' | 'failed' | 'expired';
+		/** The backend holds the specialty APPROVED (true even after a failed retake: a failure never downgrades it). */
+		specialtyApproved: boolean;
 		badgeGrantedAt?: string;
 		feedbackAr?: string;
 		strengths?: string[];
@@ -159,6 +162,11 @@ export class Specialties implements OnInit, OnDestroy {
 	// exceptions on the primary socket flow) — distinct from the anti-cheat
 	// lockout above. Never paired with a fabricated quiz question/result.
 	quizGenerationError = signal<string | null>(null);
+	/** false for refusals/terminal outcomes that a retry can never fix (not eligible, cooldown, limit, not found, finalized). */
+	quizErrorRetryable = signal<boolean>(true);
+	/** The backend says this specialty's questions are already being generated: shown as a notice, never as an error or a 2nd start. */
+	generationInProgress = signal<boolean>(false);
+	private static readonly TERMINAL_GENERATION_CODES = new Set(['ASSESSMENT_NOT_ELIGIBLE', 'ASSESSMENT_COOLDOWN', 'ASSESSMENT_ATTEMPT_LIMIT', 'SPECIALTY_NOT_FOUND']);
 
 	private timerInterval: any = null;
 	isSubmittingSamples = signal(false);
@@ -277,11 +285,7 @@ export class Specialties implements OnInit, OnDestroy {
 				this.quizSessionId.set(ready.attemptId);
 			}
 			if (ready && typeof ready.totalQuestions === 'number' && ready.totalQuestions > 0) this.expectedQuestions.set(ready.totalQuestions);
-			// The backend honestly reports when it had to use its own static
-			// bank (Gemini unavailable) — reflect that here too.
-			if (ready && ready.generationSource) {
-				this.usingStaticFallbackQuestions.set(ready.generationSource === 'STATIC_FALLBACK');
-			}
+			this.generationInProgress.set(false);
 			this.isStreamingQuestions.set(false);
 		});
 
@@ -302,35 +306,122 @@ export class Specialties implements OnInit, OnDestroy {
 		// stale events for an attempt that has already concluded.
 		this.antiCheatService.assessmentError$.subscribe((err) => {
 			if (this.isSubmittingQuiz() || this.submissionSettledForAttempt) return;
-			this.isStreamingQuestions.set(false);
-			this.quizGenerationError.set(err?.message || 'حدث خطأ أثناء معالجة التقييم الفني.');
+			this.handleGenerationRefusal(err);
 		});
+	}
+
+	/** Shows an error in the assessment error state; `retryable=false` hides the retry button (nothing a retry could change). */
+	private setQuizError(message: string, retryable = true) {
+		this.generationInProgress.set(false);
+		this.quizErrorRetryable.set(retryable);
+		this.quizGenerationError.set(message);
+	}
+
+	/** 'يمكنك المحاولة بعد X ساعة/دقيقة' from the backend's retryAfterSeconds (rounded up). */
+	private retryAfterText(seconds?: number): string {
+		if (typeof seconds !== 'number' || !Number.isFinite(seconds) || seconds <= 0) return '';
+		if (seconds >= 3600) { const h = Math.ceil(seconds / 3600); return `يمكنك المحاولة بعد ${h === 1 ? 'ساعة' : h === 2 ? 'ساعتين' : h + ' ساعات'}.`; }
+		const m = Math.max(1, Math.ceil(seconds / 60));
+		return `يمكنك المحاولة بعد ${m === 1 ? 'دقيقة' : m === 2 ? 'دقيقتين' : m + ' دقائق'}.`;
+	}
+
+	/**
+	 * Generation-phase error (socket assessment_error or REST HTTP error body {code,message,retryAfterSeconds}). Returns true when it was a
+	 * coded refusal/notice handled here. GENERATION_IN_PROGRESS is a notice (no error, no duplicate start); eligibility/cooldown/limit/
+	 * not-found refusals show the server's message with no retry button; anything else stays a retryable error.
+	 */
+	private handleGenerationRefusal(err: { message?: string; code?: string; retryAfterSeconds?: number } | null | undefined): boolean {
+		const code = err?.code;
+		this.isStreamingQuestions.set(false);
+		if (code === 'GENERATION_IN_PROGRESS') {
+			this.isStreamingQuestions.set(true);
+			this.generationInProgress.set(true);
+			return true;
+		}
+		if (code && Specialties.TERMINAL_GENERATION_CODES.has(code)) {
+			this.stopTimer();
+			this.quizQuestions.set([]);
+			this.streamProgressCount.set(0);
+			const base = err?.message || 'لا يمكن بدء التقييم لهذا التخصص حالياً.';
+			const wait = code === 'ASSESSMENT_COOLDOWN' ? this.retryAfterText(err?.retryAfterSeconds) : '';
+			this.setQuizError(wait ? `${base} ${wait}` : base, false);
+			return true;
+		}
+		this.setQuizError(err?.message || 'حدث خطأ أثناء معالجة التقييم الفني.');
+		return false;
+	}
+
+	/** Builds the displayed result. A pass is NEVER shown as an approval unless the backend says specialtyApproved. */
+	private buildQuizResult(d: any, scoreVal: number, message: string | undefined): NonNullable<ReturnType<typeof this.quizResult>> {
+		const status = String(d?.status || '').toUpperCase();
+		const expired = status === 'EXPIRED';
+		const passed = !expired && (d?.isPassed === true || ['PASSED', 'APPROVED', 'COMPLETED'].includes(status));
+		const specialtyApproved = d?.specialtyApproved === true;
+		let outcome: 'approved' | 'awaiting' | 'passed_other' | 'failed' | 'expired';
+		if (expired) outcome = 'expired';
+		else if (!passed) outcome = 'failed';
+		else if (specialtyApproved) outcome = 'approved';
+		else if (d?.awaitingAdminApproval === true || d?.awaitingAdminApproval === undefined) outcome = 'awaiting';
+		else outcome = 'passed_other';
+		return {
+			passed,
+			scorePercentage: scoreVal,
+			correctAnswers: Number.isFinite(d?.correctAnswers) ? d.correctAnswers : null,
+			totalQuestions: this.quizQuestions().length || null,
+			status: status || (passed ? 'PASSED' : 'FAILED'),
+			outcome,
+			specialtyApproved,
+			badgeGrantedAt: d?.completedAt,
+			feedbackAr: d?.feedbackAr,
+			strengths: d?.strengths || [],
+			weaknesses: d?.weaknesses || [],
+			detailedResults: [],
+			message
+		};
+	}
+
+	resultHeadline(): string {
+		const r = this.quizResult();
+		if (!r) return '';
+		switch (r.outcome) {
+			case 'approved': return 'اجتزت التقييم';
+			case 'awaiting': return 'اجتزت الاختبار بنجاح. اعتماد التخصص ومنح الشارة يتمّان بعد قرار الإدارة';
+			case 'passed_other': return 'اجتزت التقييم';
+			case 'expired': return r.message || 'انتهت مدة التقييم قبل التسليم.';
+			default: return r.message || 'لم تحقق الحد الأدنى للاجتياز (أكثر من 25%)';
+		}
+	}
+
+	resultSubline(): string {
+		const r = this.quizResult();
+		if (!r) return '';
+		switch (r.outcome) {
+			case 'approved': return 'تخصصك معتمد لدى المنصة.';
+			case 'awaiting': return 'سيُراجع طلبك ويُعتمد التخصص بعد قرار الإدارة، ولن يتغيّر وضع تخصصك قبل ذلك.';
+			case 'passed_other': return 'سُجّلت نتيجتك. لم يتغيّر وضع التخصص.';
+			default: return 'لم تحقق النسبة المطلوبة هذه المرة. يمكنك مراجعة إجاباتك أدناه والمحاولة مرة أخرى.' + (r.specialtyApproved ? ' تخصصك المعتمد لم يتأثر.' : '');
+		}
+	}
+
+	resultBadgeLabel(): string {
+		const r = this.quizResult();
+		if (!r) return '';
+		if (r.specialtyApproved) return '🏅 معتمد';
+		if (r.outcome === 'awaiting') return '⏳ بانتظار قرار الإدارة';
+		return '🔒 لم تُمنح';
 	}
 
 	// Batch 3D-3: shared success-application logic for the socket
 	// (evaluation_complete) result shape — the sole authoritative place that
 	// sets quizResult from a socket-delivered outcome.
 	private applyEvaluationResult(res: any) {
-		const totalQ = this.quizQuestions().length || null;
 		const scoreVal = Number.isFinite(res?.score) ? res.score : (Number.isFinite(res?.scorePercentage) ? res.scorePercentage : null);
 		if (scoreVal === null) {
 			// No real score arrived: never invent one.
 			this.applyFallbackResults();
 			return;
 		}
-		this.quizResult.set({
-			passed: Boolean(res.isPassed),
-			scorePercentage: scoreVal,
-			correctAnswers: Number.isFinite(res.correctAnswers) ? res.correctAnswers : null,
-			totalQuestions: totalQ,
-			status: res.status || (res.isPassed ? 'APPROVED' : 'FAILED'),
-			badgeGrantedAt: res.completedAt,
-			feedbackAr: res.feedbackAr,
-			strengths: res.strengths || [],
-			weaknesses: res.weaknesses || [],
-			detailedResults: [],
-			message: res.message
-		});
+		this.quizResult.set(this.buildQuizResult(res, scoreVal, res.message));
 	}
 
 	selectedSpecId = signal<string | null>(null);
@@ -808,7 +899,7 @@ export class Specialties implements OnInit, OnDestroy {
 
 	declarations = signal<{ id: number, text: string, checked: boolean }[]>([
 		{ id: 1, text: 'أقر بأن جميع نماذج أعمالي المرفوعة صحيحة وتتطابق مع خبرتي الفعلية وهي من إنتاجي', checked: false },
-		{ id: 2, text: 'أوافق على شروط الاعتماد وأدرك أن اجتياز الاختبار الفوري لازم لتفعيل التخصص وبشارة التميز', checked: false },
+		{ id: 2, text: 'أوافق على شروط المراجعة وأدرك أن اجتياز الاختبار شرط لمراجعة تخصصي، وأن اعتماد التخصص ومنح الشارة يتمّان بعد قرار الإدارة', checked: false },
 		{ id: 3, text: 'أتعهد بالالتزام التام بضمانات مكافحة الغش وأعلم أن مغادرة المتصفح ستتسبب ببطول النتيجة وقفل الاختبار لـ 24 ساعة', checked: false }
 	]);
 
@@ -849,10 +940,14 @@ export class Specialties implements OnInit, OnDestroy {
 	});
 
 	private initiateDynamicQuiz() {
+		// Guard: never start twice while a start/attempt is in flight (double click, repeated retry).
+		if (this.isSubmittingQuiz() || (this.isQuizActive() && !this.quizGenerationError())) return;
 		const specId = this.providerSpecialtyId();
-		if (!specId) { this.quizGenerationError.set(SPECIALTY_ID_MISSING_MESSAGE); return; }
+		if (!specId) { this.setQuizError(SPECIALTY_ID_MISSING_MESSAGE); return; }
 		this.isQuizActive.set(true);
 		this.quizGenerationError.set(null);
+		this.quizErrorRetryable.set(true);
+		this.generationInProgress.set(false);
 		this.quizResult.set(null);
 		// A new attempt begins — any settlement guard from a previous
 		// submission no longer applies (Batch 3D-3).
@@ -860,7 +955,6 @@ export class Specialties implements OnInit, OnDestroy {
 		this.clearSubmissionWatchers();
 		this.quizQuestions.set([]);
 		this.isStreamingQuestions.set(true);
-		this.usingStaticFallbackQuestions.set(false);
 		this.streamProgressCount.set(0);
 		this.currentQuestionIdx.set(0);
 		this.userAnswers.set({});
@@ -894,27 +988,23 @@ export class Specialties implements OnInit, OnDestroy {
 								text: q.textAr || q.text || '',
 								options: q.options || []
 							}));
-							// The backend honestly reports when it had to use its own
-							// static bank (Gemini unavailable) — reflect that here too.
 							if (questions.length === 0) {
 								this.showQuestionGenerationError();
 								return;
 							}
-							this.usingStaticFallbackQuestions.set(res.data.generationSource === 'STATIC_FALLBACK');
 							this.setupQuizSession(attemptId, questions, 900, false);
 						} else {
 							this.showQuestionGenerationError();
 						}
 					},
 					error: (err: any) => {
-						// Batch 3D-2: the backend now reports GENERATION_IN_PROGRESS when
-						// the socket stream is still genuinely generating this specialty's
-						// questions (concurrency-claim in progress). That is not a real
-						// failure — showing the unrelated local static fallback here would
-						// be misleading since the real, already-in-flight questions will
-						// still arrive via the socket stream shortly. Only a genuine error
-						// falls back to the static question bank.
-						if (err?.error?.code === 'GENERATION_IN_PROGRESS') return;
+						// Coded refusals/notices (GENERATION_IN_PROGRESS, not eligible, cooldown, limit, specialty not found) arrive as
+						// {code,message,retryAfterSeconds} in the HTTP error body; only an uncoded failure is the generic retryable error.
+						const body = err?.error;
+						if (body?.code === 'GENERATION_IN_PROGRESS' || (body?.code && Specialties.TERMINAL_GENERATION_CODES.has(body.code))) {
+							this.handleGenerationRefusal(body);
+							return;
+						}
 						this.showQuestionGenerationError();
 					}
 				});
@@ -1073,9 +1163,9 @@ export class Specialties implements OnInit, OnDestroy {
 
 		const confirmSubmit = await this.confirmModal.confirm({
 			title: '📋 تسليم التقييم الفوري للتدقيق',
-			message: 'هل أنت متأكد من تسليم إجابات التقييم وإغلاق الجلسة للتحليل الذكي واعتماد شارة التميز؟',
+			message: 'هل أنت متأكد من تسليم إجابات التقييم وإغلاق الجلسة للتحليل؟ سيُراجع طلبك ويُعتمد التخصص بعد قرار الإدارة.',
 			type: 'info',
-			confirmText: 'نعم، تسليم واعتماد النتيجة',
+			confirmText: 'نعم، تسليم الإجابات',
 			cancelText: 'مراجعة الإجابات'
 		});
 		if (!confirmSubmit) return;
@@ -1087,7 +1177,7 @@ export class Specialties implements OnInit, OnDestroy {
 		// Step 5 — double-click / repeated-invocation guard. isSubmittingQuiz
 		// is set synchronously below before any async gap, so a rapid repeat
 		// call (or a second entry via the timeout path) is rejected here.
-		if (this.isSubmittingQuiz()) return;
+		if (this.isSubmittingQuiz() || this.quizResult()) return; // already pending, or a result already exists
 
 		const attemptId = this.quizSessionId() || 'demo-session-2026';
 
@@ -1151,7 +1241,8 @@ export class Specialties implements OnInit, OnDestroy {
 				// never worth a second submission attempt.
 				this.submissionSettledForAttempt = attemptId;
 				this.isSubmittingQuiz.set(false);
-				this.quizGenerationError.set(err?.message || 'حدث خطأ أثناء معالجة التقييم الفني.');
+				// NOT_FOUND / ALREADY_FINALIZED: terminal, a retry can never succeed.
+				this.setQuizError(err?.message || 'حدث خطأ أثناء معالجة التقييم الفني.', !(err?.code === 'NOT_FOUND' || err?.code === 'ALREADY_FINALIZED'));
 				this.finishSubmission();
 			}
 		});
@@ -1212,27 +1303,13 @@ export class Specialties implements OnInit, OnDestroy {
 				this.submissionSettledForAttempt = attemptId;
 				if (res.success && res.data) {
 					const d = res.data;
-					const totalQ = this.quizQuestions().length || null;
 					if (!Number.isFinite(d.score)) {
 						// No real score arrived: never invent one.
 						this.applyFallbackResults();
 						this.finishSubmission();
 						return;
 					}
-					const scoreVal = d.score;
-					this.quizResult.set({
-						passed: Boolean(d.isPassed),
-						scorePercentage: scoreVal,
-						correctAnswers: Number.isFinite(d.correctAnswers) ? d.correctAnswers : null,
-						totalQuestions: totalQ,
-						status: d.status || (d.isPassed ? 'APPROVED' : 'FAILED'),
-						badgeGrantedAt: d.completedAt,
-						feedbackAr: d.feedbackAr,
-						strengths: d.strengths || [],
-						weaknesses: d.weaknesses || [],
-						detailedResults: [],
-						message: res.message
-					});
+					this.quizResult.set(this.buildQuizResult(d, d.score, d.message || res.message));
 				} else {
 					this.applyFallbackResults();
 				}
@@ -1243,11 +1320,16 @@ export class Specialties implements OnInit, OnDestroy {
 			// SpecialtyTestSession quiz/submit endpoint — that endpoint
 			// requires a SpecialtyTestSession.id, which an AssessmentAttempt.id
 			// can never match, so that retry was always guaranteed to fail.
-			error: () => {
+			error: (err: any) => {
 				if (this.submissionSettledForAttempt === attemptId) return;
 				this.isSubmittingQuiz.set(false);
 				this.submissionSettledForAttempt = attemptId;
-				this.quizGenerationError.set('تعذر إرسال إجاباتك للتقييم. الرجاء المحاولة مرة أخرى.');
+				// 404 (not found / not yours) and 409 (already finalized) are terminal: no retry loop.
+				if (err?.status === 404 || err?.status === 409) {
+					this.setQuizError(err?.error?.message || (err.status === 404 ? 'محاولة التقييم غير موجودة أو لا تملك صلاحية الوصول إليها.' : 'تم تسليم هذا التقييم مسبقاً ولا يمكن تسليمه مرة أخرى.'), false);
+				} else {
+					this.setQuizError('تعذر إرسال إجاباتك للتقييم. الرجاء المحاولة مرة أخرى.');
+				}
 				this.finishSubmission();
 			}
 		});
@@ -1262,9 +1344,8 @@ export class Specialties implements OnInit, OnDestroy {
 		this.isStreamingQuestions.set(false);
 		this.quizQuestions.set([]);
 		this.streamProgressCount.set(0);
-		this.usingStaticFallbackQuestions.set(false);
 		this.quizResult.set(null);
-		this.quizGenerationError.set('تعذر إنشاء أسئلة التقييم الآن. لم تُعرض أي أسئلة بديلة ولم يتأثر اعتماد تخصصك. يرجى المحاولة مرة أخرى بعد قليل.');
+		this.setQuizError('تعذر إنشاء أسئلة التقييم الآن. لم تُعرض أي أسئلة بديلة ولم يتأثر اعتماد تخصصك. يرجى المحاولة مرة أخرى بعد قليل.');
 	}
 
 	// A response without a real score is a SERVICE/DATA error, not a result:
@@ -1275,7 +1356,7 @@ export class Specialties implements OnInit, OnDestroy {
 	// 0% "did not pass" result — both were wrong for a missing score.)
 	private applyFallbackResults() {
 		this.quizResult.set(null);
-		this.quizGenerationError.set('تعذر استلام نتيجة التقييم من الخدمة. لم يتم احتساب أي درجة، ولم يتأثر اعتماد تخصصك. يرجى إعادة المحاولة.');
+		this.setQuizError('تعذر استلام نتيجة التقييم من الخدمة. لم يتم احتساب أي درجة، ولم يتأثر اعتماد تخصصك. يرجى إعادة المحاولة.');
 	}
 
 	ngOnDestroy(): void {

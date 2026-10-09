@@ -560,7 +560,6 @@ component.providerSpecialtyId.set('spec-1'); // a real id is required (no demo d
 		expect(component.quizGenerationError()).toContain('تعذر إنشاء أسئلة التقييم');
 		expect(component.quizQuestions()).toEqual([]);
 		expect(component.isStreamingQuestions()).toBe(false);
-		expect(component.usingStaticFallbackQuestions()).toBe(false);
 		expect(component.quizResult()).toBeNull();
 	};
 
@@ -590,12 +589,11 @@ component.providerSpecialtyId.set('spec-1'); // a real id is required (no demo d
 		expect(component.quizQuestions()).toEqual([]);
 	});
 
-	it('real REST questions still work and are shown as received (backend-reported static bank stays flagged)', () => {
-		generate.mockReturnValue(of({ success: true, data: { attemptId: 'a1', generationSource: 'STATIC_FALLBACK', questions: [{ id: 'q1', textAr: 'سؤال حقيقي', options: [{ id: 'a', text: 'ا' }] }] } }));
+	it('real REST questions still work and are shown as received ', () => {
+		generate.mockReturnValue(of({ success: true, data: { attemptId: 'a1', questions: [{ id: 'q1', textAr: 'سؤال حقيقي', options: [{ id: 'a', text: 'ا' }] }] } }));
 		startAndWaitForRestFallback();
 		expect(component.quizQuestions().length).toBe(1);
 		expect(component.quizQuestions()[0].text).toBe('سؤال حقيقي');
-		expect(component.usingStaticFallbackQuestions()).toBe(true);
 		expect(component.quizGenerationError()).toBeNull();
 		(component as any).stopTimer();
 	});

@@ -78,6 +78,25 @@ describe('AntiCheatService — assessment_error (Batch 3D-2)', () => {
 		expect(received[0].message.length).toBeGreaterThan(0);
 	});
 
+	it('forwards code and retryAfterSeconds of a coded refusal (cooldown) untouched', () => {
+		service.startAssessmentStream({ providerSpecialtyId: 'spec-1' });
+		const received: any[] = [];
+		service.assessmentError$.subscribe((e) => received.push(e));
+		handlers['assessment_error']({ message: 'انتظر', code: 'ASSESSMENT_COOLDOWN', retryAfterSeconds: 7200 });
+		handlers['assessment_error']({ message: 'غير مؤهل', code: 'ASSESSMENT_NOT_ELIGIBLE' });
+		expect(received[0]).toEqual({ message: 'انتظر', code: 'ASSESSMENT_COOLDOWN', retryAfterSeconds: 7200 });
+		expect(received[1]).toEqual({ message: 'غير مؤهل', code: 'ASSESSMENT_NOT_ELIGIBLE' });
+	});
+
+	it('passes evaluation_complete through with the backend specialty state fields intact', () => {
+		service.startAssessmentStream({ providerSpecialtyId: 'spec-1' });
+		const received: any[] = [];
+		service.evaluationComplete$.subscribe((e) => received.push(e));
+		const payload = { attemptId: 'a', status: 'PASSED', isPassed: true, specialtyApproved: false, awaitingAdminApproval: true, specialtyStatus: 'UNDER_AI_REVIEW' };
+		handlers['evaluation_complete'](payload);
+		expect(received[0]).toEqual(payload);
+	});
+
 	it('does not register a duplicate assessment_error listener on a second call while already connected', () => {
 		fakeSocket.connected = true;
 		service.startAssessmentStream({ providerSpecialtyId: 'spec-1' });

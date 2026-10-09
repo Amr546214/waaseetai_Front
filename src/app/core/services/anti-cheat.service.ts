@@ -31,6 +31,8 @@ export class AntiCheatService implements OnDestroy {
   // Event subjects for component reactive overlays and streaming
   public questionStreamed$ = new Subject<StreamedQuestionPayload>();
   public assessmentReady$ = new Subject<{ attemptId: string; totalQuestions: number; timeLimitMinutes: number; generationSource?: string }>();
+  // The ATTEMPT outcome. `status` is 'PASSED' | 'FAILED' | 'EXPIRED' (never an approval): a pass is NOT an approval — the specialty's real
+  // state arrives separately as specialtyStatus / specialtyApproved / awaitingAdminApproval (admin decides).
   public evaluationComplete$ = new Subject<any>();
   // Batch 3D-2: real backend failures for the primary assessment socket flow
   // (auth/rate-limit/ownership/generation/submission exceptions) — previously
@@ -40,7 +42,7 @@ export class AntiCheatService implements OnDestroy {
   // genuine retryable transport failure from a terminal business outcome
   // without parsing the Arabic message. Generation-phase emissions
   // (start_assessment) have no `code` — untouched, out of this batch's scope.
-  public assessmentError$ = new Subject<{ message: string; code?: string }>();
+  public assessmentError$ = new Subject<{ message: string; code?: string; retryAfterSeconds?: number }>();
   // Batch 3D-3: a real socket.io 'disconnect' occurring mid-flight — lets a
   // pending submission detect a genuine transport failure immediately instead
   // of waiting for a bounded timeout.
@@ -131,7 +133,8 @@ export class AntiCheatService implements OnDestroy {
         ? payload.message
         : 'حدث خطأ أثناء معالجة التقييم الفني.';
       const code = typeof payload?.code === 'string' ? payload.code : undefined;
-      this.assessmentError$.next({ message, code });
+      const retryAfterSeconds = typeof payload?.retryAfterSeconds === 'number' && Number.isFinite(payload.retryAfterSeconds) ? payload.retryAfterSeconds : undefined;
+      this.assessmentError$.next(retryAfterSeconds !== undefined ? { message, code, retryAfterSeconds } : { message, code });
     });
 
     // Batch 3D-3: a real transport failure signal a pending submission can
