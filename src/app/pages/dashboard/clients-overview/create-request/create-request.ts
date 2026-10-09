@@ -26,6 +26,18 @@ interface Specialty {
   subs?: string[];
 }
 
+export interface ClientSpecialtyRecommendation {
+  hasRecommendation: boolean;
+  source: 'text_match' | 'client_history' | 'popular' | 'none';
+  reason: string;
+  message: string;
+  categoryId: string | null;
+  categoryName: string | null;
+  specialtyIds: string[];
+  specialtyNames: string[];
+  confidence?: number | null;
+}
+
 interface Milestone { name: string; pct: number; }
 
 // Versioned sessionStorage draft shape. Bump DRAFT_VERSION (and the key
@@ -161,6 +173,57 @@ export class CreateRequest implements OnInit, OnDestroy {
   specialties = signal<Specialty[]>([
   ]);
 
+  /** Shape of POST /client/requests/specialty-recommendations (data). `source` says what the suggestion really rests on. */
+  recommendation = signal<ClientSpecialtyRecommendation | null>(null);
+  private recSeq = 0;
+  private recTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * The banner shows only a real, applicable recommendation: its category must exist in the loaded catalog, and while the client is typing
+   * in the search box only a suggestion that came from that text (text_match) may show.
+   */
+  visibleRecommendation = computed(() => {
+    const r = this.recommendation();
+    if (!r || !r.hasRecommendation || !r.message || !r.categoryId) return null;
+    if (!this.specialties().some(sp => sp.id === r.categoryId)) return null;
+    if (this.searchQuery().trim().length >= 2 && r.source !== 'text_match') return null;
+    return r;
+  });
+
+  recommendationTitle = computed(() => this.visibleRecommendation()?.source === 'popular' ? 'اقتراح شائع' : 'اقتراح لك');
+
+  /** The search box changed: filter as before, and (debounced) ask for a suggestion for what was typed. */
+  onSearchInput(value: string): void {
+    this.searchQuery.set(value);
+    if (this.recTimer) clearTimeout(this.recTimer);
+    const q = (value ?? '').trim();
+    this.recTimer = setTimeout(() => this.loadRecommendation(q.length >= 2 ? q : ''), 500);
+  }
+
+  /** Silent by design: a failure or an empty answer just means no banner (never a toast). */
+  loadRecommendation(query = ''): void {
+    const seq = ++this.recSeq;
+    this.projectApi.getSpecialtyRecommendation(query || undefined).subscribe({
+      next: (res: any) => {
+        if (seq !== this.recSeq) return; // a newer request replaced this one
+        const d = res?.success ? res.data : null;
+        this.recommendation.set(d && typeof d === 'object' && d.hasRecommendation === true ? d as ClientSpecialtyRecommendation : null);
+      },
+      error: () => { if (seq === this.recSeq) this.recommendation.set(null); }
+    });
+  }
+
+  /** Selects the suggested category and specialties in the page only: no navigation to the next step and nothing is sent. */
+  applyRecommendation(): void {
+    const r = this.visibleRecommendation();
+    if (!r || !r.categoryId) return;
+    const cat = this.specialties().find(sp => sp.id === r.categoryId);
+    if (!cat) return;
+    this.selectSpec(cat.id);
+    const names = (r.specialtyNames ?? []).filter(n => (cat.subs ?? []).includes(n)).slice(0, this.MAX_SUBS);
+    this.selectedSubs.set(new Set(names));
+  }
+
   filteredSpecs = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
     if (!q) return this.specialties();
@@ -185,6 +248,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.clearSubmittedMarker();
     }
     this.loadSpecialtiesFromDatabase();
+    this.loadRecommendation();
     // Clicking "إنشاء طلب" / "طلب جديد" while already on the wizard is a same-URL navigation: the router skips it and never recreates
     // this component, so the old values would stay. Treat that skipped navigation as an explicit "start a new request".
     this.sameUrlSub = this.router.events.subscribe(e => {
@@ -965,6 +1029,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.recTimer) clearTimeout(this.recTimer);
     this.sameUrlSub?.unsubscribe();
     if (this.socket) {
       this.socket.disconnect();
