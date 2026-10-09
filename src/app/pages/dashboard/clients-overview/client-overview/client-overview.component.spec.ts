@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, it, expect } from 'vitest';
@@ -236,5 +237,45 @@ describe('ClientOverviewComponent — latest offers level badge (Batch 5)', () =
 		const section = (fixture.nativeElement as HTMLElement).querySelector('.offers-section');
 		expect(section?.textContent).toContain('اخر العروض');
 		expect(section?.textContent).not.toMatch(/مرتبة بتطابق|رتب(ها)? (ال)?AI|AI رتب/);
+	});
+});
+
+
+// The stats row used to be a 5-column grid with only 4 cards: the fifth slot (left-most in RTL) was an empty box under the level card.
+describe('ClientOverviewComponent — stats row has no blank slot', () => {
+	function mount(overrides: any = {}) {
+		const dashboardData = baseDashboardData(overrides);
+		const fakeStore: Partial<DashboardStore> = {
+			dashboardData: (() => dashboardData) as any, activeContract: (() => null) as any, isLoadingDashboard: (() => false) as any,
+			error: (() => null) as any, totalActiveRequestsCount: (() => 0) as any, fetchDashboardStats: async () => {},
+		};
+		TestBed.configureTestingModule({ imports: [ClientOverviewComponent], providers: [provideRouter([]), { provide: DashboardStore, useValue: fakeStore }, { provide: AuthStore, useValue: { currentUser: () => null } }] });
+		const f = TestBed.createComponent(ClientOverviewComponent);
+		f.detectChanges();
+		return f.nativeElement as HTMLElement;
+	}
+
+	it('every stat card has a title and a value (no empty card)', () => {
+		const cards = Array.from(mount().querySelectorAll('.stats-row .stat-card'));
+		expect(cards.length).toBe(4);
+		for (const c of cards) {
+			expect(c.querySelector('.stat-lbl')?.textContent?.trim()).toBeTruthy();
+			expect(c.querySelector('.stat-val')?.textContent?.trim()).toBeTruthy();
+		}
+	});
+
+	it('the empty states (no projects / offers) still render the same four filled cards', () => {
+		const cards = Array.from(mount({ latestProjects: [], latestProposals: [], summary: { ...baseDashboardData().summary, activeProjectsCount: 0, newOffersCount: 0, totalEscrowAmount: 0, humanRating: 0 } }).querySelectorAll('.stats-row .stat-card'));
+		expect(cards.length).toBe(4);
+		expect(cards.every(c => !!c.querySelector('.stat-val')?.textContent?.trim())).toBe(true);
+	});
+
+	it('the grid has exactly one column per card on desktop and never 3 columns for 4 cards (no orphan gap)', async () => {
+		const { readFileSync } = await import('node:fs');
+		const { join } = await import('node:path');
+		const css = readFileSync(join(__dirname, 'client-overview.component.css'), 'utf8');
+		expect(css).toMatch(/\.stats-row\{display:grid;grid-template-columns:repeat\(4,1fr\)/);
+		expect(css).not.toMatch(/\.stats-row\{grid-template-columns:repeat\((3|5),1fr\)/);
+		expect(css).not.toMatch(/\.stats-row\{display:grid;grid-template-columns:repeat\(5,1fr\)/);
 	});
 });
