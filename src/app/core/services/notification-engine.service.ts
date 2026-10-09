@@ -440,7 +440,7 @@ export class NotificationEngineService implements OnDestroy {
 				if (metadata.projectId && metadata.stageId) {
 					return `/client-overview/projects/${metadata.projectId}/delivery-review/${metadata.stageId}`;
 				}
-				return this.isSafeInternalUrl(nt?.actionUrl) ? nt!.actionUrl! : null;
+				return this.isSafeInternalUrl(nt?.actionUrl, '/client-overview') ? nt!.actionUrl! : null;
 			case 'NEW_PROPOSAL':
 				// Client-only. RequestDetails already shows every proposal on
 				// the request — the exact destination this UI supports (it has
@@ -448,7 +448,7 @@ export class NotificationEngineService implements OnDestroy {
 				if (metadata.requestId) {
 					return `/client-overview/my-requests/${metadata.requestId}`;
 				}
-				return this.isSafeInternalUrl(nt?.actionUrl) ? nt!.actionUrl! : null;
+				return this.isSafeInternalUrl(nt?.actionUrl, '/client-overview') ? nt!.actionUrl! : null;
 			case 'MODEL_APPROVED':
 				// Provider-only. business-models/market/:id is the exact
 				// published-model detail page (confirmed to share ServiceCatalog
@@ -457,7 +457,7 @@ export class NotificationEngineService implements OnDestroy {
 				if (metadata.serviceId) {
 					return `/provider-overview/business-models/market/${metadata.serviceId}`;
 				}
-				return this.isSafeInternalUrl(nt?.actionUrl) ? nt!.actionUrl! : null;
+				return this.isSafeInternalUrl(nt?.actionUrl, '/provider-overview') ? nt!.actionUrl! : null;
 			case 'FINANCIAL':
 				// A specific transaction detail page exists and is more exact,
 				// but only new rows (created after this fix) carry
@@ -473,7 +473,7 @@ export class NotificationEngineService implements OnDestroy {
 				// Covers GENERAL and any future/unrecognized type: never
 				// fabricates a route, only ever trusts an already-real,
 				// same-app actionUrl.
-				return this.isSafeInternalUrl(nt?.actionUrl) ? nt!.actionUrl! : null;
+				return this.isSafeInternalUrl(nt?.actionUrl, basePath) ? nt!.actionUrl! : null;
 		}
 	}
 
@@ -523,8 +523,11 @@ export class NotificationEngineService implements OnDestroy {
 	 * a "javascript:" pseudo-protocol (neither can ever start with
 	 * "/provider-overview/" etc.).
 	 */
-	private isSafeInternalUrl(url: string | null | undefined): url is string {
+	private isSafeInternalUrl(url: string | null | undefined, viewerBase?: NotificationBasePath): url is string {
 		if (!url) return false;
+		// A multi-role account sees every notification of the user in each dashboard: a stored URL that belongs to ANOTHER role's
+		// dashboard (e.g. /marketer-overview/... seen from the provider page) is not a destination for this viewer.
+		if (viewerBase) return url.startsWith(`${viewerBase}/`);
 		return NotificationEngineService.SAFE_BASE_PATHS.some(base => url.startsWith(`${base}/`));
 	}
 

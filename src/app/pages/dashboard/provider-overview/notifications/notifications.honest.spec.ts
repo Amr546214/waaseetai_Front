@@ -107,4 +107,12 @@ describe('provider notifications: honest banner/counters/CTA/mark-all', () => {
 		expect(el2.textContent).toContain('ذكاء AI');
 		expect(unwrap(c.notifications()[0].svgIcon)).toContain('r="1.5"');
 	});
+
+	it('a notification whose stored URL belongs to another role\'s dashboard (multi-role account) has no destination and does not navigate', async () => {
+		await mount([raw({ id: 'm', type: 'GENERAL', actionUrl: '/marketer-overview/profile/requests', isRead: true })]);
+		const nt = c.notifications()[0];
+		expect(nt.actionUrl).toBeUndefined();
+		c.onNotificationClick(nt);
+		expect(nav).not.toHaveBeenCalled();
+	});
 });
