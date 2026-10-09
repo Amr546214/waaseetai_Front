@@ -165,7 +165,8 @@ export class Requests implements OnInit {
     }
 
     const entries = Object.entries(parsed as Record<string, unknown>)
-      .filter(([key]) => !['password', 'metadata'].includes(key))
+      // legacy bank values (requests filed before PayPal became the only payout method) are never shown
+      .filter(([key]) => !['password', 'metadata', 'accountHolderName', 'ibanNumber', 'bankName', 'iban', 'accountNumber'].includes(key))
       .map(([key, value]) => ({ label: this.fieldLabel(key), value: this.formatValue(key, value) }));
 
     return entries.length ? entries : [{ label: 'القيمة', value: 'غير محدد' }];
@@ -174,7 +175,6 @@ export class Requests implements OnInit {
   private fieldLabel(key: string): string {
     const labels: Record<string, string> = {
       email: 'البريد الإلكتروني', phoneNumber: 'رقم الجوال', alternativePhone: 'رقم واتساب',
-      accountHolderName: 'اسم صاحب الحساب', ibanNumber: 'رقم IBAN', bankName: 'اسم البنك',
       idDocumentUrl: 'الهوية الوطنية', commercialRegistration: 'السجل التجاري', vatCertificateUrl: 'شهادة VAT',
       firstName: 'الاسم الأول', lastName: 'اسم العائلة', headline: 'المسمى المهني', bio: 'الوصف المهني',
       hourlyRate: 'سعر الساعة', yearsOfExperience: 'سنوات الخبرة', availabilityStatus: 'حالة التوفر',
@@ -190,7 +190,6 @@ export class Requests implements OnInit {
     if (key.toLowerCase().includes('document') || key.toLowerCase().includes('certificate') || key === 'commercialRegistration') {
       return this.fileNameOnly(value);
     }
-    if (key === 'ibanNumber') return this.mask(String(value), 4);
     if (key.toLowerCase().includes('idnumber')) return this.mask(String(value), 3);
     if (Array.isArray(value)) return value.length ? value.map(item => String(item).replace('|', ' — ')).join('، ') : 'غير محدد';
     if (typeof value === 'object') return 'تم تحديث الإعدادات';

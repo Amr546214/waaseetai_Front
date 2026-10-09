@@ -34,9 +34,6 @@ export interface ProviderProfile {
     avatarUrl?: string | null;
     phoneNumber?: string | null;
     alternativePhone?: string | null;
-    accountHolderName?: string | null;
-    ibanNumber?: string | null;
-    bankName?: string | null;
     idDocumentUrl?: string | null;
     /** Present when the stored document is private (idDocumentUrl is then null) or a legacy public URL. */
     idDocumentUrlAccess?: KycAccess | null;
@@ -123,7 +120,7 @@ export class ProviderProfileService {
     return this.http.post<any>(`${this.apiUrl}/requests/${id}/cancel`, {});
   }
 
-  initiateSensitiveChange(category: 'CONTACT' | 'BANKING' | 'DOCUMENTS', changes: Record<string, unknown>): Observable<any> {
+  initiateSensitiveChange(category: 'CONTACT' | 'DOCUMENTS', changes: Record<string, unknown>): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/sensitive-change`, { category, changes });
   }
 
@@ -163,10 +160,6 @@ export class ProviderProfileService {
 
   updateContactInfo(data: any): Observable<ProviderProfile> {
     return this.http.put<ProviderProfile>(`${this.apiUrl}/contact`, data);
-  }
-
-  updateBankingInfo(data: any): Observable<ProviderProfile> {
-    return this.http.put<ProviderProfile>(`${this.apiUrl}/banking`, data);
   }
 
   updateDocsInfo(data: any): Observable<ProviderProfile> {

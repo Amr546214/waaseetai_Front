@@ -183,7 +183,7 @@ export class Withdraw implements OnInit {
     }
 
     if (!this.paypalEmail()) {
-      errors['paypal'] = 'أضف بريد PayPal لاستلام المدفوعات من صفحة بيانات الملف قبل طلب السحب';
+      errors['paypal'] = 'أضف بريد PayPal لاستلام الأرباح';
     }
 
     this.formErrors.set(errors);
@@ -268,18 +268,11 @@ export class Withdraw implements OnInit {
   getMethodLabel(method?: string): string {
     const map: Record<string, string> = {
       paypal: 'PayPal',
-      bank_transfer: 'تحويل بنكي (قديم)',
-      card: 'بطاقة',
     };
-    return map[method || ''] || method || '—';
+    // PayPal is the only withdrawal method: an older row of another method is shown generically, never as a bank transfer.
+    return map[method || ''] || 'طلب سحب سابق';
   }
 
-  maskValue(value?: string): string {
-    if (!value) return '—';
-    const v = value.replace(/\s/g, '');
-    if (v.length <= 6) return v;
-    return v.substring(0, 4) + ' •••• ' + v.substring(v.length - 4);
-  }
 
   formatAmount(amount?: number, currency?: string): string {
     if (amount == null) return '—';
