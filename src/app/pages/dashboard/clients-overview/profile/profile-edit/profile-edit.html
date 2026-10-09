@@ -1089,11 +1089,11 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الامان والمصادقة</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">ادارة امان الحساب وجلسات الدخول النشطة</p>
+					<p class="text-sm text-slate-500 dark:text-slate-400">إدارة أمان الحساب وكلمة المرور</p>
 				</div>
 			</div>
 
-						<div role="note" data-testid="security-unsupported" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">المصادقة الثنائية وجلسات الدخول المعروضة هنا للعرض التوضيحي فقط ولا تعكس بيانات حسابك الفعلية. تغيير كلمة المرور فعّال ويمر بمراجعة المراجع.</div>
+						<div role="note" data-testid="security-unsupported" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">المصادقة الثنائية المعروضة هنا للعرض التوضيحي فقط ولا تعكس حالة حسابك الفعلية. تغيير كلمة المرور فعّال ويمر بمراجعة المراجع.</div>
 			<div class="flex flex-col">
 				<!-- MFA -->
 				<div class="flex items-center justify-between py-5 border-b border-slate-200 dark:border-slate-700/50">
@@ -1195,40 +1195,10 @@
 					}
 				</div>
 
-				<!-- Active Sessions -->
-				<div class="flex flex-col md:flex-row md:items-start justify-between py-5 gap-4">
-					<div>
-						<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">جلسات الدخول النشطة <span class="font-normal text-slate-400">(عرض توضيحي)</span></h4>
-						<div class="flex flex-col gap-2 mt-3">
-							<div class="flex items-center gap-3">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									class="w-4 h-4 text-slate-400">
-									<rect x="2" y="3" width="20" height="14" rx="2" />
-									<line x1="8" y1="21" x2="16" y2="21" />
-									<line x1="12" y1="17" x2="12" y2="21" />
-								</svg>
-								<p class="text-sm font-medium text-slate-600 dark:text-slate-300">Chrome, Windows 11 -
-									الرياض</p>
-							</div>
-							<div class="flex items-center gap-3">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									class="w-4 h-4 text-slate-400">
-									<rect x="5" y="2" width="14" height="20" rx="2" />
-									<line x1="12" y1="18" x2="12.01" y2="18" />
-								</svg>
-								<p class="text-sm font-medium text-slate-600 dark:text-slate-300">Safari, iPhone 15 -
-									الرياض</p>
-							</div>
-						</div>
-					</div>
-					<div class="flex items-center gap-4 mt-2 md:mt-0">
-						<button type="button"
-							class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors">الجلسة
-							الحالية</button>
-						<button type="button"
-							class="text-xs font-bold text-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors">انهاء
-							الجلسات</button>
-					</div>
+				<!-- Login sessions: there is no real session tracking to show, so no device / location / browser is ever displayed -->
+				<div class="flex flex-col py-5 gap-1" data-testid="sessions-unavailable">
+					<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">جلسات الدخول</h4>
+					<p class="text-xs text-slate-500 dark:text-slate-400">إدارة جلسات الدخول غير متاحة حاليًا. يمكنك تسجيل الخروج من هذا الجهاز من زر تسجيل الخروج.</p>
 				</div>
 			</div>
 
