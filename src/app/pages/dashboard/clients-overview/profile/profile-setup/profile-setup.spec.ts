@@ -130,7 +130,7 @@ describe('client profile-setup: shared validation', () => {
 		component.submitForm();
 		expect(save).toHaveBeenCalledTimes(1);
 		const body = save.mock.calls[0][0];
-		expect(body.bank).toEqual({ paymentType: 'paypal', paypalPayoutEmail: 'pay@example.com' });
+		expect(body.bank).toEqual({ paypalPayoutEmail: 'pay@example.com' });
 		expect(body.details.idNumber).toBe('1234567890');
 		expect(body.agreements).toEqual({ accurate: true, terms: true, privacy: true });
 	});

@@ -390,7 +390,7 @@
 								<rect x="2" y="5" width="20" height="14" rx="2" />
 								<line x1="2" y1="10" x2="22" y2="10" />
 							</svg>
-							<h3 class="text-base font-bold text-slate-900 dark:text-white">حساب PayPal لاستلام المدفوعات</h3>
+							<h3 class="text-base font-bold text-slate-900 dark:text-white">بريد PayPal</h3>
 						</div>
 
 						<div class="flex flex-col gap-2 max-w-xl">
@@ -401,7 +401,7 @@
 								class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:outline-none">
 							<ws-field-error [control]="setupForm.get('bank.paypalPayoutEmail')" label="بريد PayPal"
 								[messages]="{ required: 'بريد PayPal مطلوب', email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
-							<span class="text-[11px] text-slate-500 dark:text-slate-400">سنستخدم هذا البريد لإرسال مستحقاتك واستردادك عبر PayPal.</span>
+							<span class="text-[11px] text-slate-500 dark:text-slate-400">يُستخدم PayPal فقط للمدفوعات على المنصة.</span>
 						</div>
 					</div>
 					}
@@ -568,7 +568,7 @@
 									<div class="flex items-center gap-3">@if (stepIsIncomplete(3)) {<span data-testid="summary-step-3-incomplete"
 											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[10px] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-3-done"
 											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span>}<span
-											class="text-sm text-slate-900 dark:text-white font-medium">حساب PayPal</span></div>
+											class="text-sm text-slate-900 dark:text-white font-medium">بريد PayPal</span></div>
 									@if (stepIsIncomplete(3)) {<button type="button" data-testid="summary-fix-3" (click)="goToStep(3)" class="text-xs font-bold text-red-600 dark:text-red-300 underline underline-offset-4">أكمل المرحلة 3</button>} @else {<span class="text-xs text-slate-500">المرحلة 3</span>}
 								</div>
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>

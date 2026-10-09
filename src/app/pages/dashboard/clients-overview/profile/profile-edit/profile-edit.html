@@ -108,7 +108,7 @@
 			<button (click)="switchTab('banking')" [class.border-cyan-500]="activeTab() === 'banking'"
 				[class.text-cyan-600]="activeTab() === 'banking'" [class.dark:text-cyan-400]="activeTab() === 'banking'"
 				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
-				حساب PayPal
+				بريد PayPal
 				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
 			</button>
 			<button (click)="switchTab('security')" [class.border-cyan-500]="activeTab() === 'security'"
@@ -1016,8 +1016,8 @@
 					</svg>
 				</div>
 				<div class="flex-grow">
-					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">حساب PayPal لاستلام المدفوعات</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">مطلوب لسحب واسترداد المبالغ، مشفر ومحمي</p>
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">بريد PayPal</h3>
+					<p class="text-sm text-slate-500 dark:text-slate-400">يُستخدم PayPal فقط للمدفوعات على المنصة</p>
 				</div>
 			</div>
 
@@ -1029,7 +1029,7 @@
 						class="w-5 h-5 flex-shrink-0 text-amber-500">
 						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
 					</svg>
-					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل حساب PayPal
+					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل بريد PayPal
 						ينشئ طلباً يعتمده مراجع بشري</span>
 				</div>
 				<a routerLink="/client-overview/profile/requests"
@@ -1040,27 +1040,6 @@
 			<!-- Form Area -->
 			<form [formGroup]="bankingForm" (ngSubmit)="saveTab('banking')">
 				<div class="flex flex-col gap-6 mb-8">
-					<!-- Receiving Method: PayPal is the only supported method for now -->
-					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">نوع طريقة الاستلام <span
-								class="text-cyan-500">*</span></label>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<label id="pm-bank" aria-disabled="true"
-								class="flex items-center gap-3 p-4 border-2 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 opacity-60 cursor-not-allowed select-none">
-								<input type="radio" name="pm-bank-unavailable" value="bank" disabled
-									class="w-4 h-4 text-cyan-600 bg-slate-100 border-slate-300 dark:bg-slate-700 dark:border-slate-600">
-								<span class="text-sm font-bold text-slate-500 dark:text-slate-400">حساب بنكي</span>
-								<span class="ms-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">غير متاح حاليًا</span>
-							</label>
-							<label id="pm-paypal"
-								class="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all bg-cyan-50 dark:bg-cyan-500/10 border-cyan-400 dark:border-cyan-500">
-								<input type="radio" formControlName="paymentMethod" value="wallet" checked
-									class="w-4 h-4 text-cyan-600 bg-slate-100 border-slate-300 focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-slate-800 focus:ring-2 dark:bg-slate-700 dark:border-slate-600">
-								<span class="text-sm font-bold text-slate-900 dark:text-white">حساب PayPal</span>
-							</label>
-						</div>
-					</div>
-
 					<!-- PayPal email (the only field) -->
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300" for="cl-paypal">بريد PayPal
@@ -1080,7 +1059,7 @@
 
 				<!-- Hint Text -->
 				<div class="text-center text-xs font-medium text-slate-500 dark:text-slate-400 mb-6">
-					هذا الحساب للسحب والاسترداد فقط. يُحفظ بريد PayPal مباشرة ويمكنك تغييره في أي وقت.
+					يُستخدم PayPal فقط للمدفوعات على المنصة. يُحفظ بريد PayPal مباشرة ويمكنك تغييره في أي وقت.
 				</div>
 
 				<!-- Action -->

@@ -44,25 +44,19 @@ describe('client profile-edit: PayPal-only receiving method', () => {
 
   const el = () => fixture.nativeElement as HTMLElement;
 
-  it('the bank option is disabled with a "غير متاح حاليًا" badge and cannot be selected', () => {
-    const bank = el().querySelector('#pm-bank') as HTMLElement;
-    expect(bank.getAttribute('aria-disabled')).toBe('true');
-    expect(bank.textContent).toContain('غير متاح حاليًا');
-    expect((bank.querySelector('input') as HTMLInputElement).disabled).toBe(true);
-    component.setPaymentMethod('bank');
-    expect(component.paymentMethod()).toBe('wallet');
-  });
-
-  it('PayPal (wallet) is the default and only method; the form never defaults to bank', () => {
-    expect(component.paymentMethod()).toBe('wallet');
-    expect(component.bankingForm.get('paymentMethod')?.value).toBe('wallet');
-    expect(el().querySelector('#pm-paypal')?.textContent).toContain('PayPal');
+  it('there is no payment-method choice at all: no bank option, PayPal-only wording', () => {
+    expect(el().querySelector('#pm-bank')).toBeNull();
+    expect(el().querySelector('#pm-paypal')).toBeNull();
+    expect(el().querySelector('input[type="radio"]')).toBeNull();
+    expect(component.bankingForm.get('paymentMethod')).toBeNull();
+    expect(el().textContent).toContain('يُستخدم PayPal فقط للمدفوعات على المنصة');
+    expect(el().textContent).toContain('بريد PayPal');
   });
 
   it('shows only the PayPal email field: no bank, IBAN, wallet provider, wallet phone or wallet id', () => {
     const tab = el().textContent || '';
     expect(el().querySelector('#cl-paypal')).toBeTruthy();
-    expect(tab).not.toMatch(/IBAN|اسم البنك|مزود المحفظة|رقم الجوال المرتبط|معرف المحفظة|STC Pay|urpay|barq|Alinma/);
+    expect(tab).not.toMatch(/IBAN|اسم البنك|مزود المحفظة|رقم الجوال المرتبط|معرف المحفظة|STC Pay|urpay|barq|Alinma|حساب بنكي|محفظة/);
     for (const name of ['bankName', 'ibanNumber', 'walletProvider', 'walletPhone', 'walletId', 'accountHolderName']) {
       expect(el().querySelector(`[formcontrolname="${name}"]`), name).toBeNull();
     }
