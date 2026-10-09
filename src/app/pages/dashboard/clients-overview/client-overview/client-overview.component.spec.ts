@@ -20,7 +20,7 @@ function baseDashboardData(overrides: any = {}) {
 			newOffersCount: 0,
 			totalEscrowAmount: 0,
 			totalSpent: 0,
-			aiRating: 0,
+			aiRating: null,
 			humanRating: 4.5,
 			profileCompletionPercent: 100,
 			currentLevel: 'مستكشف',
@@ -241,10 +241,11 @@ describe('ClientOverviewComponent — latest offers level badge (Batch 5)', () =
 });
 
 
-// The stats row used to be a 5-column grid with only 4 cards: the fifth slot (left-most in RTL) was an empty box under the level card.
-describe('ClientOverviewComponent — stats row has no blank slot', () => {
-	function mount(overrides: any = {}) {
-		const dashboardData = baseDashboardData(overrides);
+// The stats row has FIVE cards (projects, offers, frozen amount, human rating, AI rating of the offers) in a matching 5-column grid:
+// no spare column and no orphan cell at any width. The AI card shows the REAL average of the WaseetAI offer evaluations, or an honest empty state.
+describe('ClientOverviewComponent — stats row (5 cards, AI offer rating)', () => {
+	function mount(summary: any = {}, overrides: any = {}) {
+		const dashboardData = baseDashboardData({ summary: { ...baseDashboardData().summary, ...summary }, ...overrides });
 		const fakeStore: Partial<DashboardStore> = {
 			dashboardData: (() => dashboardData) as any, activeContract: (() => null) as any, isLoadingDashboard: (() => false) as any,
 			error: (() => null) as any, totalActiveRequestsCount: (() => 0) as any, fetchDashboardStats: async () => {},
@@ -254,32 +255,63 @@ describe('ClientOverviewComponent — stats row has no blank slot', () => {
 		f.detectChanges();
 		return f.nativeElement as HTMLElement;
 	}
+	const cardsOf = (el: HTMLElement) => Array.from(el.querySelectorAll('.stats-row .stat-card'));
 
-	it('every stat card has a title and a value (no empty card)', () => {
-		const cards = Array.from(mount().querySelectorAll('.stats-row .stat-card'));
-		expect(cards.length).toBe(4);
+	it('with an AI rating there are 5 filled cards and the AI card shows the API values (rating and rated-offers count)', () => {
+		const el = mount({ aiRating: 4.7, aiRatedOffersCount: 2, aiRatingSource: 'waseet_ai_offer_quality', aiConfidence: null });
+		const cards = cardsOf(el);
+		expect(cards.length).toBe(5);
 		for (const c of cards) {
 			expect(c.querySelector('.stat-lbl')?.textContent?.trim()).toBeTruthy();
-			expect(c.querySelector('.stat-val')?.textContent?.trim()).toBeTruthy();
+			expect(c.textContent?.trim().length).toBeGreaterThan(10);
 		}
+		expect(el.querySelector('[data-testid=ai-rating-value]')?.textContent?.trim()).toBe('4.7');
+		expect(el.querySelector('[data-testid=ai-rating-sub]')?.textContent).toContain('2 عروض');
+		expect(el.querySelector('[data-testid=ai-rating-sub]')?.textContent).not.toMatch(/دقة|%/);
 	});
 
-	it('the empty states (no projects / offers) still render the same four filled cards', () => {
-		const cards = Array.from(mount({ latestProjects: [], latestProposals: [], summary: { ...baseDashboardData().summary, activeProjectsCount: 0, newOffersCount: 0, totalEscrowAmount: 0, humanRating: 0 } }).querySelectorAll('.stats-row .stat-card'));
-		expect(cards.length).toBe(4);
-		expect(cards.every(c => !!c.querySelector('.stat-val')?.textContent?.trim())).toBe(true);
+	it('a single rated offer is worded in the singular', () => {
+		expect(mount({ aiRating: 4.0, aiRatedOffersCount: 1 }).querySelector('[data-testid=ai-rating-sub]')?.textContent).toContain('عرض واحد');
 	});
 
-	it('the grid has exactly one column per card on desktop and never 3 columns for 4 cards (no orphan gap)', async () => {
+	it('no AI data: the 5th card is an honest empty state ("لا يوجد تقييم بعد"), not a blank slot, not a number', () => {
+		const el = mount({ aiRating: null, aiRatedOffersCount: 0, aiRatingSource: 'none' });
+		const cards = cardsOf(el);
+		expect(cards.length).toBe(5);
+		const ai = el.querySelector('[data-testid=ai-rating-card]') as HTMLElement;
+		expect(ai.textContent).toContain('لا يوجد تقييم بعد');
+		expect(ai.textContent).toContain('يظهر بعد توفر بيانات كافية');
+		expect(ai.querySelector('[data-testid=ai-rating-value]')).toBeNull();
+		expect(cards.every(c => (c.textContent?.trim().length ?? 0) > 10)).toBe(true);
+	});
+
+	it('an old/partial API response without the AI fields is handled as "no data"', () => {
+		const el = mount({ aiRating: undefined });
+		expect(el.querySelector('[data-testid=ai-rating-empty]')).toBeTruthy();
+	});
+
+	it('the card uses the official AI mark (it is a real WaseetAI evaluation) and never the design sample numbers', async () => {
+		const el = mount({ aiRating: 4.7, aiRatedOffersCount: 2 });
+		expect(el.querySelector('[data-testid=ai-rating-card] use')?.getAttribute('href')).toBe('#i-ai');
+		const { readFileSync } = await import('node:fs');
+		const { join } = await import('node:path');
+		const src = readFileSync(join(__dirname, 'client-overview.component.html'), 'utf8') + readFileSync(join(__dirname, 'client-overview.component.ts'), 'utf8');
+		expect(src).not.toMatch(/>\s*4\.9\s*</);
+		expect(src.replace(/<!--[\s\S]*?-->/g, '')).not.toContain('96%'); // comments may mention it; no template/code value may
+		expect(src).not.toContain('دقة 96');
+	});
+
+	it('the grid has one column per card on wide screens and fills every cell below that (no orphan gap at 1600 / 1100)', async () => {
 		const { readFileSync } = await import('node:fs');
 		const { join } = await import('node:path');
 		const css = readFileSync(join(__dirname, 'client-overview.component.css'), 'utf8');
-		expect(css).toMatch(/\.stats-row\{display:grid;grid-template-columns:repeat\(4,1fr\)/);
-		expect(css).not.toMatch(/\.stats-row\{grid-template-columns:repeat\((3|5),1fr\)/);
-		expect(css).not.toMatch(/\.stats-row\{display:grid;grid-template-columns:repeat\(5,1fr\)/);
+		expect(css).toMatch(/\.stats-row\{display:grid;grid-template-columns:repeat\(5,1fr\)/); // >= 1400px
+		// 1280-1399: 6 tracks, first three span 2, the last two span 3 (3 + 2, no empty cell)
+		expect(css).toMatch(/max-width:1399px\)\{[^@]*\.stats-row\{grid-template-columns:repeat\(6,1fr\)\}[^@]*span 2[^@]*nth-child\(n\+4\)\{grid-column:span 3\}/);
+		// <= 1279: 2 columns and an odd last card takes the whole row
+		expect(css).toMatch(/max-width:1279px\)\{[^@]*\.stats-row\{grid-template-columns:repeat\(2,1fr\)\}[^@]*last-child:nth-child\(odd\)\{grid-column:1\/-1\}/);
 	});
 });
-
 
 // The "وسيط، ترتيب العروض / تُرتَّب العروض تلقائياً بناءً على مشاريع مشابهة" banner claimed AI ranking, but the dashboard only shows the 3 newest offers
 // (backend orderBy createdAt desc, no sorting in the page): the claim and its AI mark are gone and must not come back without a real ranking.
