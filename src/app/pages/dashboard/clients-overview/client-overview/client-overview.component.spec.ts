@@ -279,3 +279,42 @@ describe('ClientOverviewComponent — stats row has no blank slot', () => {
 		expect(css).not.toMatch(/\.stats-row\{display:grid;grid-template-columns:repeat\(5,1fr\)/);
 	});
 });
+
+
+// The "وسيط، ترتيب العروض / تُرتَّب العروض تلقائياً بناءً على مشاريع مشابهة" banner claimed AI ranking, but the dashboard only shows the 3 newest offers
+// (backend orderBy createdAt desc, no sorting in the page): the claim and its AI mark are gone and must not come back without a real ranking.
+describe('ClientOverviewComponent — no unsupported "offers ranking" AI claim', () => {
+	function mount() {
+		const dashboardData = baseDashboardData({ latestProposals: [] });
+		const fakeStore: Partial<DashboardStore> = {
+			dashboardData: (() => dashboardData) as any, activeContract: (() => null) as any, isLoadingDashboard: (() => false) as any,
+			error: (() => null) as any, totalActiveRequestsCount: (() => 0) as any, fetchDashboardStats: async () => {},
+		};
+		TestBed.configureTestingModule({ imports: [ClientOverviewComponent], providers: [provideRouter([]), { provide: DashboardStore, useValue: fakeStore }, { provide: AuthStore, useValue: { currentUser: () => null } }] });
+		const f = TestBed.createComponent(ClientOverviewComponent);
+		f.detectChanges();
+		return f.nativeElement as HTMLElement;
+	}
+
+	it('the page does not say offers are ranked / sorted automatically by similar projects', () => {
+		const text = mount().textContent ?? '';
+		expect(text).not.toContain('ترتيب العروض');
+		expect(text).not.toContain('مشاريع مشابهة');
+		expect(text).not.toContain('تُرتَّب العروض تلقائياً');
+	});
+
+	it('no AI-disclosure banner block is rendered', () => {
+		const el = mount();
+		expect(el.querySelector('.ai-disclosure')).toBeNull();
+		expect(el.querySelector('[aria-label="إفصاح الذكاء الاصطناعي"]')).toBeNull();
+	});
+
+	it('the template source never brings the banner texts back', async () => {
+		const { readFileSync } = await import('node:fs');
+		const { join } = await import('node:path');
+		const html = readFileSync(join(__dirname, 'client-overview.component.html'), 'utf8');
+		expect(html).not.toContain('ترتيب العروض');
+		expect(html).not.toContain('مشاريع مشابهة');
+		expect(html).not.toContain('class="ai-disclosure"');
+	});
+});
