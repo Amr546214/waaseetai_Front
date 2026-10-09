@@ -16,6 +16,7 @@ import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { matchFieldsValidator, PASSWORD_MIN_LENGTH, strongPasswordValidator } from '../../../../../core/forms/password.validator';
 import { httpUrlValidator } from '../../../../../core/forms/url.validator';
 import { IMAGE_MIMES, MB, validateFile } from '../../../../../core/forms/file-validation';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -181,6 +182,8 @@ export class ProfileEdit {
 				const rows: any[] = Array.isArray(res?.data) ? res.data : [];
 				const pending = rows.find(r => r?.category === 'CLIENT_BASIC_INFO' && r?.status === 'PENDING_HUMAN_REVIEW');
 				this.pendingNameRequest.set(pending ? { id: pending.id, requestedValue: String(pending.requestedValue ?? '') } : null);
+				const pendingPassword = rows.find(r => r?.category === 'CLIENT_PASSWORD_CHANGE' && r?.status === 'PENDING_HUMAN_REVIEW');
+				this.pendingPasswordRequest.set(pendingPassword ? { id: String(pendingPassword.id) } : null);
 			},
 			error: () => { /* no banner: the server still refuses a duplicate request */ }
 		});
@@ -386,6 +389,116 @@ export class ProfileEdit {
 
 	togglePasswordChange() {
 		this.isChangingPassword.update(v => !v);
+	}
+
+	// ---------- password change (a request an admin approves; the password does NOT change now) ----------
+	/** Same rule as registration / reset (backend auth-password-policy): 8+ characters, an uppercase letter, a digit. */
+	passwordForm: FormGroup = this.fb.group({
+		currentPassword: ['', [Validators.required]],
+		newPassword: ['', [Validators.required, strongPasswordValidator, Validators.maxLength(72)]],
+		confirmPassword: ['', [Validators.required]],
+	}, { validators: matchFieldsValidator('newPassword', 'confirmPassword') });
+	passwordSubmitting = signal(false);
+	passwordAttempted = signal(false);
+	passwordSuccess = signal('');
+	passwordError = signal('');
+	/** A password request already waits for the admin: sending another is disabled. */
+	pendingPasswordRequest = signal<{ id: string } | null>(null);
+	showPasswords = signal(false);
+	/** Typed value, mirrored in a signal so the checklist and the strength bar update on every key. */
+	private passwordTyped = signal('');
+
+	passwordChecks = computed(() => {
+		const v = this.passwordTyped();
+		return [
+			{ key: 'len', label: `${PASSWORD_MIN_LENGTH} أحرف على الأقل`, ok: v.length >= PASSWORD_MIN_LENGTH },
+			{ key: 'upper', label: 'حرف إنجليزي كبير (A-Z) واحد على الأقل', ok: /[A-Z]/.test(v) },
+			{ key: 'digit', label: 'رقم واحد على الأقل', ok: /[0-9]/.test(v) },
+		];
+	});
+
+	/** 0 (empty) .. 4. The three required rules count first; a lowercase letter, a symbol or 12+ characters make it stronger. */
+	passwordStrength = computed(() => {
+		const v = this.passwordTyped();
+		if (!v) return { score: 0, label: '', barClass: '', textClass: '' };
+		const required = this.passwordChecks().filter(c => c.ok).length;
+		let score = required < 3 ? Math.min(required, 2) : 3;
+		if (required === 3 && (/[^A-Za-z0-9]/.test(v) || v.length >= 12) && /[a-z]/.test(v)) score = 4;
+		const levels = [
+			null,
+			{ label: 'ضعيفة', barClass: 'bg-red-500', textClass: 'text-red-500' },
+			{ label: 'ضعيفة', barClass: 'bg-orange-500', textClass: 'text-orange-500' },
+			{ label: 'مقبولة (تستوفي الشروط)', barClass: 'bg-cyan-500', textClass: 'text-cyan-600' },
+			{ label: 'قوية', barClass: 'bg-emerald-500', textClass: 'text-emerald-600' },
+		] as const;
+		return { score, ...levels[Math.max(1, score)]! };
+	});
+
+	onPasswordInput() {
+		this.passwordTyped.set(String(this.passwordForm.get('newPassword')?.value ?? ''));
+		this.passwordError.set('');
+	}
+
+	/** Error text of one password field: shown after touch/blur or a submit attempt, never while the user is still typing for the first time. */
+	passwordFieldError(name: 'currentPassword' | 'newPassword' | 'confirmPassword'): string | null {
+		const c = this.passwordForm.get(name);
+		if (!c) return null;
+		const server = c.errors?.['server'];
+		if (typeof server === 'string') return server;
+		if (!(c.touched || this.passwordAttempted())) return null;
+		if (name === 'currentPassword') return c.errors?.['required'] ? 'كلمة المرور الحالية مطلوبة' : null;
+		if (name === 'newPassword') {
+			if (c.errors?.['required']) return 'كلمة المرور الجديدة مطلوبة';
+			if (c.errors?.['strongPassword']) return 'كلمة المرور الجديدة لا تستوفي الشروط الموضّحة أدناه';
+			if (c.errors?.['maxlength']) return 'كلمة المرور يجب أن لا تزيد على 72 حرفًا';
+			if (this.passwordForm.value.currentPassword && this.passwordForm.value.currentPassword === c.value) return 'كلمة المرور الجديدة يجب أن تختلف عن الحالية';
+			return null;
+		}
+		if (c.errors?.['required']) return 'تأكيد كلمة المرور مطلوب';
+		return this.passwordForm.errors?.['mismatch'] ? 'تأكيد كلمة المرور غير مطابق' : null;
+	}
+
+	submitPasswordChange() {
+		if (this.passwordSubmitting() || this.pendingPasswordRequest()) return;
+		this.passwordAttempted.set(true);
+		this.passwordForm.markAllAsTouched();
+		this.passwordSuccess.set('');
+		this.passwordError.set('');
+		const v = this.passwordForm.getRawValue();
+		const sameAsCurrent = !!v.currentPassword && v.currentPassword === v.newPassword;
+		if (this.passwordForm.invalid || sameAsCurrent) return;       // nothing is sent while a rule fails
+		this.passwordSubmitting.set(true);
+		this.profileApi.requestPasswordChange({ currentPassword: v.currentPassword, newPassword: v.newPassword, confirmPassword: v.confirmPassword }).subscribe({
+			next: (res) => {
+				this.passwordSubmitting.set(false);
+				if (res?.success) {
+					// cleared only now that the request really exists
+					this.pendingPasswordRequest.set({ id: String(res.data?.id ?? '') });
+					this.passwordForm.reset({ currentPassword: '', newPassword: '', confirmPassword: '' });
+					this.passwordTyped.set('');
+					this.passwordAttempted.set(false);
+					this.passwordSuccess.set('تم إرسال طلب تغيير كلمة المرور للمراجعة');
+				} else {
+					this.passwordError.set(res?.message || 'تعذر إرسال طلب تغيير كلمة المرور');
+				}
+			},
+			error: (err) => {
+				this.passwordSubmitting.set(false);
+				const mapped = mapHttpError(err, { fallback: 'تعذر إرسال طلب تغيير كلمة المرور، حاول مرة أخرى' });
+				if (mapped.status === 409) {                                  // a request is already waiting: that is a pending state, not a success
+					this.pendingPasswordRequest.set({ id: '' });
+					this.passwordSuccess.set('');
+					return;
+				}
+				const fieldErrors = mapped.fieldErrors ?? {};
+				let handled = false;
+				for (const name of ['currentPassword', 'newPassword', 'confirmPassword'] as const) {
+					if (fieldErrors[name]) { this.passwordForm.get(name)?.setErrors({ ...(this.passwordForm.get(name)?.errors ?? {}), server: fieldErrors[name] }); handled = true; }
+				}
+				if (!handled && /الحالية/.test(mapped.message)) { this.passwordForm.get('currentPassword')?.setErrors({ server: mapped.message }); handled = true; }
+				if (!handled) this.passwordError.set(mapped.message);
+			},
+		});
 	}
 
 	getCurrentAvatarUrl(): string | null {

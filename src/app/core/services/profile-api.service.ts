@@ -61,6 +61,11 @@ export class ProfileApiService {
     return this.http.get<any>(`${this.baseUrl}/my-change-requests`);
   }
 
+  /** A client's password change: a request an admin approves (the password does NOT change now). */
+  public requestPasswordChange(body: { currentPassword: string; newPassword: string; confirmPassword: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/password-change-request`, body);
+  }
+
   /** Withdraw one of my own requests while it still waits for review. */
   public cancelMyChangeRequest(id: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/my-change-requests/${id}/cancel`, {});
