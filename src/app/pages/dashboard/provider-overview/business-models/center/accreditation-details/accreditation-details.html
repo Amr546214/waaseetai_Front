@@ -25,7 +25,7 @@
         <div style="position:absolute;top:14px;right:14px;display:flex;gap:6px">
           <span *ngIf="sampleDetails()?.status === 'AI_VERIFIED'" style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-teal">بانتظار الاعتماد النهائي</span>
           <span *ngIf="sampleDetails()?.status !== 'AI_VERIFIED'" style="padding:4px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;font-weight:800" class="txt-muted">قيد المراجعة</span>
-          <span style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-purple">AI {{ sampleDetails()?.aiScore || 'N/A' }}/100</span>
+          @if ((sampleDetails()?.aiScore ?? 0) > 0) {<span style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-purple">AI {{ sampleDetails()?.aiScore }}/100</span>}
         </div>
         <div style="position:absolute;bottom:14px;left:14px;font-size:11px;display:flex;align-items:center;gap:5px" class="txt-muted">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>

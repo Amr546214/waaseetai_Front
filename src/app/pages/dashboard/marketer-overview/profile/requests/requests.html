@@ -1,6 +1,6 @@
 <div class="main-inner">
-  <div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
-    <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+  <div class="ai-disclosure" role="region" aria-label="نظام التعديل المحكوم">
+    <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
     <div class="ai-disc-body">
       <div class="ai-disc-lbl">وسيط، نظام التعديل المحكوم</div>
       <p class="ai-disc-txt">تخضع طلبات تعديل البيانات الحساسة لمراجعة يدوية من فريق مختص قبل اعتمادها</p>
@@ -96,14 +96,14 @@
 
         @if (req.status === ChangeRequestStatus.PENDING_AI_REVIEW || req.status === ChangeRequestStatus.PENDING_HUMAN_APPROVAL || req.status === ChangeRequestStatus.APPROVED_AND_APPLIED) {
           <div class="ai-verdict">
-            <div class="ai-verdict-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+            <div class="ai-verdict-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
             <div class="ai-verdict-body">
               <div class="ai-verdict-lbl">
                 @if (req.status === ChangeRequestStatus.PENDING_AI_REVIEW) { قيد المراجعة }
-                @else if (req.status === ChangeRequestStatus.PENDING_HUMAN_APPROVAL) { نتيجة الفحص الآلي: تمرير للمراجعة }
+                @else if (req.status === ChangeRequestStatus.PENDING_HUMAN_APPROVAL) { تم تأكيد الهوية عبر الرمز وبانتظار مراجعة الفريق }
                 @else { اعتمده المراجع }
               </div>
-              <p class="ai-verdict-txt">{{ req.aiRecommendation || 'لا توجد نتيجة فحص بعد' }}</p>
+              <p class="ai-verdict-txt">{{ req.status === ChangeRequestStatus.APPROVED_AND_APPLIED ? 'تم تطبيق التعديل بعد اعتماد الفريق.' : 'سيراجع فريقنا هذا الطلب يدويًا قبل تطبيقه.' }}</p>
             </div>
           </div>
         } @else if (req.status === ChangeRequestStatus.REJECTED) {
@@ -118,9 +118,9 @@
 
         <div class="req-foot">
           <div class="req-timeline">
-            <!-- AI Step -->
+            <!-- Initial review step -->
             <div class="tl-step" [class.done]="req.status !== ChangeRequestStatus.PENDING_AI_REVIEW && req.status !== ChangeRequestStatus.WITHDRAWN" [class.active]="req.status === ChangeRequestStatus.PENDING_AI_REVIEW">
-              <span class="tl-dot"><svg aria-hidden="true"><use [attr.href]="(req.status !== ChangeRequestStatus.PENDING_AI_REVIEW && req.status !== ChangeRequestStatus.WITHDRAWN) ? '#i-check' : '#i-ai'"></use></svg></span>مراجعة أولية
+              <span class="tl-dot"><svg aria-hidden="true"><use [attr.href]="(req.status !== ChangeRequestStatus.PENDING_AI_REVIEW && req.status !== ChangeRequestStatus.WITHDRAWN) ? '#i-check' : '#i-clock'"></use></svg></span>مراجعة أولية
             </div>
             <span class="tl-line" [class.done]="req.status !== ChangeRequestStatus.PENDING_AI_REVIEW && req.status !== ChangeRequestStatus.WITHDRAWN"></span>
             
@@ -180,9 +180,6 @@
       }
       @if (req.status === ChangeRequestStatus.WITHDRAWN) {
         <div class="modal-info-row"><span class="modal-info-lbl">الحالة</span><span class="modal-info-val">مسحوب من قِبلك</span></div>
-      }
-      @if (req.aiRecommendation) {
-        <div class="modal-info-row modal-info-full"><span class="modal-info-lbl">نتيجة الفحص الآلي</span><span class="modal-info-val">{{ req.aiRecommendation }}</span></div>
       }
     </div>
     <div class="modal-actions">

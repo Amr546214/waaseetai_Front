@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit' | 'forecast';
+type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit';
 
 interface MonthPoint {
   label: string;
@@ -24,7 +24,6 @@ export class SaFinanceReports {
     { key: 'revenue', label: 'الإيرادات' },
     { key: 'expenses', label: 'المصروفات' },
     { key: 'profit', label: 'الأرباح' },
-    { key: 'forecast', label: 'التوقعات' },
   ];
 
   setTab(t: ReportTab) {
@@ -64,9 +63,4 @@ export class SaFinanceReports {
     { month: 'يوليو', profit: '9.2M', margin: '62%' },
   ];
 
-  readonly forecastPoints = [
-    { label: 'توقع أغسطس 2026', value: '2.14M $', note: '+8.4% عن يوليو', confidence: '91%' },
-    { label: 'توقع سبتمبر 2026', value: '2.31M $', note: '+7.9% نمو متوقع', confidence: '87%' },
-    { label: 'توقع Q3 2026 (إجمالي)', value: '4.8M $', note: 'بثقة 88%', confidence: '88%' },
-  ];
 }

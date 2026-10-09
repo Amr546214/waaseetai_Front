@@ -132,8 +132,9 @@
              pre-fills the manual decision form below. -->
         <div class="dp-ai-summary">
           <div class="dp-ai-summary-hdr">
-            <span class="dp-ai-summary-ttl">🤖 تلخيص النزاع بالذكاء الاصطناعي</span>
+            <span class="dp-ai-summary-ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;margin-inline-end:4px"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>تلخيص النزاع بالذكاء الاصطناعي</span>
             <span class="dp-ai-disclaimer">مساعدة استشارية فقط — القرار النهائي للإدارة</span>
+            <span class="dp-ai-disclaimer">ادعاء الطرف الآخر غير مسجّل</span>
           </div>
           @if (!aiSummary() && !aiSummaryLoading()) {
             <button type="button" class="dp-btn dp-btn-gh" (click)="requestAiSummary()">إنشاء ملخص AI</button>

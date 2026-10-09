@@ -48,16 +48,16 @@ export class Offers implements OnInit {
 		this.fetchOffers();
 	}
 
-	// Dynamic AI Assistant status banner text
-	aiBannerText = signal<string>('وسيط AI: لديك عرضان قيد التفاوض الآن! راجع ردود واستفسارات العملاء فوراً لزيادة فرص إغلاق الصفقة.');
+	// Status banner text: neutral until the API (rule-based) sends its own line - never a fabricated claim.
+	bannerText = signal<string>('تابع عروضك المرسلة وردود العملاء من هنا.');
 
 	// Status Filter
 	activeStatus = signal<string>('all');
 	statusOptions = [
-		{ id: 'all', label: 'الكل', count: 8 },
-		{ id: 'pending', label: 'بانتظار الرد', count: 4 },
-		{ id: 'accepted', label: 'قُبل', count: 2 },
-		{ id: 'nego', label: 'تفاوض', count: 2 }
+		{ id: 'all', label: 'الكل', count: 0 },
+		{ id: 'pending', label: 'بانتظار الرد', count: 0 },
+		{ id: 'accepted', label: 'قُبل', count: 0 },
+		{ id: 'nego', label: 'تفاوض', count: 0 }
 	];
 
 	// Client Filter
@@ -116,7 +116,7 @@ export class Offers implements OnInit {
 			next: (res) => {
 				if (res && res.data) {
 					if (res.aiBannerText) {
-						this.aiBannerText.set(res.aiBannerText);
+						this.bannerText.set(res.aiBannerText);
 					}
 					if (res.counts) {
 						this.statusOptions = this.statusOptions.map(opt => ({
@@ -136,6 +136,13 @@ export class Offers implements OnInit {
 						actionText: item.actionText || 'فتح العرض'
 					}));
 					this.offers.set(mapped);
+					if (!res.counts && this.activeStatus() === 'all') {
+						// No server counts: derive them from the loaded rows (real data, never placeholders).
+						this.statusOptions = this.statusOptions.map(opt => ({
+							...opt,
+							count: opt.id === 'all' ? mapped.length : mapped.filter((o: any) => o.status === opt.id).length
+						}));
+					}
 				}
 			},
 			error: (err) => {

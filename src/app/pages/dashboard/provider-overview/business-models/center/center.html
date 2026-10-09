@@ -143,7 +143,7 @@
               <div *ngIf="getFirstImageAttachment(sample)" style="position:absolute;inset:0;background:linear-gradient(to top, rgba(7,13,36,0.95) 5%, transparent 60%)"></div>
 
               <svg *ngIf="!getFirstImageAttachment(sample)" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(43,212,199,.4)" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-              <div style="position:absolute;bottom:10px;left:12px;width:34px;height:34px;border-radius:50%;background:#070D24;border:2px solid rgba(43,212,199,.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;z-index:2" class="txt-teal">{{ sample.aiScore ?? '—' }}</div>
+              <div style="position:absolute;bottom:10px;left:12px;width:34px;height:34px;border-radius:50%;background:#070D24;border:2px solid rgba(43,212,199,.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;z-index:2" class="txt-teal">{{ sample.aiScore != null && sample.aiScore > 0 ? sample.aiScore : '—' }}</div>
             </div>
             <div style="padding:13px 15px">
               <div style="font-size:13.5px;font-weight:800;margin-bottom:3px" class="truncate txt-white">{{ sample.title }}</div>
@@ -250,7 +250,7 @@
 		<!-- AI Feedback Summary -->
 		<div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800/80 mb-4">
 			<div class="text-xs font-extrabold text-[#2BD4C7] mb-1.5 flex items-center gap-1.5">
-				<span>{{ selectedSampleForModal()?.aiFeedbackAr ? '🤖 ملخص تقييم AI المخزّن:' : 'ملخص التقييم الفني:' }}</span>
+				<span>{{ selectedSampleForModal()?.aiFeedbackAr ? 'ملخص تقييم AI المخزّن:' : 'ملخص التقييم الفني:' }}</span>
 			</div>
 			<p class="text-xs text-slate-200 leading-relaxed font-normal">
 				{{ selectedSampleForModal()?.aiFeedbackAr || 'لا يوجد تقييم بعد' }}

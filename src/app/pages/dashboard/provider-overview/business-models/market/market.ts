@@ -18,6 +18,8 @@ export interface MarketModel {
 	rating: number;
 	reviewsCount?: number;
 	aiScore: number;
+	/** Stored audit report (summary / strengths / issues) when the backend returns it. */
+	aiAuditReport?: { summary?: string; strengths?: string[]; issues?: string[] } | null;
 	tags: string[];
 	bgGradient?: string;
 	iconColor?: string;

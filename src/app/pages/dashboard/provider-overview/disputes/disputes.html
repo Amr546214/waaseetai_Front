@@ -11,7 +11,7 @@
 <!-- AI Disclosure -->
 <div class="flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-[#7B2FBE]/10 to-[#2B7FFF]/5 border border-[#7B2FBE]/25 rounded-[14px] mb-4 backdrop-blur-md">
   <div class="w-8 h-8 rounded-[9px] bg-[#7B2FBE]/20 flex items-center justify-center shrink-0 text-[#A56BE0]">
-    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
   </div>
   <div class="flex-1">
     <div class="text-[10px] font-black text-[#A56BE0] tracking-widest mb-0.5">وسيط، إدارة النزاعات</div>
@@ -44,7 +44,7 @@
   </div>
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
     <div class="w-7 h-7 rounded-[8px] bg-[#7B2FBE]/15 text-[#A56BE0] flex items-center justify-center mb-2.5">
-      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
     </div>
     <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().followUpStatus }}</div>
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">قيد المتابعة</div>
@@ -99,7 +99,7 @@
               <div class="w-[22px] h-[22px] rounded-full border flex items-center justify-center shrink-0"
                    [ngClass]="step.done ? 'bg-[#0FA99A]/15 border-transparent text-[#0FA99A]' : step.active ? 'bg-[#5DA0FF]/20 border-transparent text-[#5DA0FF] animate-pulse shadow-[0_0_0_4px_rgba(93,160,255,0.15)]' : 'bg-[var(--sec-bd)] border-[var(--sec-bd)] text-[var(--txt-3)]'">
                 @if(step.icon === 'check') { <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
-                @if(step.icon === 'review') { <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg> }
+                @if(step.icon === 'review') { <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg> }
                 @if(step.icon === 'shield') { <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
               </div>
               <span class="text-[11px] font-bold">{{ step.label }}</span>
@@ -116,7 +116,7 @@
         @if(d.aiDone) {
           <svg class="w-[15px] h-[15px] text-[#0FA99A] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         } @else {
-          <svg class="w-[15px] h-[15px] text-[#A56BE0] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+          <svg class="w-[15px] h-[15px] text-[#A56BE0] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
         }
         <div class="text-[12px] leading-relaxed" [ngClass]="d.aiDone ? 'text-[var(--txt-2)]' : 'text-[var(--txt-3)]'">
           <span class="font-black me-1" [ngClass]="d.aiDone ? 'text-[var(--txt)]' : 'text-[var(--txt)]'">{{ d.aiDone ? 'النتيجة:' : (d.status === 'open' && d.icon === 'hands' ? 'تسوية مقترحة:' : 'الحالة الحالية:') }}</span>

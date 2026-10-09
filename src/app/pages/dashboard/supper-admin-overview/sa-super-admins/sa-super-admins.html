@@ -109,19 +109,6 @@
         </div>
       }
 
-      @if (activeSection() === 'ai') {
-        <div class="spa-sec-hdr">
-          <div><div class="spa-sec-ttl">محركات الذكاء الاصطناعي</div><div class="spa-sec-sub">تكوين محركات AI المشغّلة داخل وسيط AI</div></div>
-        </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">محركات المطابقة والتوصيات</div>
-          @for (t of aiToggles(); track t.key) {
-            <div class="spa-row"><div><div class="spa-row-lbl">{{ t.label }}</div><div class="spa-row-sub">{{ t.desc }}</div></div><button type="button" class="spa-sw" [class.on]="t.on" (click)="toggle(aiToggles, t.key)"></button></div>
-          }
-          <div class="spa-row"><div><div class="spa-row-lbl">حد نسبة المطابقة المقبولة</div><div class="spa-row-sub">أدنى نسبة مطابقة تظهر للمستخدم</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="number" [value]="aiMatchThreshold()" (input)="aiMatchThreshold.set(+$any($event.target).value)" /><span class="spa-unit">%</span></div></div>
-        </div>
-      }
-
       @if (activeSection() === 'integrations') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">التكاملات والـ API</div><div class="spa-sec-sub">مفاتيح API والتكاملات الخارجية</div></div>

@@ -7,9 +7,11 @@ import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
 import { MarketModel } from '../market';
 
-export interface AiMetric {
-	label: string;
-	value: number;
+/** Stored audit report of the model, exactly as the backend returned it (never composed here). */
+export interface StoredAuditReport {
+	summary?: string;
+	strengths: string[];
+	issues: string[];
 }
 
 @Component({
@@ -40,17 +42,24 @@ export class ModelDetails implements OnInit {
 		return Array.from({ length: 5 }, (_, i) => i < rating);
 	});
 
-	aiMetrics = computed<AiMetric[]>(() => {
-		const score = this.model()?.aiScore || 0;
-		// Derived sub-metrics for visual breakdown — presentational only, based on the overall AI score.
-		return [
-			{ label: 'جودة التنفيذ', value: Math.min(100, score + 2) },
-			{ label: 'أصالة العمل', value: Math.max(0, score - 1) },
-			{ label: 'توافق مع السوق', value: Math.max(0, score - 2) },
-			{ label: 'دقة التفاصيل', value: Math.min(100, score + 1) },
-			{ label: 'ملاءمة التخصص', value: Math.min(100, score + 3) },
-			{ label: 'إثبات الملكية', value: 100 }
-		];
+	/** 0 / null / missing means the model has not been audited yet. */
+	hasAuditScore = computed<boolean>(() => {
+		const score = this.model()?.aiScore;
+		return score != null && score > 0;
+	});
+
+	/**
+	 * Only STORED fields of the audit report are shown (summary / strengths / issues). No sub-metric is derived
+	 * from the overall score and no static notes are composed here. Null = no report was returned.
+	 */
+	auditReport = computed<StoredAuditReport | null>(() => {
+		const raw: any = (this.model() as any)?.aiAuditReport;
+		if (!raw || typeof raw !== 'object') return null;
+		const list = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x.trim().length > 0) : []);
+		const summary = typeof raw.summary === 'string' && raw.summary.trim() ? raw.summary.trim() : undefined;
+		const strengths = list(raw.strengths);
+		const issues = list(raw.issues);
+		return summary || strengths.length || issues.length ? { summary, strengths, issues } : null;
 	});
 
 	// `MarketModel` only ever carries an aggregate `reviewsCount`/`rating` from the

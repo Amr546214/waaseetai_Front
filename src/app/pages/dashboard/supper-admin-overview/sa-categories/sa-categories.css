@@ -34,7 +34,7 @@
 :host-context(.light-theme) .cat-ai-disc,
 :host-context(.theme-light) .cat-ai-disc { background: linear-gradient(135deg, rgba(123,47,190,.05), rgba(43,127,255,.03)); border-color: rgba(123,47,190,.18); }
 
-.cat-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.cat-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
 .cat-kpi { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 16px 18px; }
 .cat-kpi-num { font-size: 26px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
 .cat-kpi-lbl { font-size: 11px; color: #6B7699; font-weight: 600; }

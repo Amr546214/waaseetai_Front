@@ -96,14 +96,6 @@
           <p style="font-size:12px" class="txt-muted">لا توجد مراجعات معلّقة حالياً</p>
         }
       </div>
-      <div class="sq-sentiment">
-        <div class="sq-sentiment-ttl">Sentiment Analysis (AI)</div>
-        <div class="sq-sentiment-row">
-          @for (s of sentiment; track s.label) {
-            <div class="sq-sentiment-item" [style.background]="s.bg"><div class="sq-sentiment-val" [style.color]="s.color">{{ s.value }}</div><div class="sq-sentiment-lbl">{{ s.label }}</div></div>
-          }
-        </div>
-      </div>
     </div>
   </div>
 </section>

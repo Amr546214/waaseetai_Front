@@ -38,6 +38,9 @@ export class ExploreRequests implements OnInit {
 	// Honest failure state — set when the real AI analysis endpoint fails or
 	// returns no data. Never paired with a fabricated aiAnalysisData value.
 	aiUnavailable = signal(false);
+	// Backend says the project/profile lack enough data to compare — shown as an
+	// honest empty state, with no numbers.
+	aiInsufficient = signal(false);
 
 	// Filter States
 	activeSpecialty = signal('all');
@@ -407,17 +410,32 @@ export class ExploreRequests implements OnInit {
 		this.aiLoading.set(true);
 		this.aiAnalysisData.set(null);
 		this.aiUnavailable.set(false);
+		this.aiInsufficient.set(false);
 
 		this.providerApi.analyzeProjectWithAi(req.id).subscribe({
 			next: (res) => {
 				this.aiLoading.set(false);
-				if (res && res.success && res.data) {
-					this.aiAnalysisData.set(res.data);
-				} else {
-					// Honest failure — no invented match score, strategy, or
-					// pricing. The real AI service was unavailable; say so.
+				const data = res && res.success ? res.data : null;
+				if (!data) {
 					this.aiUnavailable.set(true);
+					return;
 				}
+				if (data.insufficientData === true) {
+					this.aiInsufficient.set(true);
+					return;
+				}
+				const a = data.analysis;
+				const summary = typeof a?.summary === 'string' ? a.summary.trim() : '';
+				const fitLabel = this.fitLabels[a?.overallFit as string];
+				const texts = (list: any): string[] => Array.isArray(list)
+					? list.map((i: any) => (typeof i?.text === 'string' ? i.text.trim() : '')).filter(Boolean)
+					: [];
+				if (!a || !summary || !fitLabel) {
+					// Unexpected shape — treat as failure rather than render blanks.
+					this.aiUnavailable.set(true);
+					return;
+				}
+				this.aiAnalysisData.set({ fitLabel, fitKey: a.overallFit, summary, matchPoints: texts(a.matchPoints), gaps: texts(a.gaps) });
 			},
 			error: (err) => {
 				console.warn('AI analysis unavailable', err);
@@ -432,5 +450,9 @@ export class ExploreRequests implements OnInit {
 		this.selectedProject.set(null);
 		this.aiAnalysisData.set(null);
 		this.aiUnavailable.set(false);
+		this.aiInsufficient.set(false);
 	}
+
+	// overallFit is a qualitative level from the backend (HIGH/MEDIUM/LOW), not a percentage.
+	private readonly fitLabels: Record<string, string> = { HIGH: 'ملاءمة عالية', MEDIUM: 'ملاءمة متوسطة', LOW: 'ملاءمة منخفضة' };
 }

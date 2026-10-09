@@ -159,6 +159,7 @@
         <span style="margin-inline-start:auto;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)">{{ provider()?.aiMetrics?.executionQuality != null ? 'ملخص AI من سجل المشاريع' : 'غير متاح حاليًا' }}</span>
         <span style="font-size:11px;color:var(--txt-3)">مؤشرات الأداء الفعلية</span>
       </div>
+      @if (hasHistoryMetrics()) {
       <div class="ai-metrics-inner">
         <!-- RINGS -->
         <div class="ai-rings-group">
@@ -228,6 +229,9 @@
           </div>
         </div>
       </div>
+      } @else {
+      <div class="ai-metrics-empty" data-testid="provider-metrics-empty" style="padding:18px;text-align:center;font-size:12px;color:var(--txt-3)">لا بيانات بعد</div>
+      }
     </div>
 
     <!-- TABS -->

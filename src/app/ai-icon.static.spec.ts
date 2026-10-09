@@ -67,7 +67,13 @@ describe('official AI icon', () => {
 			expect(m, rel).not.toBeNull();
 			expect(s.slice(m!.index, m!.index + 1400), rel).toContain(AI_ICON_LINKS);
 		};
-		for (const role of ['clients-overview', 'provider-overview', 'marketer-overview']) full(`pages/dashboard/${role}/messages/messages.html`, /class="ai-bc-ico"/);
+		// Chat bars are a support-review notice (no AI call): they no longer draw the AI mark at all.
+		for (const role of ['clients-overview', 'provider-overview', 'marketer-overview']) {
+			const s = read(`pages/dashboard/${role}/messages/messages.html`);
+			const m = /class="ai-bc-ico"/.exec(s);
+			expect(m, role).not.toBeNull();
+			expect(s.slice(m!.index, m!.index + 1400), role).not.toContain(AI_ICON_LINKS);
+		}
 		full('pages/dashboard/provider-overview/business-models/new-project/components/step2-specialty/step2-specialty.component.html', /class="ai-disc-ico"/);
 		full('pages/dashboard/provider-overview/business-models/market/model-details/model-details.html', /class="mdl-ai-ico"/);
 		full('pages/dashboard/clients-overview/create-request/components/step3-details/step3-details.html', /class="ai-suggest-btn/);

@@ -1,8 +1,8 @@
 <div class="notifications-settings-page" dir="rtl">
 	<h1 class="sr-only">تفضيلات الإشعارات</h1>
 	<div class="ord-head"><div><div class="ord-title">تفضيلات الإشعارات</div><div class="ord-sub">تحكّم في ما يصلك وعبر أي قناة</div></div></div>
-	<div class="ai-disclosure" role="region" aria-label="افصاح الذكاء الاصطناعي">
-		<div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
+	<div class="ai-disclosure" role="region" aria-label="معلومات الصفحة">
+		<div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
 		<div class="ai-disc-body"><div class="ai-disc-lbl">وسيط، تجميع تلقائي</div><p class="ai-disc-txt">تُجمَّع الإشعارات المتشابهة تلقائياً لتقليل الإزعاج، ويُبرز المهم منها فقط</p></div>
 	</div>
 	<div class="pref-sec-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>إشعارات الطلبات والعروض</div>
@@ -18,7 +18,7 @@
 		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">كاش باك الولاء</div><div class="pref-sub">عند إضافة كاش باك جديد</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.cashback"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
 		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">تنبيهات الأمان المالي</div><div class="pref-sub">نشاط غير معتاد على المحفظة</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.financialSecurity"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
 	</div>
-	<div class="pref-sec-ttl"><svg aria-hidden="true"><use href="#i-ai"></use></svg>توصيات الذكاء والتسويق</div>
+	<div class="pref-sec-ttl"><svg aria-hidden="true"><use href="#i-shield"></use></svg>توصيات الذكاء والتسويق</div>
 	<div class="pref-card">
 		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">توصيات مقدّمي الخدمة</div><div class="pref-sub">اقتراحات مطابقة لطلباتك</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.providerRecommendations"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
 		<div class="pref-row"><div class="pref-info"><div class="pref-ttl">عروض وخصومات وسيط AI</div><div class="pref-sub">حملات وعروض ترويجية</div></div><label class="sw"><input type="checkbox" [(ngModel)]="preferences.promotions"><span class="sw-track"><span class="sw-thumb"></span></span></label></div>
