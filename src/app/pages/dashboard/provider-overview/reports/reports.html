@@ -56,7 +56,7 @@
   <!-- KPI 4 -->
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">تقييمي من العملاء</div>
-    <div class="text-[26px] font-black text-[#FFB400] leading-none mb-2 tracking-tight">{{ stats()?.summary?.humanRating ? (stats()?.summary?.humanRating | number:'1.0-1') : '—' }}</div>
+    <div class="text-[26px] font-black text-[#FFB400] leading-none mb-2 tracking-tight">{{ stats()?.summary?.humanRating != null ? (stats()?.summary?.humanRating | number:'1.1-1') : '—' }}</div>
     <div class="flex items-center justify-between mt-3">
       <span class="text-[11px] font-bold text-[var(--txt-3)]">من تقييمات العملاء</span>
       

@@ -21,7 +21,7 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 
 	it('no hardcoded claims or deltas are rendered', () => {
-		const text = render({ activeProjectsCount: 0, availableEarnings: 0, monthlyEarnings: 0, totalEscrowAmount: 0, currentPoints: 40, currentLevel: 'مستكشف', profileCompletionPercent: 60, providerRating: 0, aiRating: null, pendingClientApprovalCount: 0, negotiationOffersCount: 0 });
+		const text = render({ activeProjectsCount: 0, availableEarnings: 0, monthlyEarnings: 0, totalEscrowAmount: 0, currentPoints: 40, currentLevel: 'مستكشف', profileCompletionPercent: 60, providerRating: null, aiRating: null, pendingClientApprovalCount: 0, negotiationOffersCount: 0 });
 		for (const forbidden of ['مكافأة', '+2 هذا الشهر', '+3 منذ أمس', '199 نقطة', 'مقدم موثّق']) expect(text).not.toContain(forbidden);
 	});
 
@@ -42,7 +42,7 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 	});
 
 	it('no ratings yet → "—" and an explicit empty text, never 0 or a default 5', () => {
-		const text = render({ providerRating: 0, aiRating: null });
+		const text = render({ providerRating: null, aiRating: null });
 		expect(text).toContain('لا توجد تقييمات بعد');
 		expect(text).toContain('لا توجد بيانات بعد');
 		expect(text).not.toMatch(/تقييم العملاء\s*0\b/);
@@ -71,5 +71,14 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 			expect(text, String(kyc)).not.toContain('عمولة مستواك');
 			expect(text, String(kyc)).not.toContain('قيد المراجعة');
 		}
+	});
+
+	it('a real 5.0 rating is shown as a rating (5.0 is no longer treated as unrated)', () => {
+		expect(render({ providerRating: 5 })).toContain('من 5 نجوم');
+	});
+	it('a null rating is "no ratings yet", not a rating', () => {
+		const none = render({ providerRating: null });
+		expect(none).toContain('لا توجد تقييمات بعد');
+		expect(none).not.toContain('من 5 نجوم');
 	});
 });

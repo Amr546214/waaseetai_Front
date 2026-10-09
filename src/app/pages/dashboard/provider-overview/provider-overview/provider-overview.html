@@ -279,8 +279,8 @@
 								d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 						</svg></div>
 				</div>
-				<div class="stat-val">{{ data.summary?.providerRating ? data.summary.providerRating : '—' }}</div>
-				<div class="stat-sub">{{ data.summary?.providerRating ? 'من 5 نجوم' : 'لا توجد تقييمات بعد' }}</div>
+				<div class="stat-val">{{ data.summary?.providerRating != null ? data.summary.providerRating : '—' }}</div>
+				<div class="stat-sub">{{ data.summary?.providerRating != null ? 'من 5 نجوم' : 'لا توجد تقييمات بعد' }}</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -700,8 +700,8 @@
 						</svg>
 					</div>
 				</div>
-				<div class="stat-val">{{ data.summary?.providerRating ? data.summary.providerRating : '—' }}</div>
-				<div class="stat-sub">{{ data.summary?.providerRating ? 'من 5 نجوم' : 'لا توجد تقييمات بعد' }}</div>
+				<div class="stat-val">{{ data.summary?.providerRating != null ? data.summary.providerRating : '—' }}</div>
+				<div class="stat-sub">{{ data.summary?.providerRating != null ? 'من 5 نجوم' : 'لا توجد تقييمات بعد' }}</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
