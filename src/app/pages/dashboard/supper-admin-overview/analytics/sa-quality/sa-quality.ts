@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReviewsSummaryComponent } from './reviews-summary.component';
 
 interface ScoreItem {
   label: string;
@@ -33,7 +34,7 @@ interface ContestedReview {
 @Component({
   selector: 'app-sa-quality',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReviewsSummaryComponent],
   templateUrl: './sa-quality.html',
   styleUrl: './sa-quality.css',
 })

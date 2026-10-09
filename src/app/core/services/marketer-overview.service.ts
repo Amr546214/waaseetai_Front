@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { AiResult, MetricSummaryDetails } from '../models/ai-result.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -30,9 +31,7 @@ export interface CommissionLog {
 	status: string;
 }
 
-export interface AiInsight {
-	text: string;
-}
+export type AiInsights = AiResult<MetricSummaryDetails>;
 
 // Single-tier direct referral status (P-LG-012). A referred user starts
 // PENDING, becomes QUALIFIED once their first project stage escrow is
@@ -126,8 +125,8 @@ export class MarketerOverviewService {
 		return this.http.get<{ success: boolean; data: CommissionLog[] }>(`${this.apiUrl}/commissions?limit=${limit}`);
 	}
 
-	getAiInsights(): Observable<{ success: boolean; data: AiInsight[] }> {
-		return this.http.get<{ success: boolean; data: AiInsight[] }>(`${this.apiUrl}/ai-insights`);
+	getAiInsights(): Observable<{ success: boolean; data: AiInsights }> {
+		return this.http.get<{ success: boolean; data: AiInsights }>(`${this.apiUrl}/ai-insights`);
 	}
 
 	// Real referrals of the calling marketer (every status: PENDING, QUALIFIED, CONVERTED), paginated.

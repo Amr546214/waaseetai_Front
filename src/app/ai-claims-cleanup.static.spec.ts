@@ -170,12 +170,13 @@ describe('4. admin mock AI cards are gone', () => {
 });
 
 describe('5. client / provider reports, finance, rating and settings copy', () => {
-	it('client reports: neutral summary, no AI wording', () => {
+	it('client reports: AI wording only via the shared card', () => {
 		const s = src(D + 'clients-overview/reports/reports.html');
 		expect(s).not.toContain('مدعوم بالذكاء الاصطناعي');
 		expect(s).not.toContain('تحليل الذكاء');
 		expect(s).toContain('ملخص شامل لنشاطك');
-		expect(s).toContain('ملخص إحصائي');
+		expect(s).toContain('<ws-ai-result-card');
+		expect(s).not.toContain('ملخص إحصائي');
 		expectAbsent([D + 'provider-overview/reports/reports.html'], ['مدعوم بالذكاء الاصطناعي']);
 	});
 	it('provider finance: no AI transaction verification, no AI protection label', () => {
@@ -211,10 +212,10 @@ describe('6. marketer banners', () => {
 			expectPresent(M + f + '.html', ['ملخص لأدائك']);
 		}
 	});
-	it('broker overview suggestions: rule-based, titled "اقتراحات لك", no AI icon', () => {
+	it('broker overview insights: real AI card (backend AiResult), no static advice, no inline AI icon', () => {
 		const s = src(M + 'marketing-broker-overview/marketing-broker-overview.html');
-		expect(s).toContain('اقتراحات لك');
-		expect(s).not.toContain('رؤى وتوصيات');
+		expect(s).toContain('<ws-ai-result-card title="رؤى وتوصيات الأداء"');
+		expect(s).not.toContain('اقتراحات لك');
 		expect(s).not.toContain('#i-ai');
 	});
 	it('marketer alert preferences have no "نصائح AI" toggle and no fake eligibility quiz', () => {
@@ -282,5 +283,23 @@ describe('7/8. neutral icons and no robot / rocket emoji', () => {
 		expect(src(D + 'clients-overview/help/help.html')).toContain('askAI()');
 		expect(src(D + 'provider-overview/profile/profile-setup/profile-setup.html').includes('#i-ai')).toBe(true);
 		expect(AI_LINKS.length).toBeGreaterThan(0);
+	});
+});
+
+describe('6. client reports + marketer: AI only through <ws-ai-result-card>', () => {
+	const files = [
+		D + 'clients-overview/reports/reports.html', D + 'clients-overview/reports/reports.ts',
+		D + 'marketer-overview/marketing-broker-overview/marketing-broker-overview.html', D + 'marketer-overview/marketing-broker-overview/marketing-broker-overview.ts',
+	];
+	it('old claims never return', () => {
+		expectAbsent(files, ['مدعوم بالذكاء الاصطناعي', 'تحليل الذكاء', 'نحلّل أداء قنواتك', 'ابدأ ببوست تفاعلي', 'اقتراحات لك']);
+	});
+	it('no AI icon / mark in the page templates, only the card', () => {
+		for (const f of [files[0], files[2]]) {
+			const s = src(f);
+			expect(s).toContain('<ws-ai-result-card');
+			expect(s).not.toContain('#i-ai');
+			expect(s).not.toContain('M12 10V5M12 19v-5M10 12H5');
+		}
 	});
 });

@@ -46,16 +46,7 @@
         }
       </div>
       <div class="adm-card">
-        <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-zap"></use></svg>اقتراحات لك</div>
-        @if (insights() && insights().length > 0) {
-          @for (insight of insights(); track $index) {
-            <div class="ins-row"><div class="ins-ic"><svg aria-hidden="true"><use href="#i-zap"></use></svg></div><div class="ins-txt">{{ insight.text }}</div></div>
-          }
-        } @else {
-          <div class="flex items-center justify-center h-[160px]">
-            <p class="text-sm text-slate-500">جاري جمع البيانات لتقديم اقتراحات لك...</p>
-          </div>
-        }
+        <ws-ai-result-card title="رؤى وتوصيات الأداء" [result]="insights()" [loading]="insightsLoading()" [requestFailed]="insightsFailed()" (retry)="loadInsights()"></ws-ai-result-card>
       </div>
     </div>
 
