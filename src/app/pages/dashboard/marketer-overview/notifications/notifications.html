@@ -47,7 +47,7 @@
       @for (nt of group.items; track nt.id) {
         <div class="state-card notif-row" [class.unread]="nt.isUnread" [style.border-inline-start]="'3px solid ' + (nt.filterGroup === 'finance' ? '#0FA99A' : nt.filterGroup === 'ai' ? '#7B2FBE' : '#2BD4C7')" (click)="onNotificationClick(nt)">
           <div style="display:flex;align-items:flex-start;gap:12px">
-            <div class="notif-ico" [ngClass]="nt.iconBgClass + ' ' + nt.iconColorClass" [innerHTML]="'<svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;>' + nt.svgIcon + '</svg>'"></div>
+            <div class="notif-ico" [ngClass]="nt.iconBgClass + ' ' + nt.iconColorClass" [innerHTML]="nt.iconHtml"></div>
             <div style="flex:1;min-width:0">
               <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
                 @if (nt.isUnread) { <span class="notif-dot"></span> }

@@ -101,4 +101,9 @@ describe('marketer notifications: honest banner/groups/CTA/mark-all', () => {
 		c.onNotificationClick(c.notifications().find(n => n.id === 'd')!);
 		expect(nav).toHaveBeenCalledWith('/marketer-overview/messages?conversationId=cv1');
 	});
+
+	it('every notification row renders its icon (an <svg> inside the icon box, not an empty box)', async () => {
+		const el = await mount([raw({ id: 'a' }), raw({ id: 'b', category: 'FINANCIAL' })]);
+		expect(el.querySelectorAll('.notif-ico svg').length).toBe(2);
+	});
 });

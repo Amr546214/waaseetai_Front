@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import type { SafeHtml } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { NotificationEngineService } from '../../../../core/services/notification-engine.service';
 import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
@@ -29,6 +30,8 @@ interface DisplayNotification extends RawNotification {
 	iconBgClass: string;
 	iconColorClass: string;
 	svgIcon: string;
+	/** The same icon as a trusted SafeHtml (a plain string bound to [innerHTML] has its <svg> stripped by Angular's sanitizer: an empty icon box). */
+	iconHtml: SafeHtml;
 	categoryLabel: string;
 	filterGroup: FilterGroup;
 }
@@ -248,6 +251,7 @@ export class Notifications implements OnInit, OnDestroy {
 			iconBgClass: icon.bg,
 			iconColorClass: icon.color,
 			svgIcon: icon.svg,
+			iconHtml: this.notificationEngine.buildIconHtml(icon.svg),
 			categoryLabel: icon.label,
 			filterGroup: group,
 			target: this.resolveTarget(raw),

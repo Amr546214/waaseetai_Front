@@ -17,6 +17,7 @@
 .notif-row { cursor: pointer; transition: border-color .15s, transform .15s; margin-bottom: 10px; padding: 14px 18px; }
 .notif-row:hover { transform: translateY(-1px); border-color: rgba(43, 212, 199, .25); }
 .notif-row.unread { background: linear-gradient(135deg, rgba(43, 212, 199, .06), rgba(43, 127, 255, .04)); border-color: rgba(43, 212, 199, .20); }
+.notif-ico svg { width: 17px; height: 17px; }
 .notif-ico { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .notif-dot { width: 7px; height: 7px; border-radius: 50%; background: #2BD4C7; flex-shrink: 0; }
 
