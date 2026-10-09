@@ -80,7 +80,8 @@
 .act-teal:hover{box-shadow:0 8px 24px rgba(43,212,199,.18)}
 
 /* ── Stats Row ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px} /* one column per stat card (4): a spare column would leave an empty slot */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px} /* one column per stat card (5): a spare column would leave an empty slot */
+.stat-val-empty{font-size:15px;line-height:1.6;min-height:30px;display:flex;align-items:center}
 .stat-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px;transition:border-color .15s,background .15s}
 .stat-card:hover{background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border-color:rgba(43,212,199,.20)}
 .stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -207,8 +208,17 @@
 @keyframes skel-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 /* ── Responsive Queries ── */
+@media(max-width:1399px){
+  /* 5 cards in 3+2 with no empty cell: a 6-track grid, the first three span 2, the last two span 3 */
+  .stats-row{grid-template-columns:repeat(6,1fr)}
+  .stats-row>.stat-card{grid-column:span 2}
+  .stats-row>.stat-card:nth-child(n+4){grid-column:span 3}
+}
 @media(max-width:1279px){
+  /* 2 columns; an odd last card takes the full row, so no cell stays empty */
   .stats-row{grid-template-columns:repeat(2,1fr)}
+  .stats-row>.stat-card,.stats-row>.stat-card:nth-child(n+4){grid-column:auto}
+  .stats-row>.stat-card:last-child:nth-child(odd){grid-column:1/-1}
   .main-grid{grid-template-columns:1fr}
   .right-panel{display:grid;grid-template-columns:repeat(2,1fr)}
   .offers-grid{grid-template-columns:repeat(2,1fr)}

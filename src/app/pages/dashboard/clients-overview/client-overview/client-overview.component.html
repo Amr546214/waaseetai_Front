@@ -525,6 +525,22 @@
 			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.humanRating | number:'1.1-1' }}</div>
 			<div class="stat-sub">من 5 نجوم</div>
 		</div>
+		<!-- AI rating of the received offers: the average of the real WaseetAI evaluations stored on them (null = none yet -> honest empty state, never a number) -->
+		<div class="stat-card" data-testid="ai-rating-card">
+			<div class="stat-top">
+				<span class="stat-lbl">تقييم AI للعروض</span>
+				<div class="stat-ico ai" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+						<use href="#i-ai"></use>
+					</svg></div>
+			</div>
+			@if (dashboardStore.dashboardData()!.summary.aiRating !== null && dashboardStore.dashboardData()!.summary.aiRating !== undefined) {
+			<div class="stat-val" data-testid="ai-rating-value">{{ dashboardStore.dashboardData()!.summary.aiRating | number:'1.1-1' }}</div>
+			<div class="stat-sub" data-testid="ai-rating-sub">متوسط تقييم {{ dashboardStore.dashboardData()!.summary.aiRatedOffersCount === 1 ? 'عرض واحد' : (dashboardStore.dashboardData()!.summary.aiRatedOffersCount ?? 0) + ' عروض' }} مقيَّمة · من 5</div>
+			} @else {
+			<div class="stat-val stat-val-empty" data-testid="ai-rating-empty">لا يوجد تقييم بعد</div>
+			<div class="stat-sub">يظهر بعد توفر بيانات كافية</div>
+			}
+		</div>
 	</div>
 
 	<!-- Main Grid -->
