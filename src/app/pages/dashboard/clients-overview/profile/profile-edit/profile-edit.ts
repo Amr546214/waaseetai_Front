@@ -134,6 +134,10 @@ export class ProfileEdit {
 	experienceLevels = Object.values(ExperienceLevel);
 
 	changeRequests = signal<any[]>([]);
+	/** The client's pending name-change request (CLIENT_BASIC_INFO), if any: the stored name only changes after an admin approves it. */
+	pendingNameRequest = signal<{ id: string; requestedValue: string } | null>(null);
+	/** The name currently applied on the account (what the form shows again after a request is sent). */
+	private appliedNames = { firstName: '', lastName: '' };
 	showRequestsModal = signal(false);
 
 	constructor() {
@@ -170,6 +174,17 @@ export class ProfileEdit {
 				}
 			},
 			error: (err) => console.error('Failed to load requests:', err)
+		});
+	}
+
+	private loadPendingNameRequest() {
+		this.profileApi.getMyChangeRequests().subscribe({
+			next: (res) => {
+				const rows: any[] = Array.isArray(res?.data) ? res.data : [];
+				const pending = rows.find(r => r?.category === 'CLIENT_BASIC_INFO' && r?.status === 'PENDING_HUMAN_REVIEW');
+				this.pendingNameRequest.set(pending ? { id: pending.id, requestedValue: String(pending.requestedValue ?? '') } : null);
+			},
+			error: () => { /* no banner: the server still refuses a duplicate request */ }
 		});
 	}
 
@@ -329,6 +344,8 @@ export class ProfileEdit {
 					}
 
 					this.basicsForm.patchValue(profile);
+					this.appliedNames = { firstName: String((profile as any).firstName ?? ''), lastName: String((profile as any).lastName ?? '') };
+					if (this.isClient) this.loadPendingNameRequest();
 					this.identityForm.patchValue(profile);
 					this.contactForm.patchValue(profile);
 					this.bankingForm.patchValue(profile);
@@ -612,8 +629,11 @@ export class ProfileEdit {
 			else payload = form.value;
 		}
 
+		if (tabName === 'basics' && this.pendingNameRequest()) {
+			this.errorMsg.set('لديك طلب تعديل للبيانات الأساسية قيد المراجعة بالفعل');
+			return;
+		}
 		const doneMessage: Record<string, string> = {
-			basics: 'تم حفظ الاسم بنجاح',
 			contact: 'تم حفظ رقم WhatsApp والمدينة بنجاح',
 			banking: 'تم حفظ بريد PayPal بنجاح',
 		};
@@ -621,7 +641,19 @@ export class ProfileEdit {
 		this.profileApi.updateTab(tabName, payload).subscribe({
 			next: (res) => {
 				this.isSaving.set(false);
-				if (res.success) {
+				if (res.success && tabName === 'basics') {
+					// The name is a governed field: the server only recorded a request (or nothing changed). Never "saved".
+					const d: any = (res as any).data;
+					if (d?.isPendingRequest) {
+						const raw = this.basicsForm.getRawValue();
+						this.pendingNameRequest.set({ id: String(d.requestId ?? ''), requestedValue: `${String(raw.firstName ?? '').trim()} ${String(raw.lastName ?? '').trim()}`.trim() });
+						this.basicsForm.patchValue({ firstName: this.appliedNames.firstName, lastName: this.appliedNames.lastName });
+						this.successMsg.set(res.message || 'تم إرسال طلب تعديل البيانات الأساسية للمراجعة');
+					} else {
+						this.successMsg.set('لا توجد تغييرات على الاسم');
+					}
+					setTimeout(() => this.successMsg.set(''), 6000);
+				} else if (res.success) {
 					this.successMsg.set(tabName === 'banking' && clearingPaypal ? 'تم إزالة بريد PayPal' : (doneMessage[tabName] || res.message || 'تم إرسال الطلب بنجاح'));
 					setTimeout(() => this.successMsg.set(''), 5000);
 					this.refreshCompletion();

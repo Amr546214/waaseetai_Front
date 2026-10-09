@@ -33,7 +33,7 @@ describe('client profile-edit: backend completion + missing items', () => {
       providers: [
         provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
         { provide: AuthStore, useValue: { currentUser: () => ({ accountType, activeRole }), token: () => 't', authenticate: vi.fn() } },
-        { provide: ProfileApiService, useValue: { getMyProfile, getChangeRequests: () => of({ success: true, data: [] }), updateTab, updateProfile: vi.fn(() => of({ success: true })) } },
+        { provide: ProfileApiService, useValue: { getMyProfile, getChangeRequests: () => of({ success: true, data: [] }), getMyChangeRequests: () => of({ success: true, data: [] }), updateTab, updateProfile: vi.fn(() => of({ success: true })) } },
       ],
     });
     fixture = TestBed.createComponent(ProfileEdit);
@@ -91,7 +91,7 @@ describe('client profile-edit: backend completion + missing items', () => {
       providers: [
         provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
         { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' }), token: () => 't', authenticate: vi.fn() } },
-        { provide: ProfileApiService, useValue: { getMyProfile, getChangeRequests: () => of({ success: true, data: [] }), updateTab: vi.fn(), updateProfile: vi.fn() } },
+        { provide: ProfileApiService, useValue: { getMyProfile, getChangeRequests: () => of({ success: true, data: [] }), getMyChangeRequests: () => of({ success: true, data: [] }), updateTab: vi.fn(), updateProfile: vi.fn() } },
       ],
     });
     fixture = TestBed.createComponent(ProfileEdit);
