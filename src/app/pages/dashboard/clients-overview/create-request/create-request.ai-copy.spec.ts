@@ -90,4 +90,30 @@ describe('create request: AI copy is truthful', () => {
 		expect(read('components/step4-budget/step4-budget.html')).not.toContain('اكتب اسما لكل مرحلة');
 		expect(read('create-request.ts')).toContain('milestoneNameError');
 	});
+
+	it('Batch B: only the real rewrite feature carries the AI mark (button + preview); rule-based hints, requirements note and disclosures do not', () => {
+		const step3 = read('components/step3-details/step3-details.html');
+		const quality = step3.slice(step3.indexOf('class="ai-quality'), step3.indexOf('id="desc-count"'));
+		expect(quality).not.toContain('#i-ai');
+		const reqNote = step3.slice(step3.indexOf('أضف المتطلبات') - 600, step3.indexOf('أضف المتطلبات'));
+		expect(reqNote).not.toContain('#i-ai');
+		// the AI "node graph" glyph (circle cx=12 cy=12 r=2 + satellites) lives only on the refine button
+		for (const f of ['components/step1-specialty/step1-specialty.html', 'components/step2-conditions/step2-conditions.html', 'components/step4-budget/step4-budget.html', 'components/step5-files/step5-files.html', 'components/step6-review/step6-review.html']) {
+			expect(read(f)).not.toMatch(/#i-ai|<circle cx="12" cy="12" r="3"\/>/);
+		}
+	});
+
+	it('Batch B: no hardcoded budget "AI range" (commented-out fake block removed)', () => {
+		const t = read('components/step4-budget/step4-budget.html');
+		expect(t).not.toContain('142 طلبا');
+		expect(t).not.toContain('6,000 - 10,000');
+		expect(t).not.toContain('AI RANGE');
+	});
+
+	it('Batch B: the preview says the original description is unchanged until "استخدم هذا الوصف"; no "البث الذكي"/technical-structure claims', () => {
+		const t = read('components/step3-details/step3-details.html');
+		expect(t).toContain('وصفك الأصلي لا يتغيّر إلا إذا ضغطت «استخدم هذا الوصف»');
+		expect(t).not.toContain('البث الذكي');
+		expect(t).not.toContain('هيكل المتطلبات الفنية');
+	});
 });
