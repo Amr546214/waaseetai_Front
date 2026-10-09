@@ -44,18 +44,14 @@
         <div style="font-size:11px;margin-top:5px" class="txt-muted">الحد الأدنى: 300 · الحد الأقصى: {{ withdrawableBalance() }} $</div>
       </div>
       <div style="margin-bottom:14px">
-        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">الحساب البنكي</label>
-        @if (hasBankInfo()) {
-        <div style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px" class="txt-white">
-          {{ profile()?.bankName || 'بنك غير محدد' }} — <span dir="ltr">{{ profile()?.iban }}</span>
-        </div>
-        } @else if (bankPendingReview()) {
-        <div data-testid="bank-pending-review" style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.3);border-radius:10px;font-size:12px" class="txt-slate">
-          بياناتك البنكية قيد المراجعة، يمكنك طلب السحب بعد اعتمادها. <a routerLink="/marketer-overview/profile/requests" style="font-weight:700" class="txt-teal">متابعة طلباتي</a>
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">بريد PayPal</label>
+        @if (hasPaypal()) {
+        <div data-testid="paypal-destination" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px" class="txt-white">
+          <span dir="ltr">{{ paypalEmail() }}</span>
         </div>
         } @else {
-        <div data-testid="bank-none" style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.28);border-radius:10px;font-size:12px" class="txt-slate">
-          لم تُضف بيانات حساب بنكي بعد. <a routerLink="/marketer-overview/profile/data" style="font-weight:700" class="txt-teal">أضِف IBAN من الملف الشخصي</a>
+        <div data-testid="paypal-none" style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.28);border-radius:10px;font-size:12px" class="txt-slate">
+          أضف بريد PayPal لاستلام الأرباح. <a routerLink="/marketer-overview/profile/data" style="font-weight:700" class="txt-teal">أضِف بريد PayPal من الملف الشخصي</a>
         </div>
         }
       </div>
@@ -73,13 +69,13 @@
     @if (withdrawals().length > 0) {
       <div style="overflow-x:auto">
         <table class="act-tbl">
-          <thead><tr><th>التاريخ</th><th>المبلغ</th><th>الحساب</th><th>الحالة</th></tr></thead>
+          <thead><tr><th>التاريخ</th><th>المبلغ</th><th>الوجهة</th><th>الحالة</th></tr></thead>
           <tbody>
             @for (log of withdrawals(); track log.id) {
               <tr>
                 <td>{{ log.createdAt | date:'yyyy-MM-dd' }}</td>
                 <td style="font-weight:700" class="txt-green">{{ log.amount }} $</td>
-                <td dir="ltr">{{ log.iban || log.accountName || '—' }}</td>
+                <td dir="ltr">{{ log.paypalEmail || '—' }}</td>
                 <td>
                   @if (log.status === 'COMPLETED') {
                     <span style="background:rgba(15,169,154,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-green">مكتمل</span>

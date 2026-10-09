@@ -58,10 +58,7 @@
 		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'commissions'"
 			(click)="setActiveTab('commissions')" role="tab">بيانات العمولات</button>
 		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'banking'"
-			(click)="setActiveTab('banking')" role="tab">البنكية والمستندات<span class="tab-tier tt-sens"><svg
-					aria-hidden="true">
-					<use href="#i-shield"></use>
-				</svg>بمراجعة</span></button>
+			(click)="setActiveTab('banking')" role="tab">بريد PayPal</button>
 		<button type="button" class="prof-tab-btn" [class.active]="activeTab() === 'security'"
 			(click)="setActiveTab('security')" role="tab">الامان والتنبيهات</button>
 	</div>
@@ -439,71 +436,34 @@
 	</div>
 	}
 
-	<!-- البنكية والمستندات -->
+	<!-- بريد PayPal -->
 	@if (activeTab() === 'banking') {
 	<div class="prof-tab-panel active" role="tabpanel">
-			@if (bankPendingReview()) {
-			<div class="pending-note" role="status" data-testid="bank-pending">طلب تعديل بياناتك البنكية قيد المراجعة، ولن تُطبَّق القيم الجديدة قبل اعتماده. يمكنك متابعته من "طلباتي السابقة".</div>
-			}
-			<div class="form-card" [formGroup]="bankForm">
+			<div class="form-card" [formGroup]="paypalForm">
 			<div class="form-card-hdr">
 				<div class="form-card-ico"><svg aria-hidden="true">
 						<use href="#i-wallet"></use>
 					</svg></div>
 				<div>
-					<div class="form-card-title">البيانات البنكية والمستندات</div>
-					<div class="form-card-sub">IBAN مطلوب للسحب، لا يمكن سحب العمولات قبل التحقق</div>
+					<div class="form-card-title">بريد PayPal</div>
+					<div class="form-card-sub">يُستخدم PayPal فقط للمدفوعات على المنصة، وإليه تُحوَّل أرباحك عند السحب</div>
 				</div>
-			</div>
-			<div class="gov-bar">
-				<div class="gov-bar-ico"><svg aria-hidden="true">
-						<use href="#i-shield"></use>
-					</svg></div>
-				<div class="gov-bar-txt">تعديل الحساب البنكي والمستندات ينشئ طلبا يخضع للمراجعة، ويتحقق المراجع من تطابق الاسم مع الهوية
-					ثم يعتمده مراجع بشري</div><a class="gov-bar-link" routerLink="/marketer-overview/profile/requests">طلباتي السابقة</a>
 			</div>
 			<div class="form-grid form-col-2">
-				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afbk-holder">اسم صاحب
-						الحساب (كما في البنك)<span class="req">*</span></label><input type="text" id="afbk-holder"
-						class="inp-field" placeholder="الاسم الثلاثي كما في البطاقة"
-						formControlName="accountHolderName"><ws-field-error [control]="bankForm.get('accountHolderName')" label="اسم صاحب الحساب" /></div>
-				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afbk-iban">رقم IBAN
-						للسحب<span class="req">*</span></label>
-					<input type="text" id="afbk-iban" class="inp-field" placeholder="SA00 0000 0000 0000 0000 0000"
-								maxlength="42" dir="ltr" formControlName="iban" autocomplete="off"
-								[attr.aria-invalid]="bankForm.get('iban')?.invalid && bankForm.get('iban')?.touched">
-						<span class="inp-hint" data-testid="iban-hint">اكتب الرقم كاملًا بما فيه رمز الدولة (مثل SA) ثم رقما التحقق ورقم الحساب</span>
-						<ws-field-error [control]="bankForm.get('iban')" label="رقم IBAN" [messages]="{ iban: 'رقم IBAN غير صحيح، اكتبه كاملًا بما فيه رمز الدولة (مثل SA)', maxlength: 'رقم IBAN لا يزيد على 34 حرفًا' }" />
-				</div>
-				<div class="inp-group"><label class="inp-label" for="afbk-bank">اسم البنك<span class="req">*</span></label><select id="afbk-bank"
-							class="inp-field" formControlName="bankName">
-							<option value="">اختر البنك</option>
-							@if (extraBankOption(); as extra) {
-							<option [value]="extra">{{ extra }}</option>
-							}
-						<option value="البنك الاهلي السعودي">البنك الاهلي السعودي</option>
-						<option value="مصرف الراجحي">مصرف الراجحي</option>
-						<option value="بنك الرياض">بنك الرياض</option>
-						<option value="STC Pay">STC Pay</option>
-						</select>
-						<ws-field-error [control]="bankForm.get('bankName')" label="اسم البنك" [messages]="{ required: 'اختر اسم البنك' }" /></div>
-			</div>
-			<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
-				<div style="font-size:13px;font-weight:700;margin-bottom:6px" class="txt-slate">المستندات والاقرارات</div>
-					<div class="inp-hint" data-testid="docs-note" style="margin-bottom:10px">رفع المستندات غير متاح حاليًا ولا يُرسل أي مستند مع هذا الطلب، لذلك الحقلان معطلان.</div>
-				<div class="form-grid form-col-2">
-					<div class="inp-group"><label class="inp-label" for="afdoc-front">هوية وطنية، وجه</label><input
-							type="file" id="afdoc-front" class="inp-field" accept=".jpg,.png" disabled></div>
-					<div class="inp-group"><label class="inp-label" for="afdoc-back">هوية وطنية، ظهر</label><input
-							type="file" id="afdoc-back" class="inp-field" accept=".jpg,.png" disabled></div>
+				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="afpp-email">بريد PayPal</label>
+					<input type="email" id="afpp-email" class="inp-field" placeholder="name@example.com" dir="ltr"
+								formControlName="paypalPayoutEmail" autocomplete="email" inputmode="email" spellcheck="false"
+								[attr.aria-invalid]="paypalForm.get('paypalPayoutEmail')?.invalid && paypalForm.get('paypalPayoutEmail')?.touched">
+						<span class="inp-hint" data-testid="paypal-hint">لا يمكن سحب الأرباح قبل إضافة بريد PayPal. اتركه فارغًا لإزالته.</span>
+						<ws-field-error [control]="paypalForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
 				</div>
 			</div>
 			<ws-form-summary [items]="missing()" />
 				@if (tabNotice(); as notice) {
 				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:12px;margin:8px 0">{{ notice }}</div>
 				}
-				<div class="actions-row"><button type="button" class="btn-primary"
-						(click)="openGovernedEdit('البيانات البنكية والمستندات')">إرسال طلب تعديل</button></div>
+				<div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()"
+						(click)="savePaypal()">{{ savingPaypal() ? 'جارٍ الحفظ...' : 'حفظ بريد PayPal' }}</button></div>
 		</div>
 	</div>
 	}
@@ -525,7 +485,7 @@
 				style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:10px">
 				<div>
 					<div style="font-size:13px;font-weight:700" class="txt-white">المصادقة الثنائية (MFA)</div>
-					<div style="font-size:11px;margin-top:2px" class="txt-muted">تحمي حسابك عند تسجيل الدخول وتغيير IBAN — الميزة قيد التطوير
+					<div style="font-size:11px;margin-top:2px" class="txt-muted">تحمي حسابك عند تسجيل الدخول — الميزة قيد التطوير
 					</div>
 				</div><span
 					style="font-size:11px;font-weight:700;padding:4px 10px;background:rgba(148,163,184,.14);border:1px solid rgba(148,163,184,.28);color:#94A3B8">غير متاح حاليًا</span>
@@ -586,36 +546,6 @@
 		</div>
 	</div>
 	}
-</div>
-}
-
-@if (isGovModalOpen()) {
-<div class="modal-ov show" role="dialog" aria-modal="true" (click)="closeGovernedEdit()">
-	<div class="modal-box" (click)="$event.stopPropagation()">
-		<div class="modal-ico"><svg aria-hidden="true">
-				<use href="#i-shield"></use>
-			</svg></div>
-		<div class="modal-title">طلب تعديل بيانات حساسة</div>
-		<p class="modal-desc">التغيير على <strong class="txt-kahr">{{ governedEditField() }}</strong>
-			لا يطبق فورا، ينشأ طلب تعديل محكوم يمر بالمراحل التالية قبل اعتماده</p>
-		<div class="modal-flow">
-			<div class="mf-step"><span class="mf-dot"><svg aria-hidden="true">
-						<use href="#i-ai"></use>
-					</svg></span>فحص آلي</div>
-			<span class="mf-line"></span>
-			<div class="mf-step"><span class="mf-dot"><svg aria-hidden="true">
-						<use href="#i-person"></use>
-					</svg></span>اعتماد بشري</div>
-			<span class="mf-line"></span>
-			<div class="mf-step"><span class="mf-dot"><svg aria-hidden="true">
-						<use href="#i-check"></use>
-					</svg></span>التطبيق</div>
-		</div>
-		<div class="modal-actions">
-			<button type="button" class="modal-btn modal-btn-cancel" [disabled]="savingBank()" (click)="closeGovernedEdit()">إلغاء</button>
-			<button type="button" class="modal-btn modal-btn-confirm" [disabled]="savingBank()" (click)="confirmGovernedEdit()">{{ savingBank() ? 'جارٍ الإرسال...' : 'إرسال الطلب للمراجعة' }}</button>
-		</div>
-	</div>
 </div>
 }
 

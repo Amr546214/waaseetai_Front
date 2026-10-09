@@ -63,13 +63,10 @@ export interface MarketerMissingItem {
 	label: string;
 	points: number;
 	status: 'missing' | 'pending_review';
-	/** 'profile' (marketing info + channels) or 'bank' (the bank tab). */
+	/** 'profile' (marketing info + channels) or 'bank' (the PayPal tab; the key is historical). */
 	tab: 'profile' | 'bank';
 	hint: string;
 }
-
-/** Bank data state: approved (an IBAN is on the profile), pending_review (a request waits for the review), none. */
-export type MarketerBankStatus = 'none' | 'pending_review' | 'approved';
 
 export interface MarketerProfile {
 	id: string;
@@ -89,19 +86,14 @@ export interface MarketerProfile {
 	avatarUrl?: string;
 	bio?: string;
 	marketingChannels: AffiliateChannelHandle[];
-	bankName?: string;
-	accountHolderName?: string;
-	iban?: string;
-	swiftCode?: string;
+	/** The saved PayPal email: the only payout destination (the backend never returns bank data). */
+	paypalPayoutEmail?: string | null;
 	identityVerified: boolean;
 	kycDocumentUrl?: string;
 	payoutMethod: string;
 	minimumPayoutAmount: number;
 	completionPercentage: number;
 	missingItems?: MarketerMissingItem[];
-	bankStatus?: MarketerBankStatus;
-	/** A change request is pending even though an approved IBAN exists. */
-	bankChangePending?: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -140,8 +132,9 @@ export class MarketerProfileService {
 		return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/channels/${id}`);
 	}
 
-	updateBankInfo(data: { bankName?: string; accountHolderName?: string; iban?: string; swiftCode?: string }): Observable<ApiResponse<MarketerProfile>> {
-		return this.http.patch<ApiResponse<MarketerProfile>>(`${this.apiUrl}/bank-info`, data);
+	/** PayPal is the only payout destination. An empty email removes the saved one. */
+	updatePaypalPayout(paypalPayoutEmail: string): Observable<ApiResponse<{ paypalPayoutEmail: string | null }>> {
+		return this.http.patch<ApiResponse<{ paypalPayoutEmail: string | null }>>(`${this.apiUrl}/paypal`, { paypalPayoutEmail });
 	}
 
 	getRequests(): Observable<ApiResponse<ProfileRequestsSummary>> {

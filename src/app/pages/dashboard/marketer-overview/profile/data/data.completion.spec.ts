@@ -9,16 +9,14 @@ import { MarketerProfileService } from '../../../../../core/services/marketer-pr
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
-// Marketer data page: the percentage and the "what is missing" box come from the backend; a pending bank request
-// shows as "قيد المراجعة" from backend data (so it survives a reload); the channel dot no longer says "محقق".
+// Marketer data page: the percentage and the "what is missing" box come from the backend; the PayPal item opens the PayPal tab; the channel dot no longer says "محقق".
 const base = { id: 'p1', referralSlug: 'abc', marketingChannels: [{ id: 'c1', platform: 'YOUTUBE', handle: '@x', createdAt: '' }], bio: '', avatarUrl: '',
-  bankName: '', accountHolderName: '', iban: '', swiftCode: '', user: { firstName: 'م', lastName: 'ت', email: 'm@x.com', phoneNumber: '501234567', phoneCountryCode: '+966', idNumber: '1' } };
+  paypalPayoutEmail: '', user: { firstName: 'م', lastName: 'ت', email: 'm@x.com', phoneNumber: '501234567', phoneCountryCode: '+966', idNumber: '1' } };
 const ITEMS = [
   { key: 'avatar', label: 'الصورة الشخصية', points: 20, status: 'missing', tab: 'profile', hint: 'أضف صورة شخصية' },
   { key: 'bio', label: 'الوصف التسويقي', points: 20, status: 'missing', tab: 'profile', hint: 'اكتب وصفًا تسويقيًا من 50 حرفًا على الأقل' },
-  { key: 'iban', label: 'الحساب البنكي (IBAN)', points: 30, status: 'missing', tab: 'bank', hint: 'أضف رقم IBAN (يُفعَّل بعد اعتماد الطلب)' },
+  { key: 'payout', label: 'بريد PayPal', points: 30, status: 'missing', tab: 'bank', hint: 'أضف بريد PayPal لاستلام الأرباح' },
 ];
-const PENDING = [{ ...ITEMS[2], status: 'pending_review', hint: 'طلب الحساب البنكي قيد المراجعة' }];
 
 describe('marketer data page: backend completion + missing items', () => {
   let fixture: ComponentFixture<Data>;
@@ -32,7 +30,7 @@ describe('marketer data page: backend completion + missing items', () => {
       providers: [
         provideRouter([]),
         { provide: MarketerOverviewService, useValue: { getSummary: () => of({ success: true, data: {} }), getChannelPerformance: () => of({ success: true, data: [] }), getRecentCommissions: () => of({ success: true, data: [] }) } },
-        { provide: MarketerProfileService, useValue: { getProfile, updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(), removeChannel: vi.fn(), updateBankInfo: vi.fn(), createIdentityRequest: vi.fn(), changePassword: vi.fn() } },
+        { provide: MarketerProfileService, useValue: { getProfile, updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(), removeChannel: vi.fn(), updatePaypalPayout: vi.fn(), createIdentityRequest: vi.fn(), changePassword: vi.fn() } },
         { provide: NotificationPreferencesService, useValue: { getPreferences: () => of({ success: true, data: {} }), updatePreferences: vi.fn() } },
       ],
     }).compileComponents();
@@ -47,25 +45,26 @@ describe('marketer data page: backend completion + missing items', () => {
   afterEach(() => { TestBed.inject(UiNotificationService).clearAll(); fixture?.destroy(); TestBed.resetTestingModule(); });
 
   it('shows the backend percentage and the "لإكمال ملفك إلى 100%" box with each item and its points; the old static hint is gone', async () => {
-    await setup({ ...base, completionPercentage: 30, missingItems: ITEMS, bankStatus: 'none' });
+    await setup({ ...base, completionPercentage: 30, missingItems: ITEMS });
     expect(q('.prog-pct')!.textContent).toContain('30%');
     expect(q('.cbx-title')!.textContent).toContain('لإكمال ملفك إلى 100%، أكمل التالي:');
-    expect(all('.cbx-item').map(i => i.getAttribute('data-key'))).toEqual(['avatar', 'bio', 'iban']);
+    expect(all('.cbx-item').map(i => i.getAttribute('data-key'))).toEqual(['avatar', 'bio', 'payout']);
     expect(q('[data-testid="miss-missing"]')!.textContent).toContain('+20%');
     expect(el().textContent).not.toContain('اكمل التحقق من القنوات');
   });
 
-  it('a pending IBAN is "قيد المراجعة" (not missing) and the bank tab explains it from backend data', async () => {
-    await setup({ ...base, completionPercentage: 70, missingItems: PENDING, bankStatus: 'pending_review' });
-    expect(q('.cbx-item')!.getAttribute('data-status')).toBe('pending_review');
-    expect(q('[data-testid="miss-pending"]')!.textContent).toContain('قيد المراجعة');
-    expect(q('[data-testid="miss-missing"]')).toBeNull();
+  it('the PayPal tab has one PayPal field, no bank / IBAN / holder / wallet, and no "بمراجعة" governance tag', async () => {
+    await setup({ ...base, completionPercentage: 70, missingItems: [], paypalPayoutEmail: 'm@example.com' });
     c.setActiveTab('banking'); render();
-    expect(q('[data-testid="bank-pending"]')!.textContent).toContain('قيد المراجعة'); // no local flag involved (reload-safe)
+    const text = el().textContent || '';
+    expect((q('#afpp-email') as HTMLInputElement).value).toBe('m@example.com');
+    expect(text).toContain('يُستخدم PayPal فقط للمدفوعات على المنصة');
+    expect(text).not.toMatch(/IBAN|اسم البنك|الحساب البنكي|البيانات البنكية|صاحب الحساب|محفظة|STC Pay/);
+    for (const n of ['iban', 'bankName', 'accountHolderName', 'swiftCode']) expect(el().querySelector(`[formcontrolname="${n}"]`), n).toBeNull();
   });
 
-  it('items open the right tab: profile items -> profile, the IBAN item -> the bank tab', async () => {
-    await setup({ ...base, completionPercentage: 30, missingItems: ITEMS, bankStatus: 'none' });
+  it('items open the right tab: profile items -> profile, the PayPal item -> the PayPal tab', async () => {
+    await setup({ ...base, completionPercentage: 30, missingItems: ITEMS });
     (q('.cbx-link[data-tab="bank"]') as HTMLButtonElement).click(); render();
     expect(c.activeTab()).toBe('banking');
     c.setActiveTab('referral'); render();
@@ -74,7 +73,7 @@ describe('marketer data page: backend completion + missing items', () => {
   });
 
   it('100%: the completion card (label, percentage, bar, "مكتمل" hint) and the missing box are gone', async () => {
-    await setup({ ...base, completionPercentage: 100, missingItems: [], bankStatus: 'approved', iban: 'SA0380000000608010167519' });
+    await setup({ ...base, completionPercentage: 100, missingItems: [], paypalPayoutEmail: 'm@example.com' });
     expect(q('[data-testid="missing-items"]')).toBeNull();
     expect(q('.prog-header')).toBeNull();
     expect(q('.prog-fill')).toBeNull();
@@ -83,14 +82,14 @@ describe('marketer data page: backend completion + missing items', () => {
   });
 
   it('below 100%: the card shows the label, the percentage and the bar width', async () => {
-    await setup({ ...base, completionPercentage: 40, missingItems: ITEMS, bankStatus: 'none' });
+    await setup({ ...base, completionPercentage: 40, missingItems: ITEMS });
     expect(q('.prog-header')).not.toBeNull();
     expect(q('.prog-pct')!.textContent).toContain('40%');
     expect((q('.prog-fill') as HTMLElement).style.width).toBe('40%');
   });
 
   it('a channel is shown as added, never as "محقق" (channel verification does not exist yet)', async () => {
-    await setup({ ...base, completionPercentage: 30, missingItems: [], bankStatus: 'none' });
+    await setup({ ...base, completionPercentage: 30, missingItems: [] });
     const dot = q('.channel-status')!;
     expect(dot.classList.contains('ok')).toBe(false);
     expect(dot.getAttribute('title')).not.toContain('محقق');

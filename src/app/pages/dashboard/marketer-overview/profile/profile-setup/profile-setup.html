@@ -107,35 +107,21 @@
       </div>
     }
 
-    <!-- Step 4: الحساب البنكي -->
+    <!-- Step 4: بريد PayPal (the only payout destination) -->
     @if (currentStep() === 4) {
-      <div class="form-card" [formGroup]="bankForm">
+      <div class="form-card" [formGroup]="paypalForm">
         <div class="form-card-hdr">
           <div class="form-card-ico" style="background:rgba(15,169,154,.10);color:#0FA99A"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div>
-          <div><div class="form-card-title">الحساب البنكي</div><div class="form-card-sub">مطلوب لاستلام عمولاتك عند السحب</div></div>
+          <div><div class="form-card-title">بريد PayPal</div><div class="form-card-sub">يُستخدم PayPal فقط للمدفوعات على المنصة، وإليه تُحوَّل أرباحك عند السحب</div></div>
         </div>
         <div class="form-grid form-col2">
-          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">اسم صاحب الحساب<span class="req">*</span></label><input type="text" class="inp-field" formControlName="accountHolderName" placeholder="الاسم الثلاثي كما في البطاقة" aria-required="true">
-            <ws-field-error [control]="bankForm.get('accountHolderName')" label="اسم صاحب الحساب" /></div>
-          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label">رقم IBAN<span class="req">*</span></label><input type="text" class="inp-field" formControlName="iban" placeholder="SAxx xxxx xxxx xxxx xxxx xxxx" dir="ltr">
-            <ws-field-error [control]="bankForm.get('iban')" label="رقم IBAN" [messages]="{ iban: 'أدخل رقم IBAN صالحًا (رمز الدولة، رقما التحقق، ثم رقم الحساب)', maxlength: 'رقم IBAN لا يزيد على 34 حرفًا' }" />
-          </div>
-          <div class="inp-group"><label class="inp-label">اسم البنك<span class="req">*</span></label>
-            <select class="inp-field" formControlName="bankName" aria-required="true">
-              <option value="">اختر البنك</option>
-              <option value="البنك الاهلي السعودي">البنك الاهلي السعودي</option>
-              <option value="مصرف الراجحي">مصرف الراجحي</option>
-              <option value="بنك الرياض">بنك الرياض</option>
-              <option value="STC Pay">STC Pay</option>
-            </select>
-            <ws-field-error [control]="bankForm.get('bankName')" [messages]="{ required: 'اختر اسم البنك' }" />
-          </div>
+          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="ps-paypal">بريد PayPal<span class="req">*</span></label><input type="email" id="ps-paypal" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com" dir="ltr" inputmode="email" autocomplete="email" spellcheck="false" aria-required="true">
+            <ws-field-error [control]="paypalForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ required: 'بريد PayPal مطلوب', email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" /></div>
         </div>
       </div>
-      <div class="inp-hint" style="margin:0 0 10px">بعد الإرسال تُراجَع البيانات البنكية قبل اعتمادها، ويظهر لك الحالة "قيد المراجعة" حتى الموافقة.</div>
       <ws-form-summary [items]="missing()" />
       <div class="actions-row">
-        <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="saveBankInfo()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
+        <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="savePaypal()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
         <button type="button" class="btn-secondary" (click)="nextStep()">التالي</button>
       </div>
     }
@@ -153,7 +139,7 @@
         <ws-completion-box [items]="missingItems()" (select)="openMissingItem($event)" />
         <div class="review-row"><span class="txt-muted">الوصف التسويقي</span><span class="txt-white" data-testid="bio-state">{{ bioState() }}</span></div>
         <div class="review-row"><span class="txt-muted">قنوات التسويق</span><span class="txt-white">{{ hasChannel() ? 'تمت إضافة قناة' : 'لم تُضف بعد' }}</span></div>
-        <div class="review-row"><span class="txt-muted">الحساب البنكي</span><span class="txt-white" data-testid="bank-state">{{ bankReviewState() }}</span></div>
+        <div class="review-row"><span class="txt-muted">بريد PayPal</span><span class="txt-white" data-testid="paypal-state">{{ paypalState() }}</span></div>
       </div>
       <div class="actions-row"><button type="button" class="btn-primary" (click)="finish()">إنهاء</button></div>
     }

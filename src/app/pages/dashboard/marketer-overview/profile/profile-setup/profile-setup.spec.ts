@@ -9,19 +9,17 @@ import { ProfileSetup } from './profile-setup';
 import { MarketerProfileService } from '../../../../../core/services/marketer-profile.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
-const VALID_IBAN = 'SA0380000000608010167519';
-
 describe('ProfileSetup (marketer): shared validation', () => {
   let fixture: ComponentFixture<ProfileSetup>;
   let component: ProfileSetup;
-  let svc: { getProfile: any; updateMarketingInfo: any; addChannel: any; updateBankInfo: any };
+  let svc: { getProfile: any; updateMarketingInfo: any; addChannel: any; updatePaypalPayout: any };
 
   beforeEach(async () => {
     svc = {
       getProfile: vi.fn(() => of({ success: true, data: { marketingChannels: [], completionPercentage: 20, user: {} } })),
       updateMarketingInfo: vi.fn(() => of({ success: true })),
       addChannel: vi.fn(() => of({ success: true })),
-      updateBankInfo: vi.fn(() => of({ success: true, isPendingRequest: true })),
+      updatePaypalPayout: vi.fn(() => of({ success: true, data: { paypalPayoutEmail: 'm@example.com' } })),
     };
     await TestBed.configureTestingModule({
       imports: [ProfileSetup],
@@ -38,7 +36,7 @@ describe('ProfileSetup (marketer): shared validation', () => {
   const summary = () => el().querySelector('[data-testid="form-summary"]')?.textContent || '';
   const errors = () => Array.from(el().querySelectorAll('[data-testid="field-error"]')).map(e => e.textContent || '');
   const goTo = (step: number) => { component.setStep(step); render(); };
-  const fillBank = () => component.bankForm.patchValue({ accountHolderName: 'محمد أحمد', iban: VALID_IBAN, bankName: 'مصرف الراجحي' });
+  const fillPaypal = () => component.paypalForm.patchValue({ paypalPayoutEmail: 'm@example.com' });
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -89,67 +87,62 @@ describe('ProfileSetup (marketer): shared validation', () => {
     });
   });
 
-  describe('bank step', () => {
-    it('empty save: no request, all three required fields named, the bank name now carries a required marker, button enabled', () => {
+  describe('PayPal step', () => {
+    it('shows one PayPal email field only: no bank, IBAN, account holder or wallet text or inputs', () => {
       goTo(4);
-      component.saveBankInfo();
+      const text = el().textContent || '';
+      expect(el().querySelector('#ps-paypal')).toBeTruthy();
+      expect(text).toContain('بريد PayPal');
+      expect(text).toContain('يُستخدم PayPal فقط للمدفوعات على المنصة');
+      expect(text).not.toMatch(/IBAN|اسم البنك|الحساب البنكي|صاحب الحساب|محفظة|STC Pay|الراجحي/);
+      for (const n of ['iban', 'bankName', 'accountHolderName', 'swiftCode']) expect(el().querySelector(`[formcontrolname="${n}"]`), n).toBeNull();
+    });
+
+    it('empty save: no request, the PayPal email is named as missing, button enabled', () => {
+      goTo(4);
+      component.savePaypal();
       render();
-      expect(svc.updateBankInfo).not.toHaveBeenCalled();
-      for (const label of ['اسم صاحب الحساب', 'رقم IBAN', 'اسم البنك']) expect(summary(), label).toContain(label);
-      expect(errors().some(t => t.includes('اختر اسم البنك'))).toBe(true);
-      const bankLabel = Array.from(el().querySelectorAll('label')).find(l => l.textContent?.includes('اسم البنك'))!;
-      expect(bankLabel.querySelector('.req')).toBeTruthy();
+      expect(svc.updatePaypalPayout).not.toHaveBeenCalled();
+      expect(summary()).toContain('بريد PayPal');
+      expect(errors().some(t => t.includes('بريد PayPal مطلوب'))).toBe(true);
       expect((Array.from(el().querySelectorAll('button')).find(b => b.textContent?.includes('حفظ ومتابعة')) as HTMLButtonElement).disabled).toBe(false);
     });
 
-    it('an invalid IBAN gets an Arabic explanation; an over-long one is flagged (backend max 34)', () => {
+    it('an invalid email gets an Arabic explanation and is not sent', () => {
       goTo(4);
-      fillBank();
-      component.bankForm.get('iban')!.setValue('SA12');
-      component.saveBankInfo(); render();
-      expect(svc.updateBankInfo).not.toHaveBeenCalled();
-      expect(errors().some(t => t.includes('IBAN صالحًا'))).toBe(true);
-      component.bankForm.get('iban')!.setValue('SA' + '1'.repeat(40));
-      expect(component.bankForm.get('iban')!.errors?.['maxlength']).toBeTruthy();
+      component.paypalForm.get('paypalPayoutEmail')!.setValue('not-an-email');
+      component.savePaypal(); render();
+      expect(svc.updatePaypalPayout).not.toHaveBeenCalled();
+      expect(errors().some(t => t.includes('بريد PayPal صالحًا'))).toBe(true);
     });
 
-    it('valid details are sent; the success copy says they go to REVIEW and step 5 shows "قيد المراجعة" from the BACKEND state (not a local flag)', () => {
+    it('a valid email is sent alone (no bank fields) and step 5 shows PayPal "مكتمل" from the backend state', () => {
       goTo(4);
-      fillBank();
-      // After the request the backend reports the IBAN as pending review (this survives a reload).
-      svc.getProfile.mockReturnValue(of({ success: true, data: { marketingChannels: [], completionPercentage: 40, user: {}, bankStatus: 'pending_review', missingItems: [
-        { key: 'iban', label: 'الحساب البنكي (IBAN)', points: 30, status: 'pending_review', tab: 'bank', hint: 'طلب الحساب البنكي قيد المراجعة' }] } }));
-      component.saveBankInfo();
-      expect(svc.updateBankInfo).toHaveBeenCalledWith({ accountHolderName: 'محمد أحمد', iban: VALID_IBAN, bankName: 'مصرف الراجحي' });
-      expect(component.toastMsg()).toContain('للمراجعة');
+      fillPaypal();
+      svc.getProfile.mockReturnValue(of({ success: true, data: { marketingChannels: [], completionPercentage: 70, user: {}, paypalPayoutEmail: 'm@example.com', missingItems: [] } }));
+      component.savePaypal();
+      expect(svc.updatePaypalPayout).toHaveBeenCalledWith('m@example.com');
+      expect(component.toastMsg()).toBe('تم حفظ بريد PayPal');
       expect(component.currentStep()).toBe(5);
       render();
-      expect(el().querySelector('[data-testid="bank-state"]')!.textContent).toContain('قيد المراجعة');
-      expect(el().querySelector('[data-testid="bank-state"]')!.textContent).not.toContain('لم يُضف');
-      expect(el().querySelector('.cbx-item[data-key="iban"]')!.getAttribute('data-status')).toBe('pending_review');
+      expect(el().querySelector('[data-testid="paypal-state"]')!.textContent).toContain('مكتمل');
+      expect(el().textContent).not.toMatch(/IBAN|الحساب البنكي|اسم البنك/);
     });
 
-
-    it('zod errors[] from the server land on the matching input; the English 400 is never shown', () => {
-      svc.updateBankInfo.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'Validation Error', errors: [{ path: 'body.iban', message: 'رقم IBAN غير صحيح' }] } })));
+    it('zod errors[] from the server land on the PayPal input; the English 400 is never shown', () => {
+      svc.updatePaypalPayout.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'Validation Error', errors: [{ path: 'body.paypalPayoutEmail', message: 'أدخل بريد PayPal صالحًا مثل name@example.com' }] } })));
       goTo(4);
-      fillBank();
-      component.saveBankInfo();
+      fillPaypal();
+      component.savePaypal();
       render();
-      expect(component.bankForm.get('iban')!.errors?.['server']).toBe('رقم IBAN غير صحيح');
-      expect(errors().some(t => t.includes('رقم IBAN غير صحيح'))).toBe(true);
+      expect(component.paypalForm.get('paypalPayoutEmail')!.errors?.['server']).toBeTruthy();
       expect(component.isSubmitting()).toBe(false);
+      expect(component.currentStep()).toBe(4);
     });
 
-    it('409 "a change request is already pending" shows the server message (Arabic) and stays on the step', () => {
-      const notify = TestBed.inject(UiNotificationService);
-      svc.updateBankInfo.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'يوجد طلب تعديل معلّق بالفعل لـ: iban' } })));
-      goTo(4);
-      fillBank();
-      component.saveBankInfo();
-      expect(notify.toasts().at(-1)!.message).toContain('طلب تعديل معلّق');
-      expect(component.currentStep()).toBe(4);
-      expect(component.bankReviewState()).toBe('لم يُضف');
+    it('before PayPal is saved the review says "لم يُضف"', () => {
+      goTo(5);
+      expect(component.paypalState()).toBe('لم يُضف');
     });
   });
 
@@ -172,7 +165,7 @@ describe('ProfileSetup (marketer): shared validation', () => {
 
   it('moving between steps clears the previous summary', () => {
     goTo(4);
-    component.saveBankInfo();
+    component.savePaypal();
     expect(component.missing().length).toBeGreaterThan(0);
     component.prevStep();
     expect(component.missing()).toEqual([]);

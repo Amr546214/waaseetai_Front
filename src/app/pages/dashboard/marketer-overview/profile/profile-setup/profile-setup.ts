@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MarketerProfileService, MarketerProfile } from '../../../../../core/services/marketer-profile.service';
-import { ibanValidator } from '../../../../../core/validators/iban.validator';
+import { paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../../../core/forms/form-helpers';
@@ -18,9 +18,7 @@ const MARKETER_LABELS: Record<string, string> = {
 	bio: 'الوصف التسويقي',
 	platform: 'نوع القناة',
 	handle: 'معرّف القناة أو رابطها',
-	accountHolderName: 'اسم صاحب الحساب',
-	iban: 'رقم IBAN',
-	bankName: 'اسم البنك',
+	paypalPayoutEmail: 'بريد PayPal',
 };
 
 @Component({
@@ -50,7 +48,7 @@ export class ProfileSetup implements OnInit {
 		{ id: 1, label: 'بياناتك الأساسية' },
 		{ id: 2, label: 'الملف التسويقي' },
 		{ id: 3, label: 'قناة تسويق واحدة' },
-		{ id: 4, label: 'الحساب البنكي' },
+		{ id: 4, label: 'بريد PayPal' },
 		{ id: 5, label: 'المراجعة والإنهاء' },
 	];
 
@@ -63,11 +61,9 @@ export class ProfileSetup implements OnInit {
 		handle: ['', Validators.required],
 	});
 
-	bankForm: FormGroup = this.fb.group({
-		// Backend updateBankInfoSchema: bankName/accountHolderName max 120, iban max 34 and a valid IBAN.
-		accountHolderName: ['', [Validators.required, Validators.maxLength(120)]],
-		iban: ['', [Validators.required, ibanValidator, Validators.maxLength(34)]],
-		bankName: ['', [Validators.required, Validators.maxLength(120)]],
+	// PayPal is the only payout destination: one required, valid email (backend updatePaypalPayoutSchema).
+	paypalForm: FormGroup = this.fb.group({
+		paypalPayoutEmail: ['', paypalEmailValidators],
 	});
 
 	agree = signal(false);
@@ -76,11 +72,8 @@ export class ProfileSetup implements OnInit {
 	hasChannel = computed(() => (this.profile()?.marketingChannels?.length ?? 0) > 0);
 	/** Backend `missingItems` (same source as the percentage). */
 	missingItems = computed<CompletionBoxItem[]>(() => (this.profile()?.missingItems ?? []) as CompletionBoxItem[]);
-	/** Bank state from the backend (survives a reload): approved / pending review / not added. */
-	bankReviewState = computed(() => {
-		const status = this.profile()?.bankStatus ?? (this.profile()?.iban ? 'approved' : 'none');
-		return status === 'approved' ? 'مكتمل' : status === 'pending_review' ? 'قيد المراجعة' : 'لم يُضف';
-	});
+	/** PayPal state from the backend (survives a reload). */
+	paypalState = computed(() => this.profile()?.paypalPayoutEmail ? 'مكتمل' : 'لم يُضف');
 	bioState = computed(() => this.missingItems().some(i => i.key === 'bio') ? (this.profile()?.bio?.trim() ? 'قصير (50 حرفًا على الأقل)' : 'لم يُضف') : 'مكتمل');
 	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
 
@@ -97,13 +90,9 @@ export class ProfileSetup implements OnInit {
 				if (res.success && res.data) {
 					this.profile.set(res.data);
 					this.marketingForm.patchValue({ bio: res.data.bio || '' });
-					this.bankForm.patchValue({
-						accountHolderName: res.data.accountHolderName || '',
-						iban: res.data.iban || '',
-						bankName: res.data.bankName || '',
-					});
+					this.paypalForm.patchValue({ paypalPayoutEmail: res.data.paypalPayoutEmail || '' });
 					if (initial) {
-						// Open where the work really is (bio -> channel -> bank), not always on step 1; nothing left for the wizard = the profile page.
+						// Open where the work really is (bio -> channel -> PayPal), not always on step 1; nothing left for the wizard = the profile page.
 						const start = resolveMarketerSetup(res.data);
 						if (start.kind === 'redirect') {
 							this.notify.info(MARKETER_SETUP_MESSAGE[start.reason]);
@@ -169,24 +158,23 @@ export class ProfileSetup implements OnInit {
 		});
 	}
 
-	saveBankInfo(): void {
-		if (!this.check(this.bankForm)) return;
+	savePaypal(): void {
+		if (!this.check(this.paypalForm)) return;
 		this.isSubmitting.set(true);
-		this.profileService.updateBankInfo(this.bankForm.value).subscribe({
+		this.profileService.updatePaypalPayout(String(this.paypalForm.value.paypalPayoutEmail || '').trim()).subscribe({
 			next: () => {
 				this.isSubmitting.set(false);
-				// The backend files this as a change request that is reviewed before it replaces the saved bank data.
-				this.showToast('تم إرسال بياناتك البنكية للمراجعة، وستُفعَّل بعد الاعتماد');
+				this.showToast('تم حفظ بريد PayPal');
 				this.loadProfile();
 				this.nextStep();
 			},
-			error: (err) => this.fail(this.bankForm, err)
+			error: (err) => this.fail(this.paypalForm, err)
 		});
 	}
 
-	/** Review-step box item: go back to the step that fixes it (bank step, or the bio / channel steps). */
+	/** Review-step box item: go back to the step that fixes it (PayPal step, or the bio / channel steps). */
 	openMissingItem(item: CompletionBoxItem): void {
-		const target = item.key === 'iban' ? 4 : item.key === 'channel' ? 3 : item.key === 'bio' ? 2 : null;
+		const target = item.key === 'payout' ? 4 : item.key === 'channel' ? 3 : item.key === 'bio' ? 2 : null;
 		if (target !== null) this.setStep(target);
 	}
 
