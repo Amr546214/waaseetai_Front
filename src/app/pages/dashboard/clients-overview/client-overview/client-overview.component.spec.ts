@@ -285,6 +285,13 @@ describe('ClientOverviewComponent — stats row (5 cards, AI offer rating)', () 
 		expect(cards.every(c => (c.textContent?.trim().length ?? 0) > 10)).toBe(true);
 	});
 
+	it('the empty-state sentence is styled as text (smaller than the numeric values)', async () => {
+		const { readFileSync } = await import('node:fs');
+		const { join } = await import('node:path');
+		const css = readFileSync(join(__dirname, 'client-overview.component.css'), 'utf8');
+		expect(css).toMatch(/\.stat-val\.stat-val-empty\{font-size:15px/);
+	});
+
 	it('an old/partial API response without the AI fields is handled as "no data"', () => {
 		const el = mount({ aiRating: undefined });
 		expect(el.querySelector('[data-testid=ai-rating-empty]')).toBeTruthy();
