@@ -466,249 +466,43 @@
 			</div>
 		</div>
 
-		<!-- Live Audit Radar Animation State -->
-		<div *ngIf="isAnalyzing()"
-			class="state-card py-16 flex flex-col items-center justify-center border border-[rgba(123,47,190,.3)] bg-[rgba(7,13,36,.7)] rounded-2xl relative overflow-hidden shadow-2xl">
-			<div
-				class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(123,47,190,0.12)_0,transparent_70%)] pointer-events-none">
+		<!-- Advisory AI review of the portfolio samples: a real backend result, or an honest state. It never approves the specialty or grants a badge. -->
+		<div data-testid="specialty-ai-review" class="state-card border border-[rgba(123,47,190,.3)] bg-[rgba(7,13,36,.7)] rounded-2xl p-5 flex flex-col gap-4">
+			<div class="flex items-center justify-between gap-3 flex-wrap">
+				<div class="text-sm font-black text-white">مراجعة بالذكاء الاصطناعي لنماذج أعمالك</div>
+				<button *ngIf="hasReviewableSamples() && !portfolioReviewLoading() && !portfolioReview()?.details && !(portfolioReview()?.status === 'FAILED' && !portfolioReviewRetryable())" type="button" data-testid="specialty-ai-review-btn" (click)="requestPortfolioReview()"
+					class="py-2 px-4 rounded-xl text-xs font-bold text-[#070d24] bg-gradient-to-r from-[#00d2ff] to-[#3b82f6]">مراجعة بالذكاء الاصطناعي</button>
 			</div>
 
-			<div class="relative w-28 h-28 mb-6 flex items-center justify-center">
-				<div
-					class="absolute inset-0 rounded-full border border-[rgba(43,212,199,.25)] animate-[ping_2.5s_infinite]">
-				</div>
-				<div
-					class="absolute inset-2 rounded-full border-2 border-dashed border-[#A56BE0] animate-[spin_8s_linear_infinite]">
-				</div>
-				<div
-					class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(43,212,199,0.4)]">
-					<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#7B2FBE" stroke-width="1.8"
-						stroke-linecap="round" stroke-linejoin="round">
-						<use href="#i-ai"></use>
-					</svg>
-				</div>
+			<div *ngIf="portfolioReviewLoading()" data-testid="specialty-ai-review-loading" class="text-xs text-[var(--txt-3)]">جارٍ التحليل…</div>
+
+			<div *ngIf="!portfolioReviewLoading() && portfolioReviewFailed()" data-testid="specialty-ai-review-failed" class="text-xs text-[var(--txt-2)] flex items-center gap-3 flex-wrap">
+				<span>تعذر تشغيل المراجعة حاليًا</span>
+				<button *ngIf="portfolioReviewRetryable()" type="button" data-testid="specialty-ai-review-retry" (click)="requestPortfolioReview()" class="py-1.5 px-3 rounded-lg text-xs font-bold border border-white/20 text-white">إعادة المحاولة</button>
 			</div>
 
-			<div class="text-base font-black text-white mb-2">جارٍ مراجعة النماذج...</div>
-			<div class="text-xs text-[var(--txt-3)] mb-6 max-w-sm text-center leading-relaxed">يرجى الانتظار قليلًا حتى تكتمل المراجعة.</div>
+			<div *ngIf="!portfolioReviewLoading() && !portfolioReviewFailed() && portfolioReview()?.status === 'FAILED'" data-testid="specialty-ai-review-failed" class="text-xs text-[var(--txt-2)]">تعذر تشغيل المراجعة حاليًا</div>
 
-			<div
-				class="w-72 h-2 bg-[rgba(255,255,255,.05)] rounded-full overflow-hidden border border-[rgba(255,255,255,.1)]">
-				<div
-					class="h-full bg-gradient-to-r from-[#2BD4C7] via-[#2B7FFF] to-[#A56BE0] rounded-full w-2/3 animate-[skel_1.8s_ease-in-out_infinite]">
+			<div *ngIf="!portfolioReviewLoading() && portfolioReview()?.status === 'NOT_ENOUGH_DATA' && hasReviewableSamples()" data-testid="specialty-ai-review-empty" class="text-xs text-[var(--txt-2)]">أضف نماذج أعمال كافية ليتم تحليلها</div>
+
+			<div *ngIf="!portfolioReviewLoading() && portfolioReview()?.status === 'READY' && portfolioReview()?.details as d" data-testid="specialty-ai-review-ready" class="flex flex-col gap-3">
+				<div class="flex items-center gap-2 text-[11px] font-bold text-[#A56BE0]">
+					<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
+					<span>مراجعة استشارية بالذكاء الاصطناعي</span>
+					<span *ngIf="portfolioReview()?.score != null" data-testid="specialty-ai-review-score">· {{ portfolioReview()?.score }}/100</span>
 				</div>
+				<p data-testid="specialty-ai-review-summary" class="text-sm text-[#E8ECFF] leading-relaxed">{{ portfolioReview()?.summary }}</p>
+				<div *ngIf="d.strengths.length" data-testid="specialty-ai-review-strengths"><div class="text-xs font-black text-white mb-1">نقاط القوة</div><ul class="list-disc pr-5 text-xs text-[var(--txt-2)]"><li *ngFor="let x of d.strengths">{{ x.text }}</li></ul></div>
+				<div *ngIf="d.warnings.length" data-testid="specialty-ai-review-warnings"><div class="text-xs font-black text-white mb-1">ملاحظات</div><ul class="list-disc pr-5 text-xs text-[var(--txt-2)]"><li *ngFor="let x of d.warnings">{{ x.text }}</li></ul></div>
+				<div *ngIf="d.recommendations.length" data-testid="specialty-ai-review-recommendations"><div class="text-xs font-black text-white mb-1">توصيات</div><ul class="list-disc pr-5 text-xs text-[var(--txt-2)]"><li *ngFor="let x of d.recommendations">{{ x.text }}</li></ul></div>
+				<button *ngIf="hasReviewableSamples()" type="button" data-testid="specialty-ai-review-again" (click)="requestPortfolioReview()" class="self-start py-1.5 px-3 rounded-lg text-xs font-bold border border-white/20 text-white">مراجعة جديدة</button>
 			</div>
+
+			<p data-testid="specialty-ai-review-note" class="text-[11px] text-[var(--txt-3)] leading-relaxed">مراجعة استشارية فقط: لا تقبل التخصص ولا تمنح شارة ولا تغيّر مستواك. القرار النهائي لمراجعة الفريق.</p>
 		</div>
 
-		<!-- Honest Unavailable State — no fabricated score/feedback/eligibility -->
-		<div *ngIf="!isAnalyzing() && aiEvaluationUnavailable()"
-			class="state-card py-16 flex flex-col items-center justify-center border border-[rgba(255,255,255,.1)] bg-[rgba(7,13,36,.7)] rounded-2xl gap-4">
-			<div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl">
-				⚠️
-			</div>
-			<div data-testid="step3-unavailable-title" class="text-base font-black text-white">هذه المراجعة غير متاحة حاليًا</div>
-			<p class="text-xs text-[var(--txt-3)] max-w-sm text-center leading-relaxed">
-				تم تحويل نماذجك للمراجعة. يمكنك المتابعة إلى الخطوة التالية بعد الموافقة على الإقرارات أدناه.
-			</p>
-		</div>
-
-		<!-- Completed AI Audit Dashboard -->
-		<div *ngIf="!isAnalyzing() && aiFeedback()" class="flex flex-col gap-6 animate-[ws-fade_0.35s_ease]">
-
-			<!-- FOUR GAUGE SCORE CARDS -->
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-				<div
-					class="p-5 bg-[rgba(13,20,44,0.75)] border border-[rgba(255,255,255,.09)] hover:border-[rgba(43,212,199,.4)] rounded-2xl flex flex-col items-center justify-between text-center backdrop-blur-md transition-all group hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.35)]">
-					<div
-						class="text-xs font-extrabold text-[var(--txt-3)] group-hover:text-white transition-colors mb-3">
-						الجدارة الفنية (AI Score)</div>
-					<div class="relative w-24 h-24 flex items-center justify-center my-2">
-						<svg class="w-full h-full transform -rotate-90" viewBox="0 0 80 80">
-							<circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.06)" stroke-width="7"
-								fill="transparent" />
-							<circle cx="40" cy="40" r="36" [attr.stroke]="getScoreColor(aiFeedback()?.aiScore)"
-								stroke-width="7" fill="transparent" stroke-linecap="round"
-								[attr.stroke-dasharray]="getGaugeDashArray()"
-								[attr.stroke-dashoffset]="getGaugeDashOffset(aiFeedback()?.aiScore)"
-								style="transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);" />
-						</svg>
-						<div class="absolute inset-0 flex flex-col items-center justify-center">
-							<span class="text-2xl font-black text-white tracking-tight">{{ aiFeedback()?.aiScore || 0
-								}}<span class="text-xs font-normal text-[var(--txt-3)]">%</span></span>
-						</div>
-					</div>
-					<div
-						class="text-[11px] font-bold text-[#2BD4C7] mt-2 bg-[rgba(43,212,199,.1)] px-3 py-1 rounded-full">
-						اجتاز المعيار (&gt; 25%)</div>
-				</div>
-
-				<div
-					class="p-5 bg-[rgba(13,20,44,0.75)] border border-[rgba(255,255,255,.09)] hover:border-[rgba(93,160,255,.4)] rounded-2xl flex flex-col items-center justify-between text-center backdrop-blur-md transition-all group hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.35)]">
-					<div
-						class="text-xs font-extrabold text-[var(--txt-3)] group-hover:text-white transition-colors mb-3">
-						الجدوى الواقعية والإنتاجية</div>
-					<div class="relative w-24 h-24 flex items-center justify-center my-2">
-						<svg class="w-full h-full transform -rotate-90" viewBox="0 0 80 80">
-							<circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.06)" stroke-width="7"
-								fill="transparent" />
-							<circle cx="40" cy="40" r="36" [attr.stroke]="getScoreColor(aiFeedback()?.feasibilityScore)"
-								stroke-width="7" fill="transparent" stroke-linecap="round"
-								[attr.stroke-dasharray]="getGaugeDashArray()"
-								[attr.stroke-dashoffset]="getGaugeDashOffset(aiFeedback()?.feasibilityScore)"
-								style="transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);" />
-						</svg>
-						<div class="absolute inset-0 flex flex-col items-center justify-center">
-							<span class="text-2xl font-black text-white tracking-tight">{{
-								aiFeedback()?.feasibilityScore || 0 }}<span
-									class="text-xs font-normal text-[var(--txt-3)]">%</span></span>
-						</div>
-					</div>
-					<div
-						class="text-[11px] font-bold text-[#5DA0FF] mt-2 bg-[rgba(93,160,255,.1)] px-3 py-1 rounded-full">
-						جدوى عالية جداً</div>
-				</div>
-
-				<div
-					class="p-5 bg-[rgba(13,20,44,0.75)] border border-[rgba(255,255,255,.09)] hover:border-[rgba(165,107,224,.4)] rounded-2xl flex flex-col items-center justify-between text-center backdrop-blur-md transition-all group hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.35)]">
-					<div
-						class="text-xs font-extrabold text-[var(--txt-3)] group-hover:text-white transition-colors mb-3">
-						وضوح وجودة التوثيق</div>
-					<div class="relative w-24 h-24 flex items-center justify-center my-2">
-						<svg class="w-full h-full transform -rotate-90" viewBox="0 0 80 80">
-							<circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.06)" stroke-width="7"
-								fill="transparent" />
-							<circle cx="40" cy="40" r="36" [attr.stroke]="getScoreColor(aiFeedback()?.clarityScore)"
-								stroke-width="7" fill="transparent" stroke-linecap="round"
-								[attr.stroke-dasharray]="getGaugeDashArray()"
-								[attr.stroke-dashoffset]="getGaugeDashOffset(aiFeedback()?.clarityScore)"
-								style="transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);" />
-						</svg>
-						<div class="absolute inset-0 flex flex-col items-center justify-center">
-							<span class="text-2xl font-black text-white tracking-tight">{{ aiFeedback()?.clarityScore ||
-								0 }}<span class="text-xs font-normal text-[var(--txt-3)]">%</span></span>
-						</div>
-					</div>
-					<div
-						class="text-[11px] font-bold text-[#A56BE0] mt-2 bg-[rgba(165,107,224,.1)] px-3 py-1 rounded-full">
-						توثيق احترافي</div>
-				</div>
-
-				<div
-					class="p-5 bg-[rgba(13,20,44,0.75)] border border-[rgba(255,255,255,.09)] hover:border-[rgba(43,212,199,.4)] rounded-2xl flex flex-col items-center justify-between text-center backdrop-blur-md transition-all group hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.35)]">
-					<div
-						class="text-xs font-extrabold text-[var(--txt-3)] group-hover:text-white transition-colors mb-3">
-						موثوقية وإثبات الملكية</div>
-					<div class="relative w-24 h-24 flex items-center justify-center my-2">
-						<svg class="w-full h-full transform -rotate-90" viewBox="0 0 80 80">
-							<circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.06)" stroke-width="7"
-								fill="transparent" />
-							<circle cx="40" cy="40" r="36"
-								[attr.stroke]="getScoreColor(aiFeedback()?.ownershipCredibility)" stroke-width="7"
-								fill="transparent" stroke-linecap="round" [attr.stroke-dasharray]="getGaugeDashArray()"
-								[attr.stroke-dashoffset]="getGaugeDashOffset(aiFeedback()?.ownershipCredibility)"
-								style="transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);" />
-						</svg>
-						<div class="absolute inset-0 flex flex-col items-center justify-center">
-							<span class="text-2xl font-black text-white tracking-tight">{{
-								aiFeedback()?.ownershipCredibility || 0 }}<span
-									class="text-xs font-normal text-[var(--txt-3)]">%</span></span>
-						</div>
-					</div>
-					<div
-						class="text-[11px] font-bold text-[#2BD4C7] mt-2 bg-[rgba(43,212,199,.1)] px-3 py-1 rounded-full">
-						أصالة مثبتة (≥ 65%)</div>
-				</div>
-			</div>
-
-			<!-- AI EXECUTIVE SUMMARY -->
-			<div class="state-card !p-0 overflow-hidden border-[rgba(255,255,255,.09)] bg-[rgba(13,20,44,0.6)]">
-				<div
-					class="p-4 border-b border-[rgba(255,255,255,.07)] flex items-center justify-between bg-[rgba(255,255,255,.02)]">
-					<div class="flex items-center gap-2.5">
-						<svg class="w-4 h-4 text-[#A56BE0]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-							stroke-width="2">
-							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-							<polyline points="14 2 14 8 20 8" />
-						</svg>
-						<span class="text-sm font-black text-white">تقرير التدقيق والتحليلات المفصلة</span>
-					</div>
-					<span
-						class="px-2.5 py-1 rounded-md bg-[rgba(43,212,199,.15)] text-[#2BD4C7] text-xs font-extrabold flex items-center gap-1.5">
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-							stroke-width="2.5">
-							<polyline points="20 6 9 17 4 12" />
-						</svg>
-						مؤهل للاختبار التفاعلي
-					</span>
-				</div>
-
-				<div class="p-6 flex flex-col gap-6">
-					<div
-						class="p-4 rounded-xl bg-gradient-to-r from-[rgba(123,47,190,.12)] to-[rgba(43,212,199,.06)] border-r-4 border-r-[#A56BE0] border border-[rgba(255,255,255,.06)]">
-						<div class="text-xs font-black text-[#A56BE0] mb-1 flex items-center gap-1.5">
-							<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="#7B2FBE"
-								stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-								<use href="#i-ai"></use>
-							</svg>
-							الملخص التنفيذي للمراجعة
-						</div>
-						<p class="text-sm text-[#E8ECFF] font-semibold leading-relaxed">{{ aiFeedback()?.summary }}</p>
-					</div>
-
-					<div *ngIf="aiFeedback()?.strengths?.length">
-						<div class="text-xs font-black text-[#2BD4C7] mb-3 flex items-center gap-1.5">
-							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-								stroke-width="2.5">
-								<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-								<polyline points="22 4 12 14.01 9 11.01" />
-							</svg>
-							نقاط القوة والجودة المؤكدة
-						</div>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-							<div *ngFor="let str of aiFeedback()?.strengths"
-								class="p-3.5 bg-[rgba(43,212,199,.05)] border border-[rgba(43,212,199,.16)] rounded-xl flex items-start gap-2.5">
-								<div
-									class="w-5 h-5 rounded-full bg-[rgba(43,212,199,.2)] text-[#2BD4C7] flex items-center justify-center shrink-0 mt-0.5">
-									<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-										stroke-width="3">
-										<polyline points="20 6 9 17 4 12" />
-									</svg>
-								</div>
-								<span class="text-xs text-[var(--txt-2)] leading-relaxed font-medium">{{ str }}</span>
-							</div>
-						</div>
-					</div>
-
-					<div *ngIf="aiFeedback()?.warnings?.length">
-						<div class="text-xs font-black text-[#FFB400] mb-3 flex items-center gap-1.5">
-							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-								<path
-									d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-								<line x1="12" y1="9" x2="12" y2="13" />
-								<line x1="12" y1="17" x2="12.01" y2="17" />
-							</svg>
-							ملاحظات للتحسين في المعرض العام
-						</div>
-						<div class="flex flex-col gap-2.5">
-							<div *ngFor="let warn of aiFeedback()?.warnings"
-								class="p-3.5 bg-[rgba(255,180,0,.06)] border border-[rgba(255,180,0,.18)] rounded-xl flex items-center justify-between gap-4">
-								<span class="text-xs text-[var(--txt-2)] font-medium leading-relaxed flex-1">{{ warn
-									}}</span>
-								<span
-									class="px-2 py-0.5 rounded text-[10px] font-bold bg-[rgba(255,180,0,.15)] text-[#FFB400] shrink-0">توصية
-									اختيارية</span>
-							</div>
-						</div>
-					</div>
-
-				</div>
-			</div>
-
-		</div>
-
-		<!-- DECLARATIONS BEFORE TESTING — shown with a real result AND when the smart check is unavailable, so step 3 never dead-ends -->
-		<div data-testid="step3-declarations" *ngIf="!isAnalyzing() && (aiFeedback() || aiEvaluationUnavailable())" class="mt-6">
+		<!-- DECLARATIONS BEFORE TESTING — always shown, so step 3 never depends on the AI review -->
+		<div data-testid="step3-declarations" class="mt-6">
 			<div class="state-card !p-0 overflow-hidden border-[rgba(255,255,255,.09)] bg-[rgba(13,20,44,0.7)]">
 				<div
 					class="p-4 border-b border-[rgba(255,255,255,.07)] flex items-center gap-2 bg-[rgba(255,255,255,.02)]">
@@ -1162,10 +956,10 @@
 		<div *ngIf="currentStep() === 1" class="flex-1"></div>
 
 		<button type="button"
-			[disabled]="(!canProceedToStep2() && currentStep() === 1) || (!canProceedToStep3() && currentStep() === 2) || (currentStep() === 3 && !allDeclarationsChecked()) || (currentStep() === 3 && isAnalyzing())"
+			[disabled]="(!canProceedToStep2() && currentStep() === 1) || (!canProceedToStep3() && currentStep() === 2) || (currentStep() === 3 && !allDeclarationsChecked()) || (currentStep() === 3 && portfolioReviewLoading())"
 			(click)="nextStep()"
 			class="inline-flex items-center gap-2 px-6 py-2.5 bg-[rgba(30,41,59,0.5)] border border-[rgba(43,212,199,0.3)] hover:bg-[rgba(43,212,199,0.1)] rounded-full text-[#2BD4C7] text-sm font-black disabled:opacity-50 disabled:cursor-not-allowed transition-all ml-auto"
-			[ngClass]="{'bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] !text-[#070D24] !border-none hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(43,127,255,.35)]': currentStep() !== 3 || (currentStep() === 3 && allDeclarationsChecked() && !isAnalyzing())}">
+			[ngClass]="{'bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] !text-[#070D24] !border-none hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(43,127,255,.35)]': currentStep() !== 3 || (currentStep() === 3 && allDeclarationsChecked() && !portfolioReviewLoading())}">
 			{{ currentStep() === 1 ? 'التالي — رفع النماذج' : (currentStep() === 2 ? 'التالي — مراجعة النماذج' : 'التالي
 			— الاختبار الفوري') }}
 			<svg *ngIf="currentStep() === 1 || currentStep() === 2" width="14" height="14" viewBox="0 0 24 24"

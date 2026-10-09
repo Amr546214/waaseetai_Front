@@ -7,11 +7,12 @@ const read = (p: string) => readFileSync(join(root, p), 'utf8');
 const PO = 'dashboard/provider-overview/';
 
 describe('provider AI claims', () => {
-	it('specialty portfolio review: honest "unavailable", and no retry button that can never work', () => {
+	it('specialty portfolio review: a real review card (button, loading, ready, empty, failed), advisory only, no retry when the AI is not configured', () => {
 		const t = read(PO + 'profile/specialties/specialties.html');
-		expect(t).toContain('هذه المراجعة غير متاحة حاليًا');
-		const block = t.slice(t.indexOf('step3-unavailable-title'), t.indexOf('step3-unavailable-title') + 900);
-		expect(block).not.toContain('simulateAnalysis()');
+		for (const id of ['specialty-ai-review-btn', 'specialty-ai-review-loading', 'specialty-ai-review-ready', 'specialty-ai-review-empty', 'specialty-ai-review-failed']) expect(t).toContain(id);
+		expect(t).toContain('تعذر تشغيل المراجعة حاليًا');
+		expect(t).toContain('أضف نماذج أعمال كافية ليتم تحليلها');
+		expect(t).toContain('portfolioReviewRetryable()');
 	});
 	it('accreditation details: the AI report card only renders with a stored AI result; otherwise "مراجعة الفريق"', () => {
 		const t = read(PO + 'business-models/center/accreditation-details/accreditation-details.html');

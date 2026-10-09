@@ -40,8 +40,14 @@ export class SpecialtyService {
 		});
 	}
 
+	/** Advisory AI review of the specialty's portfolio samples (never changes the specialty's status). */
 	aiEvaluate(providerSpecialtyId: string): Observable<any> {
 		return this.http.post(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/ai-evaluate`, {});
+	}
+
+	/** The latest stored AI review of the specialty's portfolio (NOT_ENOUGH_DATA with nothing in it when there is none). */
+	getAiEvaluation(providerSpecialtyId: string): Observable<any> {
+		return this.http.get(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/ai-evaluation`);
 	}
 
 	getSpecialtyStatus(providerSpecialtyId: string): Observable<any> {
