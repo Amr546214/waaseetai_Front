@@ -101,3 +101,30 @@ describe('admin modification requests: all roles + history', () => {
 		expect(el.querySelectorAll('.mr-actions button').length).toBe(0);   // no approve/reject on decided requests either
 	});
 });
+
+describe('admin modification requests: AI pre-review block', () => {
+	const READY = { status: 'READY', source: 'GEMINI', summary: 'ملخص للمراجع', recommendation: 'توصية للمراجع', generatedAt: null, observations: ['مرصود'] };
+	async function mountWith(rows: any[]) {
+		const svc: any = { list: () => of({ success: true, data: [aff()] }), listProfileRequests: () => of({ success: true, data: rows }), approve: vi.fn(), reject: vi.fn(), reviewProfileRequest: vi.fn() };
+		await TestBed.configureTestingModule({ imports: [SaModificationRequests], providers: [{ provide: SaModificationRequestsService, useValue: svc }] }).compileComponents();
+		const f = TestBed.createComponent(SaModificationRequests);
+		f.detectChanges(); await f.whenStable(); f.detectChanges();
+		return f.nativeElement as HTMLElement;
+	}
+	afterEach(() => TestBed.resetTestingModule());
+
+	it('READY shows the advisory block; null waits; FAILED says unavailable; password change shows none; marketer requests show none', async () => {
+		const el = await mountWith([
+			prof({ id: 'p-ready', aiReview: READY }),
+			prof({ id: 'p-null', aiReview: null }),
+			prof({ id: 'p-fail', aiReview: { ...READY, status: 'FAILED', summary: null, recommendation: null, observations: [] } }),
+			prof({ id: 'p-pw', category: 'CLIENT_PASSWORD_CHANGE', aiReview: null }),
+		]);
+		expect(el.querySelectorAll('[data-testid="ai-review-ready"]').length).toBe(1);
+		expect(el.textContent).toContain('ملخص للمراجع');
+		expect(el.textContent).toContain('استشاري، القرار للمراجع');
+		expect(el.querySelectorAll('[data-testid="ai-review-failed"]').length).toBe(1);
+		expect(el.querySelectorAll('[data-testid="ai-review-waiting"]').length).toBe(1);   // p-null only (password + marketer: none)
+		expect(el.textContent).not.toContain('ثقة');
+	});
+});

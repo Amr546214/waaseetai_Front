@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { MarketplaceModel, MarketplaceService } from '../../../../core/services/marketplace.service';
+import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 
 @Component({
@@ -44,7 +44,7 @@ export class FavoritesComponent implements OnInit {
 		const sorted = [...list];
 		if (sort === 'rating') sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 		else if (sort === 'price') sorted.sort((a, b) => (a.totalAmount || 0) - (b.totalAmount || 0));
-		else if (sort === 'ai') sorted.sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
+		else if (sort === 'ai') sorted.sort(byAiScoreDesc);
 		return sorted;
 	});
 

@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { MarketplaceModel, MarketplaceService } from '../../../core/services/marketplace.service';
+import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../core/services/marketplace.service';
 import { AuthStore } from '../../../core/store/auth.store';
 import { resolveProviderLevelBadgeStyle } from '../../../core/utils/provider-level-style.util';
 import { combineLatest, Subscription } from 'rxjs';
@@ -279,7 +279,8 @@ export class Marketplace implements OnInit, OnDestroy {
 		return 'حتى ' + days + ' أيام';
 	}
 
-	aiInsightBest = computed(() => [...this.allModels()].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0))[0] || null);
+	/** Highest REAL stored score on the page; null when no listed model was ever audited. */
+	aiInsightBest = computed(() => [...this.allModels()].filter(m => hasAiScore(m.aiScore)).sort(byAiScoreDesc)[0] || null);
 
 	providersCount = computed(() => new Set(this.allModels().map(m => m.provider?.id).filter(Boolean)).size);
 

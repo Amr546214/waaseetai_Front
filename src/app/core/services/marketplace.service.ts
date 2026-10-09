@@ -3,6 +3,16 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+/** True for a real stored score (0 included); null / undefined = never audited. */
+export const hasAiScore = (s: unknown): s is number => typeof s === 'number' && Number.isFinite(s);
+
+/** Descending sort by aiScore where a missing score always sorts last (never treated as 0). */
+export const byAiScoreDesc = (a: { aiScore?: number | null }, b: { aiScore?: number | null }): number => {
+  const ah = hasAiScore(a.aiScore), bh = hasAiScore(b.aiScore);
+  if (ah && bh) return (b.aiScore as number) - (a.aiScore as number);
+  return ah ? -1 : bh ? 1 : 0;
+};
+
 export interface MarketplaceModel {
   id: string;
   title: string;
@@ -13,9 +23,10 @@ export interface MarketplaceModel {
   status: string;
   totalAmount: number;
   totalDays: number;
-  aiScore: number;
-  aiClarityScore?: number;
-  aiFeasibilityScore?: number;
+  /** Stored audit score; null = never audited (a real 0 is a real 0). */
+  aiScore: number | null;
+  aiClarityScore?: number | null;
+  aiFeasibilityScore?: number | null;
   viewsCount?: number;
   salesCount?: number;
   rating: number;

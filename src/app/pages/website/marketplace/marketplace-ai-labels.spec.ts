@@ -59,10 +59,10 @@ describe('marketplace / service pages: AI wording is truthful', () => {
 		expect(t).toContain('ملخص التقييم الاسترشادي (AI):');
 		expect(t).toContain('@if (model()?.aiRecommendationReason)');
 		expect(t).toContain('لم تخضع هذه الخدمة لتقييم AI الاسترشادي بعد');
-		// the backend maps a missing audit to 0, so a score / sub-score is only shown when it is a real positive number
-		expect(t).toContain("@if (model()?.aiClarityScore)");
-		expect(t).toContain("@if (model()?.aiFeasibilityScore)");
-		expect(t).not.toContain("aiScore != null ? model()?.aiScore + '%'");
+		// the backend returns null (never 0) for a missing audit, so a score / sub-score is shown whenever it is a real number (0 included)
+		expect(t).toContain("@if (model()?.aiClarityScore != null)");
+		expect(t).toContain("@if (model()?.aiFeasibilityScore != null)");
+		expect(t).not.toContain("@if (model()?.aiScore) {");
 	});
 
 	it('the provider page names the specialty score "درجة تقييم التخصص" and the performance block only claims AI when a summary exists', () => {

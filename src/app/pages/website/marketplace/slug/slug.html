@@ -76,7 +76,7 @@
         <div class="hstat c2"><div class="hstat-n">+{{ providersCount() }}</div><div class="hstat-l">مقدم معتمد</div></div>
         <div class="hstat c3"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
         <div class="hstat c4"><div class="hstat-n">+{{ totalReviews() | number }}</div><div class="hstat-l">مراجعة مكتملة</div></div>
-        <div class="hstat c5"><div class="hstat-n">{{ averageAiScore() }}%</div><div class="hstat-l">جودة النماذج (AI)</div></div>
+        <div class="hstat c5"><div class="hstat-n">{{ averageAiScore() !== null ? averageAiScore() + '%' : '—' }}</div><div class="hstat-l">جودة النماذج (AI)</div></div>
       </div>
     </div>
   </section>
@@ -192,6 +192,8 @@
             <div class="ai-insight-txt">
               @if (aiInsightBest(); as best) {
               الأعلى في تقييم جودة AI بهذه الصفحة: <strong>{{ best.title }}</strong>
+              } @else if (models().length) {
+              {{ models().length }} خدمة في هذه الصفحة
               } @else {
               لا توجد خدمات متاحة حالياً
               }
@@ -249,7 +251,7 @@
                 <span class="svc-level" [style.background]="levelStyle(model).bg" [style.color]="levelStyle(model).color">{{ model.level }}</span>
               </div>
               }
-              @if (model.aiScore) {<div class="ai-score-badge">جودة AI {{ model.aiScore }}%</div>}
+              @if (model.aiScore != null) {<div class="ai-score-badge">جودة AI {{ model.aiScore }}%</div>}
               <button class="svc-fav" type="button" aria-label="إضافة للمفضلة" [class.is-favorite]="isFav(model.id)" [attr.aria-pressed]="isFav(model.id)" (click)="toggleFavorite(model.id, $event)">
                 <svg><use href="#ws-heart"></use></svg>
               </button>
@@ -273,7 +275,7 @@
                 <span class="stars">★★★★★</span>
                 <span class="svc-score">{{ model.rating ?? 0 }}</span>
                 <span class="svc-reviews">({{ model.reviewsCount ?? 0 }})</span>
-                @if (model.aiScore) {<span class="quality-pill">جودة AI {{ model.aiScore }}%</span>}
+                @if (model.aiScore != null) {<span class="quality-pill">جودة AI {{ model.aiScore }}%</span>}
               </div>
             </div>
             <div class="svc-foot">

@@ -42,7 +42,7 @@
 				}
 			</div>
 
-			@if (model.aiScore) {
+			@if (model.aiScore != null) {
 			<span class="svc-ai-match" style="z-index: 2;">جودة AI {{ model.aiScore }}%</span>
 			}
 
@@ -91,7 +91,7 @@
 				<span class="svc-stars">★★★★★</span>
 				<span class="svc-score">{{ model.rating ?? 0 }}</span>
 				<span class="svc-count">({{ model.reviewsCount ?? 0 }})</span>
-				@if (model.aiScore) {
+				@if (model.aiScore != null) {
 				<span class="svc-quality">جودة AI {{ model.aiScore }}%</span>
 				}
 			</div>

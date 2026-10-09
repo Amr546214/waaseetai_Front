@@ -390,7 +390,7 @@
             } @else {
               <svg aria-hidden="true" style="width:36px;height:36px"><use [attr.href]="i % 2 === 0 ? '#ws-cat-pen' : '#ws-image'"></use></svg>
             }
-            @if (srv.aiScore) {
+            @if (srv.aiScore != null) {
               <span class="svc-ai-badge">جودة AI {{ srv.aiScore }}</span>
             }
           </div>

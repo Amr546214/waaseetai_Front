@@ -66,6 +66,8 @@ describe('1. sensitive-change review is OTP + human, never "AI checks"', () => {
 		expectPresent(D + 'marketer-overview/profile/requests/requests.html', ['تم تأكيد الهوية عبر الرمز وبانتظار مراجعة الفريق']);
 		expectPresent(D + 'supper-admin-overview/sa-modification-requests/sa-modification-requests.ts', ['تم تأكيد الهوية عبر الرمز وبانتظار مراجعة الفريق']);
 		expectPresent(D + 'clients-overview/profile/profile-edit/profile-edit.html', ['قيد مراجعة الفريق']);
+		// the AI pre-review block is driven only by aiReview (shared component), on client, provider and admin
+		for (const f of ['clients-overview/profile/profile-requests/profile-requests.html', 'provider-overview/profile/requests/requests.html', 'supper-admin-overview/sa-modification-requests/sa-modification-requests.html']) expectPresent(D + f, ['<ws-profile-ai-review', '.aiReview']);
 	});
 });
 
@@ -113,17 +115,18 @@ describe('3. business model details show stored report fields only', () => {
 	it('no invented sub-metrics, no canned "ملاحظات وسيط AI", no "صدر يوم الاعتماد"', () => {
 		expectAbsent([MD + '.html', MD + '.ts'], ['aiMetrics', 'جودة التنفيذ', 'أصالة العمل', 'توافق مع السوق', 'دقة التفاصيل', 'ملاءمة التخصص', 'ملاحظات وسيط AI', 'صدر يوم الاعتماد', 'توافق جيد مع طلبات تخصص']);
 		expectPresent(MD + '.html', ['لم يصدر تقرير تدقيق بعد', 'auditReport()', 'hasAuditScore()']);
+		expectAbsent([MD + '.ts'], ['aiAuditReport']);
 	});
 	it('AI score badges are guarded against 0 / null (0 = not audited)', () => {
-		expectPresent(D + 'provider-overview/business-models/market/market.html', ['model.aiScore != null && model.aiScore > 0']);
-		expectPresent(D + 'provider-overview/company/company-models/company-models.html', ['m.aiScore != null && m.aiScore > 0']);
+		expectPresent(D + 'provider-overview/business-models/market/market.html', ['model.aiScore != null']);
+		expectPresent(D + 'provider-overview/company/company-models/company-models.html', ['m.aiScore != null']);
 		expectPresent(D + 'provider-overview/business-models/center/center.html', ["sample.aiScore != null && sample.aiScore > 0"]);
 		expectPresent(D + 'provider-overview/business-models/new-project/components/step3-model/step3-model.component.html', ['model.score != null && model.score > 0']);
 		for (const f of ['favorites/favorites.html', 'compare-services/compare-services.html', 'curated/curated.html']) {
 			const s = src('pages/website/marketplace/' + f);
 			expect(/جودة AI \{\{ [\w.?]*aiScore \}\}/.test(s), f).toBe(true);
-			// every "جودة AI {{ x.aiScore }}" occurrence sits inside an @if (x.aiScore != null && x.aiScore > 0)
-			const unguarded = s.split('\n').filter((l) => /جودة AI \{\{ [\w.?]*aiScore \}\}/.test(l) && !/@if \([\w.?]*aiScore != null && [\w.?]*aiScore > 0\)/.test(l) && !/ai-banner-text/.test(l));
+			// every "جودة AI {{ x.aiScore }}" occurrence sits inside an @if (x.aiScore != null) (a real 0 is shown, null is hidden)
+			const unguarded = s.split('\n').filter((l) => /جودة AI \{\{ [\w.?]*aiScore \}\}/.test(l) && !/@if \([\w.?]*aiScore != null\)/.test(l) && !/ai-banner-text/.test(l));
 			expect(unguarded, f).toEqual([]);
 		}
 	});

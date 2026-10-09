@@ -88,9 +88,9 @@
             </div>
             <div class="pcard-body">
               @if (isWinner) {
-                @if (m.aiScore != null && m.aiScore > 0) { <div class="pcard-ai" style="background:rgba(43,212,199,.1);border-color:rgba(43,212,199,.25);color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
+                @if (m.aiScore != null) { <div class="pcard-ai" style="background:rgba(43,212,199,.1);border-color:rgba(43,212,199,.25);color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
               } @else {
-                @if (m.aiScore != null && m.aiScore > 0) { <div class="pcard-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
+                @if (m.aiScore != null) { <div class="pcard-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
               }
               <div class="pcard-title">{{ m.title }}</div>
               <div class="pcard-prov">
@@ -161,7 +161,7 @@
               <div class="summary-item-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-check"></use></svg></div>
               <div>
                 <div class="summary-item-label">الأعلى في جودة AI</div>
-                @if (w.aiScore != null && w.aiScore > 0) { <div class="summary-item-val" style="color:var(--teal)">{{ w.provider.name }} — جودة AI {{ w.aiScore }}</div> }
+                @if (w.aiScore != null) { <div class="summary-item-val" style="color:var(--teal)">{{ w.provider.name }} — جودة AI {{ w.aiScore }}</div> }
               </div>
             </div>
           }

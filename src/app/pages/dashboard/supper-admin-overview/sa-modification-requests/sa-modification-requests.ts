@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
+import { ProfileAiReview } from '../../../../core/models/ai-result.model';
+import { ProfileAiReviewComponent } from '../../../../shared/ai/profile-ai-review.component';
 import { SaModificationRequestsService, AffiliateChangeRequest, ProfileModificationRequestRow } from './sa-modification-requests.service';
 
 type ReqStatus = 'ai' | 'human' | 'ok' | 'rejected';
@@ -30,12 +32,16 @@ interface ModificationRequest {
   reviewer?: string;
   timeline: TimelineStep[];
   createdMs: number;
+  /** profile requests only: the advisory AI pre-review (null when none), the raw backend status and category */
+  aiReview?: ProfileAiReview | null;
+  rawStatus?: string;
+  category?: string;
 }
 
 @Component({
   selector: 'app-sa-modification-requests',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProfileAiReviewComponent],
   templateUrl: './sa-modification-requests.html',
   styleUrl: './sa-modification-requests.css',
 })
@@ -238,6 +244,9 @@ export class SaModificationRequests implements OnInit {
       requesterType: this.requesterTypeLabel(r.provider?.accountType || ''),
       sensitive: true,
       status,
+      aiReview: r.aiReview ?? null,
+      rawStatus: r.status,
+      category: r.category,
       oldValue: r.currentValue || 'لا يوجد',
       newValue: r.requestedValue,
       timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
