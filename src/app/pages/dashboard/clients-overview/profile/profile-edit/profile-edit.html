@@ -698,11 +698,14 @@
 					</div>
 				</div>
 
-				<div role="note" data-testid="basics-note" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">المحفوظ من هذه الصفحة هو الاسم فقط. البريد الإلكتروني ورقم الجوال للقراءة ولا يمكن تغييرهما من هنا (لا يوجد مسار تحقق لهما بعد).</div>
+				<div role="note" data-testid="basics-note" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">تغيير الاسم يُرسَل كطلب تعديل يراجعه مراجع بشري قبل تطبيقه، وستجد حالته في «طلباتي السابقة». البريد الإلكتروني ورقم الجوال للقراءة فقط ولا يمكن تغييرهما من هنا.</div>
+				@if (pendingNameRequest(); as pn) {
+				<div data-testid="basics-pending" role="status" class="mb-6 rounded-xl border border-amber-300 bg-amber-100/60 p-3 text-[12px] font-bold leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">طلب تغيير الاسم{{ pn.requestedValue ? ' إلى «' + pn.requestedValue + '»' : '' }} قيد المراجعة. سيظهر الاسم الجديد بعد موافقة المراجع، وتجد حالة الطلب في <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a>.</div>
+				}
 				<ws-form-summary [items]="missing()" />
 
 				<!-- Action -->
-				<button type="submit" [disabled]="isSaving() || isTabPending('BASICS_UPDATE')"
+				<button type="submit" data-testid="basics-submit" [disabled]="isSaving() || isTabPending('BASICS_UPDATE') || !!pendingNameRequest()"
 					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">إرسال
 					طلب تعديل</button>
 			</form>

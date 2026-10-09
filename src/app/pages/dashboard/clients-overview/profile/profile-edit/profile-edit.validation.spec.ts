@@ -39,7 +39,7 @@ describe('client profile-edit: shared validation', () => {
           provide: ProfileApiService,
           useValue: {
             getMyProfile: () => of({ success: true, data: { currentProfileData: profileData, latestHistory: [] } }),
-            getChangeRequests: () => of({ success: true, data: [] }),
+            getChangeRequests: () => of({ success: true, data: [] }), getMyChangeRequests: () => of({ success: true, data: [] }),
             updateTab, updateProfile,
           },
         },
@@ -144,20 +144,22 @@ describe('client profile-edit: shared validation', () => {
     it('email and phone are read-only (disabled, labelled), and only the name is sent', () => {
       expect(component.basicsForm.get('email')!.disabled).toBe(true);
       expect(component.basicsForm.get('phoneNumber')!.disabled).toBe(true);
-      expect(el().querySelector('[data-testid="basics-note"]')?.textContent).toContain('الاسم فقط');
+      expect(el().querySelector('[data-testid="basics-note"]')?.textContent).toContain('طلب تعديل');
       expect(el().textContent).toContain('(للقراءة فقط)');
       component.saveTab('basics');
       expect(updateTab).toHaveBeenCalledWith('basics', { firstName: 'سارة', lastName: 'أحمد' });
     });
 
-    it('the success message is accurate (the name was saved), not the backend\'s "sensitive changes need verification"', () => {
+    it('the success message is accurate: a name change is a request sent for review, not a save', () => {
+      updateTab.mockReturnValueOnce(of({ success: true, message: 'تم إرسال طلب تعديل البيانات الأساسية للمراجعة', data: { isPendingRequest: true, requestId: 'r1' } }));
       component.saveTab('basics');
-      expect(component.successMsg()).toBe('تم حفظ الاسم بنجاح');
+      expect(component.successMsg()).toBe('تم إرسال طلب تعديل البيانات الأساسية للمراجعة');
     });
 
     it('the result is visible on the basics tab itself (banners are not limited to the profile tab)', () => {
+      updateTab.mockReturnValueOnce(of({ success: true, message: 'تم إرسال طلب تعديل البيانات الأساسية للمراجعة', data: { isPendingRequest: true, requestId: 'r1' } }));
       component.saveTab('basics'); render();
-      expect(el().querySelector('[data-testid="tab-success"]')?.textContent).toContain('تم حفظ الاسم بنجاح');
+      expect(el().querySelector('[data-testid="tab-success"]')?.textContent).toContain('تم إرسال طلب تعديل');
     });
   });
 

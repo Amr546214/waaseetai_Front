@@ -27,7 +27,7 @@ describe('client profile-edit: PayPal-only receiving method', () => {
           provide: ProfileApiService,
           useValue: {
             getMyProfile: () => of({ success: true, data: { currentProfileData: {}, latestHistory: [] } }),
-            getChangeRequests: () => of({ success: true, data: [] }),
+            getChangeRequests: () => of({ success: true, data: [] }), getMyChangeRequests: () => of({ success: true, data: [] }),
             updateTab,
             updateProfile: vi.fn(() => of({ success: true })),
           },
@@ -104,7 +104,7 @@ describe('client profile-edit: PayPal-only receiving method', () => {
         { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' }), token: () => 't', authenticate: vi.fn() } },
         { provide: ProfileApiService, useValue: {
           getMyProfile: () => of({ success: true, data: { currentProfileData: { paypalPayoutEmail: 'saved@example.com' }, latestHistory: [] } }),
-          getChangeRequests: () => of({ success: true, data: [] }), updateTab, updateProfile: vi.fn(() => of({ success: true })),
+          getChangeRequests: () => of({ success: true, data: [] }), getMyChangeRequests: () => of({ success: true, data: [] }), updateTab, updateProfile: vi.fn(() => of({ success: true })),
         } },
       ],
     }).compileComponents();
