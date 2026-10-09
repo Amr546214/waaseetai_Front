@@ -104,7 +104,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	steps = [
 		{ id: 1, label: 'البيانات المهنية' },
 		{ id: 2, label: 'التخصصات والمهارات' },
-		{ id: 3, label: 'حساب PayPal' },
+		{ id: 3, label: 'بريد PayPal' },
 		{ id: 4, label: 'المستندات الرسمية' },
 		{ id: 5, label: 'نماذج الأعمال' },
 		{ id: 6, label: 'المراجعة والإرسال' },

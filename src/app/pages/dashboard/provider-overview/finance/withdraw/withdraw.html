@@ -156,14 +156,14 @@
 
       <!-- PayPal destination (read-only: the saved profile email) -->
       <div class="wd-field">
-        <label class="wd-lbl">بريد PayPal لاستلام المدفوعات</label>
+        <label class="wd-lbl">بريد PayPal لاستلام الأرباح</label>
         @if (paypalLoading()) {
           <div class="wd-field-hint">جارٍ التحميل...</div>
         } @else if (paypalEmail()) {
           <div class="wd-method-pill" dir="ltr" data-testid="wd-paypal-email"><span>{{ paypalEmail() }}</span></div>
           <div class="wd-field-hint">سنرسل مستحقاتك إلى هذا البريد. يمكنك تغييره من <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">بيانات الملف</a>.</div>
         } @else {
-          <div class="wd-field-err" data-testid="wd-paypal-missing">لم تضف بريد PayPal بعد. <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">أضفه من بيانات الملف</a> لتتمكن من طلب السحب.</div>
+          <div class="wd-field-err" data-testid="wd-paypal-missing">أضف بريد PayPal لاستلام الأرباح. <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">أضفه من بيانات الملف</a> لتتمكن من طلب السحب.</div>
         }
         @if (formErrors()['paypal']; as err) {
           <div class="wd-field-err">{{ err }}</div>
@@ -241,22 +241,12 @@
           </div>
           <div class="wd-item-amt">{{ formatAmount(w.amount, w.currency) }}</div>
           <div class="wd-item-meta">
-            <span class="wd-meta-chip"><svg aria-hidden="true"><use [attr.href]="w.method === 'paypal' ? '#wd-paypal' : '#wd-wallet'"></use></svg> {{ getMethodLabel(w.method) }}</span>
+            <span class="wd-meta-chip"><svg aria-hidden="true"><use [attr.href]="'#wd-paypal'"></use></svg> {{ getMethodLabel(w.method) }}</span>
             <span class="wd-meta-chip">{{ formatDate(w.createdAt) }}</span>
           </div>
           <div class="wd-item-bank">
             @if (w.paypalEmail) {
               <div class="wd-bank-row"><span class="wd-bank-key">PayPal</span><span class="wd-bank-val" dir="ltr">{{ w.paypalEmail }}</span></div>
-            }
-            <!-- Older requests were bank transfers; their saved destination is still shown in history. -->
-            @if (w.accountName) {
-              <div class="wd-bank-row"><span class="wd-bank-key">اسم الحساب</span><span class="wd-bank-val">{{ w.accountName }}</span></div>
-            }
-            @if (w.iban) {
-              <div class="wd-bank-row"><span class="wd-bank-key">IBAN</span><span class="wd-bank-val" dir="ltr">{{ maskValue(w.iban) }}</span></div>
-            }
-            @if (w.accountNumber) {
-              <div class="wd-bank-row"><span class="wd-bank-key">رقم الحساب</span><span class="wd-bank-val" dir="ltr">{{ maskValue(w.accountNumber) }}</span></div>
             }
           </div>
           @if (w.rejectionReason) {
