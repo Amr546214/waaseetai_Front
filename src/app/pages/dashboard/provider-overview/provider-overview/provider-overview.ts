@@ -31,6 +31,23 @@ export class ProviderOverview implements OnInit {
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
 
+  /**
+   * The identity badge, from the SAME state the profile data page shows (summary.identityVerification). The raw kycStatus is only a fallback for a
+   * backend that does not send it yet. null = no claim is made (nothing loaded / unknown).
+   */
+  identityState = computed<'VERIFIED' | 'PENDING_REVIEW' | 'REJECTED' | 'NOT_SUBMITTED' | null>(() => {
+    const summary = this.stats()?.summary;
+    const iv = summary?.identityVerification?.status;
+    if (iv) return iv;
+    switch (summary?.kycStatus) {
+      case 'VERIFIED': return 'VERIFIED';
+      case 'PENDING': return 'PENDING_REVIEW';
+      case 'REJECTED': return 'REJECTED';
+      case 'UNVERIFIED': return 'NOT_SUBMITTED';
+      default: return null;
+    }
+  });
+
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
     return user?.accountType === AccountType.PROVIDER_COMPANY;
