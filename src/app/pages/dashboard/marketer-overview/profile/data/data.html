@@ -227,7 +227,9 @@
 	@if (activeTab() === 'basics') {
 	<div class="prof-tab-panel active" role="tabpanel" [formGroup]="basicsForm">
 		@if (identityPending()) {
-		<div class="pending-note" role="status" data-testid="identity-pending">طلب تعديل بياناتك الأساسية قيد المراجعة، لن تتغير البيانات المعروضة قبل اعتماده. يمكنك متابعته من "طلباتي السابقة".</div>
+		<div class="pending-note" role="status" data-testid="identity-pending">تم استلام طلب التعديل وهو الآن قيد مراجعة الإدارة، ولا تحتاج إلى إعادة الإرسال. لن تتغير البيانات المعروضة قبل اعتماده، ويمكنك متابعته من "طلباتي السابقة".</div>
+		} @else if (identityRejection(); as why) {
+		<div class="pending-note" role="alert" data-testid="identity-rejected" style="border-color:rgba(248,113,113,.5)">رُفض طلب تعديل بياناتك الأساسية. السبب: {{ why }}. يمكنك تعديل البيانات وإرسال طلب جديد.</div>
 		}
 		<div class="form-card">
 			<div class="form-card-hdr">
@@ -270,7 +272,7 @@
 				@if (tabNotice(); as notice) {
 				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:12px;margin:8px 0">{{ notice }}</div>
 				}
-				<div class="actions-row"><button type="button" class="btn-primary" [disabled]="submittingBasics()" (click)="submitBasicsChangeRequest()">{{ submittingBasics() ? 'جارٍ الإرسال...' : 'إرسال طلب تعديل' }}</button></div>
+				<div class="actions-row"><button type="button" class="btn-primary" [disabled]="submittingBasics() || identityPending()" (click)="submitBasicsChangeRequest()" data-testid="basics-submit">{{ submittingBasics() ? 'جارٍ الإرسال...' : (identityPending() ? 'طلب قيد المراجعة' : 'إرسال طلب تعديل') }}</button></div>
 		</div>
 	</div>
 	}

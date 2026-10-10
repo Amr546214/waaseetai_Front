@@ -25,13 +25,17 @@
 		<ul class="grid gap-2 sm:grid-cols-2 list-none p-0 m-0">
 			@for (item of missingItems(); track item.key) {
 			<li [attr.data-key]="item.key">
-				<button type="button" [attr.data-tab]="item.tab" (click)="openMissingItem(item)"
+				<button type="button" [attr.data-tab]="item.tab" [attr.data-status]="item.status" (click)="openMissingItem(item)"
 					class="w-full flex items-center gap-3 text-start px-4 py-3 rounded-xl border border-amber-300/60 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/5 hover:bg-amber-100 dark:hover:bg-amber-500/10 transition-colors cursor-pointer">
 					<span class="flex-1 min-w-0 flex flex-col gap-0.5">
 						<span class="text-[13px] font-extrabold text-slate-900 dark:text-white">{{ item.label }}</span>
 						<span class="text-[11.5px] font-medium text-slate-500 dark:text-slate-400">{{ item.hint }}</span>
 					</span>
+					@if (item.status === 'pending_review') {
+					<span class="shrink-0 text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300" data-testid="miss-pending">قيد المراجعة</span>
+					} @else {
 					<span class="shrink-0 text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-200/70 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300" data-testid="miss-missing">ناقص · +{{ item.points }}%</span>
+					}
 					<span class="shrink-0 text-slate-400" aria-hidden="true">←</span>
 				</button>
 			</li>
@@ -690,8 +694,11 @@
 				</div>
 
 				<div role="note" data-testid="basics-note" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">تغيير الاسم يُرسَل كطلب تعديل يراجعه مراجع بشري قبل تطبيقه، وستجد حالته في «طلباتي السابقة». البريد الإلكتروني ورقم الجوال للقراءة فقط ولا يمكن تغييرهما من هنا.</div>
+				@if (basicsRejection(); as why) {
+				<div data-testid="basics-rejected" role="alert" class="mb-6 rounded-xl border border-red-300 bg-red-50 p-3 text-[12px] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تعديل الاسم. السبب: {{ why }}. يمكنك تعديل الاسم وإرسال طلب جديد.</div>
+				}
 				@if (pendingNameRequest(); as pn) {
-				<div data-testid="basics-pending" role="status" class="mb-6 rounded-xl border border-amber-300 bg-amber-100/60 p-3 text-[12px] font-bold leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">طلب تغيير الاسم{{ pn.requestedValue ? ' إلى «' + pn.requestedValue + '»' : '' }} قيد المراجعة. سيظهر الاسم الجديد بعد موافقة المراجع، وتجد حالة الطلب في <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a>.</div>
+				<div data-testid="basics-pending" role="status" class="mb-6 rounded-xl border border-amber-300 bg-amber-100/60 p-3 text-[12px] font-bold leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">طلب تغيير الاسم{{ pn.requestedValue ? ' إلى «' + pn.requestedValue + '»' : '' }} قيد المراجعة، ولا تحتاج إلى إعادة الإرسال. سيظهر الاسم الجديد بعد موافقة المراجع، وتجد حالة الطلب في <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a>.</div>
 				}
 				<ws-form-summary [items]="missing()" />
 
@@ -708,6 +715,11 @@
 	<!-- Tab Content: Identity -->
 	@if (activeTab() === 'identity') {
 	<div class="flex flex-col gap-6 animation-fade-in">
+		@if (identityReviewPending()) {
+		<div data-testid="identity-pending" role="status" class="rounded-xl border border-sky-300 bg-sky-50 p-3 text-[13px] font-bold leading-relaxed text-sky-900 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">تم استلام طلب التعديل وهو الآن قيد مراجعة الإدارة. لا تحتاج إلى إعادة الإرسال. <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a></div>
+		} @else if (identityRejection(); as why) {
+		<div data-testid="identity-rejected" role="alert" class="rounded-xl border border-red-300 bg-red-50 p-3 text-[13px] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تعديل رقم الهوية. السبب: {{ why }}. يمكنك تعديل البيانات وإرسال طلب جديد.</div>
+		}
 		@if (getRejectionReason('IDENTITY_UPDATE')) {
 		<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
 			<div class="p-2 bg-red-500/20 rounded-xl text-red-500 mt-0.5">
@@ -824,7 +836,7 @@
 				</div>
 
 				<!-- Action -->
-				<button type="submit" [disabled]="isSaving()" data-testid="identity-submit"
+				<button type="submit" [disabled]="isSaving() || identityReviewPending()" data-testid="identity-submit"
 					class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50">{{ isSaving() ? 'جاري الإرسال...' : 'حفظ / إرسال طلب التعديل' }}</button>
 			</form>
 		</div>
@@ -1017,8 +1029,7 @@
 						class="w-5 h-5 flex-shrink-0 text-amber-500">
 						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
 					</svg>
-					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل بريد PayPal
-						ينشئ طلباً يعتمده مراجع بشري</span>
+					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">يُحفظ بريد PayPal مباشرة دون مراجعة إدارة</span>
 				</div>
 				<a routerLink="/client-overview/profile/requests"
 					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
@@ -1110,6 +1121,9 @@
 					</div>
 
 					<!-- Pending state: a request already waits for the admin -->
+					@if (passwordRejection(); as why) {
+					<div role="alert" data-testid="pw-rejected" class="rounded-xl border border-red-300 bg-red-50 p-3 text-[13px] font-bold text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تغيير كلمة المرور. السبب: {{ why }}. يمكنك إرسال طلب جديد.</div>
+					}
 					@if (pendingPasswordRequest()) {
 					<div role="status" data-testid="pw-pending" class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[13px] font-bold text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">
 						طلب تغيير كلمة المرور قيد المراجعة. تبقى كلمة مرورك الحالية سارية حتى يعتمد المراجع الطلب. <a routerLink="/client-overview/profile/requests" class="underline">طلبات التعديل</a>

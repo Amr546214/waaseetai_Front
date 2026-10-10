@@ -88,7 +88,14 @@ export class Data implements OnInit {
 	/** Avatar file rejected on the client (type/size/read), shown under the picture. */
 	avatarError = signal<string | null>(null);
 	/** UI-only: the backend filed the request and it waits for review (a toast alone is easy to miss). */
-	identityPending = signal(false);
+	/** set right after a request is sent; after a refresh the same state comes from the profile read (reviewStatus.basicInfo) */
+	private identitySentNow = signal(false);
+	identityPending = computed(() => this.identitySentNow() || this.profile()?.reviewStatus?.basicInfo?.status === 'PENDING_REVIEW');
+	/** the admin's reason when the last request was rejected (and no new one is waiting): the form stays open for a new request */
+	identityRejection = computed(() => {
+		const e = this.profile()?.reviewStatus?.basicInfo;
+		return e?.status === 'REJECTED' && !this.identityPending() ? (e.rejectionReason || 'لم يستوفِ الطلب متطلبات التحقق') : null;
+	});
 	alertsLoadFailed = signal(false);
 
 	summary = signal<MarketerSummary | null>(null);
@@ -383,7 +390,7 @@ export class Data implements OnInit {
 	// ---------- identity change request ----------
 
 	submitBasicsChangeRequest() {
-		if (this.submittingBasics()) return;
+		if (this.submittingBasics() || this.identityPending()) return;
 		this.tabNotice.set(null);
 		const attempt = attemptSubmit(this.basicsForm, { root: this.panel(), labels: LABELS });
 		this.missing.set(attempt.missing);
@@ -419,8 +426,9 @@ export class Data implements OnInit {
 			next: (res) => {
 				if (res.success) {
 					// 201 + the created governed requests: they wait for AI review then human approval.
-					this.identityPending.set(true);
+					this.identitySentNow.set(true);
 					this.missing.set([]);
+					this.loadProfile();
 					this.showToast('تم إرسال طلب التعديل للمراجعة بنجاح', 'success');
 				} else {
 					this.tabNotice.set(this.arabicOr(res.message, 'تعذر إرسال طلب التعديل'));

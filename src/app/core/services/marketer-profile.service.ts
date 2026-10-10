@@ -1,3 +1,4 @@
+import type { ReviewEntry } from '../models/review-status.model';
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
@@ -94,6 +95,8 @@ export interface MarketerProfile {
 	minimumPayoutAmount: number;
 	completionPercentage: number;
 	missingItems?: MarketerMissingItem[];
+	/** One review lifecycle: the name / national id / phone request and the identity document (admin-decided changes only). */
+	reviewStatus?: { basicInfo?: ReviewEntry; documents?: ReviewEntry };
 }
 
 export interface ApiResponse<T> {
