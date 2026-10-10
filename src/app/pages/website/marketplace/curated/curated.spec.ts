@@ -86,14 +86,14 @@ describe('CuratedComponent (top-rated/most-ordered/featured/exclusive/newest) �
 describe('CuratedComponent — canonical provider level styling (Batch 5)', () => {
 	it('4/5) every curated variant (via the single levelStyle() all layouts call) uses the canonical highlighted-level colors', () => {
 		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: 'خبير' }))).toEqual({ bg: 'rgba(123,47,190,.85)', color: '#E0C6FF' });
-		expect(component.levelStyle(baseModel({ level: 'محترف' }))).toEqual({ bg: 'rgba(43,127,255,.85)', color: '#C6E0FF' });
-		expect(component.levelStyle(baseModel({ level: 'أخصائي' }))).toEqual({ bg: 'rgba(43,212,199,.75)', color: '#070D24' });
+		expect(component.levelStyle(baseModel({ level: 'خبير' }))).toEqual({ bg: '#166FF3', color: '#070D24' });
+		expect(component.levelStyle(baseModel({ level: 'محترف' }))).toEqual({ bg: '#166FF3', color: '#070D24' });
+		expect(component.levelStyle(baseModel({ level: 'أخصائي' }))).toEqual({ bg: '#166FF3', color: '#070D24' });
 	});
 
 	it('6/7) an unhighlighted or unexpected real level safely falls back to the neutral default instead of a fabricated color', () => {
 		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: 'مبتدئ' }))).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
+		expect(component.levelStyle(baseModel({ level: 'مبتدئ' }))).toEqual({ bg: '#94DEF9', color: '#070D24' });
 		expect(component.levelStyle(baseModel({ level: 'unexpected-value' }))).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
 	});
 
@@ -107,6 +107,6 @@ describe('CuratedComponent — canonical provider level styling (Batch 5)', () =
 		const model = baseModel({ eligibility: { hasActivePurchase: true, activeProjectId: 'proj-9' }, level: 'خبير' });
 		expect(component.hasActivePurchase(model)).toBe(true);
 		expect(component.cardLink(model)).toEqual(['/client-overview/projects', 'proj-9']);
-		expect(component.levelStyle(model)).toEqual({ bg: 'rgba(123,47,190,.85)', color: '#E0C6FF' });
+		expect(component.levelStyle(model)).toEqual({ bg: '#166FF3', color: '#070D24' });
 	});
 });

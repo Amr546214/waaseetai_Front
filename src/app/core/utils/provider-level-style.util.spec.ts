@@ -1,41 +1,30 @@
 import { describe, it, expect } from 'vitest';
-import {
-	resolveProviderLevelBadgeStyle,
-	PROVIDER_LEVEL_BADGE_STYLES,
-	DEFAULT_LEVEL_BADGE_BG,
-	DEFAULT_LEVEL_BADGE_COLOR,
-} from './provider-level-style.util';
+import { resolveProviderLevelBadgeStyle, DEFAULT_LEVEL_BADGE_BG, DEFAULT_LEVEL_BADGE_COLOR } from './provider-level-style.util';
+import { PROVIDER_LEVEL_NAMES, levelColor } from '../levels/level-colors';
 
-// Batch 5 — this is now the single canonical source of truth for provider
-// level badge styling, shared by marketplace.ts, slug.ts, card.ts and
-// curated.ts, replacing four previously-separate (and in curated's case,
-// outright flat/incorrect) per-file color maps.
+// Every one of the 15 provider levels has its own station colour now (previously only 3 titles were highlighted).
 describe('resolveProviderLevelBadgeStyle', () => {
-	it('returns the exact canonical style for each of the 3 highlighted real levels', () => {
-		for (const level of Object.keys(PROVIDER_LEVEL_BADGE_STYLES)) {
-			expect(resolveProviderLevelBadgeStyle(level)).toEqual(PROVIDER_LEVEL_BADGE_STYLES[level]);
-		}
+	it('every real level gets its brand station colour and a readable text colour', () => {
+		PROVIDER_LEVEL_NAMES.forEach((name, i) => {
+			const s = resolveProviderLevelBadgeStyle(name);
+			expect(s.bg).toBe(levelColor('PROVIDER', i + 1, 'dark'));
+			expect(s.color).toBe(i + 1 <= 9 ? '#070D24' : '#FFFFFF');
+		});
 	});
 
-	it('falls back to the neutral default for a real-but-unhighlighted level (e.g. مبتدئ)', () => {
-		expect(resolveProviderLevelBadgeStyle('مبتدئ')).toEqual({ bg: DEFAULT_LEVEL_BADGE_BG, color: DEFAULT_LEVEL_BADGE_COLOR });
+	it('levels of the same station share a colour; neighbouring stations differ', () => {
+		expect(resolveProviderLevelBadgeStyle('مبتدئ').bg).toBe(resolveProviderLevelBadgeStyle('منفذ').bg);
+		expect(resolveProviderLevelBadgeStyle('منفذ').bg).not.toBe(resolveProviderLevelBadgeStyle('بارع').bg);
+		expect(resolveProviderLevelBadgeStyle('مبتدئ').bg).toBe('#94DEF9');
+		expect(resolveProviderLevelBadgeStyle('مرجع').bg).toBe('#0913A5');
 	});
 
-	it('does not fabricate a known level for null/undefined/empty — uses the neutral default', () => {
-		expect(resolveProviderLevelBadgeStyle(null)).toEqual({ bg: DEFAULT_LEVEL_BADGE_BG, color: DEFAULT_LEVEL_BADGE_COLOR });
-		expect(resolveProviderLevelBadgeStyle(undefined)).toEqual({ bg: DEFAULT_LEVEL_BADGE_BG, color: DEFAULT_LEVEL_BADGE_COLOR });
-		expect(resolveProviderLevelBadgeStyle('')).toEqual({ bg: DEFAULT_LEVEL_BADGE_BG, color: DEFAULT_LEVEL_BADGE_COLOR });
+	it('does not fabricate a level for null/undefined/empty/unknown — uses the neutral default', () => {
+		for (const v of [null, undefined, '', 'مستوى-غير-معروف-123']) expect(resolveProviderLevelBadgeStyle(v)).toEqual({ bg: DEFAULT_LEVEL_BADGE_BG, color: DEFAULT_LEVEL_BADGE_COLOR });
 	});
 
-	it('safely falls back for an unexpected/unknown level value instead of throwing or inventing a color', () => {
-		expect(resolveProviderLevelBadgeStyle('مستوى-غير-معروف-123')).toEqual({ bg: DEFAULT_LEVEL_BADGE_BG, color: DEFAULT_LEVEL_BADGE_COLOR });
-	});
-
-	it('prefers a per-model backend-provided fallback color over the static default when the level is unhighlighted', () => {
-		expect(resolveProviderLevelBadgeStyle('منجز', 'rgba(1,2,3,.5)', '#ABCDEF')).toEqual({ bg: 'rgba(1,2,3,.5)', color: '#ABCDEF' });
-	});
-
-	it('ignores any passed-in fallback for one of the 3 highlighted levels — the canonical color always wins', () => {
-		expect(resolveProviderLevelBadgeStyle('خبير', 'rgba(9,9,9,.9)', '#000000')).toEqual(PROVIDER_LEVEL_BADGE_STYLES['خبير']);
+	it('a passed-in fallback is used only for a title that is not one of the 15 names', () => {
+		expect(resolveProviderLevelBadgeStyle('غير-معروف', 'rgba(1,2,3,.5)', '#ABCDEF')).toEqual({ bg: 'rgba(1,2,3,.5)', color: '#ABCDEF' });
+		expect(resolveProviderLevelBadgeStyle('خبير', 'rgba(9,9,9,.9)', '#000000').bg).toBe(levelColor('PROVIDER', 9, 'dark'));
 	});
 });

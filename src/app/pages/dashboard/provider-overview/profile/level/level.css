@@ -63,3 +63,11 @@
 @media(max-width:767px){
   .rk-hero{flex-direction:column;text-align:center}
 }
+
+/* Level colours (brand stations): a dark/light pair per level, switched by the page theme */
+.lvl-badge{border-color:var(--lvl-dark,#9B8B7A);background:color-mix(in srgb,var(--lvl-dark,#9B8B7A) 16%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--lvl-dark,#9B8B7A) 14%,transparent)}
+.lvl-fill{fill:var(--lvl-dark,#9B8B7A)}
+.lvl-txt{color:var(--lvl-dark,#9B8B7A)}
+:host-context(.light-theme) .lvl-badge,:host-context(.theme-light) .lvl-badge{border-color:var(--lvl-light,#7A6B5A);background:color-mix(in srgb,var(--lvl-light,#7A6B5A) 16%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--lvl-light,#7A6B5A) 14%,transparent)}
+:host-context(.light-theme) .lvl-fill,:host-context(.theme-light) .lvl-fill{fill:var(--lvl-light,#7A6B5A)}
+:host-context(.light-theme) .lvl-txt,:host-context(.theme-light) .lvl-txt{color:var(--lvl-light,#7A6B5A)}

@@ -23,11 +23,11 @@
 			</a>
 		</div>
 
-		<div class="rk-hero">
-			<div class="rk-b" aria-hidden="true"><svg viewBox="0 0 100 100" fill="currentColor" width="28" height="28"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
+		<div class="rk-hero" [style.--lvl-dark]="currentLevelColor().dark" [style.--lvl-light]="currentLevelColor().light">
+			<div class="rk-b lvl-badge" aria-hidden="true"><svg class="lvl-fill" viewBox="0 0 100 100" width="28" height="28"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
 			<div class="rk-i">
-				<div class="rk-n">{{ levelData()?.currentLevel?.title ?? '—' }}</div>
-				<div class="rk-s">{{ levelData() ? 'المستوى ' + levelData()!.currentLevel.index + ' من 15' : 'لا توجد بيانات بعد' }}</div>
+				<div class="rk-n lvl-txt" data-testid="level-name">{{ levelData()?.currentLevel?.title ?? '—' }}</div>
+				<div class="rk-s">{{ levelData() ? 'المستوى ' + levelData()!.currentLevel.index + ' من ' + levelData()!.roadmap.length : 'لا توجد بيانات بعد' }}</div>
 				<div class="rk-bar"><div class="rk-f" [style.width.%]="levelData()?.nextLevelProgress?.pointsPercent ?? 0"></div></div>
 				<div style="font-size:11px;margin-top:6px" class="txt-slate">{{ levelData()?.currentStats?.points ?? '—' }} نقطة · {{ levelData()?.nextLevelProgress?.pointsGap ?? '—' }} نقطة للمستوى التالي</div>
 			</div>
@@ -130,7 +130,7 @@
   <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
     <div>
       <h1 class="text-[20px] font-black text-[var(--txt)] m-0">مستوى التصنيف</h1>
-      <div class="text-[12px] text-[var(--txt-3)] mt-1">15 مستوى · من مبتدئ إلى مرجع</div>
+      <div class="text-[12px] text-[var(--txt-3)] mt-1" data-testid="level-subtitle">{{ ladderSubtitle() }}</div>
     </div>
   </div>
 </div>
@@ -153,9 +153,9 @@
   
   <div class="relative flex items-center gap-6 flex-wrap">
     <!-- Badge -->
-    <div class="w-[88px] h-[88px] rounded-full bg-gradient-to-br from-[#7BA7D4]/25 to-[#7BA7D4]/10 flex flex-col items-center justify-center shrink-0 shadow-[0_0_32px_rgba(123,167,212,0.35),0_0_0_4px_rgba(123,167,212,0.15)] border-2 border-[#7BA7D4]">
-      <svg class="inline-block" width="28" height="28" viewBox="0 0 100 100" fill="#7BA7D4" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-      <div class="text-[10px] font-black text-[#7BA7D4] mt-1">{{ data.currentLevel.title }}</div>
+    <div class="lvl-badge w-[88px] h-[88px] rounded-full flex flex-col items-center justify-center shrink-0 border-2" data-testid="level-badge" [style.--lvl-dark]="currentLevelColor().dark" [style.--lvl-light]="currentLevelColor().light">
+      <svg class="inline-block lvl-fill" width="28" height="28" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+      <div class="lvl-txt text-[10px] font-black mt-1" data-testid="level-name">{{ data.currentLevel.title }}</div>
     </div>
     
     <!-- Info -->
@@ -164,7 +164,7 @@
       <div class="text-[32px] font-black text-white leading-none mb-1.5">{{ data.currentLevel.title }}</div>
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-[11px] bg-[#2BD4C7]/15 border border-[#2BD4C7]/30 text-[#2BD4C7] rounded-full px-2.5 py-0.5 font-bold">عمولة منصة {{ data.currentStats.commissionRate }}%</span>
-        <span class="text-[11px] text-[var(--txt-3)]">{{ data.currentLevel.index }} من 15 مستوى</span>
+        <span class="text-[11px] text-[var(--txt-3)]">{{ data.currentLevel.index }} من {{ data.roadmap.length }} مستوى</span>
       </div>
     </div>
     
@@ -252,7 +252,7 @@
 <!-- 15 Levels Map -->
 <div class="flex items-center gap-2 text-[13px] font-black text-[var(--txt-2)] mb-3">
   <svg class="w-4 h-4 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-  خريطة المستويات — 15 مستوى
+  خريطة المستويات — {{ data.roadmap.length }} مستوى
 </div>
 
 <div class="overflow-x-auto pb-4 mb-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -264,10 +264,10 @@
 
     <!-- Roadmap Map Loop -->
     <ng-container *ngFor="let level of data.roadmap; let i = index">
-      <div class="flex-1 flex flex-col items-center relative z-10" [class.opacity-40]="level.index > data.currentLevel.index">
+      <div class="flex-1 flex flex-col items-center relative z-10" [class.opacity-40]="level.index > data.currentLevel.index" [attr.data-level]="level.index" [style.--lvl-dark]="level.color?.dark || '#9B8B7A'" [style.--lvl-light]="level.color?.light || '#7A6B5A'">
         <div *ngIf="level.isCurrent" class="absolute -top-4 text-[9px] font-black bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] px-2.5 py-1 rounded-full whitespace-nowrap shadow-[0_2px_8px_rgba(43,212,199,0.3)]">▲ أنت هنا</div>
         
-        <div [class]="level.isCurrent ? 'relative w-[72px] h-[72px] mb-2' : 'w-14 h-14 rounded-full bg-[#9B8B7A]/15 border-2 border-[#9B8B7A] flex items-center justify-center mb-2'">
+        <div [class]="level.isCurrent ? 'relative w-[72px] h-[72px] mb-2' : 'lvl-badge w-14 h-14 rounded-full border-2 flex items-center justify-center mb-2'">
           
           <!-- Current Level Special Border -->
           <ng-container *ngIf="level.isCurrent">
@@ -276,14 +276,14 @@
               <circle cx="36" cy="36" r="32" fill="none" stroke="url(#lvlGrad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="201.1" stroke-dashoffset="0"/>
               <defs><linearGradient id="lvlGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#2BD4C7"/><stop offset="100%" stop-color="#2B7FFF"/></linearGradient></defs>
             </svg>
-            <div class="absolute inset-[6px] rounded-full bg-[#7BA7D4]/20 border-2 border-[#7BA7D4] flex items-center justify-center">
-              <svg class="w-8 h-8" viewBox="0 0 100 100" fill="#7BA7D4"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+            <div class="lvl-badge absolute inset-[6px] rounded-full border-2 flex items-center justify-center">
+              <svg class="w-8 h-8 lvl-fill" viewBox="0 0 100 100"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
             </div>
           </ng-container>
 
           <!-- Normal Outline -->
           <ng-container *ngIf="!level.isCurrent">
-             <svg class="w-7 h-7" viewBox="0 0 100 100" fill="currentColor"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+             <svg class="w-7 h-7 lvl-fill" viewBox="0 0 100 100"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
           </ng-container>
 
         </div>

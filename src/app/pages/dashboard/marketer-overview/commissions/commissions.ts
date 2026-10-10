@@ -1,3 +1,4 @@
+import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MarketerOverviewService, MarketerSummary, CommissionLog } from '../../../../core/services/marketer-overview.service';
@@ -5,7 +6,7 @@ import { MarketerOverviewService, MarketerSummary, CommissionLog } from '../../.
 @Component({
   selector: 'app-commissions',
   standalone: true,
-  imports: [CommonModule],
+  imports: [MarketerLevelTagComponent, CommonModule],
   templateUrl: './commissions.html',
   styleUrl: './commissions.css',
 })

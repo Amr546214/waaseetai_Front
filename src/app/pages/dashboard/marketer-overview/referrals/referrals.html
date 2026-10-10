@@ -13,7 +13,7 @@
     </div>
     <div style="flex:1;min-width:220px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <span class="ws-level-tag" style="font-size:14px;font-weight:900;color:#9B8B7A;border-color:rgba(155,139,122,.30)">{{ summary()?.tier || 'مساعد' }}</span>
+        <ws-marketer-level [summary]="summary()" />
         <span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals ?? 0 }} إحالة ناجحة · {{ summary()?.totalCommissions ?? 0 }} دولار عمولات</span>
       </div>
     </div>

@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy, signal, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { GamificationService, GamificationLevelResponse } from '../../../../../core/services/gamification.service';
+import { computed } from '@angular/core';
+import { GamificationService, ClientLevelResponse } from '../../../../../core/services/gamification.service';
+import { LevelLadderComponent, LevelLadderView } from '../../../../../shared/levels/level-ladder.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { Subscription } from 'rxjs';
@@ -9,7 +11,7 @@ import { filter, take, switchMap } from 'rxjs/operators';
 @Component({
 	selector: 'app-profile-level',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, LevelLadderComponent],
 	templateUrl: './profile-level.html',
 	styles: [`
 @keyframes ws-fade {
@@ -58,7 +60,7 @@ export class ProfileLevel implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
-  levelData = signal<GamificationLevelResponse | null>(null);
+  levelData = signal<ClientLevelResponse | null>(null);
   isLoading = signal<boolean>(true);
   loadError = signal<boolean>(false);
 
@@ -83,19 +85,11 @@ export class ProfileLevel implements OnInit, OnDestroy {
       take(1),
       switchMap(() => {
         this.hasRequested = true;
-        return this.gamificationService.getLevelDetails();
+        return this.gamificationService.getClientLevelDetails();
       })
     ).subscribe({
       next: (res) => {
-        // Batch 7 fix: this page called the PROVIDER-only
-        // /provider/gamification/level-details endpoint, so every client
-        // request received a 403 and silently rendered fabricated demo
-        // progression data as if it were real. There is no client-side
-        // gamification ledger in the backend today (PointTransaction and
-        // ProviderGamification are provider-only Prisma models) — building
-        // one is a real, legitimate, schema-affecting feature (the client
-        // sidebar does link here intentionally), not something to fake in
-        // the meantime. Show an honest "not available yet" state instead.
+        // The client's own level view (GET /profiles/level-details). Any failure shows the honest "unavailable" state, never made-up progress.
         if (res.success && res.data) {
           this.levelData.set(res.data);
         } else {
@@ -110,6 +104,45 @@ export class ProfileLevel implements OnInit, OnDestroy {
         this.isLoading.set(false);
       }
     });
+  }
+
+  /** The shared ladder card's view, from the backend payload only (cashback ladder; thresholds shown as the backend sends them). */
+  ladder = computed<LevelLadderView | null>(() => {
+    const d = this.levelData();
+    if (!d) return null;
+    const last = d.roadmap[d.roadmap.length - 1];
+    const isTop = d.currentLevel.index >= (last?.index ?? 15);
+    const cur = d.roadmap.find(l => l.isCurrent) ?? d.roadmap[0];
+    const next = isTop ? null : { title: d.nextLevelProgress.title, percent: d.nextLevelProgress.nextCashbackRate };
+    return {
+      percentLabel: 'نسبة الكاش باك',
+      current: { index: d.currentLevel.index, title: d.currentLevel.title, percent: d.currentStats.cashbackRate, color: cur?.color ?? { dark: '#9B8B7A', light: '#7A6B5A' } },
+      next,
+      stats: [
+        { label: 'نقاطك', value: String(d.currentStats.points) },
+        { label: 'مشاريع مكتملة', value: String(d.currentStats.completedProjects) },
+        { label: 'نسبة الكاش باك', value: d.currentStats.cashbackRate + '%' },
+      ],
+      progress: isTop ? [] : [
+        { key: 'points', label: 'النقاط', have: String(d.currentStats.points), need: String(d.currentStats.points + d.nextLevelProgress.pointsGap), percent: d.nextLevelProgress.pointsPercent },
+        { key: 'projects', label: 'المشاريع المكتملة', have: String(d.currentStats.completedProjects), need: String(d.currentStats.completedProjects + d.nextLevelProgress.projectsGap), percent: d.nextLevelProgress.projectsPercent },
+        { key: 'rating', label: 'متوسط التقييم المطلوب', have: d.currentStats.avgRating === null ? 'غير متاح' : String(d.currentStats.avgRating), need: String(d.nextLevelProgress.ratingRequired), percent: 0 },
+      ],
+      roadmap: d.roadmap.map(l => ({
+        index: l.index, title: l.title, percent: l.rate, color: l.color, isCurrent: l.isCurrent,
+        lines: [l.reqPoints + ' نقطة', l.reqProjects + ' مشروع', l.reqRating > 0 ? 'تقييم ' + l.reqRating : ''].filter(Boolean),
+      })),
+      notices: this.notices(d.limitations),
+    };
+  });
+
+  private notices(limitations: string[]): string[] {
+    const text: Record<string, string> = {
+      CLIENT_POINTS_NOT_AWARDED: 'نقاط طالب الخدمة لا تُحتسب تلقائيًا بعد، لذلك يبقى تقدمك كما هو إلى حين تفعيلها.',
+      CLIENT_RATING_NOT_AVAILABLE: 'تقييم طالب الخدمة غير متاح بعد، فلا يُحتسب شرط التقييم.',
+      CASHBACK_NOT_CREDITED_YET: 'الكاش باك يظهر هنا حسب مستواك لكنه لا يُضاف إلى محفظتك تلقائيًا بعد.',
+    };
+    return limitations.map(k => text[k]).filter((t): t is string => !!t);
   }
 
   ngOnDestroy() {
