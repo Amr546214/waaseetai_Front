@@ -65,7 +65,7 @@
   <div class="miss-title">{{ hasMissing() ? 'لإكمال ملفك إلى 100%، أكمل التالي:' : 'قيد المراجعة:' }}</div>
   <ul class="miss-list">
     @for (item of missingItems(); track item.key) {
-    <li class="miss-item" [class.is-pending]="item.status === 'pending_review'" [attr.data-status]="item.status" [attr.data-key]="item.key">
+    <li class="miss-item" [class.is-pending]="item.status === 'pending_review'" [class.is-rejected]="item.status === 'rejected'" [attr.data-status]="item.status" [attr.data-key]="item.key">
       <button type="button" class="miss-link" [attr.data-tab]="item.tab" (click)="openMissingItem(item)">
         <span class="miss-main">
           <span class="miss-label">{{ item.label }}</span>
@@ -73,6 +73,8 @@
         </span>
         @if (item.status === 'pending_review') {
         <span class="miss-badge is-pending" data-testid="miss-pending">قيد المراجعة</span>
+        } @else if (item.status === 'rejected') {
+        <span class="miss-badge is-rejected" data-testid="miss-rejected">مرفوض — يحتاج تعديل</span>
         } @else {
         <span class="miss-badge" data-testid="miss-missing">ناقص · +{{ item.points }}%</span>
         }
@@ -385,6 +387,7 @@
           } @else { <div class="upload-empty"><span>＋</span><strong>اختر ملفا للرفع</strong><small>JPG او PNG او PDF،
               حجم اقصى 10MB</small></div> }
         </div>
+        @if (identityRejected()) { <span class="field-error" role="alert" data-testid="id-doc-rejected">مستند الهوية مرفوض. اضغط «تغيير» وارفع مستندًا جديدًا ثم أرسل الطلب.</span> }
         @if (!identityPending()) { <ws-field-error [control]="docsForm.get('idDocumentUrl')" label="مستند الهوية" /> }
         @if (docFileErrors()['idDocumentUrl'] && !identityPending()) { <span class="field-error" role="alert">{{ docFileErrors()['idDocumentUrl'] }}</span> }
       </div>
