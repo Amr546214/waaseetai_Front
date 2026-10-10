@@ -24,7 +24,7 @@ import { BioFieldDirective } from '../../../../../shared/directives/bio-field.di
 const PROFILE_LABELS: Record<string, string> = {
   firstName: 'الاسم الأول', lastName: 'اسم العائلة', headline: 'المسمى المهني', specialty: 'التخصص الرئيسي',
   country: 'الدولة', city: 'المدينة', bio: 'الوصف المهني',
-  websiteUrl: 'معرض الأعمال', linkedinUrl: 'LinkedIn', githubUrl: 'GitHub / Behance',
+  websiteUrl: 'رابط معرض الأعمال', linkedinUrl: 'LinkedIn', githubUrl: 'GitHub',
 };
 const CONTACT_LABELS: Record<string, string> = { email: 'البريد الإلكتروني', phoneNumber: 'رقم الجوال', alternativePhone: 'رقم WhatsApp' };
 const PAYOUT_LABELS: Record<string, string> = { paypalPayoutEmail: 'بريد PayPal' };
@@ -38,6 +38,9 @@ const FIELD_IDS: Record<string, string> = {
   email: 'ct-email', phoneNumber: 'ct-phone', alternativePhone: 'ct-whatsapp',
   paypalPayoutEmail: 'pp-email', currentPassword: 'pwd-old', newPassword: 'pwd-new', confirmPassword: 'pwd-conf',
 };
+
+/** Completion-box items that are fixed by ONE field: clicking the item goes to (and focuses) that field. */
+const MISSING_ITEM_FIELD: Record<string, string> = { portfolio: 'websiteUrl' };
 
 /** Backend rules (provider-profile.service.ts): name 60, headline 100, bio 500, http(s) URLs, phone 8-15 digits, password 8-72 + 3 groups. */
 const URL_MESSAGE = 'الرابط غير صالح، يجب أن يبدأ بـ http:// أو https://';
@@ -929,6 +932,9 @@ export class Data implements OnInit, OnDestroy {
   openMissingItem(item: CompletionMissingItem) {
     this.setTab(item.tab);
     setTimeout(() => {
+      // An item that is fixed by one field goes straight to that field (scrolled into view and focused); the rest open their tab panel.
+      const fieldPath = MISSING_ITEM_FIELD[item.key];
+      if (fieldPath && (this.host.nativeElement as HTMLElement).querySelector(`#${FIELD_IDS[fieldPath]}`)) { this.focusField(fieldPath); return; }
       const panel = this.panel(item.tab);
       panel?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
     }, 30);

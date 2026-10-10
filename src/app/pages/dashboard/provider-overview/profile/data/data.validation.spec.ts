@@ -91,7 +91,7 @@ describe('provider profile data tabs: shared validation', () => {
       render();
       expect(svc['updateBasicInfo']).not.toHaveBeenCalled();
       const text = summary('profile');
-      for (const label of ['الاسم الأول', 'المسمى المهني', 'الوصف المهني', 'LinkedIn', 'GitHub / Behance', 'معرض الأعمال']) expect(text, label).toContain(label);
+      for (const label of ['الاسم الأول', 'المسمى المهني', 'الوصف المهني', 'LinkedIn', 'GitHub', 'رابط معرض الأعمال']) expect(text, label).toContain(label);
       fill(component.profileForm, { firstName: 'أ'.repeat(60), headline: 'ع'.repeat(100), bio: 'ب'.repeat(500), githubUrl: 'https://github.com/x', linkedinUrl: 'http://linkedin.com/in/x', websiteUrl: '' });
       component.saveProfile();
       expect(svc['updateBasicInfo']).toHaveBeenCalledTimes(1);
@@ -104,7 +104,7 @@ describe('provider profile data tabs: shared validation', () => {
       const c = component.profileForm.get('githubUrl')!;
       expect(c.errors?.['server']).toMatch(ARABIC);
       expect(fieldErrors('profile').join(' ')).toContain('http://');
-      expect(summary('profile')).toContain('GitHub / Behance');
+      expect(summary('profile')).toContain('GitHub');
       expect(document.activeElement?.id).toBe('website-url');
       expect(ui.toasts().length).toBe(0);
       expect(component.isSavingProfile()).toBe(false);
