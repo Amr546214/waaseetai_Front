@@ -30,11 +30,16 @@ import { OtpInputComponent } from './otp-input.component';
 			@if (notice()) { <div role="status" data-testid="paypal-confirm-notice" style="font-size:13px;margin-top:2px;text-align:center">{{ notice() }}</div> }
 			<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px">
 				<button type="button" class="btn-primary" data-testid="paypal-confirm-btn" [disabled]="busy() || code().length !== 6" (click)="confirm()">{{ busy() ? 'جارٍ التأكيد...' : 'تأكيد البريد' }}</button>
-				<button type="button" class="btn-secondary" data-testid="paypal-resend-btn" [disabled]="busy() || cooldown() > 0" (click)="resend()">{{ cooldown() > 0 ? 'إعادة إرسال الرمز (' + cooldown() + ' ث)' : 'إعادة إرسال الرمز' }}</button>
-				<button type="button" class="btn-secondary" [disabled]="busy()" (click)="dismissed.emit()">إلغاء</button>
+				<button type="button" class="btn-secondary pp-sec" data-testid="paypal-resend-btn" [disabled]="busy() || cooldown() > 0" (click)="resend()">{{ cooldown() > 0 ? 'إعادة إرسال الرمز (' + cooldown() + ' ث)' : 'إعادة إرسال الرمز' }}</button>
+				<button type="button" class="btn-secondary pp-sec" [disabled]="busy()" (click)="dismissed.emit()">إلغاء</button>
 			</div>
 		</div>
-	`
+	`,
+	styles: [`
+		.pp-sec{background:none;border:1px solid rgba(43,212,199,.30);color:var(--teal);font-family:inherit;font-size:13px;font-weight:700;padding:9px 18px;border-radius:20px;cursor:pointer;transition:background .2s,opacity .2s}
+		.pp-sec:hover:not(:disabled){background:rgba(43,212,199,.08)}
+		.pp-sec:disabled{opacity:.4;cursor:default}
+	`]
 })
 export class PaypalEmailConfirmComponent implements OnDestroy {
 	private readonly api = inject(ProviderProfileService);
