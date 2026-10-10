@@ -17,7 +17,7 @@ export interface CompletionMissingItem {
   label: string;
   points: number;
   /** 'pending_review' = the provider submitted it and it waits for the human review (not "missing"). */
-  status: 'missing' | 'pending_review';
+  status: 'missing' | 'pending_review' | 'rejected';
   /** Tab of the provider edit page that fixes it. */
   tab: 'profile' | 'contact' | 'payout' | 'docs';
   hint: string;

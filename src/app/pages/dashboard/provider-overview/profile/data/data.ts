@@ -186,6 +186,7 @@ export class Data implements OnInit, OnDestroy {
   /** Where the identity document stands (from the backend, so it survives a refresh): waiting for the admin, approved, rejected, or not sent. */
   identityVerification = signal<{ status: 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED'; requestId: string | null; submittedAt: string | null; rejectionReason: string | null } | null>(null);
   identityPending = computed(() => this.identityVerification()?.status === 'PENDING_REVIEW');
+  identityRejected = computed(() => this.identityVerification()?.status === 'REJECTED');
   /** True right after the code was confirmed in this visit: the confirmation is shown prominently (a toast alone is easy to miss). */
   identityJustSubmitted = signal(false);
   otpEmailHint = signal('');
@@ -200,7 +201,7 @@ export class Data implements OnInit, OnDestroy {
   /** True once the completion came from the server: the progress card never flashes 0% for a complete profile. */
   completionLoaded = signal(false);
   missingItems = signal<CompletionMissingItem[]>([]);
-  hasMissing = computed(() => this.missingItems().some(i => i.status === 'missing'));
+  hasMissing = computed(() => this.missingItems().some(i => i.status === 'missing' || i.status === 'rejected'));
   hasPending = computed(() => this.missingItems().some(i => i.status === 'pending_review'));
 
   currentProfileData: any = null;

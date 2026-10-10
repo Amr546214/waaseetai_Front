@@ -6,7 +6,7 @@ export interface CompletionBoxItem {
 	label: string;
 	points: number;
 	/** 'pending_review' = submitted and waiting for the review: shown as "قيد المراجعة", never as missing. */
-	status: 'missing' | 'pending_review';
+	status: 'missing' | 'pending_review' | 'rejected';
 	/** Where it is fixed (the page maps it to a tab / route). */
 	tab: string;
 	hint: string;
@@ -35,6 +35,8 @@ export interface CompletionBoxItem {
 						</span>
 						@if (item.status === 'pending_review') {
 						<span class="cbx-badge is-pending" data-testid="miss-pending">قيد المراجعة</span>
+						} @else if (item.status === 'rejected') {
+						<span class="cbx-badge" data-testid="miss-rejected">مرفوض — يحتاج تعديل</span>
 						} @else {
 						<span class="cbx-badge" data-testid="miss-missing">ناقص · +{{ item.points }}%</span>
 						}

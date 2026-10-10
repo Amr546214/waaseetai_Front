@@ -12,7 +12,7 @@ export interface CompletionMissingItem {
   key: string;
   label: string;
   points: number;
-  status: 'missing' | 'pending_review';
+  status: 'missing' | 'pending_review' | 'rejected';
   /** Where it is fixed: an edit-page tab, or 'setup' (the profile-setup wizard). */
   tab: 'profile' | 'basics' | 'contact' | 'banking' | 'setup' | 'payout' | 'docs';
   hint: string;

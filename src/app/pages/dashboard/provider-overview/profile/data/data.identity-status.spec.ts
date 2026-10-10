@@ -148,4 +148,44 @@ describe('provider data page: identity document status', () => {
 		component.missingDocs.set([{ path: 'idDocumentUrl', label: 'مستند الهوية', message: 'مستند الهوية مطلوب' } as any]); render();
 		expect(el().textContent).not.toContain('مستند الهوية مطلوب');
 	});
+
+	// the admin's KYC review (a separate queue) refused the identity: the page says so, shows the safe reason, lets the provider send a new document
+	const KYC_REJECTED = { ...BASE, user: { ...BASE.user, idDocumentUrl: 'private:ref' }, completionPercentage: 100,
+		identityVerification: { status: 'REJECTED', requestId: null, submittedAt: null, rejectionReason: 'الصورة غير واضحة' },
+		missingItems: [{ key: 'idDocument', label: 'مستند الهوية', points: 10, tab: 'docs', status: 'rejected', hint: 'مرفوض — يحتاج تعديل' }] };
+
+	it('KYC refused: the documents tab shows REJECTED with the reason and a hint, never "verified"; the form stays open', () => {
+		setup(KYC_REJECTED);
+		component.setTab('docs'); render();
+		const banner = q('[data-testid="identity-status"]')!;
+		expect(banner.getAttribute('data-status')).toBe('REJECTED');
+		expect(banner.textContent).toContain('الصورة غير واضحة');
+		expect(el().textContent).not.toContain('تم التحقق من الهوية');
+		expect(q('[data-testid="id-doc-rejected"]')).toBeTruthy();
+		expect((q('[data-testid="save-docs-btn"]') as HTMLButtonElement).disabled).toBe(false);
+	});
+
+	it('KYC refused: the completion card says "مرفوض — يحتاج تعديل" for the identity item (not complete, not "ناقص", not pending) and asks to fix it', () => {
+		setup(KYC_REJECTED);
+		const item = q('[data-key="idDocument"]')!;
+		expect(item.getAttribute('data-status')).toBe('rejected');
+		expect(item.textContent).toContain('مرفوض — يحتاج تعديل');
+		expect(item.textContent).not.toContain('ناقص');
+		expect(q('[data-testid="miss-pending"]')).toBeNull();
+		expect(q('[data-testid="missing-items"]')!.textContent).toContain('لإكمال ملفك إلى 100%');
+	});
+
+	it('KYC refused, then a new document is sent and confirmed: the page shows "under review", the refusal and its hint are gone, and a second send is blocked', () => {
+		setup(KYC_REJECTED);
+		component.setTab('docs'); render();
+		component.docsForm.patchValue({ idDocumentUrl: 'https://res.cloudinary.com/testcloud/image/upload/new-id.pdf' });
+		component.saveDocs(); render();
+		component.otpCode.set('123456'); component.verifyOtp(); render();
+		expect(q('[data-testid="identity-status"]')!.getAttribute('data-status')).toBe('PENDING_REVIEW');
+		expect(q('[data-testid="id-doc-rejected"]')).toBeNull();
+		expect(el().textContent).not.toContain('الصورة غير واضحة');
+		expect((q('[data-testid="save-docs-btn"]') as HTMLButtonElement).disabled).toBe(true);
+		initiate.mockClear(); component.saveDocs();
+		expect(initiate).not.toHaveBeenCalled();
+	});
 });
