@@ -11,6 +11,7 @@ import { ExperienceLevel } from '../../../../../core/models/profile.model';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import type { CompletionMissingItem } from '../../../../../core/services/profile-api.service';
+import type { ReviewEntry } from '../../../../../core/models/review-status.model';
 import { paypalEmailError, paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
@@ -77,7 +78,21 @@ export class ProfileEdit {
 	/** What the backend still needs for 100% (GET /profiles/me -> missingItems). Same source as the percentage above. */
 	missingItems = signal<CompletionMissingItem[]>([]);
 
+	/** One review lifecycle per admin-decided change (GET /profiles/me -> reviewStatus): NOT_SUBMITTED / PENDING_REVIEW / APPROVED / REJECTED. */
+	reviewStatus = signal<Partial<Record<'basicInfo' | 'identity' | 'password' | 'documents', ReviewEntry>> | null>(null);
+	identityReviewPending = computed(() => this.reviewStatus()?.identity?.status === 'PENDING_REVIEW');
+	identityRejection = computed(() => this.reviewStatus()?.identity?.status === 'REJECTED' ? (this.reviewStatus()!.identity!.rejectionReason || 'لم يستوفِ الطلب متطلبات التحقق') : null);
+	basicsRejection = computed(() => this.reviewStatus()?.basicInfo?.status === 'REJECTED' && !this.pendingNameRequest() ? (this.reviewStatus()!.basicInfo!.rejectionReason || 'لم يستوفِ الطلب متطلبات التحقق') : null);
+	passwordRejection = computed(() => this.reviewStatus()?.password?.status === 'REJECTED' && !this.pendingPasswordRequest() ? (this.reviewStatus()!.password!.rejectionReason || 'لم يستوفِ الطلب متطلبات التحقق') : null);
+
 	private applyCompletion(profile: any) {
+		const rs = profile?.reviewStatus;
+		if (rs && typeof rs === 'object') {
+			this.reviewStatus.set(rs);
+			// the same state after a refresh: a waiting name / password request comes straight from the profile read
+			if (rs.basicInfo?.status === 'PENDING_REVIEW' && !this.pendingNameRequest()) this.pendingNameRequest.set({ id: String(rs.basicInfo.requestId ?? ''), requestedValue: '' });
+			if (rs.password?.status === 'PENDING_REVIEW' && !this.pendingPasswordRequest()) this.pendingPasswordRequest.set({ id: String(rs.password.requestId ?? '') });
+		}
 		this.completionPercentage.set(Number(profile?.profileCompletionPercent ?? profile?.completionPercentage) || 0);
 		this.completionLoaded.set(true);
 		this.missingItems.set(Array.isArray(profile?.missingItems) ? profile.missingItems : []);
@@ -181,9 +196,13 @@ export class ProfileEdit {
 			next: (res) => {
 				const rows: any[] = Array.isArray(res?.data) ? res.data : [];
 				const pending = rows.find(r => r?.category === 'CLIENT_BASIC_INFO' && r?.status === 'PENDING_HUMAN_REVIEW');
-				this.pendingNameRequest.set(pending ? { id: pending.id, requestedValue: String(pending.requestedValue ?? '') } : null);
+				// the profile read (reviewStatus) and this list describe the same requests: one never erases what the other found
+				const rs = this.reviewStatus();
+				const keepName = rs?.basicInfo?.status === 'PENDING_REVIEW' ? { id: String(rs.basicInfo.requestId ?? ''), requestedValue: '' } : null;
+				this.pendingNameRequest.set(pending ? { id: pending.id, requestedValue: String(pending.requestedValue ?? '') } : keepName);
 				const pendingPassword = rows.find(r => r?.category === 'CLIENT_PASSWORD_CHANGE' && r?.status === 'PENDING_HUMAN_REVIEW');
-				this.pendingPasswordRequest.set(pendingPassword ? { id: String(pendingPassword.id) } : null);
+				const keepPw = rs?.password?.status === 'PENDING_REVIEW' ? { id: String(rs.password.requestId ?? '') } : null;
+				this.pendingPasswordRequest.set(pendingPassword ? { id: String(pendingPassword.id) } : keepPw);
 			},
 			error: () => { /* no banner: the server still refuses a duplicate request */ }
 		});
@@ -674,6 +693,7 @@ export class ProfileEdit {
 		if (!form) return;
 
 		if (tabName === 'identity') {
+			if (this.identityReviewPending()) { this.errorMsg.set('لديك طلب تعديل لرقم الهوية قيد المراجعة بالفعل'); return; }
 			// country / city save at once; the national id becomes a modification request for an admin (the server decides which).
 			form.markAllAsTouched();
 			const raw = this.identityForm.getRawValue();
@@ -688,6 +708,11 @@ export class ProfileEdit {
 				next: (res) => {
 					this.isSaving.set(false);
 					if (res.success) {
+						const d: any = (res as any).data;
+						if (d?.isPendingRequest) {
+							// the ID number is an admin-reviewed change: say it, keep saying it (refresh re-reads it), and block a second send
+							this.reviewStatus.update(v => ({ ...(v ?? {}), identity: { status: 'PENDING_REVIEW', requestId: String(d.requestId ?? ''), category: 'CLIENT_IDENTITY', submittedAt: new Date().toISOString(), reviewedAt: null, rejectionReason: null } }));
+						}
 						this.successMsg.set(res.message || 'تم الحفظ');
 						setTimeout(() => this.successMsg.set(''), 6000);
 						this.refreshCompletion();

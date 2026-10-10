@@ -206,7 +206,7 @@ describe('Data (marketer profile): shared validation', () => {
       c.submitBasicsChangeRequest();
       render();
       expect(svc.createIdentityRequest).toHaveBeenCalledWith(expect.objectContaining({ firstName: 'علي' }));
-      expect(el().querySelector('[data-testid="identity-pending"]')?.textContent).toContain('قيد المراجعة');
+      expect(el().querySelector('[data-testid="identity-pending"]')?.textContent).toContain('قيد مراجعة الإدارة');
     });
 
     it('409 pending request: Arabic message kept next to the button, no pending flag', () => {
