@@ -9,8 +9,9 @@ const tabButton = html.slice(html.indexOf("setTab('payout')"), html.indexOf("set
 
 describe('provider data page: PayPal change wording', () => {
 	it('the PayPal tab and panel carry no manual-review wording or "بمراجعة" badge', () => {
-		const NEGATION = 'لا يحتاج تغيير بريد PayPal إلى مراجعة يدوية'; // the one allowed mention: it says there is NO manual review
-		for (const part of [panel.replace(NEGATION, ''), tabButton]) {
+		const NEGATIONS = ['لا يحتاج تغيير بريد PayPal إلى مراجعة يدوية', 'لا تحتاج إضافة بريد PayPal إلى مراجعة يدوية']; // the only allowed mentions: they say there is NO manual review
+		const stripped = NEGATIONS.reduce((t, n) => t.replace(n, ''), panel);
+		for (const part of [stripped, tabButton]) {
 			expect(part).not.toContain('مراجعة يدوية');
 			expect(part).not.toContain('تخضع لمراجعة');
 			expect(part).not.toContain('بمراجعة');
@@ -32,6 +33,6 @@ describe('provider data page: PayPal change wording', () => {
 
 	it('the confirmation step also states the 24-hour freeze', () => {
 		const c = readFileSync(join(process.cwd(), 'src/app/shared/forms/paypal-email-confirm.component.ts'), 'utf8');
-		expect(c).toContain('بعد التأكيد يتوقف السحب عبر PayPal لمدة 24 ساعة');
+		expect(c).toContain('بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.');
 	});
 });

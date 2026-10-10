@@ -160,6 +160,14 @@ export class Data implements OnInit, OnDestroy {
   savingPaypal = signal(false);
   /** The new PayPal email waiting for its e-mailed code (finance #33); null when no change is in progress. */
   pendingPaypalEmail = signal<string | null>(null);
+  /** The PayPal email saved on the account ('' when none): decides "إضافة" (nothing saved yet) vs "تغيير" (one exists). */
+  storedPaypalEmail = signal('');
+  paypalHasEmail = computed(() => !!this.storedPaypalEmail().trim());
+  /** Masked ACCOUNT email the code went to, and the mode the server decided for this request (shown in the confirmation panel). */
+  paypalAccountEmailHint = signal('');
+  paypalConfirmMode = signal<'add' | 'change'>('change');
+  /** A failed first step (mail not sent, throttled, invalid): shown under the button; the OTP panel stays closed. */
+  paypalRequestError = signal('');
   docsForm!: FormGroup;
   passwordForm!: FormGroup;
   isChangingPassword = signal(false);
@@ -311,6 +319,7 @@ export class Data implements OnInit, OnDestroy {
           this.payoutForm.patchValue({
             paypalPayoutEmail: profile.paypalPayoutEmail || ''
           });
+          this.storedPaypalEmail.set((profile.paypalPayoutEmail || '').trim());
 
           this.docsForm.patchValue({
             idDocumentUrl: profile.user?.idDocumentUrl || '',
@@ -596,32 +605,41 @@ export class Data implements OnInit, OnDestroy {
     if (!attempt.valid) return;
     const email = String(this.payoutForm.value.paypalPayoutEmail || '').trim();
     this.savingPaypal.set(true);
+    this.paypalRequestError.set('');
     // A PayPal email is never saved directly: a code is e-mailed to the account email first (finance #33).
     this.profileService.requestPaypalEmailChange(email).subscribe({
       next: (r) => {
         this.savingPaypal.set(false);
         this.missingPayout.set([]);
-        if (r.emailSent) {
+        // "أرسلنا رمزًا" is said (and the OTP panel opened) ONLY when the server confirms the mail was accepted.
+        if (r.emailSent === true) {
+          this.paypalAccountEmailHint.set(r.emailHint || '');
+          this.paypalConfirmMode.set(r.mode ?? (this.paypalHasEmail() ? 'change' : 'add'));
           this.pendingPaypalEmail.set(email);
-          this.displayToast('أرسلنا رمز التحقق إلى بريد حسابك لتأكيد بريد PayPal');
+          this.displayToast(`أرسلنا رمز التحقق إلى بريد حسابك${r.emailHint ? ': ' + r.emailHint : ''}`);
         } else {
-          this.displayToast('تعذر إرسال رمز التحقق الآن، حاول مرة أخرى بعد قليل');
+          this.pendingPaypalEmail.set(null);
+          this.paypalRequestError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى');
         }
       },
       error: (err: any) => {
         this.savingPaypal.set(false);
         const mapped = mapHttpError(err, { fallback: 'تعذر حفظ بريد PayPal، حاول مرة أخرى' });
         const fieldMsg = mapped.fieldErrors['paypalPayoutEmail'] || (mapped.kind === 'backend-validation' && !Object.keys(mapped.fieldErrors).length ? mapped.message : '');
+        this.pendingPaypalEmail.set(null);
         if (fieldMsg && this.serverFieldError(this.payoutForm, 'paypalPayoutEmail', fieldMsg, i => this.missingPayout.set(i), PAYOUT_LABELS)) return;
-        this.notifyHttpError(err, { fallback: 'تعذر حفظ بريد PayPal، حاول مرة أخرى' });
+        // mail not sent (503), too many requests (429), anything else: said under the button, the user stays on the input form
+        this.paypalRequestError.set(err?.status === 503 ? 'تعذر إرسال رمز التحقق، حاول مرة أخرى' : mapHttpError(err, { fallback: 'تعذر إرسال رمز التحقق، حاول مرة أخرى' }).message);
       }
     });
   }
 
   onPaypalConfirmed(email: string) {
     this.pendingPaypalEmail.set(null);
+    const wasAdd = !this.paypalHasEmail();
     this.payoutForm.patchValue({ paypalPayoutEmail: email });
-    this.displayToast('تم تغيير بريد PayPal. السحب عبر PayPal متوقف لمدة 24 ساعة');
+    this.storedPaypalEmail.set(email);
+    this.displayToast(wasAdd ? 'تمت إضافة بريد PayPal. السحب عبر PayPal متوقف لمدة 24 ساعة' : 'تم تغيير بريد PayPal. السحب عبر PayPal متوقف لمدة 24 ساعة');
     this.refreshCompletion();
   }
 

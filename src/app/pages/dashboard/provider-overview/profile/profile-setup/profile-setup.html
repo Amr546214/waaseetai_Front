@@ -815,8 +815,10 @@
       <div class="step-panel" [class.active]="currentStep() === 7" role="tabpanel">
 
         @if (pendingPaypalEmail(); as pending) {
-          <ws-paypal-email-confirm [email]="pending" (confirmed)="pendingPaypalEmail.set(null)" (dismissed)="pendingPaypalEmail.set(null)" />
+          <ws-paypal-email-confirm [email]="pending" [mode]="paypalConfirmMode()" [accountEmailHint]="paypalAccountEmailHint()" (confirmed)="pendingPaypalEmail.set(null)" (dismissed)="pendingPaypalEmail.set(null)" />
         }
+
+        @if (paypalSendError()) { <div role="alert" data-testid="paypal-send-error" class="f-hint" style="color:#f87171">{{ paypalSendError() }}</div> }
 
         @if (!isTestStarted()) {
           <div class="test-intro">

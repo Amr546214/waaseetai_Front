@@ -71,6 +71,9 @@ export interface ProviderProfile {
   paypalPayoutEmail?: string | null;
 }
 
+/** Answer of the first step: emailSent is true only when the mail service accepted the message; emailHint is the masked ACCOUNT email. */
+export interface PaypalChangeRequestResult { emailSent: boolean; emailHint: string; expiresInSeconds?: number; mode?: 'add' | 'change' }
+
 @Injectable({ providedIn: 'root' })
 export class ProviderProfileService {
   private http = inject(HttpClient);
@@ -92,8 +95,8 @@ export class ProviderProfileService {
    * PayPal payout email change (finance #33): the email is no longer saved directly. Step 1 e-mails a code to the ACCOUNT email
    * (the new address stays pending), step 2 confirms it. After a confirmed change PayPal withdrawals are frozen for 24 hours.
    */
-  requestPaypalEmailChange(email: string): Observable<{ emailSent: boolean; emailHint: string }> {
-    return this.http.post<{ data: { emailSent: boolean; emailHint: string } }>(`${environment.url_api}/profiles/paypal-email/change/request`, { paypalEmail: email.trim() }).pipe(map(r => r.data));
+  requestPaypalEmailChange(email: string): Observable<PaypalChangeRequestResult> {
+    return this.http.post<{ data: PaypalChangeRequestResult }>(`${environment.url_api}/profiles/paypal-email/change/request`, { paypalEmail: email.trim() }).pipe(map(r => r.data));
   }
   confirmPaypalEmailChange(code: string): Observable<{ paypalPayoutEmail: string }> {
     return this.http.post<{ data: { paypalPayoutEmail: string } }>(`${environment.url_api}/profiles/paypal-email/change/confirm`, { code }).pipe(map(r => r.data));
