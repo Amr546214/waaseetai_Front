@@ -19,21 +19,25 @@ export interface ClientSetupData {
 	supportingDocsUrlAccess?: { private?: boolean } | null;
 	notes?: string | null;
 	kycStatus?: string | null;
+	/** the admin's reason when kycStatus is REJECTED */
+	kycRejectionReason?: string | null;
 	completionPercentage?: number | null;
 }
 
 /**
  * - `complete`: the profile is 100% — the wizard must not show at all.
  * - `nothing-to-collect`: everything the wizard collects is already saved (what is left, e.g. the avatar or the bio, lives in the edit page).
- * - `step`: the first step that is really missing, from what each "التالي" stored: 1 (details) -> 3 (PayPal) -> 4 (optional documents) -> 5 (final review). Steps 2 (ID documents) and 4 (optional documents)
+ * - `step`: a REJECTED identity review always opens step 2 (ID documents) first, with the admin's reason; otherwise the first step that is really missing, from what each "التالي" stored: 1 (details) -> 3 (PayPal) -> 4 (optional documents) -> 5 (final review). Steps 2 (ID documents) and 4 (optional documents)
  *   never block: a document that was sent is "under review" (kycStatus PENDING), not "empty".
  */
-export type ClientSetupResolution = { kind: 'step'; step: 1 | 3 | 4 | 5 } | { kind: 'redirect'; reason: 'complete' | 'nothing-to-collect' };
+export type ClientSetupResolution = { kind: 'step'; step: 1 | 2 | 3 | 4 | 5 } | { kind: 'redirect'; reason: 'complete' | 'nothing-to-collect' };
 
 const filled = (v: unknown) => typeof v === 'string' ? v.trim().length > 0 : v !== null && v !== undefined && v !== '';
 
 export function resolveClientSetup(data: ClientSetupData | null | undefined): ClientSetupResolution {
 	const d = data ?? {};
+	// a rejected review is work for the user even at 100%: open the documents step so the reason is seen and the files can be sent again
+	if (d.kycStatus === 'REJECTED') return { kind: 'step', step: 2 };
 	if (Number(d.completionPercentage) >= 100) return { kind: 'redirect', reason: 'complete' };
 	const detailsMissing = !(filled(d.idNumber) && filled(d.dob) && filled(d.country) && filled(d.city) && filled(d.industry) && filled(d.address));
 	if (detailsMissing) return { kind: 'step', step: 1 };

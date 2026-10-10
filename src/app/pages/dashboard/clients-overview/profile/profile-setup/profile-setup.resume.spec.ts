@@ -138,4 +138,30 @@ describe('client setup wizard component: resume from saved data', () => {
 		expect(c.setupForm.get('identity')!.valid).toBe(true);
 		expect(c.setupForm.get('identity.frontId')!.value).toBe('https://res.cloudinary.com/x/front.png');
 	});
+
+	it('REJECTED identity review: opens the documents step (even at 100%) with the admin reason, never as "missing"', () => {
+		const { c, f, el } = mount({ ...FULL, kycStatus: 'REJECTED', kycRejectionReason: 'الصورة غير واضحة', completionPercentage: 100 });
+		expect(c.currentStep()).toBe(2);
+		expect(c.kycPending()).toBe(false);
+		f.detectChanges();
+		const note = el.querySelector('[data-testid="kyc-rejected-note"]')!;
+		expect(note.textContent).toContain('الصورة غير واضحة');
+		expect(el.querySelector('[data-testid="kyc-pending-note"]')).toBeNull();
+	});
+
+	it('REJECTED without a stored reason still says it was rejected; the resolver opens step 2 first', () => {
+		expect(resolveClientSetup({ ...FULL, kycStatus: 'REJECTED', completionPercentage: 70 })).toEqual({ kind: 'step', step: 2 });
+		const { c, f, el } = mount({ ...FULL, kycStatus: 'REJECTED', completionPercentage: 70 });
+		f.detectChanges();
+		expect(c.kycRejectedReason()).toContain('لم تستوفِ');
+		expect(el.querySelector('[data-testid="kyc-rejected-note"]')).toBeTruthy();
+	});
+
+	it('VERIFIED / PENDING never show a rejection', () => {
+		for (const kycStatus of ['VERIFIED', 'PENDING']) {
+			const { c } = mount({ ...FULL, paypalPayoutEmail: null, kycStatus, kycRejectionReason: 'قديم', completionPercentage: 60 });
+			expect(c.kycRejectedReason()).toBeNull();
+			TestBed.resetTestingModule();
+		}
+	});
 });

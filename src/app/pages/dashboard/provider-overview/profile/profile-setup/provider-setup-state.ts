@@ -21,6 +21,8 @@ export interface ProviderSetupData {
 	frontIdUrl?: string | null;
 	frontIdUrlAccess?: { private?: boolean } | null;
 	kycStatus?: string | null;
+	/** the admin's reason when kycStatus is REJECTED */
+	kycRejectionReason?: string | null;
 	portfolioItems?: Array<{ title?: string | null; description?: string | null }> | null;
 	isProfileSetupComplete?: boolean | null;
 	setupTestStatus?: string | null;
@@ -34,6 +36,8 @@ const specOf = (title?: string | null) => String(title || '').replace(/^نموذ
 export function resolveProviderSetup(data: ProviderSetupData | null | undefined): ProviderSetupResolution {
 	const d = data ?? {};
 	const testDone = d.setupTestStatus === 'COMPLETED';
+	// a rejected identity review while the wizard is still in progress opens the documents step first (reason shown, files can be sent again)
+	if (d.kycStatus === 'REJECTED' && !d.isProfileSetupComplete) return { kind: 'step', step: 4 };
 	if (d.isProfileSetupComplete && testDone) return { kind: 'redirect', reason: 'complete' };
 	// everything was submitted: only the classification test is left
 	if (d.isProfileSetupComplete) return { kind: 'step', step: 7 };

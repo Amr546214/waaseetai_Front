@@ -139,4 +139,18 @@ describe('provider setup wizard component: resume from saved data', () => {
 		expect(el.querySelector('[data-testid="kyc-pending-note"]')?.textContent).toContain('قيد المراجعة');
 		expect(el.querySelector('[data-testid="kyc-pending-note"]')?.textContent).toContain('لا حاجة لإعادة إرسالها');
 	});
+	it('REJECTED identity review while the wizard is in progress: opens the documents step (4) with the admin reason, not as pending', () => {
+		const { c, el } = mount({ ...SAVED, kycStatus: 'REJECTED', kycRejectionReason: 'الصورة غير واضحة', portfolioItems: [] });
+		expect(c.currentStep()).toBe(4);
+		expect(c.kycPending()).toBe(false);
+		expect(el.querySelector('[data-testid="kyc-rejected-note"]')!.textContent).toContain('الصورة غير واضحة');
+		expect(el.querySelector('[data-testid="kyc-pending-note"]')).toBeNull();
+	});
+	it('REJECTED without a stored reason still says it was rejected; PENDING / VERIFIED never show a rejection', () => {
+		const a = mount({ ...SAVED, kycStatus: 'REJECTED', portfolioItems: [] });
+		expect(a.c.kycRejectedReason()).toContain('لم تستوفِ');
+		TestBed.resetTestingModule();
+		const b = mount({ ...SAVED, kycStatus: 'PENDING', kycRejectionReason: 'قديم', portfolioItems: [] });
+		expect(b.c.kycRejectedReason()).toBeNull();
+	});
 });

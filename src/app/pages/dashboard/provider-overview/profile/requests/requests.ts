@@ -25,6 +25,21 @@ export class Requests implements OnInit {
   
   showToast = signal<string>('');
 
+  /**
+   * "Edit and send again" after a rejection: only a category the data page really edits is linked (never a guess).
+   * DOCUMENTS (ID, certificate, commercial register, VAT) -> the documents tab. The legacy PROFILE e-mail / phone shapes -> the contact tab,
+   * the legacy national id -> the documents tab. CONTACT / PayPal are confirmed by a code and are never rejected; BANKING is retired: no button.
+   */
+  resubmitTab(req: { status?: string; category?: string; fieldName?: string } | null | undefined): 'docs' | 'contact' | null {
+    if (req?.status !== 'REJECTED') return null;
+    if (req.category === 'DOCUMENTS') return 'docs';
+    if (req.category === 'PROFILE') {
+      if (req.fieldName === 'EMAIL' || req.fieldName === 'PHONE_NUMBER') return 'contact';
+      if (req.fieldName === 'NATIONAL_ID') return 'docs';
+    }
+    return null;
+  }
+
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
     return user?.accountType === AccountType.PROVIDER_COMPANY;

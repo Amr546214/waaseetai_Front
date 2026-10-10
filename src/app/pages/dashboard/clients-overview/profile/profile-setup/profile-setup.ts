@@ -61,6 +61,8 @@ export class ProfileSetupDashboard implements OnInit {
 	currentStep = signal<number>(1);
 	/** ID documents were sent and wait for review (kycStatus PENDING): shown as pending, never as an empty step. */
 	kycPending = signal<boolean>(false);
+	/** the admin refused the identity documents: the reason is shown and the step is open for new files */
+	kycRejectedReason = signal<string | null>(null);
 	toastMsg = signal<string | null>(null);
 	isUploading = signal<{ [key: string]: boolean }>({});
 	/** What is missing after a failed Next/submit attempt (shown by <ws-form-summary>). */
@@ -152,6 +154,7 @@ export class ProfileSetupDashboard implements OnInit {
 					// Agreements that were already accepted stay accepted (the wizard saves them with the rest).
 					this.setupForm.get('agreements')?.patchValue({ accurate: !!data.accurateAgreed, terms: !!data.termsAgreed, privacy: !!data.privacyAgreed });
 					this.kycPending.set(data.kycStatus === 'PENDING');
+					this.kycRejectedReason.set(data.kycStatus === 'REJECTED' ? (data.kycRejectionReason || 'لم تستوفِ الوثائق متطلبات التحقق') : null);
 
 					// Open where the work really is (first missing step from the saved data), not always on step 1; nothing left for the wizard = go to the edit page.
 					const start = resolveClientSetup(data);
@@ -293,6 +296,8 @@ export class ProfileSetupDashboard implements OnInit {
 		this.profileApi.saveClientSetupStep(payload.step, payload.body).subscribe({
 			next: (res: any) => {
 				this.isSavingStep.set(false);
+				// new identity files after a rejection start a new review: the reason goes away and the step shows "under review"
+				if (payload.step === 2 && this.kycRejectedReason()) { this.kycRejectedReason.set(null); this.kycPending.set(true); }
 				const pct = Number(res?.data?.completionPercentage);
 				const user = this.authStore.currentUser();
 				if (user && Number.isFinite(pct)) this.authStore.authenticate(this.authStore.token()!, { ...user, profileCompletionPercent: pct });
