@@ -1,6 +1,6 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { Withdraw } from './withdraw';
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
@@ -14,8 +14,8 @@ describe('provider withdraw (PayPal only)', () => {
   let component: Withdraw;
   let submit: ReturnType<typeof vi.fn>;
 
-  async function setup(paypalPayoutEmail: string | null, accountType = 'PROVIDER_INDIVIDUAL', withdrawals: any[] = []) {
-    submit = vi.fn(() => of({ success: true }));
+  async function setup(paypalPayoutEmail: string | null, accountType = 'PROVIDER_INDIVIDUAL', withdrawals: any[] = [], opts: { balance?: number; submitImpl?: () => any } = {}) {
+    submit = vi.fn(opts.submitImpl ?? (() => of({ success: true })));
     await TestBed.configureTestingModule({
       imports: [Withdraw],
       providers: [
@@ -25,7 +25,7 @@ describe('provider withdraw (PayPal only)', () => {
         {
           provide: WithdrawalApiService,
           useValue: {
-            getProviderWallet: () => of({ data: { summary: { availableBalance: 500, totalEarnings: 500, escrowBalance: 0, currency: 'USD' } } }),
+            getProviderWallet: () => of({ data: { summary: { availableBalance: opts.balance ?? 500, totalEarnings: opts.balance ?? 500, escrowBalance: 0, currency: 'USD' } } }),
             getProviderWithdrawals: () => of({ data: { withdrawals, pagination: { total: withdrawals.length, totalPages: 1 } } }),
             submitProviderWithdrawal: submit,
           },
@@ -96,5 +96,52 @@ describe('provider withdraw (PayPal only)', () => {
     expect(submit).toHaveBeenCalledWith({ amount: 100, method: 'paypal' });
     expect(el.querySelector('.wd-otp-overlay')).toBeNull();
     expect(el.textContent).not.toContain('جوال الشركة');
+  });
+
+  describe('AUD-FND-000065: a rejected click is never silent', () => {
+    const q = (id: string) => (fixture.nativeElement as HTMLElement).querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
+    const type = (value: string) => { const input = (fixture.nativeElement as HTMLElement).querySelector('#wdAmt') as HTMLInputElement; input.value = value; input.dispatchEvent(new Event('input')); fixture.detectChanges(); };
+
+    it('balance 0 + amount 1: the error shows as soon as it is typed, a click sends no request, and the banner repeats it', async () => {
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 0 });
+      expect(q('wd-zero-balance')!.textContent).toContain('لا يوجد رصيد متاح للسحب حاليًا');
+      type('1');
+      expect(q('wd-amount-error')!.textContent).toContain('الرصيد غير كافٍ');
+      ((fixture.nativeElement as HTMLElement).querySelector('.wd-btn-pri') as HTMLButtonElement).click();
+      fixture.detectChanges();
+      expect(submit).not.toHaveBeenCalled();
+      expect(q('wd-submit-error')!.textContent).toContain('الرصيد غير كافٍ');
+    });
+
+    it('amount above a positive balance: "لا يمكنك طلب سحب أكبر من الرصيد المتاح", no request', async () => {
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 500 });
+      type('900');
+      expect(q('wd-amount-error')!.textContent).toContain('لا يمكنك طلب سحب أكبر من الرصيد المتاح');
+      component.submit(); fixture.detectChanges();
+      expect(submit).not.toHaveBeenCalled();
+      expect(q('wd-submit-error')).toBeTruthy();
+    });
+
+    it('a valid amount clears the error and sends one request', async () => {
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 500 });
+      type('900'); expect(q('wd-amount-error')).toBeTruthy();
+      type('100'); expect(q('wd-amount-error')).toBeNull();
+      component.submit();
+      expect(submit).toHaveBeenCalledTimes(1);
+    });
+
+    it('if the backend still answers insufficient balance, its message is displayed', async () => {
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 500, submitImpl: () => throwError(() => ({ status: 400, error: { message: 'المبلغ المطلوب يتجاوز رصيدك المتاح (500 $)' } })) });
+      type('100'); component.submit(); fixture.detectChanges();
+      expect(q('wd-submit-error')!.textContent).toContain('يتجاوز رصيدك المتاح');
+    });
+
+    it('the PayPal freeze error from the backend is displayed, with the time withdrawals open again', async () => {
+      const availableAt = new Date(Date.now() + 23 * 3600_000).toISOString();
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 500, submitImpl: () => throwError(() => ({ status: 400, error: { message: 'تم تغيير بريد PayPal مؤخرًا. يمكنك طلب السحب بعد مرور 24 ساعة.', code: 'PAYPAL_EMAIL_FROZEN', availableAt, retryAfterSeconds: 82800 } })) });
+      type('100'); component.submit(); fixture.detectChanges();
+      expect(q('wd-submit-error')!.textContent).toContain('يمكنك طلب السحب بعد مرور 24 ساعة');
+      expect(q('wd-submit-error-hint')!.textContent).toContain('يتاح السحب بعد');
+    });
   });
 });

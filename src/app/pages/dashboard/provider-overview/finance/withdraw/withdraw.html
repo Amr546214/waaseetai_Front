@@ -114,7 +114,8 @@
       <div class="wd-banner wd-banner-err">
         <div class="wd-banner-body">
           <div class="wd-banner-ttl">تعذر إرسال الطلب</div>
-          <p class="wd-banner-txt">{{ submitError() }}</p>
+          <p class="wd-banner-txt" role="alert" data-testid="wd-submit-error">{{ submitError() }}</p>
+          @if (submitErrorHint()) { <p class="wd-banner-txt" data-testid="wd-submit-error-hint">{{ submitErrorHint() }}</p> }
         </div>
       </div>
     }
@@ -131,9 +132,9 @@
           <span class="wd-amt-cur">{{ currency() }}</span>
         </div>
         @if (formErrors()['amount']; as err) {
-          <div class="wd-field-err">{{ err }}</div>
+          <div class="wd-field-err" role="alert" data-testid="wd-amount-error">{{ err }}</div>
         } @else {
-          <div class="wd-field-hint">الحد الأقصى المتاح: {{ availableBalance() | number:'1.0-2' }} {{ currency() }}</div>
+          <div class="wd-field-hint">الحد الأقصى المتاح: {{ availableBalance() | number:'1.0-2' }} {{ currency() }}@if (availableBalance() <= 0) { <span data-testid="wd-zero-balance"> · لا يوجد رصيد متاح للسحب حاليًا</span> }</div>
         }
         <div class="wd-quick-amts">
           <button type="button" class="wd-quick-btn" (click)="setAmount(500)">500</button>

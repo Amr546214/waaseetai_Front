@@ -62,6 +62,7 @@ export class Withdraw implements OnInit {
 
   submitting = signal(false);
   submitError = signal('');
+  submitErrorHint = signal('');
   submitSuccess = signal('');
   formErrors = signal<Record<string, string>>({});
 
@@ -149,14 +150,30 @@ export class Withdraw implements OnInit {
   // ── Form input handlers ─────────────────────────────────────────────
   setAmount(val: number) {
     this.amount.set(val);
-    this.clearFieldError('amount');
+    this.checkAmountLive();
   }
 
   setAmountStr(event: Event) {
     const target = event.target as HTMLInputElement;
     const v = parseFloat(target.value.replace(/[^\d.]/g, ''));
     this.amount.set(isNaN(v) ? null : v);
+    this.checkAmountLive();
+  }
+
+  /** Immediate feedback while typing / picking a quick amount: an amount above the available balance is flagged at once (never a silent button). */
+  private checkAmountLive() {
+    const amt = this.amount();
     this.clearFieldError('amount');
+    if (amt != null && amt > 0 && amt > this.availableBalance()) {
+      this.formErrors.set({ ...this.formErrors(), amount: this.insufficientMessage() });
+    }
+  }
+
+  private insufficientMessage(): string {
+    const avail = this.availableBalance();
+    return avail <= 0
+      ? 'الرصيد غير كافٍ: لا يوجد رصيد متاح للسحب حاليًا'
+      : `الرصيد غير كافٍ: لا يمكنك طلب سحب أكبر من الرصيد المتاح (${avail.toLocaleString('en-US')} ${this.currency()})`;
   }
 
   private clearFieldError(field: string) {
@@ -179,7 +196,7 @@ export class Withdraw implements OnInit {
     } else if (amt <= 0) {
       errors['amount'] = 'المبلغ يجب أن يكون أكبر من صفر';
     } else if (amt > avail) {
-      errors['amount'] = `المبلغ يتجاوز رصيدك المتاح (${avail.toLocaleString('en-US')} ${this.currency()})`;
+      errors['amount'] = this.insufficientMessage();
     }
 
     if (!this.paypalEmail()) {
@@ -187,12 +204,16 @@ export class Withdraw implements OnInit {
     }
 
     this.formErrors.set(errors);
-    return Object.keys(errors).length === 0;
+    const ok = Object.keys(errors).length === 0;
+    // A rejected click is never silent: the first problem is also shown in the banner above the form.
+    if (!ok) this.submitError.set(errors['amount'] ?? errors['paypal'] ?? 'تحقق من بيانات الطلب');
+    return ok;
   }
 
   // ── Submit ──────────────────────────────────────────────────────────
   submit() {
     this.submitError.set('');
+    this.submitErrorHint.set('');
     this.submitSuccess.set('');
     if (!this.validate()) return;
 
@@ -218,6 +239,12 @@ export class Withdraw implements OnInit {
       error: err => {
         this.submitting.set(false);
         this.submitError.set(err?.error?.message || err?.message || 'تعذر إرسال طلب السحب');
+        // PayPal email changed in the last 24 hours: the server says when withdrawing opens again.
+        const availableAt = err?.error?.availableAt;
+        if (err?.error?.code === 'PAYPAL_EMAIL_FROZEN' && availableAt) {
+          const d = new Date(availableAt);
+          if (!Number.isNaN(d.getTime())) this.submitErrorHint.set(`يتاح السحب بعد: ${d.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })}`);
+        }
       },
     });
   }
