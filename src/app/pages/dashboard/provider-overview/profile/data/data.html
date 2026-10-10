@@ -334,6 +334,27 @@
         <div class="form-card-sub">يراجعها مراجع بشري، بحد أقصى 10MB</div>
       </div>
     </div>
+    @if (identityVerification(); as iv) {
+      @if (iv.status === 'PENDING_REVIEW') {
+        <div class="gov-bar" data-testid="identity-status" data-status="PENDING_REVIEW" role="status" style="border-color:rgba(43,127,255,.45)">
+          <div class="gov-bar-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+          <div class="gov-bar-txt">
+            <strong>@if (identityJustSubmitted()) { تم استلام طلب التحقق من الهوية. } @else { طلب التحقق من الهوية قيد المراجعة. }</strong>
+            الطلب الآن قيد مراجعة الإدارة، ولا تحتاج إلى إعادة رفع المستند. سنُعلمك بالنتيجة، وتظهر حالته في «طلباتي السابقة».
+          </div>
+        </div>
+      } @else if (iv.status === 'VERIFIED') {
+        <div class="gov-bar" data-testid="identity-status" data-status="VERIFIED" role="status" style="border-color:rgba(43,212,199,.5)">
+          <div class="gov-bar-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+          <div class="gov-bar-txt"><strong>تم التحقق من الهوية.</strong> مستندك معتمد من الإدارة، ولا إجراء مطلوبًا منك.</div>
+        </div>
+      } @else if (iv.status === 'REJECTED') {
+        <div class="gov-bar" data-testid="identity-status" data-status="REJECTED" role="alert" style="border-color:rgba(248,113,113,.5)">
+          <div class="gov-bar-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+          <div class="gov-bar-txt"><strong>رُفض طلب التحقق من الهوية.</strong> @if (iv.rejectionReason) { السبب: {{ iv.rejectionReason }}. } يمكنك رفع مستند جديد وإرساله.</div>
+        </div>
+      }
+    }
     <div class="gov-bar">
       <div class="gov-bar-ico"><svg aria-hidden="true">
           <use href="#ws-shield"></use>
@@ -413,7 +434,7 @@
       </div>
     </div>
     <ws-form-summary [items]="missingDocs()" (select)="onSummarySelect($event)" />
-    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving() || docsUploading()" (click)="saveDocs()">{{ isSaving() ? 'جاري الإرسال...' : 'إرسال طلب تعديل' }}</button>
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving() || docsUploading() || identityPending()" (click)="saveDocs()" data-testid="save-docs-btn">{{ isSaving() ? 'جاري الإرسال...' : (identityPending() ? 'طلب التحقق قيد المراجعة' : 'إرسال طلب تعديل') }}</button>
       @if (docsUploading()) { <span class="inp-hint" data-testid="docs-upload-reason">جاري رفع المستند، انتظر اكتمال الرفع ثم أرسل الطلب</span> }
     </div>
   </div>

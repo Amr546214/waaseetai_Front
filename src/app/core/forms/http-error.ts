@@ -60,6 +60,7 @@ export const BACKEND_CODE_MESSAGES: Record<string, string> = {
 	EMAIL_ALREADY_USED: 'هذا البريد الإلكتروني مستخدم بالفعل',
 	PHONE_ALREADY_USED: 'رقم الجوال هذا مستخدم بالفعل',
 	ID_DOCUMENT_REQUIRED: 'مستند الهوية مطلوب',
+	REQUEST_ALREADY_PENDING: 'لديك طلب قيد مراجعة الإدارة بالفعل، لا حاجة لإرساله مرة أخرى',
 	INVALID_DOCUMENT_URL: 'أحد المستندات المرفوعة غير صالح، أعد رفعه',
 	OTP_EMAIL_DELIVERY_FAILED: 'تعذّر إرسال رمز التحقق إلى بريدك، حاول مجددًا',
 	CURRENT_PASSWORD_INCORRECT: 'كلمة المرور الحالية غير صحيحة',

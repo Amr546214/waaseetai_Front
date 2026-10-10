@@ -182,6 +182,11 @@ export class Data implements OnInit, OnDestroy {
   requestsList = signal<any[]>([]);
   showOtpModal = signal(false);
   otpCode = signal('');
+  /** Where the identity document stands (from the backend, so it survives a refresh): waiting for the admin, approved, rejected, or not sent. */
+  identityVerification = signal<{ status: 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED'; requestId: string | null; submittedAt: string | null; rejectionReason: string | null } | null>(null);
+  identityPending = computed(() => this.identityVerification()?.status === 'PENDING_REVIEW');
+  /** True right after the code was confirmed in this visit: the confirmation is shown prominently (a toast alone is easy to miss). */
+  identityJustSubmitted = signal(false);
   otpEmailHint = signal('');
   pendingRequestId = signal('');
   pendingSensitiveCategory = signal<'CONTACT' | 'DOCUMENTS' | null>(null);
@@ -733,6 +738,8 @@ export class Data implements OnInit, OnDestroy {
 
   saveDocs() {
     if (this.isSaving() || this.docsUploading()) return;
+    // one request waiting for the admin is enough: no second one is created
+    if (this.identityPending()) { this.displayToast('طلب التحقق من الهوية قيد مراجعة الإدارة بالفعل'); return; }
     const attempt = attemptSubmit(this.docsForm, { root: this.panel('docs'), labels: DOCS_LABELS });
     this.missingDocs.set(attempt.missing);
     if (!attempt.valid) {
@@ -786,6 +793,8 @@ export class Data implements OnInit, OnDestroy {
     if (field && message && this.serverFieldError(form, field, message, setSummary, labels)) return;
     const fallback = 'تعذر إنشاء طلب التعديل. حاول مرة أخرى';
     this.notifyHttpError(err, { fallback });
+    // 409: a request is already waiting for the admin - show that state instead of leaving the form looking unsent
+    if (raw?.code === 'REQUEST_ALREADY_PENDING' || err?.error?.message === 'REQUEST_ALREADY_PENDING') this.loadProfile();
   }
 
   closeOtpModal() {
@@ -814,7 +823,17 @@ export class Data implements OnInit, OnDestroy {
         this.showOtpModal.set(false);
         this.otpError.set('');
         const underReview = res.data.status === 'PENDING_HUMAN_REVIEW';
-        this.displayToast(underReview ? 'تم تأكيد البريد وإرسال الطلب للمراجعة' : 'تم تأكيد البريد وتطبيق التغيير بنجاح');
+        const isDocuments = this.pendingSensitiveCategory() === 'DOCUMENTS';
+        if (underReview && isDocuments) {
+          // The request was saved and now waits for the admin: say it, keep saying it (the backend state is reloaded below), and block a resend.
+          this.identityVerification.set({ status: 'PENDING_REVIEW', requestId: this.pendingRequestId(), submittedAt: new Date().toISOString(), rejectionReason: null });
+          this.identityJustSubmitted.set(true);
+          this.setTab('docs');
+          setTimeout(() => (this.panel('docs') as HTMLElement | null)?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }), 30);
+          this.displayToast('تم استلام طلب التحقق من الهوية وهو قيد مراجعة الإدارة');
+        } else {
+          this.displayToast(underReview ? 'تم تأكيد البريد وإرسال الطلب للمراجعة' : 'تم تأكيد البريد وتطبيق التغيير بنجاح');
+        }
         this.loadProfile();
       },
       error: (err: any) => {
@@ -921,6 +940,7 @@ export class Data implements OnInit, OnDestroy {
     this.completionPercent.set(Number(profile?.completionPercentage) || 0);
     this.completionLoaded.set(true);
     this.missingItems.set(Array.isArray(profile?.missingItems) ? profile.missingItems : []);
+    if (profile?.identityVerification?.status) this.identityVerification.set(profile.identityVerification);
   }
 
   /** Re-reads only the completion (percentage + missing items) after a save that does not reload the forms. */
