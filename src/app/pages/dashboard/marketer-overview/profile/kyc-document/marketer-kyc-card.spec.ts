@@ -12,13 +12,13 @@ describe('marketer KYC card (#51)', () => {
 	let upload: ReturnType<typeof vi.fn>;
 	let createAccessLink: ReturnType<typeof vi.fn>;
 
-	const setup = (status: string, uploadImpl?: () => any) => {
+	const setup = (status: string, uploadImpl?: () => any, reason: string | null = null) => {
 		upload = vi.fn(uploadImpl ?? (() => of({ status: 'PENDING' })));
 		createAccessLink = vi.fn(() => of({ url: 'https://x', expiresAt: null, expiresInSeconds: 120, private: true, legacy: false }));
 		TestBed.configureTestingModule({
 			imports: [MarketerKycCard],
 			providers: [
-				{ provide: MarketerKycService, useValue: { getStatus: () => (status === 'FAIL' ? throwError(() => new HttpErrorResponse({ status: 500 })) : of(status)), upload } },
+				{ provide: MarketerKycService, useValue: { getStatus: () => (status === 'FAIL' ? throwError(() => new HttpErrorResponse({ status: 500 })) : of({ status, rejectionReason: reason, reviewedAt: null })), upload } },
 				{ provide: KycDocumentService, useValue: { createAccessLink } },
 			],
 		});
@@ -41,7 +41,7 @@ describe('marketer KYC card (#51)', () => {
 		expect(q('kyc-status')!.textContent).toContain('لم يُرفع مستند');
 		expect(q('kyc-none-text')).toBeTruthy();
 		expect(q('kyc-file')).toBeTruthy();
-		expect(q('kyc-reject-note')!.textContent).toContain('يصلك إشعار بالسبب');
+		expect(q('kyc-reject-note')!.textContent).toContain('سبب الرفض');
 		expect(el().textContent).toContain('رفع المستند');
 	});
 
@@ -107,5 +107,22 @@ describe('marketer KYC card (#51)', () => {
 	it('the reference of the stored file never appears anywhere in the card', () => {
 		setup('PENDING');
 		expect(el().innerHTML).not.toMatch(/private:|cloudinary/i);
+	});
+
+	it('REJECTED: shows "رُفض المستند" with the admin reason, keeps the upload open, and a new upload clears it and shows pending', () => {
+		setup('REJECTED', undefined, 'الصورة غير واضحة');
+		expect(q('kyc-status')!.textContent).toContain('رُفض المستند');
+		expect(q('kyc-rejected')!.textContent).toContain('الصورة غير واضحة');
+		expect(q('kyc-none-text')).toBeNull();
+		expect(q('kyc-file')).toBeTruthy();
+		pick('id.png', 'image/png');
+		expect(upload).toHaveBeenCalledTimes(1);
+		expect(q('kyc-rejected')).toBeNull();
+		expect(q('kyc-status')!.textContent).toContain('قيد المراجعة');
+	});
+
+	it('REJECTED without a stored reason still says it was rejected (never looks like "nothing uploaded")', () => {
+		setup('REJECTED');
+		expect(q('kyc-rejected')!.textContent).toContain('رُفض مستند الهوية');
 	});
 });

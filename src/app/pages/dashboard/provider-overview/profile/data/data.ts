@@ -208,7 +208,8 @@ export class Data implements OnInit, OnDestroy {
   ngOnInit() {
     // e.g. the withdraw page links to ?tab=payout to add the PayPal email.
     const tab = this.route.snapshot.queryParamMap.get('tab');
-    if (tab === 'payout') this.currentTab.set('payout');
+    // ?tab= opens the matching tab (the withdraw page -> payout; "edit and send again" on a rejected request -> docs / contact)
+    if (tab === 'payout' || tab === 'docs' || tab === 'contact') this.currentTab.set(tab);
 
     this.profileForm = this.fb.group({
       firstName: ['', [requiredTrim, maxTrim(60)]],

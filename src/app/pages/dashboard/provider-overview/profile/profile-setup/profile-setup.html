@@ -363,6 +363,9 @@
 
       <!-- STEP 4: المستندات الرسمية (P-AU-010) -->
       <div class="step-panel" [class.active]="currentStep() === 4" role="tabpanel" formGroupName="docs">
+        @if (kycRejectedReason(); as why) {
+        <div role="alert" data-testid="kyc-rejected-note" class="notice-banner"><div><div class="notice-ttl">رُفضت وثائق الهوية</div><p class="notice-txt">السبب: {{ why }}. ارفع وثائق جديدة وأرسلها مرة أخرى.</p></div></div>
+        }
         @if (kycPending()) {
         <div role="status" data-testid="kyc-pending-note" class="notice-banner"><div><div class="notice-ttl">مستندات الهوية قيد المراجعة</div><p class="notice-txt">وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر كما حُفظت.</p></div></div>
         }

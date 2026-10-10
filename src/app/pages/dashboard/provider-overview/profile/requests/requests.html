@@ -85,6 +85,8 @@
 							<td>
 								@if (req.status === 'PENDING_OTP') {
 									<a routerLink="/provider-overview/profile/data" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">استكمال</a>
+								} @else if (resubmitTab(req)) {
+									<a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: resubmitTab(req) }" data-testid="resubmit-link" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">تعديل وإرسال مرة أخرى</a>
 								} @else {
 									<a routerLink="/provider-overview/profile/public" style="font-size:11.5px;font-weight:700;text-decoration:none" class="txt-teal">عرض التفاصيل</a>
 								}
@@ -346,6 +348,8 @@
             <span class="px-3.5 py-2 rounded-lg text-[12px] font-bold bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A]">تم التحديث بنجاح</span>
           } @else if(req.status === 'CANCELLED') {
             <span class="px-3.5 py-2 rounded-lg text-[12px] font-bold bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[var(--txt-3)]">مسحوب</span>
+          } @else if(resubmitTab(req)) {
+            <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: resubmitTab(req) }" data-testid="resubmit-link" class="px-3.5 py-2 rounded-lg text-[12px] font-bold bg-[#2BD4C7]/10 border border-[#2BD4C7]/30 text-[#2BD4C7] hover:bg-[#2BD4C7]/20 transition-colors">تعديل وإرسال مرة أخرى</a>
           }
         </div>
       </div>

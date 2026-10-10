@@ -93,6 +93,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	currentStep = signal<number>(1);
 	/** ID documents were sent and wait for review (kycStatus PENDING): shown as pending, never as a missing step. */
 	kycPending = signal<boolean>(false);
+	/** the admin refused the identity documents: the reason is shown and the step is open for new files */
+	kycRejectedReason = signal<string | null>(null);
 	private readonly host = inject(ElementRef<HTMLElement>);
 	/** What is missing after a failed Next/submit attempt (shown by <ws-form-summary>). */
 	missing = signal<InvalidField[]>([]);
@@ -334,6 +336,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					const saved = this.portfolioFromServer(d.portfolioItems);
 					if (Object.keys(saved).length) this.portfolioItems.set(saved);
 					this.kycPending.set(d.kycStatus === 'PENDING');
+					this.kycRejectedReason.set(d.kycStatus === 'REJECTED' ? (d.kycRejectionReason || 'لم تستوفِ الوثائق متطلبات التحقق') : null);
 
 					// Open where the work really is (first missing step from the saved data; step 7 when only the test is left), not always on step 1.
 					const start = resolveProviderSetup(d);
@@ -1003,6 +1006,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		const paypalEmail = String(this.setupForm.get('payout.paypalEmail')?.value || '').trim();
 		this.profileApi.saveProviderProfileSetup(payload).subscribe({
 			next: () => {
+				// the documents were sent again after a rejection: a new review starts (reason gone, "under review")
+				if (this.kycRejectedReason()) { this.kycRejectedReason.set(null); this.kycPending.set(true); }
 				if (paypalEmail && paypalEmail.toLowerCase() !== this.storedPaypalEmail.toLowerCase()) {
 					this.providerProfileService.requestPaypalEmailChange(paypalEmail).subscribe({
 						next: (r) => {

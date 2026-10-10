@@ -3,8 +3,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-/** NONE = nothing uploaded (or the last document was rejected), PENDING = waiting for the admin, APPROVED = identity verified. */
-export type MarketerKycStatus = 'NONE' | 'PENDING' | 'APPROVED';
+/** NONE = nothing uploaded, PENDING = waiting for the admin, APPROVED = identity verified, REJECTED = the admin refused it (with the reason). */
+export type MarketerKycStatus = 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+export interface MarketerKycState { status: MarketerKycStatus; rejectionReason: string | null; reviewedAt: string | null }
 
 export interface MarketerKycRequest {
 	affiliateId: string;
@@ -26,8 +27,9 @@ export class MarketerKycService {
 	private readonly marketerUrl = `${environment.url_api}/marketer/profile`;
 	private readonly adminUrl = `${environment.url_api}/admin/brokers/kyc-requests`;
 
-	getStatus(): Observable<MarketerKycStatus> {
-		return this.http.get<{ data: { status: MarketerKycStatus } }>(`${this.marketerUrl}/kyc-status`).pipe(map(r => r.data.status));
+	getStatus(): Observable<MarketerKycState> {
+		return this.http.get<{ data: Partial<MarketerKycState> & { status: MarketerKycStatus } }>(`${this.marketerUrl}/kyc-status`).pipe(
+			map(r => ({ status: r.data.status, rejectionReason: r.data.rejectionReason ?? null, reviewedAt: r.data.reviewedAt ?? null })));
 	}
 
 	/** Multipart field "file". The response never carries the stored reference. */

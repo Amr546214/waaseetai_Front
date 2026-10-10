@@ -4,6 +4,7 @@
 		@switch (status()) {
 			@case ('APPROVED') { <span class="mk-pill ok" data-testid="kyc-status">موثّق</span> }
 			@case ('PENDING') { <span class="mk-pill wait" data-testid="kyc-status">قيد المراجعة</span> }
+			@case ('REJECTED') { <span class="mk-pill none" data-testid="kyc-status">رُفض المستند</span> }
 			@case ('NONE') { <span class="mk-pill none" data-testid="kyc-status">لم يُرفع مستند</span> }
 		}
 	</div>
@@ -23,6 +24,9 @@
 					<app-kyc-document-link document="marketer_kyc_document" [access]="{ private: true, legacy: false }" label="عرض المستند" />
 				</div>
 			}
+			@case ('REJECTED') {
+				<div class="mk-err" role="alert" data-testid="kyc-rejected">رُفض مستند الهوية. السبب: {{ rejectionReason() }}. ارفع مستندًا جديدًا ليراجعه فريق الإدارة.</div>
+			}
 			@default {
 				<p class="mk-txt" data-testid="kyc-none-text">ارفع مستند هويتك (الهوية الوطنية أو الإقامة أو جواز السفر) ليراجعه فريق الإدارة.</p>
 			}
@@ -34,7 +38,7 @@
 				<span>{{ uploading() ? 'جارٍ الرفع…' : (status() === 'PENDING' ? 'استبدال المستند' : 'رفع المستند') }}</span>
 			</label>
 			<div class="mk-hint">{{ rule.typesLabel }} · حتى 5 ميغابايت · ملف واحد</div>
-			<p class="mk-note" data-testid="kyc-reject-note">إذا لم يُعتمد المستند يصلك إشعار بالسبب، ويمكنك رفع مستند جديد.</p>
+			@if (status() !== 'REJECTED') { <p class="mk-note" data-testid="kyc-reject-note">إذا لم يُعتمد المستند يظهر هنا سبب الرفض، ويمكنك رفع مستند جديد.</p> }
 		}
 		@if (error()) { <div class="mk-err" role="alert" data-testid="kyc-error">{{ error() }}</div> }
 		@if (success()) { <div class="mk-ok" role="status" data-testid="kyc-success">{{ success() }}</div> }

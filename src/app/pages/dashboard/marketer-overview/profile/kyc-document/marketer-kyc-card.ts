@@ -11,7 +11,7 @@ export const MARKETER_KYC_RULE = { maxBytes: 5 * MB, mimeTypes: ['application/pd
 /**
  * "توثيق الهوية" card of the marketer profile: upload the identity document and see where it stands.
  *  NONE → upload; PENDING → under review (can be replaced); APPROVED → verified (no upload).
- * A rejection is generic here by design: the reason arrives as a notification and the status goes back to NONE.
+ * REJECTED → the admin's reason is shown and the upload is open again; a new upload clears it and the card is PENDING.
  */
 @Component({
 	selector: 'app-marketer-kyc-card',
@@ -25,6 +25,7 @@ export class MarketerKycCard implements OnInit {
 	private readonly api = inject(MarketerKycService);
 
 	readonly status = signal<MarketerKycStatus | null>(null);
+	readonly rejectionReason = signal<string | null>(null);
 	readonly loadFailed = signal(false);
 	readonly uploading = signal(false);
 	readonly error = signal('');
@@ -36,7 +37,7 @@ export class MarketerKycCard implements OnInit {
 	load(): void {
 		this.loadFailed.set(false);
 		this.api.getStatus().subscribe({
-			next: s => this.status.set(s),
+			next: s => { this.status.set(s.status); this.rejectionReason.set(s.status === 'REJECTED' ? (s.rejectionReason || 'لم يستوفِ المستند متطلبات التحقق') : null); },
 			error: () => { this.loadFailed.set(true); },
 		});
 	}
@@ -54,6 +55,7 @@ export class MarketerKycCard implements OnInit {
 			next: res => {
 				this.uploading.set(false);
 				this.status.set(res.status);
+				this.rejectionReason.set(null);
 				this.success.set('تم رفع المستند وإرساله للمراجعة');
 			},
 			error: err => {
