@@ -151,13 +151,13 @@ describe('ClientOverviewComponent — latest offers level badge (Batch 5)', () =
 	it('2) uses resolveProviderLevelBadgeStyle() — a highlighted real level gets its canonical color', () => {
 		const fixture = offersFixture([makeOffer({ providerLevel: 'خبير' })]);
 		const badge = (fixture.nativeElement as HTMLElement).querySelector('.offer-card .ws-level-tag') as HTMLElement;
-		expect(badge.style.color).toBe('rgb(224, 198, 255)'); // #E0C6FF — canonical خبير color
+		expect(badge.style.color).toBe('rgb(7, 13, 36)'); // #070D24 — readable text on the station-3 fill (levels 7-9)
 	});
 
 	it('6) an unhighlighted-but-real level string gets the neutral default styling, not a fabricated per-level mapping', () => {
 		const fixture = offersFixture([makeOffer({ providerLevel: 'مبتدئ' })]);
 		const badge = (fixture.nativeElement as HTMLElement).querySelector('.offer-card .ws-level-tag') as HTMLElement;
-		expect(badge.style.color).toBe('rgb(43, 212, 199)'); // #2BD4C7 — shared neutral default
+		expect(badge.style.color).toBe('rgb(7, 13, 36)'); // level 1 = station 1: its own colour (#94DEF9 fill, #070D24 text)
 	});
 
 	it('7) the adjacent star/rating row does not depend on provider level — stays the fixed static color regardless of providerLevel', () => {

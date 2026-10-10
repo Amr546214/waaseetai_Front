@@ -19,6 +19,15 @@ export class Level implements OnInit {
   levelData = signal<GamificationLevelResponse | null>(null);
   isLoading = signal<boolean>(true);
 
+  /** The current level's brand colour pair (dark / light) from the backend roadmap. */
+  currentLevelColor = computed(() => this.levelData()?.roadmap.find(l => l.isCurrent)?.color ?? { dark: '#9B8B7A', light: '#7A6B5A' });
+
+  /** "15 مستوى · من مبتدئ إلى مرجع" built from the real roadmap, never typed. */
+  ladderSubtitle = computed(() => {
+    const r = this.levelData()?.roadmap ?? [];
+    return r.length ? `${r.length} مستوى · من ${r[0].title} إلى ${r[r.length - 1].title}` : '';
+  });
+
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
     return user?.accountType === AccountType.PROVIDER_COMPANY;

@@ -131,12 +131,12 @@ describe('Card (shared marketplace card) — active-purchase eligibility', () =>
 describe('Card — canonical provider level styling (Batch 5)', () => {
 	it('uses the canonical highlighted-level colors, matching marketplace/slug/curated', () => {
 		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: 'خبير' }))).toEqual({ bg: 'rgba(123,47,190,.85)', color: '#E0C6FF' });
+		expect(component.levelStyle(baseModel({ level: 'خبير' }))).toEqual({ bg: '#166FF3', color: '#070D24' });
 	});
 
 	it('falls back to the neutral default for an unhighlighted or unexpected level, never fabricating one', () => {
 		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: 'مبتدئ' }))).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
+		expect(component.levelStyle(baseModel({ level: 'مبتدئ' }))).toEqual({ bg: '#94DEF9', color: '#070D24' });
 		expect(component.levelStyle(baseModel({ level: undefined }))).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
 	});
 

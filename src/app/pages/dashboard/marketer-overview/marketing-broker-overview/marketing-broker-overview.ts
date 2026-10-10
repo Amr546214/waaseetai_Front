@@ -1,3 +1,4 @@
+import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.component';
@@ -6,7 +7,7 @@ import { MarketerOverviewService, MarketerSummary, ChannelPerformance, Commissio
 @Component({
 	selector: 'app-marketing-broker-overview',
 	standalone: true,
-	imports: [CommonModule, AiResultCardComponent],
+	imports: [MarketerLevelTagComponent, CommonModule, AiResultCardComponent],
 	templateUrl: './marketing-broker-overview.html',
 	styleUrl: './marketing-broker-overview.css',
 })

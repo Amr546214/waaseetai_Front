@@ -8,7 +8,11 @@ import { ApiResponse } from '../models/api.model';
 import { Withdrawal, WithdrawalListData } from '../models/withdrawal.model';
 
 export interface MarketerSummary {
+	/** the level's NAME, level number, commission % and colour pair: all from the backend ladder */
 	tier: string;
+	level?: number;
+	commissionPercent?: number;
+	levelColor?: { dark: string; light: string };
 	successfulReferrals: number;
 	totalCommissions: number;
 	overallConversionRate: number;

@@ -1,3 +1,4 @@
+import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +7,7 @@ import { MarketerOverviewService, MarketerSummary, ReferredUser, ReferralStatus 
 @Component({
   selector: 'app-referrals',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [MarketerLevelTagComponent, CommonModule, FormsModule],
   templateUrl: './referrals.html',
   styleUrl: './referrals.css',
 })

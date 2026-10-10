@@ -318,7 +318,7 @@ describe('RequestDetails — real provider level vs accreditation badge (Batch 5
 
 	it('5) a real providerLevel renders through resolveProviderLevelBadgeStyle() — canonical color for a highlighted level', async () => {
 		const { fixture, component } = await setupWithProposals([proposalFixture({ providerLevel: 'خبير' })]);
-		expect(component.offers()[0].levelColor).toBe('#E0C6FF');
+		expect(component.offers()[0].levelColor).toBe('#070D24');
 		const badge = (fixture.nativeElement as HTMLElement).querySelector('.v1-nm .ws-level-tag') as HTMLElement;
 		expect(badge?.textContent?.trim()).toContain('خبير');
 	});
