@@ -91,7 +91,7 @@
     </svg></div>
   <div class="ai-disc-body">
     <div class="ai-disc-lbl">وسيط، بياناتك الشخصية</div>
-    <p class="ai-disc-txt">التعديلات على الصورة والاسم والوصف والتخصصات تُحفظ مباشرة، والتعديلات على البيانات الحساسة تخضع لمراجعة يدوية</p>
+    <p class="ai-disc-txt">التعديلات على الصورة والاسم والوصف والتخصصات تُحفظ مباشرة، وتغيير بريد التواصل وبريد PayPal يُؤكَّد برمز تحقق بدون مراجعة يدوية، أما المستندات فتخضع لمراجعة يدوية</p>
   </div>
 </div>
 
@@ -103,7 +103,10 @@
       </svg>فوري</span>تحفظ مباشرة دون مراجعة</div>
   <div class="tier-legend-item"><span class="tlp tlp-sens"><svg aria-hidden="true">
         <use href="#ws-shield"></use>
-      </svg>بمراجعة</span>تنشئ طلبا يخضع للمراجعة ثم يعتمده مراجع بشري</div>
+      </svg>بمراجعة</span>تنشئ طلبا يخضع للمراجعة ثم يعتمده مراجع بشري (المستندات)</div>
+  <div class="tier-legend-item"><span class="tlp tlp-sens"><svg aria-hidden="true">
+        <use href="#ws-shield"></use>
+      </svg>برمز تحقق</span>يُؤكَّد برمز يُرسل إلى بريد حسابك ويُطبَّق فورًا دون مراجعة يدوية (التواصل وPayPal)</div>
 </div>
 <div class="prof-tab-nav" role="tablist" aria-label="أقسام الملف المهني">
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'profile'" (click)="setTab('profile')"
@@ -116,7 +119,9 @@
         <use href="#ws-shield"></use>
       </svg>برمز تحقق</span></button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'payout'" (click)="setTab('payout')"
-    role="tab" aria-selected="false">حساب PayPal</button>
+    role="tab" aria-selected="false">حساب PayPal<span class="tab-tier tt-sens" data-testid="paypal-tab-otp"><svg aria-hidden="true">
+        <use href="#ws-shield"></use>
+      </svg>برمز تحقق</span></button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'docs'" (click)="setTab('docs')"
     role="tab" aria-selected="false">المستندات<span class="tab-tier tt-sens"><svg aria-hidden="true">
         <use href="#ws-shield"></use>
@@ -423,6 +428,14 @@
       <div>
         <div class="form-card-title">حساب PayPal لاستلام المدفوعات</div>
         <div class="form-card-sub">المنصة تدعم حاليًا PayPal فقط لاستلام المستحقات</div>
+      </div>
+    </div>
+    <div class="free-bar" data-testid="paypal-policy" role="note">
+      <div class="free-bar-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
+      <div class="free-bar-txt">
+        يتم تأكيد تغيير بريد PayPal برمز تحقق يُرسل إلى بريد حسابك.
+        بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.
+        لا يحتاج تغيير بريد PayPal إلى مراجعة يدوية.
       </div>
     </div>
     <div class="form-grid form-col-2" id="pp-fields">

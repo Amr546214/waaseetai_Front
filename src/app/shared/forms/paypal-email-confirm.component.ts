@@ -18,7 +18,7 @@ import { mapHttpError } from '../../core/forms/http-error';
 			<div style="font-weight:700;margin-bottom:6px">تأكيد بريد PayPal</div>
 			<p style="font-size:13px;margin-bottom:10px">
 				أرسلنا رمزًا من 6 أرقام إلى بريد حسابك الإلكتروني لتأكيد البريد <span dir="ltr" data-testid="paypal-pending-email">{{ email() }}</span>.
-				بعد التأكيد يتوقف السحب عبر PayPal لمدة 24 ساعة.
+				بعد التأكيد يتوقف السحب عبر PayPal لمدة 24 ساعة، ولا يحتاج التغيير إلى مراجعة يدوية.
 			</p>
 			<input type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" dir="ltr" class="inp-field" id="pp-code"
 				placeholder="000000" aria-label="رمز التحقق" [ngModel]="code()" (ngModelChange)="code.set($event)" data-testid="paypal-code">
