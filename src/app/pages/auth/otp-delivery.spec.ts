@@ -138,6 +138,75 @@ describe('Register: honest delivery status', () => {
 	});
 });
 
+describe('Register: first registration, double submit and failed attempts', () => {
+	const mount = (registerReply: (...a: any[]) => any, spy?: (...a: any[]) => void) => {
+		// the page also POSTs referral-cookie/clear when it opens: only POST /auth/register goes to `registerReply`
+		const post = (url: string, ...rest: any[]) => { if (/\/auth\/register$/.test(String(url))) { spy?.(url, ...rest); return registerReply(); } return of({ success: true, data: { cleared: true } }); };
+		const { list } = providers(post);
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
+		TestBed.configureTestingModule({ imports: [Register], providers: list });
+		const fixture = TestBed.createComponent(Register);
+		fixture.detectChanges();
+		return { c: fixture.componentInstance as any, el: fixture.nativeElement as HTMLElement, fixture };
+	};
+	afterEach(() => { vi.unstubAllGlobals(); TestBed.resetTestingModule(); });
+
+	it('a first registration shows no cooldown wording before anything was sent (no countdown, no "wait N seconds")', () => {
+		const { c, el } = mount(() => new Subject()); // request still running
+		c.submitRegistration();
+		expect(c.countdown).toBe(0);
+		expect(c.otpNotice).toBe('');
+		expect(el.textContent).not.toMatch(/انتظر|بعد \d+ ثانية|استخدم الرمز/);
+	});
+
+	it('double tap: while the first request runs a second submit sends nothing (ONE POST /register)', () => {
+		const spy = vi.fn();
+		const { c } = mount(() => new Subject(), spy);
+		c.submitRegistration(); c.submitRegistration(); c.submitRegistration();
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('Enter / next while submitting is ignored too (nextStep guard)', () => {
+		const spy = vi.fn();
+		const { c } = mount(() => new Subject(), spy);
+		c.currentStep = 2;
+		c.submitRegistration();
+		c.nextStep(); c.nextStep();
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('a failed attempt (409 duplicate) stays on the form: no verify step, no "sent", no countdown', () => {
+		const reply409 = () => throwError(() => ({ status: 409, error: { success: false, message: 'البريد الإلكتروني أو رقم الجوال مسجل بالفعل، يرجى تسجيل الدخول' } }));
+		const { c, el } = mount(reply409);
+		c.currentStep = 2; c.submitRegistration();
+		expect(c.currentStep).toBe(2);
+		expect(c.errorMessage).toContain('مسجل بالفعل');
+		expect(c.countdown).toBe(0); expect(c.otpNotice).toBe('');
+		expect(el.textContent).not.toContain(SENT);
+	});
+
+	it('a 429 on register shows the server wording (cooldown AFTER a real send / rate limited), opens no verify step and never claims "sent"', () => {
+		const cooldown = 'أرسلنا الرمز بالفعل. يمكنك إعادة الإرسال بعد 45 ثانية، أو استخدم الرمز الذي وصلك.';
+		const reply429 = () => throwError(() => ({ status: 429, headers: new HttpHeaders({ 'Retry-After': '45' }), error: { success: false, message: cooldown, errors: [{ code: 'OTP_RATE_LIMITED', reason: 'interval', retryAfterSeconds: 45 }] } }));
+		const { c } = mount(reply429);
+		c.currentStep = 2; c.submitRegistration();
+		expect(c.currentStep).toBe(2);
+		expect(c.errorMessage).toContain('45');
+		expect(c.otpNotice).toBe('');
+	});
+
+	it('the cooldown timer starts only after a send the backend confirmed (emailSent === true)', () => {
+		const sent = mount(() => of({ success: true, data: { userId: 'u1', verified: false, emailSent: true } }));
+		sent.c.submitRegistration();
+		expect(sent.c.countdown).toBeGreaterThan(0);
+		clearInterval(sent.c.countdownTimer);
+		TestBed.resetTestingModule();
+		const notSent = mount(() => of({ success: true, data: { userId: 'u1', verified: false, emailSent: false } }));
+		notSent.c.submitRegistration();
+		expect(notSent.c.countdown).toBe(0);
+	});
+});
+
 describe('Login: unverified account hand-off', () => {
 	const run = (data: any) => {
 		const post = vi.fn(() => of({ success: true, message: 'x', data: { verified: false, userId: 'u1', ...data } }));

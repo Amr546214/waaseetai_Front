@@ -106,7 +106,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	/** Legacy key of a removed "restore previous data" draft (it could hold a typed password). Only ever purged now. */
 	private static readonly LEGACY_DRAFT_KEY = 'waseet_register_draft';
 
-	countdown = 90;
+	countdown = 0; // no cooldown until a code was really sent (startCountdown is called only after a confirmed send)
 	countdownTimer: any = null;
 
 	// Maps frontend ID to backend AccountType Enum
@@ -390,6 +390,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 		// Validate Step 2 and Submit Registration
 		if (this.currentStep === 2) {
+			// a second tap / Enter while the first request is still running must not send a second registration
+			if (this.isSubmitting) return;
 			this.errorMessage = '';
 			this.accountExistsError = false;
 			const attempt = attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS });
@@ -408,6 +410,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	private submitRegistration() {
+		if (this.isSubmitting) return;
 		this.isSubmitting = true;
 		this.errorMessage = '';
 
