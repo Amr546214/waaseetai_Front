@@ -8,19 +8,20 @@ app-register .rg-s1 .auth-flow-head{display:flex;align-items:center;justify-cont
 app-register .rg-s1 .auth-back-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--txt-2);transition:color .2s;text-decoration:none}
 app-register .rg-s1 .auth-back-link:hover{color:var(--txt)}
 app-register .rg-s1 .auth-step-pill{font-size:12px;font-weight:700;color:var(--txt-3);padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10)}
-app-register .rg-s1 .stepper{display:flex;align-items:flex-start}
+app-register .rg-s1 .stepper{display:flex;align-items:flex-start;width:100%;max-width:440px;margin-inline:auto;box-sizing:border-box}
 app-register .rg-s1 .step-item{display:flex;flex-direction:column;align-items:center;position:relative;flex:1}
-app-register .rg-s1 .step-item:last-child{flex:none}
-app-register .rg-s1 .step-connector{flex:1;height:2px;background:rgba(255,255,255,.10);margin-top:15px;transition:background .3s}
-app-register .rg-s1 .step-connector.done{background:var(--gradient-brand)}
+app-register .rg-s1 .step-connector{display:none}
+app-register .rg-s1 .step-item{min-width:0}
+app-register .rg-s1 .step-item:not(:last-child)::after{content:'';position:absolute;top:14px;inset-inline-start:calc(50% + 21px);width:calc(100% - 42px);height:2px;border-radius:2px;background:rgba(255,255,255,.10);transition:background .3s}
+app-register .rg-s1 .step-item.step-done:not(:last-child)::after{background:var(--gradient-brand)}
 app-register .rg-s1 .step-node{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;transition:all .3s}
 app-register .rg-s1 .step-done .step-node{background:var(--gradient-brand);color:var(--navy-900)}
 app-register .rg-s1 .step-active .step-node{background:var(--gradient-brand);color:var(--navy-900);box-shadow:0 0 0 5px rgba(43,212,199,.16)}
 app-register .rg-s1 .step-idle .step-node{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--txt-3)}
-app-register .rg-s1 .step-label{font-size:11px;color:var(--txt-3);margin-top:6px;text-align:center;white-space:nowrap}
+app-register .rg-s1 .step-label{font-size:11px;color:var(--txt-3);margin-top:6px;text-align:center;line-height:1.4;max-width:100%;padding-inline:2px;overflow-wrap:anywhere;text-wrap:balance}
 app-register .rg-s1 .step-active .step-label{color:var(--teal);font-weight:700}
 app-register .rg-s1 .step-done .step-label{color:var(--txt-2)}
-app-register .rg-s1 .step-row{display:flex;align-items:center;width:100%}
+app-register .rg-s1 .step-row{display:flex;align-items:flex-start;width:100%}
 app-register .rg-s1 .btn-primary{background:var(--gradient-brand);color:var(--navy-900);padding:14px 32px;border-radius:50px;font-weight:800;font-size:16px;font-family:inherit;display:inline-flex;align-items:center;gap:10px;border:none;cursor:pointer;box-shadow:var(--cta-shd);transition:all .3s}
 app-register .rg-s1 .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--cta-shd-hov)}
 app-register .rg-s1 .btn-primary:disabled{opacity:.38;cursor:not-allowed;transform:none;box-shadow:none}
@@ -70,19 +71,20 @@ app-register .rg-s2 .btn-tertiary{background:transparent;color:var(--txt-3);padd
 app-register .rg-s2 .btn-tertiary:hover{color:var(--txt-2);border-color:rgba(255,255,255,.18)}
 app-register .rg-s2 .auth-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:96px 16px 60px;position:relative;z-index:2}
 app-register .rg-s2 .auth-inner{width:100%;max-width:560px}
-app-register .rg-s2 .stepper{display:flex;align-items:flex-start;margin-bottom:28px}
+app-register .rg-s2 .stepper{display:flex;align-items:flex-start;margin-bottom:28px;width:100%;max-width:440px;margin-inline:auto;box-sizing:border-box}
 app-register .rg-s2 .step-item{display:flex;flex-direction:column;align-items:center;position:relative;flex:1}
-app-register .rg-s2 .step-item:last-child{flex:none}
-app-register .rg-s2 .step-connector{flex:1;height:2px;background:rgba(255,255,255,.10);margin-top:15px;transition:background .3s}
-app-register .rg-s2 .step-connector.done{background:var(--gradient-brand)}
+app-register .rg-s2 .step-connector{display:none}
+app-register .rg-s2 .step-item{min-width:0}
+app-register .rg-s2 .step-item:not(:last-child)::after{content:'';position:absolute;top:14px;inset-inline-start:calc(50% + 21px);width:calc(100% - 42px);height:2px;border-radius:2px;background:rgba(255,255,255,.10);transition:background .3s}
+app-register .rg-s2 .step-item.step-done:not(:last-child)::after{background:var(--gradient-brand)}
 app-register .rg-s2 .step-node{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;transition:all .3s}
 app-register .rg-s2 .step-done .step-node{background:var(--gradient-brand);color:var(--navy-900)}
 app-register .rg-s2 .step-active .step-node{background:var(--gradient-brand);color:var(--navy-900);box-shadow:0 0 0 5px rgba(43,212,199,.16)}
 app-register .rg-s2 .step-idle .step-node{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--txt-3)}
-app-register .rg-s2 .step-label{font-size:11px;color:var(--txt-3);margin-top:6px;text-align:center;white-space:nowrap}
+app-register .rg-s2 .step-label{font-size:11px;color:var(--txt-3);margin-top:6px;text-align:center;line-height:1.4;max-width:100%;padding-inline:2px;overflow-wrap:anywhere;text-wrap:balance}
 app-register .rg-s2 .step-active .step-label{color:var(--teal);font-weight:700}
 app-register .rg-s2 .step-done .step-label{color:var(--txt-2)}
-app-register .rg-s2 .step-row{display:flex;align-items:center;width:100%}
+app-register .rg-s2 .step-row{display:flex;align-items:flex-start;width:100%}
 app-register .rg-s2 .auth-head{text-align:center;margin-bottom:24px}
 app-register .rg-s2 .auth-logo{display:flex;justify-content:center;margin-bottom:14px}
 app-register .rg-s2 .auth-logo img{height:34px}
@@ -151,19 +153,20 @@ app-register .rg-s3 .auth-back-link:hover{color:var(--txt)}
 app-register .rg-s3 .auth-step-pill{font-size:12px;font-weight:700;color:var(--txt-3);padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10)}
 app-register .rg-s3 .auth-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:96px 16px 60px;position:relative;z-index:2}
 app-register .rg-s3 .auth-inner{width:100%;max-width:540px}
-app-register .rg-s3 .stepper{display:flex;align-items:flex-start;margin-bottom:28px}
+app-register .rg-s3 .stepper{display:flex;align-items:flex-start;margin-bottom:28px;width:100%;max-width:440px;margin-inline:auto;box-sizing:border-box}
 app-register .rg-s3 .step-item{display:flex;flex-direction:column;align-items:center;position:relative;flex:1}
-app-register .rg-s3 .step-item:last-child{flex:none}
-app-register .rg-s3 .step-connector{flex:1;height:2px;background:rgba(255,255,255,.10);margin-top:15px;transition:background .3s}
-app-register .rg-s3 .step-connector.done{background:var(--gradient-brand)}
+app-register .rg-s3 .step-connector{display:none}
+app-register .rg-s3 .step-item{min-width:0}
+app-register .rg-s3 .step-item:not(:last-child)::after{content:'';position:absolute;top:14px;inset-inline-start:calc(50% + 21px);width:calc(100% - 42px);height:2px;border-radius:2px;background:rgba(255,255,255,.10);transition:background .3s}
+app-register .rg-s3 .step-item.step-done:not(:last-child)::after{background:var(--gradient-brand)}
 app-register .rg-s3 .step-node{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;transition:all .3s}
 app-register .rg-s3 .step-done .step-node{background:var(--gradient-brand);color:var(--navy-900)}
 app-register .rg-s3 .step-active .step-node{background:var(--gradient-brand);color:var(--navy-900);box-shadow:0 0 0 5px rgba(43,212,199,.16)}
 app-register .rg-s3 .step-idle .step-node{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--txt-3)}
-app-register .rg-s3 .step-label{font-size:11px;color:var(--txt-3);margin-top:6px;text-align:center;white-space:nowrap}
+app-register .rg-s3 .step-label{font-size:11px;color:var(--txt-3);margin-top:6px;text-align:center;line-height:1.4;max-width:100%;padding-inline:2px;overflow-wrap:anywhere;text-wrap:balance}
 app-register .rg-s3 .step-active .step-label{color:var(--teal);font-weight:700}
 app-register .rg-s3 .step-done .step-label{color:var(--txt-2)}
-app-register .rg-s3 .step-row{display:flex;align-items:center;width:100%}
+app-register .rg-s3 .step-row{display:flex;align-items:flex-start;width:100%}
 app-register .rg-s3 .auth-head{text-align:center;margin-bottom:22px}
 app-register .rg-s3 .auth-logo{display:flex;justify-content:center;margin-bottom:14px}
 app-register .rg-s3 .auth-logo img{height:34px}
