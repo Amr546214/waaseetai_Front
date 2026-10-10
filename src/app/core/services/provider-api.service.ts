@@ -71,6 +71,8 @@ export interface ProviderStatsResponse {
 			currentPoints: number;
 			/** Real KYC status of the provider profile (null / absent when the backend has none). */
 			kycStatus?: 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED' | null;
+			/** The same state the profile data page shows (one backend derivation); preferred over the raw kycStatus. */
+			identityVerification?: { status: 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED'; requestId: string | null; submittedAt: string | null; rejectionReason: string | null } | null;
 			/** Commission percentage stored for the provider's current level; null / absent when unknown. */
 			commissionPercent?: number | null;
 			firstName: string;

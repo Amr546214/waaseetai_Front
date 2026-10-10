@@ -54,7 +54,7 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 		expect(text).toContain('من 5 نجوم');
 	});
 
-	it('#16 verification badge: shown only for a real VERIFIED status (with the real commission when present); pending says so; absent / other values show nothing', () => {
+	it('#16 verification badge (kycStatus fallback, no identityVerification sent): VERIFIED with the real commission; pending says so; rejected / unverified say what to do; unknown shows nothing', () => {
 		const verified = render({ kycStatus: 'VERIFIED', commissionPercent: 4.6 });
 		expect(verified).toContain('مقدم موثّق');
 		expect(verified).toContain('عمولة مستواك 4.6%');
@@ -64,13 +64,48 @@ describe('ProviderOverview — values come only from the API (#16)', () => {
 		expect(noCommission).not.toContain('عمولة مستواك');
 		TestBed.resetTestingModule();
 		expect(render({ kycStatus: 'PENDING', commissionPercent: 5 })).toContain('التوثيق قيد المراجعة');
-		for (const kyc of [undefined, null, 'UNVERIFIED', 'REJECTED']) {
+		TestBed.resetTestingModule();
+		expect(render({ kycStatus: 'REJECTED' })).toContain('التوثيق مرفوض — يحتاج تعديل');
+		TestBed.resetTestingModule();
+		expect(render({ kycStatus: 'UNVERIFIED' })).toContain('أكمل التوثيق');
+		for (const kyc of [undefined, null]) {
 			TestBed.resetTestingModule();
 			const text = render({ kycStatus: kyc, commissionPercent: 5 });
 			expect(text, String(kyc)).not.toContain('مقدم موثّق');
 			expect(text, String(kyc)).not.toContain('عمولة مستواك');
 			expect(text, String(kyc)).not.toContain('قيد المراجعة');
+			expect(text, String(kyc)).not.toContain('أكمل التوثيق');
 		}
+	});
+
+	const idv = (status: string, extra: any = {}) => ({ status, requestId: null, submittedAt: null, rejectionReason: null, ...extra });
+	it('identityVerification is the source: VERIFIED shows "مقدم موثّق" and NEVER "قيد المراجعة", even when the raw kycStatus is a stale PENDING (the reported contradiction)', () => {
+		const text = render({ kycStatus: 'PENDING', identityVerification: idv('VERIFIED'), commissionPercent: 4.6 });
+		expect(text).toContain('مقدم موثّق');
+		expect(text).toContain('عمولة مستواك 4.6%');
+		expect(text).not.toContain('التوثيق قيد المراجعة');
+		expect(text).not.toContain('مرفوض');
+		expect(text).not.toContain('أكمل التوثيق');
+	});
+	it('identityVerification PENDING_REVIEW shows "التوثيق قيد المراجعة" only then; REJECTED shows the rejected badge; NOT_SUBMITTED asks to complete', () => {
+		const pending = render({ kycStatus: 'VERIFIED', identityVerification: idv('PENDING_REVIEW') });
+		expect(pending).toContain('التوثيق قيد المراجعة');
+		expect(pending).not.toContain('مقدم موثّق');
+		TestBed.resetTestingModule();
+		const rejected = render({ kycStatus: 'PENDING', identityVerification: idv('REJECTED', { rejectionReason: 'x' }) });
+		expect(rejected).toContain('التوثيق مرفوض — يحتاج تعديل');
+		expect(rejected).not.toContain('التوثيق قيد المراجعة');
+		expect(rejected).not.toContain('مقدم موثّق');
+		TestBed.resetTestingModule();
+		const none = render({ kycStatus: null, identityVerification: idv('NOT_SUBMITTED') });
+		expect(none).toContain('أكمل التوثيق');
+		expect(none).not.toContain('مقدم موثّق');
+	});
+	it('identityVerification null (the backend could not read it) falls back to kycStatus, and makes no claim when that is unknown too', () => {
+		expect(render({ kycStatus: 'VERIFIED', identityVerification: null })).toContain('مقدم موثّق');
+		TestBed.resetTestingModule();
+		const text = render({ kycStatus: null, identityVerification: null });
+		for (const x of ['مقدم موثّق', 'التوثيق قيد المراجعة', 'مرفوض', 'أكمل التوثيق']) expect(text).not.toContain(x);
 	});
 
 	it('a real 5.0 rating is shown as a rating (5.0 is no longer treated as unrated)', () => {
