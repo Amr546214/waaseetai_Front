@@ -75,7 +75,8 @@ describe('provider data page: identity document status', () => {
 		component.setTab('docs'); render();
 		const banner = q('[data-testid="identity-status"]')!;
 		expect(banner.getAttribute('data-status')).toBe('PENDING_REVIEW');
-		expect(banner.textContent).toContain('طلب التحقق من الهوية قيد المراجعة');
+		expect(banner.textContent).toContain('تم استلام طلب التحقق من الهوية، وهو الآن قيد مراجعة الإدارة');
+		expect(q('[data-testid="id-doc-pending"]')!.textContent).toContain('قيد المراجعة'); // the upload area shows "under review", not an empty prompt
 		expect((q('[data-testid="save-docs-btn"]') as HTMLButtonElement).disabled).toBe(true);
 	});
 
@@ -118,5 +119,33 @@ describe('provider data page: identity document status', () => {
 		component.saveDocs(); render();
 		expect(q('[data-testid="identity-status"]')!.getAttribute('data-status')).toBe('PENDING_REVIEW');
 		expect(q('.modal-ov.show')).toBeNull();
+	});
+
+	it('the OTP modal uses the shared six-box input (not one text field) with the account-mail wording', () => {
+		setup(NOT_SENT);
+		submitDocs();
+		expect(q('.modal-ov.show')).toBeTruthy();
+		expect(el().querySelectorAll('.modal-ov ws-otp-input .otp-box').length).toBe(6);
+		expect(q('.modal-ov #otp-code')).toBeNull();
+		expect(q('.modal-ov .modal-desc')!.textContent).toContain('أدخل رمز التحقق المرسل إلى بريد حسابك');
+	});
+
+	it('a short code shows the error under the boxes; after a successful code no "مستند الهوية مطلوب" is shown anywhere', () => {
+		setup(NOT_SENT);
+		submitDocs();
+		component.otpCode.set('12'); component.verifyOtp(); render();
+		expect(q('[data-testid="otp-error"]')).toBeTruthy();
+		component.otpCode.set('123456'); component.verifyOtp(); render();
+		expect(q('.modal-ov.show')).toBeNull();
+		expect(el().textContent).not.toContain('مستند الهوية مطلوب');
+		expect(component.missingDocs()).toEqual([]);
+	});
+
+	it('pending: a stale "required" error on the ID field is not shown', () => {
+		setup(PENDING);
+		component.setTab('docs');
+		component.docsForm.get('idDocumentUrl')!.setErrors({ server: 'مستند الهوية مطلوب' }); component.docsForm.get('idDocumentUrl')!.markAsTouched();
+		component.missingDocs.set([{ path: 'idDocumentUrl', label: 'مستند الهوية', message: 'مستند الهوية مطلوب' } as any]); render();
+		expect(el().textContent).not.toContain('مستند الهوية مطلوب');
 	});
 });

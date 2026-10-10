@@ -289,7 +289,7 @@ describe('provider profile data tabs: shared validation', () => {
       render();
       expect(svc['verifySensitiveChange']).not.toHaveBeenCalled();
       expect(el().querySelector('[data-testid="otp-error"]')?.textContent).toMatch(ARABIC);
-      expect(document.activeElement?.id).toBe('otp-code');
+      expect(document.activeElement?.id).toBe('sens-otp-0');
       component.otpCode.set('123456');
       svc['verifySensitiveChange'].mockReturnValue(httpError(400, 'INVALID_OR_EXPIRED_OTP'));
       component.verifyOtp();

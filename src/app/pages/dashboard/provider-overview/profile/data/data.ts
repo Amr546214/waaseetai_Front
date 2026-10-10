@@ -11,6 +11,7 @@ import { attemptSubmit, applyServerFieldErrors, InvalidField } from '../../../..
 import { mapHttpError, messageForBackendCode } from '../../../../../core/forms/http-error';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { OtpInputComponent } from '../../../../../shared/forms/otp-input.component';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
@@ -109,7 +110,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
@@ -803,17 +804,11 @@ export class Data implements OnInit, OnDestroy {
     this.otpError.set('');
   }
 
-  updateOtpCode(event: Event) {
-    const value = (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 6);
-    this.otpCode.set(value);
-    this.otpError.set('');
-  }
-
   verifyOtp() {
     if (this.isVerifyingOtp()) return;
     if (this.otpCode().length !== 6) {
       this.otpError.set('أدخل رمز التحقق المكوّن من 6 أرقام');
-      (this.host.nativeElement as HTMLElement).querySelector<HTMLElement>('#otp-code')?.focus();
+      (this.host.nativeElement as HTMLElement).querySelector<HTMLElement>('#sens-otp-0')?.focus();
       return;
     }
     this.isVerifyingOtp.set(true);
@@ -822,12 +817,14 @@ export class Data implements OnInit, OnDestroy {
         this.isVerifyingOtp.set(false);
         this.showOtpModal.set(false);
         this.otpError.set('');
+        this.missingDocs.set([]);
         const underReview = res.data.status === 'PENDING_HUMAN_REVIEW';
         const isDocuments = this.pendingSensitiveCategory() === 'DOCUMENTS';
         if (underReview && isDocuments) {
           // The request was saved and now waits for the admin: say it, keep saying it (the backend state is reloaded below), and block a resend.
           this.identityVerification.set({ status: 'PENDING_REVIEW', requestId: this.pendingRequestId(), submittedAt: new Date().toISOString(), rejectionReason: null });
           this.identityJustSubmitted.set(true);
+          this.docsForm.get('idDocumentUrl')?.setErrors(null);
           this.setTab('docs');
           setTimeout(() => (this.panel('docs') as HTMLElement | null)?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }), 30);
           this.displayToast('تم استلام طلب التحقق من الهوية وهو قيد مراجعة الإدارة');

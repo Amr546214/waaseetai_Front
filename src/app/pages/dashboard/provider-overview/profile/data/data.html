@@ -339,8 +339,8 @@
         <div class="gov-bar" data-testid="identity-status" data-status="PENDING_REVIEW" role="status" style="border-color:rgba(43,127,255,.45)">
           <div class="gov-bar-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
           <div class="gov-bar-txt">
-            <strong>@if (identityJustSubmitted()) { تم استلام طلب التحقق من الهوية. } @else { طلب التحقق من الهوية قيد المراجعة. }</strong>
-            الطلب الآن قيد مراجعة الإدارة، ولا تحتاج إلى إعادة رفع المستند. سنُعلمك بالنتيجة، وتظهر حالته في «طلباتي السابقة».
+            <strong>تم استلام طلب التحقق من الهوية، وهو الآن قيد مراجعة الإدارة</strong>
+            @if (identityJustSubmitted()) { لا تحتاج إلى إعادة رفع المستند. } سنُعلمك بالنتيجة، وتظهر حالته في «طلباتي السابقة».
           </div>
         </div>
       } @else if (iv.status === 'VERIFIED') {
@@ -381,11 +381,12 @@
               (click)="$event.stopPropagation(); frontInput.click()">تغيير</button><button type="button"
               class="delete-file"
               (click)="$event.stopPropagation(); removeDocument('idDocumentUrl', frontInput)">حذف</button></div>
+          } @else if (identityPending()) { <div class="upload-empty" data-testid="id-doc-pending"><span>⏳</span><strong>قيد المراجعة</strong><small>تم استلام مستند الهوية</small></div>
           } @else { <div class="upload-empty"><span>＋</span><strong>اختر ملفا للرفع</strong><small>JPG او PNG او PDF،
               حجم اقصى 10MB</small></div> }
         </div>
-        <ws-field-error [control]="docsForm.get('idDocumentUrl')" label="مستند الهوية" />
-        @if (docFileErrors()['idDocumentUrl']) { <span class="field-error" role="alert">{{ docFileErrors()['idDocumentUrl'] }}</span> }
+        @if (!identityPending()) { <ws-field-error [control]="docsForm.get('idDocumentUrl')" label="مستند الهوية" /> }
+        @if (docFileErrors()['idDocumentUrl'] && !identityPending()) { <span class="field-error" role="alert">{{ docFileErrors()['idDocumentUrl'] }}</span> }
       </div>
       <div class="inp-group">
         <label class="inp-label" for="doc-back">شهادة أو مؤهل مهني</label>
@@ -433,7 +434,7 @@
         @if (docFileErrors()['vatCertificateUrl']) { <span class="field-error" role="alert">{{ docFileErrors()['vatCertificateUrl'] }}</span> }
       </div>
     </div>
-    <ws-form-summary [items]="missingDocs()" (select)="onSummarySelect($event)" />
+    <ws-form-summary [items]="identityPending() ? [] : missingDocs()" (select)="onSummarySelect($event)" />
     <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving() || docsUploading() || identityPending()" (click)="saveDocs()" data-testid="save-docs-btn">{{ isSaving() ? 'جاري الإرسال...' : (identityPending() ? 'طلب التحقق قيد المراجعة' : 'إرسال طلب تعديل') }}</button>
       @if (docsUploading()) { <span class="inp-hint" data-testid="docs-upload-reason">جاري رفع المستند، انتظر اكتمال الرفع ثم أرسل الطلب</span> }
     </div>
@@ -600,9 +601,8 @@
   <div class="modal-box">
     <div class="modal-ico">✉</div>
     <div class="modal-title">تأكيد البريد الإلكتروني</div>
-    <p class="modal-desc">أرسلنا رمز التحقق إلى {{ otpEmailHint() }}</p><input class="inp-field" id="otp-code" inputmode="numeric" dir="ltr"
-      maxlength="6" [value]="otpCode()" (input)="updateOtpCode($event)" (keydown.enter)="verifyOtp()" placeholder="000000"
-      [attr.aria-invalid]="otpError() ? 'true' : null">
+    <p class="modal-desc">أدخل رمز التحقق المرسل إلى بريد حسابك<br><span dir="ltr">{{ otpEmailHint() }}</span></p>
+    <ws-otp-input idPrefix="sens-otp" [(value)]="otpCode" [invalid]="!!otpError()" [disabled]="isVerifyingOtp()" (complete)="verifyOtp()" (valueChange)="otpError.set('')" />
     @if (otpError()) { <span class="field-error" role="alert" data-testid="otp-error">{{ otpError() }}</span> }
     <div class="modal-actions"><button type="button" class="modal-btn modal-btn-cancel"
         (click)="closeOtpModal()">إلغاء</button><button type="button" class="modal-btn modal-btn-confirm" [disabled]="isVerifyingOtp()" (click)="verifyOtp()">{{ isVerifyingOtp() ? 'جاري التأكيد...' : 'تأكيد الرمز' }}</button></div>
