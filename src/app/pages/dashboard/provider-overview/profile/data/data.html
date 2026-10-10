@@ -249,14 +249,15 @@
         </svg></div>
       <div>
         <div class="form-card-title">الروابط الشخصية</div>
-        <div class="form-card-sub">روابط اختيارية تعرض في ملفك العام</div>
+        <div class="form-card-sub">تظهر في ملفك العام. إضافة رابط معرض الأعمال تكمل 10% من اكتمال الملف</div>
       </div>
     </div>
     <div class="form-grid form-col-2">
       <div class="inp-group">
-        <label class="inp-label" for="portfolio-url">معرض الأعمال (Portfolio)</label>
+        <label class="inp-label" for="portfolio-url">رابط معرض الأعمال</label>
         <input type="url" id="portfolio-url" class="inp-field" formControlName="websiteUrl"
-          placeholder="https://myportfolio.com" dir="ltr">
+          placeholder="https://www.behance.net/yourname" dir="ltr" data-testid="portfolio-url-input">
+        <span class="inp-hint" data-testid="portfolio-url-hint">رابط Behance أو GitHub أو موقعك الشخصي</span>
         <ws-field-error [control]="profileForm.get('websiteUrl')" label="الرابط" />
       </div>
       <div class="inp-group">
@@ -266,7 +267,7 @@
         <ws-field-error [control]="profileForm.get('linkedinUrl')" label="الرابط" />
       </div>
       <div class="inp-group">
-        <label class="inp-label" for="website-url">GitHub / Behance</label>
+        <label class="inp-label" for="website-url">GitHub</label>
         <input type="url" id="website-url" class="inp-field" formControlName="githubUrl"
           placeholder="https://github.com/..." dir="ltr">
         <ws-field-error [control]="profileForm.get('githubUrl')" label="الرابط" />
