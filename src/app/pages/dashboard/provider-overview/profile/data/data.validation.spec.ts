@@ -305,13 +305,13 @@ describe('provider profile data tabs: shared validation', () => {
 
     it('empty and malformed email: no request, summary, inline error, focus, enabled button', () => {
       component.payoutForm.patchValue({ paypalPayoutEmail: '' });
-      button('payout', 'تغيير بريد PayPal').click();
+      button('payout', 'إضافة بريد PayPal').click();
       render();
       expect(svc['requestPaypalEmailChange']).not.toHaveBeenCalled();
       expect(summary('payout')).toContain('بريد PayPal مطلوب');
       expect(fieldErrors('payout')).toEqual(['بريد PayPal مطلوب']);
       expect(document.activeElement?.id).toBe('pp-email');
-      expect(button('payout', 'تغيير بريد PayPal').disabled).toBe(false);
+      expect(button('payout', 'إضافة بريد PayPal').disabled).toBe(false);
       fill(component.payoutForm, { paypalPayoutEmail: 'a@b' });
       component.savePaypal();
       render();
@@ -319,7 +319,7 @@ describe('provider profile data tabs: shared validation', () => {
       expect(svc['requestPaypalEmailChange']).not.toHaveBeenCalled();
     });
 
-    it('a zod 400 on paypalPayoutEmail becomes the field error; other failures are an Arabic notification', () => {
+    it('a zod 400 on paypalPayoutEmail becomes the field error; other failures are an Arabic message under the button', () => {
       component.payoutForm.patchValue({ paypalPayoutEmail: 'me@paypal.com' });
       svc['requestPaypalEmailChange'].mockReturnValue(httpError(400, 'Validation Error', { errors: [{ field: 'paypalPayoutEmail', message: 'بريد PayPal غير صحيح' }] }));
       component.savePaypal();
@@ -329,7 +329,9 @@ describe('provider profile data tabs: shared validation', () => {
       component.payoutForm.patchValue({ paypalPayoutEmail: 'me2@paypal.com' });
       svc['requestPaypalEmailChange'].mockReturnValue(httpError(500, 'Internal server error'));
       component.savePaypal();
-      expect(toasts()).toMatch(ARABIC);
+      // a failed first step is said under the button (the OTP panel stays closed)
+      expect(component.paypalRequestError()).toMatch(ARABIC);
+      expect(component.pendingPaypalEmail()).toBeNull();
       expect(component.savingPaypal()).toBe(false);
     });
   });

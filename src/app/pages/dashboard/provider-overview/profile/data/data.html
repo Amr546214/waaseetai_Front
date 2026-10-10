@@ -433,23 +433,30 @@
     <div class="free-bar" data-testid="paypal-policy" role="note">
       <div class="free-bar-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
       <div class="free-bar-txt">
-        يتم تأكيد تغيير بريد PayPal برمز تحقق يُرسل إلى بريد حسابك.
-        بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.
-        لا يحتاج تغيير بريد PayPal إلى مراجعة يدوية.
+        @if (paypalHasEmail()) {
+          يتم تأكيد تغيير بريد PayPal برمز تحقق يُرسل إلى بريد حسابك.
+          بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.
+          لا يحتاج تغيير بريد PayPal إلى مراجعة يدوية.
+        } @else {
+          سنرسل رمز تحقق إلى بريد حسابك لتأكيد إضافة بريد PayPal.
+          بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.
+          لا تحتاج إضافة بريد PayPal إلى مراجعة يدوية.
+        }
       </div>
     </div>
     <div class="form-grid form-col-2" id="pp-fields">
       <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pp-email">بريد PayPal<span class="req">*</span></label><input
           type="email" id="pp-email" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com"
           dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
-          [attr.aria-invalid]="payoutForm.get('paypalPayoutEmail')?.invalid && payoutForm.get('paypalPayoutEmail')?.touched ? 'true' : null"><span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal. تغييره يتطلب رمزًا يُرسل إلى بريد حسابك، ويتوقف السحب عبر PayPal 24 ساعة بعده.</span><ws-field-error [control]="payoutForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
+          [attr.aria-invalid]="payoutForm.get('paypalPayoutEmail')?.invalid && payoutForm.get('paypalPayoutEmail')?.touched ? 'true' : null"><span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal. @if (paypalHasEmail()) { تغييره يتطلب رمزًا يُرسل إلى بريد حسابك، ويتوقف السحب عبر PayPal 24 ساعة بعده. } @else { إضافته تتطلب رمزًا يُرسل إلى بريد حسابك، ويتوقف السحب عبر PayPal 24 ساعة بعده. }</span><ws-field-error [control]="payoutForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
       </div>
     </div>
     <ws-form-summary [items]="missingPayout()" (select)="onSummarySelect($event)" />
-    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()" (click)="savePaypal()">{{ savingPaypal() ? 'جاري الإرسال...' : 'تغيير بريد PayPal' }}</button>
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()" (click)="savePaypal()">{{ savingPaypal() ? 'جاري الإرسال...' : (paypalHasEmail() ? 'تغيير بريد PayPal' : 'إضافة بريد PayPal') }}</button>
     </div>
+    @if (paypalRequestError()) { <div role="alert" data-testid="paypal-request-error" class="inp-hint" style="color:#f87171;margin-top:8px">{{ paypalRequestError() }}</div> }
     @if (pendingPaypalEmail(); as pending) {
-      <ws-paypal-email-confirm [email]="pending" (confirmed)="onPaypalConfirmed($event)" (dismissed)="pendingPaypalEmail.set(null)" />
+      <ws-paypal-email-confirm [email]="pending" [mode]="paypalConfirmMode()" [accountEmailHint]="paypalAccountEmailHint()" (confirmed)="onPaypalConfirmed($event)" (dismissed)="pendingPaypalEmail.set(null)" />
     }
   </div>
 </div>

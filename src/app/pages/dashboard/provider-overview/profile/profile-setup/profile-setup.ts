@@ -86,6 +86,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private storedPaypalEmail = '';
 	/** The new PayPal email waiting for its code on the last step; null when nothing is pending. */
 	pendingPaypalEmail = signal<string | null>(null);
+	paypalAccountEmailHint = signal('');
+	paypalConfirmMode = signal<'add' | 'change'>('add');
+	/** The code e-mail could not be sent: said on the last step (the code can be requested again from the profile data page). */
+	paypalSendError = signal('');
 	currentStep = signal<number>(1);
 	/** ID documents were sent and wait for review (kycStatus PENDING): shown as pending, never as a missing step. */
 	kycPending = signal<boolean>(false);
@@ -1001,8 +1005,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			next: () => {
 				if (paypalEmail && paypalEmail.toLowerCase() !== this.storedPaypalEmail.toLowerCase()) {
 					this.providerProfileService.requestPaypalEmailChange(paypalEmail).subscribe({
-						next: (r) => { if (r.emailSent) this.pendingPaypalEmail.set(paypalEmail); },
-						error: () => { /* the code can be requested again from the profile data page */ }
+						next: (r) => {
+							if (r.emailSent === true) {
+								this.paypalAccountEmailHint.set(r.emailHint || '');
+								this.paypalConfirmMode.set(r.mode ?? (this.storedPaypalEmail ? 'change' : 'add'));
+								this.pendingPaypalEmail.set(paypalEmail);
+							} else this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
+						},
+						error: () => this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.')
 					});
 				}
 				this.isSubmitting.set(false);
