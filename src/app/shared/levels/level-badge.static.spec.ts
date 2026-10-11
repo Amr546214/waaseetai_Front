@@ -82,12 +82,13 @@ describe('purple AI identity icon on the provider level page', () => {
 describe('provider dashboard AI identity banners use the official purple i-ai mark (no shield look-alike)', () => {
 	const base = 'pages/dashboard/provider-overview/';
 	it.each([
-		'settings/account/account.html', 'messages/messages.html', 'projects/rating-page/provider-rating-page.html', 'projects/archived/archived.html', 'profile/public/public.html',
-		'profile/add-account/add-account.html', 'finance/transaction-details/transaction-details.html', 'finance/invoices/invoices.html', 'notifications/favorite/favorite.html',
-		'help/help.html', 'help/ticket-detail/ticket-detail.html', 'help/new-ticket/new-ticket.html', 'reports/reports.html', 'company/official-invoices/official-invoices.component.html',
-	])('%s', (file) => {
-		const html = read(base + file);
-		expect(html).toContain('href="#i-ai"');
-		expect(html).not.toContain('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z');
+		'settings/account/account.html', 'projects/archived/archived.html', 'profile/add-account/add-account.html', 'finance/invoices/invoices.html', 'notifications/favorite/favorite.html',
+		'help/help.html', 'reports/reports.html', 'company/official-invoices/official-invoices.component.html', 'disputes/disputes.html', 'profile/requests/requests.html',
+	])('%s: the "وسيط، …" identity banner draws the official mark', (file) => {
+		expect(read(base + file)).toContain('href="#i-ai"');
 	});
+
+	// Banners that do not describe an AI call keep a neutral icon (ai-claims-cleanup.static.spec.ts guards the neutral files).
+	it.each(['settings/account/account.html', 'projects/archived/archived.html', 'finance/invoices/invoices.html', 'notifications/favorite/favorite.html', 'help/help.html', 'reports/reports.html', 'company/official-invoices/official-invoices.component.html'])(
+		'%s has no shield look-alike left', (file) => expect(read(base + file)).not.toContain('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z'));
 });
