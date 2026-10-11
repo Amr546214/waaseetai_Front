@@ -189,6 +189,8 @@ export class Specialties implements OnInit, OnDestroy {
 	isSubmittingSamples = signal(false);
 	/** Visible reason when a step cannot move on (selection / upload failed, file could not be processed). */
 	stepError = signal<string | null>(null);
+	/** Set when the provider pressed "next" on step 2 with an unmet requirement: the field errors are then shown even for untouched fields. */
+	step2Attempted = signal(false);
 	uploadProgress = signal(0);
 
 	// Batch 3D-3 — submission transport consolidation. Socket is primary
@@ -562,6 +564,11 @@ export class Specialties implements OnInit, OnDestroy {
 					this.stepError.set(err?.error?.message || SPECIALTY_ID_MISSING_MESSAGE);
 				}
 			});
+		} else if (this.currentStep() === 2 && !this.canProceedToStep3()) {
+			// Not a silent dead end: say what is missing, next to the field when it is the description.
+			this.step2Attempted.set(true);
+			this.stepError.set(this.step2Blocker());
+			setTimeout(() => (document.querySelector('[data-testid="sample-description-error"]') as HTMLElement | null)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 0);
 		} else if (this.currentStep() === 2 && this.canProceedToStep3()) {
 			const specId = this.providerSpecialtyId();
 			if (!specId) {
@@ -645,6 +652,14 @@ export class Specialties implements OnInit, OnDestroy {
 			s.publicFile !== null && s.proofFiles.length > 0 && !s.isUploading && !s.isProcessingProofs
 		);
 	});
+
+	/** The inline error under a sample's description field (null when fine): shown once the provider typed something short, or pressed next. */
+	descriptionError(s: WorkSampleForm): string | null {
+		const len = (s.description || '').trim().length;
+		if (len >= 20) return null;
+		if (len === 0 && !this.step2Attempted()) return null;
+		return `الوصف قصير: اكتب 20 حرفًا على الأقل (الآن ${len}).`;
+	}
 
 	/** Why the step-2 button is disabled (first unmet requirement), so a disabled button is never a silent dead end. */
 	step2Blocker = computed<string | null>(() => {
