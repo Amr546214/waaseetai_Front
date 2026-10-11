@@ -28,16 +28,18 @@
   <div class="comm-banner">
     <div>
       <div style="font-size:11px;font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:4px">عمولتك</div>
-      <div class="comm-big">3–18٪</div>
+      <div class="comm-big">{{ commissionRange() }}</div>
       <div style="font-size:11px;color:var(--txt-3);margin-top:4px">من قيمة كل بيع</div>
     </div>
     <div style="flex:1">
-      <div class="comm-desc"><strong>لا سقف للأرباح</strong> — كلما ارتفع مستواك ارتفعت نسبتك. الوسطاء في المستوى الأعلى يكسبون حتى 18٪ من كل صفقة. ليس لديك قيود على الفئات أو عدد الخدمات التي تروّج لها.</div>
+      <div class="comm-desc"><strong>لا سقف للأرباح</strong> — كلما ارتفع مستواك ارتفعت نسبتك. الوسطاء في المستوى الأعلى يكسبون النسبة الأعلى في الجدول. ليس لديك قيود على الفئات أو عدد الخدمات التي تروّج لها.</div>
     </div>
     <div style="background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:12px;padding:16px;text-align:center;min-width:130px">
       <div style="font-size:11px;color:var(--txt-3);margin-bottom:2px">مثال</div>
-      <div style="font-size:18px;font-weight:900;color:var(--teal)">+500 ر</div>
-      <div style="font-size:10px;color:var(--txt-3)">عمولة 10٪ على خدمة 5000 ر</div>
+      @if (example(); as ex) {
+      <div style="font-size:18px;font-weight:900;color:var(--teal)">+{{ ex.amount }} ر</div>
+      <div style="font-size:10px;color:var(--txt-3)">عمولة {{ ex.percent }}٪ على خدمة 5000 ر</div>
+      }
     </div>
   </div>
 
@@ -84,7 +86,7 @@
   <!-- TIERS -->
   <div style="font-size:16px;font-weight:900;color:var(--txt);margin-bottom:16px;text-align:center">مستويات الوسيط</div>
   <div class="tiers-grid">
-    @for (t of tiers; track t.name) {
+    @for (t of tiers(); track t.name) {
       <div class="tier-card" [class.featured]="t.featured">
         @if (t.featured) { <div class="tier-badge">أعلى عمولة</div> }
         <div class="tier-name">{{ t.name }}</div>

@@ -10,7 +10,8 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { levelColor, PROVIDER_LEVEL_NAMES } from '../../../../../core/levels/level-colors';
 
 // Provider level page: names, commission and colours come from the backend roadmap (single ladder); nothing about the ladder is typed in the template.
-const COMMISSION = [5, 4.8, 4.6, 4.4, 4.2, 4, 3.75, 3.5, 3.25, 3, 2.75, 2.5, 2, 1.5, 1];
+// the platform commission = the final deduction of نسب الدفع.xlsx: 12.75% at level 1 down to 8.15% at level 15
+const COMMISSION = [12.75, 12.42, 12.10, 11.77, 11.45, 11.12, 10.80, 10.47, 10.15, 9.82, 9.50, 9.17, 8.85, 8.52, 8.15];
 const POINTS = [0, 101, 251, 451, 701, 1001, 1501, 2201, 3001, 4001, 5001, 6501, 8001, 10001, 12001];
 const PROJECTS = [0, 3, 6, 11, 16, 21, 30, 46, 61, 81, 101, 126, 151, 181, 211];
 const RATING = [0, 3.5, 3.8, 4, 4.1, 4.2, 4.3, 4.4, 4.5, 4.5, 4.5, 4.6, 4.7, 4.8, 4.9];
@@ -45,7 +46,7 @@ describe('provider level page (single ladder)', () => {
 		const badge = q(el, 'level-badge')!;
 		expect(badge.style.getPropertyValue('--lvl-dark').toLowerCase()).toBe(levelColor('PROVIDER', 7, 'dark').toLowerCase());
 		expect(badge.style.getPropertyValue('--lvl-light').toLowerCase()).toBe(levelColor('PROVIDER', 7, 'light').toLowerCase());
-		expect(el.textContent).toContain('عمولة منصة 3.75%');
+		expect(el.textContent).toContain('عمولة منصة 10.8%');
 		expect(el.textContent).toContain('7 من 15 مستوى');
 	});
 
@@ -61,7 +62,7 @@ describe('provider level page (single ladder)', () => {
 
 	it('the next level and its (lower) commission are shown from the payload', async () => {
 		const el = await mount(payload(2));
-		expect(el.textContent).toContain('عمولة: 4.8% → 4.6%');
+		expect(el.textContent).toContain('عمولة: 12.42% → 12.1%');
 	});
 
 	it('the company page uses the same payload: level name, "level N of 15" and the colour pair', async () => {

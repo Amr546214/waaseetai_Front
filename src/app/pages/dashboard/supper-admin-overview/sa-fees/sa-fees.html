@@ -27,27 +27,23 @@
       <div class="fe-kpi-sub">{{ topPackage()?.subscribers?.toLocaleString() }} مشترك</div>
     </div>
     <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">رسوم إتمام الصفقات</span></div>
-      <div class="fe-kpi-val txt-green">10%</div>
-      <div class="fe-kpi-sub">على كل معاملة</div>
+      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">عمولة المنصة (مقدمو الخدمة)</span></div>
+      <div class="fe-kpi-val txt-green">{{ platformFees()[0]?.value || '—' }}</div>
+      <div class="fe-kpi-sub">عمولة المنصة على مقدم الخدمة حسب المستوى</div>
     </div>
   </div>
 
   <div class="fe-fees-card">
     <div class="fe-fees-ttl">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
-      رسوم وسيط AI العامة (تطبق على كل الأدوار)
+      النسب المالية المعتمدة (من جداول المستويات ونسب الدفع، للقراءة فقط)
     </div>
     <div class="fe-fees-grid">
       @for (fee of platformFees(); track fee.label) {
         <div class="fe-fee-item">
           <div class="fe-fee-lbl">{{ fee.label }}</div>
-          <div class="fe-fee-val" [style.color]="fee.color">{{ fee.value }}</div>
+          @if (fee.value) { <div class="fe-fee-val" [style.color]="fee.color">{{ fee.value }}</div> }
           <div class="fe-fee-desc">{{ fee.desc }}</div>
-          <button type="button" class="fe-fee-edit" (click)="openEditFee(fee)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-            تعديل
-          </button>
         </div>
       }
     </div>
@@ -120,26 +116,3 @@
 
   <div class="fe-foot">© 2026 وسيط AI · v2.0.0</div>
 </section>
-
-@if (editingFee(); as fee) {
-  <div class="fe-modal-overlay" (click)="closeEditFee()">
-    <div class="fe-modal-box" (click)="$event.stopPropagation()">
-      <div class="fe-modal-hdr">
-        <h3>تعديل: {{ fee.label }}</h3>
-        <button type="button" class="fe-modal-close" (click)="closeEditFee()">×</button>
-      </div>
-      <div class="fe-modal-body">
-        <label class="fe-modal-lbl">القيمة الجديدة</label>
-        <input class="fe-modal-input" type="text" [value]="editValue()" (input)="editValue.set($any($event.target).value)">
-        <div class="fe-modal-actions">
-          <button type="button" class="fe-btn fe-btn-primary" (click)="saveFee()">حفظ</button>
-          <button type="button" class="fe-btn fe-btn-ghost" (click)="closeEditFee()">إلغاء</button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
-
-@if (toast()) {
-  <div class="fe-toast">{{ toast() }}</div>
-}
