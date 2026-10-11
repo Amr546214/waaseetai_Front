@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
 import type { SafeHtml } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
@@ -40,7 +41,7 @@ interface DisplayNotification extends RawNotification {
 @Component({
 	selector: 'app-marketer-notifications',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [MarketerLevelTagComponent, CommonModule, RouterLink],
 	templateUrl: './notifications.html',
 	styleUrl: './notifications.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,

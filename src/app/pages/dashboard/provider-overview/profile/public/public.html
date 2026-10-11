@@ -43,7 +43,7 @@
 							<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 							{{ profileData()?.header?.isVerified ? 'شركة موثّقة' : 'لم يكتمل التوثيق بعد' }}
 						</span>
-						<span class="pill pill-gold" *ngIf="profileData()?.header?.levelInfo?.levelName">★ {{ profileData()?.header?.levelInfo?.levelName }}</span>
+						<ws-level-badge [level]="levelDisplay()" />
 						<span class="pill pill-teal">{{ profileData()?.company?.activeTeamMembersCount ?? '—' }} أعضاء فريق نشطين</span>
 						<span class="pill pill-blue">{{ profileData()?.header?.stats?.completedProjects ?? '—' }} مشروع مكتمل</span>
 					</div>
@@ -162,23 +162,11 @@
 <!-- Level Badge -->
 <div
 	class="flex items-center gap-3 p-3 bg-gradient-to-br from-[#2BD4C7]/10 to-[#2B7FFF]/5 border border-[#2BD4C7]/15 rounded-[12px] mb-3.5">
-	<div class="w-9 h-9 rounded-[10px] bg-[#2BD4C7]/15 flex items-center justify-center shrink-0">
-		<svg class="w-4 h-4 text-[#7BA7D4]" viewBox="0 0 100 100" fill="currentColor">
-			<path
-				d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-		</svg>
-	</div>
+	
 	<div class="flex-1">
 		<div class="text-[11px] font-bold text-[var(--txt-3)] mb-0.5">مستوى المقدم</div>
 		<div class="flex items-center gap-2 flex-wrap">
-			<span
-				class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-[#3B82F6]/20 text-[#3B82F6] text-[11px] font-black">
-				<svg class="w-2.5 h-2.5" viewBox="0 0 100 100" fill="currentColor">
-					<path
-						d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-				</svg>
-				{{ profileData()?.header?.levelInfo?.levelName || 'مبتدئ' }}
-			</span>
+			<ws-level-badge [level]="levelDisplay()" />
 			<span class="text-[10px] text-[var(--txt-3)] font-semibold">{{ profileData()?.header?.levelInfo?.points || 0
 				}} نقطة · كاش باك الولاء حسب مستواك</span>
 		</div>
@@ -565,7 +553,7 @@
 							</div>
 							<div class="flex justify-between py-1.5 border-b border-[#182544]">
 								<span class="text-[#7e8eb5] font-semibold">مستوى المقدّم</span>
-								<span class="text-[#2bd4c7] font-black">{{ profileData()?.header?.levelInfo?.levelName || 'غير متاح' }}</span>
+								<ws-level-badge [level]="levelDisplay()" />
 							</div>
 							<div class="flex justify-between py-1.5">
 								<span class="text-[#7e8eb5] font-semibold">حالة التدقيق التلقائي</span>

@@ -20,6 +20,7 @@ export interface MarketerPublicChannelMetric {
 }
 
 export interface MarketerPublicProfile {
+  levelInfo?: import('../levels/level-display').LevelInfoDto;
   id: string;
   name: string | null;
   avatarUrl: string | null;

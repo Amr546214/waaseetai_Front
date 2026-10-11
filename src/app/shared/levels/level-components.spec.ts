@@ -19,9 +19,9 @@ describe('ws-marketer-level', () => {
 	it('shows the backend level name, "level N of 15" and the commission percentage with the brand colour pair', () => {
 		const el = mount({ tier: 'موجه', level: 8, commissionPercent: 3, levelColor: { dark: levelColor('MARKETER', 8, 'dark'), light: levelColor('MARKETER', 8, 'light') } });
 		expect(q(el, 'marketer-level')!.textContent).toContain('موجه');
-		expect(q(el, 'marketer-level-index')!.textContent).toContain('المستوى 8 من 15');
-		expect(q(el, 'marketer-level-percent')!.textContent).toContain('نسبة العمولة 3%');
-		const tag = q(el, 'marketer-level')!;
+		expect(q(el, 'level-index')!.textContent).toContain('المستوى 8 من 15');
+		expect(q(el, 'level-percent')!.textContent).toContain('نسبة العمولة 3%');
+		const tag = q(el, 'level-badge')!;
 		expect(tag.style.getPropertyValue('--lvl-dark').toLowerCase()).toBe('#f5a314');
 		expect(tag.style.getPropertyValue('--lvl-light').toLowerCase()).toBe(levelColor('MARKETER', 8, 'light').toLowerCase());
 	});
@@ -38,6 +38,6 @@ describe('ws-marketer-level', () => {
 	it('a level without a percentage in the payload shows the name only', () => {
 		const el = mount({ tier: 'مسوق', level: 1 });
 		expect(q(el, 'marketer-level')!.textContent).toContain('مسوق');
-		expect(q(el, 'marketer-level-percent')).toBeNull();
+		expect(q(el, 'level-percent')).toBeNull();
 	});
 });

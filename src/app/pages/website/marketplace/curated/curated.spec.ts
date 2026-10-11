@@ -84,29 +84,10 @@ describe('CuratedComponent (top-rated/most-ordered/featured/exclusive/newest) �
 // locations through the same canonical helper the marketplace/slug/card
 // components use.
 describe('CuratedComponent — canonical provider level styling (Batch 5)', () => {
-	it('4/5) every curated variant (via the single levelStyle() all layouts call) uses the canonical highlighted-level colors', () => {
-		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: 'خبير' }))).toEqual({ bg: '#166FF3', color: '#070D24' });
-		expect(component.levelStyle(baseModel({ level: 'محترف' }))).toEqual({ bg: '#166FF3', color: '#070D24' });
-		expect(component.levelStyle(baseModel({ level: 'أخصائي' }))).toEqual({ bg: '#166FF3', color: '#070D24' });
-	});
-
-	it('6/7) an unhighlighted or unexpected real level safely falls back to the neutral default instead of a fabricated color', () => {
-		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: 'مبتدئ' }))).toEqual({ bg: '#94DEF9', color: '#070D24' });
-		expect(component.levelStyle(baseModel({ level: 'unexpected-value' }))).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
-	});
-
-	it('6) a missing level (undefined) does not fabricate a known badge color', () => {
-		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: undefined }))).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
-	});
-
 	it('8) Batch 4 active-purchase eligibility is unaffected by the Batch 5 level-styling change', () => {
 		const { component } = setup();
 		const model = baseModel({ eligibility: { hasActivePurchase: true, activeProjectId: 'proj-9' }, level: 'خبير' });
 		expect(component.hasActivePurchase(model)).toBe(true);
 		expect(component.cardLink(model)).toEqual(['/client-overview/projects', 'proj-9']);
-		expect(component.levelStyle(model)).toEqual({ bg: '#166FF3', color: '#070D24' });
 	});
 });

@@ -75,12 +75,7 @@
                 <svg class="placeholder" aria-hidden="true"><use href="#ws-image"></use></svg>
               }
               @if (m.level) {
-                @let lvl = levelClass(m.level);
-                @if (lvl) {
-                  <span class="pcard-lvl" [ngClass]="lvl">{{ m.level }}</span>
-                } @else {
-                  <span class="pcard-lvl" [style.background]="m.levelBg || 'rgba(123,47,190,.85)'" [style.color]="m.levelColor || '#E0C6FF'">{{ m.level }}</span>
-                }
+                <ws-level-badge [title]="m.level" surface="overlay" />
               }
               <button class="pcard-remove" type="button" aria-label="إزالة من المقارنة" (click)="removeModel(m.id)">
                 <svg aria-hidden="true"><use href="#ws-close"></use></svg>

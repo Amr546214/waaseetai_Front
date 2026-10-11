@@ -1,3 +1,4 @@
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, OnInit, PLATFORM_ID, inject, signal, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
@@ -9,7 +10,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 @Component({
 	selector: 'app-favorites',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink],
 	templateUrl: './favorites.html',
 	styleUrl: './favorites.css'
 })

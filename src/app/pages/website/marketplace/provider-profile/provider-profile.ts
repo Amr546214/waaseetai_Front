@@ -1,3 +1,5 @@
+import { resolveLevelDisplay } from '../../../../core/levels/level-display';
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, HostListener, OnDestroy, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
@@ -11,7 +13,7 @@ type ReviewSort = 'newest' | 'oldest';
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [LevelBadgeComponent, CommonModule, RouterLink],
   templateUrl: './provider-profile.html',
   styleUrl: './provider-profile.css'
 })
@@ -168,17 +170,11 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     if (id) this.fetchProviderProfile(id);
   }
 
-  /** Maps the backend level title onto the design's 4-colour level system (P-MK-010 "لون حسب المستوى"). */
-  levelClass(levelName: string | null | undefined): string {
-    const expert = ['خبير', 'رصين', 'مستشار', 'رائد', 'مراجع', 'مبتكر', 'مرجع'];
-    const advanced = ['متمكن', 'أخصائي', 'محترف'];
-    const mid = ['منجز', 'منفذ', 'بارع', 'متقن'];
-    const name = (levelName || '').trim();
-    if (expert.includes(name)) return 'level-خبير';
-    if (advanced.includes(name)) return 'level-متقدم';
-    if (mid.includes(name)) return 'level-متوسط';
-    return 'level-مبتدئ';
-  }
+  /** The shared level display (same badge as the provider's own dashboard, level page and profile). */
+  levelDisplay = computed(() => {
+    const li = this.provider()?.header?.levelInfo;
+    return resolveLevelDisplay({ info: li?.levelDisplay, providerTitle: li?.levelName });
+  });
 
   initials(first?: string, last?: string): string {
     const f = (first || '').trim();

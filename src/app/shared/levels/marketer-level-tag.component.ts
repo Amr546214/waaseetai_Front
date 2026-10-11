@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { LevelBadgeComponent } from './level-badge.component';
+import { levelDisplayFromInfo, type LevelDisplay } from '../../core/levels/level-display';
 
 export interface MarketerLevelSummary {
 	tier?: string | null;
@@ -8,26 +10,22 @@ export interface MarketerLevelSummary {
 }
 
 /**
- * The marketer's level tag: the level NAME from the backend ladder (never a typed fallback like "مساعد": with no data nothing is claimed), the
- * level colour (dark/light pair switched by the page theme) and the commission percentage of that level.
+ * The marketer's level badge: the marketer summary (name from the backend ladder, never a typed fallback like "مساعد": with no data nothing is
+ * claimed) drawn through the SAME shared badge every role uses (star, colour pair, "المستوى N من 15", commission percentage).
  */
 @Component({
 	selector: 'ws-marketer-level',
 	standalone: true,
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	template: `
-		@if (summary()?.tier; as name) {
-		<span class="ws-level-tag mlv" data-testid="marketer-level" [style.--lvl-dark]="summary()?.levelColor?.dark || '#9B8B7A'" [style.--lvl-light]="summary()?.levelColor?.light || '#7A6B5A'">{{ name }}</span>
-		@if (summary()?.level; as lv) { <span class="mlv-meta" data-testid="marketer-level-index">المستوى {{ lv }} من 15</span> }
-		@if (summary()?.commissionPercent !== null && summary()?.commissionPercent !== undefined) { <span class="mlv-meta" data-testid="marketer-level-percent">· نسبة العمولة {{ summary()?.commissionPercent }}%</span> }
-		}
-	`,
-	styles: [`
-		.mlv{font-size:14px;font-weight:900;color:var(--lvl-dark);border-color:color-mix(in srgb,var(--lvl-dark) 40%,transparent)}
-		:host-context(.light-theme) .mlv,:host-context(.theme-light) .mlv{color:var(--lvl-light);border-color:color-mix(in srgb,var(--lvl-light) 40%,transparent)}
-		.mlv-meta{font-size:11px;color:var(--txt-3,#8a94b8);font-weight:700;margin-inline-start:6px}
-	`],
+	imports: [LevelBadgeComponent],
+	template: `<span data-testid="marketer-level"><ws-level-badge [level]="display()" [variant]="variant()" [showIndex]="variant() === 'tag'" [showPercent]="variant() === 'tag'" /></span>`,
 })
 export class MarketerLevelTagComponent {
+	readonly variant = input<'tag' | 'icon'>('tag');
 	readonly summary = input<MarketerLevelSummary | null | undefined>(null);
+	protected readonly display = computed<LevelDisplay | null>(() => {
+		const s = this.summary();
+		if (!s?.tier || !s.level) return null;
+		return levelDisplayFromInfo({ role: 'MARKETER', index: s.level, total: 15, name: s.tier, percent: s.commissionPercent ?? undefined, percentKind: s.commissionPercent == null ? undefined : 'EARNED_COMMISSION', color: s.levelColor ?? undefined });
+	});
 }

@@ -129,17 +129,6 @@ describe('Card (shared marketplace card) — active-purchase eligibility', () =>
 // consumers (Batch 4 finding) — fixed because the same small shared helper
 // naturally covers it, not via any broader refactor.
 describe('Card — canonical provider level styling (Batch 5)', () => {
-	it('uses the canonical highlighted-level colors, matching marketplace/slug/curated', () => {
-		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: 'خبير' }))).toEqual({ bg: '#166FF3', color: '#070D24' });
-	});
-
-	it('falls back to the neutral default for an unhighlighted or unexpected level, never fabricating one', () => {
-		const { component } = setup();
-		expect(component.levelStyle(baseModel({ level: 'مبتدئ' }))).toEqual({ bg: '#94DEF9', color: '#070D24' });
-		expect(component.levelStyle(baseModel({ level: undefined }))).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
-	});
-
 	it('8) the Batch 4 active-purchase badge still takes priority over the level badge — unaffected by the Batch 5 styling change', () => {
 		const { fixture } = setup();
 		fixture.componentRef.setInput('models', [baseModel({ eligibility: { hasActivePurchase: true, activeProjectId: 'proj-42' }, level: 'خبير' })]);

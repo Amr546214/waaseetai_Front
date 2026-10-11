@@ -1,4 +1,5 @@
 import { Component, ElementRef, inject, OnInit, signal, computed } from '@angular/core';
+import { MarketerLevelTagComponent } from '../../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
@@ -66,7 +67,7 @@ const DEFAULT_ALERT_PREFERENCES = {
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard],
+	imports: [MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })

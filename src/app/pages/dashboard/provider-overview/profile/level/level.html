@@ -138,7 +138,7 @@
 <!-- AI Disclosure -->
 <div class="flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-[#7B2FBE]/10 to-[#2B7FFF]/5 border border-[#7B2FBE]/15 rounded-[14px] mb-5 backdrop-blur-md">
   <div class="w-8 h-8 rounded-[9px] bg-[#7B2FBE]/20 flex items-center justify-center shrink-0 text-[#A56BE0]">
-    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+    <svg class="w-4 h-4" aria-hidden="true"><use href="#i-ai"></use></svg>
   </div>
   <div class="flex-1">
     <div class="text-[10px] font-black text-[#A56BE0] tracking-widest mb-0.5">وسيط، نظام التصنيف</div>
@@ -153,10 +153,7 @@
   
   <div class="relative flex items-center gap-6 flex-wrap">
     <!-- Badge -->
-    <div class="lvl-badge w-[88px] h-[88px] rounded-full flex flex-col items-center justify-center shrink-0 border-2" data-testid="level-badge" [style.--lvl-dark]="currentLevelColor().dark" [style.--lvl-light]="currentLevelColor().light">
-      <svg class="inline-block lvl-fill" width="28" height="28" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-      <div class="lvl-txt text-[10px] font-black mt-1" data-testid="level-name">{{ data.currentLevel.title }}</div>
-    </div>
+    <ws-level-badge [level]="levelDisplay()" variant="hero" />
     
     <!-- Info -->
     <div class="flex-1 min-w-[160px]">
@@ -244,7 +241,7 @@
   
   <!-- AI Advice -->
   <div class="mt-4 p-3 bg-[#7B2FBE]/10 border border-[#7B2FBE]/20 rounded-[10px] flex items-start gap-2.5">
-    <svg class="w-3.5 h-3.5 text-[#A56BE0] shrink-0 mt-[1px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+    <svg class="w-3.5 h-3.5 text-[#A56BE0] shrink-0 mt-[1px]" aria-hidden="true"><use href="#i-ai"></use></svg>
     <div class="text-[12px] text-[var(--txt-2)] leading-relaxed">{{ data.aiRecommendation }}</div>
   </div>
 </div>

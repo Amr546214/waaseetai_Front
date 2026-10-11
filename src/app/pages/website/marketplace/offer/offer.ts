@@ -1,3 +1,4 @@
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, ViewEncapsulation, AfterViewInit, OnInit, OnDestroy, Inject, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -10,7 +11,7 @@ import { CartItem } from '../../../../core/models/checkout.model';
 @Component({
 	selector: 'app-offer',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink],
 	templateUrl: './offer.html',
 	styleUrl: './offer.css',
 	encapsulation: ViewEncapsulation.None

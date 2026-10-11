@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
+import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { AssistantStore } from '../../../../core/store/assistant.store';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import { TicketApiService, SupportTicket, CreateTicketPayload } from '../../../.
 @Component({
 	selector: 'app-marketer-help',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule],
+	imports: [MarketerLevelTagComponent, CommonModule, FormsModule, RouterModule],
 	templateUrl: './help.html',
 	styleUrl: './help.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,

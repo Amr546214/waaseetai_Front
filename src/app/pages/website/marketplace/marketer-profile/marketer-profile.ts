@@ -1,4 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { levelDisplayFromInfo } from '../../../../core/levels/level-display';
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -16,7 +18,7 @@ import { MarketerPublicProfile } from '../../../../core/models/marketer-public-p
 @Component({
 	selector: 'app-marketer-profile',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [CommonModule, RouterLink, LevelBadgeComponent],
 	templateUrl: './marketer-profile.html',
 	styleUrl: './marketer-profile.css'
 })
@@ -27,6 +29,7 @@ export class MarketerProfileComponent implements OnInit {
 	private marketerPublicProfile = inject(MarketerPublicProfileService);
 
 	profile = signal<MarketerPublicProfile | null>(null);
+	levelDisplay = computed(() => levelDisplayFromInfo(this.profile()?.levelInfo));
 	loading = signal<boolean>(true);
 	notFound = signal<boolean>(false);
 	error = signal<string>('');

@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { ProviderApiService, ProviderStatsResponse } from '../../../../core/services/provider-api.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
+import { resolveLevelDisplay } from '../../../../core/levels/level-display';
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 
 @Component({
   selector: 'app-provider-overview',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LevelBadgeComponent],
   templateUrl: './provider-overview.html',
   styleUrl: './provider-overview.css',
 })
@@ -46,6 +48,12 @@ export class ProviderOverview implements OnInit {
       case 'UNVERIFIED': return 'NOT_SUBMITTED';
       default: return null;
     }
+  });
+
+  /** The level shown on every card of this page: the backend levelInfo, else the title read back to its level (one badge, one source). */
+  levelDisplay = computed(() => {
+    const summary = this.stats()?.summary;
+    return resolveLevelDisplay({ info: summary?.levelInfo, providerTitle: summary?.currentLevel });
   });
 
   isCompanyMode = computed<boolean>(() => {

@@ -56,7 +56,7 @@
       @if (hasActivePurchase(model)) {
       <span class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
       } @else if (model.level) {
-      <span class="svc-lvl" [style.color]="homeLevelStyle(model).color" [style.border-color]="homeLevelStyle(model).border" [style.background]="homeLevelStyle(model).bg">{{ model.level }}</span>
+      <ws-level-badge [title]="model.level" surface="overlay" />
       }
       @if (mode === 'flash') {
       <span class="flash-disc-tag">خصم {{ model.discountPercentage }}%</span>
@@ -551,7 +551,7 @@
               </div>
               } @else if (model.level) {
               <div class="svc-badges">
-                <span class="svc-level" [style.background]="resultLevelStyle(model).bg" [style.color]="resultLevelStyle(model).color">{{ model.level }}</span>
+                <ws-level-badge [title]="model.level" surface="overlay" />
               </div>
               }
               @if (model.aiScore != null) {

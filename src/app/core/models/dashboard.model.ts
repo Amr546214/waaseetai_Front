@@ -23,6 +23,7 @@ export interface DashboardStatsPayload {
     setupTestCompleted?: boolean;
     hasApprovedSpecialties?: boolean;
     currentLevel: string;
+    levelInfo?: import('../levels/level-display').LevelInfoDto;
     pointsToNextLevel: number;
     currentPoints: number;
   };

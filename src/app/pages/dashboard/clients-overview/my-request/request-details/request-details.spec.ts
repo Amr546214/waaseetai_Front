@@ -313,13 +313,13 @@ describe('RequestDetails — real provider level vs accreditation badge (Batch 5
 	it('4) a null providerLevel does not fabricate a level — no level badge span renders', async () => {
 		const { fixture } = await setupWithProposals([proposalFixture({ providerLevel: null })]);
 		const host = fixture.nativeElement as HTMLElement;
-		expect(host.querySelector('.v1-nm .ws-level-tag')).toBeNull();
+		expect(host.querySelector('.v1-nm ws-level-badge')).toBeNull();
 	});
 
-	it('5) a real providerLevel renders through resolveProviderLevelBadgeStyle() — canonical color for a highlighted level', async () => {
+	it('5) a real providerLevel renders through the shared level badge', async () => {
 		const { fixture, component } = await setupWithProposals([proposalFixture({ providerLevel: 'خبير' })]);
 		expect(component.offers()[0].levelColor).toBe('#070D24');
-		const badge = (fixture.nativeElement as HTMLElement).querySelector('.v1-nm .ws-level-tag') as HTMLElement;
+		const badge = (fixture.nativeElement as HTMLElement).querySelector('.v1-nm ws-level-badge') as HTMLElement;
 		expect(badge?.textContent?.trim()).toContain('خبير');
 	});
 

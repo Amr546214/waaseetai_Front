@@ -1,3 +1,4 @@
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, inject, signal, effect, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -10,7 +11,7 @@ import { map, catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [LevelBadgeComponent, CommonModule, RouterLink],
   templateUrl: './cart.html',
   styleUrls: ['../components/checkout-tokens.css', './cart.css'],
 })

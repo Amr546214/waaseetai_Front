@@ -197,19 +197,7 @@
 						<div class="v1-nm">
 							{{ offer.providerName }}
 							@if (offer.providerLevel) {
-							<span
-								style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:800;margin-inline-start:6px"
-								class="ws-level-tag"
-								[style.background]="(offer.isBestMatch ? 'rgba(46,204,138,.15)' : offer.levelColor + '26')"
-								[style.color]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor"
-								[style.borderColor]="offer.isBestMatch ? 'rgba(46,204,138,.30)' : offer.levelColor + '66'">
-								<svg class="ws-star-svg" width="8" height="8" viewBox="0 0 100 100"
-									[attr.fill]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								{{ offer.providerLevel }}
-							</span>
+							<ws-level-badge [title]="offer.providerLevel" />
 							}
 						</div>
 						<div class="v1-meta">
@@ -493,17 +481,7 @@
 				</div>
 				<div class="cmp-head-nm">{{ offer.providerName }}</div>
 				@if (offer.providerLevel) {
-				<span class="ws-level-tag" style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:800"
-					[style.background]="(offer.isBestMatch ? 'rgba(46,204,138,.15)' : offer.levelColor + '26')"
-					[style.color]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor"
-					[style.borderColor]="offer.isBestMatch ? 'rgba(46,204,138,.30)' : offer.levelColor + '66'">
-					<svg class="ws-star-svg" width="8" height="8" viewBox="0 0 100 100"
-						[attr.fill]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor">
-						<path
-							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-					</svg>
-					{{ offer.providerLevel }}
-				</span>
+				<ws-level-badge [title]="offer.providerLevel" />
 				}
 				@if (offer.isBestMatch) {
 				<span class="cmp-head-ai-badge">تقييم مرتفع</span>

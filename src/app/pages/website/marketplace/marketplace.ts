@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../core/services/marketplace.service';
 import { AuthStore } from '../../../core/store/auth.store';
-import { resolveProviderLevelBadgeStyle } from '../../../core/utils/provider-level-style.util';
+import { LevelBadgeComponent } from '../../../shared/levels/level-badge.component';
 import { combineLatest, Subscription } from 'rxjs';
 import { SpecialtiesBar } from './specialties-bar/specialties-bar';
 
@@ -24,7 +24,7 @@ interface FilterDraft { cat: string; levels: string[]; rating: number; maxDays: 
 @Component({
 	selector: 'app-marketplace',
 	standalone: true,
-	imports: [CommonModule, RouterLink, SpecialtiesBar],
+	imports: [CommonModule, RouterLink, SpecialtiesBar, LevelBadgeComponent],
 	templateUrl: './marketplace.html',
 	styleUrl: './marketplace.css',
 	encapsulation: ViewEncapsulation.None
@@ -118,13 +118,6 @@ export class Marketplace implements OnInit, OnDestroy {
 		'linear-gradient(135deg,#2B7FFF,#5DA0FF)',
 		'linear-gradient(135deg,#FF8C69,#FF6B4A)'
 	];
-	// P-MK-001 level badges (svc-lvl).
-	private readonly homeLevelStyles: Record<string, { color: string; border: string; bg: string }> = {
-		'خبير': { color: '#C084FC', border: 'rgba(123,47,190,.4)', bg: 'rgba(123,47,190,.7)' },
-		'أخصائي': { color: '#2BD4C7', border: 'rgba(43,212,199,.4)', bg: 'rgba(43,212,199,.6)' },
-		'متقن': { color: '#FFB4A2', border: 'rgba(255,140,105,.4)', bg: 'rgba(255,140,105,.6)' }
-	};
-	// P-MK-005 level badges (svc-level).
 	categoryIcon(icon?: string): string {
 		if (!icon) return '#ws-tag';
 		const id = icon.startsWith('#') ? icon.slice(1) : icon;
@@ -147,15 +140,6 @@ export class Marketplace implements OnInit, OnDestroy {
 
 	avatarGradient(index: number): string {
 		return this.avatarGradients[index % this.avatarGradients.length];
-	}
-
-	homeLevelStyle(model: MarketplaceModel) {
-		const known = model.level ? this.homeLevelStyles[model.level] : undefined;
-		return known || { color: model.levelColor || '#2BD4C7', border: 'rgba(43,212,199,.4)', bg: model.levelBg || 'rgba(43,212,199,.6)' };
-	}
-
-	resultLevelStyle(model: MarketplaceModel) {
-		return resolveProviderLevelBadgeStyle(model.level, model.levelBg, model.levelColor);
 	}
 
 	/** Original price before the discount (design: struck-through number next to the price). */

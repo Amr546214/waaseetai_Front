@@ -161,7 +161,7 @@
         <div class="stat-sub">منصة مختلفة</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n">{{ p.level || '—' }}</div>
+        <div class="stat-n"><ws-level-badge [level]="levelDisplay()" /></div>
         <div class="stat-sub">المستوى</div>
       </div>
       @if (p.channelMetrics?.length) {

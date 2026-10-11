@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { DashboardStore } from '../../../../core/store/dashboard.store';
@@ -6,17 +6,21 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { CompanyDashboardApiService } from '../../../../core/services/company-dashboard-api.service';
 import { CompanyDashboardData } from '../../../../core/models/company-dashboard.model';
-import { resolveProviderLevelBadgeStyle } from '../../../../core/utils/provider-level-style.util';
+import { levelDisplayFromInfo } from '../../../../core/levels/level-display';
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 
 @Component({
 	selector: 'app-client-overview',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [CommonModule, RouterLink, LevelBadgeComponent],
 	templateUrl: './client-overview.component.html',
 	styleUrl: './client-overview.component.css'
 })
 export class ClientOverviewComponent implements OnInit {
 	public dashboardStore = inject(DashboardStore);
+
+	/** The client's level as the shared display (backend levelInfo; no label parsing, no invented fallback level). */
+	levelDisplay = computed(() => levelDisplayFromInfo(this.dashboardStore.dashboardData()?.summary?.levelInfo));
 	public authStore = inject(AuthStore);
 	private router = inject(Router);
 	private companyDashboardApi = inject(CompanyDashboardApiService);
@@ -138,13 +142,5 @@ export class ClientOverviewComponent implements OnInit {
 		return styles[index % styles.length];
 	}
 
-	/** Batch 5 (completion pass) — real gamification-derived level now on
-	 *  the proposal payload (DashboardService::getClientStats), resolved
-	 *  through the same canonical shared helper as marketplace/slug/card/
-	 *  curated. Never called for a null/missing providerLevel — callers
-	 *  must guard with `@if (offer.providerLevel)` first. */
-	levelStyle(level: string): { bg: string; color: string } {
-		return resolveProviderLevelBadgeStyle(level);
-	}
 
 }
