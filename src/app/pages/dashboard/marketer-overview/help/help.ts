@@ -1,3 +1,5 @@
+import { ActivatedRoute } from '@angular/router';
+import { guidedCatalog } from '../../../../core/help/help-guided';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { AssistantStore } from '../../../../core/store/assistant.store';
@@ -19,6 +21,7 @@ export class Help implements OnInit {
 	readonly assistant = inject(AssistantStore);
 	private overviewService = inject(MarketerOverviewService);
 	private ticketApi = inject(TicketApiService);
+	private route = inject(ActivatedRoute, { optional: true });
 
 	summary = signal<MarketerSummary | null>(null);
 
@@ -52,6 +55,12 @@ export class Help implements OnInit {
 	ticketCreateError = signal<string | null>(null);
 
 	ngOnInit(): void {
+		// Bebo's "open a support ticket" choice lands here with ?ticket=1: show the new-ticket form and bring it into view.
+		this.route?.queryParamMap.subscribe((q) => {
+			if (q.get('ticket') !== '1') return;
+			this.newTicketFormVisible.set(true);
+			setTimeout(() => document.getElementById('marketer-ticket-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 0);
+		});
 		this.overviewService.getSummary().subscribe(res => {
 			if (res.success) this.summary.set(res.data);
 		});
@@ -120,23 +129,15 @@ export class Help implements OnInit {
 		});
 	}
 
-	// The help search box now asks the ONE real shared assistant (WaseetAI
-	// help via the backend) and shows the streamed answer in the dashboard
-	// Avatar panel. The previous client-side keyword match + setTimeout
-	// "answer" was removed.
-	askAI(): void {
-		const q = this.searchQuery().trim();
-		if (!q) {
-			this.showToast('اكتب سؤالك أولًا');
-			return;
-		}
-		this.searchedQuery.set(q);
-		this.assistant.openAndAsk(q);
+	// Help pages: Bebo is a guided FAQ navigator (ready choices and answers, no free text, no model call).
+	readonly choices = guidedCatalog('marketer');
+
+	openAssistant(): void {
+		this.assistant.openGuided();
 	}
 
-	fillQ(text: string): void {
-		this.searchQuery.set(text);
-		this.askAI();
+	askGuided(id: string): void {
+		this.assistant.openGuided(id);
 	}
 
 	toggleFaq(index: number): void {

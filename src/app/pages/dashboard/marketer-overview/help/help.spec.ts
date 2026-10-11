@@ -52,12 +52,14 @@ describe('Help', () => {
     expect(component).toBeTruthy();
   });
 
-  it('askAI() sends the question to the shared real assistant (no keyword/setTimeout fake)', () => {
-    component.searchQuery.set('كيف تُحتسب العمولة؟');
-    component.askAI();
+  it('the help page opens Bebo as a guided assistant (choices only): nothing typed or sent to the model', () => {
     const store = TestBed.inject(AssistantStore);
+    component.openAssistant();
     expect(store.panelOpen()).toBe(true);
-    expect(socket.ask).toHaveBeenCalledWith('كيف تُحتسب العمولة؟', []);
+    component.askGuided('commission');
+    expect(store.guidedPick()).toBe('commission');
+    expect(socket.ask).not.toHaveBeenCalled();
+    expect(component.choices.map(c => c.id)).toEqual(['link', 'commission', 'withdraw', 'referrals', 'tickets', 'other']);
   });
 
   // Regression coverage (Batch 3): the Help page's "فتح تذكرة دعم" card used

@@ -23,7 +23,7 @@ import { BEBO_DIALECTS, BEBO_DIALECT_IDS, BEBO_VOICES } from '../bebo-avatar/beb
 				<div class="ac__row ac__row--user"><div class="ac__bubble ac__bubble--user" dir="auto" data-testid="guided-question">{{ p.question }}</div></div>
 				<div class="ac__row">
 					<div class="ac__bubble ac__bubble--ai" dir="auto" data-testid="guided-answer">{{ p.answer }}</div>
-					@if (p.links?.length) { <div class="ac__guided-links">@for (l of p.links; track l.route) { <a class="ac__guided-link" [routerLink]="l.route" data-testid="guided-link">{{ l.label }}</a> }</div> }
+					@if (p.links?.length) { <div class="ac__guided-links">@for (l of p.links; track l.route) { <a class="ac__guided-link" [routerLink]="l.route" [queryParams]="l.queryParams" data-testid="guided-link">{{ l.label }}</a> }</div> }
 				</div>
 			}
 		</div>
@@ -34,8 +34,8 @@ import { BEBO_DIALECTS, BEBO_DIALECT_IDS, BEBO_VOICES } from '../bebo-avatar/beb
 		</div>
 		<div class="ac__support" data-testid="guided-support">
 			<span>{{ pick() ? 'لم تكفِك الإجابة؟' : 'لا تجد ما تبحث عنه؟' }}</span>
-			<a class="ac__support-btn" [routerLink]="support().support.route" data-testid="guided-support-link">{{ support().support.label }}</a>
-			@if (support().ticket; as t) { <a class="ac__support-btn ac__support-btn--ghost" [routerLink]="t.route" data-testid="guided-ticket-link">{{ t.label }}</a> }
+			@if (support().support; as s) { <a class="ac__support-btn" [routerLink]="s.route" data-testid="guided-support-link">{{ s.label }}</a> }
+			<a class="ac__support-btn ac__support-btn--ghost" [routerLink]="support().ticket.route" [queryParams]="support().ticket.queryParams" data-testid="guided-ticket-link">{{ support().ticket.label }}</a>
 		</div>
 		<p class="ac__disclaimer">إجابات جاهزة من مركز مساعدة وسيط. القرارات والإجراءات المالية تبقى لدى الفريق المختص.</p>
 	</div>
@@ -221,7 +221,7 @@ export class AssistantChatComponent implements OnDestroy {
 
 	// Help pages: guided FAQ navigator (no input, no mic, no send).
 	readonly catalog = computed(() => { const r = this.store.guidedRole(); return r ? guidedCatalog(r) : []; });
-	readonly support = computed(() => guidedSupport());
+	readonly support = computed(() => guidedSupport(this.store.guidedRole() ?? 'provider'));
 	readonly pick = computed(() => this.catalog().find((q) => q.id === this.store.guidedPick()) ?? null);
 	choose(id: string): void { this.store.guidedPick.set(id); }
 
