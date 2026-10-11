@@ -255,10 +255,13 @@
 						id="af-lname" class="inp-field" formControlName="lastName"><ws-field-error [control]="basicsForm.get('lastName')" label="اسم العائلة" /></div>
 				<div class="inp-group"><label class="inp-label" for="af-email">البريد الالكتروني</label><input type="email" id="af-email" class="inp-field"
 							[value]="profile()?.user?.email || ''" dir="ltr" readonly><span class="inp-hint" data-testid="email-readonly-hint">لا يمكن تغيير البريد الإلكتروني من هذه الصفحة</span></div>
-				<div class="inp-group"><label class="inp-label" for="af-phone">رقم الجوال</label><input type="tel" id="af-phone" class="inp-field"
-							formControlName="phoneNumber"
-							dir="ltr"><span class="inp-hint">يقبل ارقام دولية، حتى 20 خانة</span>
-						<ws-field-error [control]="basicsForm.get('phoneNumber')" label="رقم الجوال" /></div>
+				<div class="inp-group"><span class="inp-label">رقم الجوال</span>
+					@if (phoneView(); as ph) {
+					<div class="inp-field" data-testid="phone-readonly" style="display:flex;align-items:center;gap:10px;opacity:.95">
+						<span aria-hidden="true">{{ ph.flag }}</span><span>{{ ph.countryName }}</span><span dir="ltr" style="unicode-bidi:isolate">{{ ph.dialCode }}</span><span dir="ltr" style="unicode-bidi:isolate" data-testid="phone-readonly-number">{{ ph.nationalNumber }}</span>
+					</div>
+					} @else { <div class="inp-field" data-testid="phone-readonly" style="opacity:.95">غير مضاف</div> }
+					<span class="inp-hint" data-testid="phone-readonly-hint">لا يمكن تغيير رقم الجوال من هذه الصفحة</span></div>
 				<div class="inp-group"><label class="inp-label" for="af-nid">رقم الهوية الوطنية</label><input
 						type="text" id="af-nid" class="inp-field" dir="ltr"
 							formControlName="nationalId"><span class="inp-hint">رقم الهوية أو الإقامة، حتى 20 خانة</span>

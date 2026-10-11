@@ -177,6 +177,11 @@ export class ProviderProfileService {
     return this.http.get<any[]>(`${this.apiUrl}/requests/${tabName}`);
   }
 
+  /** WhatsApp is the one editable contact number: a DIRECT save (no code, no request, no review). The e-mail and the primary phone are display-only. */
+  updateWhatsapp(alternativePhone: string): Observable<{ success: boolean; message: string; data: { alternativePhone: string | null } }> {
+    return this.http.put<{ success: boolean; message: string; data: { alternativePhone: string | null } }>(`${this.apiUrl}/whatsapp`, { alternativePhone });
+  }
+
   /** The marketplace taxonomy (the same source as the marketplace and the setup wizard): categories with their specialties. */
   getSpecialtyCategories(): Observable<{ success: boolean; data: Array<{ id: string; slug: string; nameAr: string; specialties?: Array<{ id: string; nameAr: string }> }> }> {
     return this.http.get<any>(`${environment.url_api}/specialties/categories`);

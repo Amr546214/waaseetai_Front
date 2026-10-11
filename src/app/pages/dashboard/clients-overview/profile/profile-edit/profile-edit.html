@@ -635,7 +635,7 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">البيانات الأساسية للحساب</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">تغيير البريد أو الجوال يتطلب تأكيد رمز يصل إلى بريدك الإلكتروني الحالي</p>
+					<p class="text-sm text-slate-500 dark:text-slate-400">البريد الإلكتروني ورقم الجوال للعرض فقط ولا يمكن تعديلهما من الواجهة</p>
 				</div>
 			</div>
 
@@ -664,7 +664,7 @@
 					<line x1="12" y1="8" x2="12" y2="12" />
 					<line x1="12" y1="16" x2="12.01" y2="16" />
 				</svg>
-				<span class="text-sm font-medium text-amber-800 dark:text-amber-300/80">تغيير البريد الالكتروني أو الجوال يتطلب تأكيد رمز يصل إلى بريدك الإلكتروني الحالي</span>
+				<span class="text-sm font-medium text-amber-800 dark:text-amber-300/80">البريد الإلكتروني ورقم الجوال للعرض فقط. رقم WhatsApp فقط يُحفظ مباشرة</span>
 			</div>
 
 			<!-- Form Grid -->
@@ -888,7 +888,7 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">بيانات التواصل</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">تغيير البريد أو الجوال يتطلب تأكيد رمز يصل إلى بريدك الإلكتروني الحالي</p>
+					<p class="text-sm text-slate-500 dark:text-slate-400">البريد الإلكتروني ورقم الجوال للعرض فقط ولا يمكن تعديلهما من الواجهة</p>
 				</div>
 			</div>
 
@@ -917,7 +917,7 @@
 					<line x1="12" y1="8" x2="12" y2="12" />
 					<line x1="12" y1="16" x2="12.01" y2="16" />
 				</svg>
-				<span class="text-sm font-medium text-amber-800 dark:text-amber-300/80">تغيير البريد الالكتروني أو الجوال يتطلب تأكيد رمز يصل إلى بريدك الإلكتروني الحالي</span>
+				<span class="text-sm font-medium text-amber-800 dark:text-amber-300/80">البريد الإلكتروني ورقم الجوال للعرض فقط. رقم WhatsApp فقط يُحفظ مباشرة</span>
 			</div>
 
 			<!-- Form Grid -->
@@ -929,9 +929,8 @@
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
 					</div>
 					<div class="flex flex-col gap-2">
-						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال <span class="font-normal text-slate-400">(يتغيّر برمز تحقق يصل إلى بريدك)</span></label>
+						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم الجوال <span class="font-normal text-slate-400">(للقراءة فقط)</span></label>
 						<app-phone-input formControlName="phoneNumber"></app-phone-input>
-						<div><app-phone-change (changed)="loadProfile()" /></div>
 					</div>
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300">رقم WhatsApp

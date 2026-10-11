@@ -37,6 +37,7 @@ describe('provider profile data tabs: shared validation', () => {
       savePaypalPayoutEmail: vi.fn(() => of({})), requestPaypalEmailChange: vi.fn(() => of({ emailSent: true, emailHint: 'ow***@example.com' })),
       changePassword: vi.fn(() => of({})),
       updateSkills: vi.fn(() => of({ skills: [] })),
+      updateWhatsapp: vi.fn((v: string) => of({ success: true, message: v ? 'تم حفظ رقم WhatsApp' : 'تم حذف رقم WhatsApp', data: { alternativePhone: v || null } })),
       addPortfolioItem: vi.fn(() => of({})),
       deletePortfolioItem: vi.fn(() => of({})),
       uploadDocument: vi.fn(),
@@ -224,13 +225,14 @@ describe('provider profile data tabs: shared validation', () => {
     beforeEach(() => { setup(); document.body.appendChild(el()); component.setTab('contact'); render(); });
     afterEach(() => el().remove());
 
-    it('shows the stored e-mail and phone as plain values: no input, no select, no form, no save button', () => {
+    it('shows the stored e-mail and phone as plain values: no input or select for them; the only input is the optional WhatsApp number', () => {
       const p = panel('contact');
       expect(p.querySelector('[data-testid="contact-email"]')!.textContent!.trim()).toBe('a@b.co');
       expect(p.querySelector('[data-testid="contact-phone"]')!.textContent).toContain('+966');
-      expect(p.querySelector('input, select, textarea, form, app-phone-input')).toBeNull();
+      expect(Array.from(p.querySelectorAll('input, select, textarea')).map(i => i.getAttribute('data-testid'))).toEqual(['contact-whatsapp-input']);
+      expect(p.querySelector('app-phone-input, form')).toBeNull();
       const buttons = Array.from(p.querySelectorAll('button')).map(b => (b.textContent || '').trim());
-      expect(buttons).toEqual(['الانتقال إلى الملف المهني']); // the only button is the link to the other tab
+      expect(buttons).toEqual(['حفظ رقم WhatsApp', 'الانتقال إلى الملف المهني']);
       expect(component.currentTab()).toBe('contact');
     });
 
@@ -248,6 +250,7 @@ describe('provider profile data tabs: shared validation', () => {
       expect((component as any).contactForm).toBeUndefined();
       panel('contact').querySelectorAll('button').forEach(b => (b as HTMLButtonElement).click());
       render();
+      expect(svc['updateWhatsapp']).toHaveBeenCalledTimes(1); // the WhatsApp save is the only action, and it is a direct save
       expect(svc['initiateSensitiveChange']).not.toHaveBeenCalled();
       expect(svc['verifySensitiveChange']).not.toHaveBeenCalled();
       expect(component.showOtpModal()).toBe(false);
@@ -258,6 +261,38 @@ describe('provider profile data tabs: shared validation', () => {
       const src = readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'core', 'services', 'provider-profile.service.ts'), 'utf8');
       expect(src).toMatch(/initiateSensitiveChange\(category: 'DOCUMENTS'/);
       expect(src).not.toMatch(/'CONTACT'/);
+    });
+
+    it('WhatsApp: a valid number is saved directly (no code, no request, no review) and the page says so', () => {
+      component.whatsappControl.setValue('+20 102-507 3026');
+      (el().querySelector('[data-testid="save-whatsapp-btn"]') as HTMLButtonElement).click();
+      render();
+      expect(svc['updateWhatsapp']).toHaveBeenCalledWith('+20 102-507 3026');
+      expect(svc['initiateSensitiveChange']).not.toHaveBeenCalled();
+      expect(component.showOtpModal()).toBe(false);
+      expect(component.showToast()).toContain('رقم WhatsApp');
+      expect(component.contactWhatsapp()).toBe('+20 102-507 3026');
+    });
+
+    it('WhatsApp: an invalid number is refused before any request (inline Arabic error); empty clears it', () => {
+      component.whatsappControl.setValue('abc');
+      (el().querySelector('[data-testid="save-whatsapp-btn"]') as HTMLButtonElement).click();
+      render();
+      expect(svc['updateWhatsapp']).not.toHaveBeenCalled();
+      expect(el().querySelector('[data-testid="whatsapp-error"]')!.textContent).toMatch(ARABIC);
+      component.whatsappControl.setValue('');
+      component.saveWhatsapp();
+      expect(svc['updateWhatsapp']).toHaveBeenCalledWith('');
+    });
+
+    it('WhatsApp: a server refusal is shown inline in Arabic and the value is kept for another try', () => {
+      svc['updateWhatsapp'].mockReturnValue(httpError(400, 'INVALID_WHATSAPP', { code: 'INVALID_WHATSAPP' }));
+      component.whatsappControl.setValue('+20 102-507 3026');
+      component.saveWhatsapp();
+      render();
+      expect(component.whatsappControl.errors?.['server']).toMatch(ARABIC);
+      expect(component.whatsappControl.value).toBe('+20 102-507 3026');
+      expect(component.savingWhatsapp()).toBe(false);
     });
 
     it('OTP modal (documents): an incomplete code shows an inline error (no request); a wrong code shows the Arabic reason in the modal', () => {

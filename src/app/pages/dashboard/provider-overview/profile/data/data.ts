@@ -205,6 +205,9 @@ export class Data implements OnInit, OnDestroy {
   contactEmail = signal('');
   contactPhone = signal<PhoneCountryView | null>(null);
   contactWhatsapp = signal('');
+  /** WhatsApp (optional) is the only editable contact number: saved directly, no code, no review. */
+  whatsappControl = new FormControl<string>('', { nonNullable: true, validators: [(c: AbstractControl): ValidationErrors | null => { const v = String(c.value ?? '').replace(/[\s()-]/g, ''); return !v || /^\+?\d{8,15}$/.test(v) ? null : { whatsapp: true }; }] });
+  savingWhatsapp = signal(false);
   skillNames = computed(() => (this.skillsList() || []).map((sk: any) => sk.name as string));
 
   // ── taxonomy: main specialty (the marketplace Category, stored as its slug), sub-specialties and the skills catalog of that field ──
@@ -329,6 +332,7 @@ export class Data implements OnInit, OnDestroy {
           this.contactEmail.set(profile.user?.email || '');
           this.contactPhone.set(phoneCountryView(canonicalStoredPhone(profile.user?.phoneCountryCode, profile.user?.phoneNumber)));
           this.contactWhatsapp.set(profile.user?.alternativePhone || '');
+          this.whatsappControl.setValue(profile.user?.alternativePhone || '', { emitEvent: false });
 
           this.payoutForm.patchValue({
             paypalPayoutEmail: profile.paypalPayoutEmail || ''
@@ -659,6 +663,26 @@ export class Data implements OnInit, OnDestroy {
           return;
         }
         this.notifyHttpError(err, { fallback: 'تعذر حفظ البيانات، حاول مرة أخرى' });
+      }
+    });
+  }
+
+  saveWhatsapp() {
+    if (this.savingWhatsapp()) return;
+    this.whatsappControl.markAsTouched();
+    if (this.whatsappControl.invalid) return;
+    this.savingWhatsapp.set(true);
+    this.profileService.updateWhatsapp(this.whatsappControl.value).subscribe({
+      next: res => {
+        this.savingWhatsapp.set(false);
+        this.contactWhatsapp.set(res.data.alternativePhone || '');
+        this.whatsappControl.setValue(res.data.alternativePhone || '', { emitEvent: false });
+        this.whatsappControl.markAsPristine();
+        this.displayToast(res.message || 'تم حفظ رقم WhatsApp');
+      },
+      error: (err: any) => {
+        this.savingWhatsapp.set(false);
+        this.whatsappControl.setErrors({ server: mapHttpError(err, { fallback: 'تعذر حفظ رقم WhatsApp، حاول مرة أخرى' }).message });
       }
     });
   }
