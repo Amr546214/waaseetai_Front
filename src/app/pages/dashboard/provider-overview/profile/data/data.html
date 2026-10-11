@@ -380,7 +380,7 @@
         <input #frontInput type="file" id="doc-front" hidden (change)="onDocSelected($event, 'idDocumentUrl')"
           accept=".jpg,.jpeg,.png,.pdf">
         <div class="upload-card" id="doc-card-idDocumentUrl" tabindex="0" [class.has-file]="documentState('idDocumentUrl')"
-          (click)="!documentState('idDocumentUrl') && frontInput.click()">
+          (click)="!documentState('idDocumentUrl') && !identityPending() && !identityVerified() && frontInput.click()">
           @if(documentState('idDocumentUrl'); as file) {
           <div class="file-preview">@if(isImageDocument(file) && file.previewUrl){<img [src]="file.previewUrl"
               alt="معاينة الوجه الامامي">}@else{<span class="file-icon">PDF</span>}</div>
@@ -394,10 +394,11 @@
               class="delete-file"
               (click)="$event.stopPropagation(); removeDocument('idDocumentUrl', frontInput)">حذف</button></div>
           } @else if (identityPending()) { <div class="upload-empty" data-testid="id-doc-pending"><span>⏳</span><strong>قيد المراجعة</strong><small>تم استلام مستند الهوية</small></div>
+          } @else if (identityVerified()) { <div class="upload-empty" data-testid="id-doc-verified"><span>✓</span><strong>تم التحقق من الهوية</strong><small>اعتمدت الإدارة مستند الهوية</small></div>
           } @else { <div class="upload-empty"><span>＋</span><strong>اختر ملفا للرفع</strong><small>JPG او PNG او PDF،
               حجم اقصى 10MB</small></div> }
         </div>
-        @if (identityRejected()) { <span class="field-error" role="alert" data-testid="id-doc-rejected">مستند الهوية مرفوض. اضغط «تغيير» وارفع مستندًا جديدًا ثم أرسل الطلب.</span> }
+        @if (identityRejected()) { <span class="field-error" role="alert" data-testid="id-doc-rejected">مستند الهوية مرفوض@if (identityRejectionReason()) { — السبب: {{ identityRejectionReason() }} }. اضغط على المربع وارفع مستندًا جديدًا ثم أرسل الطلب.</span> }
         @if (!identityPending()) { <ws-field-error [control]="docsForm.get('idDocumentUrl')" label="مستند الهوية" /> }
         @if (docFileErrors()['idDocumentUrl'] && !identityPending()) { <span class="field-error" role="alert">{{ docFileErrors()['idDocumentUrl'] }}</span> }
       </div>

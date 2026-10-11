@@ -188,9 +188,11 @@ export class Data implements OnInit, OnDestroy {
   showOtpModal = signal(false);
   otpCode = signal('');
   /** Where the identity document stands (from the backend, so it survives a refresh): waiting for the admin, approved, rejected, or not sent. */
-  identityVerification = signal<{ status: 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED'; requestId: string | null; submittedAt: string | null; rejectionReason: string | null } | null>(null);
+  identityVerification = signal<{ status: 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED'; category?: 'DOCUMENTS' | 'KYC' | null; requestId: string | null; submittedAt: string | null; rejectionReason: string | null } | null>(null);
   identityPending = computed(() => this.identityVerification()?.status === 'PENDING_REVIEW');
   identityRejected = computed(() => this.identityVerification()?.status === 'REJECTED');
+  identityVerified = computed(() => this.identityVerification()?.status === 'VERIFIED');
+  identityRejectionReason = computed(() => this.identityVerification()?.rejectionReason ?? null);
   /** True right after the code was confirmed in this visit: the confirmation is shown prominently (a toast alone is easy to miss). */
   identityJustSubmitted = signal(false);
   otpEmailHint = signal('');
@@ -379,6 +381,12 @@ export class Data implements OnInit, OnDestroy {
             } else if (doc.url) {
               loadedDocuments[controlName] = { name: this.fileNameFromUrl(doc.url), progress: 100, status: 'uploaded', previewUrl: doc.url };
             }
+          }
+          // An ID sent in the SETUP lives in the front-ID column (a private reference, never returned): while it waits for the review, or once it is approved,
+          // it is shown as stored (preview link), so the page never asks for the same file again. A refused one is not shown: it must be replaced.
+          const idStatus = profile.identityVerification?.status;
+          if (!loadedDocuments['idDocumentUrl'] && profile.frontIdUrlAccess?.private && (idStatus === 'PENDING_REVIEW' || idStatus === 'VERIFIED')) {
+            loadedDocuments['idDocumentUrl'] = { name: 'مستند الهوية المرسل', progress: 100, status: 'uploaded', stored: { key: 'provider_front_id' } };
           }
           this.documentUploads.set(loadedDocuments);
           // The stored ID document is not visible to this page, so it cannot be re-sent: "required" is satisfied by it until the user replaces or removes it.
