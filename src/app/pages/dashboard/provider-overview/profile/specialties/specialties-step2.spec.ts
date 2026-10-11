@@ -120,4 +120,55 @@ describe('Specialties wizard — step 2 upload (AUD-FND-000059)', () => {
 		expect(src).not.toContain('demo-spec-uuid');
 		expect(src).not.toMatch(/providerSpecialtyId\(\)\s*\|\|\s*'/);
 	});
+
+	describe('description shorter than 20 characters', () => {
+		const short = { description: 'وصف قصير جدا' };
+		beforeEach(() => component.selectedSubs.set(new Set(['واجهات'])));
+
+		it('the error appears right under the description field (not only in the footer) and the field is marked invalid', () => {
+			atStep2(short);
+			fixture.detectChanges();
+			const el = fixture.nativeElement as HTMLElement;
+			const err = el.querySelector('[data-testid="sample-description-error"]') as HTMLElement;
+			expect(err).toBeTruthy();
+			expect(err.textContent).toContain('20 حرفًا على الأقل');
+			const field = err.parentElement!.querySelector('textarea')!;
+			expect(field.getAttribute('aria-invalid')).toBe('true');
+		});
+
+		it('the next button does not look enabled (aria-disabled, dimmed, no gradient) while the description is short', () => {
+			atStep2(short);
+			fixture.detectChanges();
+			const btn = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="next-btn"]') as HTMLElement;
+			expect(btn.getAttribute('aria-disabled')).toBe('true');
+			expect(btn.className).toContain('opacity-50');
+			expect(btn.className).not.toContain('from-[#2BD4C7]');
+		});
+
+		it('pressing next says why (error shown, nothing uploaded, still on step 2)', () => {
+			atStep2(short);
+			component.nextStep();
+			fixture.detectChanges();
+			expect(component.currentStep()).toBe(2);
+			expect(postSpy).not.toHaveBeenCalled();
+			expect(component.stepError()).toContain('الوصف 20 حرفاً على الأقل');
+			expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid="step-error"]')).toBeTruthy();
+		});
+
+		it('an empty description shows no error until next is pressed; a 20+ character one never shows it and the button is enabled', () => {
+			atStep2({ description: '' });
+			fixture.detectChanges();
+			const el = fixture.nativeElement as HTMLElement;
+			expect(el.querySelector('[data-testid="sample-description-error"]')).toBeNull();
+			component.nextStep();
+			fixture.detectChanges();
+			expect(el.querySelector('[data-testid="sample-description-error"]')).toBeTruthy();
+			component.samples.set([validSample()]);
+			fixture.detectChanges();
+			expect(el.querySelector('[data-testid="sample-description-error"]')).toBeNull();
+			const btn = el.querySelector('[data-testid="next-btn"]') as HTMLElement;
+			expect(btn.getAttribute('aria-disabled')).toBeNull();
+			expect(btn.className).toContain('from-[#2BD4C7]');
+		});
+	});
 });
