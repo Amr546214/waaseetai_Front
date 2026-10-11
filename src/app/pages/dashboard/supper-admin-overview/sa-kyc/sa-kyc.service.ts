@@ -48,6 +48,7 @@ export class SaKycService {
     if (query?.page) params = params.set('page', query.page);
     if (query?.limit) params = params.set('limit', query.limit);
     if (query?.status) params = params.set('status', query.status);
+    if (query?.search) params = params.set('search', query.search);
     return this.http.get<KycProviderListApiResponse>(`${this.baseUrl}/admin/onboarding/kyc/providers`, { params });
   }
 

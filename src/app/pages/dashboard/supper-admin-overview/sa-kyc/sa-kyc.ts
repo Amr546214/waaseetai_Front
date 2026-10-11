@@ -1,3 +1,4 @@
+import { providerDocumentsCount, withOwnerFields } from './kyc-owner';
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SaKycService } from './sa-kyc.service';
@@ -110,6 +111,7 @@ export class SaKyc implements OnInit {
     return this.providers().filter(p =>
       (p.userName || '').toLowerCase().includes(q) ||
       (p.userEmail || '').toLowerCase().includes(q) ||
+      (p.userPhone || '').toLowerCase().includes(q) ||
       (p.userId || '').toLowerCase().includes(q)
     );
   });
@@ -118,8 +120,13 @@ export class SaKyc implements OnInit {
     this.onboardingSearchQuery.set(value);
   }
 
+  private providersSearchTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** Typing searches ALL providers on the server (name / e-mail / phone / userId), not only the loaded page. */
   onProvidersSearchInput(value: string) {
     this.providersSearchQuery.set(value);
+    if (this.providersSearchTimer) clearTimeout(this.providersSearchTimer);
+    this.providersSearchTimer = setTimeout(() => { this.providersPage.set(1); this.loadProviders(); }, 350);
   }
 
   ngOnInit() {
@@ -157,7 +164,7 @@ export class SaKyc implements OnInit {
         const data = res?.data;
         if (data) {
           const items = data.onboardingRequests ?? data.items ?? [];
-          this.onboarding.set(items);
+          this.onboarding.set(items.map((i) => withOwnerFields(i)));
           const pag = data.pagination;
           if (pag) {
             this.onboardingTotal.set(pag.total ?? 0);
@@ -230,6 +237,8 @@ export class SaKyc implements OnInit {
       page: this.providersPage(),
       limit: this.limit,
     };
+    const term = this.providersSearchQuery().trim();
+    if (term) query.search = term;
     if (this.providersStatusFilter() !== 'all') {
       query.status = this.providersStatusFilter();
     }
@@ -240,7 +249,7 @@ export class SaKyc implements OnInit {
         const data = res?.data;
         if (data) {
           const items = data.providers ?? data.items ?? [];
-          this.providers.set(items);
+          this.providers.set(items.map((i) => withOwnerFields(i)));
           const pag = data.pagination;
           if (pag) {
             this.providersTotal.set(pag.total ?? 0);
@@ -463,6 +472,11 @@ export class SaKyc implements OnInit {
 
   getCertCount(urls?: (string | null)[] | null): number {
     return Array.isArray(urls) ? urls.length : 0;
+  }
+
+  /** Documents on file for a provider row (ID front/back, selfie, supporting document, certificates). */
+  docsCount(p: KycProvider): number {
+    return providerDocumentsCount(p as Record<string, any>);
   }
 
   getPagesArray(total: number): number[] {

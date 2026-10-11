@@ -59,6 +59,7 @@ export type KycStatus = 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED' | str
 export interface KycProvider {
   userId: string;
   id?: string;
+  documentsCount?: number;
   userName?: string;
   userEmail?: string;
   userPhone?: string;
@@ -105,6 +106,8 @@ export interface KycProviderQuery {
   page?: number;
   limit?: number;
   status?: string;
+  /** Server-side search over the owner's name, e-mail, phone or userId (all pages). */
+  search?: string;
 }
 
 // ── Action payloads ──────────────────────────────────────────────────
