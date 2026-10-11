@@ -41,7 +41,7 @@ describe('provider documents tab (private KYC documents)', () => {
 				{ provide: AuthStore, useValue: { currentUser: () => null } },
 				{ provide: KycDocumentService, useValue: { createAccessLink } },
 				{ provide: ProviderProfileService, useValue: {
-					getProfile: vi.fn(() => of(profile)), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
+					getProfile: vi.fn(() => of(profile)), getSpecialtyCategories: () => of({ success: true, data: [] }), getSkillsCatalog: () => of({ success: true, data: { category: null, skills: [] } }), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
 					initiateSensitiveChange, savePaypalPayoutEmail: vi.fn(() => of({})), requestPaypalEmailChange: vi.fn(() => of({ emailSent: true, emailHint: 'ow***@example.com' })), updateSkills: vi.fn(() => of({ skills: [] })),
 				} },
 			],

@@ -36,7 +36,7 @@ describe('provider edit page: backend completion + missing items', () => {
         provideRouter([]),
         { provide: AuthStore, useValue: { currentUser: () => null } },
         { provide: ProviderProfileService, useValue: {
-          getProfile, getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
+          getProfile, getSpecialtyCategories: () => of({ success: true, data: [] }), getSkillsCatalog: () => of({ success: true, data: { category: null, skills: [] } }), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
           updateSkills: vi.fn(() => of({ skills: [{ name: 'Figma' }, { name: 'Sketch' }] })), savePaypalPayoutEmail: vi.fn(() => of({})), requestPaypalEmailChange: vi.fn(() => of({ emailSent: true, emailHint: 'ow***@example.com' })),
         } },
       ],

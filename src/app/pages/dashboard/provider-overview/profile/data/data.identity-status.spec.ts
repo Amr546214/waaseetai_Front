@@ -36,7 +36,7 @@ describe('provider data page: identity document status', () => {
 			imports: [Data],
 			providers: [provideRouter([]), { provide: AuthStore, useValue: { currentUser: () => null } },
 				{ provide: ProviderProfileService, useValue: {
-					getProfile: () => of(profile), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
+					getProfile: () => of(profile), getSpecialtyCategories: () => of({ success: true, data: [] }), getSkillsCatalog: () => of({ success: true, data: { category: null, skills: [] } }), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
 					initiateSensitiveChange: initiate, verifySensitiveChange: verify, requestPaypalEmailChange: vi.fn(), confirmPaypalEmailChange: vi.fn(),
 				} }],
 		});

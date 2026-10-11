@@ -32,6 +32,7 @@ export interface ProviderProfile {
     lastName: string;
     email: string;
     avatarUrl?: string | null;
+    phoneCountryCode?: string | null;
     phoneNumber?: string | null;
     alternativePhone?: string | null;
     idDocumentUrl?: string | null;
@@ -53,6 +54,9 @@ export interface ProviderProfile {
   completionPercentage: number;
   missingItems?: CompletionMissingItem[];
   mainSpecialty?: string | null;
+  subSpecialties?: string[];
+  /** Date of birth (private: only the owner reads it). */
+  dob?: string | null;
   githubUrl: string | null;
   linkedinUrl: string | null;
   twitterUrl: string | null;
@@ -171,6 +175,16 @@ export class ProviderProfileService {
 
   getChangeRequests(tabName: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/requests/${tabName}`);
+  }
+
+  /** The marketplace taxonomy (the same source as the marketplace and the setup wizard): categories with their specialties. */
+  getSpecialtyCategories(): Observable<{ success: boolean; data: Array<{ id: string; slug: string; nameAr: string; specialties?: Array<{ id: string; nameAr: string }> }> }> {
+    return this.http.get<any>(`${environment.url_api}/specialties/categories`);
+  }
+
+  /** The skills offered for a main specialty (the marketplace Category slug): the only skills a provider can pick. */
+  getSkillsCatalog(category: string): Observable<{ success: boolean; data: { category: string | null; skills: string[] } }> {
+    return this.http.get<{ success: boolean; data: { category: string | null; skills: string[] } }>(`${this.apiUrl}/skills/catalog`, { params: { category } });
   }
 
   updateSkills(skills: string[]): Observable<ProviderProfile> {

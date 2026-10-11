@@ -26,7 +26,7 @@ describe('provider profile data — avatar (#14)', () => {
 		TestBed.configureTestingModule({
 			imports: [Data],
 			providers: [provideRouter([]), { provide: AuthStore, useValue: { currentUser: () => null } }, { provide: ProviderProfileService, useValue: {
-				getProfile: vi.fn(() => of(profile)), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])), updateBasicInfo,
+				getProfile: vi.fn(() => of(profile)), getSpecialtyCategories: () => of({ success: true, data: [] }), getSkillsCatalog: () => of({ success: true, data: { category: null, skills: [] } }), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])), updateBasicInfo,
 			} }],
 		});
 		fixture = TestBed.createComponent(Data);

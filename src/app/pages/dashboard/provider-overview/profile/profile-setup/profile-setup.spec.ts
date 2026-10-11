@@ -34,7 +34,11 @@ describe('provider setup AI suggestions', () => {
     http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
   });
-  afterEach(() => { http.verify(); fixture.destroy(); });
+  afterEach(() => {
+    // choosing a main specialty asks the backend for that field's skills catalog: answer it so verify() only catches unexpected calls
+    http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } }));
+    http.verify(); fixture.destroy();
+  });
   const request = (http: HttpTestingController, kind: string) => http.expectOne(req => req.url.endsWith(`/provider/profile/suggest-${kind}`));
 
   it('setup-test result without a correct-answers count shows the score only — no invented correct/wrong boxes', () => {
@@ -108,8 +112,7 @@ describe('provider setup AI suggestions', () => {
 
   it('a skill added while request is in flight is not suggested again', () => {
     component.suggestSkills();
-    component.skillInput = 'CSS';
-    component.addSkill(new Event('click'));
+    component.onSkillsChange(['HTML', 'CSS']);
     request(http, 'skills').flush({ success: true, data: { suggestedSkills: ['CSS', 'TypeScript'] } });
     expect(component.aiSuggestedSkills()).toEqual(['TypeScript']);
     expect(component.skillsList()).toEqual(['HTML', 'CSS']);
