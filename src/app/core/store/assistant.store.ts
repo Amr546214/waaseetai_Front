@@ -29,6 +29,7 @@ import {
 	isBeboDialect,
 	isBeboVoice,
 } from '../../sheards/bebo-avatar/bebo-commands';
+import { HelpRole, helpRoleOfUrl } from '../help/help-guided';
 import { AuthStore } from './auth.store';
 
 // Single source of truth for the dashboard Help Assistant + Avatar. The
@@ -168,6 +169,11 @@ export class AssistantStore {
 
 	readonly busy = computed(() => this.state() === 'thinking');
 	readonly supportRoute = signal<string | null>(null);
+	/** Help pages: Bebo is a guided FAQ navigator (ready questions and answers, no free text, no model call). null outside the help pages. */
+	readonly guidedRole = signal<HelpRole | null>(null);
+	readonly guided = computed(() => this.guidedRole() !== null);
+	/** The ready question the user picked (also set by the help page chips). */
+	readonly guidedPick = signal<string | null>(null);
 	readonly canReplay = computed(
 		() => !!this.lastReply() && this.voiceEnabled() && !this.busy() && this.state() !== 'listening' && this.state() !== 'speaking' && !this.audioLoading(),
 	);
@@ -229,6 +235,13 @@ export class AssistantStore {
 	close(): void { this.panelOpen.set(false); }
 	toggle(): void { this.panelOpen.update((v) => !v); }
 
+	/** Help page chips / the "اسأل المساعد" button: opens Bebo on a ready question (or on the list when no id). */
+	openGuided(id: string | null = null): void {
+		this.updateSupportRoute();
+		this.guidedPick.set(id);
+		this.open();
+	}
+
 	/** Opens the shared assistant panel and asks `question` (help hubs). */
 	openAndAsk(question: string): void {
 		this.ensureSessionIdentity();
@@ -271,6 +284,8 @@ export class AssistantStore {
 	// ── conversation ───────────────────────────────────────────────────
 	ask(rawQuestion: string): boolean {
 		this.ensureSessionIdentity();
+		// Help pages are guided only: nothing typed or spoken ever reaches the model from here.
+		if (this.guided()) return false;
 		const question = rawQuestion.trim();
 		if (!question || this.busy()) return false;
 		// Exact local Bebo command → animate locally; never sent upstream.
@@ -318,6 +333,7 @@ export class AssistantStore {
 	 */
 	toggleListening(): void {
 		this.ensureSessionIdentity();
+		if (this.guided()) return;
 		if (this.recognizer) {
 			try { this.recognizer.stop(); } catch { this.cancelListening(); }
 			return;
@@ -780,6 +796,9 @@ export class AssistantStore {
 
 	private updateSupportRoute(): void {
 		const url = this.router.url || '';
+		const role = helpRoleOfUrl(url);
+		this.guidedRole.set(role);
+		if (!role) this.guidedPick.set(null);
 		if (url.startsWith('/client-overview')) this.supportRoute.set('/client-overview/help/live-support');
 		else if (url.startsWith('/provider-overview')) this.supportRoute.set('/provider-overview/help/live-support');
 		else if (url.startsWith('/marketer-overview')) this.supportRoute.set('/marketer-overview/help');
