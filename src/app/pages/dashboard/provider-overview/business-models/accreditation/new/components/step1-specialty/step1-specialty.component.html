@@ -13,21 +13,7 @@
 	</div>
 
 	<!-- Glassmorphic Notice if No Passed Specialties (length === 0) -->
-	<div *ngIf="!isLoading && (!hasAccreditedSpecialties || categories.length === 0)"
-		class="bg-[var(--crd-bg)] backdrop-blur-xl border border-[var(--crd-bd)] rounded-3xl p-10 flex flex-col items-center justify-center text-center shadow-2xl my-8">
-		<div
-			class="w-16 h-16 rounded-2xl bg-[rgba(255,180,0,.1)] border border-[rgba(255,180,0,.25)] flex items-center justify-center text-[#FFB400] text-3xl mb-4 shadow-lg">
-			⚠️
-		</div>
-		<h3 class="text-lg font-black text-[var(--txt)] mb-2">لا توجد تخصصات معتمدة بعد</h3>
-		<!-- <p class="text-xs text-[var(--txt-2)] max-w-md mb-6 leading-relaxed">
-			يرجى اجتياز الاختبار الفني أولاً من صفحة إدارة التخصصات.
-		</p> -->
-		<a routerLink="/provider-overview/profile/specialties"
-			class="px-7 py-3.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-xs font-extrabold rounded-full shadow-xl hover:opacity-95 transition-all">
-			الذهاب لإدارة التخصصات واجتياز الاختبار
-		</a>
-	</div>
+	<ws-specialty-empty *ngIf="!isLoading && (!hasAccreditedSpecialties || categories.length === 0)" [registered]="registered" />
 
 	<ng-container *ngIf="!isLoading && hasAccreditedSpecialties && categories.length > 0">
 		<!-- INFO NOTE -->

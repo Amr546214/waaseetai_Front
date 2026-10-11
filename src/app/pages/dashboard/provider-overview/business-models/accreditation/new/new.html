@@ -62,7 +62,7 @@
 
 		<!-- ==================== STEP 1: SELECT SPECIALTY ==================== -->
 		<ng-container *ngSwitchCase="1">
-			<app-step1-specialty [isLoading]="isLoading()" [hasAccreditedSpecialties]="hasAccreditedSpecialties()"
+			<app-step1-specialty [isLoading]="isLoading()" [hasAccreditedSpecialties]="hasAccreditedSpecialties()" [registered]="registeredSpecialties()"
 				[categories]="categories()" [selectedSpecialtyId]="selectedSpecialtyId()"
 				[selectedSubSpecialties]="selectedSubSpecialties()" [selectedSpecialtySubs]="getSelectedSpecialtySubs()"
 				(onToggleSpecialty)="toggleSpecialty($event)" (onToggleSubSpecialty)="toggleSubSpecialty($event)">

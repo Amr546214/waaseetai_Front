@@ -106,7 +106,7 @@
 
 		<!-- ==================== STEP 2: التخصص ==================== -->
 		<ng-container *ngSwitchCase="2">
-			<app-step2-specialty [isLoadingSpecialties]="isLoadingSpecialties()" [passedCategories]="passedCategories()"
+			<app-step2-specialty [isLoadingSpecialties]="isLoadingSpecialties()" [passedCategories]="passedCategories()" [registered]="registeredSpecialties()"
 				[selectedSpecialty]="selectedSpecialty()" [selectedMainSpecialtyObj]="selectedMainSpecialtyObj()"
 				[selectedSubSpecialty]="selectedSubSpecialty()" (onSelectMainSpecialty)="selectMainSpecialty($event)"
 				(onSelectSubSpecialty)="selectSubSpecialty($event)">
