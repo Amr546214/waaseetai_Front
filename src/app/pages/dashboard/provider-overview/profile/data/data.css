@@ -500,20 +500,29 @@ select option{background:#0B1437;color:#fff}select optgroup{background:#0B1437;c
 }
 
 /* "complete your profile" box (items come from the backend) */
-.miss-box{margin:0 0 18px;padding:14px 16px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:var(--surface,rgba(255,255,255,.03))}
+.miss-box{container-type:inline-size;margin:0 0 18px;padding:14px 16px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:var(--surface,rgba(255,255,255,.03))}
 .miss-title{font-size:14px;font-weight:800;color:var(--txt);margin-bottom:10px}
-.miss-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-.miss-item{min-width:0}
-.miss-link{width:100%;display:flex;align-items:center;gap:10px;text-align:start;padding:10px 12px;border-radius:12px;border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.07);color:var(--txt);cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s}
-.miss-link:hover{background:rgba(245,158,11,.14)}
-.miss-item.is-pending .miss-link{border-color:rgba(43,127,255,.35);background:rgba(43,127,255,.07)}
-.miss-item.is-pending .miss-link:hover{background:rgba(43,127,255,.14)}
-.miss-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.miss-label{font-size:13px;font-weight:800}
-.miss-hint{font-size:11.5px;color:var(--txt-3)}
-.miss-badge{flex-shrink:0;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(245,158,11,.18);color:#B45309;white-space:nowrap}
-.miss-badge.is-pending{background:rgba(43,127,255,.16);color:#2B6CDE}
-.miss-item.is-rejected .miss-link{border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.07)}
-.miss-badge.is-rejected{background:rgba(248,113,113,.18);color:#B91C1C}
-.miss-go{flex-shrink:0;color:var(--txt-3)}
-@media (max-width:640px){.miss-list{grid-template-columns:1fr}.miss-link{padding:10px}}
+/* Uniform cards: 3 per row, 2 when the box is narrower than 760px, 1 under 480px (container queries, so the sidebar open/closed and RTL never break it). minmax(0,1fr) lets long text shrink instead of widening a column. */
+.miss-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;align-items:stretch;grid-template-columns:repeat(3,minmax(0,1fr))}
+@container (max-width:760px){.miss-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@container (max-width:480px){.miss-list{grid-template-columns:minmax(0,1fr)}}
+.miss-item{min-width:0;display:flex}
+.miss-link{flex:1;width:100%;min-width:0;min-height:76px;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;text-align:start;padding:12px 14px;border-radius:12px;border:1px solid rgba(245,158,11,.4);background:rgba(245,158,11,.08);color:var(--txt);cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s}
+.miss-link:hover{background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.65)}
+.miss-link:focus-visible{outline:2px solid #2B7FFF;outline-offset:2px}
+.miss-item.is-pending .miss-link{border-color:rgba(43,127,255,.4);background:rgba(43,127,255,.08)}
+.miss-item.is-pending .miss-link:hover{background:rgba(43,127,255,.16);border-color:rgba(43,127,255,.65)}
+.miss-item.is-rejected .miss-link{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08)}
+.miss-item.is-rejected .miss-link:hover{background:rgba(248,113,113,.16);border-color:rgba(248,113,113,.7)}
+.miss-main{min-width:0;display:flex;flex-direction:column;gap:3px}
+.miss-label,.miss-hint{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.miss-label{font-size:13px;font-weight:800;line-height:1.5}
+.miss-hint{font-size:11.5px;line-height:1.5;color:var(--txt-3)}
+.miss-badge{justify-self:end;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(245,158,11,.2);color:#FBBF24;white-space:nowrap}
+.miss-badge.is-pending{background:rgba(43,127,255,.2);color:#8DBBFF}
+.miss-badge.is-rejected{background:rgba(248,113,113,.2);color:#FCA5A5}
+.miss-go{color:var(--txt-3)}
+:host-context(body.light-theme) .miss-badge,:host-context(body.theme-light) .miss-badge,:host-context(.light-theme) .miss-badge,:host-context(.theme-light) .miss-badge{color:#92400E;background:rgba(245,158,11,.22)}
+:host-context(body.light-theme) .miss-badge.is-pending,:host-context(body.theme-light) .miss-badge.is-pending,:host-context(.light-theme) .miss-badge.is-pending,:host-context(.theme-light) .miss-badge.is-pending{color:#1D4ED8;background:rgba(43,127,255,.16)}
+:host-context(body.light-theme) .miss-badge.is-rejected,:host-context(body.theme-light) .miss-badge.is-rejected,:host-context(.light-theme) .miss-badge.is-rejected,:host-context(.theme-light) .miss-badge.is-rejected{color:#B91C1C;background:rgba(248,113,113,.18)}
+@media (max-width:640px){.miss-box{padding:12px}.miss-link{padding:10px 12px;min-height:68px}}
