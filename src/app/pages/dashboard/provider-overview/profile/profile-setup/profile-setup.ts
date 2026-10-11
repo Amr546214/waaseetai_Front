@@ -20,6 +20,8 @@ import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
+import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
 import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
@@ -61,7 +63,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })
@@ -123,6 +125,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			expYears: ['', Validators.required],
 			country: ['', Validators.required],
 			city: ['', Validators.required],
+			// Date of birth (private, optional): stored on the profile and shown only to its owner; never on the public profile.
+			dob: ['', birthDateValidator],
 			languages: [[]],
 			bio: ['', [Validators.required, Validators.maxLength(500)]],
 			portfolioUrl: [''],
@@ -175,8 +179,15 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	// Profile completion extras (P-AU-011)
 	avatarPreview = signal<string>('');
 	avatarUrl = signal<string>('');
+	/** The photo already stored on the account (from the backend): shown after a refresh, and restored when a new upload fails. */
+	private storedAvatarUrl = '';
+	avatarError = signal('');
+	readonly todayIso = new Date().toISOString().slice(0, 10);
+	/** The skills offered for the chosen main specialty (the backend catalog): the only skills that can be picked. */
+	skillOptions = signal<string[]>([]);
+	skillsNotice = signal('');
+	private pruneSkillsOnCatalog = false;
 	skillsList = signal<string[]>([]);
-	skillInput = '';
 	isSuggestingSkills = signal<boolean>(false);
 	notifChannels = signal<string[]>(['email']);
 	aiSuggestedSkills = signal<string[]>([]);
@@ -270,6 +281,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		});
 
 		this.setupForm.get('specialties.mainSpec')?.valueChanges.subscribe(val => {
+			this.loadSkillOptions(val || '');
 			if (val) {
 				const cat = this.categories().find(c => c.slug === val || c.id === val);
 				const catId = cat ? cat.id : val;
@@ -295,11 +307,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.storedSetupTestScore.set(typeof d.setupTestScore === 'number' ? d.setupTestScore : null);
 					this.storedSetupTestStatus.set(typeof d.setupTestStatus === 'string' ? d.setupTestStatus : null);
 					this.skillsList.set((d.skills || []).map((s: { name: string }) => s.name));
+					this.storedAvatarUrl = typeof d.avatarUrl === 'string' ? d.avatarUrl : '';
+					if (this.storedAvatarUrl) { this.avatarUrl.set(this.storedAvatarUrl); this.avatarPreview.set(this.storedAvatarUrl); }
 					this.setupForm.patchValue({
 						profData: {
 							jobTitle: d.headline || d.industry || '',
 							country: normalizeCountry(d.country),
 							city: d.city || '',
+							dob: dobInputValue(d.dob),
 							bio: d.bio || '',
 							languages: d.languages && d.languages.length ? d.languages : ['العربية'],
 							expYears: d.yearsOfExperience ? 
@@ -567,10 +582,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			});
 			return;
 		}
+		// The local preview is only a preview: the photo counts as stored once the upload answered with its URL AND the setup is saved with it.
 		const reader = new FileReader();
 		reader.onload = () => this.avatarPreview.set(reader.result as string);
 		reader.readAsDataURL(file);
 
+		this.avatarError.set('');
 		this.setUploadState('avatar', { status: 'uploading', progress: 0, name: file.name });
 		this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
 			next: (event: any) => {
@@ -580,27 +597,53 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				}
 				if (event.type === HttpEventType.Response) {
 					const url = event.body?.data?.url || '';
+					if (!url) { this.failAvatarUpload(file.name); return; }
 					this.avatarUrl.set(url);
 					this.setUploadState('avatar', { status: 'uploaded', progress: 100, name: file.name });
 				}
 			},
-			error: () => this.setUploadState('avatar', { status: 'error', progress: 0, name: file.name })
+			error: () => this.failAvatarUpload(file.name)
 		});
 	}
 
-	addSkill(event: Event) {
-		event.preventDefault();
-		const v = (this.skillInput || '').trim();
-		if (!v) return;
-		if (v.length <= 40 && this.skillsList().length < 30 && !this.skillsList().some(s => s.trim().toLowerCase() === v.toLowerCase())) {
-			this.skillsList.update(list => [...list, v]);
-		}
-		this.skillInput = '';
+	/** A failed upload is never shown as a photo that is there: the preview goes back to what is really stored and the user is told. */
+	private failAvatarUpload(name: string) {
+		this.avatarUrl.set(this.storedAvatarUrl);
+		this.avatarPreview.set(this.storedAvatarUrl);
+		this.avatarError.set('تعذّر رفع الصورة. لم تُحفظ، جرّب مرة أخرى.');
+		this.setUploadState('avatar', { status: 'error', progress: 0, name });
 	}
 
-	removeSkill(skill: string) {
+	// ── skills: a searchable list of the chosen field's catalog (no free text) ──
+	onSkillsChange(list: string[]) {
 		this.skillsServerError.set('');
-		this.skillsList.update(list => list.filter(s => s !== skill));
+		this.skillsNotice.set('');
+		this.skillsList.set(list.slice(0, 30));
+	}
+
+	/** The user picked another main specialty: skills of the old field that do not belong to the new one are removed (and the user is told). */
+	onMainSpecUserChange() {
+		this.pruneSkillsOnCatalog = true;
+	}
+
+	private loadSkillOptions(mainSpec: string) {
+		if (!mainSpec) { this.skillOptions.set([]); return; }
+		this.providerProfileService.getSkillsCatalog(mainSpec).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+			next: res => {
+				const options = res?.success ? (res.data?.skills ?? []) : [];
+				this.skillOptions.set(options);
+				if (this.pruneSkillsOnCatalog) {
+					this.pruneSkillsOnCatalog = false;
+					const keep = this.skillsList().filter(sk => options.includes(sk));
+					const removed = this.skillsList().length - keep.length;
+					if (removed > 0) {
+						this.skillsList.set(keep);
+						this.skillsNotice.set(`أُزيلت ${removed} مهارة لا تتبع التخصص الجديد.`);
+					}
+				}
+			},
+			error: () => this.skillOptions.set([])
+		});
 	}
 
 	private suggestionInput() {
@@ -647,6 +690,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	addAiSkill(skill: string) {
 		if (!this.aiSuggestedSkills().includes(skill) || this.skillsList().length >= 30) return;
+		// Only a skill of the chosen field's catalog can be added (the server refuses anything else); with no catalog loaded yet the old behaviour stays.
+		if (this.skillOptions().length && !this.skillOptions().includes(skill)) return;
 		const key = skill.trim().normalize('NFKC').toLowerCase();
 		if (!this.skillsList().some(s => s.trim().normalize('NFKC').toLowerCase() === key)) {
 			this.skillsList.update(list => [...list, skill]);
@@ -661,7 +706,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	// Profile completion percentage (P-AU-011 progress ring)
 	profileCompletionPct(): number {
 		let p = 20;
-		if (this.avatarPreview()) p += 30;
+		if (this.avatarUrl()) p += 30; // the uploaded/stored photo, never a preview that was not stored
 		const bio = (this.setupForm.get('profData.bio')?.value || '').trim();
 		if (bio.length > 20) p += 20;
 		if (this.skillsList().length >= 3) p += 15;
@@ -973,10 +1018,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.isSubmitting.set(true);
 		const payload = {
 			skills: this.skillsList(),
+			...(this.avatarUrl() ? { avatarUrl: this.avatarUrl() } : {}),
 			details: {
 				occupation: this.setupForm.get('profData.jobTitle')?.value,
 				country: this.setupForm.get('profData.country')?.value,
 				city: this.setupForm.get('profData.city')?.value,
+				...(this.setupForm.get('profData.dob')?.value ? { dob: this.setupForm.get('profData.dob')?.value } : {}),
 				bio: this.setupForm.get('profData.bio')?.value,
 				languages: this.setupForm.get('profData.languages')?.value,
 				expYears: this.setupForm.get('profData.expYears')?.value

@@ -12,6 +12,10 @@ import { mapHttpError, messageForBackendCode } from '../../../../../core/forms/h
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { OtpInputComponent } from '../../../../../shared/forms/otp-input.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
+import { nationalPhoneForInput, normalizedCountryCode } from '../../../../../core/forms/phone-display';
+import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
@@ -110,7 +114,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
@@ -205,6 +209,22 @@ export class Data implements OnInit, OnDestroy {
   hasPending = computed(() => this.missingItems().some(i => i.status === 'pending_review'));
 
   currentProfileData: any = null;
+  dobLocked = signal(false);
+  readonly todayIso = new Date().toISOString().slice(0, 10);
+  /** The account's country code, shown next to the national number (the number field never repeats it). */
+  phoneCode = signal('+966');
+  skillNames = computed(() => (this.skillsList() || []).map((sk: any) => sk.name as string));
+
+  // ── taxonomy: main specialty (the marketplace Category, stored as its slug), sub-specialties and the skills catalog of that field ──
+  categories = signal<Array<{ id: string; slug: string; nameAr: string; specialties?: Array<{ id: string; nameAr: string }> }>>([]);
+  subSpecOptions = signal<string[]>([]);
+  selectedSubSpecs = signal<string[]>([]);
+  skillOptions = signal<string[]>([]);
+  /** The stored main specialty is older free text that is not a marketplace specialty: shown so the provider knows to pick a real one. */
+  legacySpecialty = signal('');
+  specialtyWarning = signal('');
+  private storedMainSpecialty = '';
+  private storedSubSpecialties: string[] = [];
 
   ngOnInit() {
     // e.g. the withdraw page links to ?tab=payout to add the PayPal email.
@@ -220,6 +240,8 @@ export class Data implements OnInit, OnDestroy {
       yearsOfExperience: [0, Validators.min(0)],
       availabilityStatus: ['AVAILABLE', Validators.required],
       specialty: ['', requiredTrim],
+      // Date of birth: private to the owner, optional, frozen once the account is verified.
+      dob: ['', birthDateValidator],
       country: ['', Validators.required],
       city: ['', Validators.required],
       address: [''],
@@ -268,6 +290,7 @@ export class Data implements OnInit, OnDestroy {
 
     if (isPlatformBrowser(this.platformId)) {
       this.loadProfile();
+      this.loadTaxonomy();
       this.loadActiveSessions();
     }
   }
@@ -293,11 +316,15 @@ export class Data implements OnInit, OnDestroy {
       next: (profile: any) => {
         if (profile) {
           this.currentProfileData = profile;
+          this.dobLocked.set(profile.kycStatus === 'VERIFIED' && !!profile.dob);
+          if (this.dobLocked()) this.profileForm.get('dob')?.disable({ emitEvent: false }); else this.profileForm.get('dob')?.enable({ emitEvent: false });
+          this.phoneCode.set(normalizedCountryCode(profile.user?.phoneCountryCode));
           this.profileForm.patchValue({
             firstName: profile.user?.firstName || '',
             lastName: profile.user?.lastName || '',
             headline: profile.headline || '',
             specialty: profile.mainSpecialty || '',
+            dob: dobInputValue(profile.dob),
             bio: profile.bio || '',
             hourlyRate: profile.hourlyRate || 0,
             yearsOfExperience: profile.yearsOfExperience || 0,
@@ -323,7 +350,7 @@ export class Data implements OnInit, OnDestroy {
 
           this.contactForm.patchValue({
             email: profile.user?.email || '',
-            phoneNumber: profile.user?.phoneNumber || '',
+            phoneNumber: nationalPhoneForInput(profile.user?.phoneCountryCode, profile.user?.phoneNumber),
             alternativePhone: profile.user?.alternativePhone || ''
           });
 
@@ -359,6 +386,12 @@ export class Data implements OnInit, OnDestroy {
             this.docsForm.get('idDocumentUrl')?.clearValidators();
             this.docsForm.get('idDocumentUrl')?.updateValueAndValidity();
           }
+
+          // Specialty: the stored value is normalised to a marketplace category (slug / id / Arabic name); anything else is flagged as older free text.
+          this.storedMainSpecialty = String(profile.mainSpecialty || '');
+          this.storedSubSpecialties = Array.isArray(profile.subSpecialties) ? profile.subSpecialties : [];
+          this.selectedSubSpecs.set([...this.storedSubSpecialties]);
+          this.applyTaxonomy();
 
           // Sync relations
           this.skillsList.set(profile.skills || []);
@@ -419,39 +452,84 @@ export class Data implements OnInit, OnDestroy {
     return 'مخ';
   }
 
-  addSkill(skillInput: HTMLInputElement) {
-    const skillName = skillInput.value.trim();
-    if (!skillName) { this.skillError.set('اكتب اسم المهارة أولًا'); return; }
-
-    const currentSkills = this.skillsArray.value as string[];
-    if (currentSkills.includes(skillName)) { this.skillError.set('هذه المهارة مضافة مسبقًا'); return; }
+  /** The skills picker (catalog of the chosen field): every add/remove is saved at once, exactly like the old chip editor. */
+  onSkillsChange(next: string[]) {
     this.skillError.set('');
-    const newSkills = [...currentSkills, skillName];
-    this.profileService.updateSkills(newSkills).subscribe({
+    this.profileService.updateSkills(next).subscribe({
       next: (updatedProfile: any) => {
         this.skillsList.set(updatedProfile.skills);
-        this.skillsArray.push(this.fb.control(skillName));
-        skillInput.value = '';
-        this.displayToast('تم إضافة المهارة بنجاح');
-        this.refreshCompletion();
+        this.skillsArray.clear();
+        (updatedProfile.skills || []).forEach((sk: any) => this.skillsArray.push(this.fb.control(sk.name)));
+        this.displayToast('تم تحديث المهارات');
+        this.loadProfile();
       },
-      error: (err) => this.skillError.set(mapHttpError(err, { fallback: 'تعذر إضافة المهارة، حاول مرة أخرى' }).message)
+      error: (err) => this.skillError.set(mapHttpError(err, { fallback: 'تعذر تحديث المهارات، حاول مرة أخرى' }).message)
     });
   }
 
-  removeSkill(index: number) {
-    const currentSkills = [...this.skillsArray.value];
-    currentSkills.splice(index, 1);
-    this.skillError.set('');
-    this.profileService.updateSkills(currentSkills).subscribe({
-      next: (updatedProfile: any) => {
-        this.skillsList.set(updatedProfile.skills);
-        this.skillsArray.removeAt(index);
-        this.displayToast('تم إزالة المهارة بنجاح');
-        this.refreshCompletion();
-      },
-      error: (err) => this.skillError.set(mapHttpError(err, { fallback: 'تعذر إزالة المهارة، حاول مرة أخرى' }).message)
+  // ── taxonomy ──
+  private loadTaxonomy() {
+    this.profileService.getSpecialtyCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: res => { this.categories.set(res?.success ? res.data : []); this.applyTaxonomy(); },
+      error: () => this.categories.set([])
     });
+  }
+
+  private categoryOf(value: string) {
+    const v = (value || '').trim();
+    return this.categories().find(c => c.slug === v || c.id === v || c.nameAr === v) ?? null;
+  }
+
+  /** Needs both the profile and the taxonomy: shows the stored main specialty as the matching category (or flags older free text). */
+  private applyTaxonomy() {
+    if (!this.categories().length || !this.currentProfileData) return;
+    const category = this.categoryOf(this.storedMainSpecialty);
+    if (category) {
+      this.legacySpecialty.set('');
+      this.profileForm.get('specialty')?.setValue(category.slug, { emitEvent: false });
+      this.subSpecOptions.set((category.specialties ?? []).map(sp => sp.nameAr));
+      this.loadSkillOptions(category.slug);
+    } else {
+      this.legacySpecialty.set(this.storedMainSpecialty);
+      this.profileForm.get('specialty')?.setValue('', { emitEvent: false });
+      this.subSpecOptions.set([]);
+      this.skillOptions.set([]);
+    }
+  }
+
+  private loadSkillOptions(slug: string) {
+    this.profileService.getSkillsCatalog(slug).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: res => this.skillOptions.set(res?.success ? (res.data?.skills ?? []) : []),
+      error: () => this.skillOptions.set([])
+    });
+  }
+
+  /** The provider picked another main specialty: show its sub-specialties and skills, and warn what will be removed when saving. */
+  onSpecialtyChanged() {
+    const category = this.categoryOf(String(this.profileForm.get('specialty')?.value || ''));
+    this.specialtyWarning.set('');
+    this.legacySpecialty.set('');
+    if (!category) { this.subSpecOptions.set([]); this.skillOptions.set([]); return; }
+    const options = (category.specialties ?? []).map(sp => sp.nameAr);
+    this.subSpecOptions.set(options);
+    const keptSubs = this.selectedSubSpecs().filter(n => options.includes(n));
+    const droppedSubs = this.selectedSubSpecs().length - keptSubs.length;
+    this.selectedSubSpecs.set(keptSubs);
+    this.profileService.getSkillsCatalog(category.slug).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: res => {
+        const skills = res?.success ? (res.data?.skills ?? []) : [];
+        this.skillOptions.set(skills);
+        const sameField = this.categoryOf(this.storedMainSpecialty)?.slug === category.slug;
+        const droppedSkills = sameField ? 0 : (this.skillsList() || []).filter((sk: any) => !skills.includes(sk.name)).length;
+        const parts = [droppedSubs ? `${droppedSubs} تخصص فرعي` : '', droppedSkills ? `${droppedSkills} مهارة` : ''].filter(Boolean);
+        if (parts.length) this.specialtyWarning.set(`عند الحفظ ستُزال ${parts.join(' و')} لا تتبع التخصص الجديد.`);
+      },
+      error: () => this.skillOptions.set([])
+    });
+  }
+
+  toggleSubSpec(name: string) {
+    this.selectedSubSpecs.update(list => list.includes(name) ? list.filter(n => n !== name) : (list.length >= 30 ? list : [...list, name]));
   }
 
   addLanguage() {
@@ -561,6 +639,8 @@ export class Data implements OnInit, OnDestroy {
       yearsOfExperience: val.yearsOfExperience,
       availabilityStatus: val.availabilityStatus,
       mainSpecialty: val.specialty,
+      ...(val.dob && !this.dobLocked() ? { dob: val.dob } : {}),
+      subSpecialties: this.selectedSubSpecs(),
       country: val.country,
       city: val.city,
       location: val.address,

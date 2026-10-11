@@ -29,7 +29,7 @@ describe('provider payout tab: add vs change + OTP delivery', () => {
 			imports: [Data],
 			providers: [provideRouter([]), { provide: AuthStore, useValue: { currentUser: () => null } },
 				{ provide: ProviderProfileService, useValue: {
-					getProfile: () => of({ ...BASE, paypalPayoutEmail: paypal }), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
+					getProfile: () => of({ ...BASE, paypalPayoutEmail: paypal }), getSpecialtyCategories: () => of({ success: true, data: [] }), getSkillsCatalog: () => of({ success: true, data: { category: null, skills: [] } }), getActiveSessions: vi.fn(() => of({ data: [] })), getChangeRequests: vi.fn(() => of([])),
 					requestPaypalEmailChange: request, confirmPaypalEmailChange: vi.fn(() => of({ paypalPayoutEmail: 'x@paypal.example' })),
 				} }],
 		});

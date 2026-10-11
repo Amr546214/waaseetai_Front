@@ -132,6 +132,12 @@
               <ws-field-error [control]="setupForm.get('profData.city')" label="المدينة" />
             </div>
             <div class="f-wrap">
+              <label class="f-lbl" for="pr-dob">تاريخ الميلاد <span class="card-optional">اختياري</span></label>
+              <input type="date" class="f-inp" id="pr-dob" formControlName="dob" dir="ltr" [max]="todayIso" min="1900-01-01" data-testid="setup-dob" autocomplete="bday">
+              <p class="f-hint">خاص بك فقط، لا يظهر في ملفك العام.</p>
+              @if (setupForm.get('profData.dob')?.invalid) { <p class="f-hint" role="alert" style="color:#ff8c69">تاريخ الميلاد غير صالح</p> }
+            </div>
+            <div class="f-wrap">
               <label class="f-lbl">اللغات</label>
               <div class="f-chips">
                 @for (lang of availableLanguages; track lang) {
@@ -172,6 +178,9 @@
               }
             </div>
             <div class="avatar-actions">
+              @if (uploadStates()['avatar']?.status === 'uploading') { <div class="avatar-status" data-testid="avatar-status" role="status">جارٍ رفع الصورة…</div> }
+              @else if (uploadStates()['avatar']?.status === 'uploaded') { <div class="avatar-status" data-testid="avatar-status" role="status">تم رفع الصورة. تُحفظ مع بياناتك عند إكمال التسجيل.</div> }
+              @if (avatarError()) { <div class="avatar-status" data-testid="avatar-error" role="alert" style="color:#ff8c69;font-weight:700">{{ avatarError() }}</div> }
               <button type="button" class="avatar-btn upload" aria-label="رفع صورة من الجهاز">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-upload"></use></svg>
                 رفع صورة
@@ -188,16 +197,6 @@
             المهارات والاهتمامات
             <span class="card-optional">اختياري</span>
           </div>
-          @if (skillsList().length) {
-            <div class="skills-chips">
-              @for (skill of skillsList(); track skill) {
-                <span class="skill-chip">
-                  {{ skill }}
-                  <button type="button" class="skill-chip-remove" (click)="removeSkill(skill)" aria-label="حذف">&times;</button>
-                </span>
-              }
-            </div>
-          }
           <div class="skills-ai">
             <button type="button" class="ai-suggest-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills">
               {{ isSuggestingSkills() ? 'جاري إنشاء الاقتراح...' : 'اقتراح مهارات بالذكاء الاصطناعي' }}
@@ -217,10 +216,8 @@
             </div>
             }
           </div>
-          <div class="skills-input-row">
-            <input type="text" class="skills-input" placeholder="أدخل اسم مهارة موجودة في الدليل..." maxlength="40" (keydown.enter)="addSkill($event)" [(ngModel)]="skillInput" [ngModelOptions]="{standalone: true}">
-            <button type="button" class="skills-add-btn" (click)="addSkill($event)">إضافة</button>
-          </div>
+          @if (skillsNotice()) { <p class="f-hint" role="status" data-testid="skills-notice" style="color:#fbbf24">{{ skillsNotice() }}</p> }
+          <ws-skills-picker [options]="skillOptions()" [selected]="skillsList()" (selectedChange)="onSkillsChange($event)" />
         </div>
 
         <div class="form-card">
@@ -296,7 +293,7 @@
           <div class="f-grid">
             <div class="f-wrap f-full">
               <label class="f-lbl" for="main-spec">التخصص الرئيسي <span class="f-req">*</span></label>
-              <select class="f-inp" id="main-spec" formControlName="mainSpec" required>
+              <select class="f-inp" id="main-spec" formControlName="mainSpec" required (change)="onMainSpecUserChange()">
                 <option value="" disabled selected>اختر تخصصك الرئيسي</option>
                 @for (cat of categories(); track cat.id) {
                   <option [value]="cat.slug">{{ cat.nameAr }}</option>

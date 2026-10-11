@@ -28,7 +28,7 @@ describe('provider profile data tabs: shared validation', () => {
   const setup = (accountType: AccountType | null = null) => {
     svc = {
       getProfile: vi.fn(() => of(PROFILE)),
-      getActiveSessions: vi.fn(() => of({ data: [] })),
+      getSpecialtyCategories: vi.fn(() => of({ success: true, data: [] })), getSkillsCatalog: vi.fn(() => of({ success: true, data: { category: null, skills: [] } })), getActiveSessions: vi.fn(() => of({ data: [] })),
       updateBasicInfo: vi.fn(() => of({})),
       initiateSensitiveChange: vi.fn(() => of({ data: { requestId: 'r1', emailHint: 'a***@b.co' } })),
       verifySensitiveChange: vi.fn(() => of({ data: { status: 'APPLIED' } })),
@@ -172,11 +172,9 @@ describe('provider profile data tabs: shared validation', () => {
     beforeEach(() => { setup(); document.body.appendChild(el()); });
     afterEach(() => el().remove());
 
-    it('a failed addSkill shows an Arabic error and keeps the list unchanged', () => {
+    it('a failed skills save (picker) shows an Arabic error and keeps the list unchanged', () => {
       svc['updateSkills'].mockReturnValue(httpError(500, 'Internal server error'));
-      const input = document.createElement('input');
-      input.value = 'Angular';
-      component.addSkill(input);
+      component.onSkillsChange(['Angular']);
       render();
       expect(component.skillError()).toMatch(ARABIC);
       expect(component.skillError()).not.toContain('Internal');
@@ -184,21 +182,16 @@ describe('provider profile data tabs: shared validation', () => {
       expect(el().querySelector('[data-testid="skill-error"]')).toBeTruthy();
     });
 
-    it('empty and duplicate skills say why nothing happened', () => {
-      const input = document.createElement('input');
-      component.addSkill(input);
-      expect(component.skillError()).toBe('اكتب اسم المهارة أولًا');
-      component.skillsArray.push(component['fb'].control('Angular'));
-      input.value = 'Angular';
-      component.addSkill(input);
-      expect(component.skillError()).toBe('هذه المهارة مضافة مسبقًا');
-      expect(svc['updateSkills']).not.toHaveBeenCalled();
+    it('a skill outside the field catalog is refused by the server with its Arabic message, which is shown as is', () => {
+      svc['updateSkills'].mockReturnValue(httpError(400, 'اختر مهارات من قائمة المهارات المقترحة لمجالك؛ لم يتم حفظ البيانات. (Python)'));
+      component.onSkillsChange(['Python']);
+      expect(component.skillError()).toContain('اختر مهارات من قائمة المهارات المقترحة');
     });
 
-    it('a failed removeSkill shows an Arabic error', () => {
+    it('a failed skills removal shows an Arabic error and the list stays', () => {
       component.skillsArray.push(component['fb'].control('Angular'));
       svc['updateSkills'].mockReturnValue(httpError(0, ''));
-      component.removeSkill(0);
+      component.onSkillsChange([]);
       expect(component.skillError()).toMatch(ARABIC);
       expect(component.skillsArray.length).toBe(1);
     });
