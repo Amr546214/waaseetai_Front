@@ -159,20 +159,24 @@ describe('Data (marketer profile): shared validation', () => {
   describe('basics tab (identity change request)', () => {
     beforeEach(() => goTo('basics'));
 
-    it('no mandatory marker on read-only email or on the optional phone', () => {
+    it('the e-mail and the phone are display-only (no input for either) and the phone is shown with flag / country / code / local number', () => {
       expect(el().querySelector('label[for="af-email"] .req')).toBeNull();
-      expect(el().querySelector('label[for="af-phone"] .req')).toBeNull();
+      expect(el().querySelector('#af-phone')).toBeNull();
       expect(el().querySelector('[data-testid="email-readonly-hint"]')?.textContent).toContain('لا يمكن');
+      expect(el().querySelector('[data-testid="phone-readonly-hint"]')?.textContent).toContain('لا يمكن تغيير رقم الجوال');
+      const ph = el().querySelector('[data-testid="phone-readonly"]')!.textContent!.replace(/\s+/g, ' ');
+      expect(ph).toContain('🇸🇦'); expect(ph).toContain('+966'); expect(ph).toContain('501234567');
+      expect(c.basicsForm.get('phoneNumber')).toBeNull();
     });
 
     it('over-long values: no request, summary, inline errors, focus, button enabled', () => {
-      c.basicsForm.patchValue({ firstName: 'x'.repeat(51), phoneNumber: '1'.repeat(21) });
+      c.basicsForm.patchValue({ firstName: 'x'.repeat(51), nationalId: '1'.repeat(21) });
       render();
       c.submitBasicsChangeRequest();
       render();
       expect(svc.createIdentityRequest).not.toHaveBeenCalled();
       expect(summary()).toContain('الاسم الأول');
-      expect(summary()).toContain('رقم الجوال');
+      expect(summary()).toContain('رقم الهوية');
       expect(errors().length).toBeGreaterThanOrEqual(2);
       expect(document.activeElement?.id).toBe('af-fname');
       expect(btn('إرسال طلب تعديل').disabled).toBe(false);
@@ -194,7 +198,7 @@ describe('Data (marketer profile): shared validation', () => {
     });
 
     it('everything cleared: asks for at least one value', () => {
-      c.basicsForm.patchValue({ firstName: '', lastName: '', nationalId: '', phoneNumber: '' });
+      c.basicsForm.patchValue({ firstName: '', lastName: '', nationalId: '' });
       c.submitBasicsChangeRequest();
       render();
       expect(svc.createIdentityRequest).not.toHaveBeenCalled();
@@ -227,14 +231,21 @@ describe('Data (marketer profile): shared validation', () => {
     });
 
     it('zod 400 (English) lands on the right field in Arabic', async () => {
-      svc.createIdentityRequest.mockReturnValue(httpErr(400, { message: 'Validation Error', errors: [{ path: ['phoneNumber'], message: 'String must contain at most 20 character(s)' }] }));
-      c.basicsForm.patchValue({ phoneNumber: '123' });
+      svc.createIdentityRequest.mockReturnValue(httpErr(400, { message: 'Validation Error', errors: [{ path: ['nationalId'], message: 'String must contain at most 20 character(s)' }] }));
+      c.basicsForm.patchValue({ nationalId: '123' });
       c.submitBasicsChangeRequest();
       render();
-      expect(c.basicsForm.get('phoneNumber')!.errors?.['server']).toContain('رقم الجوال');
-      expect(hasEnglish(c.basicsForm.get('phoneNumber')!.errors?.['server'])).toBe(false);
+      expect(c.basicsForm.get('nationalId')!.errors?.['server']).toContain('رقم الهوية');
+      expect(hasEnglish(c.basicsForm.get('nationalId')!.errors?.['server'])).toBe(false);
       await wait(100);
-      expect(document.activeElement?.id).toBe('af-phone');
+      expect(document.activeElement?.id).toBe('af-nid');
+    });
+
+    it('a request never carries the phone: only the name and the national id can be sent', () => {
+      svc.createIdentityRequest.mockReturnValue(of({ success: true, data: [] }));
+      c.basicsForm.patchValue({ firstName: 'جديد', nationalId: '2000000000' });
+      c.submitBasicsChangeRequest();
+      expect(svc.createIdentityRequest.mock.calls[0][0]).not.toHaveProperty('phoneNumber');
     });
 
     it('nationality is disabled with a visible reason (it is never sent)', () => {

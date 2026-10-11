@@ -6,6 +6,7 @@ import { finalize } from 'rxjs';
 import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { canonicalStoredPhone, phoneCountryView } from '../../../../../core/forms/phone-countries';
 import { paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
@@ -25,7 +26,6 @@ const LABELS: Record<string, string> = {
 	firstName: 'الاسم الأول',
 	lastName: 'اسم العائلة',
 	nationalId: 'رقم الهوية الوطنية',
-	phoneNumber: 'رقم الجوال',
 	currentPassword: 'كلمة المرور الحالية',
 	newPassword: 'كلمة المرور الجديدة',
 	confirmPassword: 'تأكيد كلمة المرور الجديدة',
@@ -100,6 +100,8 @@ export class Data implements OnInit {
 
 	summary = signal<MarketerSummary | null>(null);
 	profile = signal<MarketerProfile | null>(null);
+	/** The account phone is display-only (flag + country + code + local number): immutable from the interface. */
+	phoneView = computed(() => { const u = this.profile()?.user as { phoneCountryCode?: string | null; phoneNumber?: string | null } | undefined; return phoneCountryView(canonicalStoredPhone(u?.phoneCountryCode, u?.phoneNumber)); });
 	channels = signal<AffiliateChannelHandle[]>([]);
 
 	activeTab = signal<string>('profile');
@@ -179,13 +181,12 @@ export class Data implements OnInit {
 		// could lock out a Google-authenticated affiliate with no password).
 		// The email input on this tab stays read-only, bound directly to
 		// profile()?.user?.email, never to this form.
-		// Backend CreateIdentityRequestSchema (strict): firstName/lastName max 50, nationalId/phoneNumber max 20.
+		// Backend CreateIdentityRequestSchema (strict): firstName/lastName max 50, nationalId max 20 (the account phone is immutable from the interface: it is shown, never sent).
 		// Every field is optional, only the non-empty ones are sent.
 		this.basicsForm = this.fb.group({
 			firstName: ['', [Validators.maxLength(50)]],
 			lastName: ['', [Validators.maxLength(50)]],
-			nationalId: ['', [Validators.maxLength(20)]],
-			phoneNumber: ['', [Validators.maxLength(20)]]
+			nationalId: ['', [Validators.maxLength(20)]]
 		});
 
 		this.channelForm = this.fb.group({
@@ -275,8 +276,7 @@ export class Data implements OnInit {
 					this.basicsForm.patchValue({
 						firstName: res.data.user?.firstName || '',
 						lastName: res.data.user?.lastName || '',
-						nationalId: res.data.user?.idNumber || '',
-						phoneNumber: res.data.user?.phoneNumber || ''
+						nationalId: res.data.user?.idNumber || ''
 					});
 				} else {
 					// A well-formed but unsuccessful response (res.success===false) —
@@ -397,8 +397,8 @@ export class Data implements OnInit {
 		if (!attempt.valid) return;
 
 		const value = this.basicsForm.value;
-		const payload: { firstName?: string; lastName?: string; nationalId?: string; phoneNumber?: string } = {};
-		const fields = ['firstName', 'lastName', 'nationalId', 'phoneNumber'] as const;
+		const payload: { firstName?: string; lastName?: string; nationalId?: string } = {};
+		const fields = ['firstName', 'lastName', 'nationalId'] as const;
 		for (const f of fields) {
 			const v = String(value[f] ?? '').trim();
 			if (v) payload[f] = v;
@@ -408,13 +408,13 @@ export class Data implements OnInit {
 		// "no change" otherwise: say so before sending (what is sent stays the same).
 		const u = this.profile()?.user;
 		const current: Record<string, string> = {
-			firstName: u?.firstName ?? '', lastName: u?.lastName ?? '', nationalId: u?.idNumber ?? '', phoneNumber: u?.phoneNumber ?? '',
+			firstName: u?.firstName ?? '', lastName: u?.lastName ?? '', nationalId: u?.idNumber ?? '',
 		};
 		const changed = fields.filter(f => payload[f] !== undefined && payload[f] !== current[f].trim());
 		if (!changed.length) {
 			this.tabNotice.set(Object.keys(payload).length
-				? 'لم تغيّر أي بيانات. عدّل الاسم أو رقم الهوية أو الجوال ثم أرسل الطلب.'
-				: 'أدخل قيمة جديدة لحقل واحد على الأقل (الاسم الأول، اسم العائلة، رقم الهوية أو الجوال).');
+				? 'لم تغيّر أي بيانات. عدّل الاسم أو رقم الهوية ثم أرسل الطلب.'
+				: 'أدخل قيمة جديدة لحقل واحد على الأقل (الاسم الأول، اسم العائلة أو رقم الهوية).');
 			this.scoped('#af-fname').focus?.();
 			return;
 		}

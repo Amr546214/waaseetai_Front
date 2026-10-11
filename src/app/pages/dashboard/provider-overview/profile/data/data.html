@@ -569,7 +569,7 @@
         </svg></div>
       <div>
         <div class="form-card-title">بيانات التواصل</div>
-        <div class="form-card-sub">للعرض فقط</div>
+        <div class="form-card-sub">البريد والجوال الأساسي للعرض فقط، ورقم WhatsApp يُحفظ مباشرة</div>
       </div>
     </div>
     <div class="form-grid form-col-2" data-testid="contact-readonly">
@@ -586,17 +586,21 @@
         } @else {
         <div class="inp-field" data-testid="contact-phone" style="opacity:.95">غير مضاف</div>
         }</div>
-      @if (contactWhatsapp()) {
-      <div class="inp-group"><span class="inp-label">رقم WhatsApp</span>
-        <div class="inp-field" dir="ltr" data-testid="contact-whatsapp" style="display:flex;align-items:center;opacity:.95">{{ contactWhatsapp() }}</div></div>
-      }
+      <div class="inp-group"><label class="inp-label" for="ct-whatsapp">رقم WhatsApp (اختياري)</label>
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <input type="tel" id="ct-whatsapp" class="inp-field" dir="ltr" inputmode="tel" autocomplete="tel" data-testid="contact-whatsapp-input" placeholder="+20 1XXXXXXXXX" [formControl]="whatsappControl" (keydown.enter)="saveWhatsapp(); $event.preventDefault()" style="flex:1;min-width:0">
+          <button type="button" class="btn-primary" data-testid="save-whatsapp-btn" [disabled]="savingWhatsapp()" (click)="saveWhatsapp()">{{ savingWhatsapp() ? 'جاري الحفظ...' : 'حفظ رقم WhatsApp' }}</button>
+        </div>
+        @if (whatsappControl.touched && whatsappControl.errors?.['whatsapp']) { <span class="field-error" role="alert" data-testid="whatsapp-error">رقم WhatsApp غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +</span> }
+        @if (whatsappControl.errors?.['server']) { <span class="field-error" role="alert" data-testid="whatsapp-error">{{ whatsappControl.errors?.['server'] }}</span> }
+        <span class="inp-hint" data-testid="whatsapp-hint">رقم اختياري يُحفظ مباشرة. اتركه فارغًا لحذفه.</span></div>
       <div class="inp-group" style="grid-column:1/-1" data-testid="contact-location-note">
         <span class="inp-label">الدولة والمدينة</span>
         <span>{{ profileForm.get('country')?.value || 'غير محددة' }}{{ profileForm.get('city')?.value ? ' — ' + profileForm.get('city')?.value : '' }}</span>
         <span class="inp-hint">الدولة والمدينة يتم تعديلهما من تبويب «الملف المهني». <button type="button" class="gov-bar-link" (click)="setTab('profile')">الانتقال إلى الملف المهني</button></span>
       </div>
     </div>
-    <p class="inp-hint" data-testid="contact-readonly-note" style="margin-top:12px">البريد الإلكتروني ورقم الجوال للعرض فقط. للمساعدة تواصل مع الدعم.</p>
+    <p class="inp-hint" data-testid="contact-readonly-note" style="margin-top:12px">البريد الإلكتروني ورقم الجوال الأساسي للعرض فقط. للمساعدة تواصل مع الدعم.</p>
   </div>
 </div>
 
