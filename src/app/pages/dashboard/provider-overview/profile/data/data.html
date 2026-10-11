@@ -68,8 +68,8 @@
     <li class="miss-item" [class.is-pending]="item.status === 'pending_review'" [class.is-rejected]="item.status === 'rejected'" [attr.data-status]="item.status" [attr.data-key]="item.key">
       <button type="button" class="miss-link" [attr.data-tab]="item.tab" (click)="openMissingItem(item)">
         <span class="miss-main">
-          <span class="miss-label">{{ item.label }}</span>
-          <span class="miss-hint">{{ item.hint }}</span>
+          <span class="miss-label" [attr.title]="item.label">{{ item.label }}</span>
+          <span class="miss-hint" [attr.title]="item.hint">{{ item.hint }}</span>
         </span>
         @if (item.status === 'pending_review') {
         <span class="miss-badge is-pending" data-testid="miss-pending">قيد المراجعة</span>
