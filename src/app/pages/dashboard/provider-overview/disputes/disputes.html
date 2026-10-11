@@ -11,7 +11,7 @@
 <!-- AI Disclosure -->
 <div class="flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-[#7B2FBE]/10 to-[#2B7FFF]/5 border border-[#7B2FBE]/25 rounded-[14px] mb-4 backdrop-blur-md">
   <div class="w-8 h-8 rounded-[9px] bg-[#7B2FBE]/20 flex items-center justify-center shrink-0 text-[#A56BE0]">
-    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+    <svg class="w-4 h-4" aria-hidden="true"><use href="#i-ai"></use></svg>
   </div>
   <div class="flex-1">
     <div class="text-[10px] font-black text-[#A56BE0] tracking-widest mb-0.5">وسيط، إدارة النزاعات</div>
@@ -116,7 +116,7 @@
         @if(d.aiDone) {
           <svg class="w-[15px] h-[15px] text-[#0FA99A] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         } @else {
-          <svg class="w-[15px] h-[15px] text-[#A56BE0] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          <svg class="w-[15px] h-[15px] text-[#A56BE0] shrink-0 mt-0.5" aria-hidden="true"><use href="#i-ai"></use></svg>
         }
         <div class="text-[12px] leading-relaxed" [ngClass]="d.aiDone ? 'text-[var(--txt-2)]' : 'text-[var(--txt-3)]'">
           <span class="font-black me-1" [ngClass]="d.aiDone ? 'text-[var(--txt)]' : 'text-[var(--txt)]'">{{ d.aiDone ? 'النتيجة:' : (d.status === 'open' && d.icon === 'hands' ? 'تسوية مقترحة:' : 'الحالة الحالية:') }}</span>

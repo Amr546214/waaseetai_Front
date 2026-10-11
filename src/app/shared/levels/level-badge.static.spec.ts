@@ -78,3 +78,16 @@ describe('purple AI identity icon on the provider level page', () => {
 		expect(html).not.toContain('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z');
 	});
 });
+
+describe('provider dashboard AI identity banners use the official purple i-ai mark (no shield look-alike)', () => {
+	const base = 'pages/dashboard/provider-overview/';
+	it.each([
+		'settings/account/account.html', 'messages/messages.html', 'projects/rating-page/provider-rating-page.html', 'projects/archived/archived.html', 'profile/public/public.html',
+		'profile/add-account/add-account.html', 'finance/transaction-details/transaction-details.html', 'finance/invoices/invoices.html', 'notifications/favorite/favorite.html',
+		'help/help.html', 'help/ticket-detail/ticket-detail.html', 'help/new-ticket/new-ticket.html', 'reports/reports.html', 'company/official-invoices/official-invoices.component.html',
+	])('%s', (file) => {
+		const html = read(base + file);
+		expect(html).toContain('href="#i-ai"');
+		expect(html).not.toContain('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z');
+	});
+});
