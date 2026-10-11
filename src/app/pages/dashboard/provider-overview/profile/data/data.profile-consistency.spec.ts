@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { Data } from './data';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { messageForBackendCode } from '../../../../../core/forms/http-error';
 import { AuthStore } from '../../../../../core/store/auth.store';
 
 // Provider data page: what was saved comes back the same after a refresh (photo, specialty + sub-specialties + skills, phone, date of birth).
@@ -150,5 +151,9 @@ describe('provider data page: stored values come back consistently', () => {
     expect(q('[data-testid="dob-hint"]')!.textContent).toContain('موثّق');
     component.saveProfile();
     expect(updateBasicInfo.mock.calls[0][0]).not.toHaveProperty('dob');
+  });
+
+  it('phone: a "+" number of another country gets its own Arabic message on the phone field', () => {
+    expect(messageForBackendCode('INVALID_PHONE_COUNTRY')).toContain('رمز الدولة');
   });
 });

@@ -56,6 +56,7 @@ export const BACKEND_CODE_MESSAGES: Record<string, string> = {
 	INVALID_URL: 'أحد الروابط غير صالح، يجب أن يبدأ بـ http:// أو https://',
 	INVALID_EMAIL: 'البريد الإلكتروني غير صالح',
 	INVALID_PHONE: 'رقم الجوال غير صالح',
+	INVALID_PHONE_COUNTRY: 'رمز الدولة في الرقم لا يطابق رمز دولة حسابك. اكتب الرقم المحلي بدون رمز الدولة.',
 	INVALID_ALTERNATIVE_PHONE: 'رقم الجوال البديل غير صالح',
 	EMAIL_ALREADY_USED: 'هذا البريد الإلكتروني مستخدم بالفعل',
 	PHONE_ALREADY_USED: 'رقم الجوال هذا مستخدم بالفعل',
