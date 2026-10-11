@@ -53,3 +53,14 @@ describe('specialty empty state (upload / accreditation selectors)', () => {
 		expect(readFileSync(base + 'accreditation/new/new.ts', 'utf8')).toContain('res?.registered');
 	});
 });
+
+describe('selector tags do not call a test-passed specialty "approved"', () => {
+	it('both selectors show "بانتظار الاعتماد" unless the specialty is APPROVED', () => {
+		const base = join(__dirname, '../../pages/dashboard/provider-overview/business-models/');
+		for (const f of ['new-project/components/step2-specialty/step2-specialty.component.html', 'accreditation/new/components/step1-specialty/step1-specialty.component.html']) {
+			const html = readFileSync(base + f, 'utf8');
+			expect(html).toContain("accreditationStatus === 'APPROVED'");
+			expect(html).toContain('بانتظار');
+		}
+	});
+});

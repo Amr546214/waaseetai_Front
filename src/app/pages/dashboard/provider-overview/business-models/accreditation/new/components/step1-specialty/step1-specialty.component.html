@@ -57,7 +57,7 @@
 				<div class="spec-ico ic-teal"
 					[innerHTML]="spec.icon"></div>
 				<div class="spec-name">{{ spec.name }}</div>
-				<div class="approved-tag">&#10003; معتمد</div>
+				<div class="approved-tag" [attr.data-status]="$any(spec).accreditationStatus">@if ($any(spec).accreditationStatus === 'APPROVED') { &#10003; معتمد } @else { &#10003; اجتزت الاختبار · بانتظار الاعتماد }</div>
 			</div>
 			}
 		</div>

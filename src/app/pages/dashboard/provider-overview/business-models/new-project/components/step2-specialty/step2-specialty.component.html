@@ -51,7 +51,7 @@
 						}
 					</div>
 					<div class="spec-name">{{ spec.name }}</div>
-					<div class="approved-tag">&#10003; معتمد {{ spec.score }}%</div>
+					<div class="approved-tag" [attr.data-status]="spec.accreditationStatus">@if (spec.accreditationStatus === 'APPROVED') { &#10003; معتمد {{ spec.score }}% } @else { &#10003; اجتزت الاختبار {{ spec.score }}% · بانتظار اعتماد الأدمن }</div>
 				</div>
 				}
 			</div>
