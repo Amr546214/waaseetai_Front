@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { SpecialtyStatusComponent } from '../../../../../shared/forms/specialty-status.component';
 import type { RegisteredSpecialty, SpecialtyApprovalInfo } from '../../../../../core/utils/specialty-states';
+import { SPECIALTY_TEST_PASS_SCORE, SPECIALTY_TEST_QUESTION_COUNT, SPECIALTY_TEST_TIME_LIMIT_MINUTES, SpecialtyTestComponent, type SpecialtyTestPhase, type SpecialtyTestQuestion, type SpecialtyTestResult } from '../../../../../shared/specialty-test/specialty-test.component';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
@@ -115,7 +116,7 @@ export interface PortfolioReview {
 @Component({
 	selector: 'app-profile-specialties',
 	standalone: true,
-	imports: [CommonModule, FormsModule, SpecialtyStatusComponent],
+	imports: [CommonModule, FormsModule, SpecialtyStatusComponent, SpecialtyTestComponent],
 	templateUrl: './specialties.html',
 	styleUrls: ['./specialties.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
@@ -960,6 +961,47 @@ export class Specialties implements OnInit, OnDestroy {
 		const len = this.quizQuestions().length;
 		return len > 0 && this.answeredCount() >= len && !this.isStreamingQuestions();
 	});
+
+	// ── The test screen is the shared specialty test (shared/specialty-test): these map this page's state onto it ──
+	readonly testQuestionCount = SPECIALTY_TEST_QUESTION_COUNT;
+	readonly testMinutes = SPECIALTY_TEST_TIME_LIMIT_MINUTES;
+	readonly testPassScore = SPECIALTY_TEST_PASS_SCORE;
+
+	testPhase = computed<SpecialtyTestPhase | null>(() => {
+		if (this.quizGenerationError() && !this.isSubmittingQuiz() && !this.quizResult()) return 'error';
+		if (this.isSubmittingQuiz()) return 'submitting';
+		if (this.quizResult()) return 'result';
+		if (this.isQuizActive()) return this.quizQuestions().length === 0 ? 'generating' : 'active';
+		return null;
+	});
+	testTotal = computed<number | null>(() => this.expectedQuestions() ?? (this.quizQuestions().length || null));
+	testQuestion = computed<SpecialtyTestQuestion | null>(() => {
+		const q = this.currentQuestion();
+		return q ? { text: q.text, options: this.getNormalizedOptions(q).map(o => o.text), tag: q.subSpecialtyTag || null } : null;
+	});
+	testSelectedIndex = computed<number | null>(() => {
+		const q = this.currentQuestion();
+		if (!q) return null;
+		const selected = this.getSelectedOptionForCurrent();
+		const i = this.getNormalizedOptions(q).findIndex(o => o.id === selected);
+		return i < 0 ? null : i;
+	});
+	testTimeLabel = computed(() => (this.timerStarted() || this.timerRemainingSec() === 0 ? this.formattedTimeRemaining() : `${SPECIALTY_TEST_TIME_LIMIT_MINUTES}:00`));
+	testStreaming = computed(() => (this.isStreamingQuestions() ? { message: this.generationInProgress() ? 'التقييم قيد التوليد…' : 'يتم توليد باقي الأسئلة، ويمكنك البدء بالمتاح منها.', count: this.streamProgressCount(), total: this.expectedQuestions() } : null));
+	testResultView = computed<SpecialtyTestResult | null>(() => {
+		const r = this.quizResult();
+		if (!r) return null;
+		const stats: SpecialtyTestResult['stats'] = [];
+		if (r.correctAnswers !== null && r.correctAnswers !== undefined) stats.push({ label: 'الإجابات الصحيحة', value: `${r.correctAnswers} / ${r.totalQuestions ?? ''}`.trim(), tone: 'teal' });
+		stats.push({ label: 'حالة الشارة', value: this.resultBadgeLabel(), tone: r.specialtyApproved ? 'teal' : 'amber' });
+		return { score: r.scorePercentage, passed: r.passed, headline: this.resultHeadline(), subline: this.resultSubline(), stats, feedback: r.feedbackAr || null, strengths: r.strengths || [], weaknesses: r.weaknesses || [], primaryLabel: r.passed ? 'العودة إلى لوحة التخصصات' : null };
+	});
+	onTestAnswer(optionIndex: number) {
+		const q = this.currentQuestion();
+		if (!q) return;
+		const option = this.getNormalizedOptions(q)[optionIndex];
+		if (option) this.selectQuestionAnswer(q.id, option.id);
+	}
 
 	formattedTimeRemaining = computed(() => {
 		const sec = Math.max(0, this.timerRemainingSec());

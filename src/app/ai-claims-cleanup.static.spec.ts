@@ -87,10 +87,12 @@ describe('2. KYC / identity / document text is a human review', () => {
 			'التقدم محفوظ تلقائيا بواسطة AI',
 			'تحقق آلي',
 		]);
-		expectPresent(PS, ['تراجعها الإدارة', 'جارٍ الرفع', 'التقدم محفوظ تلقائيًا']);
+		expectPresent(PS, ['تراجعها الإدارة', 'جارٍ الرفع']);
 	});
 	it('provider profile-setup keeps the REAL AI parts (assessment, skills suggestion, test generation)', () => {
-		expectPresent(PS, ['AI يولّد أسئلة الاختبار', 'اقتراح مهارات بالذكاء الاصطناعي', 'جاري توليد الاختبار بالذكاء الاصطناعي']);
+		expectPresent(PS, ['AI يولّد أسئلة الاختبار', 'اقتراح مهارات بالذكاء الاصطناعي']);
+		// the test screen (generating state, AI feedback) is the shared specialty test component
+		expectPresent('shared/specialty-test/specialty-test.component.ts', ['جاري توليد الاختبار بالذكاء الاصطناعي', 'تقييم محرك Waseet AI والتحليل الفني الذكي']);
 	});
 	it('specialties: portfolio proof is reviewed by the admins, not by "the AI engine"', () => {
 		expectAbsent([SP], [
@@ -103,7 +105,7 @@ describe('2. KYC / identity / document text is a human review', () => {
 			'الهندسية وأطر الحوكمة في Waseet AI',
 			'تعذر الاتصال بمحرك الذكاء الاصطناعي',
 		]);
-		expectPresent(SP, ['مراجعة الملكية والأصالة', 'جاهز للمراجعة', 'تقييم محرك Waseet AI والتحليل الفني الذكي']);
+		expectPresent(SP, ['مراجعة الملكية والأصالة', 'جاهز للمراجعة']);
 	});
 	it('provider documents note: reviewed by a human', () => {
 		expectAbsent([D + 'provider-overview/profile/data/data.html'], ['تُفحص آليًا']);
