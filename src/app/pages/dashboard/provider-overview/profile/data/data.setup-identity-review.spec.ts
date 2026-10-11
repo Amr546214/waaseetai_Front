@@ -55,6 +55,8 @@ describe('provider data page: identity sent in the setup follows the review life
     (q('#doc-card-idDocumentUrl') as HTMLElement).click();
     expect(pick).not.toHaveBeenCalled();
     expect((q('[data-testid="save-docs-btn"]') as HTMLButtonElement).disabled).toBe(true);
+    expect(q('#doc-card-idDocumentUrl .file-actions')!.textContent).not.toContain('تغيير'); // no change / delete while the review is waiting
+    expect(q('#doc-card-idDocumentUrl .file-actions')!.textContent).not.toContain('حذف');
     expect(component.identityVerification()!.category).toBe('KYC');
     pick.mockRestore();
   });
