@@ -1,3 +1,4 @@
+import { guidedCatalog } from '../../../../core/help/help-guided';
 import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { AssistantStore } from '../../../../core/store/assistant.store';
 import { CommonModule } from '@angular/common';
@@ -90,23 +91,15 @@ export class Help {
 
   faqState = signal<boolean[]>([false, false, false, false, false]);
 
-  // The help search box now asks the ONE real shared assistant (WaseetAI
-  // help via the backend) and shows the streamed answer in the dashboard
-  // Avatar panel. The previous client-side keyword match + setTimeout
-  // "answer" was removed.
-  askAI() {
-    const q = this.searchQuery().trim();
-    if (!q) {
-      this.showToast('اكتب سؤالك أولًا');
-      return;
-    }
-    this.searchedQuery.set(q);
-    this.assistant.openAndAsk(q);
+  // Help pages: Bebo is a guided FAQ navigator (ready questions and answers, no free text, no model call).
+  readonly choices = guidedCatalog();
+
+  openAssistant() {
+    this.assistant.openGuided();
   }
 
-  fillQ(text: string) {
-    this.searchQuery.set(text);
-    this.askAI();
+  askGuided(id: string) {
+    this.assistant.openGuided(id);
   }
 
   toggleFaq(index: number) {

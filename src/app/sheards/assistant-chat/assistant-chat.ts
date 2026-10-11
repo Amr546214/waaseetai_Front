@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild, computed, effect, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AssistantStore, MAX_QUESTION_LENGTH } from '../../core/store/assistant.store';
+import { guidedCatalog, guidedSupport } from '../../core/help/help-guided';
 import { BEBO_DIALECTS, BEBO_DIALECT_IDS, BEBO_VOICES } from '../bebo-avatar/bebo-commands';
 
 // Conversation UI for the ONE real Help assistant (AssistantStore). Rendered
@@ -14,6 +15,31 @@ import { BEBO_DIALECTS, BEBO_DIALECT_IDS, BEBO_VOICES } from '../bebo-avatar/beb
 	imports: [FormsModule, RouterLink],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
+	@if (store.guided()) {
+	<div class="ac ac--guided" [class.ac--compact]="compact()" data-testid="assistant-guided">
+		<div class="ac__log">
+			<div class="ac__row"><div class="ac__bubble ac__bubble--ai" dir="auto">أهلًا، أنا بيبو. اختر موضوعًا من القائمة وسأعرض لك رد مختصرًا من مركز المساعدة.</div></div>
+			@if (pick(); as p) {
+				<div class="ac__row ac__row--user"><div class="ac__bubble ac__bubble--user" dir="auto" data-testid="guided-question">{{ p.question }}</div></div>
+				<div class="ac__row">
+					<div class="ac__bubble ac__bubble--ai" dir="auto" data-testid="guided-answer">{{ p.answer }}</div>
+					@if (p.links?.length) { <div class="ac__guided-links">@for (l of p.links; track l.route) { <a class="ac__guided-link" [routerLink]="l.route" data-testid="guided-link">{{ l.label }}</a> }</div> }
+				</div>
+			}
+		</div>
+		<div class="ac__chips" role="group" aria-label="أسئلة جاهزة" data-testid="guided-chips">
+			@for (q of catalog(); track q.id) {
+				<button type="button" class="ac__chip" [class.ac__chip--on]="pick()?.id === q.id" (click)="choose(q.id)" [attr.data-id]="q.id">{{ q.question }}</button>
+			}
+		</div>
+		<div class="ac__support" data-testid="guided-support">
+			<span>{{ pick() ? 'لم تكفِك الإجابة؟' : 'لا تجد ما تبحث عنه؟' }}</span>
+			<a class="ac__support-btn" [routerLink]="support().support.route" data-testid="guided-support-link">{{ support().support.label }}</a>
+			@if (support().ticket; as t) { <a class="ac__support-btn ac__support-btn--ghost" [routerLink]="t.route" data-testid="guided-ticket-link">{{ t.label }}</a> }
+		</div>
+		<p class="ac__disclaimer">إجابات جاهزة من مركز مساعدة وسيط. القرارات والإجراءات المالية تبقى لدى الفريق المختص.</p>
+	</div>
+	} @else {
 	<div class="ac" [class.ac--compact]="compact()">
 		<div #scroller class="ac__log" role="log" aria-live="polite" [attr.aria-busy]="store.busy()">
 			@if (store.messages().length === 0) {
@@ -128,6 +154,7 @@ import { BEBO_DIALECTS, BEBO_DIALECT_IDS, BEBO_VOICES } from '../bebo-avatar/beb
 		</div>
 		<p class="ac__disclaimer">يجيب المساعد من قاعدة معرفة وسيط الموثّقة فقط، وقد يخطئ. القرارات والإجراءات المالية تبقى لديك أو لدى الفريق المختص.</p>
 	</div>
+	}
 	`,
 	styles: [`
 		:host { display: block; min-height: 0; }
@@ -169,6 +196,14 @@ import { BEBO_DIALECTS, BEBO_DIALECT_IDS, BEBO_VOICES } from '../bebo-avatar/beb
 		.ac__settings select { min-width: 0; padding: 3px 6px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.12)); background: transparent; color: var(--txt, #fff); font: inherit; }
 		.ac__settings option { color: #000; }
 		.ac__listening { color: #ffb1c1; }
+		.ac__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+		.ac__chip { padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(165,107,224,.4); background: rgba(123,47,190,.1); color: var(--txt, #fff); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+		.ac__chip:hover, .ac__chip--on { background: rgba(123,47,190,.3); border-color: #A56BE0; }
+		.ac__guided-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+		.ac__guided-link { font-size: 12px; font-weight: 800; color: #2BD4C7; text-decoration: underline; }
+		.ac__support { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; color: var(--txt-3, #8892B0); }
+		.ac__support-btn { padding: 8px 16px; border-radius: 999px; background: linear-gradient(135deg, #2BD4C7, #2B7FFF); color: #070D24; font-size: 12.5px; font-weight: 800; text-decoration: none; }
+		.ac__support-btn--ghost { background: transparent; border: 1px solid rgba(43,212,199,.5); color: #2BD4C7; }
 		@keyframes ac-blink { 50% { opacity: 0; } }
 		@keyframes ac-dot { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
 		@media (prefers-reduced-motion: reduce) { .ac__cursor, .ac__typing span { animation: none; } }
@@ -183,6 +218,12 @@ export class AssistantChatComponent implements OnDestroy {
 	readonly dialects = BEBO_DIALECT_IDS.map((id) => ({ id, label: BEBO_DIALECTS[id].label }));
 	readonly voices = BEBO_VOICES;
 	draft = '';
+
+	// Help pages: guided FAQ navigator (no input, no mic, no send).
+	readonly catalog = computed(() => { const r = this.store.guidedRole(); return r ? guidedCatalog(r) : []; });
+	readonly support = computed(() => guidedSupport());
+	readonly pick = computed(() => this.catalog().find((q) => q.id === this.store.guidedPick()) ?? null);
+	choose(id: string): void { this.store.guidedPick.set(id); }
 
 	/** The mic must not keep listening once its UI is gone (panel closed). */
 	ngOnDestroy(): void {
