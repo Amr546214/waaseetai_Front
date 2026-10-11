@@ -111,16 +111,6 @@
           <div class="wal-side-sub">أُفرج هذا الشهر {{ wallet.summary.releasedThisMonth | number:'1.0-2' }} $</div>
         </div>
       } @else {
-        <div class="wal-side">
-          <div class="wal-side-lbl txt-teal">
-            <svg aria-hidden="true"><use href="#i-check"></use></svg>
-            مكافآت الأداء
-          </div>
-          <div class="wal-side-val txt-teal">
-            {{ ((wallet.summary.availableBalance * 0.03) | number:'1.0-0') || '186' }}
-          </div>
-          <div class="wal-side-sub">عميل موثّق · 3%</div>
-        </div>
       }
     </div>
 

@@ -78,7 +78,8 @@ export class ContractSignature implements OnInit {
 
 					if (targetOffer) {
 						const offerPrice = Number(targetOffer.totalPrice || targetOffer.bidAmount || 0);
-						this.requiredAmount.set(Math.round(offerPrice * 1.13 * 100) / 100);
+						// fee policy v2: the escrow lock charges the contract price only (no 13%); the wallet must hold at least the price
+						this.requiredAmount.set(Math.round(offerPrice * 100) / 100);
 						const name = targetOffer.provider?.name || (targetOffer.provider?.firstName ? `${targetOffer.provider.firstName} ${targetOffer.provider.lastName}` : 'مقدم الخدمة');
 						this.providerName.set(name);
 						const initials = name.split(' ').map((n: string) => n[0] || '').join('').substring(0, 2);

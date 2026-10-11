@@ -78,32 +78,13 @@
               <span class="amount-row-key">قيمة المشروع</span>
               <span class="amount-row-val">{{ formatCurrency(basePrice()) }}</span>
             </div>
-            <div class="amount-row">
-              <span class="amount-row-key">
-                عمولة النظام (7%)
-                <span class="tooltip-ico" title="تحسب حسب مستوى مقدم الخدمة، تتراوح بين 6% و7.25%">؟</span>
-              </span>
-              <span class="amount-row-val">{{ formatCurrency(systemFee()) }}</span>
-            </div>
-            <div class="amount-row">
-              <span class="amount-row-key">
-                رسم طالب الخدمة (1%)
-                <span class="tooltip-ico" title="رسم إداري يضاف فوق قيمة المشروع">؟</span>
-              </span>
-              <span class="amount-row-val">{{ formatCurrency(clientFee()) }}</span>
-            </div>
-            <div class="amount-row">
-              <span class="amount-row-key">رسوم تحويل (5%)</span>
-              <span class="amount-row-val">{{ formatCurrency(transferFee()) }}</span>
-            </div>
-
           </div>
           <div class="amount-divider"></div>
           <div class="amount-total">
-            <span class="amount-total-key">الإجمالي المستحق</span>
+            <span class="amount-total-key">يُخصم من محفظتك</span>
             <span class="amount-total-val">{{ formatCurrency(totalAmount()) }}</span>
           </div>
-          <div class="amount-note">يحفظ كامل المبلغ في حساب الضمان، يحرر تدريجيا حسب مراحل التسليم المعتمدة</div>
+          <div class="amount-note" data-testid="escrow-no-fee-note">لا رسوم عند حجز الضمان: يُحجز مبلغ العقد كاملًا ويُحرَّر تدريجيًا حسب مراحل التسليم المعتمدة. تُخصم عمولة المنصة من مقدم الخدمة عند تحرير كل مرحلة وفق مستواه.</div>
         </div>
 
         <!-- WALLET FUNDING -->

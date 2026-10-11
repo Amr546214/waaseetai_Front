@@ -24,7 +24,7 @@ const FORBIDDEN: Array<[string, RegExp]> = [
 	['suspension below 20', /دون 20|لدون 20/],
 	['levels tied to a 0–100 score', /0 إلى 100|من 0 إلى 100/],
 	['level bands as tier names with rates', /خبير \(|محترف \(|متقدم \(|مبتدئ \(/],
-	['commission-reduction promises (unproven: level commission is not confirmed as deducted)', /تنخفض (نسبة )?العمولة|انخفضت نسبة العمولة|كلما انخفضت|تخفيض العمولة|تخفيض العمولة|أقل نسبة|نسبة أقل|تُحسب نسبة العمولة تلقائياً|تحسب نسبة العمولة تلقائياً|تنخفض نسبة العمولة|انخفاض (نسبة )?العمولة|تنخفض معه نسبة|كلما ارتفع مستواك انخفضت|انخفضت نسبة العمولة|خفض (نسبة )?(ال)?عمولة|لخفض عمولة|تنخفض حتى|تُضاف لمحفظتك فوراً|لمحفظتك فوراً/],
+	['commission-reduction promises (promises of a future reduction stay out; the commission itself IS deducted at stage release since fee policy v2, stated without numbers)', /تنخفض (نسبة )?العمولة|انخفضت نسبة العمولة|كلما انخفضت|تخفيض العمولة|تخفيض العمولة|أقل نسبة|نسبة أقل|تُحسب نسبة العمولة تلقائياً|تحسب نسبة العمولة تلقائياً|تنخفض نسبة العمولة|انخفاض (نسبة )?العمولة|تنخفض معه نسبة|كلما ارتفع مستواك انخفضت|انخفضت نسبة العمولة|خفض (نسبة )?(ال)?عمولة|لخفض عمولة|تنخفض حتى|تُضاف لمحفظتك فوراً|لمحفظتك فوراً/],
 	['fee-free-until-success FAQ promise (checkout charges fees at escrow deposit)', /لا تدفع أي شيء حتى/],
 	['AI audit tied to a pricing level (every service is audited regardless of level)', /تدقيق AI لخدماتك/],
 	['unsupported search-priority promise', /أولوية قصوى في (البحث|ترتيب|نتائج)/],

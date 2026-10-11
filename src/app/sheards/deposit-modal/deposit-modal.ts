@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, EventEmitter, OnDestroy, Output, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PaypalDepositService } from '../../core/services/paypal-deposit.service';
+import { LevelsService } from '../../core/levels/levels.service';
+import { paypalDepositBreakdown } from '../../core/levels/deposit-fee';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../../core/store/auth.store';
 import { AccountType } from '../../core/models/auth.model';
@@ -17,6 +19,7 @@ declare const paypal: any;
 export class DepositModal implements AfterViewInit, OnDestroy {
 	private paypalDepositService = inject(PaypalDepositService);
 	private authStore = inject(AuthStore);
+	private levels = inject(LevelsService);
 	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 	private destroyed = false;
 	private paypalSdkPoll?: ReturnType<typeof setInterval>;
@@ -30,6 +33,11 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 	lockAmount = input(false);
 
 	amount = signal(1000);
+	/**
+	 * Fee policy: the amount is the NET added to the wallet; PayPal is charged net + the PayPal deposit fee (percent from the backend table).
+	 * null while the table has not answered: no number is shown rather than a typed one.
+	 */
+	readonly breakdown = computed(() => paypalDepositBreakdown(this.amount(), this.levels.payload()?.payments.clientDeposit['paypal']));
 	termsAccepted = signal(false);
 	paymentStatus = signal<'idle' | 'processing' | 'success' | 'error'>('idle');
 	paymentError = signal('');
@@ -37,6 +45,8 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 	isPaypalSdkLoaded = signal(false);
 	readonly paypalElementId = `pp-wallet-${crypto.randomUUID()}`;
 	readonly quickAmounts = [500, 1000, 2500, 5000];
+
+	constructor() { this.levels.ensureLoaded(); }
 
 	ngAfterViewInit() {
 		const requestedAmount = this.initialAmount();
