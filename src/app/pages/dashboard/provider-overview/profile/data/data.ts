@@ -14,8 +14,7 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 import { OtpInputComponent } from '../../../../../shared/forms/otp-input.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
-import { canonicalStoredPhone, isoForCallingCode, isValidNationalNumber } from '../../../../../core/forms/phone-countries';
-import { PhoneInputComponent, type PhoneValue } from '../../../../../sheards/phone-input/phone-input.component';
+import { canonicalStoredPhone, phoneCountryView, type PhoneCountryView } from '../../../../../core/forms/phone-countries';
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -32,7 +31,6 @@ const PROFILE_LABELS: Record<string, string> = {
   country: 'الدولة', city: 'المدينة', bio: 'الوصف المهني',
   websiteUrl: 'رابط معرض الأعمال', linkedinUrl: 'LinkedIn', githubUrl: 'GitHub',
 };
-const CONTACT_LABELS: Record<string, string> = { email: 'البريد الإلكتروني', phoneNumber: 'رقم الجوال', alternativePhone: 'رقم WhatsApp' };
 const PAYOUT_LABELS: Record<string, string> = { paypalPayoutEmail: 'بريد PayPal' };
 const DOCS_LABELS: Record<string, string> = { idDocumentUrl: 'مستند الهوية' };
 const PASSWORD_LABELS: Record<string, string> = { currentPassword: 'كلمة المرور الحالية', newPassword: 'كلمة المرور الجديدة', confirmPassword: 'تأكيد كلمة المرور' };
@@ -66,22 +64,6 @@ const httpUrl: ValidatorFn = (c: AbstractControl): ValidationErrors | null => {
   const v = String(c.value ?? '').trim();
   if (!v) return null;
   try { return ['http:', 'https:'].includes(new URL(v).protocol) ? null : { url: true }; } catch { return { url: true }; }
-};
-const emailFormat: ValidatorFn = (c: AbstractControl): ValidationErrors | null => {
-  const v = String(c.value ?? '').trim();
-  return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? null : { email: true };
-};
-/** Same normalisation as the backend (strips spaces, brackets, dashes) before the 8-15 digit check. */
-const phoneFormat: ValidatorFn = (c: AbstractControl): ValidationErrors | null => {
-  const v = String(c.value ?? '').replace(/[\s()-]/g, '');
-  return !v || /^\+?\d{8,15}$/.test(v) ? null : { pattern: true };
-};
-/** The local number must be a real mobile number of the CHOSEN country (an Egyptian number never passes with +966, a Saudi one never with +20). */
-const phonePair: ValidatorFn = (c: AbstractControl): ValidationErrors | null => {
-  const national = String(c.value ?? '').replace(/\D/g, '');
-  if (!national) return null;
-  const code = c.parent?.get('phoneCountryCode')?.value;
-  return isValidNationalNumber(code, national) ? null : { phoneCountryMismatch: true };
 };
 const passwordRules: ValidatorFn = (c: AbstractControl): ValidationErrors | null => {
   const v = String(c.value ?? '');
@@ -122,7 +104,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent, PhoneInputComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
@@ -140,7 +122,6 @@ export class Data implements OnInit, OnDestroy {
 
   /** What is missing after a failed save attempt, per tab (shown by <ws-form-summary>). */
   missingProfile = signal<InvalidField[]>([]);
-  missingContact = signal<InvalidField[]>([]);
   missingPayout = signal<InvalidField[]>([]);
   missingDocs = signal<InvalidField[]>([]);
   missingPassword = signal<InvalidField[]>([]);
@@ -171,7 +152,6 @@ export class Data implements OnInit, OnDestroy {
   });
 
   profileForm!: FormGroup;
-  contactForm!: FormGroup;
   payoutForm!: FormGroup;
   savingPaypal = signal(false);
   /** The new PayPal email waiting for its e-mailed code (finance #33); null when no change is in progress. */
@@ -205,7 +185,7 @@ export class Data implements OnInit, OnDestroy {
   identityJustSubmitted = signal(false);
   otpEmailHint = signal('');
   pendingRequestId = signal('');
-  pendingSensitiveCategory = signal<'CONTACT' | 'DOCUMENTS' | null>(null);
+  pendingSensitiveCategory = signal<'DOCUMENTS' | null>(null);
   isSaving = signal(false);
   isVerifyingOtp = signal(false);
   documentUploads = signal<Record<string, DocumentUploadState>>({});
@@ -221,8 +201,10 @@ export class Data implements OnInit, OnDestroy {
   currentProfileData: any = null;
   dobLocked = signal(false);
   readonly todayIso = new Date().toISOString().slice(0, 10);
-  /** Country (flag + name + code) and the LOCAL number: the widget is the only phone editor, the form keeps the two stored fields. */
-  phoneWidget = new FormControl<PhoneValue | null>(null);
+  /** Contact details are DISPLAY-ONLY (the e-mail and the phone cannot be changed from the interface: no code, no request, no review). */
+  contactEmail = signal('');
+  contactPhone = signal<PhoneCountryView | null>(null);
+  contactWhatsapp = signal('');
   skillNames = computed(() => (this.skillsList() || []).map((sk: any) => sk.name as string));
 
   // ── taxonomy: main specialty (the marketplace Category, stored as its slug), sub-specialties and the skills catalog of that field ──
@@ -272,19 +254,6 @@ export class Data implements OnInit, OnDestroy {
 
     linkCountryCity(this.profileForm, this.destroyRef);
 
-    this.contactForm = this.fb.group({
-      email: ['', [requiredTrim, emailFormat]],
-      // the country code and the LOCAL number are two fields (stored apart); the widget below edits both
-      phoneCountryCode: ['+966'],
-      phoneNumber: ['', [requiredTrim, phonePair]],
-      alternativePhone: ['', phoneFormat]
-    });
-    this.phoneWidget.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => {
-      this.contactForm.patchValue({ phoneCountryCode: v?.dialCode ?? '+966', phoneNumber: String(v?.number ?? '').replace(/\D/g, '') });
-      this.contactForm.get('phoneNumber')?.markAsDirty();
-      this.contactForm.get('phoneNumber')?.markAsTouched();
-    });
-
     this.payoutForm = this.fb.group({
       paypalPayoutEmail: ['', paypalEmailValidators]
     });
@@ -318,14 +287,6 @@ export class Data implements OnInit, OnDestroy {
 
   get languagesArray() {
     return this.profileForm.get('languagesArray') as FormArray;
-  }
-
-  get contactEmailControl(): FormControl {
-    return this.contactForm.get('email') as FormControl;
-  }
-
-  get contactPhoneControl(): FormControl {
-    return this.contactForm.get('phoneNumber') as FormControl;
   }
 
   loadProfile() {
@@ -364,16 +325,10 @@ export class Data implements OnInit, OnDestroy {
           this.avatarUrl.set(profile.avatarUrl || profile.user?.avatarUrl || null);
           this.avatarDirty = false;
 
-          // The stored pair is shown as ONE consistent number: older rows (a number saved next to the wrong code) are repaired from their digits for display.
-          const phone = canonicalStoredPhone(profile.user?.phoneCountryCode, profile.user?.phoneNumber);
-          const iso = isoForCallingCode(phone.countryCode);
-          if (iso) this.phoneWidget.setValue({ countryCode: iso, dialCode: phone.countryCode, number: phone.nationalNumber, e164Number: '' }, { emitEvent: false });
-          this.contactForm.patchValue({
-            email: profile.user?.email || '',
-            phoneCountryCode: phone.countryCode,
-            phoneNumber: phone.nationalNumber,
-            alternativePhone: profile.user?.alternativePhone || ''
-          });
+          // The stored pair is shown as ONE consistent number (flag + country + code + local number); an older row saved next to the wrong code is repaired for display.
+          this.contactEmail.set(profile.user?.email || '');
+          this.contactPhone.set(phoneCountryView(canonicalStoredPhone(profile.user?.phoneCountryCode, profile.user?.phoneNumber)));
+          this.contactWhatsapp.set(profile.user?.alternativePhone || '');
 
           this.payoutForm.patchValue({
             paypalPayoutEmail: profile.paypalPayoutEmail || ''
@@ -595,7 +550,7 @@ export class Data implements OnInit, OnDestroy {
 
   setTab(tab: string) {
     this.currentTab.set(tab);
-    for (const m of [this.missingProfile, this.missingContact, this.missingPayout, this.missingDocs, this.missingPassword]) m.set([]);
+    for (const m of [this.missingProfile, this.missingPayout, this.missingDocs, this.missingPassword]) m.set([]);
   }
 
   // ---- shared helpers -------------------------------------------------------------------------------------------
@@ -706,14 +661,6 @@ export class Data implements OnInit, OnDestroy {
         this.notifyHttpError(err, { fallback: 'تعذر حفظ البيانات، حاول مرة أخرى' });
       }
     });
-  }
-
-  saveContact() {
-    if (this.isSaving()) return;
-    const attempt = attemptSubmit(this.contactForm, { root: this.panel('contact'), labels: CONTACT_LABELS });
-    this.missingContact.set(attempt.missing);
-    if (!attempt.valid) return;
-    this.startSensitiveChange('CONTACT', this.contactForm.value);
   }
 
   savePaypal() {
@@ -867,13 +814,12 @@ export class Data implements OnInit, OnDestroy {
     this.startSensitiveChange('DOCUMENTS', changes);
   }
 
-  private startSensitiveChange(category: 'CONTACT' | 'DOCUMENTS', changes: Record<string, unknown>) {
+  private startSensitiveChange(category: 'DOCUMENTS', changes: Record<string, unknown>) {
     if (this.isSaving()) return;
     this.isSaving.set(true);
     this.profileService.initiateSensitiveChange(category, changes).subscribe({
       next: (res: any) => {
         this.isSaving.set(false);
-        this.missingContact.set([]);
         this.missingDocs.set([]);
         this.pendingSensitiveCategory.set(category);
         this.pendingRequestId.set(res.data.requestId);
@@ -890,11 +836,11 @@ export class Data implements OnInit, OnDestroy {
   }
 
   /** Backend code -> the field it belongs to (OTP_EMAIL_DELIVERY_FAILED and unknown codes go to a notification). */
-  private handleSensitiveError(category: 'CONTACT' | 'DOCUMENTS', err: any) {
+  private handleSensitiveError(category: 'DOCUMENTS', err: any) {
     const raw = this.rawCode(err);
-    const form = category === 'CONTACT' ? this.contactForm : this.docsForm;
-    const labels = category === 'CONTACT' ? CONTACT_LABELS : DOCS_LABELS;
-    const setSummary = (i: InvalidField[]) => (category === 'CONTACT' ? this.missingContact : this.missingDocs).set(i);
+    const form = this.docsForm;
+    const labels = DOCS_LABELS;
+    const setSummary = (i: InvalidField[]) => this.missingDocs.set(i);
     const field = raw ? ({
       INVALID_EMAIL: 'email', EMAIL_ALREADY_USED: 'email', INVALID_PHONE: 'phoneNumber', INVALID_PHONE_COUNTRY: 'phoneNumber', PHONE_ALREADY_USED: 'phoneNumber',
       INVALID_ALTERNATIVE_PHONE: 'alternativePhone', ID_DOCUMENT_REQUIRED: 'idDocumentUrl', INVALID_DOCUMENT_URL: raw.arg,

@@ -4,6 +4,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { of, throwError, Subject } from 'rxjs';
 import { vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Data } from './data';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
@@ -218,65 +220,50 @@ describe('provider profile data tabs: shared validation', () => {
     });
   });
 
-  describe('contact tab (sensitive change + email OTP)', () => {
+  describe('contact tab (DISPLAY ONLY: the e-mail and the phone are immutable from the interface)', () => {
     beforeEach(() => { setup(); document.body.appendChild(el()); component.setTab('contact'); render(); });
     afterEach(() => el().remove());
 
-    it('empty / invalid: no request, summary, inline errors, focus, button enabled', () => {
-      fill(component.contactForm, { email: 'bad', phoneNumber: '12', alternativePhone: 'abc' });
-      button('contact', 'إرسال رمز التحقق').click();
+    it('shows the stored e-mail and phone as plain values: no input, no select, no form, no save button', () => {
+      const p = panel('contact');
+      expect(p.querySelector('[data-testid="contact-email"]')!.textContent!.trim()).toBe('a@b.co');
+      expect(p.querySelector('[data-testid="contact-phone"]')!.textContent).toContain('+966');
+      expect(p.querySelector('input, select, textarea, form, app-phone-input')).toBeNull();
+      const buttons = Array.from(p.querySelectorAll('button')).map(b => (b.textContent || '').trim());
+      expect(buttons).toEqual(['الانتقال إلى الملف المهني']); // the only button is the link to the other tab
+      expect(component.currentTab()).toBe('contact');
+    });
+
+    it('no wording suggests that the e-mail or the phone can be changed here (no code, no request, no review)', () => {
+      const text = (panel('contact').textContent || '').replace(/\s+/g, ' ');
+      for (const banned of ['إرسال رمز التحقق', 'يتطلب تأكيد رمز', 'رمز التحقق', 'يُرسل رمز', 'طلباتي السابقة', 'قيد المراجعة', 'تغيير البريد']) expect(text, banned).not.toContain(banned);
+      expect(text).toContain('للعرض فقط');
+      expect(el().querySelector('[data-testid="contact-tab-readonly"]')!.textContent).toContain('للعرض فقط');
+      // the tab strip no longer says "برمز تحقق" for the contact tab
+      expect(el().querySelector('.prof-tab-btn:nth-child(2)')!.textContent).not.toContain('برمز تحقق');
+    });
+
+    it('nothing on the contact tab can start a change: no method, no network request, no OTP modal, whatever is clicked', () => {
+      expect((component as any).saveContact).toBeUndefined();
+      expect((component as any).contactForm).toBeUndefined();
+      panel('contact').querySelectorAll('button').forEach(b => (b as HTMLButtonElement).click());
       render();
       expect(svc['initiateSensitiveChange']).not.toHaveBeenCalled();
-      for (const label of ['البريد الإلكتروني', 'رقم الجوال', 'رقم WhatsApp']) expect(summary('contact'), label).toContain(label);
-      expect(fieldErrors('contact').length).toBe(3);
-      expect(document.activeElement?.id).toBe('ct-email');
-      expect(button('contact', 'إرسال رمز التحقق').disabled).toBe(false);
+      expect(svc['verifySensitiveChange']).not.toHaveBeenCalled();
+      expect(component.showOtpModal()).toBe(false);
+      expect(component.isSaving()).toBe(false);
     });
 
-    it('accepts what the backend accepts: a valid local number with the code of its own country (the code and the number go apart)', () => {
-      fill(component.contactForm, { email: 'me@x.co', phoneCountryCode: '+966', phoneNumber: '501234567', alternativePhone: '' });
-      component.saveContact();
-      expect(svc['initiateSensitiveChange']).toHaveBeenCalledTimes(1);
-      expect(component.showOtpModal()).toBe(true);
+    it('the service type accepts the DOCUMENTS category only (the CONTACT category cannot even be asked for)', () => {
+      const src = readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'core', 'services', 'provider-profile.service.ts'), 'utf8');
+      expect(src).toMatch(/initiateSensitiveChange\(category: 'DOCUMENTS'/);
+      expect(src).not.toMatch(/'CONTACT'/);
     });
 
-    it('server codes land on the right field: EMAIL_ALREADY_USED(409), INVALID_PHONE, PHONE_ALREADY_USED, INVALID_ALTERNATIVE_PHONE, INVALID_EMAIL', () => {
-      const cases: [number, string, string][] = [
-        [409, 'EMAIL_ALREADY_USED', 'email'], [400, 'INVALID_EMAIL', 'email'], [400, 'INVALID_PHONE', 'phoneNumber'],
-        [400, 'PHONE_ALREADY_USED', 'phoneNumber'], [400, 'INVALID_ALTERNATIVE_PHONE', 'alternativePhone'],
-      ];
-      for (const [status, code, field] of cases) {
-        component.contactForm.reset({ email: 'me@x.co', phoneCountryCode: '+966', phoneNumber: '501234567', alternativePhone: '' });
-        ui.clearAll();
-        svc['initiateSensitiveChange'].mockReturnValue(httpError(status, code));
-        component.saveContact();
-        render();
-        const err = component.contactForm.get(field)!.errors?.['server'];
-        expect(err, `${code} -> ${field}`).toMatch(ARABIC);
-        expect(ui.toasts().length, code).toBe(0);
-        expect(summary('contact'), code).toContain(err);
-        expect(component.currentTab()).toBe('contact');
-        expect(component.isSaving()).toBe(false);
-      }
-    });
-
-    it('OTP_EMAIL_DELIVERY_FAILED has no field: it is an Arabic notification', () => {
-      svc['initiateSensitiveChange'].mockReturnValue(httpError(400, 'OTP_EMAIL_DELIVERY_FAILED'));
-      component.saveContact();
-      expect(toasts()).toContain('رمز التحقق');
-      expect(toasts()).not.toContain('OTP_EMAIL');
-    });
-
-    it('copy is truthful: the code goes to the current email only, country/city are not editable here', () => {
-      const text = panel('contact').textContent || '';
-      expect(text).not.toContain('كلا القناتين');
-      expect(text).toContain('بريدك الإلكتروني الحالي');
-      expect(panel('contact').querySelector('select')).toBeNull();
-      expect(panel('contact').querySelector('[data-testid="contact-location-note"]')?.textContent).toContain('السعودية');
-    });
-
-    it('OTP modal: an incomplete code shows an inline error (no request); a wrong code shows the Arabic reason in the modal', () => {
-      component.saveContact();
+    it('OTP modal (documents): an incomplete code shows an inline error (no request); a wrong code shows the Arabic reason in the modal', () => {
+      component.docsForm.patchValue({ idDocumentUrl: 'https://res.cloudinary.com/testcloud/image/upload/id.pdf' });
+      component.setTab('docs'); render();
+      component.saveDocs();
       render();
       component.verifyOtp();
       render();

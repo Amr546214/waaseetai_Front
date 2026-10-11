@@ -127,7 +127,7 @@ export class ProviderProfileService {
     return this.http.post<any>(`${this.apiUrl}/requests/${id}/cancel`, {});
   }
 
-  initiateSensitiveChange(category: 'CONTACT' | 'DOCUMENTS', changes: Record<string, unknown>): Observable<any> {
+  initiateSensitiveChange(category: 'DOCUMENTS', changes: Record<string, unknown>): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/sensitive-change`, { category, changes });
   }
 

@@ -12,7 +12,7 @@ const base = (o: any = {}) => ({
 	header: { fullName: 'مزود اختبار', isVerified: false, levelInfo: { levelName: 'منجز', points: 60, completionPercentage: 40, missingHint: 'x' }, stats: { completedProjects: 0, publishedServices: 0, reviewsCount: 0, portfolioCount: 0, clientRating: 0 } },
 	basicInfo: { headline: '', bio: '' }, specialties: [], services: [], skills: [], aiMetrics: { averageTestScore: 0, codeMatchingIndex: 0 }, ...o,
 });
-const OWNER = (c: any = {}) => base({ contactVisibility: 'OWNER_ONLY', contact: { email: 'sara@example.com', phone: { countryCode: '+20', nationalNumber: '1025073026', display: '+20 1025073026', consistent: true }, pendingChange: null, ...c } });
+const OWNER = (c: any = {}) => base({ contactVisibility: 'OWNER_ONLY', contact: { email: 'sara@example.com', phone: { countryCode: '+20', nationalNumber: '1025073026', display: '+20 1025073026', consistent: true }, ...c } });
 
 async function render(d: any) {
 	await TestBed.configureTestingModule({
@@ -34,7 +34,7 @@ describe('provider public profile: contact details', () => {
 		const f = await render(OWNER());
 		expect(q(f, '[data-testid="public-email"]')!.textContent!.trim()).toBe('sara@example.com');
 		expect(q(f, '[data-testid="public-phone"]')!.textContent!.trim()).toBe('+20 1025073026');
-		expect(q(f, '[data-testid="public-phone-pending"]')).toBeNull();
+		expect(q(f, '[data-testid="public-phone-pending"]')).toBeNull(); // the phone is immutable: there is no pending change to show
 	});
 
 	it('owner view: a saved Saudi number is shown as +966 501234567', async () => {
@@ -45,12 +45,6 @@ describe('provider public profile: contact details', () => {
 	it('owner view with no phone saved says "لم يُضف بعد" (an explicit state), not a bare dash', async () => {
 		const f = await render(OWNER({ phone: { countryCode: '+966', nationalNumber: '', display: '', consistent: true } }));
 		expect(q(f, '[data-testid="public-phone"]')!.textContent!.trim()).toBe('لم يُضف بعد');
-	});
-
-	it('owner view: a phone change waiting for its code is stated, and the current value is still shown', async () => {
-		const f = await render(OWNER({ pendingChange: { status: 'PENDING_OTP', requestedAt: '2026-10-11T08:00:00Z' } }));
-		expect(q(f, '[data-testid="public-phone-pending"]')!.textContent).toContain('بانتظار تأكيد الرمز');
-		expect(q(f, '[data-testid="public-phone"]')!.textContent!.trim()).toBe('+20 1025073026');
 	});
 
 	it('visitor view (contact = null, HIDDEN_FROM_VISITORS): the hiding is stated and no email or phone appears', async () => {

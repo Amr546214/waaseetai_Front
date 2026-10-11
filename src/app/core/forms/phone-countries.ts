@@ -66,3 +66,15 @@ export function isoForCallingCode(callingCode: unknown): CountryCode | null {
 	const cc = callingDigits(callingCode);
 	return (getCountries() as CountryCode[]).find(c => String(getCountryCallingCode(c)) === cc) ?? null;
 }
+
+export interface PhoneCountryView { iso: string | null; flag: string; countryName: string; dialCode: string; nationalNumber: string; display: string }
+
+const flagOf = (iso: string) => iso.toUpperCase().split('').map(c => String.fromCodePoint(127397 + c.charCodeAt(0))).join('');
+
+/** The stored (canonical) pair as a readable block: flag + country name + code + local number (an empty number gives an empty view). */
+export function phoneCountryView(phone: ContactPhone): PhoneCountryView | null {
+	if (!phone.nationalNumber) return null;
+	const iso = isoForCallingCode(phone.countryCode);
+	const countryName = iso ? (new Intl.DisplayNames(['ar'], { type: 'region' }).of(iso) ?? iso) : '';
+	return { iso, flag: iso ? flagOf(iso) : '', countryName, dialCode: phone.countryCode, nationalNumber: phone.nationalNumber, display: phone.display };
+}
