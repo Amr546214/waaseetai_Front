@@ -38,9 +38,6 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 
 	// Math and Pricing
 	basePrice = signal<number>(0);
-	systemFee = signal<number>(0); // 7%
-	clientFee = signal<number>(0); // 1%
-	transferFee = signal<number>(0); // 5%
 	totalAmount = signal<number>(0);
 	walletBalance = signal(0);
 	showWalletDeposit = signal(false);
@@ -114,10 +111,8 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 						// Calculate pricing
 						const priceNum = targetOffer.totalPrice || targetOffer.bidAmount || 0;
 						this.basePrice.set(priceNum);
-						this.systemFee.set(priceNum * 0.07);
-						this.clientFee.set(priceNum * 0.01);
-						this.transferFee.set(priceNum * 0.05);
-						this.totalAmount.set(priceNum + this.systemFee() + this.clientFee() + this.transferFee());
+						// fee policy v2: locking the escrow charges the contract value ONLY (no VAT / platform / insurance at lock); the provider's level commission is taken when each stage is released
+						this.totalAmount.set(priceNum);
 					}
 				}
 				this.loadWalletBalance();

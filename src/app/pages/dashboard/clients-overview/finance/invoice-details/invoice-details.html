@@ -133,11 +133,15 @@
 						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.subtotal |
 							number }} $</span>
 					</div>
-					<div class="flex items-center justify-between text-base">
-						<span class="font-bold text-slate-500 dark:text-slate-400">ضريبة القيمة المضافة (15%)</span>
+					@if ((invoice()?.tax || 0) > 0) {
+					<div class="flex items-center justify-between text-base" data-testid="invoice-tax-row">
+						<span class="font-bold text-slate-500 dark:text-slate-400">ضريبة ({{ invoice()?.taxRate }}%)</span>
 						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.tax | number }}
 							$</span>
 					</div>
+					} @else {
+					<div class="flex items-center justify-between text-xs" data-testid="invoice-no-tax"><span class="font-bold text-slate-500 dark:text-slate-400">لا تُسجَّل ضريبة في الفواتير حاليًا</span></div>
+					}
 
 					<div class="w-full h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
 

@@ -10,6 +10,12 @@ import { ClientWalletData } from './client-finance.service';
 
 export interface PaypalOrderCreateResponse {
 	paypalOrderId: string;
+	/** what the wallet will be credited (the amount the user asked for) */
+	netAmount?: number;
+	feePercent?: number;
+	feeAmount?: number;
+	/** what PayPal is charged: net + the PayPal deposit fee */
+	grossAmount?: number;
 }
 
 @Injectable({
