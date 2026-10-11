@@ -30,6 +30,18 @@ export class Public implements OnInit {
 	});
 
 	profileData = signal<any | null>(null);
+
+	// Contact details come from the backend `contact` block (the SAME stored data as the profile data page). It is sent to the owner only: a visitor's answer has
+	// contact = null and contactVisibility = 'HIDDEN_FROM_VISITORS', which is said as such, never shown as an unexplained dash.
+	readonly contactEmail = computed(() => this.contactText(this.profileData()?.contact?.email, 'لم يُضف بعد'));
+	readonly contactPhone = computed(() => this.contactText(this.profileData()?.contact?.phone?.display, 'لم يُضف بعد'));
+	readonly contactPhoneChangePending = computed(() => !!this.profileData()?.contact?.pendingChange);
+	private contactText(value: string | null | undefined, empty: string): string {
+		const d = this.profileData();
+		if (!d) return '—';
+		if (!d.contact) return d.contactVisibility === 'HIDDEN_FROM_VISITORS' ? 'مخفي عن الزوار' : '—';
+		return value || empty;
+	}
 	isLoading = signal<boolean>(true);
 
 	isCompanyMode = computed<boolean>(() => {

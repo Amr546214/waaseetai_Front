@@ -18,13 +18,14 @@ import {
 	FormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { splitPhoneInput } from '../../core/forms/phone-countries';
 import {
 	getCountries,
 	getCountryCallingCode,
 	parsePhoneNumberFromString,
 	CountryCode,
 	AsYouType,
-} from 'libphonenumber-js';
+} from 'libphonenumber-js/mobile';
 
 export interface PhoneValue {
 	countryCode: CountryCode;
@@ -212,7 +213,18 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	onPhoneInput(event: Event): void {
 		const input = event.target as HTMLInputElement;
 		let val = input.value;
-		
+
+		// A full number typed or pasted with its country code ("+201025073026", "201025073026"): split it, pick the matching country and keep the LOCAL number only.
+		const typed = val.replace(/[\s()-]/g, '');
+		if (/^\+?\d{8,}$/.test(typed) && (typed.startsWith('+') || !val.startsWith('0'))) {
+			const split = splitPhoneInput(typed, this.selectedCountry.dialCode);
+			if (split) {
+				const target = this.countries.find((c) => c.dialCode === split.countryCode && c.code === this.selectedCountry.code)
+					?? this.countries.find((c) => c.dialCode === split.countryCode);
+				if (target) this.selectedCountry = target;
+				val = split.nationalNumber;
+			}
+		}
 		if (val.startsWith('0')) {
 			val = val.substring(1);
 		}

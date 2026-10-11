@@ -75,7 +75,7 @@
 					<div class="dl-row"><span class="dl-k">الرقم الموحّد للمنشأة</span><span class="dl-v">{{ profileData()?.commercial?.unifiedNumber || '—' }}</span></div>
 					<div class="dl-row"><span class="dl-k">تاريخ التأسيس</span><span class="dl-v">{{ profileData()?.commercial?.establishedDate || '—' }}</span></div>
 					<div class="dl-row"><span class="dl-k">المدينة</span><span class="dl-v">{{ profileData()?.header?.city || '—' }}</span></div>
-					<div class="dl-row"><span class="dl-k">البريد الرسمي</span><span class="dl-v">{{ profileData()?.header?.email || '—' }}</span></div>
+					<div class="dl-row"><span class="dl-k">البريد الرسمي</span><span class="dl-v">{{ contactEmail() }}</span></div>
 					<div class="dl-row" style="border-bottom:none"><span class="dl-k">حالة التوثيق</span><span class="pill" [class.pill-ok]="profileData()?.header?.isVerified">{{ profileData()?.header?.isVerified ? 'موثّقة' : 'لم يكتمل التوثيق بعد' }}</span></div>
 				</div>
 			</div>
@@ -371,14 +371,15 @@
 			<div class="flex flex-col divide-y divide-[var(--sec-bd)]">
 				<div class="flex items-center justify-between py-3">
 					<span class="text-[12px] font-bold text-[var(--txt-3)]">البريد الإلكتروني</span>
-					<span class="text-[13px] font-black text-[var(--txt)]" dir="ltr">{{ profileData()?.basicInfo?.email
-						|| '-' }}</span>
+					<span class="text-[13px] font-black text-[var(--txt)]" dir="ltr" data-testid="public-email">{{ contactEmail() }}</span>
 				</div>
 				<div class="flex items-center justify-between py-3">
 					<span class="text-[12px] font-bold text-[var(--txt-3)]">رقم الجوال</span>
-					<span class="text-[13px] font-black text-[var(--txt)]" dir="ltr">{{ profileData()?.basicInfo?.phone
-						|| '-' }}</span>
+					<span class="text-[13px] font-black text-[var(--txt)]" dir="ltr" data-testid="public-phone">{{ contactPhone() }}</span>
 				</div>
+				@if (contactPhoneChangePending()) {
+				<div class="py-2 text-[12px] font-bold" style="color:#fbbf24" data-testid="public-phone-pending" role="status">تغيير رقم الجوال بانتظار تأكيد الرمز المرسل إلى بريدك. الرقم المعروض هو الحالي.</div>
+				}
 				<div class="flex items-center justify-between py-3 border-b-transparent">
 					<span class="text-[12px] font-bold text-[var(--txt-3)]">العنوان</span>
 					<span class="text-[13px] font-black text-[var(--txt)]">{{ profileData()?.basicInfo?.address || '-'

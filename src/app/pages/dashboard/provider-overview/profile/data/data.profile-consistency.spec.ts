@@ -117,19 +117,46 @@ describe('provider data page: stored values come back consistently', () => {
     expect((TestBed.inject(ProviderProfileService) as any).updateSkills).toHaveBeenCalledWith(['Python', 'React']);
   });
 
-  it('phone: +966 shows the code once and the national digits (no doubled code, no lost +)', () => {
-    setup({}, { phoneCountryCode: '+966', phoneNumber: '+966501234567' });
-    expect(q('[data-testid="phone-cc"]')!.textContent!.trim()).toBe('+966');
-    expect((q('[data-testid="phone-input"]') as HTMLInputElement).value).toBe('501234567');
+  const widgetValue = () => component.phoneWidget.value;
+
+  it('phone: the stored pair is shown in the country widget (flag + code) with the LOCAL number only, after a refresh: +20 / 1025073026', () => {
+    setup({}, { phoneCountryCode: '+20', phoneNumber: '1025073026' });
+    expect(widgetValue()).toMatchObject({ countryCode: 'EG', dialCode: '+20', number: '1025073026' });
+    expect(q('[data-testid="phone-widget"] .dial-code')!.textContent!.trim()).toBe('+20');
+    expect(q('[data-testid="phone-widget"] .flag')!.textContent!.trim()).toBe('🇪🇬');
+    expect((q('[data-testid="phone-widget"] input.phone-number-input') as HTMLInputElement).value).toBe('1025073026');
+    expect(component.contactForm.get('phoneCountryCode')!.value).toBe('+20');
+    expect(component.contactForm.get('phoneNumber')!.value).toBe('1025073026');
   });
 
-  it('phone: Egypt +20 with a leading zero, and a legacy local Saudi number', () => {
-    setup({}, { phoneCountryCode: '+20', phoneNumber: '01012345678' });
-    expect(q('[data-testid="phone-cc"]')!.textContent!.trim()).toBe('+20');
-    expect((q('[data-testid="phone-input"]') as HTMLInputElement).value).toBe('1012345678');
-    TestBed.resetTestingModule(); fixture.destroy();
+  it('phone: an Egyptian number that was saved next to +966 is shown as +20 (a number is never displayed with the wrong country)', () => {
+    setup({}, { phoneCountryCode: '+966', phoneNumber: '201025073026' });
+    expect(widgetValue()).toMatchObject({ countryCode: 'EG', dialCode: '+20', number: '1025073026' });
+    expect(q('[data-testid="phone-widget"] .dial-code')!.textContent!.trim()).toBe('+20');
+  });
+
+  it('phone: legacy shapes (leading zero, a full +CC number) show the local number only, with the Saudi flag', () => {
     setup({}, { phoneCountryCode: '+966', phoneNumber: '0500000000' });
-    expect((q('[data-testid="phone-input"]') as HTMLInputElement).value).toBe('500000000');
+    expect(widgetValue()).toMatchObject({ countryCode: 'SA', dialCode: '+966', number: '500000000' });
+    TestBed.resetTestingModule(); fixture.destroy();
+    setup({}, { phoneCountryCode: '+966', phoneNumber: '+966501234567' });
+    expect(widgetValue()).toMatchObject({ countryCode: 'SA', number: '501234567' });
+  });
+
+  it('phone: choosing Saudi Arabia with an Egyptian local number is a validation error and nothing is sent', () => {
+    setup({}, { phoneCountryCode: '+966', phoneNumber: '501234567' });
+    component.phoneWidget.setValue({ countryCode: 'SA', dialCode: '+966', number: '1025073026', e164Number: '' });
+    render();
+    expect(component.contactForm.get('phoneNumber')!.errors).toEqual({ phoneCountryMismatch: true });
+    expect(component.contactForm.invalid).toBe(true);
+    expect(el().textContent).toContain('رقم الجوال لا يطابق الدولة المختارة');
+  });
+
+  it('phone: the same Egyptian number with Egypt selected is valid, and the change request carries the code and the local number apart', () => {
+    setup({}, { phoneCountryCode: '+966', phoneNumber: '501234567' });
+    component.phoneWidget.setValue({ countryCode: 'EG', dialCode: '+20', number: '1025073026', e164Number: '' });
+    expect(component.contactForm.get('phoneNumber')!.errors).toBeNull();
+    expect(component.contactForm.value).toMatchObject({ phoneCountryCode: '+20', phoneNumber: '1025073026' });
   });
 
   it('date of birth: shown with its own clear label (not mixed with the ID expiry), editable, and sent with the save', () => {
