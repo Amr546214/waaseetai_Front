@@ -121,6 +121,29 @@ describe('Specialties wizard — step 2 upload (AUD-FND-000059)', () => {
 		expect(src).not.toMatch(/providerSpecialtyId\(\)\s*\|\|\s*'/);
 	});
 
+	it('typing the description or title in the form re-enables / re-blocks the next button at once (no other edit needed)', () => {
+		component.selectedSubs.set(new Set(['واجهات']));
+		atStep2({ description: '' });
+		fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		const ta = el.querySelector('textarea') as HTMLTextAreaElement;
+		const type = (node: HTMLTextAreaElement | HTMLInputElement, v: string) => { node.value = v; node.dispatchEvent(new Event('input')); fixture.detectChanges(); };
+		expect(component.canProceedToStep3()).toBe(false);
+		type(ta, 'وصف تقني مفصل للنموذج يتجاوز عشرين حرفاً');
+		expect(component.canProceedToStep3()).toBe(true);
+		expect((el.querySelector('[data-testid="next-btn"]') as HTMLElement).getAttribute('aria-disabled')).toBeNull();
+		expect(component.step2Blocker()).toBeNull();
+		type(ta, 'قصير');
+		expect(component.canProceedToStep3()).toBe(false);
+		expect(component.step2Blocker()).toContain('الوصف 20 حرفاً على الأقل');
+		const title = el.querySelector('input[type="text"]') as HTMLInputElement;
+		type(ta, 'وصف تقني مفصل للنموذج يتجاوز عشرين حرفاً');
+		type(title, 'ab');
+		expect(component.canProceedToStep3()).toBe(false);
+		type(title, 'عنوان صالح');
+		expect(component.canProceedToStep3()).toBe(true);
+	});
+
 	describe('description shorter than 20 characters', () => {
 		const short = { description: 'وصف قصير جدا' };
 		beforeEach(() => component.selectedSubs.set(new Set(['واجهات'])));
