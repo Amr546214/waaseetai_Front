@@ -153,7 +153,7 @@
                 <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
                   @if (sample.status === 'AI_VERIFIED') { <span>✓</span>معتمد من فريق وسيط }
                   @else if (sample.status === 'REJECTED') { <span>⚠</span>يتطلب تعديلاً }
-                  @else { <span>⏳</span>قيد المراجعة اليدوية }
+                  @else { <span>⏳</span>قيد مراجعة الإدارة }
                 </div>
                 <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
                   @if (sample.aiQualityRating) { <span>✓</span>تقييم AI: {{ sample.aiQualityRating }} }
@@ -203,7 +203,7 @@
 					الحالة: معتمد بنجاح 🏅
 				</span>
 				<span *ngIf="selectedSampleForModal()?.status === 'PENDING_AI_AUDIT' || selectedSampleForModal()?.status === 'MANUAL_REVIEW'" class="text-amber-400 text-xs font-black">
-					الحالة: قيد المراجعة اليدوية من فريق وسيط ⏳
+					الحالة: نموذجك قيد مراجعة الإدارة ⏳
 				</span>
 				<span *ngIf="selectedSampleForModal()?.status === 'REJECTED'" class="text-red-400 text-xs font-black">
 					الحالة: يتطلب تعديل وتحسين ⚠️
@@ -250,7 +250,7 @@
 		<!-- AI Feedback Summary -->
 		<div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800/80 mb-4">
 			<div class="text-xs font-extrabold text-[#2BD4C7] mb-1.5 flex items-center gap-1.5">
-				<span>{{ selectedSampleForModal()?.aiFeedbackAr ? 'ملخص تقييم AI المخزّن:' : 'ملخص التقييم الفني:' }}</span>
+				<span>{{ selectedSampleForModal()?.status === 'REJECTED' ? 'سبب الرفض وملاحظات الإدارة:' : (selectedSampleForModal()?.aiFeedbackAr ? 'ملخص تقييم AI المخزّن:' : 'ملخص التقييم الفني:') }}</span>
 			</div>
 			<p class="text-xs text-slate-200 leading-relaxed font-normal">
 				{{ selectedSampleForModal()?.aiFeedbackAr || 'لا يوجد تقييم بعد' }}

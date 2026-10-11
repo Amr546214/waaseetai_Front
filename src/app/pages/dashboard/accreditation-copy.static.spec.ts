@@ -45,7 +45,7 @@ describe('accreditation copy matches the manual-review reality', () => {
 
 	it('replacement wording is present', () => {
 		expect(read('pages/dashboard/' + B.replace('pages/dashboard/', '') + 'accreditation/new/new.html')).toContain('إرسال للمراجعة اليدوية من فريق وسيط');
-		expect(read('pages/dashboard/' + B.replace('pages/dashboard/', '') + 'center/center.html')).toContain('قيد المراجعة اليدوية من فريق وسيط');
+		expect(read('pages/dashboard/' + B.replace('pages/dashboard/', '') + 'center/center.html')).toContain('نموذجك قيد مراجعة الإدارة');
 		expect(read('pages/dashboard/' + B.replace('pages/dashboard/', '') + 'accreditation/list/list.html')).toContain('قيد المراجعة اليدوية');
 	});
 

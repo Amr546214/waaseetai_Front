@@ -78,6 +78,8 @@
 		</div>
 	</div>
 
+	<ws-specialty-status [registered]="registeredSpecialties()" />
+
 	<!-- تابات الحالة -->
 	<div class="ord-tabs" role="tablist" aria-label="حالة طلبات الاعتماد" style="margin-bottom:16px">
 		<button type="button" class="ord-tab active">الكل <span>{{ samples().length }}</span></button>
@@ -133,9 +135,11 @@
 							@if (sample.status === 'PENDING_AI_AUDIT' || sample.status === 'MANUAL_REVIEW') {
 							<span class="opill op-active">قيد المراجعة اليدوية</span>
 							} @else if (sample.status === 'AI_VERIFIED') {
-							<span class="opill op-done">مقبول</span>
+							<span class="opill op-done">معتمد من الإدارة</span>
 							} @else if (sample.status === 'REJECTED') {
 							<span class="opill op-cancel">مرفوض</span>
+							@if (rejectionReason(sample); as why) { <div data-testid="sample-rejection-reason" style="font-size:11px;margin-top:4px" class="txt-muted">سبب الرفض: {{ why }}</div> }
+							<a routerLink="/provider-overview/business-models/accreditation/new" style="font-size:11px;font-weight:800" class="txt-teal">إعادة الإرسال</a>
 							}
 						</td>
 						<td>

@@ -1,6 +1,8 @@
 import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { SpecialtyStatusComponent } from '../../../../../../shared/forms/specialty-status.component';
+import type { RegisteredSpecialty, SpecialtyApprovalInfo } from '../../../../../../core/utils/specialty-states';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
 
 export interface AccreditationSampleItem {
@@ -15,6 +17,7 @@ export interface AccreditationSampleItem {
   aiScore?: number;
   aiQualityRating?: string;
   aiFeedbackAr?: string;
+  rejectionReason?: string | null;
   aiStrengths: string[];
   aiRecommendations: string[];
   aiAuditedAt?: string;
@@ -31,7 +34,7 @@ export interface AccreditationSampleItem {
 @Component({
   selector: 'app-business-models-accreditation-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SpecialtyStatusComponent],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
@@ -40,6 +43,7 @@ export class List implements OnInit {
 
   isLoading = signal<boolean>(true);
   samples = signal<AccreditationSampleItem[]>([]);
+  registeredSpecialties = signal<(RegisteredSpecialty & SpecialtyApprovalInfo)[]>([]);
 
   /** Real per-status counts of the loaded samples (these tab badges used to be a fixed 0). */
   counts = computed(() => {
@@ -51,8 +55,21 @@ export class List implements OnInit {
     };
   });
 
+  /** The admin's reason of a rejected sample (the backend appends it to aiFeedbackAr under a fixed marker). */
+  rejectionReason(s: AccreditationSampleItem): string | null {
+    const text = s.aiFeedbackAr || '';
+    const mark = '[مراجعة الإدارة] سبب الرفض:';
+    const i = text.lastIndexOf(mark);
+    return i < 0 ? null : (text.slice(i + mark.length).trim() || null);
+  }
+
   ngOnInit() {
     this.fetchSamples();
+    this.providerApi.getPassedSpecialties().subscribe({
+      next: (res: any) => this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []),
+      error: () => this.registeredSpecialties.set([]),
+    });
+  
   }
 
   fetchSamples() {

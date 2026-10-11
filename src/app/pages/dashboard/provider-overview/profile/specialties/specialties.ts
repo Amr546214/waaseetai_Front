@@ -1,8 +1,12 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpEventType } from '@angular/common/http';
 import { Subscription } from 'rxjs';
+import { ProviderApiService } from '../../../../../core/services/provider-api.service';
+import { SpecialtyStatusComponent } from '../../../../../shared/forms/specialty-status.component';
+import type { RegisteredSpecialty, SpecialtyApprovalInfo } from '../../../../../core/utils/specialty-states';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
@@ -111,13 +115,18 @@ export interface PortfolioReview {
 @Component({
 	selector: 'app-profile-specialties',
 	standalone: true,
-	imports: [CommonModule, FormsModule],
+	imports: [CommonModule, FormsModule, SpecialtyStatusComponent],
 	templateUrl: './specialties.html',
 	styleUrls: ['./specialties.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Specialties implements OnInit, OnDestroy {
 	private specialtyService = inject(SpecialtyService);
+	private providerApi = inject(ProviderApiService);
+	private router = inject(Router);
+	goToAccreditation() { void this.router.navigateByUrl('/provider-overview/business-models/accreditation/new'); }
+	/** Every registered specialty with its real approval state (test vs samples vs admin decision), shown at the top of step 1. */
+	registeredSpecialties = signal<(RegisteredSpecialty & SpecialtyApprovalInfo)[]>([]);
 	public antiCheatService = inject(AntiCheatService);
 	public confirmModal = inject(ConfirmModalService);
 	private platformId = inject(PLATFORM_ID);
@@ -271,6 +280,10 @@ export class Specialties implements OnInit, OnDestroy {
 
 	ngOnInit() {
 		this.loadRecommendation();
+		this.providerApi.getPassedSpecialties().subscribe({
+			next: (res: any) => this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []),
+			error: () => this.registeredSpecialties.set([]),
+		});
 		this.specialtyService.getCategories().subscribe({
 			next: (res: any) => {
 				if (res && res.success && res.data) {
