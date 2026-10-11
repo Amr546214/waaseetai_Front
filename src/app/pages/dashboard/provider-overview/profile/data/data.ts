@@ -869,7 +869,7 @@ export class Data implements OnInit, OnDestroy {
     const labels = category === 'CONTACT' ? CONTACT_LABELS : DOCS_LABELS;
     const setSummary = (i: InvalidField[]) => (category === 'CONTACT' ? this.missingContact : this.missingDocs).set(i);
     const field = raw ? ({
-      INVALID_EMAIL: 'email', EMAIL_ALREADY_USED: 'email', INVALID_PHONE: 'phoneNumber', PHONE_ALREADY_USED: 'phoneNumber',
+      INVALID_EMAIL: 'email', EMAIL_ALREADY_USED: 'email', INVALID_PHONE: 'phoneNumber', INVALID_PHONE_COUNTRY: 'phoneNumber', PHONE_ALREADY_USED: 'phoneNumber',
       INVALID_ALTERNATIVE_PHONE: 'alternativePhone', ID_DOCUMENT_REQUIRED: 'idDocumentUrl', INVALID_DOCUMENT_URL: raw.arg,
     } as Record<string, string>)[raw.code] : undefined;
     const message = raw ? messageForBackendCode(raw.code) : null;
