@@ -3,13 +3,14 @@ import { approvalTag as approvalTagOf } from '../../../../../../../../core/utils
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SpecialtyCategory } from '../../new';
+import { AddSpecialtyComponent } from '../../../../../../../../shared/forms/add-specialty.component';
 import { SpecialtyEmptyComponent } from '../../../../../../../../shared/forms/specialty-empty.component';
 import type { RegisteredSpecialty } from '../../../../../../../../core/utils/specialty-states';
 
 @Component({
   selector: 'app-step1-specialty',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpecialtyEmptyComponent],
+  imports: [CommonModule, RouterLink, SpecialtyEmptyComponent, AddSpecialtyComponent],
   templateUrl: './step1-specialty.component.html',
   styleUrl: './step1-specialty.component.css'
 })

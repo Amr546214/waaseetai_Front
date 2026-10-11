@@ -57,6 +57,7 @@
 	</div>
 
 	<ng-container *ngIf="currentStep() === 1">
+		<div *ngIf="returnToAccreditation" data-testid="return-to-accreditation-note" class="mb-4 px-4 py-3 rounded-xl text-[12.5px] font-bold leading-relaxed bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.25)] text-[var(--txt-2)]">أنت هنا لإضافة تخصص جديد واختباره. بعد الاختبار تعود إلى صفحة رفع نموذج الاعتماد، ويظهر التخصص هناك إن اجتزت الاختبار. اجتياز الاختبار لا يعني الاعتماد.</div>
 		<ws-specialty-status [registered]="registeredSpecialties()" />
 		<!-- Specialty suggestion: real data only (the backend says what it is based on); hidden when there is none or the request failed -->
 		<div *ngIf="recommendationLoading()" class="h-[68px] rounded-xl mb-5 bg-[rgba(255,255,255,.04)] animate-pulse" data-testid="rec-loading" aria-hidden="true"></div>
@@ -568,7 +569,7 @@
 			[statusTitle]="generationInProgress() ? 'التقييم قيد التوليد…' : null"
 			[errorMessage]="quizGenerationError()"
 			[errorRetryable]="quizErrorRetryable()"
-			backLabel="العودة إلى لوحة التخصصات"
+			[backLabel]="testLeaveLabel"
 			[question]="testQuestion()"
 			[index]="currentQuestionIdx()"
 			[total]="testTotal()"
@@ -586,8 +587,8 @@
 			(next)="nextQuestion()"
 			(finish)="submitQuizFinal()"
 			(retry)="retryQuizGeneration()"
-			(back)="currentStep.set(1)"
-			(primary)="currentStep.set(1)" />
+			(back)="leaveTest()"
+			(primary)="leaveTest()" />
 
 		<div *ngIf="!isSubmittingQuiz() && quizResult()?.detailedResults?.length" class="flex flex-col gap-6 mt-6 animate-[ws-fade_0.4s_ease]">
 			<!-- DETAILED QUESTION-BY-QUESTION EXPLANATION REVIEW -->

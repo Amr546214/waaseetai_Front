@@ -9,6 +9,10 @@ export interface RegisteredSpecialty {
 	categoryName?: string;
 	state: RegisteredSpecialtyState;
 	latestScore?: number | null;
+	/** Seconds until the test can be retaken (cooldown after a failed attempt), when the backend says so. */
+	retryAfterSeconds?: number | null;
+	/** The attempt limit (per 30 days) is reached: no retake for now. */
+	attemptLimitReached?: boolean;
 }
 
 export const SPECIALTIES_PAGE = '/provider-overview/profile/specialties';
@@ -19,6 +23,21 @@ export const SPECIALTY_STATE_TEXT: Readonly<Record<Exclude<RegisteredSpecialtySt
 	REJECTED: 'تم رفض هذا التخصص، راجع سبب الرفض وأعد التقديم',
 	LOCKED_OUT: 'الاختبار مقفل مؤقتًا لهذا التخصص، حاول مجددًا بعد انتهاء مدة القفل',
 };
+
+/** "يمكنك إعادة الاختبار بعد X ساعة" (hours rounded up; under an hour says so). */
+export function retryAfterText(seconds: number): string {
+	const hours = Math.ceil(seconds / 3600);
+	return hours <= 1 ? 'يمكنك إعادة الاختبار بعد أقل من ساعة' : `يمكنك إعادة الاختبار بعد ${hours} ساعة`;
+}
+export const ATTEMPT_LIMIT_TEXT = 'وصلت للحد الأقصى لمحاولات هذا الاختبار خلال 30 يومًا، يمكنك المحاولة لاحقًا';
+
+/** The text of a registered specialty that cannot be selected yet: its state, with the wait when the backend reports one. */
+export function registeredStateText(r: Pick<RegisteredSpecialty, 'state' | 'retryAfterSeconds' | 'attemptLimitReached'>): string {
+	if (r.state === 'PASSED') return '';
+	if (r.attemptLimitReached && (r.state === 'TEST_NOT_PASSED' || r.state === 'REJECTED')) return ATTEMPT_LIMIT_TEXT;
+	if ((r.state === 'TEST_NOT_PASSED' || r.state === 'REJECTED') && r.retryAfterSeconds && r.retryAfterSeconds > 0) return `أجريت الاختبار ولم تتجاوزه. ${retryAfterText(r.retryAfterSeconds)}`;
+	return SPECIALTY_STATE_TEXT[r.state];
+}
 
 export interface SpecialtyEmptyView {
 	title: string;
@@ -31,7 +50,7 @@ export interface SpecialtyEmptyView {
 /** The message for "nothing selectable": none registered at all, or the registered ones with each one's real state. */
 export function specialtyEmptyView(registered: readonly RegisteredSpecialty[] | null | undefined): SpecialtyEmptyView {
 	const items = (registered ?? []).filter((r): r is RegisteredSpecialty & { state: Exclude<RegisteredSpecialtyState, 'PASSED'> } => r.state !== 'PASSED')
-		.map((r) => ({ name: r.name, text: SPECIALTY_STATE_TEXT[r.state], state: r.state }));
+		.map((r) => ({ name: r.name, text: registeredStateText(r), state: r.state }));
 	if (!items.length) {
 		return { title: 'لا يوجد لديك تخصص مسجّل', body: 'أضف تخصصك من صفحة التخصصات ثم أجرِ اختباره لتتمكن من رفع أعمالك ونشر خدماتك.', items: [], ctaLabel: 'الذهاب إلى التخصصات', ctaLink: SPECIALTIES_PAGE };
 	}
@@ -50,7 +69,7 @@ export type SpecialtyApprovalState =
 	| 'APPROVED' | 'LOCKED' | 'TEST_NOT_TAKEN' | 'TEST_NOT_PASSED' | 'REJECTED'
 	| 'PASSED_NO_SAMPLES' | 'DRAFT_SAMPLES' | 'SAMPLES_UNDER_REVIEW' | 'SAMPLES_REJECTED';
 
-export interface SpecialtyApprovalInfo { approvalState?: SpecialtyApprovalState | null; rejectionReason?: string | null }
+export interface SpecialtyApprovalInfo { approvalState?: SpecialtyApprovalState | null; rejectionReason?: string | null; retryAfterSeconds?: number | null; attemptLimitReached?: boolean }
 
 export const ACCREDITATION_NEW_PAGE = '/provider-overview/business-models/accreditation/new';
 
@@ -66,8 +85,14 @@ export function approvalView(info: SpecialtyApprovalInfo | null | undefined): Ap
 		case 'DRAFT_SAMPLES': return { label: 'نماذج محفوظة (مسودة)', detail: 'اجتزت الاختبار وحفظت نماذجك، لكنها لم تُرسَل بعد لطابور مراجعة الإدارة. أرسل نموذج اعتماد لتبدأ المراجعة.', tone: 'todo', ctaLabel: 'إرسال نموذج اعتماد', ctaLink: ACCREDITATION_NEW_PAGE };
 		case 'PASSED_NO_SAMPLES': return { label: 'اجتزت الاختبار — لم ترفع نماذج بعد', detail: 'الاختبار وحده لا يعني الاعتماد. ارفع نموذج اعتماد ليراجعه فريق وسيط.', tone: 'todo', ctaLabel: 'رفع نموذج اعتماد', ctaLink: ACCREDITATION_NEW_PAGE };
 		case 'TEST_NOT_TAKEN': return { label: 'لم تُجرِ اختبار هذا التخصص بعد', detail: SPECIALTY_STATE_TEXT.TEST_NOT_TAKEN, tone: 'todo', ctaLabel: 'إجراء الاختبار', ctaLink: SPECIALTIES_PAGE };
-		case 'TEST_NOT_PASSED': return { label: 'لم تتجاوز الاختبار', detail: SPECIALTY_STATE_TEXT.TEST_NOT_PASSED, tone: 'bad', ctaLabel: 'إعادة المحاولة', ctaLink: SPECIALTIES_PAGE };
-		case 'REJECTED': return { label: 'تم رفض هذا التخصص', detail: `${SPECIALTY_STATE_TEXT.REJECTED}${reason}`, tone: 'bad', ctaLabel: 'إعادة التقديم', ctaLink: SPECIALTIES_PAGE };
+		case 'TEST_NOT_PASSED': {
+			const waiting = !!info.attemptLimitReached || (info.retryAfterSeconds ?? 0) > 0;
+			return { label: 'لم تتجاوز الاختبار', detail: waiting ? registeredStateText({ state: 'TEST_NOT_PASSED', retryAfterSeconds: info.retryAfterSeconds, attemptLimitReached: info.attemptLimitReached }) : SPECIALTY_STATE_TEXT.TEST_NOT_PASSED, tone: 'bad', ctaLabel: waiting ? null : 'إعادة المحاولة', ctaLink: waiting ? null : SPECIALTIES_PAGE };
+		}
+		case 'REJECTED': {
+			const waiting = !!info.attemptLimitReached || (info.retryAfterSeconds ?? 0) > 0;
+			return { label: 'تم رفض هذا التخصص', detail: `${waiting ? registeredStateText({ state: 'REJECTED', retryAfterSeconds: info.retryAfterSeconds, attemptLimitReached: info.attemptLimitReached }) : SPECIALTY_STATE_TEXT.REJECTED}${reason}`, tone: 'bad', ctaLabel: waiting ? null : 'إعادة التقديم', ctaLink: waiting ? null : SPECIALTIES_PAGE };
+		}
 		case 'LOCKED': return { label: 'مقفل مؤقتًا', detail: SPECIALTY_STATE_TEXT.LOCKED_OUT, tone: 'bad', ctaLabel: null, ctaLink: null };
 		default: return { label: 'بانتظار الاعتماد', detail: '', tone: 'wait', ctaLabel: null, ctaLink: null };
 	}
@@ -81,6 +106,7 @@ export function approvalTag(info: SpecialtyApprovalInfo | null | undefined, scor
 		case 'SAMPLES_UNDER_REVIEW': return `⏳ نماذجك قيد مراجعة الإدارة${s}`;
 		case 'SAMPLES_REJECTED': return '⚠ تم رفض بعض النماذج — أعد الإرسال';
 		case 'DRAFT_SAMPLES': return `✓ اجتزت الاختبار${s} · النماذج مسودة، أرسل نموذج اعتماد`;
+		case 'PASSED_NO_SAMPLES': return `✓ اجتزت الاختبار${s} — ارفع نموذج اعتماد`;
 		default: return `✓ اجتزت الاختبار${s} · بانتظار اعتماد الأدمن`;
 	}
 }

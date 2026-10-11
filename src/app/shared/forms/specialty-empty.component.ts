@@ -20,7 +20,7 @@ import { specialtyEmptyView, type RegisteredSpecialty } from '../../core/utils/s
 				}
 			</ul>
 			}
-			<a class="wse-cta" [routerLink]="view().ctaLink" data-testid="specialty-empty-cta">{{ view().ctaLabel }}</a>
+			<a class="wse-cta" [routerLink]="view().ctaLink" [queryParams]="returnTo() ? { returnTo: returnTo() } : null" data-testid="specialty-empty-cta">{{ view().ctaLabel }}</a>
 		</div>
 	`,
 	styles: [`
@@ -36,5 +36,7 @@ import { specialtyEmptyView, type RegisteredSpecialty } from '../../core/utils/s
 })
 export class SpecialtyEmptyComponent {
 	readonly registered = input<readonly RegisteredSpecialty[] | null | undefined>(null);
+	/** e.g. 'accreditation': the specialties page brings the provider back to that page after the test. */
+	readonly returnTo = input<string | null>(null);
 	protected readonly view = computed(() => specialtyEmptyView(this.registered()));
 }
