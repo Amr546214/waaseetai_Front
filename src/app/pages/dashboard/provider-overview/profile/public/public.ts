@@ -73,9 +73,9 @@ export class Public implements OnInit {
 	specStatusLabel(spec: any): string {
 		switch (spec?.status) {
 			case 'APPROVED': return spec?.isPassed && spec?.assessmentDetails ? 'تخصص معتمد · اجتاز اختبار AI' : 'تخصص معتمد';
-			case 'REJECTED': return 'تخصص غير معتمد';
+			case 'REJECTED': return 'تم رفض التخصص';
 			case 'LOCKED_OUT': return 'التخصص مقفل مؤقتاً';
-			default: return 'قيد الاعتماد';
+			default: return 'بانتظار اعتماد الإدارة';
 		}
 	}
 

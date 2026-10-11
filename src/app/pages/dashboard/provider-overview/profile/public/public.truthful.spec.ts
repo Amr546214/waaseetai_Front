@@ -69,7 +69,7 @@ describe('provider public profile shows only real data', () => {
 		f.detectChanges();
 		const t = text(f);
 		expect(t).toContain('0 تخصص معتمد');
-		expect(t).toContain('قيد الاعتماد');
+		expect(t).toContain('بانتظار اعتماد الإدارة');
 		expect(t).not.toContain('مفحوص بالذكاء');
 	});
 

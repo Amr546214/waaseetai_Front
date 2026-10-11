@@ -482,10 +482,10 @@
 						<h3 class="text-[18px] font-black text-white m-0">{{ spec.specialtyName }}</h3>
 						<span
 							class="px-3 py-1 rounded-full bg-[#0FA99A]/15 border border-[#0FA99A]/30 text-[#2BD4C7] text-[11px] font-extrabold flex items-center gap-1.5">
-							<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+							<svg *ngIf="spec.status === 'APPROVED'" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
 								<polyline points="20 6 9 17 4 12" />
 							</svg>
-							{{ specStatusLabel(spec) }}
+							<span data-testid="spec-status-label" [attr.data-status]="spec.status">{{ specStatusLabel(spec) }}</span>
 						</span>
 						@if (spec.aiMetrics?.aiScore > 0) {
 						<span class="px-3 py-1 rounded-full bg-[#7B2FBE]/15 border border-[#7B2FBE]/30 text-[#A56BE0] text-[11px] font-extrabold">تقييم AI {{ spec.aiMetrics.aiScore }}%</span>

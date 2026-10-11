@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { approvalTag as approvalTagOf } from '../../../../../../../core/utils/specialty-states';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -13,6 +14,8 @@ import type { RegisteredSpecialty } from '../../../../../../../core/utils/specia
 	styleUrl: './step2-specialty.component.css'
 })
 export class Step2SpecialtyComponent {
+  approvalTag(spec: any): string { return approvalTagOf(spec, spec?.score); }
+
 	@Input({ required: true }) isLoadingSpecialties!: boolean;
   @Input() registered: RegisteredSpecialty[] = [];
 	@Input({ required: true }) passedCategories!: any[];

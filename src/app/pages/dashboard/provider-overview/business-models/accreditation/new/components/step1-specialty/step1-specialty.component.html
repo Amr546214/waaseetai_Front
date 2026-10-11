@@ -23,7 +23,7 @@
 				<line x1="12" y1="8" x2="12" y2="12" />
 				<line x1="12" y1="16" x2="12.01" y2="16" />
 			</svg>
-			<span>يمكنك الاختيار من <strong class="txt-white">تخصصاتك المعتمدة فقط</strong>. التخصصات الأخرى تحتاج
+			<span>يمكنك الاختيار من <strong class="txt-white">تخصصاتك التي اجتزت اختبارها فقط</strong>. التخصصات الأخرى تحتاج
 				اعتماداً منفصلاً. يمكنك اختيار أكثر من تخصص ورفع نماذج لكل منها.</span>
 		</div>
 
@@ -57,7 +57,7 @@
 				<div class="spec-ico ic-teal"
 					[innerHTML]="spec.icon"></div>
 				<div class="spec-name">{{ spec.name }}</div>
-				<div class="approved-tag" [attr.data-status]="$any(spec).accreditationStatus">@if ($any(spec).accreditationStatus === 'APPROVED') { &#10003; معتمد } @else { &#10003; اجتزت الاختبار · بانتظار الاعتماد }</div>
+				<div class="approved-tag" [attr.data-state]="$any(spec).approvalState" data-testid="approval-tag">{{ approvalTag(spec) }}</div>
 			</div>
 			}
 		</div>

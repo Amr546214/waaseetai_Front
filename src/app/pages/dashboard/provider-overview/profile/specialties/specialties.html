@@ -57,6 +57,7 @@
 	</div>
 
 	<ng-container *ngIf="currentStep() === 1">
+		<ws-specialty-status [registered]="registeredSpecialties()" />
 		<!-- Specialty suggestion: real data only (the backend says what it is based on); hidden when there is none or the request failed -->
 		<div *ngIf="recommendationLoading()" class="h-[68px] rounded-xl mb-5 bg-[rgba(255,255,255,.04)] animate-pulse" data-testid="rec-loading" aria-hidden="true"></div>
 		<div *ngIf="visibleRecommendation() as rec" data-testid="rec-banner"
@@ -466,6 +467,7 @@
 					<span class="text-xs font-black text-white tracking-wider">مراجعة النماذج</span>
 				</div>
 				<p class="text-xs text-[var(--txt-3)] leading-relaxed">تُراجَع نماذج أعمالك وإثباتات الملكية قبل فتح بوابة الاختبار الفوري.</p>
+				<p class="text-xs text-[var(--txt-3)] leading-relaxed mt-1" data-testid="step3-draft-note">نماذج هذه الخطوة محفوظة في ملفك كمسودة، ولا تعني اعتماد التخصص. يبدأ اعتماد الإدارة عند إرسال نموذج اعتماد من <button type="button" (click)="goToAccreditation()" data-testid="step3-accreditation-link" class="text-[#2BD4C7] font-bold underline bg-transparent border-0 p-0 cursor-pointer">صفحة الاعتماد</button>، ولا يظهر «معتمد» إلا بعد موافقتها.</p>
 			</div>
 		</div>
 
