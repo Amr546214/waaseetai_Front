@@ -377,9 +377,6 @@
 					<span class="text-[12px] font-bold text-[var(--txt-3)]">رقم الجوال</span>
 					<span class="text-[13px] font-black text-[var(--txt)]" dir="ltr" data-testid="public-phone">{{ contactPhone() }}</span>
 				</div>
-				@if (contactPhoneChangePending()) {
-				<div class="py-2 text-[12px] font-bold" style="color:#fbbf24" data-testid="public-phone-pending" role="status">تغيير رقم الجوال بانتظار تأكيد الرمز المرسل إلى بريدك. الرقم المعروض هو الحالي.</div>
-				}
 				<div class="flex items-center justify-between py-3 border-b-transparent">
 					<span class="text-[12px] font-bold text-[var(--txt-3)]">العنوان</span>
 					<span class="text-[13px] font-black text-[var(--txt)]">{{ profileData()?.basicInfo?.address || '-'

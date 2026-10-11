@@ -93,7 +93,7 @@
     </svg></div>
   <div class="ai-disc-body">
     <div class="ai-disc-lbl">وسيط، بياناتك الشخصية</div>
-    <p class="ai-disc-txt">التعديلات على الصورة والاسم والوصف والتخصصات تُحفظ مباشرة، وتغيير بريد التواصل وبريد PayPal يُؤكَّد برمز تحقق بدون مراجعة يدوية، أما المستندات فتخضع لمراجعة يدوية</p>
+    <p class="ai-disc-txt">التعديلات على الصورة والاسم والوصف والتخصصات تُحفظ مباشرة، وتغيير بريد PayPal يُؤكَّد برمز تحقق بدون مراجعة يدوية، أما المستندات فتخضع لمراجعة يدوية</p>
   </div>
 </div>
 
@@ -108,7 +108,7 @@
       </svg>بمراجعة</span>تنشئ طلبا يخضع للمراجعة ثم يعتمده مراجع بشري (المستندات)</div>
   <div class="tier-legend-item"><span class="tlp tlp-sens"><svg aria-hidden="true">
         <use href="#ws-shield"></use>
-      </svg>برمز تحقق</span>يُؤكَّد برمز يُرسل إلى بريد حسابك ويُطبَّق فورًا دون مراجعة يدوية (التواصل وPayPal)</div>
+      </svg>برمز تحقق</span>يُؤكَّد برمز يُرسل إلى بريد حسابك ويُطبَّق فورًا دون مراجعة يدوية (PayPal)</div>
 </div>
 <div class="prof-tab-nav" role="tablist" aria-label="أقسام الملف المهني">
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'profile'" (click)="setTab('profile')"
@@ -117,9 +117,7 @@
         <use href="#ws-bolt"></use>
       </svg>فوري</span></button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'contact'" (click)="setTab('contact')"
-    role="tab" aria-selected="false">بيانات التواصل<span class="tab-tier tt-sens"><svg aria-hidden="true">
-        <use href="#ws-shield"></use>
-      </svg>برمز تحقق</span></button>
+    role="tab" aria-selected="false">بيانات التواصل<span class="tab-tier tt-free" data-testid="contact-tab-readonly">للعرض فقط</span></button>
   <button type="button" class="prof-tab-btn" [class.active]="currentTab() === 'payout'" (click)="setTab('payout')"
     role="tab" aria-selected="false">حساب PayPal<span class="tab-tier tt-sens" data-testid="paypal-tab-otp"><svg aria-hidden="true">
         <use href="#ws-shield"></use>
@@ -563,8 +561,7 @@
   </div>
 </div>
 
-<div class="prof-tab-panel" [class.active]="currentTab() === 'contact'" id="prof-panel-contact" role="tabpanel"
-  [formGroup]="contactForm">
+<div class="prof-tab-panel" [class.active]="currentTab() === 'contact'" id="prof-panel-contact" role="tabpanel">
   <div class="form-card">
     <div class="form-card-hdr">
       <div class="form-card-ico"><svg aria-hidden="true">
@@ -572,41 +569,34 @@
         </svg></div>
       <div>
         <div class="form-card-title">بيانات التواصل</div>
-        <div class="form-card-sub">تغيير البريد او الجوال يتطلب تاكيد رمز يصل إلى بريدك الإلكتروني الحالي</div>
+        <div class="form-card-sub">للعرض فقط</div>
       </div>
     </div>
-    <div class="gov-bar">
-      <div class="gov-bar-ico"><svg aria-hidden="true">
-          <use href="#ws-shield"></use>
-        </svg></div>
-      <div class="gov-bar-txt">تعديل بيانات التواصل يتطلب تأكيد رمز التحقق، ويُطبَّق التغيير بعد تأكيده</div>
-      <a routerLink="/provider-overview/profile/requests" class="gov-bar-link">طلباتي السابقة</a>
-    </div>
-    <div
-      style="display:flex;align-items:center;gap:9px;padding:10px 14px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:9px;margin-bottom:16px;font-size:12px" class="txt-kahr">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>يُرسل رمز التحقق إلى بريدك الإلكتروني الحالي فقط (لا يُرسل رمز إلى الجوال)</div>
-    <div class="form-grid form-col-2">
-      <div class="inp-group"><label class="inp-label" for="ct-email">البريد الالكتروني<span
-            class="req">*</span></label><input type="email" id="ct-email" class="inp-field" formControlName="email"
-          dir="ltr"><ws-field-error [control]="contactForm.get('email')" label="البريد الإلكتروني" /></div>
-      <div class="inp-group"><label class="inp-label" for="ct-phone">رقم الجوال<span class="req">*</span></label><app-phone-input [formControl]="phoneWidget" class="phone-widget" data-testid="phone-widget"></app-phone-input><ws-field-error [control]="contactForm.get('phoneNumber')" label="رقم الجوال" [messages]="{ phoneCountryMismatch: 'رقم الجوال لا يطابق الدولة المختارة، اكتب رقمًا محليًا صحيحًا لهذه الدولة' }" /></div>
-      <div class="inp-group"><label class="inp-label" for="ct-whatsapp">رقم WhatsApp (اختياري)</label><input type="tel"
-          id="ct-whatsapp" class="inp-field" formControlName="alternativePhone" placeholder="مطابق للجوال غالبا"
-          dir="ltr"><ws-field-error [control]="contactForm.get('alternativePhone')" label="رقم WhatsApp" [messages]="{ pattern: 'رقم WhatsApp غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +' }" /></div>
+    <div class="form-grid form-col-2" data-testid="contact-readonly">
+      <div class="inp-group"><span class="inp-label">البريد الإلكتروني</span>
+        <div class="inp-field" dir="ltr" data-testid="contact-email" style="display:flex;align-items:center;opacity:.95">{{ contactEmail() || 'غير مضاف' }}</div></div>
+      <div class="inp-group"><span class="inp-label">رقم الجوال</span>
+        @if (contactPhone(); as ph) {
+        <div class="inp-field" data-testid="contact-phone" style="display:flex;align-items:center;gap:10px;opacity:.95">
+          <span data-testid="contact-phone-flag" aria-hidden="true">{{ ph.flag }}</span>
+          <span data-testid="contact-phone-country">{{ ph.countryName }}</span>
+          <span dir="ltr" data-testid="contact-phone-code" style="unicode-bidi:isolate">{{ ph.dialCode }}</span>
+          <span dir="ltr" data-testid="contact-phone-number" style="unicode-bidi:isolate">{{ ph.nationalNumber }}</span>
+        </div>
+        } @else {
+        <div class="inp-field" data-testid="contact-phone" style="opacity:.95">غير مضاف</div>
+        }</div>
+      @if (contactWhatsapp()) {
+      <div class="inp-group"><span class="inp-label">رقم WhatsApp</span>
+        <div class="inp-field" dir="ltr" data-testid="contact-whatsapp" style="display:flex;align-items:center;opacity:.95">{{ contactWhatsapp() }}</div></div>
+      }
       <div class="inp-group" style="grid-column:1/-1" data-testid="contact-location-note">
         <span class="inp-label">الدولة والمدينة</span>
         <span>{{ profileForm.get('country')?.value || 'غير محددة' }}{{ profileForm.get('city')?.value ? ' — ' + profileForm.get('city')?.value : '' }}</span>
-        <span class="inp-hint">الدولة والمدينة لا تُحفظ من هذا التبويب، يتم تعديلهما من تبويب «الملف المهني». <button type="button" class="gov-bar-link" (click)="setTab('profile')">الانتقال إلى الملف المهني</button></span>
+        <span class="inp-hint">الدولة والمدينة يتم تعديلهما من تبويب «الملف المهني». <button type="button" class="gov-bar-link" (click)="setTab('profile')">الانتقال إلى الملف المهني</button></span>
       </div>
     </div>
-    <ws-form-summary [items]="missingContact()" (select)="onSummarySelect($event)" />
-    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving()" (click)="saveContact()">{{ isSaving() ? 'جاري الإرسال...' : 'إرسال رمز التحقق' }}</button>
-    </div>
+    <p class="inp-hint" data-testid="contact-readonly-note" style="margin-top:12px">البريد الإلكتروني ورقم الجوال للعرض فقط. للمساعدة تواصل مع الدعم.</p>
   </div>
 </div>
 

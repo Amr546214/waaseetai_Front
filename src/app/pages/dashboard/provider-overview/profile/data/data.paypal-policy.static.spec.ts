@@ -25,10 +25,12 @@ describe('provider data page: PayPal change wording', () => {
 		expect(panel).toContain('لا يحتاج تغيير بريد PayPal إلى مراجعة يدوية');
 	});
 
-	it('the page banner / legend only attach manual review to documents; contact + PayPal are "برمز تحقق"', () => {
-		expect(html).toContain('وتغيير بريد التواصل وبريد PayPal يُؤكَّد برمز تحقق بدون مراجعة يدوية، أما المستندات فتخضع لمراجعة يدوية');
+	it('the page banner / legend only attach manual review to documents; PayPal is "برمز تحقق"; the contact data is not mentioned as editable', () => {
+		expect(html).toContain('وتغيير بريد PayPal يُؤكَّد برمز تحقق بدون مراجعة يدوية، أما المستندات فتخضع لمراجعة يدوية');
 		expect(html).toContain('(المستندات)');
-		expect(html).toContain('يُؤكَّد برمز يُرسل إلى بريد حسابك ويُطبَّق فورًا دون مراجعة يدوية (التواصل وPayPal)');
+		expect(html).toContain('يُؤكَّد برمز يُرسل إلى بريد حسابك ويُطبَّق فورًا دون مراجعة يدوية (PayPal)');
+		expect(html).not.toContain('(التواصل وPayPal)');
+		expect(html).not.toContain('وتغيير بريد التواصل');
 	});
 
 	it('the confirmation step also states the 24-hour freeze', () => {
