@@ -1,12 +1,12 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpEventType } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { SpecialtyStatusComponent } from '../../../../../shared/forms/specialty-status.component';
-import type { RegisteredSpecialty, SpecialtyApprovalInfo } from '../../../../../core/utils/specialty-states';
+import { ACCREDITATION_NEW_PAGE, type RegisteredSpecialty, type SpecialtyApprovalInfo } from '../../../../../core/utils/specialty-states';
 import { SPECIALTY_TEST_PASS_SCORE, SPECIALTY_TEST_QUESTION_COUNT, SPECIALTY_TEST_TIME_LIMIT_MINUTES, SpecialtyTestComponent, type SpecialtyTestPhase, type SpecialtyTestQuestion, type SpecialtyTestResult } from '../../../../../shared/specialty-test/specialty-test.component';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';
@@ -125,6 +125,15 @@ export class Specialties implements OnInit, OnDestroy {
 	private specialtyService = inject(SpecialtyService);
 	private providerApi = inject(ProviderApiService);
 	private router = inject(Router);
+	private route = inject(ActivatedRoute, { optional: true });
+	/** Opened from the accreditation page's "إضافة تخصص جديد" (?returnTo=accreditation): after the test the provider goes back there. */
+	readonly returnToAccreditation = this.route?.snapshot.queryParamMap.get('returnTo') === 'accreditation';
+	/** Where the test result / error screen sends the provider: back to the accreditation upload page when they came from it, else step 1 of this page. */
+	leaveTest() {
+		if (this.returnToAccreditation) void this.router.navigateByUrl(ACCREDITATION_NEW_PAGE);
+		else this.currentStep.set(1);
+	}
+	readonly testLeaveLabel = this.returnToAccreditation ? 'العودة إلى رفع نموذج الاعتماد' : 'العودة إلى لوحة التخصصات';
 	goToAccreditation() { void this.router.navigateByUrl('/provider-overview/business-models/accreditation/new'); }
 	/** Every registered specialty with its real approval state (test vs samples vs admin decision), shown at the top of step 1. */
 	registeredSpecialties = signal<(RegisteredSpecialty & SpecialtyApprovalInfo)[]>([]);
@@ -994,7 +1003,7 @@ export class Specialties implements OnInit, OnDestroy {
 		const stats: SpecialtyTestResult['stats'] = [];
 		if (r.correctAnswers !== null && r.correctAnswers !== undefined) stats.push({ label: 'الإجابات الصحيحة', value: `${r.correctAnswers} / ${r.totalQuestions ?? ''}`.trim(), tone: 'teal' });
 		stats.push({ label: 'حالة الشارة', value: this.resultBadgeLabel(), tone: r.specialtyApproved ? 'teal' : 'amber' });
-		return { score: r.scorePercentage, passed: r.passed, headline: this.resultHeadline(), subline: this.resultSubline(), stats, feedback: r.feedbackAr || null, strengths: r.strengths || [], weaknesses: r.weaknesses || [], primaryLabel: r.passed ? 'العودة إلى لوحة التخصصات' : null };
+		return { score: r.scorePercentage, passed: r.passed, headline: this.resultHeadline(), subline: this.resultSubline(), stats, feedback: r.feedbackAr || null, strengths: r.strengths || [], weaknesses: r.weaknesses || [], primaryLabel: r.passed || this.returnToAccreditation ? this.testLeaveLabel : null };
 	});
 	onTestAnswer(optionIndex: number) {
 		const q = this.currentQuestion();

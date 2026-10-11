@@ -13,7 +13,7 @@
 	</div>
 
 	<!-- Glassmorphic Notice if No Passed Specialties (length === 0) -->
-	<ws-specialty-empty *ngIf="!isLoading && (!hasAccreditedSpecialties || categories.length === 0)" [registered]="registered" />
+	<ws-specialty-empty *ngIf="!isLoading && (!hasAccreditedSpecialties || categories.length === 0)" [registered]="registered" returnTo="accreditation" />
 
 	<ng-container *ngIf="!isLoading && hasAccreditedSpecialties && categories.length > 0">
 		<!-- INFO NOTE -->
@@ -24,7 +24,7 @@
 				<line x1="12" y1="16" x2="12.01" y2="16" />
 			</svg>
 			<span>يمكنك الاختيار من <strong class="txt-white">تخصصاتك التي اجتزت اختبارها فقط</strong>. التخصصات الأخرى تحتاج
-				اعتماداً منفصلاً. يمكنك اختيار أكثر من تخصص ورفع نماذج لكل منها.</span>
+				اعتماداً منفصلاً. يمكنك اختيار أكثر من تخصص ورفع نماذج لكل منها. لتخصص آخر استخدم «إضافة تخصص جديد» أسفل القائمة.</span>
 		</div>
 
 		<!-- Specialties per Category -->
@@ -91,6 +91,8 @@
 				}
 			</div>
 		</div>
+
+		<ws-add-specialty [registered]="registered" returnTo="accreditation" />
 
 		<!-- MANUAL REVIEW NOTE -->
 		<div class="ai-disclosure" role="note">

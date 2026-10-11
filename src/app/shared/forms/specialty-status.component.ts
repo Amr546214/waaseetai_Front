@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { approvalView, type RegisteredSpecialty, type SpecialtyApprovalInfo } from '../../core/utils/specialty-states';
+import { SPECIALTIES_PAGE, approvalView, type RegisteredSpecialty, type SpecialtyApprovalInfo } from '../../core/utils/specialty-states';
 
 type Row = RegisteredSpecialty & SpecialtyApprovalInfo;
 
@@ -18,7 +18,7 @@ type Row = RegisteredSpecialty & SpecialtyApprovalInfo;
 			<div class="wss-row" [attr.data-state]="r.approvalState" [attr.data-tone]="r.view.tone">
 				<div class="wss-main"><strong>{{ r.name }}</strong><span class="wss-tag" data-testid="specialty-status-label">{{ r.view.label }}</span></div>
 				@if (r.view.detail) { <p class="wss-detail">{{ r.view.detail }}</p> }
-				@if (r.view.ctaLink) { <a class="wss-cta" [routerLink]="r.view.ctaLink">{{ r.view.ctaLabel }}</a> }
+				@if (r.view.ctaLink) { <a class="wss-cta" [routerLink]="r.view.ctaLink" [queryParams]="queryFor(r.view.ctaLink)">{{ r.view.ctaLabel }}</a> }
 			</div>
 			}
 		</section>
@@ -37,5 +37,8 @@ type Row = RegisteredSpecialty & SpecialtyApprovalInfo;
 })
 export class SpecialtyStatusComponent {
 	readonly registered = input<readonly Row[] | null | undefined>(null);
+	/** When set (e.g. 'accreditation'), links to the specialties page carry ?returnTo= so the test brings the provider back here. */
+	readonly returnTo = input<string | null>(null);
+	protected queryFor(link: string): Record<string, string> | null { return link === SPECIALTIES_PAGE && this.returnTo() ? { returnTo: this.returnTo() as string } : null; }
 	protected readonly rows = computed(() => (this.registered() ?? []).map((r) => ({ ...r, view: approvalView(r) })));
 }
