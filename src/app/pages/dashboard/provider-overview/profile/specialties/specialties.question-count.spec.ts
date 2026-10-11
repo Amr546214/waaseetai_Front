@@ -43,6 +43,10 @@ describe('specialty assessment — question count comes from the backend (#20)',
 		const html = readFileSync(join(process.cwd(), 'src/app/pages/dashboard/provider-overview/profile/specialties/specialties.html'), 'utf8');
 		expect(html).not.toContain('streamProgressCount() }} / 20');
 		expect(html).not.toContain('streamProgressCount() / 20');
-		expect(html).toContain('expectedQuestions()');
+		expect(html).not.toMatch(/\b20 سؤال/);
+		// the counter lives in the shared test component and is fed by the backend's total
+		const ts = readFileSync(join(process.cwd(), 'src/app/pages/dashboard/provider-overview/profile/specialties/specialties.ts'), 'utf8');
+		expect(ts).toContain('this.expectedQuestions()');
+		expect(html).toContain('[streaming]="testStreaming()"');
 	});
 });

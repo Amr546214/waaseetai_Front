@@ -894,106 +894,23 @@
             </div>
           </div>
         } @else {
-          <div class="test-active">
-            @if (setupTestService.isGenerating()) {
-                <div class="test-generating-box" style="text-align: center; padding: 40px;">
-                   <svg aria-hidden="true" width="40" height="40" style="margin-bottom: 20px;  animation: spin 1.5s linear infinite" class="txt-purple"><use href="#i-ai"></use></svg>
-                   <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
-                   <h3 style="font-size: 18px; margin-bottom: 10px;">{{ setupTestService.statusMsg() || 'جاري توليد الاختبار بالذكاء الاصطناعي...' }}</h3>
-                   <p style="font-size: 14px" class="txt-muted">يرجى الانتظار ولا تغادر هذه الصفحة</p>
-                </div>
-            } @else if (setupTestService.result()) {
-                <div class="result-screen">
-                  <div class="result-card">
-                    <div class="result-score-wrap">
-                      <div class="result-score-circle" [style.--score-deg]="(setupTestService.result()?.score || 0) * 3.6 + 'deg'" aria-hidden="true">
-                        <div class="result-score-inner">
-                          <span class="result-score-num">{{ setupTestService.result()?.score | number:'1.0-1' }}%</span>
-                          <span class="result-score-lbl">النتيجة</span>
-                        </div>
-                      </div>
-                      <div class="result-level-pill" [class.beginner]="testLevelLabel().includes('تمهيدي')" [class.mid]="testLevelLabel().includes('تطبيقي') || testLevelLabel().includes('بارع')" [class.expert]="testLevelLabel().includes('احترافي')">
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        مستوى حسب الدرجة: {{ testLevelLabel() }}
-                      </div>
-                      <div class="result-desc">@if (setupTestService.result()?.correct != null) {أديت {{ setupTestService.result()?.correct }} من أصل {{ setupTestService.result()?.total || 0 }} أسئلة بشكل صحيح.} @else {حصلت على {{ setupTestService.result()?.score | number:'1.0-1' }}% في اختبار من {{ setupTestService.result()?.total || 0 }} أسئلة.} بناءً على درجتك، يظهر مستواك كمقدم خدمة {{ testLevelLabel() }}، وستظهر طلبات مناسبة لمستواك في السوق فور اعتماد النتيجة</div>
-                    </div>
-
-                    <div class="stats-row">
-                      @if (setupTestService.result()?.correct != null) {<div class="stat-box"><div class="stat-box-val txt-teal">{{ setupTestService.result()?.correct }}</div><div class="stat-box-lbl">إجابات صحيحة</div></div>}
-                      @if (setupTestService.result()?.correct != null) {<div class="stat-box"><div class="stat-box-val txt-coral">{{ (setupTestService.result()?.total || 0) - (setupTestService.result()?.correct || 0) }}</div><div class="stat-box-lbl">إجابات خاطئة</div></div>}
-                      <div class="stat-box"><div class="stat-box-val">{{ testTimeSpent() }}</div><div class="stat-box-lbl">الوقت المستغرق</div></div>
-                    </div>
-
-
-                    <div class="result-actions">
-                      <button type="button" class="btn-to-profile" (click)="finishTestProcess()">
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg>
-                        إكمال الملف الشخصي
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-arrow-l"></use></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-            } @else {
-                <!-- Test Header -->
-                <div class="test-header">
-                  <div class="test-progress-wrap">
-                    <div class="test-progress-lbl">
-                      <span>التقدم في الاختبار</span>
-                      <span>{{ answeredCount() }} / {{ setupTestService.totalQuestions() }}</span>
-                    </div>
-                    <div class="test-progress-bar"><div class="test-progress-fill" [style.width.%]="(answeredCount() / (setupTestService.totalQuestions() || 1)) * 100"></div></div>
-                  </div>
-                  <div class="timer-wrap" [class.critical]="testTimeLeft() <= 60" aria-live="polite" aria-label="الوقت المتبقي">
-                    <svg class="timer-ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-clock"></use></svg>
-                    <span class="timer-display">{{ formattedTimeLeft() }}</span>
-                  </div>
-                </div>
-
-                <!-- AI Auto-save Banner -->
-                <div class="ai-autosave" role="status">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-clock"></use></svg>
-                  التقدم محفوظ تلقائيًا، يمكنك استكمال الاختبار لاحقا من نفس السؤال
-                </div>
-
-                <!-- Question Card -->
-                @if (setupTestService.currentQuestion()) {
-                  <div class="question-card" role="region" aria-labelledby="q-text">
-                    <div class="q-meta">
-                      <span class="q-num">السؤال {{ setupTestService.currentQuestion()?.index! + 1 }}</span>
-                      @if (setupTestService.currentQuestion()?.total) {
-                        <span class="q-tag">من {{ setupTestService.currentQuestion()?.total }}</span>
-                      }
-                    </div>
-                    <div class="q-text" id="q-text">{{ setupTestService.currentQuestion()?.text }}</div>
-                    <div class="q-options" role="radiogroup" aria-labelledby="q-text">
-                      @for (opt of setupTestService.currentQuestion()?.options; track opt; let oi = $index) {
-                        <div class="q-option" (click)="submitAnswer(oi)" role="radio" tabindex="0">
-                          <div class="q-radio" aria-hidden="true"></div>
-                          <div class="q-option-letter">{{ oi + 1 }}</div>
-                          <span class="q-option-txt">{{ opt }}</span>
-                        </div>
-                      }
-                    </div>
-                  </div>
-
-                  <!-- Test Navigation -->
-                  <div class="test-nav">
-                    <button type="button" class="btn-prev" (click)="prevQuestion()" [disabled]="!canGoPrev()">
-                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-arrow-r"></use></svg>
-                      السابق
-                    </button>
-                    <button type="button" class="btn-pause" (click)="pauseTest()">
-                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#i-clock"></use></svg>
-                      إيقاف مؤقت
-                    </button>
-                  </div>
-                } @else {
-                   <div style="padding: 40px; text-align: center" class="txt-muted">جاري تحميل السؤال التالي...</div>
-                }
-            }
-          </div>
+          <ws-specialty-test
+            [phase]="testPhase()"
+            [statusTitle]="setupTestService.statusMsg()"
+            [errorMessage]="setupTestService.errorMsg()"
+            [errorRetryable]="false"
+            backLabel="العودة إلى بداية الاختبار"
+            [question]="testQuestion()"
+            [index]="setupTestService.currentQuestion()?.index ?? 0"
+            [total]="setupTestService.totalQuestions() || setupTestService.currentQuestion()?.total || null"
+            [answeredCount]="answeredCount()"
+            [timeLabel]="formattedTimeLeft()"
+            [timerCritical]="testTimeLeft() <= 60"
+            [allowReview]="false"
+            [result]="testResultView()"
+            (answer)="submitAnswer($event)"
+            (back)="backToIntro()"
+            (primary)="finishTestProcess()" />
         }
       </div>
 

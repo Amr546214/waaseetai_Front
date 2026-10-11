@@ -10,6 +10,7 @@ import { ProfileApiService } from '../../../../../core/services/profile-api.serv
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { SetupTestService, SETUP_TEST_QUESTION_COUNT, SETUP_TEST_TIME_LIMIT_MINUTES } from '../../../../../core/services/setup-test.service';
+import { SPECIALTY_TEST_PASS_SCORE, SpecialtyTestComponent, type SpecialtyTestPhase, type SpecialtyTestQuestion, type SpecialtyTestResult } from '../../../../../shared/specialty-test/specialty-test.component';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
@@ -63,7 +64,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })
@@ -225,21 +226,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					message: w,
 					confirmText: 'فهمت، استكمال الاختبار',
 					onConfirm: () => this.closeAlertModal()
-				});
-			}
-		});
-		effect(() => {
-			const e = this.setupTestService.errorMsg();
-			if (e) {
-				this.alertModal.set({
-					type: 'error',
-					title: 'تنبيه في خادم الاختبار',
-					message: e,
-					confirmText: 'إغلاق',
-					onConfirm: () => {
-						this.closeAlertModal();
-						this.isTestStarted.set(false);
-					}
 				});
 			}
 		});
@@ -1221,28 +1207,48 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 
 
-	canGoPrev() {
-		const idx = this.setupTestService.currentQuestion()?.index ?? 0;
-		return idx > 0;
-	}
+	/** The setup test screen is the shared specialty test (shared/specialty-test); these map this page's state onto it. */
+	testPhase = computed<SpecialtyTestPhase>(() => {
+		const s = this.setupTestService;
+		if (s.errorMsg()) return 'error';
+		if (s.result()) return 'result';
+		if (s.isGenerating()) return 'generating';
+		return 'active';
+	});
 
-	prevQuestion() {
-		if (!this.canGoPrev()) return;
-		// Optional: navigate to previous question if service supports it
-		const svc = this.setupTestService as any;
-		if (typeof svc.goToPreviousQuestion === 'function') {
-			svc.goToPreviousQuestion();
+	testQuestion = computed<SpecialtyTestQuestion | null>(() => {
+		const q = this.setupTestService.currentQuestion();
+		return q ? { text: q.text, options: q.options } : null;
+	});
+
+	/** Result view of the setup test: the test proves a pass only (never an approval); the level is a hint from the score. */
+	testResultView = computed<SpecialtyTestResult | null>(() => {
+		const r = this.setupTestService.result();
+		if (!r) return null;
+		const level = this.testLevelLabel();
+		const passed = r.score > SPECIALTY_TEST_PASS_SCORE;
+		const stats: SpecialtyTestResult['stats'] = [];
+		if (r.correct != null) {
+			stats.push({ label: 'إجابات صحيحة', value: r.correct, tone: 'teal' });
+			stats.push({ label: 'إجابات خاطئة', value: (r.total || 0) - r.correct, tone: 'coral' });
 		}
-	}
+		stats.push({ label: 'الوقت المستغرق', value: this.testTimeSpent() });
+		const scoreText = Number.isInteger(r.score) ? String(r.score) : r.score.toFixed(1);
+		const summary = r.correct != null ? `أديت ${r.correct} من أصل ${r.total || 0} أسئلة بشكل صحيح.` : `حصلت على ${scoreText}% في اختبار من ${r.total || 0} أسئلة.`;
+		return {
+			score: r.score,
+			passed,
+			headline: passed ? 'اجتزت اختبار الإعداد' : 'لم تتجاوز الحد الأدنى للاجتياز (أكثر من 25%)',
+			subline: `${summary} بناءً على درجتك، يظهر مستواك كمقدم خدمة ${level}، ولا يعني هذا اعتماد التخصص، فالاعتماد بقرار الإدارة بعد مراجعة نماذجك.`,
+			pill: { label: `مستوى حسب الدرجة: ${level}`, tone: level.includes('احترافي') ? 'expert' : (level.includes('تطبيقي') || level.includes('بارع')) ? 'mid' : 'beginner' },
+			stats,
+			primaryLabel: 'إكمال الملف الشخصي',
+		};
+	});
 
-	pauseTest() {
-		this.alertModal.set({
-			type: 'info',
-			title: 'إيقاف مؤقت',
-			message: 'تم إيقاف الاختبار مؤقتاً. يمكنك استئنافه في أي وقت قبل انتهاء الوقت.',
-			confirmText: 'استئناف',
-			onConfirm: () => this.closeAlertModal()
-		});
+	/** After an error the user goes back to the start of the test (the intro) and can start again. */
+	backToIntro() {
+		this.isTestStarted.set(false);
 	}
 
 	finishTestProcess() {

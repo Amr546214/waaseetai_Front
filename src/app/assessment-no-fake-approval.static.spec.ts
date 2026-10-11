@@ -6,6 +6,7 @@ const root = join(process.cwd(), 'src/app');
 const files = [
 	'pages/dashboard/provider-overview/profile/specialties/specialties.html',
 	'pages/dashboard/provider-overview/profile/specialties/specialties.ts',
+	'shared/specialty-test/specialty-test.component.ts',
 	'core/services/anti-cheat.service.ts',
 ];
 const forbidden = [

@@ -289,8 +289,8 @@ describe('AI Cleanup Batch 2 — no locally computed AI confidence/review claims
 		expect(setupHtml).not.toContain('testNeedsAdminReview');
 		expect(setupTs).not.toContain('testAiConfidence');
 		expect(setupTs).not.toContain('testNeedsAdminReview');
-		expect(setupHtml).toContain('مستوى حسب الدرجة');
-		expect(setupHtml).toContain('بناءً على درجتك، يظهر مستواك كمقدم خدمة');
+		expect(setupTs).toContain('مستوى حسب الدرجة');
+		expect(setupTs).toContain('بناءً على درجتك، يظهر مستواك كمقدم خدمة');
 		expect(setupHtml).not.toContain('مراجعة AI');
 	});
 
