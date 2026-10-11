@@ -72,7 +72,7 @@
   </div>
 
   <!-- الأسئلة الشائعة -->
-  <div id="marketer-ticket-card" class="adm-card">
+  <div class="adm-card">
     <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>أسئلة شائعة للوسطاء</div>
     <div style="display:flex;flex-direction:column;gap:8px">
       @for (item of [
@@ -113,7 +113,7 @@
   </div>
 
   <!-- تذاكر الدعم — نظام التذاكر الحقيقي المشترك (نفس الخدمة المستخدمة لدى العميل ومقدم الخدمة) -->
-  <div class="adm-card" style="margin-top:16px">
+  <div id="marketer-ticket-card" class="adm-card" style="margin-top:16px">
     <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>تذاكري</div>
 
     @if (newTicketFormVisible()) {
