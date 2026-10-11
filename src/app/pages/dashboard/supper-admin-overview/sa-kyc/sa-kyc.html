@@ -279,8 +279,8 @@
               <tr>
                 <td data-label="المستخدم">
                   <div class="sk-cell-user">
-                    <div class="sk-user-name">{{ p.userName || '—' }}</div>
-                    @if (p.userEmail) { <div class="sk-user-email">{{ p.userEmail }}</div> }
+                    <div class="sk-user-name" data-testid="kyc-row-name">{{ p.userName || p.userEmail || '—' }}</div>
+                    @if (p.userEmail) { <div class="sk-user-email" data-testid="kyc-row-email" dir="ltr">{{ p.userEmail }}</div> }
                   </div>
                 </td>
                 <td data-label="النوع"><span class="sk-type-pill">{{ p.accountType || '—' }}</span></td>
@@ -298,7 +298,7 @@
                   }
                 </td>
                 <td data-label="المستندات">
-                  <span class="sk-cell-docs">{{ getCertCount(p.certUrls) }} مستند</span>
+                  <span class="sk-cell-docs">{{ docsCount(p) }} مستند</span>
                 </td>
                 <td data-label="إجراء">
                   <button type="button" class="sk-detail-btn" (click)="viewProviderDetail(p)">عرض التفاصيل</button>
@@ -470,18 +470,24 @@
           <div class="sk-detail-grid">
             <div class="sk-detail-row">
               <span class="sk-detail-key">المعرف</span>
-              <span class="sk-detail-val sk-detail-id">#{{ getShortId(selectedProvider()!.userId) }}</span>
+              <span class="sk-detail-val sk-detail-id" data-testid="kyc-detail-userid" dir="ltr">{{ selectedProvider()!.userId }}</span>
             </div>
             @if (selectedProvider()!.userName) {
               <div class="sk-detail-row">
                 <span class="sk-detail-key">المستخدم</span>
-                <span class="sk-detail-val">{{ selectedProvider()!.userName }}</span>
+                <span class="sk-detail-val" data-testid="kyc-detail-name">{{ selectedProvider()!.userName }}</span>
               </div>
             }
             @if (selectedProvider()!.userEmail) {
               <div class="sk-detail-row">
                 <span class="sk-detail-key">البريد</span>
-                <span class="sk-detail-val">{{ selectedProvider()!.userEmail }}</span>
+                <span class="sk-detail-val" data-testid="kyc-detail-email" dir="ltr">{{ selectedProvider()!.userEmail }}</span>
+              </div>
+            }
+            @if (selectedProvider()!.userPhone) {
+              <div class="sk-detail-row">
+                <span class="sk-detail-key">الهاتف</span>
+                <span class="sk-detail-val" dir="ltr">{{ selectedProvider()!.userPhone }}</span>
               </div>
             }
             @if (selectedProvider()!.accountType) {
