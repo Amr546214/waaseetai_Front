@@ -233,8 +233,8 @@ describe('provider profile data tabs: shared validation', () => {
       expect(button('contact', 'إرسال رمز التحقق').disabled).toBe(false);
     });
 
-    it('accepts what the backend accepts: spaces/dashes in the number are stripped before the 8-15 digit rule', () => {
-      fill(component.contactForm, { email: 'me@x.co', phoneNumber: '+966 50-123 4567', alternativePhone: '' });
+    it('accepts what the backend accepts: a valid local number with the code of its own country (the code and the number go apart)', () => {
+      fill(component.contactForm, { email: 'me@x.co', phoneCountryCode: '+966', phoneNumber: '501234567', alternativePhone: '' });
       component.saveContact();
       expect(svc['initiateSensitiveChange']).toHaveBeenCalledTimes(1);
       expect(component.showOtpModal()).toBe(true);
@@ -246,7 +246,7 @@ describe('provider profile data tabs: shared validation', () => {
         [400, 'PHONE_ALREADY_USED', 'phoneNumber'], [400, 'INVALID_ALTERNATIVE_PHONE', 'alternativePhone'],
       ];
       for (const [status, code, field] of cases) {
-        component.contactForm.reset({ email: 'me@x.co', phoneNumber: '+966501234567', alternativePhone: '' });
+        component.contactForm.reset({ email: 'me@x.co', phoneCountryCode: '+966', phoneNumber: '501234567', alternativePhone: '' });
         ui.clearAll();
         svc['initiateSensitiveChange'].mockReturnValue(httpError(status, code));
         component.saveContact();

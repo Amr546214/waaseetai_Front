@@ -95,6 +95,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	currentStep = signal<number>(1);
 	/** ID documents were sent and wait for review (kycStatus PENDING): shown as pending, never as a missing step. */
 	kycPending = signal<boolean>(false);
+	/** The identity review was approved (an approved KYC or an approved document): nothing to send. */
+	kycVerified = signal<boolean>(false);
 	/** the admin refused the identity documents: the reason is shown and the step is open for new files */
 	kycRejectedReason = signal<string | null>(null);
 	private readonly host = inject(ElementRef<HTMLElement>);
@@ -350,8 +352,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					// Stage 5: the saved portfolio comes back from the server, so a re-save never starts from an empty list.
 					const saved = this.portfolioFromServer(d.portfolioItems);
 					if (Object.keys(saved).length) this.portfolioItems.set(saved);
-					this.kycPending.set(d.kycStatus === 'PENDING');
-					this.kycRejectedReason.set(d.kycStatus === 'REJECTED' ? (d.kycRejectionReason || 'لم تستوفِ الوثائق متطلبات التحقق') : null);
+					// ONE state for the identity review (NOT_SUBMITTED / PENDING_REVIEW / VERIFIED / REJECTED), the same the profile page and the dashboard show;
+					// the older kycStatus is only the fallback when the backend did not send it.
+					const iv = d.identityVerification as { status?: string; rejectionReason?: string | null } | null | undefined;
+					this.kycPending.set(iv ? iv.status === 'PENDING_REVIEW' : d.kycStatus === 'PENDING');
+					this.kycVerified.set(iv ? iv.status === 'VERIFIED' : d.kycStatus === 'VERIFIED');
+					this.kycRejectedReason.set(iv
+						? (iv.status === 'REJECTED' ? (iv.rejectionReason || d.kycRejectionReason || 'لم تستوفِ الوثائق متطلبات التحقق') : null)
+						: (d.kycStatus === 'REJECTED' ? (d.kycRejectionReason || 'لم تستوفِ الوثائق متطلبات التحقق') : null));
 
 					// Open where the work really is (first missing step from the saved data; step 7 when only the test is left), not always on step 1.
 					const start = resolveProviderSetup(d);
@@ -435,7 +443,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				const items: InvalidField[] = [];
 				if (this.isUploading()) {
 					items.push({ path: 'docs.upload', label: 'رفع الملفات', message: 'يرجى انتظار اكتمال رفع الملفات' });
-				} else if (!this.uploadedFrontId() && !this.storedFrontAccess()?.private) {
+				} else if (!this.uploadedFrontId() && !this.storedFrontAccess()?.private && !this.kycPending() && !this.kycVerified()) {
 					const message = 'صورة الهوية (الوجه الأمامي) مطلوبة، ارفع ملف PDF أو JPG أو PNG';
 					items.push({ path: 'docs.frontId', label: 'صورة الهوية (الوجه الأمامي)', message });
 					this.setFileError('frontId', message);

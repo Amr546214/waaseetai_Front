@@ -14,7 +14,8 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 import { OtpInputComponent } from '../../../../../shared/forms/otp-input.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
-import { nationalPhoneForInput, normalizedCountryCode } from '../../../../../core/forms/phone-display';
+import { canonicalStoredPhone, isoForCallingCode, isValidNationalNumber } from '../../../../../core/forms/phone-countries';
+import { PhoneInputComponent, type PhoneValue } from '../../../../../sheards/phone-input/phone-input.component';
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -75,6 +76,13 @@ const phoneFormat: ValidatorFn = (c: AbstractControl): ValidationErrors | null =
   const v = String(c.value ?? '').replace(/[\s()-]/g, '');
   return !v || /^\+?\d{8,15}$/.test(v) ? null : { pattern: true };
 };
+/** The local number must be a real mobile number of the CHOSEN country (an Egyptian number never passes with +966, a Saudi one never with +20). */
+const phonePair: ValidatorFn = (c: AbstractControl): ValidationErrors | null => {
+  const national = String(c.value ?? '').replace(/\D/g, '');
+  if (!national) return null;
+  const code = c.parent?.get('phoneCountryCode')?.value;
+  return isValidNationalNumber(code, national) ? null : { phoneCountryMismatch: true };
+};
 const passwordRules: ValidatorFn = (c: AbstractControl): ValidationErrors | null => {
   const v = String(c.value ?? '');
   if (!v) return null;
@@ -114,7 +122,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent, PhoneInputComponent],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
@@ -188,9 +196,11 @@ export class Data implements OnInit, OnDestroy {
   showOtpModal = signal(false);
   otpCode = signal('');
   /** Where the identity document stands (from the backend, so it survives a refresh): waiting for the admin, approved, rejected, or not sent. */
-  identityVerification = signal<{ status: 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED'; requestId: string | null; submittedAt: string | null; rejectionReason: string | null } | null>(null);
+  identityVerification = signal<{ status: 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED'; category?: 'DOCUMENTS' | 'KYC' | null; requestId: string | null; submittedAt: string | null; rejectionReason: string | null } | null>(null);
   identityPending = computed(() => this.identityVerification()?.status === 'PENDING_REVIEW');
   identityRejected = computed(() => this.identityVerification()?.status === 'REJECTED');
+  identityVerified = computed(() => this.identityVerification()?.status === 'VERIFIED');
+  identityRejectionReason = computed(() => this.identityVerification()?.rejectionReason ?? null);
   /** True right after the code was confirmed in this visit: the confirmation is shown prominently (a toast alone is easy to miss). */
   identityJustSubmitted = signal(false);
   otpEmailHint = signal('');
@@ -211,8 +221,8 @@ export class Data implements OnInit, OnDestroy {
   currentProfileData: any = null;
   dobLocked = signal(false);
   readonly todayIso = new Date().toISOString().slice(0, 10);
-  /** The account's country code, shown next to the national number (the number field never repeats it). */
-  phoneCode = signal('+966');
+  /** Country (flag + name + code) and the LOCAL number: the widget is the only phone editor, the form keeps the two stored fields. */
+  phoneWidget = new FormControl<PhoneValue | null>(null);
   skillNames = computed(() => (this.skillsList() || []).map((sk: any) => sk.name as string));
 
   // ── taxonomy: main specialty (the marketplace Category, stored as its slug), sub-specialties and the skills catalog of that field ──
@@ -264,8 +274,15 @@ export class Data implements OnInit, OnDestroy {
 
     this.contactForm = this.fb.group({
       email: ['', [requiredTrim, emailFormat]],
-      phoneNumber: ['', [requiredTrim, phoneFormat]],
+      // the country code and the LOCAL number are two fields (stored apart); the widget below edits both
+      phoneCountryCode: ['+966'],
+      phoneNumber: ['', [requiredTrim, phonePair]],
       alternativePhone: ['', phoneFormat]
+    });
+    this.phoneWidget.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => {
+      this.contactForm.patchValue({ phoneCountryCode: v?.dialCode ?? '+966', phoneNumber: String(v?.number ?? '').replace(/\D/g, '') });
+      this.contactForm.get('phoneNumber')?.markAsDirty();
+      this.contactForm.get('phoneNumber')?.markAsTouched();
     });
 
     this.payoutForm = this.fb.group({
@@ -318,7 +335,6 @@ export class Data implements OnInit, OnDestroy {
           this.currentProfileData = profile;
           this.dobLocked.set(profile.kycStatus === 'VERIFIED' && !!profile.dob);
           if (this.dobLocked()) this.profileForm.get('dob')?.disable({ emitEvent: false }); else this.profileForm.get('dob')?.enable({ emitEvent: false });
-          this.phoneCode.set(normalizedCountryCode(profile.user?.phoneCountryCode));
           this.profileForm.patchValue({
             firstName: profile.user?.firstName || '',
             lastName: profile.user?.lastName || '',
@@ -348,9 +364,14 @@ export class Data implements OnInit, OnDestroy {
           this.avatarUrl.set(profile.avatarUrl || profile.user?.avatarUrl || null);
           this.avatarDirty = false;
 
+          // The stored pair is shown as ONE consistent number: older rows (a number saved next to the wrong code) are repaired from their digits for display.
+          const phone = canonicalStoredPhone(profile.user?.phoneCountryCode, profile.user?.phoneNumber);
+          const iso = isoForCallingCode(phone.countryCode);
+          if (iso) this.phoneWidget.setValue({ countryCode: iso, dialCode: phone.countryCode, number: phone.nationalNumber, e164Number: '' }, { emitEvent: false });
           this.contactForm.patchValue({
             email: profile.user?.email || '',
-            phoneNumber: nationalPhoneForInput(profile.user?.phoneCountryCode, profile.user?.phoneNumber),
+            phoneCountryCode: phone.countryCode,
+            phoneNumber: phone.nationalNumber,
             alternativePhone: profile.user?.alternativePhone || ''
           });
 
@@ -379,6 +400,12 @@ export class Data implements OnInit, OnDestroy {
             } else if (doc.url) {
               loadedDocuments[controlName] = { name: this.fileNameFromUrl(doc.url), progress: 100, status: 'uploaded', previewUrl: doc.url };
             }
+          }
+          // An ID sent in the SETUP lives in the front-ID column (a private reference, never returned): while it waits for the review, or once it is approved,
+          // it is shown as stored (preview link), so the page never asks for the same file again. A refused one is not shown: it must be replaced.
+          const idStatus = profile.identityVerification?.status;
+          if (!loadedDocuments['idDocumentUrl'] && profile.frontIdUrlAccess?.private && (idStatus === 'PENDING_REVIEW' || idStatus === 'VERIFIED')) {
+            loadedDocuments['idDocumentUrl'] = { name: 'مستند الهوية المرسل', progress: 100, status: 'uploaded', stored: { key: 'provider_front_id' } };
           }
           this.documentUploads.set(loadedDocuments);
           // The stored ID document is not visible to this page, so it cannot be re-sent: "required" is satisfied by it until the user replaces or removes it.

@@ -363,6 +363,9 @@
         @if (kycRejectedReason(); as why) {
         <div role="alert" data-testid="kyc-rejected-note" class="notice-banner"><div><div class="notice-ttl">رُفضت وثائق الهوية</div><p class="notice-txt">السبب: {{ why }}. ارفع وثائق جديدة وأرسلها مرة أخرى.</p></div></div>
         }
+        @if (kycVerified()) {
+        <div role="status" data-testid="kyc-verified-note" class="notice-banner"><div><div class="notice-ttl">تم التحقق من هويتك</div><p class="notice-txt">اعتمدت الإدارة وثائق الهوية. لا حاجة لرفعها مرة أخرى.</p></div></div>
+        }
         @if (kycPending()) {
         <div role="status" data-testid="kyc-pending-note" class="notice-banner"><div><div class="notice-ttl">مستندات الهوية قيد المراجعة</div><p class="notice-txt">وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر كما حُفظت.</p></div></div>
         }
@@ -412,7 +415,7 @@
           }
           @if (!uploadedFrontIdName()) {
             <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الوجه الأمامي للهوية">
-              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، وجه" (change)="onFileSelected($event, 'frontId')">
+              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، وجه" [disabled]="kycPending() || kycVerified()" (change)="onFileSelected($event, 'frontId')">
               <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>
               <div class="upload-ttl">اسحب الملف هنا أو اضغط للاختيار</div>
               <div class="upload-sub">JPG, PNG, PDF &middot; حد أقصى 10MB</div>
@@ -470,7 +473,7 @@
           }
           @if (!uploadedBackIdName()) {
             <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الظهر">
-              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، ظهر" (change)="onFileSelected($event, 'backId')">
+              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، ظهر" [disabled]="kycPending() || kycVerified()" (change)="onFileSelected($event, 'backId')">
               <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>
               <div class="upload-ttl">اسحب الملف هنا أو اضغط للاختيار</div>
               <div class="upload-sub">JPG, PNG, PDF &middot; حد أقصى 10MB</div>
