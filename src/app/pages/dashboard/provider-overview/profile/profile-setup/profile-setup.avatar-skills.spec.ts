@@ -108,6 +108,15 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
     expect(component.skillsList()).toEqual(['Figma', 'Adobe Photoshop']);
   });
 
+  it('the skills picker sits in the SAME step as the main specialty (step 2), after it: skills are chosen once the field is known', async () => {
+    await setup({ skills: [] });
+    const panel = fixture.nativeElement.querySelector('[formgroupname="specialties"]') as HTMLElement;
+    expect(panel.querySelector('[data-testid="skills-picker"]')).not.toBeNull();
+    const step1 = fixture.nativeElement.querySelector('[formgroupname="profData"]') as HTMLElement;
+    expect(step1.querySelector('[data-testid="skills-picker"]')).toBeNull();
+    expect(panel.querySelector('#main-spec')!.compareDocumentPosition(panel.querySelector('[data-testid="skills-picker"]')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('with no main specialty chosen there are no options and the picker says to choose the field first', async () => {
     await setup({ skills: [] });
     component.currentStep.set(2); fixture.detectChanges();

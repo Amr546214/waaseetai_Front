@@ -193,35 +193,6 @@
 
         <div class="form-card">
           <div class="card-title">
-            <div class="card-title-ico badge-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-tag"></use></svg></div>
-            المهارات والاهتمامات
-            <span class="card-optional">اختياري</span>
-          </div>
-          <div class="skills-ai">
-            <button type="button" class="ai-suggest-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills">
-              {{ isSuggestingSkills() ? 'جاري إنشاء الاقتراح...' : 'اقتراح مهارات بالذكاء الاصطناعي' }}
-            </button>
-            @if (skillsSuggestionError()) { <p role="alert" class="f-hint">{{ skillsSuggestionError() }}</p> }
-            @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-hint" id="skills-server-error" style="color:#ff8c69;font-weight:700">{{ skillsErr }}</p> }
-            @if (skillsSuggestionReady() && !aiSuggestedSkills().length) { <p class="f-hint" role="status">لا توجد اقتراحات مهارات جديدة حالياً.</p> }
-            @if (aiSuggestedSkills().length || isSuggestingSkills()) {
-            <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>اقتراحات بالذكاء الاصطناعي، اختر المهارات التي تتقنها</div>
-            <div class="ai-chips" aria-label="مهارات مقترحة بالذكاء الاصطناعي" aria-live="polite">
-              @for (skill of aiSuggestedSkills(); track skill) {
-                <button type="button" class="ai-chip" (click)="addAiSkill(skill)"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-plus"></use></svg>{{ skill }}</button>
-              }
-              @if (isSuggestingSkills()) {
-                <span class="ai-chip" style="opacity:.6">جاري الاقتراح...</span>
-              }
-            </div>
-            }
-          </div>
-          @if (skillsNotice()) { <p class="f-hint" role="status" data-testid="skills-notice" style="color:#fbbf24">{{ skillsNotice() }}</p> }
-          <ws-skills-picker [options]="skillOptions()" [selected]="skillsList()" (selectedChange)="onSkillsChange($event)" />
-        </div>
-
-        <div class="form-card">
-          <div class="card-title">
             <div class="card-title-ico badge-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-link"></use></svg></div>
             روابط التواصل
             <span class="card-optional">اختياري</span>
@@ -324,6 +295,35 @@
             </div>
           </div>
         </div>
+        <div class="form-card">
+          <div class="card-title">
+            <div class="card-title-ico badge-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-tag"></use></svg></div>
+            المهارات والاهتمامات
+            <span class="card-optional">اختياري</span>
+          </div>
+          <div class="skills-ai">
+            <button type="button" class="ai-suggest-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills">
+              {{ isSuggestingSkills() ? 'جاري إنشاء الاقتراح...' : 'اقتراح مهارات بالذكاء الاصطناعي' }}
+            </button>
+            @if (skillsSuggestionError()) { <p role="alert" class="f-hint">{{ skillsSuggestionError() }}</p> }
+            @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-hint" id="skills-server-error" style="color:#ff8c69;font-weight:700">{{ skillsErr }}</p> }
+            @if (skillsSuggestionReady() && !aiSuggestedSkills().length) { <p class="f-hint" role="status">لا توجد اقتراحات مهارات جديدة حالياً.</p> }
+            @if (aiSuggestedSkills().length || isSuggestingSkills()) {
+            <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>اقتراحات بالذكاء الاصطناعي، اختر المهارات التي تتقنها</div>
+            <div class="ai-chips" aria-label="مهارات مقترحة بالذكاء الاصطناعي" aria-live="polite">
+              @for (skill of aiSuggestedSkills(); track skill) {
+                <button type="button" class="ai-chip" (click)="addAiSkill(skill)"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-plus"></use></svg>{{ skill }}</button>
+              }
+              @if (isSuggestingSkills()) {
+                <span class="ai-chip" style="opacity:.6">جاري الاقتراح...</span>
+              }
+            </div>
+            }
+          </div>
+          @if (skillsNotice()) { <p class="f-hint" role="status" data-testid="skills-notice" style="color:#fbbf24">{{ skillsNotice() }}</p> }
+          <ws-skills-picker [options]="skillOptions()" [selected]="skillsList()" (selectedChange)="onSkillsChange($event)" />
+        </div>
+
         <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(1)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
