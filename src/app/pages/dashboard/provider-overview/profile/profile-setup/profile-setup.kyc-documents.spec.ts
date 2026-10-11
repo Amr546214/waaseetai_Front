@@ -32,7 +32,7 @@ describe('provider setup wizard: private KYC documents', () => {
 				provideRouter([]),
 				{ provide: AuthStore, useValue: { currentUser: () => null } },
 				{ provide: ProfileApiService, useValue: { getProviderProfileSetup: () => of({ data: setupData }), saveProviderProfileSetup: vi.fn(() => of({ success: true })) } },
-				{ provide: ProviderProfileService, useValue: { uploadDocument } },
+				{ provide: ProviderProfileService, useValue: { uploadDocument, getSkillsCatalog: vi.fn(() => of({ success: true, data: { category: null, skills: [] } })) } },
 				{ provide: KycDocumentService, useValue: { createAccessLink } },
 				{ provide: SpecialtyService, useValue: { getCategories: () => of({ success: true, data: [] }), getPublicSpecialties: () => of({ success: true, data: [] }) } },
 				{ provide: SetupTestService, useValue: { warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
