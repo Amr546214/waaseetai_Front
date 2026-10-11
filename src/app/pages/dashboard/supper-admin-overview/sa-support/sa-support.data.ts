@@ -146,7 +146,7 @@ export const SUPPORT_TICKETS: Ticket[] = [
     },
     messages: [
       { from: 'user', text: 'ما هي نسبة عمولة المنصة على المشاريع؟', time: '5 يوليو 2026' },
-      { from: 'admin', text: 'العمولة 10% من قيمة المشروع، وتقل مع ارتفاع مستوى العضوية.', time: '5 يوليو 2026' },
+      { from: 'admin', text: 'تُحدَّد العمولة حسب مستوى مقدم الخدمة وتقل مع ارتفاع المستوى.', time: '5 يوليو 2026' },
     ],
     notes: [],
     relatedTickets: [],

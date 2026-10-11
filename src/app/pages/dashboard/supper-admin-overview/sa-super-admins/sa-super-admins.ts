@@ -64,12 +64,6 @@ export class SaSuperAdmins {
     { key: 'wordFilter', label: 'فلتر الكلمات المسيئة', desc: 'فلترة تلقائية للكلمات المحظورة في الرسائل والمحتوى', on: true },
   ]);
 
-  readonly dealFee = signal(10);
-  readonly withdrawFee = signal(0);
-  readonly minWithdraw = signal(200);
-  readonly escrowHours = signal(72);
-  readonly cashback = signal(2);
-
   readonly securitySession = signal(60);
   readonly securityAttempts = signal(5);
   readonly securityMinPassword = signal(8);
@@ -96,7 +90,7 @@ export class SaSuperAdmins {
     { label: 'Payment Gateway (HyperPay)', desc: 'مفتاح بوابة الدفع' },
   ];
   readonly auditRows: SpaAuditRow[] = [
-    { n: 4812, action: 'تغيير إعداد', detail: 'رسوم النظام: 8% ← 10%', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'اليوم 3:12 م', sev: 'high' },
+    { n: 4812, action: 'تغيير إعداد', detail: 'تحديث إعدادات المنصة', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'اليوم 3:12 م', sev: 'high' },
     { n: 4811, action: 'تسجيل دخول', detail: 'دخول ناجح من الرياض', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'اليوم 2:40 م', sev: 'info' },
     { n: 4810, action: 'تعليق حساب', detail: 'حساب U-1024 معلّق', by: 'هيثم القرني', role: 'مشرف نزاعات', ip: '10.0.0.42', date: 'اليوم 1:15 م', sev: 'med' },
     { n: 4809, action: 'حذف تعليق', detail: 'حذف تعليق محتوى مسيء', by: 'هيثم القرني', role: 'مشرف نزاعات', ip: '10.0.0.42', date: 'اليوم 12:02 م', sev: 'med' },
