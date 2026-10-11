@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError, Subject } from 'rxjs';
@@ -189,5 +191,13 @@ describe('Help', () => {
 
       expect(socket.ask).not.toHaveBeenCalled();
     });
+  });
+
+  it('the marketer ticket anchor is the "تذاكري" card (where the new-ticket form opens), not the FAQ card', () => {
+    const html = readFileSync(join(__dirname, 'help.html'), 'utf8');
+    const at = html.indexOf('id="marketer-ticket-card"');
+    expect(at).toBeGreaterThan(-1);
+    expect(html.slice(at, at + 400)).toContain('تذاكري');
+    expect(html.slice(at, at + 400)).not.toContain('أسئلة شائعة');
   });
 });
