@@ -275,7 +275,7 @@
 								<div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
 									<label class="flex flex-col gap-1.5">
 										<span class="text-[11px] font-black sample-card-label">عنوان المشروع</span>
-										<input type="text" [(ngModel)]="sample.title" maxlength="150"
+										<input type="text" [ngModel]="sample.title" (ngModelChange)="sample.title = $event; touchSamples()" maxlength="150"
 											placeholder="مثال: تصميم هوية بصرية لمشروع تقني"
 											class="sample-meta-input" />
 									</label>
@@ -292,7 +292,7 @@
 											<span class="text-[11px] font-black sample-card-label">وصف العمل ودورك فيه</span>
 											<span class="text-[10px] font-mono" [class.text-[#2BD4C7]]="(sample.description?.length || 0) >= 20" [class.text-[#FFB400]]="(sample.description?.length || 0) < 20">{{ sample.description?.length || 0 }}/20 على الأقل</span>
 										</div>
-										<textarea [(ngModel)]="sample.description" rows="3" maxlength="1200"
+										<textarea [ngModel]="sample.description" (ngModelChange)="sample.description = $event; touchSamples()" rows="3" maxlength="1200"
 											placeholder="اشرح فكرة المشروع، دورك، التحديات التي عالجتها، والنتيجة النهائية..."
 											[attr.aria-invalid]="descriptionError(sample) ? 'true' : null"
 											[class.!border-[#FF6B6B]]="descriptionError(sample)"

@@ -653,6 +653,11 @@ export class Specialties implements OnInit, OnDestroy {
 		);
 	});
 
+	/** Title / description are edited in place on the sample object; this re-publishes the list (same objects, so no DOM is recreated) so the next button and the blockers recompute. */
+	touchSamples() {
+		this.samples.update(list => [...list]);
+	}
+
 	/** The inline error under a sample's description field (null when fine): shown once the provider typed something short, or pressed next. */
 	descriptionError(s: WorkSampleForm): string | null {
 		const len = (s.description || '').trim().length;
