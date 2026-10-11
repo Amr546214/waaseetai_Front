@@ -57,23 +57,7 @@ describe('Slug', () => {
     });
   });
 
-  // Batch 5 — service-detail's own level badge was already the canonical
-  // real-data reference other surfaces were compared against; levelStyle()
-  // now delegates to the single shared helper (provider-level-style.util.ts)
-  // instead of its own private map, so this page's behavior is unchanged
-  // while the duplication is removed.
-  describe('canonical provider level styling (Batch 5)', () => {
-    const baseModel: any = { id: 'svc-1', title: 't', provider: { id: 'p1', name: 'p', initials: 'p' } };
-
-    it('uses the canonical highlighted-level color for a known real level', () => {
-      expect(component.levelStyle({ ...baseModel, level: 'خبير' })).toEqual({ bg: '#166FF3', color: '#070D24' });
-    });
-
-    it('falls back to the neutral default rather than fabricating a color for an unhighlighted/unexpected level', () => {
-      expect(component.levelStyle({ ...baseModel, level: 'مبتدئ' })).toEqual({ bg: '#94DEF9', color: '#070D24' });
-      expect(component.levelStyle({ ...baseModel, level: undefined })).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
-    });
-  });
+  // The per-page level styling helpers were removed: every page renders levels through <ws-level-badge> (see shared/levels/level-badge.static.spec.ts).
 
   describe('filters drawer draft (nothing applies until "تطبيق الفلاتر")', () => {
     const input = (v: number) => ({ target: { value: String(v) } }) as unknown as Event;

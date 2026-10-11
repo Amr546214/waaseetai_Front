@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,7 +13,7 @@ const RESERVED_STATUSES = new Set(['PENDING', 'APPROVED', 'PROCESSING']);
 @Component({
   selector: 'app-withdraw',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './withdraw.html',
   styleUrl: './withdraw.css',
 })

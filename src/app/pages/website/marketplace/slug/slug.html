@@ -248,7 +248,7 @@
               </div>
               } @else if (model.level) {
               <div class="svc-badges">
-                <span class="svc-level" [style.background]="levelStyle(model).bg" [style.color]="levelStyle(model).color">{{ model.level }}</span>
+                <ws-level-badge [title]="model.level" surface="overlay" />
               </div>
               }
               @if (model.aiScore != null) {<div class="ai-score-badge">جودة AI {{ model.aiScore }}%</div>}

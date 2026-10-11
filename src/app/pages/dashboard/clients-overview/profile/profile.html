@@ -117,20 +117,10 @@
 
 	<!-- Level Banner -->
 	<div class="level-banner">
-		<div class="level-ico">
-			<svg width="16" height="16" aria-hidden="true" class="txt-kahr">
-				<use href="#ic-star"></use>
-			</svg>
-		</div>
 		<div class="level-details">
 			<div class="level-label">مستوى الولاء</div>
 			<div class="level-row">
-				<span class="level-tag">
-					<svg width="12" height="12" aria-hidden="true" class="txt-kahr">
-						<use href="#ic-star"></use>
-					</svg>
-					{{ level }} · المستوى {{ profileData()?.currentPoints ? '2' : '1' }}
-				</span>
+				<ws-level-badge [level]="levelDisplay()" [showIndex]="true" />
 				<span class="level-pts">{{ profileData()?.currentPoints || 0 }} نقطة · كاش باك الولاء حسب مستواك</span>
 			</div>
 		</div>
@@ -185,12 +175,7 @@
 				<div class="profile-info">
 					<div class="profile-name">
 						{{ getFullName() }}
-						<span class="name-level-tag">
-							<svg width="9" height="9" aria-hidden="true" class="txt-kahr">
-								<use href="#ic-star"></use>
-							</svg>
-							{{ level }}
-						</span>
+						<ws-level-badge [level]="levelDisplay()" />
 					</div>
 
 					<!-- Stars Rating -->

@@ -1,3 +1,4 @@
+import { LevelBadgeComponent } from '../../../../../shared/levels/level-badge.component';
 import { Component, signal, computed, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -64,7 +65,7 @@ interface Offer {
 @Component({
 	selector: 'app-request-details',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, LevelBadgeComponent],
 	templateUrl: './request-details.html',
 	styleUrl: './request-details.css',
 	encapsulation: ViewEncapsulation.None

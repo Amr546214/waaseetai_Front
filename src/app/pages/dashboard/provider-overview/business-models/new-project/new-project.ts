@@ -1,3 +1,4 @@
+import type { RegisteredSpecialty } from '../../../../../core/utils/specialty-states';
 import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
@@ -161,6 +162,8 @@ export class NewProject implements OnInit, OnDestroy {
 	specialties = computed(() => this.passedCategories().flatMap(c => c.specialties));
 	isLoadingSpecialties = signal<boolean>(true);
 	hasAccreditedSpecialties = signal<boolean>(true);
+	/** Every specialty registered on the account with its state (signup choices included), for the empty-state message. */
+	registeredSpecialties = signal<RegisteredSpecialty[]>([]);
 
 	selectedSpecialty = signal<string>(''); // Main Passed Specialty ID
 	selectedSubSpecialty = signal<string>(''); // Selected Sub-specialty name
@@ -199,6 +202,7 @@ export class NewProject implements OnInit, OnDestroy {
 		this.providerApi.getPassedSpecialties().subscribe({
 			next: (res) => {
 				this.isLoadingSpecialties.set(false);
+				this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []);
 				if (res && res.success && Array.isArray(res.categories) && res.categories.length > 0) {
 					this.passedCategories.set(res.categories);
 					this.hasAccreditedSpecialties.set(true);

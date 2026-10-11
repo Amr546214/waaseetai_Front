@@ -1,3 +1,4 @@
+import type { RegisteredSpecialty } from '../../../../../../core/utils/specialty-states';
 import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -62,6 +63,7 @@ export class New implements OnInit, OnDestroy {
 
 	categories = signal<SpecialtyCategory[]>([]);
 	hasAccreditedSpecialties = signal<boolean>(false);
+	registeredSpecialties = signal<RegisteredSpecialty[]>([]);
 
 	// Step 1 State
 	selectedSpecialtyId = signal<string | null>(null);
@@ -92,6 +94,7 @@ export class New implements OnInit, OnDestroy {
 		this.isLoading.set(true);
 		this.providerApi.getPassedSpecialties().subscribe({
 			next: (res) => {
+				this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []);
 				if (res && res.success) {
 					this.hasAccreditedSpecialties.set(!!res.hasAccreditedSpecialties && res.categories?.length > 0);
 					this.categories.set(res.categories || []);

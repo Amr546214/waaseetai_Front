@@ -1,15 +1,18 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../core/services/profile-api.service';
+
+import { levelDisplayFromInfo } from '../../../../core/levels/level-display';
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 
 type ProfileTab = 'info' | 'interests' | 'links' | 'activity';
 
 @Component({
 	selector: 'app-profile',
 	standalone: true,
-	imports: [CommonModule, RouterModule, DatePipe],
+	imports: [CommonModule, RouterModule, DatePipe, LevelBadgeComponent],
 	templateUrl: './profile.html',
 	styleUrl: './profile.css',
 })
@@ -130,6 +133,9 @@ export class Profile implements OnInit {
 	get rating(): number {
 		return this.profileData()?.rating || this.profileData()?.humanRating || 0;
 	}
+
+	/** The shared level display from the backend levelInfo (same badge as the dashboard). */
+	levelDisplay = computed(() => levelDisplayFromInfo(this.profileData()?.levelInfo));
 
 	get level(): string {
 		return this.profileData()?.currentLevel

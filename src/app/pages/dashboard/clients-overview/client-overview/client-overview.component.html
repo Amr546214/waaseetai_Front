@@ -445,24 +445,14 @@
 		role="region" aria-label="مستوى الولاء">
 		<div style="width:44px;height:44px;border-radius:12px;background:rgba(155,139,122,.14);border:1px solid rgba(155,139,122,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0"
 			aria-hidden="true">
-			<svg class="ws-star-svg" width="22" height="22" viewBox="0 0 100 100" fill="#9B8B7A">
-				<path
-					d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-			</svg>
+			<ws-level-badge [level]="levelDisplay()" variant="icon" />
 		</div>
 		<div style="flex:1;min-width:0">
 			<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
 				<span style="font-size:12px;font-weight:700" class="txt-muted">مستواك الحالي</span>
-				<span
-					style="font-size:11px;font-weight:800;background:rgba(155,139,122,.12);border:1px solid rgba(155,139,122,.22);border-radius:20px;padding:2px 10px;display:inline-flex;align-items:center;gap:4px"
-					class="ws-level-tag txt-navy"><svg width="9" height="9" viewBox="0 0 100 100" fill="#9B8B7A"
-						class="ws-star-svg">
-						<path
-							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-					</svg>{{ dashboardStore.dashboardData()!.summary.currentLevel || 'مستكشف &middot; المستوى 2'
-					}}</span>
+				<ws-level-badge [level]="levelDisplay()" [showPercent]="true" />
 				<span style="font-size:11px;margin-inline-start:auto" class="txt-muted">{{
-					dashboardStore.dashboardData()!.summary.currentPoints || 302 }} نقطة</span>
+					dashboardStore.dashboardData()!.summary.currentPoints || 0 }} نقطة</span>
 			</div>
 			<div style="display:flex;align-items:center;gap:8px">
 				<div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"
@@ -737,9 +727,7 @@
 						<div>
 							<div class="offer-name">{{ offer.providerName }}
 								@if (offer.providerLevel) {
-								<span class="ws-level-tag"
-									[style.background]="levelStyle(offer.providerLevel).bg"
-									[style.color]="levelStyle(offer.providerLevel).color">{{ offer.providerLevel }}</span>
+								<ws-level-badge [title]="offer.providerLevel" />
 								}
 							</div>
 							<div

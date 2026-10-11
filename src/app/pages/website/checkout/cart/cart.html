@@ -95,7 +95,7 @@
                 <svg aria-hidden="true"><use href="#ws-image"></use></svg>
               }
               @if (item.level) {
-                <span class="lvl-badge">{{ item.level }}</span>
+                <ws-level-badge [title]="item.level" />
               }
             </div>
             <div class="cart-info">

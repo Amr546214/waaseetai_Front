@@ -4,16 +4,24 @@ import { RouterModule, Router } from '@angular/router';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { resolveLevelDisplay } from '../../../../../core/levels/level-display';
+import { LevelBadgeComponent } from '../../../../../shared/levels/level-badge.component';
 import { AccountType } from '../../../../../core/models/auth.model';
 
 @Component({
 	selector: 'app-profile-public',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, LevelBadgeComponent],
 	templateUrl: './public.html',
 	styleUrls: ['./public.css'],
 })
 export class Public implements OnInit {
+	/** The one shared level display (same badge as the dashboard and the level page): backend levelDisplay, else the level name read back to its level. */
+	levelDisplay = computed(() => {
+		const li = (this.profileData() as any)?.header?.levelInfo;
+		return resolveLevelDisplay({ info: li?.levelDisplay, providerTitle: li?.levelName });
+	});
+
 	private providerProfileService = inject(ProviderProfileService);
 	private authStore = inject(AuthStore);
 	private specialtyService = inject(SpecialtyService);

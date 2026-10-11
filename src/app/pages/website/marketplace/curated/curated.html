@@ -251,7 +251,7 @@
                     <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
                   }
                   @if (slot.model.level) {
-                    <div class="pc-lvl" [style.background]="levelStyle(slot.model).bg" [style.color]="levelStyle(slot.model).color">{{ slot.model.level }}</div>
+                    <ws-level-badge [title]="slot.model.level" surface="overlay" />
                   }
                   @if (mode() === 'most-ordered') {
                     <div class="pc-orders-tag">{{ (slot.model.salesCount || 0) | number }} طلب مكتمل</div>
@@ -322,7 +322,7 @@
                     <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
                   }
                   @if (m.level) {
-                    <div class="fc-lvl" [style.background]="levelStyle(m).bg" [style.color]="levelStyle(m).color">{{ m.level }}</div>
+                    <ws-level-badge [title]="m.level" surface="overlay" />
                   }
                   <div class="fc-badge"><svg aria-hidden="true"><use href="#ws-shield"></use></svg> مميزة</div>
                 </div>
@@ -376,7 +376,7 @@
                   <svg class="ph" aria-hidden="true"><use href="#ws-image"></use></svg>
                 }
                 @if (m.level) {
-                  <div class="deal-lvl" [style.background]="levelStyle(m).bg" [style.color]="levelStyle(m).color">{{ m.level }}</div>
+                  <ws-level-badge [title]="m.level" surface="overlay" />
                 }
                 <div class="discount-badge">٪{{ m.discountPercentage }} خصم</div>
               </div>
@@ -477,7 +477,7 @@
                         @if (hasActivePurchase(m)) {
                           <span class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
                         } @else if (m.level) {
-                          <span class="svc-lvl" [style.background]="levelStyle(m).bg" [style.color]="levelStyle(m).color">{{ m.level }}</span>
+                          <ws-level-badge [title]="m.level" surface="overlay" />
                         }
                         @if (g.key === 'live') {
                           <span class="svc-new-badge">NEW</span>
@@ -537,7 +537,7 @@
                       @if (hasActivePurchase(m)) {
                         <div class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</div>
                       } @else if (m.level) {
-                        <div class="svc-lvl" [style.background]="levelStyle(m).bg" [style.color]="levelStyle(m).color">{{ m.level }}</div>
+                        <ws-level-badge [title]="m.level" surface="overlay" />
                       }
                       <div class="svc-disc">٪{{ m.discountPercentage }} خصم</div>
                     </div>
@@ -567,7 +567,7 @@
                       @if (hasActivePurchase(m)) {
                         <div class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</div>
                       } @else if (m.level) {
-                        <div class="svc-lvl" [style.background]="levelStyle(m).bg" [style.color]="levelStyle(m).color">{{ m.level }}</div>
+                        <ws-level-badge [title]="m.level" surface="overlay" />
                       }
                       @if (mode() === 'featured') {
                         <div class="svc-feat-badge"><svg aria-hidden="true" style="width:8px;height:8px;color:#fff"><use href="#ws-shield"></use></svg> مميزة</div>

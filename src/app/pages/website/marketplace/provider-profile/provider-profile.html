@@ -69,10 +69,7 @@
         <div class="identity-info">
           <div class="identity-name-row">
             <span class="identity-name">{{ provider()?.header?.fullName || 'مزود خدمة' }}</span>
-            <span class="level-badge" [ngClass]="levelClass(provider()?.header?.levelInfo?.levelName)">
-              <svg aria-hidden="true" style="width:9px;height:9px"><use href="#ws-star"></use></svg>
-              {{ provider()?.header?.levelInfo?.levelName || 'مبتدئ' }}
-            </span>
+            <ws-level-badge [level]="levelDisplay()" />
             @if (provider()?.header?.isVerified) {
               <span class="verified-badge">
                 <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-check"></use></svg>

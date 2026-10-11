@@ -1,3 +1,4 @@
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -8,7 +9,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 @Component({
   selector: 'app-checkout-review',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [LevelBadgeComponent, CommonModule, RouterLink],
   templateUrl: './review.html',
   styleUrls: ['../components/checkout-tokens.css', './review.css'],
 })

@@ -61,7 +61,7 @@
       <div>
         <div style="font-size:14px;font-weight:800;color:#fff">{{ model()?.provider?.name || 'مزود معتمد' }}</div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
-          <span [style.background]="model()?.levelBg || 'rgba(43,212,199,.15)'" [style.border]="'1px solid ' + (model()?.levelColor || 'rgba(43,212,199,.3)')" style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:800;color:#fff">{{ model()?.level || 'مزود معتمد' }}</span>
+          <ws-level-badge [title]="model()?.level" surface="overlay" />
           @if (model()?.isVerified) {
             <span style="font-size:11px;color:#0FA99A;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#0FA99A;flex-shrink:0"></span>موثّق</span>
           }

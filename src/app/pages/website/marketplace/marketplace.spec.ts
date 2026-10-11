@@ -69,23 +69,7 @@ describe('Marketplace', () => {
     });
   });
 
-  // Batch 5 — this page's result-grid level badge was already real-data-driven
-  // (unlike the dashboard/curated bugs), but had its own private 3-entry color
-  // map. resultLevelStyle() now delegates to the same canonical helper used by
-  // slug.ts/card.ts/curated.ts so a provider's badge color can never diverge
-  // between pages.
-  describe('canonical provider level styling (Batch 5)', () => {
-    const baseModel: any = { id: 'svc-1', title: 't', provider: { id: 'p1', name: 'p', initials: 'p' } };
-
-    it('uses the canonical highlighted-level color for a known real level', () => {
-      expect(component.resultLevelStyle({ ...baseModel, level: 'خبير' })).toEqual({ bg: '#166FF3', color: '#070D24' });
-    });
-
-    it('falls back to the neutral default rather than fabricating a color for an unhighlighted/unexpected level', () => {
-      expect(component.resultLevelStyle({ ...baseModel, level: 'مبتدئ' })).toEqual({ bg: '#94DEF9', color: '#070D24' });
-      expect(component.resultLevelStyle({ ...baseModel, level: undefined })).toEqual({ bg: 'rgba(43,212,199,.6)', color: '#2BD4C7' });
-    });
-  });
+  // The per-page level styling helpers were removed: every page renders levels through <ws-level-badge> (see shared/levels/level-badge.static.spec.ts).
 
   // AI Cleanup Batch 5 — the landing "AI picks" row is backed by
   // POST /marketplace/ai-recommendations: a real Gemini result (GEMINI) or an

@@ -1,9 +1,9 @@
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, HostListener, AfterViewInit, OnDestroy, OnInit, PLATFORM_ID, Inject, ViewEncapsulation, signal, computed } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
-import { resolveProviderLevelBadgeStyle } from '../../../../core/utils/provider-level-style.util';
 import { Subscription } from 'rxjs';
 import { SpecialtiesBar } from '../specialties-bar/specialties-bar';
 
@@ -13,7 +13,7 @@ interface FilterDraft { sub: string; levels: string[]; rating: number; maxDays: 
 @Component({
 	selector: 'app-slug',
 	standalone: true,
-	imports: [CommonModule, RouterLink, SpecialtiesBar],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink, SpecialtiesBar],
 	templateUrl: './slug.html',
 	styleUrl: './slug.css',
 	encapsulation: ViewEncapsulation.None
@@ -123,9 +123,6 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 		return this.avatarStyles[index % this.avatarStyles.length];
 	}
 
-	levelStyle(model: MarketplaceModel): { bg: string; color: string } {
-		return resolveProviderLevelBadgeStyle(model.level, model.levelBg, model.levelColor);
-	}
 
 	// Symbols this component ships in its own local sprite (see slug.html).
 	// Any category icon href that isn't in this set falls back to the generic ws-tag glyph.

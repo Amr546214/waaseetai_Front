@@ -1,3 +1,4 @@
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -10,7 +11,7 @@ const MAX_COMPARE = 3;
 @Component({
 	selector: 'app-compare-services',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink],
 	templateUrl: './compare-services.html',
 	styleUrl: './compare-services.css'
 })
@@ -106,15 +107,6 @@ export class CompareServicesComponent implements OnInit {
 		this.router.navigate(['/marketplace']);
 	}
 
-	/** Maps the level label to the design's badge colour class (P-MK-017). */
-	levelClass(level?: string): string {
-		switch ((level || '').trim()) {
-			case 'خبير': return 'expert';
-			case 'متقدم': return 'advanced';
-			case 'محترف': return 'pro';
-			default: return '';
-		}
-	}
 
 	filledStars(rating: number | null | undefined): number {
 		return Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));

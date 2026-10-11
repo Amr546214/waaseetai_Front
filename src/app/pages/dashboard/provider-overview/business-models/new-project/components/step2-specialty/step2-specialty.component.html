@@ -20,19 +20,7 @@
 	</div>
 
 	<!-- Empty State if No Accredited Specialties -->
-	<div *ngIf="!isLoadingSpecialties && (!passedCategories || passedCategories.length === 0)" class="bg-[var(--crd-bg)] backdrop-blur-md border border-[var(--crd-bd)] rounded-3xl p-10 flex flex-col items-center justify-center text-center shadow-xl mb-6">
-		<div class="w-16 h-16 rounded-2xl bg-[rgba(255,107,107,.15)] border border-[rgba(255,107,107,.3)] flex items-center justify-center text-[#FF6B6B] text-3xl mb-4 shadow-lg">
-			⚠️
-		</div>
-		<h3 class="text-lg font-extrabold text-white mb-2">لا توجد تخصصات معتمدة متوفرة</h3>
-		<p class="text-xs text-slate-300 max-w-md mb-6 leading-relaxed">
-			لم تقم باجتياز التقييم التقني لأي تخصص حتى الآن. يرجى التوجه لمركز التوثيق واجتياز التقييم أولاً
-			لتتمكن من اختيار التخصص ونشر المشاريع.
-		</p>
-		<a routerLink="/provider-overview/business-models/accreditation/new" class="px-7 py-3.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-xs font-extrabold rounded-full shadow-xl hover:opacity-95 transition-all">
-			+ تقديم طلب توثيق واعتماد تخصص جديد
-		</a>
-	</div>
+	<ws-specialty-empty *ngIf="!isLoadingSpecialties && (!passedCategories || passedCategories.length === 0)" [registered]="registered" />
 
 	<!-- SECTION 1: MAIN SPECIALTY SELECTION GRID -->
 	<div *ngIf="!isLoadingSpecialties && passedCategories && passedCategories.length > 0">

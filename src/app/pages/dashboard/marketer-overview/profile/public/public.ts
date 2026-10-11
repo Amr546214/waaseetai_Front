@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { MarketerLevelTagComponent } from '../../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MarketerOverviewService, MarketerSummary } from '../../../../../core/services/marketer-overview.service';
@@ -7,7 +8,7 @@ import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from 
 @Component({
   selector: 'app-public',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [MarketerLevelTagComponent, CommonModule, RouterModule],
   templateUrl: './public.html',
   styleUrl: './public.css',
 })

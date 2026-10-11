@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { levelColor } from '../../../../core/levels/level-colors';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, it, expect } from 'vitest';
@@ -139,25 +140,25 @@ describe('ClientOverviewComponent — latest offers level badge (Batch 5)', () =
 	it('5) renders no level badge at all when providerLevel is null (missing provider progression) — never a fabricated one', () => {
 		const fixture = offersFixture([makeOffer({ id: 'p1', providerLevel: null }), makeOffer({ id: 'p2', providerLevel: undefined }), makeOffer({ id: 'p3' })]);
 		const host = fixture.nativeElement as HTMLElement;
-		expect(host.querySelectorAll('.offer-card .ws-level-tag').length).toBe(0);
+		expect(host.querySelectorAll('.offer-card ws-level-badge [data-testid="level-badge"]').length).toBe(0);
 	});
 
 	it('1) renders the real providerLevel text when present', () => {
 		const fixture = offersFixture([makeOffer({ providerLevel: 'خبير' })]);
-		const badge = (fixture.nativeElement as HTMLElement).querySelector('.offer-card .ws-level-tag');
+		const badge = (fixture.nativeElement as HTMLElement).querySelector('.offer-card ws-level-badge [data-testid="level-badge"]');
 		expect(badge?.textContent?.trim()).toBe('خبير');
 	});
 
-	it('2) uses resolveProviderLevelBadgeStyle() — a highlighted real level gets its canonical color', () => {
+	it('2) the level takes its colour pair from the shared level source (same as every other page)', () => {
 		const fixture = offersFixture([makeOffer({ providerLevel: 'خبير' })]);
-		const badge = (fixture.nativeElement as HTMLElement).querySelector('.offer-card .ws-level-tag') as HTMLElement;
-		expect(badge.style.color).toBe('rgb(7, 13, 36)'); // #070D24 — readable text on the station-3 fill (levels 7-9)
+		const badge = (fixture.nativeElement as HTMLElement).querySelector('.offer-card ws-level-badge [data-testid="level-badge"]') as HTMLElement;
+		expect(badge.style.getPropertyValue('--lvl-dark').toLowerCase()).toBe(levelColor('PROVIDER', 9, 'dark').toLowerCase());
 	});
 
-	it('6) an unhighlighted-but-real level string gets the neutral default styling, not a fabricated per-level mapping', () => {
+	it('6) level 1 looks the same here as everywhere (its own station colour)', () => {
 		const fixture = offersFixture([makeOffer({ providerLevel: 'مبتدئ' })]);
-		const badge = (fixture.nativeElement as HTMLElement).querySelector('.offer-card .ws-level-tag') as HTMLElement;
-		expect(badge.style.color).toBe('rgb(7, 13, 36)'); // level 1 = station 1: its own colour (#94DEF9 fill, #070D24 text)
+		const badge = (fixture.nativeElement as HTMLElement).querySelector('.offer-card ws-level-badge [data-testid="level-badge"]') as HTMLElement;
+		expect(badge.style.getPropertyValue('--lvl-dark').toLowerCase()).toBe(levelColor('PROVIDER', 1, 'dark').toLowerCase());
 	});
 
 	it('7) the adjacent star/rating row does not depend on provider level — stays the fixed static color regardless of providerLevel', () => {

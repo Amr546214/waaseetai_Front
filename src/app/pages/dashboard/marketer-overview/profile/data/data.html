@@ -68,37 +68,10 @@
 		     platform=LINKEDIN. Banner and handler removed. -->
 
 		<div class="tier-banner">
-			<div class="tier-ico"><svg class="ws-star-svg" width="22" height="22" viewBox="0 0 100 100" fill="#9B8B7A"
-					aria-hidden="true">
-					<path
-						d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-				</svg></div>
+			<div class="tier-ico"><ws-marketer-level variant="icon" [summary]="summary()" /></div>
 			<div style="flex:1">
-				<div class="tier-title" style="display:flex;align-items:center;gap:6px"><svg class="ws-star-svg"
-						width="10" height="10" viewBox="0 0 100 100" fill="#9B8B7A">
-						<path
-							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-					</svg><span class="ws-level-tag"
-						style="font-size:inherit;color:inherit;border-color:rgba(185,134,11,.30)">{{ summary()?.tier ||
-						'مساعد' }}</span> &middot; <span style="font-weight:600;font-size:11px">المستوى الحالي — التالي:
-						<span class="ws-level-tag txt-kahr"
-							style="font-size:11px;color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</span></span>
-				</div>
-				<p class="tier-txt">تقدم في التحقق من القنوات وتحقق المزيد من الاحالات للترقية لمستوى <span
-						class="ws-level-tag"
-						style="font-size:inherit;color:inherit;border-color:rgba(185,134,11,.20)">موصل</span> تلقائيا
-				</p>
-				<div class="tier-progress">
-					<div class="tier-dot active"></div>
-					<div class="tier-dot active"></div>
-					<div class="tier-dot"></div>
-					<div class="tier-dot"></div>
-					<div class="tier-dot"></div>
-				</div>
-				<div style="font-size:11px;margin-top:5px" class="txt-muted"><span class="ws-level-tag txt-kahr"
-						style="font-size:11px;color:#9B8B7A;border-color:rgba(155,139,122,.30)">مساعد</span> (2/5 خطوات
-					للترقية لـ <span class="ws-level-tag txt-muted"
-						style="font-size:11px;color:#CD7F32;border-color:rgba(205,127,50,.30)">موصل</span>)</div>
+				<div class="tier-title" style="display:flex;align-items:center;gap:6px"><ws-marketer-level [summary]="summary()" /></div>
+				<p class="tier-txt">يرتفع مستواك تلقائيًا بحسب أدائك الفعلي (الإحالات الناجحة والنقاط)، وتظهر نسبة عمولتك الحالية بجانب مستواك.</p>
 			</div>
 		</div>
 
@@ -402,13 +375,8 @@
 				</div>
 				<div
 					style="padding:14px;background:rgba(155,139,122,.05);border:1px solid rgba(155,139,122,.12);border-radius:12px;text-align:center">
-					<div
-						style="font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:5px" class="txt-kahr">
-						<svg class="ws-star-svg" width="14" height="14" viewBox="0 0 100 100" fill="#CD7F32">
-							<path
-								d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-						</svg>موصل</div>
-					<div style="font-size:11px;margin-top:3px" class="txt-muted">المستوى التالي</div>
+					<div style="display:flex;justify-content:center"><ws-marketer-level [summary]="summary()" /></div>
+					<div style="font-size:11px;margin-top:3px" class="txt-muted">المستوى الحالي</div>
 				</div>
 			</div>
 			<div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px">

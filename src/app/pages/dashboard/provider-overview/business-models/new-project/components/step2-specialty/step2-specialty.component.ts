@@ -2,16 +2,19 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { SpecialtyEmptyComponent } from '../../../../../../../shared/forms/specialty-empty.component';
+import type { RegisteredSpecialty } from '../../../../../../../core/utils/specialty-states';
 
 @Component({
 	selector: 'app-step2-specialty',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, SpecialtyEmptyComponent],
 	templateUrl: './step2-specialty.component.html',
 	styleUrl: './step2-specialty.component.css'
 })
 export class Step2SpecialtyComponent {
 	@Input({ required: true }) isLoadingSpecialties!: boolean;
+  @Input() registered: RegisteredSpecialty[] = [];
 	@Input({ required: true }) passedCategories!: any[];
 	@Input({ required: true }) selectedSpecialty!: string;
 	@Input({ required: true }) selectedMainSpecialtyObj!: any;

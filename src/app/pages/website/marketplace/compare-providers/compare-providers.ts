@@ -1,3 +1,4 @@
+import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -59,7 +60,7 @@ function mapToCard(id: string, raw: any): CompareProviderCard | null {
 @Component({
 	selector: 'app-compare-providers',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink],
 	templateUrl: './compare-providers.html',
 	styleUrl: './compare-providers.css'
 })
@@ -158,14 +159,6 @@ export class CompareProvidersComponent implements OnInit {
 		this.router.navigate(['/marketplace']);
 	}
 
-	/** Level pill colours from design P-MK-024 / P-MK-017 (خبير / متقدم / محترف). */
-	levelStyle(level: string): { background: string; color: string } {
-		switch ((level || '').trim()) {
-			case 'خبير': return { background: 'rgba(123,47,190,.85)', color: '#E0C6FF' };
-			case 'محترف': return { background: 'rgba(15,169,154,.85)', color: '#fff' };
-			default: return { background: 'rgba(43,127,255,.85)', color: '#fff' };
-		}
-	}
 
 	starsText(rating: number): string {
 		const n = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));

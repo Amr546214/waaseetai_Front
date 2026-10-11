@@ -2,16 +2,19 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SpecialtyCategory } from '../../new';
+import { SpecialtyEmptyComponent } from '../../../../../../../../shared/forms/specialty-empty.component';
+import type { RegisteredSpecialty } from '../../../../../../../../core/utils/specialty-states';
 
 @Component({
   selector: 'app-step1-specialty',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SpecialtyEmptyComponent],
   templateUrl: './step1-specialty.component.html',
   styleUrl: './step1-specialty.component.css'
 })
 export class Step1SpecialtyComponent {
   @Input({ required: true }) isLoading!: boolean;
+  @Input() registered: RegisteredSpecialty[] = [];
   @Input({ required: true }) hasAccreditedSpecialties!: boolean;
   @Input({ required: true }) categories!: SpecialtyCategory[];
   @Input({ required: true }) selectedSpecialtyId!: string | null;

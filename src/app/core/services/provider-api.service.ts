@@ -68,6 +68,7 @@ export interface ProviderStatsResponse {
 			setupTestCompleted: boolean;
 			hasApprovedSpecialties: boolean;
 			currentLevel: string;
+			levelInfo?: import('../levels/level-display').LevelInfoDto;
 			currentPoints: number;
 			/** Real KYC status of the provider profile (null / absent when the backend has none). */
 			kycStatus?: 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED' | null;
