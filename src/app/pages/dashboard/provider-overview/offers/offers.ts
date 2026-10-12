@@ -6,6 +6,8 @@ import { AccountType } from '../../../../core/models/auth.model';
 
 export interface Offer {
 	id: string;
+	/** The real project id (an offer id is not one): needed to open this project's conversation. */
+	projectId?: string;
 	ref: string;
 	title: string;
 	price: string;
@@ -126,6 +128,7 @@ export class Offers implements OnInit {
 					}
 					const mapped = res.data.map((item: any) => ({
 						id: item.offerId || item.id,
+						projectId: item.projectId || undefined,
 						ref: item.projectRef || item.ref,
 						title: item.projectTitle || item.title,
 						price: typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || '0 $'),
@@ -246,7 +249,8 @@ export class Offers implements OnInit {
 			state: {
 				messageContext: {
 					type: 'PROJECT',
-					projectId: offer.id,
+					// the project's own id (never the offer id): the messages page opens only this project's conversation
+					projectId: offer.projectId,
 					projectTitle: offer.title,
 				}
 			}

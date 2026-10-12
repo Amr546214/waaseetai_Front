@@ -146,13 +146,13 @@ export class Progress implements OnInit {
     if (!data) return;
     const ctx: MessageContext = stage ? {
       type: stage.deliveryStatus === 'SUBMITTED' || stage.status === 'submitted' ? 'DELIVERY' : 'STAGE',
-      projectId: this.projectId,
+      projectId: data.projectId || this.projectId,
       projectTitle: data.title || data.project || undefined,
       stageId: stage.id || undefined,
       stageTitle: stage.title || undefined,
       stageNumber: stage.stageNumber || undefined,
       amount: stage.amount || undefined
-    } : { type: 'PROJECT', projectId: this.projectId, projectTitle: data.title || data.project || undefined };
+    } : { type: 'PROJECT', projectId: data.projectId || this.projectId, projectTitle: data.title || data.project || undefined };
     this.router.navigate(['/provider-overview/messages'],
       { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: { messageContext: ctx } });
   }

@@ -121,7 +121,7 @@ export class DeliveryReview implements OnInit {
 		const stage = this.finalStage();
 		const ctx: MessageContext = {
 			type: 'DELIVERY',
-			projectId: this.projectId(),
+			projectId: data?.projectId || this.projectId(),
 			projectTitle: data?.title || data?.project || undefined,
 			stageId: stage?.id || undefined,
 			stageTitle: stage?.title || undefined,

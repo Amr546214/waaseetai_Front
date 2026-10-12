@@ -213,6 +213,25 @@
 }
 .msg-empty-state .state-title { font-size: 15px; font-weight: 800; color: var(--txt, #fff); }
 .msg-empty-state .state-copy { font-size: 12px; color: var(--txt-3, #6B7699); max-width: 320px; line-height: 1.6; }
+/* CTA of the "no conversation for this project" state: a clear button in dark, and a stronger-contrast one in light */
+.msg-empty-state .msg-empty-cta {
+  margin-top: 14px; padding: 9px 20px; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 800; line-height: 1.4;
+  color: #2BD4C7; background: rgba(43, 212, 199, .12); border: 1px solid rgba(43, 212, 199, .45);
+  transition: background .15s, border-color .15s;
+}
+.msg-empty-state .msg-empty-cta:hover { background: rgba(43, 212, 199, .22); border-color: #2BD4C7; }
+.msg-empty-state .msg-empty-cta:focus-visible { outline: 2px solid #2BD4C7; outline-offset: 2px; }
+body.light-theme .msg-empty-state .msg-empty-cta,
+body.theme-light .msg-empty-state .msg-empty-cta,
+.light-theme .msg-empty-state .msg-empty-cta,
+.theme-light .msg-empty-state .msg-empty-cta {
+  color: #0A6F64; background: rgba(15, 138, 127, .10); border-color: rgba(10, 111, 100, .55);
+}
+body.light-theme .msg-empty-state .msg-empty-cta:hover,
+body.theme-light .msg-empty-state .msg-empty-cta:hover,
+.light-theme .msg-empty-state .msg-empty-cta:hover,
+.theme-light .msg-empty-state .msg-empty-cta:hover { background: rgba(15, 138, 127, .2); }
 
 .ai-bc {
   display: flex;
