@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, O
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { HttpEventType } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
@@ -16,7 +17,7 @@ export interface Specialty {
 	id: string;
 	name: string;
 	count: string;
-	iconHtml: string;
+	iconHtml: SafeHtml;
 	color: string;
 	bg: string;
 }
@@ -123,6 +124,9 @@ export interface PortfolioReview {
 })
 export class Specialties implements OnInit, OnDestroy {
 	private specialtyService = inject(SpecialtyService);
+	private sanitizer = inject(DomSanitizer);
+	// Hardcoded SVG glyph (no user data). Angular's HTML sanitizer strips <circle>/<path> inside [innerHTML] on an <svg>, which left every category icon blank.
+	private readonly categoryIcon: SafeHtml = this.sanitizer.bypassSecurityTrustHtml('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>');
 	private providerApi = inject(ProviderApiService);
 	private router = inject(Router);
 	private route = inject(ActivatedRoute, { optional: true });
@@ -476,7 +480,7 @@ export class Specialties implements OnInit, OnDestroy {
 			id: cat.id,
 			name: cat.nameAr,
 			count: `+${cat.specialties.reduce((sum, s) => sum + (s._count?.providerSpecialties || 0), 0)} مقدم`,
-			iconHtml: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+			iconHtml: this.categoryIcon,
 			color: '#2BD4C7',
 			bg: 'rgba(43,212,199,.12)'
 		}));

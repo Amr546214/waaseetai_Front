@@ -71,7 +71,7 @@
 <!-- GLOBAL FILTER RAIL -->
 <div class="flex items-stretch bg-[var(--sec-bg)]/60 backdrop-blur-[16px] border border-[var(--sec-bd)] rounded-[14px] mb-5 overflow-hidden shadow-sm flex-wrap lg:flex-nowrap">
   <div class="flex items-center px-4 text-[10.5px] font-black tracking-wider text-[#5DA0FF] bg-[#2B7FFF]/10 border-e border-[#2B7FFF]/20 shrink-0 whitespace-nowrap">الفترة</div>
-  <div class="flex items-center gap-1.5 px-3 py-2 shrink-0 flex-wrap">
+  <div class="flex items-center gap-1.5 px-3 py-2 min-w-0 max-w-full flex-wrap">
     @for(p of periods; track p.id) {
       <button class="px-3 py-1.5 rounded-lg text-[11.5px] font-bold transition-all border"
               [class]="currentPeriod() === p.id ? 'bg-gradient-to-br from-[#2BD4C7]/20 to-[#2B7FFF]/15 border-[#2BD4C7]/50 text-[var(--txt)] shadow-[0_2px_8px_rgba(43,212,199,0.15)]' : 'bg-transparent border-transparent text-[var(--txt-3)] hover:bg-[var(--sec-bd)] hover:text-[var(--txt-2)]'"
