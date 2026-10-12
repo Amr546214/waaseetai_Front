@@ -1,7 +1,7 @@
 <div class="flex items-start justify-between gap-3.5 flex-wrap mb-4">
   <div>
     <h1 class="text-[20px] font-black text-[var(--txt)] m-0">النزاعات</h1>
-    <div class="text-[12px] font-semibold text-[var(--txt-3)] mt-1">{{ isCompanyMode() ? 'نزاعات مشاريع الفريق — مراقبة، توثيق، وتقديم الأدلة' : 'طلبات النزاع والإلغاء بالتراضي، تراجعها الإدارة حتى الإقفال' }}</div>
+    <div class="text-[12px] font-semibold text-[var(--txt-3)] mt-1">{{ isCompanyMode() ? 'نزاعات مشاريع الفريق — مراقبة، توثيق، وتقديم الأدلة' : 'طلبات النزاع، تراجعها الإدارة حتى الإقفال' }}</div>
   </div>
   <button type="button" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-[#2BD4C7]/15 to-[#2B7FFF]/10 border border-[#2BD4C7]/30 rounded-[10px] text-[#2BD4C7] text-[13px] font-bold transition-all hover:bg-[#2BD4C7]/20" (click)="goToActiveProjects()">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>رفع نزاع جديد
@@ -20,27 +20,13 @@
 </div>
 
 <!-- KPIs -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+<div class="grid grid-cols-2 gap-3 mb-4">
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
     <div class="w-7 h-7 rounded-[8px] bg-[#FFB400]/15 text-[#FFB400] flex items-center justify-center mb-2.5">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     </div>
     <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().activeDisputes }}</div>
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">نزاع نشط</div>
-  </div>
-  <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
-    <div class="w-7 h-7 rounded-[8px] bg-[#5DA0FF]/15 text-[#5DA0FF] flex items-center justify-center mb-2.5">
-      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l4-2 5 2 5-2 4 2v6l-4 2-5-2-5 2-4-2z"/><path d="M12 9v6"/></svg>
-    </div>
-    <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().activeCancellations }}</div>
-    <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">إلغاء بالتراضي</div>
-  </div>
-  <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
-    <div class="w-7 h-7 rounded-[8px] bg-[#2BD4C7]/15 text-[#2BD4C7] flex items-center justify-center mb-2.5">
-      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
-    <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().closedAmicably }}</div>
-    <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">مُغلقة بالتراضي</div>
   </div>
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
     <div class="w-7 h-7 rounded-[8px] bg-[#FFB400]/15 text-[#FFB400] flex items-center justify-center mb-2.5">
@@ -64,7 +50,7 @@
   }
 </div>
 
-<div class="text-[15px] font-black text-[var(--txt)] flex items-center gap-2 mb-4">سجلّ النزاعات والإلغاءات <span class="text-[12px] font-bold text-[var(--txt-3)]">· مرتبة بآخر نشاط</span></div>
+<div class="text-[15px] font-black text-[var(--txt)] flex items-center gap-2 mb-4">سجلّ النزاعات <span class="text-[12px] font-bold text-[var(--txt-3)]">· مرتبة بآخر نشاط</span></div>
 
 <!-- DISPUTES LIST -->
 <div class="flex flex-col gap-3">
@@ -138,11 +124,6 @@
         }
 
         <div class="flex items-center gap-2.5 flex-wrap ms-auto">
-          @if(d.showEscalate) {
-            <button class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#FFB400]/15 border border-[#FFB400]/30 rounded-[10px] text-[#D98A0B] text-[12.5px] font-black transition-all hover:bg-[#FFB400]/25" (click)="openToast('تم تصعيد النزاع للإدارة، سيتدخّل فريق الدعم خلال 24 ساعة')">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>تصعيد للإدارة
-            </button>
-          }
           <a [routerLink]="['/provider-overview/disputes', d.id]" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-[12.5px] font-black transition-all bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[#2BD4C7]/10 hover:border-[#2BD4C7]/30 hover:text-[#2BD4C7] no-underline">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
             تفاصيل النزاع
@@ -152,15 +133,13 @@
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>توجيه {{ d.teamMember.name }}
             </button>
           }
-          <button class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-[12.5px] font-black transition-all"
+          @if (d.projectId) {
+          <button type="button" data-testid="dispute-project-chat" (click)="openProjectChat(d)" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-[12.5px] font-black transition-all"
                   [ngClass]="d.status === 'open' ? 'bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24]' : 'bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[#2BD4C7]/10 hover:border-[#2BD4C7]/30 hover:text-[#2BD4C7]'">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            {{ d.status === 'open' ? 'متابعة النقاش' : 'عرض النقاش' }}
-            @if(d.messages > 0) {
-              <span class="min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 text-[10px] font-black"
-                    [ngClass]="d.status === 'open' ? 'bg-[#070D24]/25 text-[#070D24]' : 'bg-[var(--sec-bd)] text-[var(--txt)]'">{{ d.messages }}</span>
-            }
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            محادثة المشروع
           </button>
+          }
         </div>
       </div>
     </div>
@@ -175,7 +154,7 @@
         <div class="text-[12px] font-semibold text-[var(--txt-3)] max-w-sm mx-auto">حدث خطأ أثناء جلب سجلّ النزاعات، حاول تحديث الصفحة أو المحاولة لاحقًا.</div>
       } @else {
         <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">لا يوجد نزاعات</div>
-        <div class="text-[12px] font-semibold text-[var(--txt-3)] max-w-sm mx-auto">لا توجد نزاعات أو طلبات إلغاء. تُرفع النزاعات من صفحة متابعة المشروع عند الحاجة.</div>
+        <div class="text-[12px] font-semibold text-[var(--txt-3)] max-w-sm mx-auto">لا توجد نزاعات. تُرفع النزاعات من صفحة متابعة المشروع عند الحاجة.</div>
       }
     </div>
   }

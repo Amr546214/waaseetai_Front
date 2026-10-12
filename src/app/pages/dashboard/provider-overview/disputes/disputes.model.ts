@@ -66,6 +66,8 @@ export interface Dispute {
 	id: string;
 	title: string;
 	project: string;
+	/** The real project id of the dispute (null on a legacy row): lets "محادثة المشروع" open the right conversation. */
+	projectId: string | null;
 	status: string;
 	who: string;
 	extra: string;
@@ -78,8 +80,6 @@ export interface Dispute {
 	aiText: string;
 	aiDone: boolean;
 	amount: string;
-	showEscalate: boolean;
-	messages: number;
 	date: string;
 	detail?: DisputeDetail;
 	/** Company-mode only — see DisputeTeamMember. Mock/placeholder field. */
