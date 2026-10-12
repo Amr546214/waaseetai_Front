@@ -161,7 +161,7 @@ export class ActiveProject implements OnInit {
 		if (!Array.isArray(rawKpis) || rawKpis.length !== 4) {
 			return this.kpisFromProjects(projects);
 		}
-		const colors: ProjectKPI['color'][] = ['teal', 'blue', 'amber', 'ai'];
+		const colors: ProjectKPI['color'][] = ['teal', 'blue', 'amber', 'teal']; // 4th = general status (not AI)
 		const icons: ProjectKPI['icon'][] = ['list', 'lock', 'clock', 'ai'];
 		return rawKpis.map((kpi: any, index: number) => ({
 			icon: icons[index],
