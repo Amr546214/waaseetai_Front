@@ -142,8 +142,8 @@
   color: #0F8A7F !important;
 }
 
-/* Responsive Breakpoints */
-@media (max-width: 767px) {
+/* Responsive Breakpoints — the sidebar is a drawer up to 1023px (tablet included): a permanent 260px sidebar left ~460px of content at 768px */
+@media (max-width: 1023px) {
   .sidebar-wrapper {
     top: 0;
     height: 100vh;
@@ -161,6 +161,10 @@
     margin-right: 0;
     max-width: 100vw;
     min-height: unset;
+  }
+}
+@media (max-width: 767px) {
+  .main {
     padding: 14px 16px;
   }
   .inner-foot {

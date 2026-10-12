@@ -220,8 +220,10 @@
   background: rgba(43,212,199,.06) !important;
 }
 
-@media(max-width:767px){
+@media(max-width:1023px){
   .t-ham{display:flex}
+}
+@media(max-width:767px){
   .t-page,.t-ai-badge{display:none}
   .topbar{padding:0 14px;gap:8px}
 }
