@@ -2,7 +2,7 @@
 	<!-- Logo & Title Area (Desktop) -->
 	<div class="h-16 flex-shrink-0 flex items-center px-5 border-b border-slate-800/60">
 		<div class="flex items-center justify-between w-full">
-			<a routerLink="/provider-overview" class="flex items-center gap-3 group transition-transform hover:scale-105" aria-label="وسيط AI">
+			<a [routerLink]="homeLink()" data-testid="sidebar-logo" class="flex items-center gap-3 group transition-transform hover:scale-105" aria-label="وسيط AI">
 				<img src="/images/waseet-mark.png" alt="وسيط AI"
 					class="h-7 w-auto object-contain drop-shadow-[0_0_12px_rgba(43,212,199,0.3)]">
 				<span class="text-[11px] font-medium uppercase tracking-wider text-slate-300/80 px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08]">

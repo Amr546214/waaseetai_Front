@@ -1,3 +1,4 @@
+import { resolveActiveRole, roleLinks } from '../../../core/routing/role-routes';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, Output, EventEmitter, ChangeDetectorRef, effect, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -78,13 +79,10 @@ export class NavDashboard {
 		return [UserRole.CLIENT];
 	});
 
-	activeRole = computed<UserRole>(() => {
-		const user = this.currentUser();
-		if (user?.activeRole) return user.activeRole;
-		if (user?.accountType?.includes('PROVIDER')) return UserRole.PROVIDER;
-		if (user?.accountType?.includes('MARKETING')) return UserRole.AFFILIATE;
-		return UserRole.CLIENT;
-	});
+	activeRole = computed<UserRole>(() => resolveActiveRole(this.currentUser()));
+
+	/** Messages / profile / settings / add-account of the ACTIVE role (a marketer never gets client links). */
+	links = computed(() => roleLinks(this.activeRole()));
 
 	accountTypeLabel = computed(() => {
 		const role = this.activeRole();

@@ -164,7 +164,7 @@
 							}
 
 							<a target="_blank" rel="noopener noreferrer"
-								[routerLink]="activeRole() === UserRole.PROVIDER ? '/provider-overview/profile/add-account' : '/client-overview/profile/add-account'"
+								[routerLink]="links().addAccount"
 								(click)="isUserDropdownOpen.set(false); isDashSubMenuOpen.set(false)"
 								class="udrop-add-account">
 								<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -182,7 +182,7 @@
 
 					<!-- Main Menu Links -->
 					<a target="_blank" rel="noopener noreferrer"
-						[routerLink]="activeRole() === UserRole.PROVIDER ? '/provider-overview/profile/data' : '/client-overview/profile'"
+						[routerLink]="links().profile"
 						(click)="isUserDropdownOpen.set(false)" class="udrop-item" role="menuitem">
 						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 							stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -191,7 +191,7 @@
 						<span>الملف الشخصي</span>
 					</a>
 					<a target="_blank" rel="noopener noreferrer"
-						[routerLink]="activeRole() === UserRole.PROVIDER ? '/provider-overview/settings/account' : '/client-overview/settings/account'"
+						[routerLink]="links().settings"
 						(click)="isUserDropdownOpen.set(false)" class="udrop-item" role="menuitem">
 						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 							stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
