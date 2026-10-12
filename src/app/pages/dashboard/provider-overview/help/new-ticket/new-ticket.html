@@ -1,5 +1,5 @@
 <section class="nt-page" dir="rtl">
-	<a [routerLink]="isCompanyMode() ? '/provider-overview/help' : '/client-overview/help'" class="bk-link">
+	<a routerLink="/provider-overview/help" class="bk-link">
 		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
 		العودة لتذاكر الدعم
 	</a>
@@ -100,7 +100,7 @@
 		}
 
 		<div class="form-actions">
-			<button type="button" class="btn-ghost" [routerLink]="isCompanyMode() ? '/provider-overview/help' : '/client-overview/help'">إلغاء</button>
+			<button type="button" class="btn-ghost" routerLink="/provider-overview/help">إلغاء</button>
 			<button type="submit" class="btn-primary" [disabled]="submitting()">
 				@if (submitting()) {
 					<span class="spinner"></span> جاري الإرسال...

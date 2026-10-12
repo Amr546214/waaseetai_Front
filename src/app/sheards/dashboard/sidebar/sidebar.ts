@@ -1,3 +1,4 @@
+import { roleHome } from '../../../core/routing/role-routes';
 import { Component, Input, Output, EventEmitter, inject, signal, computed, ChangeDetectorRef, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
@@ -155,6 +156,9 @@ export class Sidebar implements OnInit {
 
 		return UserRole.CLIENT;
 	});
+
+	/** The logo goes to the dashboard of the ACTIVE role (never a fixed role's area). */
+	homeLink = computed<string>(() => roleHome(this.effectiveRole()));
 
 	sidebarTitle = computed<string>(() => {
 		const role = this.effectiveRole();

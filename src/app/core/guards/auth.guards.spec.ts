@@ -154,4 +154,43 @@ describe('role guards — no self-redirect loop for a token without a usable use
 		setup({ accountType: AccountType.CLIENT_INDIVIDUAL, activeRole: UserRole.CLIENT });
 		expect(await url(clientGuard)).toBe(true);
 	});
+
+describe('role guards: the ACTIVE role decides (account type is only a fallback)', () => {
+	it('a provider account acting as CLIENT opens the client area and NOT the provider area', async () => {
+		setup({ accountType: AccountType.PROVIDER_INDIVIDUAL, activeRole: UserRole.CLIENT });
+		expect(await url(clientGuard)).toBe(true);
+		setup({ accountType: AccountType.PROVIDER_INDIVIDUAL, activeRole: UserRole.CLIENT });
+		expect(await url(providerGuard)).toBe('/client-overview');
+	});
+	it('the same account acting as PROVIDER opens the provider area only', async () => {
+		setup({ accountType: AccountType.PROVIDER_INDIVIDUAL, activeRole: UserRole.PROVIDER });
+		expect(await url(providerGuard)).toBe(true);
+		setup({ accountType: AccountType.PROVIDER_INDIVIDUAL, activeRole: UserRole.PROVIDER });
+		expect(await url(clientGuard)).toBe('/provider-overview');
+		setup({ accountType: AccountType.PROVIDER_INDIVIDUAL, activeRole: UserRole.PROVIDER });
+		expect(await url(marketerGuard)).toBe('/provider-overview');
+	});
+	it('a marketer (AFFILIATE) opens the marketer area only, never client / provider', async () => {
+		setup({ accountType: AccountType.MARKETING_BROKER, activeRole: UserRole.AFFILIATE });
+		expect(await url(marketerGuard)).toBe(true);
+		setup({ accountType: AccountType.MARKETING_BROKER, activeRole: UserRole.AFFILIATE });
+		expect(await url(clientGuard)).toBe('/marketer-overview');
+		setup({ accountType: AccountType.MARKETING_BROKER, activeRole: UserRole.AFFILIATE });
+		expect(await url(providerGuard)).toBe('/marketer-overview');
+	});
+	it('a marketer account acting as CLIENT does not open the marketer area', async () => {
+		setup({ accountType: AccountType.MARKETING_BROKER, activeRole: UserRole.CLIENT });
+		expect(await url(marketerGuard)).toBe('/client-overview');
+	});
+	it('old accounts without an active role keep working through the account type', async () => {
+		setup({ accountType: AccountType.PROVIDER_COMPANY });
+		expect(await url(providerGuard)).toBe(true);
+		setup({ accountType: AccountType.CLIENT_COMPANY });
+		expect(await url(clientGuard)).toBe(true);
+		setup({ accountType: AccountType.MARKETING_BROKER });
+		expect(await url(marketerGuard)).toBe(true);
+		setup({ accountType: AccountType.CLIENT_INDIVIDUAL });
+		expect(await url(providerGuard)).toBe('/client-overview');
+	});
+});
 });

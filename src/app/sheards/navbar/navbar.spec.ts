@@ -105,10 +105,15 @@ describe('Navbar — account-dropdown active-row click', () => {
 
 describe('Navbar — "account settings" link points to a route that exists for every account type', () => {
 	afterEach(() => vi.unstubAllGlobals());
-	const link = (accountType: string) => {
-		const { component } = setup({ firstName: 'A', lastName: 'B', accountType, activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT] });
+	// each account acting as its OWN role (the link follows the ACTIVE role, not the account type)
+	const ROLE_OF: Record<string, UserRole> = { PROVIDER_INDIVIDUAL: UserRole.PROVIDER, PROVIDER_COMPANY: UserRole.PROVIDER, MARKETING_BROKER: UserRole.AFFILIATE, CLIENT_INDIVIDUAL: UserRole.CLIENT, SUPER_ADMIN: UserRole.SUPER_ADMIN };
+	const link = (accountType: string, activeRole: UserRole = ROLE_OF[accountType]) => {
+		const { component } = setup({ firstName: 'A', lastName: 'B', accountType, activeRole, roles: [activeRole] });
 		return component.profileLink;
 	};
+	it('a provider account that is acting as CLIENT gets the CLIENT profile link (the active role wins over the account type)', () => {
+		expect(link('PROVIDER_INDIVIDUAL', UserRole.CLIENT)).toBe('/client-overview/profile');
+	});
 	for (const [type, expected] of [
 		['PROVIDER_INDIVIDUAL', '/provider-overview/profile/data'],
 		['PROVIDER_COMPANY', '/provider-overview/profile/data'],

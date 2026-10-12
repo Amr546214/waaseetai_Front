@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthStore } from '../store/auth.store';
 import { UserStatus, AccountType, UserRole } from '../models/auth.model';
+import { resolveRoleStrict } from '../routing/role-routes';
 import { filter, map, take } from 'rxjs/operators';
 
 /**
@@ -183,7 +184,7 @@ function roleAreaFallback(authStore: AuthStore, router: Router, user: { accountT
 }
 
 /**
- * Protects Client routes - only Client users allowed
+ * Protects Client routes: only a user whose ACTIVE role is CLIENT (the account type only decides when an old account has no active role).
  */
 export const clientGuard: CanActivateFn = (route, state) => {
   const authStore = inject(AuthStore);
@@ -197,7 +198,7 @@ export const clientGuard: CanActivateFn = (route, state) => {
       if (!isPlatformBrowser(platformId)) return true;
 
       const user = authStore.currentUser();
-      if (user && (user.activeRole === UserRole.CLIENT || user.accountType === AccountType.CLIENT_INDIVIDUAL || user.accountType === AccountType.CLIENT_COMPANY)) {
+      if (user && resolveRoleStrict(user) === UserRole.CLIENT) {
         return true;
       }
       
@@ -208,7 +209,7 @@ export const clientGuard: CanActivateFn = (route, state) => {
 };
 
 /**
- * Protects Provider routes - only Provider users allowed
+ * Protects Provider routes: only a user whose ACTIVE role is PROVIDER. A provider account that switched to CLIENT does not open the provider area.
  */
 export const providerGuard: CanActivateFn = (route, state) => {
   const authStore = inject(AuthStore);
@@ -222,7 +223,7 @@ export const providerGuard: CanActivateFn = (route, state) => {
       if (!isPlatformBrowser(platformId)) return true;
 
       const user = authStore.currentUser();
-      if (user && (user.activeRole === UserRole.PROVIDER || user.accountType === AccountType.PROVIDER_INDIVIDUAL || user.accountType === AccountType.PROVIDER_COMPANY)) {
+      if (user && resolveRoleStrict(user) === UserRole.PROVIDER) {
         return true;
       }
 
@@ -233,7 +234,7 @@ export const providerGuard: CanActivateFn = (route, state) => {
 };
 
 /**
- * Protects Marketer routes - only Marketing Broker / Affiliate users allowed
+ * Protects Marketer routes: only a user whose ACTIVE role is AFFILIATE.
  */
 export const marketerGuard: CanActivateFn = (route, state) => {
   const authStore = inject(AuthStore);
@@ -247,7 +248,7 @@ export const marketerGuard: CanActivateFn = (route, state) => {
       if (!isPlatformBrowser(platformId)) return true;
 
       const user = authStore.currentUser();
-      if (user && (user.activeRole === UserRole.AFFILIATE || user.accountType === AccountType.MARKETING_BROKER)) {
+      if (user && resolveRoleStrict(user) === UserRole.AFFILIATE) {
         return true;
       }
 

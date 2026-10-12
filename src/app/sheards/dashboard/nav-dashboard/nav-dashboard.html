@@ -17,7 +17,7 @@
 			[attr.aria-pressed]="themeService.theme() === 'light'">فاتح</button>
 	</div>
 
-	<a [routerLink]="currentUser()?.accountType?.includes('PROVIDER') ? '/provider-overview/messages' : '/client-overview/messages'"
+	<a [routerLink]="links().messages" data-testid="topnav-messages"
 		class="t-notif" aria-label="المحادثات">
 		<svg aria-hidden="true">
 			<use href="#i-chat"></use>
@@ -82,7 +82,7 @@
 					</button>
 					}
 
-					<a [routerLink]="activeRole() === UserRole.PROVIDER ? '/provider-overview/profile/add-account' : '/client-overview/profile/add-account'"
+					<a [routerLink]="links().addAccount" data-testid="topnav-add-account"
 						(click)="isUserDropdownOpen.set(false); isDashSubMenuOpen.set(false)"
 						class="udrop-add-account">
 						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -99,7 +99,7 @@
 			<div class="udrop-sep"></div>
 
 			<!-- Main Menu Links -->
-			<a [routerLink]="activeRole() === UserRole.PROVIDER ? '/provider-overview/profile/data' : '/client-overview/profile'"
+			<a [routerLink]="links().profile" data-testid="topnav-profile"
 				(click)="isUserDropdownOpen.set(false)" class="udrop-item" role="menuitem">
 				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -107,7 +107,7 @@
 				</svg>
 				<span>الملف الشخصي</span>
 			</a>
-			<a [routerLink]="activeRole() === UserRole.PROVIDER ? '/provider-overview/settings/account' : '/client-overview/settings/account'"
+			<a [routerLink]="links().settings" data-testid="topnav-settings"
 				(click)="isUserDropdownOpen.set(false)" class="udrop-item" role="menuitem">
 				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

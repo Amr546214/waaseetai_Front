@@ -1,3 +1,4 @@
+import { resolveActiveRole, roleHome, roleLinks } from '../../core/routing/role-routes';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, ChangeDetectorRef, effect, ElementRef, HostListener, PLATFORM_ID } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -55,8 +56,7 @@ export class Navbar {
 	});
 
 	messagesLink = computed(() => {
-		const user = this.currentUser();
-		return `${getDefaultDashboard(user?.accountType, user?.activeRole)}/messages`;
+		return roleLinks(resolveActiveRole(this.currentUser())).messages;
 	});
 
 	userRoles = computed<UserRole[]>(() => {
@@ -67,13 +67,10 @@ export class Navbar {
 		return [UserRole.CLIENT];
 	});
 
-	activeRole = computed<UserRole>(() => {
-		const user = this.currentUser();
-		if (user?.activeRole) return user.activeRole;
-		if (user?.accountType?.includes('PROVIDER')) return UserRole.PROVIDER;
-		if (user?.accountType?.includes('MARKETING')) return UserRole.AFFILIATE;
-		return UserRole.CLIENT;
-	});
+	activeRole = computed<UserRole>(() => resolveActiveRole(this.currentUser()));
+
+	/** Profile / settings / add-account of the ACTIVE role. */
+	links = computed(() => roleLinks(this.activeRole()));
 
 	accountTypeLabel = computed(() => {
 		const role = this.activeRole();
@@ -87,42 +84,18 @@ export class Navbar {
 		return '';
 	});
 
+	/** The dashboard / profile of the ACTIVE role (not of the account type). */
 	get dashboardLink(): string {
 		const user = this.authStore.currentUser();
-		if (!user) return '/client-overview';
-
-		switch (user.accountType) {
-			case AccountType.SUPER_ADMIN:
-				return '/supper-admin-overview';
-			case AccountType.MARKETING_BROKER:
-				return '/marketer-overview';
-			case AccountType.PROVIDER_INDIVIDUAL:
-			case AccountType.PROVIDER_COMPANY:
-				return '/provider-overview';
-			case AccountType.CLIENT_INDIVIDUAL:
-			case AccountType.CLIENT_COMPANY:
-			default:
-				return '/client-overview';
-		}
+		return user ? roleHome(resolveActiveRole(user)) : '/client-overview';
 	}
 
 	get profileLink(): string {
 		const user = this.authStore.currentUser();
 		if (!user) return '/client-overview/profile';
-
-		switch (user.accountType) {
-			case AccountType.SUPER_ADMIN:
-				return '/supper-admin-overview/system-settings';
-			case AccountType.MARKETING_BROKER:
-				return '/marketer-overview/profile/data';
-			case AccountType.PROVIDER_INDIVIDUAL:
-			case AccountType.PROVIDER_COMPANY:
-				return '/provider-overview/profile/data';
-			case AccountType.CLIENT_INDIVIDUAL:
-			case AccountType.CLIENT_COMPANY:
-			default:
-				return '/client-overview/profile';
-		}
+		const role = resolveActiveRole(user);
+		if (role === UserRole.SUPER_ADMIN || role === UserRole.ADMIN) return '/supper-admin-overview/system-settings';
+		return roleLinks(role).profile;
 	}
 
 	constructor() {
