@@ -3,6 +3,15 @@ import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export type AmendmentKind = 'SCOPE' | 'BUDGET' | 'DURATION' | 'MIXED';
+export type AmendmentStatus = 'PENDING_OTHER_PARTY' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+export interface ProviderAmendment {
+	id: string; projectId: string; projectTitle: string; type: AmendmentKind; title: string; description: string | null;
+	budgetDelta: number | null; durationDeltaDays: number | null; status: AmendmentStatus; requestedByRole: 'CLIENT' | 'PROVIDER';
+	createdAt: string; respondedAt: string | null; conversationId: string | null;
+}
+export interface CreateAmendmentPayload { type: AmendmentKind; title: string; description?: string; budgetDelta?: number; durationDeltaDays?: number }
+
 export interface DeliveryFileDescriptor { name: string; url: string; type: string; size: number }
 
 @Injectable({
@@ -34,6 +43,16 @@ export class ActiveProjectsService {
 	/** `files` = uploaded-file descriptors returned by uploadDeliveryFile and/or https links. File names alone are refused by the server. */
 	submitDelivery(projectId: string, stageId: string, payload: { note: string; files: Array<DeliveryFileDescriptor | string> }): Observable<any> {
 		return this.http.post<any>(`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/deliveries`, payload);
+	}
+
+	/** The provider's own change requests for this project, with their status. */
+	getAmendments(projectId: string): Observable<{ success: boolean; data: ProviderAmendment[] }> {
+		return this.http.get<{ success: boolean; data: ProviderAmendment[] }>(`${environment.url_api}/provider/projects/${projectId}/amendments`);
+	}
+
+	/** A formal change request: it is only recorded and waits for the client; it never changes price / duration / escrow by itself. */
+	createAmendment(projectId: string, payload: CreateAmendmentPayload): Observable<{ success: boolean; message?: string; data: ProviderAmendment }> {
+		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/projects/${projectId}/amendments`, payload);
 	}
 
 	// Batch 8 — advisory-only Gemini project health analysis. On-demand only

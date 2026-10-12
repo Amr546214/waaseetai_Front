@@ -83,10 +83,8 @@ export class Disputes implements OnInit {
   kpis = computed(() => {
     const list = this.disputes();
     const activeDisputes = list.filter(d => d.status === 'open' && d.icon === 'shield').length;
-    const activeCancellations = list.filter(d => d.status === 'open' && d.icon === 'hands').length;
-    const closedAmicably = list.filter(d => d.status === 'closed').length;
     const followUpStatus = list.some(d => d.status === 'open') ? 'جارٍ' : 'لا يوجد';
-    return { activeDisputes, activeCancellations, closedAmicably, followUpStatus };
+    return { activeDisputes, followUpStatus };
   });
 
   tabs = computed(() => {
@@ -113,6 +111,12 @@ export class Disputes implements OnInit {
   // active-projects list to pick a project and open a dispute for real.
   goToActiveProjects() {
     this.router.navigate(['/provider-overview/projects/active']);
+  }
+
+  /** "محادثة المشروع": the messages page opens ONLY this project's conversation (or says there is none) — the dispute itself has no message thread. */
+  openProjectChat(d: Dispute) {
+    if (!d.projectId) return;
+    this.router.navigate(['/provider-overview/messages'], { state: { messageContext: { type: 'PROJECT', projectId: d.projectId, projectTitle: d.project } } });
   }
 
   openGuidance(d: Dispute) {

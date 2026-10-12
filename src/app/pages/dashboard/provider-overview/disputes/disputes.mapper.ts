@@ -93,6 +93,7 @@ export function mapDispute(d: ApiDispute, currentUserId: string | undefined): Di
 		id: d.id,
 		title: d.reason,
 		project: d.request?.title || '—',
+		projectId: d.projectId || d.requestId || d.request?.id || null,
 		status: closed ? 'closed' : 'open',
 		who,
 		extra: d.status === 'UNDER_REVIEW' ? 'review' : '',
@@ -106,9 +107,6 @@ export function mapDispute(d: ApiDispute, currentUserId: string | undefined): Di
 		aiDone: closed,
 		// No escrow-amount field exists on a Dispute row — omit rather than fabricate.
 		amount: '',
-		// No escalate / messaging endpoint exists yet.
-		showEscalate: false,
-		messages: 0,
 		date: dateLabel(d.createdAt),
 		detail: buildDetail(d, mine),
 		// No backend concept of a company team-member assignment on a dispute.

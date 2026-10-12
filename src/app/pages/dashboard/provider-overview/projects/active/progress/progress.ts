@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpEventType } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { ActiveProjectsService, DeliveryFileDescriptor } from '../../../../../../core/services/active.service';
+import { ActiveProjectsService, DeliveryFileDescriptor, ProviderAmendment, CreateAmendmentPayload } from '../../../../../../core/services/active.service';
 import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/project-mini-chat';
 import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
@@ -13,11 +13,11 @@ import { MessageContext } from '../../../../../../core/services/chat.service';
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
 
-// P-PR-009 change-order request ("طلب تعديل") / mutual-cancellation
-// ("إلغاء بالتراضي") quick-action flows. Mirrors the client-side
-// project-details.ts SupportAction pattern exactly (no 'dispute' branch here
-// since this page already has its own dedicated app-dispute-modal).
-type SupportAction = 'edit' | 'cancel' | null;
+export type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION';
+
+export const AMENDMENT_SUCCESS_TEXT = 'تم تسجيل طلب التعديل وهو بانتظار رد العميل. لن يتغير السعر أو المدة أو الضمان تلقائيًا.';
+export const AMENDMENT_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار رد العميل', APPROVED: 'وافق العميل', REJECTED: 'رفضه العميل', CANCELLED: 'أُلغي' };
+export const AMENDMENT_TYPE_LABEL: Record<string, string> = { SCOPE: 'تغيير النطاق', BUDGET: 'تعديل الميزانية', DURATION: 'تعديل المدة', MIXED: 'تعديل متعدد' };
 
 export const DELIVERY_LIMITS = { maxFileBytes: 25 * 1024 * 1024, maxFiles: 5, maxLinks: 5 } as const;
 const DELIVERY_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'txt', 'csv', 'mp4', 'webm', 'mp3', 'wav']);
@@ -112,9 +112,13 @@ export class Progress implements OnInit {
   // flow has the same gap and resolves it the same way: submit routes the
   // request into the real conversation thread with the client instead of
   // claiming a fake success). See BACKEND_BLOCKED_ISSUES.md for the tracked gap.
-  supportAction = signal<SupportAction>(null);
-  supportNote = '';
-  editType = 'إضافة مرحلة أو عنصر جديد';
+  // Formal change request ("طلب تعديل"): recorded for the client to answer; it never changes the contract by itself.
+  amendOpen = signal(false);
+  amendKind: AmendKind = 'SCOPE'; amendTitle = ''; amendDescription = ''; amendBudget: number | null = null; amendDays: number | null = null;
+  amendSaving = signal(false); amendError = signal(''); amendSuccess = signal(false);
+  amendments = signal<ProviderAmendment[]>([]); amendmentsLoading = signal(false); amendmentsError = signal('');
+  readonly amendmentSuccessText = AMENDMENT_SUCCESS_TEXT;
+  hasPendingAmendment = computed(() => this.amendments().some(a => a.requestedByRole === 'PROVIDER' && a.status === 'PENDING_OTHER_PARTY'));
   // P-PR-013 multi-step state (display-only; submit still calls same API)
   deliveryStep = signal(1); // 1=details, 2=review (preparing+result), 3=confirm, 4=success
   deliverySuccess = false;
@@ -446,16 +450,52 @@ export class Progress implements OnInit {
     this.router.navigate(['/provider-overview/projects', this.projectId, 'rating']);
   }
 
-  // P-PR-009 change-order / mutual-cancellation modal — see field comment
-  // above for why submit doesn't call a backend endpoint (none exists).
-  openSupport(action: Exclude<SupportAction, null>) { this.supportNote = ''; this.supportAction.set(action); }
-  closeSupport() { this.supportAction.set(null); }
-  // No real create-change-order/create-cancellation endpoint exists (see field
-  // comment above), so this honestly does the one real thing available: closes
-  // the modal and opens the real conversation thread with the client, exactly
-  // like the client-side project-details.ts's continueInConversation(). It
-  // never shows a fabricated "request sent" success state.
-  continueInConversation() { this.supportAction.set(null); this.openConversation(); }
+  // ── Change request ("طلب تعديل") — a real request recorded by the backend (POST /provider/projects/:projectId/amendments); the chat is never a substitute.
+  private amendmentProjectId() { return this.projectData()?.projectId || this.projectId; }
+  openAmendments() {
+    this.amendKind = 'SCOPE'; this.amendTitle = ''; this.amendDescription = ''; this.amendBudget = null; this.amendDays = null;
+    this.amendError.set(''); this.amendSuccess.set(false); this.amendOpen.set(true);
+    this.loadAmendments();
+  }
+  closeAmendments() { if (!this.amendSaving()) this.amendOpen.set(false); }
+  loadAmendments() {
+    this.amendmentsLoading.set(true); this.amendmentsError.set('');
+    this.service.getAmendments(this.amendmentProjectId()).subscribe({
+      next: res => { this.amendments.set(Array.isArray(res?.data) ? res.data : []); this.amendmentsLoading.set(false); },
+      error: () => { this.amendmentsLoading.set(false); this.amendmentsError.set('تعذر تحميل طلباتك السابقة'); }
+    });
+  }
+  /** Why the request cannot be sent yet (null = ready) — mirrors the server's rules; the server re-checks. */
+  amendBlocker(): string | null {
+    if (this.hasPendingAmendment()) return 'لديك طلب تعديل معلّق بانتظار رد العميل. لا يمكن إرسال طلب آخر قبل رده.';
+    if (!this.amendTitle.trim()) return 'أضف عنوانًا لطلب التعديل';
+    if (this.amendKind === 'SCOPE' && !this.amendDescription.trim()) return 'اشرح التغيير المطلوب في النطاق';
+    if (this.amendKind === 'BUDGET' && !(typeof this.amendBudget === 'number' && Number.isFinite(this.amendBudget) && this.amendBudget !== 0)) return 'أدخل فرق الميزانية (قيمة غير صفرية، سالبة للتخفيض)';
+    if (this.amendKind === 'DURATION' && !(typeof this.amendDays === 'number' && Number.isInteger(this.amendDays) && this.amendDays !== 0)) return 'أدخل عدد الأيام (عدد صحيح غير صفري، سالب للتقصير)';
+    return null;
+  }
+  amendReady() { return this.amendBlocker() === null && !this.amendSaving(); }
+  submitAmendment() {
+    const blocker = this.amendBlocker();
+    if (blocker) { this.amendError.set(blocker); return; }
+    const payload: CreateAmendmentPayload = { type: this.amendKind, title: this.amendTitle.trim() };
+    if (this.amendDescription.trim()) payload.description = this.amendDescription.trim();
+    if (this.amendKind === 'BUDGET') payload.budgetDelta = this.amendBudget as number;
+    if (this.amendKind === 'DURATION') payload.durationDeltaDays = this.amendDays as number;
+    this.amendSaving.set(true); this.amendError.set('');
+    this.service.createAmendment(this.amendmentProjectId(), payload).subscribe({
+      next: () => { this.amendSaving.set(false); this.amendSuccess.set(true); this.loadAmendments(); },
+      error: err => { this.amendSaving.set(false); this.amendError.set(err.error?.message || 'تعذر إرسال طلب التعديل'); }
+    });
+  }
+  amendmentStatusLabel(s: string) { return AMENDMENT_STATUS_LABEL[s] || s; }
+  amendmentTypeLabel(t: string) { return AMENDMENT_TYPE_LABEL[t] || t; }
+  amendmentDeltas(a: ProviderAmendment): string {
+    const parts: string[] = [];
+    if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${a.budgetDelta.toLocaleString('en-US')} $`);
+    if (a.durationDeltaDays !== null && a.durationDeltaDays !== undefined) parts.push(`${a.durationDeltaDays > 0 ? '+' : ''}${a.durationDeltaDays} يوم`);
+    return parts.join(' · ');
+  }
 
   openDisputeModal() {
     if (this.disputeSubmitted()) return;
