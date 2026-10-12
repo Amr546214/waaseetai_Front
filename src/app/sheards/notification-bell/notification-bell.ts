@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationEngineService, AppNotification, NotificationBasePath } from '../../core/services/notification-engine.service';
 import { AuthStore } from '../../core/store/auth.store';
+import { UserRole } from '../../core/models/auth.model';
+import { resolveActiveRole } from '../../core/routing/role-routes';
 
 @Component({
 	selector: 'app-notification-bell',
@@ -34,9 +36,10 @@ export class NotificationBell {
 	// assumed to be one role. Matches the same accountType check already
 	// used by nav-dashboard.ts/navbar.ts elsewhere in the header.
 	dashboardBase = computed<NotificationBasePath>(() => {
-		const accountType = this.authStore.currentUser()?.accountType;
-		if (accountType?.includes('PROVIDER')) return '/provider-overview';
-		if (accountType?.includes('MARKETING')) return '/marketer-overview';
+		// The ACTIVE role decides (a provider account acting as CLIENT stays in the client area).
+		const role = resolveActiveRole(this.authStore.currentUser());
+		if (role === UserRole.PROVIDER) return '/provider-overview';
+		if (role === UserRole.AFFILIATE) return '/marketer-overview';
 		return '/client-overview';
 	});
 
