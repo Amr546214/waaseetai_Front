@@ -30,7 +30,7 @@
 					<span>{{ offer().clientType === 'company' ? 'عميل شركة' : 'عميل فرد' }}</span>
 				</div>
 			</div>
-			@if (offer().statusText) {<span class="nego-badge">{{ offer().statusText }}</span>}
+			@if (offer().statusText) {<span class="nego-badge">{{ neg()?.status === 'CANCELLED' ? 'ملغي' : offer().statusText }}</span>}
 		</div>
 
 		@if (isCompanyMode()) {
@@ -45,7 +45,7 @@
 
 		<!-- Timeline -->
 		<div class="nego-timeline">
-			@for (step of timelineSteps; track $index) {
+			@for (step of timelineSteps(); track $index) {
 			<div class="tl-step" [class.tl-done]="step.done" [class.tl-active]="step.active">
 				<span class="tl-node">{{ step.done ? '✓' : ($index + 1) }}</span>
 				<span class="tl-lbl">{{ step.label }}</span>
@@ -74,20 +74,97 @@
 		}
 	</div>
 
-	<!-- AI Cleanup Batch 2: the counter-offer composer and the accept / end-negotiation
-	     buttons only changed local state (no backend endpoint exists for negotiation
-	     rounds, counter-offers or withdrawing an offer), yet showed "sent"/"ended"
-	     success toasts. They were removed; the real channel is the conversation. -->
+	@if (negLoading() && !neg()) {
+	<div class="state-card"><div class="skeleton-box" style="height:90px"></div></div>
+	} @else if (negError()) {
+	<div class="state-card error-card" data-testid="neg-error">
+		<div class="error-title">{{ negError() }}</div>
+		<button type="button" class="retry-btn" (click)="loadNegotiation()">إعادة المحاولة</button>
+	</div>
+	} @else if (neg(); as n) {
+
+	@if (actionDone()) {
+	<div class="ws-note ws-note--success" data-testid="neg-done" role="status"><div class="ws-note-txt">{{ actionDone() }}</div></div>
+	}
+
+	@if (n.status === 'CANCELLED') {
+	<div class="ws-note ws-note--neutral" data-testid="neg-cancelled"><div class="ws-note-txt">تم سحب هذا العرض (ملغي). لا توجد إجراءات إضافية عليه.</div></div>
+	} @else if (n.status !== 'UNDER_NEGOTIATION') {
+	<div class="ws-note ws-note--neutral" data-testid="neg-not-active"><div class="ws-note-txt">لا يوجد تفاوض جارٍ على هذا العرض حاليًا. يبدأ التفاوض عندما يطلبه العميل.</div></div>
+	}
+
+	@if (n.request) {
+	<div class="sec-ttl">طلب العميل</div>
+	<div class="nego-card" data-testid="neg-request">
+		@if (n.hint) {
+		<div class="decision-note" data-testid="neg-hint" role="note">{{ n.hint }}</div>
+		} @else {
+		<div class="decision-note">طلب العميل: {{ n.request.price !== null ? (n.request.price | number) + ' $' : '' }} {{ n.request.deliveryDays !== null ? '· ' + n.request.deliveryDays + ' يوم' : '' }}. اتفقوا في المحادثة ثم أرسل عرضًا مضادًا واضحًا، أو اعتذر عن الطلب ليبقى عرضك بشروطه.</div>
+		}
+		@if (n.canReject) {
+		<div class="composer-actions">
+			@if (confirming() !== 'reject') {
+			<button type="button" class="btn-reject" data-testid="neg-reject" (click)="ask('reject')">الاعتذار عن طلب العميل</button>
+			} @else {
+			<button type="button" class="btn-reject-confirm" data-testid="neg-reject-yes" [disabled]="acting()" (click)="confirmReject()">{{ acting() ? 'جارٍ التنفيذ…' : 'تأكيد الاعتذار' }}</button>
+			<button type="button" class="btn-gh" data-testid="neg-reject-no" [disabled]="acting()" (click)="cancelAsk()">تراجع</button>
+			}
+		</div>
+		}
+	</div>
+	}
+
+	@if (n.counterPending) {
+	<div class="ws-note ws-note--warn" data-testid="neg-counter-pending"><div class="ws-note-txt">لديك عرض مضاد بانتظار رد العميل. لا يمكن إرسال عرض مضاد آخر قبل أن يردّ العميل.</div></div>
+	}
+
+	@if (n.canCounter) {
 	<div class="sec-ttl">تقديم عرض مضاد</div>
+	<div class="nego-card" data-testid="neg-counter-form">
+		<div class="decision-note" data-testid="neg-counter-note">العرض المضاد يُسجَّل في المحادثة وينتظر رد العميل. لا يتغير السعر ولا المدة الرسمية لعرضك (ولا أي شيء في العقد) إلا بعد رد العميل لاحقًا.</div>
+		<div class="composer-grid">
+			<div class="inp-group">
+				<label class="inp-label" for="counter-price">السعر المقترح ($)</label>
+				<input id="counter-price" class="inp-field" type="text" inputmode="decimal" autocomplete="off" [value]="counterPrice()" (input)="onCounterInput('price', $event)" placeholder="مثال 900" />
+			</div>
+			<div class="inp-group">
+				<label class="inp-label" for="counter-days">مدة التنفيذ (أيام)</label>
+				<input id="counter-days" class="inp-field" type="text" inputmode="numeric" autocomplete="off" [value]="counterDays()" (input)="onCounterInput('days', $event)" placeholder="مثال 14" />
+			</div>
+		</div>
+		<div class="inp-group">
+			<label class="inp-label" for="counter-note">ملاحظة (اختياري)</label>
+			<textarea id="counter-note" class="inp-field" rows="3" maxlength="500" [value]="counterNote()" (input)="onCounterInput('note', $event)"></textarea>
+		</div>
+		@if (counterError()) {<div class="form-error" data-testid="neg-counter-error" role="alert">{{ counterError() }}</div>}
+		@if (counterSuccess()) {<div class="ws-note ws-note--success" data-testid="neg-counter-success" role="status"><div class="ws-note-txt">{{ COUNTER_SUCCESS_TEXT }}</div></div>}
+		<div class="composer-actions">
+			<button type="button" class="btn-pri" data-testid="neg-counter-submit" [disabled]="counterSaving() || !!counterBlocker()" (click)="submitCounter()">{{ counterSaving() ? 'جارٍ الإرسال…' : 'إرسال العرض المضاد' }}</button>
+		</div>
+	</div>
+	}
+
+	@if (actionError()) {<div class="form-error" data-testid="neg-action-error" role="alert">{{ actionError() }}</div>}
+
+	<div class="sec-ttl">إجراءات أخرى</div>
 	<div class="nego-card">
-		<div class="decision-note" role="note">تقديم عرض مضاد أو إنهاء التفاوض من هذه الصفحة غير متاح حاليا. تواصل مع طالب الخدمة عبر المحادثة للاتفاق على التعديلات.</div>
 		<div class="composer-actions">
 			<button type="button" class="btn-gh" (click)="openConversation()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-				مراسلة طالب الخدمة
+				محادثة المشروع
 			</button>
+			@if (n.canWithdraw) {
+			@if (confirming() !== 'withdraw') {
+			<button type="button" class="btn-reject" data-testid="neg-withdraw" (click)="ask('withdraw')">سحب العرض</button>
+			} @else {
+			<div class="decision-note" data-testid="neg-withdraw-text">سيُسحب العرض ويظهر كـ«ملغي» ولا يمكن التراجع عن ذلك.</div>
+			<button type="button" class="btn-reject-confirm" data-testid="neg-withdraw-yes" [disabled]="acting()" (click)="confirmWithdraw()">{{ acting() ? 'جارٍ السحب…' : 'تأكيد سحب العرض' }}</button>
+			<button type="button" class="btn-gh" data-testid="neg-withdraw-no" [disabled]="acting()" (click)="cancelAsk()">تراجع</button>
+			}
+			}
 		</div>
 	</div>
+	}
 
 	}
 </div>
