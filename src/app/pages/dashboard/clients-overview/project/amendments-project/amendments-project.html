@@ -11,16 +11,16 @@
 			</div>
 		</div>
 
-		<!-- AI Disclosure -->
-		<div class="ai-banner">
-			<div class="ai-icon-shell">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="ai-icon w-5 h-5">
+		<!-- Governance note (non-AI) -->
+		<div class="ws-note ws-note--info">
+			<div class="ws-note-ico">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 					<use href="#i-shield"></use>
 				</svg>
 			</div>
-			<div>
-				<div class="ai-title mb-0.5">حوكمة تعديل المشاريع</div>
-				<div class="ai-copy flex items-center flex-wrap gap-2">
+			<div class="ws-note-body">
+				<div class="ws-note-lbl">حوكمة تعديل المشاريع</div>
+				<div class="ws-note-txt flex items-center flex-wrap gap-2">
 					تُراجَع آثار كل تعديل على السعر والمدة والضمان، ثم يوافق الطرفان ويُحدَّث العقد
  
 					القرار النهائي لكما
@@ -75,14 +75,14 @@
 			<div
 				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm dark:shadow-none backdrop-blur-xl flex items-center gap-4">
 				<div
-					class="ai-icon-shell !w-12 !h-12 !basis-12 rounded-xl">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="ai-icon w-6 h-6">
+					class="w-12 h-12 shrink-0 flex items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="w-6 h-6">
 						<use href="#i-shield"></use>
 					</svg>
 				</div>
 				<div>
 					<div class="text-xl font-black text-slate-900 dark:text-white mb-0.5 mt-1">جارٍ</div>
-					<div class="ai-title">قيد المراجعة</div>
+					<div class="text-xs font-extrabold text-blue-500">قيد المراجعة</div>
 				</div>
 			</div>
 		</div>
@@ -202,14 +202,14 @@
 							<!-- Step 2: AI Evaluated -->
 							<div class="flex flex-col items-center gap-2">
 								<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
-									[ngClass]="item.flowStep >= 2 ? 'ai-surface-strong' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'">
+									[ngClass]="item.flowStep >= 2 ? 'bg-blue-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'">
 									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"
 										class="w-4 h-4">
 										<use href="#i-shield"></use>
 									</svg>
 								</div>
 								<span class="text-[10px] font-bold"
-									[ngClass]="item.flowStep >= 2 ? 'ai-title' : 'text-slate-500 dark:text-slate-400'">المراجعة</span>
+									[ngClass]="item.flowStep >= 2 ? 'text-blue-500' : 'text-slate-500 dark:text-slate-400'">المراجعة</span>
 							</div>
 							<!-- Step 3: Provider/Client Reply -->
 							<div class="flex flex-col items-center gap-2">
@@ -262,10 +262,10 @@
 				</div>
 				}
 
-				<!-- AI Assessment -->
-				<div class="ai-surface flex items-start gap-3 p-4 rounded-xl border mb-5">
+				<!-- Review notes (non-AI) -->
+				<div class="ws-note ws-note--neutral !items-start gap-3 !p-4 !rounded-xl !mb-5">
 					<div class="mt-0.5">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="ai-icon w-4 h-4">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="w-4 h-4">
 							<use href="#i-shield"></use>
 						</svg>
 					</div>

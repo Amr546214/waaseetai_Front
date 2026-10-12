@@ -17,11 +17,6 @@
 .page-hero-sub{font-size:13px;color:var(--txt-3);line-height:1.6;max-width:560px}
 
 /* AI BANNER */
-.ai-banner{display:flex;align-items:center;gap:12px;padding:12px 14px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border:1px solid var(--ai-border);border-radius:13px;margin-bottom:20px}
-.ai-banner-ico{width:32px;height:32px;border-radius:8px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ai-banner-ico svg{width:14px;height:14px;color:var(--ai)}
-.ai-banner-txt{flex:1;font-size:12px;color:var(--txt-2);line-height:1.5}
-.ai-banner-badge{flex-shrink:0;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:800;color:var(--ai-txt)}
 
 /* FORM */
 .form-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--border);border-radius:16px;padding:24px}
@@ -85,9 +80,6 @@ textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
 
 /* ── App states the design does not draw ── */
 /* non-AI helper note in the AI-banner slot: teal, not AI purple */
-.info-banner{background:linear-gradient(135deg,rgba(43,212,199,.07),rgba(43,127,255,.05));border-color:rgba(43,212,199,.2)}
-.info-banner .ai-banner-ico{background:rgba(43,212,199,.08);border-color:rgba(43,212,199,.2)}
-.info-banner .ai-banner-ico svg{color:var(--teal)}
 .form-input.invalid,.form-select.invalid{border-color:rgba(255,140,105,.5)}
 .form-select:disabled{opacity:.6;cursor:wait}
 .field-error{font-size:10px;font-weight:700;color:var(--red)}

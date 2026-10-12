@@ -63,11 +63,7 @@
 .cart-save-btn svg{width:11px;height:11px}
 
 /* AI BANNER */
-.ai-banner{display:flex;align-items:center;gap:12px;padding:12px 14px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border:1px solid var(--ai-border);border-radius:13px;margin-bottom:16px}
-.ai-banner-ico{width:32px;height:32px;border-radius:8px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ai-banner-ico svg{width:14px;height:14px;color:var(--ai)}
-.ai-banner-txt{flex:1;font-size:12px;color:var(--txt-2);line-height:1.5}
-.ai-banner-badge{flex-shrink:0;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:800;color:var(--ai-txt)}
+.ws-note-chip{flex-shrink:0;background:var(--wsn-ico);border:1px solid var(--wsn-bd);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--wsn-fg)}
 
 /* SIDEBAR */
 .cart-sidebar{display:flex;flex-direction:column;gap:14px;position:sticky;top:80px}
@@ -172,9 +168,6 @@
 :host-context(.light-theme) .breadcrumb,:host-context(.light-theme) .breadcrumb a,
 :host-context(.theme-light) .breadcrumb,:host-context(.theme-light) .breadcrumb a{color:#64748B}
 :host-context(.light-theme) .breadcrumb a:hover,:host-context(.theme-light) .breadcrumb a:hover{color:#0F8A7F}
-:host-context(.light-theme) .ai-banner,:host-context(.theme-light) .ai-banner{background:linear-gradient(135deg,rgba(107,39,165,.06),rgba(43,127,255,.04));border-color:rgba(107,39,165,.2)}
-:host-context(.light-theme) .ai-banner-ico,:host-context(.theme-light) .ai-banner-ico,
-:host-context(.light-theme) .ai-banner-badge,:host-context(.theme-light) .ai-banner-badge{background:rgba(107,39,165,.08);border-color:rgba(107,39,165,.2)}
 :host-context(.light-theme) .sidebar-card,:host-context(.theme-light) .sidebar-card,
 :host-context(.light-theme) .cart-item,:host-context(.theme-light) .cart-item,
 :host-context(.light-theme) .rec-card,:host-context(.theme-light) .rec-card,
@@ -195,12 +188,5 @@
 :host-context(.light-theme) .coupon-code,:host-context(.theme-light) .coupon-code,
 :host-context(.light-theme) .coupon-msg.success,:host-context(.theme-light) .coupon-msg.success,
 :host-context(.light-theme) .rec-add-btn.added,:host-context(.theme-light) .rec-add-btn.added{color:#0A6F64}
-/* non-AI tip in the AI-banner slot: teal, not AI purple */
-.info-banner,:host-context(.light-theme) .info-banner,:host-context(.theme-light) .info-banner{background:linear-gradient(135deg,rgba(43,212,199,.07),rgba(43,127,255,.05));border-color:rgba(43,212,199,.2)}
-.info-banner .ai-banner-ico,.info-banner .ai-banner-badge,
-:host-context(.light-theme) .info-banner .ai-banner-ico,:host-context(.theme-light) .info-banner .ai-banner-ico,
-:host-context(.light-theme) .info-banner .ai-banner-badge,:host-context(.theme-light) .info-banner .ai-banner-badge{background:rgba(43,212,199,.08);border-color:rgba(43,212,199,.2)}
-.info-banner .ai-banner-ico svg{color:var(--teal)}
-.info-banner .ai-banner-badge{color:var(--teal-txt)}
 /* inline teal text (discount value) — polish writes these inline with !important */
 :host-context(.light-theme) .sum-row-val[style*="--teal"],:host-context(.theme-light) .sum-row-val[style*="--teal"]{color:#0A6F64 !important}

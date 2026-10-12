@@ -259,7 +259,7 @@
                 </div>
                 <div class="pc-body">
                   @if (mode() === 'top-rated' && slot.rank === 1) {
-                    @if (slot.model.aiScore != null) { <div class="pc-ai gold"><svg aria-hidden="true" style="color:var(--kahr)"><use href="#ws-trust-ai"></use></svg> جودة AI {{ slot.model.aiScore }}</div> }
+                    @if (slot.model.aiScore != null) { <div class="pc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ slot.model.aiScore }}</div> }
                   } @else {
                     @if (slot.model.aiScore != null) { <div class="pc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ slot.model.aiScore }}</div> }
                   }

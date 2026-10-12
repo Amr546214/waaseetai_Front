@@ -54,10 +54,10 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   readonly reviewerAvBgs = [
     { bg: 'linear-gradient(135deg,#2B7FFF,#2BD4C7)', color: '#070D24' },
     { bg: 'linear-gradient(135deg,#0FA99A,#2BD4C7)', color: '#070D24' },
-    { bg: 'linear-gradient(135deg,#7B2FBE,#2B7FFF)', color: '#fff' },
+    { bg: 'linear-gradient(135deg,#59C1F5,#2B7FFF)', color: '#fff' },
     { bg: 'linear-gradient(135deg,#D98A0B,#2B7FFF)', color: '#fff' },
     { bg: 'linear-gradient(135deg,#2BD4C7,#0FA99A)', color: '#070D24' },
-    { bg: 'linear-gradient(135deg,#0FA99A,#7B2FBE)', color: '#fff' }
+    { bg: 'linear-gradient(135deg,#0FA99A,#59C1F5)', color: '#fff' }
   ];
   /** Cycled portfolio card backgrounds from P-MK-013 (decorative only). */
   readonly pfCardBgs = [

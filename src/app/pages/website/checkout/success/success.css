@@ -48,19 +48,12 @@
 .btn-primary svg,.btn-ghost svg{width:15px;height:15px}
 
 /* AI NOTE */
-.ai-note{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:12px;margin-bottom:24px;text-align:right;animation:fade-up .4s .42s both}
-.ai-note-ico{width:28px;height:28px;border-radius:7px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ai-note-ico svg{width:13px;height:13px;color:var(--ai)}
-.ai-note-txt{font-size:12px;color:var(--txt-2);line-height:1.5}
 
 @media(max-width:820px){.next-steps{grid-template-columns:1fr}.actions-row{flex-direction:column;align-items:center}}
 
 /* ── App states the design does not draw ── */
 /* non-AI tracking note in the AI-note slot: teal, not AI purple */
-.track-note{background:rgba(43,212,199,.06);border-color:rgba(43,212,199,.2)}
-.track-note .ai-note-ico{background:rgba(43,212,199,.08);border-color:rgba(43,212,199,.2)}
-.track-note .ai-note-ico svg{color:var(--teal)}
-.track-note .ai-note-txt strong{color:var(--txt)}
+.track-note{margin-bottom:24px;text-align:right;animation:fade-up .4s .42s both;font-size:12px;line-height:1.5}
 /* loading / no-order hero ring: neutral instead of success teal */
 .state-ring{background:rgba(255,255,255,.04);border-color:var(--border)}
 .state-ring .success-icon-inner{background:rgba(255,255,255,.05)}

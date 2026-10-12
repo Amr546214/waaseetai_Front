@@ -46,7 +46,7 @@ export class SaUpgrade {
   readonly statusColors: Record<UpgradeStatus, string> = {
     completed: '#0FA99A',
     pending: '#FFB400',
-    ai: '#A56BE0',
+    ai: '#9AA6C4',
   };
 
   readonly kpis = [

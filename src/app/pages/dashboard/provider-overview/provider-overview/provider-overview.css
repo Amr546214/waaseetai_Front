@@ -46,7 +46,7 @@
 .dash-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
 .dash-hello{font-size:21px;font-weight:900;color:var(--drop-name,#fff);margin-bottom:5px}
 .dash-sub{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--rec-sub,#A8B2D1)}
-.dash-sub svg{width:15px;height:15px;color:var(--ai-txt,#A56BE0);flex-shrink:0}
+.dash-sub svg{width:15px;height:15px;color:var(--rec-sub,#A8B2D1);flex-shrink:0}.dash-sub.dash-sub--ai svg{color:var(--ai-txt,#A56BE0)}
 .dash-chips{display:flex;gap:9px;flex-wrap:wrap}
 .dash-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:50px;font-size:12px;font-weight:800;text-decoration:none;border:1px solid}
 .dash-chip svg{width:13px;height:13px}
@@ -785,3 +785,14 @@
   .co-level-badge{flex-wrap:wrap}
   .co-level-cta{order:3;width:100%;text-align:center}
 }
+
+/* Specialty matching: neutral (rule-based) by default; AI look only when the response is AI-ranked */
+.match-hd{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:16px;backdrop-filter:blur(12px)}
+.match-hd-ai{background:linear-gradient(135deg,rgba(123,47,190,.08),rgba(123,47,190,.02));border-color:rgba(123,47,190,.25)}
+.match-lnk{background:rgba(255,255,255,.06);padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.12);text-decoration:none;color:#9AA6C4}
+.match-lnk-ai{background:rgba(123,47,190,.12);border-color:rgba(123,47,190,.3);color:var(--ai-txt,#A56BE0)}
+.match-chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#9AA6C4}
+.match-chip-ai{background:rgba(123,47,190,.14);border-color:rgba(123,47,190,.28);color:var(--ai-txt,#A56BE0)}
+.match-badge{display:inline-flex;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;color:#9AA6C4}
+.ws-note-link{font-size:12px;font-weight:700;color:#9AA6C4;text-decoration:none;padding:5px 11px;border-radius:20px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);transition:all .15s;flex-shrink:0;white-space:nowrap}
+.ws-note-link:hover{background:rgba(255,255,255,.08)}

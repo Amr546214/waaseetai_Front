@@ -320,10 +320,7 @@
 			<!-- AI Report Button -->
 			<button (click)="toggleReport(req.id)"
 				style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(123,47,190,.12);border:1px solid rgba(123,47,190,.28);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;transition:all .2s" class="txt-purple">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<polygon
-						points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-				</svg>
+				<svg width="14" height="14" aria-hidden="true"><use href="#i-ai"></use></svg>
 				<span>تقرير الذكاء</span>
 				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
 					[style.transform]="req.isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'"

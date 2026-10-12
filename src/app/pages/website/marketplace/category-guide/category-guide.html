@@ -80,8 +80,8 @@
       <!-- MAIN CONTENT -->
       <main>
         <!-- AI BANNER -->
-        <div class="ai-banner">
-          <div class="ai-ico"><svg><use href="#ws-trust-ai"></use></svg></div>
+        <div class="ai-banner" [class.plain]="aiGenerationSource() !== 'GEMINI'">
+          <div class="ai-ico"><svg aria-hidden="true"><use [attr.href]="aiGenerationSource() === 'GEMINI' ? '#ws-trust-ai' : '#ws-star'"></use></svg></div>
           <div class="ai-body">
             <div class="ai-lbl">{{ aiGenerationSource() === 'GEMINI' ? 'توصيات الذكاء الاصطناعي' : 'الخدمات الأكثر مشاهدة' }}</div>
             <div class="ai-txt-s">

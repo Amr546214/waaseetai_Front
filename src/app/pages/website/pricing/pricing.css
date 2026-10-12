@@ -45,8 +45,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .plan-icon.ico-teal svg{color:var(--teal)}
 .plan-icon.ico-blue{background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.22)}
 .plan-icon.ico-blue svg{color:var(--blue-txt)}
-.plan-icon.ico-ai{background:rgba(123,47,190,.08);border:1px solid rgba(123,47,190,.18)}
-.plan-icon.ico-ai svg{color:var(--ai-txt)}
+.plan-icon.ico-kahr{background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.22)}
+.plan-icon.ico-kahr svg{color:var(--kahr)}
 .plan-name{font-size:18px;font-weight:900;color:var(--txt);margin-bottom:6px}
 .plan-desc{font-size:13px;color:var(--txt-3);line-height:1.6;margin-bottom:20px}
 .plan-commission{margin-bottom:20px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px}
@@ -82,10 +82,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .model-desc{font-size:13px;color:var(--txt-3);line-height:1.6}
 
 /* AI BANNER */
-.ai-banner{display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border:1px solid var(--ai-border);border-radius:14px;margin-bottom:40px}
-.ai-banner-ico{width:34px;height:34px;border-radius:9px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ai-banner-ico svg{width:16px;height:16px;color:var(--ai)}
-.ai-banner-badge{flex-shrink:0;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt)}
+.ws-note-chip{flex-shrink:0;background:var(--wsn-ico);border:1px solid var(--wsn-bd);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--wsn-fg)}
 
 /* FAQ */
 .faq-section{padding:0 0 56px}

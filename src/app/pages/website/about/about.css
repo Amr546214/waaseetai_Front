@@ -55,6 +55,8 @@ app-about .ai-features{display:flex;flex-direction:column;gap:14px;margin-top:24
 app-about .ai-feat{display:flex;align-items:flex-start;gap:10px}
 app-about .ai-feat-ico{width:28px;height:28px;border-radius:7px;background:var(--ai-bg);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 app-about .ai-feat-ico svg{width:12px;height:12px;color:var(--ai)}
+app-about .ai-feat-ico--plain{background:rgba(43,127,255,.1);border-color:rgba(43,127,255,.25)}
+app-about .ai-feat-ico--plain svg{color:var(--blue-txt,#5DA0FF)}
 app-about .ai-feat-title{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:2px}
 app-about .ai-feat-sub{font-size:11px;color:var(--txt-3);line-height:1.5}
 

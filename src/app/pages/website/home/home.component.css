@@ -164,11 +164,4 @@ body.theme-light .ck-decline,
 
 /* Marketplace preview AI banner (section not in the final design; kept pending review) */
 /* AI BANNER */
-.ai-banner-inner{display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border:1px solid var(--ai-border);border-radius:14px;margin-bottom:32px}
-.ai-banner-ico{width:32px;height:32px;border-radius:9px;background:var(--ai-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ai)}
-.ai-banner-ico svg{width:15px;height:15px;color:var(--ai)}
-.ai-banner-body{flex:1}
-.ai-banner-lbl{font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px}
-.ai-banner-txt{font-size:13px;color:var(--txt-2)}
-.ai-banner-txt strong{color:var(--txt)}
-.ai-badge-sm{background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--ai-txt);flex-shrink:0}
+.ws-note-chip{flex-shrink:0;background:var(--wsn-ico);border:1px solid var(--wsn-bd);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--wsn-fg)}

@@ -131,7 +131,7 @@ export const OFFERS: Offer[] = [
     ],
     similarOffers: [
       { initial: 'ر', bg: 'linear-gradient(135deg,#FFB400,#59C1F5)', title: 'حزمة بنرات لمتجر أزياء (٢٠٢٦)', spec: 'تصميم', days: '5 أيام', price: '3,400 $', status: 'مقبول' },
-      { initial: 'م', bg: 'linear-gradient(135deg,#A56BE0,#FF8C69)', title: 'بنرات حملة رمضان (٢٠٢٦)', spec: 'تصميم', days: '4 أيام', price: '2,950 $', status: 'مقبول' },
+      { initial: 'م', bg: 'linear-gradient(135deg,#59C1F5,#FF8C69)', title: 'بنرات حملة رمضان (٢٠٢٦)', spec: 'تصميم', days: '4 أيام', price: '2,950 $', status: 'مقبول' },
       { initial: 'ل', bg: 'linear-gradient(135deg,#2BD4C7,#FFB400)', title: 'تصميم لافتات معرض تجاري (٢٠٢٥)', spec: 'تصميم', days: '6 أيام', price: '3,600 $', status: 'مكتمل' },
     ],
     marketBanner: 'هذا العرض (3,200 $) ضمن متوسط السوق لنفس التخصص — سعر عادل',
@@ -211,7 +211,7 @@ export const OFFERS: Offer[] = [
     ],
     similarOffers: [
       { initial: 'خ', bg: 'linear-gradient(135deg,#2BD4C7,#5DA0FF)', title: 'تطبيق iOS لحجز المواعيد (٢٠٢٦)', spec: 'برمجة', days: '40 يوم', price: '22,500 $', status: 'مقبول' },
-      { initial: 'ن', bg: 'linear-gradient(135deg,#A56BE0,#FF8C69)', title: 'تطبيق توصيل طلبات — iOS (٢٠٢٥)', spec: 'برمجة', days: '50 يوم', price: '27,000 $', status: 'مكتمل' },
+      { initial: 'ن', bg: 'linear-gradient(135deg,#59C1F5,#FF8C69)', title: 'تطبيق توصيل طلبات — iOS (٢٠٢٥)', spec: 'برمجة', days: '50 يوم', price: '27,000 $', status: 'مكتمل' },
       { initial: 'ف', bg: 'linear-gradient(135deg,#FFB400,#2BD4C7)', title: 'تطبيق تتبع لياقة — iOS (٢٠٢٥)', spec: 'برمجة', days: '38 يوم', price: '21,800 $', status: 'مقبول' },
     ],
     marketBanner: 'هذا العرض (24,000 $) قريب جداً من متوسط السوق — ضمن النطاق المعقول',
@@ -286,7 +286,7 @@ export const OFFERS: Offer[] = [
       { label: 'معدل النزاعات', value: '0%', width: 2, color: '#0FA99A' },
     ],
     similarOffers: [
-      { initial: 'م', bg: 'linear-gradient(135deg,#2BD4C7,#A56BE0)', title: 'مونتاج فيديو تعريفي لمنتج (٢٠٢٦)', spec: 'تصميم', days: '6 أيام', price: '3,500 $', status: 'مقبول' },
+      { initial: 'م', bg: 'linear-gradient(135deg,#2BD4C7,#59C1F5)', title: 'مونتاج فيديو تعريفي لمنتج (٢٠٢٦)', spec: 'تصميم', days: '6 أيام', price: '3,500 $', status: 'مقبول' },
       { initial: 'ع', bg: 'linear-gradient(135deg,#FFB400,#5DA0FF)', title: 'تحرير فيديوهات تسويقية × 5 (٢٠٢٥)', spec: 'تصميم', days: '8 أيام', price: '4,100 $', status: 'مكتمل' },
     ],
     marketBanner: 'هذا العرض (3,800 $) مطابق تقريباً لمتوسط السوق — سعر عادل',
@@ -324,7 +324,7 @@ export const OFFERS: Offer[] = [
     ],
     similarOffers: [
       { initial: 'ي', bg: 'linear-gradient(135deg,#5DA0FF,#2BD4C7)', title: 'متجر إلكتروني لبيع الأثاث (٢٠٢٦)', spec: 'برمجة', days: '28 يوم', price: '13,200 $', status: 'مقبول' },
-      { initial: 'ز', bg: 'linear-gradient(135deg,#A56BE0,#FFB400)', title: 'منصة تجارة إلكترونية صغيرة (٢٠٢٥)', spec: 'برمجة', days: '35 يوم', price: '15,000 $', status: 'مكتمل' },
+      { initial: 'ز', bg: 'linear-gradient(135deg,#59C1F5,#FFB400)', title: 'منصة تجارة إلكترونية صغيرة (٢٠٢٥)', spec: 'برمجة', days: '35 يوم', price: '15,000 $', status: 'مكتمل' },
     ],
     marketBanner: 'هذا العرض (12,500 $) أقل من متوسط السوق — قيمة تنافسية جيدة',
     marketNote: 'متوسط السوق (برمجة، 28-35 يوم): 14,100 $ · هذا العرض: 12,500 $ (أقل بـ 11.3%)',

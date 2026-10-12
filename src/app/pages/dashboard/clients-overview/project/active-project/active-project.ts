@@ -161,7 +161,7 @@ export class ActiveProject implements OnInit {
 		if (!Array.isArray(rawKpis) || rawKpis.length !== 4) {
 			return this.kpisFromProjects(projects);
 		}
-		const colors: ProjectKPI['color'][] = ['teal', 'blue', 'amber', 'ai'];
+		const colors: ProjectKPI['color'][] = ['teal', 'blue', 'amber', 'teal']; // 4th = general status (not AI)
 		const icons: ProjectKPI['icon'][] = ['list', 'lock', 'clock', 'ai'];
 		return rawKpis.map((kpi: any, index: number) => ({
 			icon: icons[index],
@@ -179,7 +179,7 @@ export class ActiveProject implements OnInit {
 			{ icon: 'list', value: projects.length, label: 'مشاريع نشطة', color: 'teal' },
 			{ icon: 'lock', value: held, label: 'محتجز بالضمان $', color: 'blue' },
 			{ icon: 'clock', value: waiting, label: 'بانتظار مراجعتك', color: 'amber' },
-			{ icon: 'ai', value: late ? `${late} متأخر` : 'جيد', label: 'الحالة العامة', color: 'ai' },
+			{ icon: 'ai', value: late ? `${late} متأخر` : 'جيد', label: 'الحالة العامة', color: 'teal' },
 		];
 	}
 
@@ -188,7 +188,7 @@ export class ActiveProject implements OnInit {
 			{ icon: 'list', value: 0, label: 'مشاريع نشطة', color: 'teal' },
 			{ icon: 'lock', value: 0, label: 'محتجز بالضمان $', color: 'blue' },
 			{ icon: 'clock', value: 0, label: 'بانتظار مراجعتك', color: 'amber' },
-			{ icon: 'ai', value: '—', label: 'الحالة العامة', color: 'ai' },
+			{ icon: 'ai', value: '—', label: 'الحالة العامة', color: 'teal' },
 		];
 	}
 

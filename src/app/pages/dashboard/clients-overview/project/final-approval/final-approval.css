@@ -79,12 +79,12 @@
 /* Evaluations grid (AI + Client rating) */
 .fa-evals{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
 .fa-eval{border-radius:10px;padding:10px 12px}
-.fa-eval-ai{background:rgba(123,47,190,.09);border:1px solid rgba(123,47,190,.2)}
+.fa-eval-match{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
 .fa-eval-you{background:rgba(43,127,255,.07);border:1px solid rgba(43,127,255,.18)}
 .fa-eval-hd{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#A8B2D1;margin-bottom:6px}
 .fa-eval-hd svg{width:13px;height:13px}
-.fa-eval-ai .fa-eval-hd{color:#A56BE0}
-.fa-eval-ai .fa-eval-hd svg{color:var(--ai)}
+.fa-eval-match .fa-eval-hd{color:#9AA6C4}
+.fa-eval-match .fa-eval-hd svg{color:#9AA6C4}
 .fa-eval-you .fa-eval-hd{color:#5DA0FF}
 .fa-eval-you .fa-eval-hd svg{color:#2B7FFF}
 .fa-eval-sc{font-size:12.5px;font-weight:800;color:#fff;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -203,11 +203,11 @@
 :host-context(.light-theme) .fa-redo,:host-context(.theme-light) .fa-redo{background:rgba(15,169,154,.06);border-color:rgba(15,169,154,.18);color:#0A6F64}
 :host-context(.light-theme) .fa-finalfiles .fa-file-chip,:host-context(.theme-light) .fa-finalfiles .fa-file-chip{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
 :host-context(.light-theme) .fa-finalfiles .fa-file-chip svg,:host-context(.theme-light) .fa-finalfiles .fa-file-chip svg{color:#94A3B8}
-:host-context(.light-theme) .fa-eval-ai,:host-context(.theme-light) .fa-eval-ai{background:rgba(123,47,190,.07);border-color:#E2D4F0}
+:host-context(.light-theme) .fa-eval-match,:host-context(.theme-light) .fa-eval-match{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.12)}
 :host-context(.light-theme) .fa-eval-you,:host-context(.theme-light) .fa-eval-you{background:rgba(43,127,255,.06);border-color:#D6E2F7}
 :host-context(.light-theme) .fa-eval-hd,:host-context(.theme-light) .fa-eval-hd{color:#475569}
-:host-context(.light-theme) .fa-eval-ai .fa-eval-hd,:host-context(.theme-light) .fa-eval-ai .fa-eval-hd{color:#6B27A5}
-:host-context(.light-theme) .fa-eval-ai .fa-eval-hd svg,:host-context(.theme-light) .fa-eval-ai .fa-eval-hd svg{color:#6B27A5}
+:host-context(.light-theme) .fa-eval-match .fa-eval-hd,:host-context(.theme-light) .fa-eval-match .fa-eval-hd{color:#475569}
+:host-context(.light-theme) .fa-eval-match .fa-eval-hd svg,:host-context(.theme-light) .fa-eval-match .fa-eval-hd svg{color:#475569}
 :host-context(.light-theme) .fa-eval-you .fa-eval-hd,:host-context(.theme-light) .fa-eval-you .fa-eval-hd{color:#2563EB}
 :host-context(.light-theme) .fa-eval-you .fa-eval-hd svg,:host-context(.theme-light) .fa-eval-you .fa-eval-hd svg{color:#2563EB}
 :host-context(.light-theme) .fa-eval-sc,:host-context(.theme-light) .fa-eval-sc{color:#0F172A}
