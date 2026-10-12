@@ -87,6 +87,7 @@ export class OfferNegotiate implements OnInit {
 			next: (item) => {
 				const mapped = {
 					id: item.offerId || item.id || id,
+					projectId: item.projectId || undefined,
 					ref: item.projectRef || item.ref || '—',
 					title: item.projectTitle || item.title || 'الطلب',
 					clientName: item.clientName || 'عميل وسيط',
@@ -131,7 +132,8 @@ export class OfferNegotiate implements OnInit {
 			state: {
 				messageContext: {
 					type: 'PROJECT',
-					projectId: this.offerId(),
+					// the project's own id (never the offer id): the messages page opens only this project's conversation
+					projectId: offer?.projectId,
 					projectTitle: offer?.title,
 				}
 			}

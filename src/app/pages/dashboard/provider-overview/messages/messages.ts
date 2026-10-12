@@ -31,6 +31,8 @@ export interface Conversation {
   id: string;
   name: string;
   project: string;
+  /** The real project this conversation belongs to (GET /chat/conversations returns it). */
+  projectId?: string;
   avatarType: 'sk' | 'pr' | 'co';
   initials: string;
   lastMsg: string;
@@ -38,6 +40,26 @@ export interface Conversation {
   unreadCount: number;
   online: boolean;
   messages: MessageItem[];
+}
+
+/**
+ * Which conversation the messages page opens on load.
+ *  1. an explicit `conversationId` that exists in the list -> that one;
+ *  2. a message context (an action like "message the client of this project"): ONLY the conversation of that very projectId — never the first one.
+ *     No such conversation (or a context without a project) -> nothing is opened and `missing` is true;
+ *  3. no context at all (plain navigation to /messages) -> the first conversation, as before.
+ */
+export function resolveInitialConversation(
+  list: { id: string; projectId?: string }[],
+  conversationIdParam: string | null | undefined,
+  ctx: { projectId?: string } | null | undefined
+): { id: string | null; missing: boolean } {
+  if (conversationIdParam && list.some((c) => c.id === conversationIdParam)) return { id: conversationIdParam, missing: false };
+  if (ctx) {
+    const match = ctx.projectId ? list.find((c) => c.projectId === ctx.projectId) : undefined;
+    return match ? { id: match.id, missing: false } : { id: null, missing: true };
+  }
+  return list.length ? { id: list[0].id, missing: false } : { id: null, missing: false };
 }
 
 @Component({
@@ -67,6 +89,8 @@ export class ProviderMessages implements OnInit, OnDestroy {
   newMessageText = signal<string>('');
   toastMessage = signal<string>('');
   messageContext = signal<MessageContext | null>(null);
+  // true when the page was opened FOR a project that has no conversation yet: no other conversation is opened, a clear message is shown instead.
+  contextConversationMissing = signal<boolean>(false);
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -128,11 +152,22 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
   activeConversation = computed(() => {
     const activeId = this.activeConvId();
-    return (
-      this.conversations().find((c) => c.id === activeId) ||
-      (this.conversations().length > 0 ? this.conversations()[0] : null)
-    );
+    const found = activeId ? this.conversations().find((c) => c.id === activeId) : undefined;
+    if (found) return found;
+    // opened for a project without a conversation: show the explanation, never conversation[0]
+    if (this.contextConversationMissing()) return null;
+    return this.conversations().length > 0 ? this.conversations()[0] : null;
   });
+
+  /** The pending message context, only while it belongs to the conversation on screen (never attached to another project's chat). */
+  activeContext = computed<MessageContext | null>(() => this.contextFor(this.activeConversation()));
+
+  private contextFor(conv: { projectId?: string } | null): MessageContext | null {
+    const ctx = this.messageContext();
+    if (!ctx || !conv) return null;
+    if (ctx.projectId && ctx.projectId !== conv.projectId) return null;
+    return ctx;
+  }
 
   ngOnInit(): void {
     const authUser = this.authStore.currentUser();
@@ -163,6 +198,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
               
               return {
                 id: c.id,
+                projectId: c.projectId || undefined,
                 name: partnerName,
                 project: c.project?.title || c.project || 'مشروع وسيط',
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
@@ -176,11 +212,16 @@ export class ProviderMessages implements OnInit, OnDestroy {
             });
 
             this.conversations.set(mappedConversations);
-            if (mappedConversations.length > 0) {
-              const activeParam = this.route.snapshot.queryParams['conversationId'];
-              const target = mappedConversations.find((c) => c.id === activeParam) ? activeParam : mappedConversations[0].id;
-              this.activeConvId.set(target);
-              this.selectConversation(target);
+            const pick = resolveInitialConversation(mappedConversations, this.route.snapshot.queryParams['conversationId'], this.messageContext());
+            if (pick.id) {
+              this.contextConversationMissing.set(false);
+              this.activeConvId.set(pick.id);
+              this.selectConversation(pick.id);
+            } else if (pick.missing) {
+              // a project was asked for but it has no conversation: open nothing else
+              this.activeConvId.set('');
+              this.contextConversationMissing.set(true);
+              this.showChatOnMobile.set(true);
             }
           }
         },
@@ -285,6 +326,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
       this.chatService.leaveRoom(oldId, this.currentUserId);
     }
     this.activeConvId.set(id);
+    this.contextConversationMissing.set(false);
     this.showChatOnMobile.set(true);
     this.chatStateService.activeConversationId.set(id);
     this.chatStateService.markAsRead(id);
@@ -368,7 +410,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
       fileName: customData?.fileName,
       fileSize: customData?.fileSize,
       audioDuration: customData?.audioDuration,
-      context: this.messageContext() || null,
+      context: this.contextFor(currentConv),
       time: timeString,
       dateGroup: 'اليوم',
     };
@@ -397,7 +439,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
       fileName: newMsg.fileName,
       fileSize: newMsg.fileSize,
       audioDuration: newMsg.audioDuration,
-      context: this.messageContext() || undefined
+      context: this.contextFor(currentConv) || undefined
     };
     this.chatService.sendMessage(this.currentUserId, payload);
 
@@ -625,6 +667,11 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
   clearContext(): void {
     this.messageContext.set(null);
+  }
+
+  /** From the "no conversation for this project" state: go back to the list (mobile); nothing is opened for the user. */
+  showAllConversations(): void {
+    this.showChatOnMobile.set(false);
   }
 
   contextLabel(ctx: MessageContext | null): string {
