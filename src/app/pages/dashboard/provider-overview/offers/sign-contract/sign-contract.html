@@ -23,7 +23,8 @@
         <div class="od-hd-ttl">عقد تنفيذ: {{ offerTitle() }}</div>
         <div class="od-hd-id">{{ offerRef() }}</div>
       </div>
-      <span class="opill op-cancel">بانتظار توقيعك</span>
+      @if (contract()) {<span class="opill op-cancel" data-testid="sign-badge-ready">بانتظار توقيعك</span>}
+      @else {<span class="opill" data-testid="sign-badge-not-ready">العقد غير جاهز</span>}
     </div>
     <div class="od-meta">
       <div class="od-meta-item"><div class="od-meta-lbl">العميل</div><div class="od-meta-val">{{ providerName() }}</div></div>
@@ -110,12 +111,14 @@
   }
 
   <div class="od-card">
-    <label style="display:flex;align-items:flex-start;gap:11px;cursor:pointer;margin-bottom:16px">
+    @if (contract()) {
+    <label style="display:flex;align-items:flex-start;gap:11px;cursor:pointer;margin-bottom:16px" data-testid="contract-ack">
       <input type="checkbox" [(ngModel)]="isAgreed" id="ack-ctr" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
-      <span style="font-size:13px;line-height:1.6" class="txt-slate">أقر بأنني قرأت بنود العقد وأوافق عليها، وأفوض حجز المبلغ في الضمان وفق <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a></span>
+      <span style="font-size:13px;line-height:1.6" class="txt-slate">أقرّ بمراجعة بيانات العقد ومراحله وقيمة الضمان الممولة من العميل، وأوافق على توقيع العقد والبدء وفق البنود المعروضة و<a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a>.</span>
     </label>
+    }
     <div class="actions-row" style="display:flex;gap:12px;flex-wrap:wrap">
-      <button type="button" [disabled]="!contract()" (click)="signContract()" class="btn-primary txt-navy" style="flex:1;min-width:180px;padding:13px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center">التوقيع ثم السداد</button>
+      <button type="button" [disabled]="!contract()" (click)="signContract()" class="btn-primary txt-navy" style="flex:1;min-width:180px;padding:13px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center">توقيع العقد</button>
       <button type="button" (click)="openTermsModal()" class="btn-secondary txt-slate" style="padding:13px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-chat"></use></svg>تعديل البنود عبر المحادثة
       </button>

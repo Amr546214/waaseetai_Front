@@ -17,7 +17,7 @@ const MS = [
 ];
 const CONTRACT = (over: Record<string, unknown> = {}) => ({ id: 'ctr-1', status: 'PENDING_PROVIDER_SIGNATURE', termsVersion: 1, price: 950, currency: 'USD', durationDays: 12, phasesCount: 2, milestones: MS, escrow: { amount: 950, status: 'HELD' }, ...over });
 const OFFER = (contract: unknown) => ({ offerId: 'o1', id: 'o1', projectTitle: 'تصميم هوية', title: 'تصميم هوية', projectRef: '#ORD-1', clientName: 'سارة علي', offeredPrice: 1000, price: '1,000 $', status: contract ? 'PENDING_SIGNATURE' : 'PENDING_CLIENT_SIGNATURE', duration: '14 يوم', phases: '1 مراحل', contract });
-const FORBIDDEN = [/3 مراحل/, /30 يوم/, /30 يوما/, /الملكية الفكرية/, /تنتقل ملكية/, /تعديلات حسب الباقة/, /ضمان الجودة/];
+const FORBIDDEN = [/ثم السداد/, /أفوض/, /3 مراحل/, /30 يوم/, /30 يوما/, /الملكية الفكرية/, /تنتقل ملكية/, /تعديلات حسب الباقة/, /ضمان الجودة/];
 
 describe('provider sign-contract: real contract terms only', () => {
 	async function setup(item: unknown, opts: { error?: boolean } = {}) {
@@ -44,6 +44,13 @@ describe('provider sign-contract: real contract terms only', () => {
 		expect(s.text()).not.toContain('1,000'); // not the list's price: the contract's own
 		expect(s.q('contract-not-ready')).toBeNull();
 		expect(s.signBtn().disabled).toBe(false);
+		expect(s.signBtn().textContent!.trim()).toBe('توقيع العقد');
+		expect(s.q('sign-badge-ready')!.textContent).toContain('بانتظار توقيعك');
+		expect(s.q('sign-badge-not-ready')).toBeNull();
+		const ack = s.q('contract-ack')!.textContent!;
+		expect(ack).toContain('أقرّ بمراجعة بيانات العقد ومراحله وقيمة الضمان الممولة من العميل');
+		expect(ack).toContain('أوافق على توقيع العقد والبدء وفق البنود المعروضة');
+		expect(s.text()).not.toContain('أفوض');
 		for (const re of FORBIDDEN) expect(s.text()).not.toMatch(re);
 	});
 
@@ -52,6 +59,10 @@ describe('provider sign-contract: real contract terms only', () => {
 		expect(s.q('contract-phases')!.textContent!.trim()).toBe('1');
 		expect(s.q('contract-milestones')).toBeNull();
 		expect(s.q('contract-no-milestones')!.textContent).toContain('غير محفوظة');
+		expect(s.q('contract-not-ready')).toBeNull();
+		expect(s.q('sign-badge-ready')).not.toBeNull();
+		expect(s.q('contract-ack')).not.toBeNull();
+		expect(s.signBtn().disabled).toBe(false);
 		for (const re of FORBIDDEN) expect(s.text()).not.toMatch(re);
 	});
 
@@ -63,6 +74,12 @@ describe('provider sign-contract: real contract terms only', () => {
 		expect(s.text()).not.toMatch(/1 مراحل/);
 		for (const re of FORBIDDEN) expect(s.text()).not.toMatch(re);
 		expect(s.signBtn().disabled).toBe(true);
+		// the header does not claim "waiting for your signature", and there is no agreement to tick
+		expect(s.text()).not.toContain('بانتظار توقيعك');
+		expect(s.q('sign-badge-ready')).toBeNull();
+		expect(s.q('sign-badge-not-ready')!.textContent).toContain('العقد غير جاهز');
+		expect(s.q('contract-ack')).toBeNull();
+		expect(s.el.querySelector('#ack-ctr')).toBeNull();
 		s.c.isAgreed = true; s.c.signContract();
 		expect(s.post).not.toHaveBeenCalled();
 	});
@@ -88,6 +105,8 @@ describe('provider sign-contract: real contract terms only', () => {
 		const s = await setup(null, { error: true });
 		expect(s.c.loadError()).toContain('تعذر تحميل');
 		expect(s.q('contract-terms')).toBeNull();
+		expect(s.text()).not.toContain('بانتظار توقيعك');
+		expect(s.el.querySelector('#ack-ctr')).toBeNull();
 	});
 
 	it('milestone detail text only mentions the fields that exist', () => {
@@ -103,5 +122,7 @@ describe('provider sign-contract: real contract terms only', () => {
 		expect(html).not.toMatch(/\{\{\s*(duration|phases)\(\)\s*\}\}/);
 		expect(ts).not.toMatch(/item\.(duration|phases|milestones)\b/);
 		expect(html).toContain('العميل</div><div class="od-meta-val">{{ providerName() }}');
+		expect(html).toContain('>توقيع العقد</button>');
+		expect(html).toMatch(/@if \(contract\(\)\) \{<span class="opill op-cancel"[^>]*>بانتظار توقيعك<\/span>\}/);
 	});
 });
