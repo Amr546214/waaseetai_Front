@@ -1,9 +1,9 @@
 <div class="main-inner">
-  <div class="ai-disclosure" role="region" aria-label="نظام التعديل المحكوم">
-    <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
-    <div class="ai-disc-body">
-      <div class="ai-disc-lbl">وسيط، نظام التعديل المحكوم</div>
-      <p class="ai-disc-txt">تخضع طلبات تعديل البيانات الحساسة لمراجعة يدوية من فريق مختص قبل اعتمادها</p>
+  <div class="ws-note ws-note--neutral" role="region" aria-label="نظام التعديل المحكوم">
+    <div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
+    <div class="ws-note-body">
+      <div class="ws-note-lbl">وسيط، نظام التعديل المحكوم</div>
+      <p class="ws-note-txt">تخضع طلبات تعديل البيانات الحساسة لمراجعة يدوية من فريق مختص قبل اعتمادها</p>
     </div>
   </div>
 
@@ -40,7 +40,7 @@
   } @else {
   <!-- إحصاء -->
   <div class="stat-row">
-    <div class="stat-box"><div class="stat-num txt-purple">{{ summary()?.pendingAiCount || 0 }}</div><div class="stat-lbl">قيد المراجعة</div></div>
+    <div class="stat-box"><div class="stat-num txt-amber">{{ summary()?.pendingAiCount || 0 }}</div><div class="stat-lbl">قيد المراجعة</div></div>
     <div class="stat-box"><div class="stat-num txt-kahr">{{ summary()?.pendingHumanCount || 0 }}</div><div class="stat-lbl">بانتظار اعتماد بشري</div></div>
     <div class="stat-box"><div class="stat-num txt-teal">{{ summary()?.approvedCount || 0 }}</div><div class="stat-lbl">معتمد</div></div>
     <div class="stat-box"><div class="stat-num txt-coral">{{ summary()?.rejectedCount || 0 }}</div><div class="stat-lbl">مرفوض</div></div>

@@ -214,39 +214,17 @@
 .msg-empty-state .state-title { font-size: 15px; font-weight: 800; color: var(--txt, #fff); }
 .msg-empty-state .state-copy { font-size: 12px; color: var(--txt-3, #6B7699); max-width: 320px; line-height: 1.6; }
 
-.ai-bc {
-  display: flex;
-  align-items: center;
-  gap: 9px;
+.chat-note {
+  margin-bottom: 0;
   padding: 8px 16px;
-  background: linear-gradient(135deg, rgba(123, 47, 190, 0.09), rgba(43, 127, 255, 0.06));
-  border-bottom: 1px solid rgba(123, 47, 190, 0.22);
+  gap: 9px;
+  border-radius: 0;
+  border-width: 0 0 1px 0;
   flex-shrink: 0;
 }
-.ai-bc-ico {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background: rgba(123, 47, 190, 0.18);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #A56BE0;
-}
-.ai-bc-ico svg {
-  width: 13px;
-  height: 13px;
-}
-.ai-bc-txt {
-  flex: 1;
-  font-size: 11px;
-  color: var(--txt-3, #A8B2D1);
-  line-height: 1.5;
-}
-.ai-bc-txt strong {
-  color: #A56BE0;
-}
+.chat-note .ws-note-ico { width: 24px; height: 24px; border-radius: 6px; }
+.chat-note .ws-note-ico svg { width: 13px; height: 13px; }
+.chat-note-txt { font-size: 11px; line-height: 1.5; }
 .ai-pct-b {
   font-size: 10px;
   font-weight: 800;

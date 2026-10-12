@@ -11,7 +11,7 @@ interface PlanFeature {
 interface Plan {
   name: string;
   icon: string;
-  iconColor: 'teal' | 'blue' | 'ai';
+  iconColor: 'teal' | 'blue' | 'kahr';
   desc: string;
   commission: string;
   commissionSub: string;
@@ -73,7 +73,7 @@ export class Pricing {
     {
       name: 'المستويات العليا',
       icon: 'star',
-      iconColor: 'ai',
+      iconColor: 'kahr',
       desc: 'للمقدمين ذوي السجل المتميز من المشاريع المكتملة والتقييمات المرتفعة',
       commission: 'تفاصيل العمولة داخل لوحة التحكم',
       commissionSub: 'تُعرض عند بدء التعاملات أو داخل لوحة التحكم',
@@ -121,7 +121,7 @@ export class Pricing {
     {
       name: 'شركة — المستويات العليا',
       icon: 'star',
-      iconColor: 'ai',
+      iconColor: 'kahr',
       desc: 'للشركات ذات السجل المتميز من المشاريع المكتملة والتقييمات المرتفعة',
       commission: 'تفاصيل العمولة داخل لوحة التحكم',
       commissionSub: 'تُعرض عند بدء التعاملات أو داخل لوحة التحكم',

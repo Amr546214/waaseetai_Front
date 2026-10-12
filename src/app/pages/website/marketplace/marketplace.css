@@ -74,6 +74,11 @@ app-marketplace .mk-home .ai-ico svg{width:13px;height:13px;color:var(--ai)}
 app-marketplace .mk-home .ai-txt{flex:1;font-size:12.5px;color:var(--txt-2)}
 app-marketplace .mk-home .ai-txt strong{color:var(--txt)}
 app-marketplace .mk-home .ai-bdg{background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:800;color:var(--ai-txt);flex-shrink:0}
+/* non-AI state (deterministic fallback / unavailable): neutral, not AI purple */
+app-marketplace .mk-home .ai-banner.plain{background:rgba(255,255,255,.04);border-color:rgba(168,178,209,.2)}
+app-marketplace .mk-home .ai-banner.plain .ai-ico{background:rgba(168,178,209,.1);border-color:rgba(168,178,209,.2)}
+app-marketplace .mk-home .ai-banner.plain .ai-ico svg{color:var(--txt-2)}
+app-marketplace .mk-home .ai-banner.plain .ai-bdg{background:rgba(168,178,209,.1);border-color:rgba(168,178,209,.2);color:var(--txt-2)}
 app-marketplace .mk-home .cat-blocks{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 app-marketplace .mk-home .cat-block{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;overflow:hidden}
 app-marketplace .mk-home .cat-block-h{font-size:15px;font-weight:900;color:var(--txt);margin-bottom:12px}

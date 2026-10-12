@@ -1,13 +1,13 @@
 <div class="w-full relative z-10 pb-10">
 
   <!-- AI Disclosure -->
-  <div *ngIf="!isSuccess()" class="flex items-center gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-2xl mb-6">
-    <div class="w-8 h-8 rounded-xl bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0">
-      <svg class="w-4 h-4 text-[#7B2FBE]" aria-hidden="true"><use href="#i-ai"></use></svg>
+  <div *ngIf="!isSuccess()" class="ws-note ws-note--info" style="margin-bottom:24px">
+    <div class="ws-note-ico">
+      <svg aria-hidden="true"><use href="#i-shield"></use></svg>
     </div>
-    <div class="flex-1">
-      <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-0.5">وسيط، حماية المستحقات</div>
-      <p class="text-[13px] text-[var(--txt-3)]">تُستلم مستحقاتك عبر PayPal على البريد الذي تضيفه في بيانات الملف، وتخضع طلبات السحب لمراجعة قبل التنفيذ</p>
+    <div class="ws-note-body">
+      <div class="ws-note-lbl">وسيط، حماية المستحقات</div>
+      <p class="ws-note-txt">تُستلم مستحقاتك عبر PayPal على البريد الذي تضيفه في بيانات الملف، وتخضع طلبات السحب لمراجعة قبل التنفيذ</p>
     </div>
   </div>
 
@@ -268,13 +268,9 @@
           </div>
         </div>
         
-        <div class="flex items-start gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.08)] to-[rgba(43,127,255,.05)] border border-[rgba(123,47,190,.18)] rounded-xl mt-4">
-          <div class="w-7 h-7 rounded-lg bg-[rgba(123,47,190,.14)] flex items-center justify-center shrink-0 text-[#7B2FBE]">
+        <div class="ws-note ws-note--info" style="margin:16px 0 0;align-items:flex-start"><div class="ws-note-ico">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-          </div>
-          <div>
-            <div class="text-xs font-extrabold text-[#A56BE0] mb-0.5">مراجعة الأهلية</div>
-            <div class="text-xs text-[var(--txt-3)] leading-relaxed">بعد إرسال الطلب يراجع فريقنا أهليتك وخبرتك في تخصصك، وقد نتواصل معك إن احتجنا لمعلومات إضافية</div>
+          </div><div class="ws-note-body"><div class="ws-note-lbl">مراجعة الأهلية</div><div class="ws-note-txt">بعد إرسال الطلب يراجع فريقنا أهليتك وخبرتك في تخصصك، وقد نتواصل معك إن احتجنا لمعلومات إضافية</div>
           </div>
         </div>
       </div>
@@ -387,13 +383,9 @@
         </div>
       </div>
       
-      <div class="flex items-start gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.08)] to-[rgba(43,127,255,.05)] border border-[rgba(123,47,190,.18)] rounded-xl mt-4">
-        <div class="w-7 h-7 rounded-lg bg-[rgba(123,47,190,.14)] flex items-center justify-center shrink-0 text-[#7B2FBE]">
+      <div class="ws-note ws-note--info" style="margin:16px 0 0;align-items:flex-start"><div class="ws-note-ico">
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-        </div>
-        <div>
-          <div class="text-xs font-extrabold text-[#A56BE0] mb-0.5">آلية المراجعة والتفعيل</div>
-          <div class="text-xs text-[var(--txt-3)] leading-relaxed">تتم إضافة نوع الحساب فورياً لملفك، وسيكون بإمكانك التبديل إليه مباشرة واستخدامه بحرية</div>
+        </div><div class="ws-note-body"><div class="ws-note-lbl">آلية المراجعة والتفعيل</div><div class="ws-note-txt">تتم إضافة نوع الحساب فورياً لملفك، وسيكون بإمكانك التبديل إليه مباشرة واستخدامه بحرية</div>
         </div>
       </div>
     </div>

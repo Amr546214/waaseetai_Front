@@ -56,7 +56,7 @@
 .sim-lbl { font-size: 11px; color: #6B7699; font-weight: 700; display: block; margin-bottom: 6px; }
 .sim-range { width: 100%; }
 .sim-range--teal { accent-color: #2BD4C7; }
-.sim-range--purple { accent-color: #59C1F5; }
+.sim-range--blue { accent-color: #59C1F5; }
 .sim-scale { display: flex; justify-content: space-between; font-size: 9px; color: #6B7699; margin-top: 2px; }
 .sim-scale-val { font-weight: 700; }
 .sim-results { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
@@ -67,7 +67,7 @@
 .sim-res--teal { background: rgba(43, 212, 199, .04); border: 1px solid rgba(43, 212, 199, .14); }
 .sim-res--amber { background: rgba(255, 180, 0, .04); border: 1px solid rgba(255, 180, 0, .14); }
 .sim-res--green { background: rgba(15, 169, 154, .04); border: 1px solid rgba(15, 169, 154, .14); }
-.sim-insight { padding: 8px 12px; background: rgba(123, 47, 190, .06); border-radius: 8px; font-size: 11px; color: #A56BE0; }
+.sim-insight { padding: 8px 12px; background: rgba(168, 178, 209, .08); border-radius: 8px; font-size: 11px; color: #A8B2D1; }
 
 .inner-foot { margin-top: 20px; padding: 10px 0; display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: #6B7699; border-top: 1px solid rgba(255, 255, 255, .05); flex-wrap: wrap; gap: 6px; }
 

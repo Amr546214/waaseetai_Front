@@ -1,10 +1,8 @@
 .ms-page{direction:rtl;display:flex;flex-direction:column;height:calc(100vh - 56px);overflow:hidden}
 
-.ms-ai-bc{display:flex;align-items:center;gap:9px;padding:10px 20px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border-bottom:1px solid rgba(123,47,190,.22);flex-shrink:0}
-.ms-ai-bc-ico{width:26px;height:26px;border-radius:7px;background:rgba(123,47,190,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#A56BE0}
-.ms-ai-bc-ico svg{width:14px;height:14px}
-.ms-ai-bc-txt{flex:1;font-size:12px;color:#A8B2D1;line-height:1.5}
-.ms-ai-bc-txt strong{color:#A56BE0}
+.ms-note{margin-bottom:0;padding:10px 20px;gap:9px;border-radius:0;border-width:0 0 1px 0;flex-shrink:0;font-size:12px;line-height:1.5}
+.ms-note .ws-note-ico{width:26px;height:26px;border-radius:7px}
+.ms-note .ws-note-ico svg{width:14px;height:14px}
 .ms-ai-pct{font-size:10px;font-weight:800;color:var(--ai);background:rgba(123,47,190,.14);padding:2px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 
 .ms-shell{flex:1;display:flex;overflow:hidden;min-height:0}
@@ -84,27 +82,6 @@
 /* ==========================================================================
    LIGHT MODE OVERRIDES
    ========================================================================== */
-:host-context(body.light-theme) .ms-ai-bc,
-:host-context(body.theme-light) .ms-ai-bc,
-:host-context(.light-theme) .ms-ai-bc,
-:host-context(.theme-light) .ms-ai-bc {
-  background: linear-gradient(135deg, rgba(123,47,190,.07), rgba(43,127,255,.04)) !important; border-color: rgba(123,47,190,.18) !important;
-}
-
-:host-context(body.light-theme) .ms-ai-bc-txt,
-:host-context(body.theme-light) .ms-ai-bc-txt,
-:host-context(.light-theme) .ms-ai-bc-txt,
-:host-context(.theme-light) .ms-ai-bc-txt {
-  color: #475569 !important;
-}
-
-:host-context(body.light-theme) .ms-ai-bc-txt strong,
-:host-context(body.theme-light) .ms-ai-bc-txt strong,
-:host-context(.light-theme) .ms-ai-bc-txt strong,
-:host-context(.theme-light) .ms-ai-bc-txt strong {
-  color: #6B27A5 !important;
-}
-
 :host-context(body.light-theme) .ms-conv-panel,
 :host-context(body.theme-light) .ms-conv-panel,
 :host-context(.light-theme) .ms-conv-panel,

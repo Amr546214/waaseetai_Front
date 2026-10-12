@@ -10,14 +10,14 @@
 .upload-orbit { display: flex; align-items: center; gap: 7px; }
 .upload-orbit span { width: 9px; height: 9px; border-radius: 999px; background: #2BD4C7; box-shadow: 0 0 14px rgba(43,212,199,.65); animation: orbit-dot 1s ease-in-out infinite; }
 .upload-orbit span:nth-child(2) { animation-delay: .15s; background: #2B7FFF; }
-.upload-orbit span:nth-child(3) { animation-delay: .3s; background: #A56BE0; }
-.proof-spinner { width: 16px; height: 16px; flex: 0 0 auto; border-radius: 50%; border: 2px solid rgba(165,107,224,.25); border-top-color: #A56BE0; animation: proof-spin .7s linear infinite; }
-.upload-screen { position: relative; overflow: hidden; min-height: 220px; border-radius: 22px; border: 1px solid rgba(43,212,199,.32); background: linear-gradient(135deg,rgba(43,212,199,.08),rgba(43,127,255,.09),rgba(123,47,190,.1)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; box-shadow: 0 18px 50px rgba(0,0,0,.22); }
+.upload-orbit span:nth-child(3) { animation-delay: .3s; background: #5DA0FF; }
+.proof-spinner { width: 16px; height: 16px; flex: 0 0 auto; border-radius: 50%; border: 2px solid rgba(93,160,255,.25); border-top-color: #5DA0FF; animation: proof-spin .7s linear infinite; }
+.upload-screen { position: relative; overflow: hidden; min-height: 220px; border-radius: 22px; border: 1px solid rgba(43,212,199,.32); background: linear-gradient(135deg,rgba(43,212,199,.08),rgba(43,127,255,.09),rgba(43,127,255,.1)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; box-shadow: 0 18px 50px rgba(0,0,0,.22); }
 .upload-screen-glow { position: absolute; width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle,rgba(43,212,199,.16),transparent 68%); animation: pulse 2s ease-in-out infinite; }
 .upload-cloud { position: relative; width: 62px; height: 62px; border-radius: 20px; display: grid; place-items: center; color: #2BD4C7; background: rgba(43,212,199,.1); border: 1px solid rgba(43,212,199,.35); box-shadow: 0 0 30px rgba(43,212,199,.18); animation: cloud-float 2s ease-in-out infinite; }
 .upload-cloud svg { width: 32px; height: 32px; }
 .upload-progress { position: relative; width: min(360px,75%); height: 8px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
-.upload-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#2BD4C7,#2B7FFF,#A56BE0); transition: width .2s ease; box-shadow: 0 0 14px rgba(43,127,255,.45); }
+.upload-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#2BD4C7,#2B7FFF,#5DA0FF); transition: width .2s ease; box-shadow: 0 0 14px rgba(43,127,255,.45); }
 .upload-progress::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); animation: progress-shine 1.2s linear infinite; }
 .sample-meta-input { width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,.11); background: rgba(7,13,36,.72); padding: 10px 12px; color: #fff; font-size: 12px; font-weight: 650; line-height: 1.6; outline: none; transition: border-color .18s ease, box-shadow .18s ease, background .18s ease; }
 .sample-meta-input::placeholder { color: #657091; font-weight: 500; }

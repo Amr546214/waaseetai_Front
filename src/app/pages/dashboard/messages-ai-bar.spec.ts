@@ -67,7 +67,7 @@ describe('messages pages: وسيط AI bar', () => {
 	}
 	it('admin messages keep their own review notice bar', () => {
 		const html = readFileSync(join(__dirname, 'supper-admin-overview/sa-messages/sa-messages.html'), 'utf-8');
-		expect(html).toContain('ms-ai-bc');
+		expect(html).toContain('ws-note');
 		expect(html).toContain(BAR_TEXT);
 	});
 });

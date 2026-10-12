@@ -175,7 +175,7 @@ export class SaDisputeDetail implements OnInit {
       events.push({
         label: 'انتقل النزاع إلى حالة قيد المراجعة',
         dateLabel: 'غير مؤرَّخ من الـ API',
-        dotColor: '#A56BE0',
+        dotColor: '#FFB400',
         approx: true,
       });
     }

@@ -43,14 +43,14 @@
 
     <!-- PLANS -->
     <section class="plans-section">
-      <!-- AI BANNER -->
-      <div class="ai-banner">
-        <div class="ai-banner-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-        <div style="flex:1">
-          <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:3px">مستوى المقدم</div>
-          <div style="font-size:13px;color:var(--txt-2)">تُعرض <strong>تفاصيل العمولة والرسوم</strong> داخل لوحة التحكم وسياسة المدفوعات — وقد تختلف حسب مستوى الحساب</div>
+      <!-- Level note (non-AI) -->
+      <div class="ws-note ws-note--info" style="margin-bottom:40px">
+        <div class="ws-note-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="ws-note-body">
+          <div class="ws-note-lbl">مستوى المقدم</div>
+          <p class="ws-note-txt">تُعرض <strong>تفاصيل العمولة والرسوم</strong> داخل لوحة التحكم وسياسة المدفوعات — وقد تختلف حسب مستوى الحساب</p>
         </div>
-        <span class="ai-banner-badge">يُحسب تلقائياً</span>
+        <span class="ws-note-chip">يُحسب تلقائياً</span>
       </div>
 
       <div class="plans-grid">
@@ -59,7 +59,7 @@
             @if (plan.badge) {
               <div class="plan-badge">{{ plan.badge }}</div>
             }
-            <div class="plan-icon" [class.ico-teal]="plan.iconColor === 'teal'" [class.ico-blue]="plan.iconColor === 'blue'" [class.ico-ai]="plan.iconColor === 'ai'">
+            <div class="plan-icon" [class.ico-teal]="plan.iconColor === 'teal'" [class.ico-blue]="plan.iconColor === 'blue'" [class.ico-kahr]="plan.iconColor === 'kahr'">
               <svg aria-hidden="true"><use [attr.href]="'#pr-' + plan.icon"></use></svg>
             </div>
             <div class="plan-name">{{ plan.name }}</div>
@@ -103,7 +103,7 @@
           <div class="model-desc">قد تختلف تفاصيل العمولة حسب مستوى الحساب وفق قواعد المنصة المعتمدة. مراحل المستوى توضّح تقدم الحساب، ولا ننشر نسباً رقمية قبل اعتماد نموذج العمولة النهائي.</div>
         </div>
         <div class="model-card">
-          <div class="model-ico" style="background:var(--ai-bg);border:1px solid var(--ai-border)"><svg aria-hidden="true" style="color:var(--ai);width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <div class="model-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2)"><svg aria-hidden="true" style="color:var(--kahr);width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
           <div class="model-title">المستوى يُحسب تلقائياً</div>
           <div class="model-desc">يحسب النظام مستواك تلقائياً بناءً على نقاطك ومشاريعك المكتملة وتقييمات العملاء — بدون تدخل يدوي.</div>
         </div>

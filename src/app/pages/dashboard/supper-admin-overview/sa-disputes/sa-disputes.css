@@ -150,8 +150,8 @@
 .dp-vbtn-provider:hover{background:rgba(15,169,154,.22)}
 .dp-vbtn-split{background:rgba(255,180,0,.10);border-color:rgba(255,180,0,.25);color:#D98A0B}
 .dp-vbtn-split:hover{background:rgba(255,180,0,.18)}
-.dp-vbtn-mutual{background:rgba(123,47,190,.10);border-color:rgba(123,47,190,.25);color:#A56BE0}
-.dp-vbtn-mutual:hover{background:rgba(123,47,190,.18)}
+.dp-vbtn-mutual{background:rgba(43,212,199,.10);border-color:rgba(43,212,199,.25);color:#2BD4C7}
+.dp-vbtn-mutual:hover{background:rgba(43,212,199,.18)}
 
 .dp-similar{background:rgba(123,47,190,.05);border:1px solid rgba(123,47,190,.16);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .dp-similar-hdr{font-size:12px;font-weight:800;color:#A56BE0}

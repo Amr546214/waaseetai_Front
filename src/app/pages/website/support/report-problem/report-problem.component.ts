@@ -26,7 +26,7 @@ export class ReportProblemComponent {
 		{ id: 'account', label: 'حساب ودخول', desc: 'تسجيل الدخول، كلمة المرور، الملف', icon: 'user', icoStyle: 'background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18)', color: 'var(--blue-txt)' },
 		{ id: 'service', label: 'مشروع وخدمة', desc: 'جودة التسليم، توقف المقدم', icon: 'file', icoStyle: 'background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.18)', color: 'var(--kahr)' },
 		{ id: 'fraud', label: 'احتيال وانتهاك', desc: 'سلوك مسيء، محتوى مخالف', icon: 'shield', icoStyle: 'background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.18)', color: 'var(--red)' },
-		{ id: 'technical', label: 'مشكلة تقنية', desc: 'خطأ في الموقع، ميزة لا تعمل', icon: 'settings', icoStyle: 'background:rgba(123,47,190,.08);border:1px solid rgba(123,47,190,.18)', color: 'var(--ai-txt)' },
+		{ id: 'technical', label: 'مشكلة تقنية', desc: 'خطأ في الموقع، ميزة لا تعمل', icon: 'settings', icoStyle: 'background:rgba(168,178,209,.08);border:1px solid rgba(168,178,209,.18)', color: 'var(--txt-2)' },
 		{ id: 'other', label: 'أخرى', desc: 'أي شيء لا ينطبق عليه ما سبق', icon: 'lock', icoStyle: 'background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)', color: 'var(--txt-3)' }
 	];
 

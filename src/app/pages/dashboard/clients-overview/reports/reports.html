@@ -18,16 +18,14 @@
 		</div>
 	</div>
 
-	<!-- AI Disclosure -->
-	<div class="ai-disclosure" role="region" aria-label="معلومات الصفحة">
-		<div class="ai-disc-ico">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-				<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>
-			</svg>
+	<!-- Data note: figures computed from the user's own data, not an AI function -->
+	<div class="ws-note ws-note--neutral" role="region" aria-label="معلومات الصفحة">
+		<div class="ws-note-ico">
+			<svg aria-hidden="true"><use href="#i-chart"></use></svg>
 		</div>
-		<div class="ai-disc-body">
-			<div class="ai-disc-lbl">وسيط، تحليل البيانات</div>
-			<p class="ai-disc-txt">تُعرض اتجاهات إنفاقك وجودة مقدميك بناءً على بياناتك الفعلية</p>
+		<div class="ws-note-body">
+			<div class="ws-note-lbl">وسيط، تحليل البيانات</div>
+			<p class="ws-note-txt">تُعرض اتجاهات إنفاقك وجودة مقدميك بناءً على بياناتك الفعلية</p>
 		</div>
 	</div>
 
@@ -90,13 +88,13 @@
 
 	<!-- A plain statistic from the report's own numbers (not AI): hidden when there is no data -->
 	@if (topAcceptance(); as top) {
-	<div class="state-card ai-insight" data-testid="top-acceptance-stat">
-		<div class="ai-insight-ico">
+	<div class="ws-note ws-note--neutral" data-testid="top-acceptance-stat">
+		<div class="ws-note-ico">
 			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
 		</div>
-		<div class="ai-insight-body">
-			<div class="ai-insight-lbl">إحصاء</div>
-			<div class="ai-insight-txt">أعلى معدل قبول لطلباتك في تخصص «{{ top.specialty }}» بنسبة {{ top.rate }}%، من إجمالي {{ top.total }} طلب في هذا التخصص.</div>
+		<div class="ws-note-body">
+			<div class="ws-note-lbl">إحصاء</div>
+			<div class="ws-note-txt">أعلى معدل قبول لطلباتك في تخصص «{{ top.specialty }}» بنسبة {{ top.rate }}%، من إجمالي {{ top.total }} طلب في هذا التخصص.</div>
 		</div>
 	</div>
 	}

@@ -35,11 +35,11 @@
       <button type="button" class="btn btn-ghost" (click)="exportCSV()"><svg aria-hidden="true"><use href="#i-export"></use></svg>تصدير CSV</button>
     </div>
 
-    <div class="ai-disclosure">
-      <div class="ai-disc-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
-      <div class="ai-disc-body">
-        <div class="ai-disc-lbl">وسيط، إدارة المستخدمين</div>
-        <p class="ai-disc-txt">تُعرض بيانات جميع الحسابات لمراجعتها وإدارتها يدوياً</p>
+    <div class="ws-note ws-note--neutral">
+      <div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
+      <div class="ws-note-body">
+        <div class="ws-note-lbl">وسيط، إدارة المستخدمين</div>
+        <p class="ws-note-txt">تُعرض بيانات جميع الحسابات لمراجعتها وإدارتها يدوياً</p>
       </div>
     </div>
 
@@ -214,7 +214,7 @@
                     @case ('pr-co') {
                       <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} $</td>
                       <td style="font-weight:800" class="txt-white">{{ u.providerCount || '0' }} مقدم</td>
-                      <td style="font-size:12px" class="txt-purple">{{ u.specialties || '-' }}</td>
+                      <td style="font-size:12px" class="txt-blue">{{ u.specialties || '-' }}</td>
                       <td style="font-weight:800" class="txt-white">{{ u.activeProjects || '0' }}</td>
                       <td style="font-weight:700" class="txt-green">{{ u.revenue || '0' }} $</td>
                     }
@@ -247,7 +247,7 @@
                           <span style="font-weight:700" class="txt-amber">{{ u.rating || '0' }} ★</span> 
                           <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:12px;" [style.background]="LB[u.level || 'Bronze']" [style.color]="LC[u.level || 'Bronze'] || '#fff'">{{ u.level || 'Bronze' }}</span>
                         }
-                        @if (u.type === 'pr-co') { <span style="font-size:11px" class="txt-purple">{{ u.providerCount || '0' }} مقدم</span> }
+                        @if (u.type === 'pr-co') { <span style="font-size:11px" class="txt-blue">{{ u.providerCount || '0' }} مقدم</span> }
                         @if (u.type === 'affiliate') { <span style="font-size:11px" class="txt-blue">مستوى {{ u.affiliateLevel || 1 }}</span> }
                         @if (u.type === 'admin') { <span style="font-size:11px" class="txt-muted">{{ u.tasksCount || 0 }} مهام</span> }
                       </td>

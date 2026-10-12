@@ -270,8 +270,8 @@
 .up-pi-box-v.normal{color:#A8B2D1;font-size:13px}
 
 /* AI NOTE BAR */
-.up-ai-note-bar{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:rgba(123,47,190,.07);border:1px solid rgba(123,47,190,.18);border-radius:10px;font-size:12px;color:#C4A3E8;line-height:1.5;margin-bottom:14px}
-.up-ai-note-bar svg{width:16px;height:16px;color:#A56BE0;flex-shrink:0;margin-top:1px}
+.up-ai-note-bar{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:rgba(43,127,255,.07);border:1px solid rgba(43,127,255,.22);border-radius:10px;font-size:12px;color:#A8B2D1;line-height:1.5;margin-bottom:14px}
+.up-ai-note-bar svg{width:16px;height:16px;color:#5DA0FF;flex-shrink:0;margin-top:1px}
 .up-ai-note-bar span{font-weight:600}
 
 /* DROP ZONE */
@@ -296,7 +296,7 @@
 .up-file-rm svg{width:13px;height:13px}
 
 /* AI CHECKS */
-.up-card-ai{border-color:rgba(123,47,190,.2);background:linear-gradient(135deg,rgba(123,47,190,.05),rgba(43,127,255,.03))}
+.up-card-ai{border-color:rgba(255,255,255,.1);background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.01))}
 .up-ai-checks{display:flex;flex-direction:column;gap:9px;margin-top:4px}
 .up-ai-check-row{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600;color:#A8B2D1}
 .up-chk-pending{color:#6B7699;font-size:14px}

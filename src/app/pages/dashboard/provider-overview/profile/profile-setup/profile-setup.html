@@ -91,7 +91,7 @@
           <div class="prog-body">
             <div class="prog-title">اكتمال الملف الشخصي</div>
             <div class="prog-bar-wrap"><div class="prog-bar-fill" [style.width.%]="profileCompletionPct()" role="progressbar" [attr.aria-valuenow]="profileCompletionPct()" aria-valuemin="0" aria-valuemax="100"></div></div>
-            <div class="prog-ai-tip"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-info"></use></svg>أضف صورة ونبذة ومهارات لترتفع نسبتك وتزيد فرص ظهورك في نتائج البحث</div>
+            <div class="prog-tip"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-info"></use></svg>أضف صورة ونبذة ومهارات لترتفع نسبتك وتزيد فرص ظهورك في نتائج البحث</div>
           </div>
         </div>
 
@@ -638,13 +638,13 @@
         </div>
 
         <!-- AI Disclosure -->
-        <div class="ai-disclosure" role="region" aria-label="مراجعة المستندات">
-          <div class="ai-disc-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#7B2FBE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-shield"></use></svg>
+        <div class="ws-note ws-note--neutral" role="region" aria-label="مراجعة المستندات">
+          <div class="ws-note-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-shield"></use></svg>
           </div>
-          <div class="ai-disc-body">
-            <div class="ai-disc-lbl">مراجعة المستندات</div>
-            <p class="ai-disc-txt">تراجع الإدارة المستندات <span class="ai-disc-badge">مراجعة بشرية</span>، والقرار النهائي لكل اعتماد للمراجع</p>
+          <div class="ws-note-body">
+            <div class="ws-note-lbl">مراجعة المستندات</div>
+            <p class="ws-note-txt">تراجع الإدارة المستندات <strong>مراجعة بشرية</strong>، والقرار النهائي لكل اعتماد للمراجع</p>
           </div>
         </div>
 
@@ -663,7 +663,7 @@
 
       <!-- STEP 5: نماذج الأعمال -->
       <div class="step-panel" [class.active]="currentStep() === 5" role="tabpanel">
-        <div class="step-info step-info-ai">
+        <div class="step-info step-info-note">
           <svg aria-hidden="true"><use href="#i-shield"></use></svg>
           <span>لكل تخصص فرعي اخترته يجب رفع <strong class="txt-white">نموذج عرض</strong> واحد على الأقل. نماذج إثبات التنفيذ سرية ولا تراها إلا الإدارة للتحقق من ملكيتك للعمل</span>
         </div>

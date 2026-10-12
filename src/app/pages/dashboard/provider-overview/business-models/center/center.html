@@ -148,7 +148,7 @@
             <div style="padding:13px 15px">
               <div style="font-size:13.5px;font-weight:800;margin-bottom:3px" class="truncate txt-white">{{ sample.title }}</div>
               <div style="font-size:11px;margin-bottom:9px" class="txt-muted">{{ sample.providerSpecialty?.specialty?.nameAr || 'اعتماد فني' }} <span *ngIf="sample.technologiesUsed.length">· {{ sample.technologiesUsed[0] }}</span></div>
-              <div style="font-size:10px;font-weight:800;margin-bottom:5px" class="txt-purple">حالة المراجعة</div>
+              <div style="font-size:10px;font-weight:800;margin-bottom:5px" class="txt-muted">حالة المراجعة</div>
               <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:11px;min-height:36px;">
                 <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
                   @if (sample.status === 'AI_VERIFIED') { <span>✓</span>معتمد من فريق وسيط }

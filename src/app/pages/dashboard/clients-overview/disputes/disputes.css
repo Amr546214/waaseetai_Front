@@ -409,8 +409,8 @@
   font-size: 12px;
   color: #A8B2D1;
   line-height: 1.65;
-  background: linear-gradient(135deg, rgba(123, 47, 190, 0.09), rgba(43, 127, 255, 0.05));
-  border: 1px solid rgba(123, 47, 190, 0.20);
+  background: rgba(255, 180, 0, 0.07);
+  border: 1px solid rgba(255, 180, 0, 0.24);
   border-radius: 11px;
   padding: 11px 13px;
   margin-bottom: 13px;
@@ -418,7 +418,7 @@
 .dp-ai svg {
   width: 15px;
   height: 15px;
-  color: var(--ai-txt, #A56BE0);
+  color: #FFB400;
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -902,15 +902,15 @@
   color: #1D6FE0 !important;
 }
 
-/* --- AI decision strip (light) --- */
+/* --- Dispute status strip (light) --- */
 :host-context(body.light-theme) .dp-ai,
 :host-context(body.theme-light) .dp-ai,
 :host-context(.light-theme) .dp-ai,
 :host-context(.theme-light) .dp-ai,
 :host-context(body.light) .dp-ai {
   color: #475569 !important;
-  background: linear-gradient(135deg, rgba(123, 47, 190, 0.09), rgba(43, 127, 255, 0.05));
-  border-color: rgba(123, 47, 190, 0.20);
+  background: rgba(255, 180, 0, 0.1);
+  border-color: rgba(154, 103, 0, 0.28);
 }
 :host-context(body.light-theme) .dp-ai b,
 :host-context(body.theme-light) .dp-ai b,
@@ -924,7 +924,7 @@
 :host-context(.light-theme) .dp-ai svg,
 :host-context(.theme-light) .dp-ai svg,
 :host-context(body.light) .dp-ai svg {
-  color: #6B27A5;
+  color: #9A6700;
 }
 :host-context(body.light-theme) .dp-ai-done,
 :host-context(body.theme-light) .dp-ai-done,

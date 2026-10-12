@@ -89,6 +89,12 @@ app-category-guide .ai-txt-s{font-size:13px;color:var(--txt-2)}
 app-category-guide .ai-txt-s strong{color:var(--txt)}
 app-category-guide .ai-badge{background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:3px 9px;font-size:10px;font-weight:800;color:var(--ai-txt);flex-shrink:0}
 
+/* non-AI source (most-viewed fallback): neutral, not AI purple */
+app-category-guide .ai-banner.plain{background:rgba(255,255,255,.04);border-color:rgba(168,178,209,.2)}
+app-category-guide .ai-banner.plain .ai-ico{background:rgba(168,178,209,.1);border-color:rgba(168,178,209,.2);color:var(--txt-2)}
+app-category-guide .ai-banner.plain .ai-lbl{color:var(--txt-2)}
+app-category-guide .ai-banner.plain .ai-badge{background:rgba(168,178,209,.1);border-color:rgba(168,178,209,.2);color:var(--txt-2)}
+
 /* CATEGORIES GRID */
 app-category-guide .cats-grid{display:flex;flex-direction:column;gap:20px}
 
@@ -102,7 +108,7 @@ app-category-guide .cat-head-info{flex:1}
 app-category-guide .cat-name{font-size:19px;font-weight:900;color:var(--txt);margin-bottom:5px}
 app-category-guide .cat-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--txt-3);flex-wrap:wrap}
 app-category-guide .cat-cnt{font-weight:800;color:var(--txt-2);font-size:13px}
-app-category-guide .cat-ai-tag{padding:2px 8px;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:4px;font-size:10px;font-weight:800;color:var(--ai-txt)}
+app-category-guide .cat-ai-tag{padding:2px 8px;background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.22);border-radius:4px;font-size:10px;font-weight:800;color:var(--kahr,#D98A0B)}
 app-category-guide .cat-head-action{display:flex;align-items:center;gap:8px;flex-shrink:0}
 app-category-guide .cat-all-btn{padding:7px 16px;border-radius:20px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal);font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;transition:all .15s}
 app-category-guide .cat-all-btn:hover{background:rgba(43,212,199,.14)}
@@ -113,12 +119,12 @@ app-category-guide .cat-body{padding:16px 22px 20px}
 app-category-guide .subs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 app-category-guide .sub-item{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);text-decoration:none;background:rgba(255,255,255,.018);transition:all .15s;cursor:pointer}
 app-category-guide .sub-item:hover{background:rgba(43,212,199,.05);border-color:rgba(43,212,199,.2)}
-app-category-guide .sub-item.trending{background:rgba(123,47,190,.04);border-color:rgba(123,47,190,.15)}
+app-category-guide .sub-item.trending{background:rgba(217,138,11,.04);border-color:rgba(217,138,11,.15)}
 app-category-guide .sub-item.trending .sub-name{color:var(--txt)}
 app-category-guide .sub-name{font-size:13px;font-weight:700;color:var(--txt-2);line-height:1.35}
 app-category-guide .sub-foot{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
 app-category-guide .sub-cnt{font-size:11px;color:var(--txt-3);font-weight:600}
-app-category-guide .sub-hot{font-size:9px;font-weight:800;color:var(--ai-txt);background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:3px;padding:1px 5px}
+app-category-guide .sub-hot{font-size:9px;font-weight:800;color:var(--kahr,#D98A0B);background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.22);border-radius:3px;padding:1px 5px}
 app-category-guide .sub-teal{font-size:9px;font-weight:800;color:var(--teal);background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);border-radius:3px;padding:1px 5px}
 
 /* CARD FOOTER */

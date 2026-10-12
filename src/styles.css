@@ -1050,3 +1050,29 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light,
 .bio-counter{margin-top:4px;font-size:11px;font-weight:700;color:var(--txt-3);text-align:end}
 .bio-counter.is-near{color:#d98a0b}
 .bio-counter.is-over{color:#ff8c69}
+
+/* ============================================================
+   ws-note — the NON-AI note / notice banner (security, escrow, invoices, manual review, general help…).
+   Purple + the official #i-ai icon are reserved for REAL AI only (see ai-icon.static.spec / ai-purple.static.spec),
+   so a banner that merely speaks in the platform's voice ("وسيط، …") uses this component instead of .ai-disclosure.
+   Tones: info (blue — safety / guarantee / protection), neutral (status / general), warn (amber), success (green).
+   Markup: <div class="ws-note ws-note--info"><div class="ws-note-ico"><svg>…</svg></div><div class="ws-note-body"><div class="ws-note-lbl">…</div><p class="ws-note-txt">…</p></div></div>
+   A bare icon + text row works too (<svg> and <div> as direct children).
+   ============================================================ */
+.ws-note{--wsn-fg:#5DA0FF;--wsn-bg:rgba(43,127,255,.07);--wsn-bd:rgba(43,127,255,.22);--wsn-ico:rgba(43,127,255,.14);--wsn-txt:#A8B2D1;
+  display:flex;align-items:center;gap:12px;padding:13px 16px;margin-bottom:18px;border-radius:14px;
+  background:var(--wsn-bg);border:1px solid var(--wsn-bd);color:var(--wsn-txt);font-size:13px;line-height:1.7}
+.ws-note--neutral{--wsn-fg:#9AA6C4;--wsn-bg:rgba(255,255,255,.04);--wsn-bd:rgba(255,255,255,.1);--wsn-ico:rgba(255,255,255,.08)}
+.ws-note--warn{--wsn-fg:#FFB400;--wsn-bg:rgba(255,180,0,.07);--wsn-bd:rgba(255,180,0,.24);--wsn-ico:rgba(255,180,0,.14)}
+.ws-note--success{--wsn-fg:#2BD4C7;--wsn-bg:rgba(43,212,199,.07);--wsn-bd:rgba(43,212,199,.22);--wsn-ico:rgba(43,212,199,.14)}
+.ws-note > svg{width:18px;height:18px;flex-shrink:0;color:var(--wsn-fg)}
+.ws-note-ico{width:30px;height:30px;border-radius:8px;background:var(--wsn-ico);color:var(--wsn-fg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ws-note-ico svg{width:15px;height:15px}
+.ws-note-body{flex:1;min-width:0}
+.ws-note-lbl{font-size:10px;font-weight:800;color:var(--wsn-fg);letter-spacing:.06em;margin-bottom:2px}
+.ws-note-txt{font-size:13px;margin:0;color:var(--wsn-txt)}
+.ws-note strong{color:var(--wsn-fg)}
+:is(.theme-light,.light-theme,body.light-theme,body.theme-light) .ws-note{--wsn-fg:#1D6FE0;--wsn-bg:rgba(43,127,255,.06);--wsn-bd:rgba(43,127,255,.22);--wsn-ico:rgba(43,127,255,.12);--wsn-txt:#475569}
+:is(.theme-light,.light-theme,body.light-theme,body.theme-light) .ws-note--neutral{--wsn-fg:#475569;--wsn-bg:rgba(15,23,42,.04);--wsn-bd:rgba(15,23,42,.12);--wsn-ico:rgba(15,23,42,.07)}
+:is(.theme-light,.light-theme,body.light-theme,body.theme-light) .ws-note--warn{--wsn-fg:#9A6700;--wsn-bg:rgba(255,180,0,.1);--wsn-bd:rgba(154,103,0,.28);--wsn-ico:rgba(255,180,0,.2)}
+:is(.theme-light,.light-theme,body.light-theme,body.theme-light) .ws-note--success{--wsn-fg:#0A6F64;--wsn-bg:rgba(43,212,199,.09);--wsn-bd:rgba(10,111,100,.26);--wsn-ico:rgba(43,212,199,.18)}

@@ -245,7 +245,7 @@ describe('7/8. neutral icons and no robot / rocket emoji', () => {
 		D + 'supper-admin-overview/sa-requests/sa-requests.html',
 		D + 'provider-overview/finance/wallet/wallet.html',
 		D + 'provider-overview/offers/offers.html',
-		D + 'provider-overview/projects/active/active.html',
+		// projects/active.html "وسيط، متابعة المشاريع" is a smart-follow-up AI banner (owner rule 2026-10-12): it uses the official mark.
 		'pages/website/pricing/pricing.html',
 		'pages/auth/rest-password/rest-password.html',
 		'pages/website/home/components/marketplace-preview/marketplace-preview.html',

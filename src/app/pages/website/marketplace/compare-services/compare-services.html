@@ -83,7 +83,7 @@
             </div>
             <div class="pcard-body">
               @if (isWinner) {
-                @if (m.aiScore != null) { <div class="pcard-ai" style="background:rgba(43,212,199,.1);border-color:rgba(43,212,199,.25);color:var(--teal)"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
+                @if (m.aiScore != null) { <div class="pcard-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
               } @else {
                 @if (m.aiScore != null) { <div class="pcard-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
               }

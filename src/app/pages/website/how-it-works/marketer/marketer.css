@@ -52,9 +52,9 @@
 .tl-detail{display:flex;align-items:flex-start;gap:7px;padding:9px 11px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:9px;font-size:11px;color:var(--txt-2);line-height:1.55}
 .tl-detail-ico{width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .tl-detail-ico svg{width:8px;height:8px}
-.tl-ai-note{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:10px;margin-top:12px;font-size:12px;color:var(--txt-2);line-height:1.6}
-.tl-ai-ico{width:24px;height:24px;border-radius:7px;background:rgba(123,47,190,.15);border:1px solid var(--ai-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.tl-ai-ico svg{width:11px;height:11px;color:var(--ai)}
+.tl-note{align-items:flex-start;gap:9px;padding:11px 13px;margin:12px 0 0;border-radius:10px;font-size:12px;line-height:1.6}
+.tl-note .ws-note-ico{width:24px;height:24px;border-radius:7px;margin-top:1px}
+.tl-note .ws-note-ico svg{width:11px;height:11px}
 
 /* TYPES GRID */
 .types-section{padding:0 0 64px}

@@ -79,16 +79,16 @@ describe('purple AI identity icon on the provider level page', () => {
 	});
 });
 
-describe('provider dashboard AI identity banners use the official purple i-ai mark (no shield look-alike)', () => {
+describe('provider dashboard "وسيط، …" banners: AI only when the banner is a real AI function', () => {
 	const base = 'pages/dashboard/provider-overview/';
-	it.each([
-		'settings/account/account.html', 'projects/archived/archived.html', 'profile/add-account/add-account.html', 'finance/invoices/invoices.html', 'notifications/favorite/favorite.html',
-		'help/help.html', 'reports/reports.html', 'company/official-invoices/official-invoices.component.html', 'disputes/disputes.html', 'profile/requests/requests.html',
-	])('%s: the "وسيط، …" identity banner draws the official mark', (file) => {
+	// Real AI / smart follow-up → purple + the official i-ai mark.
+	it.each(['projects/archived/archived.html', 'projects/active/active.html', 'help/help.html'])('%s: draws the official i-ai mark', (file) => {
 		expect(read(base + file)).toContain('href="#i-ai"');
 	});
 
-	// Banners that do not describe an AI call keep a neutral icon (ai-claims-cleanup.static.spec.ts guards the neutral files).
-	it.each(['settings/account/account.html', 'projects/archived/archived.html', 'finance/invoices/invoices.html', 'notifications/favorite/favorite.html', 'help/help.html', 'reports/reports.html', 'company/official-invoices/official-invoices.component.html'])(
-		'%s has no shield look-alike left', (file) => expect(read(base + file)).not.toContain('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z'));
+	// Security / invoices / account / reviews / reports notes are NOT AI: a neutral ws-note, never purple + i-ai (ai-purple.static.spec.ts guards the rule).
+	it.each(['settings/account/account.html', 'profile/add-account/add-account.html', 'finance/invoices/invoices.html', 'notifications/favorite/favorite.html', 'reports/reports.html',
+		'company/official-invoices/official-invoices.component.html', 'disputes/disputes.html', 'profile/requests/requests.html'])('%s: is a non-AI ws-note banner', (file) => {
+		expect(read(base + file)).toContain('ws-note');
+	});
 });

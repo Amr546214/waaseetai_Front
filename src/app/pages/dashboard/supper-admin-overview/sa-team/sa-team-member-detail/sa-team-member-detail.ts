@@ -113,7 +113,7 @@ export class SaTeamMemberDetail implements OnInit {
   private readonly statusCycle = [
     { label: 'جارٍ', color: '#D98A0B', bg: 'rgba(255,180,0,.10)' },
     { label: 'معلق', color: '#5DA0FF', bg: 'rgba(43,127,255,.10)' },
-    { label: 'قيد المراجعة', color: '#A56BE0', bg: 'rgba(165,107,224,.10)' },
+    { label: 'قيد المراجعة', color: '#D98A0B', bg: 'rgba(255,180,0,.10)' },
   ];
 
   private readonly caseLabels: Record<string, { prefix: string; idBase: number }[]> = {
