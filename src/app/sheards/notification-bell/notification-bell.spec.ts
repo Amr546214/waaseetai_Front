@@ -37,11 +37,11 @@ function rawNotification(overrides: any = {}) {
 	};
 }
 
-function setup(accountType: string) {
+function setup(accountType: string, activeRole?: string) {
 	const getSpy = vi.fn<(...args: any[]) => any>(() => of({ success: true, data: [] as any[] }));
 	const patchSpy = vi.fn<(...args: any[]) => any>(() => of({ success: true }));
 	const navigateByUrlSpy = vi.fn();
-	const fakeAuthStore = { currentUser: signal({ accountType } as any) };
+	const fakeAuthStore = { currentUser: signal({ accountType, activeRole } as any) };
 
 	TestBed.configureTestingModule({
 		imports: [NotificationBell],
@@ -166,5 +166,17 @@ describe('NotificationBell', () => {
 		const { fixture, component } = setup('PROVIDER_INDIVIDUAL');
 		fixture.detectChanges();
 		expect(component.viewAllLink()).toBe('/provider-overview/notifications');
+	});
+
+	it('viewAllLink follows the ACTIVE role: provider account acting as CLIENT -> client notifications', () => {
+		const { fixture, component } = setup('PROVIDER_INDIVIDUAL', 'CLIENT');
+		fixture.detectChanges();
+		expect(component.viewAllLink()).toBe('/client-overview/notifications');
+	});
+
+	it('viewAllLink for a marketer stays in the marketer area', () => {
+		const { fixture, component } = setup('MARKETING_BROKER', 'AFFILIATE');
+		fixture.detectChanges();
+		expect(component.viewAllLink()).toBe('/marketer-overview/notifications');
 	});
 });
