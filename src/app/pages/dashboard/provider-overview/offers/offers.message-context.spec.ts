@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { vi } from 'vitest';
 import { Offers } from './offers';
 import { OfferNegotiate } from './negotiate/negotiate';
@@ -37,7 +37,7 @@ describe('provider offers: message context carries the real project id', () => {
 	});
 
 	it('negotiate page: opens the conversation with the offer\'s project id, not the offer id', async () => {
-		TestBed.configureTestingModule({ imports: [OfferNegotiate], providers: [provideRouter([]), { provide: OffersService, useValue: { getOfferById: () => of(ITEM) } },
+		TestBed.configureTestingModule({ imports: [OfferNegotiate], providers: [provideRouter([]), { provide: OffersService, useValue: { getOfferById: () => of(ITEM), getNegotiation: () => NEVER } },
 			{ provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'PROVIDER_INDIVIDUAL' }) } },
 			{ provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'offer-1' })), snapshot: { paramMap: convertToParamMap({ id: 'offer-1' }) } } }] });
 		const f = TestBed.createComponent(OfferNegotiate); f.detectChanges(); await f.whenStable();

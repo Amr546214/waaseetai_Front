@@ -9,6 +9,8 @@ import { AccountType } from '../../../../core/models/auth.model';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
 
+import { OffersService, OfferNegotiationState } from '../../../../core/services/offers.service';
+
 export interface MessageItem {
   id: number | string;
   tempId?: string;
@@ -77,6 +79,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
   private chatStateService = inject(ChatStateService);
   private videoCallService = inject(VideoCallService);
+  private offersService = inject(OffersService);
   private sub = new Subscription();
 
   private currentUserId = 'provider_001';
@@ -293,6 +296,9 @@ export class ProviderMessages implements OnInit, OnDestroy {
             return c;
           })
         );
+        if (targetId === this.activeConvId() && formattedMsg.sender === 'other' && this.isNegotiationMsg(formattedMsg)) {
+          this.loadNegotiationState(targetId, [formattedMsg]); // a new client request just arrived: ask the server what can be done now
+        }
         if (targetId === this.activeConvId()) {
           this.scrollToBottom();
           this.chatService.markAsRead(targetId, this.currentUserId);
@@ -341,6 +347,10 @@ export class ProviderMessages implements OnInit, OnDestroy {
     this.scrollToBottom();
 
     // Fetch paginated message history dynamically
+    this.fetchHistory(id);
+  }
+
+  private fetchHistory(id: string): void {
     this.sub.add(
       this.chatService.getMessages(id).subscribe({
         next: (res) => {
@@ -363,6 +373,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
               list.map((c) => (c.id === id ? { ...c, messages: loadedMsgs, unreadCount: 0 } : c))
             );
             this.scrollToBottom();
+            this.loadNegotiationState(id, loadedMsgs);
           }
         },
         error: (err) => {
@@ -716,12 +727,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
       }
     }
 
-    if (data) {
-      if ((msg as any).negStatus) {
-        data.status = (msg as any).negStatus;
-      }
-      return data;
-    }
+    if (data) return data;
 
     const lines = msg.text.split('\n');
     let typeName = 'السعر';
@@ -738,61 +744,96 @@ export class ProviderMessages implements OnInit, OnDestroy {
       negTypeName: typeName,
       price: price,
       notes: notes,
-      status: (msg as any).negStatus || 'PENDING'
+      status: 'PENDING'
     };
   }
 
   getNegStatusText(status?: string): string {
     if (status === 'ACCEPTED') return 'تم القبول ✓';
-    if (status === 'REJECTED') return 'تم الرفض ✕';
+    if (status === 'REJECTED') return 'تم الاعتذار';
+    if (status === 'COUNTER_SENT') return 'بانتظار رد العميل';
     return 'قيد الانتظار';
   }
 
-  respondNegotiation(msg: MessageItem, action: 'ACCEPTED' | 'REJECTED' | 'DISCUSS'): void {
+  // ---- negotiation: every decision below is a REAL server call; nothing is decided or "locked" locally ----
+  /** The server's view of the offer behind the active conversation (null when there is no negotiation or it could not be read). */
+  negState = signal<OfferNegotiationState | null>(null);
+  negConfirmId = signal<string>('');
+  negBusy = signal<boolean>(false);
+  negError = signal<string>('');
+
+  private loadNegotiationState(convId: string, msgs: MessageItem[]): void {
+    const conv = this.conversations().find((c) => c.id === convId);
+    const hasNegotiation = msgs.some((m) => this.isNegotiationMsg(m));
+    this.negConfirmId.set('');
+    this.negError.set('');
+    if (!conv?.projectId || !hasNegotiation) {
+      this.negState.set(null);
+      return;
+    }
+    this.sub.add(
+      this.offersService.getNegotiationByProject(conv.projectId).subscribe({
+        next: (state) => { if (this.activeConvId() === convId) this.negState.set(state); },
+        error: () => { if (this.activeConvId() === convId) this.negState.set(null); }
+      })
+    );
+  }
+
+  /** 'client' = the client's request card, 'counter' / 'reply' = the provider's own structured entries, 'other' = anything else. */
+  negKind(msg: MessageItem): 'client' | 'counter' | 'reply' {
+    const data = this.getNegData(msg);
+    // provider entries only count when they are MY messages (a client cannot make a card look like one of mine)
+    if (msg.sender === 'me' && data?.kind === 'PROVIDER_COUNTER') return 'counter';
+    if (msg.sender === 'me' && data?.kind === 'PROVIDER_REJECT') return 'reply';
+    return 'client';
+  }
+
+  /** The client's request that is still waiting for the provider (the server decides which one). */
+  isOpenNegotiationRequest(msg: MessageItem): boolean {
+    const request = this.negState()?.request;
+    return this.negKind(msg) === 'client' && !!request && request.messageId === String(msg.id);
+  }
+
+  discussNegotiation(msg: MessageItem): void {
     const neg = this.getNegData(msg);
     if (!neg) return;
+    this.newMessageText.set(`مرحباً، بخصوص طلب التفاوض على (${neg.negTypeName || 'السعر'})... `);
+    const textarea = document.querySelector('.itxt') as HTMLTextAreaElement;
+    if (textarea) textarea.focus();
+  }
 
-    if (action === 'DISCUSS') {
-      this.newMessageText.set(`مرحباً، بخصوص طلب التفاوض على (${neg.negTypeName || 'السعر'})... `);
-      const textarea = document.querySelector('.itxt') as HTMLTextAreaElement;
-      if (textarea) textarea.focus();
-      return;
-    }
+  askRejectNegotiation(msg: MessageItem): void {
+    this.negError.set('');
+    this.negConfirmId.set(String(msg.id));
+  }
 
-    // Check if decision has already been taken
-    if (neg.status === 'ACCEPTED' || neg.status === 'REJECTED') {
-      this.showToast('⚠️ لقد تم اتخاذ القرار بخصوص هذا التفاوض مسبقاً ولا يمكن تغييره.');
-      return;
-    }
+  cancelRejectNegotiation(): void {
+    this.negConfirmId.set('');
+  }
 
-    // Lock the decision locally and update the message payload text
-    (msg as any).negStatus = action;
-    neg.status = action;
+  confirmRejectNegotiation(msg: MessageItem): void {
+    const state = this.negState();
+    if (this.negBusy() || !state?.canReject || state.request?.messageId !== String(msg.id)) return;
+    this.negBusy.set(true);
+    this.negError.set('');
+    this.offersService.rejectNegotiation(state.offerId, String(msg.id)).subscribe({
+      next: () => {
+        this.negBusy.set(false);
+        this.negConfirmId.set('');
+        this.showToast('✅ تم الاعتذار عن طلب التفاوض، ويبقى عرضك بشروطه الأصلية');
+        const id = this.activeConvId();
+        if (id) this.fetchHistory(id); // shows the reply entry and refreshes the state
+      },
+      error: (err) => {
+        this.negBusy.set(false);
+        this.negError.set(err?.error?.message || 'تعذر تنفيذ الإجراء. حاول مرة أخرى.');
+      }
+    });
+  }
 
-    if (msg.text.startsWith('WS_NEGOTIATION::')) {
-      try {
-        const parsed = JSON.parse(msg.text.replace('WS_NEGOTIATION::', ''));
-        parsed.status = action;
-        msg.text = 'WS_NEGOTIATION::' + JSON.stringify(parsed);
-      } catch (e) {}
-    } else if (msg.text.includes('"isNegotiation":true')) {
-      try {
-        const parsed = JSON.parse(msg.text);
-        parsed.status = action;
-        msg.text = JSON.stringify(parsed);
-      } catch (e) {}
-    }
-
-    if (action === 'ACCEPTED') {
-      const text = `✅ **تم قبول طلب التفاوض**\nيُسعدني قبول عرض التفاوض الخاص بك (${neg?.price ? neg.price + ' دولار' : ''}). تم اعتماد الشروط للبدء في تنفيذ المشروع.`;
-      this.newMessageText.set(text);
-      this.sendMessage('TEXT');
-      this.showToast('✅ تم قبول طلب التفاوض بنجاح وتثبيت القرار');
-    } else if (action === 'REJECTED') {
-      const text = `❌ **اعتذار عن طلب التفاوض**\nشكراً لتواصلك، لكن يتعذر عليّ التنازل عن السعر أو المدة المحددة مسبقاً لضمان أفضل جودة للتنفيذ.`;
-      this.newMessageText.set(text);
-      this.sendMessage('TEXT');
-      this.showToast('ℹ️ تم إرسال رد الاعتذار وتثبيت القرار');
-    }
+  /** The counter-offer form lives on the negotiation page of the offer. */
+  openOfferNegotiation(): void {
+    const state = this.negState();
+    if (state) this.router.navigate(['/provider-overview/offers', state.offerId, 'negotiate']);
   }
 }

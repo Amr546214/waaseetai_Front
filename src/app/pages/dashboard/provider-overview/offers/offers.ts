@@ -16,6 +16,8 @@ export interface Offer {
 	clientName: string;
 	clientType: 'company' | 'individual';
 	actionText: string;
+	/** The provider may withdraw this offer right now (server re-checks). */
+	canWithdraw?: boolean;
 }
 
 @Component({
@@ -136,7 +138,8 @@ export class Offers implements OnInit {
 						statusText: item.statusText || 'بانتظار الرد',
 						clientName: item.clientName || 'عميل وسيط',
 						clientType: (item.clientType && item.clientType.toUpperCase() === 'COMPANY') ? 'company' : 'individual',
-						actionText: item.actionText || 'فتح العرض'
+						actionText: item.actionText || 'فتح العرض',
+						canWithdraw: item.canWithdraw === true
 					}));
 					this.offers.set(mapped);
 					if (!res.counts && this.activeStatus() === 'all') {
@@ -241,6 +244,39 @@ export class Offers implements OnInit {
 
 	closePendingOfferModal() {
 		this.selectedPendingOffer.set(null);
+		this.withdrawConfirming.set(false);
+		this.withdrawError.set('');
+	}
+
+	// Withdraw (two steps: the button, then an explicit confirmation). Nothing is shown as done unless the server confirmed it.
+	withdrawConfirming = signal<boolean>(false);
+	withdrawing = signal<boolean>(false);
+	withdrawError = signal<string>('');
+
+	askWithdraw() {
+		this.withdrawError.set('');
+		this.withdrawConfirming.set(true);
+	}
+
+	cancelWithdraw() {
+		this.withdrawConfirming.set(false);
+	}
+
+	confirmWithdraw(offer: Offer) {
+		if (this.withdrawing() || !offer.canWithdraw) return;
+		this.withdrawing.set(true);
+		this.withdrawError.set('');
+		this.offersService.withdrawOffer(offer.id).subscribe({
+			next: () => {
+				this.withdrawing.set(false);
+				this.closePendingOfferModal();
+				this.fetchOffers();
+			},
+			error: (err) => {
+				this.withdrawing.set(false);
+				this.withdrawError.set(err?.error?.message || 'تعذر سحب العرض. حاول مرة أخرى.');
+			}
+		});
 	}
 
 	messageOfferClient(offer: Offer) {
