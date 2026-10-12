@@ -3,6 +3,8 @@ import { ActivatedRoute, provideRouter } from '@angular/router';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 import { signal } from '@angular/core';
 import { vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ProviderMessages, resolveInitialConversation } from './messages';
 import { ChatService } from '../../../../core/services/chat.service';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -77,6 +79,12 @@ describe('provider messages: opens the conversation of the project in the contex
 		expect(box.textContent).toContain('يبدأها العميل عند الحاجة.');
 		expect(s.q('no-conversation-project')!.textContent).toContain('مشروع بلا محادثة');
 		expect(s.el.querySelector('.msg-hdr')).toBeNull();
+		// the way back to the list is a real, styled CTA button (not an unstyled composer button)
+		const cta = s.q('show-all-conversations') as HTMLButtonElement;
+		expect(cta.tagName).toBe('BUTTON');
+		expect(cta.className).toContain('msg-empty-cta');
+		expect(cta.className).not.toContain('sbtn');
+		expect(cta.textContent!.trim()).toBe('عرض كل المحادثات');
 		expect((s.el.querySelector('.msg-panel') as HTMLElement).textContent).not.toContain('عميل أول'); // the first conversation's chat is not shown in the panel
 	});
 
@@ -123,5 +131,12 @@ describe('provider messages: opens the conversation of the project in the contex
 		const payload = (s.sendMessage.mock.calls[0] as any[])[1];
 		expect(payload.conversationId).toBe('c2');
 		expect(payload.context).toMatchObject({ projectId: 'p2' });
+	});
+
+	it('static: the CTA has its own dark and light styles and a visible border (contrast), and the behaviour is the same single handler', () => {
+		const css = readFileSync(join(__dirname, 'messages.css'), 'utf8');
+		expect(css).toMatch(/\.msg-empty-state \.msg-empty-cta\s*\{[^}]*border:\s*1px solid rgba\(43, 212, 199, \.45\)/);
+		expect(css).toMatch(/\.theme-light \.msg-empty-state \.msg-empty-cta\s*\{[^}]*color:\s*#0A6F64/);
+		expect(readFileSync(join(__dirname, 'messages.html'), 'utf8')).toContain('(click)="showAllConversations()" data-testid="show-all-conversations"');
 	});
 });

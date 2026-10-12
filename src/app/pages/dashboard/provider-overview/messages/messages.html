@@ -339,7 +339,7 @@
         <div class="state-title">لا توجد محادثة لهذا المشروع بعد.</div>
         <div class="state-copy">يبدأها العميل عند الحاجة.</div>
         @if (messageContext()?.projectTitle) { <div class="state-copy" data-testid="no-conversation-project">المشروع: {{ messageContext()?.projectTitle }}</div> }
-        <button type="button" class="sbtn" style="margin-top:12px;padding:8px 16px;width:auto" (click)="showAllConversations()" data-testid="show-all-conversations">عرض كل المحادثات</button>
+        <button type="button" class="msg-empty-cta" (click)="showAllConversations()" data-testid="show-all-conversations">عرض كل المحادثات</button>
       </div>
     } @else {
       <!-- No conversation at all: one centred empty state fills the panel (no header / toolbar is rendered without a conversation). -->
