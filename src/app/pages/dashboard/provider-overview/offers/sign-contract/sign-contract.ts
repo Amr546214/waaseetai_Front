@@ -6,6 +6,38 @@ import { OffersService } from '../../../../../core/services/offers.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 
+export interface ProviderContractMilestone { order: number; title: string; description: string | null; days: number | null; percentage: number | null; amount: number | null }
+export interface ProviderContract {
+	id: string; status: string; price: number; durationDays: number; phasesCount: number;
+	milestones: ProviderContractMilestone[]; escrow: { amount: number; status: string } | null;
+}
+
+/** "5 يوم · 40% · 380 $" from whatever the saved milestone really has ('' when it has none of them). */
+export function milestoneMeta(m: ProviderContractMilestone): string {
+	const parts: string[] = [];
+	if (m.days !== null) parts.push(`${m.days} يوم`);
+	if (m.percentage !== null) parts.push(`${m.percentage}%`);
+	if (m.amount !== null) parts.push(`${m.amount.toLocaleString('en-US')} $`);
+	return parts.join(' · ');
+}
+
+const formatUsd = (v: number) => `${v.toLocaleString('en-US')} $`;
+const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+
+/** Reads `contract` from an offers-API item defensively: anything unusable means "no contract" (the page then shows nothing invented). */
+export function readProviderContract(raw: unknown): ProviderContract | null {
+	if (!raw || typeof raw !== 'object') return null;
+	const c = raw as Record<string, any>;
+	if (!finite(c['price']) || !finite(c['durationDays']) || !finite(c['phasesCount'])) return null;
+	const milestones: ProviderContractMilestone[] = (Array.isArray(c['milestones']) ? c['milestones'] : [])
+		.filter((m: any) => m && typeof m === 'object' && typeof m.title === 'string' && m.title.trim())
+		.map((m: any, i: number) => ({ order: finite(m.order) ? m.order : i + 1, title: String(m.title), description: typeof m.description === 'string' && m.description ? m.description : null,
+			days: finite(m.days) ? m.days : null, percentage: finite(m.percentage) ? m.percentage : null, amount: finite(m.amount) ? m.amount : null }));
+	const e = c['escrow'];
+	return { id: String(c['id'] ?? ''), status: String(c['status'] ?? ''), price: c['price'], durationDays: c['durationDays'], phasesCount: c['phasesCount'], milestones,
+		escrow: e && finite(e.amount) ? { amount: e.amount, status: String(e.status ?? '') } : null };
+}
+
 @Component({
 	selector: 'app-sign-contract',
 	standalone: true,
@@ -43,8 +75,13 @@ export class SignContract {
 	offerRef = signal<string>('');
 	providerName = signal<string>('');
 	price = signal<string>('');
-	duration = signal<string>('');
-	phases = signal<string>('');
+	// The REAL contract (price / duration / phases / saved milestones / funded escrow) returned by GET /provider/offers for an offer the provider
+	// can sign now. null = no contract to show (client has not signed / funded yet, or the offer is not at the signing stage): nothing is invented.
+	contract = signal<ProviderContract | null>(null);
+	contractPrice = computed(() => { const c = this.contract(); return c ? formatUsd(c.price) : ''; });
+	contractDuration = computed(() => { const c = this.contract(); return c && c.durationDays > 0 ? `${c.durationDays} يوم` : ''; });
+	contractPhases = computed(() => { const c = this.contract(); return c ? (c.milestones.length || c.phasesCount) : 0; });
+	escrowAmount = computed(() => { const c = this.contract(); return c?.escrow ? formatUsd(c.escrow.amount) : ''; });
 	isLoading = signal<boolean>(true);
 	loadError = signal<string | null>(null);
 
@@ -94,8 +131,7 @@ export class SignContract {
 				this.offerRef.set(item.projectRef || item.ref || this.offerRef());
 				this.providerName.set(item.providerName || item.clientName || this.providerName());
 				this.price.set(typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || this.price()));
-				this.duration.set(item.duration || item.offeredDuration || this.duration());
-				this.phases.set(item.phases || item.milestones || this.phases());
+				this.contract.set(readProviderContract(item.contract));
 			},
 			error: (err) => {
 				this.isLoading.set(false);
@@ -104,6 +140,8 @@ export class SignContract {
 			}
 		});
 	}
+
+	milestoneMeta = milestoneMeta;
 
 	displayToast(msg: string) {
 		this.toastMessage.set(msg);
@@ -114,6 +152,10 @@ export class SignContract {
 	}
 
 	signContract() {
+		if (!this.isLoading() && !this.loadError() && !this.contract()) {
+			this.displayToast('العقد غير جاهز لتوقيعك بعد: بانتظار توقيع العميل وإيداع الضمان');
+			return;
+		}
 		if (this.isLoading() || this.loadError()) {
 			this.displayToast(this.loadError() || 'انتظر حتى يكتمل تحميل العقد');
 			return;
