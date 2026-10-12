@@ -621,3 +621,11 @@
 :host-context(body.light-theme) .lc-ta,:host-context(body.theme-light) .lc-ta,:host-context(.light-theme) .lc-ta,:host-context(.theme-light) .lc-ta{background:#F5F7FC;border-color:#C9D0E3;color:#0F172A}
 :host-context(body.light-theme) .lc-fld label,:host-context(body.theme-light) .lc-fld label,:host-context(.light-theme) .lc-fld label,:host-context(.theme-light) .lc-fld label{color:#475569}
 :host-context(body.light-theme) .lc-mhd-canc .mi,:host-context(body.theme-light) .lc-mhd-canc .mi,:host-context(.light-theme) .lc-mhd-canc .mi,:host-context(.theme-light) .lc-mhd-canc .mi{background:rgba(255,140,105,.06);color:#C25B43}
+
+/* real delivery uploads */
+.up-file-prog{display:block;height:4px;border-radius:2px;background:rgba(255,255,255,.1);margin-top:6px;overflow:hidden}
+.up-file-prog i{display:block;height:100%;background:#2BD4C7;transition:width .15s}
+.up-file-item.up-file-err{border-color:rgba(255,107,107,.45)}
+.up-file-msg{display:block;font-size:11px;color:#FF8C69;margin-top:3px}
+.up-hint{font-size:12px;color:#FFB400;margin:0 0 10px;text-align:start}
+.up-btn-pri:disabled{opacity:.5;cursor:not-allowed}

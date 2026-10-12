@@ -2,7 +2,9 @@ import { Component, OnInit, computed, inject, signal, ElementRef, viewChild } fr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ActiveProjectsService } from '../../../../../../core/services/active.service';
+import { HttpEventType } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { ActiveProjectsService, DeliveryFileDescriptor } from '../../../../../../core/services/active.service';
 import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/project-mini-chat';
 import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
@@ -16,6 +18,28 @@ import { AccountType } from '../../../../../../core/models/auth.model';
 // project-details.ts SupportAction pattern exactly (no 'dispute' branch here
 // since this page already has its own dedicated app-dispute-modal).
 type SupportAction = 'edit' | 'cancel' | null;
+
+export const DELIVERY_LIMITS = { maxFileBytes: 25 * 1024 * 1024, maxFiles: 5, maxLinks: 5 } as const;
+const DELIVERY_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'txt', 'csv', 'mp4', 'webm', 'mp3', 'wav']);
+
+export interface DeliveryUpload {
+  id: string; name: string; size: number; sizeLabel: string;
+  status: 'uploading' | 'done' | 'error'; progress: number; error: string;
+  stored?: DeliveryFileDescriptor;
+}
+
+/** Client-side mirror of the server rules (the server re-checks): size <= 25MB, allowed types. null = fine. */
+export function deliveryFileProblem(file: { name: string; size: number }): string | null {
+  if (file.size <= 0) return 'الملف فارغ';
+  if (file.size > DELIVERY_LIMITS.maxFileBytes) return 'يتجاوز 25MB';
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!DELIVERY_EXTENSIONS.has(ext)) return 'نوع الملف غير مدعوم (ضع ملفات PSD/AI/الملفات المصدرية داخل ZIP)';
+  return null;
+}
+
+export function isHttpsLink(value: string): boolean {
+  try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password && u.hostname.includes('.'); } catch { return false; }
+}
 
 @Component({
   selector: 'app-progress', standalone: true,
@@ -63,9 +87,13 @@ export class Progress implements OnInit {
   deliveryFilter = signal<'all' | 'pending' | 'approved' | 'notes'>('all');
   editFilter = signal<'all' | 'waiting'>('all');
   deliveryStage = signal<any>(null);
-  deliveryNote = ''; deliveryFiles = '';
-  // P-PR-013 selected files (display-only state; submit still uses same API payload)
-  deliverySelectedFiles = signal<{ name: string; size: string }[]>([]);
+  deliveryNote = ''; deliveryLinks = '';
+  // Real delivery uploads: a picked file is uploaded at once and only counts as an artifact once the server has stored it (status 'done').
+  deliveryUploads = signal<DeliveryUpload[]>([]);
+  deliveryFileError = signal('');
+  readonly deliveryLimits = DELIVERY_LIMITS;
+  private uploadSubs = new Map<string, Subscription>();
+  private uploadSeq = 0;
   deliveryFileInput = viewChild<ElementRef<HTMLInputElement>>('deliveryFileInput');
   private projectId = '';
   providerRatingSuccess = signal('');
@@ -111,8 +139,8 @@ export class Progress implements OnInit {
   setTab(tab: any) { this.activeTab.set(tab); }
   setDeliveryFilter(filter: 'all' | 'pending' | 'approved' | 'notes') { this.deliveryFilter.set(filter); }
   setEditFilter(filter: 'all' | 'waiting') { this.editFilter.set(filter); }
-  openDelivery(stage: any) { this.deliveryStage.set(stage); this.deliveryNote = ''; this.deliveryFiles = ''; this.deliveryStep.set(1); this.deliverySuccess = false; this.deliverySelectedFiles.set([]); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } }
-  closeDelivery() { if (!this.saving()) { this.deliveryStage.set(null); this.deliveryStep.set(1); this.deliverySuccess = false; this.deliverySelectedFiles.set([]); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } } }
+  openDelivery(stage: any) { this.deliveryStage.set(stage); this.deliveryNote = ''; this.deliveryLinks = ''; this.cancelAllUploads(); this.deliveryFileError.set(''); this.deliveryStep.set(1); this.deliverySuccess = false; this.cancelAllUploads(); this.deliveryFileError.set(''); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } }
+  closeDelivery() { if (!this.saving()) { this.deliveryStage.set(null); this.deliveryStep.set(1); this.deliverySuccess = false; this.cancelAllUploads(); this.deliveryFileError.set(''); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } } }
   openConversation(stage?: any) {
     const data = this.projectData();
     if (!data) return;
@@ -128,24 +156,73 @@ export class Progress implements OnInit {
     this.router.navigate(['/provider-overview/messages'],
       { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: { messageContext: ctx } });
   }
-  // P-PR-013 file picker handlers (display-only state; no API changes)
+  // Delivery file picker: validates (count / 25MB / type), then uploads each file for real. Nothing is "attached" by name.
   onDeliveryFilesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files.length) return;
-    const current = this.deliverySelectedFiles();
-    const next = [...current];
-    for (let i = 0; i < input.files.length; i++) {
-      const f = input.files[i];
-      if (next.some(x => x.name === f.name)) continue;
-      next.push({ name: f.name, size: this.formatFileSize(f.size) });
-    }
-    this.deliverySelectedFiles.set(next);
+    const picked = input.files ? Array.from(input.files) : [];
     input.value = '';
+    const stage = this.deliveryStage();
+    if (!picked.length || !stage) return;
+    this.deliveryFileError.set('');
+    const problems: string[] = [];
+    for (const file of picked) {
+      const active = this.deliveryUploads().filter(u => u.status !== 'error').length;
+      if (active >= DELIVERY_LIMITS.maxFiles) { problems.push(`الحد الأقصى ${DELIVERY_LIMITS.maxFiles} ملفات للتسليم الواحد`); break; }
+      const problem = deliveryFileProblem(file);
+      if (problem) { problems.push(`${file.name}: ${problem}`); continue; }
+      this.startUpload(stage.id, file);
+    }
+    if (problems.length) this.deliveryFileError.set(problems.join(' · '));
   }
-  removeDeliveryFile(event: Event, name: string) {
+  private startUpload(stageId: string, file: File) {
+    const id = `u${++this.uploadSeq}`;
+    const entry: DeliveryUpload = { id, name: file.name, size: file.size, sizeLabel: this.formatFileSize(file.size), status: 'uploading', progress: 0, error: '' };
+    this.deliveryUploads.update(list => [...list, entry]);
+    const patch = (changes: Partial<DeliveryUpload>) => this.deliveryUploads.update(list => list.map(u => u.id === id ? { ...u, ...changes } : u));
+    const sub = this.service.uploadDeliveryFile(this.projectId, stageId, file).subscribe({
+      next: ev => {
+        if (ev.type === HttpEventType.UploadProgress && ev.total) patch({ progress: Math.round((ev.loaded / ev.total) * 100) });
+        if (ev.type === HttpEventType.Response) {
+          const stored = ev.body?.data?.files?.[0];
+          if (stored?.url) patch({ status: 'done', progress: 100, stored });
+          else patch({ status: 'error', error: 'لم يؤكد الخادم حفظ الملف' });
+          this.uploadSubs.delete(id);
+        }
+      },
+      error: err => { patch({ status: 'error', error: err.error?.message || 'تعذر رفع الملف' }); this.uploadSubs.delete(id); }
+    });
+    this.uploadSubs.set(id, sub);
+  }
+  removeDeliveryFile(event: Event, id: string) {
     event.stopPropagation();
-    this.deliverySelectedFiles.update(list => list.filter(f => f.name !== name));
+    this.uploadSubs.get(id)?.unsubscribe();
+    this.uploadSubs.delete(id);
+    this.deliveryUploads.update(list => list.filter(u => u.id !== id));
   }
+  private cancelAllUploads() {
+    this.uploadSubs.forEach(s => s.unsubscribe());
+    this.uploadSubs.clear();
+    this.deliveryUploads.set([]);
+  }
+  // The artifacts a delivery would carry right now: files the server stored + well-formed https links.
+  deliveryArtifacts() {
+    const files: DeliveryFileDescriptor[] = this.deliveryUploads().filter(u => u.status === 'done' && u.stored).map(u => u.stored!);
+    const lines = (this.deliveryLinks || '').split(/\r?\n/).map(v => v.trim()).filter(Boolean);
+    const links: string[] = []; const invalid: string[] = [];
+    for (const line of lines) (isHttpsLink(line) ? links : invalid).push(line);
+    return { files, links: [...new Set(links)], invalid, uploading: this.deliveryUploads().some(u => u.status === 'uploading') };
+  }
+  // Why the delivery cannot go forward yet (null = ready). Shown under the form and re-checked on submit.
+  deliveryBlocker(): string | null {
+    const a = this.deliveryArtifacts();
+    if (a.uploading) return 'انتظر اكتمال رفع الملفات';
+    if (a.invalid.length) return 'كل رابط يجب أن يبدأ بـ https:// وأن يكون صحيحاً';
+    if (a.links.length > DELIVERY_LIMITS.maxLinks) return `الحد الأقصى ${DELIVERY_LIMITS.maxLinks} روابط`;
+    if (!a.files.length && !a.links.length) return 'ارفع ملفاً واحداً على الأقل أو أضف رابط تسليم https';
+    if ((this.deliveryNote || '').trim().length < 10) return 'اكتب وصفاً واضحاً للتسليم (10 أحرف على الأقل)';
+    return null;
+  }
+  deliveryReady() { return this.deliveryBlocker() === null; }
   private formatFileSize(bytes: number): string {
     if (!bytes) return '0 KB';
     if (bytes < 1024) return bytes + ' B';
@@ -167,6 +244,9 @@ export class Progress implements OnInit {
   }
 
   startAiCheck() {
+    const blocker = this.deliveryBlocker();
+    if (blocker) { this.error.set(blocker); return; }
+    this.error.set('');
     // Plain self-review checklist: no AI call, no analysis animation, no fabricated score.
     this.deliveryStep.set(2);
     this.aiCheckState.set('complete');
@@ -201,8 +281,11 @@ export class Progress implements OnInit {
   }
   submitDelivery() {
     const stage = this.deliveryStage();
-    if (!stage || this.deliveryNote.trim().length < 10) { this.error.set('اكتب وصفاً واضحاً للتسليم'); return; }
-    const files = this.deliveryFiles.split(/[\n,]/).map(v => v.trim()).filter(Boolean);
+    if (!stage) return;
+    const blocker = this.deliveryBlocker();
+    if (blocker) { this.error.set(blocker); return; }
+    const a = this.deliveryArtifacts();
+    const files: Array<DeliveryFileDescriptor | string> = [...a.files, ...a.links];
     this.saving.set(true); this.error.set('');
     this.service.submitDelivery(this.projectId, stage.id, { note: this.deliveryNote.trim(), files }).subscribe({
       next: () => { this.saving.set(false); this.deliverySuccess = true; this.deliveryStep.set(4); this.load(); this.activeTab.set('delivs'); },

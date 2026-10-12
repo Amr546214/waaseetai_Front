@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+
+export interface DeliveryFileDescriptor { name: string; url: string; type: string; size: number }
 
 @Injectable({
 	providedIn: 'root'
@@ -21,7 +23,16 @@ export class ActiveProjectsService {
 		return this.http.get<any>(`${environment.url_api}/provider/projects/${projectId}/progress`);
 	}
 
-	submitDelivery(projectId: string, stageId: string, payload: { note: string; files: string[] }): Observable<any> {
+	/** One REAL upload of a delivery file (multipart field "files"); emits upload progress events, then the stored file descriptor. */
+	uploadDeliveryFile(projectId: string, stageId: string, file: File): Observable<HttpEvent<{ success: boolean; data: { files: DeliveryFileDescriptor[] } }>> {
+		const form = new FormData();
+		form.append('files', file, file.name);
+		return this.http.post<{ success: boolean; data: { files: DeliveryFileDescriptor[] } }>(
+			`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/deliveries/files`, form, { observe: 'events', reportProgress: true });
+	}
+
+	/** `files` = uploaded-file descriptors returned by uploadDeliveryFile and/or https links. File names alone are refused by the server. */
+	submitDelivery(projectId: string, stageId: string, payload: { note: string; files: Array<DeliveryFileDescriptor | string> }): Observable<any> {
 		return this.http.post<any>(`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/deliveries`, payload);
 	}
 

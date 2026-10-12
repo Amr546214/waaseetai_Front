@@ -138,23 +138,32 @@
         <div class="up-card">
           <div class="up-card-hdr">
             <div class="up-card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></div>
-            <div><div class="up-card-title">الملفات المرفقة<span class="up-req">*</span></div><div class="up-card-sub">JPG, PNG, PDF, ZIP, AI, PSD — حتى 500MB</div></div>
+            <div><div class="up-card-title">الملفات المرفقة<span class="up-req">*</span></div><div class="up-card-sub">صور، PDF، مستندات، ZIP، فيديو قصير — حتى {{deliveryLimits.maxFiles}} ملفات، 25MB للملف الواحد. ملفات PSD/AI ضعها داخل ZIP أو أرفق رابط تسليم</div></div>
           </div>
-          <input #deliveryFileInput type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.zip,.ai,.psd" hidden (change)="onDeliveryFilesSelected($event)" />
+          <input #deliveryFileInput type="file" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt,.csv,.mp4,.webm,.mp3,.wav" hidden (change)="onDeliveryFilesSelected($event)" />
           <div class="up-drop-zone" role="button" tabindex="0" (click)="deliveryFileInput.click()" (keydown.enter)="deliveryFileInput.click()" (keydown.space)="$event.preventDefault(); deliveryFileInput.click()">
             <div class="up-drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></div>
             <div class="up-drop-title">اسحب الملفات هنا أو اضغط للاختيار</div>
-            <div class="up-drop-sub">يمكنك إرفاق أكثر من ملف دفعة واحدة</div>
+            <div class="up-drop-sub">يُرفع كل ملف فور اختياره، ولا يُحتسب مرفقاً إلا بعد اكتمال رفعه</div>
             <button type="button" class="up-drop-btn" (click)="$event.stopPropagation(); deliveryFileInput.click()">اختيار ملفات</button>
           </div>
-          @if(deliverySelectedFiles().length){
+          @if(deliveryUploads().length){
           <div class="up-file-list">
-            @for(f of deliverySelectedFiles(); track f.name){
-            <div class="up-file-item"><span class="up-file-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="up-file-name">{{f.name}}</span><span class="up-file-size">{{f.size}}</span><button type="button" class="up-file-rm" (click)="removeDeliveryFile($event, f.name)" aria-label="إزالة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            @for(f of deliveryUploads(); track f.id){
+            <div class="up-file-item" [class.up-file-err]="f.status==='error'">
+              <span class="up-file-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+              <span class="up-file-name">{{f.name}}
+                @if(f.status==='uploading'){<span class="up-file-prog" role="progressbar" [attr.aria-valuenow]="f.progress" aria-valuemin="0" aria-valuemax="100"><i [style.width.%]="f.progress"></i></span>}
+                @if(f.status==='error'){<span class="up-file-msg">{{f.error}}</span>}
+              </span>
+              <span class="up-file-size">@if(f.status==='uploading'){جارٍ الرفع {{f.progress}}%}@else if(f.status==='done'){✓ تم الرفع · {{f.sizeLabel}}}@else{فشل الرفع}</span>
+              <button type="button" class="up-file-rm" (click)="removeDeliveryFile($event, f.id)" aria-label="إزالة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
             }
           </div>
           }
-          <textarea name="files" [(ngModel)]="deliveryFiles" rows="3" class="up-inp-field" placeholder="أو الصق روابط الملفات، رابط في كل سطر"></textarea>
+          @if(deliveryFileError()){<div class="up-err" role="alert">{{deliveryFileError()}}</div>}
+          <textarea name="files" [(ngModel)]="deliveryLinks" rows="3" class="up-inp-field" placeholder="أو أضف روابط تسليم https (رابط في كل سطر، حتى 5 روابط)"></textarea>
         </div>
 
         <!-- الملاحظة -->
@@ -184,9 +193,10 @@
           </div>
         </div>
 
+        @if(deliveryBlocker(); as why){<div class="up-hint" data-testid="delivery-blocker">{{why}}</div>}
         <div class="up-submit-row">
           <button type="button" class="up-btn-sec" (click)="closeDelivery()">إلغاء</button>
-          <button type="button" class="up-btn-pri" (click)="startAiCheck()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>رفع ومراجعة التسليم</button>
+          <button type="button" class="up-btn-pri" [disabled]="!deliveryReady()" (click)="startAiCheck()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>رفع ومراجعة التسليم</button>
         </div>
         }
 
