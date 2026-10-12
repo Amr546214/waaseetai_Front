@@ -40,7 +40,8 @@ describe('provider offer negotiation page', () => {
 		expect(s.q('neg-request')!.textContent).toContain('800');
 		expect(s.el.textContent).not.toContain('قبول التفاوض');
 		expect(Array.from(s.el.querySelectorAll('button')).map(b => b.textContent!.trim()).join('|')).not.toMatch(/قبول/);
-		expect(s.q('neg-counter-note')!.textContent).toContain('لا يتغير سعر عرضك أو مدته أو أي شيء في العقد تلقائيًا');
+		expect(s.q('neg-counter-note')!.textContent).toContain('لا يتغير السعر ولا المدة الرسمية لعرضك');
+		expect(s.q('neg-counter-note')!.textContent).toContain('إلا بعد رد العميل لاحقًا');
 	});
 
 	it('SUBMITTED (no negotiation yet): only withdraw — no counter form, no reject', async () => {
@@ -87,7 +88,7 @@ describe('provider offer negotiation page', () => {
 		submit().click(); s.f.detectChanges();
 		expect(s.api.counterOffer).toHaveBeenCalledWith('offer-1', { price: 900.5, deliveryDays: 10, note: 'ملاحظة' });
 		expect(s.q('neg-counter-success')!.textContent).toContain('بانتظار رد العميل');
-		expect(s.q('neg-counter-success')!.textContent).toContain('لا يتغير سعر عرضك ولا مدته تلقائيًا');
+		expect(s.q('neg-counter-success')!.textContent).toContain('إلا بعد رد العميل لاحقًا');
 		expect(s.api.getNegotiation).toHaveBeenCalledTimes(2); // state reloaded from the server
 	});
 

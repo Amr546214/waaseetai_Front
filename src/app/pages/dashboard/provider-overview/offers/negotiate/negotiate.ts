@@ -75,7 +75,7 @@ export class OfferNegotiate implements OnInit {
 	actionError = signal<string>('');
 	actionDone = signal<string>('');
 
-	readonly COUNTER_SUCCESS_TEXT = 'تم إرسال العرض المضاد وهو بانتظار رد العميل. لا يتغير سعر عرضك ولا مدته تلقائيًا.';
+	readonly COUNTER_SUCCESS_TEXT = 'تم إرسال العرض المضاد وهو بانتظار رد العميل. لا يتغير السعر ولا المدة الرسمية لعرضك إلا بعد رد العميل لاحقًا.';
 
 	timelineSteps = computed<{ label: string; done: boolean; active: boolean }[]>(() => {
 		const status = this.neg()?.status;
