@@ -79,8 +79,8 @@ describe('AI Cleanup Batch 1 — fabricated AI claims removed', () => {
 			expect(src).not.toContain('طبقة الذكاء');
 		}
 		expect(contractSignatureHtml).toContain('6. فض النزاع:');
-		// Provider screen lost sample clause 1 in Batch 1 and was renumbered in Batch 2 Step 0.
-		expect(signContractHtml).toContain('5. فض النزاع:');
+		// Provider screen: the fixed numbered clauses were replaced by the contract's real values (provider 1b) — no fixed dispute clause either.
+		expect(signContractHtml).not.toContain('فض النزاع:');
 	});
 
 	it('provider sign-contract: no fabricated greeting and no "AI monitors the chat" claim; signing flow kept', () => {

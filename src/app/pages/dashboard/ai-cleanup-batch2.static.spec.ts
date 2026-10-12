@@ -51,12 +51,12 @@ const accreditationHtml = readSrc('provider-overview/business-models/center/accr
 const marketerDataHtml = readSrc('marketer-overview/profile/data/data.html');
 const marketerDataTs = readSrc('marketer-overview/profile/data/data.ts');
 
-describe('AI Cleanup Batch 2 — Step 0: provider sign-contract clause numbering', () => {
-	it('remaining clauses are numbered from 1 (no gap left by the removed sample scope clause)', () => {
-		expect(signContractHtml).toContain('1. المراحل والسداد:');
-		expect(signContractHtml).toContain('5. فض النزاع:');
-		expect(signContractHtml).not.toContain('6. فض النزاع:');
-		expect(signContractHtml).not.toContain('نطاق العمل:');
+describe('AI Cleanup Batch 2 — Step 0: provider sign-contract has no fixed clauses (provider 1b)', () => {
+	it('the fixed numbered clauses are gone: terms come from the real contract (price / duration / phases / saved milestones)', () => {
+		for (const clause of ['1. المراحل والسداد:', '2. التعديلات:', '3. الضمان:', '4. الملكية الفكرية:', '5. فض النزاع:', '6. فض النزاع:', 'نطاق العمل:']) {
+			expect(signContractHtml).not.toContain(clause);
+		}
+		expect(signContractHtml).toContain('data-testid="contract-terms"');
 	});
 });
 
