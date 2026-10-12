@@ -71,10 +71,11 @@ describe('one level badge for every role and page', () => {
 	});
 });
 
-describe('purple AI identity icon on the provider level page', () => {
+describe('provider level page: rule-based notes are not AI', () => {
 	const html = read('pages/dashboard/provider-overview/profile/level/level.html');
-	it('the "وسيط، نظام التصنيف" card and the advice box use the official i-ai mark, not a shield', () => {
-		expect(html).toContain('<use href="#i-ai">');
+	it('the "وسيط، نظام التصنيف" card and the level advice box are neutral ws-notes (the backend builds the advice from the real gaps, no AI), never purple + i-ai', () => {
+		expect(html).toContain('ws-note');
+		expect(html).not.toContain('<use href="#i-ai">');
 		expect(html).not.toContain('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z');
 	});
 });
