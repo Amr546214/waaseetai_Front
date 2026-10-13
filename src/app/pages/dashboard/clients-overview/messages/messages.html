@@ -189,7 +189,9 @@
                         }
                       </div>
                       @if (negKind(msg) === 'counter') {
-                        @if (isCounterAccepted(msg)) {
+                        @if (isCounterDeclined(msg)) {
+                          <div class="neg-card-decided" data-testid="neg-counter-declined"><span>رفضت هذا العرض المضاد، ويبقى العرض بشروطه الأصلية.</span></div>
+                        } @else if (isCounterAccepted(msg)) {
                           <div class="neg-card-decided" data-testid="neg-counter-accepted"><span>تم قبول هذا العرض المضاد، وأصبح سعره ومدته هما شروط العرض.</span></div>
                           <div class="neg-card-actions">
                             <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-open-request" (click)="openRequestAfterAccept()">متابعة اختيار العرض والتوقيع</button>
@@ -202,6 +204,7 @@
                         <div class="neg-card-actions">
                           @if (counterConfirmId() !== (msg.id + '')) {
                             <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept" (click)="askAcceptCounter(msg)">قبول العرض المضاد</button>
+                            <button type="button" class="neg-act-btn reject" data-testid="neg-counter-decline" [disabled]="!!counterBusyId()" (click)="declineCounter(msg)">رفض العرض المضاد</button>
                           } @else {
                             <div class="neg-card-decided" data-testid="neg-counter-confirm-text"><span>سيصبح سعر العرض {{ neg.priceValue || neg.price }} دولار ومدته {{ neg.deliveryDays }} يوم، وتتغير مبالغ المراحل بالتناسب. هل تؤكد قبول العرض المضاد؟</span></div>
                             <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept-yes" [disabled]="!!counterBusyId()" (click)="confirmAcceptCounter(msg)">{{ counterBusyId() ? 'جارٍ القبول…' : 'تأكيد قبول العرض المضاد' }}</button>

@@ -33,6 +33,10 @@ interface Offer {
 	plan: string;
 	files: { name: string; url: string }[];
 	isBestMatch?: boolean;
+	/** What the client may do with this offer RIGHT NOW, from the server; `blockedReason` is the server's reason when select / negotiate is not allowed. Absent = not stated (the server still enforces). */
+	actions?: { canSelect: boolean; canNegotiate: boolean; canChat: boolean; blockedReason: string | null; chatBlockedReason: string | null } | null;
+	/** The provider's counter offer waiting for the client's answer (accept / decline), from the structured negotiation messages. */
+	negotiation?: { state: 'NONE' | 'REQUEST_SENT' | 'COUNTER_PENDING'; counter: { messageId: string; price: number | null; deliveryDays: number | null; notes: string } | null } | null;
 	milestones?: {
 		id?: string;
 		stepOrder?: number;
@@ -89,11 +93,20 @@ export class RequestDetails implements OnInit {
 	requestId = signal<string>('');
 	isLoading = signal<boolean>(true);
 
+	/** Stage -> status pill style (the label itself comes from the server). */
+	private static readonly STAGE_CLASS: Record<string, string> = {
+		DRAFT: 'op-draft', OPEN: 'op-active', OFFERS_RECEIVED: 'op-active', UNDER_NEGOTIATION: 'op-pending',
+		AWAITING_CLIENT_SIGNATURE: 'op-pending', AWAITING_FUNDING: 'op-pending', AWAITING_PROVIDER_SIGNATURE: 'op-pending',
+		ACTIVE: 'op-active', COMPLETED: 'op-done', CANCELLED: 'op-cancel', DISPUTED: 'op-dispute'
+	};
+
 	request = signal<any>({
 		title: 'جارٍ التحميل...',
-		status: 'نشط',
-		statusClass: 'op-active',
+		status: 'جارٍ التحميل',
+		statusClass: 'op-pending',
 		statusCode: 'OPEN',
+		stage: '',
+		selectedOfferId: null as string | null,
 		budget: 'غير محدد',
 		specialty: 'غير محدد',
 		duration: 'غير محدد',
@@ -172,14 +185,18 @@ export class RequestDetails implements OnInit {
 						COMPLETED: 'مكتمل',
 						CANCELLED: 'ملغي'
 					};
+					// the server derives the stage from the request + its contract + the offers; the old guess from the request status alone is only the fallback
+					const stage = String(data.stage || '');
 					this.request.set({
 						title: data.title || '',
-						status: data.statusText || statusLabels[statusCode] || statusCode,
+						status: data.stageLabel || data.statusText || statusLabels[statusCode] || statusCode,
 						statusCode,
-						statusClass: data.statusClass || 'op-active',
+						stage,
+						selectedOfferId: data.selectedOfferId || null,
+						statusClass: RequestDetails.STAGE_CLASS[stage] || data.statusClass || 'op-active',
 						budget: formattedBudget,
 						specialty: formattedSpecialty,
-						duration: data.expectedDurationDays ? `${data.expectedDurationDays} أيام` : (data.durationText || ''),
+						duration: data.expectedDurationDays ? `${data.expectedDurationDays} أيام` : (data.durationText || 'غير محدد'),
 						publishedAt: formattedDate || data.publishedTime || data.createdAt || '',
 						description: data.description || '',
 						files: data.attachments || []
@@ -217,6 +234,8 @@ export class RequestDetails implements OnInit {
 								plan: prop.outputs || prop.workPlan || '',
 								files: prop.attachments || [],
 								milestones: prop.milestones || [],
+								actions: prop.actions || null,
+								negotiation: prop.negotiation || null,
 								aiAnalysis: prop.aiFeedback ? {
 									qualityTag: this.qualityTagAr(prop.aiQualityTag),
 									qualitySummary: prop.aiQualitySummary || null,
@@ -321,6 +340,30 @@ export class RequestDetails implements OnInit {
 
 	selectedOffer = signal<Offer | null>(null);
 	isSelectingOffer = signal<boolean>(false);
+	isSendingNegotiation = signal<boolean>(false);
+	/** The offer whose counter offer is being answered right now (blocks double clicks). */
+	answeringOfferId = signal<string | null>(null);
+
+	private errorText(err: any, fallback: string): string {
+		return err?.error?.message || fallback;
+	}
+
+	/** Why select / negotiate is not available for this offer (server's reason); null = available. */
+	offerBlockedReason(offer: Offer): string | null {
+		return offer.actions?.blockedReason ?? null;
+	}
+	canSelectOffer(offer: Offer): boolean {
+		return offer.actions ? offer.actions.canSelect : true;
+	}
+	canNegotiateOffer(offer: Offer): boolean {
+		return offer.actions ? offer.actions.canNegotiate : true;
+	}
+	canChatOffer(offer: Offer): boolean {
+		return offer.actions ? offer.actions.canChat : true;
+	}
+	hasPendingCounter(offer: Offer): boolean {
+		return offer.negotiation?.state === 'COUNTER_PENDING' && !!offer.negotiation.counter;
+	}
 
 	// Negotiation logic
 	// Only a live offer can be negotiated (same rule as the server: SUBMITTED / PENDING / UNDER_NEGOTIATION). Returns the visible Arabic reason when it cannot.
@@ -336,8 +379,15 @@ export class RequestDetails implements OnInit {
 		}
 	}
 
+	negDuration = signal<string>('');
+
+	/** The reason the negotiate button is off: the offer's own state (same rule as the server) or the server's reason for the whole request. */
+	negotiateDisabledReason(offer: Offer): string | null {
+		return this.negotiationBlockReason(offer) || (this.canNegotiateOffer(offer) ? null : (this.offerBlockedReason(offer) || 'لا يمكن التفاوض على هذا العرض حاليًا'));
+	}
+
 	openNegotiation(offer: Offer) {
-		const blocked = this.negotiationBlockReason(offer);
+		const blocked = this.negotiateDisabledReason(offer);
 		if (blocked) {
 			this.showToast(blocked);
 			return;
@@ -345,6 +395,7 @@ export class RequestDetails implements OnInit {
 		this.selectedOffer.set(offer);
 		this.negProvider.set(offer.providerName);
 		this.negPrice.set((offer.price || '').replace(' $', '').trim());
+		this.negDuration.set('');
 		this.negType.set('price');
 		this.negMessage.set('');
 		this.showNegModal.set(true);
@@ -363,9 +414,28 @@ export class RequestDetails implements OnInit {
 		this.negPrice.set(val);
 	}
 
+	onNegDurationInput(event: Event) {
+		this.negDuration.set((event.target as HTMLInputElement).value);
+	}
+
 	onNegMessageInput(event: Event) {
 		const val = (event.target as HTMLTextAreaElement).value;
 		this.negMessage.set(val);
+	}
+
+	/** What the request form allows: a clear number for price / duration, a note for plan / other. Returns the Arabic reason when it is not valid, null when it is. */
+	negValidationError(): string | null {
+		const plain = (v: string) => v.replace(/[\s,$]/g, '');
+		if (this.negType() === 'price') {
+			const n = Number(plain(this.negPrice()));
+			if (!plain(this.negPrice()) || !Number.isFinite(n) || n <= 0) return 'أدخل السعر المقترح رقمًا صحيحًا';
+		} else if (this.negType() === 'dur') {
+			const n = Number(plain(this.negDuration()));
+			if (!plain(this.negDuration()) || !Number.isInteger(n) || n < 1) return 'أدخل المدة المقترحة بالأيام رقمًا صحيحًا';
+		} else if (!this.negMessage().trim()) {
+			return 'اكتب ملاحظتك لمقدم الخدمة';
+		}
+		return null;
 	}
 
 	sendNegotiation() {
@@ -374,23 +444,29 @@ export class RequestDetails implements OnInit {
 			this.closeNegotiation();
 			return;
 		}
-
-		this.showToast('جاري تحويلك لغرفة التفاوض المباشر في وسيط AI...');
-		this.closeNegotiation();
+		if (this.isSendingNegotiation()) return;
+		const invalid = this.negValidationError();
+		if (invalid) {
+			this.showToast(invalid);
+			return;
+		}
 
 		const providerId = offer.providerId || offer.provider?.id || offer.id;
 		const negCategory = this.negType() === 'price' ? 'السعر' : (this.negType() === 'dur' ? 'المدة' : (this.negType() === 'plan' ? 'الخطة' : 'تفاوض عام'));
-		const priceText = this.negPrice() ? `${this.negPrice()} $` : offer.price;
+		const plain = (v: string) => v.replace(/[\s,$]/g, '');
 
+		// only the field being negotiated carries a number: a "duration" request must not look like a price request
 		const negPayload = {
 			isNegotiation: true,
 			negType: this.negType(),
 			negTypeName: negCategory,
-			price: this.negPrice() || offer.price?.replace(' $', '').trim() || '',
-			notes: this.negMessage() || '',
+			price: this.negType() === 'price' ? plain(this.negPrice()) : '',
+			duration: this.negType() === 'dur' ? plain(this.negDuration()) : '',
+			notes: this.negMessage().trim(),
 			status: 'PENDING'
 		};
 
+		this.isSendingNegotiation.set(true);
 		this.chatService.initiateConversation({
 			projectId: this.requestId().replace('#', ''),
 			providerId: providerId,
@@ -398,38 +474,56 @@ export class RequestDetails implements OnInit {
 			negotiationPayload: negPayload
 		}).subscribe({
 			next: (res) => {
-				const cid = res?.data?.id || 'c1';
+				this.isSendingNegotiation.set(false);
+				const cid = res?.data?.id;
+				if (!cid) {
+					this.showToast('تعذر فتح غرفة التفاوض، حاول مرة أخرى');
+					return;
+				}
+				this.closeNegotiation();
 				this.router.navigate(['/client-overview/messages'], { queryParams: { conversationId: cid } });
 			},
 			error: (err) => {
-				console.error('Error initiating negotiation chat:', err);
-				// Show the server's reason (e.g. the offer was withdrawn meanwhile) instead of opening a room that was never created.
-				this.showToast(err?.error?.message || 'تعذر بدء التفاوض حاليًا، حاول مرة أخرى');
+				this.isSendingNegotiation.set(false);
+				this.closeNegotiation();
+				this.showToast(this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
+				// the reason may be a state change (offer withdrawn / chosen): reload so the buttons match the server
+				this.fetchRequestDetails(this.requestId());
 			}
 		});
 	}
 
 	startChat(offer: Offer) {
+		if (!this.canChatOffer(offer)) {
+			this.showToast(offer.actions?.chatBlockedReason || 'المحادثة غير متاحة حاليًا');
+			return;
+		}
 		const providerId = offer.providerId || offer.provider?.id || offer.id;
-		this.showToast('جاري إنشاء وتحويلك لغرفة المحادثة الخاصة بالمشروع...');
 		this.chatService.initiateConversation({
 			projectId: this.requestId().replace('#', ''),
 			providerId: providerId,
 			offerId: offer.id
 		}).subscribe({
 			next: (res) => {
-				const cid = res?.data?.id || 'c1';
+				const cid = res?.data?.id;
+				if (!cid) {
+					this.showToast('تعذر فتح المحادثة، حاول مرة أخرى');
+					return;
+				}
 				this.router.navigate(['/client-overview/messages'], { queryParams: { conversationId: cid } });
 			},
 			error: (err) => {
-				console.error('Error initiating chat:', err);
-				this.router.navigate(['/client-overview/messages'], { queryParams: { conversationId: 'c1' } });
+				this.showToast(this.errorText(err, 'تعذر فتح المحادثة، حاول مرة أخرى'));
 			}
 		});
 	}
 
 	acceptOffer(offer: Offer) {
 		if (this.isSelectingOffer()) return;
+		if (!this.canSelectOffer(offer)) {
+			this.showToast(this.offerBlockedReason(offer) || 'لا يمكن اختيار هذا العرض حاليًا');
+			return;
+		}
 		this.isSelectingOffer.set(true);
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/offers/select`, { offerId: offer.id })
 			.subscribe({
@@ -445,23 +539,78 @@ export class RequestDetails implements OnInit {
 				},
 				error: (err) => {
 					this.isSelectingOffer.set(false);
-					this.showToast(err.error?.message || 'تعذر اختيار العرض، حاول مرة أخرى');
+					this.showToast(this.errorText(err, 'تعذر اختيار العرض، حاول مرة أخرى'));
+					this.fetchRequestDetails(this.requestId());
 				}
 			});
 	}
+
+	/** Accept / decline the provider's newest counter offer. Accepting really changes the offer's price and duration on the server (before any contract). */
+	answerCounter(offer: Offer, action: 'accept' | 'decline') {
+		const counter = offer.negotiation?.counter;
+		if (!counter || this.answeringOfferId()) return;
+		this.answeringOfferId.set(offer.id);
+		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/offers/${offer.id}/negotiation/${action}-counter`, { messageId: counter.messageId })
+			.subscribe({
+				next: (res) => {
+					this.answeringOfferId.set(null);
+					this.showToast(res?.message || (action === 'accept' ? 'تم قبول العرض المضاد' : 'تم رفض العرض المضاد'));
+					this.fetchRequestDetails(this.requestId());
+				},
+				error: (err) => {
+					this.answeringOfferId.set(null);
+					this.showToast(this.errorText(err, 'تعذر تنفيذ الإجراء، حاول مرة أخرى'));
+					this.fetchRequestDetails(this.requestId());
+				}
+			});
+	}
+
+	acceptCounter(offer: Offer) { this.answerCounter(offer, 'accept'); }
+	declineCounter(offer: Offer) { this.answerCounter(offer, 'decline'); }
 
 	isOfferSelectionClosed(): boolean {
 		return ['PENDING_SIGNATURE', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'].includes(this.request().statusCode);
 	}
 
+	/** The state message of a request whose offer selection is closed - from the server's stage, so a request waiting for funding never reads as running. */
 	requestStateMessage(): string {
+		switch (this.request().stage) {
+			case 'AWAITING_CLIENT_SIGNATURE': return 'تم اختيار العرض، بانتظار توقيعك للعقد';
+			case 'AWAITING_FUNDING': return 'تم اختيار العرض، بانتظار تمويل الضمان';
+			case 'AWAITING_PROVIDER_SIGNATURE': return 'وقّعت العقد، بانتظار توقيع مقدم الخدمة';
+			case 'ACTIVE': return 'تم توقيع العقد من الطرفين وتمويل الضمان، المشروع قيد التنفيذ';
+			case 'DISPUTED': return 'يوجد نزاع مفتوح على هذا المشروع';
+		}
 		switch (this.request().statusCode) {
 			case 'PENDING_SIGNATURE': return 'تم اختيار العرض، ويجري استكمال التوقيع والضمان';
-			case 'IN_PROGRESS': return 'تم توقيع العقد من الطرفين — المشروع قيد التنفيذ';
+			case 'IN_PROGRESS': return 'المشروع قيد التنفيذ';
 			case 'COMPLETED': return 'تم إكمال المشروع وإغلاق استقبال العروض';
 			case 'CANCELLED': return 'تم إلغاء الطلب';
 			default: return 'استقبال العروض متوقف';
 		}
+	}
+
+	/** The one real next step for a closed request: continue the contract (signature / funding) or open the running project; null = nothing to do here. */
+	closedStateAction(): { label: string; run: () => void } | null {
+		const id = this.requestId();
+		switch (this.request().stage) {
+			case 'AWAITING_CLIENT_SIGNATURE':
+			case 'AWAITING_FUNDING': {
+				const offerId = this.selectedOfferLegacyId();
+				if (!offerId) return null;
+				return { label: 'متابعة التوقيع والضمان', run: () => this.router.navigate(['/client-overview/my-requests', id, 'contract'], { queryParams: { offerId } }) };
+			}
+			case 'ACTIVE':
+			case 'DISPUTED':
+				return { label: 'متابعة المشروع', run: () => this.goToActiveProject() };
+			default:
+				return null;
+		}
+	}
+
+	/** The chosen offer as this page knows it (the legacy mirror id the contract page expects). */
+	private selectedOfferLegacyId(): string | null {
+		return this.offers().find(o => ['PENDING_SIGNATURE', 'ACCEPTED'].includes(o.status))?.id ?? null;
 	}
 
 	goToActiveProject() {

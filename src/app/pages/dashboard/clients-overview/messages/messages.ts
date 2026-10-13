@@ -159,7 +159,8 @@ export class ClientMessages implements OnInit, OnDestroy {
                 lastMsg: c.lastMessage?.content || c.lastMsg || '',
                 time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
-                online: partner.isOnline || c.online || false,
+                // the server has no presence data for this list (its `online` field is a constant), so nothing is claimed unless a real flag arrives
+                online: partner.isOnline === true,
                 messages: c.messages || []
               };
             });
@@ -701,9 +702,10 @@ export class ClientMessages implements OnInit, OnDestroy {
   // ---- negotiation cards: nothing is decided or "locked" in the browser; the state is read from the structured messages the server stored ----
   // (the client's own request card, and the provider's structured replies: PROVIDER_REJECT = apologised, PROVIDER_COUNTER = counter offer).
   /** 'request' = a negotiation request, 'counter' / 'reply' = the PROVIDER's structured entries (only when the provider wrote them), 'other' = anything else. */
-  negKind(msg: MessageItem): 'request' | 'counter' | 'reply' | 'accepted' | 'other' {
+  negKind(msg: MessageItem): 'request' | 'counter' | 'reply' | 'accepted' | 'declined' | 'other' {
     const data = this.getNegData(msg);
     if (msg.sender === 'me' && data?.kind === 'CLIENT_ACCEPT_COUNTER') return 'accepted';
+    if (msg.sender === 'me' && data?.kind === 'CLIENT_DECLINE_COUNTER') return 'declined';
     if (msg.sender === 'other' && data?.kind === 'PROVIDER_COUNTER') return 'counter';
     if (msg.sender === 'other' && data?.kind === 'PROVIDER_REJECT') return 'reply';
     return msg.sender === 'me' ? 'request' : 'other';
@@ -731,13 +733,14 @@ export class ClientMessages implements OnInit, OnDestroy {
       case 'counter': return 'عرض مضاد من مقدم الخدمة';
       case 'reply': return 'اعتذر مقدم الخدمة';
       case 'accepted': return 'تم قبول العرض المضاد';
+      case 'declined': return 'تم رفض العرض المضاد';
       default: return '';
     }
   }
 
   negCardTitle(msg: MessageItem): string {
     const kind = this.negKind(msg);
-    return kind === 'counter' ? 'عرض مضاد من مقدم الخدمة' : kind === 'reply' ? 'ردّ مقدم الخدمة على طلبك' : kind === 'request' ? 'طلب التفاوض الخاص بك' : kind === 'accepted' ? 'قبولك للعرض المضاد' : 'رسالة تفاوض';
+    return kind === 'counter' ? 'عرض مضاد من مقدم الخدمة' : kind === 'reply' ? 'ردّ مقدم الخدمة على طلبك' : kind === 'request' ? 'طلب التفاوض الخاص بك' : kind === 'accepted' ? 'قبولك للعرض المضاد' : kind === 'declined' ? 'رفضك للعرض المضاد' : 'رسالة تفاوض';
   }
 
   // ---- accepting the provider's counter-offer: a REAL server call; the price / duration of the offer change only when the server says so ----
@@ -746,6 +749,7 @@ export class ClientMessages implements OnInit, OnDestroy {
   counterError = signal<string>('');
   /** Counters accepted in this session (the server's acceptance message is also looked up in the conversation). */
   counterAcceptedIds = signal<string[]>([]);
+  counterDeclinedIds = signal<string[]>([]);
 
   /** True once the counter was accepted (this session, or a later acceptance message that points at it). */
   isCounterAccepted(msg: MessageItem): boolean {
@@ -754,9 +758,15 @@ export class ClientMessages implements OnInit, OnDestroy {
     return (this.activeConversation()?.messages || []).some((m) => this.negKind(m) === 'accepted' && String(this.getNegData(m)?.replyToMessageId) === id);
   }
 
+  isCounterDeclined(msg: MessageItem): boolean {
+    const id = String(msg.id);
+    if (this.counterDeclinedIds().includes(id)) return true;
+    return (this.activeConversation()?.messages || []).some((m) => this.negKind(m) === 'declined' && String(this.getNegData(m)?.replyToMessageId) === id);
+  }
+
   /** Only the NEWEST negotiation message can be accepted, and only when it is a clear counter (price + days) tied to an offer. */
   canAcceptCounter(msg: MessageItem): boolean {
-    if (this.negKind(msg) !== 'counter' || this.isCounterAccepted(msg)) return false;
+    if (this.negKind(msg) !== 'counter' || this.isCounterAccepted(msg) || this.isCounterDeclined(msg)) return false;
     const conv = this.activeConversation();
     const neg = this.getNegData(msg);
     if (!conv?.projectId || !neg?.offerId || !(Number(neg.priceValue ?? neg.price) > 0) || !(Number(neg.deliveryDays) > 0)) return false;
@@ -791,6 +801,30 @@ export class ClientMessages implements OnInit, OnDestroy {
         error: (err) => {
           this.counterBusyId.set('');
           this.counterError.set(err?.error?.message || 'تعذر قبول العرض المضاد، حاول مرة أخرى');
+        }
+      })
+    );
+  }
+
+  /** Declining the newest counter is also a real server call; the offer keeps its original terms and the conversation then shows my answer card. */
+  declineCounter(msg: MessageItem): void {
+    const conv = this.activeConversation();
+    const neg = this.getNegData(msg);
+    if (!conv?.projectId || !neg?.offerId || this.counterBusyId()) return;
+    this.counterError.set('');
+    this.counterConfirmId.set(String(msg.id));
+    this.counterBusyId.set(String(msg.id));
+    this.sub.add(
+      this.counterService.declineCounter(conv.projectId, String(neg.offerId), String(msg.id)).subscribe({
+        next: () => {
+          this.counterBusyId.set('');
+          this.counterConfirmId.set('');
+          this.counterDeclinedIds.update((ids) => [...ids, String(msg.id)]);
+          this.showToast('تم رفض العرض المضاد، ويبقى العرض بشروطه الأصلية');
+        },
+        error: (err) => {
+          this.counterBusyId.set('');
+          this.counterError.set(err?.error?.message || 'تعذر رفض العرض المضاد، حاول مرة أخرى');
         }
       })
     );
