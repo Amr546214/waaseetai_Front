@@ -73,6 +73,7 @@ export class TicketDetailComponent implements OnInit {
 	ticketId = signal<string>('');
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
+	errorMessage = signal<string>('تعذّر تحميل التذكرة');
 	replyText = signal<string>('');
 	toast = signal<string | null>(null);
 	sending = signal<boolean>(false);
@@ -103,6 +104,7 @@ export class TicketDetailComponent implements OnInit {
 		if (!id) { this.hasError.set(true); this.isLoading.set(false); return; }
 		this.isLoading.set(true);
 		this.hasError.set(false);
+		this.errorMessage.set('تعذّر تحميل التذكرة');
 		this.ticketApi.getTicket('client', id).subscribe({
 			next: (res) => {
 				this.isLoading.set(false);
@@ -129,8 +131,9 @@ export class TicketDetailComponent implements OnInit {
 					this.hasError.set(true);
 				}
 			},
-			error: () => {
+			error: (err) => {
 				this.isLoading.set(false);
+				if (err?.status === 403 || err?.status === 404) this.errorMessage.set('التذكرة غير موجودة أو لا تملك صلاحية الوصول إليها');
 				this.hasError.set(true);
 			}
 		});
@@ -185,5 +188,5 @@ export class TicketDetailComponent implements OnInit {
 		setTimeout(() => this.toast.set(null), 3000);
 	}
 
-	goBack() { this.router.navigate(['/client-overview/help']); }
+	goBack() { this.router.navigate(['/client-overview/help/tickets']); }
 }

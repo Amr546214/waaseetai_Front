@@ -128,7 +128,8 @@ function mapTicket(t: SupportTicket): Ticket {
 
 		<div *ngIf="!isLoading() && hasError()" class="text-center p-10 bg-[var(--crd-bg,#fff)] border border-[var(--sec-bd,#E7EAF1)] rounded-2xl">
 			<div class="text-base font-extrabold text-[var(--txt)] mb-1.5">تعذر تحميل التذاكر</div>
-			<div class="text-xs text-[var(--txt-3)]">حاول تحديث الصفحة أو المحاولة لاحقًا</div>
+			<div class="text-xs text-[var(--txt-3)] mb-3">حاول مرة أخرى أو عُد لاحقًا</div>
+			<button type="button" class="filter-chip" (click)="loadTickets()" data-testid="tickets-retry">إعادة المحاولة</button>
 		</div>
 
 		<div *ngIf="!isLoading() && !hasError() && filteredTickets().length === 0" class="text-center p-10 bg-[var(--crd-bg,#fff)] border border-[var(--sec-bd,#E7EAF1)] rounded-2xl">

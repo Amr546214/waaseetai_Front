@@ -105,7 +105,7 @@ export class NewTicketComponent {
 		});
 	}
 
-	get helpBackLink(): string { return '/client-overview/help'; }
+	get helpBackLink(): string { return '/client-overview/help/tickets'; }
 
 	showToast(msg: string) {
 		this.toast.set(msg);

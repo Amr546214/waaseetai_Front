@@ -134,3 +134,5 @@ select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image
 :host-context(body.theme-light) .inp-hint,
 :host-context(.light-theme) .inp-hint,
 :host-context(.theme-light) .inp-hint{color:#475569}
+.upload-area--off{cursor:not-allowed;opacity:.6}
+.upload-area--off:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.03)}
