@@ -149,6 +149,17 @@ export class NotificationEngineService implements OnDestroy {
 		NEW_PROPOSAL: NotificationEngineService.ICON_OFFER,
 		MODEL_APPROVED: NotificationEngineService.ICON_AI,
 		FINANCIAL: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_REQUESTED: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_APPROVED: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_REJECTED: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_PAID: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_FAILED: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_REVERSED: NotificationEngineService.ICON_FINANCE,
+		PAYPAL_EMAIL_CHANGED: NotificationEngineService.ICON_FINANCE,
+		DISPUTE_OPENED: NotificationEngineService.ICON_PROJECT,
+		DISPUTE_RESOLVED: NotificationEngineService.ICON_PROJECT,
+		RATING_RECEIVED: NotificationEngineService.ICON_PROJECT,
+		PROJECT_AMENDMENT: NotificationEngineService.ICON_PROJECT,
 		GENERAL: NotificationEngineService.ICON_GENERAL,
 	};
 
@@ -158,6 +169,8 @@ export class NotificationEngineService implements OnDestroy {
 		NEW_PROPOSAL: 'offers', OFFER_ACCEPTED: 'offers',
 		PROJECT_MATCH: 'projects', STAGE_REVIEW: 'projects', STAGE_DELIVERY: 'projects', PROJECT_COMPLETION_REWARD: 'projects',
 		FINANCIAL: 'finance',
+		WITHDRAWAL_REQUESTED: 'finance', WITHDRAWAL_APPROVED: 'finance', WITHDRAWAL_REJECTED: 'finance', WITHDRAWAL_PAID: 'finance', WITHDRAWAL_FAILED: 'finance', WITHDRAWAL_REVERSED: 'finance', PAYPAL_EMAIL_CHANGED: 'finance',
+		DISPUTE_OPENED: 'projects', DISPUTE_RESOLVED: 'projects', RATING_RECEIVED: 'projects', PROJECT_AMENDMENT: 'projects',
 	};
 
 	private static readonly ICON_BY_CATEGORY: Record<AppNotification['category'], IconStyle> = {
