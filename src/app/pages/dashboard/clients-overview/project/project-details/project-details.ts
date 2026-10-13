@@ -16,7 +16,11 @@ import { ClientCompanyTeamService } from '../../../../../core/services/client-co
 import { ClientCompanyTeamMember } from '../../../../../core/models/client-company-team.model';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
-type SupportAction = 'edit' | 'dispute' | 'cancel' | null;
+type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION' | 'MIXED';
+
+export const CLIENT_AMENDMENT_SUCCESS_TEXT = 'يُسجّل الطلب وينتظر رد مقدم الخدمة، ولا يتغير السعر أو المدة أو الضمان تلقائيًا.';
+export const CLIENT_AMENDMENT_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار رد مقدم الخدمة', APPROVED: 'وافق مقدم الخدمة', REJECTED: 'رفضه مقدم الخدمة', CANCELLED: 'أُلغي' };
+export const CLIENT_AMENDMENT_TYPE_LABEL: Record<string, string> = { SCOPE: 'تغيير النطاق', BUDGET: 'تعديل الميزانية', DURATION: 'تعديل المدة', MIXED: 'تعديل متعدد' };
 
 @Component({
 	selector: 'app-project-details', standalone: true,
@@ -52,10 +56,16 @@ export class ProjectDetails implements OnInit {
 	// P-SK-015 inline delivery review state (replaces old modal)
 	inlineReviewStage = signal<any>(null);
 	reviewDecision = signal<'approve' | 'revision'>('approve');
-	supportAction = signal<SupportAction>(null);
 	reviewNote = '';
-	supportNote = '';
-	editType = 'إضافة مرحلة أو عنصر جديد';
+
+	// Change request ("طلب تعديل"): a REAL request recorded by the backend (POST /client/projects/:projectId/amendments) that waits for the provider.
+	// It never opens the chat instead, and it never claims the contract changes by itself.
+	amendOpen = signal(false);
+	amendKind: AmendKind = 'SCOPE'; amendTitle = ''; amendDescription = ''; amendBudget: number | null = null; amendDays: number | null = null;
+	amendSaving = signal(false); amendError = signal(''); amendSuccess = signal(false);
+	amendments = signal<any[]>([]); amendmentsLoading = signal(false); amendmentsError = signal('');
+	readonly amendmentSuccessText = CLIENT_AMENDMENT_SUCCESS_TEXT;
+	hasPendingAmendment = () => this.amendments().some(a => a.requestedByRole === 'CLIENT' && a.status === 'PENDING_OTHER_PARTY');
 	private projectId = '';
 	showDisputeModal = signal(false);
 	isSubmittingDispute = signal(false);
@@ -224,7 +234,59 @@ export class ProjectDetails implements OnInit {
 			error: event => { this.saving.set(false); this.error.set(event.error?.message || 'تعذر حفظ قرار المراجعة'); }
 		});
 	}
-	openSupport(action: Exclude<SupportAction, null>) { this.supportNote = ''; this.supportAction.set(action); }
+	openAmendments() {
+		this.amendKind = 'SCOPE'; this.amendTitle = ''; this.amendDescription = ''; this.amendBudget = null; this.amendDays = null;
+		this.amendError.set(''); this.amendSuccess.set(false); this.amendOpen.set(true);
+		this.loadAmendments();
+	}
+	closeAmendments() { if (!this.amendSaving()) this.amendOpen.set(false); }
+	loadAmendments() {
+		this.amendmentsLoading.set(true); this.amendmentsError.set('');
+		this.http.get<any>(`${environment.url_api}/client/projects/amendments`).subscribe({
+			next: res => {
+				const all = Array.isArray(res?.data) ? res.data : [];
+				this.amendments.set(all.filter((a: any) => a.projectId === this.projectId && a.requestedByRole === 'CLIENT'));
+				this.amendmentsLoading.set(false);
+			},
+			error: () => { this.amendmentsLoading.set(false); this.amendmentsError.set('تعذر تحميل طلباتك السابقة'); }
+		});
+	}
+	/** Why the request cannot be sent yet (null = ready). */
+	amendBlocker(): string | null {
+		if (this.hasPendingAmendment()) return 'لديك طلب تعديل معلّق بانتظار رد مقدم الخدمة';
+		if (!this.amendTitle.trim()) return 'أضف عنوانًا لطلب التعديل';
+		if (this.amendKind === 'SCOPE' && !this.amendDescription.trim()) return 'اشرح التغيير المطلوب في النطاق';
+		if (this.amendKind === 'BUDGET' && !(typeof this.amendBudget === 'number' && Number.isFinite(this.amendBudget) && this.amendBudget !== 0)) return 'أدخل فرق الميزانية (قيمة غير صفرية، سالبة للتخفيض)';
+		if (this.amendKind === 'DURATION' && !(typeof this.amendDays === 'number' && Number.isInteger(this.amendDays) && this.amendDays !== 0)) return 'أدخل عدد الأيام (عدد صحيح غير صفري، سالب للتقصير)';
+		if (this.amendKind === 'MIXED') {
+			const dims = [!!this.amendDescription.trim(), typeof this.amendBudget === 'number' && this.amendBudget !== 0, typeof this.amendDays === 'number' && Number.isInteger(this.amendDays) && this.amendDays !== 0].filter(Boolean).length;
+			if (dims < 2) return 'التعديل المتعدد يتطلب بُعدين على الأقل: نطاق أو ميزانية أو مدة';
+		}
+		return null;
+	}
+	amendReady() { return this.amendBlocker() === null && !this.amendSaving(); }
+	submitAmendment() {
+		const blocker = this.amendBlocker();
+		if (blocker) { this.amendError.set(blocker); return; }
+		if (this.amendSaving()) return;
+		const payload: any = { type: this.amendKind, title: this.amendTitle.trim() };
+		if (this.amendDescription.trim()) payload.description = this.amendDescription.trim();
+		if ((this.amendKind === 'BUDGET' || this.amendKind === 'MIXED') && typeof this.amendBudget === 'number' && this.amendBudget !== 0) payload.budgetDelta = this.amendBudget;
+		if ((this.amendKind === 'DURATION' || this.amendKind === 'MIXED') && typeof this.amendDays === 'number' && this.amendDays !== 0) payload.durationDeltaDays = this.amendDays;
+		this.amendSaving.set(true); this.amendError.set('');
+		this.http.post<any>(`${environment.url_api}/client/projects/${this.projectId}/amendments`, payload).subscribe({
+			next: () => { this.amendSaving.set(false); this.amendSuccess.set(true); this.loadAmendments(); },
+			error: err => { this.amendSaving.set(false); this.amendError.set(err.error?.message || 'تعذر إرسال طلب التعديل'); }
+		});
+	}
+	amendmentStatusLabel(s: string) { return CLIENT_AMENDMENT_STATUS_LABEL[s] || s; }
+	amendmentTypeLabel(s: string) { return CLIENT_AMENDMENT_TYPE_LABEL[s] || s; }
+	amendmentDeltas(a: any): string {
+		const parts: string[] = [];
+		if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${Number(a.budgetDelta).toLocaleString('en-US')} $`);
+		if (a.durationDeltaDays !== null && a.durationDeltaDays !== undefined) parts.push(`${a.durationDeltaDays > 0 ? '+' : ''}${a.durationDeltaDays} يوم`);
+		return parts.join(' · ');
+	}
 
 	openDisputeModal() {
 		if (this.disputeSubmitted()) return;
@@ -255,8 +317,6 @@ export class ProjectDetails implements OnInit {
 			},
 		});
 	}
-	closeSupport() { this.supportAction.set(null); }
-	continueInConversation(data: any) { if (!data) return; this.supportAction.set(null); this.openConversation(data); }
 	openConversation(data: any, stage?: any) {
 		if (!data) return;
 		const ctx: MessageContext | undefined = stage ? {

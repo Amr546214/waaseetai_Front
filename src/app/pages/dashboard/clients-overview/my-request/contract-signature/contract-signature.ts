@@ -33,14 +33,10 @@ export class ContractSignature implements OnInit {
 	price = signal<string>('0 $');
 	duration = signal<string>('0 يوما');
 	plan = signal<string>('');
+	/** The offer's real milestones (title, share, amount, days) — exactly what the contract was frozen from; nothing is invented. */
+	milestones = signal<{ order: number; title: string; description: string; percentage: number; amount: number; days: number }[]>([]);
 	description = signal<string>('');
 	
-	showTermsModal = signal<boolean>(false);
-	termsInput = signal<string>('');
-	// Starts empty: the provider never sent a message here. A hardcoded greeting
-	// used to be shown attributed to the provider by name (AI Cleanup Batch 1).
-	chatMessages = signal<any[]>([]);
-
 	// Toast state
 	showToastSignal = signal<boolean>(false);
 	toastMessage = signal<string>('');
@@ -85,7 +81,15 @@ export class ContractSignature implements OnInit {
 						const initials = name.split(' ').map((n: string) => n[0] || '').join('').substring(0, 2);
 						this.providerInitials.set(initials || 'مـ');
 						this.price.set(targetOffer.totalPrice ? `${targetOffer.totalPrice} $` : (targetOffer.bidAmount ? `${targetOffer.bidAmount} $` : 'غير محدد'));
-						this.duration.set(targetOffer.deliveryDays ? `${targetOffer.deliveryDays} أيام` : (targetOffer.durationText || 'غير محدد'));
+						this.duration.set(targetOffer.deliveryDays ? `${targetOffer.deliveryDays} يوم` : (targetOffer.durationText || 'غير محدد'));
+						this.milestones.set((Array.isArray(targetOffer.milestones) ? targetOffer.milestones : []).map((m: any, i: number) => ({
+							order: Number(m.stepOrder) || i + 1,
+							title: String(m.title || ''),
+							description: String(m.description || ''),
+							percentage: Number(m.percentage) || 0,
+							amount: Number(m.amount) || 0,
+							days: Number(m.days) || 0,
+						})).filter((m: any) => m.title));
 						this.plan.set(targetOffer.outputs || targetOffer.workPlan || '');
 						this.description.set(targetOffer.message || targetOffer.description || '');
 					}
@@ -104,31 +108,6 @@ export class ContractSignature implements OnInit {
 		this.router.navigate(['/client-overview/my-requests', this.requestId()]);
 	}
 
-	openTerms() {
-		this.showTermsModal.set(true);
-	}
-	
-	closeTerms() {
-		this.showTermsModal.set(false);
-	}
-
-	onTermsInput(event: Event) {
-		this.termsInput.set((event.target as HTMLInputElement).value);
-	}
-	
-	onTermsKeyDown(event: KeyboardEvent) {
-		if (event.key === 'Enter') {
-			this.sendTermMsg();
-		}
-	}
-
-	sendTermMsg() {
-		const val = this.termsInput().trim();
-		if (!val) return;
-		this.termsInput.set('');
-		this.showToast('تعديل البنود يجب أن يتم عبر غرفة التفاوض قبل اختيار العرض. لا يتم اعتماد موافقات تلقائية.');
-	}
-	
 	showToast(msg: string) {
 		this.toastMessage.set(msg);
 		this.showToastSignal.set(true);

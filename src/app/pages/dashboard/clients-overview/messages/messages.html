@@ -149,60 +149,53 @@
                 <!-- 4) Negotiation Card Message -->
                 @else if (isNegotiationMsg(msg)) {
                   @if (getNegData(msg); as neg) {
-                    <div class="neg-card-box">
+                    <div class="neg-card-box" [attr.data-neg-kind]="negKind(msg)">
                       <div class="neg-card-hdr">
                         <span class="neg-card-icon">🤝</span>
-                        <span class="neg-card-title">طلب تفاوض جديد</span>
-                        <span class="neg-card-badge" [class.pending]="(neg.status || 'PENDING') === 'PENDING'" [class.accepted]="neg.status === 'ACCEPTED'" [class.rejected]="neg.status === 'REJECTED'">
-                          {{ getNegStatusText(neg.status) }}
-                        </span>
+                        <span class="neg-card-title">{{ negCardTitle(msg) }}</span>
+                        @if (negBadgeText(msg)) {
+                          <span class="neg-card-badge" data-testid="neg-badge"
+                                [class.pending]="negKind(msg) === 'request' && negRequestState(msg) === 'waiting'"
+                                [class.accepted]="negKind(msg) === 'counter' || (negKind(msg) === 'request' && negRequestState(msg) === 'countered')"
+                                [class.rejected]="negKind(msg) === 'reply' || (negKind(msg) === 'request' && negRequestState(msg) === 'declined')">
+                            {{ negBadgeText(msg) }}
+                          </span>
+                        }
                       </div>
                       <div class="neg-card-body">
+                        @if (negKind(msg) !== 'reply') {
                         <div class="neg-card-row">
                           <span class="neg-card-lbl">نوع التفاوض:</span>
                           <span class="neg-card-val">{{ neg.negTypeName || 'السعر' }}</span>
                         </div>
+                        }
                         @if (neg.price) {
                           <div class="neg-card-row">
-                            <span class="neg-card-lbl">السعر المقترح:</span>
+                            <span class="neg-card-lbl">{{ negKind(msg) === 'counter' ? 'السعر المقترح من مقدم الخدمة:' : 'السعر المقترح:' }}</span>
                             <span class="neg-card-val highlight">{{ neg.price }} دولار</span>
                           </div>
                         }
-                        @if (neg.duration) {
+                        @if (neg.deliveryDays || neg.duration) {
                           <div class="neg-card-row">
                             <span class="neg-card-lbl">المدة المقترحة:</span>
-                            <span class="neg-card-val">{{ neg.duration }} أيام</span>
+                            <span class="neg-card-val">{{ neg.deliveryDays ? neg.deliveryDays + ' يوم' : neg.duration }}</span>
                           </div>
                         }
                         @if (neg.notes) {
                           <div class="neg-card-notes">
-                            <strong>📌 ملاحظات طالب الخدمة:</strong>
+                            <strong>📌 {{ negKind(msg) === 'counter' ? 'ملاحظة مقدم الخدمة:' : negKind(msg) === 'request' ? 'ملاحظاتك:' : 'ملاحظات:' }}</strong>
                             <p style="margin: 4px 0 0 0;">{{ neg.notes }}</p>
                           </div>
                         }
                       </div>
-                      <!-- Action buttons or final decision banner -->
-                      @if ((neg.status || 'PENDING') === 'PENDING') {
+                      @if (negKind(msg) === 'counter') {
+                        <div class="neg-card-decided" data-testid="neg-counter-note"><span>العرض المضاد للنقاش في المحادثة، ولا يغيّر السعر أو المدة الرسمية للعرض.</span></div>
+                      }
+                      @if (negKind(msg) === 'request' || negKind(msg) === 'counter') {
                         <div class="neg-card-actions">
-                          <button type="button" class="neg-act-btn accept" (click)="respondNegotiation(msg, 'ACCEPTED')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
-                            قبول التفاوض
-                          </button>
-                          <button type="button" class="neg-act-btn reject" (click)="respondNegotiation(msg, 'REJECTED')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                            رفض
-                          </button>
-                          <button type="button" class="neg-act-btn discuss" (click)="respondNegotiation(msg, 'DISCUSS')">
+                          <button type="button" class="neg-act-btn discuss" data-testid="neg-discuss" (click)="discussNegotiation(msg)">
                             💬 مناقشة
                           </button>
-                        </div>
-                      } @else {
-                        <div class="neg-card-decided" [class.accepted]="neg.status === 'ACCEPTED'" [class.rejected]="neg.status === 'REJECTED'">
-                          @if (neg.status === 'ACCEPTED') {
-                            <span>✅ تم قبول طلب التفاوض واعتماذه رسمياً</span>
-                          } @else if (neg.status === 'REJECTED') {
-                            <span>❌ تم الاعتذار عن طلب التفاوض (مرفوض)</span>
-                          }
                         </div>
                       }
                     </div>

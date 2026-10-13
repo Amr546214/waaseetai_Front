@@ -55,6 +55,11 @@ export class ActiveProjectsService {
 		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/projects/${projectId}/amendments`, payload);
 	}
 
+	/** The provider answers a change request the CLIENT raised. The decision is only recorded; price / duration / escrow / stages never change. */
+	respondAmendment(amendmentId: string, decision: 'approve' | 'reject'): Observable<{ success: boolean; message?: string; data: ProviderAmendment }> {
+		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/amendments/${amendmentId}/respond`, { decision });
+	}
+
 	// Batch 8 — advisory-only Gemini project health analysis. On-demand only
 	// (not called automatically on page load); real result replaces the
 	// honest aiInsights placeholder in the UI, real failure shows an honest

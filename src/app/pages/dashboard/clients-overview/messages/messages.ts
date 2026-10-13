@@ -672,12 +672,7 @@ export class ClientMessages implements OnInit, OnDestroy {
       }
     }
 
-    if (data) {
-      if ((msg as any).negStatus) {
-        data.status = (msg as any).negStatus;
-      }
-      return data;
-    }
+    if (data) return data;
 
     const lines = msg.text.split('\n');
     let typeName = 'السعر';
@@ -694,61 +689,55 @@ export class ClientMessages implements OnInit, OnDestroy {
       negTypeName: typeName,
       price: price,
       notes: notes,
-      status: (msg as any).negStatus || 'PENDING'
+      status: 'PENDING'
     };
   }
 
-  getNegStatusText(status?: string): string {
-    if (status === 'ACCEPTED') return 'تم القبول ✓';
-    if (status === 'REJECTED') return 'تم الرفض ✕';
-    return 'قيد الانتظار';
+  // ---- negotiation cards: nothing is decided or "locked" in the browser; the state is read from the structured messages the server stored ----
+  // (the client's own request card, and the provider's structured replies: PROVIDER_REJECT = apologised, PROVIDER_COUNTER = counter offer).
+  /** 'request' = a negotiation request, 'counter' / 'reply' = the PROVIDER's structured entries (only when the provider wrote them), 'other' = anything else. */
+  negKind(msg: MessageItem): 'request' | 'counter' | 'reply' | 'other' {
+    const data = this.getNegData(msg);
+    if (msg.sender === 'other' && data?.kind === 'PROVIDER_COUNTER') return 'counter';
+    if (msg.sender === 'other' && data?.kind === 'PROVIDER_REJECT') return 'reply';
+    return msg.sender === 'me' ? 'request' : 'other';
   }
 
-  respondNegotiation(msg: MessageItem, action: 'ACCEPTED' | 'REJECTED' | 'DISCUSS'): void {
+  /** The state of MY request, from the provider's later structured replies to it. */
+  negRequestState(msg: MessageItem): 'waiting' | 'declined' | 'countered' {
+    const list = this.activeConversation()?.messages || [];
+    const id = String(msg.id);
+    const replies = list.filter((m) => m.sender === 'other' && this.getNegData(m)?.replyToMessageId === id);
+    if (replies.some((m) => this.getNegData(m)?.kind === 'PROVIDER_REJECT')) return 'declined';
+    if (replies.some((m) => this.getNegData(m)?.kind === 'PROVIDER_COUNTER')) return 'countered';
+    // a counter the provider sent after my request (even without the back-reference) also answers it
+    const index = list.findIndex((m) => String(m.id) === id);
+    if (index >= 0 && list.slice(index + 1).some((m) => this.negKind(m) === 'counter')) return 'countered';
+    return 'waiting';
+  }
+
+  negBadgeText(msg: MessageItem): string {
+    switch (this.negKind(msg)) {
+      case 'request': {
+        const s = this.negRequestState(msg);
+        return s === 'declined' ? 'اعتذر مقدم الخدمة' : s === 'countered' ? 'ردّ مقدم الخدمة بعرض مضاد' : 'بانتظار رد مقدم الخدمة';
+      }
+      case 'counter': return 'عرض مضاد من مقدم الخدمة';
+      case 'reply': return 'اعتذر مقدم الخدمة';
+      default: return '';
+    }
+  }
+
+  negCardTitle(msg: MessageItem): string {
+    const kind = this.negKind(msg);
+    return kind === 'counter' ? 'عرض مضاد من مقدم الخدمة' : kind === 'reply' ? 'ردّ مقدم الخدمة على طلبك' : kind === 'request' ? 'طلب التفاوض الخاص بك' : 'رسالة تفاوض';
+  }
+
+  discussNegotiation(msg: MessageItem): void {
     const neg = this.getNegData(msg);
     if (!neg) return;
-
-    if (action === 'DISCUSS') {
-      this.newMessageText.set(`مرحباً، بخصوص طلب التفاوض على (${neg.negTypeName || 'السعر'})... `);
-      const textarea = document.querySelector('.itxt') as HTMLTextAreaElement;
-      if (textarea) textarea.focus();
-      return;
-    }
-
-    // Check if decision has already been taken
-    if (neg.status === 'ACCEPTED' || neg.status === 'REJECTED') {
-      this.showToast('⚠️ لقد تم اتخاذ القرار بخصوص هذا التفاوض مسبقاً ولا يمكن تغييره.');
-      return;
-    }
-
-    // Lock the decision locally and update the message payload text
-    (msg as any).negStatus = action;
-    neg.status = action;
-
-    if (msg.text.startsWith('WS_NEGOTIATION::')) {
-      try {
-        const parsed = JSON.parse(msg.text.replace('WS_NEGOTIATION::', ''));
-        parsed.status = action;
-        msg.text = 'WS_NEGOTIATION::' + JSON.stringify(parsed);
-      } catch (e) {}
-    } else if (msg.text.includes('"isNegotiation":true')) {
-      try {
-        const parsed = JSON.parse(msg.text);
-        parsed.status = action;
-        msg.text = JSON.stringify(parsed);
-      } catch (e) {}
-    }
-
-    if (action === 'ACCEPTED') {
-      const text = `✅ **تم قبول طلب التفاوض**\nيُسعدني قبول عرض التفاوض الخاص بك (${neg?.price ? neg.price + ' دولار' : ''}). تم اعتماد الشروط للبدء في تنفيذ المشروع.`;
-      this.newMessageText.set(text);
-      this.sendMessage('TEXT');
-      this.showToast('✅ تم قبول طلب التفاوض بنجاح وتثبيت القرار');
-    } else if (action === 'REJECTED') {
-      const text = `❌ **اعتذار عن طلب التفاوض**\nشكراً لتواصلك، لكن يتعذر عليّ التنازل عن السعر أو المدة المحددة مسبقاً لضمان أفضل جودة للتنفيذ.`;
-      this.newMessageText.set(text);
-      this.sendMessage('TEXT');
-      this.showToast('ℹ️ تم إرسال رد الاعتذار وتثبيت القرار');
-    }
+    this.newMessageText.set(`مرحباً، بخصوص التفاوض على (${neg.negTypeName || 'السعر'})... `);
+    const textarea = document.querySelector('.itxt') as HTMLTextAreaElement;
+    if (textarea) textarea.focus();
   }
 }

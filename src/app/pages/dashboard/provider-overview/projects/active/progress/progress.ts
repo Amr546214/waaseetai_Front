@@ -17,6 +17,8 @@ export type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION';
 
 export const AMENDMENT_SUCCESS_TEXT = 'تم تسجيل طلب التعديل وهو بانتظار رد العميل. لن يتغير السعر أو المدة أو الضمان تلقائيًا.';
 export const AMENDMENT_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار رد العميل', APPROVED: 'وافق العميل', REJECTED: 'رفضه العميل', CANCELLED: 'أُلغي' };
+/** Status wording depends on WHO raised the request: my own (waiting for the client) or the client's (waiting for me). */
+export const CLIENT_REQUEST_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار ردك', APPROVED: 'وافقت عليه', REJECTED: 'رفضته', CANCELLED: 'أُلغي' };
 export const AMENDMENT_TYPE_LABEL: Record<string, string> = { SCOPE: 'تغيير النطاق', BUDGET: 'تعديل الميزانية', DURATION: 'تعديل المدة', MIXED: 'تعديل متعدد' };
 
 export const DELIVERY_LIMITS = { maxFileBytes: 25 * 1024 * 1024, maxFiles: 5, maxLinks: 5 } as const;
@@ -489,6 +491,19 @@ export class Progress implements OnInit {
     });
   }
   amendmentStatusLabel(s: string) { return AMENDMENT_STATUS_LABEL[s] || s; }
+  amendmentStatusText(a: ProviderAmendment) { return a.requestedByRole === 'CLIENT' ? (CLIENT_REQUEST_STATUS_LABEL[a.status] || a.status) : this.amendmentStatusLabel(a.status); }
+  isClientPending(a: ProviderAmendment) { return a.requestedByRole === 'CLIENT' && a.status === 'PENDING_OTHER_PARTY'; }
+
+  // Answering a request the CLIENT raised: a real call (POST /provider/amendments/:id/respond); the decision is only recorded, nothing else changes.
+  respondingId = signal<string | null>(null); respondError = signal('');
+  respondAmendment(a: ProviderAmendment, decision: 'approve' | 'reject') {
+    if (this.respondingId() || !this.isClientPending(a)) return;
+    this.respondingId.set(a.id); this.respondError.set('');
+    this.service.respondAmendment(a.id, decision).subscribe({
+      next: () => { this.respondingId.set(null); this.loadAmendments(); },
+      error: err => { this.respondingId.set(null); this.respondError.set(err.error?.message || 'تعذر حفظ قرارك'); }
+    });
+  }
   amendmentTypeLabel(t: string) { return AMENDMENT_TYPE_LABEL[t] || t; }
   amendmentDeltas(a: ProviderAmendment): string {
     const parts: string[] = [];

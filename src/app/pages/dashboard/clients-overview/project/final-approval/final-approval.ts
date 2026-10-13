@@ -20,8 +20,6 @@ export class FinalApproval implements OnInit {
 	project = signal<any>(null);
 	isLoading = signal(true);
 	error = signal('');
-	confirming = signal(false);
-	showConfirmModal = signal(false);
 	private projectId = '';
 
 	ngOnInit() {
@@ -157,35 +155,6 @@ export class FinalApproval implements OnInit {
 		const rounds = Number(stage?.roundsCount || 0);
 		return rounds > 1 ? rounds - 1 : 0;
 	}
-	// Auto-acceptance warning helpers (P-SK-016 fs-warn) — derived from backend fields when present
-	autoAcceptDeadline(): string {
-		const data = this.project();
-		return data?.autoAcceptDeadline || data?.finalReviewDeadline || '';
-	}
-	autoAcceptDaysLeft(): number {
-		const deadline = this.autoAcceptDeadline();
-		if (!deadline) return 0;
-		const ms = new Date(deadline).getTime() - Date.now();
-		return Math.max(0, Math.ceil(ms / 86400000));
-	}
-	autoAcceptDaysPassed(): number {
-		const total = this.autoAcceptTotalWindow();
-		if (!total) return 0;
-		return Math.max(0, total - this.autoAcceptDaysLeft());
-	}
-	autoAcceptTotalWindow(): number {
-		const data = this.project();
-		return Number(data?.autoAcceptWindowDays || 5);
-	}
-	autoAcceptProgressPct(): number {
-		const total = this.autoAcceptTotalWindow();
-		if (!total) return 0;
-		return Math.min(100, Math.round((this.autoAcceptDaysPassed() / total) * 100));
-	}
-	showAutoAcceptWarn(): boolean {
-		return Boolean(this.autoAcceptDeadline()) && this.autoAcceptDaysLeft() > 0;
-	}
-
 	// === Per-stage rating actions ===
 	// Navigate to the dedicated stage rating page (P-SK-017 stage mode).
 	// Inline panel is intentionally avoided in favor of a routed page, per design flow.
@@ -194,32 +163,17 @@ export class FinalApproval implements OnInit {
 	}
 	starsArray(): number[] { return [1, 2, 3, 4, 5]; }
 
-	// === Final approval actions ===
-	openConfirm() { this.showConfirmModal.set(true); }
-	closeConfirm() {
-		if (this.confirming()) return;
-		this.showConfirmModal.set(false);
+	// === Summary page: no finalize action ===
+	// The real completion (contract COMPLETED, escrow released) happens in POST .../stages/:stageId/review when the LAST stage is approved.
+	// This page only summarises; the single action is moving on to the rating.
+	allStagesCompleted(): boolean {
+		const total = this.stagesCount();
+		return total > 0 && this.completedStagesCount() === total;
 	}
-
-	confirmAndRate() {
-		if (this.confirming()) return;
-		this.confirming.set(true);
-		// Honest note (see BACKEND_BLOCKED_ISSUES.md → "Final project approval /
-		// escrow release is not wired to a real endpoint"): there is no backend
-		// endpoint anywhere in this app that finalizes a project or releases the
-		// held final-stage escrow amount. Every service was checked
-		// (ProjectApiService, ClientFinanceService, RatingApiService, and every
-		// HTTP call under clients-overview) — the only endpoint that affects
-		// escrow is POST .../stages/:stageId/review, and it only accepts a
-		// stage that is still 'submitted'. This page is only reachable once
-		// every stage — including the final one — is already 'completed' (see
-		// canRate() in project-details.ts), so that endpoint cannot validly be
-		// called again from here. Rather than fabricate a fake "funds released"
-		// success (or block the real, working rating flow below by disabling
-		// this button), this action only records the client's confirmation
-		// locally and proceeds to rating; the confirmation/summary copy in
-		// final-approval.html has been corrected to stop claiming this click
-		// releases funds.
+	remainingAmount(): number {
+		return Math.max(0, Math.round((this.totalAmount() - this.releasedAmount()) * 100) / 100);
+	}
+	continueToRating() {
 		this.router.navigate(['/client-overview/projects', this.projectId, 'rating']);
 	}
 
