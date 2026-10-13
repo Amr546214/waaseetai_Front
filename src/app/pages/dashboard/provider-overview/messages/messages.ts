@@ -781,8 +781,10 @@ export class ProviderMessages implements OnInit, OnDestroy {
   }
 
   /** 'client' = the client's request card, 'counter' / 'reply' = the provider's own structured entries, 'other' = anything else. */
-  negKind(msg: MessageItem): 'client' | 'counter' | 'reply' {
+  negKind(msg: MessageItem): 'client' | 'counter' | 'reply' | 'accepted' {
     const data = this.getNegData(msg);
+    // the CLIENT's acceptance of my counter (written by the server's accept endpoint): a closing note, never an open request
+    if (msg.sender === 'other' && data?.kind === 'CLIENT_ACCEPT_COUNTER') return 'accepted';
     // provider entries only count when they are MY messages (a client cannot make a card look like one of mine)
     if (msg.sender === 'me' && data?.kind === 'PROVIDER_COUNTER') return 'counter';
     if (msg.sender === 'me' && data?.kind === 'PROVIDER_REJECT') return 'reply';

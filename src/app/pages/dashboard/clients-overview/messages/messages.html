@@ -156,7 +156,7 @@
                         @if (negBadgeText(msg)) {
                           <span class="neg-card-badge" data-testid="neg-badge"
                                 [class.pending]="negKind(msg) === 'request' && negRequestState(msg) === 'waiting'"
-                                [class.accepted]="negKind(msg) === 'counter' || (negKind(msg) === 'request' && negRequestState(msg) === 'countered')"
+                                [class.accepted]="negKind(msg) === 'counter' || negKind(msg) === 'accepted' || (negKind(msg) === 'request' && negRequestState(msg) === 'countered')"
                                 [class.rejected]="negKind(msg) === 'reply' || (negKind(msg) === 'request' && negRequestState(msg) === 'declined')">
                             {{ negBadgeText(msg) }}
                           </span>
@@ -171,7 +171,7 @@
                         }
                         @if (neg.price) {
                           <div class="neg-card-row">
-                            <span class="neg-card-lbl">{{ negKind(msg) === 'counter' ? 'السعر المقترح من مقدم الخدمة:' : 'السعر المقترح:' }}</span>
+                            <span class="neg-card-lbl">{{ negKind(msg) === 'counter' ? 'السعر المقترح من مقدم الخدمة:' : negKind(msg) === 'accepted' ? 'السعر المعتمد:' : 'السعر المقترح:' }}</span>
                             <span class="neg-card-val highlight">{{ neg.price }} دولار</span>
                           </div>
                         }
@@ -189,7 +189,28 @@
                         }
                       </div>
                       @if (negKind(msg) === 'counter') {
-                        <div class="neg-card-decided" data-testid="neg-counter-note"><span>العرض المضاد للنقاش في المحادثة، ولا يغيّر السعر أو المدة الرسمية للعرض.</span></div>
+                        @if (isCounterAccepted(msg)) {
+                          <div class="neg-card-decided" data-testid="neg-counter-accepted"><span>تم قبول هذا العرض المضاد، وأصبح سعره ومدته هما شروط العرض.</span></div>
+                          <div class="neg-card-actions">
+                            <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-open-request" (click)="openRequestAfterAccept()">متابعة اختيار العرض والتوقيع</button>
+                          </div>
+                        } @else {
+                          <div class="neg-card-decided" data-testid="neg-counter-note"><span>العرض المضاد للنقاش في المحادثة، ولا يغيّر السعر أو المدة الرسمية للعرض إلا إذا قبلته.</span></div>
+                        }
+                      }
+                      @if (canAcceptCounter(msg)) {
+                        <div class="neg-card-actions">
+                          @if (counterConfirmId() !== (msg.id + '')) {
+                            <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept" (click)="askAcceptCounter(msg)">قبول العرض المضاد</button>
+                          } @else {
+                            <div class="neg-card-decided" data-testid="neg-counter-confirm-text"><span>سيصبح سعر العرض {{ neg.priceValue || neg.price }} دولار ومدته {{ neg.deliveryDays }} يوم، وتتغير مبالغ المراحل بالتناسب. هل تؤكد قبول العرض المضاد؟</span></div>
+                            <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept-yes" [disabled]="!!counterBusyId()" (click)="confirmAcceptCounter(msg)">{{ counterBusyId() ? 'جارٍ القبول…' : 'تأكيد قبول العرض المضاد' }}</button>
+                            <button type="button" class="neg-act-btn discuss" data-testid="neg-counter-accept-no" [disabled]="!!counterBusyId()" (click)="cancelAcceptCounter()">تراجع</button>
+                          }
+                        </div>
+                        @if (counterError() && counterConfirmId() === (msg.id + '')) {
+                          <div class="neg-card-decided rejected" data-testid="neg-counter-error" role="alert"><span>{{ counterError() }}</span></div>
+                        }
                       }
                       @if (negKind(msg) === 'request' || negKind(msg) === 'counter') {
                         <div class="neg-card-actions">

@@ -7,6 +7,7 @@ import { ChatService, ChatMessagePayload, MessageContext } from '../../../../cor
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
+import { ClientOfferCounterService } from '../../../../core/services/client-offer-counter.service';
 
 export interface MessageItem {
   id: number | string;
@@ -28,6 +29,8 @@ export interface MessageItem {
 
 export interface Conversation {
   id: string;
+  /** The project (request) behind the conversation; needed to accept a counter-offer. */
+  projectId?: string;
   name: string;
   project: string;
   avatarType: 'sk' | 'pr' | 'co';
@@ -54,6 +57,7 @@ export class ClientMessages implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
   private chatStateService = inject(ChatStateService);
   private videoCallService = inject(VideoCallService);
+  private counterService = inject(ClientOfferCounterService);
   private sub = new Subscription();
 
   private currentUserId = 'client_001';
@@ -147,6 +151,7 @@ export class ClientMessages implements OnInit, OnDestroy {
 
               return {
                 id: c.id,
+                projectId: c.projectId || c.project?.id || undefined,
                 name: partnerName,
                 project: c.project?.title || c.project || 'مشروع وسيط',
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
@@ -696,8 +701,9 @@ export class ClientMessages implements OnInit, OnDestroy {
   // ---- negotiation cards: nothing is decided or "locked" in the browser; the state is read from the structured messages the server stored ----
   // (the client's own request card, and the provider's structured replies: PROVIDER_REJECT = apologised, PROVIDER_COUNTER = counter offer).
   /** 'request' = a negotiation request, 'counter' / 'reply' = the PROVIDER's structured entries (only when the provider wrote them), 'other' = anything else. */
-  negKind(msg: MessageItem): 'request' | 'counter' | 'reply' | 'other' {
+  negKind(msg: MessageItem): 'request' | 'counter' | 'reply' | 'accepted' | 'other' {
     const data = this.getNegData(msg);
+    if (msg.sender === 'me' && data?.kind === 'CLIENT_ACCEPT_COUNTER') return 'accepted';
     if (msg.sender === 'other' && data?.kind === 'PROVIDER_COUNTER') return 'counter';
     if (msg.sender === 'other' && data?.kind === 'PROVIDER_REJECT') return 'reply';
     return msg.sender === 'me' ? 'request' : 'other';
@@ -724,13 +730,76 @@ export class ClientMessages implements OnInit, OnDestroy {
       }
       case 'counter': return 'عرض مضاد من مقدم الخدمة';
       case 'reply': return 'اعتذر مقدم الخدمة';
+      case 'accepted': return 'تم قبول العرض المضاد';
       default: return '';
     }
   }
 
   negCardTitle(msg: MessageItem): string {
     const kind = this.negKind(msg);
-    return kind === 'counter' ? 'عرض مضاد من مقدم الخدمة' : kind === 'reply' ? 'ردّ مقدم الخدمة على طلبك' : kind === 'request' ? 'طلب التفاوض الخاص بك' : 'رسالة تفاوض';
+    return kind === 'counter' ? 'عرض مضاد من مقدم الخدمة' : kind === 'reply' ? 'ردّ مقدم الخدمة على طلبك' : kind === 'request' ? 'طلب التفاوض الخاص بك' : kind === 'accepted' ? 'قبولك للعرض المضاد' : 'رسالة تفاوض';
+  }
+
+  // ---- accepting the provider's counter-offer: a REAL server call; the price / duration of the offer change only when the server says so ----
+  counterConfirmId = signal<string>('');
+  counterBusyId = signal<string>('');
+  counterError = signal<string>('');
+  /** Counters accepted in this session (the server's acceptance message is also looked up in the conversation). */
+  counterAcceptedIds = signal<string[]>([]);
+
+  /** True once the counter was accepted (this session, or a later acceptance message that points at it). */
+  isCounterAccepted(msg: MessageItem): boolean {
+    const id = String(msg.id);
+    if (this.counterAcceptedIds().includes(id)) return true;
+    return (this.activeConversation()?.messages || []).some((m) => this.negKind(m) === 'accepted' && String(this.getNegData(m)?.replyToMessageId) === id);
+  }
+
+  /** Only the NEWEST negotiation message can be accepted, and only when it is a clear counter (price + days) tied to an offer. */
+  canAcceptCounter(msg: MessageItem): boolean {
+    if (this.negKind(msg) !== 'counter' || this.isCounterAccepted(msg)) return false;
+    const conv = this.activeConversation();
+    const neg = this.getNegData(msg);
+    if (!conv?.projectId || !neg?.offerId || !(Number(neg.priceValue ?? neg.price) > 0) || !(Number(neg.deliveryDays) > 0)) return false;
+    const latest = [...conv.messages].reverse().find((m) => this.isNegotiationMsg(m));
+    return !!latest && String(latest.id) === String(msg.id);
+  }
+
+  askAcceptCounter(msg: MessageItem): void {
+    this.counterError.set('');
+    this.counterConfirmId.set(String(msg.id));
+  }
+
+  cancelAcceptCounter(): void {
+    this.counterConfirmId.set('');
+    this.counterError.set('');
+  }
+
+  confirmAcceptCounter(msg: MessageItem): void {
+    const conv = this.activeConversation();
+    const neg = this.getNegData(msg);
+    if (!conv?.projectId || !neg?.offerId || this.counterBusyId()) return;
+    this.counterError.set('');
+    this.counterBusyId.set(String(msg.id));
+    this.sub.add(
+      this.counterService.acceptCounter(conv.projectId, String(neg.offerId), String(msg.id)).subscribe({
+        next: (res) => {
+          this.counterBusyId.set('');
+          this.counterConfirmId.set('');
+          this.counterAcceptedIds.update((ids) => [...ids, String(msg.id)]);
+          this.showToast(`تم قبول العرض المضاد: ${res.price} دولار خلال ${res.deliveryDays} يوم`);
+        },
+        error: (err) => {
+          this.counterBusyId.set('');
+          this.counterError.set(err?.error?.message || 'تعذر قبول العرض المضاد، حاول مرة أخرى');
+        }
+      })
+    );
+  }
+
+  /** After accepting: the request page, where the client selects and signs the offer with its new terms. */
+  openRequestAfterAccept(): void {
+    const projectId = this.activeConversation()?.projectId;
+    if (projectId) this.router.navigate(['/client-overview/my-requests', projectId]);
   }
 
   discussNegotiation(msg: MessageItem): void {
