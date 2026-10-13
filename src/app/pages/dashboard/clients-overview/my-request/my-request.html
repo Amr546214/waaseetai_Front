@@ -13,7 +13,7 @@
 						<circle cx="11" cy="11" r="8" />
 						<line x1="21" y1="21" x2="16.65" y2="16.65" />
 					</svg>
-					<input type="search" placeholder="ابحث برقم أو اسم أو مقدم" aria-label="بحث في الطلبات" />
+					<input type="search" placeholder="ابحث برقم أو عنوان أو تخصص أو حالة" aria-label="بحث في الطلبات" [value]="searchText()" (input)="onSearch($event)" />
 				</div>
 				<a [routerLink]="['/client-overview/create-request']" class="ord-cta">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -33,8 +33,8 @@
 				</svg>
 			</div>
 			<div class="ws-note-body">
-				<div class="ws-note-lbl">وسيط، ترتيب تلقائي</div>
-				<p class="ws-note-txt">تُرتَّب طلباتك تلقائياً حسب الأولوية، ويُبرز ما وصلته عروض جديدة</p>
+				<div class="ws-note-lbl">ترتيب الطلبات</div>
+				<p class="ws-note-txt">الطلبات مرتبة من الأحدث إلى الأقدم، ويمكنك تغيير الترتيب أو البحث أو التصفية من الشريط أدناه</p>
 			</div>
 		</div>
 
@@ -50,21 +50,30 @@
 
 		<!-- Toolbar -->
 		<div class="ord-toolbar">
-			<button type="button" class="tb-btn">
+			<button type="button" class="tb-btn" data-testid="filters-toggle" [attr.aria-expanded]="showFilters()" (click)="toggleFilters()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
 				</svg>
 				فلترة
-				<span class="tb-badge">2</span>
+				@if (activeFilterCount() > 0) {
+					<span class="tb-badge">{{ activeFilterCount() }}</span>
+				}
 			</button>
-			<select class="tb-sel" aria-label="ترتيب">
-				<option>الأحدث أولا</option>
-				<option>الأقدم أولا</option>
-				<option>الأعلى ميزانية</option>
-				<option>الأكثر عروضا</option>
-				<option>قرب التسليم</option>
+			@if (showFilters()) {
+				<select class="tb-sel" aria-label="تصفية حسب التخصص" data-testid="specialty-filter" [value]="specialtyFilter()" (change)="onSpecialty($event)">
+					<option value="">كل التخصصات</option>
+					@for (spec of specialties(); track spec) {
+						<option [value]="spec">{{ spec }}</option>
+					}
+				</select>
+			}
+			<select class="tb-sel" aria-label="ترتيب" data-testid="sort-select" (change)="onSort($event)">
+				<option value="newest">الأحدث أولا</option>
+				<option value="oldest">الأقدم أولا</option>
+				<option value="budget">الأعلى ميزانية</option>
+				<option value="offers">الأكثر عروضا</option>
 			</select>
-			<button type="button" class="tb-btn">
+			<button type="button" class="tb-btn" disabled title="الجدول هو طريقة العرض المتاحة حاليًا">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<line x1="8" y1="6" x2="21" y2="6" />
 					<line x1="8" y1="12" x2="21" y2="12" />
@@ -101,14 +110,7 @@
 								<td>{{ req.specialty }}</td>
 								<td>{{ req.budget }}</td>
 								<td>
-									<span class="opill" [ngClass]="{
-										'op-active': req.status === 'active',
-										'op-pending': req.status === 'pending',
-										'op-dispute': req.status === 'dispute',
-										'op-done': req.status === 'closed',
-										'op-cancel': req.status === 'cancel',
-										'op-draft': req.status === 'draft'
-									}">{{ getStatusLabel(req.status) }}</span>
+									<span class="opill" [ngClass]="pillClass(req)">{{ req.stageLabel }}</span>
 								</td>
 								<td>
 									@if (req.offers) {
@@ -118,9 +120,7 @@
 									}
 								</td>
 								<td>
-									<a [routerLink]="['/client-overview/my-requests', req.id]" class="ord-act">
-										{{ req.status === 'active' || req.status === 'pending' ? 'عرض' : (req.status === 'dispute' ? 'متابعة' : (req.status === 'closed' ? 'تقييم' : (req.status === 'cancel' ? 'التفاصيل' : 'إكمال'))) }}
-									</a>
+									<a [routerLink]="['/client-overview/my-requests', req.id]" class="ord-act">{{ actionLabel(req) }}</a>
 								</td>
 							</tr>
 						}
@@ -129,9 +129,15 @@
 			</div>
 		</div>
 
+		@if (loadError()) {
+			<div class="ws-note ws-note--neutral" role="alert" data-testid="load-error"><div class="ws-note-body"><p class="ws-note-txt">{{ loadError() }}</p></div></div>
+		} @else if (!isLoading() && filteredRequests().length === 0) {
+			<div class="ws-note ws-note--neutral" role="status" data-testid="empty-state"><div class="ws-note-body"><p class="ws-note-txt">{{ requests().length === 0 ? 'لا توجد طلبات بعد. ابدأ بإنشاء طلب جديد.' : 'لا توجد طلبات مطابقة للتصفية أو البحث.' }}</p></div></div>
+		}
+
 		<!-- Pagination -->
 		<div class="ord-pager">
-			<span class="ord-count">يظهر {{ (currentPage() - 1) * itemsPerPage + 1 }}-{{ (currentPage() * itemsPerPage) > filteredRequests().length ? filteredRequests().length : (currentPage() * itemsPerPage) }} من {{ filteredRequests().length }} نتيجة</span>
+			<span class="ord-count">يظهر {{ filteredRequests().length === 0 ? 0 : (currentPage() - 1) * itemsPerPage + 1 }}-{{ (currentPage() * itemsPerPage) > filteredRequests().length ? filteredRequests().length : (currentPage() * itemsPerPage) }} من {{ filteredRequests().length }} نتيجة</span>
 			<div class="ord-pages">
 				<button type="button" class="ord-pg" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pg-arrow">

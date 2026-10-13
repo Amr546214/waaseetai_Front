@@ -63,7 +63,7 @@ describe('client messages: negotiation cards are server-driven; the only decisio
 		const t = c.textContent!.replace(/\s+/g, ' ');
 		expect(t).toContain('900 دولار'); expect(t).toContain('10 يوم'); expect(t).toContain('ملاحظة');
 		expect(c.querySelector('[data-testid="neg-counter-note"]')!.textContent).toContain('ولا يغيّر السعر أو المدة الرسمية');
-		expect(Array.from(c.querySelectorAll('button')).map(b => b.textContent!.trim()).join('|')).not.toMatch(/رفض/);
+		expect(Array.from(c.querySelectorAll('button')).map(b => b.textContent!.trim()).join('|')).not.toMatch(/رفض التفاوض|رفض الطلب/);
 	});
 
 	it('a message from ME that pretends to be a provider counter is still just my request (never a provider entry)', async () => {
@@ -82,6 +82,37 @@ describe('client messages: negotiation cards are server-driven; the only decisio
 		const html = readFileSync(join(__dirname, 'messages.html'), 'utf8');
 		const card = html.slice(html.indexOf('Negotiation Card Message'), html.indexOf('5) Standard Text Message'));
 		expect(card).not.toMatch(/#i-ai|ai-disc|ai-bc|ai-insight|ai-banner|txt-purple|text-purple/);
+	});
+
+	describe('declining the provider counter-offer', () => {
+		const decline = (c: HTMLElement) => c.querySelector('[data-testid="neg-counter-decline"]') as HTMLButtonElement | null;
+
+		it('the newest counter can be declined: the server is called with project, offer and THIS message id; the card then says the original terms stay', async () => {
+			const calls: any[] = [];
+			const s = await render([myReq(), counter('ctr-3')], { acceptCounter: () => of({}), declineCounter: (...a: any[]) => { calls.push(a); return of({ status: 'SUBMITTED' }); } });
+			const card = s.cards()[1];
+			decline(card)!.click(); s.f.detectChanges();
+			expect(calls).toEqual([['p1', 'o1', 'ctr-3']]);
+			expect(card.querySelector('[data-testid="neg-counter-declined"]')!.textContent).toContain('بشروطه الأصلية');
+			expect(card.querySelector('[data-testid="neg-counter-accept"]')).toBeNull();
+			expect(decline(card)).toBeNull();
+		});
+
+		it('a refusal from the server (stale counter) is shown and the counter stays answerable', async () => {
+			const s = await render([myReq(), counter()], { acceptCounter: () => of({}), declineCounter: () => throwError(() => ({ error: { message: 'هذا العرض المضاد لم يعد الأحدث، راجع آخر عرض مضاد من مقدم الخدمة' } })) });
+			const card = s.cards()[1];
+			decline(card)!.click(); s.f.detectChanges();
+			expect(card.querySelector('[data-testid="neg-counter-error"]')!.textContent).toContain('لم يعد الأحدث');
+			expect(decline(card)).not.toBeNull();
+		});
+
+		it('a stored decline answer renders as my answer card and the counter is no longer answerable', async () => {
+			const dec = { id: 'dec-1', senderId: 'client-1', type: 'TEXT', content: NEG + JSON.stringify({ isNegotiation: true, kind: 'CLIENT_DECLINE_COUNTER', offerId: 'o1', replyToMessageId: 'ctr-1', status: 'DECLINED' }) };
+			const s = await render([myReq(), counter(), dec]);
+			expect(s.cards().map((c) => c.getAttribute('data-neg-kind'))).toEqual(['request', 'counter', 'declined']);
+			expect(decline(s.cards()[1])).toBeNull();
+			expect(s.cards()[1].querySelector('[data-testid="neg-counter-declined"]')).not.toBeNull();
+		});
 	});
 
 	describe('accepting the provider counter-offer', () => {

@@ -37,4 +37,9 @@ export class ClientOfferCounterService {
 	acceptCounter(requestId: string, offerId: string, messageId: string): Observable<ClientCounterAccepted> {
 		return this.http.post<{ data: ClientCounterAccepted }>(`${this.base(requestId, offerId)}/accept`, { messageId }).pipe(map(res => res.data));
 	}
+
+	/** Declines the NEWEST pending counter: the offer keeps its original terms (back to SUBMITTED). */
+	declineCounter(requestId: string, offerId: string, messageId: string): Observable<{ offerId: string; status: string }> {
+		return this.http.post<{ data: { offerId: string; status: string } }>(`${this.base(requestId, offerId)}/decline`, { messageId }).pipe(map(res => res.data));
+	}
 }
