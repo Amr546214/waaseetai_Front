@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -243,7 +244,7 @@ export class Withdraw implements OnInit {
         const availableAt = err?.error?.availableAt;
         if (err?.error?.code === 'PAYPAL_EMAIL_FROZEN' && availableAt) {
           const d = new Date(availableAt);
-          if (!Number.isNaN(d.getTime())) this.submitErrorHint.set(`يتاح السحب بعد: ${d.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })}`);
+          if (!Number.isNaN(d.getTime())) this.submitErrorHint.set(`يتاح السحب بعد: ${d.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short', timeZone: providerTimeZone() })}`);
         }
       },
     });
@@ -319,6 +320,7 @@ export class Withdraw implements OnInit {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: providerTimeZone(),
       });
     } catch {
       return date;

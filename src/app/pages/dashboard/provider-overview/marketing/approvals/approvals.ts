@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -137,7 +138,8 @@ export class MarketingApprovals implements OnInit {
     const now = new Date();
     const thisMonth = (iso: string) => {
       const d = new Date(iso);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      const ym = (x: Date) => new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', timeZone: providerTimeZone() }).format(x);
+      return ym(d) === ym(now);
     };
     const items = this.items();
     return {

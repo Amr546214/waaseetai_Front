@@ -55,15 +55,17 @@
 	<div class="section-card">
 		<div class="section-title">آخر المبيعات</div>
 		<div class="sales-list">
-			@if (sales.length === 0) {
-				<div class="py-6 text-center text-[13px] font-bold" style="padding:24px 0;text-align:center;opacity:.7" data-testid="empty-state">لا توجد بيانات بعد</div>
+			@if (loadError) {
+				<div class="py-6 text-center text-[13px] font-bold" style="padding:24px 0;text-align:center;opacity:.7" data-testid="error-state">تعذّر تحميل المبيعات</div>
+			} @else if (sales.length === 0) {
+				<div class="py-6 text-center text-[13px] font-bold" style="padding:24px 0;text-align:center;opacity:.7" data-testid="empty-state">لا توجد مبيعات بعد</div>
 			}
 			@for (sale of sales; track sale.id) {
 				<div class="sale-row">
-					<div class="sale-id">{{ sale.id }}</div>
+					<div class="sale-id">{{ sale.orderNumber }}</div>
 					<div class="sale-model">{{ sale.model }}</div>
 					<div class="sale-client">{{ sale.client }}</div>
-					<div class="sale-amount">{{ sale.amount.toLocaleString() }} دولار</div>
+					<div class="sale-amount">{{ sale.amount.toLocaleString('en-US') }} دولار</div>
 					<div class="sale-date">{{ sale.date }}</div>
 					<span class="sale-status" [ngClass]="'st-' + sale.status">{{ statusLabel(sale.status) }}</span>
 				</div>

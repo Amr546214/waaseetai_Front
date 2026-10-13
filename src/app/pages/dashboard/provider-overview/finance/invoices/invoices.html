@@ -7,14 +7,14 @@
     </div>
   </div>
 
-  <!-- AI Disclosure -->
-  <div class="ws-note ws-note--neutral">
+  <!-- Neutral note: no AI is involved in invoices -->
+  <div class="ws-note ws-note--neutral" data-testid="provider-invoices-note">
     <div class="ws-note-ico">
       <svg aria-hidden="true"><use href="#i-doc"></use></svg>
     </div>
     <div class="ws-note-body">
-      <div class="ws-note-lbl">وسيط، تحقق آلي من الفواتير</div>
-      <p class="ws-note-txt">تُحسب بيانات الفاتورة تلقائياً من قيمة العقد ومراحله، وتُطابق المبالغ آلياً قبل الاعتماد</p>
+      <div class="ws-note-lbl">فواتير المشاريع</div>
+      <p class="ws-note-txt">فاتورة لكل مرحلة تسلّمتها: قيمة المرحلة وعمولة المنصة وصافي ما يصلك. «مدفوعة» عند اعتماد العميل للمرحلة، و«بانتظار الدفع» قبل اعتمادها (والعمولة فيها متوقعة). حركات أرباحك في <a routerLink="/provider-overview/finance/transactions" class="underline">سجل المعاملات</a>.</p>
     </div>
   </div>
 
@@ -55,17 +55,17 @@
                   </div>
                 </div>
               </td>
-              <td>{{ inv.client }}</td>
+              <td>{{ inv.clientName }}</td>
               <td>{{ formatDate(inv.date) }}</td>
               <td>
-                <span class="inv-amt">{{ inv.total | number }} دولار</span>
-                <div class="inv-amt-sub">شامل {{ inv.tax | number:'1.2-2' }} ضريبة</div>
+                <span class="inv-amt">{{ inv.net | number:'1.0-2' }} دولار</span>
+                <div class="inv-amt-sub">قيمة المرحلة {{ inv.stageValue | number:'1.0-2' }} − عمولة المنصة {{ inv.platformCommission | number:'1.0-2' }}{{ inv.commissionEstimated ? ' (متوقعة)' : '' }}</div>
               </td>
               <td>
                 <span class="tx-st" [class.tx-done]="inv.status === 'paid'" [class.tx-hold]="inv.status === 'due'">{{ inv.status === 'paid' ? 'مدفوعة' : 'بانتظار الدفع' }}</span>
               </td>
               <td>
-                <button type="button" class="inv-dl" (click)="downloadInvoice(inv, $event)" title="تنزيل الفاتورة PDF">
+                <button type="button" class="inv-dl" (click)="downloadInvoice(inv, $event)" title="طباعة / حفظ الفاتورة كـ PDF">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 11l5 5 5-5M5 20h14"/></svg>
                 </button>
               </td>
@@ -76,7 +76,7 @@
 
       <div *ngIf="filteredInvoices().length === 0" class="inv-empty">
         <div class="inv-empty-ttl">لا فواتير بعد</div>
-        <div class="inv-empty-sub">تظهر هنا الفواتير الضريبية فور إصدارها عند اكتمال مراحل مشاريعك</div>
+        <div class="inv-empty-sub">لا توجد فواتير بعد. تظهر هنا فاتورة كل مرحلة تسلّمها لعميلك</div>
       </div>
     </div>
 

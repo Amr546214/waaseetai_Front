@@ -100,7 +100,8 @@ export class ApplayRequest implements OnInit, OnDestroy {
 
 	newReq = signal<string>('');
 	isFetchingAiSuggest = signal<boolean>(false);
-	totalBudget = signal<number>(4500);
+	// no invented default price: it starts empty (0) and is filled from the project's own budget, or by the provider
+	totalBudget = signal<number>(0);
 
 	// Step 3 State
 	isScanning = signal<boolean>(true);
@@ -613,7 +614,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 					this.isSubmitting.set(false);
 					this.showSuccess.set(true);
 					if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-						sessionStorage.removeItem(`draft_proposal_${this.reqId()}`);
+						sessionStorage.removeItem(`draft_proposal_v2_${this.reqId()}`);
 					}
 					console.log('✅ Proposal successfully submitted to DB and Client notified via Socket.io!', res);
 				},

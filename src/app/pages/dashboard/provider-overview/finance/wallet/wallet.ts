@@ -101,6 +101,18 @@ export class Wallet implements OnInit {
     this.depositToastTimer = setTimeout(() => this.depositToast.set(''), 4000);
   }
 
+  /** available + held in escrow: the ring is drawn only when there is something to show */
+  ringTotal = computed(() => {
+    const d = this.data();
+    return (d?.summary?.availableBalance || 0) + (d?.summary?.escrowBalance || 0);
+  });
+  /** the available share of the ring: arc length / remainder, out of the circumference of r=36 */
+  ringDash = computed(() => {
+    const circumference = 2 * Math.PI * 36;
+    const arc = (this.availableRatio() / 100) * circumference;
+    return `${arc.toFixed(1)} ${(circumference - arc).toFixed(1)}`;
+  });
+
   availableRatio = computed(() => {
     const d = this.data();
     if (!d) return 66;

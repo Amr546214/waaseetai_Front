@@ -6,6 +6,7 @@ import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { ProviderPrefsStore } from '../../../../../core/services/provider-prefs.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
@@ -75,6 +76,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private uiNotify = inject(UiNotificationService);
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
+	private prefsStore = inject(ProviderPrefsStore);
 	private providerProfileService = inject(ProviderProfileService);
 	private specialtyService = inject(SpecialtyService);
 	public setupTestService = inject(SetupTestService);
@@ -297,6 +299,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.skillsList.set((d.skills || []).map((s: { name: string }) => s.name));
 					this.storedAvatarUrl = typeof d.avatarUrl === 'string' ? d.avatarUrl : '';
 					if (this.storedAvatarUrl) { this.avatarUrl.set(this.storedAvatarUrl); this.avatarPreview.set(this.storedAvatarUrl); }
+					const prefs = d.preferences && typeof d.preferences === 'object' ? d.preferences : {};
+					if (prefs.preferredCommunicationLanguage === 'ar' || prefs.preferredCommunicationLanguage === 'en') this.setupForm.get('uiLanguage')?.setValue(prefs.preferredCommunicationLanguage);
+					if (typeof prefs.timezone === 'string' && prefs.timezone) this.setupForm.get('profData.timezone')?.setValue(prefs.timezone);
+					if (Array.isArray(prefs.notifChannels)) this.notifChannels.set(prefs.notifChannels.filter((c: unknown) => c === 'push' || c === 'email'));
 					this.setupForm.patchValue({
 						profData: {
 							jobTitle: d.headline || d.industry || '',
@@ -695,6 +701,24 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	setUiLanguage(lang: string) {
 		this.setupForm.get('uiLanguage')?.setValue(lang);
+		this.savePreferences();
+	}
+
+	/** '' | 'saving' | 'saved' | 'error' — status of the last preferences save (PUT /provider/profile/preferences). */
+	prefsStatus = signal<'' | 'saving' | 'saved' | 'error'>('');
+
+	/** Saves language / timezone / notification channels right when they change (they are stored in provider_profiles.preferences). */
+	savePreferences() {
+		this.prefsStatus.set('saving');
+		const lang = this.setupForm.get('uiLanguage')?.value === 'en' ? 'en' : 'ar';
+		this.profileApi.saveProviderPreferences({
+			preferredCommunicationLanguage: lang,
+			timezone: this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh',
+			notifChannels: this.notifChannels()
+		}).subscribe({
+			next: () => { this.prefsStatus.set('saved'); this.prefsStore.setTimezone(this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh'); },
+			error: () => this.prefsStatus.set('error')
+		});
 	}
 
 	// Profile completion percentage (P-AU-011 progress ring)
@@ -717,6 +741,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.notifChannels.update(list =>
 			list.includes(channel) ? list.filter(c => c !== channel) : [...list, channel]
 		);
+		this.savePreferences();
 	}
 
 	private uploadSingleDoc(file: File, type: string) {

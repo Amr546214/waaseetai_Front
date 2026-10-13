@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../../../core/services/provider-prefs.store';
 import { Component, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -374,7 +375,7 @@ export class Progress implements OnInit {
     if (!d?.date) return '';
     try {
       const dt = new Date(d.date);
-      return dt.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }) + '، ' + dt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+      return dt.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: providerTimeZone() }) + '، ' + dt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
     } catch { return d.date; }
   }
   // Escrow amount formatted "2,500 $" (active contract/escrow pricing is USD-canonical)

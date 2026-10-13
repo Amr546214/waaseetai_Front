@@ -1,16 +1,8 @@
-import { Component, ChangeDetectionStrategy, signal, computed, OnInit } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-
-interface ProviderInvoice {
-	id: string;
-	project: string;
-	client: string;
-	date: string;
-	total: number;
-	tax: number;
-	status: 'paid' | 'due';
-}
+import { ProviderApiService, ProviderInvoice, ProviderInvoicesResponse } from '../../../../../core/services/provider-api.service';
 
 @Component({
 	selector: 'app-provider-invoices',
@@ -21,19 +13,13 @@ interface ProviderInvoice {
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InvoicesComponent implements OnInit {
+	private providerApi = inject(ProviderApiService);
+	summary = signal<ProviderInvoicesResponse['summary'] | null>(null);
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
 	toast = signal<string | null>(null);
 
 	activeTab = signal<'all' | 'paid' | 'due'>('all');
-
-	private mockInvoices: ProviderInvoice[] = [
-		{ id: 'INV-2026-0488', project: 'تصميم هوية بصرية · المرحلة 2', client: 'نورة التصميم', date: '2026-05-26', total: 2875, tax: 375, status: 'paid' },
-		{ id: 'INV-2026-0471', project: 'تصميم هوية بصرية · المرحلة 1', client: 'نورة التصميم', date: '2026-05-18', total: 2300, tax: 300, status: 'paid' },
-		{ id: 'INV-2026-0492', project: 'كتابة محتوى متجر · دفعة أولى', client: 'رشا الكاتبة', date: '2026-05-29', total: 1092, tax: 142, status: 'due' },
-		{ id: 'INV-2026-0455', project: 'تطوير متجر إلكتروني · دفعة مقدمة', client: 'تقنية الرواد', date: '2026-05-12', total: 3450, tax: 450, status: 'due' },
-		{ id: 'INV-2026-0399', project: 'استشارة تسويقية · مكتملة', client: 'مكتب أفق', date: '2026-04-30', total: 1725, tax: 225, status: 'paid' }
-	];
 
 	invoices = signal<ProviderInvoice[]>([]);
 
@@ -54,12 +40,11 @@ export class InvoicesComponent implements OnInit {
 	loadInvoices(): void {
 		this.isLoading.set(true);
 		this.hasError.set(false);
-		// No backend endpoint exists yet for provider invoices — using representative mock data
-		// matching the design (P-PR-025) until the API is available.
-		setTimeout(() => {
-			this.invoices.set(this.mockInvoices);
-			this.isLoading.set(false);
-		}, 500);
+		// GET /provider/finance/invoices: one invoice per delivered stage, with the platform commission and the provider's net
+		this.providerApi.getProviderInvoices().subscribe({
+			next: res => { this.invoices.set(res?.data?.invoices ?? []); this.summary.set(res?.data?.summary ?? null); this.isLoading.set(false); },
+			error: () => { this.invoices.set([]); this.hasError.set(true); this.isLoading.set(false); }
+		});
 	}
 
 	setTab(tab: 'all' | 'paid' | 'due') {
@@ -67,12 +52,13 @@ export class InvoicesComponent implements OnInit {
 	}
 
 	formatDate(value: string): string {
-		return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value));
+		return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: providerTimeZone() }).format(new Date(value));
 	}
 
-	downloadInvoice(inv: ProviderInvoice, event: Event): void {
+	/** PDF = the browser's print dialog ("Save as PDF") until a server-generated document exists. */
+	downloadInvoice(_inv: ProviderInvoice, event: Event): void {
 		event.stopPropagation();
-		this.showToast(`جارٍ تنزيل الفاتورة ${inv.id}`);
+		window.print();
 	}
 
 	retry() {

@@ -1,4 +1,4 @@
-import { Component, computed, signal, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -73,6 +73,8 @@ export class SignContract {
 	offerId = signal<string>('');
 	offerTitle = signal<string>('جارٍ تحميل العقد...');
 	offerRef = signal<string>('');
+	/** The project the offer belongs to (from the offers API): the "edit terms via chat" button opens that project's own conversation. */
+	projectId = signal<string>('');
 	providerName = signal<string>('');
 	price = signal<string>('');
 	// The REAL contract (price / duration / phases / saved milestones / funded escrow) returned by GET /provider/offers for an offer the provider
@@ -90,17 +92,6 @@ export class SignContract {
 	showToast = signal<boolean>(false);
 	toastMessage = signal<string>('');
 
-	isTermsModalOpen = signal<boolean>(false);
-
-	chatMessages = signal<{ text: string, isMe: boolean }[]>([]);
-	termInput = '';
-
-	// Initials of the other contract party, derived from the real name loaded
-	// from the offers API (replaces hardcoded "نو" initials).
-	counterpartyInitials = computed<string>(() =>
-		this.providerName().split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2)
-	);
-
 	constructor() {
 		const nav = this.router.getCurrentNavigation();
 		if (nav?.extras?.state && nav.extras.state['offer']) {
@@ -109,6 +100,7 @@ export class SignContract {
 			this.offerRef.set(offer.ref);
 			this.providerName.set(offer.clientName); // In offers list, the client name is stored, we'll use it as provider name in this view or vice versa
 			this.price.set(offer.price);
+			if (offer.projectId) this.projectId.set(String(offer.projectId));
 			// We can keep default values for duration/phases or extract them if they existed in state
 		}
 
@@ -132,6 +124,7 @@ export class SignContract {
 				this.providerName.set(item.providerName || item.clientName || this.providerName());
 				this.price.set(typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || this.price()));
 				this.contract.set(readProviderContract(item.contract));
+				if (item.projectId) this.projectId.set(String(item.projectId));
 			},
 			error: (err) => {
 				this.isLoading.set(false);
@@ -167,37 +160,28 @@ export class SignContract {
 
 		this.offersService.signContract(this.offerId(), { accepted: true }).subscribe({
 			next: (res) => {
-				this.displayToast('تم تأكيد التوقيع وتحديث قاعدة البيانات بنجاح، جاري التوجيه...');
+				this.displayToast('تم تأكيد توقيع العقد بنجاح، جاري التوجيه...');
 				
 				setTimeout(() => {
 					this.router.navigate(['/provider-overview/projects/active']);
 				}, 1500);
 			},
 			error: (err) => {
-				this.displayToast('حدث خطأ أثناء حفظ العقد في قاعدة البيانات');
+				this.displayToast('تعذّر حفظ توقيع العقد، حاول مرة أخرى');
 				console.error(err);
 			}
 		});
 	}
 
-	openTermsModal() {
-		this.isTermsModalOpen.set(true);
-	}
-
-	closeTermsModal() {
-		this.isTermsModalOpen.set(false);
-	}
-
-	onModalClick(event: MouseEvent) {
-		// Close modal when clicking outside the content
-		if ((event.target as HTMLElement).classList.contains('modal-ov')) {
-			this.closeTermsModal();
+	/** "تعديل البنود عبر المحادثة": opens this project's own conversation with the client (messages page, PROJECT context). */
+	openProjectConversation() {
+		const projectId = this.projectId();
+		if (!projectId) {
+			this.displayToast('تعذّر تحديد محادثة هذا المشروع. افتح غرفة التفاوض من صفحة العروض لتعديل البنود قبل التوقيع');
+			return;
 		}
-	}
-
-	sendTermMsg() {
-		if (!this.termInput.trim()) return;
-		this.termInput = '';
-		this.displayToast('لا يمكن تعديل العقد من هذه الشاشة. اطلب التعديل عبر غرفة التفاوض قبل التوقيع.');
+		this.router.navigate(['/provider-overview/messages'], {
+			state: { messageContext: { type: 'PROJECT', projectId, projectTitle: this.offerTitle() } }
+		});
 	}
 }

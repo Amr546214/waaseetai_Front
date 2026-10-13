@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -207,7 +208,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
                 lastMsg: c.lastMessage?.content || c.lastMsg || '',
-                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (c.time || ''),
+                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() }) : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 online: partner.isOnline || c.online || false,
                 messages: c.messages || []
@@ -399,7 +400,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
     if (!currentConv) return;
 
     const now = new Date();
-    const timeString = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     // Same initials computation used for the conversation partner's name —

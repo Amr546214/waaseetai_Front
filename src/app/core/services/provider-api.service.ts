@@ -33,6 +33,22 @@ export interface ProviderReports {
 	disputes: { items: Array<{ id: string; status: string; reason: string; createdAt: string; resolvedAt: string | null }>; counts: { all: number; open: number; resolved: number; rejected: number }; ratioPercent: number | null };
 }
 
+export interface ProviderInvoice {
+	id: string; sourceId: string; projectId: string; clientName: string; projectTitle: string; stageTitle: string; project: string; date: string;
+	stageValue: number; platformCommission: number; commissionRatePercent: number; commissionEstimated: boolean; net: number; total: number; tax: number;
+	status: 'paid' | 'due'; paymentDate: string | null; currency: string;
+}
+export interface ProviderInvoicesResponse {
+	summary: { totalCount: number; paidCount: number; dueCount: number; paidNetTotal: number; dueNetTotal: number; platformCommissionTotal: number; currency: string };
+	invoices: ProviderInvoice[];
+}
+export interface ProviderSale { id: string; orderNumber: string; model: string; client: string; amount: number; date: string; status: 'completed' | 'pending' | 'refunded' }
+export interface ProviderSalesResponse {
+	summary: { totalRevenue: number; monthRevenue: number; salesCount: number; averageOrderValue: number; currency: string };
+	topModels: Array<{ name: string; sales: number; revenue: number; pct: number }>;
+	sales: ProviderSale[];
+}
+
 export interface ProviderActivityItem {
 	id: string;
 	title?: string;
@@ -144,6 +160,16 @@ export class ProviderApiService {
 	/** GET /provider/reports?range=month|3m|6m|year|all — real offers / projects / payments / disputes (null where the backend has no source). */
 	getProviderReports(range: ProviderReportRange): Observable<{ success: boolean; data?: ProviderReports; error?: string }> {
 		return this.http.get<{ success: boolean; data?: ProviderReports }>(`${this.apiUrl}/reports`, { params: { range } });
+	}
+
+	/** GET /provider/finance/invoices — one invoice per delivered stage (client, stage value, platform commission, net, paid/due). */
+	getProviderInvoices(): Observable<{ success: boolean; data: ProviderInvoicesResponse }> {
+		return this.http.get<{ success: boolean; data: ProviderInvoicesResponse }>(`${this.apiUrl}/finance/invoices`);
+	}
+
+	/** GET /provider/finance/sales — paid marketplace sales of the provider's services (net of the coupon share). */
+	getProviderSales(): Observable<{ success: boolean; data: ProviderSalesResponse }> {
+		return this.http.get<{ success: boolean; data: ProviderSalesResponse }>(`${this.apiUrl}/finance/sales`);
 	}
 
 	getOverviewStats(): Observable<ProviderStatsResponse> {
