@@ -173,11 +173,13 @@
                     <div class="neg-card-box" [attr.data-neg-kind]="negKind(msg)">
                       <div class="neg-card-hdr">
                         <span class="neg-card-icon">🤝</span>
-                        <span class="neg-card-title">{{ negKind(msg) === 'counter' ? 'عرضك المضاد' : negKind(msg) === 'reply' ? 'ردّك على طلب التفاوض' : 'طلب تفاوض من العميل' }}</span>
+                        <span class="neg-card-title">{{ negKind(msg) === 'counter' ? 'عرضك المضاد' : negKind(msg) === 'reply' ? 'ردّك على طلب التفاوض' : negKind(msg) === 'accepted' ? 'قبل العميل عرضك المضاد' : 'طلب تفاوض من العميل' }}</span>
                         @if (negKind(msg) === 'counter') {
                           <span class="neg-card-badge pending">{{ getNegStatusText(neg.status) }}</span>
                         } @else if (negKind(msg) === 'reply') {
                           <span class="neg-card-badge rejected">{{ getNegStatusText(neg.status) }}</span>
+                        } @else if (negKind(msg) === 'accepted') {
+                          <span class="neg-card-badge accepted" data-testid="neg-accepted-badge">تم قبول عرضك المضاد</span>
                         } @else if (isOpenNegotiationRequest(msg)) {
                           <span class="neg-card-badge pending" data-testid="neg-open-badge">بانتظار ردك</span>
                         }

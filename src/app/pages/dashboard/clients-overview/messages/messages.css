@@ -1516,12 +1516,12 @@ body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
   border: none;
 }
 
-.neg-act-btn.accept {
+.neg-act-btn.counter-accept {
   background: linear-gradient(135deg, #10B981 0%, #059669 100%);
   color: #FFFFFF;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
-.neg-act-btn.accept:hover {
+.neg-act-btn.counter-accept:hover {
   filter: brightness(1.15);
   transform: translateY(-1px);
 }
