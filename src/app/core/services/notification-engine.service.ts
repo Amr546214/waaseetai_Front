@@ -147,6 +147,16 @@ export class NotificationEngineService implements OnDestroy {
 		PROJECT_COMPLETION_REWARD: NotificationEngineService.ICON_PROJECT,
 		OFFER_ACCEPTED: NotificationEngineService.ICON_OFFER,
 		NEW_PROPOSAL: NotificationEngineService.ICON_OFFER,
+		OFFER_COUNTER: NotificationEngineService.ICON_OFFER,
+		OFFER_COUNTER_ACCEPTED: NotificationEngineService.ICON_OFFER,
+		OFFER_WITHDRAWN: NotificationEngineService.ICON_OFFER,
+		OFFER_NEGOTIATION_REJECTED: NotificationEngineService.ICON_OFFER,
+		OFFER_NEGOTIATION_REQUESTED: NotificationEngineService.ICON_OFFER,
+		OFFER_SELECTED: NotificationEngineService.ICON_OFFER,
+		STAGE_APPROVED: NotificationEngineService.ICON_PROJECT,
+		PROJECT_COMPLETED: NotificationEngineService.ICON_PROJECT,
+		ESCROW_FUNDED: NotificationEngineService.ICON_FINANCE,
+		ORDER_PAID: NotificationEngineService.ICON_FINANCE,
 		MODEL_APPROVED: NotificationEngineService.ICON_AI,
 		FINANCIAL: NotificationEngineService.ICON_FINANCE,
 		WITHDRAWAL_REQUESTED: NotificationEngineService.ICON_FINANCE,
@@ -166,9 +176,9 @@ export class NotificationEngineService implements OnDestroy {
 	// Rows created without a category (the backend defaults it to ALL, e.g. NEW_PROPOSAL, CHAT) would otherwise fall in the catch-all bucket and
 	// never count in the offers/projects/finance filters. The type is the real signal, so it decides the filter bucket when the category is generic.
 	private static readonly CATEGORY_BY_TYPE: Record<string, AppNotification['category']> = {
-		NEW_PROPOSAL: 'offers', OFFER_ACCEPTED: 'offers',
-		PROJECT_MATCH: 'projects', STAGE_REVIEW: 'projects', STAGE_DELIVERY: 'projects', PROJECT_COMPLETION_REWARD: 'projects',
-		FINANCIAL: 'finance',
+		NEW_PROPOSAL: 'offers', OFFER_ACCEPTED: 'offers', OFFER_COUNTER: 'offers', OFFER_COUNTER_ACCEPTED: 'offers', OFFER_WITHDRAWN: 'offers', OFFER_NEGOTIATION_REJECTED: 'offers', OFFER_NEGOTIATION_REQUESTED: 'offers', OFFER_SELECTED: 'offers',
+		PROJECT_MATCH: 'projects', STAGE_REVIEW: 'projects', STAGE_DELIVERY: 'projects', PROJECT_COMPLETION_REWARD: 'projects', STAGE_APPROVED: 'projects', PROJECT_COMPLETED: 'projects',
+		FINANCIAL: 'finance', ESCROW_FUNDED: 'finance', ORDER_PAID: 'finance',
 		WITHDRAWAL_REQUESTED: 'finance', WITHDRAWAL_APPROVED: 'finance', WITHDRAWAL_REJECTED: 'finance', WITHDRAWAL_PAID: 'finance', WITHDRAWAL_FAILED: 'finance', WITHDRAWAL_REVERSED: 'finance', PAYPAL_EMAIL_CHANGED: 'finance',
 		DISPUTE_OPENED: 'projects', DISPUTE_RESOLVED: 'projects', RATING_RECEIVED: 'projects', PROJECT_AMENDMENT: 'projects',
 	};

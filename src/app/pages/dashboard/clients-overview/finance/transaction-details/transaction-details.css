@@ -22,6 +22,7 @@ button{font-family:inherit}
 .txn-pill.st-hold{background:rgba(255,180,0,.12);color:#FFB400}
 .txn-pill.st-done{background:rgba(15,169,154,.12);color:#0FA99A}
 .txn-pill.st-pending{background:rgba(43,127,255,.12);color:#5DA0FF}
+.txn-pill.st-fail{background:rgba(239,68,68,.12);color:#EF4444}
 
 .ai-disclosure{display:flex;align-items:center;gap:12px;padding:13px 16px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));backdrop-filter:blur(12px);border:1px solid rgba(123,47,190,.22);border-radius:14px;margin-bottom:18px}
 .ai-disc-ico{width:30px;height:30px;border-radius:8px;background:rgba(123,47,190,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#A56BE0}

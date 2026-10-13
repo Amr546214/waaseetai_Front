@@ -15,7 +15,7 @@ export interface DisplayTransaction {
   amount: string;
   direction: 'in' | 'out';
   status: string;
-  statusType: 'done' | 'hold' | 'pending';
+  statusType: 'done' | 'hold' | 'pending' | 'failed';
   icon: 'escrow' | 'wallet';
   employeeName?: string;
 }
@@ -109,10 +109,12 @@ export class Wallet implements OnInit {
         const isEscrow = tx.type === 'ESCROW_LOCK';
         const isDone = tx.status === 'COMPLETED';
         const isHeld = tx.status === 'HELD';
+        const isFailed = tx.status === 'FAILED';
 
-        const direction: 'in' | 'out' = isDeposit ? 'in' : 'out';
-        const statusType: 'done' | 'hold' | 'pending' = isDone ? 'done' : (isHeld ? 'hold' : 'pending');
-        const statusText = isDone ? 'مكتمل' : (isHeld ? 'محجوز' : 'قيد المعالجة');
+        // A refund returns money to the wallet, like a deposit.
+        const direction: 'in' | 'out' = isDeposit || tx.type === 'REFUND' ? 'in' : 'out';
+        const statusType: 'done' | 'hold' | 'pending' | 'failed' = isFailed ? 'failed' : (isDone ? 'done' : (isHeld ? 'hold' : 'pending'));
+        const statusText = isFailed ? 'فشلت' : (isDone ? 'مكتمل' : (isHeld ? 'محجوز' : 'قيد المعالجة'));
         const icon: 'escrow' | 'wallet' = isEscrow ? 'escrow' : 'wallet';
 
         const formattedDate = new Date(tx.createdAt).toLocaleDateString('ar-EG', {
@@ -121,7 +123,8 @@ export class Wallet implements OnInit {
           day: '2-digit'
         });
 
-        const sign = direction === 'in' ? '+' : '-';
+        // A failed attempt moved no money: no sign. A recorded payment is stored negative (ORDER_PAYMENT), so the sign is shown once, from the direction.
+        const sign = isFailed ? '' : (direction === 'in' ? '+' : '-');
         // Each transaction shows its own recorded currency: USD as '$'; a legacy row in any other currency shows no
         // currency symbol at all (never an old riyal label).
         const currencyLabel = tx.currency === 'USD' ? '$' : '';
@@ -132,7 +135,7 @@ export class Wallet implements OnInit {
           title: tx.description || (isDeposit ? 'إيداع رصيد بالمحفظة' : 'معاملة مالية'),
           description: tx.referenceId ? `رقم العملية ${tx.referenceId}` : (tx.paymentMethod || 'محفظة وسيط AI'),
           date: formattedDate,
-          amount: `${sign}${tx.amount.toLocaleString('en-US')}${currencyLabel ? ' ' + currencyLabel : ''}`,
+          amount: `${sign}${Math.abs(tx.amount).toLocaleString('en-US')}${currencyLabel ? ' ' + currencyLabel : ''}`,
           direction,
           status: statusText,
           statusType,
