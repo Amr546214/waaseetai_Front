@@ -73,7 +73,8 @@ export class SignContract {
 	offerId = signal<string>('');
 	offerTitle = signal<string>('جارٍ تحميل العقد...');
 	offerRef = signal<string>('');
-	providerName = signal<string>('');
+	/** The CLIENT of this offer (the other party of the contract). */
+	clientName = signal<string>('');
 	price = signal<string>('');
 	// The REAL contract (price / duration / phases / saved milestones / funded escrow) returned by GET /provider/offers for an offer the provider
 	// can sign now. null = no contract to show (client has not signed / funded yet, or the offer is not at the signing stage): nothing is invented.
@@ -90,24 +91,13 @@ export class SignContract {
 	showToast = signal<boolean>(false);
 	toastMessage = signal<string>('');
 
-	isTermsModalOpen = signal<boolean>(false);
-
-	chatMessages = signal<{ text: string, isMe: boolean }[]>([]);
-	termInput = '';
-
-	// Initials of the other contract party, derived from the real name loaded
-	// from the offers API (replaces hardcoded "نو" initials).
-	counterpartyInitials = computed<string>(() =>
-		this.providerName().split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2)
-	);
-
 	constructor() {
 		const nav = this.router.getCurrentNavigation();
 		if (nav?.extras?.state && nav.extras.state['offer']) {
 			const offer = nav.extras.state['offer'];
 			this.offerTitle.set(offer.title);
 			this.offerRef.set(offer.ref);
-			this.providerName.set(offer.clientName); // In offers list, the client name is stored, we'll use it as provider name in this view or vice versa
+			this.clientName.set(offer.clientName);
 			this.price.set(offer.price);
 			// We can keep default values for duration/phases or extract them if they existed in state
 		}
@@ -129,7 +119,7 @@ export class SignContract {
 				this.isLoading.set(false);
 				this.offerTitle.set(item.projectTitle || item.title || this.offerTitle());
 				this.offerRef.set(item.projectRef || item.ref || this.offerRef());
-				this.providerName.set(item.providerName || item.clientName || this.providerName());
+				this.clientName.set(item.clientName || this.clientName());
 				this.price.set(typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || this.price()));
 				this.contract.set(readProviderContract(item.contract));
 			},
@@ -167,37 +157,16 @@ export class SignContract {
 
 		this.offersService.signContract(this.offerId(), { accepted: true }).subscribe({
 			next: (res) => {
-				this.displayToast('تم تأكيد التوقيع وتحديث قاعدة البيانات بنجاح، جاري التوجيه...');
+				this.displayToast('تم توقيع العقد بنجاح، جاري التوجيه…');
 				
 				setTimeout(() => {
 					this.router.navigate(['/provider-overview/projects/active']);
 				}, 1500);
 			},
 			error: (err) => {
-				this.displayToast('حدث خطأ أثناء حفظ العقد في قاعدة البيانات');
+				this.displayToast(err?.error?.message || 'تعذر توقيع العقد، حاول مرة أخرى');
 				console.error(err);
 			}
 		});
-	}
-
-	openTermsModal() {
-		this.isTermsModalOpen.set(true);
-	}
-
-	closeTermsModal() {
-		this.isTermsModalOpen.set(false);
-	}
-
-	onModalClick(event: MouseEvent) {
-		// Close modal when clicking outside the content
-		if ((event.target as HTMLElement).classList.contains('modal-ov')) {
-			this.closeTermsModal();
-		}
-	}
-
-	sendTermMsg() {
-		if (!this.termInput.trim()) return;
-		this.termInput = '';
-		this.displayToast('لا يمكن تعديل العقد من هذه الشاشة. اطلب التعديل عبر غرفة التفاوض قبل التوقيع.');
 	}
 }

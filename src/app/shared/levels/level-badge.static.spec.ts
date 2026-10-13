@@ -88,7 +88,7 @@ describe('provider dashboard "وسيط، …" banners: AI only when the banner i
 	});
 
 	// Security / invoices / account / reviews / reports notes are NOT AI: a neutral ws-note, never purple + i-ai (ai-purple.static.spec.ts guards the rule).
-	it.each(['settings/account/account.html', 'profile/add-account/add-account.html', 'finance/invoices/invoices.html', 'notifications/favorite/favorite.html', 'reports/reports.html',
+	it.each(['settings/account/account.html', 'profile/add-account/add-account.html', 'notifications/favorite/favorite.html', 'reports/reports.html',
 		'company/official-invoices/official-invoices.component.html', 'disputes/disputes.html', 'profile/requests/requests.html'])('%s: is a non-AI ws-note banner', (file) => {
 		expect(read(base + file)).toContain('ws-note');
 	});

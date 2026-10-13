@@ -16,7 +16,7 @@ button{font-family:inherit}
 .tk-btn-sec:hover{background:rgba(43,212,199,.08);border-color:rgba(43,212,199,.25);color:#2BD4C7}
 .tk-btn-sec svg{width:14px;height:14px}
 
-.tk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.tk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
 .stat-box{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:14px 16px}
 .stat-num{font-size:24px;font-weight:900;line-height:1;margin-bottom:5px}
 .stat-lbl{font-size:11px;color:#6B7699;font-weight:600}

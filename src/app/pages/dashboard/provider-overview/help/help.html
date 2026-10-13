@@ -70,7 +70,7 @@
       </div>
       <div class="flex-1 min-w-0">
         <div class="qcat-ttl text-[13.5px] font-extrabold text-[#fff] mb-[3px]">المدفوعات والمحفظة</div>
-        <div class="text-[11.5px] text-[#6B7699] leading-[1.5]">الإيداع، تسويات الرصيد، الكاش باك، الفواتير</div>
+        <div class="text-[11.5px] text-[#6B7699] leading-[1.5]">الأرباح، السحب، سجل المعاملات</div>
       </div>
       <span class="text-[#4A5568] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
     </a>
@@ -143,34 +143,34 @@
     
     <div class="faq-item" [class.open]="faqState()[0]">
       <button type="button" class="faq-q" (click)="toggleFaq(0)">
-        <span class="faq-q-txt">كيف يحمي الضمان أموالي عند طلب خدمة؟</span>
+        <span class="faq-q-txt">كيف يحمي الضمان أرباحي؟</span>
         <svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="faq-a"><div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">يُحتجز المبلغ في حساب ضمان مرخّص فور توقيع العقد، ولا يصل إلى مقدّم الخدمة إلا بعد قبولك للتسليم. إن لم يكتمل العمل تستردّ مبلغك وفق شروط العقد ومراجعة الفريق المختص</div></div>
+      <div class="faq-a"><div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">يحجز العميل مبلغ العقد في الضمان قبل بدء العمل، ولا يُفرَج لك إلا بعد اعتماد العميل لتسليم كل مرحلة. تُخصم عمولة المنصة حسب مستواك عند الإفراج.</div></div>
     </div>
     
     <div class="faq-item" [class.open]="faqState()[1]">
       <button type="button" class="faq-q" (click)="toggleFaq(1)">
-        <span class="faq-q-txt">كيف تُرتَّب العروض المقدّمة لي؟</span>
+        <span class="faq-q-txt">متى تصلني أرباح المرحلة؟</span>
         <svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="faq-a"><div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">تُرتَّب العروض حسب توافقها مع طلبك والسعر وتقييم المقدّم وزمن التسليم، ويبقى اختيار العرض قرارك أنت في كل الأحوال</div></div>
+      <div class="faq-a"><div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">تُضاف إلى رصيدك المتاح عند اعتماد العميل لتسليم المرحلة، ويمكنك طلب سحبها من صفحة السحب إلى بريد PayPal المسجَّل في ملفك.</div></div>
     </div>
     
     <div class="faq-item" [class.open]="faqState()[2]">
       <button type="button" class="faq-q" (click)="toggleFaq(2)">
-        <span class="faq-q-txt">متى تظهر تسوية الرصيد عند إلغاء الطلب؟</span>
+        <span class="faq-q-txt">ماذا يحدث إذا طلب العميل تعديلًا؟</span>
         <svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="faq-a"><div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">تظهر تسوية الرصيد في محفظتك خلال مدة العقد المتّفق عليها بعد اعتماد الإلغاء، ثم يمكنك استخدام الرصيد في طلب جديد. تظهر كل الحركات في سجلّ محفظتك</div></div>
+      <div class="faq-a"><div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">إذا طلب العميل تعديلًا على تسليم مرحلة تعود المرحلة إليك لإعادة التسليم. ويمكن تسجيل طلب تعديل رسمي على المشروع من صفحة المشروع، ويُسجَّل رد الطرف الآخر فقط دون أن يتغير السعر أو المدة أو الضمان تلقائيًا.</div></div>
     </div>
     
     <div class="faq-item" [class.open]="faqState()[3]">
       <button type="button" class="faq-q" (click)="toggleFaq(3)">
-        <span class="faq-q-txt">ماذا أفعل إذا اختلفت مع مقدّم الخدمة؟</span>
+        <span class="faq-q-txt">ماذا أفعل إذا اختلفت مع العميل؟</span>
         <svg class="faq-q-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="faq-a"><div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">افتح نزاعًا من صفحة النزاعات وأرفق الأدلة. يبقى المبلغ محتجزًا في الضمان حتى يصدر الفريق المختص قراره بعد مراجعة الطرفين والأدلة</div></div>
+      <div class="faq-a"><div class="faq-a-inner text-[12.5px] text-[#A8B2D1] leading-[1.7] px-[18px] pb-4">افتح نزاعًا من صفحة المشروع وأرفق الأدلة. يبقى المبلغ محتجزًا في الضمان حتى يصدر الفريق المختص قراره بعد مراجعة الطرفين.</div></div>
     </div>
     
     <div class="faq-item" [class.open]="faqState()[4]">
@@ -196,25 +196,22 @@
       </div>
       <div class="chan-ttl text-[14px] font-extrabold text-[#fff] mb-1">المساعد الذكي</div>
       <div class="text-[11.5px] text-[#6B7699] leading-[1.55]">شات فوري يجيب عن أسئلتك في ثوانٍ</div>
-      <span class="inline-block mt-[9px] text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(15,169,154,.10)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]">متاح الآن</span>
     </a>
 
-    <a routerLink="/provider-overview/help/live-support" class="chan">
+    <a routerLink="/provider-overview/help/tickets/new" class="chan" data-testid="help-create-ticket">
       <div class="w-[46px] h-[46px] rounded-[13px] flex items-center justify-center mx-auto mb-3 bg-[rgba(43,212,199,.12)] text-[#2BD4C7]">
         <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       </div>
-      <div class="chan-ttl text-[14px] font-extrabold text-[#fff] mb-1">الدعم المباشر</div>
-      <div class="text-[11.5px] text-[#6B7699] leading-[1.55]">شات مباشر مع موظف دعم بشري</div>
-      <span class="inline-block mt-[9px] text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(15,169,154,.10)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]">الرد خلال دقائق</span>
+      <div class="chan-ttl text-[14px] font-extrabold text-[#fff] mb-1">إنشاء تذكرة دعم</div>
+      <div class="text-[11.5px] text-[#6B7699] leading-[1.55]">اكتب مشكلتك وتابع حالة تذكرتك من نفس الصفحة</div>
     </a>
 
-    <a routerLink="/provider-overview/help/tickets/new" class="chan">
+    <a routerLink="/provider-overview/help/tickets" class="chan" data-testid="help-my-tickets">
       <div class="w-[46px] h-[46px] rounded-[13px] flex items-center justify-center mx-auto mb-3 bg-[rgba(43,127,255,.12)] text-[#5DA0FF]">
         <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
       </div>
-      <div class="chan-ttl text-[14px] font-extrabold text-[#fff] mb-1">فتح تذكرة دعم</div>
-      <div class="text-[11.5px] text-[#6B7699] leading-[1.55]">طلب متتبَّع برقم وحالة يراجعه الفريق المختص</div>
-      <span class="inline-block mt-[9px] text-[10px] font-bold px-2.5 py-[3px] rounded-md bg-[rgba(15,169,154,.10)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]">الرد خلال 24 ساعة</span>
+      <div class="chan-ttl text-[14px] font-extrabold text-[#fff] mb-1">تذاكري</div>
+      <div class="text-[11.5px] text-[#6B7699] leading-[1.55]">متابعة تذاكرك المفتوحة وحالة كل منها</div>
     </a>
 
   </div>

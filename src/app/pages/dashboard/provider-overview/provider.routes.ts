@@ -244,21 +244,6 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	},
 	// business-models extensions
 	{
-		path: 'business-models/service-edit',
-		loadComponent: () => import('./business-models/service-edit/service-edit.component').then(m => m.ServiceEditComponent),
-		data: { title: "تعديل الخدمة" }
-	},
-	{
-		path: 'business-models/negotiation',
-		loadComponent: () => import('./business-models/negotiation/negotiation.component').then(m => m.NegotiationComponent),
-		data: { title: "تفاوض طلب خدمة" }
-	},
-	{
-		path: 'business-models/customer-requests',
-		loadComponent: () => import('./business-models/customer-requests/customer-requests.component').then(m => m.CustomerRequestsComponent),
-		data: { title: "طلبات العملاء" }
-	},
-	{
 		path: 'business-models/sales-tracking',
 		loadComponent: () => import('./business-models/sales-tracking/sales-tracking.component').then(m => m.SalesTrackingComponent),
 		data: { title: "متابعة المبيعات" }

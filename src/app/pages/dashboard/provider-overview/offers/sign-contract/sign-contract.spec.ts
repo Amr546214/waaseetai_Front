@@ -121,7 +121,7 @@ describe('provider sign-contract: real contract terms only', () => {
 		for (const re of [...FORBIDDEN, /فض النزاع/]) { expect(html).not.toMatch(re); }
 		expect(html).not.toMatch(/\{\{\s*(duration|phases)\(\)\s*\}\}/);
 		expect(ts).not.toMatch(/item\.(duration|phases|milestones)\b/);
-		expect(html).toContain('العميل</div><div class="od-meta-val">{{ providerName() }}');
+		expect(html).toContain('العميل</div><div class="od-meta-val">{{ clientName() }}');
 		expect(html).toContain('>توقيع العقد</button>');
 		expect(html).toMatch(/@if \(contract\(\)\) \{<span class="opill op-cancel"[^>]*>بانتظار توقيعك<\/span>\}/);
 	});

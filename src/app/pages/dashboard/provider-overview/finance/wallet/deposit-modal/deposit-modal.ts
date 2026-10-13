@@ -37,7 +37,7 @@ export class ProviderDepositModal {
 
 	balanceAfter = computed(() => this.currentBalance + this.amount());
 
-	canSubmit = computed(() => this.depositAvailable && this.amount() >= 50 && this.amount() <= 100000);
+	canSubmit = computed(() => this.depositAvailable && this.amount() > 0);
 
 	setAmount(value: number): void {
 		this.amount.set(this.normaliseAmount(value));
@@ -58,7 +58,7 @@ export class ProviderDepositModal {
 	}
 
 	private normaliseAmount(value: number): number {
-		return Math.min(100000, Math.max(0, Math.round(value)));
+		return Math.max(0, Math.round(value));
 	}
 
 	onConfirm(): void {

@@ -29,7 +29,6 @@
 				<input id="dpmAmt" class="dpm-amt-input" type="text" inputmode="numeric" [value]="amount() | number" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالدولار" />
 				<span class="dpm-amt-cur">$</span>
 			</div>
-			<div class="dpm-hint">أقل مبلغ للإيداع 50، أعلى مبلغ 100,000 للعملية الواحدة (بالدولار)</div>
 		</div>
 
 		<div class="dpm-chips">
@@ -54,7 +53,6 @@
 		<div class="dpm-summary">
 			<div class="dpm-summary-row"><span>رصيد المحفظة الحالي</span><span>{{ currentBalance | number:'1.0-2' }} $</span></div>
 			<div class="dpm-summary-row"><span>مبلغ الإيداع</span><span>{{ amount() | number:'1.0-2' }} $</span></div>
-			<div class="dpm-summary-row"><span>رسوم PayPal</span><span>تُحدَّد عند تفعيل الإيداع</span></div>
 			<div class="dpm-summary-divider"></div>
 			<div class="dpm-summary-total"><span>الرصيد المتوقع بعد الإيداع</span><span>{{ balanceAfter() | number:'1.0-2' }} $</span></div>
 		</div>
