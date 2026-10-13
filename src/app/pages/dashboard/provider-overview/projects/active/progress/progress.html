@@ -339,7 +339,8 @@
 @if(amendmentsLoading()){<div class="lc-flow-note" data-testid="amend-list-loading">جارٍ التحميل...</div>}
 @else if(amendmentsError()){<div class="up-err" role="alert" data-testid="amend-list-error">{{amendmentsError()}} <button type="button" class="lc-btn lc-btn-gh" (click)="loadAmendments()">إعادة المحاولة</button></div>}
 @else if(!amendments().length){<div class="lc-flow-note" data-testid="amend-list-empty">لا توجد طلبات تعديل سابقة لهذا المشروع</div>}
-@else{@for(a of amendments(); track a.id){<div class="lc-flow-note" data-testid="amend-item" style="display:block;margin-bottom:6px"><b>{{a.title}}</b> · {{amendmentTypeLabel(a.type)}}@if(amendmentDeltas(a)){ · {{amendmentDeltas(a)}}} — <span data-testid="amend-status">{{amendmentStatusLabel(a.status)}}</span></div>}}
+@else{@for(a of amendments(); track a.id){<div class="lc-flow-note" data-testid="amend-item" style="display:block;margin-bottom:6px">@if(a.requestedByRole==='CLIENT'){<span data-testid="amend-from-client">من العميل · </span>}<b>{{a.title}}</b> · {{amendmentTypeLabel(a.type)}}@if(amendmentDeltas(a)){ · {{amendmentDeltas(a)}}} — <span data-testid="amend-status">{{amendmentStatusText(a)}}</span>@if(a.description){<div style="margin-top:4px;font-size:12px">{{a.description}}</div>}@if(isClientPending(a)){<div class="lc-mact" style="margin-top:6px"><button type="button" class="lc-btn lc-btn-pri" [disabled]="respondingId()===a.id" (click)="respondAmendment(a,'approve')" data-testid="amend-respond-approve">موافقة</button><button type="button" class="lc-btn lc-btn-gh" [disabled]="respondingId()===a.id" (click)="respondAmendment(a,'reject')" data-testid="amend-respond-reject">رفض</button></div><div style="margin-top:4px;font-size:11px">قرارك يُسجَّل فقط، ولا يتغير السعر أو المدة أو الضمان تلقائيًا.</div>}</div>}}
+@if(respondError()){<div class="up-err" role="alert" data-testid="amend-respond-error">{{respondError()}}</div>}
 </div>
 </div></div>}
 

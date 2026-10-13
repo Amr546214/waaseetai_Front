@@ -54,12 +54,12 @@ describe('AI Cleanup Batch 1 — fabricated AI claims removed', () => {
 		expect(invoiceDetailsHtml).toContain('invoice()?.verificationScore');
 	});
 
-	it('final-approval: no AI auto-verify/auto-release claim, no hardcoded "high quality"; real match value and deadline kept', () => {
+	it('final-approval: no AI auto-verify/auto-release claim, no hardcoded "high quality"; real match value kept (the invented auto-acceptance deadline is gone — C1)', () => {
 		expect(finalApprovalHtml).not.toContain('نيابةً عنك');
 		expect(finalApprovalHtml).not.toContain('يتحقق الذكاء');
 		expect(finalApprovalHtml).not.toContain('جودة عالية');
 		expect(finalApprovalHtml).toContain('aiMatchPct(stage)');
-		expect(finalApprovalHtml).toContain('formatDate(autoAcceptDeadline())');
+		expect(finalApprovalHtml).not.toContain('autoAcceptDeadline');
 	});
 
 	it('contract-signature: no fabricated provider greeting and no "AI monitors the chat" claim', () => {
@@ -74,11 +74,11 @@ describe('AI Cleanup Batch 1 — fabricated AI claims removed', () => {
 		expect(finalApprovalHtml).toContain('qualityNote(stage)');
 	});
 
-	it('contract clause 6 (client + provider): no "via the AI layer" dispute claim; clause itself kept', () => {
+	it('contract clause 6 (client + provider): no "via the AI layer" dispute claim; no fixed dispute clause on either screen (client C1: real terms only)', () => {
 		for (const src of [contractSignatureHtml, signContractHtml]) {
 			expect(src).not.toContain('طبقة الذكاء');
 		}
-		expect(contractSignatureHtml).toContain('6. فض النزاع:');
+		expect(contractSignatureHtml).not.toContain('فض النزاع');
 		// Provider screen: the fixed numbered clauses were replaced by the contract's real values (provider 1b) — no fixed dispute clause either.
 		expect(signContractHtml).not.toContain('فض النزاع:');
 	});
@@ -103,7 +103,7 @@ describe('AI Cleanup Batch 1 — fabricated AI claims removed', () => {
 		expect(signContractHtml).not.toContain('txt-navy">9<');
 		expect(contractSignatureHtml).not.toContain('txt-navy">9<');
 		expect(signContractHtml).toContain('counterpartyInitials()');
-		expect(contractSignatureHtml).toContain('providerInitials()');
+		expect(contractSignatureHtml).not.toContain('>نو<'); // the fake provider-chat modal (and its initials) is gone — C1
 	});
 
 	it('provider sign-contract: no fixed sample scope clause', () => {
