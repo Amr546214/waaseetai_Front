@@ -109,10 +109,27 @@
 					@if (canDecide(stage)) {
 						<button type="button" class="dr-btn-pri" (click)="approveDelivery()" [disabled]="saving()">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
 					}
-					<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>عندي ملاحظات، فتح نقاش</button>
+					@if (canDecide(stage)) {
+						<button type="button" class="dr-btn-secondary" data-testid="dr-revision-toggle" (click)="toggleRevision()" [disabled]="saving()">طلب تعديل على التسليم</button>
+					}
+					<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>فتح نقاش مع مقدم الخدمة</button>
 				</div>
+				@if (revisionSent()) {
+					<div class="dr-approved-inline" role="status" data-testid="dr-revision-sent"><span>أُرسل طلب التعديل إلى مقدم الخدمة وسُجّل على التسليم. لم يُفرج أي مبلغ، وتبقى المرحلة بانتظار تسليم جديد.</span></div>
+				}
+				@if (canDecide(stage) && revisionOpen()) {
+					<div class="dr-card" data-testid="dr-revision-form" style="margin-top:12px">
+						<label for="dr-rev-note" class="dr-decision-help" style="display:block;margin-bottom:6px">ما الذي تريد تعديله؟ (يُسجَّل على التسليم ويصل مقدم الخدمة)</label>
+						<textarea id="dr-rev-note" data-testid="dr-revision-note" rows="4" style="width:100%" [(ngModel)]="revisionNote" name="revisionNote" placeholder="اشرح التعديل المطلوب بوضوح"></textarea>
+						@if (revisionError()) { <div class="inline-error" role="alert" data-testid="dr-revision-error">{{ revisionError() }}</div> }
+						<div class="dr-decision-row" style="margin-top:8px">
+							<button type="button" class="dr-btn-pri" data-testid="dr-revision-send" (click)="requestRevision()" [disabled]="saving()">{{ saving() ? 'جارٍ الإرسال...' : 'إرسال طلب التعديل' }}</button>
+							<button type="button" class="dr-btn-secondary" (click)="toggleRevision()" [disabled]="saving()">إلغاء</button>
+						</div>
+					</div>
+				}
 				@if (canDecide(stage)) {
-					<div class="dr-decision-help">عند الاعتماد، يُفرج المبلغ من الضمان فوراً. إذا كانت لديك ملاحظات على التسليم، افتح نقاشاً مع مقدم الخدمة لمناقشتها والاتفاق على التعديل قبل الاعتماد.</div>
+					<div class="dr-decision-help">عند الاعتماد، يُفرج مبلغ المرحلة من الضمان. وإذا كانت لديك ملاحظات فاطلب تعديلًا ليُسجَّل على التسليم ويعيد مقدم الخدمة تسليمه، ولا يُفرج المبلغ حتى تعتمد.</div>
 				} @else {
 					<div class="dr-approved-inline">
 						<svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
@@ -123,7 +140,7 @@
 		}
 	}
 
-	<div class="dr-foot"><span>© 2026 وسيط AI · v1.0.0</span><div class="dr-foot-links"><a routerLink="/privacy">PDPL</a><a routerLink="/terms">الشروط</a><span>SAMA</span></div></div>
+	<div class="dr-foot"><span>© 2026 وسيط AI</span><div class="dr-foot-links"><a routerLink="/privacy">الخصوصية</a><a routerLink="/terms">الشروط</a></div></div>
 </section>
 
 <!-- P-SK-015 SUCCESS MODAL (overlay, shown only after approve API success) -->
@@ -132,8 +149,8 @@
 	<div class="ac-box">
 		<div class="ac-ring"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
 		<h3>تم اعتماد التسليم بنجاح</h3>
-		<p>أُفرِج مبلغ المرحلة من الضمان وتمّ ترحيله إلى محفظة مقدم الخدمة</p>
-		<div class="ac-amt"><span>المبلغ المُرحّل</span><b>{{ formatNumber(sd.amount) }} <small>$</small></b></div>
+		<p>أُفرِج مبلغ المرحلة من الضمان لصالح مقدم الخدمة</p>
+		<div class="ac-amt"><span>قيمة المرحلة</span><b>{{ formatNumber(sd.amount) }} <small>$</small></b></div>
 		<div class="ac-row"><span class="ac-k">إلى</span><span class="ac-v">{{ sd.providerName }}</span></div>
 		<div class="ac-row"><span class="ac-k">المرحلة</span><span class="ac-v">{{ sd.stageTitle }}</span></div>
 		@if (sd.txnId) { <div class="ac-row"><span class="ac-k">رقم العملية</span><span class="ac-v">{{ sd.txnId }}</span></div> }

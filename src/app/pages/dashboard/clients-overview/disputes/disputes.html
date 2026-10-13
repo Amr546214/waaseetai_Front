@@ -3,13 +3,13 @@
   <!-- Header -->
   <div class="ord-head">
     <div>
-      <div class="ord-title">{{ isCompany() ? 'النزاعات والإلغاءات' : 'النزاعات' }}</div>
-      <div class="ord-sub">{{ isCompany() ? 'نزاعات الشركة ونزاعات فريقك مع مقدّمي الخدمة — تراجعها الإدارة' : 'طلبات النزاع والإلغاء بالتراضي، تراجعها الإدارة حتى الإقفال' }}</div>
+      <div class="ord-title">النزاعات</div>
+      <div class="ord-sub">{{ isCompany() ? 'نزاعات الشركة ونزاعات فريقك مع مقدّمي الخدمة، تراجعها الإدارة' : 'النزاعات التي رفعتها أو رُفعت ضدك، تراجعها الإدارة حتى الإقفال' }}</div>
     </div>
-    <button type="button" class="disp-raise-btn" (click)="openToast('سيُتاح رفع النزاع من صفحة متابعة المشروع مباشرة')">
+    <a class="disp-raise-btn" routerLink="/client-overview/projects/active" data-testid="raise-dispute" title="يُرفع النزاع من صفحة متابعة المشروع">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       رفع نزاع جديد
-    </button>
+    </a>
   </div>
 
   <!-- Disclosure -->
@@ -19,7 +19,7 @@
     </div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">وسيط، إدارة النزاعات</div>
-      <p class="ws-note-txt">يُرفع النزاع للمراجعة ويُفتح نقاش بين الطرفين، وتراجعه الإدارة خلال 48 ساعة من اكتمال الملف والقرار باعتماد الطرفين أو مراجعة بشرية مختصة</p>
+      <p class="ws-note-txt">يُرفع النزاع من صفحة المشروع بعد بدء العقد، وتراجعه الإدارة وتقرر فيه. هنا تتابع حالته فقط (مفتوح، قيد المراجعة، تم حله، مرفوض)، أما القرار فللإدارة وحدها.</p>
     </div>
   </div>
 
@@ -32,18 +32,18 @@
     </div>
     <div class="inv-kpi">
       <div class="ic inv-ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l4-2 5 2 5-2 4 2v6l-4 2-5-2-5 2-4-2z"/><path d="M12 9v6"/></svg></div>
-      <div class="v">{{ kpis().mutualCancelPending }}</div>
-      <div class="l">إلغاء بالتراضي</div>
+      <div class="v">{{ kpis().underReview }}</div>
+      <div class="l">قيد مراجعة الإدارة</div>
     </div>
     <div class="inv-kpi">
       <div class="ic inv-ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div class="v">{{ kpis().closedMutual }}</div>
-      <div class="l">مُغلقة بالتراضي</div>
+      <div class="v">{{ kpis().resolved }}</div>
+      <div class="l">تم حلها</div>
     </div>
     <div class="inv-kpi">
       <div class="ic inv-ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-      <div class="v">{{ kpis().overallStatus }}</div>
-      <div class="l">قيد المتابعة</div>
+      <div class="v">{{ kpis().rejected }}</div>
+      <div class="l">مرفوضة</div>
     </div>
   </div>
 
@@ -57,7 +57,7 @@
     }
   </div>
 
-  <div class="sec-ttl">سجلّ النزاعات والإلغاءات <span class="cnt">· مرتبة بآخر نشاط</span></div>
+  <div class="sec-ttl">سجلّ النزاعات <span class="cnt">· الأحدث أولاً</span></div>
 
   <!-- Disputes List -->
   <div class="dp-list">
@@ -99,7 +99,7 @@
           } @else {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
           }
-          <b>{{ d.aiDone ? 'النتيجة:' : (d.status === 'open' && d.icon === 'hands' ? 'تسوية مقترحة:' : 'الحالة الحالية:') }}</b>
+          <b>{{ d.aiDone ? 'القرار:' : 'وصف النزاع:' }}</b>
           {{ d.aiText }}
         </div>
 
@@ -121,15 +121,36 @@
                 تصعيد للإدارة
               </button>
             }
-            <button type="button" class="dp-cta" [class.dp-cta-gh]="d.status === 'closed'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              {{ d.status === 'open' ? 'متابعة النقاش' : 'عرض النقاش' }}
-              @if(d.messages > 0) {
-                <span class="dp-unread">{{ d.messages }}</span>
-              }
+            <button type="button" class="dp-cta" [class.dp-cta-gh]="d.status === 'closed'" data-testid="dispute-details-btn" (click)="toggleDetails(d.id)" [attr.aria-expanded]="detailsId() === d.id">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              {{ detailsId() === d.id ? 'إخفاء التفاصيل' : 'عرض التفاصيل' }}
             </button>
           </div>
         </div>
+
+        @if (detailsId() === d.id) {
+          <div class="dp-ai" data-testid="dispute-details" role="region" aria-label="تفاصيل النزاع">
+            @if (detailLoading()) {
+              <span role="status">جارٍ تحميل التفاصيل...</span>
+            } @else if (detailError()) {
+              <span role="alert" data-testid="dispute-details-error">{{ detailError() }}</span>
+            } @else if (detail(); as x) {
+              <div><b>السبب:</b> {{ x.reason }}</div>
+              <div><b>الوصف:</b> {{ x.description }}</div>
+              @if (x.evidence?.length) {
+                <div><b>الأدلة:</b> @for (url of x.evidence; track url) { <a [href]="url" target="_blank" rel="noopener noreferrer">رابط {{ $index + 1 }}</a>{{ $last ? '' : ' · ' }} }</div>
+              }
+              @if (x.heldEscrowAmount !== null && x.heldEscrowAmount !== undefined) {
+                <div data-testid="dispute-held"><b>المبلغ المحتجز بالضمان:</b> {{ x.heldEscrowAmount }} $</div>
+              }
+              @if (x.resolution || x.resolutionNote) {
+                <div><b>قرار الإدارة:</b> {{ x.resolution }}{{ x.resolutionNote ? ' — ' + x.resolutionNote : '' }}</div>
+              }
+              <div><b>الحالة:</b> {{ d.badgeText }}. القرار للإدارة وحدها.</div>
+              @if (d.targetId) { <div><a [routerLink]="['/client-overview/projects', d.targetId]">فتح صفحة المشروع</a></div> }
+            }
+          </div>
+        }
       </div>
     }
     @if (filteredDisputes().length === 0) {
@@ -146,7 +167,7 @@
           <div class="disp-empty-sub">حدث خطأ أثناء جلب سجلّ النزاعات، حاول تحديث الصفحة أو المحاولة لاحقًا.</div>
         } @else {
           <div class="disp-empty-ttl">لا يوجد نزاعات</div>
-          <div class="disp-empty-sub">لا توجد نزاعات أو طلبات إلغاء. تُرفع النزاعات من صفحة متابعة المشروع عند الحاجة.</div>
+          <div class="disp-empty-sub">لا توجد نزاعات. تُرفع النزاعات من صفحة متابعة المشروع عند الحاجة.</div>
         }
       </div>
     }

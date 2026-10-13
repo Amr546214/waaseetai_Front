@@ -6,6 +6,9 @@ import { ThemeService } from '../../../../../core/services/theme.service';
 import { environment } from '../../../../../../environments/environment';
 import { ClientFinanceService } from '../../../../../core/services/client-finance.service';
 
+/** What the page can show: only 'ready' may offer the sign/pay action; 'readonly' shows the contract's terms of an already signed / running contract. */
+type ContractView = 'loading' | 'ready' | 'readonly' | 'blocked' | 'error';
+
 @Component({
 	selector: 'app-contract-signature',
 	standalone: true,
@@ -23,83 +26,84 @@ export class ContractSignature implements OnInit {
 
 	requestId = signal<string>('');
 	offerId = signal<string | null>(null);
-	isLoading = signal<boolean>(true);
+	view = signal<ContractView>('loading');
+	/** Why the contract cannot be signed right now (shown instead of the sign button). */
+	blockedReason = signal('');
+	isLoading = () => this.view() === 'loading';
 	isCheckingBalance = signal(false);
+	acknowledged = signal(false);
 	requiredAmount = signal(0);
 
-	requestTitle = signal<string>('جارٍ التحميل...');
-	providerName = signal<string>('مقدم الخدمة');
-	providerInitials = signal<string>('مـ');
-	price = signal<string>('0 $');
-	duration = signal<string>('0 يوما');
-	plan = signal<string>('');
-	/** The offer's real milestones (title, share, amount, days) — exactly what the contract was frozen from; nothing is invented. */
+	requestTitle = signal<string>('');
+	providerName = signal<string>('');
+	price = signal<string>('');
+	duration = signal<string>('');
+	/** The contract's real stages (title, share, amount, days) exactly as they were frozen when the offer was selected; nothing is invented. */
 	milestones = signal<{ order: number; title: string; description: string; percentage: number; amount: number; days: number }[]>([]);
-	description = signal<string>('');
-	
+	/** True when the frozen contract has no stages: one final delivery for the whole price. */
+	singleDelivery = signal(false);
+
 	// Toast state
 	showToastSignal = signal<boolean>(false);
 	toastMessage = signal<string>('');
-	
+
 	ngOnInit() {
 		const id = this.route.snapshot.paramMap.get('id');
 		const offerId = this.route.snapshot.queryParamMap.get('offerId');
-		
-		if (id) {
-			this.requestId.set(id);
-			if (offerId) {
-				this.offerId.set(offerId);
-			}
-			this.fetchDetails(id, offerId);
-		}
+		if (!id) { this.view.set('error'); return; }
+		this.requestId.set(id);
+		if (offerId) this.offerId.set(offerId);
+		this.fetchContract(id, offerId);
 	}
 
-	fetchDetails(reqId: string, offerId: string | null) {
-		this.isLoading.set(true);
-		this.http.get<any>(`${environment.url_api}/client/my-requests/${reqId}`).subscribe({
+	/** Reads the frozen contract (price / duration / stages as selected, or as the accepted counter set them), not the offers list. */
+	fetchContract(reqId: string, offerId: string | null) {
+		this.view.set('loading');
+		const query = offerId ? `?offerId=${encodeURIComponent(offerId)}` : '';
+		this.http.get<any>(`${environment.url_api}/client/my-requests/${reqId}/contract${query}`).subscribe({
 			next: (res) => {
-				if (res && res.success && res.data) {
-					const data = res.data;
-					this.requestTitle.set(data.title || 'مشروع بدون عنوان');
-					
-					let targetOffer = null;
-					if (offerId && data.proposals && data.proposals.length > 0) {
-						targetOffer = data.proposals.find((p: any) => p.id === offerId);
-					}
-					if (!targetOffer) {
-						this.isLoading.set(false);
-						this.showToast('العرض المختار غير موجود أو لم يعد متاحاً للتوقيع.');
-						return;
-					}
-
-					if (targetOffer) {
-						const offerPrice = Number(targetOffer.totalPrice || targetOffer.bidAmount || 0);
-						// fee policy v2: the escrow lock charges the contract price only (no 13%); the wallet must hold at least the price
-						this.requiredAmount.set(Math.round(offerPrice * 100) / 100);
-						const name = targetOffer.provider?.name || (targetOffer.provider?.firstName ? `${targetOffer.provider.firstName} ${targetOffer.provider.lastName}` : 'مقدم الخدمة');
-						this.providerName.set(name);
-						const initials = name.split(' ').map((n: string) => n[0] || '').join('').substring(0, 2);
-						this.providerInitials.set(initials || 'مـ');
-						this.price.set(targetOffer.totalPrice ? `${targetOffer.totalPrice} $` : (targetOffer.bidAmount ? `${targetOffer.bidAmount} $` : 'غير محدد'));
-						this.duration.set(targetOffer.deliveryDays ? `${targetOffer.deliveryDays} يوم` : (targetOffer.durationText || 'غير محدد'));
-						this.milestones.set((Array.isArray(targetOffer.milestones) ? targetOffer.milestones : []).map((m: any, i: number) => ({
-							order: Number(m.stepOrder) || i + 1,
-							title: String(m.title || ''),
-							description: String(m.description || ''),
-							percentage: Number(m.percentage) || 0,
-							amount: Number(m.amount) || 0,
-							days: Number(m.days) || 0,
-						})).filter((m: any) => m.title));
-						this.plan.set(targetOffer.outputs || targetOffer.workPlan || '');
-						this.description.set(targetOffer.message || targetOffer.description || '');
-					}
+				const c = res?.success ? res.data : null;
+				if (!c) { this.view.set('error'); return; }
+				this.requestTitle.set(c.title || '');
+				if (c.state === 'no_contract') {
+					this.blockedReason.set(c.message || 'لم يتم اختيار عرض لهذا الطلب بعد.');
+					this.view.set('blocked');
+					return;
 				}
-				this.isLoading.set(false);
+				this.providerName.set(c.provider?.name || '');
+				this.requiredAmount.set(Math.round(Number(c.price || 0) * 100) / 100);
+				this.price.set(`${Number(c.price || 0)} $`);
+				this.duration.set(c.durationDays ? `${c.durationDays} يوم` : '');
+				this.milestones.set((Array.isArray(c.milestones) ? c.milestones : []).map((m: any, i: number) => ({
+					order: Number(m.order) || i + 1,
+					title: String(m.title || ''),
+					description: String(m.description || ''),
+					percentage: Number(m.percentage) || 0,
+					amount: Number(m.amount) || 0,
+					days: Number(m.days) || 0,
+				})));
+				this.singleDelivery.set(!!c.singleDelivery);
+				if (c.offerMatches === false || this.requiredAmount() <= 0) {
+					this.blockedReason.set(c.message || 'هذا العقد غير جاهز للتوقيع حالياً.');
+					this.view.set('blocked');
+					return;
+				}
+				if (!c.ready) {
+					// The contract exists but is past (or outside) the client's signature: show its terms, offer no signing.
+					this.blockedReason.set(c.message || 'هذا العقد غير متاح للتوقيع حالياً.');
+					this.view.set('readonly');
+					return;
+				}
+				this.view.set('ready');
 			},
 			error: (err) => {
-				console.error('Error fetching details:', err);
-				this.isLoading.set(false);
-				this.showToast('حدث خطأ أثناء جلب بيانات العقد.');
+				// A 404 is "not your request / does not exist": there is nothing to sign, say so instead of a generic failure.
+				if (err?.status === 404) {
+					this.blockedReason.set(err.error?.message || 'طلب المشروع غير موجود أو لا تملك صلاحية الوصول إليه.');
+					this.view.set('blocked');
+					return;
+				}
+				this.view.set('error');
 			}
 		});
 	}
@@ -115,11 +119,15 @@ export class ContractSignature implements OnInit {
 			this.showToastSignal.set(false);
 		}, 3000);
 	}
-	
+
+	toggleAck(event: Event) {
+		this.acknowledged.set((event.target as HTMLInputElement).checked);
+	}
+
 	signContract(event: Event) {
 		event.preventDefault();
-		const cb = document.getElementById('ack-ctr') as HTMLInputElement;
-		if (cb && !cb.checked) {
+		if (this.view() !== 'ready') return;
+		if (!this.acknowledged()) {
 			this.showToast('يجب الموافقة على بنود العقد أولا');
 			return;
 		}

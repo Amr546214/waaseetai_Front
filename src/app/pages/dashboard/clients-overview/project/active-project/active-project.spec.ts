@@ -106,3 +106,64 @@ describe('ActiveProject — real responsible-employee field (Batch 6)', () => {
     expect(el.querySelector('a.pl-card')?.getAttribute('href')).toContain('/client-overview/my-requests/p9');
   });
 });
+
+// Honest funding states (BE: funded / phase / daysLeft null before the contract starts): an unfunded project holds nothing and counts nothing
+// down; a funded one waits for the provider's signature; a running one shows its stages' real progress.
+describe('ActiveProject — funding states', () => {
+  function setup(projects: any[]) {
+    TestBed.configureTestingModule({
+      imports: [ActiveProject],
+      providers: [
+        provideRouter([]),
+        { provide: HttpClient, useValue: { get: () => of({ success: true, data: { kpis: [], projects } }) } },
+        { provide: AuthStore, useValue: { currentUser: () => ({ accountType: AccountType.CLIENT_INDIVIDUAL }) } },
+      ],
+    });
+    const fixture: ComponentFixture<ActiveProject> = TestBed.createComponent(ActiveProject);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    return { fixture, component: fixture.componentInstance, el, text: () => (el.textContent || '').replace(/\s+/g, ' ') };
+  }
+  const P = (o: any = {}) => ({ id: 'p1', title: 'مشروع', status: 'pending', rawStatus: 'PENDING_SIGNATURE', funded: false, phase: 'awaiting_funding', progress: 0, provider: { name: 'مزود', initial: 'م' }, contract: 'CT-1', heldAmount: 0, nextStep: 'توقيع العقد وإيداع الضمان لبدء التنفيذ', completedStages: 0, stagesCount: 3, daysLeft: null, ...o });
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('unfunded: never "running", nothing held, no countdown, opens the request to sign + fund', () => {
+    const s = setup([P()]);
+    expect(s.text()).toContain('بانتظار التوقيع');
+    expect(s.text()).toContain('لا مبلغ محتجز بعد');
+    expect(s.text()).toContain('لم يبدأ التنفيذ بعد');
+    expect(s.text()).not.toContain('قيد التنفيذ مع');
+    expect(s.text()).not.toContain('متبقية');
+    expect(s.el.querySelector('.pl-badge')!.textContent!.trim()).not.toBe('قيد التنفيذ');
+    expect(s.el.querySelector('a.pl-card')!.getAttribute('href')).toContain('/client-overview/my-requests/p1');
+    expect(s.text()).toContain('إكمال التوقيع والضمان');
+  });
+
+  it('funded and waiting for the provider: shows the held money, says the provider signs next, and opens the project (nothing left for the client to sign)', () => {
+    const s = setup([P({ funded: true, phase: 'awaiting_provider_signature', heldAmount: 900, nextStep: 'بانتظار توقيع مقدم الخدمة للعقد' })]);
+    expect(s.el.querySelector('.pl-badge')!.textContent!.trim()).toBe('بانتظار توقيع مقدم الخدمة');
+    expect(s.text()).toContain('محتجز 900 $');
+    expect(s.el.querySelector('a.pl-card')!.getAttribute('href')).toContain('/client-overview/projects/p1');
+    expect(s.text()).not.toContain('إكمال التوقيع والضمان');
+  });
+
+  it('a pending project is not counted in "بانتظار مراجعتك" (that tab is for deliveries waiting for the client)', () => {
+    const s = setup([P(), P({ id: 'p2', status: 'wait', rawStatus: 'IN_PROGRESS', funded: true, daysLeft: 5 })]);
+    const tabs = s.component.tabs();
+    expect(tabs.find(t => t.id === 'wait')!.count).toBe(1);
+    expect(tabs.find(t => t.id === 'pending')!.count).toBe(1);
+  });
+
+  it('running: shows the real remaining days and the stage progress; late is told apart', () => {
+    const s = setup([P({ id: 'r', status: 'run', rawStatus: 'IN_PROGRESS', funded: true, phase: 'running', progress: 40, completedStages: 1, stagesCount: 3, daysLeft: 6, heldAmount: 300 }), P({ id: 'l', status: 'late', rawStatus: 'IN_PROGRESS', funded: true, daysLeft: -2 })]);
+    expect(s.text()).toContain('1 من 3 مراحل · 6 أيام متبقية');
+    expect(s.text()).toContain('متأخر 2');
+    expect(s.text()).toContain('40');
+  });
+
+  it('no invented compliance / version footer and no default "جيد" status', () => {
+    const s = setup([]);
+    expect(s.text()).not.toContain('SAMA'); expect(s.text()).not.toContain('PDPL'); expect(s.text()).not.toContain('v1.0.0');
+    expect(s.component.kpis()[3].value).not.toBe('جيد');
+  });
+});

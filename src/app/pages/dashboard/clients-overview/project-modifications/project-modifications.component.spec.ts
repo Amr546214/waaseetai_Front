@@ -130,7 +130,8 @@ describe('ProjectModificationsComponent', () => {
     expect(component.tabs()).toEqual([
       { id: 'all', label: 'الكل', count: 3 },
       { id: 'open', label: 'نشطة', count: 2 },
-      { id: 'closed', label: 'مُعتمدة', count: 1 }
+      { id: 'closed', label: 'مُعتمدة', count: 1 },
+      { id: 'rejected', label: 'مرفوضة', count: 0 }
     ]);
     const stats = component.stats();
     expect(stats.find(s => s.label === 'بانتظار رد المقدّم')?.value).toBe('1');
@@ -156,14 +157,14 @@ describe('ProjectModificationsComponent', () => {
     expect(component.filteredAmendments().map(a => a.id)).toEqual(['a2']);
   });
 
-  it('formats a positive budget delta as +N دولار, from the real numeric field', async () => {
+  it('formats a positive budget delta as +N $, from the real numeric field', async () => {
     await setup(() => of({ success: true, data: [] }));
-    expect(component.formatBudgetDelta(1500)).toBe('+1,500 دولار');
+    expect(component.formatBudgetDelta(1500)).toBe('+1,500 $');
   });
 
-  it('formats a negative budget delta as -N دولار', async () => {
+  it('formats a negative budget delta as -N $', async () => {
     await setup(() => of({ success: true, data: [] }));
-    expect(component.formatBudgetDelta(-500)).toBe('-500 دولار');
+    expect(component.formatBudgetDelta(-500)).toBe('-500 $');
   });
 
   it('formats a null/zero budget delta as "بلا تغيير"', async () => {
@@ -310,5 +311,20 @@ describe('ProjectModificationsComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('تعذر حفظ القرار');
     expect(component.amendments()[0].status).toBe('PENDING_OTHER_PARTY');
     expect(getSpy).toHaveBeenCalledTimes(1); // no reload attempted after a failure
+  });
+
+  it('an approved request reads «تمت الموافقة» (the contract is NOT updated by it) and the page says the decision is only recorded', async () => {
+    await setup(() => of({ success: true, data: [amendmentFixture({ requestedByRole: 'CLIENT', status: 'APPROVED' })] }));
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('تمت الموافقة');
+    expect(text).not.toContain('مُحدَّث');
+    expect(fixture.nativeElement.querySelector('[data-testid="am-record-note"]')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان تلقائيًا');
+  });
+
+  it('a rejected request has its own tab', async () => {
+    await setup(() => of({ success: true, data: [amendmentFixture({ id: 'r1', requestedByRole: 'CLIENT', status: 'REJECTED' }), amendmentFixture({ id: 'p1', requestedByRole: 'CLIENT', status: 'PENDING_OTHER_PARTY' })] }));
+    component.setFilter('rejected');
+    expect(component.filteredAmendments().map(a => a.id)).toEqual(['r1']);
+    expect(component.tabs().find(t => t.id === 'rejected')!.count).toBe(1);
   });
 });
