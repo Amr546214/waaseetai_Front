@@ -99,7 +99,8 @@ export class ProjectModificationsComponent implements OnInit {
 		return [
 			{ id: 'all', label: 'الكل', count: list.length },
 			{ id: 'open', label: 'نشطة', count: list.filter(a => a.status === 'PENDING_OTHER_PARTY').length },
-			{ id: 'closed', label: 'مُعتمدة', count: list.filter(a => a.status === 'APPROVED').length }
+			{ id: 'closed', label: 'مُعتمدة', count: list.filter(a => a.status === 'APPROVED').length },
+			{ id: 'rejected', label: 'مرفوضة', count: list.filter(a => a.status === 'REJECTED').length }
 		];
 	});
 
@@ -122,6 +123,7 @@ export class ProjectModificationsComponent implements OnInit {
 		const list = this.amendments();
 		if (filter === 'open') return list.filter(a => a.status === 'PENDING_OTHER_PARTY');
 		if (filter === 'closed') return list.filter(a => a.status === 'APPROVED');
+		if (filter === 'rejected') return list.filter(a => a.status === 'REJECTED');
 		return list;
 	});
 
@@ -150,7 +152,7 @@ export class ProjectModificationsComponent implements OnInit {
 	}
 
 	statusLabel(am: Amendment): string {
-		if (am.status === 'APPROVED') return 'مُعتمد ومُحدَّث';
+		if (am.status === 'APPROVED') return 'تمت الموافقة';
 		if (am.status === 'REJECTED') return 'مرفوض';
 		if (am.status === 'CANCELLED') return 'مُلغى';
 		return am.requestedByRole === 'CLIENT' ? 'بانتظار رد المقدّم' : 'بانتظار موافقتك';

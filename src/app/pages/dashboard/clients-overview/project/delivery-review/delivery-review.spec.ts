@@ -295,7 +295,7 @@ describe('DeliveryReview', () => {
 
   it('"فتح نقاش" navigates to Messages with the real conversationId and a DELIVERY context — never a fabricated decision:"revision"', async () => {
     await setup(() => of(makeWorkspace()));
-    const btn: HTMLButtonElement = fixture.nativeElement.querySelector('.dr-btn-secondary');
+    const btn = (Array.from(fixture.nativeElement.querySelectorAll('.dr-btn-secondary')) as HTMLButtonElement[]).find(b => b.textContent!.includes('فتح نقاش'))!;
     btn.click();
     fixture.detectChanges();
 
@@ -309,5 +309,63 @@ describe('DeliveryReview', () => {
     // Approving is the only action allowed to change stage/escrow state; opening a
     // discussion must never itself call the review endpoint.
     expect(postSpy).not.toHaveBeenCalled();
+  });
+
+  describe('request a revision (a real, recorded decision — not just a chat)', () => {
+    const q = (id: string) => fixture.nativeElement.querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
+    const typeNote = (text: string) => { component.revisionNote = text; };
+
+    it('the button opens a form; sending posts decision "revision" with the note to the real review endpoint, then reloads the real state', async () => {
+      await setup(() => of(makeWorkspace()), () => of({ success: true, data: { decision: 'revision', stageId: 'stage-1' } }));
+      q('dr-revision-toggle')!.click(); fixture.detectChanges();
+      expect(q('dr-revision-form')).not.toBeNull();
+      typeNote('الشعار يحتاج نسخة بخلفية شفافة');
+      q('dr-revision-send')!.click(); fixture.detectChanges();
+      expect(postSpy).toHaveBeenCalledTimes(1);
+      expect(postSpy.mock.calls[0][0]).toContain('/client/my-requests/proj-1/stages/stage-1/review');
+      expect(postSpy.mock.calls[0][1]).toEqual({ decision: 'revision', note: 'الشعار يحتاج نسخة بخلفية شفافة' });
+      expect(getSpy).toHaveBeenCalledTimes(2);
+      expect(q('dr-revision-sent')!.textContent).toContain('لم يُفرج أي مبلغ');
+      expect(component.successData()).toBeNull();
+    });
+
+    it('a note shorter than the server floor is refused in the form (nothing is sent)', async () => {
+      await setup(() => of(makeWorkspace()));
+      q('dr-revision-toggle')!.click(); fixture.detectChanges();
+      typeNote('قصير');
+      q('dr-revision-send')!.click(); fixture.detectChanges();
+      expect(postSpy).not.toHaveBeenCalled();
+      expect(q('dr-revision-error')!.textContent).toContain('10 أحرف');
+    });
+
+    it('a server refusal (e.g. the delivery was already reviewed) is shown inside the form and nothing looks sent', async () => {
+      await setup(() => of(makeWorkspace()), () => throwError(() => ({ error: { message: 'لا يوجد تسليم جديد بانتظار المراجعة لهذه المرحلة' } })));
+      q('dr-revision-toggle')!.click(); fixture.detectChanges();
+      typeNote('ملاحظات كافية للتعديل');
+      q('dr-revision-send')!.click(); fixture.detectChanges();
+      expect(q('dr-revision-error')!.textContent).toContain('لا يوجد تسليم جديد');
+      expect(q('dr-revision-sent')).toBeNull();
+    });
+
+    it('double click while sending posts once', async () => {
+      const pending = new Subject<any>();
+      await setup(() => of(makeWorkspace()), () => pending);
+      q('dr-revision-toggle')!.click(); fixture.detectChanges();
+      typeNote('ملاحظات كافية للتعديل');
+      component.requestRevision(); component.requestRevision(); component.requestRevision();
+      expect(postSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('only a delivery that is waiting for the decision can be sent back (an approved stage offers no revision action)', async () => {
+      await setup(() => of(makeWorkspace({ status: 'completed' })));
+      expect(q('dr-revision-toggle')).toBeNull();
+      component.requestRevision();
+      expect(postSpy).not.toHaveBeenCalled();
+    });
+
+    it('a stage the provider re-delivered after a revision says so', async () => {
+      await setup(() => of(makeWorkspace({ revisionResubmitted: true })));
+      expect(fixture.nativeElement.textContent).toContain('أُعيد التسليم، بانتظار اعتمادك');
+    });
   });
 });

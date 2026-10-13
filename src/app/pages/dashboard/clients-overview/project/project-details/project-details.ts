@@ -180,24 +180,6 @@ export class ProjectDetails implements OnInit {
 		const last = this.latestThread(stage);
 		return last?.files?.length || 0;
 	}
-	// Review deadline days fallback
-	reviewDeadlineDays(stage: any): string {
-		if (stage?.reviewDeadlineDays) return stage.reviewDeadlineDays + ' أيام';
-		return '6 أيام';
-	}
-	// Submitted time fallback
-	submittedTimeAgo(stage: any): string {
-		if (stage?.submittedTimeAgo) return stage.submittedTimeAgo;
-		const last = this.latestThread(stage);
-		if (last?.date) {
-			const diff = Date.now() - new Date(last.date).getTime();
-			const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-			if (days <= 0) return 'اليوم';
-			if (days === 1) return 'قبل يوم';
-			return `قبل ${days} أيام`;
-		}
-		return 'قبل يوم';
-	}
 	formatNumber(value: number) { return Number(value || 0).toLocaleString('en-US'); }
 	formatDate(value: string | Date | null) {
 		if (!value) return '—';
@@ -205,25 +187,42 @@ export class ProjectDetails implements OnInit {
 	}
 	statusHint(stage: any) {
 		if (stage.status === 'completed') return `اكتملت واعتمدت${stage.completedDate ? ` · ${this.formatDate(stage.completedDate)}` : ''}`;
+		if (stage.status === 'submitted' && stage.revisionResubmitted) return `أعاد مقدم الخدمة التسليم بعد ملاحظاتك · ${stage.roundsCount} تسليمات، بانتظار قرارك`;
 		if (stage.status === 'submitted') return `قيد المراجعة · ${stage.roundsCount} ${stage.roundsCount === 1 ? 'تسليم' : 'تسليمات'}، بانتظار قرارك`;
-		if (stage.status === 'revision') return 'بانتظار إعادة التسليم بعد ملاحظاتك';
+		if (stage.status === 'revision') return 'طلبت تعديلًا، بانتظار إعادة التسليم من مقدم الخدمة';
 		if (stage.status === 'in_progress') return 'قيد العمل لدى مقدم الخدمة';
 		return 'تبدأ بعد اعتماد المرحلة السابقة';
 	}
-	deadlineRating(data: any) {
-		if (data.daysLeft <= 0 && data.progress < 100) return 'يحتاج متابعة';
-		return this.currentAiInsights(data)?.healthRating || 'جيد';
+	/** Money label of a stage: released, really held in escrow, or just its value (nothing is held before the escrow is funded). */
+	stageMoneyLabel(stage: any): string {
+		const amount = `${this.formatNumber(stage.amount)} $`;
+		if (stage.status === 'completed') return `أُفرج ${amount}`;
+		return stage.amountHeld ? `محتجز ${amount}` : `قيمة المرحلة ${amount}`;
 	}
-	// P-SK-015: navigate to full delivery review page (no modal). 'approve' opens the review page; 'revision' opens conversation.
+	/** The contract is running (money held, work under way). Before that nothing counts down and nothing can be delivered. */
+	isRunning(data: any): boolean { return data?.contractStatus === 'ACTIVE' || data?.contractStatus === 'COMPLETED' || data?.contractStatus === 'DISPUTED'; }
+	/** Why the contract has not started (null when it did). */
+	notStartedReason(data: any): string | null {
+		if (this.isRunning(data)) return null;
+		if (data?.escrowFunded) return 'وقّعت العقد وأودعت الضمان، وبانتظار توقيع مقدم الخدمة ليبدأ التنفيذ.';
+		return 'العقد لم يبدأ بعد: لم يُوقَّع ولم يُودَع الضمان، فلا يُحتجز أي مبلغ ولا يبدأ التنفيذ.';
+	}
+	/** Dispute / change-request are only possible on a running contract (the server refuses them otherwise). */
+	actionBlockedReason(data: any): string | null {
+		return this.isRunning(data) ? null : 'متاح بعد بدء العقد (توقيع الطرفين وتمويل الضمان)';
+	}
+	/** Deadline status from the contract's own duration; no AI rating and no default "good". */
+	deadlineRating(data: any) {
+		if (!this.isRunning(data)) return 'لم يبدأ';
+		if (data.contractStatus === 'COMPLETED') return 'مكتمل';
+		if (data.daysLeft <= 0 && data.progress < 100) return 'تجاوز المدة';
+		return 'ضمن المدة';
+	}
+	// P-SK-015: navigate to the full delivery review page (no modal).
 	openReview(stage: any, decision: 'approve' | 'revision') {
 		this.error.set('');
-		if (decision === 'revision') {
-			// "عندي ملاحظات، فتح نقاش" → navigate to conversation with stage context
-			this.openConversation(this.project(), stage);
-			return;
-		}
-		// 'approve' → navigate to full P-SK-015 delivery review page
-		this.router.navigate(['/client-overview/projects', this.projectId, 'delivery-review', stage.id]);
+		// Both decisions happen on the delivery review page, which calls the real review endpoint (approve, or a recorded revision request).
+		this.router.navigate(['/client-overview/projects', this.projectId, 'delivery-review', stage.id], decision === 'revision' ? { queryParams: { action: 'revision' } } : undefined);
 	}
 	closeReview() { if (!this.saving()) this.inlineReviewStage.set(null); }
 	submitReview() {
@@ -235,6 +234,7 @@ export class ProjectDetails implements OnInit {
 		});
 	}
 	openAmendments() {
+		if (this.project() && this.actionBlockedReason(this.project())) return;
 		this.amendKind = 'SCOPE'; this.amendTitle = ''; this.amendDescription = ''; this.amendBudget = null; this.amendDays = null;
 		this.amendError.set(''); this.amendSuccess.set(false); this.amendOpen.set(true);
 		this.loadAmendments();
@@ -289,7 +289,7 @@ export class ProjectDetails implements OnInit {
 	}
 
 	openDisputeModal() {
-		if (this.disputeSubmitted()) return;
+		if (this.disputeSubmitted() || (this.project() && this.actionBlockedReason(this.project()))) return;
 		this.disputeError.set('');
 		this.showDisputeModal.set(true);
 	}
@@ -309,13 +309,17 @@ export class ProjectDetails implements OnInit {
 				this.isSubmittingDispute.set(false);
 				this.showDisputeModal.set(false);
 				this.disputeSubmitted.set(true);
-				this.disputeSuccess.set('تم فتح النزاع بنجاح، سيقوم فريق وسيط بمراجعة الحالة');
+				this.disputeSuccess.set('تم فتح النزاع بنجاح، وهو الآن بانتظار مراجعة الإدارة. تابع حالته من صفحة النزاعات.');
 			},
 			error: (err: any) => {
 				this.isSubmittingDispute.set(false);
 				this.disputeError.set(err?.error?.message || 'تعذر فتح النزاع، حاول مرة أخرى');
 			},
 		});
+	}
+	/** The dispute already open on this project, as the server reports it (read-only for the client; only the admin decides). */
+	openDisputeLabel(data: any): string | null {
+		return data?.disputeStatus === 'OPEN' ? 'نزاع مفتوح بانتظار مراجعة الإدارة' : data?.disputeStatus === 'UNDER_REVIEW' ? 'نزاع قيد مراجعة الإدارة' : null;
 	}
 	openConversation(data: any, stage?: any) {
 		if (!data) return;
