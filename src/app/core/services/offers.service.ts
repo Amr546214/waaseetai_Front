@@ -34,20 +34,11 @@ export class OffersService {
 	}
 
 	/**
-	 * Fetch a specific offer by ID
-	 * Note: As the backend currently lacks a dedicated endpoint for specific offers,
-	 * this simulates it by fetching the list and filtering locally.
+	 * Fetch one offer of the signed-in provider by id (GET /provider/offers/:id).
+	 * Same item shape as the list rows, and it works for offers beyond the list's first page.
 	 */
 	getOfferById(id: string): Observable<any> {
-		return this.getOffers().pipe(
-			map(res => {
-				if (res && res.data) {
-					const item = res.data.find((o: any) => (o.offerId || o.id) === id);
-					if (item) return item;
-				}
-				throw new Error(`Offer with id ${id} not found.`);
-			})
-		);
+		return this.http.get<{ data: any }>(`${environment.url_api}/provider/offers/${encodeURIComponent(id)}`).pipe(map(res => res.data));
 	}
 
 	/**
