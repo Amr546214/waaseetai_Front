@@ -323,7 +323,25 @@ export class RequestDetails implements OnInit {
 	isSelectingOffer = signal<boolean>(false);
 
 	// Negotiation logic
+	// Only a live offer can be negotiated (same rule as the server: SUBMITTED / PENDING / UNDER_NEGOTIATION). Returns the visible Arabic reason when it cannot.
+	negotiationBlockReason(offer: Offer): string | null {
+		switch (String(offer.status || '').toUpperCase()) {
+			case 'CANCELLED': return 'لا يمكن التفاوض على هذا العرض لأن مقدم الخدمة سحبه';
+			case 'REJECTED': return 'لا يمكن التفاوض على هذا العرض لأنه مرفوض';
+			case 'ACCEPTED': return 'لا يمكن التفاوض على هذا العرض لأنه مقبول بالفعل';
+			case 'PENDING_SIGNATURE': return 'لا يمكن التفاوض على هذا العرض لأنه مختار وبانتظار التوقيع';
+			case 'DRAFT':
+			case 'IN_AI_REVIEW': return 'لا يمكن التفاوض على هذا العرض في حالته الحالية';
+			default: return null;
+		}
+	}
+
 	openNegotiation(offer: Offer) {
+		const blocked = this.negotiationBlockReason(offer);
+		if (blocked) {
+			this.showToast(blocked);
+			return;
+		}
 		this.selectedOffer.set(offer);
 		this.negProvider.set(offer.providerName);
 		this.negPrice.set((offer.price || '').replace(' $', '').trim());
@@ -385,7 +403,8 @@ export class RequestDetails implements OnInit {
 			},
 			error: (err) => {
 				console.error('Error initiating negotiation chat:', err);
-				this.router.navigate(['/client-overview/messages'], { queryParams: { conversationId: 'c1' } });
+				// Show the server's reason (e.g. the offer was withdrawn meanwhile) instead of opening a room that was never created.
+				this.showToast(err?.error?.message || 'تعذر بدء التفاوض حاليًا، حاول مرة أخرى');
 			}
 		});
 	}

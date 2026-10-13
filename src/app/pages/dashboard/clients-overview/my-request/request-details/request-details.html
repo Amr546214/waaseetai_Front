@@ -328,6 +328,10 @@
 						<button type="button"
 							style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12)"
 							class="w-full py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center leading-none hover:border-slate-500 hover:text-white active:scale-[0.98] transition-all txt-slate"
+							[disabled]="!!negotiationBlockReason(offer)"
+							[class.opacity-50]="!!negotiationBlockReason(offer)"
+							[style.cursor]="negotiationBlockReason(offer) ? 'not-allowed' : 'pointer'"
+							[attr.title]="negotiationBlockReason(offer)"
 							(click)="openNegotiation(offer)">
 							<span>تفاوض</span>
 						</button>
@@ -338,6 +342,9 @@
 							(click)="startChat(offer)">
 							<span>محادثة</span>
 						</button>
+						@if (negotiationBlockReason(offer); as blockReason) {
+							<p class="col-span-3 text-[12px] txt-slate text-center" role="note">{{ blockReason }}</p>
+						}
 					}
 				</div>
 			</div>

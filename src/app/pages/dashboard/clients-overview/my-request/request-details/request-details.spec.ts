@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { RequestDetails } from './request-details';
 import { ThemeService } from '../../../../../core/services/theme.service';
@@ -393,5 +393,50 @@ describe('RequestDetails — offer ordering & score labels (AI Cleanup Batch 5)'
 		expect(text).toContain('تقييم العرض 73%');
 		expect(text).toContain('تقييم العرض غير متاح');
 		expect(text).not.toContain('null%');
+	});
+});
+
+describe('RequestDetails — negotiation guard', () => {
+	let component: RequestDetails;
+	let chat: { initiateConversation: ReturnType<typeof vi.fn> };
+
+	beforeEach(async () => {
+		chat = { initiateConversation: vi.fn() };
+		await TestBed.configureTestingModule({
+			imports: [RequestDetails],
+			providers: [
+				{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => null } } } },
+				{ provide: Router, useValue: { navigate: vi.fn() } },
+				{ provide: HttpClient, useValue: { get: () => of({ success: false }), post: () => of({ success: false }) } },
+				{ provide: ThemeService, useValue: { theme: () => 'dark' } },
+				{ provide: ChatService, useValue: chat }
+			]
+		}).compileComponents();
+		component = TestBed.createComponent(RequestDetails).componentInstance;
+	});
+
+	it('gives a visible Arabic reason for every non-negotiable status and none for live offers', () => {
+		for (const status of ['CANCELLED', 'REJECTED', 'ACCEPTED', 'PENDING_SIGNATURE', 'DRAFT']) {
+			expect(component.negotiationBlockReason(makeOffer({ status }))).toContain('لا يمكن التفاوض');
+		}
+		expect(component.negotiationBlockReason(makeOffer({ status: 'CANCELLED' }))).toContain('سحبه');
+		for (const status of ['SUBMITTED', 'PENDING', 'UNDER_NEGOTIATION']) {
+			expect(component.negotiationBlockReason(makeOffer({ status }))).toBeNull();
+		}
+	});
+
+	it('opening negotiation on a withdrawn offer shows the reason and does not open the modal', () => {
+		component.openNegotiation(makeOffer({ status: 'CANCELLED' }));
+		expect(component.showNegModal()).toBe(false);
+		expect(component.toastMessage()).toContain('سحبه');
+	});
+
+	it('a server refusal shows the server message and does not navigate to a fake room', () => {
+		const router = TestBed.inject(Router) as any;
+		chat.initiateConversation.mockReturnValue(throwError(() => ({ error: { message: 'لا يمكن التفاوض على هذا العرض لأنه مرفوض' } })));
+		component.openNegotiation(makeOffer({ status: 'PENDING' }));
+		component.sendNegotiation();
+		expect(component.toastMessage()).toBe('لا يمكن التفاوض على هذا العرض لأنه مرفوض');
+		expect(router.navigate).not.toHaveBeenCalled();
 	});
 });
