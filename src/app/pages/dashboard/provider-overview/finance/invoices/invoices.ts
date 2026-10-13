@@ -1,16 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal, computed, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-
-interface ProviderInvoice {
-	id: string;
-	project: string;
-	client: string;
-	date: string;
-	total: number;
-	tax: number;
-	status: 'paid' | 'due';
-}
+import { ProviderApiService, ProviderInvoice, ProviderInvoicesResponse } from '../../../../../core/services/provider-api.service';
 
 @Component({
 	selector: 'app-provider-invoices',
@@ -21,6 +12,8 @@ interface ProviderInvoice {
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InvoicesComponent implements OnInit {
+	private providerApi = inject(ProviderApiService);
+	summary = signal<ProviderInvoicesResponse['summary'] | null>(null);
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
 	toast = signal<string | null>(null);
@@ -46,10 +39,11 @@ export class InvoicesComponent implements OnInit {
 	loadInvoices(): void {
 		this.isLoading.set(true);
 		this.hasError.set(false);
-		// No provider-invoices endpoint exists yet (client invoices come from GET /client/finance/invoices, derived from released stage deliveries).
-		// Until a provider-side endpoint ships (proposal: GET /provider/finance/invoices) the list stays empty and the page says so honestly — no sample rows.
-		this.invoices.set([]);
-		this.isLoading.set(false);
+		// GET /provider/finance/invoices: one invoice per delivered stage, with the platform commission and the provider's net
+		this.providerApi.getProviderInvoices().subscribe({
+			next: res => { this.invoices.set(res?.data?.invoices ?? []); this.summary.set(res?.data?.summary ?? null); this.isLoading.set(false); },
+			error: () => { this.invoices.set([]); this.hasError.set(true); this.isLoading.set(false); }
+		});
 	}
 
 	setTab(tab: 'all' | 'paid' | 'due') {

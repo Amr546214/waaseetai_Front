@@ -30,16 +30,23 @@ describe('provider FE package 1 — operate, do not delete', () => {
 		expect(h).toContain('data-testid="wallet-topup"');
 		expect(h).toContain('data-testid="wallet-payout-data"');
 	});
-	it('invoices page keeps its KPI/tabs/table structure and has no sample rows', () => {
+	it('invoices page reads GET /provider/finance/invoices (no sample rows) and shows client, value, commission, net', () => {
 		const h = read('finance/invoices/invoices.html');
 		const t = read('finance/invoices/invoices.ts');
-		for (const k of ['inv-kpis', 'inv-tabs', 'tx-tbl', 'inv-empty']) expect(h).toContain(k);
+		for (const k of ['inv-kpis', 'inv-tabs', 'tx-tbl', 'inv-empty', 'inv.net', 'inv.platformCommission']) expect(h).toContain(k);
+		expect(t).toContain('getProviderInvoices()');
 		expect(t).not.toMatch(/INV-2026|نورة التصميم|رشا الكاتبة/);
+	});
+	it('sales-tracking reads GET /provider/finance/sales', () => {
+		const t = read('business-models/sales-tracking/sales-tracking.component.ts');
+		expect(t).toContain('getProviderSales()');
+		expect(t).toContain('topModels = d.topModels');
 	});
 	it('reports: PDF and CSV buttons are kept and wired to real handlers', () => {
 		const h = read('reports/reports.html');
 		expect(h).toContain('exportCsv()');
 		expect(h).toContain('printReport()');
+		expect(h).toContain('طباعة / حفظ PDF');
 		expect(h).not.toContain('جاري تصدير');
 	});
 	it('sign-contract: "edit terms via chat" is kept and opens the project conversation', () => {
@@ -50,12 +57,29 @@ describe('provider FE package 1 — operate, do not delete', () => {
 		expect(t).toContain("messageContext: { type: 'PROJECT', projectId");
 		expect(t).not.toContain('قاعدة البيانات');
 	});
-	it('profile-setup: preferences card is kept, disabled with a stated reason', () => {
+	it('profile-setup: preferences are saved for real (PUT /provider/profile/preferences) and loaded back, not disabled', () => {
 		const h = read('profile/profile-setup/profile-setup.html');
+		const t = read('profile/profile-setup/profile-setup.ts');
 		expect(h).toContain('التفضيلات');
-		expect(h).toContain('data-testid="prefs-fieldset"');
-		expect(h).toContain('حفظ التفضيلات غير مفعّل بعد');
+		expect(h).not.toContain('<fieldset disabled');
+		expect(h).toContain('(change)="savePreferences()"');
+		expect(t).toContain('saveProviderPreferences(');
+		expect(t).toContain('prefs.notifChannels');
 		expect(h).not.toContain('30 يوم');
+	});
+	it('footers: neutral wording + terms/privacy links; no SAMA / PDPL compliance claim anywhere in the provider area', () => {
+		for (const f of ['offers/sign-contract/sign-contract.html', 'projects/archived/archived.html', 'disputes/dispute-details/dispute-details.html', 'business-models/market/model-details/model-details.html', 'help/ticket-detail/ticket-detail.html', 'help/new-ticket/new-ticket.html']) {
+			const h = read(f);
+			expect(h, f).toContain('وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة');
+			expect(h, f).toContain('الشروط والأحكام');
+			expect(h, f).toContain('سياسة الخصوصية');
+			expect(h, f).not.toMatch(/SAMA|PDPL|v1\.0\.0/);
+		}
+	});
+	it('level benefits: the invented search-priority benefit is replaced by the real level badge', () => {
+		const h = read('profile/level/level.html');
+		expect(h).not.toContain('أولوية ظهور');
+		expect(h).toContain('شارة المستوى تظهر في ملفك وخدماتك');
 	});
 	it('level roadmap: progress lines follow the real level (no fixed level-4 geometry)', () => {
 		const h = read('profile/level/level.html');

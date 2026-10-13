@@ -216,14 +216,7 @@
             <div class="card-title-ico badge-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-settings"></use></svg></div>
             التفضيلات
           </div>
-          <div class="ws-note ws-note--neutral" data-testid="prefs-disabled-note">
-            <div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-settings"></use></svg></div>
-            <div class="ws-note-body">
-              <div class="ws-note-lbl">حفظ التفضيلات غير مفعّل بعد</div>
-              <p class="ws-note-txt">لا يوجد حاليًا حقل لحفظ لغة الواجهة أو قنوات الإشعارات أو المنطقة الزمنية في ملف مقدم الخدمة، فتبقى معروضة للاطلاع فقط حتى يُفعَّل الحفظ</p>
-            </div>
-          </div>
-          <fieldset disabled data-testid="prefs-fieldset" style="border:0;padding:0;margin:0;min-width:0;opacity:.6;pointer-events:none">
+          <div class="pref-status" data-testid="prefs-status" aria-live="polite" style="font-size:12px;margin-bottom:10px;opacity:.8">@switch (prefsStatus()) { @case ('saving') { جارٍ حفظ التفضيلات… } @case ('saved') { تم حفظ التفضيلات } @case ('error') { تعذّر حفظ التفضيلات، حاول مرة أخرى } @default { تُحفظ التفضيلات تلقائيًا عند تغييرها } }</div>
           <div class="pref-section">
             <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-globe"></use></svg>لغة الواجهة</div>
             <div class="radio-group" role="radiogroup" aria-label="اختيار اللغة">
@@ -248,7 +241,7 @@
           </div>
           <div class="pref-section" style="margin-bottom:0">
             <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-globe"></use></svg>المنطقة الزمنية</div>
-            <select class="tz-select" formControlName="timezone">
+            <select class="tz-select" formControlName="timezone" (change)="savePreferences()">
               <option value="Asia/Riyadh">توقيت المملكة العربية السعودية (UTC+3)</option>
               <option value="Asia/Dubai">توقيت الإمارات (UTC+4)</option>
               <option value="Asia/Kuwait">توقيت الكويت (UTC+3)</option>
@@ -257,7 +250,6 @@
               <option value="GMT">توقيت غرينتش (UTC+0)</option>
             </select>
           </div>
-          </fieldset>
         </div>
         <ws-form-summary [items]="missing()" />
         <div class="step-nav">
@@ -571,7 +563,7 @@
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('selfie')" aria-label="حذف الملف">&#x2715;</button>
             </div>
           }
-          <div class="enc-note" style="margin-top:10px"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفرة، تحذف تلقائيا بعد انتهاء التحقق وفق PDPL</div>
+          <div class="enc-note" style="margin-top:10px"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفرة، وتُستخدم للتحقق من هويتك فقط</div>
         </div>
 
         <!-- Card 4: شهادات مهنية (optional) -->

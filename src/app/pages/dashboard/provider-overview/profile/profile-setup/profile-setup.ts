@@ -297,6 +297,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.skillsList.set((d.skills || []).map((s: { name: string }) => s.name));
 					this.storedAvatarUrl = typeof d.avatarUrl === 'string' ? d.avatarUrl : '';
 					if (this.storedAvatarUrl) { this.avatarUrl.set(this.storedAvatarUrl); this.avatarPreview.set(this.storedAvatarUrl); }
+					const prefs = d.preferences && typeof d.preferences === 'object' ? d.preferences : {};
+					if (prefs.interfaceLanguage === 'ar' || prefs.interfaceLanguage === 'en') this.setupForm.get('uiLanguage')?.setValue(prefs.interfaceLanguage);
+					if (typeof prefs.timezone === 'string' && prefs.timezone) this.setupForm.get('profData.timezone')?.setValue(prefs.timezone);
+					if (Array.isArray(prefs.notifChannels)) this.notifChannels.set(prefs.notifChannels.filter((c: unknown) => c === 'push' || c === 'email'));
 					this.setupForm.patchValue({
 						profData: {
 							jobTitle: d.headline || d.industry || '',
@@ -695,6 +699,24 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	setUiLanguage(lang: string) {
 		this.setupForm.get('uiLanguage')?.setValue(lang);
+		this.savePreferences();
+	}
+
+	/** '' | 'saving' | 'saved' | 'error' — status of the last preferences save (PUT /provider/profile/preferences). */
+	prefsStatus = signal<'' | 'saving' | 'saved' | 'error'>('');
+
+	/** Saves language / timezone / notification channels right when they change (they are stored in provider_profiles.preferences). */
+	savePreferences() {
+		this.prefsStatus.set('saving');
+		const lang = this.setupForm.get('uiLanguage')?.value === 'en' ? 'en' : 'ar';
+		this.profileApi.saveProviderPreferences({
+			interfaceLanguage: lang,
+			timezone: this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh',
+			notifChannels: this.notifChannels()
+		}).subscribe({
+			next: () => this.prefsStatus.set('saved'),
+			error: () => this.prefsStatus.set('error')
+		});
 	}
 
 	// Profile completion percentage (P-AU-011 progress ring)
@@ -717,6 +739,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.notifChannels.update(list =>
 			list.includes(channel) ? list.filter(c => c !== channel) : [...list, channel]
 		);
+		this.savePreferences();
 	}
 
 	private uploadSingleDoc(file: File, type: string) {

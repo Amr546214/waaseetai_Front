@@ -103,6 +103,11 @@ export class ProfileApiService {
   /**
    * Get provider profile setup data
    */
+  /** PUT /provider/profile/preferences — language / timezone / notification channels (stored in provider_profiles.preferences). */
+  public saveProviderPreferences(prefs: { interfaceLanguage?: 'ar' | 'en'; timezone?: string; notifChannels?: string[] }): Observable<any> {
+    return this.http.put<any>(`${environment.url_api}/provider/profile/preferences`, prefs);
+  }
+
   public getProviderProfileSetup(): Observable<any> {
     return this.http.get<any>(`${environment.url_api}/provider/profile/setup`);
   }
