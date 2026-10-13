@@ -52,7 +52,12 @@ export interface ClientInvoice {
 	project: string;
 	projectTitle: string;
 	stageTitle: string;
+	/** The service value of the stage (before a provider coupon). */
 	subtotal: number;
+	/** Provider-coupon discount on this stage (0 when none) and its code. */
+	discount?: number;
+	couponCode?: string | null;
+	/** What was actually paid for the stage. */
 	total: number;
 	tax: number;
 	taxRate: number;

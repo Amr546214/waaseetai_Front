@@ -31,10 +31,11 @@ describe('finance copy matches what the backend charges', () => {
 		expect(read('pages/dashboard/provider-overview/finance/wallet/deposit-modal/deposit-modal.html')).not.toContain('مجاناً');
 		expect(read('sheards/deposit-modal/deposit-modal.html')).not.toContain('مجاناً');
 	});
-	it('invoice: no 15% VAT line (no tax is recorded); a row appears only if the backend ever sends a tax', () => {
+	it('invoice: no 15% VAT line and no tax row at all (no tax is recorded; C2 removed the tax rows from the client invoice pages)', () => {
 		const html = read('pages/dashboard/clients-overview/finance/invoice-details/invoice-details.html');
 		expect(html).not.toContain('ضريبة القيمة المضافة (15%)');
-		expect(html).toContain('invoice-no-tax');
+		expect(html).not.toContain('invoice-tax-row');
+		expect(html).not.toContain('invoice-no-tax');
 	});
 	it('legal + terms: no 1% client fee at escrow, no provider minimum of 500; the deposit fee and the commission-at-release are stated', () => {
 		const legal = read('pages/website/legal/legal-page.component.ts');

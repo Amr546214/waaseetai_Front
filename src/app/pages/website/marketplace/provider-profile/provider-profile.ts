@@ -28,8 +28,6 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   error = signal<string>('');
   activeTab = signal<ProfileTab>('profile');
 
-  /** P-MK-010 fav button: local "saved" state (no provider-favourite API exists). */
-  favSaved = signal(false);
 
   /** P-MK-011 sort bar. */
   serviceSort = signal<ServiceSort>('popular');
@@ -197,10 +195,6 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     if (days < 365) return months === 1 ? 'منذ شهر' : months === 2 ? 'منذ شهرين' : `منذ ${months} أشهر`;
     const years = Math.floor(days / 365);
     return years === 1 ? 'منذ سنة' : years === 2 ? 'منذ سنتين' : `منذ ${years} سنوات`;
-  }
-
-  toggleFav() {
-    this.favSaved.set(true);
   }
 
   openLightbox(item: any, event?: Event) {

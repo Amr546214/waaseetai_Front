@@ -27,6 +27,7 @@ export class CheckoutReviewComponent {
   discount = this.cartService.discount;
   total = this.cartService.total;
   coupon = this.cartService.coupon;
+  couponNotice = this.cartService.couponNotice;
 
   isProcessing = signal(false);
   errorMessage = signal<string | null>(null);

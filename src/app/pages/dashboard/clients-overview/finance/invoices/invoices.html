@@ -2,9 +2,8 @@
 
 	<!-- Header -->
 	<div class="flex flex-col gap-1">
-		<h1 class="text-2xl font-black text-slate-900 dark:text-white">الفواتير المستلمة</h1>
-		<p class="text-sm font-bold text-slate-500 dark:text-slate-400">فواتير ضريبية معتمدة من مقدمي الخدمة عن مشاريعك
-			المكتملة</p>
+		<h1 class="text-2xl font-black text-slate-900 dark:text-white">فواتير مراحل مشاريعك</h1>
+		<p class="text-sm font-bold text-slate-500 dark:text-slate-400">فواتير مراحل مشاريعك كما سُجّلت عند تسليم كل مرحلة</p>
 	</div>
 
 	<!-- Invoice data-completeness notice. verificationScore is a real backend
@@ -19,18 +18,18 @@
 			</svg>
 		</div>
 		<div class="ws-note-body flex flex-col gap-1.5">
-			<div class="text-sm font-black text-[var(--wsn-fg)]">اكتمال بيانات الفواتير</div>
+			<div class="text-sm font-black text-[var(--wsn-fg)]">اكتمال البيانات</div>
 			<p class="ws-note-txt text-xs font-bold leading-relaxed">
-				<span
-					class="inline-block px-1.5 py-0.5 ml-1 text-[10px] rounded-md font-black bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/15 text-[var(--wsn-fg)]">دقة
+				<span data-testid="invoices-completeness"
+					class="inline-block px-1.5 py-0.5 ml-1 text-[10px] rounded-md font-black bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/15 text-[var(--wsn-fg)]">اكتمال البيانات
 					{{ verificationScore() }}%</span>
-				القرار النهائي لك
+				نسبة الحقول المتوفرة في الفواتير: العقد الموقّع، اسم مقدم الخدمة، المستند التجاري، المبلغ، وتاريخ الإصدار.
 			</p>
 		</div>
 	</div>
 
 	<!-- KPIs -->
-	<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+	<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
 		<!-- KPI 1 -->
 		<div
 			class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-3 shadow-sm hover:border-blue-300 dark:hover:border-blue-500/50 transition-colors">
@@ -78,21 +77,6 @@
 			<div class="flex flex-col gap-0.5">
 				<div class="text-2xl font-black text-slate-900 dark:text-white">{{ dueInvoices() }}</div>
 				<div class="text-xs font-bold text-slate-500">بانتظار الدفع</div>
-			</div>
-		</div>
-		<!-- KPI 4 -->
-		<div
-			class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-3 shadow-sm hover:border-blue-300 dark:hover:border-blue-500/50 transition-colors">
-			<div
-				class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-500 flex items-center justify-center">
-				<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<line x1="12" y1="1" x2="12" y2="23" />
-					<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-				</svg>
-			</div>
-			<div class="flex flex-col gap-0.5">
-				<div class="text-2xl font-black text-slate-900 dark:text-white">{{ totalTax() | number:'1.2-2' }}</div>
-				<div class="text-xs font-bold text-slate-500">ضريبة القيمة المضافة $</div>
 			</div>
 		</div>
 	</div>
@@ -144,7 +128,7 @@
 							<th class="py-4 px-5">الفاتورة</th>
 							<th class="py-4 px-5">مقدم الخدمة</th>
 							<th class="py-4 px-5">التاريخ</th>
-							<th class="py-4 px-5">المبلغ شامل الضريبة</th>
+							<th class="py-4 px-5">المبلغ</th>
 							<th class="py-4 px-5">الحالة</th>
 							<th class="py-4 px-5"></th>
 						</tr>
@@ -186,7 +170,9 @@
 								<div class="flex flex-col gap-0.5">
 									<div class="text-sm font-black text-slate-900 dark:text-white">{{ inv.total | number
 										}} $</div>
-									<div class="text-[10px] font-bold text-slate-500">شامل {{ inv.tax | number:'1.2-2' }} ضريبة</div>
+									@if ((inv.discount || 0) > 0) {
+									<div class="text-[10px] font-bold text-emerald-600" data-testid="invoice-row-discount">بعد خصم كوبون {{ inv.discount | number:'1.0-2' }} $</div>
+									}
 								</div>
 							</td>
 							<td class="py-4 px-5">
@@ -200,9 +186,9 @@
 								}
 							</td>
 							<td class="py-4 px-5 text-left">
-								<button (click)="downloadInvoice(inv, $event)"
+								<button (click)="printInvoice(inv, $event)"
 									class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
-									title="تنزيل الفاتورة PDF">
+									title="طباعة / حفظ كـ PDF" aria-label="طباعة / حفظ كـ PDF" data-testid="invoice-row-print">
 									<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 										stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 										<path d="M12 16V4M7 11l5 5 5-5M5 20h14" />
@@ -228,7 +214,7 @@
 						</svg>
 					</div>
 					<div class="text-base font-black text-slate-900 dark:text-white mb-1">{{ loading() ? 'جارٍ تحميل الفواتير' : error() ? 'تعذر تحميل الفواتير' : 'لا توجد فواتير' }}</div>
-					<div class="text-xs font-bold text-slate-500 max-w-[280px]">{{ error() || (loading() ? 'يتم جلب بيانات مشاريعك المالية...' : 'تظهر هنا الفواتير الضريبية فور إصدارها من مقدمي الخدمة عند اكتمال مراحل مشاريعك.') }}</div>
+					<div class="text-xs font-bold text-slate-500 max-w-[280px]">{{ error() || (loading() ? 'يتم جلب بيانات مشاريعك المالية...' : 'تظهر هنا فواتير المراحل بعد أن يسلّم مقدم الخدمة المرحلة في مشاريعك.') }}</div>
 				</div>
 				}
 			</div>
