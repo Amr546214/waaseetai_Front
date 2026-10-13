@@ -32,7 +32,12 @@ export class Withdraw implements OnInit {
   walletLoading = signal(true);
   walletError = signal('');
 
-  availableBalance = computed(() => this.wallet()?.summary?.availableBalance ?? 0);
+  /** What the server lets a new request ask for (released earnings minus pending and paid withdrawals); an older API without the field falls back to the released total. */
+  availableBalance = computed(() => {
+    const s = this.wallet()?.summary;
+    return Math.max(0, s?.withdrawableBalance ?? s?.availableBalance ?? 0);
+  });
+  pendingWithdrawals = computed(() => this.wallet()?.summary?.pendingWithdrawals ?? 0);
   totalEarnings = computed(() => this.wallet()?.summary?.totalEarnings ?? 0);
   escrowBalance = computed(() => this.wallet()?.summary?.escrowBalance ?? 0);
   // Reads the real currency code from the wallet API (now USD-semantic for
@@ -174,7 +179,7 @@ export class Withdraw implements OnInit {
     const avail = this.availableBalance();
     return avail <= 0
       ? 'الرصيد غير كافٍ: لا يوجد رصيد متاح للسحب حاليًا'
-      : `الرصيد غير كافٍ: لا يمكنك طلب سحب أكبر من الرصيد المتاح (${avail.toLocaleString('en-US')} ${this.currency()})`;
+      : `الرصيد غير كافٍ: لا يمكنك طلب سحب أكبر من الرصيد المتاح للسحب (${avail.toLocaleString('en-US')} ${this.currency()})`;
   }
 
   private clearFieldError(field: string) {

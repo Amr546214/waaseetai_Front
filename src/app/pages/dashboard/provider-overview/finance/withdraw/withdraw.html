@@ -71,7 +71,7 @@
           <span class="wal-main-val">{{ availableBalance() | number:'1.0-2' }}</span>
           <span class="wal-main-cur"> {{ currency() }}</span>
         </div>
-        <div class="wal-main-sub">الحد الأقصى المتاح للسحب في هذه العملية</div>
+        <div class="wal-main-sub">الحد الأقصى المتاح للسحب في هذه العملية@if (pendingWithdrawals() > 0) { <span data-testid="wd-pending-note"> · طلبات سحب قيد المعالجة: {{ pendingWithdrawals() | number:'1.0-2' }} {{ currency() }}</span> }</div>
       </div>
 
       <div class="wal-side">
@@ -175,7 +175,7 @@
     <!-- Summary -->
     <div class="wd-summary">
       <div class="wd-sum-row">
-        <span class="wd-sum-key">الرصيد المتاح</span>
+        <span class="wd-sum-key">الرصيد المتاح للسحب</span>
         <span class="wd-sum-val">{{ availableBalance() | number:'1.0-2' }} {{ currency() }}</span>
       </div>
       <div class="wd-sum-row">
@@ -187,7 +187,7 @@
         <span class="wd-sum-key">الرصيد بعد الطلب</span>
         <span class="wd-sum-val wd-sum-remain">{{ remainingBalance() | number:'1.0-2' }} {{ currency() }}</span>
       </div>
-      <div class="wd-sum-note">ملاحظة: لا يُخصم الرصيد فوراً. يتم الخصم بعد موافقة الإدارة على الطلب.</div>
+      <div class="wd-sum-note">ملاحظة: المبلغ المطلوب يُحجز من رصيدك المتاح للسحب فور إرسال الطلب، ويُحرَّر إن رُفض الطلب.</div>
     </div>
 
     <div class="wd-form-actions">

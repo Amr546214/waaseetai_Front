@@ -63,9 +63,12 @@
         }
         <div class="wal-main-lbl">الرصيد المتاح</div>
         <div>
-          <span class="wal-main-val">{{ wallet.summary.availableBalance | number:'1.0-2' }}</span>
+          <span class="wal-main-val">{{ (wallet.summary.withdrawableBalance ?? wallet.summary.availableBalance) | number:'1.0-2' }}</span>
           <span class="wal-main-cur"> $</span>
         </div>
+        @if ((wallet.summary.pendingWithdrawals ?? 0) > 0) {
+        <div class="wal-main-sub" data-testid="wallet-pending-note">طلبات سحب قيد المعالجة: {{ wallet.summary.pendingWithdrawals | number:'1.0-2' }} $</div>
+        }
         <div class="wal-main-act">
           <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-pri">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
