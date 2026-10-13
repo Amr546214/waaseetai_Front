@@ -13,8 +13,9 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 // was ignored entirely and the page always opened on the unfiltered "all" tab.
 
 const projects = [
-	{ id: '1', title: 'p1', status: 'wait', statusLabel: 'بانتظار', progress: 50, providerName: 'a', providerInitial: 'A', providerAvatarColor: '#000', currentStage: 's', escrowAmount: '100', escrowLabel: 'e', meta: 'm' },
-	{ id: '2', title: 'p2', status: 'run', statusLabel: 'قيد التنفيذ', progress: 30, providerName: 'b', providerInitial: 'B', providerAvatarColor: '#000', currentStage: 's', escrowAmount: '100', escrowLabel: 'e', meta: 'm' },
+	{ id: '1', title: 'p1', status: 'wait', statusLabel: 'بانتظار', progress: 50, providerName: 'a', providerInitial: 'A', providerAvatarColor: '#000', currentStage: 's', escrowAmount: '100', escrowLabel: 'e', meta: 'm', heldAmount: 100, escrowFunded: true, canUploadDelivery: false, uploadBlockedReason: 'التسليم الحالي بانتظار مراجعة العميل' },
+	{ id: '2', title: 'p2', status: 'run', statusLabel: 'قيد التنفيذ', progress: 30, providerName: 'b', providerInitial: 'B', providerAvatarColor: '#000', currentStage: 's', escrowAmount: '100', escrowLabel: 'e', meta: 'm', heldAmount: 0, escrowFunded: false, canUploadDelivery: true },
+	{ id: '3', title: 'p3', status: 'pending', statusLabel: 'بانتظار توقيعك على العقد', progress: 0, providerName: 'c', providerInitial: 'C', providerAvatarColor: '#000', currentStage: 's', escrowAmount: '500 $', escrowLabel: 'قيمة العقد (غير ممولة بعد)', meta: 'm', heldAmount: 0, escrowFunded: false, canUploadDelivery: false, uploadBlockedReason: 'العقد بانتظار توقيعك', disputeStatus: 'OPEN' },
 ];
 
 function setup(queryParams: Record<string, string> = {}) {
@@ -53,5 +54,39 @@ describe('Active (provider active projects) — awaiting-delivery deep link', ()
 		const { fixture, component } = setup({ filter: 'not-a-real-status' });
 		fixture.detectChanges();
 		expect(component.activeFilter()).toBe('all');
+	});
+});
+
+describe('Active (provider active projects) — real states, no invented labels', () => {
+	it('sums only funded escrows, counts action items from canUploadDelivery, and has no invented health label', () => {
+		const { fixture, component } = setup();
+		fixture.detectChanges();
+		const c = component.counts() as any;
+		expect(c.totalEscrowFormatted).toBe('100');
+		expect(c.needsAction).toBe(1);
+		expect(c.pending).toBe(1);
+		expect(c.healthStatus).toBeUndefined();
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(text).not.toContain('ممتاز');
+		expect(text).toContain('تحتاج إجراءً منك');
+		expect(text).toContain('بانتظار رد العميل');
+		expect(text).not.toContain('بانتظار التسليم');
+	});
+
+	it('shows the server reason, the dispute badge, and locks only a funded escrow', () => {
+		const { fixture } = setup();
+		fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		expect(el.querySelectorAll('[data-testid="upload-blocked-reason"]').length).toBe(2);
+		expect(el.textContent).toContain('العقد بانتظار توقيعك');
+		expect(el.querySelectorAll('[data-testid="dispute-badge"]').length).toBe(1);
+		expect(el.querySelectorAll('.pl-esc svg').length).toBe(1);
+	});
+
+	it('the "pending" tab lists contracts that have not started', () => {
+		const { fixture, component } = setup({ filter: 'pending' });
+		fixture.detectChanges();
+		expect(component.activeFilter()).toBe('pending');
+		expect(component.filteredProjects().map(p => p.id)).toEqual(['3']);
 	});
 });
