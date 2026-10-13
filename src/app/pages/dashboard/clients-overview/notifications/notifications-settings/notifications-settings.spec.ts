@@ -59,7 +59,7 @@ describe('client notification preferences page', () => {
 		expect(box.disabled).toBe(true);
 		expect(box.checked).toBe(false);
 		const note = s.el.querySelector('[data-testid="prefs-note"]')?.textContent || '';
-		expect(note).toContain('لا توقف وصول الإشعارات إلى مركز الإشعارات');
+		expect(note).toContain('أنواع الإشعارات غير قابلة للتحكم');
 		expect(s.el.textContent).not.toContain('تجميع تلقائي');
 	});
 });
