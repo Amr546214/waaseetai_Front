@@ -133,7 +133,7 @@
 
 						<div class="dp-foot">
 							<span class="dp-meta">{{ am.updatedAt | date:'d MMMM' }}</span>
-							<a href="javascript:void(0)" class="dp-cta" [class.dp-cta-gh]="am.status !== 'PENDING_OTHER_PARTY'" (click)="openDiscussion(am)">
+							<a role="button" tabindex="0" class="dp-cta" [class.dp-cta-gh]="am.status !== 'PENDING_OTHER_PARTY'" (click)="openDiscussion(am)" (keydown.enter)="openDiscussion(am)">
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 									<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 								</svg>

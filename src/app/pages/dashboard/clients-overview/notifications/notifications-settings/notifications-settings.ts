@@ -6,7 +6,7 @@ const DEFAULT_PREFERENCES = {
 	newOffer: true, requestStatus: true, newMessage: true, reviewDeadline: true,
 	walletActivity: true, cashback: true, financialSecurity: true,
 	providerRecommendations: true, promotions: false, newsletter: false,
-	inApp: true, email: true, sms: true, push: false,
+	channel_in_app: true, channel_email: false,
 };
 
 @Component({
