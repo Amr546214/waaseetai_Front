@@ -16,9 +16,9 @@
 
   <div class="sup-kpis">
     <div class="sup-kpi"><div class="sup-kpi-num txt-blue">{{ countFor('OPEN') }}</div><div class="sup-kpi-lbl">مفتوحة الآن</div></div>
-    <div class="sup-kpi"><div class="sup-kpi-num txt-blue">{{ countFor('IN_PROGRESS') }}</div><div class="sup-kpi-lbl">قيد المراجعة</div></div>
-    <div class="sup-kpi"><div class="sup-kpi-num txt-amber">{{ countFor('AWAITING_CUSTOMER') }}</div><div class="sup-kpi-lbl">بانتظار رد المستخدم</div></div>
-    <div class="sup-kpi"><div class="sup-kpi-num txt-green">{{ countFor('RESOLVED') }}</div><div class="sup-kpi-lbl">محلولة</div></div>
+    <div class="sup-kpi" title="لا يوجد مصدر بيانات لهذا المؤشر بعد"><div class="sup-kpi-num txt-amber">—</div><div class="sup-kpi-lbl">متوسط وقت الرد (ساعة)</div></div>
+    <div class="sup-kpi"><div class="sup-kpi-num txt-green">{{ countFor('RESOLVED') }}</div><div class="sup-kpi-lbl">محلولة (الإجمالي)</div></div>
+    <div class="sup-kpi" title="لا يوجد مصدر بيانات لهذا المؤشر بعد"><div class="sup-kpi-num txt-blue">—</div><div class="sup-kpi-lbl">حُلّت من أول رد</div></div>
   </div>
 
   <div class="sup-filters">
@@ -28,6 +28,7 @@
           {{ f.label }}<span class="sup-tab-count">{{ countFor(f.key) }}</span>
         </button>
       }
+      <button type="button" class="sup-tab" disabled title="يتطلب تفعيل الحفظ في الخادم">مصعَّد<span class="sup-tab-count">—</span></button>
     </div>
     <div class="sup-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -60,6 +61,7 @@
             }
           </div>
           <div class="sup-tc-user">
+            <div class="sup-tc-av">{{ userName(t).charAt(0) }}</div>
             <span>{{ userName(t) }} · {{ t.user?.accountType }}</span>
           </div>
           <div class="sup-tc-preview">{{ t.description }}</div>

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AdminTicketDetailData, SupportTicketMessage, TicketApiService, TicketStatus } from '../../../../../core/services/ticket-api.service';
+import { AdminTicketDetailData, AdminTicketListItem, SupportTicketMessage, TicketApiService, TicketStatus } from '../../../../../core/services/ticket-api.service';
 import { TICKET_STATUS_LABELS, ticketStatusClass } from '../sa-support';
 
 @Component({
@@ -23,6 +23,8 @@ export class SaSupportDetail implements OnInit {
   notFound = signal(false);
   busy = signal(false);
   data = signal<AdminTicketDetailData | null>(null);
+  related = signal<AdminTicketListItem[]>([]);
+  readonly noBackend = 'يتطلب تفعيل الحفظ في الخادم';
 
   readonly statusLabels = TICKET_STATUS_LABELS;
   readonly statusClass = ticketStatusClass;
@@ -44,9 +46,18 @@ export class SaSupportDetail implements OnInit {
     this.api.adminGetTicket(id).subscribe({
       next: (res) => {
         this.loading.set(false);
-        if (res.success && res.data) this.data.set(res.data); else this.notFound.set(true);
+        if (res.success && res.data) { this.data.set(res.data); this.loadRelated(res.data.user?.id); } else this.notFound.set(true);
       },
       error: () => { this.loading.set(false); this.notFound.set(true); },
+    });
+  }
+
+  // Related tickets = the same user's other tickets, from the existing userId filter.
+  private loadRelated(userId?: string) {
+    if (!userId) { this.related.set([]); return; }
+    this.api.adminListTickets({ userId }).subscribe({
+      next: (res) => this.related.set((res.data?.items ?? []).filter(t => t.id !== this.ticketId())),
+      error: () => this.related.set([]),
     });
   }
 

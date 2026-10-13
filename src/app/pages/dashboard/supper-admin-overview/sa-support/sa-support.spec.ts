@@ -30,6 +30,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 		const detail = { success: true, data: { ticket, user, messages: [{ id: 'm1', ticketId: 't1', senderId: 'u1', body: 'original', createdAt: '2026-10-01T00:00:00Z', sender: { id: 'u1', firstName: 'م', lastName: 'ق', accountType: 'PROVIDER_INDIVIDUAL' } }, { id: 'm2', ticketId: 't1', senderId: 'a', body: 'رد الدعم', createdAt: '2026-10-02T00:00:00Z', sender: { id: 'a', firstName: 'A', lastName: 'B', accountType: 'ADMIN' } }] } };
 		const api = {
 			adminGetTicket: vi.fn(() => of(detail)),
+			adminListTickets: vi.fn(() => of({ success: true, data: { items: [], counts: {}, pagination: {} } })),
 			adminReply: vi.fn(() => of({ success: true, data: {} })),
 			adminSetStatus: vi.fn(() => of({ success: true, data: {} })),
 		};

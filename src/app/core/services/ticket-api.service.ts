@@ -113,10 +113,11 @@ export class TicketApiService {
 	}
 
 	// Staff/admin endpoints (ADMIN / SUPER_ADMIN only).
-	adminListTickets(opts: { status?: TicketStatus; q?: string; page?: number } = {}): Observable<ApiResponse<AdminTicketListData>> {
+	adminListTickets(opts: { status?: TicketStatus; q?: string; page?: number; userId?: string } = {}): Observable<ApiResponse<AdminTicketListData>> {
 		let params = new HttpParams().set('limit', 50);
 		if (opts.status) params = params.set('status', opts.status);
 		if (opts.q) params = params.set('q', opts.q);
+		if (opts.userId) params = params.set('userId', opts.userId);
 		if (opts.page) params = params.set('page', opts.page);
 		return this.http.get<ApiResponse<AdminTicketListData>>(`${environment.url_api}/admin/tickets`, { params });
 	}
