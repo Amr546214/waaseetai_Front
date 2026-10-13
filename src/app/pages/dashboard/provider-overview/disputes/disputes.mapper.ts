@@ -1,8 +1,9 @@
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Dispute as ApiDispute } from '../../../../core/models/dispute.model';
 import { Dispute, DisputeDetail, DisputeEvidenceItem, DisputeHistoryEntry, DisputeParty, DisputeStatusStep, DisputeTimelineStep } from './disputes.model';
 
 const dateLabel = (iso?: string | null): string =>
-	iso ? new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+	iso ? new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() }) : '—';
 
 export function buildTimeline(status: ApiDispute['status']): DisputeTimelineStep[] {
 	return [

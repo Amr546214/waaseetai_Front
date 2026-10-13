@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { signal } from '@angular/core';
 import {
   MarketingApprovalStatus,
@@ -84,7 +85,10 @@ export function formatDay(iso: string | null | undefined): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
-  return `${d.getDate()} ${AR_MONTHS[d.getMonth()]}`;
+  const parts = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'numeric', timeZone: providerTimeZone() }).formatToParts(d);
+  const day = parts.find(p => p.type === 'day')?.value ?? String(d.getDate());
+  const month = Number(parts.find(p => p.type === 'month')?.value ?? d.getMonth() + 1) - 1;
+  return `${day} ${AR_MONTHS[month]}`;
 }
 
 /** "2026-09" → "سبتمبر". */
@@ -155,8 +159,8 @@ export function isoToDateInput(iso: string | null | undefined): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  // yyyy-mm-dd of that instant in the provider's zone (en-CA prints exactly that shape)
+  return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: providerTimeZone() }).format(d);
 }
 
 export function todayInput(): string {

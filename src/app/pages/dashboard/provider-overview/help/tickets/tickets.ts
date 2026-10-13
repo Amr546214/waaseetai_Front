@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ChangeDetectionStrategy, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -26,7 +27,7 @@ function formatRelative(iso: string): string {
 	const days = Math.floor(hours / 24);
 	if (days === 1) return 'أمس';
 	if (days < 7) return `قبل ${days} أيام`;
-	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() });
 }
 
 function mapTicket(t: SupportTicket): Ticket {

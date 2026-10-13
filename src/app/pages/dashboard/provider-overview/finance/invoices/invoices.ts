@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -51,7 +52,7 @@ export class InvoicesComponent implements OnInit {
 	}
 
 	formatDate(value: string): string {
-		return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value));
+		return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: providerTimeZone() }).format(new Date(value));
 	}
 
 	/** PDF = the browser's print dialog ("Save as PDF") until a server-generated document exists. */

@@ -300,7 +300,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.storedAvatarUrl = typeof d.avatarUrl === 'string' ? d.avatarUrl : '';
 					if (this.storedAvatarUrl) { this.avatarUrl.set(this.storedAvatarUrl); this.avatarPreview.set(this.storedAvatarUrl); }
 					const prefs = d.preferences && typeof d.preferences === 'object' ? d.preferences : {};
-					if (prefs.interfaceLanguage === 'ar' || prefs.interfaceLanguage === 'en') this.setupForm.get('uiLanguage')?.setValue(prefs.interfaceLanguage);
+					if (prefs.preferredCommunicationLanguage === 'ar' || prefs.preferredCommunicationLanguage === 'en') this.setupForm.get('uiLanguage')?.setValue(prefs.preferredCommunicationLanguage);
 					if (typeof prefs.timezone === 'string' && prefs.timezone) this.setupForm.get('profData.timezone')?.setValue(prefs.timezone);
 					if (Array.isArray(prefs.notifChannels)) this.notifChannels.set(prefs.notifChannels.filter((c: unknown) => c === 'push' || c === 'email'));
 					this.setupForm.patchValue({
@@ -712,11 +712,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.prefsStatus.set('saving');
 		const lang = this.setupForm.get('uiLanguage')?.value === 'en' ? 'en' : 'ar';
 		this.profileApi.saveProviderPreferences({
-			interfaceLanguage: lang,
+			preferredCommunicationLanguage: lang,
 			timezone: this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh',
 			notifChannels: this.notifChannels()
 		}).subscribe({
-			next: () => { this.prefsStatus.set('saved'); this.prefsStore.timezone.set(this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh'); },
+			next: () => { this.prefsStatus.set('saved'); this.prefsStore.setTimezone(this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh'); },
 			error: () => this.prefsStatus.set('error')
 		});
 	}

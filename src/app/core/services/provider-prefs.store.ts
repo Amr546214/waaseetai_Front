@@ -13,11 +13,21 @@ export function timezoneOffset(zone: string, at: Date = new Date()): string | un
 	} catch { return undefined; }
 }
 
+let activeZone: string | undefined;
+/** The provider's saved IANA zone for hand-formatted dates (Intl `timeZone`); undefined = the browser's own zone. */
+export const providerTimeZone = (): string | undefined => activeZone;
+
 /** The provider's saved display preferences; the timezone drives every date the provider area shows through DatePipe (see app.routes.ts). */
 @Injectable({ providedIn: 'root' })
 export class ProviderPrefsStore {
 	private api = inject(ProfileApiService);
 	timezone = signal<string | null>(null);
+
+	/** Sets the zone for both DatePipe (via the signal) and hand-formatted dates (via providerTimeZone()). */
+	setTimezone(zone: string | null) {
+		activeZone = zone || undefined;
+		this.timezone.set(zone);
+	}
 	private loaded = false;
 
 	/** Offset for DatePipe, or undefined (= the browser's own zone) until a zone was saved. */
@@ -30,7 +40,7 @@ export class ProviderPrefsStore {
 		if (this.loaded) return;
 		this.loaded = true;
 		this.api.getProviderProfileSetup().subscribe({
-			next: (res: any) => { const tz = res?.data?.preferences?.timezone; if (typeof tz === 'string' && tz) this.timezone.set(tz); },
+			next: (res: any) => { const tz = res?.data?.preferences?.timezone; if (typeof tz === 'string' && tz) this.setTimezone(tz); },
 			error: () => { this.loaded = false; }
 		});
 	}

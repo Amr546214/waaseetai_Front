@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ChangeDetectionStrategy, OnInit, signal, computed, inject } from '@angular/core';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -504,7 +505,7 @@ export class Account implements OnInit {
   sessionActivityLabel(s: ProviderSession): string {
     if (s.isCurrent) return 'الجلسة الحالية · نشطة الآن';
     const date = new Date(s.lastActiveAt);
-    return 'آخر نشاط: ' + date.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return 'آخر نشاط: ' + date.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
   }
 
   // --- Data export: no backend endpoint exists anywhere (confirmed by a

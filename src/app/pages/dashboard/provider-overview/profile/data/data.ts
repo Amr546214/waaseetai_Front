@@ -1,3 +1,4 @@
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, signal, OnInit, OnDestroy, inject, PLATFORM_ID, computed, DestroyRef, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -995,7 +996,7 @@ export class Data implements OnInit, OnDestroy {
     if (diffMinutes < 1) return 'نشطة الآن';
     if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
     if (diffMinutes < 1440) return `منذ ${Math.floor(diffMinutes / 60)} ساعة`;
-    return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+    return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeStyle: 'short', timeZone: providerTimeZone() }).format(date);
   }
 
   openRequestsModal() {

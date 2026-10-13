@@ -219,7 +219,7 @@
           <div class="pref-status" data-testid="prefs-status" aria-live="polite" style="font-size:12px;margin-bottom:10px;opacity:.8">@switch (prefsStatus()) { @case ('saving') { جارٍ حفظ التفضيلات… } @case ('saved') { تم حفظ التفضيلات } @case ('error') { تعذّر حفظ التفضيلات، حاول مرة أخرى } @default { تُحفظ التفضيلات تلقائيًا عند تغييرها } }</div>
           <div class="pref-section">
             <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-globe"></use></svg>لغة التواصل المفضلة</div>
-            <div style="font-size:11.5px;opacity:.7;margin-bottom:8px" data-testid="pref-lang-hint">تفضيل محفوظ لحسابك. واجهة المنصة بالعربية حاليًا ولا تتغير بهذا الاختيار</div>
+            <div style="font-size:11.5px;opacity:.7;margin-bottom:8px" data-testid="pref-lang-hint">لغة رسائل البريد التي تصلك من المنصة (الإشعارات). واجهة الموقع تبقى بالعربية ولا تتغير بهذا الاختيار</div>
             <div class="radio-group" role="radiogroup" aria-label="اختيار اللغة">
               <button type="button" class="radio-btn" [class.selected]="setupForm.get('uiLanguage')?.value === 'ar'" (click)="setUiLanguage('ar')" role="radio" [attr.aria-checked]="setupForm.get('uiLanguage')?.value === 'ar'">العربية</button>
               <button type="button" class="radio-btn" [class.selected]="setupForm.get('uiLanguage')?.value === 'en'" (click)="setUiLanguage('en')" role="radio" [attr.aria-checked]="setupForm.get('uiLanguage')?.value === 'en'">English</button>
