@@ -10,15 +10,15 @@
     <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">وسيط: تذاكر الدعم</div>
-      <p class="ws-note-txt">تُعرض جميع تذاكر الدعم لمعالجتها يدوياً حسب التصنيف والأولوية المحددة</p>
+      <p class="ws-note-txt">تُعرض جميع تذاكر الدعم لمعالجتها يدوياً. ردّك أو تغيير الحالة يصل لصاحب التذكرة كإشعار.</p>
     </div>
   </div>
 
   <div class="sup-kpis">
-    <div class="sup-kpi"><div class="sup-kpi-num txt-blue">{{ countFor('open') }}</div><div class="sup-kpi-lbl">مفتوحة الآن</div></div>
-    <div class="sup-kpi"><div class="sup-kpi-num txt-amber">1.8</div><div class="sup-kpi-lbl">متوسط وقت الرد (ساعة)</div></div>
-    <div class="sup-kpi"><div class="sup-kpi-num txt-green">87</div><div class="sup-kpi-lbl">محلولة هذا الأسبوع</div></div>
-    <div class="sup-kpi"><div class="sup-kpi-num txt-blue">63%</div><div class="sup-kpi-lbl">حُلّت من أول رد</div></div>
+    <div class="sup-kpi"><div class="sup-kpi-num txt-blue">{{ countFor('OPEN') }}</div><div class="sup-kpi-lbl">مفتوحة الآن</div></div>
+    <div class="sup-kpi"><div class="sup-kpi-num txt-blue">{{ countFor('IN_PROGRESS') }}</div><div class="sup-kpi-lbl">قيد المراجعة</div></div>
+    <div class="sup-kpi"><div class="sup-kpi-num txt-amber">{{ countFor('AWAITING_CUSTOMER') }}</div><div class="sup-kpi-lbl">بانتظار رد المستخدم</div></div>
+    <div class="sup-kpi"><div class="sup-kpi-num txt-green">{{ countFor('RESOLVED') }}</div><div class="sup-kpi-lbl">محلولة</div></div>
   </div>
 
   <div class="sup-filters">
@@ -31,42 +31,38 @@
     </div>
     <div class="sup-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" placeholder="ابحث بالرقم أو اسم المستخدم..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
+      <input type="search" placeholder="ابحث برقم التذكرة أو العنوان ثم Enter..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" (keyup.enter)="load()" />
     </div>
   </div>
 
   <div class="sup-tlist sup-tlist-full">
-    @if (filteredTickets().length === 0) {
+    @if (loading()) {
+      <div class="sup-empty">جارٍ التحميل...</div>
+    } @else if (error()) {
+      <div class="sup-empty">تعذّر تحميل التذاكر <button type="button" class="sup-tab" (click)="load()">إعادة المحاولة</button></div>
+    } @else if (tickets().length === 0) {
       <div class="sup-empty">لا توجد تذاكر مطابقة</div>
     } @else {
-      @for (t of filteredTickets(); track t.id) {
+      @for (t of tickets(); track t.id) {
         <div class="sup-tcard" [routerLink]="[t.id]">
           <div class="sup-tc-hdr">
             <div>
-              <div class="sup-tc-id">{{ t.id }}</div>
+              <div class="sup-tc-id">{{ t.ticketNumber }}</div>
               <div class="sup-tc-subject">{{ t.subject }}</div>
             </div>
-            <span class="sup-tc-time">{{ t.time }}</span>
+            <span class="sup-tc-time">{{ timeAgo(t.createdAt) }}</span>
           </div>
           <div class="sup-tc-meta">
-            <span class="sup-bdg" [class]="'sup-st-' + t.status">
-              @switch (t.status) {
-                @case ('open') { مفتوح }
-                @case ('pending') { بانتظار رد }
-                @case ('escalated') { مصعَّد }
-                @case ('resolved') { محلول }
-              }
-            </span>
+            <span class="sup-bdg" [class]="'sup-bdg ' + statusClass(t.status)">{{ statusLabels[t.status] }}</span>
             <span class="sup-bdg sup-bdg-cat">{{ t.category }}</span>
-            @if (t.priority === 'high') {
-              <span class="sup-bdg sup-bdg-high">عالية</span>
+            @if (t.priority !== 'عادية') {
+              <span class="sup-bdg sup-bdg-high">{{ t.priority }}</span>
             }
           </div>
           <div class="sup-tc-user">
-            <div class="sup-tc-av" [style.background]="t.userBg">{{ t.userAv }}</div>
-            <span>{{ t.user }} · {{ t.userType }}</span>
+            <span>{{ userName(t) }} · {{ t.user?.accountType }}</span>
           </div>
-          <div class="sup-tc-preview">{{ t.messages[t.messages.length - 1].text }}</div>
+          <div class="sup-tc-preview">{{ t.description }}</div>
         </div>
       }
     }

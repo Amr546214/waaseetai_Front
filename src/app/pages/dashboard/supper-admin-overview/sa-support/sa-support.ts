@@ -1,9 +1,24 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { SUPPORT_TICKETS, Ticket, TicketStatus } from './sa-support.data';
+import { AdminTicketListItem, TicketApiService, TicketStatus } from '../../../../core/services/ticket-api.service';
 
 type FilterKey = 'all' | TicketStatus;
+
+export const TICKET_STATUS_LABELS: Record<TicketStatus, string> = {
+  OPEN: 'مفتوحة',
+  IN_PROGRESS: 'قيد المراجعة',
+  AWAITING_CUSTOMER: 'بانتظار رد المستخدم',
+  RESOLVED: 'محلولة',
+  CLOSED: 'مغلقة',
+};
+
+// Reuses the existing badge palette: blue = needs staff, amber = waiting on the user, green = done.
+export function ticketStatusClass(s: TicketStatus): string {
+  if (s === 'AWAITING_CUSTOMER') return 'sup-st-pending';
+  if (s === 'RESOLVED' || s === 'CLOSED') return 'sup-st-resolved';
+  return 'sup-st-open';
+}
 
 @Component({
   selector: 'app-sa-support',
@@ -12,46 +27,64 @@ type FilterKey = 'all' | TicketStatus;
   templateUrl: './sa-support.html',
   styleUrl: './sa-support.css',
 })
-export class SaSupport {
+export class SaSupport implements OnInit {
+  private api = inject(TicketApiService);
+
   activeFilter = signal<FilterKey>('all');
   searchTerm = signal('');
+  loading = signal(true);
+  error = signal(false);
+  tickets = signal<AdminTicketListItem[]>([]);
+  statusCounts = signal<Partial<Record<TicketStatus, number>>>({});
+
+  readonly statusLabels = TICKET_STATUS_LABELS;
+  readonly statusClass = ticketStatusClass;
 
   readonly filters: { key: FilterKey; label: string }[] = [
     { key: 'all', label: 'الكل' },
-    { key: 'open', label: 'مفتوح' },
-    { key: 'pending', label: 'بانتظار رد المستخدم' },
-    { key: 'escalated', label: 'مصعَّد' },
+    { key: 'OPEN', label: 'مفتوحة' },
+    { key: 'IN_PROGRESS', label: 'قيد المراجعة' },
+    { key: 'AWAITING_CUSTOMER', label: 'بانتظار رد المستخدم' },
+    { key: 'RESOLVED', label: 'محلولة' },
+    { key: 'CLOSED', label: 'مغلقة' },
   ];
 
-  // MOCK — see sa-support.data.ts
-  tickets = signal<Ticket[]>(SUPPORT_TICKETS);
+  total = computed(() => Object.values(this.statusCounts()).reduce((a, b) => a + (b ?? 0), 0));
 
-  filteredTickets = computed(() => {
+  ngOnInit() { this.load(); }
+
+  load() {
+    this.loading.set(true);
+    this.error.set(false);
     const f = this.activeFilter();
-    const q = this.searchTerm().trim().toLowerCase();
-    return this.tickets().filter((t) => {
-      const matchesFilter = f === 'all' || t.status === f;
-      const matchesSearch = !q || t.id.toLowerCase().includes(q) || t.user.toLowerCase().includes(q);
-      return matchesFilter && matchesSearch;
+    this.api.adminListTickets({ status: f === 'all' ? undefined : f, q: this.searchTerm().trim() || undefined }).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        if (res.success && res.data) {
+          this.tickets.set(res.data.items);
+          this.statusCounts.set(res.data.counts);
+        } else {
+          this.error.set(true);
+        }
+      },
+      error: () => { this.loading.set(false); this.error.set(true); },
     });
-  });
-
-  counts = computed(() => {
-    const list = this.tickets();
-    return {
-      all: list.length,
-      open: list.filter((t) => t.status === 'open').length,
-      pending: list.filter((t) => t.status === 'pending').length,
-      escalated: list.filter((t) => t.status === 'escalated').length,
-      resolved: list.filter((t) => t.status === 'resolved').length,
-    };
-  });
+  }
 
   countFor(key: FilterKey): number {
-    return this.counts()[key];
+    return key === 'all' ? this.total() : (this.statusCounts()[key] ?? 0);
   }
 
   setFilter(key: FilterKey) {
     this.activeFilter.set(key);
+    this.load();
+  }
+
+  userName(t: AdminTicketListItem): string {
+    return t.user ? `${t.user.firstName} ${t.user.lastName}`.trim() : '—';
+  }
+
+  timeAgo(iso: string): string {
+    return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 }

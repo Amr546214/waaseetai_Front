@@ -28,7 +28,7 @@ export interface SupportTicketMessage {
 	id: string;
 	ticketId: string;
 	senderId: string;
-	sender?: { id: string; firstName: string; lastName: string };
+	sender?: { id: string; firstName: string; lastName: string; accountType?: string };
 	body: string;
 	createdAt: string;
 }
@@ -52,6 +52,28 @@ export interface TicketListData {
 export interface TicketDetailData {
 	ticket: SupportTicket;
 	messages: SupportTicketMessage[];
+}
+
+export interface AdminTicketUser {
+	id: string;
+	firstName: string;
+	lastName: string;
+	email?: string;
+	accountType?: string;
+}
+
+export interface AdminTicketListItem extends SupportTicket {
+	user?: AdminTicketUser;
+}
+
+export interface AdminTicketListData {
+	items: AdminTicketListItem[];
+	counts: Partial<Record<TicketStatus, number>>;
+	pagination: { page: number; limit: number; total: number; pages: number };
+}
+
+export interface AdminTicketDetailData extends TicketDetailData {
+	user: AdminTicketUser | null;
 }
 
 export interface ApiResponse<T> {
@@ -88,5 +110,26 @@ export class TicketApiService {
 
 	closeTicket(role: 'client' | 'provider', id: string): Observable<ApiResponse<SupportTicket>> {
 		return this.http.post<ApiResponse<SupportTicket>>(`${this.baseFor(role)}/${id}/close`, {});
+	}
+
+	// Staff/admin endpoints (ADMIN / SUPER_ADMIN only).
+	adminListTickets(opts: { status?: TicketStatus; q?: string; page?: number } = {}): Observable<ApiResponse<AdminTicketListData>> {
+		let params = new HttpParams().set('limit', 50);
+		if (opts.status) params = params.set('status', opts.status);
+		if (opts.q) params = params.set('q', opts.q);
+		if (opts.page) params = params.set('page', opts.page);
+		return this.http.get<ApiResponse<AdminTicketListData>>(`${environment.url_api}/admin/tickets`, { params });
+	}
+
+	adminGetTicket(id: string): Observable<ApiResponse<AdminTicketDetailData>> {
+		return this.http.get<ApiResponse<AdminTicketDetailData>>(`${environment.url_api}/admin/tickets/${id}`);
+	}
+
+	adminReply(id: string, body: string, status?: TicketStatus): Observable<ApiResponse<{ message: SupportTicketMessage; status: TicketStatus }>> {
+		return this.http.post<ApiResponse<{ message: SupportTicketMessage; status: TicketStatus }>>(`${environment.url_api}/admin/tickets/${id}/reply`, status ? { body, status } : { body });
+	}
+
+	adminSetStatus(id: string, status: TicketStatus): Observable<ApiResponse<SupportTicket>> {
+		return this.http.patch<ApiResponse<SupportTicket>>(`${environment.url_api}/admin/tickets/${id}/status`, { status });
 	}
 }

@@ -96,7 +96,7 @@ export class TicketDetailComponent implements OnInit {
 		const currentUserId = this.authStore.currentUser()?.id;
 		return raw.map(m => ({
 			from: m.senderId === currentUserId ? 'me' : 'agent',
-			name: m.senderId === currentUserId ? 'أنت' : (m.sender ? `${m.sender.firstName} ${m.sender.lastName}` : 'فريق الدعم'),
+			name: m.senderId === currentUserId ? 'أنت' : (m.sender && m.sender.accountType !== 'ADMIN' && m.sender.accountType !== 'SUPER_ADMIN' ? `${m.sender.firstName} ${m.sender.lastName}` : 'فريق الدعم'),
 			time: formatTime(m.createdAt),
 			text: m.body,
 		}));
