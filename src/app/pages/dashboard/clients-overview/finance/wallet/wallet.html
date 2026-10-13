@@ -118,7 +118,7 @@
                 @if (isCompany()) {<td>{{ transaction.employeeName || '—' }}</td>}
                 <td>{{ transaction.date }}</td>
                 <td><span [class.tx-amt-in]="transaction.direction === 'in'" [class.tx-amt-out]="transaction.direction === 'out'">{{ transaction.amount }}</span></td>
-                <td><span class="tx-st" [class.tx-done]="transaction.statusType === 'done'" [class.tx-hold]="transaction.statusType === 'hold'" [class.tx-pend]="transaction.statusType === 'pending'">{{ transaction.status }}</span></td>
+                <td><span class="tx-st" [class.tx-done]="transaction.statusType === 'done'" [class.tx-hold]="transaction.statusType === 'hold'" [class.tx-pend]="transaction.statusType === 'pending'" [class.tx-fail]="transaction.statusType === 'failed'">{{ transaction.status }}</span></td>
               </tr>
             }
 			@if (transactions().length === 0) {
