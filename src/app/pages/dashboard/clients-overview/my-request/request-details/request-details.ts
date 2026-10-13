@@ -575,7 +575,7 @@ export class RequestDetails implements OnInit {
 	/** The state message of a request whose offer selection is closed - from the server's stage, so a request waiting for funding never reads as running. */
 	requestStateMessage(): string {
 		switch (this.request().stage) {
-			case 'AWAITING_CLIENT_SIGNATURE': return 'تم اختيار العرض، بانتظار توقيعك للعقد';
+			case 'AWAITING_CLIENT_SIGNATURE': return 'تم اختيار العرض، بانتظار توقيعك وتمويل الضمان';
 			case 'AWAITING_FUNDING': return 'تم اختيار العرض، بانتظار تمويل الضمان';
 			case 'AWAITING_PROVIDER_SIGNATURE': return 'وقّعت العقد، بانتظار توقيع مقدم الخدمة';
 			case 'ACTIVE': return 'تم توقيع العقد من الطرفين وتمويل الضمان، المشروع قيد التنفيذ';

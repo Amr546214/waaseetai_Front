@@ -193,7 +193,7 @@ export class MyRequest implements OnInit {
 			case 'OPEN': return 'مفتوح لاستقبال العروض';
 			case 'OFFERS_RECEIVED': return 'وصلتك عروض';
 			case 'UNDER_NEGOTIATION': return 'قيد التفاوض';
-			case 'AWAITING_CLIENT_SIGNATURE': return 'تم اختيار العرض، بانتظار توقيعك';
+			case 'AWAITING_CLIENT_SIGNATURE': return 'تم اختيار العرض، بانتظار توقيعك وتمويل الضمان';
 			case 'AWAITING_FUNDING': return 'بانتظار تمويل الضمان';
 			case 'AWAITING_PROVIDER_SIGNATURE': return 'بانتظار توقيع مقدم الخدمة';
 			case 'ACTIVE': return 'قيد التنفيذ';
