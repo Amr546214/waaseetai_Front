@@ -91,4 +91,18 @@ describe('ActiveProject — real responsible-employee field (Batch 6)', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent || '';
     expect(text).not.toContain('المسؤول');
   });
+
+  it('4) an unfunded project awaiting signature is labelled as such, says what is next, and opens the request instead of the workspace', () => {
+    const { fixture } = setup({
+      getImpl: () => of({ success: true, data: { kpis: [], projects: [rawProject({ id: 'p9', status: 'wait', rawStatus: 'PENDING_SIGNATURE', progress: 0, heldAmount: 0, nextStep: 'توقيع العقد وإيداع الضمان لبدء التنفيذ' })] } }),
+    });
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const text = el.textContent || '';
+    expect(text).toContain('بانتظار التوقيع');
+    expect(text).toContain('توقيع العقد وإيداع الضمان لبدء التنفيذ');
+    expect(text).toContain('إكمال التوقيع');
+    expect(el.querySelector('.pl-badge')?.textContent?.trim()).toBe('بانتظار التوقيع');
+    expect(el.querySelector('a.pl-card')?.getAttribute('href')).toContain('/client-overview/my-requests/p9');
+  });
 });

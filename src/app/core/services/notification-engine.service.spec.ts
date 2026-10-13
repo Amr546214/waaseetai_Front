@@ -305,3 +305,36 @@ describe('NotificationEngineService — PROJECT_MATCH / OFFER_ACCEPTED deep link
 		})).toBe('/provider-overview/offers');
 	});
 });
+
+describe('NotificationEngineService — provider event notifications (dispute / rating / withdrawal / PayPal)', () => {
+	let service: NotificationEngineService;
+
+	beforeEach(() => {
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, clear: () => {} });
+		TestBed.configureTestingModule({});
+		service = TestBed.inject(NotificationEngineService);
+	});
+
+	const cases: [string, string, string][] = [
+		['DISPUTE_OPENED', '/provider-overview/disputes/d1', 'projects'],
+		['DISPUTE_RESOLVED', '/provider-overview/disputes/d1', 'projects'],
+		['RATING_RECEIVED', '/provider-overview/profile/public', 'projects'],
+		['WITHDRAWAL_REQUESTED', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_APPROVED', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_REJECTED', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_PAID', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_FAILED', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_REVERSED', '/provider-overview/finance/withdraw', 'finance'],
+		['PAYPAL_EMAIL_CHANGED', '/provider-overview/profile/data', 'finance'],
+		['PROJECT_AMENDMENT', '/provider-overview/projects/active/progress/p1', 'projects'],
+	];
+
+	for (const [type, actionUrl, bucket] of cases) {
+		it(`${type}: keeps its provider link, files under "${bucket}" even with a generic category, and shows a type icon`, () => {
+			const mapped = service.mapToAppNotification({ id: 'n1', type, category: 'ALL', title: 't', message: 'm', actionText: 'فتح', actionUrl, isRead: false });
+			expect(mapped.actionUrl).toBe(actionUrl);
+			expect(mapped.category).toBe(bucket);
+			expect(mapped.iconBgClass).not.toBe('bg-[rgba(160,178,209,.12)]');
+		});
+	}
+});

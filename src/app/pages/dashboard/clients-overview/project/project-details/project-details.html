@@ -206,6 +206,7 @@
 
 <app-dispute-modal
 	[open]="showDisputeModal()"
+	[errorMessage]="disputeError()"
 	[isSubmitting]="isSubmittingDispute()"
 	actor="client"
 	(close)="closeDisputeModal()"

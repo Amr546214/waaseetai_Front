@@ -61,7 +61,7 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
   return {
     id: d.id,
     title: d.reason,
-    project: d.request?.title || '—',
+    project: d.request?.title || d.project?.title || '—',
     status: closed ? 'closed' : 'open',
     who,
     // No messaging/reply endpoint exists yet, so "awaiting my reply" can't

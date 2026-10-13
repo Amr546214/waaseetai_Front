@@ -71,7 +71,7 @@ function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 		info: [
 			{ label: 'السبب', value: d.reason },
 			{ label: 'تاريخ الفتح', value: dateLabel(d.createdAt) },
-			{ label: 'المشروع', value: d.request?.title || '—' },
+			{ label: 'المشروع', value: d.request?.title || d.project?.title || '—' },
 			...(d.resolvedAt ? [{ label: 'تاريخ القرار', value: dateLabel(d.resolvedAt) }] : []),
 			// heldEscrowAmount: null/absent -> 'غير متاح'; 0 is a real value and is shown as '0'.
 			{ label: 'المتبقي من مستحقاتك في الضمان', value: d.heldEscrowAmount === null || d.heldEscrowAmount === undefined ? 'غير متاح' : String(d.heldEscrowAmount) },
@@ -93,7 +93,7 @@ export function mapDispute(d: ApiDispute, currentUserId: string | undefined): Di
 	return {
 		id: d.id,
 		title: d.reason,
-		project: d.request?.title || '—',
+		project: d.request?.title || d.project?.title || '—',
 		projectId: d.projectId || d.requestId || d.request?.id || null,
 		status: closed ? 'closed' : 'open',
 		who,

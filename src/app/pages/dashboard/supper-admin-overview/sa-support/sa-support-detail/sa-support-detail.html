@@ -3,127 +3,91 @@
     <a routerLink="/supper-admin-overview/support">&rarr; العودة إلى تذاكر الدعم</a>
   </div>
 
-  @if (activeTicket(); as t) {
+  @if (loading()) {
+    <div class="sup-empty">جارٍ التحميل...</div>
+  } @else if (data(); as d) {
     <div class="sup-detail">
       <div class="sup-main">
-        <!-- AI suggested solution -->
-        
-
-        <!-- ticket metadata -->
         <div class="sup-meta-card">
           <div class="sup-meta-ttl">معلومات التذكرة</div>
           <div class="sup-meta-grid">
-            <div class="sup-meta-item"><div class="sup-meta-lbl">الفئة</div><div class="sup-meta-val">{{ t.category }}</div></div>
-            <div class="sup-meta-item">
-              <div class="sup-meta-lbl">الأولوية</div>
-              <div class="sup-meta-val" [class]="'sup-pr-' + t.priority">
-                @switch (t.priority) {
-                  @case ('high') { عالية }
-                  @case ('medium') { متوسطة }
-                  @case ('low') { منخفضة }
-                }
-              </div>
-            </div>
-            <div class="sup-meta-item"><div class="sup-meta-lbl">المُكلَّف به</div><div class="sup-meta-val">{{ t.assignedAgent }}</div></div>
-            <div class="sup-meta-item">
-              <div class="sup-meta-lbl">وقت الاستجابة</div>
-              <div class="sup-meta-val" [class.sup-late]="slaLate()">{{ t.responseHours }} ساعات (SLA: {{ t.slaTargetHours }}h)</div>
-            </div>
+            <div class="sup-meta-item"><div class="sup-meta-lbl">الفئة</div><div class="sup-meta-val">{{ d.ticket.category }}</div></div>
+            <div class="sup-meta-item"><div class="sup-meta-lbl">الأولوية</div><div class="sup-meta-val">{{ d.ticket.priority }}</div></div>
+            <div class="sup-meta-item"><div class="sup-meta-lbl">الحالة</div><div class="sup-meta-val"><span class="sup-bdg" [class]="'sup-bdg ' + statusClass(d.ticket.status)">{{ statusLabels[d.ticket.status] }}</span></div></div>
+            <div class="sup-meta-item"><div class="sup-meta-lbl">فُتحت</div><div class="sup-meta-val">{{ formatTime(d.ticket.createdAt) }}</div></div>
+            <div class="sup-meta-item" [title]="noBackend"><div class="sup-meta-lbl">المُكلَّف به</div><div class="sup-meta-val">—</div></div>
+            <div class="sup-meta-item" [title]="noBackend"><div class="sup-meta-lbl">وقت الاستجابة</div><div class="sup-meta-val">—</div></div>
+            @if (d.ticket.relatedOrder) {
+              <div class="sup-meta-item"><div class="sup-meta-lbl">مرتبطة بـ</div><div class="sup-meta-val">{{ d.ticket.relatedOrder }}</div></div>
+            }
           </div>
         </div>
 
         <div class="sup-chat">
           <div class="sup-chat-hdr">
-            <div class="sup-chat-hdr-ttl">{{ t.subject }}</div>
-            <div class="sup-chat-hdr-sub">{{ t.id }} · {{ t.user }} · {{ t.category }}</div>
+            <div class="sup-chat-hdr-ttl">{{ d.ticket.subject }}</div>
+            <div class="sup-chat-hdr-sub">{{ d.ticket.ticketNumber }} · {{ userName() }} · {{ d.ticket.category }}</div>
           </div>
           <div class="sup-chat-msgs">
-            @for (m of t.messages; track $index) {
-              <div class="sup-msg" [class.from-admin]="m.from === 'admin'">
-                <div class="sup-msg-bubble">{{ m.text }}</div>
-                <div class="sup-msg-time">{{ m.time }}</div>
+            @for (m of d.messages; track m.id) {
+              <div class="sup-msg" [class.from-admin]="isStaff(m)">
+                <div class="sup-msg-bubble">{{ m.body }}</div>
+                <div class="sup-msg-time">{{ senderName(m) }} · {{ formatTime(m.createdAt) }}</div>
               </div>
             }
           </div>
-          @if (t.status !== 'resolved') {
-            <div class="sup-chat-actions">
-              <button type="button" class="sup-ca-btn sup-ca-close" (click)="closeTicket()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                إغلاق التذكرة
-              </button>
-              @if (t.status !== 'escalated') {
-                <button type="button" class="sup-ca-btn sup-ca-escalate" (click)="escalateTicket()">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  تصعيد
-                </button>
-              }
-            </div>
+
+          <div class="sup-chat-actions">
+            @for (s of statuses; track s) {
+              <button type="button" class="sup-ca-btn" [class.sup-ca-close]="s === d.ticket.status" [disabled]="busy() || s === d.ticket.status" (click)="setStatus(s)">{{ statusLabels[s] }}</button>
+            }
+            <button type="button" class="sup-ca-btn sup-ca-escalate" disabled [title]="noBackend">تصعيد</button>
+          </div>
+          <div class="sup-notes-empty">التصعيد: {{ noBackend }}</div>
+          @if (d.ticket.status !== 'CLOSED') {
             <div class="sup-chat-input-area">
               <textarea class="sup-chat-input" rows="1" placeholder="اكتب ردك هنا..." [value]="draftReply()" (input)="draftReply.set($any($event.target).value)"></textarea>
-              <button type="button" class="sup-chat-send" (click)="sendReply()">
+              <button type="button" class="sup-chat-send" [disabled]="busy()" aria-label="إرسال الرد" (click)="sendReply()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
             </div>
           } @else {
-            <div class="sup-chat-resolved-note">تم حل هذه التذكرة</div>
+            <div class="sup-chat-resolved-note">التذكرة مغلقة. أعد فتحها من أزرار الحالة أعلاه للرد عليها.</div>
           }
         </div>
       </div>
 
       <div class="sup-side">
-        <!-- submitter profile -->
         <div class="sup-side-card">
           <div class="sup-side-ttl">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
             مُقدِّم التذكرة
           </div>
           <div class="sup-submitter-row">
-            <div class="sup-submitter-av" [style.background]="t.userBg">{{ t.userAv }}</div>
             <div>
-              <div class="sup-submitter-name">{{ t.user }}</div>
-              <div class="sup-submitter-type">{{ t.userType }}</div>
+              <div class="sup-submitter-name">{{ userName() }}</div>
+              <div class="sup-submitter-type">{{ d.user?.accountType }} · {{ d.user?.email }}</div>
             </div>
           </div>
-          <a [routerLink]="['/supper-admin-overview/users', t.userId]" class="sup-side-link">عرض الملف الكامل</a>
-        </div>
-
-        <!-- assignment -->
-        <div class="sup-side-card">
-          <div class="sup-side-ttl">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="7" r="4"/><path d="M2 21v-1a7 7 0 0 1 14 0v1"/><path d="M16 11l2 2 4-4"/></svg>
-            التكليف
-          </div>
-          <div class="sup-assign-current">مُكلَّف: <strong>{{ t.assignedAgent }}</strong></div>
-          <button type="button" class="sup-side-btn" (click)="toggleReassign()">إعادة تكليف</button>
-          @if (showReassign()) {
-            <div class="sup-assign-list">
-              @for (a of agents; track a) {
-                <button type="button" class="sup-assign-opt" [class.active]="a === t.assignedAgent" (click)="reassignAgent(a)">{{ a }}</button>
-              }
-            </div>
+          @if (d.user) {
+            <a [routerLink]="['/supper-admin-overview/users', d.user.id]" class="sup-side-link">عرض الملف الكامل</a>
           }
         </div>
 
-        <!-- SLA indicators -->
         <div class="sup-side-card">
-          <div class="sup-side-ttl">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            مؤشرات SLA
-          </div>
-          <div class="sup-sla-row">
-            <span>الاستجابة الأولى</span>
-            <span [class.sup-late]="slaLate()">{{ t.responseHours }} ساعات (هدف {{ t.slaTargetHours }}h)</span>
-          </div>
-          <div class="sup-sla-bar"><div class="sup-sla-bar-fill" [class.late]="slaLate()" [style.width.%]="slaProgressPct()"></div></div>
-          <div class="sup-sla-row"><span>مفتوحة منذ</span><span>{{ t.openSince }}</span></div>
-          <div class="sup-sla-row sup-sla-row-last">
-            <span>حالة SLA</span>
-            @if (slaLate()) {
-              <span class="sup-late">تجاوز الهدف</span>
-            } @else {
-              <span class="sup-ontime">ضمن الهدف</span>
-            }
-          </div>
+          <div class="sup-side-ttl">التكليف</div>
+          <div class="sup-assign-current">مُكلَّف: <strong>—</strong></div>
+          <button type="button" class="sup-side-btn" disabled [title]="noBackend">إعادة تكليف</button>
+          <div class="sup-notes-empty">{{ noBackend }}</div>
+        </div>
+
+        <div class="sup-side-card">
+          <div class="sup-side-ttl">مؤشرات SLA</div>
+          <div class="sup-sla-row"><span>الاستجابة الأولى</span><span>—</span></div>
+          <div class="sup-sla-bar"><div class="sup-sla-bar-fill" style="width:0"></div></div>
+          <div class="sup-sla-row"><span>مفتوحة منذ</span><span>{{ formatTime(d.ticket.createdAt) }}</span></div>
+          <div class="sup-sla-row sup-sla-row-last"><span>حالة SLA</span><span>—</span></div>
+          <div class="sup-notes-empty">قياس SLA: {{ noBackend }}</div>
         </div>
       </div>
     </div>
@@ -131,33 +95,27 @@
     <div class="sup-extra">
       <div class="sup-extra-card">
         <div class="sup-extra-ttl">ملاحظات داخلية (خاصة)</div>
-        <div class="sup-notes-list">
-          @for (n of t.notes; track $index) {
-            <div class="sup-note"><strong>{{ n.author }}</strong> — {{ n.time }}: {{ n.text }}</div>
-          } @empty {
-            <div class="sup-notes-empty">لا توجد ملاحظات داخلية بعد</div>
-          }
-        </div>
+        <div class="sup-notes-list"><div class="sup-notes-empty">{{ noBackend }}</div></div>
         <div class="sup-note-input-row">
-          <input type="text" placeholder="أضف ملاحظة داخلية..." [value]="draftNote()" (input)="draftNote.set($any($event.target).value)" />
-          <button type="button" (click)="addNote()">إضافة</button>
+          <input type="text" placeholder="أضف ملاحظة داخلية..." disabled [title]="noBackend" />
+          <button type="button" disabled [title]="noBackend">إضافة</button>
         </div>
       </div>
       <div class="sup-extra-card">
-        <div class="sup-extra-ttl">تذاكر ذات صلة</div>
+        <div class="sup-extra-ttl">تذاكر ذات صلة (نفس المستخدم)</div>
         <div class="sup-related-list">
-          @for (r of t.relatedTickets; track r.id) {
-            <div class="sup-related-item" (click)="openRelated(r.id)">
-              <span class="sup-related-id">{{ r.id }}</span>
-              <span class="sup-related-label">{{ r.label }} · {{ r.status }}</span>
-            </div>
+          @for (r of related(); track r.id) {
+            <a class="sup-related-item" [routerLink]="['/supper-admin-overview/support', r.id]">
+              <span class="sup-related-id">{{ r.ticketNumber }}</span>
+              <span class="sup-related-label">{{ r.subject }} · {{ statusLabels[r.status] }}</span>
+            </a>
           } @empty {
             <div class="sup-notes-empty">لا توجد تذاكر ذات صلة</div>
           }
         </div>
       </div>
     </div>
-  } @else {
+  } @else if (notFound()) {
     <div class="sup-empty sup-detail-nf">
       <span>لم يتم العثور على التذكرة المطلوبة</span>
       <a routerLink="/supper-admin-overview/support">العودة للقائمة</a>

@@ -114,7 +114,19 @@ export class ActiveProject implements OnInit {
 		return `${stages} · ${project.daysLeft} ${this.dayLabel(project.daysLeft)} متبقية`;
 	}
 
-	statusLabel(status: ProjectItem['status']) {
+	// A project still awaiting signature / escrow funding is not running yet and not waiting for a review: say so, and open the request (where the client signs and funds).
+	isAwaitingSignature(project: ProjectItem) {
+		return String(project.rawStatus || '').toUpperCase() === 'PENDING_SIGNATURE';
+	}
+
+	projectLink(project: ProjectItem) {
+		return this.isAwaitingSignature(project)
+			? ['/client-overview/my-requests', project.id]
+			: ['/client-overview/projects', project.workspaceId || project.id];
+	}
+
+	statusLabel(status: ProjectItem['status'], project?: ProjectItem) {
+		if (project && this.isAwaitingSignature(project)) return 'بانتظار التوقيع';
 		if (status === 'wait') return 'بانتظار مراجعتك';
 		if (status === 'late') return 'متأخر';
 		return 'قيد التنفيذ';

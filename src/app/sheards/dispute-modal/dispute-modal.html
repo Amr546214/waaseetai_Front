@@ -17,6 +17,9 @@
 		@if (formError()) {
 			<div class="dp-error" role="alert">{{ formError() }}</div>
 		}
+		@if (errorMessage) {
+			<div class="dp-error" role="alert" data-testid="dispute-server-error">{{ errorMessage }}</div>
+		}
 
 		<!-- سبب النزاع -->
 		<div class="lc-fld">

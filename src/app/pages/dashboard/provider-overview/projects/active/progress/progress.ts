@@ -143,10 +143,20 @@ export class Progress implements OnInit {
       error: err => { this.error.set(err.error?.message || 'تعذر تحميل مساحة المشروع'); this.loading.set(false); }
     });
   }
-  setTab(tab: any) { this.activeTab.set(tab); }
+  // Revision / delivery / stage states are decided by the client's review on the other side, so opening these tabs re-reads them (no spinner).
+  setTab(tab: any) { this.activeTab.set(tab); if (tab === 'edits' || tab === 'delivs' || tab === 'miles') this.refreshSilently(); }
+  private refreshSilently() {
+    if (!this.projectId || this.loading()) return;
+    this.service.getProjectProgress(this.projectId).subscribe({ next: res => { if (res?.data) this.projectData.set(res.data); }, error: () => { /* keep what is shown */ } });
+  }
+  /** Why the upload button is not offered for this stage (server-provided reason), or null when there is nothing to say (done / already with the client). */
+  uploadBlockedNote(stage: any): string | null {
+    if (!stage || stage.canUploadDelivery || stage.status === 'completed' || stage.status === 'submitted') return null;
+    return stage.uploadBlockedReason || null;
+  }
   setDeliveryFilter(filter: 'all' | 'pending' | 'approved' | 'notes') { this.deliveryFilter.set(filter); }
   setEditFilter(filter: 'all' | 'waiting') { this.editFilter.set(filter); }
-  openDelivery(stage: any) { this.deliveryStage.set(stage); this.deliveryNote = ''; this.deliveryLinks = ''; this.cancelAllUploads(); this.deliveryFileError.set(''); this.deliveryStep.set(1); this.deliverySuccess = false; this.cancelAllUploads(); this.deliveryFileError.set(''); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } }
+  openDelivery(stage: any) { if (stage?.canUploadDelivery === false) { this.error.set(stage.uploadBlockedReason || 'هذه المرحلة غير متاحة للتسليم حالياً'); return; } this.deliveryStage.set(stage); this.deliveryNote = ''; this.deliveryLinks = ''; this.cancelAllUploads(); this.deliveryFileError.set(''); this.deliveryStep.set(1); this.deliverySuccess = false; this.cancelAllUploads(); this.deliveryFileError.set(''); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } }
   closeDelivery() { if (!this.saving()) { this.deliveryStage.set(null); this.deliveryStep.set(1); this.deliverySuccess = false; this.cancelAllUploads(); this.deliveryFileError.set(''); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } } }
   openConversation(stage?: any) {
     const data = this.projectData();

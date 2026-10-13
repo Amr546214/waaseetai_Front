@@ -198,9 +198,7 @@
 						<div class="text-[12px] font-bold text-[#A8B2D1]">{{ sOffer.clientName }}</div>
 					</div>
 				</div>
-				<p class="text-xs text-[#A8B2D1] leading-relaxed">
-					تم إرسال عرضك وهو الآن بانتظار مراجعة طالب الخدمة والرد عليه. سيتم تحديث حالة العرض هنا فور استلام أي رد.
-				</p>
+				<p class="text-xs text-[#A8B2D1] leading-relaxed" data-testid="offer-note">{{ offerNote(sOffer) }}</p>
 				@if (sOffer.canWithdraw && withdrawConfirming()) {
 				<div class="ws-note ws-note--warn" data-testid="withdraw-confirm" role="alertdialog">
 					<div class="ws-note-txt">سيُسحب العرض ويظهر كـ«ملغي» ولا يمكن التراجع عن ذلك. هل تريد المتابعة؟</div>

@@ -104,7 +104,14 @@ export interface ProviderWithdrawalPayload {
  * Mirrors the shape already consumed by the provider Wallet page.
  */
 export interface ProviderWalletSummary {
+  /** Total released earnings. What a new request may still ask for is `withdrawableBalance`. */
   availableBalance?: number;
+  /** In review / payout pipeline (PENDING, APPROVED, PROCESSING). */
+  pendingWithdrawals?: number;
+  /** Already paid out (COMPLETED) or paid then reversed. */
+  paidWithdrawals?: number;
+  /** availableBalance minus pending and paid withdrawals: the same figure the server enforces. */
+  withdrawableBalance?: number;
   totalEarnings?: number;
   escrowBalance?: number;
   releasedThisMonth?: number;

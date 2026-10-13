@@ -41,6 +41,8 @@ export interface ProviderWalletProviderSpend {
 export interface WalletData {
   summary: {
     availableBalance: number;
+    pendingWithdrawals?: number;
+    withdrawableBalance?: number;
     totalEarnings: number;
     escrowBalance: number;
     releasedThisMonth: number;

@@ -16,6 +16,8 @@ export class DisputeModal {
 	@Input() open = false;
 	@Input() isSubmitting = false;
 	@Input() actor: DisputeActor = 'client';
+	/** Server rejection message (e.g. 403/400 from the API), shown inside the dialog. */
+	@Input() errorMessage = '';
 
 	@Output() close = new EventEmitter<void>();
 	@Output() submit = new EventEmitter<CreateDisputePayload>();

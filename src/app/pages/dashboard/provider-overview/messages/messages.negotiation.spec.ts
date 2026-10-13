@@ -121,4 +121,14 @@ describe('provider messages: negotiation card is real', () => {
 		(s.q('neg-card-counter') as HTMLButtonElement).click();
 		expect(s.nav).toHaveBeenCalledWith(['/provider-overview/offers', 'offer-1', 'negotiate']);
 	});
+
+	it('the client\'s acceptance of my counter is a closing note («قبل العميل عرضك المضاد»), never an open request with buttons', async () => {
+		const acc = { id: 'msg-9', senderId: 'client-1', type: 'TEXT', content: NEG + JSON.stringify({ isNegotiation: true, kind: 'CLIENT_ACCEPT_COUNTER', offerId: 'offer-1', price: '880', priceValue: 880, deliveryDays: 18, replyToMessageId: 'ctr-1', status: 'ACCEPTED' }) };
+		const s = await render({ messages: MSGS([acc]), state: STATE({ status: 'SUBMITTED', canCounter: false, canReject: false, request: null }) });
+		const card = Array.from(s.el.querySelectorAll('.neg-card-box'))[1] as HTMLElement;
+		expect(card.getAttribute('data-neg-kind')).toBe('accepted');
+		expect(card.textContent).toContain('قبل العميل عرضك المضاد');
+		expect(card.querySelector('[data-testid="neg-accepted-badge"]')).not.toBeNull();
+		expect(card.querySelectorAll('button')).toHaveLength(0);
+	});
 });
