@@ -124,4 +124,39 @@ export class Reports implements OnInit {
     this.showToast.set(msg);
     setTimeout(() => this.showToast.set(''), 3000);
   }
+
+  /** CSV of the data currently loaded on the page (GET /provider/reports for the selected range) — no server file involved. */
+  exportCsv() {
+    const r = this.reports();
+    if (!r) { this.openToast('لا توجد بيانات محمّلة للتصدير بعد'); return; }
+    const esc = (v: unknown) => { const s = v == null ? '' : String(v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const row = (cells: unknown[]) => cells.map(esc).join(',');
+    const lines: string[] = [
+      row(['الفترة', this.periods.find(p => p.id === r.range)?.label ?? r.range]),
+      '',
+      row(['طلبات العملاء']),
+      row(['العنوان', 'التخصص', 'السعر', 'الحالة', 'التاريخ']),
+      ...r.requests.items.map(i => row([i.title, i.specialty, i.price, this.bucketLabel(i.bucket), i.createdAt?.slice(0, 10)])),
+      '',
+      row(['المعاملات المالية']),
+      row(['الوصف', 'النوع', 'المبلغ', 'العملة', 'الحالة', 'التاريخ']),
+      ...r.payments.transactions.map(t => row([t.description, t.type, t.amount, t.currency, t.status, t.createdAt?.slice(0, 10)])),
+      '',
+      row(['النزاعات']),
+      row(['السبب', 'الحالة', 'التاريخ']),
+      ...r.disputes.items.map(d => row([d.reason, d.status, d.createdAt?.slice(0, 10)])),
+    ];
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `waseet-provider-report-${r.range}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    this.openToast('تم تنزيل ملف CSV');
+  }
+
+  /** PDF = the browser's print dialog ("Save as PDF"); a server-generated PDF would need a dedicated endpoint. */
+  printReport() {
+    window.print();
+  }
 }

@@ -9,14 +9,12 @@
     -moz-appearance: textfield;
   }
 </style>
-  <!-- AI Disclosure -->
-  <div class="flex items-center gap-[12px] p-[13px_16px] bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-[14px] mb-[16px]" role="note">
-    <div class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0">
-      <svg class="w-[15px] h-[15px] text-[#A56BE0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
-    </div>
-    <div class="flex-1">
-      <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-[2px]">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-      <div class="text-[12.5px] text-[#A8B2D1]">يحلل الذكاء الاصطناعي مراحلك ويقارن التوزيع بالسوق، والقرار النهائي لك</div>
+  <!-- Neutral note: this step runs no AI (the AI quality review is step 3) -->
+  <div class="ws-note ws-note--neutral" role="note" data-testid="step2-note">
+    <div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-chart"></use></svg></div>
+    <div class="ws-note-body">
+      <div class="ws-note-lbl">توزيع الدفعات</div>
+      <p class="ws-note-txt">وزّع مبلغ عرضك على المراحل بنسب مجموعها 100%، والقرار النهائي لك</p>
     </div>
   </div>
 

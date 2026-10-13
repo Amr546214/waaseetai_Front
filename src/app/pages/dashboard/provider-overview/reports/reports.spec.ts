@@ -74,4 +74,26 @@ describe('Reports (provider) — real data only', () => {
 		const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')).filter((el: any) => ['1', '2', '3'].includes(el.textContent?.trim()));
 		expect(buttons.length).toBe(0);
 	});
+
+	it('CSV + PDF buttons are real: CSV builds a file from the loaded data, PDF opens the print dialog', async () => {
+		const { fixture, component } = setup();
+		fixture.detectChanges();
+		let blobText = '';
+		const OrigBlob = globalThis.Blob;
+		(globalThis as any).Blob = class { constructor(parts: string[]) { blobText = parts.join(''); } };
+		(URL as any).createObjectURL = vi.fn(() => 'blob:x');
+		(URL as any).revokeObjectURL = vi.fn();
+		const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+		const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+		const el = fixture.nativeElement as HTMLElement;
+		(el.querySelector('[data-testid="reports-csv"]') as HTMLButtonElement).click();
+		expect(click).toHaveBeenCalled();
+		expect(blobText).toContain('موقع تعريفي');
+		expect(blobText).toContain('500');
+		(el.querySelector('[data-testid="reports-pdf"]') as HTMLButtonElement).click();
+		expect(print).toHaveBeenCalled();
+		(globalThis as any).Blob = OrigBlob;
+		click.mockRestore(); print.mockRestore();
+		void component;
+	});
 });

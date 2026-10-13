@@ -7,14 +7,14 @@
     </div>
   </div>
 
-  <!-- AI Disclosure -->
-  <div class="ws-note ws-note--neutral">
+  <!-- Neutral note: no AI is involved in invoices -->
+  <div class="ws-note ws-note--neutral" data-testid="provider-invoices-note">
     <div class="ws-note-ico">
       <svg aria-hidden="true"><use href="#i-doc"></use></svg>
     </div>
     <div class="ws-note-body">
-      <div class="ws-note-lbl">وسيط، تحقق آلي من الفواتير</div>
-      <p class="ws-note-txt">تُحسب بيانات الفاتورة تلقائياً من قيمة العقد ومراحله، وتُطابق المبالغ آلياً قبل الاعتماد</p>
+      <div class="ws-note-lbl">فواتير المشاريع</div>
+      <p class="ws-note-txt">تُحسب بيانات الفاتورة من قيمة العقد ومراحله المسلَّمة. لم تُفعَّل فواتير المزوّد بعد، وحركات أرباحك الفعلية تجدها في <a routerLink="/provider-overview/finance/transactions" class="underline">سجل المعاملات</a>.</p>
     </div>
   </div>
 
@@ -76,7 +76,7 @@
 
       <div *ngIf="filteredInvoices().length === 0" class="inv-empty">
         <div class="inv-empty-ttl">لا فواتير بعد</div>
-        <div class="inv-empty-sub">تظهر هنا الفواتير الضريبية فور إصدارها عند اكتمال مراحل مشاريعك</div>
+        <div class="inv-empty-sub">لا توجد فواتير مسجَّلة بعد. تظهر هنا فواتير مراحل مشاريعك فور تفعيل هذه الخدمة</div>
       </div>
     </div>
 

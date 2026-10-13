@@ -27,14 +27,6 @@ export class InvoicesComponent implements OnInit {
 
 	activeTab = signal<'all' | 'paid' | 'due'>('all');
 
-	private mockInvoices: ProviderInvoice[] = [
-		{ id: 'INV-2026-0488', project: 'تصميم هوية بصرية · المرحلة 2', client: 'نورة التصميم', date: '2026-05-26', total: 2875, tax: 375, status: 'paid' },
-		{ id: 'INV-2026-0471', project: 'تصميم هوية بصرية · المرحلة 1', client: 'نورة التصميم', date: '2026-05-18', total: 2300, tax: 300, status: 'paid' },
-		{ id: 'INV-2026-0492', project: 'كتابة محتوى متجر · دفعة أولى', client: 'رشا الكاتبة', date: '2026-05-29', total: 1092, tax: 142, status: 'due' },
-		{ id: 'INV-2026-0455', project: 'تطوير متجر إلكتروني · دفعة مقدمة', client: 'تقنية الرواد', date: '2026-05-12', total: 3450, tax: 450, status: 'due' },
-		{ id: 'INV-2026-0399', project: 'استشارة تسويقية · مكتملة', client: 'مكتب أفق', date: '2026-04-30', total: 1725, tax: 225, status: 'paid' }
-	];
-
 	invoices = signal<ProviderInvoice[]>([]);
 
 	filteredInvoices = computed(() => {
@@ -54,12 +46,10 @@ export class InvoicesComponent implements OnInit {
 	loadInvoices(): void {
 		this.isLoading.set(true);
 		this.hasError.set(false);
-		// No backend endpoint exists yet for provider invoices — using representative mock data
-		// matching the design (P-PR-025) until the API is available.
-		setTimeout(() => {
-			this.invoices.set(this.mockInvoices);
-			this.isLoading.set(false);
-		}, 500);
+		// No provider-invoices endpoint exists yet (client invoices come from GET /client/finance/invoices, derived from released stage deliveries).
+		// Until a provider-side endpoint ships (proposal: GET /provider/finance/invoices) the list stays empty and the page says so honestly — no sample rows.
+		this.invoices.set([]);
+		this.isLoading.set(false);
 	}
 
 	setTab(tab: 'all' | 'paid' | 'due') {
@@ -70,9 +60,10 @@ export class InvoicesComponent implements OnInit {
 		return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value));
 	}
 
-	downloadInvoice(inv: ProviderInvoice, event: Event): void {
+	/** PDF = the browser's print dialog ("Save as PDF") until a server-generated document exists. */
+	downloadInvoice(_inv: ProviderInvoice, event: Event): void {
 		event.stopPropagation();
-		this.showToast(`جارٍ تنزيل الفاتورة ${inv.id}`);
+		window.print();
 	}
 
 	retry() {

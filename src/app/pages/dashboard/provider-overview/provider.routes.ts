@@ -225,7 +225,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'help/live-support',
 		loadComponent: () => import('./help/live-support/live-support').then(m => m.LiveSupportComponent),
-		data: { title: "الدعم المباشر" }
+		data: { title: "الدعم عبر التذاكر" }
 	},
 	{
 		path: 'help/tickets',
@@ -243,20 +243,25 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "تفاصيل التذكرة" }
 	},
 	// business-models extensions
+	// The three former demo pages have no data source of their own: the routes stay and lead to the real screens that hold that data.
+	// (The old placeholder components stay in the repo, unrouted, until the owner decides about them.)
 	{
+		// service edit = the real edit mode of the service wizard (reads ?edit=<serviceId> or ?id=<serviceId>); without an id, back to the services centre
 		path: 'business-models/service-edit',
-		loadComponent: () => import('./business-models/service-edit/service-edit.component').then(m => m.ServiceEditComponent),
-		data: { title: "تعديل الخدمة" }
+		redirectTo: ({ queryParams }) => (queryParams['edit'] || queryParams['id'] ? 'business-models/new-project' : 'business-models/center'),
 	},
 	{
+		// negotiation = the real offer negotiation page (offers/:id/negotiate); without an offer id, the offers list where each offer opens it
 		path: 'business-models/negotiation',
-		loadComponent: () => import('./business-models/negotiation/negotiation.component').then(m => m.NegotiationComponent),
-		data: { title: "تفاوض طلب خدمة" }
+		redirectTo: ({ queryParams }) => {
+			const id = queryParams['offerId'] || queryParams['id'];
+			return id ? `offers/${encodeURIComponent(String(id))}/negotiate` : 'offers';
+		},
 	},
 	{
+		// client requests on the provider's services = the offers/negotiation list
 		path: 'business-models/customer-requests',
-		loadComponent: () => import('./business-models/customer-requests/customer-requests.component').then(m => m.CustomerRequestsComponent),
-		data: { title: "طلبات العملاء" }
+		redirectTo: 'offers',
 	},
 	{
 		path: 'business-models/sales-tracking',

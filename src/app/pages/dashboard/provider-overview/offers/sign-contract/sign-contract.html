@@ -119,7 +119,7 @@
     }
     <div class="actions-row" style="display:flex;gap:12px;flex-wrap:wrap">
       <button type="button" [disabled]="!contract()" (click)="signContract()" class="btn-primary txt-navy" style="flex:1;min-width:180px;padding:13px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center">توقيع العقد</button>
-      <button type="button" (click)="openTermsModal()" class="btn-secondary txt-slate" style="padding:13px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px">
+      <button type="button" (click)="openProjectConversation()" data-testid="contract-edit-terms" class="btn-secondary txt-slate" style="padding:13px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-chat"></use></svg>تعديل البنود عبر المحادثة
       </button>
     </div>

@@ -253,10 +253,13 @@
 
 <div class="overflow-x-auto pb-4 mb-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
   <div class="flex gap-0 min-w-[1200px] relative items-center pt-6">
-    <!-- Completed Line (M1 to M4) -->
-    <div class="absolute top-9 right-8 left-[calc(100%*11/15+32px)] h-[3px] bg-gradient-to-r from-[#2BD4C7]/70 to-[#2BD4C7]/45 z-0 rounded-full"></div>
-    <!-- Upcoming Line (M4 to M15) -->
-    <div class="absolute top-9 right-[calc(100%*4/15-32px)] left-8 h-[2px] bg-[repeating-linear-gradient(90deg,rgba(43,127,255,0.25)_0,rgba(43,127,255,0.25)_8px,transparent_8px,transparent_14px)] z-0"></div>
+    <!-- Progress lines follow the provider's real level (they used to be fixed at level 4 of 15) -->
+    @if (data.currentLevel.index > 1) {
+    <div class="absolute top-9 right-8 h-[3px] bg-gradient-to-r from-[#2BD4C7]/70 to-[#2BD4C7]/45 z-0 rounded-full" data-testid="level-done-line" [style.left]="'calc(100% * ' + (data.roadmap.length - data.currentLevel.index) + ' / ' + data.roadmap.length + ' + 32px)'"></div>
+    }
+    @if (data.currentLevel.index < data.roadmap.length) {
+    <div class="absolute top-9 left-8 h-[2px] bg-[repeating-linear-gradient(90deg,rgba(43,127,255,0.25)_0,rgba(43,127,255,0.25)_8px,transparent_8px,transparent_14px)] z-0" data-testid="level-next-line" [style.right]="'calc(100% * ' + data.currentLevel.index + ' / ' + data.roadmap.length + ' - 32px)'"></div>
+    }
 
     <!-- Roadmap Map Loop -->
     <ng-container *ngFor="let level of data.roadmap; let i = index">

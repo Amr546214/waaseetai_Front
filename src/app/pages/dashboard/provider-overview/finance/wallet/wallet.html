@@ -52,15 +52,15 @@
     <!-- Wallet Balance Grid -->
     <div class="wal-grid">
       <!-- Main Balance Card -->
-      <div class="wal-main" style="padding-left:106px">
-        <svg width="82" height="82" viewBox="0 0 100 100" style="position:absolute;left:14px;top:50%;transform:translateY(-50%)" aria-hidden="true">
+      <div class="wal-main" [style.padding-left.px]="ringTotal() > 0 ? 106 : null">
+        @if (ringTotal() > 0) {
+        <svg width="82" height="82" viewBox="0 0 100 100" style="position:absolute;left:14px;top:50%;transform:translateY(-50%)" aria-hidden="true" data-testid="wallet-ring">
           <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="12"/>
-          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(43,212,199,.72)" stroke-width="12" stroke-dasharray="149 77" stroke-dashoffset="57" stroke-linecap="round"/>
-          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,180,0,.72)" stroke-width="12" stroke-dasharray="69 157" stroke-dashoffset="-92" stroke-linecap="round"/>
-          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(15,169,154,.72)" stroke-width="12" stroke-dasharray="8 218" stroke-dashoffset="-161" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(43,212,199,.72)" stroke-width="12" [attr.stroke-dasharray]="ringDash()" stroke-dashoffset="57" stroke-linecap="round"/>
           <text x="50" y="47" text-anchor="middle" font-size="13" font-weight="900" fill="white" font-family="Tajawal,sans-serif">{{ availableRatio() }}%</text>
           <text x="50" y="59" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.45)" font-family="Tajawal,sans-serif">متاح</text>
         </svg>
+        }
         <div class="wal-main-lbl">الرصيد المتاح</div>
         <div>
           <span class="wal-main-val">{{ wallet.summary.availableBalance | number:'1.0-2' }}</span>
@@ -74,13 +74,24 @@
             </svg>
             سحب الأرباح
           </a>
-          <button type="button" class="wal-btn wal-btn-sec" (click)="openDepositModal()">
+          @if (isCompany()) {
+          <button type="button" class="wal-btn wal-btn-sec" (click)="openDepositModal()" data-testid="wallet-topup">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
               <rect x="2" y="5" width="20" height="14" rx="2"/>
               <line x1="2" y1="10" x2="22" y2="10"/>
             </svg>
-            {{ isCompany() ? 'شحن رصيد' : 'إيداع رصيد' }}
+            شحن رصيد
           </button>
+          } @else {
+          <!-- An individual provider earns into the wallet and withdraws; there is nothing to top up. The slot now leads to the payout (PayPal) data. -->
+          <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-sec" data-testid="wallet-payout-data">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+            بيانات استلام الأرباح
+          </a>
+          }
         </div>
       </div>
 
@@ -94,7 +105,7 @@
           {{ wallet.summary.escrowBalance | number:'1.0-2' }}
         </div>
         <div class="wal-side-sub">
-          {{ wallet.summary.fundedProjectsCount ? (wallet.summary.fundedProjectsCount + ' مشاريع نشطة') : 'مشروع نشط واحد' }}
+          {{ wallet.summary.fundedProjectsCount ? (wallet.summary.fundedProjectsCount + ' مشاريع ممولة') : 'لا مشاريع ممولة حاليًا' }}
         </div>
       </div>
 

@@ -24,7 +24,7 @@ import { AssistantChatComponent } from '../../../../../sheards/assistant-chat/as
 			</div>
 			<a routerLink="/provider-overview/help/live-support" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[var(--crd-bg,#fff)] border border-[var(--sec-bd,#E7EAF1)] rounded-lg text-[var(--txt)] text-xs font-bold no-underline shrink-0 hover:opacity-80 transition-opacity">
 				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
-				تحويل لموظف
+				تواصل مع الدعم عبر تذكرة
 			</a>
 		</div>
 
