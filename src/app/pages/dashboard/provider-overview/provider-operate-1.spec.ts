@@ -86,4 +86,25 @@ describe('provider FE package 1 — operate, do not delete', () => {
 		expect(h).toContain('level-done-line');
 		expect(h).not.toContain('11/15');
 	});
+
+	it('technical cleanup: the unreachable fake terms-chat modal and the three orphan components are gone', () => {
+		const h = read('offers/sign-contract/sign-contract.html');
+		const t = read('offers/sign-contract/sign-contract.ts');
+		for (const gone of ['isTermsModalOpen', 'chatMessages', 'sendTermMsg', 'termInput']) { expect(h).not.toContain(gone); expect(t).not.toContain(gone); }
+		const fs = require('node:fs');
+		for (const dir of ['service-edit', 'customer-requests', 'negotiation']) expect(fs.existsSync(join(root, 'business-models', dir))).toBe(false);
+	});
+	it('preferences labels do not pretend to switch the interface language', () => {
+		const h = read('profile/profile-setup/profile-setup.html');
+		expect(h).not.toContain('لغة الواجهة');
+		expect(h).toContain('لغة التواصل المفضلة');
+		expect(h).toContain('data-testid="pref-tz-hint"');
+	});
+	it('every provider PDF button says print / save, never "download PDF"', () => {
+		for (const f of ['reports/reports.html', 'finance/invoices/invoices.html', 'finance/transaction-details/transaction-details.html']) {
+			const h = read(f);
+			expect(h, f).not.toMatch(/تنزيل (ال)?(فاتورة|PDF)|تحميل (ال)?(إيصال|PDF)/);
+			expect(h, f).toMatch(/طباعة \/ حفظ/);
+		}
+	});
 });

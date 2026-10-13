@@ -1,4 +1,7 @@
 import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
+import { ProviderPrefsStore } from './core/services/provider-prefs.store';
 import { AUTH_ROUTES } from './pages/auth/auth.routes';
 import { authGuard, clientGuard, providerGuard, marketerGuard, superAdminGuard } from './core/guards/auth.guards';
 import { providerProfileCompleteGuard } from './core/guards/profile-complete.guard';
@@ -32,6 +35,11 @@ export const routes: Routes = [
 		path: 'provider-overview',
 		canActivate: [authGuard, providerGuard],
 		canActivateChild: [providerProfileCompleteGuard],
+		// every DatePipe in the provider area shows dates in the zone the provider saved on the profile page (browser zone until one is saved)
+		providers: [{
+			provide: DATE_PIPE_DEFAULT_OPTIONS,
+			useFactory: () => { const prefs = inject(ProviderPrefsStore); prefs.ensureLoaded(); return { get timezone() { return prefs.dateOffset; } }; }
+		}],
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
 		children: PROVIDER_OVERVIEW_ROUTES
 	},

@@ -87,7 +87,7 @@ describe('AI Cleanup Batch 1 — fabricated AI claims removed', () => {
 		expect(signContractHtml).not.toContain('أي بند ترغب بتعديله');
 		expect(signContractHtml).not.toContain('الذكاء يراقب المحادثة');
 		expect(signContractHtml).toContain('(click)="signContract()"');
-		expect(signContractHtml).toContain('chatMessages()');
+		expect(signContractHtml).toContain('openProjectConversation()'); // the "edit terms" button opens the real project conversation; the old fake chat modal is gone
 	});
 
 	it('contract screens: dead "AI extracted the agreed clause" box and its state are gone', () => {
@@ -102,7 +102,7 @@ describe('AI Cleanup Batch 1 — fabricated AI claims removed', () => {
 		expect(signContractHtml).not.toContain('>نو<');
 		expect(signContractHtml).not.toContain('txt-navy">9<');
 		expect(contractSignatureHtml).not.toContain('txt-navy">9<');
-		expect(signContractHtml).toContain('counterpartyInitials()');
+		expect(signContractHtml).not.toContain('counterpartyInitials');
 		expect(contractSignatureHtml).not.toContain('>نو<'); // the fake provider-chat modal (and its initials) is gone — C1
 	});
 

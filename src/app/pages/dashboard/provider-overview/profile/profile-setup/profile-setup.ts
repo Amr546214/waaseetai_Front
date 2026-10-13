@@ -6,6 +6,7 @@ import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { ProviderPrefsStore } from '../../../../../core/services/provider-prefs.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
@@ -75,6 +76,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private uiNotify = inject(UiNotificationService);
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
+	private prefsStore = inject(ProviderPrefsStore);
 	private providerProfileService = inject(ProviderProfileService);
 	private specialtyService = inject(SpecialtyService);
 	public setupTestService = inject(SetupTestService);
@@ -714,7 +716,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			timezone: this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh',
 			notifChannels: this.notifChannels()
 		}).subscribe({
-			next: () => this.prefsStatus.set('saved'),
+			next: () => { this.prefsStatus.set('saved'); this.prefsStore.timezone.set(this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh'); },
 			error: () => this.prefsStatus.set('error')
 		});
 	}
