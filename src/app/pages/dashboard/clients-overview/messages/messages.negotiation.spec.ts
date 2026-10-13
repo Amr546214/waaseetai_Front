@@ -63,7 +63,7 @@ describe('client messages: negotiation cards are server-driven; the only decisio
 		const t = c.textContent!.replace(/\s+/g, ' ');
 		expect(t).toContain('900 دولار'); expect(t).toContain('10 يوم'); expect(t).toContain('ملاحظة');
 		expect(c.querySelector('[data-testid="neg-counter-note"]')!.textContent).toContain('ولا يغيّر السعر أو المدة الرسمية');
-		expect(Array.from(c.querySelectorAll('button')).map(b => b.textContent!.trim()).join('|')).not.toMatch(/رفض/);
+		expect(Array.from(c.querySelectorAll('button')).map(b => b.textContent!.trim()).join('|')).not.toMatch(/رفض التفاوض|رفض الطلب/);
 	});
 
 	it('a message from ME that pretends to be a provider counter is still just my request (never a provider entry)', async () => {

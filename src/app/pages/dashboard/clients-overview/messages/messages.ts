@@ -750,6 +750,8 @@ export class ClientMessages implements OnInit, OnDestroy {
   /** Counters accepted in this session (the server's acceptance message is also looked up in the conversation). */
   counterAcceptedIds = signal<string[]>([]);
   counterDeclinedIds = signal<string[]>([]);
+  /** The card a decline error belongs to (accept errors use the confirm id). */
+  counterErrorId = signal<string>('');
 
   /** True once the counter was accepted (this session, or a later acceptance message that points at it). */
   isCounterAccepted(msg: MessageItem): boolean {
@@ -812,13 +814,12 @@ export class ClientMessages implements OnInit, OnDestroy {
     const neg = this.getNegData(msg);
     if (!conv?.projectId || !neg?.offerId || this.counterBusyId()) return;
     this.counterError.set('');
-    this.counterConfirmId.set(String(msg.id));
+    this.counterErrorId.set(String(msg.id));
     this.counterBusyId.set(String(msg.id));
     this.sub.add(
       this.counterService.declineCounter(conv.projectId, String(neg.offerId), String(msg.id)).subscribe({
         next: () => {
           this.counterBusyId.set('');
-          this.counterConfirmId.set('');
           this.counterDeclinedIds.update((ids) => [...ids, String(msg.id)]);
           this.showToast('تم رفض العرض المضاد، ويبقى العرض بشروطه الأصلية');
         },

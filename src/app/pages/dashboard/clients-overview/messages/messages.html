@@ -204,14 +204,14 @@
                         <div class="neg-card-actions">
                           @if (counterConfirmId() !== (msg.id + '')) {
                             <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept" (click)="askAcceptCounter(msg)">قبول العرض المضاد</button>
-                            <button type="button" class="neg-act-btn reject" data-testid="neg-counter-decline" [disabled]="!!counterBusyId()" (click)="declineCounter(msg)">رفض العرض المضاد</button>
+                            <button type="button" class="neg-act-btn decline-counter" data-testid="neg-counter-decline" [disabled]="!!counterBusyId()" (click)="declineCounter(msg)">رفض العرض المضاد</button>
                           } @else {
                             <div class="neg-card-decided" data-testid="neg-counter-confirm-text"><span>سيصبح سعر العرض {{ neg.priceValue || neg.price }} دولار ومدته {{ neg.deliveryDays }} يوم، وتتغير مبالغ المراحل بالتناسب. هل تؤكد قبول العرض المضاد؟</span></div>
                             <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept-yes" [disabled]="!!counterBusyId()" (click)="confirmAcceptCounter(msg)">{{ counterBusyId() ? 'جارٍ القبول…' : 'تأكيد قبول العرض المضاد' }}</button>
                             <button type="button" class="neg-act-btn discuss" data-testid="neg-counter-accept-no" [disabled]="!!counterBusyId()" (click)="cancelAcceptCounter()">تراجع</button>
                           }
                         </div>
-                        @if (counterError() && counterConfirmId() === (msg.id + '')) {
+                        @if (counterError() && (counterConfirmId() === (msg.id + '') || counterErrorId() === (msg.id + ''))) {
                           <div class="neg-card-decided rejected" data-testid="neg-counter-error" role="alert"><span>{{ counterError() }}</span></div>
                         }
                       }

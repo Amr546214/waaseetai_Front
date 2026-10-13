@@ -550,7 +550,7 @@ export class RequestDetails implements OnInit {
 		const counter = offer.negotiation?.counter;
 		if (!counter || this.answeringOfferId()) return;
 		this.answeringOfferId.set(offer.id);
-		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/offers/${offer.id}/negotiation/${action}-counter`, { messageId: counter.messageId })
+		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/offers/${offer.id}/counter/${action}`, { messageId: counter.messageId })
 			.subscribe({
 				next: (res) => {
 					this.answeringOfferId.set(null);

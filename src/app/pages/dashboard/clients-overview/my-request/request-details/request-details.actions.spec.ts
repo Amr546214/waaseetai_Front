@@ -97,7 +97,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		expect(box.textContent).toContain('450'); expect(box.textContent).toContain('4 يوم'); expect(box.textContent).toContain('الدردشة وحدها لا تغيّر العقد');
 		expect(s.q('accept-offer')!.disabled).toBe(true);
 		s.q('accept-counter')!.click();
-		expect(s.post).toHaveBeenCalledWith(expect.stringContaining('/client/my-requests/req-1/offers/legacy-1/negotiation/accept-counter'), { messageId: 'ctr-1' });
+		expect(s.post).toHaveBeenCalledWith(expect.stringContaining('/client/my-requests/req-1/offers/legacy-1/counter/accept'), { messageId: 'ctr-1' });
 		expect(s.get).toHaveBeenCalledTimes(2); // reloaded: the offer now carries the accepted price / duration
 	});
 
@@ -105,7 +105,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		const post = vi.fn(() => throwError(() => ({ error: { message: 'هذا العرض المضاد لم يعد الأحدث أو تم الرد عليه، حدّث الصفحة' } })));
 		const s = await setup(details({}, [prop({ status: 'UNDER_NEGOTIATION', negotiation: { state: 'COUNTER_PENDING', counter: { messageId: 'old', price: 1, deliveryDays: 1, notes: '' } } })]), { post });
 		s.q('decline-counter')!.click();
-		expect(post).toHaveBeenCalledWith(expect.stringContaining('/negotiation/decline-counter'), { messageId: 'old' });
+		expect(post).toHaveBeenCalledWith(expect.stringContaining('/counter/decline'), { messageId: 'old' });
 		expect(s.c.toastMessage()).toContain('لم يعد الأحدث');
 	});
 
