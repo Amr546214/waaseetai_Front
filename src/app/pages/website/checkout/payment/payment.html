@@ -168,7 +168,10 @@
               <span class="sum-row-label">المجموع الفرعي</span>
               <span class="sum-row-val">{{ formatPrice(subtotal()) }} $</span>
             </div>
-            @if (coupon()) {
+            @if (couponNotice()) {
+              <div class="coupon-msg error" role="alert" data-testid="coupon-notice">{{ couponNotice() }}</div>
+            }
+            @if (discount() > 0) {
               <div class="sum-row">
                 <span class="sum-row-label">خصم الكوبون</span>
                 <span class="sum-row-val discount-val" style="color:var(--teal)">- {{ formatPrice(discount()) }} $</span>

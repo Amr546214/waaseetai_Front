@@ -23,11 +23,14 @@ export class CheckoutPaymentComponent implements OnInit {
 
   items = this.cartService.items;
   itemCount = this.cartService.itemCount;
-  subtotal = this.cartService.subtotal;
-  discount = this.cartService.discount;
-  total = this.cartService.total;
   coupon = this.cartService.coupon;
+  couponNotice = this.cartService.couponNotice;
   currentOrder = this.checkoutService.currentOrder;
+  // Once the server has created the order, ITS figures are the authoritative ones (they are what the wallet is charged); before that, the cart's
+  // (server-validated) figures are shown.
+  subtotal = computed(() => this.currentOrder()?.subtotal ?? this.cartService.subtotal());
+  discount = computed(() => { const o = this.currentOrder(); return o ? o.discount : this.cartService.discount(); });
+  total = computed(() => this.currentOrder()?.total ?? this.cartService.total());
 
   isProcessing = signal(false);
   errorMessage = signal<string | null>(null);
@@ -123,6 +126,12 @@ export class CheckoutPaymentComponent implements OnInit {
         next: (orderResult) => {
           if (!orderResult.success) {
             this.errorMessage.set(orderResult.message);
+            this.isProcessing.set(false);
+            return;
+          }
+          // the server's final total may differ from what was shown: never start the payment on a balance that does not cover it
+          if (!this.hasSufficientBalance()) {
+            this.errorMessage.set(`إجمالي الطلب النهائي ${this.total()} $، ورصيد المحفظة لا يكفي. يلزم شحن ${this.shortfall()} $.`);
             this.isProcessing.set(false);
             return;
           }

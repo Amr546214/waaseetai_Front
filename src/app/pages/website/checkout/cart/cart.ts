@@ -27,6 +27,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   items = this.cartService.items;
   coupon = this.cartService.coupon;
+  couponNotice = this.cartService.couponNotice;
   itemCount = this.cartService.itemCount;
   subtotal = this.cartService.subtotal;
   discount = this.cartService.discount;
