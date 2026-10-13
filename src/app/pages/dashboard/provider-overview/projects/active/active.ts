@@ -7,7 +7,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 interface Project {
 	id: string;
 	title: string;
-	status: 'wait' | 'run' | 'late' | 'review';
+	status: 'wait' | 'run' | 'late' | 'review' | 'pending';
 	statusLabel: string;
 	progress: number;
 	providerName: string;
@@ -24,7 +24,19 @@ interface Project {
 	daysLeft?: number;
 	memberSpec?: string;
 	clientName?: string;
+	// Server-derived states (GET /provider/projects/active): rendered as they are, never guessed here.
+	contractStatus?: string;
+	escrowFunded?: boolean;
+	heldAmount?: number;
+	canUploadDelivery?: boolean;
+	uploadBlockedReason?: string | null;
+	awaitingClientReview?: boolean;
+	revisionRequested?: boolean;
+	revisionResubmitted?: boolean;
+	disputeStatus?: string | null;
 }
+
+type ActiveFilter = 'all' | 'run' | 'wait' | 'late' | 'review' | 'pending';
 
 @Component({
 	selector: 'app-active',
@@ -38,7 +50,7 @@ export class Active implements OnInit {
 	private authStore = inject(AuthStore);
 	private route = inject(ActivatedRoute);
 
-	activeFilter = signal<'all' | 'run' | 'wait' | 'late' | 'review'>('all');
+	activeFilter = signal<ActiveFilter>('all');
 	memberFilter = signal<string>('all');
 	sortBy = signal<'attn' | 'prog' | 'deadline'>('attn');
 	searchQuery = signal('');
@@ -61,8 +73,8 @@ export class Active implements OnInit {
 		}
 	}
 
-	private isValidFilter(value: string | null): value is 'all' | 'run' | 'wait' | 'late' | 'review' {
-		return value === 'all' || value === 'run' || value === 'wait' || value === 'late' || value === 'review';
+	private isValidFilter(value: string | null): value is ActiveFilter {
+		return value === 'pending' || value === 'all' || value === 'run' || value === 'wait' || value === 'late' || value === 'review';
 	}
 
 	loadProjects() {
@@ -96,10 +108,8 @@ export class Active implements OnInit {
 
 	counts = computed(() => {
 		const projs = this.projects();
-		const totalEscrow = projs.reduce((sum, p) => {
-			const price = p.rawPrice ?? (parseFloat((p.escrowAmount || '').replace(/[^0-9.]/g, '')) || 0);
-			return sum + price;
-		}, 0);
+		// Only funded escrows hold money: the server sends heldAmount = 0 for a contract without one.
+		const totalEscrow = projs.reduce((sum, p) => sum + (p.heldAmount ?? 0), 0);
 		const lateCount = projs.filter(p => p.status === 'late').length;
 
 		return {
@@ -107,9 +117,11 @@ export class Active implements OnInit {
 			run: projs.filter(p => p.status === 'run').length,
 			wait: projs.filter(p => p.status === 'wait').length,
 			review: projs.filter(p => p.status === 'review').length,
+			pending: projs.filter(p => p.status === 'pending').length,
+			// Projects where the next move is the provider's (a delivery or a requested revision can be sent now).
+			needsAction: projs.filter(p => p.canUploadDelivery).length,
 			late: lateCount,
-			totalEscrowFormatted: totalEscrow.toLocaleString('en-US'),
-			healthStatus: lateCount > 0 ? 'تحتاج انتباه' : (projs.length > 0 ? 'ممتاز' : 'جيد')
+			totalEscrowFormatted: totalEscrow.toLocaleString('en-US')
 		};
 	});
 
@@ -128,7 +140,7 @@ export class Active implements OnInit {
 		return Array.from(members.values());
 	});
 
-	setFilter(filter: 'all' | 'run' | 'wait' | 'late' | 'review') {
+	setFilter(filter: ActiveFilter) {
 		this.activeFilter.set(filter);
 	}
 
