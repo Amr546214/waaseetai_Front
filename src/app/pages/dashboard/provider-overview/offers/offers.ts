@@ -242,6 +242,31 @@ export class Offers implements OnInit {
 		}
 	}
 
+	/** What the details dialog says about this offer; only an offer that is really waiting on the client says so. */
+	offerNote(offer: Offer): string {
+		const text = offer.statusText || '';
+		switch ((offer.status || '').toLowerCase()) {
+			case 'rejected':
+				return text === 'ملغي'
+					? 'هذا العرض ملغي ولم يعد بانتظار أي رد من طالب الخدمة.'
+					: 'رفض طالب الخدمة هذا العرض، ولم يعد بانتظار أي رد.';
+			case 'accepted':
+				return 'تم التعاقد على هذا العرض.';
+			case 'pending_signature':
+				return 'قُبل عرضك وتوقيعك على العقد مطلوب.';
+			case 'nego':
+			case 'under_negotiation':
+				return 'العرض قيد التفاوض مع طالب الخدمة.';
+			case 'pending':
+			case 'pending_response':
+				return text.startsWith('اختارك العميل')
+					? 'اختارك طالب الخدمة، وهو يستكمل التوقيع وإيداع الضمان قبل أن يصلك العقد للتوقيع.'
+					: 'تم إرسال عرضك وهو الآن بانتظار مراجعة طالب الخدمة والرد عليه. سيتم تحديث حالة العرض هنا فور استلام أي رد.';
+			default:
+				return text || 'تفاصيل العرض كما هي مسجلة حالياً.';
+		}
+	}
+
 	closePendingOfferModal() {
 		this.selectedPendingOffer.set(null);
 		this.withdrawConfirming.set(false);

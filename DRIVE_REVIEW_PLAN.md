@@ -784,3 +784,575 @@
 
 ### SAFE TO PUSH PERSONAL REPOS: **YES**
 كل التغييرات مُلتزَم بها محليًا فقط. لم يحدث أي push، أي migrate، أي نشر، أي اتصال بقاعدة بيانات حقيقية، في أي خطوة من هذا التجميد.
+
+---
+
+## NOTIFICATION DEEP-LINK — PROJECT_MATCH (2026-09-30)
+
+**ملاحظة تنسيق:** لم يُعثر في هذا الملف ولا في `git log` ولا في أي ملف `.md` بالمستودعين على قسم سابق باسم «تقرير الإشعارات/الروابط العميقة المفصّل» أو «إصلاح العنصر النشط في الشريط الجانبي». ملفات الشريط الجانبي (`sheards/dashboard/sidebar/*`) نظيفة في `git status`، فلا يوجد إصلاح نشط فيها قيد التنفيذ. لذلك أُنشئ هذا القسم الجديد. الملفان `notification-engine.service.ts` و`.spec.ts` كانا معدّلين مسبقًا من وكيل آخر (أيقونات SafeHtml، `basePath`، STAGE_DELIVERY/NEW_PROPOSAL/MODEL_APPROVED/FINANCIAL)؛ فُحصت نطاقات التعديلات (`git diff -U0`) قبل التعديل، وسطورا `PROJECT_MATCH`/`OFFER_ACCEPTED` لم تكن ضمنها، فأُجري تعديل إضافي صغير فقط.
+
+### PROJECT_MATCH
+- **Backend creation location:** `waseetai-backend/src/services/client-requests.service.ts` → `notifyMatchingProviders()` (سطر ~398–436)، تُستدعى بعد إنشاء الطلب في `createRequest`. `prisma.notification.createMany` لأول 20 مقدم خدمة لهم `providerSpecialty` مطابق. (يوجد أيضًا صف seed واحد في `prisma/seed-visual-audit.ts:912` بلا actionUrl/metadata.)
+- **Real entity type:** `ClientRequest`. الخدمة نفسها تنشئ صف `Project` مرآة **بنفس المعرّف** (`id: clientRequest.id`) للتوافق، و`GET /projects/:id/summary` (الذي تحمّله صفحة التقديم) يقرأ هذا الصف.
+- **ID available:** `clientRequest.id`.
+- **Old metadata/actionUrl (قبل commit `6557b0b`، 2026-09-27):** `actionUrl: /provider-overview/projects/<clientRequestId>` — مسار **غير موجود** في `provider.routes.ts`؛ `metadata`: لا شيء. `actionText: 'عرض التفاصيل وتقديم عرض'`.
+- **New metadata/actionUrl (الكود الحالي على main، لم يتغيّر في هذه التمريرة):** `actionUrl: /provider-overview/explore-requests/<clientRequestId>/apply`، `metadata: { clientRequestId }`. **لم يلزم أي تعديل في الـbackend.**
+- **Root cause (frontend):** `resolveNotificationTarget()` كان يعيد `null` لأي PROJECT_MATCH بلا `metadata.clientRequestId` — أي كل الصفوف التاريخية — فلا وجهة للبطاقة (والنسخ المنشورة الأقدم كانت تتبع الرابط الخام الميت `/provider-overview/projects/<id>`).
+- **Exact frontend destination:** `/provider-overview/explore-requests/<clientRequestId>/apply` (`ApplayRequest`: يعرض تفاصيل الفرصة من `/projects/:id/summary` + نموذج تقديم العرض `POST /projects/:id/proposals`) — نفس المسار الذي يفتحه زر «تقديم عرض ←» في قائمة السوق نفسها (`explore-requests.html:204,397`). لا يوجد مسار تفاصيل منفصل `explore-requests/:id` ولم يُخترع.
+- **Historical notification fallback** (`resolveProjectMatchTarget()` الجديد في `core/services/notification-engine.service.ts`)، بالترتيب ودون أي تحليل للعنوان العربي:
+  1. `metadata.clientRequestId` → الفرصة بالضبط.
+  2. معرّف مُهيكل داخل `actionUrl` المخزَّن: الشكل الحالي `.../explore-requests/<id>/apply` أو الشكل التاريخي `/provider-overview/projects/<id>` (المعرّف فيه هو `clientRequest.id` كما كتبه الـbackend حرفيًا) → الفرصة بالضبط. تُستثنى المسارات الحقيقية المجاورة (`active`/`archived`/`phases`/`progress`)، والمعرّف يُقبل فقط إن طابق `^[A-Za-z0-9_-]{1,64}$`.
+  3. غير ذلك → قائمة السوق `/provider-overview/explore-requests` (لا `null` أبدًا، ولا صفحة غير ذات صلة).
+  - الصفوف الظاهرة في لقطة الشاشة (سواء القديمة أو الجديدة) تصل الآن للفرصة بعينها. إن كان صف `Project` المرآة مفقودًا لطلب ما (إنشاؤه محاط بـ`try/catch` صامت)، فستعرض صفحة التقديم خطأ «المشروع غير موجود» — نفس سلوك زر القائمة؛ ليس خاصًا بالإشعارات.
+- **Card-click behavior:** البطاقة (`.nt` / `.nt-row` في صفحة الإشعارات، و`.nb-item` في جرس الإشعارات) → `onNotificationClick`/`onItemClick` → `router.navigateByUrl(nt.actionUrl)` حيث `nt.actionUrl` ناتج `mapToAppNotification()` → `resolveNotificationTarget()` (المُحلِّل المركزي الوحيد). تُعلَّم مقروءة ثم تنتقل.
+- **Action-button behavior:** «عرض التفاصيل وتقديم عرض» هو `<span>` غير تفاعلي داخل البطاقة، يظهر فقط إذا وُجد `actionUrl` محلول (الآن دائمًا لـPROJECT_MATCH). النقر عليه ينتشر مرة واحدة إلى معالج البطاقة نفسه → **نفس الوجهة، نفس المُحلِّل، انتقال واحد** (لا معالج ثانٍ، لا تنقل مزدوج).
+- **Sidebar active item after navigation:** الأب «طلبات العملاء والعروض» (accordion `explore`) يُفتح/يُميَّز عبر `isAccordionOpen()` (`currentUrl().includes('/provider-overview/explore-requests')`، مُغذّى من `NavigationEnd.urlAfterRedirects` مع `initialValue: router.url` → يعمل بعد التحديث/الرابط المباشر/مع query params)، والابن «استكشاف الطلبات» نشط عبر `routerLinkActive` غير الحصري (subset) على `.../explore-requests/<id>/apply`. في حالة الرجوع للقائمة يطابق المسار نفسه. **لم يلزم أي تعديل في الشريط الجانبي.**
+
+### Other actionText notifications audit
+| type | actionText | الوجهة | الحالة |
+|---|---|---|---|
+| OFFER_ACCEPTED | عرض وتوقيع العقد | `offers/<offerId>/sign-contract` | **كان معطلًا للصفوف التاريخية** (قبل `6557b0b`: `actionUrl=/provider-overview/projects/<requestId>/contract` بلا metadata → `null` → بطاقة ميتة وزر مخفي). **أُصلح:** بلا `offerId` → `/provider-overview/offers` («عروضي»، مكان توقيع العرض المقبول). |
+| STAGE_REVIEW / PROJECT_COMPLETION_REWARD | عرض المشروع / عرض المشروع والنقاط | `projects/active/progress/<projectId>` | سليم — `metadata.projectId` موجود منذ أول إنشاء. |
+| MODEL_APPROVED | عرض التقرير › | `business-models/market/<serviceId>`؛ fallback `business-models/center` | سليم. |
+| FINANCIAL (client-finance / paypal-finance) | عرض المحفظة | `finance/transactions/<transactionId>` أو `finance/wallet` | يعمل؛ ملاحظة بسيطة غير معدَّلة: النص «عرض المحفظة» بينما الصفوف الجديدة تفتح تفاصيل المعاملة (من تعديل وكيل آخر). |
+| CHAT / NEW_PROPOSAL / STAGE_DELIVERY / GENERAL | بلا actionText | — | خارج نطاق التدقيق، لم تتغير. |
+
+### Changed files (frontend فقط، لا commit)
+- `src/app/core/services/notification-engine.service.ts`: حالة `PROJECT_MATCH` → `resolveProjectMatchTarget()` جديدة؛ حالة `OFFER_ACCEPTED` → fallback لقائمة العروض.
+- `src/app/core/services/notification-engine.service.spec.ts`: حذف توقُّعَي `null` القديمين لـPROJECT_MATCH/OFFER_ACCEPTED، وإضافة `describe` جديد (5 اختبارات: صف حالي، صف تاريخي بمسار قديم، fallback القائمة + رفض المعرّفات/المسارات غير الآمنة، تطابق وجهة البطاقة والزر، fallback عروض OFFER_ACCEPTED).
+
+### Validation
+- `npx tsc --noEmit` (root و`tsconfig.app.json`): exit 0.
+- `ng test --watch=false` على `notification-engine.service.spec.ts` + `provider notifications.spec.ts` + `notification-bell.spec.ts`: **3 ملفات، 45/45 ناجح**.
+- `ng build --configuration production` (output إلى scratchpad): نجاح؛ التحذيرات NG8107/CommonJS موجودة مسبقًا.
+- Backend: بلا تغيير → لم يلزم typecheck/test/build. لا migrate/db push، لا SQL، لا commit/push.
+
+---
+
+## WASEETAI INTEGRATION — PART J CHECKPOINT (2026-09-30)
+
+**Scope of this pass:** Parts A–J mapping and architecture. Only the foundational backend WaseetAI client, its tests, and `.env.example` entries were created. **None** of the existing Gemini endpoints/gateways were rewired, **no** fake-AI UI spot was changed, and there was no frontend change, no commit, push, deploy, migrate or DB access. **No authenticated call to WaseetAI was made** because `WASEET_AI_BEARER_TOKEN` is not configured (verified: `.env` has 0 `WASEET_AI_*` lines and `waseetAiClient.isConfigured()` returns `false` with `.env` loaded).
+
+### J1. Current → WaseetAI mapping
+Legend: Doc = contract documented with a worked example in the guide; Unv = matrix row only, so the contract must be verified live before migration.
+
+| Current feature | Current implementation (backend) | WaseetAI feature | Endpoint | Request | Response | Streaming? | Migration |
+|---|---|---|---|---|---|---|---|
+| Project description generation (create-request) | socket `ai:generate_description` → `sockets/ai-assistant.gateway.ts` → `geminiClient.generateStream` | AI-01 | POST `/v1/ai/project-description/stream` | Doc `{title,category,language,modelTier}` | SSE `generation.started` / `text.delta{chunk}` / `generation.completed` | SSE | Yes. Ready once token set. |
+| Client request AI suggest | POST `/client/requests/ai-suggest` → `client-requests.service.ts` | AI-02 | `/v1/ai/request-draft` | Unv | Unv | No | Yes, after live contract check |
+| Milestone suggestion | POST `/api/ai-review/suggest-milestones` → `ai-review.service.ts:152` (body `title,description,totalAmount`; returns `{title,description,estimatedDays,percentage}`) | AI-03 | POST `/v1/ai/milestones` | Doc `{title,description,totalAmount,currency}` | Doc `{milestones[{title,description,days,percentage,amount}]}` | No | Yes. Ready. Map `days`→`estimatedDays` in the backend; currency needs a source. |
+| Business-model AI review | POST `/api/ai-review/analyze` → `ai-review.service.ts:190` (returns `clarityScore,feasibilityScore,marketFitRating,executiveSummary,strengths,gapsAndRisks` **plus** `recommendedImprovements,suggestedMilestones,suggestedPricingStrategy`) | AI-04 (response is a subset) / AI2-02 | POST `/v1/ai/project-analysis` | Doc `{title,description,budget,deadlineDays,currency}` | Doc `{clarityScore,feasibilityScore,marketFitRating,executiveSummary,strengths[],gapsAndRisks[]}` | No | Yes. The UI must tolerate missing `recommendedImprovements/suggestedMilestones/suggestedPricingStrategy`, or keep AI2-02 (Unv) for those. |
+| Provider deep project analysis (explore-requests) | GET/POST `/api/assistant/analyze-project` → `ai-assistant.controller.ts:136` (returns `matchPercent,matchSummary,winningStrategy,suggestedBidPrice,priceRationale,clientInsights,riskAssessment`) | AI-14 project-fit (closest) | `/v1/ai/project-fit` | Unv | Unv | No | After contract check (the shape differs from AI-04) |
+| Provider dashboard AI matching | GET `/api/provider/statistics` → `ai-matching-engine.service.ts:276` (labeled rule-based fallback) | AI-13 | `/v1/ai/matching/projects-for-provider` | Unv | Unv | No | After contract check |
+| Proposal scoring on create | POST `/api/projects/:id/proposals` → `ai-proposal.service.ts:149` (AI fields null on failure) | AI-10 / AI-12 | `/v1/ai/proposals/suggest` / `enrich` | Unv | Unv | No | After contract check |
+| Public profile AI metrics | GET `/api/provider/profile/public/:providerId` (**unauthenticated**) → `provider-profile.service.ts:221` | AI-16 | `/v1/ai/profile/performance-summary` | Unv | Unv | No | After contract check. The current silent all-zero fallback is a truthfulness issue (see J4). |
+| Text suggest / enhance (new-project) | sockets `stream_ai_suggest_text` / `stream_ai_enhance_description` → `sockets/ai-review.gateway.ts` | AI-05/AI2-09, AI2-10 | `/v1/ai/text/suggest/stream`, `/v1/ai/text/enhance/stream` | Unv | Unv (SSE presumed) | SSE | Yes, after contract check |
+| Accreditation review (vision) | POST accreditation `/submit` → `accreditation-ai.service.ts` (`generateStructuredWithImage`) | AI-07 | `/v1/ai/accreditation-review` | Unv (image transport unknown) | Unv | No | Blocked on contract (how images are sent) |
+| Specialty AI evaluate / assessments | POST `/provider/specialties/:id/ai-evaluate` (`specialty-ai.controller.ts`); POST `ai-assessment` `/generate`, `/:attemptId/submit`; sockets `start_assessment`/`submit_answer`/… (`sockets/assessment.gateway.ts`) | AI-08, AI2-05, AI2-06, AI2-07 | POST `/v1/ai/assessments`, POST `/v1/ai/assessments/:attemptId/submit`, `/:id/status`, `/assessments/stream` | Doc for create + submit | Doc for create + submit | create/submit No; `/assessments/stream` SSE | Create + submit ready. Note: WaseetAI keeps the answer key server-side, so our `ProviderSpecialty`/attempt persistence must store WaseetAI `attemptId`. Needs design. |
+| Onboarding setup test | sockets `setup_test:*` (`sockets/setup-test.gateway.ts:92`, generateStructured :136; **silent static fallback** not disclosed to the client) | AI-09 | `/v1/ai/onboarding-quizzes` | Unv | Unv | ? | After contract check |
+| Proposal AI suggest | POST `/proposals/ai-suggest` → `ai-proposal.service.ts` | AI-10 | `/v1/ai/proposals/suggest` | Unv | Unv | No | After contract check |
+| Proposal audit (step 3 scan) | socket `trigger_ai_audit` → `sockets/proposal-audit.gateway.ts` / `ai-audit.service.ts` | AI-11 / AI2-08 | `/v1/ai/proposals/audit/stream` | Unv | Unv | SSE | After contract check |
+| Proposal enrich | none | AI-12 (Paid) | `/v1/ai/proposals/enrich` | Unv | Unv | No | New capability |
+| Provider ↔ project matching / fit | `ai-matching-engine.service.ts` | AI-13, AI-14 | `/v1/ai/matching/projects-for-provider`, `/v1/ai/project-fit` | Unv | Unv | No | After contract check |
+| Marketplace recommendations | POST `/marketplace/ai-recommendations` (**unauthenticated**, aiLimiter) → `marketplace-ai.service.ts` | AI-15 | `/v1/ai/marketplace/recommendations` | Unv | Unv | No | After contract check. Keep aiLimiter; consider auth. |
+| Marketer AI insights | GET `/marketer-overview/ai-insights` | AI-16 (closest) | `/v1/ai/profile/performance-summary` | Unv | Unv | No | Confirm fit first |
+| Provider bio / skills suggest | POST `/provider/profile/suggest-bio`, `/suggest-skills` → `provider-profile.service.ts` | AI-17 | `/v1/ai/profile/bio`, `/v1/ai/profile/skills` | Unv | Unv | No | After contract check |
+| Project health | POST `/client/requests/:id/health`, `/provider/projects/:id/health` → `project-progress.service.ts` | AI-18 (Paid) | `/v1/ai/project-health` | Unv | Unv | No | After contract check |
+| Delivery review (client / provider) | POST `…/stages/:stageId/ai-review` (client-requests + provider routes) | AI-19 / AI2-03 (Paid) | `/v1/ai/delivery-review` | Unv | Unv | No | After contract check |
+| Dispute AI summary (admin) | POST `/api/admin/disputes/:id/ai-summary` → `dispute.service.ts:233` (returns `caseSummary,timelineSummary,evidenceSummary[],evidenceGaps[],suggestedQuestions[]`) | AI-20 (Paid) | POST `/v1/ai/disputes/summary` | Doc `{disputeId,projectId,clientClaim,providerClaim,evidenceList[]}` | Doc `{summary,clientPerspective,providerPerspective,recommendation}` | No | Yes, but the **response shape differs**, so the admin dispute UI (`dispute-api.service.ts:154` consumer) must change too. `recommendation` is new: present it as advisory only. |
+| Help assistant (client) | socket `help:ask` → `sockets/help-assistant-chat.gateway.ts` → `generateStream` + static KB prompt | AI-21 | POST `/v1/ai/help/chat` (also `/v1/ai/help/stream`, Unv) | Doc `{question}` (no history/role field documented) | SSE `text.delta{chunk}`, `citations[{docId,title}]`, `generation.completed` | SSE | Yes. Ready (history is dropped unless WaseetAI accepts it). |
+| Business model re-audit (admin) | POST `/business-models/re-audit-all` | AI2-01 | `/v1/ai/business-models/re-audit` | Unv | Unv | No | After contract check |
+| Avatar chat + voice | socket `ai_chat` → `sockets/avatar-chat.gateway.ts` → Gemini `generateStructured` (speechTimeline) + OpenAI TTS `openai-tts.client.ts` | AI2-04 | POST `/v1/ai/avatar/chat` | Doc `{message}` | Doc `{text, audio{mimeType:"audio/mp3", base64Audio}}` | No | Yes. Replaces both Gemini and OpenAI TTS. **Loses `speechTimeline`** (not in WaseetAI contract). |
+| Portfolio review | none found | AI-06 | `/v1/ai/portfolio-review` | Unv | Unv | No | New capability |
+
+### J2. Real AI features that can migrate immediately (once the token is configured and a live smoke test passes)
+Documented contract + typed client method already exist:
+1. Milestones: `/ai-review/suggest-milestones` → `suggestMilestones()`
+2. Business-model / project analysis: `/api/ai-review/analyze` → `analyzeProject()` (a subset of the current fields; `/assistant/analyze-project` maps to AI-14, which is Unv)
+3. Dispute summary: `/api/admin/disputes/:id/ai-summary` → `summarizeDispute()` (the response shape changes, so the admin UI must be adapted at the same time)
+4. Help assistant: `help:ask` → `streamHelpChat()` (the socket relay to Angular is unchanged)
+5. Project description streaming: `ai:generate_description` → `streamProjectDescription()`
+6. Avatar chat + voice: `ai_chat` → `avatarChat()`
+7. Assessments create/submit: `createAssessment()` / `submitAssessment()`. **Needs a small persistence-design step** first, because the answer key moves server-side to WaseetAI.
+
+Everything else is blocked only on verifying its contract live (see `UNVERIFIED_ENDPOINTS` in the client).
+
+### J3. Fake AI features that now have a real WaseetAI replacement
+| Fake spot (file:line, angular-app/src/app/…) | Real replacement |
+|---|---|
+| Provider AI assistant, keyword + setTimeout: `provider-overview/help/ai-assistant/ai-assistant.ts:158-243` (+ fake "متصل" badge :25-27) | AI-21 help chat through the shared `help:ask` socket |
+| Provider help hub `askAI()`: `provider-overview/help/help.ts:106-128` | AI-21 |
+| Marketer help `askAI()`: `marketer-overview/help/help.ts:68-86` | AI-21 |
+| Client help hub `askAI()`: `clients-overview/help/help.ts:81-103` | AI-21 (the separate client ai-assistant page is already real) |
+| create-request fake success toast on error: `create-request.ts:460-466` | Real AI-02 suggestion if it succeeds; honest error toast if it fails (the fix is required regardless of WaseetAI) |
+| Specialty score defaulting to 80: `specialties.ts:261`, `:1126` | AI2-05 `score` is always returned. Otherwise show "unavailable" and never default. |
+| Proposal step-3 fixed "enhanced message" + "+35%" + price panel: `step3-review.html:70`, `:72`, `:175-190` (`acceptAiMsg`/`acceptAiPrice` no-ops at `applay-request.ts:468/472`) | AI-10 proposal suggest / AI-11 audit stream (Unv, contract check first). Until then, remove the fixed text and numbers. |
+| `explore-requests.ts:285,287` positive verdict fallback | AI-04 / AI-14 values, or "غير متاح" |
+| step6-review fixed 96/88/94/97% "verified by AI": `step6-review.html:35,100,135,160` | AI-04 `clarityScore`/`feasibilityScore` (real numbers), or remove |
+| step1-general canned description + "دقة AI: 95%": `step1-general.html:69-72` | AI-01 stream; drop the accuracy claim |
+| Provider delivery "AI check" Math.random bar: `progress.ts:156-169` | AI2-03 delivery review (Unv), or relabel as a non-AI animation |
+| `sa-business-models.data.ts` mock `aiScore` driving bulk-approve (`sa-business-models.ts:88-89`) | AI2-02 audit (Unv). **Priority: a mock score currently drives a real admin action.** |
+| `sa-specialties-accreditation.data.ts` `aiRec`/`aiScore` | AI-07/AI-08 results from the DB |
+| `sa-offers.data.ts` / `sa-requests.data.ts` `aiScore` | AI-14 / AI-04 (Unv), stored per record |
+
+### J4. Fake features with no real backend capability (plan: remove the claim or show a truthful empty/unavailable state; never invent new numbers)
+- `sa-ai-dashboard.ts:31-45` (12 models, 94.2%, 284k, 142ms), `sa-ai-audit.ts:39-44,68-76`, `sa-match-engine.ts:40-99` ("Gradient Boosting v3.2", 2.4M): **no telemetry exists** in WaseetAI's documented API or in our backend. Plan (Part G): show an empty state saying "AI telemetry not yet available". Later option: add our own per-call telemetry table written by `waseetAiClient` (feature, latency, status code, requestId, no payloads) and aggregate real counts from it.
+- `sa-analytics-hub.ts:712` "94.2%"; `sa-finance-reports.ts:70` / `sa-sub-finance-reports.html:50` "بثقة 88%": remove.
+- `negotiate.ts:156-183` seeded negotiation round + "تحليل AI 88%": no negotiation-analysis endpoint. Remove the AI note/confidence, and the seeded thread needs a real history API.
+- `sales-stats.component.html:30-37`, `change-orders.component.ts:85`, `provider-hr.component.ts:552`, marketer `data.html:78`: no capability. Remove the AI labels (marketer could later use AI-16 if it fits).
+- `nav-dashboard.html:12`, `navbar.html:78` "AI · 95%" badge: remove.
+- `step4-success.html:123` "+35%": remove.
+- `sa-reports.data.ts` `aiSuggestion`/`aiRiskScore`, `sa-contracts.data.ts` `aiVerdict`: no endpoint. Show "not analyzed".
+- Help "human fallback" (AI-21): the mechanism is undocumented. Keep the existing `humanSupportFallback` link on error.
+- **Backend silent (unlabeled) fallbacks found by the backend inventory.** These are not UI fakes but have the same truthfulness problem. Plan: label them (`generationSource`) or fail truthfully.
+  - `setup-test.gateway.ts`: static questions; `setup_test:ready` doesn't disclose the fallback.
+  - Assessment submit: deterministic `feedbackAr/strengths/weaknesses` presented like AI feedback, in `assessment.gateway.ts` `handleSubmission` and `ai-assessment.service.ts:372`.
+  - `provider-profile.service.ts:221`: returns `ZERO_AI_METRICS` silently on failure.
+  - `ai-audit.service.ts`: `re-audit-all` always PUBLISHES regardless of the AI result.
+- Backend security notes from the inventory, for the migration passes:
+  - `specialty-ai.controller.ts` 502 body forwards the raw `error.message`.
+  - `proposal.routes.ts:25` `ai-suggest` lacks `requireActiveUser`.
+  - `/api/marketplace/ai-recommendations` and `/api/provider/profile/public/:providerId` call AI unauthenticated (aiLimiter only).
+
+### J5. WaseetAI backend client architecture (built)
+```
+Angular ──JWT (REST / Socket.IO)──▶ Waseet feature service / gateway
+          ──▶ waseetAiClient (only holder of bearer token) ──HTTPS──▶ WaseetAI Cloud Run
+```
+- `src/config/ai/waseet-ai.config.ts`: `getWaseetAiConfig()` reads env lazily on each call. The base URL defaults to the documented Cloud Run URL. Placeholder/empty token values count as unset. Optional timeout env vars.
+- `src/services/ai/waseet-ai/waseet-ai.client.ts`: `WaseetAiClient`, with an injectable fetch for tests and a singleton `waseetAiClient`.
+  - `isConfigured()`
+  - REST: `suggestMilestones`, `analyzeProject`, `createAssessment`, `submitAssessment`, `summarizeDispute`, `avatarChat`
+  - SSE: `streamProjectDescription`, `streamHelpChat` (async generators of normalized events `started`/`delta`/`citations`/`completed`/`unknown`)
+  - `callUnverified(id)` always throws `CONTRACT_UNVERIFIED` and makes no network call
+  - Headers: `Authorization: Bearer`, `Content-Type`, `Accept`, `X-Client-Id: waseet_core_backend`, `X-Request-Id` (UUID or propagated)
+  - Validates the `{success:true,data}` envelope plus the minimal contract per method
+  - Timeout via AbortController
+  - Stream without a completion event → `INVALID_RESPONSE`
+- `waseet-ai.errors.ts`: `WaseetAiError{code,status,requestId}`. Codes: `NOT_CONFIGURED`, `CONTRACT_UNVERIFIED`, `BAD_REQUEST`, `AUTHENTICATION_ERROR`, `NOT_FOUND`, `RATE_LIMITED`, `TIMEOUT`, `PROVIDER_UNAVAILABLE`, `INVALID_RESPONSE`, `UNKNOWN_PROVIDER_ERROR`. Messages are fixed strings. The upstream body and headers are never included, and logs record only path, code, status and requestId.
+- `waseet-ai.sse.ts`: dependency-free SSE parser. It handles chunk splits, split UTF-8 (Arabic), CRLF, comments/heartbeats, `[DONE]`, and the event name either in `event:` or in the JSON `event`/`type` field (the guide is ambiguous on this).
+- `waseet-ai.types.ts`: only the documented contracts. No invented field names.
+- Future migration pattern per feature: a feature flag `AI_PROVIDER_<FEATURE>=waseet|gemini`. If WaseetAI is configured and the flag is on, use the new path; otherwise the old Gemini path. On WaseetAI error, return the feature's existing truthful error (never silently fall back to fake content). Remove the Gemini path only after parity is proven.
+
+### J6. Avatar component architecture (design, not yet wired)
+Current state (verified):
+- `sheards/robot-avatar/robot-avatar.ts` is a standalone three.js + GSAP full-screen overlay (`fixed inset-0 z-[9999]`). It loads `public/assets/models/rebooot.glb` (DRACO from the gstatic CDN).
+- It has no inputs/outputs and opens its own raw socket. That socket has no `auth.token`, so it always connects as a guest; the token is sent in the `ai_chat` payload instead.
+- It is **not mounted**: `ai-features.ts:3` imports it but `imports: [RouterLink]` excludes it. `RobotAvatarService` and `robot-avatar.config.ts` are unused.
+- Bone animation relies on `set_motion_state` / `avatar_motion_stream`, which **do not exist in the backend** (0 grep hits), so only whole-model GSAP tweens work. GLB clips are ignored (no AnimationMixer).
+- Bugs:
+  - `socket.off('ai_chat_response')` on timeout removes all listeners.
+  - Concurrent `ai_chat` replies race.
+  - `ontimeupdate` emits roughly every 250 ms.
+  - Resize listener and router subscription leak.
+  - The owner-greeting effect doesn't wait for `hasStarted`.
+  - Every navigation triggers a spin.
+  - It auto-speaks.
+  - Its full-screen start modal blocks the page.
+
+Target:
+- **Keep:** three.js scene, GLB, GSAP tweens, audio-playback code (base64 → Blob → Audio).
+- **Refactor, not rewrite:**
+  - `AssistantStore` (new, root signal store): `state: 'idle'|'listening'|'thinking'|'speaking'|'error'`, `messages[]`, `errorMessage`, `open`.
+  - `AssistantSocketService`: generalise the existing `help-assistant-socket.service.ts` (already authenticated through `auth:{token}`, SSR-guarded) instead of the avatar's raw `io()`.
+  - `RobotAvatar` becomes a *presentational* renderer: `input state`, `input audio` (optional). It maps state → GSAP pose. Move it to a small corner canvas (e.g. 160×200, `pointer-events` only on itself) instead of full-screen.
+    - idle: gentle bob
+    - listening: lean + glow
+    - thinking: head tilt loop
+    - speaking: amplitude-driven from WebAudio `AnalyserNode` on the playing mp3
+    - error: dim + shake
+  - Remove the dependency on the nonexistent motion socket and the auto-intro/nav spin, or keep them behind opt-in.
+  - `AssistantPanelComponent` (new): chat panel reusing the client ai-assistant page's message rendering (`clients-overview/help/ai-assistant/ai-assistant.ts:134-171` handlers). It hosts `<app-robot-avatar [state]>` and shows citations.
+- **Mount:** once, in `layouts/dashboard-layout/dashboard-layout.html` next to `<app-video-call-modal>` (one shell serves client/provider/marketer/admin). It is lazy: the WebGL canvas initialises only when the panel is first opened, not on page load, and requires a user gesture for audio.
+- The fake provider/marketer/client-hub helpers are then replaced by opening the same panel.
+
+### J7. How the Avatar uses AI Help
+1. The user types in `AssistantPanel`, then `store.state = 'thinking'`.
+2. It emits `help:ask {question, history}` over the authenticated socket (existing contract).
+3. `help-assistant-chat.gateway.ts` (backend) validates, applies the rate limit and derives role context server-side, then calls `waseetAiClient.streamHelpChat({question})`.
+4. Relay to Angular:
+   - `started` → `help:answer_start`
+   - `delta` → `help:answer_chunk{chunk}` (state `speaking`, with text rendered progressively)
+   - `citations` → new `help:citations[{docId,title}]`
+   - `completed` → `help:answer_complete`, then state `idle`
+5. On any `WaseetAiError`, emit `help:error{message, humanSupportFallback:true}` → state `error` with a truthful Arabic message. No canned answer is ever returned.
+6. Voice (optional, J9): after completion, if voice mode is on, the backend calls `avatarChat({message: finalText})`, or better a TTS-only mode if WaseetAI offers one. The avatar then plays the returned mp3 and stays in `speaking` until `ended`.
+- Role-aware (Part D): one engine. The backend reads `accountType` from the verified JWT (never from the client payload). The documented `/help/chat` contract has only `{question}`, so role context would be a short non-sensitive prefix (e.g. "User role: provider; current section: offers"), or a dedicated field if WaseetAI supports one (to verify). No IDs, emails, names, financial data or tokens are ever sent. `currentRoute` passes through a backend allow-list mapping to coarse section names.
+
+### J8. AI Help: REST or streaming?
+**Streaming (SSE).** Per the guide, `POST /v1/ai/help/chat` returns `text/event-stream` with `text.delta`, `citations` and `generation.completed`. `/v1/ai/help/stream` is also listed but has no documented contract. The WaseetAI → backend hop is SSE; the backend → Angular hop stays Socket.IO (existing `help:*` events). Auth stays server-side.
+
+### J9. Voice architecture
+| Layer | Exists today | Real? | Missing / plan |
+|---|---|---|---|
+| Speech-to-text | **Nothing** in the avatar (only `MediaRecorder` for chat voice notes in `chat.service.ts:233`) | — | No STT endpoint in the WaseetAI guide. Option: browser `webkitSpeechRecognition` (label it honestly as browser dictation, with Arabic support varying by browser), or a future server STT. The `listening` state is only meaningful once STT exists. |
+| AI reasoning | `ai_chat` → Gemini `generateStructured` (text + speechTimeline); `help:ask` → Gemini stream | Real (Gemini) | Move to AI-21 (help) / AI2-04 (avatar) |
+| Text-to-speech | Server: OpenAI `tts-1-hd` voice `onyx` (real AI TTS, only if `OPENAI_API_KEY` is set). Client fallback after 15 s or on failure: `window.speechSynthesis`, which is **browser TTS, not AI voice** | Server part real; fallback not AI | Replace with AI2-04 `audio.base64Audio` (server-side Arabic speech). Remove the silent browser-TTS fallback, or label it as "browser voice". On audio failure, show the text only with a "voice unavailable" note. |
+| Avatar animation | three.js + GSAP whole-model tweens; bone streaming dead (no backend) | Real rendering, no lip-sync | Drive `speaking` from WebAudio amplitude. Drop `speechTimeline` because AI2-04 doesn't return it. |
+
+### J10. Files expected to change (future migration passes, after approval)
+- **Backend:**
+  - `sockets/help-assistant-chat.gateway.ts`
+  - `sockets/avatar-chat.gateway.ts`
+  - `sockets/ai-assistant.gateway.ts`
+  - `modules/ai-review/ai-review.service.ts`
+  - `services/dispute.service.ts`
+  - `services/ai-assessment.service.ts` + `sockets/assessment.gateway.ts` + `sockets/setup-test.gateway.ts`
+  - later: `ai-proposal.service.ts`, `ai-audit.service.ts`, `client-requests.service.ts`, `marketplace-ai.service.ts`, `provider-profile.service.ts`, `project-progress.service.ts`, `accreditation-ai.service.ts`, `ai-matching-engine.service.ts`
+  - their tests
+  - optionally a new telemetry table (would need a migration, which requires separate approval)
+- **Frontend:**
+  - `sheards/robot-avatar/*` (refactor)
+  - new `core/stores/assistant.store.ts`, `sheards/assistant-panel/*`
+  - `core/services/help-assistant-socket.service.ts`
+  - `layouts/dashboard-layout/dashboard-layout.{ts,html}`
+  - provider/marketer/client help pages
+  - `create-request.ts`, `specialties.ts`, `applay-request.ts` + step1/3/4/6 templates, `explore-requests.ts`, `negotiate.ts`, `progress.ts`
+  - `nav-dashboard.html`, `navbar.html`
+  - sa-ai-dashboard / sa-ai-audit / sa-match-engine / sa-analytics-hub / sa-finance-reports, and sa-*.data.ts consumers
+  - sales-stats, change-orders, provider-hr, marketer data.html
+
+### J11. Environment variable NAMES
+- `WASEET_AI_BEARER_TOKEN` (required; secret; backend env only)
+- `WASEET_AI_BASE_URL` (optional; defaults to the documented Cloud Run URL)
+- Optional: `WASEET_AI_TIMEOUT_MS`, `WASEET_AI_STREAM_TIMEOUT_MS`
+- Existing, to remain until migration parity: `GEMINI_API_KEY` / `GEMINI_API_KEYS`, `OPENAI_API_KEY`
+- The frontend needs **none** of these.
+
+### J12. Blockers to authenticated testing
+- **`WASEET_AI_BEARER_TOKEN` is not configured** in `waseetai-backend/.env` (0 `WASEET_AI_*` lines; `isConfigured() === false`). It must be added through the owner's own secure process. It was not added here and must not be pasted in chat.
+- Consequences until it is added:
+  - Phase 4 (reachability) is untested.
+  - The SSE framing (`event:` field vs JSON-embedded name) is unconfirmed.
+  - The 22 `UNVERIFIED_ENDPOINTS` contracts are unknown.
+  - The help "human fallback" mechanism is unknown.
+  - Whether `/help/chat` accepts history or role is unknown.
+  - The accreditation image transport is unknown.
+
+### Created in this pass (backend only, not committed)
+- `waseetai-backend/src/config/ai/waseet-ai.config.ts`
+- `waseetai-backend/src/services/ai/waseet-ai/waseet-ai.client.ts`
+- `waseetai-backend/src/services/ai/waseet-ai/waseet-ai.errors.ts`
+- `waseetai-backend/src/services/ai/waseet-ai/waseet-ai.sse.ts`
+- `waseetai-backend/src/services/ai/waseet-ai/waseet-ai.types.ts`
+- `waseetai-backend/src/services/ai/waseet-ai/waseet-ai.client.test.ts` (15 tests, mocked fetch, no network)
+- `waseetai-backend/.env.example`: new WASEETAI section (`WASEET_AI_BEARER_TOKEN=` left empty)
+
+### Validation
+- `npx tsc --noEmit` (backend): exit 0.
+- New tests: 15/15 pass. Full backend suite (`npm test`): **1432/1432 pass**.
+- Frontend: not changed, so no build was needed.
+
+---
+
+## WASEETAI — FIRST PRODUCTION VERTICAL SLICE: HELP + ANIMATED AVATAR (2026-09-30)
+
+**Scope:** migrate the real Help assistant to WaseetAI, retire the fake keyword/setTimeout helpers, and mount the existing 3D Avatar once in the shared dashboard. Nothing else was touched: no other AI feature was migrated, milestones are still on Gemini, and there was no commit, push, deploy or Prisma command. The token is referred to by name only (`WASEET_AI_BEARER_TOKEN`). Its value was never printed, logged or written anywhere.
+
+### 1. Help endpoint used
+- `POST {WASEET_AI_BASE_URL}/v1/ai/help/chat`
+  - Sent with `Accept: text/event-stream`, `X-Client-Id: waseet_core_backend` and `X-Request-Id`.
+  - Called only through `waseetAiClient.streamHelpChat`.
+- `/v1/ai/help/stream` was also probed. It returns an identical stream, but it is not used.
+
+### 2. Actual SSE contract (probed live)
+The probe was a throwaway `src/__tmp_help_probe.ts` that printed structure only; it was deleted right after. It made 7 help requests plus 8 GETs looking for a published schema (none found: every docs/openapi path returns 404).
+
+**Response**
+- HTTP 200, `Content-Type: text/event-stream; charset=utf-8`, with `cache-control` and `x-accel-buffering` headers.
+- Framing is standard: an `event: <name>` line and a `data: <json>` line, with a blank line between events.
+
+**Events actually observed**
+- `event: help:answer_start` with data `{"status":"started","citationsCount":0}`
+- `event: help:error` with data `{"message":"<Arabic text: no approved policy found, please contact human support>","human_support_fallback":true}`
+
+**Events never observed**
+- No chunk, completion or citation event was ever seen. Every question returned `citationsCount: 0` and then `help:error` within about 300 ms. This included escrow, refund, commission and "what is Waseet", in Arabic and English.
+- Conclusion: **the upstream help knowledge base currently has no approved documents**, so the success path cannot be observed yet.
+- The guide's `text.delta` / `generation.completed` names do **not** match the real `help:*` naming.
+
+**Request / correlation ID**
+- Our `X-Request-Id` is **not echoed** back.
+- SSE events carry no request id.
+- Error (400) responses include `x-cloud-trace-context`.
+- We log our own `requestId` for every call.
+
+**Request validation** (strict; upstream returns 400 `VALIDATION_ERROR` with per-field details)
+- `question: string` is required.
+- `history` is accepted. It is validated as `[{ role: 'user' | 'assistant' | 'system', content: string }]`.
+- Unknown top-level keys, including a `role` key, are **silently stripped**.
+
+**Role and human handoff**
+- **Role is not supported upstream.** There is no role field.
+- **Human handoff:** there is no handoff API. There is only the `human_support_fallback: true` flag on `help:error`.
+
+**Implemented against this contract**
+- Verified names:
+  - `help:answer_start` maps to a started event.
+  - `help:error` maps to a `STREAM_ERROR` WaseetAiError carrying `humanSupportFallback`. The upstream text is never copied.
+- The guide's documented names are still accepted.
+- `help:answer_chunk`, `help:answer_complete` and `help:citations` are also accepted. These three are **inferred** from the verified `help:*` naming and are unverified; the code comments say so.
+- Any other event name is logged by name only, so the real success contract will show up in logs the first time it happens.
+- A known text event with a non-string chunk throws `INVALID_RESPONSE`.
+
+### 3. Does real streaming work?
+**Yes, as far as the service allows today.**
+- The live upstream stream flows WaseetAI → backend (SSE, parsed incrementally, nothing buffered) → Socket.IO → Angular.
+- `help:answer_start` reaches the browser live. The truthful "no approved answer" error arrives about 0.3 s later.
+- Progressive text rendering is implemented and tested with mocks (multiple chunks). It could not be seen live because upstream never returns answer text right now.
+
+### 4. Role and history support
+- **History:** supported upstream. We convert the existing frontend `{question, answer}[]` into the `{role, content}` shape, keeping at most the last 3 turns with each field capped at 1000 characters.
+- **Role:** not supported upstream. Role stays in our backend:
+  - It is derived server-side from the database (admin account types first, then `activeRole`, then `accountType`), never from the payload.
+  - It is used for access policy and logs.
+  - It is never sent upstream, and no field was invented.
+
+### 5. Human handoff
+- There is no handoff API.
+- We relay `humanSupportFallback: true` on every AI failure. The UI then shows "التواصل مع الدعم البشري" (contact human support), linking to each role's existing support page:
+  - client: `/client-overview/help/live-support`
+  - provider: `/provider-overview/help/live-support`
+  - marketer: `/marketer-overview/help`
+  - admin: no link (there is no support page for admins)
+
+### 6. Old Help architecture
+- Client help page → `help:ask` → `help-assistant-chat.gateway.ts` → Gemini `generateStream` with a static in-repo knowledge prompt (`knowledge/help-assistant-knowledge.ts`).
+  - The gateway was soft-auth: guests were served.
+- The provider AI page and the client, provider and marketer help hubs were fake. They matched keywords against a fixed FAQ list behind a `setTimeout`.
+  - The provider page showed a hard-coded "متصل" (online) badge.
+  - The marketer hub showed a "مدعوم بالذكاء" (AI-powered) label.
+- The avatar was not mounted. It had its own guest socket (`ai_chat`) and dead motion events.
+
+### 7. New Help architecture (one engine)
+Request path:
+```
+Browser (dashboard, JWT in Socket.IO handshake auth.token)
+  → AssistantStore (root signal store; the single conversation + avatar state)
+  → HelpAssistantSocketService (authenticated only; no socket at all without a token; reconnects when the token changes)
+  ──help:ask {question, history, clientRequestId, speak}──▶ help-assistant-chat.gateway.ts
+       per question: resolveHelpAssistantUser (socket.userId from the handshake JWT
+         + re-verify the JWT now + user exists/active/not banned + session not revoked)
+       → input validation → per-user rate limit → isConfigured()
+       → waseetAiClient.streamHelpChat({question, history?})  (sole holder of the token)
+  ◀── help:answer_start / help:answer_chunk / help:citations / help:answer_complete /
+      help:error {code, message, humanSupportFallback} / help:audio / help:audio_unavailable
+```
+
+**Socket contract**
+- The existing events are preserved. Every payload now also carries `clientRequestId`.
+- New events: `help:cancel`, `help:citations`, `help:audio` and `help:audio_unavailable`.
+
+**Cancellation and failures**
+- Upstream aborts on socket disconnect, `help:cancel`, or a new question superseding the old one.
+- The client aborts the upstream fetch when the consumer stops early.
+- Timeouts:
+  - The upstream stream has a 60 s timeout.
+  - The browser has a 75 s watchdog.
+- If a stream "completes" with no text, that is reported as an error.
+- Error messages are fixed Arabic strings per code: `AUTH_REQUIRED`, `FORBIDDEN`, `INVALID_INPUT`, `RATE_LIMITED`, `NOT_CONFIGURED`, `NO_ANSWER`, `TIMEOUT` and `UNAVAILABLE`. Upstream text, error causes and headers never reach the browser.
+
+**Pages on the one engine**
+- The floating Avatar panel, the client and provider AI-assistant pages, and the client, provider and marketer help hubs (whose search now calls `openAndAsk`) all use the one store and engine.
+- The fake keyword/`setTimeout` logic was deleted. That includes the fake "متصل" badge, the "مدعوم بالذكاء" label on keyword matches, and the fixed FAQ "answers".
+
+### 8. Avatar files reused
+- `public/assets/models/rebooot.glb`: the existing GLB, with DRACO decoding from the gstatic CDN.
+- Kept from the original `robot-avatar.ts`:
+  - the three.js scene, lights and renderer setup
+  - the GLTF loader with its 3 retries
+  - the model auto-scale and centering logic
+  - the render loop
+  - GSAP whole-model tweens
+  - full GPU disposal
+- The audio playback code (base64 → Blob → `Audio`) moved into `AssistantStore`.
+- `robot-avatar.service.ts` and `robot-avatar.config.ts` were left untouched. They are still unused.
+
+### 9. Avatar files changed
+**Refactored**
+- `sheards/robot-avatar/robot-avatar.{ts,html,scss,spec.ts}` became a presentational `state` input. Removed:
+  - the full-screen overlay and the "ابدأ التجربة" (start the experience) start modal
+  - the guest `io()` socket and the `ai_chat` call
+  - the dead `avatar_motion_stream` / `set_motion_state` code and the speech-timeline gesture sync
+  - the auto intro and auto speech
+  - the spin on every navigation and the owner-greeting burst
+  - the silent browser `speechSynthesis` fallback
+- Bugs fixed:
+  - The resize handler leak is replaced by a `ResizeObserver` that is disconnected on destroy.
+  - The router subscription leak is gone.
+  - The bare `socket.off` call is gone.
+  - Rendering pauses while the tab is hidden.
+
+**New**
+- `sheards/assistant-widget/assistant-widget.ts`: the corner launcher and panel.
+- `sheards/assistant-chat/assistant-chat.ts`: the shared chat UI.
+- `core/store/assistant.store.ts`
+
+**Deviation from the J6 design**
+- Audio playback lives in the store, not the avatar, so audio still works when WebGL is unavailable.
+- There is no WebAudio amplitude lip-sync. Speaking is a simple whole-model motion while audio plays, per the "no fabricated gesture timing" rule.
+
+### 10. Where the Avatar is mounted
+- Once, in `layouts/dashboard-layout/dashboard-layout.html`, next to `<app-video-call-modal>`, inside `@defer (on idle)`. three.js and GSAP load in a lazy chunk after the page is idle and are browser-only.
+- It appears for client, provider, marketer and super-admin: every route that uses `DashboardLayoutComponent`.
+- Position and size:
+  - fixed at `inset-inline-end: 16px; bottom: 16px`, which is bottom-left in RTL and bottom-right in LTR
+  - launcher is 88×100 px (66×76 px on phones)
+  - panel is `min(380px, 100vw-32px)` wide
+- Behaviour:
+  - Escape closes the panel.
+  - The panel keeps dark theme tokens pinned.
+  - `prefers-reduced-motion` is respected.
+  - If the model fails to load, a static glyph is shown instead.
+
+### 11. Socket and auth changes
+**Backend**
+- `help:ask` now **requires** an authenticated, active, non-banned user with a valid, non-revoked session. The check repeats on every question.
+- Guests and invalid or expired tokens get `help:error {code: AUTH_REQUIRED}`, and WaseetAI is never called.
+- The rate limit is keyed by the verified user id; the guest socket-id path was removed.
+
+**Frontend**
+- The dashboard Avatar no longer opens any guest socket.
+- The help socket takes its token from `AuthStore.token()`, not a direct cookie/localStorage read.
+
+**Unchanged**
+- `sockets/avatar-chat.gateway.ts` (`ai_chat`, Gemini + OpenAI TTS, soft-auth) now has **zero frontend callers**. It was left in place to avoid broadening scope and is a candidate for removal.
+- No public AI route was changed.
+
+### 12. State machine
+- `idle → thinking` when a question is sent. Text streams into the bubble on the first chunk while the state stays `thinking`, with a `streaming` flag set.
+- `thinking → idle` on `help:answer_complete`.
+- With voice on: `help:audio → speaking` while the audio plays, then `idle` when it ends or fails to play.
+- `thinking → error` on `help:error`, connection loss, or the watchdog.
+  - The partial bubble is dropped and a truthful message is shown.
+  - Retry re-sends without duplicating the question; sending a new question also leaves `error`.
+- No `listening` state (there is no STT).
+- Motion per state:
+  - idle: subtle bob
+  - thinking: head tilt and slow turn loop
+  - speaking: livelier bob and pulse
+  - error: short shake, then dimmed via CSS
+
+### 13. TTS behavior
+- Opt-in toggle labelled "قراءة الرد صوتياً (صوت مُولَّد آلياً)" (read the reply aloud, machine-generated voice). It is off by default and the preference is stored in localStorage.
+- Only after a **complete** text answer, the backend calls the existing OpenAI TTS (`generateSpeechMp3Base64`, `tts-1-hd`) on the final WaseetAI text. This is skipped if the answer is over 1500 characters.
+- Outcomes:
+  - Success: `help:audio` is sent.
+  - TTS not configured, answer too long, or TTS failed: `help:audio_unavailable {reason}`. The text answer stays successful and the UI shows a truthful note.
+  - The browser blocks playback: the state returns to `idle` with a note.
+- There is no browser `speechSynthesis` fallback, so nothing is presented as AI voice when it isn't.
+- OpenAI TTS could not be exercised live, because upstream never produced a completed answer.
+
+### 14. Tests and results (no live calls in any automated test)
+**Backend**
+- `sockets/help-assistant-chat.gateway.test.ts` (rewritten, 22 tests). Covers:
+  - authenticated stream and multi-chunk flow
+  - rejection of unauthenticated and forbidden requests
+  - start without an explicit started event, and citations
+  - role handling for all 4 roles; payload and spoofed role never forwarded
+  - history conversion and bounding
+  - upstream `NO_ANSWER`, mid-stream failure, malformed event, timeout, empty stream, not configured
+  - empty/oversized input and rate limit
+  - disconnect and cancel
+  - no credential or raw-error leakage, and a sanitized `clientRequestId`
+  - TTS success, TTS failure with the text still successful, and TTS not requested / not configured
+- `sockets/help-assistant-auth.test.ts` (new, 6 tests): guest, expired/foreign/other-user token, revoked session, suspended/pending/banned account, active user, and role mapping including the admin-with-`activeRole=CLIENT` case.
+- `services/ai/waseet-ai/waseet-ai.client.test.ts` (5 tests added, 20 total): live-verified `help:answer_start` + `help:error` framing, inferred and documented names, malformed events, history body plus unknown events, and abort/early-return releasing the upstream fetch.
+- Results:
+  - These three files: **48/48**.
+  - Full backend suite: **1452/1452**, run before the final 2-line role-mapping fix; the three files above were re-run afterwards.
+
+**Frontend (vitest)**
+- New `assistant.store.spec.ts` (14): state transitions, error/retry, AUTH_REQUIRED, connection loss, watchdog, stale events, cancel, TTS success → speaking → idle, TTS unavailable, blocked audio, voice off, history bounding, `openAndAsk`.
+- New `help-assistant-socket.service.spec.ts` (5): no token means no socket; handshake JWT; event mapping; reconnect on token change; cancel and disconnect.
+- New `assistant-widget.spec.ts` (3).
+- Rewritten `robot-avatar.spec.ts` (3): no socket or modal, state reflected on the host, fallback glyph.
+- Rewritten client `ai-assistant.spec.ts` (2).
+- `marketer help.spec.ts` (2): now fakes the transport and `MarketerOverviewService`, so it no longer makes a real HTTP call to the dev API.
+- Results:
+  - Relevant specs: **29/29**.
+  - Full frontend suite: 352 pass, 127 fail, all in 38 **untouched** spec files. Causes are pre-existing environment and unrelated issues:
+    - the test runner has no global `localStorage`, so `AuthStore` crashes
+    - currency assertions (`$` vs `ريال`)
+    - a missing `ActivatedRoute` provider
+    - unmocked HTTP
+  - No failure stack references any file changed in this pass.
+
+### 15. Backend build and typecheck
+- `tsc --noEmit`: exit 0.
+- `tsc` build (to the scratchpad): OK.
+
+### 16. Frontend build and typecheck
+- `tsc -p tsconfig.app.json --noEmit`: exit 0.
+- `ng build --configuration production` (to the scratchpad): succeeded. The only warnings are the pre-existing NG8107 and CommonJS warnings.
+
+### 17. Manual local test (Playwright; real WaseetAI; backend :5009 against the local Postgres on :5433; frontend :4300)
+**Environment note:** the backend had to be restarted to load the new code. Socket.IO CORS is strict (unlike REST in development), so it was started with `CORS_ORIGINS=http://localhost:4300`. This is an environment variable only, with no code change.
+
+**Checks 1–11, as client**
+1. Login OK.
+2. Avatar appears: a real GLB canvas in `idle`, no fallback, bottom-left in RTL.
+3. Panel opens.
+4. Question sent.
+5. The real WaseetAI stream starts: `help:answer_start`.
+6. Progressive text could not be shown because upstream returns no text (see §2).
+7. The response ends with the upstream `help:error`, relayed as `NO_ANSWER`.
+8. States went `idle → thinking (≈50 ms) → error`. The UI showed the truthful Arabic message, a "إعادة المحاولة" (retry) button that works (a second live round-trip), and a human-support link.
+9. Audio could not be triggered, because no completed answer was produced.
+10. Client-side navigation to `/client-overview/my-requests` kept the **same widget instance**, with the panel open, the conversation and the state preserved.
+11. After a full reload the widget reconnected and a new question streamed again.
+
+**Other checks**
+- Escape closes the panel.
+- At a 390 px viewport there is no horizontal overflow; the panel is 366 px wide.
+- Provider, marketer and super-admin: the avatar appears and the same real flow runs.
+  - Backend logs show `role=provider`, `role=marketer` and `role=admin`.
+  - The admin was first logged as `role=client` because its `activeRole` defaults to CLIENT. This was fixed and re-verified.
+- Provider help hub search opens the shared panel with the real flow.
+- Provider AI page renders the real chat with no "متصل" badge.
+- Direct Socket.IO with **no token** or a **garbage token** → `help:error(AUTH_REQUIRED)`.
+- Backend log contains 0 occurrences of `Bearer`. Only codes, roles and requestIds are logged.
+- The only browser console errors are pre-existing (Google GSI origin and a 403 from that script).
+
+### 18. Files changed
+**Backend (`waseetai-backend/src`)**
+- `services/ai/waseet-ai/waseet-ai.client.ts`: real `help:*` mapping, `STREAM_ERROR`, strict malformed-event handling, unknown-event logging, abort on early return.
+- `services/ai/waseet-ai/waseet-ai.errors.ts`: `STREAM_ERROR` code and `humanSupportFallback`.
+- `services/ai/waseet-ai/waseet-ai.types.ts`: `HelpChatRequest.history`, `citationsCount`.
+- `services/ai/waseet-ai/waseet-ai.client.test.ts`: tests added.
+- `sockets/help-assistant-chat.gateway.ts`: rewritten from Gemini to WaseetAI.
+- `sockets/help-assistant-chat.gateway.test.ts`: rewritten.
+- `sockets/help-assistant-auth.ts` and its `.test.ts`: new.
+
+**Frontend (`angular-app/src/app`)**
+- Core:
+  - `core/services/help-assistant-socket.service.ts`: rewritten; its `.spec.ts` is new.
+  - `core/store/assistant.store.ts` and its `.spec.ts`: new.
+- Shared components:
+  - `sheards/assistant-chat/assistant-chat.ts`: new.
+  - `sheards/assistant-widget/assistant-widget.ts` and its `.spec.ts`: new.
+  - `sheards/robot-avatar/robot-avatar.{ts,html,scss,spec.ts}`: refactored.
+- Layout: `layouts/dashboard-layout/dashboard-layout.{ts,html}` (mount).
+- Pages:
+  - `pages/dashboard/clients-overview/help/ai-assistant/ai-assistant.{ts,spec.ts}`
+  - `pages/dashboard/provider-overview/help/ai-assistant/ai-assistant.ts`
+  - `pages/dashboard/{clients,provider,marketer}-overview/help/help.{ts,html}`
+  - `pages/dashboard/marketer-overview/help/help.spec.ts`
+- Plus this plan file.
+
+**Not touched**
+- `.env` and `.env.example`.
+- `knowledge/help-assistant-knowledge.ts`: now unused; can be removed later.
+- `sockets/avatar-chat.gateway.ts`
+- Every other AI feature.
+
+### 19. Remaining limitations
+1. **The upstream help knowledge base returns no approved answer for any question tried** (0 citations). Until WaseetAI's knowledge base is populated, every question ends in the truthful `NO_ANSWER` message. The success-path event names are inferred, not verified; unknown events are logged by name, so the first real success will confirm or correct them.
+2. OpenAI TTS was not exercised end-to-end live, for the same reason. It is covered only by mocked tests.
+3. Role context is not sent upstream, because there is no supported field. Answers are therefore not role-specific.
+4. `ai_chat` (`avatar-chat.gateway.ts`, Gemini + TTS, soft-auth) is still network-reachable with no frontend caller.
+   - Future option: use WaseetAI `/v1/ai/avatar/chat` for voice.
+   - Otherwise, remove the gateway.
+5. Socket.IO CORS for local development needs `CORS_ORIGINS=http://localhost:4300`. This is a pre-existing configuration gap.
+6. The conversation is in memory only (per tab). It survives in-app navigation but not a full reload.
+7. The pre-existing frontend test-environment failures (no `localStorage` in the runner, and the others listed in §14) are unrelated to this pass and remain.

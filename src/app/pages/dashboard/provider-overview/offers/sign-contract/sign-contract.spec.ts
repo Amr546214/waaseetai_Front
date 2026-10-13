@@ -22,7 +22,7 @@ const FORBIDDEN = [/ثم السداد/, /أفوض/, /3 مراحل/, /30 يوم/,
 describe('provider sign-contract: real contract terms only', () => {
 	async function setup(item: unknown, opts: { error?: boolean } = {}) {
 		const post = vi.fn(() => of({ success: true }));
-		const get = vi.fn(() => (opts.error ? throwError(() => ({ status: 500 })) : of({ success: true, data: [item] })));
+		const get = vi.fn(() => (opts.error ? throwError(() => ({ status: 500 })) : of({ success: true, data: item })));
 		await TestBed.configureTestingModule({ imports: [SignContract], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get, post } },
 			{ provide: AuthStore, useValue: { currentUser: signal({ firstName: 'مزود', lastName: 'تجربة', accountType: 'PROVIDER_INDIVIDUAL' }) } },
