@@ -740,3 +740,4 @@
 	.co-kpi-grid{grid-template-columns:repeat(2,1fr)}
 }
 .stat-val.stat-val-empty{font-size:15px;font-weight:800;line-height:1.5;min-height:32px;display:flex;align-items:center} /* empty-state sentence, not a big number */
+.co-btn-pri{text-decoration:none;display:inline-block}

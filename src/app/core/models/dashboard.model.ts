@@ -16,7 +16,8 @@ export interface DashboardStatsPayload {
     aiRatingSource?: 'waseet_ai_offer_quality' | 'none';
     aiRatingUpdatedAt?: string | null;
     aiRatedOffersCount?: number;
-    humanRating: number;
+    /** Client: average of the reviews providers left about the client (null = none yet). */
+    humanRating: number | null;
     providerRating?: number;
     profileCompletionPercent: number;
     profileSetupCompleted?: boolean;

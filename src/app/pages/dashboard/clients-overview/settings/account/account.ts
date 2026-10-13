@@ -1,13 +1,28 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+
+/** The values PUT /profiles/update accepts for a client (same lists as the profile edit page). */
+export const CLIENT_LANGUAGES = ['العربية', 'English'] as const;
+export const CLIENT_TIMEZONES = ['(GMT+3) توقيت الرياض', '(GMT+4) توقيت دبي', '(GMT+2) توقيت القاهرة', '(GMT+0) UTC'] as const;
+
+export interface AccountSession {
+  id: string;
+  browser?: string;
+  os?: string;
+  lastActiveAt: string;
+  isCurrent: boolean;
+}
 
 @Component({
   selector: 'app-client-settings-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, WsSelectComponent],
+  imports: [CommonModule, FormsModule, RouterLink, WsSelectComponent],
   templateUrl: './account.html',
   styles: [`
     :host {
@@ -175,46 +190,126 @@ import { Router } from '@angular/router';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Account {
+export class Account implements OnInit {
   private router = inject(Router);
+  private profileApi = inject(ProfileApiService);
+  private sessionsApi = inject(ProviderProfileService);
 
-  isLoading = signal<boolean>(false);
+  isLoading = signal<boolean>(true);
   hasError = signal<boolean>(false);
   toastMessage = signal<string | null>(null);
 
-  // NOTE: no backend endpoint exists yet for 2FA / login-alert preferences (checked
-  // AccountService, AuthApiService, ProfileApiService, AccountLogsService — none expose
-  // a 2FA/login-alert read or write method). These signals are display-only and are
-  // never persisted; the toggles are rendered disabled in the template so the UI does
-  // not imply a save that never happens. See BACKEND_BLOCKED_ISSUES.md.
-  twoFactorAuth = signal<boolean>(true);
-  newLoginAlert = signal<boolean>(true);
+  // No 2FA / login-alert capability exists in the backend: both stay visibly unavailable (disabled, with the reason in the template).
+  twoFactorAuth = signal<boolean>(false);
+  newLoginAlert = signal<boolean>(false);
 
-  language = signal<string>('العربية');
-  timezone = signal<string>('توقيت الرياض (GMT+3)');
-  currency = signal<string>('دولار أمريكي (USD)');
-  dateFormat = signal<string>('هجري وميلادي');
+  // Display preferences: loaded from and saved to the client profile (GET /profiles/me, PUT /profiles/update).
+  readonly languageOptions = CLIENT_LANGUAGES.map(v => ({ value: v, label: v }));
+  readonly timezoneOptions = CLIENT_TIMEZONES.map(v => ({ value: v, label: v }));
+  language = signal<string>(CLIENT_LANGUAGES[0]);
+  timezone = signal<string>(CLIENT_TIMEZONES[0]);
+  private saved = signal<{ language: string; timezone: string }>({ language: CLIENT_LANGUAGES[0], timezone: CLIENT_TIMEZONES[0] });
+  isSaving = signal<boolean>(false);
+  saveError = signal<string | null>(null);
+  isDirty = computed(() => this.language() !== this.saved().language || this.timezone() !== this.saved().timezone);
 
-  showProfile = signal<boolean>(true);
-
-  manageDevices() {
-    this.showToast('عرض الأجهزة النشطة وإنهاء الجلسات');
+  ngOnInit() {
+    this.load();
   }
 
-  // Account deletion has no backend endpoint (no delete/deactivate-account method on
-  // any service in src/app/core/services). Sending the user to the existing support
-  // ticket flow is the honest option here — it does not claim the deletion itself
-  // happened, only that a human channel has been opened. See BACKEND_BLOCKED_ISSUES.md.
-  contactSupportForDeletion() {
+  load() {
+    this.isLoading.set(true);
+    this.hasError.set(false);
+    this.profileApi.getMyProfile().subscribe({
+      next: (res: any) => {
+        const data = res?.data?.currentProfileData || res?.data;
+        if (!res?.success || !data) { this.isLoading.set(false); this.hasError.set(true); return; }
+        // never saved = the defaults the profile page shows; a stored value outside the supported lists is kept visible rather than silently replaced
+        const language = (data.interfaceLanguage as string) || CLIENT_LANGUAGES[0];
+        const timezone = (data.timezone as string) || CLIENT_TIMEZONES[0];
+        this.language.set(language);
+        this.timezone.set(timezone);
+        this.saved.set({ language, timezone });
+        this.isLoading.set(false);
+      },
+      error: () => { this.isLoading.set(false); this.hasError.set(true); }
+    });
+  }
+
+  savePreferences() {
+    if (this.isSaving() || !this.isDirty()) return;
+    this.isSaving.set(true);
+    this.saveError.set(null);
+    const payload = { interfaceLanguage: this.language(), timezone: this.timezone() };
+    this.profileApi.updateProfile(payload).subscribe({
+      next: (res: any) => {
+        this.isSaving.set(false);
+        if (!res?.success) { this.saveError.set(res?.message || 'تعذر حفظ التفضيلات'); return; }
+        this.saved.set({ language: payload.interfaceLanguage, timezone: payload.timezone });
+        this.showToast('تم حفظ تفضيلات اللغة والمنطقة الزمنية');
+      },
+      error: (err: unknown) => {
+        this.isSaving.set(false);
+        this.saveError.set(mapHttpError(err, { fallback: 'تعذر حفظ التفضيلات، حاول مرة أخرى' }).message);
+      }
+    });
+  }
+
+  // --- Real device/session management (GET/DELETE /provider/profile/sessions is identity-level: it serves every role) ---
+  sessions = signal<AccountSession[]>([]);
+  sessionsLoading = signal(false);
+  sessionsError = signal<string | null>(null);
+  devicesExpanded = signal(false);
+  revokingSessionId = signal<string | null>(null);
+
+  manageDevices() {
+    this.devicesExpanded.update(v => !v);
+    if (this.devicesExpanded() && !this.sessionsLoading()) this.loadSessions();
+  }
+
+  private loadSessions() {
+    this.sessionsLoading.set(true);
+    this.sessionsError.set(null);
+    this.sessionsApi.getActiveSessions().subscribe({
+      next: (res: any) => { this.sessions.set(Array.isArray(res?.data) ? res.data : []); this.sessionsLoading.set(false); },
+      error: () => { this.sessionsError.set('تعذر تحميل الأجهزة النشطة'); this.sessionsLoading.set(false); }
+    });
+  }
+
+  endSession(sessionId: string) {
+    if (this.revokingSessionId()) return;
+    this.revokingSessionId.set(sessionId);
+    this.sessionsApi.revokeSession(sessionId).subscribe({
+      next: () => {
+        this.sessions.update(list => list.filter(s => s.id !== sessionId));
+        this.revokingSessionId.set(null);
+        this.showToast('تم إنهاء الجلسة بنجاح');
+      },
+      error: (err: any) => {
+        this.revokingSessionId.set(null);
+        this.showToast(err?.error?.message === 'CANNOT_REVOKE_CURRENT_SESSION' ? 'لا يمكن إنهاء الجلسة الحالية' : 'تعذر إنهاء الجلسة');
+      }
+    });
+  }
+
+  sessionLabel(s: AccountSession): string {
+    const parts = [s.browser, s.os].filter(Boolean);
+    return parts.length ? parts.join(' · ') : 'جهاز غير معروف';
+  }
+
+  sessionActivityLabel(s: AccountSession): string {
+    if (s.isCurrent) return 'الجلسة الحالية · نشطة الآن';
+    const d = new Date(s.lastActiveAt);
+    return Number.isNaN(d.getTime()) ? '' : 'آخر نشاط: ' + d.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Data copy and account deletion have no self-service endpoint: both open the real support-ticket flow (a human channel), and nothing here claims the request was made.
+  openSupportTicket() {
     this.router.navigate(['/client-overview/help/tickets/new']);
   }
 
-  retry() {
-    this.hasError.set(false);
-    this.isLoading.set(true);
-    setTimeout(() => {
-      this.isLoading.set(false);
-    }, 1000);
+  contactSupportForDeletion() {
+    this.openSupportTicket();
   }
 
   showToast(msg: string) {

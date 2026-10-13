@@ -55,6 +55,11 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		path: 'projects/employee/:id',
 		redirectTo: (redirectData) => `/client-overview/projects/${redirectData.params['id']}`
 	},
+	// Section roots (the sidebar accordions and old bookmarks point at them) land on the section's first real page.
+	{ path: 'projects', pathMatch: 'full', redirectTo: 'projects/active' },
+	{ path: 'finance', pathMatch: 'full', redirectTo: 'finance/wallet' },
+	{ path: 'settings', pathMatch: 'full', redirectTo: 'settings/account' },
+	{ path: 'support', pathMatch: 'full', redirectTo: 'help' },
 	//   help
 	{
 		path: 'help',
@@ -131,11 +136,8 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		loadComponent: () => import('./project/delivery-review/delivery-review').then(m => m.DeliveryReview),
 		data: { title: "مراجعة التسليم" }
 	},
-	{
-		path: 'market',
-		loadComponent: () => import('./market/market').then(m => m.Market),
-		data: { title: "Market" }
-	},
+	// The in-dashboard "market" page was an empty placeholder; the real marketplace is the public one.
+	{ path: 'market', pathMatch: 'full', redirectTo: '/marketplace' },
 	{
 		path: 'reports',
 		loadComponent: () => import('./reports/reports').then(m => m.Reports),

@@ -66,7 +66,7 @@ export class ProfileEdit {
 	interests = signal<string[]>([]);
 
 	// Notification channel toggles
-	notifEmail = signal(true);
+	notifEmail = signal(false);
 	notifSms = signal(false);
 	notifInApp = signal(true);
 	notifTelegram = signal(false);
@@ -610,7 +610,8 @@ export class ProfileEdit {
 			next: (res) => {
 				const settings = (res?.success && res.data?.settings) ? res.data.settings : null;
 				if (!settings) { this.prefsState.set('error'); return; }
-				this.notifEmail.set(settings['channel_email'] !== false);
+				// e-mail copies are opt-in (nothing saved = no e-mail), exactly what delivery does with an unsaved account
+				this.notifEmail.set(settings['channel_email'] === true);
 				this.notifInApp.set(settings['channel_in_app'] !== false);
 				this.prefsState.set('ready');
 			},

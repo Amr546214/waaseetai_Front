@@ -21,9 +21,8 @@ export class Reports implements OnInit {
 	activeTab = signal<'orders' | 'projects' | 'finance' | 'disputes'>('orders');
 
 	// Filters
-	dateFilter = signal<'month' | '3m' | '6m' | 'year' | 'custom'>('month');
+	dateFilter = signal<'month' | '3m' | '6m' | 'year' | 'all'>('month');
 	searchQuery = signal<string>('');
-	showDatePicker = signal<boolean>(false);
 
 	// Sub-filters for tabs
 	ordersStatusFilter = signal<string>('all');
@@ -47,13 +46,9 @@ export class Reports implements OnInit {
 	private readonly pageSize = 4;
 
 	constructor() {
-		// Re-fetch whenever the date filter changes to a real, backend-supported
-		// range. 'custom' has no real range picker behind it yet (the modal is a
-		// placeholder), so it intentionally keeps whatever was last loaded
-		// instead of sending a fabricated range to the API.
+		// Re-fetch whenever the date filter changes (every range is one the backend supports).
 		effect(() => {
 			const filter = this.dateFilter();
-			if (filter === 'custom') { this.aiSeq++; this.aiResult.set(null); this.aiLoading.set(false); this.aiRequestFailed.set(false); return; }
 			this.loadReports(filter);
 			this.loadAi(filter);
 		});
@@ -105,13 +100,11 @@ export class Reports implements OnInit {
 	}
 
 	retryAi() {
-		const filter = this.dateFilter();
-		if (filter !== 'custom') this.loadAi(filter);
+		this.loadAi(this.dateFilter());
 	}
 
 	retry() {
-		const filter = this.dateFilter();
-		this.loadReports(filter === 'custom' ? 'month' : filter);
+		this.loadReports(this.dateFilter());
 	}
 
 	// ── Orders tab ──────────────────────────────────────────────────────────
@@ -279,21 +272,8 @@ export class Reports implements OnInit {
 		this.activeTab.set(tab);
 	}
 
-	setDate(range: 'month' | '3m' | '6m' | 'year') {
+	setDate(range: 'month' | '3m' | '6m' | 'year' | 'all') {
 		this.dateFilter.set(range);
-	}
-
-	openDatePicker() {
-		this.showDatePicker.set(true);
-	}
-
-	closeDatePicker() {
-		this.showDatePicker.set(false);
-	}
-
-	dpApply() {
-		this.dateFilter.set('custom');
-		this.closeDatePicker();
 	}
 
 	resetAllFilters() {
@@ -320,8 +300,36 @@ export class Reports implements OnInit {
 		return count;
 	});
 
+	/** PDF = the browser's print dialog ("Save as PDF"); CSV = the report data currently loaded on the page, built in the browser (no server file). */
 	exportRpt(type: string) {
-		alert('جاري التصدير بصيغة: ' + type);
+		if (type === 'pdf') { window.print(); return; }
+		this.exportCsv();
+	}
+
+	exportCsv() {
+		const d = this.data();
+		if (!d) return;
+		const esc = (v: unknown) => { const t = v == null ? '' : String(v); return /[",\n\r]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+		const row = (cells: unknown[]) => cells.map(esc).join(',');
+		const lines: string[] = [
+			row(['الطلبات']),
+			row(['العنوان', 'التخصص', 'الميزانية', 'عدد العروض', 'الحالة', 'التاريخ']),
+			...d.orders.items.map(i => row([i.title, i.specialty, i.budget, i.proposalsCount, i.bucket, i.createdAt?.slice(0, 10)])),
+			'',
+			row(['المعاملات المالية']),
+			row(['الوصف', 'النوع', 'المبلغ', 'العملة', 'الحالة', 'التاريخ']),
+			...d.finance.transactions.map(t => row([t.description, t.type, t.amount, t.currency, t.status, t.createdAt?.slice(0, 10)])),
+			'',
+			row(['النزاعات']),
+			row(['السبب', 'الحالة', 'التاريخ']),
+			...d.disputes.items.map(x => row([x.reason, x.status, x.createdAt?.slice(0, 10)])),
+		];
+		const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url; a.download = `waseet-client-report-${this.dateFilter()}.csv`;
+		document.body.appendChild(a); a.click(); a.remove();
+		setTimeout(() => URL.revokeObjectURL(url), 1000);
 	}
 
 }
