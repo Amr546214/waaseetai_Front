@@ -71,8 +71,8 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		loadComponent: () => import('./help/ai-assistant/ai-assistant').then(m => m.AiAssistantComponent),
 		data: { title: "المساعد الذكي" }
 	},
+	// There is no live chat: the human-support channel is the ticket thread, so this old path lands on the tickets list.
 	{
-		// There is no live chat: the human-support channel is the ticket thread, so this old path lands on the tickets list.
 		path: 'help/live-support',
 		redirectTo: 'help/tickets',
 		pathMatch: 'full'
