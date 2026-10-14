@@ -66,7 +66,7 @@
         <div class="side-hd"><svg aria-hidden="true" style="color:var(--teal)"><use href="#ws-file"></use></svg> في هذا المقال</div>
         <div class="side-links">
           @for (sec of document.sections; track sec.id) {
-            <a href="javascript:void(0)" (click)="$event.preventDefault(); scrollTo(sec.id)" class="side-link" [class.active]="activeSection === sec.id">{{ sec.title }} <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></a>
+            <a [attr.href]="'#' + sec.id" (click)="$event.preventDefault(); scrollTo(sec.id)" class="side-link" [class.active]="activeSection === sec.id">{{ sec.title }} <svg aria-hidden="true"><use href="#ws-chevron"></use></svg></a>
           }
         </div>
       </div>
