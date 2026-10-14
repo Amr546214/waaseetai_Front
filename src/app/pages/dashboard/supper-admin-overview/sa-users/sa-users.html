@@ -264,7 +264,7 @@
                   <td>
                     <div class="row-actions">
                       <a [routerLink]="['/supper-admin-overview/users', u.id]" class="act-btn" title="عرض الملف"><svg aria-hidden="true"><use href="#i-eye"></use></svg></a>
-                      <button type="button" class="act-btn" disabled title="غير متاح حاليًا — لا يوجد مسار إشعار إداري للمستخدم" style="opacity:.45;cursor:not-allowed"><svg aria-hidden="true"><use href="#i-mail"></use></svg></button>
+                      <button type="button" class="act-btn" title="إرسال تنبيه" [disabled]="u.type === 'admin'" (click)="notifyTarget.set(u)"><svg aria-hidden="true"><use href="#i-mail"></use></svg></button>
                       <div class="act-more">
                         <button type="button" class="act-btn" (click)="toggleDropdown($event, u.id)"><svg aria-hidden="true"><use href="#i-dots"></use></svg></button>
                         @if (isDropdownOpen[u.id]) {
@@ -278,7 +278,7 @@
                             <button type="button" class="act-drop-item" (click)="toggleStatus(u)">
                               <svg aria-hidden="true"><use href="#i-pause"></use></svg>{{ u.status === 'active' ? 'تعليق الحساب' : 'تفعيل الحساب' }}
                             </button>
-                            <button type="button" class="act-drop-item" disabled title="غير متاح حاليًا — لا يوجد مسار إشعار إداري للمستخدم" style="opacity:.45;cursor:not-allowed"><svg aria-hidden="true"><use href="#i-mail"></use></svg>إنذار رسمي (غير متاح حاليًا)</button>
+                            <button type="button" class="act-drop-item" [disabled]="u.type === 'admin'" (click)="closeDropdowns(); notifyTarget.set(u)"><svg aria-hidden="true"><use href="#i-mail"></use></svg>إنذار رسمي</button>
                             @if (isSuperAdmin()) {
                               <div class="act-drop-sep"></div>
                               <button type="button" class="act-drop-item txt-red" (click)="openDeleteModal(u)"><svg aria-hidden="true"><use href="#i-trash"></use></svg>حذف الحساب</button>
@@ -372,4 +372,8 @@
 
 @if (toast(); as tt) {
   <div role="status" [style.background]="tt.kind === 'ok' ? '#0FA99A' : '#E5484D'" style="position:fixed;bottom:20px;inset-inline-start:20px;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;z-index:1000">{{ tt.text }}</div>
+}
+
+@if (notifyTarget(); as nt) {
+  <sa-notify-modal [userId]="nt.id" [userName]="nt.name" (closed)="notifyTarget.set(null)" (sent)="notifyTarget.set(null); showToast('تم إرسال الرسالة وتسجيلها في سجل التدقيق', 'ok')"></sa-notify-modal>
 }

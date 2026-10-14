@@ -10,6 +10,7 @@ import { SaUsers } from './sa-users/sa-users';
 import { SaRoles } from './sa-roles/sa-roles';
 import { SaCategories } from './sa-categories/sa-categories';
 import { SaSuperAdmins } from './sa-super-admins/sa-super-admins';
+import { SaNotifyModal } from './sa-notify-modal';
 import { AuthStore } from '../../../core/store/auth.store';
 
 const ok = (data: any) => ({ success: true, data });
@@ -81,5 +82,27 @@ describe('D1 admin pages read the real endpoints', () => {
 		f.detectChanges();
 		expect(el.textContent).toContain('حدث حقيقي');
 		expect(el.textContent).not.toContain('4812');
+	});
+
+	it('notify modal: needs 5+ chars, posts to /admin/users/:id/notify with the request context, shows the BE error', () => {
+		const post = vi.fn().mockReturnValueOnce(throwError(() => ({ error: { message: 'هذا الطلب لا يخص المستخدم المحدد' } }))).mockReturnValueOnce(of({ success: true }));
+		TestBed.resetTestingModule();
+		TestBed.configureTestingModule({ imports: [SaNotifyModal], providers: [{ provide: HttpClient, useValue: { post } }] });
+		const f = TestBed.createComponent(SaNotifyModal);
+		f.componentInstance.userId = 'u1';
+		f.componentInstance.context = { type: 'REQUEST', id: 'r1' };
+		const sent = vi.fn();
+		f.componentInstance.sent.subscribe(sent);
+		f.detectChanges();
+		f.componentInstance.message.set('abc');
+		f.componentInstance.send();
+		expect(post).not.toHaveBeenCalled();
+		f.componentInstance.message.set('رسالة للمالك');
+		f.componentInstance.send();
+		expect(post.mock.calls[0][0]).toContain('/admin/users/u1/notify');
+		expect(post.mock.calls[0][1]).toEqual({ message: 'رسالة للمالك', context: { type: 'REQUEST', id: 'r1' } });
+		expect(f.componentInstance.error()).toContain('لا يخص');
+		f.componentInstance.send();
+		expect(sent).toHaveBeenCalled();
 	});
 });

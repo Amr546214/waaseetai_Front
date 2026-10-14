@@ -6,12 +6,13 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { SaNotifyModal } from '../sa-notify-modal';
 import { SaUsersService, AdminUser, AdminUsersStats, AdminUsersQueryParams } from './sa-users.service';
 
 @Component({
   selector: 'app-sa-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SaNotifyModal],
   templateUrl: './sa-users.html',
   styleUrl: './sa-users.css'
 })
@@ -23,6 +24,7 @@ export class SaUsers implements OnInit {
   readonly isSuperAdmin = computed(() => this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN);
   toast = signal<{ text: string; kind: 'ok' | 'err' } | null>(null);
   loadError = signal('');
+  notifyTarget = signal<AdminUser | null>(null);
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Reactive State Signals
