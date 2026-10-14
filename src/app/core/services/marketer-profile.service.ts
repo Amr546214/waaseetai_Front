@@ -72,6 +72,7 @@ export interface MarketerMissingItem {
 export interface MarketerProfile {
 	id: string;
 	userId: string;
+	createdAt?: string;
 	user: {
 		firstName: string;
 		lastName: string;

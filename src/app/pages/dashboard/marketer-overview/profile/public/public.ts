@@ -20,6 +20,12 @@ export class Public implements OnInit {
   profile = signal<MarketerProfile | null>(null);
   channels = signal<AffiliateChannelHandle[]>([]);
 
+  /** The year the marketer really joined (from the profile's createdAt); empty until the profile loads, never a made-up year. */
+  memberSince(): string {
+    const y = new Date(this.profile()?.createdAt ?? '').getFullYear();
+    return Number.isFinite(y) ? ` · منذ ${y}` : '';
+  }
+
   ngOnInit() {
     this.overviewService.getSummary().subscribe(res => {
       if (res.success) {
