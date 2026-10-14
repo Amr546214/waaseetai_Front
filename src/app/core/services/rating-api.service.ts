@@ -6,6 +6,7 @@ import {
 	ClientRateProviderPayload,
 	ProviderRateClientPayload,
 	RatingApiResponse,
+	RatingStatus,
 } from '../models/rating.model';
 
 @Injectable({
@@ -38,11 +39,20 @@ export class RatingApiService {
 	}
 
 	/**
+	 * Eligibility + the saved review of the signed-in user, read from the server BEFORE any form is shown (an error here is an error, never "not rated").
+	 * GET /api/client/requests/:id/rating-status   |   GET /api/provider/requests/:id/rating-status   (:id = project, contract or request id)
+	 */
+	getRatingStatus(side: RatingStatus['actor'], key: string): Observable<RatingStatus> {
+		const path = side === 'client' ? `client/requests/${key}/rating-status` : `provider/requests/${key}/rating-status`;
+		return this.http.get<{ success: boolean; data: RatingStatus }>(`${this.baseUrl}/${path}`).pipe(map(r => r.data));
+	}
+
+	/**
 	 * Client rates a specific stage/delivery after approving it.
 	 * POST /api/client/my-requests/:id/stages/:stageId/rating
 	 * Different from rateProvider (which rates the whole project/provider).
 	 */
-	rateStage(projectId: string, stageId: string, payload: { rating: number; comment?: string }): Observable<RatingApiResponse> {
+	rateStage(projectId: string, stageId: string, payload: { rating: number; comment?: string; tags?: string[] }): Observable<RatingApiResponse> {
 		return this.http.post<RatingApiResponse>(
 			`${this.baseUrl}/client/my-requests/${projectId}/stages/${stageId}/rating`,
 			payload,

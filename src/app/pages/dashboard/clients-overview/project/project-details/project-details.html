@@ -105,7 +105,10 @@
 					</span>
 					<span class="rt-rated-val">تقييمك {{ finalRatingDisplay() }}</span>
 				}
+				<button type="button" class="lc-btn lc-btn-gh" data-testid="view-my-rating" (click)="viewMyRating()">عرض تقييمك</button>
 			</div>
+		} @else if (settledNoRating()) {
+			<div class="rt-rated-note" role="status" data-testid="pd-settled-no-rating"><span class="rt-rated-label">أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه</span></div>
 		}
 		<div class="lc-ph">
 			<div class="lc-av-wrap"><div class="lc-av">{{ data.clientInitial }}</div><span class="verified-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 61.8 36.7h33.3L68.6 57.1l10.8 31.7L50 70.3 20.6 88.8l10.8-31.7L4.9 36.7h33.3Z"/></svg></span></div>

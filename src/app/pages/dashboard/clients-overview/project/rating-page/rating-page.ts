@@ -1,17 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
-import { RatingScore } from '../../../../../core/models/rating.model';
+import { RatingScore, RatingStatus } from '../../../../../core/models/rating.model';
+import { RatingSavedCard } from '../../../../../sheards/rating-saved-card/rating-saved-card.component';
 import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-rating-page',
 	standalone: true,
-	imports: [CommonModule, FormsModule],
+	imports: [CommonModule, FormsModule, RatingSavedCard],
 	templateUrl: './rating-page.html',
 	styleUrl: './rating-page.css',
 })
@@ -35,11 +36,22 @@ export class RatingPage implements OnInit {
 	hoverRating = signal<RatingScore | 0>(0);
 	selectedRating = signal<RatingScore | 0>(0);
 	comment = '';
-	publish = true;
 	chips = signal<string[]>([]);
 	submitting = signal(false);
 	submitError = signal('');
 	submitSuccess = signal(false);
+
+	// Project rating only: what the server says BEFORE any form is shown (eligibility + the saved review). Never assumed.
+	status = signal<RatingStatus | null>(null);
+	statusError = signal('');
+	/** 'form' | 'saved' | 'blocked' for the project rating; the stage rating keeps its own single form. */
+	view = computed<'form' | 'saved' | 'blocked'>(() => {
+		if (this.isStageRating) return 'form';
+		const st = this.status();
+		if (!st) return 'blocked';
+		if (st.review) return 'saved';
+		return st.canRate ? 'form' : 'blocked';
+	});
 
 	// Design P-SK-017 chips (used for project/provider rating only)
 	availableChips: string[] = [
@@ -68,6 +80,7 @@ export class RatingPage implements OnInit {
 	private loadProject() {
 		this.isLoading.set(true);
 		this.error.set('');
+		this.statusError.set('');
 		this.http.get<any>(`${environment.url_api}/client/my-requests/${this.projectId}/workspace`).subscribe({
 			next: response => {
 				if (!response?.success || !response.data) {
@@ -82,12 +95,25 @@ export class RatingPage implements OnInit {
 					if (!found) {
 						this.error.set('تعذر العثور على المرحلة المطلوبة');
 					}
+					this.isLoading.set(false);
+				} else {
+					this.loadStatus(true);
 				}
-				this.isLoading.set(false);
 			},
 			error: event => {
 				this.error.set(event?.error?.message || 'تعذر تحميل بيانات المشروع');
 				this.isLoading.set(false);
+			},
+		});
+	}
+
+	/** Reads eligibility + the saved review. A failure is shown as an error with a retry: it is never read as "not rated yet". */
+	private loadStatus(initial = false) {
+		this.ratingApi.getRatingStatus('client', this.projectId).subscribe({
+			next: st => { this.status.set(st); this.statusError.set(''); if (initial) this.isLoading.set(false); },
+			error: event => {
+				this.statusError.set(event?.error?.message || 'تعذر قراءة حالة التقييم');
+				if (initial) { this.error.set(this.statusError()); this.isLoading.set(false); }
 			},
 		});
 	}
@@ -129,12 +155,18 @@ export class RatingPage implements OnInit {
 
 	// Dynamic header text based on mode
 	headerTitle(): string {
-		return this.isStageRating ? 'قيّم هذه المرحلة' : 'اكتمل المشروع بنجاح';
+		if (this.isStageRating) return 'قيّم هذه المرحلة';
+		const st = this.status();
+		if (st?.review) return 'تقييمك المحفوظ';
+		if (st?.adminSettled) return 'أُغلق بتسوية نزاع';
+		return st?.canRate ? 'اكتمل المشروع بنجاح' : 'التقييم غير متاح الآن';
 	}
 	headerSub(): string {
 		if (this.isStageRating) {
 			return `${this.projectTitle()} · ${this.stageTitle()} · شارك تقييمك حول جودة تسليم هذه المرحلة`;
 		}
+		const st = this.status();
+		if (st && !st.canRate) return `${this.projectTitle()} · مع ${this.providerName()}`;
 		return `${this.projectTitle()} · مع ${this.providerName()} · أُفرِج كامل المبلغ ${this.releasedAmount()} $`;
 	}
 	sectionTitle(): string {
@@ -151,9 +183,11 @@ export class RatingPage implements OnInit {
 			return;
 		}
 		if (this.submitting()) return;
+		// Project rating: the form only exists while the server said the user may rate.
+		if (!this.isStageRating && !this.status()?.canRate) return;
 		this.submitting.set(true);
 		this.submitError.set('');
-		const payload: { rating: RatingScore; comment?: string } = { rating };
+		const payload: { rating: RatingScore; comment?: string; tags?: string[] } = { rating };
 		const note = this.comment.trim();
 		if (note) payload.comment = note;
 
@@ -167,19 +201,26 @@ export class RatingPage implements OnInit {
 				},
 				error: (err: any) => {
 					this.submitting.set(false);
+					if (err?.status === 409) { this.submitError.set(err?.error?.message || 'تم تقييم هذه المرحلة مسبقًا'); return; }
 					this.submitError.set(err?.error?.message || 'تعذر إرسال التقييم، حاول مرة أخرى');
 				},
 			});
 		} else {
-			// Project/provider rating: call rateProvider API, navigate to archived/completed projects.
+			if (this.chips().length) payload.tags = this.chips();
+			// Project/provider rating. On success the page switches to the SAVED review (read from the server, so a refresh or a direct link shows the same card).
 			this.ratingApi.rateProvider(this.projectId, payload).subscribe({
 				next: () => {
 					this.submitting.set(false);
 					this.submitSuccess.set(true);
-					setTimeout(() => this.router.navigate(['/client-overview/projects/archived']), 1200);
+					this.loadStatus();
 				},
 				error: (err: any) => {
 					this.submitting.set(false);
+					if (err?.status === 409) {
+						// Another window rated first (or the project was settled): load what the server holds instead of keeping a form with an error.
+						this.loadStatus();
+						return;
+					}
 					this.submitError.set(err?.error?.message || 'تعذر إرسال التقييم، حاول مرة أخرى');
 				},
 			});

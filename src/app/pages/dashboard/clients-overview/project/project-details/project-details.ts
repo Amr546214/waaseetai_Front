@@ -10,6 +10,7 @@ import { DisputeApiService } from '../../../../../core/services/dispute-api.serv
 import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
 import { MessageContext } from '../../../../../core/services/chat.service';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
+import { RatingStatus } from '../../../../../core/models/rating.model';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { ClientCompanyTeamService } from '../../../../../core/services/client-company-team.service';
@@ -78,6 +79,7 @@ export class ProjectDetails implements OnInit {
 	disputeSubmitted = signal(false);
 	// Rating status — fetched from completed-projects endpoint (server-side Review table).
 	hasRated = signal(false);
+	ratingStatus = signal<RatingStatus | null>(null);
 	finalProviderRating = signal<number | null>(null);
 	finalProviderRatingComment = signal<string | null>(null);
 	finalProviderRatedAt = signal<string | null>(null);
@@ -90,15 +92,16 @@ export class ProjectDetails implements OnInit {
 				if (!response?.success || !response.data) this.error.set('تعذر تحميل مساحة العمل');
 				else {
 					this.project.set(response.data);
-					// Fetch rating status from completed-projects endpoint (which checks Review table server-side).
-					this.ratingApi.getClientRatingStatus(this.projectId).subscribe({
+					// Rating eligibility + the saved review come from the server (never assumed). On a read error NO rating call-to-action is shown.
+					this.ratingApi.getRatingStatus('client', this.projectId).subscribe({
 						next: status => {
-							this.hasRated.set(status.hasRated);
-							this.finalProviderRating.set(status.rating);
-							this.finalProviderRatingComment.set(status.comment);
-							this.finalProviderRatedAt.set(status.ratedAt);
+							this.ratingStatus.set(status);
+							this.hasRated.set(!!status.review);
+							this.finalProviderRating.set(status.review ? Number(status.review.rating) : null);
+							this.finalProviderRatingComment.set(status.review?.comment ?? null);
+							this.finalProviderRatedAt.set(status.review?.createdAt ?? null);
 						},
-						error: () => { /* non-fatal: default to false */ },
+						error: () => { this.ratingStatus.set(null); },
 					});
 				}
 				this.isLoading.set(false);
@@ -368,15 +371,18 @@ export class ProjectDetails implements OnInit {
 			{ queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: ctx ? { messageContext: ctx } : undefined });
 	}
 
-	canRate(data: any): boolean {
-		// If the completed-projects endpoint confirms a review exists, never show the CTA.
-		if (this.hasRated()) return false;
-		// Legacy fallback: some workspace payloads may include hasRated/canRate directly.
-		if (data?.hasRated === true) return false;
-		if (data?.canRate === true) return true;
-		const allCompleted = data?.stages?.length > 0 && data.stages.every((s: any) => s.status === 'completed');
-		return data?.status === 'COMPLETED' || (data?.progress === 100 && allCompleted);
+	/** The rating call-to-action exists only when the SERVER says this user may rate (completed by delivery, not rated yet, not settled by a dispute). */
+	canRate(_data?: any): boolean {
+		return this.ratingStatus()?.canRate === true;
 	}
+
+	/** A project closed by a dispute settlement: no new rating, with the reason shown (an earlier saved rating stays visible). */
+	settledNoRating(): boolean {
+		const st = this.ratingStatus();
+		return !!st?.adminSettled && !st.review;
+	}
+
+	viewMyRating() { this.router.navigate(['/client-overview/projects', this.projectId, 'rating']); }
 
 	// Final provider/project rating display helpers (uses real backend value, no fakes).
 	starsArray(): number[] { return [1, 2, 3, 4, 5]; }

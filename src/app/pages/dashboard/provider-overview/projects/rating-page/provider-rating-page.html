@@ -10,52 +10,34 @@
 			<div class="rp-state-code">{{ error() }}</div>
 			<button type="button" class="rp-btn-pri" (click)="retry()">اعادة المحاولة</button>
 		</div>
-	} @else if (hasRatedClient()) {
-		<!-- ===== Already-rated read-only state ===== -->
+	} @else if (view() === 'saved' && status(); as st) {
+		<!-- ===== Saved review, READ ONLY (no form, no submit, no skip, no edit) ===== -->
 		<a class="rp-bk" (click)="goToArchived()" role="button" tabindex="0">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 			العودة إلى المشاريع المكتملة
 		</a>
-
 		<div class="rp-hd">
-			<div class="rp-hd-ico rp-hd-ico-rated">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-			</div>
-			<div class="rp-hd-ttl">تم تقييم العميل</div>
+			<div class="rp-hd-ico rp-hd-ico-rated"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
+			<div class="rp-hd-ttl">تقييمك المحفوظ</div>
 			<div class="rp-hd-sub">{{ projectTitle() }} · مع {{ clientName() }}</div>
 		</div>
-
-		<div class="rp-sec-ttl">تقييمك المُرسل</div>
-
-		<div class="rp-card rp-card-readonly">
-			<!-- Saved rating -->
-			<div class="rp-rate-row">
-				<div class="rp-rate-lbl">تقييمك</div>
-				<div class="rp-saved-stars" aria-label="التقييم المُرسل">
-					@for (s of savedStarsArray(); track s) {
-						<svg
-							[class.rp-saved-star-on]="s <= savedRatingValue()"
-							[class.rp-saved-star-off]="s > savedRatingValue()"
-							viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"
-						><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
-					}
-					<span class="rp-saved-val">{{ savedRatingValue() }}.0</span>
-				</div>
-			</div>
-
-			<!-- Saved comment -->
-			@if (savedComment()) {
-				<div class="rp-rate-row">
-					<div class="rp-rate-lbl">تعليقك</div>
-					<div class="rp-saved-comment">{{ savedComment() }}</div>
-				</div>
-			}
-
-			<!-- Actions -->
-			<div class="rp-acts">
-				<button type="button" class="rp-btn-pri" (click)="goToArchived()">العودة إلى المشاريع المكتملة</button>
-				<button type="button" class="rp-btn-sec" (click)="back()">العودة إلى المشروع</button>
-			</div>
+		@if (submitSuccess()) { <div class="rp-success" role="status">تم إرسال تقييمك، شكرًا لك</div> }
+		<app-rating-saved-card [review]="st.review!" label="تقييمك للعميل" />
+		@if (st.adminSettled) {
+			<div class="ws-note ws-note--neutral" role="status" data-testid="rating-settled-note"><div class="ws-note-body"><p class="ws-note-txt">أُغلق المشروع بتسوية نزاع. هذا تقييمك السابق محفوظ كما هو، ولا يمكن إنشاء تقييم جديد.</p></div></div>
+		}
+		<div class="rp-acts">
+			<button type="button" class="rp-btn-pri" (click)="goToArchived()">العودة إلى المشاريع المكتملة</button>
+			<button type="button" class="rp-btn-sec" (click)="back()">العودة إلى المشروع</button>
+		</div>
+	} @else if (view() === 'blocked') {
+		<a class="rp-bk" (click)="back()" role="button" tabindex="0">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			العودة إلى المشروع
+		</a>
+		<div class="rp-card" role="status" data-testid="rating-blocked">
+			<div class="rp-rate-lbl">{{ status()?.adminSettled ? 'أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه' : (status()?.message || 'التقييم غير متاح الآن') }}</div>
+			<div class="rp-acts"><button type="button" class="rp-btn-pri" (click)="back()">العودة إلى المشروع</button></div>
 		</div>
 	} @else {
 		<!-- ===== Editable rating form ===== -->
@@ -139,11 +121,7 @@
 				></textarea>
 			</div>
 
-			<!-- Publish checkbox (Provider → Client: publish to client's public profile) -->
-			<label class="rp-publish-row">
-				<input type="checkbox" [(ngModel)]="publish" />
-				<span>نشر التقييم في ملف العميل العام</span>
-			</label>
+			<p class="rp-rate-sub" data-testid="rating-public-note">يظهر تقييمك في ملف العميل.</p>
 
 			@if (submitError()) {
 				<div class="rp-err" role="alert">{{ submitError() }}</div>
