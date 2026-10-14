@@ -62,9 +62,14 @@ export interface AdminTicketUser {
 	accountType?: string;
 }
 
+export interface AdminAssignee { id: string; name: string }
+
 export interface AdminTicketListItem extends SupportTicket {
 	user?: AdminTicketUser;
+	assignedTo?: AdminAssignee | null;
 }
+
+export interface AdminInternalNote { id: string; body: string; createdAt: string; admin: { id: string; name: string } | null }
 
 export interface AdminTicketListData {
 	items: AdminTicketListItem[];
@@ -74,6 +79,9 @@ export interface AdminTicketListData {
 
 export interface AdminTicketDetailData extends TicketDetailData {
 	user: AdminTicketUser | null;
+	assignedTo?: AdminAssignee | null;
+	/** Staff-only notes: the ticket owner's own endpoints never return them. */
+	internalNotes?: AdminInternalNote[];
 }
 
 export interface ApiResponse<T> {
@@ -132,5 +140,17 @@ export class TicketApiService {
 
 	adminSetStatus(id: string, status: TicketStatus): Observable<ApiResponse<SupportTicket>> {
 		return this.http.patch<ApiResponse<SupportTicket>>(`${environment.url_api}/admin/tickets/${id}/status`, { status });
+	}
+
+	adminSetPriority(id: string, priority: string): Observable<ApiResponse<SupportTicket>> {
+		return this.http.patch<ApiResponse<SupportTicket>>(`${environment.url_api}/admin/tickets/${id}/priority`, { priority });
+	}
+
+	adminAssign(id: string, assigneeId: string): Observable<ApiResponse<{ id: string; assignedTo: AdminAssignee }>> {
+		return this.http.post<ApiResponse<{ id: string; assignedTo: AdminAssignee }>>(`${environment.url_api}/admin/tickets/${id}/assign`, { assigneeId });
+	}
+
+	adminAddNote(id: string, body: string): Observable<ApiResponse<AdminInternalNote>> {
+		return this.http.post<ApiResponse<AdminInternalNote>>(`${environment.url_api}/admin/tickets/${id}/notes`, { body });
 	}
 }

@@ -244,3 +244,6 @@
 :host-context(.theme-light) .fcm-foot {
   border-top-color:#E7EAF1!important;color:#64748B!important
 }
+
+.fcm-btn:disabled{opacity:.5;cursor:not-allowed}
+.fcm-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}

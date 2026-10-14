@@ -1,19 +1,10 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminInvoice, AdminInvoicesData, AdminOpsApiService, saveBlob } from '../../../../../core/services/admin-ops-api.service';
+import { errMsg, fmtDate, usd } from '../finance-ui';
 
-type InvoiceKind = 'B2B' | 'B2C';
-type InvoiceStatus = 'issued' | 'processing' | 'rejected';
-type TabKey = 'all' | 'B2B' | 'B2C' | 'processing' | 'rejected';
-
-interface OutInvoice {
-  id: string;
-  kind: InvoiceKind;
-  party: string;
-  amount: number;
-  date: string;
-  status: InvoiceStatus;
-}
+type TabKey = 'all' | 'paid' | 'due';
 
 @Component({
   selector: 'app-sa-invoices-out',
@@ -22,83 +13,70 @@ interface OutInvoice {
   templateUrl: './sa-invoices-out.html',
   styleUrl: './sa-invoices-out.css',
 })
-export class SaInvoicesOut {
-  toast = signal<string | null>(null);
+export class SaInvoicesOut implements OnInit {
+  private api = inject(AdminOpsApiService);
+
+  readonly usd = usd;
+  readonly fmtDate = fmtDate;
+  readonly newInvoiceReason = 'الفواتير تُشتق تلقائيًا من تسليمات المراحل ولا تُنشأ يدويًا';
+
   activeTab = signal<TabKey>('all');
   searchTerm = signal('');
+  page = signal(1);
+  data = signal<AdminInvoicesData | null>(null);
+  loading = signal(true);
+  error = signal('');
+  exporting = signal(false);
+  exportError = signal('');
 
   readonly tabs: { key: TabKey; label: string }[] = [
     { key: 'all', label: 'الكل' },
-    { key: 'B2B', label: 'B2B' },
-    { key: 'B2C', label: 'B2C' },
-    { key: 'processing', label: 'معلقة' },
-    { key: 'rejected', label: 'مرفوضة' },
+    { key: 'paid', label: 'مدفوعة' },
+    { key: 'due', label: 'مستحقة' },
   ];
+  readonly statusLabels: Record<string, string> = { paid: 'مدفوعة', due: 'مستحقة' };
+  readonly statusClasses: Record<string, string> = { paid: 'st-ok', due: 'st-pending' };
 
-  readonly statusLabels: Record<InvoiceStatus, string> = {
-    issued: 'فاتورة رسمية داخلية',
-    processing: 'قيد التجهيز',
-    rejected: '✗ مرفوضة',
-  };
-
-  readonly statusClasses: Record<InvoiceStatus, string> = {
-    issued: 'st-ok',
-    processing: 'st-pending',
-    rejected: 'st-rejected',
-  };
-
-  readonly invoices: OutInvoice[] = [
-    { id: 'INV-2026-8247', kind: 'B2B', party: 'شركة الخليج للتطوير', amount: 5800, date: 'اليوم', status: 'issued' },
-    { id: 'INV-2026-8246', kind: 'B2C', party: 'هيثم القرني', amount: 299, date: 'اليوم', status: 'issued' },
-    { id: 'INV-2026-8245', kind: 'B2B', party: 'مؤسسة النور التجارية', amount: 12400, date: 'أمس', status: 'processing' },
-    { id: 'INV-2026-8244', kind: 'B2C', party: 'سارة القحطاني', amount: 899, date: 'أمس', status: 'issued' },
-    { id: 'INV-2026-8241', kind: 'B2C', party: 'نورة السهلي', amount: 349, date: '13 يوليو', status: 'issued' },
-    { id: 'INV-2026-8240', kind: 'B2B', party: 'شركة الأفق المتقدمة', amount: 28500, date: '12 يوليو', status: 'rejected' },
-    { id: 'INV-2026-8236', kind: 'B2B', party: 'مجموعة الرياض القابضة', amount: 9600, date: '10 يوليو', status: 'processing' },
-    { id: 'INV-2026-8229', kind: 'B2C', party: 'خالد المطيري', amount: 199, date: '8 يوليو', status: 'issued' },
-  ];
-
-  readonly kpis = {
-    total: this.invoices.length,
-    issued: this.invoices.filter((i) => i.status === 'issued').length,
-    processing: this.invoices.filter((i) => i.status === 'processing').length,
-    rejected: this.invoices.filter((i) => i.status === 'rejected').length,
-  };
-
-  readonly filteredInvoices = computed(() => {
-    const tab = this.activeTab();
+  filtered = computed<AdminInvoice[]>(() => {
     const term = this.searchTerm().trim().toLowerCase();
-    return this.invoices.filter((inv) => {
-      const matchesTab =
-        tab === 'all' ||
-        (tab === 'B2B' && inv.kind === 'B2B') ||
-        (tab === 'B2C' && inv.kind === 'B2C') ||
-        (tab === 'processing' && inv.status === 'processing') ||
-        (tab === 'rejected' && inv.status === 'rejected');
-      const matchesTerm =
-        !term || inv.id.toLowerCase().includes(term) || inv.party.toLowerCase().includes(term);
-      return matchesTab && matchesTerm;
-    });
+    const items = this.data()?.items ?? [];
+    if (!term) return items;
+    return items.filter((i) => [i.projectTitle, i.stageTitle, i.clientName, i.providerName, i.sourceId].some((v) => (v ?? '').toLowerCase().includes(term)));
   });
 
-  setTab(tab: TabKey) {
-    this.activeTab.set(tab);
+  ngOnInit() { this.load(); }
+
+  load() {
+    this.loading.set(true);
+    this.error.set('');
+    const tab = this.activeTab();
+    this.api.financeInvoices({ status: tab === 'all' ? undefined : tab, page: this.page(), limit: 20 }).subscribe({
+      next: (res) => { this.data.set(res.data ?? null); this.loading.set(false); },
+      error: (err) => { this.error.set(errMsg(err, 'تعذر تحميل الفواتير')); this.loading.set(false); },
+    });
   }
 
-  formatAmount(v: number): string {
-    return v.toLocaleString('ar-SA') + ' $';
+  setTab(t: TabKey) {
+    this.activeTab.set(t);
+    this.page.set(1);
+    this.load();
   }
 
-  showToast(message: string) {
-    this.toast.set(message);
-    setTimeout(() => this.toast.set(null), 2500);
+  totalPages(): number {
+    const p = this.data()?.pagination;
+    return p?.totalPages ?? p?.pages ?? 1;
   }
+  prevPage() { if (this.page() > 1) { this.page.update((v) => v - 1); this.load(); } }
+  nextPage() { if (this.page() < this.totalPages()) { this.page.update((v) => v + 1); this.load(); } }
 
   exportCsv() {
-    this.showToast('تم تصدير القائمة بصيغة CSV');
-  }
-
-  newInvoice() {
-    this.showToast('نموذج فاتورة جديدة — تجهيز مستقبلي غير مفعّل في V1');
+    if (this.exporting()) return;
+    this.exporting.set(true);
+    this.exportError.set('');
+    const tab = this.activeTab();
+    this.api.downloadCsv('invoices', { status: tab === 'all' ? undefined : tab }).subscribe({
+      next: (blob) => { saveBlob(blob, 'invoices.csv'); this.exporting.set(false); },
+      error: (err) => { this.exportError.set(errMsg(err, 'تعذر تصدير الملف')); this.exporting.set(false); },
+    });
   }
 }

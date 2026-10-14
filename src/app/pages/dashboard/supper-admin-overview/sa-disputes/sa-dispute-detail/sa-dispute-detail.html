@@ -27,7 +27,7 @@
         </div>
       </div>
       <div class="dp-md-body">
-        <!-- Claimant / respondent party cards — MOCK identity, real claim text for the claimant (d.reason) -->
+        <!-- Claimant / respondent party cards: real parties from the API; claim text is the real d.reason -->
         <div class="dp-parties">
           @for (role of ['claimant','respondent']; track role) {
             <div class="dp-party-card" [class.dp-party-claimant]="role === 'claimant'" [class.dp-party-respondent]="role === 'respondent'">
@@ -54,11 +54,11 @@
         <div class="dp-md-row">
           <div class="dp-md-field">
             <label>الطلب</label>
-            <p>{{ d.requestId || '—' }}</p>
+            <p>{{ d.request?.title || d.requestId || '—' }}</p>
           </div>
           <div class="dp-md-field">
             <label>المشروع</label>
-            <p>{{ d.projectId || '—' }}</p>
+            <p>{{ d.project?.title || d.projectId || '—' }}</p>
           </div>
         </div>
         <div class="dp-md-row">
@@ -85,48 +85,112 @@
         }
         @if (d.evidence && d.evidence.length > 0) {
           <div class="dp-md-field">
-            <label>الأدلة ({{ d.evidence.length }})</label>
+            <label>أدلة {{ partyInfo(d, 'claimant').name }} ({{ d.evidence.length }})</label>
             <div class="dp-ev-list">
               @for (url of d.evidence; track url) {
-                <a class="dp-ev-link" [href]="url" target="_blank" rel="noopener">{{ url }}</a>
-              }
-            </div>
-          </div>
-
-          <!-- Side-by-side evidence-by-party comparison. Real evidence URLs;
-               the "submitted by" split is an alternating placeholder (see note above). -->
-          <div class="dp-md-field">
-            <label>الأدلة المرفقة</label>
-            <div class="dp-ev-compare">
-              @for (role of ['claimant','respondent']; track role) {
-                <div class="dp-ev-col" [class.dp-ev-col-claimant]="role === 'claimant'" [class.dp-ev-col-respondent]="role === 'respondent'">
-                  <div class="dp-ev-col-hdr">أدلة {{ partyInfo(d, $any(role)).name }}</div>
-                  @for (url of d.evidence; track url; let i = $index) {
-                    @if (evidenceParty(i) === role) {
-                      <a class="dp-ev-mini" [href]="url" target="_blank" rel="noopener">{{ evidenceFileName(url) }}</a>
-                    }
-                  }
-                </div>
+                <a class="dp-ev-link" [href]="url" target="_blank" rel="noopener">{{ evidenceFileName(url) }}</a>
               }
             </div>
           </div>
         }
 
-        <!-- Dispute activity log — real timestamps for open/resolve, approximate placeholders for the rest (see activityLog()) -->
+        <div class="dp-md-field">
+          <label>محادثة النزاع</label>
+          <p class="dp-disabled-note">غير متاحة حالياً: لا توجد خدمة رسائل خاصة بالنزاعات.</p>
+        </div>
+
+        <div class="dp-md-field">
+          <label>التصعيد ومؤشرات SLA</label>
+          <div class="dp-ops-row">
+            <button type="button" class="dp-btn dp-btn-gh" disabled [title]="noEscalationBackend">تصعيد النزاع</button>
+            <button type="button" class="dp-btn dp-btn-gh" disabled [title]="noEscalationBackend">مؤشر SLA</button>
+          </div>
+          <p class="dp-disabled-note">{{ noEscalationBackend }}</p>
+        </div>
+
+        <!-- Dispute log: opening entry + the real admin audit-log timeline from the API -->
         <div class="dp-md-field">
           <label>سجل النزاع</label>
           <div class="dp-act-list">
-            @for (ev of activityLog(d); track ev.label) {
+            @for (ev of activityLog(d); track $index) {
               <div class="dp-act-item">
                 <span class="dp-act-dot" [style.background]="ev.dotColor"></span>
                 <div class="dp-act-body">
                   <div class="dp-act-lbl">{{ ev.label }}</div>
-                  <div class="dp-act-date" [class.dp-act-approx]="ev.approx">{{ ev.dateLabel }}</div>
+                  @if (ev.detail) {
+                    <div class="dp-act-date">{{ ev.detail }}</div>
+                  }
+                  <div class="dp-act-date">{{ ev.dateLabel }}</div>
                 </div>
               </div>
             }
           </div>
         </div>
+
+        <!-- Staff operations: escrow (real), assignment, status, internal notes -->
+        <div class="dp-md-field">
+          <label>الضمان المالي</label>
+          @if (d.escrow; as e) {
+            <div class="dp-escrow-card">
+              <span class="dp-badge dp-st-review">{{ escrowLabels[e.status] || e.status }}</span>
+              <span>المبلغ: {{ e.amount | number:'1.2-2' }}</span>
+              <span>المُحرَّر: {{ e.releasedAmount | number:'1.2-2' }}</span>
+              <span>المحتجز حالياً: {{ (d.heldEscrowAmount ?? (e.status === 'HELD' ? e.amount - e.releasedAmount : 0)) | number:'1.2-2' }}</span>
+              @if (d.contractStatus) {
+                <span>حالة العقد: {{ d.contractStatus }}</span>
+              }
+            </div>
+          } @else {
+            <p class="dp-disabled-note">لا يوجد ضمان مسجّل لهذا النزاع.</p>
+          }
+        </div>
+
+        <div class="dp-md-field">
+          <label>الإسناد</label>
+          <p>المُسنَد إليه: <strong>{{ d.assignedTo?.name || 'غير مُسنَد' }}</strong></p>
+          <div class="dp-ops-row">
+            <ws-select [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للإسناد" style="min-width:180px;max-width:100%;display:block"></ws-select>
+            <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy() || !selectedAssigneeId()" (click)="assign()">إسناد</button>
+          </div>
+        </div>
+
+        @if (canChangeStatus(d.status)) {
+          <div class="dp-md-field">
+            <label>حالة المراجعة</label>
+            <div class="dp-ops-row">
+              @if (d.status === 'OPEN') {
+                <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="setStatus('UNDER_REVIEW')">بدء المراجعة</button>
+              } @else {
+                <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="setStatus('OPEN')">إعادة للمفتوح</button>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="dp-md-field">
+          <label>ملاحظات داخلية — لا تظهر للطرفين</label>
+          <div class="dp-notes-list">
+            @for (n of d.notes ?? []; track n.id) {
+              <div class="dp-note-item">
+                <p>{{ n.body }}</p>
+                <span class="dp-act-date">{{ n.admin?.name || '—' }} · {{ formatDate(n.createdAt) }}</span>
+              </div>
+            } @empty {
+              <p class="dp-disabled-note">لا توجد ملاحظات داخلية بعد.</p>
+            }
+          </div>
+          <div class="dp-ops-row">
+            <input class="dp-rf-input" type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
+            <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy() || !noteDraft().trim()" (click)="addNote()">إضافة</button>
+          </div>
+        </div>
+
+        @if (opError()) {
+          <p class="dp-rf-err">{{ opError() }}</p>
+        }
+        @if (opSuccess()) {
+          <div class="dp-md-success"><p>{{ opSuccess() }}</p></div>
+        }
 
         <!-- Advisory-only AI summary — never resolves/rejects, never
              pre-fills the manual decision form below. -->
@@ -167,12 +231,10 @@
           }
         </div>
 
-        <!-- Interactive escrow-split slider. Amount is MOCK (no escrow-amount
-             field in the API yet); the split feeds the real resolveAdminDispute()
-             call via applyVerdict() -> the existing manual resolve form below. -->
+        <!-- Split slider and verdict presets only pre-fill the decision text of the manual resolve form below. -->
         @if (canResolve(d.status)) {
           <div class="dp-split-panel">
-            <div class="dp-split-hdr">توزيع الضمان (النسب فقط — مبلغ الضمان غير متاح في هذه الشاشة)</div>
+            <div class="dp-split-hdr">اقتراحات صياغة القرار (تملأ نص القرار فقط ولا تنفّذ أي تحويل مالي)</div>
             <div class="dp-split-row">
               <span class="dp-split-side dp-split-claimant">مقدّم النزاع: {{ splitClaimantPct() }}%</span>
               <input
@@ -211,6 +273,7 @@
         <div class="dp-resolve-form">
           <h4 class="dp-rf-ttl">{{ resolveAction() === 'resolve' ? 'حل النزاع' : 'رفض النزاع' }}</h4>
 
+          <p class="dp-disabled-note">الصيغ الجاهزة أدناه تملأ نص القرار فقط.</p>
           <div class="dp-rf-presets">
             @for (p of resolutionPresets; track p) {
               <button type="button" class="dp-rf-preset" [class.active]="resolutionText() === p" (click)="selectPreset(p)">{{ p }}</button>
@@ -231,12 +294,22 @@
             <p class="dp-rf-err">{{ resolveError() }}</p>
           }
 
-          <div class="dp-rf-actions">
-            <button type="button" class="dp-btn dp-btn-pri" [disabled]="submittingResolve()" (click)="submitResolve()">
-              {{ submittingResolve() ? 'جارٍ الحفظ...' : 'تأكيد' }}
-            </button>
-            <button type="button" class="dp-btn dp-btn-gh" [disabled]="submittingResolve()" (click)="cancelResolveForm()">إلغاء</button>
-          </div>
+          @if (confirmingResolve()) {
+            <div class="dp-confirm-box" role="alert">
+              <p>هذا القرار يُسجَّل ويُبلَّغ به الطرفان ولا ينفّذ أي تحويل مالي تلقائياً.</p>
+            </div>
+            <div class="dp-rf-actions">
+              <button type="button" class="dp-btn dp-btn-pri" [disabled]="submittingResolve()" (click)="submitResolve()">
+                {{ submittingResolve() ? 'جارٍ الحفظ...' : (resolveAction() === 'resolve' ? 'تأكيد حل النزاع' : 'تأكيد رفض النزاع') }}
+              </button>
+              <button type="button" class="dp-btn dp-btn-gh" [disabled]="submittingResolve()" (click)="confirmingResolve.set(false)">رجوع للتعديل</button>
+            </div>
+          } @else {
+            <div class="dp-rf-actions">
+              <button type="button" class="dp-btn dp-btn-pri" (click)="requestResolveConfirm()">متابعة</button>
+              <button type="button" class="dp-btn dp-btn-gh" (click)="cancelResolveForm()">إلغاء</button>
+            </div>
+          }
         </div>
       } @else {
         <div class="dp-md-actions">

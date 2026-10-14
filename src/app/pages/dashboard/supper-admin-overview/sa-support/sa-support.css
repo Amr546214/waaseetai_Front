@@ -391,3 +391,4 @@
 
 /* Full-width list (ticket detail is now the routed `support/:id` page) */
 .sup-tlist-full { max-height: none; overflow: visible; padding-inline-end: 0; }
+.sup-pag{display:flex;gap:8px;align-items:center;justify-content:center;padding:12px;font-size:13px}

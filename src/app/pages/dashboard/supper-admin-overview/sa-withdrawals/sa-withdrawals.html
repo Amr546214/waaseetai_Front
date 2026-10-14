@@ -4,11 +4,23 @@
       <h1 class="wd-ttl">إدارة طلبات السحب</h1>
       <p class="wd-sub">مراجعة طلبات السحب ومتابعة حالتها</p>
     </div>
+    <div>
+      <button type="button" class="wd-btn wd-btn-gh" data-testid="wd-export-csv" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV' }}</button>
+    </div>
+  </div>
+  @if (exportError()) { <p class="wd-af-err">{{ exportError() }}</p> }
+
+  <div class="wd-toolbar">
+    <div class="wd-owner" data-testid="wd-owner-filter">
+      @for (o of owners; track o.key) {
+        <button type="button" class="wd-ftab" [class.active]="ownerFilter() === o.key" (click)="setOwner(o.key)">{{ o.label }}</button>
+      }
+    </div>
   </div>
 
   <div class="wd-filters">
     @for (f of filters; track f.key) {
-      <button type="button" class="wd-ftab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">{{ f.label }}</button>
+      <button type="button" class="wd-ftab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">{{ f.label }}<span class="wd-ftab-count">{{ tabCount(f.key) }} · {{ formatAmount(tabAmount(f.key), 'USD') }}</span></button>
     }
   </div>
 
@@ -35,12 +47,14 @@
         <div class="wd-card">
           <div class="wd-card-top">
             <span class="wd-id">#{{ shortId(w.id) }}</span>
-            <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] }}</span>
+            <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] || w.status }}</span>
           </div>
           <div class="wd-card-body">
             <div class="wd-amount">{{ formatAmount(w.amount, w.currency) }}</div>
             <div class="wd-meta">
-              <span>المستخدم: {{ userDisplay(w) }}</span>
+              <span data-testid="wd-user">المستخدم: {{ userDisplay(w) }}</span>
+              <span>·</span>
+              <span class="wd-owner-tag">{{ ownerLabel(w) }}</span>
               <span>·</span>
               <span>الطريقة: {{ isLegacy(w) ? 'سحب قديم' : (w.method ? 'PayPal' : '—') }}</span>
               <span>·</span>
@@ -59,10 +73,10 @@
 
     @if (pagination(); as pg) {
       <div class="wd-pag">
-        <span class="wd-pag-info">صفحة {{ pg.page ?? currentPage() }} من {{ pg.totalPages ?? pg.pages ?? 1 }} (إجمالي {{ pg.total ?? 0 }})</span>
+        <span class="wd-pag-info">صفحة {{ pg.page ?? currentPage() }} من {{ totalPages() }} (إجمالي {{ pg.total ?? 0 }})</span>
         <div class="wd-pag-btns">
           <button type="button" class="wd-btn wd-btn-gh" [disabled]="(pg.page ?? currentPage()) <= 1" (click)="prevPage()">السابق</button>
-          <button type="button" class="wd-btn wd-btn-gh" [disabled]="(pg.page ?? currentPage()) >= (pg.totalPages ?? pg.pages ?? 1)" (click)="nextPage()">التالي</button>
+          <button type="button" class="wd-btn wd-btn-gh" [disabled]="(pg.page ?? currentPage()) >= totalPages()" (click)="nextPage()">التالي</button>
         </div>
       </div>
     }

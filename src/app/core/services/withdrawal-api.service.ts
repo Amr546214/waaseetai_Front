@@ -30,6 +30,7 @@ export class WithdrawalApiService {
   getAdminWithdrawals(query?: AdminWithdrawalsQuery): Observable<WithdrawalListApiResponse> {
     let params = new HttpParams();
     if (query?.status) params = params.set('status', query.status);
+    if (query?.owner) params = params.set('owner', query.owner);
     if (query?.page) params = params.set('page', query.page);
     if (query?.limit) params = params.set('limit', query.limit);
     return this.http.get<WithdrawalListApiResponse>(`${this.baseUrl}/admin/withdrawals`, { params });
@@ -65,6 +66,14 @@ export class WithdrawalApiService {
       `${this.baseUrl}/admin/withdrawals/${id}/reject`,
       payload,
     );
+  }
+
+  /**
+   * Admin sends the PayPal payout of an APPROVED withdrawal. Takes NO body: every financial field comes from the server's own record.
+   * POST /api/admin/withdrawals/:id/send-payout  (503 while payout automation is off)
+   */
+  sendAdminWithdrawalPayout(id: string): Observable<{ success: boolean; message?: string; data?: { outcome: string; message: string } }> {
+    return this.http.post<{ success: boolean; message?: string; data?: { outcome: string; message: string } }>(`${this.baseUrl}/admin/withdrawals/${id}/send-payout`, {});
   }
 
   // ── Provider ────────────────────────────────────────────────────────

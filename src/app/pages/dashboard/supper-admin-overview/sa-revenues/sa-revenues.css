@@ -56,7 +56,7 @@
 :host-context(.theme-light) .rev-compare { color: #64748B; }
 
 /* KPI grid */
-.rev-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.rev-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .rev-kpi { background: linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 16px 18px; transition: border-color .15s; }
 .rev-kpi:hover { border-color: rgba(255,255,255,.14); }
 .rev-kpi-ic { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
@@ -317,3 +317,6 @@
   .rev-page { padding: 14px 16px; }
   .rev-kpi-grid { grid-template-columns: 1fr; }
 }
+
+.rev-btn:disabled { opacity: .5; cursor: not-allowed; }
+@media print { .rev-hdr-actions, .rev-period-bar, .rev-tabs { display: none; } }

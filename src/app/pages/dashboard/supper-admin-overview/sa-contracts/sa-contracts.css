@@ -441,3 +441,7 @@
 :host-context(.theme-light) .ct-btn-ghost {
   background: #F1F5F9 !important; border-color: #E2E8F4 !important; color: #475569 !important;
 }
+.ct-u-av{background:linear-gradient(135deg,#59C1F5,#5DA0FF);color:#070D24}
+.ct-disabled-note{font-size:11.5px;color:#A8B2D1;line-height:1.7;margin:6px 0 0}
+.ct-btn:disabled{opacity:.45;cursor:not-allowed}
+.ct-pager{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;font-size:12px;color:#A8B2D1}

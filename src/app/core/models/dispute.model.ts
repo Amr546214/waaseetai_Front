@@ -39,6 +39,15 @@ export interface Dispute {
   project?: { id: string; title?: string } | null;
   /** Escrow still held for the dispute's project (own-disputes endpoints only; null = none/unknown, absent on an older backend). */
   heldEscrowAmount?: number | null;
+  /** Admin endpoints only: current assignee (from the admin audit store). */
+  assignedTo?: { id: string; name: string } | null;
+  /** Admin detail only: escrow of the dispute's project, straight from the database. */
+  escrow?: { status: 'HELD' | 'RELEASED' | 'REFUNDED'; amount: number; releasedAmount: number; fundedAt: string | null } | null;
+  contractStatus?: string | null;
+  /** Admin detail only: internal notes (never returned to the parties). */
+  notes?: { id: string; body: string; createdAt: string; admin: { id: string; name: string } | null }[];
+  /** Admin detail only: audit-log timeline of everything an admin did on this dispute. */
+  timeline?: { id: string; eventType: string; title: string; summary: string | null; occurredAt: string; admin: { id: string; name: string } | null }[];
 }
 
 export interface DisputePagination {
@@ -50,6 +59,8 @@ export interface DisputePagination {
 
 export interface DisputeListData {
   items: Dispute[];
+  /** Admin list only: number of disputes per status over the whole table. */
+  counts?: Partial<Record<DisputeStatus, number>>;
   pagination: DisputePagination;
 }
 
