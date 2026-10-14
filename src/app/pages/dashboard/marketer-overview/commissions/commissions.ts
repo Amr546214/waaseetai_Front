@@ -1,6 +1,7 @@
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { commissionTypeLabel } from '../../../../core/utils/marketer-labels.util';
 import { MarketerOverviewService, MarketerSummary, CommissionLog } from '../../../../core/services/marketer-overview.service';
 
 @Component({
@@ -18,6 +19,8 @@ export class Commissions implements OnInit {
   isLoading = signal(true);
   
   filterStatus = signal<string>('all');
+  readonly commissionTypeLabel = commissionTypeLabel;
+  loadFailed = signal(false);
 
   filteredCommissions = computed(() => {
     const status = this.filterStatus();
@@ -26,16 +29,11 @@ export class Commissions implements OnInit {
     return list.filter(log => log.status === status);
   });
 
-  // "محجوزة" — commissions still pending confirmation, not yet released to the
-  // affiliate's withdrawable balance.
-  heldAmount = computed(() => this.commissions()
-    .filter(log => log.status === 'PENDING')
-    .reduce((sum, log) => sum + (log.amount || 0), 0));
+  // "محجوزة" — commissions still pending confirmation (server-side total over ALL rows, not just the loaded page).
+  heldAmount = computed(() => this.summary()?.pendingCommissions ?? 0);
 
-  // "منسحبة" — commissions already paid out/withdrawn.
-  withdrawnAmount = computed(() => this.commissions()
-    .filter(log => log.status === 'PAID')
-    .reduce((sum, log) => sum + (log.amount || 0), 0));
+  // "منسحبة" — commissions already paid out (server-side total).
+  withdrawnAmount = computed(() => this.summary()?.paidCommissions ?? 0);
 
   private amountInMonth(date: Date): number {
     return this.commissions()
@@ -86,7 +84,7 @@ export class Commissions implements OnInit {
         }
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => { this.isLoading.set(false); this.loadFailed.set(true); }
     });
   }
 

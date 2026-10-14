@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarketerOverviewService, RefLinksData, ReferralCustomLink, MarketerSummary } from '../../../../core/services/marketer-overview.service';
+import { copyText } from '../../../../core/utils/marketer-labels.util';
 import { buildReferralUrl } from '../../../../core/utils/referral-link.util';
 
 @Component({
@@ -64,9 +65,33 @@ export class RefLinks implements OnInit {
     });
   }
 
-  copyToClipboard(url: string) {
-    navigator.clipboard.writeText(url).then(() => {
-      this.showToast('تم نسخ الرابط بنجاح');
+  async copyToClipboard(url: string) {
+    if (!url) return;
+    const ok = await copyText(url);
+    this.showToast(ok ? 'تم نسخ الرابط بنجاح' : 'تعذر النسخ تلقائياً، انسخ الرابط يدوياً');
+  }
+
+  /** Web Share when the browser has it; otherwise falls back to copying the link. A cancelled share sheet is not an error. */
+  async shareLink(url: string, title = 'رابط الإحالة في وسيط') {
+    if (!url) return;
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch (e: any) {
+        if (e?.name === 'AbortError') return;
+      }
+    }
+    await this.copyToClipboard(url);
+  }
+
+  removeCustomLink(id: string) {
+    this.service.deleteCustomLink(id).subscribe({
+      next: () => {
+        this.data.update(d => (d ? { ...d, customLinks: d.customLinks.filter(l => l.id !== id) } : d));
+        this.showToast('تم حذف رابط القناة');
+      },
+      error: () => this.showToast('تعذر حذف الرابط، حاول مرة أخرى'),
     });
   }
 
@@ -99,7 +124,8 @@ export class RefLinks implements OnInit {
           this.showNewChannelForm.set(false);
           this.showToast('تمت إضافة القناة بنجاح');
         }
-      }
+      },
+      error: (err) => this.showToast(err?.error?.message || 'تعذر إضافة القناة، تحقق من البيانات وحاول مرة أخرى'),
     });
   }
 
@@ -121,6 +147,12 @@ export class RefLinks implements OnInit {
       };
     });
 
-    this.service.updateSettings({ [setting]: newValue }).subscribe();
+    this.service.updateSettings({ [setting]: newValue }).subscribe({
+      error: () => {
+        // roll the optimistic toggle back: the setting was not saved
+        this.data.update(d => (d ? { ...d, settings: { ...d.settings, [setting]: !newValue } } : d));
+        this.showToast('تعذر حفظ الإعداد، حاول مرة أخرى');
+      },
+    });
   }
 }
