@@ -1,0 +1,51 @@
+<div class="main-inner">
+  <h2 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">المواد التسويقية</h2>
+  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">روابط الإحالة الخاصة بك، والملفات التي تنشرها الإدارة للوسطاء.</p>
+
+  <div class="adm-card" data-testid="assets-links">
+    <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-link"></use></svg>روابطي</div>
+    @if (primaryLink()) {
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span style="min-width:110px;font-size:12px;font-weight:700" class="txt-slate">الرابط الأساسي</span>
+        <input type="text" class="inp-field" readonly dir="ltr" [value]="primaryLink()" style="flex:1;min-width:160px;font-size:11px;opacity:.8" aria-label="رابط الإحالة الأساسي">
+        <button type="button" class="btn-primary" style="padding:9px 14px;font-size:12px" data-testid="copy-primary" (click)="copy(primaryLink(), 'primary')">{{ copied() === 'primary' ? 'تم النسخ' : 'نسخ' }}</button>
+      </div>
+      @for (l of channelLinks(); track l.id) {
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span style="min-width:110px;font-size:12px;font-weight:700" class="txt-slate">{{ l.name }}</span>
+        <input type="text" class="inp-field" readonly dir="ltr" [value]="l.url" style="flex:1;min-width:160px;font-size:11px;opacity:.8" [attr.aria-label]="'رابط ' + l.name">
+        <button type="button" class="btn-primary" style="padding:9px 14px;font-size:12px" (click)="copy(l.url, l.id)">{{ copied() === l.id ? 'تم النسخ' : 'نسخ' }}</button>
+      </div>
+      }
+      <a routerLink="/marketer-overview/ref-links" class="txt-teal" style="font-size:12px;font-weight:700">إدارة الروابط وإضافة قنوات</a>
+    </div>
+    } @else {
+    <div style="font-size:12px" class="txt-muted" data-testid="assets-links-empty">رابط الإحالة غير جاهز بعد. افتح صفحة روابط الإحالة ليُنشأ لك.</div>
+    <a routerLink="/marketer-overview/ref-links" class="txt-teal" style="font-size:12px;font-weight:700">روابط الإحالة</a>
+    }
+  </div>
+
+  <div class="adm-card" style="margin-top:16px" data-testid="assets-files">
+    <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>بنرات وقوالب وملفات</div>
+    @if (loading()) {
+    <div style="font-size:12px" class="txt-muted">جارٍ التحميل...</div>
+    } @else if (error()) {
+    <div style="color:#FF8C69;font-size:12px;font-weight:700" role="alert" data-testid="assets-error">تعذر تحميل المواد التسويقية <button type="button" class="txt-teal" style="background:none;border:none;cursor:pointer;font-family:inherit;font-weight:700" (click)="load()">إعادة المحاولة</button></div>
+    } @else if (files().length === 0) {
+    <div style="font-size:13px;padding:10px 0" class="txt-muted" data-testid="assets-empty">لم تنشر الإدارة بنرات أو قوالب أو ملفات للوسطاء بعد. ستظهر هنا فور نشرها، ويمكنك في الوقت الحالي استخدام روابطك أعلاه.</div>
+    } @else {
+    <div style="display:flex;flex-direction:column;gap:8px">
+      @for (f of files(); track f.id) {
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px" data-testid="asset-row">
+        <div style="min-width:0">
+          <div style="font-size:13px;font-weight:700" class="txt-white">{{ f.title }} <span style="font-size:10.5px" class="txt-muted">· {{ kindLabel(f.kind) }}</span></div>
+          @if (f.description) { <div style="font-size:11px;margin-top:2px" class="txt-muted">{{ f.description }}</div> }
+        </div>
+        <a class="btn-primary" style="padding:8px 14px;font-size:12px;text-decoration:none;white-space:nowrap" data-testid="asset-download" [href]="f.downloadUrl" target="_blank" rel="noopener noreferrer" download>تنزيل</a>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>

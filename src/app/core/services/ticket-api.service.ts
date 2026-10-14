@@ -3,6 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export type TicketRole = 'client' | 'provider' | 'marketer';
+
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'AWAITING_CUSTOMER' | 'RESOLVED' | 'CLOSED';
 
 export interface SupportTicket {
@@ -86,29 +88,30 @@ export interface ApiResponse<T> {
 export class TicketApiService {
 	private http = inject(HttpClient);
 
-	private baseFor(role: 'client' | 'provider'): string {
-		return `${environment.url_api}/${role}/tickets`;
+	private baseFor(role: TicketRole): string {
+		// the marketer's tickets live under the marketer router (it answers only while acting as the marketer)
+		return role === 'marketer' ? `${environment.url_api}/marketer-overview/tickets` : `${environment.url_api}/${role}/tickets`;
 	}
 
-	createTicket(role: 'client' | 'provider', payload: CreateTicketPayload): Observable<ApiResponse<SupportTicket>> {
+	createTicket(role: TicketRole, payload: CreateTicketPayload): Observable<ApiResponse<SupportTicket>> {
 		return this.http.post<ApiResponse<SupportTicket>>(this.baseFor(role), payload);
 	}
 
-	listTickets(role: 'client' | 'provider', status?: TicketStatus): Observable<ApiResponse<TicketListData>> {
+	listTickets(role: TicketRole, status?: TicketStatus): Observable<ApiResponse<TicketListData>> {
 		let params = new HttpParams().set('limit', 50);
 		if (status) params = params.set('status', status);
 		return this.http.get<ApiResponse<TicketListData>>(this.baseFor(role), { params });
 	}
 
-	getTicket(role: 'client' | 'provider', id: string): Observable<ApiResponse<TicketDetailData>> {
+	getTicket(role: TicketRole, id: string): Observable<ApiResponse<TicketDetailData>> {
 		return this.http.get<ApiResponse<TicketDetailData>>(`${this.baseFor(role)}/${id}`);
 	}
 
-	replyToTicket(role: 'client' | 'provider', id: string, body: string): Observable<ApiResponse<SupportTicketMessage>> {
+	replyToTicket(role: TicketRole, id: string, body: string): Observable<ApiResponse<SupportTicketMessage>> {
 		return this.http.post<ApiResponse<SupportTicketMessage>>(`${this.baseFor(role)}/${id}/reply`, { body });
 	}
 
-	closeTicket(role: 'client' | 'provider', id: string): Observable<ApiResponse<SupportTicket>> {
+	closeTicket(role: TicketRole, id: string): Observable<ApiResponse<SupportTicket>> {
 		return this.http.post<ApiResponse<SupportTicket>>(`${this.baseFor(role)}/${id}/close`, {});
 	}
 

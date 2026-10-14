@@ -8,7 +8,6 @@ import { vi } from 'vitest';
 import { Data } from './data';
 import { MarketerOverviewService } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService } from '../../../../../core/services/marketer-profile.service';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const PROFILE = {
@@ -36,7 +35,7 @@ describe('Data (marketer profile): shared validation', () => {
       createIdentityRequest: vi.fn(() => of({ success: true, data: [] })),
       changePassword: vi.fn(() => of({ success: true })),
     };
-    prefs = { getPreferences: vi.fn(() => of({ success: true, data: {} })), updatePreferences: vi.fn(() => of({ success: true })) };
+    prefs = { getSettings: vi.fn(() => of({ success: true, data: { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null } })), updateMarketerSettings: vi.fn(() => of({ success: true })) };
     await TestBed.configureTestingModule({
       imports: [Data],
       providers: [
@@ -45,9 +44,10 @@ describe('Data (marketer profile): shared validation', () => {
           getSummary: () => of({ success: true, data: {} }),
           getChannelPerformance: () => of({ success: true, data: [] }),
           getRecentCommissions: () => of({ success: true, data: [] }),
+          getSettings: (...a: any[]) => prefs.getSettings(...a),
+          updateMarketerSettings: (...a: any[]) => prefs.updateMarketerSettings(...a),
         } },
         { provide: MarketerProfileService, useValue: svc },
-        { provide: NotificationPreferencesService, useValue: prefs },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(Data);
@@ -403,7 +403,7 @@ describe('Data (marketer profile): shared validation', () => {
     beforeEach(() => goTo('security'));
 
     it('server error shows the mapped Arabic message, not a generic one', () => {
-      prefs.updatePreferences.mockReturnValue(httpErr(429, { message: 'Too many requests, please try again after 15 minutes' }));
+      prefs.updateMarketerSettings.mockReturnValue(httpErr(429, { message: 'Too many requests, please try again after 15 minutes' }));
       c.saveAlertPreferences();
       expect(toasts()).toContain('15 دقيقة');
       expect(hasEnglish(toasts())).toBe(false);
