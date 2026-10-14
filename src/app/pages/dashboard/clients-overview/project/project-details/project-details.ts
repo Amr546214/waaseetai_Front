@@ -253,7 +253,7 @@ export class ProjectDetails implements OnInit {
 		this.http.get<any>(`${environment.url_api}/client/projects/amendments`).subscribe({
 			next: res => {
 				const all = Array.isArray(res?.data) ? res.data : [];
-				this.amendments.set(all.filter((a: any) => a.projectId === this.projectId && a.requestedByRole === 'CLIENT'));
+				this.amendments.set(all.filter((a: any) => (a.projectId === this.projectId || a.contractId === this.projectId) && a.requestedByRole === 'CLIENT'));
 				this.amendmentsLoading.set(false);
 			},
 			error: () => { this.amendmentsLoading.set(false); this.amendmentsError.set('تعذر تحميل طلباتك السابقة'); }

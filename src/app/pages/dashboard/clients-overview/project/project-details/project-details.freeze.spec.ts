@@ -77,3 +77,11 @@ describe('ProjectDetails - dispute freeze', () => {
     expect(html).toContain('routerLink="/client-overview/disputes"');
   });
 });
+
+import { readFileSync } from 'node:fs';
+describe('project details is keyed by the contract id for marketplace purchases', () => {
+	it('the previous-requests list matches the amendment by project id OR contract id', () => {
+		const ts = readFileSync('src/app/pages/dashboard/clients-overview/project/project-details/project-details.ts', 'utf8');
+		expect(ts).toContain('a.projectId === this.projectId || a.contractId === this.projectId');
+	});
+});
