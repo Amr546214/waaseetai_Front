@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SaNotifyModal } from '../../sa-notify-modal';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,7 +13,7 @@ type DetailTab = 'overview' | 'requests' | 'purchases' | 'disputes' | 'reports' 
 @Component({
 	selector: 'app-sa-user-detail',
 	standalone: true,
-	imports: [CommonModule, RouterLink, FormsModule, WsSelectComponent],
+	imports: [CommonModule, RouterLink, FormsModule, WsSelectComponent, SaNotifyModal],
 	templateUrl: './sa-user-detail.html',
 	styleUrl: './sa-user-detail.css'
 })
@@ -28,6 +29,7 @@ export class SaUserDetail implements OnInit {
 	private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
 	// ── status / roles / delete modals (every one confirms; the server enforces the rules and writes the audit row)
+	notifyOpen = signal(false);
 	modal = signal<'status' | 'roles' | 'delete' | null>(null);
 	busy = signal(false);
 	modalError = signal('');

@@ -73,9 +73,9 @@
 			<div class="ud-actions">
 				<button type="button" class="ud-act" disabled style="opacity:.45;cursor:not-allowed" title="غير متاح حاليًا — لا يوجد مسار تعديل إداري سريع للبيانات الشخصية"><svg aria-hidden="true"><use href="#ud-edit"></use></svg>تعديل سريع</button>
 				<button type="button" class="ud-act" [disabled]="isSelf() || adminLocked || u.statusOriginal === 'PENDING_VERIFICATION'" (click)="openModal('status')" [title]="u.statusOriginal === 'PENDING_VERIFICATION' ? 'الحساب لم يؤكد بريده بعد' : ''"><svg aria-hidden="true"><use href="#ud-pause"></use></svg>{{ u.statusOriginal === 'ACTIVE' ? 'تعليق الحساب' : 'تفعيل الحساب' }}</button>
-				<button type="button" class="ud-act" disabled style="opacity:.45;cursor:not-allowed" title="غير متاح حاليًا — لا يوجد مسار إشعار إداري للمستخدم"><svg aria-hidden="true"><use href="#ud-warn"></use></svg>إنذار سريع</button>
+				<button type="button" class="ud-act" [disabled]="isAdminAccount || isSelf()" (click)="notifyOpen.set(true)"><svg aria-hidden="true"><use href="#ud-warn"></use></svg>إنذار سريع</button>
 				<button type="button" class="ud-act" [disabled]="isSelf() || isAdminAccount" (click)="openModal('roles')" [title]="isAdminAccount ? 'أدوار الحسابات الإدارية تُدار من فريق الإدارة' : ''"><svg aria-hidden="true"><use href="#ud-shield"></use></svg>تعديل الصلاحيات</button>
-				<a class="ud-act" routerLink="/supper-admin-overview/messages"><svg aria-hidden="true"><use href="#ud-chat"></use></svg>الرسائل</a>
+				<button type="button" class="ud-act" [disabled]="isAdminAccount || isSelf()" (click)="notifyOpen.set(true)"><svg aria-hidden="true"><use href="#ud-chat"></use></svg>إرسال رسالة</button>
 				@if (isSuperAdmin() && !isAdminAccount && !isSelf()) {
 				<button type="button" class="ud-act ud-act-danger" (click)="openModal('delete')"><svg aria-hidden="true"><use href="#ud-trash"></use></svg>حذف الحساب</button>
 				}
@@ -242,4 +242,8 @@
 
 @if (toast(); as tt) {
 <div role="status" [style.background]="tt.kind === 'ok' ? '#0FA99A' : '#E5484D'" style="position:fixed;bottom:20px;inset-inline-start:20px;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;z-index:1000">{{ tt.text }}</div>
+}
+
+@if (notifyOpen() && user(); as nu) {
+<sa-notify-modal [userId]="nu.id" [userName]="nu.name" (closed)="notifyOpen.set(false)" (sent)="notifyOpen.set(false); showToast('تم إرسال الرسالة وتسجيلها في سجل التدقيق', 'ok'); retry()"></sa-notify-modal>
 }

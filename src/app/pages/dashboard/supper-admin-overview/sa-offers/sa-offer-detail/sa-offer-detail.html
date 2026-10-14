@@ -154,9 +154,22 @@
             <a class="of-btn of-btn-ghost of-btn-block" [routerLink]="['/supper-admin-overview/users', d.client.userId]">عرض الملف الكامل</a>
           </div>
 
-          <div class="of-ro-note">هذه الصفحة للقراءة فقط — لا تتوفر حالياً إجراءات إدارية على العروض.</div>
+          <div class="of-actions" style="display:flex;flex-direction:column;gap:8px">
+            <button type="button" class="of-btn of-btn-ghost of-btn-block" (click)="notifyOpen.set(true)">إشعار مقدم الخدمة</button>
+            <button type="button" class="of-btn of-btn-warn of-btn-block" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">تعليق العرض</button>
+            @if (d.contract) {
+              <button type="button" class="of-btn of-btn-danger of-btn-block" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">إلغاء العقد المرتبط</button>
+            }
+            <a class="of-btn of-btn-ghost of-btn-block" [routerLink]="['/supper-admin-overview/projects', d.requestId]">فتح المشروع</a>
+            <div class="of-ro-note">{{ stateChangeReason }}</div>
+            @if (toast()) { <div class="of-ro-note" role="status" style="color:#0FA99A">{{ toast() }}</div> }
+          </div>
         </div>
       </div>
     </div>
   }
 </section>
+
+@if (notifyOpen() && selected(); as sd) {
+  <sa-notify-modal [userId]="sd.provider!.userId" [userName]="sd.provider!.name || 'مقدم الخدمة'" [context]="{ type: 'OFFER', id: sd.id }" (closed)="notifyOpen.set(false)" (sent)="notifyOpen.set(false); toast.set('تم إرسال الرسالة لمقدم الخدمة وتسجيلها في سجل التدقيق')"></sa-notify-modal>
+}

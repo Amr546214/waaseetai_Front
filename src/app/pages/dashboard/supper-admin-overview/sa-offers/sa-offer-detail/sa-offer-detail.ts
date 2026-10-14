@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SaNotifyModal } from '../../sa-notify-modal';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   CONTRACT_STATUS_LABELS,
@@ -19,7 +20,7 @@ import {
 @Component({
   selector: 'app-sa-offer-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SaNotifyModal],
   templateUrl: './sa-offer-detail.html',
   styleUrls: ['../sa-offers.css', './sa-offer-detail.css'],
 })
@@ -34,6 +35,9 @@ export class SaOfferDetail implements OnInit {
   readonly negotiationLabels = NEGOTIATION_STATE_LABELS;
   readonly toList = toList;
 
+  readonly stateChangeReason = 'غير متاح حاليًا — لا يوجد مسار إداري لتعليق العرض أو إلغاء العقد المرتبط، ويحتاج قرارًا من المنتج (أثره المالي على الضمان)';
+  notifyOpen = signal(false);
+  toast = signal('');
   selected = signal<AdminOfferDetail | null>(null);
   loading = signal(true);
   notFound = signal(false);
