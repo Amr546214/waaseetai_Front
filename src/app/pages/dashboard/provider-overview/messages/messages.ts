@@ -1,3 +1,4 @@
+import { chatPreview } from '../../../../core/utils/chat-preview.util';
 import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -208,7 +209,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
                 project: c.project?.title || c.project || 'مشروع وسيط',
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
-                lastMsg: c.lastMessage?.content || c.lastMsg || '',
+                lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
                 time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() }) : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 online: partner.isOnline || c.online || false,
@@ -293,7 +294,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
               }
 
               const unread = targetId === this.activeConvId() ? 0 : c.unreadCount + 1;
-              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: formattedMsg.text, time: formattedMsg.time, unreadCount: unread };
+              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: chatPreview(formattedMsg.text), time: formattedMsg.time, unreadCount: unread };
             }
             return c;
           })
@@ -435,7 +436,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
           ? {
               ...c,
               messages: [...c.messages, newMsg],
-              lastMsg: newMsg.text,
+              lastMsg: chatPreview(newMsg.text),
               time: timeString,
             }
           : c
