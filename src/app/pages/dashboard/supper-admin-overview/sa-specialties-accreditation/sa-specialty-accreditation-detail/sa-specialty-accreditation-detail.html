@@ -3,87 +3,145 @@
     <a routerLink="/supper-admin-overview/specialties-accreditation">&rarr; العودة إلى اعتماد التخصصات</a>
   </div>
 
-  @if (selected(); as r) {
+  @if (loading()) {
+    <div class="sac-empty"><div class="sac-empty-ttl">جاري تحميل التفاصيل...</div></div>
+  } @else if (notFound()) {
+    <div class="sac-empty">
+      <div class="sac-empty-ttl">لم يتم العثور على طلب الاعتماد المطلوب</div>
+      <a routerLink="/supper-admin-overview/specialties-accreditation" class="sac-btn sac-btn-ghost">العودة للقائمة</a>
+    </div>
+  } @else if (error()) {
+    <div class="sac-empty">
+      <div class="sac-empty-ttl" data-testid="detail-error">{{ error() }}</div>
+      <button type="button" class="sac-btn sac-btn-ghost" (click)="retry()">إعادة المحاولة</button>
+    </div>
+  } @else if (detail(); as r) {
     <div class="sac-mbox sac-detail-box">
       <div class="sac-md-hdr">
         <div>
-          <h3>مراجعة طلب اعتماد — {{ r.id }}</h3>
-          <div class="sac-md-sub">{{ r.provider }} · {{ r.specialty }} · {{ r.date }}
-            <span class="sac-status" [class]="'sac-st-' + r.status">
-              @switch (r.status) {
-                @case ('pending') { قيد المراجعة }
-                @case ('approved') { مقبول }
-                @case ('rejected') { مرفوض }
-              }
-            </span>
+          <h3>مراجعة طلب اعتماد تخصص — {{ r.specialty?.nameAr || '—' }}</h3>
+          <div class="sac-md-sub">{{ r.provider.name || r.provider.email || '—' }} · تقدّم في {{ formatDate(r.submittedAt) }}
+            <span class="sac-status" [class]="statusClass[r.status]" data-testid="detail-status">{{ statusText[r.status] }}</span>
           </div>
         </div>
       </div>
 
       <div class="sac-md-body">
-        <div class="sac-ai-panel">
-          <div class="sac-ai-panel-hdr">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
-            وسيط AI: تقييم الملف
+        <div class="sac-md-grid">
+          <div class="sac-md-field"><label>التخصص</label><p>{{ r.specialty?.nameAr || '—' }}@if (r.specialty?.categoryNameAr) { · {{ r.specialty.categoryNameAr }} }</p></div>
+          <div class="sac-md-field"><label>التخصصات الفرعية</label><p>{{ r.subSpecialties?.length ? r.subSpecialties!.join('، ') : '—' }}</p></div>
+          <div class="sac-md-field"><label>سنوات الخبرة (من ملف المقدم)</label><p>{{ r.provider.yearsOfExperience != null ? r.provider.yearsOfExperience + ' سنوات' : '—' }}</p></div>
+          <div class="sac-md-field"><label>عضو منذ</label><p>{{ formatDate(r.provider.memberSince) }}</p></div>
+        </div>
+
+        <div class="sac-md-grid" data-testid="scores">
+          <div class="sac-md-field"><label>درجة الاختبار</label><p>{{ score(r.scores.quizScore) }}</p></div>
+          <div class="sac-md-field"><label>آخر درجة</label><p>{{ score(r.scores.latestScore) }}</p></div>
+          <div class="sac-md-field"><label>موثوقية الملكية</label><p>{{ score(r.scores.ownershipCredibility) }}</p></div>
+          <div class="sac-md-field"><label>تقدير الجدوى / الوضوح</label><p>{{ score(r.scores.feasibilityScore) }} / {{ score(r.scores.clarityScore) }}</p></div>
+          <div class="sac-md-field"><label>الاختبار</label><p>{{ r.assessmentTaken ? (r.assessmentPassed ? 'أُجري واجتازه' : 'أُجري ولم يجتزه') : 'لم يُجرَ' }}</p></div>
+        </div>
+
+        @if (r.scores.aiScore != null || aiFeedback()) {
+          <div class="sac-ai-panel" data-testid="ai-panel">
+            <div class="sac-ai-panel-hdr">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"/></svg>
+              تقييم AI المخزّن لهذا التخصص — استرشادي، والقرار النهائي للإدارة
+            </div>
+            @if (r.scores.aiScore != null) { <p class="sac-ai-note" data-testid="ai-score">درجة AI المخزّنة: {{ r.scores.aiScore }}%</p> }
+            @if (aiFeedback(); as f) {
+              @if (f.summary) { <p class="sac-ai-note">{{ f.summary }}</p> }
+              @if (f.strengths.length) { <p class="sac-ai-note"><strong>نقاط القوة:</strong></p> @for (x of f.strengths; track x) { <p class="sac-ai-note">{{ x }}</p> } }
+              @if (f.warnings.length) { <p class="sac-ai-note"><strong>تنبيهات:</strong></p> @for (x of f.warnings; track x) { <p class="sac-ai-note">{{ x }}</p> } }
+              @if (f.corrections.length) { <p class="sac-ai-note"><strong>تصحيحات مقترحة:</strong></p> @for (x of f.corrections; track x) { <p class="sac-ai-note">{{ x }}</p> } }
+            }
           </div>
-          @for (note of r.aiNotes; track note) {
-            <p class="sac-ai-note">{{ note }}</p>
+        } @else {
+          <p class="sac-no-pending" data-testid="no-ai">لا يوجد تقييم AI مخزّن لهذا التخصص.</p>
+        }
+
+        <div class="sac-md-field">
+          <label>نماذج الاعتماد ({{ r.accreditationSamples.length }})</label>
+          @if (r.accreditationSamples.length === 0) {
+            <p class="sac-no-pending">لا توجد نماذج اعتماد مرفوعة</p>
+          } @else {
+            <div class="sac-doc-list">
+              @for (s of r.accreditationSamples; track s.id) {
+                <div class="sac-doc-item sac-sample" data-testid="acc-sample">
+                  <div class="sac-sample-body">
+                    <strong>{{ s.title }}</strong>
+                    @if (s.description) { <span>{{ s.description }}</span> }
+                    <span class="sac-sample-meta">{{ s.attachments?.length || 0 }} مرفق (لا تُعرض الملفات الخاصة هنا)</span>
+                    @if (isWebUrl(s.projectUrl)) { <a class="sac-profile-link" [href]="s.projectUrl" target="_blank" rel="noopener">رابط المشروع</a> }
+                    @if (isWebUrl(s.githubUrl)) { <a class="sac-profile-link" [href]="s.githubUrl" target="_blank" rel="noopener">GitHub</a> }
+                  </div>
+                  <a class="sac-profile-link" [routerLink]="['/supper-admin-overview/accreditations', s.id]">مراجعة النموذج</a>
+                </div>
+              }
+            </div>
           }
         </div>
 
-        <div class="sac-md-grid">
-          <div class="sac-md-field"><label>نوع الحساب</label><p>{{ r.accountType }}</p></div>
-          <div class="sac-md-field"><label>الفئة الفرعية</label><p>{{ r.subCategory }}</p></div>
-          <div class="sac-md-field"><label>سنوات الخبرة</label><p>{{ r.yearsExperience }} سنوات</p></div>
-          <div class="sac-md-field"><label>عضو منذ</label><p>{{ r.memberSince }} · {{ r.priorReports }} بلاغات</p></div>
-        </div>
-
         <div class="sac-md-field">
-          <label>نماذج المحفظة ({{ r.portfolio.length }})</label>
-          <div class="sac-port-grid">
-            @for (p of r.portfolio; track p.label) {
-              <div class="sac-port-item">{{ p.emoji }}<span>{{ p.label }}</span></div>
-            }
-          </div>
-        </div>
-
-        <div class="sac-md-field">
-          <label>الوثائق المرفقة</label>
-          <div class="sac-doc-list">
-            @for (d of r.documents; track d) {
-              <div class="sac-doc-item">📄 <span>{{ d }}</span></div>
-            }
-          </div>
-        </div>
-
-        <div class="sac-md-field">
-          <label>ملاحظة المراجع (اختياري)</label>
-          <textarea rows="3" placeholder="أضف ملاحظة توضيحية..." [value]="reviewerNote()" (input)="reviewerNote.set($any($event.target).value)"></textarea>
+          <label>نماذج الأعمال ({{ r.workSamples.length }})</label>
+          @if (r.workSamples.length === 0) {
+            <p class="sac-no-pending">لا توجد نماذج أعمال</p>
+          } @else {
+            <div class="sac-doc-list">
+              @for (w of r.workSamples; track w.id) {
+                <div class="sac-doc-item sac-sample" data-testid="work-sample">
+                  <div class="sac-sample-body">
+                    <strong>{{ w.title }}</strong>
+                    @if (w.description) { <span>{{ w.description }}</span> }
+                    @if (w.technologies?.length) { <span class="sac-sample-meta">{{ w.technologies!.join('، ') }}</span> }
+                    @if (isWebUrl(w.publicSampleUrl)) { <a class="sac-profile-link" [href]="w.publicSampleUrl" target="_blank" rel="noopener">عرض النموذج العام</a> }
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
 
         <div class="sac-md-field">
           <label>ملف المقدم</label>
           <div class="sac-profile-card">
-            <div class="sac-av" [style.background]="r.avatarBg">{{ r.avatar }}</div>
+            <div class="sac-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ initialOf(r.provider.name) }}</div>
             <div class="sac-profile-info">
-              <div class="sac-profile-name">{{ r.provider }}</div>
-              <div class="sac-profile-meta">عضو منذ {{ r.memberSince }} · {{ r.priorReports }} بلاغات</div>
+              <div class="sac-profile-name">{{ r.provider.name || r.provider.email || '—' }}</div>
+              <div class="sac-profile-meta">تقييم {{ r.provider.rating != null ? r.provider.rating : '—' }} · {{ r.provider.completedProjects ?? 0 }} مشروع مكتمل@if (r.provider.headline) { · {{ r.provider.headline }} }</div>
             </div>
           </div>
-          <a class="sac-profile-link" [routerLink]="['/supper-admin-overview/users', r.userId]">عرض الملف الكامل</a>
+          @if (r.provider.userId) {
+            <a class="sac-profile-link" data-testid="provider-link" [routerLink]="['/supper-admin-overview/users', r.provider.userId]">عرض الملف الكامل</a>
+          }
         </div>
 
         <div class="sac-md-field">
-          <label>طلبات أخرى معلقة ({{ r.otherPending.length }})</label>
+          <label>طلبات أخرى معلقة لنفس المقدم ({{ r.otherPending.length }})</label>
           @if (r.otherPending.length === 0) {
             <p class="sac-no-pending">لا توجد طلبات أخرى معلقة لهذا المقدم</p>
           } @else {
             <div class="sac-pending-list">
-              @for (p of r.otherPending; track p.specialty) {
-                <div class="sac-pending-item">
-                  <span class="sac-bdg sac-bdg-amber">{{ r.provider }}</span>
-                  <span class="sac-pending-spec">{{ p.specialty }}</span>
-                  <span class="sac-pending-status">{{ p.status }}</span>
+              @for (p of r.otherPending; track p.id) {
+                <a class="sac-pending-item sac-pending-link" [routerLink]="['/supper-admin-overview/specialties-accreditation', p.id]">
+                  <span class="sac-pending-spec">{{ p.specialty || '—' }}</span>
+                  <span class="sac-pending-status">{{ statusText[p.status] || 'بانتظار المراجعة' }}</span>
+                </a>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="sac-md-field">
+          <label>القرارات السابقة ({{ r.decisions.length }})</label>
+          @if (r.decisions.length === 0) {
+            <p class="sac-no-pending" data-testid="no-decisions">لم يصدر قرار إداري على هذا التخصص بعد</p>
+          } @else {
+            <div class="sac-pending-list">
+              @for (dc of r.decisions; track dc.id) {
+                <div class="sac-pending-item sac-decision" data-testid="past-decision">
+                  <span class="sac-pending-spec"><strong>{{ dc.title }}</strong>@if (dc.summary) { — {{ dc.summary }} }</span>
+                  <span class="sac-pending-status">{{ formatDate(dc.occurredAt) }}</span>
                 </div>
               }
             </div>
@@ -91,10 +149,11 @@
         </div>
       </div>
 
-      @if (r.status === 'pending') {
+      @if (isPending()) {
+        <p class="sac-no-pending">القرار إداري ويتطلب سببًا مكتوبًا يصل إلى مقدم الخدمة.</p>
         <div class="sac-md-actions">
-          <button type="button" class="sac-btn sac-btn-approve" (click)="approveRequest(r)">قبول الاعتماد</button>
-          <button type="button" class="sac-btn sac-btn-reject" (click)="rejectRequest(r)">رفض الطلب</button>
+          <button type="button" class="sac-btn sac-btn-approve" data-testid="approve-btn" [disabled]="deciding()" (click)="openDecision('APPROVED')">قبول الاعتماد</button>
+          <button type="button" class="sac-btn sac-btn-reject" data-testid="reject-btn" [disabled]="deciding()" (click)="openDecision('REJECTED')">رفض الطلب</button>
           <button type="button" class="sac-btn sac-btn-ghost" (click)="goBack()">إغلاق</button>
         </div>
       } @else {
@@ -103,11 +162,11 @@
         </div>
       }
     </div>
-  } @else {
-    <div class="sac-empty">
-      <div class="sac-empty-ttl">لم يتم العثور على طلب الاعتماد المطلوب</div>
-      <a routerLink="/supper-admin-overview/specialties-accreditation" class="sac-btn sac-btn-ghost">العودة للقائمة</a>
-    </div>
+  }
+
+  @if (pendingDecision(); as dec) {
+    <app-sa-specialty-decision-modal [decision]="dec" [summary]="decisionSummary()" [busy]="deciding()" [error]="decisionError()"
+      (confirmed)="confirmDecision($event)" (cancelled)="closeDecision()" />
   }
 
   @if (toast()) {

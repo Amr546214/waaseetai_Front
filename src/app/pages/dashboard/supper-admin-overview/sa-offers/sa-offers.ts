@@ -1,16 +1,10 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import {
-  Offer,
-  OfferStatus,
-  OFFER_STATUS_LABELS,
-  OFFER_STATUS_CLASSES,
-  OFFERS,
-  offerPriceIntel,
-} from './sa-offers.data';
+import { AdminListPagination, OFFER_STATUS_LABELS, apiErrorMessage } from '../sa-requests/sa-requests.service';
+import { AdminOfferRow, OFFER_STATUS_CLASSES, SaOffersService } from './sa-offers.service';
 
-type FilterKey = 'all' | OfferStatus;
+type FilterKey = 'ALL' | 'PENDING_SIGNATURE' | 'IN_AI_REVIEW' | 'SUBMITTED' | 'UNDER_NEGOTIATION' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
 
 @Component({
   selector: 'app-sa-offers',
@@ -19,61 +13,92 @@ type FilterKey = 'all' | OfferStatus;
   templateUrl: './sa-offers.html',
   styleUrl: './sa-offers.css',
 })
-export class SaOffers {
-  readonly statusLabels: Record<OfferStatus, string> = OFFER_STATUS_LABELS;
+export class SaOffers implements OnInit, OnDestroy {
+  private api = inject(SaOffersService);
 
-  readonly statusClasses: Record<OfferStatus, string> = OFFER_STATUS_CLASSES;
+  readonly statusLabels = OFFER_STATUS_LABELS;
+  readonly statusClasses = OFFER_STATUS_CLASSES;
 
   readonly filters: { key: FilterKey; label: string }[] = [
-    { key: 'all', label: 'الكل' },
-    { key: 'pending', label: 'بانتظار القرار' },
-    { key: 'accepted', label: 'مقبول' },
-    { key: 'rejected', label: 'مرفوض' },
-    { key: 'flagged', label: 'مشبوه' },
+    { key: 'ALL', label: 'الكل' },
+    { key: 'PENDING_SIGNATURE', label: 'بانتظار التوقيع' },
+    { key: 'IN_AI_REVIEW', label: 'قيد المراجعة الآلية' },
+    { key: 'SUBMITTED', label: 'مقدّم' },
+    { key: 'UNDER_NEGOTIATION', label: 'قيد التفاوض' },
+    { key: 'ACCEPTED', label: 'مقبول' },
+    { key: 'REJECTED', label: 'مرفوض' },
+    { key: 'CANCELLED', label: 'مسحوب' },
   ];
 
-  items = signal<Offer[]>(OFFERS);
+  items = signal<AdminOfferRow[]>([]);
+  rawCounts = signal<Record<string, number>>({});
+  pagination = signal<AdminListPagination>({ page: 1, limit: 20, total: 0, totalPages: 1 });
+  loading = signal(true);
+  error = signal('');
 
-  activeFilter = signal<FilterKey>('all');
+  activeFilter = signal<FilterKey>('ALL');
   searchTerm = signal('');
-
-  filtered = computed(() => {
-    const f = this.activeFilter();
-    const q = this.searchTerm().trim().toLowerCase();
-    return this.items().filter((o) => {
-      const matchesFilter = f === 'all' || o.status === f;
-      const matchesSearch = !q || o.provider.toLowerCase().includes(q) || o.request.toLowerCase().includes(q);
-      return matchesFilter && matchesSearch;
-    });
-  });
+  page = signal(1);
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   counts = computed(() => {
-    const list = this.items();
-    const c: Record<FilterKey, number> = { all: list.length, pending: 0, accepted: 0, rejected: 0, flagged: 0 };
-    for (const o of list) c[o.status]++;
-    return c;
+    const c = this.rawCounts();
+    const out = {} as Record<FilterKey, number>;
+    for (const f of this.filters) out[f.key] = f.key === 'ALL' ? c['all'] ?? 0 : c[f.key] ?? 0;
+    return out;
   });
 
   stats = computed(() => {
-    const list = this.items();
-    const avgRating = list.length ? (list.reduce((s, o) => s + o.rating, 0) / list.length).toFixed(1) : '0.0';
-    return {
-      total: list.length,
-      accepted: list.filter((o) => o.status === 'accepted').length,
-      avgRating,
-      flagged: list.filter((o) => o.status === 'flagged').length,
-    };
+    const c = this.counts();
+    return { total: c.ALL, accepted: c.ACCEPTED, negotiating: c.UNDER_NEGOTIATION };
   });
 
-  priceIntel(o: Offer): { label: string; cls: string } {
-    return offerPriceIntel(o);
+  ngOnInit(): void {
+    this.load();
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+  }
+
+  load(): void {
+    this.loading.set(true);
+    this.error.set('');
+    this.api
+      .list({ status: this.activeFilter(), search: this.searchTerm(), page: this.page(), limit: 20 })
+      .subscribe({
+        next: (res) => {
+          this.items.set(res.data.items ?? []);
+          this.rawCounts.set(res.data.counts ?? {});
+          this.pagination.set(res.data.pagination);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set(apiErrorMessage(err, 'تعذّر تحميل العروض'));
+          this.loading.set(false);
+        },
+      });
   }
 
   setFilter(f: FilterKey) {
     this.activeFilter.set(f);
+    this.page.set(1);
+    this.load();
   }
 
   onSearch(value: string) {
     this.searchTerm.set(value);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page.set(1);
+      this.load();
+    }, 350);
+  }
+
+  goPage(p: number) {
+    const total = this.pagination().totalPages;
+    if (p < 1 || p > total || p === this.page()) return;
+    this.page.set(p);
+    this.load();
   }
 }

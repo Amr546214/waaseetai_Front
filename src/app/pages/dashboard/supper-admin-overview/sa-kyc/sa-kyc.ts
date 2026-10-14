@@ -323,8 +323,9 @@ export class SaKyc implements OnInit {
   }
 
   confirmAction() {
-    if (this.actionType() === 'reject' && !this.actionReason().trim()) {
-      this.actionError.set('سبب الرفض مطلوب');
+    if (this.processing()) return;
+    if (this.actionType() === 'reject' && this.actionReason().trim().length < 2) {
+      this.actionError.set('سبب الرفض مطلوب (حرفان على الأقل)');
       return;
     }
 
@@ -338,24 +339,24 @@ export class SaKyc implements OnInit {
     if (isClient && onboarding) {
       if (this.actionType() === 'approve') {
         this.kycService.approveOnboarding(onboarding.id, this.actionNote().trim() ? { adminNote: this.actionNote().trim() } : undefined).subscribe({
-          next: () => this.onActionSuccess('تمت الموافقة على الطلب بنجاح'),
+          next: () => this.onActionSuccess('تمت الموافقة على الطلب وتم إشعار صاحبه'),
           error: (err) => this.onActionError(err),
         });
       } else {
         this.kycService.rejectOnboarding(onboarding.id, { rejectionReason: this.actionReason().trim() }).subscribe({
-          next: () => this.onActionSuccess('تم رفض الطلب'),
+          next: () => this.onActionSuccess('تم رفض الطلب وإشعار صاحبه بالسبب'),
           error: (err) => this.onActionError(err),
         });
       }
     } else if (!isClient && provider) {
       if (this.actionType() === 'approve') {
         this.kycService.approveKycProvider(provider.userId, this.actionNote().trim() ? { adminNote: this.actionNote().trim() } : undefined).subscribe({
-          next: () => this.onActionSuccess('تم توثيق مقدم الخدمة بنجاح'),
+          next: () => this.onActionSuccess('تم توثيق مقدم الخدمة وتم إشعاره'),
           error: (err) => this.onActionError(err),
         });
       } else {
         this.kycService.rejectKycProvider(provider.userId, { rejectionReason: this.actionReason().trim() }).subscribe({
-          next: () => this.onActionSuccess('تم رفض توثيق مقدم الخدمة'),
+          next: () => this.onActionSuccess('تم رفض التوثيق وإشعار مقدم الخدمة بالسبب'),
           error: (err) => this.onActionError(err),
         });
       }
@@ -383,6 +384,10 @@ export class SaKyc implements OnInit {
   private onActionError(err: any) {
     this.processing.set(false);
     this.actionError.set(err?.error?.message || err?.message || 'تعذر تنفيذ الإجراء');
+    // 409 = someone already decided this request: refresh the list so the stale row disappears.
+    if (err?.status === 409) {
+      if (this.activeTab() === 'clients') this.loadOnboarding(); else this.loadProviders();
+    }
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────

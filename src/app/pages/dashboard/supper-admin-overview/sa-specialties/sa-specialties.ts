@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { SaSpecialtyReviewService } from '../sa-specialties-accreditation/sa-specialty-review.service';
 import { SaSpecialtiesService, AdminCategory, AdminSpecialty, AdminSpecialtyStats } from './sa-specialties.service';
 
 // One-time catalog import: fills in categories/specialties from the design reference
@@ -105,6 +106,7 @@ const IMPORT_CATALOG: CatalogBlock[] = [
 })
 export class SaSpecialties implements OnInit {
   private service = inject(SaSpecialtiesService);
+  private reviewService = inject(SaSpecialtyReviewService);
 
   searchQuery = signal('');
   isAddModalOpen = signal(false);
@@ -126,7 +128,10 @@ export class SaSpecialties implements OnInit {
   confirmMessage = signal('');
   confirmItemName = signal('');
   confirmWarning = signal('');
-  confirmActionType = signal<'delete_spec' | 'delete_category' | null>(null);
+  confirmActionType = signal<'delete_spec' | 'delete_category' | 'import_catalog' | null>(null);
+  confirmButtonLabel = signal('تأكيد الحذف');
+  confirmBusyLabel = signal('جاري الحذف...');
+  confirmDanger = signal(true);
   confirmTargetId = signal<string | null>(null);
   isConfirmLoading = signal(false);
 
@@ -140,6 +145,11 @@ export class SaSpecialties implements OnInit {
   isToastOpen = signal(false);
 
   categories = signal<AdminCategory[]>([]);
+  treeLoading = signal(false);
+  treeError = signal('');
+  statsError = signal('');
+  /** Real count of specialty review requests waiting for an admin (GET /admin/accreditation/specialties counts.pending). */
+  pendingReviewCount = signal<number | null>(null);
   stats = signal<AdminSpecialtyStats>({
     totalSpecialties: 0,
     totalCategories: 0,
@@ -179,17 +189,26 @@ export class SaSpecialties implements OnInit {
   }
 
   loadStats() {
+    this.statsError.set('');
     this.service.getStats().subscribe({
       next: (res) => {
         if (res.success) this.stats.set(res.data);
       },
-      error: (err) => console.error('Error fetching specialty stats', err)
+      error: (err) => this.statsError.set(err?.error?.message || 'تعذر تحميل مؤشرات التخصصات')
+    });
+    // The "requests this month" figure of the stats endpoint counts a legacy table; the waiting review requests come from the real queue.
+    this.reviewService.list({ status: 'pending', page: 1, limit: 1 }).subscribe({
+      next: (res) => this.pendingReviewCount.set(res?.data?.counts?.pending ?? null),
+      error: () => this.pendingReviewCount.set(null)
     });
   }
 
   loadTree(search: string = '') {
+    this.treeLoading.set(true);
+    this.treeError.set('');
     this.service.getTree(search).subscribe({
       next: (res) => {
+        this.treeLoading.set(false);
         if (res.success) {
           this.categories.set(res.data);
           if (res.data.length > 0 && !this.newSpecCatId()) {
@@ -197,7 +216,10 @@ export class SaSpecialties implements OnInit {
           }
         }
       },
-      error: (err) => console.error('Error fetching specialties tree', err)
+      error: (err) => {
+        this.treeLoading.set(false);
+        this.treeError.set(err?.error?.message || 'تعذر تحميل الأقسام والتخصصات');
+      }
     });
   }
 
@@ -227,10 +249,13 @@ export class SaSpecialties implements OnInit {
     this.confirmItemName.set(cat.nameAr);
     this.confirmTargetId.set(cat.id);
     this.confirmActionType.set('delete_category');
+    this.confirmButtonLabel.set('تأكيد الحذف');
+    this.confirmBusyLabel.set('جاري الحذف...');
+    this.confirmDanger.set(true);
 
     if (cat.specialties && cat.specialties.length > 0) {
       this.confirmMessage.set(`هذا القسم يحتوي على ${cat.specialties.length} تخصصات.`);
-      this.confirmWarning.set('لا يمكن حذف القسم حتى يتم حذف أو نقل جميع التخصصات التابعة له.');
+      this.confirmWarning.set('لا يمكن حذف القسم حتى يتم حذف أو نقل جميع التخصصات التابعة له؛ ستظهر رسالة الخادم إن رفض الحذف.');
     } else {
       this.confirmMessage.set('هل أنت متأكد من رغبتك في حذف هذا القسم نهائياً؟');
       this.confirmWarning.set('سيتم إزالة هذا القسم بشكل دائم من المنصة.');
@@ -307,10 +332,13 @@ export class SaSpecialties implements OnInit {
     this.confirmItemName.set(spec.nameAr);
     this.confirmTargetId.set(spec.id);
     this.confirmActionType.set('delete_spec');
+    this.confirmButtonLabel.set('تأكيد الحذف');
+    this.confirmBusyLabel.set('جاري الحذف...');
+    this.confirmDanger.set(true);
 
     if (spec.providersCount > 0) {
-      this.confirmMessage.set(`هذا التخصص مرتبط بـ ${spec.providersCount} مقدم خدمة معتمد.`);
-      this.confirmWarning.set('لا يمكن حذف تخصص مرتبط بمقدمي خدمة نشطين لتفادي تعطيل حساباتهم.');
+      this.confirmMessage.set(`هذا التخصص مرتبط بـ ${spec.providersCount} مقدم خدمة.`);
+      this.confirmWarning.set('لا يمكن حذف تخصص مرتبط بمقدمي خدمة؛ ستظهر رسالة الخادم إن رفض الحذف. يمكنك تعطيله بدلًا من حذفه.');
     } else {
       this.confirmMessage.set('هل أنت متأكد من رغبتك في حذف هذا التخصص؟');
       this.confirmWarning.set('سيتم إزالة هذا التخصص بشكل دائم.');
@@ -340,6 +368,9 @@ export class SaSpecialties implements OnInit {
           this.showToast(err.error?.message || 'تعذر حذف القسم', 'error');
         }
       });
+    } else if (action === 'import_catalog') {
+      this.closeConfirmModal();
+      void this.importCatalog();
     } else if (action === 'delete_spec') {
       this.service.deleteSpecialty(id).subscribe({
         next: () => {
@@ -421,6 +452,22 @@ export class SaSpecialties implements OnInit {
   }
 
   // --- Catalog Import (one-time, run from the browser under the logged-in admin session) ---
+  /** The button opens a confirmation first: the import creates many categories/specialties at once. */
+  promptImportCatalog() {
+    if (this.isImporting()) return;
+    const specCount = IMPORT_CATALOG.reduce((n, b) => n + b.specialties.length, 0);
+    this.confirmTitle.set('تأكيد استيراد كتالوج الفئات');
+    this.confirmItemName.set(`حتى ${specCount} تخصصًا في ${IMPORT_CATALOG.length} أقسام`);
+    this.confirmMessage.set('سيُضاف إلى المنصة ما هو ناقص فقط من الأقسام والتخصصات، وما هو موجود مسبقًا يُتخطّى.');
+    this.confirmWarning.set('تخصصات أقسام الترجمة والاستشارات والبيانات محتوى مبدئي لم يصلنا له تصميم نهائي، ويمكن تعديلها أو حذفها لاحقًا.');
+    this.confirmActionType.set('import_catalog');
+    this.confirmTargetId.set('import');
+    this.confirmButtonLabel.set('تأكيد الاستيراد');
+    this.confirmBusyLabel.set('جاري الاستيراد...');
+    this.confirmDanger.set(false);
+    this.isConfirmModalOpen.set(true);
+  }
+
   async importCatalog() {
     if (this.isImporting()) return;
     this.isImporting.set(true);

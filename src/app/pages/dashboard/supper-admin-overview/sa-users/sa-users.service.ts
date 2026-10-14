@@ -41,6 +41,9 @@ export interface AdminUser {
   affiliateLevel?: string;
   role?: string;
   tasksCount?: string;
+  roles?: string[];
+  activeRole?: string;
+  kycStatus?: string | null;
   createdAt: string;
 }
 
@@ -73,11 +76,24 @@ export interface AdminUserPersonalInfo {
   lastLoginAt?: string;
 }
 
+export interface AdminUserDetailTabs {
+  requests: { id: string; title: string; status: string; proposalsCount: number; createdAt: string }[];
+  purchases: { id: string; orderNumber: string; total: number; status: string; createdAt: string }[];
+  disputes: { id: string; reason: string; status: string; openedById: string; createdAt: string }[];
+  reports: { id: string; ticketNumber: string; subject: string; status: string; createdAt: string }[];
+  contracts: { id: string; projectId: string; status: string; price: number; role: 'CLIENT' | 'PROVIDER'; createdAt: string }[];
+  payments: { id: string; type: string; amount: number; currency: string; status: string; createdAt: string }[];
+}
+
+export interface AdminUserAuditItem { id: string; eventType: string; title: string; summary: string; source: string; severity: string; occurredAt: string }
+
 export interface AdminUserDetail extends AdminUser {
   kpis: AdminUserDetailKpis;
   revenueHistory: AdminUserRevenuePoint[];
-  linkedAccounts: AdminUserLinkedAccount[];
   personalInfo: AdminUserPersonalInfo;
+  kyc: { client: string | null; clientOnboarding: string | null; provider: string | null; affiliateIdentityVerified: boolean | null };
+  tabs: AdminUserDetailTabs;
+  audit: AdminUserAuditItem[];
 }
 
 export interface AdminUsersStats {
@@ -139,23 +155,26 @@ export class SaUsersService {
     return this.http.get<GetAdminUsersResponse>(`${this.apiUrl}`, { params: httpParams });
   }
 
-  updateUserStatus(id: string, status: string): Observable<{ success: boolean; message: string; data: any }> {
-    return this.http.patch<{ success: boolean; message: string; data: any }>(`${this.apiUrl}/${id}/status`, { status });
+  updateUserStatus(id: string, status: string, reason?: string): Observable<{ success: boolean; message: string; data: any }> {
+    return this.http.patch<{ success: boolean; message: string; data: any }>(`${this.apiUrl}/${id}/status`, { status, ...(reason ? { reason } : {}) });
+  }
+
+  updateUserRoles(id: string, roles: string[], activeRole?: string): Observable<{ success: boolean; message: string; data: { id: string; roles: string[]; activeRole: string } }> {
+    return this.http.patch<{ success: boolean; message: string; data: { id: string; roles: string[]; activeRole: string } }>(`${this.apiUrl}/${id}/roles`, { roles, ...(activeRole ? { activeRole } : {}) });
   }
 
   deleteUser(id: string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(`${this.apiUrl}/${id}`);
   }
 
-  downloadCsv(params: AdminUsersQueryParams): void {
+  /** Authenticated download (the interceptor adds the token): the server's CSV is saved as a real file. */
+  downloadCsv(params: AdminUsersQueryParams): Observable<Blob> {
     let httpParams = new HttpParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         httpParams = httpParams.set(key, String(value));
       }
     });
-
-    const exportUrl = `${this.apiUrl}/export-csv?${httpParams.toString()}`;
-    window.open(exportUrl, '_blank');
+    return this.http.get(`${this.apiUrl}/export-csv`, { params: httpParams, responseType: 'blob' });
   }
 }

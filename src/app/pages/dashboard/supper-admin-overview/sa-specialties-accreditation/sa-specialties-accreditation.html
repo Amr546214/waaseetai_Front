@@ -4,10 +4,13 @@
       <h1 class="sac-ttl">اعتماد التخصصات</h1>
       <p class="sac-sub">طلبات مقدمي الخدمة لاعتماد تخصصاتهم وإضافتها لملفاتهم المهنية</p>
     </div>
-    <button type="button" class="sac-btn sac-btn-ghost" (click)="approveAllSafe()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      قبول الطلبات الموصى بقبولها
-    </button>
+    <div class="sac-bulk">
+      <button type="button" class="sac-btn sac-btn-ghost" data-testid="bulk-approve" disabled [attr.title]="bulkDisabledReason">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        قبول الطلبات الموصى بقبولها
+      </button>
+      <span class="sac-bulk-why" data-testid="bulk-reason">{{ bulkDisabledReason }}</span>
+    </div>
   </div>
 
   <div class="sac-ai-disc">
@@ -16,7 +19,7 @@
     </div>
     <div class="sac-ai-body">
       <div class="sac-ai-lbl">وسيط: اعتماد التخصصات</div>
-      <p class="sac-ai-txt">تعرض كل بطاقة نتيجة التقييم الآلي الحقيقية للمحفظة، والاعتماد النهائي قرار إداري</p>
+      <p class="sac-ai-txt">تظهر درجة AI بجانب الطلب فقط عندما يكون لها تقييم مخزّن، وهي معلومة استرشادية؛ والاعتماد النهائي قرار إداري بسبب مكتوب</p>
     </div>
   </div>
 
@@ -24,7 +27,7 @@
     <div class="sac-kpi"><div class="sac-kpi-num txt-amber">{{ countFor('pending') }}</div><div class="sac-kpi-lbl">بانتظار المراجعة</div></div>
     <div class="sac-kpi"><div class="sac-kpi-num txt-green">{{ countFor('approved') }}</div><div class="sac-kpi-lbl">مقبول</div></div>
     <div class="sac-kpi"><div class="sac-kpi-num txt-coral">{{ countFor('rejected') }}</div><div class="sac-kpi-lbl">مرفوض</div></div>
-    <div class="sac-kpi"><div class="sac-kpi-num txt-blue">3.4</div><div class="sac-kpi-lbl">متوسط وقت المراجعة (ساعة)</div></div>
+    <div class="sac-kpi"><div class="sac-kpi-num txt-blue">{{ decidedTotal() }}</div><div class="sac-kpi-lbl">إجمالي ما صدر فيه قرار</div></div>
   </div>
 
   <div class="sac-filters">
@@ -37,11 +40,18 @@
     </div>
     <div class="sac-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" placeholder="ابحث باسم المقدم أو التخصص..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
+      <input type="search" placeholder="ابحث باسم المقدم أو بريده أو التخصص..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
     </div>
   </div>
 
-  @if (filteredRequests().length === 0) {
+  @if (loading()) {
+    <div class="sac-empty"><div class="sac-empty-ttl">جاري تحميل الطلبات...</div></div>
+  } @else if (error()) {
+    <div class="sac-empty">
+      <div class="sac-empty-ttl" data-testid="list-error">{{ error() }}</div>
+      <button type="button" class="sac-btn sac-btn-ghost" (click)="load()">إعادة المحاولة</button>
+    </div>
+  } @else if (items().length === 0) {
     <div class="sac-empty">
       <div class="sac-empty-ico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
@@ -56,49 +66,45 @@
             <th>مقدم الخدمة</th>
             <th>التخصص المطلوب</th>
             <th>التقييم</th>
-            <th>مشاريع</th>
+            <th>مشاريع مكتملة</th>
             <th>الأدلة</th>
-            <th>توصية مبدئية</th>
-            <th>التاريخ</th>
+            <th>تقييم AI المخزّن</th>
+            <th>تاريخ التقديم</th>
             <th>الحالة</th>
             <th>إجراء سريع</th>
           </tr>
         </thead>
         <tbody>
-          @for (r of filteredRequests(); track r.id) {
+          @for (r of items(); track r.id) {
             <tr [routerLink]="[r.id]">
               <td>
                 <div class="sac-u-cell">
-                  <div class="sac-av" [style.background]="r.avatarBg">{{ r.avatar }}</div>
-                  <span class="sac-u-name">{{ r.provider }}</span>
+                  <div class="sac-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ initialOf(r.provider.name) }}</div>
+                  @if (r.provider.userId) {
+                    <a class="sac-u-name sac-u-link" data-testid="provider-link" [routerLink]="['/supper-admin-overview/users', r.provider.userId]" (click)="$event.stopPropagation()">{{ r.provider.name || r.provider.email || '—' }}</a>
+                  } @else {
+                    <span class="sac-u-name">{{ r.provider.name || r.provider.email || '—' }}</span>
+                  }
                 </div>
               </td>
-              <td><span class="sac-bdg sac-bdg-blue">{{ r.specialty }}</span></td>
-              <td class="sac-rating">★ {{ r.currentRating }}</td>
-              <td class="sac-center">{{ r.projects }}</td>
-              <td class="sac-center">
-                @if (r.docsOk) {
-                  <span class="sac-docs-ok">{{ r.docsCount }} ✓</span>
-                } @else {
-                  <span class="sac-docs-warn">{{ r.docsCount }} ⚠</span>
-                }
-              </td>
+              <td><span class="sac-bdg sac-bdg-blue">{{ r.specialty?.nameAr || '—' }}</span></td>
+              <td class="sac-rating">{{ r.provider.rating != null ? '★ ' + r.provider.rating : '—' }}</td>
+              <td class="sac-center">{{ r.provider.completedProjects ?? 0 }}</td>
+              <td class="sac-center" data-testid="evidence">{{ r.accreditationSamples }} نموذج اعتماد · {{ r.workSamples }} عمل</td>
               <td>
-                <span class="sac-ai-score" [class]="'sac-ai-' + r.aiRec">{{ aiLabels[r.aiRec] }} ({{ r.aiScore }}%)</span>
-              </td>
-              <td class="sac-date">{{ r.date }}</td>
-              <td><span class="sac-status" [class]="'sac-st-' + r.status">
-                @switch (r.status) {
-                  @case ('pending') { معلق }
-                  @case ('approved') { مقبول }
-                  @case ('rejected') { مرفوض }
+                @if (r.scores.aiScore != null) {
+                  <span class="sac-ai-score sac-ai-stored" data-testid="ai-score"><svg class="sac-ai-mini" viewBox="0 0 24 24"><use href="#i-ai"/></svg> {{ r.scores.aiScore }}%</span>
+                } @else {
+                  <span class="sac-date">—</span>
                 }
-              </span></td>
+              </td>
+              <td class="sac-date">{{ formatDate(r.submittedAt) }}</td>
+              <td><span class="sac-status" [class]="statusClass[r.status]">{{ statusText[r.status] }}</span></td>
               <td (click)="$event.stopPropagation()">
                 <div class="sac-row-actions">
-                  @if (r.status === 'pending') {
-                    <button type="button" class="sac-act sac-act-accept" (click)="approveRequest(r)">قبول</button>
-                    <button type="button" class="sac-act sac-act-reject" (click)="rejectRequest(r)">رفض</button>
+                  @if (isPending(r)) {
+                    <button type="button" class="sac-act sac-act-accept" data-testid="quick-accept" (click)="openDecision(r, 'APPROVED')">قبول</button>
+                    <button type="button" class="sac-act sac-act-reject" data-testid="quick-reject" (click)="openDecision(r, 'REJECTED')">رفض</button>
                   }
                   <button type="button" class="sac-act sac-act-view" [routerLink]="[r.id]">ملف</button>
                 </div>
@@ -108,6 +114,19 @@
         </tbody>
       </table>
     </div>
+
+    @if (totalPages() > 1) {
+      <div class="sac-pager">
+        <span class="sac-date">صفحة {{ page() }} من {{ totalPages() }} (إجمالي {{ total() }})</span>
+        <button type="button" class="sac-btn sac-btn-ghost" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">السابق</button>
+        <button type="button" class="sac-btn sac-btn-ghost" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">التالي</button>
+      </div>
+    }
+  }
+
+  @if (decisionTarget(); as t) {
+    <app-sa-specialty-decision-modal [decision]="t.decision" [summary]="decisionSummary()" [busy]="deciding()" [error]="decisionError()"
+      (confirmed)="confirmDecision($event)" (cancelled)="closeDecision()" />
   }
 
   @if (toast()) {
