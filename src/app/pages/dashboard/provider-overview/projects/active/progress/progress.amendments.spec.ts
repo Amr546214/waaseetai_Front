@@ -43,7 +43,7 @@ describe('provider project progress: change request', () => {
 		(s.q('open-amendments') as HTMLButtonElement).click(); s.f.detectChanges();
 		expect(s.q('amend-modal')).not.toBeNull();
 		expect(String(s.amendGets()[0][0])).toContain('/provider/projects/project-9/amendments'); // data.projectId, not the route param
-		expect(s.q('amend-note')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان أو المراحل تلقائيًا');
+		expect(s.q('amend-note')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان أو المراحل بمجرد إرسال الطلب');
 		const items = Array.from(s.el.querySelectorAll('[data-testid="amend-item"]')).map(e => e.textContent!.replace(/\s+/g, ' '));
 		expect(items).toHaveLength(3);
 		expect(items[0]).toContain('زيادة الميزانية'); expect(items[0]).toContain('+200 $'); expect(items[0]).toContain('بانتظار رد العميل');
@@ -60,9 +60,9 @@ describe('provider project progress: change request', () => {
 		expect(url).toContain('/provider/projects/project-9/amendments');
 		expect(body).toEqual({ type: 'BUDGET', title: 'زيادة الميزانية', description: 'توسيع النطاق', budgetDelta: 200 });
 		expect(s.nav).not.toHaveBeenCalled(); // no chat, no navigation
-		expect(s.q('amend-success')!.textContent).toContain('تم تسجيل طلب التعديل وهو بانتظار رد العميل');
-		expect(s.q('amend-success')!.textContent).toContain('لن يتغير السعر أو المدة أو الضمان تلقائيًا');
-		expect(AMENDMENT_SUCCESS_TEXT).toBe('تم تسجيل طلب التعديل وهو بانتظار رد العميل. لن يتغير السعر أو المدة أو الضمان تلقائيًا.');
+		expect(s.q('amend-success')!.textContent).toContain('تم إرسال طلب التعديل وهو بانتظار رد العميل');
+		expect(s.q('amend-success')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان قبل موافقته');
+		expect(AMENDMENT_SUCCESS_TEXT).toBe('تم إرسال طلب التعديل وهو بانتظار رد العميل. لا يتغير السعر أو المدة أو الضمان قبل موافقته، وعند موافقته يُطبَّق التعديل فورًا.');
 		expect(s.amendGets()).toHaveLength(2); // the list is reloaded to show the new request
 	});
 

@@ -22,15 +22,17 @@ describe('provider progress: answering a client change request', () => {
 	}
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('a pending CLIENT request shows who raised it, «بانتظار ردك», approve/reject buttons and the record-only note', async () => {
+	it('a pending CLIENT request shows who raised it, «بانتظار ردك», approve/reject buttons and the pending note (nothing changes before the answer)', async () => {
 		const s = await setup([AM()]);
 		s.c.openAmendments(); s.f.detectChanges();
 		expect(s.qa('amend-from-client')).toHaveLength(1);
 		expect(s.qa('amend-status')[0].textContent).toContain('بانتظار ردك');
 		expect(s.qa('amend-respond-approve')).toHaveLength(1); expect(s.qa('amend-respond-reject')).toHaveLength(1);
-		expect(s.qa('amend-effect-note')[0].textContent).toContain('القرار يُسجَّل للمتابعة فقط ولا يغيّر سعر العقد أو مدته أو الضمان حاليًا.');
+		expect(s.qa('amend-effect-note')[0].textContent).toContain('لن يتغيّر العقد أو الضمان أو المحفظة قبل موافقة الطرف الآخر');
+		expect(s.qa('amend-effect-note')[0].textContent).not.toContain('للمتابعة فقط');
 		(s.qa('amend-respond-approve')[0] as HTMLButtonElement).click(); s.f.detectChanges();
-		expect(s.qa('amend-confirm-text')[0].textContent).toContain('للمتابعة فقط');
+		expect(s.qa('amend-confirm-text')[0].textContent).toContain('يُطبَّق التعديل فورًا على العقد');
+		expect(s.qa('amend-effect-lines')).toHaveLength(1); // the financial effect is shown BEFORE confirming
 		expect(s.post).not.toHaveBeenCalled();
 		expect(s.c.hasPendingAmendment()).toBe(false); // that flag is about MY own requests only
 	});

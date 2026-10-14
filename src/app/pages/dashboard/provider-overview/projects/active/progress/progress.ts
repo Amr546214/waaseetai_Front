@@ -14,11 +14,11 @@ import { MessageContext } from '../../../../../../core/services/chat.service';
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
 import { formatMoney } from '../../../../../../core/utils/money.util';
-import { AMENDMENT_CONFIRM_TEXT, AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_RECORDED_BADGE, amendmentEffectNote } from '../../../../../../core/constants/amendment-effect';
+import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment } from '../../../../../../core/constants/amendment-effect';
 
 export type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION';
 
-export const AMENDMENT_SUCCESS_TEXT = 'تم تسجيل طلب التعديل وهو بانتظار رد العميل. لن يتغير السعر أو المدة أو الضمان تلقائيًا.';
+export const AMENDMENT_SUCCESS_TEXT = 'تم إرسال طلب التعديل وهو بانتظار رد العميل. لا يتغير السعر أو المدة أو الضمان قبل موافقته، وعند موافقته يُطبَّق التعديل فورًا.';
 export const AMENDMENT_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار رد العميل', APPROVED: 'وافق العميل', REJECTED: 'رفضه العميل', CANCELLED: 'أُلغي' };
 /** Status wording depends on WHO raised the request: my own (waiting for the client) or the client's (waiting for me). */
 export const CLIENT_REQUEST_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار ردك', APPROVED: 'وافقت عليه', REJECTED: 'رفضته', CANCELLED: 'أُلغي' };
@@ -509,24 +509,37 @@ export class Progress implements OnInit {
   amendmentStatusText(a: ProviderAmendment) { return a.requestedByRole === 'CLIENT' ? (CLIENT_REQUEST_STATUS_LABEL[a.status] || a.status) : this.amendmentStatusLabel(a.status); }
   isClientPending(a: ProviderAmendment) { return a.requestedByRole === 'CLIENT' && a.status === 'PENDING_OTHER_PARTY'; }
 
-  // Answering a request the CLIENT raised: a real call (POST /provider/amendments/:id/respond); the decision is only recorded, nothing else changes.
+  // Answering a request the CLIENT raised: a real call (POST /provider/amendments/:id/respond). Approving APPLIES it to the contract in one step
+  // (a client-raised increase needs the client's payment authorization first); rejecting changes nothing.
   respondingId = signal<string | null>(null); respondError = signal('');
-  readonly amendmentConfirmText = AMENDMENT_CONFIRM_TEXT;
-  readonly amendmentRecordedBadge = AMENDMENT_RECORDED_BADGE;
   readonly amendmentProposedLabel = AMENDMENT_PROPOSED_CHANGE_LABEL;
   amendmentEffectNote(a: ProviderAmendment) { return amendmentEffectNote(a); }
-  /** An answered request is only recorded: never shown as applied to the contract. */
-  isAmendmentAnswered(a: ProviderAmendment) { return a.status === 'APPROVED' || a.status === 'REJECTED'; }
+  /** Badge of an approved row: "applied to the contract" for an effective one, the legacy wording only for a record-only row. Empty otherwise. */
+  amendmentBadge(a: ProviderAmendment): string { return a.status === 'APPROVED' ? amendmentApprovedBadge(a) : ''; }
+  amendmentConfirmText(a: ProviderAmendment, decision: 'approve' | 'reject') { return decision === 'approve' ? amendmentApproveText(a, 'provider') : AMENDMENT_REJECT_CONFIRM_TEXT; }
+  amendmentEffectLines(a: ProviderAmendment) { return amendmentEffectLines(a); }
+  /** A client-raised increase cannot be approved before the client authorized the payment: the button stays visible but disabled, with the reason. */
+  awaitingClientPayment(a: ProviderAmendment) { return this.isClientPending(a) && amendmentNeedsPayment(a) && !a.fundingAuthorized; }
+  isOwnPending(a: ProviderAmendment) { return a.requestedByRole === 'PROVIDER' && a.status === 'PENDING_OTHER_PARTY'; }
   pendingAmendDecision = signal<{ id: string; decision: 'approve' | 'reject' } | null>(null);
-  askAmendDecision(a: ProviderAmendment, decision: 'approve' | 'reject') { if (this.respondingId()) return; this.pendingAmendDecision.set({ id: a.id, decision }); }
+  askAmendDecision(a: ProviderAmendment, decision: 'approve' | 'reject') { if (this.respondingId()) return; if (decision === 'approve' && this.awaitingClientPayment(a)) return; this.respondError.set(''); this.pendingAmendDecision.set({ id: a.id, decision }); }
   cancelAmendDecision() { this.pendingAmendDecision.set(null); }
   confirmAmendDecision(a: ProviderAmendment) { const p = this.pendingAmendDecision(); if (!p || p.id !== a.id) return; this.pendingAmendDecision.set(null); this.respondAmendment(a, p.decision); }
   respondAmendment(a: ProviderAmendment, decision: 'approve' | 'reject') {
-    if (this.respondingId() || !this.isClientPending(a)) return;
+    if (this.respondingId() || !this.isClientPending(a) || (decision === 'approve' && this.awaitingClientPayment(a))) return;
     this.respondingId.set(a.id); this.respondError.set('');
     this.service.respondAmendment(a.id, decision).subscribe({
       next: () => { this.respondingId.set(null); this.loadAmendments(); },
       error: err => { this.respondingId.set(null); this.respondError.set(err.error?.message || 'تعذر حفظ قرارك'); }
+    });
+  }
+  /** Withdraw my own pending request (POST /provider/amendments/:id/cancel). */
+  cancelOwnAmendment(a: ProviderAmendment) {
+    if (this.respondingId() || !this.isOwnPending(a)) return;
+    this.respondingId.set(a.id); this.respondError.set('');
+    this.service.cancelAmendment(a.id).subscribe({
+      next: () => { this.respondingId.set(null); this.loadAmendments(); },
+      error: err => { this.respondingId.set(null); this.respondError.set(err.error?.message || 'تعذر إلغاء الطلب'); }
     });
   }
   amendmentTypeLabel(t: string) { return AMENDMENT_TYPE_LABEL[t] || t; }

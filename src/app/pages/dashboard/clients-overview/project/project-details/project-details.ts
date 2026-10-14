@@ -13,20 +13,22 @@ import { RatingApiService } from '../../../../../core/services/rating-api.servic
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { ClientCompanyTeamService } from '../../../../../core/services/client-company-team.service';
-import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_RECORDED_BADGE, amendmentEffectNote } from '../../../../../core/constants/amendment-effect';
+import { AMENDMENT_PROPOSED_CHANGE_LABEL, amendmentApprovedBadge, amendmentBudgetPart, amendmentEffectNote, amendmentNeedsPayment } from '../../../../../core/constants/amendment-effect';
+import { AmendmentActionsService } from '../../../../../core/services/amendment-actions.service';
+import { AmendmentPaymentOtpComponent } from '../../../../../sheards/amendment-payment-otp/amendment-payment-otp.component';
 import { ClientCompanyTeamMember } from '../../../../../core/models/client-company-team.model';
 import { formatMoney } from '../../../../../core/utils/money.util';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION' | 'MIXED';
 
-export const CLIENT_AMENDMENT_SUCCESS_TEXT = 'يُسجّل الطلب وينتظر رد مقدم الخدمة، ولا يتغير السعر أو المدة أو الضمان تلقائيًا.';
+export const CLIENT_AMENDMENT_SUCCESS_TEXT = 'يصل الطلب إلى مقدم الخدمة، ولا يتغير السعر أو المدة أو الضمان أو محفظتك قبل موافقته؛ وعند موافقته يُطبَّق التعديل فورًا.';
 export const CLIENT_AMENDMENT_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار رد مقدم الخدمة', APPROVED: 'وافق مقدم الخدمة', REJECTED: 'رفضه مقدم الخدمة', CANCELLED: 'أُلغي' };
 export const CLIENT_AMENDMENT_TYPE_LABEL: Record<string, string> = { SCOPE: 'تغيير النطاق', BUDGET: 'تعديل الميزانية', DURATION: 'تعديل المدة', MIXED: 'تعديل متعدد' };
 
 @Component({
 	selector: 'app-project-details', standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, DisputeModal],
+	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent],
 	templateUrl: './project-details.html', styleUrl: './project-details.css',
 })
 export class ProjectDetails implements OnInit {
@@ -238,7 +240,7 @@ export class ProjectDetails implements OnInit {
 	openAmendments() {
 		if (this.project() && this.actionBlockedReason(this.project())) return;
 		this.amendKind = 'SCOPE'; this.amendTitle = ''; this.amendDescription = ''; this.amendBudget = null; this.amendDays = null;
-		this.amendError.set(''); this.amendSuccess.set(false); this.amendOpen.set(true);
+		this.amendError.set(''); this.amendSuccess.set(false); this.amendCreated.set(null); this.amendFundingDone.set(false); this.amendOpen.set(true);
 		this.loadAmendments();
 	}
 	closeAmendments() { if (!this.amendSaving()) this.amendOpen.set(false); }
@@ -277,14 +279,30 @@ export class ProjectDetails implements OnInit {
 		if ((this.amendKind === 'DURATION' || this.amendKind === 'MIXED') && typeof this.amendDays === 'number' && this.amendDays !== 0) payload.durationDeltaDays = this.amendDays;
 		this.amendSaving.set(true); this.amendError.set('');
 		this.http.post<any>(`${environment.url_api}/client/projects/${this.projectId}/amendments`, payload).subscribe({
-			next: () => { this.amendSaving.set(false); this.amendSuccess.set(true); this.loadAmendments(); },
+			next: res => { this.amendSaving.set(false); this.amendCreated.set(res?.data ?? null); this.amendSuccess.set(true); this.loadAmendments(); },
 			error: err => { this.amendSaving.set(false); this.amendError.set(err.error?.message || 'تعذر إرسال طلب التعديل'); }
 		});
 	}
-	readonly amendmentRecordedBadge = AMENDMENT_RECORDED_BADGE;
+	// The request just created: a budget INCREASE needs the client's payment authorization (OTP) before the provider can approve it. Nothing is charged here.
+	amendCreated = signal<any | null>(null);
+	amendFundingDone = signal(false);
+	private actions = inject(AmendmentActionsService);
+	createdNeedsFunding() { const c = this.amendCreated(); return !!c && amendmentNeedsPayment(c) && !c.fundingAuthorized && !this.amendFundingDone(); }
+	createdAmount() { return amendmentBudgetPart(this.amendCreated()); }
+	onFundingAuthorized() { this.amendFundingDone.set(true); this.loadAmendments(); }
+	amendmentBadge(a: any): string { return a?.status === 'APPROVED' ? amendmentApprovedBadge(a) : ''; }
+	needsFundingAuthorization(a: any) { return a?.requestedByRole === 'CLIENT' && a?.status === 'PENDING_OTHER_PARTY' && amendmentNeedsPayment(a) && !a?.fundingAuthorized; }
+	cancelingId = signal<string | null>(null);
+	cancelAmendment(a: any) {
+		if (this.cancelingId() || a?.status !== 'PENDING_OTHER_PARTY') return;
+		this.cancelingId.set(a.id); this.amendError.set('');
+		this.actions.cancel('client', a.id).subscribe({
+			next: () => { this.cancelingId.set(null); this.loadAmendments(); },
+			error: err => { this.cancelingId.set(null); this.amendError.set(err.error?.message || 'تعذر إلغاء الطلب'); }
+		});
+	}
 	readonly amendmentProposedLabel = AMENDMENT_PROPOSED_CHANGE_LABEL;
 	amendmentEffectNote(a: any) { return amendmentEffectNote(a); }
-	isAmendmentAnswered(a: any) { return a?.status === 'APPROVED' || a?.status === 'REJECTED'; }
 	amendmentStatusLabel(s: string) { return CLIENT_AMENDMENT_STATUS_LABEL[s] || s; }
 	amendmentTypeLabel(s: string) { return CLIENT_AMENDMENT_TYPE_LABEL[s] || s; }
 	amendmentDeltas(a: any): string {
