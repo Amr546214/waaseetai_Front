@@ -30,3 +30,11 @@ describe('public marketer profile never shows a made-up member-since year', () =
 		expect(html).toContain('memberSince()');
 	});
 });
+
+describe('public marketer profile channel status is honest', () => {
+	it('says the channel was added, never under review or verified', () => {
+		const ts = readFileSync('src/app/pages/dashboard/marketer-overview/profile/public/public.ts', 'utf8');
+		expect(ts).toContain("return 'قناة مضافة'");
+		expect(ts).not.toMatch(/return\s+'(قيد المراجعة|موثّق|موثق)'/);
+	});
+});
