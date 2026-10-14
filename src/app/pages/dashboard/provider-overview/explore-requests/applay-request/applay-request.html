@@ -113,14 +113,22 @@
           <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">وصف الطلب</div>
           <div style="font-size:13px;line-height:1.8" class="txt-slate">{{ projectDetails()?.description || 'لا يوجد وصف متاح' }}</div>
         </div>
-        <div style="margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">المتطلبات الإلزامية</div>
+        <div style="margin-bottom:12px" data-testid="apply-required-skills">
+          <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">المهارات المطلوبة</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
-            @for (req of projectDetails()?.requirements || ['Adobe Illustrator', 'ملفات قابلة للتعديل', '3+ سنوات خبرة']; track req) {
+            @for (req of projectDetails()?.requiredSkills || []; track req) {
               <span style="padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-size:12px" class="txt-slate">{{ req }}</span>
+            } @empty {
+              <span style="font-size:12px" class="txt-muted">لم يحدد العميل مهارات</span>
             }
           </div>
         </div>
+        @if (projectDetails()?.customConditions) {
+        <div style="margin-bottom:12px" data-testid="apply-extra-conditions">
+          <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">شروط إضافية</div>
+          <div style="font-size:13px;line-height:1.8;white-space:pre-wrap" class="txt-slate">{{ projectDetails()?.customConditions }}</div>
+        </div>
+        }
         <div>
           <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">المخرجات المتوقعة</div>
           <div style="font-size:13px;line-height:1.8" class="txt-slate">{{ projectDetails()?.outputs || 'شعار بصيغ متعددة + بطاقات أعمال + قرطاسية + دليل الهوية' }}</div>

@@ -1,5 +1,5 @@
 <h1 class="sec-title text-2xl font-black text-[var(--txt)] mb-2">التفاصيل الأساسية</h1>
-		<p class="sec-sub text-[var(--txt-3)] font-medium mb-8">أدخل عنوان الطلب ووصفه التفصيلي والمتطلبات الإلزامية التي تتوقعها.</p>
+		<p class="sec-sub text-[var(--txt-3)] font-medium mb-8">أدخل عنوان الطلب ووصفه التفصيلي والمهارات المطلوبة وأي شروط إضافية تتوقعها.</p>
 
 		<!-- FIELD 1: عنوان الطلب -->
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
@@ -125,22 +125,22 @@
 			@if (parent.skillsServerError()) { <p class="text-xs text-red-500 mt-2" role="alert" data-testid="required-skills-error">{{ parent.skillsServerError() }}</p> }
 		</div>
 
-		<!-- FIELD 3: متطلبات إلزامية -->
+		<!-- FIELD 3: شروط إضافية (نص حر، ليست مهارات) -->
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
 				<span class="flex items-center gap-3">
 					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-					المتطلبات الإلزامية
+					شروط إضافية
 				</span>
 				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
 			</div>
 
 			<div class="flex items-center gap-2 p-3 rounded-xl bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] text-xs font-bold mb-4">
 <svg viewBox="0 0 24 24"  width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-							أضف المتطلبات التي يجب أن يلتزم بها مقدم الخدمة، ويمكنك تعديلها أو حذفها
+							أضف الشروط الإضافية التي يجب أن يلتزم بها مقدم الخدمة (نص حر، ليست مهارات)؛ ويمكنك تعديلها أو حذفها
 			</div>
 
-			<div class="req-list flex flex-col gap-3 mb-4" id="req-list" aria-label="قائمة المتطلبات">
+			<div class="req-list flex flex-col gap-3 mb-4" id="req-list" aria-label="قائمة الشروط الإضافية">
 				@for (req of parent.requirements(); track req; let idx = $index) {
 				<div class="flex items-center justify-between p-4 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl">
 					<div class="flex items-center gap-3 text-[var(--txt)]">
@@ -153,7 +153,7 @@
 			</div>
 
 			<div class="req-add-row flex gap-2">
-				<input type="text" class="req-add-input flex-1 p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" id="req-input" placeholder="أضف متطلباً محدداً..." maxlength="150" [ngModel]="parent.newRequirement()" (ngModelChange)="parent.newRequirement.set($event)" (keyup.enter)="parent.addRequirement()">
+				<input type="text" class="req-add-input flex-1 p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" id="req-input" placeholder="أضف شرطاً إضافياً محدداً..." maxlength="150" [ngModel]="parent.newRequirement()" (ngModelChange)="parent.newRequirement.set($event)" (keyup.enter)="parent.addRequirement()">
 				<button type="button" class="req-add-btn flex items-center gap-2 bg-[var(--teal)]/10 text-[var(--teal)] px-6 rounded-xl font-bold border border-[var(--teal)]/20 hover:bg-[var(--teal)]/20 transition-colors" (click)="parent.addRequirement()">
 					<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 					إضافة

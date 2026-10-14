@@ -727,12 +727,12 @@ export class CreateRequest implements OnInit, OnDestroy {
   setTitle(value: string) { this.title.set((value ?? '').slice(0, CreateRequest.TITLE_MAX)); }
   setDescription(value: string) { this.description.set((value ?? '').slice(0, CreateRequest.DESCRIPTION_MAX)); }
 
-  /** The mandatory requirements are free text (not skills): they travel with the request's own conditions text. */
+  /** The extra conditions («شروط إضافية») are free text (not skills): they travel with the request's own conditions text. */
   private composeConditions(): string {
     const base = this.customConditions().trim();
     const reqs = this.requirements();
     if (!reqs.length) return this.customConditions();
-    const line = `المتطلبات الإلزامية: ${reqs.join('، ')}`;
+    const line = `شروط إضافية: ${reqs.join('، ')}`;
     return (base ? `${base}\n${line}` : line).slice(0, 2000);
   }
 
@@ -1009,7 +1009,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     if (!this.requirements().includes(requirement)) {
       this.requirements.update(r => [...r, requirement]);
     }
-    this.showToast(`تمت إضافة "${name}" إلى قائمة المتطلبات الإلزامية`, 'toast-ok');
+    this.showToast(`تمت إضافة "${name}" إلى قائمة الشروط الإضافية`, 'toast-ok');
   }
 
   // ==============================
