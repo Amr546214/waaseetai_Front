@@ -14,3 +14,9 @@ describe('buildReferralUrl', () => {
 		expect(buildReferralUrl('')).toBe('');
 	});
 });
+
+describe('buildReferralUrl same-origin builds', () => {
+	it('never returns a host-less /ref/slug link', () => {
+		expect(buildReferralUrl('abc')).toMatch(/^https?:\/\/[^/]+\/ref\/abc$/);
+	});
+});
