@@ -10,6 +10,12 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "لوحة التحكم", allowIncompleteProfile: true }
 	},
 	{
+		// where an individual provider waits for (or finishes) the accreditation review — reads GET /provider/access-state
+		path: 'accreditation-status',
+		loadComponent: () => import('./accreditation-status/accreditation-status').then(m => m.AccreditationStatusPage),
+		data: { title: "حالة اعتماد الحساب" }
+	},
+	{
 		path: 'messages',
 		loadComponent: () => import('./messages/messages').then(m => m.ProviderMessages),
 		data: { title: "الرسائل" }
