@@ -12,6 +12,8 @@ import { ProviderApiService } from '../../../core/services/provider-api.service'
 import { MarketingCenterService } from '../../../core/services/marketing-center.service';
 import { MarketerProfileService } from '../../../core/services/marketer-profile.service';
 import { resolveMarketerSetup } from '../../../pages/dashboard/marketer-overview/profile/profile-setup/marketer-setup-state';
+import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../core/services/provider-access.service';
+import { isOnboardingAllowedPath } from '../../../core/guards/profile-complete.guard';
 
 export interface NavItem {
 	type: 'header' | 'link' | 'accordion' | 'button' | 'divider';
@@ -24,6 +26,8 @@ export interface NavItem {
 	children?: NavItem[];
 	action?: string;
 	disabled?: boolean;
+	/** shown as a tooltip when the item is disabled */
+	disabledReason?: string;
 }
 
 @Component({
@@ -39,12 +43,15 @@ export class Sidebar implements OnInit {
 	public chatStateService = inject(ChatStateService);
 	private cdRef = inject(ChangeDetectorRef);
 	private providerApiService = inject(ProviderApiService);
+	private providerAccess = inject(ProviderAccessService);
 	private marketingCenterService = inject(MarketingCenterService);
 	private marketerProfileService = inject(MarketerProfileService);
 
 	isProviderProfileIncomplete = signal<boolean>(false);
 	/** Individual provider: the setup form AND the classification test are done -> the "استكمال البيانات" link goes away. */
 	providerSetupDone = signal<boolean>(false);
+	/** Individual provider: the backend said the dashboard is not open yet (or could not be asked) -> only the onboarding items stay enabled. */
+	providerRestricted = signal<boolean>(false);
 	/** Marketer: is there still something the "استكمال البيانات" wizard can collect? Unknown (profile not read yet) counts as yes. */
 	marketerSetupNeeded = computed<boolean>(() => {
 		const p = this.marketerProfileService.profileSnapshot();
@@ -80,7 +87,7 @@ export class Sidebar implements OnInit {
 		}
 		// Fetch provider stats if role is provider to check profile completeness
 		if (this.effectiveRole() === UserRole.PROVIDER) {
-			this.providerApiService.getOverviewStats().subscribe({
+			const loadStats = () => this.providerApiService.getOverviewStats().subscribe({
 				next: (res) => {
 					if (res.success && res.data?.summary) {
 						this.isProviderProfileIncomplete.set(!res.data.summary.profileSetupCompleted);
@@ -89,6 +96,20 @@ export class Sidebar implements OnInit {
 				},
 				error: (err) => console.error('Failed to load provider stats for sidebar', err)
 			});
+			if (this.authStore.currentUser()?.accountType !== AccountType.PROVIDER_COMPANY) {
+				// unknown/failed = closed: the backend must say the dashboard is open before the full menu shows.
+				// /provider/statistics is a gated endpoint (403 until approved), so it is only read once the backend said APPROVED.
+				this.providerRestricted.set(true);
+				this.providerAccess.load().subscribe({
+					next: a => {
+						this.providerRestricted.set(a.canAccessDashboard !== true);
+						if (a.canAccessDashboard === true) loadStats();
+					},
+					error: () => this.providerRestricted.set(true),
+				});
+			} else {
+				loadStats();
+			}
 			// Company accounts: seed the "طلبات الموافقة" pending badge.
 			if (this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY) {
 				this.marketingCenterService.refreshPendingCount();
@@ -609,6 +630,25 @@ export class Sidebar implements OnInit {
 					action: 'logout'
 				}
 			];
+
+		if (this.providerRestricted()) {
+			const reason = 'تفتح بعد اعتماد نموذج الاعتماد';
+			const statusLink: NavItem = { type: 'link', label: 'حالة الاعتماد', route: PROVIDER_ACCESS_STATUS_URL, icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' };
+			const off = (i: NavItem): NavItem => ({ ...i, disabled: true, disabledReason: reason, children: i.children?.map(c => ({ ...c, disabled: true, disabledReason: reason })) });
+			const out: NavItem[] = [];
+			items.forEach((item, idx) => {
+				if (idx === 1) out.push(statusLink);
+				if (item.type === 'header' || item.action === 'logout') { out.push(item); return; }
+				if (item.children) {
+					const open = (c: NavItem) => !!c.route && isOnboardingAllowedPath(c.route);
+					if (!item.children.some(open)) { out.push(off(item)); return; }
+					out.push({ ...item, children: item.children.map(c => open(c) ? c : { ...c, disabled: true, disabledReason: reason }) });
+					return;
+				}
+				out.push(item.route && isOnboardingAllowedPath(item.route) ? item : off(item));
+			});
+			return out;
+		}
 
 		if (incomplete) {
 			return items.map(item => {

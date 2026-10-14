@@ -6,6 +6,7 @@ import { RouterLink, Router } from '@angular/router';
 import { Step1SpecialtyComponent } from './components/step1-specialty/step1-specialty.component';
 import { Step2UploadComponent } from './components/step2-upload/step2-upload.component';
 import { Step3EvaluationComponent } from './components/step3-evaluation/step3-evaluation.component';
+import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../../core/services/provider-access.service';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
 
 export interface Specialty {
@@ -55,6 +56,7 @@ export interface EvaluationData {
 export class New implements OnInit, OnDestroy {
 	private providerApi = inject(ProviderApiService);
 	private router = inject(Router);
+	private access = inject(ProviderAccessService);
 
 	currentStep = signal<number>(1);
 	isLoading = signal<boolean>(true);
@@ -294,6 +296,7 @@ export class New implements OnInit, OnDestroy {
 			next: (res) => {
 				this.isAnalyzing.set(false);
 				if (res && res.success && res.data) {
+					this.afterSampleSubmitted();
 					if (res.data.evaluation) {
 						this.evaluationResult.set(res.data.evaluation);
 					} else {
@@ -310,6 +313,18 @@ export class New implements OnInit, OnDestroy {
 				this.isAnalyzing.set(false);
 				this.hasError.set('حدث خطأ أثناء إرسال النموذج. يرجى المحاولة لاحقاً.');
 			}
+		});
+	}
+
+	/**
+	 * The sample is in: forget the last access answer and re-read it from the backend. A provider who is not approved yet continues on the status page
+	 * (what happens next is the backend's say); an approved one stays on this page. A failed read counts as "not approved" (closed).
+	 */
+	private afterSampleSubmitted() {
+		this.access.invalidate();
+		this.access.load().subscribe({
+			next: s => { if (!s.canAccessDashboard) this.router.navigateByUrl(PROVIDER_ACCESS_STATUS_URL); },
+			error: () => { this.router.navigateByUrl(PROVIDER_ACCESS_STATUS_URL); },
 		});
 	}
 

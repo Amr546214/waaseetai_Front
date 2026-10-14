@@ -27,6 +27,7 @@ import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
 import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
+import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const SETUP_LABELS: Record<string, string> = {
@@ -73,6 +74,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private fb = inject(FormBuilder);
 	private destroyRef = inject(DestroyRef);
 	private router = inject(Router);
+	private access = inject(ProviderAccessService);
 	private uiNotify = inject(UiNotificationService);
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
@@ -1167,10 +1169,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					type: 'info',
 					title: 'انتهى الوقت المحدد',
 					message: 'انتهى وقت الاختبار تلقائياً.',
-					confirmText: 'العودة للوحة التحكم',
+					confirmText: 'متابعة حالة الاعتماد',
 					onConfirm: () => {
 						this.closeAlertModal();
-						this.router.navigate(['/provider-overview']);
+						this.access.invalidate();
+						this.router.navigateByUrl(PROVIDER_ACCESS_STATUS_URL);
 					}
 				});
 			}
@@ -1267,7 +1270,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			subline: `${summary} بناءً على درجتك، يظهر مستواك كمقدم خدمة ${level}، ولا يعني هذا اعتماد التخصص، فالاعتماد بقرار الإدارة بعد مراجعة نماذجك.`,
 			pill: { label: `مستوى حسب الدرجة: ${level}`, tone: level.includes('احترافي') ? 'expert' : (level.includes('تطبيقي') || level.includes('بارع')) ? 'mid' : 'beginner' },
 			stats,
-			primaryLabel: 'إكمال الملف الشخصي',
+			primaryLabel: 'متابعة حالة الاعتماد',
 		};
 	});
 
@@ -1276,7 +1279,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.isTestStarted.set(false);
 	}
 
+	/** The test being done never opens the dashboard: the status page shows what the backend says (sample required / under review / approved). */
 	finishTestProcess() {
-		this.router.navigate(['/provider-overview']);
+		this.access.invalidate();
+		this.router.navigateByUrl(PROVIDER_ACCESS_STATUS_URL);
 	}
 }
