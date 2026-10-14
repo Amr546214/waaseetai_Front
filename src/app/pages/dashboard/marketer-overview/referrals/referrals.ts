@@ -3,6 +3,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarketerOverviewService, MarketerSummary, ReferredUser, ReferralStatus } from '../../../../core/services/marketer-overview.service';
+import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
 
 @Component({
   selector: 'app-referrals',
@@ -82,12 +83,17 @@ export class Referrals implements OnInit {
           this.total.set(0);
         }
       },
-      error: () => {
-        this.isLoading.set(false);
-        this.referrals.set([]);
-        this.total.set(0);
-        this.errorMessage.set('تعذر تحميل قائمة الإحالات، حاول مرة أخرى');
-      }
+      error: (err) => handleLoadError(err, {
+        hasData: () => this.referrals().length > 0,
+        onKeep: () => this.isLoading.set(false),
+        onRateLimit: () => { this.isLoading.set(false); this.errorMessage.set(RATE_LIMIT_MESSAGE); },
+        onOtherError: () => {
+          this.isLoading.set(false);
+          this.referrals.set([]);
+          this.total.set(0);
+          this.errorMessage.set('تعذر تحميل قائمة الإحالات، حاول مرة أخرى');
+        },
+      })
     });
   }
 

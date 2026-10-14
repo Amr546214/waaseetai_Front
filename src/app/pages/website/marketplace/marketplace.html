@@ -305,7 +305,9 @@
         @for (model of allModels().slice(0, 8); track model.id; let i = $index) {
         <ng-container *ngTemplateOutlet="homeCard; context: { $implicit: model, i: i + 2, mode: 'grid' }"></ng-container>
         } @empty {
-        @if (!isLoading()) {
+        @if (loadTemporaryError()) {
+        <app-load-retry (retry)="loadModels()" />
+        } @else if (!isLoading()) {
         <div class="mk-empty">لا توجد خدمات منشورة حالياً.</div>
         }
         }
@@ -614,11 +616,15 @@
             </div>
           </a>
           } @empty {
+          @if (loadTemporaryError()) {
+          <app-load-retry (retry)="loadModels()" />
+          } @else {
           <div class="svc-empty">
             <h4>لا توجد نتائج مطابقة</h4>
             <p>جرّب كلمات بحث أخرى أو أعد ضبط الفلاتر لمشاهدة كل الخدمات المنشورة.</p>
             <button type="button" (click)="resetFilters()">إعادة ضبط الفلاتر</button>
           </div>
+          }
           }
           }
         </div>

@@ -3,6 +3,7 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } 
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProviderApiService, ProviderInvoice, ProviderInvoicesResponse } from '../../../../../core/services/provider-api.service';
+import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
 
 @Component({
 	selector: 'app-provider-invoices',
@@ -43,7 +44,12 @@ export class InvoicesComponent implements OnInit {
 		// GET /provider/finance/invoices: one invoice per delivered stage, with the platform commission and the provider's net
 		this.providerApi.getProviderInvoices().subscribe({
 			next: res => { this.invoices.set(res?.data?.invoices ?? []); this.summary.set(res?.data?.summary ?? null); this.isLoading.set(false); },
-			error: () => { this.invoices.set([]); this.hasError.set(true); this.isLoading.set(false); }
+			error: (err) => handleLoadError(err, {
+				hasData: () => this.invoices().length > 0,
+				onKeep: () => this.isLoading.set(false),
+				onRateLimit: () => { this.hasError.set(true); this.isLoading.set(false); },
+				onOtherError: () => { this.invoices.set([]); this.hasError.set(true); this.isLoading.set(false); },
+			})
 		});
 	}
 

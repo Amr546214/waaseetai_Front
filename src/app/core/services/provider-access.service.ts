@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { Observable, filter, finalize, map, shareReplay, tap } from 'rxjs';
+import { Observable, catchError, filter, finalize, map, of, shareReplay, tap, throwError } from 'rxjs';
+import { isRateLimitError } from '../utils/rate-limit.util';
 import { environment } from '../../../environments/environment';
 import { AccountType, UserRole } from '../models/auth.model';
 import { AuthStore } from '../store/auth.store';
@@ -50,6 +51,11 @@ export class ProviderAccessService {
 	private readonly _latest = signal<ProviderAccessState | null>(null);
 	/** The most recent backend answer (display only). Cleared by invalidate() and on logout. */
 	readonly latest = this._latest.asReadonly();
+	/**
+	 * The last REAL backend answer for the current user/role, kept in memory only. Unlike `latest` it survives invalidate(); it is used solely
+	 * when the check itself is rate limited (HTTP 429), so a temporary condition never changes the user's state. Dropped on logout / user or role change.
+	 */
+	private lastGood: ProviderAccessState | null = null;
 
 	constructor() {
 		// the guard may have passed on a stale answer: every route change re-checks against the last known state
@@ -61,7 +67,7 @@ export class ProviderAccessService {
 		effect(() => {
 			const u: any = this.authStore.currentUser?.();
 			const key = u ? `${u.id ?? u.email ?? ''}:${u.activeRole ?? ''}:${u.accountType ?? ''}` : null;
-			if (lastKey !== undefined && key !== lastKey) this.invalidate();
+			if (lastKey !== undefined && key !== lastKey) { this.invalidate(); this.lastGood = null; }
 			lastKey = key;
 		});
 	}
@@ -75,7 +81,10 @@ export class ProviderAccessService {
 				if (!d || typeof d.state !== 'string') throw new Error('invalid access-state response');
 				return { ...d, canAccessDashboard: d.canAccessDashboard === true, specialties: Array.isArray(d.specialties) ? d.specialties : [] } as ProviderAccessState;
 			}),
-			tap(s => { this._latest.set(s); this.enforce(s); }),
+			tap(s => { this.lastGood = s; this._latest.set(s); this.enforce(s); }),
+			// 429 = temporary: answer with the last known state (approved stays approved, not-approved stays as it was) and do not touch `latest`/redirects.
+			// No prior state -> the error propagates; callers must NOT read it as "not approved" (see isRateLimitError).
+			catchError(err => isRateLimitError(err) && this.lastGood ? of(this.lastGood) : throwError(() => err)),
 			finalize(() => { if (this.inflight === shared) this.inflight = null; }),
 			shareReplay({ bufferSize: 1, refCount: false })
 		);

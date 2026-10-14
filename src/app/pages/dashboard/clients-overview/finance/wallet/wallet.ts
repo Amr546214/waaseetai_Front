@@ -5,6 +5,7 @@ import { ClientFinanceService, ClientWalletData, ClientWalletEmployeeSpend } fro
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
 
 export interface DisplayTransaction {
   id: string;
@@ -89,13 +90,20 @@ export class Wallet implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load client wallet:', err);
-        this.hasError.set(true);
-        this.isLoading.set(false);
+        handleLoadError(err, {
+          hasData: () => this.walletLoaded,
+          onKeep: () => this.isLoading.set(false),
+          onRateLimit: () => { this.hasError.set(true); this.isLoading.set(false); },
+          onOtherError: () => { this.hasError.set(true); this.isLoading.set(false); },
+        });
       }
     });
   }
 
+  private walletLoaded = false;
+
   private applyWalletData(data: ClientWalletData) {
+    this.walletLoaded = true;
     this.balance.set(data.summary?.availableBalance ?? 0);
     this.escrowBalance.set(data.summary?.escrowBalance ?? 0);
     this.activeProjectsCount.set(data.summary?.activeProjectsCount ?? 0);

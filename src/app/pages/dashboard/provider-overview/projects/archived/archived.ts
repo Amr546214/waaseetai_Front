@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../core/services/active.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
 
 interface ArchivedProject {
   id: string;
@@ -61,9 +62,12 @@ export class Archived implements OnInit {
         }
       },
       error: (err) => {
-        this.isLoading.set(false);
-        this.hasError.set(true);
-        this.errorMessage.set(err?.message || 'ERR-PR-025');
+        handleLoadError(err, {
+          hasData: () => this.projects().length > 0,
+          onKeep: () => this.isLoading.set(false),
+          onRateLimit: () => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(RATE_LIMIT_MESSAGE); },
+          onOtherError: () => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(err?.message || 'ERR-PR-025'); },
+        });
         console.error('Error fetching archived projects:', err);
       }
     });

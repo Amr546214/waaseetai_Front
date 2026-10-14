@@ -5,6 +5,7 @@ import { NotificationEngineService, AppNotification } from '../../../../../core/
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { Subscription } from 'rxjs';
 import { filter, take, switchMap } from 'rxjs/operators';
+import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
 
 export type { AppNotification };
 
@@ -259,9 +260,12 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 					console.error('Failed to load client notifications:', err);
 				}
 				// Honest error state ("تعذر تحميل الإشعارات" + retry) instead of invented notifications.
-				this.notifications.set([]);
-				this.hasError.set(true);
-				this.isLoading.set(false);
+				handleLoadError(err, {
+					hasData: () => this.notifications().length > 0,
+					onKeep: () => this.isLoading.set(false),
+					onRateLimit: () => { this.hasError.set(true); this.isLoading.set(false); },
+					onOtherError: () => { this.notifications.set([]); this.hasError.set(true); this.isLoading.set(false); },
+				});
 			}
 		});
 	}
@@ -369,10 +373,13 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 					this.notifications.set([]);
 				}
 			},
-			error: () => {
-				this.notifications.set([]);
-				this.hasError.set(true);
-				this.isLoading.set(false);
+			error: (err: any) => {
+				handleLoadError(err, {
+					hasData: () => this.notifications().length > 0,
+					onKeep: () => this.isLoading.set(false),
+					onRateLimit: () => { this.hasError.set(true); this.isLoading.set(false); },
+					onOtherError: () => { this.notifications.set([]); this.hasError.set(true); this.isLoading.set(false); },
+				});
 			}
 		});
 	}

@@ -3,6 +3,8 @@ import { OffersService } from '../../../../core/services/offers.service';
 import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
+import { handleLoadError } from '../../../../core/utils/rate-limit.util';
+import { LoadRetryComponent } from '../../../../sheards/load-retry/load-retry';
 
 export interface Offer {
 	id: string;
@@ -23,7 +25,7 @@ export interface Offer {
 @Component({
 	selector: 'app-offers',
 	standalone: true,
-	imports: [RouterLink],
+	imports: [RouterLink, LoadRetryComponent],
 	templateUrl: './offers.html',
 	styleUrl: './offers.css',
 })
@@ -93,6 +95,8 @@ export class Offers implements OnInit {
 	// silently doing nothing or fabricating negotiation content that never
 	// happened (see OfferNegotiate, which assumes an active back-and-forth).
 	selectedPendingOffer = signal<Offer | null>(null);
+	/** The list could not be read because of a 429 and nothing was loaded yet: retry state, not the empty state. */
+	loadTemporaryError = signal(false);
 
 	filteredOffers = computed(() => {
 		return this.offers().filter(o => {
@@ -110,6 +114,7 @@ export class Offers implements OnInit {
 	}
 
 	fetchOffers() {
+		this.loadTemporaryError.set(false);
 		const params: any = {};
 		if (this.activeStatus() !== 'all') params.status = this.activeStatus();
 		if (this.activeClientType() !== 'all') params.clientType = this.activeClientType();
@@ -153,7 +158,11 @@ export class Offers implements OnInit {
 			},
 			error: (err) => {
 				console.error('Could not load provider offers from API.', err);
-				this.offers.set([]);
+				handleLoadError(err, {
+					hasData: () => this.offers().length > 0,
+					onRateLimit: () => this.loadTemporaryError.set(true),
+					onOtherError: () => this.offers.set([]),
+				});
 			}
 		});
 	}
