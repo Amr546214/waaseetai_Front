@@ -23,8 +23,8 @@ export class SaSystemSettingsService {
 	private http = inject(HttpClient);
 	private base = `${environment.url_api}/admin/settings`;
 
-	get(): Observable<{ success: boolean; data: PlatformSettings }> {
-		return this.http.get<{ success: boolean; data: PlatformSettings }>(this.base);
+	get(): Observable<{ success: boolean; data: PlatformSettings; storageReady?: boolean }> {
+		return this.http.get<{ success: boolean; data: PlatformSettings; storageReady?: boolean }>(this.base);
 	}
 	save(patch: Partial<PlatformSettings>): Observable<{ success: boolean; message: string; data: PlatformSettings }> {
 		return this.http.put<{ success: boolean; message: string; data: PlatformSettings }>(this.base, patch);

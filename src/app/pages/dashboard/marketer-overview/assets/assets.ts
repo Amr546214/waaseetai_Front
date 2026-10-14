@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MarketerOverviewService, MarketerAssetFile, RefLinksData } from '../../../../core/services/marketer-overview.service';
 import { buildReferralUrl } from '../../../../core/utils/referral-link.util';
 
-const KIND_LABEL: Record<MarketerAssetFile['kind'], string> = { BANNER: 'بنر', TEMPLATE: 'قالب', FILE: 'ملف' };
+const KIND_LABEL: Record<MarketerAssetFile['kind'], string> = { BANNER: 'بنر', TEMPLATE: 'قالب', FILE: 'ملف', IMAGE: 'صورة', VIDEO: 'فيديو', DOCUMENT: 'مستند', LINK: 'رابط', TEXT: 'نص' };
 
 /**
  * المواد التسويقية: the marketer's own referral links (real, from the referral-links data) and the files an admin published for marketers.

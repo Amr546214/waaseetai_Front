@@ -10,6 +10,9 @@
       <p class="ss-sub">إعدادات المنصة العامة. الحقول القابلة للتعديل تُحفظ فعلياً؛ أما غير المرتبطة بالنظام فمعطّلة مع بيان السبب.</p>
     </div>
   </div>
+  @if (!storageReady()) {
+  <div class="ss-toast-warn" role="status" data-testid="settings-storage-pending" style="margin:10px 0;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,140,105,.4);font-size:12.5px;font-weight:700">مخزن الإعدادات لم يُفعَّل بعد على الخادم، لذلك تظهر القيم الافتراضية للمنصة والحفظ معطّل إلى حين تطبيق تحديث قاعدة البيانات.</div>
+  }
 
   @if (loading()) {
     <div class="ss-card" role="status">جارٍ تحميل الإعدادات…</div>
@@ -61,7 +64,7 @@
           }
         </div>
         <div class="ss-save-row">
-          <button type="button" class="ss-save-btn" [disabled]="saving() || !hasChanges(['platformName', 'supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'])" (click)="save(['platformName', 'supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
+          <button type="button" class="ss-save-btn" [disabled]="saving() || !storageReady() || !hasChanges(['platformName', 'supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'])" (click)="save(['platformName', 'supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
         </div>
         @if (error()) { <div class="ss-err" role="alert">{{ error() }}</div> }
       }
@@ -87,7 +90,7 @@
           </div>
         </div>
         <div class="ss-save-row">
-          <button type="button" class="ss-save-btn" [disabled]="saving() || !hasChanges(['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'])" (click)="save(['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
+          <button type="button" class="ss-save-btn" [disabled]="saving() || !storageReady() || !hasChanges(['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'])" (click)="save(['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
         </div>
         @if (error()) { <div class="ss-err" role="alert">{{ error() }}</div> }
       }
@@ -111,7 +114,7 @@
           }
         </div>
         <div class="ss-save-row">
-          <button type="button" class="ss-save-btn" [disabled]="saving() || !hasChanges(['adminNotificationEmail'])" (click)="save(['adminNotificationEmail'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
+          <button type="button" class="ss-save-btn" [disabled]="saving() || !storageReady() || !hasChanges(['adminNotificationEmail'])" (click)="save(['adminNotificationEmail'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
         </div>
         @if (error()) { <div class="ss-err" role="alert">{{ error() }}</div> }
       }

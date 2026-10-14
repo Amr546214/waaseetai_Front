@@ -36,6 +36,8 @@ export class SaMarketingAssets implements OnInit {
 	readonly items = signal<MarketingAsset[]>([]);
 	readonly loading = signal(true);
 	readonly loadError = signal('');
+	/** false until the marketing_assets table exists on the server: empty list, adding disabled with a visible reason. */
+	readonly storageReady = signal(true);
 	readonly kindFilter = signal('');
 	readonly activeFilter = signal('');
 	readonly search = signal('');
@@ -70,7 +72,7 @@ export class SaMarketingAssets implements OnInit {
 		this.loading.set(true);
 		this.loadError.set('');
 		this.api.list({ kind: this.kindFilter(), active: this.activeFilter(), search: this.search().trim() }).subscribe({
-			next: (r) => { this.items.set(r.data.items); this.loading.set(false); },
+			next: (r) => { this.items.set(r.data.items); this.storageReady.set(r.data.storageReady !== false); this.loading.set(false); },
 			error: (e) => { this.loadError.set(this.err(e, 'تعذر تحميل المواد التسويقية.')); this.loading.set(false); },
 		});
 	}

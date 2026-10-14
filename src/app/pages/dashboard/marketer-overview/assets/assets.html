@@ -42,7 +42,11 @@
           <div style="font-size:13px;font-weight:700" class="txt-white">{{ f.title }} <span style="font-size:10.5px" class="txt-muted">· {{ kindLabel(f.kind) }}</span></div>
           @if (f.description) { <div style="font-size:11px;margin-top:2px" class="txt-muted">{{ f.description }}</div> }
         </div>
-        <a class="btn-primary" style="padding:8px 14px;font-size:12px;text-decoration:none;white-space:nowrap" data-testid="asset-download" [href]="f.downloadUrl" target="_blank" rel="noopener noreferrer" download>تنزيل</a>
+        @if (f.downloadUrl) {
+        <a class="btn-primary" style="padding:8px 14px;font-size:12px;text-decoration:none;white-space:nowrap" data-testid="asset-download" [href]="f.downloadUrl" target="_blank" rel="noopener noreferrer" download>{{ f.kind === 'LINK' ? 'فتح' : 'تنزيل' }}</a>
+        } @else if (f.text) {
+        <button type="button" class="btn-primary" style="padding:8px 14px;font-size:12px;white-space:nowrap" data-testid="asset-copy-text" (click)="copy(f.text, f.id)">{{ copied() === f.id ? 'تم النسخ' : 'نسخ النص' }}</button>
+        }
       </div>
       }
     </div>

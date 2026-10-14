@@ -4,9 +4,10 @@
       <h1 class="ma-ttl">المواد التسويقية</h1>
       <p class="ma-sub">مواد يديرها فريق الإدارة (صور، فيديو، مستندات، روابط، نصوص) وتظهر للوسطاء عند تفعيلها.</p>
     </div>
-    <button type="button" class="ma-btn ma-btn-pri" (click)="openForm()">إضافة مادة</button>
+    <button type="button" class="ma-btn ma-btn-pri" [disabled]="!storageReady()" (click)="openForm()">إضافة مادة</button>
   </div>
 
+  @if (!storageReady()) { <div class="ma-notice err" role="status" data-testid="assets-storage-pending">مخزن المواد التسويقية لم يُفعَّل بعد على الخادم، لذلك القائمة فارغة وإضافة المواد معطّلة إلى حين تطبيق تحديث قاعدة البيانات.</div> }
   @if (notice()) { <div class="ma-notice" [class.err]="noticeIsError()" role="status">{{ notice() }}</div> }
 
   <div class="ma-filters">

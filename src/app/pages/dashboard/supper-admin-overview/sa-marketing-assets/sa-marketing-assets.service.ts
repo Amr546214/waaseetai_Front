@@ -23,7 +23,7 @@ export interface MarketingAsset {
 	updatedAt: string;
 }
 
-export interface MarketingAssetList { items: MarketingAsset[]; pagination: { page: number; limit: number; total: number; pages: number } }
+export interface MarketingAssetList { items: MarketingAsset[]; storageReady?: boolean; pagination: { page: number; limit: number; total: number; pages: number } }
 
 @Injectable({ providedIn: 'root' })
 export class SaMarketingAssetsService {

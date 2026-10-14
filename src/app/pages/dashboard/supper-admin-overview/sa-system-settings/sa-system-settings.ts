@@ -55,6 +55,8 @@ export class SaSystemSettings implements OnInit {
   readonly loading = signal(true);
   readonly loadError = signal('');
   readonly saving = signal(false);
+  /** false until the platform_settings table exists on the server: the page opens with the built-in values and saving is disabled with a visible reason. */
+  readonly storageReady = signal(true);
   readonly error = signal('');
   readonly saved = signal<PlatformSettings | null>(null);
   readonly form = signal<PlatformSettings>({
@@ -115,7 +117,7 @@ export class SaSystemSettings implements OnInit {
     this.loading.set(true);
     this.loadError.set('');
     this.api.get().subscribe({
-      next: (r) => { this.saved.set(r.data); this.form.set({ ...r.data }); this.loading.set(false); },
+      next: (r) => { this.saved.set(r.data); this.form.set({ ...r.data }); this.storageReady.set(r.storageReady !== false); this.loading.set(false); },
       error: (e) => { this.loadError.set(this.errMsg(e, 'تعذر تحميل الإعدادات.')); this.loading.set(false); },
     });
   }

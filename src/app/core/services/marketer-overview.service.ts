@@ -64,10 +64,12 @@ export interface MarketerWallet {
 
 export interface MarketerAssetFile {
 	id: string;
-	kind: 'BANNER' | 'TEMPLATE' | 'FILE';
+	kind: 'BANNER' | 'TEMPLATE' | 'FILE' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'LINK' | 'TEXT';
 	title: string;
 	description: string | null;
-	downloadUrl: string;
+	downloadUrl: string | null;
+	/** Copy-ready text for TEXT materials. */
+	text?: string | null;
 }
 
 /** GET/PATCH /marketer-overview/settings. */
