@@ -51,8 +51,7 @@
 
 /* Main Area */
 .main {
-  position: relative;
-  z-index: 1;
+  position: relative; /* no z-index: a stacking context here traps every toast/modal under the fixed header (z 100) */
   margin-top: 56px;
   margin-right: 260px;
   padding: 22px 24px;

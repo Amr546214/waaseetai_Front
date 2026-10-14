@@ -15,7 +15,7 @@ const TONE: Record<UiNotification['kind'], string> = {
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		@if (service.banner(); as b) {
-			<div class="fixed inset-x-3 top-3 z-[1200] mx-auto max-w-xl" data-testid="ui-banner">
+			<div class="fixed inset-x-3 top-[var(--ws-toast-top,12px)] z-[2147483000] mx-auto max-w-xl" data-testid="ui-banner">
 				<div [attr.role]="b.kind === 'error' || b.kind === 'warning' ? 'alert' : 'status'"
 					class="flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg" [class]="tone(b.kind)">
 					<div class="grow leading-relaxed">
@@ -28,7 +28,7 @@ const TONE: Record<UiNotification['kind'], string> = {
 			</div>
 		}
 
-		<div class="pointer-events-none fixed inset-x-3 bottom-4 z-[1200] mx-auto flex max-w-md flex-col gap-2" aria-live="polite">
+		<div class="pointer-events-none fixed inset-x-3 bottom-[var(--ws-toast-bottom,16px)] z-[2147483000] mx-auto flex max-w-md flex-col gap-2" aria-live="polite">
 			@for (t of service.toasts(); track t.id) {
 				<div [attr.role]="t.kind === 'error' || t.kind === 'warning' ? 'alert' : 'status'" data-testid="ui-toast"
 					class="pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg" [class]="tone(t.kind)">
