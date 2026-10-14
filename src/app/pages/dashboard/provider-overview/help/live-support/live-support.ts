@@ -6,6 +6,7 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { SupportTicket, SupportTicketMessage, TicketApiService, TicketStatus } from '../../../../../core/services/ticket-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const STATUS_LABELS: Record<TicketStatus, string> = {
 	OPEN: 'مفتوحة',
@@ -31,6 +32,7 @@ export class LiveSupportComponent implements AfterViewChecked {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private api = inject(TicketApiService);
+	private notify = inject(UiNotificationService);
 
 	@ViewChild('thread') threadRef?: ElementRef<HTMLDivElement>;
 	private shouldScroll = false;
@@ -55,7 +57,6 @@ export class LiveSupportComponent implements AfterViewChecked {
 
 	inputText = signal('');
 	busy = signal(false);
-	toast = signal<string | null>(null);
 
 	canReply = computed(() => {
 		const t = this.activeTicket();
@@ -110,7 +111,7 @@ export class LiveSupportComponent implements AfterViewChecked {
 		const category = this.newCategory().trim();
 		const description = this.newDescription().trim();
 		if (subject.length < 5 || !category || description.length < 20) {
-			this.showToast('أدخل عنواناً (5 أحرف على الأقل) وتصنيفاً ووصفاً (20 حرفاً على الأقل)');
+			this.notify.warning('أدخل عنواناً (5 أحرف على الأقل) وتصنيفاً ووصفاً (20 حرفاً على الأقل)');
 			return;
 		}
 		this.busy.set(true);
@@ -119,9 +120,9 @@ export class LiveSupportComponent implements AfterViewChecked {
 				this.busy.set(false);
 				const t = res?.data;
 				if (t) { this.tickets.update(list => [t, ...list]); this.openTicket(t); }
-				this.showToast('تم فتح التذكرة');
+				this.notify.success('تم فتح التذكرة');
 			},
-			error: err => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذّر فتح التذكرة. حاول مرة أخرى'); }
+			error: err => { this.busy.set(false); this.notify.error(err?.error?.message || 'تعذّر فتح التذكرة. حاول مرة أخرى'); }
 		});
 	}
 
@@ -137,7 +138,7 @@ export class LiveSupportComponent implements AfterViewChecked {
 				if (res?.data) { this.messages.update(m => [...m, res.data!]); this.shouldScroll = true; }
 				this.inputText.set('');
 			},
-			error: err => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذّر إرسال الرد. حاول مرة أخرى'); }
+			error: err => { this.busy.set(false); this.notify.error(err?.error?.message || 'تعذّر إرسال الرد. حاول مرة أخرى'); }
 		});
 	}
 
@@ -151,9 +152,9 @@ export class LiveSupportComponent implements AfterViewChecked {
 				const closed = res?.data ?? { ...t, status: 'CLOSED' as TicketStatus };
 				this.activeTicket.set(closed);
 				this.tickets.update(list => list.map(x => x.id === closed.id ? { ...x, status: closed.status } : x));
-				this.showToast('تم إغلاق التذكرة');
+				this.notify.success('تم إغلاق التذكرة');
 			},
-			error: err => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذّر إغلاق التذكرة') ; }
+			error: err => { this.busy.set(false); this.notify.error(err?.error?.message || 'تعذّر إغلاق التذكرة') ; }
 		});
 	}
 
@@ -168,9 +169,4 @@ export class LiveSupportComponent implements AfterViewChecked {
 	}
 
 	goToHelp() { this.router.navigate(['/provider-overview/help']); }
-
-	showToast(msg: string) {
-		this.toast.set(msg);
-		setTimeout(() => this.toast.set(null), 3000);
-	}
 }

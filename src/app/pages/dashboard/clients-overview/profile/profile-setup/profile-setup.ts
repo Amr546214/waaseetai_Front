@@ -63,7 +63,6 @@ export class ProfileSetupDashboard implements OnInit {
 	kycPending = signal<boolean>(false);
 	/** the admin refused the identity documents: the reason is shown and the step is open for new files */
 	kycRejectedReason = signal<string | null>(null);
-	toastMsg = signal<string | null>(null);
 	isUploading = signal<{ [key: string]: boolean }>({});
 	/** What is missing after a failed Next/submit attempt (shown by <ws-form-summary>). */
 	missing = signal<InvalidField[]>([]);
@@ -403,7 +402,7 @@ export class ProfileSetupDashboard implements OnInit {
 		this.profileApi.saveClientProfileSetup(payload).subscribe({
 			next: () => {
 				this.isSubmitting.set(false);
-				this.showToast('تم حفظ البيانات بنجاح وإرسال المستندات للمراجعة');
+				this.notify.success('تم حفظ البيانات بنجاح وإرسال المستندات للمراجعة');
 				this.refreshStoredCompletion();
 
 				setTimeout(() => {
@@ -471,16 +470,5 @@ export class ProfileSetupDashboard implements OnInit {
 			if (control) return { control, step: Number(step) };
 		}
 		return null;
-	}
-
-	private toastTimer: ReturnType<typeof setTimeout> | null = null;
-
-	showToast(msg: string) {
-		this.toastMsg.set(msg);
-		// A newer toast must not be cleared early by the timer of an older one.
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => {
-			this.toastMsg.set(null);
-		}, 3000);
 	}
 }

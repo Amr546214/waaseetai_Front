@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { CommonModule } from '@angular/common';
 import { SaNotifyModal } from '../../sa-notify-modal';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -27,6 +28,7 @@ import {
 export class SaOfferDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private api = inject(SaOffersService);
+  private notify = inject(UiNotificationService);
 
   readonly statusLabels = OFFER_STATUS_LABELS;
   readonly statusClasses = OFFER_STATUS_CLASSES;
@@ -37,7 +39,6 @@ export class SaOfferDetail implements OnInit {
 
   readonly stateChangeReason = 'غير متاح حاليًا — لا يوجد مسار إداري لتعليق العرض أو إلغاء العقد المرتبط، ويحتاج قرارًا من المنتج (أثره المالي على الضمان)';
   notifyOpen = signal(false);
-  toast = signal('');
   selected = signal<AdminOfferDetail | null>(null);
   loading = signal(true);
   notFound = signal(false);
@@ -83,5 +84,10 @@ export class SaOfferDetail implements OnInit {
     if (k.includes('COUNTER')) return 'عرض مضاد';
     if (k.includes('REQUEST')) return 'طلب تفاوض';
     return kind || '—';
+  }
+
+  onNotifySent(): void {
+    this.notifyOpen.set(false);
+    this.notify.success('تم إرسال الرسالة لمقدم الخدمة وتسجيلها في سجل التدقيق');
   }
 }

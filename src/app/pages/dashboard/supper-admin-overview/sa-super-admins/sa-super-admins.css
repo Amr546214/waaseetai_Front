@@ -100,7 +100,6 @@
 .spa-mtext strong{color:#fff}
 .spa-mactions{display:flex;gap:8px;justify-content:flex-end}
 
-.spa-toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500;padding:12px 20px;background:rgba(7,13,36,.92);border:1px solid rgba(43,212,199,.30);border-radius:12px;font-size:14px;font-weight:700;color:#fff;backdrop-filter:blur(16px)}
 
 @media(max-width:1100px){.spa-nav{display:none}.spa-layout{flex-direction:column}}
 @media(max-width:768px){.spa-page{padding:14px 16px}}

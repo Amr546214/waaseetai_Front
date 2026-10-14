@@ -3,6 +3,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { SaCoupons } from './sa-coupons';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { AdminCoupon, AdminCouponsService } from '../../../../../core/services/admin-coupons.service';
 
 // Admin coupons page: real GET /admin/coupons (no mock list), detail with
@@ -75,7 +76,7 @@ describe('SaCoupons (admin)', () => {
     cmp.confirmReason.set('إساءة استخدام');
     cmp.confirmToggle();
     expect(api.setActive).toHaveBeenCalledWith('c1', false, 'إساءة استخدام');
-    expect(cmp.notice()).toContain('SAVE10');
+    expect(TestBed.inject(UiNotificationService).toasts().some(t => t.kind === 'success' && t.message.includes('SAVE10'))).toBe(true);
   });
 
   it('reactivating an expired coupon is disabled with a visible reason and never opens the dialog', () => {

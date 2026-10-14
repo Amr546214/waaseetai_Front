@@ -6,6 +6,9 @@ import { of, throwError } from 'rxjs';
 import { RequestDetails } from './request-details';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { ChatService } from '../../../../../core/services/chat.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+
+const lastToast = () => TestBed.inject(UiNotificationService).toasts().at(-1)?.message ?? '';
 
 // The client's offer actions come from the SERVER (actions / negotiation / stage): a button that cannot work is disabled with the server's reason,
 // accepting a counter is a real call, negotiation sends the real fields, and no failure falls back to a fake conversation id.
@@ -85,7 +88,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		const post = vi.fn(() => throwError(() => ({ error: { message: 'هذا العرض مسحوب ولا يمكن اختياره' } })));
 		const s = await setup(details(), { post });
 		s.q('accept-offer')!.click();
-		expect(s.c.toastMessage()).toBe('هذا العرض مسحوب ولا يمكن اختياره');
+		expect(lastToast()).toBe('هذا العرض مسحوب ولا يمكن اختياره');
 		expect(s.nav).not.toHaveBeenCalled();
 		expect(s.get).toHaveBeenCalledTimes(2);
 	});
@@ -106,7 +109,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		const s = await setup(details({}, [prop({ status: 'UNDER_NEGOTIATION', negotiation: { state: 'COUNTER_PENDING', counter: { messageId: 'old', price: 1, deliveryDays: 1, notes: '' } } })]), { post });
 		s.q('decline-counter')!.click();
 		expect(post).toHaveBeenCalledWith(expect.stringContaining('/counter/decline'), { messageId: 'old' });
-		expect(s.c.toastMessage()).toContain('لم يعد الأحدث');
+		expect(lastToast()).toContain('لم يعد الأحدث');
 	});
 
 	it('a request sent and waiting is stated, with the note that the offer changes only by an accepted counter', async () => {
@@ -120,7 +123,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		s.c.setNegType('dur');
 		s.c.sendNegotiation();
 		expect(s.chat.initiateConversation).not.toHaveBeenCalled();
-		expect(s.c.toastMessage()).toContain('المدة');
+		expect(lastToast()).toContain('المدة');
 		s.c.negDuration.set('12');
 		s.c.negMessage.set('نحتاج أسرع');
 		s.c.sendNegotiation();
@@ -146,7 +149,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		const s = await setup(details(), { chat });
 		s.c.openNegotiation(s.c.offers()[0]);
 		s.c.sendNegotiation();
-		expect(s.c.toastMessage()).toContain('لا يمكن التفاوض');
+		expect(lastToast()).toContain('لا يمكن التفاوض');
 		expect(s.nav).not.toHaveBeenCalled();
 		expect(s.get).toHaveBeenCalledTimes(2);
 	});
@@ -155,7 +158,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		const s = await setup(details({}, [prop({ actions: { ...free, canNegotiate: false, blockedReason: 'تم اختيار عرض آخر لهذا الطلب' } })]));
 		s.c.openNegotiation(s.c.offers()[0]);
 		expect(s.c.showNegModal()).toBe(false);
-		expect(s.c.toastMessage()).toBe('تم اختيار عرض آخر لهذا الطلب');
+		expect(lastToast()).toBe('تم اختيار عرض آخر لهذا الطلب');
 	});
 
 	it('message the provider opens the conversation of THIS project; a failure shows the error and never navigates to a made-up id', async () => {
@@ -167,7 +170,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ error: { message: 'تم إلغاء هذا الطلب' } }))) };
 		const f = await setup(details(), { chat });
 		f.q('chat-offer')!.click();
-		expect(f.c.toastMessage()).toBe('تم إلغاء هذا الطلب');
+		expect(lastToast()).toBe('تم إلغاء هذا الطلب');
 		expect(f.nav).not.toHaveBeenCalled();
 	});
 

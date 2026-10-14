@@ -5,6 +5,7 @@ import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.comp
 import { RouterLink } from '@angular/router';
 import { channelLabel, commissionTypeLabel, commissionStatusLabel } from '../../../../core/utils/marketer-labels.util';
 import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog, AiInsights }  from '../../../../core/services/marketer-overview.service';
+import { handleLoadError } from '../../../../core/utils/rate-limit.util';
 
 @Component({
 	selector: 'app-marketing-broker-overview',
@@ -36,19 +37,19 @@ export class MarketingBrokerOverview implements OnInit {
 		// Summary
 		this.marketerOverviewService.getSummary().subscribe({
 			next: (res) => this.summary.set(res.data),
-			error: () => this.loadFailed.set(true),
+			error: (err) => handleLoadError(err, { hasData: () => this.summary() != null, onRateLimit: () => this.loadFailed.set(true), onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		// Channels
 		this.marketerOverviewService.getChannelPerformance().subscribe({
 			next: (res) => this.channels.set(res.data),
-			error: () => this.loadFailed.set(true),
+			error: (err) => handleLoadError(err, { hasData: () => this.channels().length > 0, onRateLimit: () => this.loadFailed.set(true), onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		// Commissions
 		this.marketerOverviewService.getRecentCommissions(5).subscribe({
 			next: (res) => this.commissions.set(res.data),
-			error: () => this.loadFailed.set(true),
+			error: (err) => handleLoadError(err, { hasData: () => this.commissions().length > 0, onRateLimit: () => this.loadFailed.set(true), onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		this.loadInsights();

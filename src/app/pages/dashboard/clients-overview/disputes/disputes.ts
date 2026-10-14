@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { Dispute } from '../../../../core/models/dispute.model';
 
 interface DisputeTimelineStep {
@@ -103,11 +104,11 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
 export class Disputes implements OnInit {
   private authStore = inject(AuthStore);
   private disputeApi = inject(DisputeApiService);
+  private notify = inject(UiNotificationService);
 
   readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
   currentTab = signal<string>('all');
-  showToast = signal<string>('');
 
   isLoading = signal<boolean>(true);
   // True only on a real fetch failure — an empty-but-successful response
@@ -144,9 +145,8 @@ export class Disputes implements OnInit {
     this.currentTab.set(t);
   }
 
-  openToast(msg: string) {
-    this.showToast.set(msg);
-    setTimeout(() => this.showToast.set(''), 3000);
+  escalate() {
+    this.notify.success('تم تصعيد النزاع للإدارة، سيتدخّل فريق الدعم خلال 24 ساعة');
   }
 
   filteredDisputes = computed(() => {

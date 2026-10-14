@@ -9,8 +9,6 @@
 .frp-btn-ghost{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:#A8B2D1}
 .frp-btn-ghost:hover{background:rgba(255,255,255,.10);color:#fff}
 
-.frp-toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(15,169,154,.95);color:#fff;padding:10px 20px;border-radius:10px;font-size:12.5px;font-weight:700;z-index:500;box-shadow:0 10px 30px rgba(0,0,0,.3)}
-
 .frp-ai-disc{display:flex;align-items:center;gap:12px;padding:13px 16px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border:1px solid rgba(123,47,190,.22);border-radius:14px;margin-bottom:18px}
 .frp-ai-ico{width:30px;height:30px;border-radius:8px;background:rgba(123,47,190,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ai)}
 .frp-ai-ico svg{width:15px;height:15px}

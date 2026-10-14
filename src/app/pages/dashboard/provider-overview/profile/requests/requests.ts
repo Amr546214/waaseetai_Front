@@ -5,6 +5,7 @@ import { ProviderProfileService } from '../../../../../core/services/provider-pr
 import { ProfileAiReviewComponent } from '../../../../../shared/ai/profile-ai-review.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 @Component({
   selector: 'app-profile-requests',
@@ -16,14 +17,13 @@ import { AccountType } from '../../../../../core/models/auth.model';
 export class Requests implements OnInit {
   private providerProfileService = inject(ProviderProfileService);
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
 
   activeFilter = signal<string>('ALL');
   requestsData = signal<any | null>(null);
   isLoading = signal<boolean>(true);
   /** The read failed (401/429/5xx/network): never shown as zero counters / "no requests". */
   loadError = signal<boolean>(false);
-  
-  showToast = signal<string>('');
 
   /**
    * "Edit and send again" after a rejection: only a category the data page really edits is linked (never a guess).
@@ -145,21 +145,16 @@ export class Requests implements OnInit {
       this.providerProfileService.cancelRequest(id).subscribe({
         next: (res: any) => {
           if (res.success) {
-            this.displayToast(`تم سحب الطلب بنجاح`);
+            this.notify.success(`تم سحب الطلب بنجاح`);
             this.loadRequests();
           }
         },
         error: (err: any) => {
           console.error('Failed to cancel request', err);
-          this.displayToast(`حدث خطأ أثناء الإلغاء`);
+          this.notify.error(`حدث خطأ أثناء الإلغاء`);
         }
       });
     }
-  }
-
-  displayToast(msg: string) {
-    this.showToast.set(msg);
-    setTimeout(() => this.showToast.set(''), 3000);
   }
 
   displayEntries(rawValue: unknown): Array<{ label: string; value: string }> {

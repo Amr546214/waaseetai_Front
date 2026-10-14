@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ContractSignature } from './contract-signature';
 import { ClientFinanceService } from '../../../../../core/services/client-finance.service';
 import { ThemeService } from '../../../../../core/services/theme.service';
@@ -120,6 +121,7 @@ describe('client contract signature page: real terms only', () => {
 			const s = await setup(CONTRACT(2));
 			s.q('cs-sign')!.click(); await s.f.whenStable();
 			expect(s.nav).not.toHaveBeenCalled();
+			expect(TestBed.inject(UiNotificationService).toasts().map(t => [t.kind, t.message])).toEqual([['warning', 'يجب الموافقة على بنود العقد أولا']]);
 			(s.q('cs-ack') as HTMLInputElement).click(); s.f.detectChanges();
 			s.q('cs-sign')!.click(); await s.f.whenStable();
 			expect(s.nav).toHaveBeenCalledWith(['/client-overview/my-requests', 'req-1', 'deposit'], { queryParams: { offerId: 'offer-1' } });
@@ -129,8 +131,9 @@ describe('client contract signature page: real terms only', () => {
 			const s = await setup(CONTRACT(2), { wallet: 1000 });
 			(s.q('cs-ack') as HTMLInputElement).click(); s.f.detectChanges();
 			s.q('cs-sign')!.click(); await s.f.whenStable(); s.f.detectChanges();
-			expect(s.c.toastMessage()).toContain('رصيد المحفظة غير كافٍ');
-			expect(s.c.toastMessage()).toContain('500');
+			const shown = TestBed.inject(UiNotificationService).toasts().map(t => t.message).join(' ');
+			expect(shown).toContain('رصيد المحفظة غير كافٍ');
+			expect(shown).toContain('500');
 		});
 
 		it('a double click while the balance is being checked sends the client on once', async () => {

@@ -6,6 +6,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaNotifyModal } from '../sa-notify-modal';
 import { SaUsersService, AdminUser, AdminUsersStats, AdminUsersQueryParams } from './sa-users.service';
 
@@ -19,13 +20,12 @@ import { SaUsersService, AdminUser, AdminUsersStats, AdminUsersQueryParams } fro
 export class SaUsers implements OnInit {
   private usersService = inject(SaUsersService);
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
 
   /** Permanent delete is a SUPER_ADMIN-only action on the server; the control is hidden for other admins. */
   readonly isSuperAdmin = computed(() => this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN);
-  toast = signal<{ text: string; kind: 'ok' | 'err' } | null>(null);
   loadError = signal('');
   notifyTarget = signal<AdminUser | null>(null);
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Reactive State Signals
   selectedAccountType = signal<string>('all');
@@ -276,7 +276,7 @@ export class SaUsers implements OnInit {
       next: () => {
         this.statusBusy.set(false);
         this.statusTarget.set(null);
-        this.showToast(suspend ? 'تم إيقاف الحساب وتسجيل الإجراء في سجل التدقيق' : 'تم تفعيل الحساب وتسجيل الإجراء في سجل التدقيق', 'ok');
+        this.notify.success(suspend ? 'تم إيقاف الحساب وتسجيل الإجراء في سجل التدقيق' : 'تم تفعيل الحساب وتسجيل الإجراء في سجل التدقيق');
         this.fetchUsers();
         this.fetchStats();
       },
@@ -284,10 +284,9 @@ export class SaUsers implements OnInit {
     });
   }
 
-  showToast(text: string, kind: 'ok' | 'err') {
-    this.toast.set({ text, kind });
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
+  onNotifySent() {
+    this.notifyTarget.set(null);
+    this.notify.success('تم إرسال الرسالة وتسجيلها في سجل التدقيق');
   }
 
   isDeleteModalOpen = signal<boolean>(false);
@@ -311,14 +310,14 @@ export class SaUsers implements OnInit {
     this.usersService.deleteUser(user.id).subscribe({
       next: (res) => {
         if (res.success) {
-          this.showToast('تم حذف الحساب', 'ok');
+          this.notify.success('تم حذف الحساب');
           this.fetchUsers();
           this.fetchStats();
           this.closeDeleteModal();
         }
       },
       error: (err) => {
-        this.showToast(err?.error?.message || 'تعذر حذف الحساب. قد لا تملك الصلاحية الكافية.', 'err');
+        this.notify.error(err?.error?.message || 'تعذر حذف الحساب. قد لا تملك الصلاحية الكافية.');
         this.closeDeleteModal();
       }
     });
@@ -357,9 +356,9 @@ export class SaUsers implements OnInit {
         a.download = 'users-export.csv';
         a.click();
         URL.revokeObjectURL(url);
-        this.showToast('تم تنزيل ملف المستخدمين', 'ok');
+        this.notify.success('تم تنزيل ملف المستخدمين');
       },
-      error: (err) => this.showToast(err?.error?.message || 'تعذر تصدير الملف', 'err')
+      error: (err) => this.notify.error(err?.error?.message || 'تعذر تصدير الملف')
     });
   }
 }

@@ -6,6 +6,8 @@ import { environment } from '../../../../../../environments/environment';
 import { ProviderDepositModal } from './deposit-modal/deposit-modal';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
 
 export interface WalletTransaction {
   id: string;
@@ -67,6 +69,7 @@ export interface WalletData {
 export class Wallet implements OnInit {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   data = signal<WalletData | null>(null);
   loading = signal(true);
   error = signal('');
@@ -83,10 +86,8 @@ export class Wallet implements OnInit {
   // Gap 3: deposit is UI-only — there is no provider deposit/top-up
   // endpoint in provider-api.service.ts (unlike withdraw, which is wired
   // to a real backend). The modal never issues an HTTP call; it only
-  // emits the chosen amount so we can acknowledge it with a toast.
+  // emits the chosen amount so we can acknowledge it with a notification.
   showDepositModal = signal(false);
-  depositToast = signal('');
-  private depositToastTimer: ReturnType<typeof setTimeout> | null = null;
 
   openDepositModal() {
     this.showDepositModal.set(true);
@@ -98,9 +99,7 @@ export class Wallet implements OnInit {
 
   onDepositConfirmed(event: { amount: number; method: 'card' | 'bank' | 'paypal' }) {
     this.showDepositModal.set(false);
-    this.depositToast.set(`لم يُنفَّذ أي إيداع — الدفع الإلكتروني غير متاح حاليًا`);
-    if (this.depositToastTimer) clearTimeout(this.depositToastTimer);
-    this.depositToastTimer = setTimeout(() => this.depositToast.set(''), 4000);
+    this.notify.warning('لم يُنفَّذ أي إيداع — الدفع الإلكتروني غير متاح حاليًا');
   }
 
   /** available + held in escrow: the ring is drawn only when there is something to show */
@@ -137,8 +136,12 @@ export class Wallet implements OnInit {
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(err.error?.message || 'تعذر تحميل بيانات المحفظة');
-        this.loading.set(false);
+        handleLoadError(err, {
+          hasData: () => this.data() != null,
+          onKeep: () => this.loading.set(false),
+          onRateLimit: () => { this.error.set(RATE_LIMIT_MESSAGE); this.loading.set(false); },
+          onOtherError: () => { this.error.set(err.error?.message || 'تعذر تحميل بيانات المحفظة'); this.loading.set(false); },
+        });
       }
     });
   }

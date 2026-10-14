@@ -12,9 +12,10 @@ import { NewProjectService } from '../../../../../core/services/new-project.serv
 import { ProviderSpecialOffer, SpecialOfferStats } from '../../../../../core/models/marketing.model';
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import {
-  Flash, ProviderModelOption, STATUS_LABELS, STATUS_PILL, avatarGradient, describeOffer, formatDay, formatMoney, formatNumber, httpErrorMessage,
+  ProviderModelOption, STATUS_LABELS, STATUS_PILL, avatarGradient, describeOffer, formatDay, formatMoney, formatNumber, httpErrorMessage,
   initials, isToggleable, mapProviderModels, offerStatus, relativeTime, validityLabel,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 /** P-PR-041-تفاصيل / P-CO-MK-007-تفاصيل — special offer stats & details. */
 @Component({
@@ -26,6 +27,7 @@ import {
 })
 export class MarketingOfferDetails implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private offerApi = inject(ProviderSpecialOfferService);
   private centerApi = inject(MarketingCenterService);
   private teamApi = inject(CompanyTeamService);
@@ -43,7 +45,6 @@ export class MarketingOfferDetails implements OnInit {
   readonly rel = relativeTime;
   readonly initials = initials;
   readonly avatarBg = avatarGradient;
-  readonly flash = new Flash();
 
   offer = signal<ProviderSpecialOffer | null>(null);
   stats = signal<SpecialOfferStats | null>(null);
@@ -168,12 +169,12 @@ export class MarketingOfferDetails implements OnInit {
       next: res => {
         this.offer.set(res.data);
         this.busy.set(false);
-        this.flash.show(res.data.active ? 'تم تفعيل العرض' : 'تم إيقاف العرض');
+        this.notify.success(res.data.active ? 'تم تفعيل العرض' : 'تم إيقاف العرض');
       },
       error: err => {
         input.checked = !next;
         this.busy.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر تحديث حالة العرض'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر تحديث حالة العرض'));
       },
     });
   }
@@ -182,7 +183,7 @@ export class MarketingOfferDetails implements OnInit {
     const o = this.offer();
     if (!o) return;
     if (decision === 'REJECTED' && !this.rejectReason.trim()) {
-      this.flash.show('يجب توضيح سبب الرفض', true);
+      this.notify.warning('يجب توضيح سبب الرفض');
       return;
     }
     this.busy.set(true);
@@ -192,11 +193,11 @@ export class MarketingOfferDetails implements OnInit {
         this.busy.set(false);
         this.rejecting.set(false);
         this.centerApi.refreshPendingCount();
-        this.flash.show(decision === 'APPROVED' ? 'تم اعتماد العرض' : 'تم رفض العرض');
+        this.notify.success(decision === 'APPROVED' ? 'تم اعتماد العرض' : 'تم رفض العرض');
       },
       error: err => {
         this.busy.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر تسجيل القرار'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر تسجيل القرار'));
       },
     });
   }

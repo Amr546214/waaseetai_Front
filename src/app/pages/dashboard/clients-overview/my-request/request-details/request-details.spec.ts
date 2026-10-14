@@ -6,6 +6,9 @@ import { of, throwError } from 'rxjs';
 import { RequestDetails } from './request-details';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { ChatService } from '../../../../../core/services/chat.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+
+const lastToast = () => TestBed.inject(UiNotificationService).toasts().at(-1)?.message ?? '';
 
 function makeOffer(overrides: Partial<any> = {}): any {
 	return {
@@ -428,7 +431,7 @@ describe('RequestDetails — negotiation guard', () => {
 	it('opening negotiation on a withdrawn offer shows the reason and does not open the modal', () => {
 		component.openNegotiation(makeOffer({ status: 'CANCELLED' }));
 		expect(component.showNegModal()).toBe(false);
-		expect(component.toastMessage()).toContain('سحبه');
+		expect(lastToast()).toContain('سحبه');
 	});
 
 	it('a server refusal shows the server message and does not navigate to a fake room', () => {
@@ -436,7 +439,7 @@ describe('RequestDetails — negotiation guard', () => {
 		chat.initiateConversation.mockReturnValue(throwError(() => ({ error: { message: 'لا يمكن التفاوض على هذا العرض لأنه مرفوض' } })));
 		component.openNegotiation(makeOffer({ status: 'PENDING' }));
 		component.sendNegotiation();
-		expect(component.toastMessage()).toBe('لا يمكن التفاوض على هذا العرض لأنه مرفوض');
+		expect(lastToast()).toBe('لا يمكن التفاوض على هذا العرض لأنه مرفوض');
 		expect(router.navigate).not.toHaveBeenCalled();
 	});
 });

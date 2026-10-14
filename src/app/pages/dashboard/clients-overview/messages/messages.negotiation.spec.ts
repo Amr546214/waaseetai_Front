@@ -5,6 +5,7 @@ import { signal } from '@angular/core';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ClientMessages } from './messages';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { ChatService } from '../../../../core/services/chat.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
@@ -141,7 +142,7 @@ describe('client messages: negotiation cards are server-driven; the only decisio
 			expect(accept(card)).toBeNull();
 			expect(card.querySelector('[data-testid="neg-counter-accepted"]')!.textContent).toContain('تم قبول هذا العرض المضاد');
 			expect(card.querySelector('[data-testid="neg-counter-open-request"]')).not.toBeNull();
-			expect(s.c.toastMessage()).toContain('900 دولار خلال 10 يوم');
+			expect(TestBed.inject(UiNotificationService).toasts().map(t => t.message).join(' ')).toContain('900 دولار خلال 10 يوم');
 		});
 
 		it('a server refusal (e.g. stale counter) is shown in the card with the server text, the counter stays acceptable', async () => {

@@ -84,7 +84,6 @@ export class Help {
 
   isLoading = signal<boolean>(false);
   hasError = signal<boolean>(false);
-  toastMessage = signal<string | null>(null);
 
   searchQuery = signal<string>('');
   searchedQuery = signal<string>('');
@@ -114,12 +113,5 @@ export class Help {
     setTimeout(() => {
       this.isLoading.set(false);
     }, 1000);
-  }
-
-  showToast(msg: string) {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      this.toastMessage.set(null);
-    }, 3000);
   }
 }

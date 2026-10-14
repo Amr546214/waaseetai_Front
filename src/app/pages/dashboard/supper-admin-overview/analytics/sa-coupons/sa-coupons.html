@@ -8,8 +8,6 @@
   </div>
   <p class="scp-note">إنشاء الكوبونات متاح لمقدمي الخدمة فقط من لوحتهم؛ من هنا يمكنك المتابعة والإيقاف وإعادة التفعيل.</p>
 
-  @if (notice()) { <p class="scp-created-msg" role="status">{{ notice() }}</p> }
-
   <div class="scp-tabs" role="tablist">
     <button type="button" role="tab" class="scp-tab" [class.on]="tab() === 'coupons'" [attr.aria-selected]="tab() === 'coupons'" (click)="showTab('coupons')">الكوبونات</button>
     <button type="button" role="tab" class="scp-tab" [class.on]="tab() === 'offers'" [attr.aria-selected]="tab() === 'offers'" (click)="showTab('offers')">العروض الخاصة (للعرض فقط)</button>

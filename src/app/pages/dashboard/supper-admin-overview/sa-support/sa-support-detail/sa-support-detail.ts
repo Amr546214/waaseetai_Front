@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AdminTicketDetailData, AdminTicketListItem, SupportTicketMessage, TicketApiService, TicketStatus } from '../../../../../core/services/ticket-api.service';
 import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { TICKET_STATUS_LABELS, ticketStatusClass } from '../sa-support';
 
 @Component({
@@ -19,8 +20,8 @@ export class SaSupportDetail implements OnInit {
   private router = inject(Router);
   private api = inject(TicketApiService);
   private opsApi = inject(AdminOpsApiService);
+  private notify = inject(UiNotificationService);
 
-  toast = signal('');
   ticketId = signal('');
   draftReply = signal('');
   loading = signal(true);
@@ -106,13 +107,13 @@ export class SaSupportDetail implements OnInit {
         this.busy.set(false);
         if (res.success) {
           this.draftReply.set('');
-          this.showToast('تم إرسال الرد وإشعار صاحب التذكرة');
+          this.notify.success('تم إرسال الرد وإشعار صاحب التذكرة');
           this.load();
         } else {
-          this.showToast(res.message || 'تعذر إرسال الرد');
+          this.notify.error(res.message || 'تعذر إرسال الرد');
         }
       },
-      error: (err) => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذر إرسال الرد'); },
+      error: (err) => { this.busy.set(false); this.notify.error(err?.error?.message || 'تعذر إرسال الرد'); },
     });
   }
 
@@ -123,13 +124,13 @@ export class SaSupportDetail implements OnInit {
       next: (res) => {
         this.busy.set(false);
         if (res.success) {
-          this.showToast(`تم تغيير الحالة إلى: ${TICKET_STATUS_LABELS[status]}`);
+          this.notify.success(`تم تغيير الحالة إلى: ${TICKET_STATUS_LABELS[status]}`);
           this.load();
         } else {
-          this.showToast(res.message || 'تعذر تغيير الحالة');
+          this.notify.error(res.message || 'تعذر تغيير الحالة');
         }
       },
-      error: (err) => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذر تغيير الحالة'); },
+      error: (err) => { this.busy.set(false); this.notify.error(err?.error?.message || 'تعذر تغيير الحالة'); },
     });
   }
 
@@ -139,9 +140,9 @@ export class SaSupportDetail implements OnInit {
     call().subscribe({
       next: (res) => {
         this.busy.set(false);
-        if (res.success) { after?.(); this.showToast(ok); this.load(); } else this.showToast(res.message || fail);
+        if (res.success) { after?.(); this.notify.success(ok); this.load(); } else this.notify.error(res.message || fail);
       },
-      error: (err) => { this.busy.set(false); this.showToast(err?.error?.message || fail); },
+      error: (err) => { this.busy.set(false); this.notify.error(err?.error?.message || fail); },
     });
   }
 
@@ -160,10 +161,5 @@ export class SaSupportDetail implements OnInit {
     const body = this.noteDraft().trim();
     if (!body) return;
     this.run(() => this.api.adminAddNote(this.ticketId(), body), 'تمت إضافة الملاحظة الداخلية', 'تعذر إضافة الملاحظة', () => this.noteDraft.set(''));
-  }
-
-  showToast(msg: string) {
-    this.toast.set(msg);
-    setTimeout(() => this.toast.set(''), 3000);
   }
 }

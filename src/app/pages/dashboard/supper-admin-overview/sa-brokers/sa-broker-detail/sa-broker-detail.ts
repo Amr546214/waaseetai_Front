@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { AdminBrokerApiService } from '../../../../../core/services/admin-broker-api.service';
 import {
   AdminBrokerDetail,
@@ -31,17 +32,16 @@ interface ReferralNode {
   templateUrl: './sa-broker-detail.html',
   styleUrls: ['../sa-brokers.css', './sa-broker-detail.css'],
 })
-export class SaBrokerDetail implements OnInit, OnDestroy {
+export class SaBrokerDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private brokerApi = inject(AdminBrokerApiService);
+  private notify = inject(UiNotificationService);
 
   selected = signal<AdminBrokerDetail | null>(null);
   loading = signal(true);
   notFound = signal(false);
   error = signal('');
-  toast = signal('');
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Suspend / reactivate dialog (confirmation + required reason when suspending).
   statusDialog = signal<'SUSPENDED' | 'ACTIVE' | null>(null);
@@ -72,10 +72,6 @@ export class SaBrokerDetail implements OnInit, OnDestroy {
       }
       this.fetchDetail(id);
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.toastTimer) clearTimeout(this.toastTimer);
   }
 
   private fetchDetail(id: string): void {
@@ -165,7 +161,7 @@ export class SaBrokerDetail implements OnInit, OnDestroy {
     if (!b || !target) return;
     const reason = this.statusReason().trim();
     if (target === 'SUSPENDED' && reason.length < 5) {
-      this.showToast('اكتب سبب الإيقاف (5 أحرف على الأقل)');
+      this.notify.warning('اكتب سبب الإيقاف (5 أحرف على الأقل)');
       return;
     }
     this.statusBusy.set(true);
@@ -174,18 +170,12 @@ export class SaBrokerDetail implements OnInit, OnDestroy {
         this.statusBusy.set(false);
         this.statusDialog.set(null);
         this.selected.set({ ...b, status: target });
-        this.showToast(target === 'SUSPENDED' ? 'تم إيقاف حساب الوسيط' : 'تمت إعادة تفعيل حساب الوسيط');
+        this.notify.success(target === 'SUSPENDED' ? 'تم إيقاف حساب الوسيط' : 'تمت إعادة تفعيل حساب الوسيط');
       },
       error: (err) => {
         this.statusBusy.set(false);
-        this.showToast(err?.error?.message || 'تعذر تحديث حالة الوسيط');
+        this.notify.error(err?.error?.message || 'تعذر تحديث حالة الوسيط');
       },
     });
-  }
-
-  showToast(msg: string) {
-    this.toast.set(msg);
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.toast.set(''), 3000);
   }
 }

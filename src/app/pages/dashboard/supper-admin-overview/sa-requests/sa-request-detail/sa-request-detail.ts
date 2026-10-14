@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SaNotifyModal } from '../../sa-notify-modal';
@@ -23,6 +24,7 @@ import {
 export class SaRequestDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private api = inject(SaRequestsService);
+  private notify = inject(UiNotificationService);
 
   readonly statusLabels = REQUEST_STATUS_LABELS;
   readonly statusClasses = REQUEST_STATUS_CLASSES;
@@ -31,7 +33,6 @@ export class SaRequestDetail implements OnInit {
 
   readonly stateChangeReason = 'غير متاح حاليًا — لا يوجد مسار إداري لتغيير حالة الطلب، ويحتاج قرارًا من المنتج (أثره على العروض والضمان)';
   notifyOpen = signal(false);
-  toast = signal('');
   selected = signal<AdminRequestDetail | null>(null);
   loading = signal(true);
   notFound = signal(false);
@@ -81,5 +82,10 @@ export class SaRequestDetail implements OnInit {
 
   yesNo(v: boolean | null | undefined): string {
     return v === true ? 'نعم' : v === false ? 'لا' : '—';
+  }
+
+  onNotifySent(): void {
+    this.notifyOpen.set(false);
+    this.notify.success('تم إرسال الرسالة لصاحب الطلب وتسجيلها في سجل التدقيق');
   }
 }

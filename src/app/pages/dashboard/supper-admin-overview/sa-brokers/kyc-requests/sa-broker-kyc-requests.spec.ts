@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { vi } from 'vitest';
 import { SaBrokerKycRequests } from './sa-broker-kyc-requests';
 import { MarketerKycService } from '../../../../../core/services/marketer-kyc.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { KycDocumentService } from '../../../../../core/services/kyc-document.service';
 
 // #51 — admin queue of marketer identity documents: view (marketer_kyc_document + userId), approve, reject with a REQUIRED reason.
@@ -31,6 +32,7 @@ describe('admin: marketer KYC requests (#51)', () => {
 	const q = (id: string) => el().querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
 	const all = (id: string) => Array.from(el().querySelectorAll(`[data-testid="${id}"]`)) as HTMLElement[];
 	const typeReason = (text: string) => { const ta = q('kyc-reason') as HTMLTextAreaElement; ta.value = text; ta.dispatchEvent(new Event('input')); fixture.detectChanges(); };
+	const toasts = () => TestBed.inject(UiNotificationService).toasts().map(t => ({ kind: t.kind, message: t.message }));
 	afterEach(() => TestBed.resetTestingModule());
 
 	it('lists the pending requests with name, email and the count; empty state when none', () => {
@@ -55,7 +57,7 @@ describe('admin: marketer KYC requests (#51)', () => {
 		fixture.detectChanges();
 		expect(api.approve).toHaveBeenCalledWith('a1');
 		expect(all('kyc-row').length).toBe(1);
-		expect(q('kyc-notice')!.textContent).toContain('خالد العتيبي');
+		expect(toasts().some(t => t.kind === 'success' && t.message.includes('خالد العتيبي'))).toBe(true);
 		expect(q('kyc-count')!.textContent).toContain('1');
 	});
 
@@ -84,14 +86,14 @@ describe('admin: marketer KYC requests (#51)', () => {
 		expect(api.reject).toHaveBeenCalledWith('a2', 'الصورة غير واضحة');
 		expect(q('kyc-reject-dialog')).toBeNull();
 		expect(all('kyc-row').length).toBe(1);
-		expect(q('kyc-notice')!.textContent).toContain('سارة أحمد');
+		expect(toasts().some(t => t.kind === 'success' && t.message.includes('سارة أحمد'))).toBe(true);
 	});
 
 	it('backend failures are shown in Arabic and the list is reloaded (409 already decided)', () => {
 		setup(ROWS, { approve: vi.fn(() => throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'تم اعتماد هذا الطلب مسبقًا' } }))) });
 		all('kyc-approve')[0].click();
 		fixture.detectChanges();
-		expect(q('kyc-action-error')!.textContent).toContain('تم اعتماد هذا الطلب مسبقًا');
+		expect(toasts().some(t => t.kind === 'error' && t.message.includes('تم اعتماد هذا الطلب مسبقًا'))).toBe(true);
 		expect(api.listRequests).toHaveBeenCalledTimes(2);
 	});
 

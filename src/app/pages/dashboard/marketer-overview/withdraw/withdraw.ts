@@ -3,6 +3,7 @@ import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-le
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { MarketerOverviewService, MarketerSummary, MarketerWallet } from '../../../../core/services/marketer-overview.service';
 import { Withdrawal } from '../../../../core/models/withdrawal.model';
 
@@ -26,6 +27,7 @@ export const WITHDRAWAL_STATE: Record<string, { label: string; tone: 'blue' | 'g
 export class Withdraw implements OnInit {
   private overviewService = inject(MarketerOverviewService);
   private fb = inject(FormBuilder);
+  private notify = inject(UiNotificationService);
 
   summary = signal<MarketerSummary | null>(null);
   /** The server's own figures (available, reserved, paid, minimum, PayPal): nothing is recomputed here. */
@@ -41,8 +43,6 @@ export class Withdraw implements OnInit {
   detail = signal<Withdrawal | null>(null);
   detailError = signal(false);
 
-  toastMessage = signal<{ text: string; type: 'success' | 'error' } | null>(null);
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   withdrawForm!: FormGroup;
 
@@ -126,25 +126,25 @@ export class Withdraw implements OnInit {
 
     const blocked = this.blockedReason();
     if (!this.hasPaypal()) {
-      this.showToast('أضف بريد PayPal لاستلام الأرباح', 'error');
+      this.notify.error('أضف بريد PayPal لاستلام الأرباح');
       return;
     }
     if (blocked) {
-      this.showToast(blocked, 'error');
+      this.notify.error(blocked);
       return;
     }
     if (this.withdrawForm.invalid) {
       this.withdrawForm.markAllAsTouched();
-      this.showToast('أدخل مبلغ السحب', 'error');
+      this.notify.error('أدخل مبلغ السحب');
       return;
     }
     const amount = Number(this.withdrawForm.value.amount);
     if (amount < this.minimumWithdrawal()) {
-      this.showToast(`الحد الأدنى لطلب السحب ${this.minimumWithdrawal()} دولار`, 'error');
+      this.notify.error(`الحد الأدنى لطلب السحب ${this.minimumWithdrawal()} دولار`);
       return;
     }
     if (amount > this.withdrawableBalance()) {
-      this.showToast('المبلغ المطلوب يتجاوز رصيدك القابل للسحب', 'error');
+      this.notify.error('المبلغ المطلوب يتجاوز رصيدك القابل للسحب');
       return;
     }
 
@@ -154,22 +154,16 @@ export class Withdraw implements OnInit {
         this.submitting.set(false);
         if (res.success) {
           this.withdrawForm.reset();
-          this.showToast('تم تقديم طلب السحب بنجاح', 'success');
+          this.notify.success('تم تقديم طلب السحب بنجاح');
           this.loadData();
         } else {
-          this.showToast(res.message || 'تعذر تقديم طلب السحب', 'error');
+          this.notify.error(res.message || 'تعذر تقديم طلب السحب');
         }
       },
       error: (err: any) => {
         this.submitting.set(false);
-        this.showToast(err?.error?.message || 'تعذر تقديم طلب السحب، حاول مرة أخرى', 'error');
+        this.notify.error(err?.error?.message || 'تعذر تقديم طلب السحب، حاول مرة أخرى');
       }
     });
-  }
-
-  private showToast(text: string, type: 'success' | 'error' = 'success') {
-    this.toastMessage.set({ text, type });
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.toastMessage.set(null), type === 'error' ? 5000 : 3000);
   }
 }

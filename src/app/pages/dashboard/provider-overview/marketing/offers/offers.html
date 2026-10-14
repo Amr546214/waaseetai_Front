@@ -78,7 +78,3 @@
 }
 
 <div class="note-card plain"><p>كل عرض باقة يشترط نموذجين مختلفين على الأقل من {{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجي' }}. العرض المنتهي لا يمكن تفعيله من هنا — عدّله لتاريخ جديد من زر تعديل.@if (isCompanyMode()) { العروض التي يتجاوز خصمها 30% تبقى متوقفة حتى تعتمدها من <a class="lnk" routerLink="/provider-overview/marketing/approvals">طلبات الموافقة</a>.}</p></div>
-
-@if (flash.message(); as m) {
-	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
-}

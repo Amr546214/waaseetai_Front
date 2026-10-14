@@ -5,6 +5,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { OffersService } from '../../../../../core/services/offers.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 export interface ProviderContractMilestone { order: number; title: string; description: string | null; days: number | null; percentage: number | null; amount: number | null }
 export interface ProviderContract {
@@ -50,6 +51,7 @@ export class SignContract {
 	private router = inject(Router);
 	private offersService = inject(OffersService);
 	private authStore = inject(AuthStore);
+	private notify = inject(UiNotificationService);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -89,8 +91,6 @@ export class SignContract {
 
 	isAgreed = false;
 
-	showToast = signal<boolean>(false);
-	toastMessage = signal<string>('');
 
 	constructor() {
 		const nav = this.router.getCurrentNavigation();
@@ -136,38 +136,30 @@ export class SignContract {
 
 	milestoneMeta = milestoneMeta;
 
-	displayToast(msg: string) {
-		this.toastMessage.set(msg);
-		this.showToast.set(true);
-		setTimeout(() => {
-			this.showToast.set(false);
-		}, 3000);
-	}
-
 	signContract() {
 		if (!this.isLoading() && !this.loadError() && !this.contract()) {
-			this.displayToast('العقد غير جاهز لتوقيعك بعد: بانتظار توقيع العميل وإيداع الضمان');
+			this.notify.warning('العقد غير جاهز لتوقيعك بعد: بانتظار توقيع العميل وإيداع الضمان');
 			return;
 		}
 		if (this.isLoading() || this.loadError()) {
-			this.displayToast(this.loadError() || 'انتظر حتى يكتمل تحميل العقد');
+			this.notify.warning(this.loadError() || 'انتظر حتى يكتمل تحميل العقد');
 			return;
 		}
 		if (!this.isAgreed) {
-			this.displayToast('يجب الموافقة على بنود العقد أولا');
+			this.notify.warning('يجب الموافقة على بنود العقد أولا');
 			return;
 		}
 
 		this.offersService.signContract(this.offerId(), { accepted: true }).subscribe({
 			next: (res) => {
-				this.displayToast('تم تأكيد توقيع العقد بنجاح، جاري التوجيه...');
+				this.notify.success('تم تأكيد توقيع العقد بنجاح، جاري التوجيه...');
 				
 				setTimeout(() => {
 					this.router.navigate(['/provider-overview/projects/active']);
 				}, 1500);
 			},
 			error: (err) => {
-				this.displayToast('تعذّر حفظ توقيع العقد، حاول مرة أخرى');
+				this.notify.error('تعذّر حفظ توقيع العقد، حاول مرة أخرى');
 				console.error(err);
 			}
 		});
@@ -177,7 +169,7 @@ export class SignContract {
 	openProjectConversation() {
 		const projectId = this.projectId();
 		if (!projectId) {
-			this.displayToast('تعذّر تحديد محادثة هذا المشروع. افتح غرفة التفاوض من صفحة العروض لتعديل البنود قبل التوقيع');
+			this.notify.error('تعذّر تحديد محادثة هذا المشروع. افتح غرفة التفاوض من صفحة العروض لتعديل البنود قبل التوقيع');
 			return;
 		}
 		this.router.navigate(['/provider-overview/messages'], {

@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { SaDisputeDetail } from './sa-dispute-detail';
 import { SaDisputes } from '../sa-disputes';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { AdminOpsApiService } from '../../../../../core/services/admin-ops-api.service';
 
 const dispute: any = {
@@ -46,7 +47,7 @@ describe('SaDisputeDetail — staff operations', () => {
     c.assign();
     expect(api.assignAdminDispute).toHaveBeenCalledWith('d1', 's2');
     expect(api.getAdminDispute).toHaveBeenCalledTimes(2);
-    expect(c.opSuccess()).toBe('تم إسناد النزاع');
+    expect(TestBed.inject(UiNotificationService).toasts().map(t => ({ kind: t.kind, message: t.message }))).toContainEqual({ kind: 'success', message: 'تم إسناد النزاع' });
   });
 
   it('adds an internal note and shows the labelled notes list', () => {

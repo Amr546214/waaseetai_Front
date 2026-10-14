@@ -9,8 +9,6 @@
 .san-btn-gh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#A8B2D1}
 .san-btn-gh:hover{background:rgba(255,255,255,.1);color:#fff}
 .san-btn-sm{height:28px;padding:0 10px;font-size:11px}
-
-.san-toast{padding:10px 14px;background:rgba(15,169,154,.1);border:1px solid rgba(15,169,154,.25);border-radius:10px;color:#0FA99A;font-size:12.5px;font-weight:700;margin-bottom:14px}
 .san-error{padding:10px 14px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.28);border-radius:10px;color:#FF6B6B;font-size:12.5px;font-weight:700;margin-bottom:12px}
 
 .san-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}

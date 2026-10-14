@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { Data } from './data';
 import { MarketerOverviewService } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService } from '../../../../../core/services/marketer-profile.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { MarketerPrefsStore } from '../../../../../core/services/marketer-prefs.store';
 import { providerTimeZone, ProviderPrefsStore } from '../../../../../core/services/provider-prefs.store';
 
@@ -48,7 +49,7 @@ describe('marketer settings: save / reload / disabled-with-reason', () => {
 		c.alertPreferences = { ...SAVED };
 		c.saveAlertPreferences();
 		expect(overview.updateMarketerSettings).toHaveBeenCalledWith(SAVED);
-		expect(c.toastMessage()?.text).toContain('تم حفظ');
+		expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: expect.stringContaining('تم حفظ') });
 		expect(providerTimeZone()).toBe('Asia/Dubai');
 		expect(TestBed.inject(MarketerPrefsStore).settings()?.timezone).toBe('Asia/Dubai');
 	});
@@ -65,7 +66,7 @@ describe('marketer settings: save / reload / disabled-with-reason', () => {
 	it('invalid value: the server refusal is shown, nothing claims success', async () => {
 		await mount(SAVED, throwError(() => ({ status: 400, error: { message: 'المنطقة الزمنية غير مدعومة' } })));
 		c.saveAlertPreferences();
-		expect(c.toastMessage()?.text ?? '').not.toContain('تم حفظ');
+		expect(TestBed.inject(UiNotificationService).toasts().some(t => t.kind === 'success')).toBe(false);
 		expect(c.isSavingAlerts()).toBe(false);
 	});
 

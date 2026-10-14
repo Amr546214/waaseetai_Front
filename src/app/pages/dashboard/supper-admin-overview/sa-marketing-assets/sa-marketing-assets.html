@@ -8,7 +8,6 @@
   </div>
 
   @if (!storageReady()) { <div class="ma-notice err" role="status" data-testid="assets-storage-pending">مخزن المواد التسويقية لم يُفعَّل بعد على الخادم، لذلك القائمة فارغة وإضافة المواد معطّلة إلى حين تطبيق تحديث قاعدة البيانات.</div> }
-  @if (notice()) { <div class="ma-notice" [class.err]="noticeIsError()" role="status">{{ notice() }}</div> }
 
   <div class="ma-filters">
     <ws-select class="ma-ws" ariaLabel="النوع" [options]="kindFilterOptions" [ngModel]="kindFilter()" (ngModelChange)="kindFilter.set($event); load()"></ws-select>

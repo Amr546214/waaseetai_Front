@@ -139,9 +139,6 @@ export class SaSuperAdmins implements OnInit {
     { key: 'backup', label: 'تصدير نسخة احتياطية كاملة', desc: 'DB Snapshot — مشفّرة', buttonLabel: 'تصدير' },
   ];
 
-  readonly toastMessage = signal('');
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
-
   // Batch: none of the 4 danger-zone actions (maintenance mode, test-DB wipe,
   // all-user broadcast, full DB backup export) has a backend endpoint —
   // confirmed via grep across AdminSecurityApiService and every
@@ -179,11 +176,5 @@ export class SaSuperAdmins implements OnInit {
     a.download = `audit-trail-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }
-
-  private showToast(msg: string) {
-    this.toastMessage.set(msg);
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.toastMessage.set(''), 2200);
   }
 }

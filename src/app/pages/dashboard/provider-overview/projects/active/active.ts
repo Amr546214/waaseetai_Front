@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../core/services/active.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
 
 interface Project {
 	id: string;
@@ -89,8 +90,12 @@ export class Active implements OnInit {
 			},
 			error: (err) => {
 				console.error('Error fetching active projects', err);
-				this.error.set(err.error?.message || 'تعذر تحميل المشاريع النشطة');
-				this.isLoading.set(false);
+				handleLoadError(err, {
+					hasData: () => this.projects().length > 0,
+					onKeep: () => this.isLoading.set(false),
+					onRateLimit: () => { this.error.set(RATE_LIMIT_MESSAGE); this.isLoading.set(false); },
+					onOtherError: () => { this.error.set(err.error?.message || 'تعذر تحميل المشاريع النشطة'); this.isLoading.set(false); },
+				});
 			}
 		});
 	}

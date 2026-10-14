@@ -1,6 +1,7 @@
 import { providerDocumentsCount, withOwnerFields } from './kyc-owner';
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaKycService } from './sa-kyc.service';
 import { KycDocumentLink } from '../../../../sheards/kyc-document-link/kyc-document-link';
 import {
@@ -23,6 +24,7 @@ type Tab = 'clients' | 'providers';
 })
 export class SaKyc implements OnInit {
   private kycService = inject(SaKycService);
+  private notify = inject(UiNotificationService);
 
   // ── Tab state ───────────────────────────────────────────────────────
   activeTab = signal<Tab>('clients');
@@ -82,7 +84,6 @@ export class SaKyc implements OnInit {
   actionNote = signal<string>('');
   processing = signal<boolean>(false);
   actionError = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
 
   // ── Computed summary (from loaded items) ────────────────────────────
   onboardingPending = computed(() => this.onboarding().filter(o => o.status === 'PENDING').length);
@@ -137,7 +138,6 @@ export class SaKyc implements OnInit {
   switchTab(tab: Tab) {
     if (this.activeTab() === tab) return;
     this.activeTab.set(tab);
-    this.successMessage.set(null);
     if (tab === 'clients' && this.onboarding().length === 0) {
       this.loadOnboarding();
     } else if (tab === 'providers' && this.providers().length === 0) {
@@ -304,7 +304,6 @@ export class SaKyc implements OnInit {
     this.selectedOnboarding.set(null);
     this.selectedProvider.set(null);
     this.detailError.set(null);
-    this.successMessage.set(null);
   }
 
   openActionModal(action: 'approve' | 'reject') {
@@ -366,7 +365,7 @@ export class SaKyc implements OnInit {
   private onActionSuccess(msg: string) {
     this.processing.set(false);
     this.showActionModal.set(false);
-    this.successMessage.set(msg);
+    this.notify.success(msg);
     // Refresh current tab list
     if (this.activeTab() === 'clients') {
       this.loadOnboarding();

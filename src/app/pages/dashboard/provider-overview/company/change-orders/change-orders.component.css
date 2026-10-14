@@ -86,11 +86,6 @@
 .empty-ttl { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px; }
 .empty-sub { font-size: 12px; color: #6B7699; }
 
-/* Toast */
-.toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 600; }
-.toast-inner { display: flex; align-items: center; gap: 10px; padding: 11px 18px; background: linear-gradient(135deg, rgba(43,212,199,.14), rgba(43,127,255,.10)); border: 1px solid rgba(43,212,199,.3); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.4); backdrop-filter: blur(16px); }
-.toast-txt { font-size: 13.5px; font-weight: 700; color: #fff; }
-
 /* === Light Mode === */
 :host-context(body.light-theme) .pg-title,
 :host-context(body.theme-light) .pg-title,

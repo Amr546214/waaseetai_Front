@@ -13,9 +13,10 @@ import { CreateSpecialOfferPayload, ProviderSpecialOffer, SpecialOfferType, Upda
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import { MarketingAssignPicker } from '../assign-picker/assign-picker';
 import {
-  COMPANY_APPROVAL_THRESHOLD, Flash, ProviderModelOption, dateInputToIso, httpErrorMessage, isoToDateInput, mapProviderModels,
+  COMPANY_APPROVAL_THRESHOLD, ProviderModelOption, dateInputToIso, httpErrorMessage, isoToDateInput, mapProviderModels,
   offerNeedsApproval, todayInput,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 interface OfferForm {
   type: SpecialOfferType;
@@ -47,6 +48,7 @@ const SHAPE_KEYS: (keyof CreateSpecialOfferPayload)[] = ['type', 'primaryService
 })
 export class MarketingOfferForm implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private offerApi = inject(ProviderSpecialOfferService);
   private teamApi = inject(CompanyTeamService);
   private modelsApi = inject(NewProjectService);
@@ -57,7 +59,6 @@ export class MarketingOfferForm implements OnInit {
 
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
   readonly threshold = COMPANY_APPROVAL_THRESHOLD;
-  readonly flash = new Flash();
 
   editId = signal<string | null>(null);
   original = signal<ProviderSpecialOffer | null>(null);
@@ -224,7 +225,7 @@ export class MarketingOfferForm implements OnInit {
     const e = this.validate();
     this.errors.set(e);
     if (Object.keys(e).length) {
-      this.flash.show('راجع الحقول المطلوبة', true);
+      this.notify.warning('راجع الحقول المطلوبة');
       return;
     }
     const payload = this.buildPayload();
@@ -239,7 +240,7 @@ export class MarketingOfferForm implements OnInit {
       },
       error: err => {
         this.saving.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر حفظ العرض'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر حفظ العرض'));
       },
     });
   }

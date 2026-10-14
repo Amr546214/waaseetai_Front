@@ -5,6 +5,7 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { WsSelectComponent, WsSelectOption } from '../../../../../shared/forms/select.component';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { TicketApiService } from '../../../../../core/services/ticket-api.service';
 
 @Component({
@@ -19,6 +20,7 @@ export class NewTicketComponent {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private ticketApi = inject(TicketApiService);
+	private notify = inject(UiNotificationService);
 
 	isCompanyMode = computed(() => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY);
 
@@ -30,7 +32,6 @@ export class NewTicketComponent {
 	relatedProject = signal<string>('');
 	teamMember = signal<string>('');
 	submitting = signal<boolean>(false);
-	toast = signal<string | null>(null);
 
 	individualCategories = [
 		'العقود والضمان',
@@ -92,23 +93,18 @@ export class NewTicketComponent {
 			next: (res) => {
 				this.submitting.set(false);
 				if (res.success && res.data) {
-					this.showToast('تم فتح تذكرتك بنجاح');
+					this.notify.success('تم فتح تذكرتك بنجاح');
 					setTimeout(() => this.router.navigate(['/client-overview/help/tickets', res.data!.id]), 1200);
 				} else {
-					this.showToast(res.message || 'تعذر فتح التذكرة');
+					this.notify.error(res.message || 'تعذر فتح التذكرة');
 				}
 			},
 			error: (err) => {
 				this.submitting.set(false);
-				this.showToast(err?.error?.message || 'تعذر فتح التذكرة، حاول مرة أخرى');
+				this.notify.error(err?.error?.message || 'تعذر فتح التذكرة، حاول مرة أخرى');
 			}
 		});
 	}
 
 	get helpBackLink(): string { return '/client-overview/help/tickets'; }
-
-	showToast(msg: string) {
-		this.toast.set(msg);
-		setTimeout(() => this.toast.set(null), 3000);
-	}
 }

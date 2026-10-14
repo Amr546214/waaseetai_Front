@@ -164,14 +164,6 @@
 .rl-modal-actions { display: flex; gap: 8px; margin-top: 16px; }
 .rl-modal-actions .rl-btn { flex: 1; justify-content: center; }
 
-/* Toast */
-.rl-toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 500; padding: 12px 20px; background: linear-gradient(135deg, rgba(43,212,199,.14), rgba(43,127,255,.10)); border: 1px solid rgba(43,212,199,.30); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.4); backdrop-filter: blur(16px); font-size: 13px; font-weight: 700; color: #fff; }
-
-:host-context(body.light-theme) .rl-toast,
-:host-context(body.theme-light) .rl-toast,
-:host-context(.light-theme) .rl-toast,
-:host-context(.theme-light) .rl-toast { color: #1E293B; }
-
 @media (max-width: 600px) {
   .rl-page { padding: 14px 16px; }
   .rl-audit-row { flex-wrap: wrap; }

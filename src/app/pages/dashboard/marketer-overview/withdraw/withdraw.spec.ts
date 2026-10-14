@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { Withdraw, WITHDRAWAL_STATE } from './withdraw';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { MarketerOverviewService, MarketerWallet } from '../../../../core/services/marketer-overview.service';
 
 // The withdraw page shows the SERVER's balance (never a figure derived in the browser), every withdrawal state and the transaction details.
@@ -92,25 +93,25 @@ describe('marketer withdraw: server balance, states and details', () => {
     c.withdrawForm.patchValue({ amount: 400 });
     c.submitWithdrawal();
     expect(svc.submitWithdrawal).not.toHaveBeenCalled();
-    expect(c.toastMessage()?.type).toBe('error');
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)?.kind).toBe('error');
   });
 
   it('over-withdraw and below-minimum never reach the server; a valid amount does, then the data reloads', async () => {
     await setup();
     c.withdrawForm.patchValue({ amount: 601 }); c.submitWithdrawal();
-    expect(c.toastMessage()?.text).toContain('يتجاوز رصيدك');
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: expect.stringContaining('يتجاوز رصيدك') });
     c.withdrawForm.patchValue({ amount: 299 }); c.submitWithdrawal();
-    expect(c.toastMessage()?.text).toContain('300');
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: expect.stringContaining('300') });
     expect(svc.submitWithdrawal).not.toHaveBeenCalled();
     c.withdrawForm.patchValue({ amount: 600 }); c.submitWithdrawal();
     expect(svc.submitWithdrawal).toHaveBeenCalledWith(600);
-    expect(c.toastMessage()?.text).toBe('تم تقديم طلب السحب بنجاح');
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم تقديم طلب السحب بنجاح' });
   });
 
   it('the server\'s own refusal is shown as is', async () => {
     await setup({}, ROWS, throwError(() => ({ error: { message: 'المبلغ المطلوب يتجاوز رصيدك الصافي بعد طلبات السحب المعلقة (10 $)' } })));
     c.withdrawForm.patchValue({ amount: 500 }); c.submitWithdrawal();
-    expect(c.toastMessage()?.text).toContain('بعد طلبات السحب المعلقة');
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: expect.stringContaining('بعد طلبات السحب المعلقة') });
   });
 
   it('no withdrawals yet: honest empty state', async () => {

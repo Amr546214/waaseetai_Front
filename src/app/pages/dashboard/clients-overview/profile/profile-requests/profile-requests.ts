@@ -1,6 +1,7 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ProfileAiReviewComponent } from '../../../../../shared/ai/profile-ai-review.component';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 
 @Component({
@@ -11,13 +12,13 @@ import { ProfileApiService } from '../../../../../core/services/profile-api.serv
 })
 export class ProfileRequests implements OnInit {
 	private profileApiService = inject(ProfileApiService);
+	private notify = inject(UiNotificationService);
 
 	activeFilter = signal<string>('ALL');
 	requestsData = signal<any | null>(null);
 	isLoading = signal<boolean>(true);
 	/** The read failed (401/429/5xx/network): never shown as zero counters / "no requests". */
 	loadError = signal<boolean>(false);
-	showToast = signal<string>('');
 
 	ngOnInit() {
 		this.loadRequests();
@@ -73,18 +74,13 @@ export class ProfileRequests implements OnInit {
 		this.profileApiService.cancelMyChangeRequest(id).subscribe({
 			next: (res: any) => {
 				if (res?.success) {
-					this.displayToast('تم سحب الطلب');
+					this.notify.success('تم سحب الطلب');
 					this.loadRequests();
 				} else {
-					this.displayToast(res?.message || 'تعذر سحب الطلب');
+					this.notify.error(res?.message || 'تعذر سحب الطلب');
 				}
 			},
-			error: (err: any) => this.displayToast(err?.error?.message || 'تعذر سحب الطلب، حاول مرة أخرى')
+			error: (err: any) => this.notify.error(err?.error?.message || 'تعذر سحب الطلب، حاول مرة أخرى')
 		});
-	}
-
-	displayToast(msg: string) {
-		this.showToast.set(msg);
-		setTimeout(() => this.showToast.set(''), 3000);
 	}
 }

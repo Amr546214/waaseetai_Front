@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { ChatService, ChatMessagePayload } from '../../../../core/services/chat.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
 
 export interface MessageItem {
@@ -53,6 +54,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
   private chatStateService = inject(ChatStateService);
   private videoCallService = inject(VideoCallService);
+  private notify = inject(UiNotificationService);
   private sub = new Subscription();
 
   private currentUserId = 'marketer_001';
@@ -63,7 +65,6 @@ export class MarketerMessages implements OnInit, OnDestroy {
   activeConvId = signal<string>('');
   showChatOnMobile = signal<boolean>(false);
   newMessageText = signal<string>('');
-  toastMessage = signal<string>('');
 
   // Rich media UI state signals
   showEmojiPicker = signal<boolean>(false);
@@ -395,9 +396,9 @@ export class MarketerMessages implements OnInit, OnDestroy {
   async startVoiceRecord(): Promise<void> {
     const started = await this.chatService.startAudioRecording();
     if (started) {
-      this.showToast('🎙️ جارٍ تسجيل المقطع الصوتي...');
+      this.notify.info('جارٍ تسجيل المقطع الصوتي...');
     } else {
-      this.showToast('⚠️ تعذر الوصول للميكروفون أو البيئة لا تدعم MediaDevices');
+      this.notify.error('تعذر الوصول للميكروفون أو البيئة لا تدعم MediaDevices');
     }
   }
 
@@ -423,7 +424,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
             audioDuration: res.duration || 1,
             text: '🎤 رسالة صوتية'
           });
-          this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
+          this.notify.success('تم إرسال الرسالة الصوتية بنجاح');
         },
         error: () => {
           this.sendMessage('AUDIO', {
@@ -431,7 +432,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
             audioDuration: res.duration || 1,
             text: '🎤 رسالة صوتية'
           });
-          this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
+          this.notify.success('تم إرسال الرسالة الصوتية بنجاح');
         }
       });
     }
@@ -439,7 +440,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
 
   cancelVoiceRecord(): void {
     this.chatService.cancelAudioRecording();
-    this.showToast('🗑️ تم إلغاء التسجيل الصوتي');
+    this.notify.info('تم إلغاء التسجيل الصوتي');
   }
 
   // Audio Playback with Waveform
@@ -480,7 +481,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
 
       reader.onload = (e: any) => {
         const base64 = e.target.result;
-        this.showToast(`⌛ جارٍ رفع ${file.name}...`);
+        this.notify.info(`جارٍ رفع ${file.name}...`);
         
         this.chatService.uploadAttachment({
           fileData: base64,
@@ -496,7 +497,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
               fileSize: fileSizeKB,
               text: type === 'IMAGE' ? 'مرفق صورة للتوضيح' : file.name
             });
-            this.showToast(`✅ تم إرفاق وإرسال الملف بنجاح`);
+            this.notify.success(`تم إرفاق وإرسال الملف بنجاح`);
           },
           error: () => {
             this.sendMessage(type, {
@@ -505,7 +506,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
               fileSize: fileSizeKB,
               text: type === 'IMAGE' ? 'مرفق صورة للتوضيح' : file.name
             });
-            this.showToast(`✅ تم إرفاق الملف: ${file.name}`);
+            this.notify.success(`تم إرفاق الملف: ${file.name}`);
           }
         });
       };
@@ -530,9 +531,9 @@ export class MarketerMessages implements OnInit, OnDestroy {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      this.showToast(`⌛ جارٍ تنزيل ${msg.fileName}...`);
+      this.notify.info(`جارٍ تنزيل ${msg.fileName}...`);
     } else {
-      this.showToast(`📥 تم البدء بتنزيل الملف: ${msg.fileName || 'مرفق'}`);
+      this.notify.info(`تم البدء بتنزيل الملف: ${msg.fileName || 'مرفق'}`);
     }
   }
 
@@ -552,21 +553,12 @@ export class MarketerMessages implements OnInit, OnDestroy {
   startMeeting(): void {
     const convId = this.activeConvId();
     if (!convId) {
-      this.showToast('⚠️ يرجى اختيار محادثة أولاً لبدء اجتماع الفيديو');
+      this.notify.warning('يرجى اختيار محادثة أولاً لبدء اجتماع الفيديو');
       return;
     }
     const myUser = this.authStore.currentUser();
     const myName = myUser ? `${myUser.firstName} ${myUser.lastName}` : 'مستخدم وسيط';
     this.videoCallService.startCall(convId, myName, true);
-  }
-
-  showToast(msg: string): void {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      if (this.toastMessage() === msg) {
-        this.toastMessage.set('');
-      }
-    }, 3800);
   }
 
   private scrollToBottom(): void {

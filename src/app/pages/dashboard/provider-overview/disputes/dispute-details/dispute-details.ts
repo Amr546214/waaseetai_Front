@@ -6,6 +6,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { Dispute } from '../disputes.model';
 import { mapDispute } from '../disputes.mapper';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 @Component({
 	selector: 'app-dispute-details',
@@ -18,6 +19,7 @@ export class DisputeDetails implements OnInit {
 	private route = inject(ActivatedRoute);
 	private authStore = inject(AuthStore);
 	private disputeApi = inject(DisputeApiService);
+	private notify = inject(UiNotificationService);
 
 	isLoading = signal<boolean>(true);
 	loadError = signal<boolean>(false);
@@ -31,10 +33,9 @@ export class DisputeDetails implements OnInit {
 
 	// Company mode: sends written guidance to the assigned team member. No
 	// backend "dispute guidance" endpoint exists yet — this just confirms via
-	// toast, matching the pattern used on the disputes list page.
+	// notification, matching the pattern used on the disputes list page.
 	guidanceOpen = signal<boolean>(false);
 	guidanceText = signal<string>('');
-	toastMsg = signal<string>('');
 
 	openGuidance() {
 		this.guidanceText.set('');
@@ -49,8 +50,7 @@ export class DisputeDetails implements OnInit {
 		const name = this.dispute()?.teamMember?.name;
 		this.closeGuidance();
 		if (!name) return;
-		this.toastMsg.set(`تم إرسال التوجيه لـ${name}`);
-		setTimeout(() => this.toastMsg.set(''), 3000);
+		this.notify.success(`تم إرسال التوجيه لـ${name}`);
 	}
 
 	statusLabel = computed(() => {

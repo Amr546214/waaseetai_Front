@@ -15,9 +15,10 @@ import { NewProjectService } from '../../../../../core/services/new-project.serv
 import { ProviderCoupon, ProviderSpecialOffer } from '../../../../../core/models/marketing.model';
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import {
-  COMPANY_APPROVAL_THRESHOLD, Flash, ProviderModelOption, couponNeedsApproval, describeOffer, formatNumber, httpErrorMessage,
+  COMPANY_APPROVAL_THRESHOLD, ProviderModelOption, couponNeedsApproval, describeOffer, formatNumber, httpErrorMessage,
   mapProviderModels, offerNeedsApproval, relativeTime,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 type ApprovalTab = 'pending' | 'approved' | 'rejected';
 
@@ -53,6 +54,7 @@ interface ApprovalItem {
 })
 export class MarketingApprovals implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private couponApi = inject(ProviderCouponService);
   private offerApi = inject(ProviderSpecialOfferService);
   private centerApi = inject(MarketingCenterService);
@@ -63,7 +65,6 @@ export class MarketingApprovals implements OnInit {
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
   readonly threshold = COMPANY_APPROVAL_THRESHOLD;
   readonly rel = relativeTime;
-  readonly flash = new Flash();
 
   coupons = signal<ProviderCoupon[]>([]);
   offers = signal<ProviderSpecialOffer[]>([]);
@@ -196,20 +197,20 @@ export class MarketingApprovals implements OnInit {
 
   decide(i: ApprovalItem, decision: 'APPROVED' | 'REJECTED'): void {
     if (decision === 'REJECTED' && !this.rejectReason.trim()) {
-      this.flash.show('يجب توضيح سبب الرفض', true);
+      this.notify.warning('يجب توضيح سبب الرفض');
       return;
     }
     const payload = { decision, rejectionReason: decision === 'REJECTED' ? this.rejectReason.trim() : null };
     this.busyKey.set(this.key(i));
     const onError = (err: unknown) => {
       this.busyKey.set(null);
-      this.flash.show(httpErrorMessage(err, 'تعذر تسجيل القرار'), true);
+      this.notify.error(httpErrorMessage(err, 'تعذر تسجيل القرار'));
     };
     const done = () => {
       this.busyKey.set(null);
       this.rejectingKey.set(null);
       this.centerApi.refreshPendingCount();
-      this.flash.show(decision === 'APPROVED' ? `تم اعتماد ${i.title}` : `تم رفض ${i.title}`);
+      this.notify.success(decision === 'APPROVED' ? `تم اعتماد ${i.title}` : `تم رفض ${i.title}`);
     };
     if (i.kind === 'COUPON') {
       this.couponApi.decideApproval(i.id, payload).subscribe({

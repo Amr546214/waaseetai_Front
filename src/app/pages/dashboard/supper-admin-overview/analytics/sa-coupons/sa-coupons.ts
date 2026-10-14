@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import {
   AdminCoupon, AdminCouponDetail, AdminCouponList, AdminCouponsService, AdminSpecialOffer, AdminPage
@@ -20,6 +21,7 @@ const errMsg = (e: any, fallback: string) => e?.error?.message || fallback;
 })
 export class SaCoupons {
   private api = inject(AdminCouponsService);
+  private notify = inject(UiNotificationService);
 
   readonly statusLabel = COUPON_STATUS_LABEL;
   readonly offerTypeLabel = OFFER_TYPE_LABEL;
@@ -51,7 +53,6 @@ export class SaCoupons {
   confirmReason = signal('');
   confirmBusy = signal(false);
   confirmError = signal('');
-  notice = signal('');
 
   // ---- special offers (read-only) ----
   offers = signal<AdminPage<AdminSpecialOffer> | null>(null);
@@ -135,7 +136,7 @@ export class SaCoupons {
       next: () => {
         this.confirmBusy.set(false);
         this.confirmTarget.set(null);
-        this.notice.set(next ? `تمت إعادة تفعيل الكوبون ${t.code}` : `تم إيقاف الكوبون ${t.code}`);
+        this.notify.success(next ? `تمت إعادة تفعيل الكوبون ${t.code}` : `تم إيقاف الكوبون ${t.code}`);
         this.load();
         if (this.detail()?.id === t.id) this.openDetail(t);
       },

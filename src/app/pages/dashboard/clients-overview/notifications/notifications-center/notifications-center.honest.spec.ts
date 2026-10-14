@@ -11,6 +11,7 @@ const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: v
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
 vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
 
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { NotificationsCenter } from './notifications-center';
 
 const raw = (o: any = {}) => ({ id: 'n1', title: 'عنوان', message: 'رسالة', type: 'GENERAL', category: 'ALL', isRead: false, createdAt: new Date().toISOString(), ...o });
@@ -88,7 +89,7 @@ describe('client notifications page: real data only, honest counters/CTA/AI', ()
 		const el2 = await mount([raw({ id: 'a' }), raw({ id: 'b' })], () => throwError(() => new Error('500')));
 		(el2.querySelector('[data-testid=mark-all-read]') as HTMLButtonElement).click(); fixture.detectChanges();
 		expect(c.unreadCount()).toBe(2);
-		expect(c.toastMessage()).toContain('تعذر');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => [t.kind, t.message])).toEqual([['error', 'تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى']]);
 	});
 
 	it('the mark-all button is disabled when nothing is unread', async () => {

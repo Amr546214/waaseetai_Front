@@ -8,8 +8,9 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { MarketingCenterService } from '../../../../../core/services/marketing-center.service';
 import { MarketingCenterData, MarketingKpi, MarketingToolSummary, MarketingTopTool } from '../../../../../core/models/marketing.model';
 import {
-  Flash, STATUS_LABELS, STATUS_PILL, avatarGradient, formatMoney, formatNumber, httpErrorMessage, initials, monthLabel, relativeTime,
+  STATUS_LABELS, STATUS_PILL, avatarGradient, formatMoney, formatNumber, httpErrorMessage, initials, monthLabel, relativeTime,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 /** P-PR-039 (individual) / P-CO-MK-005 (company) — مركز التسويق. */
 @Component({
@@ -21,6 +22,7 @@ import {
 })
 export class MarketingCenter implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private centerApi = inject(MarketingCenterService);
   private destroyRef = inject(DestroyRef);
 
@@ -33,7 +35,6 @@ export class MarketingCenter implements OnInit {
   readonly rel = relativeTime;
   readonly initials = initials;
   readonly avatarBg = avatarGradient;
-  readonly flash = new Flash();
 
   data = signal<MarketingCenterData | null>(null);
   loading = signal(true);
@@ -129,7 +130,7 @@ export class MarketingCenter implements OnInit {
   saveCap(remove = false): void {
     const cap = remove ? null : this.capInput;
     if (!remove && (cap === null || !(Number(cap) > 0) || Number(cap) > 100_000_000)) {
-      this.flash.show('أدخل سقفاً شهرياً صحيحاً أكبر من صفر', true);
+      this.notify.warning('أدخل سقفاً شهرياً صحيحاً أكبر من صفر');
       return;
     }
     this.savingCap.set(true);
@@ -137,12 +138,12 @@ export class MarketingCenter implements OnInit {
       next: () => {
         this.savingCap.set(false);
         this.editingCap.set(false);
-        this.flash.show(remove ? 'تمت إزالة السقف الشهري' : 'تم تحديث السقف الشهري');
+        this.notify.success(remove ? 'تمت إزالة السقف الشهري' : 'تم تحديث السقف الشهري');
         this.load();
       },
       error: err => {
         this.savingCap.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر تحديث السقف الشهري'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر تحديث السقف الشهري'));
       },
     });
   }

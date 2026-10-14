@@ -229,15 +229,6 @@
 
 .bk-md-actions { display: flex; justify-content: flex-end; margin-top: 18px; gap: 8px; flex-wrap: wrap; }
 
-.bk-toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 500; display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: linear-gradient(135deg, rgba(43,212,199,.14), rgba(43,127,255,.10)); border: 1px solid rgba(43,212,199,.30); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.4); backdrop-filter: blur(16px); }
-.bk-toast svg { width: 18px; height: 18px; color: #2BD4C7; flex-shrink: 0; }
-.bk-toast span { font-size: 14px; font-weight: 700; color: #fff; }
-
-:host-context(body.light-theme) .bk-toast span,
-:host-context(body.theme-light) .bk-toast span,
-:host-context(.light-theme) .bk-toast span,
-:host-context(.theme-light) .bk-toast span { color: #1E293B; }
-
 .bk-ai-panel { background: linear-gradient(135deg, rgba(123,47,190,.08), rgba(43,127,255,.04)); border: 1px solid rgba(123,47,190,.18); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
 .bk-ai-panel-hdr { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: #A56BE0; margin-bottom: 10px; }
 .bk-ai-panel-hdr svg { width: 14px; height: 14px; }

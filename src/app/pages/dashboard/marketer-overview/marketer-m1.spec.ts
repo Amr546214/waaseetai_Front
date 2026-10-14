@@ -7,6 +7,8 @@ import { MarketingBrokerOverview } from './marketing-broker-overview/marketing-b
 import { RefLinks } from './ref-links/ref-links';
 import { Commissions } from './commissions/commissions';
 import { MarketerOverviewService } from '../../../core/services/marketer-overview.service';
+import { UiNotificationService } from '../../../core/services/ui-notification.service';
+import { NotificationHostComponent } from '../../../shared/forms/notification-host.component';
 import { channelLabel, commissionTypeLabel, copyText } from '../../../core/utils/marketer-labels.util';
 
 const EMPTY_SUMMARY = { tier: 'مساعد', successfulReferrals: 0, totalCommissions: 0, overallConversionRate: 0, totalVisits: 0, totalReferrals: 0, pendingReferrals: 0, qualifiedReferrals: 0, pendingCommissions: 0, paidCommissions: 0 };
@@ -64,7 +66,8 @@ describe('Marketer dashboard (M1)', () => {
 });
 
 describe('Referral links (M1)', () => {
-	afterEach(() => { vi.restoreAllMocks(); TestBed.resetTestingModule(); });
+	afterEach(() => { TestBed.inject(UiNotificationService).clearAll(); vi.restoreAllMocks(); TestBed.resetTestingModule(); });
+	const notify = () => TestBed.inject(UiNotificationService);
 
 	it('copy really writes the link to the clipboard', async () => {
 		const writeText = vi.fn().mockResolvedValue(undefined);
@@ -72,14 +75,14 @@ describe('Referral links (M1)', () => {
 		const f = make(RefLinks, svc());
 		await (f.componentInstance as RefLinks).copyToClipboard('https://x/ref/abc');
 		expect(writeText).toHaveBeenCalledWith('https://x/ref/abc');
-		expect((f.componentInstance as RefLinks).toastMessage()).toContain('تم نسخ');
+		expect(notify().toasts().at(-1)).toMatchObject({ kind: 'success', message: expect.stringContaining('تم نسخ') });
 	});
 
 	it('copy failure is reported, not swallowed', async () => {
 		Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) }, configurable: true });
 		const f = make(RefLinks, svc());
 		await (f.componentInstance as RefLinks).copyToClipboard('https://x/ref/abc');
-		expect((f.componentInstance as RefLinks).toastMessage()).toContain('تعذر');
+		expect(notify().toasts().at(-1)).toMatchObject({ kind: 'error', message: expect.stringContaining('تعذر') });
 	});
 
 	it('share uses Web Share when available and falls back to copy otherwise', async () => {
@@ -110,7 +113,36 @@ describe('Referral links (M1)', () => {
 		const f2 = make(RefLinks, svc({ deleteCustomLink: () => throwError(() => new Error('x')) }));
 		(f2.componentInstance as RefLinks).removeCustomLink('c1');
 		expect((f2.componentInstance as RefLinks).data()!.customLinks.length).toBe(1);
-		expect((f2.componentInstance as RefLinks).toastMessage()).toContain('تعذر');
+		expect(notify().toasts().at(-1)).toMatchObject({ kind: 'error', message: expect.stringContaining('تعذر') });
+	});
+});
+
+describe('Referral links feedback flows through the central notification host', () => {
+	afterEach(() => { TestBed.inject(UiNotificationService).clearAll(); vi.restoreAllMocks(); TestBed.resetTestingModule(); });
+
+	it('copying a link renders the success message in <app-notification-host>, and the page has no toast of its own', async () => {
+		Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockResolvedValue(undefined) }, configurable: true });
+		const f = make(RefLinks, svc());
+		const host = TestBed.createComponent(NotificationHostComponent);
+		await (f.componentInstance as RefLinks).copyToClipboard('https://x/ref/abc');
+		f.detectChanges();
+		host.detectChanges();
+		const toasts = (host.nativeElement as HTMLElement).querySelectorAll('[data-testid="ui-toast"]');
+		expect(toasts.length).toBe(1);
+		expect(toasts[0].textContent).toContain('تم نسخ الرابط بنجاح');
+		expect(toasts[0].getAttribute('role')).toBe('status');
+		expect((f.nativeElement as HTMLElement).textContent).not.toContain('تم نسخ الرابط بنجاح');
+	});
+
+	it('a failed copy renders as an alert in the central host', async () => {
+		Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) }, configurable: true });
+		const f = make(RefLinks, svc());
+		const host = TestBed.createComponent(NotificationHostComponent);
+		await (f.componentInstance as RefLinks).copyToClipboard('https://x/ref/abc');
+		host.detectChanges();
+		const t = (host.nativeElement as HTMLElement).querySelector('[data-testid="ui-toast"]')!;
+		expect(t.getAttribute('role')).toBe('alert');
+		expect(t.textContent).toContain('تعذر النسخ');
 	});
 });
 

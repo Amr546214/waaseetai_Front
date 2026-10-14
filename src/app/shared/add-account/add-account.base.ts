@@ -5,7 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { SkillsCatalogService, SkillsCatalogCategory } from '../../core/services/skills-catalog.service';
 import { AccountService } from '../../core/services/account.service';
 import { AuthStore } from '../../core/store/auth.store';
-import { NotificationEngineService } from '../../core/services/notification-engine.service';
+import { UiNotificationService } from '../../core/services/ui-notification.service';
 import { UserRole } from '../../core/models/auth.model';
 import { applyServerFieldErrors, attemptSubmit, focusFirstInvalid, InvalidField } from '../../core/forms/form-helpers';
 import { mapHttpError } from '../../core/forms/http-error';
@@ -64,7 +64,7 @@ export abstract class AddAccountBase implements OnInit {
   private accountService = inject(AccountService);
   public authStore = inject(AuthStore);
   private router = inject(Router);
-  public notifEngine = inject(NotificationEngineService);
+  private notify = inject(UiNotificationService);
   private skillsCatalog = inject(SkillsCatalogService);
 
   UserRole = UserRole;
@@ -373,10 +373,7 @@ export abstract class AddAccountBase implements OnInit {
         if (!this.ownedRoles().includes(targetRole)) {
           this.ownedRoles.update(r => [...r, targetRole]);
         }
-        this.notifEngine.triggerToast({
-          title: 'تم تفعيل الحساب بنجاح',
-          message: `تم إضافة وتفعيل حساب ${this.getRoleLabel(targetRole)} لملفك الشخصي بنجاح.`
-        });
+        this.notify.success(`تم إضافة وتفعيل حساب ${this.getRoleLabel(targetRole)} لملفك الشخصي بنجاح.`, { title: 'تم تفعيل الحساب بنجاح' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       error: (err) => {
@@ -436,10 +433,7 @@ export abstract class AddAccountBase implements OnInit {
 
     this.accountService.switchActiveRole(roleToSwitch).subscribe({
       next: () => {
-        this.notifEngine.triggerToast({
-          title: 'تم تبديل اللوحة بنجاح',
-          message: `تم التبديل إلى لوحة ${this.getRoleLabel(roleToSwitch)} بنجاح.`
-        });
+        this.notify.success(`تم التبديل إلى لوحة ${this.getRoleLabel(roleToSwitch)} بنجاح.`, { title: 'تم تبديل اللوحة بنجاح' });
         
         let targetUrl = '/client-overview';
         if (roleToSwitch === UserRole.PROVIDER) {

@@ -11,8 +11,6 @@
 .fd-btn-primary{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#fff}
 .fd-btn-sm{height:28px;font-size:11px}
 
-.fd-toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(15,169,154,.95);color:#fff;padding:10px 20px;border-radius:10px;font-size:12.5px;font-weight:700;z-index:500;box-shadow:0 10px 30px rgba(0,0,0,.3)}
-
 .fd-notice{background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.2);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:#FFB400;line-height:1.6}
 
 .fd-ai-disc{display:flex;align-items:center;gap:12px;padding:13px 16px;background:linear-gradient(135deg,rgba(123,47,190,.09),rgba(43,127,255,.06));border:1px solid rgba(123,47,190,.22);border-radius:14px;margin-bottom:18px}
@@ -226,13 +224,6 @@
 :host-context(.light-theme) .fd-foot,
 :host-context(.theme-light) .fd-foot {
   border-top-color:#E7EAF1!important;color:#64748B!important
-}
-
-:host-context(body.light-theme) .fd-toast,
-:host-context(body.theme-light) .fd-toast,
-:host-context(.light-theme) .fd-toast,
-:host-context(.theme-light) .fd-toast {
-  box-shadow:0 10px 30px rgba(15,23,42,.15)!important
 }
 .fd-btn:disabled{opacity:.5;cursor:not-allowed}
 .fd-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}

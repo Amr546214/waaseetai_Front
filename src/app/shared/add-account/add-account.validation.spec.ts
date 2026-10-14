@@ -6,7 +6,6 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { AccountService } from '../../core/services/account.service';
 import { AuthStore } from '../../core/store/auth.store';
-import { NotificationEngineService } from '../../core/services/notification-engine.service';
 import { AddAccount as ClientAddAccount } from '../../pages/dashboard/clients-overview/profile/add-account/add-account';
 import { AddAccount as ProviderAddAccount } from '../../pages/dashboard/provider-overview/profile/add-account/add-account';
 import { AddAccount as MarketerAddAccount } from '../../pages/dashboard/marketer-overview/profile/add-account/add-account';
@@ -31,7 +30,6 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
           provideRouter([]),
           { provide: AccountService, useValue: { getAvailableAccountTypes: getTypes, addAccountType: add, switchActiveRole: vi.fn() } },
           { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT', roles: ['CLIENT'] }) } },
-          { provide: NotificationEngineService, useValue: { triggerToast: vi.fn() } },
         ],
       });
       fixture = TestBed.createComponent(Cmp) as ComponentFixture<AddAccountBase>;

@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NotificationEngineService, AppNotification } from '../../../../core/services/notification-engine.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 
 export type { AppNotification };
 
@@ -141,6 +142,7 @@ export class Notifications implements OnInit {
 	private notificationEngine = inject(NotificationEngineService);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
+	private notify = inject(UiNotificationService);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -230,7 +232,6 @@ export class Notifications implements OnInit {
 	activeFilter = signal<string>('all');
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
-	toastMessage = signal<string | null>(null);
 	markingAll = signal<boolean>(false);
 
 	filters = [
@@ -353,12 +354,12 @@ export class Notifications implements OnInit {
 				this.markingAll.set(false);
 				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false })));
 				this.notificationEngine.unreadCount.set(0);
-				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+				this.notify.success('تم تعليم كل الإشعارات كمقروءة');
 			},
 			error: () => {
 				// Never fake it: the server did not record it, so the list and the counters stay as they are.
 				this.markingAll.set(false);
-				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
+				this.notify.error('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
 			}
 		});
 	}
@@ -385,12 +386,5 @@ export class Notifications implements OnInit {
 
 	retry() {
 		this.loadNotifications();
-	}
-
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		setTimeout(() => {
-			this.toastMessage.set(null);
-		}, 3000);
 	}
 }

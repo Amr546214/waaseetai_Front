@@ -3,6 +3,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SaModificationRequests } from './sa-modification-requests';
 import { SaModificationRequestsService } from './sa-modification-requests.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 
 // Admin queue for profile modification requests: marketers (ProfileChangeRequest) + providers/clients (ProfileModificationRequest), with history.
 const aff = (over: any = {}) => ({
@@ -71,7 +72,7 @@ describe('admin modification requests: all roles + history', () => {
 		const { c } = await mount({ profile: of({ success: true, data: [prof()] }) });
 		svc.reviewProfileRequest.mockReturnValueOnce(throwError(() => ({ error: { message: 'REQUEST_NOT_PENDING_REVIEW' } })));
 		c.approve(c.requests()[0]);
-		expect(c.toast()).toBe('REQUEST_NOT_PENDING_REVIEW');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => ({ kind: t.kind, message: t.message }))).toContainEqual({ kind: 'error', message: 'REQUEST_NOT_PENDING_REVIEW' });
 	});
 
 	it('one source failing still shows the other, with a visible incomplete-list warning', async () => {

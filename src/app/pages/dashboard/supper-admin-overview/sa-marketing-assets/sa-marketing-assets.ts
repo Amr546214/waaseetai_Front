@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { ConfirmModalService } from '../../../../core/services/confirm-modal.service';
 import { MarketingAsset, MarketingAssetKind, SaMarketingAssetsService } from './sa-marketing-assets.service';
 
@@ -24,6 +25,7 @@ export const MAX_ASSET_BYTES = 25 * 1024 * 1024;
 export class SaMarketingAssets implements OnInit {
 	private api = inject(SaMarketingAssetsService);
 	private confirmModal = inject(ConfirmModalService);
+	private notify = inject(UiNotificationService);
 
 	readonly kindLabels = KIND_LABELS;
 	readonly kinds = Object.keys(KIND_LABELS) as MarketingAssetKind[];
@@ -46,8 +48,6 @@ export class SaMarketingAssets implements OnInit {
 	readonly saving = signal(false);
 	readonly formError = signal('');
 	readonly busyId = signal('');
-	readonly notice = signal('');
-	readonly noticeIsError = signal(false);
 
 	title = '';
 	description = '';
@@ -112,7 +112,7 @@ export class SaMarketingAssets implements OnInit {
 		this.saving.set(true);
 		this.formError.set('');
 		this.api.create(fd).subscribe({
-			next: () => { this.saving.set(false); this.showForm.set(false); this.flash('تمت إضافة المادة.', false); this.load(); },
+			next: () => { this.saving.set(false); this.showForm.set(false); this.notify.success('تمت إضافة المادة.'); this.load(); },
 			error: (e) => { this.saving.set(false); this.formError.set(this.err(e, 'تعذر إضافة المادة.')); },
 		});
 	}
@@ -129,13 +129,8 @@ export class SaMarketingAssets implements OnInit {
 		if (!ok) return;
 		this.busyId.set(a.id);
 		this.api.setActive(a.id, enabling).subscribe({
-			next: (r) => { this.items.update((l) => l.map((x) => (x.id === a.id ? r.data : x))); this.busyId.set(''); this.flash(enabling ? 'تم تفعيل المادة.' : 'تم تعطيل المادة.', false); },
-			error: (e) => { this.busyId.set(''); this.flash(this.err(e, 'تعذر تحديث المادة.'), true); },
+			next: (r) => { this.items.update((l) => l.map((x) => (x.id === a.id ? r.data : x))); this.busyId.set(''); this.notify.success(enabling ? 'تم تفعيل المادة.' : 'تم تعطيل المادة.'); },
+			error: (e) => { this.busyId.set(''); this.notify.error(this.err(e, 'تعذر تحديث المادة.')); },
 		});
-	}
-
-	private flash(msg: string, isError: boolean): void {
-		this.notice.set(msg); this.noticeIsError.set(isError);
-		setTimeout(() => this.notice.set(''), 3500);
 	}
 }

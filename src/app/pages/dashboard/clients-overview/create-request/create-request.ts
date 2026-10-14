@@ -6,6 +6,7 @@ import { NavigationSkipped, NavigationSkippedCode, Router, RouterLink } from '@a
 import type { Subscription } from 'rxjs';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
 import { SkillsCatalogService } from '../../../../core/services/skills-catalog.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SpecialtyService } from '../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
@@ -138,6 +139,7 @@ interface CreateRequestDraftV1 {
 })
 export class CreateRequest implements OnInit, OnDestroy {
   private socket?: Socket;
+  private notify = inject(UiNotificationService);
   private specialtyService = inject(SpecialtyService);
   private skillsCatalog = inject(SkillsCatalogService);
   private platformId = inject(PLATFORM_ID);
@@ -204,7 +206,6 @@ export class CreateRequest implements OnInit, OnDestroy {
 
   // Multi-step State
   currentStep = signal(1);
-  toast = signal<{ msg: string, type: string } | null>(null);
 
   steps = [
     { num: 1, label: 'التخصص' },
@@ -679,7 +680,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       subs.delete(sub);
     } else {
       if (subs.size >= this.MAX_SUBS) {
-        this.showToast('الحد الأقصى 5 تخصصات فرعية', 'toast-warn');
+        this.notify.warning('الحد الأقصى 5 تخصصات فرعية');
         return;
       }
       subs.add(sub);
@@ -751,13 +752,13 @@ export class CreateRequest implements OnInit, OnDestroy {
   useAiSuggest() {
     const text = this.aiStreamText().trim();
     if (!text) {
-      this.showToast('⚠️ لا يوجد نص مقترح لتطبيقه حالياً', 'toast-warn');
+      this.notify.warning('لا يوجد نص مقترح لتطبيقه حالياً');
       return;
     }
     this.setDescription(text); // the reply is used as WaseetAI wrote it, cut to the 2000 limit
     this.showAiSuggest.set(false);
     this.isAiStreaming.set(false);
-    this.showToast('تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!', 'toast-ok');
+    this.notify.success('تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!');
   }
 
   dismissAiSuggest() {
@@ -778,7 +779,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     const projTitle = this.title().trim();
     if (!this.canRefineWithAi()) {
       // No AI call, no socket, nothing written into the form.
-      this.showToast(REWRITE_INPUT_REQUIRED_MESSAGE, 'toast-warn');
+      this.notify.warning(REWRITE_INPUT_REQUIRED_MESSAGE);
       return;
     }
 
@@ -814,7 +815,7 @@ export class CreateRequest implements OnInit, OnDestroy {
 
     this.socket.on('ai:description_validation_passed', (data: { message?: string }) => {
       this.aiPhase.set('generating');
-      if (data?.message) this.showToast(data.message, 'toast-ok');
+      if (data?.message) this.notify.success(data.message);
     });
 
     this.socket.on('ai:description_start', (data: any) => {
@@ -839,11 +840,11 @@ export class CreateRequest implements OnInit, OnDestroy {
         // An empty reply: nothing to show, the client's text stays.
         this.aiStreamText.set('');
         this.showAiSuggest.set(false);
-        this.showToast('لم تُرجع خدمة الصياغة نصًا، فبقي وصفك كما كتبته. حاول مرة أخرى.', 'toast-warn');
+        this.notify.warning('لم تُرجع خدمة الصياغة نصًا، فبقي وصفك كما كتبته. حاول مرة أخرى.');
         return;
       }
       this.aiStreamText.set(checked.text); // never longer than the description limit
-      this.showToast(data?.message || 'اكتملت إعادة الصياغة، راجعها قبل اعتمادها', 'toast-ok');
+      this.notify.success(data?.message || 'اكتملت إعادة الصياغة، راجعها قبل اعتمادها');
     });
 
     this.socket.on('ai:description_error', (data: { message?: string }) => {
@@ -851,7 +852,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.aiPhase.set('idle');
       this.showAiSuggest.set(false);
       this.aiStreamText.set('');
-      this.showToast(data?.message || 'تعذر الاتصال بخدمة الذكاء الاصطناعي حالياً. حاول مرة أخرى لاحقاً.', 'toast-warn');
+      this.notify.error(data?.message || 'تعذر الاتصال بخدمة الذكاء الاصطناعي حالياً. حاول مرة أخرى لاحقاً.');
     });
 
     this.socket.emit('ai:generate_description', {
@@ -996,7 +997,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       const newFiles = Array.from(input.files);
       const invalid = newFiles.find(file => file.size > 10 * 1024 * 1024);
       if (invalid) {
-        this.showToast(`الملف "${invalid.name}" يتجاوز الحد الأقصى 10MB`, 'toast-warn');
+        this.notify.warning(`الملف "${invalid.name}" يتجاوز الحد الأقصى 10MB`);
       }
       const validFiles = newFiles.filter(file => file.size <= 10 * 1024 * 1024);
       this.files.update(f => [...f, ...validFiles].slice(0, 5));
@@ -1009,7 +1010,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     if (!this.requirements().includes(requirement)) {
       this.requirements.update(r => [...r, requirement]);
     }
-    this.showToast(`تمت إضافة "${name}" إلى قائمة الشروط الإضافية`, 'toast-ok');
+    this.notify.success(`تمت إضافة "${name}" إلى قائمة الشروط الإضافية`);
   }
 
   // ==============================
@@ -1103,7 +1104,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       } catch (uploadErr) {
         console.error('File upload failed:', uploadErr);
         this.isSubmitting.set(false);
-        this.showToast('تعذر رفع الملفات. تحقق من الاتصال وحاول مرة أخرى.', 'toast-warn');
+        this.notify.error('تعذر رفع الملفات. تحقق من الاتصال وحاول مرة أخرى.');
         return;
       }
     }
@@ -1164,16 +1165,9 @@ export class CreateRequest implements OnInit, OnDestroy {
         console.error('Project creation failed:', err);
         const errMsg = err.error?.message || 'حدث خطأ أثناء رفع الطلب، يرجى المحاولة مرة أخرى';
         if (err?.status === 400 && /مهار|skill/i.test(errMsg)) { this.skillsServerError.set(errMsg); this.currentStep.set(3); }
-        this.showToast(errMsg, 'toast-warn');
+        this.notify.error(errMsg);
       }
     });
-  }
-
-  showToast(msg: string, type: 'toast-ok' | 'toast-warn') {
-    this.toast.set({ msg, type });
-    setTimeout(() => {
-      this.toast.set(null);
-    }, 3500);
   }
 
   ngOnDestroy() {

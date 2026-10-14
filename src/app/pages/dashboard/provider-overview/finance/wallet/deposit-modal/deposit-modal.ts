@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
  * this component does not perform any HTTP call — it only collects an
  * amount, shows a summary matching the design (P-CO-FN-003), and emits a
  * `confirmed` event the host page can react to (e.g. show an "unavailable"
- * toast).
+ * notification).
  *
  * Payment policy: PayPal (USD) is the only deposit rail, and this dialog has no provider deposit endpoint
  * behind it, so the PayPal method is shown disabled and the confirm button is disabled until a real PayPal

@@ -11,9 +11,10 @@ import { NewProjectService } from '../../../../../core/services/new-project.serv
 import { ProviderSpecialOffer } from '../../../../../core/models/marketing.model';
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import {
-  Flash, ProviderModelOption, STATUS_LABELS, STATUS_PILL, ToolDisplayStatus, avatarGradient, describeOffer, formatNumber, httpErrorMessage, initials,
+  ProviderModelOption, STATUS_LABELS, STATUS_PILL, ToolDisplayStatus, avatarGradient, describeOffer, formatNumber, httpErrorMessage, initials,
   isToggleable, mapProviderModels, offerStatus, validityLabel,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 export interface OfferRow {
   offer: ProviderSpecialOffer;
@@ -33,6 +34,7 @@ export interface OfferRow {
 })
 export class MarketingOffers implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private offerApi = inject(ProviderSpecialOfferService);
   private teamApi = inject(CompanyTeamService);
   private modelsApi = inject(NewProjectService);
@@ -47,7 +49,6 @@ export class MarketingOffers implements OnInit {
   readonly avatarBg = avatarGradient;
   readonly validity = validityLabel;
   readonly toggleable = isToggleable;
-  readonly flash = new Flash();
 
   offers = signal<ProviderSpecialOffer[]>([]);
   models = signal<ProviderModelOption[]>([]);
@@ -141,12 +142,12 @@ export class MarketingOffers implements OnInit {
       next: res => {
         this.offers.update(list => list.map(x => (x.id === o.id ? res.data : x)));
         done();
-        this.flash.show(res.data.active ? `تم تفعيل «${o.name}»` : `تم إيقاف «${o.name}»`);
+        this.notify.success(res.data.active ? `تم تفعيل «${o.name}»` : `تم إيقاف «${o.name}»`);
       },
       error: err => {
         input.checked = !next;
         done();
-        this.flash.show(httpErrorMessage(err, 'تعذر تحديث حالة العرض'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر تحديث حالة العرض'));
       },
     });
   }

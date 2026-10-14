@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import {
   FilterKey, SpecialtyDecision, SpecialtyReviewCounts, SpecialtyReviewItem, STATUS_CLASS, STATUS_TEXT, initialOf,
 } from './sa-specialties-accreditation.data';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaSpecialtyReviewService } from './sa-specialty-review.service';
 import { SaSpecialtyDecisionModal } from './sa-specialty-decision-modal';
 
@@ -16,8 +17,8 @@ import { SaSpecialtyDecisionModal } from './sa-specialty-decision-modal';
 })
 export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
   private api = inject(SaSpecialtyReviewService);
+  private notify = inject(UiNotificationService);
 
-  toast = signal('');
   activeFilter = signal<FilterKey>('pending');
   searchTerm = signal('');
   page = signal(1);
@@ -50,7 +51,6 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
   readonly bulkDisabledReason = 'الاعتماد قرار إداري فردي ويتطلب سببًا مكتوبًا لكل طلب';
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit() {
     this.load();
@@ -58,7 +58,6 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.searchTimer) clearTimeout(this.searchTimer);
-    if (this.toastTimer) clearTimeout(this.toastTimer);
   }
 
   load() {
@@ -139,7 +138,7 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
       next: () => {
         this.deciding.set(false);
         this.decisionTarget.set(null);
-        this.showToast(t.decision === 'APPROVED' ? 'تم قبول التخصص وإشعار مقدم الخدمة' : 'تم رفض التخصص وإشعار مقدم الخدمة بالسبب');
+        this.notify.success(t.decision === 'APPROVED' ? 'تم قبول التخصص وإشعار مقدم الخدمة' : 'تم رفض التخصص وإشعار مقدم الخدمة بالسبب');
         this.load();
       },
       error: (err) => {
@@ -156,11 +155,5 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return '—';
     return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
-  }
-
-  showToast(msg: string) {
-    this.toast.set(msg);
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.toast.set(''), 3000);
   }
 }

@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { Withdraw } from './withdraw';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { MarketerOverviewService } from '../../../../core/services/marketer-overview.service';
 
 // Withdraw page: PayPal is the only destination. No PayPal email saved = a clear message, never a bank / IBAN field.
@@ -49,7 +50,6 @@ describe('marketer withdraw: PayPal only', () => {
     await setup({ paypalPayoutEmail: null });
     c.withdrawForm.patchValue({ amount: 400 });
     c.submitWithdrawal();
-    expect(c.toastMessage()?.text).toBe('أضف بريد PayPal لاستلام الأرباح');
-    expect(c.toastMessage()?.type).toBe('error');
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: 'أضف بريد PayPal لاستلام الأرباح' });
   });
 });

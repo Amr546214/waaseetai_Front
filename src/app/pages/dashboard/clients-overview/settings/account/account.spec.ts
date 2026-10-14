@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { describe, it, expect, vi } from 'vitest';
 import { Account } from './account';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 
 // The client account page: language / timezone are really saved on the client profile (PUT /profiles/update) and read back (GET /profiles/me);
@@ -55,7 +56,7 @@ describe('client account page', () => {
 		s.c.savePreferences();
 		expect(s.c.saveError()).toBeTruthy();
 		expect(s.c.isDirty()).toBe(true);
-		expect(s.c.toastMessage()).toBeNull();
+		expect(TestBed.inject(UiNotificationService).toasts()).toEqual([]);
 		TestBed.resetTestingModule();
 		const u = setup({ update: throwError(() => new HttpErrorResponse({ status: 401 })) });
 		u.c.timezone.set('(GMT+0) UTC');
@@ -116,7 +117,7 @@ describe('client account page', () => {
 		s.c.manageDevices();
 		s.c.endSession('b');
 		expect(s.c.sessions().length).toBe(1);
-		expect(s.c.toastMessage()).toBe('تعذر إنهاء الجلسة');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => [t.kind, t.message])).toEqual([['error', 'تعذر إنهاء الجلسة']]);
 	});
 
 	it('data copy and account deletion open the real support-ticket form (no fake success)', () => {

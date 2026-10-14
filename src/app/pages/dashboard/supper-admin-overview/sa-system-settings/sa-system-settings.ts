@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { ConfirmModalService } from '../../../../core/services/confirm-modal.service';
 import { environment } from '../../../../../environments/environment';
 import { PlatformSettings, SaSystemSettingsService, SettingsHistoryRow } from './sa-system-settings.service';
@@ -35,6 +36,7 @@ export const NOT_WIRED_REASON = 'غير مفعّل حالياً: هذا الخي
 export class SaSystemSettings implements OnInit {
   private api = inject(SaSystemSettingsService);
   private confirmModal = inject(ConfirmModalService);
+  private notify = inject(UiNotificationService);
 
   readonly notWiredReason = NOT_WIRED_REASON;
   readonly appVersion = environment.appVersion;
@@ -99,9 +101,6 @@ export class SaSystemSettings implements OnInit {
     { name: 'خدمة البريد الإلكتروني', value: 'غير متاح: لا يوجد مصدر مراقبة مرتبط', color: '#6B7699' },
     { name: 'النسخ الاحتياطي', value: 'غير متاح: لا يوجد مصدر مراقبة مرتبط', color: '#6B7699' },
   ];
-
-  readonly savedToast = signal(false);
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.loadSettings();
@@ -169,16 +168,10 @@ export class SaSystemSettings implements OnInit {
         this.saved.set(r.data);
         this.form.set({ ...r.data });
         this.saving.set(false);
-        this.showToast();
+        this.notify.success('تم حفظ الإعدادات');
         this.loadHistory();
       },
       error: (e) => { this.saving.set(false); this.error.set(this.errMsg(e, 'تعذر حفظ الإعدادات.')); },
     });
-  }
-
-  private showToast() {
-    this.savedToast.set(true);
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.savedToast.set(false), 2500);
   }
 }

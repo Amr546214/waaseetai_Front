@@ -97,9 +97,6 @@ button{font-family:inherit}
 .pill-teal{background:rgba(43,212,199,.10);color:#2BD4C7;border:1px solid rgba(43,212,199,.22)}
 .pill-gold{background:rgba(255,180,0,.12);color:#FFB400;border:1px solid rgba(255,180,0,.28)}
 
-.lv-toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500;display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px);animation:ws-fade .3s ease both}
-.lv-toast svg{width:18px;height:18px;color:#2BD4C7;flex-shrink:0}
-.lv-toast span{font-size:14px;font-weight:700;color:#fff}
 
 @media(max-width:900px){.lv-wrap{grid-template-columns:1fr}}
 @media(max-width:767px){.lv-hd-sub{display:none}.lv-escalate span{display:none}.lv-row{max-width:90%}}

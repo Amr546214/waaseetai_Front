@@ -4,6 +4,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { environment } from '../../../../../../environments/environment';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ClientFinanceService } from '../../../../../core/services/client-finance.service';
 
 /** What the page can show: only 'ready' may offer the sign/pay action; 'readonly' shows the contract's terms of an already signed / running contract. */
@@ -22,6 +23,7 @@ export class ContractSignature implements OnInit {
 	private router = inject(Router);
 	private http = inject(HttpClient);
 	private clientFinanceService = inject(ClientFinanceService);
+	private notify = inject(UiNotificationService);
 	public themeService = inject(ThemeService);
 
 	requestId = signal<string>('');
@@ -42,10 +44,6 @@ export class ContractSignature implements OnInit {
 	milestones = signal<{ order: number; title: string; description: string; percentage: number; amount: number; days: number }[]>([]);
 	/** True when the frozen contract has no stages: one final delivery for the whole price. */
 	singleDelivery = signal(false);
-
-	// Toast state
-	showToastSignal = signal<boolean>(false);
-	toastMessage = signal<string>('');
 
 	ngOnInit() {
 		const id = this.route.snapshot.paramMap.get('id');
@@ -112,14 +110,6 @@ export class ContractSignature implements OnInit {
 		this.router.navigate(['/client-overview/my-requests', this.requestId()]);
 	}
 
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		this.showToastSignal.set(true);
-		setTimeout(() => {
-			this.showToastSignal.set(false);
-		}, 3000);
-	}
-
 	toggleAck(event: Event) {
 		this.acknowledged.set((event.target as HTMLInputElement).checked);
 	}
@@ -128,7 +118,7 @@ export class ContractSignature implements OnInit {
 		event.preventDefault();
 		if (this.view() !== 'ready') return;
 		if (!this.acknowledged()) {
-			this.showToast('يجب الموافقة على بنود العقد أولا');
+			this.notify.warning('يجب الموافقة على بنود العقد أولا');
 			return;
 		}
 
@@ -141,7 +131,7 @@ export class ContractSignature implements OnInit {
 				const balance = Number(response.data?.summary?.availableBalance || 0);
 				const shortfall = Math.max(0, Math.round((this.requiredAmount() - balance) * 100) / 100);
 				if (shortfall > 0) {
-					this.showToast(`رصيد المحفظة غير كافٍ. يلزم شحن ${shortfall.toLocaleString('en-US')} $.`);
+					this.notify.warning(`رصيد المحفظة غير كافٍ. يلزم شحن ${shortfall.toLocaleString('en-US')} $.`);
 				}
 				this.router.navigate(['/client-overview/my-requests', this.requestId(), 'deposit'], {
 					queryParams: { offerId: this.offerId() }
@@ -149,7 +139,7 @@ export class ContractSignature implements OnInit {
 			},
 			error: () => {
 				this.isCheckingBalance.set(false);
-				this.showToast('تعذر التحقق من رصيد المحفظة. حاول مرة أخرى.');
+				this.notify.error('تعذر التحقق من رصيد المحفظة. حاول مرة أخرى.');
 			}
 		});
 	}

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { TicketApiService, SupportTicket, SupportTicketMessage, TicketStatus } from '../../../../../core/services/ticket-api.service';
 
 interface TimelineStep { label: string; state: 'done' | 'active' | 'idle'; }
@@ -67,6 +68,7 @@ export class TicketDetailComponent implements OnInit {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private ticketApi = inject(TicketApiService);
+	private notify = inject(UiNotificationService);
 
 	isCompanyMode = computed(() => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY);
 
@@ -75,7 +77,6 @@ export class TicketDetailComponent implements OnInit {
 	hasError = signal<boolean>(false);
 	errorMessage = signal<string>('تعذّر تحميل التذكرة');
 	replyText = signal<string>('');
-	toast = signal<string | null>(null);
 	sending = signal<boolean>(false);
 	closing = signal<boolean>(false);
 
@@ -150,15 +151,15 @@ export class TicketDetailComponent implements OnInit {
 				this.sending.set(false);
 				if (res.success) {
 					this.replyText.set('');
-					this.showToast('تم إرسال ردّك');
+					this.notify.success('تم إرسال ردّك');
 					this.loadTicket(this.ticketId());
 				} else {
-					this.showToast(res.message || 'تعذر إرسال الرد');
+					this.notify.error(res.message || 'تعذر إرسال الرد');
 				}
 			},
 			error: (err) => {
 				this.sending.set(false);
-				this.showToast(err?.error?.message || 'تعذر إرسال الرد، حاول مرة أخرى');
+				this.notify.error(err?.error?.message || 'تعذر إرسال الرد، حاول مرة أخرى');
 			}
 		});
 	}
@@ -170,22 +171,17 @@ export class TicketDetailComponent implements OnInit {
 			next: (res) => {
 				this.closing.set(false);
 				if (res.success) {
-					this.showToast('أُغلقت التذكرة');
+					this.notify.success('أُغلقت التذكرة');
 					this.loadTicket(this.ticketId());
 				} else {
-					this.showToast(res.message || 'تعذر إغلاق التذكرة');
+					this.notify.error(res.message || 'تعذر إغلاق التذكرة');
 				}
 			},
 			error: (err) => {
 				this.closing.set(false);
-				this.showToast(err?.error?.message || 'تعذر إغلاق التذكرة، حاول مرة أخرى');
+				this.notify.error(err?.error?.message || 'تعذر إغلاق التذكرة، حاول مرة أخرى');
 			}
 		});
-	}
-
-	showToast(msg: string) {
-		this.toast.set(msg);
-		setTimeout(() => this.toast.set(null), 3000);
 	}
 
 	goBack() { this.router.navigate(['/client-overview/help/tickets']); }
