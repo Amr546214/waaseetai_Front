@@ -10,7 +10,7 @@
     <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">وسيط — الطلبات</div>
-      <p class="ws-note-txt">تُعرض جميع الطلبات لمراجعتها يدوياً</p>
+      <p class="ws-note-txt">عرض للقراءة فقط: تُعرض جميع الطلبات لمراجعتها يدوياً</p>
     </div>
   </div>
 
@@ -28,8 +28,8 @@
       <div class="rq-kpi-val txt-green">{{ stats().completed }}</div>
     </div>
     <div class="rq-kpi">
-      <span class="rq-kpi-lbl">بحاجة مراجعة</span>
-      <div class="rq-kpi-val txt-coral">{{ stats().needsReview }}</div>
+      <span class="rq-kpi-lbl">عليها نزاع</span>
+      <div class="rq-kpi-val txt-coral">{{ stats().disputed }}</div>
     </div>
   </div>
 
@@ -46,7 +46,14 @@
     <input type="search" placeholder="ابحث بعنوان الطلب أو اسم صاحبه..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
   </div>
 
-  @if (filtered().length === 0) {
+  @if (loading()) {
+    <div class="rq-empty"><p>جارٍ تحميل الطلبات...</p></div>
+  } @else if (error()) {
+    <div class="rq-empty">
+      <p>{{ error() }}</p>
+      <button type="button" class="rq-btn rq-btn-ghost" (click)="load()">إعادة المحاولة</button>
+    </div>
+  } @else if (items().length === 0) {
     <div class="rq-empty"><p>لا توجد طلبات مطابقة</p></div>
   } @else {
     <div class="rq-tbl-card">
@@ -54,29 +61,39 @@
         <table class="rq-tbl">
           <thead>
             <tr>
-              <th>#</th><th>عنوان الطلب</th><th>الطالب</th><th>التخصص</th><th>الميزانية</th><th>العروض</th><th>الحالة</th>
+              <th>#</th><th>عنوان الطلب</th><th>الطالب</th><th>التخصص</th><th>الميزانية</th><th>العروض</th><th>الحالة</th><th>التاريخ</th>
             </tr>
           </thead>
           <tbody>
-            @for (r of filtered(); track r.id) {
+            @for (r of items(); track r.id) {
               <tr [routerLink]="[r.id]">
-                <td class="rq-muted">{{ r.id }}</td>
+                <td class="rq-muted" [title]="r.id">{{ r.id.slice(0, 8) }}</td>
                 <td><span class="rq-title-lnk">{{ r.title }}</span></td>
                 <td>
-                  <div class="rq-u-cell">
-                    <div class="rq-u-av" [style.background]="r.clientBg">{{ r.clientAv }}</div>
-                    <span>{{ r.client }}</span>
-                  </div>
+                  @if (r.client) {
+                    <div class="rq-u-cell"><span>{{ r.client.name }}</span></div>
+                  } @else { <span class="rq-muted">—</span> }
                 </td>
-                <td><span class="rq-spec">{{ r.spec }}</span></td>
-                <td class="rq-budget">{{ r.budget }}</td>
-                <td class="rq-offers-count">{{ r.offers }}</td>
-                <td><span class="rq-status" [ngClass]="statusClasses[r.status]">{{ statusLabels[r.status] }}</span></td>
+                <td>@if (r.specialty) { <span class="rq-spec">{{ r.specialty }}</span> } @else { <span class="rq-muted">—</span> }</td>
+                <td class="rq-budget">{{ budget(r) }}</td>
+                <td class="rq-offers-count">{{ r.offersCount }}</td>
+                <td>
+                  <span class="rq-status" [ngClass]="statusClasses[r.status]">{{ statusLabels[r.status] || r.status }}</span>
+                  @if (r.contractStatus) { <div class="rq-muted rq-sub-st">عقد: {{ contractLabels[r.contractStatus] || r.contractStatus }}</div> }
+                </td>
+                <td class="rq-muted">{{ r.createdAt | date: 'yyyy-MM-dd' }}</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
     </div>
+    @if (pagination().totalPages > 1) {
+      <div class="rq-pager">
+        <button type="button" class="rq-btn rq-btn-ghost" [disabled]="page() <= 1" (click)="goPage(page() - 1)">السابق</button>
+        <span>صفحة {{ pagination().page }} من {{ pagination().totalPages }} · {{ pagination().total }} طلب</span>
+        <button type="button" class="rq-btn rq-btn-ghost" [disabled]="page() >= pagination().totalPages" (click)="goPage(page() + 1)">التالي</button>
+      </div>
+    }
   }
 </section>

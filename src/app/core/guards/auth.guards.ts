@@ -125,11 +125,12 @@ export const verificationGuard: CanActivateFn = () => {
  * accountType-only chains.
  */
 export const getDefaultDashboard = (accountType?: AccountType, activeRole?: UserRole): string => {
-  if (activeRole === UserRole.SUPER_ADMIN) return '/supper-admin-overview';
+  if (activeRole === UserRole.SUPER_ADMIN || activeRole === UserRole.ADMIN) return '/supper-admin-overview';
   if (activeRole === UserRole.PROVIDER) return '/provider-overview';
   if (activeRole === UserRole.AFFILIATE) return '/marketer-overview';
   if (activeRole === UserRole.CLIENT) return '/client-overview';
 
+  if (String(accountType) === 'ADMIN') return '/supper-admin-overview';
   switch (accountType) {
     case AccountType.SUPER_ADMIN:
       return '/supper-admin-overview';
@@ -259,7 +260,18 @@ export const marketerGuard: CanActivateFn = (route, state) => {
 };
 
 /**
- * Protects Super Admin routes - only Super Admin users allowed
+ * An admin account: the account type is ADMIN / SUPER_ADMIN (the account type decides, because a real super admin keeps CLIENT as its default active
+ * role), or the user is acting as ADMIN / SUPER_ADMIN. A client / provider / marketer acting role never opens the admin area.
+ * (ADMIN is not part of the FE AccountType enum, hence the string comparison.)
+ */
+export function isAdminUser(user: { accountType?: AccountType | string; activeRole?: UserRole } | null | undefined): boolean {
+  if (!user) return false;
+  const type = String(user.accountType ?? '');
+  return type === AccountType.SUPER_ADMIN || type === 'ADMIN' || user.activeRole === UserRole.ADMIN || user.activeRole === UserRole.SUPER_ADMIN;
+}
+
+/**
+ * Protects Super Admin routes - only admin accounts (ADMIN / SUPER_ADMIN) allowed
  */
 export const superAdminGuard: CanActivateFn = (route, state) => {
   const authStore = inject(AuthStore);
@@ -273,7 +285,7 @@ export const superAdminGuard: CanActivateFn = (route, state) => {
       if (!isPlatformBrowser(platformId)) return true;
 
       const user = authStore.currentUser();
-      if (user && user.accountType === AccountType.SUPER_ADMIN) {
+      if (isAdminUser(user)) {
         return true;
       }
 

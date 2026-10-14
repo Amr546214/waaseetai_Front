@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AccreditationApiService } from '../../../../core/services/accreditation-api.service';
+import { providerProfileLink, sampleStatusClass, sampleStatusLabel, STATUS_CLASSES, STATUS_LABELS } from './accreditation-status';
 import {
   AccreditationPagination,
   AccreditationSample,
@@ -47,25 +48,17 @@ export class SaAccreditations implements OnInit {
 
   readonly filters: { key: StatusFilter; label: string }[] = [
     { key: 'all', label: 'الكل' },
-    { key: 'PENDING_AI_AUDIT', label: 'قيد المراجعة اليدوية' },
-    { key: 'MANUAL_REVIEW', label: 'يتطلب مراجعة يدوية' },
-    { key: 'AI_VERIFIED', label: 'معتمد' },
-    { key: 'REJECTED', label: 'مرفوض' },
+    { key: 'MANUAL_REVIEW', label: STATUS_LABELS.MANUAL_REVIEW },
+    { key: 'PENDING_AI_AUDIT', label: STATUS_LABELS.PENDING_AI_AUDIT },
+    { key: 'AI_VERIFIED', label: STATUS_LABELS.AI_VERIFIED },
+    { key: 'REJECTED', label: STATUS_LABELS.REJECTED },
   ];
 
-  readonly statusLabels: Record<AccreditationStatus, string> = {
-    PENDING_AI_AUDIT: 'قيد المراجعة اليدوية',
-    AI_VERIFIED: 'معتمد',
-    REJECTED: 'مرفوض',
-    MANUAL_REVIEW: 'يتطلب مراجعة يدوية',
-  };
-
-  readonly statusClasses: Record<AccreditationStatus, string> = {
-    PENDING_AI_AUDIT: 'acc-st-pending',
-    AI_VERIFIED: 'acc-st-verified',
-    REJECTED: 'acc-st-rejected',
-    MANUAL_REVIEW: 'acc-st-manual',
-  };
+  readonly statusLabels = STATUS_LABELS;
+  readonly statusClasses = STATUS_CLASSES;
+  readonly statusLabel = sampleStatusLabel;
+  readonly statusClass = sampleStatusClass;
+  readonly profileLink = providerProfileLink;
 
   // Client-side refinement over the currently loaded page only — the
   // backend has no full-text search endpoint for accreditation samples,

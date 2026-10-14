@@ -182,6 +182,20 @@ describe('role guards: the ACTIVE role decides (account type is only a fallback)
 		setup({ accountType: AccountType.MARKETING_BROKER, activeRole: UserRole.CLIENT });
 		expect(await url(marketerGuard)).toBe('/client-overview');
 	});
+	it('admin area: ADMIN and SUPER_ADMIN open it (also a super admin acting as CLIENT); client / provider / marketer never do', async () => {
+		setup({ accountType: 'ADMIN', activeRole: UserRole.ADMIN });
+		expect(await url(superAdminGuard)).toBe(true);
+		setup({ accountType: AccountType.SUPER_ADMIN, activeRole: UserRole.SUPER_ADMIN });
+		expect(await url(superAdminGuard)).toBe(true);
+		setup({ accountType: AccountType.SUPER_ADMIN, activeRole: UserRole.CLIENT });
+		expect(await url(superAdminGuard)).toBe(true);
+		setup({ accountType: AccountType.CLIENT_INDIVIDUAL, activeRole: UserRole.CLIENT });
+		expect(await url(superAdminGuard)).toBe('/client-overview');
+		setup({ accountType: AccountType.PROVIDER_INDIVIDUAL, activeRole: UserRole.PROVIDER });
+		expect(await url(superAdminGuard)).toBe('/provider-overview');
+		setup({ accountType: AccountType.MARKETING_BROKER, activeRole: UserRole.AFFILIATE });
+		expect(await url(superAdminGuard)).toBe('/marketer-overview');
+	});
 	it('old accounts without an active role keep working through the account type', async () => {
 		setup({ accountType: AccountType.PROVIDER_COMPANY });
 		expect(await url(providerGuard)).toBe(true);

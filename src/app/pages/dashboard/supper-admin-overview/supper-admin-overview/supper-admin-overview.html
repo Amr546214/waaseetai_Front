@@ -25,199 +25,176 @@
   <h1 class="sr-only">لوحة الإدارة الرئيسية</h1>
   <div class="main-inner">
 
-    <div class="alerts-sec" role="region" aria-label="تنبيهات عاجلة">
-      <div class="alert-item al-high"><svg aria-hidden="true"><use href="#i-shield"></use></svg>نزاعان مفتوحان تجاوزا 7 أيام دون حل — تدخل فوري مطلوب<a routerLink=".">راجع الآن</a></div>
-      <div class="alert-item al-warn"><svg aria-hidden="true"><use href="#i-x"></use></svg>تنبيه الفوترة المستقبلية: 3 فواتير في طور التجهيز<a routerLink=".">راجع الآن</a></div>
-      <div class="alert-item al-info"><svg aria-hidden="true"><use href="#i-bell"></use></svg>18 حساباً جديداً في انتظار اعتمادك منذ أكثر من 24 ساعة<a routerLink=".">راجع الآن</a></div>
-    </div>
+    @if (error()) {
+      <div class="alert-item al-high" role="alert"><svg aria-hidden="true"><use href="#i-shield"></use></svg>{{ error() }}<a href="javascript:void(0)" (click)="load()">إعادة المحاولة</a></div>
+    }
+
+    @if (summary(); as s) {
+      @if (s.alerts.length) {
+        <div class="alerts-sec" role="region" aria-label="تنبيهات تحتاج انتباهك">
+          @for (a of s.alerts; track a.key) {
+            <div class="alert-item" [class.al-high]="a.severity === 'high'" [class.al-warn]="a.severity === 'warn'" [class.al-info]="a.severity === 'info'">
+              <svg aria-hidden="true"><use [attr.href]="a.severity === 'high' ? '#i-shield' : '#i-bell'"></use></svg>{{ a.text }}<a [routerLink]="a.link">راجع الآن</a>
+            </div>
+          }
+        </div>
+      }
+    }
 
     <div class="ws-note ws-note--neutral" role="region" aria-label="لوحة التحكم">
       <div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
       <div class="ws-note-body">
         <div class="ws-note-lbl">وسيط، لوحة التحكم</div>
-        <p class="ws-note-txt">تُعرض هنا أهم المؤشرات لمساعدتك على متابعة المنصة وإدارتها</p>
+        <p class="ws-note-txt">كل الأرقام هنا محسوبة من بيانات المنصة الفعلية وقت فتح الصفحة@if (summary()) { ({{ when(summary()!.generatedAt) }}) }</p>
       </div>
     </div>
 
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-top"><div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-person"></use></svg></div><span class="kpi-lbl">مستخدمون نشطون</span></div>
-        <div class="kpi-val txt-teal">12,480</div>
-        <div class="kpi-sub txt-green">+4.2% هذا الشهر</div>
+    @if (loading() && !summary()) {
+      <div class="txt-muted" role="status" style="padding:24px;text-align:center">جاري تحميل المؤشرات...</div>
+    } @else if (summary(); as s) {
+      <div class="kpi-grid">
+        <a class="kpi-card" routerLink="/supper-admin-overview/users" style="text-decoration:none">
+          <div class="kpi-top"><div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-person"></use></svg></div><span class="kpi-lbl">المستخدمون</span></div>
+          <div class="kpi-val txt-teal">{{ s.kpis.users.total }}</div>
+          <div class="kpi-sub txt-muted">{{ s.kpis.users.active }} نشط · {{ s.kpis.users.newThisMonth }} جديد هذا الشهر@if (s.kpis.users.growthPercent !== null) { ({{ s.kpis.users.growthPercent > 0 ? '+' : '' }}{{ s.kpis.users.growthPercent }}%) }</div>
+        </a>
+        <a class="kpi-card" routerLink="/supper-admin-overview/projects" style="text-decoration:none">
+          <div class="kpi-top"><div class="kpi-ic ic-blue"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">مشاريع جارية</span></div>
+          <div class="kpi-val txt-blue">{{ s.kpis.projects.active }}</div>
+          <div class="kpi-sub txt-muted">{{ s.kpis.projects.completed }} مكتمل · {{ s.kpis.projects.openRequests }} طلب مفتوح</div>
+        </a>
+        <a class="kpi-card" routerLink="/supper-admin-overview/revenues" style="text-decoration:none">
+          <div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">عمولة المنصة هذا الشهر</span></div>
+          <div class="kpi-val txt-green">{{ money(s.kpis.revenue.platformCommissionThisMonth) }}</div>
+          <div class="kpi-unit">دولار أمريكي · الإجمالي {{ money(s.kpis.revenue.platformCommissionTotal) }} $</div>
+        </a>
+        <a class="kpi-card" routerLink="/supper-admin-overview/disputes" style="text-decoration:none">
+          <div class="kpi-top"><div class="kpi-ic ic-coral"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div><span class="kpi-lbl">نزاعات مفتوحة</span></div>
+          <div class="kpi-val txt-coral">{{ s.kpis.disputes.open }}</div>
+          <div class="kpi-sub txt-amber">{{ s.kpis.disputes.openOver7Days }} مضى عليها أكثر من 7 أيام</div>
+        </a>
+        <a class="kpi-card" routerLink="/supper-admin-overview/withdrawals" style="text-decoration:none">
+          <div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">طلبات سحب معلقة</span></div>
+          <div class="kpi-val txt-amber">{{ s.kpis.withdrawals.pending }}</div>
+          <div class="kpi-sub txt-amber-dk">بقيمة {{ money(s.kpis.withdrawals.pendingAmount) }} $ (دولار)</div>
+        </a>
+        <a class="kpi-card" routerLink="/supper-admin-overview/support" style="text-decoration:none">
+          <div class="kpi-top"><div class="kpi-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-inbox"></use></svg></div><span class="kpi-lbl">تذاكر دعم مفتوحة</span></div>
+          <div class="kpi-val txt-blue">{{ s.kpis.tickets.open }}</div>
+          <div class="kpi-sub txt-muted">محجوز في الضمان: {{ money(s.kpis.revenue.escrowHeld) }} $</div>
+        </a>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-top"><div class="kpi-ic ic-blue"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">مشاريع جارية</span></div>
-        <div class="kpi-val txt-blue">342</div>
-        <div class="kpi-sub txt-green">+18 هذا الأسبوع</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">إيرادات الشهر</span></div>
-        <div class="kpi-val txt-green">1.24M</div>
-        <div class="kpi-unit">دولار أمريكي</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-top"><div class="kpi-ic ic-coral"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div><span class="kpi-lbl">نزاعات مفتوحة</span></div>
-        <div class="kpi-val txt-coral">7</div>
-        <div class="kpi-sub txt-amber">2 عالية الأولوية</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">طلبات سحب معلقة</span></div>
-        <div class="kpi-val txt-amber">23</div>
-        <div class="kpi-sub txt-amber-dk">تنتظر الإقرار</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-top"><div class="kpi-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-bell"></use></svg></div><span class="kpi-lbl">اعتمادات معلقة</span></div>
-        <div class="kpi-val txt-blue">18</div>
-        <div class="kpi-sub txt-muted">حسابات جديدة</div>
-      </div>
-    </div>
 
-    <div class="dash-grid">
-      <div class="dash-card">
-        <div class="dash-card-ttl"><svg aria-hidden="true"><use href="#i-list"></use></svg>طوابير تحتاج إجراءً</div>
-        <div class="q-list">
-          <a routerLink="." class="q-item">
-            <div class="q-ic ic-blue"><svg aria-hidden="true"><use href="#i-edit"></use></svg></div>
-            <span class="q-name">طلبات تعديل معلقة</span>
-            <span class="q-count ic-blue">2</span>
-            <span class="q-arr" aria-hidden="true">‹</span>
-          </a>
-          <a routerLink="." class="q-item">
-            <div class="q-ic ic-teal"><svg aria-hidden="true"><use href="#i-bell"></use></svg></div>
-            <span class="q-name">اعتمادات حسابات جديدة</span>
-            <span class="q-count ic-teal">18</span>
-            <span class="q-arr" aria-hidden="true">‹</span>
-          </a>
-          <a routerLink="." class="q-item">
-            <div class="q-ic ic-amber"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div>
-            <span class="q-name">طلبات سحب تنتظر الإقرار</span>
-            <span class="q-count ic-amber">23</span>
-            <span class="q-arr" aria-hidden="true">‹</span>
-          </a>
-          <a routerLink="." class="q-item">
-            <div class="q-ic ic-coral"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
-            <span class="q-name">نزاعات بانتظار القرار النهائي</span>
-            <span class="q-count ic-coral">7</span>
-            <span class="q-arr" aria-hidden="true">‹</span>
-          </a>
-          <a routerLink="." class="q-item">
-            <div class="q-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-inbox"></use></svg></div>
-            <span class="q-name">تذاكر دعم مفتوحة</span>
-            <span class="q-count ic-blue-lt">14</span>
-            <span class="q-arr" aria-hidden="true">‹</span>
-          </a>
-          <a routerLink="." class="q-item">
-            <div class="q-ic ic-teal"><svg aria-hidden="true"><use href="#i-check"></use></svg></div>
-            <span class="q-name">اعتماد تخصصات مقدمي الخدمة</span>
-            <span class="q-count ic-teal">9</span>
-            <span class="q-arr" aria-hidden="true">‹</span>
-          </a>
-          <a routerLink="." class="q-item">
-            <div class="q-ic ic-blue"><svg aria-hidden="true"><use href="#i-doc"></use></svg></div>
-            <span class="q-name">نماذج أعمال بانتظار الاعتماد</span>
-            <span class="q-count ic-blue">6</span>
-            <span class="q-arr" aria-hidden="true">‹</span>
-          </a>
-          <a routerLink="." class="q-item">
-            <div class="q-ic ic-coral"><svg aria-hidden="true"><use href="#i-x"></use></svg></div>
-            <span class="q-name">بلاغات جديدة غير مُراجَعة</span>
-            <span class="q-count ic-coral">3</span>
-            <span class="q-arr" aria-hidden="true">‹</span>
-          </a>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-ttl"><svg aria-hidden="true"><use href="#i-list"></use></svg>طوابير تحتاج إجراءً</div>
+          <div class="q-list">
+            @for (q of s.queues; track q.key) {
+              <a [routerLink]="q.link" class="q-item" [style.opacity]="q.count === 0 ? .55 : 1">
+                <div class="q-ic ic-teal"><svg aria-hidden="true"><use href="#i-check"></use></svg></div>
+                <span class="q-name">{{ q.label }}</span>
+                <span class="q-count" [class.ic-coral]="q.count > 0" [class.ic-teal]="q.count === 0">{{ q.count }}</span>
+                <span class="q-arr" aria-hidden="true">‹</span>
+              </a>
+            }
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-card-ttl"><svg aria-hidden="true"><use href="#i-bell"></use></svg>إجراءات عاجلة</div>
+          @if (queuesWithWork().length === 0) {
+            <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px">لا توجد طوابير تنتظر إجراءً الآن.</div>
+          } @else {
+            <div style="display:flex;flex-direction:column;gap:6px">
+              @for (q of queuesWithWork(); track q.key) {
+                <a [routerLink]="q.link" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:8px;text-decoration:none">
+                  <span style="min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#FFB400;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0" class="txt-navy">{{ q.count }}</span>
+                  <span style="font-size:11px;font-weight:700" class="txt-amber">{{ q.label }}</span>
+                </a>
+              }
+            </div>
+          }
         </div>
       </div>
-
-      <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">رؤى المنصة: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
-    </div>
+    }
 
     <div class="act-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="dash-card-ttl" style="margin-bottom:0"><svg aria-hidden="true"><use href="#i-list"></use></svg>آخر النشاطات</div>
-        <a routerLink="." style="font-size:12px;font-weight:700" class="txt-teal">عرض السجل الكامل</a>
+        <a routerLink="/supper-admin-overview/audit-trail" style="font-size:12px;font-weight:700" class="txt-teal">عرض السجل الكامل</a>
       </div>
-      <div style="overflow-x:auto">
-        <table class="act-tbl">
-          <thead><tr><th>النشاط</th><th>الحساب</th><th>النوع</th><th>الوقت</th><th>الحالة</th></tr></thead>
-          <tbody>
-            <tr><td>طلب تعديل بريد PayPal</td><td>محمد العمري</td><td class="txt-muted">طالب خدمة فرد</td><td class="txt-muted">قبل 8 دقائق</td><td><span class="act-badge badge-amber">قيد المراجعة</span></td></tr>
-            <tr><td>اعتماد تخصص: تصميم جرافيك</td><td>سارة القحطاني</td><td class="txt-muted">مقدم خدمة فرد</td><td class="txt-muted">قبل 32 دقيقة</td><td><span class="act-badge badge-green">معتمد</span></td></tr>
-            <tr><td>فتح نزاع مشروع #1247</td><td>شركة الخليج التقنية</td><td class="txt-muted">طالب خدمة شركة</td><td class="txt-muted">قبل ساعة</td><td><span class="act-badge badge-coral">مفتوح</span></td></tr>
-            <tr><td>طلب سحب أرباح 4,200 $</td><td>عبدالرحمن الدوسري</td><td class="txt-muted">مقدم خدمة فرد</td><td class="txt-muted">قبل 3 ساعات</td><td><span class="act-badge badge-amber">معلق</span></td></tr>
-          </tbody>
-        </table>
-      </div>
+      @if (activity().length === 0) {
+        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px">{{ loading() ? 'جاري التحميل...' : 'لا توجد نشاطات بعد.' }}</div>
+      } @else {
+        <div style="overflow-x:auto">
+          <table class="act-tbl">
+            <thead><tr><th>النشاط</th><th>الحساب</th><th>النوع</th><th>الوقت</th><th>الحالة</th></tr></thead>
+            <tbody>
+              @for (a of activity(); track a.id) {
+                <tr>
+                  <td><a [routerLink]="a.link" class="txt-white">{{ a.title }}</a></td>
+                  <td>{{ a.actor }}</td>
+                  <td class="txt-muted">{{ a.actorType || '—' }}</td>
+                  <td class="txt-muted">{{ when(a.at) }}</td>
+                  <td><span class="act-badge" [ngClass]="status(a.status).cls">{{ status(a.status).label }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
 
-    <!-- Revenue Mini Chart -->
     <div style="background:var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)));border:1px solid var(--sec-bd,rgba(255,255,255,.08));border-radius:14px;padding:16px 20px;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-        <div style="font-size:13px;font-weight:800" class="txt-white">الإيرادات — 7 أيام</div>
-        <div style="margin-right:auto;font-size:20px;font-weight:900" class="txt-teal">2.84M $</div>
-        <div style="font-size:11px;font-weight:700;background:rgba(15,169,154,.10);padding:2px 8px;border-radius:5px" class="txt-green">+18.4%</div>
-      </div>
-      <div id="rev-mini" style="display:flex;align-items:flex-end;gap:6px;height:56px;padding-bottom:0">
-        @for (v of revenueData; track $index; let last = $last) {
-            <div style="flex:1;display:flex;align-items:flex-end;height:100%">
-               <div [style.width.%]="100" 
-                    [style.height.%]="getBarHeight(v)" 
-                    [style.background]="last ? 'linear-gradient(180deg,#2BD4C7,#2B7FFF)' : 'rgba(43,212,199,.25)'" 
-                    style="border-radius:3px 3px 0 0;min-height:3px;cursor:pointer" 
-                    [title]="v + 'K $'"></div>
-            </div>
-         }
-      </div>
-    </div>
-
-    <!-- Alerts: no connected source -->
-    <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">التنبيهات الآنية: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
-
-    <div class="health-grid">
-      <div class="health-item">
-        <div class="health-hdr"><span class="health-dot" style="background:#0FA99A"></span><span class="health-lbl">حالة الخوادم</span></div>
-        <div class="health-val txt-green">99.8%</div>
-        <div class="health-sub">وقت التشغيل — 30 يوم</div>
-      </div>
-      <div class="health-item">
-        <div class="health-hdr"><span class="health-dot" style="background:#0FA99A"></span><span class="health-lbl">معالجة المدفوعات</span></div>
-        <div class="health-val txt-green">نشط</div>
-        <div class="health-sub">بوابة SAMA مُوصَّلة</div>
-      </div>
-      <div class="health-item">
-        <div class="health-hdr"><span class="health-dot" style="background:#FFB400"></span><span class="health-lbl">الفوترة المستقبلية</span></div>
-        <div class="health-val txt-amber-dk">تحذير</div>
-        <div class="health-sub">3 فواتير معلقة التحقق</div>
-      </div>
-    </div>
-
-    <!-- Forecasting + Quick Actions -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-      <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">توقعات الشهر القادم: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
-      <div style="background:var(--crd-bg,rgba(255,255,255,.02));border:1px solid var(--sec-bd,rgba(255,255,255,.07));border-radius:12px;padding:14px 16px">
-        <div style="font-size:12px;font-weight:800;margin-bottom:10px" class="txt-white">إجراءات عاجلة</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <a routerLink="." style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:8px;text-decoration:none">
-            <span style="width:20px;height:20px;border-radius:50%;background:#FFB400;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0" class="txt-navy">16</span>
-            <span style="font-size:11px;font-weight:700" class="txt-amber">اعتماد معلق يجاوز 48 ساعة</span>
-          </a>
-          <a routerLink="." style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.16);border-radius:8px;text-decoration:none">
-            <span style="width:20px;height:20px;border-radius:50%;background:#FF6B6B;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0" class="txt-white">7</span>
-            <span style="font-size:11px;font-weight:700" class="txt-coral">نزاعات تجاوزت 7 أيام بدون قرار</span>
-          </a>
-          <a routerLink="." style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(43,212,199,.04);border:1px solid rgba(43,212,199,.14);border-radius:8px;text-decoration:none">
-            <span style="width:20px;height:20px;border-radius:50%;background:#2BD4C7;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0" class="txt-navy">23</span>
-            <span style="font-size:11px;font-weight:700" class="txt-teal">طلب سحب بانتظار الموافقة</span>
-          </a>
+        <div style="font-size:13px;font-weight:800" class="txt-white">تسجيلات الحسابات الجديدة</div>
+        <div class="date-segs" style="margin-inline-start:8px">
+          <button type="button" class="ds" [class.active]="chartDays() === 7" (click)="setDays(7)">7 أيام</button>
+          <button type="button" class="ds" [class.active]="chartDays() === 30" (click)="setDays(30)">30 يوماً</button>
         </div>
+        @if (charts(); as c) { <div style="margin-right:auto;font-size:20px;font-weight:900" class="txt-teal">{{ c.registrationsTotal }}</div> }
       </div>
+      @if (charts(); as c) {
+        @if (c.registrationsTotal === 0) {
+          <div role="status" class="txt-muted" style="font-size:11.5px">لا توجد تسجيلات في هذه الفترة.</div>
+        } @else {
+          <div style="display:flex;align-items:flex-end;gap:4px;height:56px">
+            @for (r of c.registrations; track r.date; let last = $last) {
+              <div style="flex:1;display:flex;align-items:flex-end;height:100%">
+                <div [style.height.%]="barHeight(r.count, maxRegistrations())" [style.background]="last ? 'linear-gradient(180deg,#2BD4C7,#2B7FFF)' : 'rgba(43,212,199,.25)'" style="width:100%;border-radius:3px 3px 0 0;min-height:3px" [title]="r.date + ': ' + r.count"></div>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <div role="status" class="txt-muted" style="font-size:11.5px">تعذر تحميل بيانات الرسم.</div>
+      }
     </div>
+
+    @if (charts(); as c) {
+      <div style="background:var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)));border:1px solid var(--sec-bd,rgba(255,255,255,.08));border-radius:14px;padding:16px 20px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:800" class="txt-white">عمولة المنصة — آخر 6 أشهر</div>
+          <div style="margin-right:auto;font-size:20px;font-weight:900" class="txt-teal">{{ money(c.commissionTotal) }} $</div>
+        </div>
+        @if (c.commissionTotal === 0) {
+          <div role="status" class="txt-muted" style="font-size:11.5px">لا توجد عمولات محققة في هذه الفترة.</div>
+        } @else {
+          <div style="display:flex;align-items:flex-end;gap:6px;height:56px">
+            @for (m of c.commission; track m.month; let last = $last) {
+              <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;align-items:center">
+                <div [style.height.%]="barHeight(m.amount, maxCommission())" [style.background]="last ? 'linear-gradient(180deg,#2BD4C7,#2B7FFF)' : 'rgba(43,212,199,.25)'" style="width:100%;border-radius:3px 3px 0 0;min-height:3px" [title]="m.month + ': ' + m.amount + ' $'"></div>
+              </div>
+            }
+          </div>
+          <div style="display:flex;gap:6px;margin-top:4px">@for (m of c.commission; track m.month) { <span style="flex:1;text-align:center;font-size:10px" class="txt-muted">{{ m.month.slice(5) }}</span> }</div>
+        }
+        <div class="txt-muted" style="font-size:11px;margin-top:8px">العمولة المسجلة على الضمانات وفق سياسة الرسوم الجديدة، وتُنسب لشهر آخر تحديث للضمان.</div>
+      </div>
+    }
 
     <div class="inner-foot">
-      <span>&#169; 2026 وسيط AI &middot; v2.0.0</span>
-      <div class="inner-foot-links">
-        <a routerLink=".">PDPL</a>
-        <a routerLink=".">الشروط</a>
-        <span>SAMA</span>
-      </div>
+      <span>&#169; 2026 وسيط AI</span>
     </div>
 
   </div>

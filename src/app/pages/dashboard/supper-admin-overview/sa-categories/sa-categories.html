@@ -10,173 +10,82 @@
     <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">وسيط: نظام التصنيف</div>
-      <p class="ws-note-txt">يُحسب تصنيف كل مقدم تلقائياً من أدائه الفعلي وتقييماته ومشاريعه المكتملة</p>
+      <p class="ws-note-txt">تُعرض المستويات المعتمدة وأعداد المقدمين الفعلية في كل مستوى</p>
     </div>
   </div>
 
-  <div class="cat-kpis">
-    <div class="cat-kpi"><div class="cat-kpi-num txt-teal">{{ totalProviders() | number }}</div><div class="cat-kpi-lbl">إجمالي مقدمي الخدمة</div></div>
-    <div class="cat-kpi"><div class="cat-kpi-num txt-slate">{{ tiers()[3].count }}</div><div class="cat-kpi-lbl">Platinum</div></div>
-    <div class="cat-kpi"><div class="cat-kpi-num txt-amber-dk">{{ tiers()[2].count }}</div><div class="cat-kpi-lbl">Gold</div></div>
-  </div>
+  @if (error()) {
+    <div class="cat-card" role="alert">{{ error() }} <button type="button" class="cat-btn cat-btn-ghost" (click)="load()">إعادة المحاولة</button></div>
+  } @else if (loading()) {
+    <div class="cat-card" role="status">جاري تحميل المستويات...</div>
+  } @else if (data(); as d) {
+    <div class="cat-kpis">
+      <div class="cat-kpi"><div class="cat-kpi-num txt-teal">{{ d.totalProviders | number }}</div><div class="cat-kpi-lbl">إجمالي مقدمي الخدمة</div></div>
+      <div class="cat-kpi"><div class="cat-kpi-num txt-slate">{{ d.totalProviders - d.providersWithoutLevelRow | number }}</div><div class="cat-kpi-lbl">لديهم سجل مستوى</div></div>
+      <div class="cat-kpi"><div class="cat-kpi-num txt-amber-dk">{{ d.providersWithoutLevelRow | number }}</div><div class="cat-kpi-lbl">بلا سجل مستوى بعد</div></div>
+    </div>
 
-  <div class="cat-tiers-grid">
-    @for (t of tiers(); track t.name) {
-      <div class="cat-tier-card" [style.border-color]="t.name === 'Gold' || t.name === 'Platinum' ? t.color + '40' : null">
-        <div class="cat-tier-hdr" [style.background]="'linear-gradient(135deg,' + t.color + '22,' + t.color + '08)'">
-          <div class="cat-tier-name" [style.color]="t.color">{{ t.name }}</div>
-          <div class="cat-tier-stars" [style.color]="t.color">
-            @for (filled of starsArray(t.stars); track $index) {
-              @if (filled) {
-                <svg width="14" height="14" viewBox="0 0 24 24"><polygon [attr.fill]="t.color" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              } @else {
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="t.color" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              }
-            }
-          </div>
-          <div class="cat-tier-count">{{ t.count | number }} مقدم ({{ t.percent }}%)</div>
-        </div>
-        <div class="cat-tier-body">
-          <div class="cat-req-row"><div class="cat-req-lbl">الحد الأدنى للتقييم</div><div class="cat-req-val">{{ t.minRating }}</div></div>
-          <div class="cat-req-row"><div class="cat-req-lbl">مشاريع مكتملة</div><div class="cat-req-val">{{ t.minProjects }}</div></div>
-          <div class="cat-req-row"><div class="cat-req-lbl">المميزات</div><div class="cat-req-val cat-req-features">{{ t.features }}</div></div>
-        </div>
-        <button type="button" class="cat-tier-edit-btn" (click)="editTier(t)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-          تعديل الشروط
-        </button>
-      </div>
-    }
-  </div>
-
-  <div class="cat-dist-grid">
     <div class="cat-card">
-      <div class="cat-card-ttl">توزيع مقدمي الخدمة</div>
-      @for (t of tiers(); track t.name) {
-        <div class="cat-dist-item">
-          <span class="cat-dist-lbl" [style.color]="t.color">{{ t.name }}</span>
-          <div class="cat-dist-bar-wrap"><div class="cat-dist-fill" [style.width.%]="t.percent" [style.background]="t.color"></div></div>
-          <span class="cat-dist-count">{{ t.count | number }}</span>
-        </div>
-      }
-    </div>
-    <div class="cat-card">
-      <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">حركات الفئات هذا الشهر: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
-      @for (m of aiUpgradesThisMonth(); track m.label) {
-        <div class="cat-upd-item" [class.down]="m.down">
-          <div class="cat-upd-lbl">
-            @if (m.down) {
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-            } @else {
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      <div class="cat-card-ttl">سلّم مستويات مقدمي الخدمة (15 مستوى)</div>
+      <div class="cat-tbl-wrap">
+        <table class="cat-tbl">
+          <thead><tr><th>المستوى</th><th>عمولة المنصة</th><th>النقاط</th><th>المشاريع</th><th>التقييم</th><th>عدد المقدمين</th></tr></thead>
+          <tbody>
+            @for (l of d.levels; track l.level) {
+              <tr>
+                <td><span class="cat-bdg" [style.background]="l.color + '20'" [style.color]="l.color">{{ l.level }} — {{ l.name }}</span></td>
+                <td>{{ l.commissionPercent }}%</td>
+                <td>{{ l.thresholds.points | number }}</td>
+                <td>{{ l.thresholds.projects }}</td>
+                <td>{{ l.thresholds.rating ? '★ ' + l.thresholds.rating : '—' }}</td>
+                <td>
+                  <div class="cat-dist-item">
+                    <div class="cat-dist-bar-wrap"><div class="cat-dist-fill" [style.width.%]="(l.providers / maxProviders()) * 100" [style.background]="l.color"></div></div>
+                    <span class="cat-dist-count">{{ l.providers | number }}</span>
+                  </div>
+                </td>
+              </tr>
             }
-            <span>{{ m.label }}</span>
-          </div>
-          <span class="cat-upd-count" [style.color]="m.color">{{ m.count }}</span>
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="cat-tier-edit-btn" disabled [title]="readOnlyReason" style="opacity:.5;cursor:not-allowed;margin-top:10px">تعديل الشروط</button>
+      <div class="txt-muted" style="font-size:11.5px;margin-top:6px">{{ readOnlyReason }}.</div>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-card-ttl-row">
+        <span class="cat-card-ttl">أعلى مقدمي الخدمة بالنقاط</span>
+        <div class="cat-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" placeholder="ابحث باسم المقدم..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
         </div>
-      }
-    </div>
-  </div>
-
-  <div class="cat-card">
-    <div class="cat-card-ttl-row">
-      <span class="cat-card-ttl">أبرز مقدمي Platinum</span>
-      <div class="cat-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="search" placeholder="ابحث باسم المقدم..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
+      </div>
+      <div class="cat-tbl-wrap">
+        <table class="cat-tbl">
+          <thead><tr><th>المقدم</th><th>التخصص</th><th>التقييم</th><th>مشاريع</th><th>المستوى</th><th>إجمالي المعاملات</th><th>منذ</th></tr></thead>
+          <tbody>
+            @for (p of filteredProviders(); track p.userId) {
+              <tr>
+                <td><div class="cat-u-cell"><div class="cat-av">{{ initial(p.name) }}</div><a class="cat-u-name" [routerLink]="['/supper-admin-overview/users', p.userId]">{{ p.name }}</a></div></td>
+                <td>{{ p.specialty || '—' }}</td>
+                <td class="cat-rating">{{ p.rating ? '★ ' + p.rating : '—' }}</td>
+                <td class="cat-center">{{ p.completedProjects }}</td>
+                <td>{{ p.level }} — {{ p.levelName }}</td>
+                <td class="cat-revenue">{{ p.revenue | number }} $</td>
+                <td class="cat-date">{{ p.memberSince ? (p.memberSince | date:'yyyy-MM') : '—' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="7" class="cat-center">لا يوجد مقدمو خدمة بسجل نقاط بعد</td></tr>
+            }
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="cat-tbl-wrap">
-      <table class="cat-tbl">
-        <thead>
-          <tr>
-            <th>المقدم</th>
-            <th>التخصص</th>
-            <th>التقييم</th>
-            <th>مشاريع</th>
-            <th>المستوى</th>
-            <th>إيرادات الشهر</th>
-            <th>منذ</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (p of filteredProviders(); track p.name) {
-            <tr>
-              <td>
-                <div class="cat-u-cell">
-                  <div class="cat-av" [style.background]="p.avatarBg">{{ p.avatar }}</div>
-                  <span class="cat-u-name">{{ p.name }}</span>
-                </div>
-              </td>
-              <td><span class="cat-bdg cat-bdg-blue">{{ p.specialty }}</span></td>
-              <td class="cat-rating">★ {{ p.rating }}</td>
-              <td class="cat-center">{{ p.projects }}</td>
-              <td><span class="cat-bdg" [style.background]="tierColors[p.tier] + '20'" [style.color]="tierColors[p.tier]">{{ p.tier }}</span></td>
-              <td class="cat-revenue">{{ p.revenue }}</td>
-              <td class="cat-date">{{ p.since }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
 
-  <div class="cat-sim-card">
-    <div class="cat-sim-ttl">Threshold Simulator — محاكاة تغيير الشروط</div>
-    <div class="cat-sim-row">
-      <div class="cat-sim-field">
-        <div class="cat-sim-lbl">عدد المشاريع المطلوبة للترقية لـ Gold</div>
-        <input type="range" min="5" max="30" [value]="goldProjectThreshold()" (input)="goldProjectThreshold.set(+$any($event.target).value)" />
-        <div class="cat-sim-range-lbls"><span>5</span><span>{{ goldProjectThreshold() }}</span><span>30</span></div>
-      </div>
-      <div class="cat-sim-field">
-        <div class="cat-sim-lbl">متوسط تقييم مطلوب</div>
-        <input type="range" min="3.0" max="5.0" step="0.1" [value]="goldRatingThreshold()" (input)="goldRatingThreshold.set(+$any($event.target).value)" />
-        <div class="cat-sim-range-lbls"><span>3.0</span><span>{{ goldRatingThreshold() }}</span><span>5.0</span></div>
-      </div>
-    </div>
-    <div class="cat-sim-result">
-      بالشروط الحالية: <strong>{{ eligibleForGold() }}</strong> مقدم مؤهل للـ Gold من أصل 824
-    </div>
-  </div>
-
-  @if (toast()) {
-    <div class="cat-toast">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      <span>{{ toast() }}</span>
+    <div class="cat-card">
+      <div class="cat-card-ttl">محاكاة تغيير الشروط</div>
+      <div class="txt-muted" style="font-size:11.5px">معطّلة: لا يوجد مصدر لحساب عدد المؤهلين بشروط افتراضية، ولا يمكن تعديل الشروط من الواجهة. {{ readOnlyReason }}.</div>
     </div>
   }
 </section>
-
-@if (editingTier(); as tierName) {
-  <div class="cat-mov" (click)="closeTierEdit()">
-    <div class="cat-mbox" (click)="$event.stopPropagation()">
-      <div class="cat-md-hdr">
-        <h3>تعديل شروط مستوى {{ tierName }}</h3>
-        <button type="button" class="cat-mclose" (click)="closeTierEdit()">×</button>
-      </div>
-      @for (t of tiers(); track t.name) {
-        @if (t.name === tierName) {
-          <div class="cat-md-body">
-            <div class="cat-md-field">
-              <label>الحد الأدنى للتقييم</label>
-              <input type="text" [value]="editMinRating()" (input)="editMinRating.set($any($event.target).value)" />
-            </div>
-            <div class="cat-md-field">
-              <label>مشاريع مكتملة</label>
-              <input type="text" [value]="editMinProjects()" (input)="editMinProjects.set($any($event.target).value)" />
-            </div>
-            <div class="cat-md-field">
-              <label>المميزات</label>
-              <textarea rows="3" [value]="editFeatures()" (input)="editFeatures.set($any($event.target).value)"></textarea>
-            </div>
-          </div>
-          <div class="cat-md-actions">
-            <button type="button" class="cat-btn cat-btn-primary" (click)="saveTierEdit(t)">حفظ التعديلات</button>
-            <button type="button" class="cat-btn cat-btn-ghost" (click)="closeTierEdit()">إلغاء</button>
-          </div>
-        }
-      }
-    </div>
-  </div>
-}

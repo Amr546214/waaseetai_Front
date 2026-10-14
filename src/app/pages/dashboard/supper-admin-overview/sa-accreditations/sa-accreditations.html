@@ -10,25 +10,25 @@
     <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">المراجعة اليدوية</div>
-      <p class="ws-note-txt">تصل نماذج الاعتماد المرفوعة إلى هنا لمراجعة يدوية واعتماد أو رفض نهائي؛ وتظهر درجة تقييم AI بجانب النموذج فقط عند وجود تقييم مخزّن له</p>
+      <p class="ws-note-txt">تصل نماذج الاعتماد المرفوعة إلى هنا لمراجعة يدوية؛ الفحص الذكي للنماذج متوقف حاليًا، وتظهر درجة تقييم AI بجانب النموذج فقط عند وجود تقييم مخزّن له، والاعتماد أو الرفض قرار إداري نهائي</p>
     </div>
   </div>
 
   <div class="acc-kpi-grid">
     <div class="acc-kpi">
-      <div class="acc-kpi-top"><span class="acc-kpi-lbl">قيد المراجعة اليدوية</span></div>
-      <div class="acc-kpi-val txt-blue">{{ countsLoading() ? '—' : statusCounts()['PENDING_AI_AUDIT'] }}</div>
-    </div>
-    <div class="acc-kpi">
-      <div class="acc-kpi-top"><span class="acc-kpi-lbl">يتطلب مراجعة يدوية</span></div>
+      <div class="acc-kpi-top"><span class="acc-kpi-lbl">{{ statusLabels.MANUAL_REVIEW }}</span></div>
       <div class="acc-kpi-val txt-amber">{{ countsLoading() ? '—' : statusCounts()['MANUAL_REVIEW'] }}</div>
     </div>
     <div class="acc-kpi">
-      <div class="acc-kpi-top"><span class="acc-kpi-lbl">معتمد</span></div>
+      <div class="acc-kpi-top"><span class="acc-kpi-lbl">{{ statusLabels.PENDING_AI_AUDIT }}</span></div>
+      <div class="acc-kpi-val txt-blue">{{ countsLoading() ? '—' : statusCounts()['PENDING_AI_AUDIT'] }}</div>
+    </div>
+    <div class="acc-kpi">
+      <div class="acc-kpi-top"><span class="acc-kpi-lbl">{{ statusLabels.AI_VERIFIED }}</span></div>
       <div class="acc-kpi-val txt-green">{{ countsLoading() ? '—' : statusCounts()['AI_VERIFIED'] }}</div>
     </div>
     <div class="acc-kpi">
-      <div class="acc-kpi-top"><span class="acc-kpi-lbl">مرفوض</span></div>
+      <div class="acc-kpi-top"><span class="acc-kpi-lbl">{{ statusLabels.REJECTED }}</span></div>
       <div class="acc-kpi-val txt-coral">{{ countsLoading() ? '—' : statusCounts()['REJECTED'] }}</div>
     </div>
   </div>
@@ -71,7 +71,7 @@
               <th>التخصص</th>
               <th>تاريخ الرفع</th>
               <th>الحالة</th>
-              <th>درجة AI</th>
+              <th>تقييم AI المخزّن</th>
               <th>إجراء سريع</th>
             </tr>
           </thead>
@@ -82,7 +82,11 @@
                   <div class="acc-u-cell">
                     <div class="acc-u-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF)">{{ providerInitial(s) }}</div>
                     <div>
-                      <div class="acc-u-name">{{ providerName(s) }}</div>
+                      @if (profileLink(s); as link) {
+                        <a class="acc-u-name acc-lnk-plain" [routerLink]="link" (click)="$event.stopPropagation()">{{ providerName(s) }}</a>
+                      } @else {
+                        <div class="acc-u-name">{{ providerName(s) }}</div>
+                      }
                       <div class="acc-u-email">{{ s.providerProfile?.user?.email || '—' }}</div>
                     </div>
                   </div>
@@ -90,7 +94,7 @@
                 <td class="acc-muted">{{ s.title }}</td>
                 <td><span class="acc-type-badge">{{ specialtyName(s) }}</span></td>
                 <td class="acc-muted">{{ formatDate(s.createdAt) }}</td>
-                <td><span class="acc-ai-pill" [ngClass]="statusClasses[s.status]">{{ statusLabels[s.status] }}</span></td>
+                <td><span class="acc-ai-pill" [ngClass]="statusClass(s)">{{ statusLabel(s) }}</span></td>
                 <td class="acc-muted">{{ s.aiScore != null ? (s.aiScore + '%') : 'غير متاح' }}</td>
                 <td>
                   <div class="acc-row-actions" (click)="$event.stopPropagation()">

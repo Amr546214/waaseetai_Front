@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 
@@ -41,7 +41,9 @@ export class SaSpecialtiesService {
 	}
 
 	getTree(search: string = ''): Observable<{ success: boolean; data: AdminCategory[] }> {
-		return this.http.get<{ success: boolean; data: AdminCategory[] }>(`${this.apiUrl}/tree?search=${search}`);
+		// HttpParams encodes the term (Arabic text, '&', '#') so the search never breaks the URL.
+		const params = search ? new HttpParams().set('search', search) : new HttpParams();
+		return this.http.get<{ success: boolean; data: AdminCategory[] }>(`${this.apiUrl}/tree`, { params });
 	}
 
 	createCategory(data: any): Observable<any> {
