@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { SaDisputeDetail } from './sa-dispute-detail';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { AdminOpsApiService } from '../../../../../core/services/admin-ops-api.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
 
 // Admin resolution: two kinds of decision. The text form moves nothing; the financial form needs explicit amounts that settle
 // the whole held escrow plus an explicit confirmation, and sends exactly the contract the backend validates.
@@ -19,7 +20,7 @@ const base: any = {
   notes: [], timeline: [],
 };
 
-function setup(over: any = {}, financialImpl?: () => any) {
+function setup(over: any = {}, financialImpl?: () => any, accountType: string = 'SUPER_ADMIN') {
   const api = {
     getAdminDispute: vi.fn(() => of({ success: true, data: { ...base, ...over } })),
     resolveAdminDispute: vi.fn(() => of({ success: true, data: base })),
@@ -29,6 +30,7 @@ function setup(over: any = {}, financialImpl?: () => any) {
     providers: [
       provideRouter([]),
       { provide: DisputeApiService, useValue: api },
+      { provide: AuthStore, useValue: { currentUser: () => ({ accountType }) } },
       { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } },
       { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 'd1' })), snapshot: { paramMap: convertToParamMap({ id: 'd1' }) } } },
     ],
@@ -176,5 +178,25 @@ describe('SaDisputeDetail - text vs financial decisions', () => {
     expect(el.querySelector('[data-testid="no-financial-outcome"]')?.textContent).toContain('لم يُنفَّذ أي أثر مالي');
     expect(el.querySelector('[data-testid="resolution-label"]')?.textContent).toContain('إغلاق ودّي');
     expect(el.querySelector('[data-testid="resolution-label"]')?.textContent).not.toContain('MUTUAL_CLOSE');
+  });
+});
+
+describe('SaDisputeDetail - financial decision is SUPER_ADMIN only', () => {
+  afterEach(() => TestBed.resetTestingModule());
+  it('a plain ADMIN sees the financial button disabled with the reason, and cannot open the form; the text closure stays available', () => {
+    const { c, f, el } = setup({}, undefined, 'ADMIN');
+    const btn = el.querySelector('[data-testid="open-financial"]') as HTMLButtonElement;
+    expect(btn.disabled).toBe(true);
+    expect(btn.getAttribute('title')).toContain('SUPER_ADMIN');
+    c.openFinancialForm(); f.detectChanges();
+    expect(el.querySelector('[data-testid="financial-form"]')).toBeNull();
+    c.openResolveForm('resolve'); f.detectChanges();
+    expect(el.querySelector('.dp-rf-preset')).not.toBeNull();
+  });
+  it('a SUPER_ADMIN gets the financial form', () => {
+    const { c, f, el } = setup({}, undefined, 'SUPER_ADMIN');
+    expect((el.querySelector('[data-testid="open-financial"]') as HTMLButtonElement).disabled).toBe(false);
+    c.openFinancialForm(); f.detectChanges();
+    expect(el.querySelector('[data-testid="financial-form"]')).not.toBeNull();
   });
 });

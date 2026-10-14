@@ -160,7 +160,7 @@
 						@if (am.requestedByRole === 'CLIENT' && am.status === 'PENDING_OTHER_PARTY') {
 							@if (needsPayment(am)) {
 								@if (am.fundingAuthorized) {
-									<div class="dp-desc" data-testid="am-funding-ok" role="status">اعتمدتَ دفع هذه الزيادة. لا يُخصم شيء من محفظتك قبل موافقة مقدم الخدمة، وعندها يُطبَّق التعديل ويُخصم المبلغ.</div>
+									<div class="dp-desc" data-testid="am-funding-ok" role="status">اعتمدتَ دفع هذه الزيادة. لا يُخصم شيء من محفظتك قبل موافقة مقدم الخدمة، وعندها يُطبَّق التعديل ويُخصم المبلغ. التفويض صالح لمدة 15 دقيقة@if (am.fundingAuthorizedUntil) { (حتى {{ am.fundingAuthorizedUntil | date:'shortTime' }})}، ويبطل إن انتهت المهلة أو تغيّرت شروط العقد، وعندها تعتمد الدفع من جديد.</div>
 								} @else if (otpFor()?.id === am.id) {
 									<app-amendment-payment-otp [amendmentId]="am.id" mode="authorize" [amount]="approveAmount(am)" (done)="onOtpDone()" (closed)="cancelDecision()" />
 								} @else {

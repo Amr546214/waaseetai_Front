@@ -38,6 +38,7 @@ interface Amendment {
 	appliedAt?: string | null;
 	needsClientPayment?: boolean;
 	fundingAuthorized?: boolean;
+	fundingAuthorizedUntil?: string | null;
 	contractPrice?: number | null;
 	contractDurationDays?: number | null;
 }

@@ -24,7 +24,7 @@ export interface AmendmentLike {
 	type?: string; status?: string; requestedByRole?: string;
 	budgetDelta?: number | null; durationDeltaDays?: number | null; description?: string | null;
 	effect?: string | null; effectNote?: string | null;
-	needsClientPayment?: boolean; fundingAuthorized?: boolean;
+	needsClientPayment?: boolean; fundingAuthorized?: boolean; fundingAuthorizedUntil?: string | null;
 	contractPrice?: number | null; contractDurationDays?: number | null;
 	priceBefore?: number | null; priceAfter?: number | null; durationBefore?: number | null; durationAfter?: number | null;
 }

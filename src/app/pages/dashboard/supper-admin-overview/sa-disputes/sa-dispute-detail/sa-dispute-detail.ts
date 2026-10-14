@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
 import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, ResolveFinancialPayload, FinancialOutcomeCode, DisputeAiSummary } from '../../../../../core/models/dispute.model';
 import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionText } from '../../../../../core/utils/dispute-labels.util';
 
@@ -22,6 +23,7 @@ export class SaDisputeDetail implements OnInit {
   private disputeApi = inject(DisputeApiService);
   private opsApi = inject(AdminOpsApiService);
   private notify = inject(UiNotificationService);
+  private auth = inject(AuthStore);
 
   selectedDispute = signal<Dispute | null>(null);
   loading = signal(true);
@@ -261,6 +263,8 @@ export class SaDisputeDetail implements OnInit {
   /** Why a financial decision is not available, or '' when it is. */
   financialBlockedReason(d: Dispute): string {
     if (!this.canResolve(d.status)) return 'النزاع محسوم مسبقًا';
+    // Owner decision: only a SUPER_ADMIN account moves money (the backend refuses anyone else with 403).
+    if (this.auth.currentUser()?.accountType !== 'SUPER_ADMIN') return 'القرار المالي من صلاحية المدير الأعلى (SUPER_ADMIN) فقط. يمكنك إغلاق النزاع نصيًا دون أثر مالي';
     if (!d.escrow) return 'لا يوجد ضمان مرتبط بهذا النزاع';
     if (d.escrow.status !== 'HELD' || this.heldAmount(d) <= 0) return 'لا يوجد مبلغ محتجز لتسويته (المبالغ المصروفة سابقًا لا تُسترد بقرار نزاع)';
     if (d.contractStatus && d.contractStatus !== 'ACTIVE') return 'العقد غير نشط، لا يمكن تنفيذ قرار مالي';
