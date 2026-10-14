@@ -87,15 +87,7 @@ export class Sidebar implements OnInit {
 		}
 		// Fetch provider stats if role is provider to check profile completeness
 		if (this.effectiveRole() === UserRole.PROVIDER) {
-			if (this.authStore.currentUser()?.accountType !== AccountType.PROVIDER_COMPANY) {
-				// unknown/failed = closed: the backend must say the dashboard is open before the full menu shows
-				this.providerRestricted.set(true);
-				this.providerAccess.load().subscribe({
-					next: a => this.providerRestricted.set(a.canAccessDashboard !== true),
-					error: () => this.providerRestricted.set(true),
-				});
-			}
-			this.providerApiService.getOverviewStats().subscribe({
+			const loadStats = () => this.providerApiService.getOverviewStats().subscribe({
 				next: (res) => {
 					if (res.success && res.data?.summary) {
 						this.isProviderProfileIncomplete.set(!res.data.summary.profileSetupCompleted);
@@ -104,6 +96,20 @@ export class Sidebar implements OnInit {
 				},
 				error: (err) => console.error('Failed to load provider stats for sidebar', err)
 			});
+			if (this.authStore.currentUser()?.accountType !== AccountType.PROVIDER_COMPANY) {
+				// unknown/failed = closed: the backend must say the dashboard is open before the full menu shows.
+				// /provider/statistics is a gated endpoint (403 until approved), so it is only read once the backend said APPROVED.
+				this.providerRestricted.set(true);
+				this.providerAccess.load().subscribe({
+					next: a => {
+						this.providerRestricted.set(a.canAccessDashboard !== true);
+						if (a.canAccessDashboard === true) loadStats();
+					},
+					error: () => this.providerRestricted.set(true),
+				});
+			} else {
+				loadStats();
+			}
 			// Company accounts: seed the "طلبات الموافقة" pending badge.
 			if (this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY) {
 				this.marketingCenterService.refreshPendingCount();
