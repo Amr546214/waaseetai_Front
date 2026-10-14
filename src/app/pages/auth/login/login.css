@@ -65,7 +65,9 @@ app-login .modal-actions{display:flex;flex-direction:column;gap:8px}
 @media(max-width:767px){app-login .auth-section{padding:80px 16px 36px}app-login .auth-card{padding:26px 18px 22px}}
 app-login .social-login{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
 app-login .btn-social{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;border:1.5px solid var(--crd-bd);background:var(--crd-bg);color:var(--txt)}
-app-login .btn-social:hover{border-color:var(--teal);background:var(--sec-hov);transform:translateY(-1px)}
+app-login .btn-social:hover:not(:disabled),app-login .google-btn-wrapper:hover .btn-google,app-login .google-btn-wrapper.is-hover .btn-google{border-color:var(--teal);background:var(--sec-hov)}
+app-login .google-btn-wrapper:focus-within .btn-google,app-login .google-btn-wrapper.is-focus .btn-google,app-login .btn-google:focus-visible{border-color:var(--teal);box-shadow:0 0 0 3px rgba(43,212,199,.35)}
+app-login .google-btn-wrapper:active .btn-google{border-color:var(--teal);background:var(--sec-hov)}
 app-login .btn-social svg{flex-shrink:0}
 app-login .social-divider{display:flex;align-items:center;gap:12px;margin-bottom:18px}
 app-login .social-divider::before,app-login .social-divider::after{content:'';flex:1;height:1px;background:var(--crd-bd)}
@@ -74,7 +76,8 @@ app-login .social-divider span{font-size:12px;color:var(--txt-3);font-weight:600
 /* ── App-only additions (features the design has no rule for) ── */
 /* Browser autofill keeps the design text colour instead of the UA yellow box. */
 app-login .field-in:-webkit-autofill,app-login .field-in:-webkit-autofill:hover,app-login .field-in:-webkit-autofill:focus,app-login .field-in:-webkit-autofill:active{transition:background-color 5000s ease-in-out 0s;-webkit-text-fill-color:var(--txt) !important}
-app-login .btn-social:disabled{opacity:.5;cursor:not-allowed;transform:none !important}
+app-login .btn-social:disabled,app-login .btn-apple:disabled{opacity:.5;cursor:not-allowed;pointer-events:none;transform:none !important;border-color:var(--crd-bd);box-shadow:none}
+app-login .apple-unavailable-note{margin:-12px 0 14px;font-size:12px;font-weight:600;color:var(--txt-2);text-align:center}
 /* "Apple coming soon" notice shown under the social buttons. */
 app-login .social-note{margin:-12px 0 14px;padding:9px 12px;border-radius:10px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.22);font-size:12.5px;font-weight:600;color:var(--teal);text-align:center}
 /* Google Sign-In overlay: the visible .btn-social is the design button; the real

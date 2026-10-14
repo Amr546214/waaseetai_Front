@@ -7,6 +7,7 @@ import { AuthApiService } from '../../../core/services/auth-api.service';
 import { AuthResponse } from '../../../core/models/auth.model';
 import { AuthStore } from '../../../core/store/auth.store';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
+import { GoogleBtnStateDirective } from '../../../shared/directives/google-btn-state.directive';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
 import { loginOtpNotice, unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
@@ -24,7 +25,7 @@ export const SMS_UNAVAILABLE_MESSAGE = 'التحقق عبر الرسائل ال�
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, FormSummaryComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, GoogleBtnStateDirective, FormSummaryComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
   encapsulation: ViewEncapsulation.None,
@@ -39,7 +40,6 @@ export class Login {
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly notify = inject(UiNotificationService);
   private readonly otpHandoff = inject(OtpHandoffService);
-  appleNotice = '';
   isSubmitting = false;
   // Set on a 404 from /auth/google (intent: 'login') — no Waseet account
   // exists for that Google identity. Per product requirement: a Login
@@ -158,13 +158,6 @@ export class Login {
 
   togglePassword() {
     this.showPassword = !this.showPassword;
-  }
-
-  appleSignIn() {
-    // Apple Sign-In is not wired to a backend endpoint yet — tell the user
-    // instead of failing silently.
-    this.appleNotice = 'تسجيل الدخول عبر آبل غير متاح حاليًا، يمكنك المتابعة بجوجل أو بالبريد';
-    this.cdr.markForCheck();
   }
 
   onSubmit() {

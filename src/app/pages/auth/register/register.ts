@@ -8,6 +8,7 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { AccountType } from '../../../core/models/auth.model';
 import { getWelcomeRoleKey } from '../../../core/guards/auth.guards';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
+import { GoogleBtnStateDirective } from '../../../shared/directives/google-btn-state.directive';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
@@ -33,7 +34,7 @@ const REGISTER_LABELS: Record<string, string> = {
 @Component({
 	selector: 'app-register',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, AffiliatePicker, FormSummaryComponent],
+	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, GoogleBtnStateDirective, AffiliatePicker, FormSummaryComponent],
 	templateUrl: './register.html',
 	styleUrl: './register.css',
 	encapsulation: ViewEncapsulation.None,
@@ -58,7 +59,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	/** What is missing after a failed submit attempt (shown by <ws-form-summary>). */
 	missingFields: InvalidField[] = [];
 	private readonly host = inject(ElementRef<HTMLElement>);
-	appleNotice = '';
 
 	// Set once /auth/google confirms a NEW Google identity (intent: register).
 	// submitRegistration() sends it back as googleIdToken so the backend can
@@ -466,13 +466,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		if (this.currentStep > 1) {
 			this.currentStep--;
 		}
-	}
-
-	appleSignIn() {
-		// Apple Sign-In is not wired to a backend endpoint yet — tell the user
-		// instead of failing silently.
-		this.appleNotice = 'التسجيل عبر آبل غير متاح حاليًا، يمكنك المتابعة بجوجل أو بالبريد';
-		this.cdr.markForCheck();
 	}
 
 	togglePassword() {
