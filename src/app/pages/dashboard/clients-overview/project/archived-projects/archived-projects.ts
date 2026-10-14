@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
 
 type ProjectStatus = 'done' | 'cancel' | 'arch';
 type FilterStatus = 'all' | ProjectStatus;
@@ -104,9 +105,12 @@ export class ArchivedProjects implements OnInit {
 				this.projects.set(mapped);
 			},
 			error: (err) => {
-				this.isLoading.set(false);
-				this.hasError.set(true);
-				this.errorMessage.set(err?.error?.message || err?.message || 'تعذر تحميل المشاريع المنتهية');
+				handleLoadError(err, {
+					hasData: () => this.projects().length > 0,
+					onKeep: () => this.isLoading.set(false),
+					onRateLimit: () => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(RATE_LIMIT_MESSAGE); },
+					onOtherError: () => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(err?.error?.message || err?.message || 'تعذر تحميل المشاريع المنتهية'); },
+				});
 			}
 		});
 	}

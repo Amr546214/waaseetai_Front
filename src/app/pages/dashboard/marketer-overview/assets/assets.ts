@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MarketerOverviewService, MarketerAssetFile, RefLinksData } from '../../../../core/services/marketer-overview.service';
 import { buildReferralUrl } from '../../../../core/utils/referral-link.util';
+import { handleLoadError } from '../../../../core/utils/rate-limit.util';
 
 const KIND_LABEL: Record<MarketerAssetFile['kind'], string> = { BANNER: 'بنر', TEMPLATE: 'قالب', FILE: 'ملف', IMAGE: 'صورة', VIDEO: 'فيديو', DOCUMENT: 'مستند', LINK: 'رابط', TEXT: 'نص' };
 
@@ -41,7 +42,12 @@ export class MarketerAssets implements OnInit {
 		this.error.set(false);
 		this.service.getAssets().subscribe({
 			next: (res) => { this.files.set(res.data?.items ?? []); this.loading.set(false); },
-			error: () => { this.error.set(true); this.loading.set(false); }
+			error: (err) => handleLoadError(err, {
+				hasData: () => this.files().length > 0,
+				onKeep: () => this.loading.set(false),
+				onRateLimit: () => { this.error.set(true); this.loading.set(false); },
+				onOtherError: () => { this.error.set(true); this.loading.set(false); },
+			})
 		});
 		this.service.getRefLinks().subscribe({ next: (res) => { if (res.success) this.links.set(res.data); }, error: () => {} });
 	}

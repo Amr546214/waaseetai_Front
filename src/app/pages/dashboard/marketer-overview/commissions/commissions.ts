@@ -3,6 +3,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { commissionTypeLabel } from '../../../../core/utils/marketer-labels.util';
 import { MarketerOverviewService, MarketerSummary, CommissionLog, MarketerWallet } from '../../../../core/services/marketer-overview.service';
+import { handleLoadError } from '../../../../core/utils/rate-limit.util';
 
 @Component({
   selector: 'app-commissions',
@@ -93,7 +94,12 @@ export class Commissions implements OnInit {
         }
         this.isLoading.set(false);
       },
-      error: () => { this.isLoading.set(false); this.loadFailed.set(true); }
+      error: (err) => handleLoadError(err, {
+        hasData: () => this.commissions().length > 0,
+        onKeep: () => this.isLoading.set(false),
+        onRateLimit: () => { this.isLoading.set(false); this.loadFailed.set(true); },
+        onOtherError: () => { this.isLoading.set(false); this.loadFailed.set(true); },
+      })
     });
   }
 

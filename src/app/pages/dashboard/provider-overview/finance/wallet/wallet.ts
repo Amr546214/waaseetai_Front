@@ -7,6 +7,7 @@ import { ProviderDepositModal } from './deposit-modal/deposit-modal';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
 
 export interface WalletTransaction {
   id: string;
@@ -135,8 +136,12 @@ export class Wallet implements OnInit {
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(err.error?.message || 'تعذر تحميل بيانات المحفظة');
-        this.loading.set(false);
+        handleLoadError(err, {
+          hasData: () => this.data() != null,
+          onKeep: () => this.loading.set(false),
+          onRateLimit: () => { this.error.set(RATE_LIMIT_MESSAGE); this.loading.set(false); },
+          onOtherError: () => { this.error.set(err.error?.message || 'تعذر تحميل بيانات المحفظة'); this.loading.set(false); },
+        });
       }
     });
   }

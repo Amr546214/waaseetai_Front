@@ -6,11 +6,13 @@ import { MarketerOverviewService, RefLinksData, ReferralCustomLink, MarketerSumm
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { copyText } from '../../../../core/utils/marketer-labels.util';
 import { buildReferralUrl } from '../../../../core/utils/referral-link.util';
+import { handleLoadError } from '../../../../core/utils/rate-limit.util';
+import { LoadRetryComponent } from '../../../../sheards/load-retry/load-retry';
 
 @Component({
   selector: 'app-ref-links',
   standalone: true,
-  imports: [MarketerLevelTagComponent, CommonModule, FormsModule],
+  imports: [MarketerLevelTagComponent, CommonModule, FormsModule, LoadRetryComponent],
   templateUrl: './ref-links.html',
   styleUrl: './ref-links.css',
 })
@@ -20,6 +22,8 @@ export class RefLinks implements OnInit {
 
   data = signal<RefLinksData | null>(null);
   summary = signal<MarketerSummary | null>(null);
+  /** 429 with nothing loaded yet: retry state instead of an empty page. */
+  loadTemporaryError = signal(false);
   isLoading = signal(true);
   
   newChannelName = signal('');
@@ -45,6 +49,7 @@ export class RefLinks implements OnInit {
 
   loadData() {
     this.isLoading.set(true);
+    this.loadTemporaryError.set(false);
     
     this.service.getSummary().subscribe({
       next: (res) => {
@@ -61,7 +66,12 @@ export class RefLinks implements OnInit {
         }
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: (err) => handleLoadError(err, {
+        hasData: () => this.data() != null,
+        onKeep: () => this.isLoading.set(false),
+        onRateLimit: () => { this.loadTemporaryError.set(true); this.isLoading.set(false); },
+        onOtherError: () => this.isLoading.set(false),
+      })
     });
   }
 

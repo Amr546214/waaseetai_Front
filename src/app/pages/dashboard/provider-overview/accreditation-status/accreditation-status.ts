@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { PROVIDER_SETUP_PAGE } from '../profile/profile-setup/provider-setup-state';
+import { RATE_LIMIT_CHECK_MESSAGE, isRateLimitError } from '../../../../core/utils/rate-limit.util';
 import { ProviderAccessService, ProviderAccessState } from '../../../../core/services/provider-access.service';
 
 export const SAMPLE_REQUIRED_MESSAGE = 'اجتزت الاختبار، لكن يجب رفع نموذج الاعتماد لإكمال المراجعة.';
@@ -30,6 +31,9 @@ export class AccreditationStatusPage implements OnInit {
 
 	readonly loading = signal(true);
 	readonly failed = signal(false);
+	/** The failed check was a 429: a temporary condition, shown with neutral wording (never "not approved"). */
+	readonly rateLimited = signal(false);
+	readonly rateLimitText = RATE_LIMIT_CHECK_MESSAGE;
 	readonly data = signal<ProviderAccessState | null>(null);
 
 	ngOnInit() { this.refresh(); }
@@ -37,10 +41,11 @@ export class AccreditationStatusPage implements OnInit {
 	refresh() {
 		this.loading.set(true);
 		this.failed.set(false);
+		this.rateLimited.set(false);
 		this.access.invalidate();
 		this.access.load().subscribe({
 			next: s => { this.data.set(s); this.loading.set(false); },
-			error: () => { this.data.set(null); this.failed.set(true); this.loading.set(false); },
+			error: (e) => { this.data.set(null); this.rateLimited.set(isRateLimitError(e)); this.failed.set(true); this.loading.set(false); },
 		});
 	}
 

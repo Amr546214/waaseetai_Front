@@ -6,6 +6,8 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { LevelBadgeComponent } from '../../../shared/levels/level-badge.component';
 import { combineLatest, Subscription } from 'rxjs';
 import { SpecialtiesBar } from './specialties-bar/specialties-bar';
+import { isRateLimitError } from '../../../core/utils/rate-limit.util';
+import { LoadRetryComponent } from '../../../sheards/load-retry/load-retry';
 
 interface CategoryPalette {
 	bg: string;
@@ -24,7 +26,7 @@ interface FilterDraft { cat: string; levels: string[]; rating: number; maxDays: 
 @Component({
 	selector: 'app-marketplace',
 	standalone: true,
-	imports: [CommonModule, RouterLink, SpecialtiesBar, LevelBadgeComponent],
+	imports: [CommonModule, RouterLink, SpecialtiesBar, LevelBadgeComponent, LoadRetryComponent],
 	templateUrl: './marketplace.html',
 	styleUrl: './marketplace.css',
 	encapsulation: ViewEncapsulation.None
@@ -150,6 +152,8 @@ export class Marketplace implements OnInit, OnDestroy {
 
 	// ── State ──
 	isLoading = signal<boolean>(true);
+	/** A 429 left the list unread and nothing is loaded: retry state instead of the "no results" empty state. */
+	loadTemporaryError = signal(false);
 	searchQuery = signal<string>('');
 	selectedCategory = signal<string>('all');
 	selectedSub = signal<string>('');
@@ -376,6 +380,7 @@ export class Marketplace implements OnInit, OnDestroy {
 
 	loadModels() {
 		this.isLoading.set(true);
+		this.loadTemporaryError.set(false);
 		const results = this.resultsMode();
 		const filters: any = {
 			category: this.selectedCategory() !== 'all' ? this.selectedCategory() : undefined,
@@ -405,6 +410,7 @@ export class Marketplace implements OnInit, OnDestroy {
 			error: (err) => {
 				console.error('Failed to load marketplace models:', err);
 				this.isLoading.set(false);
+				if (isRateLimitError(err) && this.allModels().length === 0) this.loadTemporaryError.set(true);
 			}
 		});
 	}

@@ -141,7 +141,9 @@
 			</div>
 			}
 
-			@if (filteredOffers().length === 0) {
+			@if (loadTemporaryError()) {
+			<app-load-retry (retry)="fetchOffers()" />
+			} @else if (filteredOffers().length === 0) {
 			<div class="flex flex-col items-center justify-center py-12 px-4 text-center">
 				<div class="text-[#A8B2D1] text-sm font-bold mb-3">لا توجد عروض بهذا الفلتر</div>
 				<button type="button" (click)="setStatus('all'); setClientType('all')"
