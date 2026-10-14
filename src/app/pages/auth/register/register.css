@@ -218,8 +218,8 @@ app-register .rg-s2{--sec-hov:rgba(255,255,255,.10)}
 :is(.light-theme,.theme-light) app-register .rg-s2{--sec-hov:#F3F5FA}
 app-register .rg-s2 .social-login{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
 app-register .rg-s2 .btn-social{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;border:1.5px solid var(--crd-bd);background:var(--crd-bg);color:var(--txt)}
-app-register .rg-s2 .btn-social:hover:not(:disabled),app-register .rg-s2 .google-btn-wrapper:hover .btn-google{border-color:var(--teal);background:var(--sec-hov)}
-app-register .rg-s2 .google-btn-wrapper:focus-within .btn-google,app-register .rg-s2 .btn-google:focus-visible{border-color:var(--teal);box-shadow:0 0 0 3px rgba(43,212,199,.35)}
+app-register .rg-s2 .btn-social:hover:not(:disabled),app-register .rg-s2 .google-btn-wrapper:hover .btn-google,app-register .rg-s2 .google-btn-wrapper.is-hover .btn-google{border-color:var(--teal);background:var(--sec-hov)}
+app-register .rg-s2 .google-btn-wrapper:focus-within .btn-google,app-register .rg-s2 .google-btn-wrapper.is-focus .btn-google,app-register .rg-s2 .btn-google:focus-visible{border-color:var(--teal);box-shadow:0 0 0 3px rgba(43,212,199,.35)}
 app-register .rg-s2 .google-btn-wrapper:active .btn-google{border-color:var(--teal);background:var(--sec-hov)}
 app-register .rg-s2 .btn-social svg{flex-shrink:0}
 app-register .rg-s2 .social-divider{display:flex;align-items:center;gap:12px;margin-bottom:18px}

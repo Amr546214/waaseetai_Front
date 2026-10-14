@@ -65,8 +65,8 @@ app-login .modal-actions{display:flex;flex-direction:column;gap:8px}
 @media(max-width:767px){app-login .auth-section{padding:80px 16px 36px}app-login .auth-card{padding:26px 18px 22px}}
 app-login .social-login{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
 app-login .btn-social{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;border:1.5px solid var(--crd-bd);background:var(--crd-bg);color:var(--txt)}
-app-login .btn-social:hover:not(:disabled),app-login .google-btn-wrapper:hover .btn-google{border-color:var(--teal);background:var(--sec-hov)}
-app-login .google-btn-wrapper:focus-within .btn-google,app-login .btn-google:focus-visible{border-color:var(--teal);box-shadow:0 0 0 3px rgba(43,212,199,.35)}
+app-login .btn-social:hover:not(:disabled),app-login .google-btn-wrapper:hover .btn-google,app-login .google-btn-wrapper.is-hover .btn-google{border-color:var(--teal);background:var(--sec-hov)}
+app-login .google-btn-wrapper:focus-within .btn-google,app-login .google-btn-wrapper.is-focus .btn-google,app-login .btn-google:focus-visible{border-color:var(--teal);box-shadow:0 0 0 3px rgba(43,212,199,.35)}
 app-login .google-btn-wrapper:active .btn-google{border-color:var(--teal);background:var(--sec-hov)}
 app-login .btn-social svg{flex-shrink:0}
 app-login .social-divider{display:flex;align-items:center;gap:12px;margin-bottom:18px}

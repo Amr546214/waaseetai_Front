@@ -47,6 +47,10 @@ describe('Apple social button (static guard, login + register)', () => {
 				expect(p.css).toContain(`${p.scope}.google-btn-wrapper:hover .btn-google`);
 				expect(p.css).toMatch(/\.google-btn-wrapper:focus-within \.btn-google[^{]*\.btn-google:focus-visible\{border-color:var\(--teal\);box-shadow:0 0 0 3px/);
 				expect(p.css).toContain(`${p.scope}.google-btn-wrapper:active .btn-google`);
+				// the Google control is a cross-origin iframe overlay: state is mirrored by GoogleBtnStateDirective as classes
+				expect(p.css).toContain(`${p.scope}.google-btn-wrapper.is-hover .btn-google`);
+				expect(p.css).toContain(`${p.scope}.google-btn-wrapper.is-focus .btn-google`);
+				expect(p.ts).toContain('GoogleBtnStateDirective');
 				// base border is 1.5px and never changes width
 				expect(p.css).toMatch(/\.btn-social\{[^}]*border:1\.5px solid/);
 				expect(p.css).not.toMatch(/\.btn-(google|social)[^{]*:(hover|focus-visible|active)[^{]*\{[^}]*border-width/);
@@ -73,7 +77,7 @@ describe('Login social buttons (DOM)', () => {
 		const nav = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 		const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 		fixture.detectChanges();
-		return { el: fixture.nativeElement as HTMLElement, postSpy, nav, navigate, social: TestBed.inject(SocialAuthService) as any };
+		return { fixture, el: fixture.nativeElement as HTMLElement, postSpy, nav, navigate, social: TestBed.inject(SocialAuthService) as any };
 	}
 
 	it('Apple is disabled + aria-disabled, shows the note, and a forced click triggers no provider / http / navigation', () => {
@@ -102,5 +106,42 @@ describe('Login social buttons (DOM)', () => {
 		auth.authState.next({ idToken: 'tok', provider: 'GOOGLE' });
 		expect(postSpy).toHaveBeenCalled();
 		expect(JSON.stringify(postSpy.mock.calls[0])).toContain('google');
+	});
+
+	it('Google overlay state: is-hover follows pointer geometry (padded rect), is-focus follows document.activeElement, listeners removed on destroy', () => {
+		const { fixture, el } = setup();
+		const wrap = el.querySelector<HTMLElement>('.google-btn-wrapper')!;
+		wrap.getBoundingClientRect = () => ({ left: 100, top: 100, right: 300, bottom: 150, width: 200, height: 50, x: 100, y: 100, toJSON: () => ({}) }) as DOMRect;
+		const move = (x: number, y: number) => document.dispatchEvent(new MouseEvent('mousemove', { clientX: x, clientY: y }));
+		move(200, 120);
+		expect(wrap.classList.contains('is-hover')).toBe(true);
+		move(96, 120); // inside the 6px pad: last parent event before entering the iframe still counts
+		expect(wrap.classList.contains('is-hover')).toBe(true);
+		window.dispatchEvent(new Event('blur')); // click into the iframe must not clear hover
+		expect(wrap.classList.contains('is-hover')).toBe(true);
+		move(10, 10);
+		expect(wrap.classList.contains('is-hover')).toBe(false);
+		move(200, 120);
+		document.documentElement.dispatchEvent(new MouseEvent('mouseleave'));
+		expect(wrap.classList.contains('is-hover')).toBe(false);
+
+		const iframe = document.createElement('iframe');
+		wrap.appendChild(iframe);
+		const active = vi.spyOn(document, 'activeElement', 'get');
+		active.mockReturnValue(iframe);
+		window.dispatchEvent(new Event('blur'));
+		expect(wrap.classList.contains('is-focus')).toBe(true);
+		active.mockReturnValue(document.body);
+		document.dispatchEvent(new Event('focusin'));
+		expect(wrap.classList.contains('is-focus')).toBe(false);
+		active.mockReturnValue(iframe);
+		window.dispatchEvent(new Event('blur'));
+		expect(wrap.classList.contains('is-focus')).toBe(true);
+		active.mockRestore();
+
+		fixture.destroy();
+		wrap.classList.remove('is-hover');
+		move(200, 120);
+		expect(wrap.classList.contains('is-hover')).toBe(false);
 	});
 });

@@ -8,6 +8,7 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { AccountType } from '../../../core/models/auth.model';
 import { getWelcomeRoleKey } from '../../../core/guards/auth.guards';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
+import { GoogleBtnStateDirective } from '../../../shared/directives/google-btn-state.directive';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
@@ -33,7 +34,7 @@ const REGISTER_LABELS: Record<string, string> = {
 @Component({
 	selector: 'app-register',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, AffiliatePicker, FormSummaryComponent],
+	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, GoogleBtnStateDirective, AffiliatePicker, FormSummaryComponent],
 	templateUrl: './register.html',
 	styleUrl: './register.css',
 	encapsulation: ViewEncapsulation.None,

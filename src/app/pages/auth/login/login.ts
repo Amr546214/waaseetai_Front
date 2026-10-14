@@ -7,6 +7,7 @@ import { AuthApiService } from '../../../core/services/auth-api.service';
 import { AuthResponse } from '../../../core/models/auth.model';
 import { AuthStore } from '../../../core/store/auth.store';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
+import { GoogleBtnStateDirective } from '../../../shared/directives/google-btn-state.directive';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
 import { loginOtpNotice, unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
@@ -24,7 +25,7 @@ export const SMS_UNAVAILABLE_MESSAGE = 'التحقق عبر الرسائل ال�
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, FormSummaryComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, GoogleBtnStateDirective, FormSummaryComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
   encapsulation: ViewEncapsulation.None,
