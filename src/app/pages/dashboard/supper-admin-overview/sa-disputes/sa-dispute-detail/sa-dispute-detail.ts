@@ -6,7 +6,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
-import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, DisputeAiSummary } from '../../../../../core/models/dispute.model';
+import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, ResolveFinancialPayload, FinancialOutcomeCode, DisputeAiSummary } from '../../../../../core/models/dispute.model';
+import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionText } from '../../../../../core/utils/dispute-labels.util';
 
 @Component({
   selector: 'app-sa-dispute-detail',
@@ -51,20 +52,29 @@ export class SaDisputeDetail implements OnInit {
   aiSummaryLoading = signal(false);
   aiSummaryError = signal('');
 
-  // Split slider: only pre-fills the decision text/note of the manual resolve form. The decision is a record;
-  // no money moves (refund/release semantics are a pending product decision).
-  splitClaimantPct = signal(50);
+  // Two kinds of admin decision (the screen explains both):
+  //  1) TEXT closure/rejection (the "resolve"/"reject" form): recorded + both parties notified, moves NO money.
+  //  2) FINANCIAL decision (the "financial" form): explicit amounts that settle the whole held escrow, explicit confirmation, executed atomically
+  //     by the backend. Typing a code like REFUND_CLIENT in the text form executes nothing (the backend refuses it).
+  readonly resolutionPresets = ['MUTUAL_CLOSE', 'NO_FINANCIAL_CHANGE', 'REJECTED_INSUFFICIENT_EVIDENCE'];
+  presetLabel(code: string): string { return TEXT_CLOSURE_LABELS_AR[code] ?? code; }
+  resolutionDisplay = disputeResolutionText;
 
-  // Parties come from the real dispute (openedBy / againstUser). The admin API returns no respondent defence
-  // and no similar-case data, so none of those is shown.
-
-  readonly resolutionPresets = [
-    'REFUND_CLIENT',
-    'RELEASE_TO_PROVIDER',
-    'PARTIAL_REFUND',
-    'MUTUAL_CLOSE',
-    'REJECTED_INSUFFICIENT_EVIDENCE',
+  readonly financialOutcomes: { code: FinancialOutcomeCode; label: string; hint: string }[] = [
+    { code: 'REFUND_CLIENT', label: FINANCIAL_OUTCOME_LABELS_AR.REFUND_CLIENT, hint: 'يعود المبلغ المحتجز كاملًا إلى محفظة العميل ويُلغى العقد. لا عمولة.' },
+    { code: 'RELEASE_PROVIDER', label: FINANCIAL_OUTCOME_LABELS_AR.RELEASE_PROVIDER, hint: 'يُصرف المبلغ المحتجز كاملًا لمقدم الخدمة بعد خصم عمولة المنصة المثبّتة في العقد، ويُغلق العقد.' },
+    { code: 'SPLIT', label: FINANCIAL_OUTCOME_LABELS_AR.SPLIT, hint: 'يُقسَّم المبلغ المحتجز: جزء للعميل وجزء لمقدم الخدمة (العمولة على جزء مقدم الخدمة فقط).' },
   ];
+  outcomeHint(code: FinancialOutcomeCode): string { return this.financialOutcomes.find(o => o.code === code)?.hint ?? ''; }
+  showFinancialForm = signal(false);
+  finOutcome = signal<FinancialOutcomeCode | null>(null);
+  finRefund = signal('');
+  finRelease = signal('');
+  finNote = signal('');
+  finConfirmStep = signal(false);
+  finConfirmed = signal(false);
+  finSubmitting = signal(false);
+  finError = signal('');
 
   readonly statusLabels: Record<DisputeStatus, string> = {
     OPEN: 'مفتوح',
@@ -109,7 +119,7 @@ export class SaDisputeDetail implements OnInit {
     this.selectedDispute.set(null);
     this.aiSummary.set(null);
     this.aiSummaryError.set('');
-    this.splitClaimantPct.set(50);
+    this.cancelFinancialForm();
     this.noteDraft.set('');
     this.cancelResolveForm();
     this.disputeApi.getAdminDispute(id).subscribe({
@@ -242,24 +252,104 @@ export class SaDisputeDetail implements OnInit {
     this.runOp((id) => this.disputeApi.setAdminDisputeStatus(id, status), status === 'UNDER_REVIEW' ? 'بدأت مراجعة النزاع' : 'أُعيد النزاع إلى المفتوح', 'تعذر تغيير الحالة');
   }
 
-  onSplitInput(value: string) {
-    const n = Number(value);
-    if (!Number.isNaN(n)) this.splitClaimantPct.set(Math.min(100, Math.max(0, n)));
+  // ── Financial decision ──────────────────────────────────────────────
+  private round2(n: number): number { return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+  /** The unreleased escrow the decision must settle completely (server value; never computed from anything else). */
+  heldAmount(d: Dispute): number { return this.round2(d.heldEscrowAmount ?? 0); }
+
+  /** Why a financial decision is not available, or '' when it is. */
+  financialBlockedReason(d: Dispute): string {
+    if (!this.canResolve(d.status)) return 'النزاع محسوم مسبقًا';
+    if (!d.escrow) return 'لا يوجد ضمان مرتبط بهذا النزاع';
+    if (d.escrow.status !== 'HELD' || this.heldAmount(d) <= 0) return 'لا يوجد مبلغ محتجز لتسويته (المبالغ المصروفة سابقًا لا تُسترد بقرار نزاع)';
+    if (d.contractStatus && d.contractStatus !== 'ACTIVE') return 'العقد غير نشط، لا يمكن تنفيذ قرار مالي';
+    return '';
   }
 
-  /** Applies the chosen quick-verdict preset (and, for a partial split, the
-   *  slider's current percentages) by opening the existing manual resolve
-   *  form pre-filled — the actual submission still goes through the real
-   *  resolveAdminDispute() endpoint via the unchanged submitResolve() flow. */
-  applyVerdict(preset: string, d: Dispute) {
-    this.openResolveForm('resolve');
-    if (preset === 'PARTIAL_REFUND') {
-      const pct = this.splitClaimantPct();
-      this.resolutionText.set(`PARTIAL_REFUND`);
-      this.resolutionNote.set(`تقسيم الضمان: ${pct}% لمقدّم النزاع و${100 - pct}% للطرف الآخر`);
-    } else {
-      this.selectPreset(preset);
-    }
+  openFinancialForm() {
+    const d = this.selectedDispute();
+    if (!d || this.financialBlockedReason(d)) return;
+    this.cancelResolveForm();
+    this.finOutcome.set(null); this.finRefund.set(''); this.finRelease.set(''); this.finNote.set('');
+    this.finConfirmStep.set(false); this.finConfirmed.set(false); this.finError.set('');
+    this.showFinancialForm.set(true);
+  }
+
+  cancelFinancialForm() {
+    this.showFinancialForm.set(false);
+    this.finOutcome.set(null); this.finRefund.set(''); this.finRelease.set(''); this.finNote.set('');
+    this.finConfirmStep.set(false); this.finConfirmed.set(false); this.finError.set('');
+  }
+
+  /** Picking an outcome pre-fills explicit amounts that settle the whole held balance; the admin can still edit them before confirming. */
+  chooseOutcome(code: FinancialOutcomeCode) {
+    const d = this.selectedDispute(); if (!d) return;
+    const held = this.heldAmount(d);
+    this.finOutcome.set(code);
+    this.finConfirmStep.set(false); this.finConfirmed.set(false); this.finError.set('');
+    if (code === 'REFUND_CLIENT') { this.finRefund.set(held.toFixed(2)); this.finRelease.set('0.00'); }
+    else if (code === 'RELEASE_PROVIDER') { this.finRefund.set('0.00'); this.finRelease.set(held.toFixed(2)); }
+    else { const half = this.round2(held / 2); this.finRefund.set(half.toFixed(2)); this.finRelease.set(this.round2(held - half).toFixed(2)); }
+  }
+
+  private amount(v: string): number { const n = Number(String(v).trim()); return Number.isFinite(n) ? n : NaN; }
+  finRefundNum = computed(() => this.amount(this.finRefund()));
+  finReleaseNum = computed(() => this.amount(this.finRelease()));
+  finSum = computed(() => this.round2((this.finRefundNum() || 0) + (this.finReleaseNum() || 0)));
+
+  /** Client-side mirror of the backend rules (the backend re-checks everything). Returns an Arabic message or ''. */
+  financialValidation(d: Dispute): string {
+    const outcome = this.finOutcome(); const refund = this.finRefundNum(); const release = this.finReleaseNum(); const held = this.heldAmount(d);
+    if (!outcome) return 'اختر نوع القرار المالي';
+    if (Number.isNaN(refund) || Number.isNaN(release)) return 'أدخل مبلغين صحيحين';
+    if (refund < 0 || release < 0) return 'لا يمكن أن يكون المبلغ سالبًا';
+    if (this.round2(refund) !== refund || this.round2(release) !== release) return 'بحد أقصى خانتان عشريتان';
+    if (outcome === 'REFUND_CLIENT' && !(refund > 0 && release === 0)) return 'الاسترداد الكامل: مبلغ العميل أكبر من صفر ومبلغ مقدم الخدمة صفر';
+    if (outcome === 'RELEASE_PROVIDER' && !(release > 0 && refund === 0)) return 'الصرف الكامل: مبلغ مقدم الخدمة أكبر من صفر ومبلغ العميل صفر';
+    if (outcome === 'SPLIT' && !(release > 0 && refund > 0)) return 'التقسيم: يجب أن يكون المبلغان أكبر من صفر';
+    if (this.finSum() !== held) return `مجموع المبلغين (${this.finSum()}) يجب أن يساوي المبلغ المحتجز بالكامل (${held})`;
+    const note = this.finNote().trim();
+    if (note && note.length < 2) return 'الملاحظة قصيرة جدًا: اكتب حرفين على الأقل أو اتركها فارغة';
+    return '';
+  }
+
+  /** Step 1: validate and show the explicit confirmation; nothing is sent. */
+  requestFinancialConfirm() {
+    const d = this.selectedDispute(); if (!d) return;
+    const problem = this.financialValidation(d);
+    if (problem) { this.finError.set(problem); return; }
+    this.finError.set(''); this.finConfirmed.set(false); this.finConfirmStep.set(true);
+  }
+
+  /** Step 2: send. Only possible after the explicit checkbox; a second click while sending is ignored. */
+  submitFinancial() {
+    const d = this.selectedDispute(); const outcome = this.finOutcome();
+    if (!d || !outcome || this.finSubmitting() || !this.finConfirmStep() || !this.finConfirmed()) return;
+    const problem = this.financialValidation(d);
+    if (problem) { this.finError.set(problem); this.finConfirmStep.set(false); return; }
+    const payload: ResolveFinancialPayload = { outcome, refundToClient: this.finRefundNum(), releaseToProvider: this.finReleaseNum(), expectedHeldAmount: this.heldAmount(d), confirm: true };
+    const note = this.finNote().trim();
+    if (note) payload.resolutionNote = note;
+    this.finSubmitting.set(true); this.finError.set('');
+    this.disputeApi.resolveAdminDisputeFinancial(d.id, payload).subscribe({
+      next: (res) => {
+        this.finSubmitting.set(false);
+        if (res.success) {
+          this.notify.success('نُفِّذ القرار المالي وأُبلغ الطرفان');
+          this.cancelFinancialForm();
+          this.reload('');
+        } else {
+          this.finError.set(res.message || 'تعذر تنفيذ القرار المالي، لم يتغيّر أي مبلغ');
+          this.finConfirmStep.set(false);
+        }
+      },
+      error: (err) => {
+        this.finSubmitting.set(false);
+        this.finError.set(err?.error?.message || 'تعذر تنفيذ القرار المالي، لم يتغيّر أي مبلغ');
+        this.finConfirmStep.set(false);
+      },
+    });
   }
 
   // Advisory-only — purely additive read. Never touches resolutionText/

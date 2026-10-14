@@ -1,11 +1,12 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { Dispute } from '../../../../core/models/dispute.model';
+import { disputeResolutionText } from '../../../../core/utils/dispute-labels.util';
 
 interface DisputeTimelineStep {
   label: string;
@@ -81,7 +82,7 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
     timeline: buildTimeline(d.status),
     // Real backend text (description/resolution), not an AI-generated claim
     // — the banner's icon is decorative chrome from the existing template.
-    aiText: closed ? (d.resolutionNote || d.resolution || 'تم إغلاق النزاع') : d.description,
+    aiText: closed ? ([disputeResolutionText(d), d.resolutionNote].filter(Boolean).join(' — ') || 'تم إغلاق النزاع') : d.description,
     aiDone: closed,
     // No escrow-amount field exists on a Dispute row — omit rather than
     // fabricate a number; the template hides this line when amount is falsy.
@@ -104,6 +105,7 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
 export class Disputes implements OnInit {
   private authStore = inject(AuthStore);
   private disputeApi = inject(DisputeApiService);
+  private route = inject(ActivatedRoute);
   private notify = inject(UiNotificationService);
 
   readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
@@ -130,6 +132,7 @@ export class Disputes implements OnInit {
         if (res.success) {
           this.listUnavailable.set(false);
           this.disputes.set((res.data?.items || []).map(d => mapDispute(d, currentUserId)));
+          this.openFocusedDispute();
         } else {
           this.listUnavailable.set(true);
         }
@@ -140,6 +143,20 @@ export class Disputes implements OnInit {
       }
     });
   }
+
+  /**
+   * The client app has no dispute-details route: a notification links to /client-overview/disputes?dispute=<id>, and the list opens that
+   * dispute's details (and brings its card into view) instead of leaving the client to hunt for it.
+   */
+  private openFocusedDispute() {
+    const id = this.route.snapshot?.queryParamMap?.get('dispute');
+    if (!id || !this.disputes().some(d => d.id === id) || this.detailsId() === id) return;
+    this.toggleDetails(id);
+    queueMicrotask(() => (document.getElementById('dispute-' + id) as HTMLElement | null)?.scrollIntoView?.({ block: 'center' }));
+  }
+
+  /** Text of the admin decision (Arabic label for a code, the admin's own text verbatim) for the details panel. */
+  resolutionText = disputeResolutionText;
 
   setTab(t: string) {
     this.currentTab.set(t);

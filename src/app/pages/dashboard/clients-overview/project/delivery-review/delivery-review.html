@@ -105,9 +105,12 @@
 			<div class="dr-sec-ttl">قرارك</div>
 			<div class="dr-card">
 				@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
+				@if (freezeReason(); as fr) {
+					<div class="inline-error" role="status" data-testid="dr-freeze-banner"><b>الاعتماد موقوف مؤقتًا:</b> {{ fr }} <a routerLink="/client-overview/disputes">متابعة النزاع</a></div>
+				}
 				<div class="dr-decision-row">
 					@if (canDecide(stage)) {
-						<button type="button" class="dr-btn-pri" (click)="approveDelivery()" [disabled]="saving()">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
+						<button type="button" class="dr-btn-pri" data-testid="dr-approve" (click)="approveDelivery()" [disabled]="saving() || !!freezeReason()" [attr.title]="freezeReason()">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
 					}
 					@if (canDecide(stage)) {
 						<button type="button" class="dr-btn-secondary" data-testid="dr-revision-toggle" (click)="toggleRevision()" [disabled]="saving()">طلب تعديل على التسليم</button>

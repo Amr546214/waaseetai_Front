@@ -25,6 +25,9 @@
       </div>
       <span class="opill op-active"><span class="lv"></span>{{data.statusLabel}}</span>@if(data.disputeStatus){<span class="opill" data-testid="dispute-badge">نزاع مفتوح</span>}
     </div>
+    @if(data.disputeFreeze?.frozen){
+    <div class="review-note" role="status" data-testid="provider-freeze-banner"><b>اعتماد المراحل وصرف الدفعات موقوفان مؤقتًا:</b> {{data.disputeFreeze.reason}} يمكنك متابعة التسليم والمحادثة ورفع الأدلة كالمعتاد. <a routerLink="/provider-overview/disputes/{{data.disputeFreeze.disputeId}}" data-testid="provider-freeze-link">متابعة النزاع</a></div>
+    }
     @if(isCompanyMode() && assignedProvider(); as ap){
     <div class="from-member">
       <span class="from-av">{{ap.initial}}</span>

@@ -138,6 +138,10 @@ export class DeliveryReview implements OnInit {
 	// whether approving is actually still possible.
 	canDecide(stage: any): boolean { return stage?.status === 'submitted'; }
 
+	// Dispute freeze: while a dispute on this project is open the backend refuses approvals (423). The button stays visible but disabled with
+	// the reason; chat, evidence and the provider's deliveries are untouched, and a revision request is still possible.
+	freezeReason(): string | null { const f = this.project()?.disputeFreeze; return f?.frozen ? (f.reason || 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع') : null; }
+
 	statusBadgeText(stage: any): string {
 		switch (stage?.status) {
 			case 'submitted': return stage?.revisionResubmitted ? 'أُعيد التسليم، بانتظار اعتمادك' : 'بانتظار اعتمادك';
@@ -160,6 +164,7 @@ export class DeliveryReview implements OnInit {
 	approveDelivery() {
 		const stage = this.stage();
 		if (!stage || this.saving()) return;
+		if (this.freezeReason()) { this.error.set(this.freezeReason()!); return; }
 		this.saving.set(true); this.error.set('');
 		// Capture real, already-known values now — the workspace is reloaded right
 		// after a successful approval and this stage's status/threads will change.

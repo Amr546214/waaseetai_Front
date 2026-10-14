@@ -16,6 +16,9 @@ interface PendingDeliveryItem {
 	providerName: string;
 	filesCount: number;
 	contractRef: string;
+	/** An open dispute on the project freezes approval (the backend refuses it); the reason is shown instead of offering it as ready. */
+	frozen?: boolean;
+	approvalBlockedReason?: string | null;
 }
 
 @Component({

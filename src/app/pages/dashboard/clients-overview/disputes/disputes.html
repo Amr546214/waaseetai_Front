@@ -62,7 +62,7 @@
   <!-- Disputes List -->
   <div class="dp-list">
     @for (d of filteredDisputes(); track d.id) {
-      <div class="dp-card" [class.dp-attn]="d.activeBorder" [attr.data-st]="d.status" [attr.data-who]="d.who" [attr.data-extra]="d.extra">
+      <div class="dp-card" [attr.id]="'dispute-' + d.id" [class.dp-attn]="d.activeBorder" [attr.data-st]="d.status" [attr.data-who]="d.who" [attr.data-extra]="d.extra">
         <div class="dp-top">
           <div class="dp-id">
             <span class="dp-ico" [class.dp-ico-disp]="d.icon === 'shield'" [class.dp-ico-canc]="d.icon === 'hands'" [class.dp-ico-done]="d.icon === 'check'">
@@ -143,8 +143,19 @@
               @if (x.heldEscrowAmount !== null && x.heldEscrowAmount !== undefined) {
                 <div data-testid="dispute-held"><b>المبلغ المحتجز بالضمان:</b> {{ x.heldEscrowAmount | number:'1.0-2' }} $</div>
               }
+              @if (x.projectFreeze?.frozen && (x.status === 'OPEN' || x.status === 'UNDER_REVIEW')) {
+                <div data-testid="dispute-freeze"><b>أثر النزاع على المشروع:</b> {{ x.projectFreeze?.reason }}</div>
+              }
               @if (x.resolution || x.resolutionNote) {
-                <div><b>قرار الإدارة:</b> {{ x.resolution }}{{ x.resolutionNote ? ' — ' + x.resolutionNote : '' }}</div>
+                <div data-testid="dispute-resolution"><b>قرار الإدارة:</b> {{ resolutionText(x) }}{{ x.resolutionNote ? ' — ' + x.resolutionNote : '' }}</div>
+              }
+              @if (x.financialOutcome; as fo) {
+                <div data-testid="dispute-financial"><b>الأثر المالي:</b>
+                  @if (fo.refundToClient > 0) { أُعيد {{ fo.refundToClient | number:'1.0-2' }} $ إلى محفظة العميل. }
+                  @if (fo.releaseToProvider > 0) { صُرف {{ fo.releaseToProvider | number:'1.0-2' }} $ لمقدم الخدمة. }
+                </div>
+              } @else if (x.status === 'RESOLVED' || x.status === 'REJECTED') {
+                <div data-testid="dispute-no-financial"><b>الأثر المالي:</b> لم يتغيّر أي مبلغ مالي بهذا القرار.</div>
               }
               <div><b>الحالة:</b> {{ d.badgeText }}. القرار للإدارة وحدها.</div>
               @if (d.targetId) { <div><a [routerLink]="['/client-overview/projects', d.targetId]">فتح صفحة المشروع</a></div> }

@@ -13,6 +13,8 @@ import {
   DisputeListApiResponse,
   ResolveDisputeApiResponse,
   ResolveDisputePayload,
+  ResolveFinancialPayload,
+  ResolveFinancialApiResponse,
 } from '../models/dispute.model';
 
 @Injectable({
@@ -149,6 +151,11 @@ export class DisputeApiService {
   }
 
   /** POST /api/admin/disputes/:id/assign — assigns the dispute to a staff member (audit-logged). */
+  /** Financial decision (explicit amounts + confirm). POST /api/admin/disputes/:id/resolve-financial */
+  resolveAdminDisputeFinancial(id: string, payload: ResolveFinancialPayload): Observable<ResolveFinancialApiResponse> {
+    return this.http.post<ResolveFinancialApiResponse>(`${this.baseUrl}/admin/disputes/${id}/resolve-financial`, payload);
+  }
+
   assignAdminDispute(id: string, assigneeId: string): Observable<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>> {
     return this.http.post<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>>(`${this.baseUrl}/admin/disputes/${id}/assign`, { assigneeId });
   }

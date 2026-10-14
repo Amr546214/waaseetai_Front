@@ -44,10 +44,35 @@ export interface Dispute {
   /** Admin detail only: escrow of the dispute's project, straight from the database. */
   escrow?: { status: 'HELD' | 'RELEASED' | 'REFUNDED'; amount: number; releasedAmount: number; fundedAt: string | null } | null;
   contractStatus?: string | null;
+  /** Arabic text of `resolution` (codes translated, admin free text verbatim). Prefer it over the raw `resolution`. */
+  resolutionLabel?: string;
+  /** Set only when a financial decision was really executed (amounts in USD). */
+  financialOutcome?: FinancialOutcome | null;
+  /** The dispute's project freeze state (approvals/releases frozen while any dispute of it is open). */
+  projectFreeze?: ProjectFreeze | null;
   /** Admin detail only: internal notes (never returned to the parties). */
   notes?: { id: string; body: string; createdAt: string; admin: { id: string; name: string } | null }[];
   /** Admin detail only: audit-log timeline of everything an admin did on this dispute. */
   timeline?: { id: string; eventType: string; title: string; summary: string | null; occurredAt: string; admin: { id: string; name: string } | null }[];
+}
+
+export interface FinancialOutcome {
+  outcome: FinancialOutcomeCode;
+  refundToClient: number;
+  releaseToProvider: number;
+  platformCommission: number;
+  providerNet: number;
+}
+
+export type FinancialOutcomeCode = 'REFUND_CLIENT' | 'RELEASE_PROVIDER' | 'SPLIT';
+
+/** Same shape the progress/workspace endpoints return as `disputeFreeze`. */
+export interface ProjectFreeze {
+  frozen: boolean;
+  activeDisputeCount: number;
+  disputeId: string | null;
+  disputeStatus?: DisputeStatus | null;
+  reason: string | null;
 }
 
 export interface DisputePagination {
@@ -70,6 +95,16 @@ export interface ResolveDisputePayload {
   resolutionNote?: string;
 }
 
+/** POST /api/admin/disputes/:id/resolve-financial - the only call that moves money for a dispute. */
+export interface ResolveFinancialPayload {
+  outcome: FinancialOutcomeCode;
+  refundToClient: number;
+  releaseToProvider: number;
+  expectedHeldAmount: number;
+  confirm: true;
+  resolutionNote?: string;
+}
+
 export interface AdminDisputesQuery {
   status?: DisputeStatus;
   page?: number;
@@ -80,6 +115,7 @@ export type DisputeApiResponse = ApiResponse<Dispute>;
 export type DisputeListApiResponse = ApiResponse<DisputeListData>;
 export type CreateDisputeApiResponse = ApiResponse<{ id: string }>;
 export type ResolveDisputeApiResponse = ApiResponse<Dispute>;
+export type ResolveFinancialApiResponse = ApiResponse<Dispute & { financialOutcome: FinancialOutcome }>;
 
 // Advisory-only AI summary (Implementation Batch 2, Part B). Never a
 // verdict/fault/money field — the human admin resolve/reject flow above is
