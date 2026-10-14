@@ -72,7 +72,9 @@ describe('D1 admin pages read the real endpoints', () => {
 	});
 
 	it('super-admins page: settings are read-only (no save), audit reads real events', () => {
-		const get = vi.fn(() => of(ok({ events: [{ id: 'e1', category: 'SECURITY_CHANGE', eventType: 'X', title: 'حدث حقيقي', summary: 's', severity: 'INFO', source: 'ADMIN', status: 'COMPLETED', occurredAt: new Date().toISOString(), ipAddress: null, device: null, actorLabel: null }], kpis: {} })));
+		// D3: the page reads /admin/console/admins (roster) and /admin/console/audit-log (items + pagination + eventTypes)
+		const entry = { id: 'e1', category: 'SECURITY_CHANGE', eventType: 'X', title: 'حدث حقيقي', summary: 's', severity: 'INFO', source: 'ADMIN', status: 'COMPLETED', occurredAt: new Date().toISOString(), ipAddress: null, device: null, actorLabel: null, account: { id: 'a', name: 'م', accountType: 'ADMIN' } };
+		const get = vi.fn((url: string) => of(url.includes('/audit-log') ? ok({ items: [entry], pagination: { page: 1, limit: 20, total: 1, pages: 1 }, eventTypes: ['X'] }) : ok([])));
 		const f = mount(SaSuperAdmins, get);
 		const el: HTMLElement = f.nativeElement;
 		expect(el.textContent).not.toContain('smtp.sendgrid.net');

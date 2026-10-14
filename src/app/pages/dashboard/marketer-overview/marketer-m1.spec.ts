@@ -117,7 +117,8 @@ describe('Referral links (M1)', () => {
 describe('Commissions page (M1)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 	it('held / withdrawn come from the server totals, not from the loaded page', () => {
-		const f = make(Commissions, svc({ getSummary: () => of({ success: true, data: { ...EMPTY_SUMMARY, pendingCommissions: 30, paidCommissions: 70 } }) }));
+		// M2: the held / withdrawn figures are the wallet's own server totals (the same ones the withdraw page uses)
+		const f = make(Commissions, svc({ getWallet: () => of({ success: true, data: { pendingEarnings: 30, paidWithdrawals: 70 } }) }));
 		const c = f.componentInstance as Commissions;
 		expect(c.heldAmount()).toBe(30);
 		expect(c.withdrawnAmount()).toBe(70);

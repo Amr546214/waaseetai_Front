@@ -17,15 +17,19 @@ const flagged = (list: readonly Route[], trail = ''): string[] =>
 	]);
 
 describe('Bebo is present for every role layout', () => {
-	it('no route of the client, provider, marketer or admin dashboards hides it', () => {
-		expect(flagged(CLIENT_OVERVIEW_ROUTES)).toEqual([]);
-		expect(flagged(PROVIDER_OVERVIEW_ROUTES)).toEqual([]);
-		expect(flagged(MARKETER_ROUTES)).toEqual([]);
-		expect(flagged(SUPPER_ADMIN_ROUTES)).toEqual([]);
+	it('no route of the client, provider, marketer or admin dashboards hides it, except the embedded not-found wildcard', () => {
+		// the in-dashboard 404 page (path "**", embedded) is the only opt-out inside a role layout
+		expect(flagged(CLIENT_OVERVIEW_ROUTES)).toEqual(['/**']);
+		expect(flagged(PROVIDER_OVERVIEW_ROUTES)).toEqual(['/**']);
+		expect(flagged(MARKETER_ROUTES)).toEqual(['//**']); // under the pathless prefs-guard wrapper
+		expect(flagged(SUPPER_ADMIN_ROUTES)).toEqual(['/**']);
 	});
 
-	it('at the app root only auth + error pages + not-found opt out', () => {
-		expect(flagged(APP_ROUTES).sort()).toEqual(['//**', '//auth', '//error/403', '//error/500', '//error/maintenance', '//error/session-expired'].sort());
+	it('at the app root only auth + error pages + not-found (root and the per-role embedded 404) opt out', () => {
+		expect(flagged(APP_ROUTES).sort()).toEqual([
+			'/**', '/auth', '/error/403', '/error/500', '/error/maintenance', '/error/session-expired',
+			'/client-overview/**', '/provider-overview/**', '/marketer-overview//**', '/supper-admin-overview/**',
+		].sort());
 	});
 
 	it('it is mounted once at the root, behind the single hideAssistant check, and nowhere else', () => {
