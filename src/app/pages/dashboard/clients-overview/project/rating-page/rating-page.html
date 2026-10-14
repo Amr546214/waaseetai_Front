@@ -27,6 +27,7 @@
 
 		@if (view() === 'saved' && status(); as st) {
 			<!-- The review the user already saved: READ ONLY (no form, no submit, no skip, no edit) -->
+			@if (st.adminSettled) { <app-settlement-summary [distribution]="st.adminSettled.distribution" /> }
 			<div class="rp-sec-ttl">تقييمك المحفوظ</div>
 			@if (submitSuccess()) { <div class="rp-success" role="status">تم إرسال تقييمك، شكرًا لك</div> }
 			<app-rating-saved-card [review]="st.review!" label="تقييمك لمقدّم الخدمة" />
@@ -37,6 +38,7 @@
 				<button type="button" class="rp-btn-pri" (click)="back()">{{ backLabel() }}</button>
 			</div>
 		} @else if (view() === 'blocked') {
+			@if (status()?.adminSettled; as settled) { <app-settlement-summary [distribution]="settled.distribution" /> }
 			<div class="rp-card" role="status" data-testid="rating-blocked">
 				<div class="rp-rate-lbl">{{ status()?.adminSettled ? 'أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه' : (status()?.message || 'التقييم غير متاح الآن') }}</div>
 				<div class="rp-acts"><button type="button" class="rp-btn-pri" (click)="back()">{{ backLabel() }}</button></div>

@@ -7,12 +7,13 @@ import { environment } from '../../../../../../environments/environment';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingScore, RatingStatus } from '../../../../../core/models/rating.model';
 import { RatingSavedCard } from '../../../../../sheards/rating-saved-card/rating-saved-card.component';
+import { SettlementSummary } from '../../../../../sheards/settlement-summary/settlement-summary.component';
 import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-rating-page',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RatingSavedCard],
+	imports: [CommonModule, FormsModule, RatingSavedCard, SettlementSummary],
 	templateUrl: './rating-page.html',
 	styleUrl: './rating-page.css',
 })
@@ -158,8 +159,9 @@ export class RatingPage implements OnInit {
 	headerTitle(): string {
 		if (this.isStageRating) return 'قيّم هذه المرحلة';
 		const st = this.status();
-		if (st?.review) return 'تقييمك المحفوظ';
+		// A project closed by a settlement is never presented as "completed successfully", whatever else is shown below.
 		if (st?.adminSettled) return 'أُغلق بتسوية نزاع';
+		if (st?.review) return 'تقييمك المحفوظ';
 		return st?.canRate ? 'اكتمل المشروع بنجاح' : 'التقييم غير متاح الآن';
 	}
 	headerSub(): string {
@@ -167,7 +169,7 @@ export class RatingPage implements OnInit {
 			return `${this.projectTitle()} · ${this.stageTitle()} · شارك تقييمك حول جودة تسليم هذه المرحلة`;
 		}
 		const st = this.status();
-		if (st && !st.canRate) return `${this.projectTitle()} · مع ${this.providerName()}`;
+		if (st && !st.canRate) return `${this.projectTitle()} · مع ${this.providerName()}${st.adminSettled ? ' · التوزيع الفعلي أدناه' : ''}`;
 		return `${this.projectTitle()} · مع ${this.providerName()} · أُفرِج كامل المبلغ ${this.releasedAmount()} $`;
 	}
 	sectionTitle(): string {

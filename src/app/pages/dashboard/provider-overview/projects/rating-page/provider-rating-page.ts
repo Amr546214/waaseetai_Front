@@ -6,12 +6,13 @@ import { ActiveProjectsService } from '../../../../../core/services/active.servi
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingScore, RatingStatus } from '../../../../../core/models/rating.model';
 import { RatingSavedCard } from '../../../../../sheards/rating-saved-card/rating-saved-card.component';
+import { SettlementSummary } from '../../../../../sheards/settlement-summary/settlement-summary.component';
 import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-provider-rating-page',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RatingSavedCard],
+	imports: [CommonModule, FormsModule, RatingSavedCard, SettlementSummary],
 	templateUrl: './provider-rating-page.html',
 	styleUrl: './provider-rating-page.css',
 })

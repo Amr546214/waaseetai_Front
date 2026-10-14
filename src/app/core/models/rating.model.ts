@@ -32,6 +32,15 @@ export interface SavedReview {
 	createdAt: string;
 }
 
+/** What the admin really executed when a dispute closed the project (USD). */
+export interface SettlementDistribution {
+	outcome: string;
+	refundToClient: number;
+	releaseToProvider: number;
+	platformCommission: number;
+	providerNet: number;
+}
+
 /** What the rating page asks the server BEFORE it shows a form: may this user rate, and what did they already rate. */
 export interface RatingStatus {
 	projectId: string | null;
@@ -40,6 +49,6 @@ export interface RatingStatus {
 	canRate: boolean;
 	reason: 'ALREADY_RATED' | 'ADMIN_SETTLED' | 'NOT_COMPLETED' | null;
 	message: string;
-	adminSettled: { disputeId: string; outcome: string; label: string } | null;
+	adminSettled: { disputeId: string; outcome: string; label: string; distribution: SettlementDistribution | null } | null;
 	review: SavedReview | null;
 }

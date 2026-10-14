@@ -78,14 +78,19 @@ describe('client rating page reads the server state before showing anything', ()
 	});
 
 	it('a project closed by a dispute settlement offers no rating and says why', () => {
-		const { el } = setup([status({ canRate: false, reason: 'ADMIN_SETTLED', adminSettled: { disputeId: 'd1', outcome: 'SPLIT', label: 'أُغلق بتسوية نزاع' } })]);
+		const { el } = setup([status({ canRate: false, reason: 'ADMIN_SETTLED', adminSettled: { disputeId: 'd1', outcome: 'SPLIT', label: 'أُغلق بتسوية نزاع', distribution: { outcome: 'SPLIT', refundToClient: 10, releaseToProvider: 15, platformCommission: 1.86, providerNet: 13.14 } } })]);
 		expect(el.querySelector('[data-testid="rating-blocked"]')?.textContent).toContain('أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه');
 		expect(has(el, '.rp-stars')).toBe(false); expect(has(el, 'textarea')).toBe(false);
 		expect(el.textContent).not.toContain('إرسال التقييم');
+		// title and amounts: the settlement and its REAL distribution, never "completed successfully / the whole amount released"
+		expect(el.querySelector('.rp-hd-ttl')?.textContent).toContain('أُغلق بتسوية نزاع');
+		expect(el.textContent).not.toContain('اكتمل المشروع بنجاح'); expect(el.textContent).not.toMatch(/أُفرِج كامل المبلغ/);
+		const sum = el.querySelector('[data-testid="settlement-summary"]')!.textContent!;
+		expect(sum).toContain('10.00 $'); expect(sum).toContain('15.00 $'); expect(sum).toContain('1.86 $'); expect(sum).toContain('13.14 $');
 	});
 
 	it('a settled project that had a rating BEFORE the settlement shows that history read-only plus the note, and still no new form', () => {
-		const { el } = setup([status({ canRate: false, reason: 'ALREADY_RATED', adminSettled: { disputeId: 'd1', outcome: 'SPLIT', label: 'أُغلق بتسوية نزاع' }, review: saved })]);
+		const { el } = setup([status({ canRate: false, reason: 'ALREADY_RATED', adminSettled: { disputeId: 'd1', outcome: 'SPLIT', label: 'أُغلق بتسوية نزاع', distribution: { outcome: 'SPLIT', refundToClient: 10, releaseToProvider: 15, platformCommission: 1.86, providerNet: 13.14 } }, review: saved })]);
 		expect(has(el, '[data-testid="saved-rating-card"]')).toBe(true); expect(has(el, '[data-testid="rating-settled-note"]')).toBe(true);
 		expect(has(el, '.rp-stars')).toBe(false);
 	});
