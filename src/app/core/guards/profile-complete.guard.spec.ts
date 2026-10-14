@@ -34,12 +34,16 @@ describe('providerProfileCompleteGuard (backend access-state decides for individ
 		return r instanceof UrlTree ? TestBed.inject(Router).serializeUrl(r) : r;
 	}
 
-	for (const s of ['SETUP_INCOMPLETE', 'SAMPLE_REQUIRED', 'PENDING_REVIEW', 'REJECTED'] as const) {
-		it(`individual + ${s}: dashboard home and offers go to the status page`, async () => {
+	const GATED = ['', '/business-models/center', '/business-models/new-project', '/business-models/market', '/services', '/projects/active', '/offers', '/finance/wallet', '/marketing/center', '/reports', '/explore-requests'];
+	const WIZARD = '/provider-overview/profile/setup';
+	const cases: Array<[ProviderAccessState['state'], string]> = [
+		['SETUP_INCOMPLETE', WIZARD], ['ASSESSMENT_REQUIRED', WIZARD],
+		['SAMPLE_REQUIRED', STATUS], ['PENDING_REVIEW', STATUS], ['REJECTED', STATUS],
+	];
+	for (const [s, target] of cases) {
+		it(`individual + ${s}: direct URL to every gated area (business-models/center included) goes to ${target}`, async () => {
 			setup('PROVIDER_INDIVIDUAL', () => of(st(s)));
-			expect(await run('/provider-overview', { allowIncompleteProfile: true })).toBe(STATUS);
-			expect(await run('/provider-overview/offers')).toBe(STATUS);
-			expect(await run('/provider-overview/finance/wallet')).toBe(STATUS);
+			for (const g of GATED) expect(await run('/provider-overview' + g, g === '' ? { allowIncompleteProfile: true } : {}), g || 'home').toBe(target);
 		});
 	}
 
@@ -88,6 +92,10 @@ describe('providerProfileCompleteGuard (backend access-state decides for individ
 		expect(await run('/provider-overview/offers')).toBe('/provider-overview/profile/setup');
 		setup('PROVIDER_COMPANY', () => of(st('NOT_APPLICABLE', true)), () => throwError(() => new Error('x')));
 		expect(await run('/provider-overview/offers')).toBe(true);
+	});
+
+	it('business-models/center is not in the allow-list', () => {
+		expect(isOnboardingAllowedPath('/provider-overview/business-models/center')).toBe(false);
 	});
 
 	it('allow-list matching ignores query/hash and does not match look-alike prefixes', () => {

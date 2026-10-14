@@ -2,7 +2,7 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CanActivateChildFn, Router } from '@angular/router';
 import { AccountType } from '../models/auth.model';
-import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../services/provider-access.service';
+import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService, accessRedirectUrl } from '../services/provider-access.service';
 import { filter, map, switchMap, take, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthStore } from '../store/auth.store';
@@ -69,7 +69,7 @@ export const providerProfileCompleteGuard: CanActivateChildFn = (childRoute, sta
         return providerAccess.load().pipe(
           map(a => {
             if (a.canAccessDashboard === true && (a.state === 'APPROVED' || a.state === 'NOT_APPLICABLE')) return true;
-            return toStatus();
+            return router.parseUrl(accessRedirectUrl(a));
           }),
           catchError(() => of(toStatus()))
         );

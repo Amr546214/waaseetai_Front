@@ -36,4 +36,26 @@ describe('ProviderAccessService', () => {
 		svc.invalidate();
 		expect(svc.latest()).toBeNull();
 	});
+
+	it('stale session: a different user / role in the same app instance never sees the previous answer', () => {
+		const user = signal<any>({ id: 'u1', activeRole: 'PROVIDER', accountType: 'PROVIDER_INDIVIDUAL' });
+		TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), { provide: AuthStore, useValue: { currentUser: user } }] });
+		const svc = TestBed.inject(ProviderAccessService);
+		const http = TestBed.inject(HttpTestingController);
+		TestBed.tick();
+		svc.load().subscribe();
+		http.expectOne(r => r.url.endsWith('/provider/access-state')).flush(body);
+		expect(svc.latest()).not.toBeNull();
+		user.set(null); // logout
+		TestBed.tick();
+		expect(svc.latest()).toBeNull();
+		user.set({ id: 'u2', activeRole: 'PROVIDER', accountType: 'PROVIDER_INDIVIDUAL' }); // another account logs in, no reload
+		TestBed.tick();
+		svc.load().subscribe();
+		http.expectOne(r => r.url.endsWith('/provider/access-state')).flush({ success: true, data: { ...body.data, state: 'APPROVED', canAccessDashboard: true } });
+		expect(svc.latest()?.state).toBe('APPROVED');
+		user.set({ id: 'u2', activeRole: 'CLIENT', accountType: 'PROVIDER_INDIVIDUAL' }); // switch-active-role
+		TestBed.tick();
+		expect(svc.latest()).toBeNull();
+	});
 });

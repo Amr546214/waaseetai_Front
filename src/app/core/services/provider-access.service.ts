@@ -4,7 +4,7 @@ import { Observable, finalize, map, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../store/auth.store';
 
-export type ProviderAccessStateKind = 'SETUP_INCOMPLETE' | 'SAMPLE_REQUIRED' | 'PENDING_REVIEW' | 'REJECTED' | 'APPROVED' | 'NOT_APPLICABLE';
+export type ProviderAccessStateKind = 'SETUP_INCOMPLETE' | 'ASSESSMENT_REQUIRED' | 'SAMPLE_REQUIRED' | 'PENDING_REVIEW' | 'REJECTED' | 'APPROVED' | 'NOT_APPLICABLE';
 
 export interface ProviderAccessSpecialty {
 	providerSpecialtyId: string;
@@ -25,6 +25,12 @@ export interface ProviderAccessState {
 }
 
 export const PROVIDER_ACCESS_STATUS_URL = '/provider-overview/accreditation-status';
+export const PROVIDER_SETUP_URL = '/provider-overview/profile/setup';
+
+/** Where a not-open account goes: the wizard (it resolves the right step; test pending = step 7) while the setup/test is unfinished, else the status page. */
+export function accessRedirectUrl(state: ProviderAccessState | null | undefined): string {
+	return state && (state.state === 'SETUP_INCOMPLETE' || state.state === 'ASSESSMENT_REQUIRED') ? PROVIDER_SETUP_URL : PROVIDER_ACCESS_STATUS_URL;
+}
 
 /**
  * Reads GET /provider/access-state — the backend's single answer to "may this provider open the dashboard?".
@@ -43,8 +49,13 @@ export class ProviderAccessService {
 
 	constructor() {
 		// logout (or any session end) drops what was read for the previous user
+		// a different user / role in the same SPA instance (logout -> login, switch-active-role) must never see the previous answer
+		let lastKey: string | null | undefined;
 		effect(() => {
-			if (!this.authStore.currentUser?.()) this.invalidate();
+			const u: any = this.authStore.currentUser?.();
+			const key = u ? `${u.id ?? u.email ?? ''}:${u.activeRole ?? ''}:${u.accountType ?? ''}` : null;
+			if (lastKey !== undefined && key !== lastKey) this.invalidate();
+			lastKey = key;
 		});
 	}
 

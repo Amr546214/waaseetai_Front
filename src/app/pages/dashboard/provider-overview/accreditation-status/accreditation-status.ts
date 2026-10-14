@@ -4,6 +4,7 @@ import { PROVIDER_SETUP_PAGE } from '../profile/profile-setup/provider-setup-sta
 import { ProviderAccessService, ProviderAccessState } from '../../../../core/services/provider-access.service';
 
 export const SAMPLE_REQUIRED_MESSAGE = 'اجتزت الاختبار، لكن يجب رفع نموذج الاعتماد لإكمال المراجعة.';
+export const ASSESSMENT_REQUIRED_MESSAGE = 'أكمل الاختبار لإكمال اعتماد حسابك.';
 export const PENDING_REVIEW_MESSAGE = 'تم اجتياز الاختبار، ونموذج الاعتماد قيد المراجعة. ستفتح لوحة مقدم الخدمة بعد اعتماد الإدارة.';
 
 const SAMPLE_STATUS_LABELS: Record<string, string> = {
@@ -47,6 +48,7 @@ export class AccreditationStatusPage implements OnInit {
 	message(d: ProviderAccessState): string {
 		if (d.message?.trim()) return d.message;
 		if (d.state === 'SAMPLE_REQUIRED') return SAMPLE_REQUIRED_MESSAGE;
+		if (d.state === 'ASSESSMENT_REQUIRED') return ASSESSMENT_REQUIRED_MESSAGE;
 		if (d.state === 'PENDING_REVIEW') return PENDING_REVIEW_MESSAGE;
 		return '';
 	}
