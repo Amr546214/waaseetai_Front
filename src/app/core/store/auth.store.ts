@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal, PLATFORM_ID, Optional } from '@an
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { User, UserStatus } from '../models/auth.model';
+import { AccountType, User, UserRole, UserStatus } from '../models/auth.model';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
@@ -65,6 +65,23 @@ export class AuthStore {
   readonly pendingUserId = this._pendingUserId.asReadonly();
 
   readonly isAuthenticated = computed(() => !!this._token());
+
+  /** The role the user is ACTING as right now: the saved activeRole, else the side of the account type. */
+  readonly actingRole = computed<UserRole | null>(() => {
+    const u = this._currentUser();
+    if (!u) return null;
+    if (u.activeRole) return u.activeRole;
+    if (u.accountType === AccountType.CLIENT_INDIVIDUAL || u.accountType === AccountType.CLIENT_COMPANY) return UserRole.CLIENT;
+    if (u.accountType === AccountType.PROVIDER_INDIVIDUAL || u.accountType === AccountType.PROVIDER_COMPANY) return UserRole.PROVIDER;
+    return null;
+  });
+  /** Buying from the marketplace (cart, order, payment, the client wallet) is a CLIENT-acting flow. A guest still sees the buy buttons (they lead to login). */
+  readonly canPurchase = computed(() => !this.isAuthenticated() || this.actingRole() === UserRole.CLIENT);
+  /** Whether the account can act as a client at all (so "switch to client" is possible); otherwise it needs a client account first. */
+  readonly hasClientRole = computed(() => {
+    const u = this._currentUser();
+    return !!u && ((u.roles ?? []).includes(UserRole.CLIENT) || u.accountType === AccountType.CLIENT_INDIVIDUAL || u.accountType === AccountType.CLIENT_COMPANY);
+  });
   readonly isPendingVerification = computed(() => !!this._pendingUserId());
 
   constructor() {

@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { MarketplaceService, MarketplaceModel } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { CartService } from '../../../../core/services/cart.service';
+import { AccountService } from '../../../../core/services/account.service';
+import { UserRole } from '../../../../core/models/auth.model';
 import { CartItem } from '../../../../core/models/checkout.model';
 
 @Component({
@@ -38,6 +40,22 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	private paramSub!: Subscription;
 	private authStore = inject(AuthStore);
 	private cartService = inject(CartService);
+	private accountService = inject(AccountService);
+
+	/** Buying needs the CLIENT role to be the one the user is acting as; as a provider the page is browse-only. */
+	readonly canPurchase = this.authStore.canPurchase;
+	readonly hasClientRole = this.authStore.hasClientRole;
+	switching = signal(false);
+
+	/** "بدّل إلى طالب خدمة للشراء": switches the acting role to CLIENT (same call as the navbar switcher) and stays on this page. */
+	switchToClient(): void {
+		if (this.switching()) return;
+		this.switching.set(true);
+		this.accountService.switchActiveRole(UserRole.CLIENT).subscribe({
+			next: () => this.switching.set(false),
+			error: (err) => { this.switching.set(false); this.cartError.set(err?.error?.message || 'تعذّر التبديل إلى حساب طالب الخدمة'); setTimeout(() => this.cartError.set(null), 5000); }
+		});
+	}
 
 	constructor(
 		@Inject(PLATFORM_ID) platformId: Object,
@@ -189,6 +207,12 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
 			return;
 		}
+		if (!this.canPurchase()) {
+			// ordering / negotiating a service is the client's flow; the server answers 403 for this role as well
+			this.cartError.set('بدّل إلى حساب طالب الخدمة لإتمام الشراء');
+			setTimeout(() => this.cartError.set(null), 5000);
+			return;
+		}
 		this.isSubmitting.set(true);
 		this.marketplaceService.requestService(id, {
 			mode,
@@ -212,6 +236,7 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
 			return;
 		}
+		if (!this.canPurchase()) return; // acting as a provider: browse only (the server answers 403 as well)
 		this.isSubmitting.set(true);
 		this.cartError.set(null);
 		const cartItem = this.mapModelToCartItem(model);

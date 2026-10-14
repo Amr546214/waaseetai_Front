@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { AuthStore } from '../../../../core/store/auth.store';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService, InsufficientBalanceInfo } from '../../../../core/services/checkout.service';
 import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
@@ -17,6 +18,7 @@ export class CheckoutPaymentComponent implements OnInit {
   step = 3;
 
   private cartService = inject(CartService);
+  private authStore = inject(AuthStore);
   private checkoutService = inject(CheckoutService);
   private checkoutApi = inject(CheckoutApiService);
   private router = inject(Router);
@@ -76,6 +78,8 @@ export class CheckoutPaymentComponent implements OnInit {
   }
 
   private loadWalletBalance() {
+    // The wallet balance used for paying is the CLIENT's: it is never read while the user is acting as a provider (the route guard keeps this page unreachable too).
+    if (!this.authStore.canPurchase()) { this.walletBalance.set(null); return; }
     this.balanceLoading.set(true);
     this.checkoutApi.getPaymentMethods().subscribe({
       next: (res: any) => {

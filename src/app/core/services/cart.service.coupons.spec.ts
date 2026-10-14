@@ -26,7 +26,7 @@ describe('CartService coupons', () => {
 		if (opts.stored) mem['waseet_cart_coupon'] = JSON.stringify(opts.stored);
 		token.set(opts.authed === false ? null : 'tok');
 		TestBed.configureTestingModule({ providers: [
-			{ provide: AuthStore, useValue: { isAuthenticated: computed(() => !!token()) } },
+			{ provide: AuthStore, useValue: { isAuthenticated: computed(() => !!token()), canPurchase: computed(() => true) } },
 			{ provide: CheckoutApiService, useValue: { validateCoupon: (...a: any[]) => validate(...a) } },
 			{ provide: CartApiService, useValue: { addItem: () => of({}), removeItem: () => of({}), updateItem: () => of({}), getCart: () => throwError(() => ({ status: 0 })), syncCart: () => throwError(() => ({ status: 0 })) } },
 		] });

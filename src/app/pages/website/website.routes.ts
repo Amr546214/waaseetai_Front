@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../../core/guards/auth.guards';
+import { purchaseRoleGuard } from '../../core/guards/purchase-role.guard';
 
 export const WEBSITE_ROUTES: Routes = [
 	{
@@ -24,22 +25,23 @@ export const WEBSITE_ROUTES: Routes = [
 	},
 	{
 		path: 'cart',
-		loadComponent: () => import('./checkout/cart/cart').then(m => m.CartComponent)
+		loadComponent: () => import('./checkout/cart/cart').then(m => m.CartComponent),
+		canActivate: [purchaseRoleGuard]
 	},
 	{
 		path: 'checkout/review',
 		loadComponent: () => import('./checkout/review/review').then(m => m.CheckoutReviewComponent),
-		canActivate: [authGuard]
+		canActivate: [authGuard, purchaseRoleGuard]
 	},
 	{
 		path: 'checkout/payment',
 		loadComponent: () => import('./checkout/payment/payment').then(m => m.CheckoutPaymentComponent),
-		canActivate: [authGuard]
+		canActivate: [authGuard, purchaseRoleGuard]
 	},
 	{
 		path: 'checkout/confirm',
 		loadComponent: () => import('./checkout/confirm/confirm').then(m => m.CheckoutConfirmComponent),
-		canActivate: [authGuard]
+		canActivate: [authGuard, purchaseRoleGuard]
 	},
 	{
 		path: 'checkout/success',

@@ -68,8 +68,9 @@ export class CartService {
 		if (this.isBrowser) {
 			effect(() => {
 				const authed = this.authStore.isAuthenticated();
-				if (authed) {
-					untracked(() => this.onLoginSync());
+				const canBuy = this.authStore.canPurchase(); // re-runs when the acting role is switched to CLIENT
+				if (authed && canBuy) {
+					untracked(() => { this.loadCart(); this.onLoginSync(); });
 				}
 			});
 
@@ -219,6 +220,13 @@ export class CartService {
 		if (!this.isBrowser) return;
 		if (this.isLoadingServerCart) return;
 
+		// A user acting as a provider has no purchase cart (the server answers 403): nothing is requested, the cart is simply empty until the CLIENT role is active.
+		if (this.authStore.isAuthenticated() && !this.authStore.canPurchase()) {
+			this._items.set([]);
+			this.cartReady.set(true);
+			return;
+		}
+
 		if (this.authStore.isAuthenticated()) {
 			this.isLoadingServerCart = true;
 			this.cartApi.getCart().subscribe({
@@ -312,7 +320,7 @@ export class CartService {
 
 	private revalidateCoupon(): void {
 		const stored = this._coupon();
-		if (!stored || !this.authStore.isAuthenticated()) return;
+		if (!stored || !this.authStore.isAuthenticated() || !this.authStore.canPurchase()) return;
 		const items = this._items().filter(i => !i.savedForLater).map(i => ({ modelId: i.modelId, totalAmount: i.totalAmount }));
 		if (items.length === 0) { this.dropCoupon(`أُزيل الكوبون ${stored.code} لأن السلة فارغة`); return; }
 		const seq = ++this.couponCheckSeq;
@@ -350,6 +358,7 @@ export class CartService {
 	private onLoginSync(): void {
 		if (!this.isBrowser) return;
 		if (this.hasSyncedThisSession) return;
+		if (!this.authStore.canPurchase()) return; // acting as a provider: no purchase cart to merge into
 
 		const localItems = this._items().filter(i => !i.savedForLater);
 		if (localItems.length === 0) {
