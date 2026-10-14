@@ -6,6 +6,8 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { MessageContext } from '../../../../core/services/chat.service';
 import { environment } from '../../../../../environments/environment';
+import { formatMoney } from '../../../../core/utils/money.util';
+import { AMENDMENT_CONFIRM_TEXT, AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_RECORDED_BADGE, amendmentEffectNote } from '../../../../core/constants/amendment-effect';
 
 // Matches the real GET /client/projects/amendments response shape exactly
 // (see waseetai-backend ProjectAmendmentService#listAmendments) — no field
@@ -29,6 +31,8 @@ interface Amendment {
 	updatedAt: string;
 	respondedAt: string | null;
 	conversationId: string | null;
+	effect?: 'RECORD_ONLY';
+	effectNote?: string;
 }
 
 interface FilterTab {
@@ -137,7 +141,7 @@ export class ProjectModificationsComponent implements OnInit {
 		const raisedLabel = am.requestedByRole === 'CLIENT' ? 'رفع الطلب' : 'رفع المقدّم';
 		const waitingLabel = am.requestedByRole === 'CLIENT' ? 'بانتظار رد المقدّم' : 'بانتظار موافقتك';
 		const isPending = am.status === 'PENDING_OTHER_PARTY';
-		const outcomeLabel = am.status === 'APPROVED' ? 'معتمد' : am.status === 'REJECTED' ? 'مرفوض' : am.status === 'CANCELLED' ? 'ملغى' : 'القرار النهائي';
+		const outcomeLabel = am.status === 'APPROVED' ? 'موافقة مُسجَّلة' : am.status === 'REJECTED' ? 'مرفوض' : am.status === 'CANCELLED' ? 'ملغى' : 'القرار النهائي';
 		return [
 			{ label: raisedLabel, state: 'done' },
 			{ label: waitingLabel, state: isPending ? 'active' : 'done' },
@@ -152,7 +156,7 @@ export class ProjectModificationsComponent implements OnInit {
 	}
 
 	statusLabel(am: Amendment): string {
-		if (am.status === 'APPROVED') return 'تمت الموافقة';
+		if (am.status === 'APPROVED') return AMENDMENT_RECORDED_BADGE;
 		if (am.status === 'REJECTED') return 'مرفوض';
 		if (am.status === 'CANCELLED') return 'مُلغى';
 		return am.requestedByRole === 'CLIENT' ? 'بانتظار رد المقدّم' : 'بانتظار موافقتك';
@@ -168,7 +172,7 @@ export class ProjectModificationsComponent implements OnInit {
 	formatBudgetDelta(value: number | null): string {
 		if (value === null || value === 0) return 'بلا تغيير';
 		const sign = value > 0 ? '+' : '-';
-		return `${sign}${Math.abs(value).toLocaleString('en-US')} $`;
+		return `${sign}${formatMoney(Math.abs(value))} $`;
 	}
 
 	formatDurationDelta(value: number | null): string {
@@ -181,6 +185,25 @@ export class ProjectModificationsComponent implements OnInit {
 	// by this client — a client never approves their own request.
 	canRespond(am: Amendment): boolean {
 		return am.requestedByRole === 'PROVIDER' && am.status === 'PENDING_OTHER_PARTY';
+	}
+
+	readonly confirmText = AMENDMENT_CONFIRM_TEXT;
+	readonly proposedChangeLabel = AMENDMENT_PROPOSED_CHANGE_LABEL;
+	effectNote(am: Amendment): string { return amendmentEffectNote(am); }
+
+	// A decision is only recorded (it changes no price / duration / escrow): ask for an explicit confirmation that says so.
+	pendingDecision = signal<{ id: string; decision: 'approve' | 'reject' } | null>(null);
+	askDecision(am: Amendment, decision: 'approve' | 'reject'): void {
+		if (this.respondingId()) return;
+		this.respondError.set('');
+		this.pendingDecision.set({ id: am.id, decision });
+	}
+	cancelDecision(): void { this.pendingDecision.set(null); }
+	confirmDecision(am: Amendment): void {
+		const p = this.pendingDecision();
+		if (!p || p.id !== am.id) return;
+		this.pendingDecision.set(null);
+		this.respond(am, p.decision);
 	}
 
 	respond(am: Amendment, decision: 'approve' | 'reject'): void {

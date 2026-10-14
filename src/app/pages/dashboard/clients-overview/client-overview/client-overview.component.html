@@ -499,7 +499,7 @@
 						<use href="#i-wallet"></use>
 					</svg></div>
 			</div>
-			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number }}</div>
+			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number:'1.0-2' }}</div>
 			<div class="stat-sub">$ محجوز</div>
 		</div>
 		<div class="stat-card">
@@ -595,7 +595,7 @@
 							{{ project.status === 'OPEN' ? 'مفتوح للعروض' : (project.status === 'IN_PROGRESS' ? 'قيد
 							التنفيذ' : (project.status === 'COMPLETED' ? 'مكتمل' : 'متنازع عليه')) }}
 						</span>
-						<span class="req-budget">{{ project.budget | number }} $</span>
+						<span class="req-budget">{{ project.budget | number:'1.0-2' }} $</span>
 					</div>
 				</a>
 				}
@@ -641,7 +641,7 @@
 			<!-- Escrow Balance -->
 			<div class="eb-card">
 				<div class="eb-lbl">رصيد الضمان</div>
-				<div class="eb-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number }} <span
+				<div class="eb-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number:'1.0-2' }} <span
 						style="font-size:14px;font-weight:700">$</span></div>
 				<div class="eb-sub">مبلغ محجوز بأمان عبر منصة وسيط</div>
 			</div>
@@ -735,7 +735,7 @@
 						</svg>تقييم العرض {{ offer.aiMatchScore }}%</div>
 					}
 				</div>
-				<div class="offer-price">{{ offer.price | number }} <span>$</span></div>
+				<div class="offer-price">{{ offer.price | number:'1.0-2' }} <span>$</span></div>
 				<div class="offer-meta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
 						aria-hidden="true">

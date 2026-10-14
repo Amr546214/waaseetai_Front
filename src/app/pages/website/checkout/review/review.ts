@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-checkout-review',
@@ -68,7 +69,7 @@ export class CheckoutReviewComponent {
   }
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return formatMoney(value, 0);
   }
 
   // Fallback deliverables derived from item category/package (no API calls)

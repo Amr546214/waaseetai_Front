@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingScore } from '../../../../../core/models/rating.model';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-rating-page',
@@ -123,7 +124,7 @@ export class RatingPage implements OnInit {
 	releasedAmount(): string {
 		const data = this.project();
 		const amount = data?.price ?? data?.amount ?? data?.totalAmount ?? 0;
-		return Number(amount).toLocaleString('en-US');
+		return formatMoney(amount);
 	}
 
 	// Dynamic header text based on mode

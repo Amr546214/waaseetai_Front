@@ -74,7 +74,7 @@
                   <td>{{ commissionTypeLabel(log.type) }}</td>
                   <td>{{ log.time | date:'shortDate' }}</td>
                   <td>{{ commissionStatusLabel(log.status) }}</td>
-                  <td><span style="font-weight:700" class="txt-green">{{ log.amount }} دولار</span></td>
+                  <td><span style="font-weight:700" class="txt-green">{{ log.amount | number:'1.0-2' }} دولار</span></td>
                 </tr>
               }
             </tbody>

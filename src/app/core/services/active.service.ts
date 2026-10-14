@@ -9,6 +9,7 @@ export interface ProviderAmendment {
 	id: string; projectId: string; projectTitle: string; type: AmendmentKind; title: string; description: string | null;
 	budgetDelta: number | null; durationDeltaDays: number | null; status: AmendmentStatus; requestedByRole: 'CLIENT' | 'PROVIDER';
 	createdAt: string; respondedAt: string | null; conversationId: string | null;
+	effect?: 'RECORD_ONLY'; effectNote?: string;
 }
 export interface CreateAmendmentPayload { type: AmendmentKind; title: string; description?: string; budgetDelta?: number; durationDeltaDays?: number }
 

@@ -68,7 +68,7 @@
 				</div>
 				@if (round.timestamp) {<span class="round-time">{{ round.timestamp | date:'MMM d, HH:mm' }}</span>}
 			</div>
-			<div class="round-price">{{ round.price | number }} $ @if (round.duration) {<span class="round-dur"> · {{ round.duration }}</span>}</div>
+			<div class="round-price">{{ round.price | number:'1.0-2' }} $ @if (round.duration) {<span class="round-dur"> · {{ round.duration }}</span>}</div>
 			@if (round.message) {<div class="round-msg">{{ round.message }}</div>}
 		</div>
 		}
@@ -99,7 +99,7 @@
 		@if (n.hint) {
 		<div class="decision-note" data-testid="neg-hint" role="note">{{ n.hint }}</div>
 		} @else {
-		<div class="decision-note">طلب العميل: {{ n.request.price !== null ? (n.request.price | number) + ' $' : '' }} {{ n.request.deliveryDays !== null ? '· ' + n.request.deliveryDays + ' يوم' : '' }}. اتفقوا في المحادثة ثم أرسل عرضًا مضادًا واضحًا، أو اعتذر عن الطلب ليبقى عرضك بشروطه.</div>
+		<div class="decision-note">طلب العميل: {{ n.request.price !== null ? (n.request.price | number:'1.0-2') + ' $' : '' }} {{ n.request.deliveryDays !== null ? '· ' + n.request.deliveryDays + ' يوم' : '' }}. اتفقوا في المحادثة ثم أرسل عرضًا مضادًا واضحًا، أو اعتذر عن الطلب ليبقى عرضك بشروطه.</div>
 		}
 		@if (n.canReject) {
 		<div class="composer-actions">

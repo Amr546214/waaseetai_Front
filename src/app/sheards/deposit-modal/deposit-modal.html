@@ -12,7 +12,7 @@
 					<polyline points="20 6 9 17 4 12" />
 				</svg></div>
 			<h2>تم الإيداع بنجاح</h2>
-			<p>أُضيف مبلغ <strong>{{ amount().toLocaleString('en-US') }} $</strong> إلى رصيد محفظتك@if (breakdown(); as b) { (المدفوع {{ b.gross | number:'1.2-2' }} $ شاملًا رسوم PayPal {{ b.fee | number:'1.2-2' }} $) }.</p>
+			<p>أُضيف مبلغ <strong>{{ amount() | number:'1.0-2' }} $</strong> إلى رصيد محفظتك@if (breakdown(); as b) { (المدفوع {{ b.gross | number:'1.2-2' }} $ شاملًا رسوم PayPal {{ b.fee | number:'1.2-2' }} $) }.</p>
 			<div class="payment-reference"><span>رقم العملية</span><b>{{ paymentReference() }}</b></div>
 			<button type="button" class="payment-done-btn" (click)="onClose()">العودة إلى المحفظة</button>
 		</div>

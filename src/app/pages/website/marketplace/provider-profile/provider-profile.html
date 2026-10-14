@@ -99,7 +99,7 @@
         <div class="stat-sub">{{ (provider()?.header?.stats?.reviewsCount || 0) > 0 ? 'من ' + provider()?.header?.stats?.reviewsCount + ' تقييم' : 'لا توجد تقييمات بعد' }}</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n">{{ (provider()?.header?.stats?.completedProjects || 0) | number }}</div>
+        <div class="stat-n">{{ (provider()?.header?.stats?.completedProjects || 0) | number:'1.0-2' }}</div>
         <div class="stat-sub">مشروع مكتمل</div>
       </div>
       @if (activeTab() === 'portfolio') {
@@ -378,7 +378,7 @@
           <div class="svc-body">
             <div class="svc-title">{{ srv.title }}</div>
             <div class="svc-footer">
-              <div class="svc-price"><span>يبدأ من </span>{{ (srv.totalAmount || 0) | number }} ر</div>
+              <div class="svc-price"><span>يبدأ من </span>{{ (srv.totalAmount || 0) | number:'1.0-2' }} ر</div>
               @if (srv.totalDays) {
               <div class="svc-delivery">
                 <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-clock"></use></svg>

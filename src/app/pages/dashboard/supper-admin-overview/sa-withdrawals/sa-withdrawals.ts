@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { WithdrawalApiService } from '../../../../core/services/withdrawal-api.service';
 import { saveBlob, AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { Withdrawal, LEGACY_WITHDRAWAL_LABEL, isLegacyWithdrawal, WithdrawalPagination } from '../../../../core/models/withdrawal.model';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 export type WdStatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'PROCESSING' | 'COMPLETED' | 'REJECTED' | 'REVERSED';
 export type WdOwnerFilter = 'all' | 'provider' | 'affiliate';
@@ -201,7 +202,7 @@ export class SaWithdrawals implements OnInit {
 
   formatAmount(amount: number | undefined, currency: string | undefined): string {
     if (amount == null) return '—';
-    const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    const formatted = formatMoney(amount, 2);
     return currency ? `${formatted} ${currency === 'USD' ? '$' : currency}` : `${formatted} $`;
   }
 

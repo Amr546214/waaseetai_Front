@@ -166,11 +166,11 @@
       </div>
       @if (p.channelMetrics?.length) {
       <div class="stat-cell">
-        <div class="stat-n">{{ metricsTotal(p, 'visitors') | number }}</div>
+        <div class="stat-n">{{ metricsTotal(p, 'visitors') | number:'1.0-2' }}</div>
         <div class="stat-sub">زائر عبر روابطه</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n">{{ metricsTotal(p, 'clients') | number }}</div>
+        <div class="stat-n">{{ metricsTotal(p, 'clients') | number:'1.0-2' }}</div>
         <div class="stat-sub">عميل محوَّل</div>
       </div>
       }

@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 type ProjectFilter = 'all' | 'run' | 'wait' | 'late' | 'pending';
 
@@ -108,11 +109,11 @@ export class ActiveProject implements OnInit {
 	}
 
 	formatNumber(value: number | string) {
-		return typeof value === 'number' ? value.toLocaleString('en-US') : value;
+		return typeof value === 'number' ? formatMoney(value) : value;
 	}
 
 	projectMeta(project: ProjectItem) {
-		const stages = `${project.completedStages} من ${project.stagesCount} مراحل`;
+		const stages = project.stagesCount > 0 ? `${project.completedStages} من ${project.stagesCount} مراحل` : 'لا مراحل مسجّلة';
 		// Before the contract is signed and funded there is no schedule to count down.
 		if (project.daysLeft === null) return 'لم يبدأ التنفيذ بعد';
 		if (project.daysLeft < 0) return `${stages} · متأخر ${Math.abs(project.daysLeft)} ${this.dayLabel(Math.abs(project.daysLeft))}`;
@@ -172,7 +173,7 @@ export class ActiveProject implements OnInit {
 			nextStep: project.nextStep || 'متابعة تنفيذ المرحلة الحالية',
 			heldAmount: Math.max(0, Number(project.heldAmount) || 0),
 			completedStages: Math.max(0, Number(project.completedStages) || 0),
-			stagesCount: Math.max(1, Number(project.stagesCount) || 1),
+			stagesCount: Math.max(0, Number(project.stagesCount) || 0),
 			daysLeft,
 			funded: project.funded === undefined ? undefined : Boolean(project.funded),
 			updatedAt: project.updatedAt,

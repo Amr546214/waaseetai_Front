@@ -6,6 +6,7 @@ import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 type ProjectStatus = 'done' | 'cancel' | 'arch';
 type FilterStatus = 'all' | ProjectStatus;
@@ -142,7 +143,7 @@ export class ArchivedProjects implements OnInit {
 	}
 
 	formatNumber(value: string | number): string {
-		if (typeof value === 'number') return value.toLocaleString('en-US');
+		if (typeof value === 'number') return formatMoney(value);
 		return value;
 	}
 
@@ -238,7 +239,7 @@ export class ArchivedProjects implements OnInit {
 
 		const numericAmount = p.totalPrice != null ? Number(p.totalPrice) : Number(p.amount) || 0;
 		const amount = numericAmount > 0
-			? `${numericAmount.toLocaleString('en-US')} $`
+			? `${formatMoney(numericAmount)} $`
 			: '—';
 
 		let dateStr = '—';

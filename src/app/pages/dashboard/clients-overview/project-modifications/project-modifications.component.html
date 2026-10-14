@@ -120,17 +120,29 @@
 						}
 
 						<div class="dp-chg">
-							<span class="dp-chg-i"><span class="k">الميزانية</span><span class="v" [class.up]="(am.budgetDelta ?? 0) > 0" [class.down]="(am.budgetDelta ?? 0) < 0">{{ formatBudgetDelta(am.budgetDelta) }}</span></span>
-							<span class="dp-chg-i"><span class="k">المدة</span><span class="v" [class.up]="(am.durationDeltaDays ?? 0) > 0" [class.down]="(am.durationDeltaDays ?? 0) < 0">{{ formatDurationDelta(am.durationDeltaDays) }}</span></span>
+							<span class="dp-chg-i"><span class="k">{{ proposedChangeLabel }} · الميزانية</span><span class="v" [class.up]="(am.budgetDelta ?? 0) > 0" [class.down]="(am.budgetDelta ?? 0) < 0">{{ formatBudgetDelta(am.budgetDelta) }}</span></span>
+							<span class="dp-chg-i"><span class="k">{{ proposedChangeLabel }} · المدة</span><span class="v" [class.up]="(am.durationDeltaDays ?? 0) > 0" [class.down]="(am.durationDeltaDays ?? 0) < 0">{{ formatDurationDelta(am.durationDeltaDays) }}</span></span>
 						</div>
 
+						<div class="dp-desc" data-testid="am-effect-note" role="note">{{ effectNote(am) }}</div>
+
 						@if (canRespond(am)) {
+							@if (pendingDecision()?.id === am.id) {
+								<div class="dp-desc" data-testid="am-confirm" role="alertdialog">
+									<b>{{ pendingDecision()!.decision === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض' }}:</b> {{ confirmText }}
+								</div>
+								<div class="dp-decision">
+									<button type="button" class="dp-appr-btn" data-testid="am-confirm-yes" [disabled]="respondingId() === am.id" (click)="confirmDecision(am)">تأكيد وتسجيل القرار</button>
+									<button type="button" class="dp-rej-btn" data-testid="am-confirm-no" (click)="cancelDecision()">رجوع</button>
+								</div>
+							} @else {
 							<div class="dp-decision">
-								<button type="button" class="dp-appr-btn" [disabled]="respondingId() === am.id" (click)="respond(am, 'approve')">
+								<button type="button" class="dp-appr-btn" [disabled]="respondingId() === am.id" (click)="askDecision(am, 'approve')">
 									{{ respondingId() === am.id ? 'جارٍ الحفظ...' : 'موافقة' }}
 								</button>
-								<button type="button" class="dp-rej-btn" [disabled]="respondingId() === am.id" (click)="respond(am, 'reject')">رفض</button>
+								<button type="button" class="dp-rej-btn" [disabled]="respondingId() === am.id" (click)="askDecision(am, 'reject')">رفض</button>
 							</div>
+							}
 							@if (respondError()) {
 								<div class="dp-resp-err" role="alert">{{ respondError() }}</div>
 							}

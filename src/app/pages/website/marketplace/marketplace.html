@@ -117,7 +117,7 @@
           الأكثر طلباً هذا الأسبوع
         </div>
         <h2 class="slide-h">هويات بصرية احترافية<br>مع ضمان التسليم الكامل</h2>
-        <p class="slide-sub">@if (slideCount('design') > 0) {+{{ slideCount('design') | number }} }خدمة تصميم من مقدمين معتمدين — شعارات، UI/UX، مطبوعات وأكثر</p>
+        <p class="slide-sub">@if (slideCount('design') > 0) {+{{ slideCount('design') | number:'1.0-2' }} }خدمة تصميم من مقدمين معتمدين — شعارات، UI/UX، مطبوعات وأكثر</p>
         <a [routerLink]="slideLink('design')" class="slide-cta">تصفح خدمات التصميم</a>
       </div>
       <div class="slide-visual" aria-hidden="true">
@@ -136,7 +136,7 @@
           الأكثر نمواً
         </div>
         <h2 class="slide-h">تطبيقات ومواقع احترافية<br>مع عقود موثقة وضمان</h2>
-        <p class="slide-sub">@if (slideCount('code') > 0) {+{{ slideCount('code') | number }} }خدمة برمجية — Flutter، WordPress، React، APIs وذكاء اصطناعي</p>
+        <p class="slide-sub">@if (slideCount('code') > 0) {+{{ slideCount('code') | number:'1.0-2' }} }خدمة برمجية — Flutter، WordPress، React، APIs وذكاء اصطناعي</p>
         <a [routerLink]="slideLink('code')" class="slide-cta">تصفح خدمات البرمجة</a>
       </div>
       <div class="slide-visual" aria-hidden="true">
@@ -363,11 +363,11 @@
 
       <!-- STATS -->
       <div class="hero-stats">
-        <div class="hstat c1"><div class="hstat-n">{{ totalResults() | number }}</div><div class="hstat-l">نتيجة مطابقة</div></div>
-        <div class="hstat c2"><div class="hstat-n">{{ providersCount() | number }}</div><div class="hstat-l">مقدم متاح</div></div>
+        <div class="hstat c1"><div class="hstat-n">{{ totalResults() | number:'1.0-2' }}</div><div class="hstat-l">نتيجة مطابقة</div></div>
+        <div class="hstat c2"><div class="hstat-n">{{ providersCount() | number:'1.0-2' }}</div><div class="hstat-l">مقدم متاح</div></div>
         <div class="hstat c3"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
-        <div class="hstat c4"><div class="hstat-n">{{ completedOrders() | number }}</div><div class="hstat-l">طلب مكتمل</div></div>
-        <div class="hstat c5"><div class="hstat-n">{{ totalReviews() | number }}</div><div class="hstat-l">تقييم من العملاء</div></div>
+        <div class="hstat c4"><div class="hstat-n">{{ completedOrders() | number:'1.0-2' }}</div><div class="hstat-l">طلب مكتمل</div></div>
+        <div class="hstat c5"><div class="hstat-n">{{ totalReviews() | number:'1.0-2' }}</div><div class="hstat-l">تقييم من العملاء</div></div>
       </div>
     </div>
   </section>
@@ -383,12 +383,12 @@
         <div class="subcats-inner" role="tablist" aria-label="تنقيح البحث">
           <button class="subcat-btn" type="button" role="tab" [class.active]="selectedCategoryData() ? !selectedSub() : selectedCategory() === 'all'" [attr.aria-selected]="selectedCategoryData() ? !selectedSub() : selectedCategory() === 'all'" (click)="selectRefinement('', !!selectedCategoryData())">
             <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use href="#ws-search"></use></svg></span>
-            الكل @if (refinementAllCount()) {<span class="sub-cnt">{{ refinementAllCount() | number }}</span>}
+            الكل @if (refinementAllCount()) {<span class="sub-cnt">{{ refinementAllCount() | number:'1.0-2' }}</span>}
           </button>
           @for (r of refinements(); track r.key) {
           <button class="subcat-btn" type="button" role="tab" [class.active]="r.isSub ? selectedSub() === r.key : selectedCategory() === r.key" [attr.aria-selected]="r.isSub ? selectedSub() === r.key : selectedCategory() === r.key" (click)="selectRefinement(r.key, r.isSub)">
             <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(r.icon)"></use></svg></span>
-            {{ r.name }} <span class="sub-cnt">{{ r.count | number }}</span>
+            {{ r.name }} <span class="sub-cnt">{{ r.count | number:'1.0-2' }}</span>
           </button>
           }
         </div>
@@ -478,9 +478,9 @@
             <div class="ai-insight-lbl">ملخص النتائج</div>
             <div class="ai-insight-txt">
               @if (aiInsightBest(); as best) {
-              وجدنا <strong>{{ totalResults() | number }} نتيجة</strong> — الأعلى في تقييم جودة AI بهذه الصفحة: <strong>{{ best.title }}</strong>
+              وجدنا <strong>{{ totalResults() | number:'1.0-2' }} نتيجة</strong> — الأعلى في تقييم جودة AI بهذه الصفحة: <strong>{{ best.title }}</strong>
               } @else if (!isLoading() && totalResults() > 0) {
-              وجدنا <strong>{{ totalResults() | number }} نتيجة</strong>
+              وجدنا <strong>{{ totalResults() | number:'1.0-2' }} نتيجة</strong>
               } @else if (isLoading()) {
               جاري البحث في الخدمات المنشورة...
               } @else {
@@ -513,7 +513,7 @@
 
         <!-- RESULTS BAR -->
         <div class="results-bar">
-          <div class="results-count"><strong>{{ totalResults() | number }}</strong> نتيجة @if (activeFilters().length) {بعد الفلترة}</div>
+          <div class="results-count"><strong>{{ totalResults() | number:'1.0-2' }}</strong> نتيجة @if (activeFilters().length) {بعد الفلترة}</div>
           <div class="sort-row">
             <button class="filters-btn" type="button" (click)="openFilters()" aria-haspopup="dialog" aria-controls="filters-drawer" [attr.aria-expanded]="filtersOpen()"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>الفلاتر @if (activeFilters().length > 0) {<span class="filters-count">{{ activeFilters().length }}</span>}</button>
             @if (comparedModels().size >= 2) {

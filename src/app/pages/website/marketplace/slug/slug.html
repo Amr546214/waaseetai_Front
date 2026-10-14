@@ -72,10 +72,10 @@
 
       <!-- STATS -->
       <div class="hero-stats">
-        <div class="hstat c1"><div class="hstat-n">+{{ heroCount() | number }}</div><div class="hstat-l">خدمة منشورة</div></div>
+        <div class="hstat c1"><div class="hstat-n">+{{ heroCount() | number:'1.0-2' }}</div><div class="hstat-l">خدمة منشورة</div></div>
         <div class="hstat c2"><div class="hstat-n">+{{ providersCount() }}</div><div class="hstat-l">مقدم معتمد</div></div>
         <div class="hstat c3"><div class="hstat-n">{{ averageRating() }}</div><div class="hstat-l">متوسط التقييم</div></div>
-        <div class="hstat c4"><div class="hstat-n">+{{ totalReviews() | number }}</div><div class="hstat-l">مراجعة مكتملة</div></div>
+        <div class="hstat c4"><div class="hstat-n">+{{ totalReviews() | number:'1.0-2' }}</div><div class="hstat-l">مراجعة مكتملة</div></div>
         <div class="hstat c5"><div class="hstat-n">{{ averageAiScore() !== null ? averageAiScore() + '%' : '—' }}</div><div class="hstat-l">جودة النماذج (AI)</div></div>
       </div>
     </div>
@@ -91,12 +91,12 @@
         <div class="subcats-inner" role="tablist" [attr.aria-label]="'تخصصات ' + (categoryData()?.name || '')">
         <button class="subcat-btn" type="button" [class.active]="selectedSub() === ''" (click)="selectSubCategory('')" role="tab" [attr.aria-selected]="selectedSub() === ''">
           <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.15);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg></span>
-          الكل <span class="sub-cnt">{{ (categoryData()?.count || 0) | number }}</span>
+          الكل <span class="sub-cnt">{{ (categoryData()?.count || 0) | number:'1.0-2' }}</span>
         </button>
         @for (sub of categoryData()?.subSpecialties; track sub.id) {
         <button class="subcat-btn" type="button" [class.active]="selectedSub() === sub.slug" (click)="selectSubCategory(sub.slug)" role="tab" [attr.aria-selected]="selectedSub() === sub.slug">
           <span style="width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0"><svg style="width:10px;height:10px"><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg></span>
-          {{ sub.name }} <span class="sub-cnt">{{ getSubCount(sub.slug) | number }}</span>
+          {{ sub.name }} <span class="sub-cnt">{{ getSubCount(sub.slug) | number:'1.0-2' }}</span>
         </button>
         }
         </div>
@@ -168,7 +168,7 @@
           <div class="filter-lbl">تخصصات مشابهة</div>
           <div class="filter-opts" style="flex-direction:column;gap:0">
             @for (sub of relatedSubs(); track sub.id) {
-            <a [routerLink]="['/marketplace', slug()]" [queryParams]="{ sub: sub.slug }" class="related-link"><span style="font-size:12px;color:var(--txt-2)">{{ sub.name }}</span><span style="font-size:11px;color:var(--txt-3)">{{ getSubCount(sub.slug) | number }}</span></a>
+            <a [routerLink]="['/marketplace', slug()]" [queryParams]="{ sub: sub.slug }" class="related-link"><span style="font-size:12px;color:var(--txt-2)">{{ sub.name }}</span><span style="font-size:11px;color:var(--txt-3)">{{ getSubCount(sub.slug) | number:'1.0-2' }}</span></a>
             }
           </div>
         </div>
@@ -204,7 +204,7 @@
 
         <!-- RESULTS BAR -->
         <div class="results-bar">
-          <div class="results-count"><strong>{{ totalResults() | number }}</strong> خدمة في {{ heroName() }}</div>
+          <div class="results-count"><strong>{{ totalResults() | number:'1.0-2' }}</strong> خدمة في {{ heroName() }}</div>
           <div class="sort-row">
             <button class="filters-btn" type="button" (click)="openFilters()" aria-haspopup="dialog" aria-controls="filters-drawer" [attr.aria-expanded]="filtersOpen()"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>الفلاتر @if (activeFilterCount() > 0) {<span class="filters-count">{{ activeFilterCount() }}</span>}</button>
             <span class="sort-lbl">ترتيب:</span>

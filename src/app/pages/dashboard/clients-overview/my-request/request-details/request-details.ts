@@ -8,6 +8,7 @@ import { ThemeService } from '../../../../../core/services/theme.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ChatService } from '../../../../../core/services/chat.service';
 import { resolveProviderLevelBadgeStyle } from '../../../../../core/utils/provider-level-style.util';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 interface Offer {
 	id: string;
@@ -157,9 +158,9 @@ export class RequestDetails implements OnInit {
 					let formattedBudget = '';
 					if (data.budget) {
 						if (data.budget.type === 'RANGE' && data.budget.min && data.budget.max) {
-							formattedBudget = `${data.budget.min.toLocaleString()} - ${data.budget.max.toLocaleString()} $`;
+							formattedBudget = `${formatMoney(data.budget.min)} - ${formatMoney(data.budget.max)} $`;
 						} else if (data.budget.type === 'FIXED' && data.budget.min) {
-							formattedBudget = `${data.budget.min.toLocaleString()} $`;
+							formattedBudget = `${formatMoney(data.budget.min)} $`;
 						} else {
 							formattedBudget = 'غير محدد';
 						}

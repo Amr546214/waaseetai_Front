@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-checkout-confirm',
@@ -198,7 +199,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
   canResend = computed(() => this.countdown() === 0);
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return formatMoney(value, 0);
   }
 
   private normalizeDigits(value: string): string {

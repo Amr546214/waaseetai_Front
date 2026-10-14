@@ -13,6 +13,8 @@ import { CreateDisputePayload } from '../../../../../../core/models/dispute.mode
 import { MessageContext } from '../../../../../../core/services/chat.service';
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
+import { formatMoney } from '../../../../../../core/utils/money.util';
+import { AMENDMENT_CONFIRM_TEXT, AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_RECORDED_BADGE, amendmentEffectNote } from '../../../../../../core/constants/amendment-effect';
 
 export type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION';
 
@@ -299,6 +301,8 @@ export class Progress implements OnInit {
   submitDelivery() {
     const stage = this.deliveryStage();
     if (!stage) return;
+    // The server decides whether this stage can be submitted now (canSubmitDelivery + uploadBlockedReason): never recompute it here.
+    if (stage.canSubmitDelivery === false) { this.error.set(stage.uploadBlockedReason || 'هذه المرحلة غير متاحة لإرسال التسليم حالياً'); return; }
     const blocker = this.deliveryBlocker();
     if (blocker) { this.error.set(blocker); return; }
     const a = this.deliveryArtifacts();
@@ -389,7 +393,7 @@ export class Progress implements OnInit {
     } catch { return d.date; }
   }
   // Escrow amount formatted "2,500 $" (active contract/escrow pricing is USD-canonical)
-  escrowAmountLabel(stage: any): string { return stage?.amount ? (stage.amount | 0).toLocaleString('en-US') + ' $' : '—'; }
+  escrowAmountLabel(stage: any): string { return stage?.amount ? formatMoney(stage.amount) + ' $' : '—'; }
 
   // === Batch 8 — real, on-demand Gemini project health analysis ===
   // Replaces the previously-permanent aiInsights placeholder. Not fetched
@@ -507,6 +511,16 @@ export class Progress implements OnInit {
 
   // Answering a request the CLIENT raised: a real call (POST /provider/amendments/:id/respond); the decision is only recorded, nothing else changes.
   respondingId = signal<string | null>(null); respondError = signal('');
+  readonly amendmentConfirmText = AMENDMENT_CONFIRM_TEXT;
+  readonly amendmentRecordedBadge = AMENDMENT_RECORDED_BADGE;
+  readonly amendmentProposedLabel = AMENDMENT_PROPOSED_CHANGE_LABEL;
+  amendmentEffectNote(a: ProviderAmendment) { return amendmentEffectNote(a); }
+  /** An answered request is only recorded: never shown as applied to the contract. */
+  isAmendmentAnswered(a: ProviderAmendment) { return a.status === 'APPROVED' || a.status === 'REJECTED'; }
+  pendingAmendDecision = signal<{ id: string; decision: 'approve' | 'reject' } | null>(null);
+  askAmendDecision(a: ProviderAmendment, decision: 'approve' | 'reject') { if (this.respondingId()) return; this.pendingAmendDecision.set({ id: a.id, decision }); }
+  cancelAmendDecision() { this.pendingAmendDecision.set(null); }
+  confirmAmendDecision(a: ProviderAmendment) { const p = this.pendingAmendDecision(); if (!p || p.id !== a.id) return; this.pendingAmendDecision.set(null); this.respondAmendment(a, p.decision); }
   respondAmendment(a: ProviderAmendment, decision: 'approve' | 'reject') {
     if (this.respondingId() || !this.isClientPending(a)) return;
     this.respondingId.set(a.id); this.respondError.set('');
@@ -518,7 +532,7 @@ export class Progress implements OnInit {
   amendmentTypeLabel(t: string) { return AMENDMENT_TYPE_LABEL[t] || t; }
   amendmentDeltas(a: ProviderAmendment): string {
     const parts: string[] = [];
-    if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${a.budgetDelta.toLocaleString('en-US')} $`);
+    if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${formatMoney(a.budgetDelta)} $`);
     if (a.durationDeltaDays !== null && a.durationDeltaDays !== undefined) parts.push(`${a.durationDeltaDays > 0 ? '+' : ''}${a.durationDeltaDays} يوم`);
     return parts.join(' · ');
   }

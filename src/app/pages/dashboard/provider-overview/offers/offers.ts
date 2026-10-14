@@ -5,6 +5,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { handleLoadError } from '../../../../core/utils/rate-limit.util';
 import { LoadRetryComponent } from '../../../../sheards/load-retry/load-retry';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 export interface Offer {
 	id: string;
@@ -138,7 +139,7 @@ export class Offers implements OnInit {
 						projectId: item.projectId || undefined,
 						ref: item.projectRef || item.ref,
 						title: item.projectTitle || item.title,
-						price: typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || '0 $'),
+						price: typeof item.offeredPrice === 'number' ? `${formatMoney(item.offeredPrice)} $` : (item.price || '0 $'),
 						status: item.statusKey || (item.status === 'UNDER_NEGOTIATION' ? 'nego' : item.status === 'ACCEPTED' ? 'accepted' : item.status === 'PENDING_RESPONSE' ? 'pending_response' : 'pending'),
 						statusText: item.statusText || 'بانتظار الرد',
 						clientName: item.clientName || 'عميل وسيط',

@@ -386,7 +386,7 @@
 				<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:8px 0"
 					[style.border-bottom]="!last ? '1px solid rgba(255,255,255,.05)' : 'none'" class="txt-slate">
 					<span>{{ log.source }}</span>
-					<span style="color:#0FA99A">{{ log.amount }} دولار</span>
+					<span style="color:#0FA99A">{{ log.amount | number:'1.0-2' }} دولار</span>
 				</div>
 				}
 				} @else if (loadingRecentCommissions()) {

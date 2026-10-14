@@ -7,6 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { isRateLimitError, RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 interface FilterTab {
 	id: string;
@@ -182,10 +183,10 @@ export class MyRequest implements OnInit {
 		const fixedB = p.budgetFixed || p.fixedBudget;
 		const hourlyB = p.budgetHourly || p.hourlyBudget;
 
-		if (fixedB) return `${Number(fixedB).toLocaleString()} $`;
-		if (minB && maxB) return `${Number(minB).toLocaleString()} - ${Number(maxB).toLocaleString()} $`;
-		if (minB) return `${Number(minB).toLocaleString()} $`;
-		if (hourlyB) return `${Number(hourlyB).toLocaleString()} $/ساعة`;
+		if (fixedB) return `${formatMoney(fixedB)} $`;
+		if (minB && maxB) return `${formatMoney(minB)} - ${formatMoney(maxB)} $`;
+		if (minB) return `${formatMoney(minB)} $`;
+		if (hourlyB) return `${formatMoney(hourlyB)} $/ساعة`;
 		return 'غير محدد';
 	}
 

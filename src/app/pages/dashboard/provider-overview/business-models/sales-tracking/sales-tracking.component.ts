@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProviderApiService, ProviderSale } from '../../../../../core/services/provider-api.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-sales-tracking',
@@ -29,7 +30,7 @@ export class SalesTrackingComponent implements OnInit {
 			next: res => {
 				const d = res?.data;
 				if (!d) return;
-				const usd = (n: number) => `${n.toLocaleString('en-US')} $`;
+				const usd = (n: number) => `${formatMoney(n)} $`;
 				this.stats = [
 					{ lbl: 'إجمالي المبيعات', val: usd(d.summary.totalRevenue), color: 'teal', ico: 'wallet' },
 					{ lbl: 'هذا الشهر', val: usd(d.summary.monthRevenue), color: 'blue', ico: 'chart' },

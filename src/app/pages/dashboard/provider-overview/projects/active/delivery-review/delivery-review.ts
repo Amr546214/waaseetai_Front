@@ -7,6 +7,7 @@ import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
 import { MessageContext } from '../../../../../../core/services/chat.service';
 import { UiNotificationService } from '../../../../../../core/services/ui-notification.service';
+import { formatMoney } from '../../../../../../core/utils/money.util';
 
 /**
  * Final delivery & project closure review.
@@ -106,7 +107,7 @@ export class DeliveryReview implements OnInit {
 	}
 
 	formatMoney(v: number): string {
-		return (v || 0).toLocaleString('en-US');
+		return formatMoney(v || 0);
 	}
 
 	goToWorkspace() {

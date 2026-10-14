@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 export interface DisplayTransaction {
   id: string;
@@ -143,7 +144,7 @@ export class Wallet implements OnInit {
           title: tx.description || (isDeposit ? 'إيداع رصيد بالمحفظة' : 'معاملة مالية'),
           description: tx.referenceId ? `رقم العملية ${tx.referenceId}` : (tx.paymentMethod || 'محفظة وسيط AI'),
           date: formattedDate,
-          amount: `${sign}${Math.abs(tx.amount).toLocaleString('en-US')}${currencyLabel ? ' ' + currencyLabel : ''}`,
+          amount: `${sign}${formatMoney(Math.abs(tx.amount))}${currencyLabel ? ' ' + currencyLabel : ''}`,
           direction,
           status: statusText,
           statusType,

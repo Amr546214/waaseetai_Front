@@ -4,6 +4,7 @@ import { ActiveProjectsService } from '../../../../../core/services/active.servi
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 interface Project {
 	id: string;
@@ -126,7 +127,7 @@ export class Active implements OnInit {
 			// Projects where the next move is the provider's (a delivery or a requested revision can be sent now).
 			needsAction: projs.filter(p => p.canUploadDelivery).length,
 			late: lateCount,
-			totalEscrowFormatted: totalEscrow.toLocaleString('en-US')
+			totalEscrowFormatted: formatMoney(totalEscrow)
 		};
 	});
 

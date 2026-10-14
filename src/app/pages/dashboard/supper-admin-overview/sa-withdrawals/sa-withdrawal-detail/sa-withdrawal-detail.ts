@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
 import { WITHDRAWAL_STATUS_LABELS, WITHDRAWAL_STATUS_CLASSES, withdrawalUserDisplay, withdrawalOwnerLabel } from '../sa-withdrawals';
 import { Withdrawal, LEGACY_WITHDRAWAL_LABEL, isLegacyWithdrawal, ApproveWithdrawalPayload, RejectWithdrawalPayload } from '../../../../../core/models/withdrawal.model';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-sa-withdrawal-detail',
@@ -258,7 +259,7 @@ export class SaWithdrawalDetail implements OnInit {
 
   formatAmount(amount: number | null | undefined, currency: string | undefined): string {
     if (amount == null) return '—';
-    const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    const formatted = formatMoney(amount, 2);
     return currency ? `${formatted} ${currency === 'USD' ? '$' : currency}` : `${formatted} $`;
   }
 

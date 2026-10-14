@@ -6,6 +6,7 @@ import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService, InsufficientBalanceInfo } from '../../../../core/services/checkout.service';
 import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
 import { DepositModal } from '../../../../sheards/deposit-modal/deposit-modal';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-checkout-payment',
@@ -189,7 +190,7 @@ export class CheckoutPaymentComponent implements OnInit {
   }
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return formatMoney(value, 0);
   }
 
   walletAfterPay(): string {

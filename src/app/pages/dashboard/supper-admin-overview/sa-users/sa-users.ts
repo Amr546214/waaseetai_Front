@@ -9,6 +9,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaNotifyModal } from '../sa-notify-modal';
 import { SaUsersService, AdminUser, AdminUsersStats, AdminUsersQueryParams } from './sa-users.service';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-sa-users',
@@ -76,7 +77,7 @@ export class SaUsers implements OnInit {
     const stats = this.usersStats();
     const tab = this.selectedAccountType();
 
-    const formatNumber = (num?: number) => (num !== undefined ? num.toLocaleString('en-US') : '0');
+    const formatNumber = (num?: number) => (num !== undefined ? formatMoney(num) : '0');
     // No fabricated numbers: when getStats() genuinely doesn't return a field
     // (e.g. per-account-type spend/orders/commissions/ratings), show an honest
     // placeholder instead — matching the "غير متاح" convention used elsewhere

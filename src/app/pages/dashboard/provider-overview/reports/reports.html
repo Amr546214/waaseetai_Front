@@ -245,7 +245,7 @@
                 <td class="py-3 px-4 text-[13px] font-black text-[#FFB400]">{{ member.rating }} ★</td>
                 <td class="py-3 px-4 text-[13px] font-black"
                     [ngClass]="member.onTime >= 90 ? 'text-[#0FA99A]' : member.onTime >= 75 ? 'text-[#FFB400]' : 'text-[#FF8C69]'">{{ member.onTime }}%</td>
-                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ member.revenue }} $</td>
+                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ member.revenue | number:'1.0-2' }} $</td>
                 <td class="py-3 px-4">
                   @if(member.status === 'active') {
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A] text-[10px] font-black whitespace-nowrap">

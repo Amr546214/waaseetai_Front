@@ -53,7 +53,7 @@
               <div class="pj-ms-name">{{ s.stepOrder }}. {{ s.title }}</div>
               <div class="pj-ms-track"><div class="pj-ms-fill" [style.width.%]="stageState(s) === 'done' ? 100 : 0"></div></div>
               <div class="pj-deliv-meta">
-                {{ s.amount | number }} $ ({{ s.percentage }}%) · {{ label(stageLabels, s.status) }}
+                {{ s.amount | number:'1.0-2' }} $ ({{ s.percentage }}%) · {{ label(stageLabels, s.status) }}
                 @if (s.approvedAt) { · اعتُمدت في {{ s.approvedAt | date: 'yyyy-MM-dd' }} }
               </div>
               <div class="pj-deliv-list">
@@ -88,12 +88,12 @@
       @if (d.escrow; as e) {
         <div class="pj-md-tags"><span class="ct-escrow" [ngClass]="escrowClasses[e.status]">{{ label(escrowLabels, e.status) }}</span></div>
         <div class="pj-escrow-row">
-          <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ e.amount | number }} $</strong></div>
-          <div class="pj-escrow-item"><span>محرَّر حتى الآن</span><strong class="txt-green">{{ e.releasedAmount | number }} $</strong></div>
-          <div class="pj-escrow-item"><span>المتبقي محتجزاً</span><strong class="txt-amber">{{ (e.heldAmount ?? 0) | number }} $</strong></div>
+          <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ e.amount | number:'1.0-2' }} $</strong></div>
+          <div class="pj-escrow-item"><span>محرَّر حتى الآن</span><strong class="txt-green">{{ e.releasedAmount | number:'1.0-2' }} $</strong></div>
+          <div class="pj-escrow-item"><span>المتبقي محتجزاً</span><strong class="txt-amber">{{ (e.heldAmount ?? 0) | number:'1.0-2' }} $</strong></div>
           @if (showFees()) {
-            <div class="pj-escrow-item"><span>عمولة المنصة</span><strong>{{ e.platformCommissionAmount | number }} $</strong></div>
-            <div class="pj-escrow-item"><span>صافي المقدم المحرَّر</span><strong>{{ e.providerNetReleasedAmount | number }} $</strong></div>
+            <div class="pj-escrow-item"><span>عمولة المنصة</span><strong>{{ e.platformCommissionAmount | number:'1.0-2' }} $</strong></div>
+            <div class="pj-escrow-item"><span>صافي المقدم المحرَّر</span><strong>{{ e.providerNetReleasedAmount | number:'1.0-2' }} $</strong></div>
           }
         </div>
         @if (e.fundedAt) {
@@ -110,9 +110,10 @@
           <div class="pj-sub-row">
             <strong>{{ a.title }}</strong>
             <span>{{ label(amendmentLabels, a.status) }}</span>
-            @if (a.budgetDelta !== null) { <span>الميزانية: {{ a.budgetDelta | number }} $</span> }
-            @if (a.durationDeltaDays !== null) { <span>المدة: {{ a.durationDeltaDays }} يوم</span> }
+            @if (a.budgetDelta !== null) { <span>تغيير مقترح في الميزانية: {{ a.budgetDelta | number:'1.0-2' }} $</span> }
+            @if (a.durationDeltaDays !== null) { <span>تغيير مقترح في المدة: {{ a.durationDeltaDays }} يوم</span> }
             <span>{{ a.createdAt | date: 'yyyy-MM-dd' }}</span>
+            <span data-testid="amend-effect-note">@if (a.status === 'APPROVED' || a.status === 'ACCEPTED' || a.status === 'REJECTED') { <b>{{ amendmentRecordedBadge }}</b> · } {{ a.effectNote || amendmentEffectNote }}</span>
           </div>
         } @empty {
           <div class="pj-empty-inline">لا توجد تعديلات</div>
@@ -141,7 +142,7 @@
           <div class="pj-info-row"><span>مدة التسليم</span><strong>{{ d.deliveryDays }} يوم</strong></div>
           <div class="pj-info-row"><span>التخصص</span><strong>{{ d.specialty || '-' }}</strong></div>
           @if (d.contract; as c) {
-            <div class="pj-info-row"><span>قيمة العقد</span><strong class="txt-green">{{ c.price | number }} $</strong></div>
+            <div class="pj-info-row"><span>قيمة العقد</span><strong class="txt-green">{{ c.price | number:'1.0-2' }} $</strong></div>
             <div class="pj-info-row"><span>مدة العقد</span><strong>{{ c.durationDays }} يوم</strong></div>
             <div class="pj-info-row"><span>توقيع الطالب</span><strong>{{ c.clientSignedAt ? (c.clientSignedAt | date: 'yyyy-MM-dd') : 'لم يوقّع' }}</strong></div>
             <div class="pj-info-row"><span>توقيع المقدم</span><strong>{{ c.providerSignedAt ? (c.providerSignedAt | date: 'yyyy-MM-dd') : 'لم يوقّع' }}</strong></div>

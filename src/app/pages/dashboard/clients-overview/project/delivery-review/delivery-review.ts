@@ -7,6 +7,7 @@ import { environment } from '../../../../../../environments/environment';
 import { MessageContext } from '../../../../../core/services/chat.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-delivery-review', standalone: true,
@@ -128,7 +129,7 @@ export class DeliveryReview implements OnInit {
 		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 	}
 
-	formatNumber(value: number) { return Number(value || 0).toLocaleString('en-US'); }
+	formatNumber(value: number) { return formatMoney(value || 0); }
 
 	// The delivery is only awaiting THIS client's decision while the stage is
 	// still SUBMITTED (stageLabels maps ProjectStageStatus.SUBMITTED -> 'submitted'

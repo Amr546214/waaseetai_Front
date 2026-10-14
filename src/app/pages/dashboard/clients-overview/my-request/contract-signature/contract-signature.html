@@ -86,7 +86,7 @@
         <tr data-testid="cs-milestone">
           <td>{{ m.order }}</td>
           <td>{{ m.title }}@if (m.description) {<div class="txt-muted" style="font-size:11px">{{ m.description }}</div>}</td>
-          <td>{{ m.amount | number }} $</td>
+          <td>{{ m.amount | number:'1.0-2' }} $</td>
           <td>{{ m.percentage | number:'1.0-1' }}٪</td>
           <td>{{ m.days }} يوم</td>
         </tr>

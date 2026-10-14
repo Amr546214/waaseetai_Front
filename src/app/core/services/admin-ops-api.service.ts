@@ -38,7 +38,7 @@ export interface AdminProjectDetail {
   client: AdminParty | null; provider: AdminParty | null;
   contract: { id: string; price: number; status: string; durationDays: number; signedAt: string | null; clientSignedAt: string | null; providerSignedAt: string | null } | null;
   escrow: AdminEscrow | null; stages: AdminStage[];
-  amendments: { id: string; title: string; type: string; status: string; budgetDelta: number | null; durationDeltaDays: number | null; createdAt: string }[];
+  amendments: { id: string; title: string; type: string; status: string; budgetDelta: number | null; durationDeltaDays: number | null; createdAt: string; effect?: 'RECORD_ONLY'; effectNote?: string }[];
   progress: AdminProgress;
   disputes: { id: string; status: string; reason: string; createdAt: string; resolvedAt: string | null }[];
   openDisputes: number; currency: string;

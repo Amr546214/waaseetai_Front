@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
+import { AMENDMENT_EFFECT_NOTE, AMENDMENT_RECORDED_BADGE } from '../../../../../core/constants/amendment-effect';
 import { AdminContractDetail, AdminOpsApiService } from '../../../../../core/services/admin-ops-api.service';
 import {
   AMENDMENT_STATUS_LABELS,
@@ -40,6 +41,8 @@ export class SaContractDetail implements OnInit {
   readonly deliveryLabels = DELIVERY_STATUS_LABELS;
   readonly disputeLabels = DISPUTE_STATUS_LABELS;
   readonly amendmentLabels = AMENDMENT_STATUS_LABELS;
+  readonly amendmentEffectNote = AMENDMENT_EFFECT_NOTE;
+  readonly amendmentRecordedBadge = AMENDMENT_RECORDED_BADGE;
   readonly financeReason = FINANCE_ACTION_DISABLED_REASON;
   readonly financeNote = FINANCE_ACTION_NOTE;
   readonly initials = initials;

@@ -6,6 +6,7 @@ import { ThemeService } from '../../../../../core/services/theme.service';
 import { environment } from '../../../../../../environments/environment';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ClientFinanceService } from '../../../../../core/services/client-finance.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 /** What the page can show: only 'ready' may offer the sign/pay action; 'readonly' shows the contract's terms of an already signed / running contract. */
 type ContractView = 'loading' | 'ready' | 'readonly' | 'blocked' | 'error';
@@ -131,7 +132,7 @@ export class ContractSignature implements OnInit {
 				const balance = Number(response.data?.summary?.availableBalance || 0);
 				const shortfall = Math.max(0, Math.round((this.requiredAmount() - balance) * 100) / 100);
 				if (shortfall > 0) {
-					this.notify.warning(`رصيد المحفظة غير كافٍ. يلزم شحن ${shortfall.toLocaleString('en-US')} $.`);
+					this.notify.warning(`رصيد المحفظة غير كافٍ. يلزم شحن ${formatMoney(shortfall)} $.`);
 				}
 				this.router.navigate(['/client-overview/my-requests', this.requestId(), 'deposit'], {
 					queryParams: { offerId: this.offerId() }

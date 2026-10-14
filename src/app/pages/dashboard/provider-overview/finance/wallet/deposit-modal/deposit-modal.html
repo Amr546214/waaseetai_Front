@@ -26,7 +26,7 @@
 		<div class="dpm-field">
 			<label class="dpm-label" for="dpmAmt">المبلغ ($)</label>
 			<div class="dpm-amt-wrap">
-				<input id="dpmAmt" class="dpm-amt-input" type="text" inputmode="numeric" [value]="amount() | number" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالدولار" />
+				<input id="dpmAmt" class="dpm-amt-input" type="text" inputmode="numeric" [value]="amount() | number:'1.0-2'" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالدولار" />
 				<span class="dpm-amt-cur">$</span>
 			</div>
 			<div class="dpm-hint">حدود مبلغ الإيداع تُحدَّد عند تفعيل الإيداع للمزوّدين</div>
@@ -34,7 +34,7 @@
 
 		<div class="dpm-chips">
 			@for (chip of quickAmounts; track chip) {
-			<button type="button" class="dpm-chip" [class.on]="amount() === chip" (click)="setAmount(chip)">{{ chip | number }}</button>
+			<button type="button" class="dpm-chip" [class.on]="amount() === chip" (click)="setAmount(chip)">{{ chip | number:'1.0-2' }}</button>
 			}
 		</div>
 

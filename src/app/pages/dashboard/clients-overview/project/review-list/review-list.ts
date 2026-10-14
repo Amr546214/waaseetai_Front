@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 interface PendingDeliveryItem {
 	projectId: string;
@@ -57,7 +58,7 @@ export class ReviewList implements OnInit {
 	}
 
 	formatNumber(value: number) {
-		return Number(value || 0).toLocaleString('en-US');
+		return formatMoney(value || 0);
 	}
 
 	// Real elapsed time from the delivery's actual submittedAt — no fallback

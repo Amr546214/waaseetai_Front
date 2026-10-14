@@ -9,8 +9,10 @@ import {
   WithdrawalStatus,
 } from '../../../../../core/models/withdrawal.model';
 import { AuthStore } from '../../../../../core/store/auth.store';
-import { AccountType } from '../../../../../core/models/auth.model';
+import { AccountType, UserRole } from '../../../../../core/models/auth.model';
+import { PROVIDER_ONLY_FINANCE_MESSAGE } from '../wallet/wallet';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 
 @Component({
@@ -101,6 +103,8 @@ export class Withdraw implements OnInit {
   }
 
   loadWallet() {
+    // Provider-only endpoint (403 for any other role): do not call it while acting as a client.
+    if (this.authStore.actingRole?.() === UserRole.CLIENT) { this.walletError.set(PROVIDER_ONLY_FINANCE_MESSAGE); this.walletLoading.set(false); return; }
     this.walletLoading.set(true);
     this.walletError.set('');
     this.withdrawalApi.getProviderWallet().subscribe({
@@ -109,6 +113,7 @@ export class Withdraw implements OnInit {
         this.walletLoading.set(false);
       },
       error: err => {
+        if (err?.status === 403) { this.walletError.set(PROVIDER_ONLY_FINANCE_MESSAGE); this.walletLoading.set(false); return; }
         this.walletError.set(err?.error?.message || err?.message || 'تعذر تحميل بيانات المحفظة');
         this.walletLoading.set(false);
       },
@@ -179,7 +184,7 @@ export class Withdraw implements OnInit {
     const avail = this.availableBalance();
     return avail <= 0
       ? 'الرصيد غير كافٍ: لا يوجد رصيد متاح للسحب حاليًا'
-      : `الرصيد غير كافٍ: لا يمكنك طلب سحب أكبر من الرصيد المتاح للسحب (${avail.toLocaleString('en-US')} ${this.currency()})`;
+      : `الرصيد غير كافٍ: لا يمكنك طلب سحب أكبر من الرصيد المتاح للسحب (${formatMoney(avail)} ${this.currency()})`;
   }
 
   private clearFieldError(field: string) {
@@ -309,7 +314,7 @@ export class Withdraw implements OnInit {
 
   formatAmount(amount?: number, currency?: string): string {
     if (amount == null) return '—';
-    const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    const formatted = formatMoney(amount, 2);
     // currency here is the withdrawal record's OWN stored currency code
     // (a row shows its own stored currency code) —
     // never relabeled, only rendered as the app's symbol.

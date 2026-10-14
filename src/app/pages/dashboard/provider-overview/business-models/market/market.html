@@ -35,8 +35,8 @@
 	     now show only what GET /business-models/my-market-models really returns;
 	     monthly trends and offers/conversion have no backend source and were removed. -->
 	<div class="co-mkt-kpi-row" style="grid-template-columns:repeat(3,1fr)">
-		<div class="co-mkt-kpi-c"><div class="v">{{ stats().totalModels | number }}</div><div class="l">نماذج الشركة</div><div class="s">في {{ groups().length }} تخصصات</div></div>
-		<div class="co-mkt-kpi-c"><div class="v">{{ stats().totalViews | number }}</div><div class="l">إجمالي المشاهدات</div></div>
+		<div class="co-mkt-kpi-c"><div class="v">{{ stats().totalModels | number:'1.0-2' }}</div><div class="l">نماذج الشركة</div><div class="s">في {{ groups().length }} تخصصات</div></div>
+		<div class="co-mkt-kpi-c"><div class="v">{{ stats().totalViews | number:'1.0-2' }}</div><div class="l">إجمالي المشاهدات</div></div>
 		<div class="co-mkt-kpi-c">
 			<div class="v">
 				@if (avgAiScore() !== null) {
@@ -158,7 +158,7 @@
 					<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
 					<circle cx="12" cy="12" r="3" />
 				</svg>
-				{{ group.views | number }} مشاهدة
+				{{ group.views | number:'1.0-2' }} مشاهدة
 			</div>
 		</div>
 

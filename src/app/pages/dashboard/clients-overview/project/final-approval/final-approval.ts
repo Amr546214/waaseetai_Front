@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { MessageContext } from '../../../../../core/services/chat.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-final-approval',
@@ -104,7 +105,7 @@ export class FinalApproval implements OnInit {
 			return sum + (rounds > 1 ? rounds - 1 : 0);
 		}, 0);
 	}
-	formatNumber(value: number) { return Number(value || 0).toLocaleString('en-US'); }
+	formatNumber(value: number) { return formatMoney(value || 0); }
 	formatDate(value: string | Date | null) {
 		if (!value) return '—';
 		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(value));

@@ -7,6 +7,7 @@ import { MarketplaceService, MarketplaceModel } from '../../../../core/services/
 import { AuthStore } from '../../../../core/store/auth.store';
 import { Subscription, Observable, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-cart',
@@ -154,7 +155,7 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return formatMoney(value, 0);
   }
 
   removeItem(itemId: string) {

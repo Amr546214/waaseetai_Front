@@ -294,7 +294,7 @@
 						<div class="ws-note-body">
 							<div class="ws-note-lbl">عرض مضاد من مقدم الخدمة بانتظار ردك</div>
 							<p class="ws-note-txt">
-								@if (offer.negotiation!.counter!.price !== null) { السعر: {{ offer.negotiation!.counter!.price }} $ }
+								@if (offer.negotiation!.counter!.price !== null) { السعر: {{ offer.negotiation!.counter!.price | number:'1.0-2' }} $ }
 								@if (offer.negotiation!.counter!.deliveryDays !== null) { — المدة: {{ offer.negotiation!.counter!.deliveryDays }} يوم }
 								@if (offer.negotiation!.counter!.notes) { — {{ offer.negotiation!.counter!.notes }} }
 							</p>

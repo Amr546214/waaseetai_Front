@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../core/services/active.service';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingScore } from '../../../../../core/models/rating.model';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-provider-rating-page',
@@ -120,7 +121,7 @@ export class ProviderRatingPage implements OnInit {
 	releasedAmount(): string {
 		const data = this.project();
 		const amount = data?.price ?? data?.amount ?? data?.totalAmount ?? 0;
-		return Number(amount).toLocaleString('en-US');
+		return formatMoney(amount);
 	}
 
 	submit() {

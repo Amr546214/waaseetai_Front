@@ -13,7 +13,9 @@ import { RatingApiService } from '../../../../../core/services/rating-api.servic
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { ClientCompanyTeamService } from '../../../../../core/services/client-company-team.service';
+import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_RECORDED_BADGE, amendmentEffectNote } from '../../../../../core/constants/amendment-effect';
 import { ClientCompanyTeamMember } from '../../../../../core/models/client-company-team.model';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION' | 'MIXED';
@@ -180,7 +182,7 @@ export class ProjectDetails implements OnInit {
 		const last = this.latestThread(stage);
 		return last?.files?.length || 0;
 	}
-	formatNumber(value: number) { return Number(value || 0).toLocaleString('en-US'); }
+	formatNumber(value: number) { return formatMoney(value || 0); }
 	formatDate(value: string | Date | null) {
 		if (!value) return '—';
 		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(value));
@@ -279,11 +281,15 @@ export class ProjectDetails implements OnInit {
 			error: err => { this.amendSaving.set(false); this.amendError.set(err.error?.message || 'تعذر إرسال طلب التعديل'); }
 		});
 	}
+	readonly amendmentRecordedBadge = AMENDMENT_RECORDED_BADGE;
+	readonly amendmentProposedLabel = AMENDMENT_PROPOSED_CHANGE_LABEL;
+	amendmentEffectNote(a: any) { return amendmentEffectNote(a); }
+	isAmendmentAnswered(a: any) { return a?.status === 'APPROVED' || a?.status === 'REJECTED'; }
 	amendmentStatusLabel(s: string) { return CLIENT_AMENDMENT_STATUS_LABEL[s] || s; }
 	amendmentTypeLabel(s: string) { return CLIENT_AMENDMENT_TYPE_LABEL[s] || s; }
 	amendmentDeltas(a: any): string {
 		const parts: string[] = [];
-		if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${Number(a.budgetDelta).toLocaleString('en-US')} $`);
+		if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${formatMoney(a.budgetDelta)} $`);
 		if (a.durationDeltaDays !== null && a.durationDeltaDays !== undefined) parts.push(`${a.durationDeltaDays > 0 ? '+' : ''}${a.durationDeltaDays} يوم`);
 		return parts.join(' · ');
 	}

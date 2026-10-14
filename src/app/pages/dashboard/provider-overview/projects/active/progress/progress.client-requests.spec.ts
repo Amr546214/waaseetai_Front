@@ -28,7 +28,10 @@ describe('provider progress: answering a client change request', () => {
 		expect(s.qa('amend-from-client')).toHaveLength(1);
 		expect(s.qa('amend-status')[0].textContent).toContain('بانتظار ردك');
 		expect(s.qa('amend-respond-approve')).toHaveLength(1); expect(s.qa('amend-respond-reject')).toHaveLength(1);
-		expect(s.el.textContent).toContain('قرارك يُسجَّل فقط، ولا يتغير السعر أو المدة أو الضمان تلقائيًا');
+		expect(s.qa('amend-effect-note')[0].textContent).toContain('القرار يُسجَّل للمتابعة فقط ولا يغيّر سعر العقد أو مدته أو الضمان حاليًا.');
+		(s.qa('amend-respond-approve')[0] as HTMLButtonElement).click(); s.f.detectChanges();
+		expect(s.qa('amend-confirm-text')[0].textContent).toContain('للمتابعة فقط');
+		expect(s.post).not.toHaveBeenCalled();
 		expect(s.c.hasPendingAmendment()).toBe(false); // that flag is about MY own requests only
 	});
 
@@ -36,6 +39,7 @@ describe('provider progress: answering a client change request', () => {
 		const s = await setup([AM()]);
 		s.c.openAmendments(); s.f.detectChanges();
 		(s.qa('amend-respond-approve')[0] as HTMLButtonElement).click(); s.f.detectChanges();
+		(s.qa('amend-confirm-yes')[0] as HTMLButtonElement).click(); s.f.detectChanges();
 		expect(s.post).toHaveBeenCalledTimes(1);
 		const [url, body] = s.post.mock.calls[0] as unknown as [string, any];
 		expect(url).toContain('/provider/amendments/c1/respond'); expect(body).toEqual({ decision: 'approve' });
@@ -59,6 +63,7 @@ describe('provider progress: answering a client change request', () => {
 		const s = await setup([AM()], { error: { message: 'تم الرد على طلب التعديل هذا مسبقًا' } });
 		s.c.openAmendments(); s.f.detectChanges();
 		(s.qa('amend-respond-reject')[0] as HTMLButtonElement).click(); s.f.detectChanges();
+		(s.qa('amend-confirm-yes')[0] as HTMLButtonElement).click(); s.f.detectChanges();
 		expect(s.qa('amend-respond-error')[0].textContent).toContain('مسبقًا');
 	});
 });

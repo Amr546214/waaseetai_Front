@@ -20,9 +20,9 @@
     <div class="cat-card" role="status">جاري تحميل المستويات...</div>
   } @else if (data(); as d) {
     <div class="cat-kpis">
-      <div class="cat-kpi"><div class="cat-kpi-num txt-teal">{{ d.totalProviders | number }}</div><div class="cat-kpi-lbl">إجمالي مقدمي الخدمة</div></div>
-      <div class="cat-kpi"><div class="cat-kpi-num txt-slate">{{ d.totalProviders - d.providersWithoutLevelRow | number }}</div><div class="cat-kpi-lbl">لديهم سجل مستوى</div></div>
-      <div class="cat-kpi"><div class="cat-kpi-num txt-amber-dk">{{ d.providersWithoutLevelRow | number }}</div><div class="cat-kpi-lbl">بلا سجل مستوى بعد</div></div>
+      <div class="cat-kpi"><div class="cat-kpi-num txt-teal">{{ d.totalProviders | number:'1.0-2' }}</div><div class="cat-kpi-lbl">إجمالي مقدمي الخدمة</div></div>
+      <div class="cat-kpi"><div class="cat-kpi-num txt-slate">{{ d.totalProviders - d.providersWithoutLevelRow | number:'1.0-2' }}</div><div class="cat-kpi-lbl">لديهم سجل مستوى</div></div>
+      <div class="cat-kpi"><div class="cat-kpi-num txt-amber-dk">{{ d.providersWithoutLevelRow | number:'1.0-2' }}</div><div class="cat-kpi-lbl">بلا سجل مستوى بعد</div></div>
     </div>
 
     <div class="cat-card">
@@ -35,13 +35,13 @@
               <tr>
                 <td><span class="cat-bdg" [style.background]="l.color + '20'" [style.color]="l.color">{{ l.level }} — {{ l.name }}</span></td>
                 <td>{{ l.commissionPercent }}%</td>
-                <td>{{ l.thresholds.points | number }}</td>
+                <td>{{ l.thresholds.points | number:'1.0-2' }}</td>
                 <td>{{ l.thresholds.projects }}</td>
                 <td>{{ l.thresholds.rating ? '★ ' + l.thresholds.rating : '—' }}</td>
                 <td>
                   <div class="cat-dist-item">
                     <div class="cat-dist-bar-wrap"><div class="cat-dist-fill" [style.width.%]="(l.providers / maxProviders()) * 100" [style.background]="l.color"></div></div>
-                    <span class="cat-dist-count">{{ l.providers | number }}</span>
+                    <span class="cat-dist-count">{{ l.providers | number:'1.0-2' }}</span>
                   </div>
                 </td>
               </tr>
@@ -72,7 +72,7 @@
                 <td class="cat-rating">{{ p.rating ? '★ ' + p.rating : '—' }}</td>
                 <td class="cat-center">{{ p.completedProjects }}</td>
                 <td>{{ p.level }} — {{ p.levelName }}</td>
-                <td class="cat-revenue">{{ p.revenue | number }} $</td>
+                <td class="cat-revenue">{{ p.revenue | number:'1.0-2' }} $</td>
                 <td class="cat-date">{{ p.memberSince ? (p.memberSince | date:'yyyy-MM') : '—' }}</td>
               </tr>
             } @empty {
