@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddAccountBase } from '../../../../../shared/add-account/add-account.base';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
+import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 
 @Component({
   selector: 'app-profile-add-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent],
   templateUrl: './add-account.html',
   styles: [`
     @keyframes ws-fade {

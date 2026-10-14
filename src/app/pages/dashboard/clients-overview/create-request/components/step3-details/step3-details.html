@@ -110,6 +110,21 @@
 			</div>
 		</div>
 
+		<!-- FIELD 2b: المهارات المطلوبة (من كتالوج مجال التخصص) -->
+		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6" data-testid="required-skills-card">
+			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
+				<span>المهارات المطلوبة</span>
+				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
+			</div>
+			@if (parent.skillsLoading()) {
+			<p class="text-xs text-[var(--txt-3)]" data-testid="required-skills-loading">جارٍ تحميل مهارات المجال…</p>
+			} @else {
+			<ws-skills-picker [options]="parent.skillOptions()" [selected]="parent.requiredSkills()" (selectedChange)="parent.setRequiredSkills($event)"
+				[emptyMessage]="parent.skillsCatalogError() || 'اختر تخصصًا من القائمة في الخطوة الأولى لتظهر مهارات مجاله'" />
+			}
+			@if (parent.skillsServerError()) { <p class="text-xs text-red-500 mt-2" role="alert" data-testid="required-skills-error">{{ parent.skillsServerError() }}</p> }
+		</div>
+
 		<!-- FIELD 3: متطلبات إلزامية -->
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">

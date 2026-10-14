@@ -325,6 +325,23 @@
               </div>
             </div>
 
+            <!-- SKILLS (names from the skills catalog, same labels as the provider profile) -->
+            <div style="margin-bottom:28px" data-testid="offer-skills">
+              <div class="section-title">
+                <span class="section-title-ico" style="background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.15);color:var(--blue-txt)"><svg><use href="#ws-cat-pen"></use></svg></span>
+                المهارات المستخدمة
+              </div>
+              @if (model()?.skills?.length) {
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  @for (skill of model()!.skills!; track skill) {
+                    <span data-testid="offer-skill" style="padding:6px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:8px;font-size:12px;color:var(--txt-2)">{{ skill }}</span>
+                  }
+                </div>
+              } @else {
+                <p data-testid="offer-skills-empty" style="font-size:12px;color:var(--txt-3);margin:0">لم يحدد مقدّم الخدمة مهارات لهذه الخدمة بعد.</p>
+              }
+            </div>
+
             <!-- TAGS (not in the design — real keyword data, kept) -->
             @if (model()?.tags && model()!.tags!.length > 0) {
               <div style="margin-bottom:28px">

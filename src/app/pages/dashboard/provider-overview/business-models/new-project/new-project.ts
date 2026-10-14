@@ -1,9 +1,10 @@
 import type { RegisteredSpecialty } from '../../../../../core/utils/specialty-states';
-import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, signal, computed, effect, untracked, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NewProjectService, AiReviewEvaluation } from '../../../../../core/services/new-project.service';
+import { SkillsCatalogService } from '../../../../../core/services/skills-catalog.service';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { Step1DetailsComponent } from './components/step1-details/step1-details.component';
 import { Step2SpecialtyComponent } from './components/step2-specialty/step2-specialty.component';
@@ -53,6 +54,7 @@ export interface AccreditationModelItem {
 export class NewProject implements OnInit, OnDestroy {
 	private newProjectService = inject(NewProjectService);
 	private providerApi = inject(ProviderApiService);
+	private skillsCatalog = inject(SkillsCatalogService);
 	private sanitizer = inject(DomSanitizer);
 	private router = inject(Router);
 	private route = inject(ActivatedRoute);
@@ -187,8 +189,74 @@ export class NewProject implements OnInit, OnDestroy {
 		return true;
 	});
 
+	// Skills of the chosen specialty (single source: the backend skills catalog of the specialty's category).
+	skillOptions = signal<string[]>([]);
+	selectedSkills = signal<string[]>([]);
+	skillsLoading = signal<boolean>(false);
+	skillsError = signal<string>('');
+	/** The provider's saved profile skills: offered as the starting selection after the specialty is picked. */
+	private providerSkills = signal<string[]>([]);
+	private suggestSkillsOnLoad = false;
+	private skillsCategoryKey = '';
+
+	private selectedCategoryId = computed<string>(() => {
+		const selId = this.selectedSpecialty();
+		if (!selId) return '';
+		for (const cat of this.passedCategories()) {
+			if (cat.specialties.some(s => s.id === selId || s.specialtyId === selId)) return cat.categoryId || cat.categoryName || '';
+		}
+		return '';
+	});
+
+	private readonly skillsOptionsEffect = effect(() => {
+		const key = this.selectedCategoryId();
+		untracked(() => this.loadSkillOptions(key));
+	});
+
+	private loadSkillOptions(key: string) {
+		if (key === this.skillsCategoryKey) return;
+		this.skillsCategoryKey = key;
+		if (!key) { this.skillOptions.set([]); this.skillsLoading.set(false); return; }
+		this.skillsLoading.set(true);
+		this.skillsCatalog.getCatalog(key).subscribe({
+			next: res => {
+				if (key !== this.skillsCategoryKey) return;
+				const options = res?.success ? (res.data?.skills ?? []) : [];
+				this.skillOptions.set(options);
+				this.skillsLoading.set(false);
+				if (this.suggestSkillsOnLoad) {
+					this.suggestSkillsOnLoad = false;
+					this.selectedSkills.set(this.providerSkills().filter(sk => options.includes(sk)).slice(0, 30));
+				}
+			},
+			error: () => {
+				if (key !== this.skillsCategoryKey) return;
+				this.skillOptions.set([]);
+				this.skillsLoading.set(false);
+				this.skillsError.set('تعذر تحميل مهارات هذا المجال، حاول مرة أخرى لاحقًا.');
+			}
+		});
+	}
+
+	onSkillsChange(list: string[]) {
+		this.skillsError.set('');
+		this.selectedSkills.set(list.slice(0, 30));
+	}
+
 	selectMainSpecialty(spec: PassedSpecialtySubItem) {
-		this.selectedSpecialty.set(spec.id || spec.specialtyId);
+		const next = spec.id || spec.specialtyId;
+		const changed = next !== this.selectedSpecialty();
+		this.selectedSpecialty.set(next);
+		if (changed) {
+			this.selectedSkills.set([]);
+			this.skillsError.set('');
+			if (this.selectedCategoryId() === this.skillsCategoryKey && !this.skillsLoading()) {
+				// Same field as before: its catalog is already loaded, so the provider's saved skills are suggested right away.
+				this.selectedSkills.set(this.providerSkills().filter(sk => this.skillOptions().includes(sk)).slice(0, 30));
+			} else {
+				this.suggestSkillsOnLoad = true;
+			}
+		}
 		this.selectedSubSpecialty.set('');
 		this.selectedModel.set('');
 	}
@@ -378,39 +446,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 	private setFallbackAccreditationModels() {
 		const fallbackModels: AccreditationModelItem[] = [
-			// {
-			// 	id: 'acc_1',
-			// 	title: 'نموذج نظام لوحة تحكم سحابية وبث مباشر (NestJS & Angular)',
-			// 	description: 'نموذج اعتماد فني تم فحصه واجتيازه بواسطة الذكاء الاصطناعي بنسبة جدارة عالية 96%',
-			// 	specialtyName: 'تطوير المنصات والأنظمة السحابية',
-			// 	technologies: ['Angular 17', 'NestJS', 'PostgreSQL', 'WebSockets'],
-			// 	status: 'AI_VERIFIED',
-			// 	score: 96,
-			// 	coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop',
-			// 	views: 340
-			// },
-			// {
-			// 	id: 'acc_2',
-			// 	title: 'تطبيق جوال التجارة الإلكترونية الفاخرة (Flutter & AI)',
-			// 	description: 'نموذج اعتماد موثق لمنصة تجارة إلكترونية مع تكامل الخرائط والدفع السريع',
-			// 	specialtyName: 'تطوير تطبيقات الجوال الذكية',
-			// 	technologies: ['Flutter', 'Node.js', 'Stripe API', 'GraphQL'],
-			// 	status: 'AI_VERIFIED',
-			// 	score: 93,
-			// 	coverImage: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=600&auto=format&fit=crop',
-			// 	views: 215
-			// },
-			// {
-			// 	id: 'acc_3',
-			// 	title: 'نظام تصميم أنظمة الشركات الكبرى (Design System & Figma)',
-			// 	description: 'حزمة مكونات زجاجية وتجربة مستخدم متكاملة للمؤسسات والشركات التقنية',
-			// 	specialtyName: 'تصميم تجربة وواجهة المستخدم UI/UX',
-			// 	technologies: ['Figma', 'UI/UX Design', 'Glassmorphism', 'Design Tokens'],
-			// 	status: 'AI_VERIFIED',
-			// 	score: 94,
-			// 	coverImage: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=600&auto=format&fit=crop',
-			// 	views: 180
-			// }
+			// No sample data: when the samples request fails the list is honestly empty.
 		];
 		this.accreditationModels.set(fallbackModels);
 		if (!this.isEditMode() && !this.selectedModel() && fallbackModels.length > 0) {
@@ -528,6 +564,12 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 		});
 
+		// The provider's saved skills (suggested as the starting selection); an honest empty list when unavailable.
+		this.skillsCatalog.getProviderMine().subscribe({
+			next: res => this.providerSkills.set(res?.success ? (res.data?.skills ?? []) : []),
+			error: () => this.providerSkills.set([])
+		});
+
 		// Fetch Passed Accredited Specialties for Step 2
 		this.loadPassedSpecialties();
 
@@ -568,6 +610,11 @@ export class NewProject implements OnInit, OnDestroy {
 					if (service.accreditationSampleId || service.accreditationSample?.id) {
 						this.selectedModel.set(service.accreditationSampleId || service.accreditationSample?.id);
 					}
+
+				if (Array.isArray(service.skills)) {
+					this.suggestSkillsOnLoad = false;
+					this.selectedSkills.set(service.skills.filter((x: unknown): x is string => typeof x === 'string'));
+				}
 
 				if (service.gallery && Array.isArray(service.gallery)) {
 					this.galleryUrls.set(service.gallery);
@@ -716,6 +763,7 @@ export class NewProject implements OnInit, OnDestroy {
 			description: this.projectDesc(),
 			specialtyId: this.selectedSpecialty(),
 			subSpecialty: this.selectedSubSpecialty(),
+			skills: this.selectedSkills(),
 				accreditationSampleId: this.selectedModel(),
 			gallery: this.galleryUrls(),
 			stages: this.stages().map(stage => ({
@@ -741,7 +789,13 @@ export class NewProject implements OnInit, OnDestroy {
 				error: (err) => {
 					console.error('Publish failed', err);
 					this.isSubmitting.set(false);
-					this.showToast(err?.error?.error || '⚠️ تعذر حفظ نموذج العمل. راجع البيانات وحاول مرة أخرى');
+					const serverMsg: string = err?.error?.message || err?.error?.error || '';
+					if (err?.status === 400 && /مهار|skill/i.test(serverMsg)) {
+						// The server refused a skill that is not in the catalog of this field: show it next to the skills.
+						this.skillsError.set(serverMsg);
+						this.currentStep.set(2);
+					}
+					this.showToast(serverMsg || '⚠️ تعذر حفظ نموذج العمل. راجع البيانات وحاول مرة أخرى');
 				}
 		});
 	}

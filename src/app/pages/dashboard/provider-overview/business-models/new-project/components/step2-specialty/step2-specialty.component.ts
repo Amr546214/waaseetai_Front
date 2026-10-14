@@ -4,12 +4,13 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SpecialtyEmptyComponent } from '../../../../../../../shared/forms/specialty-empty.component';
+import { SkillsPickerComponent } from '../../../../../../../shared/forms/skills-picker.component';
 import type { RegisteredSpecialty } from '../../../../../../../core/utils/specialty-states';
 
 @Component({
 	selector: 'app-step2-specialty',
 	standalone: true,
-	imports: [CommonModule, RouterModule, SpecialtyEmptyComponent],
+	imports: [CommonModule, RouterModule, SpecialtyEmptyComponent, SkillsPickerComponent],
 	templateUrl: './step2-specialty.component.html',
 	styleUrl: './step2-specialty.component.css'
 })
@@ -22,6 +23,13 @@ export class Step2SpecialtyComponent {
 	@Input({ required: true }) selectedSpecialty!: string;
 	@Input({ required: true }) selectedMainSpecialtyObj!: any;
 	@Input({ required: true }) selectedSubSpecialty!: string;
+
+	/** Skills of the chosen specialty's catalog (single source: backend skills catalog) and the current selection. */
+	@Input() skillOptions: string[] = [];
+	@Input() selectedSkills: string[] = [];
+	@Input() skillsLoading = false;
+	@Input() skillsError = '';
+	@Output() onSkillsChange = new EventEmitter<string[]>();
 
 	@Output() onSelectMainSpecialty = new EventEmitter<any>();
 	@Output() onSelectSubSpecialty = new EventEmitter<string>();

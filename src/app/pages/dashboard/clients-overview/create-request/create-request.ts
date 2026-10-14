@@ -1,10 +1,11 @@
-import { Component, computed, effect, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { Component, computed, effect, untracked, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { canRewrite, checkRewriteOutput, REWRITE_INPUT_REQUIRED_MESSAGE } from './description-rewrite-guard';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavigationSkipped, NavigationSkippedCode, Router, RouterLink } from '@angular/router';
 import type { Subscription } from 'rxjs';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
+import { SkillsCatalogService } from '../../../../core/services/skills-catalog.service';
 import { SpecialtyService } from '../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
@@ -102,6 +103,7 @@ interface CreateRequestDraftV1 {
     title: string;
     description: string;
     requirements: string[];
+    requiredSkills?: string[];
     outputs: string;
     deliveryDays: number | null;
   };
@@ -137,6 +139,7 @@ interface CreateRequestDraftV1 {
 export class CreateRequest implements OnInit, OnDestroy {
   private socket?: Socket;
   private specialtyService = inject(SpecialtyService);
+  private skillsCatalog = inject(SkillsCatalogService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private authStore = inject(AuthStore);
@@ -158,6 +161,45 @@ export class CreateRequest implements OnInit, OnDestroy {
     // updates) schedules exactly one coalesced save via Angular's effect
     // scheduling — no need to scatter sessionStorage calls per field/step.
     effect(() => this.saveDraft());
+    // The skills a client can ask for come from the backend catalog of the chosen field (no local lists).
+    effect(() => {
+      const id = this.selectedSpec();
+      untracked(() => this.loadSkillOptions(id && id !== 'other' ? id : ''));
+    });
+  }
+
+  // Required skills (step 3): picked from the catalog of the chosen field, sent as `requiredSkills`.
+  skillOptions = signal<string[]>([]);
+  requiredSkills = signal<string[]>([]);
+  skillsLoading = signal(false);
+  skillsCatalogError = signal('');
+  skillsServerError = signal('');
+  private skillsKey = '';
+
+  private loadSkillOptions(key: string): void {
+    if (key === this.skillsKey) return;
+    this.skillsKey = key;
+    this.skillsCatalogError.set('');
+    if (!key) { this.skillOptions.set([]); this.skillsLoading.set(false); return; }
+    this.skillsLoading.set(true);
+    this.skillsCatalog.getCatalog(key).subscribe({
+      next: res => {
+        if (key !== this.skillsKey) return;
+        this.skillOptions.set(res?.success ? (res.data?.skills ?? []) : []);
+        this.skillsLoading.set(false);
+      },
+      error: () => {
+        if (key !== this.skillsKey) return;
+        this.skillOptions.set([]);
+        this.skillsLoading.set(false);
+        this.skillsCatalogError.set('تعذر تحميل مهارات هذا المجال حاليًا.');
+      }
+    });
+  }
+
+  setRequiredSkills(list: string[]): void {
+    this.skillsServerError.set('');
+    this.requiredSkills.set(list.slice(0, 30));
   }
 
   // Multi-step State
@@ -293,6 +335,8 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.title.set('');
     this.description.set('');
     this.requirements.set([]);
+    this.requiredSkills.set([]);
+    this.skillsServerError.set('');
     this.outputs.set('');
     this.deliveryDays.set(14);
     this.budgetType.set('range');
@@ -360,6 +404,7 @@ export class CreateRequest implements OnInit, OnDestroy {
         title: this.title(),
         description: this.description(),
         requirements: this.requirements(),
+        requiredSkills: this.requiredSkills(),
         outputs: this.outputs(),
         deliveryDays: this.deliveryDays()
       },
@@ -493,6 +538,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.title.set(draft.step3.title ?? '');
     this.description.set(draft.step3.description ?? '');
     this.requirements.set(Array.isArray(draft.step3.requirements) ? draft.step3.requirements : []);
+    this.requiredSkills.set(Array.isArray(draft.step3.requiredSkills) ? draft.step3.requiredSkills : []);
     this.outputs.set(draft.step3.outputs ?? '');
     this.deliveryDays.set(typeof draft.step3.deliveryDays === 'number' ? draft.step3.deliveryDays : null);
 
@@ -621,6 +667,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   selectSpec(id: string) {
+    if (id !== this.selectedSpec()) { this.requiredSkills.set([]); this.skillsServerError.set(''); }
     this.selectedSpec.set(id);
     this.selectedSubs.set(new Set());
     this.otherText.set('');
@@ -679,6 +726,15 @@ export class CreateRequest implements OnInit, OnDestroy {
   /** The fields stop at their limits even when the text arrives by paste/drop (the counter never reads past the maximum). */
   setTitle(value: string) { this.title.set((value ?? '').slice(0, CreateRequest.TITLE_MAX)); }
   setDescription(value: string) { this.description.set((value ?? '').slice(0, CreateRequest.DESCRIPTION_MAX)); }
+
+  /** The mandatory requirements are free text (not skills): they travel with the request's own conditions text. */
+  private composeConditions(): string {
+    const base = this.customConditions().trim();
+    const reqs = this.requirements();
+    if (!reqs.length) return this.customConditions();
+    const line = `المتطلبات الإلزامية: ${reqs.join('، ')}`;
+    return (base ? `${base}\n${line}` : line).slice(0, 2000);
+  }
 
   addRequirement() {
     const req = this.newRequirement().trim();
@@ -1068,7 +1124,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       title: this.title(),
       description: this.description(),
       subSpecialties: Array.from(this.selectedSubs()),
-      requiredSkills: this.requirements().length > 0 ? this.requirements() : Array.from(this.selectedSubs()),
+      requiredSkills: this.requiredSkills(),
       budgetType: (this.budgetType() || 'FIXED').toUpperCase(),
       minBudget: minB,
       maxBudget: maxB,
@@ -1077,7 +1133,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       requiresNda: this.ndaType() === 'standard' || this.ndaType() === 'custom',
       attachments: uploadedFileUrls,
       outputs: this.outputs(),
-      customConditions: this.customConditions(),
+      customConditions: this.composeConditions(),
       providerPreferences: {
         level: this.provLevel() || null,
         minRating: this.provRating() ? Number(this.provRating()) : null,
@@ -1107,6 +1163,7 @@ export class CreateRequest implements OnInit, OnDestroy {
         this.isSubmitting.set(false);
         console.error('Project creation failed:', err);
         const errMsg = err.error?.message || 'حدث خطأ أثناء رفع الطلب، يرجى المحاولة مرة أخرى';
+        if (err?.status === 400 && /مهار|skill/i.test(errMsg)) { this.skillsServerError.set(errMsg); this.currentStep.set(3); }
         this.showToast(errMsg, 'toast-warn');
       }
     });

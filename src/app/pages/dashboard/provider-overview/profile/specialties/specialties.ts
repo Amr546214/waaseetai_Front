@@ -247,16 +247,6 @@ export class Specialties implements OnInit, OnDestroy {
 	private submissionDisconnectSub: Subscription | null = null;
 
 	specialties = signal<Specialty[]>([]);
-	subData: Record<string, string[]> = {
-		tech: ['تطوير ويب', 'تطبيقات موبايل', 'قواعد بيانات', 'أمن سيبراني', 'DevOps', 'ذكاء اصطناعي', 'برمجة خلفية', 'واجهات برمجية'],
-		design: ['UI/UX', 'جرافيك ديزاين', 'هوية بصرية', 'تصميم 3D', 'موشن جرافيك', 'طباعة وتغليف'],
-		writing: ['محتوى تسويقي', 'كتابة تقنية', 'محتوى أكاديمي', 'صحافة ومقالات', 'سيناريو', 'مدونات SEO'],
-		marketing: ['SEO', 'إعلانات مدفوعة', 'سوشيال ميديا', 'إيميل ماركتينج', 'تحليلات بيانات', 'إنفلونسر'],
-		legal: ['عقود تجارية', 'استشارات قانونية', 'تأسيس شركات', 'ملكية فكرية', 'تحكيم ونزاعات'],
-		business: ['إدارة مشاريع', 'موارد بشرية', 'مالية وحسابات', 'عمليات وإجراءات', 'تخطيط استراتيجي'],
-		other: []
-	};
-
 	apiCategories = signal<ApiCategory[]>([]);
 
 	/** null = nothing to show (loading, none, or the request failed: the page just shows no suggestion, never an error). */

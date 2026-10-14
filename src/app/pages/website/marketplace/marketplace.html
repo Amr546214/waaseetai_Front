@@ -573,6 +573,14 @@
                 }
               </div>
               <div class="svc-title">{{ model.title }}</div>
+              @if (model.skills?.length) {
+              <div class="svc-skills" data-testid="svc-skills">
+                @for (skill of model.skills!.slice(0, 3); track skill) {
+                <button type="button" class="svc-skill" [attr.data-skill]="skill" (click)="filterBySkill(skill, $event)">{{ skill }}</button>
+                }
+                @if (model.skills!.length > 3) { <span class="svc-skill svc-skill-more">+{{ model.skills!.length - 3 }}</span> }
+              </div>
+              }
               <div class="svc-rating">
                 <span class="stars">★★★★★</span>
                 <span class="svc-score">{{ model.rating ?? 0 }}</span>

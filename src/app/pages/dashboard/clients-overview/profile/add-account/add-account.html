@@ -268,9 +268,7 @@
 									class="text-[#2BD4C7] ml-1">*</span></label>
 							<select [formControl]="ctl.specMain" class="inp-field bg-[#0B1437]">
 								<option value="">اختر التخصص</option>
-								<option value="تصميم جرافيك وبصري">تصميم جرافيك وبصري</option>
-								<option value="تطوير ويب وتطبيقات">تطوير ويب وتطبيقات</option>
-								<option value="كتابة محتوى وترجمة">كتابة محتوى وترجمة</option>
+								@for (c of skillCategories(); track c.slug) { <option [value]="c.nameAr">{{ c.nameAr }}</option> }
 							</select>
 <ws-field-error [control]="ctl.specMain" label="التخصص الرئيسي" />
 						</div>
@@ -312,23 +310,7 @@
 						</div>
 					</div>
 
-					<div
-						class="flex flex-wrap gap-2 p-2.5 bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.08)] rounded-xl min-h-[46px] mb-2">
-						<div *ngFor="let skill of skills()"
-							class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[rgba(43,127,255,.12)] border border-[rgba(43,127,255,.22)] rounded-full text-xs font-bold text-[#5DA0FF]">
-							{{ skill }}
-							<span
-								class="text-sm leading-none cursor-pointer text-white/30 hover:text-red-400 transition-colors"
-								(click)="removeSkill(skill)">×</span>
-						</div>
-					</div>
-					<div class="flex gap-2">
-						<input type="text" [(ngModel)]="skillInput" (keydown)="handleSkillKey($event)"
-							placeholder="اكتب مهارة واضغط Enter" class="inp-field flex-1">
-						<button type="button" (click)="addSkill()"
-							class="px-3.5 py-2 bg-[rgba(43,212,199,.1)] border border-[rgba(43,212,199,.22)] rounded-lg text-[#2BD4C7] text-xs font-bold hover:bg-[rgba(43,212,199,.18)] transition-colors whitespace-nowrap">+
-							إضافة</button>
-					</div>
+					<ws-skills-picker [options]="skillOptions()" [selected]="skills()" (selectedChange)="skills.set($event)" emptyMessage="اختر التخصص الرئيسي أولًا لتظهر مهارات مجالك" />
 				</div>
 			</div>
 
