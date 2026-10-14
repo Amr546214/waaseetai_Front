@@ -135,3 +135,9 @@
 :host-context(body.theme-light) .ss-cl-msg,
 :host-context(.light-theme) .ss-cl-msg,
 :host-context(.theme-light) .ss-cl-msg{color:#475569}
+
+.ss-note{font-size:12px;line-height:1.6;color:#F5C26B;background:rgba(245,194,107,.08);border:1px solid rgba(245,194,107,.22);border-radius:9px;padding:9px 12px;margin-bottom:12px}
+.ss-err{font-size:12px;color:#FF8C8C;margin-top:8px}
+.ss-save-btn:disabled{opacity:.45;cursor:not-allowed}
+.ss-sw:disabled{opacity:.5;cursor:not-allowed}
+textarea.ss-input{width:100%;resize:vertical;line-height:1.7}

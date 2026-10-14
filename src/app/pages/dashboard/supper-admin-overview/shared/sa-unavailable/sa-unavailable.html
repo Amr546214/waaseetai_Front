@@ -1,0 +1,25 @@
+<section class="sau-page" dir="rtl">
+  <div class="sau-hdr">
+    <div>
+      <h1 class="sau-ttl">{{ title() }}</h1>
+      @if (subtitle()) {
+        <p class="sau-sub">{{ subtitle() }}</p>
+      }
+    </div>
+    @if (disabledLabel()) {
+      <button type="button" class="sau-btn" disabled [attr.title]="disabledReason()" [attr.aria-label]="disabledLabel() + ' — ' + disabledReason()">{{ disabledLabel() }}</button>
+    }
+  </div>
+
+  <div class="sau-card" role="status">
+    <div class="sau-card-ttl">{{ heading() }}</div>
+    <div class="sau-card-sub">{{ reason() }}</div>
+    @if (disabledLabel() && disabledReason()) {
+      <div class="sau-card-note">{{ disabledLabel() }}: {{ disabledReason() }}</div>
+    }
+    @if (linkTo()) {
+      <a class="sau-link" [routerLink]="linkTo()">{{ linkLabel() }}</a>
+    }
+    <ng-content />
+  </div>
+</section>

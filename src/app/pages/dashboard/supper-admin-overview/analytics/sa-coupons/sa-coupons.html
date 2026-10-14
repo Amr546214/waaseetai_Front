@@ -2,80 +2,170 @@
   <div class="scp-hdr">
     <div>
       <h1 class="scp-ttl">الكوبونات والعروض الترويجية</h1>
-      <p class="scp-sub">إنشاء وإدارة كوبونات الخصم والحملات التسويقية</p>
+      <p class="scp-sub">متابعة كوبونات مقدمي الخدمة والعروض الخاصة، ومراقبة استخدامها وإيقافها عند الحاجة</p>
     </div>
-    <button type="button" class="scp-btn scp-btn-pri">+ كوبون جديد</button>
+    <button type="button" class="scp-btn scp-btn-pri" disabled title="الكوبونات يُنشئها مقدمو الخدمة من لوحتهم؛ لا يوجد إنشاء من الإدارة حالياً">+ كوبون جديد</button>
+  </div>
+  <p class="scp-note">إنشاء الكوبونات متاح لمقدمي الخدمة فقط من لوحتهم؛ من هنا يمكنك المتابعة والإيقاف وإعادة التفعيل.</p>
+
+  @if (notice()) { <p class="scp-created-msg" role="status">{{ notice() }}</p> }
+
+  <div class="scp-tabs" role="tablist">
+    <button type="button" role="tab" class="scp-tab" [class.on]="tab() === 'coupons'" [attr.aria-selected]="tab() === 'coupons'" (click)="showTab('coupons')">الكوبونات</button>
+    <button type="button" role="tab" class="scp-tab" [class.on]="tab() === 'offers'" [attr.aria-selected]="tab() === 'offers'" (click)="showTab('offers')">العروض الخاصة (للعرض فقط)</button>
   </div>
 
-  <div class="scp-kpis">
-    @for (k of kpis; track k.label) {
-      <div class="scp-kpi"><div class="scp-kpi-v" [style.color]="k.color">{{ k.value }}</div><div class="scp-kpi-l">{{ k.label }}</div></div>
-    }
-  </div>
-
-  <div class="scp-card">
-    <div class="scp-card-ttl-sm">استخدام الكوبونات — آخر 7 أيام</div>
-    <div class="scp-chart">
-      @for (u of usage; track u.day) {
-        <div class="scp-bar-col">
-          <div class="scp-bar-val">{{ u.value }}</div>
-          <div class="scp-bar" [style.height.%]="(u.value / maxUsage) * 100"></div>
-          <div class="scp-bar-day">{{ u.day }}</div>
-        </div>
-      }
+  @if (tab() === 'coupons') {
+    <div class="scp-kpis">
+      <div class="scp-kpi"><div class="scp-kpi-v" style="color:#2BD4C7">{{ list() ? list()!.summary.totalRedemptions : '—' }}</div><div class="scp-kpi-l">إجمالي مرات الاستخدام</div></div>
+      <div class="scp-kpi"><div class="scp-kpi-v" style="color:#FF8C69">{{ list() ? (list()!.summary.totalDiscountGiven | number:'1.0-2') + ' $' : '—' }}</div><div class="scp-kpi-l">قيمة الخصومات الممنوحة</div></div>
+      <div class="scp-kpi"><div class="scp-kpi-v" style="color:#FFB400">{{ list() ? list()!.total : '—' }}</div><div class="scp-kpi-l">عدد الكوبونات (حسب الفلتر)</div></div>
     </div>
-  </div>
 
-  <div class="scp-layout">
     <div class="scp-card">
-      <div class="scp-card-ttl">الكوبونات النشطة</div>
-      @for (c of coupons(); track c.code) {
-        <div class="scp-coupon" [class.expired]="c.expired">
-          <div class="scp-code" [class.expired]="c.expired">{{ c.code }}</div>
-          <div class="scp-coupon-body"><div class="scp-coupon-name">{{ c.name }}</div><div class="scp-coupon-meta">{{ c.meta }}</div></div>
-          <div class="scp-discount">
-            <div class="scp-discount-val" [style.color]="c.discountColor">{{ c.discountLabel }}</div>
-            @if (c.discountUnit) { <div class="scp-discount-unit">{{ c.discountUnit }}</div> }
+      <div class="scp-filters">
+        @for (f of statusFilters; track f.value) {
+          <button type="button" class="scp-chip" [class.on]="status() === f.value" (click)="setStatus(f.value)">{{ f.label }}</button>
+        }
+        <input type="search" class="scp-input scp-search" placeholder="بحث بكود الكوبون" [ngModel]="q()" (ngModelChange)="q.set($event)" (keyup.enter)="search()">
+        <button type="button" class="scp-btn scp-btn-gh" (click)="search()">بحث</button>
+      </div>
+
+      @if (loading()) {
+        <p class="scp-empty">جاري التحميل...</p>
+      } @else if (error()) {
+        <p class="scp-empty scp-err">{{ error() }} <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" (click)="load()">إعادة المحاولة</button></p>
+      } @else if (!list() || list()!.items.length === 0) {
+        <p class="scp-empty">لا توجد كوبونات مطابقة.</p>
+      } @else {
+        @for (c of list()!.items; track c.id) {
+          <div class="scp-coupon" [class.expired]="c.status !== 'active'">
+            <div class="scp-code" [class.expired]="c.status !== 'active'">{{ c.code }}</div>
+            <div class="scp-coupon-body">
+              <div class="scp-coupon-name">{{ c.provider?.name || c.provider?.email || 'بدون مقدم' }} · {{ statusLabel[c.status] }}</div>
+              <div class="scp-coupon-meta">
+                الاستخدام {{ usageText(c) }} ·
+                @if (c.expiresAt) { ينتهي {{ c.expiresAt | date:'yyyy-MM-dd' }} } @else { بلا تاريخ انتهاء } ·
+                {{ scopeText(c) }}
+              </div>
+            </div>
+            <div class="scp-discount"><div class="scp-discount-val">{{ discountText(c) }}</div><div class="scp-discount-unit">{{ c.discountType === 'percentage' ? 'خصم' : 'ثابت' }}</div></div>
+            <div class="scp-coupon-actions">
+              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" (click)="openDetail(c)">التفاصيل</button>
+              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs txt-coral" [disabled]="!!toggleBlockedReason(c)" [attr.title]="toggleBlockedReason(c) || null" (click)="askToggle(c)">{{ c.active ? 'إيقاف' : 'تفعيل' }}</button>
+              @if (toggleBlockedReason(c)) { <span class="scp-why">{{ toggleBlockedReason(c) }}</span> }
+            </div>
           </div>
-          <div class="scp-coupon-actions">
-            @if (!c.expired) {
-              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs">تعديل</button>
-              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs txt-coral" (click)="toggleCoupon(c)">{{ c.active ? 'إيقاف' : 'تفعيل' }}</button>
-            } @else {
-              <button type="button" class="scp-btn scp-btn-gh scp-btn-xs">نسخ</button>
-            }
-          </div>
+        }
+        <div class="scp-pager">
+          <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" [disabled]="list()!.page <= 1" (click)="goPage(list()!.page - 1)">السابق</button>
+          <span>{{ list()!.page }} / {{ list()!.totalPages }}</span>
+          <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" [disabled]="list()!.page >= list()!.totalPages" (click)="goPage(list()!.page + 1)">التالي</button>
         </div>
       }
     </div>
 
-    <div>
-      <div class="scp-card">
-        <div class="scp-card-ttl">إنشاء كوبون</div>
-        <div class="scp-field-lbl">رمز الكوبون</div>
-        <input type="text" class="scp-input scp-uppercase" placeholder="MYCODE2025" [ngModel]="newCode()" (ngModelChange)="newCode.set($event)">
-        <div class="scp-field-lbl">نوع الخصم</div>
-        <ws-select [options]="discountTypes" [ngModel]="discountType()" (ngModelChange)="discountType.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
-        <div class="scp-field-lbl">قيمة الخصم</div>
-        <input type="number" class="scp-input" placeholder="20" [ngModel]="discountValue()" (ngModelChange)="discountValue.set($event)">
-        <div class="scp-field-lbl">الجمهور المستهدف</div>
-        <ws-select [options]="audiences" [ngModel]="audience()" (ngModelChange)="audience.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
-        <div class="scp-field-lbl">تاريخ الانتهاء</div>
-        <input type="date" class="scp-input" [ngModel]="expiryDate()" (ngModelChange)="expiryDate.set($event)">
-        <div class="scp-field-lbl">الحد الأقصى للاستخدام</div>
-        <input type="number" class="scp-input" placeholder="500" [ngModel]="maxUsageCount()" (ngModelChange)="maxUsageCount.set($event)">
-        <button type="button" class="scp-btn scp-btn-pri" style="width:100%;margin-top:4px" (click)="createCoupon()">إنشاء الكوبون</button>
-        @if (createdMsg()) { <p class="scp-created-msg">{{ createdMsg() }}</p> }
+    @if (detailLoading() || detail() || detailError()) {
+      <div class="scp-card" data-testid="coupon-detail">
+        <div class="scp-detail-hdr">
+          <div class="scp-card-ttl">تفاصيل الكوبون {{ detail()?.code }}</div>
+          <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" (click)="closeDetail()">إغلاق</button>
+        </div>
+        @if (detailLoading()) { <p class="scp-empty">جاري التحميل...</p> }
+        @if (detailError()) { <p class="scp-empty scp-err">{{ detailError() }}</p> }
+        @if (detail(); as d) {
+          <div class="scp-stat-list">
+            <div class="scp-stat-row"><span>المقدم</span><span>{{ d.provider?.name || d.provider?.email || '—' }}</span></div>
+            <div class="scp-stat-row"><span>الحالة</span><span>{{ statusLabel[d.status] }}</span></div>
+            <div class="scp-stat-row"><span>الخصم</span><span>{{ discountText(d) }}@if (d.maxDiscount) { (حتى {{ d.maxDiscount }} $) }</span></div>
+            <div class="scp-stat-row"><span>الحد الأدنى للطلب</span><span>{{ d.minimumAmount !== null ? d.minimumAmount + ' $' : 'بلا حد أدنى' }}</span></div>
+            <div class="scp-stat-row"><span>الاستخدام</span><span>{{ usageText(d) }} (للعميل الواحد: {{ d.maxUsesPerUser }})</span></div>
+            <div class="scp-stat-row"><span>الصلاحية</span><span>{{ d.startAt | date:'yyyy-MM-dd' }} ← {{ d.expiresAt ? (d.expiresAt | date:'yyyy-MM-dd') : 'بلا انتهاء' }}</span></div>
+            <div class="scp-stat-row"><span>الخدمات المشمولة</span><span>{{ scopeText(d) }}</span></div>
+            @if (d.excludedServiceIds.length) { <div class="scp-stat-row"><span>خدمات مستثناة</span><span>{{ d.excludedServiceIds.length }}</span></div> }
+            @if (d.approvalStatus === 'PENDING' || d.approvalStatus === 'REJECTED') { <div class="scp-stat-row"><span>موافقة الشركة</span><span>{{ d.approvalStatus === 'PENDING' ? 'بانتظار الموافقة' : 'مرفوض' }}{{ d.rejectionReason ? ' — ' + d.rejectionReason : '' }}</span></div> }
+          </div>
+          <div class="scp-card-ttl-sm" style="margin-top:14px">عمليات الاستخدام ({{ d.redemptionCount }})</div>
+          @if (d.redemptions.length === 0) {
+            <p class="scp-empty">لم يُستخدم هذا الكوبون بعد.</p>
+          } @else {
+            <div class="scp-table-wrap"><table class="scp-table">
+              <thead><tr><th>الطلب</th><th>العميل</th><th>قيمة الطلب</th><th>الخصم</th><th>الصافي</th><th>التاريخ</th></tr></thead>
+              <tbody>
+                @for (r of d.redemptions; track r.id) {
+                  <tr><td>{{ r.orderNumber || '—' }}</td><td>{{ r.customer?.name || '—' }}</td><td>{{ r.orderValue !== null ? r.orderValue + ' $' : '—' }}</td><td>{{ r.discountApplied }} $</td><td>{{ r.netValue !== null ? r.netValue + ' $' : '—' }}</td><td>{{ r.createdAt | date:'yyyy-MM-dd' }}</td></tr>
+                }
+              </tbody>
+            </table></div>
+            @if (d.redemptionCount > d.redemptions.length) { <p class="scp-note">يُعرض آخر {{ d.redemptions.length }} استخداماً من أصل {{ d.redemptionCount }}.</p> }
+          }
+        }
       </div>
-      <div class="scp-card">
-        <div class="scp-card-ttl-sm">إحصاءات الكوبونات</div>
-        <div class="scp-stat-list">
-          <div class="scp-stat-row"><span>إجمالي الاستخدام هذا الشهر</span><span style="font-weight:800" class="txt-teal">326 مرة</span></div>
-          <div class="scp-stat-row"><span>قيمة الخصومات الممنوحة</span><span style="font-weight:800" class="txt-coral">12,840 $</span></div>
-          <div class="scp-stat-row"><span>أكثر كوبون استخداماً</span><span style="font-weight:800" class="txt-white">WASEET20</span></div>
-          <div class="scp-stat-row"><span>معدل التحويل بعد الكوبون</span><span style="font-weight:800" class="txt-green">68%</span></div>
+    }
+
+    <div class="scp-card">
+      <div class="scp-card-ttl">إنشاء كوبون</div>
+      <p class="scp-note" data-testid="create-disabled-reason">غير متاح من الإدارة: الكوبونات تُنشأ من لوحة مقدم الخدمة (وهو من يحدد الخدمات المشمولة وحدود الاستخدام).</p>
+      <fieldset disabled class="scp-fieldset">
+        <div class="scp-field-lbl">رمز الكوبون</div>
+        <input type="text" class="scp-input scp-uppercase" placeholder="MYCODE2025">
+        <div class="scp-field-lbl">قيمة الخصم</div>
+        <input type="number" class="scp-input" placeholder="20">
+        <button type="button" class="scp-btn scp-btn-pri" style="width:100%">إنشاء الكوبون</button>
+      </fieldset>
+    </div>
+  } @else {
+    <div class="scp-card">
+      <div class="scp-filters">
+        @for (f of [{value:'',label:'الكل'},{value:'active',label:'نشط'},{value:'inactive',label:'موقوف'},{value:'expired',label:'منتهي'}]; track f.value) {
+          <button type="button" class="scp-chip" [class.on]="offerStatus() === f.value" (click)="setOfferStatus(f.value)">{{ f.label }}</button>
+        }
+        <input type="search" class="scp-input scp-search" placeholder="بحث باسم العرض" [ngModel]="offerQ()" (ngModelChange)="offerQ.set($event)" (keyup.enter)="searchOffers()">
+        <button type="button" class="scp-btn scp-btn-gh" (click)="searchOffers()">بحث</button>
+      </div>
+      @if (offersLoading()) {
+        <p class="scp-empty">جاري التحميل...</p>
+      } @else if (offersError()) {
+        <p class="scp-empty scp-err">{{ offersError() }} <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" (click)="loadOffers()">إعادة المحاولة</button></p>
+      } @else if (!offers() || offers()!.items.length === 0) {
+        <p class="scp-empty">لا توجد عروض خاصة مطابقة.</p>
+      } @else {
+        @for (o of offers()!.items; track o.id) {
+          <div class="scp-coupon" [class.expired]="o.status !== 'active'">
+            <div class="scp-code" [class.expired]="o.status !== 'active'">{{ o.badgeText }}</div>
+            <div class="scp-coupon-body">
+              <div class="scp-coupon-name">{{ o.name }} · {{ offerTypeLabel[o.type] }} · {{ statusLabel[o.status] }}</div>
+              <div class="scp-coupon-meta">{{ o.provider?.name || o.provider?.email || '—' }} · {{ offerScope(o) }} · استُخدم {{ o.usedCount }} مرة@if (o.expiresAt) { · ينتهي {{ o.expiresAt | date:'yyyy-MM-dd' }} }</div>
+            </div>
+            <div class="scp-discount"><div class="scp-discount-val">{{ o.discountValue }}%</div><div class="scp-discount-unit">خصم</div></div>
+          </div>
+        }
+        <div class="scp-pager">
+          <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" [disabled]="offers()!.page <= 1" (click)="goOfferPage(offers()!.page - 1)">السابق</button>
+          <span>{{ offers()!.page }} / {{ offers()!.totalPages }}</span>
+          <button type="button" class="scp-btn scp-btn-gh scp-btn-xs" [disabled]="offers()!.page >= offers()!.totalPages" (click)="goOfferPage(offers()!.page + 1)">التالي</button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (confirmTarget(); as t) {
+    <div class="scp-modal-bg" (click)="cancelConfirm()">
+      <div class="scp-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()" data-testid="confirm-dialog">
+        <div class="scp-card-ttl">{{ t.active ? 'إيقاف الكوبون' : 'إعادة تفعيل الكوبون' }} {{ t.code }}</div>
+        @if (t.active) {
+          <p class="scp-note">لن يتمكن العملاء من استخدام هذا الكوبون بعد الإيقاف. سيُسجَّل الإجراء مع السبب في سجل التدقيق.</p>
+          <div class="scp-field-lbl">سبب الإيقاف (مطلوب)</div>
+          <textarea class="scp-input" rows="3" maxlength="1000" data-testid="confirm-reason" [ngModel]="confirmReason()" (ngModelChange)="confirmReason.set($event)"></textarea>
+        } @else {
+          <p class="scp-note">سيصبح الكوبون متاحاً للاستخدام مجدداً ضمن شروطه الحالية. سيُسجَّل الإجراء في سجل التدقيق.</p>
+        }
+        @if (confirmError()) { <p class="scp-err">{{ confirmError() }}</p> }
+        <div class="scp-modal-actions">
+          <button type="button" class="scp-btn scp-btn-gh" [disabled]="confirmBusy()" (click)="cancelConfirm()">إلغاء</button>
+          <button type="button" class="scp-btn scp-btn-pri" data-testid="confirm-ok" [disabled]="!canConfirm()" (click)="confirmToggle()">{{ confirmBusy() ? 'جاري التنفيذ...' : (t.active ? 'تأكيد الإيقاف' : 'تأكيد التفعيل') }}</button>
         </div>
       </div>
     </div>
-  </div>
+  }
 </section>

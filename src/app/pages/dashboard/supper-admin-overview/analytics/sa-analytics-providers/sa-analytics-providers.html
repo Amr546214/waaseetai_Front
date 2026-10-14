@@ -2,11 +2,16 @@
   <div class="sap-hdr">
     <div>
       <h1 class="sap-ttl">Provider Intelligence</h1>
-      <p class="sap-sub">تحليلات مقدمي الخدمة — الأعلى أداءً، الأقل، الفرص</p>
+      <p class="sap-sub">تحليلات مقدمي الخدمة من بيانات التقييمات والمشاريع الفعلية</p>
     </div>
-    <ws-select [options]="periods" [ngModel]="period()" (ngModelChange)="period.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
-    <button type="button" class="sap-btn sap-btn-gh">تصدير Excel</button>
+    <ws-select [options]="periods" [ngModel]="period()" (ngModelChange)="setPeriod($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
+    <button type="button" class="sap-btn sap-btn-gh" data-testid="sap-csv" [disabled]="!topRated().length" [title]="topRated().length ? 'تنزيل ملف CSV بالبيانات المعروضة' : 'لا توجد بيانات للتصدير'" (click)="exportCsv()">تصدير CSV</button>
+    <button type="button" class="sap-btn sap-btn-gh" data-testid="sap-print" (click)="print()">طباعة / حفظ PDF</button>
   </div>
+
+  @if (failed()) {
+    <div role="alert" class="sap-card" data-testid="sap-error"><div class="sap-card-ttl">تعذّر تحميل البيانات</div><p style="font-size:12px">لا تُعرض أرقام بديلة. <button type="button" class="sap-btn sap-btn-gh" (click)="reload()">إعادة المحاولة</button></p></div>
+  }
 
   <div class="sap-kpis">
     @for (k of kpis(); track k.label) {
@@ -18,46 +23,48 @@
     <div class="sap-card">
       <div class="sap-card-ttl sap-gold">
         <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        أعلى مقدمين إيراداً
+        أعلى مقدمين تقييمًا
       </div>
-      @for (e of topEarners(); track e.name) {
+      <p style="font-size:11px;opacity:.7;margin:0 0 8px">الترتيب بحسب متوسط التقييمات في الفترة. إيراد كل مقدم غير متاح في هذه الصفحة.</p>
+      @for (e of topRated(); track e.providerId) {
         <div class="sap-prov">
-          <div class="sap-prov-rank" [style.color]="e.rankColor">{{ e.rank }}</div>
-          <div class="sap-prov-av" [style.background]="e.avatarGradient">{{ e.initial }}</div>
+          <div class="sap-prov-rank">{{ e.rank }}</div>
+          <div class="sap-prov-av" style="background:linear-gradient(135deg,#59C1F5,#5DA0FF)">{{ e.initial }}</div>
           <div class="sap-prov-body">
             <div class="sap-prov-name">{{ e.name }}</div>
-            <div class="sap-prov-meta">{{ e.meta }}</div>
+            <div class="sap-prov-meta">{{ e.typeLabel }} · {{ e.completedProjects }} مشروع مكتمل · {{ e.reviewCount }} تقييم</div>
             <div class="sap-bar-mini"><div class="sap-bar-mini-fill" [style.width.%]="e.barPct"></div></div>
           </div>
-          <div class="sap-prov-revenue" [style.color]="e.revenueColor">{{ e.revenue }}</div>
+          <div class="sap-prov-revenue">{{ e.averageRating }}★</div>
         </div>
+      } @empty {
+        <p style="font-size:12px" data-testid="sap-empty">لا توجد تقييمات لمقدمي الخدمة في هذه الفترة.</p>
       }
     </div>
 
     <div>
       <div class="sap-card">
-        <div class="sap-card-ttl">مقدمون في خطر التراجع</div>
-        @for (r of atRisk(); track r.name) {
-          <div class="sap-risk" [style.background]="r.bg" [style.border-color]="r.border">
-            <div class="sap-risk-name" [style.color]="r.color">{{ r.name }}</div>
-            <div class="sap-risk-meta">{{ r.meta }}</div>
+        <div class="sap-card-ttl">مقدمون في خطر التراجع (تقييم أقل من 3.5)</div>
+        @for (r of atRisk(); track r.providerId) {
+          <div class="sap-risk" style="background:rgba(255,140,105,.05);border-color:rgba(255,140,105,.16)">
+            <div class="sap-risk-name" style="color:#FF8C69">{{ r.name }}</div>
+            <div class="sap-risk-meta">متوسط {{ r.averageRating }}★ من {{ r.reviewCount }} تقييم</div>
           </div>
+        } @empty {
+          <p style="font-size:12px">لا يوجد مقدمون تقييمهم أقل من 3.5 في هذه الفترة.</p>
         }
       </div>
       <div class="sap-card">
         <div class="sap-card-ttl">مرشحون للترقية</div>
-        @for (u of upgradeCandidates(); track u.name) {
-          <div class="sap-upgrade">
-            <div class="sap-upgrade-name">{{ u.name }}</div>
-            <div class="sap-upgrade-meta">{{ u.meta }}</div>
-          </div>
-        }
+        <div role="status" style="font-size:12px;opacity:.75">غير متاح — لا توجد معايير ترقية مسجّلة في النظام لاحتساب المرشحين تلقائيًا.</div>
       </div>
       <div class="sap-card">
         <div class="sap-card-ttl">فجوات التخصص (Gap)</div>
         <div class="sap-gap-list">
           @for (g of gaps(); track g.name) {
             <div class="sap-gap-row"><span class="sap-gap-name">{{ g.name }}</span><span class="sap-gap-status" [style.color]="g.color">{{ g.status }}</span></div>
+          } @empty {
+            <p style="font-size:12px">لا توجد مشاريع في هذه الفترة لتحليل الفجوات.</p>
           }
         </div>
       </div>

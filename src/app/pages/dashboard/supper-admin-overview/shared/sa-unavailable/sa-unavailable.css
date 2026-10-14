@@ -1,0 +1,17 @@
+:host { display: block; width: 100%; }
+.sau-page { padding: 22px 24px; min-height: calc(100vh - 56px); direction: rtl; }
+.sau-hdr { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.sau-ttl { font-size: 20px; font-weight: 900; color: #fff; margin: 0 0 3px; }
+.sau-sub { font-size: 12px; color: #6B7699; margin: 0; max-width: 560px; line-height: 1.6; }
+.sau-btn { height: 34px; padding: 0 14px; border-radius: 9px; font-size: 12px; font-weight: 700; font-family: inherit; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); color: #A8B2D1; opacity: .6; cursor: not-allowed; }
+.sau-card { text-align: center; padding: 48px 20px; border: 1px dashed rgba(255,255,255,.12); border-radius: 16px; background: rgba(255,255,255,.02); }
+.sau-card-ttl { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.sau-card-sub { font-size: 12.5px; color: #8A99C4; line-height: 1.7; max-width: 560px; margin: 0 auto; }
+.sau-card-note { font-size: 12px; color: #8A99C4; margin-top: 10px; }
+.sau-link { display: inline-flex; margin-top: 14px; padding: 8px 18px; border-radius: 999px; font-size: 12.5px; font-weight: 800; color: #2BD4C7; border: 1px solid rgba(43,212,199,.3); text-decoration: none; }
+@media (max-width: 768px) { .sau-page { padding: 14px 16px; } .sau-hdr { flex-direction: column; align-items: stretch; } }
+:host-context(.light-theme) .sau-ttl, :host-context(body.light-theme) .sau-ttl, :host-context(.theme-light) .sau-ttl, :host-context(body.theme-light) .sau-ttl { color: #0F172A; }
+:host-context(.light-theme) .sau-sub, :host-context(body.light-theme) .sau-sub, :host-context(.theme-light) .sau-sub, :host-context(body.theme-light) .sau-sub { color: #64748B; }
+:host-context(.light-theme) .sau-card-ttl, :host-context(body.light-theme) .sau-card-ttl, :host-context(.theme-light) .sau-card-ttl, :host-context(body.theme-light) .sau-card-ttl { color: #0B1437; }
+:host-context(.light-theme) .sau-card, :host-context(body.light-theme) .sau-card, :host-context(.theme-light) .sau-card, :host-context(body.theme-light) .sau-card { border-color: #E2E8F0; background: #FFFFFF; }
+:host-context(.light-theme) .sau-btn, :host-context(body.light-theme) .sau-btn, :host-context(.theme-light) .sau-btn, :host-context(body.theme-light) .sau-btn { background: rgba(7,13,36,.05); border-color: rgba(7,13,36,.12); color: #475569; }

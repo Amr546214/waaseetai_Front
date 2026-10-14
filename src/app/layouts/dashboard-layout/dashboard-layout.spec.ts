@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 
 import { DashboardLayoutComponent } from './dashboard-layout';
 import { ChatService } from '../../core/services/chat.service';
+import { environment } from '../../../environments/environment';
 import { HelpAssistantSocketService, HelpStreamEvent } from '../../core/services/help-assistant-socket.service';
 
 // jsdom lacks these browser APIs; the real Bebo engine (public/bebo/robot.js)
@@ -53,6 +54,13 @@ describe('DashboardLayout', () => {
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+
+	it('footer shows the build version from the environment, with no SAMA/PDPL/ZATCA claims', () => {
+		const foot = (fixture.nativeElement as HTMLElement).querySelector('.inner-foot')!.textContent!;
+		expect(foot).toContain(`v${environment.appVersion}`);
+		expect(component.appVersion).toBe(environment.appVersion);
+		for (const gone of ['SAMA', 'PDPL', 'ZATCA']) expect(foot).not.toContain(gone);
 	});
 
 	it('does not mount its own assistant: the single floating Bebo lives at the app root', async () => {

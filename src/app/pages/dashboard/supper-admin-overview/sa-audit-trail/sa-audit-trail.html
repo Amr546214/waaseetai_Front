@@ -10,15 +10,14 @@
   <div class="at-hdr">
     <div class="at-hdr-text">
       <div class="at-ttl">Audit Trail</div>
-      <div class="at-sub">سجل شامل لكل عمليات وإجراءات الإدارة في وسيط AI</div>
+      <div class="at-sub">سجل فعلي للأحداث الأمنية والإدارية المسجلة على حسابات الإدارة (للقراءة فقط)</div>
     </div>
-    <button type="button" class="at-btn at-btn-gh" (click)="exportCsv()"><svg><use href="#at-i-download"></use></svg>تصدير CSV</button>
+    <button type="button" class="at-btn at-btn-gh" (click)="exportCsv()" title="يصدّر السجلات المعروضة حاليًا في هذه الصفحة" [disabled]="!entries().length"><svg><use href="#at-i-download"></use></svg>تصدير CSV</button>
   </div>
 
   <div class="at-kpi-row">
-    <div class="at-kpi"><div class="at-kpi-v txt-teal">8,241</div><div class="at-kpi-l">عمليات هذا الشهر</div></div>
-    <div class="at-kpi"><div class="at-kpi-v txt-blue">18</div><div class="at-kpi-l">موظف نشط</div></div>
-    <div class="at-kpi"><div class="at-kpi-v txt-green">99.8%</div><div class="at-kpi-l">سلامة البيانات</div></div>
+    <div class="at-kpi"><div class="at-kpi-v txt-teal" data-testid="at-total">{{ filteredCount() }}</div><div class="at-kpi-l">عدد السجلات المطابقة للتصفية</div></div>
+    <div class="at-kpi"><div class="at-kpi-v txt-blue" data-testid="at-admins">{{ admins().length }}</div><div class="at-kpi-l">حسابات إدارية مسجلة</div></div>
   </div>
 
   <div class="at-crosslink">
@@ -31,25 +30,33 @@
 
   <div class="at-filters">
     <div class="at-filter-group">
-      <div class="at-filter-lbl">نوع العملية</div>
-      <ws-select [options]="actionTypes" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
+      <div class="at-filter-lbl">النطاق</div>
+      <ws-select [options]="scopeOptions" [ngModel]="scope()" (ngModelChange)="setScope($event)" ariaLabel="النطاق"></ws-select>
     </div>
     <div class="at-filter-group">
-      <div class="at-filter-lbl">الموظف</div>
-      <ws-select [options]="employees" [ngModel]="employeeFilter()" (ngModelChange)="employeeFilter.set($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
+      <div class="at-filter-lbl">نوع الحدث</div>
+      <ws-select [options]="eventTypeOptions()" [ngModel]="eventTypeFilter()" (ngModelChange)="setFilter(eventTypeFilter, $event)" ariaLabel="نوع الحدث"></ws-select>
+    </div>
+    <div class="at-filter-group">
+      <div class="at-filter-lbl">الحساب (الموظف)</div>
+      <ws-select [options]="actorOptions()" [ngModel]="actorFilter()" (ngModelChange)="setFilter(actorFilter, $event)" ariaLabel="الموظف"></ws-select>
+    </div>
+    <div class="at-filter-group">
+      <div class="at-filter-lbl">المستوى</div>
+      <ws-select [options]="severityWsOptions" [ngModel]="severityFilter()" (ngModelChange)="setFilter(severityFilter, $event)" ariaLabel="المستوى"></ws-select>
     </div>
     <div class="at-filter-group">
       <div class="at-filter-lbl">من تاريخ</div>
-      <input type="date" [value]="fromDate()" (input)="fromDate.set($any($event.target).value)" />
+      <input type="date" aria-label="من تاريخ" [value]="fromDate()" (change)="setFilter(fromDate, $any($event.target).value)" />
     </div>
     <div class="at-filter-group">
       <div class="at-filter-lbl">إلى تاريخ</div>
-      <input type="date" [value]="toDate()" (input)="toDate.set($any($event.target).value)" />
+      <input type="date" aria-label="إلى تاريخ" [value]="toDate()" (change)="setFilter(toDate, $any($event.target).value)" />
     </div>
     <div class="at-filter-group">
       <div class="at-filter-lbl">بحث</div>
       <div class="at-search-wrap">
-        <input type="text" placeholder="ابحث في السجل..." [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" />
+        <input type="text" placeholder="ابحث في السجل..." aria-label="بحث" [value]="searchQuery()" (keydown.enter)="setFilter(searchQuery, $any($event.target).value)" (change)="setFilter(searchQuery, $any($event.target).value)" />
         <svg class="at-search-ico"><use href="#at-i-search"></use></svg>
       </div>
     </div>
@@ -58,43 +65,52 @@
   <div class="at-log-card">
     <div class="at-log-hdr">
       <div class="at-log-ttl"><svg><use href="#at-i-list"></use></svg>سجل العمليات</div>
-      <div class="at-log-count">يعرض {{ filteredEvents().length }} من {{ events().length }} عملية</div>
+      <div class="at-log-count">يعرض {{ entries().length }} من {{ total() }} سجل</div>
     </div>
 
     <div class="at-log">
-      @for (e of filteredEvents(); track e.action + e.time; let last = $last) {
-        <div class="at-item">
-          <div class="at-item-left">
-            <div class="at-item-icon" [style.background]="e.bg" [style.color]="e.color">
-              @if (e.suspicious) {
-                <svg><use href="#at-i-warn"></use></svg>
-              } @else {
-                <svg><use href="#at-i-list"></use></svg>
-              }
+      @if (loading()) {
+        <div class="at-empty" data-testid="at-loading">جارٍ التحميل…</div>
+      } @else if (failed()) {
+        <div class="at-empty" role="alert" data-testid="at-error">تعذّر تحميل السجل. <button type="button" class="at-btn at-btn-gh" (click)="load()">إعادة المحاولة</button></div>
+      } @else {
+        @for (e of entries(); track e.id; let last = $last) {
+          <div class="at-item" data-testid="at-row">
+            <div class="at-item-left">
+              <div class="at-item-icon" [style.background]="sev(e).bg" [style.color]="sev(e).color">
+                @if (e.severity !== 'INFO') { <svg><use href="#at-i-warn"></use></svg> } @else { <svg><use href="#at-i-list"></use></svg> }
+              </div>
+              @if (!last) { <div class="at-item-line"></div> }
             </div>
-            @if (!last) { <div class="at-item-line"></div> }
-          </div>
-          <div class="at-item-body">
-            <div class="at-item-top">
-              <span class="at-tag" [style.background]="e.bg" [style.color]="e.color">{{ e.type }}</span>
-              <span class="at-actor">
-                <span class="at-actor-av" [style.background]="e.actorColor">{{ e.actor.charAt(0) }}</span>
-                <span class="at-actor-name">{{ e.actor }}</span>
-              </span>
+            <div class="at-item-body">
+              <div class="at-item-top">
+                <span class="at-tag" [style.background]="sev(e).bg" [style.color]="sev(e).color">{{ sevLabel(e) }}</span>
+                <span class="at-actor">
+                  <span class="at-actor-av">{{ actorName(e).charAt(0) }}</span>
+                  <span class="at-actor-name">{{ actorName(e) }}</span>
+                </span>
+              </div>
+              <div class="at-action">{{ e.title }}</div>
+              <div class="at-detail">{{ e.summary }}</div>
+              <div class="at-time">{{ e.eventType }} · {{ sourceLabels[e.source] || e.source }}@if (e.ipAddress) { · IP: {{ e.ipAddress }} }@if (e.device) { · {{ e.device }} } · {{ e.occurredAt | date:'yyyy-MM-dd HH:mm' }}</div>
             </div>
-            <div class="at-action">{{ e.action }}</div>
-            <div class="at-detail">{{ e.detail }}</div>
-            <div class="at-time">{{ e.time }}</div>
           </div>
-        </div>
-      } @empty {
-        <div class="at-empty">لا توجد نتائج مطابقة</div>
+        } @empty {
+          <div class="at-empty" data-testid="at-empty">لا توجد سجلات مطابقة</div>
+        }
       }
     </div>
+    @if (pages() > 1) {
+      <div class="at-pager">
+        <button type="button" class="at-btn at-btn-gh" [disabled]="page() <= 1" (click)="goPage(page() - 1)" aria-label="الصفحة السابقة">‹</button>
+        <span>صفحة {{ page() }} من {{ pages() }}</span>
+        <button type="button" class="at-btn at-btn-gh" [disabled]="page() >= pages()" (click)="goPage(page() + 1)" aria-label="الصفحة التالية">›</button>
+      </div>
+    }
   </div>
 
   <div class="at-foot">
-    <span>Audit Trail — محمي ومشفر — لا يمكن حذفه</span>
+    <span>Audit Trail — للقراءة فقط؛ لا تتوفر من هذه الصفحة أي إمكانية للتعديل أو الحذف</span>
     <a routerLink="../super-admins" class="at-foot-link">Super Admin ←</a>
   </div>
 </section>

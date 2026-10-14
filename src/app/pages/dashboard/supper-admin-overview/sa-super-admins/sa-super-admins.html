@@ -28,17 +28,45 @@
 
     <div class="spa-content">
 
+      @if (activeSection() === 'admins') {
+        <div class="spa-sec-hdr">
+          <div><div class="spa-sec-ttl">الحسابات الإدارية</div><div class="spa-sec-sub">حسابات المسؤول والمسؤول الأعلى المسجلة فعليًا في النظام</div></div>
+        </div>
+        <div class="spa-card spa-card-flush">
+          @if (adminsFailed()) { <div class="spa-empty" role="alert" data-testid="admins-error">تعذّر تحميل الحسابات الإدارية.</div> }
+          <div class="spa-tbl-wrap">
+            <table class="spa-tbl">
+              <thead><tr><th>الاسم</th><th>البريد</th><th>الدور</th><th>الحالة</th><th>آخر نشاط</th><th>الإجراء</th></tr></thead>
+              <tbody>
+                @for (a of admins(); track a.id) {
+                  <tr data-testid="admin-row">
+                    <td class="spa-strong">{{ a.name }}</td>
+                    <td style="direction:ltr;text-align:right">{{ a.email }}</td>
+                    <td>{{ a.accountType === 'SUPER_ADMIN' ? 'مسؤول أعلى' : 'مسؤول' }}</td>
+                    <td>{{ a.status }}</td>
+                    <td class="spa-date">{{ a.lastActiveAt ? (a.lastActiveAt | date:'yyyy-MM-dd HH:mm') : '—' }}</td>
+                    <td><button type="button" class="spa-btn spa-btn-gh" disabled [title]="adminActionBlockedReason" style="opacity:.5;cursor:not-allowed">تغيير الدور</button></td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="6" class="spa-empty">لا توجد حسابات إدارية</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
       @if (activeSection() === 'general') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الإعدادات العامة</div><div class="spa-sec-sub">فتح التسجيل، سياسات المحتوى، والتحقق من الهوية</div></div>
+          <button type="button" class="spa-btn spa-btn-pri" disabled [title]="settingsBlockedReason" style="opacity:.5;cursor:not-allowed"><svg><use href="#spa-i-save"></use></svg>حفظ التغييرات</button>
         </div>
-        <div class="spa-card" data-testid="not-wired-note"><div class="spa-row"><div><div class="spa-row-lbl">غير مربوط بالخادم بعد</div><div class="spa-row-sub">لا يتم حفظ أي تغيير من هذا القسم، والقيم غير متاحة حاليًا لأنه لا يوجد مصدر إعدادات على الخادم.</div></div></div></div>
         <div class="spa-card">
           <div class="spa-card-ttl">التسجيل والوصول</div>
           @for (t of registrationToggles(); track t.key) {
             <div class="spa-row">
               <div><div class="spa-row-lbl">{{ t.label }}</div><div class="spa-row-sub">{{ t.desc }}</div></div>
-              <span class="spa-unit">غير مربوط بالخادم</span>
+              <button type="button" class="spa-sw" [class.on]="t.on" disabled [title]="t.key === '2fa' ? twoFaBlockedReason : settingsBlockedReason" [attr.aria-label]="t.label" style="opacity:.5;cursor:not-allowed"></button>
             </div>
           }
         </div>
@@ -47,7 +75,7 @@
           @for (t of contentToggles(); track t.key) {
             <div class="spa-row">
               <div><div class="spa-row-lbl">{{ t.label }}</div><div class="spa-row-sub">{{ t.desc }}</div></div>
-              <span class="spa-unit">غير مربوط بالخادم</span>
+              <button type="button" class="spa-sw" [class.on]="t.on" disabled [title]="t.key === '2fa' ? twoFaBlockedReason : settingsBlockedReason" [attr.aria-label]="t.label" style="opacity:.5;cursor:not-allowed"></button>
             </div>
           }
         </div>
@@ -56,32 +84,32 @@
       @if (activeSection() === 'fees') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الرسوم والمالية</div><div class="spa-sec-sub">رسوم النظام والضمان وسياسات السحب</div></div>
+          <button type="button" class="spa-btn spa-btn-pri" disabled [title]="settingsBlockedReason" style="opacity:.5;cursor:not-allowed"><svg><use href="#spa-i-save"></use></svg>حفظ التغييرات</button>
         </div>
-        <div class="spa-card" data-testid="not-wired-note"><div class="spa-row"><div><div class="spa-row-lbl">غير مربوط بالخادم بعد</div><div class="spa-row-sub">لا يتم حفظ أي تغيير من هذا القسم، والقيم غير متاحة حاليًا لأنه لا يوجد مصدر إعدادات على الخادم.</div></div></div></div>
         <div class="spa-card">
           <div class="spa-card-ttl">رسوم المعاملات</div>
           <div class="spa-row" data-testid="fees-readonly-note"><div><div class="spa-row-lbl">النسب المالية معتمدة وللقراءة فقط</div><div class="spa-row-sub">عمولة المنصة والكاش باك وعمولة الوسيط ورسوم الإيداع والسحب تُؤخذ من جداول المستويات ونسب الدفع المعتمدة وتُعرض في صفحة الرسوم، ولا تُعدَّل من هنا.</div></div></div>
         </div>
         <div class="spa-card">
           <div class="spa-card-ttl">تجهيز فوترة مستقبلية</div>
-          <div class="spa-row"><div><div class="spa-row-lbl">تجهيز فوترة مستقبلية</div><div class="spa-row-sub">غير مفعّل في V1</div></div><span class="spa-unit">غير مفعّل</span></div>
+          <div class="spa-row"><div><div class="spa-row-lbl">تجهيز فوترة مستقبلية</div><div class="spa-row-sub">غير مفعّل في V1</div></div><button type="button" class="spa-sw" disabled title="غير مفعّل في V1" style="opacity:.5;cursor:not-allowed"></button></div>
         </div>
       }
 
       @if (activeSection() === 'security') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الأمان</div><div class="spa-sec-sub">سياسات كلمات المرور والجلسات والمصادقة</div></div>
+          <button type="button" class="spa-btn spa-btn-pri" disabled [title]="settingsBlockedReason" style="opacity:.5;cursor:not-allowed"><svg><use href="#spa-i-save"></use></svg>حفظ التغييرات</button>
         </div>
-        <div class="spa-card" data-testid="not-wired-note"><div class="spa-row"><div><div class="spa-row-lbl">غير مربوط بالخادم بعد</div><div class="spa-row-sub">لا يتم حفظ أي تغيير من هذا القسم، والقيم غير متاحة حاليًا لأنه لا يوجد مصدر إعدادات على الخادم.</div></div></div></div>
         <div class="spa-card">
           <div class="spa-card-ttl">سياسات الجلسات وكلمة المرور</div>
-          <div class="spa-row"><div><div class="spa-row-lbl">مدة انتهاء الجلسة</div><div class="spa-row-sub">دقائق من آخر نشاط</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="text" value="—" disabled /><span class="spa-unit">دقيقة</span></div></div>
-          <div class="spa-row"><div><div class="spa-row-lbl">الحد الأقصى لمحاولات الدخول</div><div class="spa-row-sub">قبل تعليق الحساب مؤقتاً</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="text" value="—" disabled /><span class="spa-unit">محاولة</span></div></div>
-          <div class="spa-row"><div><div class="spa-row-lbl">الحد الأدنى لطول كلمة المرور</div><div class="spa-row-sub">عدد الأحرف الدنيا</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="text" value="—" disabled /><span class="spa-unit">حرف</span></div></div>
+          <div class="spa-row"><div><div class="spa-row-lbl">مدة انتهاء الجلسة</div><div class="spa-row-sub">دقائق من آخر نشاط</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="number" [value]="securitySession()" (input)="securitySession.set(+$any($event.target).value)"  disabled [title]="settingsBlockedReason" /><span class="spa-unit">دقيقة</span></div></div>
+          <div class="spa-row"><div><div class="spa-row-lbl">الحد الأقصى لمحاولات الدخول</div><div class="spa-row-sub">قبل تعليق الحساب مؤقتاً</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="number" [value]="securityAttempts()" (input)="securityAttempts.set(+$any($event.target).value)"  disabled [title]="settingsBlockedReason" /><span class="spa-unit">محاولة</span></div></div>
+          <div class="spa-row"><div><div class="spa-row-lbl">الحد الأدنى لطول كلمة المرور</div><div class="spa-row-sub">عدد الأحرف الدنيا</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="number" [value]="securityMinPassword()" (input)="securityMinPassword.set(+$any($event.target).value)"  disabled [title]="settingsBlockedReason" /><span class="spa-unit">حرف</span></div></div>
           @for (t of securityToggles(); track t.key) {
             <div class="spa-row">
               <div><div class="spa-row-lbl">{{ t.label }}</div><div class="spa-row-sub">{{ t.desc }}</div></div>
-              <span class="spa-unit">غير مربوط بالخادم</span>
+              <button type="button" class="spa-sw" [class.on]="t.on" disabled [title]="t.key === '2fa' ? twoFaBlockedReason : settingsBlockedReason" [attr.aria-label]="t.label" style="opacity:.5;cursor:not-allowed"></button>
             </div>
           }
         </div>
@@ -91,18 +119,17 @@
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الإشعارات</div><div class="spa-sec-sub">قنوات التواصل مع المستخدمين وإعدادات البريد والـ SMS</div></div>
         </div>
-        <div class="spa-card" data-testid="not-wired-note"><div class="spa-row"><div><div class="spa-row-lbl">غير مربوط بالخادم بعد</div><div class="spa-row-sub">لا يتم حفظ أي تغيير من هذا القسم، والقيم غير متاحة حاليًا لأنه لا يوجد مصدر إعدادات على الخادم.</div></div></div></div>
         <div class="spa-card">
           <div class="spa-card-ttl">القنوات المفعّلة</div>
           @for (t of notifChannels(); track t.key) {
-            <div class="spa-row"><div><div class="spa-row-lbl">{{ t.label }}</div></div><span class="spa-unit">غير مربوط بالخادم</span></div>
+            <div class="spa-row"><div><div class="spa-row-lbl">{{ t.label }}</div></div><button type="button" class="spa-sw" [class.on]="t.on" disabled [title]="t.key === '2fa' ? twoFaBlockedReason : settingsBlockedReason" [attr.aria-label]="t.label" style="opacity:.5;cursor:not-allowed"></button></div>
           }
         </div>
         <div class="spa-card">
           <div class="spa-card-ttl">إعدادات خادم البريد (SMTP)</div>
-          <div class="spa-row"><div><div class="spa-row-lbl">خادم SMTP</div></div><input class="spa-inp" style="direction:ltr" value="—" disabled /></div>
-          <div class="spa-row"><div><div class="spa-row-lbl">المنفذ</div></div><input class="spa-inp spa-inp-sm" type="text" value="—" disabled /></div>
-          <div class="spa-row"><div><div class="spa-row-lbl">البريد المُرسِل</div></div><input class="spa-inp" style="direction:ltr" value="—" disabled /></div>
+          <div class="spa-row"><div><div class="spa-row-lbl">خادم SMTP</div></div><input class="spa-inp" style="direction:ltr" [value]="smtpHost()" (input)="smtpHost.set($any($event.target).value)"  disabled [title]="settingsBlockedReason" /></div>
+          <div class="spa-row"><div><div class="spa-row-lbl">المنفذ</div></div><input class="spa-inp spa-inp-sm" type="number" [value]="smtpPort()" (input)="smtpPort.set(+$any($event.target).value)"  disabled [title]="settingsBlockedReason" /></div>
+          <div class="spa-row"><div><div class="spa-row-lbl">البريد المُرسِل</div></div><input class="spa-inp" style="direction:ltr" [value]="smtpFrom()" (input)="smtpFrom.set($any($event.target).value)"  disabled [title]="settingsBlockedReason" /></div>
         </div>
       }
 
@@ -110,7 +137,6 @@
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">التكاملات والـ API</div><div class="spa-sec-sub">مفاتيح API والتكاملات الخارجية</div></div>
         </div>
-        <div class="spa-card" data-testid="not-wired-note"><div class="spa-row"><div><div class="spa-row-lbl">غير مربوط بالخادم بعد</div><div class="spa-row-sub">لا يتم حفظ أي تغيير من هذا القسم، والقيم غير متاحة حاليًا لأنه لا يوجد مصدر إعدادات على الخادم.</div></div></div></div>
         <div class="spa-card">
           <div class="spa-card-ttl">مفاتيح API الخارجية</div>
           @for (k of apiKeysMasked; track k.label; let i = $index) {
@@ -126,38 +152,32 @@
 
       @if (activeSection() === 'audit') {
         <div class="spa-sec-hdr">
-          <div><div class="spa-sec-ttl">Audit Trail</div><div class="spa-sec-sub">أحدث الأحداث الأمنية والإدارية المسجلة فعلياً على الحسابات</div></div>
-          <button type="button" class="spa-btn spa-btn-gh" [disabled]="!filteredAuditRows().length" (click)="exportAuditCsv()"><svg><use href="#spa-i-download"></use></svg>تصدير CSV</button>
+          <div><div class="spa-sec-ttl">Audit Trail</div><div class="spa-sec-sub">أحداث فعلية مسجلة على الحسابات الإدارية (للقراءة فقط)</div></div>
+          <button type="button" class="spa-btn spa-btn-gh" (click)="exportAuditCsv()" [disabled]="!auditRows().length" title="يصدّر السجلات المعروضة حاليًا"><svg><use href="#spa-i-download"></use></svg>تصدير CSV</button>
         </div>
         <div class="spa-filter-row">
           <div class="spa-fr-search">
             <svg aria-hidden="true"><use href="#spa-i-search"></use></svg>
-            <input type="search" placeholder="ابحث في السجل..." aria-label="بحث" [value]="auditSearch()" (input)="setAuditSearch($any($event.target).value)" />
+            <input type="search" placeholder="ابحث في السجل..." aria-label="بحث" [value]="auditSearch()" (change)="setAuditSearch($any($event.target).value)" />
           </div>
-          <ws-select [options]="auditActionTypes()" [ngModel]="auditTypeFilter()" (ngModelChange)="setAuditType($event)" ariaLabel="نوع الحدث" style="min-width:160px;max-width:100%;display:block"></ws-select>
-          <ws-select [options]="auditActors()" [ngModel]="auditActorFilter()" (ngModelChange)="setAuditActor($event)" ariaLabel="المصدر" style="min-width:160px;max-width:100%;display:block"></ws-select>
+          <ws-select [options]="auditTypeOptions()" [ngModel]="auditTypeFilter()" (ngModelChange)="setAuditType($event)" ariaLabel="نوع الحدث"></ws-select>
         </div>
         <div class="spa-card spa-card-flush">
           <div class="spa-tbl-wrap">
             <table class="spa-tbl">
-              <thead><tr><th>الحدث</th><th>التفاصيل</th><th>المصدر</th><th>IP</th><th>التاريخ</th><th>الخطورة</th></tr></thead>
+              <thead><tr><th>الحدث</th><th>التفاصيل</th><th>الحساب</th><th>IP</th><th>التاريخ</th><th>المستوى</th></tr></thead>
               <tbody>
-                @if (auditLoading()) {
-                  <tr><td colspan="6" class="spa-empty">جاري التحميل...</td></tr>
-                } @else if (auditError()) {
-                  <tr><td colspan="6" class="spa-empty">{{ auditError() }} <button type="button" class="spa-btn spa-btn-gh" (click)="loadAudit()">إعادة المحاولة</button></td></tr>
-                }
-                @for (r of pagedAuditRows(); track r.id) {
-                  <tr>
+                @for (r of auditRows(); track r.id) {
+                  <tr data-testid="audit-row">
                     <td class="spa-strong">{{ r.title }}</td>
-                    <td class="spa-detail">{{ r.summary || '—' }}</td>
-                    <td>{{ r.source }}</td>
+                    <td class="spa-detail">{{ r.summary }}</td>
+                    <td>{{ r.account.name || r.actorLabel || '—' }}</td>
                     <td class="spa-mono" style="direction:ltr;text-align:right">{{ r.ipAddress || '—' }}</td>
                     <td class="spa-date">{{ r.occurredAt | date:'yyyy-MM-dd HH:mm' }}</td>
-                    <td><span class="spa-bdg" [style.background]="sevOf(r.severity).bg" [style.color]="sevOf(r.severity).color">{{ sevOf(r.severity).lbl }}</span></td>
+                    <td><span class="spa-bdg">{{ sevLabels[r.severity] || r.severity }}</span></td>
                   </tr>
                 } @empty {
-                  @if (!auditLoading() && !auditError()) { <tr><td colspan="6" class="spa-empty">لا توجد أحداث مطابقة</td></tr> }
+                  <tr><td colspan="6" class="spa-empty">{{ auditLoading() ? 'جارٍ التحميل…' : (auditFailed() ? 'تعذّر تحميل السجل' : 'لا توجد نتائج مطابقة') }}</td></tr>
                 }
               </tbody>
             </table>
@@ -193,5 +213,9 @@
     </div>
   </div>
 
-  <div class="spa-foot">© 2026 وسيط AI</div>
+  <div class="spa-foot">© 2026 وسيط AI · v2.0.0</div>
 </section>
+
+@if (toastMessage()) {
+  <div class="spa-toast">{{ toastMessage() }}</div>
+}
