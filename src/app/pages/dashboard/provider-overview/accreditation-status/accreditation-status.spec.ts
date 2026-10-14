@@ -26,6 +26,12 @@ describe('AccreditationStatusPage', () => {
 		expect(nav).toHaveBeenCalledWith('/provider-overview/profile/setup');
 		expect(q('status-action-setup')!.textContent).toContain('إكمال بيانات الحساب');
 	});
+	it('ASSESSMENT_REQUIRED: message + button to the wizard', () => {
+		const { q, nav } = mount(() => of(base({ state: 'ASSESSMENT_REQUIRED', hasSample: false, message: 'أكمل الاختبار لإكمال اعتماد حسابك.' })));
+		expect(q('status-message')!.textContent).toContain('أكمل الاختبار لإكمال اعتماد حسابك.');
+		q('status-action-setup')!.click();
+		expect(nav).toHaveBeenCalledWith('/provider-overview/profile/setup');
+	});
 	it('SAMPLE_REQUIRED: key message + upload button', () => {
 		const { q, nav } = mount(() => of(base({ state: 'SAMPLE_REQUIRED', hasSample: false, message: SAMPLE_REQUIRED_MESSAGE })));
 		expect(q('status-message')!.textContent).toContain('اجتزت الاختبار، لكن يجب رفع نموذج الاعتماد لإكمال المراجعة.');
