@@ -294,7 +294,9 @@ export class Sidebar implements OnInit {
 				type: 'accordion', id: 'sa-system', label: 'إدارة النظام', icon: icons.settings,
 				children: [
 					{ type: 'link', label: 'إعدادات النظام', route: '/supper-admin-overview/system-settings', icon: icons.settings },
-					{ type: 'link', label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield }
+					{ type: 'link', label: 'المواد التسويقية', route: '/supper-admin-overview/marketing-assets', icon: icons.list },
+					{ type: 'link', label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield },
+					{ type: 'link', label: 'حسابي وأمان الدخول', route: '/supper-admin-overview/my-account', icon: icons.person }
 				]
 			},
 

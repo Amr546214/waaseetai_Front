@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../models/api.model';
 import {
   AdminBrokerDetailApiResponse,
   AdminBrokerListApiResponse,
@@ -38,12 +39,11 @@ export class AdminBrokerApiService {
     return this.http.get<AdminBrokerDetailApiResponse>(`${this.baseUrl}/admin/brokers/${id}`);
   }
 
-  // ── Backend gaps (confirmed absent, not built in this batch) ───────────
-  //
-  // No suspend-account / freeze-commissions / send-for-manual-withdrawal
-  // action endpoint exists for brokers specifically. A broker IS a User
-  // under the hood, so an existing PATCH /admin/users/:id/status could
-  // technically back a future "suspend broker" action — but wiring
-  // account suspension was explicitly out of scope for this batch and
-  // was not requested, so it is not connected here.
+  /**
+   * Admin suspends / reactivates a broker account (reason required to suspend; audit-logged server side).
+   * PATCH /api/admin/brokers/:id/status
+   */
+  setBrokerStatus(id: string, status: 'ACTIVE' | 'SUSPENDED', reason?: string): Observable<ApiResponse<{ id: string; status: string }>> {
+    return this.http.patch<ApiResponse<{ id: string; status: string }>>(`${this.baseUrl}/admin/brokers/${id}/status`, { status, reason });
+  }
 }

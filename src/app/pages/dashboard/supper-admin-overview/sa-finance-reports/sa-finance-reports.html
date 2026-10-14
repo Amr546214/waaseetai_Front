@@ -5,8 +5,8 @@
       <p class="frp-sub">تحليلات مالية للأداء الحالي</p>
     </div>
     <div class="frp-hdr-actions">
-      <button type="button" class="frp-btn frp-btn-ghost">Excel</button>
-      <button type="button" class="frp-btn frp-btn-ghost">PDF</button>
+      <button type="button" class="frp-btn frp-btn-ghost" data-testid="frp-csv" (click)="exportCsv()">تصدير CSV</button>
+      <button type="button" class="frp-btn frp-btn-ghost" data-testid="frp-print" (click)="print()">طباعة / حفظ PDF</button>
     </div>
   </div>
 

@@ -30,6 +30,9 @@ function makeBrokerDetail(overrides: Partial<AdminBrokerDetail> = {}): AdminBrok
     channels: [{ platform: 'Instagram', handle: '@sara-q', url: 'https://instagram.com/sara-q' }],
     channelMetrics: [{ channel: 'Instagram', visitors: 900, clients: 17, conversionPercentage: 1.9 }],
     customLinks: [{ channelName: 'Instagram', utmSource: 'ig', customSlug: 'sara-promo', createdAt: '2026-01-05T00:00:00.000Z' }],
+    levelNumber: 1,
+    commissionPercent: 12.75,
+    monthlyCommissions: [{ month: '2026-01', approved: 200, pending: 0 }],
     recentCommissions: [
       { type: 'REFERRAL', amount: 200, currency: 'USD', status: 'PAID', createdAt: '2026-01-10T00:00:00.000Z', referredUserName: 'خالد المطيري' },
     ],
@@ -41,13 +44,15 @@ describe('SaBrokerDetail', () => {
   let component: SaBrokerDetail;
   let harness: RouterTestingHarness;
   let getSpy: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
+  let patchSpy: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
 
   async function setup(getImpl: (...args: any[]) => any) {
     getSpy = vi.fn(getImpl);
+    patchSpy = vi.fn(() => of({ success: true, data: { id: 'broker-1', status: 'SUSPENDED' } }));
     TestBed.configureTestingModule({
       providers: [
         provideRouter([{ path: 'brokers/:id', component: SaBrokerDetail }]),
-        { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } },
+        { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), patch: (...args: any[]) => patchSpy(...args) } },
       ],
     });
     harness = await RouterTestingHarness.create();
@@ -71,5 +76,26 @@ describe('SaBrokerDetail', () => {
   it('shows a not-found state on 404', async () => {
     await setup(() => throwError(() => ({ status: 404 })));
     expect(component.notFound()).toBe(true);
+  });
+
+  it('shows the broker real level/rate and no invented tiers, payments or average comparison', async () => {
+    await setup(() => of({ success: true, data: makeBrokerDetail() }));
+    const text = harness.routeNativeElement?.textContent ?? '';
+    expect(text).toContain('12.75%');
+    expect(text).not.toContain('متوسط الوسطاء');
+    expect(text).not.toContain('ممتاز');
+    expect(text).not.toContain('إرسال للسحب يدوياً');
+  });
+
+  it('suspending needs a reason, then PATCHes /admin/brokers/:id/status and updates the badge', async () => {
+    await setup(() => of({ success: true, data: makeBrokerDetail() }));
+    component.openStatusDialog('SUSPENDED');
+    component.confirmStatusChange();
+    expect(patchSpy).not.toHaveBeenCalled();
+    component.statusReason.set('نشاط مخالف للسياسة');
+    component.confirmStatusChange();
+    expect(patchSpy.mock.calls[0][0]).toContain('/admin/brokers/broker-1/status');
+    expect(patchSpy.mock.calls[0][1]).toEqual({ status: 'SUSPENDED', reason: 'نشاط مخالف للسياسة' });
+    expect(component.selected()?.status).toBe('SUSPENDED');
   });
 });

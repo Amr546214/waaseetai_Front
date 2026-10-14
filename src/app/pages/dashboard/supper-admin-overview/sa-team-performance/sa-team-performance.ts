@@ -1,106 +1,13 @@
-import { Component, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { SaUnavailable } from '../shared/sa-unavailable/sa-unavailable';
 
-type Period = 'month' | 'quarter' | 'year';
-
-interface TeamMember {
-  name: string;
-  role: string;
-  avatarColor: string;
-  tasks: number;
-  sla: number;
-  rating: number;
-  score: number;
-}
-
-interface BenchmarkRow {
-  metric: string;
-  team: string;
-  teamColor: string;
-  target: string;
-  status: string;
-  statusColor: string;
-}
-
+// Admin sweep (D3): this page used to render hardcoded mock data with no backend source.
+// It now shows an honest "not available" state (see shared/sa-unavailable); the route and
+// component are kept so the page can be wired to real data once a backend exists.
 @Component({
   selector: 'app-sa-team-performance',
   standalone: true,
-  imports: [CommonModule],
+  imports: [SaUnavailable],
   templateUrl: './sa-team-performance.html',
-  styleUrl: './sa-team-performance.css',
 })
-export class SaTeamPerformance {
-  readonly period = signal<Period>('month');
-
-  private readonly seriesByPeriod: Record<Period, { labels: string[]; current: number[]; previous: number[] }> = {
-    month: {
-      labels: ['أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر'],
-      current: [78, 82, 85, 88, 91, 94],
-      previous: [65, 68, 70, 72, 75, 79],
-    },
-    quarter: {
-      labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025'],
-      current: [74, 81, 87, 92],
-      previous: [60, 66, 71, 77],
-    },
-    year: {
-      labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
-      current: [58, 64, 71, 79, 86, 94],
-      previous: [45, 50, 56, 63, 70, 77],
-    },
-  };
-
-  readonly months = computed(() => this.seriesByPeriod[this.period()].labels);
-  readonly current = computed(() => this.seriesByPeriod[this.period()].current);
-  readonly previous = computed(() => this.seriesByPeriod[this.period()].previous);
-
-  readonly chartBars = computed(() => {
-    const labels = this.months();
-    const current = this.current();
-    const previous = this.previous();
-    return labels.map((m, i) => ({
-      label: m.substring(0, 3),
-      current: current[i],
-      previous: previous[i],
-      currentPct: Math.round((current[i] / 100) * 100),
-      previousPct: Math.round((previous[i] / 100) * 100),
-    }));
-  });
-
-  readonly members = signal<TeamMember[]>([
-    { name: 'هيثم القرني', role: 'مشرف نزاعات', avatarColor: '#59C1F5', tasks: 142, sla: 98, rating: 4.8, score: 94 },
-    { name: 'نوف السهلي', role: 'مشرف دعم', avatarColor: '#2BD4C7', tasks: 89, sla: 95, rating: 4.7, score: 91 },
-    { name: 'ريم الحربي', role: 'مشرف دعم', avatarColor: '#FF8C69', tasks: 104, sla: 97, rating: 4.6, score: 89 },
-    { name: 'محمد الشهري', role: 'مشرف محتوى', avatarColor: '#FFB400', tasks: 67, sla: 93, rating: 4.5, score: 88 },
-    { name: 'منى الدوسري', role: 'مشرف دعم', avatarColor: '#5DA0FF', tasks: 92, sla: 96, rating: 4.7, score: 90 },
-    { name: 'خالد المطلق', role: 'مشرف مالي', avatarColor: '#0FA99A', tasks: 58, sla: 91, rating: 4.4, score: 86 },
-  ]);
-
-  readonly benchmarks: BenchmarkRow[] = [
-    { metric: 'معدل إنجاز المهام', team: '87%', teamColor: '#2BD4C7', target: '80%', status: '↑ فوق المعيار', statusColor: '#0FA99A' },
-    { metric: 'وقت الرد على التذاكر', team: '3.2h', teamColor: '#2BD4C7', target: '4h', status: '↑ أسرع', statusColor: '#0FA99A' },
-    { metric: 'حل النزاعات', team: '7.4 يوم', teamColor: '#FFB400', target: '7 يوم', status: '≈ في المعيار', statusColor: '#FFB400' },
-    { metric: 'رضا المستخدم', team: '4.6★', teamColor: '#2BD4C7', target: '4.2★', status: '↑ ممتاز', statusColor: '#0FA99A' },
-  ];
-
-  readonly selectedMember = signal<TeamMember | null>(null);
-  readonly showDetail = signal(false);
-
-  setPeriod(p: Period) {
-    this.period.set(p);
-  }
-
-  scoreColor(score: number): string {
-    return score >= 90 ? '#0FA99A' : score >= 80 ? '#FFB400' : '#FF8C69';
-  }
-
-  openDetail(m: TeamMember) {
-    this.selectedMember.set(m);
-    this.showDetail.set(true);
-  }
-
-  closeDetail() {
-    this.showDetail.set(false);
-    this.selectedMember.set(null);
-  }
-}
+export class SaTeamPerformance {}

@@ -3,7 +3,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SaTeam } from './sa-team/sa-team';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { SaSystemSettings } from './sa-system-settings/sa-system-settings';
 
 describe('admin dropdowns use the site ws-select', () => {
@@ -15,7 +16,7 @@ describe('admin dropdowns use the site ws-select', () => {
 	});
 
 	function mount<T>(cmp: new () => T) {
-		TestBed.configureTestingModule({ imports: [cmp as never], providers: [provideRouter([])] });
+		TestBed.configureTestingModule({ imports: [cmp as never], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
 		const f = TestBed.createComponent(cmp);
 		f.detectChanges();
 		return { f, c: f.componentInstance as any, el: f.nativeElement as HTMLElement };
@@ -24,32 +25,17 @@ describe('admin dropdowns use the site ws-select', () => {
 	const pick = async (f: any, el: HTMLElement, n: number) => { (el.querySelectorAll('[data-testid=ws-select-option]')[n] as HTMLElement).click(); f.detectChanges(); await f.whenStable(); f.detectChanges(); };
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('sa-team: the role/status filters keep their values ("all" = empty) and the invite role', async () => {
-		const { f, c, el } = mount(SaTeam);
-		expect(el.querySelector('select')).toBeNull();
-		expect(c.roleFilter()).toBe('');
-		open(f, el, 0);
-		const labels = Array.from(el.querySelectorAll('[data-testid=ws-select-option]')).map(o => o.textContent?.trim());
-		expect(labels).toEqual(['كل الأدوار', ...c.roles]);
-		await pick(f, el, 2);
-		expect(c.roleFilter()).toBe(c.roles[1]);
-		open(f, el, 1); await pick(f, el, 1);
-		expect(c.statusFilter()).toBe('نشط');
-		open(f, el, 1); await pick(f, el, 0);
-		expect(c.statusFilter()).toBe('');
-	});
+	// sa-team no longer has filters (honest unavailable state, see shared/sa-unavailable); its ws-select test was removed with the mock.
 
-	it('sa-system-settings: the section selects (security, finance, localization) are ws-select and picking changes the signals', async () => {
+	it('sa-system-settings: the section selects (security, finance, localization) are ws-select and are disabled with a visible reason (not stored settings)', async () => {
 		const { f, c, el } = mount(SaSystemSettings);
-		const go = (k: string) => { c.activeSection.set(k); f.detectChanges(); };
-		go('security'); expect(el.querySelector('select')).toBeNull(); expect(el.querySelectorAll('ws-select').length).toBe(1);
-		open(f, el, 0); await pick(f, el, 2);
-		expect(c.sessionDuration()).toBe('48');
-		go('finance'); expect(el.querySelectorAll('ws-select').length).toBe(2);
-		open(f, el, 1); await pick(f, el, 2);
-		expect(c.paymentGateway()).toBe('Tamara');
-		go('localization'); expect(el.querySelectorAll('ws-select').length).toBe(3);
-		open(f, el, 1); await pick(f, el, 1);
-		expect(c.dateFormat()).toBe('YYYY-MM-DD');
+		const go = async (k: string) => { c.activeSection.set(k); f.detectChanges(); await f.whenStable(); f.detectChanges(); };
+		await go('security'); expect(el.querySelector('select')).toBeNull(); expect(el.querySelectorAll('ws-select').length).toBe(1);
+		expect(el.querySelector('.ss-note')?.textContent).toContain('غير مفعّل');
+		expect((el.querySelectorAll('ws-select button')[0] as HTMLButtonElement).disabled).toBe(true);
+		await go('finance'); expect(el.querySelectorAll('ws-select').length).toBe(2);
+		for (const b of Array.from(el.querySelectorAll('ws-select button'))) expect((b as HTMLButtonElement).disabled).toBe(true);
+		await go('localization'); expect(el.querySelectorAll('ws-select').length).toBe(3);
+		for (const b of Array.from(el.querySelectorAll('ws-select button'))) expect((b as HTMLButtonElement).disabled).toBe(true);
 	});
 });

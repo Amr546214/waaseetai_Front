@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationEngineService, AppNotification, NotificationBasePath } from '../../core/services/notification-engine.service';
 import { AuthStore } from '../../core/store/auth.store';
-import { UserRole } from '../../core/models/auth.model';
+import { AccountType, UserRole } from '../../core/models/auth.model';
 import { resolveActiveRole } from '../../core/routing/role-routes';
 
 @Component({
@@ -36,6 +36,8 @@ export class NotificationBell {
 	// assumed to be one role. Matches the same accountType check already
 	// used by nav-dashboard.ts/navbar.ts elsewhere in the header.
 	dashboardBase = computed<NotificationBasePath>(() => {
+		// Staff (super admin) sees admin notifications whose actionUrl points into /supper-admin-overview.
+		if (this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN) return '/supper-admin-overview';
 		// The ACTIVE role decides (a provider account acting as CLIENT stays in the client area).
 		const role = resolveActiveRole(this.authStore.currentUser());
 		if (role === UserRole.PROVIDER) return '/provider-overview';
@@ -43,7 +45,8 @@ export class NotificationBell {
 		return '/client-overview';
 	});
 
-	viewAllLink = computed(() => `${this.dashboardBase()}/notifications`);
+	// The admin area has no inbox page (its communication/notifications page is the broadcast tool), so no "view all" link is shown there.
+	viewAllLink = computed(() => this.dashboardBase() === '/supper-admin-overview' ? null : `${this.dashboardBase()}/notifications`);
 
 	constructor() {
 		// Keep the already-loaded top-5 list in sync with the same real-time

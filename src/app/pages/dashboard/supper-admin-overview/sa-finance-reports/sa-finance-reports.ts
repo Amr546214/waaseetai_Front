@@ -1,6 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ForecastSummaryComponent } from './forecast-summary.component';
+import { CsvColumn, exportCsv, printPage } from '../../../../core/utils/export.util';
 
 type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit';
 
@@ -64,4 +65,27 @@ export class SaFinanceReports {
     { month: 'يوليو', profit: '9.2M', margin: '62%' },
   ];
 
+  /** Rows of the tab currently shown (whatever the page displays), for the CSV export. */
+  exportSet(): { columns: CsvColumn<any>[]; rows: any[] } {
+    switch (this.activeTab()) {
+      case 'revenue':
+        return { columns: [{ header: 'المصدر', value: 'label' }, { header: 'النسبة %', value: 'pct' }], rows: this.revenueDistribution };
+      case 'expenses':
+        return { columns: [{ header: 'البند', value: 'label' }, { header: 'القيمة', value: 'value' }, { header: 'النسبة %', value: 'pct' }], rows: this.expenseBreakdown };
+      case 'profit':
+        return { columns: [{ header: 'الشهر', value: 'month' }, { header: 'صافي الربح', value: 'profit' }, { header: 'هامش الربح', value: 'margin' }], rows: this.profitTrend };
+      case 'overview':
+      default:
+        return { columns: [{ header: 'الشهر', value: 'label' }, { header: '2026', value: 'v2026' }, { header: '2025', value: 'v2025' }], rows: this.months };
+    }
+  }
+
+  exportCsv() {
+    const { columns, rows } = this.exportSet();
+    if (rows.length) exportCsv(`finance-report-${this.activeTab()}`, columns, rows);
+  }
+
+  print() {
+    printPage('التقارير المالية');
+  }
 }

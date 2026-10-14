@@ -1,100 +1,16 @@
-<section class="it-page" dir="rtl">
-  <h1 class="sr-only">إدارة APIs</h1>
-
-  <div class="it-hdr">
-    <div>
-      <h2 class="it-ttl">إدارة APIs + التكاملات</h2>
-      <p class="it-sub">مراقبة نقاط API + التكاملات الخارجية</p>
-    </div>
-    <div class="it-actions">
-      <button type="button" class="it-btn it-btn-ghost">توثيق API</button>
-      <button type="button" class="it-btn it-btn-primary">+ API جديد</button>
-    </div>
-  </div>
-
-  <div class="ws-note ws-note--neutral">
-    <div class="ws-note-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-    <div class="ws-note-body">
-      <div class="ws-note-lbl">مراقبة API</div>
-      <p class="ws-note-txt">تتبع حركة API وتنبيهات الحمل المرتفع <strong>لا مشاكل حالياً</strong></p>
-    </div>
-  </div>
-
-  <div class="it-kpi-grid">
-    @for (k of kpis; track k.label) {
-      <div class="it-kpi-card">
-        <div class="it-kpi-top">
-          <div class="it-kpi-ic" [style.background]="k.bg" [style.color]="k.color">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          </div>
-          <span class="it-kpi-lbl">{{ k.label }}</span>
-        </div>
-        <div class="it-kpi-val" [style.color]="k.color">{{ k.value }}</div>
-        <div class="it-kpi-unit">{{ k.unit }}</div>
-        <div class="it-kpi-sub" [style.color]="k.color">{{ k.sub }}</div>
-      </div>
+<app-sa-unavailable
+  title="إدارة APIs + التكاملات"
+  subtitle="نقاط API والتكاملات الخارجية"
+  heading="إحصاءات الـ API والتكاملات غير متاحة بعد"
+  reason="لا يوجد مصدر متصل يقيس عدد الطلبات أو زمن الاستجابة أو نسب الأخطاء أو حالة التكاملات الخارجية، لذلك لا تُعرض أي أرقام. المتاح فعليا هو فحص حياة الخادم أدناه وسجل الأحداث الأمنية."
+  linkLabel="فتح الأمان وسجل الأحداث"
+  linkTo="/supper-admin-overview/it/security"
+>
+  <div class="sa-apis-health" data-testid="api-health" role="status">
+    @switch (health()) {
+      @case ('checking') { <span>جارٍ فحص حياة الخادم…</span> }
+      @case ('ok') { <span>فحص حياة الخادم (GET /api/health): يعمل</span> }
+      @default { <span>فحص حياة الخادم (GET /api/health): تعذر الوصول إلى الخادم</span> }
     }
   </div>
-
-  <div class="it-tabs">
-    @for (t of tabs; track t.key) {
-      <button type="button" class="it-tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
-    }
-  </div>
-
-  @if (activeTab() === 'integrations') {
-    <div class="it-tbl-card">
-      <div class="it-tbl-hdr">
-        <span class="it-tbl-ttl">التكاملات الخارجية</span>
-        <span class="it-tbl-meta">{{ integrations.length }} تكامل</span>
-      </div>
-      <div class="it-tbl-wrap">
-        <table class="it-tbl">
-          <thead><tr><th>التكامل</th><th>المزود</th><th>آخر مزامنة</th><th>الحالة</th></tr></thead>
-          <tbody>
-            @for (i of integrations; track i.name) {
-              <tr>
-                <td class="it-tbl-strong">{{ i.name }}</td>
-                <td>{{ i.provider }}</td>
-                <td style="font-size:11px">{{ i.lastSync }}</td>
-                <td>
-                  <span class="it-bdg" [style.background]="integrationStyle(i.status).bg" [style.color]="integrationStyle(i.status).color">{{ integrationStyle(i.status).label }}</span>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  } @else {
-    <div class="it-tbl-card">
-      <div class="it-tbl-hdr">
-        <span class="it-tbl-ttl">API Endpoints — الأكثر نشاطاً</span>
-        <span class="it-tbl-meta">247 نقطة</span>
-      </div>
-      <div class="it-tbl-wrap">
-        <table class="it-tbl">
-          <thead><tr><th>Method</th><th>Endpoint</th><th>الاستخدام/دقيقة</th><th>متوسط Latency</th><th>P99 Latency</th><th>Error Rate</th><th>الحالة</th></tr></thead>
-          <tbody>
-            @for (e of filteredEndpoints(); track e.path) {
-              <tr>
-                <td><span class="it-method" [style.background]="methodStyle(e.method).bg" [style.color]="methodStyle(e.method).color">{{ e.method }}</span></td>
-                <td class="it-tbl-strong" style="font-family:monospace;font-size:12px">{{ e.path }}</td>
-                <td style="font-weight:700" class="txt-teal">{{ e.usage | number }}</td>
-                <td [style.color]="e.status === 'healthy' ? '#0FA99A' : '#FFB400'">{{ e.avgLatency }}ms</td>
-                <td class="txt-muted">{{ e.p99Latency }}ms</td>
-                <td [style.color]="e.status === 'healthy' ? '#0FA99A' : '#FFB400'">{{ e.errorRate.toFixed(2) }}%</td>
-                <td><span class="it-bdg" [style.background]="statusStyle(e.status).bg" [style.color]="statusStyle(e.status).color">{{ statusLabel(e.status) }}</span></td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  }
-
-  <div class="it-foot">
-    <span>© 2026 وسيط AI · إدارة APIs</span>
-    <span>تحديث كل 30 ثانية</span>
-  </div>
-</section>
+</app-sa-unavailable>
