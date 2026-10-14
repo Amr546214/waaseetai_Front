@@ -246,8 +246,10 @@ describe('ProjectModificationsComponent', () => {
 
   it('a client-created pending amendment does NOT show approve/reject actions', async () => {
     await setup(() => of({ success: true, data: [amendmentFixture({ requestedByRole: 'CLIENT', status: 'PENDING_OTHER_PARTY' })] }));
+    // the client's own pending request has no approve/reject of its own; it offers cancel (and, for an increase, the payment authorization)
     expect(fixture.nativeElement.querySelector('.dp-appr-btn')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.dp-rej-btn')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="am-confirm"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="am-cancel"]')).toBeTruthy();
   });
 
   it('an already-decided amendment does NOT show approve/reject actions regardless of role', async () => {
@@ -269,7 +271,8 @@ describe('ProjectModificationsComponent', () => {
 
     (fixture.nativeElement.querySelector('.dp-appr-btn') as HTMLButtonElement).click();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('[data-testid="am-confirm"]')!.textContent).toContain('للمتابعة فقط');
+    expect(fixture.nativeElement.querySelector('[data-testid="am-confirm"]')!.textContent).toContain('يُطبَّق التعديل فورًا');
+    expect(fixture.nativeElement.querySelector('[data-testid="am-effect-lines"]')!.textContent).toContain('مدة العقد'); // the effect is shown before confirming
     expect(postSpy).not.toHaveBeenCalled(); // asking for confirmation sends nothing
     (fixture.nativeElement.querySelector('[data-testid="am-confirm-yes"]') as HTMLButtonElement).click();
     await fixture.whenStable();
@@ -311,7 +314,7 @@ describe('ProjectModificationsComponent', () => {
 
     (fixture.nativeElement.querySelector('.dp-appr-btn') as HTMLButtonElement).click();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('[data-testid="am-confirm"]')!.textContent).toContain('للمتابعة فقط');
+    expect(fixture.nativeElement.querySelector('[data-testid="am-confirm"]')!.textContent).toContain('يُطبَّق التعديل فورًا');
     expect(postSpy).not.toHaveBeenCalled(); // asking for confirmation sends nothing
     (fixture.nativeElement.querySelector('[data-testid="am-confirm-yes"]') as HTMLButtonElement).click();
     await fixture.whenStable();
@@ -322,14 +325,14 @@ describe('ProjectModificationsComponent', () => {
     expect(getSpy).toHaveBeenCalledTimes(1); // no reload attempted after a failure
   });
 
-  it('an approved request reads «مُسجَّل — لا يغيّر العقد» (the contract is NOT updated by it), and EVERY card shows the effect note', async () => {
+  it('a LEGACY approved row (no appliedAt) keeps «مُسجَّل — لا يغيّر العقد», and EVERY card shows the effect note', async () => {
     await setup(() => of({ success: true, data: [amendmentFixture({ requestedByRole: 'CLIENT', status: 'APPROVED' })] }));
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('مُسجَّل — لا يغيّر العقد');
     expect(text).toContain('تغيير مقترح');
     expect(text).not.toMatch(/مُحدَّث|تم التنفيذ|نافذ/);
     expect(fixture.nativeElement.querySelector('[data-testid="am-effect-note"]')!.textContent).toContain('القرار يُسجَّل للمتابعة فقط ولا يغيّر سعر العقد أو مدته أو الضمان حاليًا.');
-    expect(fixture.nativeElement.querySelector('[data-testid="am-record-note"]')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان تلقائيًا');
+    expect(fixture.nativeElement.querySelector('[data-testid="am-record-note"]')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان أو المحفظة بمجرد رفع الطلب');
   });
 
   it('a rejected request has its own tab', async () => {
