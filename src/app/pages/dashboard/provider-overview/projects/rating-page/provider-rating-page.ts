@@ -32,6 +32,7 @@ export class ProviderRatingPage implements OnInit {
 	hoverRating = signal<RatingScore | 0>(0);
 	selectedRating = signal<RatingScore | 0>(0);
 	comment = '';
+	publish = true;
 	chips = signal<string[]>([]);
 	submitting = signal(false);
 	submitError = signal('');

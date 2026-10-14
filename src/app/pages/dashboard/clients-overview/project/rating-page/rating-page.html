@@ -110,7 +110,13 @@
 					></textarea>
 				</div>
 	
-				@if (!isStageRating) { <p class="rp-rate-sub" data-testid="rating-public-note">يظهر تقييمك في ملف مقدّم الخدمة العام.</p> }
+				<!-- Publish checkbox (project/provider rating only) — kept as it was until the owner decides its real behaviour (reviews are currently public immediately; nothing is stored for this choice) -->
+				@if (!isStageRating) {
+					<label class="rp-publish-row">
+						<input type="checkbox" [(ngModel)]="publish" />
+						<span>نشر التقييم في ملف مقدّم الخدمة العام</span>
+					</label>
+				}
 
 				@if (submitError()) {
 					<div class="rp-err" role="alert">{{ submitError() }}</div>

@@ -121,7 +121,11 @@
 				></textarea>
 			</div>
 
-			<p class="rp-rate-sub" data-testid="rating-public-note">يظهر تقييمك في ملف العميل.</p>
+			<!-- Publish checkbox (Provider → Client) — kept as it was until the owner decides its real behaviour (nothing is stored for this choice) -->
+			<label class="rp-publish-row">
+				<input type="checkbox" [(ngModel)]="publish" />
+				<span>نشر التقييم في ملف العميل العام</span>
+			</label>
 
 			@if (submitError()) {
 				<div class="rp-err" role="alert">{{ submitError() }}</div>

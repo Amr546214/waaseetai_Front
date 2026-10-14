@@ -90,9 +90,13 @@ describe('client rating page reads the server state before showing anything', ()
 		expect(has(el, '.rp-stars')).toBe(false);
 	});
 
-	it('there is no "publish" checkbox that pretends to control something the server does not store', () => {
+	it('the publish checkbox is kept as it was (its real behaviour is an owner decision)', () => {
 		const { el } = setup([status()]);
+		expect(has(el, 'input[type="checkbox"]')).toBe(true);
+	});
+
+	it('the publish checkbox is not part of the read-only saved view', () => {
+		const { el } = setup([status({ canRate: false, reason: 'ALREADY_RATED', review: saved })]);
 		expect(has(el, 'input[type="checkbox"]')).toBe(false);
-		expect(has(el, '[data-testid="rating-public-note"]')).toBe(true);
 	});
 });
