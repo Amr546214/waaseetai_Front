@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { MarketingBrokerOverview } from './marketing-broker-overview';
 import { MarketerOverviewService } from '../../../../core/services/marketer-overview.service';
@@ -9,7 +10,7 @@ describe('marketer dashboard — USD only, no invented claims (#28)', () => {
 	function render(commissions: any[] = []) {
 		TestBed.configureTestingModule({
 			imports: [MarketingBrokerOverview],
-			providers: [{ provide: MarketerOverviewService, useValue: {
+			providers: [provideRouter([]), { provide: MarketerOverviewService, useValue: {
 				getSummary: () => of({ success: true, data: { tier: 'مساعد', successfulReferrals: 3, totalCommissions: 42.5, overallConversionRate: 12 } }),
 				getChannelPerformance: () => of({ success: true, data: [] }),
 				getRecentCommissions: () => of({ success: true, data: commissions }),

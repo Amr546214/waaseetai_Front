@@ -50,7 +50,7 @@ describe('RefLinks', () => {
 	it('copyToClipboard receives the full URL when the primary link is copied', () => {
 		const { fixture, component } = setup();
 		fixture.detectChanges();
-		const spy = vi.spyOn(component, 'copyToClipboard').mockImplementation(() => {});
+		const spy = vi.spyOn(component, 'copyToClipboard').mockImplementation(async () => {});
 
 		const button: HTMLButtonElement = fixture.nativeElement.querySelector('button.txt-teal');
 		button.click();

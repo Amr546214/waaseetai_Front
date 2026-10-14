@@ -32,10 +32,9 @@ export class Referrals implements OnInit {
 
   totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.limit)));
 
-  // Honest derived count: total() and summary()?.successfulReferrals are both
-  // real whole-dataset aggregates (not page-scoped), so subtracting them
-  // yields a truthful "not yet converted" count — no fabricated number.
-  pendingCount = computed(() => this.total() - (this.summary()?.successfulReferrals ?? 0));
+  // Real server-side whole-dataset counts (not page-scoped).
+  pendingCount = computed(() => this.summary()?.pendingReferrals ?? 0);
+  qualifiedCount = computed(() => this.summary()?.qualifiedReferrals ?? 0);
 
   // Client-side status/name filtering within the currently loaded page —
   // the endpoint only supports page/limit, not server-side search.

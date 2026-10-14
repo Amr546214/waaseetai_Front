@@ -16,6 +16,13 @@ export interface MarketerSummary {
 	successfulReferrals: number;
 	totalCommissions: number;
 	overallConversionRate: number;
+	totalVisits?: number;
+	totalReferrals?: number;
+	pendingReferrals?: number;
+	qualifiedReferrals?: number;
+	approvedCommissions?: number;
+	paidCommissions?: number;
+	pendingCommissions?: number;
 }
 
 export interface ChannelPerformance {
@@ -146,6 +153,10 @@ export class MarketerOverviewService {
 
 	createCustomLink(data: { channelName: string; utmSource: string; customSlug?: string }): Observable<{ success: boolean; data: ReferralCustomLink }> {
 		return this.http.post<{ success: boolean; data: ReferralCustomLink }>(`${this.apiUrl}/ref-links/custom`, data);
+	}
+
+	deleteCustomLink(id: string): Observable<{ success: boolean; data: { id: string } }> {
+		return this.http.delete<{ success: boolean; data: { id: string } }>(`${this.apiUrl}/ref-links/custom/${encodeURIComponent(id)}`);
 	}
 
 	updateSettings(data: { notifyOnNewReferral?: boolean; sharePerformanceStats?: boolean }): Observable<{ success: boolean; data: any }> {

@@ -30,10 +30,10 @@
     <div class="kpi-card">
       <div class="kpi-top">
         <div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-check"></use></svg></div>
-        <span class="kpi-lbl">أول مشروع مؤهل</span>
+        <span class="kpi-lbl">إحالات محولة</span>
       </div>
       <div class="kpi-val txt-green">{{ summary()?.successfulReferrals ?? 0 }}</div>
-      <div class="kpi-delta txt-muted">عمولة مستحقة</div>
+      <div class="kpi-delta txt-muted">{{ qualifiedCount() }} مؤهلة بانتظار التحويل</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-top">
@@ -41,7 +41,7 @@
         <span class="kpi-lbl">بانتظار الاكتمال</span>
       </div>
       <div class="kpi-val txt-amber">{{ pendingCount() }}</div>
-      <div class="kpi-delta txt-muted">مسجّلة، لا عمولة بعد</div>
+      <div class="kpi-delta txt-muted">مسجّلة، لم تُحقق عمولة بعد</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-top">
@@ -49,7 +49,7 @@
         <span class="kpi-lbl">إجمالي العمولات</span>
       </div>
       <div class="kpi-val txt-coral">{{ formatCommission(summary()?.totalCommissions ?? 0) }}</div>
-      <div class="kpi-delta txt-muted">من الإحالات المحوّلة</div>
+      <div class="kpi-delta txt-muted">عمولات مؤكدة ومحوّلة</div>
     </div>
   </div>
 

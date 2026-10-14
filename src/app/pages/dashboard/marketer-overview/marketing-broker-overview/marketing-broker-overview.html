@@ -1,4 +1,7 @@
 <div class="main-inner">
+    @if (loadFailed()) {
+      <div class="ws-note ws-note--neutral" role="alert"><div class="ws-note-body"><p class="ws-note-txt">تعذر تحميل بعض بيانات اللوحة، أعد تحديث الصفحة. الأرقام الظاهرة قد تكون غير مكتملة.</p></div></div>
+    }
     <div class="ws-note ws-note--neutral" role="region" aria-label="ملخص الأداء">
       <div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-chart"></use></svg></div>
       <div class="ws-note-body">
@@ -15,10 +18,19 @@
     </div>
 
     <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div><span class="kpi-lbl">إحالات ناجحة</span></div><div class="kpi-val txt-teal">{{ summary()?.successfulReferrals || 0 }}</div><div class="kpi-delta txt-muted">إجمالي الإحالات المسجّلة</div></div>
-      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">إجمالي العمولات</span></div><div class="kpi-val txt-green">{{ summary()?.totalCommissions || 0 }}</div><div class="kpi-delta txt-muted">دولار أمريكي</div></div>
-      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-blue"><svg aria-hidden="true"><use href="#i-chart"></use></svg></div><span class="kpi-lbl">معدل التحويل</span></div><div class="kpi-val txt-blue">{{ summary()?.overallConversionRate || 0 }}%</div><div class="kpi-delta txt-muted">إحالات مقابل الزيارات</div></div>
-      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-check"></use></svg></div><span class="kpi-lbl">مستواك</span></div><div class="kpi-val" style="display:flex;align-items:center;gap:5px"><ws-marketer-level [summary]="summary()" /></div><div class="kpi-delta txt-muted">مستواك الحالي في برنامج الإحالة</div></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div><span class="kpi-lbl">إجمالي الإحالات</span></div><div class="kpi-val txt-teal">{{ summary()?.totalReferrals || 0 }}</div><div class="kpi-delta txt-muted">{{ summary()?.successfulReferrals || 0 }} محولة · {{ summary()?.pendingReferrals || 0 }} معلقة</div></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-blue"><svg aria-hidden="true"><use href="#i-link"></use></svg></div><span class="kpi-lbl">زيارات الروابط</span></div><div class="kpi-val txt-blue">{{ summary()?.totalVisits || 0 }}</div><div class="kpi-delta txt-muted">نقرات مسجّلة على روابطك · تحويل {{ summary()?.overallConversionRate || 0 }}%</div></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">إجمالي العمولات المؤكدة والمحوّلة</span></div><div class="kpi-val txt-green">{{ summary()?.totalCommissions || 0 }}</div><div class="kpi-delta txt-muted">دولار أمريكي</div></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">عمولات معلقة</span></div><div class="kpi-val txt-amber">{{ summary()?.pendingCommissions || 0 }}</div><div class="kpi-delta txt-muted">دولار · بانتظار التأكيد</div></div>
+    </div>
+
+    <div class="adm-card" style="margin-bottom:16px">
+      <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-link"></use></svg>إجراءات سريعة</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a routerLink="/marketer-overview/ref-links" class="filter-chip" style="padding:8px 16px;font-size:12px;font-weight:700;text-decoration:none">روابط الإحالة ونسخها</a>
+        <a routerLink="/marketer-overview/referrals" class="filter-chip" style="padding:8px 16px;font-size:12px;font-weight:700;text-decoration:none">قائمة الإحالات</a>
+        <a routerLink="/marketer-overview/commissions" class="filter-chip" style="padding:8px 16px;font-size:12px;font-weight:700;text-decoration:none">سجل العمولات</a>
+      </div>
     </div>
 
     <div class="adm-grid2">
@@ -27,10 +39,8 @@
         @if (channels() && channels().length > 0) {
           @for (channel of channels(); track $index) {
             <div class="q-row">
-              <div class="q-ic ic-teal">
-                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v7.2c0 1.96-.52 3.96-1.72 5.48-1.55 1.98-4.22 3.05-6.72 2.62-2.12-.35-4.08-1.65-5.2-3.41-1.35-2.13-1.47-4.9-.34-7.14 1.18-2.33 3.73-3.8 6.33-3.79v4.06c-1.3.06-2.61.9-3.13 2.1-.64 1.48-.12 3.39 1.19 4.28 1.48 1.01 3.65.65 4.67-.77.72-.99 1.05-2.26 1.02-3.52V0h2.85z"/></svg>
-              </div>
-              <div style="flex:1"><div class="q-name">{{ channel.channel }}</div><div class="q-meta">{{ channel.visitors }} زيارة · {{ channel.clients }} عميل</div></div>
+              <div class="q-ic ic-teal"><svg aria-hidden="true"><use href="#i-link"></use></svg></div>
+              <div style="flex:1"><div class="q-name">{{ channelLabel(channel.channel) }}</div><div class="q-meta">{{ channel.visitors }} زيارة · {{ channel.clients }} عميل</div></div>
               <span class="q-count ic-green">{{ channel.conversionPercentage }}%</span>
             </div>
           }
@@ -40,8 +50,8 @@
             <div class="w-12 h-12 rounded-full bg-[#131B36] flex items-center justify-center mb-3 text-slate-500">
                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"></path></svg>
             </div>
-            <p class="text-sm text-slate-300 mb-1">لا توجد قنوات تسويقية مضافة</p>
-            <p class="text-xs text-slate-500 mb-0">أضف قناة وابدأ في نشر رابط إحالتك</p>
+            <p class="text-sm text-slate-300 mb-1">لا توجد زيارات مسجّلة لروابطك بعد</p>
+            <p class="text-xs text-slate-500 mb-0">انشر رابط إحالتك وستظهر هنا زياراتك وعملاؤك لكل قناة</p>
           </div>
         }
       </div>
@@ -56,13 +66,14 @@
       @if (commissions() && commissions().length > 0) {
         <div style="overflow-x:auto">
           <table class="act-tbl">
-            <thead><tr><th>المصدر</th><th>النوع</th><th>الوقت</th><th>العمولة</th></tr></thead>
+            <thead><tr><th>المصدر</th><th>النوع</th><th>الوقت</th><th>الحالة</th><th>العمولة</th></tr></thead>
             <tbody>
               @for (log of commissions(); track log.id) {
                 <tr>
                   <td>{{ log.source }}</td>
-                  <td>{{ log.type }}</td>
+                  <td>{{ commissionTypeLabel(log.type) }}</td>
                   <td>{{ log.time | date:'shortDate' }}</td>
+                  <td>{{ commissionStatusLabel(log.status) }}</td>
                   <td><span style="font-weight:700" class="txt-green">{{ log.amount }} دولار</span></td>
                 </tr>
               }
