@@ -35,6 +35,44 @@ export interface CommissionLog {
 	status: string;
 }
 
+/** GET /marketer-overview/wallet: the marketer's money as the server enforces it (never derived in the browser). */
+export interface MarketerWallet {
+	currency: string;
+	/** Approved commissions in total. */
+	approvedEarnings: number;
+	/** Commissions not yet approved. */
+	pendingEarnings: number;
+	/** Withdrawals in the review / payout pipeline (pending, approved, processing). */
+	reservedWithdrawals: number;
+	/** Withdrawals already paid (or paid then reversed by PayPal). */
+	paidWithdrawals: number;
+	/** approvedEarnings minus reserved and paid: the amount a new request may ask for. */
+	withdrawableBalance: number;
+	minimumWithdrawal: number;
+	paypalEmail: string | null;
+	hasPaypal: boolean;
+	/** Why a withdrawal cannot be requested right now (null = it can). */
+	withdrawBlockedReason: string | null;
+}
+
+export interface MarketerAssetFile {
+	id: string;
+	kind: 'BANNER' | 'TEMPLATE' | 'FILE';
+	title: string;
+	description: string | null;
+	downloadUrl: string;
+}
+
+/** GET/PATCH /marketer-overview/settings. */
+export interface MarketerSettings {
+	inApp: boolean;
+	email: boolean;
+	newReferral: boolean;
+	newCommission: boolean;
+	communicationLanguage: 'ar' | 'en';
+	timezone: string | null;
+}
+
 export type AiInsights = AiResult<MetricSummaryDetails>;
 
 // Single-tier direct referral status (P-LG-012). A referred user starts
@@ -156,6 +194,31 @@ export class MarketerOverviewService {
 	// affiliate's own saved profile — only the amount is sent here.
 	submitWithdrawal(amount: number): Observable<ApiResponse<Withdrawal>> {
 		return this.http.post<ApiResponse<Withdrawal>>(`${this.apiUrl}/withdrawals`, { amount });
+	}
+
+	getWallet(): Observable<ApiResponse<MarketerWallet>> {
+		return this.http.get<ApiResponse<MarketerWallet>>(`${this.apiUrl}/wallet`);
+	}
+
+	getWithdrawal(id: string): Observable<ApiResponse<Withdrawal>> {
+		return this.http.get<ApiResponse<Withdrawal>>(`${this.apiUrl}/withdrawals/${encodeURIComponent(id)}`);
+	}
+
+	getAssets(): Observable<ApiResponse<{ items: MarketerAssetFile[] }>> {
+		return this.http.get<ApiResponse<{ items: MarketerAssetFile[] }>>(`${this.apiUrl}/assets`);
+	}
+
+	getSettings(): Observable<ApiResponse<MarketerSettings>> {
+		return this.http.get<ApiResponse<MarketerSettings>>(`${this.apiUrl}/settings`);
+	}
+
+	updateMarketerSettings(data: Partial<MarketerSettings>): Observable<ApiResponse<MarketerSettings>> {
+		return this.http.patch<ApiResponse<MarketerSettings>>(`${this.apiUrl}/settings`, data);
+	}
+
+	/** The marketer's own data as a real JSON file. */
+	exportData(): Observable<Blob> {
+		return this.http.get(`${this.apiUrl}/settings/data-export`, { responseType: 'blob' });
 	}
 
 	getWithdrawals(page: number = 1, limit: number = 10): Observable<ApiResponse<WithdrawalListData>> {

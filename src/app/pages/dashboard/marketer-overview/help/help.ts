@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
 import { TicketApiService, SupportTicket, CreateTicketPayload } from '../../../../core/services/ticket-api.service';
+import { TICKET_STATUS_LABELS } from './ticket-detail/ticket-detail';
 
 @Component({
 	selector: 'app-marketer-help',
@@ -32,18 +33,8 @@ export class Help implements OnInit {
 	faqState = signal<boolean[]>([false, false, false, false, false]);
 
 	// --- Real, authenticated support tickets ---
-	// Reuses the existing shared TicketApiService/support-ticket system as-is
-	// (no new backend route). Backend-side, ticket create/list/get/reply/close
-	// are scoped purely by req.user.id (see support-ticket.controller.ts /
-	// client-tickets.routes.ts, which only apply `authenticate` +
-	// `requireActiveUser` — no role-specific authorize() gate at all), so
-	// calling the existing 'client' base route from here creates a ticket
-	// genuinely owned by the marketer's own account, not anyone else's.
-	// The full multi-page ticket experience (list/detail/reply/close) that
-	// Client/Provider each have is role-coupled (hardcoded 'client'/'provider'
-	// literals throughout those components) and out of scope to duplicate
-	// here — this is deliberately a smaller, self-contained create+track
-	// slice directly on this page instead.
+	// The marketer's own ticket routes (/marketer-overview/tickets, open only while acting as the marketer) over the shared ticket system:
+	// the list here, the thread (team replies visible, reply, close) on help/tickets/:id. There is no live-support promise anywhere on this page.
 	tickets = signal<SupportTicket[]>([]);
 	ticketsLoading = signal(false);
 	ticketsError = signal<string | null>(null);
@@ -70,7 +61,7 @@ export class Help implements OnInit {
 	loadTickets(): void {
 		this.ticketsLoading.set(true);
 		this.ticketsError.set(null);
-		this.ticketApi.listTickets('client').subscribe({
+		this.ticketApi.listTickets('marketer').subscribe({
 			next: (res) => {
 				this.tickets.set(res.data?.items ?? []);
 				this.ticketsLoading.set(false);
@@ -111,7 +102,7 @@ export class Help implements OnInit {
 		this.ticketCreateError.set(null);
 		this.isCreatingTicket.set(true);
 		const payload: CreateTicketPayload = { subject, category: 'استفسار وسيط تسويقي', description };
-		this.ticketApi.createTicket('client', payload).subscribe({
+		this.ticketApi.createTicket('marketer', payload).subscribe({
 			next: (res) => {
 				this.isCreatingTicket.set(false);
 				if (res.data) this.tickets.update(list => [res.data as SupportTicket, ...list]);
@@ -128,6 +119,8 @@ export class Help implements OnInit {
 			},
 		});
 	}
+
+	statusLabel(s: SupportTicket['status']): string { return TICKET_STATUS_LABELS[s] ?? s; }
 
 	// Help pages: Bebo is a guided FAQ navigator (ready choices and answers, no free text, no model call).
 	readonly choices = guidedCatalog('marketer');

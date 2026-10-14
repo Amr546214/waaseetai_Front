@@ -71,7 +71,7 @@
 			<div class="tier-ico"><ws-marketer-level variant="icon" [summary]="summary()" /></div>
 			<div style="flex:1">
 				<div class="tier-title" style="display:flex;align-items:center;gap:6px"><ws-marketer-level [summary]="summary()" /></div>
-				<p class="tier-txt">يرتفع مستواك تلقائيًا بحسب أدائك الفعلي (الإحالات الناجحة والنقاط)، وتظهر نسبة عمولتك الحالية بجانب مستواك.</p>
+				<p class="tier-txt">يُحدَّد مستواك من الإدارة، وتظهر نسبة عمولتك الحالية بجانب مستواك.</p>
 			</div>
 		</div>
 
@@ -457,7 +457,7 @@
 				<div style="display:flex;align-items:center;justify-content:space-between">
 					<div>
 						<div style="font-size:13px;font-weight:700" class="txt-white">تغيير كلمة المرور</div>
-						<div style="font-size:11px;margin-top:2px" class="txt-muted">ينصح بتغييرها كل 90 يوما</div>
+						<div style="font-size:11px;margin-top:2px" class="txt-muted">اختر كلمة مرور قوية لا تستخدمها في موقع آخر</div>
 					</div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px" (click)="passwordFormVisible.set(!passwordFormVisible())">تغيير
 						كلمة المرور</button>
 				</div>
@@ -483,25 +483,56 @@
 				</div>
 				}
 			</div>
-			<div style="font-size:12px;font-weight:700;margin-bottom:10px" class="txt-slate">تفضيلات التنبيهات</div>
+			<div style="font-size:12px;font-weight:700;margin-bottom:10px" class="txt-slate">قنوات الإشعارات وتنبيهاتها</div>
 				@if (alertsLoadFailed()) {
 				<div class="inp-hint" role="status" data-testid="alerts-load-note" style="margin-bottom:8px">تعذر تحميل تفضيلاتك المحفوظة، تُعرض القيم الافتراضية، وحفظ الإعدادات سيستبدل المحفوظ.</div>
 				}
-			<div style="display:flex;flex-direction:column;gap:8px">
+			<div style="display:flex;flex-direction:column;gap:8px" data-testid="marketer-settings">
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
-					عند احالة جديدة ناجحة<input type="checkbox" [(ngModel)]="alertPreferences.marketer_new_referral"
-						style="accent-color:#2BD4C7" class="txt-teal"></label>
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">الإشعارات داخل التطبيق<input type="checkbox" [(ngModel)]="alertPreferences.inApp"
+						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-inapp"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
-					عند وصول عمولة جديدة<input type="checkbox" [(ngModel)]="alertPreferences.marketer_new_commission"
-						style="accent-color:#2BD4C7" class="txt-teal"></label>
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">نسخة من الإشعارات على بريدي الإلكتروني<input type="checkbox" [(ngModel)]="alertPreferences.email"
+						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-email"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
-					عند الترقية لمستوى جديد<input type="checkbox" [(ngModel)]="alertPreferences.marketer_tier_upgrade"
-						style="accent-color:#2BD4C7" class="txt-teal"></label>
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه عند احالة جديدة ناجحة<input type="checkbox" [(ngModel)]="alertPreferences.newReferral"
+						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-referral"></label>
+				<label
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه عند وصول عمولة جديدة<input type="checkbox" [(ngModel)]="alertPreferences.newCommission"
+						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-commission"></label>
+				<label
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;font-size:13px;opacity:.7" class="txt-slate" data-testid="set-tier-disabled">تنبيه عند الترقية لمستوى جديد<input type="checkbox" disabled title="غير متاح حاليًا: مستواك يُحدَّد من الإدارة ولا يوجد إشعار تلقائي بتغييره"></label>
+				<div class="inp-hint" data-testid="set-tier-note">تنبيه الترقية غير متاح حاليًا لأن المستوى يُحدَّد من الإدارة ولا يصدر إشعار تلقائي بتغييره. تبقى الإشعارات محفوظة دائمًا في صفحة الإشعارات حتى لو أوقفت التنبيه.</div>
+			</div>
+
+			<div style="font-size:12px;font-weight:700;margin:16px 0 10px" class="txt-slate">اللغة والتوقيت</div>
+			<div class="form-grid form-col-2">
+				<div class="inp-group"><label class="inp-label" for="mkt-lang">لغة التواصل</label>
+					<select id="mkt-lang" class="inp-field" [(ngModel)]="alertPreferences.communicationLanguage" data-testid="set-language">
+						<option value="ar">العربية</option>
+						<option value="en">English</option>
+					</select>
+					<span class="inp-hint" data-testid="set-language-note">تحدد لغة رسائل البريد الإلكتروني التي نرسلها لك فقط، ولا تغيّر لغة واجهة المنصة.</span></div>
+				<div class="inp-group"><label class="inp-label" for="mkt-tz">المنطقة الزمنية</label>
+					<select id="mkt-tz" class="inp-field" [(ngModel)]="alertPreferences.timezone" data-testid="set-timezone">
+						<option [ngValue]="null">حسب جهازي</option>
+						@for (z of timezoneOptions; track z.value) { <option [ngValue]="z.value">{{ z.label }}</option> }
+					</select>
+					<span class="inp-hint">تُعرض بها التواريخ والأوقات في صفحات الوسيط.</span></div>
 			</div>
 			<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSavingAlerts()" (click)="saveAlertPreferences()">{{ isSavingAlerts() ? 'جارٍ الحفظ...' : 'حفظ الإعدادات' }}</button></div>
+
+			<div style="font-size:12px;font-weight:700;margin:20px 0 10px" class="txt-slate">بياناتي وحسابي</div>
+			<div style="display:flex;flex-direction:column;gap:8px" data-testid="marketer-data-controls">
+				<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;flex-wrap:wrap">
+					<div><div style="font-size:13px;font-weight:700" class="txt-white">تنزيل بياناتي</div><div style="font-size:11px;margin-top:2px" class="txt-muted">ملف JSON يضم بيانات حسابك وملفك التسويقي وإحالاتك وعمولاتك وطلبات سحبك وإعداداتك</div></div>
+					<button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px" data-testid="download-data" [disabled]="exportingData()" (click)="downloadMyData()">{{ exportingData() ? 'جارٍ التجهيز...' : 'تنزيل ملف بياناتي' }}</button>
+				</div>
+				<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;flex-wrap:wrap;opacity:.85">
+					<div><div style="font-size:13px;font-weight:700" class="txt-white">حذف الحساب</div><div style="font-size:11px;margin-top:2px" class="txt-muted" data-testid="delete-account-reason">غير متاح من الواجهة حاليًا: لا يُحذف الحساب نهائيًا تلقائيًا. افتح تذكرة دعم لطلب إغلاق حسابك.</div></div>
+					<button type="button" class="btn-secondary" style="min-width:fit-content;padding:9px 16px" data-testid="delete-account" disabled title="غير متاح حاليًا">حذف الحساب</button>
+				</div>
+			</div>
 		</div>
 	</div>
 	}

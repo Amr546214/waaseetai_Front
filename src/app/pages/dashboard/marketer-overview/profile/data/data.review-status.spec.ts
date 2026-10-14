@@ -6,7 +6,6 @@ import { vi } from 'vitest';
 import { Data } from './data';
 import { MarketerOverviewService } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService } from '../../../../../core/services/marketer-profile.service';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 // Marketer basics tab: the same review lifecycle (GET /marketer/profile -> reviewStatus.basicInfo), kept after a refresh.
@@ -31,9 +30,8 @@ describe('marketer profile: review status of the basics request', () => {
 		await TestBed.configureTestingModule({
 			imports: [Data],
 			providers: [provideRouter([]),
-				{ provide: MarketerOverviewService, useValue: { getSummary: () => of({ success: true, data: {} }), getChannelPerformance: () => of({ success: true, data: [] }), getRecentCommissions: () => of({ success: true, data: [] }) } },
-				{ provide: MarketerProfileService, useValue: svc },
-				{ provide: NotificationPreferencesService, useValue: { getPreferences: () => of({ success: true, data: {} }), updatePreferences: vi.fn(() => of({ success: true })) } }],
+				{ provide: MarketerOverviewService, useValue: { getSummary: () => of({ success: true, data: {} }), getChannelPerformance: () => of({ success: true, data: [] }), getRecentCommissions: () => of({ success: true, data: [] }), getSettings: () => of({ success: true, data: { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null } }), updateMarketerSettings: () => of({ success: true, data: { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null } }) } },
+				{ provide: MarketerProfileService, useValue: svc }],
 		}).compileComponents();
 		fixture = TestBed.createComponent(Data); c = fixture.componentInstance;
 		fixture.detectChanges(); document.body.appendChild(el());

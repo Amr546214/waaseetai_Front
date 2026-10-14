@@ -4,9 +4,10 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog } from '../../../../../core/services/marketer-overview.service';
+import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog, MarketerSettings } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { MarketerPrefsStore } from '../../../../../core/services/marketer-prefs.store';
+import { PROVIDER_TIMEZONES } from '../../../../../core/services/provider-prefs.store';
 import { canonicalStoredPhone, phoneCountryView } from '../../../../../core/forms/phone-countries';
 import { paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
@@ -57,12 +58,11 @@ const confirmMatchesValidator = (control: AbstractControl): ValidationErrors | n
 
 const hasArabic = (s: unknown): s is string => typeof s === 'string' && /[؀-ۿ]/.test(s);
 
-const DEFAULT_ALERT_PREFERENCES = {
-	marketer_new_referral: true,
-	marketer_new_commission: true,
-	marketer_tier_upgrade: true,
-	marketer_ai_tips: false,
-};
+/** Shown while nothing is saved (the same defaults the server applies): in-app on, e-mail off, both event alerts on, Arabic, the browser's own timezone. */
+const DEFAULT_MARKETER_SETTINGS: MarketerSettings = { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null };
+
+/** The zones the marketer can pick (the same list the server accepts). */
+export const MARKETER_TIMEZONE_OPTIONS: { value: string; label: string }[] = PROVIDER_TIMEZONES.map(z => ({ value: z, label: ({ 'Asia/Riyadh': 'توقيت الرياض (GMT+3)', 'Asia/Dubai': 'توقيت دبي (GMT+4)', 'Asia/Kuwait': 'توقيت الكويت (GMT+3)', 'Africa/Cairo': 'توقيت القاهرة', 'Asia/Amman': 'توقيت عمّان', GMT: 'توقيت غرينتش (GMT)' } as Record<string, string>)[z] ?? z }));
 
 @Component({
 	selector: 'app-data',
@@ -76,7 +76,7 @@ export class Data implements OnInit {
 	private router = inject(Router);
 	private overviewService = inject(MarketerOverviewService);
 	private profileService = inject(MarketerProfileService);
-	private notificationPreferencesService = inject(NotificationPreferencesService);
+	private prefsStore = inject(MarketerPrefsStore);
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly notify = inject(UiNotificationService);
 
@@ -120,7 +120,10 @@ export class Data implements OnInit {
 	profileLoadError = signal<boolean>(false);
 	passwordFormVisible = signal<boolean>(false);
 	isChangingPassword = signal<boolean>(false);
-	alertPreferences = { ...DEFAULT_ALERT_PREFERENCES };
+	/** The marketer's saved settings: channels, per-event alerts, communication language, timezone. */
+	alertPreferences: MarketerSettings = { ...DEFAULT_MARKETER_SETTINGS };
+	readonly timezoneOptions = MARKETER_TIMEZONE_OPTIONS;
+	exportingData = signal<boolean>(false);
 	isSavingAlerts = signal<boolean>(false);
 
 	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
@@ -218,11 +221,11 @@ export class Data implements OnInit {
 
 		this.loadProfile();
 
-		this.notificationPreferencesService.getPreferences().subscribe({
+		this.overviewService.getSettings().subscribe({
 			next: (res) => {
-				if (res.success) {
-					const saved = res.data?.settings || {};
-					this.alertPreferences = { ...DEFAULT_ALERT_PREFERENCES, ...saved } as typeof DEFAULT_ALERT_PREFERENCES;
+				if (res.success && res.data) {
+					this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...res.data };
+					this.prefsStore.apply(res.data);
 					this.alertsLoadFailed.set(false);
 				}
 			},
@@ -621,12 +624,13 @@ export class Data implements OnInit {
 	saveAlertPreferences() {
 		if (this.isSavingAlerts()) return;
 		this.isSavingAlerts.set(true);
-		this.notificationPreferencesService.updatePreferences(this.alertPreferences).subscribe({
+		this.overviewService.updateMarketerSettings(this.alertPreferences).subscribe({
 			next: (res) => {
 				this.isSavingAlerts.set(false);
 				if (res.success) {
+					if (res.data) { this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...res.data }; this.prefsStore.apply(res.data); }
 					this.alertsLoadFailed.set(false);
-					this.showToast('تم حفظ إعدادات التنبيهات بنجاح', 'success');
+					this.showToast('تم حفظ الإعدادات بنجاح', 'success');
 				} else {
 					this.notify.error(this.arabicOr(res.message, 'تعذر حفظ الإعدادات'));
 				}
@@ -635,6 +639,23 @@ export class Data implements OnInit {
 				this.isSavingAlerts.set(false);
 				this.notify.httpError(err, { fallback: 'تعذر حفظ الإعدادات، حاول مرة أخرى' });
 			}
+		});
+	}
+
+	/** Downloads the marketer's own data as a real JSON file produced by the server. */
+	downloadMyData() {
+		if (this.exportingData()) return;
+		this.exportingData.set(true);
+		this.overviewService.exportData().subscribe({
+			next: (blob) => {
+				this.exportingData.set(false);
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url; a.download = 'waseet-marketer-data.json';
+				document.body.appendChild(a); a.click(); a.remove();
+				setTimeout(() => URL.revokeObjectURL(url), 1000);
+			},
+			error: (err) => { this.exportingData.set(false); this.notify.httpError(err, { fallback: 'تعذر تنزيل بياناتك، حاول مرة أخرى' }); }
 		});
 	}
 

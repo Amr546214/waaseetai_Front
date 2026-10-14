@@ -1,7 +1,7 @@
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MarketerOverviewService, MarketerSummary, CommissionLog } from '../../../../core/services/marketer-overview.service';
+import { MarketerOverviewService, MarketerSummary, CommissionLog, MarketerWallet } from '../../../../core/services/marketer-overview.service';
 
 @Component({
   selector: 'app-commissions',
@@ -26,16 +26,15 @@ export class Commissions implements OnInit {
     return list.filter(log => log.status === status);
   });
 
-  // "محجوزة" — commissions still pending confirmation, not yet released to the
-  // affiliate's withdrawable balance.
-  heldAmount = computed(() => this.commissions()
-    .filter(log => log.status === 'PENDING')
-    .reduce((sum, log) => sum + (log.amount || 0), 0));
+  /** The server's own money figures (the same ones the withdraw page uses). */
+  wallet = signal<MarketerWallet | null>(null);
 
-  // "منسحبة" — commissions already paid out/withdrawn.
-  withdrawnAmount = computed(() => this.commissions()
-    .filter(log => log.status === 'PAID')
-    .reduce((sum, log) => sum + (log.amount || 0), 0));
+  // "محجوزة" — commissions still pending confirmation, not yet released to the withdrawable balance.
+  heldAmount = computed(() => this.wallet()?.pendingEarnings ?? 0);
+
+  // "مسحوبة" — withdrawals really paid out (a commission is never flagged "paid" row by row: payouts are withdrawals).
+  withdrawnAmount = computed(() => this.wallet()?.paidWithdrawals ?? 0);
+
 
   private amountInMonth(date: Date): number {
     return this.commissions()
@@ -76,6 +75,11 @@ export class Commissions implements OnInit {
           this.summary.set(res.data);
         }
       }
+    });
+
+    this.service.getWallet().subscribe({
+      next: (res) => { if (res.success && res.data) this.wallet.set(res.data); },
+      error: () => {}
     });
 
     // Fetch up to 100 recent commissions for the log page

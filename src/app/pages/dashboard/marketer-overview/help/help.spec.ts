@@ -88,7 +88,7 @@ describe('Help', () => {
       component.submitTicket();
 
       expect(createTicketSpy).toHaveBeenCalledTimes(1);
-      expect(createTicketSpy).toHaveBeenCalledWith('client', expect.objectContaining({
+      expect(createTicketSpy).toHaveBeenCalledWith('marketer', expect.objectContaining({
         subject: 'مشكلة في رابط الإحالة',
         description: 'الرابط الخاص بي لا يعمل بشكل صحيح منذ يومين ولا يسجل أي زيارات جديدة.',
       }));
@@ -154,7 +154,7 @@ describe('Help', () => {
       await setup({ listTickets: listTicketsSpy });
       fixture.detectChanges();
 
-      expect(listTicketsSpy).toHaveBeenCalledWith('client');
+      expect(listTicketsSpy).toHaveBeenCalledWith('marketer');
       expect(component.tickets().length).toBe(1);
       expect(component.tickets()[0].ticketNumber).toBe('TCK-0001');
     });

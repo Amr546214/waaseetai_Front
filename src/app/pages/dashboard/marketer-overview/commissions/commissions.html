@@ -16,10 +16,10 @@
 
   <!-- KPI سجل العمولات -->
   <div class="kpi-grid">
-    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">إجمالي العمولات</span></div><div class="kpi-val txt-green">{{ summary()?.totalCommissions || 0 }}</div><div class="kpi-delta txt-muted">دولار منذ الانضمام</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">إجمالي العمولات</span></div><div class="kpi-val txt-green">{{ summary()?.totalCommissions || 0 }}</div><div class="kpi-delta txt-muted">دولار عمولات مؤكدة</div></div>
     <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">هذا الشهر</span></div><div class="kpi-val txt-teal">{{ thisMonthAmount() }}</div><div class="kpi-delta" [class.txt-green]="monthDeltaPercentage() >= 0" [class.txt-coral]="monthDeltaPercentage() < 0">{{ monthDeltaPercentage() >= 0 ? '+' : '' }}{{ monthDeltaPercentage() }}% من الشهر الماضي</div></div>
-    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">محجوزة</span></div><div class="kpi-val txt-amber">{{ heldAmount() }}</div><div class="kpi-delta txt-muted">بانتظار إتمام مشاريع</div></div>
-    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-check"></use></svg></div><span class="kpi-lbl">منسحبة</span></div><div class="kpi-val txt-blue">{{ withdrawnAmount() }}</div><div class="kpi-delta txt-muted">دولار إجمالي السحوبات</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">معلّقة</span></div><div class="kpi-val txt-amber" data-testid="kpi-held">{{ heldAmount() }}</div><div class="kpi-delta txt-muted">عمولات بانتظار التأكيد</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-check"></use></svg></div><span class="kpi-lbl">مسحوبة</span></div><div class="kpi-val txt-blue" data-testid="kpi-paid">{{ withdrawnAmount() }}</div><div class="kpi-delta txt-muted">دولار سحوبات مدفوعة</div></div>
   </div>
 
   <div class="adm-card">
@@ -29,7 +29,7 @@
         <button class="filter-chip" [class.active]="filterStatus() === 'all'" (click)="setFilter('all')">الكل</button>
         <button class="filter-chip" [class.active]="filterStatus() === 'PENDING'" (click)="setFilter('PENDING')">معلق</button>
         <button class="filter-chip" [class.active]="filterStatus() === 'APPROVED'" (click)="setFilter('APPROVED')">مؤكد</button>
-        <button class="filter-chip" [class.active]="filterStatus() === 'PAID'" (click)="setFilter('PAID')">محول</button>
+        <button class="filter-chip" [class.active]="filterStatus() === 'PAID'" (click)="setFilter('PAID')">مدفوع</button>
       </div>
     </div>
     
@@ -50,7 +50,7 @@
                   } @else if (log.status === 'PENDING') {
                     <span style="background:rgba(93,160,255,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-blue">معلق</span>
                   } @else if (log.status === 'PAID') {
-                    <span style="background:rgba(43,127,255,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-blue">محول</span>
+                    <span style="background:rgba(43,127,255,.12);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-blue">مدفوع</span>
                   } @else {
                     <span style="background:rgba(255,140,105,.10);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" class="txt-coral">ملغي</span>
                   }

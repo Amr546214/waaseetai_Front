@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
+import { marketerPrefsGuard } from '../../../core/services/marketer-prefs.store';
 import { marketerSetupGuard } from './profile/profile-setup/profile-setup.guard';
 
-export const MARKETER_ROUTES: Routes = [
+const MARKETER_PAGES: Routes = [
 	{
 		path: '',
 		loadComponent: () => import('./marketing-broker-overview/marketing-broker-overview').then(m => m.MarketingBrokerOverview),
@@ -26,6 +27,11 @@ export const MARKETER_ROUTES: Routes = [
 		path: 'withdraw',
 		loadComponent: () => import('./withdraw/withdraw').then(m => m.Withdraw),
 		data: { title: "السحب" }
+	},
+	{
+		path: 'assets',
+		loadComponent: () => import('./assets/assets').then(m => m.MarketerAssets),
+		data: { title: "المواد التسويقية" }
 	},
 	{
 		path: 'profile',
@@ -74,8 +80,23 @@ export const MARKETER_ROUTES: Routes = [
 		data: { title: "المساعدة" }
 	},
 	{
+		path: 'help/tickets',
+		redirectTo: 'help',
+		pathMatch: 'full'
+	},
+	{
+		path: 'help/tickets/:id',
+		loadComponent: () => import('./help/ticket-detail/ticket-detail').then(m => m.MarketerTicketDetail),
+		data: { title: "تفاصيل التذكرة" }
+	},
+	{
 		path: '**',
 		loadComponent: () => import('../../../sheards/not-found/not-found').then(m => m.NotFoundComponent),
 		data: { title: "الصفحة غير موجودة", hideAssistant: true, embedded: true }
 	}
+];
+
+// Every marketer page opens through the prefs guard (it loads the saved timezone once)
+export const MARKETER_ROUTES: Routes = [
+	{ path: '', canActivateChild: [marketerPrefsGuard], children: MARKETER_PAGES }
 ];

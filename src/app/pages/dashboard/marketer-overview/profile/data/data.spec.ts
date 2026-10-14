@@ -5,7 +5,6 @@ import { of } from 'rxjs';
 import { Data } from './data';
 import { MarketerOverviewService } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService } from '../../../../../core/services/marketer-profile.service';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 
 describe('Data', () => {
   let component: Data;
@@ -19,10 +18,9 @@ describe('Data', () => {
         { provide: MarketerOverviewService, useValue: {
           getSummary: () => of({ success: true, data: {} }),
           getChannelPerformance: () => of({ success: true, data: [] }),
-          getRecentCommissions: () => of({ success: true, data: [] }),
+          getRecentCommissions: () => of({ success: true, data: [] }), getSettings: () => of({ success: true, data: { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null } }), updateMarketerSettings: () => of({ success: true, data: { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null } }),
         } },
         { provide: MarketerProfileService, useValue: { getProfile: () => of({ success: true, data: {} }) } },
-        { provide: NotificationPreferencesService, useValue: { getPreferences: () => of({ success: true, data: {} }), updatePreferences: () => of({ success: true, data: {} }) } },
       ],
     })
     .compileComponents();
