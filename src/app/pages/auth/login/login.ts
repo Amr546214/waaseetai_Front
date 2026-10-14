@@ -39,7 +39,6 @@ export class Login {
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly notify = inject(UiNotificationService);
   private readonly otpHandoff = inject(OtpHandoffService);
-  appleNotice = '';
   isSubmitting = false;
   // Set on a 404 from /auth/google (intent: 'login') — no Waseet account
   // exists for that Google identity. Per product requirement: a Login
@@ -158,13 +157,6 @@ export class Login {
 
   togglePassword() {
     this.showPassword = !this.showPassword;
-  }
-
-  appleSignIn() {
-    // Apple Sign-In is not wired to a backend endpoint yet — tell the user
-    // instead of failing silently.
-    this.appleNotice = 'تسجيل الدخول عبر آبل غير متاح حاليًا، يمكنك المتابعة بجوجل أو بالبريد';
-    this.cdr.markForCheck();
   }
 
   onSubmit() {
