@@ -16,6 +16,13 @@ export interface MarketerSummary {
 	successfulReferrals: number;
 	totalCommissions: number;
 	overallConversionRate: number;
+	totalVisits?: number;
+	totalReferrals?: number;
+	pendingReferrals?: number;
+	qualifiedReferrals?: number;
+	approvedCommissions?: number;
+	paidCommissions?: number;
+	pendingCommissions?: number;
 }
 
 export interface ChannelPerformance {
@@ -33,6 +40,46 @@ export interface CommissionLog {
 	amount: number;
 	currency: string;
 	status: string;
+}
+
+/** GET /marketer-overview/wallet: the marketer's money as the server enforces it (never derived in the browser). */
+export interface MarketerWallet {
+	currency: string;
+	/** Approved commissions in total. */
+	approvedEarnings: number;
+	/** Commissions not yet approved. */
+	pendingEarnings: number;
+	/** Withdrawals in the review / payout pipeline (pending, approved, processing). */
+	reservedWithdrawals: number;
+	/** Withdrawals already paid (or paid then reversed by PayPal). */
+	paidWithdrawals: number;
+	/** approvedEarnings minus reserved and paid: the amount a new request may ask for. */
+	withdrawableBalance: number;
+	minimumWithdrawal: number;
+	paypalEmail: string | null;
+	hasPaypal: boolean;
+	/** Why a withdrawal cannot be requested right now (null = it can). */
+	withdrawBlockedReason: string | null;
+}
+
+export interface MarketerAssetFile {
+	id: string;
+	kind: 'BANNER' | 'TEMPLATE' | 'FILE' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'LINK' | 'TEXT';
+	title: string;
+	description: string | null;
+	downloadUrl: string | null;
+	/** Copy-ready text for TEXT materials. */
+	text?: string | null;
+}
+
+/** GET/PATCH /marketer-overview/settings. */
+export interface MarketerSettings {
+	inApp: boolean;
+	email: boolean;
+	newReferral: boolean;
+	newCommission: boolean;
+	communicationLanguage: 'ar' | 'en';
+	timezone: string | null;
 }
 
 export type AiInsights = AiResult<MetricSummaryDetails>;
@@ -148,6 +195,10 @@ export class MarketerOverviewService {
 		return this.http.post<{ success: boolean; data: ReferralCustomLink }>(`${this.apiUrl}/ref-links/custom`, data);
 	}
 
+	deleteCustomLink(id: string): Observable<{ success: boolean; data: { id: string } }> {
+		return this.http.delete<{ success: boolean; data: { id: string } }>(`${this.apiUrl}/ref-links/custom/${encodeURIComponent(id)}`);
+	}
+
 	updateSettings(data: { notifyOnNewReferral?: boolean; sharePerformanceStats?: boolean }): Observable<{ success: boolean; data: any }> {
 		return this.http.patch<{ success: boolean; data: any }>(`${this.apiUrl}/ref-links/settings`, data);
 	}
@@ -156,6 +207,31 @@ export class MarketerOverviewService {
 	// affiliate's own saved profile — only the amount is sent here.
 	submitWithdrawal(amount: number): Observable<ApiResponse<Withdrawal>> {
 		return this.http.post<ApiResponse<Withdrawal>>(`${this.apiUrl}/withdrawals`, { amount });
+	}
+
+	getWallet(): Observable<ApiResponse<MarketerWallet>> {
+		return this.http.get<ApiResponse<MarketerWallet>>(`${this.apiUrl}/wallet`);
+	}
+
+	getWithdrawal(id: string): Observable<ApiResponse<Withdrawal>> {
+		return this.http.get<ApiResponse<Withdrawal>>(`${this.apiUrl}/withdrawals/${encodeURIComponent(id)}`);
+	}
+
+	getAssets(): Observable<ApiResponse<{ items: MarketerAssetFile[] }>> {
+		return this.http.get<ApiResponse<{ items: MarketerAssetFile[] }>>(`${this.apiUrl}/assets`);
+	}
+
+	getSettings(): Observable<ApiResponse<MarketerSettings>> {
+		return this.http.get<ApiResponse<MarketerSettings>>(`${this.apiUrl}/settings`);
+	}
+
+	updateMarketerSettings(data: Partial<MarketerSettings>): Observable<ApiResponse<MarketerSettings>> {
+		return this.http.patch<ApiResponse<MarketerSettings>>(`${this.apiUrl}/settings`, data);
+	}
+
+	/** The marketer's own data as a real JSON file. */
+	exportData(): Observable<Blob> {
+		return this.http.get(`${this.apiUrl}/settings/data-export`, { responseType: 'blob' });
 	}
 
 	getWithdrawals(page: number = 1, limit: number = 10): Observable<ApiResponse<WithdrawalListData>> {

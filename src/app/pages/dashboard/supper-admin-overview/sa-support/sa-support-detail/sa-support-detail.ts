@@ -1,13 +1,16 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AdminTicketDetailData, AdminTicketListItem, SupportTicketMessage, TicketApiService, TicketStatus } from '../../../../../core/services/ticket-api.service';
+import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
 import { TICKET_STATUS_LABELS, ticketStatusClass } from '../sa-support';
 
 @Component({
   selector: 'app-sa-support-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule, WsSelectComponent],
   templateUrl: './sa-support-detail.html',
   styleUrls: ['../sa-support.css', './sa-support-detail.css'],
 })
@@ -15,6 +18,7 @@ export class SaSupportDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private api = inject(TicketApiService);
+  private opsApi = inject(AdminOpsApiService);
 
   toast = signal('');
   ticketId = signal('');
@@ -24,13 +28,24 @@ export class SaSupportDetail implements OnInit {
   busy = signal(false);
   data = signal<AdminTicketDetailData | null>(null);
   related = signal<AdminTicketListItem[]>([]);
-  readonly noBackend = 'يتطلب تفعيل الحفظ في الخادم';
+  staff = signal<AdminStaffMember[]>([]);
+  staffOptions = computed(() => this.staff().map(s => ({ value: s.id, label: s.name })));
+  selectedAssigneeId = signal('');
+  noteDraft = signal('');
+  readonly noSla = 'يتطلب جدولاً لقياس زمن الاستجابة';
+  readonly noEscalation = 'غير متوفر حالياً';
+  readonly noAttachments = 'المرفقات غير مدعومة في تذاكر الدعم حالياً';
+  readonly priorities = ['منخفضة', 'عادية', 'عالية', 'عاجلة'];
 
   readonly statusLabels = TICKET_STATUS_LABELS;
   readonly statusClass = ticketStatusClass;
   readonly statuses: TicketStatus[] = ['OPEN', 'IN_PROGRESS', 'AWAITING_CUSTOMER', 'RESOLVED', 'CLOSED'];
 
   ngOnInit(): void {
+    this.opsApi.listStaff().subscribe({
+      next: (res) => this.staff.set(res.success && Array.isArray(res.data) ? res.data : []),
+      error: () => this.staff.set([]),
+    });
     this.route.paramMap.subscribe((params) => {
       this.ticketId.set(params.get('id') ?? '');
       this.draftReply.set('');
@@ -46,7 +61,7 @@ export class SaSupportDetail implements OnInit {
     this.api.adminGetTicket(id).subscribe({
       next: (res) => {
         this.loading.set(false);
-        if (res.success && res.data) { this.data.set(res.data); this.loadRelated(res.data.user?.id); } else this.notFound.set(true);
+        if (res.success && res.data) { this.data.set(res.data); this.selectedAssigneeId.set(res.data.assignedTo?.id ?? ''); this.loadRelated(res.data.user?.id); } else this.notFound.set(true);
       },
       error: () => { this.loading.set(false); this.notFound.set(true); },
     });
@@ -116,6 +131,35 @@ export class SaSupportDetail implements OnInit {
       },
       error: (err) => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذر تغيير الحالة'); },
     });
+  }
+
+  private run(call: () => import('rxjs').Observable<{ success: boolean; message?: string }>, ok: string, fail: string, after?: () => void) {
+    if (this.busy()) return;
+    this.busy.set(true);
+    call().subscribe({
+      next: (res) => {
+        this.busy.set(false);
+        if (res.success) { after?.(); this.showToast(ok); this.load(); } else this.showToast(res.message || fail);
+      },
+      error: (err) => { this.busy.set(false); this.showToast(err?.error?.message || fail); },
+    });
+  }
+
+  assign() {
+    const assigneeId = this.selectedAssigneeId();
+    if (!assigneeId) return;
+    this.run(() => this.api.adminAssign(this.ticketId(), assigneeId), 'تم تكليف التذكرة', 'تعذر تكليف التذكرة');
+  }
+
+  setPriority(priority: string) {
+    if (!priority || this.data()?.ticket.priority === priority) return;
+    this.run(() => this.api.adminSetPriority(this.ticketId(), priority), `تم تغيير الأولوية إلى: ${priority}`, 'تعذر تغيير الأولوية');
+  }
+
+  addNote() {
+    const body = this.noteDraft().trim();
+    if (!body) return;
+    this.run(() => this.api.adminAddNote(this.ticketId(), body), 'تمت إضافة الملاحظة الداخلية', 'تعذر إضافة الملاحظة', () => this.noteDraft.set(''));
   }
 
   showToast(msg: string) {

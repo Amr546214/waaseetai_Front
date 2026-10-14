@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, BehaviorSubject } from 'rxjs';
 import { TicketApiService } from '../../../../core/services/ticket-api.service';
+import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { SaSupport } from './sa-support';
 import { SaSupportDetail } from './sa-support-detail/sa-support-detail';
 
@@ -23,7 +24,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 		expect(f.componentInstance.countFor('all')).toBe(3);
 		expect(f.componentInstance.countFor('RESOLVED')).toBe(2);
 		f.componentInstance.setFilter('RESOLVED');
-		expect(api.adminListTickets).toHaveBeenLastCalledWith({ status: 'RESOLVED', q: undefined });
+		expect(api.adminListTickets).toHaveBeenLastCalledWith({ status: 'RESOLVED', q: undefined, page: 1 });
 	});
 
 	it('detail: reply and status change call the admin endpoints and reload', async () => {
@@ -34,7 +35,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 			adminReply: vi.fn(() => of({ success: true, data: {} })),
 			adminSetStatus: vi.fn(() => of({ success: true, data: {} })),
 		};
-		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
 		const f = TestBed.createComponent(SaSupportDetail);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
@@ -46,5 +47,63 @@ describe('SaSupport (admin tickets, real API)', () => {
 		f.componentInstance.setStatus('RESOLVED');
 		expect(api.adminSetStatus).toHaveBeenCalledWith('t1', 'RESOLVED');
 		expect(api.adminGetTicket).toHaveBeenCalledTimes(3);
+	});
+
+	it('list shows assignee, priority and uses server pagination', () => {
+		const api = { adminListTickets: vi.fn(() => of({ success: true, data: { items: [{ ...ticket, priority: 'عاجلة', assignedTo: { id: 's1', name: 'سارة' }, user }], counts: { OPEN: 1 }, pagination: { page: 1, limit: 20, total: 45, pages: 3 } } })) };
+		TestBed.configureTestingModule({ imports: [SaSupport], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }] });
+		const f = TestBed.createComponent(SaSupport);
+		f.detectChanges();
+		const el = f.nativeElement as HTMLElement;
+		expect(el.textContent).toContain('عاجلة');
+		expect(el.textContent).toContain('سارة');
+		expect(f.componentInstance.totalPages()).toBe(3);
+		f.componentInstance.goToPage(2);
+		expect(api.adminListTickets).toHaveBeenLastCalledWith({ status: undefined, q: undefined, page: 2 });
+	});
+
+	describe('detail operations', () => {
+		function setup() {
+			const detail = { success: true, data: { ticket, user, messages: [], assignedTo: { id: 's1', name: 'سارة' }, internalNotes: [{ id: 'n1', body: 'ملاحظة سرية', createdAt: '2026-10-02T00:00:00Z', admin: { id: 's1', name: 'سارة' } }] } };
+			const ok = () => of({ success: true, data: {} });
+			const api = {
+				adminGetTicket: vi.fn(() => of(detail)),
+				adminListTickets: vi.fn(() => of({ success: true, data: { items: [], counts: {}, pagination: {} } })),
+				adminAssign: vi.fn(ok), adminSetPriority: vi.fn(ok), adminAddNote: vi.fn(ok),
+			};
+			TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+			const f = TestBed.createComponent(SaSupportDetail);
+			f.detectChanges();
+			return { f, api };
+		}
+
+		it('assign, priority and internal note call the right API methods', () => {
+			const { f, api } = setup();
+			const c = f.componentInstance;
+			c.selectedAssigneeId.set('s2');
+			c.assign();
+			expect(api.adminAssign).toHaveBeenCalledWith('t1', 's2');
+			c.setPriority('عالية');
+			expect(api.adminSetPriority).toHaveBeenCalledWith('t1', 'عالية');
+			c.noteDraft.set('  تحقق من الدفع ');
+			c.addNote();
+			expect(api.adminAddNote).toHaveBeenCalledWith('t1', 'تحقق من الدفع');
+			expect(c.noteDraft()).toBe('');
+		});
+
+		it('renders note label, notes, assignee and disabled controls with reasons', () => {
+			const { f } = setup();
+			const el = f.nativeElement as HTMLElement;
+			expect(el.textContent).toContain('ملاحظات داخلية — لا تراها صاحب التذكرة');
+			expect(el.textContent).toContain('ملاحظة سرية');
+			expect(el.textContent).toContain('سارة');
+			expect(el.textContent).toContain('ردك يظهر لصاحب التذكرة');
+			const attach = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('إرفاق ملف')) as HTMLButtonElement;
+			expect(attach.disabled).toBe(true);
+			expect(attach.title).toBe('المرفقات غير مدعومة في تذاكر الدعم حالياً');
+			const esc = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.trim() === 'تصعيد') as HTMLButtonElement;
+			expect(esc.disabled).toBe(true);
+			expect(el.textContent).toContain('يتطلب جدولاً لقياس زمن الاستجابة');
+		});
 	});
 });

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import type { SafeHtml } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { NotificationEngineService } from '../../../../core/services/notification-engine.service';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
 
 interface RawNotification {
@@ -279,8 +280,8 @@ export class Notifications implements OnInit, OnDestroy {
 		const diffHr = Math.floor(diffMin / 60);
 		if (diffHr < 24) return `قبل ${diffHr} ساعة`;
 		const diffDays = Math.floor(diffHr / 24);
-		if (diffDays === 1) return `أمس ${d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+		if (diffDays === 1) return `أمس ${d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() })}`;
 		if (diffDays < 7) return `قبل ${diffDays} أيام`;
-		return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+		return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', timeZone: providerTimeZone() });
 	}
 }

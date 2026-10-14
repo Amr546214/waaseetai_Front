@@ -12,11 +12,13 @@
           <div class="sup-meta-ttl">معلومات التذكرة</div>
           <div class="sup-meta-grid">
             <div class="sup-meta-item"><div class="sup-meta-lbl">الفئة</div><div class="sup-meta-val">{{ d.ticket.category }}</div></div>
-            <div class="sup-meta-item"><div class="sup-meta-lbl">الأولوية</div><div class="sup-meta-val">{{ d.ticket.priority }}</div></div>
+            <div class="sup-meta-item"><div class="sup-meta-lbl">الأولوية</div><div class="sup-meta-val">
+              <ws-select [options]="priorities" [ngModel]="d.ticket.priority" (ngModelChange)="setPriority($event)" ariaLabel="تغيير الأولوية" style="min-width:120px;max-width:100%;display:block"></ws-select>
+            </div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">الحالة</div><div class="sup-meta-val"><span class="sup-bdg" [class]="'sup-bdg ' + statusClass(d.ticket.status)">{{ statusLabels[d.ticket.status] }}</span></div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">فُتحت</div><div class="sup-meta-val">{{ formatTime(d.ticket.createdAt) }}</div></div>
-            <div class="sup-meta-item" [title]="noBackend"><div class="sup-meta-lbl">المُكلَّف به</div><div class="sup-meta-val">—</div></div>
-            <div class="sup-meta-item" [title]="noBackend"><div class="sup-meta-lbl">وقت الاستجابة</div><div class="sup-meta-val">—</div></div>
+            <div class="sup-meta-item"><div class="sup-meta-lbl">المُكلَّف به</div><div class="sup-meta-val">{{ d.assignedTo?.name || 'غير مُكلَّف' }}</div></div>
+            <div class="sup-meta-item" [title]="noSla"><div class="sup-meta-lbl">وقت الاستجابة</div><div class="sup-meta-val">— <small>({{ noSla }})</small></div></div>
             @if (d.ticket.relatedOrder) {
               <div class="sup-meta-item"><div class="sup-meta-lbl">مرتبطة بـ</div><div class="sup-meta-val">{{ d.ticket.relatedOrder }}</div></div>
             }
@@ -41,10 +43,12 @@
             @for (s of statuses; track s) {
               <button type="button" class="sup-ca-btn" [class.sup-ca-close]="s === d.ticket.status" [disabled]="busy() || s === d.ticket.status" (click)="setStatus(s)">{{ statusLabels[s] }}</button>
             }
-            <button type="button" class="sup-ca-btn sup-ca-escalate" disabled [title]="noBackend">تصعيد</button>
+            <button type="button" class="sup-ca-btn sup-ca-escalate" disabled [title]="noEscalation">تصعيد</button>
+            <button type="button" class="sup-ca-btn" disabled [title]="noAttachments">إرفاق ملف</button>
           </div>
-          <div class="sup-notes-empty">التصعيد: {{ noBackend }}</div>
+          <div class="sup-notes-empty">التصعيد: {{ noEscalation }} · {{ noAttachments }}</div>
           @if (d.ticket.status !== 'CLOSED') {
+            <div class="sup-notes-empty">ردك يظهر لصاحب التذكرة ويصله كإشعار.</div>
             <div class="sup-chat-input-area">
               <textarea class="sup-chat-input" rows="1" placeholder="اكتب ردك هنا..." [value]="draftReply()" (input)="draftReply.set($any($event.target).value)"></textarea>
               <button type="button" class="sup-chat-send" [disabled]="busy()" aria-label="إرسال الرد" (click)="sendReply()">
@@ -76,9 +80,9 @@
 
         <div class="sup-side-card">
           <div class="sup-side-ttl">التكليف</div>
-          <div class="sup-assign-current">مُكلَّف: <strong>—</strong></div>
-          <button type="button" class="sup-side-btn" disabled [title]="noBackend">إعادة تكليف</button>
-          <div class="sup-notes-empty">{{ noBackend }}</div>
+          <div class="sup-assign-current">مُكلَّف: <strong>{{ d.assignedTo?.name || 'غير مُكلَّف' }}</strong></div>
+          <ws-select [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للتكليف" style="min-width:160px;max-width:100%;display:block"></ws-select>
+          <button type="button" class="sup-side-btn" [disabled]="busy() || !selectedAssigneeId()" (click)="assign()">تكليف</button>
         </div>
 
         <div class="sup-side-card">
@@ -87,18 +91,27 @@
           <div class="sup-sla-bar"><div class="sup-sla-bar-fill" style="width:0"></div></div>
           <div class="sup-sla-row"><span>مفتوحة منذ</span><span>{{ formatTime(d.ticket.createdAt) }}</span></div>
           <div class="sup-sla-row sup-sla-row-last"><span>حالة SLA</span><span>—</span></div>
-          <div class="sup-notes-empty">قياس SLA: {{ noBackend }}</div>
+          <div class="sup-notes-empty">قياس SLA: {{ noSla }}</div>
         </div>
       </div>
     </div>
 
     <div class="sup-extra">
       <div class="sup-extra-card">
-        <div class="sup-extra-ttl">ملاحظات داخلية (خاصة)</div>
-        <div class="sup-notes-list"><div class="sup-notes-empty">{{ noBackend }}</div></div>
+        <div class="sup-extra-ttl">ملاحظات داخلية — لا تراها صاحب التذكرة</div>
+        <div class="sup-notes-list">
+          @for (n of d.internalNotes ?? []; track n.id) {
+            <div class="sup-note-item">
+              <div>{{ n.body }}</div>
+              <div class="sup-notes-empty">{{ n.admin?.name || '—' }} · {{ formatTime(n.createdAt) }}</div>
+            </div>
+          } @empty {
+            <div class="sup-notes-empty">لا توجد ملاحظات داخلية بعد</div>
+          }
+        </div>
         <div class="sup-note-input-row">
-          <input type="text" placeholder="أضف ملاحظة داخلية..." disabled [title]="noBackend" />
-          <button type="button" disabled [title]="noBackend">إضافة</button>
+          <input type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
+          <button type="button" [disabled]="busy() || !noteDraft().trim()" (click)="addNote()">إضافة</button>
         </div>
       </div>
       <div class="sup-extra-card">

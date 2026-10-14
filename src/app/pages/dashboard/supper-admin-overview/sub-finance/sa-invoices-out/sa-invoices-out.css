@@ -247,3 +247,6 @@
 :host-context(.theme-light) .fio-foot {
   border-top-color:#E7EAF1!important;color:#64748B!important
 }
+
+.fio-btn:disabled{opacity:.5;cursor:not-allowed}
+.fio-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}

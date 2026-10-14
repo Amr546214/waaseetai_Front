@@ -317,3 +317,13 @@
   .sac-page { padding: 14px 16px; }
   .sac-filters { flex-direction: column; align-items: stretch; }
 }
+
+/* Bulk button (disabled with a visible reason) */
+.sac-bulk { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.sac-bulk .sac-btn:disabled { opacity: .5; cursor: not-allowed; }
+.sac-bulk-why { font-size: 11px; color: #6B7699; }
+.sac-u-link { text-decoration: none; }
+.sac-u-link:hover { color: #2BD4C7; text-decoration: underline; }
+.sac-ai-mini { width: 11px; height: 11px; margin-inline-end: 4px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.sac-pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.sac-ai-stored { background: rgba(123,47,190,.12); color: #A56BE0; }

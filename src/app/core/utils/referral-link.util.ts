@@ -18,6 +18,8 @@ import { environment } from '../../../environments/environment';
  */
 export function buildReferralUrl(slug: string | null | undefined): string {
 	if (!slug) return '';
-	const origin = environment.url_api.replace(/\/api\/?$/, '');
+	let origin = environment.url_api.replace(/\/api\/?$/, '');
+	// A same-origin build (url_api = '/api') leaves no host: a pasted `/ref/slug` would be useless, so use the page's own origin.
+	if (!/^https?:\/\//i.test(origin)) origin = (typeof window !== 'undefined' ? window.location.origin : '') + origin;
 	return `${origin}/ref/${slug}`;
 }

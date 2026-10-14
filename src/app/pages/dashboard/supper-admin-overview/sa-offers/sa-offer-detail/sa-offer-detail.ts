@@ -1,73 +1,87 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { SaNotifyModal } from '../../sa-notify-modal';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  NegotiationKind,
-  Offer,
-  OfferStatus,
+  CONTRACT_STATUS_LABELS,
   OFFER_STATUS_LABELS,
+  REQUEST_STATUS_LABELS,
+  apiErrorMessage,
+} from '../../sa-requests/sa-requests.service';
+import {
+  AdminOfferDetail,
+  NEGOTIATION_STATE_LABELS,
   OFFER_STATUS_CLASSES,
-  OFFERS,
-  offerPriceIntel,
-} from '../sa-offers.data';
+  SaOffersService,
+  feedbackSummary,
+  toList,
+} from '../sa-offers.service';
 
 @Component({
   selector: 'app-sa-offer-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SaNotifyModal],
   templateUrl: './sa-offer-detail.html',
   styleUrls: ['../sa-offers.css', './sa-offer-detail.css'],
 })
 export class SaOfferDetail implements OnInit {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private api = inject(SaOffersService);
 
-  readonly statusLabels: Record<OfferStatus, string> = OFFER_STATUS_LABELS;
+  readonly statusLabels = OFFER_STATUS_LABELS;
+  readonly statusClasses = OFFER_STATUS_CLASSES;
+  readonly requestLabels = REQUEST_STATUS_LABELS;
+  readonly contractLabels = CONTRACT_STATUS_LABELS;
+  readonly negotiationLabels = NEGOTIATION_STATE_LABELS;
+  readonly toList = toList;
 
-  readonly statusClasses: Record<OfferStatus, string> = OFFER_STATUS_CLASSES;
-
-  readonly negDotClasses: Record<NegotiationKind, string> = {
-    step: 'of-dot-step',
-    accepted: 'of-dot-accept',
-    rejected: 'of-dot-reject',
-    flagged: 'of-dot-flag',
-  };
-
-  selected = signal<Offer | null>(null);
+  readonly stateChangeReason = 'غير متاح حاليًا — لا يوجد مسار إداري لتعليق العرض أو إلغاء العقد المرتبط، ويحتاج قرارًا من المنتج (أثره المالي على الضمان)';
+  notifyOpen = signal(false);
+  toast = signal('');
+  selected = signal<AdminOfferDetail | null>(null);
+  loading = signal(true);
   notFound = signal(false);
-  actionMessage = signal('');
+  error = signal('');
+  private id = '';
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
-      this.actionMessage.set('');
-      // Mock data only — no backend endpoint for offers yet.
-      const item = id ? OFFERS.find((o) => String(o.id) === id) : undefined;
-      this.selected.set(item ?? null);
-      this.notFound.set(!item);
+      this.id = params.get('id') ?? '';
+      this.load();
     });
   }
 
-  goBack(): void {
-    this.router.navigate(['/supper-admin-overview/offers']);
+  load(): void {
+    if (!this.id) {
+      this.loading.set(false);
+      this.notFound.set(true);
+      return;
+    }
+    this.loading.set(true);
+    this.error.set('');
+    this.notFound.set(false);
+    this.api.get(this.id).subscribe({
+      next: (res) => {
+        this.selected.set(res.data);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.selected.set(null);
+        this.loading.set(false);
+        if (err?.status === 404) this.notFound.set(true);
+        else this.error.set(apiErrorMessage(err, 'تعذّر تحميل العرض'));
+      },
+    });
   }
 
-  priceIntel(o: Offer): { label: string; cls: string } {
-    return offerPriceIntel(o);
+  aiSummary(d: AdminOfferDetail): string {
+    return feedbackSummary(d.aiReview);
   }
 
-  notifyProvider() {
-    this.actionMessage.set('تم إرسال إشعار لمقدم الخدمة');
-  }
-
-  suspendOffer() {
-    const item = this.selected();
-    if (!item) return;
-    this.selected.update((s) => (s ? { ...s, status: 'rejected' } : s));
-    this.actionMessage.set('تم تعليق العرض');
-  }
-
-  cancelContract() {
-    this.actionMessage.set('تم إرسال طلب إلغاء العقد المرتبط للمراجعة');
+  entryKind(kind: string): string {
+    const k = (kind || '').toUpperCase();
+    if (k.includes('COUNTER')) return 'عرض مضاد';
+    if (k.includes('REQUEST')) return 'طلب تفاوض';
+    return kind || '—';
   }
 }

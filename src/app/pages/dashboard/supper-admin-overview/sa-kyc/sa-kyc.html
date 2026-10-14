@@ -64,7 +64,7 @@
         <input
           type="text"
           class="sk-search-input"
-          placeholder="ابحث بالاسم أو البريد أو المعرف..."
+          placeholder="ابحث في هذه الصفحة بالاسم أو البريد أو المعرف..."
           [value]="onboardingSearchQuery()"
           (input)="onOnboardingSearchInput($any($event.target).value)"
         />
@@ -210,7 +210,7 @@
         <input
           type="text"
           class="sk-search-input"
-          placeholder="ابحث بالاسم أو البريد أو المعرف..."
+          placeholder="ابحث في كل المقدمين بالاسم أو البريد أو الهاتف أو المعرف..."
           [value]="providersSearchQuery()"
           (input)="onProvidersSearchInput($any($event.target).value)"
         />
@@ -614,7 +614,7 @@
         }
         <div class="sk-modal-actions">
           <button type="button" class="sk-btn sk-btn-cancel" (click)="closeActionModal()" [disabled]="processing()">إلغاء</button>
-          <button type="button" class="sk-btn" [class.sk-btn-approve]="actionType() === 'approve'" [class.sk-btn-reject]="actionType() === 'reject'" (click)="confirmAction()" [disabled]="processing() || (actionType() === 'reject' && !actionReason().trim())">
+          <button type="button" class="sk-btn" [class.sk-btn-approve]="actionType() === 'approve'" [class.sk-btn-reject]="actionType() === 'reject'" (click)="confirmAction()" [disabled]="processing() || (actionType() === 'reject' && actionReason().trim().length < 2)">
             {{ processing() ? 'جاري التنفيذ...' : (actionType() === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض') }}
           </button>
         </div>

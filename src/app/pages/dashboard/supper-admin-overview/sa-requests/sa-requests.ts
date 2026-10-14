@@ -1,15 +1,18 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
-  ReqStatus,
-  ServiceRequest,
-  REQ_STATUS_LABELS,
-  REQ_STATUS_CLASSES,
-  SERVICE_REQUESTS,
-} from './sa-requests.data';
+  AdminRequestRow,
+  AdminListPagination,
+  REQUEST_STATUS_LABELS,
+  REQUEST_STATUS_CLASSES,
+  CONTRACT_STATUS_LABELS,
+  SaRequestsService,
+  apiErrorMessage,
+  formatBudget,
+} from './sa-requests.service';
 
-type FilterKey = 'all' | ReqStatus;
+type FilterKey = 'ALL' | 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'DISPUTED';
 
 @Component({
   selector: 'app-sa-requests',
@@ -18,57 +21,101 @@ type FilterKey = 'all' | ReqStatus;
   templateUrl: './sa-requests.html',
   styleUrl: './sa-requests.css',
 })
-export class SaRequests {
-  readonly statusLabels: Record<ReqStatus, string> = REQ_STATUS_LABELS;
+export class SaRequests implements OnInit, OnDestroy {
+  private api = inject(SaRequestsService);
 
-  readonly statusClasses: Record<ReqStatus, string> = REQ_STATUS_CLASSES;
+  readonly statusLabels = REQUEST_STATUS_LABELS;
+  readonly statusClasses = REQUEST_STATUS_CLASSES;
+  readonly contractLabels = CONTRACT_STATUS_LABELS;
 
   readonly filters: { key: FilterKey; label: string }[] = [
-    { key: 'all', label: 'الكل' },
-    { key: 'open', label: 'مفتوح' },
-    { key: 'in-progress', label: 'جارٍ' },
-    { key: 'completed', label: 'مكتمل' },
-    { key: 'cancelled', label: 'ملغى' },
-    { key: 'flagged', label: 'مُبلَّغ عنه' },
+    { key: 'ALL', label: 'الكل' },
+    { key: 'OPEN', label: 'مفتوح' },
+    { key: 'IN_PROGRESS', label: 'جارٍ' },
+    { key: 'COMPLETED', label: 'مكتمل' },
+    { key: 'CANCELLED', label: 'ملغى' },
+    { key: 'DISPUTED', label: 'عليه نزاع' },
   ];
 
-  items = signal<ServiceRequest[]>(SERVICE_REQUESTS);
+  items = signal<AdminRequestRow[]>([]);
+  rawCounts = signal<Record<string, number>>({});
+  pagination = signal<AdminListPagination>({ page: 1, limit: 20, total: 0, totalPages: 1 });
+  loading = signal(true);
+  error = signal('');
 
-  activeFilter = signal<FilterKey>('all');
+  activeFilter = signal<FilterKey>('ALL');
   searchTerm = signal('');
-
-  filtered = computed(() => {
-    const f = this.activeFilter();
-    const q = this.searchTerm().trim().toLowerCase();
-    return this.items().filter((r) => {
-      const matchesFilter = f === 'all' || r.status === f;
-      const matchesSearch = !q || r.title.toLowerCase().includes(q) || r.client.toLowerCase().includes(q);
-      return matchesFilter && matchesSearch;
-    });
-  });
+  page = signal(1);
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   counts = computed(() => {
-    const list = this.items();
-    const c: Record<FilterKey, number> = { all: list.length, open: 0, 'in-progress': 0, completed: 0, cancelled: 0, flagged: 0 };
-    for (const r of list) c[r.status]++;
-    return c;
+    const c = this.rawCounts();
+    const out: Record<FilterKey, number> = {
+      ALL: c['all'] ?? 0,
+      OPEN: c['OPEN'] ?? 0,
+      IN_PROGRESS: c['IN_PROGRESS'] ?? 0,
+      COMPLETED: c['COMPLETED'] ?? 0,
+      CANCELLED: c['CANCELLED'] ?? 0,
+      DISPUTED: c['disputed'] ?? 0,
+    };
+    return out;
   });
 
   stats = computed(() => {
-    const list = this.items();
-    return {
-      total: list.length,
-      open: list.filter((r) => r.status === 'open').length,
-      completed: list.filter((r) => r.status === 'completed').length,
-      needsReview: list.filter((r) => !r.aiClean).length,
-    };
+    const c = this.counts();
+    return { total: c.ALL, open: c.OPEN, completed: c.COMPLETED, disputed: c.DISPUTED };
   });
+
+  ngOnInit(): void {
+    this.load();
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+  }
+
+  load(): void {
+    this.loading.set(true);
+    this.error.set('');
+    this.api
+      .list({ status: this.activeFilter(), search: this.searchTerm(), page: this.page(), limit: 20 })
+      .subscribe({
+        next: (res) => {
+          this.items.set(res.data.items ?? []);
+          this.rawCounts.set(res.data.counts ?? {});
+          this.pagination.set(res.data.pagination);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set(apiErrorMessage(err, 'تعذّر تحميل الطلبات'));
+          this.loading.set(false);
+        },
+      });
+  }
 
   setFilter(f: FilterKey) {
     this.activeFilter.set(f);
+    this.page.set(1);
+    this.load();
   }
 
   onSearch(value: string) {
     this.searchTerm.set(value);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page.set(1);
+      this.load();
+    }, 350);
+  }
+
+  goPage(p: number) {
+    const total = this.pagination().totalPages;
+    if (p < 1 || p > total || p === this.page()) return;
+    this.page.set(p);
+    this.load();
+  }
+
+  budget(r: AdminRequestRow): string {
+    return formatBudget(r.budget);
   }
 }

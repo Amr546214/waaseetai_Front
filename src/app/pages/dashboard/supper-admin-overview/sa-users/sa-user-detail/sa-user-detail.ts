@@ -1,14 +1,19 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SaNotifyModal } from '../../sa-notify-modal';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SaUsersService, AdminUserDetail } from '../sa-users.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { AccountType } from '../../../../../core/models/auth.model';
 
 type DetailTab = 'overview' | 'requests' | 'purchases' | 'disputes' | 'reports' | 'contracts' | 'payments';
 
 @Component({
 	selector: 'app-sa-user-detail',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [CommonModule, RouterLink, FormsModule, WsSelectComponent, SaNotifyModal],
 	templateUrl: './sa-user-detail.html',
 	styleUrl: './sa-user-detail.css'
 })
@@ -16,6 +21,23 @@ export class SaUserDetail implements OnInit {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private usersService = inject(SaUsersService);
+	private authStore = inject(AuthStore);
+
+	readonly isSuperAdmin = computed(() => this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN);
+	readonly isSelf = computed(() => this.authStore.currentUser()?.id === this.user()?.id);
+	toast = signal<{ text: string; kind: 'ok' | 'err' } | null>(null);
+	private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
+	// ── status / roles / delete modals (every one confirms; the server enforces the rules and writes the audit row)
+	notifyOpen = signal(false);
+	modal = signal<'status' | 'roles' | 'delete' | null>(null);
+	busy = signal(false);
+	modalError = signal('');
+	reason = signal('');
+	rolePick = signal<string[]>([]);
+	activeRolePick = signal('');
+	readonly activeRoleOptions = computed(() => this.rolePick().map(r => ({ value: r, label: this.roleLabels[r] ?? r })));
+	readonly manageableRoles: { key: string; label: string }[] = [{ key: 'CLIENT', label: 'طالب خدمة' }, { key: 'PROVIDER', label: 'مقدم خدمة' }, { key: 'AFFILIATE', label: 'وسيط تسويقي' }];
 
 	user = signal<AdminUserDetail | null>(null);
 	loading = signal<boolean>(true);
@@ -32,12 +54,14 @@ export class SaUserDetail implements OnInit {
 		{ key: 'requests', label: 'طلباته' },
 		{ key: 'purchases', label: 'مشترياته' },
 		{ key: 'disputes', label: 'نزاعاته' },
-		{ key: 'reports', label: 'بلاغاته' },
+		{ key: 'reports', label: 'تذاكر الدعم' },
 		{ key: 'contracts', label: 'عقوده' },
 		{ key: 'payments', label: 'مدفوعاته' },
 	];
 
 	ngOnInit(): void {
+		const wanted = this.route.snapshot.queryParamMap.get('tab') as DetailTab | null;
+		if (wanted && this.tabs.some(t => t.key === wanted)) this.activeTab.set(wanted);
 		this.route.paramMap.subscribe(params => {
 			const id = params.get('id');
 			if (!id) {
@@ -85,9 +109,8 @@ export class SaUserDetail implements OnInit {
 	}
 
 	tabCount(u: AdminUserDetail, tab: DetailTab): number | null {
-		if (tab === 'disputes') return u.kpis.disputes || null;
-		if (tab === 'reports') return u.kpis.reports || null;
-		return null;
+		const n = (u.tabs?.[tab as keyof typeof u.tabs] as unknown[] | undefined)?.length;
+		return n || null;
 	}
 
 	/** Revenue bar chart: scale each point to the max in the series. */
@@ -95,6 +118,81 @@ export class SaUserDetail implements OnInit {
 		const max = Math.max(...u.revenueHistory.map(p => p.value), 1);
 		return Math.max(4, Math.round((value / max) * 100));
 	}
+
+	get adminLocked(): boolean { return this.user()?.type === 'admin' && !this.isSuperAdmin(); }
+	get isAdminAccount(): boolean { return this.user()?.type === 'admin'; }
+
+	openModal(kind: 'status' | 'roles' | 'delete'): void {
+		const u = this.user();
+		if (!u) return;
+		this.modal.set(kind);
+		this.modalError.set('');
+		this.reason.set('');
+		if (kind === 'roles') { this.rolePick.set([...(u.roles ?? [])].filter(r => this.manageableRoles.some(m => m.key === r))); this.activeRolePick.set(u.activeRole ?? ''); }
+	}
+
+	closeModal(): void { if (!this.busy()) this.modal.set(null); }
+
+	toggleRole(key: string): void {
+		this.rolePick.update(list => (list.includes(key) ? list.filter(r => r !== key) : [...list, key]));
+		if (!this.rolePick().includes(this.activeRolePick())) this.activeRolePick.set(this.rolePick()[0] ?? '');
+	}
+
+	private done(text: string): void {
+		this.busy.set(false);
+		this.modal.set(null);
+		this.showToast(text, 'ok');
+	}
+
+	private fail(err: any, fallback: string): void {
+		this.busy.set(false);
+		this.modalError.set(err?.error?.message || fallback);
+	}
+
+	confirmStatus(): void {
+		const u = this.user();
+		if (!u || this.busy()) return;
+		const suspend = u.statusOriginal === 'ACTIVE';
+		const reason = this.reason().trim();
+		if (suspend && reason.length < 3) { this.modalError.set('سبب الإيقاف مطلوب (3 أحرف على الأقل)'); return; }
+		this.busy.set(true);
+		this.usersService.updateUserStatus(u.id, suspend ? 'SUSPENDED' : 'ACTIVE', suspend ? reason : undefined).subscribe({
+			next: () => { this.done(suspend ? 'تم إيقاف الحساب وتسجيل الإجراء' : 'تم تفعيل الحساب وتسجيل الإجراء'); this.retry(); },
+			error: (err) => this.fail(err, 'تعذر تغيير حالة الحساب')
+		});
+	}
+
+	confirmRoles(): void {
+		const u = this.user();
+		if (!u || this.busy()) return;
+		if (this.rolePick().length === 0) { this.modalError.set('يجب أن يحتفظ الحساب بدور واحد على الأقل'); return; }
+		this.busy.set(true);
+		this.usersService.updateUserRoles(u.id, this.rolePick(), this.activeRolePick() || undefined).subscribe({
+			next: () => { this.done('تم تحديث أدوار الحساب وتسجيل الإجراء'); this.retry(); },
+			error: (err) => this.fail(err, 'تعذر تحديث الأدوار')
+		});
+	}
+
+	confirmDelete(): void {
+		const u = this.user();
+		if (!u || this.busy()) return;
+		this.busy.set(true);
+		this.usersService.deleteUser(u.id).subscribe({
+			next: () => { this.busy.set(false); this.modal.set(null); this.router.navigate(['/supper-admin-overview/users']); },
+			error: (err) => this.fail(err, 'تعذر حذف الحساب')
+		});
+	}
+
+	showToast(text: string, kind: 'ok' | 'err'): void {
+		this.toast.set({ text, kind });
+		if (this.toastTimer) clearTimeout(this.toastTimer);
+		this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
+	}
+
+	readonly statusLabels: Record<string, string> = { OPEN: 'مفتوح', IN_PROGRESS: 'جارٍ', COMPLETED: 'مكتمل', CANCELLED: 'ملغى', DRAFT: 'مسودة', PENDING_SIGNATURE: 'بانتظار التوقيع', UNDER_REVIEW: 'قيد المراجعة', RESOLVED: 'محسوم', REJECTED: 'مرفوض', ACTIVE: 'ساري', PENDING_PAYMENT: 'بانتظار الدفع', PENDING_CLIENT_SIGNATURE: 'بانتظار توقيع العميل', PENDING_PROVIDER_SIGNATURE: 'بانتظار توقيع المزود', DISPUTED: 'متنازع عليه', PAID: 'مدفوع', PENDING: 'معلق', FAILED: 'فشل', CLOSED: 'مغلق', AWAITING_CUSTOMER: 'بانتظار العميل' };
+	readonly roleLabels: Record<string, string> = { CLIENT: 'طالب خدمة', PROVIDER: 'مقدم خدمة', AFFILIATE: 'وسيط تسويقي', ADMIN: 'إداري', SUPER_ADMIN: 'مدير عام' };
+	readonly kycLabels: Record<string, string> = { UNVERIFIED: 'غير موثّق', PENDING: 'قيد المراجعة', VERIFIED: 'موثّق', REJECTED: 'مرفوض', APPROVED: 'معتمد' };
+	label(map: Record<string, string>, key: string | null | undefined): string { return key ? (map[key] ?? key) : '—'; }
 
 	goBack(): void {
 		this.router.navigate(['/supper-admin-overview/users']);

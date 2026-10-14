@@ -516,3 +516,4 @@
 :host-context(.theme-light) .dp-similar-sum {
   color: #475569;
 }
+.dp-ftab-count{margin-inline-start:6px;opacity:.75;font-size:12px}

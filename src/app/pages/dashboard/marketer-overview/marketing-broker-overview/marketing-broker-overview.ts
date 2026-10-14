@@ -2,12 +2,14 @@ import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-le
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.component';
+import { RouterLink } from '@angular/router';
+import { channelLabel, commissionTypeLabel, commissionStatusLabel } from '../../../../core/utils/marketer-labels.util';
 import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog, AiInsights }  from '../../../../core/services/marketer-overview.service';
 
 @Component({
 	selector: 'app-marketing-broker-overview',
 	standalone: true,
-	imports: [MarketerLevelTagComponent, CommonModule, AiResultCardComponent],
+	imports: [MarketerLevelTagComponent, CommonModule, AiResultCardComponent, RouterLink],
 	templateUrl: './marketing-broker-overview.html',
 	styleUrl: './marketing-broker-overview.css',
 })
@@ -17,6 +19,10 @@ export class MarketingBrokerOverview implements OnInit {
 	summary = signal<MarketerSummary | null>(null);
 	channels = signal<ChannelPerformance[]>([]);
 	commissions = signal<CommissionLog[]>([]);
+	loadFailed = signal<boolean>(false);
+	readonly channelLabel = channelLabel;
+	readonly commissionTypeLabel = commissionTypeLabel;
+	readonly commissionStatusLabel = commissionStatusLabel;
 	insights = signal<AiInsights | null>(null);
 	insightsLoading = signal<boolean>(true);
 	insightsFailed = signal<boolean>(false);
@@ -30,19 +36,19 @@ export class MarketingBrokerOverview implements OnInit {
 		// Summary
 		this.marketerOverviewService.getSummary().subscribe({
 			next: (res) => this.summary.set(res.data),
-			error: (err) => console.error('Failed to load summary', err),
+			error: () => this.loadFailed.set(true),
 		});
 
 		// Channels
 		this.marketerOverviewService.getChannelPerformance().subscribe({
 			next: (res) => this.channels.set(res.data),
-			error: (err) => console.error('Failed to load channels', err),
+			error: () => this.loadFailed.set(true),
 		});
 
 		// Commissions
 		this.marketerOverviewService.getRecentCommissions(5).subscribe({
 			next: (res) => this.commissions.set(res.data),
-			error: (err) => console.error('Failed to load commissions', err),
+			error: () => this.loadFailed.set(true),
 		});
 
 		this.loadInsights();

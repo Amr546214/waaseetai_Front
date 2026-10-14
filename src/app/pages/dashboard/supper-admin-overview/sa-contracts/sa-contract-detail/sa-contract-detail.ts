@@ -1,14 +1,23 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { AdminContractDetail, AdminOpsApiService } from '../../../../../core/services/admin-ops-api.service';
 import {
-  Contract,
-  ContractLogEntry,
-  CONTRACTS,
-  CONTRACT_ESCROW_CLASSES,
+  AMENDMENT_STATUS_LABELS,
   CONTRACT_STATUS_CLASSES,
   CONTRACT_STATUS_LABELS,
-} from '../sa-contracts.data';
+  DELIVERY_STATUS_LABELS,
+  DISPUTE_STATUS_LABELS,
+  ESCROW_STATUS_CLASSES,
+  ESCROW_STATUS_LABELS,
+  FINANCE_ACTION_DISABLED_REASON,
+  FINANCE_ACTION_NOTE,
+  STAGE_STATUS_LABELS,
+  initials,
+  label,
+} from '../../sa-projects/sa-projects.labels';
 
 @Component({
   selector: 'app-sa-contract-detail',
@@ -20,96 +29,66 @@ import {
 export class SaContractDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private api = inject(AdminOpsApiService);
+  private destroyRef = inject(DestroyRef);
 
   readonly statusLabels = CONTRACT_STATUS_LABELS;
   readonly statusClasses = CONTRACT_STATUS_CLASSES;
-  readonly escrowClasses = CONTRACT_ESCROW_CLASSES;
+  readonly escrowLabels = ESCROW_STATUS_LABELS;
+  readonly escrowClasses = ESCROW_STATUS_CLASSES;
+  readonly stageLabels = STAGE_STATUS_LABELS;
+  readonly deliveryLabels = DELIVERY_STATUS_LABELS;
+  readonly disputeLabels = DISPUTE_STATUS_LABELS;
+  readonly amendmentLabels = AMENDMENT_STATUS_LABELS;
+  readonly financeReason = FINANCE_ACTION_DISABLED_REASON;
+  readonly financeNote = FINANCE_ACTION_NOTE;
+  readonly initials = initials;
+  readonly label = label;
 
-  selected = signal<Contract | null>(null);
+  selected = signal<AdminContractDetail | null>(null);
+  loading = signal(true);
+  error = signal(false);
   notFound = signal(false);
-  actionMessage = signal('');
+
+  /** Only a v2 fee policy carries meaningful commission / provider-net figures. */
+  showFees = computed(() => this.selected()?.escrow?.feePolicyVersion === 2);
+
+  private req?: Subscription;
+  private id = '';
 
   ngOnInit(): void {
+    this.destroyRef.onDestroy(() => this.req?.unsubscribe());
     this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
-      // Mock-only: look the contract up in the shared mock array by id.
-      const found = id ? CONTRACTS.find((x) => String(x.id) === id) ?? null : null;
-      this.selected.set(found);
-      this.notFound.set(!found);
-      this.actionMessage.set('');
+      this.id = params.get('id') ?? '';
+      this.load();
+    });
+  }
+
+  load(): void {
+    this.req?.unsubscribe();
+    this.loading.set(true);
+    this.error.set(false);
+    this.notFound.set(false);
+    if (!this.id) {
+      this.loading.set(false);
+      this.notFound.set(true);
+      return;
+    }
+    this.req = this.api.getContract(this.id).subscribe({
+      next: (res) => {
+        this.selected.set(res.data);
+        this.loading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.selected.set(null);
+        this.loading.set(false);
+        if (err?.status === 404) this.notFound.set(true);
+        else this.error.set(true);
+      },
     });
   }
 
   goBack(): void {
     this.router.navigate(['/supper-admin-overview/contracts']);
-  }
-
-  feeAmount(c: Contract): number {
-    return Math.round(c.valueNum * (c.feePct / 100));
-  }
-
-  netAmount(c: Contract): number {
-    return c.valueNum - this.feeAmount(c);
-  }
-
-  // Admin actions below are mock-only: they update this page's local copy of
-  // the contract (no backend endpoint), so changes don't persist on navigation.
-  releaseEscrow() {
-    const item = this.selected();
-    if (!item) return;
-    this.selected.update((s) => (s ? { ...s, escrow: 'مُفرَج' } : s));
-    this.actionMessage.set('تم الإفراج اليدوي عن الضمان');
-  }
-
-  refundClient() {
-    const item = this.selected();
-    if (!item) return;
-    this.selected.update((s) => (s ? { ...s, escrow: 'مُسترَد', status: 'cancelled' } : s));
-    this.actionMessage.set('تم إعادة المبلغ للطالب');
-  }
-
-  openDispute() {
-    const item = this.selected();
-    if (!item) return;
-    this.selected.update((s) => (s ? { ...s, status: 'dispute' } : s));
-    this.actionMessage.set('تم فتح نزاع يدوياً على هذا العقد');
-    this.pushLog('فتح نزاع يدوياً من قبل الإدارة', '#FF6B6B');
-  }
-
-  messageParties() {
-    const item = this.selected();
-    if (!item) return;
-    this.actionMessage.set('تم إرسال رسالة إلى طرفي العقد');
-    this.pushLog('إرسال رسالة إدارية إلى الطرفين', '#5DA0FF');
-  }
-
-  extendContract() {
-    const item = this.selected();
-    if (!item) return;
-    const newDeadline = this.addDays(item.deadline, 7);
-    this.selected.update((s) => (s ? { ...s, deadline: newDeadline } : s));
-    this.actionMessage.set('تم تمديد الموعد النهائي للعقد 7 أيام');
-    this.pushLog('تمديد الموعد النهائي للعقد 7 أيام بقرار إداري', '#FFB400');
-  }
-
-  cancelContract() {
-    const item = this.selected();
-    if (!item) return;
-    this.selected.update((s) => (s ? { ...s, status: 'cancelled' } : s));
-    this.actionMessage.set('تم إلغاء العقد من قبل الإدارة');
-    this.pushLog('إلغاء العقد بقرار إداري', '#6B7699');
-  }
-
-  private pushLog(text: string, color: string) {
-    const entry: ContractLogEntry = { text, time: 'الآن', color };
-    const item = this.selected();
-    if (!item) return;
-    this.selected.update((s) => (s ? { ...s, log: [entry, ...s.log] } : s));
-  }
-
-  private addDays(dateStr: string, days: number): string {
-    const d = new Date(dateStr);
-    d.setDate(d.getDate() + days);
-    return d.toISOString().slice(0, 10);
   }
 }

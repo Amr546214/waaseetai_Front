@@ -2,19 +2,30 @@ import { Component, OnInit, Signal, WritableSignal, computed, inject, signal, Ho
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { SaNotifyModal } from '../sa-notify-modal';
 import { SaUsersService, AdminUser, AdminUsersStats, AdminUsersQueryParams } from './sa-users.service';
 
 @Component({
   selector: 'app-sa-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SaNotifyModal],
   templateUrl: './sa-users.html',
   styleUrl: './sa-users.css'
 })
 export class SaUsers implements OnInit {
   private usersService = inject(SaUsersService);
+  private authStore = inject(AuthStore);
+
+  /** Permanent delete is a SUPER_ADMIN-only action on the server; the control is hidden for other admins. */
+  readonly isSuperAdmin = computed(() => this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN);
+  toast = signal<{ text: string; kind: 'ok' | 'err' } | null>(null);
+  loadError = signal('');
+  notifyTarget = signal<AdminUser | null>(null);
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Reactive State Signals
   selectedAccountType = signal<string>('all');
@@ -54,7 +65,7 @@ export class SaUsers implements OnInit {
     'pr-ind':    ['المستخدم','الحالة','آخر نشاط','القيمة المالية','التقييم','المستوى','التخصص','المشاريع الجارية','إجمالي الإيرادات','إجراءات'],
     'pr-co':     ['الشركة','الحالة','آخر نشاط','القيمة المالية','عدد المقدمين','التخصصات','المشاريع الجارية','إجمالي الإيرادات','إجراءات'],
     'affiliate': ['المستخدم','الحالة','آخر نشاط','القيمة المالية (عمولات)','المستوى','إجمالي الإحالات','هذا الشهر','نسبة التحويل','إجراءات'],
-    'admin':     ['المستخدم','الحالة','آخر دخول','الدور','الصلاحيات','مهام جارية','مهام مكتملة','آخر إجراء','إجراءات']
+    'admin':     ['المستخدم','الحالة','آخر دخول','الدور','الدور النشط','مهام جارية','مهام مكتملة','آخر إجراء','إجراءات']
   };
 
   get currentCols() {
@@ -165,6 +176,7 @@ export class SaUsers implements OnInit {
 
   fetchUsers() {
     this.loading.set(true);
+    this.loadError.set('');
     const params: AdminUsersQueryParams = {
       page: this.currentPage(),
       limit: this.limit(),
@@ -187,7 +199,7 @@ export class SaUsers implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Failed to fetch users:', err);
+        this.loadError.set(err?.error?.message || 'تعذر تحميل المستخدمين، حاول مرة أخرى');
         this.loading.set(false);
       }
     });
@@ -236,17 +248,46 @@ export class SaUsers implements OnInit {
     }
   }
 
+  // ── status change: always through a confirmation; suspending needs a written reason (the server refuses without one)
+  statusTarget = signal<AdminUser | null>(null);
+  statusReason = signal('');
+  statusBusy = signal(false);
+  statusError = signal('');
+
   toggleStatus(user: AdminUser) {
-    const newStatus = user.status === 'active' ? 'SUSPENDED' : 'ACTIVE';
-    this.usersService.updateUserStatus(user.id, newStatus).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.fetchUsers();
-          this.fetchStats();
-        }
+    this.closeDropdowns();
+    this.statusTarget.set(user);
+    this.statusReason.set('');
+    this.statusError.set('');
+  }
+
+  closeStatusModal() { if (!this.statusBusy()) this.statusTarget.set(null); }
+
+  get statusWillSuspend(): boolean { return this.statusTarget()?.status === 'active'; }
+
+  confirmStatus() {
+    const user = this.statusTarget();
+    if (!user || this.statusBusy()) return;
+    const suspend = user.status === 'active';
+    const reason = this.statusReason().trim();
+    if (suspend && reason.length < 3) { this.statusError.set('سبب الإيقاف مطلوب (3 أحرف على الأقل)'); return; }
+    this.statusBusy.set(true);
+    this.usersService.updateUserStatus(user.id, suspend ? 'SUSPENDED' : 'ACTIVE', suspend ? reason : undefined).subscribe({
+      next: () => {
+        this.statusBusy.set(false);
+        this.statusTarget.set(null);
+        this.showToast(suspend ? 'تم إيقاف الحساب وتسجيل الإجراء في سجل التدقيق' : 'تم تفعيل الحساب وتسجيل الإجراء في سجل التدقيق', 'ok');
+        this.fetchUsers();
+        this.fetchStats();
       },
-      error: (err) => console.error('Failed to update status:', err)
+      error: (err) => { this.statusBusy.set(false); this.statusError.set(err?.error?.message || 'تعذر تغيير حالة الحساب'); }
     });
+  }
+
+  showToast(text: string, kind: 'ok' | 'err') {
+    this.toast.set({ text, kind });
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
   }
 
   isDeleteModalOpen = signal<boolean>(false);
@@ -270,14 +311,14 @@ export class SaUsers implements OnInit {
     this.usersService.deleteUser(user.id).subscribe({
       next: (res) => {
         if (res.success) {
+          this.showToast('تم حذف الحساب', 'ok');
           this.fetchUsers();
           this.fetchStats();
           this.closeDeleteModal();
         }
       },
       error: (err) => {
-        console.error('Failed to delete user:', err);
-        alert('حدث خطأ أثناء محاولة حذف الحساب. قد لا تملك الصلاحية الكافية.');
+        this.showToast(err?.error?.message || 'تعذر حذف الحساب. قد لا تملك الصلاحية الكافية.', 'err');
         this.closeDeleteModal();
       }
     });
@@ -308,6 +349,17 @@ export class SaUsers implements OnInit {
       joinedDate: this.selectedJoinedDate(),
       lastActive: this.selectedLastActive()
     };
-    this.usersService.downloadCsv(params);
+    this.usersService.downloadCsv(params).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'users-export.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.showToast('تم تنزيل ملف المستخدمين', 'ok');
+      },
+      error: (err) => this.showToast(err?.error?.message || 'تعذر تصدير الملف', 'err')
+    });
   }
 }

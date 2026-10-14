@@ -1,0 +1,69 @@
+<section class="ma-page" dir="rtl">
+  <div class="ma-hdr">
+    <div>
+      <h1 class="ma-ttl">المواد التسويقية</h1>
+      <p class="ma-sub">مواد يديرها فريق الإدارة (صور، فيديو، مستندات، روابط، نصوص) وتظهر للوسطاء عند تفعيلها.</p>
+    </div>
+    <button type="button" class="ma-btn ma-btn-pri" [disabled]="!storageReady()" (click)="openForm()">إضافة مادة</button>
+  </div>
+
+  @if (!storageReady()) { <div class="ma-notice err" role="status" data-testid="assets-storage-pending">مخزن المواد التسويقية لم يُفعَّل بعد على الخادم، لذلك القائمة فارغة وإضافة المواد معطّلة إلى حين تطبيق تحديث قاعدة البيانات.</div> }
+  @if (notice()) { <div class="ma-notice" [class.err]="noticeIsError()" role="status">{{ notice() }}</div> }
+
+  <div class="ma-filters">
+    <ws-select class="ma-ws" ariaLabel="النوع" [options]="kindFilterOptions" [ngModel]="kindFilter()" (ngModelChange)="kindFilter.set($event); load()"></ws-select>
+    <ws-select class="ma-ws" ariaLabel="الحالة" [options]="activeFilterOptions" [ngModel]="activeFilter()" (ngModelChange)="activeFilter.set($event); load()"></ws-select>
+    <input class="ma-in" type="search" placeholder="بحث بالعنوان" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="load()" />
+    <button type="button" class="ma-btn" (click)="load()">بحث</button>
+  </div>
+
+  @if (loading()) {
+    <div class="ma-card" role="status">جارٍ التحميل…</div>
+  } @else if (loadError()) {
+    <div class="ma-card ma-err" role="alert">{{ loadError() }} <button type="button" class="ma-btn" (click)="load()">إعادة المحاولة</button></div>
+  } @else if (!items().length) {
+    <div class="ma-card">لا توجد مواد تسويقية بعد. استخدم «إضافة مادة» لرفع أول مادة.</div>
+  } @else {
+    <div class="ma-list">
+      @for (a of items(); track a.id) {
+        <div class="ma-item" [class.off]="!a.active">
+          <div class="ma-item-main">
+            <div class="ma-item-ttl">{{ a.title }} <span class="ma-tag">{{ kindLabels[a.kind] }}</span> <span class="ma-tag" [class.on]="a.active">{{ a.active ? 'مفعّل' : 'معطّل' }}</span></div>
+            @if (a.description) { <div class="ma-item-desc">{{ a.description }}</div> }
+            @if (a.kind === 'LINK' && a.linkUrl) { <a class="ma-link" [href]="a.linkUrl" target="_blank" rel="noopener noreferrer">{{ a.linkUrl }}</a> }
+            @if (a.kind === 'TEXT' && a.text) { <div class="ma-item-desc ma-text">{{ a.text }}</div> }
+            @if (a.fileUrl) { <a class="ma-link" [href]="a.fileUrl" target="_blank" rel="noopener noreferrer" download>{{ a.fileName || 'تنزيل الملف' }}</a> }
+          </div>
+          <button type="button" class="ma-btn" [disabled]="busyId() === a.id" (click)="toggle(a)">{{ a.active ? 'تعطيل' : 'تفعيل' }}</button>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+@if (showForm()) {
+  <div class="ma-overlay" role="dialog" aria-modal="true" aria-label="إضافة مادة تسويقية">
+    <div class="ma-modal">
+      <h2 class="ma-modal-ttl">إضافة مادة تسويقية</h2>
+      <label class="ma-lbl">العنوان<input class="ma-in" name="title" [(ngModel)]="title" maxlength="150" /></label>
+      <label class="ma-lbl">الوصف (اختياري)<input class="ma-in" name="description" [(ngModel)]="description" maxlength="1000" /></label>
+      <label class="ma-lbl">النوع
+        <ws-select ariaLabel="النوع" [options]="kindOptions" [(ngModel)]="kind" name="kind" (ngModelChange)="onKindChange()"></ws-select>
+      </label>
+      @if (needsFile) {
+        <label class="ma-lbl">الملف (حتى 25 ميغابايت)<input class="ma-in" type="file" [accept]="accept" (change)="onFile($event)" /></label>
+      }
+      @if (kind === 'LINK') { <label class="ma-lbl">الرابط<input class="ma-in" style="direction:ltr" name="linkUrl" [(ngModel)]="linkUrl" placeholder="https://" /></label> }
+      @if (kind === 'TEXT') { <label class="ma-lbl">النص<textarea class="ma-in" rows="5" name="text" [(ngModel)]="text" maxlength="20000"></textarea></label> }
+      <label class="ma-lbl">الجمهور
+        <ws-select ariaLabel="الجمهور" [options]="audienceOptions" [(ngModel)]="audience" name="audience"></ws-select>
+      </label>
+      <label class="ma-lbl">الترتيب<input class="ma-in" type="number" min="0" name="sortOrder" [(ngModel)]="sortOrder" /></label>
+      @if (formError()) { <div class="ma-err" role="alert">{{ formError() }}</div> }
+      <div class="ma-actions">
+        <button type="button" class="ma-btn" (click)="closeForm()" [disabled]="saving()">إلغاء</button>
+        <button type="button" class="ma-btn ma-btn-pri" (click)="submit()" [disabled]="saving()">{{ saving() ? 'جارٍ الرفع…' : 'إضافة' }}</button>
+      </div>
+    </div>
+  </div>
+}

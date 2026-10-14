@@ -2,3 +2,9 @@
 .sac-detail-crumb a{color:#A8B2D1;font-size:13px;text-decoration:none}
 .sac-detail-crumb a:hover{color:#2BD4C7}
 .sac-detail-box{max-width:900px;max-height:none;overflow:visible;margin:0 auto}
+.sac-sample { align-items: flex-start; justify-content: space-between; gap: 10px; }
+.sac-sample-body { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.sac-sample-body strong { color: #fff; font-size: 13px; }
+.sac-sample-meta { font-size: 11px; color: #6B7699; }
+.sac-pending-link { text-decoration: none; }
+.sac-decision { flex-wrap: wrap; }

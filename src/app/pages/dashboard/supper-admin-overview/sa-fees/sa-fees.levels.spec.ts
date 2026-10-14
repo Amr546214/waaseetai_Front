@@ -4,6 +4,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SaFees } from './sa-fees';
+import { of } from 'rxjs';
+import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { LevelsService, LevelsPayload, LevelRow } from '../../../../core/levels/levels.service';
 
 const row = (level: number, name: string, percent: number): LevelRow => ({ level, name, percent, station: 1, color: { dark: '#000000', light: '#FFFFFF' }, thresholds: { points: 0 } });
@@ -18,7 +20,7 @@ const payload = {
 
 describe('admin fees page: the official percentages (نظام النقاط و الولاء.xlsx / نسب الدفع.xlsx), read-only', () => {
 	const mount = (p: LevelsPayload | null) => {
-		TestBed.configureTestingModule({ imports: [SaFees], providers: [{ provide: LevelsService, useValue: { payload: signal(p), ensureLoaded: () => undefined } }] });
+		TestBed.configureTestingModule({ imports: [SaFees], providers: [{ provide: LevelsService, useValue: { payload: signal(p), ensureLoaded: () => undefined } }, { provide: AdminOpsApiService, useValue: { financeCommissions: () => of({ success: true, data: { currency: 'USD', totals: { releasedGross: 0, platformCommission: 0, providerNet: 0 }, affiliate: {}, items: [], pagination: { page: 1, limit: 1, total: 0, pages: 0, totalPages: 0 } } }) } }] });
 		const f = TestBed.createComponent(SaFees);
 		f.detectChanges();
 		return { el: f.nativeElement as HTMLElement, c: f.componentInstance };

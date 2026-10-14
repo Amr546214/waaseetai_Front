@@ -162,3 +162,5 @@
 :host-context(.theme-light) .fgf-foot {
   border-top-color:#E7EAF1!important;color:#64748B!important
 }
+
+.fgf-btn:disabled{opacity:.5;cursor:not-allowed}

@@ -14,7 +14,7 @@ import { ACCOUNT_NOT_ACTIVE_CODE, accountBlockedText } from './account-state';
 // destination must resolve to one of these (see resolveNotificationTarget()/
 // isSafeInternalUrl()). Never invented: each is a real top-level route
 // section already registered for its account type.
-export type NotificationBasePath = '/provider-overview' | '/client-overview' | '/marketer-overview';
+export type NotificationBasePath = '/provider-overview' | '/client-overview' | '/marketer-overview' | '/supper-admin-overview';
 
 export interface NotificationEvent {
 	id?: string;
@@ -191,7 +191,7 @@ export class NotificationEngineService implements OnDestroy {
 		security: NotificationEngineService.ICON_GENERAL,
 	};
 
-	private static readonly SAFE_BASE_PATHS: NotificationBasePath[] = ['/provider-overview', '/client-overview', '/marketer-overview'];
+	private static readonly SAFE_BASE_PATHS: NotificationBasePath[] = ['/provider-overview', '/client-overview', '/marketer-overview', '/supper-admin-overview'];
 
 	unreadCount = signal<number>(0);
 	latestNotification = signal<NotificationEvent | null>(null);

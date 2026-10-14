@@ -29,6 +29,7 @@ export class SaRiskCenter implements OnInit {
   private api = inject(AdminSecurityApiService);
 
   readonly isLoading = signal<boolean>(true);
+  readonly loadError = signal<boolean>(false);
   readonly flaggedAccounts = signal<FlaggedAccountItem[]>([]);
 
   readonly kpis = computed(() => {
@@ -40,6 +41,12 @@ export class SaRiskCenter implements OnInit {
   });
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.isLoading.set(true);
+    this.loadError.set(false);
     this.api.getFlaggedAccounts().subscribe({
       next: (res) => {
         if (res.success && Array.isArray(res.data)) {
@@ -48,9 +55,21 @@ export class SaRiskCenter implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
+        this.loadError.set(true);
         this.isLoading.set(false);
       },
     });
+  }
+
+  readonly accountTypeLabels: Record<string, string> = {
+    CLIENT: 'طالب خدمة',
+    PROVIDER_INDIVIDUAL: 'مقدم خدمة (فرد)',
+    PROVIDER_COMPANY: 'مقدم خدمة (شركة)',
+    AFFILIATE: 'وسيط تسويقي',
+  };
+
+  accountTypeLabel(type: string): string {
+    return this.accountTypeLabels[type] || type;
   }
 
   statusLabel(status: string): string {

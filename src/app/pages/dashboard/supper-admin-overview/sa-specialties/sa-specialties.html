@@ -5,10 +5,10 @@
 		<div>
 			<h1 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">التخصصات المتاحة</h1>
 			<p class="text-sm text-slate-500 dark:text-slate-400 mt-1">التخصصات التي يمكن لمقدمي الخدمة التقدم لاعتمادها
-				في وسيط AI</p>
+				في المنصة</p>
 		</div>
 		<div class="flex gap-2">
-			<button (click)="importCatalog()" [disabled]="isImporting()"
+			<button (click)="promptImportCatalog()" [disabled]="isImporting()"
 				class="inline-flex items-center gap-2 cursor-pointer px-4 py-2 bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
 				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 					stroke-linecap="round" stroke-linejoin="round">
@@ -111,12 +111,17 @@
 						<polyline points="20 6 9 17 4 12" />
 					</svg>
 				</div>
-				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">طلبات اعتماد هذا الشهر</span>
+				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">طلبات اعتماد بانتظار المراجعة</span>
 			</div>
-			<div class="text-3xl font-black text-[#FFB400]">{{ stats().monthlyAccreditationRequests | number }}</div>
-			<div class="text-xs font-bold text-[#0FA99A] mt-2">طلبات هذا الشهر</div>
+			<div class="text-3xl font-black text-[#FFB400]" data-testid="pending-review-count">{{ pendingReviewCount() === null ? '—' : pendingReviewCount() }}</div>
+			<a routerLink="/supper-admin-overview/specialties-accreditation" class="text-xs font-bold text-[#0FA99A] mt-2 inline-block">مراجعة الطلبات</a>
 		</div>
 	</div>
+
+	@if (statsError()) {
+		<div class="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold" data-testid="stats-error">{{ statsError() }}
+			<button type="button" (click)="loadStats()" class="underline font-bold mr-2 cursor-pointer">إعادة المحاولة</button></div>
+	}
 
 	<!-- Search -->
 	<div class="mb-6 relative">
@@ -132,6 +137,9 @@
 
 	<!-- Categories and Specialties -->
 	<div class="flex-1 overflow-auto pr-1 custom-scrollbar">
+		<div *ngIf="treeError()" class="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold" data-testid="tree-error">{{ treeError() }}
+			<button type="button" (click)="loadTree(searchQuery())" class="underline font-bold mr-2 cursor-pointer">إعادة المحاولة</button></div>
+		<div *ngIf="treeLoading() && filteredCategories().length === 0" class="py-10 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">جاري تحميل الأقسام والتخصصات...</div>
 		<ng-container *ngIf="filteredCategories().length > 0; else noResults">
 			<div *ngFor="let cat of filteredCategories()" class="mb-8 bg-white/40 dark:bg-[#131B36]/40 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800/40">
 				<!-- Category Header -->
@@ -222,7 +230,7 @@
 						<div class="flex gap-4 mb-4">
 							<div class="text-xs text-slate-500 dark:text-slate-400">مقدمون: <span
 									class="font-bold text-slate-700 dark:text-slate-300">{{ s.providersCount }}</span></div>
-							<div class="text-xs text-slate-500 dark:text-slate-400">طلبات/شهر: <span
+							<div class="text-xs text-slate-500 dark:text-slate-400">طلبات اعتماد: <span
 									class="font-bold text-slate-700 dark:text-slate-300">{{ s.monthlyRequests }}</span></div>
 						</div>
 
@@ -262,7 +270,7 @@
 			</div>
 		</ng-container>
 		<ng-template #noResults>
-			<div class="py-16 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
+			<div *ngIf="!treeLoading() && !treeError()" class="py-16 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
 				<svg class="w-12 h-12 mb-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="1.5">
 					<circle cx="11" cy="11" r="8" />
@@ -384,10 +392,11 @@
 				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">
 				إلغاء
 			</button>
-			<button type="button" (click)="executeConfirmAction()" [disabled]="isConfirmLoading()"
-				class="px-5 py-2 bg-gradient-to-r from-red-500 to-rose-600 hover:opacity-90 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-red-500/25 cursor-pointer flex items-center gap-2">
+			<button type="button" (click)="executeConfirmAction()" [disabled]="isConfirmLoading()" data-testid="confirm-action"
+				class="px-5 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-red-500/25 cursor-pointer flex items-center gap-2 hover:opacity-90"
+				[style.background]="confirmDanger() ? null : 'linear-gradient(90deg,#0FA99A,#2B7FFF)'">
 				<svg *ngIf="isConfirmLoading()" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
-				<span>{{ isConfirmLoading() ? 'جاري الحذف...' : 'تأكيد الحذف' }}</span>
+				<span>{{ isConfirmLoading() ? confirmBusyLabel() : confirmButtonLabel() }}</span>
 			</button>
 		</div>
 	</div>

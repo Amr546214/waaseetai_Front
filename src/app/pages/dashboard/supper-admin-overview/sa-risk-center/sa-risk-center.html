@@ -23,12 +23,14 @@
       <div class="rc-card-ttl"><svg><use href="#rc-i-warn"></use></svg>الحسابات الموقوفة</div>
       @if (isLoading()) {
         <div class="rc-risk-item">جاري التحميل...</div>
+      } @else if (loadError()) {
+        <div class="rc-risk-item">تعذر تحميل الحسابات الموقوفة <button type="button" (click)="load()">إعادة المحاولة</button></div>
       } @else {
         @for (a of flaggedAccounts(); track a.userId) {
           <div class="rc-risk-item">
             <div class="rc-risk-body">
-              <div class="rc-risk-name">{{ a.name }}</div>
-              <div class="rc-risk-meta">{{ a.accountType }} &middot; {{ statusLabel(a.status) }}</div>
+              <div class="rc-risk-name"><a [routerLink]="['/supper-admin-overview/users', a.userId]">{{ a.name }}</a></div>
+              <div class="rc-risk-meta">{{ accountTypeLabel(a.accountType) }} &middot; {{ statusLabel(a.status) }}</div>
               <div class="rc-risk-reasons">
                 @if (a.openDisputesAgainst > 0) {
                   <span class="rc-rr" style="background:rgba(255,107,107,.12);color:#FF6B6B">{{ a.openDisputesAgainst }} نزاع مفتوح ضده</span>

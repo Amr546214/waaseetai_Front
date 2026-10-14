@@ -256,3 +256,6 @@
 :host-context(.theme-light) .fii-foot {
   border-top-color:#E7EAF1!important;color:#64748B!important
 }
+
+.fii-btn:disabled{opacity:.5;cursor:not-allowed}
+.fii-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}

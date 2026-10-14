@@ -234,3 +234,6 @@
 :host-context(.theme-light) .fd-toast {
   box-shadow:0 10px 30px rgba(15,23,42,.15)!important
 }
+.fd-btn:disabled{opacity:.5;cursor:not-allowed}
+.fd-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+@media print{.fd-actions{display:none}}

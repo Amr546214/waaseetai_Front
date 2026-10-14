@@ -2,83 +2,17 @@
   <div class="fgf-hdr">
     <div>
       <h1 class="fgf-ttl">الرسوم الحكومية</h1>
-      <p class="fgf-sub">إدارة إقرارات الرسوم الحكومية — تجهيز فوترة مستقبلية غير مفعّلة في V1 — وإقرارات الالتزامات الحكومية المستقبلية</p>
+      <p class="fgf-sub">لا توجد بيانات رسوم حكومية في المنصة</p>
     </div>
     <div class="fgf-actions">
-      <button type="button" class="fgf-btn fgf-btn-ghost" (click)="exportDeclaration()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        تصدير الإقرار
-      </button>
-      <button type="button" class="fgf-btn fgf-btn-primary" (click)="prepareFutureBilling()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        تجهيز الفوترة المستقبلية
-      </button>
+      <button type="button" class="fgf-btn fgf-btn-ghost" disabled [attr.title]="emptyReason">تصدير الإقرار</button>
     </div>
   </div>
 
-  @if (toast()) {
-    <div class="fgf-toast">{{ toast() }}</div>
-  }
-
-  <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">متابعة الالتزامات الحكومية: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
-
-  <div class="fgf-kpi-grid">
-    <div class="fgf-kpi-card">
-      <div class="fgf-kpi-top"><div class="fgf-kpi-ic ic-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="fgf-kpi-lbl">إجمالي الالتزامات المقدَّرة</span></div>
-      <div class="fgf-kpi-val txt-teal">1.24M</div>
-      <div class="fgf-kpi-unit">دولار — هذه السنة</div>
-      <div class="fgf-kpi-sub txt-muted">غير مفعّل في V1</div>
-    </div>
-    <div class="fgf-kpi-card">
-      <div class="fgf-kpi-top"><div class="fgf-kpi-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="fgf-kpi-lbl">المسدَّد فعلياً</span></div>
-      <div class="fgf-kpi-val txt-green">1.18M</div>
-      <div class="fgf-kpi-unit">دولار</div>
-      <div class="fgf-kpi-sub txt-muted">غير مفعّل في V1</div>
-    </div>
-    <div class="fgf-kpi-card">
-      <div class="fgf-kpi-top"><div class="fgf-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="fgf-kpi-lbl">مستحقة الدفع</span></div>
-      <div class="fgf-kpi-val txt-amber">64k</div>
-      <div class="fgf-kpi-unit">دولار</div>
-      <div class="fgf-kpi-sub txt-amber-dk">موعد الاستحقاق: 31 يوليو</div>
-    </div>
-    <div class="fgf-kpi-card">
-      <div class="fgf-kpi-top"><div class="fgf-kpi-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="fgf-kpi-lbl">معدل الامتثال</span></div>
-      <div class="fgf-kpi-val txt-blue">100%</div>
-      <div class="fgf-kpi-unit">من الإقرارات</div>
-      <div class="fgf-kpi-sub txt-green">لا مخالفات</div>
+  <div class="ws-note ws-note--neutral" role="status" data-testid="sf-empty">
+    <div class="ws-note-body">
+      <div class="ws-note-lbl">{{ emptyTitle }}</div>
+      <p class="ws-note-txt" data-testid="sf-empty-reason">{{ emptyReason }}</p>
     </div>
   </div>
-
-  <div class="fgf-info-grid">
-    <div class="fgf-info-card">
-      <div class="fgf-info-ttl txt-teal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        جاهزية الرسوم الحكومية المستقبلية — غير مفعّلة في V1
-      </div>
-      @for (r of readinessRows; track r.label) {
-        <div class="fgf-info-row">
-          <span class="fgf-info-lbl">{{ r.label }}</span>
-          <span class="fgf-info-val" [style.color]="r.color" [style.font-size.px]="r.label.includes('إجمالي الالتزامات') ? 16 : null">{{ r.value }}</span>
-        </div>
-      }
-    </div>
-    <div class="fgf-info-card">
-      <div class="fgf-info-ttl txt-amber">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        التزامات الشركة الحكومية المستقبلية — السنة المالية 2025
-      </div>
-      @for (r of obligationRows; track r.label) {
-        <div class="fgf-info-row">
-          <span class="fgf-info-lbl">{{ r.label }}</span>
-          @if (r.isLink) {
-            <a href="javascript:void(0)" class="fgf-info-link" (click)="exportDeclaration()">{{ r.value }}</a>
-          } @else {
-            <span class="fgf-info-val" [style.color]="r.color">{{ r.value }}</span>
-          }
-        </div>
-      }
-    </div>
-  </div>
-
-  <div class="fgf-foot"><span>© 2026 وسيط AI · نظام الرسوم الحكومية</span><span>تكامل مستقبلي غير مفعّل في V1</span></div>
 </section>

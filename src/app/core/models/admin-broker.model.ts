@@ -12,6 +12,8 @@ export interface AdminBrokerListItem {
   email: string;
   referralSlug: string | null;
   level: string;
+  levelNumber?: number;
+  commissionPercent?: number;
   status: BrokerUserStatus;
   joinedAt: string;
   totalReferrals: number;
@@ -56,6 +58,7 @@ export interface AdminBrokerDetail extends AdminBrokerListItem {
   channelMetrics: AdminBrokerChannelMetric[];
   customLinks: AdminBrokerCustomLink[];
   recentCommissions: AdminBrokerRecentCommission[];
+  monthlyCommissions?: { month: string; approved: number; pending: number }[];
 }
 
 export interface AdminBrokerPagination {

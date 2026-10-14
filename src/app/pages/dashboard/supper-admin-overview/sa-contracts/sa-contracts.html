@@ -2,7 +2,7 @@
   <div class="ct-hdr">
     <div>
       <h1 class="ct-ttl">العقود</h1>
-      <p class="ct-sub">كل عقود وسيط AI بين طالبي ومقدمي الخدمة، مع الضمان المرتبط</p>
+      <p class="ct-sub">كل العقود بين طالبي ومقدمي الخدمة، مع الضمان المرتبط، من بيانات النظام</p>
     </div>
   </div>
 
@@ -10,57 +10,79 @@
     <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">وسيط — العقود</div>
-      <p class="ws-note-txt">تُعرض بيانات جميع العقود والضمانات المرتبطة بها لمراجعتها يدوياً</p>
+      <p class="ws-note-txt">عرض للقراءة فقط. تنتقل الأموال عند اعتماد العميل للمراحل فقط.</p>
     </div>
   </div>
 
   <div class="ct-kpi-grid">
-    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود نشطة</span><div class="ct-kpi-val txt-blue">{{ stats().active }}</div></div>
-    <div class="ct-kpi"><span class="ct-kpi-lbl">محتجز في الضمان</span><div class="ct-kpi-val txt-green">{{ stats().escrowTotal | number }}<span class="ct-kpi-unit">$</span></div></div>
-    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود متنازع عليها</span><div class="ct-kpi-val txt-coral">{{ stats().disputes }}</div></div>
-    <div class="ct-kpi"><span class="ct-kpi-lbl">مكتملة</span><div class="ct-kpi-val txt-teal">{{ stats().completed }}</div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود نشطة</span><div class="ct-kpi-val txt-blue">{{ data() ? (counts()['ACTIVE'] ?? 0) : '-' }}</div></div>
+    <div class="ct-kpi">
+      <span class="ct-kpi-lbl">قيمة العقود النشطة</span>
+      <div class="ct-kpi-val txt-green">@if (data(); as d) { {{ d.kpis.activeContractsValue | number }}<span class="ct-kpi-unit">$</span> } @else { - }</div>
+    </div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">عقود متنازع عليها</span><div class="ct-kpi-val txt-coral">{{ data() ? (counts()['DISPUTED'] ?? 0) : '-' }}</div></div>
+    <div class="ct-kpi"><span class="ct-kpi-lbl">مكتملة</span><div class="ct-kpi-val txt-teal">{{ data() ? (counts()['COMPLETED'] ?? 0) : '-' }}</div></div>
   </div>
 
   <div class="ct-tabs">
     @for (f of filters; track f.key) {
       <button type="button" class="ct-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
-        {{ f.label }}<span class="ct-tab-count">{{ counts()[f.key] }}</span>
+        {{ f.label }}<span class="ct-tab-count">{{ data() ? count(f.key) : '-' }}</span>
       </button>
     }
   </div>
 
   <div class="ct-search">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="search" placeholder="ابحث برقم العقد أو اسم أحد الطرفين..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
+    <input type="search" placeholder="ابحث بعنوان المشروع أو اسم أحد الطرفين..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
   </div>
 
-  @if (filtered().length === 0) {
+  @if (loading() && !data()) {
+    <div class="ct-empty"><p>جارٍ تحميل العقود...</p></div>
+  } @else if (error()) {
+    <div class="ct-empty">
+      <p>تعذّر تحميل العقود</p>
+      <button type="button" class="ct-btn ct-btn-ghost" (click)="load()">إعادة المحاولة</button>
+    </div>
+  } @else if (rows().length === 0) {
     <div class="ct-empty"><p>لا توجد عقود مطابقة</p></div>
   } @else {
-    <div class="ct-tbl-card">
+    <div class="ct-tbl-card" [style.opacity]="loading() ? 0.6 : 1">
       <div class="ct-tbl-wrap">
         <table class="ct-tbl">
           <thead>
             <tr>
-              <th>#</th><th>طالب الخدمة</th><th>مقدم الخدمة</th><th>الوصف</th><th>قيمة العقد</th><th>الضمان</th><th>الموعد النهائي</th><th>الحالة</th>
+              <th>#</th><th>طالب الخدمة</th><th>مقدم الخدمة</th><th>المشروع</th><th>قيمة العقد</th><th>الضمان</th><th>المدة</th><th>الحالة</th>
             </tr>
           </thead>
           <tbody>
-            @for (c of filtered(); track c.id) {
+            @for (c of rows(); track c.id) {
               <tr [routerLink]="[c.id]">
-                <td class="ct-muted">{{ c.id }}</td>
-                <td><div class="ct-u-cell"><div class="ct-u-av" [style.background]="c.cBg">{{ c.cAv }}</div><span>{{ c.client }}</span></div></td>
-                <td><div class="ct-u-cell"><div class="ct-u-av" [style.background]="c.pBg">{{ c.pAv }}</div><span>{{ c.provider }}</span></div></td>
-                <td class="ct-desc-cell">{{ c.desc }}</td>
-                <td class="ct-value">{{ c.value }}</td>
-                <td><span class="ct-escrow" [ngClass]="escrowClasses[c.escrow]">{{ c.escrow }}</span></td>
-                <td [class.ct-late-text]="c.status === 'dispute'">{{ c.deadline }}</td>
-                <td><span class="ct-status" [ngClass]="statusClasses[c.status]">{{ statusLabels[c.status] }}</span></td>
+                <td class="ct-muted">{{ c.id.slice(0, 8) }}</td>
+                <td>@if (c.client; as u) { <div class="ct-u-cell"><div class="ct-u-av">{{ initials(u.name) }}</div><span>{{ u.name }}</span></div> } @else { <span class="ct-muted">-</span> }</td>
+                <td>@if (c.provider; as u) { <div class="ct-u-cell"><div class="ct-u-av">{{ initials(u.name) }}</div><span>{{ u.name }}</span></div> } @else { <span class="ct-muted">-</span> }</td>
+                <td class="ct-desc-cell">{{ c.projectTitle }}</td>
+                <td class="ct-value">{{ c.price | number }} $</td>
+                <td>
+                  @if (c.escrow; as e) {
+                    <span class="ct-escrow" [ngClass]="escrowClasses[e.status]">{{ escrowLabels[e.status] }}</span>
+                  } @else { <span class="ct-muted">-</span> }
+                </td>
+                <td>{{ c.durationDays }} يوم</td>
+                <td><span class="ct-status" [ngClass]="statusClasses[c.status] || 'ct-st-cancelled'">{{ statusLabels[c.status] || c.status }}</span></td>
               </tr>
             }
           </tbody>
         </table>
       </div>
     </div>
+
+    @if (pages() > 1) {
+      <div class="ct-pager">
+        <button type="button" class="ct-btn ct-btn-ghost" [disabled]="page() <= 1 || loading()" (click)="goTo(page() - 1)">السابق</button>
+        <span>صفحة {{ page() }} من {{ pages() }}</span>
+        <button type="button" class="ct-btn ct-btn-ghost" [disabled]="page() >= pages() || loading()" (click)="goTo(page() + 1)">التالي</button>
+      </div>
+    }
   }
 </section>

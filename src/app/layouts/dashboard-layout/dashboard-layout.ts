@@ -2,6 +2,7 @@ import { Component, computed, inject, signal, effect, AfterViewInit, OnInit, OnD
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AuthStore } from '../../core/store/auth.store';
 import { NavDashboard } from '../../sheards/dashboard/nav-dashboard/nav-dashboard';
 import { Sidebar } from '../../sheards/dashboard/sidebar/sidebar';
@@ -31,7 +32,8 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
 
   // App Info
   currentYear = new Date().getFullYear();
-  appVersion = '1.0.0';
+  // Real build value from the active environment file (no hardcoded literal in the component).
+  readonly appVersion = environment.appVersion;
 
   // Responsive Sidebar Toggle
   isSidebarOpen = signal(false);

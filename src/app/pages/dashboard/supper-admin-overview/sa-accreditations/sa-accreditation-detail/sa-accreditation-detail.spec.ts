@@ -108,7 +108,7 @@ describe('SaAccreditationDetail', () => {
     component.submitReject();
     expect(postSpy.mock.calls[0][0]).toContain('/admin/accreditation/samples/sample-1/reject');
     expect(postSpy.mock.calls[0][1]).toEqual({ rejectionReason: 'المستندات غير كافية' });
-    expect(component.actionSuccess()).toBe('تم رفض نموذج الاعتماد');
+    expect(component.actionSuccess()).toBe('تم رفض نموذج الاعتماد وإشعار مقدم الخدمة بالسبب');
   });
 
   it('reject action failure shows an honest error, not a fake success', async () => {
@@ -200,4 +200,70 @@ describe('SaAccreditationDetail — assessment review marks (#20)', () => {
     expect(el.querySelectorAll('[data-testid="review-flag"]').length).toBe(1);
     expect(q(el, 'review-flag')!.getAttribute('data-code')).toBe('UNIFORM_ANSWERS');
   });
+});
+
+// D1: approval needs a confirmation step; nothing invented is shown; labels follow the backend truth.
+describe('SaAccreditationDetail — honesty and confirmation', () => {
+	async function render(sample: Partial<AccreditationSample> = {}, post: any = vi.fn(() => of({ success: true, data: makeSample() }))) {
+		TestBed.configureTestingModule({
+			providers: [
+				provideRouter([{ path: 'accreditations/:id', component: SaAccreditationDetail }]),
+				{ provide: HttpClient, useValue: { get: () => of({ success: true, data: makeSample(sample) }), post } },
+			],
+		});
+		const harness = await RouterTestingHarness.create();
+		const component = await harness.navigateByUrl('/accreditations/sample-1', SaAccreditationDetail);
+		harness.detectChanges();
+		return { harness, component, el: harness.routeNativeElement as HTMLElement, post };
+	}
+	afterEach(() => TestBed.resetTestingModule());
+
+	it('the approve button only opens a confirmation; the POST happens on confirm', async () => {
+		const { harness, component, el, post } = await render();
+		(el.querySelector('[data-testid="approve-btn"]') as HTMLButtonElement).click();
+		harness.detectChanges();
+		expect(post).not.toHaveBeenCalled();
+		expect(el.querySelector('[data-testid="approve-confirm"]')).not.toBeNull();
+		(el.querySelector('[data-testid="approve-confirm-btn"]') as HTMLButtonElement).click();
+		expect(post.mock.calls[0][0]).toContain('/samples/sample-1/approve');
+		expect(component.showApproveConfirm()).toBe(false);
+	});
+
+	it('shows no invented nationality / city / SLA / risk / SAMA / document-verification content', async () => {
+		const { el } = await render();
+		const t = el.textContent || '';
+		for (const bad of ['الجنسية', 'المدينة', 'SLA', 'ساما', 'فحص المخاطر', 'AI Score: 82', 'DOC-']) expect(t).not.toContain(bad);
+	});
+
+	it('links to the provider profile and labels the stored AI result as such', async () => {
+		const { el } = await render();
+		expect(el.querySelector('[data-testid="provider-link"]')!.getAttribute('href')).toContain('/supper-admin-overview/users/u-1');
+		expect(el.querySelector('[data-testid="stored-ai"]')!.textContent).toContain('تقييم AI المخزّن');
+	});
+
+	it('without a stored AI result it says the AI check is off instead of showing a score', async () => {
+		const { el } = await render({ aiScore: null, aiFeedbackAr: null, aiStrengths: [], aiRecommendations: [] });
+		expect(el.querySelector('[data-testid="stored-ai"]')).toBeNull();
+		expect(el.querySelector('[data-testid="no-ai"]')!.textContent).toContain('متوقف');
+	});
+
+	it('status labels: MANUAL_REVIEW is waiting for manual review; AI_VERIFIED is "approved" only when the specialty really is approved', async () => {
+		let { el } = await render({ status: 'MANUAL_REVIEW' });
+		expect(el.querySelector('.acc-ai-pill')!.textContent).toContain('بانتظار المراجعة اليدوية');
+		TestBed.resetTestingModule();
+		({ el } = await render({ status: 'AI_VERIFIED', providerSpecialty: { id: 'ps-1', status: 'PENDING_AUDIT' } as any }));
+		expect(el.querySelector('.acc-ai-pill')!.textContent).toContain('بانتظار قرار الإدارة');
+		TestBed.resetTestingModule();
+		({ el } = await render({ status: 'AI_VERIFIED', providerSpecialty: { id: 'ps-1', status: 'APPROVED' } as any }));
+		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('معتمد');
+	});
+
+	it('the reject confirm button stays disabled until a reason of 2+ chars exists', async () => {
+		const { harness, component, el } = await render();
+		component.openRejectForm(); harness.detectChanges();
+		const btn = () => Array.from(el.querySelectorAll('.acc-rf-actions button')).find(b => b.textContent!.includes('تأكيد الرفض')) as HTMLButtonElement;
+		expect(btn().disabled).toBe(true);
+		component.rejectionReason.set('سبب'); harness.detectChanges();
+		expect(btn().disabled).toBe(false);
+	});
 });

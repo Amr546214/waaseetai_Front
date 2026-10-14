@@ -1,75 +1,94 @@
-import { Component, computed, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AnomalySummaryComponent } from './anomaly-summary.component';
+import { AdminAuditEntry, AdminConsoleApiService, AdminRosterItem } from '../../../../core/services/admin-console-api.service';
 
-interface AuditEvent {
-  type: string;
-  color: string;
-  bg: string;
-  actor: string;
-  actorColor: string;
-  action: string;
-  detail: string;
-  time: string;
-  /** Real event date (YYYY-MM-DD) used for from/to date-range filtering; `time` is only the human-readable relative label. */
-  date: string;
-  suspicious?: boolean;
-}
+export const AUDIT_SEVERITY_LABELS: Record<string, string> = { INFO: 'معلومة', WARNING: 'تحذير', CRITICAL: 'حرج' };
+export const AUDIT_SOURCE_LABELS: Record<string, string> = { USER: 'المستخدم', ADMIN: 'مسؤول', AI: 'الذكاء الاصطناعي', SYSTEM: 'النظام' };
+const SEV_STYLE: Record<string, { color: string; bg: string }> = {
+  INFO: { color: '#5DA0FF', bg: 'rgba(43,127,255,.12)' },
+  WARNING: { color: '#FFB400', bg: 'rgba(255,180,0,.12)' },
+  CRITICAL: { color: '#FF6B6B', bg: 'rgba(255,107,107,.14)' },
+};
 
+/** Audit trail: real AccountAuditLog rows from GET /admin/console/audit-log (server-side filters + pagination). No sample data. */
 @Component({
   selector: 'app-sa-audit-trail',
   standalone: true,
-  imports: [CommonModule, RouterLink, AnomalySummaryComponent, WsSelectComponent, FormsModule],
+  imports: [CommonModule, RouterLink, AnomalySummaryComponent, FormsModule, WsSelectComponent],
   templateUrl: './sa-audit-trail.html',
   styleUrl: './sa-audit-trail.css',
 })
-export class SaAuditTrail {
-  readonly actionTypes = ['كل العمليات', 'تعديل مستخدم', 'إجراء مالي', 'تغيير إعدادات', 'قبول/رفض', 'تسجيل دخول', '⚠ مشبوه'];
-  readonly employees = ['كل الموظفين', 'مدير النظام', 'هيثم القرني', 'ريم الحربي', 'فهد العتيبي'];
+export class SaAuditTrail implements OnInit {
+  readonly scopeOptions = [{ value: 'admin', label: 'أحداث الإدارة فقط' }, { value: 'all', label: 'كل المنصة' }];
+  eventTypeOptions = computed(() => [{ value: '', label: 'كل الأحداث' }, ...this.eventTypes().map((t) => ({ value: t, label: t }))]);
+  actorOptions = computed(() => [{ value: '', label: 'كل الحسابات الإدارية' }, ...this.admins().map((a) => ({ value: a.id, label: a.name }))]);
+  get severityWsOptions() { return this.severityOptions.map((o) => ({ value: o.v, label: o.l })); }
 
-  readonly typeFilter = signal('كل العمليات');
-  readonly employeeFilter = signal('كل الموظفين');
+  private readonly api = inject(AdminConsoleApiService);
+
+  readonly severityOptions = [{ v: '', l: 'كل المستويات' }, ...Object.entries(AUDIT_SEVERITY_LABELS).map(([v, l]) => ({ v, l }))];
+  readonly sourceLabels = AUDIT_SOURCE_LABELS;
+
+  readonly eventTypeFilter = signal('');
+  readonly severityFilter = signal('');
+  readonly actorFilter = signal('');
+  readonly scope = signal<'admin' | 'all'>('admin');
   readonly searchQuery = signal('');
-  readonly fromDate = signal('2026-08-01');
-  readonly toDate = signal('2026-09-12');
+  readonly fromDate = signal('');
+  readonly toDate = signal('');
+  readonly page = signal(1);
 
-  readonly events = signal<AuditEvent[]>([
-    { type: 'تعديل مستخدم', color: '#5DA0FF', bg: 'rgba(43,127,255,.12)', actor: 'مدير النظام', actorColor: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', action: 'تعليق حساب عبدالرحمن الدوسري (U-00412)', detail: 'سبب: بلاغ احتيال مالي RPT-2026-0483 · IP: 197.32.14.88', time: 'قبل 18 دقيقة', date: '2026-09-12' },
-    { type: 'إجراء مالي', color: '#0FA99A', bg: 'rgba(15,169,154,.12)', actor: 'ريم الحربي', actorColor: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', action: 'الموافقة على طلب سحب TXN-9841 (1,850 $)', detail: 'لنورة السهلي · عبر PayPal · تم التحقق', time: 'قبل 42 دقيقة', date: '2026-09-12' },
-    { type: 'قبول/رفض', color: '#2BD4C7', bg: 'rgba(43,212,199,.10)', actor: 'هيثم القرني', actorColor: 'linear-gradient(135deg,#FFB400,#FF8C69)', action: 'قبول حساب جديد ACC-2026-0839', detail: 'مقدم خدمة فرد · برمجة تطبيقات · بعد مراجعة الوثائق', time: 'قبل 1.5 ساعة', date: '2026-09-12' },
-    { type: 'تغيير إعدادات', color: '#FFB400', bg: 'rgba(255,180,0,.12)', actor: 'مدير النظام', actorColor: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', action: 'تعديل نسبة رسوم النظام من 10% إلى 10%', detail: 'لم يتغير المبلغ · تحديث توثيقي فقط', time: 'قبل 3 ساعات', date: '2026-09-12' },
-    { type: '⚠ مشبوه', color: '#FF8C69', bg: 'rgba(255,140,105,.14)', actor: 'فهد العتيبي', actorColor: 'linear-gradient(135deg,#FF8C69,#59C1F5)', action: 'تعديل إعدادات الرسوم الحكومية المستقبلية خارج أوقات الدوام', detail: 'IP: 185.220.101.42 (VPN غير معروف) · الساعة 02:14 ص', time: 'قبل 6 ساعات', date: '2026-09-12', suspicious: true },
-    { type: 'تسجيل دخول', color: '#6B7699', bg: 'rgba(255,255,255,.08)', actor: 'ريم الحربي', actorColor: 'linear-gradient(135deg,#59C1F5,#5DA0FF)', action: 'تسجيل دخول ناجح للوحة الإدارة', detail: 'IP: 197.32.14.99 · Chrome 129 · Windows 11 · الرياض', time: 'قبل 8 ساعات', date: '2026-09-12' },
-    { type: 'إجراء مالي', color: '#0FA99A', bg: 'rgba(15,169,154,.12)', actor: 'مدير النظام', actorColor: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', action: 'إفراج عن ضمان PR-1301 دفعة ثانية 5,400 $', detail: 'لنورة السهلي بعد إتمام المرحلة 2', time: 'قبل 9 ساعات', date: '2026-09-12' },
-    { type: 'قبول/رفض', color: '#FF6B6B', bg: 'rgba(255,107,107,.10)', actor: 'هيثم القرني', actorColor: 'linear-gradient(135deg,#FFB400,#FF8C69)', action: 'رفض طلب اعتماد تخصص للمستخدم U-04821', detail: 'سبب: الشهادات غير موثوقة + AI Score 42/100', time: 'قبل 11 ساعة', date: '2026-09-12' },
-    { type: 'تعديل مستخدم', color: '#5DA0FF', bg: 'rgba(43,127,255,.12)', actor: 'مدير النظام', actorColor: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', action: 'رفع صلاحية هيثم القرني إلى مشرف نزاعات', detail: 'من: موظف دعم → إلى: مشرف نزاعات', time: 'أمس، 04:30 م', date: '2026-09-11' },
-    { type: 'تغيير إعدادات', color: '#FFB400', bg: 'rgba(255,180,0,.12)', actor: 'مدير النظام', actorColor: 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', action: 'تحديث قالب إشعار قبول الحساب', detail: 'AR + EN · SMS + Email · نشط فوراً', time: 'أمس، 02:15 م', date: '2026-09-11' },
-  ]);
+  readonly entries = signal<AdminAuditEntry[]>([]);
+  readonly total = signal(0);
+  readonly pages = signal(1);
+  readonly eventTypes = signal<string[]>([]);
+  readonly admins = signal<AdminRosterItem[]>([]);
+  readonly loading = signal(false);
+  readonly failed = signal(false);
+  readonly filteredCount = computed(() => this.total());
 
-  readonly filteredEvents = computed(() => {
-    const type = this.typeFilter();
-    const employee = this.employeeFilter();
-    const query = this.searchQuery().trim().toLowerCase();
-    const from = this.fromDate();
-    const to = this.toDate();
-    return this.events().filter((e) => {
-      const matchesType = type === 'كل العمليات' || e.type === type;
-      const matchesEmployee = employee === 'كل الموظفين' || e.actor === employee;
-      const matchesQuery = !query || e.action.toLowerCase().includes(query) || e.detail.toLowerCase().includes(query);
-      const matchesFrom = !from || e.date >= from;
-      const matchesTo = !to || e.date <= to;
-      return matchesType && matchesEmployee && matchesQuery && matchesFrom && matchesTo;
+  ngOnInit(): void {
+    this.api.getAdmins().subscribe({ next: (r) => this.admins.set(r.data ?? []), error: () => this.admins.set([]) });
+    this.load();
+  }
+
+  load(): void {
+    this.loading.set(true);
+    this.failed.set(false);
+    this.api.getAuditLog({
+      page: this.page(), limit: 20, q: this.searchQuery().trim(), eventType: this.eventTypeFilter(), severity: this.severityFilter(),
+      actorId: this.actorFilter(), from: this.fromDate(), to: this.toDate(), scope: this.scope(),
+    }).subscribe({
+      next: (r) => {
+        this.entries.set(r.data.items);
+        this.total.set(r.data.pagination.total);
+        this.pages.set(r.data.pagination.pages);
+        this.eventTypes.set(r.data.eventTypes);
+        this.loading.set(false);
+      },
+      error: () => { this.entries.set([]); this.total.set(0); this.failed.set(true); this.loading.set(false); },
     });
-  });
+  }
 
+  /** Any filter change returns to page 1 and reloads from the server. */
+  setFilter(sig: { set(v: string): void }, value: string): void { sig.set(value); this.page.set(1); this.load(); }
+  setScope(v: 'admin' | 'all'): void { this.scope.set(v); this.page.set(1); this.load(); }
+  goPage(p: number): void { if (p < 1 || p > this.pages() || p === this.page()) return; this.page.set(p); this.load(); }
+
+  sev(e: AdminAuditEntry) { return SEV_STYLE[e.severity] ?? SEV_STYLE['INFO']; }
+  sevLabel(e: AdminAuditEntry) { return AUDIT_SEVERITY_LABELS[e.severity] ?? e.severity; }
+  actorName(e: AdminAuditEntry) { return e.account.name || e.actorLabel || '—'; }
+
+  /** Exports the rows currently on screen (the filtered page) — not the whole log. */
   exportCsv() {
-    const rows = ['النوع,الموظف,الإجراء,التاريخ'];
-    this.events().forEach((e) => rows.push(`${e.type},${e.actor},"${e.action}",${e.time}`));
-    const csv = '﻿' + rows.join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const esc = (v: string | null | undefined) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const rows = ['النوع,الحساب,المستوى,العنوان,الوصف,IP,التاريخ'];
+    this.entries().forEach((e) => rows.push([esc(e.eventType), esc(this.actorName(e)), esc(this.sevLabel(e)), esc(e.title), esc(e.summary), esc(e.ipAddress), esc(e.occurredAt)].join(',')));
+    const blob = new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

@@ -189,3 +189,5 @@
 :host-context(body.theme-light) .ffb-foot,
 :host-context(.light-theme) .ffb-foot,
 :host-context(.theme-light) .ffb-foot{border-top-color:#E7EAF1;color:#64748B}
+
+.ffb-btn:disabled{opacity:.5;cursor:not-allowed}

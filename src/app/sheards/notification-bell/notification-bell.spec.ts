@@ -179,4 +179,20 @@ describe('NotificationBell', () => {
 		fixture.detectChanges();
 		expect(component.viewAllLink()).toBe('/marketer-overview/notifications');
 	});
+
+	it('resolves an admin notification against the super-admin dashboard, marks it read on click and hides the non-existent "view all" page', () => {
+		const { fixture, component, getSpy, navSpy } = setup('SUPER_ADMIN', 'CLIENT');
+		getSpy.mockReturnValue(of({
+			success: true,
+			data: [rawNotification({ id: 'n9', type: 'ADMIN_NEW_DISPUTE', actionUrl: '/supper-admin-overview/disputes/d1' })]
+		}));
+		fixture.detectChanges();
+		component.toggle();
+
+		expect(component.notifications()[0].actionUrl).toBe('/supper-admin-overview/disputes/d1');
+		expect(component.viewAllLink()).toBeNull();
+		component.onItemClick(component.notifications()[0]);
+		expect(navSpy).toHaveBeenCalledWith('/supper-admin-overview/disputes/d1');
+		expect(component.notifications()[0].isUnread).toBe(false);
+	});
 });

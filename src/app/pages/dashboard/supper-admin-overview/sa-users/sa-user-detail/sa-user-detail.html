@@ -71,19 +71,21 @@
 				</div>
 			</div>
 			<div class="ud-actions">
-				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-edit"></use></svg>تعديل سريع</button>
-				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-pause"></use></svg>تعليق الحساب</button>
-				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-warn"></use></svg>إنذار سريع</button>
-				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-shield"></use></svg>تعديل الصلاحيات</button>
-				<button type="button" class="ud-act"><svg aria-hidden="true"><use href="#ud-chat"></use></svg>إرسال رسالة</button>
-				<button type="button" class="ud-act ud-act-danger"><svg aria-hidden="true"><use href="#ud-trash"></use></svg>حذف الحساب</button>
+				<button type="button" class="ud-act" disabled style="opacity:.45;cursor:not-allowed" title="غير متاح حاليًا — لا يوجد مسار تعديل إداري سريع للبيانات الشخصية"><svg aria-hidden="true"><use href="#ud-edit"></use></svg>تعديل سريع</button>
+				<button type="button" class="ud-act" [disabled]="isSelf() || adminLocked || u.statusOriginal === 'PENDING_VERIFICATION'" (click)="openModal('status')" [title]="u.statusOriginal === 'PENDING_VERIFICATION' ? 'الحساب لم يؤكد بريده بعد' : ''"><svg aria-hidden="true"><use href="#ud-pause"></use></svg>{{ u.statusOriginal === 'ACTIVE' ? 'تعليق الحساب' : 'تفعيل الحساب' }}</button>
+				<button type="button" class="ud-act" [disabled]="isAdminAccount || isSelf()" (click)="notifyOpen.set(true)"><svg aria-hidden="true"><use href="#ud-warn"></use></svg>إنذار سريع</button>
+				<button type="button" class="ud-act" [disabled]="isSelf() || isAdminAccount" (click)="openModal('roles')" [title]="isAdminAccount ? 'أدوار الحسابات الإدارية تُدار من فريق الإدارة' : ''"><svg aria-hidden="true"><use href="#ud-shield"></use></svg>تعديل الصلاحيات</button>
+				<button type="button" class="ud-act" [disabled]="isAdminAccount || isSelf()" (click)="notifyOpen.set(true)"><svg aria-hidden="true"><use href="#ud-chat"></use></svg>إرسال رسالة</button>
+				@if (isSuperAdmin() && !isAdminAccount && !isSelf()) {
+				<button type="button" class="ud-act ud-act-danger" (click)="openModal('delete')"><svg aria-hidden="true"><use href="#ud-trash"></use></svg>حذف الحساب</button>
+				}
 			</div>
 		</div>
 
 		<!-- KPIs -->
 		<div class="ud-kpi-grid">
 			<div class="kpi-card">
-				<div class="kpi-lbl">بلاغاته</div>
+				<div class="kpi-lbl">تذاكر الدعم</div>
 				<div class="kpi-val">{{ u.kpis.reports }}</div>
 			</div>
 			<div class="kpi-card">
@@ -138,15 +140,26 @@
 			     never computed). -->
 
 			<div class="ud-panel">
-				<div class="ud-panel-hdr">شبكة الحسابات المرتبطة</div>
-				@if (u.linkedAccounts.length) {
+				<div class="ud-panel-hdr">الأدوار والتوثيق</div>
+				<div class="ud-info-grid">
+					<div class="ud-info-item"><span class="ud-info-lbl">الأدوار</span><span class="ud-info-val">{{ (u.roles || []).map(r => label(roleLabels, r)).join('، ') || '—' }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">الدور النشط</span><span class="ud-info-val">{{ label(roleLabels, u.activeRole) }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">توثيق الهوية (طالب)</span><span class="ud-info-val">{{ label(kycLabels, u.kyc.client) }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">توثيق الهوية (مقدم)</span><span class="ud-info-val">{{ label(kycLabels, u.kyc.provider) }}</span></div>
+				</div>
+				<a routerLink="/supper-admin-overview/kyc" class="txt-teal" style="font-size:12px">مراجعة طلبات التوثيق</a>
+			</div>
+
+			<div class="ud-panel ud-panel-wide" id="audit">
+				<div class="ud-panel-hdr">آخر إجراءات سجل التدقيق</div>
+				@if (u.audit.length) {
 				<ul class="ud-linked-list">
-					@for (acc of u.linkedAccounts; track acc.email) {
-					<li>{{ acc.email }}</li>
+					@for (a of u.audit; track a.id) {
+					<li><strong>{{ a.title }}</strong> — {{ a.summary }} <span class="txt-muted">({{ a.source === 'ADMIN' ? 'إدارة' : a.source === 'USER' ? 'المستخدم' : 'النظام' }} · {{ a.occurredAt | date:'yyyy-MM-dd HH:mm' }})</span></li>
 					}
 				</ul>
 				} @else {
-				<div class="ud-empty-inline">لا توجد حسابات مرتبطة بنفس الجهاز</div>
+				<div class="ud-empty-inline">لا توجد إجراءات مسجلة لهذا الحساب</div>
 				}
 			</div>
 
@@ -167,10 +180,70 @@
 		</div>
 		} @else {
 		<div class="ud-panel">
-			<div class="ud-empty-inline">لا توجد بيانات لعرضها في هذا القسم حالياً</div>
+			@switch (activeTab()) {
+			@case ('requests') {
+				@for (r of u.tabs.requests; track r.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/requests', r.id]" class="ud-info-val">{{ r.title }}</a><span class="ud-info-lbl">{{ label(statusLabels, r.status) }} · {{ r.proposalsCount }} عرض · {{ r.createdAt | date:'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد طلبات لهذا الحساب</div> }
+			}
+			@case ('purchases') {
+				@for (o of u.tabs.purchases; track o.id) { <div class="ud-info-item"><span class="ud-info-val">{{ o.orderNumber }}</span><span class="ud-info-lbl">{{ o.total }} $ · {{ o.status }} · {{ o.createdAt | date:'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد مشتريات لهذا الحساب</div> }
+			}
+			@case ('disputes') {
+				@for (d of u.tabs.disputes; track d.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/disputes', d.id]" class="ud-info-val">{{ d.reason }}</a><span class="ud-info-lbl">{{ label(statusLabels, d.status) }} · {{ d.openedById === u.id ? 'فتحها' : 'مرفوع ضده' }} · {{ d.createdAt | date:'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد نزاعات لهذا الحساب</div> }
+			}
+			@case ('reports') {
+				@for (t of u.tabs.reports; track t.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/support', t.id]" class="ud-info-val">{{ t.ticketNumber }} — {{ t.subject }}</a><span class="ud-info-lbl">{{ label(statusLabels, t.status) }} · {{ t.createdAt | date:'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد تذاكر دعم لهذا الحساب</div> }
+			}
+			@case ('contracts') {
+				@for (c of u.tabs.contracts; track c.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/contracts', c.id]" class="ud-info-val">عقد {{ c.id.slice(0, 8) }}</a><span class="ud-info-lbl">{{ label(statusLabels, c.status) }} · {{ c.price }} $ · {{ c.role === 'CLIENT' ? 'كطالب' : 'كمقدم' }} · {{ c.createdAt | date:'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد عقود لهذا الحساب</div> }
+			}
+			@case ('payments') {
+				@for (p of u.tabs.payments; track p.id) { <div class="ud-info-item"><span class="ud-info-val">{{ p.type }}</span><span class="ud-info-lbl">{{ p.amount }} {{ p.currency === 'USD' ? '$' : p.currency }} · {{ p.status }} · {{ p.createdAt | date:'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد حركات مالية لهذا الحساب</div> }
+			}
+			}
 		</div>
 		}
 
 		}
 	</div>
 </main>
+
+@if (modal() && user(); as u) {
+<div class="modal-overlay" (click)="closeModal()" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:900">
+	<div class="modal-card" (click)="$event.stopPropagation()" style="background:var(--crd-bg,#0f1530);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:20px;max-width:440px;width:92%">
+		@if (modal() === 'status') {
+		<h3 class="state-ttl">{{ u.statusOriginal === 'ACTIVE' ? 'تأكيد إيقاف الحساب' : 'تأكيد تفعيل الحساب' }}</h3>
+		<p class="state-txt">{{ u.name }} — يُسجَّل الإجراء في سجل التدقيق.</p>
+		@if (u.statusOriginal === 'ACTIVE') {
+		<label for="ud-reason" style="font-size:12px;font-weight:700">سبب الإيقاف (مطلوب)</label>
+		<textarea id="ud-reason" rows="3" style="width:100%" [value]="reason()" (input)="reason.set($any($event.target).value)"></textarea>
+		}
+		}
+		@if (modal() === 'roles') {
+		<h3 class="state-ttl">تعديل أدوار الحساب</h3>
+		<p class="state-txt">الدور الأساسي للحساب لا يمكن إزالته، والدور النشط يبقى دائماً ضمن الأدوار.</p>
+		@for (r of manageableRoles; track r.key) {
+		<label style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" [checked]="rolePick().includes(r.key)" (change)="toggleRole(r.key)" />{{ r.label }}</label>
+		}
+		<div style="font-size:12px;font-weight:700">الدور النشط</div>
+		<ws-select [options]="activeRoleOptions()" [ngModel]="activeRolePick()" (ngModelChange)="activeRolePick.set($event)" ariaLabel="الدور النشط" style="display:block;width:100%"></ws-select>
+		}
+		@if (modal() === 'delete') {
+		<h3 class="state-ttl">تأكيد حذف الحساب نهائياً</h3>
+		<p class="state-txt">سيُحذف الحساب {{ u.name }} وكل بياناته، <strong>ولا يمكن التراجع عن ذلك</strong>. يُسجَّل الإجراء في سجل التدقيق.</p>
+		}
+		@if (modalError()) { <p class="txt-red" style="font-size:12px" role="alert">{{ modalError() }}</p> }
+		<div style="display:flex;gap:8px;margin-top:14px">
+			<button type="button" class="btn btn-primary" [disabled]="busy()" (click)="modal() === 'status' ? confirmStatus() : modal() === 'roles' ? confirmRoles() : confirmDelete()">{{ busy() ? 'جارٍ التنفيذ...' : 'تأكيد' }}</button>
+			<button type="button" class="btn" [disabled]="busy()" (click)="closeModal()">إلغاء</button>
+		</div>
+	</div>
+</div>
+}
+
+@if (toast(); as tt) {
+<div role="status" [style.background]="tt.kind === 'ok' ? '#0FA99A' : '#E5484D'" style="position:fixed;bottom:20px;inset-inline-start:20px;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;z-index:1000">{{ tt.text }}</div>
+}
+
+@if (notifyOpen() && user(); as nu) {
+<sa-notify-modal [userId]="nu.id" [userName]="nu.name" (closed)="notifyOpen.set(false)" (sent)="notifyOpen.set(false); showToast('تم إرسال الرسالة وتسجيلها في سجل التدقيق', 'ok'); retry()"></sa-notify-modal>
+}

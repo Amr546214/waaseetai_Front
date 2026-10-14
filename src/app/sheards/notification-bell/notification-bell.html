@@ -42,7 +42,9 @@
 			}
 		</div>
 
-		<a [routerLink]="viewAllLink()" class="nb-foot" role="menuitem" (click)="onViewAllClick()">عرض كل الإشعارات</a>
+		@if (viewAllLink(); as viewAll) {
+		<a [routerLink]="viewAll" class="nb-foot" role="menuitem" (click)="onViewAllClick()">عرض كل الإشعارات</a>
+		}
 	</div>
 	}
 </div>

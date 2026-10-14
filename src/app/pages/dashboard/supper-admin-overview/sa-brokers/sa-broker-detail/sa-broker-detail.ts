@@ -15,21 +15,14 @@ interface ReferralNode {
   currency: string;
 }
 
-interface CommissionTier {
-  label: string;
-  rate: string;
-  active: boolean;
-}
-
-interface MonthlyPayment {
-  month: string;
-  amount: number;
-  status: 'مدفوع' | 'متوقع';
-}
-
 // Every field/KPI below is real (AffiliateProfile/Referral/CommissionLog/
-// AffiliateChannelMetric via GET /api/admin/brokers/:id), except where
-// explicitly noted as static/mock (commission tiers, monthly payments).
+// AffiliateChannelMetric via GET /api/admin/brokers/:id). The old static
+// commission-tier table, the invented monthly payments sample, the
+// "average conversion 31%" comparison and the fake "send for withdrawal"
+// toast were replaced: the level / rate come from the broker's real level,
+// the monthly table is summed from his real CommissionLog rows, and the
+// withdrawal button is disabled with its reason (affiliate payouts go
+// through the broker's own withdrawal request, reviewed under /withdrawals).
 
 @Component({
   selector: 'app-sa-broker-detail',
@@ -50,24 +43,10 @@ export class SaBrokerDetail implements OnInit, OnDestroy {
   toast = signal('');
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  // Static reference structure shown to admins (design parity — the backend
-  // has no per-broker commission-tier endpoint yet, so this is the standard
-  // published tier table, not a per-broker fetched value).
-  readonly commissionTiers: CommissionTier[] = [
-    { label: 'مستوى 1 (مباشر)', rate: '8%', active: true },
-    { label: 'مستوى 2', rate: '5%', active: false },
-    { label: 'مستوى 3+', rate: '1-3%', active: false },
-  ];
-
-  // Illustrative payment-history sample — no monthly-payment-aggregation
-  // endpoint exists on the backend yet; kept as a small mock mini table
-  // matching the design reference until that endpoint is available.
-  readonly monthlyPayments: MonthlyPayment[] = [
-    { month: 'يناير 2026', amount: 12400, status: 'مدفوع' },
-    { month: 'ديسمبر 2025', amount: 9800, status: 'مدفوع' },
-    { month: 'نوفمبر 2025', amount: 8600, status: 'مدفوع' },
-    { month: 'فبراير 2026', amount: 14000, status: 'متوقع' },
-  ];
+  // Suspend / reactivate dialog (confirmation + required reason when suspending).
+  statusDialog = signal<'SUSPENDED' | 'ACTIVE' | null>(null);
+  statusReason = signal('');
+  statusBusy = signal(false);
 
   readonly statusLabels: Record<BrokerUserStatus, string> = {
     ACTIVE: 'نشط',
@@ -158,26 +137,50 @@ export class SaBrokerDetail implements OnInit, OnDestroy {
     return Array.from(map.values()).sort((a, b) => b.totalAmount - a.totalAmount).slice(0, 5);
   }
 
-  aiPerformanceNotes(b: AdminBrokerDetail): string[] {
-    const avgConversion = 31;
-    const notes: string[] = [];
-    if (b.conversionRate > avgConversion) {
-      notes.push(`نسبة تحويل ${b.conversionRate}% — أعلى من متوسط الوسطاء (${avgConversion}%) — أداء ممتاز`);
-    } else {
-      notes.push(`نسبة تحويل ${b.conversionRate}% — ضمن أو أقل من متوسط الوسطاء (${avgConversion}%) — يُنصح بمتابعة الأداء`);
-    }
-    notes.push(
-      b.status === 'ACTIVE'
-        ? 'لا أنشطة مشبوهة مرصودة · نمط الإحالات طبيعي'
-        : 'الحساب ليس نشطاً حالياً — يُنصح بمراجعة الوضع قبل اعتماد أي سحب جديد',
-    );
-    return notes;
+  // Plain facts from the broker's own record — no peer average, no scoring.
+  performanceFacts(b: AdminBrokerDetail): string[] {
+    return [
+      `نسبة التحويل ${b.conversionRate}% (${b.convertedReferrals} محوّلة من ${b.totalReferrals} إحالة)`,
+      `المستوى الحالي: ${b.level}${b.commissionPercent != null ? ` — نسبة العمولة ${b.commissionPercent}%` : ''}`,
+    ];
   }
 
-  sendForWithdrawal(b: AdminBrokerDetail) {
-    // UI action only — no withdrawal-mutation endpoint exists on the
-    // backend yet, so this records intent locally via a confirmation toast.
-    this.showToast(`تم إرسال طلب سحب العمولة المعلقة (${b.pendingCommission?.toLocaleString('ar-SA') ?? 0} $) لـ ${b.name || 'الوسيط'} يدوياً`);
+  monthLabel(month: string): string {
+    const [y, m] = month.split('-').map(Number);
+    return new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(new Date(Date.UTC(y, m - 1, 1)));
+  }
+
+  openStatusDialog(target: 'SUSPENDED' | 'ACTIVE') {
+    this.statusReason.set('');
+    this.statusDialog.set(target);
+  }
+
+  closeStatusDialog() {
+    if (!this.statusBusy()) this.statusDialog.set(null);
+  }
+
+  confirmStatusChange() {
+    const b = this.selected();
+    const target = this.statusDialog();
+    if (!b || !target) return;
+    const reason = this.statusReason().trim();
+    if (target === 'SUSPENDED' && reason.length < 5) {
+      this.showToast('اكتب سبب الإيقاف (5 أحرف على الأقل)');
+      return;
+    }
+    this.statusBusy.set(true);
+    this.brokerApi.setBrokerStatus(b.id, target, reason || undefined).subscribe({
+      next: () => {
+        this.statusBusy.set(false);
+        this.statusDialog.set(null);
+        this.selected.set({ ...b, status: target });
+        this.showToast(target === 'SUSPENDED' ? 'تم إيقاف حساب الوسيط' : 'تمت إعادة تفعيل حساب الوسيط');
+      },
+      error: (err) => {
+        this.statusBusy.set(false);
+        this.showToast(err?.error?.message || 'تعذر تحديث حالة الوسيط');
+      },
+    });
   }
 
   showToast(msg: string) {
