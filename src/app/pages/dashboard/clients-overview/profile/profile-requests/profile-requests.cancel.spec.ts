@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ProfileRequests } from './profile-requests';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 
@@ -21,7 +22,7 @@ describe('client profile requests: withdrawing a request', () => {
 		c.cancelRequest('r1');
 		expect(api.cancelMyChangeRequest).toHaveBeenCalledWith('r1');
 		expect(api.getMyChangeRequests).toHaveBeenCalledTimes(2);
-		expect(c.showToast()).toBe('تم سحب الطلب');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => [t.kind, t.message])).toEqual([['success', 'تم سحب الطلب']]);
 	});
 
 	it('declined confirm does nothing', async () => {
@@ -36,7 +37,9 @@ describe('client profile requests: withdrawing a request', () => {
 		vi.spyOn(window, 'confirm').mockReturnValue(true);
 		api.cancelMyChangeRequest.mockReturnValueOnce(throwError(() => ({ error: { message: 'لا يمكن سحب هذا الطلب لأنه لم يعد قيد المراجعة' } })));
 		c.cancelRequest('r1');
-		expect(c.showToast()).toContain('لم يعد قيد المراجعة');
+		const shown = TestBed.inject(UiNotificationService).toasts();
+		expect(shown.map(t => t.kind)).toEqual(['error']);
+		expect(shown[0].message).toContain('لم يعد قيد المراجعة');
 		expect(api.getMyChangeRequests).toHaveBeenCalledTimes(1);
 	});
 });

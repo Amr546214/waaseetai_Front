@@ -1,5 +1,4 @@
 import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
-import { signal } from '@angular/core';
 import {
   MarketingApprovalStatus,
   MarketingToolStatus,
@@ -190,18 +189,6 @@ export function describeOffer(o: ProviderSpecialOffer, names: Map<string, string
     meta: `خصم نسبة · ${n(o.targetServiceId)}`,
     description: `خصم ${o.discountValue}% مباشر على نموذج «${n(o.targetServiceId)}».`,
   };
-}
-
-/** Tiny transient toast used by the marketing screens (`.toast` in marketing-shared.css). */
-export class Flash {
-  readonly message = signal<{ text: string; error: boolean } | null>(null);
-  private timer: ReturnType<typeof setTimeout> | null = null;
-
-  show(text: string, error = false): void {
-    this.message.set({ text, error });
-    if (this.timer) clearTimeout(this.timer);
-    this.timer = setTimeout(() => this.message.set(null), 3500);
-  }
 }
 
 /** Provider's own marketplace models (ServiceCatalog rows) — the scope for coupons/offers. */

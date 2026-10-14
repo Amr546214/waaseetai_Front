@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ProviderApiService, ProviderReportRange, ProviderReports } from '../../../../core/services/provider-api.service';
 import { AccountType } from '../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 
 @Component({
   selector: 'app-reports',
@@ -13,6 +14,7 @@ import { AccountType } from '../../../../core/models/auth.model';
 export class Reports implements OnInit {
   private authStore = inject(AuthStore);
   private providerApi = inject(ProviderApiService);
+  private notify = inject(UiNotificationService);
 
   /** Real provider statistics (GET /provider/statistics) — the only source behind this page's KPI cards. */
   stats = signal<{ summary?: { monthlyEarnings?: number; humanRating?: number | null } } | null>(null);
@@ -99,7 +101,6 @@ export class Reports implements OnInit {
   currentTab = signal<string>('orders');
   currentPeriod = signal<string>('month');
   showDatePicker = signal<boolean>(false);
-  showToast = signal<string>('');
   
   // Filters
   orderStatus = signal<string>('all');
@@ -120,15 +121,10 @@ export class Reports implements OnInit {
     this.loadReports();
   }
   
-  openToast(msg: string) {
-    this.showToast.set(msg);
-    setTimeout(() => this.showToast.set(''), 3000);
-  }
-
   /** CSV of the data currently loaded on the page (GET /provider/reports for the selected range) — no server file involved. */
   exportCsv() {
     const r = this.reports();
-    if (!r) { this.openToast('لا توجد بيانات محمّلة للتصدير بعد'); return; }
+    if (!r) { this.notify.warning('لا توجد بيانات محمّلة للتصدير بعد'); return; }
     const esc = (v: unknown) => { const s = v == null ? '' : String(v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const row = (cells: unknown[]) => cells.map(esc).join(',');
     const lines: string[] = [
@@ -152,7 +148,7 @@ export class Reports implements OnInit {
     a.href = url; a.download = `waseet-provider-report-${r.range}.csv`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    this.openToast('تم تنزيل ملف CSV');
+    this.notify.success('تم تنزيل ملف CSV');
   }
 
   /** PDF = the browser's print dialog ("Save as PDF"); a server-generated PDF would need a dedicated endpoint. */

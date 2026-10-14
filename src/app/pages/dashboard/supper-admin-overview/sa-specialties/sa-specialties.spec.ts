@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SaSpecialties } from './sa-specialties';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 
 const tree = [{ id: 'c1', nameAr: 'تصميم', isActive: true, specialties: [{ id: 's1', nameAr: 'شعارات', isActive: true, providersCount: 2, monthlyRequests: 3 }] }];
 
@@ -39,7 +40,8 @@ describe('SaSpecialties', () => {
 		component.promptDeleteSpec(tree[0].specialties[0] as any);
 		expect(http.delete).not.toHaveBeenCalled();
 		component.executeConfirmAction();
-		expect(component.toastMessage()).toBe('لا يمكن حذف تخصص مرتبط بمقدمي خدمة نشطين.');
+		const ui = TestBed.inject(UiNotificationService);
+		expect(ui.toasts().map(t => ({ kind: t.kind, message: t.message }))).toContainEqual({ kind: 'error', message: 'لا يمكن حذف تخصص مرتبط بمقدمي خدمة نشطين.' });
 		expect(component.isConfirmModalOpen()).toBe(true);
 	});
 

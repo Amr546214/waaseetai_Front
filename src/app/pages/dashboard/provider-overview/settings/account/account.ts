@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 export interface ProviderSession {
   id: string;
@@ -305,6 +306,7 @@ export interface ProviderSession {
 export class Account implements OnInit {
   private authStore = inject(AuthStore);
   private providerProfileService = inject(ProviderProfileService);
+  private notify = inject(UiNotificationService);
 
   ngOnInit() {
     // Company mode shows the sessions list unconditionally (no expand
@@ -338,7 +340,7 @@ export class Account implements OnInit {
   toggleCoReduceMotion() { this.coReduceMotion.update(v => !v); }
 
   coSaveSettings() {
-    this.showToast('تم حفظ إعدادات الشركة');
+    this.notify.success('تم حفظ إعدادات الشركة');
   }
 
   coResetDefaults() {
@@ -353,12 +355,11 @@ export class Account implements OnInit {
     this.coNumberFormat.set('1234 — عربية غربية');
     this.coLandingPage.set('لوحة التحكم');
     this.coIdleTimeout.set('30 دقيقة');
-    this.showToast('تمت استعادة الإعدادات الافتراضية');
+    this.notify.success('تمت استعادة الإعدادات الافتراضية');
   }
 
   isLoading = signal<boolean>(false);
   hasError = signal<boolean>(false);
-  toastMessage = signal<string | null>(null);
 
   // 2FA and "new login alert" were previously interactive toggles backed by
   // nothing at all (no MFA/2FA capability and no acted-upon login-alert
@@ -432,7 +433,7 @@ export class Account implements OnInit {
         this.isChangingPassword.set(false);
         this.resetPasswordForm();
         this.passwordFormVisible.set(false);
-        this.showToast('تم تغيير كلمة المرور بنجاح');
+        this.notify.success('تم تغيير كلمة المرور بنجاح');
       },
       error: (err: any) => {
         this.isChangingPassword.set(false);
@@ -487,12 +488,12 @@ export class Account implements OnInit {
       next: () => {
         this.sessions.update(list => list.filter(s => s.id !== sessionId));
         this.revokingSessionId.set(null);
-        this.showToast('تم إنهاء الجلسة بنجاح');
+        this.notify.success('تم إنهاء الجلسة بنجاح');
       },
       error: (err: any) => {
         this.revokingSessionId.set(null);
         const reason = err?.error?.message;
-        this.showToast(reason === 'CANNOT_REVOKE_CURRENT_SESSION' ? 'لا يمكن إنهاء الجلسة الحالية' : 'تعذر إنهاء الجلسة');
+        this.notify.error(reason === 'CANNOT_REVOKE_CURRENT_SESSION' ? 'لا يمكن إنهاء الجلسة الحالية' : 'تعذر إنهاء الجلسة');
       },
     });
   }
@@ -510,7 +511,7 @@ export class Account implements OnInit {
 
   // --- Data export: no backend endpoint exists anywhere (confirmed by a
   // full-text search of the backend source) — truthfully unavailable rather
-  // than a fake "your download link is on its way" toast. ---
+  // than a fake "your download link is on its way" message. ---
   dataExportAvailable = false;
 
   // --- Account deletion: only an ADMIN-ONLY hard-delete endpoint exists
@@ -528,12 +529,5 @@ export class Account implements OnInit {
     setTimeout(() => {
       this.isLoading.set(false);
     }, 1000);
-  }
-
-  showToast(msg: string) {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      this.toastMessage.set(null);
-    }, 3000);
   }
 }

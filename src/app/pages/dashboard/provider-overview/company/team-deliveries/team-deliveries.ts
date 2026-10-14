@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 // Batch 7: this page used to be 100% hardcoded fiction — 7 fabricated
 // deliveries attributed to 3 made-up team members (فهد العتيبي, ريم
@@ -47,14 +48,13 @@ function derivePeriod(submittedAt: string): 'week' | 'month' | 'older' {
 })
 export class TeamDeliveries implements OnInit {
 	private providerApi = inject(ProviderApiService);
+	private notify = inject(UiNotificationService);
 
 	activePeriod = signal<'all' | 'week' | 'month'>('all');
 	activeStatus = signal<'all' | 'SUBMITTED' | 'REVISION_REQUESTED' | 'APPROVED'>('all');
 	searchQuery = signal<string>('');
 	selectedDelivery = signal<CompanyDelivery | null>(null);
-	toastMessage = signal<string>('');
 	isLoading = signal<boolean>(true);
-	private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
 	deliveries = signal<CompanyDelivery[]>([]);
 
@@ -102,12 +102,6 @@ export class TeamDeliveries implements OnInit {
 	}
 
 	messageClient(): void {
-		this.showToast('تم فتح محادثة مع العميل');
-	}
-
-	private showToast(msg: string): void {
-		this.toastMessage.set(msg);
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => this.toastMessage.set(''), 3000);
+		this.notify.info('تم فتح محادثة مع العميل');
 	}
 }

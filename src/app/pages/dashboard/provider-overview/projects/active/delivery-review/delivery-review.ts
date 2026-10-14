@@ -6,6 +6,7 @@ import { ActiveProjectsService } from '../../../../../../core/services/active.se
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
 import { MessageContext } from '../../../../../../core/services/chat.service';
+import { UiNotificationService } from '../../../../../../core/services/ui-notification.service';
 
 /**
  * Final delivery & project closure review.
@@ -35,6 +36,7 @@ export class DeliveryReview implements OnInit {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
+	private notify = inject(UiNotificationService);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -50,7 +52,6 @@ export class DeliveryReview implements OnInit {
 	returnPriority = signal<'normal' | 'urgent'>('normal');
 	showReturnModal = signal<boolean>(false);
 	returnError = signal<string>('');
-	actionMessage = signal<string>('');
 
 	stages = computed<any[]>(() => this.projectData()?.stages || []);
 	finalStage = computed<any>(() => {
@@ -154,7 +155,6 @@ export class DeliveryReview implements OnInit {
 		}
 		this.showReturnModal.set(false);
 		const memberName = this.latestDelivery()?.author || 'عضو الفريق';
-		this.actionMessage.set(`تم إرجاع التسليم لـ${memberName} مع ملاحظاتك`);
-		setTimeout(() => this.actionMessage.set(''), 4000);
+		this.notify.success(`تم إرجاع التسليم لـ${memberName} مع ملاحظاتك`);
 	}
 }

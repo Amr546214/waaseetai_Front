@@ -240,10 +240,6 @@
 </div>
 }
 
-@if (toast(); as tt) {
-<div role="status" [style.background]="tt.kind === 'ok' ? '#0FA99A' : '#E5484D'" style="position:fixed;bottom:20px;inset-inline-start:20px;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;z-index:1000">{{ tt.text }}</div>
-}
-
 @if (notifyOpen() && user(); as nu) {
-<sa-notify-modal [userId]="nu.id" [userName]="nu.name" (closed)="notifyOpen.set(false)" (sent)="notifyOpen.set(false); showToast('تم إرسال الرسالة وتسجيلها في سجل التدقيق', 'ok'); retry()"></sa-notify-modal>
+<sa-notify-modal [userId]="nu.id" [userName]="nu.name" (closed)="notifyOpen.set(false)" (sent)="onNotifySent()"></sa-notify-modal>
 }

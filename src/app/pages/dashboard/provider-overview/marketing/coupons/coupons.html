@@ -112,7 +112,3 @@
 }
 
 <div class="note-card plain"><p>الكوبون المنتهي تاريخه أو المستهلك بالكامل يُرفض تلقائياً برسالة توضّح السبب للعميل، ولا يمكن إعادة تفعيله من هنا — أنشئ كوبوناً جديداً بدلاً منه.@if (isCompanyMode()) { الكوبونات التي تتجاوز خصم 30% أو بلا حد استخدام تبقى متوقفة حتى تعتمدها من <a class="lnk" routerLink="/provider-overview/marketing/approvals">طلبات الموافقة</a>.}</p></div>
-
-@if (flash.message(); as m) {
-	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
-}

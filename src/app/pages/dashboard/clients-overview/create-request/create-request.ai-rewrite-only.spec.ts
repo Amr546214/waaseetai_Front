@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { CreateRequest, resetCreateRequestPageLoadState } from './create-request';
 
 // "تحسين وصياغة AI" rewrites what the client wrote: it never writes the title/description, never calls the AI without enough input,
@@ -42,7 +43,7 @@ describe('create-request: AI refine is rewriting only', () => {
 	});
 	afterEach(() => { TestBed.resetTestingModule(); vi.unstubAllGlobals(); });
 
-	const toast = () => c.toast()?.msg ?? '';
+	const toast = () => TestBed.inject(UiNotificationService).toasts().at(-1)?.message ?? '';
 	let fixtureRef: any;
 	const render = () => { c.currentStep.set(3); fixtureRef.detectChanges(); return fixtureRef.nativeElement as HTMLElement; };
 

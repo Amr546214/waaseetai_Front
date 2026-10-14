@@ -120,10 +120,6 @@ button{font-family:inherit}
 .btn-reject svg{width:15px;height:15px}
 .decision-note{font-size:11px;color:#6B7699;line-height:1.65}
 
-/* Toast */
-.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500;display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px);font-size:13px;font-weight:700;color:#fff;animation:ws-fade .3s ease both}
-@keyframes ws-fade{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
-
 /* Modal */
 .modal-ov{position:fixed;inset:0;background:rgba(7,13,36,.7);backdrop-filter:blur(6px);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-box{background:rgba(11,20,55,.97);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:26px 24px;width:100%;max-width:420px;text-align:center}

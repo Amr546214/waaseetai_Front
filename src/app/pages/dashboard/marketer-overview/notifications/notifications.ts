@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
 import type { SafeHtml } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { NotificationEngineService } from '../../../../core/services/notification-engine.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
 
@@ -47,17 +48,16 @@ interface DisplayNotification extends RawNotification {
 	styleUrl: './notifications.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Notifications implements OnInit, OnDestroy {
+export class Notifications implements OnInit {
 	private notificationEngine = inject(NotificationEngineService);
 	private overviewService = inject(MarketerOverviewService);
 	private router = inject(Router);
+	private notify = inject(UiNotificationService);
 
 	summary = signal<MarketerSummary | null>(null);
 
 	isLoading = signal(true);
 	hasError = signal(false);
-	toastMessage = signal<string | null>(null);
-	private toastTimer: any = null;
 
 	notifications = signal<DisplayNotification[]>([]);
 	activeFilter = signal<FilterId>('all');
@@ -133,10 +133,6 @@ export class Notifications implements OnInit, OnDestroy {
 		});
 	}
 
-	ngOnDestroy(): void {
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-	}
-
 	loadNotifications(): void {
 		this.isLoading.set(true);
 		this.hasError.set(false);
@@ -172,12 +168,12 @@ export class Notifications implements OnInit, OnDestroy {
 				this.markingAll.set(false);
 				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false, isRead: true })));
 				this.notificationEngine.unreadCount.set(0);
-				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+				this.notify.success('تم تعليم كل الإشعارات كمقروءة');
 			},
 			error: () => {
 				// Never fake it: the server did not record it, so the list and the counters stay as they are.
 				this.markingAll.set(false);
-				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
+				this.notify.error('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
 			}
 		});
 	}
@@ -192,12 +188,6 @@ export class Notifications implements OnInit, OnDestroy {
 			});
 		}
 		if (nt.target) this.router.navigateByUrl(nt.target);
-	}
-
-	private showToast(msg: string): void {
-		this.toastMessage.set(msg);
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => this.toastMessage.set(null), 3000);
 	}
 
 	/** Display group from the real category/type (never "everything else is offers", never PROJECTS-as-AI). */

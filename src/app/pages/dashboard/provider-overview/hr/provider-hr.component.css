@@ -266,10 +266,6 @@
 .doc-name{flex:1;font-size:13px;font-weight:600;color:#fff}
 .doc-status{font-size:11px}
 
-/* ---------- toast ---------- */
-.toast-wrap{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:700}
-.toast-box{display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(43,212,199,.16),rgba(43,127,255,.12));border:1px solid rgba(43,212,199,.32);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px);animation:hr-fade .3s ease both;white-space:nowrap;color:#fff;font-size:14px;font-weight:700}
-.toast-box svg{color:#2BD4C7;flex-shrink:0}
 
 /* ---------- responsive ---------- */
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.assign-grid{grid-template-columns:1fr}}

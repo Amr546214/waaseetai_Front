@@ -158,16 +158,6 @@ a{text-decoration:none}
 .modal-item-desc{font-size:13px;color:var(--txt-2);line-height:1.6;margin-bottom:5px}
 .modal-item-examples{font-size:11px;color:var(--txt-3);font-family:monospace}
 
-/* ─── Toast ─── */
-.toast-wrap{position:fixed;bottom:24px;left:24px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast{padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.4);pointer-events:auto;animation:toast-in .3s ease;max-width:320px}
-.toast-success{background:linear-gradient(135deg,rgba(15,179,163,.16),rgba(43,127,255,.10));border:1px solid rgba(15,179,163,.30);color:var(--txt)}
-.toast-error{background:linear-gradient(135deg,rgba(43,127,255,.14),rgba(43,127,255,.08));border:1px solid rgba(43,127,255,.28);color:var(--txt)}
-.toast svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.toast-success svg{color:#0FA99A}
-.toast-error svg{color:var(--blue)}
-@keyframes toast-in{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
-
 /* ─── Responsive ─── */
 @media(max-width:767px){
   .container{padding:0 16px}

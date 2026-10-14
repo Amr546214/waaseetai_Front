@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SaNotifyModal } from '../../sa-notify-modal';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
@@ -22,11 +23,10 @@ export class SaUserDetail implements OnInit {
 	private router = inject(Router);
 	private usersService = inject(SaUsersService);
 	private authStore = inject(AuthStore);
+	private notify = inject(UiNotificationService);
 
 	readonly isSuperAdmin = computed(() => this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN);
 	readonly isSelf = computed(() => this.authStore.currentUser()?.id === this.user()?.id);
-	toast = signal<{ text: string; kind: 'ok' | 'err' } | null>(null);
-	private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
 	// ── status / roles / delete modals (every one confirms; the server enforces the rules and writes the audit row)
 	notifyOpen = signal(false);
@@ -141,7 +141,7 @@ export class SaUserDetail implements OnInit {
 	private done(text: string): void {
 		this.busy.set(false);
 		this.modal.set(null);
-		this.showToast(text, 'ok');
+		this.notify.success(text);
 	}
 
 	private fail(err: any, fallback: string): void {
@@ -183,10 +183,10 @@ export class SaUserDetail implements OnInit {
 		});
 	}
 
-	showToast(text: string, kind: 'ok' | 'err'): void {
-		this.toast.set({ text, kind });
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
+	onNotifySent(): void {
+		this.notifyOpen.set(false);
+		this.notify.success('تم إرسال الرسالة وتسجيلها في سجل التدقيق');
+		this.retry();
 	}
 
 	readonly statusLabels: Record<string, string> = { OPEN: 'مفتوح', IN_PROGRESS: 'جارٍ', COMPLETED: 'مكتمل', CANCELLED: 'ملغى', DRAFT: 'مسودة', PENDING_SIGNATURE: 'بانتظار التوقيع', UNDER_REVIEW: 'قيد المراجعة', RESOLVED: 'محسوم', REJECTED: 'مرفوض', ACTIVE: 'ساري', PENDING_PAYMENT: 'بانتظار الدفع', PENDING_CLIENT_SIGNATURE: 'بانتظار توقيع العميل', PENDING_PROVIDER_SIGNATURE: 'بانتظار توقيع المزود', DISPUTED: 'متنازع عليه', PAID: 'مدفوع', PENDING: 'معلق', FAILED: 'فشل', CLOSED: 'مغلق', AWAITING_CUSTOMER: 'بانتظار العميل' };

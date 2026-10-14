@@ -6,6 +6,7 @@ import { AccountType } from '../../../../core/models/auth.model';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
 import { Dispute } from './disputes.model';
 import { mapDispute } from './disputes.mapper';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 
 @Component({
   selector: 'app-disputes',
@@ -17,6 +18,7 @@ export class Disputes implements OnInit {
   private authStore = inject(AuthStore);
   private router = inject(Router);
   private disputeApi = inject(DisputeApiService);
+  private notify = inject(UiNotificationService);
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -24,25 +26,19 @@ export class Disputes implements OnInit {
   });
 
   currentTab = signal<string>('all');
-  showToast = signal<string>('');
 
   isLoading = signal<boolean>(true);
   listUnavailable = signal<boolean>(false);
 
   // Company mode: sends written guidance to the team member the dispute is
   // assigned to (d.teamMember). There is no backend "dispute guidance"
-  // endpoint yet — submitting just confirms via toast, matching the pattern
+  // endpoint yet — submitting just confirms via notification, matching the pattern
   // already used elsewhere on this page (e.g. "رفع نزاع جديد").
   guidanceTarget = signal<Dispute | null>(null);
   guidanceText = signal<string>('');
 
   setTab(t: string) {
     this.currentTab.set(t);
-  }
-
-  openToast(msg: string) {
-    this.showToast.set(msg);
-    setTimeout(() => this.showToast.set(''), 3000);
   }
 
   disputes = signal<Dispute[]>([]);
@@ -107,7 +103,7 @@ export class Disputes implements OnInit {
   // projectId), and that real, backend-wired flow already lives on the
   // project workspace page (projects/active/progress/:id -> openDisputeModal()
   // -> submitDispute() -> disputeApi.createProviderDispute). This page has no
-  // project in scope, so instead of a dead-end toast we send the user to the
+  // project in scope, so instead of a dead-end notification we send the user to the
   // active-projects list to pick a project and open a dispute for real.
   goToActiveProjects() {
     this.router.navigate(['/provider-overview/projects/active']);
@@ -132,6 +128,6 @@ export class Disputes implements OnInit {
     const target = this.guidanceTarget();
     if (!target?.teamMember) return;
     this.closeGuidance();
-    this.openToast(`تم إرسال التوجيه لـ${target.teamMember.name}`);
+    this.notify.success(`تم إرسال التوجيه لـ${target.teamMember.name}`);
   }
 }

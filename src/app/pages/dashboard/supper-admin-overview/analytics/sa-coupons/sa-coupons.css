@@ -44,7 +44,6 @@
 .scp-input{width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;color:#fff;font-family:inherit;font-size:12px;margin-bottom:10px}
 .scp-input option{background:#0B1437}
 .scp-uppercase{text-transform:uppercase}
-.scp-created-msg{font-size:12px;color:#0FA99A;font-weight:700;margin:8px 0 0;text-align:center}
 
 .scp-stat-list{display:flex;flex-direction:column;gap:6px;font-size:12px}
 .scp-stat-row{display:flex;justify-content:space-between;color:#A8B2D1}

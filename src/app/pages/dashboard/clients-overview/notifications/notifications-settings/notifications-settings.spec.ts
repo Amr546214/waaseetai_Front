@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, vi } from 'vitest';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { NotificationsSettings } from './notifications-settings';
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 
@@ -34,13 +35,13 @@ describe('client notification preferences page', () => {
 		expect(sent['channel_email']).toBe(true);
 		expect(sent['channel_in_app']).toBe(true);
 		expect(Object.keys(sent).some(k => /sms|push|inApp|^email$/i.test(k))).toBe(false);
-		expect(s.c.toastMessage()).toBe('تم حفظ تفضيلات الإشعارات بنجاح');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => [t.kind, t.message])).toEqual([['success', 'تم حفظ تفضيلات الإشعارات بنجاح']]);
 	});
 
 	it('a failed save is reported as failed (never as saved)', () => {
 		const s = setup({ update: throwError(() => new HttpErrorResponse({ status: 401 })) });
 		s.c.savePreferences();
-		expect(s.c.toastMessage()).toBe('تعذر حفظ التفضيلات، حاول مرة أخرى');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => [t.kind, t.message])).toEqual([['error', 'تعذر حفظ التفضيلات، حاول مرة أخرى']]);
 		expect(s.c.isSaving()).toBe(false);
 	});
 

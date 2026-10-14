@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 export interface PreferenceItem {
   id: string;
@@ -102,11 +103,11 @@ export interface PreferenceSection {
 })
 export class Favorite implements OnInit {
   private preferencesService = inject(NotificationPreferencesService);
+  private notify = inject(UiNotificationService);
 
   isLoading = signal<boolean>(false);
   hasError = signal<boolean>(false);
   isSaving = signal<boolean>(false);
-  toastMessage = signal<string | null>(null);
 
   sections = signal<PreferenceSection[]>([
     {
@@ -200,23 +201,17 @@ export class Favorite implements OnInit {
     this.preferencesService.updatePreferences(this.toSettingsMap()).subscribe({
       next: (res) => {
         this.isSaving.set(false);
-        this.showToast(res.success ? 'تم حفظ تفضيلات الإشعارات بنجاح' : (res.message || 'تعذر حفظ التفضيلات'));
+        if (res.success) this.notify.success('تم حفظ تفضيلات الإشعارات بنجاح');
+        else this.notify.error(res.message || 'تعذر حفظ التفضيلات');
       },
       error: () => {
         this.isSaving.set(false);
-        this.showToast('تعذر حفظ التفضيلات، حاول مرة أخرى');
+        this.notify.error('تعذر حفظ التفضيلات، حاول مرة أخرى');
       }
     });
   }
 
   retry() {
     this.loadPreferences();
-  }
-
-  showToast(msg: string) {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      this.toastMessage.set(null);
-    }, 3000);
   }
 }

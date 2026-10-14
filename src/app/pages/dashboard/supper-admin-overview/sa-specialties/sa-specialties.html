@@ -401,13 +401,3 @@
 		</div>
 	</div>
 </div>
-
-<!-- Floating Toast Notification -->
-<div *ngIf="isToastOpen()"
-	class="fixed bottom-6 left-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl backdrop-blur-md transition-all duration-300"
-	[class.bg-emerald-950\/90]="toastType() === 'success'" [class.border-emerald-500\/30]="toastType() === 'success'" [class.text-emerald-200]="toastType() === 'success'"
-	[class.bg-rose-950\/90]="toastType() === 'error'" [class.border-rose-500\/30]="toastType() === 'error'" [class.text-rose-200]="toastType() === 'error'">
-	<svg *ngIf="toastType() === 'success'" class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-	<svg *ngIf="toastType() === 'error'" class="w-5 h-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-	<span class="text-sm font-bold">{{ toastMessage() }}</span>
-</div>

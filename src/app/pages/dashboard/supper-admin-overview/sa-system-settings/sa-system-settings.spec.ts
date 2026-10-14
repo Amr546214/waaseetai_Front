@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { vi } from 'vitest';
 import { SaSystemSettings } from './sa-system-settings';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { ConfirmModalService } from '../../../../core/services/confirm-modal.service';
 import { environment } from '../../../../../environments/environment';
 
@@ -50,7 +51,7 @@ describe('SaSystemSettings', () => {
 		http.expectOne(`${environment.url_api}/admin/settings/history`).flush({ success: true, data: [] });
 		f.detectChanges();
 		expect(c.saved()?.platformName).toBe('اسم جديد');
-		expect(c.savedToast()).toBe(true);
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => [t.kind, t.message])).toEqual([['success', 'تم حفظ الإعدادات']]);
 	});
 
 	it('a failed save shows the server error and keeps the draft', async () => {

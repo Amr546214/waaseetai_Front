@@ -15,7 +15,6 @@
 .kq-btn:disabled { opacity: .5; cursor: progress; }
 .kq-muted { font-size: 13px; color: var(--txt-3, #8b93a7); padding: 6px 0; }
 .kq-err { margin: 8px 0; font-size: 12.5px; font-weight: 700; color: #FF6B6B; }
-.kq-ok { margin: 8px 0; font-size: 12.5px; font-weight: 700; color: #0FA99A; }
 .kq-link { background: none; border: 0; color: #2BD4C7; text-decoration: underline; cursor: pointer; font: inherit; }
 .kq-modal-bg { position: fixed; inset: 0; background: rgba(7,13,36,.7); display: flex; align-items: center; justify-content: center; z-index: 400; padding: 16px; }
 .kq-modal { width: 100%; max-width: 440px; background: var(--card-bg, #0B1437); border: 1px solid var(--sec-bd, rgba(255,255,255,.14)); border-radius: 14px; padding: 18px; }

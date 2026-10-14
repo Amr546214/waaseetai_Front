@@ -17,7 +17,6 @@ export class InvoicesComponent implements OnInit {
 	summary = signal<ProviderInvoicesResponse['summary'] | null>(null);
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
-	toast = signal<string | null>(null);
 
 	activeTab = signal<'all' | 'paid' | 'due'>('all');
 
@@ -63,10 +62,5 @@ export class InvoicesComponent implements OnInit {
 
 	retry() {
 		this.loadInvoices();
-	}
-
-	showToast(msg: string) {
-		this.toast.set(msg);
-		setTimeout(() => this.toast.set(null), 3000);
 	}
 }

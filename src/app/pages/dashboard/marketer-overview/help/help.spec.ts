@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { join } from 'node:path';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -116,7 +117,7 @@ describe('Help', () => {
 
       expect(component.isCreatingTicket()).toBe(false);
       expect(component.ticketCreateError()).toBe('حدث خطأ في الخادم');
-      expect(component.toastMessage()).not.toBe('تم فتح تذكرتك بنجاح');
+      expect(TestBed.inject(UiNotificationService).toasts().some(t => t.kind === 'success')).toBe(false);
       // Not cleared on failure — user shouldn't have to retype everything.
       expect(component.ticketSubject()).toBe('مشكلة في رابط الإحالة');
     });
@@ -130,7 +131,7 @@ describe('Help', () => {
       component.ticketDescription.set('الرابط الخاص بي لا يعمل بشكل صحيح منذ يومين ولا يسجل أي زيارات جديدة.');
       component.submitTicket();
 
-      expect(component.toastMessage()).toBe('تم فتح تذكرتك بنجاح');
+      expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم فتح تذكرتك بنجاح' });
       expect(component.tickets()[0].ticketNumber).toBe('TCK-0001');
       expect(component.newTicketFormVisible()).toBe(false);
     });

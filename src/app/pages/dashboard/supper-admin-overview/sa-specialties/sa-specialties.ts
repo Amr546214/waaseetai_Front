@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaSpecialtyReviewService } from '../sa-specialties-accreditation/sa-specialty-review.service';
 import { SaSpecialtiesService, AdminCategory, AdminSpecialty, AdminSpecialtyStats } from './sa-specialties.service';
 
@@ -107,6 +108,7 @@ const IMPORT_CATALOG: CatalogBlock[] = [
 export class SaSpecialties implements OnInit {
   private service = inject(SaSpecialtiesService);
   private reviewService = inject(SaSpecialtyReviewService);
+  private notify = inject(UiNotificationService);
 
   searchQuery = signal('');
   isAddModalOpen = signal(false);
@@ -138,11 +140,6 @@ export class SaSpecialties implements OnInit {
   // Catalog import state
   isImporting = signal(false);
   importProgress = signal('');
-
-  // Toast Notification Signal State
-  toastMessage = signal('');
-  toastType = signal<'success' | 'error'>('success');
-  isToastOpen = signal(false);
 
   categories = signal<AdminCategory[]>([]);
   treeLoading = signal(false);
@@ -179,13 +176,6 @@ export class SaSpecialties implements OnInit {
 
   ngOnInit() {
     this.loadStats();
-  }
-
-  showToast(msg: string, type: 'success' | 'error' = 'success') {
-    this.toastMessage.set(msg);
-    this.toastType.set(type);
-    this.isToastOpen.set(true);
-    setTimeout(() => this.isToastOpen.set(false), 3500);
   }
 
   loadStats() {
@@ -234,12 +224,12 @@ export class SaSpecialties implements OnInit {
 
     this.service.toggleCategoryStatus(cat.id).subscribe({
       next: () => {
-        this.showToast(targetStatus ? 'تم تفعيل القسم بنجاح' : 'تم تعطيل القسم بنجاح', 'success');
+        this.notify.success(targetStatus ? 'تم تفعيل القسم بنجاح' : 'تم تعطيل القسم بنجاح');
         this.loadStats();
       },
       error: (err) => {
         this.loadTree(this.searchQuery());
-        this.showToast(err.error?.message || 'حدث خطأ أثناء تغيير حالة القسم', 'error');
+        this.notify.error(err.error?.message || 'حدث خطأ أثناء تغيير حالة القسم');
       }
     });
   }
@@ -288,7 +278,7 @@ export class SaSpecialties implements OnInit {
     const name = this.newCategoryName().trim();
     const slug = this.newCategorySlug().trim();
     if (!name || !slug) {
-      this.showToast('يرجى ادخال اسم القسم والرابط (Slug)', 'error');
+      this.notify.warning('يرجى ادخال اسم القسم والرابط (Slug)');
       return;
     }
 
@@ -298,12 +288,12 @@ export class SaSpecialties implements OnInit {
 
     request$.subscribe({
       next: () => {
-        this.showToast(this.editCategoryId() ? 'تم تحديث اسم القسم بنجاح' : 'تم إضافة القسم بنجاح', 'success');
+        this.notify.success(this.editCategoryId() ? 'تم تحديث اسم القسم بنجاح' : 'تم إضافة القسم بنجاح');
         this.closeCategoryModal();
         this.loadTree(this.searchQuery());
         this.loadStats();
       },
-      error: (err) => this.showToast(err.error?.message || 'حدث خطأ أثناء حفظ القسم', 'error')
+      error: (err) => this.notify.error(err.error?.message || 'حدث خطأ أثناء حفظ القسم')
     });
   }
 
@@ -317,12 +307,12 @@ export class SaSpecialties implements OnInit {
 
     this.service.toggleSpecialtyStatus(id).subscribe({
       next: () => {
-        this.showToast('تم تحديث حالة التخصص بنجاح', 'success');
+        this.notify.success('تم تحديث حالة التخصص بنجاح');
         this.loadStats();
       },
       error: (err) => {
         this.loadTree(this.searchQuery());
-        this.showToast(err.error?.message || 'حدث خطأ أثناء تغيير حالة التخصص', 'error');
+        this.notify.error(err.error?.message || 'حدث خطأ أثناء تغيير حالة التخصص');
       }
     });
   }
@@ -359,13 +349,13 @@ export class SaSpecialties implements OnInit {
         next: () => {
           this.isConfirmLoading.set(false);
           this.closeConfirmModal();
-          this.showToast('تم حذف القسم بنجاح', 'success');
+          this.notify.success('تم حذف القسم بنجاح');
           this.loadTree(this.searchQuery());
           this.loadStats();
         },
         error: (err) => {
           this.isConfirmLoading.set(false);
-          this.showToast(err.error?.message || 'تعذر حذف القسم', 'error');
+          this.notify.error(err.error?.message || 'تعذر حذف القسم');
         }
       });
     } else if (action === 'import_catalog') {
@@ -376,13 +366,13 @@ export class SaSpecialties implements OnInit {
         next: () => {
           this.isConfirmLoading.set(false);
           this.closeConfirmModal();
-          this.showToast('تم حذف التخصص بنجاح', 'success');
+          this.notify.success('تم حذف التخصص بنجاح');
           this.loadTree(this.searchQuery());
           this.loadStats();
         },
         error: (err) => {
           this.isConfirmLoading.set(false);
-          this.showToast(err.error?.message || 'تعذر حذف التخصص', 'error');
+          this.notify.error(err.error?.message || 'تعذر حذف التخصص');
         }
       });
     }
@@ -425,7 +415,7 @@ export class SaSpecialties implements OnInit {
     const slug = this.newSpecSlug().trim();
     const catId = this.newSpecCatId();
     if (!name || !slug || !catId) {
-      this.showToast('الرجاء تعبئة البيانات المطلوبة', 'error');
+      this.notify.warning('الرجاء تعبئة البيانات المطلوبة');
       return;
     }
 
@@ -442,12 +432,12 @@ export class SaSpecialties implements OnInit {
 
     request$.subscribe({
       next: () => {
-        this.showToast(this.editSpecId() ? 'تم تعديل التخصص بنجاح' : 'تم إضافة التخصص بنجاح', 'success');
+        this.notify.success(this.editSpecId() ? 'تم تعديل التخصص بنجاح' : 'تم إضافة التخصص بنجاح');
         this.closeModal();
         this.loadTree(this.searchQuery());
         this.loadStats();
       },
-      error: (err) => this.showToast(err.error?.message || 'حدث خطأ أثناء حفظ التخصص', 'error')
+      error: (err) => this.notify.error(err.error?.message || 'حدث خطأ أثناء حفظ التخصص')
     });
   }
 
@@ -520,6 +510,6 @@ export class SaSpecialties implements OnInit {
     const summary = `تم الاستيراد: ${createdCategories} قسم جديد، ${createdSpecs} تخصص جديد` +
       (skipped ? `، ${skipped} موجود مسبقاً` : '') +
       (failed ? `، ${failed} فشل` : '');
-    this.showToast(summary, failed ? 'error' : 'success');
+    if (failed) this.notify.error(summary); else this.notify.success(summary);
   }
 }

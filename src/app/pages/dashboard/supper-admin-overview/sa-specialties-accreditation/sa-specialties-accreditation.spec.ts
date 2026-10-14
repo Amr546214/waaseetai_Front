@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SaSpecialtiesAccreditation } from './sa-specialties-accreditation';
 import { SaSpecialtyAccreditationDetail } from './sa-specialty-accreditation-detail/sa-specialty-accreditation-detail';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { parseAiFeedback, toTextList } from './sa-specialties-accreditation.data';
 
 const item = (over: any = {}) => ({
@@ -66,7 +67,7 @@ describe('SaSpecialtiesAccreditation (list)', () => {
 		confirm().click(); fixture.detectChanges();
 		expect(String(post.mock.calls[0][0])).toContain('/admin/accreditation/specialties/ps-1/decision');
 		expect(post.mock.calls[0][1]).toEqual({ decision: 'APPROVED', reason: 'ملف قوي ومطابق' });
-		expect(component.toast()).toContain('إشعار');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => t.kind + ':' + t.message).join('|')).toMatch(/success:.*إشعار/);
 		expect(get.mock.calls.length).toBeGreaterThan(1);
 	});
 
@@ -121,7 +122,7 @@ describe('SaSpecialtyAccreditationDetail', () => {
 		const { c, post } = await render(detail());
 		c.openDecision('REJECTED'); c.confirmDecision('ناقص الأدلة');
 		expect(post.mock.calls[0][1]).toEqual({ decision: 'REJECTED', reason: 'ناقص الأدلة' });
-		expect(c.toast()).toContain('إشعار');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => t.kind + ':' + t.message).join('|')).toMatch(/success:.*إشعار/);
 	});
 
 	it('already-decided specialties show no decision buttons', async () => {

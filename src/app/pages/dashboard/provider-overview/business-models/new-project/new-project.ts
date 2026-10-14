@@ -12,6 +12,7 @@ import { Step3ModelComponent } from './components/step3-model/step3-model.compon
 import { Step4StagesComponent } from './components/step4-stages/step4-stages.component';
 import { Step5EvaluationComponent } from './components/step5-evaluation/step5-evaluation.component';
 import { isMeaningfulProjectTitle } from '../../../../../core/utils/title-validator';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 export interface PassedSpecialtySubItem {
 	id: string;
 	specialtyId: string;
@@ -55,6 +56,7 @@ export class NewProject implements OnInit, OnDestroy {
 	private newProjectService = inject(NewProjectService);
 	private providerApi = inject(ProviderApiService);
 	private skillsCatalog = inject(SkillsCatalogService);
+	private notify = inject(UiNotificationService);
 	private sanitizer = inject(DomSanitizer);
 	private router = inject(Router);
 	private route = inject(ActivatedRoute);
@@ -81,7 +83,6 @@ export class NewProject implements OnInit, OnDestroy {
 	currentStep = signal<number>(1);
 	totalSteps = 5;
 	isSubmitting = signal<boolean>(false);
-	toastMessage = signal<string>('');
 
 	// Step 1 - Name & Description
 	projectName = signal('');
@@ -113,14 +114,14 @@ export class NewProject implements OnInit, OnDestroy {
 		if (title) {
 			const titleValidation = isMeaningfulProjectTitle(title);
 			if (!titleValidation.valid) {
-				this.showToast(`⚠️ ${titleValidation.reason}`);
+				this.notify.warning(titleValidation.reason ?? 'يرجى كتابة اسم مشروع واضح');
 				return;
 			}
 		}
 
 		if (mode === 'improve') {
 			if (!desc && !title) {
-				this.showToast('⚠️ يرجى كتابة اسم المشروع أو وصف مبدئي أولاً ليتم تحسينه');
+				this.notify.warning('يرجى كتابة اسم المشروع أو وصف مبدئي أولاً ليتم تحسينه');
 				return;
 			}
 			this.isAiEnhancing.set(true);
@@ -128,16 +129,16 @@ export class NewProject implements OnInit, OnDestroy {
 
 			// Trigger WebSocket real-time word-by-word streaming
 			this.newProjectService.streamEnhanceDescription(this.projectName(), this.projectDesc());
-			this.showToast('✨ بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
+			this.notify.info('بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
 
 		} else if (mode === 'suggest') {
 			if (!title) {
-				this.showToast('⚠️ يرجى كتابة اسم المشروع أولاً ليقوم الذكاء باقتراح وصف متكامل له');
+				this.notify.warning('يرجى كتابة اسم المشروع أولاً ليقوم الذكاء باقتراح وصف متكامل له');
 				return;
 			}
 			const titleValidation = isMeaningfulProjectTitle(title);
 			if (!titleValidation.valid) {
-				this.showToast(`⚠️ ${titleValidation.reason}`);
+				this.notify.warning(titleValidation.reason ?? 'يرجى كتابة اسم مشروع واضح');
 				return;
 			}
 
@@ -146,7 +147,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 			// Trigger WebSocket real-time word-by-word streaming
 			this.newProjectService.streamSuggestText(this.projectName());
-			this.showToast('💡 بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
+			this.notify.info('بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
 		}
 
 		// Safety timeout: if streaming doesn't end within 25 seconds, release loading state
@@ -365,12 +366,12 @@ export class NewProject implements OnInit, OnDestroy {
 					this.isUploadingImage.set(false);
 					if (res && res.urls && res.urls.length > 0) {
 						this.galleryUrls.update(arr => [...arr, res.urls[0]]);
-						this.showToast('✅ تم رفع الصورة بنجاح');
+						this.notify.success('تم رفع الصورة بنجاح');
 					}
 				},
 				error: (err) => {
 					this.isUploadingImage.set(false);
-					this.showToast('⚠️ حدث خطأ أثناء رفع الصورة');
+					this.notify.warning('حدث خطأ أثناء رفع الصورة');
 					console.error(err);
 				}
 			});
@@ -463,11 +464,11 @@ export class NewProject implements OnInit, OnDestroy {
 
 	suggestMilestonesWithAi() {
 		if (!this.projectName().trim()) {
-			this.showToast('⚠️ يرجى كتابة اسم المشروع في الخطوة الأولى أولاً ليقوم الذكاء بإنشاء المراحل المناسبة له');
+			this.notify.warning('يرجى كتابة اسم المشروع في الخطوة الأولى أولاً ليقوم الذكاء بإنشاء المراحل المناسبة له');
 			return;
 		}
 		this.isAiSuggestingMilestones.set(true);
-		this.showToast('يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
+		this.notify.info('يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
 
 		this.newProjectService.suggestMilestones(this.projectName(), this.projectDesc(), this.totalAmount()).subscribe({
 			next: (res) => {
@@ -480,13 +481,13 @@ export class NewProject implements OnInit, OnDestroy {
 						percentage: Number(m.percentage) || 0
 					}));
 					this.stages.set(mapped);
-					this.showToast('⚡ تم إنشاء هيكل مراحل العمل وتوزيع النسب بذكاء بناءً على وصف مشروعك!');
+					this.notify.success('تم إنشاء هيكل مراحل العمل وتوزيع النسب بذكاء بناءً على وصف مشروعك!');
 				}
 			},
 			error: (err) => {
 				this.isAiSuggestingMilestones.set(false);
 				console.error('AI suggest milestones error', err);
-				this.showToast('⚠️ لم يتم الاتصال بالخادم الذكي، يمكنك إضافة المراحل يدوياً');
+				this.notify.warning('لم يتم الاتصال بالخادم الذكي، يمكنك إضافة المراحل يدوياً');
 			}
 		});
 	}
@@ -551,7 +552,7 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 			this.aiStreamError.set(null);
 			if (data.message) {
-				this.showToast(data.message);
+				this.notify.info(data.message);
 			}
 		});
 
@@ -630,7 +631,7 @@ export class NewProject implements OnInit, OnDestroy {
 					this.stages.set(mappedStages);
 				}
 
-				this.showToast('ℹ️ تم تحميل تفاصيل النموذج للتعديل');
+				this.notify.info('تم تحميل تفاصيل النموذج للتعديل');
 			},
 			error: (err) => console.error('Failed to load existing service for editing:', err)
 		});
@@ -701,13 +702,13 @@ export class NewProject implements OnInit, OnDestroy {
 				this.isAiAnalyzing.set(false);
 				if (res && res.success && res.data) {
 					this.aiEvaluation.set(res.data);
-					this.showToast('✅ اكتمل تحليل مستشار Waseet AI بنجاح!');
+					this.notify.success('اكتمل تحليل مستشار Waseet AI بنجاح!');
 				}
 			},
 			 error: (err) => {
 					this.isAiAnalyzing.set(false);
 					console.error('AI review error', err);
-					this.showToast('⚠️ تعذر التحليل الذكي، ويمكنك نشر النموذج مباشرة');
+					this.notify.warning('تعذر التحليل الذكي، ويمكنك نشر النموذج مباشرة');
 				}
 		});
 	}
@@ -735,7 +736,7 @@ export class NewProject implements OnInit, OnDestroy {
 		});
 
 		this.stages.set(updated);
-		this.showToast('⚡ تم تطبيق المراحل والدفعات المقترحة بنجاح على مشروعك!');
+		this.notify.success('تم تطبيق المراحل والدفعات المقترحة بنجاح على مشروعك!');
 	}
 
 	applySuggestedPricing(): void {
@@ -753,7 +754,7 @@ export class NewProject implements OnInit, OnDestroy {
 				this.totalAmount.set(nums[0]);
 			}
 		}
-		this.showToast('💰 تم تعديل الميزانية الإجمالية وفق نطاق تسعير السوق المقترح!');
+		this.notify.success('تم تعديل الميزانية الإجمالية وفق نطاق تسعير السوق المقترح!');
 	}
 
 	private submitProject() {
@@ -780,8 +781,8 @@ export class NewProject implements OnInit, OnDestroy {
 		request$.subscribe({
 			next: (res) => {
 				this.isSubmitting.set(false);
-					const msg = this.isEditMode() ? '✅ تم تحديث النموذج ونشره مباشرة' : '✅ تم نشر مشروعك مباشرة في السوق';
-				this.showToast(msg);
+					const msg = this.isEditMode() ? 'تم تحديث النموذج ونشره مباشرة' : 'تم نشر مشروعك مباشرة في السوق';
+				this.notify.success(msg);
 				setTimeout(() => {
 					this.router.navigate(['/provider-overview/business-models/market']);
 				}, 1200);
@@ -795,17 +796,8 @@ export class NewProject implements OnInit, OnDestroy {
 						this.skillsError.set(serverMsg);
 						this.currentStep.set(2);
 					}
-					this.showToast(serverMsg || '⚠️ تعذر حفظ نموذج العمل. راجع البيانات وحاول مرة أخرى');
+					this.notify.error(serverMsg || 'تعذر حفظ نموذج العمل. راجع البيانات وحاول مرة أخرى');
 				}
 		});
-	}
-
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		setTimeout(() => {
-			if (this.toastMessage() === msg) {
-				this.toastMessage.set('');
-			}
-		}, 4000);
 	}
 }

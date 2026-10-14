@@ -201,15 +201,6 @@
 :host-context(.light-theme) .cat-sim-result,
 :host-context(.theme-light) .cat-sim-result { background: #fff; border-color: #E2E8F0; color: #334155; }
 
-.cat-toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 500; display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: linear-gradient(135deg, rgba(43,212,199,.14), rgba(43,127,255,.10)); border: 1px solid rgba(43,212,199,.30); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.4); backdrop-filter: blur(16px); }
-.cat-toast svg { width: 18px; height: 18px; color: #2BD4C7; flex-shrink: 0; }
-.cat-toast span { font-size: 14px; font-weight: 700; color: #fff; }
-
-:host-context(body.light-theme) .cat-toast span,
-:host-context(body.theme-light) .cat-toast span,
-:host-context(.light-theme) .cat-toast span,
-:host-context(.theme-light) .cat-toast span { color: #0F172A; }
-
 .cat-mov { position: fixed; inset: 0; background: rgba(7,13,36,.7); backdrop-filter: blur(6px); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .cat-mbox { background: rgba(11,20,55,.97); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 22px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
 

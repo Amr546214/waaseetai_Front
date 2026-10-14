@@ -108,8 +108,6 @@ export class Data implements OnInit {
 	activeTab = signal<string>('profile');
 	copiedField = signal<string>('');
 
-	toastMessage = signal<{ text: string; type: 'success' | 'error' } | null>(null);
-	private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
 	savingProfile = signal<boolean>(false);
 	savingPaypal = signal<boolean>(false);
@@ -381,7 +379,7 @@ export class Data implements OnInit {
 				if (res.success) {
 					this.loadProfile();
 					this.missing.set([]);
-					this.showToast(email ? 'تم حفظ بريد PayPal' : 'تم إزالة بريد PayPal', 'success');
+					this.notify.success(email ? 'تم حفظ بريد PayPal' : 'تم إزالة بريد PayPal');
 				} else {
 					this.tabNotice.set(this.arabicOr(res.message, 'تعذر حفظ بريد PayPal'));
 					this.notify.error(this.arabicOr(res.message, 'تعذر حفظ بريد PayPal'));
@@ -433,7 +431,7 @@ export class Data implements OnInit {
 					this.identitySentNow.set(true);
 					this.missing.set([]);
 					this.loadProfile();
-					this.showToast('تم إرسال طلب التعديل للمراجعة بنجاح', 'success');
+					this.notify.success('تم إرسال طلب التعديل للمراجعة بنجاح');
 				} else {
 					this.tabNotice.set(this.arabicOr(res.message, 'تعذر إرسال طلب التعديل'));
 					this.notify.error(this.arabicOr(res.message, 'تعذر إرسال طلب التعديل'));
@@ -466,7 +464,7 @@ export class Data implements OnInit {
 				if (res.success) {
 					this.loadProfile();
 					this.missing.set([]);
-					this.showToast(successMessage, 'success');
+					this.notify.success(successMessage);
 				} else {
 					if (revertAvatarUrlOnError !== undefined) this.marketingForm.patchValue({ avatarUrl: revertAvatarUrlOnError });
 					this.notify.error(this.arabicOr(res.message, 'تعذر حفظ التغييرات'));
@@ -537,7 +535,7 @@ export class Data implements OnInit {
 					this.loadProfile();
 					this.channelForm.reset({ platform: '', handle: '' });
 					this.channelMissing.set([]);
-					this.showToast('تمت إضافة القناة بنجاح', 'success');
+					this.notify.success('تمت إضافة القناة بنجاح');
 				} else {
 					this.notify.error(this.arabicOr(res.message, 'تعذر إضافة القناة'));
 				}
@@ -558,7 +556,7 @@ export class Data implements OnInit {
 			next: (res) => {
 				if (res.success) {
 					this.loadProfile();
-					this.showToast('تم حذف القناة بنجاح', 'success');
+					this.notify.success('تم حذف القناة بنجاح');
 				} else {
 					this.notify.error(this.arabicOr(res.message, 'تعذر حذف القناة'));
 				}
@@ -596,7 +594,7 @@ export class Data implements OnInit {
 				this.passwordForm.reset();
 				this.missing.set([]);
 				this.passwordFormVisible.set(false);
-				this.showToast('تم تغيير كلمة المرور بنجاح', 'success');
+				this.notify.success('تم تغيير كلمة المرور بنجاح');
 			},
 			error: (err: any) => {
 				this.isChangingPassword.set(false);
@@ -630,7 +628,7 @@ export class Data implements OnInit {
 				if (res.success) {
 					if (res.data) { this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...res.data }; this.prefsStore.apply(res.data); }
 					this.alertsLoadFailed.set(false);
-					this.showToast('تم حفظ الإعدادات بنجاح', 'success');
+					this.notify.success('تم حفظ الإعدادات بنجاح');
 				} else {
 					this.notify.error(this.arabicOr(res.message, 'تعذر حفظ الإعدادات'));
 				}
@@ -657,13 +655,6 @@ export class Data implements OnInit {
 			},
 			error: (err) => { this.exportingData.set(false); this.notify.httpError(err, { fallback: 'تعذر تنزيل بياناتك، حاول مرة أخرى' }); }
 		});
-	}
-
-	private showToast(text: string, type: 'success' | 'error' = 'success') {
-		this.toastMessage.set({ text, type });
-		// A newer toast must not be cleared early by the timer of an older one.
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => { this.toastMessage.set(null); this.toastTimer = null; }, type === 'error' ? 5000 : 3000);
 	}
 
 	copyToClipboard(text: string, field: string) {

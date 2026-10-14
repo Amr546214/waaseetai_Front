@@ -58,7 +58,6 @@ export class ProfileLogs implements OnInit {
 
 	activeTab = signal<'add' | 'complete' | 'security'>('add');
 	state = signal<'loading' | 'error' | 'default'>('loading');
-	showToast = signal(false);
 
 	addRequests = signal<RequestLog[]>([]);
 	completeRequests = signal<RequestLog[]>([]);
@@ -154,10 +153,5 @@ export class ProfileLogs implements OnInit {
 
 	setTab(tab: 'add' | 'complete' | 'security') {
 		this.activeTab.set(tab);
-	}
-
-	triggerToast() {
-		this.showToast.set(true);
-		setTimeout(() => this.showToast.set(false), 3000);
 	}
 }

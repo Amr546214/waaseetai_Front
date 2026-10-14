@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal, computed, OnInit, OnDestroy, inject, effect, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { NotificationEngineService, AppNotification } from '../../../../../core/services/notification-engine.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { Subscription } from 'rxjs';
@@ -163,6 +164,7 @@ export type { AppNotification };
 })
 export class NotificationsCenter implements OnInit, OnDestroy {
 	private notificationEngine = inject(NotificationEngineService);
+	private notify = inject(UiNotificationService);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private platformId = inject(PLATFORM_ID);
@@ -171,7 +173,6 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	activeFilter = signal<string>('all');
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
-	toastMessage = signal<string | null>(null);
 	markingAll = signal<boolean>(false);
 
 	filters = [
@@ -324,12 +325,12 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 				this.markingAll.set(false);
 				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false })));
 				this.notificationEngine.unreadCount.set(0);
-				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+				this.notify.success('تم تعليم كل الإشعارات كمقروءة');
 			},
 			error: () => {
 				// Never fake it: the server did not record it, so the list and the counters stay as they are.
 				this.markingAll.set(false);
-				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
+				this.notify.error('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
 			}
 		});
 	}
@@ -375,13 +376,6 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 				this.isLoading.set(false);
 			}
 		});
-	}
-
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		setTimeout(() => {
-			this.toastMessage.set(null);
-		}, 3000);
 	}
 
 	goToSettings() {

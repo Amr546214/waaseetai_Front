@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { CreateRequest, resetCreateRequestPageLoadState } from './create-request';
 
 const META = { success: true, data: { categories: [
@@ -53,7 +54,7 @@ describe('create-request step 1: the specialty suggestion is real or absent', ()
 		TestBed.resetTestingModule();
 		const el2 = await mount(() => throwError(() => new Error('500')));
 		expect(el2.querySelector('[data-testid=rec-banner]')).toBeNull();
-		expect(c.toast()).toBeNull();
+		expect(TestBed.inject(UiNotificationService).toasts()).toEqual([]);
 		c.selectSpec('c-des'); c.toggleSub('شعارات وهوية بصرية');
 		expect(c.selectedSpec()).toBe('c-des');
 		expect(c.selectedSubs().has('شعارات وهوية بصرية')).toBe(true);

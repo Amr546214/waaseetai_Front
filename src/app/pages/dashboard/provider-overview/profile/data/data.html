@@ -615,7 +615,4 @@
         (click)="closeOtpModal()">إلغاء</button><button type="button" class="modal-btn modal-btn-confirm" [disabled]="isVerifyingOtp()" (click)="verifyOtp()">{{ isVerifyingOtp() ? 'جاري التأكيد...' : 'تأكيد الرمز' }}</button></div>
   </div>
 </div>}
-@if(showToast()){<div class="ws-toast-wrap" role="status">
-  <div class="ws-toast">{{ showToast() }}</div>
-</div>}
 }

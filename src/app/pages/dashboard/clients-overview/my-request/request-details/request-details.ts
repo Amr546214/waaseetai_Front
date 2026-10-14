@@ -5,6 +5,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { ThemeService } from '../../../../../core/services/theme.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ChatService } from '../../../../../core/services/chat.service';
 import { resolveProviderLevelBadgeStyle } from '../../../../../core/utils/provider-level-style.util';
 
@@ -89,6 +90,7 @@ export class RequestDetails implements OnInit {
 	private http = inject(HttpClient);
 	public themeService = inject(ThemeService);
 	private chatService = inject(ChatService);
+	private notify = inject(UiNotificationService);
 
 	requestId = signal<string>('');
 	isLoading = signal<boolean>(true);
@@ -130,9 +132,6 @@ export class RequestDetails implements OnInit {
 	});
 	comparisonNamesText = computed<string>(() => this.comparisonOffers().map(o => o.providerName).join('، '));
 
-	// Toast state
-	showToastSignal = signal<boolean>(false);
-	toastMessage = signal<string>('');
 
 	// Negotiation modal state
 	showNegModal = signal<boolean>(false);
@@ -306,7 +305,7 @@ export class RequestDetails implements OnInit {
 			if (current.length < 3) {
 				this.selectedForCompare.set([...current, offerName]);
 			} else {
-				this.showToast('يمكنك مقارنة 3 عروض كحد أقصى');
+				this.notify.warning('يمكنك مقارنة 3 عروض كحد أقصى');
 			}
 		}
 	}
@@ -327,15 +326,6 @@ export class RequestDetails implements OnInit {
 	cancelCompare() {
 		this.selectedForCompare.set([]);
 		this.isCompareMode.set(false);
-	}
-
-	// Toast logic
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		this.showToastSignal.set(true);
-		setTimeout(() => {
-			this.showToastSignal.set(false);
-		}, 3500);
 	}
 
 	selectedOffer = signal<Offer | null>(null);
@@ -389,7 +379,7 @@ export class RequestDetails implements OnInit {
 	openNegotiation(offer: Offer) {
 		const blocked = this.negotiateDisabledReason(offer);
 		if (blocked) {
-			this.showToast(blocked);
+			this.notify.warning(blocked);
 			return;
 		}
 		this.selectedOffer.set(offer);
@@ -447,7 +437,7 @@ export class RequestDetails implements OnInit {
 		if (this.isSendingNegotiation()) return;
 		const invalid = this.negValidationError();
 		if (invalid) {
-			this.showToast(invalid);
+			this.notify.warning(invalid);
 			return;
 		}
 
@@ -477,7 +467,7 @@ export class RequestDetails implements OnInit {
 				this.isSendingNegotiation.set(false);
 				const cid = res?.data?.id;
 				if (!cid) {
-					this.showToast('تعذر فتح غرفة التفاوض، حاول مرة أخرى');
+					this.notify.error('تعذر فتح غرفة التفاوض، حاول مرة أخرى');
 					return;
 				}
 				this.closeNegotiation();
@@ -486,7 +476,7 @@ export class RequestDetails implements OnInit {
 			error: (err) => {
 				this.isSendingNegotiation.set(false);
 				this.closeNegotiation();
-				this.showToast(this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
+				this.notify.error(this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
 				// the reason may be a state change (offer withdrawn / chosen): reload so the buttons match the server
 				this.fetchRequestDetails(this.requestId());
 			}
@@ -495,7 +485,7 @@ export class RequestDetails implements OnInit {
 
 	startChat(offer: Offer) {
 		if (!this.canChatOffer(offer)) {
-			this.showToast(offer.actions?.chatBlockedReason || 'المحادثة غير متاحة حاليًا');
+			this.notify.warning(offer.actions?.chatBlockedReason || 'المحادثة غير متاحة حاليًا');
 			return;
 		}
 		const providerId = offer.providerId || offer.provider?.id || offer.id;
@@ -507,13 +497,13 @@ export class RequestDetails implements OnInit {
 			next: (res) => {
 				const cid = res?.data?.id;
 				if (!cid) {
-					this.showToast('تعذر فتح المحادثة، حاول مرة أخرى');
+					this.notify.error('تعذر فتح المحادثة، حاول مرة أخرى');
 					return;
 				}
 				this.router.navigate(['/client-overview/messages'], { queryParams: { conversationId: cid } });
 			},
 			error: (err) => {
-				this.showToast(this.errorText(err, 'تعذر فتح المحادثة، حاول مرة أخرى'));
+				this.notify.error(this.errorText(err, 'تعذر فتح المحادثة، حاول مرة أخرى'));
 			}
 		});
 	}
@@ -521,7 +511,7 @@ export class RequestDetails implements OnInit {
 	acceptOffer(offer: Offer) {
 		if (this.isSelectingOffer()) return;
 		if (!this.canSelectOffer(offer)) {
-			this.showToast(this.offerBlockedReason(offer) || 'لا يمكن اختيار هذا العرض حاليًا');
+			this.notify.warning(this.offerBlockedReason(offer) || 'لا يمكن اختيار هذا العرض حاليًا');
 			return;
 		}
 		this.isSelectingOffer.set(true);
@@ -530,7 +520,7 @@ export class RequestDetails implements OnInit {
 				next: (res) => {
 					this.isSelectingOffer.set(false);
 					if (!res?.success) {
-						this.showToast(res?.message || 'تعذر اختيار العرض');
+						this.notify.error(res?.message || 'تعذر اختيار العرض');
 						return;
 					}
 					this.router.navigate(['/client-overview/my-requests', this.requestId(), 'contract'], {
@@ -539,7 +529,7 @@ export class RequestDetails implements OnInit {
 				},
 				error: (err) => {
 					this.isSelectingOffer.set(false);
-					this.showToast(this.errorText(err, 'تعذر اختيار العرض، حاول مرة أخرى'));
+					this.notify.error(this.errorText(err, 'تعذر اختيار العرض، حاول مرة أخرى'));
 					this.fetchRequestDetails(this.requestId());
 				}
 			});
@@ -554,12 +544,12 @@ export class RequestDetails implements OnInit {
 			.subscribe({
 				next: (res) => {
 					this.answeringOfferId.set(null);
-					this.showToast(res?.message || (action === 'accept' ? 'تم قبول العرض المضاد' : 'تم رفض العرض المضاد'));
+					this.notify.success(res?.message || (action === 'accept' ? 'تم قبول العرض المضاد' : 'تم رفض العرض المضاد'));
 					this.fetchRequestDetails(this.requestId());
 				},
 				error: (err) => {
 					this.answeringOfferId.set(null);
-					this.showToast(this.errorText(err, 'تعذر تنفيذ الإجراء، حاول مرة أخرى'));
+					this.notify.error(this.errorText(err, 'تعذر تنفيذ الإجراء، حاول مرة أخرى'));
 					this.fetchRequestDetails(this.requestId());
 				}
 			});

@@ -5,6 +5,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthStore } from '../../core/store/auth.store';
 import { AccountService } from '../../core/services/account.service';
+import { UiNotificationService } from '../../core/services/ui-notification.service';
 import { NotificationEngineService } from '../../core/services/notification-engine.service';
 import { ChatStateService } from '../../core/services/chat-state.service';
 import { CartService } from '../../core/services/cart.service';
@@ -29,6 +30,7 @@ export class Navbar {
 	public accountService = inject(AccountService);
 	public router = inject(Router);
 	public notifEngine = inject(NotificationEngineService);
+	private notify = inject(UiNotificationService);
 	public chatState = inject(ChatStateService);
 	public cartService = inject(CartService);
 	private cdRef = inject(ChangeDetectorRef);
@@ -171,10 +173,7 @@ export class Navbar {
 			next: () => {
 				this.isUserDropdownOpen.set(false);
 				this.isDashSubMenuOpen.set(false);
-				this.notifEngine.triggerToast({
-					title: 'تم تبديل الحساب بنجاح',
-					message: `أنت الآن في لوحة ${this.getRoleLabel(role)}`
-				});
+				this.notify.success(`أنت الآن في لوحة ${this.getRoleLabel(role)}`, { title: 'تم تبديل الحساب بنجاح' });
 
 				const targetUrl = this.getRoleDashboardUrl(role);
 				if (typeof window !== 'undefined') {
@@ -185,10 +184,7 @@ export class Navbar {
 			},
 			error: (err: any) => {
 				const msg = err?.error?.message || 'تعذر تبديل الحساب';
-				this.notifEngine.triggerToast({
-					title: 'خطأ في تبديل الحساب',
-					message: msg
-				});
+				this.notify.error(msg, { title: 'خطأ في تبديل الحساب' });
 			}
 		});
 	}

@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { TicketApiService, SupportTicket, CreateTicketPayload } from '../../../../core/services/ticket-api.service';
 import { TICKET_STATUS_LABELS } from './ticket-detail/ticket-detail';
 
@@ -22,6 +23,7 @@ export class Help implements OnInit {
 	readonly assistant = inject(AssistantStore);
 	private overviewService = inject(MarketerOverviewService);
 	private ticketApi = inject(TicketApiService);
+	private notify = inject(UiNotificationService);
 	private route = inject(ActivatedRoute, { optional: true });
 
 	summary = signal<MarketerSummary | null>(null);
@@ -29,7 +31,6 @@ export class Help implements OnInit {
 	searchQuery = signal<string>('');
 	searchedQuery = signal<string>('');
 
-	toastMessage = signal<string | null>(null);
 	faqState = signal<boolean[]>([false, false, false, false, false]);
 
 	// --- Real, authenticated support tickets ---
@@ -109,7 +110,7 @@ export class Help implements OnInit {
 				this.ticketSubject.set('');
 				this.ticketDescription.set('');
 				this.newTicketFormVisible.set(false);
-				this.showToast(res.message || 'تم فتح تذكرتك بنجاح');
+				this.notify.success(res.message || 'تم فتح تذكرتك بنجاح');
 			},
 			error: (err: any) => {
 				this.isCreatingTicket.set(false);
@@ -137,10 +138,5 @@ export class Help implements OnInit {
 		const state = [...this.faqState()];
 		state[index] = !state[index];
 		this.faqState.set(state);
-	}
-
-	showToast(msg: string): void {
-		this.toastMessage.set(msg);
-		setTimeout(() => this.toastMessage.set(null), 3000);
 	}
 }

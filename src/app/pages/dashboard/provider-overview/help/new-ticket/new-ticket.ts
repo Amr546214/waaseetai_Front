@@ -6,6 +6,7 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { TicketApiService } from '../../../../../core/services/ticket-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 @Component({
 	selector: 'app-new-ticket',
@@ -19,6 +20,7 @@ export class NewTicketComponent {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private ticketApi = inject(TicketApiService);
+	private notify = inject(UiNotificationService);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -34,7 +36,6 @@ export class NewTicketComponent {
 	relatedMember = signal<string>('');
 	ccEmail = signal<string>('');
 	submitting = signal<boolean>(false);
-	toast = signal<string | null>(null);
 
 	categories = [
 		'العقود والضمان',
@@ -109,21 +110,16 @@ export class NewTicketComponent {
 			next: (res) => {
 				this.submitting.set(false);
 				if (res.success && res.data) {
-					this.showToast('تم فتح تذكرتك بنجاح');
+					this.notify.success('تم فتح تذكرتك بنجاح');
 					setTimeout(() => this.router.navigate(['/provider-overview/help/tickets', res.data!.id]), 1200);
 				} else {
-					this.showToast(res.message || 'تعذر فتح التذكرة');
+					this.notify.error(res.message || 'تعذر فتح التذكرة');
 				}
 			},
 			error: (err) => {
 				this.submitting.set(false);
-				this.showToast(err?.error?.message || 'تعذر فتح التذكرة، حاول مرة أخرى');
+				this.notify.error(err?.error?.message || 'تعذر فتح التذكرة، حاول مرة أخرى');
 			}
 		});
-	}
-
-	showToast(msg: string) {
-		this.toast.set(msg);
-		setTimeout(() => this.toast.set(null), 3000);
 	}
 }

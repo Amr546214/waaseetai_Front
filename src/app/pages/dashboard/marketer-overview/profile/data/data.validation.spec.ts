@@ -152,7 +152,7 @@ describe('Data (marketer profile): shared validation', () => {
       c.removeAvatar();
       expect(svc.updateMarketingInfo).not.toHaveBeenCalled();
       expect(c.avatarError()).toContain('لا توجد صورة');
-      expect(c.toastMessage()).toBeNull();
+      expect(TestBed.inject(UiNotificationService).toasts().length).toBe(0);
     });
   });
 
@@ -278,7 +278,7 @@ describe('Data (marketer profile): shared validation', () => {
       c.paypalForm.patchValue({ paypalPayoutEmail: 'new@example.com' });
       c.savePaypal(); render();
       expect(svc.updatePaypalPayout).toHaveBeenCalledWith('new@example.com');
-      expect(c.toastMessage()?.text).toBe('تم حفظ بريد PayPal');
+      expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم حفظ بريد PayPal' });
       expect(el().querySelector('.modal-ov')).toBeNull();
     });
 
@@ -286,7 +286,7 @@ describe('Data (marketer profile): shared validation', () => {
       c.paypalForm.patchValue({ paypalPayoutEmail: '' });
       c.savePaypal(); render();
       expect(svc.updatePaypalPayout).toHaveBeenCalledWith('');
-      expect(c.toastMessage()?.text).toBe('تم إزالة بريد PayPal');
+      expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم إزالة بريد PayPal' });
     });
 
     it('a server 400 (zod errors[]) lands on the PayPal field in Arabic', () => {
@@ -411,7 +411,7 @@ describe('Data (marketer profile): shared validation', () => {
 
     it('success toast, button never disabled while idle', () => {
       c.saveAlertPreferences();
-      expect(c.toastMessage()?.text).toContain('تم حفظ');
+      expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: expect.stringContaining('تم حفظ') });
       expect(btn('حفظ الإعدادات').disabled).toBe(false);
     });
 
@@ -422,16 +422,16 @@ describe('Data (marketer profile): shared validation', () => {
     });
   });
 
-  it('an older success toast timer does not clear a newer toast', async () => {
+  it('saving again refreshes the central success toast instead of letting the older timer clear it', async () => {
     vi.useFakeTimers();
     try {
       c.saveAlertPreferences();
       vi.advanceTimersByTime(2000);
       c.saveAlertPreferences();
       vi.advanceTimersByTime(2000);
-      expect(c.toastMessage()).not.toBeNull();
+      expect(TestBed.inject(UiNotificationService).toasts().length).toBe(1);
       vi.advanceTimersByTime(1500);
-      expect(c.toastMessage()).toBeNull();
+      expect(TestBed.inject(UiNotificationService).toasts().length).toBe(0);
     } finally { vi.useRealTimers(); }
   });
 });

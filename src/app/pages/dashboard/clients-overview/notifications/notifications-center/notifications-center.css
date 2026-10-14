@@ -263,23 +263,6 @@
   color: #0A6F64 !important;
 }
 
-/* --- Toast container --- */
-:host-context(body.light-theme) .fixed.top-\[72px\] > div,
-:host-context(body.theme-light) .fixed.top-\[72px\] > div,
-:host-context(.light-theme) .fixed.top-\[72px\] > div,
-:host-context(.theme-light) .fixed.top-\[72px\] > div {
-  background: #FFFFFF !important;
-  border-color: #A3ECE5 !important;
-  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12) !important;
-}
-
-:host-context(body.light-theme) .fixed.top-\[72px\] .text-\[\#2BD4C7\],
-:host-context(body.theme-light) .fixed.top-\[72px\] .text-\[\#2BD4C7\],
-:host-context(.light-theme) .fixed.top-\[72px\] .text-\[\#2BD4C7\],
-:host-context(.theme-light) .fixed.top-\[72px\] .text-\[\#2BD4C7\] {
-  color: #0A6F64 !important;
-}
-
 /* --- Generic white-text fallback (#fff / #ffffff) --- */
 :host-context(body.light-theme) [class*="text-[#fff]"],
 :host-context(body.theme-light) [class*="text-[#fff]"],

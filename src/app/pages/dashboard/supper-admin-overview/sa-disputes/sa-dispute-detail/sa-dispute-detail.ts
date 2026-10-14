@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, DisputeAiSummary } from '../../../../../core/models/dispute.model';
 
 @Component({
@@ -19,6 +20,7 @@ export class SaDisputeDetail implements OnInit {
   private router = inject(Router);
   private disputeApi = inject(DisputeApiService);
   private opsApi = inject(AdminOpsApiService);
+  private notify = inject(UiNotificationService);
 
   selectedDispute = signal<Dispute | null>(null);
   loading = signal(true);
@@ -31,7 +33,6 @@ export class SaDisputeDetail implements OnInit {
   resolutionNote = signal('');
   submittingResolve = signal(false);
   resolveError = signal('');
-  resolveSuccess = signal('');
   // Two-step resolve: the form first, then an explicit warning/confirmation before anything is sent.
   confirmingResolve = signal(false);
 
@@ -41,8 +42,6 @@ export class SaDisputeDetail implements OnInit {
   selectedAssigneeId = signal('');
   noteDraft = signal('');
   opBusy = signal(false);
-  opError = signal('');
-  opSuccess = signal('');
 
   readonly noEscalationBackend = 'يحتاج قرار منتج/جدول بيانات غير متوفر';
 
@@ -111,9 +110,6 @@ export class SaDisputeDetail implements OnInit {
     this.aiSummary.set(null);
     this.aiSummaryError.set('');
     this.splitClaimantPct.set(50);
-    this.resolveSuccess.set('');
-    this.opError.set('');
-    this.opSuccess.set('');
     this.noteDraft.set('');
     this.cancelResolveForm();
     this.disputeApi.getAdminDispute(id).subscribe({
@@ -203,9 +199,9 @@ export class SaDisputeDetail implements OnInit {
           this.selectedDispute.set(res.data);
           this.selectedAssigneeId.set(res.data.assignedTo?.id ?? '');
         }
-        this.opSuccess.set(successMsg);
+        this.notify.success(successMsg);
       },
-      error: () => this.opSuccess.set(`${successMsg} (تعذر تحديث العرض، أعد تحميل الصفحة)`),
+      error: () => this.notify.warning(`${successMsg} (تعذر تحديث العرض، أعد تحميل الصفحة)`),
     });
   }
 
@@ -213,8 +209,6 @@ export class SaDisputeDetail implements OnInit {
     const dispute = this.selectedDispute();
     if (!dispute || this.opBusy()) return;
     this.opBusy.set(true);
-    this.opError.set('');
-    this.opSuccess.set('');
     call(dispute.id).subscribe({
       next: (res) => {
         this.opBusy.set(false);
@@ -222,12 +216,12 @@ export class SaDisputeDetail implements OnInit {
           after?.();
           this.reload(successMsg);
         } else {
-          this.opError.set(res.message || fail);
+          this.notify.error(res.message || fail);
         }
       },
       error: (err) => {
         this.opBusy.set(false);
-        this.opError.set(err?.error?.message || fail);
+        this.notify.error(err?.error?.message || fail);
       },
     });
   }
@@ -296,7 +290,6 @@ export class SaDisputeDetail implements OnInit {
     this.resolutionText.set('');
     this.resolutionNote.set('');
     this.resolveError.set('');
-    this.resolveSuccess.set('');
     this.confirmingResolve.set(false);
     this.showResolveForm.set(true);
   }
@@ -350,7 +343,7 @@ export class SaDisputeDetail implements OnInit {
       next: (res) => {
         this.submittingResolve.set(false);
         if (res.success) {
-          this.resolveSuccess.set('تم تسجيل القرار وإبلاغ الطرفين');
+          this.notify.success('تم تسجيل القرار وإبلاغ الطرفين');
           this.showResolveForm.set(false);
           this.resolveAction.set(null);
           this.resolutionText.set('');

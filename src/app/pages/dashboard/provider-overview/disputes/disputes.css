@@ -42,14 +42,3 @@
   --ai-nte-bg: rgba(123, 47, 190, .06);
   --ai-nte-clr: #56607D;
 }
-
-/* ---- White text (#fff) -> #070D24 ----
-   The toast uses a hardcoded `text-white` utility that does not
-   reference var(--txt), so it must be patched explicitly.
------------------------------------------------------------ */
-:host-context(body.light-theme) .text-white,
-:host-context(body.theme-light) .text-white,
-:host-context(.light-theme) .text-white,
-:host-context(.theme-light) .text-white {
-  color: #070D24;
-}

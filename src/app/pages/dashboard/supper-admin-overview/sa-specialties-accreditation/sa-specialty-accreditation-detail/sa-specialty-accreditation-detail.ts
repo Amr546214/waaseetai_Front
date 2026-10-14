@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   SpecialtyDecision, SpecialtyReviewDetail, STATUS_CLASS, STATUS_TEXT, initialOf, isWebUrl, parseAiFeedback,
 } from '../sa-specialties-accreditation.data';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SaSpecialtyReviewService } from '../sa-specialty-review.service';
 import { SaSpecialtyDecisionModal } from '../sa-specialty-decision-modal';
 
@@ -18,8 +19,8 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private api = inject(SaSpecialtyReviewService);
+  private notify = inject(UiNotificationService);
 
-  toast = signal('');
   detail = signal<SpecialtyReviewDetail | null>(null);
   loading = signal(true);
   notFound = signal(false);
@@ -37,7 +38,6 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
   /** Stored AI result of the assessment (null when the specialty has none). */
   aiFeedback = computed(() => parseAiFeedback(this.detail()?.aiFeedback));
 
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -110,7 +110,7 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
       next: () => {
         this.deciding.set(false);
         this.pendingDecision.set(null);
-        this.showToast(decision === 'APPROVED' ? 'تم قبول التخصص وإشعار مقدم الخدمة' : 'تم رفض التخصص وإشعار مقدم الخدمة بالسبب');
+        this.notify.success(decision === 'APPROVED' ? 'تم قبول التخصص وإشعار مقدم الخدمة' : 'تم رفض التخصص وإشعار مقدم الخدمة بالسبب');
         this.fetch(d.id);
       },
       error: (err) => {
@@ -130,11 +130,5 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
 
   score(v: number | null | undefined): string {
     return v == null ? '—' : String(v);
-  }
-
-  showToast(msg: string) {
-    this.toast.set(msg);
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.toast.set(''), 3000);
   }
 }

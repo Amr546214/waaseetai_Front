@@ -3,6 +3,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SaKyc } from './sa-kyc';
 import { SaKycService } from './sa-kyc.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { KycDocumentService } from '../../../../core/services/kyc-document.service';
 
 // Approve / reject need a confirmation modal; reject needs a written reason (>= 2 chars); BE messages are shown; a 409 refreshes the list.
@@ -32,7 +33,7 @@ describe('sa-kyc decisions', () => {
 		component.openActionModal('reject'); component.actionReason.set('الصورة غير واضحة');
 		component.confirmAction();
 		expect(svc['rejectKycProvider']).toHaveBeenCalledWith('u-1', { rejectionReason: 'الصورة غير واضحة' });
-		expect(component.successMessage()).toContain('إشعار');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => t.kind + ':' + t.message).join('|')).toMatch(/success:.*إشعار/);
 		expect(svc['getKycProviders'].mock.calls.length).toBeGreaterThan(1);
 	});
 

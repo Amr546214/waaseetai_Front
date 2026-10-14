@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 import { ProfileAiReview } from '../../../../core/models/ai-result.model';
 import { ProfileAiReviewComponent } from '../../../../shared/ai/profile-ai-review.component';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaModificationRequestsService, AffiliateChangeRequest, ProfileModificationRequestRow } from './sa-modification-requests.service';
 
 type ReqStatus = 'ai' | 'human' | 'ok' | 'rejected';
@@ -47,9 +48,9 @@ interface ModificationRequest {
 })
 export class SaModificationRequests implements OnInit {
   private service = inject(SaModificationRequestsService);
+  private notify = inject(UiNotificationService);
 
   activeFilter = signal<FilterKey>('all');
-  toast = signal('');
   isLoading = signal(false);
   hasError = signal(false);
   processingId = signal<string | null>(null);
@@ -136,13 +137,13 @@ export class SaModificationRequests implements OnInit {
     ).subscribe({
       next: (res) => {
         if (res.success) {
-          this.showToast(`تم اعتماد الطلب ${req.requestNumber} وتطبيق التعديل`);
+          this.notify.success(`تم اعتماد الطلب ${req.requestNumber} وتطبيق التعديل`);
           this.loadRequests();
         } else {
-          this.showToast(res.message || 'تعذر اعتماد الطلب');
+          this.notify.error(res.message || 'تعذر اعتماد الطلب');
         }
       },
-      error: (err) => this.showToast(err?.error?.message || 'تعذر اعتماد الطلب، حاول مرة أخرى')
+      error: (err) => this.notify.error(err?.error?.message || 'تعذر اعتماد الطلب، حاول مرة أخرى')
     });
   }
 
@@ -159,19 +160,14 @@ export class SaModificationRequests implements OnInit {
     ).subscribe({
       next: (res) => {
         if (res.success) {
-          this.showToast(`تم رفض الطلب ${req.requestNumber}`);
+          this.notify.success(`تم رفض الطلب ${req.requestNumber}`);
           this.loadRequests();
         } else {
-          this.showToast(res.message || 'تعذر رفض الطلب');
+          this.notify.error(res.message || 'تعذر رفض الطلب');
         }
       },
-      error: (err) => this.showToast(err?.error?.message || 'تعذر رفض الطلب، حاول مرة أخرى')
+      error: (err) => this.notify.error(err?.error?.message || 'تعذر رفض الطلب، حاول مرة أخرى')
     });
-  }
-
-  showToast(msg: string) {
-    this.toast.set(msg);
-    setTimeout(() => this.toast.set(''), 3000);
   }
 
   private mapStatus(status: AffiliateChangeRequest['status']): ReqStatus {

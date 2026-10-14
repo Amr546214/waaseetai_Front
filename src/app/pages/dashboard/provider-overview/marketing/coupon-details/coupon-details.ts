@@ -12,9 +12,10 @@ import { NewProjectService } from '../../../../../core/services/new-project.serv
 import { CouponStats, ProviderCoupon } from '../../../../../core/models/marketing.model';
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import {
-  Flash, ProviderModelOption, STATUS_LABELS, STATUS_PILL, avatarGradient, couponStatus, formatDay, formatMoney, formatNumber,
+  ProviderModelOption, STATUS_LABELS, STATUS_PILL, avatarGradient, couponStatus, formatDay, formatMoney, formatNumber,
   httpErrorMessage, initials, isToggleable, mapProviderModels, relativeTime, validityLabel,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 /** P-PR-040-تفاصيل / P-CO-MK-006-تفاصيل — coupon stats & details. */
 @Component({
@@ -26,6 +27,7 @@ import {
 })
 export class MarketingCouponDetails implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private couponApi = inject(ProviderCouponService);
   private centerApi = inject(MarketingCenterService);
   private teamApi = inject(CompanyTeamService);
@@ -43,7 +45,6 @@ export class MarketingCouponDetails implements OnInit {
   readonly rel = relativeTime;
   readonly initials = initials;
   readonly avatarBg = avatarGradient;
-  readonly flash = new Flash();
 
   coupon = signal<ProviderCoupon | null>(null);
   stats = signal<CouponStats | null>(null);
@@ -174,7 +175,7 @@ export class MarketingCouponDetails implements OnInit {
 
   copyCode(): void {
     const code = this.coupon()?.code;
-    if (code) navigator.clipboard?.writeText(code).then(() => this.flash.show(`تم نسخ الكود ${code}`), () => undefined);
+    if (code) navigator.clipboard?.writeText(code).then(() => this.notify.success(`تم نسخ الكود ${code}`), () => undefined);
   }
 
   toggleActive(ev: Event): void {
@@ -187,12 +188,12 @@ export class MarketingCouponDetails implements OnInit {
       next: res => {
         this.coupon.set(res.data);
         this.busy.set(false);
-        this.flash.show(res.data.active ? 'تم تفعيل الكوبون' : 'تم إيقاف الكوبون');
+        this.notify.success(res.data.active ? 'تم تفعيل الكوبون' : 'تم إيقاف الكوبون');
       },
       error: err => {
         input.checked = !next;
         this.busy.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر تحديث حالة الكوبون'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر تحديث حالة الكوبون'));
       },
     });
   }
@@ -201,7 +202,7 @@ export class MarketingCouponDetails implements OnInit {
     const c = this.coupon();
     if (!c) return;
     if (decision === 'REJECTED' && !this.rejectReason.trim()) {
-      this.flash.show('يجب توضيح سبب الرفض', true);
+      this.notify.warning('يجب توضيح سبب الرفض');
       return;
     }
     this.busy.set(true);
@@ -211,11 +212,11 @@ export class MarketingCouponDetails implements OnInit {
         this.busy.set(false);
         this.rejecting.set(false);
         this.centerApi.refreshPendingCount();
-        this.flash.show(decision === 'APPROVED' ? 'تم اعتماد الكوبون' : 'تم رفض الكوبون');
+        this.notify.success(decision === 'APPROVED' ? 'تم اعتماد الكوبون' : 'تم رفض الكوبون');
       },
       error: err => {
         this.busy.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر تسجيل القرار'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر تسجيل القرار'));
       },
     });
   }

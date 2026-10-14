@@ -13,9 +13,10 @@ import { CouponDiscountType, CreateCouponPayload, ProviderCoupon, UpdateCouponPa
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import { MarketingAssignPicker } from '../assign-picker/assign-picker';
 import {
-  COMPANY_APPROVAL_THRESHOLD, Flash, ProviderModelOption, couponNeedsApproval, dateInputToIso, httpErrorMessage, isoToDateInput,
+  COMPANY_APPROVAL_THRESHOLD, ProviderModelOption, couponNeedsApproval, dateInputToIso, httpErrorMessage, isoToDateInput,
   mapProviderModels, todayInput,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const CODE_RE = /^[A-Za-z0-9_-]{3,50}$/;
 const MAX_SCOPE = 50;
@@ -48,6 +49,7 @@ type Errors = Partial<Record<keyof CouponForm, string>>;
 })
 export class MarketingCouponForm implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private couponApi = inject(ProviderCouponService);
   private teamApi = inject(CompanyTeamService);
   private modelsApi = inject(NewProjectService);
@@ -58,7 +60,6 @@ export class MarketingCouponForm implements OnInit {
 
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
   readonly threshold = COMPANY_APPROVAL_THRESHOLD;
-  readonly flash = new Flash();
 
   editId = signal<string | null>(null);
   original = signal<ProviderCoupon | null>(null);
@@ -260,7 +261,7 @@ export class MarketingCouponForm implements OnInit {
       },
       error: err => {
         this.saving.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر حفظ الكوبون'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر حفظ الكوبون'));
       },
     });
   }

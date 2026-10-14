@@ -117,17 +117,3 @@
   </div>
 </div>
 
-@if (toastMessage(); as toast) {
-<div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
-	<div [style]="toast.type === 'error'
-		? 'display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(255,140,105,.16),rgba(180,35,24,.10));border:1px solid rgba(255,140,105,.35);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)'
-		: 'display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)'">
-		@if (toast.type === 'error') {
-		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF8C69" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-		} @else {
-		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-		}
-		<span style="font-size:14px;font-weight:700" class="txt-white">{{ toast.text }}</span>
-	</div>
-</div>
-}

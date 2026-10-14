@@ -204,7 +204,7 @@
   color: #0A6F64;
 }
 
-/* ---- Toast panel ---- */
+/* ---- Glass panels (light theme) ---- */
 :host-context(body.light-theme) .backdrop-blur-md,
 :host-context(body.theme-light) .backdrop-blur-md,
 :host-context(.light-theme) .backdrop-blur-md,

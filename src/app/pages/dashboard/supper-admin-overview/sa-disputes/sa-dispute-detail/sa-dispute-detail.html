@@ -185,12 +185,6 @@
           </div>
         </div>
 
-        @if (opError()) {
-          <p class="dp-rf-err">{{ opError() }}</p>
-        }
-        @if (opSuccess()) {
-          <div class="dp-md-success"><p>{{ opSuccess() }}</p></div>
-        }
 
         <!-- Advisory-only AI summary — never resolves/rejects, never
              pre-fills the manual decision form below. -->
@@ -256,11 +250,6 @@
           </div>
         }
 
-        @if (resolveSuccess()) {
-          <div class="dp-md-success">
-            <p>{{ resolveSuccess() }}</p>
-          </div>
-        }
       </div>
 
       @if (canResolve(d.status) && !showResolveForm()) {

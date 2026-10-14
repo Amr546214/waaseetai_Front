@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { mapHttpError } from '../../../../../core/forms/http-error';
 
@@ -194,10 +195,10 @@ export class Account implements OnInit {
   private router = inject(Router);
   private profileApi = inject(ProfileApiService);
   private sessionsApi = inject(ProviderProfileService);
+  private notify = inject(UiNotificationService);
 
   isLoading = signal<boolean>(true);
   hasError = signal<boolean>(false);
-  toastMessage = signal<string | null>(null);
 
   // No 2FA / login-alert capability exists in the backend: both stay visibly unavailable (disabled, with the reason in the template).
   twoFactorAuth = signal<boolean>(false);
@@ -246,7 +247,7 @@ export class Account implements OnInit {
         this.isSaving.set(false);
         if (!res?.success) { this.saveError.set(res?.message || 'تعذر حفظ التفضيلات'); return; }
         this.saved.set({ language: payload.interfaceLanguage, timezone: payload.timezone });
-        this.showToast('تم حفظ تفضيلات اللغة والمنطقة الزمنية');
+        this.notify.success('تم حفظ تفضيلات اللغة والمنطقة الزمنية');
       },
       error: (err: unknown) => {
         this.isSaving.set(false);
@@ -283,11 +284,12 @@ export class Account implements OnInit {
       next: () => {
         this.sessions.update(list => list.filter(s => s.id !== sessionId));
         this.revokingSessionId.set(null);
-        this.showToast('تم إنهاء الجلسة بنجاح');
+        this.notify.success('تم إنهاء الجلسة بنجاح');
       },
       error: (err: any) => {
         this.revokingSessionId.set(null);
-        this.showToast(err?.error?.message === 'CANNOT_REVOKE_CURRENT_SESSION' ? 'لا يمكن إنهاء الجلسة الحالية' : 'تعذر إنهاء الجلسة');
+        if (err?.error?.message === 'CANNOT_REVOKE_CURRENT_SESSION') this.notify.warning('لا يمكن إنهاء الجلسة الحالية');
+        else this.notify.error('تعذر إنهاء الجلسة');
       }
     });
   }
@@ -310,12 +312,5 @@ export class Account implements OnInit {
 
   contactSupportForDeletion() {
     this.openSupportTicket();
-  }
-
-  showToast(msg: string) {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      this.toastMessage.set(null);
-    }, 3000);
   }
 }

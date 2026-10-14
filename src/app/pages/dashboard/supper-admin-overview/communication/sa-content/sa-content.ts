@@ -1,6 +1,7 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 interface CmsPage {
   key: string;
@@ -43,7 +44,7 @@ export class SaContent {
   selectedKey = signal(this.pages[0].key);
   draftContent = signal(this.pages[0].content);
   dirty = signal(false);
-  savedMsg = signal('');
+  private notify = inject(UiNotificationService);
 
   selectedPage = computed(() => this.pages.find((p) => p.key === this.selectedKey()) ?? this.pages[0]);
 
@@ -53,7 +54,6 @@ export class SaContent {
     this.selectedKey.set(key);
     this.draftContent.set(page.content);
     this.dirty.set(false);
-    this.savedMsg.set('');
   }
 
   onContentChange(value: string): void {
@@ -65,7 +65,6 @@ export class SaContent {
     const page = this.pages.find((p) => p.key === this.selectedKey());
     if (page) page.content = this.draftContent();
     this.dirty.set(false);
-    this.savedMsg.set('تم الحفظ محليًا لهذه الجلسة — النشر الفعلي على الموقع غير متاح حاليًا');
-    setTimeout(() => this.savedMsg.set(''), 2500);
+    this.notify.warning('تم الحفظ محليًا لهذه الجلسة — النشر الفعلي على الموقع غير متاح حاليًا');
   }
 }

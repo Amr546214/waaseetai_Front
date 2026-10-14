@@ -479,33 +479,6 @@
   opacity: 0.5;
 }
 
-/* Toast */
-.state-success-toast {
-  position: fixed;
-  top: 76px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 500;
-  animation: ws-fade 0.2s ease both;
-}
-
-.toast-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 22px;
-  background: linear-gradient(135deg, rgba(43, 212, 199, 0.18), rgba(43, 127, 255, 0.14));
-  border: 1px solid rgba(43, 212, 199, 0.4);
-  border-radius: 12px;
-  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(16px);
-}
-
-.is-light-theme .toast-box {
-  background: linear-gradient(135deg, #0f8a7f, #2B7FFF);
-  color: #fff;
-}
-
 /* ===== Company Market Models (P-CO-MK-001) ===== */
 .co-mkt-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
 .co-mkt-kpi-c{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:14px 16px}
