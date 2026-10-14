@@ -309,6 +309,11 @@ export class SaDisputeDetail implements OnInit {
       this.resolveError.set('يرجى كتابة قرار النزاع');
       return;
     }
+    const note = this.resolutionNote().trim();
+    if (note && note.length < 2) {
+      this.resolveError.set('الملاحظة قصيرة جدًا: اكتب حرفين على الأقل أو اتركها فارغة');
+      return;
+    }
     this.resolveError.set('');
     this.confirmingResolve.set(true);
   }

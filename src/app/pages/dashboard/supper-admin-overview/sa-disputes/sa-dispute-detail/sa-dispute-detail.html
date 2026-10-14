@@ -271,7 +271,8 @@
 
           <div class="dp-md-field">
             <label>القرار <span class="dp-req">*</span></label>
-            <input class="dp-rf-input" type="text" [value]="resolutionText()" (input)="resolutionText.set($any($event.target).value)" placeholder="اكتب القرار أو اختر من القائمة" />
+            <input class="dp-rf-input" type="text" maxlength="120" data-testid="resolution-input" [value]="resolutionText()" (input)="resolutionText.set($any($event.target).value)" placeholder="اكتب القرار أو اختر من القائمة" />
+            <small class="dp-rf-count" data-testid="resolution-count">{{ resolutionText().length }} / 120 — القرار عنوان قصير، وضع التفاصيل في خانة الملاحظات</small>
           </div>
 
           <div class="dp-md-field">
