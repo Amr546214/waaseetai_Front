@@ -161,21 +161,9 @@ describe('ClientOverviewComponent — latest offers level badge (Batch 5)', () =
 		expect(badge.style.getPropertyValue('--lvl-dark').toLowerCase()).toBe(levelColor('PROVIDER', 1, 'dark').toLowerCase());
 	});
 
-	it('7) the adjacent star/rating row does not depend on provider level — stays the fixed static color regardless of providerLevel', () => {
-		// index 0 is the small avatar checkmark badge (also static, unrelated);
-		// index 1 is the first real rating-row star.
-		const ratingStarFill = (fixture: ReturnType<typeof offersFixture>) =>
-			Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.offer-card svg.ws-star-svg[fill]'))[1]?.getAttribute('fill');
-
-		const fixtureExpert = offersFixture([makeOffer({ providerLevel: 'خبير' })]);
-		const expertFill = ratingStarFill(fixtureExpert);
-
-		TestBed.resetTestingModule();
-		const fixtureNull = offersFixture([makeOffer({ providerLevel: null })]);
-		const nullFill = ratingStarFill(fixtureNull);
-
-		expect(expertFill).toBe(nullFill);
-		expect(expertFill).toBe('#2ECC8A');
+	it('7) the offer card shows no invented star rating row and no verified dot (no real rating exists on a latest-offer row)', () => {
+		const fixture = offersFixture([makeOffer({ providerLevel: 'خبير' }), makeOffer({ id: 'p2', providerLevel: null })]);
+		expect((fixture.nativeElement as HTMLElement).querySelectorAll('.offer-card svg.ws-star-svg').length).toBe(0);
 	});
 
 	it('removed the fake getLevelBadgeStyle/getLevelColor/getLevelLabel methods entirely', () => {
@@ -356,5 +344,68 @@ describe('ClientOverviewComponent — no unsupported "offers ranking" AI claim',
 		expect(html).not.toContain('ترتيب العروض');
 		expect(html).not.toContain('مشاريع مشابهة');
 		expect(html).not.toContain('class="ai-disclosure"');
+	});
+});
+
+// The dashboard used to show invented content: a fixed category on every request, a fixed "7 days" and a placeholder title on offers,
+// a "verified" client chip for everybody, a "verified provider" suffix on the contract, and a human rating of 0 as if it were a score.
+describe('ClientOverviewComponent — no invented content', () => {
+	function mount(data: any, active: any = null) {
+		const dashboardData = baseDashboardData(data);
+		const fakeStore: Partial<DashboardStore> = {
+			dashboardData: (() => dashboardData) as any,
+			activeContract: (() => active) as any,
+			isLoadingDashboard: (() => false) as any,
+			error: (() => null) as any,
+			totalActiveRequestsCount: (() => 0) as any,
+			fetchDashboardStats: async () => {},
+		};
+		TestBed.configureTestingModule({
+			imports: [ClientOverviewComponent],
+			providers: [provideRouter([]), { provide: DashboardStore, useValue: fakeStore }, { provide: AuthStore, useValue: { currentUser: () => null } }],
+		});
+		const fixture = TestBed.createComponent(ClientOverviewComponent);
+		fixture.detectChanges();
+		return fixture.nativeElement as HTMLElement;
+	}
+	const offer = (o: any = {}) => ({ id: 'p1', projectId: 'r1', projectTitle: 'طلب تصميم', price: 500, deliveryDays: null, aiMatchScore: null, providerName: 'نورة', status: 'SUBMITTED', createdAt: new Date().toISOString(), ...o });
+
+	it('no fixed category, no "verified" claims and no "today / this month" labels', () => {
+		const host = mount({ latestProjects: [{ id: 'r1', title: 'طلب', budget: 100, status: 'OPEN', createdAt: new Date().toISOString() }] }, { title: 'عقد', provider: 'نورة', progress: 25 });
+		const t = host.textContent || '';
+		expect(t).not.toContain('تطوير حلول برمجية');
+		expect(t).not.toContain('عميل موثق');
+		expect(t).not.toContain('مقدم خدمة موثق');
+		expect(t).not.toContain('بانتظارك اليوم');
+		expect(t).not.toContain('هذا الشهر');
+	});
+
+	it('an offer without a delivery time says so (no fixed 7 days) and its title is the request title', () => {
+		const host = mount({ latestProposals: [offer()] });
+		const t = host.querySelector('.offer-card')?.textContent || '';
+		expect(t).toContain('مدة التسليم غير محددة');
+		expect(t).not.toContain('7 أيام');
+		expect(t).toContain('طلب تصميم');
+		expect(host.textContent).not.toContain('مقدم خدمة استشارة');
+	});
+
+	it('an offer with a delivery time shows it', () => {
+		const host = mount({ latestProposals: [offer({ deliveryDays: 5 })] });
+		expect(host.querySelector('.offer-card')?.textContent).toContain('تسليم خلال 5 أيام');
+	});
+
+	it('human rating: a real score is shown; none yet is an honest empty state (never 0.0)', () => {
+		let host = mount({ summary: { ...baseDashboardData().summary, humanRating: 4.5 } });
+		expect(host.querySelector('[data-testid="human-rating-value"]')?.textContent?.trim()).toBe('4.5');
+		TestBed.resetTestingModule();
+		host = mount({ summary: { ...baseDashboardData().summary, humanRating: null } });
+		expect(host.querySelector('[data-testid="human-rating-value"]')).toBeNull();
+		expect(host.querySelector('[data-testid="human-rating-empty"]')?.textContent).toContain('لا يوجد تقييم بعد');
+	});
+
+	it('the three action cards open the pages that really handle them', () => {
+		const host = mount({ topSteps: { step1_escrowRequiredCount: 2, step2_pendingApprovalCount: 1, step3_pendingProposalsCount: 4 } });
+		const cards = Array.from(host.querySelectorAll('.action-center a.act-card')).map(a => [a.getAttribute('href'), a.querySelector('.act-num')?.textContent?.trim()]);
+		expect(cards).toEqual([['/client-overview/my-requests', '4'], ['/client-overview/projects/review', '1'], ['/client-overview/my-requests', '2']]);
 	});
 });

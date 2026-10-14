@@ -55,6 +55,11 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		path: 'projects/employee/:id',
 		redirectTo: (redirectData) => `/client-overview/projects/${redirectData.params['id']}`
 	},
+	// Section roots (the sidebar accordions and old bookmarks point at them) land on the section's first real page.
+	{ path: 'projects', pathMatch: 'full', redirectTo: 'projects/active' },
+	{ path: 'finance', pathMatch: 'full', redirectTo: 'finance/wallet' },
+	{ path: 'settings', pathMatch: 'full', redirectTo: 'settings/account' },
+	{ path: 'support', pathMatch: 'full', redirectTo: 'help' },
 	//   help
 	{
 		path: 'help',
@@ -66,10 +71,11 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		loadComponent: () => import('./help/ai-assistant/ai-assistant').then(m => m.AiAssistantComponent),
 		data: { title: "المساعد الذكي" }
 	},
+	// There is no live chat: the human-support channel is the ticket thread, so this old path lands on the tickets list.
 	{
 		path: 'help/live-support',
-		loadComponent: () => import('./help/live-support/live-support').then(m => m.LiveSupportComponent),
-		data: { title: "الدعم المباشر" }
+		redirectTo: 'help/tickets',
+		pathMatch: 'full'
 	},
 	{
 		path: 'help/tickets',
@@ -131,11 +137,8 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		loadComponent: () => import('./project/delivery-review/delivery-review').then(m => m.DeliveryReview),
 		data: { title: "مراجعة التسليم" }
 	},
-	{
-		path: 'market',
-		loadComponent: () => import('./market/market').then(m => m.Market),
-		data: { title: "Market" }
-	},
+	// The in-dashboard "market" page was an empty placeholder; the real marketplace is the public one.
+	{ path: 'market', pathMatch: 'full', redirectTo: '/marketplace' },
 	{
 		path: 'reports',
 		loadComponent: () => import('./reports/reports').then(m => m.Reports),

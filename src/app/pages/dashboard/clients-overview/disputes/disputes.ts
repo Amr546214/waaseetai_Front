@@ -15,11 +15,15 @@ interface DisputeTimelineStep {
 
 interface DisputeItem {
   id: string;
+  /** The server's status; the card, tabs and KPIs all read from it. */
+  raw: Dispute['status'];
+  /** Project (or request) the dispute is about, for the link to it. */
+  targetId: string | null;
   title: string;
   project: string;
   status: 'open' | 'closed';
   who: 'mine' | 'against';
-  extra: 'review' | 'pending' | '';
+  extra: 'review' | 'rejected' | '';
   icon: 'shield' | 'hands' | 'check';
   iconClass: string;
   badgeText: string;
@@ -60,13 +64,14 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
 
   return {
     id: d.id,
+    raw: d.status,
+    targetId: d.projectId || d.requestId || null,
     title: d.reason,
     project: d.request?.title || d.project?.title || '—',
     status: closed ? 'closed' : 'open',
     who,
-    // No messaging/reply endpoint exists yet, so "awaiting my reply" can't
-    // be determined from real data — never fabricate a match for it.
-    extra: d.status === 'UNDER_REVIEW' ? 'review' : '',
+    // No messaging/reply endpoint exists, so there is no "awaiting my reply" state — only what the server reports.
+    extra: d.status === 'UNDER_REVIEW' ? 'review' : d.status === 'REJECTED' ? 'rejected' : '',
     icon: closed ? 'check' : 'shield',
     iconClass: '',
     badgeText,
@@ -151,19 +156,43 @@ export class Disputes implements OnInit {
     return all.filter(d => d.status === f || d.who === f || d.extra === f);
   });
 
+  // Counts of the server's own statuses only (open / under review / resolved / rejected); no mutual-cancel notion exists.
   readonly kpis = computed(() => {
     const all = this.disputes();
-    const activeDisputes = all.filter(d => d.status === 'open' && d.icon === 'shield').length;
-    const mutualCancelPending = all.filter(d => d.status === 'open' && d.icon === 'hands').length;
-    const closedMutual = all.filter(d => d.status === 'closed').length;
-    const hasOpen = all.some(d => d.status === 'open');
     return {
-      activeDisputes,
-      mutualCancelPending,
-      closedMutual,
-      overallStatus: all.length === 0 ? '—' : (hasOpen ? 'جارٍ' : 'مكتمل'),
+      activeDisputes: all.filter(d => d.raw === 'OPEN' || d.raw === 'UNDER_REVIEW').length,
+      underReview: all.filter(d => d.raw === 'UNDER_REVIEW').length,
+      resolved: all.filter(d => d.raw === 'RESOLVED').length,
+      rejected: all.filter(d => d.raw === 'REJECTED').length,
     };
   });
+
+  // Read-only details of one dispute (GET /client/disputes/:id). Resolving is the admin's alone; the client only reads the status.
+  detailsId = signal<string | null>(null);
+  detail = signal<Dispute | null>(null);
+  detailLoading = signal(false);
+  detailError = signal('');
+
+  toggleDetails(id: string) {
+    if (this.detailsId() === id) { this.detailsId.set(null); return; }
+    this.detailsId.set(id);
+    this.detail.set(null);
+    this.detailError.set('');
+    this.detailLoading.set(true);
+    this.disputeApi.getClientDispute(id).subscribe({
+      next: (res) => {
+        if (this.detailsId() !== id) return;
+        this.detailLoading.set(false);
+        if (res.success && res.data) this.detail.set(res.data);
+        else this.detailError.set('تعذر تحميل تفاصيل النزاع.');
+      },
+      error: (err) => {
+        if (this.detailsId() !== id) return;
+        this.detailLoading.set(false);
+        this.detailError.set(err?.error?.message || 'تعذر تحميل تفاصيل النزاع.');
+      }
+    });
+  }
 
   readonly tabsList = computed(() => {
     const all = this.disputes();
@@ -173,8 +202,8 @@ export class Disputes implements OnInit {
       { id: 'closed', label: 'مُغلقة', count: all.filter(d => d.status === 'closed').length },
       { id: 'mine', label: 'رفعتها أنا', count: all.filter(d => d.who === 'mine').length },
       { id: 'against', label: 'مرفوعة ضدي', count: all.filter(d => d.who === 'against').length },
-      { id: 'pending', label: 'بانتظار ردي', count: all.filter(d => d.extra === 'pending').length },
       { id: 'review', label: 'قيد المراجعة', count: all.filter(d => d.extra === 'review').length },
+      { id: 'rejected', label: 'مرفوضة', count: all.filter(d => d.extra === 'rejected').length },
     ];
   });
 }

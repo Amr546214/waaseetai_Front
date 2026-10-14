@@ -338,3 +338,39 @@ describe('NotificationEngineService — provider event notifications (dispute / 
 		});
 	}
 });
+
+describe('NotificationEngineService — client events (W4)', () => {
+	let service: NotificationEngineService;
+	beforeEach(() => {
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, clear: () => {} });
+		TestBed.configureTestingModule({});
+		service = TestBed.inject(NotificationEngineService);
+	});
+
+	const cases: Array<[string, string, string]> = [
+		['NEW_PROPOSAL', '/client-overview/my-requests/r1', 'offers'],
+		['OFFER_COUNTER', '/client-overview/my-requests/r1', 'offers'],
+		['OFFER_WITHDRAWN', '/client-overview/my-requests/r1', 'offers'],
+		['OFFER_NEGOTIATION_REJECTED', '/client-overview/my-requests/r1', 'offers'],
+		['PROJECT_AMENDMENT', '/client-overview/projects/amendments', 'projects'],
+		['STAGE_APPROVED', '/client-overview/projects/p1', 'projects'],
+		['PROJECT_COMPLETED', '/client-overview/projects/p1/rating', 'projects'],
+		['DISPUTE_OPENED', '/client-overview/disputes', 'projects'],
+		['DISPUTE_RESOLVED', '/client-overview/disputes', 'projects'],
+		['ESCROW_FUNDED', '/client-overview/projects/active', 'finance'],
+		['ORDER_PAID', '/client-overview/projects/p1', 'finance'],
+	];
+	for (const [type, actionUrl, bucket] of cases) {
+		it(`${type}: opens ${actionUrl} in the client dashboard, files under "${bucket}" even with a generic category, with a type icon`, () => {
+			const mapped = service.mapToAppNotification({ id: 'n1', type, category: 'ALL', title: 't', message: 'm', actionText: 'فتح', actionUrl, isRead: false }, '/client-overview');
+			expect(mapped.actionUrl).toBe(actionUrl);
+			expect(mapped.category).toBe(bucket);
+			expect(mapped.iconBgClass).not.toBe('bg-[rgba(160,178,209,.12)]');
+		});
+	}
+
+	it('STAGE_DELIVERY with stage metadata opens the exact delivery-review route', () => {
+		const mapped = service.mapToAppNotification({ id: 'n1', type: 'STAGE_DELIVERY', category: 'PROJECTS', title: 't', message: 'm', actionUrl: '/client-overview/projects/p1/delivery-review/s1', metadata: { projectId: 'p1', stageId: 's1' }, isRead: false }, '/client-overview');
+		expect(mapped.actionUrl).toBe('/client-overview/projects/p1/delivery-review/s1');
+	});
+});

@@ -1,18 +1,18 @@
 <section class="nt-page" dir="rtl">
-	<a routerLink="/client-overview/help" class="bk-link">
+	<a routerLink="/client-overview/help/tickets" class="bk-link">
 		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
 		العودة لتذاكر الدعم
 	</a>
 
 	<div class="nt-head">
 		<h1 class="nt-ttl">{{ isCompanyMode() ? 'فتح تذكرة دعم للشركة' : 'فتح تذكرة دعم' }}</h1>
-		<p class="nt-sub">صف مشكلتك بدقة ليصلك رد أسرع من الفريق المختص</p>
+		<p class="nt-sub">صف مشكلتك بدقة ليتمكّن الفريق المختص من مراجعتها</p>
 	</div>
 
 	<!-- Support tip (non-AI) -->
 	<div class="ws-note ws-note--neutral">
 		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-		<p class="ws-note-txt">كلما كان وصفك أدق وأوضح، وصلك رد أسرع من فريق الدعم. أرفق رقم الطلب إن وُجد</p>
+		<p class="ws-note-txt">كلما كان وصفك أدق وأوضح، سهل على فريق الدعم فهم حالتك. اذكر رقم الطلب إن وُجد. ستجد ردّ الفريق داخل التذكرة وفي إشعاراتك</p>
 	</div>
 
 	<form (ngSubmit)="submit()" class="form-card" novalidate>
@@ -68,16 +68,15 @@
 		<!-- Attach -->
 		<div class="fld-row">
 			<label class="inp-label">إرفاق ملف (اختياري)</label>
-			<div class="upload-area">
-				<input type="file" class="upload-inp" multiple />
+			<div class="upload-area upload-area--off" aria-disabled="true">
 				<div class="upload-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-				<div class="upload-ttl">اسحب الملفات هنا أو اضغط للاختيار</div>
-				<div class="upload-sub">صور، PDF · حد أقصى 10MB</div>
+				<div class="upload-ttl">المرفقات غير متاحة في التذاكر حاليًا</div>
+				<div class="upload-sub">اذكر التفاصيل في وصف التذكرة، وسيطلب الفريق ما يلزم في الرد</div>
 			</div>
 		</div>
 
 		<div class="form-actions">
-			<button type="button" class="btn-ghost" routerLink="/client-overview/help">إلغاء</button>
+			<button type="button" class="btn-ghost" routerLink="/client-overview/help/tickets">إلغاء</button>
 			<button type="submit" class="btn-primary" [disabled]="submitting()">
 				@if (submitting()) {
 					<span class="spinner"></span> جاري الإرسال...
@@ -98,11 +97,7 @@
 	}
 
 	<div class="inner-foot">
-		<span>&#169; 2026 وسيط AI · v1.0.0</span>
-		<div class="inner-foot-links">
-			<a routerLink="/privacy">PDPL</a>
-			<a routerLink="/terms">الشروط</a>
-			<span>SAMA</span>
-		</div>
+		<span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span>
+		<div class="inner-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div>
 	</div>
 </section>

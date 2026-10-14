@@ -19,7 +19,8 @@ describe('finance copy matches what the backend charges', () => {
 	it('contract signature page checks the wallet against the price (no ×1.13)', () => {
 		const ts = read('pages/dashboard/clients-overview/my-request/contract-signature/contract-signature.ts');
 		expect(ts).not.toContain('1.13');
-		expect(ts).toContain('this.requiredAmount.set(Math.round(offerPrice * 100) / 100);');
+		// the amount comes from the frozen contract's price (GET .../contract), not from the offers list
+		expect(ts).toContain('this.requiredAmount.set(Math.round(Number(c.price || 0) * 100) / 100);');
 	});
 	it('provider wallet: the invented "performance rewards 3%" tile (and its literal 186) is gone', () => {
 		const html = read('pages/dashboard/provider-overview/finance/wallet/wallet.html');

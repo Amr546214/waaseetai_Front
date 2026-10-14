@@ -266,7 +266,7 @@ describe('client profile-edit: shared validation', () => {
     it('the notification / display text says these are account preferences only, and does not claim they stop sending', () => {
       const hint = el().querySelector('[data-testid="prefs-hint"]')?.textContent || '';
       expect(hint).toContain('تفضيلات حساب');
-      expect(hint).toContain('لا توقف إرسال الإشعارات');
+      expect(hint).toContain('لا توقف إرسال الإشعارات إلى مركز الإشعارات');
       expect(el().textContent).not.toMatch(/توقف(ها)? الإشعارات فورًا|لن تصلك إشعارات|سيتوقف/);
     });
 

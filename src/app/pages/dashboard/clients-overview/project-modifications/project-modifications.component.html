@@ -8,6 +8,11 @@
 		</div>
 	</div>
 
+	<div class="ws-note ws-note--neutral" role="note" data-testid="am-record-note">
+		<div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+		<div class="ws-note-body"><p class="ws-note-txt">موافقة الطرف الآخر أو رفضه يُسجَّل هنا فقط. لا يتغير السعر أو المدة أو الضمان تلقائيًا.</p></div>
+	</div>
+
 	@if (isLoading()) {
 		<div class="state-card" role="status" aria-label="جاري تحميل طلبات التعديل">
 			<div class="skeleton-row sk-title"></div>
@@ -133,7 +138,7 @@
 
 						<div class="dp-foot">
 							<span class="dp-meta">{{ am.updatedAt | date:'d MMMM' }}</span>
-							<a href="javascript:void(0)" class="dp-cta" [class.dp-cta-gh]="am.status !== 'PENDING_OTHER_PARTY'" (click)="openDiscussion(am)">
+							<a role="button" tabindex="0" class="dp-cta" [class.dp-cta-gh]="am.status !== 'PENDING_OTHER_PARTY'" (click)="openDiscussion(am)" (keydown.enter)="openDiscussion(am)">
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 									<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 								</svg>

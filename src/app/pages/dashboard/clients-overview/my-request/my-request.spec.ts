@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 
 import { MyRequest } from './my-request';
+import { ProjectApiService } from '../../../../core/services/project-api.service';
 
 describe('MyRequest', () => {
   let component: MyRequest;
@@ -8,7 +11,8 @@ describe('MyRequest', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MyRequest]
+      imports: [MyRequest],
+      providers: [provideRouter([]), { provide: ProjectApiService, useValue: { getMyRequests: () => of({ success: true, filters: {}, data: [] }) } }]
     })
     .compileComponents();
 

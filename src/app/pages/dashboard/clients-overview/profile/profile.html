@@ -178,26 +178,20 @@
 						<ws-level-badge [level]="levelDisplay()" />
 					</div>
 
-					<!-- Stars Rating -->
-					<div class="profile-stars">
-						<svg width="11" height="11" aria-hidden="true" class="txt-kahr">
+					<!-- Rating: the average of the reviews providers left about this client; nothing is shown until there is one -->
+					@if (humanRating !== null) {
+					<div class="profile-stars" data-testid="profile-rating">
+						@for (n of [1, 2, 3, 4, 5]; track n) {
+						<svg width="11" height="11" aria-hidden="true" [class]="n <= roundedRating ? 'txt-kahr' : ''" [style.color]="n <= roundedRating ? null : 'rgba(155,139,122,.3)'">
 							<use href="#ic-star"></use>
 						</svg>
-						<svg width="11" height="11" aria-hidden="true" class="txt-kahr">
-							<use href="#ic-star"></use>
-						</svg>
-						<svg width="11" height="11" aria-hidden="true" class="txt-kahr">
-							<use href="#ic-star"></use>
-						</svg>
-						<svg width="11" height="11" aria-hidden="true" class="txt-kahr">
-							<use href="#ic-star"></use>
-						</svg>
-						<svg width="11" height="11" style="color:rgba(155,139,122,.3)" aria-hidden="true">
-							<use href="#ic-star"></use>
-						</svg>
-						<span class="rating-num">{{ rating > 0 ? rating : '4.8' }}</span>
-						<span class="rating-count">({{ profileData()?.reviewsCount || 32 }} تقييم)</span>
+						}
+						<span class="rating-num">{{ humanRating | number:'1.1-1' }}</span>
+						<span class="rating-count">({{ profileData()?.reviewsCount || 0 }} تقييم)</span>
 					</div>
+					} @else {
+					<div class="profile-stars" data-testid="profile-rating-empty"><span class="rating-count">لا توجد تقييمات من مقدمي الخدمة بعد</span></div>
+					}
 
 					<div class="profile-badges">
 						<span class="acc-type-badge">{{ getAccountTypeLabel() }} &middot; {{ getEntityLabel() }}</span>
@@ -205,22 +199,23 @@
 					</div>
 
 					<div class="profile-meta">
-						<span class="meta-verified">
+						@if (profileData()?.kycStatus === 'VERIFIED') {
+						<span class="meta-verified" data-testid="profile-verified">
 							<svg width="13" height="13" aria-hidden="true">
 								<use href="#ic-check"></use>
 							</svg>
-							موثّق
+							هوية موثّقة
 						</span>
+						}
 						@if (profileData()?.city) {
 						<span class="meta-city">
 							<svg width="12" height="12"
 								style="display:inline;vertical-align:middle;margin-inline-end:3px" aria-hidden="true">
 								<use href="#ic-pin"></use>
 							</svg>
-							{{ profileData().city }}، المملكة العربية السعودية
+							{{ profileData().city }}@if (profileData()?.country) {، {{ profileData().country }}}
 						</span>
 						}
-						<span class="meta-activity">آخر نشاط: اليوم</span>
 					</div>
 				</div>
 
@@ -244,13 +239,12 @@
 					<div class="stat-lbl">مشروع مكتمل</div>
 				</div>
 				<div class="stat-cell" style="border-inline-end: 1px solid rgba(255,255,255,.06)">
-					<div class="stat-num teal">{{ rating > 0 ? rating : '—' }}</div>
+					<div class="stat-num teal">{{ humanRating !== null ? (humanRating | number:'1.1-1') : '—' }}</div>
 					<div class="stat-lbl">تقييم متوسط</div>
 				</div>
 				<div class="stat-cell">
-					<div class="stat-num">{{ profileData()?.satisfactionRate ? (profileData().satisfactionRate + '%') :
-						'—' }}</div>
-					<div class="stat-lbl">نسبة الرضا</div>
+					<div class="stat-num">{{ profileData()?.reviewsCount || 0 }}</div>
+					<div class="stat-lbl">تقييم من مقدمي الخدمة</div>
 				</div>
 			</div>
 		</div>
@@ -340,7 +334,7 @@
 				</div>
 				<div class="info-row">
 					<span class="info-key">المنطقة الزمنية</span>
-					<span class="info-val">GMT+3</span>
+					<span class="info-val" [class.missing]="!profileData()?.timezone">{{ profileData()?.timezone || 'غير محددة' }}</span>
 				</div>
 			</div>
 
@@ -406,20 +400,28 @@
 			</div>
 			<div class="info-row">
 				<span class="info-key">الموقع الشخصي</span>
-				@if (profileData()?.website) {
-				<a [href]="profileData().website" target="_blank" rel="noopener" class="info-val link" dir="ltr">{{
-					profileData().website }}</a>
+				@if (profileData()?.personalWebsiteUrl || profileData()?.website) {
+				<a [href]="profileData().personalWebsiteUrl || profileData().website" target="_blank" rel="noopener" class="info-val link" dir="ltr">{{
+					profileData().personalWebsiteUrl || profileData().website }}</a>
 				} @else {
 				<span class="info-val missing">غير مُضاف</span>
 				}
 			</div>
 			<div class="info-row">
 				<span class="info-key">LinkedIn</span>
+				@if (profileData()?.linkedinUrl) {
+				<a [href]="profileData().linkedinUrl" target="_blank" rel="noopener" class="info-val link" dir="ltr">{{ profileData().linkedinUrl }}</a>
+				} @else {
 				<span class="info-val missing">غير مُضاف</span>
+				}
 			</div>
 			<div class="info-row">
-				<span class="info-key">GitHub</span>
+				<span class="info-key">معرض الأعمال</span>
+				@if (profileData()?.portfolioUrl) {
+				<a [href]="profileData().portfolioUrl" target="_blank" rel="noopener" class="info-val link" dir="ltr">{{ profileData().portfolioUrl }}</a>
+				} @else {
 				<span class="info-val missing">غير مُضاف</span>
+				}
 			</div>
 			<div style="margin-top:16px">
 				<a routerLink="/client-overview/profile/edit"

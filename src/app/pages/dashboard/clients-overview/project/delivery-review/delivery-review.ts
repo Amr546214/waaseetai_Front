@@ -26,6 +26,13 @@ export class DeliveryReview implements OnInit {
 	error = signal('');
 	saving = signal(false);
 	reviewNote = '';
+	// Request-revision form: records the note on the delivery and sends the stage back to the provider (POST .../review, decision 'revision').
+	revisionOpen = signal(false);
+	revisionNote = '';
+	revisionError = signal('');
+	revisionSent = signal(false);
+	/** Same floor the server enforces, so the client sees the reason before sending. */
+	readonly REVISION_MIN_CHARS = 10;
 	// P-SK-015 success modal state (real data known before approval; the review
 	// endpoint itself doesn't echo them back — see approveDelivery() below)
 	successData = signal<{ amount: number; providerName: string; stageTitle: string; txnId: string; invoiceId: string } | null>(null);
@@ -35,6 +42,7 @@ export class DeliveryReview implements OnInit {
 	ngOnInit() {
 		this.projectId = this.route.snapshot.paramMap.get('id') || '';
 		this.stageId = this.route.snapshot.paramMap.get('stageId') || '';
+		if (this.route.snapshot.queryParamMap?.get('action') === 'revision') this.revisionOpen.set(true);
 		this.load();
 	}
 
@@ -131,9 +139,9 @@ export class DeliveryReview implements OnInit {
 
 	statusBadgeText(stage: any): string {
 		switch (stage?.status) {
-			case 'submitted': return 'بانتظار اعتمادك';
+			case 'submitted': return stage?.revisionResubmitted ? 'أُعيد التسليم، بانتظار اعتمادك' : 'بانتظار اعتمادك';
 			case 'completed': return 'تم اعتماد هذا التسليم';
-			case 'revision': return 'بانتظار تسليم جديد من مقدم الخدمة';
+			case 'revision': return 'طلبت تعديلًا، بانتظار تسليم جديد من مقدم الخدمة';
 			case 'in_progress': return 'قيد التنفيذ';
 			default: return 'لا يوجد تسليم بانتظار المراجعة';
 		}
@@ -173,6 +181,31 @@ export class DeliveryReview implements OnInit {
 				this.load();
 			},
 			error: event => { this.saving.set(false); this.error.set(event.error?.message || 'تعذر حفظ قرار المراجعة'); }
+		});
+	}
+
+	toggleRevision() {
+		if (this.saving()) return;
+		this.revisionError.set('');
+		this.revisionOpen.update(v => !v);
+	}
+
+	requestRevision() {
+		const stage = this.stage();
+		if (!stage || this.saving() || !this.canDecide(stage)) return;
+		const note = this.revisionNote.trim();
+		if (note.length < this.REVISION_MIN_CHARS) { this.revisionError.set(`اكتب ملاحظات التعديل بوضوح (${this.REVISION_MIN_CHARS} أحرف على الأقل)`); return; }
+		this.saving.set(true); this.revisionError.set('');
+		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.projectId}/stages/${stage.id}/review`, { decision: 'revision', note }).subscribe({
+			next: () => {
+				this.saving.set(false);
+				this.revisionSent.set(true);
+				this.revisionOpen.set(false);
+				this.revisionNote = '';
+				// Reload the real state: the stage is now "revision requested" and waits for the provider.
+				this.load();
+			},
+			error: event => { this.saving.set(false); this.revisionError.set(event.error?.message || 'تعذر إرسال طلب التعديل'); }
 		});
 	}
 

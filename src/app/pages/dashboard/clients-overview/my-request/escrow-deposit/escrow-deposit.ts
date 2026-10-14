@@ -33,8 +33,9 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 
 	// Project details
 	requestTitle = signal<string>('جارٍ التحميل...');
-	specialty = signal<string>('غير محدد');
-	duration = signal<string>('0 يوما');
+	duration = signal<string>('');
+	/** Set when the contract cannot be funded now (not selected, already signed, other offer): shown instead of the payment form. */
+	blockedReason = signal('');
 
 	// Math and Pricing
 	basePrice = signal<number>(0);
@@ -52,8 +53,14 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	termsAccepted = signal<boolean>(false);
 
 	showOtpModal = signal<boolean>(false);
-	otpCountdown = signal<number>(30);
+	/** Seconds left on the e-mailed code; starts from the server's real validity, never a guessed timer. */
+	otpCountdown = signal<number>(0);
 	otpTimer: any;
+	/** Wrong / expired code (and resend problems) are shown inside the code dialog, never in a browser alert. */
+	otpError = signal('');
+	otpNotice = signal('');
+	isResending = signal(false);
+	private otpTtlSeconds = 600;
 
 	otpValues = signal<string[]>(['', '', '', '', '', '']);
 	showSuccessOverlay = signal<boolean>(false);
@@ -83,41 +90,37 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	fetchDetails(reqId: string, offerId: string | null) {
 		this.isLoading.set(true);
 		this.hasError.set(false);
-		this.http.get<any>(`${environment.url_api}/client/my-requests/${reqId}`).subscribe({
+		this.blockedReason.set('');
+		const query = offerId ? `?offerId=${encodeURIComponent(offerId)}` : '';
+		// The amount charged is the frozen contract's price (what the server debits), not the offers list.
+		this.http.get<any>(`${environment.url_api}/client/my-requests/${reqId}/contract${query}`).subscribe({
 			next: (res) => {
-				if (res && res.success && res.data) {
-					const data = res.data;
-					this.requestTitle.set(data.title || 'مشروع بدون عنوان');
-					this.specialty.set(data.category || data.specialty || 'غير محدد');
-
-					let targetOffer = null;
-					if (offerId && data.proposals && data.proposals.length > 0) {
-						targetOffer = data.proposals.find((p: any) => p.id === offerId);
-					}
-					if (!targetOffer) {
-						this.isLoading.set(false);
-						this.hasError.set(true);
-						return;
-					}
-
-					// We already set email from query params, but fallback to client data if present
-					if (data.client && data.client.email && !this.route.snapshot.queryParamMap.get('email')) {
-						this.clientEmail.set(this.maskEmail(data.client.email));
-					}
-
-					if (targetOffer) {
-						this.duration.set(targetOffer.deliveryDays ? `${targetOffer.deliveryDays} أيام` : (targetOffer.durationText || 'غير محدد'));
-
-						// Calculate pricing
-						const priceNum = targetOffer.totalPrice || targetOffer.bidAmount || 0;
-						this.basePrice.set(priceNum);
-						// fee policy v2: locking the escrow charges the contract value ONLY (no VAT / platform / insurance at lock); the provider's level commission is taken when each stage is released
-						this.totalAmount.set(priceNum);
-					}
+				const c = res && res.success ? res.data : null;
+				if (!c) {
+					this.isLoading.set(false);
+					this.hasError.set(true);
+					return;
 				}
+				this.requestTitle.set(c.title || 'مشروع بدون عنوان');
+				if (c.state === 'no_contract' || !c.ready) {
+					this.blockedReason.set(c.message || 'هذا العقد غير جاهز للتمويل حالياً.');
+					this.isLoading.set(false);
+					return;
+				}
+				this.otpTtlSeconds = Number(c.otpTtlSeconds) > 0 ? Number(c.otpTtlSeconds) : 600;
+				this.duration.set(c.durationDays ? `${c.durationDays} يوم` : 'غير محدد');
+				const priceNum = Number(c.price || 0);
+				this.basePrice.set(priceNum);
+				// fee policy v2: locking the escrow charges the contract value ONLY (no VAT / platform / insurance at lock); the provider's level commission is taken when each stage is released
+				this.totalAmount.set(priceNum);
 				this.loadWalletBalance();
 			},
 			error: (err) => {
+				if (err?.status === 404) {
+					this.blockedReason.set(err.error?.message || 'طلب المشروع غير موجود أو لا تملك صلاحية الوصول إليه.');
+					this.isLoading.set(false);
+					return;
+				}
 				console.error('Error fetching details:', err);
 				this.isLoading.set(false);
 				this.hasError.set(true);
@@ -188,25 +191,40 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	}
 
 	// OTP Logic
-	openOTP() {
-		if (!this.termsAccepted() || !this.hasSufficientBalance() || this.isSubmitting()) return;
-		this.isSubmitting.set(true);
-		this.showOtpModal.set(true);
-		this.startOTPTimer();
-		
-		// Send the OTP when modal opens
+	private requestOtp(onSent: (res: any) => void, onFail: (message: string) => void) {
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/contract/sign`, {
 			offerId: this.offerId()
 		}).subscribe({
-			next: () => {
-				this.isSubmitting.set(false);
-			},
-			error: (err) => {
-				this.isSubmitting.set(false);
-				this.closeOTP();
-				this.formError.set(err.error?.message || 'تعذر إرسال رمز التوقيع. حاول مرة أخرى.');
-			}
+			next: (res) => onSent(res),
+			error: (err) => onFail(err.error?.message || 'تعذر إرسال رمز التوقيع. حاول مرة أخرى.')
 		});
+	}
+
+	private applyOtpSent(res: any) {
+		const email = res?.data?.email;
+		if (email) this.clientEmail.set(this.maskEmail(email));
+		const ttl = Number(res?.data?.expiresInSeconds);
+		if (ttl > 0) this.otpTtlSeconds = ttl;
+		this.startOTPTimer();
+	}
+
+	// Sends the code first; the dialog opens only once the e-mail was really sent.
+	openOTP() {
+		if (!this.termsAccepted() || !this.hasSufficientBalance() || this.isSubmitting()) return;
+		this.isSubmitting.set(true);
+		this.otpError.set(''); this.otpNotice.set('');
+		this.requestOtp(
+			(res) => {
+				this.isSubmitting.set(false);
+				this.otpValues.set(['', '', '', '', '', '']);
+				this.showOtpModal.set(true);
+				this.applyOtpSent(res);
+			},
+			(message) => {
+				this.isSubmitting.set(false);
+				this.formError.set(message);
+			}
+		);
 	}
 
 	closeOTP() {
@@ -215,7 +233,7 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	}
 
 	startOTPTimer() {
-		this.otpCountdown.set(30);
+		this.otpCountdown.set(this.otpTtlSeconds);
 		clearInterval(this.otpTimer);
 		this.otpTimer = setInterval(() => {
 			if (this.otpCountdown() > 0) {
@@ -226,25 +244,32 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 		}, 1000);
 	}
 
-	resetOTP() {
-		this.otpValues.set(['', '', '', '', '', '']);
-		this.startOTPTimer();
+	otpCountdownText(): string {
+		const total = Math.max(0, this.otpCountdown());
+		return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+	}
 
-		// Resend OTP logic
-		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/contract/sign`, {
-			offerId: this.offerId()
-		}).subscribe({
-			next: (res) => {
-				// show success toast or silently succeed
+	resetOTP() {
+		if (this.isResending() || this.isSubmitting()) return;
+		this.isResending.set(true);
+		this.otpError.set(''); this.otpNotice.set('');
+		this.requestOtp(
+			(res) => {
+				this.isResending.set(false);
+				this.otpValues.set(['', '', '', '', '', '']);
+				this.applyOtpSent(res);
+				this.otpNotice.set('أُرسل رمز جديد إلى بريدك الإلكتروني.');
 			},
-			error: (err) => {
-				console.error('Error resending OTP', err);
+			(message) => {
+				this.isResending.set(false);
+				this.otpError.set(message);
 			}
-		});
+		);
 	}
 
 	onOtpInput(index: number, event: any) {
 		const val = event.target.value;
+		if (this.otpError()) this.otpError.set('');
 		
 		if (val.length > 1) {
 			// Handle paste directly into input
@@ -324,12 +349,17 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	confirmDeposit() {
 		const otpCode = this.otpValues().join('');
 		if (otpCode.length !== 6) {
-			alert('الرجاء إدخال رمز التحقق المكون من 6 أرقام بالكامل.');
+			this.otpError.set('أدخل رمز التحقق المكوّن من 6 أرقام بالكامل.');
+			return;
+		}
+		if (this.isSubmitting()) return;
+		if (this.otpCountdown() <= 0) {
+			this.otpError.set('انتهت صلاحية الرمز. اضغط «إعادة الإرسال» للحصول على رمز جديد.');
 			return;
 		}
 
-		if (this.isSubmitting()) return;
 		this.isSubmitting.set(true);
+		this.otpError.set(''); this.otpNotice.set('');
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/escrow/deposit`, {
 			offerId: this.offerId(),
 			otpCode: otpCode,
@@ -341,20 +371,26 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 					this.closeOTP();
 					this.showSuccessOverlay.set(true);
 				} else {
-					alert(res.message || 'كود التحقق غير صحيح');
-					this.otpValues.set(['', '', '', '', '', '']); // reset visually
+					this.otpError.set(res?.message || 'كود التحقق غير صحيح');
+					this.otpValues.set(['', '', '', '', '', '']);
 				}
 			},
 			error: (err) => {
 				this.isSubmitting.set(false);
 				if (err.status === 402) {
 					this.closeOTP();
-					this.formError.set('تغير رصيد المحفظة ولم يعد كافياً. اشحن الرصيد ثم أعد المحاولة.');
+					this.formError.set('تغير رصيد المحفظة ولم يعد كافياً. اشحن الرصيد ثم أعد المحاولة. لم يُخصم أي مبلغ.');
 					this.loadWalletBalance();
 					return;
 				}
-				alert(err.error?.message || 'كود التحقق غير صحيح أو منتهي الصلاحية');
-				this.otpValues.set(['', '', '', '', '', '']); // reset visually
+				if (err.status === 409) {
+					// Already signed / funded (e.g. a double submit or another tab): nothing more was charged.
+					this.closeOTP();
+					this.blockedReason.set(err.error?.message || 'تم توقيع هذا العقد وتمويله مسبقاً.');
+					return;
+				}
+				this.otpError.set(err.error?.message || 'كود التحقق غير صحيح أو منتهي الصلاحية');
+				this.otpValues.set(['', '', '', '', '', '']);
 			}
 		});
 	}

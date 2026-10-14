@@ -27,16 +27,24 @@ export class MyRequest implements OnInit {
 	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	requests = signal<any[]>([]);
+	/** Tab ids are the server's stage groups (stageGroup) - one request is in exactly one of them. */
 	tabs = signal<FilterTab[]>([
 		{ id: 'all', label: 'الكل', count: 0 },
-		{ id: 'active', label: 'نشطة', count: 0 },
-		{ id: 'pending', label: 'معلقة', count: 0 },
+		{ id: 'open', label: 'مفتوحة للعروض', count: 0 },
+		{ id: 'pending', label: 'بانتظار التعاقد', count: 0 },
+		{ id: 'active', label: 'قيد التنفيذ', count: 0 },
 		{ id: 'closed', label: 'مغلقة', count: 0 },
 		{ id: 'draft', label: 'مسودات', count: 0 },
 	]);
 
 	currentFilter = signal<string>('all');
 	isLoading = signal<boolean>(true);
+	loadError = signal<string>('');
+
+	searchText = signal<string>('');
+	sortBy = signal<'newest' | 'oldest' | 'budget' | 'offers'>('newest');
+	specialtyFilter = signal<string>('');
+	showFilters = signal<boolean>(false);
 
 	// Pagination state
 	currentPage = signal<number>(1);
@@ -45,38 +53,41 @@ export class MyRequest implements OnInit {
 	async ngOnInit() {
 		try {
 			this.isLoading.set(true);
+			this.loadError.set('');
 			const response = await firstValueFrom(this.projectApi.getMyRequests());
 			if (response && (response.success || Array.isArray(response.data) || Array.isArray(response))) {
 				const rawData = Array.isArray(response.data) ? response.data : (Array.isArray(response) ? response : (response.data?.projects || []));
 				const filters = response.filters || {};
 
-				// Map backend projects
-				const mappedRequests = rawData.map((p: any) => ({
-					id: p.id,
-					displayId: `#${p.id ? p.id.substring(0, 8).toUpperCase() : 'REQ'}`,
-					name: p.title || p.name || 'طلب بدون عنوان',
-					specialty: typeof p.specialty === 'string' ? p.specialty : (p.specialty?.nameAr || p.specialty?.name || 'عام'),
-					createdAt: p.createdAt,
-					budget: this.formatBudget(p),
-					status: this.mapBackendStatus(p.status),
-					offers: p.proposalsCount || p.proposals?.length || p._count?.proposals || 0
-				}));
+				// Map backend projects. The state shown is the server's derived stage (request + contract + offers), never a guess from the raw status.
+				const mappedRequests = rawData.map((p: any) => {
+					const stage = String(p.stage || '');
+					return {
+						id: p.id,
+						displayId: `#${p.id ? p.id.substring(0, 8).toUpperCase() : 'REQ'}`,
+						name: p.title || p.name || 'طلب بدون عنوان',
+						specialty: typeof p.specialty === 'string' ? p.specialty : (p.specialty?.nameAr || p.specialty?.name || 'عام'),
+						createdAt: p.createdAt,
+						budget: this.formatBudget(p),
+						budgetValue: Number(p.budgetMax ?? p.budgetMin ?? 0) || 0,
+						stage,
+						stageLabel: p.stageLabel || this.getStatusLabel(stage),
+						group: String(p.stageGroup || this.groupOfStage(stage)),
+						offers: p.proposalsCount || p.proposals?.length || p._count?.proposals || 0
+					};
+				});
 				this.requests.set(mappedRequests);
 
-				// Safely extract counts or compute fallback counts from mapped requests
-				const allCount = filters.allCount ?? mappedRequests.length;
-				const activeCount = filters.activeCount ?? mappedRequests.filter((r: any) => r.status === 'active').length;
-				const pendingCount = filters.pendingCount ?? mappedRequests.filter((r: any) => r.status === 'pending').length;
-				const closedCount = filters.closedCount ?? mappedRequests.filter((r: any) => r.status === 'closed').length;
-				const draftCount = filters.draftCount ?? mappedRequests.filter((r: any) => r.status === 'draft').length;
+				const countOf = (group: string, key: string) => filters[key] ?? mappedRequests.filter((r: any) => r.group === group).length;
+				const activeCount = countOf('active', 'activeCount');
 
-				// Map tabs
 				this.tabs.set([
-					{ id: 'all', label: 'الكل', count: allCount },
-					{ id: 'active', label: 'نشطة', count: activeCount },
-					{ id: 'pending', label: 'معلقة', count: pendingCount },
-					{ id: 'closed', label: 'مغلقة', count: closedCount },
-					{ id: 'draft', label: 'مسودات', count: draftCount },
+					{ id: 'all', label: 'الكل', count: filters.allCount ?? mappedRequests.length },
+					{ id: 'open', label: 'مفتوحة للعروض', count: countOf('open', 'openCount') },
+					{ id: 'pending', label: 'بانتظار التعاقد', count: countOf('pending', 'pendingCount') },
+					{ id: 'active', label: 'قيد التنفيذ', count: activeCount },
+					{ id: 'closed', label: 'مغلقة', count: countOf('closed', 'closedCount') },
+					{ id: 'draft', label: 'مسودات', count: countOf('draft', 'draftCount') },
 				]);
 
 				// Update global active count badge safely
@@ -84,11 +95,21 @@ export class MyRequest implements OnInit {
 					this.dashboardStore.setTotalActiveRequestsCount(activeCount);
 				}
 			}
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to load my requests', error);
+			this.loadError.set(error?.error?.message || 'تعذر تحميل طلباتك حاليًا، حاول مرة أخرى');
 		} finally {
 			this.isLoading.set(false);
 		}
+	}
+
+	/** Only used when an older server answers without stageGroup. */
+	private groupOfStage(stage: string): string {
+		if (stage === 'DRAFT') return 'draft';
+		if (['OPEN', 'OFFERS_RECEIVED', 'UNDER_NEGOTIATION'].includes(stage)) return 'open';
+		if (stage.startsWith('AWAITING')) return 'pending';
+		if (['ACTIVE', 'DISPUTED'].includes(stage)) return 'active';
+		return 'closed';
 	}
 
 	setFilter(filter: string) {
@@ -96,11 +117,41 @@ export class MyRequest implements OnInit {
 		this.currentPage.set(1); // Reset to first page on filter change
 	}
 
+	specialties = computed(() => Array.from(new Set(this.requests().map((r: any) => r.specialty as string))).sort());
+	activeFilterCount = computed(() => (this.specialtyFilter() ? 1 : 0));
+
 	filteredRequests = computed(() => {
 		const filter = this.currentFilter();
-		if (filter === 'all') return this.requests();
-		return this.requests().filter((r: any) => r.status === filter);
+		const q = this.searchText().trim().toLowerCase();
+		const spec = this.specialtyFilter();
+		const list = this.requests().filter((r: any) =>
+			(filter === 'all' || r.group === filter)
+			&& (!spec || r.specialty === spec)
+			&& (!q || `${r.name} ${r.displayId} ${r.specialty} ${r.stageLabel}`.toLowerCase().includes(q)));
+		const time = (r: any) => new Date(r.createdAt).getTime() || 0;
+		switch (this.sortBy()) {
+			case 'oldest': return [...list].sort((a, b) => time(a) - time(b));
+			case 'budget': return [...list].sort((a, b) => b.budgetValue - a.budgetValue);
+			case 'offers': return [...list].sort((a, b) => b.offers - a.offers);
+			default: return [...list].sort((a, b) => time(b) - time(a));
+		}
 	});
+
+	onSearch(event: Event) {
+		this.searchText.set((event.target as HTMLInputElement).value);
+		this.currentPage.set(1);
+	}
+	onSort(event: Event) {
+		this.sortBy.set((event.target as HTMLSelectElement).value as any);
+		this.currentPage.set(1);
+	}
+	onSpecialty(event: Event) {
+		this.specialtyFilter.set((event.target as HTMLSelectElement).value);
+		this.currentPage.set(1);
+	}
+	toggleFilters() {
+		this.showFilters.set(!this.showFilters());
+	}
 
 	// Pagination computed properties
 	paginatedRequests = computed(() => {
@@ -136,35 +187,34 @@ export class MyRequest implements OnInit {
 		return 'غير محدد';
 	}
 
-	mapBackendStatus(status: string): string {
-		if (!status) return 'active';
-		const st = String(status).toUpperCase();
-		switch (st) {
-			case 'OPEN':
-			case 'PUBLISHED':
-			case 'UNDER_BIDDING':
-			case 'IN_PROGRESS':
-			case 'ACTIVE': return 'active';
-			case 'PENDING':
-			case 'PENDING_REVIEW':
-			case 'AWAITING_DELIVERY': return 'pending';
-			case 'COMPLETED':
-			case 'CLOSED': return 'closed';
-			case 'DISPUTED': return 'dispute';
-			case 'DRAFT': return 'draft';
-			default: return 'active';
+	getStatusLabel(stage: string): string {
+		switch (stage) {
+			case 'DRAFT': return 'مسودة';
+			case 'OPEN': return 'مفتوح لاستقبال العروض';
+			case 'OFFERS_RECEIVED': return 'وصلتك عروض';
+			case 'UNDER_NEGOTIATION': return 'قيد التفاوض';
+			case 'AWAITING_CLIENT_SIGNATURE': return 'تم اختيار العرض، بانتظار توقيعك وتمويل الضمان';
+			case 'AWAITING_FUNDING': return 'بانتظار تمويل الضمان';
+			case 'AWAITING_PROVIDER_SIGNATURE': return 'بانتظار توقيع مقدم الخدمة';
+			case 'ACTIVE': return 'قيد التنفيذ';
+			case 'COMPLETED': return 'مكتمل';
+			case 'CANCELLED': return 'ملغي';
+			case 'DISPUTED': return 'نزاع مفتوح';
+			default: return 'غير محدد';
 		}
 	}
 
-	getStatusLabel(status: string): string {
-		switch (status) {
-			case 'active': return 'نشطة';
-			case 'pending': return 'بانتظار التسليم';
-			case 'dispute': return 'نزاع مفتوح';
-			case 'closed': return 'مكتمل';
-			case 'cancel': return 'ملغي';
-			case 'draft': return 'مسودة';
-			default: return status;
-		}
+	/** Status pill style per stage group (the wording comes from the server's stage label). */
+	pillClass(req: any): string {
+		if (req.stage === 'DISPUTED') return 'op-dispute';
+		if (req.stage === 'CANCELLED') return 'op-cancel';
+		return { open: 'op-active', pending: 'op-pending', active: 'op-active', closed: 'op-done', draft: 'op-draft' }[req.group as string] || 'op-pending';
+	}
+
+	/** The row's action link text; every link opens the request details page, which shows the real next step. */
+	actionLabel(req: any): string {
+		if (req.stage === 'OFFERS_RECEIVED' || req.stage === 'UNDER_NEGOTIATION') return 'عرض العروض';
+		if (req.group === 'pending' || req.stage === 'DISPUTED') return 'متابعة';
+		return 'التفاصيل';
 	}
 }

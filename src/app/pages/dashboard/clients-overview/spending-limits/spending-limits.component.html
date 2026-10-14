@@ -6,6 +6,11 @@
 		</div>
 	</div>
 
+	<div class="ws-note ws-note--neutral" role="note" data-testid="sl-unavailable">
+		<div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
+		<div class="ws-note-body"><div class="ws-note-lbl">غير مفعّل بعد</div><p class="ws-note-txt">لم تُضبط حدود إنفاق أو قواعد عقوبات أو سياسات لحسابك بعد، لذلك لا تُعرض هنا أرقام أو قواعد.</p></div>
+	</div>
+
 	<!-- Tabs -->
 	<div class="sl-tabs" role="tablist">
 		@for (tab of tabs; track tab.id) {
@@ -39,6 +44,8 @@
 						{{ percentSpent(lim) }}% مستهلك
 					</div>
 				</div>
+			} @empty {
+				<div class="limit-card" data-testid="sl-empty-limits">لا توجد حدود إنفاق محددة لحسابك.</div>
 			}
 		</div>
 	}
@@ -56,6 +63,8 @@
 						<div class="pen-desc">{{ pen.desc }}</div>
 					</div>
 				</div>
+			} @empty {
+				<div class="pen-card" data-testid="sl-empty-penalties">لا توجد قواعد عقوبات مفعّلة لحسابك.</div>
 			}
 		</div>
 	}
@@ -73,6 +82,8 @@
 						<div class="pol-desc">{{ pol.desc }}</div>
 					</div>
 				</div>
+			} @empty {
+				<div class="pol-card" data-testid="sl-empty-policies">لا توجد سياسات مخصصة لحسابك.</div>
 			}
 		</div>
 	}
