@@ -174,3 +174,12 @@ describe('provider withdraw (PayPal only)', () => {
     });
   });
 });
+
+import { readFileSync } from 'node:fs';
+describe('withdraw page wording is consistent about the reservation', () => {
+	it('never says the amount is not deducted/reserved until approval (it is reserved on request and released if rejected)', () => {
+		const html = readFileSync('src/app/pages/dashboard/provider-overview/finance/withdraw/withdraw.html', 'utf8');
+		expect(html).not.toMatch(/ولا يُخصم من رصيد(ك|\s?الشركة) حتى تعتمده الإدارة/);
+		expect(html).toContain('يُحجز مبلغه من رصيدك المتاح فور إرساله');
+	});
+});
