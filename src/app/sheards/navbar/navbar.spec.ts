@@ -28,6 +28,7 @@ function setup(user: any) {
 		currentUser: signal<any>(user),
 		token: signal('fake-token'),
 		isAuthenticated: signal(true),
+		canPurchase: signal(true),
 	};
 	const fakeAccountService = { switchActiveRole: (...args: any[]) => switchActiveRoleSpy(...args) };
 
