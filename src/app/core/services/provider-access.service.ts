@@ -1,8 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { Observable, finalize, map, shareReplay, tap } from 'rxjs';
+import { NavigationEnd, Router } from '@angular/router';
+import { Observable, filter, finalize, map, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { AccountType, UserRole } from '../models/auth.model';
 import { AuthStore } from '../store/auth.store';
+import { isOnboardingAllowedPath } from '../guards/profile-complete.guard';
 
 export type ProviderAccessStateKind = 'SETUP_INCOMPLETE' | 'ASSESSMENT_REQUIRED' | 'SAMPLE_REQUIRED' | 'PENDING_REVIEW' | 'REJECTED' | 'APPROVED' | 'NOT_APPLICABLE';
 
@@ -41,6 +44,7 @@ export function accessRedirectUrl(state: ProviderAccessState | null | undefined)
 export class ProviderAccessService {
 	private http = inject(HttpClient);
 	private authStore = inject(AuthStore);
+	private router = inject(Router);
 
 	private inflight: Observable<ProviderAccessState> | null = null;
 	private readonly _latest = signal<ProviderAccessState | null>(null);
@@ -48,6 +52,9 @@ export class ProviderAccessService {
 	readonly latest = this._latest.asReadonly();
 
 	constructor() {
+		// the guard may have passed on a stale answer: every route change re-checks against the last known state
+		this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => this.enforce(this._latest()));
+
 		// logout (or any session end) drops what was read for the previous user
 		// a different user / role in the same SPA instance (logout -> login, switch-active-role) must never see the previous answer
 		let lastKey: string | null | undefined;
@@ -68,13 +75,27 @@ export class ProviderAccessService {
 				if (!d || typeof d.state !== 'string') throw new Error('invalid access-state response');
 				return { ...d, canAccessDashboard: d.canAccessDashboard === true, specialties: Array.isArray(d.specialties) ? d.specialties : [] } as ProviderAccessState;
 			}),
-			tap(s => this._latest.set(s)),
+			tap(s => { this._latest.set(s); this.enforce(s); }),
 			finalize(() => { if (this.inflight === shared) this.inflight = null; }),
 			shareReplay({ bufferSize: 1, refCount: false })
 		);
 		const shared = req;
 		this.inflight = shared;
 		return shared;
+	}
+
+	/**
+	 * State watcher: a fresh answer (or a route change) for a non-company PROVIDER session that says "not open" while the app sits on a non-onboarding
+	 * provider page moves it to the wizard / status page. No toast; the target is on the allow-list so it cannot loop. Errors never reach here (do nothing).
+	 */
+	private enforce(s: ProviderAccessState | null): void {
+		if (!s || s.canAccessDashboard === true) return;
+		const u: any = this.authStore.currentUser?.();
+		if (!u || u.accountType === AccountType.PROVIDER_COMPANY) return;
+		if (u.activeRole && u.activeRole !== UserRole.PROVIDER) return;
+		const url = this.router.url ?? '';
+		if (!/^\/provider-overview(\/|\?|#|$)/.test(url) || isOnboardingAllowedPath(url)) return;
+		this.router.navigateByUrl(accessRedirectUrl(s));
 	}
 
 	/** After the test finished, a sample upload, or logout: forget the last answer and any request in flight. */
