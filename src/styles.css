@@ -182,7 +182,8 @@ html.light-theme select,html.theme-light select,body.light-theme select,body.the
     radial-gradient(circle at 80% 80%,rgba(43,127,255,.07),transparent 40%),
     linear-gradient(rgba(43,127,255,.04) 1px,transparent 1px),
     linear-gradient(90deg,rgba(43,127,255,.04) 1px,transparent 1px);}
-.particles{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+/* Layering (central): the decorative background stays at z 0; page content never creates a stacking context of its own (see .page-wrap / dashboard .main), so a toast, modal or confirm dialog inside a page can rise above the fixed header and the sidebar. */
+.particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .particle{position:absolute;border-radius:50%;background:#2BD4C7;box-shadow:0 0 10px #2BD4C7;animation:ws-float linear infinite}
 @keyframes ws-float{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.6}100%{transform:translateY(-100px) translateX(50px);opacity:0}}
 
@@ -1019,7 +1020,8 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light,
 
 /* ─── Filters drawer (marketplace results + category pages) ───
    Replaces the permanent 260px filter sidebar: a side drawer on desktop, a bottom sheet on mobile. */
-/* The page wrapper is its own stacking context (z-index:2), so while the drawer is open lift it above the site footer / pet / header. */
+/* Pages' wrapper must NOT be a stacking context (a fixed toast/modal inside it would be trapped under the z-index:50 site header); only the open filters drawer lifts it. */
+.page-wrap{z-index:auto !important}
 .page-wrap.filters-open{z-index:1100 !important}
 .fdrawer-backdrop{position:fixed;inset:0;z-index:1190;background:rgba(3,7,20,.6);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
 .fdrawer-backdrop.open{opacity:1;visibility:visible}
@@ -1076,3 +1078,7 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light,
 :is(.theme-light,.light-theme,body.light-theme,body.theme-light) .ws-note--neutral{--wsn-fg:#475569;--wsn-bg:rgba(15,23,42,.04);--wsn-bd:rgba(15,23,42,.12);--wsn-ico:rgba(15,23,42,.07)}
 :is(.theme-light,.light-theme,body.light-theme,body.theme-light) .ws-note--warn{--wsn-fg:#9A6700;--wsn-bg:rgba(255,180,0,.1);--wsn-bd:rgba(154,103,0,.28);--wsn-ico:rgba(255,180,0,.2)}
 :is(.theme-light,.light-theme,body.light-theme,body.theme-light) .ws-note--success{--wsn-fg:#0A6F64;--wsn-bg:rgba(43,212,199,.09);--wsn-bd:rgba(10,111,100,.26);--wsn-ico:rgba(43,212,199,.18)}
+
+
+/* Toast / banner offset: one place that knows the fixed header height (dashboard topbar 56px, website header 64px) + the device safe area. */
+:root{--ws-header-h:56px;--ws-toast-top:calc(var(--ws-header-h) + 12px + env(safe-area-inset-top,0px));--ws-toast-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
